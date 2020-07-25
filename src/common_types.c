@@ -40,7 +40,7 @@ static void defun_coerce(void)
 
 	/* function */
 	GetConst(COMMON_COERCE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_coerce);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -67,7 +67,7 @@ static void defmacro_deftype(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFTYPE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_deftype);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -111,7 +111,7 @@ static void defun_subtypep(void)
 
 	/* function */
 	GetConst(COMMON_SUBTYPEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_subtypep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -147,7 +147,7 @@ static void defun_type_of(void)
 
 	/* function */
 	GetConst(COMMON_TYPE_OF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_type_of);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -191,7 +191,7 @@ static void defun_typep(void)
 
 	/* function */
 	GetConst(COMMON_TYPEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_typep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -225,7 +225,7 @@ static void defun_type_error_datum(void)
 
 	/* function */
 	GetConst(COMMON_TYPE_ERROR_DATUM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_type_error_datum);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -260,7 +260,7 @@ static void defun_type_error_expected_type(void)
 
 	/* function */
 	GetConst(COMMON_TYPE_ERROR_EXPECTED_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_type_error_expected_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */

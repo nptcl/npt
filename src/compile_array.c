@@ -156,8 +156,7 @@ static int faslwrite_value_array_body(Execute ptr, addr stream, addr pos)
 			return faslwrite_value_array_memory(ptr, stream, pos);
 
 		default:
-			fmte("Invalid array type.", NULL);
-			return 0;
+			return fmte_("Invalid array type.", NULL);
 	}
 }
 
@@ -182,8 +181,7 @@ static int faslread_value_array_body(Execute ptr, addr stream, addr pos)
 			return faslread_value_array_memory(ptr, stream, pos);
 
 		default:
-			fmte("Invalid array type.", NULL);
-			return 0;
+			return fmte_("Invalid array type.", NULL);
 	}
 }
 

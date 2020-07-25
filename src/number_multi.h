@@ -4,9 +4,9 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void multi_number_heap(LocalRoot local, addr left, addr right, addr *ret);
-_g void inverse_number_heap(LocalRoot local, addr left, addr *ret);
-_g void div_number_heap(LocalRoot local, addr left, addr right, addr *ret);
+_g int multi_number_heap_(LocalRoot local, addr left, addr right, addr *ret);
+_g int inverse_number_heap_(LocalRoot local, addr left, addr *ret);
+_g int div_number_heap_(LocalRoot local, addr left, addr right, addr *ret);
 
 #endif
 

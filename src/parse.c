@@ -15,32 +15,36 @@
 #include "step.h"
 #include "symbol.h"
 
-_g void check_variable(addr symbol)
+_g int check_variable_(addr symbol)
 {
 	if (! symbolp(symbol))
-		fmte("The variable ~S must be a symbol.", symbol, NULL);
+		return fmte_("The variable ~S must be a symbol.", symbol, NULL);
 	if (GetStatusReadOnly(symbol))
-		fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
+		return fmte_("The variable ~S don't allow constant symbol.", symbol, NULL);
+
+	return 0;
 }
 
-_g void check_function_variable(addr symbol)
+_g int check_function_variable_(addr symbol)
 {
 	addr check;
 
 	if (symbolp(symbol)) {
 		if (GetStatusReadOnly(symbol))
-			fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
+			return fmte_("The variable ~S don't allow constant symbol.", symbol, NULL);
 	}
 	else if (callnamep(symbol)) {
 		GetCallName(symbol, &check);
 		if (! symbolp(check))
-			fmte("The variable ~S must be a symbol.", check, NULL);
+			return fmte_("The variable ~S must be a symbol.", check, NULL);
 		if (constantp_callname(symbol))
-			fmte("The variable ~S don't allow constant symbol.", check, NULL);
+			return fmte_("The variable ~S don't allow constant symbol.", check, NULL);
 	}
 	else {
-		fmte("The ~S don't allow variable.", symbol, NULL);
+		return fmte_("The ~S don't allow variable.", symbol, NULL);
 	}
+
+	return 0;
 }
 
 _g int tagbody_tag_p(addr pos)
@@ -61,7 +65,7 @@ _g int tagbody_tag_p(addr pos)
 	addr __check; \
 	GetConst(COMMON_##x, &__check); \
 	if (pos == __check) \
-		return 1; \
+	return 1; \
 }
 static int parse_compile_toplevel_symbol(addr pos)
 {
@@ -155,7 +159,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
 	init_parse_load_time_value(ptr);
 	init_parse_make_load_form(ptr);
 	init_parse_eval_when(ptr, toplevel);
-	Return(parse_execute_toplevel(ptr, &pos, pos));
+	Return(parse_execute_toplevel_(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);
 	Return(eval_parse_load_time_value(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);

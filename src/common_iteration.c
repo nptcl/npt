@@ -19,7 +19,7 @@ static void defmacro_do(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DO, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_do);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -39,7 +39,7 @@ static void defmacro_doa(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DOA, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_doa);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -61,7 +61,7 @@ static void defmacro_dotimes(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DOTIMES, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_dotimes);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -83,7 +83,7 @@ static void defmacro_dolist(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DOLIST, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_dolist);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -107,7 +107,7 @@ static void defmacro_loop(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_LOOP, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_loop);
 	SetMacroCommon(symbol, pos);
 	/* type */

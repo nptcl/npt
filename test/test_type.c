@@ -1105,7 +1105,7 @@ static int test_type_satisfies_heap(void)
 	test(RefArrayType(pos, 0) == call, "type_satisfies_heap6");
 
 	/* compiled-function */
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	type_satisfies_heap(call, &pos);
 	test(test_typecheck(pos, LISPDECL_SATISFIES, 1), "type_satisfies_heap7");
 	test(! GetStatusDynamic(pos), "type_satisfies_heap8");

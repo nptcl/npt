@@ -121,8 +121,7 @@ error:
  */
 static int faslread_error(Execute ptr, addr stream, addr *ret)
 {
-	fmte("fasl read error.", NULL);
-	return Result(ret, Nil);
+	return fmte_("fasl read error.", NULL);
 }
 
 static int faslread_unbound(Execute ptr, addr stream, addr *ret)

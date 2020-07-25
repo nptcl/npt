@@ -754,7 +754,7 @@ static void pretty_suffix_plus(addr pos, size_t *size)
 	}
 }
 
-static void pretty_tabular_plus(struct pretty_block *ptr, addr pos, size_t *size)
+static int pretty_tabular_plus_(struct pretty_block *ptr, addr pos, size_t *ret)
 {
 	fixnum value, column, colinc, now;
 	struct print_pretty_struct *str;
@@ -781,16 +781,17 @@ static void pretty_tabular_plus(struct pretty_block *ptr, addr pos, size_t *size
 			break;
 
 		default:
-			fmte("Invalid tabular type ~S.", pos, NULL);
-			value = 0;
-			break;
+			*ret = 0;
+			return fmte_("Invalid tabular type ~S.", pos, NULL);
 	}
-	*size = (size_t)value;
+
+	return Result(ret, (size_t)value);
 }
 
-static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
+static int pretty_front_stream_(struct pretty_block *ptr,
+		addr pos, size_t *rsize, int *ret)
 {
-	int listp;
+	int listp, check;
 	addr list, x;
 	size_t size, value, section;
 
@@ -811,8 +812,8 @@ static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 		GetCons(list, &x, &list);
 		if (pretty_print_force_p(x)) {
 			ptr->section = section;
-			*ret = size;
-			return 1;
+			*rsize = size;
+			return Result(ret, 1);
 		}
 		else if (pretty_print_newline_p(x)) {
 			ptr->section = ptr->now;
@@ -822,20 +823,22 @@ static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 			continue;
 		}
 		else if (pretty_print_tabular_p(x)) {
-			pretty_tabular_plus(ptr, x, &value);
+			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
 			eastasian_length(x, &value);
 		}
 		else if (pretty_stream_p(x)) {
-			if (pretty_front_stream(ptr, x, &value)) {
+			Return(pretty_front_stream_(ptr, x, &value, &check));
+			if (check) {
 				ptr->section = section;
-				return 1;
+				return Result(ret, 1);
 			}
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
-			break;
+			*rsize = 0;
+			*ret = 0;
+			return fmte_("Invalid print object ~S.", x, NULL);
 		}
 		size += value;
 		ptr->now += value;
@@ -848,14 +851,14 @@ static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 	}
 	/* result */
 	ptr->section = section;
-	*ret = size;
-
-	return 0;
+	*rsize = size;
+	return Result(ret, 0);
 }
 
-static int pretty_front_newline(struct pretty_block *ptr,
-		addr list, addr *next, size_t *ret)
+static int pretty_front_newline_(struct pretty_block *ptr,
+		addr list, addr *next, size_t *rsize, int *ret)
 {
+	int check;
 	addr x, cons;
 	size_t size, value;
 
@@ -864,43 +867,46 @@ static int pretty_front_newline(struct pretty_block *ptr,
 		cons = list;
 		GetCons(list, &x, &list);
 		if (pretty_print_force_p(x)) {
-			return 1;
+			return Result(ret, 1);
 		}
 		else if (pretty_print_newline_p(x)) {
 			ptr->section = ptr->now;
-			*ret = size;
+			*rsize = size;
 			*next = cons;
-			return 0;
+			return Result(ret, 0);
 		}
 		else if (pretty_print_indent_p(x)) {
 			continue;
 		}
 		else if (pretty_print_tabular_p(x)) {
-			pretty_tabular_plus(ptr, x, &value);
+			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
 			eastasian_length(x, &value);
 		}
 		else if (pretty_stream_p(x)) {
-			if (pretty_front_stream(ptr, x, &value))
-				return 1;
+			Return(pretty_front_stream_(ptr, x, &value, &check));
+			if (check)
+				return Result(ret, 1);
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
-			break;
+			*next = NULL;
+			*rsize = 0;
+			*ret = 0;
+			return fmte_("Invalid print object ~S.", x, NULL);
 		}
 		size += value;
 		ptr->now += value;
 	}
-	*ret = 0;
+	*rsize = 0;
 	*next = Nil;
-
-	return 0;
+	return Result(ret, 0);
 }
 
-static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
+static int pretty_tail_stream_(struct pretty_block *ptr,
+		addr pos, size_t *rsize, int *ret)
 {
-	int listp;
+	int listp, check;
 	addr list, x;
 	size_t size, value, section;
 
@@ -921,8 +927,8 @@ static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 		GetCons(list, &x, &list);
 		if (pretty_print_force_p(x)) {
 			ptr->section = section;
-			*ret = size;
-			return 1;
+			*rsize = size;
+			return Result(ret, 1);
 		}
 		else if (pretty_print_newline_p(x)) {
 			ptr->section = ptr->now;
@@ -932,21 +938,23 @@ static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 			continue;
 		}
 		else if (pretty_print_tabular_p(x)) {
-			pretty_tabular_plus(ptr, x, &value);
+			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
 			eastasian_length(x, &value);
 		}
 		else if (pretty_stream_p(x)) {
-			if (pretty_tail_stream(ptr, x, &value)) {
+			Return(pretty_tail_stream_(ptr, x, &value, &check));
+			if (check) {
 				ptr->section = section;
-				*ret = size + value;
-				return 1;
+				*rsize = size + value;
+				return Result(ret, 1);
 			}
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
-			break;
+			*rsize = 0;
+			*ret = 0;
+			return fmte_("Invalid print object ~S.", x, NULL);
 		}
 		size += value;
 		ptr->now += value;
@@ -959,13 +967,14 @@ static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 	}
 	/* result */
 	ptr->section = section;
-	*ret = size;
-
-	return 0;
+	*rsize = size;
+	return Result(ret, 0);
 }
 
-static int pretty_tail_section_loop(struct pretty_block *ptr, addr list, size_t *ret)
+static int pretty_tail_section_loop_(struct pretty_block *ptr,
+		addr list, size_t *rsize, int *ret)
 {
+	int check;
 	addr x;
 	size_t size, value;
 
@@ -973,8 +982,8 @@ static int pretty_tail_section_loop(struct pretty_block *ptr, addr list, size_t 
 	while (list != Nil) {
 		GetCons(list, &x, &list);
 		if (pretty_print_force_p(x)) {
-			*ret = size;
-			return 1;
+			*rsize = size;
+			return Result(ret, 1);
 		}
 		else if (pretty_print_newline_p(x)) {
 			goto newline;
@@ -983,20 +992,22 @@ static int pretty_tail_section_loop(struct pretty_block *ptr, addr list, size_t 
 			continue;
 		}
 		else if (pretty_print_tabular_p(x)) {
-			pretty_tabular_plus(ptr, x, &value);
+			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
 			eastasian_length(x, &value);
 		}
 		else if (pretty_stream_p(x)) {
-			if (pretty_tail_stream(ptr, x, &value)) {
-				*ret = size + value;
-				return 1;
+			Return(pretty_tail_stream_(ptr, x, &value, &check));
+			if (check) {
+				*rsize = size + value;
+				return Result(ret, 1);
 			}
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
-			break;
+			*rsize = 0;
+			*ret = 0;
+			return fmte_("Invalid print object ~S.", x, NULL);
 		}
 		size += value;
 		ptr->now += value;
@@ -1006,27 +1017,28 @@ static int pretty_tail_section_loop(struct pretty_block *ptr, addr list, size_t 
 	ptr->now += value;
 	/* result */
 newline:
-	*ret = size;
-
-	return 0;
+	*rsize = size;
+	return Result(ret, 0);
 }
 
-static int pretty_tail_section(struct pretty_block *ptr, addr list, size_t *ret)
+static int pretty_tail_section_(struct pretty_block *ptr,
+		addr list, size_t *rsize, int *ret)
 {
 	int check;
 	size_t now, section;
 
 	now = ptr->now;
 	section = ptr->section;
-	check = pretty_tail_section_loop(ptr, list, ret);
+	Return(pretty_tail_section_loop_(ptr, list, rsize, &check));
 	ptr->now = now;
 	ptr->section = section;
 
-	return check;
+	return Result(ret, check);
 }
 
-static int pretty_section(struct pretty_block *ptr)
+static int pretty_section_(struct pretty_block *ptr, int *ret)
 {
+	int check;
 	addr list;
 	size_t a, b, c;
 
@@ -1034,37 +1046,43 @@ static int pretty_section(struct pretty_block *ptr)
 	c = ptr->now;
 	for (;;) {
 		/* front */
-		if (pretty_front_newline(ptr, list, &list, &a))
-			return 1;
+		Return(pretty_front_newline_(ptr, list, &list, &a, &check));
+		if (check)
+			return Result(ret, 1);
 		if (list == Nil)
 			break;
 		/* tail */
 		GetCdr(list, &list);
-		if (pretty_tail_section(ptr, list, &b))
-			return 1;
+		Return(pretty_tail_section_(ptr, list, &b, &check));
+		if (check)
+			return Result(ret, 1);
 		/* check */
 		if (ptr->print_margin < a + b + c)
-			return 1;
+			return Result(ret, 1);
 		c += a;
 	}
+
+	return Result(ret, 0);
+}
+
+static int pretty_newline_(struct pretty_block *ptr)
+{
+	int check;
+	size_t now;
+
+	if (ptr->newlinep)
+		return 0;
+	now = ptr->now;
+	Return(pretty_section_(ptr, &check));
+	if (check)
+		ptr->newlinep = 1;
+	ptr->now = now;
+	ptr->section = now;
 
 	return 0;
 }
 
-static void pretty_newline(struct pretty_block *ptr)
-{
-	size_t now;
-
-	if (ptr->newlinep)
-		return;
-	now = ptr->now;
-	if (pretty_section(ptr))
-		ptr->newlinep = 1;
-	ptr->now = now;
-	ptr->section = now;
-}
-
-static void pretty_output_perline(struct pretty_block *ptr)
+static int pretty_output_perline_(struct pretty_block *ptr)
 {
 	addr list, x;
 
@@ -1075,8 +1093,10 @@ static void pretty_output_perline(struct pretty_block *ptr)
 		else if (GetType(x) == LISPTYPE_INDEX)
 			pretty_push_index(ptr, x);
 		else
-			fmte("Invalid perline type ~S.", x, NULL);
+			return fmte_("Invalid perline type ~S.", x, NULL);
 	}
+
+	return 0;
 }
 
 static int pretty_output_lines(struct pretty_block *ptr)
@@ -1091,10 +1111,10 @@ static int pretty_output_lines(struct pretty_block *ptr)
 	return 1;
 }
 
-static void pretty_output_terpri(struct pretty_block *ptr)
+static int pretty_output_terpri_(struct pretty_block *ptr)
 {
 	if (pretty_output_lines(ptr))
-		return;
+		return 0;
 	/* terpri */
 	pretty_push_terpri(ptr);
 	ptr->now = 0;
@@ -1102,19 +1122,21 @@ static void pretty_output_terpri(struct pretty_block *ptr)
 	if (ptr->base)
 		pretty_push_size(ptr, ptr->base);
 	/* perline */
-	pretty_output_perline(ptr);
+	Return(pretty_output_perline_(ptr));
 	/* current */
 	if (ptr->now < ptr->current)
 		pretty_push_size(ptr, ptr->current - ptr->now);
 	/* current */
 	ptr->section = ptr->now;
 	ptr->previous = 0;
+
+	return 0;
 }
 
-static void pretty_output_newline(struct pretty_block *ptr)
+static int pretty_output_newline_(struct pretty_block *ptr)
 {
 	if (pretty_output_lines(ptr))
-		return;
+		return 0;
 	/* terpri */
 	pretty_push_newline(ptr);
 	ptr->now = 0;
@@ -1122,7 +1144,7 @@ static void pretty_output_newline(struct pretty_block *ptr)
 	if (ptr->base)
 		pretty_push_size(ptr, ptr->base);
 	/* perline */
-	pretty_output_perline(ptr);
+	Return(pretty_output_perline_(ptr));
 	/* current */
 	if (ptr->now < ptr->current)
 		pretty_push_size(ptr, ptr->current - ptr->now);
@@ -1132,30 +1154,35 @@ static void pretty_output_newline(struct pretty_block *ptr)
 	/* current */
 	ptr->section = ptr->now;
 	ptr->previous = 0;
+
+	return 0;
 }
 
-static void pretty_output_fill(struct pretty_block *ptr, addr list)
+static int pretty_output_fill_(struct pretty_block *ptr, addr list)
 {
+	int check;
 	size_t size;
 
 	/* miser */
 	if (ptr->miserp) {
-		if (ptr->newlinep)
-			pretty_output_newline(ptr);
-		return;
+		if (ptr->newlinep) {
+			Return(pretty_output_newline_(ptr));
+		}
+		return 0;
 	}
 
 	/* previous section */
 	if (ptr->previous) {
-		pretty_output_newline(ptr);
-		return;
+		return pretty_output_newline_(ptr);
 	}
 
 	/* normal */
-	(void)pretty_tail_section(ptr, list, &size);
+	Return(pretty_tail_section_(ptr, list, &size, &check));
 	if (ptr->print_margin < ptr->now + size) {
-		pretty_output_newline(ptr);
+		Return(pretty_output_newline_(ptr));
 	}
+
+	return 0;
 }
 
 static void pretty_output_indent_block(struct pretty_block *ptr, addr pos)
@@ -1227,8 +1254,8 @@ static void pretty_output_tabular_sectionr(struct pretty_block *ptr, addr pos)
 	pretty_push_size(ptr, (size_t)value);
 }
 
-static void pretty_struct(struct pretty_block *ptr, addr pretty);
-static void pretty_output(struct pretty_block *ptr)
+static int pretty_struct_(struct pretty_block *ptr, addr pretty);
+static int pretty_output_(struct pretty_block *ptr)
 {
 	addr list, x;
 
@@ -1245,25 +1272,27 @@ static void pretty_output(struct pretty_block *ptr)
 			continue;
 		}
 		if (pretty_print_linear_p(x)) {
-			if (ptr->newlinep)
-				pretty_output_newline(ptr);
+			if (ptr->newlinep) {
+				Return(pretty_output_newline_(ptr));
+			}
 			continue;
 		}
 		if (pretty_print_miser_p(x)) {
-			if (ptr->miserp && ptr->newlinep)
-				pretty_output_newline(ptr);
+			if (ptr->miserp && ptr->newlinep) {
+				Return(pretty_output_newline_(ptr));
+			}
 			continue;
 		}
 		if (pretty_print_fill_p(x)) {
-			pretty_output_fill(ptr, list);
+			Return(pretty_output_fill_(ptr, list));
 			continue;
 		}
 		if (pretty_print_mandatory_p(x)) {
-			pretty_output_newline(ptr);
+			Return(pretty_output_newline_(ptr));
 			continue;
 		}
 		if (pretty_print_terpri_p(x)) {
-			pretty_output_terpri(ptr);
+			Return(pretty_output_terpri_(ptr));
 			continue;
 		}
 		if (pretty_print_indent_block_p(x)) {
@@ -1291,11 +1320,13 @@ static void pretty_output(struct pretty_block *ptr)
 			continue;
 		}
 		if (pretty_stream_p(x)) {
-			pretty_struct(ptr, x);
+			Return(pretty_struct_(ptr, x));
 			continue;
 		}
-		fmte("Invalid pretty-object ~S.", x, NULL);
+		return fmte_("Invalid pretty-object ~S.", x, NULL);
 	}
+
+	return 0;
 }
 
 static void pretty_push_perline(struct pretty_block *ptr, addr pos)
@@ -1387,7 +1418,7 @@ static void pretty_miser(struct pretty_block *ptr)
 	ptr->miserp = (ptr->print_margin - ptr->print_miser) <= ptr->current;
 }
 
-static void pretty_struct(struct pretty_block *ptr, addr pretty)
+static int pretty_struct_(struct pretty_block *ptr, addr pretty)
 {
 	struct pretty_block str;
 
@@ -1412,17 +1443,19 @@ static void pretty_struct(struct pretty_block *ptr, addr pretty)
 	if (listp_pretty_stream(pretty)) {
 		pretty_prefix(&str);
 		pretty_miser(&str);
-		pretty_newline(&str);
-		pretty_output(&str);
+		Return(pretty_newline_(&str));
+		Return(pretty_output_(&str));
 		pretty_suffix(&str);
 	}
 	else {
-		pretty_output(&str);
+		Return(pretty_output_(&str));
 	}
 	/* result */
 	pretty_result(&str, ptr);
 	ptr->now = str.now;
 	ptr->previous = str.newlinep;
+
+	return 0;
 }
 
 
@@ -1473,7 +1506,7 @@ _g int pprint_output_(Execute ptr, addr stream, addr pretty)
 		return fmte_("Invalid pretty-stream ~S.", pretty, NULL);
 	/* pretty-start */
 	Return(pprint_initialize_(&str, ptr, stream));
-	pretty_struct(&str, pretty);
+	Return(pretty_struct_(&str, pretty));
 	/* output */
 	Return(pretty_write_(stream, str.root));
 	return exitpoint_stream_(stream);

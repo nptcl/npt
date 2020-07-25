@@ -178,10 +178,13 @@ _g int pprint_logical_block_common(addr form, addr env, addr *ret)
 		}
 	}
 	/* result */
-	declare_body_form(args, &decl, &args);
-	if (value1 == Unbound) value1 = Nil;
-	if (value2 == Unbound) value2 = Nil;
-	if (value3 == Unbound) value3 = Nil;
+	Return(declare_body_form_(args, &decl, &args));
+	if (value1 == Unbound)
+		value1 = Nil;
+	if (value2 == Unbound)
+		value2 = Nil;
+	if (value3 == Unbound)
+		value3 = Nil;
 	expand_pprint_logical_block_common(ret,
 			stream, pos, value1, value2, value3, decl, args);
 	return 0;

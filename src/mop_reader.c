@@ -44,7 +44,7 @@ static int defmethod_class_name_(Execute ptr, addr name, addr gen, constindex in
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_name);
 	method_type_class_name(&type);
 	settype_function(call, type);
@@ -133,7 +133,7 @@ static int defmethod_setf_class_name_class_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4(call, p_method_setf_class_name);
 	method_type_setf_class_name(&type);
 	settype_function(call, type);
@@ -181,7 +181,7 @@ static void make_slot_definition_function(addr value, addr *ret)
 {
 	addr pos;
 
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	setcompiled_empty(pos, p_make_slot_definition_call);
 	SetDataFunction(pos, value);
 	*ret = pos;
@@ -266,7 +266,7 @@ static int defmethod_class_slots_(Execute ptr, addr name, addr gen, constindex i
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_slots);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -324,7 +324,7 @@ static int defmethod_class_direct_slots_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_direct_slots);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -380,7 +380,7 @@ static int defmethod_class_default_initargs_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_default_initargs);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -437,7 +437,7 @@ static int defmethod_class_direct_default_initargs_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_direct_default_initargs);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -494,7 +494,7 @@ static int defmethod_class_precedence_list_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_precedence_list);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -553,7 +553,7 @@ static int defmethod_class_direct_superclasses_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_direct_superclasses);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -610,7 +610,7 @@ static int defmethod_class_direct_subclasses_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_direct_subclasses);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -667,7 +667,7 @@ static int defmethod_class_finalized_p_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_finalized_p);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -724,7 +724,7 @@ static int defmethod_class_prototype_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_class_prototype);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -796,7 +796,7 @@ static int defmethod_slot_definition_name_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_slot_definition_name);
 	method_type_slot_definition_name(&type);
 	settype_function(call, type);
@@ -851,7 +851,7 @@ static int defmethod_slot_definition_type_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_slot_definition_type);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -918,7 +918,7 @@ static int defmethod_slot_definition_allocation_(Execute ptr, addr name, addr ge
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_slot_definition_allocation);
 	method_type_slot_definition_allocation(&type);
 	settype_function(call, type);
@@ -974,7 +974,7 @@ static int defmethod_slot_definition_initargs_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_slot_definition_initargs);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1030,7 +1030,7 @@ static int defmethod_slot_definition_initform_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_slot_definition_initform);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1086,7 +1086,7 @@ static int defmethod_slot_definition_initfunction_(Execute ptr, addr name, addr 
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_slot_definition_initfunction);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1139,7 +1139,7 @@ static int defmethod_generic_function_name_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_name);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1223,7 +1223,7 @@ static int defmethod_setf_generic_function_name_(Execute ptr, addr name, addr ge
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4(call, p_method_setf_generic_function_name);
 	method_type_setf_generic_function_name(&type);
 	settype_function(call, type);
@@ -1285,7 +1285,7 @@ static int defmethod_generic_function_methods_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_methods);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1336,7 +1336,7 @@ static int defmethod_generic_function_lambda_list_(Execute ptr, addr name, addr 
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_lambda_list);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1385,7 +1385,7 @@ static int defmethod_generic_function_argument_precedence_order_(
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_argument_precedence_order);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1433,7 +1433,7 @@ static int defmethod_generic_function_declarations_(Execute ptr, addr name, addr
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_declarations);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1481,7 +1481,7 @@ static int defmethod_generic_function_method_class_(Execute ptr, addr name, addr
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_method_class);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1533,7 +1533,7 @@ static int defmethod_generic_function_method_combination_(
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_generic_function_method_combination);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1580,7 +1580,7 @@ static int defmethod_method_function_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_method_function);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1628,7 +1628,7 @@ static int defmethod_method_generic_function_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_method_generic_function);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1678,7 +1678,7 @@ static int defmethod_method_lambda_list_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_method_lambda_list);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1725,7 +1725,7 @@ static int defmethod_method_specializers_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_method_specializers);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1772,7 +1772,7 @@ static int defmethod_method_qualifiers_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_method_qualifiers);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
@@ -1818,7 +1818,7 @@ static int defmethod_accessor_method_slot_definition_(Execute ptr, addr name, ad
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_accessor_method_slot_definition);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);

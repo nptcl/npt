@@ -23,20 +23,21 @@ static int call_callbind_macro(Execute ptr, addr pos, CallStruct call)
 	addr check, cons, var1, var2;
 
 	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 	return (call->call.macro)(ptr, var1, var2);
 
 toofew:
 	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-	return 0;
+	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
 static int call_callbind_none(Execute ptr, addr pos, CallStruct call)
@@ -56,7 +57,7 @@ static int call_callbind_empty(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &check);
 	if (check != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 	return (call->call.any)(ptr);
 }
@@ -82,12 +83,12 @@ static int call_callbind_var1(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 	return (call->call.var1)(ptr, var1);
 }
@@ -97,20 +98,21 @@ static int call_callbind_var2(Execute ptr, addr pos, CallStruct call)
 	addr check, cons, var1, var2;
 
 	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 	return (call->call.var2)(ptr, var1, var2);
 
 toofew:
 	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-	return 0;
+	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
 static int call_callbind_var3(Execute ptr, addr pos, CallStruct call)
@@ -118,22 +120,24 @@ static int call_callbind_var3(Execute ptr, addr pos, CallStruct call)
 	addr check, cons, var1, var2, var3;
 
 	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var3, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 	return (call->call.var3)(ptr, var1, var2, var3);
 
 toofew:
 	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-	return 0;
+	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
 static int call_callbind_var4(Execute ptr, addr pos, CallStruct call)
@@ -141,24 +145,27 @@ static int call_callbind_var4(Execute ptr, addr pos, CallStruct call)
 	addr check, cons, var1, var2, var3, var4;
 
 	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var4, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var3, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var4, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 	return (call->call.var4)(ptr, var1, var2, var3, var4);
 
 toofew:
 	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-	return 0;
+	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
 static int call_callbind_var5(Execute ptr, addr pos, CallStruct call)
@@ -166,26 +173,30 @@ static int call_callbind_var5(Execute ptr, addr pos, CallStruct call)
 	addr check, cons, var1, var2, var3, var4, var5;
 
 	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var4, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var5, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var3, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var4, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var5, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 	return (call->call.var5)(ptr, var1, var2, var3, var4, var5);
 
 toofew:
 	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-	return 0;
+	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
 static int call_callbind_var6(Execute ptr, addr pos, CallStruct call)
@@ -193,28 +204,33 @@ static int call_callbind_var6(Execute ptr, addr pos, CallStruct call)
 	addr check, cons, var1, var2, var3, var4, var5, var6;
 
 	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var4, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var5, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var6, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var3, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var4, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var5, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var6, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 	return (call->call.var6)(ptr, var1, var2, var3, var4, var5, var6);
 
 toofew:
 	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-	return 0;
+	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
 static int call_callbind_opt1(Execute ptr, addr pos, CallStruct call)
@@ -225,10 +241,10 @@ static int call_callbind_opt1(Execute ptr, addr pos, CallStruct call)
 	if (cons == Nil)
 		opt1 = Unbound;
 	else
-		getcons(cons, &opt1, &cons);
+		Inline_getcons(cons, &opt1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 	return (call->call.opt1)(ptr, opt1);
 }
@@ -242,15 +258,15 @@ static int call_callbind_opt2(Execute ptr, addr pos, CallStruct call)
 		opt1 = opt2 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.opt2)(ptr, opt1, opt2);
@@ -265,20 +281,20 @@ static int call_callbind_opt3(Execute ptr, addr pos, CallStruct call)
 		opt1 = opt2 = opt3 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = opt3 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons == Nil) {
 		opt3 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt3, &cons);
+	Inline_getcons(cons, &opt3, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.opt3)(ptr, opt1, opt2, opt3);
@@ -293,25 +309,25 @@ static int call_callbind_opt4(Execute ptr, addr pos, CallStruct call)
 		opt1 = opt2 = opt3 = opt4 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = opt3 = opt4 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons == Nil) {
 		opt3 = opt4 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt3, &cons);
+	Inline_getcons(cons, &opt3, &cons);
 	if (cons == Nil) {
 		opt4 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt4, &cons);
+	Inline_getcons(cons, &opt4, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.opt4)(ptr, opt1, opt2, opt3, opt4);
@@ -326,30 +342,30 @@ static int call_callbind_opt5(Execute ptr, addr pos, CallStruct call)
 		opt1 = opt2 = opt3 = opt4 = opt5 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = opt3 = opt4 = opt5 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons == Nil) {
 		opt3 = opt4 = opt5 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt3, &cons);
+	Inline_getcons(cons, &opt3, &cons);
 	if (cons == Nil) {
 		opt4 = opt5 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt4, &cons);
+	Inline_getcons(cons, &opt4, &cons);
 	if (cons == Nil) {
 		opt5 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt5, &cons);
+	Inline_getcons(cons, &opt5, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.opt5)(ptr, opt1, opt2, opt3, opt4, opt5);
@@ -362,17 +378,17 @@ static int call_callbind_var1opt1(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		opt1 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var1opt1)(ptr, var1, opt1);
@@ -385,22 +401,22 @@ static int call_callbind_var2opt1(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		opt1 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var2opt1)(ptr, var1, var2, opt1);
@@ -413,27 +429,27 @@ static int call_callbind_var3opt1(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var3, &cons);
+	Inline_getcons(cons, &var3, &cons);
 	if (cons == Nil) {
 		opt1 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var3opt1)(ptr, var1, var2, var3, opt1);
@@ -446,32 +462,32 @@ static int call_callbind_var4opt1(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var3, &cons);
+	Inline_getcons(cons, &var3, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var4, &cons);
+	Inline_getcons(cons, &var4, &cons);
 	if (cons == Nil) {
 		opt1 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var4opt1)(ptr, var1, var2, var3, var4, opt1);
@@ -484,37 +500,37 @@ static int call_callbind_var5opt1(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var3, &cons);
+	Inline_getcons(cons, &var3, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var4, &cons);
+	Inline_getcons(cons, &var4, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var5, &cons);
+	Inline_getcons(cons, &var5, &cons);
 	if (cons == Nil) {
 		opt1 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var5opt1)(ptr, var1, var2, var3, var4, var5, opt1);
@@ -527,22 +543,22 @@ static int call_callbind_var1opt2(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		opt1 = opt2 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var1opt2)(ptr, var1, opt1, opt2);
@@ -555,27 +571,27 @@ static int call_callbind_var2opt2(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		opt1 = opt2 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var2opt2)(ptr, var1, var2, opt1, opt2);
@@ -588,32 +604,32 @@ static int call_callbind_var2opt3(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		opt1 = opt2 = opt3 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt1, &cons);
+	Inline_getcons(cons, &opt1, &cons);
 	if (cons == Nil) {
 		opt2 = opt3 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt2, &cons);
+	Inline_getcons(cons, &opt2, &cons);
 	if (cons == Nil) {
 		opt3 = Unbound;
 		goto finish;
 	}
-	getcons(cons, &opt3, &cons);
+	Inline_getcons(cons, &opt3, &cons);
 	if (cons != Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
+		return fmte_("Too many call argument ~S.", check, NULL);
 	}
 finish:
 	return (call->call.var2opt3)(ptr, var1, var2, opt1, opt2, opt3);
@@ -626,9 +642,9 @@ static int call_callbind_var1rest(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcar(cons, &var1);
+	Inline_getcar(cons, &var1);
 	getargs_list_control_heap(ptr, 1, &rest);
 	return (call->call.var1rest)(ptr, var1, rest);
 }
@@ -640,14 +656,14 @@ static int call_callbind_var2rest(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcar(cons, &var2);
+	Inline_getcar(cons, &var2);
 	getargs_list_control_heap(ptr, 2, &rest);
 	return (call->call.var2rest)(ptr, var1, var2, rest);
 }
@@ -662,7 +678,7 @@ static int call_callbind_opt1rest(Execute ptr, addr pos, CallStruct call)
 		rest = Nil;
 	}
 	else {
-		getcar(cons, &opt1);
+		Inline_getcar(cons, &opt1);
 		getargs_list_control_heap(ptr, 1, &rest);
 	}
 	return (call->call.opt1rest)(ptr, opt1, rest);
@@ -675,9 +691,9 @@ static int call_callbind_var1dynamic(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcar(cons, &var1);
+	Inline_getcar(cons, &var1);
 	getargs_list_control_unsafe(ptr, 1, &rest);
 	return (call->call.var1dynamic)(ptr, var1, rest);
 }
@@ -689,14 +705,14 @@ static int call_callbind_var2dynamic(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcar(cons, &var2);
+	Inline_getcar(cons, &var2);
 	getargs_list_control_unsafe(ptr, 2, &rest);
 	return (call->call.var2dynamic)(ptr, var1, var2, rest);
 }
@@ -708,19 +724,19 @@ static int call_callbind_var3dynamic(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcar(cons, &var3);
+	Inline_getcar(cons, &var3);
 	getargs_list_control_unsafe(ptr, 3, &rest);
 	return (call->call.var3dynamic)(ptr, var1, var2, var3, rest);
 }
@@ -732,24 +748,24 @@ static int call_callbind_var4dynamic(Execute ptr, addr pos, CallStruct call)
 	GetControl(ptr->control, Control_Cons, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var1, &cons);
+	Inline_getcons(cons, &var1, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var2, &cons);
+	Inline_getcons(cons, &var2, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcons(cons, &var3, &cons);
+	Inline_getcons(cons, &var3, &cons);
 	if (cons == Nil) {
 		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
+		return fmte_("Too few call argument ~S.", check, NULL);
 	}
-	getcar(cons, &var4);
+	Inline_getcar(cons, &var4);
 	getargs_list_control_unsafe(ptr, 4, &rest);
 	return (call->call.var4dynamic)(ptr, var1, var2, var3, var4, rest);
 }
@@ -764,7 +780,7 @@ static int call_callbind_opt1dynamic(Execute ptr, addr pos, CallStruct call)
 		rest = Nil;
 	}
 	else {
-		getcar(cons, &opt1);
+		Inline_getcar(cons, &opt1);
 		getargs_list_control_unsafe(ptr, 1, &rest);
 	}
 	return (call->call.opt1dynamic)(ptr, opt1, rest);

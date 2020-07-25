@@ -429,7 +429,7 @@ static int let_applytable_(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-_g void ignore_checkvalue(addr stack)
+_g int ignore_checkvalue_(addr stack)
 {
 	enum IgnoreType ignore;
 	int reference, special;
@@ -448,12 +448,14 @@ _g void ignore_checkvalue(addr stack)
 		special = getspecialp_tablevalue(value);
 
 		if (ignore == IgnoreType_None && (! reference) && (! special)) {
-			fmtw("Unused variable ~S.", name, NULL);
+			Return(fmtw_("Unused variable ~S.", name, NULL));
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
-			fmtw("Ignore variable ~S used.", name, NULL);
+			Return(fmtw_("Ignore variable ~S used.", name, NULL));
 		}
 	}
+
+	return 0;
 }
 
 static int let_allocate_args(struct let_struct *str)
@@ -486,7 +488,7 @@ static int let_execute(Execute ptr, struct let_struct *str)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(let_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
-	ignore_checkvalue(stack);
+	Return(ignore_checkvalue_(stack));
 	let_allocate(str);
 
 	return 0;
@@ -572,7 +574,7 @@ static int leta_execute(Execute ptr, struct let_struct *str)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(leta_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
-	ignore_checkvalue(stack);
+	Return(ignore_checkvalue_(stack));
 	let_allocate(str);
 
 	return 0;

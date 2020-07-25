@@ -21,26 +21,28 @@
 /*
  *  symbol
  */
-static void warning_global_lexical(addr symbol)
+static int warning_global_lexical_(addr symbol)
 {
-	/* fmtw("Undefined variable ~S.", symbol, NULL); */
+	/* return fmtw_("Undefined variable ~S.", symbol, NULL); */
+	return 0;
 }
 
-static int symbol_global_tablevalue(Execute ptr, addr symbol, addr *ret)
+static int symbol_global_tablevalue_(Execute ptr, addr symbol, addr *value, int *ret)
 {
 	int specialp;
 	addr stack;
 
 	getglobal_eval(ptr, &stack);
-	if (! find_tablevalue(stack, symbol, ret)) {
+	if (! find_tablevalue(stack, symbol, value)) {
 		/* heap object */
-		push_tablevalue_global(ptr, stack, symbol, ret);
-		specialp = getspecialp_tablevalue(*ret);
-		if (! specialp)
-			warning_global_lexical(symbol);
-		return specialp;
+		push_tablevalue_global(ptr, stack, symbol, value);
+		specialp = getspecialp_tablevalue(*value);
+		if (! specialp) {
+			Return(warning_global_lexical_(symbol));
+		}
+		return Result(ret, specialp);
 	}
-	return getspecialp_tablevalue(*ret);
+	return Result(ret, getspecialp_tablevalue(*value));
 }
 
 static void push_closure_value(addr stack, addr symbol, addr value, addr *ret)
@@ -61,22 +63,23 @@ static void push_closure_value(addr stack, addr symbol, addr value, addr *ret)
 	*ret = pos;
 }
 
-static int symbol_tablevalue(Execute ptr,
-		addr stack, addr symbol, int basep, addr *ret)
+static int symbol_tablevalue_(Execute ptr,
+		addr stack, addr symbol, int basep, addr *value, int *ret)
 {
+	int check;
 	addr next;
 
 	/* global */
 	if (stack == Nil) {
-		return symbol_global_tablevalue(ptr, symbol, ret);
+		return symbol_global_tablevalue_(ptr, symbol, value, ret);
 	}
 
 	/* local */
-	if (getvalue_scope_evalstack(stack, symbol, ret)) {
+	if (getvalue_scope_evalstack(stack, symbol, value)) {
 		if (basep)
-			setbasep_tablevalue(*ret, 1);
-		setreference_tablevalue(*ret, 1);
-		return getspecialp_tablevalue(*ret);
+			setbasep_tablevalue(*value, 1);
+		setreference_tablevalue(*value, 1);
+		return Result(ret, getspecialp_tablevalue(*value));
 	}
 
 	/* basep */
@@ -86,33 +89,34 @@ static int symbol_tablevalue(Execute ptr,
 
 	/* next */
 	GetEvalStackNext(stack, &next);
-	if (symbol_tablevalue(ptr, next, symbol, basep, ret)) {
-		return 1; /* special */
+	Return(symbol_tablevalue_(ptr, next, symbol, basep, value, &check));
+	if (check) {
+		return Result(ret, 1); /* special */
 	}
 
 	/* global */
-	if (getglobalp_tablevalue(*ret)) {
-		return 0; /* lexical */
+	if (getglobalp_tablevalue(*value)) {
+		return Result(ret, 0); /* lexical */
 	}
 
 	/* closure */
 	if (RefEvalStackType(stack) == EVAL_STACK_MODE_LAMBDA) {
-		push_closure_value(stack, symbol, *ret, ret);
+		push_closure_value(stack, symbol, *value, value);
 	}
 
-	return 0; /* lexical */
+	return Result(ret, 0); /* lexical */
 }
 
-static int find_symbol_scope(Execute ptr, addr symbol, addr *ret)
+static int find_symbol_scope_(Execute ptr, addr symbol, addr *value, int *ret)
 {
 	int specialp;
-	addr stack, value;
+	addr stack, pos;
 
 	getstack_eval(ptr, &stack);
-	specialp = symbol_tablevalue(ptr, stack, symbol, 0, &value);
-	copy_tablevalue(ret, value);
+	Return(symbol_tablevalue_(ptr, stack, symbol, 0, &pos, &specialp));
+	copy_tablevalue(value, pos);
 
-	return specialp;
+	return Result(ret, specialp);
 }
 
 static void scope_symbol_heap(Execute ptr, addr *ret, addr type, addr symbol)
@@ -120,16 +124,18 @@ static void scope_symbol_heap(Execute ptr, addr *ret, addr type, addr symbol)
 	eval_scope_size(ptr, ret, 1, EVAL_PARSE_SYMBOL, type, symbol);
 }
 
-static void make_scope_symbol(Execute ptr, addr symbol, addr *ret)
+static int make_scope_symbol_(Execute ptr, addr symbol, addr *ret)
 {
+	int ignore;
 	addr value, type, pos;
 
 	Check(! symbolp(symbol), "type error");
-	find_symbol_scope(ptr, symbol, &value);
+	Return(find_symbol_scope_(ptr, symbol, &value, &ignore));
 	gettype_tablevalue(value, &type);
 	scope_symbol_heap(ptr, &pos, type, symbol);
 	SetEvalScopeIndex(pos, 0, value);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static int symbol_macrolet_global_p(Execute ptr, addr symbol, addr *ret)
@@ -236,7 +242,7 @@ _g int scope_symbol_call(Execute ptr, addr *ret, addr eval)
 	else if (symbol_macrolet_p(ptr, eval, &form))
 		return scope_symbol_replace(ptr, ret, form);
 	else
-		make_scope_symbol(ptr, eval, ret);
+		return make_scope_symbol_(ptr, eval, ret);
 
 	return 0;
 }
@@ -247,6 +253,7 @@ _g int scope_symbol_call(Execute ptr, addr *ret, addr eval)
  */
 _g int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 {
+	int ignore;
 	addr root, var, form;
 	LocalHold hold;
 
@@ -260,7 +267,7 @@ _g int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &var, &cons);
 		GetCons(var, &var, &form);
-		find_symbol_scope(ptr, var, &var);
+		Return(find_symbol_scope_(ptr, var, &var, &ignore));
 		Return(scope_eval(ptr, &form, form));
 		GetEvalScopeThe(form, type);
 		Return(checktype_value_(ptr, var, form));
@@ -785,7 +792,7 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 	Return(mvbind_maketable_(ptr, str));
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
-	ignore_checkvalue(stack);
+	Return(ignore_checkvalue_(stack));
 
 	return 0;
 }

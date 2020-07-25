@@ -143,7 +143,7 @@ static void defun_push_entries(void)
 
 	/* function */
 	GetConst(RT_PUSH_ENTRIES, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_push_entries);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -209,7 +209,7 @@ static void defun_rem_all_tests(void)
 
 	/* function */
 	GetConst(RT_REM_ALL_TESTS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_rem_all_tests);
 	SetFunctionSymbol(symbol, pos);
 	export_symbol_rt(symbol);
@@ -260,7 +260,7 @@ static void defmacro_deftest(void)
 	addr symbol, pos, type;
 
 	GetConst(RT_DEFTEST, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_deftest);
 	setmacro_symbol(symbol, pos);
 	export_symbol_rt(symbol);
@@ -327,7 +327,7 @@ static void defmacro_deftest_error(void)
 	addr symbol, pos, type;
 
 	GetConst(RT_DEFTEST_ERROR, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_deftest_error);
 	setmacro_symbol(symbol, pos);
 	export_symbol_rt(symbol);
@@ -630,7 +630,7 @@ static void defun_do_tests(void)
 
 	/* function */
 	GetConst(RT_DO_TESTS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_do_tests);
 	SetFunctionSymbol(symbol, pos);
 	export_symbol_rt(symbol);
@@ -658,7 +658,7 @@ static void defun_equalrt(void)
 
 	/* function */
 	GetConst(RT_EQUALRT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_equalrt);
 	SetFunctionSymbol(symbol, pos);
 	export_symbol_rt(symbol);

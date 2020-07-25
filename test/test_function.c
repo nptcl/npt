@@ -126,7 +126,7 @@ static int test_compiled_alloc(void)
 	test(GetStatusDynamic(pos), "compiled_alloc.6");
 	rollback_local(local, stack);
 
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(GetType(pos) == LISPTYPE_FUNCTION, "compiled_alloc.7");
 	test(! GetStatusDynamic(pos), "compiled_alloc.8");
 
@@ -235,7 +235,7 @@ static int test_funcall_function_p(void)
 	test(funcall_function_p(pos), "funcall_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(! funcall_function_p(pos), "funcall_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(funcall_function_p(pos), "funcall_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(! funcall_function_p(pos), "funcall_function_p.4");
@@ -252,7 +252,7 @@ static int test_macro_function_p(void)
 	test(! macro_function_p(pos), "macro_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(macro_function_p(pos), "macro_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(! macro_function_p(pos), "macro_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(macro_function_p(pos), "macro_function_p.4");
@@ -269,7 +269,7 @@ static int test_interpreted_function_p(void)
 	test(interpreted_function_p(pos), "interpreted_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(interpreted_function_p(pos), "interpreted_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(! interpreted_function_p(pos), "interpreted_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(! interpreted_function_p(pos), "interpreted_function_p.4");
@@ -286,7 +286,7 @@ static int test_interpreted_funcall_function_p(void)
 	test(interpreted_funcall_function_p(pos), "interpreted_funcall_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(! interpreted_funcall_function_p(pos), "interpreted_funcall_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(! interpreted_funcall_function_p(pos), "interpreted_funcall_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(! interpreted_funcall_function_p(pos), "interpreted_funcall_function_p.4");
@@ -303,7 +303,7 @@ static int test_interpreted_macro_function_p(void)
 	test(! interpreted_macro_function_p(pos), "interpreted_macro_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(interpreted_macro_function_p(pos), "interpreted_macro_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(! interpreted_macro_function_p(pos), "interpreted_macro_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(! interpreted_macro_function_p(pos), "interpreted_macro_function_p.4");
@@ -320,7 +320,7 @@ static int test_compiled_function_p(void)
 	test(! compiled_function_p(pos), "compiled_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(! compiled_function_p(pos), "compiled_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(compiled_function_p(pos), "compiled_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(compiled_function_p(pos), "compiled_function_p.4");
@@ -337,7 +337,7 @@ static int test_compiled_funcall_function_p(void)
 	test(! compiled_funcall_function_p(pos), "compiled_funcall_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(! compiled_funcall_function_p(pos), "compiled_funcall_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(compiled_funcall_function_p(pos), "compiled_funcall_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(! compiled_funcall_function_p(pos), "compiled_funcall_function_p.4");
@@ -354,7 +354,7 @@ static int test_compiled_macro_function_p(void)
 	test(! compiled_macro_function_p(pos), "compiled_macro_function_p.1");
 	macro_heap(&pos, Nil, code);
 	test(! compiled_macro_function_p(pos), "compiled_macro_function_p.2");
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	test(! compiled_macro_function_p(pos), "compiled_macro_function_p.3");
 	compiled_macro_heap(&pos, Nil);
 	test(compiled_macro_function_p(pos), "compiled_macro_function_p.4");

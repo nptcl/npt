@@ -1084,12 +1084,12 @@ static int test_english_unit_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	english_unit_local(local, &pos, fixnuml(0), 1);
+	english_unit_local_(local, &pos, fixnuml(0), 1);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_local1");
 	test(GetStatusDynamic(pos), "english_unit_local2");
 	test(string_equal_char(pos, "thousand"), "english_unit_local3");
 
-	english_unit_local(local, &pos, fixnuml(0), 0);
+	english_unit_local_(local, &pos, fixnuml(0), 0);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_local4");
 	test(GetStatusDynamic(pos), "english_unit_local5");
 	test(string_equal_char(pos, "thousandth"), "english_unit_local6");
@@ -1108,25 +1108,25 @@ static int test_english_unit_heap(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	english_unit_heap(local, &pos, fixnuml(0), 1);
+	english_unit_heap_(local, &pos, fixnuml(0), 1);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_heap1");
 	test(! GetStatusDynamic(pos), "english_unit_heap2");
 	test(string_equal_char(pos, "thousand"), "english_unit_heap3");
 
-	english_unit_heap(local, &pos, fixnuml(0), 0);
+	english_unit_heap_(local, &pos, fixnuml(0), 0);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_heap4");
 	test(! GetStatusDynamic(pos), "english_unit_heap5");
 	test(string_equal_char(pos, "thousandth"), "english_unit_heap6");
 
-	english_unit_heap(local, &pos, fixnuml(1), 1);
+	english_unit_heap_(local, &pos, fixnuml(1), 1);
 	test(string_equal_char(pos, "million"), "english_unit_heap7");
-	english_unit_heap(local, &pos, fixnuml(12), 1);
+	english_unit_heap_(local, &pos, fixnuml(12), 1);
 	test(string_equal_char(pos, "duodecillion"), "english_unit_heap8");
-	english_unit_heap(local, &pos, fixnuml(40), 1);
+	english_unit_heap_(local, &pos, fixnuml(40), 1);
 	test(string_equal_char(pos, "quadragintillion"), "english_unit_heap9");
-	english_unit_heap(local, &pos, fixnuml(1000), 1);
+	english_unit_heap_(local, &pos, fixnuml(1000), 1);
 	test(string_equal_char(pos, "millinillion"), "english_unit_heap10");
-	english_unit_heap(local, &pos, fixnuml(19683), 1);
+	english_unit_heap_(local, &pos, fixnuml(19683), 1);
 	test(string_equal_char(pos, "novendecillitresoctogintasescentillion"),
 			"english_unit_heap11");
 
@@ -1147,8 +1147,9 @@ static int test_english_unit(void)
 
 	local = Local_Thread;
 	file = fopen(FILE_CASE_LARGE, "r");
-	if (file == NULL)
-		fmte("file error", NULL);
+	if (file == NULL) {
+		Error(fmte_("file error", NULL));
+	}
 	check = 0;
 	for (i = 0; ! feof(file); i++) {
 		result = fscanf(file, "%s %s\n", str1, str2);
@@ -1158,7 +1159,7 @@ static int test_english_unit(void)
 		}
 		pos = readr(str1);
 		push_local(local, &stack);
-		english_unit_local(local, &pos, pos, 1);
+		Error(english_unit_local_(local, &pos, pos, 1));
 		check = string_equal_char(pos, str2);
 		rollback_local(local, stack);
 		if (! check) {
@@ -1191,8 +1192,9 @@ static int test_roma_integer(void)
 	open_output_string_stream(&stream, 32);
 
 	file = fopen(FILE_CASE_ROMA, "r");
-	if (file == NULL)
-		fmte("file error", NULL);
+	if (file == NULL) {
+		Error(fmte_("file error", NULL));
+	}
 	for (i = 1; ! feof(file); i++) {
 		result = fscanf(file, "%s %s\n", str1, str2);
 		if (result != 2) {

@@ -63,7 +63,7 @@ static void defun_referenced_class_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_REFERENCED_CLASS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_referenced_class);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -119,7 +119,7 @@ static void defun_ensure_class_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_ENSURE_CLASS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_ensure_class);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -199,7 +199,7 @@ static int defmethod_ensure_class_using_class_null_(Execute ptr, addr name, addr
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_ensure_class_using_class_null);
 	method_type_ensure_class_using_class(&type);
 	settype_function(call, type);
@@ -240,7 +240,7 @@ static int defmethod_ensure_class_using_class_class_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_ensure_class_using_class_class);
 	method_type_ensure_class_using_class(&type);
 	settype_function(call, type);
@@ -327,7 +327,7 @@ static int defmethod_allocate_instance_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3dynamic(call, p_method_allocate_instance_stdclass);
 	method_type_allocate_instance(&type);
 	settype_function(call, type);
@@ -379,7 +379,7 @@ static int defmethod_initialize_instance_stdobject_(Execute ptr, addr name, addr
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3dynamic(call, p_method_initialize_instance_stdobject);
 	method_type_allocate_instance(&type);
 	settype_function(call, type);
@@ -430,7 +430,7 @@ static int defmethod_reinitialize_instance_stdobject_(Execute ptr, addr name, ad
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3dynamic(call, p_method_reinitialize_instance_stdobject);
 	method_type_allocate_instance(&type);
 	settype_function(call, type);
@@ -514,7 +514,7 @@ static int defmethod_shared_initialize_stdobject_(Execute ptr, addr name, addr g
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_shared_initialize_stdobject);
 	method_type_shared_initialize(&type);
 	settype_function(call, type);
@@ -583,7 +583,7 @@ static int defmethod_make_instance_symbol_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3dynamic(call, p_method_make_instance_symbol);
 	type_make_instance_symbol(&type);
 	settype_function(call, type);
@@ -626,7 +626,7 @@ static int defmethod_make_instance_stdclass_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var2dynamic(call, p_method_make_instance_stdclass);
 	method_type_make_instance_stdclass(&type);
 	settype_function(call, type);
@@ -669,7 +669,7 @@ static int defmethod_make_instance_structure_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var2dynamic(call, p_method_make_instance_structure);
 	method_type_make_instance_structure(&type);
 	settype_function(call, type);
@@ -738,7 +738,7 @@ static int defmethod_make_instances_obsolete_symbol_(
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_make_instances_obsolete_symbol);
 	method_type_make_instances_obsolete_symbol(&type);
 	settype_function(call, type);
@@ -776,7 +776,7 @@ static int defmethod_make_instances_obsolete_stdclass_(
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_make_instances_obsolete_stdclass);
 	method_type_make_instances_obsolete_stdclass(&type);
 	settype_function(call, type);
@@ -845,7 +845,7 @@ static int defmethod_make_load_form_class_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3opt1(call, p_method_make_load_form_class);
 	method_type_make_load_form_class(&type);
 	settype_function(call, type);
@@ -863,7 +863,7 @@ static int defmethod_make_load_form_condition_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3opt1(call, p_method_make_load_form_class);
 	method_type_make_load_form_class(&type);
 	settype_function(call, type);
@@ -887,7 +887,7 @@ static int defmethod_make_load_form_standard_object_(Execute ptr, addr name, add
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3opt1(call, p_method_make_load_form_object);
 	method_type_make_load_form_class(&type);
 	settype_function(call, type);
@@ -905,7 +905,7 @@ static int defmethod_make_load_form_structure_object_(Execute ptr, addr name, ad
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3opt1(call, p_method_make_load_form_object);
 	method_type_make_load_form_class(&type);
 	settype_function(call, type);
@@ -985,7 +985,7 @@ static int defmethod_slot_missing_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var2dynamic(call, p_method_slot_missing);
 	method_type_slot_missing(&type);
 	settype_function(call, type);
@@ -1074,7 +1074,7 @@ static int defmethod_slot_unbound_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var2dynamic(call, p_method_slot_unbound);
 	method_type_slot_unbound(&type);
 	settype_function(call, type);
@@ -1140,7 +1140,7 @@ static int defmethod_update_instance_for_different_class_(
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_update_instance_for_different_class);
 	method_type_update_instance_for_different_class(&type);
 	settype_function(call, type);
@@ -1223,7 +1223,7 @@ static int defmethod_update_instance_for_redefined_class_(
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var2dynamic(call, p_method_update_instance_for_redefined_class);
 	method_type_update_instance_for_redefined_class(&type);
 	settype_function(call, type);
@@ -1293,7 +1293,7 @@ static int defmethod_slot_boundp_using_class_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var5(call, p_method_slot_boundp_using_class);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
@@ -1342,7 +1342,7 @@ static int defmethod_slot_exists_p_using_class_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var5(call, p_method_slot_exists_p_using_class);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
@@ -1392,7 +1392,7 @@ static int defmethod_slot_makunbound_using_class_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var5(call, p_method_slot_makunbound_using_class);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
@@ -1442,7 +1442,7 @@ static int defmethod_slot_value_using_class_(Execute ptr,
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var5(call, p_method_slot_value_using_class);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
@@ -1526,7 +1526,7 @@ static int defmethod_setf_slot_value_using_class_(Execute ptr, addr name, addr g
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var2dynamic(call, p_method_setf_slot_value_using_class);
 	method_type_setf_slot_value_using_class(&type);
 	settype_function(call, type);
@@ -1605,7 +1605,7 @@ static int defmethod_change_class_stdclass_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_change_class_stdclass);
 	method_type_change_class_stdclass(&type);
 	settype_function(call, type);
@@ -1667,7 +1667,7 @@ static int defmethod_change_class_symbol_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_change_class_symbol);
 	method_type_change_class_symbol(&type);
 	settype_function(call, type);

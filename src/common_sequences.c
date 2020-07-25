@@ -41,7 +41,7 @@ static void defun_copy_seq(void)
 
 	/* function */
 	GetConst(COMMON_COPY_SEQ, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_copy_seq);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -81,7 +81,7 @@ static void defun_elt(void)
 
 	/* function */
 	GetConst(COMMON_ELT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_elt);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -122,7 +122,7 @@ static void defun_setf_elt(void)
 
 	/* function */
 	GetConst(COMMON_ELT, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_elt);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -177,7 +177,7 @@ static void defun_fill(void)
 
 	/* function */
 	GetConst(COMMON_FILL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_fill);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -218,7 +218,7 @@ static void defun_make_sequence(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_SEQUENCE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_make_sequence);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -257,7 +257,7 @@ static void defun_subseq(void)
 
 	/* function */
 	GetConst(COMMON_SUBSEQ, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_subseq);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -294,7 +294,7 @@ static void defun_setf_subseq(void)
 
 	/* function */
 	GetConst(COMMON_SUBSEQ, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_setf_subseq);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -334,7 +334,7 @@ static void defun_map(void)
 
 	/* function */
 	GetConst(COMMON_MAP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_map);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -369,7 +369,7 @@ static void defun_map_into(void)
 
 	/* function */
 	GetConst(COMMON_MAP_INTO, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_map_into);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -428,7 +428,7 @@ static void defun_reduce(void)
 
 	/* function */
 	GetConst(COMMON_REDUCE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_reduce);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -472,7 +472,7 @@ static void defun_count(void)
 
 	/* function */
 	GetConst(COMMON_COUNT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_count);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -496,7 +496,7 @@ static void defun_count_if(void)
 
 	/* function */
 	GetConst(COMMON_COUNT_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_count_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -520,7 +520,7 @@ static void defun_count_if_not(void)
 
 	/* function */
 	GetConst(COMMON_COUNT_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_count_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -554,7 +554,7 @@ static void defun_length(void)
 
 	/* function */
 	GetConst(COMMON_LENGTH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_length);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -578,7 +578,7 @@ static void defun_reverse(void)
 
 	/* function */
 	GetConst(COMMON_REVERSE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_reverse);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -602,7 +602,7 @@ static void defun_nreverse(void)
 
 	/* function */
 	GetConst(COMMON_NREVERSE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_nreverse);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -649,7 +649,7 @@ static void defun_merge(void)
 
 	/* function */
 	GetConst(COMMON_MERGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var4dynamic(pos, p_defun_merge);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -678,7 +678,7 @@ static void defun_sort(void)
 
 	/* function */
 	GetConst(COMMON_SORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_sort);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -707,7 +707,7 @@ static void defun_stable_sort(void)
 
 	/* function */
 	GetConst(COMMON_STABLE_SORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_stable_sort);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -745,7 +745,7 @@ static void defun_find(void)
 
 	/* function */
 	GetConst(COMMON_FIND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_find);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -769,7 +769,7 @@ static void defun_find_if(void)
 
 	/* function */
 	GetConst(COMMON_FIND_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_find_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -793,7 +793,7 @@ static void defun_find_if_not(void)
 
 	/* function */
 	GetConst(COMMON_FIND_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_find_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -831,7 +831,7 @@ static void defun_position(void)
 
 	/* function */
 	GetConst(COMMON_POSITION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_position);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -855,7 +855,7 @@ static void defun_position_if(void)
 
 	/* function */
 	GetConst(COMMON_POSITION_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_position_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -879,7 +879,7 @@ static void defun_position_if_not(void)
 
 	/* function */
 	GetConst(COMMON_POSITION_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_position_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -905,7 +905,7 @@ static void defun_search(void)
 
 	/* function */
 	GetConst(COMMON_SEARCH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_search);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -931,7 +931,7 @@ static void defun_mismatch(void)
 
 	/* function */
 	GetConst(COMMON_MISMATCH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_mismatch);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -975,7 +975,7 @@ static void defun_replace(void)
 
 	/* function */
 	GetConst(COMMON_REPLACE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_replace);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1004,7 +1004,7 @@ static void defun_substitute(void)
 
 	/* function */
 	GetConst(COMMON_SUBSTITUTE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_substitute);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1033,7 +1033,7 @@ static void defun_substitute_if(void)
 
 	/* function */
 	GetConst(COMMON_SUBSTITUTE_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_substitute_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1062,7 +1062,7 @@ static void defun_substitute_if_not(void)
 
 	/* function */
 	GetConst(COMMON_SUBSTITUTE_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_substitute_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1091,7 +1091,7 @@ static void defun_nsubstitute(void)
 
 	/* function */
 	GetConst(COMMON_NSUBSTITUTE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_nsubstitute);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1120,7 +1120,7 @@ static void defun_nsubstitute_if(void)
 
 	/* function */
 	GetConst(COMMON_NSUBSTITUTE_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_nsubstitute_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1149,7 +1149,7 @@ static void defun_nsubstitute_if_not(void)
 
 	/* function */
 	GetConst(COMMON_NSUBSTITUTE_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_nsubstitute_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1188,7 +1188,7 @@ static void defun_concatenate(void)
 
 	/* function */
 	GetConst(COMMON_CONCATENATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_concatenate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1214,7 +1214,7 @@ static void defun_remove(void)
 
 	/* function */
 	GetConst(COMMON_REMOVE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_remove);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1240,7 +1240,7 @@ static void defun_remove_if(void)
 
 	/* function */
 	GetConst(COMMON_REMOVE_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_remove_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1266,7 +1266,7 @@ static void defun_remove_if_not(void)
 
 	/* function */
 	GetConst(COMMON_REMOVE_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_remove_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1292,7 +1292,7 @@ static void defun_delete(void)
 
 	/* function */
 	GetConst(COMMON_DELETE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_delete);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1318,7 +1318,7 @@ static void defun_delete_if(void)
 
 	/* function */
 	GetConst(COMMON_DELETE_IF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_delete_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1344,7 +1344,7 @@ static void defun_delete_if_not(void)
 
 	/* function */
 	GetConst(COMMON_DELETE_IF_NOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_delete_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1370,7 +1370,7 @@ static void defun_remove_duplicates(void)
 
 	/* function */
 	GetConst(COMMON_REMOVE_DUPLICATES, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_remove_duplicates);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1396,7 +1396,7 @@ static void defun_delete_duplicates(void)
 
 	/* function */
 	GetConst(COMMON_DELETE_DUPLICATES, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_delete_duplicates);
 	SetFunctionCommon(symbol, pos);
 	/* type */

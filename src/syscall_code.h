@@ -54,7 +54,7 @@ _g void single_float_p_syscode(addr var, addr *ret);
 _g void double_float_p_syscode(addr var, addr *ret);
 _g void long_float_p_syscode(addr var, addr *ret);
 _g void callnamep_syscall(addr var, addr *ret);
-_g void large_number_syscode(LocalRoot local, addr var, addr opt, addr *ret);
+_g int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret);
 _g int print_unreadable_call_syscode(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body);
 _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret);
@@ -76,7 +76,7 @@ _g int pprint_pop_syscode(Execute ptr, addr stream, addr *ret);
 _g int pprint_check_syscode(Execute ptr, addr stream);
 _g int pprint_close_syscode(Execute ptr, addr stream);
 _g int pprint_pretty_syscode(Execute ptr, addr stream, addr call);
-_g void eastasian_set_syscode(addr var, addr value, addr errorp, addr *ret);
+_g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret);
 _g void eastasian_get_syscode(addr var, addr *ret1, addr *ret2);
 _g void eastasian_width_syscode(addr pos, addr *ret1, addr *ret2);
 _g void timeinfo_syscode(LocalRoot local,

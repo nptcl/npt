@@ -1046,6 +1046,7 @@ static void structure_slot_reader_list(addr data, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_reader_list);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1093,7 +1094,8 @@ static void structure_slot_writer_list(addr data, addr symbol)
 	addr pos, type;
 
 	/* function */
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var2(pos, p_defun_structure_writer_list);
 	setsetf_symbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1122,6 +1124,7 @@ static int structure_slots_call_list_(struct defstruct *str)
 		structure_slot_callname(str, &symbol, pos);
 		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_type(str, pos, &type);
+		Return(parse_callname_error_(&symbol, symbol));
 		structure_slot_reader_list(type, symbol);
 		if (! structure_slot_readonly_p(pos))
 			structure_slot_writer_list(type, symbol);
@@ -1168,6 +1171,7 @@ static void structure_slot_reader_vector(addr data, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_reader_vector);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1214,7 +1218,8 @@ static void structure_slot_writer_vector(addr data, addr symbol)
 	addr pos, type;
 
 	/* function */
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var2(pos, p_defun_structure_writer_vector);
 	setsetf_symbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1237,6 +1242,7 @@ static int structure_slots_call_vector_(struct defstruct *str)
 		structure_slot_callname(str, &symbol, pos);
 		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_type(str, pos, &type);
+		Return(parse_callname_error_(&symbol, symbol));
 		structure_slot_reader_vector(type, symbol);
 		if (! structure_slot_readonly_p(pos))
 			structure_slot_writer_vector(type, symbol);
@@ -1282,6 +1288,7 @@ static void structure_slot_reader_clos(addr instance, addr slot, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_reader_clos);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, slot);
@@ -1327,7 +1334,8 @@ static void structure_slot_writer_clos(addr instance, addr slot, addr symbol)
 	addr pos, type;
 
 	/* function */
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var2(pos, p_defun_structure_writer_clos);
 	setsetf_symbol(symbol, pos);
 	SetDataFunction(pos, slot);
@@ -1351,6 +1359,7 @@ static int structure_slots_call_clos_(struct defstruct *str)
 		GetSlotVector(slots, i, &pos);
 		structure_slot_callname(str, &symbol, pos);
 		Return(intern_package_(package, symbol, &symbol, NULL));
+		Return(parse_callname_error_(&symbol, symbol));
 		structure_slot_reader_clos(instance, pos, symbol);
 		if (! structure_slot_readonly_p(pos))
 			structure_slot_writer_clos(instance, pos, symbol);
@@ -1529,6 +1538,7 @@ static void structure_constructor_default_list(addr data, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_dynamic(pos, p_defun_structure_constructor_list);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1625,6 +1635,7 @@ static void structure_constructor_default_vector(addr data, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_dynamic(pos, p_defun_structure_constructor_vector);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1711,6 +1722,7 @@ static void structure_constructor_default_clos(addr data, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_dynamic(pos, p_defun_structure_constructor_clos);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1721,10 +1733,11 @@ static void structure_constructor_default_clos(addr data, addr symbol)
 }
 
 /* default */
-static void structure_constructor_default(struct defstruct *str, addr symbol)
+static int structure_constructor_default_(struct defstruct *str, addr symbol)
 {
 	addr pos;
 
+	Return(parse_callname_error_(&symbol, symbol));
 	structure_type(str, str->slots, &pos);
 	if (str->type_list_p)
 		structure_constructor_default_list(pos, symbol);
@@ -1732,6 +1745,8 @@ static void structure_constructor_default(struct defstruct *str, addr symbol)
 		structure_constructor_default_vector(pos, symbol);
 	else
 		structure_constructor_default_clos(pos, symbol);
+	
+	return 0;
 }
 
 /* constructor */
@@ -1745,9 +1760,7 @@ static int structure_constructor_make_(struct defstruct *str)
 	string_concat_char1_heap(&name, "MAKE-", name);
 	Return(intern_default_package_(str->ptr, name, &name, NULL));
 	/* make */
-	structure_constructor_default(str, name);
-
-	return 0;
+	return structure_constructor_default_(str, name);
 }
 
 static void structure_constructor_lambda(addr list)
@@ -1775,7 +1788,7 @@ static int structure_constructor_(struct defstruct *str)
 		if (pos == g)
 			return structure_constructor_make_(str);
 		else if (symbolp(pos))
-			structure_constructor_default(str, pos);
+			return structure_constructor_default_(str, pos);
 		else if (consp(pos))
 			structure_constructor_lambda(pos);
 		else
@@ -1825,6 +1838,7 @@ static void structure_copier_list(struct defstruct *str, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_copier_list);
 	SetFunctionSymbol(symbol, pos);
 	/* closure */
@@ -1872,6 +1886,7 @@ static void structure_copier_vector(struct defstruct *str, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_copier_vector);
 	SetFunctionSymbol(symbol, pos);
 	/* closure */
@@ -1907,6 +1922,7 @@ static void structure_copier_clos(addr instance, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_copier_clos);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1942,6 +1958,8 @@ static int structure_copier_(struct defstruct *str)
 	Return(structure_copier_callname_(str, &symbol));
 	if (symbol == Unbound)
 		return 0;
+
+	Return(parse_callname_error_(&symbol, symbol));
 	if (str->type_list_p)
 		structure_copier_list(str, symbol);
 	else if (str->type_vector_p)
@@ -1976,6 +1994,7 @@ static void structure_predicate_list(struct defstruct *str, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_predicate_list);
 	SetFunctionSymbol(symbol, pos);
 	/* closure */
@@ -2007,6 +2026,7 @@ static void structure_predicate_vector(struct defstruct *str, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_predicate_vector);
 	SetFunctionSymbol(symbol, pos);
 	/* closure */
@@ -2037,6 +2057,7 @@ static void structure_predicate_clos(addr instance, addr symbol)
 
 	/* function */
 	compiled_heap(&pos, symbol);
+	GetCallName(symbol, &symbol);
 	setcompiled_var1(pos, p_defun_structure_predicate_clos);
 	SetFunctionSymbol(symbol, pos);
 	SetDataFunction(pos, instance);
@@ -2073,6 +2094,8 @@ static int structure_predicate_(struct defstruct *str)
 	Return(structure_predicate_callname_(str, &symbol));
 	if (symbol == Unbound)
 		return 0;
+
+	Return(parse_callname_error_(&symbol, symbol));
 	if (str->type_list_p)
 		structure_predicate_list(str, symbol);
 	else if (str->type_vector_p)
@@ -2117,6 +2140,7 @@ static int structure_print_default_method_(struct defstruct *str, addr name, add
 
 	/* function */
 	compiled_heap(&call, name);
+	GetCallName(name, &name);
 	setcompiled_var4(call, p_method_defstruct_default);
 	GetTypeCompiled(&type, PrintObject_Method);
 	settype_function(call, type);
@@ -2134,7 +2158,7 @@ static int structure_print_add_method_(struct defstruct *str, addr name, addr me
 	Execute ptr;
 
 	ptr = str->ptr;
-	getfunction_global(name, &generic);
+	getglobalcheck_callname(name, &generic);
 	Check(! clos_generic_p(generic), "type error");
 	return method_add_method_(ptr, generic, method);
 }
@@ -2144,6 +2168,7 @@ static int structure_print_default_(struct defstruct *str)
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
+	Return(parse_callname_error_(&name, name));
 	Return(structure_print_default_method_(str, name, &method));
 	return structure_print_add_method_(str, name, method);
 }
@@ -2169,6 +2194,7 @@ static int structure_print_object_method_(struct defstruct *str, addr name, addr
 
 	/* function */
 	compiled_heap(&call, name);
+	GetCallName(name, &name);
 	setcompiled_var4(call, p_method_defstruct_object);
 	GetTypeCompiled(&type, PrintObject_Method);
 	settype_function(call, type);
@@ -2186,6 +2212,7 @@ static int structure_print_object_(struct defstruct *str)
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
+	Return(parse_callname_error_(&name, name));
 	Return(structure_print_object_method_(str, name, &method));
 	return structure_print_add_method_(str, name, method);
 }
@@ -2213,6 +2240,7 @@ static int structure_print_function_method_(struct defstruct *str, addr name, ad
 
 	/* function */
 	compiled_heap(&call, name);
+	GetCallName(name, &name);
 	setcompiled_var4(call, p_method_defstruct_function);
 	GetTypeCompiled(&type, PrintObject_Method);
 	settype_function(call, type);
@@ -2230,6 +2258,7 @@ static int structure_print_function_(struct defstruct *str)
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
+	Return(parse_callname_error_(&name, name));
 	Return(structure_print_function_method_(str, name, &method));
 	return structure_print_add_method_(str, name, method);
 }

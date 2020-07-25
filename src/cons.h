@@ -5,6 +5,25 @@
 #include "local.h"
 #include "typedef.h"
 
+#define Inline_getcons(x,y,z) { \
+	if (GetType(x) != LISPTYPE_CONS) { \
+		return TypeError_((x), CONS); \
+	} \
+	GetCons((x), (y), (z)); \
+}
+#define Inline_getcar(x,y) { \
+	if (GetType(x) != LISPTYPE_CONS) { \
+		return TypeError_((x), CONS); \
+	} \
+	GetCar((x), (y)); \
+}
+#define Inline_getcdr(x,y) { \
+	if (GetType(x) != LISPTYPE_CONS) { \
+		return TypeError_((x), CONS); \
+	} \
+	GetCdr((x), (y)); \
+}
+
 /* cons */
 _g int consp_getcons(addr cons, addr *car, addr *cdr);
 _g int consp_getcar(addr cons, addr *car);

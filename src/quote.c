@@ -142,21 +142,21 @@ _g int quote_clobberable_p(addr pos)
 /*
  *  bq_process
  */
-static void bq_process(addr pos, addr *ret);
+static int bq_process_(addr pos, addr *ret);
 
 static int bq_atom(addr pos)
 {
 	return (! quotep(pos)) && atom_function(pos);
 }
 
-static void bq_bracket(addr pos, addr *ret)
+static int bq_bracket_(addr pos, addr *ret)
 {
 	/* `(... atom) */
 	if (bq_atom(pos)) {
-		bq_process(pos, &pos);
+		Return(bq_process_(pos, &pos));
 		conscar_heap(&pos, pos);
 		quote_heap(ret, QuoteExecute_List, pos);
-		return;
+		return 0;
 	}
 
 	/* `(... ,expr) */
@@ -164,43 +164,43 @@ static void bq_bracket(addr pos, addr *ret)
 		getvalue_quote(pos, &pos);
 		conscar_heap(&pos, pos);
 		quote_heap(ret, QuoteExecute_List, pos);
-		return;
+		return 0;
 	}
 
 	/* `(... ,@expr) */
 	if (quote_atsign_p(pos)) {
 		getvalue_quote(pos, ret);
-		return;
+		return 0;
 	}
 
 	/* `(... ,.expr) */
 	if (quote_dot_p(pos)) {
 		getvalue_quote(pos, &pos);
 		quote_heap(ret, QuoteExecute_Clobberable, pos);
-		return;
+		return 0;
 	}
 
 	/* `(... [quote]) */
 	if (quotep(pos)) {
 		getvalue_quote(pos, &pos);
-		fmte("quote error, ~S", pos, NULL);
-		return;
+		return fmte_("quote error, ~S", pos, NULL);
 	}
 
 	/* others */
-	bq_process(pos, &pos);
+	Return(bq_process_(pos, &pos));
 	conscar_heap(&pos, pos);
 	quote_heap(ret, QuoteExecute_List, pos);
+	return 0;
 }
 
-static void bq_process_list(addr pos, addr *ret)
+static int bq_process_list_(addr pos, addr *ret)
 {
 	addr root, car;
 
 	root = Nil;
 	for (;;) {
-		getcons(pos, &car, &pos);
-		bq_bracket(car, &car);
+		Return_getcons(pos, &car, &pos);
+		Return(bq_bracket_(car, &car));
 		cons_heap(&root, car, root);
 
 		/* nil */
@@ -223,124 +223,116 @@ static void bq_process_list(addr pos, addr *ret)
 		/* `(x . ,@pos) error */
 		if (quote_atsign_p(pos)) {
 			getvalue_quote(pos, &pos);
-			fmte("Dotted ,@~S", pos, NULL);
-			return;
+			return fmte_("Dotted ,@~S", pos, NULL);
 		}
 
 		/* `(x . ,.pos) error */
 		if (quote_dot_p(pos)) {
 			getvalue_quote(pos, &pos);
-			fmte("Dotted ,.~S", pos, NULL);
-			return;
+			return fmte_("Dotted ,.~S", pos, NULL);
 		}
 
 		/* `(x . [quote]) */
-		if (quotep(pos)) {
-			fmte("quote error ~S.", pos, NULL);
-			return;
-		}
+		if (quotep(pos))
+			return fmte_("quote error ~S.", pos, NULL);
 	}
 
 	/* *bq-append* */
 	if (pos != Nil)
 		conscar_heap(&pos, pos);
-	nreconc(&root, root, pos);
+	Return(nreconc_safe_(&root, root, pos));
 	quote_heap(ret, QuoteExecute_Append, root);
+	return 0;
 }
 
-static void bq_process(addr pos, addr *ret)
+static int bq_process_(addr pos, addr *ret)
 {
 	/* `atom */
 	if (bq_atom(pos)) {
 		quote_heap(ret, QuoteExecute_Quote, pos);
-		return;
+		return 0;
 	}
 
 	/* ``... */
 	if (quote_back_p(pos)) {
 		getvalue_quote(pos, &pos);
-		bq_process(pos, ret);
-		return;
+		return bq_process_(pos, ret);
 	}
 
 	/* ,expr */
 	if (quote_comma_p(pos)) {
 		getvalue_quote(pos, ret);
-		return;
+		return 0;
 	}
 
 	/* ,@expr error */
 	if (quote_atsign_p(pos)) {
 		getvalue_quote(pos, &pos);
-		fmte(",@~S after `", pos, NULL);
-		return;
+		return fmte_(",@~S after `", pos, NULL);
 	}
 
 	/* ,.expr error */
 	if (quote_dot_p(pos)) {
 		getvalue_quote(pos, &pos);
-		fmte(",.~S after `", pos, NULL);
-		return;
+		return fmte_(",.~S after `", pos, NULL);
 	}
 
 	/* [quote] */
 	if (quotep(pos)) {
-		fmte("quote error, ~S", pos, NULL);
-		return;
+		return fmte_("quote error, ~S", pos, NULL);
 	}
 
 	/* list */
-	bq_process_list(pos, ret);
+	return bq_process_list_(pos, ret);
 }
 
 
 /*
  *  bq_simplify
  */
-static void bq_maptree(void (*call)(addr, addr *), addr pos, addr *ret);
+static int bq_maptree_(int (*call)(addr, addr *), addr pos, addr *ret);
 
-static void bq_maptree_quote(void (*call)(addr, addr *), addr pos, addr *ret)
+static int bq_maptree_quote_(int (*call)(addr, addr *), addr pos, addr *ret)
 {
 	enum QuoteType type;
 	addr a, b;
 
 	GetQuoteType(pos, &type);
 	getvalue_quote(pos, &a);
-	bq_maptree(call, a, &b);
+	Return(bq_maptree_(call, a, &b));
 	if (a == b)
-		*ret = pos;
-	else {
-		getprint_quote(pos, &a);
-		quote2_heap(ret, type, b, a);
-	}
+		return Result(ret, pos);
+
+	getprint_quote(pos, &a);
+	quote2_heap(ret, type, b, a);
+	return 0;
 }
 
-static void bq_maptree_cons(void (*call)(addr, addr *), addr pos, addr *ret)
+static int bq_maptree_cons_(int (*call)(addr, addr *), addr pos, addr *ret)
 {
 	addr car, cdr, a, b;
 
-	getcons(pos, &car, &cdr);
-	call(car, &a);
-	bq_maptree(call, cdr, &b);
+	Return_getcons(pos, &car, &cdr);
+	Return((*call)(car, &a));
+	Return(bq_maptree_(call, cdr, &b));
 	if (car == a && cdr == b)
 		*ret = pos;
 	else
 		cons_heap(ret, a, b);
+	
+	return 0;
 }
 
-static void bq_maptree(void (*call)(addr, addr *), addr pos, addr *ret)
+static int bq_maptree_(int (*call)(addr, addr *), addr pos, addr *ret)
 {
 	if (bq_atom(pos)) {
-		call(pos, ret);
-		return;
+		return (*call)(pos, ret);
 	}
 	if (quotep(pos)) {
-		bq_maptree_quote(call, pos, ret);
-		return;
+		return bq_maptree_quote_(call, pos, ret);
 	}
 	else {
-		bq_maptree_cons(call, pos, ret);
-		return;
+		return bq_maptree_cons_(call, pos, ret);
 	}
 }
 
@@ -359,7 +351,8 @@ static void getvalue_null_or_quoted(addr pos, addr *ret)
 
 static int quote_nil_p(addr pos)
 {
-	if (! quote_quote_p(pos)) return 0;
+	if (! quote_quote_p(pos))
+		return 0;
 	getvalue_quote(pos, &pos);
 	return pos == Nil;
 }
@@ -369,7 +362,7 @@ static int bq_splicing_frob(addr pos)
 	return quote_atsign_p(pos) || quote_dot_p(pos);
 }
 
-static void bq_attach_concat(addr pos, addr result, addr *ret,
+static int bq_attach_concat_(addr pos, addr result, addr *ret,
 		enum QuoteType QuoteType_value,
 		int (*quote_call_p)(addr))
 {
@@ -377,9 +370,9 @@ static void bq_attach_concat(addr pos, addr result, addr *ret,
 	if (bq_null_or_quoted(pos) && bq_null_or_quoted(result)) {
 		getvalue_null_or_quoted(pos, &pos);
 		getvalue_null_or_quoted(result, &result);
-		append2_safe(pos, result, &pos);
+		Return(append2_safe_(pos, result, &pos));
 		quote_heap(ret, QuoteExecute_Quote, pos);
-		return;
+		return 0;
 	}
 
 	/* (append item nil) */
@@ -391,119 +384,134 @@ static void bq_attach_concat(addr pos, addr result, addr *ret,
 		else {
 			*ret = pos;
 		}
-		return;
+		return 0;
 	}
 
 	/* (append item '(append a b c)) -> (append item a b c) */
-	if (quote_call_p(result)) {
+	if ((*quote_call_p)(result)) {
 		getvalue_quote(result, &result);
 		cons_heap(&pos, pos, result);
 		quote_heap(ret, QuoteType_value, pos);
-		return;
+		return 0;
 	}
 
 	/* otherwise */
 	list_heap(&pos, pos, result, NULL);
 	quote_heap(ret, QuoteType_value, pos);
+	return 0;
 }
 
-static void bq_attach_append(addr pos, addr result, addr *ret)
+static int bq_attach_append_(addr pos, addr result, addr *ret)
 {
-	bq_attach_concat(pos, result, ret, QuoteExecute_Append, quote_append_p);
+	return bq_attach_concat_(pos, result, ret, QuoteExecute_Append, quote_append_p);
 }
 
-static void bq_attach_nconc(addr pos, addr result, addr *ret)
+static int bq_attach_nconc_(addr pos, addr result, addr *ret)
 {
-	bq_attach_concat(pos, result, ret, QuoteExecute_Nconc, quote_nconc_p);
+	return bq_attach_concat_(pos, result, ret, QuoteExecute_Nconc, quote_nconc_p);
 }
 
-static int bq_notany_splicing_frob(addr pos)
+static int bq_notany_splicing_frob_(addr pos, int *ret)
 {
 	addr cons;
 
 	getvalue_quote(pos, &cons);
 	while (cons != Nil) {
-		getcons(cons, &pos, &cons);
+		Return_getcons(cons, &pos, &cons);
 		if (bq_splicing_frob(pos))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int bq_every_null_or_quoted(addr list)
+static int bq_every_null_or_quoted_(addr list, int *ret)
 {
 	addr pos;
 
 	while (list != Nil) {
-		getcons(list, &pos, &list);
+		Return_getcons(list, &pos, &list);
 		if (! bq_null_or_quoted(pos))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static void bq_attach_conses_mapcar(addr list, addr result, addr *ret)
+static int bq_attach_conses_mapcar_(addr list, addr result, addr *ret)
 {
 	addr root, pos;
 
 	for (root = Nil; list != Nil; ) {
-		getcons(list, &pos, &list);
+		Return_getcons(list, &pos, &list);
 		getvalue_null_or_quoted(pos, &pos);
 		cons_heap(&root, pos, root);
 	}
 	getvalue_null_or_quoted(result, &result);
-	nreconc(&root, root, result);
+	Return(nreconc_safe_(&root, root, result));
 	quote_heap(ret, QuoteExecute_Quote, root);
+
+	return 0;
 }
 
 /* (list* ,@pos result) */
-static void bq_attach_conses(addr pos, addr result, addr *ret)
+static int bq_attach_conses_p_(addr pos, addr result, int *ret)
 {
+	if (! bq_null_or_quoted(result))
+		return Result(ret, 0);
+	else
+		return bq_every_null_or_quoted_(pos, ret);
+}
+
+static int bq_attach_conses_(addr pos, addr result, addr *ret)
+{
+	int check;
+
 	/* (list* 'a 'b 'c 'd) -> '(a b c . d) */
-	if (bq_every_null_or_quoted(pos) && bq_null_or_quoted(result)) {
-		bq_attach_conses_mapcar(pos, result, ret);
-		return;
+	Return(bq_attach_conses_p_(pos, result, &check));
+	if (check) {
+		return bq_attach_conses_mapcar_(pos, result, ret);
 	}
 
 	/* (list* a b c nil) -> (list a b c) */
 	if (result == Nil || quote_nil_p(result)) {
 		quote_heap(ret, QuoteExecute_List, pos);
-		return;
+		return 0;
 	}
 
 	/* (list* a b c (list* d e f g)) -> (list* a b c d e f g) */
 	if (quote_lista_p(result)) {
 		getvalue_quote(result, &result);
-		append2_safe(pos, result, &pos);
+		Return(append2_safe_(pos, result, &pos));
 		quote_heap(ret, QuoteExecute_Lista, pos);
-		return;
+		return 0;
 	}
 
 	/* (list* a b c (list d e f g)) -> (list a b c d e f g) */
 	if (quote_list_p(result)) {
 		getvalue_quote(result, &result);
-		append2_safe(pos, result, &pos);
+		Return(append2_safe_(pos, result, &pos));
 		quote_heap(ret, QuoteExecute_List, pos);
-		return;
+		return 0;
 	}
 
 	/* otherwise */
 	conscar_heap(&result, result);
-	append2_safe(pos, result, &pos);
+	Return(append2_safe_(pos, result, &pos));
 	quote_heap(ret, QuoteExecute_Lista, pos);
+
+	return 0;
 }
 
-static void bq_attach_conses_lista(addr pos, addr root, addr *ret)
+static int bq_attach_conses_lista_(addr pos, addr root, addr *ret)
 {
 	addr but, last;
 
 	getvalue_quote(pos, &pos);
 	butandlast_safe(&but, &last, pos, 1);
 	GetCar(last, &last);
-	bq_attach_append(last, root, &last);
-	bq_attach_conses(but, last, ret);
+	Return(bq_attach_append_(last, root, &last));
+	return bq_attach_conses_(but, last, ret);
 }
 
 static int bq_frob(addr pos)
@@ -518,40 +526,63 @@ static int bq_simplify_quote_p(addr pos, addr *ret)
 	addr car;
 
 	/* (quote (x)) => x */
-	if (! quote_quote_p(pos)) return 0;
+	if (! quote_quote_p(pos))
+		return 0;
 	getvalue_quote(pos, &pos);
-	if (! consp(pos)) return 0;
+	if (! consp(pos))
+		return 0;
 	GetCons(pos, &car, &pos);
-	if (bq_frob(car)) return 0;
-	if (pos != Nil) return 0;
+	if (bq_frob(car))
+		return 0;
+	if (pos != Nil)
+		return 0;
 	*ret = car;
 
 	return 1;
 }
 
-static void bq_simplify_args(addr args, addr *ret)
+static int bq_simplify_list_p_(addr pos, int *ret)
 {
+	if (! quote_list_p(pos))
+		return Result(ret, 0);
+	else
+		return bq_notany_splicing_frob_(pos, ret);
+}
+
+static int bq_simplify_lista_p_(addr pos, int *ret)
+{
+	if (! quote_lista_p(pos))
+		return Result(ret, 0);
+	else
+		return bq_notany_splicing_frob_(pos, ret);
+}
+
+static int bq_simplify_args_(addr args, addr *ret)
+{
+	int check;
 	addr pos, root;
 
 	reverse_list_heap_safe(&args, args);
 	for (root = Nil; args != Nil; ) {
-		getcons(args, &pos, &args);
+		Return_getcons(args, &pos, &args);
 		/* (append atom root) */
 		if (bq_atom(pos)) {
-			bq_attach_append(pos, root, &root);
+			Return(bq_attach_append_(pos, root, &root));
 			continue;
 		}
 
 		/* (append (list a b c) root) -> (list* a b c root) */
-		if (quote_list_p(pos) && bq_notany_splicing_frob(pos)) {
+		Return(bq_simplify_list_p_(pos, &check));
+		if (check) {
 			getvalue_quote(pos, &pos);
-			bq_attach_conses(pos, root, &root);
+			Return(bq_attach_conses_(pos, root, &root));
 			continue;
 		}
 
 		/* (append (list* a b c) root) -> (list* a b (append c root)) */
-		if (quote_lista_p(pos) && bq_notany_splicing_frob(pos)) {
-			bq_attach_conses_lista(pos, root, &root);
+		Return(bq_simplify_lista_p_(pos, &check));
+		if (check) {
+			Return(bq_attach_conses_lista_(pos, root, &root));
 			continue;
 		}
 
@@ -559,32 +590,32 @@ static void bq_simplify_args(addr args, addr *ret)
 		if (bq_simplify_quote_p(pos, &pos)) {
 			quote_heap(&pos, QuoteExecute_Quote, pos);
 			conscar_heap(&pos, pos);
-			bq_attach_conses(pos, root, &root);
+			Return(bq_attach_conses_(pos, root, &root));
 			continue;
 		}
 
 		/* (append (clobberable x) root) -> (nconc x foo) */
 		if (quote_clobberable_p(pos)) {
 			getvalue_quote(pos, &pos);
-			bq_attach_nconc(pos, root, &root);
+			Return(bq_attach_nconc_(pos, root, &root));
 			continue;
 		}
 
 		/* otherwise */
-		bq_attach_append(pos, root, &root);
+		Return(bq_attach_append_(pos, root, &root));
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
-static void bq_simplify(addr pos, addr *ret)
+static int bq_simplify_(addr pos, addr *ret)
 {
 	enum QuoteType type;
 	addr value, print;
 
 	/* atom */
 	if (bq_atom(pos)) {
-		*ret = pos;
-		return;
+		return Result(ret, pos);
 	}
 
 	/* quote_quote */
@@ -597,149 +628,150 @@ static void bq_simplify(addr pos, addr *ret)
 		GetQuoteType(pos, &type);
 		getvalue_quote(pos, &value);
 		getprint_quote(pos, &print);
-		bq_maptree(bq_simplify, value, &value);
+		Return(bq_maptree_(bq_simplify_, value, &value));
 		quote2_heap(&pos, type, value, print);
 		goto append;
 	}
 
 	/* list */
-	bq_maptree(bq_simplify, pos, &pos);
+	Return(bq_maptree_(bq_simplify_, pos, &pos));
 	goto append;
 
 append:
 	/* (append ...) */
 	if (quote_append_p(pos)) {
 		getvalue_quote(pos, &pos);
-		bq_simplify_args(pos, ret);
-		return;
+		return bq_simplify_args_(pos, ret);
 	}
 
-	*ret = pos;
+	return Result(ret, pos);
 }
 
 
 /*
  *  bq_remove_tokens
  */
-static void bq_remove_tokens(addr pos, addr *ret);
-static void bq_remove_tokens_list(constindex index, addr pos, addr *ret)
+static int bq_remove_tokens_(addr pos, addr *ret);
+static int bq_remove_tokens_list_(constindex index, addr pos, addr *ret)
 {
 	addr common;
 
 	getvalue_quote(pos, &pos);
 	GetConstant(index, &common);
-	bq_maptree(bq_remove_tokens, pos, &pos);
+	Return(bq_maptree_(bq_remove_tokens_, pos, &pos));
 	cons_heap(ret, common, pos);
+
+	return 0;
 }
 
-static void bq_remove_tokens_args(constindex index, addr pos, addr *ret)
+static int bq_remove_tokens_args_(constindex index, addr pos, addr *ret)
 {
 	addr common;
 
 	getvalue_quote(pos, &pos);
 	GetConstant(index, &common);
-	bq_maptree(bq_remove_tokens, pos, &pos);
+	Return(bq_maptree_(bq_remove_tokens_, pos, &pos));
 	list_heap(ret, common, pos, NULL);
+
+	return 0;
 }
 
 static int quote_lista_cons_p(addr pos)
 {
 	/* (list* a b) */
-	if (! quote_lista_p(pos)) return 0;
+	if (! quote_lista_p(pos))
+		return 0;
 	getvalue_quote(pos, &pos);
-	if (! consp(pos)) return 0;
+	if (! consp(pos))
+		return 0;
 	GetCdr(pos, &pos);
-	if (! consp(pos)) return 0;
+	if (! consp(pos))
+		return 0;
 	GetCdr(pos, &pos);
 
 	return pos == Nil;
 }
 
-static void bq_remove_tokens_cons(addr pos, addr *ret)
+static int bq_remove_tokens_cons_(addr pos, addr *ret)
 {
 	addr common;
 
 	/* (conc a b) */
 	getvalue_quote(pos, &pos);
-	bq_maptree(bq_remove_tokens, pos, &pos);
+	Return(bq_maptree_(bq_remove_tokens_, pos, &pos));
 	GetConst(COMMON_CONS, &common);
 	cons_heap(ret, common, pos);
+
+	return 0;
 }
 
-static void bq_remove_tokens(addr pos, addr *ret)
+static int bq_remove_tokens_(addr pos, addr *ret)
 {
 	/* (list ...) */
 	if (quote_list_p(pos)) {
-		bq_remove_tokens_list(CONSTANT_COMMON_LIST, pos, ret);
-		return;
+		return bq_remove_tokens_list_(CONSTANT_COMMON_LIST, pos, ret);
 	}
 
 	/* (append ...) */
 	if (quote_append_p(pos)) {
-		bq_remove_tokens_list(CONSTANT_COMMON_APPEND, pos, ret);
-		return;
+		return bq_remove_tokens_list_(CONSTANT_COMMON_APPEND, pos, ret);
 	}
 
 	/* (nconc ...) */
 	if (quote_nconc_p(pos)) {
-		bq_remove_tokens_list(CONSTANT_COMMON_NCONC, pos, ret);
-		return;
+		return bq_remove_tokens_list_(CONSTANT_COMMON_NCONC, pos, ret);
 	}
 
 	/* (list* a b) -> (conc a b) */
 	if (quote_lista_cons_p(pos)) {
-		bq_remove_tokens_cons(pos, ret);
-		return;
+		return bq_remove_tokens_cons_(pos, ret);
 	}
 
 	/* (list* ...) */
 	if (quote_lista_p(pos)) {
-		bq_remove_tokens_list(CONSTANT_COMMON_LISTA, pos, ret);
-		return;
+		return bq_remove_tokens_list_(CONSTANT_COMMON_LISTA, pos, ret);
 	}
 
 	/* (quote x) */
 	if (quote_quote_p(pos)) {
-		bq_remove_tokens_args(CONSTANT_COMMON_QUOTE, pos, ret);
-		return;
+		return bq_remove_tokens_args_(CONSTANT_COMMON_QUOTE, pos, ret);
 	}
 
 	/* (clobberable x) -> x */
 	if (quote_clobberable_p(pos)) {
 		getvalue_quote(pos, &pos);
-		bq_remove_tokens(pos, ret);
-		return;
+		return bq_remove_tokens_(pos, ret);
 	}
 
 	/* x */
 	if (bq_atom(pos)) {
-		*ret = pos;
-		return;
+		return Result(ret, pos);
 	}
 
 	/* (a . b) */
-	bq_maptree(bq_remove_tokens, pos, ret);
+	return bq_maptree_(bq_remove_tokens_, pos, ret);
 }
 
 
 /*
  *  interface
  */
-static void bq_completely_process(addr pos, addr *ret)
+static int bq_completely_process_(addr pos, addr *ret)
 {
-	bq_process(pos, &pos);
-	if (bq_simplify_p)
-		bq_simplify(pos, &pos);
-	bq_remove_tokens(pos, ret);
+	Return(bq_process_(pos, &pos));
+	if (bq_simplify_p) {
+		Return(bq_simplify_(pos, &pos));
+	}
+	return bq_remove_tokens_(pos, ret);
 }
 
-_g void quote_back_heap(addr *ret, addr form)
+_g int quote_back_heap_(addr *ret, addr form)
 {
 	addr pos, value;
 
-	bq_completely_process(form, &value);
+	Return(bq_completely_process_(form, &value));
 	quote2_heap(&pos, QuoteType_Back, value, form);
-	*ret = pos;
+	return Result(ret, pos);
 }
 
 _g void quote_comma_heap(addr *ret, addr form)

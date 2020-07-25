@@ -63,7 +63,7 @@ _g int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *re
 /*
  *  with-compilation-unit
  */
-_g void with_compilation_unit_common(addr form, addr *ret)
+_g int with_compilation_unit_common_(addr form, addr *ret)
 {
 	/* (defmacro with-compilation-unit
 	 *     ((&rest args &key &allow-other-keys) &body body)
@@ -88,12 +88,12 @@ _g void with_compilation_unit_common(addr form, addr *ret)
 	lista_heap(&lambda, lambda, Nil, body, NULL);
 	quotelist_heap(&args, args);
 	list_heap(ret, with, over, args, lambda, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("WITH-COMPILATION-UNIT form ~S "
-			"must be a ((&key ...) &body ...) form.", form, NULL);
 	*ret = Nil;
+	return fmte_("WITH-COMPILATION-UNIT form ~S "
+			"must be a ((&key ...) &body ...) form.", form, NULL);
 }
 
 static int function_handler_delay_warning(Execute ptr, addr condition)
@@ -121,14 +121,14 @@ static int function_handler_delay_warning(Execute ptr, addr condition)
 	return invoke_restart_control_(ptr, condition, Nil);
 }
 
-static void handler_delay_warning(Execute ptr)
+static int handler_delay_warning_(Execute ptr)
 {
 	addr pos, call;
 
 	GetConst(CONDITION_DELAY_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_delay_warning);
-	pushhandler_common(ptr, pos, call, 0);
+	return pushhandler_common_(ptr, pos, call, 0);
 }
 
 static int with_compilation_unit_override(Execute ptr, addr pos)
@@ -156,7 +156,7 @@ static int function_finalize_delay_warning(Execute ptr)
 
 	while (list != Nil) {
 		GetCons(list, &x, &list);
-		Return(warning_restart_case(ptr, x));
+		Return(warning_restart_case_(ptr, x));
 	}
 
 	return 0;
@@ -179,7 +179,7 @@ _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr cal
 
 	/* push control */
 	push_new_control(ptr, &restart);
-	handler_delay_warning(ptr);
+	Return(handler_delay_warning_(ptr));
 
 	/* funcall */
 	Return(funcall_control(ptr, call, NULL));

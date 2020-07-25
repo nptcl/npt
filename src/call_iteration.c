@@ -154,7 +154,7 @@ static int do_constant_common(addr form, addr *ret,
 	if (! consp(end))
 		goto error;
 	GetCons(end, &end, &result);
-	declare_body_form(args, &decl, &args);
+	Return(declare_body_form_(args, &decl, &args));
 	return do_expand_common(ret, let, setq, var, end, result, decl, args);
 
 error:
@@ -307,7 +307,7 @@ _g int dolist_common(Execute ptr, addr form, addr env, addr *ret)
 		if (check != Nil)
 			goto error;
 	}
-	declare_body_form(args, &decl, &args);
+	Return(declare_body_form_(args, &decl, &args));
 	return dolist_expand_common(ptr, ret, var, list, result, decl, args);
 
 error:

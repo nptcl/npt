@@ -57,7 +57,7 @@ static void defun_decode_universal_time(void)
 
 	/* function */
 	GetConst(COMMON_DECODE_UNIVERSAL_TIME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_decode_universal_time);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -130,7 +130,7 @@ static void defun_encode_universal_time(void)
 
 	/* function */
 	GetConst(COMMON_ENCODE_UNIVERSAL_TIME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_encode_universal_time);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -166,7 +166,7 @@ static void defun_get_universal_time(void)
 
 	/* function */
 	GetConst(COMMON_GET_UNIVERSAL_TIME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_get_universal_time);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -208,7 +208,7 @@ static void defun_get_decoded_time(void)
 
 	/* function */
 	GetConst(COMMON_GET_DECODED_TIME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_get_decoded_time);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -244,7 +244,7 @@ static void defun_sleep(void)
 
 	/* function */
 	GetConst(COMMON_SLEEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_sleep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -279,7 +279,7 @@ static void defun_apropos(void)
 
 	/* function */
 	GetConst(COMMON_APROPOS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_apropos);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -314,7 +314,7 @@ static void defun_apropos_list(void)
 
 	/* function */
 	GetConst(COMMON_APROPOS_LIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_apropos_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -349,7 +349,7 @@ static void defun_describe(void)
 
 	/* function */
 	GetConst(COMMON_DESCRIBE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_describe);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -362,7 +362,7 @@ static void defun_describe(void)
 /* (defmacro trace (&rest args) ...) -> list */
 static int function_trace(Execute ptr, addr form, addr env)
 {
-	trace_common(form, env, &form);
+	Return(trace_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -372,7 +372,7 @@ static void defun_trace(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_TRACE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_trace);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -384,7 +384,7 @@ static void defun_trace(void)
 /* (defmacro untrace (&rest args) ...) -> list */
 static int function_untrace(Execute ptr, addr form, addr env)
 {
-	untrace_common(form, env, &form);
+	Return(untrace_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -394,7 +394,7 @@ static void defun_untrace(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_UNTRACE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_untrace);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -416,7 +416,7 @@ static void defmacro_step(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_STEP, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_step);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -438,7 +438,7 @@ static void defmacro_time(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_TIME, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_time);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -477,7 +477,7 @@ static void defun_get_internal_real_time(void)
 
 	/* function */
 	GetConst(COMMON_GET_INTERNAL_REAL_TIME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_get_internal_real_time);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -504,7 +504,7 @@ static void defun_get_internal_run_time(void)
 
 	/* function */
 	GetConst(COMMON_GET_INTERNAL_RUN_TIME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_get_internal_run_time);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -538,7 +538,7 @@ static void defun_disassemble(void)
 
 	/* function */
 	GetConst(COMMON_DISASSEMBLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_disassemble);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -575,7 +575,7 @@ static void defun_room(void)
 
 	/* function */
 	GetConst(COMMON_ROOM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_room);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -612,7 +612,7 @@ static void defun_ed(void)
 
 	/* function */
 	GetConst(COMMON_ED, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_ed);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -646,7 +646,7 @@ static void defun_inspect(void)
 
 	/* function */
 	GetConst(COMMON_INSPECT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_inspect);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -680,7 +680,7 @@ static void defun_dribble(void)
 
 	/* function */
 	GetConst(COMMON_DRIBBLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_dribble);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -707,7 +707,7 @@ static void defun_lisp_implementation_type(void)
 
 	/* function */
 	GetConst(COMMON_LISP_IMPLEMENTATION_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_lisp_implementation_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -734,7 +734,7 @@ static void defun_lisp_implementation_version(void)
 
 	/* function */
 	GetConst(COMMON_LISP_IMPLEMENTATION_VERSION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_lisp_implementation_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -761,7 +761,7 @@ static void defun_short_site_name(void)
 
 	/* function */
 	GetConst(COMMON_SHORT_SITE_NAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_short_site_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -788,7 +788,7 @@ static void defun_long_site_name(void)
 
 	/* function */
 	GetConst(COMMON_LONG_SITE_NAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_long_site_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -815,7 +815,7 @@ static void defun_machine_instance(void)
 
 	/* function */
 	GetConst(COMMON_MACHINE_INSTANCE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_machine_instance);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -842,7 +842,7 @@ static void defun_machine_type(void)
 
 	/* function */
 	GetConst(COMMON_MACHINE_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_machine_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -869,7 +869,7 @@ static void defun_machine_version(void)
 
 	/* function */
 	GetConst(COMMON_MACHINE_VERSION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_machine_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -896,7 +896,7 @@ static void defun_software_type(void)
 
 	/* function */
 	GetConst(COMMON_SOFTWARE_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_software_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -923,7 +923,7 @@ static void defun_software_version(void)
 
 	/* function */
 	GetConst(COMMON_SOFTWARE_VERSION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_software_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -965,7 +965,7 @@ static void defun_user_homedir_pathname(void)
 
 	/* function */
 	GetConst(COMMON_USER_HOMEDIR_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_user_homedir_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */

@@ -62,7 +62,7 @@ _g int readlist_input(Execute ptr, addr file, addr *ret)
 
 	Return(readlist_unwind_protect_(ptr, file, &list));
 	if (list == Unbound)
-		fmte("Invalid file ~S.", file, NULL);
+		return fmte_("Invalid file ~S.", file, NULL);
 
 	return Result(ret, list);
 }

@@ -108,8 +108,7 @@ _g void setcharacter_unsafe(addr pos, unicode value)
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	type = character_type(value);
-	if (type == CHARACTER_TYPE_INVALID)
-		fmte("Invaild character code.", NULL);
+	Check(type == CHARACTER_TYPE_INVALID, "Invaild character code.");
 	SetCharacterType(pos, type);
 	SetCharacter_Low(pos, value);
 }

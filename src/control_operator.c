@@ -177,8 +177,7 @@ _g int go_control_(Execute ptr, addr pos)
 	str = StructTagInfo(pos);
 	if (str->open == 0) {
 		GetNameTagInfo(pos, &pos);
-		fmte("Tag ~S already closed.", pos, NULL);
-		return 0;
+		return fmte_("Tag ~S already closed.", pos, NULL);
 	}
 
 	/* rollback */
@@ -197,8 +196,7 @@ _g int return_from_control_(Execute ptr, addr pos)
 	str = StructTagInfo(pos);
 	if (str->open == 0) {
 		GetNameTagInfo(pos, &pos);
-		fmte("Block ~S already closed.", pos, NULL);
-		return 0;
+		return fmte_("Block ~S already closed.", pos, NULL);
 	}
 
 	/* rollback */
@@ -236,7 +234,7 @@ _g int throw_control_(Execute ptr, addr name)
 
 	/* find name */
 	if (! throw_find_control(ptr, &next, name))
-		fmte("Cannot find catch name ~S.", name, NULL);
+		return fmte_("Cannot find catch name ~S.", name, NULL);
 	/* rollback */
 	ptr->throw_control = next;
 	ptr->throw_point_p = 0;
@@ -247,7 +245,7 @@ _g int throw_control_(Execute ptr, addr name)
 /*
  *  handler
  */
-_g void pushhandler_common(Execute ptr, addr name, addr call, int escape)
+_g int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
 {
 	addr pos;
 
@@ -255,11 +253,12 @@ _g void pushhandler_common(Execute ptr, addr name, addr call, int escape)
 	if (symbolp(name))
 		clos_find_class(name, &name);
 	if (! conditionp(name))
-		fmte("The value ~S must be a condition instance.", name, NULL);
+		return fmte_("The value ~S must be a condition instance.", name, NULL);
 
 	/* push handler */
 	handler_local(ptr->local, &pos, name, call, escape);
 	pushhandler_control(ptr, pos);
+	return 0;
 }
 
 _g void reverse_handler_control(Execute ptr)
@@ -368,19 +367,20 @@ _g int invoke_handler_control_(Execute ptr, addr instance)
 /*
  *  invoke-restart
  */
-static void redirect_restart(addr restart, addr *ret)
+static int redirect_restart_(addr restart, addr *ret)
 {
 	for (;;) {
 		if (! getenable_restart(restart))
-			fmte("The restart ~S is already closed.", restart, NULL);
+			return fmte_("The restart ~S is already closed.", restart, NULL);
 		if (! getredirect_restart(restart))
 			break;
 		getreference_restart(restart, &restart);
 	}
-	*ret = restart;
+
+	return Result(ret, restart);
 }
 
-static void rollback_restart_control(addr control, addr restart, addr *ret)
+static int rollback_restart_control_(addr control, addr restart, addr *ret)
 {
 	addr list, check;
 
@@ -388,15 +388,13 @@ static void rollback_restart_control(addr control, addr restart, addr *ret)
 		getrestart_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &check, &list);
-			if (check == restart) {
-				*ret = control;
-				return;
-			}
+			if (check == restart)
+				return Result(ret, control);
 		}
 		GetControl(control, Control_Next, &control);
 	}
 	*ret = 0;
-	fmte("The restart ~S is invalid.", restart, NULL);
+	return fmte_("The restart ~S is invalid.", restart, NULL);
 }
 
 _g int invoke_restart_control_(Execute ptr, addr restart, addr args)
@@ -409,14 +407,14 @@ _g int invoke_restart_control_(Execute ptr, addr restart, addr args)
 	}
 
 	/* call */
-	redirect_restart(restart, &restart);
+	Return(redirect_restart_(restart, &restart));
 	getfunction_restart(restart, &call);
 	Return(apply_control(ptr, call, args));
 
 	/* escape */
 	escape = getescape_restart(restart);
 	if (escape) {
-		rollback_restart_control(ptr->control, restart, &next);
+		Return(rollback_restart_control_(ptr->control, restart, &next));
 		ptr->throw_control = next;
 		ptr->throw_point_p = 0;
 		exit_control(ptr);
@@ -434,7 +432,7 @@ _g int invoke_restart_interactively_control_(Execute ptr, addr restart)
 		Return(find_restart_control_error_(ptr, restart, Nil, &restart));
 	}
 
-	redirect_restart(restart, &restart);
+	Return(redirect_restart_(restart, &restart));
 	getinteractive_restart(restart, &args);
 	if (args != Nil) {
 		Return(callclang_apply(ptr, &args, args, Nil));
@@ -490,7 +488,7 @@ static int find_restart_stack_(Execute ptr,
 		getrestart_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &restart, &list);
-			redirect_restart(restart, &restart);
+			Return(redirect_restart_(restart, &restart));
 			Return(equal_restart_control_(ptr,
 						restart, symbol, condition, value, &check));
 			if (check)
@@ -554,7 +552,7 @@ _g int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
 		getrestart_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &restart, &list);
-			redirect_restart(restart, &restart);
+			Return(redirect_restart_(restart, &restart));
 			Return(test_restart_control_(ptr, restart, condition, &check));
 			if (check) {
 				pushnew_heap(root, restart, &root);

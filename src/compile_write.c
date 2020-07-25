@@ -170,10 +170,9 @@ _g int faslwrite_value(Execute ptr, addr stream, addr pos)
 	type = GetType(pos);
 	Check(LISPTYPE_COMPILE <= type, "type error");
 	call = FaslWrite_Value[type];
-	if (call == NULL) {
-		fmte("Invalid value ~S.", pos, NULL);
-		return 0;
-	}
+	if (call == NULL)
+		return fmte_("Invalid value ~S.", pos, NULL);
+
 	return (*call)(ptr, stream, pos);
 }
 

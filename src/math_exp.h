@@ -18,11 +18,11 @@ _g void acosh_common(addr pos, addr *ret);
 _g void atanh_common(addr pos, addr *ret);
 
 _g void cis_common(addr pos, addr *ret);
-_g void atan2_common(addr left, addr right, addr *ret);
-_g void atan_optional_common(addr var, addr opt, addr *ret);
-_g void log_natural_common(addr value, addr *ret);
-_g void log_base_common(addr value, addr base, addr *ret);
-_g void log_common(addr value, addr base, addr *ret);
+_g int atan2_common_(addr left, addr right, addr *ret);
+_g int atan_optional_common_(addr var, addr opt, addr *ret);
+_g int log_natural_common_(addr value, addr *ret);
+_g int log_base_common_(addr value, addr base, addr *ret);
+_g int log_common_(addr value, addr base, addr *ret);
 _g void phase_common(addr pos, addr *ret);
 
 #endif

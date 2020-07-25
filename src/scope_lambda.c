@@ -776,7 +776,7 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	Return(lambda_tablevalue_(ptr, str->args));
 	lambda_declare(ptr, str);
 	Return(lambda_progn(ptr, str));
-	ignore_checkvalue(stack);
+	Return(ignore_checkvalue_(stack));
 	lambda_closure(ptr, str);
 	lambda_lexical(str);
 
@@ -999,7 +999,7 @@ static int macro_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(macro_tablevalue_(ptr, str->args));
 	Return(macro_progn(ptr, str));
-	ignore_checkvalue(stack);
+	Return(ignore_checkvalue_(stack));
 	lambda_closure(ptr, str);
 	lambda_lexical(str);
 
@@ -1182,7 +1182,7 @@ static int flet_applytable_(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-static void ignore_checkfunction(addr stack)
+static int ignore_checkfunction_(addr stack)
 {
 	enum IgnoreType ignore;
 	int reference;
@@ -1201,12 +1201,14 @@ static void ignore_checkfunction(addr stack)
 		GetCallName(call, &symbol);
 
 		if (ignore == IgnoreType_None && (! reference)) {
-			fmtw("Unused variable ~S.", symbol, NULL);
+			Return(fmtw_("Unused variable ~S.", symbol, NULL));
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
-			fmtw("Ignore variable ~S used.", symbol, NULL);
+			Return(fmtw_("Ignore variable ~S used.", symbol, NULL));
 		}
 	}
+
+	return 0;
 }
 
 static int flet_execute(Execute ptr, struct let_struct *str)
@@ -1219,7 +1221,7 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(flet_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
-	ignore_checkfunction(stack);
+	Return(ignore_checkfunction_(stack));
 
 	return 0;
 }
@@ -1299,7 +1301,7 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(labels_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
-	ignore_checkfunction(stack);
+	Return(ignore_checkfunction_(stack));
 
 	return 0;
 }

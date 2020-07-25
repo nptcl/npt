@@ -6,8 +6,8 @@
 #include "typedef.h"
 
 _g int disassemble_common(Execute ptr, addr pos);
-_g void trace_common(addr form, addr env, addr *ret);
-_g void untrace_common(addr form, addr env, addr *ret);
+_g int trace_common_(addr form, addr env, addr *ret);
+_g int untrace_common_(addr form, addr env, addr *ret);
 _g int trace_add_common_(Execute ptr, addr list, addr *ret);
 _g int trace_del_common_(Execute ptr, addr list, addr *ret);
 

@@ -727,10 +727,11 @@ _g void callnamep_syscall(addr var, addr *ret)
 
 
 /* large-number */
-_g void large_number_syscode(LocalRoot local, addr var, addr opt, addr *ret)
+_g int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret)
 {
-	if (opt == Unbound) opt = T;
-	english_unit_heap(local, ret, var, opt != Nil);
+	if (opt == Unbound)
+		opt = T;
+	return english_unit_heap_(local, ret, var, opt != Nil);
 }
 
 
@@ -944,9 +945,9 @@ _g int pprint_pretty_syscode(Execute ptr, addr stream, addr call)
 
 
 /* eastasian-set */
-_g void eastasian_set_syscode(addr var, addr value, addr errorp, addr *ret)
+_g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret)
 {
-	eastasian_set_syscall(var, value, errorp, ret);
+	return eastasian_set_syscall_(var, value, errorp, ret);
 }
 
 

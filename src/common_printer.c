@@ -32,7 +32,7 @@ static void defun_copy_pprint_dispatch(void)
 
 	/* function */
 	GetConst(COMMON_COPY_PPRINT_DISPATCH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_copy_pprint_dispatch);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -55,7 +55,7 @@ static void defmacro_formatter(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_FORMATTER, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_formatter);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -91,7 +91,7 @@ static void defun_pprint_dispatch(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_DISPATCH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_pprint_dispatch);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -121,7 +121,7 @@ static void defun_pprint_fill(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_FILL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_pprint_fill);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -151,7 +151,7 @@ static void defun_pprint_linear(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_LINEAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_pprint_linear);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -196,7 +196,7 @@ static void defun_pprint_tabular(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_TABULAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt3(pos, p_defun_pprint_tabular);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -238,7 +238,7 @@ static void defun_pprint_indent(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_INDENT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_pprint_indent);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -264,7 +264,7 @@ static void defmacro_pprint_logical_block(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_PPRINT_LOGICAL_BLOCK, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_pprint_logical_block);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -301,7 +301,7 @@ static void defun_pprint_newline(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_NEWLINE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_pprint_newline);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -343,7 +343,7 @@ static void defun_pprint_tab(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT_TAB, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_pprint_tab);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -372,7 +372,7 @@ static void defmacro_print_unreadable_object(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_PRINT_UNREADABLE_OBJECT, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_print_unreadable_object);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -414,7 +414,7 @@ static void defun_set_pprint_dispatch(void)
 
 	/* function */
 	GetConst(COMMON_SET_PPRINT_DISPATCH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_set_pprint_dispatch);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -495,7 +495,7 @@ static void defun_write(void)
 
 	/* function */
 	GetConst(COMMON_WRITE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_write);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -521,7 +521,7 @@ static void defun_prin1(void)
 
 	/* function */
 	GetConst(COMMON_PRIN1, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_prin1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -547,7 +547,7 @@ static void defun_princ(void)
 
 	/* function */
 	GetConst(COMMON_PRINC, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_princ);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -573,7 +573,7 @@ static void defun_print(void)
 
 	/* function */
 	GetConst(COMMON_PRINT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_print);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -610,7 +610,7 @@ static void defun_pprint(void)
 
 	/* function */
 	GetConst(COMMON_PPRINT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_pprint);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -652,7 +652,7 @@ static void defun_write_to_string(void)
 
 	/* function */
 	GetConst(COMMON_WRITE_TO_STRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_write_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -676,7 +676,7 @@ static void defun_prin1_to_string(void)
 
 	/* function */
 	GetConst(COMMON_PRIN1_TO_STRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_prin1_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -700,7 +700,7 @@ static void defun_princ_to_string(void)
 
 	/* function */
 	GetConst(COMMON_PRINC_TO_STRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_princ_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -960,7 +960,7 @@ static void defun_print_not_readable_object(void)
 
 	/* function */
 	GetConst(COMMON_PRINT_NOT_READABLE_OBJECT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_print_not_readable_object);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1001,7 +1001,7 @@ static void defun_format(void)
 
 	/* function */
 	GetConst(COMMON_FORMAT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_format);
 	SetFunctionCommon(symbol, pos);
 	/* type */

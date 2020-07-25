@@ -43,7 +43,7 @@ static int test_call_callbind_any(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, any, test_function_any);
 	setcompiled_any(pos, p_debug1);
@@ -68,7 +68,7 @@ static int test_call_callbind_empty(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, empty, test_function_any);
 	setcompiled_empty(pos, p_debug1);
@@ -94,7 +94,7 @@ static int test_call_callbind_dynamic(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, dynamic, test_function_dynamic);
 	setcompiled_dynamic(pos, p_debug1);
@@ -129,7 +129,7 @@ static int test_call_callbind_rest(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, rest, test_function_rest);
 	setcompiled_rest(pos, p_debug1);
@@ -160,7 +160,7 @@ static int test_call_callbind_var1(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1, test_function_var1);
 	setcompiled_var1(pos, p_debug1);
@@ -186,7 +186,7 @@ static int test_call_callbind_var2(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var2, test_function_var2);
 	setcompiled_var2(pos, p_debug1);
@@ -213,7 +213,7 @@ static int test_call_callbind_var3(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var3, test_function_var3);
 	setcompiled_var3(pos, p_debug1);
@@ -239,7 +239,7 @@ static int test_call_callbind_opt1(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, opt1, test_function_opt1);
 	setcompiled_opt1(pos, p_debug1);
@@ -276,7 +276,7 @@ static int test_call_callbind_opt2(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, opt2, test_function_opt2);
 	setcompiled_opt2(pos, p_debug1);
@@ -331,7 +331,7 @@ static int test_call_callbind_opt3(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, opt3, test_function_opt3);
 	setcompiled_opt3(pos, p_debug1);
@@ -385,7 +385,7 @@ static int test_call_callbind_var1opt1(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1opt1, test_function_var1opt1);
 	setcompiled_var1opt1(pos, p_debug1);
@@ -428,7 +428,7 @@ static int test_call_callbind_var2opt1(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var2opt1, test_function_var2opt1);
 	setcompiled_var2opt1(pos, p_debug1);
@@ -475,7 +475,7 @@ static int test_call_callbind_var1opt2(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1opt2, test_function_var1opt2);
 	setcompiled_var1opt2(pos, p_debug1);
@@ -525,7 +525,7 @@ static int test_call_callbind_var1rest(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1rest, test_function_var1rest);
 	setcompiled_var1rest(pos, p_debug1);
@@ -569,7 +569,7 @@ static int test_call_callbind_var2rest(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var2rest, test_function_var2rest);
 	setcompiled_var2rest(pos, p_debug1);

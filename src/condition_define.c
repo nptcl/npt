@@ -366,6 +366,42 @@ _g void division_by_zero2(addr left, addr right)
 }
 
 
+_g int call_division_by_zero_(Execute ptr, addr operation, addr operands)
+{
+	addr instance;
+	instance_division_by_zero(&instance, operation, operands);
+	return error_function_(ptr, instance);
+}
+_g int call_division_by_zero_const_(Execute ptr, constindex index, addr operands)
+{
+	addr operation;
+	GetConstant(index, &operation);
+	return call_division_by_zero_(ptr, operation, operands);
+}
+_g int call_division_by_zero_real1_(Execute ptr, constindex index, addr x)
+{
+	number_throw_heap(x, &x);
+	list_heap(&x, x, NULL);
+	return call_division_by_zero_const_(ptr, index, x);
+}
+_g int call_division_by_zero_real2_(Execute ptr, constindex index, addr x, addr y)
+{
+	number_throw_heap(x, &x);
+	number_throw_heap(y, &y);
+	list_heap(&x, x, y, NULL);
+	return call_division_by_zero_const_(ptr, index, x);
+}
+
+_g int call_division_by_zero1_(Execute ptr, addr left)
+{
+	return call_division_by_zero_real1_(ptr, CONSTANT_COMMON_SLASH, left);
+}
+_g int call_division_by_zero2_(Execute ptr, addr left, addr right)
+{
+	return call_division_by_zero_real2_(ptr, CONSTANT_COMMON_SLASH, left, right);
+}
+
+
 /* cell_error (error) :name */
 static void instance_condition1(addr *ret, constindex index,
 		constindex index1, addr pos1)

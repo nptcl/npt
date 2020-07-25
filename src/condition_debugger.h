@@ -4,8 +4,8 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g void handler_warning(Execute ptr);
-_g void handler_savecore(Execute ptr);
+_g int handler_warning_(Execute ptr);
+_g int handler_savecore_(Execute ptr);
 _g int invoke_debugger(Execute ptr, addr condition);
 _g void set_enable_debugger(Execute ptr, int value);
 

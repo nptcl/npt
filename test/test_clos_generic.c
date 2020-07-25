@@ -167,7 +167,7 @@ static int test_comb_standard_method(void)
 
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &call);
-	compiled_heap(&call, call);
+	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
@@ -225,7 +225,7 @@ static int test_comb_standard_funcall(void)
 
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC2", &call);
-	compiled_heap(&call, call);
+	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_funcall_call);
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
@@ -254,7 +254,7 @@ static int test_function_standard_lambda(void)
 
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC3", &call);
-	compiled_heap(&call, call);
+	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
@@ -289,7 +289,7 @@ static int test_comb_standard_qualifiers(void)
 	/* make method */
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC4", &call);
-	compiled_heap(&call, call);
+	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
@@ -319,7 +319,7 @@ static int test_comb_standard(void)
 	vector4_heap(&data, 4);
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC5", &call);
-	compiled_heap(&call, call);
+	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
@@ -668,7 +668,7 @@ static int test_generic_make_type(void)
 	/* method */
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
-	compiled_heap(&pos, pos);
+	compiled_system(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);
 	stdset_method_function(method, pos);
@@ -793,7 +793,7 @@ static int test_closrun_execute(void)
 	/* method */
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
-	compiled_heap(&pos, pos);
+	compiled_system(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);
 	stdset_method_function(method, pos);

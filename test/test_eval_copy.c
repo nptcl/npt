@@ -46,7 +46,7 @@ static void test_eval_copy_ordinary(addr *ret, addr pos)
 	push_execute_eval(ptr, T);
 	init_parse_step(ptr);
 
-	parse_ordinary(ptr, ret, pos);
+	parse_ordinary_(ptr, ret, pos);
 	free_control_(ptr, control);
 }
 

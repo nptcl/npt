@@ -381,6 +381,7 @@ static void comb_standard_qualifiers(LocalRoot local,
 
 	stdget_generic_method_class(gen, &clos);
 	GetConst(SYSTEM_STANDARD, &name);
+	ParseCallName(local, &name, name);
 	compiled_local(local, &call, name);
 	setcompiled_any(call, p_defun_standard_lambda);
 	list_local(local, &data, before, primary, after, NULL);

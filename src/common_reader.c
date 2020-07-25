@@ -37,7 +37,7 @@ static void defun_copy_readtable(void)
 
 	/* function */
 	GetConst(COMMON_COPY_READTABLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt2(pos, p_defun_copy_readtable);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -82,7 +82,7 @@ static void defun_make_dispatch_macro_character(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_DISPATCH_MACRO_CHARACTER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt2(pos, p_defun_make_dispatch_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -111,7 +111,7 @@ static void defun_read(void)
 
 	/* function */
 	GetConst(COMMON_READ, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_read);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -140,7 +140,7 @@ static void defun_read_preserving_whitespace(void)
 
 	/* function */
 	GetConst(COMMON_READ_PRESERVING_WHITESPACE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_read_preserving_whitespace);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -179,7 +179,7 @@ static void defun_read_delimited_list(void)
 
 	/* function */
 	GetConst(COMMON_READ_DELIMITED_LIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt2(pos, p_defun_read_delimited_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -247,7 +247,7 @@ static void defun_read_from_string(void)
 
 	/* function */
 	GetConst(COMMON_READ_FROM_STRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_read_from_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -284,7 +284,7 @@ static void defun_readtable_case(void)
 
 	/* function */
 	GetConst(COMMON_READTABLE_CASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_readtable_case);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -319,7 +319,7 @@ static void defun_setf_readtable_case(void)
 
 	/* function */
 	GetConst(COMMON_READTABLE_CASE, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_readtable_case);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -342,7 +342,7 @@ static void defun_readtablep(void)
 
 	/* function */
 	GetConst(COMMON_READTABLEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_readtablep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -385,7 +385,7 @@ static void defun_get_dispatch_macro_character(void)
 
 	/* function */
 	GetConst(COMMON_GET_DISPATCH_MACRO_CHARACTER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_get_dispatch_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -428,7 +428,7 @@ static void defun_set_dispatch_macro_character(void)
 
 	/* function */
 	GetConst(COMMON_SET_DISPATCH_MACRO_CHARACTER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_set_dispatch_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -471,7 +471,7 @@ static void defun_get_macro_character(void)
 
 	/* function */
 	GetConst(COMMON_GET_MACRO_CHARACTER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_get_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -516,7 +516,7 @@ static void defun_set_macro_character(void)
 
 	/* function */
 	GetConst(COMMON_SET_MACRO_CHARACTER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_set_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -559,7 +559,7 @@ static void defun_set_syntax_from_char(void)
 
 	/* function */
 	GetConst(COMMON_SET_SYNTAX_FROM_CHAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_set_syntax_from_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -582,7 +582,7 @@ static void defmacro_with_standard_io_syntax(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_STANDARD_IO_SYNTAX, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_standard_io_syntax);
 	SetMacroCommon(symbol, pos);
 	/* type */

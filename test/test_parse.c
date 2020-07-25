@@ -25,7 +25,7 @@ static int test_check_variable(void)
 	addr pos;
 
 	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
-	check_variable(pos);
+	Error(check_variable_(pos));
 	test(1, "check_variable1");
 
 	RETURN;
@@ -36,10 +36,10 @@ static int test_check_function_variable(void)
 	addr pos;
 
 	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
-	check_function_variable(pos);
+	Error(check_function_variable_(pos));
 	test(1, "check_function_variable1");
 	test(parse_callname_heap(&pos, pos) == 0, "check_function_variable2");
-	check_function_variable(pos);
+	Error(check_function_variable_(pos));
 	test(1, "check_function_variable3");
 
 	RETURN;

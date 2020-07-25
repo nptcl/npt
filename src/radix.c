@@ -543,28 +543,31 @@ static void english_unit_string(LocalRoot local,
 		make_charqueue_heap(queue, ret);
 }
 
-_g void english_unit_local(LocalRoot local, addr *ret, addr pos, int cardinal)
+_g int english_unit_local_(LocalRoot local, addr *ret, addr pos, int cardinal)
 {
 	fixnum value;
 
 	Check(local == NULL, "local error");
 	if (GetFixnum_signed(pos, &value))
-		fmte("The argument ~S must be a positive fixnum.", pos, NULL);
+		return fmte_("The argument ~S must be a positive fixnum.", pos, NULL);
+
 	english_unit_string(local, ret, value, cardinal, 1);
+	return 0;
 }
 
-_g void english_unit_heap(LocalRoot local, addr *ret, addr pos, int cardinal)
+_g int english_unit_heap_(LocalRoot local, addr *ret, addr pos, int cardinal)
 {
 	fixnum value;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");
 	if (GetFixnum_signed(pos, &value))
-		fmte("The argument ~S must be a positive fixnum.", pos, NULL);
+		return fmte_("The argument ~S must be a positive fixnum.", pos, NULL);
 
 	push_local(local, &stack);
 	english_unit_string(local, ret, value, cardinal, 0);
 	rollback_local(local, stack);
+	return 0;
 }
 
 

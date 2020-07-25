@@ -20,7 +20,8 @@ _g int conditionp(addr pos)
 {
 	addr super;
 
-	if (GetType(pos) != LISPTYPE_CLOS) return 0;
+	if (GetType(pos) != LISPTYPE_CLOS)
+		return 0;
 	GetConst(CLOS_CONDITION, &super);
 	return clos_subclass_p(pos, super);
 }
@@ -29,7 +30,8 @@ _g int condition_instance_p(addr pos)
 {
 	addr super;
 
-	if (GetType(pos) != LISPTYPE_CLOS) return 0;
+	if (GetType(pos) != LISPTYPE_CLOS)
+		return 0;
 	GetConst(CLOS_CONDITION, &super);
 	return clos_subtype_p(pos, super);
 }
@@ -50,40 +52,12 @@ _g int signal_function_(Execute ptr, addr condition)
 		return invoke_handler_control_(ptr, condition);
 }
 
-_g void error_function(addr condition)
-{
-	int check;
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	gchold_push_local(ptr->local, condition);
-	check = signal_function_(ptr, condition)
-		|| invoke_debugger(ptr, condition);
-	if (check) {
-		fmte("~&Invalid signal call.~%", NULL);
-		abortthis();
-		return;
-	}
-}
-
 _g int error_function_(Execute ptr, addr condition)
 {
 	gchold_push_local(ptr->local, condition);
-	Return(signal_function_(ptr, condition))
+	Return(signal_function_(ptr, condition));
 	Return(invoke_debugger(ptr, condition));
 	return 0;
-}
-
-_g void callclang_error(const char *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	strvect_char_heap(&format, str);
-	va_start(va, str);
-	copylocal_list_stdarg(NULL, &args, va);
-	va_end(va);
-	simple_error(format, args);
 }
 
 _g int callclang_error_(const char *str, ...)
@@ -120,7 +94,7 @@ static void warning_restart_make(addr *ret)
 	*ret = inst;
 }
 
-_g int warning_restart_case(Execute ptr, addr instance)
+_g int warning_restart_case_(Execute ptr, addr instance)
 {
 	addr control, restart;
 
@@ -128,21 +102,6 @@ _g int warning_restart_case(Execute ptr, addr instance)
 	warning_restart_make(&restart);
 	Return(restart1_control(ptr, restart, signal_function_, instance));
 	return free_control_(ptr, control);
-}
-
-_g void callclang_warning(const char *str, ...)
-{
-	addr format, args, instance;
-	va_list va;
-
-	strvect_char_heap(&format, str);
-	va_start(va, str);
-	copylocal_list_stdarg(NULL, &args, va);
-	va_end(va);
-	/* instance */
-	instance_simple_warning(&instance, format, args);
-	if (warning_restart_case(Execute_Thread, instance))
-		fmte("signal error.", NULL);
 }
 
 _g int callclang_warning_(const char *str, ...)
@@ -155,7 +114,39 @@ _g int callclang_warning_(const char *str, ...)
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
 	instance_simple_warning(&instance, format, args);
-	return warning_restart_case(Execute_Thread, instance);
+	return warning_restart_case_(Execute_Thread, instance);
+}
+
+
+/*
+ *  deprecated
+ */
+_g void error_function(addr condition)
+{
+	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	gchold_push_local(ptr->local, condition);
+	check = signal_function_(ptr, condition)
+		|| invoke_debugger(ptr, condition);
+	if (check) {
+		fmte("~&Invalid signal call.~%", NULL);
+		abortthis();
+		return;
+	}
+}
+
+_g void callclang_error(const char *str, ...)
+{
+	addr format, args;
+	va_list va;
+
+	strvect_char_heap(&format, str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	simple_error(format, args);
 }
 
 

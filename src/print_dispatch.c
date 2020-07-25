@@ -330,7 +330,7 @@ static void make_print_dispatch_function(addr *ret, constindex name, pointer id)
 
 	/* function */
 	GetConstant(name, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, id);
 	SetFunctionSymbol(symbol, pos);
 	/* type */

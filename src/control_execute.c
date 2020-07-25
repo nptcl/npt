@@ -316,24 +316,23 @@ _g int execute_control(Execute ptr, addr call)
 /*
  *  checkargs
  */
-static int checkargs_var(Execute ptr, addr array, addr *args)
+static int checkargs_var_(Execute ptr, addr array, addr *args)
 {
 	addr value, type;
 
 	GetArrayA2(array, 0, &array); /* var */
 	while (array != Nil) {
 		if (*args == Nil)
-			fmte("Too few argument.", NULL);
+			return fmte_("Too few argument.", NULL);
 		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		if (typep_asterisk_error(ptr, value, type))
-			return 1;
+		Return(typep_asterisk_error(ptr, value, type));
 	}
 
 	return 0;
 }
 
-static int checkargs_opt(Execute ptr, addr array, addr *args)
+static int checkargs_opt_(Execute ptr, addr array, addr *args)
 {
 	addr value, type;
 
@@ -341,8 +340,7 @@ static int checkargs_opt(Execute ptr, addr array, addr *args)
 	while (*args != Nil && array != Nil) {
 		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		if (typep_asterisk_error(ptr, value, type))
-			return 1;
+		Return(typep_asterisk_error(ptr, value, type));
 	}
 
 	return 0;
@@ -395,7 +393,7 @@ static void contargs_key(Execute ptr, int keyvalue, addr cons, addr *ret)
 	type1_local(local, LISPDECL_OR, array, ret);
 }
 
-static int checkargs_restkey(Execute ptr, addr array, addr args)
+static int checkargs_restkey_(Execute ptr, addr array, addr args)
 {
 	int keyvalue;
 	addr rest, key, value, type;
@@ -406,56 +404,51 @@ static int checkargs_restkey(Execute ptr, addr array, addr args)
 		key = T;
 	if (rest == Nil && key == Nil) {
 		if (args != Nil)
-			fmte("Too many argument.", NULL);
+			return fmte_("Too many argument.", NULL);
 	}
 	for (keyvalue = 0; args != Nil; keyvalue = (! keyvalue)) {
 		getcons(args, &value, &args);
 		/* &rest */
 		if (rest != Nil) {
-			if (typep_asterisk_error(ptr, value, rest))
-				return 1;
+			Return(typep_asterisk_error(ptr, value, rest));
 		}
 		/* &key */
 		if (key != Nil) {
 			contargs_key(ptr, keyvalue, key, &type);
-			if (typep_asterisk_error(ptr, value, type))
-				return 1;
+			Return(typep_asterisk_error(ptr, value, type));
 		}
 	}
 
 	/* error check */
 	if (key != Nil && keyvalue)
-		fmte("Invalid keyword argument.", NULL);
+		return fmte_("Invalid keyword argument.", NULL);
 
 	return 0;
 }
 
-static int checkargs_execute(Execute ptr, addr array, addr args)
+static int checkargs_execute_(Execute ptr, addr array, addr args)
 {
 	LocalRoot local;
 	LocalStack stack;
 
 	/* var */
-	if (checkargs_var(ptr, array, &args))
-		return 1;
+	Return(checkargs_var_(ptr, array, &args));
 	if (args == Nil)
 		return 0;
 	/* opt */
-	if (checkargs_opt(ptr, array, &args))
-		return 1;
+	Return(checkargs_opt_(ptr, array, &args));
 	if (args == Nil)
 		return 0;
 	/* rest, key */
 	local = ptr->local;
 	push_local(local, &stack);
-	if (checkargs_restkey(ptr, array, args))
-		return 1;
+	Return(checkargs_restkey_(ptr, array, args));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int checkargs_control(Execute ptr, addr call, addr args)
+static int checkargs_control_(Execute ptr, addr call, addr args)
 {
 	addr type;
 
@@ -469,7 +462,7 @@ static int checkargs_control(Execute ptr, addr call, addr args)
 		return 0;
 
 	/* type check */
-	return checkargs_execute(ptr, type, args);
+	return checkargs_execute_(ptr, type, args);
 }
 
 
@@ -498,7 +491,7 @@ static int apply_no_control(Execute ptr, addr call, addr list)
 
 	/* compiled function */
 	if (StructFunction(call)->compiled) {
-		Return(checkargs_control(ptr, call, list));
+		Return(checkargs_control_(ptr, call, list));
 		return call_compiled_function(ptr, call);
 	}
 
@@ -557,7 +550,7 @@ _g int call_control(Execute ptr, addr args)
 /*
  *  C language
  */
-static void callclang_function(Execute ptr, addr *ret, addr call)
+static int callclang_function_(Execute ptr, addr *ret, addr call)
 {
 	Check(call == Unbound, "type error");
 	switch (GetType(call)) {
@@ -575,9 +568,11 @@ static void callclang_function(Execute ptr, addr *ret, addr call)
 			break;
 
 		default:
-			fmte("The object ~S cannot execute.", call, NULL);
-			break;
+			*ret = Nil;
+			return fmte_("The object ~S cannot execute.", call, NULL);
 	}
+
+	return 0;
 }
 
 _g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
@@ -585,7 +580,7 @@ _g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
 	addr control;
 
 	push_new_control(ptr, &control);
-	callclang_function(ptr, &call, call);
+	Return(callclang_function_(ptr, &call, call));
 	Return(apply_no_control(ptr, call, list));
 	getresult_control(ptr, ret);
 
@@ -601,7 +596,7 @@ _g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 	va_start(va, call);
 	lista_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	callclang_function(ptr, &call, call);
+	Return(callclang_function_(ptr, &call, call));
 	Return(apply_no_control(ptr, call, list));
 	getresult_control(ptr, ret);
 
@@ -617,7 +612,7 @@ _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	va_start(va, call);
 	list_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	callclang_function(ptr, &call, call);
+	Return(callclang_function_(ptr, &call, call));
 	Return(apply_no_control(ptr, call, list));
 	getresult_control(ptr, ret);
 

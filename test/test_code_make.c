@@ -1137,7 +1137,7 @@ static int test_code_multiple_value_call(void)
 	push_new_control(ptr, &control);
 
 	readstring(&pos, LISP_PACKAGE "::test-multiple-value-call1");
-	compiled_heap(&call, pos);
+	compiled_system(&call, pos);
 	SetPointer(p_debug1, dynamic, test_multiple_value_call1);
 	setcompiled_dynamic(call, p_debug1);
 	SetFunctionSymbol(pos, call);

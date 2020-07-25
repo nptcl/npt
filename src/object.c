@@ -525,7 +525,7 @@ _g void copy_vector_alloc(LocalRoot local, addr *ret, addr pos)
 			break;
 #endif
 		default:
-			fmte("size error", NULL);
+			Abort("size error");
 			return;
 	}
 

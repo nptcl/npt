@@ -49,8 +49,9 @@ static int test_eval_scope_heap(void)
 
 static void test_parse_type(addr *ret, addr type)
 {
-	if (parse_type(Execute_Thread, ret, type, Nil))
-		fmte("system error", NULL);
+	if (parse_type(Execute_Thread, ret, type, Nil)) {
+		Error(fmte_("system error", NULL));
+	}
 }
 
 static int test_eval_scope_size(void)
@@ -2118,7 +2119,7 @@ static int test_scope_symbol_replace(void)
 	begin_eval_stack(ptr);
 	push_new_control(ptr, &control);
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, var3, test_scope_symbol_replace_function);
 	setcompiled_var3(call, p_debug1);
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);

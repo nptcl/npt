@@ -2231,10 +2231,8 @@ _g void code_make_execute(LocalRoot local, addr code, addr scope)
 	Check(! eval_scope_p(scope), "type error");
 	GetEvalScopeType(scope, &type);
 	call = CodeMakeTable[type];
-	if (call == NULL) {
-		fmte("Invalid scope type.", NULL);
-		return;
-	}
+	if (call == NULL)
+		Abort("Invalid scope type.");
 	(*call)(local, code, scope);
 }
 

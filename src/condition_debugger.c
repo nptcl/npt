@@ -49,14 +49,14 @@ static int function_handler_warning(Execute ptr, addr condition)
 	return force_output_stream_(stream);
 }
 
-_g void handler_warning(Execute ptr)
+_g int handler_warning_(Execute ptr)
 {
 	addr pos, call;
 
 	GetConst(CONDITION_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_warning);
-	pushhandler_common(ptr, pos, call, 0);
+	return pushhandler_common_(ptr, pos, call, 0);
 }
 
 
@@ -71,14 +71,14 @@ static int function_handler_savecore(Execute ptr, addr condition)
 	return 0;
 }
 
-_g void handler_savecore(Execute ptr)
+_g int handler_savecore_(Execute ptr)
 {
 	addr pos, call;
 
 	GetConst(CONDITION_SAVECORE, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_savecore);
-	pushhandler_common(ptr, pos, call, 1);
+	return pushhandler_common_(ptr, pos, call, 1);
 }
 
 
@@ -170,7 +170,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 				open_output_string_stream(&str, 0);
 				check = callclang_funcall(ptr, &name, name, str, NULL);
 				if (check)
-					fmte("Invalid restart report.", NULL);
+					return fmte_("Invalid restart report.", NULL);
 				Return(string_stream_heap_(str, &name));
 				close_output_string_stream(str);
 			}
@@ -223,7 +223,6 @@ loop:
 	check = read_stream(ptr, io, &result, &pos);
 	/* Interupt */
 	if (check) {
-		/* fmte("Invalid operation.", NULL); */
 		goto exit;
 	}
 	/* EOF */

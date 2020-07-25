@@ -62,14 +62,22 @@ struct mathcomplex2_struct {
 	} v;
 };
 
-_g enum MathType getmathtype_float(struct mathtype_struct *ptr, addr pos);
-_g enum MathType getmathreal2_float(struct mathreal2_struct *ptr, addr x, addr y);
-_g enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y);
-_g enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos);
-_g enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos);
-_g enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos);
-_g enum MathType getmathcomplex2_float(struct mathcomplex2_struct *ptr, addr x, addr y);
-_g enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, addr y);
+_g void getmathtype_float(struct mathtype_struct *ptr,
+		addr pos, enum MathType *ret);
+_g int getmathreal2_float_(struct mathreal2_struct *ptr,
+		addr x, addr y, enum MathType *ret);
+_g int getmathreal2_addr_(struct mathreal2_struct *ptr,
+		addr x, addr y, enum MathType *ret);
+_g int getmathcomplex1_log_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret);
+_g int getmathcomplex1_inverse_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret);
+_g int getmathcomplex1_sqrt_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret);
+_g int getmathcomplex2_float_(struct mathcomplex2_struct *ptr,
+		addr x, addr y, enum MathType *ret);
+_g int getmathcomplex2_addr_(struct mathcomplex2_struct *ptr,
+		addr x, addr y, enum MathType *ret);
 
 #endif
 

@@ -59,9 +59,9 @@ static int parse_make_load_form_object(Execute ptr, addr *ret, addr expr, addr i
 
 	set_load_time_value_symbol(ptr, T);
 	hold = LocalHold_local(ptr);
-	Return(localhold_parse_self(hold, ptr, expr));
+	Return(localhold_parse_self_(hold, ptr, expr));
 	if (init != Nil) {
-		Return(localhold_parse_self(hold, ptr, init));
+		Return(localhold_parse_self_(hold, ptr, init));
 	}
 	localhold_end(hold);
 

@@ -82,6 +82,13 @@ _g void division_by_zero0(void);
 _g void division_by_zero1(addr left);
 _g void division_by_zero2(addr left, addr right);
 
+_g int call_division_by_zero_(Execute ptr, addr operation, addr operands);
+_g int call_division_by_zero_const_(Execute ptr, constindex index, addr operands);
+_g int call_division_by_zero_real1_(Execute ptr, constindex index, addr x);
+_g int call_division_by_zero_real2_(Execute ptr, constindex index, addr x, addr y);
+_g int call_division_by_zero1_(Execute ptr, addr left);
+_g int call_division_by_zero2_(Execute ptr, addr left, addr right);
+
 /* cell_error */
 _g void instance_cell_error(addr *ret, addr name);
 _g void cell_error(addr name);

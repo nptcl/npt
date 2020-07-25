@@ -4,13 +4,12 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void oneplus_number_common(LocalRoot local, addr value, addr *ret);
-_g void oneminus_number_common(LocalRoot local, addr value, addr *ret);
-_g void sign_reverse_number_common(addr left, addr *ret);
-_g void sign_reverse_number_local(LocalRoot local, addr left, addr *ret);
+_g int oneplus_number_common_(LocalRoot local, addr value, addr *ret);
+_g int oneminus_number_common_(LocalRoot local, addr value, addr *ret);
+_g int sign_reverse_number_common_(addr left, addr *ret);
 
-_g void plus_number_heap(LocalRoot local, addr left, addr right, addr *ret);
-_g void minus_number_heap(LocalRoot local, addr left, addr right, addr *ret);
+_g int plus_number_heap_(LocalRoot local, addr left, addr right, addr *ret);
+_g int minus_number_heap_(LocalRoot local, addr left, addr right, addr *ret);
 
 #endif
 

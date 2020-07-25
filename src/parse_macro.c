@@ -4,6 +4,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "heap.h"
+#include "parse_macro.h"
 #include "symbol.h"
 
 /*
@@ -62,7 +63,7 @@ static void push_envstack(Execute ptr, int index, addr name, addr lambda, addr c
 	SetArrayA2(root, index, pos);
 }
 
-_g void rollback_envstack(Execute ptr, addr pos)
+_g int rollback_envstack_(Execute ptr, addr pos)
 {
 	addr root, local, next;
 
@@ -73,11 +74,13 @@ _g void rollback_envstack(Execute ptr, addr pos)
 		if (local == pos)
 			break;
 		if (local == Nil)
-			fmte("environment stack error.", NULL);
+			return fmte_("environment stack error.", NULL);
 		GetArrayA2(local, 0, &next); /* next */
 		SetArrayA2(local, 0, Nil); /* next */
 		SetArrayA2(root, 1, next); /* local */
 	}
+
+	return 0;
 }
 
 _g void defmacro_envstack(Execute ptr, addr name, addr lambda)
@@ -217,47 +220,41 @@ _g int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret)
 	return 0;
 }
 
-static int macroexpand1_symbol_find(addr symbol, addr env, addr *ret)
+static int macroexpand1_symbol_find_(addr symbol, addr env, addr *ret)
 {
 	addr list;
 
 	if (env != Nil) {
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))
-			fmte("The environment object ~S is already closed.", env, NULL);
+			return fmte_("The environment object ~S is already closed.", env, NULL);
 		GetArrayA2(env, 1, &list); /* local */
 		if (findstack_environment(symbol, list, Nil, ret))
-			return 1;
+			return 0;
 		GetArrayA2(env, 0, &list); /* global */
 		if (findstack_environment(symbol, list, Nil, ret))
-			return 1;
+			return 0;
 	}
 	formsymbol_macro_symbol(symbol, ret);
-	if (*ret != Unbound)
-		return 1;
-
 	return 0;
 }
 
-_g int find_environment(addr symbol, addr env, addr *ret)
+_g int find_environment_(addr symbol, addr env, addr *ret)
 {
 	addr list;
 
 	if (env != Nil) {
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))
-			fmte("The environment object ~S is already closed.", env, NULL);
+			return fmte_("The environment object ~S is already closed.", env, NULL);
 		GetArrayA2(env, 1, &list); /* local */
 		if (findstack_environment(symbol, list, T, ret))
-			return 1;
+			return 0;
 		GetArrayA2(env, 0, &list); /* global */
 		if (findstack_environment(symbol, list, T, ret))
-			return 1;
+			return 0;
 	}
 	getmacro_symbol(symbol, ret);
-	if (*ret != Unbound)
-		return 1;
-
 	return 0;
 }
 
@@ -271,36 +268,30 @@ _g int call_macroexpand_hook(Execute ptr, addr *ret, addr call, addr cons, addr 
 }
 
 static int macroexpand1_symbol(Execute ptr,
-		addr *ret, addr symbol, addr env, int *result)
+		addr *value, addr symbol, addr env, int *ret)
 {
 	addr call, pos;
 
-	if (! macroexpand1_symbol_find(symbol, env, &pos)) {
-		*result = 0;
-		return 0;
-	}
+	Return(macroexpand1_symbol_find_(symbol, env, &pos));
+	if (pos == Unbound)
+		return Result(ret, 0);
 	GetConst(SYSTEM_SYMBOL_MACRO_EXPANDER, &call);
 	GetFunctionSymbol(call, &call);
-	if (call_macroexpand_hook(ptr, ret, call, pos, env))
-		return 1;
-	*result = 1;
-	return 0;
+	Return(call_macroexpand_hook(ptr, value, call, pos, env));
+	return Result(ret, 1);
 }
 
 static int macroexpand1_function(Execute ptr,
-		addr *ret, addr form, addr env, int *result)
+		addr *value, addr form, addr env, int *ret)
 {
 	addr call;
 
 	GetCar(form, &call);
-	if (! find_environment(call, env, &call)) {
-		*result = 0;
-		return 0;
-	}
-	if (call_macroexpand_hook(ptr, ret, call, form, env))
-		return 1;
-	*result = 1;
-	return 0;
+	Return(find_environment_(call, env, &call));
+	if (call == Unbound)
+		return Result(ret, 0);
+	Return(call_macroexpand_hook(ptr, value, call, form, env));
+	return Result(ret, 1);
 }
 
 _g int macroexpand1(Execute ptr, addr *ret, addr form, addr env, int *result)

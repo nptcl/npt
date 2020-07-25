@@ -121,10 +121,8 @@ _g int disassemble_common(Execute ptr, addr var)
 		GetFunctionSymbol(var, &check);
 		if (check == Unbound) {
 			getmacro_symbol(var, &check);
-			if (check == Unbound) {
-				fmte("Invalid argument ~S.", var, NULL);
-				return 0;
-			}
+			if (check == Unbound)
+				return fmte_("Invalid argument ~S.", var, NULL);
 		}
 		var = check;
 	}
@@ -136,7 +134,7 @@ _g int disassemble_common(Execute ptr, addr var)
 /*
  *  trace
  */
-_g void trace_common(addr form, addr env, addr *ret)
+_g int trace_common_(addr form, addr env, addr *ret)
 {
 	addr pos, value, list, add, quote;
 
@@ -145,18 +143,18 @@ _g void trace_common(addr form, addr env, addr *ret)
 	/* all trace name */
 	if (form == Nil) {
 		GetConst(SYSTEM_TRACE_LIST, ret);
-		return;
+		return 0;
 	}
 
 	/* add trace */
 	for (list = Nil; form != Nil; ) {
 		if (! consp(form)) {
-			fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
+			Return(fmtw_("TRACE arguemnt ~S don't set a dotted list.", form, NULL));
 			break;
 		}
 		GetCons(form, &pos, &form);
 		if (parse_callname_heap(&value, pos)) {
-			fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
+			Return(fmtw_("TRACE argument ~S should be a function-name.", pos, NULL));
 			continue;
 		}
 		cons_heap(&list, pos, list);
@@ -167,13 +165,15 @@ _g void trace_common(addr form, addr env, addr *ret)
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(&list, quote, list, NULL);
 	list_heap(ret, add, list, NULL);
+
+	return 0;
 }
 
 
 /*
  *  untrace
  */
-_g void untrace_common(addr form, addr env, addr *ret)
+_g int untrace_common_(addr form, addr env, addr *ret)
 {
 	addr pos, value, list, del, quote;
 
@@ -183,18 +183,18 @@ _g void untrace_common(addr form, addr env, addr *ret)
 	if (form == Nil) {
 		GetConst(SYSTEM_TRACE_DEL, &pos);
 		list_heap(ret, pos, T, NULL);
-		return;
+		return 0;
 	}
 
 	/* del trace */
 	for (list = Nil; form != Nil; ) {
 		if (! consp(form)) {
-			fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
+			Return(fmtw_("TRACE arguemnt ~S don't set a dotted list.", form, NULL));
 			break;
 		}
 		GetCons(form, &pos, &form);
 		if (parse_callname_heap(&value, pos)) {
-			fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
+			Return(fmtw_("TRACE argument ~S should be a function-name.", pos, NULL));
 			continue;
 		}
 		cons_heap(&list, pos, list);
@@ -205,6 +205,8 @@ _g void untrace_common(addr form, addr env, addr *ret)
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(&list, quote, list, NULL);
 	list_heap(ret, del, list, NULL);
+
+	return 0;
 }
 
 
@@ -263,32 +265,32 @@ static void trace_add_make(Execute ptr, addr name, addr call, addr pos, addr *re
 	*ret = trace;
 }
 
-static int trace_add_function(Execute ptr, addr name, addr call)
+static int trace_add_function_(Execute ptr, addr name, addr call, int *ret)
 {
 	addr pos;
 
 	/* callname */
 	if (GetStatusReadOnly(call)) {
-		fmtw("The function ~S is constant.", call, NULL);
-		return 1; /* error */
+		Return(fmtw_("The function ~S is constant.", call, NULL));
+		return Result(ret, 1); /* error */
 	}
 
 	/* function */
 	getglobal_callname(call, &pos);
 	if (pos == Unbound) {
-		fmtw("The function ~S is unbound.", call, NULL);
-		return 1; /* error */
+		Return(fmtw_("The function ~S is unbound.", call, NULL));
+		return Result(ret, 1); /* error */
 	}
 	if (tracep_function(pos)) {
-		fmtw("The function ~S is already traced.", pos, NULL);
-		return 0; /* normal */
+		Return(fmtw_("The function ~S is already traced.", pos, NULL));
+		return Result(ret, 0); /* normal */
 	}
 
 	/* trade-add */
 	trace_add_make(ptr, name, call, pos, &pos);
 	setglobal_callname(call, pos);
 
-	return 0; /* normal */
+	return Result(ret, 0); /* normal */
 }
 
 static int trace_add_push_(Execute ptr, addr name)
@@ -305,12 +307,14 @@ static int trace_add_push_(Execute ptr, addr name)
 
 _g int trace_add_common_(Execute ptr, addr list, addr *ret)
 {
+	int check;
 	addr root, name, pos;
 
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &name, &list);
 		parse_callname_error(&pos, name);
-		if (trace_add_function(ptr, name, pos))
+		Return(trace_add_function_(ptr, name, pos, &check));
+		if (check)
 			continue;
 		cons_heap(&root, name, root);
 		Return(trace_add_push_(ptr, name));
@@ -330,32 +334,32 @@ static void trace_del_object(Execute ptr, addr trace, addr *ret)
 	GetCdr(trace, ret);
 }
 
-static int trace_del_function(Execute ptr, addr name, addr call)
+static int trace_del_function_(Execute ptr, addr name, addr call, int *ret)
 {
 	addr pos;
 
 	/* callname */
 	if (GetStatusReadOnly(call)) {
-		fmtw("The function ~S is constant.", call, NULL);
-		return 1; /* error */
+		Return(fmtw_("The function ~S is constant.", call, NULL));
+		return Result(ret, 1); /* error */
 	}
 
 	/* function */
 	getglobal_callname(call, &pos);
 	if (pos == Unbound) {
-		fmtw("The function ~S is unbound.", call, NULL);
-		return 1; /* error */
+		Return(fmtw_("The function ~S is unbound.", call, NULL));
+		return Result(ret, 1); /* error */
 	}
 	if (! tracep_function(pos)) {
-		fmtw("The function ~S is not traced.", pos, NULL);
-		return 0; /* normal */
+		Return(fmtw_("The function ~S is not traced.", pos, NULL));
+		return Result(ret, 0); /* normal */
 	}
 
 	/* trade-del */
 	trace_del_object(ptr, pos, &pos);
 	setglobal_callname(call, pos);
 
-	return 0; /* normal */
+	return Result(ret, 0); /* normal */
 }
 
 static int trace_del_remove_(Execute ptr, addr name)
@@ -375,6 +379,7 @@ static int trace_del_remove_(Execute ptr, addr name)
 
 _g int trace_del_common_(Execute ptr, addr list, addr *ret)
 {
+	int check;
 	addr root, name, pos;
 
 	/* all */
@@ -387,7 +392,8 @@ _g int trace_del_common_(Execute ptr, addr list, addr *ret)
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &name, &list);
 		parse_callname_error(&pos, name);
-		if (trace_del_function(ptr, name, pos))
+		Return(trace_del_function_(ptr, name, pos, &check));
+		if (check)
 			continue;
 		cons_heap(&root, name, root);
 		Return(trace_del_remove_(ptr, name));

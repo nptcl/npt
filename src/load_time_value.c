@@ -97,7 +97,7 @@ _g int parse_load_time_value(Execute ptr, addr *ret, addr form)
 		goto error;
 
 	set_load_time_value_symbol(ptr, T);
-	Return(parse_self(ptr, expr));
+	Return(parse_self_(ptr, expr));
 
 	/* eval */
 	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 4);
@@ -108,9 +108,8 @@ _g int parse_load_time_value(Execute ptr, addr *ret, addr form)
 	return Result(ret, eval);
 
 error:
-	fmte("The form ~S must be "
+	return fmte_("The form ~S must be "
 			"(load-time-value expr &optional read-only-p)).", form, NULL);
-	return 0;
 }
 
 

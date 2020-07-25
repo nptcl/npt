@@ -24,7 +24,7 @@ static void defun_hello(void)
 
 	/* function */
 	GetConst(SYSTEM_HELLO, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_syscall_hello);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -48,7 +48,7 @@ static void defun_infobit(void)
 
 	/* function */
 	GetConst(SYSTEM_INFOBIT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_syscall_infobit);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -72,7 +72,7 @@ static void defun_infoprint(void)
 
 	/* function */
 	GetConst(SYSTEM_INFOPRINT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_syscall_infoprint);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -109,7 +109,7 @@ static void defun_gc(void)
 
 	/* function */
 	GetConst(SYSTEM_GC, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_syscall_gc);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -143,7 +143,7 @@ static void defun_savecore(void)
 
 	/* function */
 	GetConst(SYSTEM_SAVECORE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_savecore);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -178,7 +178,7 @@ static void defun_redirect_restart(void)
 
 	/* function */
 	GetConst(SYSTEM_REDIRECT_RESTART, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_redirect_restart);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -201,7 +201,7 @@ static void defun_symbol_macro_expander(void)
 
 	/* function */
 	GetConst(SYSTEM_SYMBOL_MACRO_EXPANDER, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_syscall_symbol_macro_expander);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -237,7 +237,7 @@ static void defun_defconstant(void)
 
 	/* function */
 	GetConst(SYSTEM_DEFCONSTANT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_syscall_defconstant);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -271,7 +271,7 @@ static void defun_in_package(void)
 
 	/* function */
 	GetConst(SYSTEM_IN_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_in_package);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -295,7 +295,7 @@ static void defun_setplist(void)
 
 	/* function */
 	GetConst(SYSTEM_SETPLIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_syscall_setplist);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -336,7 +336,7 @@ static void defun_remplist(void)
 
 	/* function */
 	GetConst(SYSTEM_REMPLIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_remplist);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -370,7 +370,7 @@ static void defun_make_hash_iterator(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_HASH_ITERATOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_make_hash_iterator);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -408,7 +408,7 @@ static void defun_next_hash_iterator(void)
 
 	/* function */
 	GetConst(SYSTEM_NEXT_HASH_ITERATOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_next_hash_iterator);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -450,7 +450,7 @@ static void defun_make_package_iterator(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_PACKAGE_ITERATOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var4(pos, p_defun_syscall_make_package_iterator);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -497,7 +497,7 @@ static void defun_next_package_iterator(void)
 
 	/* function */
 	GetConst(SYSTEM_NEXT_PACKAGE_ITERATOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_next_package_iterator);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -544,7 +544,7 @@ static void defun_defpackage(void)
 
 	/* function */
 	GetConst(SYSTEM_DEFPACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_syscall_defpackage);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -568,7 +568,7 @@ static void defun_do_symbols(void)
 
 	/* function */
 	GetConst(SYSTEM_DO_SYMBOLS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_do_symbols);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -592,7 +592,7 @@ static void defun_do_external_symbols(void)
 
 	/* function */
 	GetConst(SYSTEM_DO_EXTERNAL_SYMBOLS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_do_external_symbols);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -627,7 +627,7 @@ static void defun_do_all_symbols(void)
 
 	/* function */
 	GetConst(SYSTEM_DO_ALL_SYMBOLS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_do_all_symbols);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -661,7 +661,7 @@ static void defun_getdoc_variable(void)
 
 	/* function */
 	GetConst(SYSTEM_GETDOC_VARIABLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_getdoc_variable);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -696,7 +696,7 @@ static void defun_setdoc_variable(void)
 
 	/* function */
 	GetConst(SYSTEM_SETDOC_VARIABLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_setdoc_variable);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -730,7 +730,7 @@ static void defun_specialp(void)
 
 	/* function */
 	GetConst(SYSTEM_SPECIALP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_specialp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -754,7 +754,7 @@ static void defun_ecase_error(void)
 
 	/* function */
 	GetConst(SYSTEM_ECASE_ERROR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_ecase_error);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -778,7 +778,7 @@ static void defun_etypecase_error(void)
 
 	/* function */
 	GetConst(SYSTEM_ETYPECASE_ERROR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_etypecase_error);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -813,7 +813,7 @@ static void defun_define_setf_expander(void)
 
 	/* function */
 	GetConst(SYSTEM_DEFINE_SETF_EXPANDER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_define_setf_expander);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -854,7 +854,7 @@ static void defun_defsetf_short(void)
 
 	/* function */
 	GetConst(SYSTEM_DEFSETF_SHORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_syscall_defsetf_short);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -881,7 +881,7 @@ static void defun_defsetf_long(void)
 
 	/* function */
 	GetConst(SYSTEM_DEFSETF_LONG, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_syscall_defsetf_long);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -905,7 +905,7 @@ static void defun_array_general_p(void)
 
 	/* function */
 	GetConst(SYSTEM_ARRAY_GENERAL_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_array_general_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -929,7 +929,7 @@ static void defun_array_specialized_p(void)
 
 	/* function */
 	GetConst(SYSTEM_ARRAY_SPECIALIZED_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_array_specialized_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -953,7 +953,7 @@ static void defun_simple_sort(void)
 
 	/* function */
 	GetConst(SYSTEM_SIMPLE_SORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_syscall_simple_sort);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -977,7 +977,7 @@ static void defun_bubble_sort(void)
 
 	/* function */
 	GetConst(SYSTEM_BUBBLE_SORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_syscall_bubble_sort);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1001,7 +1001,7 @@ static void defun_quick_sort(void)
 
 	/* function */
 	GetConst(SYSTEM_QUICK_SORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_syscall_quick_sort);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1025,7 +1025,7 @@ static void defun_merge_sort(void)
 
 	/* function */
 	GetConst(SYSTEM_MERGE_SORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_syscall_merge_sort);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1049,7 +1049,7 @@ static void defun_exit(void)
 
 	/* function */
 	GetConst(SYSTEM_EXIT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_syscall_exit);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1064,7 +1064,7 @@ static void defun_quit(void)
 
 	/* function */
 	GetConst(SYSTEM_QUIT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_syscall_exit);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1098,7 +1098,7 @@ static void defun_end_input_stream(void)
 
 	/* function */
 	GetConst(SYSTEM_END_INPUT_STREAM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_end_input_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1139,7 +1139,7 @@ static void defun_make_extend_output_stream(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_EXTEND_OUTPUT_STREAM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_syscall_make_extend_output_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1174,7 +1174,7 @@ static void defun_prompt_for(void)
 
 	/* function */
 	GetConst(SYSTEM_PROMPT_FOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_syscall_prompt_for);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1198,7 +1198,7 @@ static void defun_closp(void)
 
 	/* function */
 	GetConst(SYSTEM_CLOSP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_closp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1222,7 +1222,7 @@ static void defun_fixnump(void)
 
 	/* function */
 	GetConst(SYSTEM_FIXNUMP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_fixnump);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1246,7 +1246,7 @@ static void defun_bignump(void)
 
 	/* function */
 	GetConst(SYSTEM_BIGNUMP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_bignump);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1270,7 +1270,7 @@ static void defun_ratiop(void)
 
 	/* function */
 	GetConst(SYSTEM_RATIOP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_ratiop);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1294,7 +1294,7 @@ static void defun_short_float_p(void)
 
 	/* function */
 	GetConst(SYSTEM_SHORT_FLOAT_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_short_float_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1318,7 +1318,7 @@ static void defun_single_float_p(void)
 
 	/* function */
 	GetConst(SYSTEM_SINGLE_FLOAT_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_single_float_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1342,7 +1342,7 @@ static void defun_double_float_p(void)
 
 	/* function */
 	GetConst(SYSTEM_DOUBLE_FLOAT_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_double_float_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1366,7 +1366,7 @@ static void defun_long_float_p(void)
 
 	/* function */
 	GetConst(SYSTEM_LONG_FLOAT_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_long_float_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1390,7 +1390,7 @@ static void defun_callnamep(void)
 
 	/* function */
 	GetConst(SYSTEM_CALLNAMEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_callnamep);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1405,7 +1405,7 @@ static void defun_callnamep(void)
  */
 static int syscall_large_number(Execute ptr, addr var, addr opt)
 {
-	large_number_syscode(ptr->local, var, opt, &var);
+	Return(large_number_syscode_(ptr->local, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1427,7 +1427,7 @@ static void defun_large_number(void)
 
 	/* function */
 	GetConst(SYSTEM_LARGE_NUMBER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_syscall_large_number);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1463,7 +1463,7 @@ static void defun_print_unreadable_call(void)
 
 	/* function */
 	GetConst(SYSTEM_PRINT_UNREADABLE_CALL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var5(pos, p_defun_syscall_print_unreadable_call);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1498,7 +1498,7 @@ static void defun_write_default(void)
 
 	/* function */
 	GetConst(SYSTEM_WRITE_DEFAULT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_write_default);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1532,7 +1532,7 @@ static void defun_make_bignum(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_BIGNUM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_make_bignum);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1566,7 +1566,7 @@ static void defun_make_ratio(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_RATIO, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_make_ratio);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1600,7 +1600,7 @@ static void defun_make_complex(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_COMPLEX, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_make_complex);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1634,7 +1634,7 @@ static void defun_equal_random_state(void)
 
 	/* function */
 	GetConst(SYSTEM_EQUAL_RANDOM_STATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_equal_random_state);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1669,7 +1669,7 @@ static void defun_symbol_deftype(void)
 
 	/* function */
 	GetConst(SYSTEM_SYMBOL_DEFTYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_symbol_deftype);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1703,7 +1703,7 @@ static void defun_delete_deftype(void)
 
 	/* function */
 	GetConst(SYSTEM_DELETE_DEFTYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_delete_deftype);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1737,7 +1737,7 @@ static void defun_subtypep_result(void)
 
 	/* function */
 	GetConst(SYSTEM_SUBTYPEP_RESULT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_subtypep_result);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1775,7 +1775,7 @@ static void defun_ensure_structure(void)
 
 	/* function */
 	GetConst(SYSTEM_ENSURE_STRUCTURE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_syscall_ensure_structure);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1813,7 +1813,7 @@ static void defun_structure_constructor(void)
 
 	/* function */
 	GetConst(SYSTEM_STRUCTURE_CONSTRUCTOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_syscall_structure_constructor);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1847,7 +1847,7 @@ static void defun_loop_bind(void)
 
 	/* function */
 	GetConst(SYSTEM_LOOP_BIND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_syscall_loop_bind);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1893,7 +1893,7 @@ static void defun_make_pprint_stream(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_PPRINT_STREAM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var5(pos, p_defun_syscall_make_pprint_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1927,7 +1927,7 @@ static void defun_pprint_gensym(void)
 
 	/* function */
 	GetConst(SYSTEM_PPRINT_GENSYM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_pprint_gensym);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1961,7 +1961,7 @@ static void defun_pprint_exit(void)
 
 	/* function */
 	GetConst(SYSTEM_PPRINT_EXIT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_pprint_exit);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -1995,7 +1995,7 @@ static void defun_pprint_pop(void)
 
 	/* function */
 	GetConst(SYSTEM_PPRINT_POP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_pprint_pop);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2029,7 +2029,7 @@ static void defun_pprint_check(void)
 
 	/* function */
 	GetConst(SYSTEM_PPRINT_CHECK, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_pprint_check);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2063,7 +2063,7 @@ static void defun_pprint_close(void)
 
 	/* function */
 	GetConst(SYSTEM_PPRINT_CLOSE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_pprint_close);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2098,7 +2098,7 @@ static void defun_pprint_pretty(void)
 
 	/* function */
 	GetConst(SYSTEM_PPRINT_PRETTY, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_syscall_pprint_pretty);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2111,7 +2111,7 @@ static void defun_pprint_pretty(void)
 /* (defun eastasian-set (string-designer intplus &optional error) ...) -> boolean) */
 static int syscall_eastasian_set(Execute ptr, addr var, addr value, addr errorp)
 {
-	eastasian_set_syscode(var, value, errorp, &var);
+	Return(eastasian_set_syscode_(var, value, errorp, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2134,7 +2134,7 @@ static void defun_eastasian_set(void)
 
 	/* function */
 	GetConst(SYSTEM_EASTASIAN_SET, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_syscall_eastasian_set);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2173,7 +2173,7 @@ static void defun_eastasian_get(void)
 
 	/* function */
 	GetConst(SYSTEM_EASTASIAN_GET, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_eastasian_get);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2215,7 +2215,7 @@ static void defun_eastasian_width(void)
 
 	/* function */
 	GetConst(SYSTEM_EASTASIAN_WIDTH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_eastasian_width);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2252,7 +2252,7 @@ static void defun_timeinfo(void)
 
 	/* function */
 	GetConst(SYSTEM_TIMEINFO, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_syscall_timeinfo);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2288,7 +2288,7 @@ static void defun_ed_function(void)
 
 	/* function */
 	GetConst(SYSTEM_ED_FUNCTION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_ed_function);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2329,7 +2329,7 @@ static void defun_run_program(void)
 
 	/* function */
 	GetConst(SYSTEM_RUN_PROGRAM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_syscall_run_program);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2363,7 +2363,7 @@ static void defun_make_callname(void)
 
 	/* function */
 	GetConst(SYSTEM_MAKE_CALLNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_make_callname);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2397,7 +2397,7 @@ static void defun_trace_add(void)
 
 	/* function */
 	GetConst(SYSTEM_TRACE_ADD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_trace_add);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2433,7 +2433,7 @@ static void defun_trace_del(void)
 
 	/* function */
 	GetConst(SYSTEM_TRACE_DEL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_trace_del);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2472,7 +2472,7 @@ static void defun_with_compilation_unit(void)
 
 	/* function */
 	GetConst(SYSTEM_WITH_COMPILATION_UNIT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_syscall_with_compilation_unit);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2507,7 +2507,7 @@ static void defun_set_slots(void)
 
 	/* function */
 	GetConst(SYSTEM_SET_SLOTS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_syscall_set_slots);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2531,7 +2531,7 @@ static void defun_remove_file(void)
 
 	/* function */
 	GetConst(SYSTEM_REMOVE_FILE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_syscall_remove_file);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2555,7 +2555,7 @@ static void defun_remove_directory(void)
 
 	/* function */
 	GetConst(SYSTEM_REMOVE_DIRECTORY, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_syscall_remove_directory);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2578,7 +2578,7 @@ static void defmacro_declare_parse(void)
 	addr symbol, pos, type;
 
 	GetConst(SYSTEM_DECLARE_PARSE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_syscall_declare_parse);
 	setmacro_symbol(symbol, pos);
 	/* type */
@@ -2612,7 +2612,7 @@ static void defun_parse_type(void)
 
 	/* function */
 	GetConst(SYSTEM_PARSE_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_parse_type);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -2646,7 +2646,7 @@ static void defun_type_object(void)
 
 	/* function */
 	GetConst(SYSTEM_TYPE_OBJECT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_syscall_type_object);
 	SetFunctionSymbol(symbol, pos);
 	/* type */

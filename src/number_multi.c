@@ -8,7 +8,7 @@
 /*
  *  multiple
  */
-static inline void multi_fixnum_number_heap(LocalRoot local,
+static int multi_fixnum_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
@@ -38,16 +38,17 @@ static inline void multi_fixnum_number_heap(LocalRoot local,
 			break;
 
 		case LISPTYPE_COMPLEX:
-			multi_fc_number_common(local, left, right, ret);
-			break;
+			return multi_fc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void multi_bignum_number_heap(LocalRoot local,
+static int multi_bignum_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
@@ -77,16 +78,17 @@ static inline void multi_bignum_number_heap(LocalRoot local,
 			break;
 
 		case LISPTYPE_COMPLEX:
-			multi_bc_number_common(local, left, right, ret);
-			break;
+			return multi_bc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void multi_ratio_number_heap(LocalRoot local,
+static int multi_ratio_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
@@ -116,16 +118,17 @@ static inline void multi_ratio_number_heap(LocalRoot local,
 			break;
 
 		case LISPTYPE_COMPLEX:
-			multi_rc_number_common(local, left, right, ret);
-			break;
+			return multi_rc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void multi_single_float_number_heap(addr left, addr right, addr *ret)
+static int multi_single_float_number_heap_(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
@@ -154,16 +157,17 @@ static inline void multi_single_float_number_heap(addr left, addr right, addr *r
 			break;
 
 		case LISPTYPE_COMPLEX:
-			multi_sc_number_common(left, right, ret);
-			break;
+			return multi_sc_number_common_(left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void multi_double_float_number_heap(addr left, addr right, addr *ret)
+static int multi_double_float_number_heap_(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
@@ -192,16 +196,17 @@ static inline void multi_double_float_number_heap(addr left, addr right, addr *r
 			break;
 
 		case LISPTYPE_COMPLEX:
-			multi_dc_number_common(left, right, ret);
-			break;
+			return multi_dc_number_common_(left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void multi_long_float_number_heap(addr left, addr right, addr *ret)
+static int multi_long_float_number_heap_(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
@@ -230,88 +235,75 @@ static inline void multi_long_float_number_heap(addr left, addr right, addr *ret
 			break;
 
 		case LISPTYPE_COMPLEX:
-			multi_lc_number_common(left, right, ret);
-			break;
+			return multi_lc_number_common_(left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void multi_complex_number_heap(LocalRoot local,
+static int multi_complex_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_cf_number_common(local, left, right, ret);
-			break;
+			return multi_cf_number_common_(local, left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			multi_cb_number_common(local, left, right, ret);
-			break;
+			return multi_cb_number_common_(local, left, right, ret);
 
 		case LISPTYPE_RATIO:
-			multi_cr_number_common(local, left, right, ret);
-			break;
+			return multi_cr_number_common_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			multi_cs_number_common(left, right, ret);
-			break;
+			return multi_cs_number_common_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			multi_cd_number_common(left, right, ret);
-			break;
+			return multi_cd_number_common_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			multi_cl_number_common(left, right, ret);
-			break;
+			return multi_cl_number_common_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
-			multi_cc_number_common(local, left, right, ret);
-			break;
+			return multi_cc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
 }
 
-_g void multi_number_heap(LocalRoot local, addr left, addr right, addr *ret)
+_g int multi_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			multi_fixnum_number_heap(local, left, right, ret);
-			break;
+			return multi_fixnum_number_heap_(local, left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			multi_bignum_number_heap(local, left, right, ret);
-			break;
+			return multi_bignum_number_heap_(local, left, right, ret);
 
 		case LISPTYPE_RATIO:
-			multi_ratio_number_heap(local, left, right, ret);
-			break;
+			return multi_ratio_number_heap_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			multi_single_float_number_heap(left, right, ret);
-			break;
+			return multi_single_float_number_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			multi_double_float_number_heap(left, right, ret);
-			break;
+			return multi_double_float_number_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			multi_long_float_number_heap(left, right, ret);
-			break;
+			return multi_long_float_number_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
-			multi_complex_number_heap(local, left, right, ret);
-			break;
+			return multi_complex_number_heap_(local, left, right, ret);
 
 		default:
-			TypeError(left, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(left, NUMBER);
 	}
 }
 
@@ -319,7 +311,7 @@ _g void multi_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  inverse
  */
-_g void inverse_number_heap(LocalRoot local, addr left, addr *ret)
+_g int inverse_number_heap_(LocalRoot local, addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -347,20 +339,21 @@ _g void inverse_number_heap(LocalRoot local, addr left, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			inverse_complex_common(local, left, ret);
-			break;
+			return inverse_complex_common_(local, left, ret);
 
 		default:
-			TypeError(left, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(left, NUMBER);
 	}
+
+	return 0;
 }
 
 
 /*
  *  division
  */
-static inline void div_fixnum_number_heap(LocalRoot local,
+static int div_fixnum_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
@@ -390,16 +383,17 @@ static inline void div_fixnum_number_heap(LocalRoot local,
 			break;
 
 		case LISPTYPE_COMPLEX:
-			div_fc_number_common(local, left, right, ret);
-			break;
+			return div_fc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void div_bignum_number_heap(LocalRoot local,
+static int div_bignum_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
@@ -429,16 +423,17 @@ static inline void div_bignum_number_heap(LocalRoot local,
 			break;
 
 		case LISPTYPE_COMPLEX:
-			div_bc_number_common(local, left, right, ret);
-			break;
+			return div_bc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void div_ratio_number_heap(LocalRoot local,
+static int div_ratio_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
@@ -468,16 +463,17 @@ static inline void div_ratio_number_heap(LocalRoot local,
 			break;
 
 		case LISPTYPE_COMPLEX:
-			div_rc_number_common(local, left, right, ret);
-			break;
+			return div_rc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void div_single_float_number_heap(addr left, addr right, addr *ret)
+static int div_single_float_number_heap_(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
@@ -506,16 +502,17 @@ static inline void div_single_float_number_heap(addr left, addr right, addr *ret
 			break;
 
 		case LISPTYPE_COMPLEX:
-			div_sc_number_common(left, right, ret);
-			break;
+			return div_sc_number_common_(left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void div_double_float_number_heap(addr left, addr right, addr *ret)
+static int div_double_float_number_heap_(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
@@ -544,16 +541,17 @@ static inline void div_double_float_number_heap(addr left, addr right, addr *ret
 			break;
 
 		case LISPTYPE_COMPLEX:
-			div_dc_number_common(left, right, ret);
-			break;
+			return div_dc_number_common_(left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void div_long_float_number_heap(addr left, addr right, addr *ret)
+static int div_long_float_number_heap_(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
@@ -582,88 +580,75 @@ static inline void div_long_float_number_heap(addr left, addr right, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			div_lc_number_common(left, right, ret);
-			break;
+			return div_lc_number_common_(left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
+
+	return 0;
 }
 
-static inline void div_complex_number_heap(LocalRoot local,
+static int div_complex_number_heap_(LocalRoot local,
 		addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			div_cf_number_common(local, left, right, ret);
-			break;
+			return div_cf_number_common_(local, left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			div_cb_number_common(local, left, right, ret);
-			break;
+			return div_cb_number_common_(local, left, right, ret);
 
 		case LISPTYPE_RATIO:
-			div_cr_number_common(local, left, right, ret);
-			break;
+			return div_cr_number_common_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			div_cs_number_common(left, right, ret);
-			break;
+			return div_cs_number_common_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			div_cd_number_common(left, right, ret);
-			break;
+			return div_cd_number_common_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			div_cl_number_common(left, right, ret);
-			break;
+			return div_cl_number_common_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
-			div_cc_number_common(local, left, right, ret);
-			break;
+			return div_cc_number_common_(local, left, right, ret);
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(right, NUMBER);
 	}
 }
 
-_g void div_number_heap(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			div_fixnum_number_heap(local, left, right, ret);
-			break;
+			return div_fixnum_number_heap_(local, left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			div_bignum_number_heap(local, left, right, ret);
-			break;
+			return div_bignum_number_heap_(local, left, right, ret);
 
 		case LISPTYPE_RATIO:
-			div_ratio_number_heap(local, left, right, ret);
-			break;
+			return div_ratio_number_heap_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			div_single_float_number_heap(left, right ,ret);
-			break;
+			return div_single_float_number_heap_(left, right ,ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			div_double_float_number_heap(left, right ,ret);
-			break;
+			return div_double_float_number_heap_(left, right ,ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			div_long_float_number_heap(left, right ,ret);
-			break;
+			return div_long_float_number_heap_(left, right ,ret);
 
 		case LISPTYPE_COMPLEX:
-			div_complex_number_heap(local, left, right, ret);
-			break;
+			return div_complex_number_heap_(local, left, right, ret);
 
 		default:
-			TypeError(left, NUMBER);
-			break;
+			*ret = Nil;
+			return TypeError_(left, NUMBER);
 	}
 }
 

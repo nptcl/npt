@@ -1,6 +1,7 @@
 #include "clos_type.c"
 #include "bignum_data.h"
 #include "bignum_object.h"
+#include "callname.h"
 #include "character.h"
 #include "clos.h"
 #include "code_object.h"
@@ -102,7 +103,8 @@ static int test_clos_class_of(void)
 	GetConst(CLOS_COMPLEX, &y);
 	test(x == y, "clos_class_of-complex");
 
-	function_empty_heap(&x, readr("hello"));
+	parse_callname_heap(&x, readr("hello"));
+	function_empty_heap(&x, x);
 	clos_class_of(x, &x);
 	GetConst(CLOS_FUNCTION, &y);
 	test(x == y, "clos_class_of-function");

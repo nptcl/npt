@@ -696,11 +696,13 @@ _g void getindex_fixnum(addr pos, size_t *ret)
 		TypeError(pos, FIXNUM);
 }
 
-_g void fixnum_index_heap(addr *ret, size_t value)
+_g int fixnum_index_heap_(addr *ret, size_t value)
 {
 	if ((size_t)FIXNUM_MAX <= value)
-		fmte("Too large value ~S.", intsizeh(value), NULL);
+		return fmte_("Too large value ~S.", intsizeh(value), NULL);
 	fixnum_heap(ret, (fixnum)value);
+
+	return 0;
 }
 
 
@@ -1097,16 +1099,15 @@ _g void ash_bignum_common(LocalRoot local, addr pos, int sign2, size_t size, add
 	bignum_result_heap(pos, ret);
 }
 
-_g void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret)
+_g int ash_integer_common_(LocalRoot local, addr pos, addr count, addr *ret)
 {
 	int sign2;
 	size_t size;
 	LocalStack stack;
 
 	if (getindex_sign_integer(count, &sign2, &size)) {
-		fmte("Too large shift value ~S.", count, NULL);
 		*ret = 0;
-		return;
+		return fmte_("Too large shift value ~S.", count, NULL);
 	}
 
 	push_local(local, &stack);
@@ -1119,11 +1120,11 @@ _g void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, INTEGER);
 			*ret = 0;
-			break;
+			return TypeError_(pos, INTEGER);
 	}
 	rollback_local(local, stack);
+	return 0;
 }
 
 

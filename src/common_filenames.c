@@ -28,7 +28,7 @@ static void defun_pathname(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -92,7 +92,7 @@ static void defun_make_pathname(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_make_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -115,7 +115,7 @@ static void defun_pathnamep(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAMEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_pathnamep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -171,7 +171,7 @@ static void defun_pathname_host(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_HOST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_pathname_host);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -210,7 +210,7 @@ static void defun_pathname_device(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_DEVICE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_pathname_device);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -249,7 +249,7 @@ static void defun_pathname_directory(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_DIRECTORY, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_pathname_directory);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -288,7 +288,7 @@ static void defun_pathname_name(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_NAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_pathname_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -327,7 +327,7 @@ static void defun_pathname_type(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_pathname_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -363,7 +363,7 @@ static void defun_pathname_version(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_VERSION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_pathname_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -409,7 +409,7 @@ static void defun_load_logical_pathname_translations(void)
 
 	/* function */
 	GetConst(COMMON_LOAD_LOGICAL_PATHNAME_TRANSLATIONS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_load_logical_pathname_translations);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -443,7 +443,7 @@ static void defun_logical_pathname_translations(void)
 
 	/* function */
 	GetConst(COMMON_LOGICAL_PATHNAME_TRANSLATIONS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_logical_pathname_translations);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -479,7 +479,7 @@ static void defun_setf_logical_pathname_translations(void)
 
 	/* function */
 	GetConst(COMMON_LOGICAL_PATHNAME_TRANSLATIONS, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_logical_pathname_translations);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -518,7 +518,7 @@ static void defun_logical_pathname(void)
 
 	/* function */
 	GetConst(COMMON_LOGICAL_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_logical_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -569,7 +569,7 @@ static void defun_namestring(void)
 
 	/* function */
 	GetConst(COMMON_NAMESTRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -593,7 +593,7 @@ static void defun_file_namestring(void)
 
 	/* function */
 	GetConst(COMMON_FILE_NAMESTRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_file_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -617,7 +617,7 @@ static void defun_directory_namestring(void)
 
 	/* function */
 	GetConst(COMMON_DIRECTORY_NAMESTRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_directory_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -641,7 +641,7 @@ static void defun_host_namestring(void)
 
 	/* function */
 	GetConst(COMMON_HOST_NAMESTRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_host_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -675,7 +675,7 @@ static void defun_enough_namestring(void)
 
 	/* function */
 	GetConst(COMMON_ENOUGH_NAMESTRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_enough_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -749,7 +749,7 @@ static void defun_parse_namestring(void)
 
 	/* function */
 	GetConst(COMMON_PARSE_NAMESTRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_parse_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -795,7 +795,7 @@ static void defun_wild_pathname_p(void)
 
 	/* function */
 	GetConst(COMMON_WILD_PATHNAME_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_wild_pathname_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -832,7 +832,7 @@ static void defun_pathname_match_p(void)
 
 	/* function */
 	GetConst(COMMON_PATHNAME_MATCH_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_pathname_match_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -870,7 +870,7 @@ static void defun_translate_pathname(void)
 
 	/* function */
 	GetConst(COMMON_TRANSLATE_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_translate_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -904,7 +904,7 @@ static void defun_translate_logical_pathname(void)
 
 	/* function */
 	GetConst(COMMON_TRANSLATE_LOGICAL_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_translate_logical_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -940,7 +940,7 @@ static void defun_merge_pathnames(void)
 
 	/* function */
 	GetConst(COMMON_MERGE_PATHNAMES, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt2(pos, p_defun_merge_pathnames);
 	SetFunctionCommon(symbol, pos);
 	/* type */

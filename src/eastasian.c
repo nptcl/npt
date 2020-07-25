@@ -67,7 +67,7 @@ static enum EastAsianType eastasian_type(addr pos)
 	return EastAsian_error;
 }
 
-_g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
+_g int eastasian_set_syscall_(addr pos, addr value, addr errorp, addr *ret)
 {
 	enum EastAsianType type;
 	size_t size;
@@ -75,15 +75,15 @@ _g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
 	/* value */
 	if (GetIndex_fixnum(value, &size)) {
 		if (errorp)
-			fmte("Invalid integer value ~S.", value, NULL);
-		*ret = Nil;
-		return;
+			return fmte_("Invalid integer value ~S.", value, NULL);
+		else
+			return Result(ret, Nil);
 	}
 	if (UINT_MAX <= size) {
 		if (errorp)
-			fmte("The value ~S is too large.", value, NULL);
-		*ret = Nil;
-		return;
+			return fmte_("The value ~S is too large.", value, NULL);
+		else
+			return Result(ret, Nil);
 	}
 
 	/* set */
@@ -100,11 +100,12 @@ _g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
 
 		default:
 			if (errorp)
-				fmte("Inavlid eastasian type ~S.", pos, NULL);
-			*ret = Nil;
-			return;
+				return fmte_("Inavlid eastasian type ~S.", pos, NULL);
+			else
+				return Result(ret, Nil);
 	}
-	*ret = T;
+
+	return Result(ret, T);
 }
 
 static void eastasian_system_symbol(enum EastAsianType type, addr *ret)

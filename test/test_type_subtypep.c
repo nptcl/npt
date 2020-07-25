@@ -18,8 +18,9 @@
 
 static void test_parse_type(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil))
-		fmte("parse-type error.", NULL);
+	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+		Error(fmte_("parse-type error.", NULL));
+	}
 }
 
 static void parse_type_string(addr *ret, const char *code)

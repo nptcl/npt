@@ -32,7 +32,7 @@ static void defun_cell_error_name(void)
 
 	/* function */
 	GetConst(COMMON_CELL_ERROR_NAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_cell_error_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -55,7 +55,7 @@ static void defmacro_assert(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_ASSERT, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_assert);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -91,7 +91,7 @@ static void defun_error(void)
 
 	/* function */
 	GetConst(COMMON_ERROR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1rest(pos, p_defun_error);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -127,7 +127,7 @@ static void defun_cerror(void)
 
 	/* function */
 	GetConst(COMMON_CERROR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2rest(pos, p_defun_cerror);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -150,7 +150,7 @@ static void defmacro_check_type(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_CHECK_TYPE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_check_type);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -186,7 +186,7 @@ static void defun_invalid_method_error(void)
 
 	/* function */
 	GetConst(COMMON_INVALID_METHOD_ERROR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2rest(pos, p_defun_invalid_method_error);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -221,7 +221,7 @@ static void defun_method_combination_error(void)
 
 	/* function */
 	GetConst(COMMON_METHOD_COMBINATION_ERROR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1rest(pos, p_defun_method_combination_error);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -245,7 +245,7 @@ static void defun_signal(void)
 
 	/* function */
 	GetConst(COMMON_SIGNAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1rest(pos, p_defun_signal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -279,7 +279,7 @@ static void defun_simple_condition_format_control(void)
 
 	/* function */
 	GetConst(COMMON_SIMPLE_CONDITION_FORMAT_CONTROL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_simple_condition_format_control);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -313,7 +313,7 @@ static void defun_simple_condition_format_arguments(void)
 
 	/* function */
 	GetConst(COMMON_SIMPLE_CONDITION_FORMAT_ARGUMENTS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_simple_condition_format_arguments);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -337,7 +337,7 @@ static void defun_warn(void)
 
 	/* function */
 	GetConst(COMMON_WARN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1rest(pos, p_defun_warn);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -371,7 +371,7 @@ static void defun_invoke_debugger(void)
 
 	/* function */
 	GetConst(COMMON_INVOKE_DEBUGGER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_invoke_debugger);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -406,7 +406,7 @@ static void defun_break(void)
 
 	/* function */
 	GetConst(COMMON_BREAK, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1rest(pos, p_defun_break);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -477,7 +477,7 @@ static void defmacro_handler_bind(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_HANDLER_BIND, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_handler_bind);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -508,7 +508,7 @@ static void defmacro_handler_case(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_HANDLER_CASE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_handler_case);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -530,7 +530,7 @@ static void defmacro_ignore_errors(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_IGNORE_ERRORS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_ignore_errors);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -552,7 +552,7 @@ static void defmacro_define_condition(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFINE_CONDITION, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_define_condition);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -586,7 +586,7 @@ static void defun_make_condition(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_CONDITION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_make_condition);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -624,7 +624,7 @@ static void defun_compute_restarts(void)
 
 	/* function */
 	GetConst(COMMON_COMPUTE_RESTARTS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_compute_restarts);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -666,7 +666,7 @@ static void defun_find_restart(void)
 
 	/* function */
 	GetConst(COMMON_FIND_RESTART, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_find_restart);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -703,7 +703,7 @@ static void defun_invoke_restart(void)
 
 	/* function */
 	GetConst(COMMON_INVOKE_RESTART, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_invoke_restart);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -738,7 +738,7 @@ static void defun_invoke_restart_interactively(void)
 
 	/* function */
 	GetConst(COMMON_INVOKE_RESTART_INTERACTIVELY, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_invoke_restart_interactively);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -765,7 +765,7 @@ static void defmacro_restart_bind(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_RESTART_BIND, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_restart_bind);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -791,7 +791,7 @@ static void defmacro_restart_case(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_RESTART_CASE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_restart_case);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -824,7 +824,7 @@ static void defun_restart_name(void)
 
 	/* function */
 	GetConst(COMMON_RESTART_NAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_restart_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -854,7 +854,7 @@ static void defmacro_with_condition_restarts(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_CONDITION_RESTARTS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_condition_restarts);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -883,7 +883,7 @@ static void defmacro_with_simple_restart(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_SIMPLE_RESTART, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_simple_restart);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -906,7 +906,7 @@ static void defun_abort(void)
 
 	/* function */
 	GetConst(COMMON_ABORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_abort);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -932,7 +932,7 @@ static void defun_continue(void)
 
 	/* function */
 	GetConst(COMMON_CONTINUE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_continue);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -956,7 +956,7 @@ static void defun_muffle_warning(void)
 
 	/* function */
 	GetConst(COMMON_MUFFLE_WARNING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_muffle_warning);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -982,7 +982,7 @@ static void defun_store_value(void)
 
 	/* function */
 	GetConst(COMMON_STORE_VALUE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_store_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1008,7 +1008,7 @@ static void defun_use_value(void)
 
 	/* function */
 	GetConst(COMMON_USE_VALUE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_use_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */

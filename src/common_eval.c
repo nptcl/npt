@@ -18,7 +18,7 @@ static void defmacro_lambda(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_LAMBDA, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_lambda);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -71,7 +71,7 @@ static void defun_compile(void)
 
 	/* function */
 	GetConst(COMMON_COMPILE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_compile);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -103,7 +103,7 @@ static void defun_eval(void)
 
 	/* function */
 	GetConst(COMMON_EVAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_eval);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -164,7 +164,7 @@ static void defun_compiler_macro_function(void)
 
 	/* function */
 	GetConst(COMMON_COMPILER_MACRO_FUNCTION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_compiler_macro_function);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -207,7 +207,7 @@ static void defun_setf_compiler_macro_function(void)
 
 	/* function */
 	GetConst(COMMON_COMPILER_MACRO_FUNCTION, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_setf_compiler_macro_function);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -230,7 +230,7 @@ static void defmacro_define_compiler_macro(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFINE_COMPILER_MACRO, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_define_compiler_macro);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -252,7 +252,7 @@ static void defmacro_defmacro(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFMACRO, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_defmacro);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -264,7 +264,7 @@ static void defmacro_defmacro(void)
 /* (defun macro-function (symbol &optional environment) ...) -> function) */
 static int function_macro_function(Execute ptr, addr symbol, addr env)
 {
-	macro_function_common(symbol, env, &symbol);
+	Return(macro_function_common_(symbol, env, &symbol));
 	setresult_control(ptr, symbol);
 	return 0;
 }
@@ -286,7 +286,7 @@ static void defun_macro_function(void)
 
 	/* function */
 	GetConst(COMMON_MACRO_FUNCTION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_macro_function);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -328,7 +328,7 @@ static void defun_setf_macro_function(void)
 
 	/* function */
 	GetConst(COMMON_MACRO_FUNCTION, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_setf_macro_function);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -352,7 +352,7 @@ static void defun_macroexpand(void)
 
 	/* function */
 	GetConst(COMMON_MACROEXPAND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_macroexpand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -376,7 +376,7 @@ static void defun_macroexpand_1(void)
 
 	/* function */
 	GetConst(COMMON_MACROEXPAND_1, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_macroexpand_1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -399,7 +399,7 @@ static void defmacro_define_symbol_macro(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFINE_SYMBOL_MACRO, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_define_symbol_macro);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -439,7 +439,7 @@ static void defun_proclaim(void)
 
 	/* function */
 	GetConst(COMMON_PROCLAIM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_proclaim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -462,7 +462,7 @@ static void defmacro_declaim(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DECLAIM, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_declaim);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -498,7 +498,7 @@ static void defun_special_operator_p(void)
 
 	/* function */
 	GetConst(COMMON_SPECIAL_OPERATOR_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_special_operator_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -536,7 +536,7 @@ static void defun_constantp(void)
 
 	/* function */
 	GetConst(COMMON_CONSTANTP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_constantp);
 	SetFunctionCommon(symbol, pos);
 	/* type */

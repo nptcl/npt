@@ -98,7 +98,7 @@ static int loadrt_execute(Execute ptr, const char *name)
 	begin_switch(ptr, &jump);
 	push_new_control(ptr, &control);
 	if (codejump_run_p(&jump)) {
-		handler_warning(ptr);
+		Return(handler_warning_(ptr));
 		loadrt_disable_debugger(ptr);
 		loadrt_declare_optimize();
 		Return(loadrt_init(ptr, name, &check));

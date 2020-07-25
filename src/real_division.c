@@ -2807,14 +2807,16 @@ _g void lisp_mod_rr_ratio(LocalRoot local, addr *ret, addr a, addr b)
 	rollback_local(local, stack);
 }
 
-_g void mod_number_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
+	enum MathType type;
 	single_float vs;
 	double_float vd;
 	long_float vl;
 	struct mathreal2_struct str;
 
-	switch (getmathreal2_addr(&str, a, b)) {
+	Return(getmathreal2_addr_(&str, a, b, &type));
+	switch (type) {
 		case MathType_single:
 			lisp_floor_s(str.v.s.a, str.v.s.b, &vs);
 			single_float_check_heap(ret, vs);
@@ -2837,9 +2839,11 @@ _g void mod_number_common(LocalRoot local, addr a, addr b, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 
 
@@ -2939,14 +2943,16 @@ _g void lisp_rem_rr_ratio(LocalRoot local, addr *rem, addr a, addr b)
 	rollback_local(local, stack);
 }
 
-_g void rem_number_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
+	enum MathType type;
 	single_float vs;
 	double_float vd;
 	long_float vl;
 	struct mathreal2_struct str;
 
-	switch (getmathreal2_addr(&str, a, b)) {
+	Return(getmathreal2_addr_(&str, a, b, &type));
+	switch (type) {
 		case MathType_single:
 			lisp_truncate_s(str.v.s.a, str.v.s.b, &vs);
 			single_float_check_heap(ret, vs);
@@ -2969,9 +2975,11 @@ _g void rem_number_common(LocalRoot local, addr a, addr b, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 
 

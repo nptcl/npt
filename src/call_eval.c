@@ -39,9 +39,12 @@ _g int eval_common(Execute ptr, addr var)
  */
 static int compiler_macro_function_symbol(addr var, addr env, addr *ret)
 {
-	if (env != Unbound && find_environment(var, env, &env)) {
-		/* compiler-macro-function is shadowed */
-		return Result(ret, Nil);
+	if (env != Unbound) {
+		Return(find_environment_(var, env, &env));
+		if (env == Unbound) {
+			/* compiler-macro-function is shadowed */
+			return Result(ret, Nil);
+		}
 	}
 	GetCallName(var, &var);
 	get_compiler_macro_symbol(var, ret);
@@ -75,10 +78,13 @@ _g int compiler_macro_function_common(addr var, addr env, addr *ret)
  */
 static int setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 {
-	if (env != Unbound && find_environment(var, env, &env)) {
-		/* compiler-macro-function is shadowed */
-		return fmte_("COMPILER-MACRO-FUNCTION ~S "
-				"is shadowed in the environment.", var, NULL);
+	if (env != Unbound) {
+		Return(find_environment_(var, env, &env));
+		if (env == Unbound) {
+			/* compiler-macro-function is shadowed */
+			return fmte_("COMPILER-MACRO-FUNCTION ~S "
+					"is shadowed in the environment.", var, NULL);
+		}
 	}
 	GetCallName(var, &var);
 	set_compiler_macro_symbol(var, value);
@@ -141,7 +147,7 @@ _g int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* parse */
 	Return(lambda_macro_(ptr->local, &args, args, Nil));
-	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
+	Return(declare_body_documentation_(ptr, env, right, &doc, &decl, &right));
 
 	/* (eval::define-compiler-macro name args decl doc body) */
 	GetConst(SYSTEM_DEFINE_COMPILER_MACRO, &eval);
@@ -255,7 +261,7 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
-	handler_compile(ptr);
+	Return(handler_compile_(ptr));
 	Return(compile_execute(ptr, var, opt, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */
@@ -301,9 +307,9 @@ _g int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 		return fmte_("Invalid defmacro form.", NULL);
 
 	/* parse */
-	check_function_variable(name);
+	Return(check_function_variable_(name));
 	Return(lambda_macro_(ptr->local, &args, args, Nil));
-	Return(declare_body_documentation(ptr, env, form, &doc, &decl, &form));
+	Return(declare_body_documentation_(ptr, env, form, &doc, &decl, &form));
 
 	/* (eval::defmacro name args decl doc body) */
 	GetConst(SYSTEM_DEFMACRO, &eval);
@@ -316,14 +322,12 @@ _g int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  macro-function
  */
-_g void macro_function_common(addr symbol, addr env, addr *ret)
+_g int macro_function_common_(addr symbol, addr env, addr *ret)
 {
-	int check;
-
 	if (env == Unbound)
 		env = Nil;
-	check = find_environment(symbol, env, &symbol);
-	*ret = check? symbol: Nil;
+	Return(find_environment_(symbol, env, &env));
+	return Result(ret, env != Unbound? env: Nil);
 }
 
 
@@ -410,7 +414,7 @@ _g int declaim_common(Execute ptr, addr form, addr env, addr *ret)
 
 	GetConst(SYSTEM_DECLAIM, &symbol);
 	Return_getcdr(form, &form); /* (declaim . form) */
-	Return(parse_declaim_heap(ptr, Nil, form, &form));
+	Return(parse_declaim_heap_(ptr, Nil, form, &form));
 	conscar_heap(&form, form);
 	cons_heap(ret, symbol, form);
 

@@ -103,13 +103,15 @@ _g int empty_declare(addr pos)
 	/* array */
 	for (i = 0; i < EVAL_DECLARE_SIZE; i++) {
 		GetEvalDeclare(pos, i, &check);
-		if (check != Nil) return 0;
+		if (check != Nil)
+			return 0;
 	}
 
 	/* optimize */
 	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
 		GetEvalDeclareOptimize(pos, i, &value);
-		if (0 <= value) return 0;
+		if (0 <= value)
+			return 0;
 	}
 
 	return 1;
@@ -124,7 +126,8 @@ _g void apply_array_declare(OptimizeType *array, addr pos)
 	int i;
 	OptimizeType value;
 
-	if (pos == Nil) return;
+	if (pos == Nil)
+		return;
 	Check(! eval_declare_p(pos), "type error");
 	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
 		GetEvalDeclareOptimize(pos, i, &value);
@@ -520,250 +523,280 @@ _g void apply_speed_declaim(OptimizeType value)
 /*
  *  parse-declaration
  */
-static void check_callname_heap(addr *ret, addr symbol)
+static int check_callname_heap_(addr *ret, addr symbol)
 {
 	addr check;
 
 	parse_callname_error(&symbol, symbol);
 	GetCallName(symbol, &check);
-	check_variable(check);
-	*ret = symbol;
+	Return(check_variable_(check));
+
+	return Result(ret, symbol);
 }
 
-static int decl_type(Execute ptr, addr env, addr eval, addr cons)
+static int decl_type_(Execute ptr, addr env, addr eval, addr cons)
 {
 	addr type, symbol;
 
-	getcons(cons, &type, &cons);
-	if (parse_type(ptr, &type, type, env))
-		return 1;
+	Return_getcons(cons, &type, &cons);
+	Return(parse_type(ptr, &type, type, env));
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_variable(symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_variable_(symbol));
 		push_type_declare_heap(eval, symbol, type);
 	}
 
 	return 0;
 }
 
-static int decl_ftype(Execute ptr, addr env, addr eval, addr cons)
+static int decl_ftype_(Execute ptr, addr env, addr eval, addr cons)
 {
 	addr type, symbol;
 
-	getcons(cons, &type, &cons);
-	if (parse_type(ptr, &type, type, env))
-		return 1;
+	Return_getcons(cons, &type, &cons);
+	Return(parse_type(ptr, &type, type, env));
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_callname_heap(&symbol, symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_callname_heap_(&symbol, symbol));
 		push_ftype_declare_heap(eval, symbol, type);
 	}
 
 	return 0;
 }
 
-static void decl_special(addr eval, addr cons)
+static int decl_special_(addr eval, addr cons)
 {
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_variable(symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_variable_(symbol));
 		push_special_declare_heap(eval, symbol);
 	}
+
+	return 0;
 }
 
-static void decl_inline(addr eval, addr cons)
+static int decl_inline_(addr eval, addr cons)
 {
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_callname_heap(&symbol, symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_callname_heap_(&symbol, symbol));
 		push_inline_declare_heap(eval, symbol);
 	}
+
+	return 0;
 }
 
-static void decl_notinline(addr eval, addr cons)
+static int decl_notinline_(addr eval, addr cons)
 {
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_callname_heap(&symbol, symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_callname_heap_(&symbol, symbol));
 		push_notinline_declare_heap(eval, symbol);
 	}
+
+	return 0;
 }
 
-static void decl_declaration(addr eval, addr cons)
+static int decl_declaration_(addr eval, addr cons)
 {
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_variable(symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_variable_(symbol));
 		push_declaration_declare_heap(eval, symbol);
 	}
+
+	return 0;
 }
 
-static int function_callname_p(addr *ret, addr pos)
+static int function_callname_p_(addr *value, addr pos, int *ret)
 {
 	addr type, symbol, check;
 
-	if (GetType(pos) != LISPTYPE_CONS) return 0;
+	if (GetType(pos) != LISPTYPE_CONS)
+		return Result(ret, 0);
 	GetCons(pos, &type, &pos);
-	if (GetType(pos) != LISPTYPE_CONS) return 0;
+	if (GetType(pos) != LISPTYPE_CONS)
+		return Result(ret, 0);
 	GetCons(pos, &symbol, &pos);
-	if (pos != Nil) return 0;
+	if (pos != Nil)
+		return Result(ret, 0);
 	GetConst(COMMON_FUNCTION, &check);
-	if (check != type) return 0;
-	check_callname_heap(ret, symbol);
+	if (check != type)
+		return Result(ret, 0);
+	Return(check_callname_heap_(value, symbol));
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static void decl_ignore(addr eval, addr cons)
+static int decl_ignore_(addr eval, addr cons)
 {
+	int check;
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		if (function_callname_p(&symbol, symbol)) {
+		Return_getcons(cons, &symbol, &cons);
+		Return(function_callname_p_(&symbol, symbol, &check));
+		if (check) {
 			push_ignore_function_declare_heap(eval, symbol);
 		}
 		else {
-			check_variable(symbol);
+			Return(check_variable_(symbol));
 			push_ignore_value_declare_heap(eval, symbol);
 		}
 	}
+
+	return 0;
 }
 
-static void decl_ignorable(addr eval, addr cons)
+static int decl_ignorable_(addr eval, addr cons)
 {
+	int check;
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		if (function_callname_p(&symbol, symbol)) {
+		Return_getcons(cons, &symbol, &cons);
+		Return(function_callname_p_(&symbol, symbol, &check));
+		if (check) {
 			push_ignorable_function_declare_heap(eval, symbol);
 		}
 		else {
-			check_variable(symbol);
+			Return(check_variable_(symbol));
 			push_ignorable_value_declare_heap(eval, symbol);
 		}
 	}
+
+	return 0;
 }
 
-static void decl_dynamic_extent(addr eval, addr cons)
+static int decl_dynamic_extent_(addr eval, addr cons)
 {
+	int check;
 	addr symbol;
 
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		if (function_callname_p(&symbol, symbol)) {
+		Return_getcons(cons, &symbol, &cons);
+		Return(function_callname_p_(&symbol, symbol, &check));
+		if (check) {
 			push_dynamic_function_declare_heap(eval, symbol);
 		}
 		else {
-			check_variable(symbol);
+			Return(check_variable_(symbol));
 			push_dynamic_value_declare_heap(eval, symbol);
 		}
 	}
+
+	return 0;
 }
 
-static enum EVAL_OPTIMIZE check_optimize_symbol(addr symbol)
+static int check_optimize_symbol_(addr symbol, enum EVAL_OPTIMIZE *ret)
 {
 	addr check;
 
 	GetConst(COMMON_SAFETY, &check);
 	if (check == symbol)
-		return EVAL_OPTIMIZE_SAFETY;
+		return Result(ret, EVAL_OPTIMIZE_SAFETY);
 
 	GetConst(COMMON_SPACE, &check);
 	if (check == symbol)
-		return EVAL_OPTIMIZE_SPACE;
+		return Result(ret, EVAL_OPTIMIZE_SPACE);
 
 	GetConst(COMMON_SPEED, &check);
 	if (check == symbol)
-		return EVAL_OPTIMIZE_SPEED;
+		return Result(ret, EVAL_OPTIMIZE_SPEED);
 
 	GetConst(COMMON_COMPILATION_SPEED, &check);
 	if (check == symbol)
-		return EVAL_OPTIMIZE_COMPILATION;
+		return Result(ret, EVAL_OPTIMIZE_COMPILATION);
 
 	GetConst(COMMON_DEBUG, &check);
 	if (check == symbol)
-		return EVAL_OPTIMIZE_DEBUG;
+		return Result(ret, EVAL_OPTIMIZE_DEBUG);
 
-	fmte("Invalid optimize symbol ~S.", symbol, NULL);
-	return EVAL_OPTIMIZE_SIZE;
+	*ret = EVAL_OPTIMIZE_SIZE;
+	return fmte_("Invalid optimize symbol ~S.", symbol, NULL);
 }
 
-static void decl_optimize_symbol(addr eval, addr symbol)
+static int decl_optimize_symbol_(addr eval, addr symbol)
 {
-	int index;
-	index = (int)check_optimize_symbol(symbol);
-	SetEvalDeclareOptimize(eval, index, 3);
+	enum EVAL_OPTIMIZE index;
+
+	Return(check_optimize_symbol_(symbol, &index));
+	SetEvalDeclareOptimize(eval, (int)index, 3);
+
+	return 0;
 }
 
-static void decl_optimize_cons(addr eval, addr cons)
+static int decl_optimize_cons_(addr eval, addr cons)
 {
-	int index;
+	enum EVAL_OPTIMIZE index;
 	addr symbol, value;
 	fixnum check;
 
-	getcons(cons, &symbol, &cons);
+	Return_getcons(cons, &symbol, &cons);
 	if (GetType(symbol) != LISPTYPE_SYMBOL)
-		fmte("The optimize type ~S must be a symbol.", symbol, NULL);
-	index = (int)check_optimize_symbol(symbol);
+		return fmte_("The optimize type ~S must be a symbol.", symbol, NULL);
+	Return(check_optimize_symbol_(symbol, &index));
 
 	/* (speed) -> (speed 3) */
 	if (cons == Nil) {
-		SetEvalDeclareOptimize(eval, index, 3);
-		return;
+		SetEvalDeclareOptimize(eval, (int)index, 3);
+		return 0;
 	}
 
 	/* (speed x) */
-	getcons(cons, &value, &cons);
+	Return_getcons(cons, &value, &cons);
 	if (cons != Nil)
-		fmte("Invalid optimize argument ~S.", cons, NULL);
+		return fmte_("Invalid optimize argument ~S.", cons, NULL);
 	if (GetType(value) != LISPTYPE_FIXNUM)
-		fmte("The optimize value ~S must be a fixnum.", value, NULL);
+		return fmte_("The optimize value ~S must be a fixnum.", value, NULL);
 	GetFixnum(value, &check);
 	if (check < 0 || 3 < check)
-		fmte("The optimize value ~S must be between 0 and 3.", value, NULL);
-	SetEvalDeclareOptimize(eval, index, (int)check);
+		return fmte_("The optimize value ~S must be between 0 and 3.", value, NULL);
+	SetEvalDeclareOptimize(eval, (int)index, (int)check);
+
+	return 0;
 }
 
-static void decl_optimize(addr eval, addr cons)
+static int decl_optimize_(addr eval, addr cons)
 {
 	addr one;
 
 	while (cons != Nil) {
-		getcons(cons, &one, &cons);
+		Return_getcons(cons, &one, &cons);
 		switch (GetType(one)) {
 			case LISPTYPE_SYMBOL:
-				decl_optimize_symbol(eval, one);
+				Return(decl_optimize_symbol_(eval, one));
 				break;
 
 			case LISPTYPE_CONS:
-				decl_optimize_cons(eval, one);
+				Return(decl_optimize_cons_(eval, one));
 				break;
 
 			default:
-				fmte("Invalid optimize argument ~S.", one, NULL);
-				break;
+				return fmte_("Invalid optimize argument ~S.", one, NULL);
 		}
 	}
+
+	return 0;
 }
 
 static int declaration_p(addr eval, addr symbol)
 {
-	if (check_declaration_declare(eval, symbol)) return 1;
+	if (check_declaration_declare(eval, symbol))
+		return 1;
 	getroot_declare(&eval);
 	return check_declaration_declare(eval, symbol);
 }
 
-static int decl_otherwise(Execute ptr, addr env, addr eval, addr type, addr cons)
+static int decl_otherwise_(Execute ptr, addr env, addr eval, addr type, addr cons)
 {
 	addr symbol;
 
@@ -775,134 +808,133 @@ static int decl_otherwise(Execute ptr, addr env, addr eval, addr type, addr cons
 
 	if (! type_symbol_p(type)) {
 		/* Not implementation */
-		fmtw("Declaration ~S is not implemented.", type, NULL);
-		return 0;
+		return fmtw_("Declaration ~S is not implemented.", type, NULL);
 	}
 
-	if (parse_type(ptr, &type, type, env))
-		return 1;
+	Return(parse_type(ptr, &type, type, env));
 	while (cons != Nil) {
-		getcons(cons, &symbol, &cons);
-		check_variable(symbol);
+		Return_getcons(cons, &symbol, &cons);
+		Return(check_variable_(symbol));
 		push_type_declare_heap(eval, symbol, type);
 	}
 
 	return 0;
 }
 
-static int push_declaim(Execute ptr, addr env, addr eval, addr symbol, addr cons)
+static int push_declaim_(Execute ptr, addr env, addr eval, addr symbol, addr cons)
 {
 	addr check;
 
+	/* type */
 	GetConst(COMMON_TYPE, &check);
 	if (check == symbol)
-		return decl_type(ptr, env, eval, cons);
+		return decl_type_(ptr, env, eval, cons);
+
+	/* ftype */
 	GetConst(COMMON_FTYPE, &check);
 	if (check == symbol)
-		return decl_ftype(ptr, env, eval, cons);
+		return decl_ftype_(ptr, env, eval, cons);
+
+	/* special */
 	GetConst(COMMON_SPECIAL, &check);
-	if (check == symbol) {
-		decl_special(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_special_(eval, cons);
+
+	/* inline */
 	GetConst(COMMON_INLINE, &check);
-	if (check == symbol) {
-		decl_inline(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_inline_(eval, cons);
+
+	/* notinline */
 	GetConst(COMMON_NOTINLINE, &check);
-	if (check == symbol) {
-		decl_notinline(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_notinline_(eval, cons);
+
+	/* declaration */
 	GetConst(COMMON_DECLARATION, &check);
-	if (check == symbol) {
-		decl_declaration(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_declaration_(eval, cons);
+
+	/* optimize */
 	GetConst(COMMON_OPTIMIZE, &check);
-	if (check == symbol) {
-		decl_optimize(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_optimize_(eval, cons);
 
 	/* error/otherwise */
 	GetConst(COMMON_DYNAMIC_EXTENT, &check);
-	if (check == symbol) {
-		fmte("dynamic-extent don't allow in the declaim/proclaim form.", NULL);
-		return 0;
-	}
-	GetConst(COMMON_IGNORE, &check);
-	if (check == symbol) {
-		fmte("ignore don't allow in the declaim/proclaim form.", NULL);
-		return 0;
-	}
-	GetConst(COMMON_IGNORABLE, &check);
-	if (check == symbol) {
-		fmte("ignorable don't allow in the declaim/proclaim form.", NULL);
-		return 0;
-	}
+	if (check == symbol)
+		return fmte_("dynamic-extent don't allow in the declaim/proclaim form.", NULL);
 
-	return decl_otherwise(ptr, env, eval, symbol, cons);
+	GetConst(COMMON_IGNORE, &check);
+	if (check == symbol)
+		return fmte_("ignore don't allow in the declaim/proclaim form.", NULL);
+
+	GetConst(COMMON_IGNORABLE, &check);
+	if (check == symbol)
+		return fmte_("ignorable don't allow in the declaim/proclaim form.", NULL);
+
+	return decl_otherwise_(ptr, env, eval, symbol, cons);
 }
 
-static int push_declare(Execute ptr, addr env, addr eval, addr symbol, addr cons)
+static int push_declare_(Execute ptr, addr env, addr eval, addr symbol, addr cons)
 {
 	addr check;
 
+	/* type */
 	GetConst(COMMON_TYPE, &check);
 	if (check == symbol)
-		return decl_type(ptr, env, eval, cons);
+		return decl_type_(ptr, env, eval, cons);
+
+	/* ftype */
 	GetConst(COMMON_FTYPE, &check);
 	if (check == symbol)
-		return decl_ftype(ptr, env, eval, cons);
+		return decl_ftype_(ptr, env, eval, cons);
+	
+	/* special */
 	GetConst(COMMON_SPECIAL, &check);
-	if (check == symbol) {
-		decl_special(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_special_(eval, cons);
+	
+	/* inline */
 	GetConst(COMMON_INLINE, &check);
-	if (check == symbol) {
-		decl_inline(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_inline_(eval, cons);
+
+	/* notinline */
 	GetConst(COMMON_NOTINLINE, &check);
-	if (check == symbol) {
-		decl_notinline(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_notinline_(eval, cons);
+
+	/* ignore */
 	GetConst(COMMON_IGNORE, &check);
-	if (check == symbol) {
-		decl_ignore(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_ignore_(eval, cons);
+
+	/* ignorable */
 	GetConst(COMMON_IGNORABLE, &check);
-	if (check == symbol) {
-		decl_ignorable(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_ignorable_(eval, cons);
+
+	/* dynamic-extent */
 	GetConst(COMMON_DYNAMIC_EXTENT, &check);
-	if (check == symbol) {
-		decl_dynamic_extent(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_dynamic_extent_(eval, cons);
+
+	/* optimize */
 	GetConst(COMMON_OPTIMIZE, &check);
-	if (check == symbol) {
-		decl_optimize(eval, cons);
-		return 0;
-	}
+	if (check == symbol)
+		return decl_optimize_(eval, cons);
 
 	/* error/otherwise */
 	GetConst(COMMON_DECLARATION, &check);
-	if (check == symbol) {
-		fmte("declaration don't allow in the declare form.", NULL);
-		return 0;
-	}
-	return decl_otherwise(ptr, env, eval, symbol, cons);
+	if (check == symbol)
+		return fmte_("declaration don't allow in the declare form.", NULL);
+
+	return decl_otherwise_(ptr, env, eval, symbol, cons);
 }
 
-static int parse_declare_form(Execute ptr, addr env, addr decl, addr *ret,
-		int (*call)(Execute, addr ,addr, addr, addr))
+static int parse_declare_form_(Execute ptr, addr env, addr decl, addr *ret,
+		int (*call_)(Execute, addr ,addr, addr, addr))
 {
 	addr eval, car, tail;
 	LocalHold hold;
@@ -910,100 +942,103 @@ static int parse_declare_form(Execute ptr, addr env, addr decl, addr *ret,
 	eval_declare_heap(&eval);
 	hold = LocalHold_local_push(ptr, eval);
 	while (decl != Nil) {
-		getcons(decl, &car, &decl);
-		getcons(car, &car, &tail);
+		Return_getcons(decl, &car, &decl);
+		Return_getcons(car, &car, &tail);
 		if (! symbolp(car))
-			TypeError(car, SYMBOL);
-		if (call(ptr, env, eval, car, tail))
-			return 1;
+			return TypeError_(car, SYMBOL);
+		Return((*call_)(ptr, env, eval, car, tail));
 	}
 	localhold_end(hold);
-	*ret = eval;
 
-	return 0;
+	return Result(ret, eval);
 }
 
-_g int parse_declaim_heap(Execute ptr, addr env, addr decl, addr *ret)
+_g int parse_declaim_heap_(Execute ptr, addr env, addr decl, addr *ret)
 {
-	return parse_declare_form(ptr, env, decl, ret, push_declaim);
+	return parse_declare_form_(ptr, env, decl, ret, push_declaim_);
 }
 
-_g int parse_declare_heap(Execute ptr, addr env, addr decl, addr *ret)
+_g int parse_declare_heap_(Execute ptr, addr env, addr decl, addr *ret)
 {
-	return parse_declare_form(ptr, env, decl, ret, push_declare);
+	return parse_declare_form_(ptr, env, decl, ret, push_declare_);
 }
 
-_g int parse_optimize_heap(addr decl, addr *ret)
+_g int parse_optimize_heap_(addr decl, addr *value, int *ret)
 {
 	addr eval, pos, car, tail, optimize;
 
 	eval_declare_heap(&eval);
 	GetConst(COMMON_OPTIMIZE, &optimize);
 	while (decl != Nil) {
-		getcons(decl, &pos, &decl);
-		getcons(pos, &car, &tail);
+		Return_getcons(decl, &pos, &decl);
+		Return_getcons(pos, &car, &tail);
 		if (car != optimize)
-			return 1;
-		decl_optimize(eval, tail);
+			return Result(ret, 1);
+		Return(decl_optimize_(eval, tail));
 	}
-	*ret = eval;
-
-	return 0;
+	*value = eval;
+	return Result(ret, 0);
 }
 
 
 /*
  *  declare_body_documentation
  */
-static void declare_split(addr cons, addr *retdecl, addr *retbody)
+static int declare_split_(addr cons, addr *retdecl, addr *retbody)
 {
 	addr decl, car, cdr, declare;
 
 	GetConst(COMMON_DECLARE, &declare);
 	for (decl = Nil; cons != Nil; ) {
-		getcar(cons, &cdr);
-		if (GetType(cdr) != LISPTYPE_CONS) break;
-		getcons(cdr, &car, &cdr);
-		if (car != declare) break;
+		Return_getcar(cons, &cdr);
+		if (GetType(cdr) != LISPTYPE_CONS)
+			break;
+		Return_getcons(cdr, &car, &cdr);
+		if (car != declare)
+			break;
 		while (cdr != Nil) {
-			getcons(cdr, &car, &cdr);
+			Return_getcons(cdr, &car, &cdr);
 			cons_heap(&decl, car, decl);
 		}
-		getcdr(cons, &cons);
+		Return_getcdr(cons, &cons);
 	}
 	nreverse(retdecl, decl);
 	*retbody = cons;
+	return 0;
 }
 
-_g void declare_body_form(addr list, addr *retdecl, addr *retbody)
+_g int declare_body_form_(addr list, addr *retdecl, addr *retbody)
 {
 	addr declare, decl, car, cdr;
 
 	GetConst(COMMON_DECLARE, &declare);
 	for (decl = Nil; list != Nil; ) {
-		getcar(list, &cdr);
-		if (! consp(cdr)) break;
-		getcar(cdr, &car);
-		if (car != declare) break;
+		Return_getcar(list, &cdr);
+		if (! consp(cdr))
+			break;
+		Return_getcar(cdr, &car);
+		if (car != declare)
+			break;
 		cons_heap(&decl, cdr, decl);
-		getcdr(list, &list);
+		Return_getcdr(list, &list);
 	}
 	nreverse(retdecl, decl);
 	*retbody = list;
+	return 0;
 }
 
-_g int declare_body(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody)
+_g int declare_body_(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody)
 {
 	addr decl;
 
-	declare_split(cons, &decl, retbody);
+	Return(declare_split_(cons, &decl, retbody));
 	if (decl != Nil)
-		return parse_declare_heap(ptr, env, decl, retdecl);
+		return parse_declare_heap_(ptr, env, decl, retdecl);
 	*retdecl = Nil;
 	return 0;
 }
 
-_g int declare_body_documentation(Execute ptr, addr env,
+_g int declare_body_documentation_(Execute ptr, addr env,
 		addr cons, addr *rdoc, addr *rdecl, addr *rbody)
 {
 	addr car, cdr;
@@ -1015,28 +1050,27 @@ _g int declare_body_documentation(Execute ptr, addr env,
 	}
 
 	/* (body) */
-	getcons(cons, &car, &cdr);
+	Return_getcons(cons, &car, &cdr);
 	if (cdr == Nil) {
 		*rdoc = Nil;
-		return declare_body(ptr, env, cons, rdecl, rbody);
+		return declare_body_(ptr, env, cons, rdecl, rbody);
 	}
 
 	/* (doc . body) */
 	if (stringp(car)) {
 		*rdoc = car;
-		return declare_body(ptr, env, cdr, rdecl, rbody);
+		return declare_body_(ptr, env, cdr, rdecl, rbody);
 	}
 
 	/* (decl . nil) */
-	if (declare_body(ptr, env, cons, rdecl, &cdr))
-		return 1;
+	Return(declare_body_(ptr, env, cons, rdecl, &cdr));
 	if (cdr == Nil) {
 		*rdoc = *rbody = Nil;
 		return 0;
 	}
 
 	/* ([decl] doc . body) */
-	getcons(cdr, &car, &cons);
+	Return_getcons(cdr, &car, &cons);
 	if (stringp(car)) {
 		if (cons == Nil) {
 			*rdoc = Nil;
@@ -1052,44 +1086,41 @@ _g int declare_body_documentation(Execute ptr, addr env,
 	/* ([decl] . body) */
 	*rdoc = Nil;
 	*rbody = cdr;
-
 	return 0;
 }
 
-_g void split_decl_body_doc(addr list, addr *rdoc, addr *rdecl, addr *rbody)
+_g int split_decl_body_doc_(addr list, addr *rdoc, addr *rdecl, addr *rbody)
 {
 	addr car, cdr;
 
 	/* nil */
 	if (list == Nil) {
 		*rdoc = *rdecl = *rbody = Nil;
-		return;
+		return 0;
 	}
 
 	/* (body) */
-	getcons(list, &car, &cdr);
+	Return_getcons(list, &car, &cdr);
 	if (cdr == Nil) {
 		*rdoc = Nil;
-		declare_split(list, rdecl, rbody);
-		return;
+		return declare_split_(list, rdecl, rbody);
 	}
 
 	/* (doc . body) */
 	if (stringp(car)) {
 		*rdoc = car;
-		declare_split(cdr, rdecl, rbody);
-		return;
+		return declare_split_(cdr, rdecl, rbody);
 	}
 
 	/* (decl . nil) */
-	declare_split(list, rdecl, &cdr);
+	Return(declare_split_(list, rdecl, &cdr));
 	if (cdr == Nil) {
 		*rdoc = *rbody = Nil;
-		return;
+		return 0;
 	}
 
 	/* ([decl] doc . body) */
-	getcons(cdr, &car, &list);
+	Return_getcons(cdr, &car, &list);
 	if (stringp(car)) {
 		if (list == Nil) {
 			*rdoc = Nil;
@@ -1099,12 +1130,13 @@ _g void split_decl_body_doc(addr list, addr *rdoc, addr *rdecl, addr *rbody)
 			*rdoc = car;
 			*rbody = list;
 		}
-		return;
+		return 0;
 	}
 
 	/* ([decl] . body) */
 	*rdoc = Nil;
 	*rbody = cdr;
+	return 0;
 }
 
 
@@ -1278,22 +1310,20 @@ _g void set_optimize_speed_declare(addr pos, OptimizeType value)
 /*
  *  proclaim
  */
-static int parse_proclaim_heap(Execute ptr, addr env, addr car, addr *ret)
+static int parse_proclaim_heap_(Execute ptr, addr env, addr car, addr *ret)
 {
 	addr eval, tail;
 	LocalHold hold;
 
 	eval_declare_heap(&eval);
 	hold = LocalHold_local_push(ptr, eval);
-	getcons(car, &car, &tail);
+	Return_getcons(car, &car, &tail);
 	if (! symbolp(car))
-		TypeError(car, SYMBOL);
-	if (push_declaim(ptr, env, eval, car, tail))
-		return 1;
+		return TypeError_(car, SYMBOL);
+	Return(push_declaim_(ptr, env, eval, car, tail));
 	localhold_end(hold);
-	*ret = eval;
 
-	return 0;
+	return Result(ret, eval);
 }
 
 static void apply_type_value_proclaim(addr pos)
@@ -1403,7 +1433,7 @@ static void apply_declaration_proclaim(addr pos)
 
 _g int proclaim_common(Execute ptr, addr var)
 {
-	Return(parse_proclaim_heap(ptr, Nil, var, &var));
+	Return(parse_proclaim_heap_(ptr, Nil, var, &var));
 	apply_type_value_proclaim(var);
 	apply_type_function_proclaim(var);
 	apply_special_proclaim(var);

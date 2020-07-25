@@ -675,7 +675,7 @@ _g int with_open_file_common(addr form, addr *ret)
 	if (! consp(args))
 		goto error;
 	GetCons(args, &file, &args);
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 
 	/* expand */
 	GetConst(COMMON_LET, &let);
@@ -750,7 +750,7 @@ _g int with_open_stream_common(addr form, addr *ret)
 	GetCons(args, &stream, &args);
 	if (args != Nil)
 		goto error;
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 
 	/* expand */
 	GetConst(COMMON_LET, &let);
@@ -860,7 +860,7 @@ _g int get_output_stream_string_common(Execute ptr, addr var, addr *ret)
 /*
  *  with-input-from-string
  */
-static void with_input_from_string_noindex_common(addr *ret,
+static int with_input_from_string_noindex_common_(addr *ret,
 		addr var, addr string, addr args, addr body)
 {
 	/* `(let ((,var (make-string-input-stream ,string :start ,start :end ,end)))
@@ -876,7 +876,7 @@ static void with_input_from_string_noindex_common(addr *ret,
 	GetConst(COMMON_UNWIND_PROTECT, &unwind);
 	GetConst(COMMON_PROGN, &progn);
 	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&close, close, var, NULL);
 	cons_heap(&progn, progn, body);
 	list_heap(&unwind, unwind, progn, close, NULL);
@@ -891,9 +891,11 @@ static void with_input_from_string_noindex_common(addr *ret,
 	}
 	cons_heap(&let, unwind, let);
 	nreverse(ret, let);
+
+	return 0;
 }
 
-static void with_input_from_string_index_common(addr *ret,
+static int with_input_from_string_index_common_(addr *ret,
 		addr var, addr string, addr index, addr args, addr body)
 {
 	/* `(let ((,var (make-string-input-stream ,string :start ,start :end ,end)))
@@ -912,7 +914,7 @@ static void with_input_from_string_index_common(addr *ret,
 	GetConst(COMMON_SETF, &setf);
 	GetConst(SYSTEM_END_INPUT_STREAM, &end);
 	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&close, close, var, NULL);
 	list_heap(&end, end, var, NULL);
 	list_heap(&setf, setf, index, end, NULL);
@@ -929,6 +931,8 @@ static void with_input_from_string_index_common(addr *ret,
 	}
 	cons_heap(&let, unwind, let);
 	nreverse(ret, let);
+
+	return 0;
 }
 
 _g int with_input_from_string_common(addr form, addr *ret)
@@ -949,11 +953,12 @@ _g int with_input_from_string_common(addr form, addr *ret)
 	/* make form */
 	GetConst(KEYWORD_INDEX, &key);
 	if (getplist(args, key, &index)) {
-		with_input_from_string_noindex_common(ret, var, string, args, body);
+		Return(with_input_from_string_noindex_common_(ret, var, string, args, body));
 	}
 	else {
 		remplist_heap(args, key, &args);
-		with_input_from_string_index_common(ret, var, string, index, args, body);
+		Return(with_input_from_string_index_common_(ret,
+					var, string, index, args, body));
 	}
 	return 0;
 
@@ -966,7 +971,7 @@ error:
 /*
  *  with-output-to-string
  */
-static void with_output_to_string_normal_common(addr *ret,
+static int with_output_to_string_normal_common_(addr *ret,
 		addr var, addr args, addr body)
 {
 	/* `(let ((,var (make-string-output-stream ,@args)))
@@ -984,7 +989,7 @@ static void with_output_to_string_normal_common(addr *ret,
 	GetConst(COMMON_PROGN, &progn);
 	GetConst(COMMON_GET_OUTPUT_STREAM_STRING, &get);
 	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&close, close, var, NULL);
 	list_heap(&get, get, var, NULL);
 	conscar_heap(&progn, progn);
@@ -1006,9 +1011,11 @@ static void with_output_to_string_normal_common(addr *ret,
 	}
 	cons_heap(&let, unwind, let);
 	nreverse(ret, let);
+
+	return 0;
 }
 
-static void with_output_to_string_extend_common(addr *ret,
+static int with_output_to_string_extend_common_(addr *ret,
 		addr var, addr string, addr args, addr body)
 {
 	/* `(let ((,var (lisp-system::make-extend-output-stream string ,@args)))
@@ -1024,7 +1031,7 @@ static void with_output_to_string_extend_common(addr *ret,
 	GetConst(COMMON_UNWIND_PROTECT, &unwind);
 	GetConst(COMMON_PROGN, &progn);
 	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&close, close, var, NULL);
 	cons_heap(&progn, progn, body);
 	list_heap(&unwind, unwind, progn, close, NULL);
@@ -1039,6 +1046,8 @@ static void with_output_to_string_extend_common(addr *ret,
 	}
 	cons_heap(&let, unwind, let);
 	nreverse(ret, let);
+
+	return 0;
 }
 
 _g int with_output_to_string_common(addr form, addr *ret)
@@ -1060,10 +1069,10 @@ _g int with_output_to_string_common(addr form, addr *ret)
 		GetCons(args, &string, &args);
 	}
 	if (string == Nil) {
-		with_output_to_string_normal_common(ret, var, args, body);
+		Return(with_output_to_string_normal_common_(ret, var, args, body));
 	}
 	else {
-		with_output_to_string_extend_common(ret, var, string, args, body);
+		Return(with_output_to_string_extend_common_(ret, var, string, args, body));
 	}
 	return 0;
 

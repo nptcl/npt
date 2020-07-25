@@ -60,7 +60,7 @@ static void defun_compile_file(void)
 
 	/* function */
 	GetConst(COMMON_COMPILE_FILE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_compile_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -101,7 +101,7 @@ static void defun_compile_file_pathname(void)
 
 	/* function */
 	GetConst(COMMON_COMPILE_FILE_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_compile_file_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -199,7 +199,7 @@ static void defun_load(void)
 
 	/* function */
 	GetConst(COMMON_LOAD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_load);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -215,7 +215,7 @@ static void defun_load(void)
  */
 static int function_with_compilation_unit(Execute ptr, addr form, addr env)
 {
-	with_compilation_unit_common(form, &form);
+	Return(with_compilation_unit_common_(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -225,7 +225,7 @@ static void defmacro_with_compilation_unit(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_COMPILATION_UNIT, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_compilation_unit);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -407,7 +407,7 @@ static void defun_provide(void)
 
 	/* function */
 	GetConst(COMMON_PROVIDE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_provide);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -444,7 +444,7 @@ static void defun_require(void)
 
 	/* function */
 	GetConst(COMMON_REQUIRE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_require);
 	SetFunctionCommon(symbol, pos);
 	/* type */

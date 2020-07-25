@@ -66,7 +66,7 @@ static int defmethod_make_method_lambda_std_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var6(call, p_method_make_method_lambda_std);
 	method_type_make_method_lambda_std(&type);
 	settype_function(call, type);

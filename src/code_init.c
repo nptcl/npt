@@ -24,7 +24,7 @@ _g void defcode_constant(constindex index, pointer p)
 	Check(symbol == Nil || symbol == Unbound, "constant error");
 	GetFunctionSymbol(symbol, &pos);
 	Check(pos != Unbound, "code-function already exists.");
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_code(pos, p);
 	SetFunctionSymbol(symbol, pos);
 }

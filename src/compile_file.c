@@ -150,7 +150,7 @@ static int function_handler_compile(Execute ptr, addr condition)
 	return 0;
 }
 
-_g void handler_compile(Execute ptr)
+_g int handler_compile_(Execute ptr)
 {
 	addr pos, call;
 
@@ -170,7 +170,7 @@ _g void handler_compile(Execute ptr)
 	GetConst(CONDITION_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_compile);
-	pushhandler_common(ptr, pos, call, 0);
+	return pushhandler_common_(ptr, pos, call, 0);
 }
 
 _g int compile_file_common(Execute ptr, addr input, addr rest,
@@ -184,7 +184,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	/* push control */
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
-	handler_compile(ptr);
+	Return(handler_compile_(ptr));
 	init_write_make_load_form(ptr);
 	Return(compile_file_input_stream(ptr, input, output, rest, ret1));
 	localhold_set(hold, 0, *ret1);

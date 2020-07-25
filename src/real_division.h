@@ -122,14 +122,14 @@ _g void lisp_mod_bignum(LocalRoot local, addr *ret, addr a, addr b);
 _g void lisp_mod_br_ratio(LocalRoot local, addr *ret, addr a, addr b);
 _g void lisp_mod_rb_ratio(LocalRoot local, addr *rem, addr a, addr b);
 _g void lisp_mod_rr_ratio(LocalRoot local, addr *ret, addr a, addr b);
-_g void mod_number_common(LocalRoot local, addr a, addr b, addr *ret);
+_g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret);
 
 _g void lisp_rem_fixnum(addr *ret, fixnum a, fixnum b);
 _g void lisp_rem_bignum(LocalRoot local, addr *ret, addr a, addr b);
 _g void lisp_rem_br_ratio(LocalRoot local, addr *ret, addr a, addr b);
 _g void lisp_rem_rb_ratio(LocalRoot local, addr *ret, addr a, addr b);
 _g void lisp_rem_rr_ratio(LocalRoot local, addr *rem, addr a, addr b);
-_g void rem_number_common(LocalRoot local, addr a, addr b, addr *ret);
+_g int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret);
 
 
 /*

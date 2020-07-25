@@ -922,8 +922,9 @@ _g void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 	return;
 
 error:
-	fmte("parse-error: ~S.", pos, NULL);
 	*ret = Nil;
+	infobit(pos);
+	Abort("parse-error.");
 }
 
 _g void init_eval_copy(void)

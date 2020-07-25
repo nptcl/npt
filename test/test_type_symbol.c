@@ -45,7 +45,7 @@ static int test_find_symbol_type(void)
 	test(LispDecl(pos) == LISPDECL_CLOS, "find_symbol_type6");
 
 	/* deftype */
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
 	setcompiled_dynamic(pos, p_debug1);
 	symbol = readr("TEST-FIND-SYMBOL-TYPE");
@@ -101,7 +101,7 @@ static int test_type_symbol_p(void)
 	test(type_symbol_p(pos), "type_symbol_p4");
 
 	/* deftype */
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
 	setcompiled_dynamic(call, p_debug1);
 	pos = readr("TEST-FIND-SYMBOL-TYPE");

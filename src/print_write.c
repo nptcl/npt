@@ -1472,7 +1472,10 @@ static int WriteSymbol_upcase_capitalize_(Execute ptr, addr stream, addr pos)
 
 static int WriteSymbol_upcase_(Execute ptr, addr stream, addr pos)
 {
-	switch (case_print(ptr)) {
+	enum PrintCase value;
+
+	Return(case_print_(ptr, &value));
+	switch (value) {
 		case PrintCase_upcase:
 			return WriteSymbol_upcase_upcase_(ptr, stream, pos);
 
@@ -1513,7 +1516,10 @@ static int WriteSymbol_downcase_capitalize_(Execute ptr, addr stream, addr pos)
 
 static int WriteSymbol_downcase_(Execute ptr, addr stream, addr pos)
 {
-	switch (case_print(ptr)) {
+	enum PrintCase value;
+
+	Return(case_print_(ptr, &value));
+	switch (value) {
 		case PrintCase_upcase:
 			return WriteSymbol_downcase_upcase_(ptr, stream, pos);
 
@@ -1753,7 +1759,7 @@ static int WriteCall_fixnum_(Execute ptr, addr stream, addr object)
 	unsigned base;
 	fixnum value;
 
-	base = base_print(ptr);
+	Return(base_print_(ptr, &base));
 	radix = radix_print(ptr);
 	if (radix && base != 10) {
 		Return(WriteCall_radix_front_(stream, base));
@@ -1791,7 +1797,7 @@ static int WriteCall_bignum_sign_(Execute ptr, addr stream, int sign, addr objec
 	int radix;
 	unsigned base;
 
-	base = base_print(ptr);
+	Return(base_print_(ptr, &base));
 	radix = radix_print(ptr);
 	if (radix && base != 10) {
 		Return(WriteCall_radix_front_(stream, base));
@@ -1834,7 +1840,7 @@ static int WriteCall_ratio_(Execute ptr, addr stream, addr object)
 	}
 
 	/* ratio */
-	base = base_print(ptr);
+	Return(base_print_(ptr, &base));
 	if (radix_print(ptr)) {
 		Return(WriteCall_radix_front_(stream, base));
 	}
@@ -2038,7 +2044,7 @@ static int WriteBody_random_state_(Execute ptr, addr stream, addr pos)
 	push_readably_print(ptr, 0);
 	push_radix_print(ptr, 1);
 	push_base_print(ptr, 16);
-	push_case_print(ptr, PrintCase_upcase);
+	Return(push_case_print_(ptr, PrintCase_upcase));
 	make_bignum_random_state_local(ptr->local, pos, &pos);
 	Return(WriteCall_bignum_(ptr, stream, pos));
 

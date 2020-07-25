@@ -409,7 +409,7 @@ static int ed_function_write(Execute ptr, addr file, addr lambda)
 				Stream_Open_IfDoesNot_Create,
 				Stream_Open_External_Default));
 	Return(right_margin_print_(ptr, file, &width));
-	push_right_margin_print(ptr, width);
+	Return(push_right_margin_print_(ptr, width));
 	Return(prin1_print(ptr, file, lambda));
 	Return(close_stream_(file));
 

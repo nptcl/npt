@@ -767,13 +767,15 @@ static int defgeneric_parse_order(addr list, addr *ret)
 
 static int defgeneric_parse_declare(addr list, addr *ret)
 {
+	int check;
 	addr pos, decl;
 
 	if (! consp_getcons(list, &pos, &decl))
 		goto error;
 	if (decl != Nil)
 		goto error;
-	if (parse_optimize_heap(pos, &decl))
+	Return(parse_optimize_heap_(pos, &decl, &check));
+	if (check)
 		return fmte_(":DECLARE accept only OPTIMIZE but ~S.", pos, NULL);
 	return Result(ret, decl);
 
@@ -1042,10 +1044,10 @@ static int defmethod_parse_specializers(addr pos, addr *ret)
 	return Result(ret, root);
 }
 
-static void defmethod_parse_documentation(addr form, addr *ret)
+static int defmethod_parse_documentation_(addr form, addr *ret)
 {
 	addr decl, body;
-	split_decl_body_doc(form, ret, &decl, &body);
+	return split_decl_body_doc_(form, ret, &decl, &body);
 }
 
 static int defmethod_parse_function_(Execute ptr,
@@ -1076,7 +1078,7 @@ static int defmethod_parse_function_(Execute ptr,
 	/* lambda */
 	GetConst(COMMON_LAMBDA, &lambda);
 	argument_method_lambda_heap(&ord, ord);
-	defmethod_parse_documentation(form, &doc);
+	Return(defmethod_parse_documentation_(form, &doc));
 	lista_heap(&ord, lambda, ord, form, NULL);
 	/* apply */
 	GetConst(COMMON_APPLY, &apply);
@@ -1322,7 +1324,7 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	Return(defcomb_split_body(list, &args, &gen, &list));
 	/* parser */
 	Return(defcomb_long_specifiers(&spec, spec));
-	split_decl_body_doc(list, &doc, &decl, &body);
+	Return(split_decl_body_doc_(list, &doc, &decl, &body));
 
 	/* `(ensure-method-combination-long
 	 *    (quote ,name)

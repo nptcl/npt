@@ -693,8 +693,8 @@ static int lisp_argv_arguments_(struct lispargv *argv)
 static int lisp_argv_switch_execute_(Execute ptr, struct lispargv *argv)
 {
 	push_prompt_info(ptr);
-	handler_warning(ptr);
-	handler_savecore(ptr);
+	Return(handler_warning_(ptr));
+	Return(handler_savecore_(ptr));
 	Return(lisp_argv_environment_(argv));
 	Return(lisp_argv_arguments_(argv));
 	return lisp_argv_execute_(ptr, argv);

@@ -14,96 +14,118 @@
 /*
  *  multiple
  */
-static int multi_real_complex(addr left, addr right, addr *ret)
+static int multi_real_complex_(addr left, addr right, addr *value, int *ret)
 {
+	enum MathType type;
 	single_float vs;
 	double_float vd;
 	long_float vl;
 	struct mathcomplex2_struct str;
 
-	switch (getmathcomplex2_addr(&str, left, right)) {
+	Return(getmathcomplex2_addr_(&str, left, right, &type));
+	switch (type) {
 		case MathType_single:
 			vs = str.v.s.a;
-			complex_single_heap(ret, vs*str.v.s.c, vs*str.v.s.d);
-			return 0;
+			complex_single_heap(value, vs*str.v.s.c, vs*str.v.s.d);
+			return Result(ret, 0);
 
 		case MathType_double:
 			vd = str.v.d.a;
-			complex_double_heap(ret, vd*str.v.d.c, vd*str.v.d.d);
-			return 0;
+			complex_double_heap(value, vd*str.v.d.c, vd*str.v.d.d);
+			return Result(ret, 0);
 
 		case MathType_long:
 			vl = str.v.l.a;
-			complex_long_heap(ret, vl*str.v.l.c, vl*str.v.l.d);
-			return 0;
+			complex_long_heap(value, vl*str.v.l.c, vl*str.v.l.d);
+			return Result(ret, 0);
 
 		case MathType_rational:
-			return 1;
+			return Result(ret, 1);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return 0;
+			*value = NULL;
+			*ret = 0;
+			return fmte_("type error", NULL);
 	}
 }
 
-_g void multi_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int multi_rational_complex_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
+	int check;
 	addr real, imag;
 
 	CheckLocal(local);
 	Check(! rationalp(left), "type error");
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (multi_real_complex(left, right, ret)) {
+	Return(multi_real_complex_(left, right, ret, &check));
+	if (check) {
 		GetRealComplex(right, &real);
 		GetImagComplex(right, &imag);
 		multi_rational_common(local, left, real, &real);
 		multi_rational_common(local, left, imag, &imag);
 		complex_heap(ret, real, imag);
 	}
+
+	return 0;
 }
 
-_g void multi_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int multi_fc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
-	multi_rational_complex_common(local, left, right, ret);
+	return multi_rational_complex_common_(local, left, right, ret);
 }
 
-_g void multi_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int multi_bc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
-	multi_rational_complex_common(local, left, right, ret);
+	return multi_rational_complex_common_(local, left, right, ret);
 }
 
-_g void multi_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int multi_rc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
-	multi_rational_complex_common(local, left, right, ret);
+	return multi_rational_complex_common_(local, left, right, ret);
 }
 
-_g void multi_sc_number_common(addr left, addr right, addr *ret)
+_g int multi_sc_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (multi_real_complex(left, right, ret))
-		fmte("Type error", NULL);
+	Return(multi_real_complex_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+	
+	return 0;
 }
 
-_g void multi_dc_number_common(addr left, addr right, addr *ret)
+_g int multi_dc_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (multi_real_complex(left, right, ret))
-		fmte("Type error", NULL);
+	Return(multi_real_complex_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
-_g void multi_lc_number_common(addr left, addr right, addr *ret)
+_g int multi_lc_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (multi_real_complex(left, right, ret))
-		fmte("Type error", NULL);
+	Return(multi_real_complex_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
 static void multi_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
@@ -129,8 +151,9 @@ static void multi_cc_rational_common(LocalRoot local, addr left, addr right, add
 	rollback_local(local, stack);
 }
 
-_g void multi_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int multi_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
+	enum MathType type;
 	single_float as, bs, cs, ds;
 	double_float ad, bd, cd, dd;
 	long_float al, bl, cl, dl;
@@ -140,7 +163,8 @@ _g void multi_cc_number_common(LocalRoot local, addr left, addr right, addr *ret
 	CheckLocal(local);
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_COMPLEX);
-	switch (getmathcomplex2_addr(&str, left, right)) {
+	Return(getmathcomplex2_addr_(&str, left, right, &type));
+	switch (type) {
 		case MathType_single:
 			as = str.v.s.a;
 			bs = str.v.s.b;
@@ -172,16 +196,18 @@ _g void multi_cc_number_common(LocalRoot local, addr left, addr right, addr *ret
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 
 
 /*
  *  inverse
  */
-static void inverse_complex_rational(LocalRoot local, addr pos, addr *ret)
+static int inverse_complex_rational_(LocalRoot local, addr pos, addr *ret)
 {
 	LocalStack stack;
 	addr a, b, a2, b2, ab;
@@ -190,7 +216,7 @@ static void inverse_complex_rational(LocalRoot local, addr pos, addr *ret)
 	 * Im: -b/(a*a + b*b)
 	 */
 	if (zerop_complex(pos))
-		division_by_zero1(pos);
+		return call_division_by_zero1_(Execute_Thread, pos);
 	GetRealComplex(pos, &a);
 	GetImagComplex(pos, &b);
 	push_local(local, &stack);
@@ -202,17 +228,21 @@ static void inverse_complex_rational(LocalRoot local, addr pos, addr *ret)
 	sign_reverse_rational_local(local, b, &b);
 	complex_heap(ret, a, b);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-_g void inverse_complex_common(LocalRoot local, addr pos, addr *ret)
+_g int inverse_complex_common_(LocalRoot local, addr pos, addr *ret)
 {
+	enum MathType type;
 	single_float as, bs, ds;
 	double_float ad, bd, dd;
 	long_float al, bl, dl;
 	struct mathreal2_struct str;
 
 	CheckLocalType(local, pos, LISPTYPE_COMPLEX);
-	switch (getmathcomplex1_inverse(&str, pos)) {
+	Return(getmathcomplex1_inverse_(&str, pos, &type));
+	switch (type) {
 		case MathType_single:
 			as = str.v.s.a;
 			bs = str.v.s.b;
@@ -235,113 +265,120 @@ _g void inverse_complex_common(LocalRoot local, addr pos, addr *ret)
 			break;
 
 		case MathType_rational:
-			inverse_complex_rational(local, pos, ret);
-			break;
+			return inverse_complex_rational_(local, pos, ret);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("Type error", NULL);
 			*ret = 0;
-			return;
+			return fmte_("Type error", NULL);
 	}
+
+	return 0;
 }
 
 
 /*
  *  division
  */
-static int div_real_complex(addr left, addr right, addr *ret)
+static int div_real_complex_(addr left, addr right, addr *value, int *ret)
 {
 	/* Re:  n*a/(a*a + b*b)
 	 * Im: -n*b/(a*a + b*b)
 	 */
+	enum MathType type;
 	single_float ns, as, bs, ds;
 	double_float nd, ad, bd, dd;
 	long_float nl, al, bl, dl;
 	struct mathcomplex2_struct str;
 
-	switch (getmathcomplex2_addr(&str, left, right)) {
+	Return(getmathcomplex2_addr_(&str, left, right, &type));
+	switch (type) {
 		case MathType_single:
 			ns = str.v.s.a;
 			as = str.v.s.c;
 			bs = str.v.s.d;
 			ds = as*as + bs*bs;
-			complex_single_heap(ret, ns*as/ds, -ns*bs/ds);
-			return 0;
+			complex_single_heap(value, ns*as/ds, -ns*bs/ds);
+			return Result(ret, 0);
 
 		case MathType_double:
 			nd = str.v.d.a;
 			ad = str.v.d.c;
 			bd = str.v.d.d;
 			dd = ad*ad + bd*bd;
-			complex_double_heap(ret, nd*ad/dd, -nd*bd/dd);
-			return 0;
+			complex_double_heap(value, nd*ad/dd, -nd*bd/dd);
+			return Result(ret, 0);
 
 		case MathType_long:
 			nl = str.v.l.a;
 			al = str.v.l.c;
 			bl = str.v.l.d;
 			dl = al*al + bl*bl;
-			complex_long_heap(ret, nl*al/dl, -nl*bl/dl);
-			return 0;
+			complex_long_heap(value, nl*al/dl, -nl*bl/dl);
+			return Result(ret, 0);
 
 		case MathType_rational:
-			return 1;
+			return Result(ret, 1);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return 0;
+			*value = NULL;
+			*ret = 0;
+			return fmte_("type error", NULL);
 	}
 }
 
-static int div_complex_real(addr left, addr right, addr *ret)
+static int div_complex_real_(addr left, addr right, addr *value, int *ret)
 {
 	/* Re: a/n
 	 * Im: b/n
 	 */
+	enum MathType type;
 	single_float ns, as, bs;
 	double_float nd, ad, bd;
 	long_float nl, al, bl;
 	struct mathcomplex2_struct str;
 
-	switch (getmathcomplex2_addr(&str, left, right)) {
+	Return(getmathcomplex2_addr_(&str, left, right, &type));
+	switch (type) {
 		case MathType_single:
 			as = str.v.s.a;
 			bs = str.v.s.b;
 			ns = str.v.s.c;
-			complex_single_heap(ret, as/ns, bs/ns);
-			return 0;
+			complex_single_heap(value, as/ns, bs/ns);
+			return Result(ret, 0);
 
 		case MathType_double:
 			ad = str.v.d.a;
 			bd = str.v.d.b;
 			nd = str.v.d.c;
-			complex_double_heap(ret, ad/nd, bd/nd);
-			return 0;
+			complex_double_heap(value, ad/nd, bd/nd);
+			return Result(ret, 0);
 
 		case MathType_long:
 			al = str.v.l.a;
 			bl = str.v.l.b;
 			nl = str.v.l.c;
-			complex_long_heap(ret, al/nl, bl/nl);
-			return 0;
+			complex_long_heap(value, al/nl, bl/nl);
+			return Result(ret, 0);
 
 		case MathType_rational:
-			return 1;
+			return Result(ret, 1);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return 0;
+			*value = 0;
+			*ret = 0;
+			return fmte_("type error", NULL);
 	}
 }
 
-_g void div_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_rational_complex_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
+	int check;
 	LocalStack stack;
 	addr a, b, a2, b2, ab;
 
@@ -352,8 +389,9 @@ _g void div_rational_complex_common(LocalRoot local, addr left, addr right, addr
 	Check(! rationalp(left), "type error");
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (zerop_complex(right))
-		division_by_zero2(left, right);
-	if (div_real_complex(left, right, ret)) {
+		return call_division_by_zero2_(Execute_Thread, left, right);
+	Return(div_real_complex_(left, right, ret, &check));
+	if (check) {
 		GetRealComplex(right, &a);
 		GetImagComplex(right, &b);
 		push_local(local, &stack);
@@ -368,10 +406,13 @@ _g void div_rational_complex_common(LocalRoot local, addr left, addr right, addr
 		complex_heap(ret, a, b);
 		rollback_local(local, stack);
 	}
+
+	return 0;
 }
 
-_g void div_complex_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_complex_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
+	int check;
 	LocalStack stack;
 	addr a, b;
 
@@ -382,8 +423,9 @@ _g void div_complex_rational_common(LocalRoot local, addr left, addr right, addr
 	CheckType(left, LISPTYPE_COMPLEX);
 	Check(! rationalp(right), "type right error");
 	if (zerop_rational(right))
-		division_by_zero2(left, right);
-	if (div_complex_real(left, right, ret)) {
+		return call_division_by_zero2_(Execute_Thread, left, right);
+	Return(div_complex_real_(left, right, ret, &check));
+	if (check) {
 		GetRealComplex(left, &a);
 		GetImagComplex(left, &b);
 		push_local(local, &stack);
@@ -392,90 +434,122 @@ _g void div_complex_rational_common(LocalRoot local, addr left, addr right, addr
 		complex_heap(ret, a, b);
 		rollback_local(local, stack);
 	}
+
+	return 0;
 }
 
-_g void div_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_fc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
-	div_rational_complex_common(local, left, right, ret);
+	return div_rational_complex_common_(local, left, right, ret);
 }
 
-_g void div_cf_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_cf_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_FIXNUM);
-	div_complex_rational_common(local, left, right, ret);
+	return div_complex_rational_common_(local, left, right, ret);
 }
 
-_g void div_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_bc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
-	div_rational_complex_common(local, left, right, ret);
+	return div_rational_complex_common_(local, left, right, ret);
 }
 
-_g void div_cb_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_cb_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_BIGNUM);
-	div_complex_rational_common(local, left, right, ret);
+	return div_complex_rational_common_(local, left, right, ret);
 }
 
-_g void div_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_rc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
-	div_rational_complex_common(local, left, right, ret);
+	return div_rational_complex_common_(local, left, right, ret);
 }
 
-_g void div_cr_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_cr_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_RATIO);
-	div_complex_rational_common(local, left, right, ret);
+	return div_complex_rational_common_(local, left, right, ret);
 }
 
-_g void div_sc_number_common(addr left, addr right, addr *ret)
+_g int div_sc_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (div_real_complex(left, right, ret))
-		fmte("Type error", NULL);
+	Return(div_real_complex_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
-_g void div_cs_number_common(addr left, addr right, addr *ret)
+_g int div_cs_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
-	if (div_complex_real(left, right, ret))
-		fmte("Type error", NULL);
+	Return(div_complex_real_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
-_g void div_dc_number_common(addr left, addr right, addr *ret)
+_g int div_dc_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (div_real_complex(left, right, ret))
-		fmte("Type error", NULL);
+	Return(div_real_complex_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
-_g void div_cd_number_common(addr left, addr right, addr *ret)
+_g int div_cd_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
-	if (div_complex_real(left, right, ret))
-		fmte("Type error", NULL);
+	Return(div_complex_real_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
-_g void div_lc_number_common(addr left, addr right, addr *ret)
+_g int div_lc_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (div_real_complex(left, right, ret))
-		fmte("Type error", NULL);
+	Return(div_real_complex_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
-_g void div_cl_number_common(addr left, addr right, addr *ret)
+_g int div_cl_number_common_(addr left, addr right, addr *ret)
 {
+	int check;
+
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
-	if (div_complex_real(left, right, ret))
-		fmte("Type error", NULL);
+	Return(div_complex_real_(left, right, ret, &check));
+	if (check)
+		return fmte_("Type error", NULL);
+
+	return 0;
 }
 
 static void div_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
@@ -510,8 +584,9 @@ static void div_cc_rational_common(LocalRoot local, addr left, addr right, addr 
 	rollback_local(local, stack);
 }
 
-_g void div_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g int div_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
+	enum MathType type;
 	single_float as, bs, cs, ds, xs, ys, zs;
 	double_float ad, bd, cd, dd, xd, yd, zd;
 	long_float al, bl, cl, dl, xl, yl, zl;
@@ -524,7 +599,8 @@ _g void div_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	CheckLocal(local);
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_COMPLEX);
-	switch (getmathcomplex2_addr(&str, left, right)) {
+	Return(getmathcomplex2_addr_(&str, left, right, &type));
+	switch (type) {
 		case MathType_single:
 			as = str.v.s.a;
 			bs = str.v.s.b;
@@ -565,8 +641,10 @@ _g void div_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 

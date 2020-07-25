@@ -271,23 +271,22 @@ _g void nconc2_unsafe(addr left, addr right, addr *ret)
 	}
 }
 
-_g void append2_safe(addr left, addr right, addr *ret)
+_g int append2_safe_(addr left, addr right, addr *ret)
 {
 	addr root, pos;
 
-	if (left == Nil) {
-		*ret = right;
-		return;
-	}
-	if (right == Nil) {
-		*ret = left;
-		return;
-	}
+	if (left == Nil)
+		return Result(ret, right);
+
+	if (right == Nil)
+		return Result(ret, left);
+
 	for (root = Nil; left != Nil; ) {
-		getcons(left, &pos, &left);
+		Return_getcons(left, &pos, &left);
 		cons_heap(&root, pos, root);
 	}
-	nreconc(ret, root, right);
+
+	return nreconc_safe_(ret, root, right);
 }
 
 _g void append2_alloc_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
@@ -312,7 +311,8 @@ _g void append2_alloc_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
 	for (;;) {
 		GetCdr(stack, &list1);
 		SetCdr(stack, list2);
-		if (list1 == Nil) break;
+		if (list1 == Nil)
+			break;
 		list2 = stack;
 		stack = list1;
 	}
@@ -501,11 +501,33 @@ _g void nreconc_unsafe(addr *ret, addr cons, addr tail)
 	for (;;) {
 		GetCdr(cons, &next);
 		SetCdr(cons, tail);
-		if (next == Nil) break;
+		if (next == Nil)
+			break;
 		tail = cons;
 		cons = next;
 	}
 	*ret = cons;
+}
+
+_g int nreconc_safe_(addr *ret, addr cons, addr tail)
+{
+	addr next;
+
+	/* nil */
+	if (cons == Nil)
+		return Result(ret, tail);
+
+	/* loop */
+	for (;;) {
+		Return_getcdr(cons, &next);
+		Return_setcdr(cons, tail);
+		if (next == Nil)
+			break;
+		tail = cons;
+		cons = next;
+	}
+
+	return Result(ret, cons);
 }
 
 _g void nreverse_list_unsafe(addr *ret, addr cons)
@@ -522,7 +544,8 @@ _g void nreverse_list_unsafe(addr *ret, addr cons)
 	for (tail = Nil; ; tail = cons, cons = next) {
 		GetCdr(cons, &next);
 		SetCdr(cons, tail);
-		if (next == Nil) break;
+		if (next == Nil)
+			break;
 	}
 	*ret = cons;
 }
@@ -541,7 +564,8 @@ _g void nreverse_list_safe(addr *ret, addr cons)
 	for (tail = Nil; ; tail = cons, cons = next) {
 		getcdr(cons, &next);
 		setcdr(cons, tail);
-		if (next == Nil) break;
+		if (next == Nil)
+			break;
 	}
 	*ret = cons;
 }

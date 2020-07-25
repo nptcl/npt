@@ -33,7 +33,7 @@ static void defun_directory(void)
 
 	/* function */
 	GetConst(COMMON_DIRECTORY, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_directory);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -57,7 +57,7 @@ static void defun_probe_file(void)
 
 	/* function */
 	GetConst(COMMON_PROBE_FILE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_probe_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -105,7 +105,7 @@ static void defun_ensure_directories_exist(void)
 
 	/* function */
 	GetConst(COMMON_ENSURE_DIRECTORIES_EXIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_ensure_directories_exist);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -129,7 +129,7 @@ static void defun_truename(void)
 
 	/* function */
 	GetConst(COMMON_TRUENAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_truename);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -163,7 +163,7 @@ static void defun_file_author(void)
 
 	/* function */
 	GetConst(COMMON_FILE_AUTHOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_file_author);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -198,7 +198,7 @@ static void defun_file_write_date(void)
 
 	/* function */
 	GetConst(COMMON_FILE_WRITE_DATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_file_write_date);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -235,7 +235,7 @@ static void defun_rename_file(void)
 
 	/* function */
 	GetConst(COMMON_RENAME_FILE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_rename_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -269,7 +269,7 @@ static void defun_delete_file(void)
 
 	/* function */
 	GetConst(COMMON_DELETE_FILE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_delete_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -304,7 +304,7 @@ static void defun_file_error_pathname(void)
 
 	/* function */
 	GetConst(COMMON_FILE_ERROR_PATHNAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_file_error_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */

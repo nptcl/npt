@@ -50,21 +50,19 @@ static void expt_integer_heap(addr *ret, addr base, size_t power)
 		bignum_throw_heap(v, ret);
 }
 
-static void bignum_if_fixnum_local(LocalRoot local, addr *ret, addr pos)
+static int bignum_if_fixnum_local_(LocalRoot local, addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 			bignum_fixnum_local(local, ret, pos);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
-			*ret = pos;
-			break;
+			return Result(ret, pos);
 
 		default:
-			TypeError(pos, INTEGER);
 			*ret = 0;
-			break;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
@@ -77,15 +75,15 @@ static void expr_inverse_bignum_heap(int sign, addr denom, addr *ret)
 	make_ratio_alloc_unsafe(NULL, ret, sign, numer, denom);
 }
 
-static void expt_integer_common(LocalRoot local, addr *ret, addr base, addr power)
+static int expt_integer_common_(LocalRoot local, addr *ret, addr base, addr power)
 {
 	int sign, inverse;
 	size_t size;
 
 	CheckLocal(local);
-	bignum_if_fixnum_local(local, &base, base);
+	Return(bignum_if_fixnum_local_(local, &base, base));
 	if (getindex_sign_integer(power, &inverse, &size))
-		fmte("Too large expt power ~A.", power, NULL);
+		return fmte_("Too large expt power ~A.", power, NULL);
 
 	/* sign, inverse */
 	GetSignBignum(base, &sign);
@@ -102,9 +100,11 @@ static void expt_integer_common(LocalRoot local, addr *ret, addr base, addr powe
 		SetSignBignum(base, sign);
 		bignum_result_heap(base, ret);
 	}
+
+	return 0;
 }
 
-static void expt_ratio_common(LocalRoot local, addr *ret, addr base, addr power)
+static int expt_ratio_common_(LocalRoot local, addr *ret, addr base, addr power)
 {
 	int sign, inverse;
 	addr numer, denom;
@@ -112,7 +112,7 @@ static void expt_ratio_common(LocalRoot local, addr *ret, addr base, addr power)
 
 	CheckLocalType(local, base, LISPTYPE_RATIO);
 	if (getindex_sign_integer(power, &inverse, &size))
-		fmte("Too large expt power ~A.", power, NULL);
+		return fmte_("Too large expt power ~A.", power, NULL);
 
 	/* sign, inverse */
 	GetSignRatio(base, &sign);
@@ -129,6 +129,8 @@ static void expt_ratio_common(LocalRoot local, addr *ret, addr base, addr power)
 	else
 		make_ratio_alloc_unsafe(NULL, &base, sign, numer, denom);
 	ratio_result_noreduction_heap(local, base, ret);
+
+	return 0;
 }
 
 static void expt_float_common(addr *ret, addr base, addr power)
@@ -139,7 +141,7 @@ static void expt_float_common(addr *ret, addr base, addr power)
 	complex_single_heap(ret, v1, v2);
 }
 
-static void expt_rr_common(LocalRoot local, addr *ret, addr base, addr power)
+static int expt_rr_common_(LocalRoot local, addr *ret, addr base, addr power)
 {
 	/* ff, fb, bf, bb -> integer
 	 * rf, rb         -> ratio
@@ -149,23 +151,30 @@ static void expt_rr_common(LocalRoot local, addr *ret, addr base, addr power)
 
 	if (zerop_rational(power)) {
 		fixnum_heap(ret, 1);
-		return;
+		return 0;
 	}
 	if (zerop_rational(base)) {
-		if (minusp_rational(power))
-			division_by_zero_real2(CONSTANT_COMMON_EXPT, base, power);
+		if (minusp_rational(power)) {
+			return call_division_by_zero_real2_(Execute_Thread,
+					CONSTANT_COMMON_EXPT, base, power);
+		}
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
 	push_local(local, &stack);
-	if (ratiop(power))
+	if (ratiop(power)) {
 		expt_float_common(ret, base, power);
-	else if (ratiop(base))
-		expt_ratio_common(local, ret, base, power);
-	else
-		expt_integer_common(local, ret, base, power);
+	}
+	else if (ratiop(base)) {
+		Return(expt_ratio_common_(local, ret, base, power));
+	}
+	else {
+		Return(expt_integer_common_(local, ret, base, power));
+	}
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 static void expt_single_common(struct mathcomplex2_struct *ptr, addr *ret)
@@ -189,31 +198,32 @@ static void expt_long_common(struct mathcomplex2_struct *ptr, addr *ret)
 	complex_long_heap(ret, real, imag);
 }
 
-static void expt_force_single(LocalRoot local, addr *ret, addr base, addr power)
+static int expt_force_single_(LocalRoot local, addr *ret, addr base, addr power)
 {
+	enum MathType type;
 	struct mathcomplex2_struct str;
 
-	switch (getmathcomplex2_float(&str, base, power)) {
+	Return(getmathcomplex2_float_(&str, base, power, &type));
+	switch (type) {
 		case MathType_single:
 			expt_single_common(&str, ret);
-			break;
+			return 0;
 
 		default:
-			fmte("Type error", NULL);
 			*ret = 0;
-			break;
+			return fmte_("Type error", NULL);
 	}
 }
 
-static void expr_multi_complex_heap(LocalRoot local, addr a, addr b, addr *ret)
+static int expr_multi_complex_heap_(LocalRoot local, addr a, addr b, addr *ret)
 {
 	if (a == NULL)
-		*ret = b;
+		return Result(ret, b);
 	else
-		multi_number_heap(local, a, b, ret);
+		return multi_number_heap_(local, a, b, ret);
 }
 
-static void expt_complex_heap(LocalRoot local, addr *ret, addr base, size_t power)
+static int expt_complex_heap_(LocalRoot local, addr *ret, addr base, size_t power)
 {
 	unsigned i, size;
 	addr v;
@@ -228,17 +238,20 @@ static void expt_complex_heap(LocalRoot local, addr *ret, addr base, size_t powe
 	/* power */
 	v = NULL;
 	for (i = 0; i < size; i++) {
-		expr_multi_complex_heap(local, v, v, &v);
-		if ((power >> (size - i - 1)) & 1)
-			expr_multi_complex_heap(local, v, base, &v);
+		Return(expr_multi_complex_heap_(local, v, v, &v));
+		if ((power >> (size - i - 1)) & 1) {
+			Return(expr_multi_complex_heap_(local, v, base, &v));
+		}
 	}
 	if (v == NULL)
 		fixnum_heap(ret, 1);
 	else
 		*ret = v;
+	
+	return 0;
 }
 
-static void expt_complex_integer(LocalRoot local, addr *ret, addr base, addr power)
+static int expt_complex_integer_(LocalRoot local, addr *ret, addr base, addr power)
 {
 	int inverse;
 	size_t size;
@@ -247,34 +260,38 @@ static void expt_complex_integer(LocalRoot local, addr *ret, addr base, addr pow
 	CheckType(base, LISPTYPE_COMPLEX);
 	Check(! integerp(power), "type error");
 	if (getindex_sign_integer(power, &inverse, &size))
-		fmte("Too large expt power ~A.", power, NULL);
+		return fmte_("Too large expt power ~A.", power, NULL);
 
-	expt_complex_heap(local, ret, base, size);
+	Return(expt_complex_heap_(local, ret, base, size));
 	if (inverse)
-		inverse_complex_common(local, *ret, ret);
+		return inverse_complex_common_(local, *ret, ret);
+
+	return 0;
 }
 
-static void expt_rational_common(LocalRoot local, addr *ret, addr base, addr power)
+static int expt_rational_common_(LocalRoot local, addr *ret, addr base, addr power)
 {
 	if (complexp(power) || ratiop(power)) {
 		/* float */
-		expt_force_single(local, ret, base, power);
+		return expt_force_single_(local, ret, base, power);
 	}
 	else if (complexp(base)) {
 		/* complex - integer */
-		expt_complex_integer(local, ret, base, power);
+		return expt_complex_integer_(local, ret, base, power);
 	}
 	else {
 		/* rational */
-		expt_rr_common(local, ret, base, power);
+		return expt_rr_common_(local, ret, base, power);
 	}
 }
 
-_g void expt_common(LocalRoot local, addr *ret, addr base, addr power)
+_g int expt_common_(LocalRoot local, addr *ret, addr base, addr power)
 {
+	enum MathType type;
 	struct mathcomplex2_struct str;
 
-	switch (getmathcomplex2_addr(&str, base, power)) {
+	Return(getmathcomplex2_addr_(&str, base, power, &type));
+	switch (type) {
 		case MathType_single:
 			expt_single_common(&str, ret);
 			break;
@@ -288,15 +305,15 @@ _g void expt_common(LocalRoot local, addr *ret, addr base, addr power)
 			break;
 
 		case MathType_rational:
-			expt_rational_common(local, ret, base, power);
-			break;
+			return expt_rational_common_(local, ret, base, power);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
 			*ret = 0;
-			return;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 

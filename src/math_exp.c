@@ -98,9 +98,11 @@ static void forcel_complex_common(struct mathcall_struct *ptr,
 
 _g void call_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
+	enum MathType type;
 	struct mathtype_struct str;
 
-	switch (getmathtype_float(&str, pos)) {
+	getmathtype_float(&str, pos, &type);
+	switch (type) {
 		case MathType_single:
 			single_float_check_heap(ret, (ptr->call_s)(str.v.s));
 			break;
@@ -126,12 +128,14 @@ _g void call_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 
 _g void call_range_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
+	enum MathType type;
 	single_float vs;
 	double_float vd;
 	long_float vl;
 	struct mathtype_struct str;
 
-	switch (getmathtype_float(&str, pos)) {
+	getmathtype_float(&str, pos, &type);
+	switch (type) {
 		case MathType_single:
 			vs = str.v.s;
 			if ((ptr->range_f)(vs))
@@ -393,12 +397,14 @@ static inline void cis_l(long_float x, long_float *Re, long_float *Im)
 
 _g void cis_common(addr pos, addr *ret)
 {
+	enum MathType type;
 	single_float single1, single2;
 	double_float double1, double2;
 	long_float long1, long2;
 	struct mathtype_struct str;
 
-	switch (getmathtype_float(&str, pos)) {
+	getmathtype_float(&str, pos, &type);
+	switch (type) {
 		case MathType_single:
 			cis_f(str.v.s, &single1, &single2);
 			complex_single_heap(ret, single1, single2);
@@ -426,11 +432,13 @@ _g void cis_common(addr pos, addr *ret)
 /*
  *  tan2
  */
-_g void atan2_common(addr left, addr right, addr *ret)
+_g int atan2_common_(addr left, addr right, addr *ret)
 {
+	enum MathType type;
 	struct mathreal2_struct str;
 
-	switch (getmathreal2_float(&str, left, right)) {
+	Return(getmathreal2_float_(&str, left, right, &type));
+	switch (type) {
 		case MathType_single:
 			single_float_check_heap(ret, atan2f(str.v.s.a, str.v.s.b));
 			break;
@@ -446,17 +454,22 @@ _g void atan2_common(addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 
-_g void atan_optional_common(addr var, addr opt, addr *ret)
+_g int atan_optional_common_(addr var, addr opt, addr *ret)
 {
-	if (opt == Unbound)
+	if (opt == Unbound) {
 		atan_common(var, ret);
-	else
-		atan2_common(var, opt, ret);
+		return 0;
+	}
+	else {
+		return atan2_common_(var, opt, ret);
+	}
 }
 
 
@@ -497,14 +510,16 @@ static void log_natural_complex(addr value, addr *ret)
 	}
 }
 
-_g void log_natural_common(addr value, addr *ret)
+_g int log_natural_common_(addr value, addr *ret)
 {
+	enum MathType type;
 	struct mathreal2_struct str;
 	single_float reals, imags;
 	double_float reald, imagd;
 	long_float reall, imagl;
 
-	switch (getmathcomplex1_log(&str, value)) {
+	Return(getmathcomplex1_log_(&str, value, &type));
+	switch (type) {
 		case MathType_single:
 			clog_f(str.v.s.a, str.v.s.b, &reals, &imags);
 			complex_single_heap(ret, reals, imags);
@@ -527,19 +542,23 @@ _g void log_natural_common(addr value, addr *ret)
 		case MathType_rational:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 
-_g void log_base_common(addr value, addr base, addr *ret)
+_g int log_base_common_(addr value, addr base, addr *ret)
 {
+	enum MathType type;
 	single_float reals, imags;
 	double_float reald, imagd;
 	long_float reall, imagl;
 	struct mathcomplex2_struct str;
 
-	switch (getmathcomplex2_float(&str, value, base)) {
+	Return(getmathcomplex2_float_(&str, value, base, &type));
+	switch (type) {
 		case MathType_single:
 			clogb_f(str.v.s.a, str.v.s.b, str.v.s.c, str.v.s.d, &reals, &imags);
 			complex_single_heap(ret, reals, imags);
@@ -559,18 +578,19 @@ _g void log_base_common(addr value, addr base, addr *ret)
 		case MathType_rational:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			*ret = 0;
-			return;
+			*ret = Nil;
+			return fmte_("type error", NULL);
 	}
+
+	return 0;
 }
 
-_g void log_common(addr value, addr base, addr *ret)
+_g int log_common_(addr value, addr base, addr *ret)
 {
 	if (base == Unbound)
-		log_natural_common(value, ret);
+		return log_natural_common_(value, ret);
 	else
-		log_base_common(value, base, ret);
+		return log_base_common_(value, base, ret);
 }
 
 

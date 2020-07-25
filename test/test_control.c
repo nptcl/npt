@@ -1762,7 +1762,7 @@ static void test_make_code(addr *ret)
 
 	/* #((length) (end)) */
 	vector4_heap(&code, 2);
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer_code(p_debug1, test_function_length_code);
 	setcompiled_code(call, p_debug1);
 	symbol_heap(&pos);
@@ -1812,7 +1812,7 @@ static int test_execute_control(void)
 	push_new_control(ptr, &control);
 
 	/* compiled */
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
@@ -2109,7 +2109,7 @@ static int test_execute_go(void)
 	 *    5: end
 	 */
 	symbol_heap(&debug);
-	compiled_heap(&pos, debug);
+	compiled_system(&pos, debug);
 	SetPointer_code(p_debug2, test_execute_go_set);
 	setcompiled_code(pos, p_debug2);
 	SetFunctionSymbol(debug, pos);
@@ -2377,7 +2377,7 @@ static int test_callclang_function(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	symbol_heap(&symbol);
@@ -2402,7 +2402,7 @@ static int test_callclang_values_apply_heap(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	list_heap(&pos, T, T, T, NULL);
@@ -2427,7 +2427,7 @@ static int test_callclang_values_stdarg_heap(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	call_callclang_values_stdarg_heap(Execute_Thread, &pos, call, T, T, T, NULL);
@@ -2442,7 +2442,7 @@ static int test_callclang_values_funcall_heap(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	callclang_values_funcall_heap(Execute_Thread, &pos, call, T, T, T, NULL);
@@ -2457,7 +2457,7 @@ static int test_callclang_values_char_heap(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	internchar(LISP_PACKAGE, "AAA", &pos);
@@ -2474,7 +2474,7 @@ static int test_callclang_apply(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	list_heap(&pos, T, T, T, NULL);
@@ -2497,7 +2497,7 @@ static int test_callclang_stdarg(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	call_callclang_stdarg(Execute_Thread, &pos, call, T, T, T, NULL);
@@ -2510,7 +2510,7 @@ static int test_callclang_funcall(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	callclang_funcall(Execute_Thread, &pos, call, T, T, T, NULL);
@@ -2523,7 +2523,7 @@ static int test_callclang_char(void)
 {
 	addr call, pos;
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	internchar(LISP_PACKAGE, "AAA", &pos);

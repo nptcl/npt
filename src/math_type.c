@@ -11,7 +11,7 @@
 /*
  *  getmathtype
  */
-_g enum MathType getmathtype_float(struct mathtype_struct *ptr, addr pos)
+_g void getmathtype_float(struct mathtype_struct *ptr, addr pos, enum MathType *ret)
 {
 	enum MathType type;
 
@@ -55,139 +55,152 @@ _g enum MathType getmathtype_float(struct mathtype_struct *ptr, addr pos)
 			break;
 	}
 	ptr->type = type;
-
-	return type;
+	*ret = type;
 }
 
 
 /*
  *  getmathreal2
  */
-static enum MathType getmathreal2_type_value(addr pos)
+static void getmathreal2_type_value(addr pos, enum MathType *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return MathType_single;
+			*ret = MathType_single;
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return MathType_double;
+			*ret = MathType_double;
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return MathType_long;
+			*ret = MathType_long;
+			break;
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
-			return MathType_rational;
+			*ret = MathType_rational;
+			break;
 
 		case LISPTYPE_COMPLEX:
 		default:
-			return MathType_error;
+			*ret = MathType_error;
+			break;
 	}
 }
 
-static enum MathType getmathreal2_type_single(addr y)
+static int getmathreal2_type_single_(addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathreal2_type_value(y);
+	getmathreal2_type_value(y, &type);
 	switch (type) {
 		case MathType_single:
 		case MathType_double:
 		case MathType_long:
-			return type;
+			return Result(ret, type);
 
 		case MathType_rational:
-			return MathType_single;
+			return Result(ret, MathType_single);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(y, REAL);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(y, REAL);
 	}
 }
 
-static enum MathType getmathreal2_type_double(addr y)
-{
-	switch (getmathreal2_type_value(y)) {
-		case MathType_single:
-		case MathType_double:
-		case MathType_rational:
-			return MathType_double;
-
-		case MathType_long:
-			return MathType_long;
-
-		case MathType_complex:
-		case MathType_error:
-		default:
-			TypeError(y, REAL);
-			return MathType_error;
-	}
-}
-
-static enum MathType getmathreal2_type_long(addr y)
-{
-	switch (getmathreal2_type_value(y)) {
-		case MathType_single:
-		case MathType_double:
-		case MathType_long:
-		case MathType_rational:
-			return MathType_long;
-
-		case MathType_complex:
-		case MathType_error:
-		default:
-			TypeError(y, REAL);
-			return MathType_error;
-	}
-}
-
-static enum MathType getmathreal2_type_rational(addr y)
+static int getmathreal2_type_double_(addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathreal2_type_value(y);
+	getmathreal2_type_value(y, &type);
+	switch (type) {
+		case MathType_single:
+		case MathType_double:
+		case MathType_rational:
+			return Result(ret, MathType_double);
+
+		case MathType_long:
+			return Result(ret, MathType_long);
+
+		case MathType_complex:
+		case MathType_error:
+		default:
+			*ret = MathType_error;
+			return TypeError_(y, REAL);
+	}
+}
+
+static int getmathreal2_type_long_(addr y, enum MathType *ret)
+{
+	enum MathType type;
+
+	getmathreal2_type_value(y, &type);
 	switch (type) {
 		case MathType_single:
 		case MathType_double:
 		case MathType_long:
 		case MathType_rational:
-			return type;
+			return Result(ret, MathType_long);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(y, REAL);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(y, REAL);
 	}
 }
 
-static enum MathType getmathreal2_type(addr x, addr y)
+static int getmathreal2_type_rational_(addr y, enum MathType *ret)
 {
-	switch (getmathreal2_type_value(x)) {
+	enum MathType type;
+
+	getmathreal2_type_value(y, &type);
+	switch (type) {
 		case MathType_single:
-			return getmathreal2_type_single(y);
+		case MathType_double:
+		case MathType_long:
+		case MathType_rational:
+			return Result(ret, type);
+
+		case MathType_complex:
+		case MathType_error:
+		default:
+			*ret = MathType_error;
+			return TypeError_(y, REAL);
+	}
+}
+
+static int getmathreal2_type_(addr x, addr y, enum MathType *ret)
+{
+	enum MathType type;
+
+	getmathreal2_type_value(x, &type);
+	switch (type) {
+		case MathType_single:
+			return getmathreal2_type_single_(y, ret);
 
 		case MathType_double:
-			return getmathreal2_type_double(y);
+			return getmathreal2_type_double_(y, ret);
 
 		case MathType_long:
-			return getmathreal2_type_long(y);
+			return getmathreal2_type_long_(y, ret);
 
 		case MathType_rational:
-			return getmathreal2_type_rational(y);
+			return getmathreal2_type_rational_(y, ret);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(x, REAL);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(x, REAL);
 	}
 }
 
-static void getmathreal2_single1(addr pos, single_float *ret)
+static int getmathreal2_single1_(addr pos, single_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -215,13 +228,14 @@ static void getmathreal2_single1(addr pos, single_float *ret)
 			break;
 
 		default:
-			TypeError(pos, REAL);
 			*ret = 0;
-			return;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-static void getmathreal2_double1(addr pos, double_float *ret)
+static int getmathreal2_double1_(addr pos, double_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -249,13 +263,14 @@ static void getmathreal2_double1(addr pos, double_float *ret)
 			break;
 
 		default:
-			TypeError(pos, REAL);
 			*ret = 0;
-			return;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-static void getmathreal2_long1(addr pos, long_float *ret)
+static int getmathreal2_long1_(addr pos, long_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -283,74 +298,82 @@ static void getmathreal2_long1(addr pos, long_float *ret)
 			break;
 
 		default:
-			TypeError(pos, REAL);
 			*ret = 0;
-			return;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-static void getmathreal2_single(struct mathreal2_struct *ptr, addr x, addr y)
+static int getmathreal2_single_(struct mathreal2_struct *ptr, addr x, addr y)
 {
 	single_float value;
 
-	getmathreal2_single1(x, &value);
+	Return(getmathreal2_single1_(x, &value));
 	ptr->v.s.a = value;
-	getmathreal2_single1(y, &value);
+	Return(getmathreal2_single1_(y, &value));
 	ptr->v.s.b = value;
+
+	return 0;
 }
 
-static void getmathreal2_double(struct mathreal2_struct *ptr, addr x, addr y)
+static int getmathreal2_double_(struct mathreal2_struct *ptr, addr x, addr y)
 {
 	double_float value;
 
-	getmathreal2_double1(x, &value);
+	Return(getmathreal2_double1_(x, &value));
 	ptr->v.d.a = value;
-	getmathreal2_double1(y, &value);
+	Return(getmathreal2_double1_(y, &value));
 	ptr->v.d.b = value;
+
+	return 0;
 }
 
-static void getmathreal2_long(struct mathreal2_struct *ptr, addr x, addr y)
+static int getmathreal2_long_(struct mathreal2_struct *ptr, addr x, addr y)
 {
 	long_float value;
 
-	getmathreal2_long1(x, &value);
+	Return(getmathreal2_long1_(x, &value));
 	ptr->v.l.a = value;
-	getmathreal2_long1(y, &value);
+	Return(getmathreal2_long1_(y, &value));
 	ptr->v.l.b = value;
+
+	return 0;
 }
 
-_g enum MathType getmathreal2_float(struct mathreal2_struct *ptr, addr x, addr y)
+_g int getmathreal2_float_(struct mathreal2_struct *ptr,
+		addr x, addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathreal2_type(x, y);
+	Return(getmathreal2_type_(x, y, &type));
 	switch (type) {
 		case MathType_single:
-			getmathreal2_single(ptr, x, y);
+			Return(getmathreal2_single_(ptr, x, y));
 			break;
 
 		case MathType_double:
-			getmathreal2_double(ptr, x, y);
+			Return(getmathreal2_double_(ptr, x, y));
 			break;
 
 		case MathType_long:
-			getmathreal2_long(ptr, x, y);
+			Return(getmathreal2_long_(ptr, x, y));
 			break;
 
 		case MathType_rational:
-			getmathreal2_single(ptr, x, y);
+			Return(getmathreal2_single_(ptr, x, y));
 			type = MathType_single;
 			break;
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 
 static void getmathreal2_rational(struct mathreal2_struct *ptr, addr x, addr y)
@@ -359,22 +382,23 @@ static void getmathreal2_rational(struct mathreal2_struct *ptr, addr x, addr y)
 	ptr->v.a.y = y;
 }
 
-_g enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y)
+_g int getmathreal2_addr_(struct mathreal2_struct *ptr,
+		addr x, addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathreal2_type(x, y);
+	Return(getmathreal2_type_(x, y, &type));
 	switch (type) {
 		case MathType_single:
-			getmathreal2_single(ptr, x, y);
+			Return(getmathreal2_single_(ptr, x, y));
 			break;
 
 		case MathType_double:
-			getmathreal2_double(ptr, x, y);
+			Return(getmathreal2_double_(ptr, x, y));
 			break;
 
 		case MathType_long:
-			getmathreal2_long(ptr, x, y);
+			Return(getmathreal2_long_(ptr, x, y));
 			break;
 
 		case MathType_rational:
@@ -384,90 +408,108 @@ _g enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 
 
 /*
  *  getmathcomplex1
  */
-static enum MathType getmathcomplex_type_complex(addr pos)
+static void getmathcomplex_type_complex(addr pos, enum MathType *ret)
 {
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_single:
-			return MathType_single;
+			*ret = MathType_single;
+			break;
 
 		case ComplexType_double:
-			return MathType_double;
+			*ret = MathType_double;
+			break;
 
 		case ComplexType_long:
-			return MathType_long;
+			*ret = MathType_long;
+			break;
 
 		case ComplexType_rational:
-			return MathType_rational;
+			*ret = MathType_rational;
+			break;
 
 		case ComplexType_error:
 		default:
-			return MathType_error;
+			*ret = MathType_error;
+			break;
 	}
 }
 
-static enum MathType getmathcomplex1_log_type(addr pos)
+static void getmathcomplex1_log_type(addr pos, enum MathType *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return MathType_single;
+			*ret = MathType_single;
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return MathType_double;
+			*ret = MathType_double;
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return MathType_long;
+			*ret = MathType_long;
+			break;
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
-			return MathType_rational;
+			*ret = MathType_rational;
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return MathType_complex;
+			*ret = MathType_complex;
+			break;
 
 		default:
-			return MathType_error;
+			*ret = MathType_error;
+			break;
 	}
 }
 
-static enum MathType getmathcomplex1_inverse_type(addr pos)
+static void getmathcomplex1_inverse_type(addr pos, enum MathType *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return MathType_single;
+			*ret = MathType_single;
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return MathType_double;
+			*ret = MathType_double;
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return MathType_long;
+			*ret = MathType_long;
+			break;
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
-			return MathType_rational;
+			*ret = MathType_rational;
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return getmathcomplex_type_complex(pos);
+			getmathcomplex_type_complex(pos, ret);
+			break;
 
 		default:
-			return MathType_error;
+			*ret = MathType_error;
+			break;
 	}
 }
 
-_g enum MathType getmathcomplex1_complex(struct mathreal2_struct *ptr, addr pos)
+static int getmathcomplex1_complex_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret)
 {
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_single:
@@ -492,18 +534,19 @@ _g enum MathType getmathcomplex1_complex(struct mathreal2_struct *ptr, addr pos)
 
 		case ComplexType_error:
 		default:
-			TypeError(pos, COMPLEX);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(pos, COMPLEX);
 	}
 
-	return ptr->type;
+	return Result(ret, ptr->type);
 }
 
-_g enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos)
+_g int getmathcomplex1_log_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex1_log_type(pos);
+	getmathcomplex1_log_type(pos, &type);
 	switch (type) {
 		case MathType_single:
 			ptr->v.s.a = cast_ss_value(pos);
@@ -531,19 +574,20 @@ _g enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos)
 
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 
-_g enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
+_g int getmathcomplex1_inverse_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex1_inverse_type(pos);
+	getmathcomplex1_inverse_type(pos, &type);
 	switch (type) {
 		case MathType_single:
 			ptr->v.s.a = cast_ss_value(pos);
@@ -565,24 +609,25 @@ _g enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
 			break;
 
 		case MathType_complex:
-			type = getmathcomplex1_complex(ptr, pos);
+			Return(getmathcomplex1_complex_(ptr, pos, &type));
 			break;
 
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 
-_g enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos)
+_g int getmathcomplex1_sqrt_(struct mathreal2_struct *ptr,
+		addr pos, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex1_log_type(pos);
+	getmathcomplex1_log_type(pos, &type);
 	switch (type) {
 		case MathType_single:
 			ptr->v.s.a = cast_ss_value(pos);
@@ -606,150 +651,165 @@ _g enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos)
 			break;
 
 		case MathType_complex:
-			type = getmathcomplex1_complex(ptr, pos);
+			Return(getmathcomplex1_complex_(ptr, pos, &type));
 			break;
 
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 
 
 /*
  *  getmathcomplex2
  */
-static enum MathType getmathcomplex2_type_value(addr pos)
+static void getmathcomplex2_type_value(addr pos, enum MathType *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return MathType_single;
+			*ret = MathType_single;
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return MathType_double;
+			*ret = MathType_double;
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return MathType_long;
+			*ret = MathType_long;
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return getmathcomplex_type_complex(pos);
+			getmathcomplex_type_complex(pos, ret);
+			break;
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
-			return MathType_rational;
+			*ret = MathType_rational;
+			break;
 
 		default:
-			return MathType_error;
+			*ret = MathType_error;
+			break;
 	}
 }
 
-static enum MathType getmathcomplex2_type_single(addr y)
+static int getmathcomplex2_type_single_(addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex2_type_value(y);
+	getmathcomplex2_type_value(y, &type);
 	switch (type) {
 		case MathType_single:
 		case MathType_double:
 		case MathType_long:
-			return type;
+			return Result(ret, type);
 
 		case MathType_rational:
-			return MathType_single;
+			return Result(ret, MathType_single);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(y, NUMBER);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(y, NUMBER);
 	}
 }
 
-static enum MathType getmathcomplex2_type_double(addr y)
-{
-	switch (getmathcomplex2_type_value(y)) {
-		case MathType_single:
-		case MathType_double:
-		case MathType_rational:
-			return MathType_double;
-
-		case MathType_long:
-			return MathType_long;
-
-		case MathType_complex:
-		case MathType_error:
-		default:
-			TypeError(y, NUMBER);
-			return MathType_error;
-	}
-}
-
-static enum MathType getmathcomplex2_type_long(addr y)
-{
-	switch (getmathcomplex2_type_value(y)) {
-		case MathType_single:
-		case MathType_double:
-		case MathType_long:
-		case MathType_rational:
-			return MathType_long;
-
-		case MathType_complex:
-		case MathType_error:
-		default:
-			TypeError(y, NUMBER);
-			return MathType_error;
-	}
-}
-
-static enum MathType getmathcomplex2_type_rational(addr y)
+static int getmathcomplex2_type_double_(addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex2_type_value(y);
+	getmathcomplex2_type_value(y, &type);
+	switch (type) {
+		case MathType_single:
+		case MathType_double:
+		case MathType_rational:
+			return Result(ret, MathType_double);
+
+		case MathType_long:
+			return Result(ret, MathType_long);
+
+		case MathType_complex:
+		case MathType_error:
+		default:
+			*ret = MathType_error;
+			return TypeError_(y, NUMBER);
+	}
+}
+
+static int getmathcomplex2_type_long_(addr y, enum MathType *ret)
+{
+	enum MathType type;
+
+	getmathcomplex2_type_value(y, &type);
 	switch (type) {
 		case MathType_single:
 		case MathType_double:
 		case MathType_long:
 		case MathType_rational:
-			return type;
+			return Result(ret, MathType_long);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(y, NUMBER);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(y, NUMBER);
 	}
 }
 
-static enum MathType getmathcomplex2_type(addr x, addr y)
+static int getmathcomplex2_type_rational_(addr y, enum MathType *ret)
 {
-	switch (getmathcomplex2_type_value(x)) {
+	enum MathType type;
+
+	getmathcomplex2_type_value(y, &type);
+	switch (type) {
 		case MathType_single:
-			return getmathcomplex2_type_single(y);
+		case MathType_double:
+		case MathType_long:
+		case MathType_rational:
+			return Result(ret, type);
+
+		case MathType_complex:
+		case MathType_error:
+		default:
+			*ret = MathType_error;
+			return TypeError_(y, NUMBER);
+	}
+}
+
+static int getmathcomplex2_type_(addr x, addr y, enum MathType *ret)
+{
+	enum MathType type;
+
+	getmathcomplex2_type_value(x, &type);
+	switch (type) {
+		case MathType_single:
+			return getmathcomplex2_type_single_(y, ret);
 
 		case MathType_double:
-			return getmathcomplex2_type_double(y);
+			return getmathcomplex2_type_double_(y, ret);
 
 		case MathType_long:
-			return getmathcomplex2_type_long(y);
+			return getmathcomplex2_type_long_(y, ret);
 
 		case MathType_rational:
-			return getmathcomplex2_type_rational(y);
+			return getmathcomplex2_type_rational_(y, ret);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(x, NUMBER);
-			return MathType_error;
+			*ret = MathType_error;
+			return TypeError_(x, NUMBER);
 	}
 }
 
-static void getmathcomplex2_single1(addr pos, single_float *re, single_float *im)
+static int getmathcomplex2_single1_(addr pos, single_float *re, single_float *im)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -787,12 +847,15 @@ static void getmathcomplex2_single1(addr pos, single_float *re, single_float *im
 			break;
 
 		default:
-			TypeError(pos, NUMBER);
-			return;
+			*re = 0.0f;
+			*im = 0.0f;
+			return TypeError_(pos, NUMBER);
 	}
+
+	return 0;
 }
 
-static void getmathcomplex2_double1(addr pos, double_float *re, double_float *im)
+static int getmathcomplex2_double1_(addr pos, double_float *re, double_float *im)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -830,12 +893,15 @@ static void getmathcomplex2_double1(addr pos, double_float *re, double_float *im
 			break;
 
 		default:
-			TypeError(pos, NUMBER);
-			return;
+			*re = 0.0;
+			*im = 0.0;
+			return TypeError_(pos, NUMBER);
 	}
+
+	return 0;
 }
 
-static void getmathcomplex2_long1(addr pos, long_float *re, long_float *im)
+static int getmathcomplex2_long1_(addr pos, long_float *re, long_float *im)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -873,79 +939,89 @@ static void getmathcomplex2_long1(addr pos, long_float *re, long_float *im)
 			break;
 
 		default:
-			TypeError(pos, NUMBER);
-			return;
+			*re = 0.0L;
+			*im = 0.0L;
+			return TypeError_(pos, NUMBER);
 	}
+
+	return 0;
 }
 
-static void getmathcomplex2_single(struct mathcomplex2_struct *ptr, addr x, addr y)
+static int getmathcomplex2_single_(struct mathcomplex2_struct *ptr, addr x, addr y)
 {
 	single_float real, imag;
 
-	getmathcomplex2_single1(x, &real, &imag);
+	Return(getmathcomplex2_single1_(x, &real, &imag));
 	ptr->v.s.a = real;
 	ptr->v.s.b = imag;
-	getmathcomplex2_single1(y, &real, &imag);
+	Return(getmathcomplex2_single1_(y, &real, &imag));
 	ptr->v.s.c = real;
 	ptr->v.s.d = imag;
+
+	return 0;
 }
 
-static void getmathcomplex2_double(struct mathcomplex2_struct *ptr, addr x, addr y)
+static int getmathcomplex2_double_(struct mathcomplex2_struct *ptr, addr x, addr y)
 {
 	double_float real, imag;
 
-	getmathcomplex2_double1(x, &real, &imag);
+	Return(getmathcomplex2_double1_(x, &real, &imag));
 	ptr->v.d.a = real;
 	ptr->v.d.b = imag;
-	getmathcomplex2_double1(y, &real, &imag);
+	Return(getmathcomplex2_double1_(y, &real, &imag));
 	ptr->v.d.c = real;
 	ptr->v.d.d = imag;
+
+	return 0;
 }
 
-static void getmathcomplex2_long(struct mathcomplex2_struct *ptr, addr x, addr y)
+static int getmathcomplex2_long_(struct mathcomplex2_struct *ptr, addr x, addr y)
 {
 	long_float real, imag;
 
-	getmathcomplex2_long1(x, &real, &imag);
+	Return(getmathcomplex2_long1_(x, &real, &imag));
 	ptr->v.l.a = real;
 	ptr->v.l.b = imag;
-	getmathcomplex2_long1(y, &real, &imag);
+	Return(getmathcomplex2_long1_(y, &real, &imag));
 	ptr->v.l.c = real;
 	ptr->v.l.d = imag;
+
+	return 0;
 }
 
-_g enum MathType getmathcomplex2_float(struct mathcomplex2_struct *ptr, addr x, addr y)
+_g int getmathcomplex2_float_(struct mathcomplex2_struct *ptr,
+		addr x, addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex2_type(x, y);
+	Return(getmathcomplex2_type_(x, y, &type));
 	switch (type) {
 		case MathType_single:
-			getmathcomplex2_single(ptr, x, y);
+			Return(getmathcomplex2_single_(ptr, x, y));
 			break;
 
 		case MathType_double:
-			getmathcomplex2_double(ptr, x, y);
+			Return(getmathcomplex2_double_(ptr, x, y));
 			break;
 
 		case MathType_long:
-			getmathcomplex2_long(ptr, x, y);
+			Return(getmathcomplex2_long_(ptr, x, y));
 			break;
 
 		case MathType_rational:
-			getmathcomplex2_single(ptr, x, y);
+			Return(getmathcomplex2_single_(ptr, x, y));
 			type = MathType_single;
 			break;
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 
 
@@ -958,22 +1034,23 @@ static void getmathcomplex2_rational(struct mathcomplex2_struct *ptr, addr x, ad
 	ptr->v.a.y = y;
 }
 
-_g enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, addr y)
+_g int getmathcomplex2_addr_(struct mathcomplex2_struct *ptr,
+		addr x, addr y, enum MathType *ret)
 {
 	enum MathType type;
 
-	type = getmathcomplex2_type(x, y);
+	Return(getmathcomplex2_type_(x, y, &type));
 	switch (type) {
 		case MathType_single:
-			getmathcomplex2_single(ptr, x, y);
+			Return(getmathcomplex2_single_(ptr, x, y));
 			break;
 
 		case MathType_double:
-			getmathcomplex2_double(ptr, x, y);
+			Return(getmathcomplex2_double_(ptr, x, y));
 			break;
 
 		case MathType_long:
-			getmathcomplex2_long(ptr, x, y);
+			Return(getmathcomplex2_long_(ptr, x, y));
 			break;
 
 		case MathType_rational:
@@ -983,11 +1060,11 @@ _g enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, a
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
-			break;
+			*ret = MathType_error;
+			return fmte_("type error", NULL);
 	}
 	ptr->type = type;
 
-	return type;
+	return Result(ret, type);
 }
 

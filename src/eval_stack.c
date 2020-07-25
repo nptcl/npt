@@ -181,8 +181,7 @@ static void closestack_unsafe(Execute ptr)
 	/* replace eval-stack */
 	getstack_symbol(&symbol);
 	getspecialcheck_local(ptr, symbol, &eval);
-	if (eval == Nil)
-		fmte("scope-stack is nil.", NULL);
+	Check(eval == Nil, "scope-stack is nil.");
 	stack = StructEvalStack(eval)->stack;
 	GetEvalStackNext(eval, &eval);
 	setspecial_local(ptr, symbol, eval);
@@ -201,7 +200,8 @@ _g void freestack_eval(Execute ptr, addr scope)
 	for (;;) {
 		Check(pos == Nil, "stack error [check].");
 		Check(pos == Unbound, "unbound error.");
-		if (pos == scope) break;
+		if (pos == scope)
+			break;
 		GetEvalStackNext(pos, &pos);
 	}
 #endif
@@ -209,7 +209,8 @@ _g void freestack_eval(Execute ptr, addr scope)
 		getspecialcheck_local(ptr, symbol, &pos);
 		Check(pos == Nil, "stack error");
 		closestack_unsafe(ptr);
-		if (pos == scope) break;
+		if (pos == scope)
+			break;
 	}
 }
 
@@ -410,7 +411,8 @@ _g void apply_declaim_stack(Execute ptr, addr declare)
 {
 	addr stack;
 
-	if (declare == Nil) return;
+	if (declare == Nil)
+		return;
 	getglobal_eval(ptr, &stack);
 	apply_declare_switch(NULL, stack, declare, 1);
 }
@@ -421,7 +423,8 @@ _g void apply_declaim_stack(Execute ptr, addr declare)
  */
 _g void apply_declare_stack(LocalRoot local, addr stack, addr declare)
 {
-	if (declare == Nil) return;
+	if (declare == Nil)
+		return;
 	apply_declare_switch(local, stack, declare, 0);
 }
 
@@ -457,7 +460,8 @@ _g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr
 {
 	addr pos;
 
-	if (declare == Nil) return;
+	if (declare == Nil)
+		return;
 	/* inline, notinline */
 	/* special */
 	getall_special_declare(declare, &pos);
@@ -513,7 +517,8 @@ _g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, add
 {
 	addr pos;
 
-	if (declare == Nil) return;
+	if (declare == Nil)
+		return;
 	/* inline, notinline */
 	getall_inline_declare(declare, &pos);
 	apply_plistcall_stack(local, stack, call, pos, CONSTANT_SYSTEM_INLINE);

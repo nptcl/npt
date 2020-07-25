@@ -705,7 +705,7 @@ static int do_symbols_const_common(addr form, addr *ret, constindex index)
 	if (check != Nil)
 		goto error;
 expand:
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&var, var, NULL);
 	GetConst(COMMON_PROG, &prog);
 	lista_heap(&prog, prog, Nil, body, NULL);
@@ -774,7 +774,7 @@ _g int do_all_symbols_common(addr form, addr env, addr *ret)
 	if (check != Nil)
 		goto error;
 expand:
-	declare_body_form(body, &decl, &body);
+	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&var, var, NULL);
 	GetConst(COMMON_PROG, &prog);
 	lista_heap(&prog, prog, Nil, body, NULL);

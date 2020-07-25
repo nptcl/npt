@@ -19,7 +19,7 @@ static void defun_stringp(void)
 
 	/* function */
 	GetConst(COMMON_STRINGP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_stringp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -43,7 +43,7 @@ static void defun_simple_string_p(void)
 
 	/* function */
 	GetConst(COMMON_SIMPLE_STRING_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_simple_string_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -81,7 +81,7 @@ static void defun_char(void)
 
 	/* function */
 	GetConst(COMMON_CHAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -119,7 +119,7 @@ static void defun_schar(void)
 
 	/* function */
 	GetConst(COMMON_SCHAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_schar);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -155,7 +155,7 @@ static void defun_setf_char(void)
 
 	/* function */
 	GetConst(COMMON_CHAR, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_char);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -184,7 +184,7 @@ static void defun_setf_schar(void)
 
 	/* function */
 	GetConst(COMMON_SCHAR, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_char);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -220,7 +220,7 @@ static void defun_string(void)
 
 	/* function */
 	GetConst(COMMON_STRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -247,7 +247,7 @@ static void defun_string_upcase(void)
 
 	/* function */
 	GetConst(COMMON_STRING_UPCASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_string_upcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -274,7 +274,7 @@ static void defun_string_downcase(void)
 
 	/* function */
 	GetConst(COMMON_STRING_DOWNCASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_string_downcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -301,7 +301,7 @@ static void defun_string_capitalize(void)
 
 	/* function */
 	GetConst(COMMON_STRING_CAPITALIZE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_string_capitalize);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -328,7 +328,7 @@ static void defun_nstring_upcase(void)
 
 	/* function */
 	GetConst(COMMON_NSTRING_UPCASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_nstring_upcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -355,7 +355,7 @@ static void defun_nstring_downcase(void)
 
 	/* function */
 	GetConst(COMMON_NSTRING_DOWNCASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_nstring_downcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -382,7 +382,7 @@ static void defun_nstring_capitalize(void)
 
 	/* function */
 	GetConst(COMMON_NSTRING_CAPITALIZE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_nstring_capitalize);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -406,7 +406,7 @@ static void defun_string_trim(void)
 
 	/* function */
 	GetConst(COMMON_STRING_TRIM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_string_trim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -428,7 +428,7 @@ static void defun_string_left_trim(void)
 
 	/* function */
 	GetConst(COMMON_STRING_LEFT_TRIM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_string_left_trim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -450,7 +450,7 @@ static void defun_string_right_trim(void)
 
 	/* function */
 	GetConst(COMMON_STRING_RIGHT_TRIM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_string_right_trim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -483,7 +483,7 @@ static void defun_string_eql(void)
 
 	/* function */
 	GetConst(COMMON_STRING_EQL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -507,7 +507,7 @@ static void defun_string_not_eql(void)
 
 	/* function */
 	GetConst(COMMON_STRING_NOT_EQL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_not_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -531,7 +531,7 @@ static void defun_string_less(void)
 
 	/* function */
 	GetConst(COMMON_STRING_LESS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_less);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -555,7 +555,7 @@ static void defun_string_greater(void)
 
 	/* function */
 	GetConst(COMMON_STRING_GREATER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_greater);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -579,7 +579,7 @@ static void defun_string_less_equal(void)
 
 	/* function */
 	GetConst(COMMON_STRING_LESS_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_less_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -603,7 +603,7 @@ static void defun_string_greater_equal(void)
 
 	/* function */
 	GetConst(COMMON_STRING_GREATER_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_greater_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -629,7 +629,7 @@ static void defun_string_equal(void)
 
 	/* function */
 	GetConst(COMMON_STRING_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -655,7 +655,7 @@ static void defun_string_not_equal(void)
 
 	/* function */
 	GetConst(COMMON_STRING_NOT_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_not_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -681,7 +681,7 @@ static void defun_string_lessp(void)
 
 	/* function */
 	GetConst(COMMON_STRING_LESSP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_lessp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -707,7 +707,7 @@ static void defun_string_greaterp(void)
 
 	/* function */
 	GetConst(COMMON_STRING_GREATERP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_greaterp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -733,7 +733,7 @@ static void defun_string_not_greaterp(void)
 
 	/* function */
 	GetConst(COMMON_STRING_NOT_GREATERP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_not_greaterp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -757,7 +757,7 @@ static void defun_string_not_lessp(void)
 
 	/* function */
 	GetConst(COMMON_STRING_NOT_LESSP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2dynamic(pos, p_defun_string_not_lessp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -810,7 +810,7 @@ static void defun_make_string(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_STRING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_make_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */

@@ -815,14 +815,14 @@ static void rationalize_multi2(LocalRoot local, addr *ret, addr frac)
 	multi_ii_real_common(local, frac, value, ret);
 }
 
-static void rationalize_letdenom(LocalRoot local, addr expo, addr *ret)
+static int rationalize_letdenom_(LocalRoot local, addr expo, addr *ret)
 {
 	addr one;
 
 	/* (ash 1 (- 1 expo)) */
 	fixnum_heap(&one, 1);
 	minus_ii_real_common(local, one, expo, &expo);
-	ash_integer_common(local, one, expo, ret);
+	return ash_integer_common_(local, one, expo, ret);
 }
 
 static int rationalize_ab_(LocalRoot local, addr *ra, addr *fb, addr frac, addr expo)
@@ -832,7 +832,7 @@ static int rationalize_ab_(LocalRoot local, addr *ra, addr *fb, addr frac, addr 
 	rationalize_multi2(local, &frac, frac);
 	oneminus_integer_common(local, frac, &a);
 	oneplus_integer_common(local, frac, &b);
-	rationalize_letdenom(local, expo, &expo);
+	Return(rationalize_letdenom_(local, expo, &expo));
 	Return(rationalize_build_ratio_(ra, a, expo));
 	Return(rationalize_build_ratio_(fb, b, expo));
 
@@ -871,7 +871,7 @@ static int rationalize_float_(Execute ptr, addr x, addr *ret)
 	Return(integer_decode_float_common_(ptr, x, &frac, &expo, &sign));
 	/* cond */
 	if (zerop_integer(frac) || zerop_or_plusp_integer(expo)) {
-		ash_integer_common(local, frac, expo, ret);
+		Return(ash_integer_common_(local, frac, expo, ret));
 		if (minusp_integer(sign))
 			sign_reverse_integer_common(*ret, ret);
 		return 0;

@@ -74,7 +74,7 @@ _g void getindex_integer(addr pos, size_t *ret);
 _g int getindex_sign_integer(addr pos, int *sign, size_t *ret);
 _g int GetIndex_fixnum(addr pos, size_t *ret);
 _g void getindex_fixnum(addr pos, size_t *ret);
-_g void fixnum_index_heap(addr *ret, size_t value);
+_g int fixnum_index_heap_(addr *ret, size_t value);
 
 /* standard type */
 _g void int8_integer_alloc(LocalRoot local, addr *ret, int8_t value);
@@ -105,7 +105,7 @@ _g void minus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
 _g void multi_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
 
 _g void ash_bignum_common(LocalRoot local, addr pos, int sign2, size_t size, addr *ret);
-_g void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret);
+_g int ash_integer_common_(LocalRoot local, addr pos, addr count, addr *ret);
 _g void integer_length_value(addr pos, size_t *ret);
 _g void integer_length_common(addr pos, addr *ret);
 _g int parse_integer_clang(LocalRoot local,

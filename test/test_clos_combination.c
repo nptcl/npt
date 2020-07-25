@@ -61,7 +61,7 @@ static int test_qualifiers_equal_symbol(void)
 
 	ptr = Execute_Thread;
 	internchar_debug(LISP_PACKAGE, str, &symbol);
-	compiled_heap(&call, symbol);
+	compiled_system(&call, symbol);
 	SetPointer_rest(p_debug1, test_symbolcall);
 	setcompiled_rest(call, p_debug1);
 	SetFunctionSymbol(symbol, call);
@@ -93,7 +93,7 @@ static int test_qualifiers_equal(void)
 	test(check, "qualifiers_equal2");
 
 	internchar_debug(LISP_PACKAGE, str, &right);
-	compiled_heap(&call, right);
+	compiled_system(&call, right);
 	SetPointer_rest(p_debug1, test_symbolcall);
 	setcompiled_rest(call, p_debug1);
 	SetFunctionSymbol(right, call);

@@ -65,10 +65,10 @@ _g int defun_common(Execute ptr, addr form, addr env, addr *ret)
 		return fmte_("Invalid defun form.", NULL);
 
 	/* parse */
-	check_function_variable(name);
+	Return(check_function_variable_(name));
 	Return(lambda_ordinary_(ptr->local, &args, args));
 	localhold_push(hold, args);
-	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
+	Return(declare_body_documentation_(ptr, env, right, &doc, &decl, &right));
 
 	/* (eval::defun name args decl doc body) */
 	GetConst(SYSTEM_DEFUN, &eval);
@@ -420,7 +420,7 @@ _g int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
 	Return(lambda_macro_(ptr->local, &lambda, lambda, Nil));
 	Return(check_destructuring_bind(lambda));
 	hold = LocalHold_local_push(ptr, lambda);
-	Return(declare_body(ptr, env, args, &decl, &args));
+	Return(declare_body_(ptr, env, args, &decl, &args));
 	localhold_end(hold);
 	/* (eval::destructuring-bind lambda expr decl args) */
 	GetConst(SYSTEM_DESTRUCTURING_BIND, &eval);
@@ -1527,13 +1527,13 @@ _g int multiple_value_bind_common(Execute ptr, addr form, addr env, addr *ret)
 	Return_getcons(form, &vars, &form);
 	for (list = vars; list != Nil; ) {
 		Return_getcons(list, &pos, &list);
-		check_variable(pos);
+		Return(check_variable_(pos));
 	}
 	if (! consp(form))
 		goto error;
 	Return_getcons(form, &expr, &form);
 	/* extract */
-	Return(declare_body_documentation(ptr, env, form, &doc, &decl, &form));
+	Return(declare_body_documentation_(ptr, env, form, &doc, &decl, &form));
 	localhold_end(hold);
 	GetConst(SYSTEM_MULTIPLE_VALUE_BIND, &pos);
 	list_heap(ret, pos, vars, expr, decl, doc, form, NULL);
@@ -1650,7 +1650,7 @@ static int function_prog_constant(addr form, addr *ret,
 		return fmte_("~A argument ~S must be ([var] &rest body) form.", var, form, NULL);
 	}
 	GetCons(form, &var, &form);
-	declare_body_form(form, &decl, &form);
+	Return(declare_body_form_(form, &decl, &form));
 
 	/* expand */
 	GetConstant(let_constant, &let);

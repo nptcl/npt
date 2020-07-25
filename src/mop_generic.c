@@ -153,7 +153,7 @@ static int defmethod_ensure_generic_function_class_(Execute ptr, addr name, addr
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_ensure_generic_function_class);
 	method_type_ensure_generic_function_class(&type);
 	settype_function(call, type);
@@ -216,7 +216,7 @@ static int defmethod_ensure_generic_function_null_(Execute ptr, addr name, addr 
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4dynamic(call, p_method_ensure_generic_function_null);
 	method_type_ensure_generic_function_null(&type);
 	settype_function(call, type);
@@ -271,7 +271,7 @@ static int function_ensure_method(Execute ptr, addr name, addr rest)
 	if (GetKeyArgs(rest, CLOSKEY_SPECIALIZERS, &spec))
 		spec = Nil;
 	if (GetKeyArgs(rest, CLOSKEY_FUNCTION, &call))
-		fmte("Invalid ensure-method argument :function ~S.", call, NULL);
+		return fmte_("Invalid ensure-method argument :function ~S.", call, NULL);
 
 	/* add method */
 	Return(ensure_method_common_(ptr, &name, name, lambda, qua, spec, call));
@@ -303,7 +303,7 @@ static void defun_ensure_method_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_ENSURE_METHOD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_function_ensure_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -345,7 +345,7 @@ static int defmethod_function_keywords_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var3(call, p_method_function_keywords);
 	method_type_function_keywords(&type);
 	settype_function(call, type);
@@ -391,7 +391,7 @@ static void defun_flet_method_p_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_FLET_METHOD_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_flet_method_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -413,10 +413,9 @@ static int function_flet_next_method(Execute ptr,
 
 	if (next == Nil) {
 		stdget_method_generic_function(method, &method);
-		fmte("There is no method in generic function ~S.", method, NULL);
-		return 0;
+		return fmte_("There is no method in generic function ~S.", method, NULL);
 	}
-	getcons(next, &method, &next);
+	Return_getcons(next, &method, &next);
 	stdget_method_function(method, &call);
 	if (rest == Nil)
 		rest = args;
@@ -443,7 +442,7 @@ static void defun_flet_next_method_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_FLET_NEXT_METHOD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var4(pos, p_defun_flet_next_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -479,7 +478,7 @@ static void define_method_combination_instance_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_METHOD_COMBINATION_INSTANCE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_method_combination_instance);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -530,7 +529,7 @@ static void defun_ensure_define_combination_short_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_ENSURE_METHOD_COMBINATION_SHORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_ensure_method_combination_short);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -589,7 +588,7 @@ static void defun_ensure_define_combination_long_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_ENSURE_METHOD_COMBINATION_LONG, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3dynamic(pos, p_defun_ensure_method_combination_long);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -610,31 +609,33 @@ static void defun_ensure_define_combination_long_mop(void)
  *   require  t
  *   result   list
  */
-static int qualifiers_elt_order(addr symbol, addr order)
+static int qualifiers_elt_order_(addr symbol, addr order, int *ret)
 {
-	addr check;
+	addr value;
 
-	GetConst(KEYWORD_MOST_SPECIFIC_FIRST, &check);
-	if (check == order)
-		return 0;
-	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &check);
-	if (check == order)
-		return 1;
+	GetConst(KEYWORD_MOST_SPECIFIC_FIRST, &value);
+	if (value == order)
+		return Result(ret, 0);
+	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &value);
+	if (value == order)
+		return Result(ret, 1);
 	/* error */
-	fmte("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
-	return 0;
+	*ret = 0;
+	return fmte_("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
 }
 
 static int function_qualifiers_elt(Execute ptr,
 		addr symbol, addr pos, addr index, addr order, addr req)
 {
-	size_t value;
+	int check;
+	size_t size;
 
-	getindex_integer(index, &value);
-	getarray(pos, value, &pos);
+	getindex_integer(index, &size);
+	getarray(pos, size, &pos);
 	if (req != Nil && pos == Nil)
-		fmte("The qualifier ~S must be at least one method.", symbol, NULL);
-	if (qualifiers_elt_order(symbol, order))
+		return fmte_("The qualifier ~S must be at least one method.", symbol, NULL);
+	Return(qualifiers_elt_order_(symbol, order, &check));
+	if (check)
 		reverse_list_heap_safe(&pos, pos);
 	setresult_control(ptr, pos);
 
@@ -661,7 +662,7 @@ static void defun_qualifiers_elt_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_QUALIFIERS_ELT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var5(pos, p_defun_qualifiers_elt);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -697,7 +698,7 @@ static void defun_combination_binding_mop(void)
 
 	/* function */
 	GetConst(CLOSNAME_COMBINATION_BINDING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_combination_binding);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -755,7 +756,7 @@ static void defun_macro_make_method(void)
 
 	/* function */
 	GetConst(CLOSNAME_MACRO_MAKE_METHOD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_macro_make_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -787,7 +788,7 @@ static int function_macro_call_method(Execute ptr, addr car, addr cdr, addr symb
 	/* list */
 	conscar_heap(&root, list);
 	while (cdr != Nil) {
-		getcons(cdr, &pos, &cdr);
+		Return_getcons(cdr, &pos, &cdr);
 		cons_heap(&root, pos, root);
 	}
 	nreverse(&root, root);
@@ -819,7 +820,7 @@ static void defun_macro_call_method(void)
 
 	/* function */
 	GetConst(CLOSNAME_MACRO_CALL_METHOD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_macro_call_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -865,7 +866,7 @@ static void defun_macro_method_lambda(void)
 
 	/* function */
 	GetConst(CLOSNAME_MACRO_METHOD_LAMBDA, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_macro_method_lambda);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
@@ -922,7 +923,7 @@ static int defmethod_compute_applicable_methods_std_(Execute ptr, addr name, add
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4(call, p_method_compute_applicable_methods_std);
 	method_type_compute_applicable_methods_std(&type);
 	settype_function(call, type);
@@ -1003,7 +1004,7 @@ static int defmethod_find_method_std_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var5opt1(call, p_method_find_method_std);
 	method_type_find_method_std(&type);
 	settype_function(call, type);
@@ -1079,7 +1080,7 @@ static int defmethod_add_method_std_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4(call, p_method_add_method_std);
 	method_type_add_method_std(&type);
 	settype_function(call, type);
@@ -1125,7 +1126,7 @@ static int defmethod_remove_method_std_(Execute ptr, addr name, addr gen)
 	addr pos, call, type;
 
 	/* function */
-	compiled_heap(&call, name);
+	compiled_system(&call, name);
 	setcompiled_var4(call, p_method_remove_method_std);
 	method_type_add_method_std(&type);
 	settype_function(call, type);

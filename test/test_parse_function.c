@@ -231,7 +231,7 @@ static int test_parse_allcons(void)
 	addr cons, eval;
 
 	readstring(&cons, "(10 \"Hello\" :aaa)");
-	parse_allcons(Execute_Thread, &cons, cons);
+	parse_allcons_(Execute_Thread, &cons, cons);
 	/* 10 */
 	getcons(cons, &eval, &cons);
 	test(test_eqlfixnum(eval, 10), "parse_allcons1");
@@ -874,7 +874,7 @@ static int test_make_macro_function(void)
 	args = readr("(x y z)");
 	lambda_macro(ptr->local, &args, args, Nil);
 	cons = readr("(x y z :hello)");
-	parse_allcons(ptr, &cons, cons);
+	parse_allcons_(ptr, &cons, cons);
 
 	make_macro_function(ptr, &call, args, Nil, Nil, cons);
 	test(functionp(call), "make_macro_function1");

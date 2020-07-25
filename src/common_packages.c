@@ -25,7 +25,7 @@ static void defun_export(void)
 
 	/* function */
 	GetConst(COMMON_EXPORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_export);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -52,7 +52,7 @@ static void defun_find_symbol(void)
 
 	/* function */
 	GetConst(COMMON_FIND_SYMBOL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_find_symbol);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -86,7 +86,7 @@ static void defun_find_package(void)
 
 	/* function */
 	GetConst(COMMON_FIND_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_find_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -123,7 +123,7 @@ static void defun_find_all_symbols(void)
 
 	/* function */
 	GetConst(COMMON_FIND_ALL_SYMBOLS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_find_all_symbols);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -150,7 +150,7 @@ static void defun_import(void)
 
 	/* function */
 	GetConst(COMMON_IMPORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_import);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -186,7 +186,7 @@ static void defun_list_all_packages(void)
 
 	/* function */
 	GetConst(COMMON_LIST_ALL_PACKAGES, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_empty(pos, p_defun_list_all_packages);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -227,7 +227,7 @@ static void defun_rename_package(void)
 
 	/* function */
 	GetConst(COMMON_RENAME_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_rename_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -267,7 +267,7 @@ static void defun_shadow(void)
 
 	/* function */
 	GetConst(COMMON_SHADOW, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_shadow);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -294,7 +294,7 @@ static void defun_shadowing_import(void)
 
 	/* function */
 	GetConst(COMMON_SHADOWING_IMPORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_shadowing_import);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -332,7 +332,7 @@ static void defun_delete_package(void)
 
 	/* function */
 	GetConst(COMMON_DELETE_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_delete_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -379,7 +379,7 @@ static void defun_make_package(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_make_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -402,7 +402,7 @@ static void defmacro_with_package_iterator(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_PACKAGE_ITERATOR, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_package_iterator);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -428,7 +428,7 @@ static void defun_unexport(void)
 
 	/* function */
 	GetConst(COMMON_UNEXPORT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_unexport);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -465,7 +465,7 @@ static void defun_unintern(void)
 
 	/* function */
 	GetConst(COMMON_UNINTERN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_unintern);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -488,7 +488,7 @@ static void defmacro_in_package(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_IN_PACKAGE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_in_package);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -514,7 +514,7 @@ static void defun_unuse_package(void)
 
 	/* function */
 	GetConst(COMMON_UNUSE_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_unuse_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -541,7 +541,7 @@ static void defun_use_package(void)
 
 	/* function */
 	GetConst(COMMON_USE_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_use_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -574,7 +574,7 @@ static void defmacro_defpackage(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFPACKAGE, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_defpackage);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -596,7 +596,7 @@ static void defmacro_do_symbols(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DO_SYMBOLS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_do_symbols);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -618,7 +618,7 @@ static void defmacro_do_external_symbols(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DO_EXTERNAL_SYMBOLS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_do_external_symbols);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -640,7 +640,7 @@ static void defmacro_do_all_symbols(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DO_ALL_SYMBOLS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_do_all_symbols);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -666,7 +666,7 @@ static void defun_intern(void)
 
 	/* function */
 	GetConst(COMMON_INTERN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_intern);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -702,7 +702,7 @@ static void defun_package_name(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGE_NAME, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_package_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -726,7 +726,7 @@ static void defun_package_nicknames(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGE_NICKNAMES, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_package_nicknames);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -750,7 +750,7 @@ static void defun_package_shadowing_symbols(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGE_SHADOWING_SYMBOLS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_package_shadowing_symbols);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -774,7 +774,7 @@ static void defun_package_use_list(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGE_USE_LIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_package_use_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -798,7 +798,7 @@ static void defun_package_used_by_list(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGE_USED_BY_LIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_package_used_by_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -821,7 +821,7 @@ static void defun_packagep(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGEP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_packagep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -871,7 +871,7 @@ static void defun_package_error_package(void)
 
 	/* function */
 	GetConst(COMMON_PACKAGE_ERROR_PACKAGE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_package_error_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */

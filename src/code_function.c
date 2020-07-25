@@ -703,7 +703,7 @@ _g int unwind_protect_code(Execute ptr, CodeValue x)
 /*
  *  control-switch
  */
-static void push_handler_code(Execute ptr, int escape)
+static int push_handler_code_(Execute ptr, int escape)
 {
 	addr args, symbol, lambda;
 
@@ -711,21 +711,21 @@ static void push_handler_code(Execute ptr, int escape)
 	while (args != Nil) {
 		GetCons(args, &symbol, &args);
 		GetCons(args, &lambda, &args);
-		pushhandler_common(ptr, symbol, lambda, escape);
+		Return(pushhandler_common_(ptr, symbol, lambda, escape));
 	}
 	reverse_handler_control(ptr);
+
+	return 0;
 }
 
 _g int handler_bind_code(Execute ptr, CodeValue x)
 {
-	push_handler_code(ptr, 0);
-	return 0;
+	return push_handler_code_(ptr, 0);
 }
 
 _g int handler_case_code(Execute ptr, CodeValue x)
 {
-	push_handler_code(ptr, 1);
-	return 0;
+	return push_handler_code_(ptr, 1);
 }
 
 static void push_restart_code(Execute ptr, int escape)

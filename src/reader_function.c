@@ -265,9 +265,8 @@ _g int backquote_reader(Execute ptr, addr stream, addr *ret)
 	Return(backquote_read_reader(ptr, stream, &check, &pos));
 	if (check)
 		return fmte_("After backquote ` must be an object.", NULL);
-	quote_back_heap(ret, pos);
 
-	return 0;
+	return quote_back_heap_(ret, pos);
 }
 
 

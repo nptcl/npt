@@ -307,11 +307,13 @@ static void sqrt_long_common(struct mathreal2_struct *ptr, addr *ret)
 	}
 }
 
-_g void sqrt_number_common(addr pos, addr *ret)
+_g int sqrt_number_common_(addr pos, addr *ret)
 {
+	enum MathType type;
 	struct mathreal2_struct str;
 
-	switch (getmathcomplex1_sqrt(&str, pos)) {
+	Return(getmathcomplex1_sqrt_(&str, pos, &type));
+	switch (type) {
 		case MathType_single:
 			sqrt_single_common(&str, ret);
 			break;
@@ -328,9 +330,10 @@ _g void sqrt_number_common(addr pos, addr *ret)
 		case MathType_rational:
 		case MathType_error:
 		default:
-			TypeError(pos, NUMBER);
-			*ret = 0;
-			return;
+			*ret = Nil;
+			return TypeError_(pos, NUMBER);
 	}
+
+	return 0;
 }
 

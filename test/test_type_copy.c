@@ -37,8 +37,9 @@ static int testlispdecl(addr pos, enum LISPDECL decl)
 static void parse_type_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
-	if (parse_type(Execute_Thread, ret, *ret, Nil))
-		fmte("parse-type error.", NULL);
+	if (parse_type(Execute_Thread, ret, *ret, Nil)) {
+		Error(fmte_("parse-type error.", NULL));
+	}
 }
 
 static int test_getset_arraytype(void)

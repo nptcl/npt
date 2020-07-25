@@ -210,7 +210,7 @@ void lisp_syscall_function(int index, addr name, addr *ret)
 		name = Nil;
 
 	/* function */
-	compiled_heap(&pos, name);
+	compiled_system(&pos, name);
 	switch (pointer_table[index].type) {
 		case CallBind_extend_dynamic:
 			setcompiled_extend_dynamic(pos, (pointer)index);
@@ -340,7 +340,7 @@ int lisp_catch_(addr symbol, addr code, addr *ret)
 	LocalHold hold;
 
 	if (! symbolp(symbol))
-		fmte("CATCH argument ~S must be a symbol.", symbol, NULL);
+		return fmte_("CATCH argument ~S must be a symbol.", symbol, NULL);
 	ptr = Execute_Thread;
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);

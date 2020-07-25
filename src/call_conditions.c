@@ -565,7 +565,8 @@ _g int warn_common(Execute ptr, addr datum, addr rest)
 	else {
 		Return(error_datum_common(ptr, datum, rest, &datum));
 	}
-	return warning_restart_case(ptr, datum);
+
+	return warning_restart_case_(ptr, datum);
 }
 
 

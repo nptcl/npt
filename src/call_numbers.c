@@ -173,7 +173,7 @@ _g int plus_common(LocalRoot local, addr rest, addr *ret)
 	Return_getcons(rest, &left, &rest);
 	while (rest != Nil) {
 		Return_getcons(rest, &right, &rest);
-		plus_number_heap(local, left, right, &left);
+		Return(plus_number_heap_(local, left, right, &left));
 	}
 
 	return Result(ret, left);
@@ -189,14 +189,13 @@ _g int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
 
 	/* nil */
 	if (rest == Nil) {
-		sign_reverse_number_common(left, ret);
-		return 0;
+		return sign_reverse_number_common_(left, ret);
 	}
 
 	/* list */
 	while (rest != Nil) {
 		Return_getcons(rest, &right, &rest);
-		minus_number_heap(local, left, right, &left);
+		Return(minus_number_heap_(local, left, right, &left));
 	}
 
 	return Result(ret, left);
@@ -220,7 +219,7 @@ _g int asterisk_common(LocalRoot local, addr rest, addr *ret)
 	Return_getcons(rest, &left, &rest);
 	while (rest != Nil) {
 		Return_getcons(rest, &right, &rest);
-		multi_number_heap(local, left, right, &left);
+		Return(multi_number_heap_(local, left, right, &left));
 	}
 
 	return Result(ret, left);
@@ -236,14 +235,13 @@ _g int slash_common(LocalRoot local, addr left, addr rest, addr *ret)
 
 	/* nil */
 	if (rest == Nil) {
-		inverse_number_heap(local, left, ret);
-		return 0;
+		return inverse_number_heap_(local, left, ret);
 	}
 
 	/* list */
 	while (rest != Nil) {
 		Return_getcons(rest, &right, &rest);
-		div_number_heap(local, left, right, &left);
+		Return(div_number_heap_(local, left, right, &left));
 	}
 
 	return Result(ret, left);

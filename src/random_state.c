@@ -111,7 +111,7 @@ static void random_seed_os(struct md5encode *md5)
 	value = 0;
 	/* read /dev/urandom */
 	if (read_device_urandom(md5))
-		fmte("Cannot read " RANDOM_DEVICE ".", NULL);
+		Abort("Cannot read " RANDOM_DEVICE ".");
 }
 
 #elif defined LISP_WINDOWS
@@ -202,7 +202,7 @@ static void random_seed_os(struct md5encode *md5)
 
 	/* hostname */
 	if (read_hostname_seed(md5))
-		fmte("Cannot get hostname.", NULL);
+		Abort("Cannot get hostname.");
 	/* time */
 	GetSystemTime((LPSYSTEMTIME)&time);
 	readmd5(md5, &time, sizeof(time));
@@ -217,7 +217,7 @@ static void random_seed_os(struct md5encode *md5)
 	value = 0;
 	/* RtlGenRandom */
 	if (read_windows_random(md5))
-		fmte("Cannot get random number.", NULL);
+		Abort("Cannot get random number.");
 }
 #else
 #include <time.h>
@@ -259,7 +259,7 @@ static void random_seed_os(struct md5encode *md5)
 	zeroset(&now, sizeof(now));
 	/* read /dev/urandom */
 	if (read_device_urandom(md5) < 0)
-		fmte("Cannot read random device.", NULL);
+		Abort("Cannot read random device.");
 }
 #endif
 

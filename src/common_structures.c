@@ -20,7 +20,7 @@ static void defmacro_defstruct(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFSTRUCT, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_defstruct);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -55,7 +55,7 @@ static void defun_copy_structure(void)
 
 	/* function */
 	GetConst(COMMON_COPY_STRUCTURE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_copy_structure);
 	SetFunctionCommon(symbol, pos);
 	/* type */

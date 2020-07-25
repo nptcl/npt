@@ -26,7 +26,7 @@ _g int length_list_p(addr list, size_t *ret);
 /* list */
 _g void nconc2_safe(addr left, addr right, addr *ret);
 _g void nconc2_unsafe(addr left, addr right, addr *ret);
-_g void append2_safe(addr left, addr right, addr *ret);
+_g int append2_safe_(addr left, addr right, addr *ret);
 _g void append2_heap_unsafe(addr list1, addr list2, addr *ret);
 _g void append2_local_unsafe(LocalRoot local, addr list1, addr list2, addr *ret);
 _g void append2_alloc_unsafe(LocalRoot local, addr list1, addr list2, addr *ret);
@@ -48,6 +48,7 @@ _g int pushnew_equal_heap_(addr list, addr value, addr *ret);
 
 /* nreverse */
 _g void nreconc_unsafe(addr *ret, addr cons, addr tail);
+_g int nreconc_safe_(addr *ret, addr cons, addr tail);
 _g void nreverse_list_unsafe(addr *ret, addr pos);
 _g void nreverse_list_safe(addr *ret, addr pos);
 #define nreconc nreconc_unsafe

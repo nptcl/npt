@@ -14,6 +14,7 @@
 #include "math_isqrt.h"
 #include "math_power.h"
 #include "number.h"
+#include "number_plus.h"
 #include "number_random.h"
 #include "random_state.h"
 #include "rational.h"
@@ -42,7 +43,7 @@ static void defun_number_equal(void)
 
 	/* function */
 	GetConst(COMMON_NUMBER_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_number_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -67,7 +68,7 @@ static void defun_number_not_equal(void)
 
 	/* function */
 	GetConst(COMMON_NUMBER_NOT_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_number_not_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -92,7 +93,7 @@ static void defun_number_less(void)
 
 	/* function */
 	GetConst(COMMON_NUMBER_LESS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_number_less);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -117,7 +118,7 @@ static void defun_number_greater(void)
 
 	/* function */
 	GetConst(COMMON_NUMBER_GREATER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_number_greater);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -142,7 +143,7 @@ static void defun_number_less_equal(void)
 
 	/* function */
 	GetConst(COMMON_NUMBER_LESS_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_number_less_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -167,7 +168,7 @@ static void defun_number_greater_equal(void)
 
 	/* function */
 	GetConst(COMMON_NUMBER_GREATER_EQUAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_number_greater_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -191,7 +192,7 @@ static void defun_max(void)
 
 	/* function */
 	GetConst(COMMON_MAX, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_max);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -215,7 +216,7 @@ static void defun_min(void)
 
 	/* function */
 	GetConst(COMMON_MIN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_min);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -238,7 +239,7 @@ static void defun_minusp(void)
 
 	/* function */
 	GetConst(COMMON_MINUSP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_minusp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -261,7 +262,7 @@ static void defun_plusp(void)
 
 	/* function */
 	GetConst(COMMON_PLUSP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_plusp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -284,7 +285,7 @@ static void defun_zerop(void)
 
 	/* function */
 	GetConst(COMMON_ZEROP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_zerop);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -313,7 +314,7 @@ static void defun_floor(void)
 
 	/* function */
 	GetConst(COMMON_FLOOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_floor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -342,7 +343,7 @@ static void defun_ffloor(void)
 
 	/* function */
 	GetConst(COMMON_FFLOOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_ffloor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -371,7 +372,7 @@ static void defun_ceiling(void)
 
 	/* function */
 	GetConst(COMMON_CEILING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_ceiling);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -400,7 +401,7 @@ static void defun_fceiling(void)
 
 	/* function */
 	GetConst(COMMON_FCEILING, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_fceiling);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -429,7 +430,7 @@ static void defun_truncate(void)
 
 	/* function */
 	GetConst(COMMON_TRUNCATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_truncate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -458,7 +459,7 @@ static void defun_ftruncate(void)
 
 	/* function */
 	GetConst(COMMON_FTRUNCATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_ftruncate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -487,7 +488,7 @@ static void defun_round(void)
 
 	/* function */
 	GetConst(COMMON_ROUND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_round);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -516,7 +517,7 @@ static void defun_fround(void)
 
 	/* function */
 	GetConst(COMMON_FROUND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_fround);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -550,7 +551,7 @@ static void defun_cis(void)
 
 	/* function */
 	GetConst(COMMON_CIS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_cis);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -574,7 +575,7 @@ static void defun_sin(void)
 
 	/* function */
 	GetConst(COMMON_SIN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_sin);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -598,7 +599,7 @@ static void defun_cos(void)
 
 	/* function */
 	GetConst(COMMON_COS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_cos);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -622,7 +623,7 @@ static void defun_tan(void)
 
 	/* function */
 	GetConst(COMMON_TAN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_tan);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -646,7 +647,7 @@ static void defun_sinh(void)
 
 	/* function */
 	GetConst(COMMON_SINH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_sinh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -670,7 +671,7 @@ static void defun_cosh(void)
 
 	/* function */
 	GetConst(COMMON_COSH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_cosh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -694,7 +695,7 @@ static void defun_tanh(void)
 
 	/* function */
 	GetConst(COMMON_TANH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_tanh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -718,7 +719,7 @@ static void defun_asin(void)
 
 	/* function */
 	GetConst(COMMON_ASIN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_asin);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -742,7 +743,7 @@ static void defun_acos(void)
 
 	/* function */
 	GetConst(COMMON_ACOS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_acos);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -755,7 +756,7 @@ static void defun_acos(void)
 /* (defun atan (number &optional real) ...) -> number */
 static int function_atan(Execute ptr, addr var, addr opt)
 {
-	atan_optional_common(var, opt, &var);
+	Return(atan_optional_common_(var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -777,7 +778,7 @@ static void defun_atan(void)
 
 	/* function */
 	GetConst(COMMON_ATAN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_atan);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -801,7 +802,7 @@ static void defun_asinh(void)
 
 	/* function */
 	GetConst(COMMON_ASINH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_asinh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -825,7 +826,7 @@ static void defun_acosh(void)
 
 	/* function */
 	GetConst(COMMON_ACOSH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_acosh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -849,7 +850,7 @@ static void defun_atanh(void)
 
 	/* function */
 	GetConst(COMMON_ATANH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_atanh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -873,7 +874,7 @@ static void defun_exp(void)
 
 	/* function */
 	GetConst(COMMON_EXP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_exp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -886,7 +887,7 @@ static void defun_exp(void)
 /* (defun expt (number number) ...) -> number */
 static int function_expt(Execute ptr, addr base, addr power)
 {
-	expt_common(ptr->local, &base, base, power);
+	Return(expt_common_(ptr->local, &base, base, power));
 	setresult_control(ptr, base);
 	return 0;
 }
@@ -907,7 +908,7 @@ static void defun_expt(void)
 
 	/* function */
 	GetConst(COMMON_EXPT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_expt);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -931,7 +932,7 @@ static void defun_plus(void)
 
 	/* function */
 	GetConst(COMMON_PLUS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_plus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -955,7 +956,7 @@ static void defun_minus(void)
 
 	/* function */
 	GetConst(COMMON_MINUS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_minus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -979,7 +980,7 @@ static void defun_asterisk(void)
 
 	/* function */
 	GetConst(COMMON_ASTERISK, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_asterisk);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1003,7 +1004,7 @@ static void defun_slash(void)
 
 	/* function */
 	GetConst(COMMON_SLASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_slash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1016,7 +1017,7 @@ static void defun_slash(void)
 /* (defun 1+ (number) ...) -> number */
 static int function_oneplus(Execute ptr, addr var)
 {
-	oneplus_number_common(ptr->local, var, &var);
+	Return(oneplus_number_common_(ptr->local, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1027,7 +1028,7 @@ static void defun_oneplus(void)
 
 	/* function */
 	GetConst(COMMON_ONE_PLUS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_oneplus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1040,7 +1041,7 @@ static void defun_oneplus(void)
 /* (defun 1- (number) ...) -> number */
 static int function_oneminus(Execute ptr, addr var)
 {
-	oneminus_number_common(ptr->local, var, &var);
+	Return(oneminus_number_common_(ptr->local, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1051,7 +1052,7 @@ static void defun_oneminus(void)
 
 	/* function */
 	GetConst(COMMON_ONE_MINUS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_oneminus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1090,7 +1091,7 @@ static void defun_abs(void)
 
 	/* function */
 	GetConst(COMMON_ABS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_abs);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1113,7 +1114,7 @@ static void defun_evenp(void)
 
 	/* function */
 	GetConst(COMMON_EVENP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_evenp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1136,7 +1137,7 @@ static void defun_oddp(void)
 
 	/* function */
 	GetConst(COMMON_ODDP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_oddp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1160,7 +1161,7 @@ static void defun_gcd(void)
 
 	/* function */
 	GetConst(COMMON_GCD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_gcd);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1184,7 +1185,7 @@ static void defun_lcm(void)
 
 	/* function */
 	GetConst(COMMON_LCM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_lcm);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1207,7 +1208,7 @@ static void defmacro_incf(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_INCF, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_incf);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -1229,7 +1230,7 @@ static void defmacro_decf(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DECF, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_decf);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -1241,7 +1242,7 @@ static void defmacro_decf(void)
 /* (defun log (number &optional number) ...) -> number */
 static int function_log(Execute ptr, addr value, addr base)
 {
-	log_common(value, base, &value);
+	Return(log_common_(value, base, &value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -1262,7 +1263,7 @@ static void defun_log(void)
 
 	/* function */
 	GetConst(COMMON_LOG, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_log);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1279,7 +1280,7 @@ static void defun_log(void)
  */
 static int function_mod(Execute ptr, addr num, addr div)
 {
-	mod_number_common(ptr->local, num, div, &num);
+	Return(mod_number_common_(ptr->local, num, div, &num));
 	setresult_control(ptr, num);
 	return 0;
 }
@@ -1290,7 +1291,7 @@ static void defun_mod(void)
 
 	/* function */
 	GetConst(COMMON_MOD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_mod);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1307,7 +1308,7 @@ static void defun_mod(void)
  */
 static int function_rem(Execute ptr, addr num, addr div)
 {
-	rem_number_common(ptr->local, num, div, &num);
+	Return(rem_number_common_(ptr->local, num, div, &num));
 	setresult_control(ptr, num);
 	return 0;
 }
@@ -1318,7 +1319,7 @@ static void defun_rem(void)
 
 	/* function */
 	GetConst(COMMON_REM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_rem);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1342,7 +1343,7 @@ static void defun_signum(void)
 
 	/* function */
 	GetConst(COMMON_SIGNUM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_signum);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1355,7 +1356,7 @@ static void defun_signum(void)
 /* (defun sqrt (number) ...) -> number */
 static int function_sqrt(Execute ptr, addr var)
 {
-	sqrt_number_common(var, &var);
+	Return(sqrt_number_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1366,7 +1367,7 @@ static void defun_sqrt(void)
 
 	/* function */
 	GetConst(COMMON_SQRT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_sqrt);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1402,7 +1403,7 @@ static void defun_isqrt(void)
 
 	/* function */
 	GetConst(COMMON_ISQRT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_isqrt);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1442,7 +1443,7 @@ static void defun_make_random_state(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_RANDOM_STATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_opt1(pos, p_defun_make_random_state);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1485,7 +1486,7 @@ static void defun_random(void)
 
 	/* function */
 	GetConst(COMMON_RANDOM, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_random);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1508,7 +1509,7 @@ static void defun_random_state_p(void)
 
 	/* function */
 	GetConst(COMMON_RANDOM_STATE_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_random_state_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1548,7 +1549,7 @@ static void defun_numberp(void)
 
 	/* function */
 	GetConst(COMMON_NUMBERP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_numberp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1588,7 +1589,7 @@ static void defun_complex(void)
 
 	/* function */
 	GetConst(COMMON_COMPLEX, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_complex);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1611,7 +1612,7 @@ static void defun_complexp(void)
 
 	/* function */
 	GetConst(COMMON_COMPLEXP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_complexp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1635,7 +1636,7 @@ static void defun_conjugate(void)
 
 	/* function */
 	GetConst(COMMON_CONJUGATE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_conjugate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1659,7 +1660,7 @@ static void defun_phase(void)
 
 	/* function */
 	GetConst(COMMON_PHASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_phase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1683,7 +1684,7 @@ static void defun_realpart(void)
 
 	/* function */
 	GetConst(COMMON_REALPART, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_realpart);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1707,7 +1708,7 @@ static void defun_imagpart(void)
 
 	/* function */
 	GetConst(COMMON_IMAGPART, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_imagpart);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1736,7 +1737,7 @@ static void defun_upgraded_complex_part_type(void)
 
 	/* function */
 	GetConst(COMMON_UPGRADED_COMPLEX_PART_TYPE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_upgraded_complex_part_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1759,7 +1760,7 @@ static void defun_realp(void)
 
 	/* function */
 	GetConst(COMMON_REALP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_realp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1793,7 +1794,7 @@ static void defun_numerator(void)
 
 	/* function */
 	GetConst(COMMON_NUMERATOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_numerator);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1828,7 +1829,7 @@ static void defun_denominator(void)
 
 	/* function */
 	GetConst(COMMON_DENOMINATOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_denominator);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1855,7 +1856,7 @@ static void defun_rational(void)
 
 	/* function */
 	GetConst(COMMON_RATIONAL, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_rational);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1882,7 +1883,7 @@ static void defun_rationalize(void)
 
 	/* function */
 	GetConst(COMMON_RATIONALIZE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_rationalize);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1905,7 +1906,7 @@ static void defun_rationalp(void)
 
 	/* function */
 	GetConst(COMMON_RATIONALP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_rationalp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1922,7 +1923,7 @@ static void defun_rationalp(void)
  */
 static int function_ash(Execute ptr, addr pos, addr count)
 {
-	ash_integer_common(ptr->local, pos, count, &pos);
+	Return(ash_integer_common_(ptr->local, pos, count, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -1943,7 +1944,7 @@ static void defun_ash(void)
 
 	/* function */
 	GetConst(COMMON_ASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_ash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -1980,7 +1981,7 @@ static void defun_integer_length(void)
 
 	/* function */
 	GetConst(COMMON_INTEGER_LENGTH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_integer_length);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2003,7 +2004,7 @@ static void defun_integerp(void)
 
 	/* function */
 	GetConst(COMMON_INTEGERP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_integerp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2063,7 +2064,7 @@ static void defun_parse_integer(void)
 
 	/* function */
 	GetConst(COMMON_PARSE_INTEGER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_parse_integer);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2099,7 +2100,7 @@ static void defun_boole(void)
 
 	/* function */
 	GetConst(COMMON_BOOLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_boole);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2123,7 +2124,7 @@ static void defun_logand(void)
 
 	/* function */
 	GetConst(COMMON_LOGAND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_logand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2147,7 +2148,7 @@ static void defun_logandc1(void)
 
 	/* function */
 	GetConst(COMMON_LOGANDC1, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_logandc1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2171,7 +2172,7 @@ static void defun_logandc2(void)
 
 	/* function */
 	GetConst(COMMON_LOGANDC2, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_logandc2);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2195,7 +2196,7 @@ static void defun_logeqv(void)
 
 	/* function */
 	GetConst(COMMON_LOGEQV, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_logeqv);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2219,7 +2220,7 @@ static void defun_logior(void)
 
 	/* function */
 	GetConst(COMMON_LOGIOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_logior);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2243,7 +2244,7 @@ static void defun_lognand(void)
 
 	/* function */
 	GetConst(COMMON_LOGNAND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_lognand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2267,7 +2268,7 @@ static void defun_lognor(void)
 
 	/* function */
 	GetConst(COMMON_LOGNOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_lognor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2301,7 +2302,7 @@ static void defun_lognot(void)
 
 	/* function */
 	GetConst(COMMON_LOGNOT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_lognot);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2325,7 +2326,7 @@ static void defun_logorc1(void)
 
 	/* function */
 	GetConst(COMMON_LOGORC1, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_logorc1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2349,7 +2350,7 @@ static void defun_logorc2(void)
 
 	/* function */
 	GetConst(COMMON_LOGORC2, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_logorc2);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2373,7 +2374,7 @@ static void defun_logxor(void)
 
 	/* function */
 	GetConst(COMMON_LOGXOR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_logxor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2412,7 +2413,7 @@ static void defun_logbitp(void)
 
 	/* function */
 	GetConst(COMMON_LOGBITP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_logbitp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2446,7 +2447,7 @@ static void defun_logcount(void)
 
 	/* function */
 	GetConst(COMMON_LOGCOUNT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_logcount);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2480,7 +2481,7 @@ static void defun_logtest(void)
 
 	/* function */
 	GetConst(COMMON_LOGTEST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_logtest);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2519,7 +2520,7 @@ static void defun_byte(void)
 
 	/* function */
 	GetConst(COMMON_BYTE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_byte);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2543,7 +2544,7 @@ static void defun_byte_size(void)
 
 	/* function */
 	GetConst(COMMON_BYTE_SIZE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_byte_size);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2567,7 +2568,7 @@ static void defun_byte_position(void)
 
 	/* function */
 	GetConst(COMMON_BYTE_POSITION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_byte_position);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2596,7 +2597,7 @@ static void defun_deposit_field(void)
 
 	/* function */
 	GetConst(COMMON_DEPOSIT_FIELD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_deposit_field);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2620,7 +2621,7 @@ static void defun_dpb(void)
 
 	/* function */
 	GetConst(COMMON_DPB, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_dpb);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2644,7 +2645,7 @@ static void defun_ldb(void)
 
 	/* function */
 	GetConst(COMMON_LDB, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_ldb);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2663,7 +2664,7 @@ static void define_setf_expander_ldb(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_LDB, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_setf_ldb);
 	SetSetfMacroCommon(symbol, pos);
 	/* type */
@@ -2697,7 +2698,7 @@ static void defun_ldb_test(void)
 
 	/* function */
 	GetConst(COMMON_LDB_TEST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_ldb_test);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2721,7 +2722,7 @@ static void defun_mask_field(void)
 
 	/* function */
 	GetConst(COMMON_MASK_FIELD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_mask_field);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2740,7 +2741,7 @@ static void define_setf_expander_mask_field(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_MASK_FIELD, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_setf_mask_field);
 	SetSetfMacroCommon(symbol, pos);
 	/* type */
@@ -2781,7 +2782,7 @@ static void defun_decode_float(void)
 
 	/* function */
 	GetConst(COMMON_DECODE_FLOAT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_decode_float);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2819,7 +2820,7 @@ static void defun_scale_float(void)
 
 	/* function */
 	GetConst(COMMON_SCALE_FLOAT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_scale_float);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2853,7 +2854,7 @@ static void defun_float_radix(void)
 
 	/* function */
 	GetConst(COMMON_FLOAT_RADIX, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_float_radix);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2887,7 +2888,7 @@ static void defun_float_sign(void)
 
 	/* function */
 	GetConst(COMMON_FLOAT_SIGN, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_float_sign);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2914,7 +2915,7 @@ static void defun_float_digits(void)
 
 	/* function */
 	GetConst(COMMON_FLOAT_DIGITS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_float_digits);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2941,7 +2942,7 @@ static void defun_float_precision(void)
 
 	/* function */
 	GetConst(COMMON_FLOAT_PRECISION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_float_precision);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -2987,7 +2988,7 @@ static void defun_integer_decode_float(void)
 
 	/* function */
 	GetConst(COMMON_INTEGER_DECODE_FLOAT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_integer_decode_float);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -3024,7 +3025,7 @@ static void defun_float(void)
 
 	/* function */
 	GetConst(COMMON_FLOAT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt1(pos, p_defun_float);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -3047,7 +3048,7 @@ static void defun_floatp(void)
 
 	/* function */
 	GetConst(COMMON_FLOATP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_floatp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -3081,7 +3082,7 @@ static void defun_arithmetic_error_operands(void)
 
 	/* function */
 	GetConst(COMMON_ARITHMETIC_ERROR_OPERANDS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_arithmetic_error_operands);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -3116,7 +3117,7 @@ static void defun_arithmetic_error_operation(void)
 
 	/* function */
 	GetConst(COMMON_ARITHMETIC_ERROR_OPERATION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_arithmetic_error_operation);
 	SetFunctionCommon(symbol, pos);
 	/* type */

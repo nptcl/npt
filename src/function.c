@@ -14,11 +14,7 @@ static void alloc_function(LocalRoot local, addr *ret,
 	addr pos;
 	struct function_struct *str;
 
-	if (name != Nil) {
-		if (GetType(name) != LISPTYPE_CALLNAME &&
-				parse_callname_alloc(local, &name, name))
-			fmte("Invalid function name ~S.", name, NULL);
-	}
+	Check(name != Nil && ! callnamep(name), "name error");
 	alloc_smallsize(local, &pos,
 			LISPTYPE_FUNCTION,
 			FUNCTION_INDEX_SIZE,
@@ -86,13 +82,6 @@ _g void compiled_heap(addr *ret, addr name)
 	alloc_function(NULL, ret, name, Nil, 0, 1);
 }
 
-_g void compiled_setf_heap(addr *ret, addr symbol)
-{
-	Check(! symbolp(symbol), "type error.");
-	setf_callname_heap(&symbol, symbol);
-	alloc_function(NULL, ret, symbol, Nil, 0, 1);
-}
-
 _g void compiled_macro_alloc(LocalRoot local, addr *ret, addr name)
 {
 	alloc_function(local, ret, name, Nil, 1, 1);
@@ -107,6 +96,46 @@ _g void compiled_macro_heap(addr *ret, addr name)
 	alloc_function(NULL, ret, name, Nil, 1, 1);
 }
 
+
+/*
+ *  system
+ */
+static int compiled_callname_heap(addr *ret, addr name)
+{
+	if (GetType(name) == LISPTYPE_CALLNAME) {
+		*ret = name;
+		return 0;
+	}
+	return parse_callname_heap(ret, name);
+}
+
+_g void compiled_system(addr *ret, addr name)
+{
+	if (compiled_callname_heap(&name, name))
+		Abort("callname error.");
+	alloc_function(NULL, ret, name, Nil, 0, 1);
+}
+
+_g void compiled_setf_system(addr *ret, addr symbol)
+{
+	if (GetType(symbol) != LISPTYPE_CALLNAME) {
+		Check(! symbolp(symbol), "type error.");
+		setf_callname_heap(&symbol, symbol);
+	}
+	alloc_function(NULL, ret, symbol, Nil, 0, 1);
+}
+
+_g void compiled_macro_system(addr *ret, addr name)
+{
+	if (compiled_callname_heap(&name, name))
+		Abort("callname error.");
+	alloc_function(NULL, ret, name, Nil, 1, 1);
+}
+
+
+/*
+ *  setcompiled
+ */
 _g void setcompiled_code(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);

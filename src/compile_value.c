@@ -154,8 +154,7 @@ _g int faslwrite_value_vector(Execute ptr, addr stream, addr pos)
 #endif
 
 		default:
-			fmte("Invalid vector size.", NULL);
-			return 0;
+			return fmte_("Invalid vector size.", NULL);
 	}
 }
 

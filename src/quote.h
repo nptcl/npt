@@ -4,7 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g void quote_back_heap(addr *ret, addr form);
+_g int quote_back_heap_(addr *ret, addr form);
 _g void quote_comma_heap(addr *ret, addr form);
 _g void quote_atsign_heap(addr *ret, addr form);
 _g void quote_dot_heap(addr *ret, addr form);

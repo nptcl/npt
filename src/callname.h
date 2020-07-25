@@ -29,6 +29,7 @@ typedef enum CALLNAME_TYPE CallNameType;
 #define RefCallNameType(s)          refcallnametype(s)
 #define GetCallNameType(s,v)        getcallnametype(s,v)
 #define SetCallNameType(s,v)        setcallnametype(s,v)
+#define ParseCallName               parse_callname_abort
 #else
 #define RefCallName(s)              RefCallName_Low(s)
 #define GetCallName(s,v)            GetCallName_Low(s,v)
@@ -36,6 +37,7 @@ typedef enum CALLNAME_TYPE CallNameType;
 #define RefCallNameType(s)          RefCallNameType_Low(s)
 #define GetCallNameType(s,v)        GetCallNameType_Low(s,v)
 #define SetCallNameType(s,v)        SetCallNameType_Low(s,v)
+#define ParseCallName               parse_callname_alloc
 #endif
 
 /* access */
@@ -65,6 +67,7 @@ _g CallNameType parse_callname(addr name, addr *ret);
 _g int parse_callname_alloc(LocalRoot local, addr *ret, addr name);
 _g int parse_callname_local(LocalRoot local, addr *ret, addr name);
 _g int parse_callname_heap(addr *ret, addr name);
+_g void parse_callname_abort(LocalRoot local, addr *ret, addr name);
 _g void parse_callname_error(addr *ret, addr name);
 _g int parse_callname_error_(addr *ret, addr name);
 

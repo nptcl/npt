@@ -950,7 +950,7 @@ static int test_macro_character_call(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, var2, test_macro_character_call1);
 	setcompiled_var2(call, p_debug1);
 	check = 999;
@@ -986,7 +986,7 @@ static int test_macro_character_execute(void)
 	ptr = Execute_Thread;
 	readtable_heap(&pos);
 
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, var2, test_macro_character_execute1);
 	setcompiled_var2(call, p_debug1);
 	make_readtype(&read, ReadTable_Type_macro_nonterm, 10000, 0);

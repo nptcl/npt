@@ -28,8 +28,9 @@
  */
 static void test_parse_type_error(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil))
-		fmte("parse-type error.");
+	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+		Error(fmte_("parse-type error.", NULL));
+	}
 }
 
 static void test_parse_char(addr *ret, const char *str)
@@ -45,8 +46,9 @@ static int TypepClang(addr value, addr type, int *ret)
 static int typep_object(addr x, addr y) 
 {
 	int check = 0;
-	if (TypepClang(x, y, &check))
-		fmte("typep error");
+	if (TypepClang(x, y, &check)) {
+		Error(fmte_("typep error", NULL));
+	}
 	return check;
 }
 
@@ -69,8 +71,9 @@ static int typep_asterisk_char(addr x, const char *str)
 
 	test_parse_char(&y, str);
 	check = 0;
-	if (TypepAsteriskClang(x, y, &check))
-		fmte("typep error");
+	if (TypepAsteriskClang(x, y, &check)) {
+		Error(fmte_("typep error", NULL));
+	}
 
 	return check;
 }

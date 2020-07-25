@@ -85,7 +85,7 @@ _g int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* parse */
 	Return(lambda_deftype_(ptr->local, &args, args, Nil));
-	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
+	Return(declare_body_documentation_(ptr, env, right, &doc, &decl, &right));
 
 	/* (eval::deftype name args decl doc body) */
 	GetConst(SYSTEM_DEFTYPE, &eval);

@@ -14,7 +14,7 @@ _g int type_and_array(LocalRoot local, addr cons, addr *ret);
 _g void push_tablevalue_global(Execute ptr, addr stack, addr symbol, addr *ret);
 _g int checktype_p(addr left, addr right, int *check);
 _g int checktype_value_(Execute ptr, addr value, addr init);
-_g void ignore_checkvalue(addr stack);
+_g int ignore_checkvalue_(addr stack);
 _g void localhold_let_struct(LocalRoot local, struct let_struct *str);
 _g int scope_let_call(Execute ptr, struct let_struct *str);
 

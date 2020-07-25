@@ -27,14 +27,9 @@ _g int equal_number(LocalRoot local, addr left, addr right);
 #define less_equal_number less_equal_real
 #define greater_equal_number greater_equal_real
 
-_g void oneplus_number_common(LocalRoot local, addr value, addr *ret);
-_g void oneminus_number_common(LocalRoot local, addr value, addr *ret);
-_g void sign_reverse_number_common(addr left, addr *ret);
-_g void sign_reverse_number_local(LocalRoot local, addr left, addr *ret);
-
 _g void abs_number_common(addr left, addr *ret);
 _g void signum_number_common(addr pos, addr *ret);
-_g void sqrt_number_common(addr pos, addr *ret);
+_g int sqrt_number_common_(addr pos, addr *ret);
 
 #endif
 

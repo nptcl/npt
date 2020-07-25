@@ -49,14 +49,14 @@ _g void apply_safety_declaim(OptimizeType value);
 _g void apply_space_declaim(OptimizeType value);
 _g void apply_speed_declaim(OptimizeType value);
 
-_g int parse_declaim_heap(Execute ptr, addr env, addr decl, addr *ret);
-_g int parse_declare_heap(Execute ptr, addr env, addr decl, addr *ret);
-_g int parse_optimize_heap(addr decl, addr *ret);
-_g void declare_body_form(addr cons, addr *retdecl, addr *retbody);
-_g int declare_body(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody);
-_g int declare_body_documentation(Execute ptr, addr env,
+_g int parse_declaim_heap_(Execute ptr, addr env, addr decl, addr *ret);
+_g int parse_declare_heap_(Execute ptr, addr env, addr decl, addr *ret);
+_g int parse_optimize_heap_(addr decl, addr *value, int *ret);
+_g int declare_body_form_(addr list, addr *retdecl, addr *retbody);
+_g int declare_body_(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody);
+_g int declare_body_documentation_(Execute ptr, addr env,
 		addr cons, addr *rdoc, addr *rdecl, addr *rbody);
-_g void split_decl_body_doc(addr list, addr *rdoc, addr *rdecl, addr *rbody);
+_g int split_decl_body_doc_(addr list, addr *rdoc, addr *rdecl, addr *rbody);
 
 _g void copy_eval_declare_alloc(LocalRoot local, addr *ret, addr pos);
 _g void copy_eval_declare_local(LocalRoot local, addr *ret, addr pos);

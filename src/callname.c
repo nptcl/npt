@@ -129,12 +129,16 @@ _g CallNameType parse_callname(addr name, addr *ret)
 		case LISPTYPE_CONS: /* (setf name) */
 			GetConst(COMMON_SETF, &setf);
 			GetCons(name, &name, &cons);
-			if (name != setf) goto error;
+			if (name != setf)
+				goto error;
 			Check(cons == Unbound, "unbound cons error.");
-			if (GetType(cons) != LISPTYPE_CONS) goto error;
+			if (GetType(cons) != LISPTYPE_CONS)
+				goto error;
 			GetCons(cons, &name, &cons);
-			if (! symbolp(name)) goto error;
-			if (cons != Nil) goto error;
+			if (! symbolp(name))
+				goto error;
+			if (cons != Nil)
+				goto error;
 			type = CALLNAME_SETF;
 			break;
 
@@ -153,7 +157,8 @@ _g int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
 	CallNameType type;
 
 	type = parse_callname(name, &name);
-	if (type == CALLNAME_ERROR) return 1;
+	if (type == CALLNAME_ERROR)
+		return 1;
 	callname_alloc(local, ret, name, type);
 
 	return 0;
@@ -166,6 +171,11 @@ _g int parse_callname_local(LocalRoot local, addr *ret, addr name)
 _g int parse_callname_heap(addr *ret, addr name)
 {
 	return parse_callname_alloc(NULL, ret, name);
+}
+_g void parse_callname_abort(LocalRoot local, addr *ret, addr name)
+{
+	if (parse_callname_alloc(local, ret, name))
+		Abort("Invalid function name.");
 }
 _g void parse_callname_error(addr *ret, addr name)
 {
@@ -209,7 +219,8 @@ _g int constantp_callname(addr pos)
 
 _g int function_name_p(addr name)
 {
-	if (GetType(name) == LISPTYPE_CALLNAME) return 1;
+	if (GetType(name) == LISPTYPE_CALLNAME)
+		return 1;
 	return parse_callname(name, &name) != CALLNAME_ERROR;
 }
 

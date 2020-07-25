@@ -57,7 +57,7 @@ static void defun_make_hash_table(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_HASH_TABLE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_make_hash_table);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -80,7 +80,7 @@ static void defun_hash_table_p(void)
 
 	/* function */
 	GetConst(COMMON_HASH_TABLE_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_hash_table_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -106,7 +106,7 @@ static void defun_hash_table_count(void)
 
 	/* function */
 	GetConst(COMMON_HASH_TABLE_COUNT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_hash_table_count);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -143,7 +143,7 @@ static void defun_hash_table_rehash_size(void)
 
 	/* function */
 	GetConst(COMMON_HASH_TABLE_REHASH_SIZE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_hash_table_rehash_size);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -180,7 +180,7 @@ static void defun_hash_table_rehash_threshold(void)
 
 	/* function */
 	GetConst(COMMON_HASH_TABLE_REHASH_THRESHOLD, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_hash_table_rehash_threshold);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -206,7 +206,7 @@ static void defun_hash_table_size(void)
 
 	/* function */
 	GetConst(COMMON_HASH_TABLE_SIZE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_hash_table_size);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -240,7 +240,7 @@ static void defun_hash_table_test(void)
 
 	/* function */
 	GetConst(COMMON_HASH_TABLE_TEST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_hash_table_test);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -276,7 +276,7 @@ static void defun_gethash(void)
 
 	/* function */
 	GetConst(COMMON_GETHASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_gethash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -313,7 +313,7 @@ static void defun_setf_gethash(void)
 
 	/* function */
 	GetConst(COMMON_GETHASH, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_setf_gethash);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -348,7 +348,7 @@ static void defun_remhash(void)
 
 	/* function */
 	GetConst(COMMON_REMHASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_remhash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -383,7 +383,7 @@ static void defun_maphash(void)
 
 	/* function */
 	GetConst(COMMON_MAPHASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_maphash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -406,7 +406,7 @@ static void defmacro_with_hash_table_iterator(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_HASH_TABLE_ITERATOR, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_hash_table_iterator);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -439,7 +439,7 @@ static void defun_clrhash(void)
 
 	/* function */
 	GetConst(COMMON_CLRHASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_clrhash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -476,7 +476,7 @@ static void defun_sxhash(void)
 
 	/* function */
 	GetConst(COMMON_SXHASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_sxhash);
 	SetFunctionCommon(symbol, pos);
 	/* type */

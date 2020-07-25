@@ -88,7 +88,7 @@ static void defun_ensure_generic_function(void)
 
 	/* function */
 	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_ensure_generic_function);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -161,7 +161,7 @@ static void defun_slot_boundp(void)
 
 	/* function */
 	GetConst(COMMON_SLOT_BOUNDP, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_slot_boundp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -192,7 +192,7 @@ static void defun_slot_exists_p(void)
 
 	/* function */
 	GetConst(COMMON_SLOT_EXISTS_P, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_slot_exists_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -223,7 +223,7 @@ static void defun_slot_makunbound(void)
 
 	/* function */
 	GetConst(COMMON_SLOT_MAKUNBOUND, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_slot_makunbound);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -279,7 +279,7 @@ static void defun_slot_value(void)
 
 	/* function */
 	GetConst(COMMON_SLOT_VALUE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var2(pos, p_defun_slot_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -322,7 +322,7 @@ static void defun_setf_slot_value(void)
 
 	/* function */
 	GetConst(COMMON_SLOT_VALUE, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_slot_value);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -425,7 +425,7 @@ static void defun_make_load_form_saving_slots(void)
 
 	/* function */
 	GetConst(COMMON_MAKE_LOAD_FORM_SAVING_SLOTS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1dynamic(pos, p_defun_make_load_form_saving_slots);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -448,7 +448,7 @@ static void defmacro_with_accessors(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_ACCESSORS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_accessors);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -470,7 +470,7 @@ static void defmacro_with_slots(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_WITH_SLOTS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_with_slots);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -498,7 +498,7 @@ static void defmacro_defclass(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFCLASS, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_defclass);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -520,7 +520,7 @@ static void defmacro_defgeneric(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFGENERIC, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_defgeneric);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -544,7 +544,7 @@ static void defmacro_defmethod(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFMETHOD, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_defmethod);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -589,7 +589,7 @@ static void defun_find_class(void)
 
 	/* function */
 	GetConst(COMMON_FIND_CLASS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1opt2(pos, p_defun_find_class);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -631,7 +631,7 @@ static void defun_setf_find_class(void)
 
 	/* function */
 	GetConst(COMMON_FIND_CLASS, &symbol);
-	compiled_setf_heap(&pos, symbol);
+	compiled_setf_system(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_setf_find_class);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -661,7 +661,7 @@ static void defmacro_define_method_combination(void)
 	addr symbol, pos, type;
 
 	GetConst(COMMON_DEFINE_METHOD_COMBINATION, &symbol);
-	compiled_macro_heap(&pos, symbol);
+	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_define_method_combination);
 	SetMacroCommon(symbol, pos);
 	/* type */
@@ -729,7 +729,7 @@ static void defun_class_of(void)
 
 	/* function */
 	GetConst(COMMON_CLASS_OF, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_class_of);
 	SetFunctionCommon(symbol, pos);
 	/* type */
@@ -763,7 +763,7 @@ static void defun_unbound_slot_instance(void)
 
 	/* function */
 	GetConst(COMMON_UNBOUND_SLOT_INSTANCE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_system(&pos, symbol);
 	setcompiled_var1(pos, p_defun_unbound_slot_instance);
 	SetFunctionCommon(symbol, pos);
 	/* type */

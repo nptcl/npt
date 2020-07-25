@@ -46,8 +46,9 @@ static int test_typecheck(addr pos, enum LISPDECL type, size_t size)
 
 static void test_parse_type_error(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil))
-		fmte("parse-type error.");
+	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+		Error(fmte_("parse-type error.", NULL));
+	}
 }
 
 static void test_parse_char(addr *ret, const char *str)
@@ -370,8 +371,9 @@ static int test_type_function_list(void)
 
 static void test_parse_values(addr *ret, const char *str)
 {
-	if (type_function_values(Execute_Thread, ret, readr(str), Nil))
-		fmte("type_function_values error.");
+	if (type_function_values(Execute_Thread, ret, readr(str), Nil)) {
+		Error(fmte_("type_function_values error.", NULL));
+	}
 }
 
 static int test_type_values_var(void)
@@ -1047,7 +1049,7 @@ static int test_parse_type_list(void)
 	test(test_typecheck(pos, LISPDECL_INTEGER, 4), "parse_type_list2");
 
 	/* deftype */
-	compiled_heap(&pos, Nil);
+	compiled_system(&pos, Nil);
 	SetPointer(p_debug1, dynamic, test_parse_type_list_call);
 	setcompiled_dynamic(pos, p_debug1);
 	symbol = readr("test-parse-type-list");

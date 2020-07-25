@@ -31,7 +31,7 @@ static int defuser_(const char *str, callbind_dynamic call)
 	Return(internchar_(LISP_USER, str, &symbol, NULL));
 	GetFunctionSymbol(symbol, &pos);
 	if (pos == Unbound) {
-		compiled_heap(&pos, symbol);
+		compiled_system(&pos, symbol);
 		make_user_object(&user, call);
 		SetDataFunction(pos, user);
 	}

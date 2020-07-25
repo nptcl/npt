@@ -9,13 +9,8 @@
 _g int conditionp(addr pos);
 _g int condition_instance_p(addr pos);
 _g int signal_function_(Execute ptr, addr condition);
-_g void error_function(addr condition);
 _g int error_function_(Execute ptr, addr condition);
-_g int warning_restart_case(Execute ptr, addr instance);
-_g void callclang_error(const char *str, ...);
-_g void callclang_warning(const char *str, ...);
-#define fmte callclang_error
-#define fmtw callclang_warning
+_g int warning_restart_case_(Execute ptr, addr instance);
 _g int callclang_error_(const char *str, ...);
 _g int callclang_warning_(const char *str, ...);
 #define fmte_ callclang_error_
@@ -23,6 +18,11 @@ _g int callclang_warning_(const char *str, ...);
 
 _g void build_condition(Execute ptr);
 _g void init_condition(void);
+
+/* deprecated */
+_g void error_function(addr condition);
+_g void callclang_error(const char *str, ...);
+#define fmte callclang_error
 
 #endif
 

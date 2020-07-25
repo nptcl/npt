@@ -62,10 +62,13 @@ _g void macro_heap(addr *ret, addr name, addr code);
 _g void compiled_alloc(LocalRoot local, addr *ret, addr name);
 _g void compiled_local(LocalRoot local, addr *ret, addr name);
 _g void compiled_heap(addr *ret, addr name);
-_g void compiled_setf_heap(addr *ret, addr symbol);
 _g void compiled_macro_alloc(LocalRoot local, addr *ret, addr name);
 _g void compiled_macro_local(LocalRoot local, addr *ret, addr name);
 _g void compiled_macro_heap(addr *ret, addr name);
+
+_g void compiled_system(addr *ret, addr name);
+_g void compiled_setf_system(addr *ret, addr symbol);
+_g void compiled_macro_system(addr *ret, addr name);
 
 _g void setcompiled_code(addr pos, pointer p);
 _g void getcompiled_code(addr pos, pointer *ret);

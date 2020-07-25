@@ -109,7 +109,7 @@ static int test_call_macroexpand_hook(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	compiled_heap(&call, Nil);
+	compiled_system(&call, Nil);
 	SetPointer(p_debug1, var3, test_call_macroexpand_hook_function);
 	setcompiled_var3(call, p_debug1);
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);

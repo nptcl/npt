@@ -76,7 +76,7 @@ _g int parse_step(Execute ptr, addr *ret, addr form)
 	parse_step_symbol(ptr, &symbol);
 	getspecialcheck_local(ptr, symbol, &value);
 	setspecial_local(ptr, symbol, T);
-	Return(parse_execute(ptr, ret, expr));
+	Return(parse_execute_(ptr, ret, expr));
 	setspecial_local(ptr, symbol, value);
 	return 0;
 

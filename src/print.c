@@ -49,7 +49,7 @@ _g void push_array_print(Execute ptr, int value)
 }
 
 /* print-base */
-_g unsigned base_print(Execute ptr)
+_g int base_print_(Execute ptr, unsigned *ret)
 {
 	addr pos;
 	fixnum value;
@@ -57,12 +57,12 @@ _g unsigned base_print(Execute ptr)
 	GetConst(SPECIAL_PRINT_BASE, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	if (! fixnump(pos))
-		TypeError(pos, FIXNUM);
+		return TypeError_(pos, FIXNUM);
 	GetFixnum(pos, &value);
 	if (! isBaseChar(value))
-		fmte("The value ~S must be a number between 2 and 36.", pos, NULL);
+		return fmte_("The value ~S must be a number between 2 and 36.", pos, NULL);
 
-	return (unsigned)value;
+	return Result(ret, (unsigned)value);
 }
 
 _g void push_base_print(Execute ptr, unsigned base)
@@ -87,7 +87,7 @@ _g void push_radix_print(Execute ptr, int value)
 }
 
 /* print-case */
-_g enum PrintCase case_print(Execute ptr)
+_g int case_print_(Execute ptr, enum PrintCase *ret)
 {
 	addr pos, value;
 
@@ -97,21 +97,22 @@ _g enum PrintCase case_print(Execute ptr)
 	/* upcase */
 	GetConst(KEYWORD_UPCASE, &value);
 	if (pos == value)
-		return PrintCase_upcase;
+		return Result(ret, PrintCase_upcase);
 	/* downcase */
 	GetConst(KEYWORD_DOWNCASE, &value);
 	if (pos == value)
-		return PrintCase_downcase;
+		return Result(ret, PrintCase_downcase);
 	/* capitalize */
 	GetConst(KEYWORD_CAPITALIZE, &value);
 	if (pos == value)
-		return PrintCase_capitalize;
+		return Result(ret, PrintCase_capitalize);
+
 	/* error */
-	fmte("type error", NULL);
-	return PrintCase_unread;
+	*ret = PrintCase_unread;
+	return fmte_("type error", NULL);
 }
 
-_g void push_case_print(Execute ptr, enum PrintCase pcase)
+_g int push_case_print_(Execute ptr, enum PrintCase pcase)
 {
 	addr pos, value;
 
@@ -129,11 +130,11 @@ _g void push_case_print(Execute ptr, enum PrintCase pcase)
 			break;
 
 		default:
-			fmte("type error", NULL);
-			return;
+			return fmte_("type error", NULL);
 	}
 	GetConst(SPECIAL_PRINT_CASE, &pos);
 	pushspecial_control(ptr, pos, value);
+	return 0;
 }
 
 /* print-circle */
@@ -209,13 +210,15 @@ static int getindex_print(Execute ptr, constindex index, size_t *ret)
 	}
 }
 
-static void push_integer_print(Execute ptr, constindex index, size_t value)
+static int push_integer_print_(Execute ptr, constindex index, size_t value)
 {
 	addr symbol, pos;
 
 	GetConstant(index, &symbol);
-	fixnum_index_heap(&pos, value);
+	Return(fixnum_index_heap_(&pos, value));
 	pushspecial_control(ptr, symbol, pos);
+
+	return 0;
 }
 
 static void push_nil_print(Execute ptr, constindex index)
@@ -230,9 +233,9 @@ _g int level_print(Execute ptr, size_t *ret)
 	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_LEVEL, ret);
 }
 
-_g void push_level_print(Execute ptr, size_t value)
+_g int push_level_print_(Execute ptr, size_t value)
 {
-	push_integer_print(ptr, CONSTANT_SPECIAL_PRINT_LEVEL, value);
+	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_LEVEL, value);
 }
 
 _g void push_level_nil_print(Execute ptr)
@@ -246,9 +249,9 @@ _g int length_print(Execute ptr, size_t *ret)
 	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_LENGTH, ret);
 }
 
-_g void push_length_print(Execute ptr, size_t value)
+_g int push_length_print_(Execute ptr, size_t value)
 {
-	push_integer_print(ptr, CONSTANT_SPECIAL_PRINT_LENGTH, value);
+	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_LENGTH, value);
 }
 
 _g void push_length_nil_print(Execute ptr)
@@ -262,9 +265,9 @@ _g int lines_print(Execute ptr, size_t *ret)
 	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_LINES, ret);
 }
 
-_g void push_lines_print(Execute ptr, size_t value)
+_g int push_lines_print_(Execute ptr, size_t value)
 {
-	push_integer_print(ptr, CONSTANT_SPECIAL_PRINT_LINES, value);
+	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_LINES, value);
 }
 
 _g void push_lines_nil_print(Execute ptr)
@@ -278,9 +281,9 @@ _g int miser_width_print(Execute ptr, size_t *ret)
 	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_MISER_WIDTH, ret);
 }
 
-_g void push_miser_width_print(Execute ptr, size_t value)
+_g int push_miser_width_print_(Execute ptr, size_t value)
 {
-	push_integer_print(ptr, CONSTANT_SPECIAL_PRINT_MISER_WIDTH, value);
+	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_MISER_WIDTH, value);
 }
 
 _g void push_miser_width_nil_print(Execute ptr)
@@ -310,9 +313,9 @@ _g int right_margin_print_(Execute ptr, addr stream, size_t *ret)
 	return 0;
 }
 
-_g void push_right_margin_print(Execute ptr, size_t value)
+_g int push_right_margin_print_(Execute ptr, size_t value)
 {
-	push_integer_print(ptr, CONSTANT_SPECIAL_PRINT_RIGHT_MARGIN, value);
+	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_RIGHT_MARGIN, value);
 }
 
 _g void push_right_margin_nil_print(Execute ptr)
