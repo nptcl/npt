@@ -1579,7 +1579,7 @@ static void defun_make_ratio(void)
 /* (defun make-complex (real imag) ...) -> complex */
 static int syscall_make_complex(Execute ptr, addr real, addr imag)
 {
-	make_complex_code(real, imag, &real);
+	Return(make_complex_code_(real, imag, &real));
 	setresult_control(ptr, real);
 	return 0;
 }

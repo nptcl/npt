@@ -113,8 +113,7 @@ _g int sign_reverse_number_common_(addr left, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			sign_reverse_complex_common(left, ret);
-			break;
+			return sign_reverse_complex_common_(left, ret);
 
 		default:
 			*ret = Nil;

@@ -514,22 +514,22 @@ static int getmathcomplex1_complex_(struct mathreal2_struct *ptr,
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_single:
 			ptr->type = MathType_single;
-			single_float_complex(pos, &(ptr->v.s.a), &(ptr->v.s.b));
+			Return(single_float_complex_(pos, &(ptr->v.s.a), &(ptr->v.s.b)));
 			break;
 
 		case ComplexType_double:
 			ptr->type = MathType_double;
-			double_float_complex(pos, &(ptr->v.d.a), &(ptr->v.d.b));
+			Return(double_float_complex_(pos, &(ptr->v.d.a), &(ptr->v.d.b)));
 			break;
 
 		case ComplexType_long:
 			ptr->type = MathType_long;
-			long_float_complex(pos, &(ptr->v.l.a), &(ptr->v.l.b));
+			Return(long_float_complex_(pos, &(ptr->v.l.a), &(ptr->v.l.b)));
 			break;
 
 		case ComplexType_rational:
 			ptr->type = MathType_single;
-			single_float_complex(pos, &(ptr->v.s.a), &(ptr->v.s.b));
+			Return(single_float_complex_(pos, &(ptr->v.s.a), &(ptr->v.s.b)));
 			break;
 
 		case ComplexType_error:
@@ -828,8 +828,7 @@ static int getmathcomplex2_single1_(addr pos, single_float *re, single_float *im
 			break;
 
 		case LISPTYPE_COMPLEX:
-			single_float_complex(pos, re, im);
-			break;
+			return single_float_complex_(pos, re, im);
 
 		case LISPTYPE_FIXNUM:
 			*re = single_float_fixnum(pos);
@@ -874,8 +873,7 @@ static int getmathcomplex2_double1_(addr pos, double_float *re, double_float *im
 			break;
 
 		case LISPTYPE_COMPLEX:
-			double_float_complex(pos, re, im);
-			break;
+			return double_float_complex_(pos, re, im);
 
 		case LISPTYPE_FIXNUM:
 			*re = double_float_fixnum(pos);
@@ -920,8 +918,7 @@ static int getmathcomplex2_long1_(addr pos, long_float *re, long_float *im)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			long_float_complex(pos, re, im);
-			break;
+			return long_float_complex_(pos, re, im);
 
 		case LISPTYPE_FIXNUM:
 			*re = long_float_fixnum(pos);

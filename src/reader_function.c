@@ -1129,7 +1129,7 @@ _g int complex_dispatch(Execute ptr, addr stream, addr *ret)
 		goto error;
 	if (! realp(imag))
 		goto error;
-	complex_heap(&pos, real, imag);
+	Return(complex_heap_(&pos, real, imag));
 	return Result(ret, pos);
 
 error:

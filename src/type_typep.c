@@ -1160,8 +1160,8 @@ static int typep_real(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_local(Local_Thread, value, type,
 			realp,
-			less_real_clang,
-			less_equal_real_clang);
+			less_real_inplace,
+			less_equal_real_inplace);
 	return 0;
 }
 
@@ -1415,8 +1415,8 @@ static int typep_call(Execute ptr, addr value, addr type, int asterisk, int *ret
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, value, type, NULL);
 	Return(typep_table(ptr, value, type, &result));
-	localhold_end(hold);
 	*ret = RefNotDecl(type)? (! result): result;
+	localhold_end(hold);
 
 	return 0;
 }

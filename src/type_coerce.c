@@ -327,7 +327,7 @@ static int coerce_complex_complex(Execute ptr, addr pos, addr type, addr *ret)
 	hold = LocalHold_local_push(ptr, real);
 	Return(coerce_type_(ptr, imag, type, &imag));
 	localhold_end(hold);
-	complex_heap(ret, real, imag);
+	Return(complex_heap_(ret, real, imag));
 
 	return 0;
 }
@@ -338,9 +338,8 @@ static int coerce_complex_real(Execute ptr, addr pos, addr type, addr *ret)
 	if (! type_asterisk_p(type)) {
 		Return(coerce_type_(ptr, pos, type, &pos));
 	}
-	complex_heap(ret, pos, fixnumh(0));
 
-	return 0;
+	return complex_heap_(ret, pos, fixnumh(0));
 }
 
 static int coerce_complex(Execute ptr, addr pos, addr type, addr *ret)

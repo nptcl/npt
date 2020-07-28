@@ -47,9 +47,9 @@ _g enum ComplexType getcomplex(addr pos, enum ComplexType *type, addr *real, add
 _g enum ComplexType getcomplexr(addr pos, addr *real, addr *imag);
 
 _g void make_complex_unsafe(LocalRoot local, addr *ret, enum ComplexType type);
-_g void complex_alloc(LocalRoot local, addr *ret, addr real, addr imag);
-_g void complex_local(LocalRoot local, addr *ret, addr real, addr imag);
-_g void complex_heap(addr *ret, addr real, addr imag);
+_g int complex_alloc_(LocalRoot local, addr *ret, addr real, addr imag);
+_g int complex_local_(LocalRoot local, addr *ret, addr real, addr imag);
+_g int complex_heap_(addr *ret, addr real, addr imag);
 
 _g void complex_single_alloc(LocalRoot local,
 		addr *ret, single_float real, single_float imag);
@@ -73,18 +73,18 @@ _g void complex_long_heap(addr *ret,
 _g void complex_copy_alloc(LocalRoot local, addr pos, addr *ret);
 _g void complex_copy_local(LocalRoot local, addr pos, addr *ret);
 _g void complex_copy_heap(addr pos, addr *ret);
-_g void complex_result_local(LocalRoot local, addr pos, addr *ret);
-_g void complex_result_heap(LocalRoot local, addr pos, addr *ret);
+_g int complex_result_local_(LocalRoot local, addr pos, addr *ret);
+_g int complex_result_heap_(LocalRoot local, addr pos, addr *ret);
 _g void complex_throw_alloc(LocalRoot local, addr pos, addr *ret);
 _g void complex_throw_local(LocalRoot local, addr pos, addr *ret);
 _g void complex_throw_heap(addr pos, addr *ret);
-_g void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType type);
+_g int complex_force_heap_(addr *ret, addr real, addr imag, enum ComplexType type);
 
-_g void single_float_complex(addr pos, single_float *re, single_float *im);
-_g void double_float_complex(addr pos, double_float *re, double_float *im);
-_g void long_float_complex(addr pos, long_float *re, long_float *im);
+_g int single_float_complex_(addr pos, single_float *re, single_float *im);
+_g int double_float_complex_(addr pos, double_float *re, double_float *im);
+_g int long_float_complex_(addr pos, long_float *re, long_float *im);
 
-_g int zerop_complex(addr pos);
+_g int zerop_complex_(addr pos, int *ret);
 _g int eql_complex(addr left, addr right);
 _g int equal_complex(LocalRoot local, addr left, addr right);
 #define not_equal_complex(m,a,b) (! equal_complex((m),(a),(b)))
@@ -101,10 +101,9 @@ _g int equal_lc_number(LocalRoot local, addr left, addr right);
 #define equal_cd_number(m,a,b) equal_dc_number((m),(b),(a))
 #define equal_cl_number(m,a,b) equal_lc_number((m),(b),(a))
 
-_g void sign_reverse_complex_common(addr pos, addr *ret);
-_g void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret);
-_g void abs_complex_common(addr pos, addr *ret);
-_g void signum_complex_common(addr pos, addr *ret);
+_g int sign_reverse_complex_common_(addr pos, addr *ret);
+_g int abs_complex_common_(addr pos, addr *ret);
+_g int signum_complex_common_(addr pos, addr *ret);
 
 #endif
 

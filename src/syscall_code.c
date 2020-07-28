@@ -823,9 +823,9 @@ _g int make_ratio_syscode(addr numer, addr denom, addr *ret)
 
 
 /* make-complex */
-_g void make_complex_code(addr real, addr imag, addr *ret)
+_g int make_complex_code_(addr real, addr imag, addr *ret)
 {
-	complex_force_heap(ret, real, imag, ComplexType_error);
+	return complex_force_heap_(ret, real, imag, ComplexType_error);
 }
 
 

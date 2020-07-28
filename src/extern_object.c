@@ -14,6 +14,7 @@
 #include "extern_error.h"
 #include "memory.h"
 #include "number.h"
+#include "number_equal.h"
 #include "object.h"
 #include "package.h"
 #include "package_symbol.h"
@@ -537,17 +538,24 @@ int lisp_long_double_(addr *ret, long double value)
 
 int lisp_zerop(addr value)
 {
-	return value && numberp(value) && zerop_number(value);
+	int check;
+
+	if (value == NULL)
+		return 0;
+	if (! numberp(value))
+		return 0;
+	(void)zerop_number_(value, &check);
+	return check;
 }
 
 int lisp_plusp(addr value)
 {
-	return value && numberp(value) && plusp_number(value);
+	return value && realp(value) && plusp_real_inplace(value);
 }
 
 int lisp_minusp(addr value)
 {
-	return value && numberp(value) && minusp_number(value);
+	return value && realp(value) && minusp_real_inplace(value);
 }
 
 int lisp_get_character_(addr pos, unicode *ret)

@@ -1225,9 +1225,9 @@ static int range_valid_p(addr type)
 	if (type_asterisk_p(left1) || type_asterisk_p(right1))
 		return 1;
 	if (left1 == Nil && right1 == Nil)
-		return less_equal_real(local, left2, right2);
+		return less_equal_real_inplace(local, left2, right2);
 	else
-		return less_real(local, left2, right2);
+		return less_real_inplace(local, left2, right2);
 }
 static int check_range(addr right)
 {

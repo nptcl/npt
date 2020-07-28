@@ -803,7 +803,7 @@ normal:
 #else
 static int length_char_windows(struct filememory *fm, unicode c)
 {
-	fmte("This implementation cannot use a windows encode.", NULL);
+	/* return fmte_("This implementation cannot use a windows encode.", NULL); */
 	return -1;
 }
 #endif

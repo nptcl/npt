@@ -65,7 +65,7 @@ _g int multi_rational_complex_common_(LocalRoot local, addr left, addr right, ad
 		GetImagComplex(right, &imag);
 		multi_rational_common(local, left, real, &real);
 		multi_rational_common(local, left, imag, &imag);
-		complex_heap(ret, real, imag);
+		return complex_heap_(ret, real, imag);
 	}
 
 	return 0;
@@ -128,7 +128,7 @@ _g int multi_lc_number_common_(addr left, addr right, addr *ret)
 	return 0;
 }
 
-static void multi_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+static int multi_cc_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b, c, d, ac, bd, ad, bc;
@@ -147,8 +147,10 @@ static void multi_cc_rational_common(LocalRoot local, addr left, addr right, add
 	multi_rational_local(local, b, c, &bc);
 	minus_rational_local(local, ac, bd, &a);
 	plus_rational_local(local, ad, bc, &b);
-	complex_heap(ret, a, b);
+	Return(complex_heap_(ret, a, b));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 _g int multi_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
@@ -190,8 +192,7 @@ _g int multi_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret
 			break;
 
 		case MathType_rational:
-			multi_cc_rational_common(local, left, right, ret);
-			break;
+			return multi_cc_rational_common_(local, left, right, ret);
 
 		case MathType_complex:
 		case MathType_error:
@@ -209,13 +210,15 @@ _g int multi_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret
  */
 static int inverse_complex_rational_(LocalRoot local, addr pos, addr *ret)
 {
+	int check;
 	LocalStack stack;
 	addr a, b, a2, b2, ab;
 
 	/* Re:  a/(a*a + b*b)
 	 * Im: -b/(a*a + b*b)
 	 */
-	if (zerop_complex(pos))
+	Return(zerop_complex_(pos, &check));
+	if (check)
 		return call_division_by_zero1_(Execute_Thread, pos);
 	GetRealComplex(pos, &a);
 	GetImagComplex(pos, &b);
@@ -226,7 +229,7 @@ static int inverse_complex_rational_(LocalRoot local, addr pos, addr *ret)
 	div_rational_local(local, a, ab, &a);
 	div_rational_local(local, b, ab, &b);
 	sign_reverse_rational_local(local, b, &b);
-	complex_heap(ret, a, b);
+	Return(complex_heap_(ret, a, b));
 	rollback_local(local, stack);
 
 	return 0;
@@ -388,7 +391,8 @@ _g int div_rational_complex_common_(LocalRoot local, addr left, addr right, addr
 	CheckLocal(local);
 	Check(! rationalp(left), "type error");
 	CheckType(right, LISPTYPE_COMPLEX);
-	if (zerop_complex(right))
+	Return(zerop_complex_(right, &check));
+	if (check)
 		return call_division_by_zero2_(Execute_Thread, left, right);
 	Return(div_real_complex_(left, right, ret, &check));
 	if (check) {
@@ -403,7 +407,7 @@ _g int div_rational_complex_common_(LocalRoot local, addr left, addr right, addr
 		div_rational_local(local, a, ab, &a);
 		div_rational_local(local, b, ab, &b);
 		sign_reverse_rational_local(local, b, &b);
-		complex_heap(ret, a, b);
+		Return(complex_heap_(ret, a, b));
 		rollback_local(local, stack);
 	}
 
@@ -431,7 +435,7 @@ _g int div_complex_rational_common_(LocalRoot local, addr left, addr right, addr
 		push_local(local, &stack);
 		div_rational_local(local, a, right, &a);
 		div_rational_local(local, b, right, &b);
-		complex_heap(ret, a, b);
+		Return(complex_heap_(ret, a, b));
 		rollback_local(local, stack);
 	}
 
@@ -552,7 +556,7 @@ _g int div_cl_number_common_(addr left, addr right, addr *ret)
 	return 0;
 }
 
-static void div_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+static int div_cc_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b, c, d, ac, bd, bc, ad, c2, d2;
@@ -580,8 +584,10 @@ static void div_cc_rational_common(LocalRoot local, addr left, addr right, addr 
 	plus_rational_local(local, c2, d2, &c2);
 	div_rational_local(local, ac, c2, &ac);
 	div_rational_local(local, bc, c2, &bc);
-	complex_heap(ret, ac, bc);
+	Return(complex_heap_(ret, ac, bc));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 _g int div_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
@@ -635,8 +641,7 @@ _g int div_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 			break;
 
 		case MathType_rational:
-			div_cc_rational_common(local, left, right, ret);
-			break;
+			return div_cc_rational_common_(local, left, right, ret);
 
 		case MathType_complex:
 		case MathType_error:

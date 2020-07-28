@@ -412,7 +412,7 @@ static int lisp_argv_load_(Execute ptr, lispstringu name, int error, int *ret)
 	addr file;
 
 	if (lispstringu_heap(&file, name))
-		fmte("Invalid filename.", NULL);
+		return fmte_("Invalid filename.", NULL);
 	Return(pathname_designer_heap_(ptr, file, &file));
 	return eval_main_load_(ptr, file, error, ret);
 }
@@ -423,11 +423,11 @@ static int lisp_argv_script_(Execute ptr, lispstringu name)
 
 	/* open */
 	if (lispstringu_heap(&file, name))
-		fmte("Invalid filename.", NULL);
+		return fmte_("Invalid filename.", NULL);
 	Return(pathname_designer_heap_(ptr, file, &file));
 	Return(open_input_utf8_stream_(ptr, &stream, file));
 	if (stream == NULL)
-		fmte("Cannot open file ~S.", file, NULL);
+		return fmte_("Cannot open file ~S.", file, NULL);
 	script_header(stream);
 	/* load */
 	return eval_main_load_(ptr, stream, 1, NULL);
@@ -441,7 +441,7 @@ static int lisp_argv_file_load_(Execute ptr, int *ret, const char *name)
 
 	file = char_stringu(name);
 	if (file == NULL)
-		fmte("char_stringu error.", NULL);
+		return fmte_("char_stringu error.", NULL);
 	check = lisp_argv_load_(ptr, file, 0, ret);
 	free_stringu(file);
 
@@ -466,7 +466,7 @@ static int lisp_argv_file_env_(Execute ptr, lisptableu env, int *ret,
 	/* load */
 	file = concatchar_stringu(value, name);
 	if (file == NULL)
-		fmte("concatchar_stringu error.", NULL);
+		return fmte_("concatchar_stringu error.", NULL);
 	check = lisp_argv_load_(ptr, file, 0, ret);
 	free_stringu(file);
 
@@ -523,7 +523,7 @@ static int lisp_argv_eval_(Execute ptr, lispstringu str)
 	addr pos;
 
 	if (lispstringu_heap(&pos, str))
-		fmte("Invalid eval string.", NULL);
+		return fmte_("Invalid eval string.", NULL);
 	return eval_main_string_(ptr, pos);
 }
 
@@ -551,8 +551,7 @@ static int lisp_argv_inputs_(Execute ptr, struct lispargv *argv)
 				continue;
 
 			default:
-				fmte("Invalid input type.", NULL);
-				return 0;
+				return fmte_("Invalid input type.", NULL);
 		}
 	}
 

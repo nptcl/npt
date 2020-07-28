@@ -320,22 +320,22 @@ static int test_rational_float_single_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	rational_float_single_local(local, 0.0f, &pos);
+	rational_float_single_local_(local, 0.0f, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_single_local1");
 	test(RefFixnum(pos) == 0, "rational_float_single_local2");
 	test(GetStatusDynamic(pos), "rational_float_single_local3");
 
-	rational_float_single_local(local, -1.0f, &pos);
+	rational_float_single_local_(local, -1.0f, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_single_local4");
 	test(RefFixnum(pos) == -1, "rational_float_single_local5");
 	test(GetStatusDynamic(pos), "rational_float_single_local6");
 
-	rational_float_single_local(local, 2.0f, &pos);
+	rational_float_single_local_(local, 2.0f, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_single_local7");
 	test(RefFixnum(pos) == 2, "rational_float_single_local8");
 	test(GetStatusDynamic(pos), "rational_float_single_local9");
 
-	rational_float_single_local(local, -0.125f, &pos);
+	rational_float_single_local_(local, -0.125f, &pos);
 	test(GetType(pos) == LISPTYPE_RATIO, "rational_float_single_local10");
 	test(IsMinus(RefSignRatio(pos)), "rational_float_single_local11");
 	test(GetStatusDynamic(pos), "rational_float_single_local12");
@@ -362,22 +362,22 @@ static int test_rational_float_double_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	rational_float_double_local(local, 0.0, &pos);
+	rational_float_double_local_(local, 0.0, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_double_local1");
 	test(RefFixnum(pos) == 0, "rational_float_double_local2");
 	test(GetStatusDynamic(pos), "rational_float_double_local3");
 
-	rational_float_double_local(local, -1.0, &pos);
+	rational_float_double_local_(local, -1.0, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_double_local4");
 	test(RefFixnum(pos) == -1, "rational_float_double_local5");
 	test(GetStatusDynamic(pos), "rational_float_double_local6");
 
-	rational_float_double_local(local, 2.0, &pos);
+	rational_float_double_local_(local, 2.0, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_double_local7");
 	test(RefFixnum(pos) == 2, "rational_float_double_local8");
 	test(GetStatusDynamic(pos), "rational_float_double_local9");
 
-	rational_float_double_local(local, -0.125, &pos);
+	rational_float_double_local_(local, -0.125, &pos);
 	test(GetType(pos) == LISPTYPE_RATIO, "rational_float_double_local10");
 	test(IsMinus(RefSignRatio(pos)), "rational_float_double_local11");
 	test(GetStatusDynamic(pos), "rational_float_double_local12");
@@ -404,22 +404,22 @@ static int test_rational_float_long_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	rational_float_long_local(local, 0.0, &pos);
+	rational_float_long_local_(local, 0.0, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_long_local1");
 	test(RefFixnum(pos) == 0, "rational_float_long_local2");
 	test(GetStatusDynamic(pos), "rational_float_long_local3");
 
-	rational_float_long_local(local, -1.0, &pos);
+	rational_float_long_local_(local, -1.0, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_long_local4");
 	test(RefFixnum(pos) == -1, "rational_float_long_local5");
 	test(GetStatusDynamic(pos), "rational_float_long_local6");
 
-	rational_float_long_local(local, 2.0, &pos);
+	rational_float_long_local_(local, 2.0, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_float_long_local7");
 	test(RefFixnum(pos) == 2, "rational_float_long_local8");
 	test(GetStatusDynamic(pos), "rational_float_long_local9");
 
-	rational_float_long_local(local, -0.125, &pos);
+	rational_float_long_local_(local, -0.125, &pos);
 	test(GetType(pos) == LISPTYPE_RATIO, "rational_float_long_local10");
 	test(IsMinus(RefSignRatio(pos)), "rational_float_long_local11");
 	test(GetStatusDynamic(pos), "rational_float_long_local12");
@@ -473,6 +473,7 @@ static int test_equal_ratio_type(void)
 
 static int test_equal_rs_real(void)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr numer, denom, left, right;
@@ -485,13 +486,16 @@ static int test_equal_rs_real(void)
 	ratio_reduction_nocopy_local(local, &left, SignPlus, numer, denom);
 
 	single_float_local(local, &right, 0.25f);
-	test(equal_rs_real(local, left, right), "equal_rs_real1");
+	Error(equal_rs_real_(local, left, right, &check));
+	test(check, "equal_rs_real1");
 
 	single_float_local(local, &right, -0.25f);
-	test(! equal_rs_real(local, left, right), "equal_rs_real2");
+	Error(equal_rs_real_(local, left, right, &check));
+	test(! check, "equal_rs_real2");
 
 	single_float_local(local, &right, 11.22f);
-	test(! equal_rs_real(local, left, right), "equal_rs_real3");
+	Error(equal_rs_real_(local, left, right, &check));
+	test(! check, "equal_rs_real3");
 
 	rollback_local(local, stack);
 
@@ -500,6 +504,7 @@ static int test_equal_rs_real(void)
 
 static int test_equal_rd_real(void)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr numer, denom, left, right;
@@ -512,13 +517,16 @@ static int test_equal_rd_real(void)
 	ratio_reduction_nocopy_local(local, &left, SignPlus, numer, denom);
 
 	double_float_local(local, &right, 0.25);
-	test(equal_rd_real(local, left, right), "equal_rd_real1");
+	Error(equal_rd_real_(local, left, right, &check));
+	test(check, "equal_rd_real1");
 
 	double_float_local(local, &right, -0.25);
-	test(! equal_rd_real(local, left, right), "equal_rd_real2");
+	Error(equal_rd_real_(local, left, right, &check));
+	test(! check, "equal_rd_real2");
 
 	double_float_local(local, &right, 11.22);
-	test(! equal_rd_real(local, left, right), "equal_rd_real3");
+	Error(equal_rd_real_(local, left, right, &check));
+	test(! check, "equal_rd_real3");
 
 	rollback_local(local, stack);
 
@@ -527,6 +535,7 @@ static int test_equal_rd_real(void)
 
 static int test_equal_rl_real(void)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr numer, denom, left, right;
@@ -539,13 +548,16 @@ static int test_equal_rl_real(void)
 	ratio_reduction_nocopy_local(local, &left, SignPlus, numer, denom);
 
 	long_float_local(local, &right, 0.25L);
-	test(equal_rl_real(local, left, right), "equal_rl_real1");
+	Error(equal_rl_real_(local, left, right, &check));
+	test(check, "equal_rl_real1");
 
 	long_float_local(local, &right, -0.25L);
-	test(! equal_rl_real(local, left, right), "equal_rl_real2");
+	Error(equal_rl_real_(local, left, right, &check));
+	test(! check, "equal_rl_real2");
 
 	long_float_local(local, &right, 11.22L);
-	test(! equal_rl_real(local, left, right), "equal_rl_real3");
+	Error(equal_rl_real_(local, left, right, &check));
+	test(! check, "equal_rl_real3");
 
 	rollback_local(local, stack);
 
@@ -1017,15 +1029,15 @@ static int test_compare_rs_real(void)
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &left, SignPlus, numer, denom);
 	single_float_local(local, &right, 5.0f);
-	check = compare_rs_real(local, left, right);
+	Error(compare_rs_real_(local, left, right, &check));
 	test(check > 0, "compare_rs_real1");
 
 	single_float_local(local, &right, 5.2f);
-	check = compare_rs_real(local, left, right);
+	Error(compare_rs_real_(local, left, right, &check));
 	test(check < 0, "compare_rs_real2");
 
 	single_float_local(local, &right, -5.2f);
-	check = compare_rs_real(local, left, right);
+	Error(compare_rs_real_(local, left, right, &check));
 	test(check > 0, "compare_rs_real3");
 
 	rollback_local(local, stack);
@@ -1047,15 +1059,15 @@ static int test_compare_rd_real(void)
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &left, SignPlus, numer, denom);
 	double_float_local(local, &right, 5.0);
-	check = compare_rd_real(local, left, right);
+	Error(compare_rd_real_(local, left, right, &check));
 	test(check > 0, "compare_rd_real1");
 
 	double_float_local(local, &right, 5.2);
-	check = compare_rd_real(local, left, right);
+	Error(compare_rd_real_(local, left, right, &check));
 	test(check < 0, "compare_rd_real2");
 
 	double_float_local(local, &right, -5.2);
-	check = compare_rd_real(local, left, right);
+	Error(compare_rd_real_(local, left, right, &check));
 	test(check > 0, "compare_rd_real3");
 
 	rollback_local(local, stack);
@@ -1077,15 +1089,15 @@ static int test_compare_rl_real(void)
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &left, SignPlus, numer, denom);
 	long_float_local(local, &right, 5.0L);
-	check = compare_rl_real(local, left, right);
+	Error(compare_rl_real_(local, left, right, &check));
 	test(check > 0, "compare_rl_real1");
 
 	long_float_local(local, &right, 5.2L);
-	check = compare_rl_real(local, left, right);
+	Error(compare_rl_real_(local, left, right, &check));
 	test(check < 0, "compare_rl_real2");
 
 	long_float_local(local, &right, -5.2L);
-	check = compare_rl_real(local, left, right);
+	Error(compare_rl_real_(local, left, right, &check));
 	test(check > 0, "compare_rl_real3");
 
 	rollback_local(local, stack);
@@ -1107,7 +1119,7 @@ static int test_compare_sr_real(void)
 	bignum_value_local(local, &numer, SignPlus, 51);
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &right, SignPlus, numer, denom);
-	check = compare_sr_real(local, left, right);
+	Error(compare_sr_real_(local, left, right, &check));
 	test(check < 0, "compare_sr_real1");
 
 	rollback_local(local, stack);
@@ -1129,7 +1141,7 @@ static int test_compare_dr_real(void)
 	bignum_value_local(local, &numer, SignPlus, 51);
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &right, SignPlus, numer, denom);
-	check = compare_dr_real(local, left, right);
+	Error(compare_dr_real_(local, left, right, &check));
 	test(check < 0, "compare_dr_real1");
 
 	rollback_local(local, stack);
@@ -1151,7 +1163,7 @@ static int test_compare_lr_real(void)
 	bignum_value_local(local, &numer, SignPlus, 51);
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &right, SignPlus, numer, denom);
-	check = compare_lr_real(local, left, right);
+	Error(compare_lr_real_(local, left, right, &check));
 	test(check < 0, "compare_lr_real1");
 
 	rollback_local(local, stack);

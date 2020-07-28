@@ -476,7 +476,7 @@ _g int atan_optional_common_(addr var, addr opt, addr *ret)
 /*
  *  log
  */
-static void log_natural_complex(addr value, addr *ret)
+static int log_natural_complex_(addr value, addr *ret)
 {
 	single_float reals, imags;
 	double_float reald, imagd;
@@ -486,28 +486,30 @@ static void log_natural_complex(addr value, addr *ret)
 	switch (GetTypeComplex(value)) {
 		case ComplexType_rational:
 		case ComplexType_single:
-			single_float_complex(value, &reals, &imags);
+			Return(single_float_complex_(value, &reals, &imags));
 			clog_f(reals, imags, &reals, &imags);
 			complex_single_heap(ret, reals, imags);
 			break;
 
 		case ComplexType_double:
-			double_float_complex(value, &reald, &imagd);
+			Return(double_float_complex_(value, &reald, &imagd));
 			clog_d(reald, imagd, &reald, &imagd);
 			complex_double_heap(ret, reald, imagd);
 			break;
 
 		case ComplexType_long:
-			long_float_complex(value, &reall, &imagl);
+			Return(long_float_complex_(value, &reall, &imagl));
 			clog_l(reall, imagl, &reall, &imagl);
 			complex_long_heap(ret, reall, imagl);
 			break;
 
 		case ComplexType_error:
 		default:
-			TypeError(value, COMPLEX);
-			return;
+			*ret = Nil;
+			return TypeError_(value, COMPLEX);
 	}
+
+	return 0;
 }
 
 _g int log_natural_common_(addr value, addr *ret)
@@ -536,8 +538,7 @@ _g int log_natural_common_(addr value, addr *ret)
 			break;
 
 		case MathType_complex:
-			log_natural_complex(value, ret);
-			break;
+			return log_natural_complex_(value, ret);
 
 		case MathType_rational:
 		case MathType_error:
@@ -597,60 +598,65 @@ _g int log_common_(addr value, addr base, addr *ret)
 /*
  *  phase
  */
-_g void phase_common(addr pos, addr *ret)
+static int phase_complex_common_(addr pos, addr *ret)
 {
 	single_float sr, si;
 	double_float dr, di;
 	long_float lr, li;
 
-	/* real */
+	CheckType(pos, LISPTYPE_COMPLEX);
+	switch (GetTypeComplex(pos)) {
+		case ComplexType_rational:
+		case ComplexType_single:
+			Return(single_float_complex_(pos, &sr, &si));
+			single_float_heap(ret, atan2f(si, sr));
+			break;
+
+		case ComplexType_double:
+			Return(double_float_complex_(pos, &dr, &di));
+			double_float_heap(ret, atan2(di, dr));
+			break;
+
+		case ComplexType_long:
+			Return(long_float_complex_(pos, &lr, &li));
+			long_float_heap(ret, atan2l(li, lr));
+			break;
+
+		case ComplexType_error:
+		default:
+			*ret = Nil;
+			return TypeError_(pos, COMPLEX);
+	}
+
+	return 0;
+}
+
+_g int phase_common_(addr pos, addr *ret)
+{
 	switch (GetType(pos)) {
 		case LISPTYPE_COMPLEX:
-			break;
+			return phase_complex_common_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
 		case LISPTYPE_SINGLE_FLOAT:
 			single_float_heap(ret, 0.0f);
-			return;
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			double_float_heap(ret, 0.0);
-			return;
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
 			long_float_heap(ret, 0.0L);
-			return;
+			break;
 
 		default:
-			TypeError(pos, NUMBER);
-			*ret = 0;
-			return;
+			*ret = Nil;
+			return TypeError_(pos, NUMBER);
 	}
 
-	/* complex */
-	switch (GetTypeComplex(pos)) {
-		case ComplexType_rational:
-		case ComplexType_single:
-			single_float_complex(pos, &sr, &si);
-			single_float_heap(ret, atan2f(si, sr));
-			break;
-
-		case ComplexType_double:
-			double_float_complex(pos, &dr, &di);
-			double_float_heap(ret, atan2(di, dr));
-			break;
-
-		case ComplexType_long:
-			long_float_complex(pos, &lr, &li);
-			long_float_heap(ret, atan2l(li, lr));
-			break;
-
-		case ComplexType_error:
-		default:
-			TypeError(pos, COMPLEX);
-			break;
-	}
+	return 0;
 }
 

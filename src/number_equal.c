@@ -8,289 +8,352 @@
 #include "ratio_equal.h"
 #include "typedef.h"
 
-_g int zerop_number(addr pos)
+_g int zerop_number_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return zerop_fixnum(pos);
+			*ret = zerop_fixnum(pos);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return zerop_bignum(pos);
+			*ret = zerop_bignum(pos);
+			break;
 
 		case LISPTYPE_RATIO:
-			return zerop_ratio(pos);
+			*ret = zerop_ratio(pos);
+			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return zerop_single_float(pos);
+			*ret = zerop_single_float(pos);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return zerop_double_float(pos);
+			*ret = zerop_double_float(pos);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return zerop_long_float(pos);
+			*ret = zerop_long_float(pos);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return zerop_complex(pos);
+			return zerop_complex_(pos, ret);
 
 		default:
-			TypeError(pos, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(pos, NUMBER);
 	}
+
 	return 0;
 }
 
-static int equal_fixnum_number(addr left, addr right)
+static int equal_fixnum_number_(addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_ff_real(left, right);
+			*ret = equal_ff_real(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_fb_real(left, right);
+			*ret = equal_fb_real(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_fr_real(left, right);
+			*ret = equal_fr_real(left, right);
+			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_fs_real(left, right);
+			*ret = equal_fs_real(left, right);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_fd_real(left, right);
+			*ret = equal_fd_real(left, right);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_fl_real(left, right);
+			*ret = equal_fl_real(left, right);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return equal_fc_number(left, right);
+			*ret = equal_fc_number(left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-static int equal_bignum_number(addr left, addr right)
+static int equal_bignum_number_(addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_bf_real(left, right);
+			*ret = equal_bf_real(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_bb_real(left, right);
+			*ret = equal_bb_real(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_br_real(left, right);
+			*ret = equal_br_real(left, right);
+			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_bs_real(left, right);
+			*ret = equal_bs_real(left, right);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_bd_real(left, right);
+			*ret = equal_bd_real(left, right);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_bl_real(left, right);
+			*ret = equal_bl_real(left, right);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return equal_bc_number(left, right);
+			*ret = equal_bc_number(left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-_g int equal_ratio_number(LocalRoot local, addr left, addr right)
+static int equal_ratio_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_rf_real(left, right);
+			*ret = equal_rf_real(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_rb_real(left, right);
+			*ret = equal_rb_real(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_rr_real(left, right);
+			*ret = equal_rr_real(left, right);
+			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_rs_real(local, left, right);
+			return equal_rs_real_(local, left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_rd_real(local, left, right);
+			return equal_rd_real_(local, left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_rl_real(local, left, right);
+			return equal_rl_real_(local, left, right, ret);
 
 		case LISPTYPE_COMPLEX:
-			return equal_rc_number(local, left, right);
+			*ret = equal_rc_number(local, left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-static int equal_single_float_number(LocalRoot local, addr left, addr right)
+static int equal_single_float_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_sf_real(left, right);
+			*ret = equal_sf_real(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_sb_real(left, right);
+			*ret = equal_sb_real(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_sr_real(local, left, right);
+			return equal_sr_real_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_ss_real(left, right);
+			*ret = equal_ss_real(left, right);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_sd_real(left, right);
+			*ret = equal_sd_real(left, right);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_sl_real(left, right);
+			*ret = equal_sl_real(left, right);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return equal_sc_number(local, left, right);
+			*ret = equal_sc_number(local, left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-static int equal_double_float_number(LocalRoot local, addr left, addr right)
+static int equal_double_float_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_df_real(left, right);
+			*ret = equal_df_real(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_db_real(left, right);
+			*ret = equal_db_real(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_dr_real(local, left, right);
+			return equal_dr_real_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_ds_real(left, right);
+			*ret = equal_ds_real(left, right);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_dd_real(left, right);
+			*ret = equal_dd_real(left, right);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_dl_real(left, right);
+			*ret = equal_dl_real(left, right);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return equal_dc_number(local, left, right);
+			*ret = equal_dc_number(local, left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-static int equal_long_float_number(LocalRoot local, addr left, addr right)
+static int equal_long_float_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_lf_real(left, right);
+			*ret = equal_lf_real(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_lb_real(left, right);
+			*ret = equal_lb_real(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_lr_real(local, left, right);
+			return equal_lr_real_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_ls_real(left, right);
+			*ret = equal_ls_real(left, right);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_ld_real(left, right);
+			*ret = equal_ld_real(left, right);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_ll_real(left, right);
+			*ret = equal_ll_real(left, right);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return equal_lc_number(local, left, right);
+			*ret = equal_lc_number(local, left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-static int equal_complex_number(LocalRoot local, addr left, addr right)
+static int equal_complex_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_cf_number(left, right);
+			*ret = equal_cf_number(left, right);
+			break;
 
 		case LISPTYPE_BIGNUM:
-			return equal_cb_number(left, right);
+			*ret = equal_cb_number(left, right);
+			break;
 
 		case LISPTYPE_RATIO:
-			return equal_cr_number(local, left, right);
+			*ret = equal_cr_number(local, left, right);
+			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_cs_number(local, left, right);
+			*ret = equal_cs_number(local, left, right);
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_cd_number(local, left, right);
+			*ret = equal_cd_number(local, left, right);
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_cl_number(local, left, right);
+			*ret = equal_cl_number(local, left, right);
+			break;
 
 		case LISPTYPE_COMPLEX:
-			return equal_complex(local, left, right);
+			*ret = equal_complex(local, left, right);
+			break;
 
 		default:
-			TypeError(right, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(right, NUMBER);
 	}
+
 	return 0;
 }
 
-_g int equal_number(LocalRoot local, addr left, addr right)
+_g int equal_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			return equal_fixnum_number(left, right);
+			return equal_fixnum_number_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			return equal_bignum_number(left, right);
+			return equal_bignum_number_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			return equal_ratio_number(local, left, right);
+			return equal_ratio_number_(local, left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return equal_single_float_number(local, left, right);
+			return equal_single_float_number_(local, left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return equal_double_float_number(local, left, right);
+			return equal_double_float_number_(local, left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			return equal_long_float_number(local, left, right);
+			return equal_long_float_number_(local, left, right, ret);
 
 		case LISPTYPE_COMPLEX:
-			return equal_complex_number(local, left, right);
+			return equal_complex_number_(local, left, right, ret);
 
 		default:
-			TypeError(left, NUMBER);
-			break;
+			*ret = 0;
+			return TypeError_(left, NUMBER);
 	}
-	return 0;
+}
+
+_g int not_equal_number_(LocalRoot local, addr left, addr right, int *ret)
+{
+	int check;
+	Return(equal_number_(local, left, right, &check));
+	return Result(ret, ! check);
 }
 

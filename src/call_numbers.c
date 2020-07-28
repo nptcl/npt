@@ -7,6 +7,7 @@
 #include "cons_plist.h"
 #include "integer.h"
 #include "number.h"
+#include "number_equal.h"
 #include "number_multi.h"
 #include "number_random.h"
 #include "number_plus.h"
@@ -22,11 +23,13 @@
  */
 _g int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
+	int check;
 	addr right;
 
 	for (; rest != Nil; left = right) {
 		Return_getcons(rest, &right, &rest);
-		if (! equal_number(local, left, right))
+		Return(equal_number_(local, left, right, &check));
+		if (! check)
 			return Result(ret, 0);
 	}
 
@@ -39,12 +42,14 @@ _g int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
  */
 _g int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
+	int check;
 	addr right, list;
 
 	while (rest != Nil) {
 		for (list = rest; list != Nil; ) {
 			Return_getcons(list, &right, &list);
-			if (equal_number(local, left, right))
+			Return(equal_number_(local, left, right, &check));
+			if (check)
 				return Result(ret, 0);
 		}
 		Return_getcons(rest, &left, &rest);
@@ -59,11 +64,13 @@ _g int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
  */
 _g int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
 {
+	int check;
 	addr right;
 
 	for (; rest != Nil; left = right) {
 		Return_getcons(rest, &right, &rest);
-		if (! less_number(local, left, right))
+		Return(less_number_(local, left, right, &check));
+		if (! check)
 			return Result(ret, 0);
 	}
 
@@ -76,11 +83,13 @@ _g int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
  */
 _g int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
 {
+	int check;
 	addr right;
 
 	for (; rest != Nil; left = right) {
 		Return_getcons(rest, &right, &rest);
-		if (! greater_number(local, left, right))
+		Return(greater_number_(local, left, right, &check));
+		if (! check)
 			return Result(ret, 0);
 	}
 
@@ -93,11 +102,13 @@ _g int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
  */
 _g int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
+	int check;
 	addr right;
 
 	for (; rest != Nil; left = right) {
 		Return_getcons(rest, &right, &rest);
-		if (! less_equal_number(local, left, right))
+		Return(less_equal_number_(local, left, right, &check));
+		if (! check)
 			return Result(ret, 0);
 	}
 
@@ -110,11 +121,13 @@ _g int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
  */
 _g int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
+	int check;
 	addr right;
 
 	for (; rest != Nil; left = right) {
 		Return_getcons(rest, &right, &rest);
-		if (! greater_equal_number(local, left, right))
+		Return(greater_equal_number_(local, left, right, &check));
+		if (! check)
 			return Result(ret, 0);
 	}
 
@@ -127,11 +140,13 @@ _g int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *r
  */
 _g int max_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
+	int check;
 	addr right;
 
 	while (rest != Nil) {
 		Return_getcons(rest, &right, &rest);
-		if (less_number(local, left, right))
+		Return(less_number_(local, left, right, &check));
+		if (check)
 			left = right;
 	}
 
@@ -144,11 +159,13 @@ _g int max_common(LocalRoot local, addr left, addr rest, addr *ret)
  */
 _g int min_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
+	int check;
 	addr right;
 
 	while (rest != Nil) {
 		Return_getcons(rest, &right, &rest);
-		if (greater_number(local, left, right))
+		Return(greater_number_(local, left, right, &check));
+		if (check)
 			left = right;
 	}
 
@@ -423,7 +440,7 @@ _g int conjugate_common(addr var, addr *ret)
 		GetRealComplex(var, &real);
 		GetImagComplex(var, &imag);
 		sign_reverse_real_common(imag, &imag);
-		complex_heap(ret, real, imag);
+		Return(complex_heap_(ret, real, imag));
 		return 0;
 	}
 	if (realp(var))

@@ -222,10 +222,10 @@ static int test_eql_function(void)
 	long_float_local(local, &right, -5.2L);
 	test(! eql_function(left, right), "eql_function17");
 
-	complex_local(local, &left, fixnuml(10), fixnuml(-20));
-	complex_local(local, &right, fixnuml(10), fixnuml(-20));
+	complex_local_(local, &left, fixnuml(10), fixnuml(-20));
+	complex_local_(local, &right, fixnuml(10), fixnuml(-20));
 	test(eql_function(left, right), "eql_function18");
-	complex_local(local, &right, fixnuml(10), fixnuml(20));
+	complex_local_(local, &right, fixnuml(10), fixnuml(20));
 	test(! eql_function(left, right), "eql_function19");
 
 	character_local(local, &left, 'A');

@@ -8,6 +8,8 @@ checkerr()
 	fi
 }
 
+rm -f result.txt check/result.txt > /dev/null 2>&1
+
 cd $(dirname $0)
 checkerr "cd error"
 

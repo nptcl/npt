@@ -5,16 +5,17 @@
 #include "real_equal.h"
 #include "typedef.h"
 
-#define plusp_number plusp_real
-#define minusp_number minusp_real
-_g int zerop_number(addr left);
-_g int equal_number(LocalRoot local, addr left, addr right);
-#define not_equal_number(m,a,b) (! equal_number((m),(a),(b)))
-#define compare_number compare_real
-#define less_number less_real
-#define greater_number greater_real
-#define less_equal_number less_equal_real
-#define greater_equal_number greater_equal_real
+#define plusp_number_ plusp_real_
+#define minusp_number_ minusp_real_
+_g int zerop_number_(addr left, int *ret);
+_g int equal_number_(LocalRoot local, addr left, addr right, int *ret);
+_g int not_equal_number_(LocalRoot local, addr left, addr right, int *ret);
+
+#define compare_number_ compare_real_
+#define less_number_ less_real_
+#define greater_number_ greater_real_
+#define less_equal_number_ less_equal_real_
+#define greater_equal_number_ greater_equal_real_
 
 #endif
 

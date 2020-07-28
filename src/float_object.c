@@ -702,7 +702,7 @@ _g void cast_float_heap(addr left, addr *ret)
 /*
  *  sqrt
  */
-_g void sqrt_single_float_alloc(LocalRoot local, addr left, addr *ret)
+static int sqrt_single_float_alloc_(LocalRoot local, addr left, addr *ret)
 {
 	addr zero;
 	single_float value;
@@ -711,14 +711,15 @@ _g void sqrt_single_float_alloc(LocalRoot local, addr left, addr *ret)
 	if (value < 0) {
 		single_float_alloc(local, &zero, 0.0f);
 		single_float_alloc(local, &left, sqrtf(-value));
-		complex_alloc(local, ret, zero, left);
+		return complex_alloc_(local, ret, zero, left);
 	}
 	else {
 		single_float_alloc(local, ret, sqrtf(value));
+		return 0;
 	}
 }
 
-_g void sqrt_double_float_alloc(LocalRoot local, addr left, addr *ret)
+static int sqrt_double_float_alloc_(LocalRoot local, addr left, addr *ret)
 {
 	addr zero;
 	double_float value;
@@ -727,14 +728,15 @@ _g void sqrt_double_float_alloc(LocalRoot local, addr left, addr *ret)
 	if (value < 0) {
 		double_float_alloc(local, &zero, 0.0);
 		double_float_alloc(local, &left, sqrt(-value));
-		complex_alloc(local, ret, zero, left);
+		return complex_alloc_(local, ret, zero, left);
 	}
 	else {
 		double_float_alloc(local, ret, sqrt(value));
+		return 0;
 	}
 }
 
-_g void sqrt_long_float_alloc(LocalRoot local, addr left, addr *ret)
+static int sqrt_long_float_alloc_(LocalRoot local, addr left, addr *ret)
 {
 	addr zero;
 	long_float value;
@@ -743,42 +745,40 @@ _g void sqrt_long_float_alloc(LocalRoot local, addr left, addr *ret)
 	if (value < 0) {
 		long_float_alloc(local, &zero, 0.0L);
 		long_float_alloc(local, &left, sqrtl(-value));
-		complex_alloc(local, ret, zero, left);
+		return complex_alloc_(local, ret, zero, left);
 	}
 	else {
 		long_float_alloc(local, ret, sqrtl(value));
+		return 0;
 	}
 }
 
-_g void sqrt_float_alloc(LocalRoot local, addr left, addr *ret)
+_g int sqrt_float_alloc_(LocalRoot local, addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			sqrt_single_float_alloc(local, left, ret);
-			break;
+			return sqrt_single_float_alloc_(local, left, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			sqrt_double_float_alloc(local, left, ret);
-			break;
+			return sqrt_double_float_alloc_(local, left, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			sqrt_long_float_alloc(local, left, ret);
-			break;
+			return sqrt_long_float_alloc_(local, left, ret);
 
 		default:
-			TypeError(left, FLOAT);
-			break;
+			*ret = Nil;
+			return TypeError_(left, FLOAT);
 	}
 }
 
-_g void sqrt_float_local(LocalRoot local, addr left, addr *ret)
+_g int sqrt_float_local_(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
-	sqrt_float_alloc(local, left, ret);
+	return sqrt_float_alloc_(local, left, ret);
 }
 
-_g void sqrt_float_heap(LocalRoot local, addr left, addr *ret)
+_g int sqrt_float_heap_(LocalRoot local, addr left, addr *ret)
 {
-	sqrt_float_alloc(NULL, left, ret);
+	return sqrt_float_alloc_(NULL, left, ret);
 }
 

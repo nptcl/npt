@@ -1549,7 +1549,7 @@ static int test_typep_complex(void)
 
 	double_float_heap(&real, 10.0);
 	double_float_heap(&imag, 20.0);
-	complex_heap(&v, real, imag);
+	complex_heap_(&v, real, imag);
 	test(typep_char(v, "complex"), "typep_complex1");
 
 	test(typep_char(v, "(complex double-float)"), "typep_complex2");
@@ -1728,8 +1728,8 @@ static int test_less_real(addr mode, fixnum left, fixnum right)
 	return less_mode_local(Local_Thread, mode,
 			fixnumh(left),
 			fixnumh(right),
-			less_real_clang,
-			less_equal_real_clang);
+			less_real_inplace,
+			less_equal_real_inplace);
 }
 
 static int test_less_mode_local(void)

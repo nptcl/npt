@@ -106,9 +106,9 @@ _g void cast_float_alloc(LocalRoot local, addr left, addr *ret);
 _g void cast_float_local(LocalRoot local, addr left, addr *ret);
 _g void cast_float_heap(addr left, addr *ret);
 
-_g void sqrt_float_alloc(LocalRoot local, addr left, addr *ret);
-_g void sqrt_float_local(LocalRoot local, addr left, addr *ret);
-_g void sqrt_float_heap(LocalRoot local, addr left, addr *ret);
+_g int sqrt_float_alloc_(LocalRoot local, addr left, addr *ret);
+_g int sqrt_float_local_(LocalRoot local, addr left, addr *ret);
+_g int sqrt_float_heap_(LocalRoot local, addr left, addr *ret);
 
 #endif
 

@@ -23,7 +23,7 @@ _g int atan_optional_common_(addr var, addr opt, addr *ret);
 _g int log_natural_common_(addr value, addr *ret);
 _g int log_base_common_(addr value, addr base, addr *ret);
 _g int log_common_(addr value, addr base, addr *ret);
-_g void phase_common(addr pos, addr *ret);
+_g int phase_common_(addr pos, addr *ret);
 
 #endif
 

@@ -105,20 +105,13 @@ static void complex_unsafe_alloc(LocalRoot local, addr *ret,
 	*ret = pos;
 }
 
-static void complex_unsafe_local(LocalRoot local, addr *ret,
-		addr real, addr imag, enum ComplexType type)
-{
-	Check(local == NULL, "local error");
-	complex_unsafe_alloc(local, ret, real, imag, type);
-}
-
 static void complex_unsafe_heap(addr *ret,
 		addr real, addr imag, enum ComplexType type)
 {
 	complex_unsafe_alloc(NULL, ret, real, imag, type);
 }
 
-static void complex_fixnum(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex_fixnum_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(imag)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -173,12 +166,14 @@ static void complex_fixnum(LocalRoot local, addr *ret, addr real, addr imag)
 			break;
 
 		default:
-			TypeError(imag, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(imag, REAL);
 	}
+
+	return 0;
 }
 
-static void complex_bignum(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex_bignum_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(imag)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -233,12 +228,14 @@ static void complex_bignum(LocalRoot local, addr *ret, addr real, addr imag)
 			break;
 
 		default:
-			TypeError(imag, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(imag, REAL);
 	}
+
+	return 0;
 }
 
-static void complex_ratio(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex_ratio_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(imag)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -293,12 +290,14 @@ static void complex_ratio(LocalRoot local, addr *ret, addr real, addr imag)
 			break;
 
 		default:
-			TypeError(imag, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(imag, REAL);
 	}
+
+	return 0;
 }
 
-static void complex_single(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex_single_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(imag)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -338,12 +337,14 @@ static void complex_single(LocalRoot local, addr *ret, addr real, addr imag)
 			break;
 
 		default:
-			TypeError(imag, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(imag, REAL);
 	}
+
+	return 0;
 }
 
-static void complex_double(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex_double_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(imag)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -383,12 +384,14 @@ static void complex_double(LocalRoot local, addr *ret, addr real, addr imag)
 			break;
 
 		default:
-			TypeError(imag, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(imag, REAL);
 	}
+
+	return 0;
 }
 
-static void complex_long(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex_long_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(imag)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -422,46 +425,41 @@ static void complex_long(LocalRoot local, addr *ret, addr real, addr imag)
 			break;
 
 		default:
-			TypeError(imag, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(imag, REAL);
 	}
 	complex_unsafe_alloc(local, ret, real, imag, ComplexType_long);
+	return 0;
 }
 
-static void complex2_alloc(LocalRoot local, addr *ret, addr real, addr imag)
+static int complex2_alloc_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	switch (GetType(real)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			complex_single(local, ret, real, imag);
-			break;
+			return complex_single_(local, ret, real, imag);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			complex_double(local, ret, real, imag);
-			break;
+			return complex_double_(local, ret, real, imag);
 
 		case LISPTYPE_LONG_FLOAT:
-			complex_long(local, ret, real, imag);
-			break;
+			return complex_long_(local, ret, real, imag);
 
 		case LISPTYPE_FIXNUM:
-			complex_fixnum(local, ret, real, imag);
-			break;
+			return complex_fixnum_(local, ret, real, imag);
 
 		case LISPTYPE_BIGNUM:
-			complex_bignum(local, ret, real, imag);
-			break;
+			return complex_bignum_(local, ret, real, imag);
 
 		case LISPTYPE_RATIO:
-			complex_ratio(local, ret, real, imag);
-			break;
+			return complex_ratio_(local, ret, real, imag);
 
 		default:
-			TypeError(real, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(real, REAL);
 	}
 }
 
-static void complex1_alloc(LocalRoot local, addr *ret, addr real)
+static int complex1_alloc_(LocalRoot local, addr *ret, addr real)
 {
 	addr imag;
 
@@ -497,26 +495,28 @@ static void complex1_alloc(LocalRoot local, addr *ret, addr real)
 			break;
 
 		default:
-			TypeError(real, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(real, REAL);
 	}
+
+	return 0;
 }
 
-_g void complex_alloc(LocalRoot local, addr *ret, addr real, addr imag)
+_g int complex_alloc_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	if (imag == Unbound)
-		complex1_alloc(local, ret, real);
+		return complex1_alloc_(local, ret, real);
 	else
-		complex2_alloc(local, ret, real, imag);
+		return complex2_alloc_(local, ret, real, imag);
 }
-_g void complex_local(LocalRoot local, addr *ret, addr real, addr imag)
+_g int complex_local_(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	Check(local == NULL, "local error");
-	complex_alloc(local, ret, real, imag);
+	return complex_alloc_(local, ret, real, imag);
 }
-_g void complex_heap(addr *ret, addr real, addr imag)
+_g int complex_heap_(addr *ret, addr real, addr imag)
 {
-	complex_alloc(NULL, ret, real, imag);
+	return complex_alloc_(NULL, ret, real, imag);
 }
 
 _g void complex_single_alloc(LocalRoot local,
@@ -603,7 +603,7 @@ _g void complex_copy_heap(addr pos, addr *ret)
 	complex_copy_alloc(NULL, pos, ret);
 }
 
-_g void complex_result_local(LocalRoot local, addr pos, addr *ret)
+_g int complex_result_local_(LocalRoot local, addr pos, addr *ret)
 {
 	addr real, imag;
 
@@ -611,16 +611,17 @@ _g void complex_result_local(LocalRoot local, addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_COMPLEX);
 	GetRealComplex(pos, &real);
 	GetImagComplex(pos, &imag);
-	if (zerop_real(imag)) {
+	if (zerop_real_inplace(imag)) {
 		real_result_local(local, real, ret);
+		return 0;
 	}
 	else {
 		real_result_local(local, real, &real);
 		real_result_local(local, imag, &imag);
-		complex_local(local, ret, real, imag);
+		return complex_local_(local, ret, real, imag);
 	}
 }
-_g void complex_result_heap(LocalRoot local, addr pos, addr *ret)
+_g int complex_result_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	addr real, imag;
 
@@ -628,13 +629,14 @@ _g void complex_result_heap(LocalRoot local, addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_COMPLEX);
 	GetRealComplex(pos, &real);
 	GetImagComplex(pos, &imag);
-	if (zerop_real(imag)) {
+	if (zerop_real_inplace(imag)) {
 		real_result_heap(local, real, ret);
+		return 0;
 	}
 	else {
 		real_result_heap(local, real, &real);
 		real_result_heap(local, imag, &imag);
-		complex_heap(ret, real, imag);
+		return complex_heap_(ret, real, imag);
 	}
 }
 
@@ -657,30 +659,30 @@ _g void complex_throw_heap(addr pos, addr *ret)
 	complex_throw_alloc(NULL, pos, ret);
 }
 
-static enum ComplexType complex_force_type(addr pos)
+static int complex_force_type_(addr pos, enum ComplexType *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
-			return ComplexType_rational;
+			return Result(ret, ComplexType_rational);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return ComplexType_single;
+			return Result(ret, ComplexType_single);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return ComplexType_double;
+			return Result(ret, ComplexType_double);
 
 		case LISPTYPE_LONG_FLOAT:
-			return ComplexType_long;
+			return Result(ret, ComplexType_long);
 
 		default:
-			TypeError(pos, REAL);
-			return ComplexType_error;
+			*ret = ComplexType_error;
+			return TypeError_(pos, REAL);
 	}
 }
 
-_g void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType type)
+_g int complex_force_heap_(addr *ret, addr real, addr imag, enum ComplexType type)
 {
 	addr pos;
 
@@ -695,17 +697,17 @@ _g void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType typ
 
 		case ComplexType_error:
 		default:
-			type = complex_force_type(real);
+			Return(complex_force_type_(real, &type));
 			break;
 	}
 
 	make_complex_unsafe(NULL, &pos, type);
 	SetRealComplex(pos, real);
 	SetImagComplex(pos, imag);
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-_g void single_float_complex(addr pos, single_float *re, single_float *im)
+_g int single_float_complex_(addr pos, single_float *re, single_float *im)
 {
 	addr real, imag;
 
@@ -733,12 +735,15 @@ _g void single_float_complex(addr pos, single_float *re, single_float *im)
 
 		case ComplexType_error:
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*re = 0.0f;
+			*im = 0.0f;
+			return TypeError_(pos, COMPLEX);
 	}
+
+	return 0;
 }
 
-_g void double_float_complex(addr pos, double_float *re, double_float *im)
+_g int double_float_complex_(addr pos, double_float *re, double_float *im)
 {
 	addr real, imag;
 
@@ -766,12 +771,15 @@ _g void double_float_complex(addr pos, double_float *re, double_float *im)
 
 		case ComplexType_error:
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*re = 0.0;
+			*im = 0.0;
+			return TypeError_(pos, COMPLEX);
 	}
+
+	return 0;
 }
 
-_g void long_float_complex(addr pos, long_float *re, long_float *im)
+_g int long_float_complex_(addr pos, long_float *re, long_float *im)
 {
 	addr real, imag;
 
@@ -799,39 +807,43 @@ _g void long_float_complex(addr pos, long_float *re, long_float *im)
 
 		case ComplexType_error:
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*re = 0.0L;
+			*im = 0.0L;
+			return TypeError_(pos, COMPLEX);
 	}
+
+	return 0;
 }
 
-static int zerop_call_complex(addr pos, int (*call)(addr))
+static int zerop_call_complex_(addr pos, int *ret, int (*call)(addr))
 {
 	addr check;
 	GetRealComplex(pos, &check);
-	if (! call(check)) return 0;
+	if (! (*call)(check))
+		return Result(ret, 0);
 	GetImagComplex(pos, &check);
-	return call(check);
+	return Result(ret, (*call)(check));
 }
 
-_g int zerop_complex(addr pos)
+_g int zerop_complex_(addr pos, int *ret)
 {
 	Check(GetType(pos) != LISPTYPE_COMPLEX, "type error");
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_single:
-			return zerop_call_complex(pos, zerop_single_float);
+			return zerop_call_complex_(pos, ret, zerop_single_float);
 
 		case ComplexType_double:
-			return zerop_call_complex(pos, zerop_double_float);
+			return zerop_call_complex_(pos, ret, zerop_double_float);
 
 		case ComplexType_long:
-			return zerop_call_complex(pos, zerop_long_float);
+			return zerop_call_complex_(pos, ret, zerop_long_float);
 
 		case ComplexType_rational:
-			return zerop_call_complex(pos, zerop_rational);
+			return zerop_call_complex_(pos, ret, zerop_rational);
 
 		default:
-			TypeError(pos, COMPLEX);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, COMPLEX);
 	}
 }
 
@@ -843,7 +855,8 @@ _g int eql_complex(addr left, addr right)
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetRealComplex(left, &check1);
 	GetRealComplex(right, &check2);
-	if (! eql_function(check1, check2)) return 0;
+	if (! eql_function(check1, check2))
+		return 0;
 	GetImagComplex(left, &check1);
 	GetImagComplex(right, &check2);
 
@@ -858,11 +871,12 @@ _g int equal_complex(LocalRoot local, addr left, addr right)
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetRealComplex(left, &check1);
 	GetRealComplex(right, &check2);
-	if (! equal_real(local, check1, check2)) return 0;
+	if (! equal_real_inplace(local, check1, check2))
+		return 0;
 	GetImagComplex(left, &check1);
 	GetImagComplex(right, &check2);
 
-	return equal_real(local, check1, check2);
+	return equal_real_inplace(local, check1, check2);
 }
 
 _g int equal_fc_number(addr left, addr right)
@@ -872,10 +886,11 @@ _g int equal_fc_number(addr left, addr right)
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetImagComplex(right, &check);
-	if (! zerop_real(check)) return 0;
+	if (! zerop_real_inplace(check))
+		return 0;
 	GetRealComplex(right, &check);
 
-	return equal_fixnum_real(left, check);
+	return equal_fixnum_real_inplace(left, check);
 }
 
 _g int equal_bc_number(addr left, addr right)
@@ -885,10 +900,11 @@ _g int equal_bc_number(addr left, addr right)
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetImagComplex(right, &check);
-	if (! zerop_real(check)) return 0;
+	if (! zerop_real_inplace(check))
+		return 0;
 	GetRealComplex(right, &check);
 
-	return equal_bignum_real(left, check);
+	return equal_bignum_real_inplace(left, check);
 }
 
 _g int equal_rc_number(LocalRoot local, addr left, addr right)
@@ -898,10 +914,11 @@ _g int equal_rc_number(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetImagComplex(right, &check);
-	if (! zerop_real(check)) return 0;
+	if (! zerop_real_inplace(check))
+		return 0;
 	GetRealComplex(right, &check);
 
-	return equal_ratio_real(local, left, check);
+	return equal_ratio_real_inplace(local, left, check);
 }
 
 _g int equal_sc_number(LocalRoot local, addr left, addr right)
@@ -911,10 +928,11 @@ _g int equal_sc_number(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_SINGLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetImagComplex(right, &check);
-	if (! zerop_real(check)) return 0;
+	if (! zerop_real_inplace(check))
+		return 0;
 	GetRealComplex(right, &check);
 
-	return equal_single_float_real(local, left, check);
+	return equal_single_float_real_inplace(local, left, check);
 }
 
 _g int equal_dc_number(LocalRoot local, addr left, addr right)
@@ -924,10 +942,11 @@ _g int equal_dc_number(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_DOUBLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetImagComplex(right, &check);
-	if (! zerop_real(check)) return 0;
+	if (! zerop_real_inplace(check))
+		return 0;
 	GetRealComplex(right, &check);
 
-	return equal_double_float_real(local, left, check);
+	return equal_double_float_real_inplace(local, left, check);
 }
 
 _g int equal_lc_number(LocalRoot local, addr left, addr right)
@@ -937,13 +956,14 @@ _g int equal_lc_number(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_LONG_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	GetImagComplex(right, &check);
-	if (! zerop_real(check)) return 0;
+	if (! zerop_real_inplace(check))
+		return 0;
 	GetRealComplex(right, &check);
 
-	return equal_long_float_real(local, left, check);
+	return equal_long_float_real_inplace(local, left, check);
 }
 
-_g void sign_reverse_complex_common(addr pos, addr *ret)
+_g int sign_reverse_complex_common_(addr pos, addr *ret)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -971,52 +991,18 @@ _g void sign_reverse_complex_common(addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, COMPLEX);
 	}
 	complex_unsafe_heap(ret, real, imag, type);
-}
-
-_g void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret)
-{
-	enum ComplexType type;
-	addr real, imag;
-
-	Check(local == NULL, "local error");
-	Check(GetType(pos) != LISPTYPE_COMPLEX, "type error");
-	switch (getcomplex(pos, &type, &real, &imag)) {
-		case ComplexType_single:
-			sign_reverse_floats_local(local, real, &real);
-			sign_reverse_floats_local(local, imag, &imag);
-			break;
-
-		case ComplexType_double:
-			sign_reverse_floatd_local(local, real, &real);
-			sign_reverse_floatd_local(local, imag, &imag);
-			break;
-
-		case ComplexType_long:
-			sign_reverse_floatl_local(local, real, &real);
-			sign_reverse_floatl_local(local, imag, &imag);
-			break;
-
-		case ComplexType_rational:
-			sign_reverse_rational_local(local, real, &real);
-			sign_reverse_rational_local(local, imag, &imag);
-			break;
-
-		default:
-			TypeError(pos, COMPLEX);
-			return;
-	}
-	complex_unsafe_local(local, ret, real, imag, type);
+	return 0;
 }
 
 
 /*
  *  abs
  */
-_g void abs_complex_common(addr pos, addr *ret)
+_g int abs_complex_common_(addr pos, addr *ret)
 {
 	addr real, imag;
 	single_float vf, v2;
@@ -1047,71 +1033,77 @@ _g void abs_complex_common(addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, COMPLEX);
 	}
+
+	return 0;
 }
 
 
 /*
  *  signum
  */
-static void signum_complex_single(addr pos, addr *ret)
+static int signum_complex_single_(addr pos, addr *ret)
 {
 	single_float real, imag, denom;
 
-	single_float_complex(pos, &real, &imag);
+	Return(single_float_complex_(pos, &real, &imag));
 	cabs_f(real, imag, &denom);
 	if (denom == 0.0f)
 		single_float_check_heap(ret, denom);
 	else
 		complex_single_heap(ret, real/denom, imag/denom);
+	
+	return 0;
 }
 
-static void signum_complex_double(addr pos, addr *ret)
+static int signum_complex_double_(addr pos, addr *ret)
 {
 	double_float real, imag, denom;
 
-	double_float_complex(pos, &real, &imag);
+	Return(double_float_complex_(pos, &real, &imag));
 	cabs_d(real, imag, &denom);
 	if (denom == 0.0f)
 		double_float_check_heap(ret, denom);
 	else
 		complex_double_heap(ret, real/denom, imag/denom);
+
+	return 0;
 }
 
-static void signum_complex_long(addr pos, addr *ret)
+static int signum_complex_long_(addr pos, addr *ret)
 {
 	long_float real, imag, denom;
 
-	long_float_complex(pos, &real, &imag);
+	Return(long_float_complex_(pos, &real, &imag));
 	cabs_l(real, imag, &denom);
 	if (denom == 0.0L)
 		long_float_check_heap(ret, denom);
 	else
 		complex_long_heap(ret, real/denom, imag/denom);
+
+	
+	return 0;
 }
 
-_g void signum_complex_common(addr pos, addr *ret)
+_g int signum_complex_common_(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_rational:
 		case ComplexType_single:
-			signum_complex_single(pos, ret);
-			break;
+			return signum_complex_single_(pos, ret);
 
 		case ComplexType_double:
-			signum_complex_double(pos, ret);
-			break;
+			return signum_complex_double_(pos, ret);
 
 		case ComplexType_long:
-			signum_complex_long(pos, ret);
-			break;
+			return signum_complex_long_(pos, ret);
 
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, COMPLEX);
 	}
 }
 

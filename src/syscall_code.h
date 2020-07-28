@@ -60,7 +60,7 @@ _g int print_unreadable_call_syscode(Execute ptr,
 _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret);
 _g int make_bignum_syscode(addr var, addr *ret);
 _g int make_ratio_syscode(addr numer, addr denom, addr *ret);
-_g void make_complex_code(addr real, addr imag, addr *ret);
+_g int make_complex_code_(addr real, addr imag, addr *ret);
 _g void equal_random_state_syscode(addr left, addr right, addr *ret);
 _g void symbol_deftype_syscode(addr var, addr *ret);
 _g void delete_deftype_syscode(addr var, addr *ret);

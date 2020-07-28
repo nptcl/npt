@@ -96,9 +96,9 @@ _g int range_left_left_less(addr left, addr right)
 	range_left_value(left, &left1, &left);
 	range_left_value(right, &right1, &right);
 	if (left1 == Nil && right1 != Nil)
-		return less_equal_real(Local_Thread, left, right);
+		return less_equal_real_inplace(Local_Thread, left, right);
 	else
-		return less_real(Local_Thread, left, right);
+		return less_real_inplace(Local_Thread, left, right);
 }
 
 /*
@@ -114,9 +114,9 @@ _g int range_left_left_less_equal(addr left, addr right)
 	range_left_value(left, &left1, &left);
 	range_left_value(right, &right1, &right);
 	if (left1 != Nil && right1 == Nil)
-		return less_real(Local_Thread, left, right);
+		return less_real_inplace(Local_Thread, left, right);
 	else
-		return less_equal_real(Local_Thread, left, right);
+		return less_equal_real_inplace(Local_Thread, left, right);
 }
 
 _g int range_left_left_greater(addr left, addr right)
@@ -141,7 +141,7 @@ _g int range_left_right_less(addr left, addr right)
 	GetArrayType(left, 1, &left);
 	/* range_right_value(right, &right1, &right); */
 	GetArrayType(right, 3, &right);
-	return less_real(Local_Thread, left, right);
+	return less_real_inplace(Local_Thread, left, right);
 }
 
 /*
@@ -157,9 +157,9 @@ _g int range_left_right_less_equal(addr left, addr right)
 	range_left_value(left, &left1, &left);
 	range_right_value(right, &right1, &right);
 	if (left1 == Nil && right1 == Nil)
-		return less_equal_real(Local_Thread, left, right);
+		return less_equal_real_inplace(Local_Thread, left, right);
 	else
-		return less_real(Local_Thread, left, right);
+		return less_real_inplace(Local_Thread, left, right);
 }
 
 _g int range_left_right_greater(addr left, addr right)
@@ -185,9 +185,9 @@ _g int range_right_left_less(addr left, addr right)
 	range_right_value(left, &left1, &left);
 	range_left_value(right, &right1, &right);
 	if (left1 == Nil && right1 == Nil)
-		return less_real(Local_Thread, left, right);
+		return less_real_inplace(Local_Thread, left, right);
 	else
-		return less_equal_real(Local_Thread, left, right);
+		return less_equal_real_inplace(Local_Thread, left, right);
 }
 
 /*
@@ -202,7 +202,7 @@ _g int range_right_left_less_equal(addr left, addr right)
 	GetArrayType(left, 3, &left);
 	/* range_left_value(right, &right1, &right); */
 	GetArrayType(right, 1, &right);
-	return less_equal_real(Local_Thread, left, right);
+	return less_equal_real_inplace(Local_Thread, left, right);
 }
 
 _g int range_right_left_greater(addr left, addr right)
@@ -228,9 +228,9 @@ _g int range_right_right_less(addr left, addr right)
 	range_right_value(left, &left1, &left);
 	range_right_value(right, &right1, &right);
 	if (left1 != Nil && right1 == Nil)
-		return less_equal_real(Local_Thread, left, right);
+		return less_equal_real_inplace(Local_Thread, left, right);
 	else
-		return less_real(Local_Thread, left, right);
+		return less_real_inplace(Local_Thread, left, right);
 }
 
 /*
@@ -246,9 +246,9 @@ _g int range_right_right_less_equal(addr left, addr right)
 	range_right_value(left, &left1, &left);
 	range_right_value(right, &right1, &right);
 	if (left1 == Nil && right1 != Nil)
-		return less_real(Local_Thread, left, right);
+		return less_real_inplace(Local_Thread, left, right);
 	else
-		return less_equal_real(Local_Thread, left, right);
+		return less_equal_real_inplace(Local_Thread, left, right);
 }
 
 _g int range_right_right_greater(addr left, addr right)
@@ -316,9 +316,9 @@ _g int range_connect_right_left(addr left, addr right)
 	range_right_value(left, &left1, &left);
 	range_left_value(right, &right1, &right);
 	if (left1 != Nil && right1 != Nil)
-		return less_real(Local_Thread, right, left);
+		return less_real_inplace(Local_Thread, right, left);
 	else
-		return less_equal_real(Local_Thread, right, left);
+		return less_equal_real_inplace(Local_Thread, right, left);
 }
 
 /* (10 20) (20 *) */

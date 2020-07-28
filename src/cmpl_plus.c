@@ -40,8 +40,8 @@ _g int oneplus_complex_heap_(LocalRoot local, addr pos, addr *ret)
 			*ret = Nil;
 			return TypeError_(pos, COMPLEX);
 	}
-	complex_heap(ret, real, imag);
-	return 0;
+
+	return complex_heap_(ret, real, imag);
 }
 
 _g int oneminus_complex_heap_(LocalRoot local, addr pos, addr *ret)
@@ -71,8 +71,8 @@ _g int oneminus_complex_heap_(LocalRoot local, addr pos, addr *ret)
 			*ret = Nil;
 			return TypeError_(pos, COMPLEX);
 	}
-	complex_heap(ret, real, imag);
-	return 0;
+
+	return complex_heap_(ret, real, imag);
 }
 
 
@@ -123,7 +123,7 @@ _g int plus_rational_complex_common_(LocalRoot local, addr left, addr right, add
 		GetRealComplex(right, &real);
 		GetImagComplex(right, &imag);
 		plus_rational_common(local, left, real, &real);
-		complex_heap(ret, real, imag);
+		return complex_heap_(ret, real, imag);
 	}
 
 	return 0;
@@ -186,7 +186,7 @@ _g int plus_lc_number_common_(addr left, addr right, addr *ret)
 	return 0;
 }
 
-static void plus_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+static int plus_cc_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b, c, d;
@@ -201,8 +201,10 @@ static void plus_cc_rational_common(LocalRoot local, addr left, addr right, addr
 	GetImagComplex(right, &d);
 	plus_rational_local(local, a, c, &a);
 	plus_rational_local(local, b, d, &b);
-	complex_heap(ret, a, b);
+	Return(complex_heap_(ret, a, b));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 _g int plus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
@@ -229,8 +231,7 @@ _g int plus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 			break;
 
 		case MathType_rational:
-			plus_cc_rational_common(local, left, right, ret);
-			break;
+			return plus_cc_rational_common_(local, left, right, ret);
 
 		case MathType_complex:
 		case MathType_error:
@@ -327,7 +328,7 @@ _g int minus_rational_complex_common_(LocalRoot local, addr left, addr right, ad
 		push_local(local, &stack);
 		minus_rational_local(local, left, a, &a);
 		sign_reverse_rational_local(local, b, &b);
-		complex_heap(ret, a, b);
+		Return(complex_heap_(ret, a, b));
 		rollback_local(local, stack);
 	}
 
@@ -350,7 +351,7 @@ _g int minus_complex_rational_common_(LocalRoot local, addr left, addr right, ad
 		GetImagComplex(left, &b);
 		push_local(local, &stack);
 		minus_rational_local(local, a, right, &a);
-		complex_heap(ret, a, b);
+		Return(complex_heap_(ret, a, b));
 		rollback_local(local, stack);
 	}
 
@@ -471,7 +472,7 @@ _g int minus_cl_number_common_(addr left, addr right, addr *ret)
 	return 0;
 }
 
-static void minus_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+static int minus_cc_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b, c, d;
@@ -487,8 +488,10 @@ static void minus_cc_rational_common(LocalRoot local, addr left, addr right, add
 	push_local(local, &stack);
 	minus_rational_local(local, a, c, &a);
 	minus_rational_local(local, b, d, &b);
-	complex_heap(ret, a, b);
+	Return(complex_heap_(ret, a, b));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 _g int minus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
@@ -515,8 +518,7 @@ _g int minus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret
 			break;
 
 		case MathType_rational:
-			minus_cc_rational_common(local, left, right, ret);
-			break;
+			return minus_cc_rational_common_(local, left, right, ret);
 
 		case MathType_complex:
 		case MathType_error:

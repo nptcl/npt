@@ -12,6 +12,7 @@
 #include "hashtable.h"
 #include "memory.h"
 #include "number.h"
+#include "number_equal.h"
 #include "object.h"
 #include "pathname_object.h"
 #include "ratio.h"
@@ -249,7 +250,7 @@ _g int equal_function_(addr a, addr b, int *ret)
 static int equalp_function_number_(addr a, addr b, int *ret)
 {
 	if (numberp(b))
-		return Result(ret, equal_number(Local_Thread, a, b));
+		return equal_number_(Local_Thread, a, b, ret);
 	else
 		return Result(ret, 0);
 }

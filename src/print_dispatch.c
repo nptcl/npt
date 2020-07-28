@@ -136,40 +136,45 @@ static void copy_pprint_dispatch(addr var, addr *ret)
 	*ret = x;
 }
 
+static int find_print_dispatch_p_(LocalRoot local, addr a, addr b, int *ret)
+{
+	if (a == Nil)
+		return Result(ret, 1);
+	else
+		return less_real_(local, a, b, ret);
+}
+
 static int find_print_dispatch(Execute ptr, addr var, addr list, addr *ret)
 {
 	int check;
-	addr pos, type, result, a, b;
+	addr pos, type, value, a, b;
 
 	GetListPrintDispatch(list, &list);
-	a = result = Nil;
+	a = value = Nil;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		GetTypePrintTable(pos, &type);
-		if (typep_clang(ptr, var, type, &check))
-			return 1;
+		Return(typep_clang(ptr, var, type, &check));
 		if (check) {
 			GetPriorityPrintTable(pos, &b);
-			if (a == Nil || less_real_clang(ptr->local, a, b)) {
+			Return(find_print_dispatch_p_(ptr->local, a, b, &check));
+			if (check) {
 				a = b;
-				result = pos;
+				value = pos;
 			}
 		}
 	}
-	*ret = result;
 
-	return 0;
+	return Result(ret, value);
 }
 
 _g int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret)
 {
-	if (find_print_dispatch(ptr, var, table, &var))
-		return 1;
+	Return(find_print_dispatch(ptr, var, table, &var));
 	if (var != Nil)
 		GetFunctionPrintTable(var, &var);
-	*ret = var;
 
-	return 0;
+	return Result(ret, var);
 }
 
 static int delete_print_dispatch_p_(LocalRoot local,
@@ -188,7 +193,7 @@ static int delete_print_dispatch_p_(LocalRoot local,
 		return Result(ret, 1);
 	GetPriorityPrintTable(pos, &a);
 
-	return Result(ret, equal_real(local, a, priority));
+	return equal_real_(local, a, priority, ret);
 }
 
 static int delete_print_dispatch_(LocalRoot local, addr spec, addr priority, addr table)

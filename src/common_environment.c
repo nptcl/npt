@@ -223,7 +223,7 @@ static void defun_get_decoded_time(void)
  */
 static int function_sleep(Execute ptr, addr var)
 {
-	Return(sleep_common(ptr, var));
+	sleep_common(ptr, var);
 	setresult_control(ptr, Nil);
 	return 0;
 }

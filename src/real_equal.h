@@ -4,29 +4,38 @@
 #include "local.h"
 #include "typedef.h"
 
-_g int plusp_real(addr pos);
-_g int minusp_real(addr pos);
-_g int zerop_real(addr pos);
+_g int plusp_real_(addr pos, int *ret);
+_g int minusp_real_(addr pos, int *ret);
+_g int zerop_real_(addr pos, int *ret);
+_g int equal_fixnum_real_(addr left, addr right, int *ret);
+_g int equal_bignum_real_(addr left, addr right, int *ret);
+_g int equal_ratio_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_single_float_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_double_float_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_long_float_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int not_equal_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int compare_ratio_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int compare_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int less_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int less_equal_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int greater_real_(LocalRoot local, addr left, addr right, int *ret);
+_g int greater_equal_real_(LocalRoot local, addr left, addr right, int *ret);
 
-_g int equal_fixnum_real(addr left, addr right);
-_g int equal_bignum_real(addr left, addr right);
-_g int equal_ratio_real(LocalRoot local, addr left, addr right);
-_g int equal_single_float_real(LocalRoot local, addr left, addr right);
-_g int equal_double_float_real(LocalRoot local, addr left, addr right);
-_g int equal_long_float_real(LocalRoot local, addr left, addr right);
-_g int equal_real(LocalRoot local, addr left, addr right);
-#define not_equal_real(a,b) (! equal_real((a), (b)))
-_g int compare_ratio_real(LocalRoot local, addr left, addr right);
-_g int compare_real(LocalRoot local, addr left, addr right);
-#define less_real(m,a,b) (compare_real((m),(a), (b)) < 0)
-#define less_equal_real(m,a,b) (compare_real((m),(a), (b)) <= 0)
-#define greater_real(m,a,b) (compare_real((m),(a), (b)) > 0)
-#define greater_equal_real(m,a,b) (compare_real((m),(a), (b)) >= 0)
-
-_g int less_real_clang(LocalRoot local, addr left, addr right);
-_g int less_equal_real_clang(LocalRoot local, addr left, addr right);
-_g int greater_real_clang(LocalRoot local, addr left, addr right);
-_g int greater_equal_real_clang(LocalRoot local, addr left, addr right);
+_g int plusp_real_inplace(addr pos);
+_g int minusp_real_inplace(addr pos);
+_g int zerop_real_inplace(addr pos);
+_g int equal_fixnum_real_inplace(addr left, addr right);
+_g int equal_bignum_real_inplace(addr left, addr right);
+_g int equal_ratio_real_inplace(LocalRoot local, addr left, addr right);
+_g int equal_single_float_real_inplace(LocalRoot local, addr left, addr right);
+_g int equal_double_float_real_inplace(LocalRoot local, addr left, addr right);
+_g int equal_long_float_real_inplace(LocalRoot local, addr left, addr right);
+_g int equal_real_inplace(LocalRoot local, addr left, addr right);
+_g int less_real_inplace(LocalRoot local, addr left, addr right);
+_g int less_equal_real_inplace(LocalRoot local, addr left, addr right);
+_g int greater_real_inplace(LocalRoot local, addr left, addr right);
+_g int greater_equal_real_inplace(LocalRoot local, addr left, addr right);
 
 #endif
 

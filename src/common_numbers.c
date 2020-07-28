@@ -14,6 +14,7 @@
 #include "math_isqrt.h"
 #include "math_power.h"
 #include "number.h"
+#include "number_equal.h"
 #include "number_plus.h"
 #include "number_random.h"
 #include "random_state.h"
@@ -229,7 +230,11 @@ static void defun_min(void)
 /* (defun minusp (real) ...) -> boolean */
 static int function_minusp(Execute ptr, addr var)
 {
-	setbool_control(ptr, minusp_real(var));
+	int check;
+
+	Return(minusp_real_(var, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -252,7 +257,11 @@ static void defun_minusp(void)
 /* (defun plusp (real) ...) -> boolean */
 static int function_plusp(Execute ptr, addr var)
 {
-	setbool_control(ptr, plusp_real(var));
+	int check;
+
+	Return(plusp_real_(var, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -275,7 +284,11 @@ static void defun_plusp(void)
 /* (defun zerop (real) ...) -> boolean */
 static int function_zerop(Execute ptr, addr var)
 {
-	setbool_control(ptr, zerop_number(var));
+	int check;
+
+	Return(zerop_number_(var, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -1067,7 +1080,7 @@ static void defun_oneminus(void)
  */
 static int function_abs(Execute ptr, addr var)
 {
-	abs_number_common(var, &var);
+	Return(abs_number_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1332,7 +1345,7 @@ static void defun_rem(void)
 /* (defun signum (number) ...) -> number */
 static int function_signum(Execute ptr, addr var)
 {
-	signum_number_common(var, &var);
+	Return(signum_number_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1566,7 +1579,7 @@ static void defun_numberp(void)
  */
 static int function_complex(Execute ptr, addr real, addr imag)
 {
-	complex_heap(&real, real, imag);
+	Return(complex_heap_(&real, real, imag));
 	setresult_control(ptr, real);
 	return 0;
 }
@@ -1649,7 +1662,7 @@ static void defun_conjugate(void)
 /* (defun phase (number) ...) -> number */
 static int function_phase(Execute ptr, addr var)
 {
-	phase_common(var, &var);
+	Return(phase_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

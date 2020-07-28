@@ -166,37 +166,43 @@ static void rational_return_local(LocalRoot local,
 	}
 }
 
-static void rational_float_single_local(LocalRoot local, single_float value, addr *ret)
+static int rational_float_single_local_(LocalRoot local, single_float value, addr *ret)
 {
 	int sign, exponent;
 	addr numer;
 
 	split_single_float(value, &sign, &exponent, &value);
 	if (bignum_single_float_local(local, &numer, value))
-		fmte("Invalid floating value ~S.", value, NULL);
+		return fmte_("Invalid floating value ~S.", value, NULL);
 	rational_return_local(local, sign, exponent, numer, ret);
+
+	return 0;
 }
 
-static void rational_float_double_local(LocalRoot local, double_float value, addr *ret)
+static int rational_float_double_local_(LocalRoot local, double_float value, addr *ret)
 {
 	int sign, exponent;
 	addr numer;
 
 	split_double_float(value, &sign, &exponent, &value);
 	if (bignum_double_float_local(local, &numer, value))
-		fmte("Invalid floating value ~S.", value, NULL);
+		return fmte_("Invalid floating value ~S.", value, NULL);
 	rational_return_local(local, sign, exponent, numer, ret);
+
+	return 0;
 }
 
-static void rational_float_long_local(LocalRoot local, long_float value, addr *ret)
+static int rational_float_long_local_(LocalRoot local, long_float value, addr *ret)
 {
 	int sign, exponent;
 	addr numer;
 
 	split_long_float(value, &sign, &exponent, &value);
 	if (bignum_long_float_local(local, &numer, value))
-		fmte("Invaild floating value ~S.", value, NULL);
+		return fmte_("Invaild floating value ~S.", value, NULL);
 	rational_return_local(local, sign, exponent, numer, ret);
+
+	return 0;
 }
 
 static int equal_ratio_type(addr left, addr right)
@@ -220,7 +226,7 @@ static int equal_ratio_type(addr left, addr right)
 	return 0;
 }
 
-_g int equal_rs_real(LocalRoot local, addr left, addr right)
+_g int equal_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -228,14 +234,14 @@ _g int equal_rs_real(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	push_local(local, &stack);
-	rational_float_single_local(local, RefSingleFloat(right), &right);
+	Return(rational_float_single_local_(local, RefSingleFloat(right), &right));
 	check = equal_ratio_type(left, right);
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-_g int equal_rd_real(LocalRoot local, addr left, addr right)
+_g int equal_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -243,14 +249,14 @@ _g int equal_rd_real(LocalRoot local, addr left, addr right)
 	push_local(local, &stack);
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
-	rational_float_double_local(local, RefDoubleFloat(right), &right);
+	Return(rational_float_double_local_(local, RefDoubleFloat(right), &right));
 	check = equal_ratio_type(left, right);
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-_g int equal_rl_real(LocalRoot local, addr left, addr right)
+_g int equal_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -258,11 +264,11 @@ _g int equal_rl_real(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	push_local(local, &stack);
-	rational_float_long_local(local, RefLongFloat(right), &right);
+	Return(rational_float_long_local_(local, RefLongFloat(right), &right));
 	check = equal_ratio_type(left, right);
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
 static int compare_bigtype_bignum(bigtype left, addr right)
@@ -459,57 +465,63 @@ _g int compare_rr_real(LocalRoot local, addr left, addr right)
 	return IsPlus(sign1)? check1: -check1;
 }
 
-_g int compare_rs_real(LocalRoot local, addr left, addr right)
+_g int compare_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
 
 	push_local(local, &stack);
-	rational_float_single_local(local, RefSingleFloat(right), &right);
-	check = compare_ratio_real(local, left, right);
+	Return(rational_float_single_local_(local, RefSingleFloat(right), &right));
+	Return(compare_ratio_real_(local, left, right, &check));
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-_g int compare_rd_real(LocalRoot local, addr left, addr right)
+_g int compare_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
 
 	push_local(local, &stack);
-	rational_float_double_local(local, RefDoubleFloat(right), &right);
-	check = compare_ratio_real(local, left, right);
+	Return(rational_float_double_local_(local, RefDoubleFloat(right), &right));
+	Return(compare_ratio_real_(local, left, right, &check));
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-_g int compare_rl_real(LocalRoot local, addr left, addr right)
+_g int compare_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
 
 	push_local(local, &stack);
-	rational_float_long_local(local, RefLongFloat(right), &right);
-	check = compare_ratio_real(local, left, right);
+	Return(rational_float_long_local_(local, RefLongFloat(right), &right));
+	Return(compare_ratio_real_(local, left, right, &check));
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-_g int compare_sr_real(LocalRoot local, addr left, addr right)
+_g int compare_sr_real_(LocalRoot local, addr left, addr right, int *ret)
 {
-	return -compare_rs_real(local, right, left);
+	int check;
+	Return(compare_rs_real_(local, right, left, &check));
+	return Result(ret, -check);
 }
 
-_g int compare_dr_real(LocalRoot local, addr left, addr right)
+_g int compare_dr_real_(LocalRoot local, addr left, addr right, int *ret)
 {
-	return -compare_rd_real(local, right, left);
+	int check;
+	Return(compare_rd_real_(local, right, left, &check));
+	return Result(ret, -check);
 }
 
-_g int compare_lr_real(LocalRoot local, addr left, addr right)
+_g int compare_lr_real_(LocalRoot local, addr left, addr right, int *ret)
 {
-	return -compare_rl_real(local, right, left);
+	int check;
+	Return(compare_rl_real_(local, right, left, &check));
+	return Result(ret, -check);
 }
 

@@ -24,22 +24,28 @@ _g int numberp(addr pos)
 		|| type == LISPTYPE_SHORT_FLOAT;
 }
 
-_g void number_result_local(LocalRoot local, addr pos, addr *ret)
+_g int number_result_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	if (complexp(pos))
-		complex_result_local(local, pos, ret);
-	else
+	if (complexp(pos)) {
+		return complex_result_local_(local, pos, ret);
+	}
+	else {
 		rational_result_local(local, pos, ret);
+		return 0;
+	}
 }
 
-_g void number_result_heap(LocalRoot local, addr pos, addr *ret)
+_g int number_result_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	if (complexp(pos))
-		complex_result_heap(local, pos, ret);
-	else
+	if (complexp(pos)) {
+		return complex_result_heap_(local, pos, ret);
+	}
+	else {
 		rational_result_heap(local, pos, ret);
+		return 0;
+	}
 }
 
 _g void number_throw_alloc(LocalRoot local, addr pos, addr *ret)
@@ -113,7 +119,7 @@ _g void number_copy_heap(addr pos, addr *ret)
 /*
  *  abs
  */
-_g void abs_number_common(addr left, addr *ret)
+_g int abs_number_common_(addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -141,13 +147,13 @@ _g void abs_number_common(addr left, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			abs_complex_common(left, ret);
-			break;
+			return abs_complex_common_(left, ret);
 
 		default:
-			TypeError(left, NUMBER);
-			break;
+			return TypeError_(left, NUMBER);
 	}
+
+	return 0;
 }
 
 
@@ -220,7 +226,7 @@ static void signum_ratio_common(addr pos, addr *ret)
 		fixnum_heap(ret, minusp_ratio(pos)? -1: 1);
 }
 
-_g void signum_number_common(addr pos, addr *ret)
+_g int signum_number_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -236,8 +242,7 @@ _g void signum_number_common(addr pos, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			signum_complex_common(pos, ret);
-			break;
+			return signum_complex_common_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
 			signum_fixnum_common(pos, ret);
@@ -252,10 +257,11 @@ _g void signum_number_common(addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, NUMBER);
-			*ret = 0;
-			return;
+			*ret = Nil;
+			return TypeError_(pos, NUMBER);
 	}
+
+	return 0;
 }
 
 
