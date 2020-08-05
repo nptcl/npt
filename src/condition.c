@@ -16,24 +16,31 @@
 /*
  *  condition for clang
  */
-_g int conditionp(addr pos)
+_g int conditionp_(addr pos, int *ret)
 {
 	addr super;
 
 	if (GetType(pos) != LISPTYPE_CLOS)
-		return 0;
+		return Result(ret, 0);
 	GetConst(CLOS_CONDITION, &super);
-	return clos_subclass_p(pos, super);
+	return clos_subclass_p_(pos, super, ret);
 }
 
-_g int condition_instance_p(addr pos)
+_g int conditionp_debug(addr pos)
+{
+	int check = 0;
+	Error(conditionp_(pos, &check));
+	return check;
+}
+
+_g int condition_instance_p_(addr pos, int *ret)
 {
 	addr super;
 
 	if (GetType(pos) != LISPTYPE_CLOS)
-		return 0;
+		return Result(ret, 0);
 	GetConst(CLOS_CONDITION, &super);
-	return clos_subtype_p(pos, super);
+	return clos_subtype_p_(pos, super, ret);
 }
 
 _g int signal_function_(Execute ptr, addr condition)

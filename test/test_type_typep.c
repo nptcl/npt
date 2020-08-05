@@ -87,7 +87,7 @@ static int test_typep_clos(void)
 	addr v;
 
 	v = readr("standard-class");
-	clos_find_class(v, &v);
+	clos_find_class_(v, &v);
 	test(typep_char(v, "class"), "typep_clos1");
 	fixnum_heap(&v, 100);
 	test(! typep_char(v, "class"), "typep_clos2");
@@ -335,7 +335,7 @@ static int test_typep_vector_string(void)
 	test(! typep_vector_string(x, y, &check), "typep_vector_string9");
 	test(! check, "typep_vector_string10");
 
-	strarray_char_heap(&x, "Hello");
+	strarray_char_heap_(&x, "Hello");
 	test_parse_char(&y, "(vector * 5)");
 	test(! typep_vector_string(x, y, &check), "typep_vector_string11");
 	test(check, "typep_vector_string12");
@@ -381,31 +381,31 @@ static int test_typep_vector_dimension(void)
 	int check;
 	addr x, y;
 
-	array_va_heap(&x, 10, 0);
+	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector * *)");
 	GetArrayType(y, 1, &y);
 	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension1");
 	test(check, "typep_vector_dimension2");
 
-	array_va_heap(&x, 10, 0);
+	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector * 10)");
 	GetArrayType(y, 1, &y);
 	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension3");
 	test(check, "typep_vector_dimension4");
 
-	array_va_heap(&x, 0);
+	array_va_heap_(&x, 0);
 	test_parse_char(&y, "(vector * 0)");
 	GetArrayType(y, 1, &y);
 	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension5");
 	test(! check, "typep_vector_dimension6");
 
-	array_va_heap(&x, 10, 10, 0);
+	array_va_heap_(&x, 10, 10, 0);
 	test_parse_char(&y, "(vector * 2)");
 	GetArrayType(y, 1, &y);
 	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension7");
 	test(! check, "typep_vector_dimension8");
 
-	array_va_heap(&x, 10, 10, 0);
+	array_va_heap_(&x, 10, 10, 0);
 	test_parse_char(&y, "(vector * *)");
 	GetArrayType(y, 1, &y);
 	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension9");
@@ -419,27 +419,27 @@ static int test_typep_vector_array(void)
 	int check;
 	addr x, y;
 
-	array_va_heap(&x, 10, 0);
+	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "vector");
 	test(! typep_vector_array(x, y, &check), "typep_vector_array1");
 	test(check, "typep_vector_array2");
 
-	array_va_heap(&x, 10, 20, 0);
+	array_va_heap_(&x, 10, 20, 0);
 	test_parse_char(&y, "vector");
 	test(! typep_vector_array(x, y, &check), "typep_vector_array3");
 	test(! check, "typep_vector_array4");
 
-	array_va_heap(&x, 10, 0);
+	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector t 10)");
 	test(! typep_vector_array(x, y, &check), "typep_vector_array5");
 	test(check, "typep_vector_array6");
 
-	array_va_heap(&x, 10, 0);
+	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector character *)");
 	test(! typep_vector_array(x, y, &check), "typep_vector_array7");
 	test(! check, "typep_vector_array8");
 
-	array_va_heap(&x, 10, 0);
+	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector * 9)");
 	test(! typep_vector_array(x, y, &check), "typep_vector_array9");
 	test(! check, "typep_vector_array10");
@@ -463,7 +463,7 @@ static int test_typep_vector(void)
 	test(typep_char(v, "(vector character 5)"), "typep_vector2");
 
 	/* array */
-	array_va_heap(&v, 10, 0);
+	array_va_heap_(&v, 10, 0);
 	test(typep_char(v, "(vector t 10)"), "typep_vector3");
 
 	/* bit-vector */
@@ -503,42 +503,42 @@ static int test_typep_type_vector_array(void)
 	int check;
 	addr x, y;
 
-	array_va_heap(&x, 10, 0);
-	array_build(x);
+	array_va_heap_(&x, 10, 0);
+	array_build_(x);
 	test_parse_char(&y, "simple-vector");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array1");
 	test(check, "typep_type_vector_array2");
 
-	array_va_heap(&x, 10, 20, 0);
-	array_build(x);
+	array_va_heap_(&x, 10, 20, 0);
+	array_build_(x);
 	test_parse_char(&y, "simple-vector");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array3");
 	test(! check, "typep_type_vector_array4");
 
-	array_va_heap(&x, 10, 0);
-	array_build(x);
+	array_va_heap_(&x, 10, 0);
+	array_build_(x);
 	test_parse_char(&y, "(simple-vector 10)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array5");
 	test(check, "typep_type_vector_array6");
 
-	array_va_heap(&x, 10, 0);
-	array_build(x);
+	array_va_heap_(&x, 10, 0);
+	array_build_(x);
 	test_parse_char(&y, "(simple-vector *)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array7");
 	test(check, "typep_type_vector_array8");
 
-	array_va_heap(&x, 10, 0);
-	array_build(x);
+	array_va_heap_(&x, 10, 0);
+	array_build_(x);
 	test_parse_char(&y, "(simple-vector 9)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array9");
 	test(! check, "typep_type_vector_array10");
 
-	strarray_char_heap(&x, "Hello");
+	strarray_char_heap_(&x, "Hello");
 	test_parse_char(&y, "(simple-vector *)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array11");
@@ -563,14 +563,14 @@ static int test_typep_simple_vector(void)
 	test(typep_char(v, "(simple-vector 3)"), "typep_simple_vector1");
 
 	/* array */
-	array_va_heap(&v, 10, 0);
-	array_build(v);
+	array_va_heap_(&v, 10, 0);
+	array_build_(v);
 	test(typep_char(v, "(simple-vector 10)"), "typep_simple_vector2");
 
 	/* not simple */
-	array_va_heap(&v, 10, 0);
+	array_va_heap_(&v, 10, 0);
 	ArrayInfoStruct(v)->adjustable = 1;
-	array_build(v);
+	array_build_(v);
 	test(! typep_char(v, "(simple-vector 10)"), "typep_simple_vector3");
 
 	RETURN;
@@ -580,14 +580,14 @@ static int test_typep_bit_vector(void)
 {
 	addr v;
 
-	array_va_heap(&v, 10, 0);
+	array_va_heap_(&v, 10, 0);
 	ArrayInfoStruct(v)->type = ARRAY_TYPE_BIT;
-	array_build(v);
+	array_build_(v);
 	test(typep_char(v, "(bit-vector 10)"), "typep_bit_vector1");
 	test(typep_char(v, "(bit-vector *)"), "typep_bit_vector2");
 	test(! typep_char(v, "(bit-vector 9)"), "typep_bit_vector3");
 
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(! typep_char(v, "(bit-vector *)"), "typep_bit_vector4");
 
 	RETURN;
@@ -597,20 +597,20 @@ static int test_typep_simple_bit_vector(void)
 {
 	addr v;
 
-	array_va_heap(&v, 10, 0);
+	array_va_heap_(&v, 10, 0);
 	ArrayInfoStruct(v)->type = ARRAY_TYPE_BIT;
-	array_build(v);
+	array_build_(v);
 	test(typep_char(v, "(simple-bit-vector 10)"), "typep_simple_bit_vector1");
 	test(typep_char(v, "(simple-bit-vector *)"), "typep_simple_bit_vector2");
 	test(! typep_char(v, "(simple-bit-vector 9)"), "typep_simple_bit_vector3");
 
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(! typep_char(v, "(simple-bit-vector *)"), "typep_simple_bit_vector4");
 
-	array_va_heap(&v, 10, 0);
+	array_va_heap_(&v, 10, 0);
 	ArrayInfoStruct(v)->type = ARRAY_TYPE_BIT;
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build(v);
+	array_build_(v);
 	test(! typep_char(v, "(simple-bit-vector *)"), "typep_simple_bit_vector5");
 
 	RETURN;
@@ -638,24 +638,24 @@ static int test_typep_string(void)
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "string"), "typep_string1");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "string"), "typep_string2");
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "(string 5)"), "typep_string3");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "(string 5)"), "typep_string4");
 
 	strvect_char_heap(&v, "Hello");
 	test(! typep_char(v, "(string 6)"), "typep_string5");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(! typep_char(v, "(string 6)"), "typep_string6");
 
 	fixnum_heap(&v, 10);
 	test(! typep_char(v, "string"), "typep_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x80001000);
 	test(typep_char(v, "string"), "typep_string8");
 
 	RETURN;
@@ -667,24 +667,24 @@ static int test_typep_base_string(void)
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "base-string"), "typep_base_string1");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "base-string"), "typep_base_string2");
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "(base-string 5)"), "typep_base_string3");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "(base-string 5)"), "typep_base_string4");
 
 	strvect_char_heap(&v, "Hello");
 	test(! typep_char(v, "(base-string 6)"), "typep_base_string5");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(! typep_char(v, "(base-string 6)"), "typep_base_string6");
 
 	fixnum_heap(&v, 10);
 	test(! typep_char(v, "base-string"), "typep_base_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x80001000);
 	test(! typep_char(v, "base-string"), "typep_base_string8");
 
 	RETURN;
@@ -696,29 +696,29 @@ static int test_typep_simple_string(void)
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "simple-string"), "typep_simple_string1");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "simple-string"), "typep_simple_string2");
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "(simple-string 5)"), "typep_simple_string3");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "(simple-string 5)"), "typep_simple_string4");
 
 	strvect_char_heap(&v, "Hello");
 	test(! typep_char(v, "(simple-string 6)"), "typep_simple_string5");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(! typep_char(v, "(simple-string 6)"), "typep_simple_string6");
 
 	fixnum_heap(&v, 10);
 	test(! typep_char(v, "simple-string"), "typep_simple_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x80001000);
 	test(typep_char(v, "simple-string"), "typep_simple_string8");
 
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build(v);
+	array_build_(v);
 	test(! typep_char(v, "simple-string"), "typep_simple_string9");
 
 	RETURN;
@@ -730,29 +730,29 @@ static int test_typep_simple_base_string(void)
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "simple-base-string"), "typep_simple_base_string1");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "simple-base-string"), "typep_simple_base_string2");
 
 	strvect_char_heap(&v, "Hello");
 	test(typep_char(v, "(simple-base-string 5)"), "typep_simple_base_string3");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(typep_char(v, "(simple-base-string 5)"), "typep_simple_base_string4");
 
 	strvect_char_heap(&v, "Hello");
 	test(! typep_char(v, "(simple-base-string 6)"), "typep_simple_base_string5");
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	test(! typep_char(v, "(simple-base-string 6)"), "typep_simple_base_string6");
 
 	fixnum_heap(&v, 10);
 	test(! typep_char(v, "simple-base-string"), "typep_simple_base_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x80001000);
 	test(! typep_char(v, "simple-base-string"), "typep_simple_base_string8");
 
-	strarray_char_heap(&v, "Hello");
+	strarray_char_heap_(&v, "Hello");
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build(v);
+	array_build_(v);
 	test(! typep_char(v, "simple-base-string"), "typep_simple_base_string9");
 
 	RETURN;
@@ -1196,9 +1196,9 @@ static int test_typep_sequence(void)
 	test(! typep_char(v, "sequence"), "typep_sequence3");
 	test(! typep_char(T, "sequence"), "typep_sequence5");
 
-	array_va_heap(&v, 4, 0);
+	array_va_heap_(&v, 4, 0);
 	test(typep_char(v, "sequence"), "typep_sequence6");
-	array_va_heap(&v, 4, 5, 0);
+	array_va_heap_(&v, 4, 5, 0);
 	test(! typep_char(v, "sequence"), "typep_sequence7");
 
 	RETURN;
@@ -1208,37 +1208,37 @@ static int test_equal_array_dimension(void)
 {
 	addr value, type;
 
-	array_va_heap(&value, 3, 0);
+	array_va_heap_(&value, 3, 0);
 	test_parse_char(&type, "(array * (3))");
 	GetArrayType(type, 1, &type);
 	test(equal_array_dimension(value, type), "equal_array_dimension1");
 
-	array_va_heap(&value, 3, 4, 0);
+	array_va_heap_(&value, 3, 4, 0);
 	test_parse_char(&type, "(array * (3))");
 	GetArrayType(type, 1, &type);
 	test(! equal_array_dimension(value, type), "equal_array_dimension2");
 
-	array_va_heap(&value, 3, 0);
+	array_va_heap_(&value, 3, 0);
 	test_parse_char(&type, "(array * (3 *))");
 	GetArrayType(type, 1, &type);
 	test(! equal_array_dimension(value, type), "equal_array_dimension3");
 
-	array_va_heap(&value, 3, 4, 0);
+	array_va_heap_(&value, 3, 4, 0);
 	test_parse_char(&type, "(array * (3 *))");
 	GetArrayType(type, 1, &type);
 	test(equal_array_dimension(value, type), "equal_array_dimension4");
 
-	array_va_heap(&value, 3, 4, 0);
+	array_va_heap_(&value, 3, 4, 0);
 	test_parse_char(&type, "(array * (3 5))");
 	GetArrayType(type, 1, &type);
 	test(! equal_array_dimension(value, type), "equal_array_dimension5");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array * (3 4 5))");
 	GetArrayType(type, 1, &type);
 	test(equal_array_dimension(value, type), "equal_array_dimension6");
 
-	array_va_heap(&value, 0);
+	array_va_heap_(&value, 0);
 	test_parse_char(&type, "(array * (3))");
 	GetArrayType(type, 1, &type);
 	test(! equal_array_dimension(value, type), "equal_array_dimension7");
@@ -1250,32 +1250,32 @@ static int test_typep_array_dimension(void)
 {
 	addr value, type;
 
-	array_va_heap(&value, 3, 0);
+	array_va_heap_(&value, 3, 0);
 	test_parse_char(&type, "(array * (3))");
 	GetArrayType(type, 1, &type);
 	test(typep_array_dimension(value, type), "typep_array_dimension1");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array * (3 * 5))");
 	GetArrayType(type, 1, &type);
 	test(typep_array_dimension(value, type), "typep_array_dimension2");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array * 3)");
 	GetArrayType(type, 1, &type);
 	test(typep_array_dimension(value, type), "typep_array_dimension3");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array * 4)");
 	GetArrayType(type, 1, &type);
 	test(! typep_array_dimension(value, type), "typep_array_dimension4");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array * *)");
 	GetArrayType(type, 1, &type);
 	test(typep_array_dimension(value, type), "typep_array_dimension5");
 
-	array_va_heap(&value, 0);
+	array_va_heap_(&value, 0);
 	test_parse_char(&type, "(array * ())");
 	GetArrayType(type, 1, &type);
 	test(typep_array_dimension(value, type), "typep_array_dimension6");
@@ -1287,27 +1287,27 @@ static int test_typep_array_array(void)
 {
 	addr value, type;
 
-	array_va_heap(&value, 3, 0);
+	array_va_heap_(&value, 3, 0);
 	test_parse_char(&type, "(array * (3))");
 	test(typep_array_array(value, type), "typep_array_array1");
 
-	array_va_heap(&value, 3, 0);
+	array_va_heap_(&value, 3, 0);
 	test_parse_char(&type, "(array t (3))");
 	test(typep_array_array(value, type), "typep_array_array2");
 
-	array_va_heap(&value, 3, 0);
+	array_va_heap_(&value, 3, 0);
 	test_parse_char(&type, "(array character (3))");
 	test(! typep_array_array(value, type), "typep_array_array3");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array t (3 4 5))");
 	test(typep_array_array(value, type), "typep_array_array4");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "(array t *)");
 	test(typep_array_array(value, type), "typep_array_array5");
 
-	array_va_heap(&value, 3, 4, 5, 0);
+	array_va_heap_(&value, 3, 4, 5, 0);
 	test_parse_char(&type, "array");
 	test(typep_array_array(value, type), "typep_array_array6");
 
@@ -1414,7 +1414,7 @@ static int test_typep_array(void)
 {
 	addr v;
 
-	array_va_heap(&v, 3, 4, 5, 0);
+	array_va_heap_(&v, 3, 4, 5, 0);
 	test(typep_char(v, "(array t 3)"), "typep_array1");
 
 	vector_heap(&v, 10);
@@ -1433,8 +1433,8 @@ static int test_typep_simple_array(void)
 {
 	addr v;
 
-	array_va_heap(&v, 3, 4, 5, 0);
-	array_build(v); /* simple */
+	array_va_heap_(&v, 3, 4, 5, 0);
+	array_build_(v); /* simple */
 	test(typep_char(v, "(simple-array t 3)"), "typep_simple_array1");
 
 	vector_heap(&v, 10);
@@ -1446,9 +1446,9 @@ static int test_typep_simple_array(void)
 	character_heap(&v, 'A');
 	test(! typep_char(v, "simple-array"), "typep_simple_array4");
 
-	array_va_heap(&v, 5, 0);
+	array_va_heap_(&v, 5, 0);
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build(v);
+	array_build_(v);
 	test(! typep_char(v, "simple-array"), "typep_simple_array5");
 
 	RETURN;

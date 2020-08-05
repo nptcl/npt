@@ -642,7 +642,7 @@ _g void slot_set_instance(addr pos)
 	SetAllocationSlot_Low(pos, 0);
 }
 
-_g void slot_set_allocation(addr pos, addr value)
+_g int slot_set_allocation_(addr pos, addr value)
 {
 	addr check;
 
@@ -652,18 +652,18 @@ _g void slot_set_allocation(addr pos, addr value)
 	GetConst(KEYWORD_INSTANCE, &check);
 	if (check == value) {
 		slot_set_instance(pos);
-		return;
+		return 0;
 	}
 
 	/* class */
 	GetConst(KEYWORD_CLASS, &check);
 	if (check == value) {
 		slot_set_class(pos);
-		return;
+		return 0;
 	}
 
 	/* error */
-	fmte("Invalid :allocation value ~S.", value, NULL);
+	return fmte_("Invalid :allocation value ~S.", value, NULL);
 }
 
 _g int clos_errorp(addr pos, size_t index, constindex name)
@@ -734,42 +734,47 @@ _g int clos_setp(addr pos, addr key, addr value)
 	return 0;
 }
 
-_g int clos_checkp(addr pos, addr key, addr *ret)
+_g int clos_checkp_(addr pos, addr key, addr *value, int *ret)
 {
 	addr check;
 
 	CheckType(pos, LISPTYPE_CLOS);
-	if (! clos_getp(pos, key, &check)) {
-		return 0;
-	}
-	if (check == Unbound) {
-		unbound_slot(pos, key);
-		return 0;
-	}
-	*ret = check;
-
-	return 1;
+	if (! clos_getp(pos, key, &check))
+		return Result(ret, 0);
+	if (check == Unbound)
+		return call_unbound_slot_(Execute_Thread, pos, key);
+	*value = check;
+	return Result(ret, 1);
 }
 
-_g void clos_get(addr pos, addr key, addr *ret)
+_g int clos_get_(addr pos, addr key, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_getp(pos, key, ret))
-		fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+		return fmte_("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+
+	return 0;
 }
 
-_g void clos_set(addr pos, addr key, addr value)
+_g int clos_set_(addr pos, addr key, addr value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_setp(pos, key, value))
-		fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+		return fmte_("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+
+	return 0;
 }
 
-_g void clos_check(addr pos, addr key, addr *ret)
+_g int clos_check_(addr pos, addr key, addr *ret)
 {
+	int check;
+
 	CheckType(pos, LISPTYPE_CLOS);
-	if (! clos_checkp(pos, key, ret))
-		fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+	Return(clos_checkp_(pos, key, ret, &check));
+	if (! check)
+		return fmte_("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+
+	return 0;
 }
 
 _g void clos_getelt(addr pos, size_t index, addr *ret)
@@ -804,37 +809,37 @@ _g void clos_setelt(addr pos, size_t index, addr value)
 	SetClosValue(vector, index, value);
 }
 
-_g void clos_checkelt(addr pos, size_t index, addr *ret)
+_g int clos_checkelt_(addr pos, size_t index, addr *ret)
 {
 	addr check;
 
 	CheckType(pos, LISPTYPE_CLOS);
 	clos_getelt(pos, index, &check);
 	if (check == Unbound)
-		unbound_slot(pos, check);
+		return call_unbound_slot_(Execute_Thread, pos, check);
 	else
-		*ret = check;
+		return Result(ret, check);
 }
 
-_g void clos_getconst(addr pos, constindex index, addr *ret)
+_g int clos_getconst_(addr pos, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
-	clos_get(pos, key, ret);
+	return clos_get_(pos, key, ret);
 }
 
-_g void clos_setconst(addr pos, constindex index, addr value)
+_g int clos_setconst_(addr pos, constindex index, addr value)
 {
 	addr key;
 	GetConstant(index, &key);
-	clos_set(pos, key, value);
+	return clos_set_(pos, key, value);
 }
 
-_g void clos_checkconst(addr pos, constindex index, addr *ret)
+_g int clos_checkconst_(addr pos, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
-	clos_check(pos, key, ret);
+	return clos_check_(pos, key, ret);
 }
 
 
@@ -850,38 +855,47 @@ _g int clos_slot_exists_p(addr pos, addr name)
 _g int clos_slot_boundp_nil(addr pos, addr name)
 {
 	CheckType(pos, LISPTYPE_CLOS);
-	if (! clos_getp(pos, name, &name))
+	if (clos_getp(pos, name, &name))
+		return name != Unbound;
+	else
 		return -1; /* error no slot. */
-	return name != Unbound;
 }
 
-_g int clos_slot_boundp(addr pos, addr name)
+_g int clos_slot_boundp_(addr pos, addr name, int *ret)
 {
 	int check;
 
 	CheckType(pos, LISPTYPE_CLOS);
 	check = clos_slot_boundp_nil(pos, name);
-	if (check < 0)
-		fmte("The pos object ~S have no ~S slot.", pos, name, NULL);
-	return check;
+	if (check < 0) {
+		*ret = 0;
+		return fmte_("The pos object ~S have no ~S slot.", pos, name, NULL);
+	}
+
+	return Result(ret, check);
 }
 
-_g int clos_slot_makunbound_nil(addr pos, addr name)
+_g int clos_slot_makunbound_nil_(addr pos, addr name, int *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (clos_slot_exists_p(pos, name)) {
-		clos_set(pos, name, Unbound);
-		return 0;
+		Return(clos_set_(pos, name, Unbound));
+		return Result(ret, 0);
 	}
 	/* error */
-	return 1;
+	return Result(ret, 1);
 }
 
-_g void clos_slot_makunbound(addr pos, addr name)
+_g int clos_slot_makunbound_(addr pos, addr name)
 {
+	int check;
+
 	CheckType(pos, LISPTYPE_CLOS);
-	if (clos_slot_makunbound_nil(pos, name))
-		fmte("The slot have no ~S.", name, NULL);
+	Return(clos_slot_makunbound_nil_(pos, name, &check));
+	if (check)
+		return fmte_("The slot have no ~S.", name, NULL);
+
+	return 0;
 }
 
 
@@ -895,12 +909,14 @@ _g void clos_find_class_nil(addr name, addr *ret)
 	getclass_symbol(name, ret);
 }
 
-_g void clos_find_class(addr name, addr *ret)
+_g int clos_find_class_(addr name, addr *ret)
 {
 	Check(! symbolp(name), "type name error");
 	clos_find_class_nil(name, ret);
 	if (*ret == Nil)
-		fmte("No class named ~S.", name, NULL);
+		return fmte_("No class named ~S.", name, NULL);
+
+	return 0;
 }
 
 _g void clos_define_class(addr name, addr value)
@@ -922,11 +938,13 @@ _g void clos_find_generic_nil(addr name, addr *ret)
 		*ret = name;
 }
 
-_g void clos_find_generic(addr name, addr *ret)
+_g int clos_find_generic_(addr name, addr *ret)
 {
 	clos_find_generic_nil(name, ret);
 	if (*ret == Nil)
-		fmte("No generic function named ~S.", name, NULL);
+		return fmte_("No generic function named ~S.", name, NULL);
+
+	return 0;
 }
 
 _g void clos_define_generic(addr name, addr value)
@@ -942,11 +960,13 @@ _g void clos_find_combination_nil(addr name, addr *ret)
 	getcombination_symbol(name, ret);
 }
 
-_g void clos_find_combination(addr name, addr *ret)
+_g int clos_find_combination_(addr name, addr *ret)
 {
 	clos_find_combination_nil(name, ret);
 	if (*ret == Nil)
-		fmte("No method combination named ~S.", name, NULL);
+		return fmte_("No method combination named ~S.", name, NULL);
+
+	return 0;
 }
 
 _g void clos_define_combination(addr name, addr value)

@@ -57,7 +57,7 @@ _g int char_common(addr str, addr pos, addr *ret)
 		strarray_length_buffer(str, &size); /* Don't use strarray_length */
 		if (size <= index)
 			return fmte_("Out of valid string index, ~S.", pos, NULL);
-		strarray_getc(str, index, &c);
+		Return(strarray_getc_(str, index, &c));
 	}
 	else {
 		return fmte_("The object ~S must be a string type.", str, NULL);
@@ -87,7 +87,7 @@ _g int schar_common(addr str, addr pos, addr *ret)
 		strarray_length(str, &size); /* Don't use strarray_length_buffer */
 		if (size <= index)
 			return fmte_("Out of valid string index, ~S.", pos, NULL);
-		strarray_getc(str, index, &c);
+		Return(strarray_getc_(str, index, &c));
 	}
 	else {
 		return fmte_("The object ~S must be a string type.", str, NULL);
@@ -110,20 +110,16 @@ _g int setf_char_common(addr value, addr pos, addr index)
 	GetCharacter(value, &c);
 	switch (GetType(pos)) {
 		case LISPTYPE_STRING:
-			strvect_setc(pos, size, c);
-			break;
+			return strvect_setc_(pos, size, c);
 
 		case LISPTYPE_ARRAY:
 			if (! array_stringp(pos))
 				return TypeError_(pos, STRING);
-			array_set_character(pos, size, c);
-			break;
+			return array_set_character_(pos, size, c);
 
 		default:
 			return TypeError_(pos, STRING);
 	}
-
-	return 0;
 }
 
 
@@ -132,8 +128,12 @@ _g int setf_char_common(addr value, addr pos, addr index)
  */
 _g int string_common(addr var, addr *ret)
 {
-	if (! string_designer_heap(ret, var))
+	int check;
+
+	Return(string_designer_heap_(ret, var, &check));
+	if (! check)
 		return TypeError_(var, STRING);
+
 	return 0;
 }
 
@@ -144,11 +144,13 @@ _g int string_common(addr var, addr *ret)
 static int string_case_common(addr var, addr rest, addr *ret,
 		int (*call)(size_t, size_t, addr, addr, size_t *))
 {
+	int check;
 	addr pos;
 	unicode c;
 	size_t start, end, size, i;
 
-	if (! string_designer_heap(&var, var))
+	Return(string_designer_heap_(&var, var, &check));
+	if (! check)
 		return TypeError_(var, STRING);
 	string_length(var, &size);
 	Return(keyword_start_end_(size, rest, &start, &end));
@@ -156,15 +158,15 @@ static int string_case_common(addr var, addr rest, addr *ret,
 
 	/* start */
 	for (i = 0; i < start; i++) {
-		string_getc(var, i, &c);
-		strvect_setc(pos, i, c);
+		Return(string_getc_(var, i, &c));
+		Return(strvect_setc_(pos, i, c));
 	}
 	/* case */
-	Return(call(i, end, var, pos, &i));
+	Return((*call)(i, end, var, pos, &i));
 	/* end */
 	for (; i < size; i++) {
-		string_getc(var, i, &c);
-		strvect_setc(pos, i, c);
+		Return(string_getc_(var, i, &c));
+		Return(strvect_setc_(pos, i, c));
 	}
 
 	/* result */
@@ -177,8 +179,8 @@ static int string_upcase_call_common(
 	unicode c;
 
 	for (; i < end; i++) {
-		string_getc(var, i, &c);
-		strvect_setc(pos, i, toUpperUnicode(c));
+		Return(string_getc_(var, i, &c));
+		Return(strvect_setc_(pos, i, toUpperUnicode(c)));
 	}
 
 	return Result(ret, i);
@@ -199,8 +201,8 @@ static int string_downcase_call_common(
 	unicode c;
 
 	for (; i < end; i++) {
-		string_getc(var, i, &c);
-		strvect_setc(pos, i, toLowerUnicode(c));
+		Return(string_getc_(var, i, &c));
+		Return(strvect_setc_(pos, i, toLowerUnicode(c)));
 	}
 
 	return Result(ret, i);
@@ -223,7 +225,7 @@ static int string_capitalize_call_common(
 
 	mode = alphabet = 0;
 	for (; i < end; i++) {
-		string_getc(var, i, &c);
+		Return(string_getc_(var, i, &c));
 		if (mode == 0) {
 			/* not alphabet */
 			if (isAlphanumeric(c)) {
@@ -249,7 +251,7 @@ static int string_capitalize_call_common(
 			case 2: c = toLowerUnicode(c); break;
 			default: break;
 		}
-		strvect_setc(pos, i, c);
+		Return(strvect_setc_(pos, i, c));
 	}
 
 	return Result(ret, i);
@@ -310,7 +312,7 @@ static int string_trim_string_common(addr string, unicode c, int *ret)
 
 	string_length(string, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(string, i, &check);
+		Return(string_getc_(string, i, &check));
 		if (check == c)
 			return Result(ret, 1);
 	}
@@ -365,7 +367,7 @@ static int string_trim_array_common(addr pos, unicode c, int *ret)
 		return TypeError_(pos, SEQUENCE);
 	size = array_get_vector_length(pos, 1);
 	for (i = 0; i < size; i++) {
-		array_get_unicode(pos, i, &check);
+		Return(array_get_unicode_(pos, i, &check));
 		if (check == c)
 			return Result(ret, 1);
 	}
@@ -403,7 +405,7 @@ static int string_trim_start_common(addr seq, addr var, size_t *start, size_t en
 	size_t i;
 
 	for (i = *start; i < end; i++) {
-		string_getc(var, i, &c);
+		Return(string_getc_(var, i, &c));
 		Return(string_trim_sequence_common(seq, c, &check));
 		if (! check)
 			break;
@@ -419,7 +421,7 @@ static int string_trim_end_common(addr seq, addr var, size_t start, size_t *end)
 	size_t i;
 
 	for (i = *end; start < i; i--) {
-		string_getc(var, i - 1, &c);
+		Return(string_getc_(var, i - 1, &c));
 		Return(string_trim_sequence_common(seq, c, &check));
 		if (! check)
 			break;
@@ -430,10 +432,12 @@ static int string_trim_end_common(addr seq, addr var, size_t start, size_t *end)
 
 _g int string_trim_common(addr trim, addr pos, addr *ret)
 {
+	int check;
 	unicode c;
 	size_t start, end, size, i;
 
-	if (! string_designer_heap(&pos, pos))
+	Return(string_designer_heap_(&pos, pos, &check));
+	if (! check)
 		return TypeError_(pos, STRING);
 	start = 0;
 	string_length(pos, &end);
@@ -447,8 +451,8 @@ _g int string_trim_common(addr trim, addr pos, addr *ret)
 	size = end - start;
 	strvect_heap(&trim, size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i + start, &c);
-		strvect_setc(trim, i, c);
+		Return(string_getc_(pos, i + start, &c));
+		Return(strvect_setc_(trim, i, c));
 	}
 	return Result(ret, trim);
 
@@ -463,10 +467,12 @@ null_string:
  */
 _g int string_left_trim_common(addr trim, addr pos, addr *ret)
 {
+	int check;
 	unicode c;
 	size_t start, end, size, i;
 
-	if (! string_designer_heap(&pos, pos))
+	Return(string_designer_heap_(&pos, pos, &check));
+	if (! check)
 		return TypeError_(pos, STRING);
 	start = 0;
 	string_length(pos, &end);
@@ -477,8 +483,8 @@ _g int string_left_trim_common(addr trim, addr pos, addr *ret)
 	size = end - start;
 	strvect_heap(&trim, size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i + start, &c);
-		strvect_setc(trim, i, c);
+		Return(string_getc_(pos, i + start, &c));
+		Return(strvect_setc_(trim, i, c));
 	}
 	return Result(ret, trim);
 
@@ -493,10 +499,12 @@ null_string:
  */
 _g int string_right_trim_common(addr trim, addr pos, addr *ret)
 {
+	int check;
 	unicode c;
 	size_t start, end, size, i;
 
-	if (! string_designer_heap(&pos, pos))
+	Return(string_designer_heap_(&pos, pos, &check));
+	if (! check)
 		return TypeError_(pos, STRING);
 	start = 0;
 	string_length(pos, &end);
@@ -507,8 +515,8 @@ _g int string_right_trim_common(addr trim, addr pos, addr *ret)
 	size = end - start;
 	strvect_heap(&trim, size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i + start, &c);
-		strvect_setc(trim, i, c);
+		Return(string_getc_(pos, i + start, &c));
+		Return(strvect_setc_(trim, i, c));
 	}
 	return Result(ret, trim);
 
@@ -523,13 +531,16 @@ null_string:
  */
 _g int string_eql_common(addr var1, addr var2, addr rest, addr *ret)
 {
+	int check;
 	size_t size1, size2, start1, start2, end1, end2;
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	if (! string_designer_heap(&var1, var1))
+	Return(string_designer_heap_(&var1, var1, &check));
+	if (! check)
 		return TypeError_(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
+	Return(string_designer_heap_(&var2, var2, &check));
+	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
 	Return(keyword_start1_end1_(size1, rest, &start1, &end1));
@@ -540,8 +551,8 @@ _g int string_eql_common(addr var1, addr var2, addr rest, addr *ret)
 	if (diff1 != diff2)
 		return Result(ret, Nil);
 	for (i = 0; i < diff1; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
+		Return(string_getc_(var1, start1 + i, &a));
+		Return(string_getc_(var2, start2 + i, &b));
 		if (a != b)
 			return Result(ret, Nil);
 	}
@@ -557,13 +568,16 @@ static int string_call_common(addr var1, addr var2, addr rest, addr *ret,
 		int (*callu)(unicode, unicode),
 		int (*calli)(size_t, size_t))
 {
+	int check;
 	size_t size1, size2, start1, start2, end1, end2;
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	if (! string_designer_heap(&var1, var1))
+	Return(string_designer_heap_(&var1, var1, &check));
+	if (! check)
 		return TypeError_(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
+	Return(string_designer_heap_(&var2, var2, &check));
+	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
 	Return(keyword_start1_end1_(size1, rest, &start1, &end1));
@@ -572,8 +586,8 @@ static int string_call_common(addr var1, addr var2, addr rest, addr *ret,
 	diff1 = end1 - start1;
 	diff2 = end2 - start2;
 	for (i = 0; i < diff1 && i < diff2; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
+		Return(string_getc_(var1, start1 + i, &a));
+		Return(string_getc_(var2, start2 + i, &b));
 		if (a != b) {
 			if (callu(a, b))
 				goto finish;
@@ -684,13 +698,16 @@ _g int string_greater_equal_common(addr var1, addr var2, addr rest, addr *ret)
  */
 _g int string_equal_common(addr var1, addr var2, addr rest, addr *ret)
 {
+	int check;
 	size_t size1, size2, start1, start2, end1, end2;
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	if (! string_designer_heap(&var1, var1))
+	Return(string_designer_heap_(&var1, var1, &check));
+	if (! check)
 		return TypeError_(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
+	Return(string_designer_heap_(&var2, var2, &check));
+	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
 	Return(keyword_start1_end1_(size1, rest, &start1, &end1));
@@ -701,8 +718,8 @@ _g int string_equal_common(addr var1, addr var2, addr rest, addr *ret)
 	if (diff1 != diff2)
 		return Result(ret, Nil);
 	for (i = 0; i < diff1; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
+		Return(string_getc_(var1, start1 + i, &a));
+		Return(string_getc_(var2, start2 + i, &b));
 		if (toUpperUnicode(a) != toUpperUnicode(b))
 			return Result(ret, Nil);
 	}
@@ -718,13 +735,16 @@ static int string_callp_common(addr var1, addr var2, addr rest, addr *ret,
 		int (*callu)(unicode, unicode),
 		int (*calli)(size_t, size_t))
 {
+	int check;
 	size_t size1, size2, start1, start2, end1, end2;
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	if (! string_designer_heap(&var1, var1))
+	Return(string_designer_heap_(&var1, var1, &check));
+	if (! check)
 		return TypeError_(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
+	Return(string_designer_heap_(&var2, var2, &check));
+	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
 	Return(keyword_start1_end1_(size1, rest, &start1, &end1));
@@ -733,8 +753,8 @@ static int string_callp_common(addr var1, addr var2, addr rest, addr *ret,
 	diff1 = end1 - start1;
 	diff2 = end2 - start2;
 	for (i = 0; i < diff1 && i < diff2; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
+		Return(string_getc_(var1, start1 + i, &a));
+		Return(string_getc_(var2, start2 + i, &b));
 		a = toUpperUnicode(a);
 		b = toUpperUnicode(b);
 		if (a != b) {
@@ -840,7 +860,7 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 
 	/* make-string */
 	strvect_heap(&var, size);
-	strvect_setall(var, c);
+	Return(strvect_setall_(var, c));
 	return Result(ret, var);
 }
 

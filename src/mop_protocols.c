@@ -73,10 +73,8 @@ static int defmethod_make_method_lambda_std_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_make_method_lambda_std(&pos);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int defgeneric_make_method_lambda_(Execute ptr)
@@ -85,15 +83,13 @@ static int defgeneric_make_method_lambda_(Execute ptr)
 
 	GetConst(CLOSNAME_MAKE_METHOD_LAMBDA, &symbol);
 	mop_argument_generic_var4(&gen);
-	parse_callname_error(&name, symbol);
-	generic_common_instance(&gen, name, gen);
+	Return(parse_callname_error_(&name, symbol));
+	Return(generic_common_instance_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	Return(mop_export_symbol_(symbol));
 	/* no-method */
 	Return(defmethod_make_method_lambda_std_(ptr, name, gen));
-	common_method_finalize(gen);
-
-	return 0;
+	return common_method_finalize_(gen);
 }
 
 

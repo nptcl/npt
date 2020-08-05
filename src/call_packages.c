@@ -377,25 +377,28 @@ static int defpackage_use_common(addr *ret, addr info, addr root)
 	return 0;
 }
 
-static int defpackage_find_common(addr left, addr root)
+static int defpackage_find_common_(addr left, addr root, int *ret)
 {
+	int check;
 	addr list, right;
 
 	while (root != Nil) {
 		GetCons(root, &list, &root);
 		while (list != Nil) {
 			GetCons(list, &right, &list);
-			if (package_designer_equal(left, right))
-				return 1;
+			Return(package_designer_equal_(left, right, &check));
+			if (check)
+				return Result(ret, 1);
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int defpackage_shadow_common(addr *ret,
 		addr shadow, addr shadowing, addr import, addr intern, addr root)
 {
+	int check;
 	addr list, pos;
 
 	for (list = root; list != Nil; ) {
@@ -404,13 +407,16 @@ static int defpackage_shadow_common(addr *ret,
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
 			return fmte_(":shadow ~S must be a string-designer.", pos, NULL);
-		if (defpackage_find_common(pos, shadowing)) {
+		Return(defpackage_find_common_(pos, shadowing, &check));
+		if (check) {
 			return fmte_(":shadow ~S "
 					"already exists in :shadowing-import-from.", pos, NULL);
 		}
-		if (defpackage_find_common(pos, import))
+		Return(defpackage_find_common_(pos, import, &check));
+		if (check)
 			return fmte_(":shadow ~S already exists in :import-from.", pos, NULL);
-		if (defpackage_find_common(pos, intern))
+		Return(defpackage_find_common_(pos, intern, &check));
+		if (check)
 			return fmte_(":shadow ~S already exists in :intern.", pos, NULL);
 	}
 	cons_heap(ret, root, shadow);
@@ -421,6 +427,7 @@ static int defpackage_shadow_common(addr *ret,
 static int defpackage_shadowing_common(addr *ret,
 		addr shadow, addr shadowing, addr import, addr intern, addr root)
 {
+	int check;
 	addr list, pos, package;
 
 	/* package */
@@ -445,15 +452,18 @@ static int defpackage_shadowing_common(addr *ret,
 			return fmte_(":shadowing-import-from ~S "
 					"must be a string-designer.", pos, NULL);
 		}
-		if (defpackage_find_common(pos, shadow)) {
+		Return(defpackage_find_common_(pos, shadow, &check));
+		if (check) {
 			return fmte_(":shadowing-import-from ~S "
 					"already exists in :shadow.", pos, NULL);
 		}
-		if (defpackage_find_common(pos, import)) {
+		Return(defpackage_find_common_(pos, import, &check));
+		if (check) {
 			return fmte_(":shadowing-import-from ~S "
 					"already exists in :import-from.", pos, NULL);
 		}
-		if (defpackage_find_common(pos, intern)) {
+		Return(defpackage_find_common_(pos, intern, &check));
+		if (check) {
 			return fmte_(":shadowing-import-from ~S "
 					"already exists in :intern.", pos, NULL);
 		}
@@ -466,6 +476,7 @@ static int defpackage_shadowing_common(addr *ret,
 static int defpackage_import_common(addr *ret,
 		addr shadow, addr shadowing, addr import, addr intern, addr root)
 {
+	int check;
 	addr list, pos, package;
 
 	/* package */
@@ -488,13 +499,16 @@ static int defpackage_import_common(addr *ret,
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
 			return fmte_(":import-from ~S must be a string-designer.", pos, NULL);
-		if (defpackage_find_common(pos, shadow))
+		Return(defpackage_find_common_(pos, shadow, &check));
+		if (check)
 			return fmte_(":import-from ~S already exists in :shadow.", pos, NULL);
-		if (defpackage_find_common(pos, shadowing)) {
+		Return(defpackage_find_common_(pos, shadowing, &check));
+		if (check) {
 			return fmte_(":import-from ~S "
 					"already exists in :shadowing-import-from.", pos, NULL);
 		}
-		if (defpackage_find_common(pos, intern))
+		Return(defpackage_find_common_(pos, intern, &check));
+		if (check)
 			return fmte_(":import-from ~S already exists in :intern.", pos, NULL);
 	}
 	cons_heap(ret, root, import);
@@ -504,6 +518,7 @@ static int defpackage_import_common(addr *ret,
 
 static int defpackage_export_common(addr *ret, addr expt, addr intern, addr root)
 {
+	int check;
 	addr list, pos;
 
 	for (list = root; list != Nil; ) {
@@ -512,7 +527,8 @@ static int defpackage_export_common(addr *ret, addr expt, addr intern, addr root
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
 			return fmte_(":export ~S must be a string-designer.", pos, NULL);
-		if (defpackage_find_common(pos, intern))
+		Return(defpackage_find_common_(pos, intern, &check));
+		if (check)
 			return fmte_(":export ~S already exists in :intern.", pos, NULL);
 	}
 	cons_heap(ret, root, expt);
@@ -522,6 +538,7 @@ static int defpackage_export_common(addr *ret, addr expt, addr intern, addr root
 
 static int defpackage_intern_common(addr *ret, addr expt, addr intern, addr root)
 {
+	int check;
 	addr list, pos;
 
 	for (list = root; list != Nil; ) {
@@ -530,7 +547,8 @@ static int defpackage_intern_common(addr *ret, addr expt, addr intern, addr root
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
 			return fmte_(":intern ~S must be a string-designer.", pos, NULL);
-		if (defpackage_find_common(pos, expt))
+		Return(defpackage_find_common_(pos, expt, &check));
+		if (check)
 			return fmte_(":intern ~S already exists in :export.", pos, NULL);
 	}
 	cons_heap(ret, root, intern);

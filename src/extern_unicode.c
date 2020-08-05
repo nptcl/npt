@@ -120,8 +120,7 @@ int lisp_eastasian_string_(addr value, size_t *ret)
 {
 	if (! stringp(value))
 		return fmte_("Invalid string type ~S.", value, NULL);
-	(void)eastasian_length(value, ret);
-	return 0;
+	return eastasian_length_(value, ret, NULL);
 }
 
 int lisp_eastasian_width_(addr value, size_t *ret)
@@ -132,10 +131,9 @@ int lisp_eastasian_width_(addr value, size_t *ret)
 		GetCharacter(value, &c);
 		return Result(ret, eastasian_width(c));
 	}
-	if (stringp(value)) {
-		(void)eastasian_length(value, ret);
-		return 0;
-	}
+	if (stringp(value))
+		return eastasian_length_(value, ret, NULL);
+
 	return fmte_("Invalid string type ~S.", value, NULL);
 }
 

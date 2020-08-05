@@ -165,7 +165,7 @@ static int function_list_all_packages(Execute ptr)
 {
 	addr list;
 
-	list_all_packages(&list);
+	Return(list_all_packages_(&list));
 	setresult_control(ptr, list);
 
 	return 0;

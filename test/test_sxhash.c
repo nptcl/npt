@@ -8,6 +8,7 @@
 static fixed sxdebug_eq(addr pos, int depth)
 {
 	fixed value;
+	value = 0;
 	Error(sxfixed_eq_(pos, depth, &value));
 	return value;
 }
@@ -27,6 +28,7 @@ static int test_sxfixed_eq(void)
 static fixed sxdebug_cons(addr pos, int depth)
 {
 	fixed value;
+	value = 0;
 	Error(sxfixed_cons_(pos, depth, &value));
 	return value;
 }
@@ -76,6 +78,7 @@ static int test_sxfixed_cons(void)
 static fixed sxdebug_vector(addr pos, int depth)
 {
 	fixed value;
+	value = 0;
 	Error(sxfixed_vector_(pos, depth, &value));
 	return value;
 }
@@ -93,6 +96,7 @@ static int test_sxfixed_vector(void)
 static fixed sxdebug_character(addr pos, int depth)
 {
 	fixed value;
+	value = 0;
 	Error(sxfixed_character_(pos, depth, &value));
 	return value;
 }
@@ -112,6 +116,7 @@ static int test_sxfixed_character(void)
 static fixed sxdebug_string(addr pos, int depth)
 {
 	fixed value;
+	value = 0;
 	Error(sxfixed_string_(pos, depth, &value));
 	return value;
 }
@@ -161,6 +166,7 @@ static int test_sxfixed_string(void)
 static fixed sxdebug_fixnum(addr pos, int depth)
 {
 	fixed value;
+	value = 0;
 	Error(sxfixed_fixnum_(pos, depth, &value));
 	return value;
 }

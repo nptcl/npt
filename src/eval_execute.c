@@ -344,13 +344,20 @@ _g int eval_object(Execute ptr, addr eval, addr *ret)
 /*
  *  eval-load
  */
-static int eval_load_fasl_p(addr file)
+static int eval_load_fasl_p_(addr file, int *ret)
 {
+	int check;
+
 	if (streamp(file))
-		return 0;
+		return Result(ret, 0);
 	GetTypePathname(file, &file);
-	return stringp(file) &&
-		(string_equalp_char(file, "fasl") || string_equalp_char(file, "fas"));
+	if (! stringp(file))
+		return Result(ret, 0);
+	Return(string_equalp_char_(file, "fasl", &check));
+	if (check)
+		return Result(ret, 1);
+	else
+		return string_equalp_char_(file, "fas", ret);
 }
 
 static int eval_load_push(Execute ptr, addr file, int exist, int binary,
@@ -522,13 +529,16 @@ static int eval_load_file(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
+	int check;
+
 	Return(eval_load_check(ptr, file, verbose, print, external,
 			CONSTANT_SPECIAL_LOAD_PATHNAME,
 			CONSTANT_SPECIAL_LOAD_TRUENAME,
 			CONSTANT_SPECIAL_LOAD_VERBOSE,
 			CONSTANT_SPECIAL_LOAD_PRINT,
 			&file));
-	if (eval_load_fasl_p(file))
+	Return(eval_load_fasl_p_(file, &check));
+	if (check)
 		return eval_load_fasl(ptr, ret, file, exist);
 	else
 		return eval_load_lisp(ptr, ret, file, exist);

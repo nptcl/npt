@@ -145,7 +145,7 @@ _g void getcallhandler_debug(addr pos, addr *ret);
 _g void setcallhandler_debug(addr pos, addr value);
 _g void getescapehandler_debug(addr pos, int *ret);
 _g void setescapehandler_debug(addr pos, int value);
-_g int checkhandler_control(addr pos, addr instance);
+_g int checkhandler_control_(addr pos, addr instance, int *ret);
 
 
 /*

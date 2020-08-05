@@ -57,38 +57,38 @@ static int test_array_equal_dimension(void)
 	addr pos1, pos2, type;
 
 	GetTypeTable(&type, T);
-	array_make_array(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_make_array(&pos2, Nil, type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array_(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos2, Nil, type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(array_equal_dimension(pos1, pos2), "array_equal_dimension.1");
 
-	array_make_array(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_make_array(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array_(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! array_equal_dimension(pos1, pos2), "array_equal_dimension.2");
 
-	array_make_array(&pos1, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
-	array_make_array(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array_(&pos1, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array_(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(array_equal_dimension(pos1, pos2), "array_equal_dimension.3");
 
-	array_make_array(&pos1, fixnumh(20), type, Unbound, Unbound, T, Nil, Nil, Nil);
-	array_make_array(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array_(&pos1, fixnumh(20), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array_(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! array_equal_dimension(pos1, pos2), "array_equal_dimension.4");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_equal_dimension(pos1, pos2), "array_equal_dimension.5");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(10), fixnumh(9), NULL);
-	array_make_array(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_equal_dimension(pos1, pos2), "array_equal_dimension.6");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(3), NULL);
-	array_make_array(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_equal_dimension(pos1, pos2), "array_equal_dimension.7");
 
 	RETURN;
@@ -99,12 +99,12 @@ static int test_array_get_element_type(void)
 	addr pos, check;
 
 	GetTypeTable(&pos, T);
-	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_get_element_type_(pos, &pos);
 	test(pos == T, "array_get_element_type.1");
 
 	GetTypeTable(&pos, LongFloat);
-	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_get_element_type_(pos, &pos);
 	GetConst(COMMON_LONG_FLOAT, &check);
 	test(pos == check, "array_get_element_type.2");
@@ -117,7 +117,7 @@ static int test_array_get_vector_length(void)
 	addr pos;
 
 	GetTypeTable(&pos, T);
-	array_make_array(&pos, fixnumh(22), pos,
+	array_make_array_(&pos, fixnumh(22), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_get_vector_length(pos, 0) == 22, "array_get_vector_length.1");
 
@@ -130,17 +130,17 @@ static int test_array_get_rowlength(void)
 	size_t size;
 
 	GetTypeTable(&type, T);
-	array_make_array(&pos, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_get_rowlength(pos, &size);
 	test(size == 1, "array_get_rowlength.1");
 
-	array_make_array(&pos, fixnumh(22), type,
+	array_make_array_(&pos, fixnumh(22), type,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_get_rowlength(pos, &size);
 	test(size == 22, "array_get_rowlength.2");
 
 	list_heap(&pos, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(&pos, pos, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array_(&pos, pos, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_get_rowlength(pos, &size);
 	test(size == 54, "array_get_rowlength.3");
 

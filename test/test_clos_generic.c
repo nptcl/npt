@@ -17,20 +17,20 @@
  */
 static int test_stdget_call(addr pos,
 		constindex name,
-		void (*set)(addr, addr),
-		void (*get)(addr, addr *))
+		int (*set_)(addr, addr),
+		int (*get_)(addr, addr *))
 {
 	addr check, k, v;
 
 	v = readr("aaa");
 	GetConstant(name, &k);
-	clos_set(pos, k, v);
-	(*get)(pos, &check);
+	clos_set_(pos, k, v);
+	(*get_)(pos, &check);
 	if (check != v)
 		return 0;
 
-	(*set)(pos, T);
-	clos_get(pos, k, &check);
+	(*set_)(pos, T);
+	clos_get_(pos, k, &check);
 	if (check != T)
 		return 0;
 
@@ -39,7 +39,7 @@ static int test_stdget_call(addr pos,
 
 #define CheckStdGetGeneric(a,b,c) { \
 	test(test_stdget_call((a), CONSTANT_CLOSNAME_##b, \
-				stdset_generic_##c, stdget_generic_##c), "generic_" #c); \
+				stdset_generic_##c##_, stdget_generic_##c##_), "generic_" #c); \
 }
 
 static int test_stdget_generic(void)
@@ -47,7 +47,7 @@ static int test_stdget_generic(void)
 	addr pos;
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 
 	CheckStdGetGeneric(pos, NAME, name);
 	CheckStdGetGeneric(pos, LAMBDA_LIST, lambda_list);
@@ -69,18 +69,19 @@ static int test_stdboundp_generic(void)
 	addr pos;
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 
-	check = stdboundp_generic_argument_precedence_order(pos);
+	check = 0;
+	stdboundp_generic_argument_precedence_order_(pos, &check);
 	test(! check, "stdboundp_generic1");
-	stdset_generic_argument_precedence_order(pos, Nil);
-	check = stdboundp_generic_argument_precedence_order(pos);
+	stdset_generic_argument_precedence_order_(pos, Nil);
+	stdboundp_generic_argument_precedence_order_(pos, &check);
 	test(check, "stdboundp_generic2");
 
-	check = stdboundp_generic_eqlcheck(pos);
+	stdboundp_generic_eqlcheck_(pos, &check);
 	test(! check, "stdboundp_generic3");
-	stdset_generic_eqlcheck(pos, Nil);
-	check = stdboundp_generic_eqlcheck(pos);
+	stdset_generic_eqlcheck_(pos, Nil);
+	stdboundp_generic_eqlcheck_(pos, &check);
 	test(check, "stdboundp_generic4");
 
 	RETURN;
@@ -88,7 +89,8 @@ static int test_stdboundp_generic(void)
 
 #define CheckStdGetSpecializer(a,b,c) { \
 	test(test_stdget_call((a), CONSTANT_CLOSNAME_##b, \
-				stdset_specializer_##c, stdget_specializer_##c), "specializer_" #c); \
+				stdset_specializer_##c##_, stdget_specializer_##c##_), \
+				"specializer_" #c); \
 }
 
 static int test_stdget_specializer(void)
@@ -96,7 +98,7 @@ static int test_stdget_specializer(void)
 	addr pos;
 
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 
 	CheckStdGetSpecializer(pos, OBJECT, object);
 	CheckStdGetSpecializer(pos, TYPE, type);
@@ -137,14 +139,14 @@ static void test_make_generic(addr *ret)
 {
 	addr clos;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &clos);
-	clos_instance_heap(clos, ret);
+	clos_instance_heap_(clos, ret);
 }
 
 static void test_make_method(addr *ret)
 {
 	addr clos;
 	GetConst(CLOS_STANDARD_METHOD, &clos);
-	clos_instance_heap(clos, ret);
+	clos_instance_heap_(clos, ret);
 }
 
 static int test_comb_standard_method_call(Execute ptr, addr right)
@@ -170,7 +172,7 @@ static int test_comb_standard_method(void)
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
-	stdset_method_function(method, call);
+	stdset_method_function_(method, call);
 	list_heap(&args, T, NULL);
 	comb_standard_method_(ptr, method, Nil, args);
 	getresult_control(ptr, &call);
@@ -189,7 +191,7 @@ static int test_comb_standard_funcall_call(Execute ptr, addr right)
 	/* method */
 	GetCons(right, &left, &right);
 	GetConst(CLOS_STANDARD_METHOD, &check);
-	if (! clos_subtype_p(left, check)) goto error;
+	if (! clos_subtype_p_debug(left, check)) goto error;
 
 	GetCons(right, &left, &right);
 	GetCons(left, &check, &left);
@@ -228,7 +230,7 @@ static int test_comb_standard_funcall(void)
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_funcall_call);
 	setcompiled_dynamic(call, p_debug1);
-	stdset_method_function(method, call);
+	stdset_method_function_(method, call);
 
 	fixnum_local(local, &value1, 10);
 	fixnum_local(local, &value2, 20);
@@ -236,7 +238,7 @@ static int test_comb_standard_funcall(void)
 	list_local(local, &around, method, value1, NULL);
 	list_local(local, &primary, value2, value3, NULL);
 	list_local(local, &args, T, NULL);
-	comb_standard_funcall(ptr, args, around, primary);
+	comb_standard_funcall_(ptr, args, around, primary);
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_funcall1");
 	free_control_(ptr, control);
@@ -257,7 +259,7 @@ static int test_function_standard_lambda(void)
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
-	stdset_method_function(method, call);
+	stdset_method_function_(method, call);
 	list_heap(&args, Nil, Nil, T, NULL);
 	list_heap(&data, method, NULL);
 	list_heap(&data, Nil, data, Nil, Nil, NULL);
@@ -285,16 +287,16 @@ static int test_comb_standard_qualifiers(void)
 	/* generic function */
 	test_make_generic(&generic);
 	GetConst(CLOS_STANDARD_METHOD, &method);
-	stdset_generic_method_class(generic, method);
+	stdset_generic_method_class_(generic, method);
 	/* make method */
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC4", &call);
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
-	stdset_method_function(method, call);
+	stdset_method_function_(method, call);
 	list_heap(&primary, method, NULL);
-	comb_standard_qualifiers(local, &method, generic, Nil, primary, Nil);
+	comb_standard_qualifiers_(local, &method, generic, Nil, primary, Nil);
 	/* run method */
 	push_new_control(ptr, &control);
 	list_heap(&args, T, NULL);
@@ -322,17 +324,17 @@ static int test_comb_standard(void)
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
-	stdset_method_function(method, call);
+	stdset_method_function_(method, call);
 	list_heap(&method, method, NULL);
 	SetArrayA4(data, 2, method);
 	/* call */
-	comb_standard(&call, data);
+	comb_standard_(&call, data);
 	/* clos_generic_call */
 	push_new_control(ptr, &control);
 	CallClosGenericCall(call, &callproc);
 	test_make_generic(&generic);
 	GetConst(CLOS_STANDARD_METHOD, &args);
-	stdset_generic_method_class(generic, args);
+	stdset_generic_method_class_(generic, args);
 	list_heap(&args, T, NULL);
 	callproc(ptr, call, generic, args);
 
@@ -347,7 +349,7 @@ static int test_comb_lambda(void)
 {
 	addr call;
 
-	comb_lambda(Execute_Thread, &call, Nil, Nil, Nil);
+	comb_lambda_(Execute_Thread, &call, Nil, Nil, Nil);
 	test(call, "comb_lambda1");
 
 	RETURN;
@@ -359,91 +361,117 @@ static int test_comb_lambda(void)
  */
 static int test_generic_eql_specializer(void)
 {
+	int check;
 	addr left, right, value;
 
+	check = 0;
 	fixnum_heap(&value, 40);
 	clos_intern_specializer_(value, &left);
 	fixnum_heap(&value, 40);
 	clos_intern_specializer_(value, &right);
-	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer1");
+	generic_eql_specializer_(left, right, 1, &check);
+	test(check, "generic_eql_specializer1");
 
 	GetConst(CLOS_REAL, &right);
-	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer2");
+	generic_eql_specializer_(left, right, 1, &check);
+	test(check, "generic_eql_specializer2");
 
 	fixnum_heap(&value, 40);
 	clos_intern_specializer_(value, &right);
 	GetConst(CLOS_FIXNUM, &left);
-	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer3");
-	test(! generic_eql_specializer(left, right, 0), "generic_eql_specializer4");
+	generic_eql_specializer_(left, right, 1, &check);
+	test(check, "generic_eql_specializer3");
+	generic_eql_specializer_(left, right, 0, &check);
+	test(! check, "generic_eql_specializer4");
 
 	GetConst(CLOS_FIXNUM, &left);
 	GetConst(CLOS_REAL, &right);
-	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer5");
+	generic_eql_specializer_(left, right, 1, &check);
+	test(check, "generic_eql_specializer5");
 
 	RETURN;
 }
 
 static int test_generic_make_method_check(void)
 {
+	int check;
 	addr method, pos1, pos2, argtype;
 
+	check = 0;
 	test_make_method(&method);
 	GetConst(CLOS_REAL, &pos1);
 	GetConst(CLOS_INTEGER, &pos2);
 	list_heap(&pos1, pos1, pos2, NULL);
-	stdset_method_specializers(method, pos1);
+	stdset_method_specializers_(method, pos1);
 
 	GetConst(CLOS_INTEGER, &pos1);
 	fixnum_heap(&pos2, 10);
 	clos_intern_specializer_(pos2, &pos2);
 	list_heap(&argtype, pos1, pos2, NULL);
-	test(generic_make_method_check(argtype, method), "generic_make_method_check1");
+	generic_make_method_check_(argtype, method, &check);
+	test(check, "generic_make_method_check1");
 
 	character_heap(&pos2, 10);
 	clos_intern_specializer_(pos2, &pos2);
 	list_heap(&argtype, pos1, pos2, NULL);
-	test(! generic_make_method_check(argtype, method), "generic_make_method_check2");
+	generic_make_method_check_(argtype, method, &check);
+	test(! check, "generic_make_method_check2");
 
 	RETURN;
 }
 
 static int test_generic_compare_class(void)
 {
+	int check;
 	addr left, right;
 
+	check = 0;
 	GetConst(CLOS_INTEGER, &left);
-	test(generic_compare_class(left, left) == 0, "generic_compare_class1");
+	generic_compare_class_(left, left, &check);
+	test(check == 0, "generic_compare_class1");
 
 	GetConst(CLOS_REAL, &right);
-	test(generic_compare_class(left, right) < 0, "generic_compare_class2");
+	generic_compare_class_(left, right, &check);
+	test(check < 0, "generic_compare_class2");
 
 	GetConst(CLOS_FIXNUM, &right);
-	test(generic_compare_class(left, right) > 0, "generic_compare_class3");
+	generic_compare_class_(left, right, &check);
+	test(check > 0, "generic_compare_class3");
 
 	RETURN;
 }
 
 static int test_generic_compare_eql(void)
 {
-	test(generic_compare_eql(T, T) == 0, "generic_compare_eql1");
+	int check;
+
+	check = 0;
+	generic_compare_eql_(T, T, &check);
+	test(check == 0, "generic_compare_eql1");
+
 	RETURN;
 }
 
 static int test_generic_compare_eql_type(void)
 {
+	int check;
 	addr left, right, pos;
 
+	check = 0;
 	fixnum_heap(&left, 10);
 	clos_intern_specializer_(left, &left);
 	GetConst(CLOS_REAL, &right);
-	test(generic_compare_eql_type(left, right) < 0, "generic_compare_eql_type1");
+	generic_compare_eql_type_(left, right, &check);
+	test(check < 0, "generic_compare_eql_type1");
 
 	GetConst(CLOS_FIXNUM, &right);
-	test(generic_compare_eql_type(left, right) < 0, "generic_compare_eql_type2");
+	generic_compare_eql_type_(left, right, &check);
+	test(check < 0, "generic_compare_eql_type2");
 
 	GetConst(CLOS_INTEGER, &pos);
-	stdset_specializer_type(left, pos);
-	test(generic_compare_eql_type(left, right) > 0, "generic_compare_eql_type3");
+	stdset_specializer_type_(left, pos);
+	generic_compare_eql_type_(left, right, &check);
+	test(check > 0, "generic_compare_eql_type3");
 	clos_forget_all_specializer_unsafe();
 
 	RETURN;
@@ -451,19 +479,25 @@ static int test_generic_compare_eql_type(void)
 
 static int test_generic_compare_type_eql(void)
 {
+	int check;
 	addr left, right, pos;
+
+	check = 0;
 
 	fixnum_heap(&right, 10);
 	clos_intern_specializer_(right, &right);
 	GetConst(CLOS_REAL, &left);
-	test(generic_compare_type_eql(left, right) > 0, "generic_compare_type_eql1");
+	generic_compare_type_eql_(left, right, &check);
+	test(check > 0, "generic_compare_type_eql1");
 
 	GetConst(CLOS_FIXNUM, &left);
-	test(generic_compare_type_eql(left, right) > 0, "generic_compare_type_eql2");
+	generic_compare_type_eql_(left, right, &check);
+	test(check > 0, "generic_compare_type_eql2");
 
 	GetConst(CLOS_INTEGER, &pos);
-	stdset_specializer_type(right, pos);
-	test(generic_compare_type_eql(left, right) < 0, "generic_compare_type_eql3");
+	stdset_specializer_type_(right, pos);
+	generic_compare_type_eql_(left, right, &check);
+	test(check < 0, "generic_compare_type_eql3");
 	clos_forget_all_specializer_unsafe();
 
 	RETURN;
@@ -471,18 +505,26 @@ static int test_generic_compare_type_eql(void)
 
 static int test_generic_compare_specializer(void)
 {
+	int check;
 	addr left, right;
+
+	check = 0;
 
 	fixnum_heap(&left, 10);
 	clos_intern_specializer_(left, &left);
-	test(generic_compare_specializer(left, left) == 0, "generic_compare_specializer1");
+	generic_compare_specializer_(left, left, &check);
+	test(check == 0, "generic_compare_specializer1");
 
 	GetConst(CLOS_REAL, &right);
-	test(generic_compare_specializer(left, right) < 0, "generic_compare_specializer2");
-	test(generic_compare_specializer(right, left) > 0, "generic_compare_specializer3");
-	test(generic_compare_specializer(right, right) == 0, "generic_compare_specializer4");
+	generic_compare_specializer_(left, right, &check);
+	test(check < 0, "generic_compare_specializer2");
+	generic_compare_specializer_(right, left, &check);
+	test(check > 0, "generic_compare_specializer3");
+	generic_compare_specializer_(right, right, &check);
+	test(check == 0, "generic_compare_specializer4");
 	GetConst(CLOS_INTEGER, &left);
-	test(generic_compare_specializer(left, right) < 0, "generic_compare_specializer5");
+	generic_compare_specializer_(left, right, &check);
+	test(check < 0, "generic_compare_specializer5");
 
 	RETURN;
 }
@@ -492,16 +534,19 @@ static int test_generic_sort_compare(void)
 	int check;
 	addr fixnum, integer, real, cons1, cons2;
 
+	check = 0;
+
 	GetConst(CLOS_FIXNUM, &fixnum);
 	GetConst(CLOS_INTEGER, &integer);
 	GetConst(CLOS_REAL, &real);
 	list_heap(&cons1, fixnum, real, integer, NULL);
 	list_heap(&cons2, fixnum, integer, fixnum, NULL);
-	check = generic_sort_compare(generic_compare_specializer, cons1, cons2);
+	check = 0;
+	generic_sort_compare_(generic_compare_specializer_, cons1, cons2, &check);
 	test(! check, "generic_sort_compare1");
-	check = generic_sort_compare(generic_compare_specializer, cons2, cons1);
+	generic_sort_compare_(generic_compare_specializer_, cons2, cons1, &check);
 	test(check, "generic_sort_compare2");
-	check = generic_sort_compare(generic_compare_specializer, cons1, cons1);
+	generic_sort_compare_(generic_compare_specializer_, cons1, cons1, &check);
 	test(check, "generic_sort_compare3");
 
 	RETURN;
@@ -512,6 +557,8 @@ static int test_generic_sort_call(void)
 	int check;
 	addr fixnum, integer, real, cons1, cons2, method1, method2;
 
+	check = 0;
+
 	test_make_method(&method1);
 	test_make_method(&method2);
 	GetConst(CLOS_FIXNUM, &fixnum);
@@ -519,14 +566,14 @@ static int test_generic_sort_call(void)
 	GetConst(CLOS_REAL, &real);
 	list_heap(&cons1, fixnum, real, integer, NULL);
 	list_heap(&cons2, fixnum, integer, fixnum, NULL);
-	stdset_method_specializers(method1, cons1);
-	stdset_method_specializers(method2, cons2);
+	stdset_method_specializers_(method1, cons1);
+	stdset_method_specializers_(method2, cons2);
 
-	check = generic_sort_call(method1, method2);
+	generic_sort_call_(method1, method2, &check);
 	test(! check, "generic_sort_call1");
-	check = generic_sort_call(method2, method1);
+	generic_sort_call_(method2, method1, &check);
 	test(check, "generic_sort_call2");
-	check = generic_sort_call(method1, method1);
+	generic_sort_call_(method1, method1, &check);
 	test(check, "generic_sort_call3");
 
 	RETURN;
@@ -538,6 +585,8 @@ static int test_generic_sort(void)
 	addr fixnum, integer, real, cons1, cons2;
 	addr order, value1, value2, value3;
 
+	check = 0;
+
 	GetConst(CLOS_FIXNUM, &fixnum);
 	GetConst(CLOS_INTEGER, &integer);
 	GetConst(CLOS_REAL, &real);
@@ -548,18 +597,18 @@ static int test_generic_sort(void)
 	index_heap(&value2, 1);
 	index_heap(&value3, 2);
 	list_heap(&order, value1, value2, value3, NULL);
-	check = generic_sort(order, generic_compare_specializer, cons1, cons2);
+	generic_sort_(order, generic_compare_specializer_, cons1, cons2, &check);
 	test(! check, "generic_sort1");
-	check = generic_sort(order, generic_compare_specializer, cons2, cons1);
+	generic_sort_(order, generic_compare_specializer_, cons2, cons1, &check);
 	test(check, "generic_sort2");
-	check = generic_sort(order, generic_compare_specializer, cons1, cons1);
+	generic_sort_(order, generic_compare_specializer_, cons1, cons1, &check);
 	test(check, "generic_sort3");
 
 	list_heap(&order, value2, value1, value3, NULL);
-	check = generic_sort(order, generic_compare_specializer, cons1, cons2);
+	generic_sort_(order, generic_compare_specializer_, cons1, cons2, &check);
 	test(! check, "generic_sort4");
 	list_heap(&order, value3, value2, value1, NULL);
-	check = generic_sort(order, generic_compare_specializer, cons1, cons2);
+	generic_sort_(order, generic_compare_specializer_, cons1, cons2, &check);
 	test(check, "generic_sort5");
 
 	RETURN;
@@ -571,6 +620,8 @@ static int test_generic_sort_order_call(void)
 	addr fixnum, integer, real, cons1, cons2, method1, method2;
 	addr order, value1, value2, value3;
 
+	check = 0;
+
 	GetConst(CLOS_FIXNUM, &fixnum);
 	GetConst(CLOS_INTEGER, &integer);
 	GetConst(CLOS_REAL, &real);
@@ -578,25 +629,25 @@ static int test_generic_sort_order_call(void)
 	list_heap(&cons2, fixnum, integer, integer, NULL);
 	test_make_method(&method1);
 	test_make_method(&method2);
-	stdset_method_specializers(method1, cons1);
-	stdset_method_specializers(method2, cons2);
+	stdset_method_specializers_(method1, cons1);
+	stdset_method_specializers_(method2, cons2);
 
 	index_heap(&value1, 0);
 	index_heap(&value2, 1);
 	index_heap(&value3, 2);
 	list_heap(&order, value1, value2, value3, NULL);
-	check = generic_sort_order_call(order, method1, method2);
+	generic_sort_order_call_(order, method1, method2, &check);
 	test(! check, "generic_sort_order_call1");
-	check = generic_sort_order_call(order, method2, method1);
+	generic_sort_order_call_(order, method2, method1, &check);
 	test(check, "generic_sort_order_call2");
-	check = generic_sort_order_call(order, method1, method1);
+	generic_sort_order_call_(order, method1, method1, &check);
 	test(check, "generic_sort_order_call3");
 
 	list_heap(&order, value2, value1, value3, NULL);
-	check = generic_sort_order_call(order, method1, method2);
+	generic_sort_order_call_(order, method1, method2, &check);
 	test(! check, "generic_sort_order_call4");
 	list_heap(&order, value3, value2, value1, NULL);
-	check = generic_sort_order_call(order, method1, method2);
+	generic_sort_order_call_(order, method1, method2, &check);
 	test(check, "generic_sort_order_call5");
 
 	RETURN;
@@ -618,18 +669,18 @@ static int test_generic_specializers_sort(void)
 	test_make_method(&method1);
 	test_make_method(&method2);
 	test_make_method(&method3);
-	stdset_method_specializers(method1, cons1);
-	stdset_method_specializers(method2, cons2);
-	stdset_method_specializers(method3, cons3);
+	stdset_method_specializers_(method1, cons1);
+	stdset_method_specializers_(method2, cons2);
+	stdset_method_specializers_(method3, cons3);
 
 	index_heap(&value1, 0);
 	index_heap(&value2, 1);
 	index_heap(&value3, 2);
 	test_make_generic(&generic);
 	list_heap(&order, value2, value1, value3, NULL);
-	stdset_generic_precedence_index(generic, order);
+	stdset_generic_precedence_index_(generic, order);
 	list_heap(&cons1, method1, method2, method3, NULL);
-	generic_specializers_sort(&cons1, generic, cons1);
+	generic_specializers_sort_(&cons1, generic, cons1);
 
 	GetCons(cons1, &cons2, &cons1);
 	test(cons2 == method2, "generic_specializers_sort1");
@@ -638,9 +689,9 @@ static int test_generic_specializers_sort(void)
 	GetCons(cons1, &cons2, &cons1);
 	test(cons2 == method1, "generic_specializers_sort3");
 
-	stdset_generic_precedence_index(generic, Nil);
+	stdset_generic_precedence_index_(generic, Nil);
 	list_heap(&cons1, method1, method2, method3, NULL);
-	generic_specializers_sort(&cons1, generic, cons1);
+	generic_specializers_sort_(&cons1, generic, cons1);
 	GetCons(cons1, &cons2, &cons1);
 	test(cons2 == method2, "generic_specializers_sort4");
 	GetCons(cons1, &cons2, &cons1);
@@ -658,32 +709,32 @@ static int test_generic_make_type(void)
 	Execute ptr;
 
 	test_make_generic(&generic);
-	stdset_generic_argument_precedence_order(generic, Nil);
-	stdset_generic_precedence_index(generic, Nil);
+	stdset_generic_argument_precedence_order_(generic, Nil);
+	stdset_generic_precedence_index_(generic, Nil);
 	/* method-combination */
-	stdset_generic_method_combination(generic, Nil);
+	stdset_generic_method_combination_(generic, Nil);
 	/* method-class */
 	GetConst(CLOS_STANDARD_METHOD, &pos);
-	stdset_generic_method_class(generic, pos);
+	stdset_generic_method_class_(generic, pos);
 	/* method */
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
 	compiled_system(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);
-	stdset_method_function(method, pos);
+	stdset_method_function_(method, pos);
 	GetConst(CLOS_T, &check);
 	list_heap(&pos, check, NULL);
-	stdset_method_specializers(method, pos);
+	stdset_method_specializers_(method, pos);
 	list_heap(&method, method, NULL);
 	/* methods */
 	vector4_heap(&pos, 4);
 	SetArrayA4(pos, 2, method); /* primary */
-	stdset_generic_methods(generic, pos);
+	stdset_generic_methods_(generic, pos);
 	/* call */
 	GetConst(CLOS_T, &check);
 	list_heap(&pos, check, NULL);
-	generic_make_type(Execute_Thread, &pos, generic, pos);
+	generic_make_type_(Execute_Thread, &pos, generic, pos);
 	CallClosGenericCall(pos, &call);
 	list_heap(&args, T, NULL);
 	ptr = Execute_Thread;
@@ -763,7 +814,7 @@ static int test_generic_make_lambda_call(void)
 	push_new_control(ptr, &control);
 	fixnum_heap(&pos, 100);
 	list_heap(&pos, pos, NULL);
-	generic_make_lambda_call(ptr, instance, Nil, pos);
+	generic_make_lambda_call_(ptr, instance, Nil, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "generic_make_lambda_call1");
 	free_control_(ptr, control);
@@ -787,25 +838,25 @@ static int test_closrun_execute(void)
 
 	argument_generic_heap_(ptr->local, &lambda, lambda);
 	parse_callname_error(&name, name);
-	generic_empty(name, lambda, &generic);
+	generic_empty_(name, lambda, &generic);
 	list_heap(&pos, Nil, NULL);
-	stdset_generic_eqlcheck(generic, pos);
+	stdset_generic_eqlcheck_(generic, pos);
 	/* method */
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
 	compiled_system(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);
-	stdset_method_function(method, pos);
+	stdset_method_function_(method, pos);
 	GetConst(CLOS_T, &value);
 	list_heap(&pos, value, NULL);
-	stdset_method_specializers(method, pos);
+	stdset_method_specializers_(method, pos);
 	/* methods */
-	stdget_generic_methods(generic, &pos);
+	stdget_generic_methods_(generic, &pos);
 	list_heap(&method, method, NULL);
 	SetArrayA4(pos, 2, method); /* primary */
 	/* finalize */
-	generic_finalize(generic);
+	generic_finalize_(generic);
 	/* execute */
 	push_new_control(ptr, &control);
 	fixnum_heap(&value, 100);

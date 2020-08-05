@@ -6,12 +6,12 @@ static int test_make_vector_from_list(void)
 {
 	addr pos, check;
 
-	make_vector_from_list(&pos, Nil);
+	make_vector_from_list_(&pos, Nil);
 	test(GetType(pos) == LISPTYPE_VECTOR, "make_vector_from_list.1");
 	test(lenarrayr(pos) == 0, "make_vector_from_list.2");
 
 	list_heap(&pos, Nil, T, fixnumh(10), NULL);
-	make_vector_from_list(&pos, pos);
+	make_vector_from_list_(&pos, pos);
 	test(GetType(pos) == LISPTYPE_VECTOR, "make_vector_from_list.3");
 	test(lenarrayr(pos) == 3, "make_vector_from_list.4");
 	getarray(pos, 0, &check);

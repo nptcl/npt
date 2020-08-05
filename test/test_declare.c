@@ -1659,12 +1659,12 @@ static int test_declare_body(void)
 
 static int test_declare_body_documentation(void)
 {
-	int result;
+	int check;
 	addr cons, doc, decl, body;
 
 	doc = decl = body = NULL;
-	result = declare_body_documentation_(Execute_Thread, Nil, Nil, &doc, &decl, &body);
-	test(result == 0, "declare_body_documentation1");
+	check = declare_body_documentation_(Execute_Thread, Nil, Nil, &doc, &decl, &body);
+	test(check == 0, "declare_body_documentation1");
 	test(doc == Nil, "declare_body_documentation2");
 	test(decl == Nil && body == Nil, "declare_body_documentation3");
 
@@ -1678,7 +1678,7 @@ static int test_declare_body_documentation(void)
 	readstring(&cons, "(\"Hello\" 100 200)");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
-	test(string_equal_char(doc, "Hello"), "declare_body_documentation7");
+	test(string_equal_char_debug(doc, "Hello"), "declare_body_documentation7");
 	test(decl == Nil, "declare_body_documentation8");
 	test(body != Nil, "declare_body_documentation9");
 

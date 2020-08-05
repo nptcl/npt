@@ -62,7 +62,8 @@ _g int input_unicode_filememory(struct filememory *fm, const unicode *name, size
 {
 	file_type file;
 
-	if (open_input_unicode(&file, name, size)) return 1;
+	if (open_input_unicode(&file, name, size))
+		return 1;
 	init_input_filememory(fm, file);
 
 	return 0;
@@ -114,45 +115,53 @@ _g void standard_error_filememory(struct filememory *fm)
 	fm->cache = 0;
 }
 
-_g int open_input_filememory(LocalRoot local, struct filememory *fm, addr name)
+_g int open_input_filememory_(LocalRoot local,
+		struct filememory *fm, addr name, int *ret)
 {
+	int check;
 	file_type file;
 
 	Check(! stringp(name), "name error");
-	if (open_input_arch(local, &file, name)) {
-		return 1;
-	}
+	Return(open_input_arch_(local, name, &file, &check));
+	if (check)
+		return Result(ret, 1);
 	init_input_filememory(fm, file);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int open_output_filememory(LocalRoot local, struct filememory *fm,
-		addr name, enum FileOutput mode)
+_g int open_output_filememory_(LocalRoot local,
+		struct filememory *fm, addr name, enum FileOutput mode, int *ret)
 {
+	int check;
 	file_type file;
 
 	Check(! stringp(name), "name error");
-	if (open_output_arch(local, &file, name, mode)) return 1;
+	Return(open_output_arch_(local, name, mode, &file, &check));
+	if (check)
+		return Result(ret, 1);
 	init_output(fm, file);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int open_io_filememory(LocalRoot local, struct filememory *fm,
-		addr name, enum FileOutput mode)
+_g int open_io_filememory_(LocalRoot local,
+		struct filememory *fm, addr name, enum FileOutput mode, int *ret)
 {
+	int check;
 	file_type file;
 
 	Check(! stringp(name), "name error");
-	if (open_io_arch(local, &file, name, mode)) return 1;
+	Return(open_io_arch_(local, name, mode, &file, &check));
+	if (check)
+		return Result(ret, 1);
 	init_filememory(fm);
 	fm->file = file;
 	fm->mode = filememory_normal;
 	fm->direct = filememory_io;
 	fm->size = FILEMEMORY_SIZE;
 
-	return 0;
+	return Result(ret, 0);
 }
 
 _g int close_filememory(struct filememory *fm)
@@ -206,7 +215,8 @@ static inline int readforce(file_type file, byte *pos, size_t size, size_t *ret)
 		}
 		/* EOF */
 		if (check) {
-			if (count == 0) return check;
+			if (count == 0)
+				return check;
 			break;
 		}
 		/* Next */
@@ -232,7 +242,8 @@ static inline int writeforce(file_type file, const byte *pos, size_t size, size_
 		}
 		/* EOF */
 		if (check) {
-			if (count == 0) return check;
+			if (count == 0)
+				return check;
 			break;
 		}
 		/* Next */
@@ -267,7 +278,8 @@ static inline int readforce_nonblocking(file_type file,
 			return check;
 		}
 		if (check) {
-			if (count == 0) return 1;
+			if (count == 0)
+				return 1;
 			break;
 		}
 		if (size <= rsize) {
@@ -478,8 +490,10 @@ static inline int read_normal(struct filememory *fm,
 
 static int flush_io_filememory(struct filememory *fm, int readp)
 {
-	if (readp && fm->readio) return 0;
-	if ((! readp) && (! fm->readio)) return 0;
+	if (readp && fm->readio)
+		return 0;
+	if ((! readp) && (! fm->readio))
+		return 0;
 	fm->readio = readp? 1: 0;
 	return flush_filememory(fm);
 }
@@ -527,7 +541,8 @@ static inline int read_normal_force(struct filememory *fm,
 		check = read_normal(fm, pos + count, size - count, &result);
 		stream_errorcheck(fm, check, "read_normal");
 		if (check) {
-			if (count) break;
+			if (count)
+				break;
 			fm->mode = filememory_end;
 			return check;
 		}
@@ -1045,7 +1060,8 @@ _g int flush_filememory(struct filememory *fm)
 {
 	int check;
 
-	if (fm->mode == filememory_end) goto sync;
+	if (fm->mode == filememory_end)
+		goto sync;
 	switch (fm->direct) {
 		case filememory_input:
 			break;
@@ -1087,7 +1103,8 @@ _g void exitpoint_filememory(struct filememory *fm)
 
 _g int end_filememory(struct filememory *fm)
 {
-	if (fm->mode == filememory_end) return 1;
+	if (fm->mode == filememory_end)
+		return 1;
 	if (fm->mode == filememory_error) {
 		Debug("mode error");
 		return -1;
@@ -1109,8 +1126,10 @@ _g int listen_filememory(struct filememory *fm)
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->mode == filememory_end) return 0;
-	if (fm->mode != filememory_normal) return 1;
+	if (fm->mode == filememory_end)
+		return 0;
+	if (fm->mode != filememory_normal)
+		return 1;
 	if (fm->index == 0) {
 		check = read_ready_arch(fm->file);
 #ifdef LISP_DEBUG
@@ -1127,11 +1146,14 @@ _g int clear_input_filememory(struct filememory *fm)
 {
 	switch (fm->direct) {
 		case filememory_io:
-			if (! fm->readio) return 0;
+			if (! fm->readio)
+				return 0;
 			/* FALLTHROUGH */
 		case filememory_input:
-			if (fm->mode == filememory_end) return 0;
-			if (fm->mode != filememory_normal) return 1;
+			if (fm->mode == filememory_end)
+				return 0;
+			if (fm->mode != filememory_normal)
+				return 1;
 			/* clear buffer */
 			fm->ungetc = 0;
 			fm->index = fm->size = 0;
@@ -1147,11 +1169,14 @@ _g int clear_output_filememory(struct filememory *fm)
 {
 	switch (fm->direct) {
 		case filememory_io:
-			if (fm->readio) return 0;
+			if (fm->readio)
+				return 0;
 			/* FALLTHROUGH */
 		case filememory_output:
-			if (fm->mode == filememory_end) return 0;
-			if (fm->mode != filememory_normal) return 1;
+			if (fm->mode == filememory_end)
+				return 0;
+			if (fm->mode != filememory_normal)
+				return 1;
 			/* clear buffer */
 			fm->index = 0;
 			fm->size = FILEMEMORY_SIZE;

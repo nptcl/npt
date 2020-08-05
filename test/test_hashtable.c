@@ -183,7 +183,7 @@ static void makeunicodechar(addr *ret, const char *str)
 	size = strlen(str);
 	strvect_heap(&pos, size);
 	for (i = 0; i < size; i++)
-		strvect_setc(pos, i, (unicode)ptr[i]);
+		strvect_setc_(pos, i, (unicode)ptr[i]);
 	*ret = pos;
 }
 

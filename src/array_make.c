@@ -81,7 +81,7 @@ _g void array_set_element_size(addr pos)
 /*
  *  array-set-dimension
  */
-static void array_getsize(addr pos, size_t *ret)
+static int array_getsize_(addr pos, size_t *ret)
 {
 	struct array_struct *str;
 	size_t dimension, i, size;
@@ -93,9 +93,10 @@ static void array_getsize(addr pos, size_t *ret)
 	size = 1;
 	for (i = 0; i < dimension; i++) {
 		if (multisafe_size(size, data[i], &size))
-			fmte("size overflow.", NULL);
+			return fmte_("size overflow.", NULL);
 	}
-	*ret = size;
+
+	return Result(ret, size);
 }
 
 static void array_set_dimension0(addr pos, size_t *ret)
@@ -108,67 +109,81 @@ static void array_set_dimension0(addr pos, size_t *ret)
 	*ret = 1;
 }
 
-static void array_set_dimension1(addr pos, addr value, size_t *ret)
+static int array_set_dimension1_(addr pos, addr value, size_t *ret)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	if (minusp_integer(value))
-		fmte("Array index ~A must be a non-negative integer.", value, NULL);
-	if (GetIndex_integer(value, ret))
-		fmte("Array index ~A is too large.", value, NULL);
+	if (minusp_integer(value)) {
+		*ret = 0;
+		return fmte_("Array index ~A must be a non-negative integer.", value, NULL);
+	}
+	if (GetIndex_integer(value, ret)) {
+		*ret = 0;
+		return fmte_("Array index ~A is too large.", value, NULL);
+	}
 	str->dimension = 1;
 	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
+
+	return 0;
 }
 
-static void array_set_dimension2(addr pos, addr value, size_t *ret)
+static int array_set_dimension2_(addr pos, addr value, size_t *ret)
 {
 	struct array_struct *str;
 	addr temp, index;
 	size_t size, *data, i;
 
 	str = ArrayInfoStruct(pos);
-	size = length_list_safe(value);
+	Return(length_list_safe_(value, &size));
 	if (size == 1) {
 		GetCar(value, &value);
-		array_set_dimension1(pos, value, ret);
-		return;
+		return array_set_dimension1_(pos, value, ret);
 	}
-	arraysize_heap(&temp, size);
+	Return(arraysize_heap_(&temp, size));
 	data = arraysize_ptr(temp);
 	for (i = 0; value != Nil; i++) {
 		GetCons(value, &index, &value);
-		if (! integerp(index))
-			fmte("Array index ~A must be an integer.", index, NULL);
-		if (minusp_integer(index))
-			fmte("Array index ~A must be a non-negative integer.", index, NULL);
-		if (GetIndex_integer(index, &size))
-			fmte("Array index ~A is too large.", index, NULL);
+		if (! integerp(index)) {
+			*ret = 0;
+			return fmte_("Array index ~A must be an integer.", index, NULL);
+		}
+		if (minusp_integer(index)) {
+			*ret = 0;
+			return fmte_("Array index ~A must be a non-negative integer.", index, NULL);
+		}
+		if (GetIndex_integer(index, &size)) {
+			*ret = 0;
+			return fmte_("Array index ~A is too large.", index, NULL);
+		}
 		data[i] = size;
 	}
 	str->dimension = i;
 	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
-	array_getsize(pos, ret);
+	return array_getsize_(pos, ret);
 }
 
-_g void array_set_dimension(addr pos, addr value)
+_g int array_set_dimension_(addr pos, addr value)
 {
 	struct array_struct *str;
 	size_t size;
 
-	if (value == Nil)
+	if (value == Nil) {
 		array_set_dimension0(pos, &size);
-	else if (integerp(value))
-		array_set_dimension1(pos, value, &size);
-	else if (consp(value))
-		array_set_dimension2(pos, value, &size);
-	else {
-		fmte("Array index ~A must be an integer or list.", value, NULL);
-		return;
 	}
-
+	else if (integerp(value)) {
+		Return(array_set_dimension1_(pos, value, &size));
+	}
+	else if (consp(value)) {
+		Return(array_set_dimension2_(pos, value, &size));
+	}
+	else {
+		return fmte_("Array index ~A must be an integer or list.", value, NULL);
+	}
 	str = ArrayInfoStruct(pos);
 	str->size = str->front = size;
+
+	return 0;
 }
 
 
@@ -189,35 +204,35 @@ _g void array_allocate_bit(LocalRoot local, addr pos, struct array_struct *str)
 	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
 }
 
-_g void array_allocate_size(LocalRoot local, addr pos, struct array_struct *str)
+_g int array_allocate_size_(LocalRoot local, addr pos, struct array_struct *str)
 {
 	addr array;
 	size_t size;
 
 	if (multisafe_size(str->size , str->element, &size))
-		fmte("size overflow.", NULL);
+		return fmte_("size overflow.", NULL);
 	arrayspec_alloc(local, &array, size);
 	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
+
+	return 0;
 }
 
-_g void array_allocate(LocalRoot local, addr pos, struct array_struct *str)
+_g int array_allocate_(LocalRoot local, addr pos, struct array_struct *str)
 {
 	switch (str->type) {
 		case ARRAY_TYPE_EMPTY:
-			fmte("The array has no element size.", NULL);
-			break;
+			return fmte_("The array has no element size.", NULL);
 
 		case ARRAY_TYPE_T:
 			array_allocate_t(local, pos, str);
-			break;
+			return 0;
 
 		case ARRAY_TYPE_BIT:
 			array_allocate_bit(local, pos, str);
-			break;
+			return 0;
 
 		default:
-			array_allocate_size(local, pos, str);
-			break;
+			return array_allocate_size_(local, pos, str);
 	}
 }
 
@@ -230,29 +245,31 @@ static void array_set_adjustable(struct array_struct *str, addr adjustable)
 	str->adjustable = (adjustable != Nil);
 }
 
-static void array_set_fillpointer(struct array_struct *str, addr fill)
+static int array_set_fillpointer_(struct array_struct *str, addr fill)
 {
 	size_t size;
 
 	str->fillpointer = (fill != Nil);
 	if (fill == Nil)
-		return;
+		return 0;
 	if (str->dimension != 1)
-		fmte("fill-pointer array must be a 1 dimensional.", NULL);
+		return fmte_("fill-pointer array must be a 1 dimensional.", NULL);
 	if (fill == T)
-		return;
+		return 0;
 	if (! integerp(fill))
-		fmte("fill-pointer ~A must be an integer.", fill, NULL);
+		return fmte_("fill-pointer ~A must be an integer.", fill, NULL);
 	if (minusp_integer(fill))
-		fmte("fill-pointer ~A must be a non-negative integer.", fill, NULL);
+		return fmte_("fill-pointer ~A must be a non-negative integer.", fill, NULL);
 	if (GetIndex_integer(fill, &size))
-		fmte("fill-pointer ~A is too large.", fill, NULL);
+		return fmte_("fill-pointer ~A is too large.", fill, NULL);
 	if (str->size < size)
-		fmte("fill-pointer ~A must be less than array size.", fill, NULL);
+		return fmte_("fill-pointer ~A must be less than array size.", fill, NULL);
 	str->front = size;
+
+	return 0;
 }
 
-static void array_set_displaced_array(
+static int array_set_displaced_array_(
 		addr pos, addr displaced, addr offset, size_t *ret)
 {
 	struct array_struct *str1, *str2;
@@ -260,15 +277,19 @@ static void array_set_displaced_array(
 	str1 = ArrayInfoStruct(pos);
 	str2 = ArrayInfoStruct(displaced);
 	if (str2->size < str1->size) {
-		fmte("Array size and offset must be less than equal to "
+		*ret = 0;
+		return fmte_("Array size and offset must be less than equal to "
 				"displaced array size.", NULL);
 	}
-	if (! array_equal_type(str1, str2->type, str2->bytesize))
-		fmte("Array type must be equal to displaced array.", NULL);
-	*ret = str2->size;
+	if (! array_equal_type(str1, str2->type, str2->bytesize)) {
+		*ret = 0;
+		return fmte_("Array type must be equal to displaced array.", NULL);
+	}
+
+	return Result(ret, str2->size);
 }
 
-static void array_set_displaced_vector(
+static int array_set_displaced_vector_(
 		addr pos, addr displaced, addr offset, size_t *ret)
 {
 	struct array_struct *str;
@@ -278,15 +299,19 @@ static void array_set_displaced_vector(
 	str = ArrayInfoStruct(pos);
 	lenarray(displaced, &size);
 	if (size < str->size) {
-		fmte("Array size and offset must be less than equal to "
+		*ret = 0;
+		return fmte_("Array size and offset must be less than equal to "
 				"displaced array size.", NULL);
 	}
-	if (! array_equal_type(str, ARRAY_TYPE_T, 0))
-		fmte("Array type must be equal to displaced array.", NULL);
-	*ret = size;
+	if (! array_equal_type(str, ARRAY_TYPE_T, 0)) {
+		*ret = 0;
+		return fmte_("Array type must be equal to displaced array.", NULL);
+	}
+
+	return Result(ret, size);
 }
 
-static void array_set_displaced_bitvector(
+static int array_set_displaced_bitvector_(
 		addr pos, addr displaced, addr offset, size_t *ret)
 {
 	struct array_struct *str;
@@ -296,15 +321,19 @@ static void array_set_displaced_bitvector(
 	str = ArrayInfoStruct(pos);
 	bitmemory_length(displaced, &size);
 	if (size < str->size) {
-		fmte("Array size and offset must be less than equal to "
+		*ret = 0;
+		return fmte_("Array size and offset must be less than equal to "
 				"displaced array size.", NULL);
 	}
-	if (! array_equal_type(str, ARRAY_TYPE_BIT, 0))
-		fmte("Array type must be equal to displaced array.", NULL);
-	*ret = size;
+	if (! array_equal_type(str, ARRAY_TYPE_BIT, 0)) {
+		*ret = 0;
+		return fmte_("Array type must be equal to displaced array.", NULL);
+	}
+
+	return Result(ret, size);
 }
 
-static void array_set_displaced_string(
+static int array_set_displaced_string_(
 		addr pos, addr displaced, addr offset, size_t *ret)
 {
 	struct array_struct *str;
@@ -314,15 +343,19 @@ static void array_set_displaced_string(
 	str = ArrayInfoStruct(pos);
 	string_length(displaced, &size);
 	if (size < str->size) {
-		fmte("Array size and offset must be less than equal to "
+		*ret = 0;
+		return fmte_("Array size and offset must be less than equal to "
 				"displaced array size.", NULL);
 	}
-	if (! array_equal_type(str, ARRAY_TYPE_CHARACTER, 0))
-		fmte("Array type must be equal to displaced array.", NULL);
-	*ret = size;
+	if (! array_equal_type(str, ARRAY_TYPE_CHARACTER, 0)) {
+		*ret = 0;
+		return fmte_("Array type must be equal to displaced array.", NULL);
+	}
+
+	return Result(ret, size);
 }
 
-static void array_set_displaced_value(
+static int array_set_displaced_value_(
 		addr pos, size_t size, addr displaced, addr offset)
 {
 	struct array_struct *str;
@@ -333,19 +366,21 @@ static void array_set_displaced_value(
 
 	/* displaced-index-offset */
 	if (! integerp(offset))
-		fmte("Array offset ~A must be an integer.", offset, NULL);
+		return fmte_("Array offset ~A must be an integer.", offset, NULL);
 	if (minusp_integer(offset))
-		fmte("Array offset ~A must be a non-negative integer.", offset, NULL);
+		return fmte_("Array offset ~A must be a non-negative integer.", offset, NULL);
 	if (GetIndex_integer(offset, &value))
-		fmte("Array offset ~A is too large.", offset, NULL);
+		return fmte_("Array offset ~A is too large.", offset, NULL);
 	if (size < value)
-		fmte("Too large offset size ~A.", offset, NULL);
+		return fmte_("Too large offset size ~A.", offset, NULL);
 	if (size - value < str->size)
-		fmte("Array size is not enough length.", NULL);
+		return fmte_("Array size is not enough length.", NULL);
 	str->offset = value;
+
+	return 0;
 }
 
-_g void array_set_displaced(addr pos, addr displaced, addr offset)
+_g int array_set_displaced_(addr pos, addr displaced, addr offset)
 {
 	struct array_struct *str;
 	size_t size;
@@ -355,77 +390,86 @@ _g void array_set_displaced(addr pos, addr displaced, addr offset)
 	str->displaced = (displaced != Nil);
 	if (displaced == Nil) {
 		str->offset = 0;
-		return;
+		return 0;
 	}
 
 	/* type check */
 	switch (GetType(displaced)) {
 		case LISPTYPE_ARRAY:
-			array_set_displaced_array(pos, displaced, offset, &size);
+			Return(array_set_displaced_array_(pos, displaced, offset, &size));
 			break;
 
 		case LISPTYPE_VECTOR:
-			array_set_displaced_vector(pos, displaced, offset, &size);
+			Return(array_set_displaced_vector_(pos, displaced, offset, &size));
 			break;
 
 		case LISPTYPE_BITVECTOR:
-			array_set_displaced_bitvector(pos, displaced, offset, &size);
+			Return(array_set_displaced_bitvector_(pos, displaced, offset, &size));
 			break;
 
 		case LISPTYPE_STRING:
-			array_set_displaced_string(pos, displaced, offset, &size);
+			Return(array_set_displaced_string_(pos, displaced, offset, &size));
 			break;
 
 		default:
-			fmte(":displaced-to parameter ~S must be a array type.", displaced, NULL);
-			return;
+			return fmte_(":displaced-to parameter ~S "
+					"must be a array type.", displaced, NULL);
 	}
-	array_set_displaced_value(pos, size, displaced, offset);
+
+	return array_set_displaced_value_(pos, size, displaced, offset);
 }
 
 _g void array_set_simple(addr pos)
 {
-	struct array_struct *str = ArrayInfoStruct(pos);
+	struct array_struct *str;
+	str = ArrayInfoStruct(pos);
 	str->simple = ! (str->adjustable || str->fillpointer || str->displaced);
 }
 
-_g void array_make_memory(addr pos, addr adjust, addr fill, addr displaced, addr offset)
+_g int array_make_memory_(addr pos, addr adjust, addr fill, addr displaced, addr offset)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	array_set_adjustable(str, adjust);
-	array_set_fillpointer(str, fill);
-	array_set_displaced(pos, displaced, offset);
+	Return(array_set_fillpointer_(str, fill));
+	Return(array_set_displaced_(pos, displaced, offset));
 	array_set_simple(pos);
-	if (str->simple || str->displaced == 0)
-		array_allocate(NULL, pos, str);
+	if (str->simple || str->displaced == 0) {
+		Return(array_allocate_(NULL, pos, str));
+	}
+
+	return 0;
 }
 
 
 /*
  *  array-initial
  */
-static void array_initial_t(addr pos, addr value, size_t size)
+static int array_initial_t_(addr pos, addr value, size_t size)
 {
 	size_t i;
 
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	for (i = 0; i < size; i++)
 		arraygen_set(pos, i, value);
+
+	return 0;
 }
 
-static void array_initial_bit(addr pos, addr value, size_t size)
+static int array_initial_bit_(addr pos, addr value, size_t size)
 {
 	fixnum init;
 
 	if (! fixnump(value))
-		fmte(":initial-element ~A must be integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be integer type.", value, NULL);
 	GetFixnum(value, &init);
 	if (init != 0 && init != 1)
-		fmte(":initail-element ~A must be 0 or 1.", value, NULL);
+		return fmte_(":initail-element ~A must be 0 or 1.", value, NULL);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	bitmemory_memset(pos, (int)init);
+
+	return 0;
 }
 
 #ifdef LISP_DEBUG
@@ -464,24 +508,26 @@ static void array_initial_unicode(addr pos, unicode u)
 	array_initial_memset(pos, (const void *)&u);
 }
 
-static void array_initial_character(addr pos, addr value)
+static int array_initial_character_(addr pos, addr value)
 {
 	unicode u;
 
 	if (! characterp(value))
-		fmte(":initial-element ~A must be character type.", value, NULL);
+		return fmte_(":initial-element ~A must be character type.", value, NULL);
 	GetCharacter(value, &u);
 	array_initial_unicode(pos, u);
+
+	return 0;
 }
 
-static void array_initial_signed8(addr pos, addr value)
+static int array_initial_signed8_(addr pos, addr value)
 {
 	void *data;
 	struct array_struct *str;
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -491,19 +537,19 @@ static void array_initial_signed8(addr pos, addr value)
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	data = (void *)arrayspec_ptr(pos);
 	memset(data, (byte)init, str->size);
-	return;
+	return 0;
 
 error:
-	fmte("Overflow :initial-element ~A in (signed-byte 8).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (signed-byte 8).", value, NULL);
 }
 
-static void array_initial_signed16(addr pos, addr value)
+static int array_initial_signed16_(addr pos, addr value)
 {
 	int16_t c;
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -511,20 +557,20 @@ static void array_initial_signed16(addr pos, addr value)
 		goto error;
 	c = (int16_t)init;
 	array_initial_memset(pos, (const void *)&c);
-	return;
+	return 0;
 
 error:
-	fmte("Overflow :initial-element ~A in (signed-byte 16).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (signed-byte 16).", value, NULL);
 }
 
 #ifdef LISP_64BIT
-static void array_initial_signed32(addr pos, addr value)
+static int array_initial_signed32_(addr pos, addr value)
 {
 	int32_t c;
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -532,71 +578,70 @@ static void array_initial_signed32(addr pos, addr value)
 		goto error;
 	c = (int32_t)init;
 	array_initial_memset(pos, (const void *)&c);
-	return;
+	return 0;
 
 error:
-	fmte("Overflow :initial-element ~A in (signed-byte 32).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (signed-byte 32).", value, NULL);
 }
 
-static void array_initial_signed64(addr pos, addr value)
+static int array_initial_signed64_(addr pos, addr value)
 {
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
-		fmte("Overflow :initial-element ~A in (signed-byte 64).", value, NULL);
+		return fmte_("Overflow :initial-element ~A in (signed-byte 64).", value, NULL);
 	GetFixnum(value, &init);
 	array_initial_memset(pos, (const void *)&init);
+
+	return 0;
 }
 #else
-static void array_initial_signed32(addr pos, addr value)
+static int array_initial_signed32_(addr pos, addr value)
 {
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
-		fmte("Overflow :initial-element ~A in (signed-byte 32).", value, NULL);
+		return fmte_("Overflow :initial-element ~A in (signed-byte 32).", value, NULL);
 	GetFixnum(value, &init);
 	array_initial_memset(pos, (const void *)&init);
+
+	return 0;
 }
 #endif
 
-static void array_initial_signed(addr pos, addr value)
+static int array_initial_signed_(addr pos, addr value)
 {
 	switch (ArrayInfoStruct(pos)->bytesize) {
 		case 8:
-			array_initial_signed8(pos, value);
-			break;
+			return array_initial_signed8_(pos, value);
 
 		case 16:
-			array_initial_signed16(pos, value);
-			break;
+			return array_initial_signed16_(pos, value);
 
 		case 32:
-			array_initial_signed32(pos, value);
-			break;
+			return array_initial_signed32_(pos, value);
 
 #ifdef LISP_64BIT
 		case 64:
-			array_initial_signed64(pos, value);
-			break;
+			return array_initial_signed64_(pos, value);
 #endif
 		default:
-			fmte("Invalid array size.", NULL);
-			break;
+			return fmte_("Invalid array size.", NULL);
 	}
 }
 
-static void array_initial_unsigned8(addr pos, addr value)
+static int array_initial_unsigned8_(addr pos, addr value)
 {
 	byte *data;
 	struct array_struct *str;
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -606,19 +651,19 @@ static void array_initial_unsigned8(addr pos, addr value)
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	data = (byte *)arrayspec_ptr(pos);
 	memset(data, (byte)init, str->size);
-	return;
+	return 0;
 
 error:
-	fmte("Overflow :initial-element ~A in (unsigned-byte 8).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (unsigned-byte 8).", value, NULL);
 }
 
-static void array_initial_unsigned16(addr pos, addr value)
+static int array_initial_unsigned16_(addr pos, addr value)
 {
 	uint16_t c;
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -626,20 +671,20 @@ static void array_initial_unsigned16(addr pos, addr value)
 		goto error;
 	c = (uint16_t)init;
 	array_initial_memset(pos, (const void *)&c);
-	return;
+	return 0;
 
 error:
-	fmte("Overflow :initial-element ~A in (unsigned-byte 16).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (unsigned-byte 16).", value, NULL);
 }
 
 #ifdef LISP_64BIT
-static void array_initial_unsigned32(addr pos, addr value)
+static int array_initial_unsigned32_(addr pos, addr value)
 {
 	uint32_t c;
 	fixnum init;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -647,168 +692,164 @@ static void array_initial_unsigned32(addr pos, addr value)
 		goto error;
 	c = (uint32_t)init;
 	array_initial_memset(pos, (const void *)&c);
-	return;
+	return 0;
 
 error:
-	fmte("Overflow :initial-element ~A in (unsigned-byte 32).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (unsigned-byte 32).", value, NULL);
 }
 
-static void array_initial_unsigned64(addr pos, addr value)
+static int array_initial_unsigned64_(addr pos, addr value)
 {
 	fixnum init;
 	bigtype bigv;
 	size_t size;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (fixnump(value)) {
 		GetFixnum(value, &init);
-		if (init < 0) goto error;
+		if (init < 0)
+			goto error;
 		array_initial_memset(pos, (const void *)&init);
-		return;
+		return 0;
 	}
 	if (bignump(value)) {
-		if (minusp_bignum(value)) goto error;
+		if (minusp_bignum(value))
+			goto error;
 		GetSizeBignum(value, &size);
-		if (size != 1) goto error;
+		if (size != 1)
+			goto error;
 		getfixed_bignum(value, 0, &bigv);
 		array_initial_memset(pos, (const void *)&bigv);
-		return;
+		return 0;
 	}
-	TypeError(value, INTEGER);
-	return;
+	return TypeError_(value, INTEGER);
 
 error:
-	fmte("Overflow :initial-element ~A in (unsigned-byte 64).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (unsigned-byte 64).", value, NULL);
 }
 #else
-static void array_initial_unsigned32(addr pos, addr value)
+static int array_initial_unsigned32_(addr pos, addr value)
 {
 	fixnum init;
 	bigtype bigv;
 	size_t size;
 
 	if (! integerp(value))
-		fmte(":initial-element ~A must be an integer type.", value, NULL);
+		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
 	if (fixnump(value)) {
 		GetFixnum(value, &init);
-		if (init < 0) goto error;
+		if (init < 0)
+			goto error;
 		array_initial_memset(pos, (const void *)&init);
-		return;
+		return 0;
 	}
 	if (bignump(value)) {
-		if (minusp_bignum(value)) goto error;
+		if (minusp_bignum(value))
+			goto error;
 		GetSizeBignum(value, &size);
-		if (size != 1) goto error;
+		if (size != 1)
+			goto error;
 		getfixed_bignum(value, 0, &bigv);
 		array_initial_memset(pos, (const void *)&bigv);
-		return;
+		return 0;
 	}
-	TypeError(value, INTEGER);
-	return;
+	return TypeError_(value, INTEGER);
 
 error:
-	fmte("Overflow :initial-element ~A in (unsigned-byte 32).", value, NULL);
+	return fmte_("Overflow :initial-element ~A in (unsigned-byte 32).", value, NULL);
 }
 #endif
 
-static void array_initial_unsigned(addr pos, addr value)
+static int array_initial_unsigned_(addr pos, addr value)
 {
 	switch (ArrayInfoStruct(pos)->bytesize) {
 		case 8:
-			array_initial_unsigned8(pos, value);
-			break;
+			return array_initial_unsigned8_(pos, value);
 
 		case 16:
-			array_initial_unsigned16(pos, value);
-			break;
+			return array_initial_unsigned16_(pos, value);
 
 		case 32:
-			array_initial_unsigned32(pos, value);
-			break;
+			return array_initial_unsigned32_(pos, value);
 
 #ifdef LISP_64BIT
 		case 64:
-			array_initial_unsigned64(pos, value);
-			break;
+			return array_initial_unsigned64_(pos, value);
 #endif
 		default:
-			fmte("Invalid array size.", NULL);
-			break;
+			return fmte_("Invalid array size.", NULL);
 	}
 }
 
-static void array_initial_single(addr pos, addr value)
+static int array_initial_single_(addr pos, addr value)
 {
 	single_float v;
 
 	if (GetType(value) != LISPTYPE_SINGLE_FLOAT)
-		fmte(":initial-element ~A must be single-float type.", value, NULL);
+		return fmte_(":initial-element ~A must be single-float type.", value, NULL);
 	GetSingleFloat(value, &v);
 	array_initial_memset(pos, (const void *)&v);
+
+	return 0;
 }
 
-static void array_initial_double(addr pos, addr value)
+static int array_initial_double_(addr pos, addr value)
 {
 	double_float v;
 
 	if (GetType(value) != LISPTYPE_DOUBLE_FLOAT)
-		fmte(":initial-element ~A must be double-float type.", value, NULL);
+		return fmte_(":initial-element ~A must be double-float type.", value, NULL);
 	GetDoubleFloat(value, &v);
 	array_initial_memset(pos, (const void *)&v);
+
+	return 0;
 }
 
-static void array_initial_long(addr pos, addr value)
+static int array_initial_long_(addr pos, addr value)
 {
 	long_float v;
 
 	if (GetType(value) != LISPTYPE_LONG_FLOAT)
-		fmte(":initial-element ~A must be long-float type.", value, NULL);
+		return fmte_(":initial-element ~A must be long-float type.", value, NULL);
 	GetLongFloat(value, &v);
 	array_initial_memset(pos, (const void *)&v);
+
+	return 0;
 }
 
-static void array_initial_value(addr pos, addr value)
+static int array_initial_value_(addr pos, addr value)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			array_initial_t(pos, value, str->size);
-			break;
+			return array_initial_t_(pos, value, str->size);
 
 		case ARRAY_TYPE_BIT:
-			array_initial_bit(pos, value, str->size);
-			break;
+			return array_initial_bit_(pos, value, str->size);
 
 		case ARRAY_TYPE_CHARACTER:
-			array_initial_character(pos, value);
-			break;
+			return array_initial_character_(pos, value);
 
 		case ARRAY_TYPE_SIGNED:
-			array_initial_signed(pos, value);
-			break;
+			return array_initial_signed_(pos, value);
 
 		case ARRAY_TYPE_UNSIGNED:
-			array_initial_unsigned(pos, value);
-			break;
+			return array_initial_unsigned_(pos, value);
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
-			array_initial_single(pos, value);
-			break;
+			return array_initial_single_(pos, value);
 
 		case ARRAY_TYPE_DOUBLE_FLOAT:
-			array_initial_double(pos, value);
-			break;
+			return array_initial_double_(pos, value);
 
 		case ARRAY_TYPE_LONG_FLOAT:
-			array_initial_long(pos, value);
-			break;
+			return array_initial_long_(pos, value);
 
 		default:
-			fmte("Invalid array type.", NULL);
-			break;
+			return fmte_("Invalid array type.", NULL);
 	}
 }
 
@@ -826,10 +867,10 @@ static void array_initial_value(addr pos, addr value)
  *   [3] s3*... + n3
  *   [4] s4*... + n4
  */
-static void array_contents_recursive(addr, addr,
+static int array_contents_recursive_(addr, addr,
 		const size_t *data, size_t limit, size_t depth, size_t size);
 
-static void array_contents_list(addr pos, addr list,
+static int array_contents_list_(addr pos, addr list,
 		const size_t *data, size_t limit, size_t depth, size_t size)
 {
 	addr next;
@@ -840,19 +881,21 @@ static void array_contents_list(addr pos, addr list,
 		size = depth? (size * length): 0;
 		for (i = 0; list != Nil; i++) {
 			if (length <= i)
-				fmte("Too many :initial-contents ~S list.", list, NULL);
-			getcons(list, &next, &list);
-			array_contents_recursive(pos, next, data, limit, depth+1, size+i);
+				return fmte_("Too many :initial-contents ~S list.", list, NULL);
+			Return_getcons(list, &next, &list);
+			Return(array_contents_recursive_(pos, next, data, limit, depth+1, size+i));
 		}
 		if (i < length)
-			fmte("Too few :initial-contents list.", NULL);
+			return fmte_("Too few :initial-contents list.", NULL);
 	}
 	else {
-		array_set(pos, size, list);
+		Return(array_set_(pos, size, list));
 	}
+
+	return 0;
 }
 
-static void array_contents_sequence(addr pos, addr object,
+static int array_contents_sequence_(addr pos, addr object,
 		const size_t *data, size_t limit, size_t depth, size_t size)
 {
 	addr next;
@@ -861,53 +904,52 @@ static void array_contents_sequence(addr pos, addr object,
 	if (depth < limit) {
 		length = data[depth];
 		size = depth? (size * length): 0;
-		check = length_sequence(object, 1);
+		Return(length_sequence_(object, 1, &check));
 		if (length < check)
-			fmte("Too many :initial-contents ~S.", object, NULL);
+			return fmte_("Too many :initial-contents ~S.", object, NULL);
 		if (check < length)
-			fmte("Too few :initial-contents ~S.", object, NULL);
+			return fmte_("Too few :initial-contents ~S.", object, NULL);
 		for (i = 0; i < check; i++) {
-			getelt_sequence(NULL, object, i, &next);
-			array_contents_recursive(pos, next, data, limit, depth+1, size+i);
+			Return(getelt_sequence_(NULL, object, i, &next));
+			Return(array_contents_recursive_(pos, next, data, limit, depth+1, size+i));
 		}
 	}
 	else {
-		array_set(pos, size, object);
+		Return(array_set_(pos, size, object));
 	}
+
+	return 0;
 }
 
-static void array_contents_object(addr pos, addr list,
+static int array_contents_object_(addr pos, addr list,
 		size_t limit, size_t depth, size_t size)
 {
 	if (depth < limit)
-		fmte("Too few :initial-contents.", NULL);
+		return fmte_("Too few :initial-contents.", NULL);
 	else
-		array_set(pos, size, list);
+		return array_set_(pos, size, list);
 }
 
-static void array_contents_recursive(addr pos,
+static int array_contents_recursive_(addr pos,
 		addr object, const size_t *data, size_t limit, size_t depth, size_t size)
 {
 	switch (GetType(object)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			array_contents_list(pos, object, data, limit, depth, size);
-			break;
+			return array_contents_list_(pos, object, data, limit, depth, size);
 
 		case LISPTYPE_VECTOR:
 		case LISPTYPE_STRING:
 		case LISPTYPE_ARRAY:
 		case LISPTYPE_BITVECTOR:
-			array_contents_sequence(pos, object, data, limit, depth, size);
-			break;
+			return array_contents_sequence_(pos, object, data, limit, depth, size);
 
 		default:
-			array_contents_object(pos, object, limit, depth, size);
-			break;
+			return array_contents_object_(pos, object, limit, depth, size);
 	}
 }
 
-static void array_contents_setf(addr pos, addr contents)
+static int array_contents_setf_(addr pos, addr contents)
 {
 	struct array_struct *str;
 	const size_t *data;
@@ -916,18 +958,18 @@ static void array_contents_setf(addr pos, addr contents)
 	str = ArrayInfoStruct(pos);
 	dimension = str->dimension;
 	data = array_ptrsize(pos);
-	array_contents_recursive(pos, contents, data, dimension, 0, 0);
+	return array_contents_recursive_(pos, contents, data, dimension, 0, 0);
 }
 
-static void array_initial_contents(addr pos, addr contents)
+static int array_initial_contents_(addr pos, addr contents)
 {
 	size_t dimension;
 
 	dimension = ArrayInfoStruct(pos)->dimension;
 	if (dimension == 0)
-		array_set(pos, 0, contents);
+		return array_set_(pos, 0, contents);
 	else
-		array_contents_setf(pos, contents);
+		return array_contents_setf_(pos, contents);
 }
 
 
@@ -981,29 +1023,30 @@ static void array_make_initial_clear(addr pos)
 	}
 }
 
-_g void array_make_initial(addr pos, addr initial, addr contents)
+_g int array_make_initial_(addr pos, addr initial, addr contents)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	if (str->displaced && (initial != Unbound || contents != Unbound)) {
-		fmte("Displaced array don't have "
+		return fmte_("Displaced array don't have "
 				":initial-element or :initial-contents.", NULL);
 	}
 	if (initial != Unbound && contents != Unbound) {
-		fmte("Array parameter cannot have both :initial-element and "
+		return fmte_("Array parameter cannot have both :initial-element and "
 				":initial-contens parameter.", NULL);
 	}
 	if (initial != Unbound) {
-		array_initial_value(pos, initial);
-		return;
+		return array_initial_value_(pos, initial);
 	}
 	if (contents != Unbound) {
-		array_initial_contents(pos, contents);
-		return;
+		return array_initial_contents_(pos, contents);
 	}
-	if (str->displaced == 0)
+	if (str->displaced == 0) {
 		array_make_initial_clear(pos);
+	}
+
+	return 0;
 }
 
 static void array_set_type_upgraded(addr pos, addr type)
@@ -1015,7 +1058,7 @@ static void array_set_type_upgraded(addr pos, addr type)
 	array_set_type_value(pos, value, size);
 }
 
-_g void array_make_array(addr *ret, addr dimension,
+_g int array_make_array_(addr *ret, addr dimension,
 		addr type, addr initial, addr contents,
 		addr adjustable, addr fillpointer, addr displaced, addr offset)
 {
@@ -1024,24 +1067,25 @@ _g void array_make_array(addr *ret, addr dimension,
 	array_empty_heap(&pos);
 	array_set_type_upgraded(pos, type);
 	array_set_element_size(pos);
-	array_set_dimension(pos, dimension);
-	array_make_memory(pos, adjustable, fillpointer, displaced, offset);
-	array_make_initial(pos, initial, contents);
-	*ret = pos;
+	Return(array_set_dimension_(pos, dimension));
+	Return(array_make_memory_(pos, adjustable, fillpointer, displaced, offset));
+	Return(array_make_initial_(pos, initial, contents));
+
+	return Result(ret, pos);
 }
 
 
 /*
  *  array_contents_heap
  */
-static void array_contents_size(addr pos, addr rankarg, addr contents)
+static int array_contents_size_(addr pos, addr rankarg, addr contents)
 {
 	struct array_struct *str;
 	size_t i, rank, size, *data;
 	addr temp;
 
 	if (GetIndex_integer(rankarg, &rank))
-		fmte("Array rank ~A is too large.", rankarg, NULL);
+		return fmte_("Array rank ~A is too large.", rankarg, NULL);
 	str = ArrayInfoStruct(pos);
 	if (rank == 0) {
 		str->dimension = 0;
@@ -1050,58 +1094,62 @@ static void array_contents_size(addr pos, addr rankarg, addr contents)
 	}
 	else if (rank == 1) {
 		str->dimension = 1;
-		size = length_list_safe(contents);
+		Return(length_list_safe_(contents, &size));
 		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 	}
 	else {
 		str->dimension = rank;
-		arraysize_heap(&temp, rank);
+		Return(arraysize_heap_(&temp, rank));
 		data = arraysize_ptr(temp);
 		for (i = 0; i < rank; i++) {
 			if (! consp(contents))
-				fmte("Invalid initial-contents parameter ~S.", contents, NULL);
-			data[i] = length_list_safe(contents);
+				return fmte_("Invalid initial-contents parameter ~S.", contents, NULL);
+			Return(length_list_safe_(contents, &(data[i])));
 			GetCar(contents, &contents);
 		}
 		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
-		array_getsize(pos, &size);
+		Return(array_getsize_(pos, &size));
 	}
-
 	str = ArrayInfoStruct(pos);
 	str->size = str->front = size;
+
+	return 0;
 }
 
-_g void array_contents_heap(addr *ret, addr rank, addr contents)
+_g int array_contents_heap_(addr *ret, addr rank, addr contents)
 {
 	addr pos;
 
 	array_empty_heap(&pos);
 	array_set_type_value(pos, ARRAY_TYPE_T, 0);
 	array_set_element_size(pos);
-	array_contents_size(pos, rank, contents);
-	array_make_memory(pos, Nil, Nil, Nil, Nil);
-	array_make_initial(pos, Unbound, contents);
-	*ret = pos;
+	Return(array_contents_size_(pos, rank, contents));
+	Return(array_make_memory_(pos, Nil, Nil, Nil, Nil));
+	Return(array_make_initial_(pos, Unbound, contents));
+
+	return Result(ret, pos);
 }
 
 
 /*
  *  array function
  */
-static void array_check_fillpointer(addr pos, struct array_struct *str)
+static int array_check_fillpointer_(addr pos, struct array_struct *str)
 {
 	if (str->fillpointer) {
 		if (str->size < str->front)
-			fmte("fill-pointer size must be smaller than element-size.", NULL);
+			return fmte_("fill-pointer size must be smaller than element-size.", NULL);
 		if (! array_vector_p(pos))
-			fmte("fill-pointer array must be an one dimension.", NULL);
+			return fmte_("fill-pointer array must be an one dimension.", NULL);
 	}
 	else {
 		str->front = str->size;
 	}
+
+	return 0;
 }
 
-_g void array_character_alloc(LocalRoot local, addr pos)
+_g int array_character_alloc_(LocalRoot local, addr pos)
 {
 	struct array_struct *str;
 
@@ -1109,11 +1157,11 @@ _g void array_character_alloc(LocalRoot local, addr pos)
 	array_set_type_value(pos, ARRAY_TYPE_CHARACTER, 0);
 	array_set_element_size(pos);
 	array_set_simple(pos);
-	array_check_fillpointer(pos, str);
-	array_allocate(local, pos, str);
+	Return(array_check_fillpointer_(pos, str));
+	return array_allocate_(local, pos, str);
 }
 
-_g void array_build(addr pos)
+_g int array_build_(addr pos)
 {
 	struct array_struct *str;
 
@@ -1121,7 +1169,7 @@ _g void array_build(addr pos)
 	array_set_type(pos);
 	array_set_element_size(pos);
 	array_set_simple(pos);
-	array_check_fillpointer(pos, str);
-	array_allocate(NULL, pos, str);
+	Return(array_check_fillpointer_(pos, str));
+	return array_allocate_(NULL, pos, str);
 }
 

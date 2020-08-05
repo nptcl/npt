@@ -13,14 +13,14 @@ _g int package_designer_p(addr pos)
 	return packagep(pos) || string_designer_p(pos);
 }
 
-_g int package_designer_equal(addr left, addr right)
+_g int package_designer_equal_(addr left, addr right, int *ret)
 {
 	if (packagep(left))
 		GetPackage(left, PACKAGE_INDEX_NAME, &left);
 	if (packagep(right))
 		GetPackage(right, PACKAGE_INDEX_NAME, &right);
 
-	return string_designer_equal(left, right);
+	return string_designer_equal_(left, right, ret);
 }
 
 

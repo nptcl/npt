@@ -4,461 +4,616 @@
 #include "symbol.h"
 #include "typedef.h"
 
-static int symbol_equal_char_p(addr pos, const char *str)
+static int symbol_equal_char_p_(addr pos, const char *str, int *ret)
 {
 	if (! symbolp(pos))
-		return 0;
+		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equal_char(pos, str);
+	return string_equal_char_(pos, str, ret);
 }
 
-_g int loop_symbol_named_p(addr pos)
+_g int loop_symbol_named_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "NAMED");
+	return symbol_equal_char_p_(pos, "NAMED", ret);
 }
 
-_g int loop_symbol_with_p(addr pos)
+_g int loop_symbol_with_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "WITH");
+	return symbol_equal_char_p_(pos, "WITH", ret);
 }
 
 /* initial-final */
-_g int loop_symbol_initially_p(addr pos)
+_g int loop_symbol_initially_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "INITIALLY");
+	return symbol_equal_char_p_(pos, "INITIALLY", ret);
 }
 
-_g int loop_symbol_finally_p(addr pos)
+_g int loop_symbol_finally_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "FINALLY");
+	return symbol_equal_char_p_(pos, "FINALLY", ret);
 }
 
-_g int loop_symbol_initial_final_p(addr pos)
+_g int loop_symbol_initial_final_p_(addr pos, int *ret)
 {
-	return loop_symbol_initially_p(pos)
-		|| loop_symbol_finally_p(pos);
+	Return(loop_symbol_initially_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_finally_p_(pos, ret);
 }
 
 /* for-as */
-_g int loop_symbol_for_p(addr pos)
+_g int loop_symbol_for_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "FOR");
+	return symbol_equal_char_p_(pos, "FOR", ret);
 }
 
-_g int loop_symbol_as_p(addr pos)
+_g int loop_symbol_as_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "AS");
+	return symbol_equal_char_p_(pos, "AS", ret);
 }
 
-_g int loop_symbol_for_as_p(addr pos)
+_g int loop_symbol_for_as_p_(addr pos, int *ret)
 {
-	return loop_symbol_for_p(pos)
-		|| loop_symbol_as_p(pos);
+	Return(loop_symbol_for_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_as_p_(pos, ret);
 }
 
 /* uncondition */
-_g int loop_symbol_do_p(addr pos)
+_g int loop_symbol_do_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "DO")
-		|| symbol_equal_char_p(pos, "DOING");
+	Return(symbol_equal_char_p_(pos, "DO", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "DOING", ret);
 }
 
-_g int loop_symbol_return_p(addr pos)
+_g int loop_symbol_return_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "RETURN");
+	return symbol_equal_char_p_(pos, "RETURN", ret);
 }
 
-_g int loop_symbol_uncondition_p(addr pos)
+_g int loop_symbol_uncondition_p_(addr pos, int *ret)
 {
-	return loop_symbol_do_p(pos)
-		|| loop_symbol_return_p(pos);
+	Return(loop_symbol_do_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_return_p_(pos, ret);
 }
 
 /* condition */
-_g int loop_symbol_if_p(addr pos)
+_g int loop_symbol_if_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "IF");
+	return symbol_equal_char_p_(pos, "IF", ret);
 }
 
-_g int loop_symbol_when_p(addr pos)
+_g int loop_symbol_when_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "WHEN");
+	return symbol_equal_char_p_(pos, "WHEN", ret);
 }
 
-_g int loop_symbol_unless_p(addr pos)
+_g int loop_symbol_if_when_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "UNLESS");
+	Return(loop_symbol_if_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_when_p_(pos, ret);
 }
 
-_g int loop_symbol_condition_p(addr pos)
+_g int loop_symbol_unless_p_(addr pos, int *ret)
 {
-	return loop_symbol_if_p(pos)
-		|| loop_symbol_when_p(pos)
-		|| loop_symbol_unless_p(pos);
+	return symbol_equal_char_p_(pos, "UNLESS", ret);
+}
+
+_g int loop_symbol_condition_p_(addr pos, int *ret)
+{
+	Return(loop_symbol_if_p_(pos, ret));
+	if (*ret)
+		return 0;
+	Return(loop_symbol_when_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_unless_p_(pos, ret);
 }
 
 /* accumulation */
-_g int loop_symbol_collect_p(addr pos)
+_g int loop_symbol_collect_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "COLLECT")
-		|| symbol_equal_char_p(pos, "COLLECTING");
+	Return(symbol_equal_char_p_(pos, "COLLECT", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "COLLECTING", ret);
 }
 
-_g int loop_symbol_append_p(addr pos)
+_g int loop_symbol_append_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "APPEND")
-		|| symbol_equal_char_p(pos, "APPENDING");
+	Return(symbol_equal_char_p_(pos, "APPEND", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "APPENDING", ret);
 }
 
-_g int loop_symbol_nconc_p(addr pos)
+_g int loop_symbol_nconc_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "NCONC")
-		|| symbol_equal_char_p(pos, "NCONCING");
+	Return(symbol_equal_char_p_(pos, "NCONC", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "NCONCING", ret);
 }
 
-_g int loop_symbol_count_p(addr pos)
+_g int loop_symbol_count_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "COUNT")
-		|| symbol_equal_char_p(pos, "COUNTING");
+	Return(symbol_equal_char_p_(pos, "COUNT", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "COUNTING", ret);
 }
 
-_g int loop_symbol_sum_p(addr pos)
+_g int loop_symbol_sum_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "SUM")
-		|| symbol_equal_char_p(pos, "SUMMING");
+	Return(symbol_equal_char_p_(pos, "SUM", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "SUMMING", ret);
 }
 
-_g int loop_symbol_maximize_p(addr pos)
+_g int loop_symbol_maximize_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "MAXIMIZE")
-		|| symbol_equal_char_p(pos, "MAXIMIZING");
+	Return(symbol_equal_char_p_(pos, "MAXIMIZE", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "MAXIMIZING", ret);
 }
 
-_g int loop_symbol_minimize_p(addr pos)
+_g int loop_symbol_minimize_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "MINIMIZE")
-		|| symbol_equal_char_p(pos, "MINIMIZING");
+	Return(symbol_equal_char_p_(pos, "MINIMIZE", ret));
+	if (*ret)
+		return 0;
+
+	return symbol_equal_char_p_(pos, "MINIMIZING", ret);
 }
 
-_g int loop_symbol_list_accumulation_p(addr pos)
+_g int loop_symbol_list_accumulation_p_(addr pos, int *ret)
 {
-	return loop_symbol_collect_p(pos)
-		|| loop_symbol_append_p(pos)
-		|| loop_symbol_nconc_p(pos);
+	Return(loop_symbol_collect_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_append_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_nconc_p_(pos, ret);
 }
 
-_g int loop_symbol_numeric_accumulation_p(addr pos)
+_g int loop_symbol_numeric_accumulation_p_(addr pos, int *ret)
 {
-	return loop_symbol_count_p(pos)
-		|| loop_symbol_sum_p(pos)
-		|| loop_symbol_maximize_p(pos)
-		|| loop_symbol_minimize_p(pos);
+	Return(loop_symbol_count_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_sum_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_maximize_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_minimize_p_(pos, ret);
 }
 
-_g int loop_symbol_accumulation_p(addr pos)
+_g int loop_symbol_accumulation_p_(addr pos, int *ret)
 {
-	return loop_symbol_list_accumulation_p(pos)
-		|| loop_symbol_numeric_accumulation_p(pos);
+	Return(loop_symbol_list_accumulation_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_numeric_accumulation_p_(pos, ret);
 }
 
 /* termination */
-_g int loop_symbol_repeat_p(addr pos)
+_g int loop_symbol_repeat_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "REPEAT");
+	return symbol_equal_char_p_(pos, "REPEAT", ret);
 }
 
-_g int loop_symbol_always_p(addr pos)
+_g int loop_symbol_always_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "ALWAYS");
+	return symbol_equal_char_p_(pos, "ALWAYS", ret);
 }
 
-_g int loop_symbol_never_p(addr pos)
+_g int loop_symbol_never_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "NEVER");
+	return symbol_equal_char_p_(pos, "NEVER", ret);
 }
 
-_g int loop_symbol_thereis_p(addr pos)
+_g int loop_symbol_thereis_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "THEREIS");
+	return symbol_equal_char_p_(pos, "THEREIS", ret);
 }
 
-_g int loop_symbol_while_p(addr pos)
+_g int loop_symbol_while_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "WHILE");
+	return symbol_equal_char_p_(pos, "WHILE", ret);
 }
 
-_g int loop_symbol_until_p(addr pos)
+_g int loop_symbol_until_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "UNTIL");
+	return symbol_equal_char_p_(pos, "UNTIL", ret);
 }
 
-_g int loop_symbol_termination_p(addr pos)
+_g int loop_symbol_termination_p_(addr pos, int *ret)
 {
-	return loop_symbol_repeat_p(pos)
-		|| loop_symbol_always_p(pos)
-		|| loop_symbol_never_p(pos)
-		|| loop_symbol_thereis_p(pos)
-		|| loop_symbol_while_p(pos)
-		|| loop_symbol_until_p(pos);
+	Return(loop_symbol_repeat_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_always_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_never_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_thereis_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_while_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_until_p_(pos, ret);
 }
 
 /* parse */
-_g int loop_symbol_equal_p(addr pos)
+_g int loop_symbol_equal_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "=");
+	return symbol_equal_char_p_(pos, "=", ret);
 }
 
-_g int loop_symbol_and_p(addr pos)
+_g int loop_symbol_and_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "AND");
+	return symbol_equal_char_p_(pos, "AND", ret);
 }
 
-_g int loop_symbol_in_p(addr pos)
+_g int loop_symbol_in_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "IN");
+	return symbol_equal_char_p_(pos, "IN", ret);
 }
 
-_g int loop_symbol_on_p(addr pos)
+_g int loop_symbol_on_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "ON");
+	return symbol_equal_char_p_(pos, "ON", ret);
 }
 
-_g int loop_symbol_by_p(addr pos)
+_g int loop_symbol_by_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "BY");
+	return symbol_equal_char_p_(pos, "BY", ret);
 }
 
-_g int loop_symbol_then_p(addr pos)
+_g int loop_symbol_then_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "THEN");
+	return symbol_equal_char_p_(pos, "THEN", ret);
 }
 
-_g int loop_symbol_across_p(addr pos)
+_g int loop_symbol_across_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "ACROSS");
+	return symbol_equal_char_p_(pos, "ACROSS", ret);
 }
 
-_g int loop_symbol_being_p(addr pos)
+_g int loop_symbol_being_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "BEING");
+	return symbol_equal_char_p_(pos, "BEING", ret);
 }
 
-_g int loop_symbol_each_p(addr pos)
+_g int loop_symbol_each_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "EACH");
+	return symbol_equal_char_p_(pos, "EACH", ret);
 }
 
-_g int loop_symbol_the_p(addr pos)
+_g int loop_symbol_the_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "THE");
+	return symbol_equal_char_p_(pos, "THE", ret);
 }
 
-_g int loop_symbol_each_the_p(addr pos)
+_g int loop_symbol_each_the_p_(addr pos, int *ret)
 {
-	return loop_symbol_each_p(pos)
-		|| loop_symbol_the_p(pos);
+	Return(loop_symbol_each_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_the_p_(pos, ret);
 }
 
-_g int loop_symbol_of_p(addr pos)
+_g int loop_symbol_of_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "OF");
+	return symbol_equal_char_p_(pos, "OF", ret);
 }
 
-_g int loop_symbol_in_of_p(addr pos)
+_g int loop_symbol_in_of_p_(addr pos, int *ret)
 {
-	return loop_symbol_in_p(pos)
-		|| loop_symbol_of_p(pos);
+	Return(loop_symbol_in_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_of_p_(pos, ret);
 }
 
-_g int loop_symbol_hash_key_p(addr pos)
+_g int loop_symbol_hash_key_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "HASH-KEY");
+	return symbol_equal_char_p_(pos, "HASH-KEY", ret);
 }
 
-_g int loop_symbol_hash_keys_p(addr pos)
+_g int loop_symbol_hash_keys_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "HASH-KEYS");
+	return symbol_equal_char_p_(pos, "HASH-KEYS", ret);
 }
 
-_g int loop_symbol_hash_key2_p(addr pos)
+_g int loop_symbol_hash_key2_p_(addr pos, int *ret)
 {
-	return loop_symbol_hash_key_p(pos)
-		|| loop_symbol_hash_keys_p(pos);
+	Return(loop_symbol_hash_key_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_hash_keys_p_(pos, ret);
 }
 
-_g int loop_symbol_hash_value_p(addr pos)
+_g int loop_symbol_hash_value_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "HASH-VALUE");
+	return symbol_equal_char_p_(pos, "HASH-VALUE", ret);
 }
 
-_g int loop_symbol_hash_values_p(addr pos)
+_g int loop_symbol_hash_values_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "HASH-VALUES");
+	return symbol_equal_char_p_(pos, "HASH-VALUES", ret);
 }
 
-_g int loop_symbol_hash_value2_p(addr pos)
+_g int loop_symbol_hash_value2_p_(addr pos, int *ret)
 {
-	return loop_symbol_hash_value_p(pos)
-		|| loop_symbol_hash_values_p(pos);
+	Return(loop_symbol_hash_value_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_hash_values_p_(pos, ret);
 }
 
-_g int loop_symbol_using_p(addr pos)
+_g int loop_symbol_using_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "USING");
+	return symbol_equal_char_p_(pos, "USING", ret);
 }
 
-_g int loop_symbol_symbol_p(addr pos)
+_g int loop_symbol_symbol_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "SYMBOL");
+	return symbol_equal_char_p_(pos, "SYMBOL", ret);
 }
 
-_g int loop_symbol_symbols_p(addr pos)
+_g int loop_symbol_symbols_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "SYMBOLS");
+	return symbol_equal_char_p_(pos, "SYMBOLS", ret);
 }
 
-_g int loop_symbol_symbol2_p(addr pos)
+_g int loop_symbol_symbol2_p_(addr pos, int *ret)
 {
-	return loop_symbol_symbol_p(pos)
-		|| loop_symbol_symbols_p(pos);
+	Return(loop_symbol_symbol_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_symbols_p_(pos, ret);
 }
 
-_g int loop_symbol_present_symbol_p(addr pos)
+_g int loop_symbol_present_symbol_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "PRESENT-SYMBOL");
+	return symbol_equal_char_p_(pos, "PRESENT-SYMBOL", ret);
 }
 
-_g int loop_symbol_present_symbols_p(addr pos)
+_g int loop_symbol_present_symbols_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "PRESENT-SYMBOLS");
+	return symbol_equal_char_p_(pos, "PRESENT-SYMBOLS", ret);
 }
 
-_g int loop_symbol_present_symbol2_p(addr pos)
+_g int loop_symbol_present_symbol2_p_(addr pos, int *ret)
 {
-	return loop_symbol_present_symbol_p(pos)
-		|| loop_symbol_present_symbols_p(pos);
+	Return(loop_symbol_present_symbol_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_present_symbols_p_(pos, ret);
 }
 
-_g int loop_symbol_external_symbol_p(addr pos)
+_g int loop_symbol_external_symbol_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "EXTERNAL-SYMBOL");
+	return symbol_equal_char_p_(pos, "EXTERNAL-SYMBOL", ret);
 }
 
-_g int loop_symbol_external_symbols_p(addr pos)
+_g int loop_symbol_external_symbols_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "EXTERNAL-SYMBOLS");
+	return symbol_equal_char_p_(pos, "EXTERNAL-SYMBOLS", ret);
 }
 
-_g int loop_symbol_external_symbol2_p(addr pos)
+_g int loop_symbol_external_symbol2_p_(addr pos, int *ret)
 {
-	return loop_symbol_external_symbol_p(pos)
-		|| loop_symbol_external_symbols_p(pos);
+	Return(loop_symbol_external_symbol_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_external_symbols_p_(pos, ret);
 }
 
-_g int loop_symbol_from_p(addr pos)
+_g int loop_symbol_from_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "FROM");
+	return symbol_equal_char_p_(pos, "FROM", ret);
 }
 
-_g int loop_symbol_upfrom_p(addr pos)
+_g int loop_symbol_upfrom_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "UPFROM");
+	return symbol_equal_char_p_(pos, "UPFROM", ret);
 }
 
-_g int loop_symbol_downfrom_p(addr pos)
+_g int loop_symbol_downfrom_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "DOWNFROM");
+	return symbol_equal_char_p_(pos, "DOWNFROM", ret);
 }
 
-_g int loop_symbol_to_p(addr pos)
+_g int loop_symbol_to_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "TO");
+	return symbol_equal_char_p_(pos, "TO", ret);
 }
 
-_g int loop_symbol_upto_p(addr pos)
+_g int loop_symbol_upto_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "UPTO");
+	return symbol_equal_char_p_(pos, "UPTO", ret);
 }
 
-_g int loop_symbol_downto_p(addr pos)
+_g int loop_symbol_downto_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "DOWNTO");
+	return symbol_equal_char_p_(pos, "DOWNTO", ret);
 }
 
-_g int loop_symbol_above_p(addr pos)
+_g int loop_symbol_above_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "ABOVE");
+	return symbol_equal_char_p_(pos, "ABOVE", ret);
 }
 
-_g int loop_symbol_below_p(addr pos)
+_g int loop_symbol_below_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "BELOW");
+	return symbol_equal_char_p_(pos, "BELOW", ret);
 }
 
-_g int loop_symbol_arithmetic1_p(addr pos)
+_g int loop_symbol_arithmetic1_p_(addr pos, int *ret)
 {
-	return loop_symbol_from_p(pos)
-		|| loop_symbol_upfrom_p(pos)
-		|| loop_symbol_downfrom_p(pos);
+	Return(loop_symbol_from_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_upfrom_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_downfrom_p_(pos, ret);
 }
 
-_g int loop_symbol_arithmetic2_p(addr pos)
+_g int loop_symbol_arithmetic2_p_(addr pos, int *ret)
 {
-	return loop_symbol_to_p(pos)
-		|| loop_symbol_upto_p(pos)
-		|| loop_symbol_downto_p(pos)
-		|| loop_symbol_above_p(pos)
-		|| loop_symbol_below_p(pos);
-}
-_g int loop_symbol_arithmetic_p(addr pos)
-{
-	return loop_symbol_arithmetic1_p(pos)
-		|| loop_symbol_arithmetic2_p(pos)
-		|| loop_symbol_by_p(pos);
+	Return(loop_symbol_to_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_upto_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_downto_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_above_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_below_p_(pos, ret);
 }
 
-_g int loop_symbol_it_p(addr pos)
+_g int loop_symbol_arithmetic_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "IT");
+	Return(loop_symbol_arithmetic1_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_arithmetic2_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_by_p_(pos, ret);
 }
 
-_g int loop_symbol_else_p(addr pos)
+_g int loop_symbol_it_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "ELSE");
+	return symbol_equal_char_p_(pos, "IT", ret);
 }
 
-_g int loop_symbol_end_p(addr pos)
+_g int loop_symbol_else_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "END");
+	return symbol_equal_char_p_(pos, "ELSE", ret);
 }
 
-_g int loop_symbol_into_p(addr pos)
+_g int loop_symbol_end_p_(addr pos, int *ret)
 {
-	return symbol_equal_char_p(pos, "INTO");
+	return symbol_equal_char_p_(pos, "END", ret);
+}
+
+_g int loop_symbol_into_p_(addr pos, int *ret)
+{
+	return symbol_equal_char_p_(pos, "INTO", ret);
 }
 
 /* main form */
-_g int loop_symbol_form_main_p(addr pos)
+_g int loop_symbol_form_main_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
+		return Result(ret, 0);
+
+	Return(loop_symbol_uncondition_p_(pos, ret));
+	if (*ret)
 		return 0;
-	return loop_symbol_uncondition_p(pos)
-		|| loop_symbol_condition_p(pos)
-		|| loop_symbol_accumulation_p(pos)
-		|| loop_symbol_termination_p(pos)
-		|| loop_symbol_initial_final_p(pos);
+
+	Return(loop_symbol_condition_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_accumulation_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_termination_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_initial_final_p_(pos, ret);
 }
 
 /* variables form */
-_g int loop_symbol_form_p(addr pos)
+_g int loop_symbol_form_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
+		return Result(ret, 0);
+
+	Return(loop_symbol_form_main_p_(pos, ret));
+	if (*ret)
 		return 0;
-	return loop_symbol_form_main_p(pos)
-		|| loop_symbol_with_p(pos)
-		|| loop_symbol_for_as_p(pos)
-		|| loop_symbol_else_p(pos)
-		|| loop_symbol_end_p(pos)
-		|| loop_symbol_and_p(pos);
+
+	Return(loop_symbol_with_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_for_as_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_else_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	Return(loop_symbol_end_p_(pos, ret));
+	if (*ret)
+		return 0;
+
+	return loop_symbol_and_p_(pos, ret);
 }
 

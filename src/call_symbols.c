@@ -45,14 +45,14 @@ static void copy_symbol_type_common(addr var, addr symbol)
 		settype_setf_symbol(symbol, type);
 }
 
-_g void copy_symbol_common(addr var, addr opt, addr *ret)
+_g int copy_symbol_common_(addr var, addr opt, addr *ret)
 {
 	addr symbol, pos;
 
 	if (opt == Unbound)
 		opt = Nil;
 	GetNameSymbol(var, &pos);
-	string_heap(&pos, pos);
+	Return(string_heap_(&pos, pos));
 	symbol_heap(&symbol);
 	SetNameSymbol(symbol, pos);
 
@@ -74,7 +74,8 @@ _g void copy_symbol_common(addr var, addr opt, addr *ret)
 		/* copy-type */
 		copy_symbol_type_common(var, symbol);
 	}
-	*ret = symbol;
+
+	return Result(ret, symbol);
 }
 
 

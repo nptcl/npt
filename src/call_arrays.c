@@ -34,9 +34,7 @@ _g int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off))
 		off = fixnumh(0);
 	Return(parse_type(ptr, &type, type, Nil));
-	array_make_array(ret, var, type, ielem, icont, adj, fill, dto, off);
-
-	return 0;
+	return array_make_array_(ret, var, type, ielem, icont, adj, fill, dto, off);
 }
 
 
@@ -62,9 +60,8 @@ _g int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret
 	if (type != Unbound) {
 		Return(parse_type(ptr, &type, type, Nil));
 	}
-	array_adjust_array(ret, pos, dim, type, ielem, icont, fill, dto, off);
 
-	return 0;
+	return array_adjust_array_(ret, pos, dim, type, ielem, icont, fill, dto, off);
 }
 
 
@@ -96,27 +93,21 @@ _g int aref_common(addr var, addr rest, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
-			array_aref(NULL, var, rest, ret);
-			break;
+			return array_aref_(NULL, var, rest, ret);
 
 		case LISPTYPE_STRING:
-			strvect_aref(NULL, var, rest, ret);
-			break;
+			return strvect_aref_(NULL, var, rest, ret);
 
 		case LISPTYPE_VECTOR:
-			vector_aref(var, rest, ret);
-			break;
+			return vector_aref_(var, rest, ret);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_aref(NULL, var, rest, ret);
-			break;
+			return bitmemory_aref_(NULL, var, rest, ret);
 
 		default:
 			*ret = Nil;
 			return TypeError_(var, ARRAY);
 	}
-
-	return 0;
 }
 
 
@@ -127,26 +118,20 @@ _g int setf_aref_common(addr value, addr var, addr rest)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
-			array_setf_aref(var, rest, value);
-			break;
+			return array_setf_aref_(var, rest, value);
 
 		case LISPTYPE_STRING:
-			strvect_setf_aref(var, rest, value);
-			break;
+			return strvect_setf_aref_(var, rest, value);
 
 		case LISPTYPE_VECTOR:
-			vector_setf_aref(var, rest, value);
-			break;
+			return vector_setf_aref_(var, rest, value);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_setf_aref(var, rest, value);
-			break;
+			return bitmemory_setf_aref_(var, rest, value);
 
 		default:
 			return TypeError_(var, ARRAY);
 	}
-
-	return 0;
 }
 
 
@@ -190,25 +175,20 @@ _g int array_dimension_common(addr var, addr axis, addr *ret)
 
 		case LISPTYPE_VECTOR:
 			lenarray(var, &size);
-			vector_array_dimension(var, axis, size, ret);
-			break;
+			return vector_array_dimension_(var, axis, size, ret);
 
 		case LISPTYPE_STRING:
 			strvect_length(var, &size);
-			vector_array_dimension(var, axis, size, ret);
-			break;
+			return vector_array_dimension_(var, axis, size, ret);
 
 		case LISPTYPE_BITVECTOR:
 			bitmemory_length(var, &size);
-			vector_array_dimension(var, axis, size, ret);
-			break;
+			return vector_array_dimension_(var, axis, size, ret);
 
 		default:
 			*ret = Nil;
 			return TypeError_(var, ARRAY);
 	}
-
-	return 0;
 }
 
 
@@ -413,15 +393,15 @@ _g int array_in_bounds_p_common(addr array, addr rest, int *ret)
 
 		case LISPTYPE_VECTOR:
 			lenarray(array, &size);
-			return Result(ret, vector_array_in_bounds_p(rest, size));
+			return vector_array_in_bounds_p_(rest, size, ret);
 
 		case LISPTYPE_STRING:
 			strvect_length(array, &size);
-			return Result(ret, vector_array_in_bounds_p(rest, size));
+			return vector_array_in_bounds_p_(rest, size, ret);
 
 		case LISPTYPE_BITVECTOR:
 			bitmemory_length(array, &size);
-			return Result(ret, vector_array_in_bounds_p(rest, size));
+			return vector_array_in_bounds_p_(rest, size, ret);
 
 		default:
 			*ret = 0;
@@ -461,10 +441,14 @@ _g int array_rank_common(addr pos, addr *ret)
 /*
  *  array-row-major-index
  */
-static void array_array_row_major_index_common(addr array, addr rest, addr *ret)
+static int array_array_row_major_index_common_(addr array, addr rest, addr *ret)
 {
-	size_t value = array_arefindex(array, rest);
-	*ret = intsizeh(value);
+	size_t size;
+
+	Return(array_arefindex_(array, rest, &size));
+	make_index_integer_heap(ret, size);
+
+	return 0;
 }
 
 _g int array_row_major_index_common(addr array, addr rest, addr *ret)
@@ -473,30 +457,24 @@ _g int array_row_major_index_common(addr array, addr rest, addr *ret)
 
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
-			array_array_row_major_index_common(array, rest, ret);
-			break;
+			return array_array_row_major_index_common_(array, rest, ret);
 
 		case LISPTYPE_VECTOR:
 			lenarray(array, &size);
-			vector_array_row_major_index(rest, size, ret);
-			break;
+			return vector_array_row_major_index_(rest, size, ret);
 
 		case LISPTYPE_STRING:
 			strvect_length(array, &size);
-			vector_array_row_major_index(rest, size, ret);
-			break;
+			return vector_array_row_major_index_(rest, size, ret);
 
 		case LISPTYPE_BITVECTOR:
 			bitmemory_length(array, &size);
-			vector_array_row_major_index(rest, size, ret);
-			break;
+			return vector_array_row_major_index_(rest, size, ret);
 
 		default:
 			*ret = Nil;
 			return TypeError_(array, ARRAY);
 	}
-
-	return 0;
 }
 
 
@@ -576,9 +554,12 @@ _g int fill_pointer_common(Execute ptr, addr array, addr *ret)
 
 _g int setf_fill_pointer_common(Execute ptr, addr value, addr array)
 {
+	int check;
+
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
-			if (array_setf_fill_pointer(array, value))
+			Return(array_setf_fill_pointer_(array, value, &check));
+			if (check)
 				return call_type_error_fill_pointer_(ptr, array);
 			return 0;
 
@@ -604,27 +585,21 @@ _g int row_major_aref_common(addr array, addr index, addr *ret)
 		return fmte_("Index ~A is too large.", index, NULL);
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
-			array_get(NULL, array, size, ret);
-			break;
+			return array_get_(NULL, array, size, ret);
 
 		case LISPTYPE_VECTOR:
-			vector_get(array, size, ret);
-			break;
+			return vector_get_(array, size, ret);
 
 		case LISPTYPE_STRING:
-			strvect_get(NULL, array, size, ret);
-			break;
+			return strvect_get_(NULL, array, size, ret);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_get(NULL, array, size, ret);
-			break;
+			return bitmemory_get_(NULL, array, size, ret);
 
 		default:
 			*ret = Nil;
 			return TypeError_(array, ARRAY);
 	}
-
-	return 0;
 }
 
 _g int setf_row_major_aref_common(addr value, addr array, addr index)
@@ -635,26 +610,20 @@ _g int setf_row_major_aref_common(addr value, addr array, addr index)
 		return fmte_("Index ~A is too large.", index, NULL);
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
-			array_set(array, size, value);
-			break;
+			return array_set_(array, size, value);
 
 		case LISPTYPE_VECTOR:
-			vector_set(array, size, value);
-			break;
+			return vector_set_(array, size, value);
 
 		case LISPTYPE_STRING:
-			strvect_set(array, size, value);
-			break;
+			return strvect_set_(array, size, value);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_set(array, size, value);
-			break;
+			return bitmemory_set_(array, size, value);
 
 		default:
 			return TypeError_(array, ARRAY);
 	}
-
-	return 0;
 }
 
 
@@ -687,19 +656,15 @@ _g int svref_common(addr pos, addr index, addr *ret)
 		return fmte_("Index ~A is too large.", index, NULL);
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
-			array_get(NULL, pos, size, ret);
-			break;
+			return array_get_(NULL, pos, size, ret);
 
 		case LISPTYPE_VECTOR:
-			vector_get(pos, size, ret);
-			break;
+			return vector_get_(pos, size, ret);
 
 		default:
 			*ret = Nil;
 			return TypeError_(pos, SIMPLE_VECTOR);
 	}
-
-	return 0;
 }
 
 _g int setf_svref_common(addr value, addr pos, addr index)
@@ -710,18 +675,14 @@ _g int setf_svref_common(addr value, addr pos, addr index)
 		return fmte_("Index ~A is too large.", index, NULL);
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
-			array_set(pos, size, value);
-			break;
+			return array_set_(pos, size, value);
 
 		case LISPTYPE_VECTOR:
-			vector_set(pos, size, value);
-			break;
+			return vector_set_(pos, size, value);
 
 		default:
 			return TypeError_(pos, SIMPLE_VECTOR);
 	}
-
-	return 0;
 }
 
 
@@ -752,37 +713,29 @@ _g int bit_common(addr pos, addr rest, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
-			bitmemory_aref(NULL, pos, rest, ret);
-			break;
+			return bitmemory_aref_(NULL, pos, rest, ret);
 
 		case LISPTYPE_ARRAY:
-			array_aref_bit(NULL, pos, rest, ret);
-			break;
+			return array_aref_bit_(NULL, pos, rest, ret);
 
 		default:
 			*ret = Nil;
 			return TypeError_(pos, ARRAY);
 	}
-
-	return 0;
 }
 
 _g int setf_bit_common(addr value, addr pos, addr rest)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
-			bitmemory_setf_aref(pos, rest, value);
-			break;
+			return bitmemory_setf_aref_(pos, rest, value);
 
 		case LISPTYPE_ARRAY:
-			array_setf_aref_bit(pos, rest, value);
-			break;
+			return array_setf_aref_bit_(pos, rest, value);
 
 		default:
 			return TypeError_(pos, ARRAY);
 	}
-
-	return 0;
 }
 
 

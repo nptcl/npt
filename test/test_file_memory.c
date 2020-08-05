@@ -101,7 +101,7 @@ static int test_standard_error_filememory(void)
 
 static int test_open_input_filememory(void)
 {
-	int result;
+	int result, check;
 	struct filememory fm;
 	LocalRoot local;
 	addr name;
@@ -109,16 +109,17 @@ static int test_open_input_filememory(void)
 	strvect_char_heap(&name, TESTFILE);
 	local = Local_Thread;
 	pressfile();
-	result = open_input_filememory(local, &fm, name);
+	result = open_input_filememory_(local, &fm, name, &check);
 	test(result == 0, "open_input_filememory1");
-	test(fm.direct == filememory_input, "open_input_filememory2");
+	test(check == 0, "open_input_filememory2");
+	test(fm.direct == filememory_input, "open_input_filememory3");
 
 	RETURN;
 }
 
 static int test_open_output_filememory(void)
 {
-	int result;
+	int result, check;
 	struct filememory fm;
 	LocalRoot local;
 	addr name;
@@ -126,16 +127,17 @@ static int test_open_output_filememory(void)
 	strvect_char_heap(&name, TESTFILE);
 	local = Local_Thread;
 	pressfile();
-	result = open_output_filememory(local, &fm, name, FileOutput_supersede);
+	result = open_output_filememory_(local, &fm, name, FileOutput_supersede, &check);
 	test(result == 0, "open_output_filememory1");
-	test(fm.direct == filememory_output, "open_output_filememory2");
+	test(check == 0, "open_output_filememory2");
+	test(fm.direct == filememory_output, "open_output_filememory3");
 
 	RETURN;
 }
 
 static int test_close_filememory(void)
 {
-	int result;
+	int result, check;
 	struct filememory fm;
 	LocalRoot local;
 	addr name;
@@ -144,27 +146,34 @@ static int test_close_filememory(void)
 	local = Local_Thread;
 
 	pressfile();
-	result = open_input_filememory(local, &fm, name);
+	result = open_input_filememory_(local, &fm, name, &check);
 	test(result == 0, "close_filememory1");
+	test(check == 0, "close_filememory2");
 	result = close_filememory(&fm);
-	test(result == 0, "close_filememory2");
-	test(fm.mode == filememory_close, "close_filememory3");
+	test(result == 0, "close_filememory3");
+	test(fm.mode == filememory_close, "close_filememory4");
 
 	pressfile();
-	result = open_output_filememory(local, &fm, name, FileOutput_supersede);
-	test(result == 0, "close_filememory4");
-	result = close_filememory(&fm);
+	result = open_output_filememory_(local, &fm, name, FileOutput_supersede, &check);
 	test(result == 0, "close_filememory5");
-	test(fm.mode == filememory_close, "close_filememory6");
+	test(check == 0, "close_filememory6");
+	result = close_filememory(&fm);
+	test(result == 0, "close_filememory7");
+	test(fm.mode == filememory_close, "close_filememory8");
 
 	RETURN;
 }
 
 static int openinput(struct filememory *fm)
 {
+	int check;
 	addr name;
+
+	check = 0;
 	strvect_char_heap(&name, TESTFILE);
-	return open_input_filememory(Local_Thread, fm, name);
+	Error(open_input_filememory_(Local_Thread, fm, name, &check));
+
+	return check;
 }
 
 static int writetest(const void *buffer, size_t size)
@@ -217,9 +226,15 @@ static int test_readforce(void)
 
 static int openoutput(struct filememory *fm)
 {
+	int check;
 	addr name;
+
+	check = 0;
 	strvect_char_heap(&name, TESTFILE);
-	return open_output_filememory(Local_Thread, fm, name, FileOutput_supersede);
+	Error(open_output_filememory_(Local_Thread,
+				fm, name, FileOutput_supersede, &check));
+
+	return check;
 }
 
 static int test_writeforce(void)

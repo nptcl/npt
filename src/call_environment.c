@@ -39,7 +39,7 @@ static int list_all_packages_sort(Execute ptr, addr *ret)
 	addr list, key, call;
 	LocalHold hold;
 
-	list_all_packages(&list);
+	Return(list_all_packages_(&list));
 	hold = LocalHold_local_push(ptr, list);
 	/* key */
 	GetConst(COMMON_PACKAGE_NAME, &key);
@@ -50,13 +50,13 @@ static int list_all_packages_sort(Execute ptr, addr *ret)
 	getfunction_global(call, &call);
 	localhold_push(hold, call);
 	/* sort */
-	Return(quick_sort_sequence(ptr, list, call, key));
+	Return(quick_sort_sequence_(ptr, list, call, key));
 	localhold_end(hold);
 
 	return Result(ret, list);
 }
 
-static int apropos_symbol_p(addr var, addr name)
+static int apropos_symbol_p_(addr var, addr name, int *ret)
 {
 	size_t size, all, diff, x, y;
 	unicode a, b;
@@ -66,25 +66,26 @@ static int apropos_symbol_p(addr var, addr name)
 	string_length(var, &size);
 	string_length(name, &all);
 	if (all < size)
-		return 0;
+		return Result(ret, 0);
 	diff = (all - size) + 1;
 	for (x = 0; x < diff; x++) {
 		for (y = 0; y < size; y++) {
-			string_getc(var, y, &a);
-			string_getc(name, x + y, &b);
+			Return(string_getc_(var, y, &a));
+			Return(string_getc_(name, x + y, &b));
 			if (toUpperUnicode(a) != toUpperUnicode(b))
 				goto next;
 		}
-		return 1;
+		return Result(ret, 1);
 next:
 		continue;
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 {
+	int check;
 	addr list, symbol, x, key, call;
 	LocalHold hold;
 
@@ -93,7 +94,8 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	for (list = Nil; package != Nil; ) {
 		GetCons(package, &symbol, &package);
 		GetNameSymbol(symbol, &x);
-		if (apropos_symbol_p(var, x))
+		Return(apropos_symbol_p_(var, x, &check));
+		if (check)
 			cons_heap(&list, symbol, list);
 	}
 
@@ -108,7 +110,7 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	getfunction_global(call, &call);
 	localhold_push(hold, call);
 	/* sort */
-	Return(quick_sort_sequence(ptr, list, call, key));
+	Return(quick_sort_sequence_(ptr, list, call, key));
 	localhold_end(hold);
 
 	return Result(ret, list);
@@ -119,7 +121,7 @@ _g int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
 	addr list, root, x, y;
 	LocalHold hold;
 
-	string_designer_heap(&var, var);
+	Return(string_designer_heap_(&var, var, NULL));
 	if (package != Nil)
 		return apropos_symbol_common(ptr, var, package, ret);
 

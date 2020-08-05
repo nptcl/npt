@@ -7,17 +7,18 @@
 /*
  *  unsafe
  */
-_g void simplesort_cons_unsafe(addr *ret, addr cons, int (*call)(addr left, addr right));
-_g void simplesort_info_cons_unsafe(addr *ret, addr cons, addr info,
-		int (*call)(addr info, addr left, addr right));
+_g int simplesort_cons_unsafe_(addr *ret,
+		addr cons, int (*call_)(addr left, addr right, int *ret));
+_g int simplesort_info_cons_unsafe_(addr *ret, addr cons, addr info,
+		int (*call_)(addr info, addr left, addr right, int *ret));
 
 /*
  *  sort
  */
-_g int simple_sort_sequence(Execute ptr, addr pos, addr call, addr key);
-_g int bubble_sort_sequence(Execute ptr, addr pos, addr call, addr key);
-_g int quick_sort_sequence(Execute ptr, addr pos, addr call, addr key);
-_g int merge_sort_sequence(Execute ptr, addr pos, addr call, addr key);
+_g int simple_sort_sequence_(Execute ptr, addr pos, addr call, addr key);
+_g int bubble_sort_sequence_(Execute ptr, addr pos, addr call, addr key);
+_g int quick_sort_sequence_(Execute ptr, addr pos, addr call, addr key);
+_g int merge_sort_sequence_(Execute ptr, addr pos, addr call, addr key);
 
 #endif
 

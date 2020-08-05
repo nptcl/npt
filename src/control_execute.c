@@ -286,7 +286,7 @@ static int execute_no_control(Execute ptr, addr call)
 	/* generic function */
 	if (GetType(call) != LISPTYPE_FUNCTION) {
 		GetControl(ptr->control, Control_Cons, &value);
-		return closrun_execute(ptr, call, value);
+		return closrun_execute_(ptr, call, value);
 	}
 
 	/* closure */
@@ -478,7 +478,7 @@ static int apply_no_control(Execute ptr, addr call, addr list)
 
 	/* generic function */
 	if (GetType(call) != LISPTYPE_FUNCTION)
-		return closrun_execute(ptr, call, list);
+		return closrun_execute_(ptr, call, list);
 
 	/* args */
 	SetControl(ptr->control, Control_Cons, list);

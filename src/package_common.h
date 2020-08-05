@@ -8,7 +8,7 @@ _g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret);
 _g int defpackage_execute(Execute ptr, addr rest, addr *ret);
 _g int do_symbols_package(Execute ptr, addr call, addr package);
 _g int do_external_symbols_package(Execute ptr, addr call, addr package);
-_g int do_all_symbols_package(Execute ptr, addr call);
+_g int do_all_symbols_package_(Execute ptr, addr call);
 _g int all_symbols_package_(addr package, addr *ret);
 
 _g void init_package_common(void);

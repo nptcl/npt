@@ -225,7 +225,7 @@ _g int input_prompt(addr *ret, addr *prompt, const char *message)
 	if (HISTORY_SIZE < ReadLine_Size) {
 		free(remove_history(0));
 	}
-	strvect_char1_heap(&pos, str, 0x0A);
+	Return(strvect_char1_heap_(&pos, str, 0x0A));
 	free(str);
 	strvect_length(pos, &size);
 	ReadLine_Size++;

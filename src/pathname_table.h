@@ -19,13 +19,13 @@ struct fileparse {
 
 _g void init_fileparse(struct fileparse *pa, Execute ptr, int localp);
 _g void pathname_fileparse_alloc(struct fileparse *pa, int logical);
-_g void wild_value_pathname(addr input, addr *ret);
+_g int wild_value_pathname_(addr input, addr *ret);
 _g int make_parse_logical_pathname_(struct fileparse *pa);
-_g void pushrange_pathname(LocalpRoot local,
+_g int pushrange_pathname_(LocalpRoot local,
 		addr queue, const unicode *body, size_t n1, size_t n2);
 _g void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret);
-_g void nametype_pathname(struct fileparse *pa, size_t index);
-_g void pushdirectory_fileparse(struct fileparse *pa, addr *list, addr name);
+_g int nametype_pathname_(struct fileparse *pa, size_t index);
+_g int pushdirectory_fileparse_(struct fileparse *pa, addr *list, addr name);
 _g void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex index);
 
 _g int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret);

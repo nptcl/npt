@@ -7,6 +7,7 @@
 #include "integer.h"
 #include "sequence.h"
 #include "strvect.h"
+#include "symbol.h"
 
 /*
  *  buffer compare
@@ -68,14 +69,17 @@
 
 static int memu_equal(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
 {
-	if (s1 != s2) return 0;
+	if (s1 != s2)
+		return 0;
 	return memcmp(p1, p2, s1 * sizeoft(unicode)) == 0;
 }
 
 static int memu_compare(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
 {
-	if (s1 < s2) return -1;
-	if (s1 > s2) return 1;
+	if (s1 < s2)
+		return -1;
+	if (s1 > s2)
+		return 1;
 	return memcmp(p1, p2, s1 * sizeoft(unicode));
 }
 
@@ -142,24 +146,56 @@ _g void strvect_heap(addr *ret, size_t len)
 	*ret = pos;
 }
 
-_g void strvect_character_alloc(LocalRoot local, addr *ret, addr pos)
+_g void strvect_copy_alloc(LocalRoot local, addr *ret, addr value)
+{
+	enum CHARACTER_TYPE type;
+	addr pos;
+	unicode *dst;
+	const unicode *src;
+	size_t size;
+
+	CheckType(value, LISPTYPE_STRING);
+	/* source */
+	GetCharacterType(value, &type);
+	GetStringSize(value, &size);
+	GetStringUnicode(value, (const unicode **)&src);
+	/* destination */
+	strvect_alloc(local, &pos, size);
+	GetStringUnicode(pos, (const unicode **)&dst);
+	SetCharacterType(pos, type);
+	/* copy */
+	memcpy(dst, src, sizeoft(unicode) * size);
+	/* result */
+	*ret = pos;
+}
+_g void strvect_copy_local(LocalRoot local, addr *ret, addr value)
+{
+	CheckLocal(local);
+	strvect_copy_alloc(local, ret, value);
+}
+_g void strvect_copy_heap(addr *ret, addr value)
+{
+	strvect_copy_alloc(NULL, ret, value);
+}
+
+_g int strvect_character_alloc_(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	GetCharacter(pos, &c);
-	strvect_sizeu_alloc(local, ret, &c, 1);
+	return strvect_sizeu_alloc_(local, ret, &c, 1);
 }
-_g void strvect_character_local(LocalRoot local, addr *ret, addr pos)
+_g int strvect_character_local_(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	Check(local == NULL, "local error");
 	GetCharacter(pos, &c);
-	strvect_sizeu_local(local, ret, &c, 1);
+	return strvect_sizeu_local_(local, ret, &c, 1);
 }
-_g void strvect_character_heap(addr *ret, addr pos)
+_g int strvect_character_heap_(addr *ret, addr pos)
 {
 	unicode c;
 	GetCharacter(pos, &c);
-	strvect_sizeu_heap(ret, &c, 1);
+	return strvect_sizeu_heap_(ret, &c, 1);
 }
 
 _g void strvect_length(addr pos, size_t *ret)
@@ -196,7 +232,7 @@ _g enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode 
 	return CHARACTER_TYPE_INVALID;
 }
 
-_g void strvect_update_character_type(addr pos)
+_g int strvect_update_character_type_(addr pos)
 {
 	enum CHARACTER_TYPE type;
 	const unicode *body;
@@ -207,9 +243,11 @@ _g void strvect_update_character_type(addr pos)
 	for (i = 0; i < size; i++) {
 		type = unicode_character_type(type, body[i]);
 		if (type == CHARACTER_TYPE_INVALID)
-			fmte("Invalid character code.", NULL);
+			return fmte_("Invalid character code.", NULL);
 	}
 	SetCharacterType(pos, type);
+
+	return 0;
 }
 
 _g int strvectp(addr pos)
@@ -217,22 +255,22 @@ _g int strvectp(addr pos)
 	return GetType(pos) == LISPTYPE_STRING;
 }
 
-_g int strvect_base_p(addr pos)
+_g int strvect_base_p_(addr pos, int *ret)
 {
 	enum CHARACTER_TYPE type;
 
 	if (! strvectp(pos))
-		return 0;
-	strvect_update_character_type(pos);
+		return Result(ret, 0);
+	Return(strvect_update_character_type_(pos));
 	GetCharacterType(pos, &type);
 	switch (type) {
 		case CHARACTER_TYPE_EMPTY:
 		case CHARACTER_TYPE_STANDARD:
 		case CHARACTER_TYPE_BASE:
-			return 1;
+			return Result(ret, 1);
 
 		default:
-			return 0;
+			return Result(ret, 0);
 	}
 }
 
@@ -253,7 +291,7 @@ _g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
-	strvect_update_character_type(pos);
+	Error(strvect_update_character_type_(pos));
 	*ret = pos;
 }
 _g void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
@@ -273,55 +311,7 @@ _g addr stringh(const char *arg) /* for debug */
 	return pos;
 }
 
-_g void strvect_char1_alloc(LocalRoot local, addr *ret, const char *arg, unicode c)
-{
-	addr pos;
-	unicode *destroy;
-	size_t size, i;
-
-	size = strlen(arg);
-	strvect_alloc(local, &pos, size + 1ULL);
-	GetStringUnicode(pos, (const unicode **)&destroy);
-	for (i = 0; i < size; i++)
-		destroy[i] = (unicode)arg[i];
-	destroy[i] = c;
-	strvect_update_character_type(pos);
-	*ret = pos;
-}
-_g void strvect_char1_local(LocalRoot local, addr *ret, const char *arg, unicode c)
-{
-	Check(local == NULL, "local error");
-	strvect_char1_alloc(local, ret, arg, c);
-}
-_g void strvect_char1_heap(addr *ret, const char *arg, unicode c)
-{
-	strvect_char1_alloc(NULL, ret, arg, c);
-}
-
-_g void strvect_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
-{
-	addr pos;
-	unicode *destroy;
-	size_t i;
-
-	strvect_alloc(local, &pos, size);
-	GetStringUnicode(pos, (const unicode **)&destroy);
-	for (i = 0; i < size; i++)
-		destroy[i] = (unicode)arg[i];
-	strvect_update_character_type(pos);
-	*ret = pos;
-}
-_g void strvect_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
-{
-	Check(local == NULL, "local error");
-	strvect_size1_alloc(local, ret, arg, size);
-}
-_g void strvect_size1_heap(addr *ret, const char *arg, size_t size)
-{
-	strvect_size1_alloc(NULL, ret, arg, size);
-}
-
-_g void strvect_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+_g int strvect_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -329,17 +319,17 @@ _g void strvect_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size
 	strvect_alloc(local, &pos, size);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	memcpy(destroy, arg, sizeoft(unicode) * size);
-	strvect_update_character_type(pos);
-	*ret = pos;
+	Return(strvect_update_character_type_(pos));
+	return Result(ret, pos);
 }
-_g void strvect_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+_g int strvect_sizeu_local_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
-	strvect_sizeu_alloc(local, ret, arg, size);
+	return strvect_sizeu_alloc_(local, ret, arg, size);
 }
-_g void strvect_sizeu_heap(addr *ret, const unicode *arg, size_t size)
+_g int strvect_sizeu_heap_(addr *ret, const unicode *arg, size_t size)
 {
-	strvect_sizeu_alloc(NULL, ret, arg, size);
+	return strvect_sizeu_alloc_(NULL, ret, arg, size);
 }
 
 
@@ -437,7 +427,8 @@ _g int strvect_character_equalp(addr left, addr right)
 	Check(GetType(left) != LISPTYPE_STRING, "type left error");
 	Check(GetType(right) != LISPTYPE_CHARACTER, "type right error");
 	strvect_posbodylen(left, &body, &size);
-	if (size != 1) return 0;
+	if (size != 1)
+		return 0;
 	a = body[0];
 	GetCharacter(right, &b);
 
@@ -518,11 +509,35 @@ _g int strvect_comparep(addr left, addr right)
 	return strvect_comparep_binary(left, body, size);
 }
 
+_g int strvect_designer_equal_char(addr left, const char *right)
+{
+	if (symbolp(left))
+		GetNameSymbol(left, &left);
+	if (characterp(left))
+		return character_equal_char(left, right);
+	if (strvectp(left))
+		return strvect_equal_char(left, right);
+
+	return 0;
+}
+
+_g int strvect_designer_equalp_char(addr left, const char *right)
+{
+	if (symbolp(left))
+		GetNameSymbol(left, &left);
+	if (characterp(left))
+		return character_equalp_char(left, right);
+	if (strvectp(left))
+		return strvect_equalp_char(left, right);
+
+	return 0;
+}
+
 
 /*
  *  getc/setc
  */
-_g unicode strvect_refc(addr pos, size_t index)
+_g void strvect_getc(addr pos, size_t index, unicode *c)
 {
 	const unicode *body;
 #ifdef LISP_DEBUG
@@ -535,16 +550,26 @@ _g unicode strvect_refc(addr pos, size_t index)
 	Check(size <= index, "size error");
 #endif
 	GetStringUnicode(pos, &body);
-
-	return body[index];
+	*c =  body[index];
 }
 
-_g void strvect_getc(addr pos, size_t index, unicode *c)
+_g void strvect_setc_unsafe(addr pos, size_t index, unicode c)
 {
-	*c = strvect_refc(pos, index);
+	unicode *destroy;
+#ifdef LISP_DEBUG
+	size_t size;
+#endif
+
+	Check(GetType(pos) != LISPTYPE_STRING, "type error");
+#ifdef LISP_DEBUG
+	strvect_length(pos, &size);
+	Check(size <= index, "size error");
+#endif
+	GetStringUnicode(pos, (const unicode **)&destroy);
+	destroy[index] = c;
 }
 
-_g void strvect_setc(addr pos, size_t index, unicode c)
+_g int strvect_setc_(addr pos, size_t index, unicode c)
 {
 	enum CHARACTER_TYPE type;
 	unicode *destroy;
@@ -560,108 +585,127 @@ _g void strvect_setc(addr pos, size_t index, unicode c)
 
 	type = unicode_character_type(RefCharacterType(pos), c);
 	if (type == CHARACTER_TYPE_INVALID)
-		fmte("Invalid character code.", NULL);
+		return fmte_("Invalid character code.", NULL);
 	SetCharacterType(pos, type);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	destroy[index] = c;
+
+	return 0;
 }
 
-_g void strvect_setall(addr pos, unicode c)
+_g int strvect_setall_(addr pos, unicode c)
 {
 	enum CHARACTER_TYPE type;
 	unicode *destroy;
 	size_t size, i;
 
 	strvect_length(pos, &size);
-	if (size == 0) return;
+	if (size == 0)
+		return 0;
 	type = character_type(c);
 	if (type == CHARACTER_TYPE_INVALID)
-		fmte("Invalid character code.", NULL);
+		return fmte_("Invalid character code.", NULL);
 	SetCharacterType(pos, type);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	for (i = 0; i < size; i++)
 		destroy[i] = c;
+
+	return 0;
 }
 
-_g void strvect_get(LocalRoot local, addr pos, size_t index, addr *ret)
+_g int strvect_get_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	unicode c;
 	size_t size;
 
 	CheckType(pos, LISPTYPE_STRING);
 	strvect_length(pos, &size);
-	if (size <= index)
-		fmte("Out of range ~S.", intsizeh(index), NULL);
+	if (size <= index) {
+		*ret = 0;
+		return fmte_("Out of range ~S.", intsizeh(index), NULL);
+	}
 	strvect_getc(pos, index, &c);
 	character_alloc(local, ret, c);
+
+	return 0;
 }
 
-_g void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret)
+_g int strvect_aref_(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	addr arg;
 	size_t index;
 
 	CheckType(pos, LISPTYPE_STRING);
-	if (! consp(args))
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+	if (! consp(args)) {
+		*ret = 0;
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
+	}
 	GetCons(args, &arg, &args);
-	if (args != Nil)
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
-	if (GetIndex_integer(arg, &index))
-		fmte("Invalid index arg ~S.", arg, NULL);
-	strvect_get(local, pos, index, ret);
+	if (args != Nil) {
+		*ret = 0;
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
+	}
+	if (GetIndex_integer(arg, &index)) {
+		*ret = 0;
+		return fmte_("Invalid index arg ~S.", arg, NULL);
+	}
+
+	return strvect_get_(local, pos, index, ret);
 }
 
-_g void strvect_set(addr pos, size_t index, addr value)
+_g int strvect_set_(addr pos, size_t index, addr value)
 {
 	size_t size;
 
 	CheckType(pos, LISPTYPE_STRING);
 	if (! characterp(value))
-		fmte("SETF arg ~S must be a character type.", value, NULL);
+		return fmte_("SETF arg ~S must be a character type.", value, NULL);
 	strvect_length(pos, &size);
 	if (size <= index)
-		fmte("Out of range ~S.", intsizeh(index), NULL);
-	strvect_setc(pos, index, RefCharacter(value));
+		return fmte_("Out of range ~S.", intsizeh(index), NULL);
+
+	return strvect_setc_(pos, index, RefCharacter(value));
 }
 
-_g void strvect_setf_aref(addr pos, addr args, addr value)
+_g int strvect_setf_aref_(addr pos, addr args, addr value)
 {
 	addr arg;
 	size_t index;
 
 	CheckType(pos, LISPTYPE_STRING);
 	if (GetStatusReadOnly(pos))
-		fmte("The object ~S is constant.", pos, NULL);
+		return fmte_("The object ~S is constant.", pos, NULL);
 	if (! consp(args))
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		fmte("Invalid index arg ~S.", arg, NULL);
-	strvect_set(pos, index, value);
+		return fmte_("Invalid index arg ~S.", arg, NULL);
+
+	return strvect_set_(pos, index, value);
 }
 
-_g void strvect_fill(addr pos, addr item, addr start, addr end)
+_g int strvect_fill_(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 	unicode c;
 
 	/* argument */
 	if (! characterp(item))
-		fmte("FILL tem ~S must be a character type.", item, NULL);
+		return fmte_("FILL tem ~S must be a character type.", item, NULL);
 	GetCharacter(item, &c);
 	strvect_length(pos, &index1);
-	size_start_end_sequence(start, end, index1, &index1, &index2);
+	Return(size_start_end_sequence_(start, end, index1, &index1, &index2, NULL));
 
 	/* fill */
 	for (; index1 < index2; index1++)
-		strvect_setc(pos, index1, c);
-	strvect_update_character_type(pos);
+		strvect_setc_unsafe(pos, index1, c);
+
+	return strvect_update_character_type_(pos);
 }
 
-_g void strvect_subseq_alloc(LocalRoot local, addr *ret, addr pos, size_t x, size_t y)
+_g int strvect_subseq_alloc_(LocalRoot local, addr *ret, addr pos, size_t x, size_t y)
 {
 	unicode *data1;
 	const unicode *data2;
@@ -674,33 +718,34 @@ _g void strvect_subseq_alloc(LocalRoot local, addr *ret, addr pos, size_t x, siz
 	GetStringUnicode(root, &data1);
 	GetStringUnicode(pos, &data2);
 	memcpy(data1, data2 + x, diff * sizeoft(unicode));
-	strvect_update_character_type(pos);
-	*ret = root;
+	Return(strvect_update_character_type_(pos));
+
+	return Result(ret, root);
 }
 
-_g void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
+_g int strvect_subseq_index_(addr *ret, addr pos, size_t index1, size_t index2)
 {
-	strvect_subseq_alloc(NULL, ret, pos, index1, index2);
+	return strvect_subseq_alloc_(NULL, ret, pos, index1, index2);
 }
 
-_g void strvect_subseq(addr *ret, addr pos, addr start, addr end)
+_g int strvect_subseq_(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 
 	strvect_length(pos, &index1);
-	size_start_end_sequence(start, end, index1, &index1, &index2);
-	strvect_subseq_index(ret, pos, index1, index2);
+	Return(size_start_end_sequence_(start, end, index1, &index1, &index2, NULL));
+	return strvect_subseq_index_(ret, pos, index1, index2);
 }
 
-_g void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2)
+_g int strvect_setget_(addr pos1, size_t index1, addr pos2, size_t index2)
 {
 	unicode value;
 
 	strvect_getc(pos2, index2, &value);
-	strvect_setc(pos1, index1, value);
+	return strvect_setc_(pos1, index1, value);
 }
 
-_g void strvect_reverse(LocalRoot local, addr *ret, addr pos)
+_g int strvect_reverse_(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	addr one;
@@ -711,28 +756,65 @@ _g void strvect_reverse(LocalRoot local, addr *ret, addr pos)
 	for (x = 0; x < size; x++) {
 		y = size - x - 1;
 		strvect_getc(pos, x, &c);
-		strvect_setc(one, y, c);
+		Return(strvect_setc_(one, y, c));
 	}
-	*ret = one;
+
+	return Result(ret, one);
 }
 
-_g void strvect_nreverse(addr *ret, addr pos)
+_g int strvect_nreverse_(addr *ret, addr pos)
 {
 	unicode a, b;
 	size_t size, x, y;
 
 	strvect_length(pos, &size);
-	if (size <= 1) return;
+	if (size <= 1)
+		return 0;
 	x = 0;
 	y = size - 1;
 	while (x < y) {
 		strvect_getc(pos, x, &a);
 		strvect_getc(pos, y, &b);
-		strvect_setc(pos, x, b);
-		strvect_setc(pos, y, a);
+		Return(strvect_setc_(pos, x, b));
+		Return(strvect_setc_(pos, y, a));
 		x++;
 		y--;
 	}
-	*ret = pos;
+
+	return Result(ret, pos);
+}
+
+
+/*
+ *  make
+ */
+_g int strvect_char1_heap_(addr *ret, const char *arg, unicode c)
+{
+	addr pos;
+	unicode *destroy;
+	size_t size, i;
+
+	size = strlen(arg);
+	strvect_heap(&pos, size + 1ULL);
+	GetStringUnicode(pos, (const unicode **)&destroy);
+	for (i = 0; i < size; i++)
+		destroy[i] = (unicode)arg[i];
+	destroy[i] = c;
+	Return(strvect_update_character_type_(pos));
+	return Result(ret, pos);
+}
+
+_g int strvect_size1_heap_(addr *ret, const char *arg, size_t size)
+{
+	addr pos;
+	unicode *destroy;
+	size_t i;
+
+	strvect_alloc(NULL, &pos, size);
+	GetStringUnicode(pos, (const unicode **)&destroy);
+	for (i = 0; i < size; i++)
+		destroy[i] = (unicode)arg[i];
+	Return(strvect_update_character_type_(pos));
+	return Result(ret, pos);
 }
 

@@ -124,7 +124,7 @@ static void defun_subtypep(void)
 /* (defun type-of (object) ...) -> type-spec */
 static int function_type_of(Execute ptr, addr pos)
 {
-	type_value(&pos, pos);
+	Return(type_value_(&pos, pos));
 	Return(type_object_(&pos, pos));
 	setresult_control(ptr, pos);
 

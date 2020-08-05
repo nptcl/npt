@@ -17,11 +17,11 @@ static int test_defnametable(void)
 
 	find_unicode_hashtable_(getname, 0x08, &pos);
 	test(pos != Unbound, "defnametable.1");
-	test(string_equalp_char(pos, "Backspace"), "defnametable.2");
+	test(string_equalp_char_debug(pos, "Backspace"), "defnametable.2");
 
 	find_unicode_hashtable_(getname, 0x09, &pos);
 	test(pos != Unbound, "defnametable.3");
-	test(string_equalp_char(pos, "Tab"), "defnametable.4");
+	test(string_equalp_char_debug(pos, "Tab"), "defnametable.4");
 
 	find_unicode_hashtable_(getname, 0xFF, &pos);
 	test(pos == Unbound, "defnametable.5");
@@ -42,7 +42,7 @@ static int test_findtable_unicode_name(void)
 
 	findtable_unicode_name_(&pos, 0x0C);
 	test(pos != Nil, "findtable_unicode_name.1");
-	test(string_equalp_char(pos, "Page"), "findtable_unicode_name.2");
+	test(string_equalp_char_debug(pos, "Page"), "findtable_unicode_name.2");
 
 	findtable_unicode_name_(&pos, 0xF0000000UL);
 	test(pos == Nil, "findtable_unicode_name.3");
@@ -57,7 +57,7 @@ static int test_findtable_char_name(void)
 	character_heap(&pos, 0x0C);
 	findtable_char_name_(&pos, pos);
 	test(pos != Nil, "findtable_char_name.1");
-	test(string_equalp_char(pos, "Page"), "findtable_char_name.2");
+	test(string_equalp_char_debug(pos, "Page"), "findtable_char_name.2");
 
 	character_heap(&pos, 0xF0000000UL);
 	findtable_char_name_(&pos, pos);
@@ -91,32 +91,32 @@ static int test_unicode_code(void)
 
 	strvect_char_heap(&pos, "u");
 	strvect_length(pos, &size);
-	check = unicode_code(pos, size, &u);
+	unicode_code_(pos, size, &u, &check);
 	test(check, "unicode_code.1");
 
 	strvect_char_heap(&pos, "a10");
 	strvect_length(pos, &size);
-	check = unicode_code(pos, size, &u);
+	unicode_code_(pos, size, &u, &check);
 	test(check, "unicode_code.2");
 
 	strvect_char_heap(&pos, "u1000000000000000000000");
 	strvect_length(pos, &size);
-	check = unicode_code(pos, size, &u);
+	unicode_code_(pos, size, &u, &check);
 	test(check, "unicode_code.3");
 
 	strvect_char_heap(&pos, "u99999999999");
 	strvect_length(pos, &size);
-	check = unicode_code(pos, size, &u);
+	unicode_code_(pos, size, &u, &check);
 	test(check, "unicode_code.4");
 
 	strvect_char_heap(&pos, "u65");
 	strvect_length(pos, &size);
-	check = unicode_code(pos, size, &u);
+	unicode_code_(pos, size, &u, &check);
 	test(check == 0 && u == 0x65, "unicode_code.5");
 
 	strvect_char_heap(&pos, "uabc");
 	strvect_length(pos, &size);
-	check = unicode_code(pos, size, &u);
+	unicode_code_(pos, size, &u, &check);
 	test(check == 0 && u == 0x0ABC, "unicode_code.6");
 
 	RETURN;

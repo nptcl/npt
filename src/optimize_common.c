@@ -14,6 +14,8 @@
 #include "optimize_common.h"
 #include "scope_object.h"
 #include "strtype.h"
+#include "strvect.h"
+#include "symbol.h"
 #include "type_typep.h"
 
 static OptimizeType get_optimize_scope(addr scope, enum EVAL_OPTIMIZE index)
@@ -418,7 +420,7 @@ static int optimize_check_code1(LocalRoot local, addr code, addr scope, addr pos
 	getvalue_tablecall(pos, &pos);
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue(pos, &pos);
-	if (! string_designer_equal_char(pos, "SCOPE"))
+	if (! strvect_designer_equalp_char(pos, "SCOPE"))
 		return 0;
 
 	/* fixnum */
@@ -440,7 +442,7 @@ static int optimize_check_code2(
 	getvalue_tablecall(pos, &pos);
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue(pos, &pos);
-	if (! string_designer_equal_char(pos, "LIST"))
+	if (! strvect_designer_equalp_char(pos, "LIST"))
 		return 0;
 
 	list = Nil;

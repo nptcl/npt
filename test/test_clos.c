@@ -444,6 +444,7 @@ static int test_slot_class_p(void)
 
 static int test_clos_getp(void)
 {
+	int check;
 	addr slots, pos, name, value, v;
 	constindex index;
 
@@ -484,17 +485,19 @@ static int test_clos_getp(void)
 	test(name == v, "clos_setp4");
 
 	name = 0;
-	test(! clos_checkp(pos, readr("zzz"), &name), "clos_checkp1");
-	test(clos_checkp(pos, readr("ddd"), &name), "clos_checkp2");
+	clos_checkp_(pos, readr("zzz"), &name, &check);
+	test(! check, "clos_checkp1");
+	clos_checkp_(pos, readr("ddd"), &name, &check);
+	test(check, "clos_checkp2");
 	test(name == v, "clos_checkp3");
 
-	clos_get(pos, readr("bbb"), &name);
+	clos_get_(pos, readr("bbb"), &name);
 	test(name == T, "clos_get1");
-	clos_set(pos, readr("bbb"), v);
-	clos_get(pos, readr("bbb"), &name);
+	clos_set_(pos, readr("bbb"), v);
+	clos_get_(pos, readr("bbb"), &name);
 	test(name == v, "clos_set1");
 	name = 0;
-	clos_check(pos, readr("bbb"), &name);
+	clos_check_(pos, readr("bbb"), &name);
 	test(name == v, "clos_check1");
 
 	name = 0;
@@ -505,7 +508,7 @@ static int test_clos_getp(void)
 	clos_getelt(pos, 3, &name);
 	test(name == T, "clos_setelt1");
 	name = 0;
-	clos_checkelt(pos, 3, &name);
+	clos_checkelt_(pos, 3, &name);
 	test(name == T, "clos_checkelt1");
 
 	RETURN;
@@ -517,6 +520,7 @@ static int test_clos_getp(void)
  */
 static int test_clos_slot_exists_p(void)
 {
+	int check;
 	addr slots, pos;
 
 	slot_vector_heap(&slots, 4);
@@ -542,18 +546,24 @@ static int test_clos_slot_exists_p(void)
 	test(clos_slot_boundp_nil(pos, readr("zzz")) < 0, "clos_slot_boundp_nil3");
 
 	clos_setp(pos, readr("bbb"), Unbound);
-	test(! clos_slot_boundp(pos, readr("bbb")), "clos_slot_boundp1");
+	clos_slot_boundp_(pos, readr("bbb"), &check);
+	test(! check, "clos_slot_boundp1");
 	clos_setp(pos, readr("bbb"), Nil);
-	test(clos_slot_boundp(pos, readr("bbb")), "clos_slot_boundp2");
+	clos_slot_boundp_(pos, readr("bbb"), &check);
+	test(check, "clos_slot_boundp2");
 
-	test(clos_slot_makunbound_nil(pos, readr("zzz")), "clos_slot_makunbound_nil1");
+	clos_slot_makunbound_nil_(pos, readr("zzz"), &check);
+	test(check, "clos_slot_makunbound_nil1");
 	clos_setp(pos, readr("bbb"), Nil);
-	test(! clos_slot_makunbound_nil(pos, readr("bbb")), "clos_slot_makunbound_nil2");
-	test(! clos_slot_boundp(pos, readr("bbb")), "clos_slot_makunbound_nil3");
+	clos_slot_makunbound_nil_(pos, readr("bbb"), &check);
+	test(! check, "clos_slot_makunbound_nil2");
+	clos_slot_boundp_(pos, readr("bbb"), &check);
+	test(! check, "clos_slot_makunbound_nil3");
 
 	clos_setp(pos, readr("bbb"), Nil);
-	clos_slot_makunbound(pos, readr("bbb"));
-	test(! clos_slot_boundp(pos, readr("bbb")), "clos_slot_makunbound1");
+	clos_slot_makunbound_(pos, readr("bbb"));
+	clos_slot_boundp_(pos, readr("bbb"), &check);
+	test(! check, "clos_slot_makunbound1");
 
 	RETURN;
 }
@@ -570,12 +580,12 @@ static int test_clos_find_class(void)
 	test(pos == Nil, "clos_find_class1");
 	clos_find_class_nil(readr("method"), &pos);
 	test(closp(pos), "clos_find_class2");
-	clos_find_class(readr("class"), &pos);
+	clos_find_class_(readr("class"), &pos);
 	test(closp(pos), "clos_find_class3");
 
 	clos_define_class(readr("aaa"), pos);
 	pos = 0;
-	clos_find_class(readr("aaa"), &pos);
+	clos_find_class_(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_class4");
 
 	RETURN;
@@ -587,13 +597,13 @@ static int test_clos_find_generic(void)
 
 	clos_find_generic_nil(readr("aaa"), &pos);
 	test(pos == Nil, "clos_find_generic1");
-	clos_find_class(readr("method"), &pos);
+	clos_find_class_(readr("method"), &pos);
 	clos_define_generic(readr("aaa"), pos);
 	pos = 0;
 	clos_find_generic_nil(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_generic2");
 	pos = 0;
-	clos_find_generic(readr("aaa"), &pos);
+	clos_find_generic_(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_generic3");
 
 	RETURN;
@@ -607,12 +617,12 @@ static int test_clos_find_combination(void)
 	test(pos == Nil, "clos_find_combination1");
 	clos_find_combination_nil(readr("progn"), &pos);
 	test(closp(pos), "clos_find_combination2");
-	clos_find_combination(readr("+"), &pos);
+	clos_find_combination_(readr("+"), &pos);
 	test(closp(pos), "clos_find_combination3");
 
 	clos_define_combination(readr("aaa"), pos);
 	pos = 0;
-	clos_find_combination(readr("aaa"), &pos);
+	clos_find_combination_(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_combination4");
 
 	RETURN;
@@ -624,7 +634,7 @@ static int test_clos_find_specializer(void)
 
 	clos_find_specializer_nil_(readr("aaa"), &pos);
 	test(pos == Nil, "clos_find_specializer1");
-	clos_find_class(readr("method"), &pos);
+	clos_find_class_(readr("method"), &pos);
 	clos_define_specializer_(readr("aaa"), pos);
 	pos = 0;
 	clos_find_specializer_nil_(readr("aaa"), &pos);

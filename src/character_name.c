@@ -38,7 +38,7 @@ static int unicode_code_p(unicode c)
 	return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
 }
 
-static int unicode_code(addr name, size_t size, unicode *ret)
+static int unicode_code_(addr name, size_t size, unicode *value, int *ret)
 {
 	char buffer[16];
 	unsigned long ul;
@@ -46,32 +46,33 @@ static int unicode_code(addr name, size_t size, unicode *ret)
 	size_t i, k;
 
 	if (size < 2)
-		return 1;
-	string_getc(name, 0, &c);
+		return Result(ret, 1);
+	Return(string_getc_(name, 0, &c));
 	if (toUpperUnicode(c) != 'U')
-		return 1;
+		return Result(ret, 1);
 	if (12 < size)
-		return 1;
+		return Result(ret, 1);
 	for (k = 0, i = 1; i < size; i++) {
-		string_getc(name, i, &c);
+		Return(string_getc_(name, i, &c));
 		if (! unicode_code_p(c))
-			return 1;
+			return Result(ret, 1);
 		buffer[k++] = (char)c;
 	}
 	buffer[k] = 0;
 	errno = 0;
 	ul = strtoul(buffer, NULL, 16);
 	if (errno == ERANGE)
-		return 1;
+		return Result(ret, 1);
 	if (0xFFFFFFFFUL < ul)
-		return 1;
-	*ret = (unicode)(0xFFFFFFFFUL & ul);
+		return Result(ret, 1);
+	*value = (unicode)(0xFFFFFFFFUL & ul);
 
-	return 0;
+	return Result(ret, 0);
 }
 
 _g int find_name_char_(addr *ret, addr name)
 {
+	int check;
 	unicode c;
 	size_t size;
 
@@ -84,11 +85,12 @@ _g int find_name_char_(addr *ret, addr name)
 		return Result(ret, Nil);
 	if (size == 1) {
 		/* form #\a */
-		string_getc(name, 0, &c);
+		Return(string_getc_(name, 0, &c));
 		character_heap(ret, c);
 		return 0;
 	}
-	if (! unicode_code(name, size, &c)) {
+	Return(unicode_code_(name, size, &c, &check));
+	if (! check) {
 		/* for #\u123 */
 		character_heap(ret, c);
 		return 0;

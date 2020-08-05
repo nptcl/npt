@@ -39,7 +39,7 @@ static int find_package_local_(addr pos, addr *ret)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_local(local, &name, 1);
-	strvect_setc(name, 0, c);
+	Return(strvect_setc_(name, 0, c));
 	Return(findnil_hashtable_(table, name, ret));
 	rollback_local(local, stack);
 
@@ -112,7 +112,7 @@ _g int package_size_heap_(addr *ret, addr name, size_t size)
 	addr pos, table;
 
 	/* name check */
-	string_designer_heap(&name, name);
+	Return(string_designer_heap_(&name, name, NULL));
 	Return(find_package_direct_(name, &pos));
 	if (pos != Nil)
 		return fmte_("Package name ~S already used.", name, NULL);
@@ -377,7 +377,7 @@ static int check_nicknames_package_(addr name, addr right)
 	/* check names */
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		string_designer_heap(&left, left);
+		Return(string_designer_heap_(&left, left, NULL));
 		Return(findcons_hashtable_(table, left, &check));
 		if (check != Nil)
 			return fmte_("Nickname ~S already exists.", left, NULL);
@@ -388,6 +388,7 @@ static int check_nicknames_package_(addr name, addr right)
 
 static int check_listconflict_package_(addr pos1, addr pos2)
 {
+	int check;
 	addr one1, one2, loop;
 
 	GetPackage(pos1, PACKAGE_INDEX_EXPORT, &pos1);
@@ -396,7 +397,8 @@ static int check_listconflict_package_(addr pos1, addr pos2)
 		GetCons(pos1, &one1, &pos1);
 		for (loop = pos2; loop != Nil; ) {
 			GetCons(loop, &one2, &loop);
-			if (string_equal(one1, one2))
+			Return(string_equal_(one1, one2, &check));
+			if (check)
 				return fmte_("Conflict occured name ~S.", one1, NULL);
 		}
 	}
@@ -430,7 +432,7 @@ _g int append_nicknames_package_(addr pos, addr right)
 		while (right != Nil) {
 			/* intern nickname */
 			GetCons(right, &left, &right);
-			string_designer_heap(&left, left);
+			Return(string_designer_heap_(&left, left, NULL));
 			Return(intern_hashheap_(table, left, &cons));
 			GetCdr(cons, &check);
 			/* if name duplicates, check has value. */
@@ -496,7 +498,7 @@ _g int make_package_(addr name, addr names, addr use, addr *ret)
 	addr pos;
 
 	/* check */
-	string_designer_heap(&name, name);
+	Return(string_designer_heap_(&name, name, NULL));
 	Return(check_nicknames_package_(name, names));
 	Return(check_first_usepackage_(use));
 
@@ -669,9 +671,10 @@ _g int delete_package_(addr pos, int *ret)
 static int check_renameone_package_(
 		addr table, addr name, addr root, addr right, int *ret)
 {
+	int check;
 	addr cons;
 
-	string_designer_heap(&name, name);
+	Return(string_designer_heap_(&name, name, NULL));
 	Return(findcons_hashtable_(table, name, &cons));
 	if (cons == Nil)
 		return Result(ret, 0);
@@ -679,15 +682,17 @@ static int check_renameone_package_(
 	/* If the argument name already registed in the table,
 	 *    check unregisted a name and nicknames in package.
 	 */
-	string_designer_heap(&root, root);
+	Return(string_designer_heap_(&root, root, NULL));
 	/* The name may unregist in table. */
-	if (string_equal(name, root))
+	Return(string_equal_(name, root, &check));
+	if (check)
 		return Result(ret, 0);
 	while (right != Nil) {
 		GetCons(right, &root, &right);
-		string_designer_heap(&root, root);
+		Return(string_designer_heap_(&root, root, NULL));
 		/* The nickname may unregist in table. */
-		if (string_equal(name, root))
+		Return(string_equal_(name, root, &check));
+		if (check)
 			return Result(ret, 0);
 	}
 
@@ -720,7 +725,7 @@ static int check_rename_package_(addr pos, addr name, addr right)
 _g int delete_renameone_package_(addr table, addr name)
 {
 	int check;
-	string_designer_heap(&name, name);
+	Return(string_designer_heap_(&name, name, NULL));
 	return delete_hashtable_(table, name, &check);
 }
 
@@ -751,7 +756,7 @@ static int intern_renameone_package_(addr pos, addr table, addr name, int nickna
 {
 	addr cons, check;
 
-	string_designer_heap(&name, name);
+	Return(string_designer_heap_(&name, name, NULL));
 	Return(intern_hashheap_(table, name, &cons));
 	GetCdr(cons, &check);
 	if (check == Nil) {
@@ -821,10 +826,12 @@ _g int find_symbol_package_(addr package, addr name,
  */
 static int push_basesymbol_package_(addr key, addr left, addr name, addr *cons)
 {
-	addr check;
+	int check;
+	addr value;
 
-	GetPackage(left, PACKAGE_INDEX_NAME, &check);
-	if (string_equal(key, check)) {
+	GetPackage(left, PACKAGE_INDEX_NAME, &value);
+	Return(string_equal_(key, value, &check));
+	if (check) {
 		GetPackage(left, PACKAGE_INDEX_TABLE, &left);
 		Return(findnil_hashtable_(left, name, &left));
 		if (left != Nil && StructBitType(left)->base) {
@@ -861,16 +868,20 @@ _g int find_allsymbols_package_(addr name, addr *ret)
 /*
  *  list_all_packages
  */
-static void pushbase_package(addr key, addr package, addr *cons)
+static int pushbase_package_(addr key, addr package, addr *cons)
 {
-	addr check;
+	int check;
+	addr value;
 
-	GetPackage(package, PACKAGE_INDEX_NAME, &check);
-	if (string_equal(key, check))
+	GetPackage(package, PACKAGE_INDEX_NAME, &value);
+	Return(string_equal_(key, value, &check));
+	if (check)
 		cons_heap(cons, package, *cons);
+
+	return 0;
 }
 
-_g void list_all_packages(addr *ret)
+_g int list_all_packages_(addr *ret)
 {
 	addr array, left, right, key, cons;
 	size_t i, size;
@@ -884,10 +895,11 @@ _g void list_all_packages(addr *ret)
 		while (right != Nil) {
 			GetCons(right, &left, &right);
 			GetCons(left, &key, &left);
-			pushbase_package(key, left, &cons);
+			Return(pushbase_package_(key, left, &cons));
 		}
 	}
-	*ret = cons;
+
+	return Result(ret, cons);
 }
 
 

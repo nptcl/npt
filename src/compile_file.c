@@ -131,20 +131,23 @@ static int compile_file_input_stream(Execute ptr,
 
 static int function_handler_compile(Execute ptr, addr condition)
 {
-	addr check;
+	int check;
+	addr value;
 
 	/* warning */
-	GetConst(CONDITION_WARNING, &check);
-	if (clos_subtype_p(condition, check)) {
-		GetConst(SYSTEM_COMPILE_WARNING, &check);
-		setspecial_local(ptr, check, T);
+	GetConst(CONDITION_WARNING, &value);
+	Return(clos_subtype_p_(condition, value, &check));
+	if (check) {
+		GetConst(SYSTEM_COMPILE_WARNING, &value);
+		setspecial_local(ptr, value, T);
 	}
 
 	/* style-warning */
-	GetConst(CONDITION_STYLE_WARNING, &check);
-	if (clos_subtype_p(condition, check)) {
-		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &check);
-		setspecial_local(ptr, check, T);
+	GetConst(CONDITION_STYLE_WARNING, &value);
+	Return(clos_subtype_p_(condition, value, &check));
+	if (check) {
+		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &value);
+		setspecial_local(ptr, value, T);
 	}
 
 	return 0;

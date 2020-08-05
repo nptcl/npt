@@ -6,10 +6,9 @@
 /*
  *  sequence-iterator
  */
-_g struct sequence_iterator *make_sequence_iterator_local(
-		LocalRoot local, addr pos, int fill)
+_g int make_sequence_iterator_local_(LocalRoot local,
+		addr pos, int fill, struct sequence_iterator **ret)
 {
-	unsigned check;
 	struct sequence_iterator *ptr;
 
 	Check(local == NULL, "local error");
@@ -17,12 +16,17 @@ _g struct sequence_iterator *make_sequence_iterator_local(
 			sizeoft(struct sequence_iterator));
 	ptr->pos = pos;
 	ptr->root = pos;
-	check = listp(pos);
-	ptr->listp = check;
-	ptr->size = check? 0: length_sequence(pos, fill);
+	if (listp(pos)) {
+		ptr->listp = 1;
+		ptr->size = 0;
+	}
+	else {
+		ptr->listp = 0;
+		Return(length_sequence_(pos, fill, &(ptr->size)));
+	}
 	ptr->index = 0;
 
-	return ptr;
+	return Result(ret, ptr);
 }
 
 _g int end_sequence_iterator(struct sequence_iterator *ptr)
@@ -33,59 +37,59 @@ _g int end_sequence_iterator(struct sequence_iterator *ptr)
 		return ptr->size <= ptr->index;
 }
 
-_g void length_sequence_iterator(struct sequence_iterator *ptr, size_t *ret)
+_g int length_sequence_iterator_(struct sequence_iterator *ptr, size_t *ret)
 {
 	if (ptr->listp)
-		*ret = length_list_safe(ptr->root);
+		return length_list_safe_(ptr->root, ret);
 	else
-		*ret = ptr->size;
+		return Result(ret, ptr->size);
 }
 
-_g int object_sequence_iterator(struct sequence_iterator *iter, addr *ret)
+_g int object_sequence_iterator_(struct sequence_iterator *iter, addr *value, int *ret)
 {
 	if (iter->listp) {
 		if (iter->pos == Nil)
-			return 0;
-		getcons(iter->pos, ret, &(iter->pos));
+			return Result(ret, 0);
+		Return_getcons(iter->pos, value, &(iter->pos));
 	}
 	else {
 		if (iter->size <= iter->index)
-			return 0;
-		getelt_sequence(NULL, iter->pos, iter->index, ret);
+			return Result(ret, 0);
+		Return(getelt_sequence_(NULL, iter->pos, iter->index, value));
 	}
 	iter->index++;
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int next_sequence_iterator(struct sequence_iterator *iter, addr *ret)
+static int next_sequence_iterator_(struct sequence_iterator *iter, addr *value, int *ret)
 {
 	if (iter->listp) {
 		if (iter->pos == Nil)
-			return 0;
-		getcons(iter->pos, ret, &(iter->pos));
+			return Result(ret, 0);
+		Return_getcons(iter->pos, value, &(iter->pos));
 	}
 	else {
 		if (iter->size <= iter->index)
-			return 0;
+			return Result(ret, 0);
 	}
 	iter->index++;
 
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int set_sequence_iterator(struct sequence_iterator *iter, addr value)
+_g int set_sequence_iterator_(struct sequence_iterator *iter, addr value, int *ret)
 {
 	if (iter->listp) {
-		setcar(iter->pos, value);
-		getcdr(iter->pos, &(iter->pos));
+		Return_setcar(iter->pos, value);
+		Return_getcdr(iter->pos, &(iter->pos));
 		iter->index++;
-		return iter->pos == Nil;
+		return Result(ret, iter->pos == Nil);
 	}
 	else {
-		setelt_sequence(iter->pos, iter->index, value);
+		Return(setelt_sequence_(iter->pos, iter->index, value));
 		iter->index++;
-		return iter->size <= iter->index;
+		return Result(ret, iter->size <= iter->index);
 	}
 }
 
@@ -93,8 +97,8 @@ _g int set_sequence_iterator(struct sequence_iterator *iter, addr value)
 /*
  *  sequence-group
  */
-_g struct sequence_group *make_sequence_group_local(
-		LocalRoot local, addr rest, int fill)
+_g int make_sequence_group_local_(
+		LocalRoot local, addr rest, int fill, struct sequence_group **ret)
 {
 	struct sequence_group *ptr;
 	struct sequence_iterator **data;
@@ -109,14 +113,14 @@ _g struct sequence_group *make_sequence_group_local(
 
 	for (i = 0; i < size; i++) {
 		GetCons(rest, &pos, &rest);
-		data[i] = make_sequence_iterator_local(local, pos, fill);
+		Return(make_sequence_iterator_local_(local, pos, fill, &(data[i])));
 	}
 	ptr->data = data;
 	ptr->size = size;
 	ptr->callsize = 0;
 	ptr->list = NULL;
 
-	return ptr;
+	return Result(ret, ptr);
 }
 
 _g void list_sequence_group_local(LocalRoot local,
@@ -130,11 +134,13 @@ _g void list_sequence_group_local(LocalRoot local,
 	for (i = 0; i < size; i++)
 		conscdr_local(local, &root, root);
 	group->list = root;
-	if (ret) *ret = root;
+	if (ret)
+		*ret = root;
 }
 
-_g int set_sequence_group(struct sequence_group *group, addr list)
+_g int set_sequence_group_(struct sequence_group *group, addr list, int *ret)
 {
+	int check;
 	struct sequence_iterator **data;
 	addr temp;
 	size_t size, i;
@@ -142,14 +148,15 @@ _g int set_sequence_group(struct sequence_group *group, addr list)
 	data = group->data;
 	size = group->size;
 	for (i = 0; i < size; i++) {
-		if (! object_sequence_iterator(data[i], &temp))
-			return 0;
+		Return(object_sequence_iterator_(data[i], &temp, &check));
+		if (! check)
+			return Result(ret, 0);
 		Check(! consp(list), "list error");
 		SetCar(list, temp);
 		GetCdr(list, &list);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 _g void clear_sequence_group(struct sequence_group *group)
@@ -166,8 +173,9 @@ _g void clear_sequence_group(struct sequence_group *group)
 	}
 }
 
-static int next_sequence_group(struct sequence_group *group)
+static int next_sequence_group_(struct sequence_group *group, int *ret)
 {
+	int check;
 	struct sequence_iterator **data;
 	addr temp;
 	size_t size, i;
@@ -175,20 +183,28 @@ static int next_sequence_group(struct sequence_group *group)
 	data = group->data;
 	size = group->size;
 	for (i = 0; i < size; i++) {
-		if (! next_sequence_iterator(data[i], &temp))
-			return 0;
+		Return(next_sequence_iterator_(data[i], &temp, &check));
+		if (! check)
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-_g void count_sequence_group(struct sequence_group *group, size_t *ret)
+_g int count_sequence_group_(struct sequence_group *group, size_t *ret)
 {
+	int check;
 	size_t size;
 
-	for (size = 0; next_sequence_group(group); size++)
-		continue;
+	for (size = 0; ; size++) {
+		Return(next_sequence_group_(group, &check));
+		if (! check)
+			break;
+	}
 	group->callsize = size;
-	if (ret) *ret = size;
+	if (ret)
+		*ret = size;
+
+	return 0;
 }
 

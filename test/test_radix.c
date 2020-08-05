@@ -33,7 +33,7 @@ static int equalstream(addr stream, const char *right)
 	local = Local_Thread;
 	push_local(local, &stack);
 	string_stream_local_(local, stream, &left);
-	result = string_equal_char(left, right);
+	result = string_equal_char_debug(left, right);
 	rollback_local(local, stack);
 	clear_output_string_stream(stream);
 
@@ -44,10 +44,11 @@ static void makeinputstring(LocalRoot local, addr queue, addr list)
 {
 	addr pos;
 
-	if (list == Nil) return;
+	if (list == Nil)
+		return;
 	GetCons(list, &pos, &list);
 	makeinputstring(local, queue, list);
-	pushstring_charqueue_local(local, queue, pos);
+	Error(pushstring_charqueue_local_(local, queue, pos));
 }
 
 static int equalinputstring(english input, const char *right)
@@ -62,7 +63,7 @@ static int equalinputstring(english input, const char *right)
 	charqueue_local(local, &queue, 0);
 	makeinputstring(local, queue, input->string);
 	make_charqueue_local(local, queue, &left);
-	result = string_equal_char(left, right);
+	result = string_equal_char_debug(left, right);
 	rollback_local(local, stack);
 
 	return result;
@@ -110,13 +111,13 @@ static int test_english_string(void)
 	pos1 = input->string;
 	test(consp(pos1), "english_string1");
 	GetCons(pos1, &left, &right);
-	test(string_equal_char(left, "HELLO"), "english_string2");
+	test(string_equal_char_debug(left, "HELLO"), "english_string2");
 	test(right == Nil, "english_string3");
 
 	english_string(input, "AAA");
 	pos2 = input->string;
 	GetCons(pos2, &left, &right);
-	test(string_equal_char(left, "AAA"), "english_string4");
+	test(string_equal_char_debug(left, "AAA"), "english_string4");
 	test(right == pos1, "english_string5");
 
 	rollback_local(local, stack);
@@ -141,13 +142,13 @@ static int test_english_char(void)
 	pos1 = input->string;
 	test(consp(pos1), "english_char1");
 	GetCons(pos1, &left, &right);
-	test(string_equal_char(left, "a"), "english_char2");
+	test(string_equal_char_debug(left, "a"), "english_char2");
 	test(right == Nil, "english_char3");
 
 	english_char(input, 'b');
 	pos2 = input->string;
 	GetCons(pos2, &left, &right);
-	test(string_equal_char(left, "b"), "english_char4");
+	test(string_equal_char_debug(left, "b"), "english_char4");
 	test(right == pos1, "english_char5");
 
 	rollback_local(local, stack);
@@ -206,51 +207,51 @@ static int test_name_concat(void)
 	test(consp(pos), "name_concat1");
 	test(length_list_unsafe(pos) == 3, "name_concat2");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "BB"), "name_concat3");
+	test(string_equal_char_debug(check, "BB"), "name_concat3");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "s"), "name_concat4");
+	test(string_equal_char_debug(check, "s"), "name_concat4");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "AA"), "name_concat5");
+	test(string_equal_char_debug(check, "AA"), "name_concat5");
 
 	input->string = Nil;
 	name_concat(input, "AA", "*", "BB", "xbacdef");
 	pos = input->string;
 	test(length_list_unsafe(pos) == 3, "name_concat6");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "BB"), "name_concat7");
+	test(string_equal_char_debug(check, "BB"), "name_concat7");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "s"), "name_concat8");
+	test(string_equal_char_debug(check, "s"), "name_concat8");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "AA"), "name_concat9");
+	test(string_equal_char_debug(check, "AA"), "name_concat9");
 
 	input->string = Nil;
 	name_concat(input, "AA", "*", "BB", "bacdef");
 	pos = input->string;
 	test(length_list_unsafe(pos) == 2, "name_concat10");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "BB"), "name_concat11");
+	test(string_equal_char_debug(check, "BB"), "name_concat11");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "AA"), "name_concat12");
+	test(string_equal_char_debug(check, "AA"), "name_concat12");
 
 	input->string = Nil;
 	name_concat(input, "AA", "cd", "BB", "abdef");
 	pos = input->string;
 	test(length_list_unsafe(pos) == 3, "name_concat13");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "BB"), "name_concat14");
+	test(string_equal_char_debug(check, "BB"), "name_concat14");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "d"), "name_concat15");
+	test(string_equal_char_debug(check, "d"), "name_concat15");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "AA"), "name_concat16");
+	test(string_equal_char_debug(check, "AA"), "name_concat16");
 
 	input->string = Nil;
 	name_concat(input, "AA", "cd", "BB", "abef");
 	pos = input->string;
 	test(length_list_unsafe(pos) == 2, "name_concat17");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "BB"), "name_concat18");
+	test(string_equal_char_debug(check, "BB"), "name_concat18");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "AA"), "name_concat19");
+	test(string_equal_char_debug(check, "AA"), "name_concat19");
 
 	rollback_local(local, stack);
 
@@ -621,7 +622,7 @@ static int test_push_radix_char(void)
 	test(consp(input.root), "push_radix_char1");
 	test(input.cardinal == 1, "push_radix_char2");
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "HELLO"), "push_radix_char3");
+	test(string_equal_char_debug(check, "HELLO"), "push_radix_char3");
 	test(pos == Nil, "push_radix_char4");
 
 	rollback_local(local, stack);
@@ -685,9 +686,9 @@ static int test_push_radix_20(void)
 	pos = input.root;
 	test(input.cardinal == 1, "push_radix_20-1");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "three"), "push_radix_20-2");
+	test(string_equal_char_debug(check, "three"), "push_radix_20-2");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "third"), "push_radix_20-3");
+	test(string_equal_char_debug(check, "third"), "push_radix_20-3");
 
 	rollback_local(local, stack);
 
@@ -709,24 +710,24 @@ static int test_push_radix_100(void)
 	input.cardinal = 0;
 	push_radix_100(&input, 15);
 	GetCar(input.root, &check);
-	test(string_equal_char(check, "fifteenth"), "push_radix_100-1");
+	test(string_equal_char_debug(check, "fifteenth"), "push_radix_100-1");
 
 	input.root = Nil;
 	input.cardinal = 1;
 	push_radix_100(&input, 16);
 	GetCar(input.root, &check);
-	test(string_equal_char(check, "sixteen"), "push_radix_100-2");
+	test(string_equal_char_debug(check, "sixteen"), "push_radix_100-2");
 
 	input.root = Nil;
 	input.cardinal = 0;
 	push_radix_100(&input, 34);
 	GetCar(input.root, &pos);
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "thirty"), "push_radix_100-3");
+	test(string_equal_char_debug(check, "thirty"), "push_radix_100-3");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "-"), "push_radix_100-4");
+	test(string_equal_char_debug(check, "-"), "push_radix_100-4");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "fourth"), "push_radix_100-5");
+	test(string_equal_char_debug(check, "fourth"), "push_radix_100-5");
 	test(pos == Nil, "push_radix_100-6");
 
 	input.root = Nil;
@@ -734,39 +735,39 @@ static int test_push_radix_100(void)
 	push_radix_100(&input, 91);
 	GetCar(input.root, &pos);
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "ninety"), "push_radix_100-7");
+	test(string_equal_char_debug(check, "ninety"), "push_radix_100-7");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "-"), "push_radix_100-8");
+	test(string_equal_char_debug(check, "-"), "push_radix_100-8");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "one"), "push_radix_100-9");
+	test(string_equal_char_debug(check, "one"), "push_radix_100-9");
 	test(pos == Nil, "push_radix_100-10");
 
 	input.root = Nil;
 	input.cardinal = 0;
 	push_radix_100(&input, 80);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "eightieth"), "push_radix_100-11");
+	test(string_equal_char_debug(check, "eightieth"), "push_radix_100-11");
 	test(pos == Nil, "push_radix_100-12");
 
 	input.root = Nil;
 	input.cardinal = 1;
 	push_radix_100(&input, 20);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "twenty"), "push_radix_100-13");
+	test(string_equal_char_debug(check, "twenty"), "push_radix_100-13");
 	test(pos == Nil, "push_radix_100-14");
 
 	input.root = Nil;
 	input.cardinal = 0;
 	push_radix_100(&input, 0);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "zeroth"), "push_radix_100-15");
+	test(string_equal_char_debug(check, "zeroth"), "push_radix_100-15");
 	test(pos == Nil, "push_radix_100-16");
 
 	input.root = Nil;
 	input.cardinal = 1;
 	push_radix_100(&input, 9);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "nine"), "push_radix_100-17");
+	test(string_equal_char_debug(check, "nine"), "push_radix_100-17");
 	test(pos == Nil, "push_radix_100-18");
 
 	rollback_local(local, stack);
@@ -789,14 +790,14 @@ static int test_push_radix_hundred(void)
 	input.cardinal = 0;
 	push_radix_hundred(&input);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "hundredth"), "push_radix_hundred1");
+	test(string_equal_char_debug(check, "hundredth"), "push_radix_hundred1");
 	test(pos == Nil, "push_radix_hundred2");
 
 	input.root = Nil;
 	input.cardinal = 1;
 	push_radix_hundred(&input);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "hundred"), "push_radix_hundred3");
+	test(string_equal_char_debug(check, "hundred"), "push_radix_hundred3");
 	test(pos == Nil, "push_radix_hundred4");
 
 	rollback_local(local, stack);
@@ -821,9 +822,9 @@ static int test_number_name_cardinal(void)
 	number_name_cardinal(&input);
 	GetCar(input.root, &pos);
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "thousand"), "number_name_cardinal1");
+	test(string_equal_char_debug(check, "thousand"), "number_name_cardinal1");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "th"), "number_name_cardinal2");
+	test(string_equal_char_debug(check, "th"), "number_name_cardinal2");
 #ifdef ENGLISH_RADIX_MODE1
 	test(pos == Nil, "number_name_cardinal-macro1");
 #endif
@@ -834,12 +835,12 @@ static int test_number_name_cardinal(void)
 	number_name_cardinal(&input);
 	GetCar(input.root, &pos);
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "million"), "number_name_cardinal3");
+	test(string_equal_char_debug(check, "million"), "number_name_cardinal3");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "th"), "number_name_cardinal4");
+	test(string_equal_char_debug(check, "th"), "number_name_cardinal4");
 #ifdef ENGLISH_RADIX_MODE1
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, ENGLISH_RADIX_MODE1),
+	test(string_equal_char_debug(check, ENGLISH_RADIX_MODE1),
 			"number_name_cardinal-macro2");
 #endif
 
@@ -849,10 +850,10 @@ static int test_number_name_cardinal(void)
 	number_name_cardinal(&input);
 	GetCar(input.root, &pos);
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "quadrillion"), "number_name_cardinal5");
+	test(string_equal_char_debug(check, "quadrillion"), "number_name_cardinal5");
 #ifdef ENGLISH_RADIX_MODE1
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, ENGLISH_RADIX_MODE1),
+	test(string_equal_char_debug(check, ENGLISH_RADIX_MODE1),
 			"number_name_cardinal-macro3");
 #endif
 
@@ -888,18 +889,18 @@ static int test_english_execute_loop(void)
 	english_execute_loop(&input);
 	pos = input.root;
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "two"), "english_execute_loop2");
+	test(string_equal_char_debug(check, "two"), "english_execute_loop2");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "hundred"), "english_execute_loop3");
+	test(string_equal_char_debug(check, "hundred"), "english_execute_loop3");
 #ifdef ENGLISH_RADIX_MODE2
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, ENGLISH_RADIX_MODE2), "english_execute_loop_macro");
+	test(string_equal_char_debug(check, ENGLISH_RADIX_MODE2), "english_execute_loop_macro");
 #endif
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "three"), "english_execute_loop4");
+	test(string_equal_char_debug(check, "three"), "english_execute_loop4");
 	GetCons(pos, &check, &pos);
 	GetCar(check, &check);
-	test(string_equal_char(check, "septillion"), "english_execute_loop5");
+	test(string_equal_char_debug(check, "septillion"), "english_execute_loop5");
 
 	input.root = Nil;
 	input.cardinal = 0;
@@ -909,9 +910,9 @@ static int test_english_execute_loop(void)
 	english_execute_loop(&input);
 	pos = input.root;
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "five"), "english_execute_loop6");
+	test(string_equal_char_debug(check, "five"), "english_execute_loop6");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "hundredth"), "english_execute_loop7");
+	test(string_equal_char_debug(check, "hundredth"), "english_execute_loop7");
 
 	input.root = Nil;
 	input.cardinal = 0;
@@ -921,12 +922,12 @@ static int test_english_execute_loop(void)
 	english_execute_loop(&input);
 	pos = input.root;
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "eleven"), "english_execute_loop8");
+	test(string_equal_char_debug(check, "eleven"), "english_execute_loop8");
 	GetCons(pos, &check, &pos);
 	GetCons(check, &check, &pos);
-	test(string_equal_char(check, "billion"), "english_execute_loop9");
+	test(string_equal_char_debug(check, "billion"), "english_execute_loop9");
 	GetCar(pos, &pos);
-	test(string_equal_char(pos, "th"), "english_execute_loop10");
+	test(string_equal_char_debug(pos, "th"), "english_execute_loop10");
 
 	input.root = Nil;
 	input.cardinal = 1;
@@ -936,15 +937,15 @@ static int test_english_execute_loop(void)
 	english_execute_loop(&input);
 	pos = input.root;
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "four"), "english_execute_loop11");
+	test(string_equal_char_debug(check, "four"), "english_execute_loop11");
 	GetCons(pos, &check, &pos);
 	GetCar(check, &check);
-	test(string_equal_char(check, "billion"), "english_execute_loop12");
+	test(string_equal_char_debug(check, "billion"), "english_execute_loop12");
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "three"), "english_execute_loop13");
+	test(string_equal_char_debug(check, "three"), "english_execute_loop13");
 	GetCons(pos, &check, &pos);
 	GetCar(check, &check);
-	test(string_equal_char(check, "million"), "english_execute_loop14");
+	test(string_equal_char_debug(check, "million"), "english_execute_loop14");
 
 	rollback_local(local, stack);
 
@@ -969,7 +970,7 @@ static int test_english_execute(void)
 	input.pos = pos;
 	english_execute(&input);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "zero"), "english_execute1");
+	test(string_equal_char_debug(check, "zero"), "english_execute1");
 
 	input.root = Nil;
 	input.cardinal = 0;
@@ -978,7 +979,7 @@ static int test_english_execute(void)
 	input.pos = pos;
 	english_execute(&input);
 	GetCons(input.root, &check, &pos);
-	test(string_equal_char(check, "zeroth"), "english_execute2");
+	test(string_equal_char_debug(check, "zeroth"), "english_execute2");
 
 	input.root = Nil;
 	input.cardinal = 1;
@@ -988,7 +989,7 @@ static int test_english_execute(void)
 	english_execute(&input);
 	pos = input.root;
 	GetCons(pos, &check, &pos);
-	test(string_equal_char(check, "three"), "english_execute3");
+	test(string_equal_char_debug(check, "three"), "english_execute3");
 	test(pos == Nil, "english_execute4");
 
 	rollback_local(local, stack);
@@ -1087,12 +1088,12 @@ static int test_english_unit_local(void)
 	english_unit_local_(local, &pos, fixnuml(0), 1);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_local1");
 	test(GetStatusDynamic(pos), "english_unit_local2");
-	test(string_equal_char(pos, "thousand"), "english_unit_local3");
+	test(string_equal_char_debug(pos, "thousand"), "english_unit_local3");
 
 	english_unit_local_(local, &pos, fixnuml(0), 0);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_local4");
 	test(GetStatusDynamic(pos), "english_unit_local5");
-	test(string_equal_char(pos, "thousandth"), "english_unit_local6");
+	test(string_equal_char_debug(pos, "thousandth"), "english_unit_local6");
 
 	rollback_local(local, stack);
 
@@ -1111,23 +1112,23 @@ static int test_english_unit_heap(void)
 	english_unit_heap_(local, &pos, fixnuml(0), 1);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_heap1");
 	test(! GetStatusDynamic(pos), "english_unit_heap2");
-	test(string_equal_char(pos, "thousand"), "english_unit_heap3");
+	test(string_equal_char_debug(pos, "thousand"), "english_unit_heap3");
 
 	english_unit_heap_(local, &pos, fixnuml(0), 0);
 	test(GetType(pos) == LISPTYPE_STRING, "english_unit_heap4");
 	test(! GetStatusDynamic(pos), "english_unit_heap5");
-	test(string_equal_char(pos, "thousandth"), "english_unit_heap6");
+	test(string_equal_char_debug(pos, "thousandth"), "english_unit_heap6");
 
 	english_unit_heap_(local, &pos, fixnuml(1), 1);
-	test(string_equal_char(pos, "million"), "english_unit_heap7");
+	test(string_equal_char_debug(pos, "million"), "english_unit_heap7");
 	english_unit_heap_(local, &pos, fixnuml(12), 1);
-	test(string_equal_char(pos, "duodecillion"), "english_unit_heap8");
+	test(string_equal_char_debug(pos, "duodecillion"), "english_unit_heap8");
 	english_unit_heap_(local, &pos, fixnuml(40), 1);
-	test(string_equal_char(pos, "quadragintillion"), "english_unit_heap9");
+	test(string_equal_char_debug(pos, "quadragintillion"), "english_unit_heap9");
 	english_unit_heap_(local, &pos, fixnuml(1000), 1);
-	test(string_equal_char(pos, "millinillion"), "english_unit_heap10");
+	test(string_equal_char_debug(pos, "millinillion"), "english_unit_heap10");
 	english_unit_heap_(local, &pos, fixnuml(19683), 1);
-	test(string_equal_char(pos, "novendecillitresoctogintasescentillion"),
+	test(string_equal_char_debug(pos, "novendecillitresoctogintasescentillion"),
 			"english_unit_heap11");
 
 	rollback_local(local, stack);
@@ -1160,7 +1161,7 @@ static int test_english_unit(void)
 		pos = readr(str1);
 		push_local(local, &stack);
 		Error(english_unit_local_(local, &pos, pos, 1));
-		check = string_equal_char(pos, str2);
+		check = string_equal_char_debug(pos, str2);
 		rollback_local(local, stack);
 		if (! check) {
 			degrade_printf("english error: %s, %s\n", str1, str2);
@@ -1205,7 +1206,7 @@ static int test_roma_integer(void)
 		clear_output_string_stream(stream);
 		roma_integer_(stream, i, 0);
 		string_stream_local_(local, stream, &pos);
-		if (! string_equal_char(pos, str1)) {
+		if (! string_equal_char_debug(pos, str1)) {
 			degrade_printf("roma(1) check error: %s\n", str1);
 			return 1;
 		}
@@ -1213,7 +1214,7 @@ static int test_roma_integer(void)
 		clear_output_string_stream(stream);
 		roma_integer_(stream, i, 1);
 		string_stream_local_(local, stream, &pos);
-		if (! string_equal_char(pos, str2)) {
+		if (! string_equal_char_debug(pos, str2)) {
 			degrade_printf("roma(2) check error: %s\n", str2);
 			return 1;
 		}

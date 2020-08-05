@@ -70,7 +70,7 @@ host:
 	goto error;
 
 next1:
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	if (size <= i)
 		goto finish_name;
 	string_getdirect(body, i++, &c);
@@ -91,7 +91,7 @@ path:
 	}
 	make_charqueue_fileparse(pa, charqueue, &temp);
 	clear_charqueue(charqueue);
-	pushdirectory_fileparse(pa, &queue, temp);
+	Return(pushdirectory_fileparse_(pa, &queue, temp));
 
 discard:
 	if (size <= i)
@@ -106,7 +106,7 @@ discard:
 	goto error;
 
 next2:
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	if (size <= i)
 		goto finish_name;
 	string_getdirect(body, i++, &c);
@@ -127,7 +127,7 @@ dot_type2:
 		goto finish_type;
 	string_getdirect(body, i++, &c);
 	if (parser_logical_pathname_wordaster_p(c)) {
-		push_charqueue_local(local->local, charqueue, c);
+		Return(push_charqueue_local_(local->local, charqueue, c));
 		goto dot_type2;
 	}
 	if (c == '.')
@@ -143,7 +143,7 @@ dot_version2:
 		goto finish_version;
 	string_getdirect(body, i++, &c);
 	if (parser_logical_pathname_wordaster_p(c)) {
-		push_charqueue_local(local->local, charqueue, c);
+		Return(push_charqueue_local_(local->local, charqueue, c));
 		goto dot_version2;
 	}
 	goto error;

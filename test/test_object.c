@@ -33,7 +33,7 @@ static int test_nil(void)
 	left = 0;
 	GetNameSymbol(Nil, &left);
 	test(GetType(left) == LISPTYPE_STRING, "nil.5");
-	test(string_equal_char(left, "NIL"), "nil.6");
+	test(string_equal_char_debug(left, "NIL"), "nil.6");
 	GetValueSymbol(Nil, &left);
 	test(left == Nil, "nil.7");
 	GetFunctionSymbol(Nil, &left);
@@ -65,7 +65,7 @@ static int test_t(void)
 
 	GetNameSymbol(T, &left);
 	test(GetType(left) == LISPTYPE_STRING, "t.4");
-	test(string_equal_char(left, "T"), "t.5");
+	test(string_equal_char_debug(left, "T"), "t.5");
 	GetValueSymbol(T, &left);
 	test(left == T, "t.6");
 	GetFunctionSymbol(T, &left);
@@ -423,38 +423,38 @@ static int test_queue_heap(void)
 	test(key != Nil, "queue_heap.4");
 	test(value != Nil, "queue_heap.5");
 	GetCar(key, &key);
-	test(string_equal_char(key, "aaa"), "queue_heap.6");
+	test(string_equal_char_debug(key, "aaa"), "queue_heap.6");
 
 	strvect_char_heap(&value, "bbb");
 	pushqueue_heap(pos, value);
 	rootqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "aaa"), "queue_heap.7");
+	test(string_equal_char_debug(key, "aaa"), "queue_heap.7");
 	tailqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "bbb"), "queue_heap.8");
+	test(string_equal_char_debug(key, "bbb"), "queue_heap.8");
 
 	strvect_char_heap(&value, "ccc");
 	pushqueue_heap(pos, value);
 	rootqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "aaa"), "queue_heap.9");
+	test(string_equal_char_debug(key, "aaa"), "queue_heap.9");
 	tailqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "ccc"), "queue_heap.10");
+	test(string_equal_char_debug(key, "ccc"), "queue_heap.10");
 
 	key = 0;
 	test(firstqueue(pos, &key) == 0, "queue_heap.11");
-	test(string_equal_char(key, "aaa"), "queue_heap.12");
+	test(string_equal_char_debug(key, "aaa"), "queue_heap.12");
 	test(lastqueue(pos, &key) == 0, "queue_heap.13");
-	test(string_equal_char(key, "ccc"), "queue_heap.14");
+	test(string_equal_char_debug(key, "ccc"), "queue_heap.14");
 
 	test(nthqueue(pos, 0, &key) == 0, "queue_heap.15");
-	test(string_equal_char(key, "aaa"), "queue_heap.16");
+	test(string_equal_char_debug(key, "aaa"), "queue_heap.16");
 	test(nthqueue(pos, 1, &key) == 0, "queue_heap.17");
-	test(string_equal_char(key, "bbb"), "queue_heap.18");
+	test(string_equal_char_debug(key, "bbb"), "queue_heap.18");
 	test(nthqueue(pos, 2, &key) == 0, "queue_heap.19");
-	test(string_equal_char(key, "ccc"), "queue_heap.20");
+	test(string_equal_char_debug(key, "ccc"), "queue_heap.20");
 	test(nthqueue(pos, 3, &key) != 0, "queue_heap.21");
 
 	strvect_char_heap(&value, "ddd");
@@ -462,12 +462,12 @@ static int test_queue_heap(void)
 	rootqueue(pos, &value);
 
 	GetCons(value, &key, &value);
-	test(string_equal_char(key, "aaa"), "queue_heap.22");
+	test(string_equal_char_debug(key, "aaa"), "queue_heap.22");
 	GetCons(value, &key, &value);
-	test(string_equal_char(key, "bbb"), "queue_heap.23");
+	test(string_equal_char_debug(key, "bbb"), "queue_heap.23");
 	GetCons(value, &key, &value);
-	test(string_equal_char(key, "ccc"), "queue_heap.24");
-	test(string_equal_char(value, "ddd"), "queue_heap.25");
+	test(string_equal_char_debug(key, "ccc"), "queue_heap.24");
+	test(string_equal_char_debug(value, "ddd"), "queue_heap.25");
 
 	RETURN;
 }
@@ -490,38 +490,38 @@ static int test_queue_local(void)
 	test(key != Nil, "queue_local.4");
 	test(value != Nil, "queue_local.5");
 	GetCar(key, &key);
-	test(string_equal_char(key, "aaa"), "queue_local.6");
+	test(string_equal_char_debug(key, "aaa"), "queue_local.6");
 
 	strvect_char_heap(&value, "bbb");
 	pushqueue_local(Local_Thread, pos, value);
 	rootqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "aaa"), "queue_local.7");
+	test(string_equal_char_debug(key, "aaa"), "queue_local.7");
 	tailqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "bbb"), "queue_local.8");
+	test(string_equal_char_debug(key, "bbb"), "queue_local.8");
 
 	strvect_char_heap(&value, "ccc");
 	pushqueue_local(Local_Thread, pos, value);
 	rootqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "aaa"), "queue_local.9");
+	test(string_equal_char_debug(key, "aaa"), "queue_local.9");
 	tailqueue(pos, &key);
 	GetCar(key, &key);
-	test(string_equal_char(key, "ccc"), "queue_local.10");
+	test(string_equal_char_debug(key, "ccc"), "queue_local.10");
 
 	key = 0;
 	test(firstqueue(pos, &key) == 0, "queue_local.11");
-	test(string_equal_char(key, "aaa"), "queue_local.12");
+	test(string_equal_char_debug(key, "aaa"), "queue_local.12");
 	test(lastqueue(pos, &key) == 0, "queue_local.13");
-	test(string_equal_char(key, "ccc"), "queue_local.14");
+	test(string_equal_char_debug(key, "ccc"), "queue_local.14");
 
 	test(nthqueue(pos, 0, &key) == 0, "queue_local.15");
-	test(string_equal_char(key, "aaa"), "queue_local.16");
+	test(string_equal_char_debug(key, "aaa"), "queue_local.16");
 	test(nthqueue(pos, 1, &key) == 0, "queue_local.17");
-	test(string_equal_char(key, "bbb"), "queue_local.18");
+	test(string_equal_char_debug(key, "bbb"), "queue_local.18");
 	test(nthqueue(pos, 2, &key) == 0, "queue_local.19");
-	test(string_equal_char(key, "ccc"), "queue_local.20");
+	test(string_equal_char_debug(key, "ccc"), "queue_local.20");
 	test(nthqueue(pos, 3, &key) != 0, "queue_local.21");
 
 	strvect_char_heap(&value, "ddd");
@@ -529,12 +529,12 @@ static int test_queue_local(void)
 	rootqueue(pos, &value);
 
 	GetCons(value, &key, &value);
-	test(string_equal_char(key, "aaa"), "queue_local.22");
+	test(string_equal_char_debug(key, "aaa"), "queue_local.22");
 	GetCons(value, &key, &value);
-	test(string_equal_char(key, "bbb"), "queue_local.23");
+	test(string_equal_char_debug(key, "bbb"), "queue_local.23");
 	GetCons(value, &key, &value);
-	test(string_equal_char(key, "ccc"), "queue_local.24");
-	test(string_equal_char(value, "ddd"), "queue_local.25");
+	test(string_equal_char_debug(key, "ccc"), "queue_local.24");
+	test(string_equal_char_debug(value, "ddd"), "queue_local.25");
 
 	RETURN;
 }

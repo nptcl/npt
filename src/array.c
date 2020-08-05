@@ -133,43 +133,47 @@ static void arraysize1_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	arraysize1_alloc_Low(local, ret, LISPSYSTEM_ARRAY_DIMENSION, size);
 }
-_g void arraysize_alloc(LocalRoot local, addr *ret, size_t index)
+_g int arraysize_alloc_(LocalRoot local, addr *ret, size_t index)
 {
-	if (multisafe_size(IdxSize, index, &index))
-		fmte("Index overflow.", NULL);
+	if (multisafe_size(IdxSize, index, &index)) {
+		*ret = Nil;
+		return fmte_("Index overflow.", NULL);
+	}
 	arraysize1_alloc(local, ret, index);
+	return 0;
 }
-_g void arraysize_local(LocalRoot local, addr *ret, size_t index)
+_g int arraysize_local_(LocalRoot local, addr *ret, size_t index)
 {
 	CheckLocal(local);
-	arraysize_alloc(local, ret, index);
+	return arraysize_alloc_(local, ret, index);
 }
-_g void arraysize_heap(addr *ret, size_t index)
+_g int arraysize_heap_(addr *ret, size_t index)
 {
-	arraysize_alloc(NULL, ret, index);
+	return arraysize_alloc_(NULL, ret, index);
 }
 
-_g void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
+_g int arraysize_copy_alloc_(LocalRoot local, addr *ret, addr pos, size_t size)
 {
 	addr one;
 	size_t *data1;
 	const size_t *data2;
 
 	CheckType(pos, LISPSYSTEM_ARRAY_DIMENSION);
-	arraysize_alloc(local, &one, size);
+	Return(arraysize_alloc_(local, &one, size));
 	data1 = arraysize_ptr(one);
 	data2 = arraysize_ptr(pos);
 	memcpy(data1, data2, IdxSize * size);
-	*ret = one;
+
+	return Result(ret, one);
 }
-_g void arraysize_copy_local(LocalRoot local, addr *ret, addr pos, size_t size)
+_g int arraysize_copy_local_(LocalRoot local, addr *ret, addr pos, size_t size)
 {
 	CheckLocal(local);
-	arraysize_copy_alloc(local, ret, pos, size);
+	return arraysize_copy_alloc_(local, ret, pos, size);
 }
-_g void arraysize_copy_heap(addr *ret, addr pos, size_t size)
+_g int arraysize_copy_heap_(addr *ret, addr pos, size_t size)
 {
-	arraysize_copy_alloc(NULL, ret, pos, size);
+	return arraysize_copy_alloc_(NULL, ret, pos, size);
 }
 
 _g void array_empty_alloc(LocalRoot local, addr *ret)
@@ -193,7 +197,7 @@ _g void array_empty_heap(addr *ret)
 	array_empty_alloc(NULL, ret);
 }
 
-_g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
+_g int array_alloc_(LocalRoot local, addr *ret, size_t index, size_t size)
 {
 	addr pos, temp;
 	struct array_struct *str;
@@ -204,7 +208,7 @@ _g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 
 	/* dimension */
 	if (2 <= index) {
-		arraysize_alloc(local, &temp, index);
+		Return(arraysize_alloc_(local, &temp, index));
 		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 	}
 	str->dimension = index;
@@ -216,19 +220,19 @@ _g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 	SetArrayInfo(pos, ARRAY_INDEX_TYPE, temp);
 
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
-_g void array_local(LocalRoot local, addr *ret, size_t index, size_t size)
+_g int array_local_(LocalRoot local, addr *ret, size_t index, size_t size)
 {
 	CheckLocal(local);
-	array_alloc(local, ret, index, size);
+	return array_alloc_(local, ret, index, size);
 }
-_g void array_heap(addr *ret, size_t index, size_t size)
+_g int array_heap_(addr *ret, size_t index, size_t size)
 {
-	array_alloc(NULL, ret, index, size);
+	return array_alloc_(NULL, ret, index, size);
 }
 
-static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
+static int array_va_stdarg_(LocalRoot local, addr *ret, va_list args)
 {
 	addr pos, dimension;
 	size_t size, i, index, allcount, *data;
@@ -241,12 +245,14 @@ static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 		size = (size_t)va_arg(dest, unsigned);
 		if (size == 0)
 			break;
-		if (multisafe_size(allcount, size, &allcount))
-			fmte("size overflow.", NULL);
+		if (multisafe_size(allcount, size, &allcount)) {
+			*ret = Nil;
+			return fmte_("size overflow.", NULL);
+		}
 	}
 
 	/* make */
-	array_alloc(local, &pos, index, allcount);
+	Return(array_alloc_(local, &pos, index, allcount));
 	if (2 <= index) {
 		GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &dimension);
 		data = arraysize_ptr(dimension);
@@ -255,32 +261,38 @@ static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 	}
 
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
-_g void array_va_alloc(LocalRoot local, addr *ret, ...)
+_g int array_va_alloc_(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
 	va_start(args, ret);
-	array_va_stdarg(local, ret, args);
+	Return(array_va_stdarg_(local, ret, args));
 	va_end(args);
+
+	return 0;
 }
-_g void array_va_local(LocalRoot local, addr *ret, ...)
+_g int array_va_local_(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
 	CheckLocal(local);
 	va_start(args, ret);
-	array_va_stdarg(local, ret, args);
+	Return(array_va_stdarg_(local, ret, args));
 	va_end(args);
+
+	return 0;
 }
-_g void array_va_heap(addr *ret, ...)
+_g int array_va_heap_(addr *ret, ...)
 {
 	va_list args;
 
 	va_start(args, ret);
-	array_va_stdarg(NULL, ret, args);
+	Return(array_va_stdarg_(NULL, ret, args));
 	va_end(args);
+
+	return 0;
 }
 
 
@@ -434,7 +446,7 @@ _g const size_t *array_ptrsize(addr pos)
 	}
 }
 
-_g void *array_ptrwrite(addr pos, size_t index)
+_g int array_ptrwrite_(addr pos, size_t index, void **ret)
 {
 	enum ARRAY_TYPE type;
 	struct array_struct *str;
@@ -443,20 +455,27 @@ _g void *array_ptrwrite(addr pos, size_t index)
 	str = ArrayInfoStruct(pos);
 	type = str->type;
 	size = str->size;
-	if (type == ARRAY_TYPE_EMPTY)
-		fmte("The array has no memory yet.", NULL);
-	if (type == ARRAY_TYPE_T || type == ARRAY_TYPE_BIT)
-		fmte("The object is not specialized array.", NULL);
-	if (size <= index)
-		fmte("Index is too large.", NULL);
+	if (type == ARRAY_TYPE_EMPTY) {
+		*ret = NULL;
+		return fmte_("The array has no memory yet.", NULL);
+	}
+	if (type == ARRAY_TYPE_T || type == ARRAY_TYPE_BIT) {
+		*ret = NULL;
+		return fmte_("The object is not specialized array.", NULL);
+	}
+	if (size <= index) {
+		*ret = NULL;
+		return fmte_("Index is too large.", NULL);
+	}
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 
-	return (void *)(arrayspec_ptr(pos) + (index * str->element));
+	*ret = (void *)(arrayspec_ptr(pos) + (index * str->element));
+	return 0;
 }
 
-_g const void *array_ptrread(addr pos, size_t index)
+_g int array_ptrread_(addr pos, size_t index, void *const *ret)
 {
-	return (const void *)array_ptrwrite(pos, index);
+	return array_ptrwrite_(pos, index, (void **)ret);
 }
 
 
@@ -475,23 +494,26 @@ _g int array_fill_pointer(addr array, addr *ret)
 	return 0;
 }
 
-_g int array_setf_fill_pointer(addr array, addr value)
+_g int array_setf_fill_pointer_(addr array, addr value, int *ret)
 {
 	struct array_struct *str;
 	size_t size;
 
 	str = ArrayInfoStruct(array);
 	if (! str->fillpointer)
-		return 1;
-	if (GetIndex_integer(value, &size))
-		fmte("Invalid fill-pointer value ~S.", value, NULL);
+		return Result(ret, 1);
+	if (GetIndex_integer(value, &size)) {
+		*ret = 0;
+		return fmte_("Invalid fill-pointer value ~S.", value, NULL);
+	}
 	if (str->size <= size) {
-		fmte("Fill-pointer value ~A must be less than array size ~A.",
+		*ret = 0;
+		return fmte_("Fill-pointer value ~A must be less than array size ~A.",
 				value, intsizeh(str->size), NULL);
 	}
 	str->front = size;
 
-	return 0;
+	return Result(ret, 0);
 }
 
 _g int array_fill_pointer_start(addr array)

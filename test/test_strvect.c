@@ -272,14 +272,14 @@ static int test_strvect_update_character_type(void)
 	body[0] = 'a';
 	body[1] = 0x0A;
 	body[2] = '%';
-	strvect_update_character_type(pos);
+	strvect_update_character_type_(pos);
 	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD,
 			"strvect_update_character_type.1");
 
 	body[0] = 'a';
 	body[1] = 0xFF;
 	body[2] = 0x0A;
-	strvect_update_character_type(pos);
+	strvect_update_character_type_(pos);
 	test(RefCharacterType(pos) == CHARACTER_TYPE_BASE,
 			"strvect_update_character_type.2");
 
@@ -315,35 +315,6 @@ static int test_strvect_char_alloc(void)
 	RETURN;
 }
 
-static int test_strvect_size1_alloc(void)
-{
-	addr pos;
-	unicode *body;
-	LocalRoot local;
-	LocalStack stack;
-
-	strvect_size1_alloc(NULL, &pos, "Hello", 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_alloc.1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_size1_alloc.2");
-	test(RefStringSize(pos) == 5, "strvect_size1_alloc.3");
-	GetStringUnicode(pos, &body);
-	test(body[0] == 'H', "strvect_size1_alloc.4");
-	test(body[4] == 'o', "strvect_size1_alloc.5");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	strvect_size1_local(local, &pos, "Hello", 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_alloc.6");
-	test(GetStatusDynamic(pos), "strvect_size1_alloc.7");
-	rollback_local(local, stack);
-
-	strvect_size1_heap(&pos, "Hello", 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_alloc.8");
-	test(! GetStatusDynamic(pos), "strvect_size1_alloc.9");
-
-	RETURN;
-}
-
 static int test_strvect_sizeu_alloc(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
@@ -352,7 +323,7 @@ static int test_strvect_sizeu_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 
-	strvect_sizeu_alloc(NULL, &pos, Hello, 5);
+	strvect_sizeu_alloc_(NULL, &pos, Hello, 5);
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_alloc.1");
 	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_sizeu_alloc.2");
 	test(RefStringSize(pos) == 5, "strvect_sizeu_alloc.3");
@@ -362,12 +333,12 @@ static int test_strvect_sizeu_alloc(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	strvect_sizeu_local(local, &pos, Hello, 5);
+	strvect_sizeu_local_(local, &pos, Hello, 5);
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_alloc.6");
 	test(GetStatusDynamic(pos), "strvect_sizeu_alloc.7");
 	rollback_local(local, stack);
 
-	strvect_sizeu_heap(&pos, Hello, 5);
+	strvect_sizeu_heap_(&pos, Hello, 5);
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_alloc.8");
 	test(! GetStatusDynamic(pos), "strvect_sizeu_alloc.9");
 
@@ -552,31 +523,6 @@ static int test_strvect_comparep(void)
 
 
 /*
- *  getc/setc
- */
-static int test_strvect_refc(void)
-{
-	addr pos;
-	unicode u;
-
-	strvect_char_heap(&pos, "Hello");
-	test(strvect_refc(pos, 0) == 'H', "strvect_refc.1");
-	test(strvect_refc(pos, 1) == 'e', "strvect_refc.1");
-	test(strvect_refc(pos, 4) == 'o', "strvect_refc.1");
-	strvect_getc(pos, 0, &u);
-	test(u == 'H', "strvect_getc.1");
-	strvect_getc(pos, 1, &u);
-	test(u == 'e', "strvect_getc.2");
-	strvect_getc(pos, 4, &u);
-	test(u == 'o', "strvect_getc.3");
-	strvect_setc(pos, 1, 'E');
-	test(strvect_refc(pos, 1) == 'E', "strvect_setc.1");
-
-	RETURN;
-}
-
-
-/*
  *  strvect
  */
 static int testcase_strvect(void)
@@ -598,7 +544,6 @@ static int testcase_strvect(void)
 	TestBreak(test_unicode_character_type);
 	TestBreak(test_strvect_update_character_type);
 	TestBreak(test_strvect_char_alloc);
-	TestBreak(test_strvect_size1_alloc);
 	TestBreak(test_strvect_sizeu_alloc);
 	/* strvect_equal */
 	TestBreak(test_strvect_equal_binary);
@@ -614,8 +559,6 @@ static int testcase_strvect(void)
 	TestBreak(test_strvect_comparep_char);
 	TestBreak(test_strvect_compare);
 	TestBreak(test_strvect_comparep);
-	/* getc/setc */
-	TestBreak(test_strvect_refc);
 
 	return 0;
 }

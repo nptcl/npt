@@ -6,8 +6,9 @@
 #include "constant.h"
 #include "execute.h"
 
-_g int conditionp(addr pos);
-_g int condition_instance_p(addr pos);
+_g int conditionp_(addr pos, int *ret);
+_g int conditionp_debug(addr pos);
+_g int condition_instance_p_(addr pos, int *ret);
 _g int signal_function_(Execute ptr, addr condition);
 _g int error_function_(Execute ptr, addr condition);
 _g int warning_restart_case_(Execute ptr, addr instance);

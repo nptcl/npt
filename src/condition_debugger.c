@@ -31,11 +31,13 @@
  */
 static int function_handler_warning(Execute ptr, addr condition)
 {
+	int check;
 	addr pos, stream, format, args;
 
 	error_output_stream(ptr, &stream);
 	GetConst(CONDITION_SIMPLE_WARNING, &pos);
-	if (clos_subtype_p(condition, pos)) {
+	Return(clos_subtype_p_(condition, pos, &check));
+	if (check) {
 		simple_condition_format_control(condition, &format);
 		simple_condition_format_arguments(condition, &args);
 		Return(format_stream(ptr, stream, "~&WARNING: ", NULL));
@@ -85,32 +87,31 @@ _g int handler_savecore_(Execute ptr)
 /*
  *  debugger
  */
-static int output_unbound_variable(Execute ptr, addr stream, addr condition)
+static int output_unbound_variable_(Execute ptr, addr stream, addr condition)
 {
 	cell_error_name(condition, &condition);
 	return format_stream(ptr, stream, "Unbound variable ~S.~%", condition, NULL);
 }
 
-static int output_undefined_function(Execute ptr, addr stream, addr condition)
+static int output_undefined_function_(Execute ptr, addr stream, addr condition)
 {
 	cell_error_name(condition, &condition);
 	return format_stream(ptr, stream, "Undefined function ~S.~%", condition, NULL);
 }
 
-static int output_simple_error(Execute ptr, addr stream, addr condition)
+static int output_simple_error_(Execute ptr, addr stream, addr condition)
 {
 	addr control, arguments;
 
 	simple_condition_format(condition, &control, &arguments);
-	if (format_stream_lisp(ptr, stream, control, arguments))
-		return 1;
+	Return(format_stream_lisp(ptr, stream, control, arguments));
 	Return(fresh_line_stream_(stream, NULL));
 	Return(terpri_stream_(stream));
 
 	return 0;
 }
 
-static int output_type_error(Execute ptr, addr stream, addr instance)
+static int output_type_error_(Execute ptr, addr stream, addr instance)
 {
 	addr datum, expected;
 
@@ -123,33 +124,43 @@ static int output_type_error(Execute ptr, addr stream, addr instance)
 			"Value ~S must be a ~S type.~%", datum, expected, NULL);
 }
 
-static int output_condition(Execute ptr, addr stream, addr condition)
+static int output_condition_(Execute ptr, addr stream, addr condition)
 {
 	return 0;
 }
 
-static int condition_check_p(constindex index, addr condition)
+static int condition_check_p_(constindex index, addr condition, int *ret)
 {
+	int check;
 	addr super;
 
-	if (! condition_instance_p(condition)) return 0;
+	Return(condition_instance_p_(condition, &check));
+	if (! check)
+		return Result(ret, 0);
 	GetConstant(index, &super);
-	return clos_subtype_p(condition, super);
+	return clos_subtype_p_(condition, super, ret);
 }
-#define ConditionCheck(x,y) condition_check_p(CONSTANT_CONDITION_##x,(y))
+#define ConditionCheck_(x,y,r) condition_check_p_(CONSTANT_CONDITION_##x,(y),(r))
 
 static int output_debugger(Execute ptr, addr stream, addr pos)
 {
-	if (ConditionCheck(UNBOUND_VARIABLE, pos))
-		return output_unbound_variable(ptr, stream, pos);
-	if (ConditionCheck(UNDEFINED_FUNCTION, pos))
-		return output_undefined_function(ptr, stream, pos);
-	if (ConditionCheck(SIMPLE_CONDITION, pos))
-		return output_simple_error(ptr, stream, pos);
-	if (ConditionCheck(TYPE_ERROR, pos))
-		return output_type_error(ptr, stream, pos);
-	if (condition_instance_p(pos))
-		return output_condition(ptr, stream, pos);
+	int check;
+
+	Return(ConditionCheck_(UNBOUND_VARIABLE, pos, &check));
+	if (check)
+		return output_unbound_variable_(ptr, stream, pos);
+	Return(ConditionCheck_(UNDEFINED_FUNCTION, pos, &check));
+	if (check)
+		return output_undefined_function_(ptr, stream, pos);
+	Return(ConditionCheck_(SIMPLE_CONDITION, pos, &check));
+	if (check)
+		return output_simple_error_(ptr, stream, pos);
+	Return(ConditionCheck_(TYPE_ERROR, pos, &check));
+	if (check)
+		return output_type_error_(ptr, stream, pos);
+	Return(condition_instance_p_(pos, &check));
+	if (check)
+		return output_condition_(ptr, stream, pos);
 	/* otherwise */
 	return format_stream(ptr, stream, "Invalid condition type ~S~%", pos, NULL);
 }
@@ -274,8 +285,8 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 
 	/* output condition */
 	debug_io_stream(ptr, &io);
-	clos_class_of(condition, &pos);
-	stdget_class_name(pos, &pos);
+	Return(clos_class_of_(condition, &pos));
+	Return(stdget_class_name_(pos, &pos));
 	Return(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
 	Return(output_debugger(ptr, io, condition));
 

@@ -131,7 +131,7 @@ static size_t encode_universal_month_day(size_t month, int leap)
 		array[month];
 }
 
-static void decode_universal_month(size_t year, size_t day, addr *rmonth, addr *rday)
+static int decode_universal_month_(size_t year, size_t day, addr *rmonth, addr *rday)
 {
 	int leap;
 	size_t i, v;
@@ -142,18 +142,18 @@ static void decode_universal_month(size_t year, size_t day, addr *rmonth, addr *
 		if (day < v) {
 			fixnum_heap(rmonth, (fixnum)(i + 1));
 			fixnum_heap(rday, (fixnum)(day + 1));
-			return;
+			return 0;
 		}
 		day -= v;
 	}
 
 	/* error */
-	fmte("decode-universal-month error.", NULL);
-	*rmonth = NULL;
-	*rday = NULL;
+	*rmonth = Nil;
+	*rday = Nil;
+	return fmte_("decode-universal-month error.", NULL);
 }
 
-static void decode_universal_time_zone(LocalRoot local,
+static int decode_universal_time_zone_(LocalRoot local,
 		struct universal_time_struct *u, addr value, addr zone)
 {
 	addr v, year, month, day, hour, minute, sec, week;
@@ -177,7 +177,7 @@ static void decode_universal_time_zone(LocalRoot local,
 	/* date, time */
 	decode_universal_second(sec, &sec, &minute, &hour);
 	decode_universal_year(date, &count, &date);
-	decode_universal_month(count, date, &month, &day);
+	Return(decode_universal_month_(count, date, &month, &day));
 	make_index_integer_heap(&year, count);
 
 	/* result */
@@ -190,6 +190,8 @@ static void decode_universal_time_zone(LocalRoot local,
 	u->week = week;
 	u->daylight_p = Nil;
 	u->zone = zone;
+
+	return 0;
 }
 
 /* zone nil */
@@ -210,12 +212,12 @@ static int encode_universal_offset(fixnum *ret)
 	return 0;
 }
 
-static void decode_universal_default(LocalRoot local,
+static int decode_universal_default_(LocalRoot local,
 		struct universal_time_struct *u, addr pos, fixnum offset)
 {
 	addr zone;
 	fixnum_heap(&zone, offset);
-	decode_universal_time_zone(local, u, pos, zone);
+	return decode_universal_time_zone_(local, u, pos, zone);
 }
 
 static void decode_universal_struct(LocalRoot local,
@@ -283,7 +285,7 @@ static void decode_universal_diff(LocalRoot local, addr value, addr *ret)
 	minus_ii_real_common(local, value, right, ret);
 }
 
-static void decode_universal_time_nil(LocalRoot local,
+static int decode_universal_time_nil_(LocalRoot local,
 		struct universal_time_struct *u, addr time)
 {
 	size_t value;
@@ -315,26 +317,26 @@ static void decode_universal_time_nil(LocalRoot local,
 
 	/* decode struct */
 	decode_universal_struct(local, u, &str, offset);
-	return;
+	return 0;
 
 decode_default:
-	decode_universal_default(local, u, time, offset);
+	return decode_universal_default_(local, u, time, offset);
 }
 
-_g void decode_universal_time_common(LocalRoot local,
+_g int decode_universal_time_common_(LocalRoot local,
 		struct universal_time_struct *u, addr pos, addr zone)
 {
 	if (zone == Nil)
-		decode_universal_time_nil(local, u, pos);
+		return decode_universal_time_nil_(local, u, pos);
 	else
-		decode_universal_time_zone(local, u, pos, zone);
+		return decode_universal_time_zone_(local, u, pos, zone);
 }
 
 
 /*
  *  encode-universal-time
  */
-static size_t encode_universal_month(size_t day, size_t month, size_t year)
+static int encode_universal_month_(size_t day, size_t month, size_t year, size_t *ret)
 {
 	int leap;
 	size_t sum, i;
@@ -343,8 +345,8 @@ static size_t encode_universal_month(size_t day, size_t month, size_t year)
 	leap = encode_universal_leap(year);
 	i = encode_universal_month_day(month, leap);
 	if (i < day) {
-		fmte("Invalid day ~A.", intsizeh(day), NULL);
-		return 0;
+		*ret = 0;
+		return fmte_("Invalid day ~A.", intsizeh(day), NULL);
 	}
 
 	/* days */
@@ -352,7 +354,7 @@ static size_t encode_universal_month(size_t day, size_t month, size_t year)
 	for (i = 0; i < month; i++)
 		sum += encode_universal_month_day(i, leap);
 
-	return sum;
+	return Result(ret, sum);
 }
 
 static size_t encode_universal_year(size_t year)
@@ -369,11 +371,14 @@ static size_t encode_universal_year(size_t year)
 	return (year * 365) + y4 - y100 + y400;
 }
 
-static size_t encode_universal_day(size_t day, size_t month, size_t year)
+static int encode_universal_day_(size_t day, size_t month, size_t year, size_t *ret)
 {
-	return (day - 1)
-		+ encode_universal_month(day, month - 1, year)
-		+ encode_universal_year(year);
+	size_t size;
+
+	Return(encode_universal_month_(day, month - 1, year, &size));
+		size += (day - 1) + encode_universal_year(year);
+
+	return Result(ret, size);
 }
 
 static void encode_universal_second_absolute(LocalRoot local, addr *ret,
@@ -403,13 +408,15 @@ static void encode_universal_second_absolute(LocalRoot local, addr *ret,
 	floor1_common(local, ret, &right, right);
 }
 
-static void encode_universal_time_absolute(LocalRoot local, addr *ret,
+static int encode_universal_time_absolute_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour,
 		size_t day, size_t month, size_t year, addr zone)
 {
-	day = encode_universal_day(day, month, year);
+	Return(encode_universal_day_(day, month, year, &day));
 	day -= ENCODE_UNIVERSAL_1900;
 	encode_universal_second_absolute(local, ret, sec, min, hour, zone, day);
+
+	return 0;
 }
 
 /* daylight */
@@ -451,7 +458,7 @@ static int encode_universal_time_standard(LocalRoot local, addr *ret,
 	return 0;
 }
 
-static void encode_universal_time_offset(LocalRoot local, addr *ret,
+static int encode_universal_time_offset_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour, size_t day)
 {
 	fixnum value;
@@ -460,47 +467,51 @@ static void encode_universal_time_offset(LocalRoot local, addr *ret,
 	day -= ENCODE_UNIVERSAL_1900;
 	encode_universal_second_absolute(local, &sec, sec, min, hour, Unbound, day);
 	if (encode_universal_offset(&value)) {
-		fmte("encode-universal-offset error", NULL);
-		return;
+		*ret = Nil;
+		return fmte_("encode-universal-offset error", NULL);
 	}
 	fixnum_heap(&diff, value);
 	plus_ii_real_common(local, sec, diff, ret);
+
+	return 0;
 }
 
-static void encode_universal_time_daylight(LocalRoot local, addr *ret,
+static int encode_universal_time_daylight_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour,
 		size_t day, size_t month, size_t year)
 {
-	day = encode_universal_day(day, month, year);
+	Return(encode_universal_day_(day, month, year, &day));
 	if (encode_universal_time_standard(local, ret, sec, min, hour, day))
-		encode_universal_time_offset(local, ret, sec, min, hour, day);
+		return encode_universal_time_offset_(local, ret, sec, min, hour, day);
+
+	return 0;
 }
 
-static size_t encode_universal_time_year(size_t year, addr year_error)
+static int encode_universal_time_year_(size_t year, addr year_error, size_t *ret)
 {
 	time_t now;
 	struct tm str;
 	size_t a, b;
 
 	if (1900 <= year)
-		return year;
+		return Result(ret, year);
 	if (100 <= year) {
-		fmte("Invalid year ~A", year_error, NULL);
-		return 0;
+		*ret = 0;
+		return fmte_("Invalid year ~A", year_error, NULL);
 	}
 	/* 0 - 99 */
 	now = time(NULL);
 	if (localtime_arch(&str, &now)) {
-		fmte("localtime error.", NULL);
-		return 0;
+		*ret = 0;
+		return fmte_("localtime error.", NULL);
 	}
 	a = (1900 + str.tm_year) / 100;
 	b = str.tm_year % 100;
 	if (b < 50) {
 		if (b + 50 <= year) {
 			if (a == 0) {
-				fmte("Too small year ~A", year_error, NULL);
-				return 0;
+				*ret = 0;
+				return fmte_("Too small year ~A", year_error, NULL);
 			}
 			a--;
 		}
@@ -510,10 +521,10 @@ static size_t encode_universal_time_year(size_t year, addr year_error)
 			a++;
 	}
 
-	return 100*a + year;
+	return Result(ret, 100*a + year);
 }
 
-_g void encode_universal_time_common(LocalRoot local, addr *ret,
+_g int encode_universal_time_common_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour,
 		addr day, addr month, addr year, addr zone)
 {
@@ -522,12 +533,16 @@ _g void encode_universal_time_common(LocalRoot local, addr *ret,
 	getindex_integer(day, &d);
 	getindex_integer(month, &m);
 	getindex_integer(year, &y);
-	y = encode_universal_time_year(y, year);
+	Return(encode_universal_time_year_(y, year, &y));
 
-	if (zone != Unbound)
-		encode_universal_time_absolute(local, ret, sec, min, hour, d, m, y, zone);
-	else
-		encode_universal_time_daylight(local, ret, sec, min, hour, d, m, y);
+	if (zone != Unbound) {
+		return encode_universal_time_absolute_(local, ret,
+				sec, min, hour, d, m, y, zone);
+	}
+	else {
+		return encode_universal_time_daylight_(local, ret,
+				sec, min, hour, d, m, y);
+	}
 }
 
 
@@ -547,11 +562,11 @@ _g void get_universal_time_common(LocalRoot local, addr *ret)
 /*
  *  get-decoded-time
  */
-_g void get_decoded_time_common(LocalRoot local, struct universal_time_struct *u)
+_g int get_decoded_time_common_(LocalRoot local, struct universal_time_struct *u)
 {
 	addr pos;
 	get_universal_time_common(local, &pos);
-	decode_universal_time_common(local, u, pos, Nil);
+	return decode_universal_time_common_(local, u, pos, Nil);
 }
 
 
@@ -720,8 +735,9 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 
 	/* sleep */
 	if (usleep(usec) == -1) {
-		if (errno == EINVAL)
-			fmte("usleep error", NULL);
+		if (errno == EINVAL) {
+			Abort("usleep error");
+		}
 	}
 
 	return getatomic_sleep_object(ptr);
@@ -767,7 +783,7 @@ static void push_sleep_object(Execute ptr)
 	/* event */
 	handle = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (handle == NULL) {
-		fmte("CreateEvent error.", NULL);
+		Abort("CreateEvent error.");
 		return;
 	}
 
@@ -818,7 +834,7 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 		return 1;
 
 	/* error */
-	fmte("WaitForSingleObject error.", NULL);
+	Abort("WaitForSingleObject error.");
 	return 0;
 }
 
@@ -860,7 +876,7 @@ static int sleep_integer_common(Execute ptr, addr var)
 	return sleep_second_common(ptr, value);
 }
 
-static int sleep_execute_common(Execute ptr, addr var)
+static int sleep_execute_common_(Execute ptr, addr var)
 {
 	addr right;
 	LocalRoot local;
@@ -899,17 +915,17 @@ static void sleep_signal_handler(int value)
 	setatomic_sleep_object(Execute_Thread);
 }
 
-static int sleep_signal_restart(Execute ptr, addr var)
+static int sleep_signal_restart_(Execute ptr, addr var)
 {
 	int check;
 
 	if (signal(SIGINT, sleep_signal_handler) == SIG_ERR) {
-		fmte("signal set error.", NULL);
+		Abort("signal set error.");
 		return 0;
 	}
-	check = sleep_execute_common(ptr, var);
+	check = sleep_execute_common_(ptr, var);
 	if (signal(SIGINT, SIG_DFL) == SIG_ERR) {
-		fmte("signal set default error.", NULL);
+		Abort("signal set default error.");
 		return 0;
 	}
 
@@ -918,18 +934,18 @@ static int sleep_signal_restart(Execute ptr, addr var)
 #endif
 
 #ifdef LISP_WINDOWS
-static int sleep_signal_restart(Execute ptr, addr var)
+static int sleep_signal_restart_(Execute ptr, addr var)
 {
-	return sleep_execute_common(ptr, var);
+	return sleep_execute_common_(ptr, var);
 }
 #endif
 
-static int sleep_execute_restart(Execute ptr, addr var, addr *ret)
+static int sleep_execute_restart_(Execute ptr, addr var, addr *ret)
 {
 	addr condition;
 	LocalHold hold;
 
-	if (! sleep_signal_restart(ptr, var))
+	if (! sleep_signal_restart_(ptr, var))
 		return 0;
 
 	/* diff */
@@ -965,7 +981,7 @@ static void sleep_make_restart(addr *ret)
 	*ret = inst;
 }
 
-static int sleep_break_restart(Execute ptr, addr restart, addr var, addr *ret)
+static int sleep_break_restart_(Execute ptr, addr restart, addr var, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -975,7 +991,7 @@ static int sleep_break_restart(Execute ptr, addr restart, addr var, addr *ret)
 	push_sleep_object(ptr);
 	setprotect_control(ptr, p_sleep_close_object, Nil);
 	*ret = Nil;
-	Return(restart1r_control(ptr, restart, sleep_execute_restart, var, ret));
+	Return(restart1r_control(ptr, restart, sleep_execute_restart_, var, ret));
 	localhold_set(hold, 0, *ret);
 	Return(free_control_(ptr, control));
 	localhold_end(hold);
@@ -983,7 +999,7 @@ static int sleep_break_restart(Execute ptr, addr restart, addr var, addr *ret)
 	return 0;
 }
 
-static int sleep_wait_common(Execute ptr, addr var)
+static int sleep_wait_common_(Execute ptr, addr var)
 {
 	addr restart;
 	LocalHold hold;
@@ -993,8 +1009,7 @@ static int sleep_wait_common(Execute ptr, addr var)
 	for (;;) {
 		sleep_make_restart(&restart);
 		localhold_set(hold, 1, restart);
-		if (sleep_break_restart(ptr, restart, var, &var))
-			return 1;
+		Return(sleep_break_restart_(ptr, restart, var, &var));
 		localhold_set(hold, 0, var);
 		if (var == Nil)
 			break;
@@ -1069,45 +1084,46 @@ static void sleep_value_long_float(LocalRoot local, addr var, addr *ret)
 	plus_ii_real_common(local, left, right, ret);
 }
 
-static void sleep_value_common(LocalRoot local, addr var, addr *ret)
+static int sleep_value_common_(LocalRoot local, addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 			sleep_value_integer(local, var, ret);
-			return;
+			break;
 
 		case LISPTYPE_RATIO:
 			sleep_value_ratio(local, var, ret);
-			return;
+			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
 			sleep_value_single_float(local, var, ret);
-			return;
+			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			sleep_value_double_float(local, var, ret);
-			return;
+			break;
 
 		case LISPTYPE_LONG_FLOAT:
 			sleep_value_long_float(local, var, ret);
-			return;
+			break;
 
 		default:
-			fmte("Invalid value type ~S.", var, NULL);
-			return;
+			*ret = Nil;
+			return fmte_("Invalid value type ~S.", var, NULL);
 	}
+
+	return 0;
 }
 #endif
 
-_g int sleep_common(Execute ptr, addr var)
+_g int sleep_common_(Execute ptr, addr var)
 {
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
-	sleep_value_common(ptr->local, var, &var);
-	return sleep_wait_common(ptr, var);
+	Return(sleep_value_common_(ptr->local, var, &var));
+	return sleep_wait_common_(ptr, var);
 #else
-	fmte("This implementation is not support SLEEP function.", NULL);
-	return 0;
+	return fmte_("This implementation is not support SLEEP function.", NULL);
 #endif
 }
 

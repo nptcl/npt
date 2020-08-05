@@ -239,24 +239,21 @@ int lisp_getelt_(addr pos, size_t index, addr *ret)
 {
 	if (! sequencep(pos))
 		return TypeError_(pos, SEQUENCE);
-	getelt_sequence(NULL, pos, index, ret);
-	return 0;
+	return getelt_sequence_(NULL, pos, index, ret);
 }
 
 int lisp_setelt_(addr pos, size_t index, addr value)
 {
 	if (! sequencep(pos))
 		return TypeError_(pos, SEQUENCE);
-	setelt_sequence(pos, index, value);
-	return 0;
+	return setelt_sequence_(pos, index, value);
 }
 
 int lisp_length_(addr pos, size_t *ret)
 {
 	if (! sequencep(pos))
 		return TypeError_(pos, SEQUENCE);
-	*ret = length_sequence(pos, 1);
-	return 0;
+	return length_sequence_(pos, 1, ret);
 }
 
 

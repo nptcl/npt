@@ -34,15 +34,15 @@ _g void load_sequence_range(struct sequence_range *ptr)
 /*
  *  build
  */
-_g void build_sequence_range(struct sequence_range *ptr,
+_g int build_sequence_range_(struct sequence_range *ptr,
 		addr pos, addr start, addr end)
 {
-	unsigned listp;
+	int listp;
 	addr list, prev;
 	size_t index1, index2, size;
 
 	clearpoint(ptr);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	ptr->pos = list = pos;
 	ptr->listp = listp;
 	if (start == Nil || start == Unbound)
@@ -51,7 +51,7 @@ _g void build_sequence_range(struct sequence_range *ptr,
 		end = Unbound;
 
 	if (listp) {
-		list_start_end_sequence(&list, &prev, start, end, &index1, &index2);
+		Return(list_start_end_sequence_(&list, &prev, start, end, &index1, &index2));
 		ptr->list = list;
 		ptr->prev = prev;
 		ptr->start = index1;
@@ -67,8 +67,8 @@ _g void build_sequence_range(struct sequence_range *ptr,
 		ptr->index = index1;
 	}
 	else {
-		size = length_sequence(pos, 1);
-		size_start_end_sequence(start, end, size, &index1, &index2);
+		Return(length_sequence_(pos, 1, &size));
+		Return(size_start_end_sequence_(start, end, size, &index1, &index2, NULL));
 		ptr->prev = Nil;
 		ptr->start = index1;
 		ptr->endp = 1;
@@ -77,6 +77,8 @@ _g void build_sequence_range(struct sequence_range *ptr,
 		ptr->index = index1;
 	}
 	save_sequence_range(ptr);
+
+	return 0;
 }
 
 static struct sequence_range *sequence_range_local(LocalRoot local)
@@ -85,16 +87,19 @@ static struct sequence_range *sequence_range_local(LocalRoot local)
 			sizeoft(struct sequence_range));
 }
 
-_g struct sequence_range *make_sequence_range(LocalRoot local,
-		addr pos, addr start, addr end)
+_g int make_sequence_range_(LocalRoot local,
+		addr pos, addr start, addr end, struct sequence_range **ret)
 {
-	struct sequence_range *ptr = sequence_range_local(local);
-	build_sequence_range(ptr, pos, start, end);
-	return ptr;
+	struct sequence_range *ptr;
+
+	ptr = sequence_range_local(local);
+	Return(build_sequence_range_(ptr, pos, start, end));
+
+	return Result(ret, ptr);
 }
 
-static size_t start_end_sequence_range(
-		addr list, size_t index1, size_t index2, addr end)
+static int start_end_sequence_range_(
+		addr list, size_t index1, size_t index2, addr end, size_t *ret)
 {
 	size_t size;
 
@@ -102,85 +107,100 @@ static size_t start_end_sequence_range(
 		if (end != Unbound || end != Unbound) {
 			if (index2 <= index1)
 				break;
-			if (list == Nil)
-				fmte(":END ~A must be less than equal to list length.", end, NULL);
+			if (list == Nil) {
+				*ret = 0;
+				return fmte_(":END ~A "
+						"must be less than equal to list length.", end, NULL);
+			}
 		}
 		else if (list == Nil) {
 			break;
 		}
-		if (! consp(list))
-			fmte("Don't accept the dotted list ~S.", list, NULL);
+		if (! consp(list)) {
+			*ret = 0;
+			return fmte_("Don't accept the dotted list ~S.", list, NULL);
+		}
 		GetCdr(list, &list);
 	}
 
-	return size;
+	return Result(ret, size);
 }
 
-_g void build_sequence_range_endp(struct sequence_range *ptr,
+_g int build_sequence_range_endp_(struct sequence_range *ptr,
 		addr list, addr start, addr end)
 {
-	build_sequence_range(ptr, list, start, end);
+	Return(build_sequence_range_(ptr, list, start, end));
 	if (! ptr->endp) {
 		ptr->size = length_list_safe(ptr->list);
 		ptr->end = ptr->start + ptr->size;
 		ptr->endp = 1;
 	}
+
+	return 0;
 }
 
-_g struct sequence_range *make_sequence_range_endp(LocalRoot local,
-		addr list, addr start, addr end)
+_g int make_sequence_range_endp_(LocalRoot local,
+		addr list, addr start, addr end, struct sequence_range **ret)
 {
-	struct sequence_range *ptr = sequence_range_local(local);
-	build_sequence_range_endp(ptr, list, start, end);
-	return ptr;
+	struct sequence_range *ptr;
+
+	ptr = sequence_range_local(local);
+	Return(build_sequence_range_endp_(ptr, list, start, end));
+
+	return Result(ret, ptr);
 }
 
-_g void build_sequence_range_vector2(LocalRoot local,
+_g int build_sequence_range_vector2_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end,
 		addr *root, addr *tail)
 {
+	int check;
 	addr pos, value;
 	size_t index1, index2, size, i;
 
 	/* vector */
-	if (! listp_sequence(list)) {
-		build_sequence_range(ptr, list, start, end);
-		return;
-	}
+	Return(listp_sequence_(list, &check));
+	if (! check)
+		return build_sequence_range_(ptr, list, start, end);
 
 	/* list */
-	list_start_end_sequence(&list, NULL, start, end, &index1, &index2);
-	size = start_end_sequence_range(list, index1, index2, end);
-	if (root) *root = list;
+	Return(list_start_end_sequence_(&list, NULL, start, end, &index1, &index2));
+	Return(start_end_sequence_range_(list, index1, index2, end, &size));
+	if (root)
+		*root = list;
 	vector_local(local, &pos, size);
 	for (i = 0; i < size; i++) {
 		GetCons(list, &value, &list);
 		setarray(pos, i, value);
 	}
-	if (tail) *tail = list;
+	if (tail)
+		*tail = list;
 
-	build_sequence_range(ptr, pos, fixnumh(0), Nil);
+	return build_sequence_range_(ptr, pos, fixnumh(0), Nil);
 }
 
-_g void build_sequence_range_vector(LocalRoot local,
+_g int build_sequence_range_vector_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end)
 {
-	build_sequence_range_vector2(local, ptr, list, start, end, NULL, NULL);
+	return build_sequence_range_vector2_(local, ptr, list, start, end, NULL, NULL);
 }
 
-_g struct sequence_range *make_sequence_range_vector(LocalRoot local,
-		addr list, addr start, addr end)
+_g int make_sequence_range_vector_(LocalRoot local,
+		addr list, addr start, addr end, struct sequence_range **ret)
 {
-	struct sequence_range *ptr = sequence_range_local(local);
-	build_sequence_range_vector(local, ptr, list, start, end);
-	return ptr;
+	struct sequence_range *ptr;
+
+	ptr = sequence_range_local(local);
+	Return(build_sequence_range_vector_(local, ptr, list, start, end));
+
+	return Result(ret, ptr);
 }
 
-static int getlist_sequence_range(struct sequence_range *ptr, addr *ret)
+static int getlist_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	if (! ptr->endp) {
 		if (ptr->list == Nil)
-			return 1;
+			return Result(ret, 1);
 		else
 			goto normal;
 	}
@@ -190,62 +210,62 @@ static int getlist_sequence_range(struct sequence_range *ptr, addr *ret)
 		else
 			goto normal;
 	}
-	return 1;
+	return Result(ret, 1);
 
 normal:
-	getcar(ptr->list, ret);
-	return 0;
+	Return_getcar(ptr->list, value);
+	return Result(ret, 0);
 
 error:
-	fmte(":END ~A must be less than equal to list length.",
+	*ret = 0;
+	return fmte_(":END ~A must be less than equal to list length.",
 			intsizeh(ptr->end), NULL);
-	return 1;
 }
 
 
 /*
  *  access
  */
-_g int get_sequence_range(struct sequence_range *ptr, addr *ret)
+_g int get_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	/* list */
 	if (ptr->listp)
-		return getlist_sequence_range(ptr, ret);
+		return getlist_sequence_range_(ptr, value, ret);
 
 	/* vector */
 	if (ptr->end <= ptr->index)
-		return 1;
-	getelt_sequence(NULL, ptr->pos, ptr->index, ret);
+		return Result(ret, 1);
+	Return(getelt_sequence_(NULL, ptr->pos, ptr->index, value));
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int getnext_sequence_range(struct sequence_range *ptr, addr *ret)
+_g int getnext_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	int check;
 
 	if (ptr->listp) {
-		check = getlist_sequence_range(ptr, ret);
+		Return(getlist_sequence_range_(ptr, value, &check));
 		if (! check) {
 			ptr->prev = ptr->list;
-			getcons(ptr->list, ret, &(ptr->list));
+			getcons(ptr->list, value, &(ptr->list));
 			ptr->index++;
 		}
-		return check;
+		return Result(ret, check);
 	}
 	else {
 		if (ptr->end <= ptr->index)
-			return 1;
-		getelt_sequence(NULL, ptr->pos, ptr->index++, ret);
+			return Result(ret, 1);
+		Return(getelt_sequence_(NULL, ptr->pos, ptr->index++, value));
 
-		return 0;
+		return Result(ret, 0);
 	}
 }
 
-_g int next_sequence_range(struct sequence_range *ptr)
+_g int next_sequence_range_(struct sequence_range *ptr, int *ret)
 {
 	addr temp;
-	return getnext_sequence_range(ptr, &temp);
+	return getnext_sequence_range_(ptr, &temp, ret);
 }
 
 _g int endp_sequence_range(struct sequence_range *ptr)
@@ -256,39 +276,44 @@ _g int endp_sequence_range(struct sequence_range *ptr)
 		return ptr->list == Nil;
 }
 
-_g void set_sequence_range(struct sequence_range *ptr, addr value)
+_g int set_sequence_range_(struct sequence_range *ptr, addr value)
 {
 	Check(endp_sequence_range(ptr), "endp error");
-	if (ptr->listp)
+	if (ptr->listp) {
 		SetCar(ptr->list, value);
-	else
-		setelt_sequence(ptr->pos, ptr->index, value);
+		return 0;
+	}
+	else {
+		return setelt_sequence_(ptr->pos, ptr->index, value);
+	}
 }
 
-_g void getinplace_sequence_range(struct sequence_range *ptr, struct array_value *ret)
+_g int getinplace_sequence_range_(struct sequence_range *ptr, struct array_value *ret)
 {
 	Check(endp_sequence_range(ptr), "endp error");
 	if (ptr->listp) {
 		ret->type = ARRAY_TYPE_T;
 		GetCar(ptr->list, &(ret->value.object));
+		return 0;
 	}
 	else {
-		getelt_inplace_sequence(ptr->pos, ptr->index, ret);
+		return getelt_inplace_sequence_(ptr->pos, ptr->index, ret);
 	}
 }
 
-_g void setinplace_sequence_range(LocalRoot local,
+_g int setinplace_sequence_range_(LocalRoot local,
 		struct sequence_range *ptr, const struct array_value *str)
 {
 	addr value;
 
 	Check(endp_sequence_range(ptr), "endp error");
 	if (ptr->listp) {
-		arrayvalue_alloc(local, &value, str);
+		Return(arrayvalue_alloc_(local, &value, str));
 		SetCar(ptr->list, value);
+		return 0;
 	}
 	else {
-		setelt_inplace_sequence(local, ptr->pos, ptr->index, str);
+		return setelt_inplace_sequence_(local, ptr->pos, ptr->index, str);
 	}
 }
 
@@ -308,63 +333,69 @@ _g int endp_reverse_sequence_range(struct sequence_range *ptr)
 	return ptr->index <= ptr->start;
 }
 
-_g int next_reverse_sequence_range(struct sequence_range *ptr)
+_g int next_reverse_sequence_range_(struct sequence_range *ptr, int *ret)
 {
 	Check(ptr->listp, "type error");
-	if (endp_reverse_sequence_range(ptr)) return 1;
+	if (endp_reverse_sequence_range(ptr))
+		return Result(ret, 1);
 	ptr->index--;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int get_reverse_sequence_range(struct sequence_range *ptr, addr *ret)
+_g int get_reverse_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	Check(ptr->listp, "type error");
-	if (endp_reverse_sequence_range(ptr)) return 1;
-	getelt_sequence(NULL, ptr->pos, ptr->index - 1, ret);
+	if (endp_reverse_sequence_range(ptr))
+		return Result(ret, 1);
+	Return(getelt_sequence_(NULL, ptr->pos, ptr->index - 1, value));
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int getnext_reverse_sequence_range(struct sequence_range *ptr, addr *ret)
+_g int getnext_reverse_sequence_range_(
+		struct sequence_range *ptr, addr *value, int *ret)
 {
 	Check(ptr->listp, "type error");
-	if (endp_reverse_sequence_range(ptr)) return 1;
+	if (endp_reverse_sequence_range(ptr))
+		return Result(ret, 1);
 	ptr->index--;
-	getelt_sequence(NULL, ptr->pos, ptr->index, ret);
+	Return(getelt_sequence_(NULL, ptr->pos, ptr->index, value));
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g void set_reverse_sequence_range(struct sequence_range *ptr, addr value)
+_g int set_reverse_sequence_range_(struct sequence_range *ptr, addr value)
 {
 	Check(endp_reverse_sequence_range(ptr), "endp error");
 	Check(ptr->listp, "type error");
-	setelt_sequence(ptr->pos, ptr->index - 1, value);
+	return setelt_sequence_(ptr->pos, ptr->index - 1, value);
 }
 
 
 /*
  *  remove
  */
-_g void remove_sequence_range(struct sequence_range *ptr)
+_g int remove_sequence_range_(struct sequence_range *ptr)
 {
 	Check(! ptr->listp, "type error");
 	Check(ptr->list == Nil, "list error");
 
 	if (ptr->endp) {
 		if (ptr->end <= ptr->index)
-			fmte(":end size error", NULL);
+			return fmte_(":end size error", NULL);
 		ptr->end--;
 		ptr->size--;
 	}
 	if (ptr->prev == Nil) {
-		getcdr(ptr->list, &(ptr->list));
+		Return_getcdr(ptr->list, &(ptr->list));
 		ptr->pos = ptr->list;
 	}
 	else {
-		getcdr(ptr->list, &(ptr->list));
-		setcdr(ptr->prev, ptr->list);
+		Return_getcdr(ptr->list, &(ptr->list));
+		Return_setcdr(ptr->prev, ptr->list);
 	}
+
+	return 0;
 }
 

@@ -163,7 +163,7 @@ static int ensure_structure_struct_(struct defstruct *str,
 /*
  *  access
  */
-static void stdget_structure_constant(addr pos, addr *ret,
+static int stdget_structure_constant_(addr pos, addr *ret,
 		enum Clos_structure_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -175,15 +175,15 @@ static void stdget_structure_constant(addr pos, addr *ret,
 	GetConst(CLOS_STRUCTURE_CLASS, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		return clos_check_(pos, check, ret);
 	}
 }
 
-static void stdset_structure_constant(addr pos, addr value,
+static int stdset_structure_constant_(addr pos, addr value,
 		enum Clos_structure_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -196,131 +196,148 @@ static void stdset_structure_constant(addr pos, addr value,
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
+		return 0;
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_set(pos, check, value);
+		return clos_set_(pos, check, value);
 	}
 }
-#define StdGetStructure(p,r,a,b) \
-	stdget_structure_constant((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetStructure(p,r,a,b) \
-	stdset_structure_constant((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
+#define StdGetStructure_(p,r,a,b) \
+	stdget_structure_constant_((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
+#define StdSetStructure_(p,r,a,b) \
+	stdset_structure_constant_((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
 
-_g void stdget_structure_name(addr pos, addr *ret)
+_g int stdget_structure_name_(addr pos, addr *ret)
 {
-	StdGetStructure(pos, ret, name, NAME);
+	return StdGetStructure_(pos, ret, name, NAME);
 }
-_g void stdset_structure_name(addr pos, addr value)
+_g int stdset_structure_name_(addr pos, addr value)
 {
-	StdSetStructure(pos, value, name, NAME);
-}
-
-_g void stdget_structure_slots(addr pos, addr *ret)
-{
-	StdGetStructure(pos, ret, slots, SLOTS);
-}
-_g void stdset_structure_slots(addr pos, addr value)
-{
-	StdSetStructure(pos, value, slots, SLOTS);
+	return StdSetStructure_(pos, value, name, NAME);
 }
 
-_g void stdget_structure_documentation(addr pos, addr *ret)
+_g int stdget_structure_slots_(addr pos, addr *ret)
 {
-	StdGetStructure(pos, ret, documentation, DOCUMENTATION);
+	return StdGetStructure_(pos, ret, slots, SLOTS);
 }
-_g void stdset_structure_documentation(addr pos, addr value)
+_g int stdset_structure_slots_(addr pos, addr value)
 {
-	StdSetStructure(pos, value, documentation, DOCUMENTATION);
-}
-
-_g void stdget_structure_include(addr pos, addr *ret)
-{
-	StdGetStructure(pos, ret, include, INCLUDE);
-}
-_g void stdset_structure_include(addr pos, addr value)
-{
-	StdSetStructure(pos, value, include, INCLUDE);
+	return StdSetStructure_(pos, value, slots, SLOTS);
 }
 
-_g void stdget_structure_precedence_list(addr pos, addr *ret)
+_g int stdget_structure_documentation_(addr pos, addr *ret)
 {
-	StdGetStructure(pos, ret, precedence_list, CLASS_PRECEDENCE_LIST);
+	return StdGetStructure_(pos, ret, documentation, DOCUMENTATION);
 }
-_g void stdset_structure_precedence_list(addr pos, addr value)
+_g int stdset_structure_documentation_(addr pos, addr value)
 {
-	StdSetStructure(pos, value, precedence_list, CLASS_PRECEDENCE_LIST);
-}
-
-_g void stdget_structure_type(addr pos, addr *ret)
-{
-	StdGetStructure(pos, ret, type, TYPE);
-}
-_g void stdset_structure_type(addr pos, addr value)
-{
-	StdSetStructure(pos, value, type, TYPE);
+	return StdSetStructure_(pos, value, documentation, DOCUMENTATION);
 }
 
-_g void stdget_structure_vector(addr pos, addr *ret)
+_g int stdget_structure_include_(addr pos, addr *ret)
 {
-	StdGetStructure(pos, ret, vector, VECTOR);
+	return StdGetStructure_(pos, ret, include, INCLUDE);
 }
-_g void stdset_structure_vector(addr pos, addr value)
+_g int stdset_structure_include_(addr pos, addr value)
 {
-	StdSetStructure(pos, value, vector, VECTOR);
-}
-
-_g void stdget_structure_named(addr pos, addr *ret)
-{
-	StdGetStructure(pos, ret, named, NAMED);
-}
-_g void stdset_structure_named(addr pos, addr value)
-{
-	StdSetStructure(pos, value, named, NAMED);
+	return StdSetStructure_(pos, value, include, INCLUDE);
 }
 
-_g void stdget_structure_named_index(addr pos, addr *ret)
+_g int stdget_structure_precedence_list_(addr pos, addr *ret)
 {
-	StdGetStructure(pos, ret, named_index, NAMED_INDEX);
+	return StdGetStructure_(pos, ret, precedence_list, CLASS_PRECEDENCE_LIST);
 }
-_g void stdset_structure_named_index(addr pos, addr value)
+_g int stdset_structure_precedence_list_(addr pos, addr value)
 {
-	StdSetStructure(pos, value, named_index, NAMED_INDEX);
+	return StdSetStructure_(pos, value, precedence_list, CLASS_PRECEDENCE_LIST);
 }
 
-_g void stdget_structure_value(addr pos, addr *ret)
+_g int stdget_structure_type_(addr pos, addr *ret)
 {
-	StdGetStructure(pos, ret, value, VALUE);
+	return StdGetStructure_(pos, ret, type, TYPE);
 }
-_g void stdset_structure_value(addr pos, addr value)
+_g int stdset_structure_type_(addr pos, addr value)
 {
-	StdSetStructure(pos, value, value, VALUE);
+	return StdSetStructure_(pos, value, type, TYPE);
+}
+
+_g int stdget_structure_vector_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, vector, VECTOR);
+}
+_g int stdset_structure_vector_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, vector, VECTOR);
+}
+
+_g int stdget_structure_named_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, named, NAMED);
+}
+_g int stdset_structure_named_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, named, NAMED);
+}
+
+_g int stdget_structure_named_index_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, named_index, NAMED_INDEX);
+}
+_g int stdset_structure_named_index_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, named_index, NAMED_INDEX);
+}
+
+_g int stdget_structure_value_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, value, VALUE);
+}
+_g int stdset_structure_value_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, value, VALUE);
 }
 
 
 /*
  *  control
  */
-_g int structure_class_p(addr pos)
+_g int structure_class_p_(addr pos, int *ret)
 {
 	addr check;
 
 	if (GetType(pos) != LISPTYPE_CLOS)
-		return 0;
-	clos_class_of(pos, &pos);
+		return Result(ret, 0);
+	Return(clos_class_of_(pos, &pos));
 	GetConst(CLOS_STRUCTURE_CLASS, &check);
-	return clos_subclass_p(pos, check);
+	return clos_subclass_p_(pos, check, ret);
 }
 
-_g int structure_instance_p(addr pos)
+_g int structure_class_p_debug(addr pos)
 {
-	addr check;
+	int check;
+	check = 0;
+	Error(structure_class_p_(pos, &check));
+	return check;
+}
+
+_g int structure_instance_p_(addr pos, int *ret)
+{
+	addr right;
 
 	if (GetType(pos) != LISPTYPE_CLOS)
-		return 0;
-	clos_class_of(pos, &pos);
-	GetConst(CLOS_STRUCTURE_OBJECT, &check);
-	return clos_subclass_p(pos, check);
+		return Result(ret, 0);
+	Return(clos_class_of_(pos, &pos));
+	GetConst(CLOS_STRUCTURE_OBJECT, &right);
+	return clos_subclass_p_(pos, right, ret);
+}
+
+_g int structure_instance_p_debug(addr pos)
+{
+	int check;
+	check = 0;
+	Error(structure_instance_p_(pos, &check));
+	return check;
 }
 
 static int equalcall_structure_(addr a, addr b, int *ret,
@@ -330,9 +347,11 @@ static int equalcall_structure_(addr a, addr b, int *ret,
 	addr c, d;
 	size_t x, y;
 
-	if (! structure_instance_p(a))
+	Return(structure_instance_p_(a, &check));
+	if (! check)
 		return Result(ret, 0);
-	if (! structure_instance_p(b))
+	Return(structure_instance_p_(b, &check));
+	if (! check)
 		return Result(ret, 0);
 	GetValueClos(a, &a);
 	GetValueClos(b, &b);
@@ -361,30 +380,29 @@ _g int equalrt_structure_(addr a, addr b, int *ret)
 	return equalcall_structure_(a, b, ret, equalrt_function_);
 }
 
-_g int typep_structure(addr value, addr instance)
+static int typep_structure_(addr value, addr instance, int *ret)
 {
-	Check(! structure_class_p(instance), "type error");
-	return structure_instance_p(value) && clos_subtype_p(value, instance);
-}
+	int check;
 
-_g int subtypep_structure(addr left, addr right)
-{
-	Check(! structure_class_p(left), "type error");
-	Check(! structure_class_p(right), "type error");
-	return clos_subclass_p(left, right);
+	Check(! structure_class_p_debug(instance), "type error");
+	Return(structure_instance_p_(value, &check));
+	if (! check)
+		return Result(ret, 0);
+	else
+		return clos_subtype_p_(value, instance, ret);
 }
 
 
 /*
  *  access vector
  */
-static int structure_getarray_direct(Execute ptr,
+static int structure_getarray_direct_(Execute ptr,
 		addr vector, size_t i, addr type, addr *ret)
 {
 	int check;
 	addr value;
 
-	getelt_sequence(NULL, vector, i, &value);
+	Return(getelt_sequence_(NULL, vector, i, &value));
 	Return(typep_clang(ptr, value, type, &check));
 	if (! check) {
 		Return(type_object_(&type, type));
@@ -394,15 +412,15 @@ static int structure_getarray_direct(Execute ptr,
 	return Result(ret, value);
 }
 
-static int structure_getarray(Execute ptr,
+static int structure_getarray_(Execute ptr,
 		addr vector, addr slot, addr type, addr *ret)
 {
 	size_t i;
 	GetAccessSlot(slot, &i);
-	return structure_getarray_direct(ptr, vector, i, type, ret);
+	return structure_getarray_direct_(ptr, vector, i, type, ret);
 }
 
-static int structure_setarray_direct(Execute ptr,
+static int structure_setarray_direct_(Execute ptr,
 		addr vector, size_t i, addr type, addr value)
 {
 	int check;
@@ -412,16 +430,15 @@ static int structure_setarray_direct(Execute ptr,
 		Return(type_object_(&type, type));
 		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
 	}
-	setelt_sequence(vector, i, value);
 
-	return 0;
+	return setelt_sequence_(vector, i, value);
 }
 static int structure_setarray_(Execute ptr,
 		addr vector, addr slot, addr type, addr value)
 {
 	size_t i;
 	GetAccessSlot(slot, &i);
-	return structure_setarray_direct(ptr, vector, i, type, value);
+	return structure_setarray_direct_(ptr, vector, i, type, value);
 }
 
 
@@ -459,6 +476,7 @@ static void structure_slots_heap(addr list, addr *ret)
 
 static int structure_check_slots_(addr list)
 {
+	int check;
 	addr pos, a, b, tail;
 
 	while (list != Nil) {
@@ -471,7 +489,8 @@ static int structure_check_slots_(addr list)
 			GetNameSlot(pos, &b);
 			Check(! symbolp(b), "type error");
 			GetNameSymbol(b, &b);
-			if (string_equal(a, b)) {
+			Return(string_equal_(a, b, &check));
+			if (check) {
 				return fmte_("The slot name ~S "
 						"is duplicated in the defstruct.", a, NULL);
 			}
@@ -506,7 +525,7 @@ static int structure_check_predicate_(struct defstruct *str)
 
 static int structure_include_(struct defstruct *str)
 {
-	int result;
+	int check;
 	addr instance, x, y;
 
 	if (! str->include_p)
@@ -515,11 +534,12 @@ static int structure_include_(struct defstruct *str)
 	clos_find_class_nil(str->iname, &instance);
 	if (instance == Nil)
 		return fmte_(":INCLUDE ~S structure don't exist.", str->iname, NULL);
-	if (! structure_class_p(instance))
+	Return(structure_class_p_(instance, &check));
+	if (! check)
 		return fmte_(":INCLUDE ~S must be structure type.", instance, NULL);
 
 	/* class check */
-	stdget_structure_type(instance, &x);
+	Return(stdget_structure_type_(instance, &x));
 	GetConst(COMMON_CLASS, &y);
 	if (x == y) {
 		if (str->type_list_p || str->type_vector_p) {
@@ -543,9 +563,9 @@ static int structure_include_(struct defstruct *str)
 					"but :INCLUDE type is not VECTOR.", NULL);
 		}
 		x = str->type_vector;
-		stdget_structure_vector(instance, &y);
-		Return(subtypep_clang_(x, y, &result, NULL));
-		if (! result) {
+		Return(stdget_structure_vector_(instance, &y));
+		Return(subtypep_clang_(x, y, &check, NULL));
+		if (! check) {
 			Return(type_object_(&x, x));
 			Return(type_object_(&y, y));
 			return fmte_(":TYPE ~A is not in the include ~A type.", x, y, NULL);
@@ -557,30 +577,30 @@ static int structure_include_(struct defstruct *str)
 	return 0;
 }
 
-static int structure_find_slots(addr instance, addr name, addr *ret)
+static int structure_find_slots_(addr instance, addr name, addr *ret)
 {
-	addr slots, pos, check;
+	int check;
+	addr slots, pos, value;
 	size_t size, i;
 
-	Check(! structure_class_p(instance), "type error");
+	Check(! structure_class_p_debug(instance), "type error");
 	Check(! symbolp(name), "type error");
 
 	/* find */
 	GetNameSymbol(name, &name);
-	stdget_structure_slots(instance, &slots);
+	Return(stdget_structure_slots_(instance, &slots));
 	Check(! slot_vector_p(slots), "type error");
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetNameSlot(pos, &check);
-		GetNameSymbol(check, &check);
-		if (string_equal(name, check)) {
-			*ret= pos;
-			return 1;
-		}
+		GetNameSlot(pos, &value);
+		GetNameSymbol(value, &value);
+		Return(string_equal_(name, value, &check));
+		if (check)
+			return Result(ret, pos);
 	}
 
-	return 0;
+	return Result(ret, Unbound);
 }
 
 static int structure_include_slots_(struct defstruct *str)
@@ -593,7 +613,8 @@ static int structure_include_slots_(struct defstruct *str)
 	for (list = str->slots; list != Nil; ) {
 		GetCons(list, &pos, &list);
 		GetNameSlot(pos, &name);
-		if (structure_find_slots(instance, name, &pos)) {
+		Return(structure_find_slots_(instance, name, &pos));
+		if (pos != Unbound) {
 			return fmte_("The slot ~S "
 					"already exist in :INCLUDE structure.", name, NULL);
 		}
@@ -614,7 +635,8 @@ static int structure_include_arguments_(struct defstruct *str)
 	for (list = str->iargs; list != Nil; ) {
 		GetCons(list, &a, &list);
 		GetNameSlot(a, &name);
-		if (! structure_find_slots(instance, name, &b)) {
+		Return(structure_find_slots_(instance, name, &b));
+		if (b == Unbound) {
 			return fmte_("The :include argument ~S don't exist "
 					"in :INCLUDE structure.", name, NULL);
 		}
@@ -695,102 +717,112 @@ static void structure_slots_value(struct defstruct *str)
 /*
  *  make-instance
  */
-static void structure_instance_include(struct defstruct *str, addr instance)
+static int structure_instance_include_(struct defstruct *str, addr instance)
 {
 	addr list, pos;
 
 	/* include */
-	if (str->include_p)
-		stdset_structure_include(instance, str->iname);
+	if (str->include_p) {
+		Return(stdset_structure_include_(instance, str->iname));
+	}
 
 	/* precedence-list */
 	list = Nil;
 	for (pos = instance; pos != Nil; ) {
 		cons_heap(&list, pos, list);
-		stdget_structure_include(pos, &pos);
+		Return(stdget_structure_include_(pos, &pos));
 	}
 	GetConst(CLOS_STRUCTURE_OBJECT, &pos);
 	cons_heap(&list, pos, list);
 	GetConst(CLOS_T, &pos);
 	cons_heap(&list, pos, list);
 	nreverse(&list, list);
-	stdset_structure_precedence_list(instance, list);
+	Return(stdset_structure_precedence_list_(instance, list));
+
+	return 0;
 }
 
-static void structure_instance(struct defstruct *str)
+static int structure_instance_(struct defstruct *str)
 {
 	addr clos, instance, pos;
 
 	/* structure */
 	GetConst(CLOS_STRUCTURE_CLASS, &clos);
-	clos_instance_heap(clos, &instance);
+	Return(clos_instance_heap_(clos, &instance));
 	SetClassOfClos(instance, clos);
 	/* name */
-	stdset_structure_name(instance, str->name);
+	Return(stdset_structure_name_(instance, str->name));
 	/* documentation */
-	if (str->doc != Nil)
-		stdset_structure_documentation(instance, str->doc);
+	if (str->doc != Nil) {
+		Return(stdset_structure_documentation_(instance, str->doc));
+	}
 	/* include, precedence-list */
-	structure_instance_include(str, instance);
+	Return(structure_instance_include_(str, instance));
 	/* type */
 	if (str->type_list_p) {
 		GetConst(COMMON_LIST, &pos);
-		stdset_structure_type(instance, pos);
+		Return(stdset_structure_type_(instance, pos));
 	}
 	else if (str->type_vector_p) {
 		GetConst(COMMON_VECTOR, &pos);
-		stdset_structure_type(instance, pos);
-		stdset_structure_vector(instance, str->type_vector);
+		Return(stdset_structure_type_(instance, pos));
+		Return(stdset_structure_vector_(instance, str->type_vector));
 	}
 	else {
 		GetConst(COMMON_CLASS, &pos);
-		stdset_structure_type(instance, pos);
+		Return(stdset_structure_type_(instance, pos));
 	}
 	/* named */
-	stdset_structure_named(instance, str->named_p? T: Nil);
+	Return(stdset_structure_named_(instance, str->named_p? T: Nil));
 	/* result */
 	str->instance = instance;
+
+	return 0;
 }
 
 
 /*
  *  slots-make
  */
-static int structure_pushnew_local(LocalRoot local, addr *ret, addr value, addr list)
+static int structure_pushnew_local_(LocalRoot local,
+		addr *push, addr value, addr list, int *ret)
 {
-	addr root, check;
+	int check;
+	addr root, x;
 
 	Check(! stringp(value), "type error");
 	for (root = list; list != Nil; ) {
-		GetCons(list, &check, &list);
-		if (string_equal(check, value))
-			return 0;
+		GetCons(list, &x, &list);
+		Return(string_equal_(x, value, &check));
+		if (check)
+			return Result(ret, 0);
 	}
-	cons_local(local, ret, value, root);
+	cons_local(local, push, value, root);
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int structure_find_slotslist(addr name, addr list, addr *ret)
+static int structure_find_slotslist_(addr name, addr list, addr *ret)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 
 	Check(! stringp(name), "type error");
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		GetNameSlot(pos, &check);
-		GetNameSymbol(check, &check);
-		if (string_equal(name, check)) {
-			*ret = pos;
-			return 1;
-		}
+		GetNameSlot(pos, &value);
+		GetNameSymbol(value, &value);
+		Return(string_equal_(name, value, &check));
+		if (check)
+			return Result(ret, pos);
 	}
 
 	return 0;
 }
 
-static void structure_slots_make(struct defstruct *str)
+static int structure_slots_make_(struct defstruct *str)
 {
+	int check;
 	addr root, slots, list, pos, name, args, instance;
 	LocalRoot local;
 	LocalStack stack;
@@ -803,8 +835,8 @@ static void structure_slots_make(struct defstruct *str)
 	/* include */
 	if (str->include_p) {
 		pos = str->iname;
-		stdget_structure_slots(pos, &list);
-		stdget_structure_value(pos, &pos);
+		Return(stdget_structure_slots_(pos, &list));
+		Return(stdget_structure_value_(pos, &pos));
 		if (pos != Nil)
 			getindex_integer(pos, &value);
 		args = str->iargs;
@@ -815,7 +847,7 @@ static void structure_slots_make(struct defstruct *str)
 			GetNameSlot(pos, &name);
 			GetNameSymbol(name, &name);
 			cons_local(local, &root, name, root);
-			(void)structure_find_slotslist(name, args, &pos);
+			Return(structure_find_slotslist_(name, args, &pos));
 			Check(! slotp(pos), "type error");
 			cons_local(local, &slots, pos, slots);
 			/* location */
@@ -830,7 +862,8 @@ static void structure_slots_make(struct defstruct *str)
 		GetCons(list, &pos, &list);
 		GetNameSlot(pos, &name);
 		GetNameSymbol(name, &name);
-		if (structure_pushnew_local(local, &root, name, root)) {
+		Return(structure_pushnew_local_(local, &root, name, root, &check));
+		if (check) {
 			cons_local(local, &slots, pos, slots);
 			SetLocationSlot(pos, size++);
 			SetAccessSlot(pos, value++);
@@ -849,18 +882,20 @@ static void structure_slots_make(struct defstruct *str)
 	str->size = size;
 	str->size_value = value;
 	str->slots = list;
-	stdset_structure_slots(instance, list);
-	stdset_structure_value(instance, intsizeh(value));
-	stdset_structure_named_index(instance,
-			str->named_p? intsizeh(str->named_index): Nil);
+	Return(stdset_structure_slots_(instance, list));
+	Return(stdset_structure_value_(instance, intsizeh(value)));
+	Return(stdset_structure_named_index_(instance,
+				str->named_p? intsizeh(str->named_index): Nil));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
 /*
  *  accessor
  */
-static void structure_slot_callname(struct defstruct *str, addr *ret, addr pos)
+static int structure_slot_callname_(struct defstruct *str, addr *ret, addr pos)
 {
 	addr name;
 
@@ -869,17 +904,19 @@ static void structure_slot_callname(struct defstruct *str, addr *ret, addr pos)
 	Check(! symbolp(pos), "type error");
 	GetNameSymbol(pos, &pos);
 	if (str->conc_name == Unbound) {
-		stdget_structure_name(str->instance, &name);
+		Return(stdget_structure_name_(str->instance, &name));
 		GetNameSymbol(name, &name);
-		string_concat_hyphen_heap(ret, name, pos);
+		Return(string_concat_hyphen_heap_(ret, name, pos));
 	}
 	else if (str->conc_name == Nil) {
 		*ret = pos;
 	}
 	else {
 		Check(! stringp(str->conc_name), "type error");
-		string_concat_heap(ret, str->conc_name, pos);
+		Return(string_concat_heap_(ret, str->conc_name, pos));
 	}
+
+	return 0;
 }
 
 /* structure_type */
@@ -987,7 +1024,7 @@ static int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
 		*ret = 0;
 		return 0;
 	}
-	size = length_sequence(var, 1);
+	Return(length_sequence_(var, 1, &size));
 	/* length */
 	str = PtrStructureType(type);
 	if (size < str->size_value) {
@@ -997,8 +1034,7 @@ static int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
 	/* check */
 	if (str->named) {
 		GetVectorStructureType(type, &check);
-		if (structure_getarray_direct(ptr, var, str->named_index, check, &var))
-			return 1;
+		Return(structure_getarray_direct_(ptr, var, str->named_index, check, &var));
 		GetNameStructureType(type, &type);
 		*ret = (var == type);
 		return 0;
@@ -1121,7 +1157,7 @@ static int structure_slots_call_list_(struct defstruct *str)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		structure_slot_callname(str, &symbol, pos);
+		Return(structure_slot_callname_(str, &symbol, pos));
 		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_type(str, pos, &type);
 		Return(parse_callname_error_(&symbol, symbol));
@@ -1149,7 +1185,7 @@ static int function_structure_reader_vector(Execute ptr, addr var)
 	/* access */
 	GetSlotStructureType(type, &slot);
 	GetVectorStructureType(type, &pos);
-	Return(structure_getarray(ptr, var, slot, pos, &var));
+	Return(structure_getarray_(ptr, var, slot, pos, &var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -1239,7 +1275,7 @@ static int structure_slots_call_vector_(struct defstruct *str)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		structure_slot_callname(str, &symbol, pos);
+		Return(structure_slot_callname_(str, &symbol, pos));
 		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_type(str, pos, &type);
 		Return(parse_callname_error_(&symbol, symbol));
@@ -1254,6 +1290,7 @@ static int structure_slots_call_vector_(struct defstruct *str)
 /* clos */
 static int function_structure_reader_clos(Execute ptr, addr var)
 {
+	int check;
 	addr slot, pos;
 	size_t index;
 
@@ -1261,7 +1298,8 @@ static int function_structure_reader_clos(Execute ptr, addr var)
 	getdata_control(ptr, &slot);
 	/* check-type */
 	GetClassSlot(slot, &pos);
-	if (! typep_structure(var, pos))
+	Return(typep_structure_(var, pos, &check));
+	if (! check)
 		return fmte_("The reader don't read ~S structure.", pos, NULL);
 	/* result */
 	GetLocationSlot(slot, &index);
@@ -1300,6 +1338,7 @@ static void structure_slot_reader_clos(addr instance, addr slot, addr symbol)
 
 static int function_structure_writer_clos(Execute ptr, addr value, addr var)
 {
+	int check;
 	addr slot, pos;
 	size_t index;
 
@@ -1307,7 +1346,8 @@ static int function_structure_writer_clos(Execute ptr, addr value, addr var)
 	getdata_control(ptr, &slot);
 	/* check-type */
 	GetClassSlot(slot, &pos);
-	if (! typep_structure(var, pos))
+	Return(typep_structure_(var, pos, &check));
+	if (! check)
 		return fmte_("The reader don't read ~S structure.", pos, NULL);
 	/* result */
 	GetLocationSlot(slot, &index);
@@ -1351,13 +1391,13 @@ static int structure_slots_call_clos_(struct defstruct *str)
 	size_t size, i;
 
 	instance = str->instance;
-	Check(! structure_class_p(instance), "type error");
+	Check(! structure_class_p_debug(instance), "type error");
 	Return(getpackage_(str->ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		structure_slot_callname(str, &symbol, pos);
+		Return(structure_slot_callname_(str, &symbol, pos));
 		Return(intern_package_(package, symbol, &symbol, NULL));
 		Return(parse_callname_error_(&symbol, symbol));
 		structure_slot_reader_clos(instance, pos, symbol);
@@ -1383,9 +1423,10 @@ static int structure_slots_call_(struct defstruct *str)
 /*
  *  constructor
  */
-static int structure_constructor_find_slots(addr key, addr slots)
+static int structure_constructor_find_slots_(addr key, addr slots, int *ret)
 {
-	addr check;
+	int check;
+	addr value;
 	size_t size, i;
 
 	Check(! symbolp(key), "type error");
@@ -1393,19 +1434,32 @@ static int structure_constructor_find_slots(addr key, addr slots)
 	GetNameSymbol(key, &key);
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
-		GetSlotVector(slots, i, &check);
-		GetNameSlot(check, &check);
-		GetNameSymbol(check, &check);
-		if (string_equal(key, check))
-			return 1;
+		GetSlotVector(slots, i, &value);
+		GetNameSlot(value, &value);
+		GetNameSymbol(value, &value);
+		Return(string_equal_(key, value, &check));
+		if (check)
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
+}
+
+static int structure_constructor_dynamic_p_(
+		unsigned errorp, addr key, addr slots, int *ret)
+{
+	int check;
+
+	if (! errorp)
+		return Result(ret, 0);
+	Return(structure_constructor_find_slots_(key, slots, &check));
+	return Result(ret, ! check);
 }
 
 static int structure_constructor_dynamic_(addr instance,
 		addr slots, addr list, unsigned errorp)
 {
+	int check;
 	addr key;
 
 	while (list != Nil) {
@@ -1416,7 +1470,8 @@ static int structure_constructor_dynamic_(addr instance,
 			return fmte_("There is no value in the key ~S arguemnts.", key, NULL);
 		if (! symbolp(key))
 			return fmte_("The key ~S must be a symbol type.", key, NULL);
-		if (errorp && (! structure_constructor_find_slots(key, slots))) {
+		Return(structure_constructor_dynamic_p_(errorp, key, slots, &check));
+		if (check) {
 			return fmte_("There is no slot ~S "
 					"in the structure ~S.", key, instance, NULL);
 		}
@@ -1426,41 +1481,46 @@ static int structure_constructor_dynamic_(addr instance,
 	return 0;
 }
 
-static int function_structure_constructor_find(addr key, addr list, addr *ret)
+static int function_structure_constructor_find_(
+		addr key, addr list, addr *value, int *ret)
 {
-	addr check, value, g;
+	int check;
+	addr left, right, g;
 
 	Check(! slotp(key), "type error");
 	GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
 	GetNameSlot(key, &key);
 	GetNameSymbol(key, &key);
 	while (list != Nil) {
-		GetCons(list, &check, &list);
-		GetCons(list, &value, &list);
-		Check(! symbolp(check), "type error");
-		if (value == g)
+		GetCons(list, &left, &list);
+		GetCons(list, &right, &list);
+		Check(! symbolp(left), "type error");
+		if (right == g)
 			continue;
-		GetNameSymbol(check, &check);
-		if (string_equal(key, check)) {
-			*ret = value;
-			return 1;
+		GetNameSymbol(left, &left);
+		Return(string_equal_(key, left, &check));
+		if (check) {
+			*value = right;
+			return Result(ret, 1);
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 /* list */
 static int structure_constructor_instance_list_(Execute ptr,
 		addr list, addr slots, addr args)
 {
+	int check;
 	addr slot, pos;
 	size_t size, i, index;
 
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		if (! function_structure_constructor_find(slot, args, &pos)) {
+		Return(function_structure_constructor_find_(slot, args, &pos, &check));
+		if (! check) {
 			GetFunctionSlot(slot, &pos);
 			if (pos != Nil) {
 				Return(callclang_apply(ptr, &pos, pos, Nil));
@@ -1551,9 +1611,9 @@ static void structure_constructor_default_list(addr data, addr symbol)
 
 /* vector */
 static int structure_constructor_instance_vector_(Execute ptr,
-		addr vector, addr slots, addr check, addr args)
+		addr vector, addr slots, addr value, addr args)
 {
-	int update;
+	int update, check;
 	addr slot, pos;
 	size_t size, i;
 
@@ -1561,7 +1621,8 @@ static int structure_constructor_instance_vector_(Execute ptr,
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
 		update = 0;
-		if (function_structure_constructor_find(slot, args, &pos)) {
+		Return(function_structure_constructor_find_(slot, args, &pos, &check));
+		if (check) {
 			update = 1;
 		}
 		else {
@@ -1572,7 +1633,7 @@ static int structure_constructor_instance_vector_(Execute ptr,
 			}
 		}
 		if (update) {
-			Return(structure_setarray_(ptr, vector, slot, check, pos));
+			Return(structure_setarray_(ptr, vector, slot, value, pos));
 		}
 	}
 
@@ -1600,7 +1661,7 @@ static int make_structure_vector_(Execute ptr, addr *ret, addr pos, addr args)
 
 	if (str->named) {
 		GetNameStructureType(pos, &name);
-		setelt_sequence(vector, str->named_index, name);
+		Return(setelt_sequence_(vector, str->named_index, name));
 	}
 
 	return Result(ret, vector);
@@ -1648,6 +1709,7 @@ static void structure_constructor_default_vector(addr data, addr symbol)
 /* clos */
 static int structure_constructor_instance_clos_(Execute ptr, addr clos, addr args)
 {
+	int check;
 	addr slots, slot, value, pos;
 	size_t size, i, location;
 
@@ -1656,7 +1718,8 @@ static int structure_constructor_instance_clos_(Execute ptr, addr clos, addr arg
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		if (! function_structure_constructor_find(slot, args, &pos)) {
+		Return(function_structure_constructor_find_(slot, args, &pos, &check));
+		if (! check) {
 			GetFunctionSlot(slot, &pos);
 			if (pos != Nil) {
 				Return(callclang_apply(ptr, &pos, pos, Nil));
@@ -1755,9 +1818,9 @@ static int structure_constructor_make_(struct defstruct *str)
 	addr name;
 
 	/* name */
-	stdget_structure_name(str->instance, &name);
+	Return(stdget_structure_name_(str->instance, &name));
 	GetNameSymbol(name, &name);
-	string_concat_char1_heap(&name, "MAKE-", name);
+	Return(string_concat_char1_heap_(&name, "MAKE-", name));
 	Return(intern_default_package_(str->ptr, name, &name, NULL));
 	/* make */
 	return structure_constructor_default_(str, name);
@@ -1937,9 +2000,9 @@ static int structure_copier_callname_(struct defstruct *str, addr *ret)
 	addr name;
 
 	if (! str->copier_p) {
-		stdget_structure_name(str->instance, &name);
+		Return(stdget_structure_name_(str->instance, &name));
 		GetNameSymbol(name, &name);
-		string_concat_char1_heap(&name, "COPY-", name);
+		Return(string_concat_char1_heap_(&name, "COPY-", name));
 	}
 	else if (str->copier == Nil) {
 		return Result(ret, Unbound);
@@ -2045,7 +2108,7 @@ static int function_structure_predicate_clos(Execute ptr, addr var)
 	addr instance;
 
 	getdata_control(ptr, &instance);
-	check = typep_structure(var, instance);
+	Return(typep_structure_(var, instance, &check));
 	setbool_control(ptr, check);
 
 	return 0;
@@ -2073,9 +2136,9 @@ static int structure_predicate_callname_(struct defstruct *str, addr *ret)
 	addr name;
 
 	if (! str->predicate_p) {
-		stdget_structure_name(str->instance, &name);
+		Return(stdget_structure_name_(str->instance, &name));
 		GetNameSymbol(name, &name);
-		string_concat_char2_heap(&name, name, "-P");
+		Return(string_concat_char2_heap_(&name, name, "-P"));
 	}
 	else if (str->predicate == Nil) {
 		return Result(ret, Unbound);
@@ -2126,7 +2189,10 @@ static int structure_print_default_p(struct defstruct *str)
 static int method_defstruct_default(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
-	if (! structure_instance_p(var))
+	int check;
+
+	Return(structure_instance_p_(var, &check));
+	if (! check)
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	Return(print_structure(ptr, stream, var));
 	setresult_control(ptr, var);
@@ -2147,7 +2213,7 @@ static int structure_print_default_method_(struct defstruct *str, addr name, add
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
 	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
+	Return(stdset_method_function_(pos, call));
 
 	return Result(ret, pos);
 }
@@ -2159,7 +2225,7 @@ static int structure_print_add_method_(struct defstruct *str, addr name, addr me
 
 	ptr = str->ptr;
 	getglobalcheck_callname(name, &generic);
-	Check(! clos_generic_p(generic), "type error");
+	Check(! clos_generic_p_debug(generic), "type error");
 	return method_add_method_(ptr, generic, method);
 }
 
@@ -2176,9 +2242,11 @@ static int structure_print_default_(struct defstruct *str)
 static int method_defstruct_object(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
+	int check;
 	addr call;
 
-	if (! structure_instance_p(var))
+	Return(structure_instance_p_(var, &check));
+	if (! check)
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	getdata_control(ptr, &call);
 	Return(callclang_apply(ptr, &call, call, Nil));
@@ -2202,7 +2270,7 @@ static int structure_print_object_method_(struct defstruct *str, addr name, addr
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
 	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
+	Return(stdset_method_function_(pos, call));
 
 	return Result(ret, pos);
 }
@@ -2220,9 +2288,11 @@ static int structure_print_object_(struct defstruct *str)
 static int method_defstruct_function(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
+	int check;
 	addr call, pos;
 
-	if (! structure_instance_p(var))
+	Return(structure_instance_p_(var, &check));
+	if (! check)
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	GetConst(SPECIAL_PRINT_LEVEL, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
@@ -2248,7 +2318,7 @@ static int structure_print_function_method_(struct defstruct *str, addr name, ad
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
 	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
+	Return(stdset_method_function_(pos, call));
 
 	return Result(ret, pos);
 }
@@ -2308,11 +2378,11 @@ _g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 	Return(structure_print_check_(&str));
 	structure_slots_value(&str);
 	/* make instance */
-	structure_instance(&str);
-	Check(! structure_class_p(str.instance), "type error");
+	Return(structure_instance_(&str));
+	Check(! structure_class_p_debug(str.instance), "type error");
 	clos_define_class(str.name, str.instance);
 	/* settings */
-	structure_slots_make(&str);
+	Return(structure_slots_make_(&str));
 	Return(structure_slots_call_(&str));
 	Return(structure_copier_(&str));
 	Return(structure_predicate_(&str));
@@ -2336,7 +2406,7 @@ static int make_structure_common_clos_(Execute ptr, addr *ret,
 
 	structure_type_heap(&pos);
 	SetInstanceStructureType(pos, instance);
-	stdget_structure_slots(instance, &value);
+	Return(stdget_structure_slots_(instance, &value));
 	SetSlotStructureType(pos, value);
 	SetErrorpStructureType(pos, errorp);
 
@@ -2356,11 +2426,11 @@ static int make_structure_common_vector_(Execute ptr, addr *ret,
 	LocalHold hold;
 
 	/* value */
-	stdget_structure_slots(instance, &slots);
-	stdget_structure_value(instance, &value);
-	stdget_structure_vector(instance, &type);
-	stdget_structure_name(instance, &name);
-	stdget_structure_named(instance, &named);
+	Return(stdget_structure_slots_(instance, &slots));
+	Return(stdget_structure_value_(instance, &value));
+	Return(stdget_structure_vector_(instance, &type));
+	Return(stdget_structure_name_(instance, &name));
+	Return(stdget_structure_named_(instance, &named));
 	/* type */
 	structure_type_heap(&pos);
 	SetInstanceStructureType(pos, instance);
@@ -2391,10 +2461,10 @@ static int make_structure_common_list_(Execute ptr, addr *ret,
 	LocalHold hold;
 
 	/* value */
-	stdget_structure_slots(instance, &slots);
-	stdget_structure_value(instance, &value);
-	stdget_structure_name(instance, &name);
-	stdget_structure_named(instance, &named);
+	Return(stdget_structure_slots_(instance, &slots));
+	Return(stdget_structure_value_(instance, &value));
+	Return(stdget_structure_name_(instance, &name));
+	Return(stdget_structure_named_(instance, &named));
 	/* type */
 	structure_type_heap(&pos);
 	SetInstanceStructureType(pos, instance);
@@ -2421,7 +2491,7 @@ static int make_structure_common_(Execute ptr, addr *ret,
 	addr type, check;
 
 	/* clos */
-	stdget_structure_type(instance, &type);
+	Return(stdget_structure_type_(instance, &type));
 	GetConst(COMMON_CLASS, &check);
 	if (type == check)
 		return make_structure_common_clos_(ptr, ret, instance, rest, errorp);
@@ -2442,12 +2512,14 @@ static int make_structure_common_(Execute ptr, addr *ret,
 
 _g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *ret)
 {
+	int check;
 	addr instance;
 
 	if (! symbolp(symbol))
 		return fmte_("The first argument ~S must be a symbol type.", symbol, NULL);
-	clos_find_class(symbol, &instance);
-	if (! structure_class_p(instance))
+	Return(clos_find_class_(symbol, &instance));
+	Return(structure_class_p_(instance, &check));
+	if (! check)
 		return fmte_("The class ~S don't be a structure-class.", symbol, NULL);
 
 	return make_structure_common_(ptr, ret, instance, rest, 0);
@@ -2469,7 +2541,7 @@ _g void copy_structure_common(addr inst, addr *ret)
 	addr class_of, slots, clos, src, dst, pos;
 	size_t size, i;
 
-	Check(! structure_instance_p(inst), "type error");
+	Check(! structure_instance_p_debug(inst), "type error");
 	/* source */
 	GetClassOfClos(inst, &class_of);
 	GetSlotClos(inst, &slots);

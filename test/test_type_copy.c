@@ -176,7 +176,7 @@ static int test_typecopy_clos(void)
 	addr left, right, clos;
 
 	Error(interncommon_("STANDARD-CLASS", &clos, NULL));
-	clos_find_class(clos, &clos);
+	clos_find_class_(clos, &clos);
 	type_clos_heap(clos, &left);
 	type_copy_heap(&right, left);
 	test(left != right, "typecopy_clos1");

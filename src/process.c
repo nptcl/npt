@@ -34,7 +34,8 @@ static int run_process_utf8_(LocalRoot local, addr pos, char **ret)
 	addr data;
 	char *str;
 
-	if (UTF8_buffer_clang(local, &data, pos)) {
+	Return(UTF8_buffer_clang_(local, &data, pos));
+	if (data == Unbound) {
 		*ret = NULL;
 		return fmte_("Invalid UTF8 format ~S.", pos, NULL);
 	}
@@ -104,12 +105,12 @@ static int run_process_delimited_(LocalRoot local, addr *ret, addr x, unicode z)
 	string_length(x, &size);
 	strvect_local(local, &y, size + 2);
 	a = b = 0;
-	strvect_setc(y, b++, z);
+	Return(strvect_setc_(y, b++, z));
 	while (a < size) {
-		string_getc(x, a++, &c);
-		strvect_setc(y, b++, c);
+		Return(string_getc_(x, a++, &c));
+		Return(strvect_setc_(y, b++, c));
 	}
-	strvect_setc(y, b, z);
+	Return(strvect_setc_(y, b, z));
 
 	return Result(ret, y);
 }
@@ -125,7 +126,7 @@ static int run_process_windows_pathname_(LocalRoot local,
 	string_length(pos, &size);
 	space = 0;
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (c == ' ')
 			space = 1;
 		if (c == '"') {
@@ -152,7 +153,8 @@ static int run_process_utf16_(LocalRoot local, addr pos, wchar_t **ret)
 	addr data;
 	wchar_t *str;
 
-	if (UTF16_buffer_clang(local, &data, pos)) {
+	Return(UTF16_buffer_clang_(local, &data, pos));
+	if (data == Unbound) {
 		*ret = NULL;
 		return fmte_("Invalid UTF16 format ~S.", pos, NULL);
 	}
@@ -182,12 +184,13 @@ static int run_process_list_utf16_(LocalRoot local, addr var, addr list, wchar_t
 	a = 0;
 	for (first = 1; root != Nil; first = 0) {
 		GetCons(root, &x, &root);
-		if (first == 0)
-			strvect_setc(y, a++, ' ');
+		if (first == 0) {
+			Return(strvect_setc_(y, a++, ' '));
+		}
 		strvect_length(x, &value);
 		for (b = 0; b < value; b++) {
 			strvect_getc(x, b, &c);
-			strvect_setc(y, a++, c);
+			Return(strvect_setc_(y, a++, c));
 		}
 	}
 

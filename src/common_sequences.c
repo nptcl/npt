@@ -58,7 +58,7 @@ static int function_elt(Execute ptr, addr var, addr index)
 
 	if (GetIndex_integer(index, &size))
 		return fmte_("Too large index ~S.", index, NULL);
-	getelt_sequence(NULL, var, size, &var);
+	Return(getelt_sequence_(NULL, var, size, &var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -98,7 +98,7 @@ static int function_setf_elt(Execute ptr, addr value, addr pos, addr index)
 
 	if (GetIndex_integer(index, &size))
 		return fmte_("Too large index ~S.", index, NULL);
-	setelt_sequence(pos, size, value);
+	Return(setelt_sequence_(pos, size, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -271,7 +271,7 @@ static void defun_subseq(void)
 static int function_setf_subseq(Execute ptr,
 		addr pos, addr root, addr start, addr end)
 {
-	setf_subseq_common(root, pos, start, end);
+	Return(setf_subseq_common_(root, pos, start, end));
 	setresult_control(ptr, root);
 	return 0;
 }
@@ -533,8 +533,11 @@ static void defun_count_if_not(void)
 /* (defun length (sequence) ...) -> index */
 static int function_length(Execute ptr, addr var)
 {
-	size_t size = length_sequence(var, 1);
+	size_t size;
+
+	Return(length_sequence_(var, 1, &size));
 	setresult_control(ptr, intsizeh(size));
+
 	return 0;
 }
 
@@ -567,7 +570,7 @@ static void defun_length(void)
 /* (defun reverse (sequence) ...) -> sequence */
 static int function_reverse(Execute ptr, addr var)
 {
-	reverse_sequence_heap(&var, var);
+	Return(reverse_sequence_heap_(&var, var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -591,7 +594,7 @@ static void defun_reverse(void)
 /* (defun nreverse (sequence) ...) -> sequence */
 static int function_nreverse(Execute ptr, addr var)
 {
-	nreverse_sequence(&var, var);
+	Return(nreverse_sequence_(&var, var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -666,7 +669,7 @@ static int function_sort(Execute ptr, addr pos, addr call, addr rest)
 
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
-	Return(quick_sort_sequence(ptr, pos, call, key));
+	Return(quick_sort_sequence_(ptr, pos, call, key));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -695,7 +698,7 @@ static int function_stable_sort(Execute ptr, addr pos, addr call, addr rest)
 
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
-	Return(merge_sort_sequence(ptr, pos, call, key));
+	Return(merge_sort_sequence_(ptr, pos, call, key));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -946,7 +949,7 @@ static void defun_mismatch(void)
  */
 static int function_replace(Execute ptr, addr pos1, addr pos2, addr rest)
 {
-	replace_common(ptr, pos1, pos2, rest);
+	Return(replace_common_(ptr, pos1, pos2, rest));
 	setresult_control(ptr, pos1);
 	return 0;
 }

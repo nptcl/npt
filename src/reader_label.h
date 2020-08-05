@@ -10,7 +10,7 @@ _g int find_readlabel(addr key, addr list, addr *ret);
 _g int pushlabel_readinfo_(Execute ptr, addr value, addr *ret);
 _g int closelabel_readlabel_(Execute ptr, addr label, addr pos);
 _g void vector_readlabel(Execute ptr, addr pos);
-_g void array_readlabel(Execute ptr, addr pos);
+_g int array_readlabel_(Execute ptr, addr pos);
 
 #endif
 

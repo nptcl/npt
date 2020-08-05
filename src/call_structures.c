@@ -150,6 +150,8 @@ error:
 
 static int defstruct_parse_conc_name(struct defstruct *str, addr pos, int *ret)
 {
+	int check;
+
 	Return(defstruct_option1(CONC_NAME, pos, &pos));
 	if (pos == NULL)
 		return Result(ret, 0);
@@ -160,7 +162,8 @@ static int defstruct_parse_conc_name(struct defstruct *str, addr pos, int *ret)
 		str->conc_name = Nil;
 		return Result(ret, 1);
 	}
-	if (string_designer_heap(&pos, pos)) {
+	Return(string_designer_heap_(&pos, pos, &check));
+	if (check) {
 		str->conc_name = pos;
 		return Result(ret, 1);
 	}
@@ -170,6 +173,8 @@ static int defstruct_parse_conc_name(struct defstruct *str, addr pos, int *ret)
 
 static int defstruct_parse_copier(struct defstruct *str, addr pos, int *ret)
 {
+	int check;
+
 	Return(defstruct_option1(COPIER, pos, &pos));
 	if (pos == NULL)
 		return Result(ret, 0);
@@ -181,7 +186,8 @@ static int defstruct_parse_copier(struct defstruct *str, addr pos, int *ret)
 	}
 	if (pos == Nil)
 		goto store;
-	if (string_designer_heap(&pos, pos))
+	Return(string_designer_heap_(&pos, pos, &check));
+	if (check)
 		goto store;
 	return fmte_("DEFSTRUCT :COPIER ~S must be a symbol.", pos, NULL);
 
@@ -193,6 +199,8 @@ store:
 
 static int defstruct_parse_predicate(struct defstruct *str, addr pos, int *ret)
 {
+	int check;
+
 	Return(defstruct_option1(PREDICATE, pos, &pos));
 	if (pos == NULL)
 		return Result(ret, 0);
@@ -204,7 +212,8 @@ static int defstruct_parse_predicate(struct defstruct *str, addr pos, int *ret)
 	}
 	if (pos == Nil)
 		goto store;
-	if (string_designer_heap(&pos, pos))
+	Return(string_designer_heap_(&pos, pos, &check));
+	if (check)
 		goto store;
 	return fmte_("DEFSTRUCT :PREDICATE ~S must be a symbol.", pos, NULL);
 

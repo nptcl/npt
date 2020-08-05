@@ -287,16 +287,11 @@ _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
 
 _g int write_char_file_(addr stream, unicode c)
 {
-	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = write_char_encode(fm, c);
-	if (check)
-		return fmte_("write_char_encode error", NULL);
-
-	return 0;
+	return write_char_encode_(fm, c);
 }
 
 _g int file_length_file_(addr stream, size_t *value, int *ret)
@@ -454,8 +449,7 @@ _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	*ret = length_string_encode(fm, pos, value);
-	return 0;
+	return length_string_encode_(fm, pos, value, ret);
 }
 
 _g void external_format_file(addr stream, addr *ret)

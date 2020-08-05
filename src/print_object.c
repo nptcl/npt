@@ -21,8 +21,8 @@
  */
 static int method_print_object_t_body(Execute ptr, addr stream, addr pos)
 {
-	clos_class_of(pos, &pos);
-	stdget_class_name(pos, &pos);
+	Return(clos_class_of_(pos, &pos));
+	Return(stdget_class_name_(pos, &pos));
 	return princ_print(ptr, stream, pos);
 }
 
@@ -44,9 +44,9 @@ static int method_print_object_class(Execute ptr,
 {
 	addr class_of, name;
 
-	clos_class_of(pos, &class_of);
-	stdget_class_name(class_of, &class_of);
-	stdget_class_name(pos, &name);
+	Return(clos_class_of_(pos, &class_of));
+	Return(stdget_class_name_(class_of, &class_of));
+	Return(stdget_class_name_(pos, &name));
 	/* #<CLASS-OF CLASS-NAME> */
 	Return(print_ascii_stream_(stream, "#<"));
 	Return(princ_print(ptr, stream, class_of));
@@ -65,14 +65,18 @@ static int method_print_object_class(Execute ptr,
  */
 static int write_structure(Execute ptr, addr stream, addr pos)
 {
+	int check;
 	addr x, y, z;
 	size_t size, i;
 
 	/* class name */
 	GetClassOfClos(pos, &x);
-	if (x == Unbound || (! structure_class_p(x)))
+	if (x == Unbound)
 		return print_ascii_stream_(stream, "#S(INVALID)");
-	stdget_structure_name(x, &x);
+	Return(structure_class_p_(x, &check));
+	if (! check)
+		return print_ascii_stream_(stream, "#S(INVALID)");
+	Return(stdget_structure_name_(x, &x));
 	Return(print_ascii_stream_(stream, "#S("));
 	Return(write_print(ptr, stream, x));
 	/* slot */
@@ -143,10 +147,8 @@ static int defmethod_print_object_(Execute ptr, addr name, addr gen,
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -179,13 +181,11 @@ _g int build_print_object_(Execute ptr)
 
 	GetConst(COMMON_PRINT_OBJECT, &symbol);
 	mop_argument_generic_var2(&gen);
-	parse_callname_error(&name, symbol);
-	generic_common_instance(&gen, name, gen);
+	Return(parse_callname_error_(&name, symbol));
+	Return(generic_common_instance_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(build_print_object_method_(ptr, name, gen));
-	common_method_finalize(gen);
-
-	return 0;
+	return common_method_finalize_(gen);
 }
 

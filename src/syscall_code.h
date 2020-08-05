@@ -23,12 +23,12 @@ _g int next_package_iterator_syscode_(Execute ptr, addr pos,
 _g int defpackage_syscode(Execute ptr, addr rest, addr *ret);
 _g int do_symbols_syscode(Execute ptr, addr call, addr package);
 _g int do_external_symbols_syscode(Execute ptr, addr call, addr package);
-_g int do_all_symbols_syscode(Execute ptr, addr call);
+_g int do_all_symbols_syscode_(Execute ptr, addr call);
 _g void getdoc_variable_syscode(addr var, addr *ret);
 _g void setdoc_variable_syscode(addr var, addr value);
 _g void specialp_syscode(addr var, addr *ret);
-_g void ecase_error_syscode(addr value, addr list);
-_g void etypecase_error_syscode(addr value, addr list);
+_g int ecase_error_syscode_(Execute ptr, addr value, addr list);
+_g int etypecase_error_syscode_(Execute ptr, addr value, addr list);
 _g void define_setf_expander_syscode(addr symbol, addr call);
 _g int defsetf_short_syscode(Execute ptr,
 		addr access, addr update, addr args, addr env,
@@ -77,8 +77,8 @@ _g int pprint_check_syscode(Execute ptr, addr stream);
 _g int pprint_close_syscode(Execute ptr, addr stream);
 _g int pprint_pretty_syscode(Execute ptr, addr stream, addr call);
 _g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret);
-_g void eastasian_get_syscode(addr var, addr *ret1, addr *ret2);
-_g void eastasian_width_syscode(addr pos, addr *ret1, addr *ret2);
+_g int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2);
+_g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2);
 _g void timeinfo_syscode(LocalRoot local,
 		addr *rreal, addr *rrun, addr *rsize, addr *rcount);
 _g int ed_function_syscode_(Execute ptr, addr file);

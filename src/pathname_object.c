@@ -311,7 +311,7 @@ static int wild_pathname_string_(addr pos, int *ret)
 		return Result(ret, 0);
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (c == '*' || c == '?')
 			return Result(ret, 1);
 	}
@@ -399,8 +399,8 @@ static int wildcard_character_pathname_(
 		return Result(ret, 1);
 	if (n1 == s1 || n2 == s2)
 		return Result(ret, 0);
-	string_getc(p1, n1, &c1);
-	string_getc(p2, n2, &c2);
+	Return(string_getc_(p1, n1, &c1));
+	Return(string_getc_(p2, n2, &c2));
 	/* (a ?) -> next */
 	if (c2 == '?')
 		return wildcard_character_pathname_(p1,n1+1,s1,  p2,n2+1,s2,  ret);
@@ -428,7 +428,7 @@ static int wildcard_string_p_(addr pos, int *ret)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (c == '*' || c == '?')
 			return Result(ret, 1);
 	}

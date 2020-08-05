@@ -354,7 +354,7 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 	Return(print_ascii_stream_(stream, "#<"));
 	/* type */
 	if (type) {
-		type_value(&value, pos);
+		Return(type_value_(&value, pos));
 		Return(type_object_(&value, value));
 		Return(princ_print(ptr, stream, value));
 		first = 0;

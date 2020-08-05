@@ -276,44 +276,44 @@ _g int slot_instance_p(addr pos);
 _g void clos_set_funcall(addr pos);
 _g void slot_set_class(addr pos);
 _g void slot_set_instance(addr pos);
-_g void slot_set_allocation(addr pos, addr value);
+_g int slot_set_allocation_(addr pos, addr value);
 
 _g int clos_errorp(addr pos, size_t index, constindex name);
 _g int clos_getp(addr pos, addr key, addr *ret);
 _g int clos_setp(addr pos, addr key, addr value);
-_g int clos_checkp(addr pos, addr key, addr *ret);
-_g void clos_get(addr pos, addr key, addr *ret);
-_g void clos_set(addr pos, addr key, addr value);
-_g void clos_check(addr pos, addr key, addr *ret);
+_g int clos_checkp_(addr pos, addr key, addr *value, int *ret);
+_g int clos_get_(addr pos, addr key, addr *ret);
+_g int clos_set_(addr pos, addr key, addr value);
+_g int clos_check_(addr pos, addr key, addr *ret);
 _g void clos_getelt(addr pos, size_t index, addr *ret);
 _g void clos_setelt(addr pos, size_t index, addr value);
-_g void clos_checkelt(addr pos, size_t index, addr *ret);
+_g int clos_checkelt_(addr pos, size_t index, addr *ret);
 
-_g void clos_getconst(addr pos, constindex index, addr *ret);
-_g void clos_setconst(addr pos, constindex index, addr value);
-_g void clos_checkconst(addr pos, constindex index, addr *ret);
-#define ClosGetConst(p,n,r) clos_getconst((p),CONSTANT_##n,(r))
-#define ClosSetConst(p,n,v) clos_setconst((p),CONSTANT_##n,(v))
-#define ClosCheckConst(p,n,r) clos_checkconst((p),CONSTANT_##n,(r))
+_g int clos_getconst_(addr pos, constindex index, addr *ret);
+_g int clos_setconst_(addr pos, constindex index, addr value);
+_g int clos_checkconst_(addr pos, constindex index, addr *ret);
+#define ClosGetConst_(p,n,r) clos_getconst_((p),CONSTANT_##n,(r))
+#define ClosSetConst_(p,n,v) clos_setconst_((p),CONSTANT_##n,(v))
+#define ClosCheckConst(p,n,r) clos_checkconst_((p),CONSTANT_##n,(r))
 
 /* check */
 _g int clos_slot_exists_p(addr pos, addr name);
 _g int clos_slot_boundp_nil(addr pos, addr name);
-_g int clos_slot_boundp(addr pos, addr name);
-_g int clos_slot_makunbound_nil(addr pos, addr name);
-_g void clos_slot_makunbound(addr pos, addr name);
+_g int clos_slot_boundp_(addr pos, addr name, int *ret);
+_g int clos_slot_makunbound_nil_(addr pos, addr name, int *ret);
+_g int clos_slot_makunbound_(addr pos, addr name);
 
 /* talbe */
 _g void clos_find_class_nil(addr name, addr *ret);
-_g void clos_find_class(addr name, addr *ret);
+_g int clos_find_class_(addr name, addr *ret);
 _g void clos_define_class(addr name, addr value);
 
 _g void clos_find_generic_nil(addr name, addr *ret);
-_g void clos_find_generic(addr name, addr *ret);
+_g int clos_find_generic_(addr name, addr *ret);
 _g void clos_define_generic(addr name, addr value);
 
 _g void clos_find_combination_nil(addr name, addr *ret);
-_g void clos_find_combination(addr name, addr *ret);
+_g int clos_find_combination_(addr name, addr *ret);
 _g void clos_define_combination(addr name, addr value);
 
 _g int clos_find_specializer_nil_(addr name, addr *ret);

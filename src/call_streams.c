@@ -266,7 +266,7 @@ _g int read_sequence_common(addr var, addr stream, addr rest, addr *ret)
 {
 	size_t start, end;
 
-	start = length_sequence(var, 0);
+	Return(length_sequence_(var, 0, &start));
 	Return(keyword_start_end_(start, rest, &start, &end));
 	return read_sequence_stream(ret, var, stream, start, end);
 }
@@ -279,7 +279,7 @@ _g int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest)
 {
 	size_t start, end;
 
-	start = length_sequence(var, 0);
+	Return(length_sequence_(var, 0, &start));
 	Return(keyword_start_end_(start, rest, &start, &end));
 	Return(write_sequence_stream(local, var, stream, start, end));
 	return exitpoint_stream_(stream);
@@ -535,82 +535,100 @@ static int open_common_ifdoesnot(addr value,
 	return fmte_("Invalid :if-does-not-exist value ~S.", value, NULL);
 }
 
-static int open_common_string(addr value, const char *str1, const char *str2)
+static int open_common_string_(addr value, const char *str1, const char *str2, int *ret)
 {
+	int check;
+
 	if (symbolp(value))
 		GetNameSymbol(value, &value);
 	if (! stringp(value))
-		return 0;
-	if (string_equalp_char(value, str1))
-		return 1;
+		return Result(ret, 0);
+	Return(string_equalp_char_(value, str1, &check));
+	if (check)
+		return Result(ret, 1);
 	if (str2 == NULL)
-		return 0;
-	return string_equalp_char(value, str2);
+		return Result(ret, 0);
+
+	return string_equalp_char_(value, str2, ret);
 }
 
 static int open_common_external(addr value, enum Stream_Open_External *ret)
 {
-	addr check;
+	int check;
+	addr right;
 
 	/* default */
 	if (value == Unbound)
 		return Result(ret, Stream_Open_External_Utf8);
 
 	/* :default */
-	GetConst(KEYWORD_DEFAULT, &check);
-	if (value == check)
+	GetConst(KEYWORD_DEFAULT, &right);
+	if (value == right)
 		return Result(ret, Stream_Open_External_Default);
 
 	/* ascii */
-	if (open_common_string(value, "ASC", "ASCII"))
+	Return(open_common_string_(value, "ASC", "ASCII", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Ascii);
 
 	/* utf8 */
-	if (open_common_string(value, "UTF8", "UTF-8"))
+	Return(open_common_string_(value, "UTF8", "UTF-8", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf8);
 
 	/* utf8-bom */
-	if (open_common_string(value, "UTF8BOM", "UTF-8-BOM"))
+	Return(open_common_string_(value, "UTF8BOM", "UTF-8-BOM", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf8Bom);
 
 	/* utf16 */
-	if (open_common_string(value, "UTF16", "UTF-16"))
+	Return(open_common_string_(value, "UTF16", "UTF-16", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf16);
 
 	/* utf16le */
-	if (open_common_string(value, "UTF16LE", "UTF-16LE"))
+	Return(open_common_string_(value, "UTF16LE", "UTF-16LE", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf16Le);
 
 	/* utf16be */
-	if (open_common_string(value, "UTF16BE", "UTF-16BE"))
+	Return(open_common_string_(value, "UTF16BE", "UTF-16BE", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf16Be);
 
 	/* utf16le-bom */
-	if (open_common_string(value, "UTF16LEBOM", "UTF-16LE-BOM"))
+	Return(open_common_string_(value, "UTF16LEBOM", "UTF-16LE-BOM", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf16LeBom);
 
 	/* utf16be-bom */
-	if (open_common_string(value, "UTF16BEBOM", "UTF-16BE-BOM"))
+	Return(open_common_string_(value, "UTF16BEBOM", "UTF-16BE-BOM", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf16BeBom);
 
 	/* utf32 */
-	if (open_common_string(value, "UTF32", "UTF-32"))
+	Return(open_common_string_(value, "UTF32", "UTF-32", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf32);
 
 	/* utf32le */
-	if (open_common_string(value, "UTF32LE", "UTF-32LE"))
+	Return(open_common_string_(value, "UTF32LE", "UTF-32LE", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf32Le);
 
 	/* utf32be */
-	if (open_common_string(value, "UTF32BE", "UTF-32BE"))
+	Return(open_common_string_(value, "UTF32BE", "UTF-32BE", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf32Be);
 
 	/* utf32le-bom */
-	if (open_common_string(value, "UTF32LEBOM", "UTF-32LE-BOM"))
+	Return(open_common_string_(value, "UTF32LEBOM", "UTF-32LE-BOM", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf32LeBom);
 
 	/* utf32be-bom */
-	if (open_common_string(value, "UTF32BEBOM", "UTF-32BE-BOM"))
+	Return(open_common_string_(value, "UTF32BEBOM", "UTF-32BE-BOM", &check));
+	if (check)
 		return Result(ret, Stream_Open_External_Utf32BeBom);
 
 	/* others */

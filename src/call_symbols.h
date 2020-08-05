@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 _g void make_symbol_common(addr var, addr *ret);
-_g void copy_symbol_common(addr var, addr opt, addr *ret);
+_g int copy_symbol_common_(addr var, addr opt, addr *ret);
 _g int gensym_common(Execute ptr, addr opt, addr *ret);
 _g int gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret);
 _g int setf_symbol_function_common(addr value, addr symbol);

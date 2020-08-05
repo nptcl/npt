@@ -49,6 +49,7 @@ _g int cache_equal_function_(addr right1, addr right2, int *ret)
 _g int cache_equal_debug(addr left, addr right)
 {
 	int check;
+	check = 0;
 	Error(cache_equal_function_(left, right, &check));
 	return check;
 }

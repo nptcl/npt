@@ -19,7 +19,7 @@ struct bitmemory_struct {
 /* bit */
 _g int bitp(addr pos);
 _g int bit_getint(addr pos, int *ret);
-_g void bit_getint_error(addr pos, int *ret);
+_g int bit_getint_error_(addr pos, int *ret);
 
 /* bitmemory */
 _g void bitcons_local(LocalRoot local, addr *ret, size_t bitsize);
@@ -44,21 +44,23 @@ _g void bitmemory_copy_unsafe(addr pos, addr refer, size_t bitsize);
 _g void bitmemory_length(addr pos, size_t *ret);
 _g int bitmemory_equal_length(addr pos1, addr pos2);
 _g int bitmemory_equal(addr left, addr right);
-_g int bitmemory_refint(addr pos, size_t index);
-_g void bitmemory_getint(addr pos, size_t index, int *ret);
-_g void bitmemory_setint(addr pos, size_t index, int value);
-_g void bitmemory_get(LocalRoot local, addr pos, size_t index, addr *ret);
-_g void bitmemory_set(addr pos, size_t index, addr value);
-_g void bitmemory_aref(LocalRoot local, addr pos, addr args, addr *ret);
-_g void bitmemory_setf_aref(addr pos, addr args, addr value);
+_g int bitmemory_refint_debug(addr pos, size_t index);
+_g void bitmemory_getint_unsafe(addr pos, size_t index, int *ret);
+_g void bitmemory_setint_unsafe(addr pos, size_t index, int value);
+_g int bitmemory_getint_(addr pos, size_t index, int *ret);
+_g int bitmemory_setint_(addr pos, size_t index, int value);
+_g int bitmemory_get_(LocalRoot local, addr pos, size_t index, addr *ret);
+_g int bitmemory_set_(addr pos, size_t index, addr value);
+_g int bitmemory_aref_(LocalRoot local, addr pos, addr args, addr *ret);
+_g int bitmemory_setf_aref_(addr pos, addr args, addr value);
 _g void bitmemory_bitcalc(addr pos, addr pos1, addr pos2, bitcalc_call call);
 _g void bitmemory_bitnot(addr pos, addr pos1);
-_g void bitmemory_fill(addr pos, addr item, addr start, addr end);
-_g void bitmemory_subseq_index(addr *ret, addr pos, size_t index1, size_t index2);
-_g void bitmemory_subseq(addr *ret, addr pos, addr start, addr end);
-_g void bitmemory_setget(addr pos1, size_t index1, addr pos2, size_t index2);
-_g void bitmemory_reverse(LocalRoot local, addr *ret, addr pos);
-_g void bitmemory_nreverse(addr *ret, addr pos);
+_g int bitmemory_fill_(addr pos, addr item, addr start, addr end);
+_g int bitmemory_subseq_index_(addr *ret, addr pos, size_t index1, size_t index2);
+_g int bitmemory_subseq_(addr *ret, addr pos, addr start, addr end);
+_g int bitmemory_setget_(addr pos1, size_t index1, addr pos2, size_t index2);
+_g int bitmemory_reverse_(LocalRoot local, addr *ret, addr pos);
+_g int bitmemory_nreverse_(addr *ret, addr pos);
 
 /* bvarray */
 _g int array_bvarrayp(addr pos);
@@ -69,16 +71,14 @@ _g int simple_bvarrayp(addr pos);
 _g int simple_bitvectorp(addr pos);
 
 _g void bvarray_length(addr pos, size_t *ret);
-_g int bvarray_refint(addr pos, size_t index);
-_g void bvarray_getint(addr pos, size_t index, int *ret);
-_g void bvarray_setint(addr pos, size_t index, int value);
+_g int bvarray_getint_(addr pos, size_t index, int *ret);
+_g int bvarray_setint_(addr pos, size_t index, int value);
 
 /* bitvector */
-_g void bitvector_length(addr pos, size_t *ret);
-_g int bitvector_refint(addr pos, size_t index);
-_g void bitvector_getint(addr pos, size_t index, int *ret);
-_g void bitvector_setint(addr pos, size_t index, int value);
-_g int bitvector_equal(addr left, addr right);
+_g int bitvector_length_(addr pos, size_t *ret);
+_g int bitvector_getint_(addr pos, size_t index, int *ret);
+_g int bitvector_setint_(addr pos, size_t index, int value);
+_g int bitvector_equal_(addr left, addr right, int *ret);
 
 #endif
 

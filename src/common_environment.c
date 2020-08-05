@@ -31,7 +31,7 @@ static int function_decode_universal_time(Execute ptr, addr pos, addr zone)
 
 	if (zone == Unbound)
 		zone = Nil;
-	decode_universal_time_common(ptr->local, &u, pos, zone);
+	Return(decode_universal_time_common_(ptr->local, &u, pos, zone));
 	setvalues_control(ptr,
 			u.second, u.minute, u.hour,
 			u.date, u.month, u.year,
@@ -99,7 +99,7 @@ static int function_encode_universal_time(Execute ptr, addr rest)
 		z = Unbound;
 	if (consp(rest))
 		goto error;
-	encode_universal_time_common(ptr->local, &s, s, mi, h, d, m, y, z);
+	Return(encode_universal_time_common_(ptr->local, &s, s, mi, h, d, m, y, z));
 	setresult_control(ptr, s);
 	return 0;
 
@@ -184,7 +184,7 @@ static int function_get_decoded_time(Execute ptr)
 {
 	struct universal_time_struct u;
 
-	get_decoded_time_common(ptr->local, &u);
+	Return(get_decoded_time_common_(ptr->local, &u));
 	setvalues_control(ptr,
 			u.second, u.minute, u.hour,
 			u.date, u.month, u.year,
@@ -223,7 +223,7 @@ static void defun_get_decoded_time(void)
  */
 static int function_sleep(Execute ptr, addr var)
 {
-	sleep_common(ptr, var);
+	Return(sleep_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }

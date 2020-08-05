@@ -20,7 +20,8 @@ _g int bitp(addr pos)
 {
 	fixnum value;
 
-	if (GetType(pos) != LISPTYPE_FIXNUM) return 0;
+	if (GetType(pos) != LISPTYPE_FIXNUM)
+		return 0;
 	GetFixnum(pos, &value);
 
 	return value == 0 || value == 1;
@@ -30,18 +31,21 @@ _g int bit_getint(addr pos, int *ret)
 {
 	fixnum value;
 
-	if (GetType(pos) != LISPTYPE_FIXNUM) return 1;
+	if (GetType(pos) != LISPTYPE_FIXNUM)
+		return 1;
 	GetFixnum(pos, &value);
-	if (value != 0 && value != 1) return 1;
+	if (value != 0 && value != 1)
+		return 1;
 	*ret = (int)value;
 
 	return 0;
 }
 
-_g void bit_getint_error(addr pos, int *ret)
+_g int bit_getint_error_(addr pos, int *ret)
 {
 	if (bit_getint(pos, ret))
-		fmte("Bit value ~S must be a 0 or 1.", pos, NULL);
+		return fmte_("Bit value ~S must be a 0 or 1.", pos, NULL);
+	return 0;
 }
 
 
@@ -266,7 +270,8 @@ _g void bitmemory_char_heap(addr *ret, const char *str)
 	bitcons_local(local, &cons, 0);
 	for (;;) {
 		c = *str;
-		if (c == '\0') break;
+		if (c == '\0')
+			break;
 		Check(c != '0' && c != '1', "string error");
 		push_bitcons(local, cons, (int)(c - '0'));
 		str++;
@@ -371,8 +376,8 @@ _g int bitmemory_equal(addr pos1, addr pos2)
 			return 0;
 	}
 	for (i = quot * FixedBit; i < size; i++) {
-		bitmemory_getint(pos1, i, &check1);
-		bitmemory_getint(pos2, i, &check2);
+		bitmemory_getint_unsafe(pos1, i, &check1);
+		bitmemory_getint_unsafe(pos2, i, &check2);
 		if (check1 != check2)
 			return 0;
 	}
@@ -380,7 +385,15 @@ _g int bitmemory_equal(addr pos1, addr pos2)
 	return 1;
 }
 
-_g int bitmemory_refint(addr pos, size_t index)
+_g int bitmemory_refint_debug(addr pos, size_t index)
+{
+	int check;
+	check = 0;
+	Error(bitmemory_getint_(pos, index, &check));
+	return check;
+}
+
+_g void bitmemory_getint_unsafe(addr pos, size_t index, int *ret)
 {
 	struct bitmemory_struct *str;
 	size_t q, r;
@@ -389,15 +402,10 @@ _g int bitmemory_refint(addr pos, size_t index)
 	str = BitMemoryStruct(pos);
 	q = index / FixedBit;
 	r = index % FixedBit;
-	return (int)((str->data[q] >> r) & 0x01);
+	*ret = (int)((str->data[q] >> r) & 0x01);
 }
 
-_g void bitmemory_getint(addr pos, size_t index, int *ret)
-{
-	*ret = bitmemory_refint(pos, index);
-}
-
-_g void bitmemory_setint(addr pos, size_t index, int value)
+_g void bitmemory_setint_unsafe(addr pos, size_t index, int value)
 {
 	struct bitmemory_struct *str;
 	size_t q, r;
@@ -412,68 +420,105 @@ _g void bitmemory_setint(addr pos, size_t index, int value)
 		str->data[q] &= ~(((fixed)1UL) << r);
 }
 
-_g void bitmemory_get(LocalRoot local, addr pos, size_t index, addr *ret)
+_g int bitmemory_getint_(addr pos, size_t index, int *ret)
+{
+	size_t size;
+
+	CheckType(pos, LISPTYPE_BITVECTOR);
+	bitmemory_length(pos, &size);
+	if (size <= index) {
+		*ret = 0;
+		return fmte_("Out of range ~S.", intsizeh(index), NULL);
+	}
+	bitmemory_getint_unsafe(pos, index, ret);
+
+	return 0;
+}
+
+_g int bitmemory_setint_(addr pos, size_t index, int value)
+{
+	size_t size;
+
+	bitmemory_length(pos, &size);
+	if (size <= index)
+		return fmte_("Out of range ~S.", intsizeh(index), NULL);
+	bitmemory_setint_unsafe(pos, index, value);
+
+	return 0;
+}
+
+_g int bitmemory_get_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	int check;
 	size_t size;
 
 	CheckType(pos, LISPTYPE_BITVECTOR);
 	bitmemory_length(pos, &size);
-	if (size <= index)
-		fmte("Out of range ~S.", intsizeh(index), NULL);
-	bitmemory_getint(pos, index, &check);
+	if (size <= index) {
+		*ret = Nil;
+		return fmte_("Out of range ~S.", intsizeh(index), NULL);
+	}
+	bitmemory_getint_unsafe(pos, index, &check);
 	fixnum_alloc(local, ret, check? 1: 0);
+
+	return 0;
 }
 
-_g void bitmemory_aref(LocalRoot local, addr pos, addr args, addr *ret)
+_g int bitmemory_aref_(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	addr arg;
 	size_t index;
 
 	CheckType(pos, LISPTYPE_BITVECTOR);
-	if (! consp(args))
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+	if (! consp(args)) {
+		*ret = Nil;
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
+	}
 	GetCons(args, &arg, &args);
-	if (args != Nil)
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
-	if (GetIndex_integer(arg, &index))
-		fmte("Invalid index arg ~S.", arg, NULL);
-	bitmemory_get(local, pos, index, ret);
+	if (args != Nil) {
+		*ret = Nil;
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
+	}
+	if (GetIndex_integer(arg, &index)) {
+		*ret = Nil;
+		return fmte_("Invalid index arg ~S.", arg, NULL);
+	}
+
+	return bitmemory_get_(local, pos, index, ret);
 }
 
-_g void bitmemory_set(addr pos, size_t index, addr value)
+_g int bitmemory_set_(addr pos, size_t index, addr value)
 {
 	int check;
 	size_t size;
 
-	if (bit_getint(value, &check)) {
-		fmte("The argument ~S must be bit type.", value, NULL);
-		return;
-	}
+	if (bit_getint(value, &check))
+		return fmte_("The argument ~S must be bit type.", value, NULL);
 	bitmemory_length(pos, &size);
-	if (size <= index) {
-		fmte("Out of range ~S.", intsizeh(index), NULL);
-		return;
-	}
-	bitmemory_setint(pos, index, check);
+	if (size <= index)
+		return fmte_("Out of range ~S.", intsizeh(index), NULL);
+	bitmemory_setint_unsafe(pos, index, check);
+
+	return 0;
 }
 
-_g void bitmemory_setf_aref(addr pos, addr args, addr value)
+_g int bitmemory_setf_aref_(addr pos, addr args, addr value)
 {
 	addr arg;
 	size_t index;
 
 	CheckType(pos, LISPTYPE_BITVECTOR);
 	if (GetStatusReadOnly(pos))
-		fmte("The object ~S is constant.", pos, NULL);
+		return fmte_("The object ~S is constant.", pos, NULL);
 	if (! consp(args))
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		return fmte_("AREF argument ~S must be (integer) form.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		fmte("Invalid index arg ~S.", arg, NULL);
-	bitmemory_set(pos, index, value);
+		return fmte_("Invalid index arg ~S.", arg, NULL);
+
+	return bitmemory_set_(pos, index, value);
 }
 
 _g void bitmemory_bitcalc(addr pos, addr pos1, addr pos2, bitcalc_call call)
@@ -492,7 +537,7 @@ _g void bitmemory_bitcalc(addr pos, addr pos1, addr pos2, bitcalc_call call)
 	data1 = str1->data;
 	data2 = str2->data;
 	for (i = 0; i < size; i++)
-		data[i] = call(data1[i], data2[i]);
+		data[i] = (*call)(data1[i], data2[i]);
 }
 
 _g void bitmemory_bitnot(addr pos, addr pos1)
@@ -511,54 +556,58 @@ _g void bitmemory_bitnot(addr pos, addr pos1)
 		data[i] = ~(data1[i]);
 }
 
-_g void bitmemory_fillbit(addr pos, int value, size_t index1, size_t index2)
+static int bitmemory_fillbit_(addr pos, int value, size_t index1, size_t index2)
 {
-	for (; index1 < index2; index1++)
-		bitmemory_setint(pos, index1, value);
+	for (; index1 < index2; index1++) {
+		Return(bitmemory_setint_(pos, index1, value));
+	}
+
+	return 0;
 }
 
-_g void bitmemory_fillset(addr pos, int value, size_t index1, size_t index2)
+static int bitmemory_fillset_(addr pos, int value, size_t index1, size_t index2)
 {
 	size_t byte1, byte2, check;
 	byte *data;
 
 	byte1 = index1 / 8UL;
 	byte2 = index2 / 8UL;
-	if (byte1 == byte2) {
-		bitmemory_fillbit(pos, value, index1, index2);
-		return;
-	}
+	if (byte1 == byte2)
+		return bitmemory_fillbit_(pos, value, index1, index2);
 
 	/* front */
 	check = byte1 * 8UL;
-	if (check != index1)
-		bitmemory_fillbit(pos, value, index1, check + 8UL);
+	if (check != index1) {
+		Return(bitmemory_fillbit_(pos, value, index1, check + 8UL));
+	}
 
 	/* tail */
 	check = byte2 * 8UL;
-	if (check != index2)
-		bitmemory_fillbit(pos, value, check, index2);
+	if (check != index2) {
+		Return(bitmemory_fillbit_(pos, value, check, index2));
+	}
 
 	/* byte */
 	data = (byte *)BitMemoryStruct(pos)->data;
 	memset(data + byte1, value? 0xFF: 0x00, byte2 - byte1 - 1);
+
+	return 0;
 }
 
-_g void bitmemory_fill(addr pos, addr item, addr start, addr end)
+_g int bitmemory_fill_(addr pos, addr item, addr start, addr end)
 {
 	int value;
 	size_t index1, index2;
 
-	if (bit_getint(item, &value)) {
-		fmte("FILL item ~S must be a bit (0 or 1 integer).", item, NULL);
-		return;
-	}
+	if (bit_getint(item, &value))
+		return fmte_("FILL item ~S must be a bit (0 or 1 integer).", item, NULL);
+
 	bitmemory_length(pos, &index1);
-	size_start_end_sequence(start, end, index1, &index1, &index2);
-	bitmemory_fillset(pos, value, index1, index2);
+	Return(size_start_end_sequence_(start, end, index1, &index1, &index2, NULL));
+	return bitmemory_fillset_(pos, value, index1, index2);
 }
 
-_g void bitmemory_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
+_g int bitmemory_subseq_index_(addr *ret, addr pos, size_t index1, size_t index2)
 {
 	int value;
 	addr root;
@@ -567,30 +616,33 @@ _g void bitmemory_subseq_index(addr *ret, addr pos, size_t index1, size_t index2
 	bitmemory_unsafe(NULL, &root, index2 - index1);
 	/* too slow */
 	for (i = 0; index1 < index2; index1++, i++) {
-		bitmemory_getint(pos, index1, &value);
-		bitmemory_setint(root, i, value);
+		Return(bitmemory_getint_(pos, index1, &value));
+		Return(bitmemory_setint_(root, i, value));
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
-_g void bitmemory_subseq(addr *ret, addr pos, addr start, addr end)
+_g int bitmemory_subseq_(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 
 	bitmemory_length(pos, &index1);
-	size_start_end_sequence(start, end, index1, &index1, &index2);
-	bitmemory_subseq_index(ret, pos, index1, index2);
+	Return(size_start_end_sequence_(start, end, index1, &index1, &index2, NULL));
+	return bitmemory_subseq_index_(ret, pos, index1, index2);
 }
 
-_g void bitmemory_setget(addr pos1, size_t index1, addr pos2, size_t index2)
+_g int bitmemory_setget_(addr pos1, size_t index1, addr pos2, size_t index2)
 {
 	int value;
 
-	bitmemory_getint(pos2, index2, &value);
-	bitmemory_setint(pos1, index1, value);
+	Return(bitmemory_getint_(pos2, index2, &value));
+	Return(bitmemory_setint_(pos1, index1, value));
+
+	return 0;
 }
 
-_g void bitmemory_reverse(LocalRoot local, addr *ret, addr pos)
+_g int bitmemory_reverse_(LocalRoot local, addr *ret, addr pos)
 {
 	int temp;
 	addr one;
@@ -600,30 +652,33 @@ _g void bitmemory_reverse(LocalRoot local, addr *ret, addr pos)
 	bitmemory_unsafe(local, &one, size);
 	for (x = 0; x < size; x++) {
 		y = size - x - 1;
-		bitmemory_getint(pos, x, &temp);
-		bitmemory_setint(one, y, temp);
+		Return(bitmemory_getint_(pos, x, &temp));
+		Return(bitmemory_setint_(one, y, temp));
 	}
-	*ret = one;
+
+	return Result(ret, one);
 }
 
-_g void bitmemory_nreverse(addr *ret, addr pos)
+_g int bitmemory_nreverse_(addr *ret, addr pos)
 {
 	int a, b;
 	size_t size, x, y;
 
 	bitmemory_length(pos, &size);
-	if (size <= 1) return;
+	if (size <= 1)
+		return 0;
 	x = 0;
 	y = size - 1;
 	while (x < y) {
-		bitmemory_getint(pos, x, &a);
-		bitmemory_getint(pos, y, &b);
-		bitmemory_setint(pos, x, b);
-		bitmemory_setint(pos, y, a);
+		Return(bitmemory_getint_(pos, x, &a));
+		Return(bitmemory_getint_(pos, y, &b));
+		Return(bitmemory_setint_(pos, x, b));
+		Return(bitmemory_setint_(pos, y, a));
 		x++;
 		y--;
 	}
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 
@@ -640,7 +695,8 @@ _g int array_bvarrayp(addr pos)
 
 _g int bvarrayp(addr pos)
 {
-	if (GetType(pos) != LISPTYPE_ARRAY) return 0;
+	if (GetType(pos) != LISPTYPE_ARRAY)
+		return 0;
 	return array_bvarrayp(pos);
 }
 
@@ -659,7 +715,8 @@ _g int simple_array_bvarrayp(addr pos)
 
 _g int simple_bvarrayp(addr pos)
 {
-	if (GetType(pos) != LISPTYPE_ARRAY) return 0;
+	if (GetType(pos) != LISPTYPE_ARRAY)
+		return 0;
 	return simple_array_bvarrayp(pos);
 }
 
@@ -675,82 +732,66 @@ _g void bvarray_length(addr pos, size_t *ret)
 	*ret = ArrayInfoStruct(pos)->front;
 }
 
-_g int bvarray_refint(addr pos, size_t index)
+_g int bvarray_getint_(addr pos, size_t index, int *ret)
 {
 	int check;
 
-	if (ArrayInfoStruct(pos)->front <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	array_get_bit(pos, index, &check);
-	return check;
+	if (ArrayInfoStruct(pos)->front <= index) {
+		*ret = 0;
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	}
+	Return(array_get_bit_(pos, index, &check));
+	return Result(ret, check);
 }
 
-_g void bvarray_getint(addr pos, size_t index, int *ret)
-{
-	*ret = bvarray_refint(pos, index);
-}
-
-_g void bvarray_setint(addr pos, size_t index, int value)
+_g int bvarray_setint_(addr pos, size_t index, int value)
 {
 	if (ArrayInfoStruct(pos)->front <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	array_set_bit(pos, index, value);
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	return array_set_bit_(pos, index, value);
 }
 
 
 /*
  *  bitvector
  */
-_g void bitvector_length(addr pos, size_t *ret)
+_g int bitvector_length_(addr pos, size_t *ret)
 {
 	if (bitmemoryp(pos)) {
 		bitmemory_length(pos, ret);
-		return;
+		return 0;
 	}
 	if (bvarrayp(pos)) {
 		bvarray_length(pos, ret);
-		return;
+		return 0;
 	}
-	fmte("type error", NULL);
+	return fmte_("type error", NULL);
 }
 
-_g int bitvector_refint(addr pos, size_t index)
+_g int bitvector_getint_(addr pos, size_t index, int *ret)
 {
 	if (bitmemoryp(pos))
-		return bitmemory_refint(pos, index);
+		return bitmemory_getint_(pos, index, ret);
+
 	if (bvarrayp(pos))
-		return bvarray_refint(pos, index);
-	fmte("type error", NULL);
-	return 0;
+		return bvarray_getint_(pos, index, ret);
+
+	*ret = 0;
+	return fmte_("type error", NULL);
 }
 
-_g void bitvector_getint(addr pos, size_t index, int *ret)
+_g int bitvector_setint_(addr pos, size_t index, int value)
 {
-	if (bitmemoryp(pos)) {
-		bitmemory_getint(pos, index, ret);
-		return;
-	}
-	if (bvarrayp(pos)) {
-		bvarray_getint(pos, index, ret);
-		return;
-	}
-	fmte("type error", NULL);
+	if (bitmemoryp(pos))
+		return bitmemory_setint_(pos, index, value);
+
+	if (bvarrayp(pos))
+		return bvarray_setint_(pos, index, value);
+
+	return fmte_("type error", NULL);
 }
 
-_g void bitvector_setint(addr pos, size_t index, int value)
-{
-	if (bitmemoryp(pos)) {
-		bitmemory_setint(pos, index, value);
-		return;
-	}
-	if (bvarrayp(pos)) {
-		bvarray_setint(pos, index, value);
-		return;
-	}
-	fmte("type error", NULL);
-}
-
-static int bitmemory_array_equal(addr left, addr right)
+static int bitmemory_array_equal(addr left, addr right, int *ret)
 {
 	int check1, check2;
 	size_t size, i;
@@ -760,18 +801,18 @@ static int bitmemory_array_equal(addr left, addr right)
 	bitmemory_length(left, &size);
 	bvarray_length(right, &i);
 	if (size != i)
-		return 0;
+		return Result(ret, 0);
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(left, i, &check1);
-		bvarray_getint(right, i, &check2);
+		Return(bitmemory_getint_(left, i, &check1));
+		Return(bvarray_getint_(right, i, &check2));
 		if (check1 != check2)
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int bvarray_array_equal(addr left, addr right)
+static int bvarray_array_equal(addr left, addr right, int *ret)
 {
 	int check1, check2;
 	size_t size, i;
@@ -781,34 +822,35 @@ static int bvarray_array_equal(addr left, addr right)
 	bvarray_length(left, &size);
 	bvarray_length(right, &i);
 	if (size != i)
-		return 0;
+		return Result(ret, 0);
 	for (i = 0; i < size; i++) {
-		bvarray_getint(left, i, &check1);
-		bvarray_getint(right, i, &check2);
+		Return(bvarray_getint_(left, i, &check1));
+		Return(bvarray_getint_(right, i, &check2));
 		if (check1 != check2)
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int bitvector_equal(addr left, addr right)
+_g int bitvector_equal_(addr left, addr right, int *ret)
 {
 	Check(! bitvectorp(left), "type left error");
 	Check(! bitvectorp(right), "type right error");
 	if (bitmemoryp(left)) {
 		if (bitmemoryp(right))
-			return bitmemory_equal(left, right);
+			return Result(ret, bitmemory_equal(left, right));
 		if (bvarrayp(right))
-			return bitmemory_array_equal(left, right);
+			return bitmemory_array_equal(left, right, ret);
 	}
 	if (bvarrayp(left)) {
 		if (bitmemoryp(right))
-			return bitmemory_array_equal(right, left);
+			return bitmemory_array_equal(right, left, ret);
 		if (bvarrayp(right))
-			return bvarray_array_equal(left, right);
+			return bvarray_array_equal(left, right, ret);
 	}
-	fmte("type error", NULL);
-	return 0;
+
+	*ret = 0;
+	return fmte_("type error", NULL);
 }
 

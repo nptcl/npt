@@ -139,26 +139,6 @@ _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
 	*ret = cons;
 }
 
-static void getnthcdr(addr cons, size_t index, addr *ret)
-{
-	for (; index; index--) {
-		if (cons == Nil)
-			break;
-		getcdr(cons, &cons);
-	}
-	*ret = cons;
-}
-
-_g void setnth(addr cons, size_t index, addr value)
-{
-	addr cdr;
-
-	getnthcdr(cons, index, &cdr);
-	if (! consp(cdr))
-		fmte("Cannot (setf nth) ~S.", cons, NULL);
-	SetCar(cdr, value);
-}
-
 _g int setnth_(addr cons, size_t index, addr value)
 {
 	addr cdr;
@@ -183,19 +163,6 @@ _g void setnth_unsafe(addr cons, size_t index, addr value)
 /*
  *  length
  */
-_g size_t length_list_safe(addr list)
-{
-	size_t size;
-
-	for (size = 0; list != Nil; size++) {
-		if (GetType(list) != LISPTYPE_CONS)
-			fmte("cdr position must be a list type.", NULL);
-		GetCdr(list, &list);
-	}
-
-	return size;
-}
-
 _g size_t length_list_unsafe(addr list)
 {
 	size_t size;
@@ -205,6 +172,36 @@ _g size_t length_list_unsafe(addr list)
 	}
 
 	return size;
+}
+
+_g size_t length_list_safe(addr list)
+{
+	size_t size;
+
+	for (size = 0; list != Nil; size++) {
+		if (GetType(list) != LISPTYPE_CONS) {
+			fmte("cdr position must be a list type.", NULL);
+			return 0;
+		}
+		GetCdr(list, &list);
+	}
+
+	return size;
+}
+
+_g int length_list_safe_(addr list, size_t *ret)
+{
+	size_t size;
+
+	for (size = 0; list != Nil; size++) {
+		if (GetType(list) != LISPTYPE_CONS) {
+			*ret = 0;
+			return fmte_("cdr position must be a list type.", NULL);
+		}
+		GetCdr(list, &list);
+	}
+
+	return Result(ret, size);
 }
 
 _g int length_list_p(addr list, size_t *ret)

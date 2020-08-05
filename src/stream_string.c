@@ -174,7 +174,7 @@ static int read_char_StringInput(addr stream, unicode *c, int *ret)
 		if (input->size <= input->index)
 			return Result(ret, 1); /* EOF */
 		GetInfoStream(stream, &string);
-		string_getc(string, input->index++, c);
+		Return(string_getc_(string, input->index++, c));
 	}
 
 	return Result(ret, 0);
@@ -496,10 +496,12 @@ static int write_char_StringOutput_normal_(addr stream, unicode c)
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
 		return fmte_("stream is already closed.", NULL);
-	if (GetStatusDynamic(stream))
-		push_charqueue_local(Local_Thread, queue, c);
-	else
-		push_charqueue_heap(queue, c);
+	if (GetStatusDynamic(stream)) {
+		Return(push_charqueue_local_(Local_Thread, queue, c));
+	}
+	else {
+		Return(push_charqueue_heap_(queue, c));
+	}
 
 	/* terpri */
 	charleft_default_stream(stream, c);
@@ -516,7 +518,7 @@ static int write_char_StringOutput_extend_(addr stream, unicode c)
 	if (queue == Nil)
 		return fmte_("stream is already closed.", NULL);
 	character_heap(&value, c);
-	vector_push_extend_common(value, queue, Unbound, &value);
+	Return(vector_push_extend_common_(Execute_Thread, value, queue, Unbound, &value));
 
 	/* terpri */
 	charleft_default_stream(stream, c);

@@ -293,7 +293,7 @@ static int format_write_margin_(fmtprint print, addr string,
 	mincol = (size_t)mc;
 	colinc = (size_t)cl;
 	minpad = (size_t)mp;
-	eastasian_length(string, &size);
+	Return(eastasian_length_(string, &size, NULL));
 
 	/* output margin */
 	space = minpad;
@@ -2481,7 +2481,7 @@ static int format_call_Justification_vector1(struct format_justification *just)
 	local = just->local;
 	vector_local(local, &vector, 1);
 	strvect_local(local, &pos, 0);
-	vector_set(vector, 0, pos);
+	Return(vector_set_(vector, 0, pos));
 	just->vector = vector;
 	just->size = 1;
 	just->allsize = 0;
@@ -2645,9 +2645,9 @@ static int format_call_Justification_vector2(struct format_justification *just)
 			just->size = i;
 			break;
 		}
-		vector_set(vector, i, pos);
+		Return(vector_set_(vector, i, pos));
 		/* string */
-		eastasian_length(pos, &value);
+		Return(eastasian_length_(pos, &value, NULL));
 		allsize += value;
 	}
 	print->loop = 1;
@@ -2735,7 +2735,7 @@ static int format_call_Justification_output_(struct format_justification *just)
 		if (i) {
 			Return(format_call_Justification_space_(just, index++));
 		}
-		vector_get(just->vector, i, &pos);
+		Return(vector_get_(just->vector, i, &pos));
 		Return(fmtprint_string_(just->print, pos));
 	}
 	/* suffix */
@@ -2971,28 +2971,29 @@ static int format_logicalblock1(Execute ptr)
 	return free_control_(ptr, control);
 }
 
-static size_t format_make_strvect_alloc(LocalRoot local, addr *ret, byte *ptr)
+static int format_make_strvect_alloc_(LocalRoot local,
+		addr *value, byte *ptr, size_t *ret)
 {
 	unicode *data;
 	size_t size;
 
 	size = *(size_t *)ptr;
 	data = (unicode *)(ptr + IdxSize);
-	strvect_sizeu_alloc(local, ret, data, size);
+	Return(strvect_sizeu_alloc_(local, value, data, size));
 
-	return IdxSize + size * sizeoft(unicode);
+	return Result(ret, IdxSize + size * sizeoft(unicode));
 }
-static size_t format_make_strvect_heap(addr *ret, byte *ptr)
+static int format_make_strvect_heap_(addr *value, byte *ptr, size_t *ret)
 {
-	return format_make_strvect_alloc(NULL, ret, ptr);
+	return format_make_strvect_alloc_(NULL, value, ptr, ret);
 }
 
-static void format_call_LogicalBlock_prefix(struct format_operator *str,
+static int format_call_LogicalBlock_prefix_(struct format_operator *str,
 		addr *rprefix, addr *rperline, addr *rsuffix, size_t *ret)
 {
 	byte *body;
 	addr prefix, perline, suffix;
-	size_t now;
+	size_t now, plus;
 
 	/* Initial value */
 	now = sizeoft(struct format_operator);
@@ -3008,7 +3009,8 @@ static void format_call_LogicalBlock_prefix(struct format_operator *str,
 	/* :prefix, :per-line-prefix */
 	body = (byte *)str;
 	if (str->prefix) {
-		now += format_make_strvect_heap(&prefix, body + now);
+		Return(format_make_strvect_heap_(&prefix, body + now, &plus));
+		now += plus;
 		/* perline */
 		if (str->option_check) {
 			perline = prefix;
@@ -3017,14 +3019,17 @@ static void format_call_LogicalBlock_prefix(struct format_operator *str,
 	}
 
 	/* :suffix */
-	if (str->suffix)
-		now += format_make_strvect_heap(&suffix, body + now);
+	if (str->suffix) {
+		Return(format_make_strvect_heap_(&suffix, body + now, &plus));
+		now += plus;
+	}
 
 	/* result */
 	*rprefix = prefix;
 	*rperline = perline;
 	*rsuffix = suffix;
 	*ret = now;
+	return 0;
 }
 
 static int format_call_LogicalBlock_lambda_(
@@ -3040,7 +3045,7 @@ static int format_call_LogicalBlock_lambda_(
 	/* make-pprint-stream */
 	ptr = print->ptr;
 	local = ptr->local;
-	format_call_LogicalBlock_prefix(str, &prefix, &perline, &suffix, &now);
+	Return(format_call_LogicalBlock_prefix_(str, &prefix, &perline, &suffix, &now));
 	gchold_pushva_local(local, prefix, perline, suffix, NULL);
 
 	/* object */
@@ -3240,10 +3245,12 @@ static int format_call_CallFunction_call_(fmtprint print,
 {
 	byte *ptr;
 	addr package, name;
+	size_t size;
 
 	ptr = (byte *)format_getargs(str, str->args_size);
-	ptr += format_make_strvect_heap(&package, ptr);
-	(void) format_make_strvect_heap(&name, ptr);
+	Return(format_make_strvect_heap_(&package, ptr, &size));
+	ptr += size;
+	Return(format_make_strvect_heap_(&name, ptr, &size));
 	return intern_package_(package, name, ret, NULL);
 }
 

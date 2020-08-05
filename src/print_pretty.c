@@ -588,7 +588,7 @@ static int pretty_write_string_(addr stream, addr pos, size_t *white)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (c == ' ') {
 			(*white)++;
 			continue;
@@ -672,26 +672,31 @@ static void pretty_push_newline(struct pretty_block *ptr)
 	pretty_push_object(ptr, Nil);
 }
 
-static void pretty_push_char(struct pretty_block *ptr, const char *str)
+static int pretty_push_char_(struct pretty_block *ptr, const char *str)
 {
 	addr pos;
 	size_t size;
 
 	strvect_char_heap(&pos, str);
 	pretty_push_object(ptr, pos);
-	eastasian_length(pos, &size);
+	Return(eastasian_length_(pos, &size, NULL));
 	ptr->now += size;
+
+	return 0;
 }
 
-static void pretty_push_string(struct pretty_block *ptr, addr pos, size_t *ret)
+static int pretty_push_string_(struct pretty_block *ptr, addr pos, size_t *ret)
 {
 	size_t size;
 
 	Check(! stringp(pos), "type error");
 	pretty_push_object(ptr, pos);
-	eastasian_length(pos, &size);
+	Return(eastasian_length_(pos, &size, NULL));
 	ptr->now += size;
-	if (ret) *ret = size;
+	if (ret)
+		*ret = size;
+
+	return 0;
 }
 
 static void pretty_push_size(struct pretty_block *ptr, size_t value)
@@ -710,7 +715,7 @@ static void pretty_push_index(struct pretty_block *ptr, addr pos)
 	ptr->now += value;
 }
 
-static void pretty_prefix_plus(addr pos, size_t *ret)
+static int pretty_prefix_plus_(addr pos, size_t *ret)
 {
 	addr x;
 	size_t size, value;
@@ -719,29 +724,29 @@ static void pretty_prefix_plus(addr pos, size_t *ret)
 	size = 0;
 	prefix_pretty_stream(pos, &x);
 	if (x != Nil) {
-		eastasian_length(x, &value);
+		Return(eastasian_length_(x, &value, NULL));
 		size += value;
 	}
 
 	/* sharp */
 	sharp_pretty_stream(pos, &x);
 	if (x != Nil) {
-		eastasian_length(x, &value);
+		Return(eastasian_length_(x, &value, NULL));
 		size += value;
 	}
 
 	/* per-line-prefix */
 	perline_pretty_stream(pos, &x);
 	if (x != Nil) {
-		eastasian_length(x, &value);
+		Return(eastasian_length_(x, &value, NULL));
 		size += value;
 	}
 
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void pretty_suffix_plus(addr pos, size_t *size)
+static int pretty_suffix_plus_(addr pos, size_t *size)
 {
 	addr x;
 	size_t value;
@@ -749,9 +754,11 @@ static void pretty_suffix_plus(addr pos, size_t *size)
 	*size = 0;
 	suffix_pretty_stream(pos, &x);
 	if (x != Nil) {
-		eastasian_length(x, &value);
+		Return(eastasian_length_(x, &value, NULL));
 		*size += value;
 	}
+
+	return 0;
 }
 
 static int pretty_tabular_plus_(struct pretty_block *ptr, addr pos, size_t *ret)
@@ -801,7 +808,7 @@ static int pretty_front_stream_(struct pretty_block *ptr,
 	/* prefix */
 	listp = listp_pretty_stream(pos);
 	if (listp) {
-		pretty_prefix_plus(pos, &value);
+		Return(pretty_prefix_plus_(pos, &value));
 		size += value;
 		ptr->now += value;
 	}
@@ -826,7 +833,7 @@ static int pretty_front_stream_(struct pretty_block *ptr,
 			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
-			eastasian_length(x, &value);
+			Return(eastasian_length_(x, &value, NULL));
 		}
 		else if (pretty_stream_p(x)) {
 			Return(pretty_front_stream_(ptr, x, &value, &check));
@@ -845,7 +852,7 @@ static int pretty_front_stream_(struct pretty_block *ptr,
 	}
 	/* suffix */
 	if (listp) {
-		pretty_suffix_plus(pos, &value);
+		Return(pretty_suffix_plus_(pos, &value));
 		size += value;
 		ptr->now += value;
 	}
@@ -882,7 +889,7 @@ static int pretty_front_newline_(struct pretty_block *ptr,
 			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
-			eastasian_length(x, &value);
+			Return(eastasian_length_(x, &value, NULL));
 		}
 		else if (pretty_stream_p(x)) {
 			Return(pretty_front_stream_(ptr, x, &value, &check));
@@ -916,7 +923,7 @@ static int pretty_tail_stream_(struct pretty_block *ptr,
 	/* prefix */
 	listp = listp_pretty_stream(pos);
 	if (listp) {
-		pretty_prefix_plus(pos, &value);
+		Return(pretty_prefix_plus_(pos, &value));
 		size += value;
 		ptr->now += value;
 	}
@@ -941,7 +948,7 @@ static int pretty_tail_stream_(struct pretty_block *ptr,
 			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
-			eastasian_length(x, &value);
+			Return(eastasian_length_(x, &value, NULL));
 		}
 		else if (pretty_stream_p(x)) {
 			Return(pretty_tail_stream_(ptr, x, &value, &check));
@@ -961,7 +968,7 @@ static int pretty_tail_stream_(struct pretty_block *ptr,
 	}
 	/* suffix */
 	if (listp) {
-		pretty_suffix_plus(pos, &value);
+		Return(pretty_suffix_plus_(pos, &value));
 		size += value;
 		ptr->now += value;
 	}
@@ -995,7 +1002,7 @@ static int pretty_tail_section_loop_(struct pretty_block *ptr,
 			Return(pretty_tabular_plus_(ptr, x, &value));
 		}
 		else if (stringp(x)) {
-			eastasian_length(x, &value);
+			Return(eastasian_length_(x, &value, NULL));
 		}
 		else if (pretty_stream_p(x)) {
 			Return(pretty_tail_stream_(ptr, x, &value, &check));
@@ -1012,7 +1019,7 @@ static int pretty_tail_section_loop_(struct pretty_block *ptr,
 		size += value;
 		ptr->now += value;
 	}
-	pretty_suffix_plus(ptr->pretty, &value);
+	Return(pretty_suffix_plus_(ptr->pretty, &value));
 	size += value;
 	ptr->now += value;
 	/* result */
@@ -1088,32 +1095,38 @@ static int pretty_output_perline_(struct pretty_block *ptr)
 
 	for (list = ptr->perline; list != Nil; ) {
 		GetCons(list, &x, &list);
-		if (stringp(x))
-			pretty_push_string(ptr, x, NULL);
-		else if (GetType(x) == LISPTYPE_INDEX)
+		if (stringp(x)) {
+			Return(pretty_push_string_(ptr, x, NULL));
+		}
+		else if (GetType(x) == LISPTYPE_INDEX) {
 			pretty_push_index(ptr, x);
-		else
+		}
+		else {
 			return fmte_("Invalid perline type ~S.", x, NULL);
+		}
 	}
 
 	return 0;
 }
 
-static int pretty_output_lines(struct pretty_block *ptr)
+static int pretty_output_lines_(struct pretty_block *ptr, int *ret)
 {
 	if (! ptr->print_lines_p)
-		return 0;
+		return Result(ret, 0);
 	ptr->lines++;
 	if (ptr->lines < ptr->print_lines)
-		return 0;
-	pretty_push_char(ptr, " ..");
+		return Result(ret, 0);
+	Return(pretty_push_char_(ptr, " .."));
 	ptr->break_lines_p = 1;
-	return 1;
+	return Result(ret, 1);
 }
 
 static int pretty_output_terpri_(struct pretty_block *ptr)
 {
-	if (pretty_output_lines(ptr))
+	int check;
+
+	Return(pretty_output_lines_(ptr, &check));
+	if (check)
 		return 0;
 	/* terpri */
 	pretty_push_terpri(ptr);
@@ -1135,7 +1148,10 @@ static int pretty_output_terpri_(struct pretty_block *ptr)
 
 static int pretty_output_newline_(struct pretty_block *ptr)
 {
-	if (pretty_output_lines(ptr))
+	int check;
+
+	Return(pretty_output_lines_(ptr, &check));
+	if (check)
 		return 0;
 	/* terpri */
 	pretty_push_newline(ptr);
@@ -1268,7 +1284,7 @@ static int pretty_output_(struct pretty_block *ptr)
 		/* list */
 		GetCons(list, &x, &list);
 		if (stringp(x)) {
-			pretty_push_string(ptr, x, NULL);
+			Return(pretty_push_string_(ptr, x, NULL));
 			continue;
 		}
 		if (pretty_print_linear_p(x)) {
@@ -1347,7 +1363,7 @@ static void pretty_push_perline_index(struct pretty_block *ptr, size_t size)
 	pretty_push_perline(ptr, pos);
 }
 
-static void pretty_prefix(struct pretty_block *ptr)
+static int pretty_prefix_(struct pretty_block *ptr)
 {
 	addr pos;
 	size_t size;
@@ -1358,36 +1374,41 @@ static void pretty_prefix(struct pretty_block *ptr)
 	/* per-line-prefix */
 	perline_pretty_stream(ptr->pretty, &pos);
 	if (pos != Nil) {
-		pretty_push_string(ptr, pos, NULL);
+		Return(pretty_push_string_(ptr, pos, NULL));
 		pretty_push_perline(ptr, pos);
 	}
 
 	/* sharp */
 	sharp_pretty_stream(ptr->pretty, &pos);
 	if (pos != Nil) {
-		pretty_push_string(ptr, pos, &size);
+		Return(pretty_push_string_(ptr, pos, &size));
 		pretty_push_perline_index(ptr, size);
 	}
 
 	/* prefix */
 	prefix_pretty_stream(ptr->pretty, &pos);
 	if (pos != Nil) {
-		pretty_push_string(ptr, pos, &size);
+		Return(pretty_push_string_(ptr, pos, &size));
 		pretty_push_perline_index(ptr, size);
 	}
 
 	/* current */
 	ptr->current = ptr->now;
 	ptr->section = ptr->now;
+
+	return 0;
 }
 
-static void pretty_suffix(struct pretty_block *ptr)
+static int pretty_suffix_(struct pretty_block *ptr)
 {
 	addr pos;
 
 	suffix_pretty_stream(ptr->pretty, &pos);
-	if (pos != Nil)
-		pretty_push_string(ptr, pos, NULL);
+	if (pos != Nil) {
+		Return(pretty_push_string_(ptr, pos, NULL));
+	}
+
+	return 0;
 }
 
 static void pretty_result(struct pretty_block *str, struct pretty_block *ptr)
@@ -1441,11 +1462,11 @@ static int pretty_struct_(struct pretty_block *ptr, addr pretty)
 	str.lines = 0;
 	/* print */
 	if (listp_pretty_stream(pretty)) {
-		pretty_prefix(&str);
+		Return(pretty_prefix_(&str));
 		pretty_miser(&str);
 		Return(pretty_newline_(&str));
 		Return(pretty_output_(&str));
-		pretty_suffix(&str);
+		Return(pretty_suffix_(&str));
 	}
 	else {
 		Return(pretty_output_(&str));

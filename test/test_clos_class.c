@@ -50,7 +50,7 @@ static void clos_supers_alloc(LocalRoot local, addr *ret, va_list args)
 	clos_alloc(local, &clos, slots);
 	SetClassOfClos(clos, Nil);
 	nreverse(&cons, cons);
-	stdset_class_direct_superclasses(clos, cons);
+	stdset_class_direct_superclasses_(clos, cons);
 	*ret = clos;
 }
 static void clos_supers_local(LocalRoot local, addr *ret, ...)
@@ -80,15 +80,15 @@ static int test_stdget_class_name(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_NAME, &k);
-	clos_set(pos, k, v);
-	stdget_class_name(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_name_(pos, &check);
 	test(check == v, "stdget_class_name1");
 
-	stdset_class_name(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_name_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_name1");
 
 	RETURN;
@@ -99,15 +99,15 @@ static int test_stdget_class_direct_slots(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DIRECT_SLOTS, &k);
-	clos_set(pos, k, v);
-	stdget_class_direct_slots(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_direct_slots_(pos, &check);
 	test(check == v, "stdget_class_direct_slots1");
 
-	stdset_class_direct_slots(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_direct_slots_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_direct_slots1");
 
 	RETURN;
@@ -118,15 +118,15 @@ static int test_stdget_class_direct_subclasses(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DIRECT_SUBCLASSES, &k);
-	clos_set(pos, k, v);
-	stdget_class_direct_subclasses(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_direct_subclasses_(pos, &check);
 	test(check == v, "stdget_class_direct_subclasses1");
 
-	stdset_class_direct_subclasses(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_direct_subclasses_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_direct_subclasses1");
 
 	RETURN;
@@ -137,15 +137,15 @@ static int test_stdget_class_direct_superclasses(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DIRECT_SUPERCLASSES, &k);
-	clos_set(pos, k, v);
-	stdget_class_direct_superclasses(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_direct_superclasses_(pos, &check);
 	test(check == v, "stdget_class_direct_superclasses1");
 
-	stdset_class_direct_superclasses(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_direct_superclasses_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_direct_superclasses1");
 
 	RETURN;
@@ -156,15 +156,15 @@ static int test_stdget_class_precedence_list(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_CLASS_PRECEDENCE_LIST, &k);
-	clos_set(pos, k, v);
-	stdget_class_precedence_list(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_precedence_list_(pos, &check);
 	test(check == v, "stdget_class_precedence_list1");
 
-	stdset_class_precedence_list(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_precedence_list_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_precedence_list2");
 
 	RETURN;
@@ -175,15 +175,15 @@ static int test_stdget_class_slots(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_EFFECTIVE_SLOTS, &k);
-	clos_set(pos, k, v);
-	stdget_class_slots(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_slots_(pos, &check);
 	test(check == v, "stdget_class_slots1");
 
-	stdset_class_slots(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_slots_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_slots2");
 
 	RETURN;
@@ -194,15 +194,15 @@ static int test_stdget_class_finalized_p(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_FINALIZED_P, &k);
-	clos_set(pos, k, v);
-	stdget_class_finalized_p(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_finalized_p_(pos, &check);
 	test(check == v, "stdget_class_finalized_p1");
 
-	stdset_class_finalized_p(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_finalized_p_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_finalized_p2");
 
 	RETURN;
@@ -213,15 +213,15 @@ static int test_stdget_class_prototype(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_PROTOTYPE, &k);
-	clos_set(pos, k, v);
-	stdget_class_prototype(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_prototype_(pos, &check);
 	test(check == v, "stdget_class_prototype1");
 
-	stdset_class_prototype(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_prototype_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_prototype2");
 
 	RETURN;
@@ -232,15 +232,15 @@ static int test_stdget_class_direct_methods(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DIRECT_METHODS, &k);
-	clos_set(pos, k, v);
-	stdget_class_direct_methods(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_direct_methods_(pos, &check);
 	test(check == v, "stdget_class_direct_methods1");
 
-	stdset_class_direct_methods(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_direct_methods_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_direct_methods2");
 
 	RETURN;
@@ -251,15 +251,15 @@ static int test_stdget_class_default_initargs(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DEFAULT_INITARGS, &k);
-	clos_set(pos, k, v);
-	stdget_class_default_initargs(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_default_initargs_(pos, &check);
 	test(check == v, "stdget_class_default_initargs1");
 
-	stdset_class_default_initargs(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_default_initargs_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_default_initargs2");
 
 	RETURN;
@@ -270,15 +270,15 @@ static int test_stdget_class_direct_default_initargs(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DIRECT_DEFAULT_INITARGS, &k);
-	clos_set(pos, k, v);
-	stdget_class_direct_default_initargs(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_direct_default_initargs_(pos, &check);
 	test(check == v, "stdget_class_direct_default_initargs1");
 
-	stdset_class_direct_default_initargs(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_direct_default_initargs_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_direct_default_initargs2");
 
 	RETURN;
@@ -289,15 +289,15 @@ static int test_stdget_class_version(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_VERSION, &k);
-	clos_set(pos, k, v);
-	stdget_class_version(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_version_(pos, &check);
 	test(check == v, "stdget_class_version1");
 
-	stdset_class_version(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_version_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_version2");
 
 	RETURN;
@@ -308,15 +308,15 @@ static int test_stdget_class_document(void)
 	addr pos, check, k, v;
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	v = readr("aaa");
 	GetConst(CLOSNAME_DOCUMENTATION, &k);
-	clos_set(pos, k, v);
-	stdget_class_document(pos, &check);
+	clos_set_(pos, k, v);
+	stdget_class_document_(pos, &check);
 	test(check == v, "stdget_class_document1");
 
-	stdset_class_document(pos, T);
-	clos_get(pos, k, &check);
+	stdset_class_document_(pos, T);
+	clos_get_(pos, k, &check);
 	test(check == T, "stdset_class_document2");
 
 	RETURN;
@@ -332,12 +332,12 @@ static int test_clos_subclass_p(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	GetConst(CLOS_CLASS, &clos);
-	test(clos_subclass_p(pos, clos), "clos_subclass_p1");
-	test(! clos_subclass_p(clos, pos), "clos_subclass_p2");
+	test(clos_subclass_p_debug(pos, clos), "clos_subclass_p1");
+	test(! clos_subclass_p_debug(clos, pos), "clos_subclass_p2");
 
 	GetConst(CLOS_STANDARD_CLASS, &clos);
-	clos_instance_heap(clos, &pos);
-	test(! clos_subclass_p(clos, pos), "clos_subclass_p3");
+	clos_instance_heap_(clos, &pos);
+	test(! clos_subclass_p_debug(clos, pos), "clos_subclass_p3");
 
 	RETURN;
 }
@@ -348,13 +348,13 @@ static int test_clos_subtype_p(void)
 
 	GetConst(CLOS_METHOD, &pos);
 	GetConst(CLOS_STANDARD_METHOD, &clos);
-	test(! clos_subtype_p(pos, clos), "clos_subtype_p1");
-	test(! clos_subtype_p(clos, pos), "clos_subtype_p2");
+	test(! clos_subtype_p_debug(pos, clos), "clos_subtype_p1");
+	test(! clos_subtype_p_debug(clos, pos), "clos_subtype_p2");
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	GetConst(CLOS_CLASS, &clos);
-	test(clos_subtype_p(pos, clos), "clos_subtype_p3");
+	test(clos_subtype_p_debug(pos, clos), "clos_subtype_p3");
 
 	RETURN;
 }
@@ -368,29 +368,29 @@ static int test_clos_subclass_p2(void)
 	clos_supers_heap(&t, NULL);
 	clos_supers_heap(&a, NULL);
 	clos_supers_heap(&b, t, NULL);
-	clos_precedence_list(local, t, &cons);
-	stdset_class_precedence_list(t, cons);
-	clos_precedence_list(local, a, &cons);
-	stdset_class_precedence_list(a, cons);
-	clos_precedence_list(local, b, &cons);
-	stdset_class_precedence_list(b, cons);
+	clos_precedence_list_(local, t, &cons);
+	stdset_class_precedence_list_(t, cons);
+	clos_precedence_list_(local, a, &cons);
+	stdset_class_precedence_list_(a, cons);
+	clos_precedence_list_(local, b, &cons);
+	stdset_class_precedence_list_(b, cons);
 
-	test(clos_subclass_p(t, t), "clos_subclass_p1");
-	test(! clos_subclass_p(t, a), "clos_subclass_p2");
-	test(! clos_subclass_p(a, t), "clos_subclass_p3");
-	test(clos_subclass_p(b, t), "clos_subclass_p4");
-	test(! clos_subclass_p(t, b), "clos_subclass_p5");
-	test(! clos_subclass_p(t, b), "clos_subclass_p6");
+	test(clos_subclass_p_debug(t, t), "clos_subclass_p1");
+	test(! clos_subclass_p_debug(t, a), "clos_subclass_p2");
+	test(! clos_subclass_p_debug(a, t), "clos_subclass_p3");
+	test(clos_subclass_p_debug(b, t), "clos_subclass_p4");
+	test(! clos_subclass_p_debug(t, b), "clos_subclass_p5");
+	test(! clos_subclass_p_debug(t, b), "clos_subclass_p6");
 
 	clos_supers_heap(&t, NULL);
 	clos_supers_heap(&a, t, NULL);
 	clos_supers_heap(&b, a, NULL);
-	clos_precedence_list(local, t, &cons);
-	stdset_class_precedence_list(t, cons);
-	clos_precedence_list(local, b, &cons);
-	stdset_class_precedence_list(b, cons);
-	test(clos_subclass_p(b, t), "clos_subclass_p7");
-	test(! clos_subclass_p(t, b), "clos_subclass_p8");
+	clos_precedence_list_(local, t, &cons);
+	stdset_class_precedence_list_(t, cons);
+	clos_precedence_list_(local, b, &cons);
+	stdset_class_precedence_list_(b, cons);
+	test(clos_subclass_p_debug(b, t), "clos_subclass_p7");
+	test(! clos_subclass_p_debug(t, b), "clos_subclass_p8");
 
 	RETURN;
 }
@@ -403,318 +403,440 @@ static int test_clos_subtype_p2(void)
 	local = Local_Thread;
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
-	clos_stdclass_type(local, &clos, metaclass, name, Nil);
-	clos_instance_heap(clos, &instance);
+	clos = Nil;
+	clos_stdclass_type_(local, &clos, metaclass, name, Nil);
+	clos_instance_heap_(clos, &instance);
 
-	test(clos_subtype_p(instance, clos), "clos_subtype_p1");
-	test(! clos_subtype_p(clos, instance), "clos_subtype_p2");
+	test(clos_subtype_p_debug(instance, clos), "clos_subtype_p1");
+	test(! clos_subtype_p_debug(clos, instance), "clos_subtype_p2");
 
 	RETURN;
 }
 
 static int test_clos_class_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(clos_class_p(pos), "clos_class_p1");
+	clos_class_p_(pos, &check);
+	test(check, "clos_class_p1");
 	GetConst(CLOS_STANDARD_OBJECT, &pos);
-	test(clos_class_p(pos), "clos_class_p2");
+	clos_class_p_(pos, &check);
+	test(check, "clos_class_p2");
 	GetConst(CLOS_COMBINATION_STANDARD, &pos);
-	test(! clos_class_p(pos), "clos_class_p3");
+	clos_class_p_(pos, &check);
+	test(! check, "clos_class_p3");
 	GetConst(CLOS_CLASS, &pos);
-	test(clos_class_p(pos), "clos_class_p4");
+	clos_class_p_(pos, &check);
+	test(check, "clos_class_p4");
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
-	test(clos_class_p(pos), "clos_class_p5");
+	clos_instance_heap_(pos, &pos);
+	clos_class_p_(pos, &check);
+	test(check, "clos_class_p5");
 
 	RETURN;
 }
 
 static int test_clos_funcallable_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_funcallable_p(pos), "clos_funcallable_p1");
+	Return(clos_funcallable_p_(pos, &check));
+	test(! check, "clos_funcallable_p1");
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	test(! clos_funcallable_p(pos), "clos_funcallable_p2");
-	clos_instance_heap(pos, &pos);
-	test(clos_funcallable_p(pos), "clos_funcallable_p3");
+	Return(clos_funcallable_p_(pos, &check));
+	test(! check, "clos_funcallable_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_funcallable_p_(pos, &check);
+	test(check, "clos_funcallable_p3");
 	GetConst(CLOS_STANDARD_OBJECT, &pos);
-	test(! clos_funcallable_p(pos), "clos_funcallable_p4");
+	clos_funcallable_p_(pos, &check);
+	test(! check, "clos_funcallable_p4");
 	clos_set_funcall(pos);
-	test(clos_funcallable_p(pos), "clos_funcallable_p5");
+	clos_funcallable_p_(pos, &check);
+	test(check, "clos_funcallable_p5");
 
 	RETURN;
 }
 
 static int test_clos_generic_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_generic_p(pos), "clos_generic_p1");
+	clos_generic_p_(pos, &check);
+	test(! check, "clos_generic_p1");
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	test(! clos_generic_p(pos), "clos_generic_p2");
-	clos_instance_heap(pos, &pos);
-	test(clos_generic_p(pos), "clos_generic_p3");
+	clos_generic_p_(pos, &check);
+	test(! check, "clos_generic_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_generic_p_(pos, &check);
+	test(check, "clos_generic_p3");
 
 	GetConst(CLOS_GENERIC_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
-	test(clos_generic_p(pos), "clos_generic_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_generic_p_(pos, &check);
+	test(check, "clos_generic_p4");
 
 	GetConst(CLOS_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
-	test(! clos_generic_p(pos), "clos_generic_p5");
+	clos_instance_heap_(pos, &pos);
+	clos_generic_p_(pos, &check);
+	test(! check, "clos_generic_p5");
 	clos_set_funcall(pos);
-	test(! clos_generic_p(pos), "clos_generic_p6");
+	clos_generic_p_(pos, &check);
+	test(! check, "clos_generic_p6");
 
 	RETURN;
 }
 
 static int test_clos_method_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_method_p(pos), "clos_method_p1");
+	clos_method_p_(pos, &check);
+	test(! check, "clos_method_p1");
 
 	GetConst(CLOS_STANDARD_METHOD, &pos);
-	test(! clos_method_p(pos), "clos_method_p2");
-	clos_instance_heap(pos, &pos);
-	test(clos_method_p(pos), "clos_method_p3");
+	clos_method_p_(pos, &check);
+	test(! check, "clos_method_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_method_p_(pos, &check);
+	test(check, "clos_method_p3");
 
 	GetConst(CLOS_METHOD, &pos);
-	clos_instance_heap(pos, &pos);
-	test(clos_method_p(pos), "clos_method_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_method_p_(pos, &check);
+	test(check, "clos_method_p4");
 
 	GetConst(CLOS_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
-	test(! clos_method_p(pos), "clos_method_p5");
+	clos_instance_heap_(pos, &pos);
+	clos_method_p_(pos, &check);
+	test(! check, "clos_method_p5");
 
 	RETURN;
 }
 
 static int test_clos_define_combination_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p1");
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p1");
 
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p2");
-	clos_instance_heap(pos, &pos);
-	test(clos_define_combination_p(pos), "clos_define_combination_p3");
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_define_combination_p_(pos, &check);
+	test(check, "clos_define_combination_p3");
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p4");
-	clos_instance_heap(pos, &pos);
-	test(clos_define_combination_p(pos), "clos_define_combination_p5");
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_define_combination_p_(pos, &check);
+	test(check, "clos_define_combination_p5");
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p6");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p7");
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p6");
+	clos_instance_heap_(pos, &pos);
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p7");
 
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p8");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_combination_p(pos), "clos_define_combination_p9");
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p8");
+	clos_instance_heap_(pos, &pos);
+	clos_define_combination_p_(pos, &check);
+	test(! check, "clos_define_combination_p9");
 
 	RETURN;
 }
 
 static int test_clos_define_long_combination_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p1");
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p1");
 
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p2");
-	clos_instance_heap(pos, &pos);
-	test(clos_define_long_combination_p(pos), "clos_define_long_combination_p3");
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_define_long_combination_p_(pos, &check);
+	test(check, "clos_define_long_combination_p3");
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p4");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p5");
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p5");
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p6");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p7");
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p6");
+	clos_instance_heap_(pos, &pos);
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p7");
 
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p8");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p9");
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p8");
+	clos_instance_heap_(pos, &pos);
+	clos_define_long_combination_p_(pos, &check);
+	test(! check, "clos_define_long_combination_p9");
 
 	RETURN;
 }
 
 static int test_clos_define_short_combination_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p1");
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p1");
 
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p2");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p3");
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p3");
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p4");
-	clos_instance_heap(pos, &pos);
-	test(clos_define_short_combination_p(pos), "clos_define_short_combination_p5");
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_define_short_combination_p_(pos, &check);
+	test(check, "clos_define_short_combination_p5");
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p6");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p7");
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p6");
+	clos_instance_heap_(pos, &pos);
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p7");
 
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p8");
-	clos_instance_heap(pos, &pos);
-	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p9");
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p8");
+	clos_instance_heap_(pos, &pos);
+	clos_define_short_combination_p_(pos, &check);
+	test(! check, "clos_define_short_combination_p9");
 
 	RETURN;
 }
 
 static int test_clos_combination_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p1");
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p1");
 
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p2");
-	clos_instance_heap(pos, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p3");
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p3");
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p4");
-	clos_instance_heap(pos, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p5");
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p5");
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p6");
-	clos_instance_heap(pos, &pos);
-	test(clos_combination_p(pos), "clos_combination_p7");
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p6");
+	clos_instance_heap_(pos, &pos);
+	clos_combination_p_(pos, &check);
+	test(check, "clos_combination_p7");
 
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_combination_p(pos), "clos_combination_p8");
-	clos_instance_heap(pos, &pos);
-	test(clos_combination_p(pos), "clos_combination_p9");
+	clos_combination_p_(pos, &check);
+	test(! check, "clos_combination_p8");
+	clos_instance_heap_(pos, &pos);
+	clos_combination_p_(pos, &check);
+	test(check, "clos_combination_p9");
 
 	RETURN;
 }
 
 static int test_clos_long_combination_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p1");
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p1");
 
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p2");
-	clos_instance_heap(pos, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p3");
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p3");
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p4");
-	clos_instance_heap(pos, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p5");
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p5");
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p6");
-	clos_instance_heap(pos, &pos);
-	test(clos_long_combination_p(pos), "clos_long_combination_p7");
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p6");
+	clos_instance_heap_(pos, &pos);
+	clos_long_combination_p_(pos, &check);
+	test(check, "clos_long_combination_p7");
 
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p8");
-	clos_instance_heap(pos, &pos);
-	test(! clos_long_combination_p(pos), "clos_long_combination_p9");
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p8");
+	clos_instance_heap_(pos, &pos);
+	clos_long_combination_p_(pos, &check);
+	test(! check, "clos_long_combination_p9");
 
 	RETURN;
 }
 
 static int test_clos_short_combination_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p1");
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p1");
 
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p2");
-	clos_instance_heap(pos, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p3");
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p3");
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p4");
-	clos_instance_heap(pos, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p5");
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p5");
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p6");
-	clos_instance_heap(pos, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p7");
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p6");
+	clos_instance_heap_(pos, &pos);
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p7");
 
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	test(! clos_short_combination_p(pos), "clos_short_combination_p8");
-	clos_instance_heap(pos, &pos);
-	test(clos_short_combination_p(pos), "clos_short_combination_p9");
+	clos_short_combination_p_(pos, &check);
+	test(! check, "clos_short_combination_p8");
+	clos_instance_heap_(pos, &pos);
+	clos_short_combination_p_(pos, &check);
+	test(check, "clos_short_combination_p9");
 
 	RETURN;
 }
 
 static int test_clos_specializer_p(void)
 {
+	int check;
 	addr pos;
 
+	check = 0;
+
 	GetConst(CLOS_STANDARD_CLASS, &pos);
-	test(! clos_specializer_p(pos), "clos_specializer_p1");
+	clos_specializer_p_(pos, &check);
+	test(! check, "clos_specializer_p1");
 
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
-	test(! clos_specializer_p(pos), "clos_specializer_p2");
-	clos_instance_heap(pos, &pos);
-	test(clos_specializer_p(pos), "clos_specializer_p3");
+	clos_specializer_p_(pos, &check);
+	test(! check, "clos_specializer_p2");
+	clos_instance_heap_(pos, &pos);
+	clos_specializer_p_(pos, &check);
+	test(check, "clos_specializer_p3");
 
 	GetConst(CLOS_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
-	test(! clos_specializer_p(pos), "clos_specializer_p4");
+	clos_instance_heap_(pos, &pos);
+	clos_specializer_p_(pos, &check);
+	test(! check, "clos_specializer_p4");
 
 	RETURN;
 }
 
 static int test_funcallp(void)
 {
+	int check;
 	addr pos;
 
-	test(! funcallp(T), "funcallp1");
+	check = 0;
+
+	funcallp_(T, &check);
+	test(! check, "funcallp1");
 	GetConst(COMMON_CAR, &pos);
-	test(! funcallp(pos), "funcallp2");
+	funcallp_(pos, &check);
+	test(! check, "funcallp2");
 	GetFunctionSymbol(pos, &pos);
-	test(funcallp(pos), "funcallp3");
+	funcallp_(pos, &check);
+	test(check, "funcallp3");
 
 	GetConst(CLOS_METHOD, &pos);
-	clos_instance_heap(pos, &pos);
-	test(! funcallp(pos), "funcallp4");
+	clos_instance_heap_(pos, &pos);
+	funcallp_(pos, &check);
+	test(! check, "funcallp4");
 	clos_set_funcall(pos);
-	test(funcallp(pos), "funcallp5");
+	funcallp_(pos, &check);
+	test(check, "funcallp5");
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
-	test(funcallp(pos), "funcallp6");
+	clos_instance_heap_(pos, &pos);
+	funcallp_(pos, &check);
+	test(check, "funcallp6");
 
 	RETURN;
 }
@@ -759,11 +881,11 @@ static int test_clos_instance_alloc(void)
 	clos_stdclass_slots(&pos);
 	clos_heap(&clos, pos);
 	SetClassOfClos(clos, Nil);
-	stdset_class_slots(clos, slots);
-	stdset_class_finalized_p(clos, T);
+	stdset_class_slots_(clos, slots);
+	stdset_class_finalized_p_(clos, T);
 
 	/* test */
-	clos_instance_heap(clos, &clos);
+	clos_instance_heap_(clos, &clos);
 	clos_getelt(clos, 0, &pos);
 	GetFixnum(pos, &value);
 	test(value == 111, "clos_instance_heap1");
@@ -775,15 +897,15 @@ static int test_clos_instance_alloc(void)
 	test(value == 333, "clos_instance_heap3");
 
 	internchar_keyword_debug("HELLO", &name);
-	clos_check(clos, name, &pos);
+	clos_check_(clos, name, &pos);
 	GetFixnum(pos, &value);
 	test(value == 111, "clos_instance_heap4");
 	internchar_keyword_debug("AAA", &name);
-	clos_check(clos, name, &pos);
+	clos_check_(clos, name, &pos);
 	GetFixnum(pos, &value);
 	test(value == 222, "clos_instance_heap5");
 	internchar_keyword_debug("BBB", &name);
-	clos_check(clos, name, &pos);
+	clos_check_(clos, name, &pos);
 	GetFixnum(pos, &value);
 	test(value == 333, "clos_instance_heap6");
 
@@ -808,7 +930,7 @@ static int test_clos_precedence_classes(void)
 
 	/* test */
 	clos_supers_local(local, &clos, NULL);
-	clos_precedence_classes(local, clos, &right);
+	clos_precedence_classes_(local, clos, &right);
 	test(GetType(right) == LISPTYPE_CONS, "clos_precedence_classes1");
 	GetCons(right, &left, &right);
 	test(left == clos, "clos_precedence_classes2");
@@ -818,7 +940,7 @@ static int test_clos_precedence_classes(void)
 	test(right == Nil, "clos_precedence_classes5");
 
 	clos_supers_local(local, &clos, Nil, T, NULL);
-	clos_precedence_classes(local, clos, &right);
+	clos_precedence_classes_(local, clos, &right);
 	test(GetType(right) == LISPTYPE_CONS, "clos_precedence_classes6");
 	GetCons(right, &left, &right);
 	test(left == clos, "clos_precedence_classes7");
@@ -849,7 +971,7 @@ static int test_clos_precedence_pair(void)
 
 	/* (clos unbound) -> ((clos . unbound)) */
 	clos_supers_local(local, &clos, NULL);
-	clos_precedence_pair(local, clos, &right);
+	clos_precedence_pair_(local, clos, &right);
 
 	test(GetType(right) == LISPTYPE_CONS, "clos_precedence_pair1");
 	GetCons(right, &left, &right);
@@ -863,7 +985,7 @@ static int test_clos_precedence_pair(void)
 	fixnum_heap(&a, 10);
 	fixnum_heap(&b, 20);
 	clos_supers_local(local, &clos, a, b, NULL);
-	clos_precedence_pair(local, clos, &cons);
+	clos_precedence_pair_(local, clos, &cons);
 	GetCons(cons, &left, &cons);
 	GetCons(left, &left, &right);
 	test(left == b, "clos_precedence_pair6");
@@ -893,7 +1015,7 @@ static int test_clos_precedence_super(void)
 	push_local(local, &stack);
 
 	clos_supers_local(local, &clos, NULL);
-	clos_precedence_super(local, clos, &right, Nil, Nil);
+	clos_precedence_super_(local, clos, &right, Nil, Nil);
 	test(right != Nil, "clos_precedence_super1");
 	GetCons(right, &left, &right);
 	test(left == clos, "clos_precedence_super2");
@@ -905,7 +1027,7 @@ static int test_clos_precedence_super(void)
 	clos_supers_local(local, &d, NULL);
 	clos_supers_local(local, &e, d, NULL);
 	clos_supers_local(local, &clos, c, d, e, NULL);
-	clos_precedence_super(local, clos, &right, Nil, Nil);
+	clos_precedence_super_(local, clos, &right, Nil, Nil);
 	test(length_list_unsafe(right) == 6, "clos_precedence_super4");
 	test(find_list_eq_unsafe(a, right) &&
 			find_list_eq_unsafe(b, right) &&
@@ -932,7 +1054,7 @@ static int test_clos_precedence_find(void)
 	fixnum_heap(&a, 10);
 	fixnum_heap(&b, 20);
 	clos_supers_local(local, &clos, a, b, NULL);
-	clos_precedence_pair(local, clos, &right);
+	clos_precedence_pair_(local, clos, &right);
 
 	cons_local(local, &left, a, b);
 	test(clos_precedence_find(left, right), "clos_precedence_find1");
@@ -970,7 +1092,7 @@ static int test_clos_precedence_chain(void)
 	/* (t . Unbound) */
 	clos_supers_local(local, &t, NULL);
 	list_local(local, &cons, t, NULL);
-	clos_precedence_chain(local, cons, &cons);
+	clos_precedence_chain_(local, cons, &cons);
 	test(length_list_unsafe(cons) == 1, "clos_precedence_chain1");
 	test(test_find_cons_chain_check(t, Unbound, cons), "clos_precedence_chain2");
 
@@ -981,8 +1103,8 @@ static int test_clos_precedence_chain(void)
 	clos_supers_local(local, &d, t, NULL);
 	clos_supers_local(local, &e, t, NULL);
 	clos_supers_local(local, &clos, d, c, e, t, NULL);
-	clos_precedence_super(local, clos, &cons, Nil, Nil);
-	clos_precedence_chain(local, cons, &cons);
+	clos_precedence_super_(local, clos, &cons, Nil, Nil);
+	clos_precedence_chain_(local, cons, &cons);
 	/* (t . Unbound) (a . t) (b . t) (c . a) (a . b)
 	   (d . t) (e . t) (clos . d) (d . c) (c . e) */
 	test(length_list_unsafe(cons) == 10, "clos_precedence_chain3");
@@ -1015,8 +1137,8 @@ static int test_clos_precedence_top(void)
 	fixnum_heap(&a, 10);
 	fixnum_heap(&b, 20);
 	clos_supers_local(local, &clos, a, b, NULL);
-	clos_precedence_pair(local, clos, &right);
-	clos_precedence_top(right, &left);
+	clos_precedence_pair_(local, clos, &right);
+	clos_precedence_top_(right, &left);
 	test(left == clos, "clos_precedence_top1");
 
 	rollback_local(local, stack);
@@ -1038,8 +1160,8 @@ static int test_clos_precedence_remove(void)
 	fixnum_heap(&b, 20);
 	fixnum_heap(&c, 30);
 	clos_supers_local(local, &clos, a, b, NULL);
-	clos_precedence_pair(local, clos, &right);
-	clos_precedence_remove(b, right, &right);
+	clos_precedence_pair_(local, clos, &right);
+	clos_precedence_remove_(b, right, &right);
 	GetCons(right, &left, &right);
 	GetCons(left, &left, &check);
 	test(left == a, "clos_precedence_remove1");
@@ -1053,7 +1175,7 @@ static int test_clos_precedence_remove(void)
 	/* ((A . b)) */
 	cons_local(local, &right, a, b);
 	conscar_local(local, &right, right);
-	clos_precedence_remove(a, right, &right);
+	clos_precedence_remove_(a, right, &right);
 	test(right == Nil, "clos_precedence_remove6");
 
 	/* ((A . b) (b . a)) */
@@ -1061,7 +1183,7 @@ static int test_clos_precedence_remove(void)
 	conscar_local(local, &right, left);
 	cons_local(local, &left, a, b);
 	cons_local(local, &right, left, right);
-	clos_precedence_remove(a, right, &right);
+	clos_precedence_remove_(a, right, &right);
 	GetCons(right, &left, &right);
 	GetCons(left, &left, &check);
 	test(left == b, "clos_precedence_remove7");
@@ -1073,7 +1195,7 @@ static int test_clos_precedence_remove(void)
 	conscar_local(local, &right, left);
 	cons_local(local, &left, b, a);
 	cons_local(local, &right, left, right);
-	clos_precedence_remove(a, right, &right);
+	clos_precedence_remove_(a, right, &right);
 	GetCons(right, &left, &right);
 	GetCons(left, &left, &check);
 	test(left == b, "clos_precedence_remove10");
@@ -1092,7 +1214,8 @@ static int test_clos_precedence_remove(void)
 static int no_dynamic_check(addr right)
 {
 	while (right != Nil) {
-		if (GetStatusDynamic(right)) return 0;
+		if (GetStatusDynamic(right))
+			return 0;
 		GetCdr(right, &right);
 	}
 
@@ -1109,7 +1232,7 @@ static int test_clos_precedence_result(void)
 	push_local(local, &stack);
 
 	clos_supers_heap(&clos, NULL);
-	clos_precedence_result(local, clos, &right, Unbound, Nil);
+	clos_precedence_result_(local, clos, &right, Unbound, Nil);
 	test(right != Nil, "clos_precedence_result1");
 	test(no_dynamic_check(right), "clos_precedence_result2");
 	GetCons(right, &left, &right);
@@ -1174,7 +1297,7 @@ static int test_clos_precedence_list(void)
 	clos_supers_heap(&apple, fruit, object, NULL);
 	clos_supers_heap(&pie, apple, cinnamon, object, NULL);
 
-	clos_precedence_list(local, pie, &cons);
+	clos_precedence_list_(local, pie, &cons);
 	test(no_dynamic_check(cons), "clos_precedence_list1");
 	test(cons_check(cons, pie, apple, fruit, cinnamon, spice, food, object, t, NULL),
 			"clos_precedence_list2");
@@ -1186,12 +1309,12 @@ static int test_clos_precedence_list(void)
 	clos_supers_heap(&pastry, cinnamon, apple, object, NULL);
 	clos_supers_heap(&pie, apple, cinnamon, object, NULL);
 
-	clos_precedence_list(local, pie, &cons);
+	clos_precedence_list_(local, pie, &cons);
 	test(no_dynamic_check(cons), "clos_precedence_list3");
 	test(cons_check(cons, pie, apple, cinnamon, object, t, NULL),
 			"clos_precedence_list4");
 
-	clos_precedence_list(local, pastry, &cons);
+	clos_precedence_list_(local, pastry, &cons);
 	test(no_dynamic_check(cons), "clos_precedence_list5");
 	test(cons_check(cons, pastry, cinnamon, apple, object, t, NULL),
 			"clos_precedence_list6");
@@ -1207,6 +1330,8 @@ static int test_clos_slots_name(void)
 {
 	int check;
 	addr slot1, slot2, name, pos, cons;
+
+	check = 0;
 
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 
@@ -1245,21 +1370,21 @@ static int test_clos_slots_push(void)
 	slot_heap(&b);
 	SetArgsSlot(a, Nil);
 	SetArgsSlot(b, Nil);
-	clos_slots_push(a, b);
+	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
 	test(list == Nil, "clos_slots_push1");
 
 	v = readr("(aaa bbb ccc)");
 	SetArgsSlot(a, v);
 	SetArgsSlot(b, Nil);
-	clos_slots_push(a, b);
+	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
 	test(equal_debug(list, v), "clos_slots_push2");
 
 	v = readr("(aaa bbb ccc)");
 	SetArgsSlot(a, Nil);
 	SetArgsSlot(b, v);
-	clos_slots_push(a, b);
+	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
 	v = readr("(ccc bbb aaa)");
 	test(equal_debug(list, v), "clos_slots_push3");
@@ -1268,7 +1393,7 @@ static int test_clos_slots_push(void)
 	SetArgsSlot(a, v);
 	v = readr("(ddd bbb ccc eee)");
 	SetArgsSlot(b, v);
-	clos_slots_push(a, b);
+	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
 	v = readr("(eee ddd aaa bbb ccc)");
 	test(equal_debug(list, v), "clos_slots_push4");
@@ -1313,9 +1438,9 @@ static void test_makeclos_heap(addr *ret, ...)
 	clos_stdclass_slots(&temp);
 	clos_heap(&clos, temp);
 	SetClassOfClos(clos, Nil);
-	stdset_class_direct_slots(clos, slots);
+	stdset_class_direct_slots_(clos, slots);
 	list_heap(&temp, clos, NULL);
-	stdset_class_precedence_list(clos, temp);
+	stdset_class_precedence_list_(clos, temp);
 	*ret = clos;
 }
 
@@ -1349,7 +1474,7 @@ static int test_clos_slots_loop(void)
 
 	test_makeclos_heap(&clos2, "AAA", "CCC", NULL);
 	list_heap(&cons, clos2, clos1, NULL);
-	stdset_class_precedence_list(clos2, cons);
+	stdset_class_precedence_list_(clos2, cons);
 	clos_slots_loop(local, clos2, &cons, &size);
 	test(size == 4, "clos_slots_loop7");
 	GetCons(cons, &check, &cons);
@@ -1363,7 +1488,7 @@ static int test_clos_slots_loop(void)
 	test(slotnamecheck(check, "CCC"), "clos_slots_loop11");
 	test(cons == Nil, "clos_slots_loop12");
 
-	stdget_class_direct_slots(clos2, &cons);
+	stdget_class_direct_slots_(clos2, &cons);
 	GetSlotVector(cons, 0, &cons);
 	test(cons == aaa, "clos_slots_loop13");
 
@@ -1391,7 +1516,7 @@ static int test_clos_compute_slots(void)
 
 	test_makeclos_heap(&clos2, "AAA", "CCC", NULL);
 	list_heap(&cons, clos2, clos1, NULL);
-	stdset_class_precedence_list(clos2, cons);
+	stdset_class_precedence_list_(clos2, cons);
 	clos_compute_slots(local, clos2, &cons);
 	GetSlotVector(cons, 0, &check);
 	test(slotnamecheck(check, "HELLO"), "clos_compute_slots6");
@@ -1405,7 +1530,7 @@ static int test_clos_compute_slots(void)
 	LenSlotVector(cons, &size);
 	test(size == 4, "clos_compute_slots10");
 
-	stdget_class_direct_slots(clos2, &cons);
+	stdget_class_direct_slots_(clos2, &cons);
 	GetSlotVector(cons, 0, &cons);
 	test(cons != aaa, "clos_compute_slots11");
 
@@ -1523,6 +1648,8 @@ static int test_clos_stdclass_slots(void)
 	addr slots, pos;
 	size_t i, size;
 
+	check = 0;
+
 	clos_stdclass_slots(&slots);
 	LenSlotVector(slots, &size);
 	test(size == Clos_class_size, "clos_stdclass_slots1");
@@ -1570,11 +1697,11 @@ static int test_clos_stdclass_dummy(void)
 	addr slots, clos, check;
 
 	clos_stdclass_slots(&slots);
-	clos_stdclass_dummy(&clos, slots);
+	clos_stdclass_dummy_(&clos, slots);
 	test(closp(clos), "clos_stdclass_dummy1");
-	stdget_class_direct_slots(clos, &check);
+	stdget_class_direct_slots_(clos, &check);
 	test(check == slots, "clos_stdclass_dummy2");
-	stdget_class_slots(clos, &check);
+	stdget_class_slots_(clos, &check);
 	test(check == slots, "clos_stdclass_dummy3");
 
 	RETURN;
@@ -1598,17 +1725,17 @@ static int test_clos_stdclass_make(void)
 	addr slots, clos, name, check;
 
 	clos_stdclass_slots(&slots);
-	clos_stdclass_dummy(&clos, slots);
+	clos_stdclass_dummy_(&clos, slots);
 	test_slot_vector_heap(&slots, 4);
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
-	clos_stdclass_make(&clos, clos, name, slots);
-	stdget_class_name(clos, &check);
+	clos_stdclass_make_(&clos, clos, name, slots);
+	stdget_class_name_(clos, &check);
 	test(check == name, "clos_stdclass_make1");
-	stdget_class_prototype(clos, &check);
+	stdget_class_prototype_(clos, &check);
 	test(check == clos, "clos_stdclass_make2");
-	stdget_class_finalized_p(clos, &check);
+	stdget_class_finalized_p_(clos, &check);
 	test(check == Nil, "clos_stdclass_make3");
-	stdget_class_direct_slots(clos, &check);
+	stdget_class_direct_slots_(clos, &check);
 	test(check == slots, "clos_stdclass_make4");
 
 	RETURN;
@@ -1620,10 +1747,10 @@ static int test_clos_stdclass_empty(void)
 	size_t size;
 
 	clos_stdclass_slots(&slots);
-	clos_stdclass_dummy(&clos, slots);
+	clos_stdclass_dummy_(&clos, slots);
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
-	clos_stdclass_empty(&clos, clos, name);
-	stdget_class_direct_slots(clos, &check);
+	clos_stdclass_empty_(&clos, clos, name);
+	stdget_class_direct_slots_(clos, &check);
 	LenSlotVector(check, &size);
 	test(size == 0, "clos_stdclass_empty1");
 
@@ -1636,15 +1763,15 @@ static int test_clos_stdclass_class_of(void)
 	fixnum version;
 
 	clos_stdclass_slots(&slots);
-	clos_stdclass_dummy(&clos, slots);
+	clos_stdclass_dummy_(&clos, slots);
 	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&clos, clos, name, slots);
+	clos_stdclass_make_(&clos, clos, name, slots);
 
 	SetVersionClos(clos, 100);
 	clos_heap(&instance, slots);
 	clos_stdclass_class_of(instance, clos);
-	clos_class_of(instance, &check);
+	clos_class_of_(instance, &check);
 	test(check == clos, "clos_stdclass_class_of1");
 	GetVersionClos(instance, &version);
 	test(version == 100, "clos_stdclass_class_of2");
@@ -1660,42 +1787,42 @@ static int test_clos_stdclass_inherit(void)
 
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
-	clos_stdclass_dummy(&metaclass, slots);
+	clos_stdclass_dummy_(&metaclass, slots);
 	internchar_debug(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&metaclass, metaclass, name, slots);
-	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
+	clos_stdclass_make_(&metaclass, metaclass, name, slots);
+	clos_stdclass_inherit_(local, metaclass, metaclass, Nil);
 
 	internchar_debug(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&super, metaclass, name, slots);
-	clos_stdclass_inherit(local, super, metaclass, Nil);
+	clos_stdclass_make_(&super, metaclass, name, slots);
+	clos_stdclass_inherit_(local, super, metaclass, Nil);
 
 	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&clos, metaclass, name, slots);
+	clos_stdclass_make_(&clos, metaclass, name, slots);
 	list_heap(&supers, super, NULL);
-	clos_stdclass_inherit(local, clos, metaclass, supers);
+	clos_stdclass_inherit_(local, clos, metaclass, supers);
 
 	GetVersionClos(clos, &version);
 	test(version == 0, "clos_stdclass_inherit1");
-	clos_class_of(clos, &check);
+	clos_class_of_(clos, &check);
 	test(check == metaclass, "clos_stdclass_inherit2");
-	stdget_class_direct_superclasses(clos, &check);
+	stdget_class_direct_superclasses_(clos, &check);
 	GetCons(check, &left, &check);
 	test(left == super, "clos_stdclass_inherit3");
 	test(check == Nil, "clos_stdclass_inherit4");
-	stdget_class_precedence_list(clos, &check);
+	stdget_class_precedence_list_(clos, &check);
 	test(GetType(check) == LISPTYPE_CONS, "clos_stdclass_inherit5");
-	stdget_class_slots(clos, &check);
+	stdget_class_slots_(clos, &check);
 	test(GetType(check) == LISPSYSTEM_SLOT_VECTOR, "clos_stdclass_inherit6");
-	stdget_class_direct_subclasses(super, &check);
+	stdget_class_direct_subclasses_(super, &check);
 	GetCons(check, &left, &check);
 	test(left == clos, "clos_stdclass_inherit7");
 	test(check == Nil, "clos_stdclass_inherit8");
-	stdget_class_name(clos, &check);
+	stdget_class_name_(clos, &check);
 	test(check == name, "clos_stdclass_inherit9");
-	clos_find_class(name, &check);
+	clos_find_class_(name, &check);
 	test(check == clos, "clos_stdclass_inherit10");
 
 	RETURN;
@@ -1709,41 +1836,41 @@ static int test_clos_stdclass_single(void)
 
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
-	clos_stdclass_dummy(&metaclass, slots);
+	clos_stdclass_dummy_(&metaclass, slots);
 	internchar_debug(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&metaclass, metaclass, name, slots);
-	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
+	clos_stdclass_make_(&metaclass, metaclass, name, slots);
+	clos_stdclass_inherit_(local, metaclass, metaclass, Nil);
 
 	internchar_debug(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&super, metaclass, name, slots);
-	clos_stdclass_inherit(local, super, metaclass, Nil);
+	clos_stdclass_make_(&super, metaclass, name, slots);
+	clos_stdclass_inherit_(local, super, metaclass, Nil);
 
 	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
-	clos_stdclass_make(&clos, metaclass, name, slots);
-	clos_stdclass_single(local, clos, metaclass, super);
+	clos_stdclass_make_(&clos, metaclass, name, slots);
+	clos_stdclass_single_(local, clos, metaclass, super);
 
 	GetVersionClos(clos, &version);
 	test(version == 0, "clos_stdclass_single1");
-	clos_class_of(clos, &check);
+	clos_class_of_(clos, &check);
 	test(check == metaclass, "clos_stdclass_single2");
-	stdget_class_direct_superclasses(clos, &check);
+	stdget_class_direct_superclasses_(clos, &check);
 	GetCons(check, &left, &check);
 	test(left == super, "clos_stdclass_single3");
 	test(check == Nil, "clos_stdclass_single4");
-	stdget_class_precedence_list(clos, &check);
+	stdget_class_precedence_list_(clos, &check);
 	test(GetType(check) == LISPTYPE_CONS, "clos_stdclass_single5");
-	stdget_class_slots(clos, &check);
+	stdget_class_slots_(clos, &check);
 	test(GetType(check) == LISPSYSTEM_SLOT_VECTOR, "clos_stdclass_single6");
-	stdget_class_direct_subclasses(super, &check);
+	stdget_class_direct_subclasses_(super, &check);
 	GetCons(check, &left, &check);
 	test(left == clos, "clos_stdclass_single7");
 	test(check == Nil, "clos_stdclass_single8");
-	stdget_class_name(clos, &check);
+	stdget_class_name_(clos, &check);
 	test(check == name, "clos_stdclass_single9");
-	clos_find_class(name, &check);
+	clos_find_class_(name, &check);
 	test(check == clos, "clos_stdclass_single10");
 
 	RETURN;
@@ -1755,50 +1882,50 @@ static int test_clos_stdclass_metaclass(void)
 	LocalRoot local;
 
 	local = Local_Thread;;
-	clos_stdclass_metaclass(local, &metaclass);
+	clos_stdclass_metaclass_(local, &metaclass);
 
 	/* t */
-	clos_find_class(T, &tclass);
-	clos_class_of(tclass, &check);
+	clos_find_class_(T, &tclass);
+	clos_class_of_(tclass, &check);
 	GetConst(COMMON_BUILT_IN_CLASS, &left);
-	clos_find_class(left, &left);
+	clos_find_class_(left, &left);
 	test(check == left, "clos_stdclass_metaclass1");
-	stdget_class_direct_superclasses(tclass, &check);
+	stdget_class_direct_superclasses_(tclass, &check);
 	test(check == Nil, "clos_stdclass_metaclass2");
 
 	/* object */
 	GetConst(COMMON_STANDARD_OBJECT, &object);
-	clos_find_class(object, &object);
+	clos_find_class_(object, &object);
 	GetConst(CLOS_STANDARD_OBJECT, &left);
 	test(object == left, "clos_stdclass_metaclass3");
-	clos_class_of(object, &check);
+	clos_class_of_(object, &check);
 	test(check == metaclass, "clos_stdclass_metaclass4");
-	stdget_class_direct_superclasses(object, &check);
+	stdget_class_direct_superclasses_(object, &check);
 	GetCons(check, &left, &check);
 	test(left == tclass, "clos_stdclass_metaclass5");
 	test(check == Nil, "clos_stdclass_metaclass6");
 
 	/* class */
 	GetConst(COMMON_CLASS, &classclass);
-	clos_find_class(classclass, &classclass);
+	clos_find_class_(classclass, &classclass);
 	GetConst(CLOS_CLASS, &left);
 	test(classclass == left, "clos_stdclass_metaclass7");
-	clos_class_of(classclass, &check);
+	clos_class_of_(classclass, &check);
 	test(check == metaclass, "clos_stdclass_metaclass8");
-	stdget_class_direct_superclasses(classclass, &check);
+	stdget_class_direct_superclasses_(classclass, &check);
 	GetCons(check, &left, &check);
 	test(left == object, "clos_stdclass_metaclass9");
 	test(check == Nil, "clos_stdclass_metaclass10");
 
 	/* standard-class */
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	GetConst(CLOS_STANDARD_CLASS, &left);
 	test(check == left, "clos_stdclass_metaclass11");
 	test(check == metaclass, "clos_stdclass_metaclass12");
-	clos_class_of(check, &check);
+	clos_class_of_(check, &check);
 	test(check == metaclass, "clos_stdclass_metaclass13");
-	stdget_class_direct_superclasses(metaclass, &check);
+	stdget_class_direct_superclasses_(metaclass, &check);
 	GetCons(check, &left, &check);
 	test(left == classclass, "clos_stdclass_metaclass14");
 	test(check == Nil, "clos_stdclass_metaclass15");
@@ -1813,9 +1940,9 @@ static int test_clos_stdclass_supers(void)
 	size_t size;
 
 	local = Local_Thread;
-	clos_stdclass_metaclass(local, &metaclass);
+	clos_stdclass_metaclass_(local, &metaclass);
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
-	clos_find_class(T, &check);
+	clos_find_class_(T, &check);
 	list_heap(&supers, check, NULL);
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
@@ -1826,15 +1953,16 @@ static int test_clos_stdclass_supers(void)
 	slot_heap(&slot);
 	SetNameSlot(slot, symbol);
 	SetSlotVector(slots, 1, slot);
-	clos_stdclass_supers(local, &instance, metaclass, name, slots, supers);
-	clos_class_of(instance, &check);
+	instance = Nil;
+	clos_stdclass_supers_(local, &instance, metaclass, name, slots, supers);
+	clos_class_of_(instance, &check);
 	test(check == metaclass, "clos_stdclass_supers1");
-	stdget_class_direct_superclasses(instance, &supers);
+	stdget_class_direct_superclasses_(instance, &supers);
 	GetCons(supers, &check, &supers);
-	clos_find_class(T, &name);
+	clos_find_class_(T, &name);
 	test(check == name, "clos_stdclass_supers2");
 	test(supers == Nil, "clos_stdclass_supers3");
-	stdget_class_direct_slots(instance, &check);
+	stdget_class_direct_slots_(instance, &check);
 	LenSlotVector(check, &size);
 	test(size == 2, "clos_stdclass_supers4");
 
@@ -1848,18 +1976,19 @@ static int test_clos_stdclass_type(void)
 	size_t size;
 
 	local = Local_Thread;
-	clos_stdclass_metaclass(local, &metaclass);
+	clos_stdclass_metaclass_(local, &metaclass);
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
-	clos_find_class(T, &tclass);
+	clos_find_class_(T, &tclass);
 	list_heap(&supers, tclass, NULL);
-	clos_stdclass_type(local, &instance, metaclass, name, supers);
-	clos_class_of(instance, &check);
+	instance = Nil;
+	clos_stdclass_type_(local, &instance, metaclass, name, supers);
+	clos_class_of_(instance, &check);
 	test(check == metaclass, "clos_stdclass_type1");
-	stdget_class_direct_superclasses(instance, &supers);
+	stdget_class_direct_superclasses_(instance, &supers);
 	GetCons(supers, &check, &supers);
 	test(check == tclass, "clos_stdclass_type2");
 	test(supers == Nil, "clos_stdclass_type3");
-	stdget_class_direct_slots(instance, &check);
+	stdget_class_direct_slots_(instance, &check);
 	LenSlotVector(check, &size);
 	test(size == 0, "clos_stdclass_type4");
 
@@ -1876,27 +2005,27 @@ static int test_clos_stdclass_va(void)
 	//test_forget_all_classes();
 
 	SetConst(DEBUG1, readr("debug1"));
-	clos_stdclass_metaclass(local, &metaclass);
-	clos_stdclass_va(local, metaclass,
+	clos_stdclass_metaclass_(local, &metaclass);
+	clos_stdclass_va_(local, metaclass,
 			CONSTANT_DEBUG1,
 			CONSTANT_DEBUG2,
 			CONSTANT_CLOS_CLASS,
 			CONSTANT_EMPTY);
 	GetConst(DEBUG1, &clos);
-	clos_find_class(clos, &clos);
-	clos_class_of(clos, &check);
+	clos_find_class_(clos, &clos);
+	clos_class_of_(clos, &check);
 	test(check == metaclass, "clos_stdclass_va1");
-	stdget_class_direct_superclasses(clos, &check);
+	stdget_class_direct_superclasses_(clos, &check);
 	GetCar(check, &check);
 	GetConst(COMMON_CLASS, &name);
-	clos_find_class(name, &name);
+	clos_find_class_(name, &name);
 	test(check == name, "clos_stdclass_va2");
-	stdget_class_direct_slots(clos, &check);
+	stdget_class_direct_slots_(clos, &check);
 	LenSlotVector(check, &size);
 	test(size == 0, "clos_stdclass_va3");
 
 	GetConst(DEBUG1, &clos);
-	clos_find_class(clos, &clos);
+	clos_find_class_(clos, &clos);
 	GetConst(DEBUG2, &check);
 	test(clos == check, "clos_stdclass_va4");
 
@@ -1921,26 +2050,26 @@ static int test_clos_stdclass_slotsconstant(void)
 	SetSlotVector(slots, 1, slot);
 
 	SetConst(DEBUG2, readr("debug2"));
-	clos_stdclass_metaclass(local, &metaclass);
-	clos_stdclass_slotsconstant(local, metaclass, slots,
+	clos_stdclass_metaclass_(local, &metaclass);
+	clos_stdclass_slotsconstant_(local, metaclass, slots,
 			CONSTANT_DEBUG2,
 			CONSTANT_DEBUG3,
 			CONSTANT_CLOS_CLASS);
 	GetConst(DEBUG2, &clos);
-	clos_find_class(clos, &clos);
-	clos_class_of(clos, &check);
+	clos_find_class_(clos, &clos);
+	clos_class_of_(clos, &check);
 	test(check == metaclass, "clos_stdclass_slotsconstant1");
-	stdget_class_direct_superclasses(clos, &check);
+	stdget_class_direct_superclasses_(clos, &check);
 	GetCar(check, &check);
 	GetConst(COMMON_CLASS, &name);
-	clos_find_class(name, &name);
+	clos_find_class_(name, &name);
 	test(check == name, "clos_stdclass_slotsconstant2");
-	stdget_class_direct_slots(clos, &check);
+	stdget_class_direct_slots_(clos, &check);
 	LenSlotVector(check, &size);
 	test(size == 2, "clos_stdclass_slotsconstant3");
 
 	GetConst(DEBUG2, &clos);
-	clos_find_class(clos, &clos);
+	clos_find_class_(clos, &clos);
 	GetConst(DEBUG3, &check);
 	test(clos == check, "clos_stdclass_slotsconstant4");
 
@@ -1957,67 +2086,67 @@ static int test_build_standard_class(void)
 	interncommon_debug("BUILT-IN-CLASS", &builtinname);
 	interncommon_debug("STANDARD-CLASS", &metaname);
 	interncommon_debug("STANDARD-OBJECT", &objectname);
-	clos_find_class(T, &trueclass);
-	clos_find_class(classname, &classclass);
-	clos_find_class(builtinname, &builtinclass);
-	clos_find_class(metaname, &metaclass);
-	clos_find_class(objectname, &objectclass);
+	clos_find_class_(T, &trueclass);
+	clos_find_class_(classname, &classclass);
+	clos_find_class_(builtinname, &builtinclass);
+	clos_find_class_(metaname, &metaclass);
+	clos_find_class_(objectname, &objectclass);
 	test(closp(trueclass), "build_standard_class1");
 	test(closp(classclass), "build_standard_class2");
 	test(closp(builtinclass), "build_standard_class3");
 	test(closp(metaclass), "build_standard_class4");
 	test(closp(objectclass), "build_standard_class5");
-	stdget_class_name(trueclass, &check);
+	stdget_class_name_(trueclass, &check);
 	test(check == T, "build_standard_class6");
-	stdget_class_name(classclass, &check);
+	stdget_class_name_(classclass, &check);
 	test(check == classname, "build_standard_class7");
-	stdget_class_name(builtinclass, &check);
+	stdget_class_name_(builtinclass, &check);
 	test(check == builtinname, "build_standard_class8");
-	stdget_class_name(metaclass, &check);
+	stdget_class_name_(metaclass, &check);
 	test(check == metaname, "build_standard_class9");
-	stdget_class_name(objectclass, &check);
+	stdget_class_name_(objectclass, &check);
 	test(check == objectname, "build_standard_class10");
 
 	/* t */
-	clos_class_of(trueclass, &check);
+	clos_class_of_(trueclass, &check);
 	test(check == builtinclass, "build_standard_class11");
-	stdget_class_direct_superclasses(trueclass, &check);
+	stdget_class_direct_superclasses_(trueclass, &check);
 	test(check == Nil, "build_standard_class12");
-	stdget_class_direct_subclasses(trueclass, &check);
+	stdget_class_direct_subclasses_(trueclass, &check);
 	test(find_list_eq_unsafe(objectclass, check), "build_standard_class13");
 
 	/* standard-object */
-	clos_class_of(objectclass, &check);
+	clos_class_of_(objectclass, &check);
 	test(metaclass == check, "build_standard_class14");
-	test(clos_subclass_p(objectclass, trueclass), "build_standard_class15");
-	stdget_class_direct_subclasses(objectclass, &check);
+	test(clos_subclass_p_debug(objectclass, trueclass), "build_standard_class15");
+	stdget_class_direct_subclasses_(objectclass, &check);
 	test(find_list_eq_unsafe(classclass, check), "build_standard_class16");
 
 	/* class */
-	clos_class_of(classclass, &check);
+	clos_class_of_(classclass, &check);
 	test(metaclass == check, "build_standard_class17");
-	test(clos_subclass_p(classclass, objectclass), "build_standard_class18");
-	test(clos_subclass_p(classclass, trueclass), "build_standard_class19");
-	stdget_class_direct_subclasses(classclass, &check);
+	test(clos_subclass_p_debug(classclass, objectclass), "build_standard_class18");
+	test(clos_subclass_p_debug(classclass, trueclass), "build_standard_class19");
+	stdget_class_direct_subclasses_(classclass, &check);
 	test(find_list_eq_unsafe(metaclass, check), "build_standard_class20");
 	test(find_list_eq_unsafe(builtinclass, check), "build_standard_class21");
 
 	/* standard-class */
-	clos_class_of(metaclass, &check);
+	clos_class_of_(metaclass, &check);
 	test(metaclass == check, "build_standard_class22");
-	test(clos_subclass_p(metaclass, classclass), "build_standard_class23");
-	test(clos_subclass_p(metaclass, objectclass), "build_standard_class24");
-	test(clos_subclass_p(metaclass, trueclass), "build_standard_class25");
-	stdget_class_direct_subclasses(metaclass, &check);
+	test(clos_subclass_p_debug(metaclass, classclass), "build_standard_class23");
+	test(clos_subclass_p_debug(metaclass, objectclass), "build_standard_class24");
+	test(clos_subclass_p_debug(metaclass, trueclass), "build_standard_class25");
+	stdget_class_direct_subclasses_(metaclass, &check);
 	test(check == Nil, "build_standard_class26");
 
 	/* built-in-class */
-	clos_class_of(builtinclass, &check);
+	clos_class_of_(builtinclass, &check);
 	test(metaclass == check, "build_standard_class27");
-	test(clos_subclass_p(builtinclass, objectclass), "build_standard_class28");
-	test(clos_subclass_p(builtinclass, classclass), "build_standard_class29");
-	test(clos_subclass_p(builtinclass, trueclass), "build_standard_class30");
-	stdget_class_direct_subclasses(builtinclass, &check);
+	test(clos_subclass_p_debug(builtinclass, objectclass), "build_standard_class28");
+	test(clos_subclass_p_debug(builtinclass, classclass), "build_standard_class29");
+	test(clos_subclass_p_debug(builtinclass, trueclass), "build_standard_class30");
+	stdget_class_direct_subclasses_(builtinclass, &check);
 	test(check == Nil, "build_standard_class31");
 
 	/* constant */
@@ -2038,6 +2167,8 @@ static int test_clos_stdgeneric_slots(void)
 	int check;
 	addr slots, pos;
 	size_t i, size;
+
+	check = 0;
 
 	clos_stdgeneric_slots(&slots);
 	LenSlotVector(slots, &size);
@@ -2086,45 +2217,45 @@ static int test_build_clos_class_generic(void)
 
 	/* function */
 	GetConst(COMMON_FUNCTION, &fclass);
-	clos_find_class(fclass, &fclass);
+	clos_find_class_(fclass, &fclass);
 	test(closp(fclass), "build_clos_class_generic1");
-	clos_class_of(fclass, &pos);
+	clos_class_of_(fclass, &pos);
 	GetConst(COMMON_BUILT_IN_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_generic2");
-	stdget_class_direct_superclasses(fclass, &check);
+	stdget_class_direct_superclasses_(fclass, &check);
 	GetCons(check, &left, &check);
-	clos_find_class(T, &pos);
+	clos_find_class_(T, &pos);
 	test(left == pos, "build_clos_class_generic3");
 	test(check == Nil, "build_clos_class_generic4");
 
 	/* generic-function */
 	GetConst(COMMON_GENERIC_FUNCTION, &gclass);
-	clos_find_class(gclass, &gclass);
+	clos_find_class_(gclass, &gclass);
 	test(closp(gclass), "build_clos_class_generic5");
-	clos_class_of(gclass, &pos);
+	clos_class_of_(gclass, &pos);
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_generic6");
-	stdget_class_direct_superclasses(gclass, &check);
+	stdget_class_direct_superclasses_(gclass, &check);
 	GetCons(check, &left, &check);
 	test(left == fclass, "build_clos_class_generic7");
 	test(check != Nil, "build_clos_class_generic8");
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_class_generic9");
 	GetConst(CLOSNAME_FUNCALLABLE_STANDARD_OBJECT, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(left == check, "build_clos_class_generic10");
 
 	/* standard-generic-function */
 	GetConst(COMMON_STANDARD_GENERIC_FUNCTION, &sgclass);
-	clos_find_class(sgclass, &sgclass);
+	clos_find_class_(sgclass, &sgclass);
 	test(closp(sgclass), "build_clos_class_generic11");
-	clos_class_of(sgclass, &pos);
+	clos_class_of_(sgclass, &pos);
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_generic12");
-	stdget_class_direct_superclasses(sgclass, &check);
+	stdget_class_direct_superclasses_(sgclass, &check);
 	GetCons(check, &left, &check);
 	test(left == gclass, "build_clos_class_generic13");
 	test(check == Nil, "build_clos_class_generic14");
@@ -2141,7 +2272,7 @@ static int test_generic_function_instance(void)
 	addr pos, name;
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
+	clos_instance_heap_(pos, &pos);
 	GetConst(CLOSNAME_EQLCHECK, &name);
 	test(clos_slot_exists_p(pos, name), "generic_function_instance1");
 
@@ -2157,6 +2288,8 @@ static int test_clos_stdmethod_slots(void)
 	int check;
 	addr slots, pos;
 	size_t i, size;
+
+	check = 0;
 
 	clos_stdmethod_slots(&slots);
 	LenSlotVector(slots, &size);
@@ -2194,28 +2327,28 @@ static int test_build_clos_class_method(void)
 
 	/* method */
 	GetConst(COMMON_METHOD, &mclass);
-	clos_find_class(mclass, &mclass);
+	clos_find_class_(mclass, &mclass);
 	test(closp(mclass), "build_clos_class_method1");
-	clos_class_of(mclass, &pos);
+	clos_class_of_(mclass, &pos);
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_method2");
-	stdget_class_direct_superclasses(mclass, &check);
+	stdget_class_direct_superclasses_(mclass, &check);
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_class_method3");
 	GetConst(COMMON_STANDARD_OBJECT, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(left == check, "build_clos_class_method4");
 
 	/* standard-method */
 	GetConst(COMMON_STANDARD_METHOD, &smclass);
-	clos_find_class(smclass, &smclass);
+	clos_find_class_(smclass, &smclass);
 	test(closp(smclass), "build_clos_class_method5");
-	clos_class_of(smclass, &pos);
+	clos_class_of_(smclass, &pos);
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_method6");
-	stdget_class_direct_superclasses(smclass, &check);
+	stdget_class_direct_superclasses_(smclass, &check);
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_class_method7");
 	test(left == mclass, "build_clos_class_method8");
@@ -2233,6 +2366,8 @@ static int test_clos_stdcombination_slots(void)
 	int check;
 	addr slots, pos;
 	size_t i, size;
+
+	check = 0;
 
 	clos_stdcombination_slots(&slots);
 	LenSlotVector(slots, &size);
@@ -2282,17 +2417,17 @@ static int test_build_clos_method_combination(void)
 
 	/* method_combination */
 	GetConst(COMMON_METHOD_COMBINATION, &clos);
-	clos_find_class(clos, &clos);
+	clos_find_class_(clos, &clos);
 	test(closp(clos), "build_clos_method_combination1");
-	clos_class_of(clos, &pos);
+	clos_class_of_(clos, &pos);
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_method_combination2");
-	stdget_class_direct_superclasses(clos, &check);
+	stdget_class_direct_superclasses_(clos, &check);
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_method_combination3");
 	GetConst(COMMON_STANDARD_OBJECT, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(left == check, "build_clos_method_combination4");
 
 	RETURN;
@@ -2305,31 +2440,31 @@ static int test_build_clos_class_combination(void)
 	GetConst(CLOS_METHOD_COMBINATION, &clos);
 	GetConst(COMMON_STANDARD, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination1");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination1");
 	GetConst(COMMON_PLUS, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination2");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination2");
 	GetConst(COMMON_AND, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination3");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination3");
 	GetConst(COMMON_APPEND, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination4");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination4");
 	GetConst(COMMON_LIST, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination5");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination5");
 	GetConst(COMMON_MAX, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination6");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination6");
 	GetConst(COMMON_MIN, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination7");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination7");
 	GetConst(COMMON_NCONC, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination8");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination8");
 	GetConst(COMMON_PROGN, &pos);
 	clos_find_combination(pos, &pos);
-	test(clos_subtype_p(pos, clos), "build_clos_class_combination9");
+	test(clos_subtype_p_debug(pos, clos), "build_clos_class_combination9");
 
 	RETURN;
 }
@@ -2344,6 +2479,8 @@ static int test_clos_stdspecializer_slots(void)
 	int check;
 	addr slots, pos;
 	size_t i, size;
+
+	check = 0;
 
 	clos_stdspecializer_slots(&slots);
 	LenSlotVector(slots, &size);
@@ -2372,17 +2509,17 @@ static int test_build_clos_class_specializer(void)
 
 	/* eql_specializer */
 	GetConst(CLOSNAME_EQL_SPECIALIZER, &clos);
-	clos_find_class(clos, &clos);
+	clos_find_class_(clos, &clos);
 	test(closp(clos), "build_clos_class_specializer1");
-	clos_class_of(clos, &pos);
+	clos_class_of_(clos, &pos);
 	GetConst(COMMON_STANDARD_CLASS, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_specializer2");
-	stdget_class_direct_superclasses(clos, &check);
+	stdget_class_direct_superclasses_(clos, &check);
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_class_specializer3");
 	GetConst(COMMON_STANDARD_OBJECT, &check);
-	clos_find_class(check, &check);
+	clos_find_class_(check, &check);
 	test(left == check, "build_clos_class_specializer4");
 
 	RETURN;
@@ -2405,12 +2542,12 @@ static int checkclass_va(constindex index, const char *name, va_list args)
 
 	/* name, clos */
 	a = readr(name);
-	clos_find_class(a, &x);
+	clos_find_class_(a, &x);
 	if (! closp(x)) {
 		degrade_printf("type1 %s error.\n", name);
 		return 0;
 	}
-	stdget_class_name(x, &b);
+	stdget_class_name_(x, &b);
 	if (! checkclass_name(a, b)) {
 		degrade_printf("name1 %s error\n", name);
 		return 0;
@@ -2430,17 +2567,17 @@ static int checkclass_va(constindex index, const char *name, va_list args)
 		if (ptr == NULL)
 			break;
 		a = readr(ptr);
-		clos_find_class(a, &y);
+		clos_find_class_(a, &y);
 		if (! closp(y)) {
 			degrade_printf("type2 %s, %s error.\n", name, ptr);
 			return 0;
 		}
-		stdget_class_name(y, &b);
+		stdget_class_name_(y, &b);
 		if (! checkclass_name(a, b)) {
 			degrade_printf("name2 %s, %s error\n", name, ptr);
 			return 0;
 		}
-		if (! clos_subclass_p(x, y)) {
+		if (! clos_subclass_p_debug(x, y)) {
 			degrade_printf("subclass_p %s, %s error\n", name, ptr);
 			return 0;
 		}
@@ -2454,6 +2591,8 @@ static int checkclass(const char *name, ...)
 	int check;
 	char data[256];
 	va_list args;
+
+	check = 0;
 
 	snprintf(data, 256, "supers-%s", name);
 	va_start(args, name);
@@ -2481,6 +2620,8 @@ static int checkbuilt(const char *name, ...)
 	int check;
 	char data[256];
 	va_list args;
+
+	check = 0;
 
 	snprintf(data, 256, "supers-%s", name);
 	va_start(args, name);
@@ -2515,6 +2656,8 @@ static int checkstructure(const char *name, ...)
 	char data[256];
 	va_list args;
 
+	check = 0;
+
 	snprintf(data, 256, "supers-%s", name);
 	va_start(args, name);
 	check = checkclass_va(CONSTANT_CLOS_STRUCTURE_CLASS, name, args);
@@ -2548,13 +2691,13 @@ static int checkslots_va(const char *name, va_list args)
 	const char *ptr;
 	size_t size, check;
 
-	clos_find_class(readr(name), &x);
-	clos_instance_heap(x, &x);
+	clos_find_class_(readr(name), &x);
+	clos_instance_heap_(x, &x);
 	for (size = 0; ; size++) {
 		ptr = va_arg(args, const char *);
 		if (ptr == NULL)
 			break;
-		clos_get(x, readr_clos(ptr), &y);
+		clos_get_(x, readr_clos(ptr), &y);
 	}
 	GetSlotClos(x, &x);
 	LenSlotVector(x, &check);
@@ -2567,6 +2710,8 @@ static int checkslots(const char *name, ...)
 	int check;
 	char data[256];
 	va_list args;
+
+	check = 0;
 
 	snprintf(data, 256, "slots-%s", name);
 	va_start(args, name);

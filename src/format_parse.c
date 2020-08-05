@@ -25,10 +25,12 @@ _g int format_abort_(addr format, size_t position, const char *str, va_list args
 	addr pos, list, stream;
 
 	copylocal_list_stdarg(NULL, &list, args);
-	if (formatp(format))
-		format_string_heap(&format, format);
-	else
+	if (formatp(format)) {
+		Return(format_string_heap_(&format, format));
+	}
+	else {
 		copyheap(&format, format);
+	}
 	conscar_heap(&pos, format);
 	nconc2_unsafe(list, pos, &list);
 
@@ -129,7 +131,7 @@ static int fmtinput_peek_(fmtinput input, unicode *c, int *ret)
 {
 	if (input->size <= input->index)
 		return Result(ret, 1);
-	string_getc(input->format, input->index, c);
+	Return(string_getc_(input->format, input->index, c));
 	return Result(ret, 0);
 }
 
@@ -346,7 +348,7 @@ first:
 	if (u == ':')
 		goto colon1;
 	u = toUpperUnicode(u);
-	push_charqueue_local(local, queue, u);
+	Return(push_charqueue_local_(local, queue, u));
 	goto first;
 
 first1:
@@ -371,7 +373,7 @@ colon1:
 	if (u == ':')
 		goto colon2;
 	u = toUpperUnicode(u);
-	push_charqueue_local(local, queue, u);
+	Return(push_charqueue_local_(local, queue, u));
 	goto colon3;
 
 colon2:
@@ -381,7 +383,7 @@ colon2:
 	if (u == ':')
 		return fmtinput_abort_(input, "Invalid colon ::: separator.", NULL);
 	u = toUpperUnicode(u);
-	push_charqueue_local(local, queue, u);
+	Return(push_charqueue_local_(local, queue, u));
 	goto colon3;
 
 colon3:
@@ -389,7 +391,7 @@ colon3:
 	if (u == '/')
 		goto finish;
 	u = toUpperUnicode(u);
-	push_charqueue_local(local, queue, u);
+	Return(push_charqueue_local_(local, queue, u));
 	goto colon3;
 
 error:
@@ -955,7 +957,7 @@ static int format_write_Output(struct fmtchar *list, byte *ptr, size_t *ret)
 	str->size += count * sizeoft(unicode);
 	body = (unicode *)format_write_body(ptr, 3);
 	for (i = 0; a < b; a++) {
-		string_getc(format, a, &c);
+		Return(string_getc_(format, a, &c));
 		body[i++] = c;
 	}
 	/* result */
@@ -1019,7 +1021,7 @@ static int format_write_Format(struct fmtchar *list, byte *ptr, size_t *ret)
 	str->size += size * sizeoft(unicode);
 	body = (unicode *)format_write_body(ptr, 1);
 	for (i = 0; i < size; i++) {
-		string_getc(format, i, &c);
+		Return(string_getc_(format, i, &c));
 		body[i] = c;
 	}
 	/* result */
@@ -2382,7 +2384,7 @@ static int format_write_LogicalBlock_output_(struct fmtchar *x, byte *ptr, size_
 	data = (unicode *)(ptr + IdxSize);
 	pos = x->format;
 	for (i = 0; a < b; a++) {
-		string_getc(pos, a, &u);
+		Return(string_getc_(pos, a, &u));
 		data[i++] = u;
 	}
 	/* size */
@@ -2716,7 +2718,7 @@ _g int format_parse_heap_(LocalRoot local, addr *ret, addr format)
 	return 0;
 }
 
-_g void format_string_alloc(LocalRoot local, addr *ret, addr format)
+_g int format_string_alloc_(LocalRoot local, addr *ret, addr format)
 {
 	byte *body;
 	struct format_argument *arg;
@@ -2726,7 +2728,6 @@ _g void format_string_alloc(LocalRoot local, addr *ret, addr format)
 #ifdef LISP_DEBUG
 	struct format_operator *str;
 #endif
-
 
 	CheckType(format, LISPTYPE_FORMAT);
 	/* header */
@@ -2741,20 +2742,22 @@ _g void format_string_alloc(LocalRoot local, addr *ret, addr format)
 	/* body */
 	strvect_alloc(local, &pos, size);
 	u = (unicode *)format_write_body(body, 1);
-	for (i = 0; i < size; i++)
-		strvect_setc(pos, i, u[i]);
-	*ret = pos;
+	for (i = 0; i < size; i++) {
+		Return(strvect_setc_(pos, i, u[i]));
+	}
+
+	return Result(ret, pos);
 }
 
-_g void format_string_local(LocalRoot local, addr *ret, addr format)
+_g int format_string_local_(LocalRoot local, addr *ret, addr format)
 {
 	CheckLocal(local);
-	format_string_alloc(local, ret, format);
+	return format_string_alloc_(local, ret, format);
 }
 
-_g void format_string_heap(addr *ret, addr format)
+_g int format_string_heap_(addr *ret, addr format)
 {
-	format_string_alloc(NULL, ret, format);
+	return format_string_alloc_(NULL, ret, format);
 }
 
 

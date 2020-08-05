@@ -516,7 +516,7 @@ _g int english_integer_(LocalRoot local, addr stream, addr pos, int cardinal)
 	return 0;
 }
 
-static void english_unit_string(LocalRoot local,
+static int english_unit_string_(LocalRoot local,
 		addr *ret, fixnum value, int cardinal, int localp)
 {
 	addr list, pos, queue;
@@ -535,12 +535,14 @@ static void english_unit_string(LocalRoot local,
 	GetCar(str.root, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		pushstring_charqueue_local(local, queue, pos);
+		Return(pushstring_charqueue_local_(local, queue, pos));
 	}
 	if (localp)
 		make_charqueue_local(local, queue, ret);
 	else
 		make_charqueue_heap(queue, ret);
+
+	return 0;
 }
 
 _g int english_unit_local_(LocalRoot local, addr *ret, addr pos, int cardinal)
@@ -551,8 +553,7 @@ _g int english_unit_local_(LocalRoot local, addr *ret, addr pos, int cardinal)
 	if (GetFixnum_signed(pos, &value))
 		return fmte_("The argument ~S must be a positive fixnum.", pos, NULL);
 
-	english_unit_string(local, ret, value, cardinal, 1);
-	return 0;
+	return english_unit_string_(local, ret, value, cardinal, 1);
 }
 
 _g int english_unit_heap_(LocalRoot local, addr *ret, addr pos, int cardinal)
@@ -565,8 +566,9 @@ _g int english_unit_heap_(LocalRoot local, addr *ret, addr pos, int cardinal)
 		return fmte_("The argument ~S must be a positive fixnum.", pos, NULL);
 
 	push_local(local, &stack);
-	english_unit_string(local, ret, value, cardinal, 0);
+	Return(english_unit_string_(local, ret, value, cardinal, 0));
 	rollback_local(local, stack);
+
 	return 0;
 }
 

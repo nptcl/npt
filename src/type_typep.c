@@ -49,17 +49,13 @@ static int typep_type(Execute ptr, addr value, addr type, int *ret)
 
 static int typep_clos(Execute ptr, addr value, addr type, int *ret)
 {
-	if (GetType(value) != LISPTYPE_CLOS) {
-		*ret = 0;
-		return 0;
-	}
+	if (GetType(value) != LISPTYPE_CLOS)
+		return Result(ret, 0);
 	GetArrayType(type, 0, &type);
-	if (type_asterisk_p(type)) {
-		*ret = 1;
-		return 0;
-	}
-	*ret = clos_subtype_p(value, type);
-	return 0;
+	if (type_asterisk_p(type))
+		return Result(ret, 1);
+
+	return clos_subtype_p_(value, type, ret);
 }
 
 static int typep_asterisk(Execute ptr, addr value, addr type, int *ret)

@@ -53,8 +53,8 @@ static int type_object_clos(addr *ret, addr pos)
 		GetConst(COMMON_CLASS, ret);
 	}
 	else {
-		clos_class_of(pos, &pos);
-		stdget_class_name(pos, ret);
+		Return(clos_class_of_(pos, &pos));
+		Return(stdget_class_name_(pos, ret));
 	}
 
 	return 0;

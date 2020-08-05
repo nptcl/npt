@@ -10,61 +10,83 @@
 /*
  *  length
  */
-_g int eastasian_length(addr pos, size_t *ret)
+_g int eastasian_length_(addr pos, size_t *ret, int *rerrp)
 {
-	int check;
+	int errorp;
 	unicode c;
 	unsigned v;
 	size_t size, i, count;
 
 	string_length(pos, &size);
-	check = 0;
+	errorp = 0;
 	count = 0;
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (UnicodeCount <= c) {
-			check = 1;
+			errorp = 1;
 			continue;
 		}
 		v = eastasian_width(c);
 		if (v == 0) {
-			check = 1;
+			errorp = 1;
 			continue;
 		}
 		count += (size_t)v;
 	}
 	*ret = count;
+	if (rerrp)
+		*rerrp = errorp;
 
-	return check;
+	return 0;
 }
 
 
 /*
  *  syscall
  */
-static enum EastAsianType eastasian_type(addr pos)
+static int eastasian_type_(addr pos, enum EastAsianType *ret)
 {
+	int check;
+
 	if (characterp(pos)) {
-		if (character_equalp_unicode(pos, 'N')) return EastAsian_N;
-		if (character_equalp_unicode(pos, 'A')) return EastAsian_A;
-		if (character_equalp_unicode(pos, 'H')) return EastAsian_H;
-		if (character_equalp_unicode(pos, 'W')) return EastAsian_W;
-		if (character_equalp_unicode(pos, 'F')) return EastAsian_F;
-		return EastAsian_error;
+		if (character_equalp_unicode(pos, 'N'))
+			return Result(ret, EastAsian_N);
+		if (character_equalp_unicode(pos, 'A'))
+			return Result(ret, EastAsian_A);
+		if (character_equalp_unicode(pos, 'H'))
+			return Result(ret, EastAsian_H);
+		if (character_equalp_unicode(pos, 'W'))
+			return Result(ret, EastAsian_W);
+		if (character_equalp_unicode(pos, 'F'))
+			return Result(ret, EastAsian_F);
+		return Result(ret, EastAsian_error);
 	}
 	if (symbolp(pos))
 		GetNameSymbol(pos, &pos);
 	if (stringp(pos)) {
-		if (string_equalp_char(pos, "N")) return EastAsian_N;
-		if (string_equalp_char(pos, "A")) return EastAsian_A;
-		if (string_equalp_char(pos, "H")) return EastAsian_H;
-		if (string_equalp_char(pos, "W")) return EastAsian_W;
-		if (string_equalp_char(pos, "F")) return EastAsian_F;
-		if (string_equalp_char(pos, "NA")) return EastAsian_NA;
-		return EastAsian_error;
+		Return(string_equalp_char_(pos, "N", &check));
+		if (check)
+			return Result(ret, EastAsian_N);
+		Return(string_equalp_char_(pos, "A", &check));
+		if (check)
+			return Result(ret, EastAsian_A);
+		Return(string_equalp_char_(pos, "H", &check));
+		if (check)
+			return Result(ret, EastAsian_H);
+		Return(string_equalp_char_(pos, "W", &check));
+		if (check)
+			return Result(ret, EastAsian_W);
+		Return(string_equalp_char_(pos, "F", &check));
+		if (check)
+			return Result(ret, EastAsian_F);
+		Return(string_equalp_char_(pos, "NA", &check));
+		if (check)
+			return Result(ret, EastAsian_NA);
+
+		return Result(ret, EastAsian_error);
 	}
 
-	return EastAsian_error;
+	return Result(ret, EastAsian_error);
 }
 
 _g int eastasian_set_syscall_(addr pos, addr value, addr errorp, addr *ret)
@@ -87,7 +109,7 @@ _g int eastasian_set_syscall_(addr pos, addr value, addr errorp, addr *ret)
 	}
 
 	/* set */
-	type = eastasian_type(pos);
+	Return(eastasian_type_(pos, &type));
 	switch (type) {
 		case EastAsian_N:
 		case EastAsian_A:
@@ -127,16 +149,18 @@ static void eastasian_system_symbol(enum EastAsianType type, addr *ret)
 		GetConstant(index, ret);
 }
 
-_g void eastasian_get_syscall(addr pos, addr *retsize, addr *retsymbol)
+_g int eastasian_get_syscall_(addr pos, addr *retsize, addr *retsymbol)
 {
 	enum EastAsianType type;
 
-	type = eastasian_type(pos);
+	Return(eastasian_type_(pos, &type));
 	eastasian_system_symbol(type, retsymbol);
 	if (*retsymbol == Nil)
 		fixnum_heap(retsize, 0);
 	else
 		fixnum_heap(retsize, (fixnum)EastAsianSymbol[type]);
+
+	return 0;
 }
 
 static void eastasian_width_character(addr pos, addr *ret, addr *retbool)
@@ -180,33 +204,36 @@ error:
 	*retbool = Nil;
 }
 
-static void eastasian_width_string(addr pos, addr *ret, addr *retbool)
+static int eastasian_width_string_(addr pos, addr *ret, addr *retbool)
 {
 	int check;
 	size_t size;
 
-	check = eastasian_length(pos, &size);
+	Return(eastasian_length_(pos, &size, &check));
 	make_index_integer_heap(ret, size);
 	*retbool = check? Nil: T;
+
+	return 0;
 }
 
-_g void eastasian_width_syscall(addr pos, addr *ret, addr *retbool)
+_g int eastasian_width_syscall_(addr pos, addr *ret, addr *retbool)
 {
 	if (characterp(pos)) {
 		eastasian_width_character(pos, ret, retbool);
-		return;
+		return 0;
 	}
 	if (integerp(pos)) {
 		eastasian_width_integer(pos, ret, retbool);
-		return;
+		return 0;
 	}
 	if (stringp(pos)) {
-		eastasian_width_string(pos, ret, retbool);
-		return;
+		return eastasian_width_string_(pos, ret, retbool);
 	}
 
 	/* error */
 	fixnum_heap(ret, 0);
 	*retbool = Nil;
+
+	return 0;
 }
 

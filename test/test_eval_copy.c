@@ -140,7 +140,7 @@ static int test_copy_string(void)
 	test(! GetStatusDynamic(pos), "copy_string1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_STRING, "copy_string2");
 	GetEvalParse(pos, 0, &pos);
-	test(string_equal_char(pos, "Hello"), "copy_string3");
+	test(string_equal_char_debug(pos, "Hello"), "copy_string3");
 
 	RETURN;
 }
@@ -157,7 +157,7 @@ static int test_copy_symbol(void)
 	GetEvalParse(pos, 0, &pos);
 	test(GetType(pos) == LISPTYPE_SYMBOL, "copy_symbol3");
 	GetNameSymbol(pos, &pos);
-	test(string_equal_char(pos, "HELLO"), "copy_symbol4");
+	test(string_equal_char_debug(pos, "HELLO"), "copy_symbol4");
 
 	RETURN;
 }
@@ -191,7 +191,7 @@ static int test_copy_function(void)
 	test(GetType(pos) == LISPTYPE_CALLNAME, "copy_function3");
 	GetCallName(pos, &pos);
 	GetNameSymbol(pos, &pos);
-	test(string_equal_char(pos, "HELLO"), "copy_function4");
+	test(string_equal_char_debug(pos, "HELLO"), "copy_function4");
 
 	RETURN;
 }
@@ -208,7 +208,7 @@ static int test_copy_quote(void)
 	GetEvalParse(pos, 0, &pos);
 	test(GetType(pos) == LISPTYPE_SYMBOL, "copy_quote3");
 	GetNameSymbol(pos, &pos);
-	test(string_equal_char(pos, "HELLO"), "copy_quote4");
+	test(string_equal_char_debug(pos, "HELLO"), "copy_quote4");
 
 	RETURN;
 }
@@ -225,7 +225,7 @@ static int test_copy_go(void)
 	GetEvalParse(pos, 0, &pos);
 	test(GetType(pos) == LISPTYPE_SYMBOL, "copy_go3");
 	GetNameSymbol(pos, &pos);
-	test(string_equal_char(pos, "HELLO"), "copy_go4");
+	test(string_equal_char_debug(pos, "HELLO"), "copy_go4");
 
 	RETURN;
 }

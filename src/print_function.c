@@ -250,16 +250,16 @@ static int pprint_dispatch_vector2(Execute ptr)
 	getdata_control(ptr, &cons);
 	GetCons(cons, &stream, &vector);
 	Check(! pretty_stream_p(stream), "type error");
-	Check(! vectorp_sequence(vector), "type error");
+	Check(! vectorp_sequence_debug(vector), "type error");
 	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	size = length_sequence(vector, 1);
+	Return(length_sequence_(vector, 1, &size));
 	if (size == 0)
 		return 0;
 	i = 0;
 	for (;;) {
 		Return(pprint_pop_common(ptr, stream, &pos));
-		getelt_sequence(NULL, vector, i, &pos);
+		Return(getelt_sequence_(NULL, vector, i, &pos));
 		Return(write_print(ptr, stream, pos));
 		i++;
 		if (size <= i)

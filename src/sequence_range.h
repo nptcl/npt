@@ -21,42 +21,43 @@ _g void load_sequence_range(struct sequence_range *ptr);
 
 
 /* build */
-_g void build_sequence_range(struct sequence_range *ptr,
+_g int build_sequence_range_(struct sequence_range *ptr,
 		addr pos, addr start, addr end);
-_g struct sequence_range *make_sequence_range(LocalRoot local,
-		addr pos, addr start, addr end);
-_g void build_sequence_range_endp(struct sequence_range *ptr,
+_g int make_sequence_range_(LocalRoot local,
+		addr pos, addr start, addr end, struct sequence_range **ret);
+_g int build_sequence_range_endp_(struct sequence_range *ptr,
 		addr list, addr start, addr end);
-_g struct sequence_range *make_sequence_range_endp(LocalRoot local,
-		addr list, addr start, addr end);
-_g void build_sequence_range_vector2(LocalRoot local,
+_g int make_sequence_range_endp_(LocalRoot local,
+		addr list, addr start, addr end, struct sequence_range **ret);
+_g int build_sequence_range_vector2_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end,
 		addr *root, addr *tail);
-_g void build_sequence_range_vector(LocalRoot local,
+_g int build_sequence_range_vector_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end);
-_g struct sequence_range *make_sequence_range_vector(LocalRoot local,
-		addr list, addr start, addr end);
+_g int make_sequence_range_vector_(LocalRoot local,
+		addr list, addr start, addr end, struct sequence_range **ret);
 
 /* access */
-_g int get_sequence_range(struct sequence_range *ptr, addr *ret);
-_g int getnext_sequence_range(struct sequence_range *ptr, addr *ret);
-_g int next_sequence_range(struct sequence_range *ptr);
+_g int get_sequence_range_(struct sequence_range *ptr, addr *value, int *ret);
+_g int getnext_sequence_range_(struct sequence_range *ptr, addr *value, int *ret);
+_g int next_sequence_range_(struct sequence_range *ptr, int *ret);
 _g int endp_sequence_range(struct sequence_range *ptr);
-_g void set_sequence_range(struct sequence_range *ptr, addr value);
-_g void getinplace_sequence_range(struct sequence_range *ptr, struct array_value *ret);
-_g void setinplace_sequence_range(LocalRoot local,
+_g int set_sequence_range_(struct sequence_range *ptr, addr value);
+_g int getinplace_sequence_range_(struct sequence_range *ptr, struct array_value *ret);
+_g int setinplace_sequence_range_(LocalRoot local,
 		struct sequence_range *ptr, const struct array_value *str);
 
 /* reverse */
 _g void reverse_sequence_range(struct sequence_range *ptr);
 _g int endp_reverse_sequence_range(struct sequence_range *ptr);
-_g int next_reverse_sequence_range(struct sequence_range *ptr);
-_g int get_reverse_sequence_range(struct sequence_range *ptr, addr *ret);
-_g int getnext_reverse_sequence_range(struct sequence_range *ptr, addr *ret);
-_g void set_reverse_sequence_range(struct sequence_range *ptr, addr value);
+_g int next_reverse_sequence_range_(struct sequence_range *ptr, int *ret);
+_g int get_reverse_sequence_range_(struct sequence_range *ptr, addr *value, int *ret);
+_g int getnext_reverse_sequence_range_(
+		struct sequence_range *ptr, addr *value, int *ret);
+_g int set_reverse_sequence_range_(struct sequence_range *ptr, addr value);
 
 /* remove */
-_g void remove_sequence_range(struct sequence_range *ptr);
+_g int remove_sequence_range_(struct sequence_range *ptr);
 
 #endif
 

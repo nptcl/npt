@@ -13,26 +13,21 @@
 /*
  *  query
  */
-static int step_prompt_exit_p(addr pos)
+static int step_prompt_exit_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
-		return 0;
+		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equalp_char(pos, "Q")
-		|| string_equalp_char(pos, "QUIT")
-		|| string_equalp_char(pos, "E")
-		|| string_equalp_char(pos, "EXIT")
-		|| string_equalp_char(pos, "S")
-		|| string_equalp_char(pos, "STEP");
+	return string_equalp_char_va_(pos, ret,
+			"Q", "QUIT", "E", "EXIT", "S", "STEP", NULL);
 }
 
-static int step_prompt_over_p(addr pos)
+static int step_prompt_over_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
-		return 0;
+		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equalp_char(pos, "O")
-		|| string_equalp_char(pos, "OVER");
+	return string_equalp_char_va_(pos, ret, "O", "OVER", NULL);
 }
 
 static void step_prompt_over(Execute ptr)
@@ -42,14 +37,12 @@ static void step_prompt_over(Execute ptr)
 	setspecial_local(ptr, symbol, Nil);
 }
 
-static int step_prompt_help_p(addr pos)
+static int step_prompt_help_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
-		return 0;
+		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equalp_char(pos, "?")
-		|| string_equalp_char(pos, "H")
-		|| string_equalp_char(pos, "HELP");
+	return string_equalp_char_va_(pos, ret, "?", "H", "HELP", NULL);
 }
 
 static int step_prompt_help_(Execute ptr, addr io)
@@ -80,20 +73,25 @@ static int step_prompt_help_(Execute ptr, addr io)
 	return 0;
 }
 
-static int step_prompt_loop(Execute ptr, addr io, addr pos, int *exit, int *exec)
+static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exec)
 {
-	if (step_prompt_exit_p(pos)) {
+	int check;
+
+	Return(step_prompt_exit_p_(pos, &check));
+	if (check) {
 		*exit = 1;
 		*exec = 0;
 		return 0;
 	}
-	if (step_prompt_over_p(pos)) {
+	Return(step_prompt_over_p_(pos, &check));
+	if (check) {
 		*exit = 1;
 		*exec = 0;
 		step_prompt_over(ptr);
 		return 0;
 	}
-	if (step_prompt_help_p(pos)) {
+	Return(step_prompt_help_p_(pos, &check));
+	if (check) {
 		*exit = 0;
 		*exec = 0;
 		return step_prompt_help_(ptr, io);
@@ -103,7 +101,7 @@ static int step_prompt_loop(Execute ptr, addr io, addr pos, int *exit, int *exec
 	return 0;
 }
 
-static int step_prompt_query(Execute ptr, addr value, int *ret)
+static int step_prompt_query_(Execute ptr, addr value, int *ret)
 {
 	int check;
 	addr io, symbol, control;
@@ -116,7 +114,7 @@ static int step_prompt_query(Execute ptr, addr value, int *ret)
 	GetConst(SYSTEM_STEP_VALUE, &symbol);
 	pushspecial_control(ptr, symbol, T);
 	mode_prompt_stream(ptr, PromptStreamMode_Step);
-	Return(eval_custom_loop(ptr, io, step_prompt_loop));
+	Return(eval_custom_loop(ptr, io, step_prompt_loop_));
 	getspecial_local(ptr, symbol, &value);
 	check = (value != Nil);
 	Return(free_control_(ptr, control));
@@ -142,7 +140,7 @@ _g int execute_step_code(Execute ptr, addr expr, addr value)
 	}
 
 	/* query */
-	Return(step_prompt_query(ptr, value, &stepin));
+	Return(step_prompt_query_(ptr, value, &stepin));
 	if (stepin) {
 		/* step in */
 		return runcode_control(ptr, expr);

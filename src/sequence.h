@@ -6,27 +6,28 @@
 #include "typedef.h"
 
 _g int sequencep(addr pos);
-_g int listp_sequence(addr pos);
-_g int vectorp_sequence(addr pos);
-_g void vector_check_sequence(addr type, size_t size);
-_g void simple_vector_check_sequence(addr type, size_t size);
-_g void array_check_sequence(addr type, size_t size);
-_g void make_vector_from_list(addr *ret, addr cons);
-_g void make_vector4_from_list(addr *ret, addr cons);
-_g void list_start_end_sequence(addr *list, addr *prev,
+_g int listp_sequence_(addr pos, int *ret);
+_g int vectorp_sequence_(addr pos, int *ret);
+_g int vectorp_sequence_debug(addr pos);
+_g int vector_check_sequence_(addr type, size_t size);
+_g int simple_vector_check_sequence_(addr type, size_t size);
+_g int array_check_sequence_(addr type, size_t size);
+_g int make_vector_from_list_(addr *ret, addr cons);
+_g int make_vector4_from_list_(addr *ret, addr cons);
+_g int list_start_end_sequence_(addr *list, addr *prev,
 		addr start, addr end, size_t *ret1, size_t *ret2);
-_g int size_start_end_sequence(addr start, addr end,
-		size_t size, size_t *ret1, size_t *ret2);
+_g int size_start_end_sequence_(addr start, addr end,
+		size_t size, size_t *ret1, size_t *ret2, int *ret);
 
 /* common */
-_g size_t length_sequence(addr pos, int fill);
-_g void getelt_inplace_sequence(addr pos, size_t index, struct array_value *str);
-_g void setelt_inplace_sequence(LocalRoot local,
+_g int length_sequence_(addr pos, int fill, size_t *ret);
+_g int getelt_inplace_sequence_(addr pos, size_t index, struct array_value *str);
+_g int setelt_inplace_sequence_(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str);
-_g void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret);
-_g void setelt_sequence(addr pos, size_t index, addr value);
-_g void reverse_sequence_heap(addr *ret, addr pos);
-_g void nreverse_sequence(addr *ret, addr pos);
+_g int getelt_sequence_(LocalRoot local, addr pos, size_t index, addr *ret);
+_g int setelt_sequence_(addr pos, size_t index, addr value);
+_g int reverse_sequence_heap_(addr *ret, addr pos);
+_g int nreverse_sequence_(addr *ret, addr pos);
 
 #endif
 

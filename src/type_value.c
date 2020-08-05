@@ -15,50 +15,61 @@
 #include "type_table.h"
 #include "type_value.h"
 
-typedef void (*type_value_call)(addr *, addr);
+typedef int (*type_value_call)(addr *, addr);
 static type_value_call TypeValueTable[LISPTYPE_SIZE];
 
+/* nil */
 _g void type_value_nil(addr *ret)
 {
 	GetTypeTable(ret, Null);
 }
 
+static int type_value_nil_(addr *ret, addr value)
+{
+	GetTypeTable(ret, Null);
+	return 0;
+}
+
+/* t */
 _g void type_value_t(addr *ret)
 {
 	GetTypeTable(ret, Boolean);
 }
 
+static int type_value_t_(addr *ret, addr value)
+{
+	GetTypeTable(ret, Boolean);
+	return 0;
+}
+
+/* type */
 _g void type_value_type(addr *ret)
 {
 	GetTypeTable(ret, Type);
 }
 
-static void type_value_nil_call(addr *ret, addr value)
-{
-	GetTypeTable(ret, Null);
-}
-
-static void type_value_t_call(addr *ret, addr value)
-{
-	GetTypeTable(ret, Boolean);
-}
-
-static void type_value_type_call(addr *ret, addr value)
+static int type_value_type_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Type);
+	return 0;
 }
 
-_g void type_value_clos(addr *ret, addr value)
+/* clos */
+_g int type_value_clos_(addr *ret, addr value)
 {
-	clos_class_of(value, &value);
+	Return(clos_class_of_(value, &value));
 	type_clos_heap(value, ret);
+	return 0;
 }
 
-static void type_value_cons(addr *ret, addr value)
+/* cons */
+static int type_value_cons_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Cons);
+	return 0;
 }
 
+/* array */
 static void type_value_strarray(addr *ret, addr value)
 {
 	enum LISPDECL decl;
@@ -157,6 +168,13 @@ _g void type_value_array(addr *ret, addr value)
 		type_value_array_multiple(ret, value);
 }
 
+static int type_value_array_(addr *ret, addr value)
+{
+	type_value_array(ret, value);
+	return 0;
+}
+
+/* vector */
 _g void type_value_vector(addr *ret, addr value)
 {
 	addr arg;
@@ -168,6 +186,13 @@ _g void type_value_vector(addr *ret, addr value)
 	type1_heap(LISPDECL_SIMPLE_VECTOR, arg, ret);
 }
 
+static int type_value_vector_(addr *ret, addr value)
+{
+	type_value_vector(ret, value);
+	return 0;
+}
+
+/* character */
 _g void type_value_character(addr *ret, addr value)
 {
 	enum CHARACTER_TYPE type;
@@ -193,7 +218,14 @@ _g void type_value_character(addr *ret, addr value)
 	}
 }
 
-static void type_value_string(addr *ret, addr value)
+static int type_value_character_(addr *ret, addr value)
+{
+	type_value_character(ret, value);
+	return 0;
+}
+
+/* string */
+static int type_value_string_(addr *ret, addr value)
 {
 	enum CHARACTER_TYPE type;
 	addr arg, pos;
@@ -214,28 +246,37 @@ static void type_value_string(addr *ret, addr value)
 			type1_heap(LISPDECL_SIMPLE_STRING, arg, &pos);
 			break;
 	}
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-static void type_value_hashtable(addr *ret, addr value)
+/* hashtable */
+static int type_value_hashtable_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Hashtable);
+	return 0;
 }
 
-static void type_value_readtable(addr *ret, addr value)
+/* readtable */
+static int type_value_readtable_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Readtable);
+	return 0;
 }
 
-static void type_value_symbol(addr *ret, addr value)
+/* symbol */
+static int type_value_symbol_(addr *ret, addr value)
 {
 	Check(GetType(value) != LISPTYPE_SYMBOL, "type error");
 	if (keywordp(value))
 		GetTypeTable(ret, Keyword);
 	else
 		GetTypeTable(ret, Symbol);
+
+	return 0;
 }
 
+/* integer */
 static void type_realvalue(enum LISPDECL type, addr value, addr *ret)
 {
 	type4_heap(type, Nil, value, Nil, value, ret);
@@ -247,64 +288,87 @@ _g void type_value_integer(addr *ret, addr value)
 	type_realvalue(LISPDECL_INTEGER, value, ret);
 }
 
+static int type_value_integer_(addr *ret, addr value)
+{
+	type_value_integer(ret, value);
+	return 0;
+}
+
+/* rational */
 _g void type_value_rational(addr *ret, addr value)
 {
 	Check(! rationalp(value), "type error");
 	type_realvalue(LISPDECL_RATIONAL, value, ret);
 }
 
-static void type_value_single(addr *ret, addr value)
+static int type_value_rational_(addr *ret, addr value)
+{
+	type_value_rational(ret, value);
+	return 0;
+}
+
+/* single */
+static int type_value_single_(addr *ret, addr value)
 {
 	CheckType(value, LISPTYPE_SINGLE_FLOAT);
 	type_realvalue(LISPDECL_SINGLE_FLOAT, value, ret);
+	return 0;
 }
 
-static void type_value_double(addr *ret, addr value)
+/* double */
+static int type_value_double_(addr *ret, addr value)
 {
 	CheckType(value, LISPTYPE_DOUBLE_FLOAT);
 	type_realvalue(LISPDECL_DOUBLE_FLOAT, value, ret);
+	return 0;
 }
 
-static void type_value_long(addr *ret, addr value)
+/* long */
+static int type_value_long_(addr *ret, addr value)
 {
 	CheckType(value, LISPTYPE_LONG_FLOAT);
 	type_realvalue(LISPDECL_LONG_FLOAT, value, ret);
+	return 0;
 }
 
 _g void type_value_float(addr *ret, addr value)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			type_value_single(ret, value);
+			(void)type_value_single_(ret, value);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			type_value_double(ret, value);
+			(void)type_value_double_(ret, value);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			type_value_long(ret, value);
+			(void)type_value_long_(ret, value);
 			break;
 
 		default:
-			TypeError(value, FLOAT);
-			return;
+			Abort("type error");
+			break;
 	}
 }
 
-_g void type_value_complex(addr *ret, addr value)
+/* complex */
+_g int type_value_complex_(addr *ret, addr value)
 {
 	addr real, imag, type;
 
 	GetRealComplex(value, &real);
 	GetImagComplex(value, &imag);
-	type_value(&real, real);
-	type_value(&imag, imag);
+	Return(type_value_(&real, real));
+	Return(type_value_(&imag, imag));
 	type2or_heap(real, imag, &type);
 	type1_heap(LISPDECL_COMPLEX, type, ret);
+
+	return 0;
 }
 
-static void type_value_function(addr *ret, addr value)
+/* function */
+static int type_value_function_(addr *ret, addr value)
 {
 	Check(! functionp(value), "type error");
 	gettype_function(value, ret);
@@ -314,18 +378,30 @@ static void type_value_function(addr *ret, addr value)
 		else
 			GetTypeTable(ret, Function);
 	}
+
+	return 0;
 }
 
-static void type_value_package(addr *ret, addr value)
+/* package */
+static int type_value_package_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Package);
+	return 0;
 }
 
+/* random-state */
 _g void type_value_random_state(addr *ret, addr value)
 {
 	GetTypeTable(ret, RandomState);
 }
 
+static int type_value_random_state_(addr *ret, addr value)
+{
+	type_value_random_state(ret, value);
+	return 0;
+}
+
+/* pathname */
 _g void type_value_pathname(addr *ret, addr value)
 {
 	Check(! pathnamep(value), "type error");
@@ -335,47 +411,61 @@ _g void type_value_pathname(addr *ret, addr value)
 		GetTypeTable(ret, LogicalPathname);
 }
 
+static int type_value_pathname_(addr *ret, addr value)
+{
+	type_value_pathname(ret, value);
+	return 0;
+}
+
+/* environment */
 _g void type_value_environment(addr *ret, addr value)
 {
 	GetTypeTable(ret, Environment);
 }
 
-static void type_value_stream(addr *ret, addr value)
+static int type_value_environment_(addr *ret, addr value)
+{
+	type_value_environment(ret, value);
+	return 0;
+}
+
+/* stream */
+static int type_value_stream_(addr *ret, addr value)
 {
 	CheckType(value, LISPTYPE_STREAM);
 	switch (getstreamtype(value)) {
 		case StreamType_BroadCast:
 			GetTypeTable(ret, BroadcastStream);
-			return;
+			return 0;
 
 		case StreamType_Concatenated:
 			GetTypeTable(ret, ConcatenatedStream);
-			return;
+			return 0;
 
 		case StreamType_Echo:
 			GetTypeTable(ret, EchoStream);
-			return;
+			return 0;
 
 		case StreamType_StringInput:
 		case StreamType_StringOutput:
 			GetTypeTable(ret, StringStream);
-			return;
+			return 0;
 
 		case StreamType_Synonym:
 			GetTypeTable(ret, SynonymStream);
-			return;
+			return 0;
 
 		case StreamType_TwoWay:
 			GetTypeTable(ret, TwoWayStream);
-			return;
+			return 0;
 
 		case StreamType_Prompt:
 			GetTypeTable(ret, PromptStream);
-			return;
+			return 0;
 
 		case StreamType_Pretty:
 			GetTypeTable(ret, PrettyStream);
-			return;
+			return 0;
 
 		default:
 			break;
@@ -386,18 +476,25 @@ static void type_value_stream(addr *ret, addr value)
 		GetTypeTable(ret, FileStream);
 	else
 		GetTypeTable(ret, Stream);
+
+	return 0;
 }
 
-static void type_value_restart(addr *ret, addr value)
+/* restart */
+static int type_value_restart_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Restart);
+	return 0;
 }
 
-static void type_value_eval(addr *ret, addr value)
+/* eval */
+static int type_value_eval_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Eval);
+	return 0;
 }
 
+/* bit-vector */
 _g void type_value_bitvector(addr *ret, addr value)
 {
 	addr arg;
@@ -409,81 +506,92 @@ _g void type_value_bitvector(addr *ret, addr value)
 	type1_heap(LISPDECL_SIMPLE_BIT_VECTOR, arg, ret);
 }
 
-static void type_value_quote(addr *ret, addr value)
+static int type_value_bitvector_(addr *ret, addr value)
+{
+	type_value_bitvector(ret, value);
+	return 0;
+}
+
+/* quote */
+static int type_value_quote_(addr *ret, addr value)
 {
 	GetTypeTable(ret, Quote);
+	return 0;
 }
 
-static void type_value_bytespec(addr *ret, addr value)
+static int type_value_bytespec_(addr *ret, addr value)
 {
 	GetTypeTable(ret, ByteSpec);
+	return 0;
 }
 
-static void type_value_print_dispatch(addr *ret, addr value)
+static int type_value_print_dispatch_(addr *ret, addr value)
 {
 	GetTypeTable(ret, PrintDispatch);
+	return 0;
 }
 
-static void type_value_argument(addr *ret, addr value)
+static int type_value_argument_(addr *ret, addr value)
 {
 	GetTypeTable(ret, T);
+	return 0;
 }
 
-static void type_value_error(addr *ret, addr value)
+static int type_value_error_(addr *ret, addr value)
 {
 	infobit(value);
-	Abort("Invalid type-value.");
+	return fmte_("Invalid type-value.", NULL);
 }
 
-_g void type_value(addr *ret, addr value)
+_g int type_value_(addr *ret, addr value)
 {
 	type_value_call call;
 
 	call = TypeValueTable[GetType(value)];
 	if (call == NULL)
-		type_value_error(ret, value);
+		return type_value_error_(ret, value);
 	else
-		call(ret, value);
+		return (*call)(ret, value);
 }
 
 _g void init_type_value(void)
 {
-	TypeValueTable[LISPTYPE_NIL] = type_value_nil_call;
-	TypeValueTable[LISPTYPE_T] = type_value_t_call;
-	TypeValueTable[LISPTYPE_TYPE] = type_value_type_call;
-	TypeValueTable[LISPTYPE_CLOS] = type_value_clos;
-	TypeValueTable[LISPTYPE_CONS] = type_value_cons;
-	TypeValueTable[LISPTYPE_ARRAY] = type_value_array;
-	TypeValueTable[LISPTYPE_VECTOR] = type_value_vector;
-	TypeValueTable[LISPTYPE_CHARACTER] = type_value_character;
-	TypeValueTable[LISPTYPE_STRING] = type_value_string;
-	TypeValueTable[LISPTYPE_HASHTABLE] = type_value_hashtable;
-	TypeValueTable[LISPTYPE_READTABLE] = type_value_readtable;
-	TypeValueTable[LISPTYPE_SYMBOL] = type_value_symbol;
-	TypeValueTable[LISPTYPE_FIXNUM] = type_value_integer;
-	TypeValueTable[LISPTYPE_BIGNUM] = type_value_integer;
-	TypeValueTable[LISPTYPE_RATIO] = type_value_rational;
-	TypeValueTable[LISPTYPE_SHORT_FLOAT] = type_value_error;
-	TypeValueTable[LISPTYPE_SINGLE_FLOAT] = type_value_single;
-	TypeValueTable[LISPTYPE_DOUBLE_FLOAT] = type_value_double;
-	TypeValueTable[LISPTYPE_LONG_FLOAT] = type_value_long;
-	TypeValueTable[LISPTYPE_COMPLEX] = type_value_complex;
-	TypeValueTable[LISPTYPE_CONTROL] = type_value_error;
-	TypeValueTable[LISPTYPE_CODE] = type_value_error;
-	TypeValueTable[LISPTYPE_CALLNAME] = type_value_error;
-	TypeValueTable[LISPTYPE_FUNCTION] = type_value_function;
-	TypeValueTable[LISPTYPE_INDEX] = type_value_error;
-	TypeValueTable[LISPTYPE_PACKAGE] = type_value_package;
-	TypeValueTable[LISPTYPE_RANDOM_STATE] = type_value_random_state;
-	TypeValueTable[LISPTYPE_PATHNAME] = type_value_pathname;
-	TypeValueTable[LISPTYPE_STREAM] = type_value_stream;
-	TypeValueTable[LISPTYPE_RESTART] = type_value_restart;
-	TypeValueTable[LISPTYPE_EVAL] = type_value_eval;
-	TypeValueTable[LISPTYPE_ENVIRONMENT] = type_value_environment;
-	TypeValueTable[LISPTYPE_BITVECTOR] = type_value_bitvector;
-	TypeValueTable[LISPTYPE_QUOTE] = type_value_quote;
-	TypeValueTable[LISPTYPE_BYTESPEC] = type_value_bytespec;
-	TypeValueTable[LISPTYPE_PRINT_DISPATCH] = type_value_print_dispatch;
-	TypeValueTable[LISPSYSTEM_ARGUMENT] = type_value_argument;
+	TypeValueTable[LISPTYPE_NIL] = type_value_nil_;
+	TypeValueTable[LISPTYPE_T] = type_value_t_;
+	TypeValueTable[LISPTYPE_TYPE] = type_value_type_;
+	TypeValueTable[LISPTYPE_CLOS] = type_value_clos_;
+	TypeValueTable[LISPTYPE_CONS] = type_value_cons_;
+	TypeValueTable[LISPTYPE_ARRAY] = type_value_array_;
+	TypeValueTable[LISPTYPE_VECTOR] = type_value_vector_;
+	TypeValueTable[LISPTYPE_CHARACTER] = type_value_character_;
+	TypeValueTable[LISPTYPE_STRING] = type_value_string_;
+	TypeValueTable[LISPTYPE_HASHTABLE] = type_value_hashtable_;
+	TypeValueTable[LISPTYPE_READTABLE] = type_value_readtable_;
+	TypeValueTable[LISPTYPE_SYMBOL] = type_value_symbol_;
+	TypeValueTable[LISPTYPE_FIXNUM] = type_value_integer_;
+	TypeValueTable[LISPTYPE_BIGNUM] = type_value_integer_;
+	TypeValueTable[LISPTYPE_RATIO] = type_value_rational_;
+	TypeValueTable[LISPTYPE_SHORT_FLOAT] = type_value_error_;
+	TypeValueTable[LISPTYPE_SINGLE_FLOAT] = type_value_single_;
+	TypeValueTable[LISPTYPE_DOUBLE_FLOAT] = type_value_double_;
+	TypeValueTable[LISPTYPE_LONG_FLOAT] = type_value_long_;
+	TypeValueTable[LISPTYPE_COMPLEX] = type_value_complex_;
+	TypeValueTable[LISPTYPE_CONTROL] = type_value_error_;
+	TypeValueTable[LISPTYPE_CODE] = type_value_error_;
+	TypeValueTable[LISPTYPE_CALLNAME] = type_value_error_;
+	TypeValueTable[LISPTYPE_FUNCTION] = type_value_function_;
+	TypeValueTable[LISPTYPE_INDEX] = type_value_error_;
+	TypeValueTable[LISPTYPE_PACKAGE] = type_value_package_;
+	TypeValueTable[LISPTYPE_RANDOM_STATE] = type_value_random_state_;
+	TypeValueTable[LISPTYPE_PATHNAME] = type_value_pathname_;
+	TypeValueTable[LISPTYPE_STREAM] = type_value_stream_;
+	TypeValueTable[LISPTYPE_RESTART] = type_value_restart_;
+	TypeValueTable[LISPTYPE_EVAL] = type_value_eval_;
+	TypeValueTable[LISPTYPE_ENVIRONMENT] = type_value_environment_;
+	TypeValueTable[LISPTYPE_BITVECTOR] = type_value_bitvector_;
+	TypeValueTable[LISPTYPE_QUOTE] = type_value_quote_;
+	TypeValueTable[LISPTYPE_BYTESPEC] = type_value_bytespec_;
+	TypeValueTable[LISPTYPE_PRINT_DISPATCH] = type_value_print_dispatch_;
+	TypeValueTable[LISPSYSTEM_ARGUMENT] = type_value_argument_;
 }
 

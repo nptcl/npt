@@ -4,10 +4,10 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void array_size_copy(LocalRoot local, addr pos, addr array);
-_g void array_copy_alloc(LocalRoot local, addr *ret, addr array);
-_g void array_copy_local(LocalRoot local, addr *ret, addr array);
-_g void array_copy_heap(addr *ret, addr array);
+_g int array_size_copy_(LocalRoot local, addr pos, addr array);
+_g int array_copy_alloc_(LocalRoot local, addr *ret, addr array);
+_g int array_copy_local_(LocalRoot local, addr *ret, addr array);
+_g int array_copy_heap_(addr *ret, addr array);
 
 #endif
 

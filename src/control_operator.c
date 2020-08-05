@@ -247,12 +247,15 @@ _g int throw_control_(Execute ptr, addr name)
  */
 _g int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
 {
+	int check;
 	addr pos;
 
 	/* condition */
-	if (symbolp(name))
-		clos_find_class(name, &name);
-	if (! conditionp(name))
+	if (symbolp(name)) {
+		Return(clos_find_class_(name, &name));
+	}
+	Return(conditionp_(name, &check));
+	if (! check)
 		return fmte_("The value ~S must be a condition instance.", name, NULL);
 
 	/* push handler */
@@ -302,21 +305,23 @@ _g void reverse_restart_control(Execute ptr)
 /*
  *  find-condition
  */
-_g int find_condition_control(Execute ptr, addr instance)
+_g int find_condition_control_(Execute ptr, addr instance, int *ret)
 {
+	int check;
 	addr control, list, pos;
 
 	for (control = ptr->control; control != Nil; ) {
 		gethandler_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
-			if (checkhandler_control(pos, instance))
-				return 1;
+			Return(checkhandler_control_(pos, instance, &check));
+			if (check)
+				return Result(ret, 1);
 		}
 		GetControl(control, Control_Next, &control);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 
@@ -346,6 +351,7 @@ static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 
 _g int invoke_handler_control_(Execute ptr, addr instance)
 {
+	int check;
 	addr next, list, pos;
 
 	next = ptr->control;
@@ -353,7 +359,8 @@ _g int invoke_handler_control_(Execute ptr, addr instance)
 		gethandler_control(next, &list);
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
-			if (checkhandler_control(pos, instance)) {
+			Return(checkhandler_control_(pos, instance, &check));
+			if (check) {
 				Return(wake_handler_(ptr, next, instance, pos));
 			}
 		}
@@ -504,6 +511,8 @@ static int find_restart_stack_(Execute ptr,
 _g int find_restart_control_(Execute ptr,
 		addr name, addr condition, addr *value, int *ret)
 {
+	int check;
+
 	/* name = restart */
 	if (GetType(name) == LISPTYPE_RESTART) {
 		if (getenable_restart(name)) {
@@ -517,12 +526,25 @@ _g int find_restart_control_(Execute ptr,
 	}
 
 	/* name = symbol */
-	if (name == Nil)
+	if (name == Nil) {
+		*value = Nil;
+		*ret = 0;
 		return fmte_("The restart name ~S must not be a NIL.", name, NULL);
-	if (! symbolp(name))
+	}
+	if (! symbolp(name)) {
+		*value = Nil;
+		*ret = 0;
 		return fmte_("The argument ~S must be a symbol.", name, NULL);
-	if (condition != Nil && (! condition_instance_p(condition)))
-		return fmte_("The argument ~S must be a NIL or condition.", condition, NULL);
+	}
+	if (condition != Nil) {
+		Return(condition_instance_p_(condition, &check));
+		if (! check) {
+			*value = Nil;
+			*ret = 0;
+			return fmte_("The argument ~S "
+					"must be a NIL or condition.", condition, NULL);
+		}
+	}
 
 	return find_restart_stack_(ptr, name, condition, value, ret);
 }
@@ -544,8 +566,14 @@ _g int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
 	addr control, root, list, restart;
 	LocalHold hold;
 
-	if (condition != Nil && (! condition_instance_p(condition)))
-		return fmte_("The argument ~S must be a NIL or condition.", condition, NULL);
+	if (condition != Nil) {
+		Return(condition_instance_p_(condition, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("The argument ~S "
+					"must be a NIL or condition.", condition, NULL);
+		}
+	}
 	hold = LocalHold_array(ptr, 1);
 	control = ptr->control;
 	for (root = Nil; control != Nil; ) {

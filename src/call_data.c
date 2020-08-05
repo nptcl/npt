@@ -554,7 +554,7 @@ _g int every_common(Execute ptr, addr call, addr rest, addr *ret)
 	addr pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
 	LocalStack stack;
-	size_t size;
+	size_t size, len;
 
 	local = ptr->local;
 	push_local(local, &stack);
@@ -574,9 +574,10 @@ _g int every_common(Execute ptr, addr call, addr rest, addr *ret)
 			cons_local(local, &next, cdr, next);
 		}
 		else {
-			if (length_sequence(pos, 1) <= size)
+			Return(length_sequence_(pos, 1, &len));
+			if (len <= size)
 				goto result_true;
-			getelt_sequence(NULL, pos, size, &car);
+			Return(getelt_sequence_(NULL, pos, size, &car));
 			cons_local(local, &args, car, args);
 			cons_local(local, &next, pos, next);
 		}
@@ -601,9 +602,10 @@ _g int every_common(Execute ptr, addr call, addr rest, addr *ret)
 				SetCar(temp2, cdr);
 			}
 			else {
-				if (length_sequence(cdr, 1) <= size)
+				Return(length_sequence_(cdr, 1, &len));
+				if (len <= size)
 					goto result_true;
-				getelt_sequence(NULL, cdr, size, &car);
+				Return(getelt_sequence_(NULL, cdr, size, &car));
 				SetCar(temp1, car);
 			}
 			GetCdr(temp1, &temp1);
@@ -645,7 +647,7 @@ _g int some_common(Execute ptr, addr call, addr rest, addr *ret)
 	addr pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
 	LocalStack stack;
-	size_t size;
+	size_t size, len;
 
 	local = ptr->local;
 	push_local(local, &stack);
@@ -665,9 +667,10 @@ _g int some_common(Execute ptr, addr call, addr rest, addr *ret)
 			cons_local(local, &next, cdr, next);
 		}
 		else {
-			if (length_sequence(pos, 1) <= size)
+			Return(length_sequence_(pos, 1, &len));
+			if (len <= size)
 				goto result_false;
-			getelt_sequence(NULL, pos, size, &car);
+			Return(getelt_sequence_(NULL, pos, size, &car));
 			cons_local(local, &args, car, args);
 			cons_local(local, &next, pos, next);
 		}
@@ -693,9 +696,10 @@ _g int some_common(Execute ptr, addr call, addr rest, addr *ret)
 				SetCar(temp2, cdr);
 			}
 			else {
-				if (length_sequence(cdr, 1) <= size)
+				Return(length_sequence_(cdr, 1, &len));
+				if (len <= size)
 					goto result_false;
-				getelt_sequence(NULL, cdr, size, &car);
+				Return(getelt_sequence_(NULL, cdr, size, &car));
 				SetCar(temp1, car);
 			}
 			GetCdr(temp1, &temp1);

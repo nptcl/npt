@@ -105,7 +105,7 @@ static void defun_make_symbol(void)
 /* (defun copy-symbol (symbol &optional boolean) ...) -> symbol */
 static int function_copy_symbol(Execute ptr, addr var, addr opt)
 {
-	copy_symbol_common(var, opt, &var);
+	Return(copy_symbol_common_(var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

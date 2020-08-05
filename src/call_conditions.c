@@ -250,26 +250,34 @@ error:
  */
 static int error_datum_common(Execute ptr, addr datum, addr rest, addr *ret)
 {
+	int check;
 	addr make;
 
 	/* symbol -> (make-instance symbol ...) */
 	if (symbolp(datum)) {
-		clos_find_class(datum, &datum);
-		if (! conditionp(datum))
+		Return(clos_find_class_(datum, &datum));
+		Return(conditionp_(datum, &check));
+		if (! check) {
+			*ret = Nil;
 			return fmte_("The class ~S is not a condition subclass.", datum, NULL);
+		}
 		GetConst(COMMON_MAKE_INSTANCE, &make);
 		return callclang_applya(ptr, ret, make, datum, rest, NULL);
 	}
 
 	/* condition -> (error condition) */
-	if (! condition_instance_p(datum))
+	Return(condition_instance_p_(datum, &check));
+	if (! check) {
+		*ret = Nil;
 		return fmte_("Invalid datum argument ~S.", datum, NULL);
+	}
 	if (rest != Nil) {
+		*ret = Nil;
 		return fmte_("The datum argument ~S must be a nil "
 				"if first argument is condition type.", datum, NULL);
 	}
-	*ret = datum;
-	return 0;
+
+	return Result(ret, datum);
 }
 
 _g int error_common(Execute ptr, addr datum, addr rest)
@@ -323,6 +331,7 @@ static int cerror_restart_common(Execute ptr, addr restart, addr datum)
 
 _g int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
 {
+	int check;
 	LocalHold hold;
 
 	/* signal */
@@ -335,7 +344,8 @@ _g int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
 	}
 
 	/* wake condition */
-	if (find_condition_control(ptr, datum))
+	Return(find_condition_control_(ptr, datum, &check));
+	if (check)
 		return signal_function_(ptr, datum);
 
 	/* Can't handle the condition. */

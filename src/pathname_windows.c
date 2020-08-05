@@ -11,13 +11,15 @@
 /*
  *  windows pathname
  */
-static void parser_make_windows_pathname(struct fileparse *pa)
+static int parser_make_windows_pathname_(struct fileparse *pa)
 {
 	GetConst(SYSTEM_WINDOWS, &pa->host);
-	wild_value_pathname(pa->name, &pa->name);
-	wild_value_pathname(pa->type, &pa->type);
+	Return(wild_value_pathname_(pa->name, &pa->name));
+	Return(wild_value_pathname_(pa->type, &pa->type));
 	GetVersionPathname(pa->path, &pa->version);
 	pathname_fileparse_alloc(pa, 0);
+
+	return 0;
 }
 
 static int parser_windows_pathname_bsbs_p(const unicode *body, size_t size)
@@ -77,15 +79,17 @@ static int parser_windows_pathname_drive_p(const unicode *body,
 	return 1;
 }
 
-static void parser_windows_pathname_drive(struct fileparse *pa, unicode c)
+static int parser_windows_pathname_drive_(struct fileparse *pa, unicode c)
 {
 	addr pos;
 	strvect_alloc(localp_alloc(pa->local), &pos, 1);
-	strvect_setc(pos, 0, c);
+	Return(strvect_setc_(pos, 0, c));
 	pa->device = pos;
+
+	return 0;
 }
 
-static void parser_windows_pathname_device(struct fileparse *pa,
+static int parser_windows_pathname_device_(struct fileparse *pa,
 		const unicode *body, size_t size, size_t i)
 {
 	addr queue;
@@ -94,9 +98,11 @@ static void parser_windows_pathname_device(struct fileparse *pa,
 	GetConst(SYSTEM_DEVICE, &pa->device);
 	/* name */
 	queue = pa->queue;
-	pushrange_pathname(pa->local, queue, body, i, size);
+	Return(pushrange_pathname_(pa->local, queue, body, i, size));
 	make_charqueue_fileparse(pa, queue, &pa->name);
 	clear_charqueue(queue);
+
+	return 0;
 }
 
 static int parser_windows_pathname_slash_p(unicode x)
@@ -151,7 +157,7 @@ quest: /* ignore */
 
 dot:
 	win32device = 1;
-	parser_windows_pathname_device(pa, body, size, 4);
+	Return(parser_windows_pathname_device_(pa, body, size, 4));
 	goto finish;
 
 universal: /* ignore */
@@ -168,7 +174,7 @@ drive:
 		return parser_logical_pathname_(pa);
 	}
 	logical = 1;
-	parser_windows_pathname_drive(pa, c);
+	Return(parser_windows_pathname_drive_(pa, c));
 	i += 2;
 	goto start;
 
@@ -183,7 +189,7 @@ start:
 		goto first;
 	}
 	if (c == '.') { di = ni; dp = 1; }
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
 
@@ -199,7 +205,7 @@ first:
 	}
 	if (c == ':')
 		logical = 1;
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
 
@@ -222,7 +228,7 @@ next1:
 		}
 		logical = 1;
 	}
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
 
@@ -233,20 +239,20 @@ next2:
 	}
 	make_charqueue_fileparse(pa, charqueue, &temp);
 	clear_charqueue(charqueue);
-	pushdirectory_fileparse(pa, &queue, temp);
+	Return(pushdirectory_fileparse_(pa, &queue, temp));
 	ni = di = dp = 0;
 	goto first;
 
 name_finish:
 	make_charqueue_fileparse(pa, charqueue, &pa->name);
-	if (di && dp)
-		nametype_pathname(pa, di);
+	if (di && dp) {
+		Return(nametype_pathname_(pa, di));
+	}
 	goto finish;
 
 finish:
 	nreverse(&pa->directory, queue);
 	pa->endpos = i;
-	parser_make_windows_pathname(pa);
-	return 0;
+	return parser_make_windows_pathname_(pa);
 }
 

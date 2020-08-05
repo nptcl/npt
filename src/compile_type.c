@@ -17,7 +17,7 @@ static int faslwritetype_clos(Execute ptr, addr stream, addr pos)
 		GetConst(COMMON_ASTERISK, &pos);
 	}
 	else {
-		stdget_class_name(pos, &pos);
+		Return(stdget_class_name_(pos, &pos));
 	}
 
 	return faslwrite_value_symbol(ptr, stream, pos);
@@ -31,8 +31,9 @@ static int faslreadtype_clos(Execute ptr, addr stream, addr pos)
 	Return(faslread_value_symbol(ptr, stream, &value));
 	/* asterisk check */
 	GetConst(COMMON_ASTERISK, &check);
-	if (value != check)
-		clos_find_class(value, &value);
+	if (value != check) {
+		Return(clos_find_class_(value, &value));
+	}
 	SetArrayType(pos, 0, value);
 
 	return 0;

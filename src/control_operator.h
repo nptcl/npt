@@ -30,7 +30,7 @@ _g void reverse_handler_control(Execute ptr);
 _g void pushbind_restart_control(Execute ptr, addr list, int escape);
 _g void reverse_restart_control(Execute ptr);
 
-_g int find_condition_control(Execute ptr, addr instance);
+_g int find_condition_control_(Execute ptr, addr instance, int *ret);
 _g int invoke_handler_control_(Execute ptr, addr pos);
 _g int invoke_restart_control_(Execute ptr, addr restart, addr args);
 _g int invoke_restart_interactively_control_(Execute ptr, addr restart);

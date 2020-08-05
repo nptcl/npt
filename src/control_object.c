@@ -167,13 +167,16 @@ _g void setescapehandler_debug(addr pos, int value)
 	SetEscapeHandler_Low(pos, value);
 }
 
-_g int checkhandler_control(addr pos, addr instance)
+_g int checkhandler_control_(addr pos, addr instance, int *ret)
 {
 	addr clos;
 
 	CheckType(pos, LISPSYSTEM_HANDLER);
 	GetNameHandler(pos, &clos);
-	return clos != Nil && clos_subtype_p(instance, clos);
+	if (clos == Nil)
+		return Result(ret, 0);
+	else
+		return clos_subtype_p_(instance, clos, ret);
 }
 
 

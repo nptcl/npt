@@ -56,6 +56,8 @@ static int subtypep_type_(addr left, addr right, SubtypepResult *ret)
 
 static int subtypep_clos_(addr left, addr right, SubtypepResult *ret)
 {
+	int check;
+
 	if (RefLispDecl(left) != LISPDECL_CLOS)
 		return ReturnExclude(ret);
 	GetArrayType(left, 0, &left);
@@ -65,7 +67,8 @@ static int subtypep_clos_(addr left, addr right, SubtypepResult *ret)
 	if (type_asterisk_p(left))
 		return ReturnFalse(ret);
 
-	return ReturnBool(ret, clos_subclass_p(left, right));
+	Return(clos_subclass_p_(left, right, &check));
+	return ReturnBool(ret, check);
 }
 
 static int subtypep_error_(addr left, addr right, SubtypepResult *ret)
@@ -2065,7 +2068,7 @@ static int subtypep_symbol_clos_p(addr x, addr *r)
 	return 1;
 }
 
-static int subtypep_clos_p(addr x, addr y, addr *r1, addr *r2)
+static int subtypep_clos_p_(addr x, addr y, addr *r1, addr *r2, int *ret)
 {
 	int a, b;
 
@@ -2075,32 +2078,35 @@ static int subtypep_clos_p(addr x, addr y, addr *r1, addr *r2)
 	if (a && b) {
 		type_clos_heap(x, r1);
 		type_clos_heap(y, r2);
-		return 1;
+		return Result(ret, 1);
 	}
 	if (a) {
 		if (! subtypep_symbol_clos_p(y, &y))
-			return 0;
+			return Result(ret, 0);
 		type_clos_heap(x, r1);
 		type_clos_heap(y, r2);
-		return 1;
+		return Result(ret, 1);
 	}
 	if (b) {
 		if (! subtypep_symbol_clos_p(x, &x))
-			return 0;
+			return Result(ret, 0);
 		type_clos_heap(x, r1);
 		type_clos_heap(y, r2);
-		return 1;
+		return Result(ret, 1);
 	}
 
 	if (! subtypep_symbol_clos_p(x, &x))
-		return 0;
+		return Result(ret, 0);
 	if (! subtypep_symbol_clos_p(y, &y))
-		return 0;
-	if (clos_built_p(x) && clos_built_p(y))
-		return 0;
+		return Result(ret, 0);
+
+	Return(clos_built_p_(x, &a));
+	Return(clos_built_p_(x, &b));
+	if (a && b)
+		return Result(ret, 0);
 	type_clos_heap(x, r1);
 	type_clos_heap(y, r2);
-	return 1;
+	return Result(ret, 1);
 }
 
 _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
@@ -2110,7 +2116,8 @@ _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, x, y, env, NULL);
-	if (! subtypep_clos_p(x, y, &x, &y)) {
+	Return(subtypep_clos_p_(x, y, &x, &y, &result));
+	if (! result) {
 		Return(parse_type(ptr, &x, x, env));
 		localhold_push(hold, x);
 		Return(parse_type(ptr, &y, y, env));

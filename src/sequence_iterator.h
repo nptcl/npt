@@ -19,22 +19,22 @@ struct sequence_group {
 
 
 /* sequence-iterator */
-_g struct sequence_iterator *make_sequence_iterator_local(
-		LocalRoot local, addr pos, int fill);
+_g int make_sequence_iterator_local_(LocalRoot local,
+		addr pos, int fill, struct sequence_iterator **ret);
 _g int end_sequence_iterator(struct sequence_iterator *ptr);
-_g void length_sequence_iterator(struct sequence_iterator *ptr, size_t *ret);
-_g int object_sequence_iterator(struct sequence_iterator *iter, addr *ret);
-_g int set_sequence_iterator(struct sequence_iterator *iter, addr value);
+_g int length_sequence_iterator_(struct sequence_iterator *ptr, size_t *ret);
+_g int object_sequence_iterator_(struct sequence_iterator *iter, addr *value, int *ret);
+_g int set_sequence_iterator_(struct sequence_iterator *iter, addr value, int *ret);
 
 
 /* sequence-group */
-_g struct sequence_group *make_sequence_group_local(
-		LocalRoot local, addr rest, int fill);
+_g int make_sequence_group_local_(
+		LocalRoot local, addr rest, int fill, struct sequence_group **ret);
 _g void list_sequence_group_local(LocalRoot local,
 		addr *ret, struct sequence_group *group);
-_g int set_sequence_group(struct sequence_group *group, addr list);
+_g int set_sequence_group_(struct sequence_group *group, addr list, int *ret);
 _g void clear_sequence_group(struct sequence_group *group);
-_g void count_sequence_group(struct sequence_group *group, size_t *ret);
+_g int count_sequence_group_(struct sequence_group *group, size_t *ret);
 
 #endif
 

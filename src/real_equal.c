@@ -622,6 +622,7 @@ _g int plusp_real_inplace(addr pos)
 	int check;
 
 	Check(! realp(pos), "type error");
+	check = 0;
 	Error(plusp_real_(pos, &check));
 
 	return check;
@@ -632,6 +633,7 @@ _g int minusp_real_inplace(addr pos)
 	int check;
 
 	Check(! realp(pos), "type error");
+	check = 0;
 	Error(minusp_real_(pos, &check));
 
 	return check;
@@ -642,6 +644,7 @@ _g int zerop_real_inplace(addr pos)
 	int check;
 
 	Check(! realp(pos), "type error");
+	check = 0;
 	Error(zerop_real_(pos, &check));
 
 	return check;
@@ -653,6 +656,7 @@ _g int equal_fixnum_real_inplace(addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_fixnum_real_(left, right, &check));
 
 	return check;
@@ -664,6 +668,7 @@ _g int equal_bignum_real_inplace(addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_bignum_real_(left, right, &check));
 
 	return check;
@@ -675,6 +680,7 @@ _g int equal_ratio_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_ratio_real_(local, left, right, &check));
 
 	return check;
@@ -686,6 +692,7 @@ _g int equal_single_float_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_single_float_real_(local, left, right, &check));
 
 	return check;
@@ -697,6 +704,7 @@ _g int equal_double_float_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_double_float_real_(local, left, right, &check));
 
 	return check;
@@ -708,6 +716,7 @@ _g int equal_long_float_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_long_float_real_(local, left, right, &check));
 
 	return check;
@@ -719,6 +728,7 @@ _g int equal_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(equal_real_(local, left, right, &check));
 
 	return check;
@@ -730,6 +740,7 @@ _g int less_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(less_real_(local, left, right, &check));
 
 	return check;
@@ -741,6 +752,7 @@ _g int less_equal_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(less_equal_real_(local, left, right, &check));
 
 	return check;
@@ -752,6 +764,7 @@ _g int greater_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(greater_real_(local, left, right, &check));
 
 	return check;
@@ -763,6 +776,7 @@ _g int greater_equal_real_inplace(LocalRoot local, addr left, addr right)
 
 	Check(! realp(left), "type error");
 	Check(! realp(right), "type error");
+	check = 0;
 	Error(greater_equal_real_(local, left, right, &check));
 
 	return check;

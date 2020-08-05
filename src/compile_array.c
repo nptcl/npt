@@ -24,7 +24,7 @@ static int faslwrite_value_array_t(Execute ptr, addr stream, addr pos)
 	str = ArrayInfoStruct(pos);
 	size = str->front;
 	for (i = 0; i < size; i++) {
-		array_get_t(pos, i, &value);
+		Return(array_get_t_(pos, i, &value));
 		Return(faslwrite_value(ptr, stream, value));
 	}
 
@@ -38,11 +38,11 @@ static int faslread_value_array_t(Execute ptr, addr stream, addr pos)
 	size_t size, i;
 
 	str = ArrayInfoStruct(pos);
-	array_allocate(NULL, pos, str);
+	Return(array_allocate_(NULL, pos, str));
 	size = str->front;
 	for (i = 0; i < size; i++) {
 		Return(faslread_value(ptr, stream, &value));
-		array_set(pos, i, value);
+		Return(array_set_(pos, i, value));
 	}
 
 	return 0;
@@ -67,7 +67,7 @@ static int faslwrite_value_array_bit(Execute ptr, addr stream, addr pos)
 	push_local(local, &stack);
 	bitcons_local(local, &cons, size);
 	for (i = 0; i < size; i++) {
-		array_get_bit(pos, i, &value);
+		Return(array_get_bit_(pos, i, &value));
 		push_bitcons(local, cons, value);
 	}
 
@@ -105,7 +105,7 @@ static int faslwrite_value_array_memory(Execute ptr, addr stream, addr pos)
 	size = str->front;
 	element = str->element;
 	for (i = 0; i < size; i++) {
-		arrayinplace_get(pos, i, &v);
+		Return(arrayinplace_get_(pos, i, &v));
 		Return(faslwrite_buffer_(stream, &v.value.voidp, element));
 	}
 
@@ -120,12 +120,12 @@ static int faslread_value_array_memory(Execute ptr, addr stream, addr pos)
 	size_t size, i;
 
 	str = ArrayInfoStruct(pos);
-	array_allocate(NULL, pos, str);
+	Return(array_allocate_(NULL, pos, str));
 	size = str->front;
 	element = str->element;
 	for (i = 0; i < size; i++) {
 		Return(faslread_buffer_(stream, &v.value.voidp, element));
-		arrayinplace_set(pos, i, &v);
+		Return(arrayinplace_set_(pos, i, &v));
 	}
 
 	return 0;
@@ -210,7 +210,7 @@ static int faslread_value_array_dimension(Execute ptr, addr stream, addr pos)
 	size_t *size;
 
 	str = ArrayInfoStruct(pos);
-	arraysize_heap(&value, str->dimension);
+	Return(arraysize_heap_(&value, str->dimension));
 	size = arraysize_ptr(value);
 	Return(faslread_buffer_(stream, size, IdxSize * str->dimension));
 	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, value);

@@ -9,6 +9,7 @@
 #include "parse.h"
 #include "parse_object.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "type_optimize.h"
 
 static int checkparse_all(struct optimize_struct *str);
@@ -72,7 +73,7 @@ static int checkparse_optimize_check(struct optimize_struct *str, addr *ret)
 	if (! optimize_evaltype(left, EVAL_PARSE_SYMBOL))
 		return 0;
 	GetEvalParse(left, 0, &left);
-	if (! string_designer_equal_char(left, "PARSE"))
+	if (! strvect_designer_equalp_char(left, "PARSE"))
 		return 0;
 	/* result */
 	*ret = right;
@@ -116,7 +117,7 @@ static int checkparse_check2(struct optimize_struct *str)
 	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL))
 		return 0;
 	GetEvalParse(pos, 0, &pos);
-	return string_designer_equal_char(pos, "LIST");
+	return strvect_designer_equalp_char(pos, "LIST");
 }
 
 static int optparse_check2(struct optimize_struct *str)

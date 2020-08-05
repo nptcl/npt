@@ -52,7 +52,7 @@ static int test_type_object_clos(void)
 	addr x;
 
 	GetConst(COMMON_STANDARD_CLASS, &x);
-	clos_find_class(x, &x);
+	clos_find_class_(x, &x);
 	type_clos_heap(x, &x);
 	test(check_type_object(x, "standard-class"), "type_object_clos1");
 

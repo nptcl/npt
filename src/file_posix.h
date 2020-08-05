@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "encode.h"
@@ -54,15 +55,17 @@ static inline void standard_error_arch(file_type *file)
 	*file = STDERR_FILENO;
 }
 
-static inline int filename_encode(LocalRoot local, addr name, const byte **const ret)
+static inline int filename_encode_(LocalRoot local, addr name, const char **const ret)
 {
-	Check(! stringp(name), "name error");
-	if (UTF8_buffer_clang(local, &name, name)) {
-		Debug("UTF8_buffer_clang error");
-		return 1;
-	}
-	posbody(name, (addr *)ret);
+	addr data;
 
+	Check(! stringp(name), "name error");
+	Return(UTF8_buffer_clang_(local, &data, name));
+	if (data == Unbound) {
+		*ret = NULL;
+		return fmte_("Invalid UTF-8 encoding ~S.", name, NULL);
+	}
+	posbody(data, (addr *)ret);
 	return 0;
 }
 
@@ -71,7 +74,8 @@ static inline int open_input_chartype(file_type *ret, const char *name)
 	file_type file;
 
 	file = open(name, O_RDONLY);
-	if (file < 0) return 1;
+	if (file < 0)
+		return 1;
 	*ret = file;
 
 	return 0;
@@ -100,26 +104,27 @@ error:
 	return 1;
 }
 
-static inline int open_input_arch(LocalRoot local, file_type *ret, addr name)
+static inline int open_input_arch_(LocalRoot local,
+		addr name, file_type *value, int *ret)
 {
-	int result;
 	LocalStack stack;
-	const byte *utf8;
+	const char *utf8;
 
-	result = 0;
 	push_local(local, &stack);
-	if (filename_encode(local, name, &utf8)) {
-		result = 2;
+	Return(filename_encode_(local, name, &utf8));
+	if (utf8 == NULL) {
+		*ret = 1;
 		goto finish;
 	}
-	if (open_input_chartype(ret, (const char *)utf8)) {
-		result = 1;
+	if (open_input_chartype(value, utf8)) {
+		*ret = 1;
 		goto finish;
 	}
+	*ret = 0;
 
 finish:
 	rollback_local(local, stack);
-	return result;
+	return 0;
 }
 
 static inline file_type open_output_call(const char *name, enum FileOutput mode)
@@ -140,31 +145,30 @@ static inline file_type open_output_call(const char *name, enum FileOutput mode)
 	}
 }
 
-static inline int open_output_arch(LocalRoot local, file_type *ret,
-		addr name, enum FileOutput mode)
+static inline int open_output_arch_(LocalRoot local,
+		addr name, enum FileOutput mode, file_type *value, int *ret)
 {
-	int result;
 	LocalStack stack;
 	file_type file;
-	const byte *utf8;
+	const char *utf8;
 
-	result = 0;
 	push_local(local, &stack);
-	if (filename_encode(local, name, &utf8)) {
-		result = 2;
+	Return(filename_encode_(local, name, &utf8));
+	if (utf8 == NULL) {
+		*ret = 1;
 		goto finish;
 	}
-
-	file = open_output_call((const char *)utf8, mode);
+	file = open_output_call(utf8, mode);
 	if (file < 0) {
-		result = 1;
+		*ret = 1;
 		goto finish;
 	}
-	*ret = file;
+	*value = file;
+	*ret = 0;
 
 finish:
 	rollback_local(local, stack);
-	return result;
+	return 0;
 }
 
 static inline file_type open_io_call(const char *name, enum FileOutput mode)
@@ -185,31 +189,30 @@ static inline file_type open_io_call(const char *name, enum FileOutput mode)
 	}
 }
 
-static inline int open_io_arch(LocalRoot local, file_type *ret,
-		addr name, enum FileOutput mode)
+static inline int open_io_arch_(LocalRoot local,
+		addr name, enum FileOutput mode, file_type *value, int *ret)
 {
-	int result;
 	LocalStack stack;
 	file_type file;
-	const byte *utf8;
+	const char *utf8;
 
-	result = 0;
 	push_local(local, &stack);
-	if (filename_encode(local, name, &utf8)) {
-		result = 2;
+	Return(filename_encode_(local, name, &utf8));
+	if (utf8 == NULL) {
+		*ret = 1;
 		goto finish;
 	}
-
-	file = open_io_call((const char *)utf8, mode);
+	file = open_io_call(utf8, mode);
 	if (file < 0) {
-		result = 1;
+		*ret = 1;
 		goto finish;
 	}
-	*ret = file;
+	*value = file;
+	*ret = 0;
 
 finish:
 	rollback_local(local, stack);
-	return result;
+	return 0;
 }
 
 static inline int readcall_arch(file_type file, void *pos, size_t size, size_t *ret)
@@ -255,9 +258,12 @@ static inline int writecall_arch(file_type file,
 
 static inline int close_arch(file_type file)
 {
-	if (file == STDIN_FILENO) return 0;
-	if (file == STDOUT_FILENO) return 0;
-	if (file == STDERR_FILENO) return 0;
+	if (file == STDIN_FILENO)
+		return 0;
+	if (file == STDOUT_FILENO)
+		return 0;
+	if (file == STDERR_FILENO)
+		return 0;
 
 	if (close(file)) {
 		Debug("close error");

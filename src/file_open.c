@@ -17,13 +17,15 @@
 static inline int inputstream_(Execute ptr,
 		addr *ret, addr file, enum StreamType type)
 {
+	int check;
 	addr pos, name;
 	struct filememory *fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
 	Return(name_pathname_local_(ptr, file, &name));
-	if (open_input_filememory(ptr->local, fm, name))
+	Return(open_input_filememory_(ptr->local, fm, name, &check));
+	if (check)
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
 
@@ -433,13 +435,15 @@ _g int open_input_stream_error_(Execute ptr, addr *ret, addr file)
 static inline int outputstream_(Execute ptr,
 		addr *ret, addr file, enum StreamType type, enum FileOutput mode)
 {
+	int check;
 	addr pos, name;
 	struct filememory *fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
 	Return(name_pathname_local_(ptr, file, &name));
-	if (open_output_filememory(ptr->local, fm, name, mode))
+	Return(open_output_filememory_(ptr->local, fm, name, mode, &check));
+	if (check)
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
 
@@ -492,9 +496,8 @@ _g int open_output_utf8_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf8;
 	fm->encode.bom = bomp? EncodeBom_exist: EncodeBom_empty;
 	fm->encode.error = 1;
-	if (bomp && writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
+	if (bomp) {
+		Return(writebom_encode_(fm));
 	}
 	force_open_stream(file);
 
@@ -513,9 +516,8 @@ _g int open_output_utf16le_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf16le;
 	fm->encode.bom = bomp? EncodeBom_exist: EncodeBom_empty;
 	fm->encode.error = 1;
-	if (bomp && writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
+	if (bomp) {
+		Return(writebom_encode_(fm));
 	}
 	force_open_stream(file);
 
@@ -534,9 +536,8 @@ _g int open_output_utf16be_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = bomp? EncodeBom_exist: EncodeBom_empty;
 	fm->encode.error = 1;
-	if (bomp && writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
+	if (bomp) {
+		Return(writebom_encode_(fm));
 	}
 	force_open_stream(file);
 
@@ -555,9 +556,8 @@ _g int open_output_utf32le_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf32le;
 	fm->encode.bom = bomp? EncodeBom_exist: EncodeBom_empty;
 	fm->encode.error = 1;
-	if (bomp && writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
+	if (bomp) {
+		Return(writebom_encode_(fm));
 	}
 	force_open_stream(file);
 
@@ -576,9 +576,8 @@ _g int open_output_utf32be_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = bomp? EncodeBom_exist: EncodeBom_empty;
 	fm->encode.error = 1;
-	if (bomp && writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
+	if (bomp) {
+		Return(writebom_encode_(fm));
 	}
 	force_open_stream(file);
 
@@ -670,13 +669,15 @@ _g int open_output_stream_(Execute ptr, addr *ret,
 static inline int iostream_(Execute ptr,
 		addr *ret, addr file, enum StreamType type, enum FileOutput mode)
 {
+	int check;
 	addr pos, name;
 	struct filememory *fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
 	Return(name_pathname_local_(ptr, file, &name));
-	if (open_io_filememory(ptr->local, fm, name, mode))
+	Return(open_io_filememory_(ptr->local, fm, name, mode, &check));
+	if (check)
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
 
@@ -746,10 +747,7 @@ _g int open_io_utf8bom_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf8;
 	fm->encode.bom = EncodeBom_exist;
 	fm->encode.error = 1;
-	if (writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
-	}
+	Return(writebom_encode_(fm));
 	force_open_stream(file);
 
 	return Result(ret, file);
@@ -818,10 +816,7 @@ _g int open_io_utf16lebom_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf16le;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	if (writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
-	}
+	Return(writebom_encode_(fm));
 	force_open_stream(file);
 
 	return Result(ret, file);
@@ -839,10 +834,7 @@ _g int open_io_utf16bebom_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	if (writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
-	}
+	Return(writebom_encode_(fm));
 	force_open_stream(file);
 
 	return Result(ret, file);
@@ -911,10 +903,7 @@ _g int open_io_utf32lebom_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf32le;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	if (writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
-	}
+	Return(writebom_encode_(fm));
 	force_open_stream(file);
 
 	return Result(ret, file);
@@ -932,10 +921,7 @@ _g int open_io_utf32bebom_stream_(Execute ptr, addr *ret,
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	if (writebom_encode(fm)) {
-		close_filememory(fm);
-		return Result(ret, NULL);
-	}
+	Return(writebom_encode_(fm));
 	force_open_stream(file);
 
 	return Result(ret, file);

@@ -828,7 +828,7 @@ static void infostringbody(addr pos)
 
 	string_length(pos, &len);
 	for (i = 0; i < len; i++) {
-		string_getc(pos, i, &c);
+		Error(string_getc_(pos, i, &c));
 		info_stdarg("%c", isstandardtype(c)? c: '.');
 	}
 }
@@ -940,13 +940,13 @@ static void infoprint_symbol(addr pos)
 		info_stdarg("#:");
 	else {
 		getname_package_unsafe(package, &package);
-		if (string_equal_char(package, LISP_KEYWORD)) {
+		if (string_equal_char_debug(package, LISP_KEYWORD)) {
 			info_stdarg(":");
 		}
-		else if (string_equal_char(package, LISP_COMMON)) {
+		else if (string_equal_char_debug(package, LISP_COMMON)) {
 			/* no output */
 		}
-		else if (string_equal_char(package, LISP_CODE)) {
+		else if (string_equal_char_debug(package, LISP_CODE)) {
 			info_stdarg("@:");
 		}
 		else {

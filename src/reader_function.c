@@ -51,7 +51,7 @@ _g int double_quote_reader(LocalRoot local, addr stream, addr *ret)
 		if (check)
 			return fmte_("The string token must terminate by \".", NULL);
 		if (escape) {
-			push_charqueue_local(local, queue, c);
+			Return(push_charqueue_local_(local, queue, c));
 			escape = 0;
 			continue;
 		}
@@ -62,7 +62,7 @@ _g int double_quote_reader(LocalRoot local, addr stream, addr *ret)
 			escape = 1;
 		}
 		else {
-			push_charqueue_local(local, queue, c);
+			Return(push_charqueue_local_(local, queue, c));
 		}
 	}
 	make_charqueue_heap(queue, ret);
@@ -655,11 +655,11 @@ static int asterisk_size_dispatch_(Execute ptr, addr stream, size_t size, addr *
 		if (check)
 			break;
 		if (c == '0') {
-			bitmemory_setint(pos, i, 0);
+			Return(bitmemory_setint_(pos, i, 0));
 			last = 0;
 		}
 		else if (c == '1') {
-			bitmemory_setint(pos, i, 1);
+			Return(bitmemory_setint_(pos, i, 1));
 			last = 1;
 		}
 		else {
@@ -669,8 +669,9 @@ static int asterisk_size_dispatch_(Execute ptr, addr stream, size_t size, addr *
 	}
 
 	/* fill last value */
-	for (; i < size; i++)
-		bitmemory_setint(pos, i, last);
+	for (; i < size; i++) {
+		Return(bitmemory_setint_(pos, i, last));
+	}
 
 	/* result */
 	return Result(ret, pos);
@@ -1153,8 +1154,8 @@ _g int array_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 		return Result(ret, Nil);
 	if (check)
 		return fmte_("After array dispatch must be an initial-contents form.", NULL);
-	array_contents_heap(&form, y, form);
-	array_readlabel(ptr, form);
+	Return(array_contents_heap_(&form, y, form));
+	Return(array_readlabel_(ptr, form));
 
 	return Result(ret, form);
 }

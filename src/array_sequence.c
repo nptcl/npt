@@ -36,7 +36,7 @@ static void array_bitcalc_struct(addr pos, addr src)
 	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 }
 
-static void array_bitcalc_size(addr pos, addr src)
+static int array_bitcalc_size_(addr pos, addr src)
 {
 	struct array_struct *str;
 	const size_t *data2;
@@ -47,15 +47,17 @@ static void array_bitcalc_size(addr pos, addr src)
 	data2 = array_ptrsize(src);
 	size = str->dimension;
 	if (2 <= size) {
-		arraysize_alloc(NULL, &temp, size);
+		Return(arraysize_heap_(&temp, size));
 		data1 = arraysize_ptr(temp);
 		for (i = 0; i < size; i++)
 			data1[i] = data2[i];
 		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 	}
+
+	return 0;
 }
 
-static void array_bitcalc_make(addr src, addr *ret)
+static int array_bitcalc_make_(addr src, addr *ret)
 {
 	struct array_struct *str;
 	addr pos;
@@ -65,64 +67,68 @@ static void array_bitcalc_make(addr src, addr *ret)
 	/* element-type */
 	array_bitcalc_struct(pos, src);
 	/* dimension */
-	array_bitcalc_size(pos, src);
+	Return(array_bitcalc_size_(pos, src));
 	/* allocate */
 	str = ArrayInfoStruct(pos);
 	array_allocate_bit(NULL, pos, str);
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-static int array_bitvector_type(addr pos)
+static int array_bitvector_type_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
-			return 0;
+			return Result(ret, 0);
 
 		case LISPTYPE_ARRAY:
-			return 1;
+			return Result(ret, 1);
 
 		default:
-			fmte("Argument ~S must be a bit-array type.", pos, NULL);
-			return -1;
+			*ret = 0;
+			return fmte_("Argument ~S must be a bit-array type.", pos, NULL);
 	}
 }
 
-static int array_bitvector_size_equal(addr pos1, addr pos2)
+static int array_bitvector_size_equal_(addr pos1, addr pos2, int *ret)
 {
 	int check1, check2;
 
-	check1 = array_bitvector_type(pos1);
-	check2 = array_bitvector_type(pos2);
+	Return(array_bitvector_type_(pos1, &check1));
+	Return(array_bitvector_type_(pos2, &check2));
 	if (check1 && check2) {
-		return array_equal_dimension(pos1, pos2);
+		return Result(ret, array_equal_dimension(pos1, pos2));
 	}
 	if (check1) {
 		if (ArrayInfoStruct(pos1)->dimension != 1)
-			return 0;
+			return Result(ret, 0);
 		GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
-		return bitmemory_equal_length(pos1, pos2);
+		return Result(ret, bitmemory_equal_length(pos1, pos2));
 	}
 	if (check2) {
 		if (ArrayInfoStruct(pos2)->dimension != 1)
-			return 0;
+			return Result(ret, 0);
 		GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
-		return bitmemory_equal_length(pos1, pos2);
+		return Result(ret, bitmemory_equal_length(pos1, pos2));
 	}
 	else {
-		return bitmemory_equal_length(pos1, pos2);
+		return Result(ret, bitmemory_equal_length(pos1, pos2));
 	}
 }
 
-static void array_bitcalc_aa(addr *ret,
+static int array_bitcalc_aa_(addr *ret,
 		addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
+	int check;
 	struct array_struct *str;
 
-	if (! array_bitvector_size_equal(pos1, pos2))
-		fmte("Dimension don't match ~S and ~S.", pos1, pos2, NULL);
+	Return(array_bitvector_size_equal_(pos1, pos2, &check));
+	if (! check) {
+		*ret = Nil;
+		return fmte_("Dimension don't match ~S and ~S.", pos1, pos2, NULL);
+	}
 	if (opt == Nil) {
-		array_bitcalc_make(pos1, &opt);
+		Return(array_bitcalc_make_(pos1, &opt));
 		*ret = opt;
 		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
@@ -131,33 +137,47 @@ static void array_bitcalc_aa(addr *ret,
 		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else {
-		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		Return(array_bitvector_size_equal_(pos1, opt, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		}
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos1);
-	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos1, NULL);
+	if (str->type != ARRAY_TYPE_BIT) {
+		*ret = Nil;
+		return fmte_("Array ~S must be a bit type.", pos1, NULL);
+	}
 	str = ArrayInfoStruct(pos2);
-	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos2, NULL);
-	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+	if (str->type != ARRAY_TYPE_BIT) {
+		*ret = Nil;
+		return fmte_("Array ~S must be a bit type.", pos2, NULL);
+	}
+	if (! bitvectorp(*ret)) {
+		return fmte_("Array ~S must be a bit type.", *ret, NULL);
+	}
 	GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
 	GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
+
+	return 0;
 }
 
-static void array_bitcalc_ab(addr *ret,
+static int array_bitcalc_ab_(addr *ret,
 		addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
+	int check;
 	struct array_struct *str;
 	size_t size;
 
-	if (! array_bitvector_size_equal(pos1, pos2))
-		fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
+	Return(array_bitvector_size_equal_(pos1, pos2, &check));
+	if (! check) {
+		*ret = Nil;
+		return fmte_("Length don't match ~S and ~S", pos1, pos2, NULL);
+	}
 	if (opt == Nil) {
 		bitmemory_length(pos2, &size);
 		bitmemory_heap(&opt, size);
@@ -168,29 +188,41 @@ static void array_bitcalc_ab(addr *ret,
 		GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else {
-		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		Return(array_bitvector_size_equal_(pos1, opt, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		}
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos1);
-	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos1, NULL);
-	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+	if (str->type != ARRAY_TYPE_BIT) {
+		*ret = Nil;
+		return fmte_("Array ~S must be a bit type.", pos1, NULL);
+	}
+	if (! bitvectorp(*ret)) {
+		return fmte_("Array ~S must be a bit type.", *ret, NULL);
+	}
 	GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
+
+	return 0;
 }
 
-static void array_bitcalc_ba(addr *ret,
+static int array_bitcalc_ba_(addr *ret,
 		addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
+	int check;
 	struct array_struct *str;
 	size_t size;
 
-	if (! array_bitvector_size_equal(pos1, pos2))
-		fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
+	Return(array_bitvector_size_equal_(pos1, pos2, &check));
+	if (! check) {
+		*ret = Nil;
+		return fmte_("Length don't match ~S and ~S", pos1, pos2, NULL);
+	}
 	if (opt == Nil) {
 		bitmemory_length(pos1, &size);
 		bitmemory_heap(&opt, size);
@@ -200,28 +232,39 @@ static void array_bitcalc_ba(addr *ret,
 		*ret = opt = pos1;
 	}
 	else {
-		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		Return(array_bitvector_size_equal_(pos1, opt, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		}
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos2);
-	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos2, NULL);
-	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+	if (str->type != ARRAY_TYPE_BIT) {
+		*ret = Nil;
+		return fmte_("Array ~S must be a bit type.", pos2, NULL);
+	}
+	if (! bitvectorp(*ret)) {
+		return fmte_("Array ~S must be a bit type.", *ret, NULL);
+	}
 	GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
+
+	return 0;
 }
 
-static void array_bitcalc_bb(addr *ret,
+static int array_bitcalc_bb_(addr *ret,
 		addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
+	int check;
 	size_t size;
 
-	if (! bitmemory_equal_length(pos1, pos2))
-		fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
+	if (! bitmemory_equal_length(pos1, pos2)) {
+		*ret = Nil;
+		return fmte_("Length don't match ~S and ~S", pos1, pos2, NULL);
+	}
 	if (opt == Nil) {
 		bitmemory_length(pos1, &size);
 		bitmemory_heap(&opt, size);
@@ -231,51 +274,50 @@ static void array_bitcalc_bb(addr *ret,
 		*ret = opt = pos1;
 	}
 	else {
-		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		Return(array_bitvector_size_equal_(pos1, opt, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("Length don't match ~S and optional ~S", pos1, opt, NULL);
+		}
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
-	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+	if (! bitvectorp(*ret)) {
+		return fmte_("Array ~S must be a bit type.", *ret, NULL);
+	}
 	bitmemory_bitcalc(opt, pos1, pos2, call);
+
+	return 0;
 }
 
-_g void array_bitcalc(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
+_g int array_bitcalc_(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
 	int check1, check2;
 
-	check1 = array_bitvector_type(pos1);
-	check2 = array_bitvector_type(pos2);
-	if (check1 && check2) {
-		array_bitcalc_aa(ret, pos1, pos2, opt, call);
-		return;
-	}
-	if (check1) {
-		array_bitcalc_ab(ret, pos1, pos2, opt, call);
-		return;
-	}
-	if (check2) {
-		array_bitcalc_ba(ret, pos1, pos2, opt, call);
-		return;
-	}
-	else {
-		array_bitcalc_bb(ret, pos1, pos2, opt, call);
-		return;
-	}
+	Return(array_bitvector_type_(pos1, &check1));
+	Return(array_bitvector_type_(pos2, &check2));
+	if (check1 && check2)
+		return array_bitcalc_aa_(ret, pos1, pos2, opt, call);
+	else if (check1)
+		return array_bitcalc_ab_(ret, pos1, pos2, opt, call);
+	else if (check2)
+		return array_bitcalc_ba_(ret, pos1, pos2, opt, call);
+	else
+		return array_bitcalc_bb_(ret, pos1, pos2, opt, call);
 }
 
 
 /*
  *  array_bitnot
  */
-_g void array_bitnot_array(addr *ret, addr pos, addr opt)
+static int array_bitnot_array_(addr *ret, addr pos, addr opt)
 {
+	int check;
 	struct array_struct *str;
 
 	if (opt == Nil) {
-		array_bitcalc_make(pos, &opt);
+		Return(array_bitcalc_make_(pos, &opt));
 		*ret = opt;
 		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
@@ -284,23 +326,32 @@ _g void array_bitnot_array(addr *ret, addr pos, addr opt)
 		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else {
-		if (! array_bitvector_size_equal(pos, opt))
-			fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
+		Return(array_bitvector_size_equal_(pos, opt, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("Length don't match ~S and optional ~S", pos, opt, NULL);
+		}
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos);
-	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos, NULL);
-	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+	if (str->type != ARRAY_TYPE_BIT) {
+		*ret = Nil;
+		return fmte_("Array ~S must be a bit type.", pos, NULL);
+	}
+	if (! bitvectorp(*ret)) {
+		return fmte_("Array ~S must be a bit type.", *ret, NULL);
+	}
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	bitmemory_bitnot(opt, pos);
+
+	return 0;
 }
 
-_g void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
+static int array_bitnot_bitmemory_(addr *ret, addr pos, addr opt)
 {
+	int check;
 	size_t size;
 
 	if (opt == Nil) {
@@ -312,48 +363,60 @@ _g void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
 		*ret = opt = pos;
 	}
 	else {
-		if (! array_bitvector_size_equal(pos, opt))
-			fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
+		Return(array_bitvector_size_equal_(pos, opt, &check));
+		if (! check) {
+			*ret = Nil;
+			return fmte_("Length don't match ~S and optional ~S", pos, opt, NULL);
+		}
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
-	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+	if (! bitvectorp(*ret)) {
+		return fmte_("Array ~S must be a bit type.", *ret, NULL);
+	}
 	bitmemory_bitnot(opt, pos);
+
+	return 0;
 }
 
-_g void array_bitnot(addr *ret, addr pos, addr opt)
+_g int array_bitnot_(addr *ret, addr pos, addr opt)
 {
-	if (array_bitvector_type(pos))
-		array_bitnot_array(ret, pos, opt);
+	int check;
+
+	Return(array_bitvector_type_(pos, &check));
+	if (check)
+		return array_bitnot_array_(ret, pos, opt);
 	else
-		array_bitnot_bitmemory(ret, pos, opt);
+		return array_bitnot_bitmemory_(ret, pos, opt);
 }
 
 
 /*
  *  array_fill
  */
-_g void array_fill(addr pos, addr item, addr start, addr end)
+_g int array_fill_(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 	struct array_struct *str;
 
 	/* argument */
 	str = ArrayInfoStruct(pos);
-	size_start_end_sequence(start, end, str->size, &index1, &index2);
+	Return(size_start_end_sequence_(start, end, str->size, &index1, &index2, NULL));
 
 	/* fill */
-	for (; index1 < index2; index1++)
-		array_set(pos, index1, item);
+	for (; index1 < index2; index1++) {
+		Return(array_set_(pos, index1, item));
+	}
+
+	return 0;
 }
 
 
 /*
  *  array_subseq
  */
-static void array_subseq_general(addr *ret, addr pos, size_t index1, size_t index2)
+static int array_subseq_general_(addr *ret, addr pos, size_t index1, size_t index2)
 {
 	addr root, temp;
 	size_t i;
@@ -361,13 +424,14 @@ static void array_subseq_general(addr *ret, addr pos, size_t index1, size_t inde
 	Check(index2 < index1, "index error");
 	vector_heap(&root, index2 - index1);
 	for (i = 0; index1 < index2; index1++, i++) {
-		array_get_t(pos, index1, &temp);
+		Return(array_get_t_(pos, index1, &temp));
 		setarray(root, i, temp);
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
-static void array_subseq_specialized_make(addr *ret, addr array, size_t size)
+static int array_subseq_specialized_make_(addr *ret, addr array, size_t size)
 {
 	struct array_struct *str;
 	addr pos;
@@ -380,12 +444,12 @@ static void array_subseq_specialized_make(addr *ret, addr array, size_t size)
 	str->size = str->front = size;
 	/* allocate */
 	Check(str->dimension != 1, "dimension error");
-	array_allocate_size(NULL, pos, str);
+	Return(array_allocate_size_(NULL, pos, str));
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-static void array_subseq_specialized(addr *ret,
+static int array_subseq_specialized_(addr *ret,
 		addr array, size_t index1, size_t index2)
 {
 	byte *data1;
@@ -396,7 +460,7 @@ static void array_subseq_specialized(addr *ret,
 	/* make array */
 	Check(index2 < index1, "index error");
 	diff = index2 - index1;
-	array_subseq_specialized_make(&pos, array, diff);
+	Return(array_subseq_specialized_make_(&pos, array, diff));
 
 	/* subseq */
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem1);
@@ -405,10 +469,10 @@ static void array_subseq_specialized(addr *ret,
 	data2 = (const byte *)arrayspec_ptr(mem2);
 	element = ArrayInfoStruct(pos)->element;
 	memcpy(data1, data2 + index1 * element, diff * element);
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-static void array_subseq_type(addr *ret, addr pos, size_t index1, size_t index2)
+static int array_subseq_type_(addr *ret, addr pos, size_t index1, size_t index2)
 {
 	struct array_struct *str;
 
@@ -416,87 +480,86 @@ static void array_subseq_type(addr *ret, addr pos, size_t index1, size_t index2)
 	switch (str->type) {
 		case ARRAY_TYPE_BIT:
 			GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
-			bitmemory_subseq_index(ret, pos, index1, index2);
-			break;
+			return bitmemory_subseq_index_(ret, pos, index1, index2);
 
 		case ARRAY_TYPE_CHARACTER:
 			GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
-			strvect_subseq_index(ret, pos, index1, index2);
-			break;
+			return strvect_subseq_index_(ret, pos, index1, index2);
 
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			array_subseq_specialized(ret, pos, index1, index2);
-			break;
+			return array_subseq_specialized_(ret, pos, index1, index2);
 
 		default:
-			array_subseq_general(ret, pos, index1, index2);
-			break;
+			return array_subseq_general_(ret, pos, index1, index2);
 	}
 }
 
-_g void array_subseq(addr *ret, addr pos, addr start, addr end)
+_g int array_subseq_(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	size_start_end_sequence(start, end, str->size, &index1, &index2);
-	array_subseq_type(ret, pos, index1, index2);
+	Return(size_start_end_sequence_(start, end, str->size, &index1, &index2, NULL));
+	return array_subseq_type_(ret, pos, index1, index2);
 }
 
 
 /*
  *  array_reverse
  */
-static void array_reverse_t(addr *ret, addr pos)
+static int array_reverse_t_(addr *ret, addr pos)
 {
 	addr one, temp;
 	size_t size, x, y;
 
-	size = length_sequence(pos, 1);
+	Return(length_sequence_(pos, 1, &size));
 	vector_heap(&one, size);
 	for (x = 0; x < size; x++) {
 		y = size - x - 1;
-		array_get_t(pos, x, &temp);
+		Return(array_get_t_(pos, x, &temp));
 		setarray(one, y, temp);
 	}
-	*ret = one;
+
+	return Result(ret, one);
 }
 
-static void array_reverse_bit(addr *ret, addr pos)
+static int array_reverse_bit_(addr *ret, addr pos)
 {
 	int temp;
 	addr one;
 	size_t size, x, y;
 
-	size = length_sequence(pos, 1);
+	Return(length_sequence_(pos, 1, &size));
 	bitmemory_unsafe(NULL, &one, size);
 	for (x = 0; x < size; x++) {
 		y = size - x - 1;
-		array_get_bit(pos, x, &temp);
-		bitmemory_setint(one, y, temp);
+		Return(array_get_bit_(pos, x, &temp));
+		Return(bitmemory_setint_(one, y, temp));
 	}
-	*ret = one;
+
+	return Result(ret, one);
 }
 
-static void array_reverse_character(addr *ret, addr pos)
+static int array_reverse_character_(addr *ret, addr pos)
 {
 	unicode temp;
 	addr one;
 	size_t size, x, y;
 
-	size = length_sequence(pos, 1);
+	Return(length_sequence_(pos, 1, &size));
 	strvect_heap(&one, size);
 	for (x = 0; x < size; x++) {
 		y = size - x - 1;
-		array_get_unicode(pos, x, &temp);
-		strvect_setc(one, y, temp);
+		Return(array_get_unicode_(pos, x, &temp));
+		Return(strvect_setc_(one, y, temp));
 	}
-	*ret = one;
+
+	return Result(ret, one);
 }
 
 static void array_type_simple_vector(addr pos, enum ARRAY_TYPE type, unsigned size)
@@ -509,7 +572,7 @@ static void array_type_simple_vector(addr pos, enum ARRAY_TYPE type, unsigned si
 	array_set_type(pos);
 }
 
-static void array_make_simple_vector(addr *ret,
+static int array_make_simple_vector_(addr *ret,
 		size_t size, enum ARRAY_TYPE type, unsigned bytesize)
 {
 	struct array_struct *str;
@@ -525,14 +588,14 @@ static void array_make_simple_vector(addr *ret,
 	str->dimension = 1;
 	str->size = str->front = size;
 	/* allocate */
-	array_make_memory(pos, Nil, Nil, Nil, Nil);
+	Return(array_make_memory_(pos, Nil, Nil, Nil, Nil));
 	/* initial value */
-	array_make_initial(pos, Unbound, Unbound);
+	Return(array_make_initial_(pos, Unbound, Unbound));
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-static void array_reverse_size(addr *ret, addr pos)
+static int array_reverse_size_(addr *ret, addr pos)
 {
 	struct array_struct *str;
 	addr one;
@@ -541,16 +604,17 @@ static void array_reverse_size(addr *ret, addr pos)
 
 	str = ArrayInfoStruct(pos);
 	size = str->size;
-	array_make_simple_vector(&one, size, str->type, str->bytesize);
+	Return(array_make_simple_vector_(&one, size, str->type, str->bytesize));
 	for (x = 0; x < size; x++) {
 		y = size - x - 1;
-		arrayinplace_get(pos, x, &value);
-		arrayinplace_set(one, y, &value);
+		Return(arrayinplace_get_(pos, x, &value));
+		Return(arrayinplace_set_(one, y, &value));
 	}
-	*ret = one;
+
+	return Result(ret, one);
 }
 
-_g void array_reverse(addr *ret, addr pos)
+_g int array_reverse_(addr *ret, addr pos)
 {
 	struct array_struct *str;
 
@@ -558,20 +622,16 @@ _g void array_reverse(addr *ret, addr pos)
 	Check(str->dimension != 1, "dimension error");
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			array_reverse_t(ret, pos);
-			break;
+			return array_reverse_t_(ret, pos);
 
 		case ARRAY_TYPE_BIT:
-			array_reverse_bit(ret, pos);
-			break;
+			return array_reverse_bit_(ret, pos);
 
 		case ARRAY_TYPE_CHARACTER:
-			array_reverse_character(ret, pos);
-			break;
+			return array_reverse_character_(ret, pos);
 
 		default:
-			array_reverse_size(ret, pos);
-			break;
+			return array_reverse_size_(ret, pos);
 	}
 }
 
@@ -579,24 +639,26 @@ _g void array_reverse(addr *ret, addr pos)
 /*
  *  array_nreverse
  */
-_g void array_nreverse(addr *ret, addr pos)
+_g int array_nreverse_(addr *ret, addr pos)
 {
 	size_t size, x, y;
 	struct array_value a, b;
 
 	Check(ArrayInfoStruct(pos)->dimension != 1, "dimension error");
-	size = length_sequence(pos, 1);
-	if (size <= 1) return;
+	Return(length_sequence_(pos, 1, &size));
+	if (size <= 1)
+		return 0;
 	x = 0;
 	y = size - 1;
 	while (x < y) {
-		arrayinplace_get(pos, x, &a);
-		arrayinplace_get(pos, y, &b);
-		arrayinplace_set(pos, x, &b);
-		arrayinplace_set(pos, y, &a);
+		Return(arrayinplace_get_(pos, x, &a));
+		Return(arrayinplace_get_(pos, y, &b));
+		Return(arrayinplace_set_(pos, x, &b));
+		Return(arrayinplace_set_(pos, y, &a));
 		x++;
 		y--;
 	}
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 

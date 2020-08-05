@@ -30,84 +30,96 @@ _g int sequencep(addr pos)
 		check == LISPTYPE_BITVECTOR;
 }
 
-_g int listp_sequence(addr pos)
+_g int listp_sequence_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			return 1;
+			return Result(ret, 1);
 
 		case LISPTYPE_VECTOR:
 		case LISPTYPE_STRING:
 		case LISPTYPE_ARRAY:
 		case LISPTYPE_BITVECTOR:
-			return 0;
+			return Result(ret, 0);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, SEQUENCE);
 	}
 }
 
-_g int vectorp_sequence(addr pos)
+_g int vectorp_sequence_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			return 0;
+			return Result(ret, 0);
 
 		case LISPTYPE_VECTOR:
 		case LISPTYPE_STRING:
 		case LISPTYPE_BITVECTOR:
-			return 1;
+			return Result(ret, 1);
 
 		case LISPTYPE_ARRAY:
-			return array_vector_p(pos);
+			return Result(ret, array_vector_p(pos));
 
 		default:
-			TypeError(pos, SEQUENCE);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, SEQUENCE);
 	}
+}
+
+_g int vectorp_sequence_debug(addr pos)
+{
+	int check;
+	check = 0;
+	Error(vectorp_sequence_(pos, &check));
+	return check;
 }
 
 
 /*
  *  size-check
  */
-static void vector_error_sequence(addr type, addr arg, size_t size)
+static int vector_error_sequence_(addr type, addr arg, size_t size)
 {
 	size_t check;
 
 	if (type_asterisk_p(arg))
-		return;
-	if (! integerp(arg))
-		type_error_stdarg(Nil, Nil, "Invalid type-specifier ~S.", type, NULL);
+		return 0;
+	if (! integerp(arg)) {
+		return call_type_error_va_(Execute_Thread,
+				Nil, Nil, "Invalid type-specifier ~S.", type, NULL);
+	}
 	if (GetIndex_integer(arg, &check))
-		fmte("Index size ~S is too large.", arg, NULL);
+		return fmte_("Index size ~S is too large.", arg, NULL);
 	if (check != size) {
-		type_error_stdarg(Nil, Nil,
+		return call_type_error_va_(Execute_Thread, Nil, Nil,
 				"The argument size ~S don't match type-spec ~S.",
 				intsizeh(size), type, NULL);
 	}
+
+	return 0;
 }
 
-_g void vector_check_sequence(addr type, size_t size)
+_g int vector_check_sequence_(addr type, size_t size)
 {
 	addr arg;
 
 	GetArrayType(type, 1, &arg);
-	vector_error_sequence(type, arg, size);
+	return vector_error_sequence_(type, arg, size);
 }
 
-_g void simple_vector_check_sequence(addr type, size_t size)
+_g int simple_vector_check_sequence_(addr type, size_t size)
 {
 	addr arg;
 
 	GetArrayType(type, 0, &arg);
-	vector_error_sequence(type, arg, size);
+	return vector_error_sequence_(type, arg, size);
 }
 
-_g void array_check_sequence(addr type, size_t size)
+_g int array_check_sequence_(addr type, size_t size)
 {
 	addr arg;
 	size_t check;
@@ -116,43 +128,47 @@ _g void array_check_sequence(addr type, size_t size)
 
 	/* asterisk */
 	if (type_asterisk_p(arg)) {
-		return;
+		return 0;
 	}
 
 	/* integer */
 	if (integerp(arg)) {
 		if (GetIndex_integer(arg, &check))
-			fmte("Index size ~S is too large.", arg, NULL);
-		if (check != 1)
-			type_error_stdarg(Nil, Nil, "Array ~S dimension must be 1.", type, NULL);
-		return;
+			return fmte_("Index size ~S is too large.", arg, NULL);
+		if (check != 1) {
+			return call_type_error_va_(Execute_Thread, Nil, Nil,
+					"Array ~S dimension must be 1.", type, NULL);
+		}
+		return 0;
 	}
 
 	/* multiple dimension */
 	if (GetType(arg) == LISPTYPE_VECTOR) {
 		LenArrayA4(arg, &check);
-		if (check != 1)
-			type_error_stdarg(Nil, Nil, "Array ~S dimension must be 1.", type, NULL);
+		if (check != 1) {
+			return call_type_error_va_(Execute_Thread, Nil, Nil,
+					"Array ~S dimension must be 1.", type, NULL);
+		}
 		GetArrayA4(arg, 0, &arg);
 		if (GetIndex_integer(arg, &check))
-			fmte("Index size ~S is too large.", arg, NULL);
+			return fmte_("Index size ~S is too large.", arg, NULL);
 		if (check != size) {
-			type_error_stdarg(Nil, Nil,
+			return call_type_error_va_(Execute_Thread, Nil, Nil,
 					"The argument size ~S don't match type-spec ~S.",
 					intsizeh(size), type, NULL);
 		}
-		return;
+		return 0;
 	}
 
 	/* error */
-	fmte("Invalid array-type ~S.", type, NULL);
+	return fmte_("Invalid array-type ~S.", type, NULL);
 }
 
 
 /*
  *  make-vector-from-list
  */
-_g void make_vector_from_list(addr *ret, addr cons)
+_g int make_vector_from_list_(addr *ret, addr cons)
 {
 	addr pos, array;
 	size_t i, size;
@@ -160,8 +176,10 @@ _g void make_vector_from_list(addr *ret, addr cons)
 	/* length */
 	pos = cons;
 	for (size = 0; pos != Nil; size++) {
-		if (GetType(pos) != LISPTYPE_CONS)
-			fmte("The tail of list must be a Nil.", NULL);
+		if (GetType(pos) != LISPTYPE_CONS) {
+			*ret = Nil;
+			return fmte_("The tail of list must be a Nil.", NULL);
+		}
 		GetCdr(pos, &pos);
 	}
 
@@ -171,10 +189,11 @@ _g void make_vector_from_list(addr *ret, addr cons)
 		GetCons(cons, &pos, &cons);
 		setarray(array, i, pos);
 	}
-	*ret = array;
+
+	return Result(ret, array);
 }
 
-_g void make_vector4_from_list(addr *ret, addr cons)
+_g int make_vector4_from_list_(addr *ret, addr cons)
 {
 	addr pos, array;
 	size_t i, size;
@@ -182,8 +201,10 @@ _g void make_vector4_from_list(addr *ret, addr cons)
 	/* length */
 	pos = cons;
 	for (size = 0; pos != Nil; size++) {
-		if (GetType(pos) != LISPTYPE_CONS)
-			fmte("The tail of list must be a Nil.", NULL);
+		if (GetType(pos) != LISPTYPE_CONS) {
+			*ret = Nil;
+			return fmte_("The tail of list must be a Nil.", NULL);
+		}
 		GetCdr(pos, &pos);
 	}
 
@@ -193,27 +214,39 @@ _g void make_vector4_from_list(addr *ret, addr cons)
 		GetCons(cons, &pos, &cons);
 		SetArrayA4(array, i, pos);
 	}
-	*ret = array;
+
+	return Result(ret, array);
 }
 
 
 /*
  *  start-end
  */
-_g void list_start_end_sequence(addr *list, addr *prev,
+_g int list_start_end_sequence_(addr *list, addr *prev,
 		addr start, addr end, size_t *ret1, size_t *ret2)
 {
 	addr temp;
 	size_t index1, index2, i;
 
 	/* argument */
-	if (GetIndex_integer(start, &index1))
-		fmte(":START ~A is too large.", start, NULL);
+	if (GetIndex_integer(start, &index1)) {
+		*ret1 = *ret2 = 0;
+		return fmte_(":START ~A is too large.", start, NULL);
+	}
 	if (end != Nil && end != Unbound) {
-		if (GetIndex_integer(end, &index2))
-			fmte(":END ~A is too large.", end, NULL);
-		if (index2 < index1)
-			fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
+		if (GetIndex_integer(end, &index2)) {
+			if (prev)
+				*prev = Nil;
+			*ret1 = *ret2 = 0;
+			return fmte_(":END ~A is too large.", end, NULL);
+		}
+		if (index2 < index1) {
+			if (prev)
+				*prev = Nil;
+			*ret1 = *ret2 = 0;
+			return fmte_(":START ~A "
+					"must be less than equal to :END ~A.", start, end, NULL);
+		}
 	}
 	else {
 		index2 = 0;
@@ -222,168 +255,212 @@ _g void list_start_end_sequence(addr *list, addr *prev,
 	/* start */
 	temp = Nil;
 	for (i = 0; i < index1; i++) {
-		if (*list == Nil)
-			fmte(":START ~A must be less than equal to list length.", start, NULL);
+		if (*list == Nil) {
+			if (prev)
+				*prev = Nil;
+			*ret1 = *ret2 = 0;
+			return fmte_(":START ~A "
+					"must be less than equal to list length.", start, NULL);
+		}
 		temp = *list;
-		getcdr(*list, list);
+		Return_getcdr(*list, list);
 	}
 
-	if (prev) *prev = temp;
+	if (prev)
+		*prev = temp;
 	*ret1 = index1;
 	*ret2 = index2;
+	return 0;
 }
 
-_g int size_start_end_sequence(addr start, addr end,
-		size_t size, size_t *ret1, size_t *ret2)
+static int size_start_end_sequence_call_(addr start, addr end,
+		size_t size, size_t *ret1, size_t *ret2, int *ret)
 {
 	size_t index1, index2;
 
 	if (size == 0) {
 		*ret1 = *ret2 = 0;
-		return 1;
+		return Result(ret, 1);
 	}
-	if (GetIndex_integer(start, &index1))
-		fmte(":START ~A is too large.", start, NULL);
+	if (GetIndex_integer(start, &index1)) {
+		*ret = 0;
+		*ret1 = *ret2 = 0;
+		return fmte_(":START ~A is too large.", start, NULL);
+	}
 	if (end != Nil && end != Unbound) {
-		if (GetIndex_integer(end, &index2))
-			fmte(":END ~A is too large.", end, NULL);
-		if (size < index2)
-			fmte(":END ~A must be less than sequence length.", end, NULL);
+		if (GetIndex_integer(end, &index2)) {
+			*ret = 0;
+			*ret1 = *ret2 = 0;
+			return fmte_(":END ~A is too large.", end, NULL);
+		}
+		if (size < index2) {
+			*ret = 0;
+			*ret1 = *ret2 = 0;
+			return fmte_(":END ~A must be less than sequence length.", end, NULL);
+		}
 	}
 	else {
 		index2 = size;
 	}
-	if (size < index1)
-		fmte(":START ~A must be less than sequence length.", start, NULL);
-	if (index2 < index1)
-		fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
+	if (size < index1) {
+		*ret = 0;
+		*ret1 = *ret2 = 0;
+		return fmte_(":START ~A must be less than sequence length.", start, NULL);
+	}
+	if (index2 < index1) {
+		*ret = 0;
+		*ret1 = *ret2 = 0;
+		return fmte_(":START ~A must be less than equal to :END ~A.", start, end, NULL);
+	}
+
 	*ret1 = index1;
 	*ret2 = index2;
+	return Result(ret, 0);
+}
 
-	return 0;
+_g int size_start_end_sequence_(addr start, addr end,
+		size_t size, size_t *ret1, size_t *ret2, int *ret)
+{
+	int ignore;
+
+	if (ret)
+		return size_start_end_sequence_call_(start, end, size, ret1, ret2, ret);
+	else
+		return size_start_end_sequence_call_(start, end, size, ret1, ret2, &ignore);
 }
 
 
 /*
  *  common
  */
-_g size_t length_sequence(addr pos, int fill)
+_g int length_sequence_(addr pos, int fill, size_t *ret)
 {
-	size_t size;
-
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
-			return 0;
+			return Result(ret, 0);
 
 		case LISPTYPE_CONS:
-			return length_list_safe(pos);
+			return length_list_safe_(pos, ret);
 
 		case LISPTYPE_VECTOR:
-			return lenarrayr(pos);
+			*ret = lenarrayr(pos);
+			return 0;
 
 		case LISPTYPE_STRING:
-			strvect_length(pos, &size);
-			return size;
+			strvect_length(pos, ret);
+			return 0;
 
 		case LISPTYPE_ARRAY:
-			return array_get_vector_length(pos, fill);
+			*ret = array_get_vector_length(pos, fill);
+			return 0;
 
 		case LISPTYPE_BITVECTOR:
-			bitvector_length(pos, &size);
-			return size;
+			return bitvector_length_(pos, ret);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			*ret = 0;
+			return TypeError_(pos, SEQUENCE);
 	}
-
-	return 0;
 }
 
 
 /*
  *  elt
  */
-static void getelt_list(addr pos, size_t index, addr *ret)
+static int getelt_list_(addr pos, size_t index, addr *ret)
 {
 	for (;;) {
-		if (pos == Nil)
-			fmte("Index ~S is too large.", intsizeh(index), NULL);
-		if (! consp(pos))
-			fmte("The list ~S must be a list type.", pos, NULL);
+		if (pos == Nil) {
+			*ret = Nil;
+			return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+		}
+		if (! consp(pos)) {
+			*ret = Nil;
+			return fmte_("The list ~S must be a list type.", pos, NULL);
+		}
 		if (index == 0)
 			break;
 		GetCdr(pos, &pos);
 		index--;
 	}
 	GetCar(pos, ret);
+	return 0;
 }
 
-static void getelt_vector(addr pos, size_t index, addr *ret)
+static int getelt_vector_(addr pos, size_t index, addr *ret)
 {
-	if (lenarrayr(pos) <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+	if (lenarrayr(pos) <= index) {
+		*ret = 0;
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	}
 	getarray(pos, index, ret);
+	return 0;
 }
 
-static void getelt_string(addr pos, size_t index, unicode *ret)
+static int getelt_string_(addr pos, size_t index, unicode *ret)
 {
 	size_t size;
 
 	strvect_length(pos, &size);
-	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+	if (size <= index) {
+		*ret = 0;
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	}
 	strvect_getc(pos, index, ret);
+	return 0;
 }
 
-static void getelt_bitvector(addr pos, size_t index, int *ret)
+static int getelt_bitvector_(addr pos, size_t index, int *ret)
 {
 	size_t size;
 
-	bitvector_length(pos, &size);
-	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	bitmemory_getint(pos, index, ret);
+	Return(bitvector_length_(pos, &size));
+	if (size <= index) {
+		*ret = 0;
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	}
+
+	return bitmemory_getint_(pos, index, ret);
 }
 
-_g void getelt_inplace_sequence(addr pos, size_t index, struct array_value *str)
+_g int getelt_inplace_sequence_(addr pos, size_t index, struct array_value *str)
 {
 	int bit;
 
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			getelt_list(pos, index, &(str->value.object));
+			Return(getelt_list_(pos, index, &(str->value.object)));
 			str->type = ARRAY_TYPE_T;
 			break;
 
 		case LISPTYPE_VECTOR:
-			getelt_vector(pos, index, &(str->value.object));
+			Return(getelt_vector_(pos, index, &(str->value.object)));
 			str->type = ARRAY_TYPE_T;
 			break;
 
 		case LISPTYPE_STRING:
-			getelt_string(pos, index, &(str->value.character));
+			Return(getelt_string_(pos, index, &(str->value.character)));
 			str->type = ARRAY_TYPE_CHARACTER;
 			break;
 
 		case LISPTYPE_ARRAY:
-			arrayinplace_get(pos, index, str);
-			break;
+			return arrayinplace_get_(pos, index, str);
 
 		case LISPTYPE_BITVECTOR:
-			getelt_bitvector(pos, index, &bit);
+			Return(getelt_bitvector_(pos, index, &bit));
 			str->value.bit = bit? 1: 0;
 			str->type = ARRAY_TYPE_BIT;
 			break;
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			return TypeError_(pos, SEQUENCE);
 	}
+
+	return 0;
 }
 
-static void setelt_bit_t_sequence(addr pos,
+static int setelt_bit_t_sequence_(addr pos,
 		size_t index, const struct array_value *str)
 {
 	addr value;
@@ -392,14 +469,15 @@ static void setelt_bit_t_sequence(addr pos,
 	value = str->value.object;
 	GetFixnum(value, &check);
 	if (check == 0)
-		bitmemory_setint(pos, index, 0);
-	else if (check == 1)
-		bitmemory_setint(pos, index, 1);
-	else
-		fmte("The bit-vector cannot set an integer ~A.", value, NULL);
+		return bitmemory_setint_(pos, index, 0);
+	if (check == 1)
+		return bitmemory_setint_(pos, index, 1);
+
+	/* error */
+	return fmte_("The bit-vector cannot set an integer ~A.", value, NULL);
 }
 
-static void setelt_bit_signed_sequence(addr pos,
+static int setelt_bit_signed_sequence_(addr pos,
 		size_t index, const struct array_value *str)
 {
 	int check;
@@ -443,22 +521,21 @@ static void setelt_bit_signed_sequence(addr pos,
 #endif
 
 		default:
-			fmte("Invalid array value.", NULL);
-			return;
+			return fmte_("Invalid array value.", NULL);
 	}
 
 	/* result */
 	if (check == 0)
-		bitmemory_setint(pos, index, 0);
-	else if (check == 1)
-		bitmemory_setint(pos, index, 1);
-	else {
-		arrayvalue_heap(&pos, str);
-		fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
-	}
+		return bitmemory_setint_(pos, index, 0);
+	if (check == 1)
+		return bitmemory_setint_(pos, index, 1);
+
+	/* error */
+	Return(arrayvalue_heap_(&pos, str));
+	return fmte_("The bit-vector cannot set an integer ~A.", pos, NULL);
 }
 
-static void setelt_bit_unsigned_sequence(addr pos,
+static int setelt_bit_unsigned_sequence_(addr pos,
 		size_t index, const struct array_value *str)
 {
 	int check;
@@ -502,46 +579,41 @@ static void setelt_bit_unsigned_sequence(addr pos,
 #endif
 
 		default:
-			fmte("Invalid array value.", NULL);
-			return;
+			return fmte_("Invalid array value.", NULL);
 	}
 
 	/* result */
 	if (check == 0)
-		bitmemory_setint(pos, index, 0);
-	else if (check == 1)
-		bitmemory_setint(pos, index, 1);
-	else {
-		arrayvalue_heap(&pos, str);
-		fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
-	}
+		return bitmemory_setint_(pos, index, 0);
+	if (check == 1)
+		return bitmemory_setint_(pos, index, 1);
+
+	/* error */
+	Return(arrayvalue_heap_(&pos, str));
+	return fmte_("The bit-vector cannot set an integer ~A.", pos, NULL);
 }
 
-static void setelt_bit_sequence(addr pos, size_t index, const struct array_value *str)
+static int setelt_bit_sequence_(addr pos, size_t index, const struct array_value *str)
 {
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			setelt_bit_t_sequence(pos, index, str);
-			break;
+			return setelt_bit_t_sequence_(pos, index, str);
 
 		case ARRAY_TYPE_BIT:
-			bitmemory_setint(pos, index, (int)str->value.bit);
-			break;
+			return bitmemory_setint_(pos, index, (int)str->value.bit);
 
 		case ARRAY_TYPE_SIGNED:
-			setelt_bit_signed_sequence(pos, index, str);
-			break;
+			return setelt_bit_signed_sequence_(pos, index, str);
 
 		case ARRAY_TYPE_UNSIGNED:
-			setelt_bit_unsigned_sequence(pos, index, str);
-			break;
+			return setelt_bit_unsigned_sequence_(pos, index, str);
 
 		default:
-			fmte("Invalid array type.", NULL);
+			return fmte_("Invalid array type.", NULL);
 	}
 }
 
-static void setelt_string_sequence(addr pos,
+static int setelt_string_sequence_(addr pos,
 		size_t index, const struct array_value *str)
 {
 	addr value;
@@ -551,23 +623,20 @@ static void setelt_string_sequence(addr pos,
 	if (str->type == ARRAY_TYPE_T) {
 		value = str->value.object;
 		if (! characterp(value))
-			fmte("The object ~S must be a character type,", value, NULL);
+			return fmte_("The object ~S must be a character type,", value, NULL);
 		GetCharacter(value, &c);
-		strvect_setc(pos, index, c);
-		return;
+		return strvect_setc_(pos, index, c);
 	}
 
 	/* character */
-	if (str->type == ARRAY_TYPE_CHARACTER) {
-		strvect_setc(pos, index, str->value.character);
-		return;
-	}
+	if (str->type == ARRAY_TYPE_CHARACTER)
+		return strvect_setc_(pos, index, str->value.character);
 
 	/* others */
-	fmte("The element of sequence  ~S must be a character type.", pos, NULL);
+	return fmte_("The element of sequence  ~S must be a character type.", pos, NULL);
 }
 
-_g void setelt_inplace_sequence(LocalRoot local,
+_g int setelt_inplace_sequence_(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str)
 {
 	addr value;
@@ -575,131 +644,127 @@ _g void setelt_inplace_sequence(LocalRoot local,
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			arrayvalue_alloc(local, &value, str);
-			setnth(pos, index, value);
-			break;
+			Return(arrayvalue_alloc_(local, &value, str));
+			return setnth_(pos, index, value);
 
 		case LISPTYPE_VECTOR:
-			arrayvalue_alloc(local, &value, str);
-			vector_setelt(pos, index, value);
-			break;
+			Return(arrayvalue_alloc_(local, &value, str));
+			Return(vector_setelt_(pos, index, value));
+			return 0;
 
 		case LISPTYPE_STRING:
-			setelt_string_sequence(pos, index, str);
-			break;
+			return setelt_string_sequence_(pos, index, str);
 
 		case LISPTYPE_ARRAY:
-			arrayinplace_set(pos, index, str);
-			break;
+			return arrayinplace_set_(pos, index, str);
 
 		case LISPTYPE_BITVECTOR:
-			setelt_bit_sequence(pos, index, str);
-			break;
+			return setelt_bit_sequence_(pos, index, str);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			return TypeError_(pos, SEQUENCE);
 	}
 }
 
-static void getelt_string_alloc(LocalRoot local, addr pos, size_t index, addr *ret)
+static int getelt_string_alloc_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	unicode c;
-	getelt_string(pos, index, &c);
+
+	Return(getelt_string_(pos, index, &c));
 	character_alloc(local, ret, c);
+
+	return 0;
 }
 
-static void getelt_array(LocalRoot local, addr pos, size_t index, addr *ret)
+static int getelt_array_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	size_t size;
 
-	if (! array_vector_p(pos))
-		TypeError(pos, SEQUENCE);
+	if (! array_vector_p(pos)) {
+		*ret = Nil;
+		return TypeError_(pos, SEQUENCE);
+	}
 	size = array_get_vector_length(pos, 1);
-	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	array_get(local, pos, index, ret);
+	if (size <= index) {
+		*ret = Nil;
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	}
+
+	return array_get_(local, pos, index, ret);
 }
 
-static void getelt_bitvector_alloc(LocalRoot local, addr pos, size_t index, addr *ret)
+static int getelt_bitvector_alloc_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	size_t size;
 
-	bitvector_length(pos, &size);
-	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	bitmemory_get(local, pos, index, ret);
+	Return(bitvector_length_(pos, &size));
+	if (size <= index) {
+		*ret = Nil;
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+	}
+
+	return bitmemory_get_(local, pos, index, ret);
 }
 
-_g void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret)
+_g int getelt_sequence_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			getelt_list(pos, index, ret);
-			break;
+			return getelt_list_(pos, index, ret);
 
 		case LISPTYPE_VECTOR:
-			getelt_vector(pos, index, ret);
-			break;
+			return getelt_vector_(pos, index, ret);
 
 		case LISPTYPE_STRING:
-			getelt_string_alloc(local, pos, index, ret);
-			break;
+			return getelt_string_alloc_(local, pos, index, ret);
 
 		case LISPTYPE_ARRAY:
-			getelt_array(local, pos, index, ret);
-			break;
+			return getelt_array_(local, pos, index, ret);
 
 		case LISPTYPE_BITVECTOR:
-			getelt_bitvector_alloc(local, pos, index, ret);
-			break;
+			return getelt_bitvector_alloc_(local, pos, index, ret);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, SEQUENCE);
 	}
 }
 
-static void setelt_array(addr pos, size_t index, addr value)
+static int setelt_array_(addr pos, size_t index, addr value)
 {
 	size_t size;
 
 	if (! array_vector_p(pos))
-		TypeError(pos, SEQUENCE);
+		return TypeError_(pos, SEQUENCE);
 	size = array_get_vector_length(pos, 1);
 	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	array_set(pos, index, value);
+		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
+
+	return array_set_(pos, index, value);
 }
 
-_g void setelt_sequence(addr pos, size_t index, addr value)
+_g int setelt_sequence_(addr pos, size_t index, addr value)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			setnth(pos, index, value);
-			break;
+			return setnth_(pos, index, value);
 
 		case LISPTYPE_VECTOR:
-			vector_setelt(pos, index, value);
-			break;
+			return vector_setelt_(pos, index, value);
 
 		case LISPTYPE_STRING:
-			strvect_set(pos, index, value);
-			break;
+			return strvect_set_(pos, index, value);
 
 		case LISPTYPE_ARRAY:
-			setelt_array(pos, index, value);
-			break;
+			return setelt_array_(pos, index, value);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_set(pos, index, value);
-			break;
+			return bitmemory_set_(pos, index, value);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			return TypeError_(pos, SEQUENCE);
 	}
 }
 
@@ -707,12 +772,11 @@ _g void setelt_sequence(addr pos, size_t index, addr value)
 /*
  *  reverse / nreverse
  */
-_g void reverse_sequence_heap(addr *ret, addr pos)
+_g int reverse_sequence_heap_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
-			*ret = Nil;
-			break;
+			return Result(ret, Nil);
 
 		case LISPTYPE_CONS:
 			reverse_list_heap_safe(ret, pos);
@@ -723,29 +787,27 @@ _g void reverse_sequence_heap(addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_STRING:
-			strvect_reverse(NULL, ret, pos);
-			break;
+			return strvect_reverse_(NULL, ret, pos);
 
 		case LISPTYPE_ARRAY:
-			array_reverse(ret, pos);
-			break;
+			return array_reverse_(ret, pos);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_reverse(NULL, ret, pos);
-			break;
+			return bitmemory_reverse_(NULL, ret, pos);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			*ret = 0;
+			return TypeError_(pos, SEQUENCE);
 	}
+
+	return 0;
 }
 
-_g void nreverse_sequence(addr *ret, addr pos)
+_g int nreverse_sequence_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
-			*ret = Nil;
-			break;
+			return Result(ret, Nil);
 
 		case LISPTYPE_CONS:
 			nreverse_list_safe(ret, pos);
@@ -756,20 +818,19 @@ _g void nreverse_sequence(addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_STRING:
-			strvect_nreverse(ret, pos);
-			break;
+			return strvect_nreverse_(ret, pos);
 
 		case LISPTYPE_ARRAY:
-			array_nreverse(ret, pos);
-			break;
+			return array_nreverse_(ret, pos);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_nreverse(ret, pos);
-			break;
+			return bitmemory_nreverse_(ret, pos);
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, SEQUENCE);
 	}
+
+	return 0;
 }
 

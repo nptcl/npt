@@ -362,22 +362,22 @@ static int test_bitmemory_memset_byte(void)
 
 	bitmemory_heap(&pos, 256);
 	bitmemory_memset_byte(pos, 0xA0);
-	test(! bitmemory_refint(pos, 0), "bitmemory_memset_byte1");
-	test(! bitmemory_refint(pos, 1), "bitmemory_memset_byte2");
-	test(! bitmemory_refint(pos, 2), "bitmemory_memset_byte3");
-	test(! bitmemory_refint(pos, 3), "bitmemory_memset_byte4");
-	test(! bitmemory_refint(pos, 4), "bitmemory_memset_byte5");
-	test(  bitmemory_refint(pos, 5), "bitmemory_memset_byte6");
-	test(! bitmemory_refint(pos, 6), "bitmemory_memset_byte7");
-	test(  bitmemory_refint(pos, 7), "bitmemory_memset_byte8");
-	test(! bitmemory_refint(pos, 64+0), "bitmemory_memset_byte9");
-	test(! bitmemory_refint(pos, 64+1), "bitmemory_memset_byte10");
-	test(! bitmemory_refint(pos, 64+2), "bitmemory_memset_byte11");
-	test(! bitmemory_refint(pos, 64+3), "bitmemory_memset_byte12");
-	test(! bitmemory_refint(pos, 64+4), "bitmemory_memset_byte13");
-	test(  bitmemory_refint(pos, 64+5), "bitmemory_memset_byte14");
-	test(! bitmemory_refint(pos, 64+6), "bitmemory_memset_byte15");
-	test(  bitmemory_refint(pos, 64+7), "bitmemory_memset_byte16");
+	test(! bitmemory_refint_debug(pos, 0), "bitmemory_memset_byte1");
+	test(! bitmemory_refint_debug(pos, 1), "bitmemory_memset_byte2");
+	test(! bitmemory_refint_debug(pos, 2), "bitmemory_memset_byte3");
+	test(! bitmemory_refint_debug(pos, 3), "bitmemory_memset_byte4");
+	test(! bitmemory_refint_debug(pos, 4), "bitmemory_memset_byte5");
+	test(  bitmemory_refint_debug(pos, 5), "bitmemory_memset_byte6");
+	test(! bitmemory_refint_debug(pos, 6), "bitmemory_memset_byte7");
+	test(  bitmemory_refint_debug(pos, 7), "bitmemory_memset_byte8");
+	test(! bitmemory_refint_debug(pos, 64+0), "bitmemory_memset_byte9");
+	test(! bitmemory_refint_debug(pos, 64+1), "bitmemory_memset_byte10");
+	test(! bitmemory_refint_debug(pos, 64+2), "bitmemory_memset_byte11");
+	test(! bitmemory_refint_debug(pos, 64+3), "bitmemory_memset_byte12");
+	test(! bitmemory_refint_debug(pos, 64+4), "bitmemory_memset_byte13");
+	test(  bitmemory_refint_debug(pos, 64+5), "bitmemory_memset_byte14");
+	test(! bitmemory_refint_debug(pos, 64+6), "bitmemory_memset_byte15");
+	test(  bitmemory_refint_debug(pos, 64+7), "bitmemory_memset_byte16");
 
 	RETURN;
 }
@@ -388,11 +388,11 @@ static int test_bitmemory_memset(void)
 
 	bitmemory_heap(&pos, 256);
 	bitmemory_memset(pos, 0);
-	test(! bitmemory_refint(pos, 0), "bitmemory_memset1");
-	test(! bitmemory_refint(pos, 66), "bitmemory_memset2");
+	test(! bitmemory_refint_debug(pos, 0), "bitmemory_memset1");
+	test(! bitmemory_refint_debug(pos, 66), "bitmemory_memset2");
 	bitmemory_memset(pos, 0);
-	test(! bitmemory_refint(pos, 1), "bitmemory_memset3");
-	test(! bitmemory_refint(pos, 67), "bitmemory_memset4");
+	test(! bitmemory_refint_debug(pos, 1), "bitmemory_memset3");
+	test(! bitmemory_refint_debug(pos, 67), "bitmemory_memset4");
 
 	RETURN;
 }
@@ -404,11 +404,11 @@ static int test_bitmemory_copy_unsafe(void)
 
 	bitmemory_heap(&a, 100);
 	for (i = n = 0; i < 10; i++) {
-		bitmemory_setint(a, n++, 1);
-		bitmemory_setint(a, n++, 1);
-		bitmemory_setint(a, n++, 0);
-		bitmemory_setint(a, n++, 0);
-		bitmemory_setint(a, n++, 1);
+		bitmemory_setint_(a, n++, 1);
+		bitmemory_setint_(a, n++, 1);
+		bitmemory_setint_(a, n++, 0);
+		bitmemory_setint_(a, n++, 0);
+		bitmemory_setint_(a, n++, 1);
 	}
 	bitmemory_heap(&b, 100);
 	bitmemory_copy_unsafe(b, a, 100);
@@ -482,19 +482,6 @@ static int test_bitmemory_equal(void)
 	RETURN;
 }
 
-static int test_bitmemory_refint(void)
-{
-	addr pos;
-
-	bitmemory_char_heap(&pos, "1011");
-	test(  bitmemory_refint(pos, 0), "bitmemory_refint1");
-	test(! bitmemory_refint(pos, 1), "bitmemory_refint2");
-	test(  bitmemory_refint(pos, 2), "bitmemory_refint3");
-	test(  bitmemory_refint(pos, 3), "bitmemory_refint4");
-
-	RETURN;
-}
-
 static int test_bitmemory_getint(void)
 {
 	int check;
@@ -504,24 +491,24 @@ static int test_bitmemory_getint(void)
 			"10110111111000000111111000001101010101010111100100100111001110111"
 			"10110111111000000111111000001101010101010111100100100111001110111"
 			"10110111111000000111111000001101010101010111100100100111001110101");
-	bitmemory_getint(pos, 0, &check);
+	bitmemory_getint_(pos, 0, &check);
 	test(check, "bitmemory_getint1");
-	bitmemory_getint(pos, 1, &check);
+	bitmemory_getint_(pos, 1, &check);
 	test(! check, "bitmemory_getint2");
-	bitmemory_getint(pos, 2, &check);
+	bitmemory_getint_(pos, 2, &check);
 	test(check, "bitmemory_getint3");
-	bitmemory_getint(pos, 3, &check);
+	bitmemory_getint_(pos, 3, &check);
 	test(check, "bitmemory_getint4");
 
-	bitmemory_getint(pos, 65-1, &check);
+	bitmemory_getint_(pos, 65-1, &check);
 	test(check, "bitmemory_getint5");
-	bitmemory_getint(pos, 65+0, &check);
+	bitmemory_getint_(pos, 65+0, &check);
 	test(check, "bitmemory_getint6");
-	bitmemory_getint(pos, 65+1, &check);
+	bitmemory_getint_(pos, 65+1, &check);
 	test(! check, "bitmemory_getint7");
-	bitmemory_getint(pos, 65+2, &check);
+	bitmemory_getint_(pos, 65+2, &check);
 	test(check, "bitmemory_getint8");
-	bitmemory_getint(pos, 65+3, &check);
+	bitmemory_getint_(pos, 65+3, &check);
 	test(check, "bitmemory_getint9");
 
 	RETURN;
@@ -539,11 +526,11 @@ static int test_bitmemory_setint(void)
 			"10110111111000000111111000001101010101010111100100100111001110110"
 			"01010111111000000111111000001101010101010111100100100111001110111"
 			"10110111111000000111111000001101010101010111100100100111001110101");
-	bitmemory_setint(pos1, 65-1, 0);
-	bitmemory_setint(pos1, 65+0, 0);
-	bitmemory_setint(pos1, 65+1, 1);
-	bitmemory_setint(pos1, 65+2, 0);
-	bitmemory_setint(pos1, 65+3, 1);
+	bitmemory_setint_(pos1, 65-1, 0);
+	bitmemory_setint_(pos1, 65+0, 0);
+	bitmemory_setint_(pos1, 65+1, 1);
+	bitmemory_setint_(pos1, 65+2, 0);
+	bitmemory_setint_(pos1, 65+3, 1);
 	test(bitmemory_equal(pos1, pos2), "bitmemory_setint1");
 
 	RETURN;
@@ -554,15 +541,15 @@ static int test_bitmemory_get(void)
 	addr pos, value;
 
 	bitmemory_char_heap(&pos, "110010");
-	bitmemory_get(NULL, pos, 0, &value);
+	bitmemory_get_(NULL, pos, 0, &value);
 	test(RefFixnum(value) == 1, "bitmemory_get1");
-	bitmemory_get(NULL, pos, 1, &value);
+	bitmemory_get_(NULL, pos, 1, &value);
 	test(RefFixnum(value) == 1, "bitmemory_get2");
-	bitmemory_get(NULL, pos, 2, &value);
+	bitmemory_get_(NULL, pos, 2, &value);
 	test(RefFixnum(value) == 0, "bitmemory_get3");
-	bitmemory_get(NULL, pos, 4, &value);
+	bitmemory_get_(NULL, pos, 4, &value);
 	test(RefFixnum(value) == 1, "bitmemory_get4");
-	bitmemory_get(NULL, pos, 5, &value);
+	bitmemory_get_(NULL, pos, 5, &value);
 	test(RefFixnum(value) == 0, "bitmemory_get5");
 
 	RETURN;
@@ -575,15 +562,15 @@ static int test_bitmemory_aref(void)
 	bitmemory_char_heap(&pos, "110010");
 
 	list_heap(&value, fixnumh(0), NULL);
-	bitmemory_aref(NULL, pos, value, &value);
+	bitmemory_aref_(NULL, pos, value, &value);
 	test(RefFixnum(value) == 1, "bitmemory_aref1");
 
 	list_heap(&value, fixnumh(2), NULL);
-	bitmemory_aref(NULL, pos, value, &value);
+	bitmemory_aref_(NULL, pos, value, &value);
 	test(RefFixnum(value) == 0, "bitmemory_aref2");
 
 	list_heap(&value, fixnumh(5), NULL);
-	bitmemory_aref(NULL, pos, value, &value);
+	bitmemory_aref_(NULL, pos, value, &value);
 	test(RefFixnum(value) == 0, "bitmemory_aref3");
 
 	RETURN;
@@ -595,8 +582,8 @@ static int test_bitmemory_set(void)
 
 	bitmemory_char_heap(&pos,   "110010");
 	bitmemory_char_heap(&check, "100011");
-	bitmemory_set(pos, 1, fixnumh(0));
-	bitmemory_set(pos, 5, fixnumh(1));
+	bitmemory_set_(pos, 1, fixnumh(0));
+	bitmemory_set_(pos, 5, fixnumh(1));
 	test(bitmemory_equal(pos, check), "bitmemory_set1");
 
 	RETURN;
@@ -609,9 +596,9 @@ static int test_bitmemory_setf_aref(void)
 	bitmemory_char_heap(&pos,   "110010");
 	bitmemory_char_heap(&check, "100011");
 	list_heap(&args, fixnumh(1), NULL);
-	bitmemory_setf_aref(pos, args, fixnumh(0));
+	bitmemory_setf_aref_(pos, args, fixnumh(0));
 	list_heap(&args, fixnumh(5), NULL);
-	bitmemory_setf_aref(pos, args, fixnumh(1));
+	bitmemory_setf_aref_(pos, args, fixnumh(1));
 	test(bitmemory_equal(pos, check), "bitmemory_setf_aref1");
 
 	RETURN;
@@ -626,18 +613,18 @@ static int test_array_bvarrayp(void)
 	addr pos, list;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_bvarrayp(pos), "array_bvarrayp1");
 
 	GetTypeTable(&pos, Bit);
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
-	array_make_array(&pos, list, pos,
+	array_make_array_(&pos, list, pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_bvarrayp(pos), "array_bvarrayp2");
 
 	GetTypeTable(&pos, T);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_bvarrayp(pos), "array_bvarrayp3");
 
@@ -649,7 +636,7 @@ static int test_bvarrayp(void)
 	addr pos;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(bvarrayp(pos), "bvarrayp1");
 	test(! bvarrayp(T), "bvarrayp2");
@@ -665,7 +652,7 @@ static int test_bitvectorp(void)
 	test(bitvectorp(pos), "bitvectorp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(bitvectorp(pos), "bitvectorp2");
 	test(! bitvectorp(T), "bitvectorp3");
@@ -678,23 +665,23 @@ static int test_simple_array_bvarrayp(void)
 	addr pos, list;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(simple_array_bvarrayp(pos), "simple_array_bvarrayp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! simple_array_bvarrayp(pos), "simple_array_bvarrayp2");
 
 	GetTypeTable(&pos, Bit);
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
-	array_make_array(&pos, list, pos,
+	array_make_array_(&pos, list, pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! simple_array_bvarrayp(pos), "simple_array_bvarrayp3");
 
 	GetTypeTable(&pos, T);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! simple_array_bvarrayp(pos), "simple_array_bvarrayp4");
 
@@ -706,12 +693,12 @@ static int test_simple_bvarrayp(void)
 	addr pos;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(simple_bvarrayp(pos), "simple_bvarrayp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! simple_bvarrayp(pos), "simple_bvarrayp2");
 
@@ -728,12 +715,12 @@ static int test_simple_bitvectorp(void)
 	test(simple_bitvectorp(pos), "simple_bitvectorp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(simple_bitvectorp(pos), "simple_bitvectorp2");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(&pos, fixnumh(10), pos,
+	array_make_array_(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! simple_bitvectorp(pos), "simple_bitvectorp3");
 
@@ -771,7 +758,6 @@ static int testbreak_bit(void)
 	TestBreak(test_bitmemory_copy_unsafe);
 	TestBreak(test_bitmemory_length);
 	TestBreak(test_bitmemory_equal);
-	TestBreak(test_bitmemory_refint);
 	TestBreak(test_bitmemory_getint);
 	TestBreak(test_bitmemory_setint);
 	TestBreak(test_bitmemory_get);

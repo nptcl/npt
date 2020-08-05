@@ -121,7 +121,7 @@ _g int redirect_restart_syscode(Execute ptr, addr condition, addr list)
 {
 	addr pos;
 
-	Check(! conditionp(condition), "type error");
+	Check(! conditionp_debug(condition), "type error");
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		if (GetType(pos) != LISPTYPE_RESTART)
@@ -264,9 +264,9 @@ _g int do_external_symbols_syscode(Execute ptr, addr call, addr package)
 
 
 /* do-all-symbols */
-_g int do_all_symbols_syscode(Execute ptr, addr call)
+_g int do_all_symbols_syscode_(Execute ptr, addr call)
 {
-	return do_all_symbols_package(ptr, call);
+	return do_all_symbols_package_(ptr, call);
 }
 
 
@@ -292,20 +292,20 @@ _g void specialp_syscode(addr var, addr *ret)
 
 
 /* ecase-error */
-_g void ecase_error_syscode(addr value, addr list)
+_g int ecase_error_syscode_(Execute ptr, addr value, addr list)
 {
-	make_vector4_from_list(&list, list);
+	Return(make_vector4_from_list_(&list, list));
 	type1_heap(LISPDECL_MEMBER, list, &list);
-	type_error(value, list);
+	return call_type_error_(ptr, value, list);
 }
 
 
 /* etypecase-error */
-_g void etypecase_error_syscode(addr value, addr list)
+_g int etypecase_error_syscode_(Execute ptr, addr value, addr list)
 {
-	make_vector4_from_list(&list, list);
+	Return(make_vector4_from_list_(&list, list));
 	type1_heap(LISPDECL_OR, list, &list);
-	type_error(value, list);
+	return call_type_error_(ptr, value, list);
 }
 
 
@@ -570,7 +570,7 @@ _g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	return simple_sort_sequence(ptr, pos, call, key);
+	return simple_sort_sequence_(ptr, pos, call, key);
 }
 
 
@@ -579,7 +579,7 @@ _g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	return bubble_sort_sequence(ptr, pos, call, key);
+	return bubble_sort_sequence_(ptr, pos, call, key);
 }
 
 
@@ -588,7 +588,7 @@ _g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	return quick_sort_sequence(ptr, pos, call, key);
+	return quick_sort_sequence_(ptr, pos, call, key);
 }
 
 
@@ -597,7 +597,7 @@ _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	return merge_sort_sequence(ptr, pos, call, key);
+	return merge_sort_sequence_(ptr, pos, call, key);
 }
 
 
@@ -952,16 +952,16 @@ _g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret)
 
 
 /* eastasian-get */
-_g void eastasian_get_syscode(addr var, addr *ret1, addr *ret2)
+_g int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2)
 {
-	eastasian_get_syscall(var, ret1, ret2);
+	return eastasian_get_syscall_(var, ret1, ret2);
 }
 
 
 /* eastasian-width */
-_g void eastasian_width_syscode(addr pos, addr *ret1, addr *ret2)
+_g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2)
 {
-	eastasian_width_syscall(pos, ret1, ret2);
+	return eastasian_width_syscall_(pos, ret1, ret2);
 }
 
 

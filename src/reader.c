@@ -127,8 +127,7 @@ static int pushchar_readtable_(Execute ptr, addr pos, unicode c, int escape)
 			setescape_readinfo(ptr, 1);
 		if (bitstate == ReadInfo_State_Colon1)
 			setstate_readinfo(ptr, ReadInfo_State_Colon2);
-		push_charqueue_local(ptr->local, queue, c);
-		return 0;
+		return push_charqueue_local_(ptr->local, queue, c);
 	}
 
 	switch (bitstate) {
@@ -160,9 +159,7 @@ static int pushchar_readtable_(Execute ptr, addr pos, unicode c, int escape)
 	if (! escape) {
 		Return(charmode_readtable_(pos, c, &c));
 	}
-	push_charqueue_local(ptr->local, queue, c);
-
-	return 0;
+	return push_charqueue_local_(ptr->local, queue, c);
 }
 
 

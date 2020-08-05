@@ -853,7 +853,7 @@ static void defun_setf_svref(void)
 /* (defun vector (&rest args) ...) -> simple-vector */
 static int function_vector(Execute ptr, addr rest)
 {
-	make_vector_from_list(&rest, rest);
+	Return(make_vector_from_list_(&rest, rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -887,7 +887,7 @@ static void defun_vector(void)
 /* (defun vector-pop (vector) ...) -> t */
 static int function_vector_pop(Execute ptr, addr pos)
 {
-	vector_pop_common(pos, &pos);
+	Return(vector_pop_common_(ptr, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -921,7 +921,7 @@ static void defun_vector_pop(void)
 /* (defun vector-push (value vector) ...) -> index-null */
 static int function_vector_push(Execute ptr, addr value, addr pos)
 {
-	vector_push_common(value, pos, &pos);
+	Return(vector_push_common_(ptr, value, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -960,7 +960,7 @@ static void defun_vector_push(void)
 static int function_vector_push_extend(Execute ptr,
 		addr value, addr pos, addr extension)
 {
-	vector_push_extend_common(value, pos, extension, &pos);
+	Return(vector_push_extend_common_(ptr, value, pos, extension, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -1203,7 +1203,7 @@ static int function_bit_and(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_and);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_and));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1235,7 +1235,7 @@ static int function_bit_andc1(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_andc1);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_andc1));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1267,7 +1267,7 @@ static int function_bit_andc2(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_andc2);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_andc2));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1299,7 +1299,7 @@ static int function_bit_eqv(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_eqv);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_eqv));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1331,7 +1331,7 @@ static int function_bit_ior(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_ior);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_ior));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1363,7 +1363,7 @@ static int function_bit_nand(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_nand);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_nand));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1395,7 +1395,7 @@ static int function_bit_nor(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_nor);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_nor));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1427,7 +1427,7 @@ static int function_bit_orc1(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_orc1);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_orc1));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1459,7 +1459,7 @@ static int function_bit_orc2(Execute ptr, addr array1, addr array2, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitcalc(&array1, array1, array2, opt, bitcalc_orc2);
+	Return(array_bitcalc_(&array1, array1, array2, opt, bitcalc_orc2));
 	setresult_control(ptr, array1);
 
 	return 0;
@@ -1503,7 +1503,7 @@ static int function_bit_not(Execute ptr, addr array, addr opt)
 {
 	if (opt == Unbound)
 		opt = Nil;
-	array_bitnot(&array, array, opt);
+	Return(array_bitnot_(&array, array, opt));
 	setresult_control(ptr, array);
 
 	return 0;

@@ -18,7 +18,7 @@ _g int provide_common_(Execute ptr, addr var)
 	addr symbol, list;
 
 	/* string-designer */
-	string_designer_heap(&var, var);
+	Return(string_designer_heap_(&var, var, NULL));
 	/* push *modules */
 	GetConst(SPECIAL_MODULES, &symbol);
 	getspecialcheck_local(ptr, symbol, &list);
@@ -76,7 +76,7 @@ _g int require_common(Execute ptr, addr var, addr opt)
 {
 	int check, push;
 
-	string_designer_heap(&var, var);
+	Return(string_designer_heap_(&var, var, NULL));
 	push = 0;
 	if (opt == Unbound || opt == Nil) {
 		check = require_function_common(ptr, var, &push);

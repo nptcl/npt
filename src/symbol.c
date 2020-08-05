@@ -755,10 +755,12 @@ static int make_gensym_argument_(Execute ptr,
 	}
 	Check(! integerp(value), "type error");
 	charqueue_local(local, &queue, 1 + 16);
-	if (prefix1)
-		pushchar_charqueue_local(local, queue, prefix1);
-	else
-		pushstring_charqueue_local(local, queue, prefix2);
+	if (prefix1) {
+		Return(pushchar_charqueue_local_(local, queue, prefix1));
+	}
+	else {
+		Return(pushstring_charqueue_local_(local, queue, prefix2));
+	}
 	Return(decimal_charqueue_integer_local_(local, value, queue));
 	make_charqueue_heap(queue, &name);
 	rollback_local(local, stack);

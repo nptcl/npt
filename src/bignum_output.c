@@ -13,13 +13,13 @@
 /*
  *  output
  */
-_g void decimal_charqueue_fixnum_local(LocalRoot local, addr pos, addr queue)
+_g int decimal_charqueue_fixnum_local_(LocalRoot local, addr pos, addr queue)
 {
 	char buffer[256];
 
 	Check(GetType(pos) != LISPTYPE_FIXNUM, "type error");
 	snprintf(buffer, 256, "%" PRIdF, RefFixnum(pos));
-	pushchar_charqueue_local(local, queue, buffer);
+	return pushchar_charqueue_local_(local, queue, buffer);
 }
 
 _g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
@@ -28,31 +28,27 @@ _g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
 
 	Check(GetType(pos) != LISPTYPE_BIGNUM, "type error");
 	/* zero */
-	if (zerop_bignum(pos)) {
-		push_charqueue_local(local, queue, '0');
-		return 0;
-	}
+	if (zerop_bignum(pos))
+		return push_charqueue_local_(local, queue, '0');
 
 	/* sign */
-	if (minusp_bignum(pos))
-		push_charqueue_local(local, queue, '-');
+	if (minusp_bignum(pos)) {
+		Return(push_charqueue_local_(local, queue, '-'));
+	}
 
 	/* body */
 	open_output_string_stream(&stream, 0);
 	Return(output_nosign_bignum_(local, stream, pos, 10, 0));
 	Return(string_stream_heap_(stream, &value));
 	clear_output_string_stream(stream);
-	pushstring_charqueue_local(local, queue, value);
-
-	return 0;
+	return pushstring_charqueue_local_(local, queue, value);
 }
 
 _g int decimal_charqueue_integer_local_(LocalRoot local, addr pos, addr queue)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			decimal_charqueue_fixnum_local(local, pos, queue);
-			return 0;
+			return decimal_charqueue_fixnum_local_(local, pos, queue);
 
 		case LISPTYPE_BIGNUM:
 			return decimal_charqueue_bignum_local_(local, pos, queue);
@@ -196,7 +192,7 @@ _g int output_nosign_bignum_(LocalRoot local,
 			character_heap(&error_character, u);
 			return fmte_("Invalid digit character ~S.", error_character, NULL);
 		}
-		push_charqueue_local(local, queue, u);
+		Return(push_charqueue_local_(local, queue, u));
 	}
 	while (! zerop_bignum(pos));
 
@@ -272,9 +268,10 @@ _g int output_nosign_comma_bignum_(LocalRoot local,
 			character_heap(&error_character, u);
 			return fmte_("Invalid digit character ~S.", error_character, NULL);
 		}
-		if (index && (index % range) == 0)
-			push_charqueue_local(local, queue, comma);
-		push_charqueue_local(local, queue, u);
+		if (index && (index % range) == 0) {
+			Return(push_charqueue_local_(local, queue, comma));
+		}
+		Return(push_charqueue_local_(local, queue, u));
 		index++;
 	}
 	while (! zerop_bignum(pos));

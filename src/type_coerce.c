@@ -372,7 +372,7 @@ static int coerce_string_character(Execute ptr, addr pos, addr type, addr *ret)
 	string_length(pos, &size);
 	if (size != 1)
 		return coerce_error(ptr, pos, type);
-	string_getc(pos, 0, &c);
+	Return(string_getc_(pos, 0, &c));
 	return coerce_unicode_character(ptr, pos, c, type, ret);
 }
 
@@ -386,7 +386,7 @@ static int coerce_symbol_character(Execute ptr, addr pos, addr type, addr *ret)
 	string_length(name, &size);
 	if (size != 1)
 		return coerce_error(ptr, pos, type);
-	string_getc(name, 0, &c);
+	Return(string_getc_(name, 0, &c));
 	return coerce_unicode_character(ptr, pos, c, type, ret);
 }
 
@@ -469,7 +469,7 @@ static int coerce_array_list(Execute ptr, addr pos, addr type, addr *ret)
 	list = Nil;
 	size = array_get_vector_length(pos, 1);
 	for (i = 0; i < size; i++) {
-		array_get(NULL, pos, i, &x);
+		Return(array_get_(NULL, pos, i, &x));
 		cons_heap(&list, x, list);
 	}
 	nreverse(&list, list);
@@ -483,10 +483,10 @@ static int coerce_bitvector_list(Execute ptr, addr pos, addr type, addr *ret)
 	addr list, x;
 	size_t size, i;
 
-	bitvector_length(pos, &size);
+	Return(bitvector_length_(pos, &size));
 	list = Nil;
 	for (i = 0; i < size; i++) {
-		bitvector_getint(pos, i, &v);
+		Return(bitvector_getint_(pos, i, &v));
 		fixnum_heap(&x, (fixnum)v);
 		cons_heap(&list, x, list);
 	}
@@ -522,18 +522,19 @@ static int coerce_list(Execute ptr, addr pos, addr type, addr *ret)
 /* array.bit -> array.t */
 static int coerce_aa_bit_t(Execute ptr, addr pos, addr type, addr *ret)
 {
-	int bit;
+	int bit, check;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_bit(pos, i, &bit))
+		Return(array_coerce_bit_(pos, i, &bit, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)bit);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -542,18 +543,20 @@ static int coerce_aa_bit_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.character -> array.t */
 static int coerce_aa_character_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	unicode c;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_character(pos, i, &c))
+		Return(array_coerce_character_(pos, i, &c, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		character_heap(&value, c);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -562,18 +565,20 @@ static int coerce_aa_character_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.signed8 -> array.t */
 static int coerce_aa_signed8_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int8_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed8(pos, i, &v))
+		Return(array_coerce_signed8_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -582,18 +587,20 @@ static int coerce_aa_signed8_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.signed16 -> array.t */
 static int coerce_aa_signed16_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int16_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed16(pos, i, &v))
+		Return(array_coerce_signed16_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -602,18 +609,20 @@ static int coerce_aa_signed16_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.signed32 -> array.t */
 static int coerce_aa_signed32_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int32_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed32(pos, i, &v))
+		Return(array_coerce_signed32_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -623,18 +632,20 @@ static int coerce_aa_signed32_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.signed64 -> array.t */
 static int coerce_aa_signed64_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int64_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed64(pos, i, &v))
+		Return(array_coerce_signed64_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -668,18 +679,20 @@ static int coerce_aa_signed_t(Execute ptr,
 /* array.unsigned8 -> array.t */
 static int coerce_aa_unsigned8_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint8_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned8(pos, i, &v))
+		Return(array_coerce_unsigned8_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -688,18 +701,20 @@ static int coerce_aa_unsigned8_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.unsigned16 -> array.t */
 static int coerce_aa_unsigned16_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint16_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned16(pos, i, &v))
+		Return(array_coerce_unsigned16_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -708,22 +723,24 @@ static int coerce_aa_unsigned16_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.unsigned32 -> array.t */
 static int coerce_aa_unsigned32_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint32_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned32(pos, i, &v))
+		Return(array_coerce_unsigned32_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 #ifdef LISP_64BIT
 		fixnum_heap(&value, (fixnum)v);
 #else
 		integer_fixed_heap(&value, SignPlus, (fixed)v);
 #endif
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -733,18 +750,20 @@ static int coerce_aa_unsigned32_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.unsigned64 -> array.t */
 static int coerce_aa_unsigned64_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint64_t v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned64(pos, i, &v))
+		Return(array_coerce_unsigned64_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		integer_fixed_heap(&value, SignPlus, (fixed)v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -778,18 +797,20 @@ static int coerce_aa_unsigned_t(Execute ptr,
 /* array.single-float -> array.t */
 static int coerce_aa_single_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	single_float v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_single(pos, i, &v))
+		Return(array_coerce_single_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		single_float_heap(&value, v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -798,18 +819,20 @@ static int coerce_aa_single_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.double-float -> array.t */
 static int coerce_aa_double_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	double_float v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_double(pos, i, &v))
+		Return(array_coerce_double_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		double_float_heap(&value, v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -818,18 +841,20 @@ static int coerce_aa_double_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.long-float -> array.t */
 static int coerce_aa_long_t(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	long_float v;
 	addr array, value;
 	size_t size, i;
 
 	/* make general array */
-	array_coerce_t_heap(&array, pos);
+	Return(array_coerce_t_heap_(&array, pos));
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_long(pos, i, &v))
+		Return(array_coerce_long_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
 		long_float_heap(&value, v);
-		array_set(array, i, value);
+		Return(array_set_(array, i, value));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -874,16 +899,17 @@ static int coerce_aa_t(Execute ptr, addr pos, addr type, addr *ret)
 /* array.t -> bitvector */
 static int coerce_aa_bitvector(Execute ptr, addr pos, addr type, addr *ret)
 {
-	int v;
+	int v, check;
 	addr vector;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
 	bitmemory_unsafe(NULL, &vector, size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_bit(pos, i, &v))
+		Return(array_coerce_bit_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		bitmemory_setint(vector, i, v);
+		Return(bitmemory_setint_(vector, i, v));
 	}
 
 	return coerce_typep(ptr, pos, vector, type, ret);
@@ -892,7 +918,7 @@ static int coerce_aa_bitvector(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.bit */
 static int coerce_aa_type_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
-	int v;
+	int v, check;
 	addr array;
 	size_t size, i;
 
@@ -902,11 +928,12 @@ static int coerce_aa_type_bit(Execute ptr, addr pos, addr type, addr *ret)
 
 	/* array.bit */
 	array_get_rowlength(pos, &size);
-	array_coerce_bit_heap(&array, pos);
+	Return(array_coerce_bit_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_bit(pos, i, &v))
+		Return(array_coerce_bit_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_bit(array, i, v);
+		Return(array_set_bit_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -933,6 +960,7 @@ static int coerce_aa_bit(Execute ptr, addr pos, addr type, addr *ret)
 /* array.t -> string */
 static int coerce_aa_string(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	unicode v;
 	addr vector;
 	size_t size, i;
@@ -940,9 +968,10 @@ static int coerce_aa_string(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	strvect_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_character(pos, i, &v))
+		Return(array_coerce_character_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		strvect_setc(vector, i, v);
+		Return(strvect_setc_(vector, i, v));
 	}
 
 	return coerce_typep(ptr, pos, vector, type, ret);
@@ -951,6 +980,7 @@ static int coerce_aa_string(Execute ptr, addr pos, addr type, addr *ret)
 /* array.t -> array.character */
 static int coerce_aa_t_character(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	unicode v;
 	addr array;
 	size_t size, i;
@@ -961,11 +991,12 @@ static int coerce_aa_t_character(Execute ptr, addr pos, addr type, addr *ret)
 
 	/* array.bit */
 	array_get_rowlength(pos, &size);
-	array_coerce_character_heap(&array, pos);
+	Return(array_coerce_character_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_character(pos, i, &v))
+		Return(array_coerce_character_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_character(array, i, v);
+		Return(array_set_character_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -990,16 +1021,18 @@ static int coerce_aa_character(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.signed8 */
 static int coerce_aa_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int8_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_signed8_heap(&array, pos);
+	Return(array_coerce_signed8_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed8(pos, i, &v))
+		Return(array_coerce_signed8_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed8(array, i, v);
+		Return(array_set_signed8_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1008,16 +1041,18 @@ static int coerce_aa_signed8(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.signed16 */
 static int coerce_aa_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int16_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_signed16_heap(&array, pos);
+	Return(array_coerce_signed16_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed16(pos, i, &v))
+		Return(array_coerce_signed16_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed16(array, i, v);
+		Return(array_set_signed16_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1026,16 +1061,18 @@ static int coerce_aa_signed16(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.signed32 */
 static int coerce_aa_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int32_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_signed32_heap(&array, pos);
+	Return(array_coerce_signed32_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed32(pos, i, &v))
+		Return(array_coerce_signed32_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed32(array, i, v);
+		Return(array_set_signed32_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1045,16 +1082,18 @@ static int coerce_aa_signed32(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.signed64 */
 static int coerce_aa_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int64_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_signed64_heap(&array, pos);
+	Return(array_coerce_signed64_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed64(pos, i, &v))
+		Return(array_coerce_signed64_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed64(array, i, v);
+		Return(array_set_signed64_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1146,16 +1185,18 @@ static int coerce_aa_signed(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.unsigned8 */
 static int coerce_aa_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint8_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_unsigned8_heap(&array, pos);
+	Return(array_coerce_unsigned8_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned8(pos, i, &v))
+		Return(array_coerce_unsigned8_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned8(array, i, v);
+		Return(array_set_unsigned8_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1164,16 +1205,18 @@ static int coerce_aa_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.unsigned16 */
 static int coerce_aa_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint16_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_unsigned16_heap(&array, pos);
+	Return(array_coerce_unsigned16_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned16(pos, i, &v))
+		Return(array_coerce_unsigned16_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned16(array, i, v);
+		Return(array_set_unsigned16_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1182,16 +1225,18 @@ static int coerce_aa_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.unsigned32 */
 static int coerce_aa_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint32_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_unsigned32_heap(&array, pos);
+	Return(array_coerce_unsigned32_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned32(pos, i, &v))
+		Return(array_coerce_unsigned32_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned32(array, i, v);
+		Return(array_set_unsigned32_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1201,16 +1246,18 @@ static int coerce_aa_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 /* array.* -> array.unsigned64 */
 static int coerce_aa_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint64_t v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_unsigned64_heap(&array, pos);
+	Return(array_coerce_unsigned64_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned64(pos, i, &v))
+		Return(array_coerce_unsigned64_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned64(array, i, v);
+		Return(array_set_unsigned64_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1265,16 +1312,18 @@ static int coerce_aa_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 /* array.float -> array.single */
 static int coerce_aa_type_single(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	single_float v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_single_heap(&array, pos);
+	Return(array_coerce_single_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_single(pos, i, &v))
+		Return(array_coerce_single_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_single(array, i, v);
+		Return(array_set_single_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1303,16 +1352,18 @@ static int coerce_aa_single(Execute ptr, addr pos, addr type, addr *ret)
 /* array.float -> array.double */
 static int coerce_aa_type_double(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	double_float v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_double_heap(&array, pos);
+	Return(array_coerce_double_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_double(pos, i, &v))
+		Return(array_coerce_double_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_double(array, i, v);
+		Return(array_set_double_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1341,16 +1392,18 @@ static int coerce_aa_double(Execute ptr, addr pos, addr type, addr *ret)
 /* array.float -> array.long */
 static int coerce_aa_type_long(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	long_float v;
 	addr array;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	array_coerce_long_heap(&array, pos);
+	Return(array_coerce_long_heap_(&array, pos));
 	for (i = 0; i < size; i++) {
-		if (array_coerce_long(pos, i, &v))
+		Return(array_coerce_long_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_long(array, i, v);
+		Return(array_set_long_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1420,16 +1473,17 @@ static int coerce_aa(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.bit */
 static int coerce_av_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
-	int v;
+	int v, check;
 	addr vector;
 	size_t size, i;
 
 	lenarray(pos, &size);
 	bitmemory_unsafe(NULL, &vector, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_bit(pos, i, &v))
+		Return(vector_coerce_bit_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		bitmemory_setint(vector, i, v);
+		Return(bitmemory_setint_(vector, i, v));
 	}
 
 	return coerce_typep(ptr, pos, vector, type, ret);
@@ -1438,6 +1492,7 @@ static int coerce_av_bit(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.character */
 static int coerce_av_character(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	unicode v;
 	addr vector;
 	size_t size, i;
@@ -1445,9 +1500,10 @@ static int coerce_av_character(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	strvect_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_character(pos, i, &v))
+		Return(vector_coerce_character_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		strvect_setc(vector, i, v);
+		Return(strvect_setc_(vector, i, v));
 	}
 
 	return coerce_typep(ptr, pos, vector, type, ret);
@@ -1456,16 +1512,18 @@ static int coerce_av_character(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.signed8 */
 static int coerce_av_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int8_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_signed8_heap(&array, size);
+	Return(vector_coerce_signed8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed8(pos, i, &v))
+		Return(vector_coerce_signed8_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed8(array, i, v);
+		Return(array_set_signed8_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1474,16 +1532,18 @@ static int coerce_av_signed8(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.signed16 */
 static int coerce_av_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int16_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_signed16_heap(&array, size);
+	Return(vector_coerce_signed16_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed16(pos, i, &v))
+		Return(vector_coerce_signed16_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed16(array, i, v);
+		Return(array_set_signed16_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1492,16 +1552,18 @@ static int coerce_av_signed16(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.signed32 */
 static int coerce_av_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int32_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_signed32_heap(&array, size);
+	Return(vector_coerce_signed32_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed32(pos, i, &v))
+		Return(vector_coerce_signed32_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed32(array, i, v);
+		Return(array_set_signed32_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1511,16 +1573,18 @@ static int coerce_av_signed32(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.signed64 */
 static int coerce_av_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int64_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_signed64_heap(&array, size);
+	Return(vector_coerce_signed64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed64(pos, i, &v))
+		Return(vector_coerce_signed64_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed64(array, i, v);
+		Return(array_set_signed64_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1557,16 +1621,18 @@ static int coerce_av_signed(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.unsigned8 */
 static int coerce_av_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint8_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_unsigned8_heap(&array, size);
+	Return(vector_coerce_unsigned8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned8(pos, i, &v))
+		Return(vector_coerce_unsigned8_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned8(array, i, v);
+		Return(array_set_unsigned8_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1575,16 +1641,18 @@ static int coerce_av_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.unsigned16 */
 static int coerce_av_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint16_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_unsigned16_heap(&array, size);
+	Return(vector_coerce_unsigned16_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned16(pos, i, &v))
+		Return(vector_coerce_unsigned16_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned16(array, i, v);
+		Return(array_set_unsigned16_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1593,16 +1661,18 @@ static int coerce_av_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.unsigned32 */
 static int coerce_av_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint32_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_unsigned32_heap(&array, size);
+	Return(vector_coerce_unsigned32_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned32(pos, i, &v))
+		Return(vector_coerce_unsigned32_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned32(array, i, v);
+		Return(array_set_unsigned32_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1612,16 +1682,18 @@ static int coerce_av_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.unsigned64 */
 static int coerce_av_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint64_t v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_unsigned64_heap(&array, size);
+	Return(vector_coerce_unsigned64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned64(pos, i, &v))
+		Return(vector_coerce_unsigned64_(pos, i, &v, &check))
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned64(array, i, v);
+		Return(array_set_unsigned64_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1658,16 +1730,18 @@ static int coerce_av_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.single-float */
 static int coerce_av_single(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	single_float v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_single_heap(&array, size);
+	Return(vector_coerce_single_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_single(pos, i, &v))
+		Return(vector_coerce_single_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_single(array, i, v);
+		Return(array_set_single_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1676,16 +1750,18 @@ static int coerce_av_single(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.double-float */
 static int coerce_av_double(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	double_float v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_double_heap(&array, size);
+	Return(vector_coerce_double_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_double(pos, i, &v))
+		Return(vector_coerce_double_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_double(array, i, v);
+		Return(array_set_double_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1694,16 +1770,18 @@ static int coerce_av_double(Execute ptr, addr pos, addr type, addr *ret)
 /* vector -> array.long-float */
 static int coerce_av_long(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	long_float v;
 	addr array;
 	size_t size, i;
 
 	lenarray(pos, &size);
-	vector_coerce_long_heap(&array, size);
+	Return(vector_coerce_long_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_long(pos, i, &v))
+		Return(vector_coerce_long_(pos, i, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_long(array, i, v);
+		Return(array_set_long_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1798,7 +1876,7 @@ static int coerce_ab_t(Execute ptr, addr pos, addr type, addr *ret)
 	bitmemory_length(pos, &size);
 	vector_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
+		Return(bitmemory_getint_(pos, i, &v));
 		fixnum_heap(&value, (fixnum)v);
 		setarray(vector, i, value);
 	}
@@ -1814,10 +1892,10 @@ static int coerce_ab_signed8(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_signed8_heap(&array, size);
+	Return(vector_coerce_signed8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_signed8(array, i, (int8_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_signed8_(array, i, (int8_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1831,10 +1909,10 @@ static int coerce_ab_signed16(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_signed16_heap(&array, size);
+	Return(vector_coerce_signed16_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_signed16(array, i, (int16_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_signed16_(array, i, (int16_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1848,10 +1926,10 @@ static int coerce_ab_signed32(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_signed32_heap(&array, size);
+	Return(vector_coerce_signed32_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_signed32(array, i, (int32_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_signed32_(array, i, (int32_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1866,10 +1944,10 @@ static int coerce_ab_signed64(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_signed64_heap(&array, size);
+	Return(vector_coerce_signed64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_signed64(array, i, (int64_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_signed64_(array, i, (int64_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1911,10 +1989,10 @@ static int coerce_ab_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_unsigned8_heap(&array, size);
+	Return(vector_coerce_unsigned8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_unsigned8(array, i, (uint8_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_unsigned8_(array, i, (uint8_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1928,10 +2006,10 @@ static int coerce_ab_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_unsigned16_heap(&array, size);
+	Return(vector_coerce_unsigned16_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_unsigned16(array, i, (uint16_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_unsigned16_(array, i, (uint16_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1945,10 +2023,10 @@ static int coerce_ab_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_unsigned32_heap(&array, size);
+	Return(vector_coerce_unsigned32_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_unsigned32(array, i, (uint32_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_unsigned32_(array, i, (uint32_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -1963,10 +2041,10 @@ static int coerce_ab_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	vector_coerce_unsigned64_heap(&array, size);
+	Return(vector_coerce_unsigned64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &v);
-		array_set_unsigned64(array, i, (uint64_t)v);
+		Return(bitmemory_getint_(pos, i, &v));
+		Return(array_set_unsigned64_(array, i, (uint64_t)v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2032,7 +2110,7 @@ static int coerce_al_t(Execute ptr, addr pos, addr type, addr *ret)
 	addr vector, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
+	Return(length_list_safe_(pos, &size));
 	vector_heap(&vector, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
@@ -2045,17 +2123,18 @@ static int coerce_al_t(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.bit */
 static int coerce_al_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
-	int v;
+	int v, check;
 	addr vector, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
+	Return(length_list_safe_(pos, &size));
 	bitmemory_unsafe(NULL, &vector, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_bit_t(value, &v))
+		Return(array_coerce_bit_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		bitmemory_setint(vector, i, v);
+		Return(bitmemory_setint_(vector, i, v));
 	}
 
 	return coerce_typep(ptr, pos, vector, type, ret);
@@ -2064,17 +2143,19 @@ static int coerce_al_bit(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.character */
 static int coerce_al_character(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	unicode v;
 	addr vector, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
+	Return(length_list_safe_(pos, &size));
 	strvect_heap(&vector, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_character_t(value, &v))
+		Return(array_coerce_character_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		strvect_setc(vector, i, v);
+		Return(strvect_setc_(vector, i, v));
 	}
 
 	return coerce_typep(ptr, pos, vector, type, ret);
@@ -2083,17 +2164,19 @@ static int coerce_al_character(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.signed8 */
 static int coerce_al_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int8_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_signed8_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_signed8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed8_t(value, &v))
+		Return(array_coerce_signed8_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed8(array, i, v);
+		Return(array_set_signed8_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2102,17 +2185,19 @@ static int coerce_al_signed8(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.signed16 */
 static int coerce_al_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int16_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_signed16_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_signed16_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed16_t(value, &v))
+		Return(array_coerce_signed16_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed16(array, i, v);
+		Return(array_set_signed16_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2121,17 +2206,19 @@ static int coerce_al_signed16(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.signed32 */
 static int coerce_al_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int32_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_signed32_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_signed32_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed32_t(value, &v))
+		Return(array_coerce_signed32_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed32(array, i, v);
+		Return(array_set_signed32_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2141,17 +2228,19 @@ static int coerce_al_signed32(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.signed64 */
 static int coerce_al_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	int64_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_signed64_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_signed64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed64_t(value, &v))
+		Return(array_coerce_signed64_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_signed64(array, i, v);
+		Return(array_set_signed64_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2188,17 +2277,19 @@ static int coerce_al_signed(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.unsigned8 */
 static int coerce_al_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint8_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_unsigned8_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_unsigned8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned8_t(value, &v))
+		Return(array_coerce_unsigned8_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned8(array, i, v);
+		Return(array_set_unsigned8_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2207,17 +2298,19 @@ static int coerce_al_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.unsigned16 */
 static int coerce_al_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint16_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_unsigned16_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_unsigned16_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned16_t(value, &v))
+		Return(array_coerce_unsigned16_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned16(array, i, v);
+		Return(array_set_unsigned16_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2226,17 +2319,19 @@ static int coerce_al_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.unsigned32 */
 static int coerce_al_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint32_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_unsigned32_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_unsigned32_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned32_t(value, &v))
+		Return(array_coerce_unsigned32_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned32(array, i, v);
+		Return(array_set_unsigned32_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2246,17 +2341,19 @@ static int coerce_al_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.unsigned64 */
 static int coerce_al_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	uint64_t v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_unsigned64_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_unsigned64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned64_t(value, &v))
+		Return(array_coerce_unsigned64_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_unsigned64(array, i, v);
+		Return(array_set_unsigned64_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2293,17 +2390,19 @@ static int coerce_al_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.single-float */
 static int coerce_al_single(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	single_float v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_single_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_single_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_single_t(value, &v))
+		Return(array_coerce_single_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_single(array, i, v);
+		Return(array_set_single_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2312,17 +2411,19 @@ static int coerce_al_single(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.double-float */
 static int coerce_al_double(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	double_float v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_double_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_double_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_double_t(value, &v))
+		Return(array_coerce_double_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_double(array, i, v);
+		Return(array_set_double_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);
@@ -2331,17 +2432,19 @@ static int coerce_al_double(Execute ptr, addr pos, addr type, addr *ret)
 /* list -> array.long-float */
 static int coerce_al_long(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int check;
 	long_float v;
 	addr array, value;
 	size_t size, i;
 
-	size = length_list_safe(pos);
-	vector_coerce_long_heap(&array, size);
+	Return(length_list_safe_(pos, &size));
+	Return(vector_coerce_long_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_long_t(value, &v))
+		Return(array_coerce_long_t_(value, &v, &check));
+		if (check)
 			return coerce_error(ptr, pos, type);
-		array_set_long(array, i, v);
+		Return(array_set_long_(array, i, v));
 	}
 
 	return coerce_typep(ptr, pos, array, type, ret);

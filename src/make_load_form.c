@@ -74,18 +74,20 @@ static int parse_make_load_form_object(Execute ptr, addr *ret, addr expr, addr i
 	return Result(ret, eval);
 }
 
-static void parse_make_load_lambda_body(addr pos, addr g, addr value, addr *ret);
-static void parse_make_load_lambda_cons(addr pos, addr g, addr value, addr *ret)
+static int parse_make_load_lambda_body_(addr pos, addr g, addr value, addr *ret);
+static int parse_make_load_lambda_cons_(addr pos, addr g, addr value, addr *ret)
 {
 	addr car, cdr;
 
 	GetCons(value, &car, &cdr);
-	parse_make_load_lambda_body(pos, g, car, &car);
-	parse_make_load_lambda_body(pos, g, cdr, &cdr);
+	Return(parse_make_load_lambda_body_(pos, g, car, &car));
+	Return(parse_make_load_lambda_body_(pos, g, cdr, &cdr));
 	cons_heap(ret, car, cdr);
+
+	return 0;
 }
 
-static void parse_make_load_lambda_vector(addr pos, addr g, addr value, addr *ret)
+static int parse_make_load_lambda_vector_(addr pos, addr g, addr value, addr *ret)
 {
 	addr vector, x;
 	size_t size, i;
@@ -94,13 +96,14 @@ static void parse_make_load_lambda_vector(addr pos, addr g, addr value, addr *re
 	vector_type_heap(&vector, value, size);
 	for (i = 0; i < size; i++) {
 		getarray(value, i, &x);
-		parse_make_load_lambda_body(pos, g, x, &x);
+		Return(parse_make_load_lambda_body_(pos, g, x, &x));
 		setarray(vector, i, x);
 	}
-	*ret = vector;
+
+	return Result(ret, vector);
 }
 
-static void parse_make_load_lambda_array_heap(addr *ret, addr value)
+static int parse_make_load_lambda_array_heap_(addr *ret, addr value)
 {
 	addr array, x;
 	struct array_struct *str;
@@ -116,11 +119,12 @@ static void parse_make_load_lambda_array_heap(addr *ret, addr value)
 	SetArrayInfo(array, ARRAY_INDEX_TYPE, x);
 	GetArrayInfo(value, ARRAY_INDEX_DIMENSION, &x);
 	SetArrayInfo(array, ARRAY_INDEX_DIMENSION, x);
-	array_allocate(NULL, array, str);
-	*ret = array;
+	Return(array_allocate_(NULL, array, str));
+
+	return Result(ret, array);
 }
 
-static void parse_make_load_lambda_array_copy(addr pos, addr g, addr array, addr value)
+static int parse_make_load_lambda_array_copy_(addr pos, addr g, addr array, addr value)
 {
 	addr x;
 	size_t size, i;
@@ -129,48 +133,44 @@ static void parse_make_load_lambda_array_copy(addr pos, addr g, addr array, addr
 	str = ArrayInfoStruct(array);
 	size = str->front;
 	for (i = 0; i < size; i++) {
-		array_get_t(value, i, &x);
-		parse_make_load_lambda_body(pos, g, x, &x);
-		array_set(array, i, x);
+		Return(array_get_t_(value, i, &x));
+		Return(parse_make_load_lambda_body_(pos, g, x, &x));
+		Return(array_set_(array, i, x));
 	}
+
+	return 0;
 }
 
-static void parse_make_load_lambda_array(addr pos, addr g, addr value, addr *ret)
+static int parse_make_load_lambda_array_(addr pos, addr g, addr value, addr *ret)
 {
 	addr array;
 
-	if (array_system_specialized_p(value)) {
-		*ret = value;
-		return;
-	}
-	parse_make_load_lambda_array_heap(&array, value);
-	parse_make_load_lambda_array_copy(pos, g, array, value);
-	*ret = array;
+	if (array_system_specialized_p(value))
+		return Result(ret, value);
+
+	Return(parse_make_load_lambda_array_heap_(&array, value));
+	Return(parse_make_load_lambda_array_copy_(pos, g, array, value));
+
+	return Result(ret, array);
 }
 
-static void parse_make_load_lambda_body(addr pos, addr g, addr value, addr *ret)
+static int parse_make_load_lambda_body_(addr pos, addr g, addr value, addr *ret)
 {
-	if (pos == value) {
-		*ret = g;
-		return;
-	}
+	if (pos == value)
+		return Result(ret, g);
 
 	switch (GetType(value)) {
 		case LISPTYPE_CONS:
-			parse_make_load_lambda_cons(pos, g, value, ret);
-			break;
+			return parse_make_load_lambda_cons_(pos, g, value, ret);
 
 		case LISPTYPE_VECTOR:
-			parse_make_load_lambda_vector(pos, g, value, ret);
-			break;
+			return parse_make_load_lambda_vector_(pos, g, value, ret);
 
 		case LISPTYPE_ARRAY:
-			parse_make_load_lambda_array(pos, g, value, ret);
-			break;
+			return parse_make_load_lambda_array_(pos, g, value, ret);
 
 		default:
-			*ret = value;
-			break;
+			return Result(ret, value);
 	}
 }
 
@@ -184,7 +184,7 @@ static int parse_make_load_lambda_(Execute ptr, addr pos, addr init, addr *ret)
 	/* (lambda (g) [replace pos -> g]) */
 	Return(make_gensym_(ptr, &g));
 	GetConst(COMMON_LAMBDA, &lambda);
-	parse_make_load_lambda_body(pos, g, init, &init);
+	Return(parse_make_load_lambda_body_(pos, g, init, &init));
 	list_heap(&g, g, NULL);
 	list_heap(ret, lambda, g, init, NULL);
 

@@ -172,11 +172,14 @@ _g int call_simple_type_error_(Execute ptr,
 _g int call_type_error_va_(Execute ptr,
 		addr datum, addr expected, const char *fmt, ...);
 _g int call_type_error_fill_pointer_(Execute ptr, addr datum);
+_g int call_type_error_fill_pointer_zero_(Execute ptr, addr datum);
+_g int call_type_error_adjustable_(Execute ptr, addr datum);
 
 /* unbound_slot */
 _g void instance_unbound_slot(addr *ret, addr instance, addr name);
 _g void unbound_slot(addr argument, addr name);
 _g void unbound_slot_instance(addr instance, addr *ret);
+_g int call_unbound_slot_(Execute ptr, addr argument, addr name);
 
 /* unbound_variable */
 _g void instance_unbound_variable(addr *ret, addr name);

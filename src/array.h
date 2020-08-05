@@ -92,21 +92,21 @@ _g void arrayspec_heap(addr *ret, size_t size);
 _g void arrayinfo_alloc(LocalRoot local, addr *ret);
 _g void arrayinfo_local(LocalRoot local, addr *ret);
 _g void arrayinfo_heap(addr *ret);
-_g void arraysize_alloc(LocalRoot local, addr *ret, size_t index);
-_g void arraysize_local(LocalRoot local, addr *ret, size_t index);
-_g void arraysize_heap(addr *ret, size_t index);
-_g void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size);
-_g void arraysize_copy_local(LocalRoot local, addr *ret, addr pos, size_t size);
-_g void arraysize_copy_heap(addr *ret, addr pos, size_t size);
+_g int arraysize_alloc_(LocalRoot local, addr *ret, size_t index);
+_g int arraysize_local_(LocalRoot local, addr *ret, size_t index);
+_g int arraysize_heap_(addr *ret, size_t index);
+_g int arraysize_copy_alloc_(LocalRoot local, addr *ret, addr pos, size_t size);
+_g int arraysize_copy_local_(LocalRoot local, addr *ret, addr pos, size_t size);
+_g int arraysize_copy_heap_(addr *ret, addr pos, size_t size);
 _g void array_empty_alloc(LocalRoot local, addr *ret);
 _g void array_empty_local(LocalRoot local, addr *ret);
 _g void array_empty_heap(addr *ret);
-_g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size);
-_g void array_local(LocalRoot local, addr *ret, size_t index, size_t size);
-_g void array_heap(addr *ret, size_t index, size_t size);
-_g void array_va_alloc(LocalRoot local, addr *ret, ...);
-_g void array_va_local(LocalRoot local, addr *ret, ...);
-_g void array_va_heap(addr *ret, ...);
+_g int array_alloc_(LocalRoot local, addr *ret, size_t index, size_t size);
+_g int array_local_(LocalRoot local, addr *ret, size_t index, size_t size);
+_g int array_heap_(addr *ret, size_t index, size_t size);
+_g int array_va_alloc_(LocalRoot local, addr *ret, ...);
+_g int array_va_local_(LocalRoot local, addr *ret, ...);
+_g int array_va_heap_(addr *ret, ...);
 
 /* type check */
 _g int array_system_general_p(addr pos);
@@ -129,12 +129,12 @@ _g unsigned array_type_size(addr pos);
 
 /* memory access */
 _g const size_t *array_ptrsize(addr pos);
-_g void *array_ptrwrite(addr pos, size_t index);
-_g const void *array_ptrread(addr pos, size_t index);
+_g int array_ptrwrite_(addr pos, size_t index, void **ret);
+_g int array_ptrread_(addr pos, size_t index, void *const *ret);
 
 /* fill-pointer */
 _g int array_fill_pointer(addr array, addr *ret);
-_g int array_setf_fill_pointer(addr array, addr value);
+_g int array_setf_fill_pointer_(addr array, addr value, int *ret);
 _g int array_fill_pointer_start(addr array);
 _g int array_fill_pointer_end(addr array);
 _g int array_fill_pointer_set(addr array, size_t size);

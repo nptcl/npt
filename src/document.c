@@ -217,10 +217,8 @@ static int documentation_function_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, FUNCTION, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_function_t_(Execute ptr, addr name, addr gen)
@@ -234,10 +232,8 @@ static int setf_documentation_function_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, FUNCTION, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -255,10 +251,8 @@ static int documentation_function_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, FUNCTION, FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_function_function_(Execute ptr, addr name, addr gen)
@@ -272,10 +266,8 @@ static int setf_documentation_function_function_(Execute ptr, addr name, addr ge
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, FUNCTION, FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -315,10 +307,8 @@ static int documentation_list_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, LIST, FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_list_function_(Execute ptr, addr name, addr gen)
@@ -332,10 +322,8 @@ static int setf_documentation_list_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, LIST, FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -379,10 +367,8 @@ static int documentation_list_compiled_function_(Execute ptr, addr name, addr ge
 	/* method */
 	MopArgumentMethodDocumentation(&pos, LIST, COMPILED_FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_list_compiled_function_(Execute ptr, addr name, addr gen)
@@ -396,10 +382,8 @@ static int setf_documentation_list_compiled_function_(Execute ptr, addr name, ad
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, LIST, COMPILED_FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -437,10 +421,8 @@ static int documentation_symbol_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_function_(Execute ptr, addr name, addr gen)
@@ -454,10 +436,8 @@ static int setf_documentation_symbol_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -500,10 +480,8 @@ static int documentation_symbol_compiled_function_(
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, COMPILED_FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_compiled_function_(
@@ -518,10 +496,8 @@ static int setf_documentation_symbol_compiled_function_(
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, COMPILED_FUNCTION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -573,10 +549,8 @@ static int documentation_symbol_setf_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, SETF);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_setf_(Execute ptr, addr name, addr gen)
@@ -590,10 +564,8 @@ static int setf_documentation_symbol_setf_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, SETF);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -603,7 +575,7 @@ static int setf_documentation_symbol_setf_(Execute ptr, addr name, addr gen)
 static int method_documentation_method_combination_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	stdget_longcomb_document(object, &object);
+	Return(stdget_longcomb_document_(object, &object));
 	setresult_control(ptr, object);
 	return 0;
 }
@@ -611,7 +583,7 @@ static int method_documentation_method_combination_t(Execute ptr,
 static int method_setf_documentation_method_combination_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	stdset_longcomb_document(object, value);
+	Return(stdset_longcomb_document_(object, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -628,10 +600,8 @@ static int documentation_method_combination_t_(
 	/* method */
 	MopArgumentMethodDocumentation(&pos, METHOD_COMBINATION, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_method_combination_t_(
@@ -646,10 +616,8 @@ static int setf_documentation_method_combination_t_(
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, METHOD_COMBINATION, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -668,10 +636,8 @@ static int documentation_method_combination_method_combination_(
 	/* method */
 	MopArgumentMethodDocumentation(&pos, METHOD_COMBINATION, METHOD_COMBINATION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_method_combination_method_combination_(
@@ -686,10 +652,8 @@ static int setf_documentation_method_combination_method_combination_(
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, METHOD_COMBINATION, METHOD_COMBINATION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -699,8 +663,8 @@ static int setf_documentation_method_combination_method_combination_(
 static int method_documentation_symbol_method_combination(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	clos_find_combination(object, &object);
-	stdget_longcomb_document(object, &object);
+	Return(clos_find_combination_(object, &object));
+	Return(stdget_longcomb_document_(object, &object));
 	setresult_control(ptr, object);
 
 	return 0;
@@ -709,8 +673,8 @@ static int method_documentation_symbol_method_combination(Execute ptr,
 static int method_setf_documentation_symbol_method_combination(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	clos_find_combination(object, &object);
-	stdset_longcomb_document(object, value);
+	Return(clos_find_combination_(object, &object));
+	Return(stdset_longcomb_document_(object, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -728,10 +692,8 @@ static int documentation_symbol_method_combination_(
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, METHOD_COMBINATION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_method_combination_(
@@ -746,10 +708,8 @@ static int setf_documentation_symbol_method_combination_(
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, METHOD_COMBINATION);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -759,7 +719,7 @@ static int setf_documentation_symbol_method_combination_(
 static int method_documentation_standard_method_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	methodget_document(object, &object);
+	Return(methodget_document_(object, &object));
 	setresult_control(ptr, object);
 	return 0;
 }
@@ -767,7 +727,7 @@ static int method_documentation_standard_method_t(Execute ptr,
 static int method_setf_documentation_standard_method_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	methodset_document(object, value);
+	Return(methodset_document_(object, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -783,10 +743,8 @@ static int documentation_standard_method_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, STANDARD_METHOD, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_standard_method_t_(Execute ptr, addr name, addr gen)
@@ -800,10 +758,8 @@ static int setf_documentation_standard_method_t_(Execute ptr, addr name, addr ge
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, STANDARD_METHOD, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -837,10 +793,8 @@ static int documentation_package_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, PACKAGE, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_package_t_(Execute ptr, addr name, addr gen)
@@ -854,10 +808,8 @@ static int setf_documentation_package_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, PACKAGE, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -867,7 +819,7 @@ static int setf_documentation_package_t_(Execute ptr, addr name, addr gen)
 static int method_documentation_standard_class_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	stdget_class_document(object, &object);
+	Return(stdget_class_document_(object, &object));
 	setresult_control(ptr, object);
 	return 0;
 }
@@ -875,7 +827,7 @@ static int method_documentation_standard_class_t(Execute ptr,
 static int method_setf_documentation_standard_class_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	stdset_class_document(object, value);
+	Return(stdset_class_document_(object, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -891,10 +843,8 @@ static int documentation_standard_class_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, STANDARD_CLASS, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_standard_class_t_(Execute ptr, addr name, addr gen)
@@ -908,10 +858,8 @@ static int setf_documentation_standard_class_t_(Execute ptr, addr name, addr gen
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, STANDARD_CLASS, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -929,10 +877,8 @@ static int documentation_standard_class_type_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, STANDARD_CLASS, TYPE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_standard_class_type_(Execute ptr, addr name, addr gen)
@@ -946,10 +892,8 @@ static int setf_documentation_standard_class_type_(Execute ptr, addr name, addr 
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, STANDARD_CLASS, TYPE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -959,7 +903,7 @@ static int setf_documentation_standard_class_type_(Execute ptr, addr name, addr 
 static int method_documentation_structure_class_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	stdget_structure_documentation(object, &object);
+	Return(stdget_structure_documentation_(object, &object));
 	setresult_control(ptr, object);
 	return 0;
 }
@@ -967,7 +911,7 @@ static int method_documentation_structure_class_t(Execute ptr,
 static int method_setf_documentation_structure_class_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	stdset_structure_documentation(object, value);
+	Return(stdset_structure_documentation_(object, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -983,10 +927,8 @@ static int documentation_structure_class_t_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, STRUCTURE_CLASS, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_structure_class_t_(Execute ptr, addr name, addr gen)
@@ -1000,10 +942,8 @@ static int setf_documentation_structure_class_t_(Execute ptr, addr name, addr ge
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, STRUCTURE_CLASS, T);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -1021,10 +961,8 @@ static int documentation_structure_class_type_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, STRUCTURE_CLASS, TYPE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_structure_class_type_(Execute ptr, addr name, addr gen)
@@ -1038,10 +976,8 @@ static int setf_documentation_structure_class_type_(Execute ptr, addr name, addr
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, STRUCTURE_CLASS, TYPE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -1105,10 +1041,8 @@ static int documentation_symbol_type_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, TYPE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_type_(Execute ptr, addr name, addr gen)
@@ -1122,10 +1056,8 @@ static int setf_documentation_symbol_type_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, TYPE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -1135,10 +1067,13 @@ static int setf_documentation_symbol_type_(Execute ptr, addr name, addr gen)
 static int method_documentation_symbol_structure(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	clos_find_class(object, &object);
-	if (! structure_class_p(object))
+	int check;
+
+	Return(clos_find_class_(object, &object));
+	Return(structure_class_p_(object, &check));
+	if (! check)
 		return TypeError_(object, STRUCTURE_CLASS);
-	stdget_structure_documentation(object, &object);
+	Return(stdget_structure_documentation_(object, &object));
 	setresult_control(ptr, object);
 
 	return 0;
@@ -1147,10 +1082,13 @@ static int method_documentation_symbol_structure(Execute ptr,
 static int method_setf_documentation_symbol_structure(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	clos_find_class(object, &object);
-	if (! structure_class_p(object))
+	int check;
+
+	Return(clos_find_class_(object, &object));
+	Return(structure_class_p_(object, &check));
+	if (! check)
 		return TypeError_(object, STRUCTURE_CLASS);
-	stdset_structure_documentation(object, value);
+	Return(stdset_structure_documentation_(object, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -1167,10 +1105,8 @@ static int documentation_symbol_structure_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, STRUCTURE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_structure_(Execute ptr, addr name, addr gen)
@@ -1184,10 +1120,8 @@ static int setf_documentation_symbol_structure_(Execute ptr, addr name, addr gen
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, STRUCTURE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -1221,10 +1155,8 @@ static int documentation_symbol_variable_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodDocumentation(&pos, SYMBOL, VARIABLE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 static int setf_documentation_symbol_variable_(Execute ptr, addr name, addr gen)
@@ -1238,10 +1170,8 @@ static int setf_documentation_symbol_variable_(Execute ptr, addr name, addr gen)
 	/* method */
 	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, VARIABLE);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -1255,9 +1185,9 @@ static int defun_documentation_(Execute ptr)
 
 	GetConst(COMMON_DOCUMENTATION, &symbol);
 	defun_documentation_order(&gen, &var, &order);
-	parse_callname_error(&name, symbol);
-	generic_common_instance(&gen, name, gen);
-	generic_common_order(gen, var, order);
+	Return(parse_callname_error_(&name, symbol));
+	Return(generic_common_instance_(&gen, name, gen));
+	Return(generic_common_order_(gen, var, order));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(documentation_function_t_(ptr, name, gen));
@@ -1279,9 +1209,7 @@ static int defun_documentation_(Execute ptr)
 	Return(documentation_symbol_type_(ptr, name, gen));
 	Return(documentation_symbol_structure_(ptr, name, gen));
 	Return(documentation_symbol_variable_(ptr, name, gen));
-	common_method_finalize(gen);
-
-	return 0;
+	return common_method_finalize_(gen);
 }
 
 
@@ -1296,8 +1224,8 @@ static int defun_setf_documentation_(Execute ptr)
 	GetConst(COMMON_DOCUMENTATION, &symbol);
 	defun_setf_documentation_order(&gen, &var, &order);
 	setf_callname_heap(&name, symbol);
-	generic_common_instance(&gen, name, gen);
-	generic_common_order(gen, var, order);
+	Return(generic_common_instance_(&gen, name, gen));
+	Return(generic_common_order_(gen, var, order));
 	setsetf_symbol(symbol, gen);
 	/* method */
 	Return(setf_documentation_function_t_(ptr, name, gen));
@@ -1319,9 +1247,7 @@ static int defun_setf_documentation_(Execute ptr)
 	Return(setf_documentation_symbol_type_(ptr, name, gen));
 	Return(setf_documentation_symbol_structure_(ptr, name, gen));
 	Return(setf_documentation_symbol_variable_(ptr, name, gen));
-	common_method_finalize(gen);
-
-	return 0;
+	return common_method_finalize_(gen);
 }
 
 

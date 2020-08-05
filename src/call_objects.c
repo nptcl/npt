@@ -565,13 +565,15 @@ _g int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
  *  find-class
  *    TODO: environment
  */
-_g int find_class_common(addr pos, int errorp, addr env, addr *ret)
+_g int find_class_common_(addr pos, int errorp, addr env, addr *ret)
 {
 	Check(! symbolp(pos), "type error");
-	if (errorp)
-		clos_find_class(pos, ret);
-	else
+	if (errorp) {
+		Return(clos_find_class_(pos, ret));
+	}
+	else {
 		clos_find_class_nil(pos, ret);
+	}
 	
 	return 0;
 }
@@ -1367,7 +1369,7 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	}
 	/* body */
 	PushConst(&list, CLOSKEY_FORM);
-	comb_longmacro(&body, lambda, spec, args, gen, decl, body);
+	Return(comb_longmacro_(&body, lambda, spec, args, gen, decl, body));
 	pushva_heap(&list, body, NULL);
 	/* result */
 	nreverse(ret, list);
@@ -1439,7 +1441,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	GetConst(COMMON_ALLOCATE_INSTANCE, &alloc);
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_CLASS_NAME, &call);
-	clos_class_of(var, &name);
+	Return(clos_class_of_(var, &name));
 	getfunction_global(call, &call);
 	Return(callclang_funcall(ptr, &name, call, name, NULL));
 	quotelist_heap(&name, name);
@@ -1454,7 +1456,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	root = list;
 	while (root != Nil) {
 		Return_getcons(root, &x, &root);
-		clos_get(var, x, &y);
+		Return(clos_get_(var, x, &y));
 		if (y == Unbound)
 			GetConst(SYSTEM_UNBOUND_VALUE, &y);
 		cons_heap(&values, y, values);
@@ -1480,7 +1482,7 @@ _g int set_slots_syscall(addr var, addr slots, addr values)
 		Return_getcons(values, &y, &values);
 		if (y == unbound)
 			y = Unbound;
-		clos_set(var, x, y);
+		Return(clos_set_(var, x, y));
 	}
 
 	return 0;

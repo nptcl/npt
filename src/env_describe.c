@@ -99,10 +99,8 @@ static int defmethod_describe_object_(Execute ptr, addr name, addr gen,
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos); /* print-object */
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
-	stdset_method_function(pos, call);
-	common_method_add(ptr, gen, pos);
-
-	return 0;
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
 }
 
 
@@ -126,25 +124,20 @@ _g int describe_common(Execute ptr, addr object, addr stream)
 /*
  *  inspect
  */
-static int exit_inspect_p(addr pos)
+static int exit_inspect_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
-		return 0;
+		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equalp_char(pos, "Q")
-		|| string_equalp_char(pos, "QUIT")
-		|| string_equalp_char(pos, "E")
-		|| string_equalp_char(pos, "EXIT");
+	return string_equalp_char_va_(pos, ret, "Q", "QUIT", "E" "EXIT", NULL);
 }
 
-static int help_inspect_p(addr pos)
+static int help_inspect_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
-		return 0;
+		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equalp_char(pos, "?")
-		|| string_equalp_char(pos, "H")
-		|| string_equalp_char(pos, "HELP");
+	return string_equalp_char_va_(pos, ret, "?", "H", "HELP", NULL);
 }
 
 static int help_inspect_(Execute ptr, addr io)
@@ -174,12 +167,16 @@ static int help_inspect_(Execute ptr, addr io)
 
 static int eval_loop_inspect_(Execute ptr, addr io, addr pos, int *exit, int *exec)
 {
-	if (exit_inspect_p(pos)) {
+	int check;
+
+	Return(exit_inspect_p_(pos, &check));
+	if (check) {
 		*exit = 1;
 		*exec = 0;
 		return 0;
 	}
-	if (help_inspect_p(pos)) {
+	Return(help_inspect_p_(pos, &check));
+	if (check) {
 		*exit = 0;
 		*exec = 0;
 		return help_inspect_(ptr, io);
@@ -219,7 +216,7 @@ _g void init_environment_describe(void)
 
 #define DefMethod_DescribeObject(ptr, name, gen, p, c) { \
 	Return(defmethod_describe_object_((ptr), (name), (gen), \
-			p_method_describe_object_##p, CONSTANT_CLOS_##c)); \
+				p_method_describe_object_##p, CONSTANT_CLOS_##c)); \
 }
 static int build_describe_object_method_(Execute ptr, addr name, addr gen)
 {
@@ -230,17 +227,22 @@ static int build_describe_object_method_(Execute ptr, addr name, addr gen)
 	return 0;
 }
 
-_g void build_environment_describe(Execute ptr)
+static int build_environment_describe_call_(Execute ptr)
 {
 	addr symbol, name, gen;
 
 	GetConst(COMMON_DESCRIBE_OBJECT, &symbol);
 	mop_argument_generic_var2(&gen);
-	parse_callname_error(&name, symbol);
-	generic_common_instance(&gen, name, gen);
+	Return(parse_callname_error_(&name, symbol));
+	Return(generic_common_instance_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	Error(build_describe_object_method_(ptr, name, gen));
-	common_method_finalize(gen);
+	Return(build_describe_object_method_(ptr, name, gen));
+	return common_method_finalize_(gen);
+}
+
+_g void build_environment_describe(Execute ptr)
+{
+	Error(build_environment_describe_call_(ptr));
 }
 

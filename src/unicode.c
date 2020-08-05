@@ -16,7 +16,7 @@ _g int string8_size_alloc_(LocalRoot local, addr *ret, const char *name, size_t 
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF8_size_makeunicode(destroy, (const byte *)name, size))
 		return fmte_("UTF8 encoding error (make).", NULL);
-	strvect_update_character_type(pos);
+	Return(strvect_update_character_type_(pos));
 	return Result(ret,  pos);
 }
 _g int string8_size_local_(LocalRoot local, addr *ret, const char *name, size_t size)
@@ -41,7 +41,7 @@ _g int string8_null_alloc_(LocalRoot local, addr *ret, const char *name)
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF8_null_makeunicode(destroy, (const byte *)name))
 		return fmte_("UTF8 encoding error (make).", NULL);
-	strvect_update_character_type(pos);
+	Return(strvect_update_character_type_(pos));
 	return Result(ret, pos);
 }
 _g int string8_null_local_(LocalRoot local, addr *ret, const char *name)
@@ -66,7 +66,7 @@ _g int string16_size_alloc_(LocalRoot local, addr *ret, const byte16 *name, size
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF16_size_makeunicode(destroy, name, size))
 		return fmte_("UTF16 encoding error (make).", NULL);
-	strvect_update_character_type(pos);
+	Return(strvect_update_character_type_(pos));
 	return Result(ret, pos);
 }
 _g int string16_size_local_(LocalRoot local, addr *ret, const byte16 *name, size_t size)
@@ -91,7 +91,7 @@ _g int string16_null_alloc_(LocalRoot local, addr *ret, const byte16 *name)
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF16_null_makeunicode(destroy, name))
 		return fmte_("UTF16 encoding error (make).", NULL);
-	strvect_update_character_type(pos);
+	Return(strvect_update_character_type_(pos));
 	return Result(ret, pos);
 }
 _g int string16_null_local_(LocalRoot local, addr *ret, const byte16 *name)

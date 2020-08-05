@@ -18,12 +18,15 @@
  */
 static int check_data_function(addr call, addr *ret)
 {
+	int check;
+
 	if (GetType(call) == LISPTYPE_SYMBOL) {
 		getfunction_global(call, &call);
 		if (macro_function_p(call))
 			return fmte_("Cannot call the macro-function ~S.", call, NULL);
 	}
-	if (! funcallp(call))
+	Return(funcallp_(call, &check));
+	if (! check)
 		return fmte_("The argument ~S is not executable.", call, NULL);
 
 	return Result(ret, call);
@@ -355,7 +358,11 @@ static void defun_function_lambda_expression(void)
 /* (defun functionp (object) ...) -> boolean */
 static int function_functionp(Execute ptr, addr var)
 {
-	setbool_control(ptr, funcallp(var));
+	int check;
+
+	Return(funcallp_(var, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 

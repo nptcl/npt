@@ -48,9 +48,10 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	}
 	/* check */
 	Return(name_pathname_local_(ptr, pos, &pos));
-	if (UTF8_buffer_clang(ptr->local, &pos, pos))
+	Return(UTF8_buffer_clang_(ptr->local, &value, pos));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
-	str = (const char *)posbodyr(pos);
+	str = (const char *)posbodyr(value);
 	*ret = probe_file_boolean(str)? T: Nil;
 
 	return 0;
@@ -107,11 +108,13 @@ static int rename_file_run_files(Execute ptr,
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, from, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", from, NULL);
 	str1 = (const char *)posbodyr(value);
 	Return(name_pathname_local_(ptr, to, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);
 	/* check */

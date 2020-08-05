@@ -12,13 +12,83 @@
 #include "type_table.h"
 #include "type_typep.h"
 
-/* serious_condition (condition) */
-static void instance_condition(addr *ret, constindex condition)
+static int instance_condition_(addr *ret, constindex condition)
 {
 	addr pos;
 	GetConstant(condition, &pos);
-	clos_instance_heap(pos, ret);
+	return clos_instance_heap_(pos, ret);
 }
+static int instance_condition1_(addr *ret, constindex index,
+		constindex index1, addr pos1)
+{
+	addr instance;
+
+	GetConstant(index, &instance);
+	Return(clos_instance_heap_(instance, &instance));
+	Return(clos_setconst_(instance, index1, pos1));
+	return Result(ret, instance);
+}
+static int instance_condition2_(addr *ret, constindex index,
+		constindex index1, addr pos1,
+		constindex index2, addr pos2)
+{
+	addr instance;
+
+	GetConstant(index, &instance);
+	Return(clos_instance_heap_(instance, &instance));
+	Return(clos_setconst_(instance, index1, pos1));
+	Return(clos_setconst_(instance, index2, pos2));
+	return Result(ret, instance);
+}
+static int instance_condition4_(addr *ret, constindex index,
+		constindex index1, addr pos1,
+		constindex index2, addr pos2,
+		constindex index3, addr pos3,
+		constindex index4, addr pos4)
+{
+	addr instance;
+
+	GetConstant(index, &instance);
+	Return(clos_instance_heap_(instance, &instance));
+	Return(clos_setconst_(instance, index1, pos1));
+	Return(clos_setconst_(instance, index2, pos2));
+	Return(clos_setconst_(instance, index3, pos3));
+	Return(clos_setconst_(instance, index4, pos4));
+	return Result(ret, instance);
+}
+
+/* for debug */
+static void instance_condition(addr *ret, constindex condition)
+{
+	*ret = Nil;
+	Error(instance_condition_(ret, condition));
+}
+static void instance_condition1(addr *ret, constindex index,
+		constindex index1, addr pos1)
+{
+	*ret = Nil;
+	Error(instance_condition1_(ret, index, index1, pos1));
+}
+static void instance_condition2(addr *ret, constindex index,
+		constindex index1, addr pos1,
+		constindex index2, addr pos2)
+{
+	*ret = Nil;
+	Error(instance_condition2_(ret, index, index1, pos1, index2, pos2));
+}
+static void instance_condition4(addr *ret, constindex index,
+		constindex index1, addr pos1,
+		constindex index2, addr pos2,
+		constindex index3, addr pos3,
+		constindex index4, addr pos4)
+{
+	*ret = Nil;
+	Error(instance_condition4_(ret, index,
+				index1, pos1, index2, pos2,
+				index3, pos3, index4, pos4));
+}
+
+/* serious_condition (condition) */
 _g void instance_serious_condition(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_SERIOUS_CONDITION);
@@ -31,18 +101,6 @@ _g void serious_condition(void)
 }
 
 /* simple_condition (condition) :format-control :format-arguments*/
-static void instance_condition2(addr *ret, constindex index,
-		constindex index1, addr pos1,
-		constindex index2, addr pos2)
-{
-	addr instance;
-
-	GetConstant(index, &instance);
-	clos_instance_heap(instance, &instance);
-	clos_setconst(instance, index1, pos1);
-	clos_setconst(instance, index2, pos2);
-	*ret = instance;
-}
 _g void instance_simple_condition(addr *ret, addr control, addr args)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_SIMPLE_CONDITION,
@@ -83,10 +141,16 @@ _g void simple_error(addr control, addr args)
 	error_function(instance);
 }
 
+_g int instance_simple_error_(addr *ret, addr control, addr args)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_SIMPLE_ERROR,
+			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
+			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
+}
 _g int call_simple_error_(Execute ptr, addr control, addr args)
 {
 	addr instance;
-	instance_simple_error(&instance, control, args);
+	Return(instance_simple_error_(&instance, control, args));
 	return error_function_(ptr, instance);
 }
 
@@ -192,10 +256,16 @@ _g void floating_point_inexact_stdarg(constindex index, ...)
 	floating_point_inexact_constant(index, operands);
 }
 
+_g int instance_floating_point_inexact_(addr *ret, addr operation, addr operands)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_FLOATING_POINT_INEXACT,
+			CONSTANT_CLOSNAME_OPERATION, operation,
+			CONSTANT_CLOSNAME_OPERANDS, operands);
+}
 _g int call_floating_point_inexact_(Execute ptr, addr operation, addr operands)
 {
 	addr instance;
-	instance_floating_point_inexact(&instance, operation, operands);
+	Return(instance_floating_point_inexact_(&instance, operation, operands));
 	return error_function_(ptr, instance);
 }
 _g int call_floating_point_inexact_const_(Execute ptr, constindex index, addr operands)
@@ -366,10 +436,16 @@ _g void division_by_zero2(addr left, addr right)
 }
 
 
+_g int instance_division_by_zero_(addr *ret, addr operation, addr operands)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_DIVISION_BY_ZERO,
+			CONSTANT_CLOSNAME_OPERATION, operation,
+			CONSTANT_CLOSNAME_OPERANDS, operands);
+}
 _g int call_division_by_zero_(Execute ptr, addr operation, addr operands)
 {
 	addr instance;
-	instance_division_by_zero(&instance, operation, operands);
+	Return(instance_division_by_zero_(&instance, operation, operands));
 	return error_function_(ptr, instance);
 }
 _g int call_division_by_zero_const_(Execute ptr, constindex index, addr operands)
@@ -391,7 +467,6 @@ _g int call_division_by_zero_real2_(Execute ptr, constindex index, addr x, addr 
 	list_heap(&x, x, y, NULL);
 	return call_division_by_zero_const_(ptr, index, x);
 }
-
 _g int call_division_by_zero1_(Execute ptr, addr left)
 {
 	return call_division_by_zero_real1_(ptr, CONSTANT_COMMON_SLASH, left);
@@ -403,16 +478,6 @@ _g int call_division_by_zero2_(Execute ptr, addr left, addr right)
 
 
 /* cell_error (error) :name */
-static void instance_condition1(addr *ret, constindex index,
-		constindex index1, addr pos1)
-{
-	addr instance;
-
-	GetConstant(index, &instance);
-	clos_instance_heap(instance, &instance);
-	clos_setconst(instance, index1, pos1);
-	*ret = instance;
-}
 _g void instance_cell_error(addr *ret, addr name)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_CELL_ERROR,
@@ -440,10 +505,15 @@ _g void control_error(void)
 	instance_control_error(&instance);
 	error_function(instance);
 }
+
+_g int instance_control_error_(addr *ret)
+{
+	return instance_condition_(ret, CONSTANT_CONDITION_CONTROL_ERROR);
+}
 _g int call_control_error_(Execute ptr)
 {
 	addr instance;
-	instance_control_error(&instance);
+	Return(instance_control_error_(&instance));
 	return error_function_(ptr, instance);
 }
 
@@ -477,10 +547,15 @@ _g void end_of_file(addr stream)
 	error_function(instance);
 }
 
+_g int instance_end_of_file_(addr *ret, addr stream)
+{
+	return instance_condition1_(ret, CONSTANT_CONDITION_END_OF_FILE,
+			CONSTANT_CLOSNAME_STREAM, stream);
+}
 _g int call_end_of_file_(Execute ptr, addr stream)
 {
 	addr instance;
-	instance_end_of_file(&instance, stream);
+	Return(instance_end_of_file_(&instance, stream));
 	return error_function_(ptr, instance);
 }
 
@@ -514,10 +589,15 @@ _g void file_error_pathname(addr instance, addr *ret)
 	ClosCheckConst(instance, CLOSNAME_PATHNAME, ret);
 }
 
+_g int instance_file_error_(addr *ret, addr pathname)
+{
+	return instance_condition1_(ret, CONSTANT_CONDITION_FILE_ERROR,
+			CONSTANT_CLOSNAME_PATHNAME, pathname);
+}
 _g int call_file_error_(Execute ptr, addr pathname)
 {
 	addr instance;
-	instance_file_error(&instance, pathname);
+	Return(instance_file_error_(&instance, pathname));
 	return error_function_(ptr, instance);
 }
 
@@ -668,17 +748,21 @@ _g int typep_unbound_error(Execute ptr, addr value, addr type)
 	return (value == Unbound)? 0: typep_error(ptr, value, type);
 }
 
+_g int instance_type_error_(addr *ret, addr datum, addr expected)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_TYPE_ERROR,
+			CONSTANT_CLOSNAME_DATUM, datum,
+			CONSTANT_CLOSNAME_EXPECTED_TYPE, expected);
+}
 _g int call_type_error_(Execute ptr, addr datum, addr expected)
 {
 	addr instance;
 
 	copyheap(&datum, datum);
 	copyheap(&expected, expected);
-	instance_type_error(&instance, datum, expected);
-
+	Return(instance_type_error_(&instance, datum, expected));
 	return error_function_(ptr, instance);
 }
-
 _g int call_type_error_const_(Execute ptr, addr datum, constindex expected)
 {
 	addr type;
@@ -688,22 +772,6 @@ _g int call_type_error_const_(Execute ptr, addr datum, constindex expected)
 
 /* simple_type_error (simple_condition type_error)
  *   :format-control :format-arguments :datum :expected-type */
-static void instance_condition4(addr *ret, constindex index,
-		constindex index1, addr pos1,
-		constindex index2, addr pos2,
-		constindex index3, addr pos3,
-		constindex index4, addr pos4)
-{
-	addr instance;
-
-	GetConstant(index, &instance);
-	clos_instance_heap(instance, &instance);
-	clos_setconst(instance, index1, pos1);
-	clos_setconst(instance, index2, pos2);
-	clos_setconst(instance, index3, pos3);
-	clos_setconst(instance, index4, pos4);
-	*ret = instance;
-}
 _g void instance_simple_type_error(addr *ret,
 		addr control, addr args, addr datum, addr expected)
 {
@@ -758,14 +826,22 @@ _g void type_error_adjustable(addr datum)
 			"The vector ~S is not adjustable.", datum, NULL);
 }
 
+_g int instance_simple_type_error_(addr *ret,
+		addr control, addr args, addr datum, addr expected)
+{
+	return instance_condition4_(ret, CONSTANT_CONDITION_SIMPLE_TYPE_ERROR,
+			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
+			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args,
+			CONSTANT_CLOSNAME_DATUM, datum,
+			CONSTANT_CLOSNAME_EXPECTED_TYPE, expected);
+}
 _g int call_simple_type_error_(Execute ptr,
 		addr control, addr args, addr datum, addr expected)
 {
 	addr instance;
-	instance_simple_type_error(&instance, control, args, datum, expected);
+	Return(instance_simple_type_error_(&instance, control, args, datum, expected));
 	return error_function_(ptr, instance);
 }
-
 _g int call_type_error_va_(Execute ptr,
 		addr datum, addr expected, const char *fmt, ...)
 {
@@ -780,13 +856,26 @@ _g int call_type_error_va_(Execute ptr,
 	copylocal_object(NULL, &expected, expected);
 	return call_simple_type_error_(ptr, control, args, datum, expected);
 }
-
 _g int call_type_error_fill_pointer_(Execute ptr, addr datum)
 {
 	addr expected;
 	GetConst(COMMON_ARRAY, &expected);
 	return call_type_error_va_(ptr, datum, expected,
 			"The vector ~S don't have a fill-pointer.", datum, NULL);
+}
+_g int call_type_error_fill_pointer_zero_(Execute ptr, addr datum)
+{
+	addr expected;
+	GetConst(COMMON_VECTOR, &expected);
+	return call_type_error_va_(ptr, datum, expected,
+			"The vector ~S fill-pointer is 0.", datum, NULL);
+}
+_g int call_type_error_adjustable_(Execute ptr, addr datum)
+{
+	addr expected;
+	GetConst(COMMON_VECTOR, &expected);
+	return call_type_error_va_(ptr, datum, expected,
+			"The vector ~S is not adjustable.", datum, NULL);
 }
 
 /* unbound_slot (cell_error) :instance :name */
@@ -805,6 +894,19 @@ _g void unbound_slot(addr argument, addr name)
 _g void unbound_slot_instance(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_INSTANCE, ret);
+}
+
+_g int instance_unbound_slot_(addr *ret, addr instance, addr name)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_UNBOUND_SLOT,
+			CONSTANT_CLOSNAME_INSTANCE, instance,
+			CONSTANT_CLOSNAME_NAME, name);
+}
+_g int call_unbound_slot_(Execute ptr, addr argument, addr name)
+{
+	addr instance;
+	Return(instance_unbound_slot_(&instance, argument, name));
+	return error_function_(ptr, instance);
 }
 
 /* unbound_variable (cell_error) :name */
@@ -854,16 +956,22 @@ _g void savecore_condition(void)
 }
 
 /* simple_file_error */
-_g void instance_simple_file_error(addr *ret, addr pathname, addr control, addr args)
+_g int instance_simple_file_error_(addr *ret, addr pathname, addr control, addr args)
 {
 	addr instance;
 
 	GetConst(CONDITION_SIMPLE_FILE_ERROR, &instance);
-	clos_instance_heap(instance, &instance);
-	clos_setconst(instance, CONSTANT_CLOSNAME_PATHNAME, pathname);
-	clos_setconst(instance, CONSTANT_CLOSNAME_FORMAT_CONTROL, control);
-	clos_setconst(instance, CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
-	*ret = instance;
+	Return(clos_instance_heap_(instance, &instance));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_PATHNAME, pathname));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_FORMAT_CONTROL, control));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args));
+	return Result(ret, instance);
+}
+
+_g void instance_simple_file_error(addr *ret, addr pathname, addr control, addr args)
+{
+	*ret = Nil;
+	Error(instance_simple_file_error_(ret, pathname, control, args));
 }
 
 _g void simple_file_error(addr pathname, addr control, addr args)
@@ -889,7 +997,7 @@ _g void simple_file_error_stdarg(addr pathname, const char *fmt, ...)
 _g int call_simple_file_error_(Execute ptr, addr pathname, addr control, addr args)
 {
 	addr instance;
-	instance_simple_file_error(&instance, pathname, control, args);
+	Return(instance_simple_file_error_(&instance, pathname, control, args));
 	return error_function_(ptr, instance);
 }
 

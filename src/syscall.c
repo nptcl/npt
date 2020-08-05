@@ -605,7 +605,7 @@ static void defun_do_external_symbols(void)
 /* (defun do-all-symbols (function) ...) -> nil */
 static int syscall_do_all_symbols(Execute ptr, addr call)
 {
-	Return(do_all_symbols_syscode(ptr, call));
+	Return(do_all_symbols_syscode_(ptr, call));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -743,7 +743,7 @@ static void defun_specialp(void)
 /* (defun ecase-error (value list) ...) -> nil */
 static int syscall_ecase_error(Execute ptr, addr value, addr list)
 {
-	ecase_error_syscode(value, list);
+	Return(ecase_error_syscode_(ptr, value, list));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -767,7 +767,7 @@ static void defun_ecase_error(void)
 /* (defun etypecase-error (value list) ...) -> nil */
 static int syscall_etypecase_error(Execute ptr, addr value, addr list)
 {
-	etypecase_error_syscode(value, list);
+	Return(etypecase_error_syscode_(ptr, value, list));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -2149,7 +2149,7 @@ static int syscall_eastasian_get(Execute ptr, addr var)
 {
 	addr symbol;
 
-	eastasian_get_syscode(var, &var, &symbol);
+	Return(eastasian_get_syscode_(var, &var, &symbol));
 	setvalues_control(ptr, var, symbol, NULL);
 
 	return 0;
@@ -2190,7 +2190,7 @@ static int syscall_eastasian_width(Execute ptr, addr pos)
 {
 	addr value;
 
-	eastasian_width_syscode(pos, &pos, &value);
+	Return(eastasian_width_syscode_(pos, &pos, &value));
 	setvalues_control(ptr, pos, value, NULL);
 
 	return 0;

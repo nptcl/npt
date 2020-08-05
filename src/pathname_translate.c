@@ -97,67 +97,72 @@ static void wildcard_struct_push(LocalpRoot local,
 	}
 }
 
-static int wildcard_push_match_pathname(LocalpRoot local, struct wildcard_struct *ptr,
-		addr p1, size_t n1, size_t s1, addr p2, size_t n2, size_t s2)
+static int wildcard_push_match_pathname_(
+		LocalpRoot local, struct wildcard_struct *ptr,
+		addr p1, size_t n1, size_t s1, addr p2, size_t n2, size_t s2,
+		int *ret)
 {
-	int check;
+	int x;
 	unicode c1, c2;
 	size_t i;
 
 	if (n1 == s1 && n2 == s2)
-		return 1;
+		return Result(ret, 1);
 	if (n1 == s1 || n2 == s2)
-		return 0;
-	string_getc(p1, n1, &c1);
-	string_getc(p2, n2, &c2);
+		return Result(ret, 0);
+	Return(string_getc_(p1, n1, &c1));
+	Return(string_getc_(p2, n2, &c2));
 	/* (a ?) -> next */
 	if (c2 == '?') {
-		check = wildcard_push_match_pathname(local,ptr,  p1,n1+1,s1,  p2,n2+1,s2);
-		if (check)
+		Return(wildcard_push_match_pathname_(local,ptr, p1,n1+1,s1,  p2,n2+1,s2, &x));
+		if (x)
 			wildcard_struct_push(local, ptr, n1, n1+1);
-		return check;
+		return Result(ret, x);
 	}
 	/* (a a) -> next, (a b) -> false */
 	if (c2 != '*') {
 		if (c1 != c2)
-			return 0;
-		return wildcard_push_match_pathname(local,ptr,  p1,n1+1,s1,  p2,n2+1,s2);
+			return Result(ret, 0);
+		return wildcard_push_match_pathname_(local,ptr,  p1,n1+1,s1,  p2,n2+1,s2, ret);
 	}
 	/* (a *) */
 	n2++;
 	for (i = n1; i <= s1; i++) {
-		if (wildcard_push_match_pathname(local,ptr,  p1,i,s1,  p2,n2,s2)) {
+		Return(wildcard_push_match_pathname_(local,ptr, p1,i,s1,  p2,n2,s2, &x));
+		if (x) {
 			wildcard_struct_push(local, ptr, n1, i);
-			return 1;
+			return Result(ret, 1);
 		}
 	}
-	return 0;
+	return Result(ret, 0);
 }
 
-static int wildcard_push_string_pathname(LocalpRoot local,
-		struct wildcard_struct *ptr, addr *ret, addr a, addr b)
+static int wildcard_push_string_pathname_(LocalpRoot local,
+		struct wildcard_struct *ptr, addr a, addr b, int *ret)
 {
 	size_t s1, s2;
 
 	if (! stringp(a))
-		return 0;
+		return Result(ret, 0);
 	if (! stringp(b))
-		return 0;
+		return Result(ret, 0);
 	string_length(a, &s1);
 	string_length(b, &s2);
-	return wildcard_push_match_pathname(local, ptr, a, 0, s1, b, 0, s2);
+	return wildcard_push_match_pathname_(local, ptr, a, 0, s1, b, 0, s2, ret);
 }
 
-static void push_charqueue_wildcard(LocalpRoot local,
+static int push_charqueue_wildcard_(LocalpRoot local,
 		addr queue, addr pos, struct wildcard_position *ptr)
 {
 	unicode c;
 	size_t i;
 
 	for (i = ptr->a; i < ptr->b; i++) {
-		string_getc(pos, i, &c);
-		push_charqueue_local(local->local, queue, c);
+		Return(string_getc_(pos, i, &c));
+		Return(push_charqueue_local_(local->local, queue, c));
 	}
+
+	return 0;
 }
 
 static int wildcard_replace_pathname_(LocalpRoot local,
@@ -172,22 +177,22 @@ static int wildcard_replace_pathname_(LocalpRoot local,
 	string_length(to, &size);
 	child = ptr->tail;
 	for (i = 0; i < size; i++) {
-		string_getc(to, i, &c);
+		Return(string_getc_(to, i, &c));
 		if (c == '*' || c == '?') {
 			if (child) {
-				push_charqueue_wildcard(local, queue, pos, child);
+				Return(push_charqueue_wildcard_(local, queue, pos, child));
 				child = child->next;
 			}
 		}
 		else {
-			push_charqueue_local(local->local, queue, c);
+			Return(push_charqueue_local_(local->local, queue, c));
 		}
 	}
 
 	/* position check */
 	if (child) {
 		clear_charqueue(queue);
-		push_charqueue_wildcard(local, queue, pos, child);
+		Return(push_charqueue_wildcard_(local, queue, pos, child));
 		make_charqueue_alloc(localp_alloc(local), queue, &pos);
 		return fmte_("Cannot extract ~S pattern.", pos, NULL);
 	}
@@ -201,8 +206,9 @@ static int wildcard_replace_pathname_(LocalpRoot local,
 static int translate_string_pathname_(LocalpRoot local,
 		addr *ret, addr pos, addr from, addr to)
 {
+	int check;
 	struct wildcard_struct *ptr;
-	addr wild, root;
+	addr wild;
 	LocalStack stack;
 
 	/* wildcard */
@@ -213,7 +219,8 @@ static int translate_string_pathname_(LocalpRoot local,
 	if (to == wild)
 		strvect_char_local(local->local, &to, "*");
 	ptr = make_wildcard_struct(local);
-	if (! wildcard_push_string_pathname(local, ptr, &root, pos, from))
+	Return(wildcard_push_string_pathname_(local, ptr, pos, from, &check));
+	if (! check)
 		return fmte_("The string ~S doesn't match ~S.", pos, from, NULL);
 
 	/* replace */

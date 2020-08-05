@@ -14,13 +14,13 @@ _g void getnth_unbound_unsafe(addr cons, size_t index, addr *ret);
 _g int getnthcdr_(addr cons, size_t index, addr *ret);
 _g int getnthcdr_large(addr cons, addr index, addr *ret);
 _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret);
-_g void setnth(addr cons, size_t index, addr value);
 _g int setnth_(addr cons, size_t index, addr value);
 _g void setnth_unsafe(addr cons, size_t index, addr value);
 
 /* length */
-_g size_t length_list_safe(addr list);
 _g size_t length_list_unsafe(addr list);
+_g size_t length_list_safe(addr list);
+_g int length_list_safe_(addr list, size_t *ret);
 _g int length_list_p(addr list, size_t *ret);
 
 /* list */

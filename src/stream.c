@@ -804,7 +804,7 @@ _g int print_string_stream_(addr stream, addr pos)
 	CheckType(stream, LISPTYPE_STREAM);
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		Return(write_char_stream_(stream, c));
 	}
 
@@ -943,8 +943,8 @@ static int open_if_exists_rename_stream_(Execute ptr, addr pos)
 		charqueue_local(local, &queue, 0);
 		GetTypePathname(path, &type);
 		if (stringp(type)) {
-			pushstring_charqueue_local(local, queue, type);
-			pushchar_charqueue_local(local, queue, ".");
+			Return(pushstring_charqueue_local_(local, queue, type));
+			Return(pushchar_charqueue_local_(local, queue, "."));
 		}
 		make_index_integer_alloc(local, &type, i);
 		Return(decimal_charqueue_integer_local_(local, type, queue));
@@ -1539,7 +1539,7 @@ _g int read_line_stream_(Execute ptr, addr *ret, int *miss,
 				}
 				break;
 		}
-		push_charqueue_local(local, queue, c);
+		Return(push_charqueue_local_(local, queue, c));
 	}
 
 finish_eof:
@@ -1581,7 +1581,7 @@ _g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 	}
 
 	for (i = start; i < end; i++) {
-		string_getc(string, i, &c);
+		Return(string_getc_(string, i, &c));
 		Return(write_char_stream_(stream, c));
 	}
 
@@ -1600,7 +1600,7 @@ static int read_sequence_character_(addr *ret,
 		if (check)
 			break;
 		character_heap(&value, c);
-		setelt_sequence(seq, start, value);
+		Return(setelt_sequence_(seq, start, value));
 	}
 	make_index_integer_heap(&value, start);
 
@@ -1619,7 +1619,7 @@ static int read_sequence_binary_(addr *ret,
 		if (check)
 			break;
 		fixnum_heap(&value, c);
-		setelt_sequence(seq, start, value);
+		Return(setelt_sequence_(seq, start, value));
 	}
 	make_index_integer_heap(&value, start);
 
@@ -1653,7 +1653,7 @@ static int write_sequence_character_(LocalRoot local,
 
 	for (; start < end; start++) {
 		push_local(local, &stack);
-		getelt_sequence(local, seq, start, &value);
+		Return(getelt_sequence_(local, seq, start, &value));
 		if (! characterp(value))
 			return TypeError_(value, CHARACTER);
 		GetCharacter(value, &c);
@@ -1673,7 +1673,7 @@ static int write_sequence_binary_(LocalRoot local,
 
 	for (; start < end; start++) {
 		push_local(local, &stack);
-		getelt_sequence(local, seq, start, &value);
+		Return(getelt_sequence_(local, seq, start, &value));
 		if (! fixnump(value))
 			return TypeError_(value, INTEGER);
 		GetFixnum(value, &c);
@@ -1736,7 +1736,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 		if (result)
 			break;
 
-		format_stream(ptr, stream, "~%Please answer ~A type: ", type, NULL);
+		Return(format_stream(ptr, stream, "~%Please answer ~A type: ", type, NULL));
 		Return(finish_output_stream_(stream));
 	}
 	localhold_end(hold);
@@ -1746,7 +1746,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 
 _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 {
-	int miss;
+	int miss, check;
 	unicode c;
 	addr control, stream, pos;
 	size_t size;
@@ -1780,20 +1780,22 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 		if (pos == Unbound)
 			return fmte_("*query-io* don't read yes/or question.", NULL);
 		if (exactp) {
-			if (string_equalp_char(pos, "yes")) {
+			Return(string_equalp_char_(pos, "yes", &check));
+			if (check) {
 				*ret = 1;
 				break;
 			}
-			if (string_equalp_char(pos, "no")) {
+			Return(string_equalp_char_(pos, "no", &check));
+			if (check) {
 				*ret = 0;
 				break;
 			}
-			format_stream(ptr, stream, "~%Please answer yes or no: ", NULL);
+			Return(format_stream(ptr, stream, "~%Please answer yes or no: ", NULL));
 		}
 		else {
 			string_length(pos, &size);
 			if (size != 0) {
-				string_getc(pos, 0, &c);
+				Return(string_getc_(pos, 0, &c));
 				if (toUpperUnicode(c) == 'Y') {
 					*ret = 1;
 					break;
@@ -1803,7 +1805,7 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 					break;
 				}
 			}
-			format_stream(ptr, stream, "~%Please answer y or n: ", NULL);
+			Return(format_stream(ptr, stream, "~%Please answer y or n: ", NULL));
 		}
 		Return(finish_output_stream_(stream));
 	}

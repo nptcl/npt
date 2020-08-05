@@ -53,7 +53,7 @@ static int scope_clos(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_clos(&type, eval);
+	Return(type_value_clos_(&type, eval));
 	make_eval_scope(ptr, ret, EVAL_PARSE_CLOS, type, eval);
 
 	return 0;
@@ -95,7 +95,7 @@ static int scope_complex(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_complex(&type, eval);
+	Return(type_value_complex_(&type, eval));
 	make_eval_scope(ptr, ret, EVAL_PARSE_COMPLEX, type, eval);
 
 	return 0;
@@ -165,7 +165,7 @@ static int scope_string(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value(&type, eval);
+	Return(type_value_(&type, eval));
 	make_eval_scope(ptr, ret, EVAL_PARSE_STRING, type, eval);
 
 	return 0;
@@ -478,7 +478,7 @@ static int scope_quote(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &value);
-	type_value(&type, value);
+	Return(type_value_(&type, value));
 	make_eval_scope(ptr, ret, EVAL_PARSE_QUOTE, type, value);
 
 	return 0;

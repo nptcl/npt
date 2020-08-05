@@ -84,7 +84,8 @@ static int opendir_files(LocalRoot local, addr pos, DIR **ret)
 
 	push_local(local, &stack);
 	Return(directory_name_pathname_local_(local, pos, &pos));
-	if (UTF8_buffer_clang(local, &name, pos)) {
+	Return(UTF8_buffer_clang_(local, &name, pos));
+	if (name == Unbound) {
 		*ret = NULL;
 		return fmte_("Cannot convert ~S to UTF-8 string.", pos, NULL);
 	}
@@ -114,7 +115,8 @@ static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	Return(name_pathname_local_(ptr, file, &pos));
-	if (UTF8_buffer_clang(local, &pos, pos)) {
+	Return(UTF8_buffer_clang_(local, &pos, pos));
+	if (pos == Unbound) {
 		*ret = 0;
 		return fmte_("Cannot convert ~S to UTF-8 string.", file, NULL);
 	}
@@ -237,7 +239,8 @@ static int wild_check_directory_files(struct directory_struct *str, addr name, i
 	cons_local(local, &pos, name, pos);
 	Return(make_list_directory_pathname_(str, &pos, pos));
 	Return(directory_name_pathname_local_(local, pos, &pos));
-	if (UTF8_buffer_clang(local, &value, pos))
+	Return(UTF8_buffer_clang_(local, &value, pos));
+	if (value == Unbound)
 		return fmte_("Cannot convert ~S to UTF-8 string.", pos, NULL);
 	ptr = (const char *)posbodyr(value);
 	check = (! lstat(ptr, &st)) && S_ISDIR(st.st_mode);
@@ -473,9 +476,10 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	}
 	/* check */
 	Return(name_pathname_local_(ptr, pos, &pos));
-	if (UTF8_buffer_clang(ptr->local, &pos, pos))
-		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
-	str = (const char *)posbodyr(pos);
+	Return(UTF8_buffer_clang_(ptr->local, &value, pos))
+	if (value == Unbound)
+		return fmte_("Cannot decode UTF-8 string ~S.", value, NULL);
+	str = (const char *)posbodyr(value);
 	*ret = probe_file_boolean(str)? T: Nil;
 
 	return 0;
@@ -561,8 +565,9 @@ static int ensure_directories_exist_run_files(Execute ptr,
 		merge_directory_pathname(local, &temp, pos, temp);
 		/* directory check */
 		Return(directory_name_pathname_local_(local, temp, &temp));
-		if (UTF8_buffer_clang(local, &value, temp))
-			return fmte_("Cannot decode UTF-8 string ~S.", value, NULL);
+		Return(UTF8_buffer_clang_(local, &value, temp));
+		if (value == Unbound)
+			return fmte_("Cannot decode UTF-8 string ~S.", temp, NULL);
 		str = (const char *)posbodyr(value);
 		/* already exist */
 		if (! lstat(str, &st)) {
@@ -648,7 +653,7 @@ static int file_author_run_files(Execute ptr, addr *ret, addr pos)
 	/* file-author */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, pos, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	if (UTF8_buffer_clang_(local, &value, value))
 		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (char *)posbodyr(value);
 	if (lstat(str, &st))
@@ -707,7 +712,8 @@ static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	/* file-author */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, pos, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (char *)posbodyr(value);
 	if (lstat(str, &st))
@@ -759,11 +765,13 @@ static int rename_file_run_files(Execute ptr,
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, from, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", from, NULL);
 	str1 = (const char *)posbodyr(value);
 	Return(name_pathname_local_(ptr, to, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);
 	/* check */
@@ -825,7 +833,8 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, file, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", file, NULL);
 	str = (const char *)posbodyr(value);
 	/* delete */
@@ -891,7 +900,8 @@ _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, file, &value));
-	if (UTF8_buffer_clang(local, &value, value))
+	Return(UTF8_buffer_clang_(local, &value, value));
+	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", file, NULL);
 	str = (const char *)posbodyr(value);
 	/* delete */

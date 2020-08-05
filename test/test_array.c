@@ -48,7 +48,7 @@ static int test_arraysize_ptr(void)
 	addr pos;
 	size_t *ptr;
 
-	arraysize_heap(&pos, 10);
+	arraysize_heap_(&pos, 10);
 	ptr = arraysize_ptr(pos);
 	test(ptr == (size_t *)posbodyr(pos), "arraysize_ptr.1");
 
@@ -193,22 +193,22 @@ static int test_arraysize_alloc(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	arraysize_alloc(local, &pos, 10);
+	arraysize_alloc_(local, &pos, 10);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_alloc.1");
 	test(GetStatusDynamic(pos), "arraysize_alloc.2");
 	test(lenbodyr(pos) == 10*IdxSize, "arraysize_alloc.3");
 
-	arraysize_alloc(NULL, &pos, 9);
+	arraysize_alloc_(NULL, &pos, 9);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_alloc.4");
 	test(! GetStatusDynamic(pos), "arraysize_alloc.5");
 	test(lenbodyr(pos) == 9*IdxSize, "arraysize_alloc.6");
 
-	arraysize_local(local, &pos, 8);
+	arraysize_local_(local, &pos, 8);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_alloc.7");
 	test(GetStatusDynamic(pos), "arraysize_alloc.8");
 	test(lenbodyr(pos) == 8*IdxSize, "arraysize_alloc.9");
 
-	arraysize_heap(&pos, 7);
+	arraysize_heap_(&pos, 7);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_alloc.10");
 	test(! GetStatusDynamic(pos), "arraysize_alloc.11");
 	test(lenbodyr(pos) == 7*IdxSize, "arraysize_alloc.12");
@@ -228,13 +228,13 @@ static int test_arraysize_copy_alloc(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	arraysize_heap(&root, 5);
+	arraysize_heap_(&root, 5);
 	size = arraysize_ptr(root);
 	size[0] = 10;
 	size[3] = 20;
 	size[4] = 40;
 
-	arraysize_copy_alloc(local, &pos, root, 5);
+	arraysize_copy_alloc_(local, &pos, root, 5);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_copy_alloc.1");
 	test(GetStatusDynamic(pos), "arraysize_copy_alloc.2");
 	test(lenbodyr(pos) == 5*IdxSize, "arraysize_copy_alloc.3");
@@ -243,17 +243,17 @@ static int test_arraysize_copy_alloc(void)
 	test(size[3] == 20, "arraysize_copy_alloc.5");
 	test(size[4] == 40, "arraysize_copy_alloc.6");
 
-	arraysize_copy_alloc(NULL, &pos, root, 5);
+	arraysize_copy_alloc_(NULL, &pos, root, 5);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_copy_alloc.7");
 	test(! GetStatusDynamic(pos), "arraysize_copy_alloc.8");
 	test(lenbodyr(pos) == 5*IdxSize, "arraysize_copy_alloc.9");
 
-	arraysize_copy_local(local, &pos, root, 5);
+	arraysize_copy_local_(local, &pos, root, 5);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_copy_alloc.10");
 	test(GetStatusDynamic(pos), "arraysize_copy_alloc.11");
 	test(lenbodyr(pos) == 5*IdxSize, "arraysize_copy_alloc.12");
 
-	arraysize_copy_heap(&pos, root, 5);
+	arraysize_copy_heap_(&pos, root, 5);
 	test(GetType(pos) == LISPSYSTEM_ARRAY_DIMENSION, "arraysize_copy_alloc.13");
 	test(! GetStatusDynamic(pos), "arraysize_copy_alloc.14");
 	test(lenbodyr(pos) == 5*IdxSize, "arraysize_copy_alloc.15");
@@ -302,7 +302,7 @@ static int test_array_alloc(void)
 	addr pos, check;
 	struct array_struct *str;
 
-	array_alloc(NULL, &pos, 0, 5);
+	array_alloc_(NULL, &pos, 0, 5);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_alloc.1");
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_alloc.2");
@@ -314,7 +314,7 @@ static int test_array_alloc(void)
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "array_alloc.7");
 
-	array_alloc(NULL, &pos, 1, 5);
+	array_alloc_(NULL, &pos, 1, 5);
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_alloc.8");
 	str = ArrayInfoStruct(pos);
@@ -325,7 +325,7 @@ static int test_array_alloc(void)
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "array_alloc.13");
 
-	array_alloc(NULL, &pos, 3, 6);
+	array_alloc_(NULL, &pos, 3, 6);
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_alloc.14");
 	str = ArrayInfoStruct(pos);
@@ -345,7 +345,7 @@ static int test_array_va_alloc(void)
 	size_t *psize;
 	addr pos, check;
 
-	array_va_alloc(NULL, &pos, 0);
+	array_va_alloc_(NULL, &pos, 0);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc.1");
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_va_alloc.2");
@@ -353,7 +353,7 @@ static int test_array_va_alloc(void)
 	test(str->dimension == 0, "array_va_alloc.3");
 	test(str->size == 1, "array_va_alloc.4");
 
-	array_va_alloc(NULL, &pos, 10, 0);
+	array_va_alloc_(NULL, &pos, 10, 0);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc.5");
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_va_alloc.6");
@@ -361,7 +361,7 @@ static int test_array_va_alloc(void)
 	test(str->dimension == 1, "array_va_alloc.7");
 	test(str->size == 10, "array_va_alloc.8");
 
-	array_va_alloc(NULL, &pos, 2, 3, 4, 0);
+	array_va_alloc_(NULL, &pos, 2, 3, 4, 0);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc.9");
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_va_alloc.10");
@@ -384,7 +384,7 @@ static int test_arrayp(void)
 {
 	addr pos;
 
-	array_va_heap(&pos, 2, 3, 4, 0);
+	array_va_heap_(&pos, 2, 3, 4, 0);
 	test(arrayp(pos), "arrayp.1");
 	test(! arrayp(Nil), "arrayp.2");
 
@@ -396,7 +396,7 @@ static int test_array_simple_p(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_va_heap(&pos, 2, 3, 4, 0);
+	array_va_heap_(&pos, 2, 3, 4, 0);
 	str = ArrayInfoStruct(pos);
 	str->simple = 1;
 	test(array_simple_p(pos), "array_simple_p.1");
@@ -410,11 +410,11 @@ static int test_array_vector_p(void)
 {
 	addr pos;
 
-	array_va_heap(&pos, 0);
+	array_va_heap_(&pos, 0);
 	test(! array_vector_p(pos), "array_vector_p.1");
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	test(array_vector_p(pos), "array_vector_p.2");
-	array_va_heap(&pos, 10, 20, 0);
+	array_va_heap_(&pos, 10, 20, 0);
 	test(! array_vector_p(pos), "array_vector_p.3");
 
 	RETURN;
@@ -425,17 +425,17 @@ static int test_array_size_vector_p(void)
 	struct array_struct *str;
 	addr pos;
 
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	test(array_size_vector_p(pos, 10), "array_size_vector_p.1");
 	test(! array_size_vector_p(pos, 11), "array_size_vector_p.2");
 
-	array_va_heap(&pos, 10, 20, 0);
+	array_va_heap_(&pos, 10, 20, 0);
 	test(! array_size_vector_p(pos, 10), "array_size_vector_p.3");
 
-	array_va_heap(&pos, 0);
+	array_va_heap_(&pos, 0);
 	test(! array_size_vector_p(pos, 0), "array_size_vector_p.4");
 
-	array_va_heap(&pos, 10, 20, 0);
+	array_va_heap_(&pos, 10, 20, 0);
 	str = ArrayInfoStruct(pos);
 	str->dimension = 1;
 	str->size = 44;
@@ -453,12 +453,12 @@ static int test_array_ptrsize(void)
 	addr pos;
 	const size_t *data;
 
-	array_va_heap(&pos, 0);
+	array_va_heap_(&pos, 0);
 	test(array_ptrsize(pos) == NULL, "array_ptrsize.1");
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	data = array_ptrsize(pos);
 	test(data[0] == 10, "array_ptrsize.2");
-	array_va_heap(&pos, 10, 20, 0);
+	array_va_heap_(&pos, 10, 20, 0);
 	data = array_ptrsize(pos);
 	test(data[0] == 10, "array_ptrsize.3");
 	test(data[1] == 20, "array_ptrsize.4");
@@ -472,21 +472,21 @@ static int test_array_ptrwrite(void)
 	byte *ptr;
 	struct array_struct *str;
 
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	arrayspec_alloc(NULL, &mem, 1000);
 	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, mem);
 	str->element = 4;
 	str->type = ARRAY_TYPE_CHARACTER;
 
-	ptr = (byte *)array_ptrwrite(pos, 0);
+	array_ptrwrite_(pos, 0, (void **)&ptr);
 	test(ptr == (byte *)posbodyr(mem), "array_ptrwrite.1");
-	ptr = (byte *)array_ptrwrite(pos, 3);
+	array_ptrwrite_(pos, 3, (void **)&ptr);
 	test(ptr == 3 * 4 + (byte *)posbodyr(mem), "array_ptrwrite.2");
 
-	ptr = (byte *)array_ptrread(pos, 0);
+	array_ptrread_(pos, 0, (void *const *)&ptr);
 	test(ptr == (byte *)posbodyr(mem), "array_ptrread.1");
-	ptr = (byte *)array_ptrread(pos, 3);
+	array_ptrread_(pos, 3, (void *const *)&ptr);
 	test(ptr == 3 * 4 + (byte *)posbodyr(mem), "array_ptrread.2");
 
 	RETURN;

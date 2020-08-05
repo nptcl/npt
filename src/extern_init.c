@@ -399,20 +399,16 @@ int lisp_argv_init(struct lispargv *ptr)
 /*
  *  lisp_argv_execute
  */
-static int lispstringu_heap(addr *ret, lispstringu str)
+static int lispstringu_heap_(addr *ret, lispstringu str)
 {
-	if (str->size == 0)
-		return 1;
-	strvect_sizeu_heap(ret, str->ptr, str->size - 1UL);
-	return 0;
+	return strvect_sizeu_heap_(ret, str->ptr, str->size - 1UL);
 }
 
 static int lisp_argv_load_(Execute ptr, lispstringu name, int error, int *ret)
 {
 	addr file;
 
-	if (lispstringu_heap(&file, name))
-		return fmte_("Invalid filename.", NULL);
+	Return(lispstringu_heap_(&file, name));
 	Return(pathname_designer_heap_(ptr, file, &file));
 	return eval_main_load_(ptr, file, error, ret);
 }
@@ -422,8 +418,7 @@ static int lisp_argv_script_(Execute ptr, lispstringu name)
 	addr file, stream;
 
 	/* open */
-	if (lispstringu_heap(&file, name))
-		return fmte_("Invalid filename.", NULL);
+	Return(lispstringu_heap_(&file, name));
 	Return(pathname_designer_heap_(ptr, file, &file));
 	Return(open_input_utf8_stream_(ptr, &stream, file));
 	if (stream == NULL)
@@ -521,9 +516,7 @@ static int lisp_argv_loadinit_(Execute ptr, struct lispargv *argv, int *ret)
 static int lisp_argv_eval_(Execute ptr, lispstringu str)
 {
 	addr pos;
-
-	if (lispstringu_heap(&pos, str))
-		return fmte_("Invalid eval string.", NULL);
+	Return(lispstringu_heap_(&pos, str));
 	return eval_main_string_(ptr, pos);
 }
 
@@ -636,10 +629,8 @@ static int lisp_argv_environment_(struct lispargv *argv)
 		v = kv[i].value;
 		if (k->size == 0 || v->size == 0)
 			return fmte_("lisp_argv_environment error.", NULL);
-		if (lispstringu_heap(&key, k))
-			return fmte_("Invalid key name.", NULL);
-		if (lispstringu_heap(&value, v))
-			return fmte_("Invalid value name.", NULL);
+		Return(lispstringu_heap_(&key, k));
+		Return(lispstringu_heap_(&value, v));
 		Return(intern_hashheap_(table, key, &cons));
 		SetCdr(cons, value);
 	}
@@ -652,8 +643,7 @@ static int lisp_argv_arguments_copy_(addr array, size_t i, lispstringu str)
 {
 	addr pos;
 
-	if (lispstringu_heap(&pos, str))
-		return fmte_("Invalid string size.", NULL);
+	Return(lispstringu_heap_(&pos, str));
 	setarray(array, i, pos);
 
 	return 0;

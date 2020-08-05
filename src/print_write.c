@@ -244,8 +244,11 @@ _g void write_check_all_clear(Execute ptr)
  */
 static int WriteBody_error_(Execute ptr, addr stream, addr pos)
 {
+	int check;
+
 	Return(print_ascii_stream_(stream, "INVALID-OBJECT"));
-	if (type_name_p(&pos, pos))
+	Return(type_name_p_(pos, &pos, &check));
+	if (check)
 		return 0;
 	Return(write_char_stream_(stream, ' '));
 	return write_print_call_(ptr, stream, pos);
@@ -650,7 +653,7 @@ static int WriteCheckCall_array_print_(struct write_array_struct *str)
 
 	local = str->ptr->local;
 	push_local(local, &stack);
-	array_get(local, str->pos, str->index++, &pos);
+	Return(array_get_(local, str->pos, str->index++, &pos));
 	Return(write_check_call_(str->ptr, pos));
 	rollback_local(local, stack);
 
@@ -731,7 +734,7 @@ static int WriteArray_bit_(Execute ptr, addr stream, addr pos)
 	array_get_rowlength(pos, &size);
 	Return(print_ascii_stream_(stream, "#*"));
 	for (i = 0; i < size; i++) {
-		(void)array_get_bit(pos, i, &value);
+		Return(array_get_bit_(pos, i, &value));
 		Return(write_char_stream_(stream, value? '1': '0'));
 	}
 
@@ -761,7 +764,7 @@ static int WriteCircleCall_array_print_(struct write_array_struct *str)
 
 	local = str->ptr->local;
 	push_local(local, &stack);
-	array_get(local, str->pos, str->index++, &pos);
+	Return(array_get_(local, str->pos, str->index++, &pos));
 	Return(write_circle_call_(str->ptr, str->stream, pos));
 	rollback_local(local, stack);
 
@@ -776,7 +779,7 @@ static int WriteCall_array_print_(struct write_array_struct *str)
 
 	local = str->ptr->local;
 	push_local(local, &stack);
-	array_get(local, str->pos, str->index++, &pos);
+	Return(array_get_(local, str->pos, str->index++, &pos));
 	Return(write_print_call_(str->ptr, str->stream, pos));
 	rollback_local(local, stack);
 
@@ -948,7 +951,7 @@ static int WriteSymbol_direct_norm_(addr stream, addr pos)
 	GetNameSymbol(pos, &pos);
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		Return(write_char_stream_(stream, u));
 	}
 
@@ -963,7 +966,7 @@ static int WriteSymbol_downcase_norm_(addr stream, addr pos)
 	GetNameSymbol(pos, &pos);
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		Return(write_char_stream_(stream, toLowerUnicode(u)));
 	}
 
@@ -978,7 +981,7 @@ static int WriteSymbol_upcase_norm_(addr stream, addr pos)
 	GetNameSymbol(pos, &pos);
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		Return(write_char_stream_(stream, toUpperUnicode(u)));
 	}
 
@@ -995,7 +998,7 @@ static int WriteSymbol_up_cap_norm_(addr stream, addr pos)
 	check = 1;
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (isAlphanumeric(u)) {
 			if (check) {
 				Return(write_char_stream_(stream, u));
@@ -1024,7 +1027,7 @@ static int WriteSymbol_down_cap_norm_(addr stream, addr pos)
 	check = 1;
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (isAlphanumeric(u)) {
 			if (check) {
 				Return(write_char_stream_(stream, toUpperUnicode(u)));
@@ -1053,7 +1056,7 @@ static int WriteSymbol_check_invert_(addr pos, enum PrintCase *ret)
 	string_length(pos, &size);
 	check = PrintCase_unread;
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (isUpperCase(u)) {
 			if (check == PrintCase_unread) {
 				check = PrintCase_upcase;
@@ -1109,7 +1112,7 @@ static int WriteSymbol_direct_escape_(addr stream, addr pos)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (u == '\\' || u == '|') {
 			Return(write_char_stream_(stream, '\\'));
 		}
@@ -1126,7 +1129,7 @@ static int WriteSymbol_check_upcase_escape_(addr pos, int *ret)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (WriteSymbol_check_escape(u))
 			return Result(ret, 1);
 		if (isLowerCase(u))
@@ -1160,7 +1163,7 @@ static int WriteSymbol_downcase_escape_(addr stream, addr pos)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		Return(write_char_stream_(stream, toLowerUnicode(u)));
 	}
 
@@ -1193,7 +1196,7 @@ static int WriteSymbol_capitalize_escape_(addr stream, addr pos)
 	check = 1;
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (isAlphanumeric(u)) {
 			if (check) {
 				Return(write_char_stream_(stream, toUpperUnicode(u)));
@@ -1282,7 +1285,7 @@ static int WriteSymbol_check_downcase_escape_(addr pos, int *ret)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (WriteSymbol_check_escape(u))
 			return Result(ret, 1);
 		if (isUpperCase(u))
@@ -1299,7 +1302,7 @@ static int WriteSymbol_upcase_escape_(addr stream, addr pos)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		Return(write_char_stream_(stream, toUpperUnicode(u)));
 	}
 
@@ -1364,7 +1367,7 @@ static int WriteSymbol_check_preserve_escape_(addr pos, int *ret)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (WriteSymbol_check_escape(u))
 			return Result(ret, 1);
 	}
@@ -1398,7 +1401,7 @@ static int WriteSymbol_check_invert_escape_(addr pos, enum PrintCase *ret)
 	string_length(pos, &size);
 	check = PrintCase_unread;
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		if (WriteSymbol_check_escape(u)) {
 			return Result(ret, PrintCase_escape);
 		}
@@ -1638,7 +1641,7 @@ static int WriteCall_character_string_(addr stream, addr string)
 
 	string_length(string, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(string, i, &c);
+		Return(string_getc_(string, i, &c));
 		Return(write_char_stream_(stream, c));
 	}
 
@@ -1684,7 +1687,7 @@ static int WriteCall_string_(Execute ptr, addr stream, addr object)
 	if (escape_print(ptr)) {
 		Return(write_char_stream_(stream, '\"'));
 		for (i = 0; i < size; i++) {
-			string_getc(object, i, &c);
+			Return(string_getc_(object, i, &c));
 			if (c == '\"' || c == '\\') {
 				Return(write_char_stream_(stream, '\\'));
 			}
@@ -1694,7 +1697,7 @@ static int WriteCall_string_(Execute ptr, addr stream, addr object)
 	}
 	else {
 		for (i = 0; i < size; i++) {
-			string_getc(object, i, &c);
+			Return(string_getc_(object, i, &c));
 			Return(write_char_stream_(stream, c));
 		}
 	}
@@ -2216,7 +2219,7 @@ static int WriteCall_bitvector_(Execute ptr, addr stream, addr pos)
 	bitmemory_length(pos, &size);
 	Return(print_ascii_stream_(stream, "#*"));
 	for (i = 0; i < size; i++) {
-		bitmemory_getint(pos, i, &value);
+		Return(bitmemory_getint_(pos, i, &value));
 		Return(write_char_stream_(stream, value? '1': '0'));
 	}
 

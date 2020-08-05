@@ -367,7 +367,7 @@ static int shadow_symbol_package_(addr package, addr pos)
 	addr bit;
 	struct bittype_struct *str;
 
-	string_designer_heap(&pos, pos);
+	Return(string_designer_heap_(&pos, pos, NULL));
 	Return(intern_bitpackage_(package, pos, &bit, &check));
 	str = StructBitType(bit);
 	if (str->inherit) {
@@ -644,39 +644,43 @@ _g int export_package_(addr package, addr pos)
 /*
  *  unexport
  */
-static int delete_stringlist_package(addr root, addr check, addr *ret)
+static int delete_stringlist_package_(addr root, addr right, addr *value, int *ret)
 {
+	int check;
 	addr left, right1, right2, right3;
 
 	right1 = NULL;
 	right2 = root;
 	while (right2 != Nil) {
 		GetCons(right2, &left, &right3);
-		if (string_equal(left, check)) {
+		Return(string_equal_(left, right, &check));
+		if (check) {
 			/* delete */
 			if (right1 == NULL) {
-				*ret = right3;
+				*value = right3;
 			}
 			else {
 				SetCdr(right1, right3);
-				*ret = root;
+				*value = root;
 			}
-			return 0;
+			return Result(ret, 0);
 		}
 		right1 = right2;
 		right2 = right3;
 	}
 
 	/* not found */
-	return 1;
+	return Result(ret, 1);
 }
 
 static int remove_export_list_package_(addr package, addr name)
 {
+	int check;
 	addr right;
 
 	GetPackage(package, PACKAGE_INDEX_EXPORT, &right);
-	if (delete_stringlist_package(right, name, &right))
+	Return(delete_stringlist_package_(right, name, &right, &check));
+	if (check)
 		return fmte_("There is no ~S in export list.", name, NULL);
 	SetPackage(package, PACKAGE_INDEX_EXPORT, right);
 

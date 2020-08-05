@@ -291,8 +291,9 @@ _g int loop_variables_with_(Execute ptr, addr *form, addr list)
 /*
  *  for-as
  */
-static void loop_push_for_as_up(addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_up_(addr *expr1, addr *expr2, addr list)
 {
+	int check;
 	addr var, a1, a2, b1, b2, by, g1, g2;
 	addr pos, unless, less, go, loop, incf;
 
@@ -303,15 +304,17 @@ static void loop_push_for_as_up(addr *expr1, addr *expr2, addr list)
 	GetConst(SYSTEM_END_LOOP, &loop);
 	if (b1 == Unbound) {
 		less = Unbound;
+		goto next;
 	}
-	else if (loop_symbol_below_p(b1)) {
+	Return(loop_symbol_below_p_(b1, &check));
+	if (check) {
 		/* expr1: `(unless (< ,var ,g1) (go end-loop)) */
 		GetConst(COMMON_NUMBER_LESS, &less);
+		goto next;
 	}
-	else {
-		/* expr1: `(unless (<= ,var ,g1) (go end-loop)) */
-		GetConst(COMMON_NUMBER_LESS_EQUAL, &less);
-	}
+	/* expr1: `(unless (<= ,var ,g1) (go end-loop)) */
+	GetConst(COMMON_NUMBER_LESS_EQUAL, &less);
+next:
 	if (less != Unbound) {
 		list_heap(&less, less, var, g1, NULL);
 		list_heap(&go, go, loop, NULL);
@@ -322,6 +325,8 @@ static void loop_push_for_as_up(addr *expr1, addr *expr2, addr list)
 	/* expr2: `(incf ,var ,g2) */
 	list_heap(&pos, incf, var, g2, NULL);
 	cons_heap(expr2, pos, *expr2);
+
+	return 0;
 }
 static void loop_variables_for_as_up(addr *form, addr list)
 {
@@ -356,8 +361,9 @@ static void loop_variables_for_as_up(addr *form, addr list)
 	list_heap(form, let, args, *form, NULL);
 }
 
-static void loop_push_for_as_down(addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_down_(addr *expr1, addr *expr2, addr list)
 {
+	int check;
 	addr var, a1, a2, b1, b2, by, g1, g2;
 	addr pos, unless, greater, go, loop, decf;
 
@@ -368,15 +374,17 @@ static void loop_push_for_as_down(addr *expr1, addr *expr2, addr list)
 	GetConst(SYSTEM_END_LOOP, &loop);
 	if (b1 == Unbound) {
 		greater = Unbound;
+		goto next;
 	}
-	else if (loop_symbol_above_p(b1)) {
+	Return(loop_symbol_above_p_(b1, &check));
+	if (check) {
 		/* expr1: `(unless (> ,var ,g1) (go end-loop)) */
 		GetConst(COMMON_NUMBER_GREATER, &greater);
+		goto next;
 	}
-	else {
-		/* expr1: `(unless (>= ,var ,g1) (go end-loop)) */
-		GetConst(COMMON_NUMBER_GREATER_EQUAL, &greater);
-	}
+	/* expr1: `(unless (>= ,var ,g1) (go end-loop)) */
+	GetConst(COMMON_NUMBER_GREATER_EQUAL, &greater);
+next:
 	if (greater != Unbound) {
 		list_heap(&greater, greater, var, g1, NULL);
 		list_heap(&go, go, loop, NULL);
@@ -387,6 +395,8 @@ static void loop_push_for_as_down(addr *expr1, addr *expr2, addr list)
 	/* expr2: `(decf ,var ,g2) */
 	list_heap(&pos, decf, var, g2, NULL);
 	cons_heap(expr2, pos, *expr2);
+
+	return 0;
 }
 
 static int loop_destructuring_bind_tree_(Execute ptr,
@@ -814,22 +824,16 @@ static int loop_push_for_as_list_(Execute ptr, addr *expr1, addr *expr2, addr li
 	/* up */
 	GetCons(pos, &a, &b);
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_UP, &check);
-	if (a == check) {
-		loop_push_for_as_up(expr1, expr2, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_push_for_as_up_(expr1, expr2, b);
 	/* downto */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNTO, &check);
-	if (a == check) {
-		loop_push_for_as_down(expr1, expr2, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_push_for_as_down_(expr1, expr2, b);
 	/* downfrom */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNFROM, &check);
-	if (a == check) {
-		loop_push_for_as_down(expr1, expr2, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_push_for_as_down_(expr1, expr2, b);
 	/* in-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_IN_LIST, &check);
 	if (a == check)

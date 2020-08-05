@@ -18,50 +18,55 @@
 /*
  *  class-of
  */
-typedef void (*class_of_calltype)(addr object, addr *ret);
+typedef int (*class_of_calltype)(addr object, addr *ret);
 static class_of_calltype class_of_call[LISPTYPE_SIZE];
 
-static void class_of_error(addr object, addr *ret)
+static int class_of_error_(addr object, addr *ret)
 {
 	infobit(object);
-	fmte("TYPE ~S cannot convert class type.", object, NULL);
+	return fmte_("TYPE ~S cannot convert class type.", object, NULL);
 }
 
-static void class_of_nil(addr object, addr *ret)
+static int class_of_nil_(addr object, addr *ret)
 {
 	GetConst(CLOS_NULL, ret);
+	return 0;
 }
 
-static void class_of_cons(addr object, addr *ret)
+static int class_of_cons_(addr object, addr *ret)
 {
 	GetConst(CLOS_CONS, ret);
+	return 0;
 }
 
-static void class_of_array(addr object, addr *ret)
+static int class_of_array_(addr object, addr *ret)
 {
+	int check;
+
 	/* bit-vector */
 	if (bitvectorp(object)) {
 		if (array_simple_p(object))
 			GetConst(CLOS_SIMPLE_BIT_VECTOR, ret);
 		else
 			GetConst(CLOS_BIT_VECTOR, ret);
-		return;
+		return 0;
 	}
 
 	/* string */
-	if (strarray_base_p(object)) {
+	Return(strarray_base_p_(object, &check));
+	if (check) {
 		if (array_simple_p(object))
 			GetConst(CLOS_SIMPLE_BASE_STRING, ret);
 		else
 			GetConst(CLOS_BASE_STRING, ret);
-		return;
+		return 0;
 	}
 	if (strarrayp(object)) {
 		if (array_simple_p(object))
 			GetConst(CLOS_SIMPLE_STRING, ret);
 		else
 			GetConst(CLOS_STRING, ret);
-		return;
+		return 0;
 	}
 
 	/* vector */
@@ -70,7 +75,7 @@ static void class_of_array(addr object, addr *ret)
 			GetConst(CLOS_SIMPLE_VECTOR, ret);
 		else
 			GetConst(CLOS_VECTOR, ret);
-		return;
+		return 0;
 	}
 
 	/* array */
@@ -78,111 +83,134 @@ static void class_of_array(addr object, addr *ret)
 		GetConst(CLOS_SIMPLE_ARRAY, ret);
 	else
 		GetConst(CLOS_ARRAY, ret);
+	return 0;
 }
 
-static void class_of_vector(addr object, addr *ret)
+static int class_of_vector_(addr object, addr *ret)
 {
 	GetConst(CLOS_SIMPLE_VECTOR, ret);
+	return 0;
 }
 
-static void class_of_character(addr object, addr *ret)
+static int class_of_character_(addr object, addr *ret)
 {
 	GetConst(CLOS_CHARACTER, ret);
+	return 0;
 }
 
-static void class_of_string(addr object, addr *ret)
+static int class_of_string_(addr object, addr *ret)
 {
-	if (strvect_base_p(object))
+	int check;
+
+	Return(strvect_base_p_(object, &check));
+	if (check)
 		GetConst(CLOS_SIMPLE_BASE_STRING, ret);
 	else
 		GetConst(CLOS_SIMPLE_STRING, ret);
+
+	return 0;
 }
 
-static void class_of_hashtable(addr object, addr *ret)
+static int class_of_hashtable_(addr object, addr *ret)
 {
 	GetConst(CLOS_HASH_TABLE, ret);
+	return 0;
 }
 
-static void class_of_readtable(addr object, addr *ret)
+static int class_of_readtable_(addr object, addr *ret)
 {
 	GetConst(CLOS_READTABLE, ret);
+	return 0;
 }
 
-static void class_of_symbol(addr object, addr *ret)
+static int class_of_symbol_(addr object, addr *ret)
 {
 	if (keywordp(object))
 		GetConst(CLOS_KEYWORD, ret);
 	else
 		GetConst(CLOS_SYMBOL, ret);
+	return 0;
 }
 
-static void class_of_fixnum(addr object, addr *ret)
+static int class_of_fixnum_(addr object, addr *ret)
 {
 	GetConst(CLOS_FIXNUM, ret);
+	return 0;
 }
 
-static void class_of_bignum(addr object, addr *ret)
+static int class_of_bignum_(addr object, addr *ret)
 {
 	GetConst(CLOS_BIGNUM, ret);
+	return 0;
 }
 
-static void class_of_ratio(addr object, addr *ret)
+static int class_of_ratio_(addr object, addr *ret)
 {
 	GetConst(CLOS_RATIO, ret);
+	return 0;
 }
 
-static void class_of_short_float(addr object, addr *ret)
+static int class_of_short_float_(addr object, addr *ret)
 {
 	GetConst(CLOS_SHORT_FLOAT, ret);
+	return 0;
 }
 
-static void class_of_single_float(addr object, addr *ret)
+static int class_of_single_float_(addr object, addr *ret)
 {
 	GetConst(CLOS_SINGLE_FLOAT, ret);
+	return 0;
 }
 
-static void class_of_double_float(addr object, addr *ret)
+static int class_of_double_float_(addr object, addr *ret)
 {
 	GetConst(CLOS_DOUBLE_FLOAT, ret);
+	return 0;
 }
 
-static void class_of_long_float(addr object, addr *ret)
+static int class_of_long_float_(addr object, addr *ret)
 {
 	GetConst(CLOS_LONG_FLOAT, ret);
+	return 0;
 }
 
-static void class_of_complex(addr object, addr *ret)
+static int class_of_complex_(addr object, addr *ret)
 {
 	GetConst(CLOS_COMPLEX, ret);
+	return 0;
 }
 
-static void class_of_function(addr object, addr *ret)
+static int class_of_function_(addr object, addr *ret)
 {
 	if (compiled_function_p(object))
 		GetConst(CLOS_COMPILED_FUNCTION, ret);
 	else
 		GetConst(CLOS_FUNCTION, ret);
+	return 0;
 }
 
-static void class_of_package(addr object, addr *ret)
+static int class_of_package_(addr object, addr *ret)
 {
 	GetConst(CLOS_PACKAGE, ret);
+	return 0;
 }
 
-static void class_of_random_state(addr object, addr *ret)
+static int class_of_random_state_(addr object, addr *ret)
 {
 	GetConst(CLOS_RANDOM_STATE, ret);
+	return 0;
 }
 
-static void class_of_pathname(addr object, addr *ret)
+static int class_of_pathname_(addr object, addr *ret)
 {
 	if (pathname_logical_p(object))
 		GetConst(CLOS_LOGICAL_PATHNAME, ret);
 	else
 		GetConst(CLOS_PATHNAME, ret);
+	return 0;
 }
 
-static void class_of_stream(addr object, addr *ret)
+static int class_of_stream_(addr object, addr *ret)
 {
 	switch (getstreamtype(object)) {
 		case StreamType_BinaryInput:
@@ -226,16 +254,20 @@ static void class_of_stream(addr object, addr *ret)
 			GetConst(CLOS_STREAM, ret);
 			break;
 	}
+
+	return 0;
 }
 
-static void class_of_restart(addr object, addr *ret)
+static int class_of_restart_(addr object, addr *ret)
 {
 	GetConst(CLOS_RESTART, ret);
+	return 0;
 }
 
-static void class_of_bit_vector(addr object, addr *ret)
+static int class_of_bit_vector_(addr object, addr *ret)
 {
 	GetConst(CLOS_SIMPLE_BIT_VECTOR, ret);
+	return 0;
 }
 
 _g void init_clos_type(void)
@@ -244,37 +276,37 @@ _g void init_clos_type(void)
 
 	/* error */
 	for (i = 0; i < (size_t)LISPTYPE_SIZE; i++)
-		class_of_call[i] = class_of_error;
+		class_of_call[i] = class_of_error_;
 
 	/* class-of */
-	class_of_call[LISPTYPE_NIL] = class_of_nil;
-	class_of_call[LISPTYPE_T] = class_of_symbol;
-	class_of_call[LISPTYPE_CONS] = class_of_cons;
-	class_of_call[LISPTYPE_ARRAY] = class_of_array;
-	class_of_call[LISPTYPE_VECTOR] = class_of_vector;
-	class_of_call[LISPTYPE_CHARACTER] = class_of_character;
-	class_of_call[LISPTYPE_STRING] = class_of_string;
-	class_of_call[LISPTYPE_HASHTABLE] = class_of_hashtable;
-	class_of_call[LISPTYPE_READTABLE] = class_of_readtable;
-	class_of_call[LISPTYPE_SYMBOL] = class_of_symbol;
-	class_of_call[LISPTYPE_FIXNUM] = class_of_fixnum;
-	class_of_call[LISPTYPE_BIGNUM] = class_of_bignum;
-	class_of_call[LISPTYPE_RATIO] = class_of_ratio;
-	class_of_call[LISPTYPE_SHORT_FLOAT] = class_of_short_float;
-	class_of_call[LISPTYPE_SINGLE_FLOAT] = class_of_single_float;
-	class_of_call[LISPTYPE_DOUBLE_FLOAT] = class_of_double_float;
-	class_of_call[LISPTYPE_LONG_FLOAT] = class_of_long_float;
-	class_of_call[LISPTYPE_COMPLEX] = class_of_complex;
-	class_of_call[LISPTYPE_FUNCTION] = class_of_function;
-	class_of_call[LISPTYPE_PACKAGE] = class_of_package;
-	class_of_call[LISPTYPE_RANDOM_STATE] = class_of_random_state;
-	class_of_call[LISPTYPE_PATHNAME] = class_of_pathname;
-	class_of_call[LISPTYPE_STREAM] = class_of_stream;
-	class_of_call[LISPTYPE_RESTART] = class_of_restart;
-	class_of_call[LISPTYPE_BITVECTOR] = class_of_bit_vector;
+	class_of_call[LISPTYPE_NIL] = class_of_nil_;
+	class_of_call[LISPTYPE_T] = class_of_symbol_;
+	class_of_call[LISPTYPE_CONS] = class_of_cons_;
+	class_of_call[LISPTYPE_ARRAY] = class_of_array_;
+	class_of_call[LISPTYPE_VECTOR] = class_of_vector_;
+	class_of_call[LISPTYPE_CHARACTER] = class_of_character_;
+	class_of_call[LISPTYPE_STRING] = class_of_string_;
+	class_of_call[LISPTYPE_HASHTABLE] = class_of_hashtable_;
+	class_of_call[LISPTYPE_READTABLE] = class_of_readtable_;
+	class_of_call[LISPTYPE_SYMBOL] = class_of_symbol_;
+	class_of_call[LISPTYPE_FIXNUM] = class_of_fixnum_;
+	class_of_call[LISPTYPE_BIGNUM] = class_of_bignum_;
+	class_of_call[LISPTYPE_RATIO] = class_of_ratio_;
+	class_of_call[LISPTYPE_SHORT_FLOAT] = class_of_short_float_;
+	class_of_call[LISPTYPE_SINGLE_FLOAT] = class_of_single_float_;
+	class_of_call[LISPTYPE_DOUBLE_FLOAT] = class_of_double_float_;
+	class_of_call[LISPTYPE_LONG_FLOAT] = class_of_long_float_;
+	class_of_call[LISPTYPE_COMPLEX] = class_of_complex_;
+	class_of_call[LISPTYPE_FUNCTION] = class_of_function_;
+	class_of_call[LISPTYPE_PACKAGE] = class_of_package_;
+	class_of_call[LISPTYPE_RANDOM_STATE] = class_of_random_state_;
+	class_of_call[LISPTYPE_PATHNAME] = class_of_pathname_;
+	class_of_call[LISPTYPE_STREAM] = class_of_stream_;
+	class_of_call[LISPTYPE_RESTART] = class_of_restart_;
+	class_of_call[LISPTYPE_BITVECTOR] = class_of_bit_vector_;
 }
 
-_g void clos_class_of(addr object, addr *ret)
+_g int clos_class_of_(addr object, addr *ret)
 {
 	enum LISPTYPE type;
 
@@ -282,11 +314,11 @@ _g void clos_class_of(addr object, addr *ret)
 	if (type == LISPTYPE_CLOS) {
 		/* clos or structure */
 		GetClassOfClos(object, ret);
-		return;
+		return 0;
 	}
 
 	/* built-in-class */
-	(class_of_call[(size_t)type])(object, ret);
+	return (class_of_call[(size_t)type])(object, ret);
 }
 
 
@@ -303,11 +335,11 @@ _g int clos_intern_specializer_(addr object, addr *ret)
 
 	/* make eql-specializer */
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
-	clos_instance_heap(pos, &pos);
+	Return(clos_instance_heap_(pos, &pos));
 	/* define eql-specializer */
-	clos_class_of(object, &type);
-	stdset_specializer_object(pos, object);
-	stdset_specializer_type(pos, type);
+	Return(clos_class_of_(object, &type));
+	Return(stdset_specializer_object_(pos, object));
+	Return(stdset_specializer_type_(pos, type));
 	Return(clos_define_specializer_(object, pos));
 	/* result */
 	return Result(ret, pos);

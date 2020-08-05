@@ -75,7 +75,7 @@ static int test_maketoken_fixnum(const char *str, unsigned base, fixnum value)
 	local = Local_Thread;
 	push_local(local, &stack);
 	charqueue_heap(&queue, 4);
-	pushchar_charqueue_heap(queue, str);
+	pushchar_charqueue_heap_(queue, str);
 	maketoken_integer(local, queue, base, &pos);
 	if (GetType(pos) != LISPTYPE_FIXNUM) {
 		degrade_printf("fixnum type error.\n");
@@ -117,7 +117,7 @@ static int test_maketoken_integer2(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	charqueue_heap(&queue, 4);
-	pushchar_charqueue_heap(queue, "-FFFFFFFFFFFFFFAAAAAAAAAAACCCCCCCCCCCDDDDD");
+	pushchar_charqueue_heap_(queue, "-FFFFFFFFFFFFFFAAAAAAAAAAACCCCCCCCCCCDDDDD");
 	maketoken_integer(local, queue, 16, &pos);
 	test(GetType(pos) == LISPTYPE_BIGNUM, "maketoken_integer2-1");
 
@@ -323,7 +323,7 @@ static int test_maketoken_float(void)
 
 	ptr = Execute_Thread;
 	charqueue_heap(&queue, 3);
-	pushchar_charqueue_heap(queue, "-123.45d-6");
+	pushchar_charqueue_heap_(queue, "-123.45d-6");
 	maketoken_float_(ptr, queue, &pos);
 	test(GetType(pos) == LISPTYPE_DOUBLE_FLOAT, "maketoken_float1");
 	test(RefDoubleFloat(pos) == -123.45e-6, "maketoken_float2");
@@ -343,7 +343,7 @@ static int test_maketoken_ratio(void)
 	local = Local_Thread;
 	charqueue_heap(&queue, 32);
 
-	pushchar_charqueue_heap(queue, "4/6");
+	pushchar_charqueue_heap_(queue, "4/6");
 	maketoken_ratio(local, queue, 10, &pos);
 	test(GetType(pos) == LISPTYPE_RATIO, "maketoken_ratio1");
 	test(RefSignRatio(pos) == signplus_bignum, "maketoken_ratio2");
@@ -357,7 +357,7 @@ static int test_maketoken_ratio(void)
 	test(equal_bb_real(left, right), "maketoken_ratio4");
 
 	clear_charqueue(queue);
-	pushchar_charqueue_heap(queue, "-ABC/ABD");
+	pushchar_charqueue_heap_(queue, "-ABC/ABD");
 	maketoken_ratio(local, queue, 16, &pos);
 	test(GetType(pos) == LISPTYPE_RATIO, "maketoken_ratio5");
 	test(RefSignRatio(pos) == signminus_bignum, "maketoken_ratio6");

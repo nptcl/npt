@@ -16,10 +16,8 @@
 #include "type_copy.h"
 
 typedef void (*copyhard_calltype)(LocalRoot local, addr *ret, addr pos);
-typedef int (*checklocal_calltype)(LocalRoot local, addr pos);
 typedef void (*copylocal_calltype)(LocalRoot local, addr *ret, addr pos);
 static copyhard_calltype TableCopy[LISPTYPE_SIZE];
-static checklocal_calltype TableCheckSoft[LISPTYPE_SIZE];
 static copylocal_calltype TableCopySoft[LISPTYPE_SIZE];
 
 
@@ -28,7 +26,7 @@ static copylocal_calltype TableCopySoft[LISPTYPE_SIZE];
  */
 static void copyhard_error(LocalRoot local, addr *ret, addr pos)
 {
-	fmte("copy error", NULL);
+	Abort("copy error");
 }
 
 static void copyhard_moveonly(LocalRoot local, addr *ret, addr pos)
@@ -124,7 +122,7 @@ _g void copyhard_vector(LocalRoot local, addr *ret, addr pos)
 #endif
 
 		default:
-			fmte("size error", NULL);
+			Abort("size error");
 			break;
 	}
 }
@@ -137,12 +135,8 @@ _g void copyhard_character(LocalRoot local, addr *ret, addr pos)
 
 _g void copyhard_string(LocalRoot local, addr *ret, addr pos)
 {
-	const unicode *body;
-	size_t size;
-
 	CheckType(pos, LISPTYPE_STRING);
-	strvect_posbodylen(pos, &body, &size);
-	strvect_sizeu_alloc(local, ret, body, size);
+	strvect_copy_alloc(local, ret, pos);
 }
 
 _g void copyhard_fixnum(LocalRoot local, addr *ret, addr pos)
@@ -291,156 +285,9 @@ static void init_copyhard_call(void)
 /*
  *  checklocal
  */
-_g int copylocalp(LocalRoot local, addr pos)
+static int copylocalp(LocalRoot local, addr pos)
 {
 	return local == NULL && GetStatusDynamic(pos);
-}
-
-static int checklocal_error(LocalRoot local, addr pos)
-{
-	if (copylocalp(local, pos))
-		fmte("checklocal-copyerror", NULL);
-	return 0;
-}
-
-static int checklocal_false(LocalRoot local, addr pos)
-{
-	return 0;
-}
-
-static int checklocal_default(LocalRoot local, addr pos)
-{
-	return copylocalp(local, pos);
-}
-
-static int checklocal_cons(LocalRoot local, addr right)
-{
-	addr left;
-	if (copylocalp(local, right))
-		return 1;
-	GetCons(right, &left, &right);
-	return copylocalp(local, left) || copylocalp(local, right);
-}
-
-static int checklocal_vector(LocalRoot local, addr pos)
-{
-	addr child;
-	size_t size, i;
-
-	if (copylocalp(local, pos))
-		return 1;
-	lenarray(pos, &size);
-	for (i = 0; i < size; i++) {
-		getarray(pos, i, &child);
-		if (copylocal_check(local, child))
-			return 1;
-	}
-
-	return 0;
-}
-
-static int checklocal_complex(LocalRoot local, addr right)
-{
-	addr real;
-	if (copylocalp(local, right))
-		return 1;
-	GetRealComplex(right, &real);
-	GetImagComplex(right, &right);
-	return copylocalp(local, real) || copylocalp(local, right);
-}
-
-static int checklocal_callname(LocalRoot local, addr pos)
-{
-	if (copylocalp(local, pos))
-		return 1;
-	GetCallName(pos, &pos);
-	return copylocalp(local, pos);
-}
-
-static int checklocal_function(LocalRoot local, addr pos)
-{
-	addr check;
-
-	if (copylocalp(local, pos))
-		return 1;
-	GetCodeFunction(pos, &check);
-	if (copylocalp(local, check))
-		return 1;
-	GetNameFunction(pos, &check);
-	if (copylocalp(local, check))
-		return 1;
-	GetDataFunction(pos, &check);
-	if (copylocalp(local, check))
-		return 1;
-	GetTableFunction_Low(pos, &check);
-	return copylocalp(local, check);
-}
-
-static int checklocal_pathname(LocalRoot local, addr pos)
-{
-	addr child;
-	size_t i;
-
-	if (copylocalp(local, pos))
-		return 1;
-	for (i = 0; i < PATHNAME_INDEX_SIZE; i++) {
-		GetArrayPathname(pos, (enum PATHNAME_INDEX)i, &child);
-		if (copylocalp(local, child))
-			return 1;
-	}
-
-	return 0;
-}
-
-_g int copylocal_check(LocalRoot local, addr pos)
-{
-	int index;
-
-	Check(pos == Unbound, "unbound error");
-	index = (int)GetType(pos);
-	Check(LISPTYPE_SIZE <= index, "index error");
-	return (TableCheckSoft[index])(local, pos);
-}
-
-static void init_checklocal_call(void)
-{
-	int i;
-
-	for (i = 0; i < LISPTYPE_SIZE; i++)
-		TableCheckSoft[i] = checklocal_error;
-
-	TableCheckSoft[LISPTYPE_NIL] = checklocal_false;
-	TableCheckSoft[LISPTYPE_T] = checklocal_false;
-	TableCheckSoft[LISPTYPE_TYPE] = checklocal_default;
-	TableCheckSoft[LISPTYPE_CLOS] = checklocal_error;
-	TableCheckSoft[LISPTYPE_CONS] = checklocal_cons;
-	TableCheckSoft[LISPTYPE_ARRAY] = checklocal_error;
-	TableCheckSoft[LISPTYPE_VECTOR] = checklocal_vector;
-	TableCheckSoft[LISPTYPE_CHARACTER] = checklocal_default;
-	TableCheckSoft[LISPTYPE_STRING] = checklocal_default;
-	TableCheckSoft[LISPTYPE_HASHTABLE] = checklocal_error;
-	TableCheckSoft[LISPTYPE_READTABLE] = checklocal_error;
-	TableCheckSoft[LISPTYPE_SYMBOL] = checklocal_false;
-	TableCheckSoft[LISPTYPE_FIXNUM] = checklocal_default;
-	TableCheckSoft[LISPTYPE_BIGNUM] = checklocal_default;
-	TableCheckSoft[LISPTYPE_RATIO] = checklocal_default;
-	TableCheckSoft[LISPTYPE_SHORT_FLOAT] = checklocal_error;
-	TableCheckSoft[LISPTYPE_SINGLE_FLOAT] = checklocal_default;
-	TableCheckSoft[LISPTYPE_DOUBLE_FLOAT] = checklocal_default;
-	TableCheckSoft[LISPTYPE_LONG_FLOAT] = checklocal_default;
-	TableCheckSoft[LISPTYPE_COMPLEX] = checklocal_complex;
-	TableCheckSoft[LISPTYPE_CONTROL] = checklocal_error;
-	TableCheckSoft[LISPTYPE_CODE] = checklocal_error;
-	TableCheckSoft[LISPTYPE_CALLNAME] = checklocal_callname;
-	TableCheckSoft[LISPTYPE_FUNCTION] = checklocal_function;
-	TableCheckSoft[LISPTYPE_INDEX] = checklocal_error;
-	TableCheckSoft[LISPTYPE_PACKAGE] = checklocal_error;
-	TableCheckSoft[LISPTYPE_RANDOM_STATE] = checklocal_default;
-	TableCheckSoft[LISPTYPE_PATHNAME] = checklocal_pathname;
-	TableCheckSoft[LISPTYPE_STREAM] = checklocal_error;
-	TableCheckSoft[LISPTYPE_QUOTE] = checklocal_error;
-	TableCheckSoft[LISPTYPE_RESTART] = checklocal_error;
-	TableCheckSoft[LISPTYPE_EVAL] = checklocal_error;
 }
 
 
@@ -449,7 +296,7 @@ static void init_checklocal_call(void)
  */
 static void copylocal_error(LocalRoot local, addr *ret, addr pos)
 {
-	fmte("copylocal error", NULL);
+	Abort("copylocal error");
 }
 
 static void copylocal_type(LocalRoot local, addr *ret, addr pos)
@@ -533,7 +380,7 @@ static void copylocal_vector(LocalRoot local, addr *ret, addr pos)
 #endif
 
 		default:
-			fmte("size error", NULL);
+			Abort("size error");
 			break;
 	}
 }
@@ -628,7 +475,7 @@ _g int copylocal_object(LocalRoot local, addr *ret, addr pos)
 	int index;
 
 	Check(pos == Unbound, "unbound error");
-	if (copylocal_check(local, pos)) {
+	if (copylocalp(local, pos)) {
 		index = (int)GetType(pos);
 		Check(LISPTYPE_SIZE <= index, "index error");
 		(TableCopySoft[index])(local, ret, pos);
@@ -723,7 +570,6 @@ static void init_copylocal_call(void)
 _g void init_copy(void)
 {
 	init_copyhard_call();
-	init_checklocal_call();
 	init_copylocal_call();
 }
 

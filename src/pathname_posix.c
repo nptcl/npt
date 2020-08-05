@@ -16,7 +16,7 @@
 /*
  *  home directory
  */
-static int parser_home_directory_p_pathname(struct fileparse *pa)
+static int parser_home_directory_p_pathname_(struct fileparse *pa, int *ret)
 {
 	addr list, x, check;
 	unicode c;
@@ -26,20 +26,20 @@ static int parser_home_directory_p_pathname(struct fileparse *pa)
 	/* (:relative "~user" ...) */
 	list = pa->directory;
 	if (! consp_getcons(list, &x, &list))
-		return 0;
+		return Result(ret, 0);
 	GetConst(KEYWORD_RELATIVE, &check);
 	if (x != check)
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcons(list, &x, &list))
-		return 0;
+		return Result(ret, 0);
 	if (! stringp(x))
-		return 0;
+		return Result(ret, 0);
 	string_length(x, &size);
 	if (size == 0)
-		return 0;
-	string_getc(x, 0, &c);
+		return Result(ret, 0);
+	Return(string_getc_(x, 0, &c));
 
-	return c == '~';
+	return Result(ret, c == '~');
 }
 
 #ifdef LISP_POSIX
@@ -79,7 +79,7 @@ static int strvect_home_pathname_(LocalRoot local, const byte *pw_dir, addr *ret
 	GetStringUnicode(pos, &body);
 	if (UTF8_null_makeunicode(body, pw_dir))
 		return Result(ret, Unbound); /* encode error */
-	strvect_update_character_type(pos);
+	Return(strvect_update_character_type_(pos));
 
 	return Result(ret, pos);;
 }
@@ -135,7 +135,8 @@ static int name_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 
 	/* username */
 	local = pa->ptr->local;
-	if (UTF8_buffer_clang(local, &x, x))
+	Return(UTF8_buffer_clang_(local, &x, x));
+	if (x == Unbound)
 		return Result(ret, Unbound); /* encode error */
 	posbody(x, (addr *)&body);
 	body++; /* ~ */
@@ -145,7 +146,10 @@ static int name_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 
 static int string_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 {
-	if (! string_equal_char(x, "~"))
+	int check;
+
+	Return(string_equal_char_(x, "~", &check));
+	if (! check)
 		return name_home_pathname_(pa, x, ret);
 
 	Return(env_home_pathname_(pa, x, &x));
@@ -155,7 +159,7 @@ static int string_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 	return uid_home_pathname_(pa, x, ret);
 }
 
-static void split_home_pathname(LocalpRoot localp, addr x, size_t i, addr *ret)
+static int split_home_pathname_(LocalpRoot localp, addr x, size_t i, addr *ret)
 {
 	addr car, cdr;
 	unicode c;
@@ -166,13 +170,11 @@ static void split_home_pathname(LocalpRoot localp, addr x, size_t i, addr *ret)
 	string_length(x, &size);
 	for (;;) {
 		/* end */
-		if (size <= i) {
-			*ret = Nil;
-			return;
-		}
+		if (size <= i)
+			return Result(ret, Nil);
 
 		/* slash */
-		string_getc(x, i, &c);
+		Return(string_getc_(x, i, &c));
 		if (c != '/')
 			break;
 		i++;
@@ -183,21 +185,21 @@ static void split_home_pathname(LocalpRoot localp, addr x, size_t i, addr *ret)
 	for (;;) {
 		if (size <= i)
 			break;
-		string_getc(x, i, &c);
+		Return(string_getc_(x, i, &c));
 		if (c == '/')
 			break;
 		i++;
 	}
-	if (a == i) {
-		*ret = Nil;
-		return;
-	}
+	if (a == i)
+		return Result(ret, Nil);
 
 	/* string */
 	local = localp_alloc(localp);
-	strvect_subseq_alloc(local, &car, x, a, i);
-	split_home_pathname(localp, x, i, &cdr);
+	Return(strvect_subseq_alloc_(local, &car, x, a, i));
+	Return(split_home_pathname_(localp, x, i, &cdr));
 	cons_alloc(local, ret, car, cdr);
+
+	return 0;
 }
 
 static int list_home_pathname_(struct fileparse *pa, addr x, addr *ret)
@@ -218,7 +220,7 @@ static int list_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 	}
 
 	/* split / */
-	split_home_pathname(localp, x, 0, ret);
+	Return(split_home_pathname_(localp, x, 0, ret));
 
 	/* heap only */
 	if (! localp->localp)
@@ -270,12 +272,15 @@ static int parser_home_directory_pathname_(struct fileparse *pa)
  */
 static int parser_make_unix_pathname_(struct fileparse *pa)
 {
+	int check;
+
 	GetConst(SYSTEM_UNIX, &pa->host);
 	GetDevicePathname(pa->path, &pa->device);
-	wild_value_pathname(pa->name, &pa->name);
-	wild_value_pathname(pa->type, &pa->type);
+	Return(wild_value_pathname_(pa->name, &pa->name));
+	Return(wild_value_pathname_(pa->type, &pa->type));
 	GetVersionPathname(pa->path, &pa->version);
-	if (parser_home_directory_p_pathname(pa)) {
+	Return(parser_home_directory_p_pathname_(pa, &check));
+	if (check) {
 		Return(parser_home_directory_pathname_(pa));
 	}
 	pathname_fileparse_alloc(pa, 0);
@@ -323,7 +328,7 @@ _g int parser_unix_pathname_(struct fileparse *pa)
 	}
 	if (c == ':')
 		logical = 1;
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
 
@@ -337,7 +342,7 @@ first:
 		di = ni;
 		dp = 1;
 	}
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
 
@@ -360,7 +365,7 @@ next1:
 		}
 		logical = 1;
 	}
-	push_charqueue_local(local->local, charqueue, c);
+	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
 
@@ -371,14 +376,15 @@ next2:
 	}
 	make_charqueue_fileparse(pa, charqueue, &temp);
 	clear_charqueue(charqueue);
-	pushdirectory_fileparse(pa, &queue, temp);
+	Return(pushdirectory_fileparse_(pa, &queue, temp));
 	ni = di = dp = 0;
 	goto first;
 
 name_finish:
 	make_charqueue_fileparse(pa, charqueue, &pa->name);
-	if (di && dp)
-		nametype_pathname(pa, di);
+	if (di && dp) {
+		Return(nametype_pathname_(pa, di));
+	}
 	goto finish;
 
 finish:

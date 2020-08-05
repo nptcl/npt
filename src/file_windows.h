@@ -6,6 +6,7 @@
 #define __FILE_WINDOWS_HEADER__
 
 #include <windows.h>
+#include "condition.h"
 #include "cons.h"
 #include "condition.h"
 #include "encode.h"
@@ -60,9 +61,12 @@ static void init_console(void)
 
 _g int init_file(void)
 {
-	if (init_fileio(&fileio_input, STD_INPUT_HANDLE)) return 1;
-	if (init_fileio(&fileio_output, STD_OUTPUT_HANDLE)) return 1;
-	if (init_fileio(&fileio_error, STD_ERROR_HANDLE)) return 1;
+	if (init_fileio(&fileio_input, STD_INPUT_HANDLE))
+		return 1;
+	if (init_fileio(&fileio_output, STD_OUTPUT_HANDLE))
+		return 1;
+	if (init_fileio(&fileio_error, STD_ERROR_HANDLE))
+		return 1;
 	init_console();
 
 	return 0;
@@ -92,15 +96,17 @@ static inline void standard_error_arch(file_type *file)
 	*file = fileio_error;
 }
 
-static inline int filename_encode(LocalRoot local, addr name, LPCWSTR *ret)
+static inline int filename_encode_(LocalRoot local, addr name, LPCWSTR *ret)
 {
-	Check(! stringp(name), "name error");
-	if (UTF16_buffer_clang(local, &name, name)) {
-		Debug("UTF16_buffer_clang error");
-		return 1;
-	}
-	posbody(name, (addr *)ret);
+	addr data;
 
+	Check(! stringp(name), "name error");
+	Return(UTF16_buffer_clang_(local, &data, name));
+	if (data == Unbound) {
+		*ret = NULL;
+		return fmte_("Invalid UTF-16 encoding ~S.", name, NULL);
+	}
+	posbody(data, (addr *)ret);
 	return 0;
 }
 
@@ -116,7 +122,8 @@ static inline int open_input_chartype(file_type *ret, LPCWSTR name)
 			OPEN_EXISTING,
 			FILE_ATTRIBUTE_NORMAL,
 			NULL);
-	if (file == INVALID_HANDLE_VALUE) return 1;
+	if (file == INVALID_HANDLE_VALUE)
+		return 1;
 	*ret = file;
 
 	return 0;
@@ -145,26 +152,27 @@ error:
 	return 1;
 }
 
-static inline int open_input_arch(LocalRoot local, file_type *ret, addr name)
+static inline int open_input_arch_(LocalRoot local,
+		addr name, file_type *value, int *ret)
 {
-	int result;
 	LocalStack stack;
-	LPCWSTR utf16le;
+	LPCWSTR utf16;
 
-	result = 0;
 	push_local(local, &stack);
-	if (filename_encode(local, name, &utf16le)) {
-		result = 2;
+	Return(filename_encode_(local, name, &utf16));
+	if (utf16 == NULL) {
+		*ret = 1;
 		goto finish;
 	}
-	if (open_input_chartype(ret, utf16le)) {
-		result = 1;
+	if (open_input_chartype(value, utf16)) {
+		*ret = 1;
 		goto finish;
 	}
+	*ret = 0;
 
 finish:
 	rollback_local(local, stack);
-	return result;
+	return 0;
 }
 
 static inline int open_output_chartype(file_type *ret,
@@ -210,33 +218,34 @@ static inline int open_output_chartype(file_type *ret,
 			Debug("Invalid mode.");
 			return 1;
 	}
-	if (file == INVALID_HANDLE_VALUE) return 1;
+	if (file == INVALID_HANDLE_VALUE)
+		return 1;
 	*ret = file;
 
 	return 0;
 }
 
-static inline int open_output_arch(LocalRoot local, file_type *ret,
-		addr name, enum FileOutput mode)
+static inline int open_output_arch_(LocalRoot local,
+		addr name, enum FileOutput mode, file_type *value, int *ret)
 {
-	int result;
 	LocalStack stack;
-	LPCWSTR utf16le;
+	LPCWSTR utf16;
 
-	result = 0;
 	push_local(local, &stack);
-	if (filename_encode(local, name, &utf16le)) {
-		result = 2;
+	Return(filename_encode_(local, name, &utf16));
+	if (utf16 == NULL) {
+		*ret = 1;
 		goto finish;
 	}
-	if (open_output_chartype(ret, utf16le, mode)) {
-		result = 1;
+	if (open_output_chartype(value, utf16, mode)) {
+		*ret = 1;
 		goto finish;
 	}
+	*ret = 0;
 
 finish:
 	rollback_local(local, stack);
-	return result;
+	return 0;
 }
 
 static inline int open_io_chartype(file_type *ret,
@@ -282,33 +291,34 @@ static inline int open_io_chartype(file_type *ret,
 			Debug("Invalid mode.");
 			return 1;
 	}
-	if (file == INVALID_HANDLE_VALUE) return 1;
+	if (file == INVALID_HANDLE_VALUE)
+		return 1;
 	*ret = file;
 
 	return 0;
 }
 
-static inline int open_io_arch(LocalRoot local, file_type *ret,
-		addr name, enum FileOutput mode)
+static inline int open_io_arch_(LocalRoot local,
+		addr name, enum FileOutput mode, file_type *value, int *ret)
 {
-	int result;
 	LocalStack stack;
-	LPCWSTR utf16le;
+	LPCWSTR utf16;
 
-	result = 0;
 	push_local(local, &stack);
-	if (filename_encode(local, name, &utf16le)) {
-		result = 2;
+	Return(filename_encode_(local, name, &utf16));
+	if (utf16 == NULL) {
+		*ret = 1;
 		goto finish;
 	}
-	if (open_io_chartype(ret, utf16le, mode)) {
-		result = 1;
+	if (open_io_chartype(value, utf16, mode)) {
+		*ret = 1;
 		goto finish;
 	}
+	*ret = 0;
 
 finish:
 	rollback_local(local, stack);
-	return result;
+	return 0;
 }
 
 static inline int readcall_arch(file_type file, void *pos, size_t size, size_t *ret)
@@ -357,9 +367,12 @@ static inline int writecall_arch(file_type file,
 
 static inline int close_arch(file_type file)
 {
-	if (file == fileio_input) return 0;
-	if (file == fileio_output) return 0;
-	if (file == fileio_error) return 0;
+	if (file == fileio_input)
+		return 0;
+	if (file == fileio_output)
+		return 0;
+	if (file == fileio_error)
+		return 0;
 
 	if (CloseHandle(file) == 0) {
 		Debug("CloseHandle error");

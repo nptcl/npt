@@ -41,12 +41,10 @@ _g int copy_seq_common(addr var, addr *ret)
 			break;
 
 		case LISPTYPE_STRING:
-			string_heap(ret, var);
-			break;
+			return string_heap_(ret, var);
 
 		case LISPTYPE_ARRAY:
-			array_copy_heap(ret, var);
-			break;
+			return array_copy_heap_(ret, var);
 
 		case LISPTYPE_BITVECTOR:
 			bitmemory_copy_heap(ret, var);
@@ -69,7 +67,7 @@ static int list_fill_sequence(addr list, addr item, addr start, addr end)
 	size_t index1, index2;
 
 	/* argument */
-	list_start_end_sequence(&list, NULL, start, end, &index1, &index2);
+	Return(list_start_end_sequence_(&list, NULL, start, end, &index1, &index2));
 
 	/* fill */
 	for (;;) {
@@ -94,49 +92,45 @@ static int list_fill_sequence(addr list, addr item, addr start, addr end)
 	return 0;
 }
 
-static void vector_fill_sequence(addr pos, addr item, addr start, addr end)
+static int vector_fill_sequence_(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 
 	/* argument */
 	lenarray(pos, &index1);
-	size_start_end_sequence(start, end, index1, &index1, &index2);
+	Return(size_start_end_sequence_(start, end, index1, &index1, &index2, NULL));
 
 	/* fill */
 	for (; index1 < index2; index1++)
 		setarray(pos, index1, item);
+
+	return 0;
 }
 
 _g int fill_common(addr var, addr item, addr start, addr end)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
-			break;
+			return 0;
 
 		case LISPTYPE_CONS:
 			return list_fill_sequence(var, item, start, end);
 
 		case LISPTYPE_VECTOR:
-			vector_fill_sequence(var, item, start, end);
-			break;
+			return vector_fill_sequence_(var, item, start, end);
 
 		case LISPTYPE_STRING:
-			strvect_fill(var, item, start, end);
-			break;
+			return strvect_fill_(var, item, start, end);
 
 		case LISPTYPE_ARRAY:
-			array_fill(var, item, start, end);
-			break;
+			return array_fill_(var, item, start, end);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_fill(var, item, start, end);
-			break;
+			return bitmemory_fill_(var, item, start, end);
 
 		default:
 			return TypeError_(var, SEQUENCE);
 	}
-
-	return 0;
 }
 
 
@@ -203,7 +197,7 @@ static int alloc_string_make_sequence(addr *ret, size_t size, addr value)
 	else
 		return TypeError_(value, CHARACTER);
 	strvect_heap(&value, size);
-	strvect_setall(value, c);
+	Return(strvect_setall_(value, c));
 
 	return Result(ret, value);
 }
@@ -224,14 +218,12 @@ static int vector_upgraded_make_sequence(addr *ret, addr type, size_t size, addr
 
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			vector_signed(ret, size, upgraded, upsize, value);
-			return 0;
+			return vector_signed_(ret, size, upgraded, upsize, value);
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			vector_float(ret, size, upgraded, value);
-			return 0;
+			return vector_float_(ret, size, upgraded, value);
 
 		default:
 			return alloc_t_make_sequence(ret, size, value);
@@ -243,7 +235,7 @@ static int vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 	if (LispDecl(type) != LISPDECL_VECTOR)
 		return Result(ret, Unbound);
 	/* vector size */
-	vector_check_sequence(type, size);
+	Return(vector_check_sequence_(type, size));
 	/* make-sequence */
 	return vector_upgraded_make_sequence(ret, type, size, value);
 }
@@ -252,7 +244,7 @@ static int simple_vector_make_sequence(addr *ret, addr type, size_t size, addr v
 {
 	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return Result(ret, Unbound);
-	simple_vector_check_sequence(type, size);
+	Return(simple_vector_check_sequence_(type, size));
 	return alloc_t_make_sequence(ret, size, value);
 }
 
@@ -260,7 +252,7 @@ static int string_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
 	if (! type_string_p(type))
 		return Result(ret, Unbound);
-	simple_vector_check_sequence(type, size);
+	Return(simple_vector_check_sequence_(type, size));
 	return alloc_string_make_sequence(ret, size, value);
 }
 
@@ -274,7 +266,7 @@ static int array_make_sequence(addr *ret, addr type, size_t size, addr value)
 		return Result(ret, Unbound);
 
 	/* dimension check */
-	array_check_sequence(type, size);
+	Return(array_check_sequence_(type, size));
 	/* make-sequence */
 	return vector_upgraded_make_sequence(ret, type, size, value);
 }
@@ -289,7 +281,7 @@ static int bitvector_make_sequence(addr *ret, addr type, size_t size, addr value
 		return Result(ret, Unbound);
 
 	/* make-sequence */
-	simple_vector_check_sequence(type, size);
+	Return(simple_vector_check_sequence_(type, size));
 	return alloc_bitvector_make_sequence(ret, size, value);
 }
 
@@ -361,26 +353,33 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 /*
  *  subseq
  */
-static void list_subseq_sequence(addr *ret, addr list, addr start, addr end)
+static int list_subseq_sequence_(addr *ret, addr list, addr start, addr end)
 {
+	int check;
 	addr root, pos;
 	struct sequence_range range;
 
-	build_sequence_range(&range, list, start, end);
+	Return(build_sequence_range_(&range, list, start, end));
 	root = Nil;
-	while (! getnext_sequence_range(&range, &pos))
+	for (;;) {
+		Return(getnext_sequence_range_(&range, &pos, &check));
+		if (check)
+			break;
 		cons_heap(&root, pos, root);
+	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
-static void vector_subseq_sequence(addr *ret, addr vector, addr start, addr end)
+static int vector_subseq_sequence_(addr *ret, addr vector, addr start, addr end)
 {
 	size_t index1, index2, i;
 	addr root, item;
 
 	/* argument */
 	lenarray(vector, &index1);
-	size_start_end_sequence(start, end, index1, &index1, &index2);
+	Return(size_start_end_sequence_(start, end, index1, &index1, &index2, NULL));
 
 	/* subseq */
 	vector_heap(&root, index2 - index1);
@@ -388,7 +387,8 @@ static void vector_subseq_sequence(addr *ret, addr vector, addr start, addr end)
 		getarray(vector, index1, &item);
 		setarray(root, i, item);
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
 _g int subseq_common(addr var, addr start, addr end, addr *ret)
@@ -396,50 +396,46 @@ _g int subseq_common(addr var, addr start, addr end, addr *ret)
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			list_subseq_sequence(ret, var, start, end);
-			break;
+			return list_subseq_sequence_(ret, var, start, end);
 
 		case LISPTYPE_VECTOR:
-			vector_subseq_sequence(ret, var, start, end);
-			break;
+			return vector_subseq_sequence_(ret, var, start, end);
 
 		case LISPTYPE_STRING:
-			strvect_subseq(ret, var, start, end);
-			break;
+			return strvect_subseq_(ret, var, start, end);
 
 		case LISPTYPE_ARRAY:
-			array_subseq(ret, var, start, end);
-			break;
+			return array_subseq_(ret, var, start, end);
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_subseq(ret, var, start, end);
-			break;
+			return bitmemory_subseq_(ret, var, start, end);
 
 		default:
 			*ret = Nil;
 			return TypeError_(var, SEQUENCE);
 	}
-
-	return 0;
 }
 
-_g void setf_subseq_common(addr root, addr pos, addr start, addr end)
+_g int setf_subseq_common_(addr root, addr pos, addr start, addr end)
 {
+	int ignore;
 	struct array_value value;
 	struct sequence_range range1, range2;
 
-	build_sequence_range(&range1, root, start, end);
-	build_sequence_range(&range2, pos, Nil, Nil);
+	Return(build_sequence_range_(&range1, root, start, end));
+	Return(build_sequence_range_(&range2, pos, Nil, Nil));
 	for (;;) {
 		if (endp_sequence_range(&range1))
 			break;
 		if (endp_sequence_range(&range2))
 			break;
-		getinplace_sequence_range(&range2, &value);
-		setinplace_sequence_range(NULL, &range1, &value); /* heap */
-		next_sequence_range(&range1);
-		next_sequence_range(&range2);
+		Return(getinplace_sequence_range_(&range2, &value));
+		Return(setinplace_sequence_range_(NULL, &range1, &value)); /* heap */
+		Return(next_sequence_range_(&range1, &ignore));
+		Return(next_sequence_range_(&range2, &ignore));
 	}
+
+	return 0;
 }
 
 
@@ -449,6 +445,7 @@ _g void setf_subseq_common(addr root, addr pos, addr start, addr end)
 static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 		addr type, addr call, addr rest)
 {
+	int check;
 	LocalRoot local;
 	addr list, temp;
 	struct sequence_group *group;
@@ -459,9 +456,12 @@ static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* execute */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
 	list_sequence_group_local(local, &list, group);
-	while (set_sequence_group(group, list)) {
+	for (;;) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &temp, call, list));
 	}
 	*ret = Nil;
@@ -471,6 +471,7 @@ static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 static int list_map_sequence(Execute ptr, int *result, addr *ret,
 		addr type, addr call, addr rest)
 {
+	int check;
 	enum LISPDECL decl;
 	addr list, temp, root;
 	struct sequence_group *group;
@@ -484,10 +485,14 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* execute */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
 	list_sequence_group_local(local, &list, group);
 	hold = LocalHold_array(ptr, 1);
-	for (root = Nil; set_sequence_group(group, list); ) {
+	root = Nil;
+	for (;;) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &temp, call, list));
 		cons_heap(&root, temp, root);
 		localhold_set(hold, 0, root);
@@ -501,6 +506,7 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 static int vector_bitvector_map_sequence(Execute ptr, addr *ret,
 		addr call, struct sequence_group *group)
 {
+	int check;
 	addr list, root, value;
 	size_t i;
 	LocalHold hold;
@@ -508,9 +514,12 @@ static int vector_bitvector_map_sequence(Execute ptr, addr *ret,
 	list = group->list;
 	bitmemory_unsafe(NULL, &root, group->callsize);
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &value, call, list));
-		bitmemory_set(root, i, value);
+		Return(bitmemory_set_(root, i, value));
 	}
 	localhold_end(hold);
 
@@ -520,6 +529,7 @@ static int vector_bitvector_map_sequence(Execute ptr, addr *ret,
 static int vector_string_map_sequence(Execute ptr, addr *ret,
 		addr call, struct sequence_group *group)
 {
+	int check;
 	addr list, root, value;
 	size_t i;
 	LocalHold hold;
@@ -527,9 +537,12 @@ static int vector_string_map_sequence(Execute ptr, addr *ret,
 	list = group->list;
 	strvect_heap(&root, group->callsize);
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &value, call, list));
-		strvect_set(root, i, value);
+		Return(strvect_set_(root, i, value));
 	}
 	localhold_end(hold);
 
@@ -539,16 +552,20 @@ static int vector_string_map_sequence(Execute ptr, addr *ret,
 static int vector_signed_map_sequence(Execute ptr, addr *ret,
 		addr call, struct sequence_group *group, enum ARRAY_TYPE type, int bytesize)
 {
+	int check;
 	addr list, root, value;
 	size_t i;
 	LocalHold hold;
 
 	list = group->list;
-	vector_signed_uninit(&root, group->callsize, type, bytesize);
+	Return(vector_signed_uninit_(&root, group->callsize, type, bytesize));
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &value, call, list));
-		array_set(root, i, value);
+		Return(array_set_(root, i, value));
 	}
 	localhold_end(hold);
 
@@ -558,17 +575,21 @@ static int vector_signed_map_sequence(Execute ptr, addr *ret,
 static int vector_float_map_sequence(Execute ptr, addr *ret,
 		addr call, struct sequence_group *group, enum ARRAY_TYPE type)
 {
+	int check;
 	addr list, root, value;
 	size_t i;
 	LocalHold hold;
 
 	list = group->list;
-	vector_float_uninit(&root, group->callsize, type);
+	Return(vector_float_uninit_(&root, group->callsize, type));
 
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &value, call, list));
-		array_set(root, i, value);
+		Return(array_set_(root, i, value));
 	}
 	localhold_end(hold);
 
@@ -578,6 +599,7 @@ static int vector_float_map_sequence(Execute ptr, addr *ret,
 static int vector_general_map_sequence(Execute ptr, addr *ret,
 		addr call, struct sequence_group *group)
 {
+	int check;
 	addr list, root, value;
 	size_t i;
 	LocalHold hold;
@@ -585,7 +607,10 @@ static int vector_general_map_sequence(Execute ptr, addr *ret,
 	list = group->list;
 	vector_heap(&root, group->callsize);
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &value, call, list));
 		setarray(root, i, value);
 	}
@@ -636,9 +661,9 @@ static int vector_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
-	count_sequence_group(group, &size);
-	vector_check_sequence(type, size);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
+	Return(count_sequence_group_(group, &size));
+	Return(vector_check_sequence_(type, size));
 	clear_sequence_group(group);
 	list_sequence_group_local(local, NULL, group);
 
@@ -650,6 +675,7 @@ static int vector_map_sequence(Execute ptr, int *result, addr *ret,
 static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 		addr type, addr call, addr rest)
 {
+	int check;
 	addr list, temp, root;
 	struct sequence_group *group;
 	size_t size, i;
@@ -662,16 +688,19 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
-	count_sequence_group(group, &size);
-	simple_vector_check_sequence(type, size);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
+	Return(count_sequence_group_(group, &size));
+	Return(simple_vector_check_sequence_(type, size));
 	clear_sequence_group(group);
 	list_sequence_group_local(local, &list, group);
 
 	/* execute */
 	vector_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &temp, call, list));
 		setarray(root, i, temp);
 	}
@@ -683,6 +712,7 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 static int string_map_sequence(Execute ptr, int *result, addr *ret,
 		addr type, addr call, addr rest)
 {
+	int check;
 	addr list, temp, root;
 	struct sequence_group *group;
 	size_t size, i;
@@ -695,18 +725,21 @@ static int string_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
-	count_sequence_group(group, &size);
-	simple_vector_check_sequence(type, size);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
+	Return(count_sequence_group_(group, &size));
+	Return(simple_vector_check_sequence_(type, size));
 	clear_sequence_group(group);
 	list_sequence_group_local(local, &list, group);
 
 	/* execute */
 	strvect_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &temp, call, list));
-		strvect_set(root, i, temp);
+		Return(strvect_set_(root, i, temp));
 	}
 	localhold_end(hold);
 	*ret = root;
@@ -728,9 +761,9 @@ static int array_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
-	count_sequence_group(group, &size);
-	array_check_sequence(type, size);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
+	Return(count_sequence_group_(group, &size));
+	Return(array_check_sequence_(type, size));
 	clear_sequence_group(group);
 	list_sequence_group_local(local, NULL, group);
 
@@ -742,6 +775,7 @@ static int array_map_sequence(Execute ptr, int *result, addr *ret,
 static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 		addr type, addr call, addr rest)
 {
+	int check;
 	enum LISPDECL decl;
 	addr list, temp, root;
 	struct sequence_group *group;
@@ -756,18 +790,21 @@ static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	group = make_sequence_group_local(local, rest, 1);
-	count_sequence_group(group, &size);
-	simple_vector_check_sequence(type, size);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
+	Return(count_sequence_group_(group, &size));
+	Return(simple_vector_check_sequence_(type, size));
 	clear_sequence_group(group);
 	list_sequence_group_local(local, &list, group);
 
 	/* execute */
 	bitmemory_unsafe(NULL, &root, size);
 	hold = LocalHold_local_push(ptr, root);
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &temp, call, list));
-		bitmemory_set(root, i, temp);
+		Return(bitmemory_set_(root, i, temp));
 	}
 	localhold_end(hold);
 	*ret = root;
@@ -857,6 +894,7 @@ static void fill_map_into_sequence(addr var, size_t size)
 
 static int execute_map_into_sequence(Execute ptr, addr var, addr call, addr rest)
 {
+	int check;
 	LocalRoot local;
 	struct sequence_iterator *into;
 	struct sequence_group *group;
@@ -865,16 +903,20 @@ static int execute_map_into_sequence(Execute ptr, addr var, addr call, addr rest
 
 	/* argument */
 	local = ptr->local;
-	into = make_sequence_iterator_local(local, var, 0);
+	Return(make_sequence_iterator_local_(local, var, 0, &into));
 	if (end_sequence_iterator(into))
 		return 0;
-	group = make_sequence_group_local(local, rest, 1);
+	Return(make_sequence_group_local_(local, rest, 1, &group));
 	list_sequence_group_local(local, &list, group);
 
 	/* map-into */
-	for (i = 0; set_sequence_group(group, list); i++) {
+	for (i = 0; ; i++) {
+		Return(set_sequence_group_(group, list, &check));
+		if (! check)
+			break;
 		Return(callclang_apply(ptr, &pos, call, list));
-		if (set_sequence_iterator(into, pos))
+		Return(set_sequence_iterator_(into, pos, &check));
+		if (check)
 			break;
 	}
 
@@ -920,6 +962,7 @@ static int key_reduce_sequence(struct reduce_struct *str, addr *ret, addr value)
 
 static int throw_reduce_sequence(struct reduce_struct *str, int *result, addr *ret)
 {
+	int check;
 	addr value, pos;
 	struct sequence_range *range;
 	LocalHold hold;
@@ -929,7 +972,8 @@ static int throw_reduce_sequence(struct reduce_struct *str, int *result, addr *r
 	save_sequence_range(range);
 
 	/* empty sequence */
-	if (getnext_sequence_range(range, &pos)) {
+	Return(getnext_sequence_range_(range, &pos, &check));
+	if (check) {
 		if (value == Unbound) {
 			Return(callclang_apply(str->ptr, ret, str->call, Nil));
 		}
@@ -954,6 +998,7 @@ static int throw_reduce_sequence(struct reduce_struct *str, int *result, addr *r
 
 static int value_reduce_sequence(struct reduce_struct *str, addr *ret)
 {
+	int check;
 	Execute ptr;
 	addr pos1, pos2, call;
 	struct sequence_range *range;
@@ -967,14 +1012,17 @@ static int value_reduce_sequence(struct reduce_struct *str, addr *ret)
 	/* first */
 	hold = LocalHold_array(str->ptr, 2);
 	if (pos1 == Unbound) {
-		getnext_sequence_range(range, &pos1);
+		Return(getnext_sequence_range_(range, &pos1, &check)); /* ignore */
 		localhold_set(hold, 0, pos1);
 		Return(key_reduce_sequence(str, &pos1, pos1));
 	}
 	localhold_set(hold, 0, pos1);
 
 	/* loop */
-	while (! getnext_sequence_range(range, &pos2)) {
+	for (;;) {
+		Return(getnext_sequence_range_(range, &pos2, &check));
+		if (check)
+			break;
 		localhold_set(hold, 1, pos2);
 		Return(key_reduce_sequence(str, &pos2, pos2));
 		localhold_set(hold, 1, pos2);
@@ -988,6 +1036,7 @@ static int value_reduce_sequence(struct reduce_struct *str, addr *ret)
 
 static int reverse_vector_reduce_sequence(struct reduce_struct *str, addr *ret)
 {
+	int check;
 	Execute ptr;
 	addr pos1, pos2, call;
 	struct sequence_range *range;
@@ -1002,14 +1051,17 @@ static int reverse_vector_reduce_sequence(struct reduce_struct *str, addr *ret)
 	reverse_sequence_range(range);
 	hold = LocalHold_array(str->ptr, 2);
 	if (pos2 == Unbound) {
-		getnext_reverse_sequence_range(range, &pos2);
+		Return(getnext_reverse_sequence_range_(range, &pos2, &check)); /* ignore */
 		localhold_set(hold, 1, pos2);
 		Return(key_reduce_sequence(str, &pos2, pos2));
 	}
 	localhold_set(hold, 1, pos2);
 
 	/* loop */
-	while (! getnext_reverse_sequence_range(range, &pos1)) {
+	for (;;) {
+		Return(getnext_reverse_sequence_range_(range, &pos1, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, pos1);
 		Return(key_reduce_sequence(str, &pos1, pos1));
 		localhold_set(hold, 0, pos1);
@@ -1045,7 +1097,7 @@ static int reverse_reduce_sequence(struct reduce_struct *str, addr *ret)
 	range = &(str->range);
 	local = str->local;
 	push_local(local, &stack);
-	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
+	Return(build_sequence_range_vector_(local, range, str->pos, str->start, str->end));
 	Return(switch_reduce_sequence(str, ret));
 	rollback_local(local, stack);
 
@@ -1054,7 +1106,8 @@ static int reverse_reduce_sequence(struct reduce_struct *str, addr *ret)
 
 _g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr key, start, end, from, value;
 	struct reduce_struct str;
 	struct sequence_range *range;
@@ -1071,7 +1124,7 @@ _g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 		value = Unbound;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.valuep = (value != Unbound);
@@ -1089,7 +1142,7 @@ _g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 	if (fromp && listp)
 		return reverse_reduce_sequence(&str, ret);
 	else {
-		build_sequence_range(range, pos, start, end);
+		Return(build_sequence_range_(range, pos, start, end));
 		return switch_reduce_sequence(&str, ret);
 	}
 }
@@ -1154,7 +1207,7 @@ static int boolean_count_sequence(struct count_struct *str, int *result, addr va
 static int value_count_sequence(struct count_struct *str, addr *ret)
 {
 	int check;
-	int (*call)(struct sequence_range *, addr *);
+	int (*call_)(struct sequence_range *, addr *, int *);
 	addr value;
 	struct sequence_range *range;
 	size_t count;
@@ -1165,15 +1218,18 @@ static int value_count_sequence(struct count_struct *str, addr *ret)
 	range = &(str->range);
 	if (str->fromp) {
 		reverse_sequence_range(range);
-		call = getnext_reverse_sequence_range;
+		call_ = getnext_reverse_sequence_range_;
 	}
 	else {
-		call = getnext_sequence_range;
+		call_ = getnext_sequence_range_;
 	}
 
 	/* loop */
 	hold = LocalHold_array(str->ptr, 1);
-	while (! call(range, &value)) {
+	for (;;) {
+		Return((*call_)(range, &value, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, value);
 		Return(boolean_count_sequence(str, &check, value));
 		if (check)
@@ -1194,7 +1250,7 @@ static int reverse_count_sequence(struct count_struct *str, addr *ret)
 	range = &(str->range);
 	local = str->local;
 	push_local(local, &stack);
-	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
+	Return(build_sequence_range_vector_(local, range, str->pos, str->start, str->end));
 	Return(value_count_sequence(str, ret));
 	rollback_local(local, stack);
 
@@ -1203,7 +1259,8 @@ static int reverse_count_sequence(struct count_struct *str, addr *ret)
 
 _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -1224,7 +1281,7 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 		return fmte_("COUNT don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -1254,14 +1311,15 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 
 	if (listp && fromp)
 		return reverse_count_sequence(&str, ret);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	return value_count_sequence(&str, ret);
 }
 
 static int argument_count_sequence(Execute ptr, addr *ret,
 		addr test1, addr test2, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -1276,7 +1334,7 @@ static int argument_count_sequence(Execute ptr, addr *ret,
 		key = Nil;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -1301,7 +1359,7 @@ static int argument_count_sequence(Execute ptr, addr *ret,
 
 	if (listp && fromp)
 		return reverse_count_sequence(&str, ret);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	return value_count_sequence(&str, ret);
 }
 
@@ -1330,8 +1388,9 @@ static int key_merge_sequence(Execute ptr, addr *ret, addr key, addr value)
 static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 		addr type, addr pos1, addr pos2, addr call, addr key)
 {
+	int check;
 	enum LISPDECL decl;
-	addr root, a1, a2, b1, b2, check;
+	addr root, a1, a2, b1, b2, value;
 	struct sequence_iterator *str1, *str2;
 	LocalRoot local;
 	LocalHold hold;
@@ -1343,15 +1402,17 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* make list */
 	local = ptr->local;
-	str1 = make_sequence_iterator_local(local, pos1, 1);
-	str2 = make_sequence_iterator_local(local, pos2, 1);
+	Return(make_sequence_iterator_local_(local, pos1, 1, &str1));
+	Return(make_sequence_iterator_local_(local, pos2, 1, &str2));
 	hold = LocalHold_array(ptr, 5); /* a1, b1, a2, b2, root */
 	root = Nil;
-	if (! object_sequence_iterator(str1, &a1)) {
+	Return(object_sequence_iterator_(str1, &a1, &check));
+	if (! check) {
 		goto tail2;
 	}
 	localhold_set(hold, 0, a1);
-	if (! object_sequence_iterator(str2, &b1)) {
+	Return(object_sequence_iterator_(str2, &b1, &check));
+	if (! check) {
 		cons_heap(&root, a1, root);
 		localhold_set(hold, 4, root);
 		goto tail1;
@@ -1362,11 +1423,12 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 	Return(key_merge_sequence(ptr, &b2, key, b1));
 	localhold_set(hold, 3, b2);
 loop:
-	Return(callclang_funcall(ptr, &check, call, a2, b2, NULL));
-	if (check != Nil) {
+	Return(callclang_funcall(ptr, &value, call, a2, b2, NULL));
+	if (value != Nil) {
 		cons_heap(&root, a1, root);
 		localhold_set(hold, 4, root);
-		if (! object_sequence_iterator(str1, &a1)) {
+		Return(object_sequence_iterator_(str1, &a1, &check));
+		if (! check) {
 			cons_heap(&root, b1, root);
 			localhold_set(hold, 4, root);
 			goto tail2;
@@ -1378,7 +1440,8 @@ loop:
 	else {
 		cons_heap(&root, b1, root);
 		localhold_set(hold, 4, root);
-		if (! object_sequence_iterator(str2, &b1)) {
+		Return(object_sequence_iterator_(str2, &b1, &check));
+		if (! check) {
 			cons_heap(&root, a1, root);
 			localhold_set(hold, 4, root);
 			goto tail1;
@@ -1390,13 +1453,21 @@ loop:
 	goto loop;
 
 tail1:
-	while (object_sequence_iterator(str1, &a1))
+	for (;;) {
+		Return(object_sequence_iterator_(str1, &a1, &check));
+		if (! check)
+			break;
 		cons_heap(&root, a1, root);
+	}
 	goto result;
 
 tail2:
-	while (object_sequence_iterator(str2, &b1))
+	for (;;) {
+		Return(object_sequence_iterator_(str2, &b1, &check));
+		if (! check)
+			break;
 		cons_heap(&root, b1, root);
+	}
 	goto result;
 
 result:
@@ -1409,19 +1480,22 @@ static int vector_make_merge_sequence(Execute ptr, addr root,
 		struct sequence_iterator *str1, struct sequence_iterator *str2,
 		addr call, addr key)
 {
-	addr a1, a2, b1, b2, check;
+	int check;
+	addr a1, a2, b1, b2, value;
 	size_t i;
 	LocalHold hold;
 
 	/* make list */
 	hold = LocalHold_array(ptr, 4); /* a1, b1, a2, b2 */
 	i = 0;
-	if (! object_sequence_iterator(str1, &a1)) {
+	Return(object_sequence_iterator_(str1, &a1, &check));
+	if (! check) {
 		goto tail2;
 	}
 	localhold_set(hold, 0, a1);
-	if (! object_sequence_iterator(str2, &b1)) {
-		setelt_sequence(root, i++, a1);
+	Return(object_sequence_iterator_(str2, &b1, &check));
+	if (! check) {
+		Return(setelt_sequence_(root, i++, a1));
 		goto tail1;
 	}
 	localhold_set(hold, 1, b1);
@@ -1430,11 +1504,12 @@ static int vector_make_merge_sequence(Execute ptr, addr root,
 	Return(key_merge_sequence(ptr, &b2, key, b1));
 	localhold_set(hold, 3, b2);
 loop:
-	Return(callclang_funcall(ptr, &check, call, a2, b2, NULL));
-	if (check != Nil) {
-		setelt_sequence(root, i++, a1);
-		if (! object_sequence_iterator(str1, &a1)) {
-			setelt_sequence(root, i++, b1);
+	Return(callclang_funcall(ptr, &value, call, a2, b2, NULL));
+	if (value != Nil) {
+		Return(setelt_sequence_(root, i++, a1));
+		Return(object_sequence_iterator_(str1, &a1, &check));
+		if (! check) {
+			Return(setelt_sequence_(root, i++, b1));
 			goto tail2;
 		}
 		localhold_set(hold, 0, a1);
@@ -1442,9 +1517,10 @@ loop:
 		localhold_set(hold, 2, a2);
 	}
 	else {
-		setelt_sequence(root, i++, b1);
-		if (! object_sequence_iterator(str2, &b1)) {
-			setelt_sequence(root, i++, a1);
+		Return(setelt_sequence_(root, i++, b1));
+		Return(object_sequence_iterator_(str2, &b1, &check));
+		if (! check) {
+			Return(setelt_sequence_(root, i++, a1));
 			goto tail1;
 		}
 		localhold_set(hold, 1, b1);
@@ -1454,13 +1530,21 @@ loop:
 	goto loop;
 
 tail1:
-	while (object_sequence_iterator(str1, &a1))
-		setelt_sequence(root, i++, a1);
+	for (;;) {
+		Return(object_sequence_iterator_(str1, &a1, &check));
+		if (! check)
+			break;
+		Return(setelt_sequence_(root, i++, a1));
+	}
 	return 0;
 
 tail2:
-	while (object_sequence_iterator(str2, &b1))
-		setelt_sequence(root, i++, b1);
+	for (;;) {
+		Return(object_sequence_iterator_(str2, &b1, &check));
+		if (! check)
+			break;
+		Return(setelt_sequence_(root, i++, b1));
+	}
 	return 0;
 }
 
@@ -1482,16 +1566,15 @@ static int make_specialized_sequence(addr *ret,
 
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			vector_signed_uninit(ret, size, type, bytesize);
-			break;
+			return vector_signed_uninit_(ret, size, type, bytesize);
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			vector_float_uninit(ret, size, type);
-			break;
+			return vector_float_uninit_(ret, size, type);
 
 		default:
+			*ret = Nil;
 			return fmte_("Invalid array type.", NULL);
 	}
 
@@ -1523,12 +1606,12 @@ static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	str1 = make_sequence_iterator_local(local, pos1, 1);
-	str2 = make_sequence_iterator_local(local, pos2, 1);
-	length_sequence_iterator(str1, &size1);
-	length_sequence_iterator(str2, &size2);
+	Return(make_sequence_iterator_local_(local, pos1, 1, &str1));
+	Return(make_sequence_iterator_local_(local, pos2, 1, &str2));
+	Return(length_sequence_iterator_(str1, &size1));
+	Return(length_sequence_iterator_(str2, &size2));
 	size = size1 + size2;
-	vector_check_sequence(type, size);
+	Return(vector_check_sequence_(type, size));
 
 	Return(array_upgraded_merge_sequence(&root, type, size));
 	hold = LocalHold_local_push(ptr, root);
@@ -1553,12 +1636,12 @@ static int simple_vector_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	str1 = make_sequence_iterator_local(local, pos1, 1);
-	str2 = make_sequence_iterator_local(local, pos2, 1);
-	length_sequence_iterator(str1, &size1);
-	length_sequence_iterator(str2, &size2);
+	Return(make_sequence_iterator_local_(local, pos1, 1, &str1));
+	Return(make_sequence_iterator_local_(local, pos2, 1, &str2));
+	Return(length_sequence_iterator_(str1, &size1));
+	Return(length_sequence_iterator_(str2, &size2));
 	size = size1 + size2;
-	simple_vector_check_sequence(type, size);
+	Return(simple_vector_check_sequence_(type, size));
 
 	vector_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
@@ -1583,12 +1666,12 @@ static int string_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	str1 = make_sequence_iterator_local(local, pos1, 1);
-	str2 = make_sequence_iterator_local(local, pos2, 1);
-	length_sequence_iterator(str1, &size1);
-	length_sequence_iterator(str2, &size2);
+	Return(make_sequence_iterator_local_(local, pos1, 1, &str1));
+	Return(make_sequence_iterator_local_(local, pos2, 1, &str2));
+	Return(length_sequence_iterator_(str1, &size1));
+	Return(length_sequence_iterator_(str2, &size2));
 	size = size1 + size2;
-	simple_vector_check_sequence(type, size);
+	Return(simple_vector_check_sequence_(type, size));
 
 	strvect_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
@@ -1615,12 +1698,12 @@ static int array_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	str1 = make_sequence_iterator_local(local, pos1, 1);
-	str2 = make_sequence_iterator_local(local, pos2, 1);
-	length_sequence_iterator(str1, &size1);
-	length_sequence_iterator(str2, &size2);
+	Return(make_sequence_iterator_local_(local, pos1, 1, &str1));
+	Return(make_sequence_iterator_local_(local, pos2, 1, &str2));
+	Return(length_sequence_iterator_(str1, &size1));
+	Return(length_sequence_iterator_(str2, &size2));
 	size = size1 + size2;
-	array_check_sequence(type, size);
+	Return(array_check_sequence_(type, size));
 
 	Return(array_upgraded_merge_sequence(&root, type, size));
 	hold = LocalHold_local_push(ptr, root);
@@ -1647,12 +1730,12 @@ static int bitvector_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* variable */
 	local = ptr->local;
-	str1 = make_sequence_iterator_local(local, pos1, 1);
-	str2 = make_sequence_iterator_local(local, pos2, 1);
-	length_sequence_iterator(str1, &size1);
-	length_sequence_iterator(str2, &size2);
+	Return(make_sequence_iterator_local_(local, pos1, 1, &str1));
+	Return(make_sequence_iterator_local_(local, pos2, 1, &str2));
+	Return(length_sequence_iterator_(str1, &size1));
+	Return(length_sequence_iterator_(str2, &size2));
 	size = size1 + size2;
-	simple_vector_check_sequence(type, size);
+	Return(simple_vector_check_sequence_(type, size));
 
 	bitmemory_unsafe(NULL, &root, size);
 	hold = LocalHold_local_push(ptr, root);
@@ -1725,7 +1808,7 @@ _g int merge_common(Execute ptr, addr *ret,
 static int value_find_sequence(struct count_struct *str, addr *ret)
 {
 	int check;
-	int (*call)(struct sequence_range *, addr *);
+	int (*call_)(struct sequence_range *, addr *, int *);
 	addr value;
 	struct sequence_range *range;
 	LocalHold hold;
@@ -1734,15 +1817,18 @@ static int value_find_sequence(struct count_struct *str, addr *ret)
 	range = &(str->range);
 	if (str->fromp) {
 		reverse_sequence_range(range);
-		call = getnext_reverse_sequence_range;
+		call_ = getnext_reverse_sequence_range_;
 	}
 	else {
-		call = getnext_sequence_range;
+		call_ = getnext_sequence_range_;
 	}
 
 	/* loop */
 	hold = LocalHold_array(str->ptr, 1);
-	while (! call(range, &value)) {
+	for (;;) {
+		Return((*call_)(range, &value, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, value);
 		Return(boolean_count_sequence(str, &check, value));
 		if (check) {
@@ -1763,7 +1849,7 @@ static int reverse_find_sequence(struct count_struct *str, addr *ret)
 	range = &(str->range);
 	local = str->local;
 	push_local(local, &stack);
-	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
+	Return(build_sequence_range_vector_(local, range, str->pos, str->start, str->end));
 	Return(value_find_sequence(str, ret));
 	rollback_local(local, stack);
 
@@ -1772,7 +1858,8 @@ static int reverse_find_sequence(struct count_struct *str, addr *ret)
 
 _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -1793,7 +1880,7 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 		return fmte_("FIND don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -1823,14 +1910,15 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 
 	if (listp && fromp)
 		return reverse_find_sequence(&str, ret);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	return value_find_sequence(&str, ret);
 }
 
 static int argument_find_sequence(Execute ptr, addr *ret,
 		addr test1, addr test2, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -1845,7 +1933,7 @@ static int argument_find_sequence(Execute ptr, addr *ret,
 		key = Nil;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -1870,7 +1958,7 @@ static int argument_find_sequence(Execute ptr, addr *ret,
 
 	if (listp && fromp)
 		return reverse_find_sequence(&str, ret);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	return value_find_sequence(&str, ret);
 }
 
@@ -1891,7 +1979,7 @@ _g int find_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest
 static int value_position_sequence(struct count_struct *str, size_t *ret, int *nilp)
 {
 	int check;
-	int (*call)(struct sequence_range *, addr *);
+	int (*call_)(struct sequence_range *, addr *, int *);
 	addr value;
 	struct sequence_range *range;
 	size_t count;
@@ -1901,15 +1989,18 @@ static int value_position_sequence(struct count_struct *str, size_t *ret, int *n
 	range = &(str->range);
 	if (str->fromp) {
 		reverse_sequence_range(range);
-		call = getnext_reverse_sequence_range;
+		call_ = getnext_reverse_sequence_range_;
 	}
 	else {
-		call = getnext_sequence_range;
+		call_ = getnext_sequence_range_;
 	}
 
 	/* loop */
 	hold = LocalHold_array(str->ptr, 1);
-	for (count = 0; ! call(range, &value); count++) {
+	for (count = 0; ; count++) {
+		Return((*call_)(range, &value, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, value);
 		Return(boolean_count_sequence(str, &check, value));
 		if (check) {
@@ -1934,7 +2025,7 @@ static int reverse_position_sequence(struct count_struct *str, addr *ret)
 	range = &(str->range);
 	local = str->local;
 	push_local(local, &stack);
-	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
+	Return(build_sequence_range_vector_(local, range, str->pos, str->start, str->end));
 	Return(value_position_sequence(str, &size, &check));
 	rollback_local(local, stack);
 
@@ -1949,8 +2040,8 @@ static int reverse_position_sequence(struct count_struct *str, addr *ret)
 
 _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
-	int check;
-	unsigned listp, fromp;
+	int listp, check;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -1972,7 +2063,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 		return fmte_("POSITION don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	getindex_integer(start, &(str.start_value));
@@ -2003,7 +2094,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 
 	if (listp && fromp)
 		return reverse_position_sequence(&str, ret);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	Return(value_position_sequence(&str, &size, &check));
 
 	/* result */
@@ -2021,8 +2112,8 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 static int argument_position_sequence(Execute ptr, addr *ret,
 		addr test1, addr test2, addr pos, addr rest)
 {
-	int check;
-	unsigned listp, fromp;
+	int listp, check;
+	unsigned fromp;
 	addr from, start, end, key;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -2038,7 +2129,7 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 		key = Nil;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	getindex_integer(start, &(str.start_value));
@@ -2064,7 +2155,7 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 
 	if (listp && fromp)
 		return reverse_position_sequence(&str, ret);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	Return(value_position_sequence(&str, &size, &check));
 
 	/* result */
@@ -2160,13 +2251,17 @@ static int reverse_pattern_search_sequence(struct search_struct *str,
 	range2->index = range2->start + x;
 	load_sequence_range(range1);
 	hold = LocalHold_array(str->ptr, 2);
-	while (! getnext_sequence_range(range1, &a)) {
+	for (;;) {
+		Return(getnext_sequence_range_(range1, &a, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, a);
 
 		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
 
-		if (getnext_sequence_range(range2, &b))
+		Return(getnext_sequence_range_(range2, &b, &check));
+		if (check)
 			return Result(result, 0);
 		localhold_set(hold, 1, b);
 
@@ -2246,13 +2341,17 @@ static int normal_pattern_search_sequence(struct search_struct *str,
 
 	load_sequence_range(range1);
 	hold = LocalHold_array(str->ptr, 2);
-	while (! getnext_sequence_range(range1, &a)) {
+	for (;;) {
+		Return(getnext_sequence_range_(range1, &a, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, a);
 
 		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
 
-		if (getnext_sequence_range(range2, &b))
+		Return(getnext_sequence_range_(range2, &b, &check));
+		if (check)
 			return Result(result, 0);
 		localhold_set(hold, 1, b);
 
@@ -2295,7 +2394,8 @@ static int normalsize_search_sequence(
 			return Result(nilp, 0);
 		}
 		load_sequence_range(range2);
-		if (next_sequence_range(range2))
+		Return(next_sequence_range_(range2, &check));
+		if (check)
 			break;
 	}
 	*ret = 0;
@@ -2373,13 +2473,13 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	str.pos2 = pos2;
 	getindex_integer(start2, &(str.start_value));
 	if (fromp) {
-		str.range1 = make_sequence_range_endp(local, pos1, start1, end1);
-		str.range2 = make_sequence_range_vector(local, pos2, start2, end2);
+		Return(make_sequence_range_endp_(local, pos1, start1, end1, &(str.range1)));
+		Return(make_sequence_range_vector_(local, pos2, start2, end2, &(str.range2)));
 		Return(reverse_search_sequence(&str, ret));
 	}
 	else {
-		str.range1 = make_sequence_range(local, pos1, start1, end1);
-		str.range2 = make_sequence_range(local, pos2, start2, end2);
+		Return(make_sequence_range_(local, pos1, start1, end1, &(str.range1)));
+		Return(make_sequence_range_(local, pos2, start2, end2, &(str.range2)));
 		Return(normal_search_sequence(&str, ret));
 	}
 
@@ -2418,8 +2518,8 @@ static int reverse_mismatch_sequence(struct search_struct *str, addr *ret)
 
 	hold = LocalHold_array(str->ptr, 2);
 	for (i = 0; ; i++) {
-		check1 = getnext_reverse_sequence_range(range1, &a);
-		check2 = getnext_reverse_sequence_range(range2, &b);
+		Return(getnext_reverse_sequence_range_(range1, &a, &check1));
+		Return(getnext_reverse_sequence_range_(range2, &b, &check2));
 		if (check1 && check2)
 			goto result_nil;
 		if (check1 || check2)
@@ -2461,8 +2561,8 @@ static int normal_mismatch_sequence(struct search_struct *str, addr *ret)
 
 	hold = LocalHold_array(str->ptr, 2);
 	for (i = 0; ; i++) {
-		check1 = getnext_sequence_range(range1, &a);
-		check2 = getnext_sequence_range(range2, &b);
+		Return(getnext_sequence_range_(range1, &a, &check1));
+		Return(getnext_sequence_range_(range2, &b, &check2));
 		if (check1 && check2)
 			goto result_nil;
 		if (check1 || check2)
@@ -2547,13 +2647,13 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	str.pos1 = pos1;
 	str.pos2 = pos2;
 	if (fromp) {
-		str.range1 = make_sequence_range_vector(local, pos1, start1, end1);
-		str.range2 = make_sequence_range_vector(local, pos2, start2, end2);
+		Return(make_sequence_range_vector_(local, pos1, start1, end1, &(str.range1)));
+		Return(make_sequence_range_vector_(local, pos2, start2, end2, &(str.range2)));
 		Return(reverse_mismatch_sequence(&str, ret));
 	}
 	else {
-		str.range1 = make_sequence_range(local, pos1, start1, end1);
-		str.range2 = make_sequence_range(local, pos2, start2, end2);
+		Return(make_sequence_range_(local, pos1, start1, end1, &(str.range1)));
+		Return(make_sequence_range_(local, pos2, start2, end2, &(str.range2)));
 		Return(normal_mismatch_sequence(&str, ret));
 	}
 
@@ -2577,10 +2677,11 @@ _g int mismatch_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 /*
  *  replace
  */
-static void list_replace_sequence(LocalRoot local,
+static int list_replace_sequence_(LocalRoot local,
 		struct sequence_range *range1,
 		struct sequence_range *range2)
 {
+	int check;
 	LocalStack stack;
 	addr pos, value;
 	size_t size, i;
@@ -2588,46 +2689,58 @@ static void list_replace_sequence(LocalRoot local,
 	push_local(local, &stack);
 	size = range2->size;
 	vector_local(local, &pos, size);
-	for (i = 0; ! getnext_sequence_range(range2, &value); i++)
+	for (i = 0; ; i++) {
+		Return(getnext_sequence_range_(range2, &value, &check));
+		if (check)
+			break;
 		setarray(pos, i, value);
+	}
 
 	for (i = 0; i < size; i++) {
 		if (endp_sequence_range(range1))
 			break;
 		getarray(pos, i, &value);
-		set_sequence_range(range1, value);
-		next_sequence_range(range1);
+		Return(set_sequence_range_(range1, value));
+		Return(next_sequence_range_(range1, &check));
 	}
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void forward_replace_sequence(
+static int forward_replace_sequence_(
 		struct sequence_range *range1,
 		struct sequence_range *range2)
 {
+	int check;
 	addr value;
 
-	while (! getnext_sequence_range(range2, &value)) {
+	for (;;) {
+		Return(getnext_sequence_range_(range2, &value, &check));
+		if (check)
+			break;
 		if (endp_sequence_range(range1))
 			break;
-		set_sequence_range(range1, value);
-		next_sequence_range(range1);
+		Return(set_sequence_range_(range1, value));
+		Return(next_sequence_range_(range1, &check));
 	}
+
+	return 0;
 }
 
-static void eq_replace_sequence(LocalRoot local,
+static int eq_replace_sequence_(LocalRoot local,
 		struct sequence_range *range1,
 		struct sequence_range *range2)
 {
 	if (range1->start == range2->start)
-		return;
+		return 0;
 	if (range1->start > range2->start)
-		forward_replace_sequence(range1, range2);
+		return forward_replace_sequence_(range1, range2);
 	else
-		list_replace_sequence(local, range1, range2);
+		return list_replace_sequence_(local, range1, range2);
 }
 
-_g void replace_common(Execute ptr, addr pos1, addr pos2, addr rest)
+_g int replace_common_(Execute ptr, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	addr start1, start2, end1, end2;
@@ -2642,15 +2755,15 @@ _g void replace_common(Execute ptr, addr pos1, addr pos2, addr rest)
 	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
 		end2 = Unbound;
 
-	build_sequence_range_endp(&range1, pos1, start1, end1);
-	build_sequence_range_endp(&range2, pos2, start2, end2);
+	Return(build_sequence_range_endp_(&range1, pos1, start1, end1));
+	Return(build_sequence_range_endp_(&range2, pos2, start2, end2));
 	local = ptr->local;
 	if (range1.listp && range2.listp)
-		list_replace_sequence(local, &range1, &range2);
+		return list_replace_sequence_(local, &range1, &range2);
 	else if (pos1 != pos2)
-		forward_replace_sequence(&range1, &range2);
+		return forward_replace_sequence_(&range1, &range2);
 	else
-		eq_replace_sequence(local, &range1, &range2);
+		return eq_replace_sequence_(local, &range1, &range2);
 }
 
 
@@ -2684,20 +2797,27 @@ static int reverse_list_substitute_sequence(
 	one = str->second;
 	save_sequence_range(range);
 	reverse_sequence_range(range);
-	before_sequence_write(ret, range);
+	Return(before_sequence_write_(ret, range));
 
 	hold = LocalHold_array(str->ptr, 1);
-	while (! getnext_reverse_sequence_range(range, &pos)) {
+	for (;;) {
+		Return(getnext_reverse_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, pos);
 		Return(boolean_substitute_sequence(str, &check, pos));
-		set_sequence_range(range, check? one: pos);
+		Return(set_sequence_range_(range, check? one: pos));
 	}
 	localhold_end(hold);
 
 	load_sequence_range(range);
-	while (! getnext_sequence_range(range, &pos))
-		push_sequence_write(ret, pos);
-	after_sequence_write(ret, range);
+	for (;;) {
+		Return(getnext_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
+		Return(push_sequence_write_(ret, pos));
+	}
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -2714,13 +2834,13 @@ static int reverse_substitute_sequence(
 	range = &(str->range);
 	push_local(local, &stack);
 	pos1 = str->pos;
-	build_sequence_range_vector2(local,
-			range, pos1, str->start, str->end, &pos2, &pos3);
+	Return(build_sequence_range_vector2_(local,
+				range, pos1, str->start, str->end, &pos2, &pos3));
 	build_sequence_write_list(ret);
 	/* before start */
 	while (pos1 != pos2) {
 		GetCons(pos1, &value, &pos1);
-		push_sequence_write(ret, value);
+		Return(push_sequence_write_(ret, value));
 	}
 	/* between start and end */
 	gchold_push_local(local, ret->pos);
@@ -2729,7 +2849,7 @@ static int reverse_substitute_sequence(
 	/* after end */
 	while (pos3 != Nil) {
 		Return_getcons(pos3, &value, &pos3);
-		push_sequence_write(ret, value);
+		Return(push_sequence_write_(ret, value));
 	}
 
 	return 0;
@@ -2746,18 +2866,21 @@ static int list_substitute_sequence(
 	range = &(str->range);
 	one = str->second;
 	build_sequence_write_list(ret);
-	before_sequence_write(ret, range);
+	Return(before_sequence_write_(ret, range));
 
 	hold = LocalHold_array(str->ptr, 2);
 	localhold_set(hold, 1, ret->pos);
-	while (! getnext_sequence_range(range, &pos)) {
+	for (;;) {
+		Return(getnext_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, pos);
 		Return(boolean_substitute_sequence(str, &check, pos));
-		push_sequence_write(ret, check? one: pos);
+		Return(push_sequence_write_(ret, check? one: pos));
 		localhold_set(hold, 1, ret->pos);
 	}
 	localhold_end(hold);
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -2766,38 +2889,41 @@ static int copy_substitute_sequence(
 		struct count_struct *str, struct sequence_write *ret, addr pos)
 {
 	int check;
-	int (*get)(struct sequence_range *, addr *);
+	int (*get_)(struct sequence_range *, addr *, int *);
 	addr value, one;
 	struct sequence_range *range;
 	LocalHold hold;
 
 	/* initialize */
 	range = &(str->range);
-	build_sequence_write(ret, pos);
-	before_sequence_write(ret, range);
+	Return(build_sequence_write_(ret, pos));
+	Return(before_sequence_write_(ret, range));
 	if (str->fromp) {
-		get = getnext_reverse_sequence_range;
+		get_ = getnext_reverse_sequence_range_;
 		reverse_sequence_range(range);
 		reverse_sequence_write(ret, range->size);
 	}
 	else {
-		get = getnext_sequence_range;
+		get_ = getnext_sequence_range_;
 	}
 
 	/* loop */
 	one = str->second;
 	hold = LocalHold_array(str->ptr, 2);
 	localhold_set(hold, 1, ret->pos);
-	while (! get(range, &value)) {
+	for (;;) {
+		Return((*get_)(range, &value, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, value);
 		Return(boolean_substitute_sequence(str, &check, value));
-		push_sequence_write(ret, check? one: value);
+		Return(push_sequence_write_(ret, check? one: value));
 		localhold_set(hold, 1, ret->pos);
 	}
 	localhold_end(hold);
 
 	/* after */
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -2835,7 +2961,8 @@ static int make_vector_size_sequence(addr *ret, addr pos, size_t size)
 
 static int vector_substitute_sequence(addr *ret, addr pos)
 {
-	size_t size = length_sequence(pos, 1);
+	size_t size;
+	Return(length_sequence_(pos, 1, &size));
 	return make_vector_size_sequence(ret, pos, size);
 }
 
@@ -2889,7 +3016,8 @@ static int setcount_sequence(struct count_struct *str, addr count)
 _g int substitute_common(Execute ptr,
 		addr *ret, addr item1, addr item2, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2, count;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -2915,7 +3043,7 @@ _g int substitute_common(Execute ptr,
 	}
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -2949,7 +3077,7 @@ _g int substitute_common(Execute ptr,
 		Return(reverse_substitute_sequence(&str, &write));
 	}
 	else {
-		build_sequence_range(range, pos, start, end);
+		Return(build_sequence_range_(range, pos, start, end));
 		Return(normal_substitute_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
@@ -2960,7 +3088,8 @@ _g int substitute_common(Execute ptr,
 static int argument_substitute_sequence(Execute ptr, addr *ret,
 		addr item, addr test1, addr test2, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, count;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -2978,7 +3107,7 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 		key = Nil;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -3007,7 +3136,7 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 		Return(reverse_substitute_sequence(&str, &write));
 	}
 	else {
-		build_sequence_range(range, pos, start, end);
+		Return(build_sequence_range_(range, pos, start, end));
 		Return(normal_substitute_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
@@ -3046,21 +3175,24 @@ static int reverse_list_nsubstitute_sequence(struct count_struct *str)
 
 	hold = LocalHold_array(str->ptr, 1);
 	while (! endp_reverse_sequence_range(range)) {
-		get_reverse_sequence_range(range, &pos);
+		Return(get_reverse_sequence_range_(range, &pos, &check));
 		localhold_set(hold, 0, pos);
 		Return(boolean_substitute_sequence(str, &check, pos));
-		set_reverse_sequence_range(range, check? one: pos);
-		next_reverse_sequence_range(range);
+		Return(set_reverse_sequence_range_(range, check? one: pos));
+		Return(next_reverse_sequence_range_(range, &check));
 	}
 	localhold_end(hold);
 
 	/* reference */
 	write = &temp;
-	build_sequence_range(write, str->pos, str->start, str->end);
+	Return(build_sequence_range_(write, str->pos, str->start, str->end));
 	load_sequence_range(range);
-	while (! getnext_sequence_range(range, &pos)) {
-		set_sequence_range(write, pos);
-		next_sequence_range(write);
+	for (;;) {
+		Return(getnext_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
+		Return(set_sequence_range_(write, pos));
+		Return(next_sequence_range_(write, &check));
 	}
 
 	return 0;
@@ -3075,7 +3207,7 @@ static int reverse_nsubstitute_sequence(struct count_struct *str)
 	local = str->local;
 	range = &(str->range);
 	push_local(local, &stack);
-	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
+	Return(build_sequence_range_vector_(local, range, str->pos, str->start, str->end));
 	Return(reverse_list_nsubstitute_sequence(str));
 	rollback_local(local, stack);
 
@@ -3085,9 +3217,9 @@ static int reverse_nsubstitute_sequence(struct count_struct *str)
 static int normal_nsubstitute_sequence(struct count_struct *str)
 {
 	int check;
-	int (*get)(struct sequence_range *, addr *);
-	void (*set)(struct sequence_range *, addr);
-	int (*next)(struct sequence_range *);
+	int (*get_)(struct sequence_range *, addr *, int *);
+	int (*set_)(struct sequence_range *, addr);
+	int (*next_)(struct sequence_range *, int *);
 	int (*endp)(struct sequence_range *);
 	addr value, one;
 	struct sequence_range *range;
@@ -3096,28 +3228,28 @@ static int normal_nsubstitute_sequence(struct count_struct *str)
 	/* initialize */
 	range = &(str->range);
 	if (str->fromp) {
-		get = get_reverse_sequence_range;
-		set = set_reverse_sequence_range;
-		next = next_reverse_sequence_range;
+		get_ = get_reverse_sequence_range_;
+		set_ = set_reverse_sequence_range_;
+		next_ = next_reverse_sequence_range_;
 		endp = endp_reverse_sequence_range;
 		reverse_sequence_range(range);
 	}
 	else {
-		get = get_sequence_range;
-		set = set_sequence_range;
-		next = next_sequence_range;
+		get_ = get_sequence_range_;
+		set_ = set_sequence_range_;
+		next_ = next_sequence_range_;
 		endp = endp_sequence_range;
 	}
 
 	/* loop */
 	one = str->second;
 	hold = LocalHold_array(str->ptr, 1);
-	while (! endp(range)) {
-		get(range, &value);
+	while (! (*endp)(range)) {
+		Return((*get_)(range, &value, &check));
 		localhold_set(hold, 0, value);
 		Return(boolean_substitute_sequence(str, &check, value));
-		set(range, check? one: value);
-		next(range);
+		Return((*set_)(range, check? one: value));
+		Return((*next_)(range, &check));
 	}
 	localhold_end(hold);
 
@@ -3127,7 +3259,8 @@ static int normal_nsubstitute_sequence(struct count_struct *str)
 _g int nsubstitute_common(Execute ptr,
 		addr item1, addr item2, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2, count;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -3152,7 +3285,7 @@ _g int nsubstitute_common(Execute ptr,
 	}
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -3184,14 +3317,15 @@ _g int nsubstitute_common(Execute ptr,
 
 	if (listp && fromp)
 		return reverse_nsubstitute_sequence(&str);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	return normal_nsubstitute_sequence(&str);
 }
 
 static int argument_nsubstitute_sequence(Execute ptr,
 		addr item, addr test1, addr test2, addr pos, addr rest)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, count;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -3208,7 +3342,7 @@ static int argument_nsubstitute_sequence(Execute ptr,
 		key = Nil;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.ptr = ptr;
@@ -3235,7 +3369,7 @@ static int argument_nsubstitute_sequence(Execute ptr,
 
 	if (listp && fromp)
 		return reverse_nsubstitute_sequence(&str);
-	build_sequence_range(range, pos, start, end);
+	Return(build_sequence_range_(range, pos, start, end));
 	return normal_nsubstitute_sequence(&str);
 }
 
@@ -3257,6 +3391,7 @@ _g int nsubstitute_if_not_common(Execute ptr,
  */
 static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 {
+	int check;
 	enum LISPDECL decl;
 	addr root, value, one;
 	size_t size, i;
@@ -3270,16 +3405,17 @@ static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 	root = Nil;
 	while (rest != Nil) {
 		Return_getcons(rest, &value, &rest);
-		if (listp_sequence(value)) {
+		Return(listp_sequence_(value, &check));
+		if (check) {
 			while (value != Nil) {
 				Return_getcons(value, &one, &value);
 				cons_heap(&root, one, root);
 			}
 		}
 		else {
-			size = length_sequence(value, 1);
+			Return(length_sequence_(value, 1, &size));
 			for (i = 0; i < size; i++) {
-				getelt_sequence(NULL, value, i, &one);
+				Return(getelt_sequence_(NULL, value, i, &one));
 				cons_heap(&root, one, root);
 			}
 		}
@@ -3295,13 +3431,13 @@ static int length_concatenate_sequence(addr rest, size_t *ret)
 
 	for (size = 0; rest != Nil; size += value) {
 		Return_getcons(rest, &pos, &rest);
-		value = length_sequence(pos, 1);
+		Return(length_sequence_(pos, 1, &value));
 	}
 
 	return Result(ret, size);
 }
 
-static void value_concatenate_sequence(addr root, addr rest)
+static int value_concatenate_sequence_(addr root, addr rest)
 {
 	addr pos;
 	size_t index, size, i;
@@ -3309,12 +3445,14 @@ static void value_concatenate_sequence(addr root, addr rest)
 
 	for (index = 0; rest != Nil; ) {
 		GetCons(rest, &pos, &rest);
-		size = length_sequence(pos, 1);
+		Return(length_sequence_(pos, 1, &size));
 		for (i = 0; i < size; i++) {
-			getelt_inplace_sequence(pos, i, &value);
-			setelt_inplace_sequence(NULL, root, index++, &value);
+			Return(getelt_inplace_sequence_(pos, i, &value));
+			Return(setelt_inplace_sequence_(NULL, root, index++, &value));
 		}
 	}
+
+	return 0;
 }
 
 static int vector_concatenate_sequence(addr *ret, addr type, addr rest)
@@ -3329,7 +3467,7 @@ static int vector_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* concatenate */
 	Return(length_concatenate_sequence(rest, &size));
 	Return(array_upgraded_merge_sequence(&root, type, size));
-	value_concatenate_sequence(root, rest);
+	Return(value_concatenate_sequence_(root, rest));
 
 	return Result(ret, root);
 }
@@ -3346,7 +3484,7 @@ static int simple_vector_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* concatenate */
 	Return(length_concatenate_sequence(rest, &size));
 	vector_heap(&root, size);
-	value_concatenate_sequence(root, rest);
+	Return(value_concatenate_sequence_(root, rest));
 
 	return Result(ret, root);
 }
@@ -3363,7 +3501,7 @@ static int string_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* concatenate */
 	Return(length_concatenate_sequence(rest, &size));
 	strvect_heap(&root, size);
-	value_concatenate_sequence(root, rest);
+	Return(value_concatenate_sequence_(root, rest));
 
 	return Result(ret, root);
 }
@@ -3382,7 +3520,7 @@ static int array_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* concatenate */
 	Return(length_concatenate_sequence(rest, &size));
 	Return(array_upgraded_merge_sequence(&root, type, size));
-	value_concatenate_sequence(root, rest);
+	Return(value_concatenate_sequence_(root, rest));
 
 	return Result(ret, root);
 }
@@ -3401,7 +3539,7 @@ static int bitvector_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* concatenate */
 	Return(length_concatenate_sequence(rest, &size));
 	bitmemory_unsafe(NULL, &root, size);
-	value_concatenate_sequence(root, rest);
+	Return(value_concatenate_sequence_(root, rest));
 
 	return Result(ret, root);
 }
@@ -3470,8 +3608,12 @@ static int reverse_list_local_remove_sequence(
 
 	/* copy */
 	range = &(str->range);
-	for (size = 0; ! getnext_sequence_range(range, &pos); size++)
+	for (size = 0; ; size++) {
+		Return(getnext_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
 		setarray(table, size, pos);
+	}
 
 	/* remove */
 	for (a = b = size; a; ) {
@@ -3482,7 +3624,7 @@ static int reverse_list_local_remove_sequence(
 	}
 	while (b < size) {
 		getarray(table, b++, &pos);
-		push_sequence_write(ret, pos);
+		Return(push_sequence_write_(ret, pos));
 	}
 
 	return 0;
@@ -3498,17 +3640,17 @@ static int list_reverse_remove_sequence(
 
 	local = str->local;
 	range = &(str->range);
-	build_sequence_range_endp(range, str->pos, str->start, str->end);
+	Return(build_sequence_range_endp_(range, str->pos, str->start, str->end));
 	build_sequence_write_list(ret);
 	/* before start */
-	before_sequence_write(ret, range);
+	Return(before_sequence_write_(ret, range));
 	/* between start and end */
 	push_local(local, &stack);
 	vector_local(local, &table, range->size);
 	Return(reverse_list_local_remove_sequence(str, ret, table));
 	rollback_local(local, stack);
 	/* after end */
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -3523,8 +3665,12 @@ static int reverse_list_local_delete_sequence(struct count_struct *str, addr tab
 	/* copy */
 	range = &(str->range);
 	save_sequence_range(range);
-	for (size = 0; ! getnext_sequence_range(range, &pos); size++)
+	for (size = 0; ; size++) {
+		Return(getnext_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
 		setarray(table, size, pos);
+	}
 
 	/* copy */
 	for (i = size; i; ) {
@@ -3538,10 +3684,12 @@ static int reverse_list_local_delete_sequence(struct count_struct *str, addr tab
 	load_sequence_range(range);
 	for (i = 0; i < size; i++) {
 		getarray(table, i, &pos);
-		if (pos == T)
-			remove_sequence_range(range);
-		else
-			next_sequence_range(range);
+		if (pos == T) {
+			Return(remove_sequence_range_(range));
+		}
+		else {
+			Return(next_sequence_range_(range, &check));
+		}
 	}
 
 	return 0;
@@ -3557,7 +3705,7 @@ static int list_reverse_delete_sequence(
 
 	local = str->local;
 	range = &(str->range);
-	build_sequence_range_endp(range, str->pos, str->start, str->end);
+	Return(build_sequence_range_endp_(range, str->pos, str->start, str->end));
 	/* replace */
 	push_local(local, &stack);
 	vector_local(local, &table, range->size);
@@ -3587,19 +3735,22 @@ static int list_remove_sequence(struct count_struct *str, struct sequence_write 
 
 	range = &(str->range);
 	build_sequence_write_list(ret);
-	before_sequence_write(ret, range);
+	Return(before_sequence_write_(ret, range));
 	hold = LocalHold_array(str->ptr, 2);
 	localhold_set(hold, 1, ret->pos);
-	while (! getnext_sequence_range(range, &pos)) {
+	for (;;) {
+		Return(getnext_sequence_range_(range, &pos, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, pos);
 		Return(boolean_substitute_sequence(str, &check, pos));
 		if (! check) {
-			push_sequence_write(ret, pos);
+			Return(push_sequence_write_(ret, pos));
 			localhold_set(hold, 1, ret->pos);
 		}
 	}
 	localhold_end(hold);
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -3612,12 +3763,14 @@ static int list_delete_sequence(struct count_struct *str, struct sequence_write 
 
 	range = &(str->range);
 	while (! endp_sequence_range(range)) {
-		get_sequence_range(range, &pos);
+		Return(get_sequence_range_(range, &pos, &check));
 		Return(boolean_substitute_sequence(str, &check, pos));
-		if (check)
-			remove_sequence_range(range);
-		else
-			next_sequence_range(range);
+		if (check) {
+			Return(remove_sequence_range_(range));
+		}
+		else {
+			Return(next_sequence_range_(range, &check));
+		}
 	}
 	/* result */
 	build_sequence_write_result(ret, range->pos);
@@ -3638,7 +3791,11 @@ static int copy_normal_remove_sequence(
 	range = &(str->range);
 	pos = range->pos;
 	hold = LocalHold_array(str->ptr, 1);
-	for (loc = 0; ! getnext_sequence_range(range, &value); ) {
+	loc = 0;
+	for (;;) {
+		Return(getnext_sequence_range_(range, &value, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, value);
 		Return(boolean_substitute_sequence(str, &check, value));
 		if (! check)
@@ -3647,13 +3804,14 @@ static int copy_normal_remove_sequence(
 	localhold_end(hold);
 
 	/* copy */
-	size = length_sequence(pos, 1) - range->size + loc;
+	Return(length_sequence_(pos, 1, &size));
+	size = size - range->size + loc;
 	Return(make_vector_size_sequence(&pos, pos, size));
-	build_sequence_write(ret, pos);
-	before_sequence_write(ret, range);
+	Return(build_sequence_write_(ret, pos));
+	Return(before_sequence_write_(ret, range));
 	for (i = 0; i < loc; i++) {
 		getarray(table, i, &value);
-		push_sequence_write(ret, value);
+		Return(push_sequence_write_(ret, value));
 	}
 
 	return 0;
@@ -3673,7 +3831,11 @@ static int copy_reverse_remove_sequence(
 	pos = range->pos;
 	reverse_sequence_range(range);
 	hold = LocalHold_array(str->ptr, 1);
-	for (loc = 0; ! getnext_reverse_sequence_range(range, &value); ) {
+	loc = 0;
+	for (;;) {
+		Return(getnext_reverse_sequence_range_(range, &value, &check));
+		if (check)
+			break;
 		localhold_set(hold, 0, value);
 		Return(boolean_substitute_sequence(str, &check, value));
 		if (! check)
@@ -3682,13 +3844,14 @@ static int copy_reverse_remove_sequence(
 	localhold_end(hold);
 
 	/* copy */
-	size = length_sequence(pos, 1) - range->size + loc;
+	Return(length_sequence_(pos, 1, &size));
+	size = size - range->size + loc;
 	Return(make_vector_size_sequence(&pos, pos, size));
-	build_sequence_write(ret, pos);
-	before_sequence_write(ret, range);
+	Return(build_sequence_write_(ret, pos));
+	Return(before_sequence_write_(ret, range));
 	while (loc) {
 		getarray(table, --loc, &value);
-		push_sequence_write(ret, value);
+		Return(push_sequence_write_(ret, value));
 	}
 
 	return 0;
@@ -3707,7 +3870,7 @@ static int copy_remove_sequence(struct count_struct *str, struct sequence_write 
 	else {
 		Return(copy_normal_remove_sequence(str, ret, table));
 	}
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -3735,7 +3898,8 @@ static int normal_remove_sequence(struct count_struct *str, struct sequence_writ
 static int argument_remove_sequence(Execute ptr,
 		addr *ret, addr item, addr pos, addr rest, unsigned delp)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2, count;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -3761,7 +3925,7 @@ static int argument_remove_sequence(Execute ptr,
 	}
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.delp = delp;
@@ -3795,7 +3959,7 @@ static int argument_remove_sequence(Execute ptr,
 		Return(list_reverse_type_remove_sequence(&str, &write));
 	}
 	else {
-		build_sequence_range(range, pos, start, end);
+		Return(build_sequence_range_(range, pos, start, end));
 		Return(normal_remove_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
@@ -3806,7 +3970,8 @@ static int argument_remove_sequence(Execute ptr,
 static int argument_remove_if_sequence(Execute ptr, addr *ret,
 		addr test1, addr test2, addr pos, addr rest, unsigned delp)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, count;
 	struct count_struct str;
 	struct sequence_range *range;
@@ -3824,7 +3989,7 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 		key = Nil;
 
 	cleartype(str);
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.delp = delp;
@@ -3853,7 +4018,7 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 		Return(list_reverse_type_remove_sequence(&str, &write));
 	}
 	else {
-		build_sequence_range(range, pos, start, end);
+		Return(build_sequence_range_(range, pos, start, end));
 		Return(normal_remove_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
@@ -3906,8 +4071,12 @@ static int list_reverse_duplicates_sequence(struct count_struct *str,
 	addr a, b;
 	size_t i, k, n;
 
-	for (i = 0; ! getnext_sequence_range(range, &a); i++)
+	for (i = 0; ; i++) {
+		Return(getnext_sequence_range_(range, &a, &check));
+		if (check)
+			break;
 		setarray(table, i, a);
+	}
 
 	n = 0;
 	for (i = size; i; ) {
@@ -3935,6 +4104,7 @@ static int list_reverse_duplicates_sequence(struct count_struct *str,
 static int list_reverse_delete_duplicates(
 		struct count_struct *str, struct sequence_write *ret)
 {
+	int check;
 	addr table, pos;
 	struct sequence_range *range;
 	size_t size, i;
@@ -3950,10 +4120,12 @@ static int list_reverse_delete_duplicates(
 	/* result */
 	for (i = 0; i < size; i++) {
 		getarray(table, i, &pos);
-		if (pos == Unbound)
-			remove_sequence_range(range);
-		else
-			next_sequence_range(range);
+		if (pos == Unbound) {
+			Return(remove_sequence_range_(range));
+		}
+		else {
+			Return(next_sequence_range_(range, &check));
+		}
 	}
 	build_sequence_write_result(ret, range->pos);
 
@@ -3975,13 +4147,14 @@ static int list_reverse_remove_duplicates(
 
 	/* result */
 	build_sequence_write_list(ret);
-	before_sequence_write(ret, range);
+	Return(before_sequence_write_(ret, range));
 	for (i = 0; i < size; i++) {
 		getarray(table, i, &pos);
-		if (pos != Unbound)
-			push_sequence_write(ret, pos);
+		if (pos != Unbound) {
+			Return(push_sequence_write_(ret, pos));
+		}
 	}
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -3993,8 +4166,12 @@ static int list_normal_duplicates_sequence(struct count_struct *str,
 	addr a, b;
 	size_t i, k, n;
 
-	for (i = 0; ! getnext_sequence_range(range, &a); i++)
+	for (i = 0; ; i++) {
+		Return(getnext_sequence_range_(range, &a, &check));
+		if (check)
+			break;
 		setarray(table, i, a);
+	}
 
 	n = 0;
 	for (i = 0; i < size; i++) {
@@ -4023,6 +4200,7 @@ static int list_normal_duplicates_sequence(struct count_struct *str,
 static int list_normal_delete_duplicates(
 		struct count_struct *str, struct sequence_write *ret)
 {
+	int check;
 	addr table, pos;
 	struct sequence_range *range;
 	size_t size, i;
@@ -4038,10 +4216,12 @@ static int list_normal_delete_duplicates(
 	/* result */
 	for (i = 0; i < size; i++) {
 		getarray(table, i, &pos);
-		if (pos == Unbound)
-			remove_sequence_range(range);
-		else
-			next_sequence_range(range);
+		if (pos == Unbound) {
+			Return(remove_sequence_range_(range));
+		}
+		else {
+			Return(next_sequence_range_(range, &check));
+		}
 	}
 	build_sequence_write_result(ret, range->pos);
 
@@ -4063,13 +4243,14 @@ static int list_normal_remove_duplicates(
 
 	/* result */
 	build_sequence_write_list(ret);
-	before_sequence_write(ret, range);
+	Return(before_sequence_write_(ret, range));
 	for (i = 0; i < size; i++) {
 		getarray(table, i, &pos);
-		if (pos != Unbound)
-			push_sequence_write(ret, pos);
+		if (pos != Unbound) {
+			Return(push_sequence_write_(ret, pos));
+		}
 	}
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -4105,16 +4286,18 @@ static int vector_reverse_remove_duplicates(
 
 	/* copy */
 	pos = range->pos;
-	k = length_sequence(pos, 1) - loc;
+	Return(length_sequence_(pos, 1, &k));
+	k = k - loc;
 	Return(make_vector_size_sequence(&pos, pos, k));
-	build_sequence_write(ret, pos);
-	before_sequence_write(ret, range);
+	Return(build_sequence_write_(ret, pos));
+	Return(before_sequence_write_(ret, range));
 	for (k = 0; k < size; k++) {
 		getarray(table, k, &pos);
-		if (pos != Unbound)
-			push_sequence_write(ret, pos);
+		if (pos != Unbound) {
+			Return(push_sequence_write_(ret, pos));
+		}
 	}
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -4134,16 +4317,18 @@ static int vector_normal_remove_duplicates(
 
 	/* copy */
 	pos = range->pos;
-	k = length_sequence(pos, 1) - loc;
+	Return(length_sequence_(pos, 1, &k));
+	k = k - loc;
 	Return(make_vector_size_sequence(&pos, pos, k));
-	build_sequence_write(ret, pos);
-	before_sequence_write(ret, range);
+	Return(build_sequence_write_(ret, pos));
+	Return(before_sequence_write_(ret, range));
 	for (k = 0; k < size; k++) {
 		getarray(table, k, &pos);
-		if (pos != Unbound)
-			push_sequence_write(ret, pos);
+		if (pos != Unbound) {
+			Return(push_sequence_write_(ret, pos));
+		}
 	}
-	after_sequence_write(ret, range);
+	Return(after_sequence_write_(ret, range));
 
 	return 0;
 }
@@ -4160,7 +4345,8 @@ static int vector_remove_duplicates_sequence(
 static int argument_remove_duplicates(Execute ptr,
 		addr *ret, addr pos, addr rest, unsigned delp)
 {
-	unsigned listp, fromp;
+	int listp;
+	unsigned fromp;
 	addr from, start, end, key, test1, test2;
 	struct count_struct str;
 	LocalRoot local;
@@ -4187,7 +4373,7 @@ static int argument_remove_duplicates(Execute ptr,
 
 	cleartype(str);
 	local = ptr->local;
-	listp = listp_sequence(pos);
+	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
 	str.delp = delp;
@@ -4221,11 +4407,11 @@ static int argument_remove_duplicates(Execute ptr,
 
 	push_local(local, &stack);
 	if (listp) {
-		build_sequence_range_endp(range, pos, start, end);
+		Return(build_sequence_range_endp_(range, pos, start, end));
 		Return(list_remove_duplicates(&str, &write));
 	}
 	else {
-		build_sequence_range(range, pos, start, end);
+		Return(build_sequence_range_(range, pos, start, end));
 		Return(vector_remove_duplicates_sequence(&str, &write));
 	}
 	rollback_local(local, stack);

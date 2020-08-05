@@ -398,7 +398,7 @@ static int character_pretty_stream_(addr stream, unicode u)
 	}
 	else {
 		Return(queue_pretty_stream_(stream, &stream));
-		push_charqueue_heap(stream, u);
+		Return(push_charqueue_heap_(stream, u));
 	}
 
 	return 0;

@@ -222,14 +222,14 @@ _g int character_common(addr var, addr *ret)
 		string_length(var, &size);
 		if (size != 1)
 			return fmte_("The length of symbol ~S name must be 1.", NULL);
-		string_getc(var, 0, &c);
+		Return(string_getc_(var, 0, &c));
 		character_heap(&var, c);
 	}
 	else if (stringp(var)) {
 		string_length(var, &size);
 		if (size != 1)
 			return fmte_("The length of string ~S name must be 1.", NULL);
-		string_getc(var, 0, &c);
+		Return(string_getc_(var, 0, &c));
 		character_heap(&var, c);
 	}
 	else if (GetType(var) != LISPTYPE_CHARACTER) {
@@ -460,7 +460,7 @@ _g int name_char_common_(LocalRoot local, addr var, addr *ret)
 		push_local(local, &stack);
 		GetCharacter(var, &c);
 		strvect_local(local, &var, 1);
-		strvect_setc(var, 0, c);
+		Return(strvect_setc_(var, 0, c));
 		Return(findtable_name_char_(ret, var));
 		rollback_local(local, stack);
 	}

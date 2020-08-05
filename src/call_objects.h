@@ -6,7 +6,7 @@
 
 _g int defclass_common(Execute ptr, addr form, addr env, addr *ret);
 _g int define_condition_common(Execute ptr, addr form, addr env, addr *ret);
-_g int find_class_common(addr pos, int errorp, addr env, addr *ret);
+_g int find_class_common_(addr pos, int errorp, addr env, addr *ret);
 _g void setf_find_class_common(addr pos, addr name, addr env);
 _g int with_accessors_common(Execute ptr, addr form, addr env, addr *ret);
 _g int with_slots_common(Execute ptr, addr form, addr env, addr *ret);

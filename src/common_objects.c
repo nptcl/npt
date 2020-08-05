@@ -56,7 +56,7 @@ static void defgeneric_function_keywords(void)
  */
 static int function_ensure_generic_function(Execute ptr, addr name, addr rest)
 {
-	Return(ensure_generic_function_common(ptr, name, rest, &name));
+	Return(ensure_generic_function_common_(ptr, name, rest, &name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -146,8 +146,8 @@ static int function_slot_boundp(Execute ptr, addr pos, addr name)
 	addr call, clos;
 
 	/* redefined */
-	clos_class_of(pos, &clos);
-	Return(clos_version_check(ptr, pos, clos));
+	Return(clos_class_of_(pos, &clos));
+	Return(clos_version_check_(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_BOUNDP_USING_CLASS, &call);
@@ -177,8 +177,8 @@ static int function_slot_exists_p(Execute ptr, addr pos, addr name)
 	addr call, clos;
 
 	/* redefined */
-	clos_class_of(pos, &clos);
-	Return(clos_version_check(ptr, pos, clos));
+	Return(clos_class_of_(pos, &clos));
+	Return(clos_version_check_(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_EXISTS_P_USING_CLASS, &call);
@@ -208,8 +208,8 @@ static int function_slot_makunbound(Execute ptr, addr pos, addr name)
 	addr call, clos;
 
 	/* redefined */
-	clos_class_of(pos, &clos);
-	Return(clos_version_check(ptr, pos, clos));
+	Return(clos_class_of_(pos, &clos));
+	Return(clos_version_check_(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_MAKUNBOUND_USING_CLASS, &call);
@@ -253,8 +253,8 @@ static int function_slot_value(Execute ptr, addr pos, addr name)
 	addr call, clos;
 
 	/* redefined */
-	clos_class_of(pos, &clos);
-	Return(clos_version_check(ptr, pos, clos));
+	Return(clos_class_of_(pos, &clos));
+	Return(clos_version_check_(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
@@ -295,8 +295,8 @@ static int function_setf_slot_value(Execute ptr, addr value, addr pos, addr name
 	addr call, clos;
 
 	/* redefined */
-	clos_class_of(pos, &clos);
-	Return(clos_version_check(ptr, pos, clos));
+	Return(clos_class_of_(pos, &clos));
+	Return(clos_version_check_(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
@@ -565,7 +565,7 @@ static int function_find_class(Execute ptr, addr pos, addr errorp, addr env)
 		errorp = T;
 	if (env == Unbound)
 		env = Nil;
-	Return(find_class_common(pos, errorp != Nil, env, &pos));
+	Return(find_class_common_(pos, errorp != Nil, env, &pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -708,7 +708,7 @@ static void defgeneric_setf_class_name_import(void)
 /* (defun class-of (object) ...) -> class */
 static int function_class_of(Execute ptr, addr pos)
 {
-	clos_class_of(pos, &pos);
+	Return(clos_class_of_(pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }

@@ -14,17 +14,17 @@ static int test_array_stringp(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(array_stringp(pos), "array_stringp.1");
 
-	array_va_heap(&pos, 0);
+	array_va_heap_(&pos, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(! array_stringp(pos), "array_stringp.2");
 
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_T;
 	test(! array_stringp(pos), "array_stringp.3");
@@ -37,7 +37,7 @@ static int test_strarrayp(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(strarrayp(pos), "strarrayp.1");
@@ -51,7 +51,7 @@ static int test_stringp(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_va_heap(&pos, 10, 0);
+	array_va_heap_(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(stringp(pos), "stringp.1");
@@ -74,7 +74,8 @@ static int test_strarray_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 
-	strarray_alloc(NULL, &pos, 10);
+	pos = Nil;
+	strarray_alloc_(NULL, &pos, 10);
 	test(stringp(pos), "strarray_alloc.1");
 	test(strarrayp(pos), "strarray_alloc.2");
 	str = ArrayInfoStruct(pos);
@@ -83,12 +84,12 @@ static int test_strarray_alloc(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	strarray_local(local, &pos, 10);
+	strarray_local_(local, &pos, 10);
 	test(stringp(pos), "strarray_alloc.5");
 	test(GetStatusDynamic(pos), "strarray_alloc.6");
 	rollback_local(local, stack);
 
-	strarray_heap(&pos, 10);
+	strarray_heap_(&pos, 10);
 	test(stringp(pos), "strarray_alloc.7");
 	test(! GetStatusDynamic(pos), "strarray_alloc.8");
 
@@ -98,21 +99,20 @@ static int test_strarray_alloc(void)
 static int test_strarray_update_character_type(void)
 {
 	addr pos;
-	unicode *body;
 
-	strarray_heap(&pos, 3);
-	GetArrayUnicode(pos, &body);
-	body[0] = 'a';
-	body[1] = 'b';
-	body[2] = 'c';
-	strarray_update_character_type(pos);
+	pos = Nil;
+	strarray_heap_(&pos, 3);
+	strarray_setc_(pos, 0, 'a');
+	strarray_setc_(pos, 1, 'b');
+	strarray_setc_(pos, 2, 'c');
+	strarray_update_character_type_(pos);
 	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD,
 			"strarray_update_character_type.1");
 
-	body[0] = 'a';
-	body[1] = 0x0D;
-	body[2] = 'c';
-	strarray_update_character_type(pos);
+	strarray_setc_(pos, 0, 'a');
+	strarray_setc_(pos, 1, 0x0D);
+	strarray_setc_(pos, 2, 'c');
+	strarray_update_character_type_(pos);
 	test(RefCharacterType(pos) == CHARACTER_TYPE_BASE,
 			"strarray_update_character_type.2");
 
@@ -122,30 +122,32 @@ static int test_strarray_update_character_type(void)
 static int test_strarray_char_alloc(void)
 {
 	addr pos;
-	const unicode *body;
+	unicode c;
 	struct array_struct *str;
 	LocalRoot local;
 	LocalStack stack;
 
-	strarray_char_alloc(NULL, &pos, "Hello");
+	strarray_char_alloc_(NULL, &pos, "Hello");
 	test(strarrayp(pos), "strarray_char_alloc.1");
 	str = ArrayInfoStruct(pos);
 	test(str->size == 5, "strarray_char_alloc.2");
 	test(str->front == 5, "strarray_char_alloc.3");
 	test(str->type == ARRAY_TYPE_CHARACTER, "strarray_char_alloc.4");
-	GetArrayUnicode(pos, &body);
-	test(body[0] == 'H', "strarray_char_alloc.5");
-	test(body[1] == 'e', "strarray_char_alloc.6");
-	test(body[4] == 'o', "strarray_char_alloc.7");
+	strarray_getc_(pos, 0, &c);
+	test(c == 'H', "strarray_char_alloc.5");
+	strarray_getc_(pos, 1, &c);
+	test(c == 'e', "strarray_char_alloc.6");
+	strarray_getc_(pos, 4, &c);
+	test(c == 'o', "strarray_char_alloc.7");
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	strarray_char_local(local, &pos, "Hello");
+	strarray_char_local_(local, &pos, "Hello");
 	test(strarrayp(pos), "strarray_char_alloc.8");
 	test(GetStatusDynamic(pos), "strarray_char_alloc.9");
 	rollback_local(local, stack);
 
-	strarray_char_heap(&pos, "Hello");
+	strarray_char_heap_(&pos, "Hello");
 	test(strarrayp(pos), "strarray_char_alloc.10");
 	test(! GetStatusDynamic(pos), "strarray_char_alloc.11");
 
@@ -155,30 +157,32 @@ static int test_strarray_char_alloc(void)
 static int test_strarray_size1_alloc(void)
 {
 	addr pos;
-	const unicode *body;
+	unicode c;
 	struct array_struct *str;
 	LocalRoot local;
 	LocalStack stack;
 
-	strarray_size1_alloc(NULL, &pos, "Hello", 5);
+	strarray_size1_alloc_(NULL, &pos, "Hello", 5);
 	test(strarrayp(pos), "strarray_size1_alloc.1");
 	str = ArrayInfoStruct(pos);
 	test(str->size == 5, "strarray_size1_alloc.2");
 	test(str->front == 5, "strarray_size1_alloc.3");
 	test(str->type == ARRAY_TYPE_CHARACTER, "strarray_size1_alloc.4");
-	GetArrayUnicode(pos, &body);
-	test(body[0] == 'H', "strarray_size1_alloc.5");
-	test(body[1] == 'e', "strarray_size1_alloc.6");
-	test(body[4] == 'o', "strarray_size1_alloc.7");
+	strarray_getc_(pos, 0, &c);
+	test(c == 'H', "strarray_size1_alloc.5");
+	strarray_getc_(pos, 1, &c);
+	test(c == 'e', "strarray_size1_alloc.6");
+	strarray_getc_(pos, 4, &c);
+	test(c == 'o', "strarray_size1_alloc.7");
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	strarray_size1_local(local, &pos, "Hello", 5);
+	strarray_size1_local_(local, &pos, "Hello", 5);
 	test(strarrayp(pos), "strarray_size1_alloc.8");
 	test(GetStatusDynamic(pos), "strarray_size1_alloc.9");
 	rollback_local(local, stack);
 
-	strarray_size1_heap(&pos, "Hello", 5);
+	strarray_size1_heap_(&pos, "Hello", 5);
 	test(strarrayp(pos), "strarray_size1_alloc.10");
 	test(! GetStatusDynamic(pos), "strarray_size1_alloc.11");
 
@@ -189,30 +193,32 @@ static int test_strarray_sizeu_alloc(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
 	addr pos;
-	const unicode *body;
+	unicode c;
 	struct array_struct *str;
 	LocalRoot local;
 	LocalStack stack;
 
-	strarray_sizeu_alloc(NULL, &pos, Hello, 5);
+	strarray_sizeu_alloc_(NULL, &pos, Hello, 5);
 	test(strarrayp(pos), "strarray_sizeu_alloc.1");
 	str = ArrayInfoStruct(pos);
 	test(str->size == 5, "strarray_sizeu_alloc.2");
 	test(str->front == 5, "strarray_sizeu_alloc.3");
 	test(str->type == ARRAY_TYPE_CHARACTER, "strarray_sizeu_alloc.4");
-	GetArrayUnicode(pos, &body);
-	test(body[0] == 'H', "strarray_sizeu_alloc.5");
-	test(body[1] == 'e', "strarray_sizeu_alloc.6");
-	test(body[4] == 'o', "strarray_sizeu_alloc.7");
+	strarray_getc_(pos, 0, &c);
+	test(c == 'H', "strarray_sizeu_alloc.5");
+	strarray_getc_(pos, 1, &c);
+	test(c == 'e', "strarray_sizeu_alloc.6");
+	strarray_getc_(pos, 4, &c);
+	test(c == 'o', "strarray_sizeu_alloc.7");
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	strarray_sizeu_local(local, &pos, Hello, 5);
+	strarray_sizeu_local_(local, &pos, Hello, 5);
 	test(strarrayp(pos), "strarray_sizeu_alloc.8");
 	test(GetStatusDynamic(pos), "strarray_sizeu_alloc.9");
 	rollback_local(local, stack);
 
-	strarray_sizeu_heap(&pos, Hello, 5);
+	strarray_sizeu_heap_(&pos, Hello, 5);
 	test(strarrayp(pos), "strarray_sizeu_alloc.10");
 	test(! GetStatusDynamic(pos), "strarray_sizeu_alloc.11");
 
@@ -224,25 +230,9 @@ static int test_strarray_length(void)
 	addr pos;
 	size_t size;
 
-	strarray_char_alloc(NULL, &pos, "Hello");
+	strarray_char_alloc_(NULL, &pos, "Hello");
 	strarray_length(pos, &size);
 	test(size == 5, "strarray_length.1");
-
-	RETURN;
-}
-
-static int test_strarray_refc(void)
-{
-	addr pos;
-	unicode u;
-
-	strarray_char_alloc(NULL, &pos, "Hello");
-	test(strarray_refc(pos, 0) == 'H', "strarray_refc.1");
-	test(strarray_refc(pos, 4) == 'o', "strarray_refc.2");
-	strarray_setc(pos, 1, 'E');
-	test(strarray_refc(pos, 1) == 'E', "strarray_setc.1");
-	strarray_getc(pos, 2, &u);
-	test(u == 'l', "strarray_getc.1");
 
 	RETURN;
 }
@@ -250,14 +240,20 @@ static int test_strarray_refc(void)
 static int test_strarray_equal_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_equal_binary(pos, Hello, 5), "strarray_equal_binary.1");
-	strarray_char_heap(&pos, "Helloo");
-	test(! strarray_equal_binary(pos, Hello, 5), "strarray_equal_binary.2");
-	strarray_char_heap(&pos, "HELLO");
-	test(! strarray_equal_binary(pos, Hello, 5), "strarray_equal_binary.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_equal_binary_(pos, Hello, 5, &check);
+	test(check, "strarray_equal_binary.1");
+	strarray_char_heap_(&pos, "Helloo");
+	strarray_equal_binary_(pos, Hello, 5, &check);
+	test(! check, "strarray_equal_binary.2");
+	strarray_char_heap_(&pos, "HELLO");
+	strarray_equal_binary_(pos, Hello, 5, &check);
+	test(! check, "strarray_equal_binary.3");
 
 	RETURN;
 }
@@ -265,68 +261,98 @@ static int test_strarray_equal_binary(void)
 static int test_strarray_equalp_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_equalp_binary(pos, Hello, 5), "strarray_equalp_binary.1");
-	strarray_char_heap(&pos, "Helloo");
-	test(! strarray_equalp_binary(pos, Hello, 5), "strarray_equalp_binary.2");
-	strarray_char_heap(&pos, "HELLO");
-	test(strarray_equalp_binary(pos, Hello, 5), "strarray_equalp_binary.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_equalp_binary_(pos, Hello, 5, &check);
+	test(check, "strarray_equalp_binary.1");
+	strarray_char_heap_(&pos, "Helloo");
+	strarray_equalp_binary_(pos, Hello, 5, &check);
+	test(! check, "strarray_equalp_binary.2");
+	strarray_char_heap_(&pos, "HELLO");
+	strarray_equalp_binary_(pos, Hello, 5, &check);
+	test(check, "strarray_equalp_binary.3");
 
 	RETURN;
 }
 
 static int test_strarray_equal_char(void)
 {
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_equal_char(pos, "Hello"), "strarray_equal_char.1");
-	test(! strarray_equal_char(pos, "Helloo"), "strarray_equal_char.2");
-	test(! strarray_equal_char(pos, "HELLO"), "strarray_equal_char.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_equal_char_(pos, "Hello", &check);
+	test(check, "strarray_equal_char.1");
+	strarray_equal_char_(pos, "Helloo", &check);
+	test(! check, "strarray_equal_char.2");
+	strarray_equal_char_(pos, "HELLO", &check);
+	test(! check, "strarray_equal_char.3");
 
 	RETURN;
 }
 
 static int test_strarray_equalp_char(void)
 {
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_equalp_char(pos, "Hello"), "strarray_equalp_char.1");
-	test(! strarray_equalp_char(pos, "Helloo"), "strarray_equalp_char.2");
-	test(strarray_equalp_char(pos, "HELLO"), "strarray_equalp_char.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_equalp_char_(pos, "Hello", &check);
+	test(check, "strarray_equalp_char.1");
+	strarray_equalp_char_(pos, "Helloo", &check);
+	test(! check, "strarray_equalp_char.2");
+	strarray_equalp_char_(pos, "HELLO", &check);
+	test(check, "strarray_equalp_char.3");
 
 	RETURN;
 }
 
 static int test_strarray_equal(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strarray_equal(left, right), "strarray_equal.1");
-	strarray_char_heap(&right, "Helloo");
-	test(! strarray_equal(left, right), "strarray_equal.2");
-	strarray_char_heap(&right, "HELLO");
-	test(! strarray_equal(left, right), "strarray_equal.3");
+	check = 0;
+
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "Hello");
+	strarray_equal_(left, right, &check);
+	test(check, "strarray_equal.1");
+	strarray_char_heap_(&right, "Helloo");
+	strarray_equal_(left, right, &check);
+	test(! check, "strarray_equal.2");
+	strarray_char_heap_(&right, "HELLO");
+	strarray_equal_(left, right, &check);
+	test(! check, "strarray_equal.3");
 
 	RETURN;
 }
 
 static int test_strarray_equalp(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strarray_equalp(left, right), "strarray_equalp.1");
-	strarray_char_heap(&right, "Helloo");
-	test(! strarray_equalp(left, right), "strarray_equalp.2");
-	strarray_char_heap(&right, "HELLO");
-	test(strarray_equalp(left, right), "strarray_equalp.3");
+	check = 0;
+
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "Hello");
+	strarray_equalp_(left, right, &check);
+	test(check, "strarray_equalp.1");
+	strarray_char_heap_(&right, "Helloo");
+	strarray_equalp_(left, right, &check);
+	test(! check, "strarray_equalp.2");
+	strarray_char_heap_(&right, "HELLO");
+	strarray_equalp_(left, right, &check);
+	test(check, "strarray_equalp.3");
 
 	RETURN;
 }
@@ -334,14 +360,20 @@ static int test_strarray_equalp(void)
 static int test_strarray_compare_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_compare_binary(pos, Hello, 5) == 0, "strarray_compare_binary.1");
-	strarray_char_heap(&pos, "Helloo");
-	test(strarray_compare_binary(pos, Hello, 5) > 0, "strarray_compare_binary.2");
-	strarray_char_heap(&pos, "HELLO");
-	test(strarray_compare_binary(pos, Hello, 5) != 0, "strarray_compare_binary.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_compare_binary_(pos, Hello, 5, &check);
+	test(check == 0, "strarray_compare_binary.1");
+	strarray_char_heap_(&pos, "Helloo");
+	strarray_compare_binary_(pos, Hello, 5, &check);
+	test(check > 0, "strarray_compare_binary.2");
+	strarray_char_heap_(&pos, "HELLO");
+	strarray_compare_binary_(pos, Hello, 5, &check);
+	test(check != 0, "strarray_compare_binary.3");
 
 	RETURN;
 }
@@ -349,68 +381,98 @@ static int test_strarray_compare_binary(void)
 static int test_strarray_comparep_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_comparep_binary(pos, Hello, 5) == 0, "strarray_comparep_binary.1");
-	strarray_char_heap(&pos, "Helloo");
-	test(strarray_comparep_binary(pos, Hello, 5) > 0, "strarray_comparep_binary.2");
-	strarray_char_heap(&pos, "HELLO");
-	test(strarray_comparep_binary(pos, Hello, 5) == 0, "strarray_comparep_binary.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_comparep_binary_(pos, Hello, 5, &check);
+	test(check == 0, "strarray_comparep_binary.1");
+	strarray_char_heap_(&pos, "Helloo");
+	strarray_comparep_binary_(pos, Hello, 5, &check);
+	test(check > 0, "strarray_comparep_binary.2");
+	strarray_char_heap_(&pos, "HELLO");
+	strarray_comparep_binary_(pos, Hello, 5, &check);
+	test(check == 0, "strarray_comparep_binary.3");
 
 	RETURN;
 }
 
 static int test_strarray_compare_char(void)
 {
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_compare_char(pos, "Hello") == 0, "strarray_compare_char.1");
-	test(strarray_compare_char(pos, "Helloo") < 0, "strarray_compare_char.2");
-	test(strarray_compare_char(pos, "HELLO") != 0, "strarray_compare_char.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_compare_char_(pos, "Hello", &check);
+	test(check == 0, "strarray_compare_char.1");
+	strarray_compare_char_(pos, "Helloo", &check);
+	test(check < 0, "strarray_compare_char.2");
+	strarray_compare_char_(pos, "HELLO", &check);
+	test(check != 0, "strarray_compare_char.3");
 
 	RETURN;
 }
 
 static int test_strarray_comparep_char(void)
 {
+	int check;
 	addr pos;
 
-	strarray_char_heap(&pos, "Hello");
-	test(strarray_comparep_char(pos, "Hello") == 0, "strarray_comparep_char.1");
-	test(strarray_comparep_char(pos, "Helloo") < 0, "strarray_comparep_char.2");
-	test(strarray_comparep_char(pos, "HELLO") == 0, "strarray_comparep_char.3");
+	check = 0;
+
+	strarray_char_heap_(&pos, "Hello");
+	strarray_comparep_char_(pos, "Hello", &check);
+	test(check == 0, "strarray_comparep_char.1");
+	strarray_comparep_char_(pos, "Helloo", &check);
+	test(check < 0, "strarray_comparep_char.2");
+	strarray_comparep_char_(pos, "HELLO", &check);
+	test(check == 0, "strarray_comparep_char.3");
 
 	RETURN;
 }
 
 static int test_strarray_compare(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strarray_compare(left, right) == 0, "strarray_compare.1");
-	strarray_char_heap(&right, "Helloo");
-	test(strarray_compare(left, right) < 0, "strarray_compare.2");
-	strarray_char_heap(&right, "HELLO");
-	test(strarray_compare(left, right) != 0, "strarray_compare.3");
+	check = 0;
+
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "Hello");
+	strarray_compare_(left, right, &check);
+	test(check == 0, "strarray_compare.1");
+	strarray_char_heap_(&right, "Helloo");
+	strarray_compare_(left, right, &check);
+	test(check < 0, "strarray_compare.2");
+	strarray_char_heap_(&right, "HELLO");
+	strarray_compare_(left, right, &check);
+	test(check != 0, "strarray_compare.3");
 
 	RETURN;
 }
 
 static int test_strarray_comparep(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strarray_comparep(left, right) == 0, "strarray_comparep.1");
-	strarray_char_heap(&right, "Helloo");
-	test(strarray_comparep(left, right) < 0, "strarray_comparep.2");
-	strarray_char_heap(&right, "HELLO");
-	test(strarray_comparep(left, right) == 0, "strarray_comparep.3");
+	check = 0;
+
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "Hello");
+	strarray_comparep_(left, right, &check);
+	test(check == 0, "strarray_comparep.1");
+	strarray_char_heap_(&right, "Helloo");
+	strarray_comparep_(left, right, &check);
+	test(check < 0, "strarray_comparep.2");
+	strarray_char_heap_(&right, "HELLO");
+	strarray_comparep_(left, right, &check);
+	test(check == 0, "strarray_comparep.3");
 
 	RETURN;
 }
@@ -428,31 +490,9 @@ static int test_string_length(void)
 	string_length(pos, &size);
 	test(size == 5, "string_length.1");
 
-	strarray_char_heap(&pos, "aaabbb");
+	strarray_char_heap_(&pos, "aaabbb");
 	string_length(pos, &size);
 	test(size == 6, "string_length.2");
-
-	RETURN;
-}
-
-static int test_string_refc(void)
-{
-	addr pos;
-	unicode u;
-
-	strvect_char_heap(&pos, "Hello");
-	test(string_refc(pos, 0) == 'H', "string_refc.1");
-	string_setc(pos, 1, 'E');
-	test(string_refc(pos, 1) == 'E', "string_setc.1");
-	string_getc(pos, 4, &u);
-	test(u == 'o', "string_getc.1");
-
-	strarray_char_heap(&pos, "Hello");
-	test(string_refc(pos, 0) == 'H', "string_refc.2");
-	string_setc(pos, 1, 'E');
-	test(string_refc(pos, 1) == 'E', "string_setc.2");
-	string_getc(pos, 4, &u);
-	test(u == 'o', "string_getc.2");
 
 	RETURN;
 }
@@ -460,15 +500,22 @@ static int test_string_refc(void)
 static int test_string_equal_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "Hello");
-	test(string_equal_binary(pos, Hello, 5), "string_equal_binary.1");
-	test(! string_equal_binary(pos, Hello, 4), "string_equal_binary.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "Hello");
-	test(string_equal_binary(pos, Hello, 5), "string_equal_binary.3");
-	test(! string_equal_binary(pos, Hello, 4), "string_equal_binary.4");
+	strvect_char_heap(&pos, "Hello");
+	string_equal_binary_(pos, Hello, 5, &check);
+	test(check, "string_equal_binary.1");
+	string_equal_binary_(pos, Hello, 4, &check);
+	test(! check, "string_equal_binary.2");
+
+	strarray_char_heap_(&pos, "Hello");
+	string_equal_binary_(pos, Hello, 5, &check);
+	test(check, "string_equal_binary.3");
+	string_equal_binary_(pos, Hello, 4, &check);
+	test(! check, "string_equal_binary.4");
 
 	RETURN;
 }
@@ -476,130 +523,184 @@ static int test_string_equal_binary(void)
 static int test_string_equalp_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "HELLO");
-	test(string_equalp_binary(pos, Hello, 5), "string_equalp_binary.1");
-	test(! string_equalp_binary(pos, Hello, 4), "string_equalp_binary.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "HELLO");
-	test(string_equalp_binary(pos, Hello, 5), "string_equalp_binary.3");
-	test(! string_equalp_binary(pos, Hello, 4), "string_equalp_binary.4");
+	strvect_char_heap(&pos, "HELLO");
+	string_equalp_binary_(pos, Hello, 5, &check);
+	test(check, "string_equalp_binary.1");
+	string_equalp_binary_(pos, Hello, 4, &check);
+	test(! check, "string_equalp_binary.2");
+
+	strarray_char_heap_(&pos, "HELLO");
+	string_equalp_binary_(pos, Hello, 5, &check);
+	test(check, "string_equalp_binary.3");
+	string_equalp_binary_(pos, Hello, 4, &check);
+	test(! check, "string_equalp_binary.4");
 
 	RETURN;
 }
 
 static int test_string_equal_char(void)
 {
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "Hello");
-	test(string_equal_char(pos, "Hello"), "string_equal_char.1");
-	test(! string_equal_char(pos, "Helloo"), "string_equal_char.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "Hello");
-	test(string_equal_char(pos, "Hello"), "string_equal_char.3");
-	test(! string_equal_char(pos, "Helloo"), "string_equal_char.4");
+	strvect_char_heap(&pos, "Hello");
+	string_equal_char_(pos, "Hello", &check);
+	test(check, "string_equal_char.1");
+	string_equal_char_(pos, "Helloo", &check);
+	test(! check, "string_equal_char.2");
+
+	strarray_char_heap_(&pos, "Hello");
+	string_equal_char_(pos, "Hello", &check);
+	test(check, "string_equal_char.3");
+	string_equal_char_(pos, "Helloo", &check);
+	test(! check, "string_equal_char.4");
 
 	RETURN;
 }
 
 static int test_string_equalp_char(void)
 {
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "HELLO");
-	test(string_equalp_char(pos, "Hello"), "string_equalp_char.1");
-	test(! string_equalp_char(pos, "Helloo"), "string_equalp_char.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "HELLO");
-	test(string_equalp_char(pos, "Hello"), "string_equalp_char.3");
-	test(! string_equalp_char(pos, "Helloo"), "string_equalp_char.4");
+	strvect_char_heap(&pos, "HELLO");
+	string_equalp_char_(pos, "Hello", &check);
+	test(check, "string_equalp_char.1");
+	string_equalp_char_(pos, "Helloo", &check);
+	test(! check, "string_equalp_char.2");
+
+	strarray_char_heap_(&pos, "HELLO");
+	string_equalp_char_(pos, "Hello", &check);
+	test(check, "string_equalp_char.3");
+	string_equalp_char_(pos, "Helloo", &check);
+	test(! check, "string_equalp_char.4");
 
 	RETURN;
 }
 
 static int test_strarray_strvect_equal(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
-	strvect_char_heap(&right, "Hello");
-	test(strarray_strvect_equal(left, right), "strarray_strvect_equal.1");
+	check = 0;
 
-	strarray_char_heap(&left, "HELLO");
-	test(! strarray_strvect_equal(left, right), "strarray_strvect_equal.2");
+	strarray_char_heap_(&left, "Hello");
+	strvect_char_heap(&right, "Hello");
+	strarray_strvect_equal_(left, right, &check);
+	test(check, "strarray_strvect_equal.1");
+
+	strarray_char_heap_(&left, "HELLO");
+	strarray_strvect_equal_(left, right, &check);
+	test(! check, "strarray_strvect_equal.2");
 
 	RETURN;
 }
 
 static int test_string_equal(void)
 {
+	int check;
 	addr left, right;
 
+	check = 0;
+
 	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(string_equal(left, left), "string_equal.1");
-	test(string_equal(left, right), "string_equal.2");
-	test(string_equal(right, left), "string_equal.3");
-	test(string_equal(right, right), "string_equal.4");
+	strarray_char_heap_(&right, "Hello");
+	string_equal_(left, left, &check);
+	test(check, "string_equal.1");
+	string_equal_(left, right, &check);
+	test(check, "string_equal.2");
+	string_equal_(right, left, &check);
+	test(check, "string_equal.3");
+	string_equal_(right, right, &check);
+	test(check, "string_equal.4");
 
 	strvect_char_heap(&left, "Hello");
 	strvect_char_heap(&right, "HELLO");
-	test(! string_equal(left, right), "string_equal.5");
+	string_equal_(left, right, &check);
+	test(! check, "string_equal.5");
 
 	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "HELLO");
-	test(! string_equal(left, right), "string_equal.6");
-	test(! string_equal(right, left), "string_equal.7");
+	strarray_char_heap_(&right, "HELLO");
+	string_equal_(left, right, &check);
+	test(! check, "string_equal.6");
+	string_equal_(right, left, &check);
+	test(! check, "string_equal.7");
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "HELLO");
-	test(! string_equal(left, right), "string_equal.8");
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "HELLO");
+	string_equal_(left, right, &check);
+	test(! check, "string_equal.8");
 
 	RETURN;
 }
 
 static int test_strarray_strvect_equalp(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
+	check = 0;
+
+	strarray_char_heap_(&left, "Hello");
 	strvect_char_heap(&right, "Hello");
-	test(strarray_strvect_equalp(left, right), "strarray_strvect_equalp.1");
+	strarray_strvect_equalp_(left, right, &check);
+	test(check, "strarray_strvect_equalp.1");
 
-	strarray_char_heap(&left, "HELLO");
-	test(strarray_strvect_equalp(left, right), "strarray_strvect_equalp.2");
+	strarray_char_heap_(&left, "HELLO");
+	strarray_strvect_equalp_(left, right, &check);
+	test(check, "strarray_strvect_equalp.2");
 
-	strarray_char_heap(&left, "HELLOO");
-	test(! strarray_strvect_equalp(left, right), "strarray_strvect_equalp.3");
+	strarray_char_heap_(&left, "HELLOO");
+	strarray_strvect_equalp_(left, right, &check);
+	test(! check, "strarray_strvect_equalp.3");
 
 	RETURN;
 }
 
 static int test_string_equalp(void)
 {
+	int check;
 	addr left, right;
 
+	check = 0;
+
 	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "HELLO");
-	test(string_equalp(left, left), "string_equalp.1");
-	test(string_equalp(left, right), "string_equalp.2");
-	test(string_equalp(right, left), "string_equalp.3");
-	test(string_equalp(right, right), "string_equalp.4");
+	strarray_char_heap_(&right, "HELLO");
+	string_equalp_(left, left, &check);
+	test(check, "string_equalp.1");
+	string_equalp_(left, right, &check);
+	test(check, "string_equalp.2");
+	string_equalp_(right, left, &check);
+	test(check, "string_equalp.3");
+	string_equalp_(right, right, &check);
+	test(check, "string_equalp.4");
 
 	strvect_char_heap(&left, "Hello");
 	strvect_char_heap(&right, "HELLOO");
-	test(! string_equalp(left, right), "string_equalp.5");
+	string_equalp_(left, right, &check);
+	test(! check, "string_equalp.5");
 
 	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "HELLOO");
-	test(! string_equalp(left, right), "string_equalp.6");
-	test(! string_equalp(right, left), "string_equalp.7");
+	strarray_char_heap_(&right, "HELLOO");
+	string_equalp_(left, right, &check);
+	test(! check, "string_equalp.6");
+	string_equalp_(right, left, &check);
+	test(! check, "string_equalp.7");
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "HELLOO");
-	test(! string_equalp(left, right), "string_equalp.8");
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "HELLOO");
+	string_equalp_(left, right, &check);
+	test(! check, "string_equalp.8");
 
 	RETURN;
 }
@@ -607,15 +708,22 @@ static int test_string_equalp(void)
 static int test_string_compare_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "Hello");
-	test(string_compare_binary(pos, Hello, 5) == 0, "string_compare_binary.1");
-	test(string_compare_binary(pos, Hello, 4) > 0, "string_compare_binary.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "Hello");
-	test(string_compare_binary(pos, Hello, 5) == 0, "string_compare_binary.3");
-	test(string_compare_binary(pos, Hello, 4) > 0, "string_compare_binary.4");
+	strvect_char_heap(&pos, "Hello");
+	string_compare_binary_(pos, Hello, 5, &check);
+	test(check == 0, "string_compare_binary.1");
+	string_compare_binary_(pos, Hello, 4, &check);
+	test(check > 0, "string_compare_binary.2");
+
+	strarray_char_heap_(&pos, "Hello");
+	string_compare_binary_(pos, Hello, 5, &check);
+	test(check == 0, "string_compare_binary.3");
+	string_compare_binary_(pos, Hello, 4, &check);
+	test(check > 0, "string_compare_binary.4");
 
 	RETURN;
 }
@@ -623,155 +731,218 @@ static int test_string_compare_binary(void)
 static int test_string_comparep_binary(void)
 {
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "HELLO");
-	test(string_comparep_binary(pos, Hello, 5) == 0, "string_comparep_binary.1");
-	test(string_comparep_binary(pos, Hello, 4) > 0, "string_comparep_binary.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "HELLO");
-	test(string_comparep_binary(pos, Hello, 5) == 0, "string_comparep_binary.3");
-	test(string_comparep_binary(pos, Hello, 4) > 0, "string_comparep_binary.4");
+	strvect_char_heap(&pos, "HELLO");
+	string_comparep_binary_(pos, Hello, 5, &check);
+	test(check == 0, "string_comparep_binary.1");
+	string_comparep_binary_(pos, Hello, 4, &check);
+	test(check > 0, "string_comparep_binary.2");
+
+	strarray_char_heap_(&pos, "HELLO");
+	string_comparep_binary_(pos, Hello, 5, &check);
+	test(check == 0, "string_comparep_binary.3");
+	string_comparep_binary_(pos, Hello, 4, &check);
+	test(check > 0, "string_comparep_binary.4");
 
 	RETURN;
 }
 
 static int test_string_compare_char(void)
 {
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "Hello");
-	test(string_compare_char(pos, "Hello") == 0, "string_compare_char.1");
-	test(string_compare_char(pos, "Helloo") < 0, "string_compare_char.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "Hello");
-	test(string_compare_char(pos, "Hello") == 0, "string_compare_char.3");
-	test(string_compare_char(pos, "Helloo") < 0, "string_compare_char.4");
+	strvect_char_heap(&pos, "Hello");
+	string_compare_char_(pos, "Hello", &check);
+	test(check == 0, "string_compare_char.1");
+	string_compare_char_(pos, "Helloo", &check);
+	test(check < 0, "string_compare_char.2");
+
+	strarray_char_heap_(&pos, "Hello");
+	string_compare_char_(pos, "Hello", &check);
+	test(check == 0, "string_compare_char.3");
+	string_compare_char_(pos, "Helloo", &check);
+	test(check < 0, "string_compare_char.4");
 
 	RETURN;
 }
 
 static int test_string_comparep_char(void)
 {
+	int check;
 	addr pos;
 
-	strvect_char_heap(&pos, "HELLO");
-	test(string_comparep_char(pos, "Hello") == 0, "string_comparep_char.1");
-	test(string_comparep_char(pos, "Helloo") < 0, "string_comparep_char.2");
+	check = 0;
 
-	strarray_char_heap(&pos, "HELLO");
-	test(string_comparep_char(pos, "Hello") == 0, "string_comparep_char.3");
-	test(string_comparep_char(pos, "Helloo") < 0, "string_comparep_char.4");
+	strvect_char_heap(&pos, "HELLO");
+	string_comparep_char_(pos, "Hello", &check);
+	test(check == 0, "string_comparep_char.1");
+	string_comparep_char_(pos, "Helloo", &check);
+	test(check < 0, "string_comparep_char.2");
+
+	strarray_char_heap_(&pos, "HELLO");
+	string_comparep_char_(pos, "Hello", &check);
+	test(check == 0, "string_comparep_char.3");
+	string_comparep_char_(pos, "Helloo", &check);
+	test(check < 0, "string_comparep_char.4");
 
 	RETURN;
 }
 
 static int test_strvect_strarray_compare(void)
 {
+	int check;
 	addr left, right;
 
-	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strvect_strarray_compare(left, right) == 0, "strvect_strarray_compare.1");
+	check = 0;
 
-	strarray_char_heap(&right, "Helloo");
-	test(strvect_strarray_compare(left, right) < 0, "strvect_strarray_compare.2");
+	strvect_char_heap(&left, "Hello");
+	strarray_char_heap_(&right, "Hello");
+	strvect_strarray_compare_(left, right, &check);
+	test(check == 0, "strvect_strarray_compare.1");
+
+	strarray_char_heap_(&right, "Helloo");
+	strvect_strarray_compare_(left, right, &check);
+	test(check < 0, "strvect_strarray_compare.2");
 
 	RETURN;
 }
 
 static int test_strarray_strvect_compare(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "Hello");
+	check = 0;
+
+	strarray_char_heap_(&left, "Hello");
 	strvect_char_heap(&right, "Hello");
-	test(strarray_strvect_compare(left, right) == 0, "strarray_strvect_compare.1");
+	strarray_strvect_compare_(left, right, &check);
+	test(check == 0, "strarray_strvect_compare.1");
 
 	strvect_char_heap(&right, "Helloo");
-	test(strarray_strvect_compare(left, right) < 0, "strarray_strvect_compare.2");
+	strarray_strvect_compare_(left, right, &check);
+	test(check < 0, "strarray_strvect_compare.2");
 
 	RETURN;
 }
 
 static int test_string_compare(void)
 {
+	int check;
 	addr left, right;
 
+	check = 0;
+
 	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(string_compare(left, left) == 0, "string_compare.1");
-	test(string_compare(left, right) == 0, "string_compare.2");
-	test(string_compare(right, left) == 0, "string_compare.3");
-	test(string_compare(right, right) == 0, "string_compare.4");
+	strarray_char_heap_(&right, "Hello");
+	string_compare_(left, left, &check);
+	test(check == 0, "string_compare.1");
+	string_compare_(left, right, &check);
+	test(check == 0, "string_compare.2");
+	string_compare_(right, left, &check);
+	test(check == 0, "string_compare.3");
+	string_compare_(right, right, &check);
+	test(check == 0, "string_compare.4");
 
 	strvect_char_heap(&left, "Hello");
 	strvect_char_heap(&right, "Helloo");
-	test(string_compare(left, right) < 0, "string_compare.5");
+	string_compare_(left, right, &check);
+	test(check < 0, "string_compare.5");
 
 	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Helloo");
-	test(string_compare(left, right) < 0, "string_compare.6");
-	test(string_compare(right, left) > 0, "string_compare.7");
+	strarray_char_heap_(&right, "Helloo");
+	string_compare_(left, right, &check);
+	test(check < 0, "string_compare.6");
+	string_compare_(right, left, &check);
+	test(check > 0, "string_compare.7");
 
-	strarray_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Helloo");
-	test(string_compare(left, right) < 0, "string_compare.8");
+	strarray_char_heap_(&left, "Hello");
+	strarray_char_heap_(&right, "Helloo");
+	string_compare_(left, right, &check);
+	test(check < 0, "string_compare.8");
 
 	RETURN;
 }
 
 static int test_strvect_strarray_comparep(void)
 {
+	int check;
 	addr left, right;
 
-	strvect_char_heap(&left, "HELLO");
-	strarray_char_heap(&right, "Hello");
-	test(strvect_strarray_comparep(left, right) == 0, "strvect_strarray_comparep.1");
+	check = 0;
 
-	strarray_char_heap(&right, "Helloo");
-	test(strvect_strarray_comparep(left, right) < 0, "strvect_strarray_comparep.2");
+	strvect_char_heap(&left, "HELLO");
+	strarray_char_heap_(&right, "Hello");
+	strvect_strarray_comparep_(left, right, &check);
+	test(check == 0, "strvect_strarray_comparep.1");
+
+	strarray_char_heap_(&right, "Helloo");
+	strvect_strarray_comparep_(left, right, &check);
+	test(check < 0, "strvect_strarray_comparep.2");
 
 	RETURN;
 }
 
 static int test_strarray_strvect_comparep(void)
 {
+	int check;
 	addr left, right;
 
-	strarray_char_heap(&left, "HELLO");
+	check = 0;
+
+	strarray_char_heap_(&left, "HELLO");
 	strvect_char_heap(&right, "Hello");
-	test(strarray_strvect_comparep(left, right) == 0, "strarray_strvect_comparep.1");
+	strarray_strvect_comparep_(left, right, &check);
+	test(check == 0, "strarray_strvect_comparep.1");
 
 	strvect_char_heap(&right, "Helloo");
-	test(strarray_strvect_comparep(left, right) < 0, "strarray_strvect_comparep.2");
+	strarray_strvect_comparep_(left, right, &check);
+	test(check < 0, "strarray_strvect_comparep.2");
 
 	RETURN;
 }
 
 static int test_string_comparep(void)
 {
+	int check;
 	addr left, right;
 
+	check = 0;
+
 	strvect_char_heap(&left, "HELLO");
-	strarray_char_heap(&right, "Hello");
-	test(string_comparep(left, left) == 0, "string_comparep.1");
-	test(string_comparep(left, right) == 0, "string_comparep.2");
-	test(string_comparep(right, left) == 0, "string_comparep.3");
-	test(string_comparep(right, right) == 0, "string_comparep.4");
+	strarray_char_heap_(&right, "Hello");
+	string_comparep_(left, left, &check);
+	test(check == 0, "string_comparep.1");
+	string_comparep_(left, right, &check);
+	test(check == 0, "string_comparep.2");
+	string_comparep_(right, left, &check);
+	test(check == 0, "string_comparep.3");
+	string_comparep_(right, right, &check);
+	test(check == 0, "string_comparep.4");
 
 	strvect_char_heap(&left, "HELLO");
 	strvect_char_heap(&right, "Helloo");
-	test(string_comparep(left, right) < 0, "string_comparep.5");
+	string_comparep_(left, right, &check);
+	test(check < 0, "string_comparep.5");
 
 	strvect_char_heap(&left, "HELLO");
-	strarray_char_heap(&right, "Helloo");
-	test(string_comparep(left, right) < 0, "string_comparep.6");
-	test(string_comparep(right, left) > 0, "string_comparep.7");
+	strarray_char_heap_(&right, "Helloo");
+	string_comparep_(left, right, &check);
+	test(check < 0, "string_comparep.6");
+	string_comparep_(right, left, &check);
+	test(check > 0, "string_comparep.7");
 
-	strarray_char_heap(&left, "HELLO");
-	strarray_char_heap(&right, "Helloo");
-	test(string_comparep(left, right) < 0, "string_comparep.8");
+	strarray_char_heap_(&left, "HELLO");
+	strarray_char_heap_(&right, "Helloo");
+	string_comparep_(left, right, &check);
+	test(check < 0, "string_comparep.8");
 
 	RETURN;
 }
@@ -793,7 +964,6 @@ static int testcase_strtype(void)
 	TestBreak(test_strarray_size1_alloc);
 	TestBreak(test_strarray_sizeu_alloc);
 	TestBreak(test_strarray_length);
-	TestBreak(test_strarray_refc);
 	TestBreak(test_strarray_equal_binary);
 	TestBreak(test_strarray_equalp_binary);
 	TestBreak(test_strarray_equal_char);
@@ -808,7 +978,6 @@ static int testcase_strtype(void)
 	TestBreak(test_strarray_comparep);
 	/* string */
 	TestBreak(test_string_length);
-	TestBreak(test_string_refc);
 	TestBreak(test_string_equal_binary);
 	TestBreak(test_string_equalp_binary);
 	TestBreak(test_string_equal_char);

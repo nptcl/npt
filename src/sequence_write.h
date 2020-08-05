@@ -14,11 +14,11 @@ struct sequence_write {
 
 _g void build_sequence_write_list(struct sequence_write *ptr);
 _g void build_sequence_write_result(struct sequence_write *ptr, addr pos);
-_g void build_sequence_write(struct sequence_write *ptr, addr pos);
+_g int build_sequence_write_(struct sequence_write *ptr, addr pos);
 _g addr result_sequence_write(struct sequence_write *ptr);
-_g void push_sequence_write(struct sequence_write *ptr, addr pos);
-_g void before_sequence_write(struct sequence_write *ptr, struct sequence_range *range);
-_g void after_sequence_write(struct sequence_write *ptr, struct sequence_range *range);
+_g int push_sequence_write_(struct sequence_write *ptr, addr pos);
+_g int before_sequence_write_(struct sequence_write *ptr, struct sequence_range *range);
+_g int after_sequence_write_(struct sequence_write *ptr, struct sequence_range *range);
 _g void reverse_sequence_write(struct sequence_write *ptr, size_t size);
 
 #endif

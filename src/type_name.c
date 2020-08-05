@@ -10,135 +10,146 @@
 static constindex TypeNameTable[LISPTYPE_SIZE];
 #define DefTypeName(x,y) (TypeNameTable[x] = CONSTANT_##y)
 
-static void type_name_clos(addr *ret, addr value)
+static int type_name_clos_(addr pos, addr *value, int *ret)
 {
-	clos_class_of(value, &value);
-	stdget_class_name(value, ret);
+	Return(clos_class_of_(pos, &pos));
+	Return(stdget_class_name_(pos, value));
+	return Result(ret, 0);
 }
 
-static void type_name_symbol(addr *ret, addr value)
+static int type_name_symbol_(addr pos, addr *value, int *ret)
 {
-	if (keywordp(value))
-		GetConst(COMMON_KEYWORD, ret);
+	if (keywordp(pos))
+		GetConst(COMMON_KEYWORD, value);
 	else
-		GetConst(COMMON_SYMBOL, ret);
+		GetConst(COMMON_SYMBOL, value);
+
+	return Result(ret, 0);
 }
 
-static void type_name_function(addr *ret, addr value)
+static int type_name_function_(addr pos, addr *value, int *ret)
 {
-	if (interpreted_funcall_function_p(value)) {
-		GetConst(COMMON_FUNCTION, ret);
-		return;
+	if (interpreted_funcall_function_p(pos)) {
+		GetConst(COMMON_FUNCTION, value);
+		goto normal;
 	}
-	if (interpreted_macro_function_p(value)) {
-		GetConst(COMMON_MACRO_FUNCTION, ret);
-		return;
+	if (interpreted_macro_function_p(pos)) {
+		GetConst(COMMON_MACRO_FUNCTION, value);
+		goto normal;
 	}
-	if (compiled_funcall_function_p(value)) {
-		GetConst(COMMON_COMPILED_FUNCTION, ret);
-		return;
+	if (compiled_funcall_function_p(pos)) {
+		GetConst(COMMON_COMPILED_FUNCTION, value);
+		goto normal;
 	}
-	if (compiled_macro_function_p(value)) {
-		GetConst(SYSTEM_COMPILED_MACRO_FUNCTION, ret);
-		return;
+	if (compiled_macro_function_p(pos)) {
+		GetConst(SYSTEM_COMPILED_MACRO_FUNCTION, value);
+		goto normal;
 	}
 	else {
-		GetConst(COMMON_FUNCTION, ret);
-		return;
+		GetConst(COMMON_FUNCTION, value);
+		goto normal;
 	}
+
+normal:
+	return Result(ret, 0);
 }
 
-static void type_name_stream(addr *ret, addr value)
+static int type_name_stream_(addr pos, addr *value, int *ret)
 {
-	switch (getstreamtype(value)) {
+	switch (getstreamtype(pos)) {
 		case StreamType_StringInput:
 		case StreamType_StringOutput:
-			GetConst(COMMON_STRING_STREAM, ret);
-			return;
+			GetConst(COMMON_STRING_STREAM, value);
+			goto normal;
 
 		case StreamType_Synonym:
-			GetConst(COMMON_SYNONYM_STREAM, ret);
-			return;
+			GetConst(COMMON_SYNONYM_STREAM, value);
+			goto normal;
 
 		case StreamType_BroadCast:
-			GetConst(COMMON_BROADCAST_STREAM, ret);
-			return;
+			GetConst(COMMON_BROADCAST_STREAM, value);
+			goto normal;
 
 		case StreamType_Concatenated:
-			GetConst(COMMON_CONCATENATED_STREAM, ret);
-			return;
+			GetConst(COMMON_CONCATENATED_STREAM, value);
+			goto normal;
 
 		case StreamType_Echo:
-			GetConst(COMMON_ECHO_STREAM, ret);
-			return;
+			GetConst(COMMON_ECHO_STREAM, value);
+			goto normal;
 
 		case StreamType_TwoWay:
-			GetConst(COMMON_TWO_WAY_STREAM, ret);
-			return;
+			GetConst(COMMON_TWO_WAY_STREAM, value);
+			goto normal;
 
 		case StreamType_Prompt:
-			GetConst(SYSTEM_PROMPT_STREAM, ret);
-			return;
+			GetConst(SYSTEM_PROMPT_STREAM, value);
+			goto normal;
 
 		case StreamType_Pretty:
-			GetConst(SYSTEM_PRETTY_STREAM, ret);
-			return;
+			GetConst(SYSTEM_PRETTY_STREAM, value);
+			goto normal;
 
 		default:
 			break;
 	}
 
-	GetPathnameStream(value, &value);
-	if (value != Nil) {
-		GetConst(COMMON_FILE_STREAM, ret);
-		return;
+	GetPathnameStream(pos, &pos);
+	if (pos != Nil) {
+		GetConst(COMMON_FILE_STREAM, value);
+		goto normal;
 	}
 
-	GetConst(COMMON_STREAM, ret);
+	GetConst(COMMON_STREAM, value);
+	goto normal;
+
+normal:
+	return Result(ret, 0);
 }
 
-_g int type_name_p(addr *ret, addr value)
+_g int type_name_p_(addr pos, addr *value, int *ret)
 {
 	enum LISPTYPE type;
 	constindex index;
 
 	/* table */
-	type = GetType(value);
+	type = GetType(pos);
 	index = TypeNameTable[(int)type];
 	if (index != CONSTANT_EMPTY) {
-		GetConstant(index, ret);
-		return 0;
+		GetConstant(index, value);
+		return Result(ret, 0);
 	}
 
 	/* others */
 	switch (type) {
 		case LISPTYPE_CLOS:
-			type_name_clos(ret, value);
-			break;
+			return type_name_clos_(pos, value, ret);
 
 		case LISPTYPE_SYMBOL:
-			type_name_symbol(ret, value);
-			break;
+			return type_name_symbol_(pos, value, ret);
 
 		case LISPTYPE_FUNCTION:
-			type_name_function(ret, value);
-			break;
+			return type_name_function_(pos, value, ret);
 
 		case LISPTYPE_STREAM:
-			type_name_stream(ret, value);
-			break;
+			return type_name_stream_(pos, value, ret);
 
 		default:
-			return 1;
+			*value = Nil;
+			return Result(ret, 1);
 	}
-
-	return 0;
 }
 
-_g int type_name_(addr *ret, addr value)
+_g int type_name_(addr pos, addr *value)
 {
-	if (type_name_p(ret, value))
-		return fmte_("Invalid value, ~A.", value, NULL);
+	int check;
+
+	Return(type_name_p_(pos, value, &check));
+	if (check) {
+		*value = Nil;
+		return fmte_("Invalid value, ~A.", pos, NULL);
+	}
+
 	return 0;
 }
 

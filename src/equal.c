@@ -175,7 +175,7 @@ static int equal_function_cons_(addr a, addr b, int *ret)
 static int equal_function_string_(addr a, addr b, int *ret)
 {
 	if (stringp(b))
-		return Result(ret, string_equal(a, b));
+		return string_equal_(a, b, ret);
 	else
 		return Result(ret, 0);
 }
@@ -183,7 +183,7 @@ static int equal_function_string_(addr a, addr b, int *ret)
 static int equal_function_bitvector_(addr a, addr b, int *ret)
 {
 	if (bitvectorp(b))
-		return Result(ret, bitvector_equal(a, b));
+		return bitvector_equal_(a, b, ret);
 	else
 		return Result(ret, 0);
 }
@@ -299,8 +299,8 @@ static int equalp_function_aa_(addr a, addr b, int *ret)
 	local = Local_Thread;
 	for (i = 0; i < size; i++) {
 		push_local(local, &stack);
-		array_get(local, a, i, &c);
-		array_get(local, b, i, &d);
+		Return(array_get_(local, a, i, &c));
+		Return(array_get_(local, b, i, &d));
 		Return(equalp_function_(c, d, &check));
 		rollback_local(local, stack);
 		if (! check)
@@ -329,7 +329,7 @@ static int equalp_function_av_(addr a, addr b, int *ret)
 	local = Local_Thread;
 	for (i = 0; i < size; i++) {
 		push_local(local, &stack);
-		array_get(local, a, i, &c);
+		Return(array_get_(local, a, i, &c));
 		getarray(b, i, &d);
 		Return(equalp_function_(c, d, &check));
 		rollback_local(local, stack);
@@ -347,7 +347,7 @@ static int equalp_function_as_(addr a, addr b, int *ret)
 
 	/* string */
 	if (array_stringp(a))
-		return Result(ret, string_equalp(a, b));
+		return string_equalp_(a, b, ret);
 	/* size check */
 	if (! array_vector_p(a))
 		return Result(ret, 0);
@@ -359,7 +359,7 @@ static int equalp_function_as_(addr a, addr b, int *ret)
 	for (i = 0; i < size; i++) {
 		if (array_type(a) != ARRAY_TYPE_CHARACTER)
 			return Result(ret, 0);
-		array_get_unicode(a, i, &c);
+		Return(array_get_unicode_(a, i, &c));
 		strvect_getc(b, i, &d);
 		if (toUpperUnicode(c) != toUpperUnicode(d))
 			return Result(ret, 0);
@@ -375,7 +375,7 @@ static int equalp_function_ab_(addr a, addr b, int *ret)
 
 	/* string */
 	if (array_bvarrayp(a))
-		return Result(ret, bitvector_equal(a, b));
+		return bitvector_equal_(a, b, ret);
 	/* size check */
 	if (! array_vector_p(a))
 		return Result(ret, 0);
@@ -387,8 +387,8 @@ static int equalp_function_ab_(addr a, addr b, int *ret)
 	for (i = 0; i < size; i++) {
 		if (array_type(a) != ARRAY_TYPE_BIT)
 			return Result(ret, 0);
-		array_get_bit(a, i, &c);
-		bitmemory_getint(b, i, &d);
+		Return(array_get_bit_(a, i, &c));
+		Return(bitmemory_getint_(b, i, &d));
 		if (c != d)
 			return Result(ret, 0);
 	}
@@ -474,7 +474,7 @@ static int equalp_function_vb_(addr a, addr b, int *ret)
 		getarray(a, i, &c);
 		if (bit_getint(c, &d))
 			return Result(ret, 0);
-		bitmemory_getint(b, i, &e);
+		Return(bitmemory_getint_(b, i, &e));
 		if (d != e)
 			return Result(ret, 0);
 	}
@@ -546,7 +546,10 @@ static int equalp_function_hashtable_(addr a, addr b, int *ret)
 
 static int equalp_function_structure_(addr a, addr b, int *ret)
 {
-	if (structure_instance_p(b))
+	int check;
+
+	Return(structure_instance_p_(b, &check));
+	if (check)
 		return equalp_structure_(a, b, ret);
 	else
 		return Result(ret, 0);
@@ -647,8 +650,8 @@ static int equalrt_function_aa_(addr a, addr b, int *ret)
 	local = Local_Thread;
 	for (i = 0; i < size; i++) {
 		push_local(local, &stack);
-		array_get(local, a, i, &c);
-		array_get(local, b, i, &d);
+		Return(array_get_(local, a, i, &c));
+		Return(array_get_(local, b, i, &d));
 		Return(equalrt_function_(c, d, &check));
 		rollback_local(local, stack);
 		if (! check)
@@ -677,7 +680,7 @@ static int equalrt_function_av_(addr a, addr b, int *ret)
 	local = Local_Thread;
 	for (i = 0; i < size; i++) {
 		push_local(local, &stack);
-		array_get(local, a, i, &c);
+		Return(array_get_(local, a, i, &c));
 		getarray(b, i, &d);
 		Return(equalrt_function_(c, d, &check));
 		rollback_local(local, stack);
@@ -695,7 +698,7 @@ static int equalrt_function_as_(addr a, addr b, int *ret)
 
 	/* string */
 	if (array_stringp(a))
-		return Result(ret, string_equal(a, b));
+		return string_equal_(a, b, ret);
 	/* size check */
 	if (! array_vector_p(a))
 		return Result(ret, 0);
@@ -707,7 +710,7 @@ static int equalrt_function_as_(addr a, addr b, int *ret)
 	for (i = 0; i < size; i++) {
 		if (array_type(a) != ARRAY_TYPE_CHARACTER)
 			return Result(ret, 0);
-		array_get_unicode(a, i, &c);
+		Return(array_get_unicode_(a, i, &c));
 		strvect_getc(b, i, &d);
 		if (c != d)
 			return Result(ret, 0);
@@ -844,7 +847,10 @@ static int equalrt_function_hashtable_(addr a, addr b, int *ret)
 
 static int equalrt_function_structure_(addr a, addr b, int *ret)
 {
-	if (structure_instance_p(b))
+	int check;
+
+	Return(structure_instance_p_(b, &check));
+	if (check)
 		return equalrt_structure_(a, b, ret);
 	else
 		return Result(ret, 0);
@@ -900,6 +906,7 @@ _g int equalrt_function_(addr a, addr b, int *ret)
 _g int equal_debug(addr left, addr right)
 {
 	int check;
+	check = 0;
 	Error(equal_function_(left, right, &check));
 	return check;
 }
@@ -907,6 +914,7 @@ _g int equal_debug(addr left, addr right)
 _g int equalp_debug(addr left, addr right)
 {
 	int check;
+	check = 0;
 	Error(equalp_function_(left, right, &check));
 	return check;
 }
@@ -914,6 +922,7 @@ _g int equalp_debug(addr left, addr right)
 _g int equalrt_debug(addr left, addr right)
 {
 	int check;
+	check = 0;
 	Error(equalrt_function_(left, right, &check));
 	return check;
 }

@@ -23,9 +23,25 @@
 /*
  *  common-lisp
  */
+static int directory_keyword_p_(addr pos, int *ret)
+{
+	if (! stringp(pos))
+		return Result(ret, 0);
+
+	Return(string_equal_char_(pos, "*", ret));
+	if (*ret)
+		return 0;
+
+	Return(string_equal_char_(pos, "**", ret));
+	if (*ret)
+		return 0;
+
+	return string_equal_char_(pos, "..", ret);
+}
+
 static int make_pathname_directory_(addr *ret, addr list)
 {
-	int check;
+	int keywordp, check;
 	addr root, pos, absolute, relative, wild, wildi, up;
 
 	/* :directory "Hello" */
@@ -50,20 +66,17 @@ static int make_pathname_directory_(addr *ret, addr list)
 		return fmte_("The firest argument of :directory ~S must be ~S or ~S.",
 				pos, absolute, relative, NULL);
 	}
-	for (check = 1; root != Nil; ) {
+	for (keywordp = 1; root != Nil; ) {
 		Return_getcons(root, &pos, &root);
-		if (stringp(pos)
-				&& stringp_equal_char(pos, "*")
-				&& stringp_equal_char(pos, "**")
-				&& stringp_equal_char(pos, "..")) {
-			check = 0;
-		}
+		Return(directory_keyword_p_(pos, &check));
+		if (check)
+			keywordp = 0;
 		if (! stringp(pos) && pos != wild && pos != wildi && pos != up) {
 			*ret = Nil;
 			return fmte_("Invalid :directory argument ~S.", pos, NULL);
 		}
 	}
-	if (check)
+	if (keywordp)
 		return Result(ret, list);
 
 	/* rebuild */
@@ -71,12 +84,25 @@ static int make_pathname_directory_(addr *ret, addr list)
 	conscar_heap(&root, pos);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		if (stringp_equal_char(pos, "*"))
-			pos = wild;
-		else if (stringp_equal_char(pos, "**"))
-			pos = wildi;
-		else if (stringp_equal_char(pos, ".."))
-			pos = up;
+		/* "*" */
+		Return(stringp_equal_char_(pos, "*", &check));
+		if (check) {
+			cons_heap(&root, wild, root);
+			continue;
+		}
+		/* "**" */
+		Return(stringp_equal_char_(pos, "**", &check));
+		if (check) {
+			cons_heap(&root, wildi, root);
+			continue;
+		}
+		/* ".." */
+		Return(stringp_equal_char_(pos, "..", &check));
+		if (check) {
+			cons_heap(&root, up, root);
+			continue;
+		}
+		/* else */
 		cons_heap(&root, pos, root);
 	}
 	nreverse(ret, root);
@@ -119,7 +145,7 @@ static int make_pathname_upper_p_(addr pos, int *ret)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (! isUpperCase(c))
 			return Result(ret, 0);
 	}
@@ -134,7 +160,7 @@ static int make_pathname_lower_p_(addr pos, int *ret)
 
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
+		Return(string_getc_(pos, i, &c));
 		if (! isUpperCase(c))
 			return Result(ret, 0);
 	}
@@ -151,8 +177,8 @@ static int make_pathname_upper_(addr *ret, addr pos)
 	string_length(pos, &size);
 	strvect_heap(&one, size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
-		strvect_setc(one, toUpperUnicode(c), c);
+		Return(string_getc_(pos, i, &c));
+		Return(strvect_setc_(one, toUpperUnicode(c), c));
 	}
 
 	return Result(ret, one);
@@ -167,8 +193,8 @@ static int make_pathname_lower_(addr *ret, addr pos)
 	string_length(pos, &size);
 	strvect_heap(&one, size);
 	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &c);
-		strvect_setc(one, toUpperUnicode(c), c);
+		Return(string_getc_(pos, i, &c));
+		Return(strvect_setc_(one, toUpperUnicode(c), c));
 	}
 
 	return Result(ret, one);
@@ -408,7 +434,8 @@ _g int get_logical_pathname_translations_(addr host, addr *ret)
 static int list_logical_pathname_translations_(Execute ptr,
 		addr *ret, addr host, addr list)
 {
-	addr show, value, root, left, right, check;
+	int check;
+	addr show, value, root, left, right, temp;
 
 	/* parse-list */
 	show = list;
@@ -431,10 +458,11 @@ static int list_logical_pathname_translations_(Execute ptr,
 			return fmte_("The left argument ~S "
 					"must be a logical-pathname.", left, NULL);
 		}
-		GetHostPathname(value, &check);
-		if (! string_equalp(host, check)) {
+		GetHostPathname(value, &temp);
+		Return(string_equalp_(host, temp, &check));
+		if (! check) {
 			return fmte_("The logical-pathname :HOST ~S "
-					"must be ~S.", check, host, NULL);
+					"must be ~S.", temp, host, NULL);
 		}
 		left = value;
 

@@ -10,48 +10,48 @@ struct generic_argument {
 };
 
 /* access */
-_g void stdget_generic_name(addr pos, addr *ret);
-_g void stdset_generic_name(addr pos, addr value);
-_g void stdget_generic_lambda_list(addr pos, addr *ret);
-_g void stdset_generic_lambda_list(addr pos, addr value);
-_g void stdget_generic_methods(addr pos, addr *ret);
-_g void stdset_generic_methods(addr pos, addr value);
-_g void stdget_generic_method_class(addr pos, addr *ret);
-_g void stdset_generic_method_class(addr pos, addr value);
-_g void stdget_generic_argument_precedence_order(addr pos, addr *ret);
-_g void stdset_generic_argument_precedence_order(addr pos, addr value);
-_g void stdget_generic_declarations(addr pos, addr *ret);
-_g void stdset_generic_declarations(addr pos, addr value);
-_g void stdget_generic_method_combination(addr pos, addr *ret);
-_g void stdset_generic_method_combination(addr pos, addr value);
-_g void stdget_generic_eqlcheck(addr pos, addr *ret);
-_g void stdset_generic_eqlcheck(addr pos, addr value);
-_g void stdget_generic_cache(addr pos, addr *ret);
-_g void stdset_generic_cache(addr pos, addr value);
-_g void stdget_generic_call(addr pos, addr *ret);
-_g void stdset_generic_call(addr pos, addr value);
-_g void stdget_generic_precedence_index(addr pos, addr *ret);
-_g void stdset_generic_precedence_index(addr pos, addr value);
-_g int stdboundp_generic_argument_precedence_order(addr pos);
-_g int stdboundp_generic_eqlcheck(addr pos);
+_g int stdget_generic_name_(addr pos, addr *ret);
+_g int stdset_generic_name_(addr pos, addr value);
+_g int stdget_generic_lambda_list_(addr pos, addr *ret);
+_g int stdset_generic_lambda_list_(addr pos, addr value);
+_g int stdget_generic_methods_(addr pos, addr *ret);
+_g int stdset_generic_methods_(addr pos, addr value);
+_g int stdget_generic_method_class_(addr pos, addr *ret);
+_g int stdset_generic_method_class_(addr pos, addr value);
+_g int stdget_generic_argument_precedence_order_(addr pos, addr *ret);
+_g int stdset_generic_argument_precedence_order_(addr pos, addr value);
+_g int stdget_generic_declarations_(addr pos, addr *ret);
+_g int stdset_generic_declarations_(addr pos, addr value);
+_g int stdget_generic_method_combination_(addr pos, addr *ret);
+_g int stdset_generic_method_combination_(addr pos, addr value);
+_g int stdget_generic_eqlcheck_(addr pos, addr *ret);
+_g int stdset_generic_eqlcheck_(addr pos, addr value);
+_g int stdget_generic_cache_(addr pos, addr *ret);
+_g int stdset_generic_cache_(addr pos, addr value);
+_g int stdget_generic_call_(addr pos, addr *ret);
+_g int stdset_generic_call_(addr pos, addr value);
+_g int stdget_generic_precedence_index_(addr pos, addr *ret);
+_g int stdset_generic_precedence_index_(addr pos, addr value);
+_g int stdboundp_generic_argument_precedence_order_(addr pos, int *ret);
+_g int stdboundp_generic_eqlcheck_(addr pos, int *ret);
 
 /* eql-specializer */
-_g void stdget_specializer_object(addr pos, addr *ret);
-_g void stdset_specializer_object(addr pos, addr value);
-_g void stdget_specializer_type(addr pos, addr *ret);
-_g void stdset_specializer_type(addr pos, addr value);
+_g int stdget_specializer_object_(addr pos, addr *ret);
+_g int stdset_specializer_object_(addr pos, addr value);
+_g int stdget_specializer_type_(addr pos, addr *ret);
+_g int stdset_specializer_type_(addr pos, addr value);
 
 /* generic-function */
-_g int generic_eql_specializer(addr left, addr right, int check);
-_g void generic_finalize(addr gen);
-_g int closrun_execute(Execute ptr, addr pos, addr args);
+_g int generic_eql_specializer_(addr left, addr right, int check, int *ret);
+_g int generic_finalize_(addr gen);
+_g int closrun_execute_(Execute ptr, addr clos, addr args);
 
-_g void generic_common_instance(addr *ret, addr name, addr args);
-_g void generic_common_order(addr gen, addr order, addr list);
-_g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *ret);
-_g void generic_empty(addr name, addr lambda, addr *ret);
-_g int generic_add(struct generic_argument *ptr, addr *ret);
-_g int generic_change(struct generic_argument *ptr, addr *ret);
+_g int generic_common_instance_(addr *ret, addr name, addr args);
+_g int generic_common_order_(addr gen, addr order, addr list);
+_g int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret);
+_g int generic_empty_(addr name, addr lambda, addr *ret);
+_g int generic_add_(struct generic_argument *ptr, addr *ret);
+_g int generic_change_(struct generic_argument *str, addr *ret);
 
 /* common */
 _g int generic_compute_applicable_methods_(LocalRoot local,

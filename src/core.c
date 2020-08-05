@@ -167,11 +167,14 @@ _g int savecore_execute_(Execute ptr, addr file)
 
 static void save_core_stream(Execute ptr, struct filememory *fm)
 {
+	int check;
 	addr pos;
 
 	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
 	GetValueSymbol(pos, &pos);
-	if (open_output_filememory(ptr->local, fm, pos, FileOutput_supersede))
+	if (open_output_filememory_(ptr->local, fm, pos, FileOutput_supersede, &check))
+		Abort("file open error.");
+	if (check)
 		Abort("file open error.");
 }
 

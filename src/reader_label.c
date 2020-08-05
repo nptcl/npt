@@ -266,23 +266,24 @@ _g void vector_readlabel(Execute ptr, addr pos)
 /*
  *  array
  */
-static int array_find_readlabel(addr key, addr array)
+static int array_find_readlabel_(addr key, addr array, int *ret)
 {
 	addr check;
 	size_t size, i;
 
 	array_get_rowlength(array, &size);
 	for (i = 0; i < size; i++) {
-		(void)array_get_t(array, i, &check);
+		Return(array_get_t_(array, i, &check));
 		if (key == check)
-			return 1;
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g void array_readlabel(Execute ptr, addr pos)
+_g int array_readlabel_(Execute ptr, addr pos)
 {
+	int check;
 	addr list, label, value;
 
 	if (getreplace_readinfo(ptr, &list)) {
@@ -290,10 +291,13 @@ _g void array_readlabel(Execute ptr, addr pos)
 			GetCons(list, &label, &list);
 			if (gensymp_readlabel(label)) {
 				GetReadLabel(label, ReadLabel_Value, &value);
-				if (array_find_readlabel(value, pos))
+				Return(array_find_readlabel_(value, pos, &check));
+				if (check)
 					push_replace_readlabel(label, pos);
 			}
 		}
 	}
+
+	return 0;
 }
 

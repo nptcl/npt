@@ -44,14 +44,14 @@ static int test_fmtprint_putc(void)
 	print.word = 0;
 	fmtprint_print(&print, "aBc");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "ABC"), "fmtprint_putc1");
+	test(string_equal_char_debug(pos, "ABC"), "fmtprint_putc1");
 	clear_output_string_stream(stream);
 
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "-aBc-");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "-ABC-"), "fmtprint_putc2");
+	test(string_equal_char_debug(pos, "-ABC-"), "fmtprint_putc2");
 	clear_output_string_stream(stream);
 	/* downcase */
 	print.conversion = fmtcase_downcase;
@@ -59,7 +59,7 @@ static int test_fmtprint_putc(void)
 	print.word = 0;
 	fmtprint_print(&print, "AbCdE01234");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "abcde01234"), "fmtprint_putc3");
+	test(string_equal_char_debug(pos, "abcde01234"), "fmtprint_putc3");
 	clear_output_string_stream(stream);
 	/* capitalize */
 	print.conversion = fmtcase_capitalize_all;
@@ -67,7 +67,7 @@ static int test_fmtprint_putc(void)
 	print.word = 0;
 	fmtprint_print(&print, "abcd efgh-ije-0ab cde0 abcd");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "Abcd Efgh-Ije-0ab Cde0 Abcd"), "fmtprint_putc4");
+	test(string_equal_char_debug(pos, "Abcd Efgh-Ije-0ab Cde0 Abcd"), "fmtprint_putc4");
 	clear_output_string_stream(stream);
 	/* capitalize-first */
 	print.conversion = fmtcase_capitalize_first;
@@ -75,14 +75,14 @@ static int test_fmtprint_putc(void)
 	print.word = 0;
 	fmtprint_print(&print, "abcd efgh-ije-0ab cde0 abcd");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "Abcd efgh-ije-0ab cde0 abcd"), "fmtprint_putc5");
+	test(string_equal_char_debug(pos, "Abcd efgh-ije-0ab cde0 abcd"), "fmtprint_putc5");
 	clear_output_string_stream(stream);
 
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "00abcd efgh");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "00abcd efgh"), "fmtprint_putc6");
+	test(string_equal_char_debug(pos, "00abcd efgh"), "fmtprint_putc6");
 	clear_output_string_stream(stream);
 
 	/* normal */
@@ -91,7 +91,7 @@ static int test_fmtprint_putc(void)
 	print.word = 0;
 	fmtprint_print(&print, "aBcD-eFgH1234");
 	string_stream_heap_(stream, &pos);
-	test(string_equal_char(pos, "aBcD-eFgH1234"), "fmtprint_putc7");
+	test(string_equal_char_debug(pos, "aBcD-eFgH1234"), "fmtprint_putc7");
 	clear_output_string_stream(stream);
 
 	close_output_string_stream(stream);

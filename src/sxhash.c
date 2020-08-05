@@ -166,7 +166,7 @@ static int sxfixed_string_(addr pos, int depth, fixed *ret)
 	cleartype(p);
 	string_length(pos, &len);
 	for (i = 0; i < len; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		m = i % FixedSize;
 		p[m] += u;
 	}
@@ -187,7 +187,7 @@ static int sxfixed_string_p_(addr pos, int depth, fixed *ret)
 	cleartype(p);
 	string_length(pos, &len);
 	for (i = 0; i < len; i++) {
-		string_getc(pos, i, &u);
+		Return(string_getc_(pos, i, &u));
 		m = i % FixedSize;
 		p[m] += toupperunicode(u);
 	}

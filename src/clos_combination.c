@@ -19,7 +19,7 @@
 /*
  *  long-method-combination
  */
-static void stdget_longcomb_constant(addr pos, addr *ret,
+static int stdget_longcomb_constant_(addr pos, addr *ret,
 		enum Clos_longcomb_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -31,15 +31,15 @@ static void stdget_longcomb_constant(addr pos, addr *ret,
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		return clos_check_(pos, check, ret);
 	}
 }
 
-static void stdset_longcomb_constant(addr pos, addr value,
+static int stdset_longcomb_constant_(addr pos, addr value,
 		enum Clos_longcomb_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -52,103 +52,104 @@ static void stdset_longcomb_constant(addr pos, addr value,
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
+		return 0;
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_set(pos, check, value);
+		return clos_set_(pos, check, value);
 	}
 }
-#define StdGetLongCombination(p,r,a,b) \
-	stdget_longcomb_constant((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetLongCombination(p,r,a,b) \
-	stdset_longcomb_constant((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
+#define StdGetLongCombination_(p,r,a,b) \
+	stdget_longcomb_constant_((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
+#define StdSetLongCombination_(p,r,a,b) \
+	stdset_longcomb_constant_((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 
-_g void stdget_longcomb_name(addr pos, addr *ret)
+_g int stdget_longcomb_name_(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, name, NAME);
+	return StdGetLongCombination_(pos, ret, name, NAME);
 }
-_g void stdset_longcomb_name(addr pos, addr value)
+_g int stdset_longcomb_name_(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, name, NAME);
-}
-
-_g void stdget_longcomb_document(addr pos, addr *ret)
-{
-	StdGetLongCombination(pos, ret, document, DOCUMENTATION);
-}
-_g void stdset_longcomb_document(addr pos, addr value)
-{
-	StdSetLongCombination(pos, value, document, DOCUMENTATION);
+	return StdSetLongCombination_(pos, value, name, NAME);
 }
 
-_g void stdget_longcomb_lambda_list(addr pos, addr *ret)
+_g int stdget_longcomb_document_(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, lambda_list, LAMBDA_LIST);
+	return StdGetLongCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g void stdset_longcomb_lambda_list(addr pos, addr value)
+_g int stdset_longcomb_document_(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, lambda_list, LAMBDA_LIST);
-}
-
-_g void stdget_longcomb_binding(addr pos, addr *ret)
-{
-	StdGetLongCombination(pos, ret, binding, BINDING);
-}
-_g void stdset_longcomb_binding(addr pos, addr value)
-{
-	StdSetLongCombination(pos, value, binding, BINDING);
+	return StdSetLongCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g void stdget_longcomb_qualifiers(addr pos, addr *ret)
+_g int stdget_longcomb_lambda_list_(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, qualifiers, QUALIFIERS);
+	return StdGetLongCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g void stdset_longcomb_qualifiers(addr pos, addr value)
+_g int stdset_longcomb_lambda_list_(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, qualifiers, QUALIFIERS);
-}
-
-_g void stdget_longcomb_arguments(addr pos, addr *ret)
-{
-	StdGetLongCombination(pos, ret, arguments, ARGUMENTS);
-}
-_g void stdset_longcomb_arguments(addr pos, addr value)
-{
-	StdSetLongCombination(pos, value, arguments, ARGUMENTS);
+	return StdSetLongCombination_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-_g void stdget_longcomb_generic(addr pos, addr *ret)
+_g int stdget_longcomb_binding_(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, generic, GENERIC);
+	return StdGetLongCombination_(pos, ret, binding, BINDING);
 }
-_g void stdset_longcomb_generic(addr pos, addr value)
+_g int stdset_longcomb_binding_(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, generic, GENERIC);
-}
-
-_g void stdget_longcomb_form(addr pos, addr *ret)
-{
-	StdGetLongCombination(pos, ret, form, FORM);
-}
-_g void stdset_longcomb_form(addr pos, addr value)
-{
-	StdSetLongCombination(pos, value, form, FORM);
+	return StdSetLongCombination_(pos, value, binding, BINDING);
 }
 
-_g void stdget_longcomb_function(addr pos, addr *ret)
+_g int stdget_longcomb_qualifiers_(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, function, FUNCTION);
+	return StdGetLongCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
-_g void stdset_longcomb_function(addr pos, addr value)
+_g int stdset_longcomb_qualifiers_(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, function, FUNCTION);
+	return StdSetLongCombination_(pos, value, qualifiers, QUALIFIERS);
+}
+
+_g int stdget_longcomb_arguments_(addr pos, addr *ret)
+{
+	return StdGetLongCombination_(pos, ret, arguments, ARGUMENTS);
+}
+_g int stdset_longcomb_arguments_(addr pos, addr value)
+{
+	return StdSetLongCombination_(pos, value, arguments, ARGUMENTS);
+}
+
+_g int stdget_longcomb_generic_(addr pos, addr *ret)
+{
+	return StdGetLongCombination_(pos, ret, generic, GENERIC);
+}
+_g int stdset_longcomb_generic_(addr pos, addr value)
+{
+	return StdSetLongCombination_(pos, value, generic, GENERIC);
+}
+
+_g int stdget_longcomb_form_(addr pos, addr *ret)
+{
+	return StdGetLongCombination_(pos, ret, form, FORM);
+}
+_g int stdset_longcomb_form_(addr pos, addr value)
+{
+	return StdSetLongCombination_(pos, value, form, FORM);
+}
+
+_g int stdget_longcomb_function_(addr pos, addr *ret)
+{
+	return StdGetLongCombination_(pos, ret, function, FUNCTION);
+}
+_g int stdset_longcomb_function_(addr pos, addr value)
+{
+	return StdSetLongCombination_(pos, value, function, FUNCTION);
 }
 
 
 /*
  *  short-method-combination
  */
-static void stdget_shortcomb_constant(addr pos, addr *ret,
+static int stdget_shortcomb_constant_(addr pos, addr *ret,
 		enum Clos_shortcomb_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -160,15 +161,15 @@ static void stdget_shortcomb_constant(addr pos, addr *ret,
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		return clos_check_(pos, check, ret);
 	}
 }
 
-static void stdset_shortcomb_constant(addr pos, addr value,
+static int stdset_shortcomb_constant_(addr pos, addr value,
 		enum Clos_shortcomb_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -181,67 +182,68 @@ static void stdset_shortcomb_constant(addr pos, addr value,
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
+		return 0;
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_set(pos, check, value);
+		return clos_set_(pos, check, value);
 	}
 }
-#define StdGetShortCombination(p,r,a,b) \
-	stdget_shortcomb_constant((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetShortCombination(p,r,a,b) \
-	stdset_shortcomb_constant((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
+#define StdGetShortCombination_(p,r,a,b) \
+	stdget_shortcomb_constant_((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
+#define StdSetShortCombination_(p,r,a,b) \
+	stdset_shortcomb_constant_((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 
-_g void stdget_shortcomb_name(addr pos, addr *ret)
+_g int stdget_shortcomb_name_(addr pos, addr *ret)
 {
-	StdGetShortCombination(pos, ret, name, NAME);
+	return StdGetShortCombination_(pos, ret, name, NAME);
 }
-_g void stdset_shortcomb_name(addr pos, addr value)
+_g int stdset_shortcomb_name_(addr pos, addr value)
 {
-	StdSetShortCombination(pos, value, name, NAME);
-}
-
-_g void stdget_shortcomb_document(addr pos, addr *ret)
-{
-	StdGetShortCombination(pos, ret, document, DOCUMENTATION);
-}
-_g void stdset_shortcomb_document(addr pos, addr value)
-{
-	StdSetShortCombination(pos, value, document, DOCUMENTATION);
+	return StdSetShortCombination_(pos, value, name, NAME);
 }
 
-_g void stdget_shortcomb_identity(addr pos, addr *ret)
+_g int stdget_shortcomb_document_(addr pos, addr *ret)
 {
-	StdGetShortCombination(pos, ret, identity, IDENTITY);
+	return StdGetShortCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g void stdset_shortcomb_identity(addr pos, addr value)
+_g int stdset_shortcomb_document_(addr pos, addr value)
 {
-	StdSetShortCombination(pos, value, identity, IDENTITY);
-}
-
-_g void stdget_shortcomb_operator(addr pos, addr *ret)
-{
-	StdGetShortCombination(pos, ret, operator, OPERATOR);
-}
-_g void stdset_shortcomb_operator(addr pos, addr value)
-{
-	StdSetShortCombination(pos, value, operator, OPERATOR);
+	return StdSetShortCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g void stdget_shortcomb_order(addr pos, addr *ret)
+_g int stdget_shortcomb_identity_(addr pos, addr *ret)
 {
-	StdGetShortCombination(pos, ret, order, ORDER);
+	return StdGetShortCombination_(pos, ret, identity, IDENTITY);
 }
-_g void stdset_shortcomb_order(addr pos, addr value)
+_g int stdset_shortcomb_identity_(addr pos, addr value)
 {
-	StdSetShortCombination(pos, value, order, ORDER);
+	return StdSetShortCombination_(pos, value, identity, IDENTITY);
+}
+
+_g int stdget_shortcomb_operator_(addr pos, addr *ret)
+{
+	return StdGetShortCombination_(pos, ret, operator, OPERATOR);
+}
+_g int stdset_shortcomb_operator_(addr pos, addr value)
+{
+	return StdSetShortCombination_(pos, value, operator, OPERATOR);
+}
+
+_g int stdget_shortcomb_order_(addr pos, addr *ret)
+{
+	return StdGetShortCombination_(pos, ret, order, ORDER);
+}
+_g int stdset_shortcomb_order_(addr pos, addr value)
+{
+	return StdSetShortCombination_(pos, value, order, ORDER);
 }
 
 
 /*
  *  define-long-method-combination
  */
-static void stdget_longdef_constant(addr pos, addr *ret,
+static int stdget_longdef_constant_(addr pos, addr *ret,
 		enum Clos_longdef_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -253,15 +255,15 @@ static void stdget_longdef_constant(addr pos, addr *ret,
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		return clos_check_(pos, check, ret);
 	}
 }
 
-static void stdset_longdef_constant(addr pos, addr value,
+static int stdset_longdef_constant_(addr pos, addr value,
 		enum Clos_longdef_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -274,85 +276,86 @@ static void stdset_longdef_constant(addr pos, addr value,
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
+		return 0;
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_set(pos, check, value);
+		return clos_set_(pos, check, value);
 	}
 }
-#define StdGetLongDefineCombination(p,r,a,b) \
-	stdget_longdef_constant((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetLongDefineCombination(p,r,a,b) \
-	stdset_longdef_constant((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
+#define StdGetLongDefineCombination_(p,r,a,b) \
+	stdget_longdef_constant_((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
+#define StdSetLongDefineCombination_(p,r,a,b) \
+	stdset_longdef_constant_((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 
-_g void stdget_longdef_name(addr pos, addr *ret)
+_g int stdget_longdef_name_(addr pos, addr *ret)
 {
-	StdGetLongDefineCombination(pos, ret, name, NAME);
+	return StdGetLongDefineCombination_(pos, ret, name, NAME);
 }
-_g void stdset_longdef_name(addr pos, addr value)
+_g int stdset_longdef_name_(addr pos, addr value)
 {
-	StdSetLongDefineCombination(pos, value, name, NAME);
-}
-
-_g void stdget_longdef_document(addr pos, addr *ret)
-{
-	StdGetLongDefineCombination(pos, ret, document, DOCUMENTATION);
-}
-_g void stdset_longdef_document(addr pos, addr value)
-{
-	StdSetLongDefineCombination(pos, value, document, DOCUMENTATION);
+	return StdSetLongDefineCombination_(pos, value, name, NAME);
 }
 
-_g void stdget_longdef_lambda_list(addr pos, addr *ret)
+_g int stdget_longdef_document_(addr pos, addr *ret)
 {
-	StdGetLongDefineCombination(pos, ret, lambda_list, LAMBDA_LIST);
+	return StdGetLongDefineCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g void stdset_longdef_lambda_list(addr pos, addr value)
+_g int stdset_longdef_document_(addr pos, addr value)
 {
-	StdSetLongDefineCombination(pos, value, lambda_list, LAMBDA_LIST);
-}
-
-_g void stdget_longdef_qualifiers(addr pos, addr *ret)
-{
-	StdGetLongDefineCombination(pos, ret, qualifiers, QUALIFIERS);
-}
-_g void stdset_longdef_qualifiers(addr pos, addr value)
-{
-	StdSetLongDefineCombination(pos, value, qualifiers, QUALIFIERS);
+	return StdSetLongDefineCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g void stdget_longdef_arguments(addr pos, addr *ret)
+_g int stdget_longdef_lambda_list_(addr pos, addr *ret)
 {
-	StdGetLongDefineCombination(pos, ret, arguments, ARGUMENTS);
+	return StdGetLongDefineCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g void stdset_longdef_arguments(addr pos, addr value)
+_g int stdset_longdef_lambda_list_(addr pos, addr value)
 {
-	StdSetLongDefineCombination(pos, value, arguments, ARGUMENTS);
-}
-
-_g void stdget_longdef_generic(addr pos, addr *ret)
-{
-	StdGetLongDefineCombination(pos, ret, generic, GENERIC);
-}
-_g void stdset_longdef_generic(addr pos, addr value)
-{
-	StdSetLongDefineCombination(pos, value, generic, GENERIC);
+	return StdSetLongDefineCombination_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-_g void stdget_longdef_form(addr pos, addr *ret)
+_g int stdget_longdef_qualifiers_(addr pos, addr *ret)
 {
-	StdGetLongDefineCombination(pos, ret, form, FORM);
+	return StdGetLongDefineCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
-_g void stdset_longdef_form(addr pos, addr value)
+_g int stdset_longdef_qualifiers_(addr pos, addr value)
 {
-	StdSetLongDefineCombination(pos, value, form, FORM);
+	return StdSetLongDefineCombination_(pos, value, qualifiers, QUALIFIERS);
+}
+
+_g int stdget_longdef_arguments_(addr pos, addr *ret)
+{
+	return StdGetLongDefineCombination_(pos, ret, arguments, ARGUMENTS);
+}
+_g int stdset_longdef_arguments_(addr pos, addr value)
+{
+	return StdSetLongDefineCombination_(pos, value, arguments, ARGUMENTS);
+}
+
+_g int stdget_longdef_generic_(addr pos, addr *ret)
+{
+	return StdGetLongDefineCombination_(pos, ret, generic, GENERIC);
+}
+_g int stdset_longdef_generic_(addr pos, addr value)
+{
+	return StdSetLongDefineCombination_(pos, value, generic, GENERIC);
+}
+
+_g int stdget_longdef_form_(addr pos, addr *ret)
+{
+	return StdGetLongDefineCombination_(pos, ret, form, FORM);
+}
+_g int stdset_longdef_form_(addr pos, addr value)
+{
+	return StdSetLongDefineCombination_(pos, value, form, FORM);
 }
 
 
 /*
  *  define-short-method-combination
  */
-static void stdget_shortdef_constant(addr pos, addr *ret,
+static int stdget_shortdef_constant_(addr pos, addr *ret,
 		enum Clos_shortdef_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -364,15 +367,15 @@ static void stdget_shortdef_constant(addr pos, addr *ret,
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		return clos_check_(pos, check, ret);
 	}
 }
 
-static void stdset_shortdef_constant(addr pos, addr value,
+static int stdset_shortdef_constant_(addr pos, addr value,
 		enum Clos_shortdef_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -385,51 +388,52 @@ static void stdset_shortdef_constant(addr pos, addr value,
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
+		return 0;
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_set(pos, check, value);
+		return clos_set_(pos, check, value);
 	}
 }
-#define StdGetShortDefineCombination(p,r,a,b) \
-	stdget_shortdef_constant((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetShortDefineCombination(p,r,a,b) \
-	stdset_shortdef_constant((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
+#define StdGetShortDefineCombination_(p,r,a,b) \
+	stdget_shortdef_constant_((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
+#define StdSetShortDefineCombination_(p,r,a,b) \
+	stdset_shortdef_constant_((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 
-_g void stdget_shortdef_name(addr pos, addr *ret)
+_g int stdget_shortdef_name_(addr pos, addr *ret)
 {
-	StdGetShortDefineCombination(pos, ret, name, NAME);
+	return StdGetShortDefineCombination_(pos, ret, name, NAME);
 }
-_g void stdset_shortdef_name(addr pos, addr value)
+_g int stdset_shortdef_name_(addr pos, addr value)
 {
-	StdSetShortDefineCombination(pos, value, name, NAME);
-}
-
-_g void stdget_shortdef_document(addr pos, addr *ret)
-{
-	StdGetShortDefineCombination(pos, ret, document, DOCUMENTATION);
-}
-_g void stdset_shortdef_document(addr pos, addr value)
-{
-	StdSetShortDefineCombination(pos, value, document, DOCUMENTATION);
+	return StdSetShortDefineCombination_(pos, value, name, NAME);
 }
 
-_g void stdget_shortdef_identity(addr pos, addr *ret)
+_g int stdget_shortdef_document_(addr pos, addr *ret)
 {
-	StdGetShortDefineCombination(pos, ret, identity, IDENTITY);
+	return StdGetShortDefineCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g void stdset_shortdef_identity(addr pos, addr value)
+_g int stdset_shortdef_document_(addr pos, addr value)
 {
-	StdSetShortDefineCombination(pos, value, identity, IDENTITY);
+	return StdSetShortDefineCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g void stdget_shortdef_operator(addr pos, addr *ret)
+_g int stdget_shortdef_identity_(addr pos, addr *ret)
 {
-	StdGetShortDefineCombination(pos, ret, operator, OPERATOR);
+	return StdGetShortDefineCombination_(pos, ret, identity, IDENTITY);
 }
-_g void stdset_shortdef_operator(addr pos, addr value)
+_g int stdset_shortdef_identity_(addr pos, addr value)
 {
-	StdSetShortDefineCombination(pos, value, operator, OPERATOR);
+	return StdSetShortDefineCombination_(pos, value, identity, IDENTITY);
+}
+
+_g int stdget_shortdef_operator_(addr pos, addr *ret)
+{
+	return StdGetShortDefineCombination_(pos, ret, operator, OPERATOR);
+}
+_g int stdset_shortdef_operator_(addr pos, addr value)
+{
+	return StdSetShortDefineCombination_(pos, value, operator, OPERATOR);
 }
 
 
@@ -484,8 +488,7 @@ static int qualifiers_equal_(Execute ptr, addr left, addr right, int *ret)
 
 	/* error */
 	*ret = 0;
-	fmte("Invalid method-combination-eualifiers ~S.", right, NULL);
-	return 0;
+	return fmte_("Invalid method-combination-eualifiers ~S.", right, NULL);
 }
 
 static int check_qualifiers_equal_long_(Execute ptr, addr comb, addr qua, int *ret)
@@ -493,7 +496,7 @@ static int check_qualifiers_equal_long_(Execute ptr, addr comb, addr qua, int *r
 	int check;
 	addr cons, list;
 
-	stdget_longcomb_qualifiers(comb, &cons);
+	Return(stdget_longcomb_qualifiers_(comb, &cons));
 	while (cons != Nil) {
 		GetCons(cons, &list, &cons);
 		/* cadr */
@@ -508,23 +511,23 @@ static int check_qualifiers_equal_long_(Execute ptr, addr comb, addr qua, int *r
 	return Result(ret, 0);
 }
 
-static int check_qualifiers_equal_short(addr comb, addr qua)
+static int check_qualifiers_equal_short_(addr comb, addr qua, int *ret)
 {
 	addr name, check;
 
 	if (! consp(qua))
-		return 0;
+		return Result(ret, 0);
 	GetCons(qua, &qua, &check);
 	if (check != Nil)
-		return 0;
-	stdget_shortcomb_name(comb, &name);
+		return Result(ret, 0);
+	Return(stdget_shortcomb_name_(comb, &name));
 	if (qua == name)
-		return 1;
+		return Result(ret, 1);
 	GetConst(KEYWORD_AROUND, &check);
 	if (qua == check)
-		return 1;
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int check_qualifiers_equal_standard(addr qua)
@@ -555,39 +558,42 @@ static int check_qualifiers_equal_standard(addr qua)
 
 _g int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
 {
+	int check;
+
 	if (comb == Nil)
 		return Result(ret, check_qualifiers_equal_standard(qua));
-	if (clos_long_combination_p(comb))
+	Return(clos_long_combination_p_(comb, &check));
+	if (check)
 		return check_qualifiers_equal_long_(ptr, comb, qua, ret);
-	if (clos_short_combination_p(comb))
-		return Result(ret, check_qualifiers_equal_short(comb, qua));
+	Return(clos_short_combination_p_(comb, &check));
+	if (check)
+		return check_qualifiers_equal_short_(comb, qua, ret);
 	/* error */
 	*ret = 0;
-	fmte("Invalid method-combination instance ~S.", comb, NULL);
-	return 0;
+	return fmte_("Invalid method-combination instance ~S.", comb, NULL);
 }
 
 
 /*****************************************************************************
  *  qualifiers-position
  *****************************************************************************/
-_g void method_combination_qualifiers_count(addr comb, size_t *ret)
+_g int method_combination_qualifiers_count_(addr comb, size_t *ret)
 {
-	if (comb == Nil) {
-		*ret = Clos_standard_size;
-		return;
+	int check;
+
+	if (comb == Nil)
+		return Result(ret, Clos_standard_size);
+	Return(clos_long_combination_p_(comb, &check));
+	if (check) {
+		Return(stdget_longcomb_qualifiers_(comb, &comb));
+		return Result(ret, length_list_unsafe(comb));
 	}
-	if (clos_long_combination_p(comb)) {
-		stdget_longcomb_qualifiers(comb, &comb);
-		*ret = length_list_unsafe(comb);
-		return;
-	}
-	if (clos_short_combination_p(comb)) {
-		*ret = Clos_short_size;
-		return;
-	}
+	Return(clos_short_combination_p_(comb, &check));
+	if (check)
+		return Result(ret, Clos_short_size);
 	/* error */
-	fmte("Invalid method-combination instance ~S.", comb, NULL);
+	*ret = 0;
+	return fmte_("Invalid method-combination instance ~S.", comb, NULL);
 }
 
 static int qualifiers_position_standard_nil(addr qua, size_t *ret)
@@ -631,7 +637,7 @@ static int qualifiers_position_long_nil_(Execute ptr, addr qua, addr comb,
 	addr cons, list;
 	size_t index;
 
-	stdget_longcomb_qualifiers(comb, &cons);
+	Return(stdget_longcomb_qualifiers_(comb, &cons));
 	for (index = 0; cons != Nil; index++) {
 		GetCons(cons, &list, &cons);
 		/* cadr */
@@ -648,44 +654,47 @@ static int qualifiers_position_long_nil_(Execute ptr, addr qua, addr comb,
 	return Result(ret, 1);
 }
 
-static int qualifiers_position_short_nil(addr qua, addr comb, size_t *ret)
+static int qualifiers_position_short_nil_(addr qua, addr comb, size_t *value, int *ret)
 {
 	addr name, check;
 
 	if (! consp(qua))
-		return 1;
+		return Result(ret, 1);
 	GetCons(qua, &qua, &check);
 	if (check != Nil)
-		return 1;
-	stdget_shortcomb_name(comb, &name);
+		return Result(ret, 1);
+	Return(stdget_shortcomb_name_(comb, &name));
 	if (qua == name) {
-		*ret = Clos_short_primary;
-		return 0;
+		*value = Clos_short_primary;
+		return Result(ret, 0);
 	}
 	GetConst(KEYWORD_AROUND, &check);
 	if (qua == check) {
-		*ret = Clos_short_around;
-		return 0;
+		*value = Clos_short_around;
+		return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 _g int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 		size_t *rsize, int *ret)
 {
-	Check(clos_define_combination_p(comb), "type error");
+	int check;
+
+	Check(clos_define_combination_p_debug(comb), "type error");
 	if (comb == Nil)
 		return Result(ret, qualifiers_position_standard_nil(qua, rsize));
-	if (clos_long_combination_p(comb))
+	Return(clos_long_combination_p_(comb, &check));
+	if (check)
 		return qualifiers_position_long_nil_(ptr, qua, comb, rsize, ret);
-	if (clos_short_combination_p(comb))
-		return Result(ret, qualifiers_position_short_nil(qua, comb, rsize));
+	Return(clos_short_combination_p_(comb, &check))
+	if (check)
+		return qualifiers_position_short_nil_(qua, comb, rsize, ret);
 	/* error */
 	*rsize = 0;
 	*ret = 0;
-	fmte("Invalid method-combination type ~S.", comb, NULL);
-	return 0;
+	return fmte_("Invalid method-combination type ~S.", comb, NULL);
 }
 
 _g int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret)
@@ -693,8 +702,11 @@ _g int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int
 	int check;
 
 	Return(qualifiers_position_nil_(ptr, qua, comb, rsize, &check));
-	if (check)
-		fmte("The qualifiers ~S is not found.", qua, NULL);
+	if (check) {
+		*rsize = 0;
+		*ret = 0;
+		return fmte_("The qualifiers ~S is not found.", qua, NULL);
+	}
 
 	return 0;
 }
@@ -703,43 +715,54 @@ _g int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int
 /*****************************************************************************
  *  standard method-combination
  *****************************************************************************/
-static void build_clos_method_combination_standard(void)
+static int build_clos_method_combination_standard_(void)
 {
 	addr clos, inst, name;
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &clos);
-	clos_instance_heap(clos, &inst);
+	Return(clos_instance_heap_(clos, &inst));
 	GetConst(COMMON_STANDARD, &name);
-	stdset_longcomb_name(inst, name);
+	Return(stdset_longcomb_name_(inst, name));
 	SetConst(CLOS_COMBINATION_STANDARD, inst);
+
+	return 0;
 }
 
-static void build_clos_method_combination_short(constindex n, int ident)
+static int build_clos_method_combination_short_(constindex n, int ident)
 {
 	addr clos, inst, name;
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &clos);
-	clos_instance_heap(clos, &inst);
+	Return(clos_instance_heap_(clos, &inst));
 	GetConstant(n, &name);
-	stdset_shortdef_name(inst, name);
-	stdset_shortdef_document(inst, Nil);
-	stdset_shortdef_identity(inst, ident? T: Nil);
-	stdset_shortdef_operator(inst, name);
+	Return(stdset_shortdef_name_(inst, name));
+	Return(stdset_shortdef_document_(inst, Nil));
+	Return(stdset_shortdef_identity_(inst, ident? T: Nil));
+	Return(stdset_shortdef_operator_(inst, name));
 	clos_define_combination(name, inst);
+
+	return 0;
+}
+
+static int build_clos_combination_call_(void)
+{
+	Return(build_clos_method_combination_standard_());
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_PLUS, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_AND, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_APPEND, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_LIST, 0));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_MAX, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_MIN, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_NCONC, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_OR, 1));
+	Return(build_clos_method_combination_short_(CONSTANT_COMMON_PROGN, 1));
+
+	return 0;
 }
 
 _g void build_clos_combination(void)
 {
-	build_clos_method_combination_standard();
-	build_clos_method_combination_short(CONSTANT_COMMON_PLUS, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_AND, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_APPEND, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_LIST, 0);
-	build_clos_method_combination_short(CONSTANT_COMMON_MAX, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_MIN, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_NCONC, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_OR, 1);
-	build_clos_method_combination_short(CONSTANT_COMMON_PROGN, 1);
+	Error(build_clos_combination_call_());
 }
 
 
@@ -753,154 +776,157 @@ static int clos_method_combination_standard_p(addr pos)
 	return pos == check;
 }
 
-static void clos_method_combination_standard(addr comb, addr list, addr *ret)
+static int clos_method_combination_standard_(addr comb, addr list, addr *ret)
 {
-	if (list != Nil)
-		fmte("Invalid STANDARD method-combination arguments ~S.", list, NULL);
-	*ret = Nil;
+	if (list != Nil) {
+		*ret = Nil;
+		return fmte_("Invalid STANDARD method-combination arguments ~S.", list, NULL);
+	}
+
+	return Result(ret, Nil);
 }
 
-static void clos_method_combination_long(addr comb, addr list, addr *ret)
+static int clos_method_combination_long_(addr comb, addr list, addr *ret)
 {
 	addr pos, value;
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	clos_instance_heap(pos, &pos);
+	Return(clos_instance_heap_(pos, &pos));
 	/* copy */
-	stdget_longdef_name(comb, &value);
-	stdset_longcomb_name(pos, value);
-	stdget_longdef_document(comb, &value);
-	stdset_longcomb_document(pos, value);
-	stdget_longdef_lambda_list(comb, &value);
-	stdset_longcomb_lambda_list(pos, value);
-	stdget_longdef_qualifiers(comb, &value);
-	stdset_longcomb_qualifiers(pos, value);
-	stdget_longdef_arguments(comb, &value);
-	stdset_longcomb_arguments(pos, value);
-	stdget_longdef_generic(comb, &value);
-	stdset_longcomb_generic(pos, value);
-	stdget_longdef_form(comb, &value);
-	stdset_longcomb_form(pos, value);
+	Return(stdget_longdef_name_(comb, &value));
+	Return(stdset_longcomb_name_(pos, value));
+	Return(stdget_longdef_document_(comb, &value));
+	Return(stdset_longcomb_document_(pos, value));
+	Return(stdget_longdef_lambda_list_(comb, &value));
+	Return(stdset_longcomb_lambda_list_(pos, value));
+	Return(stdget_longdef_qualifiers_(comb, &value));
+	Return(stdset_longcomb_qualifiers_(pos, value));
+	Return(stdget_longdef_arguments_(comb, &value));
+	Return(stdset_longcomb_arguments_(pos, value));
+	Return(stdget_longdef_generic_(comb, &value));
+	Return(stdset_longcomb_generic_(pos, value));
+	Return(stdget_longdef_form_(comb, &value));
+	Return(stdset_longcomb_form_(pos, value));
 	/* binding */
-	stdset_longcomb_binding(pos, list);
+	Return(stdset_longcomb_binding_(pos, list));
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-static void clos_method_combination_short_arguments(addr list, addr *ret)
+static int clos_method_combination_short_arguments_(addr list, addr *ret)
 {
 	addr check, first, last;
 
 	GetConst(KEYWORD_MOST_SPECIFIC_FIRST, &first);
 	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &last);
-	if (list == Nil) {
-		*ret = first;
-		return;
-	}
+	if (list == Nil)
+		return Result(ret, first);
 	if (singlep(list)) {
 		GetCar(list, &check);
 		if (check != first && check != last)
 			goto error;
-		*ret = check;
-		return;
+		return Result(ret, check);
 	}
 	/* error */
 error:
-	fmte("METHOD-COMBINATION ~S argument must be a "
+	*ret = Nil;
+	return fmte_("METHOD-COMBINATION ~S argument must be a "
 			":most-specific-first or :most-specific-last.", list, NULL);
-	*ret = 0;
 }
 
-static void clos_method_combination_short(addr comb, addr list, addr *ret)
+static int clos_method_combination_short_(addr comb, addr list, addr *ret)
 {
 	addr pos, value, order;
 
 	/* (&optional argument-precedence-order) */
-	clos_method_combination_short_arguments(list, &order);
+	Return(clos_method_combination_short_arguments_(list, &order));
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	clos_instance_heap(pos, &pos);
+	Return(clos_instance_heap_(pos, &pos));
 	/* copy */
-	stdget_shortdef_name(comb, &value);
-	stdset_shortcomb_name(pos, value);
-	stdget_shortdef_document(comb, &value);
-	stdset_shortcomb_document(pos, value);
-	stdget_shortdef_identity(comb, &value);
-	stdset_shortcomb_identity(pos, value);
-	stdget_shortdef_operator(comb, &value);
-	stdset_shortcomb_operator(pos, value);
+	Return(stdget_shortdef_name_(comb, &value));
+	Return(stdset_shortcomb_name_(pos, value));
+	Return(stdget_shortdef_document_(comb, &value));
+	Return(stdset_shortcomb_document_(pos, value));
+	Return(stdget_shortdef_identity_(comb, &value));
+	Return(stdset_shortcomb_identity_(pos, value));
+	Return(stdget_shortdef_operator_(comb, &value));
+	Return(stdset_shortcomb_operator_(pos, value));
 	/* argument-precedence-order */
-	stdset_shortcomb_order(pos, order);
+	Return(stdset_shortcomb_order_(pos, order));
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-_g void clos_find_method_combination(addr gen, addr list, addr *ret)
+_g int clos_find_method_combination_(addr gen, addr list, addr *ret)
 {
+	int check;
 	addr pos, tail;
 
-	Check(! clos_generic_p(gen), "type error");
+	Check(! clos_generic_p_debug(gen), "type error");
 	Check(! consp(list), "type error");
 	GetCons(list, &pos, &tail);
 
 	/* standard */
-	if (clos_method_combination_standard_p(pos)) {
-		clos_method_combination_standard(pos, tail, ret);
-		return;
-	}
+	if (clos_method_combination_standard_p(pos))
+		return clos_method_combination_standard_(pos, tail, ret);
 
 	/* long form */
-	clos_find_combination(pos, &pos);
-	if (clos_define_long_combination_p(pos)) {
-		clos_method_combination_long(pos, tail, ret);
-		return;
-	}
+	Return(clos_find_combination_(pos, &pos));
+	Return(clos_define_long_combination_p_(pos, &check));
+	if (check)
+		return clos_method_combination_long_(pos, tail, ret);
 
 	/* short form */
-	if (clos_define_short_combination_p(pos)) {
-		clos_method_combination_short(pos, tail, ret);
-		return;
-	}
+	Return(clos_define_short_combination_p_(pos, &check));
+	if (check)
+		return clos_method_combination_short_(pos, tail, ret);
 
 	/* error */
-	fmte("Invalid method-combination instance ~S.", list, NULL);
+	*ret = Nil;
+	return fmte_("Invalid method-combination instance ~S.", list, NULL);
 }
 
 
 /*
  *  ensure-define-combination
  */
-_g void ensure_define_combination_short_common(addr name, addr doc, addr ident, addr oper)
+_g int ensure_define_combination_short_common_(
+		addr name, addr doc, addr ident, addr oper)
 {
 	addr pos;
 
 	/* instance */
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	clos_instance_heap(pos, &pos);
-	stdset_shortdef_name(pos, name);
-	stdset_shortdef_document(pos, doc);
-	stdset_shortdef_identity(pos, ident);
-	stdset_shortdef_operator(pos, oper);
+	Return(clos_instance_heap_(pos, &pos));
+	Return(stdset_shortdef_name_(pos, name));
+	Return(stdset_shortdef_document_(pos, doc));
+	Return(stdset_shortdef_identity_(pos, ident));
+	Return(stdset_shortdef_operator_(pos, oper));
 	/* define-combination */
 	clos_define_combination(name, pos);
+
+	return 0;
 }
 
-_g void ensure_define_combination_long_common(addr name, addr lambda, addr spec,
+_g int ensure_define_combination_long_common_(addr name, addr lambda, addr spec,
 		addr args, addr gen, addr doc, addr form, addr decl)
 {
 	addr pos;
 
 	/* instance */
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	clos_instance_heap(pos, &pos);
-	stdset_longdef_name(pos, name);
-	stdset_longdef_lambda_list(pos, lambda);
-	stdset_longdef_qualifiers(pos, spec);
-	stdset_longdef_arguments(pos, args);
-	stdset_longdef_generic(pos, gen);
-	stdset_longdef_document(pos, doc);
-	stdset_longdef_form(pos, form);
+	Return(clos_instance_heap_(pos, &pos));
+	Return(stdset_longdef_name_(pos, name));
+	Return(stdset_longdef_lambda_list_(pos, lambda));
+	Return(stdset_longdef_qualifiers_(pos, spec));
+	Return(stdset_longdef_arguments_(pos, args));
+	Return(stdset_longdef_generic_(pos, gen));
+	Return(stdset_longdef_document_(pos, doc));
+	Return(stdset_longdef_form_(pos, form));
 	/* define-combination */
 	clos_define_combination(name, pos);
+
+	return 0;
 }
 
 
@@ -1039,7 +1065,7 @@ static void comb_longmacro_arguments(addr *ret, addr args, addr form)
 	list_heap(ret, let, root, declare, form, NULL);
 }
 
-static void comb_longmacro_form(addr *ret,
+static int comb_longmacro_form_(addr *ret,
 		addr spec, addr gens, addr gen, addr array, addr form)
 {
 	/* `(let* ((,spec0 (qualifiers-elt 'spec0 ,array 0 order0 required0))
@@ -1058,7 +1084,7 @@ static void comb_longmacro_form(addr *ret,
 	GetConst(CLOSNAME_QUALIFIERS_ELT, &elt);
 	GetConst(COMMON_QUOTE, &quote);
 	for (i = 0; spec != Nil; i++) {
-		getcons(spec, &pos, &spec);
+		Return_getcons(spec, &pos, &spec);
 		list_bind(pos, &name, &temp, &order, &req, &temp, NULL);
 		fixnum_heap(&pos, i);
 		list_heap(&nameq, quote, name, NULL);
@@ -1083,9 +1109,11 @@ static void comb_longmacro_form(addr *ret,
 	GetConst(COMMON_LETA, &leta);
 	nreverse(&args, args);
 	lista_heap(ret, leta, args, declare, form, NULL);
+
+	return 0;
 }
 
-_g void comb_longmacro(addr *ret,
+_g int comb_longmacro_(addr *ret,
 		addr lambda, addr spec, addr args, addr gens, addr decl, addr form)
 {
 	addr gen, inst, array;
@@ -1094,9 +1122,11 @@ _g void comb_longmacro(addr *ret,
 	make_symbolchar(&inst, "COMBINATION");
 	make_symbolchar(&array, "QUALIFIERS");
 
-	comb_longmacro_form(&form, spec, gens, gen, array, form);
+	Return(comb_longmacro_form_(&form, spec, gens, gen, array, form));
 	comb_longmacro_arguments(&form, args, form);
 	comb_longmacro_lambda(ret, lambda, gen, inst, array, decl, form);
+
+	return 0;
 }
 
 static void comb_longform_macrolet(addr *ret, addr args, addr gen, addr form)
@@ -1218,17 +1248,15 @@ static void comb_longmacro_lambda_list(addr args, addr *ret)
 	nreverse(ret, root);
 }
 
-static void comb_longform_arguments(addr *ret, addr args, addr comb, addr form)
+static int comb_longform_arguments_(addr *ret, addr args, addr comb, addr form)
 {
 	addr list, lambda;
 	addr dbind, declare, ignorable;
 
 	/* no :arguments */
-	stdget_longcomb_arguments(comb, &comb);
-	if (comb == Nil) {
-		*ret = form;
-		return;
-	}
+	Return(stdget_longcomb_arguments_(comb, &comb));
+	if (comb == Nil)
+		return Result(ret, form);
 
 	/* (destructuring-bind ,arguments ,args
 	 *   (declare (ignorable ...))
@@ -1244,15 +1272,17 @@ static void comb_longform_arguments(addr *ret, addr args, addr comb, addr form)
 	/* result */
 	GetConst(COMMON_DESTRUCTURING_BIND, &dbind);
 	list_heap(ret, dbind, lambda, args, declare, form, NULL);
+
+	return 0;
 }
 
-_g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+_g int comb_longform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
 	addr control, pos, args;
 	LocalHold hold;
 
 	/* execute */
-	stdget_longcomb_form(comb, &pos);
+	Return(stdget_longcomb_form_(comb, &pos));
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
 	Return(funcall_control(ptr, pos, gen, comb, data, NULL));
@@ -1263,48 +1293,48 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 
 	/* make-form */
 	make_symbolchar(&args, "ARGS");
-	comb_longform_arguments(&pos, args, comb, pos);
+	Return(comb_longform_arguments_(&pos, args, comb, pos));
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
 	return eval_result_partial(ptr, pos, ret);
 }
 
-static void comb_shortform_primary(addr *ret, addr comb, addr list)
+static int comb_shortform_primary_(addr *ret, addr comb, addr list)
 {
 	addr check, call, root;
 
 	GetConst(COMMON_CALL_METHOD, &call);
-	stdget_shortcomb_identity(comb, &check);
+	Return(stdget_shortcomb_identity_(comb, &check));
 	if (check != Nil && singlep(list)) {
 		GetCar(list, &list);
 		list_heap(ret, call, list, NULL);
 	}
 	else {
-		stdget_shortcomb_operator(comb, &check);
+		Return(stdget_shortcomb_operator_(comb, &check));
 		conscar_heap(&root, check);
 		while (list != Nil) {
-			getcons(list, &check, &list);
+			Return_getcons(list, &check, &list);
 			list_heap(&check, call, check, NULL);
 			cons_heap(&root, check, root);
 		}
 		nreverse(ret, root);
 	}
+
+	return 0;
 }
 
-static void comb_shortform_around(addr *ret, addr comb, addr list, addr form)
+static int comb_shortform_around_(addr *ret, addr comb, addr list, addr form)
 {
 	addr pos, root, car, cdr;
 
-	if (list == Nil) {
-		*ret = form;
-		return;
-	}
+	if (list == Nil)
+		return Result(ret, form);
 
-	getcons(list, &car, &cdr);
+	Return_getcons(list, &car, &cdr);
 	/* ,@(cdr around) */
 	for (root = Nil; cdr != Nil; ) {
-		getcons(cdr, &pos, &cdr);
+		Return_getcons(cdr, &pos, &cdr);
 		cons_heap(&root, pos, root);
 	}
 	/* (make-method ,form) */
@@ -1315,9 +1345,11 @@ static void comb_shortform_around(addr *ret, addr comb, addr list, addr form)
 	/* call-methd */
 	GetConst(COMMON_CALL_METHOD, &pos);
 	list_heap(ret, pos, car, root, NULL);
+
+	return 0;
 }
 
-static void comb_shortform_make(addr *ret, addr comb, addr data)
+static int comb_shortform_make_(addr *ret, addr comb, addr data)
 {
 	addr around, primary, order, check, form;
 
@@ -1327,27 +1359,27 @@ static void comb_shortform_make(addr *ret, addr comb, addr data)
 	getarray(data, Clos_short_primary, &primary);
 	/* required */
 	if (primary == Nil) {
-		stdget_shortcomb_name(comb, &primary);
-		fmte("The qualifier ~S must be at least one method.", primary, NULL);
-		return;
+		Return(stdget_shortcomb_name_(comb, &primary));
+		*ret = Nil;
+		return fmte_("The qualifier ~S must be at least one method.", primary, NULL);
 	}
 	/* order */
-	stdget_shortcomb_order(comb, &order);
+	Return(stdget_shortcomb_order_(comb, &order));
 	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &check);
 	if (order == check)
 		reverse_list_heap_safe(&primary, primary);
 	/* form */
-	comb_shortform_primary(&form, comb, primary);
-	comb_shortform_around(ret, comb, around, form);
+	Return(comb_shortform_primary_(&form, comb, primary));
+	return comb_shortform_around_(ret, comb, around, form);
 }
 
-_g int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+_g int comb_shortform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
 	addr pos, args;
 
 	/* make-form */
 	make_symbolchar(&args, "ARGS");
-	comb_shortform_make(&pos, comb, data);
+	Return(comb_shortform_make_(&pos, comb, data));
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */

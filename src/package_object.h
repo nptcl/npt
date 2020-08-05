@@ -29,7 +29,7 @@ enum PACKAGE_TYPE {
 
 _g int packagep(addr pos);
 _g int package_designer_p(addr pos);
-_g int package_designer_equal(addr left, addr right);
+_g int package_designer_equal_(addr left, addr right, int *ret);
 
 _g int getname_package_(addr pos, addr *ret);
 _g int getnickname_package_(addr pos, addr *ret);

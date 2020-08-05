@@ -49,10 +49,12 @@ _g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 		/* make symbol-name */
 		push_local(local, &stack);
 		charqueue_local(local, &queue, 1 + 16);
-		if (prefix == NULL)
-			pushchar_charqueue_local(local, queue, "T");
-		else
-			pushstring_charqueue_local(local, queue, prefix);
+		if (prefix == NULL) {
+			Return(pushchar_charqueue_local_(local, queue, "T"));
+		}
+		else {
+			Return(pushstring_charqueue_local_(local, queue, prefix));
+		}
 		Return(decimal_charqueue_integer_local_(local, value, queue));
 		make_charqueue_local(local, queue, &name);
 		Return(find_symbol_package_(package, name, &gentemp, &type));
@@ -165,7 +167,7 @@ static int defpackage_update_shadowing_(addr pos, addr list)
 		Return(package_designer_(package, &package));
 		while (child != Nil) {
 			GetCons(child, &key, &child);
-			string_designer_heap(&key, key);
+			Return(string_designer_heap_(&key, key, NULL));
 			Return(intern_package_(package, key, &key, NULL));
 			Return(shadowing_import_symbol_package_(pos, key));
 		}
@@ -192,7 +194,7 @@ static int defpackage_update_import_(LocalRoot local, addr pos, addr list)
 		push_local(local, &stack);
 		for (args = Nil; child != Nil; ) {
 			GetCons(child, &symbol, &child);
-			string_designer_heap(&symbol, symbol);
+			Return(string_designer_heap_(&symbol, symbol, NULL));
 			Return(intern_package_(package, symbol, &symbol, NULL));
 			cons_local(local, &args, symbol, args);
 		}
@@ -212,7 +214,7 @@ static int defpackage_update_intern_(addr pos, addr list)
 		GetCons(list, &child, &list);
 		while (child != Nil) {
 			GetCons(child, &name, &child);
-			string_designer_heap(&name, name);
+			Return(string_designer_heap_(&name, name, NULL));
 			Return(intern_package_table_(pos, name, &name, NULL));
 		}
 	}
@@ -229,7 +231,7 @@ static int defpackage_update_export_(LocalRoot local, addr pos, addr list)
 		GetCons(list, &child, &list);
 		while (child != Nil) {
 			GetCons(child, &name, &child);
-			string_designer_heap(&name, name);
+			Return(string_designer_heap_(&name, name, NULL));
 			Return(intern_package_table_(pos, name, &name, NULL));
 			cons_local(local, &root, name, root);
 		}
@@ -398,9 +400,10 @@ _g int do_external_symbols_package(Execute ptr, addr call, addr package)
 	return 0;
 }
 
-_g int do_all_symbols_package(Execute ptr, addr call)
+_g int do_all_symbols_package_(Execute ptr, addr call)
 {
-	addr array, left, right, key, check;
+	int check;
+	addr array, left, right, key, value;
 	size_t i, size;
 
 	PackageTable(&array);
@@ -411,10 +414,10 @@ _g int do_all_symbols_package(Execute ptr, addr call)
 		while (right != Nil) {
 			GetCons(right, &left, &right);
 			GetCons(left, &key, &left);
-			GetPackage(left, PACKAGE_INDEX_NAME, &check);
-			if (string_equal(key, check)) {
-				if (syscall_do_symbols_check(ptr, call, left))
-					return 1;
+			GetPackage(left, PACKAGE_INDEX_NAME, &value);
+			Return(string_equal_(key, value, &check));
+			if (check) {
+				Return(syscall_do_symbols_check(ptr, call, left));
 			}
 		}
 	}

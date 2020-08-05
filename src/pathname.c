@@ -249,7 +249,7 @@ _g int physical_pathname_local_(Execute ptr, addr pos, addr *ret)
 /*
  *  file-namestring
  */
-static void file_namestring_filename(LocalpRoot local, addr pos, addr queue)
+static int file_namestring_filename_(LocalpRoot local, addr pos, addr queue)
 {
 	LocalRoot alloc;
 	addr right, wild;
@@ -259,21 +259,27 @@ static void file_namestring_filename(LocalpRoot local, addr pos, addr queue)
 	GetConst(KEYWORD_WILD, &wild);
 	GetNamePathname(pos, &right);
 	if (right != Nil) {
-		if (right == wild)
-			pushchar_charqueue_local(alloc, queue, "*");
-		else if (right != Nil)
-			pushstring_charqueue_local(alloc, queue, right);
+		if (right == wild) {
+			Return(pushchar_charqueue_local_(alloc, queue, "*"));
+		}
+		else if (right != Nil) {
+			Return(pushstring_charqueue_local_(alloc, queue, right));
+		}
 	}
 
 	/* type */
 	GetTypePathname(pos, &right);
 	if (right != Nil) {
-		push_charqueue_local(alloc, queue, '.');
-		if (right == wild)
-			pushchar_charqueue_local(alloc, queue, "*");
-		else
-			pushstring_charqueue_local(alloc, queue, right);
+		Return(push_charqueue_local_(alloc, queue, '.'));
+		if (right == wild) {
+			Return(pushchar_charqueue_local_(alloc, queue, "*"));
+		}
+		else {
+			Return(pushstring_charqueue_local_(alloc, queue, right));
+		}
 	}
+
+	return 0;
 }
 
 static int file_pathname_namestring_(LocalpRoot local, addr *ret, addr pos)
@@ -285,7 +291,7 @@ static int file_pathname_namestring_(LocalpRoot local, addr *ret, addr pos)
 		return fmte_("Unknown pathname-host ~S.", host, NULL);
 
 	charqueue_local(local->local, &queue, 0);
-	file_namestring_filename(local, pos, queue);
+	Return(file_namestring_filename_(local, pos, queue));
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
 
 	return 0;
@@ -301,17 +307,13 @@ static int logical_namestring_version_(LocalpRoot local, addr queue, addr right)
 	GetConst(KEYWORD_NEWEST, &newest);
 	if (right == newest)
 		return 0;
-	push_charqueue_local(alloc, queue, '.');
-	if (right == wild) {
-		pushchar_charqueue_local(alloc, queue, "*");
-		return 0;
-	}
-	else if (integerp(right)) {
+	Return(push_charqueue_local_(alloc, queue, '.'));
+	if (right == wild)
+		return pushchar_charqueue_local_(alloc, queue, "*");
+	else if (integerp(right))
 		return decimal_charqueue_integer_local_(alloc, right, queue);
-	}
-	else {
+	else
 		return fmte_("Invalid version value ~S.", right, NULL);
-	}
 }
 
 static int file_logical_namestring_(LocalpRoot local, addr *ret, addr pos)
@@ -319,7 +321,7 @@ static int file_logical_namestring_(LocalpRoot local, addr *ret, addr pos)
 	addr queue, right;
 
 	charqueue_local(local->local, &queue, 0);
-	file_namestring_filename(local, pos, queue);
+	Return(file_namestring_filename_(local, pos, queue));
 	GetVersionPathname(pos, &right);
 	if (right != Nil) {
 		Return(logical_namestring_version_(local, queue, right));
@@ -388,27 +390,33 @@ static int directory_namestring_filename_(LocalpRoot local,
 		return fmte_("Invalid directory ~S.", right, NULL);
 	GetCons(right, &left, &right);
 	if (left == absolute) {
-		if (! logicalp)
-			push_charqueue_local(alloc, queue, split);
+		if (! logicalp) {
+			Return(push_charqueue_local_(alloc, queue, split));
+		}
 	}
 	else if (left == relative) {
-		if (logicalp)
-			push_charqueue_local(alloc, queue, split);
+		if (logicalp) {
+			Return(push_charqueue_local_(alloc, queue, split));
+		}
 	}
 	else {
 		return fmte_("Invalid directory type ~S.", left, NULL);
 	}
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		if (left == wild)
-			pushchar_charqueue_local(alloc, queue, "*");
-		else if (left == wildi)
-			pushchar_charqueue_local(alloc, queue, "**");
-		else if (left == up)
-			pushchar_charqueue_local(alloc, queue, "..");
-		else
-			pushstring_charqueue_local(alloc, queue, left);
-		push_charqueue_local(alloc, queue, split);
+		if (left == wild) {
+			Return(pushchar_charqueue_local_(alloc, queue, "*"));
+		}
+		else if (left == wildi) {
+			Return(pushchar_charqueue_local_(alloc, queue, "**"));
+		}
+		else if (left == up) {
+			Return(pushchar_charqueue_local_(alloc, queue, ".."));
+		}
+		else {
+			Return(pushstring_charqueue_local_(alloc, queue, left));
+		}
+		Return(push_charqueue_local_(alloc, queue, split));
 	}
 
 	return 0;
@@ -489,8 +497,7 @@ static int namestring_filename_(LocalpRoot local,
 		addr pos, addr queue, unicode split, int logicalp)
 {
 	Return(directory_namestring_filename_(local, pos, queue, split, logicalp));
-	file_namestring_filename(local, pos, queue);
-	return 0;
+	return file_namestring_filename_(local, pos, queue);
 }
 
 static int namestring_unix_(LocalpRoot local, addr *ret, addr pos)
@@ -515,21 +522,22 @@ static int namestring_windows_(LocalpRoot local, addr *ret, addr pos)
 	GetDevicePathname(pos, &device);
 	charqueue_local(alloc, &queue, 0);
 	if (device == universal) {
-		push_charqueue_local(alloc, queue, '\\');
+		Return(push_charqueue_local_(alloc, queue, '\\'));
 		Return(namestring_filename_(local, pos, queue, '\\', 0));
 	}
 	else if (device == file) {
-		push_charqueue_local(alloc, queue, '\\');
-		push_charqueue_local(alloc, queue, '\\');
-		push_charqueue_local(alloc, queue, '.');
-		push_charqueue_local(alloc, queue, '\\');
+		Return(push_charqueue_local_(alloc, queue, '\\'));
+		Return(push_charqueue_local_(alloc, queue, '\\'));
+		Return(push_charqueue_local_(alloc, queue, '.'));
+		Return(push_charqueue_local_(alloc, queue, '\\'));
 		GetNamePathname(pos, &check);
-		if (check != Nil)
-			pushstring_charqueue_local(alloc, queue, check);
+		if (check != Nil) {
+			Return(pushstring_charqueue_local_(alloc, queue, check));
+		}
 	}
 	else if (device != Nil) {
-		pushstring_charqueue_local(alloc, queue, device);
-		push_charqueue_local(alloc, queue, ':');
+		Return(pushstring_charqueue_local_(alloc, queue, device));
+		Return(push_charqueue_local_(alloc, queue, ':'));
 		Return(namestring_filename_(local, pos, queue, '\\', 0));
 	}
 	else {
@@ -562,8 +570,8 @@ static int logical_namestring_(LocalpRoot local, addr *ret, addr pos)
 	charqueue_local(alloc, &queue, 0);
 	/* host */
 	GetHostPathname(pos, &right);
-	pushstring_charqueue_local(alloc, queue, right);
-	pushchar_charqueue_local(alloc, queue, ":");
+	Return(pushstring_charqueue_local_(alloc, queue, right));
+	Return(pushchar_charqueue_local_(alloc, queue, ":"));
 	/* directory, name, type */
 	Return(namestring_filename_(local, pos, queue, ';', 1));
 	/* version */

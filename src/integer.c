@@ -1252,7 +1252,7 @@ _g int parse_integer_clang(LocalRoot local,
 	mode = 0;
 	sign = SignPlus;
 	for (i = start; i < end; i++) {
-		string_getc(string, i, &c);
+		Return(string_getc_(string, i, &c));
 		/* white space */
 		if (mode == 0) {
 			if (isSpaceUnicode(c))

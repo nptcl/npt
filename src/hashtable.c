@@ -809,21 +809,22 @@ _g int equalrt_hashtable_(addr left, addr right, int *ret)
 /* clang */
 _g int findcons_char_hashtable_(addr pos, const char *key, addr *ret)
 {
+	int check;
 	fixnum value;
-	addr array, root, left, right, check;
-	int (*equal)(addr, const char *);
+	addr array, root, left, right, str;
+	int (*equal_)(addr, const char *, int *);
 	size_t index;
 
 	CheckType(pos, LISPTYPE_HASHTABLE);
 	switch (GetTestHashtable(pos)) {
 		case HASHTABLE_TEST_EQUAL:
 			Return(sxhash_char_equal_(key, &value));
-			equal = string_equal_char;
+			equal_ = string_equal_char_;
 			break;
 
 		case HASHTABLE_TEST_EQUALP:
 			Return(sxhash_char_equalp_(key, &value));
-			equal = string_equalp_char;
+			equal_ = string_equalp_char_;
 			break;
 
 		default:
@@ -835,10 +836,11 @@ _g int findcons_char_hashtable_(addr pos, const char *key, addr *ret)
 	GetArrayHash(array, index, &root);
 	for (; root != Nil; root = right) {
 		GetCons(root, &left, &right);
-		GetCar(left, &check);
-		if (! stringp(check))
+		GetCar(left, &str);
+		if (! stringp(str))
 			continue;
-		if (! (*equal)(check, key))
+		Return((*equal_)(str, key, &check));
+		if (! check)
 			continue;
 
 		return Result(ret, left);

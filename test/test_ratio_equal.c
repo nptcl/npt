@@ -478,6 +478,7 @@ static int test_equal_rs_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -509,6 +510,7 @@ static int test_equal_rd_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -540,6 +542,7 @@ static int test_equal_rl_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -597,6 +600,7 @@ static int test_compare_bigtype_ratio_nosign(void)
 	LocalStack stack;
 	addr numer, denom, pos;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -644,6 +648,7 @@ static int test_compare_fr_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -742,6 +747,7 @@ static int test_compare_rf_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -771,6 +777,7 @@ static int test_compare_bigdata_ratio_nosign(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -814,6 +821,7 @@ static int test_compare_br_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -892,6 +900,7 @@ static int test_compare_rb_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -914,6 +923,7 @@ static int test_compare_ratio_local(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -944,6 +954,7 @@ static int test_compare_rr_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -1022,6 +1033,7 @@ static int test_compare_rs_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -1052,6 +1064,7 @@ static int test_compare_rd_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -1082,6 +1095,7 @@ static int test_compare_rl_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -1112,6 +1126,7 @@ static int test_compare_sr_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -1134,6 +1149,7 @@ static int test_compare_dr_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 
@@ -1156,6 +1172,7 @@ static int test_compare_lr_real(void)
 	LocalStack stack;
 	addr numer, denom, left, right;
 
+	check = 0;
 	local = Local_Thread;
 	push_local(local, &stack);
 

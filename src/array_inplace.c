@@ -10,15 +10,17 @@
 /*
  *  arrayinplace_get
  */
-static void arrayinplace_get_general(addr mem, size_t index, struct array_value *value)
+static int arrayinplace_get_general_(addr mem, size_t index, struct array_value *value)
 {
 	arraygen_get(mem, index, &mem);
 	value->value.object = mem;
 	value->type = ARRAY_TYPE_T;
 	value->size = 0;
+
+	return 0;
 }
 
-static void arrayinplace_get_specialized(
+static int arrayinplace_get_specialized_(
 		addr pos, addr mem, size_t index, struct array_value *value)
 {
 	unsigned element;
@@ -27,7 +29,7 @@ static void arrayinplace_get_specialized(
 
 	str = ArrayInfoStruct(pos);
 	if (str->type == ARRAY_TYPE_BIT)
-		fmte("Invaild array object, ~S.", pos, NULL);
+		return fmte_("Invaild array object, ~S.", pos, NULL);
 
 	element = (unsigned)str->element;
 	data = (const byte *)arrayspec_ptr(mem);
@@ -35,91 +37,98 @@ static void arrayinplace_get_specialized(
 	value->type = str->type;
 	value->size = str->bytesize;
 	memcpy(&(value->value), data, element);
+
+	return 0;
 }
 
-static void arrayinplace_get_memory(
+static int arrayinplace_get_memory_(
 		addr pos, addr mem, size_t index, struct array_value *value)
 {
 	if (array_type(pos) == ARRAY_TYPE_T)
-		arrayinplace_get_general(mem, index, value);
+		return arrayinplace_get_general_(mem, index, value);
 	else
-		arrayinplace_get_specialized(pos, mem, index, value);
+		return arrayinplace_get_specialized_(pos, mem, index, value);
 }
 
-static void arrayinplace_get_t(addr mem, size_t index, struct array_value *str)
+static int arrayinplace_get_t_(addr mem, size_t index, struct array_value *str)
 {
 	CheckType(mem, LISPTYPE_VECTOR);
 	getarray(mem, index, &mem);
 	str->value.object = mem;
 	str->type = ARRAY_TYPE_T;
 	str->size = 0;
+
+	return 0;
 }
 
-static void arrayinplace_get_bit(addr mem, size_t index, struct array_value *str)
+static int arrayinplace_get_bit_(addr mem, size_t index, struct array_value *str)
 {
 	int value;
 
 	CheckType(mem, LISPTYPE_BITVECTOR);
-	bitmemory_getint(mem, index, &value);
+	Return(bitmemory_getint_(mem, index, &value));
 	str->value.bit = value? 1: 0;
 	str->type = ARRAY_TYPE_BIT;
 	str->size = 0;
+
+	return 0;
 }
 
-static void arrayinplace_get_character(addr mem, size_t index, struct array_value *str)
+static int arrayinplace_get_character_(addr mem, size_t index, struct array_value *str)
 {
 	unicode c;
 
 	Check(! stringp(mem), "type error");
-	string_getc(mem, index, &c);
+	Return(string_getc_(mem, index, &c));
 	str->value.character = c;
 	str->type = ARRAY_TYPE_CHARACTER;
 	str->size = 0;
+
+	return 0;
 }
 
-static void arrayinplace_get_object(
+static int arrayinplace_get_object_(
 		addr pos, addr mem, size_t index, struct array_value *value)
 {
 	switch (array_type(pos)) {
 		case ARRAY_TYPE_T:
-			arrayinplace_get_t(mem, index, value);
-			break;
+			return arrayinplace_get_t_(mem, index, value);
 
 		case ARRAY_TYPE_BIT:
-			arrayinplace_get_bit(mem, index, value);
-			break;
+			return arrayinplace_get_bit_(mem, index, value);
 
 		case ARRAY_TYPE_CHARACTER:
-			arrayinplace_get_character(mem, index, value);
-			break;
+			return arrayinplace_get_character_(mem, index, value);
 
 		default:
-			fmte("Invalid memory object ~S", pos, NULL);
-			return;
+			return fmte_("Invalid memory object ~S", pos, NULL);
 	}
 }
 
-_g void arrayinplace_get(addr pos, size_t index, struct array_value *str)
+_g int arrayinplace_get_(addr pos, size_t index, struct array_value *str)
 {
+	int check;
 	addr mem;
 
-	if (arraymemory_get(pos, index, &mem, &index))
-		arrayinplace_get_memory(pos, mem, index, str);
+	Return(arraymemory_get_(pos, index, &mem, &index, &check));
+	if (check)
+		return arrayinplace_get_memory_(pos, mem, index, str);
 	else
-		arrayinplace_get_object(pos, mem, index, str);
+		return arrayinplace_get_object_(pos, mem, index, str);
 }
 
 
 /*
  *  arrayinplace_set
  */
-static void arrayinplace_set_general(
+static int arrayinplace_set_general_(
 		addr mem, size_t index, const struct array_value *value)
 {
 	arraygen_set(mem, index, value->value.object);
+	return 0;
 }
 
-static void arrayinplace_set_specialized(
+static int arrayinplace_set_specialized_(
 		addr pos, addr mem, size_t index, const struct array_value *value)
 {
 	unsigned element;
@@ -128,71 +137,72 @@ static void arrayinplace_set_specialized(
 
 	str = ArrayInfoStruct(pos);
 	if (str->type == ARRAY_TYPE_BIT)
-		fmte("Invaild array object, ~S.", pos, NULL);
+		return fmte_("Invaild array object, ~S.", pos, NULL);
 
 	element = (unsigned)str->element;
 	data = (byte *)arrayspec_ptr(mem);
 	data += element * index;
 	memcpy(data, &(value->value), element);
+
+	return 0;
 }
 
-static void arrayinplace_set_memory(
+static int arrayinplace_set_memory_(
 		addr pos, addr mem, size_t index, const struct array_value *value)
 {
 	if (array_type(pos) == ARRAY_TYPE_T)
-		arrayinplace_set_general(mem, index, value);
+		return arrayinplace_set_general_(mem, index, value);
 	else
-		arrayinplace_set_specialized(pos, mem, index, value);
+		return arrayinplace_set_specialized_(pos, mem, index, value);
 }
 
-static void arrayinplace_set_t(addr mem, size_t index, const struct array_value *str)
+static int arrayinplace_set_t_(addr mem, size_t index, const struct array_value *str)
 {
 	CheckType(mem, LISPTYPE_VECTOR);
 	setarray(mem, index, str->value.object);
+	return 0;
 }
 
-static void arrayinplace_set_bit(addr mem, size_t index, const struct array_value *str)
+static int arrayinplace_set_bit_(addr mem, size_t index, const struct array_value *str)
 {
 	CheckType(mem, LISPTYPE_BITVECTOR);
-	bitmemory_setint(mem, index, str->value.bit);
+	return bitmemory_setint_(mem, index, str->value.bit);
 }
 
-static void arrayinplace_set_character(
+static int arrayinplace_set_character_(
 		addr mem, size_t index, const struct array_value *str)
 {
 	Check(! stringp(mem), "type error");
-	string_setc(mem, index, str->value.character);
+	return string_setc_(mem, index, str->value.character);
 }
 
-static void arrayinplace_set_object(
+static int arrayinplace_set_object_(
 		addr pos, addr mem, size_t index, const struct array_value *str)
 {
 	switch (array_type(pos)) {
 		case ARRAY_TYPE_T:
-			arrayinplace_set_t(mem, index, str);
-			break;
+			return arrayinplace_set_t_(mem, index, str);
 
 		case ARRAY_TYPE_BIT:
-			arrayinplace_set_bit(mem, index, str);
-			break;
+			return arrayinplace_set_bit_(mem, index, str);
 
 		case ARRAY_TYPE_CHARACTER:
-			arrayinplace_set_character(mem, index, str);
-			break;
+			return arrayinplace_set_character_(mem, index, str);
 
 		default:
-			fmte("Invalid memory object ~S", pos, NULL);
-			return;
+			return fmte_("Invalid memory object ~S", pos, NULL);
 	}
 }
 
-_g void arrayinplace_set(addr pos, size_t index, const struct array_value *str)
+_g int arrayinplace_set_(addr pos, size_t index, const struct array_value *str)
 {
+	int check;
 	addr mem;
 
-	if (arraymemory_get(pos, index, &mem, &index))
-		arrayinplace_set_memory(pos, mem, index, str);
+	Return(arraymemory_get_(pos, index, &mem, &index, &check));
+	if (check)
+		return arrayinplace_set_memory_(pos, mem, index, str);
 	else
-		arrayinplace_set_object(pos, mem, index, str);
+		return arrayinplace_set_object_(pos, mem, index, str);
 }
 

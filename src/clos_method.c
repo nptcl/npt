@@ -17,7 +17,7 @@
 /*
  *  access
  */
-static void stdget_method_constant(addr pos, addr *ret,
+static int stdget_method_constant_(addr pos, addr *ret,
 		enum Clos_method_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -29,15 +29,15 @@ static void stdget_method_constant(addr pos, addr *ret,
 	GetConst(CLOS_STANDARD_METHOD, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		return clos_check_(pos, check, ret);
 	}
 }
 
-static void stdset_method_constant(addr pos, addr value,
+static int stdset_method_constant_(addr pos, addr value,
 		enum Clos_method_Index index1, constindex index2)
 {
 	addr clos, check;
@@ -50,67 +50,68 @@ static void stdset_method_constant(addr pos, addr value,
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
+		return 0;
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_set(pos, check, value);
+		return clos_set_(pos, check, value);
 	}
 }
-#define StdGetMethod(p,r,a,b) \
-	stdget_method_constant((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetMethod(p,r,a,b) \
-	stdset_method_constant((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
+#define StdGetMethod_(p,r,a,b) \
+	stdget_method_constant_((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
+#define StdSetMethod_(p,r,a,b) \
+	stdset_method_constant_((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 
-_g void stdget_method_function(addr pos, addr *ret)
+_g int stdget_method_function_(addr pos, addr *ret)
 {
-	StdGetMethod(pos, ret, function, FUNCTION);
+	return StdGetMethod_(pos, ret, function, FUNCTION);
 }
-_g void stdset_method_function(addr pos, addr value)
+_g int stdset_method_function_(addr pos, addr value)
 {
-	StdSetMethod(pos, value, function, FUNCTION);
-}
-
-_g void stdget_method_generic_function(addr pos, addr *ret)
-{
-	StdGetMethod(pos, ret, generic_function, GENERIC_FUNCTION);
-}
-_g void stdset_method_generic_function(addr pos, addr value)
-{
-	StdSetMethod(pos, value, generic_function, GENERIC_FUNCTION);
+	return StdSetMethod_(pos, value, function, FUNCTION);
 }
 
-_g void stdget_method_lambda_list(addr pos, addr *ret)
+_g int stdget_method_generic_function_(addr pos, addr *ret)
 {
-	StdGetMethod(pos, ret, lambda_list, LAMBDA_LIST);
+	return StdGetMethod_(pos, ret, generic_function, GENERIC_FUNCTION);
 }
-_g void stdset_method_lambda_list(addr pos, addr value)
+_g int stdset_method_generic_function_(addr pos, addr value)
 {
-	StdSetMethod(pos, value, lambda_list, LAMBDA_LIST);
-}
-
-_g void stdget_method_qualifiers(addr pos, addr *ret)
-{
-	StdGetMethod(pos, ret, qualifiers, QUALIFIERS);
-}
-_g void stdset_method_qualifiers(addr pos, addr value)
-{
-	StdSetMethod(pos, value, qualifiers, QUALIFIERS);
+	return StdSetMethod_(pos, value, generic_function, GENERIC_FUNCTION);
 }
 
-_g void stdget_method_specializers(addr pos, addr *ret)
+_g int stdget_method_lambda_list_(addr pos, addr *ret)
 {
-	StdGetMethod(pos, ret, specializers, SPECIALIZERS);
+	return StdGetMethod_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g void stdset_method_specializers(addr pos, addr value)
+_g int stdset_method_lambda_list_(addr pos, addr value)
 {
-	StdSetMethod(pos, value, specializers, SPECIALIZERS);
+	return StdSetMethod_(pos, value, lambda_list, LAMBDA_LIST);
+}
+
+_g int stdget_method_qualifiers_(addr pos, addr *ret)
+{
+	return StdGetMethod_(pos, ret, qualifiers, QUALIFIERS);
+}
+_g int stdset_method_qualifiers_(addr pos, addr value)
+{
+	return StdSetMethod_(pos, value, qualifiers, QUALIFIERS);
+}
+
+_g int stdget_method_specializers_(addr pos, addr *ret)
+{
+	return StdGetMethod_(pos, ret, specializers, SPECIALIZERS);
+}
+_g int stdset_method_specializers_(addr pos, addr value)
+{
+	return StdSetMethod_(pos, value, specializers, SPECIALIZERS);
 }
 
 
 /*
  *  defmethod
  */
-static void method_instance_alloc(LocalRoot local, addr *ret, addr clos,
+static int method_instance_alloc_(LocalRoot local, addr *ret, addr clos,
 		addr lambda, addr qua, addr spec, addr call)
 {
 	addr pos;
@@ -118,23 +119,24 @@ static void method_instance_alloc(LocalRoot local, addr *ret, addr clos,
 	/* make-instance */
 	if (clos == Nil)
 		GetConst(CLOS_STANDARD_METHOD, &clos);
-	clos_instance_alloc(local, clos, &pos);
-	stdset_method_lambda_list(pos, lambda);
-	stdset_method_qualifiers(pos, qua);
-	stdset_method_specializers(pos, spec);
-	stdset_method_function(pos, call);
-	*ret = pos;
+	Return(clos_instance_alloc_(local, clos, &pos));
+	Return(stdset_method_lambda_list_(pos, lambda));
+	Return(stdset_method_qualifiers_(pos, qua));
+	Return(stdset_method_specializers_(pos, spec));
+	Return(stdset_method_function_(pos, call));
+
+	return Result(ret, pos);
 }
 
-static void method_instance_heap(addr *ret, addr clos,
+static int method_instance_heap_(addr *ret, addr clos,
 		addr lambda, addr qua, addr spec, addr call)
 {
-	method_instance_alloc(NULL, ret, clos, lambda, qua, spec, call);
+	return method_instance_alloc_(NULL, ret, clos, lambda, qua, spec, call);
 }
 
-_g void method_instance_call(LocalRoot local, addr *ret, addr clos, addr call)
+_g int method_instance_call_(LocalRoot local, addr *ret, addr clos, addr call)
 {
-	method_instance_alloc(local, ret, clos, Nil, Nil, Nil, call);
+	return method_instance_alloc_(local, ret, clos, Nil, Nil, Nil, call);
 }
 
 static int method_specializer_list_(addr *ret, addr list)
@@ -158,8 +160,9 @@ static int method_specializer_list_(addr *ret, addr list)
 		}
 		else {
 			/* type */
-			if (! closp(spec))
-				clos_find_class(spec, &spec);
+			if (! closp(spec)) {
+				Return(clos_find_class_(spec, &spec));
+			}
 		}
 		cons_heap(&root, spec, root);
 	}
@@ -174,31 +177,36 @@ _g int method_instance_lambda_(LocalRoot local, addr *ret, addr clos, addr lambd
 
 	Check(! argumentp(lambda), "type error");
 	Return(method_specializer_list_(&spec, lambda));
-	method_instance_heap(ret, clos, lambda, Nil, spec, Nil);
-
-	return 0;
+	return method_instance_heap_(ret, clos, lambda, Nil, spec, Nil);
 }
 
 
 /*
  *  add-method
  */
-static void method_check_generic_function(addr gen, addr method)
+static int method_check_generic_function_(addr gen, addr method)
 {
 	addr check;
 
-	stdget_method_generic_function(method, &check);
+	Return(stdget_method_generic_function_(method, &check));
 	if (check != Nil && method != gen) {
-		fmte("The method ~S is already exists "
+		return fmte_("The method ~S is already exists "
 				"in the generic-function ~S.", method, gen, NULL);
 	}
+
+	return 0;
 }
 
-static void method_check_method_class(addr gen, addr method)
+static int method_check_method_class_(addr gen, addr method)
 {
-	stdget_generic_method_class(gen, &gen);
-	if (! clos_subtype_p(method, gen))
-		fmte("The method don't push in the generic-function.", NULL);
+	int check;
+
+	Return(stdget_generic_method_class_(gen, &gen));
+	Return(clos_subtype_p_(method, gen, &check));
+	if (! check)
+		return fmte_("The method don't push in the generic-function.", NULL);
+
+	return 0;
 }
 
 static int method_check_method_qualifiers_(Execute ptr, addr gen, addr method)
@@ -206,11 +214,13 @@ static int method_check_method_qualifiers_(Execute ptr, addr gen, addr method)
 	int check;
 	addr qua, comb;
 
-	stdget_method_qualifiers(method, &qua);
-	stdget_generic_method_combination(gen, &comb);
+	Return(stdget_method_qualifiers_(method, &qua));
+	Return(stdget_generic_method_combination_(gen, &comb));
 	Return(check_qualifiers_equal_(ptr, comb, qua, &check));
-	if (! check)
-		fmte("The qualifiers ~S is not found in the method-combination.", qua, NULL);
+	if (! check) {
+		return fmte_("The qualifiers ~S "
+				"is not found in the method-combination.", qua, NULL);
+	}
 
 	return 0;
 }
@@ -247,23 +257,31 @@ static int method_null_set_difference(addr key1, addr key2)
 	return 1;
 }
 
-static void method_arguments_check1(
+static int method_arguments_check1_(
 		const struct argument_struct *str1,
 		const struct argument_struct *str2)
 {
-	if (str1->var != str2->var)
-		fmte("The count of variable is not equal to the generic function.", NULL);
+	if (str1->var != str2->var) {
+		return fmte_("The count of variable is "
+				"not equal to the generic function.", NULL);
+	}
+
+	return 0;
 }
 
-static void method_arguments_check2(
+static int method_arguments_check2_(
 		const struct argument_struct *str1,
 		const struct argument_struct *str2)
 {
-	if (str1->opt != str2->opt)
-		fmte("The count of &optional is not equal to the generic function.", NULL);
+	if (str1->opt != str2->opt) {
+		return fmte_("The count of &optional is "
+				"not equal to the generic function.", NULL);
+	}
+
+	return 0;
 }
 
-static void method_arguments_check3(
+static int method_arguments_check3_(
 		const struct argument_struct *str1,
 		const struct argument_struct *str2)
 {
@@ -273,23 +291,25 @@ static void method_arguments_check3(
 	check2 = str2->rest || str2->keyp;
 	checka = ((! check1) && (! check2));
 	if (! (checka || check2))
-		fmte("The method must have &rest or &key arguments.", NULL);
+		return fmte_("The method must have &rest or &key arguments.", NULL);
+
+	return 0;
 }
 
-static void method_arguments_check4(
+static int method_arguments_check4_(
 		addr pos1, const struct argument_struct *str1,
 		addr pos2, const struct argument_struct *str2)
 {
 	if (! str1->key)
-		return; /* not keyp */
+		return 0; /* not keyp */
 	if (str2->rest)
-		return; /* &key ..., &rest -> ok */
+		return 0; /* &key ..., &rest -> ok */
 	if (str2->allow)
-		return; /* &key ..., &key &allow-other-keys -> ok */
+		return 0; /* &key ..., &key &allow-other-keys -> ok */
 	if (str1->keyp && str2->keyp)
-		return; /* &key, &key -> ok */
+		return 0; /* &key, &key -> ok */
 	if (str1->keyp)
-		return; /* &key, ... -> ok */
+		return 0; /* &key, ... -> ok */
 	if (str2->keyp)
 		goto error; /* ..., &key -> error */
 	/* &key ..., &key ... */
@@ -297,65 +317,80 @@ static void method_arguments_check4(
 	GetArgument(pos2, ArgumentIndex_key, &pos2);
 	if (! method_null_set_difference(pos1, pos2))
 		goto error;
-	return;
+	return 0;
 
 error:
-	fmte("The &key arguments in the method must have "
+	return fmte_("The &key arguments in the method must have "
 			"all &key arguments in generic function.", NULL);
 }
 
-static void method_check_method_arguments(addr gen, addr method)
+static int method_check_method_arguments_(addr gen, addr method)
 {
 	addr pos1, pos2;
 	struct argument_struct *str1, *str2;
 
 	/* generic-lambda-list */
-	stdget_generic_lambda_list(gen, &pos1);
+	Return(stdget_generic_lambda_list_(gen, &pos1));
 	CheckType(pos1, LISPSYSTEM_ARGUMENT);
 	str1 = ArgumentStruct(pos1);
 	Check(str1->type != ArgumentType_generic, "type error");
 
 	/* method-lambda-list */
-	stdget_method_lambda_list(method, &pos2);
+	Return(stdget_method_lambda_list_(method, &pos2));
 	CheckType(pos2, LISPSYSTEM_ARGUMENT);
 	str2 = ArgumentStruct(pos2);
 	Check(str2->type != ArgumentType_method, "type error");
 
 	/* check */
-	method_arguments_check1(str1, str2);
-	method_arguments_check2(str1, str2);
-	method_arguments_check3(str1, str2);
-	method_arguments_check4(pos1, str1, pos2, str2);
+	Return(method_arguments_check1_(str1, str2));
+	Return(method_arguments_check2_(str1, str2));
+	Return(method_arguments_check3_(str1, str2));
+	Return(method_arguments_check4_(pos1, str1, pos2, str2));
+
+	return 0;
 }
 
-static void method_eqlcheck(addr method, addr *ret)
+static int method_eqlcheck_(addr method, addr *ret)
 {
+	int check;
 	addr cons, spec;
 
-	stdget_method_specializers(method, &method);
+	Return(stdget_method_specializers_(method, &method));
 	for (cons = Nil; method != Nil; ) {
 		GetCons(method, &spec, &method);
-		spec = clos_specializer_p(spec)? T: Nil;
+		Return(clos_specializer_p_(spec, &check));
+		spec = check? T: Nil;
 		cons_heap(&cons, spec, cons);
 	}
 	nreverse(ret, cons);
+
+	return 0;
 }
 
-static void method_update_eqlcheck(addr gen, addr method, int deletep)
+static int method_update_eqlcheck_p_(addr value, addr spec, int *ret)
 {
-	int update;
-	addr eqlcheck, check, specs, spec, next;
+	if (value != Nil)
+		return Result(ret, 1);
+	else
+		return clos_specializer_p_(spec, ret);
+}
 
-	stdget_generic_eqlcheck(gen, &eqlcheck);
-	stdget_method_specializers(method, &specs);
+static int method_update_eqlcheck_(addr gen, addr method, int deletep)
+{
+	int update, check;
+	addr eqlcheck, value, specs, spec, next;
+
+	Return(stdget_generic_eqlcheck_(gen, &eqlcheck));
+	Return(stdget_method_specializers_(method, &specs));
 
 	/* update eqlcheck */
 	for (update = 0; eqlcheck != Nil; eqlcheck = next) {
-		GetCons(eqlcheck, &check, &next);
+		GetCons(eqlcheck, &value, &next);
 		Check(specs == Nil, "method-specializers error");
 		GetCons(specs, &spec, &specs);
-		spec = (check != Nil || clos_specializer_p(spec))? T: Nil;
-		if (spec != check) {
+		Return(method_update_eqlcheck_p_(value, spec, &check));
+		spec = check? T: Nil;
+		if (spec != value) {
 			SetCar(eqlcheck, spec);
 			update = 1;
 		}
@@ -363,20 +398,27 @@ static void method_update_eqlcheck(addr gen, addr method, int deletep)
 
 	/* clear cache */
 	if (deletep && update) {
-		stdget_generic_cache(gen, &check);
-		clear_hashtable(check);
+		Return(stdget_generic_cache_(gen, &value));
+		clear_hashtable(value);
 	}
+
+	return 0;
 }
 
-static void method_update_check(addr gen, addr method, int deletep)
+static int method_update_check_(addr gen, addr method, int deletep)
 {
-	if (stdboundp_generic_eqlcheck(gen)) {
-		method_update_eqlcheck(gen, method, deletep);
+	int check;
+
+	Return(stdboundp_generic_eqlcheck_(gen, &check));
+	if (check) {
+		Return(method_update_eqlcheck_(gen, method, deletep));
 	}
 	else {
-		method_eqlcheck(method, &method);
-		stdset_generic_eqlcheck(gen, method);
+		Return(method_eqlcheck_(method, &method));
+		Return(stdset_generic_eqlcheck_(gen, method));
 	}
+
+	return 0;
 }
 
 static int method_push_generic_(Execute ptr, addr gen, addr method)
@@ -385,9 +427,9 @@ static int method_push_generic_(Execute ptr, addr gen, addr method)
 	addr methods, comb, qua, cons;
 	size_t index;
 
-	stdget_generic_methods(gen, &methods);
-	stdget_generic_method_combination(gen, &comb);
-	stdget_method_qualifiers(method, &qua);
+	Return(stdget_generic_methods_(gen, &methods));
+	Return(stdget_generic_method_combination_(gen, &comb));
+	Return(stdget_method_qualifiers_(method, &qua));
 	Return(qualifiers_position_(ptr, qua, comb, &index, &check));
 	GetArrayA4(methods, index, &cons);
 	cons_heap(&cons, method, cons);
@@ -396,7 +438,7 @@ static int method_push_generic_(Execute ptr, addr gen, addr method)
 	return 0;
 }
 
-static int method_cache_check(addr eqlcheck, addr args, addr keys)
+static int method_cache_check_(addr eqlcheck, addr args, addr keys, int *ret)
 {
 	int every;
 	addr check, arg, key;
@@ -407,15 +449,17 @@ static int method_cache_check(addr eqlcheck, addr args, addr keys)
 		Check(keys == Nil, "keys error");
 		GetCons(args, &arg, &args);
 		GetCons(keys, &key, &keys);
-		if (check != Nil)
-			every = generic_eql_specializer(key, arg, 1);
-		else
-			every = clos_subclass_p(key, arg);
+		if (check != Nil) {
+			Return(generic_eql_specializer_(key, arg, 1, &every));
+		}
+		else {
+			Return(clos_subclass_p_(key, arg, &every));
+		}
 		if (! every)
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 static int method_cache_remove_(LocalRoot local, addr gen, addr method)
@@ -424,17 +468,19 @@ static int method_cache_remove_(LocalRoot local, addr gen, addr method)
 	addr eqlcheck, args, cache, key, keys;
 	LocalStack stack;
 
-	if (! stdboundp_generic_eqlcheck(gen))
+	Return(stdboundp_generic_eqlcheck_(gen, &check));
+	if (! check)
 		return 0;
-	stdget_generic_cache(gen, &cache);
-	stdget_generic_eqlcheck(gen, &eqlcheck);
-	stdget_method_specializers(method, &args);
+	Return(stdget_generic_cache_(gen, &cache));
+	Return(stdget_generic_eqlcheck_(gen, &eqlcheck));
+	Return(stdget_method_specializers_(method, &args));
 
 	push_local(local, &stack);
 	allkeys_hashtable_local(local, cache, &keys);
 	while (keys != Nil) {
 		GetCons(keys, &key, &keys);
-		if (method_cache_check(eqlcheck, args, key)) {
+		Return(method_cache_check_(eqlcheck, args, key, &check));
+		if (check) {
 			Return(delete_hashtable_(cache, key, &check));
 		}
 	}
@@ -450,14 +496,14 @@ static int method_find_method_nil_(Execute ptr,
 	addr methods, comb, method, value;
 	size_t index;
 
-	stdget_generic_methods(gen, &methods);
-	stdget_generic_method_combination(gen, &comb);
+	Return(stdget_generic_methods_(gen, &methods));
+	Return(stdget_generic_method_combination_(gen, &comb));
 	Return(qualifiers_position_nil_(ptr, qua, comb, &index, &check));
 	if (! check) {
 		GetArrayA4(methods, index, &methods);
 		while (methods != Nil) {
 			GetCons(methods, &method, &methods);
-			stdget_method_specializers(method, &value);
+			Return(stdget_method_specializers_(method, &value));
 			Return(cache_equal_function_(spec, value, &check));
 			if (check)
 				return Result(ret, method);
@@ -471,7 +517,7 @@ _g int method_find_method_(Execute ptr, addr gen, addr qua, addr spec, addr *ret
 {
 	Return(method_find_method_nil_(ptr, gen, qua, spec, ret));
 	if (*ret == Nil)
-		fmte("No method found.", NULL);
+		return fmte_("No method found.", NULL);
 
 	return 0;
 }
@@ -482,9 +528,9 @@ static int method_remove_method_execute_(Execute ptr, addr gen, addr method, int
 	addr methods, comb, qua, cons;
 	size_t index;
 
-	stdget_generic_methods(gen, &methods);
-	stdget_generic_method_combination(gen, &comb);
-	stdget_method_qualifiers(method, &qua);
+	Return(stdget_generic_methods_(gen, &methods));
+	Return(stdget_generic_method_combination_(gen, &comb));
+	Return(stdget_method_qualifiers_(method, &qua));
 	Return(qualifiers_position_nil_(ptr, qua, comb, &index, &check));
 	if (check)
 		return Result(ret, 0);
@@ -492,7 +538,7 @@ static int method_remove_method_execute_(Execute ptr, addr gen, addr method, int
 	if (! delete1_list_eq_unsafe(method, cons, &cons))
 		return Result(ret, 0);
 	SetArrayA4(methods, index, cons);
-	stdset_method_generic_function(method, Nil);
+	Return(stdset_method_generic_function_(method, Nil));
 
 	return Result(ret, 1);
 }
@@ -505,17 +551,15 @@ _g int method_remove_method_(Execute ptr, addr gen, addr method)
 	if (! check)
 		return 0;
 	Return(method_cache_remove_(ptr->local, gen, method));
-	generic_finalize(gen);
-
-	return 0;
+	return generic_finalize_(gen);
 }
 
 static int method_replace_check_(Execute ptr, addr gen, addr method, addr *ret)
 {
 	addr qualifiers, specializers;
 
-	stdget_method_qualifiers(method, &qualifiers);
-	stdget_method_specializers(method, &specializers);
+	Return(stdget_method_qualifiers_(method, &qualifiers));
+	Return(stdget_method_specializers_(method, &specializers));
 	return method_find_method_nil_(ptr, gen, qualifiers, specializers, ret);
 }
 
@@ -529,11 +573,10 @@ static int method_add_replace_(Execute ptr,
 
 static int method_add_check_(Execute ptr, addr gen, addr method)
 {
-	method_check_generic_function(gen, method);
-	method_check_method_class(gen, method);
+	Return(method_check_generic_function_(gen, method));
+	Return(method_check_method_class_(gen, method));
 	Return(method_check_method_qualifiers_(ptr, gen, method));
-	method_check_method_arguments(gen, method);
-
+	Return(method_check_method_arguments_(gen, method));
 	return 0;
 }
 
@@ -547,14 +590,12 @@ _g int method_add_method_(Execute ptr, addr gen, addr method)
 		Return(method_add_replace_(ptr, gen, method, check_method));
 	}
 	else {
-		method_update_check(gen, method, 1);
+		Return(method_update_check_(gen, method, 1));
 		Return(method_push_generic_(ptr, gen, method));
-		stdset_method_generic_function(method, gen);
+		Return(stdset_method_generic_function_(method, gen));
 	}
 	Return(method_cache_remove_(ptr->local, gen, method));
-	generic_finalize(gen);
-
-	return 0;
+	return generic_finalize_(gen);
 }
 
 
@@ -565,120 +606,117 @@ static int method_add_(Execute ptr, addr gen, addr method)
 {
 	addr check_method;
 
-	Check(! clos_generic_p(gen), "generic error");
-	Check(! clos_method_p(method), "method error");
+	Check(! clos_generic_p_debug(gen), "generic error");
+	Check(! clos_method_p_debug(method), "method error");
 	Return(method_add_check_(ptr, gen, method));
 	Return(method_replace_check_(ptr, gen, method, &check_method));
 	if (check_method != Nil) {
-		fmte("The method is already exists.", NULL);
-		return 0;
+		return fmte_("The method is already exists.", NULL);
 	}
 	else {
-		method_update_check(gen, method, 1);
+		Return(method_update_check_(gen, method, 1));
 		Return(method_push_generic_(ptr, gen, method));
-		stdset_method_generic_function(method, gen);
+		Return(stdset_method_generic_function_(method, gen));
 	}
 	Return(method_cache_remove_(ptr->local, gen, method));
-	generic_finalize(gen);
-
-	return 0;
+	return generic_finalize_(gen);
 }
 #ifdef LISP_DEBUG
-static int common_method_add_(Execute ptr, addr gen, addr method)
+_g int common_method_add_(Execute ptr, addr gen, addr method)
 {
 	return method_add_(ptr, gen, method);
 }
 #else
-static int common_method_add_(Execute ptr, addr gen, addr method)
+_g int common_method_add_(Execute ptr, addr gen, addr method)
 {
-	Check(! clos_generic_p(gen), "generic error");
-	Check(! clos_method_p(method), "method error");
+	Check(! clos_generic_p_debug(gen), "generic error");
+	Check(! clos_method_p_debug(method), "method error");
 	Return(method_push_generic_(ptr, gen, method));
-	stdset_method_generic_function(method, gen);
-	return 0;
+	return stdset_method_generic_function_(method, gen);
 }
 #endif
 
-_g void common_method_add(Execute ptr, addr gen, addr method)
-{
-	Error(common_method_add_(ptr, gen, method));
-}
 
-static void defmethod_make_generic_function(addr name, addr lambda, addr *ret)
+static int defmethod_make_generic_function_(addr name, addr lambda, addr *ret)
 {
 	Check(! callnamep(name), "type error");
 	Check(! argumentp(lambda), "type error");
 	argument_method_to_generic(lambda, &lambda);
-	generic_empty(name, lambda, ret);
+	return generic_empty_(name, lambda, ret);
 }
 
 _g int ensure_method_common_(Execute ptr, addr *ret,
 		addr name, addr lambda, addr qua, addr spec, addr call)
 {
+	int check;
 	addr gen, method, clos;
 
-	parse_callname_error(&name, name);
+	Return(parse_callname_error_(&name, name));
 	getglobal_callname(name, &gen);
 	if (! argumentp(lambda)) {
 		Return(argument_method_heap_(ptr->local, &lambda, lambda));
 	}
-	if (gen == Unbound)
-		defmethod_make_generic_function(name, lambda, &gen);
-	if (! clos_generic_p(gen))
+	if (gen == Unbound) {
+		Return(defmethod_make_generic_function_(name, lambda, &gen));
+	}
+	Return(clos_generic_p_(gen, &check));
+	if (! check)
 		return fmte_("The function ~S is not generic-function.", gen, NULL);
-	stdget_generic_method_class(gen, &clos);
-	method_instance_heap(&method, clos, lambda, qua, spec, call);
+	Return(stdget_generic_method_class_(gen, &clos));
+	Return(method_instance_heap_(&method, clos, lambda, qua, spec, call));
 	Return(method_add_(ptr, gen, method));
 
 	return Result(ret, method);
 }
 
-static void common_method_set_finalize(addr gen)
+static int common_method_set_finalize_(addr gen)
 {
 	addr pos, list, method;
 	size_t size, i;
 
-	stdget_generic_methods(gen, &pos);
+	Return(stdget_generic_methods_(gen, &pos));
 	LenArrayA4(pos, &size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(pos, i, &list);
 		while (list != Nil) {
 			GetCons(list, &method, &list);
-			method_update_check(gen, method, 0);
+			Return(method_update_check_(gen, method, 0));
 		}
 	}
-	generic_finalize(gen);
+	return generic_finalize_(gen);
 }
 
-_g void common_method_finalize(addr gen)
+_g int common_method_finalize_(addr gen)
 {
 #ifdef LISP_DEBUG
 	addr pos;
 
 	/* eqlcheck clear */
-	stdset_generic_eqlcheck(gen, Unbound);
+	Return(stdset_generic_eqlcheck_(gen, Unbound));
 	/* cache clear */
-	stdget_generic_cache(gen, &pos);
+	Return(stdget_generic_cache_(gen, &pos));
 	clear_hashtable(pos);
 #endif
 	/* build generic */
-	common_method_set_finalize(gen);
+	return common_method_set_finalize_(gen);
 }
 
 
 /*
  *  document
  */
-_g void methodget_document(addr clos, addr *ret)
+_g int methodget_document_(addr clos, addr *ret)
 {
-	stdget_method_function(clos, &clos);
+	Return(stdget_method_function_(clos, &clos));
 	getdocumentation_function(clos, ret);
+	return 0;
 }
 
-_g void methodset_document(addr clos, addr value)
+_g int methodset_document_(addr clos, addr value)
 {
-	stdget_method_function(clos, &clos);
+	Return(stdget_method_function_(clos, &clos));
 	setdocumentation_function(clos, value);
+	return 0;
 }
 
 

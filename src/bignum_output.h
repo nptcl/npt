@@ -4,7 +4,7 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void decimal_charqueue_fixnum_local(LocalRoot local, addr pos, addr queue);
+_g int decimal_charqueue_fixnum_local_(LocalRoot local, addr pos, addr queue);
 _g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue);
 _g int decimal_charqueue_integer_local_(LocalRoot local, addr pos, addr queue);
 

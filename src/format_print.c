@@ -184,7 +184,7 @@ _g int fmtprint_string_(fmtprint print, addr string)
 
 	string_length(string, &size);
 	for (i = 0; i < size; i++) {
-		string_getc(string, i, &u);
+		Return(string_getc_(string, i, &u));
 		Return(fmtprint_putc_(print, u));
 	}
 

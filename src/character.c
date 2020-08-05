@@ -101,6 +101,11 @@ _g enum CHARACTER_TYPE character_type(unicode c)
 	return CHARACTER_TYPE_INVALID;
 }
 
+_g int isvalidunicode(unicode c)
+{
+	return character_type(c) != CHARACTER_TYPE_INVALID;
+}
+
 _g void setcharacter_unsafe(addr pos, unicode value)
 {
 	enum CHARACTER_TYPE type;
@@ -173,6 +178,32 @@ _g int character_equalp(addr left, addr right)
 	GetCharacter_Low(right, &b);
 
 	return toUpperUnicode(a) == toUpperUnicode(b);
+}
+
+_g int character_equal_char(addr left, const char *right)
+{
+	unicode a, b;
+
+	CheckType(left, LISPTYPE_CHARACTER);
+	b = right[0];
+	if (b == 0 || right[1] != 0)
+		return 0;
+	GetCharacter(left, &a);
+	return a == b;
+}
+
+_g int character_equalp_char(addr left, const char *right)
+{
+	unicode a, b;
+
+	CheckType(left, LISPTYPE_CHARACTER);
+	b = right[0];
+	if (b == 0 || right[1] != 0)
+		return 0;
+	GetCharacter(left, &a);
+	a = toUpperUnicode(a);
+	b = toUpperUnicode(b);
+	return a == b;
 }
 
 _g int character_compare(addr left, addr right)
