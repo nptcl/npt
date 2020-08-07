@@ -201,14 +201,14 @@ static int intern_package_symbol_(void)
 	return 0;
 }
 
-static void set_default_package(addr package)
+static int set_default_package_(addr package)
 {
 	addr symbol;
 
 	/* setq *package* */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	/* not special-stack */
-	SetValueSymbol(symbol, package);
+	return setvalue_symbol_(symbol, package);
 }
 
 static int build_package_settings_(void)
@@ -303,7 +303,7 @@ static int build_package_value_(void)
 	Return(intern_symbol_header_());
 	Return(intern_package_symbol_());
 	Return(build_package_settings_());
-	set_default_package(user);
+	Return(set_default_package_(user));
 	set_gentemp_package();
 	build_default_use_package();
 	Return(import_exit_and_quit_package_(user));
@@ -321,7 +321,7 @@ _g int getpackage_(Execute ptr, addr *ret)
 	addr pos;
 
 	GetConst(SPECIAL_PACKAGE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	if (GetType(pos) != LISPTYPE_PACKAGE)
 		return fmte_("symbol *package* is not a package type.", NULL);
 

@@ -12,13 +12,17 @@
 
 static int test_length_list_safe(void)
 {
+	size_t size;
 	addr cons;
 
-	test(length_list_safe(Nil) == 0, "length_list_safe.1");
+	length_list_safe_(Nil, &size);
+	test(size == 0, "length_list_safe.1");
 	conscar_heap(&cons, T);
-	test(length_list_safe(cons) == 1, "length_list_safe.2");
+	length_list_safe_(cons, &size);
+	test(size == 1, "length_list_safe.2");
 	list_heap(&cons, T, Nil, Nil, T, NULL);
-	test(length_list_safe(cons) == 4, "length_list_safe.3");
+	length_list_safe_(cons, &size);
+	test(size == 4, "length_list_safe.3");
 
 	RETURN;
 }
@@ -112,18 +116,18 @@ static int test_pushnew_alloc(void)
 	interncommon_debug("CDR", &sym2);
 	interncommon_debug("CONS", &sym3);
 	test(pushnew_alloc(NULL, Nil, sym1, &list), "pushnew_alloc.1");
-	test(length_list_safe(list) == 1, "pushnew_alloc.2");
+	test(length_list_unsafe(list) == 1, "pushnew_alloc.2");
 	GetCar(list, &check);
 	test(check == sym1, "pushnew_alloc.3");
 
 	test(pushnew_alloc(NULL, list, sym2, &list), "pushnew_alloc.4");
-	test(length_list_safe(list) == 2, "pushnew_alloc.5");
+	test(length_list_unsafe(list) == 2, "pushnew_alloc.5");
 	GetCar(list, &check);
 	test(check == sym2, "pushnew_alloc.6");
 
 	test(pushnew_alloc(NULL, list, sym2, &list) == 0, "pushnew_alloc.7");
 	test(pushnew_alloc(NULL, list, sym1, &list) == 0, "pushnew_alloc.8");
-	test(length_list_safe(list) == 2, "pushnew_alloc.9");
+	test(length_list_unsafe(list) == 2, "pushnew_alloc.9");
 
 	RETURN;
 }

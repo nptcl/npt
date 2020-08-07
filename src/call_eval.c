@@ -87,8 +87,7 @@ static int setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 		}
 	}
 	GetCallName(var, &var);
-	set_compiler_macro_symbol(var, value);
-	return 0;
+	return set_compiler_macro_symbol_(var, value);
 }
 
 static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
@@ -98,8 +97,7 @@ static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
 				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
 	}
 	GetCallName(var, &var);
-	set_setf_compiler_macro_symbol(var, value);
-	return 0;
+	return set_setf_compiler_macro_symbol_(var, value);
 }
 
 _g int setf_compiler_macro_function_common(addr value, addr var, addr env)
@@ -221,7 +219,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 	Return(parse_callname_error_(&call, var));
 	if (functionp(opt)) {
 		Return(fmtw_("This implementation cannot compile a function.", NULL));
-		setglobal_callname(call, opt);
+		Return(setglobal_callname_(call, opt));
 		return Result(ret, var);
 	}
 	if (compile_lambda_p(opt)) {
@@ -230,7 +228,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 		localhold_pushva_force(hold, call, opt, NULL);
 		Return(eval_object(ptr, opt, &opt));
 		localhold_end(hold);
-		setglobal_callname(call, opt);
+		Return(setglobal_callname_(call, opt));
 		return Result(ret, var);
 	}
 
@@ -266,10 +264,10 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &var);
-	getspecialcheck_local(ptr, var, ret2);
+	Return(getspecialcheck_local_(ptr, var, ret2));
 	/* style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &var);
-	getspecialcheck_local(ptr, var, ret3);
+	Return(getspecialcheck_local_(ptr, var, ret3));
 	/* free */
 	Return(free_control_(ptr, control));
 	localhold_end(hold);

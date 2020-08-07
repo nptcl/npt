@@ -39,3 +39,39 @@
         #'bbb)))
   t)
 
+
+;;
+;;  symbol-package
+;;
+(deftest symbol-package-error.1
+  (progn
+    (eval '(defconstant symbol-package-error 10))
+    (unintern 'symbol-package-error))
+  t)
+
+(deftest symbol-package-error.2
+  (find-symbol "SYMBOL-PACKAGE-ERROR")
+  nil nil)
+
+
+;;
+;;  symbol-plist
+;;
+(defconstant symbol-plist-error 10)
+(deftest symbol-plist-error.1
+  (setf (symbol-plist 'symbol-plist-error) nil)
+  nil)
+
+(deftest symbol-plist-error.2
+  (progn
+    (setf (get 'symbol-plist-error 'hello) 10)
+    (get 'symbol-plist-error 'hello))
+  10)
+
+(deftest symbol-plist-error.3
+  (progn
+    (setf (get 'symbol-plist-error 'hello) 10)
+    (remprop 'symbol-plist-error 'hello)
+    (get 'symbol-plist-error 'hello))
+  nil)
+

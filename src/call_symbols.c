@@ -115,7 +115,7 @@ _g int setf_symbol_function_common(addr value, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
 		return fmte_("The symbol ~S is readonly.", symbol, NULL);
-	remtype_function_symbol(symbol);
+	Return(remtype_function_symbol_(symbol));
 	SetFunctionSymbol(symbol, value);
 
 	return 0;
@@ -140,8 +140,6 @@ _g int setf_symbol_value_common(Execute ptr, addr value, addr symbol)
  */
 _g int setf_symbol_plist_common(addr value, addr symbol)
 {
-	if (GetStatusReadOnly(symbol))
-		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	SetPlistSymbol(symbol, value);
 	return 0;
 }
@@ -170,11 +168,10 @@ _g int setf_get_common(addr value, addr symbol, addr key)
 {
 	addr list;
 
-	if (GetStatusReadOnly(symbol))
-		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	GetPlistSymbol(symbol, &list);
-	if (setplist_heap_safe(list, key, value, &list))
+	if (setplist_heap_safe(list, key, value, &list)) {
 		SetPlistSymbol(symbol, list);
+	}
 
 	return 0;
 }
@@ -185,12 +182,12 @@ _g int setf_get_common(addr value, addr symbol, addr key)
  */
 _g int remprop_common(addr symbol, addr key, addr *ret)
 {
+	enum RemPlist value;
 	addr list;
 
-	if (GetStatusReadOnly(symbol))
-		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	GetPlistSymbol(symbol, &list);
-	switch (remplist_safe(list, key, &list)) {
+	Return(remplist_safe_(list, key, &list, &value));
+	switch (value) {
 		case RemPlist_Delete:
 			return Result(ret, T);
 

@@ -96,7 +96,7 @@ static int test_getstack_eval(void)
 	getstack_symbol(&symbol);
 	pushspecial_control(ptr, symbol, check);
 
-	getstack_eval(ptr, &symbol);
+	getstack_eval_(ptr, &symbol);
 	test(check == symbol, "getstack_eval1");
 	free_control_(ptr, control);
 
@@ -114,7 +114,7 @@ static int test_getglobal_eval(void)
 	getglobal_symbol(&symbol);
 	pushspecial_control(ptr, symbol, check);
 
-	getglobal_eval(ptr, &symbol);
+	getglobal_eval_(ptr, &symbol);
 	test(check == symbol, "getglobal_eval1");
 	free_control_(ptr, control);
 
@@ -136,11 +136,11 @@ static int test_newstack_eval(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 	temp_eval_stack(ptr);
-	pos1 = newstack_eval(ptr, EVAL_STACK_MODE_LAMBDA);
-	getstack_eval(ptr, &check);
+	newstack_eval_(ptr, EVAL_STACK_MODE_LAMBDA, &pos1);
+	getstack_eval_(ptr, &check);
 	test(pos1 == check, "newstack_eval1");
-	pos2 = newstack_nil(ptr);
-	getstack_eval(ptr, &check);
+	newstack_nil_(ptr, &pos2);
+	getstack_eval_(ptr, &check);
 	test(pos2 == check, "newstack_eval2");
 	GetEvalStackNext(pos2, &check);
 	test(check == pos1, "newstack_eval3");
@@ -161,21 +161,21 @@ static int test_closestack_unsafe(void)
 	push_new_control(ptr, &control);
 
 	temp_eval_stack(ptr);
-	pos0 = newstack_nil(ptr);
-	pos1 = newstack_lambda(ptr);
-	pos2 = newstack_nil(ptr);
+	newstack_nil_(ptr, &pos0);
+	newstack_lambda_(ptr, &pos1);
+	newstack_nil_(ptr, &pos2);
 
-	getstack_eval(ptr, &check);
+	getstack_eval_(ptr, &check);
 	test(check == pos2, "closestack_unsafe1");
 	GetEvalStackNext(check, &check);
 	test(check == pos1, "closestack_unsafe2");
 
-	closestack_unsafe(ptr);
-	getstack_eval(ptr, &check);
+	closestack_unsafe_(ptr);
+	getstack_eval_(ptr, &check);
 	test(check == pos1, "closestack_unsafe3");
 
-	closestack_unsafe(ptr);
-	getstack_eval(ptr, &check);
+	closestack_unsafe_(ptr);
+	getstack_eval_(ptr, &check);
 	test(check == pos0, "closestack_unsafe4");
 
 	getstack_symbol(&check);
@@ -194,19 +194,19 @@ static int test_freestack_eval(void)
 	push_new_control(ptr, &control);
 
 	temp_eval_stack(ptr);
-	pos0 = newstack_lambda(ptr);
-	pos1 = newstack_lambda(ptr);
-	pos2 = newstack_nil(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
-	freestack_eval(ptr, pos2);
+	newstack_lambda_(ptr, &pos0);
+	newstack_lambda_(ptr, &pos1);
+	newstack_nil_(ptr, &pos2);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	freestack_eval_(ptr, pos2);
 
-	getstack_eval(ptr, &check);
+	getstack_eval_(ptr, &check);
 	test(check == pos1, "freestack_eval1");
 	GetEvalStackNext(check, &check);
 	test(check == pos0, "freestack_eval2");
@@ -230,7 +230,7 @@ static int test_begin_eval_stack(void)
 	getstack_symbol(&symbol2);
 	getspecial_local(ptr, symbol1, &value1);
 	getspecial_local(ptr, symbol2, &value2);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 
 	getspecial_local(ptr, symbol1, &check);
 	test(check != value1,"begin_eval_stack1");
@@ -261,13 +261,13 @@ static int test_free_eval_stack(void)
 	getstack_symbol(&symbol2);
 	getspecial_local(ptr, symbol1, &value1);
 	getspecial_local(ptr, symbol2, &value2);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 	free_eval_stack(ptr);
 
-	newstack_lambda(ptr);
-	newstack_lambda(ptr);
-	newstack_nil(ptr);
-	newstack_nil(ptr);
+	newstack_lambda_(ptr, &check);
+	newstack_lambda_(ptr, &check);
+	newstack_nil_(ptr, &check);
+	newstack_nil_(ptr, &check);
 	free_control_(ptr, control2);
 
 	getspecial_local(ptr, symbol1, &check);
@@ -454,15 +454,15 @@ static int test_apply_declaim_stack(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 
 	readstring(&pos,
 			"((declaration hello) (type integer qq ww) (ftype function ee) "
 			" (special aa bb cc) (inline aa bb cc) (notinline dd) "
 			" (optimize speed compilation-speed))");
 	parse_declaim_heap_(Execute_Thread, Nil, pos, &pos);
-	apply_declaim_stack(ptr, pos);
-	getglobal_eval(ptr, &pos);
+	apply_declaim_stack_(ptr, pos);
+	getglobal_eval_(ptr, &pos);
 	GetEvalStackTable(pos, &table);
 
 	/* inline */
@@ -542,13 +542,13 @@ static int test_apply_declare_stack(void)
 	ptr = Execute_Thread;
 	local = ptr->local;
 	push_new_control(ptr, &control);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 
 	readstring(&pos, "((special aa bb cc) "
 			" (dynamic-extent aa bb #'cc #'dd) "
 			" (ignore ee #'ff) (ignorable gg hh #'ii #'jj))");
 	parse_declare_heap_(Execute_Thread, Nil, pos, &pos);
-	stack = newstack_nil(ptr);
+	newstack_nil_(ptr, &stack);
 	apply_declare_stack(local, stack, pos);
 	GetEvalStackTable(stack, &table);
 
@@ -624,9 +624,9 @@ static int test_apply_pushsymbol_stack(void)
 	ptr = Execute_Thread;
 	local = ptr->local;
 	push_new_control(ptr, &control);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 
-	stack = newstack_nil(ptr);
+	newstack_nil_(ptr, &stack);
 	readstring(&cons, "(aa bb cc)");
 	readstring(&symbol, "bb");
 	apply_pushsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
@@ -662,9 +662,9 @@ static int test_apply_plistsymbol_stack(void)
 	ptr = Execute_Thread;
 	local = ptr->local;
 	push_new_control(ptr, &control);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 
-	stack = newstack_nil(ptr);
+	newstack_nil_(ptr, &stack);
 	readstring(&cons, "(aa bb cc dd)");
 	readstring(&symbol, "cc");
 	apply_plistsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
@@ -702,13 +702,13 @@ static int test_apply_declare_value_stack(void)
 	ptr = Execute_Thread;
 	local = ptr->local;
 	push_new_control(ptr, &control);
-	begin_eval_stack(ptr);
+	begin_eval_stack_(ptr);
 
 	readstring(&decl, "((special aa bb cc) (integer aa bb) "
 			" (dynamic-extent aa bb #'cc #'dd) "
 			" (ignore aa #'bb) (ignorable cc hh #'ii #'jj))");
 	parse_declare_heap_(Execute_Thread, Nil, decl, &decl);
-	stack = newstack_nil(ptr);
+	newstack_nil_(ptr, &stack);
 	readstring(&symbol, "zz");
 	apply_declare_value_stack(local, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);

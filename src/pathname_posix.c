@@ -242,8 +242,7 @@ static int make_home_pathname_(struct fileparse *pa, addr list, addr *ret)
 	/* (:absolute ,@x . list) */
 	GetConst(KEYWORD_ABSOLUTE, &root);
 	cons_alloc(localp_alloc(pa->local), &root, root, x);
-	nconc2_safe(root, list, ret);
-	return 0;
+	return nconc2_safe_(root, list, ret);
 }
 
 static int parser_home_directory_pathname_(struct fileparse *pa)

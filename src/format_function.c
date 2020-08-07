@@ -56,10 +56,14 @@ static struct format_argument *format_getargs(
 /*
  *  reader
  */
-static void fmtint_count(fmtprint print, fixnum *ret)
+static int fmtint_count_(fmtprint print, fixnum *ret)
 {
-	*ret = (fixnum)length_list_safe(print->rest->front);
-	Check(*ret < 0, "cast error");
+	size_t value;
+
+	Return(length_list_safe_(print->rest->front, &value));
+	Check(value < 0, "cast error");
+
+	return Result(ret, (fixnum)value);
 }
 
 static int fmtint_argument_(fmtprint print, struct format_operator *str,
@@ -109,7 +113,7 @@ static int fmtint_nilp_(fmtprint print, struct format_operator *str,
 			return 0;
 
 		case fmtargs_count:
-			fmtint_count(print, ret);
+			Return(fmtint_count_(print, ret));
 			*check = 0;
 			return 0;
 
@@ -997,7 +1001,7 @@ static int fmtfloat_default_marker_(Execute ptr, unicode *ret)
 
 	/* default */
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	/* single-flaot */
 	GetConst(COMMON_SINGLE_FLOAT, &check);
 	if (check == pos)
@@ -1684,10 +1688,10 @@ static int format_call_Recursive_function(fmtprint print,
 	size_t size1, size2;
 
 	args = print->rest->front;
-	size1 = length_list_safe(args);
+	Return(length_list_safe_(args, &size1));
 	Return(format_call_Recursive_call_(print, format, args, &args));
 	/* result */
-	size2 = length_list_safe(args);
+	Return(length_list_safe_(args, &size2));
 	if (size1 < size2) {
 		gchold_push_local(print->local, args);
 		return fmtprint_abort_(print, str->colon_pos,
@@ -2091,7 +2095,7 @@ static int format_call_Iteration_listargs(fmtprint print,
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, cdr, &forcep))
 			break;
-		getcons(cdr, &car, &cdr);
+		Return_getcons(cdr, &car, &cdr);
 		args.root = car;
 		args.front = car;
 		args.index = 0;
@@ -2293,7 +2297,7 @@ static int format_call_Iteration2_listargs(fmtprint print,
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, cdr, &forcep))
 			break;
-		getcons(cdr, &car, &cdr);
+		Return_getcons(cdr, &car, &cdr);
 		args.root = car;
 		args.front = car;
 		args.index = 0;
@@ -3229,7 +3233,7 @@ static int format_call_CallFunction_object(fmtprint print,
 			return fmtprint_pop_(print, str, ret);
 
 		case fmtargs_count:
-			fmtint_count(print, &value);
+			Return(fmtint_count_(print, &value));
 			fixnum_local(local, ret, value);
 			break;
 

@@ -338,7 +338,7 @@ _g int getreadbase_(Execute ptr, unsigned *ret)
 	fixnum value;
 
 	GetConst(SPECIAL_READ_BASE, &one);
-	getspecialcheck_local(ptr, one, &one);
+	Return(getspecialcheck_local_(ptr, one, &one));
 	Check(GetType(one) != LISPTYPE_FIXNUM, "type error");
 	GetFixnum(one, &value);
 	if (! isBaseChar(value)) {
@@ -501,20 +501,23 @@ static int maketoken_gensym_(Execute ptr, addr *ret)
 	}
 }
 
-_g int read_suppress_p(Execute ptr)
+_g int read_suppress_p_(Execute ptr, int *ret)
 {
 	addr pos;
 
 	/* *read-suppress */
 	GetConst(SPECIAL_READ_SUPPRESS, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	return pos != Nil;
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	return Result(ret, pos != Nil);
 }
 
 _g int maketoken_(Execute ptr, addr *ret)
 {
+	int check;
+
 	/* *read-suppress */
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		return Result(ret, Nil);
 
 	/* make token */

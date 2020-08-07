@@ -10,7 +10,7 @@
 /* (defun copy-pprint-dispatch (&optional table) ...) -> new-table */
 static int function_copy_pprint_dispatch(Execute ptr, addr var)
 {
-	copy_pprint_dispatch_common(ptr, var, &var);
+	Return(copy_pprint_dispatch_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -67,7 +67,7 @@ static void defmacro_formatter(void)
 /* (defun pprint-dispatch (object &optional table) ...) -> function, boolean */
 static int function_pprint_dispatch(Execute ptr, addr var, addr table)
 {
-	Return(pprint_dispatch_common(ptr, var, table, &var, &table));
+	Return(pprint_dispatch_common_(ptr, var, table, &var, &table));
 	setvalues_control(ptr, var, table, NULL);
 	return 0;
 }

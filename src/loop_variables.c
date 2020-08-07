@@ -56,7 +56,7 @@ static int loop_filter_with_default_(Execute ptr, addr list, addr *ret)
 	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &pos, &list);
-		list_bind(pos, &var, &type, &value, NULL);
+		Return(list_bind_(pos, &var, &type, &value, NULL));
 		if (value == Unbound) {
 			Return(loop_bind_initial_list_(ptr, var, type, &value));
 			list_heap(&pos, var, type, value, NULL);
@@ -141,11 +141,13 @@ static void loop_with_single_bind(addr *form, addr var, addr type, addr value)
 	}
 }
 
-static void loop_with_single(addr *form, addr list)
+static int loop_with_single_(addr *form, addr list)
 {
 	addr var, type, value;
-	list_bind(list, &var, &type, &value, NULL);
+	Return(list_bind_(list, &var, &type, &value, NULL));
 	loop_with_single_bind(form, var, type, value);
+
+	return 0;
 }
 
 static int loop_with_all_variable(addr list)
@@ -162,7 +164,7 @@ static int loop_with_all_variable(addr list)
 	return 1;
 }
 
-static void loop_with_let(addr *form, addr list)
+static int loop_with_let_(addr *form, addr list)
 {
 	/* `(let ((,var1 ,value1)
 	 *        (,var2 ,value2))
@@ -177,7 +179,7 @@ static void loop_with_let(addr *form, addr list)
 	args = Nil;
 	for (right = list; right != Nil; ) {
 		GetCons(right, &pos, &right);
-		list_bind(pos, &var, &type, &value, NULL);
+		Return(list_bind_(pos, &var, &type, &value, NULL));
 		Check(value == Unbound, "unbound error");
 		list_heap(&pos, var, value, NULL);
 		cons_heap(&args, pos, args);
@@ -190,7 +192,7 @@ static void loop_with_let(addr *form, addr list)
 	cons_heap(&root, args, root);
 	for (right = list; right != Nil; ) {
 		GetCons(right, &pos, &right);
-		list_bind(pos, &var, &type, &value, NULL);
+		Return(list_bind_(pos, &var, &type, &value, NULL));
 		if (type != Unbound) {
 			list_heap(&var, dtype, var, type, NULL);
 			list_heap(&var, declare, var, NULL);
@@ -199,17 +201,19 @@ static void loop_with_let(addr *form, addr list)
 	}
 	cons_heap(&root, *form, root);
 	nreverse(form, root);
+
+	return 0;
 }
 
-static void loop_with_gensym_form(addr *form, addr list)
+static int loop_with_gensym_form_(addr *form, addr list)
 {
 	addr pos;
 
 	if (list == Nil)
-		return;
+		return 0;
 	GetCons(list, &pos, &list);
-	loop_with_gensym_form(form, list);
-	loop_with_single(form, pos);
+	Return(loop_with_gensym_form_(form, list));
+	return loop_with_single_(form, pos);
 }
 
 static int loop_with_gensym_(Execute ptr, addr *form, addr list)
@@ -230,7 +234,7 @@ static int loop_with_gensym_(Execute ptr, addr *form, addr list)
 	args = glist = letlist = Nil;
 	for (right = list; right != Nil; ) {
 		GetCons(right, &pos, &right);
-		list_bind(pos, &var, &type, &value, NULL);
+		Return(list_bind_(pos, &var, &type, &value, NULL));
 		Check(value == Unbound, "unbound error");
 		Return(make_gensym_(ptr, &g));
 		/* let args */
@@ -246,7 +250,7 @@ static int loop_with_gensym_(Execute ptr, addr *form, addr list)
 	nreverse(&args, args);
 	nreverse(&glist, glist);
 	/* expand */
-	loop_with_gensym_form(form, glist);
+	Return(loop_with_gensym_form_(form, glist));
 	GetConst(COMMON_LET, &let);
 	list_heap(form, let, letlist, *form, NULL);
 
@@ -255,13 +259,10 @@ static int loop_with_gensym_(Execute ptr, addr *form, addr list)
 
 static int loop_with_multiple_(Execute ptr, addr *form, addr list)
 {
-	if (loop_with_all_variable(list)) {
-		loop_with_let(form, list);
-		return 0;
-	}
-	else {
+	if (loop_with_all_variable(list))
+		return loop_with_let_(form, list);
+	else
 		return loop_with_gensym_(ptr, form, list);
-	}
 }
 
 _g int loop_variables_with_(Execute ptr, addr *form, addr list)
@@ -278,8 +279,7 @@ _g int loop_variables_with_(Execute ptr, addr *form, addr list)
 	if (singlep(pos)) {
 		/* let */
 		GetCar(pos, &pos);
-		loop_with_single(form, pos);
-		return 0;
+		return loop_with_single_(form, pos);
 	}
 	else {
 		/* and */
@@ -297,7 +297,7 @@ static int loop_push_for_as_up_(addr *expr1, addr *expr2, addr list)
 	addr var, a1, a2, b1, b2, by, g1, g2;
 	addr pos, unless, less, go, loop, incf;
 
-	list_bind(list, &var, &a1, &a2, &b1, &b2, &by, &g1, &g2, NULL);
+	Return(list_bind_(list, &var, &a1, &a2, &b1, &b2, &by, &g1, &g2, NULL));
 	GetConst(COMMON_UNLESS, &unless);
 	GetConst(COMMON_GO, &go);
 	GetConst(COMMON_INCF, &incf);
@@ -328,7 +328,7 @@ next:
 
 	return 0;
 }
-static void loop_variables_for_as_up(addr *form, addr list)
+static int loop_variables_for_as_up_(addr *form, addr list)
 {
 	/* `(let ((,var ,a2)
 	 *        (,g1 ,b2)
@@ -338,7 +338,7 @@ static void loop_variables_for_as_up(addr *form, addr list)
 	addr var, a1, a2, b1, b2, by, g1, g2;
 	addr args, let;
 
-	list_bind(list, &var, &a1, &a2, &b1, &b2, &by, &g1, &g2, NULL);
+	Return(list_bind_(list, &var, &a1, &a2, &b1, &b2, &by, &g1, &g2, NULL));
 	args = Nil;
 	/* from */
 	if (a1 == Unbound)
@@ -359,6 +359,8 @@ static void loop_variables_for_as_up(addr *form, addr list)
 	nreverse(&args, args);
 	GetConst(COMMON_LET, &let);
 	list_heap(form, let, args, *form, NULL);
+
+	return 0;
 }
 
 static int loop_push_for_as_down_(addr *expr1, addr *expr2, addr list)
@@ -367,7 +369,7 @@ static int loop_push_for_as_down_(addr *expr1, addr *expr2, addr list)
 	addr var, a1, a2, b1, b2, by, g1, g2;
 	addr pos, unless, greater, go, loop, decf;
 
-	list_bind(list, &var, &a1, &a2, &b1, &b2, &by, &g1, &g2, NULL);
+	Return(list_bind_(list, &var, &a1, &a2, &b1, &b2, &by, &g1, &g2, NULL));
 	GetConst(COMMON_UNLESS, &unless);
 	GetConst(COMMON_GO, &go);
 	GetConst(COMMON_DECF, &decf);
@@ -471,7 +473,7 @@ static int loop_push_for_as_in_list_(Execute ptr, addr *expr1, addr *expr2, addr
 	addr var, type, value, step, g, x;
 	addr unless, go, end_loop, setq, funcall, car, cdr;
 
-	list_bind(list, &var, &type, &value, &step, &g, NULL);
+	Return(list_bind_(list, &var, &type, &value, &step, &g, NULL));
 	GetConst(COMMON_UNLESS, &unless);
 	GetConst(COMMON_GO, &go);
 	GetConst(COMMON_SETQ, &setq);
@@ -542,13 +544,15 @@ static void loop_let_variables(addr *form, addr var)
 	list_heap(form, let, list, *form, NULL);
 }
 
-static void loop_variables_for_as_in_list(addr *form, addr list)
+static int loop_variables_for_as_in_list_(addr *form, addr list)
 {
 	addr var, type, value, step, g;
 
-	list_bind(list, &var, &type, &value, &step, &g, NULL);
+	Return(list_bind_(list, &var, &type, &value, &step, &g, NULL));
 	loop_with_single_bind(form, g, Unbound, value);
 	loop_let_variables(form, var);
+
+	return 0;
 }
 
 static int loop_push_for_as_on_list_(Execute ptr, addr *expr1, addr *expr2, addr list)
@@ -556,7 +560,7 @@ static int loop_push_for_as_on_list_(Execute ptr, addr *expr1, addr *expr2, addr
 	addr var, type, value, step, g, x;
 	addr unless, go, end_loop, setq, funcall, cdr;
 
-	list_bind(list, &var, &type, &value, &step, &g, NULL);
+	Return(list_bind_(list, &var, &type, &value, &step, &g, NULL));
 	GetConst(COMMON_UNLESS, &unless);
 	GetConst(COMMON_GO, &go);
 	GetConst(COMMON_SETQ, &setq);
@@ -592,11 +596,11 @@ static int loop_push_for_as_on_list_(Execute ptr, addr *expr1, addr *expr2, addr
 
 	return 0;
 }
-static void loop_variables_for_as_on_list(addr *form, addr list)
+static int loop_variables_for_as_on_list_(addr *form, addr list)
 {
 	addr var, type, value, step, g;
 
-	list_bind(list, &var, &type, &value, &step, &g, NULL);
+	Return(list_bind_(list, &var, &type, &value, &step, &g, NULL));
 	if (consp(var)) {
 		loop_with_single_bind(form, g, Unbound, value);
 		loop_let_variables(form, var);
@@ -604,6 +608,8 @@ static void loop_variables_for_as_on_list(addr *form, addr list)
 	else {
 		loop_with_single_bind(form, var, Unbound, value);
 	}
+
+	return 0;
 }
 
 static int loop_push_for_as_equals_then_(Execute ptr,
@@ -611,7 +617,7 @@ static int loop_push_for_as_equals_then_(Execute ptr,
 {
 	addr var, type, value, then, g, x;
 
-	list_bind(list, &var, &type, &value, &then, &g, NULL);
+	Return(list_bind_(list, &var, &type, &value, &then, &g, NULL));
 	if (then == Unbound)
 		then = value;
 	Return(loop_destructuring_setq_(ptr, var, type, then, &x));
@@ -619,11 +625,13 @@ static int loop_push_for_as_equals_then_(Execute ptr,
 
 	return 0;
 }
-static void loop_variables_for_as_equals_then(addr *form, addr list)
+static int loop_variables_for_as_equals_then_(addr *form, addr list)
 {
 	addr var, type, value, step, g;
-	list_bind(list, &var, &type, &value, &step, &g, NULL);
+	Return(list_bind_(list, &var, &type, &value, &step, &g, NULL));
 	loop_with_single_bind(form, var, type, value);
+
+	return 0;
 }
 
 static int loop_push_for_as_across_(Execute ptr, addr *expr1, addr *expr2, addr list)
@@ -631,7 +639,7 @@ static int loop_push_for_as_across_(Execute ptr, addr *expr1, addr *expr2, addr 
 	addr var, type, vector, g1, g2, g3, x;
 	addr unless, less, go, end_loop, elt, incf;
 
-	list_bind(list, &var, &type, &vector, &g1, &g2, &g3, NULL);
+	Return(list_bind_(list, &var, &type, &vector, &g1, &g2, &g3, NULL));
 	/* expr1: (unless (< g2 g3) (go end-loop)) */
 	GetConst(COMMON_UNLESS, &unless);
 	GetConst(COMMON_NUMBER_LESS, &less);
@@ -653,11 +661,11 @@ static int loop_push_for_as_across_(Execute ptr, addr *expr1, addr *expr2, addr 
 
 	return 0;
 }
-static void loop_variables_for_as_across(addr *form, addr list)
+static int loop_variables_for_as_across_(addr *form, addr list)
 {
 	addr var, type, vector, g1, g2, g3, let, length, zero;
 
-	list_bind(list, &var, &type, &vector, &g1, &g2, &g3, NULL);
+	Return(list_bind_(list, &var, &type, &vector, &g1, &g2, &g3, NULL));
 	loop_let_variables(form, var);
 
 	/* `(let* ((,g1 ,vector)
@@ -674,6 +682,8 @@ static void loop_variables_for_as_across(addr *form, addr list)
 	list_heap(&g3, g3, length, NULL);
 	list_heap(&g1, g1, g2, g3, NULL);
 	list_heap(form, let, g1, *form, NULL);
+
+	return 0;
 }
 
 static int loop_push_for_as_hash_(Execute ptr, addr *expr1, addr *expr2, addr list)
@@ -685,7 +695,7 @@ static int loop_push_for_as_hash_(Execute ptr, addr *expr1, addr *expr2, addr li
 	Return(make_gensym_(ptr, &check));
 	Return(make_gensym_(ptr, &key));
 	Return(make_gensym_(ptr, &value));
-	list_bind(list, &var, &type, &keyp, &table, &use, &g, NULL);
+	Return(list_bind_(list, &var, &type, &keyp, &table, &use, &g, NULL));
 	/* expr1: `(multiple-value-bind (,check ,key ,value)
 	 *             (lisp-system::next-hash-iterator ,g)
 	 *           (declare (ignorable key value))
@@ -725,11 +735,11 @@ static int loop_push_for_as_hash_(Execute ptr, addr *expr1, addr *expr2, addr li
 
 	return 0;
 }
-static void loop_variables_for_as_hash(addr *form, addr list)
+static int loop_variables_for_as_hash_(addr *form, addr list)
 {
 	addr var, type, keyp, table, use, g, let, hash;
 
-	list_bind(list, &var, &type, &keyp, &table, &use, &g, NULL);
+	Return(list_bind_(list, &var, &type, &keyp, &table, &use, &g, NULL));
 	loop_let_variables(form, var);
 
 	/* `(let ((,g (lisp-system::make-hash-iterator ,table)))
@@ -741,6 +751,8 @@ static void loop_variables_for_as_hash(addr *form, addr list)
 	list_heap(&g, g, hash, NULL);
 	list_heap(&g, g, NULL);
 	list_heap(form, let, g, *form, NULL);
+
+	return 0;
 }
 
 static int loop_push_for_as_package_(Execute ptr, addr *expr1, addr *expr2, addr list)
@@ -751,7 +763,7 @@ static int loop_push_for_as_package_(Execute ptr, addr *expr1, addr *expr2, addr
 
 	Return(make_gensym_(ptr, &check));
 	Return(make_gensym_(ptr, &symbol));
-	list_bind(list, &var, &type, &package, &g, NULL);
+	Return(list_bind_(list, &var, &type, &package, &g, NULL));
 	/* expr1: `(multiple-value-bind (,check ,symbol)
 	 *             (lisp-system::next-package-iterator ,g)
 	 *           (unless ,check (go end-loop))
@@ -773,12 +785,12 @@ static int loop_push_for_as_package_(Execute ptr, addr *expr1, addr *expr2, addr
 	return 0;
 }
 
-static void loop_variables_for_as_package(addr *form, addr pos, addr list)
+static int loop_variables_for_as_package_(addr *form, addr pos, addr list)
 {
 	addr var, type, package, g, let, hash, find, check;
 	addr internal, external, inherited;
 
-	list_bind(list, &var, &type, &package, &g, NULL);
+	Return(list_bind_(list, &var, &type, &package, &g, NULL));
 	loop_let_variables(form, var);
 
 	internal = external = inherited = Nil;
@@ -810,6 +822,8 @@ static void loop_variables_for_as_package(addr *form, addr pos, addr list)
 	list_heap(&g, g, hash, NULL);
 	list_heap(&g, g, NULL);
 	list_heap(form, let, g, *form, NULL);
+
+	return 0;
 }
 
 static int loop_push_for_as_list_(Execute ptr, addr *expr1, addr *expr2, addr list)
@@ -880,68 +894,46 @@ static int loop_variables_for_as_list_(addr *form, addr list)
 	/* up */
 	GetCons(pos, &a, &b);
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_UP, &check);
-	if (a == check) {
-		loop_variables_for_as_up(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_up_(form, b);
 	/* downto */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNTO, &check);
-	if (a == check) {
-		loop_variables_for_as_up(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_up_(form, b);
 	/* downfrom */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNFROM, &check);
-	if (a == check) {
-		loop_variables_for_as_up(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_up_(form, b);
 	/* in-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_IN_LIST, &check);
-	if (a == check) {
-		loop_variables_for_as_in_list(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_in_list_(form, b);
 	/* on-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_ON_LIST, &check);
-	if (a == check) {
-		loop_variables_for_as_on_list(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_on_list_(form, b);
 	/* equals-then */
 	GetConst(SYSTEM_LOOP_FOR_AS_EQUALS_THEN, &check);
-	if (a == check) {
-		loop_variables_for_as_equals_then(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_equals_then_(form, b);
 	/* across */
 	GetConst(SYSTEM_LOOP_FOR_AS_ACROSS, &check);
-	if (a == check) {
-		loop_variables_for_as_across(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_across_(form, b);
 	/* hash */
 	GetConst(SYSTEM_LOOP_FOR_AS_HASH, &check);
-	if (a == check) {
-		loop_variables_for_as_hash(form, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_hash_(form, b);
 	/* package */
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_SYMBOL, &check);
-	if (a == check) {
-		loop_variables_for_as_package(form, a, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_package_(form, a, b);
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_PRESENT, &check);
-	if (a == check) {
-		loop_variables_for_as_package(form, a, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_package_(form, a, b);
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_EXTERNAL, &check);
-	if (a == check) {
-		loop_variables_for_as_package(form, a, b);
-		return 0;
-	}
+	if (a == check)
+		return loop_variables_for_as_package_(form, a, b);
 	/* error */
 	return fmte_("Invalid variables-clause ~S.", a, NULL);
 }

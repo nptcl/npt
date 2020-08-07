@@ -2245,7 +2245,7 @@ static int test_getreadtable(void)
 	getreadtable(ptr, &left);
 	test(GetType(left) == LISPTYPE_READTABLE, "getreadtable1");
 	GetConst(SPECIAL_READTABLE, &right);
-	getspecialcheck_local(ptr, right, &right);
+	getspecialcheck_local_(ptr, right, &right);
 	test(left == right, "getreadtable2");
 
 	RETURN;

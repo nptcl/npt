@@ -242,17 +242,20 @@ static void set_print_dispatch(addr spec, addr type,
 /*
  *  common
  */
-_g void copy_pprint_dispatch_common(Execute ptr, addr var, addr *ret)
+_g int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret)
 {
-	if (var == Unbound || var == Nil)
-		pprint_dispatch_print(ptr, &var);
+	if (var == Unbound || var == Nil) {
+		Return(pprint_dispatch_print_(ptr, &var));
+	}
 	copy_pprint_dispatch(var, ret);
+	return 0;
 }
 
-_g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *y)
+_g int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y)
 {
-	if (table == Unbound)
-		pprint_dispatch_print(ptr, &table);
+	if (table == Unbound) {
+		Return(pprint_dispatch_print_(ptr, &table));
+	}
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
 	Return(find_print_dispatch(ptr, var, table, &var));
 	if (var != Nil) {
@@ -261,7 +264,7 @@ _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *
 	}
 	else {
 		GetConst(SYSTEM_WRITE_DEFAULT, &var);
-		getfunction_global(var, x);
+		Return(getfunction_global_(var, x));
 		*y = Nil;
 	}
 

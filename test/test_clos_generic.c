@@ -837,7 +837,7 @@ static int test_closrun_execute(void)
 	lambda = readr("(values)");
 
 	argument_generic_heap_(ptr->local, &lambda, lambda);
-	parse_callname_error(&name, name);
+	parse_callname_error_(&name, name);
 	generic_empty_(name, lambda, &generic);
 	list_heap(&pos, Nil, NULL);
 	stdset_generic_eqlcheck_(generic, pos);

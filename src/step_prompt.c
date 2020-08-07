@@ -106,7 +106,7 @@ static int step_prompt_query_(Execute ptr, addr value, int *ret)
 	int check;
 	addr io, symbol, control;
 
-	debug_io_stream(ptr, &io);
+	Return(debug_io_stream_(ptr, &io));
 	Return(format_stream(ptr, io, "~&STEP: ~S~%", value, NULL));
 
 	/* prompt */
@@ -114,7 +114,7 @@ static int step_prompt_query_(Execute ptr, addr value, int *ret)
 	GetConst(SYSTEM_STEP_VALUE, &symbol);
 	pushspecial_control(ptr, symbol, T);
 	mode_prompt_stream(ptr, PromptStreamMode_Step);
-	Return(eval_custom_loop(ptr, io, step_prompt_loop_));
+	Return(eval_custom_loop_(ptr, io, step_prompt_loop_));
 	getspecial_local(ptr, symbol, &value);
 	check = (value != Nil);
 	Return(free_control_(ptr, control));

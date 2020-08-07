@@ -43,11 +43,11 @@ static int list_all_packages_sort(Execute ptr, addr *ret)
 	hold = LocalHold_local_push(ptr, list);
 	/* key */
 	GetConst(COMMON_PACKAGE_NAME, &key);
-	getfunction_global(key, &key);
+	Return(getfunction_global_(key, &key));
 	localhold_push(hold, key);
 	/* call */
 	GetConst(COMMON_STRING_LESS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	localhold_push(hold, call);
 	/* sort */
 	Return(quick_sort_sequence_(ptr, list, call, key));
@@ -103,11 +103,11 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	hold = LocalHold_local_push(ptr, list);
 	/* key */
 	GetConst(COMMON_SYMBOL_NAME, &key);
-	getfunction_global(key, &key);
+	Return(getfunction_global_(key, &key));
 	localhold_push(hold, key);
 	/* call */
 	GetConst(COMMON_STRING_LESS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	localhold_push(hold, call);
 	/* sort */
 	Return(quick_sort_sequence_(ptr, list, call, key));
@@ -153,7 +153,7 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 {
 	addr stream, list, name;
 
-	standard_output_stream(ptr, &stream);
+	Return(standard_output_stream_(ptr, &stream));
 	Return(apropos_list_common(ptr, var, package, &list));
 	Return(fresh_line_stream_(stream, NULL));
 	while (list != Nil) {
@@ -320,7 +320,7 @@ _g int room_common(Execute ptr, addr var)
 {
 	addr stream, check;
 
-	standard_output_stream(ptr, &stream);
+	Return(standard_output_stream_(ptr, &stream));
 	Return(fresh_line_stream_(stream, NULL));
 	if (var == Unbound)
 		return room_default_common(ptr, stream);
@@ -345,7 +345,7 @@ static int ed_execute_common(Execute ptr, addr file)
 	addr call;
 
 	GetConst(SYSTEM_ED_FUNCTION, &call);
-	getspecialcheck_local(ptr, call, &call);
+	Return(getspecialcheck_local_(ptr, call, &call));
 	return funcall_control(ptr, call, file, NULL);
 }
 
@@ -454,7 +454,7 @@ static int dribble_message_begin(Execute ptr, addr file)
 	addr name, stream;
 
 	Return(pathname_designer_heap_(ptr, file, &name));
-	standard_output_stream(ptr, &stream);
+	Return(standard_output_stream_(ptr, &stream));
 	str = "~&;; DRIBBLE begin to write ~S.~%";
 	return format_stream(ptr, stream, str, name, NULL);
 }
@@ -465,7 +465,7 @@ static int dribble_message_end(Execute ptr, addr file)
 	addr name, stream;
 
 	Return(pathname_designer_heap_(ptr, file, &name));
-	standard_output_stream(ptr, &stream);
+	Return(standard_output_stream_(ptr, &stream));
 	str = "~&;; DRIBBLE end to write ~S.~%";
 	return format_stream(ptr, stream, str, name, NULL);
 }
@@ -505,13 +505,13 @@ static int dribble_set_stream_(addr file)
 	open_broadcast_stream(&broadcast, broadcast);
 
 	/* variable */
-	SetValueSymbol(dfile, file);
-	SetValueSymbol(dinput, input);
-	SetValueSymbol(doutput, output);
-	SetValueSymbol(decho, echo);
-	SetValueSymbol(dbroadcast, broadcast);
-	SetValueSymbol(sinput, echo);
-	SetValueSymbol(soutput, broadcast);
+	Return(setvalue_symbol_(dfile, file));
+	Return(setvalue_symbol_(dinput, input));
+	Return(setvalue_symbol_(doutput, output));
+	Return(setvalue_symbol_(decho, echo));
+	Return(setvalue_symbol_(dbroadcast, broadcast));
+	Return(setvalue_symbol_(sinput, echo));
+	Return(setvalue_symbol_(soutput, broadcast));
 
 	return 0;
 }
@@ -574,13 +574,13 @@ static int dribble_close_stream(Execute ptr)
 
 	/* close */
 	Return(dribble_message_end(ptr, file));
-	SetValueSymbol(dfile, Unbound);
-	SetValueSymbol(dinput, Unbound);
-	SetValueSymbol(doutput, Unbound);
-	SetValueSymbol(decho, Unbound);
-	SetValueSymbol(dbroadcast, Unbound);
-	SetValueSymbol(sinput, input);
-	SetValueSymbol(soutput, output);
+	Return(setvalue_symbol_(dfile, Unbound));
+	Return(setvalue_symbol_(dinput, Unbound));
+	Return(setvalue_symbol_(doutput, Unbound));
+	Return(setvalue_symbol_(decho, Unbound));
+	Return(setvalue_symbol_(dbroadcast, Unbound));
+	Return(setvalue_symbol_(sinput, input));
+	Return(setvalue_symbol_(soutput, output));
 	Return(close_stream_(echo));
 	Return(close_stream_(broadcast));
 	Return(close_stream_(file));

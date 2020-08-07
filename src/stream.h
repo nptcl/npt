@@ -143,14 +143,14 @@ _g int print_ascii_stream_(addr stream, const char *data);
 _g int print_unicode_stream_(addr stream, const unicode *data);
 _g int print_string_stream_(addr stream, addr pos);
 
-_g void standard_input_stream(Execute ptr, addr *ret);
-_g void standard_output_stream(Execute ptr, addr *ret);
-_g void error_output_stream(Execute ptr, addr *ret);
-_g void trace_output_stream(Execute ptr, addr *ret);
-_g void terminal_io_stream(Execute ptr, addr *ret);
-_g void debug_io_stream(Execute ptr, addr *ret);
-_g void query_io_stream(Execute ptr, addr *ret);
-_g void output_stream_designer(Execute ptr, addr stream, addr *ret);
+_g int standard_input_stream_(Execute ptr, addr *ret);
+_g int standard_output_stream_(Execute ptr, addr *ret);
+_g int error_output_stream_(Execute ptr, addr *ret);
+_g int trace_output_stream_(Execute ptr, addr *ret);
+_g int terminal_io_stream_(Execute ptr, addr *ret);
+_g int debug_io_stream_(Execute ptr, addr *ret);
+_g int query_io_stream_(Execute ptr, addr *ret);
+_g int output_stream_designer_(Execute ptr, addr stream, addr *ret);
 
 /* function */
 #define DefineStreamLet(x,y,z) Stream_##y[StreamType_##x] = y##_##z;

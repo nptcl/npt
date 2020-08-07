@@ -116,7 +116,7 @@ _g int disassemble_common(Execute ptr, addr var)
 {
 	addr stream, check;
 
-	standard_output_stream(ptr, &stream);
+	Return(standard_output_stream_(ptr, &stream));
 	if (symbolp(var)) {
 		GetFunctionSymbol(var, &check);
 		if (check == Unbound) {
@@ -138,7 +138,7 @@ _g int trace_common_(addr form, addr env, addr *ret)
 {
 	addr pos, value, list, add, quote;
 
-	getcdr(form, &form);
+	Return_getcdr(form, &form);
 
 	/* all trace name */
 	if (form == Nil) {
@@ -177,7 +177,7 @@ _g int untrace_common_(addr form, addr env, addr *ret)
 {
 	addr pos, value, list, del, quote;
 
-	getcdr(form, &form);
+	Return_getcdr(form, &form);
 
 	/* all delete */
 	if (form == Nil) {
@@ -237,7 +237,7 @@ static int defun_trace_function(Execute ptr, addr rest)
 	GetCons(list, &name, &pos);
 	defun_trace_function_index(ptr, &index);
 	/* begin */
-	trace_output_stream(ptr, &stream);
+	Return(trace_output_stream_(ptr, &stream));
 	cons_heap(&list, name, rest);
 	Return(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
 	/* call */
@@ -288,7 +288,7 @@ static int trace_add_function_(Execute ptr, addr name, addr call, int *ret)
 
 	/* trade-add */
 	trace_add_make(ptr, name, call, pos, &pos);
-	setglobal_callname(call, pos);
+	Return(setglobal_callname_(call, pos));
 
 	return Result(ret, 0); /* normal */
 }
@@ -298,7 +298,7 @@ static int trace_add_push_(Execute ptr, addr name)
 	addr symbol, list;
 
 	GetConst(SYSTEM_TRACE_LIST, &symbol);
-	getspecialcheck_local(ptr, symbol, &list);
+	Return(getspecialcheck_local_(ptr, symbol, &list));
 	Return(pushnew_equal_heap_(list, name, &list));
 	setspecial_local(ptr, symbol, list);
 
@@ -312,7 +312,7 @@ _g int trace_add_common_(Execute ptr, addr list, addr *ret)
 
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &name, &list);
-		parse_callname_error(&pos, name);
+		Return(parse_callname_error_(&pos, name));
 		Return(trace_add_function_(ptr, name, pos, &check));
 		if (check)
 			continue;
@@ -357,7 +357,7 @@ static int trace_del_function_(Execute ptr, addr name, addr call, int *ret)
 
 	/* trade-del */
 	trace_del_object(ptr, pos, &pos);
-	setglobal_callname(call, pos);
+	Return(setglobal_callname_(call, pos));
 
 	return Result(ret, 0); /* normal */
 }
@@ -368,7 +368,7 @@ static int trace_del_remove_(Execute ptr, addr name)
 	addr symbol, list;
 
 	GetConst(SYSTEM_TRACE_LIST, &symbol);
-	getspecialcheck_local(ptr, symbol, &list);
+	Return(getspecialcheck_local_(ptr, symbol, &list));
 	Return(delete_list_equal_unsafe_(name, list, &list, &check));
 	if (! check)
 		return fmtw_("There is no function ~S in *trace-list*", name, NULL);
@@ -385,13 +385,13 @@ _g int trace_del_common_(Execute ptr, addr list, addr *ret)
 	/* all */
 	if (list == T) {
 		GetConst(SYSTEM_TRACE_LIST, &list);
-		getspecialcheck_local(ptr, list, &list);
+		Return(getspecialcheck_local_(ptr, list, &list));
 	}
 
 	/* list */
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &name, &list);
-		parse_callname_error(&pos, name);
+		Return(parse_callname_error_(&pos, name));
 		Return(trace_del_function_(ptr, name, pos, &check));
 		if (check)
 			continue;

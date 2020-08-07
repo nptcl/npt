@@ -548,7 +548,7 @@ static int test_copy_defun(void)
 	test(stringp(symbol), "copy_defun7");
 	/* cons */
 	GetEvalParse(pos, 4, &symbol);
-	getcar(symbol, &symbol);
+	getcar_(symbol, &symbol);
 	test(RefEvalParseType(symbol) == EVAL_PARSE_BLOCK, "copy_defun8");
 
 	RETURN;
@@ -577,7 +577,7 @@ static int test_copy_lambda(void)
 	test(stringp(symbol), "copy_lambda5");
 	/* cons */
 	GetEvalParse(pos, 3, &symbol);
-	getcar(symbol, &symbol);
+	getcar_(symbol, &symbol);
 	test(RefEvalParseType(symbol) == EVAL_PARSE_INTEGER, "copy_lambda6");
 	GetEvalParse(symbol, 0, &symbol);
 	test(RefFixnum(symbol) == 10, "copy_lambda7");

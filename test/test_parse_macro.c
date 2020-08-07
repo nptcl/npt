@@ -34,13 +34,13 @@ static int test_findstack_environment(void)
 
 	fixnum_heap(&v1, 10);
 	name = readr("aaa");
-	defmacro_envstack(ptr, name, v1);
+	defmacro_envstack_(ptr, name, v1);
 	fixnum_heap(&v2, 20);
 	name = readr("bbb");
-	defmacro_envstack(ptr, name, v2);
+	defmacro_envstack_(ptr, name, v2);
 
 	environment_symbol(&stack);
-	getspecialcheck_local(ptr, stack, &stack);
+	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 0, &stack); /* root */
 	check = NULL;
 	test(findstack_environment(readr("aaa"), stack, T, &check), "findstack_environment1");
@@ -74,8 +74,8 @@ static int test_check_macro_function(void)
 	fixnum_heap(&v2, 20);
 	fixnum_heap(&v3, 30);
 
-	defmacro_envstack(ptr, sym1, v1);
-	macrolet_envstack(ptr, sym2, v2);
+	defmacro_envstack_(ptr, sym1, v1);
+	macrolet_envstack_(ptr, sym2, v2);
 	setmacro_symbol(sym3, v3);
 	remmacro_symbol(sym4);
 

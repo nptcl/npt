@@ -6,6 +6,7 @@
 #include "format.h"
 #include "stream.h"
 #include "strvect.h"
+#include "symbol.h"
 #include "typedef.h"
 
 /*
@@ -33,7 +34,15 @@ void lisp_abort(const char *fmt, ...)
 
 	/* format */
 	ptr = Execute_Thread;
-	error_output_stream(ptr, &stream);
+	/* stream */
+	GetConst(SPECIAL_ERROR_OUTPUT, &stream);
+	getspecial_local(ptr, stream, &stream);
+	if (stream == Unbound) {
+		lisperror("lisp_abort error: Invalid error-output.", fmt);
+		lisp_exit_error();
+		return;
+	}
+	/* output */
 	check = fresh_line_stream_(stream, NULL);
 	check |= format_stream_lisp(ptr, stream, format, list);
 	if (check) {

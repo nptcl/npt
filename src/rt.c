@@ -87,14 +87,16 @@ static void defvar_entries_warning(void)
  *   expr    t
  *   values  list
  */
-static void rt_push_entries(Execute ptr, constindex index, addr name)
+static int rt_push_entries_(Execute ptr, constindex index, addr name)
 {
 	addr queue;
 
 	GetConstant(index, &queue);
-	getspecialcheck_local(ptr, queue, &queue);
+	Return(getspecialcheck_local_(ptr, queue, &queue));
 	Check(! consp(queue), "*entries* error");
 	pushqueue_heap(queue, name);
+
+	return 0;
 }
 
 static int function_push_entries(Execute ptr, addr name, addr expr, addr values)
@@ -103,15 +105,15 @@ static int function_push_entries(Execute ptr, addr name, addr expr, addr values)
 
 	/* check *entries-table* */
 	GetConst(RT_ENTRIES_TABLE, &table);
-	getspecialcheck_local(ptr, table, &table);
+	Return(getspecialcheck_local_(ptr, table, &table));
 	Return(find_hashtable_(table, name, &pos));
 	if (pos != Unbound) {
 		Return(fmtw_("The deftest ~S is already exist.", name, NULL));
-		rt_push_entries(ptr, CONSTANT_RT_ENTRIES_WARNING, name);
+		Return(rt_push_entries_(ptr, CONSTANT_RT_ENTRIES_WARNING, name));
 	}
 	else  {
 		/* push *entries* */
-		rt_push_entries(ptr, CONSTANT_RT_ENTRIES, name);
+		Return(rt_push_entries_(ptr, CONSTANT_RT_ENTRIES, name));
 	}
 
 	/* intern *entries-table* */
@@ -163,32 +165,36 @@ static void export_symbol_rt(addr symbol)
 	Error(export_package_(package, symbol));
 }
 
-static void rm_all_tests_clear(Execute ptr, constindex index)
+static int rm_all_tests_clear_(Execute ptr, constindex index)
 {
 	addr pos;
 
 	GetConstant(index, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	clearqueue(pos);
+
+	return 0;
 }
 
-static void rem_all_tests(Execute ptr)
+static int rem_all_tests_(Execute ptr)
 {
 	addr symbol, pos;
 
 	/* (setq *entries* (list nil)) */
-	rm_all_tests_clear(ptr, CONSTANT_RT_ENTRIES);
+	Return(rm_all_tests_clear_(ptr, CONSTANT_RT_ENTRIES));
 	/* (setq *entries-warning* (list nil)) */
-	rm_all_tests_clear(ptr, CONSTANT_RT_ENTRIES_WARNING);
+	Return(rm_all_tests_clear_(ptr, CONSTANT_RT_ENTRIES_WARNING));
 	/* (clrhash *entries-table*) */
 	GetConst(RT_ENTRIES_TABLE, &symbol);
-	getspecialcheck_local(ptr, symbol, &pos);
+	Return(getspecialcheck_local_(ptr, symbol, &pos));
 	clear_hashtable(pos);
+
+	return 0;
 }
 
 static int function_rem_all_tests(Execute ptr)
 {
-	rem_all_tests(ptr);
+	Return(rem_all_tests_(ptr));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -503,12 +509,12 @@ static int function_do_tests_variables_(Execute ptr,
 {
 	addr io, list, table;
 
-	debug_io_stream(ptr, &io);
+	Return(debug_io_stream_(ptr, &io));
 	GetConst(RT_ENTRIES, &list);
-	getspecialcheck_local(ptr, list, &list);
+	Return(getspecialcheck_local_(ptr, list, &list));
 	rootqueue(list, &list);
 	GetConst(RT_ENTRIES_TABLE, &table);
-	getspecialcheck_local(ptr, table, &table);
+	Return(getspecialcheck_local_(ptr, table, &table));
 
 	*rio = io;
 	*rlist = list;
@@ -540,7 +546,7 @@ static int function_do_tests_duplicated_(Execute ptr, addr io)
 
 	/* *entries-warning* */
 	GetConst(RT_ENTRIES_WARNING, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	rootqueue(pos, &pos);
 	if (pos != Nil) {
 		Return(format_stream(ptr, io,
@@ -607,8 +613,9 @@ static int function_do_tests(Execute ptr, addr rest)
 	function_do_tests_setindex(ptr, index);
 
 	/* rem-all-tests */
-	if (rest != Nil)
-		rem_all_tests(ptr);
+	if (rest != Nil) {
+		Return(rem_all_tests_(ptr));
+	}
 
 	return 0;
 }

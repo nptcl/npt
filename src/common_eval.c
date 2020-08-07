@@ -305,7 +305,7 @@ static void defun_macro_function(void)
  */
 static int function_setf_macro_function(Execute ptr, addr value, addr symbol, addr env)
 {
-	setmacro_symbol(symbol, value);
+	Return(setmacro_symbol_(symbol, value));
 	setresult_control(ptr, value);
 	return 0;
 }

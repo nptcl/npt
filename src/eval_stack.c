@@ -147,40 +147,43 @@ static void getglobal_symbol(addr *ret)
 	GetConst(SYSTEM_EVAL_SCOPE_GLOBAL, ret);
 }
 
-_g void getstack_eval(Execute ptr, addr *ret)
+_g int getstack_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	getstack_symbol(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
-_g void getglobal_eval(Execute ptr, addr *ret)
+_g int getglobal_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	getglobal_symbol(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
-_g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type)
+_g int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret)
 {
 	addr stack, symbol, next;
 
 	getstack_symbol(&symbol);
 	eval_stack_local(ptr->local, &stack, type);
-	getspecialcheck_local(ptr, symbol, &next);
+	Return(getspecialcheck_local_(ptr, symbol, &next));
 	SetEvalStackNext(stack, next);
 	setspecial_local(ptr, symbol, stack);
 
-	return stack;
+	if (ret)
+		return Result(ret, stack);
+	else
+		return 0;
 }
 
-static void closestack_unsafe(Execute ptr)
+static int closestack_unsafe_(Execute ptr)
 {
 	addr symbol, eval;
 	LocalStack stack;
 
 	/* replace eval-stack */
 	getstack_symbol(&symbol);
-	getspecialcheck_local(ptr, symbol, &eval);
+	Return(getspecialcheck_local_(ptr, symbol, &eval));
 	Check(eval == Nil, "scope-stack is nil.");
 	stack = StructEvalStack(eval)->stack;
 	GetEvalStackNext(eval, &eval);
@@ -188,15 +191,17 @@ static void closestack_unsafe(Execute ptr)
 
 	/* free eval-stack */
 	rollback_local(ptr->local, stack);
+
+	return 0;
 }
 
-_g void freestack_eval(Execute ptr, addr scope)
+_g int freestack_eval_(Execute ptr, addr scope)
 {
 	addr symbol, pos;
 
 	getstack_symbol(&symbol);
 #ifdef LISP_DEBUG
-	getspecialcheck_local(ptr, symbol, &pos);
+	Return(getspecialcheck_local_(ptr, symbol, &pos));
 	for (;;) {
 		Check(pos == Nil, "stack error [check].");
 		Check(pos == Unbound, "unbound error.");
@@ -206,15 +211,17 @@ _g void freestack_eval(Execute ptr, addr scope)
 	}
 #endif
 	for (;;) {
-		getspecialcheck_local(ptr, symbol, &pos);
+		Return(getspecialcheck_local_(ptr, symbol, &pos));
 		Check(pos == Nil, "stack error");
-		closestack_unsafe(ptr);
+		Return(closestack_unsafe_(ptr));
 		if (pos == scope)
 			break;
 	}
+
+	return 0;
 }
 
-_g void begin_eval_stack(Execute ptr)
+_g int begin_eval_stack_(Execute ptr)
 {
 	addr symbol, stack;
 
@@ -226,7 +233,7 @@ _g void begin_eval_stack(Execute ptr)
 	getstack_symbol(&symbol);
 	pushspecial_control(ptr, symbol, Nil);
 	/* new stack */
-	newstack_nil(ptr);
+	return newstack_nil_(ptr, NULL);
 }
 
 static int function_free_eval_stack(Execute ptr)
@@ -407,14 +414,16 @@ static void apply_declare_switch(LocalRoot local,
 	}
 }
 
-_g void apply_declaim_stack(Execute ptr, addr declare)
+_g int apply_declaim_stack_(Execute ptr, addr declare)
 {
 	addr stack;
 
 	if (declare == Nil)
-		return;
-	getglobal_eval(ptr, &stack);
+		return 0;
+	Return(getglobal_eval_(ptr, &stack));
 	apply_declare_switch(NULL, stack, declare, 1);
+
+	return 0;
 }
 
 

@@ -626,8 +626,9 @@ static int function_qualifiers_elt(Execute ptr,
 	if (req != Nil && pos == Nil)
 		return fmte_("The qualifier ~S must be at least one method.", symbol, NULL);
 	Return(qualifiers_elt_order_(symbol, order, &check));
-	if (check)
-		reverse_list_heap_safe(&pos, pos);
+	if (check) {
+		Return(reverse_list_heap_safe_(&pos, pos));
+	}
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -831,7 +832,7 @@ static int function_macro_method_lambda(Execute ptr, addr gen, addr call)
 	/* make-instance */
 	Return(stdget_generic_method_class_(gen, &clos));
 	GetConst(COMMON_MAKE_INSTANCE, &make);
-	getfunction_global(make, &make);
+	Return(getfunction_global_(make, &make));
 	Return(funcall_control(ptr, make, clos, NULL));
 	getresult_control(ptr, &clos);
 	Return(stdset_method_function_(clos, call));

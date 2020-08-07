@@ -105,7 +105,7 @@ _g int make_sequence_group_local_(
 	addr pos;
 	size_t size, i;
 
-	size = length_list_safe(rest);
+	Return(length_list_safe_(rest, &size));
 	ptr = (struct sequence_group *)lowlevel_local(local,
 			sizeoft(struct sequence_group));
 	data  = (struct sequence_iterator **)lowlevel_local(local,

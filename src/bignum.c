@@ -536,96 +536,184 @@ static size_t printf_integer_float_size(int exp)
 	return size;
 }
 
-_g int bignum_single_float_alloc(LocalRoot local,
-		addr *ret, single_float value, int isheap)
+_g void bignum_single_float_unsafe(
+		LocalRoot local, single_float v, int is_heap, addr *ret)
 {
-	int exponent, sign;
-	LocalStack stack;
+	int expn, sign;
 	addr pos;
 	char *ptr;
 	size_t size;
 
-	if (! IsIntegerFloat(value))
-		return 1;
-	sign = (value < 0.0f)? SignMinus: SignPlus;
-	frexpf(value, &exponent);
-	Check(exponent < 0, "exponent error");
-	size = printf_integer_float_size(exponent);
-	if (isheap)
-		push_local(local, &stack);
+	Check(! IsIntegerFloat(v), "float error");
+	sign = (v < 0.0f)? SignMinus: SignPlus;
+	frexpf(v, &expn);
+	Check(expn < 0, "exponent error");
+	size = printf_integer_float_size(expn);
 	ptr = (char *)lowlevel_local(local, size);
-	snprintf(ptr, size, "%.0f", fabsf(value));
-	bigcons_char_local(local, &pos, 10, ptr);
-	if (isheap) {
-		bignum_cons_alloc(NULL, ret, sign, pos);
+	snprintf(ptr, size, "%.0f", fabsf(v));
+	bigcons_char_unsafe(local, &pos, 10, ptr);
+	bignum_cons_alloc(is_heap? NULL: local, ret, sign, pos);
+}
+
+_g void bignum_double_float_unsafe(
+		LocalRoot local, double_float v, int is_heap, addr *ret)
+{
+	int expn, sign;
+	addr pos;
+	char *ptr;
+	size_t size;
+
+	Check(! IsIntegerDouble(v), "float error");
+	sign = (v < 0.0)? SignMinus: SignPlus;
+	frexp(v, &expn);
+	Check(expn < 0, "exponent error");
+	size = printf_integer_float_size(expn);
+	ptr = (char *)lowlevel_local(local, size);
+	snprintf(ptr, size, "%.0f", fabs(v));
+	bigcons_char_unsafe(local, &pos, 10, ptr);
+	bignum_cons_alloc(is_heap? NULL: local, ret, sign, pos);
+}
+
+_g void bignum_long_float_unsafe(
+		LocalRoot local, long_float v, int is_heap, addr *ret)
+{
+	int expn, sign;
+	addr pos;
+	char *ptr;
+	size_t size;
+
+	Check(! IsIntegerLongFloat(v), "float error");
+	sign = (v < 0.0L)? SignMinus: SignPlus;
+	frexpl(v, &expn);
+	Check(expn < 0, "exponent error");
+	size = printf_integer_float_size(expn);
+	ptr = (char *)lowlevel_local(local, size);
+	snprintf(ptr, size, "%.0Lf", fabsl(v));
+	bigcons_char_unsafe(local, &pos, 10, ptr);
+	bignum_cons_alloc(is_heap? NULL: local, ret, sign, pos);
+}
+
+static int bignum_single_float_alloc_(
+		LocalRoot local, single_float v, int is_heap, addr *rv, int *ret)
+{
+	LocalStack stack;
+
+	/* check */
+	if (! IsIntegerFloat(v)) {
+		if (ret)
+			return Result(ret, 1);
+		else
+			return fmte_("Invalid float value.", NULL);
+	}
+
+	/* cast */
+	if (is_heap) {
+		push_local(local, &stack);
+	}
+	bignum_single_float_unsafe(local, v, is_heap, rv);
+	if (is_heap) {
 		rollback_local(local, stack);
 	}
-	else {
-		bignum_cons_alloc(local, ret, sign, pos);
-	}
+
+	/* result */
+	if (ret)
+		return Result(ret, 0);
 
 	return 0;
 }
 
-_g int bignum_double_float_alloc(LocalRoot local,
-		addr *ret, double_float value, int isheap)
+_g int bignum_single_float_local_(LocalRoot local, single_float v, addr *rv, int *ret)
 {
-	int exponent, sign;
-	LocalStack stack;
-	addr pos;
-	char *ptr;
-	size_t size;
+	CheckLocal(local);
+	return bignum_single_float_alloc_(local, v, 0, rv, ret);
+}
 
-	if (! IsIntegerDouble(value))
-		return 1;
-	sign = (value < 0.0)? SignMinus: SignPlus;
-	frexp(value, &exponent);
-	Check(exponent < 0, "exponent error");
-	size = printf_integer_float_size(exponent);
-	if (isheap)
+_g int bignum_single_float_heap_(LocalRoot local, single_float v, addr *rv, int *ret)
+{
+	CheckLocal(local);
+	return bignum_single_float_alloc_(local, v, 1, rv, ret);
+}
+
+static int bignum_double_float_alloc_(
+		LocalRoot local, double_float v, int is_heap, addr *rv, int *ret)
+{
+	LocalStack stack;
+
+	/* check */
+	if (! IsIntegerDouble(v)) {
+		if (ret)
+			return Result(ret, 1);
+		else
+			return fmte_("Invalid float value.", NULL);
+	}
+
+	/* cast */
+	if (is_heap) {
 		push_local(local, &stack);
-	ptr = (char *)lowlevel_local(local, size);
-	snprintf(ptr, size, "%.0f", fabs(value));
-	bigcons_char_local(local, &pos, 10, ptr);
-	if (isheap) {
-		bignum_cons_alloc(NULL, ret, sign, pos);
+	}
+	bignum_double_float_unsafe(local, v, is_heap, rv);
+	if (is_heap) {
 		rollback_local(local, stack);
 	}
-	else {
-		bignum_cons_alloc(local, ret, sign, pos);
-	}
+
+	/* result */
+	if (ret)
+		return Result(ret, 0);
 
 	return 0;
 }
 
-_g int bignum_long_float_alloc(LocalRoot local, addr *ret, long_float value, int isheap)
+_g int bignum_double_float_local_(LocalRoot local, double_float v, addr *rv, int *ret)
 {
-	int exponent, sign;
-	LocalStack stack;
-	addr pos;
-	char *ptr;
-	size_t size;
+	CheckLocal(local);
+	return bignum_double_float_alloc_(local, v, 0, rv, ret);
+}
 
-	if (! IsIntegerLongFloat(value))
-		return 1;
-	sign = (value < 0.0L)? SignMinus: SignPlus;
-	frexpl(value, &exponent);
-	Check(exponent < 0, "exponent error");
-	size = printf_integer_float_size(exponent);
-	if (isheap)
+_g int bignum_double_float_heap_(LocalRoot local, double_float v, addr *rv, int *ret)
+{
+	CheckLocal(local);
+	return bignum_double_float_alloc_(local, v, 1, rv, ret);
+}
+
+static int bignum_long_float_alloc_(
+		LocalRoot local, long_float v, int is_heap, addr *rv, int *ret)
+{
+	LocalStack stack;
+
+	/* check */
+	if (! IsIntegerLongFloat(v)) {
+		if (ret)
+			return Result(ret, 1);
+		else
+			return fmte_("Invalid float value.", NULL);
+	}
+
+	/* cast */
+	if (is_heap) {
 		push_local(local, &stack);
-	ptr = (char *)lowlevel_local(local, size);
-	snprintf(ptr, size, "%.0Lf", fabsl(value));
-	bigcons_char_local(local, &pos, 10, ptr);
-	if (isheap) {
-		bignum_cons_alloc(NULL, ret, sign, pos);
+	}
+	bignum_long_float_unsafe(local, v, is_heap, rv);
+	if (is_heap) {
 		rollback_local(local, stack);
 	}
-	else {
-		bignum_cons_alloc(local, ret, sign, pos);
-	}
+
+	/* result */
+	if (ret)
+		return Result(ret, 0);
 
 	return 0;
+}
+
+_g int bignum_long_float_local_(LocalRoot local, long_float v, addr *rv, int *ret)
+{
+	CheckLocal(local);
+	return bignum_long_float_alloc_(local, v, 0, rv, ret);
+}
+
+_g int bignum_long_float_heap_(LocalRoot local, long_float v, addr *rv, int *ret)
+{
+	CheckLocal(local);
+	return bignum_long_float_alloc_(local, v, 1, rv, ret);
 }
 
 

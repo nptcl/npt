@@ -1021,7 +1021,7 @@ static int defmethod_parse_specializers(addr pos, addr *ret)
 	GetConst(COMMON_QUOTE, &quote);
 	for (root = Nil; pos != Nil; ) {
 		GetCons(pos, &list, &pos);
-		list_bind(list, &var, &type, NULL);
+		Return(list_bind_(list, &var, &type, NULL));
 		if (consp(type)) {
 			Return_getcdr(type, &type);
 			Return_getcar(type, &type);
@@ -1079,7 +1079,7 @@ static int defmethod_parse_function_(Execute ptr,
 	GetConst(CLOSNAME_FLET_NEXT_METHOD, &call2);
 	/* lambda */
 	GetConst(COMMON_LAMBDA, &lambda);
-	argument_method_lambda_heap(&ord, ord);
+	Return(argument_method_lambda_heap_(&ord, ord));
 	Return(defmethod_parse_documentation_(form, &doc));
 	lista_heap(&ord, lambda, ord, form, NULL);
 	/* apply */
@@ -1442,7 +1442,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_CLASS_NAME, &call);
 	Return(clos_class_of_(var, &name));
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(callclang_funcall(ptr, &name, call, name, NULL));
 	quotelist_heap(&name, name);
 	list_heap(&find, find, name, NULL);

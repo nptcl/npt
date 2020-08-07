@@ -71,7 +71,7 @@ _g int pprint_fill_common(Execute ptr, addr stream, addr list, addr colon)
 {
 	if (colon == Unbound)
 		colon = T;
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	return pprint_fill_print(ptr, stream, list, colon != Nil);
 }
 
@@ -83,7 +83,7 @@ _g int pprint_linear_common(Execute ptr, addr stream, addr list, addr colon)
 {
 	if (colon == Unbound)
 		colon = T;
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	return pprint_linear_print(ptr, stream, list, colon != Nil);
 }
 
@@ -102,7 +102,7 @@ _g int pprint_tabular_common(Execute ptr,
 		size = 16;
 	else
 		getfixnum_unsigned(tabsize, &size);
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 
 	return pprint_tabular_print(ptr, stream, list, colon != Nil, size);
 }
@@ -117,7 +117,7 @@ _g int pprint_indent_common(Execute ptr, addr rel, addr n, addr stream)
 	addr block, current;
 	fixnum value;
 
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	GetConst(KEYWORD_BLOCK, &block);
 	GetConst(KEYWORD_CURRENT, &current);
 	if (rel == block) {
@@ -185,9 +185,8 @@ _g int pprint_logical_block_common(addr form, addr env, addr *ret)
 		value2 = Nil;
 	if (value3 == Unbound)
 		value3 = Nil;
-	expand_pprint_logical_block_common(ret,
+	return expand_pprint_logical_block_common_(ret,
 			stream, pos, value1, value2, value3, decl, args);
-	return 0;
 
 error:
 	return fmte_("PPRINT-LOGICAL-BLOCK form ~S must be "
@@ -227,7 +226,7 @@ _g int pprint_newline_common(Execute ptr, addr kind, addr stream)
 	enum pprint_newline value;
 
 	Return(pprint_newline_symbol_common(kind, &value));
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 
 	return pprint_newline_print_(ptr, value, stream);
 }
@@ -267,7 +266,7 @@ _g int pprint_tab_common(Execute ptr, addr kind, addr column, addr colinc, addr 
 	Return(pprint_tab_symbol_common(kind, &value));
 	getfixnum_unsigned(column, &a);
 	getfixnum_unsigned(colinc, &b);
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 
 	return pprint_tab_print_(ptr, stream, value, a, b);
 }
@@ -345,9 +344,10 @@ _g int set_pprint_dispatch_common(Execute ptr,
 
 	Return(parse_type(ptr, &type, spec, Nil));
 	if (call != Nil && (! functionp(call)))
-		getfunction_global(call, &call);
-	if (table == Unbound)
-		pprint_dispatch_print(ptr, &table);
+		Return(getfunction_global_(call, &call));
+	if (table == Unbound) {
+		Return(pprint_dispatch_print_(ptr, &table));
+	}
 
 	return set_pprint_dispatch_print_(ptr->local, spec, type, call, priority, table);
 }
@@ -437,7 +437,7 @@ _g int write_common(Execute ptr, addr var, addr args)
 
 	if (GetKeyArgs(args, KEYWORD_STREAM, &stream))
 		stream = Unbound;
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 
 	push_new_control(ptr, &control);
 	write_keyword_common(ptr, args);
@@ -453,7 +453,7 @@ _g int write_common(Execute ptr, addr var, addr args)
  */
 _g int prin1_common(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(prin1_print(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
@@ -464,7 +464,7 @@ _g int prin1_common(Execute ptr, addr var, addr stream)
  */
 _g int princ_common(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(princ_print(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
@@ -475,7 +475,7 @@ _g int princ_common(Execute ptr, addr var, addr stream)
  */
 _g int print_common(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(print_print(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
@@ -486,7 +486,7 @@ _g int print_common(Execute ptr, addr var, addr stream)
  */
 _g int pprint_common(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(pprint_print(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }

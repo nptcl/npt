@@ -155,7 +155,7 @@ static int expt_rr_common_(LocalRoot local, addr *ret, addr base, addr power)
 	}
 	if (zerop_rational(base)) {
 		if (minusp_rational(power)) {
-			return call_division_by_zero_real2_(Execute_Thread,
+			return call_division_by_zero_real2_(NULL,
 					CONSTANT_COMMON_EXPT, base, power);
 		}
 		fixnum_heap(ret, 0);

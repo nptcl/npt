@@ -21,7 +21,7 @@ static int test_symbol(void)
  */
 static int test_nil(void)
 {
-	addr left, right;
+	addr left;
 
 	Nil = Unbound;
 	nil_heap();
@@ -45,10 +45,7 @@ static int test_nil(void)
 	test(left == Nil, "nil.10");
 
 	getarray(Nil, SYMBOL_INDEX_VALUE, &left);
-	test(consp(left), "nil.11");
-	GetCons(left, &left, &right);
-	test(left == Nil, "nil.12");
-	test(right == Nil, "nil.13");
+	test(left == Nil, "nil.11");
 
 	RETURN;
 }

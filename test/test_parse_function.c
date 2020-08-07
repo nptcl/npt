@@ -233,13 +233,13 @@ static int test_parse_allcons(void)
 	readstring(&cons, "(10 \"Hello\" :aaa)");
 	parse_allcons_(Execute_Thread, &cons, cons);
 	/* 10 */
-	getcons(cons, &eval, &cons);
+	getcons_(cons, &eval, &cons);
 	test(test_eqlfixnum(eval, 10), "parse_allcons1");
 	/* "Hello" */
-	getcons(cons, &eval, &cons);
+	getcons_(cons, &eval, &cons);
 	test(test_eqlstring(eval, "Hello"), "parse_allcons2");
 	/* :aaa */
-	getcons(cons, &eval, &cons);
+	getcons_(cons, &eval, &cons);
 	test(test_evalkeyword(eval, "AAA"), "parse_allcons3");
 	/* nil */
 	test(cons == Nil, "parse_allcons4");
@@ -259,13 +259,13 @@ static int test_parse_progn(void)
 	GetEvalParse(eval, 0, &cons);
 
 	/* 10 */
-	getcons(cons, &eval, &cons);
+	getcons_(cons, &eval, &cons);
 	test(test_eqlfixnum(eval, 10), "parse_progn2");
 	/* "Hello" */
-	getcons(cons, &eval, &cons);
+	getcons_(cons, &eval, &cons);
 	test(test_eqlstring(eval, "Hello"), "parse_progn3");
 	/* :aaa */
-	getcons(cons, &eval, &cons);
+	getcons_(cons, &eval, &cons);
 	test(test_evalkeyword(eval, "AAA"), "parse_progn4");
 	/* nil */
 	test(cons == Nil, "parse_progn5");
@@ -912,7 +912,7 @@ static int test_parse_defmacro(void)
 	test(functionp(lambda), "parse_defmacro2");
 
 	environment_symbol(&stack);
-	getspecialcheck_local(ptr, stack, &stack);
+	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 0, &stack); /* global */
 	GetArrayA2(stack, 1, &stack); /* call */
 	test(stack == name, "parse_defmacro3");
@@ -940,7 +940,7 @@ static int test_parse_macrolet_args(void)
 	localhold_end(hold);
 
 	environment_symbol(&stack);
-	getspecialcheck_local(ptr, stack, &stack);
+	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 1, &stack); /* local */
 	GetArrayA2(stack, 1, &stack); /* call */
 	test(stack == readr("aaa"), "parse_macrolet_args1");
@@ -951,7 +951,7 @@ static int test_parse_macrolet_args(void)
 	localhold_end(hold);
 
 	environment_symbol(&stack);
-	getspecialcheck_local(ptr, stack, &stack);
+	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 1, &stack); /* local */
 	GetArrayA2(stack, 1, &stack); /* call */
 	test(stack == readr("ccc"), "parse_macrolet_args2");
@@ -980,7 +980,7 @@ static int test_parse_macrolet(void)
 	test(RefEvalParseType(one) == EVAL_PARSE_LOCALLY, "parse_macrolet1");
 
 	environment_symbol(&stack);
-	getspecialcheck_local(ptr, stack, &stack);
+	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 1, &stack); /* local */
 	test(stack == Nil, "parse_macrolet2");
 
@@ -1585,7 +1585,7 @@ static int test_parse_eval_when(void)
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_EVAL_WHEN), "parse_eval_when1");
 	GetEvalParse(cons, 0, &check);
-	getcar(check, &check);
+	getcar_(check, &check);
 	test(test_evalkeyword(check, "HELLO"), "parse_eval_when2");
 	test(RefEval(cons, 1) == T, "parse_eval_when3");
 	test(RefEval(cons, 2) == Nil, "parse_eval_when4");

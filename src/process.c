@@ -50,7 +50,8 @@ static int run_process_list_utf8_(LocalRoot local, addr var, addr list, char ***
 	addr pos;
 	size_t size, i;
 
-	size = length_list_safe(list) + 1;
+	Return(length_list_safe_(list, &size));
+	size++;
 	array = (char **)lowlevel_local(local, (size + 1) * sizeoft(char *));
 	Return(run_process_utf8_(local, var, &(array[0])));
 	for (i = 1; i < size; i++) {

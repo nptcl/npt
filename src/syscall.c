@@ -313,7 +313,7 @@ static void defun_setplist(void)
  */
 static int syscall_remplist(Execute ptr, addr key, addr list)
 {
-	remplist_syscode(key, list, &key, &list);
+	Return(remplist_syscode_(key, list, &key, &list));
 	setvalues_control(ptr, key, list, NULL);
 	return 0;
 }
@@ -791,7 +791,7 @@ static void defun_etypecase_error(void)
 /* (defun define-setf-expander (name lambda) ...) -> name */
 static int syscall_define_setf_expander(Execute ptr, addr symbol, addr call)
 {
-	define_setf_expander_syscode(symbol, call);
+	Return(define_setf_expander_syscode_(symbol, call));
 	setresult_control(ptr, symbol);
 	return 0;
 }
@@ -2342,7 +2342,7 @@ static void defun_run_program(void)
 /* (defun make-callname (var) ...) -> callname */
 static int syscall_make_callname(Execute ptr, addr var)
 {
-	make_callname_syscode(var, &var);
+	Return(make_callname_syscode_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

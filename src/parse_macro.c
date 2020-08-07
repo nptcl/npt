@@ -43,24 +43,28 @@ _g void init_parse_environment(Execute ptr)
 	pushspecial_control(ptr, symbol, pos);
 }
 
-_g void snapshot_envstack(Execute ptr, addr *ret)
+_g int snapshot_envstack_(Execute ptr, addr *ret)
 {
 	addr root;
 
 	environment_symbol(&root);
-	getspecialcheck_local(ptr, root, &root);
+	Return(getspecialcheck_local_(ptr, root, &root));
 	GetArrayA2(root, 1, ret); /* local */
+	
+	return 0;
 }
 
-static void push_envstack(Execute ptr, int index, addr name, addr lambda, addr callp)
+static int push_envstack_(Execute ptr, int index, addr name, addr lambda, addr callp)
 {
 	addr root, pos, next;
 
 	environment_symbol(&root);
-	getspecialcheck_local(ptr, root, &root);
+	Return(getspecialcheck_local_(ptr, root, &root));
 	GetArrayA2(root, index, &next);
 	envstack_heap(&pos, next, name, lambda, callp);
 	SetArrayA2(root, index, pos);
+
+	return 0;
 }
 
 _g int rollback_envstack_(Execute ptr, addr pos)
@@ -68,7 +72,7 @@ _g int rollback_envstack_(Execute ptr, addr pos)
 	addr root, local, next;
 
 	environment_symbol(&root);
-	getspecialcheck_local(ptr, root, &root);
+	Return(getspecialcheck_local_(ptr, root, &root));
 	for (;;) {
 		GetArrayA2(root, 1, &local); /* local */
 		if (local == pos)
@@ -83,24 +87,24 @@ _g int rollback_envstack_(Execute ptr, addr pos)
 	return 0;
 }
 
-_g void defmacro_envstack(Execute ptr, addr name, addr lambda)
+_g int defmacro_envstack_(Execute ptr, addr name, addr lambda)
 {
-	push_envstack(ptr, 0, name, lambda, T); /* global, macrolet */
+	return push_envstack_(ptr, 0, name, lambda, T); /* global, macrolet */
 }
 
-_g void macrolet_envstack(Execute ptr, addr name, addr lambda)
+_g int macrolet_envstack_(Execute ptr, addr name, addr lambda)
 {
-	push_envstack(ptr, 1, name, lambda, T); /* local, macrolet */
+	return push_envstack_(ptr, 1, name, lambda, T); /* local, macrolet */
 }
 
-_g void define_symbol_macro_envstack(Execute ptr, addr name, addr form)
+_g int define_symbol_macro_envstack_(Execute ptr, addr name, addr form)
 {
-	push_envstack(ptr, 0, name, form, Nil); /* global, define-symbol-macro */
+	return push_envstack_(ptr, 0, name, form, Nil); /* global, define-symbol-macro */
 }
 
-_g void symbol_macrolet_envstack(Execute ptr, addr name, addr form)
+_g int symbol_macrolet_envstack_(Execute ptr, addr name, addr form)
 {
-	push_envstack(ptr, 1, name, form, Nil); /* local, symbol-macrolet */
+	return push_envstack_(ptr, 1, name, form, Nil); /* local, symbol-macrolet */
 }
 
 static int symbol_macrolet_envroot_p(addr name, addr root, int index, addr *ret)
@@ -125,23 +129,27 @@ static int symbol_macrolet_envroot_p(addr name, addr root, int index, addr *ret)
 	return 0;
 }
 
-_g int symbol_macrolet_envstack_p(Execute ptr, addr name, addr *ret)
+_g int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret)
 {
 	addr root;
 
 	environment_symbol(&root);
-	getspecialcheck_local(ptr, root, &root);
-	return symbol_macrolet_envroot_p(name, root, 0, ret)
-		|| symbol_macrolet_envroot_p(name, root, 1, ret);
+	Return(getspecialcheck_local_(ptr, root, &root));
+	if (symbol_macrolet_envroot_p(name, root, 0, value))
+		return Result(ret, 1);
+	if (symbol_macrolet_envroot_p(name, root, 1, value))
+		return Result(ret, 1);
+
+	return Result(ret, 0);
 }
 
-_g void environment_heap(Execute ptr, addr *ret)
+_g int environment_heap_(Execute ptr, addr *ret)
 {
 	addr pos, env, local;
 
 	/* envstack */
 	environment_symbol(&pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	GetArrayA2(pos, 0, &env);
 	GetArrayA2(pos, 1, &local);
 
@@ -152,7 +160,8 @@ _g void environment_heap(Execute ptr, addr *ret)
 	SetArrayA2(pos, 0, env);
 	SetArrayA2(pos, 1, local);
 	SetUser(pos, 1); /* dynamic-extent check */
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 _g void copy_environment(addr *ret, addr pos)
@@ -204,7 +213,8 @@ _g int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret)
 	if (! symbolp(symbol))
 		return 0;
 	environment_symbol(&root);
-	getspecialcheck_local(ptr, root, &root);
+	getspecial_local(ptr, root, &root);
+	Check(root == Unbound, "unbound error");
 	GetArrayA2(root, 1, &list); /* local */
 	if (findstack_environment(symbol, list, T, ret))
 		return 1;
@@ -263,7 +273,7 @@ _g int call_macroexpand_hook(Execute ptr, addr *ret, addr call, addr cons, addr 
 	addr hook;
 
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);
-	getspecialcheck_local(ptr, hook, &hook);
+	Return(getspecialcheck_local_(ptr, hook, &hook));
 	return callclang_funcall(ptr, ret, hook, call, cons, env, NULL);
 }
 

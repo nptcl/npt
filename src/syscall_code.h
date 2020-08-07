@@ -14,7 +14,7 @@ _g int redirect_restart_syscode(Execute ptr, addr condition, addr list);
 _g int defconstant_syscode(addr symbol, addr value, addr doc);
 _g int in_package_syscode_(Execute ptr, addr name, addr *ret);
 _g void setplist_syscode(addr key, addr value, addr list, addr *ret);
-_g void remplist_syscode(addr key, addr list, addr *ret1, addr *ret2);
+_g int remplist_syscode_(addr key, addr list, addr *ret1, addr *ret2);
 _g void make_hash_iterator_syscode(addr pos, addr *ret);
 _g void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3);
 _g int make_package_iterator_syscode_(addr pos, addr a, addr b, addr c, addr *ret);
@@ -29,7 +29,7 @@ _g void setdoc_variable_syscode(addr var, addr value);
 _g void specialp_syscode(addr var, addr *ret);
 _g int ecase_error_syscode_(Execute ptr, addr value, addr list);
 _g int etypecase_error_syscode_(Execute ptr, addr value, addr list);
-_g void define_setf_expander_syscode(addr symbol, addr call);
+_g int define_setf_expander_syscode_(addr symbol, addr call);
 _g int defsetf_short_syscode(Execute ptr,
 		addr access, addr update, addr args, addr env,
 		addr *r1, addr *r2, addr *r3, addr *r4, addr *r5);
@@ -83,7 +83,7 @@ _g void timeinfo_syscode(LocalRoot local,
 		addr *rreal, addr *rrun, addr *rsize, addr *rcount);
 _g int ed_function_syscode_(Execute ptr, addr file);
 _g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, addr *ret);
-_g void make_callname_syscode(addr var, addr *ret);
+_g int make_callname_syscode_(addr var, addr *ret);
 _g int trace_add_syscode_(Execute ptr, addr var, addr *ret);
 _g int trace_del_syscode_(Execute ptr, addr var, addr *ret);
 _g int set_slots_syscode(addr var, addr slots, addr values);

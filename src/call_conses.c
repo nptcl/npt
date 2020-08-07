@@ -1434,7 +1434,7 @@ _g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 				setgchold(hold, 0, result);
 			}
 			else {
-				setlastcdr_safe(head, pos);
+				Return(setlastcdr_safe_(head, pos));
 				head = pos;
 			}
 		}
@@ -1624,7 +1624,7 @@ _g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 				setgchold(hold, 0, result);
 			}
 			else {
-				setlastcdr_safe(head, pos);
+				Return(setlastcdr_safe_(head, pos));
 				head = pos;
 			}
 		}
@@ -2871,9 +2871,7 @@ static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
 
 	/* result */
 	localhold_end(hold);
-	nconc2_safe(result, list1, ret);
-
-	return 0;
+	return nconc2_safe_(result, list1, ret);
 }
 
 _g int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)

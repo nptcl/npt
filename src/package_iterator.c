@@ -98,7 +98,7 @@ static int forward_package_iterator_(addr pos)
 		PtrStructPackageIterator(pos)->finish = 1;
 		return 0;
 	}
-	getcons(list, &package, &list);
+	Return_getcons(list, &package, &list);
 	Return(package_designer_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &raw);
 	GetPackageIterator(pos, PackageIterator_Table, &table);

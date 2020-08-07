@@ -97,7 +97,7 @@ _g int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 		return format_string_lisp(ptr, format, args, ret);
 
 	if (stream == T) {
-		standard_output_stream(ptr, &stream);
+		Return(standard_output_stream_(ptr, &stream));
 		return format_stream_lisp(ptr, stream, format, args);
 	}
 

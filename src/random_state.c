@@ -363,33 +363,40 @@ _g void randomly_random_state(addr left)
 	make_randomly_seed(ptr);
 }
 
-_g void constant_random_state(Execute ptr, addr left)
+_g int constant_random_state_(Execute ptr, addr left)
 {
 	addr right;
 
 	Check(ptr == NULL, "execute error");
 	GetConst(SPECIAL_RANDOM_STATE, &right);
-	getspecialcheck_local(ptr, right, &right);
+	Return(getspecialcheck_local_(ptr, right, &right));
 	if (GetType(right) != LISPTYPE_RANDOM_STATE)
-		TypeError(right, RANDOM_STATE);
+		return TypeError_(right, RANDOM_STATE);
 	copy_random_state(left, right);
+
+	return 0;
 }
 
-_g void make_random_state_heap(Execute ptr, addr *ret, addr state)
+_g int make_random_state_heap_(Execute ptr, addr *ret, addr state)
 {
 	addr pos;
 
 	random_state_heap(&pos);
-	if (state == T)
+	if (state == T) {
 		randomly_random_state(pos);
-	else if (state == Nil)
-		constant_random_state(ptr, pos);
+	}
+	else if (state == Nil) {
+		Return(constant_random_state_(ptr, pos));
+	}
 	else {
-		if (GetType(state) != LISPTYPE_RANDOM_STATE)
-			TypeError(state, RANDOM_STATE);
+		if (GetType(state) != LISPTYPE_RANDOM_STATE) {
+			*ret = Nil;
+			return TypeError_(state, RANDOM_STATE);
+		}
 		copy_random_state(pos, state);
 	}
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 #ifdef LISP_64BIT

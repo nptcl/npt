@@ -81,7 +81,7 @@ _g void pushargs_control(Execute ptr, addr value)
 	}
 }
 
-_g void popargs_control(Execute ptr, addr *ret)
+_g int popargs_control_(Execute ptr, addr *ret)
 {
 	addr control, list;
 
@@ -91,9 +91,11 @@ _g void popargs_control(Execute ptr, addr *ret)
 		*ret = Unbound;
 	}
 	else {
-		getcons(list, ret, &list);
+		Return_getcons(list, ret, &list);
 		SetControl(control, Control_Cons, list);
 	}
+
+	return 0;
 }
 
 _g void getargs_control(Execute ptr, size_t index, addr *ret)

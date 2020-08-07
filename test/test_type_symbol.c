@@ -49,7 +49,7 @@ static int test_find_symbol_type(void)
 	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
 	setcompiled_dynamic(pos, p_debug1);
 	symbol = readr("TEST-FIND-SYMBOL-TYPE");
-	setdeftype_symbol(symbol, pos);
+	setdeftype_symbol_(symbol, pos);
 	check = find_symbol_type(ptr, &pos, symbol, Nil);
 	test(check == 0, "find_symbol_type7");
 	test(GetType(pos) == LISPTYPE_TYPE, "find_symbol_type8");
@@ -105,7 +105,7 @@ static int test_type_symbol_p(void)
 	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
 	setcompiled_dynamic(call, p_debug1);
 	pos = readr("TEST-FIND-SYMBOL-TYPE");
-	setdeftype_symbol(pos, call);
+	setdeftype_symbol_(pos, call);
 	test(type_symbol_p(pos), "type_symbol_p5");
 
 	RETURN;

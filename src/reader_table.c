@@ -649,7 +649,7 @@ _g int float_readtable_(Execute ptr, enum ReadTable_float *ret)
 	addr pos, check;
 
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	GetConst(COMMON_SINGLE_FLOAT, &check);
 	if (check == pos)
 		return Result(ret, ReadTable_single);
@@ -667,11 +667,11 @@ _g int float_readtable_(Execute ptr, enum ReadTable_float *ret)
 	return fmte_("Invalid *read-default-float-format* value ~S.", pos, NULL);
 }
 
-_g enum ReadTable_Case readcase_readtable(Execute ptr)
+_g int readcase_readtable_(Execute ptr, enum ReadTable_Case *ret)
 {
 	addr pos;
-	getreadtable(ptr, &pos);
-	return getcase_readtable(pos);
+	Return(getreadtable_(ptr, &pos));
+	return Result(ret, getcase_readtable(pos));
 }
 
 _g enum ReadTable_Case getcase_readtable(addr pos)
@@ -686,14 +686,17 @@ _g void setcase_readtable(addr pos, enum ReadTable_Case mode)
 	*PtrCaseReadtable(pos) = mode;
 }
 
-_g void getreadtable(Execute ptr, addr *ret)
+_g int getreadtable_(Execute ptr, addr *ret)
 {
 	addr pos;
 
 	GetConst(SPECIAL_READTABLE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	if (GetType(pos) != LISPTYPE_READTABLE)
-		TypeError(pos, READTABLE);
-	*ret = pos;
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	if (GetType(pos) != LISPTYPE_READTABLE) {
+		*ret = Nil;
+		return TypeError_(pos, READTABLE);
+	}
+	
+	return Result(ret, pos);
 }
 

@@ -80,7 +80,7 @@ static int restart_symbol_store_global(Execute ptr, addr value)
 	addr symbol;
 
 	getdata_control(ptr, &symbol);
-	SetValueSymbol(symbol, value);
+	Return(setvalue_symbol_(symbol, value));
 	setresult_control(ptr, value);
 
 	return 0;

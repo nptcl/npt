@@ -306,8 +306,8 @@ static int test_getcallname_global(void)
 	getglobal_parse_callname(key, &pos);
 	test(pos == call2, "getglobal_parse_callname.3");
 
-	setglobal_parse_callname(symbol, call2);
-	setglobal_parse_callname(key, call1);
+	setglobal_parse_callname_(symbol, call2);
+	setglobal_parse_callname_(key, call1);
 	getglobal_parse_callname(symbol, &pos);
 	test(pos == call2, "getglobal_parse_callname.4");
 	getglobal_parse_callname(key, &pos);
@@ -332,17 +332,17 @@ static int test_getcallnamecheck_global(void)
 	setfunction_symbol(symbol, call1);
 	setsetf_symbol(symbol, call2);
 
-	getglobalcheck_parse_callname(symbol, &pos);
+	getglobalcheck_parse_callname_(symbol, &pos);
 	test(pos == call1, "getglobalcheck_parse_callname.1");
 	test_setfcons(&key, symbol);
-	getglobalcheck_parse_callname(key, &pos);
+	getglobalcheck_parse_callname_(key, &pos);
 	test(pos == call2, "getglobalcheck_parse_callname.2");
 
-	setglobal_parse_callname(symbol, call2);
-	setglobal_parse_callname(key, call1);
-	getglobalcheck_parse_callname(symbol, &pos);
+	setglobal_parse_callname_(symbol, call2);
+	setglobal_parse_callname_(key, call1);
+	getglobalcheck_parse_callname_(symbol, &pos);
 	test(pos == call2, "getglobalcheck_parse_callname.3");
-	getglobalcheck_parse_callname(key, &pos);
+	getglobalcheck_parse_callname_(key, &pos);
 	test(pos == call1, "getglobalcheck_parse_callname.4");
 
 	free_control_(ptr, control);

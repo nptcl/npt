@@ -67,8 +67,9 @@ _g int peek_char_common(Execute ptr, addr type, addr stream,
 {
 	if (type == Unbound)
 		type = Nil;
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_input_stream_(ptr, &stream));
+	}
 	if (errorp == Unbound)
 		errorp = T;
 	if (value == Unbound)
@@ -100,8 +101,9 @@ _g int read_char_common(Execute ptr,
 	int check;
 	unicode c;
 
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_input_stream_(ptr, &stream));
+	}
 	if (errorp == Unbound)
 		errorp = T;
 	if (value == Unbound)
@@ -132,8 +134,9 @@ _g int read_char_no_hang_common(Execute ptr,
 	int hang, check;
 	unicode c;
 
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_input_stream_(ptr, &stream));
+	}
 	if (errorp == Unbound)
 		errorp = T;
 	if (value == Unbound)
@@ -162,8 +165,9 @@ _g int read_char_no_hang_common(Execute ptr,
  */
 _g int terpri_common(Execute ptr, addr stream)
 {
-	if (stream == Unbound)
-		standard_output_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_output_stream_(ptr, &stream));
+	}
 	Return(terpri_stream_(stream));
 	return exitpoint_stream_(stream);
 }
@@ -176,8 +180,9 @@ _g int fresh_line_common(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 
-	if (stream == Unbound)
-		standard_output_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_output_stream_(ptr, &stream));
+	}
 	Return(fresh_line_stream_(stream, &check));
 	Return(exitpoint_stream_(stream));
 
@@ -192,8 +197,9 @@ _g int unread_char_common(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
-	if (stream == Unbound)
-		standard_output_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_output_stream_(ptr, &stream));
+	}
 	GetCharacter(pos, &c);
 	return unread_char_stream_(stream, c);
 }
@@ -222,8 +228,9 @@ _g int read_line_common(Execute ptr,
 {
 	int miss;
 
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_input_stream_(ptr, &stream));
+	}
 	if (errorp == Unbound)
 		errorp = T;
 	if (value == Unbound)
@@ -803,8 +810,9 @@ _g int listen_common(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_input_stream_(ptr, &stream));
+	}
 	Return(listen_stream_(stream, &check));
 
 	return Result(ret, check? T: Nil);
@@ -816,8 +824,9 @@ _g int listen_common(Execute ptr, addr stream, addr *ret)
  */
 _g int clear_input_common(Execute ptr, addr stream)
 {
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
+	if (stream == Unbound) {
+		Return(standard_input_stream_(ptr, &stream));
+	}
 	return clear_input_stream_(stream);
 }
 
@@ -955,6 +964,7 @@ static int with_input_from_string_index_common_(addr *ret,
 
 _g int with_input_from_string_common(addr form, addr *ret)
 {
+	int ignore;
 	addr args, body, key, index, var, string;
 
 	/* argument */
@@ -974,7 +984,7 @@ _g int with_input_from_string_common(addr form, addr *ret)
 		Return(with_input_from_string_noindex_common_(ret, var, string, args, body));
 	}
 	else {
-		remplist_heap(args, key, &args);
+		Return(remplist_heap_(args, key, &args, &ignore));
 		Return(with_input_from_string_index_common_(ret,
 					var, string, index, args, body));
 	}

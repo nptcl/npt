@@ -48,9 +48,11 @@ _g int signal_function_(Execute ptr, addr condition)
 	int check;
 	addr signals, type;
 
+	if (ptr == NULL)
+		ptr = Execute_Thread;
 	/* break-on-signals */
 	GetConst(SPECIAL_BREAK_ON_SIGNALS, &signals);
-	getspecialcheck_local(ptr, signals, &signals);
+	Return(getspecialcheck_local_(ptr, signals, &signals));
 	Return(parse_type(ptr, &type, signals, Nil));
 	Return(typep_asterisk_clang(ptr, condition, type, &check));
 	if (check)
@@ -61,6 +63,8 @@ _g int signal_function_(Execute ptr, addr condition)
 
 _g int error_function_(Execute ptr, addr condition)
 {
+	if (ptr == NULL)
+		ptr = Execute_Thread;
 	gchold_push_local(ptr->local, condition);
 	Return(signal_function_(ptr, condition));
 	Return(invoke_debugger(ptr, condition));
@@ -76,7 +80,7 @@ _g int callclang_error_(const char *str, ...)
 	va_start(va, str);
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
-	return call_simple_error_(Execute_Thread, format, args);
+	return call_simple_error_(NULL, format, args);
 }
 
 static int function_restart_warning(Execute ptr)
@@ -105,6 +109,8 @@ _g int warning_restart_case_(Execute ptr, addr instance)
 {
 	addr control, restart;
 
+	if (ptr == NULL)
+		ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 	warning_restart_make(&restart);
 	Return(restart1_control(ptr, restart, signal_function_, instance));
@@ -121,13 +127,25 @@ _g int callclang_warning_(const char *str, ...)
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
 	instance_simple_warning(&instance, format, args);
-	return warning_restart_case_(Execute_Thread, instance);
+	return warning_restart_case_(NULL, instance);
 }
 
 
 /*
  *  deprecated
  */
+static void callclang_error(const char *str, ...)
+{
+	addr format, args;
+	va_list va;
+
+	strvect_char_heap(&format, str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	simple_error(format, args);
+}
+
 _g void error_function(addr condition)
 {
 	int check;
@@ -138,22 +156,10 @@ _g void error_function(addr condition)
 	check = signal_function_(ptr, condition)
 		|| invoke_debugger(ptr, condition);
 	if (check) {
-		fmte("~&Invalid signal call.~%", NULL);
+		callclang_error("~&Invalid signal call.~%", NULL);
 		abortthis();
 		return;
 	}
-}
-
-_g void callclang_error(const char *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	strvect_char_heap(&format, str);
-	va_start(va, str);
-	copylocal_list_stdarg(NULL, &args, va);
-	va_end(va);
-	simple_error(format, args);
 }
 
 

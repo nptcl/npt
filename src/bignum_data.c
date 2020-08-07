@@ -722,8 +722,9 @@ static int getshiftvalue(bigtype *value)
 	int count;
 
 #ifdef LISP_BIGNUM_DEBUG
-	if (*value == 0)
-		fmte("getshiftvalue error", NULL);
+	if (*value == 0) {
+		Abort("getshiftvalue error");
+	}
 #endif
 	for (count = 0; *value < GETSHIFTVALUECHECK; count++)
 		*value <<= 1;
@@ -740,8 +741,9 @@ static void divfull(bigtype *high, bigtype *low, bigtype denom, bigtype *carry)
 	/* shift denom */
 	shift = getshiftvalue(&denom);
 #ifdef LISP_BIGNUM_DEBUG
-	if (BIGNUM_HALFBIT <= shift)
-		fmte("getshiftvalue error", NULL);
+	if (BIGNUM_HALFBIT <= shift) {
+		Abort("getshiftvalue error");
+	}
 #endif
 
 	m1 = HIGHVALUE(denom);
@@ -794,8 +796,9 @@ static void divdouble(bigtype *high, bigtype *low, bigtype denom, bigtype *carry
 
 #ifdef LISP_BIGNUM_DEBUG
 	/* denom is zero */
-	if (denom == 0)
-		fmte("divdouble error, denom is zero.", NULL);
+	if (denom == 0) {
+		Abort("divdouble error, denom is zero.");
+	}
 #endif
 
 	/* single division */
@@ -831,10 +834,12 @@ static void divcarry4_half(bigtype *ptr, bigtype left, bigtype denom, bigtype *c
 #endif
 
 #ifdef LISP_BIGNUM_DEBUG
-	if (denom <= *carry)
-		fmte("divcarry4_half error. (carry)", NULL);
-	if (HIGHVALUE(denom))
-		fmte("divcarry4_half error. (denom)", NULL);
+	if (denom <= *carry) {
+		Abort("divcarry4_half error. (carry)");
+	}
+	if (HIGHVALUE(denom)) {
+		Abort("divcarry4_half error. (denom)");
+	}
 #endif
 
 	if (*carry == 0) {
@@ -846,8 +851,9 @@ static void divcarry4_half(bigtype *ptr, bigtype left, bigtype denom, bigtype *c
 #ifdef LISP_BIGNUM_DEBUG
 	n1 = *carry;
 	divhalf(&n1, &left, denom, carry);
-	if (n1)
-		fmte("divcarry4_half error", NULL);
+	if (n1) {
+		Abort("divcarry4_half error");
+	}
 	*ptr = left;
 #else
 	n1 = HIGHLOW(*carry, HIGHVALUE(left));
@@ -872,8 +878,9 @@ static void divcarry4_full(bigtype *ptr, bigtype left, bigtype denom, bigtype *c
 	high = *carry;
 	divfull(&high, &left, denom, carry);
 #ifdef LISP_BIGNUM_DEBUG
-	if (high)
-		fmte("divcarry4_full error", NULL);
+	if (high) {
+		Abort("divcarry4_full error");
+	}
 #endif
 	*ptr = left;
 }

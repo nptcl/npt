@@ -40,7 +40,7 @@ _g int eval_compile_file(Execute ptr, addr pos)
 
 	Check(GetType(pos) != LISPTYPE_CODE, "type error");
 	GetConst(SYSTEM_COMPILE_OUTPUT, &stream);
-	getspecialcheck_local(ptr, stream, &stream);
+	Return(getspecialcheck_local_(ptr, stream, &stream));
 
 	return faslwrite_value(ptr, stream, pos);
 }
@@ -193,10 +193,10 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &pos);
-	getspecialcheck_local(ptr, pos, ret2);
+	Return(getspecialcheck_local_(ptr, pos, ret2));
 	/* style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
-	getspecialcheck_local(ptr, pos, ret3);
+	Return(getspecialcheck_local_(ptr, pos, ret3));
 	/* free */
 	Return(free_control_(ptr, control));
 	localhold_end(hold);

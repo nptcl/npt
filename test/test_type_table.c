@@ -145,7 +145,7 @@ static int test_typeargs_var1(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var1-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var1-8");
 	test(list == Nil, "typeargs_var1-9");
 
@@ -167,9 +167,9 @@ static int test_typeargs_var2(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var2-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var2-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var2-9");
 	test(list == Nil, "typeargs_var2-10");
 
@@ -192,11 +192,11 @@ static int test_typeargs_var3(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var3-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var3-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var3-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var3-10");
 	test(list == Nil, "typeargs_var3-11");
 
@@ -220,13 +220,13 @@ static int test_typeargs_var4(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var4-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var4-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var4-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var4-10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_var4-11");
 	test(list == Nil, "typeargs_var4-12");
 
@@ -251,15 +251,15 @@ static int test_typeargs_var5(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var5-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var5-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var5-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var5-10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_var5-11");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v5, "typeargs_var5-12");
 	test(list == Nil, "typeargs_var5-13");
 
@@ -281,7 +281,7 @@ static int test_typeargs_var1key(void)
 	test(refarray(pos, 3) == key, "typeargs_var1key6");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var1key8");
 	test(list == Nil, "typeargs_var1key9");
 
@@ -304,9 +304,9 @@ static int test_typeargs_var2key(void)
 	test(refarray(pos, 3) == key, "typeargs_var2key6");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var2key8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var2key9");
 	test(list == Nil, "typeargs_var2key10");
 
@@ -330,11 +330,11 @@ static int test_typeargs_var3key(void)
 	test(refarray(pos, 3) == key, "typeargs_var3key6");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var3key8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var3key9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var3key10");
 	test(list == Nil, "typeargs_var3key11");
 
@@ -359,13 +359,13 @@ static int test_typeargs_var4key(void)
 	test(refarray(pos, 3) == key, "typeargs_var4key6");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var4key8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var4key9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var4key10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_var4key11");
 	test(list == Nil, "typeargs_var4key12");
 
@@ -386,7 +386,7 @@ static int test_typeargs_opt1(void)
 	test(refarray(pos, 3) == Nil, "typeargs_opt1-7");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_opt1-8");
 	test(list == Nil, "typeargs_opt1-9");
 
@@ -408,9 +408,9 @@ static int test_typeargs_opt2(void)
 	test(refarray(pos, 3) == Nil, "typeargs_opt2-7");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_opt2-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_opt2-9");
 	test(list == Nil, "typeargs_opt2-10");
 
@@ -433,11 +433,11 @@ static int test_typeargs_opt3(void)
 	test(refarray(pos, 3) == Nil, "typeargs_opt3-7");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_opt3-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_opt3-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_opt3-10");
 	test(list == Nil, "typeargs_opt3-11");
 
@@ -461,13 +461,13 @@ static int test_typeargs_opt4(void)
 	test(refarray(pos, 3) == Nil, "typeargs_opt4-7");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_opt4-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_opt4-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_opt4-10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_opt4-11");
 	test(list == Nil, "typeargs_opt4-12");
 
@@ -492,15 +492,15 @@ static int test_typeargs_opt5(void)
 	test(refarray(pos, 3) == Nil, "typeargs_opt5-7");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_opt5-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_opt5-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_opt5-10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_opt5-11");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v5, "typeargs_opt5-12");
 	test(list == Nil, "typeargs_opt5-13");
 
@@ -521,12 +521,12 @@ static int test_typeargs_var1opt1(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var1opt1-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var1opt1-8");
 	test(list == Nil, "typeargs_var1opt1-9");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var1opt1-10");
 	test(list == Nil, "typeargs_var1opt1-11");
 
@@ -548,14 +548,14 @@ static int test_typeargs_var1opt2(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var1opt2-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var1opt2-8");
 	test(list == Nil, "typeargs_var1opt2-9");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var1opt2-10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var1opt2-11");
 	test(list == Nil, "typeargs_var1opt2-12");
 
@@ -578,14 +578,14 @@ static int test_typeargs_var1opt2key(void)
 	test(refarray(pos, 3) == key, "typeargs_var1opt2key7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var1opt2key8");
 	test(list == Nil, "typeargs_var1opt2key9");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var1opt2key10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var1opt2key11");
 	test(list == Nil, "typeargs_var1opt2key12");
 
@@ -607,14 +607,14 @@ static int test_typeargs_var2opt1(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var2opt1-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var2opt1-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var2opt1-9");
 	test(list == Nil, "typeargs_var2opt1-10");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var2opt1-11");
 	test(list == Nil, "typeargs_var2opt1-12");
 
@@ -637,16 +637,16 @@ static int test_typeargs_var2opt2(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var2opt2-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var2opt2-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var2opt2-9");
 	test(list == Nil, "typeargs_var2opt2-10");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var2opt2-11");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_var2opt2-12");
 	test(list == Nil, "typeargs_var2opt2-13");
 
@@ -669,16 +669,16 @@ static int test_typeargs_var3opt1(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var3opt1-7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var3opt1-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var3opt1-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var3opt1-10");
 	test(list == Nil, "typeargs_var3opt1-11");
 
 	getarray(pos, 1, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_var3opt1-12");
 	test(list == Nil, "typeargs_var3opt1-13");
 
@@ -700,7 +700,7 @@ static int test_typeargs_var1rest(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var1rest7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var1rest8");
 	test(list == Nil, "typeargs_var1rest9");
 
@@ -723,9 +723,9 @@ static int test_typeargs_var2rest(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var2rest7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var2rest8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var2rest9");
 	test(list == Nil, "typeargs_var2rest10");
 
@@ -749,11 +749,11 @@ static int test_typeargs_var3rest(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var3rest7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var3rest8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var3rest9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var3rest10");
 	test(list == Nil, "typeargs_var3rest11");
 
@@ -778,13 +778,13 @@ static int test_typeargs_var4rest(void)
 	test(refarray(pos, 3) == Nil, "typeargs_var4rest7");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typeargs_var4rest8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typeargs_var4rest9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typeargs_var4rest10");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typeargs_var4rest11");
 	test(list == Nil, "typeargs_var4rest12");
 
@@ -842,7 +842,7 @@ static int test_typevalues_result(void)
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_result5");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typevalues_result6");
 	test(list == Nil, "typevalues_result7");
 
@@ -865,9 +865,9 @@ static int test_typevalues_values2(void)
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values2-5");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typevalues_values2-6");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typevalues_values2-7");
 	test(list == Nil, "typevalues_values2-8");
 
@@ -891,11 +891,11 @@ static int test_typevalues_values3(void)
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values3-5");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typevalues_values3-6");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typevalues_values3-7");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typevalues_values3-8");
 	test(list == Nil, "typevalues_values3-9");
 
@@ -920,13 +920,13 @@ static int test_typevalues_values4(void)
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values4-5");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typevalues_values4-6");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typevalues_values4-7");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typevalues_values4-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typevalues_values4-9");
 	test(list == Nil, "typevalues_values4-10");
 
@@ -952,15 +952,15 @@ static int test_typevalues_values5(void)
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values5-5");
 
 	getarray(pos, 0, &list);
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v1, "typevalues_values5-6");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v2, "typevalues_values5-7");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v3, "typevalues_values5-8");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v4, "typevalues_values5-9");
-	getcons(list, &check, &list);
+	getcons_(list, &check, &list);
 	test(check == v5, "typevalues_values5-10");
 	test(list == Nil, "typevalues_values5-11");
 

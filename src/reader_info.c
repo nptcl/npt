@@ -60,7 +60,8 @@ _g void getreadinfo(Execute ptr, addr *ret)
 	addr symbol;
 
 	readinfo_symbol(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	getspecial_local(ptr, symbol, ret);
+	Check(*ret == Unbound, "unbound error");
 	CheckType(*ret, LISPSYSTEM_READINFO);
 }
 

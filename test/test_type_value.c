@@ -358,7 +358,7 @@ static int test_type_value_readtable(void)
 	addr x;
 
 	GetConst(SPECIAL_READTABLE, &x);
-	getspecialcheck_local(Execute_Thread, x, &x);
+	getspecialcheck_local_(Execute_Thread, x, &x);
 	type_value_(&x, x);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_readtable1");
 	test(LispDecl(x) == LISPDECL_READTABLE, "type_value_readtable2");
@@ -517,7 +517,7 @@ static int test_type_value_function(void)
 	addr x;
 
 	GetConst(COMMON_CAR, &x);
-	getfunction_global(x, &x);
+	getfunction_global_(x, &x);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_COMPILED_FUNCTION, "type_value_function1");
 
@@ -529,7 +529,7 @@ static int test_type_value_package(void)
 	addr x;
 
 	GetConst(SPECIAL_PACKAGE, &x);
-	getspecialcheck_local(Execute_Thread, x, &x);
+	getspecialcheck_local_(Execute_Thread, x, &x);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_PACKAGE, "type_value_package1");
 
@@ -541,7 +541,7 @@ static int test_type_value_random_state(void)
 	addr x;
 
 	GetConst(SPECIAL_RANDOM_STATE, &x);
-	getspecialcheck_local(Execute_Thread, x, &x);
+	getspecialcheck_local_(Execute_Thread, x, &x);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_RANDOM_STATE, "type_value_random_state1");
 
@@ -593,9 +593,9 @@ static int test_type_value_stream(void)
 
 	/* two-way */
 	GetConst(SYSTEM_STANDARD_INPUT, &x);
-	getspecialcheck_local(Execute_Thread, x, &x);
+	getspecialcheck_local_(Execute_Thread, x, &x);
 	GetConst(SYSTEM_STANDARD_OUTPUT, &y);
-	getspecialcheck_local(Execute_Thread, y, &y);
+	getspecialcheck_local_(Execute_Thread, y, &y);
 	open_twoway_stream(&x, x, y);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_TWO_WAY_STREAM, "type_value_stream6");

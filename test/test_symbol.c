@@ -10,33 +10,24 @@
 #include "type_parse.h"
 #include "type_table.h"
 
-static int test_symbol_alloc(void)
+static int test_symbol_heap(void)
 {
 	addr pos, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	symbol_alloc(NULL, &pos);
-	test(GetType(pos) == LISPTYPE_SYMBOL, "symbol_alloc.1");
-	GetValueSymbol(pos, &check);
-	test(check == Unbound, "symbol_alloc.2");
-	GetFunctionSymbol(pos, &check);
-	test(check == Unbound, "symbol_alloc.3");
-	GetSpecialSymbol_Low(pos, &check);
-	test(GetStatusSize(check) == LISPSIZE_ARRAY4, "symbol_alloc.4");
-	GetArrayA4(check, 0, &check);
-	test(check == NULL, "symbol_alloc.5");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	symbol_local(local, &pos);
-	test(GetType(pos) == LISPTYPE_SYMBOL, "symbol_local.1");
-	test(GetStatusDynamic(pos), "symbol_local.2");
-	rollback_local(local, stack);
 
 	symbol_heap(&pos);
 	test(GetType(pos) == LISPTYPE_SYMBOL, "symbol_heap.1");
-	test(! GetStatusDynamic(pos), "symbol_heap.2");
+	GetValueSymbol(pos, &check);
+	test(check == Unbound, "symbol_heap.2");
+	GetFunctionSymbol(pos, &check);
+	test(check == Unbound, "symbol_heap.3");
+	GetSpecialSymbol_Low(pos, &check);
+	test(GetStatusSize(check) == LISPSIZE_ARRAY4, "symbol_heap.4");
+	GetArrayA4(check, 0, &check);
+	test(check == NULL, "symbol_heap.5");
+
+	symbol_heap(&pos);
+	test(GetType(pos) == LISPTYPE_SYMBOL, "symbol_heap.6");
+	test(! GetStatusDynamic(pos), "symbol_heap.7");
 
 	RETURN;
 }
@@ -107,11 +98,10 @@ static int test_getvalue_symbol(void)
 
 	symbol_heap(&pos);
 	getarray(pos, SYMBOL_INDEX_VALUE, &cons);
-	test(cons == Nil, "getvalue_symbol.1");
+	test(cons == Unbound, "getvalue_symbol.1");
 
 	strvect_char_heap(&left, "Hello");
-	conscar_heap(&cons, left);
-	setarray(pos, SYMBOL_INDEX_VALUE, cons);
+	setarray(pos, SYMBOL_INDEX_VALUE, left);
 	GetValueSymbol(pos, &right);
 	test(left == right, "getvalue_symbol.2");
 
@@ -229,7 +219,7 @@ static int test_reminfo_constant(void)
 	setinfo_constant(pos, CONSTANT_SYSTEM_VALUE, value1);
 	setinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, value2);
 	setinfo_constant(pos, CONSTANT_COMMON_SYMBOL, value3);
-	reminfo_constant(pos, CONSTANT_SYSTEM_VALUE);
+	reminfo_constant_(pos, CONSTANT_SYSTEM_VALUE);
 	getinfo_constant(pos, CONSTANT_SYSTEM_VALUE, &check);
 	test(check == Nil, "reminfo_constant.1");
 	getinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, &check);
@@ -241,7 +231,7 @@ static int test_reminfo_constant(void)
 	setinfo_constant(pos, CONSTANT_SYSTEM_VALUE, value1);
 	setinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, value2);
 	setinfo_constant(pos, CONSTANT_COMMON_SYMBOL, value3);
-	reminfo_constant(pos, CONSTANT_SYSTEM_FUNCTION);
+	reminfo_constant_(pos, CONSTANT_SYSTEM_FUNCTION);
 	getinfo_constant(pos, CONSTANT_SYSTEM_VALUE, &check);
 	test(check == value1, "reminfo_constant.4");
 	getinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, &check);
@@ -253,7 +243,7 @@ static int test_reminfo_constant(void)
 	setinfo_constant(pos, CONSTANT_SYSTEM_VALUE, value1);
 	setinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, value2);
 	setinfo_constant(pos, CONSTANT_COMMON_SYMBOL, value3);
-	reminfo_constant(pos, CONSTANT_COMMON_SYMBOL);
+	reminfo_constant_(pos, CONSTANT_COMMON_SYMBOL);
 	getinfo_constant(pos, CONSTANT_SYSTEM_VALUE, &check);
 	test(check == value1, "reminfo_constant.7");
 	getinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, &check);
@@ -301,7 +291,7 @@ static int test_gettype_function_symbol(void)
 	gettype_function_symbol(pos, &right);
 	test(left == right, "gettype_function_symbol.2");
 
-	remtype_function_symbol(pos);
+	remtype_function_symbol_(pos);
 	gettype_function_symbol(pos, &right);
 	test(right == Nil, "gettype_function_symbol.3");
 
@@ -323,7 +313,7 @@ static int test_gettype_setf_symbol(void)
 	gettype_setf_symbol(pos, &right);
 	test(left == right, "gettype_setf_symbol.2");
 
-	remtype_setf_symbol(pos);
+	remtype_setf_symbol_(pos);
 	gettype_setf_symbol(pos, &right);
 	test(right == Nil, "gettype_setf_symbol.3");
 
@@ -586,7 +576,7 @@ static int test_symstack(void)
  */
 static int testcase_symbol(void)
 {
-	TestBreak(test_symbol_alloc);
+	TestBreak(test_symbol_heap);
 	TestBreak(test_symbolp);
 	TestBreak(test_keywordp);
 	TestBreak(test_getname_symbol);

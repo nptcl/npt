@@ -219,16 +219,16 @@ int lisp_reverse_(addr *ret, addr list)
 {
 	if (! listp(list))
 		return TypeError_(list, LIST);
-	reverse_list_heap_safe(ret, list);
-	return 0;
+
+	return reverse_list_heap_safe_(ret, list);
 }
 
 int lisp_nreverse_(addr *ret, addr list)
 {
 	if (! listp(list))
 		return TypeError_(list, LIST);
-	nreverse_list_safe(ret, list);
-	return 0;
+
+	return nreverse_list_safe_(ret, list);
 }
 
 
@@ -675,8 +675,8 @@ int lisp_function_(addr value, addr *ret)
 		return Result(ret, value);
 	if (! symbolp(value))
 		return TypeError_(value, SYMBOL);
-	getfunction_global(value, ret);
-	return 0;
+
+	return getfunction_global_(value, ret);
 }
 
 int lisp_function8_(const void *str, addr *ret)
@@ -771,7 +771,7 @@ int lisp_apply_(addr *ret, addr call, ...)
 	local = ptr->local;
 	push_local(local, &stack);
 	va_start(va, call);
-	lista_stdarg_safe(local, &args, va);
+	Return(lista_stdarg_safe_(local, &args, va));
 	va_end(va);
 
 	Return(lisp_function_(call, &call));
@@ -793,7 +793,7 @@ int lisp_apply8_(addr *ret, const void *str, ...)
 	local = ptr->local;
 	push_local(local, &stack);
 	va_start(va, str);
-	lista_stdarg_safe(local, &args, va);
+	Return(lista_stdarg_safe_(local, &args, va));
 	va_end(va);
 
 	Return(lisp_function8_(str, &call));
@@ -815,7 +815,7 @@ int lisp_apply16_(addr *ret, const void *str, ...)
 	local = ptr->local;
 	push_local(local, &stack);
 	va_start(va, str);
-	lista_stdarg_safe(local, &args, va);
+	Return(lista_stdarg_safe_(local, &args, va));
 	va_end(va);
 
 	Return(lisp_function16_(str, &call));

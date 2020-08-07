@@ -68,7 +68,6 @@ _g int parse_callname_alloc(LocalRoot local, addr *ret, addr name);
 _g int parse_callname_local(LocalRoot local, addr *ret, addr name);
 _g int parse_callname_heap(addr *ret, addr name);
 _g void parse_callname_abort(LocalRoot local, addr *ret, addr name);
-_g void parse_callname_error(addr *ret, addr name);
 _g int parse_callname_error_(addr *ret, addr name);
 
 /* boolean */
@@ -80,14 +79,14 @@ _g int function_name_p(addr name);
 _g int equal_callname(addr left, addr right);
 
 /* function */
-_g CallNameType getglobal_callname(addr pos, addr *ret);
-_g CallNameType getglobalcheck_callname(addr pos, addr *ret);
-_g void setglobal_callname(addr pos, addr value);
-_g void remtype_global_callname(addr pos);
+_g void getglobal_callname(addr pos, addr *ret);
+_g int getglobalcheck_callname_(addr pos, addr *ret);
+_g int setglobal_callname_(addr pos, addr value);
+_g int remtype_global_callname_(addr pos);
 
 _g void getglobal_parse_callname(addr pos, addr *value);
-_g void setglobal_parse_callname(addr pos, addr value);
-_g void getglobalcheck_parse_callname(addr pos, addr *value);
+_g int getglobalcheck_parse_callname_(addr pos, addr *ret);
+_g int setglobal_parse_callname_(addr pos, addr value);
 
 /* name */
 _g void name_callname_alloc(LocalRoot local, addr pos, addr *ret);

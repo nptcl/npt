@@ -627,7 +627,7 @@ static void copy_eval_flet_one(LocalRoot local, addr *ret, addr cons)
 {
 	addr name, args, decl, doc, body;
 
-	list_bind(cons, &name, &args, &decl, &doc, &body, NULL);
+	List_bind(cons, &name, &args, &decl, &doc, &body, NULL);
 
 	copy_eval_ordinary(local, &args, args);
 	copy_eval_declaim_nil(local, &decl, decl);

@@ -412,7 +412,7 @@ _g int open_input_stream_(Execute ptr, addr *ret, addr file)
 	addr format;
 
 	GetConst(SYSTEM_EXTERNAL_FORMAT, &format);
-	getspecialcheck_local(ptr, format, &format);
+	Return(getspecialcheck_local_(ptr, format, &format));
 
 	return open_input_stream_external_(ptr, ret, file, format);
 }
@@ -591,7 +591,7 @@ _g int open_output_stream_(Execute ptr, addr *ret,
 
 	/* symbol */
 	GetConst(SYSTEM_EXTERNAL_FORMAT, &value);
-	getspecialcheck_local(ptr, value, &value);
+	Return(getspecialcheck_local_(ptr, value, &value));
 
 	/* ascii */
 	GetConst(SYSTEM_ASCII, &check);
@@ -933,7 +933,7 @@ _g int open_io_stream_(Execute ptr, addr *ret, addr file, enum FileOutput mode)
 
 	/* symbol */
 	GetConst(SYSTEM_EXTERNAL_FORMAT, &value);
-	getspecialcheck_local(ptr, value, &value);
+	Return(getspecialcheck_local_(ptr, value, &value));
 
 	/* ascii */
 	GetConst(SYSTEM_ASCII, &check);

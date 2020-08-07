@@ -33,11 +33,11 @@ static void symbol_toplevel_eval(addr *ret)
 	GetConst(SYSTEM_EVAL_TOPLEVEL, ret);
 }
 
-_g void gettoplevel_eval(Execute ptr, addr *ret)
+_g int gettoplevel_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_toplevel_eval(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
 _g void settoplevel_eval(Execute ptr, addr value)
@@ -58,8 +58,9 @@ _g int toplevelp_eval(Execute ptr)
 {
 	addr pos;
 	symbol_toplevel_eval(&pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	return pos != Nil;
+	getspecial_local(ptr, pos, &pos);
+
+	return pos != Unbound && pos != Nil;
 }
 
 
@@ -71,11 +72,11 @@ static void symbol_compile_time_eval(Execute ptr, addr *ret)
 	GetConst(SYSTEM_EVAL_COMPILE_TIME, ret);
 }
 
-_g void get_compile_time_eval(Execute ptr, addr *ret)
+_g int get_compile_time_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_compile_time_eval(ptr, &symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
 _g void set_compile_time_eval(Execute ptr, addr value)
@@ -92,11 +93,11 @@ _g void push_compile_time_eval(Execute ptr, addr value)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g int compile_time_too_eval(Execute ptr)
+_g int compile_time_too_eval_(Execute ptr, int *ret)
 {
 	addr value;
-	get_compile_time_eval(ptr, &value);
-	return value != Nil;
+	Return(get_compile_time_eval_(ptr, &value));
+	return Result(ret, value != Nil);
 }
 
 
@@ -108,11 +109,11 @@ static void symbol_compile_toplevel_eval(addr *ret)
 	GetConst(SYSTEM_EVAL_COMPILE_TOPLEVEL, ret);
 }
 
-_g void get_compile_toplevel_eval(Execute ptr, addr *ret)
+_g int get_compile_toplevel_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_compile_toplevel_eval(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
 _g void set_compile_toplevel_eval(Execute ptr, addr value)
@@ -129,11 +130,11 @@ _g void push_compile_toplevel_eval(Execute ptr, addr value)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g int compile_toplevel_p_eval(Execute ptr)
+_g int compile_toplevel_p_eval_(Execute ptr, int *ret)
 {
 	addr value;
-	get_compile_toplevel_eval(ptr, &value);
-	return value != Nil;
+	Return(get_compile_toplevel_eval_(ptr, &value));
+	return Result(ret, value != Nil);
 }
 
 
@@ -145,11 +146,11 @@ static void symbol_load_toplevel_eval(addr *ret)
 	GetConst(SYSTEM_EVAL_LOAD_TOPLEVEL, ret);
 }
 
-_g void get_load_toplevel_eval(Execute ptr, addr *ret)
+_g int get_load_toplevel_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_load_toplevel_eval(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
 _g void set_load_toplevel_eval(Execute ptr, addr value)
@@ -166,11 +167,11 @@ _g void push_load_toplevel_eval(Execute ptr, addr value)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g int load_toplevel_p_eval(Execute ptr)
+_g int load_toplevel_p_eval_(Execute ptr, int *ret)
 {
 	addr value;
-	get_load_toplevel_eval(ptr, &value);
-	return value != Nil;
+	Return(get_load_toplevel_eval_(ptr, &value));
+	return Result(ret, value != Nil);
 }
 
 
@@ -182,11 +183,11 @@ static void symbol_execute_eval(addr *ret)
 	GetConst(SYSTEM_EVAL_EXECUTE, ret);
 }
 
-_g void get_execute_eval(Execute ptr, addr *ret)
+_g int get_execute_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_execute_eval(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
 _g void set_execute_eval(Execute ptr, addr value)
@@ -203,11 +204,11 @@ _g void push_execute_eval(Execute ptr, addr value)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g int executep_eval(Execute ptr)
+_g int executep_eval_(Execute ptr, int *ret)
 {
 	addr value;
-	get_execute_eval(ptr, &value);
-	return value != Nil;
+	Return(get_execute_eval_(ptr, &value));
+	return Result(ret, value != Nil);
 }
 
 

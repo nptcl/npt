@@ -177,11 +177,6 @@ _g void parse_callname_abort(LocalRoot local, addr *ret, addr name)
 	if (parse_callname_alloc(local, ret, name))
 		Abort("Invalid function name.");
 }
-_g void parse_callname_error(addr *ret, addr name)
-{
-	if (parse_callname_heap(ret, name))
-		fmte("Invalid function name ~S.", name, NULL);
-}
 _g int parse_callname_error_(addr *ret, addr name)
 {
 	if (parse_callname_heap(ret, name))
@@ -236,10 +231,11 @@ _g int equal_callname(addr left, addr right)
 /*
  *  function
  */
-_g CallNameType getglobal_callname(addr pos, addr *ret)
+_g void getglobal_callname(addr pos, addr *ret)
 {
 	CallNameType type;
 
+	CheckType(pos, LISPTYPE_CALLNAME);
 	GetCallNameType(pos, &type);
 	GetCallName(pos, &pos);
 	switch (type) {
@@ -253,67 +249,62 @@ _g CallNameType getglobal_callname(addr pos, addr *ret)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			Abort("Invalid function name.");
 			break;
 	}
-
-	return type;
 }
 
-_g CallNameType getglobalcheck_callname(addr pos, addr *ret)
+_g int getglobalcheck_callname_(addr pos, addr *ret)
 {
-	CallNameType value;
-
-	value = getglobal_callname(pos, ret);
+	CheckType(pos, LISPTYPE_CALLNAME);
+	getglobal_callname(pos, ret);
 	if (*ret == Unbound) {
 		name_callname_heap(pos, &pos);
-		undefined_function(pos);
+		return call_undefined_function_(NULL, pos);
 	}
 
-	return value;
+	return 0;
 }
 
-_g void setglobal_callname(addr pos, addr value)
+_g int setglobal_callname_(addr pos, addr value)
 {
 	CallNameType type;
 
+	CheckType(pos, LISPTYPE_CALLNAME);
 	GetCallNameType(pos, &type);
 	GetCallName(pos, &pos);
 	switch (type) {
 		case CALLNAME_SYMBOL:
-			SetFunctionSymbol(pos, value);
-			break;
+			return setfunction_symbol_(pos, value);
 
 		case CALLNAME_SETF:
-			setsetf_symbol(pos, value);
-			break;
+			return setsetf_symbol_(pos, value);
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
-			break;
+			Abort("Invalid function name.");
+			return 0;
 	}
 }
 
-_g void remtype_global_callname(addr pos)
+_g int remtype_global_callname_(addr pos)
 {
 	CallNameType type;
 
+	CheckType(pos, LISPTYPE_CALLNAME);
 	GetCallNameType(pos, &type);
 	GetCallName(pos, &pos);
 	switch (type) {
 		case CALLNAME_SYMBOL:
-			remtype_function_symbol(pos);
-			break;
+			return remtype_function_symbol_(pos);
 
 		case CALLNAME_SETF:
-			remtype_setf_symbol(pos);
-			break;
+			return remtype_setf_symbol_(pos);
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
-			break;
+			Abort("Invalid function name.");
+			return 0;
 	}
 }
 
@@ -336,7 +327,7 @@ _g void getglobal_parse_callname(addr pos, addr *value)
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
 		case CALLNAME_SYMBOL:
-			GetFunctionSymbol_Low(pos, value);
+			GetFunctionSymbol(pos, value);
 			break;
 
 		case CALLNAME_SETF:
@@ -346,33 +337,36 @@ _g void getglobal_parse_callname(addr pos, addr *value)
 		case CALLNAME_ERROR:
 		default:
 			*value = NULL;
-			fmte("Invalid function name.", NULL);
+			Abort("Invalid function name.");
 			break;
 	}
 }
-_g void setglobal_parse_callname(addr pos, addr value)
-{
-	Check(pos == Unbound, "unbound error");
-	switch (callnametype(pos, &pos)) {
-		case CALLNAME_SYMBOL:
-			SetFunctionSymbol_Low(pos, value);
-			break;
 
-		case CALLNAME_SETF:
-			setsetf_symbol(pos, value);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-	}
-}
-_g void getglobalcheck_parse_callname(addr pos, addr *ret)
+_g int getglobalcheck_parse_callname_(addr pos, addr *ret)
 {
 	getglobal_parse_callname(pos, ret);
 	if (*ret == Unbound) {
 		name_callname_heap(pos, &pos);
-		undefined_function(pos);
+		return call_undefined_function_(NULL, pos);
+	}
+
+	return 0;
+}
+
+_g int setglobal_parse_callname_(addr pos, addr value)
+{
+	Check(pos == Unbound, "unbound error");
+	switch (callnametype(pos, &pos)) {
+		case CALLNAME_SYMBOL:
+			return setfunction_symbol_(pos, value);
+
+		case CALLNAME_SETF:
+			return setsetf_symbol_(pos, value);
+
+		case CALLNAME_ERROR:
+		default:
+			Abort("Invalid function name.");
+			return 0;
 	}
 }
 
@@ -400,7 +394,8 @@ _g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			Abort("Invalid function name.");
+			break;
 	}
 }
 

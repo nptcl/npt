@@ -145,7 +145,7 @@ static int function_get_universal_time(Execute ptr)
 {
 	addr pos;
 
-	get_universal_time_common(ptr->local, &pos);
+	Return(get_universal_time_common_(ptr->local, &pos));
 	setresult_control(ptr, pos);
 
 	return 0;

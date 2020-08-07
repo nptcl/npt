@@ -1018,15 +1018,15 @@ static int test_gettype_ordinary(void)
 	parse_args(&pos, "(function (null atom))");
 	make_function_ordinary(&str, pos);
 
-	gettype_ordinary(&str, 0, &type);
+	gettype_ordinary_(&str, 0, &type);
 	test(type.var, "gettype_ordinary1");
 	test(RefLispDecl(type.type) == LISPDECL_NULL, "gettype_ordinary2");
 
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(type.var, "gettype_ordinary3");
 	test(RefLispDecl(type.type) == LISPDECL_ATOM, "gettype_ordinary4");
 
-	gettype_ordinary(&str, 2, &type);
+	gettype_ordinary_(&str, 2, &type);
 	test(! type.var, "gettype_ordinary4");
 	test(type.nil, "gettype_ordinary5");
 	test(type.type == Nil, "gettype_ordinary6");
@@ -1034,15 +1034,15 @@ static int test_gettype_ordinary(void)
 	parse_args(&pos, "(function (null atom &optional integer))");
 	make_function_ordinary(&str, pos);
 
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(type.var, "gettype_ordinary7");
 	test(RefLispDecl(type.type) == LISPDECL_ATOM, "gettype_ordinary8");
 
-	gettype_ordinary(&str, 2, &type);
+	gettype_ordinary_(&str, 2, &type);
 	test(type.var, "gettype_ordinary9");
 	test(RefLispDecl(type.type) == LISPDECL_INTEGER, "gettype_ordinary10");
 
-	gettype_ordinary(&str, 3, &type);
+	gettype_ordinary_(&str, 3, &type);
 	test(! type.var, "gettype_ordinary11");
 	test(type.nil, "gettype_ordinary12");
 	test(type.type == Nil, "gettype_ordinary13");
@@ -1050,11 +1050,11 @@ static int test_gettype_ordinary(void)
 	parse_args(&pos, "(function (&optional integer &rest cons))");
 	make_function_ordinary(&str, pos);
 
-	gettype_ordinary(&str, 0, &type);
+	gettype_ordinary_(&str, 0, &type);
 	test(type.var, "gettype_ordinary14");
 	test(RefLispDecl(type.type) == LISPDECL_INTEGER, "gettype_ordinary15");
 
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(type.var, "gettype_ordinary15");
 	test(type.rest, "gettype_ordinary16");
 	test(RefLispDecl(type.type) == LISPDECL_CONS, "gettype_ordinary17");
@@ -1062,23 +1062,23 @@ static int test_gettype_ordinary(void)
 	parse_args(&pos, "(function (atom &rest cons &key (hello real)))");
 	make_function_ordinary(&str, pos);
 
-	gettype_ordinary(&str, 0, &type);
+	gettype_ordinary_(&str, 0, &type);
 	test(type.var, "gettype_ordinary18");
 	test(RefLispDecl(type.type) == LISPDECL_ATOM, "gettype_ordinary19");
 
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(type.var, "gettype_ordinary20");
 	test(type.key, "gettype_ordinary21");
 	test(! type.value, "gettype_ordinary22");
 	test(type.type != Nil, "gettype_ordinary23");
 
-	gettype_ordinary(&str, 2, &type);
+	gettype_ordinary_(&str, 2, &type);
 	test(type.var, "gettype_ordinary24");
 	test(! type.key, "gettype_ordinary25");
 	test(type.value, "gettype_ordinary26");
 	test(type.type != Nil, "gettype_ordinary27");
 
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(type.var, "gettype_ordinary28");
 	test(type.key, "gettype_ordinary29");
 	test(! type.value, "gettype_ordinary30");
@@ -1087,7 +1087,7 @@ static int test_gettype_ordinary(void)
 	parse_args(&pos, "(function (atom &key (hello real)))");
 	make_function_ordinary(&str, pos);
 
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(! type.var, "gettype_ordinary32");
 	test(type.key, "gettype_ordinary33");
 	test(! type.value, "gettype_ordinary34");
@@ -1097,7 +1097,7 @@ static int test_gettype_ordinary(void)
 	parse_args(&pos, "(function (atom &key (hello real)))");
 	SetArrayType(pos, 3, T);
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	test(! type.var, "gettype_ordinary36");
 	test(type.key, "gettype_ordinary37");
 	test(! type.value, "gettype_ordinary38");
@@ -1221,37 +1221,37 @@ static int test_make_ordinary_type(void)
 
 	parse_args(&pos, "(function (atom list))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 0, &type);
+	gettype_ordinary_(&str, 0, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_ATOM, "gettype_ordinary1");
 
 	parse_args(&pos, "(function (atom &optional list))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_LIST, "gettype_ordinary2");
 
 	parse_args(&pos, "(function (atom &rest real))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_REAL, "gettype_ordinary3");
 
 	parse_args(&pos, "(function (atom &key (name real)))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "gettype_ordinary4");
 
 	parse_args(&pos, "(function (atom &key (name real)))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 2, &type);
+	gettype_ordinary_(&str, 2, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_REAL, "gettype_ordinary5");
 
 	parse_args(&pos, "(function (atom &rest cons &key (name real)))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_AND, "gettype_ordinary6");
 	GetArrayType(pos, 0, &pos);
@@ -1262,7 +1262,7 @@ static int test_make_ordinary_type(void)
 
 	parse_args(&pos, "(function (atom &rest cons &key (name real)))");
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 2, &type);
+	gettype_ordinary_(&str, 2, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_AND, "gettype_ordinary9");
 	GetArrayType(pos, 0, &pos);
@@ -1274,7 +1274,7 @@ static int test_make_ordinary_type(void)
 	parse_args(&pos, "(function (atom &rest cons &key (name real)))");
 	SetArrayType(pos, 3, T);
 	make_function_ordinary(&str, pos);
-	gettype_ordinary(&str, 1, &type);
+	gettype_ordinary_(&str, 1, &type);
 	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_AND, "gettype_ordinary12");
 	GetArrayType(pos, 0, &pos);
@@ -1299,13 +1299,13 @@ static int test_ordinary_subtypep(void)
 	make_function_ordinary(&str1, pos);
 	parse_args(&pos, "(function (real string))");
 	make_function_ordinary(&str2, pos);
-	gettype_ordinary(&str1, 1, &type1);
-	gettype_ordinary(&str2, 0, &type2);
+	gettype_ordinary_(&str1, 1, &type1);
+	gettype_ordinary_(&str2, 0, &type2);
 	ordinary_subtypep_(&str1, &type1, &str2, &type2, &value);
 	test(value, "ordinary_subtypep1");
 
-	gettype_ordinary(&str1, 0, &type1);
-	gettype_ordinary(&str2, 1, &type2);
+	gettype_ordinary_(&str1, 0, &type1);
+	gettype_ordinary_(&str2, 1, &type2);
 	ordinary_subtypep_(&str1, &type1, &str2, &type2, &value);
 	test(! value, "ordinary_subtypep2");
 
@@ -1901,27 +1901,27 @@ static int test_gettype_values(void)
 	addr pos, check;
 
 	parse_values_string(&pos, "(values)");
-	gettype_values(pos, 0, &check);
+	gettype_values_(pos, 0, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "gettype_values1");
-	gettype_values(pos, 1, &check);
+	gettype_values_(pos, 1, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "gettype_values2");
 
 	parse_values_string(&pos, "(values integer string)");
-	gettype_values(pos, 0, &check);
+	gettype_values_(pos, 0, &check);
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "gettype_values3");
-	gettype_values(pos, 1, &check);
+	gettype_values_(pos, 1, &check);
 	test(RefLispDecl(check) == LISPDECL_STRING, "gettype_values4");
-	gettype_values(pos, 2, &check);
+	gettype_values_(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "gettype_values5");
 
 	parse_values_string(&pos, "(values t &optional string &rest integer)");
-	gettype_values(pos, 0, &check);
+	gettype_values_(pos, 0, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "gettype_values6");
-	gettype_values(pos, 1, &check);
+	gettype_values_(pos, 1, &check);
 	test(RefLispDecl(check) == LISPDECL_STRING, "gettype_values7");
-	gettype_values(pos, 2, &check);
+	gettype_values_(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "gettype_values8");
-	gettype_values(pos, 3, &check);
+	gettype_values_(pos, 3, &check);
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "gettype_values9");
 
 	RETURN;

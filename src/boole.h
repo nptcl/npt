@@ -24,17 +24,17 @@ enum Boole_Index {
 	Boole_Size
 };
 
-_g void logand_common(LocalRoot local, addr args, addr *ret);
+_g int logand_common_(LocalRoot local, addr args, addr *ret);
 _g void logandc1_common(LocalRoot local, addr a, addr b, addr *ret);
 _g void logandc2_common(LocalRoot local, addr a, addr b, addr *ret);
-_g void logeqv_common(LocalRoot local, addr args, addr *ret);
-_g void logior_common(LocalRoot local, addr args, addr *ret);
+_g int logeqv_common_(LocalRoot local, addr args, addr *ret);
+_g int logior_common_(LocalRoot local, addr args, addr *ret);
 _g void lognand_common(LocalRoot local, addr a, addr b, addr *ret);
 _g void lognor_common(LocalRoot local, addr a, addr b, addr *ret);
 _g void lognot_common(LocalRoot local, addr a, addr *ret);
 _g void logorc1_common(LocalRoot local, addr a, addr b, addr *ret);
 _g void logorc2_common(LocalRoot local, addr a, addr b, addr *ret);
-_g void logxor_common(LocalRoot local, addr args, addr *ret);
+_g int logxor_common_(LocalRoot local, addr args, addr *ret);
 _g void boole_common(LocalRoot local, addr op, addr a, addr b, addr *ret);
 _g int logbitp_common(addr index, addr pos);
 _g size_t logcount_common(addr pos);

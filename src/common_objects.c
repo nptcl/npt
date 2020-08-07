@@ -151,7 +151,7 @@ static int function_slot_boundp(Execute ptr, addr pos, addr name)
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_BOUNDP_USING_CLASS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
@@ -182,7 +182,7 @@ static int function_slot_exists_p(Execute ptr, addr pos, addr name)
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_EXISTS_P_USING_CLASS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
@@ -213,7 +213,7 @@ static int function_slot_makunbound(Execute ptr, addr pos, addr name)
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_MAKUNBOUND_USING_CLASS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
@@ -258,7 +258,7 @@ static int function_slot_value(Execute ptr, addr pos, addr name)
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
@@ -300,7 +300,7 @@ static int function_setf_slot_value(Execute ptr, addr value, addr pos, addr name
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
-	getsetf_global(call, &call);
+	Return(getsetf_global_(call, &call));
 	return funcall_control(ptr, call, value, clos, pos, name, NULL);
 }
 

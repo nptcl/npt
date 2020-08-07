@@ -80,10 +80,10 @@ struct eval_scope {
 #define SetEvalScopeIndex(p,i,v)	SetEvalScopeIndex_Low(p,i,v)
 #endif
 
-_g void eval_scope_heap(Execute ptr, addr *ret, size_t size);
-_g void eval_scope_size(Execute ptr, addr *ret, size_t size,
+_g int eval_scope_heap_(Execute ptr, addr *ret, size_t size);
+_g int eval_scope_size_(Execute ptr, addr *ret, size_t size,
 		EvalParse parse, addr type, addr value);
-_g void make_eval_scope(Execute ptr,
+_g int make_eval_scope_(Execute ptr,
 		addr *ret, EvalParse parse, addr type, addr value);
 
 _g struct eval_scope *structevalscope(addr pos);

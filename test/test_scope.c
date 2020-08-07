@@ -1641,7 +1641,7 @@ static int test_ifdeclvalue(void)
 	readstring(&decl, "()");
 	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 	readstring(&symbol, "aa");
-	ifdeclvalue(ptr, stack, symbol, decl, &value);
+	ifdeclvalue_(ptr, stack, symbol, decl, &value);
 	test(eval_tablevalue_p(value), "ifdeclvalue1");
 	test(! getspecialp_tablevalue(value), "ifdeclvalue2");
 	gettype_tablevalue(value, &check);
@@ -1650,7 +1650,7 @@ static int test_ifdeclvalue(void)
 	readstring(&decl, "((special bb) (null bb))");
 	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 	readstring(&symbol, "bb");
-	ifdeclvalue(ptr, stack, symbol, decl, &value);
+	ifdeclvalue_(ptr, stack, symbol, decl, &value);
 	test(eval_tablevalue_p(value), "ifdeclvalue4");
 	test(getspecialp_tablevalue(value), "ifdeclvalue5");
 	gettype_tablevalue(value, &check);
@@ -1659,7 +1659,7 @@ static int test_ifdeclvalue(void)
 	test_parse_type(&pos, pos);
 	test(subtypep_clang(check, pos, &invalidp), "ifdeclvalue6");
 
-	ifdeclvalue(ptr, stack, symbol, decl, NULL);
+	ifdeclvalue_(ptr, stack, symbol, decl, NULL);
 
 	free_eval_stack(ptr);
 	free_control_(ptr, control);
@@ -4252,7 +4252,7 @@ static int test_macro_init_rest(void)
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
 	macro_init_args(ptr, stack, args, Nil, &args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_init_rest1");
 	GetCar(pos, &pos);
 	test(pos == readr("aa"), "macro_init_rest2");
@@ -4262,7 +4262,7 @@ static int test_macro_init_rest(void)
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
 	macro_init_args(ptr, stack, args, Nil, &args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_init_rest3");
 	GetCar(pos, &pos);
 	test(pos == readr("bb"), "macro_init_rest4");
@@ -4272,7 +4272,7 @@ static int test_macro_init_rest(void)
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
 	macro_init_args(ptr, stack, args, Nil, &args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_init_rest5");
 	GetCar(pos, &pos);
 	test(pos == readr("dd"), "macro_init_rest6");
@@ -4370,7 +4370,7 @@ static int test_macro_tablevalue_rest(void)
 	parse_macro_lambda_list(ptr, &args, args);
 	macro_init_args(ptr, stack, args, Nil, &args);
 	macro_tablevalue_args(ptr, stack, args, &args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_tablevalue_rest1");
 	GetCar(pos, &pos);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_rest2");
@@ -4383,7 +4383,7 @@ static int test_macro_tablevalue_rest(void)
 	parse_macro_lambda_list(ptr, &args, args);
 	macro_init_args(ptr, stack, args, Nil, &args);
 	macro_tablevalue_args(ptr, stack, args, &args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_tablevalue_rest4");
 	GetCar(pos, &pos);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_rest5");
@@ -4396,7 +4396,7 @@ static int test_macro_tablevalue_rest(void)
 	parse_macro_lambda_list(ptr, &args, args);
 	macro_init_args(ptr, stack, args, Nil, &args);
 	macro_tablevalue_args(ptr, stack, args, &args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_tablevalue_rest7");
 	GetCar(pos, &pos);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_rest8");
@@ -4492,7 +4492,7 @@ static int test_macro_update_rest(void)
 	macro_init_args(ptr, stack, args, Nil, &args);
 	macro_tablevalue_args(ptr, stack, args, &args);
 	macro_update_args(&args, args);
-	lista_bind(args, &pos, &pos, &pos, &args, NULL);
+	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_update_rest1");
 	test(! GetStatusDynamic(pos), "macro_update_rest2");
 	GetCar(pos, &pos);

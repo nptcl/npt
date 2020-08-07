@@ -423,7 +423,7 @@ _g int random_common(Execute ptr, addr limit, addr state, addr *ret)
 	if (state == Unbound) {
 		/* symbol-value *random-state* */
 		GetConst(SPECIAL_RANDOM_STATE, &state);
-		getspecialcheck_local(ptr, state, &state);
+		Return(getspecialcheck_local_(ptr, state, &state));
 	}
 	return random_number_common(ptr->local, limit, state, ret);
 }

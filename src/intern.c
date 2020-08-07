@@ -99,7 +99,8 @@ _g int intern_symbol_header_(void)
 
 	for (i = 0; ; i++) {
 		table = &SymbolHeader[i];
-		if (table->index == CONSTANT_EMPTY) break;
+		if (table->index == CONSTANT_EMPTY)
+			break;
 		switch (table->package) {
 			case COMMON:
 				package = p_common;

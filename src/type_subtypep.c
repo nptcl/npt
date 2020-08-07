@@ -680,7 +680,7 @@ struct ordinary_type {
 };
 typedef struct ordinary_type ordtype;
 
-static void gettype_ordinary(const ordargs *ptr, size_t index, ordtype *ret)
+static int gettype_ordinary_(const ordargs *ptr, size_t index, ordtype *ret)
 {
 	int check1, check2;
 
@@ -688,16 +688,16 @@ static void gettype_ordinary(const ordargs *ptr, size_t index, ordtype *ret)
 	ret->type = Nil;
 	/* var */
 	if (index < ptr->size_var) {
-		getnth(ptr->var, index, &(ret->type));
+		Return(getnth_(ptr->var, index, &(ret->type)));
 		ret->var = 1;
-		return;
+		return 0;
 	}
 	index -= ptr->size_var;
 	/* opt */
 	if (index < ptr->size_opt) {
-		getnth(ptr->opt, index, &(ret->type));
+		Return(getnth_(ptr->opt, index, &(ret->type)));
 		ret->var = 1;
-		return;
+		return 0;
 	}
 	index -= ptr->size_opt;
 	/* rest */
@@ -705,7 +705,7 @@ static void gettype_ordinary(const ordargs *ptr, size_t index, ordtype *ret)
 	check2 = (ptr->key == Nil);
 	if (check1 && check2) {
 		ret->nil = 1;
-		return;
+		return 0;
 	}
 	if (! check1) {
 		ret->type = ptr->rest;
@@ -723,6 +723,8 @@ static void gettype_ordinary(const ordargs *ptr, size_t index, ordtype *ret)
 			ret->value = 1;
 		}
 	}
+
+	return 0;
 }
 
 static int ordargs_simple_p(const ordargs *ptr)
@@ -867,8 +869,8 @@ static int ordinary_size_(const ordargs *ptr1, const ordargs *ptr2,
 	ordtype type1, type2;
 
 	for (i = 0; i < size; i++) {
-		gettype_ordinary(ptr1, i, &type1);
-		gettype_ordinary(ptr2, i, &type2);
+		Return(gettype_ordinary_(ptr1, i, &type1));
+		Return(gettype_ordinary_(ptr2, i, &type2));
 		if (type1.nil)
 			break;
 		if (type2.nil)
@@ -1157,7 +1159,7 @@ static size_t getsize_values(addr pos)
 	return size;
 }
 
-static void gettype_values(addr pos, size_t index, addr *ret)
+static int gettype_values_(addr pos, size_t index, addr *ret)
 {
 	addr check;
 	size_t size;
@@ -1165,22 +1167,20 @@ static void gettype_values(addr pos, size_t index, addr *ret)
 	/* var */
 	GetArrayType(pos, 0, &check);
 	size = length_list_unsafe(check);
-	if (index < size) {
-		getnth(check, index, ret);
-		return;
-	}
+	if (index < size)
+		return getnth_(check, index, ret);
 	index -= size;
 
 	/* opt */
 	GetArrayType(pos, 1, &check);
 	size = length_list_unsafe(check);
-	if (index < size) {
-		getnth(check, index, ret);
-		return;
-	}
+	if (index < size)
+		return getnth_(check, index, ret);
 
 	/* rest */
 	GetArrayType(pos, 2, ret);
+
+	return 0;
 }
 
 static int subtypep_boolean_(addr left, addr right, int *ret)
@@ -1209,8 +1209,8 @@ static int subtypep_values_values_(addr left, addr right, int *ret)
 
 	/* check */
 	for (i = 0; i < size; i++) {
-		gettype_values(left, i, &check1);
-		gettype_values(right, i, &check2);
+		Return(gettype_values_(left, i, &check1));
+		Return(gettype_values_(right, i, &check2));
 		Return(subtypep_boolean_(check1, check2, &check));
 		if (! check)
 			return Result(ret, 0);

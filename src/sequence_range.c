@@ -131,7 +131,7 @@ _g int build_sequence_range_endp_(struct sequence_range *ptr,
 {
 	Return(build_sequence_range_(ptr, list, start, end));
 	if (! ptr->endp) {
-		ptr->size = length_list_safe(ptr->list);
+		Return(length_list_safe_(ptr->list, &(ptr->size)));
 		ptr->end = ptr->start + ptr->size;
 		ptr->endp = 1;
 	}
@@ -248,7 +248,7 @@ _g int getnext_sequence_range_(struct sequence_range *ptr, addr *value, int *ret
 		Return(getlist_sequence_range_(ptr, value, &check));
 		if (! check) {
 			ptr->prev = ptr->list;
-			getcons(ptr->list, value, &(ptr->list));
+			Return_getcons(ptr->list, value, &(ptr->list));
 			ptr->index++;
 		}
 		return Result(ret, check);

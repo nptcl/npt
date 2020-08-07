@@ -677,7 +677,7 @@ static int defstruct_constructor_body_(addr *ret, addr name, addr cons)
 
 	/* (:slot1 slot1 :slot2 slot2 ...) */
 	GetConst(PACKAGE_KEYWORD, &package);
-	argument_boa_variables_heap(&cons, cons);
+	Return(argument_boa_variables_heap_(&cons, cons));
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &symbol, &cons);
 		GetNameSymbol(symbol, &keyword);
@@ -704,7 +704,7 @@ static int defstruct_constructor_lambda_(addr *ret, addr cons, addr symbol)
 	addr name, lambda, args, body, list;
 
 	GetCons(cons, &name, &cons);
-	argument_boa_lambda_heap(&args, cons);
+	Return(argument_boa_lambda_heap_(&args, cons));
 	Return(defstruct_constructor_body_(&body, symbol, cons));
 	GetConst(COMMON_LAMBDA, &lambda);
 	list_heap(&args, lambda, args, body, NULL);

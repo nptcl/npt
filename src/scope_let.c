@@ -233,7 +233,7 @@ static int type_boundary_tablevalue(addr stack, addr symbol, addr *ret)
 	return 1;
 }
 
-static void type_tablevalue(Execute ptr, LocalRoot local,
+static int type_tablevalue_(Execute ptr, LocalRoot local,
 		addr stack, addr symbol, int specialp, addr *ret)
 {
 	int check;
@@ -257,7 +257,7 @@ static void type_tablevalue(Execute ptr, LocalRoot local,
 	}
 
 	/* global stack */
-	getglobal_eval(ptr, &stack);
+	Return(getglobal_eval_(ptr, &stack));
 	/* free declaration */
 	if (type_free_tablevalue(stack, symbol, &type)) {
 		cons_alloc(local, &root, type, root);
@@ -275,6 +275,7 @@ static void type_tablevalue(Execute ptr, LocalRoot local,
 	/* final */
 final:
 	nreverse(ret, root);
+	return 0;
 }
 
 _g int type_and_array(LocalRoot local, addr cons, addr *ret)
@@ -315,7 +316,7 @@ _g int type_and_array(LocalRoot local, addr cons, addr *ret)
 	return 0;
 }
 
-static void update_tablevalue(Execute ptr, addr stack, addr pos)
+static int update_tablevalue_(Execute ptr, addr stack, addr pos)
 {
 	enum IgnoreType ignore;
 	int specialp, dynamic;
@@ -323,10 +324,10 @@ static void update_tablevalue(Execute ptr, addr stack, addr pos)
 
 	/* scope */
 	getname_tablevalue(pos, &name);
-	specialp = specialp_tablevalue(ptr, stack, name);
+	Return(specialp_tablevalue_(ptr, stack, name, &specialp));
 	dynamic = dynamic_tablevalue(stack, name);
 	ignore = ignore_tablevalue(stack, name);
-	type_tablevalue(ptr, NULL, stack, name, specialp, &type);
+	Return(type_tablevalue_(ptr, NULL, stack, name, specialp, &type));
 	if (type_and_array(NULL, type, &type))
 		GetTypeTable(&type, Asterisk);
 	Check(type == Nil, "type error");
@@ -336,18 +337,20 @@ static void update_tablevalue(Execute ptr, addr stack, addr pos)
 	setdynamic_tablevalue(pos, dynamic);
 	setignore_tablevalue(pos, ignore);
 	settype_tablevalue(pos, type);
+
+	return 0;
 }
-_g void push_tablevalue_global(Execute ptr, addr stack, addr symbol, addr *ret)
+_g int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
 {
 	enum IgnoreType ignore;
 	int specialp, dynamic;
 	addr pos, type;
 
 	/* scope */
-	specialp = specialp_tablevalue(ptr, stack, symbol);
+	Return(specialp_tablevalue_(ptr, stack, symbol, &specialp));
 	dynamic = dynamic_tablevalue(stack, symbol);
 	ignore = ignore_tablevalue(stack, symbol);
-	type_tablevalue(ptr, NULL, stack, symbol, specialp, &type);
+	Return(type_tablevalue_(ptr, NULL, stack, symbol, specialp, &type));
 	if (type_and_array(NULL, type, &type))
 		GetTypeTable(&type, Asterisk);
 	Check(type == Nil, "type error");
@@ -358,7 +361,8 @@ _g void push_tablevalue_global(Execute ptr, addr stack, addr symbol, addr *ret)
 	setdynamic_tablevalue(pos, dynamic);
 	setignore_tablevalue(pos, ignore);
 	settype_tablevalue(pos, type);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 _g int checktype_p(addr left, addr right, int *check)
@@ -422,7 +426,7 @@ static int let_applytable_(Execute ptr, struct let_struct *str)
 	while (args != Nil) {
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
-		update_tablevalue(ptr, stack, var);
+		Return(update_tablevalue_(ptr, stack, var));
 		Return(checktype_value_(ptr, var, init));
 	}
 
@@ -485,7 +489,7 @@ static int let_execute(Execute ptr, struct let_struct *str)
 	stack = str->stack;
 	Return(let_init(ptr, str));
 	let_maketable(ptr, str);
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(let_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	Return(ignore_checkvalue_(stack));
@@ -503,31 +507,28 @@ _g void localhold_let_struct(LocalRoot local, struct let_struct *str)
 
 _g int scope_let_call(Execute ptr, struct let_struct *str)
 {
-	str->stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
 	Return(let_execute(ptr, str));
-	freestack_eval(ptr, str->stack);
 
-	return 0;
+	return freestack_eval_(ptr, str->stack);
 }
 
 
 /*
  *  let*
  */
-_g void ifdeclvalue(Execute ptr, addr stack, addr var, addr decl, addr *ret)
+_g int ifdeclvalue_(Execute ptr, addr stack, addr var, addr decl, addr *ret)
 {
 	addr pos, aster;
 
-	if (var == Nil) {
-		*ret = Nil;
-		return;
-	}
+	if (var == Nil)
+		return Result(ret, Nil);
 	make_tablevalue_stack(ptr, &pos, stack, var, 0);
 	GetTypeTable(&aster, Asterisk);
 	settype_tablevalue(pos, aster);
 	apply_declare_value_stack(ptr->local, stack, var, decl);
-	push_tablevalue_global(ptr, stack, var, ret);
+	return push_tablevalue_global_(ptr, stack, var, ret);
 }
 
 static int leta_init(Execute ptr, struct let_struct *str)
@@ -542,7 +543,7 @@ static int leta_init(Execute ptr, struct let_struct *str)
 		GetCons(var, &var, &init);
 		Return(check_scope_variable_(var));
 		Return(scope_eval(ptr, &init, init));
-		ifdeclvalue(ptr, stack, var, decl, &var);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
 		cons_heap(&var, var, init);
 		cons_heap(&root, var, root);
 	}
@@ -571,7 +572,7 @@ static int leta_execute(Execute ptr, struct let_struct *str)
 
 	stack = str->stack;
 	Return(leta_init(ptr, str));
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(leta_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	Return(ignore_checkvalue_(stack));
@@ -582,11 +583,10 @@ static int leta_execute(Execute ptr, struct let_struct *str)
 
 _g int scope_leta_call(Execute ptr, struct let_struct *str)
 {
-	str->stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
 	Return(leta_execute(ptr, str));
-	freestack_eval(ptr, str->stack);
 
-	return 0;
+	return freestack_eval_(ptr, str->stack);
 }
 

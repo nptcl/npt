@@ -61,7 +61,7 @@ _g int hello_syscode(Execute ptr)
 {
 	addr stream;
 
-	standard_output_stream(ptr, &stream);
+	Return(standard_output_stream_(ptr, &stream));
 	Return(fresh_line_stream_(stream, NULL));
 	Return(print_ascii_stream_(stream, "Hello"));
 	Return(terpri_stream_(stream));
@@ -169,13 +169,14 @@ _g void setplist_syscode(addr key, addr value, addr list, addr *ret)
 
 
 /* remplist */
-_g void remplist_syscode(addr key, addr list, addr *ret1, addr *ret2)
+_g int remplist_syscode_(addr key, addr list, addr *ret1, addr *ret2)
 {
 	enum RemPlist check;
 
-	check = remplist_safe(list, key, &list);
+	Return(remplist_safe_(list, key, &list, &check));
 	*ret1 = list;
 	*ret2 = (check != RemPlist_NotFound)? T: Nil;
+	return 0;
 }
 
 
@@ -310,9 +311,9 @@ _g int etypecase_error_syscode_(Execute ptr, addr value, addr list)
 
 
 /* define-setf-expander */
-_g void define_setf_expander_syscode(addr symbol, addr call)
+_g int define_setf_expander_syscode_(addr symbol, addr call)
 {
-	setsetfmacro_symbol(symbol, call);
+	return setsetfmacro_symbol_(symbol, call);
 }
 
 
@@ -523,7 +524,7 @@ _g int defsetf_long_syscode(Execute ptr, addr rest,
 	addr quote, a, b, c, d, g, w, r;
 	LocalHold hold;
 
-	list_bind(rest, &access, &lambda, &store, &body, &args, &env, NULL);
+	Return(list_bind_(rest, &access, &lambda, &store, &body, &args, &env, NULL));
 	Return(lambda_defsetf_(ptr->local, &lambda, lambda));
 	Return(defsetf_bind_(ptr, args, lambda, store, &a, &b, &c, &d, &g));
 	/* (values 'a 'b 'g
@@ -753,7 +754,7 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 	addr control;
 	LocalHold hold;
 
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	push_new_control(ptr, &control);
 	hold = LocalHold_local_push(ptr, stream);
 	Return(write_default_print_(ptr, stream, var));
@@ -991,9 +992,9 @@ _g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, add
 
 
 /* make-callname */
-_g void make_callname_syscode(addr var, addr *ret)
+_g int make_callname_syscode_(addr var, addr *ret)
 {
-	parse_callname_error(ret, var);
+	return parse_callname_error_(ret, var);
 }
 
 

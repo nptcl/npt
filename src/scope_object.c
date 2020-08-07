@@ -16,7 +16,7 @@
 /*
  *  memory
  */
-_g void eval_scope_heap(Execute ptr, addr *ret, size_t size)
+_g int eval_scope_heap_(Execute ptr, addr *ret, size_t size)
 {
 	addr pos, stack;
 	struct eval_scope *a;
@@ -27,29 +27,31 @@ _g void eval_scope_heap(Execute ptr, addr *ret, size_t size)
 	eval_heap(&pos, EVAL_TYPE_SCOPE,
 			(byte)(2UL + size),
 			(byte)sizeoft(struct eval_scope));
-	getstack_eval(ptr, &stack);
+	Return(getstack_eval_(ptr, &stack));
 	a = StructEvalScope(pos);
 	b = StructEvalStack(stack);
 	memcpy(a->optimize, b->optimize, sizeoft(OptimizeType) * EVAL_OPTIMIZE_SIZE);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-_g void eval_scope_size(Execute ptr, addr *ret, size_t size,
+_g int eval_scope_size_(Execute ptr, addr *ret, size_t size,
 		EvalParse parse, addr type, addr value)
 {
 	addr pos;
 
-	eval_scope_heap(ptr, &pos, size);
+	Return(eval_scope_heap_(ptr, &pos, size));
 	SetEvalScopeType(pos, parse);
 	SetEvalScopeThe(pos, type);
 	SetEvalScopeValue(pos, value);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-_g void make_eval_scope(Execute ptr,
+_g int make_eval_scope_(Execute ptr,
 		addr *ret, EvalParse parse, addr type, addr value)
 {
-	eval_scope_size(ptr, ret, 0, parse, type, value);
+	return eval_scope_size_(ptr, ret, 0, parse, type, value);
 }
 
 
@@ -192,26 +194,26 @@ _g int localhold_scope_allcons(LocalHold hold,
 /*
  *  lexical
  */
-static void scope_eval_lexical_object(Execute ptr, addr stack, addr eval, addr *ret)
+static int scope_eval_lexical_object_(Execute ptr, addr stack, addr eval, addr *ret)
 {
 	addr type, pos;
 
 	lambda_lexical_heap(stack, &pos);
 	GetEvalScopeThe(eval, &type);
-	eval_scope_size(ptr, &eval, 1, EVAL_PARSE_LEXICAL, type, eval);
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_LEXICAL, type, eval));
 	SetEvalScopeIndex(eval, 0, pos);
-	*ret = eval;
+
+	return Result(ret, eval);
 }
 
 _g int scope_eval_lexical(Execute ptr, addr *ret, addr eval)
 {
 	addr stack;
 
-	stack = newstack_lexical(ptr);
+	Return(newstack_lexical_(ptr, &stack));
 	Return(scope_eval(ptr, &eval, eval));
-	scope_eval_lexical_object(ptr, stack, eval, ret);
-	freestack_eval(ptr, stack);
+	Return(scope_eval_lexical_object_(ptr, stack, eval, ret));
 
-	return 0;
+	return freestack_eval_(ptr, stack);
 }
 

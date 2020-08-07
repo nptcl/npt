@@ -219,7 +219,7 @@ static int inverse_complex_rational_(LocalRoot local, addr pos, addr *ret)
 	 */
 	Return(zerop_complex_(pos, &check));
 	if (check)
-		return call_division_by_zero1_(Execute_Thread, pos);
+		return call_division_by_zero1_(NULL, pos);
 	GetRealComplex(pos, &a);
 	GetImagComplex(pos, &b);
 	push_local(local, &stack);
@@ -393,7 +393,7 @@ _g int div_rational_complex_common_(LocalRoot local, addr left, addr right, addr
 	CheckType(right, LISPTYPE_COMPLEX);
 	Return(zerop_complex_(right, &check));
 	if (check)
-		return call_division_by_zero2_(Execute_Thread, left, right);
+		return call_division_by_zero2_(NULL, left, right);
 	Return(div_real_complex_(left, right, ret, &check));
 	if (check) {
 		GetRealComplex(right, &a);
@@ -427,7 +427,7 @@ _g int div_complex_rational_common_(LocalRoot local, addr left, addr right, addr
 	CheckType(left, LISPTYPE_COMPLEX);
 	Check(! rationalp(right), "type right error");
 	if (zerop_rational(right))
-		return call_division_by_zero2_(Execute_Thread, left, right);
+		return call_division_by_zero2_(NULL, left, right);
 	Return(div_complex_real_(left, right, ret, &check));
 	if (check) {
 		GetRealComplex(left, &a);

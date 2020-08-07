@@ -73,7 +73,7 @@ _g int with_compilation_unit_common_(addr form, addr *ret)
 	 */
 	addr args, body, over, with, lambda;
 
-	getcdr(form, &form);
+	Return_getcdr(form, &form);
 	if (! consp_getcons(form, &args, &body))
 		goto error;
 	if (! listp(args))
@@ -103,13 +103,13 @@ static int function_handler_delay_warning(Execute ptr, addr condition)
 
 	/* push *delay-warning-list* */
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);
-	getspecialcheck_local(ptr, pos, &list);
+	Return(getspecialcheck_local_(ptr, pos, &list));
 	cons_heap(&list, condition, list);
 	setspecial_local(ptr, pos, list);
 
 	/* switch */
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	if (pos == Nil)
 		return 0;
 
@@ -148,7 +148,7 @@ static int function_finalize_delay_warning(Execute ptr)
 	addr list, x;
 
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &list);
-	getspecialcheck_local(ptr, list, &list);
+	Return(getspecialcheck_local_(ptr, list, &list));
 	nreverse(&list, list);
 
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &x);

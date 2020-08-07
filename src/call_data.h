@@ -4,7 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g int apply_common(Execute ptr, addr call, addr arg, addr args);
+_g int apply_common_(Execute ptr, addr call, addr arg, addr args);
 _g int defun_common(Execute ptr, addr right, addr env, addr *ret);
 _g int fdefinition_common(Execute ptr, addr name, addr *ret);
 _g int setf_fdefinition_common(addr value, addr name);

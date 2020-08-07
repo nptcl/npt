@@ -742,7 +742,7 @@ _g int clos_checkp_(addr pos, addr key, addr *value, int *ret)
 	if (! clos_getp(pos, key, &check))
 		return Result(ret, 0);
 	if (check == Unbound)
-		return call_unbound_slot_(Execute_Thread, pos, key);
+		return call_unbound_slot_(NULL, pos, key);
 	*value = check;
 	return Result(ret, 1);
 }
@@ -816,7 +816,7 @@ _g int clos_checkelt_(addr pos, size_t index, addr *ret)
 	CheckType(pos, LISPTYPE_CLOS);
 	clos_getelt(pos, index, &check);
 	if (check == Unbound)
-		return call_unbound_slot_(Execute_Thread, pos, check);
+		return call_unbound_slot_(NULL, pos, check);
 	else
 		return Result(ret, check);
 }
@@ -947,10 +947,10 @@ _g int clos_find_generic_(addr name, addr *ret)
 	return 0;
 }
 
-_g void clos_define_generic(addr name, addr value)
+_g int clos_define_generic_(addr name, addr value)
 {
 	Check(! function_name_p(name), "type name error");
-	setglobal_parse_callname(name, value);
+	return setglobal_parse_callname_(name, value);
 }
 
 /* method-combination */

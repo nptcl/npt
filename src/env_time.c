@@ -263,7 +263,7 @@ static void decode_universal_struct(LocalRoot local,
 	u->zone = value;
 }
 
-static void decode_universal_diff_value(LocalRoot local, addr *ret)
+static int decode_universal_diff_value_(LocalRoot local, addr *ret)
 {
 	addr symbol, value;
 
@@ -271,18 +271,22 @@ static void decode_universal_diff_value(LocalRoot local, addr *ret)
 	GetConst(SYSTEM_ENCODE_UNIVERSAL_1970, &symbol);
 	GetValueSymbol(symbol, &value);
 	if (value == Unbound) {
-		bigcons_char_local(local, &value, 10, "2208988800");
+		Return(bigcons_char_local_(local, &value, 10, "2208988800"));
 		bignum_cons_heap(&value, signplus_bignum, value);
-		SetValueSymbol(symbol, value);
+		Return(setvalue_symbol_(symbol, value));
 	}
-	*ret = value;
+
+	return Result(ret, value);
 }
 
-static void decode_universal_diff(LocalRoot local, addr value, addr *ret)
+static int decode_universal_diff_(LocalRoot local, addr value, addr *ret)
 {
 	addr right;
-	decode_universal_diff_value(local, &right);
+
+	Return(decode_universal_diff_value_(local, &right));
 	minus_ii_real_common(local, value, right, ret);
+
+	return 0;
 }
 
 static int decode_universal_time_nil_(LocalRoot local,
@@ -302,7 +306,7 @@ static int decode_universal_time_nil_(LocalRoot local,
 	offset /= 60 * 60;
 
 	/* universal time */
-	decode_universal_diff(local, time, &pos);
+	Return(decode_universal_diff_(local, time, &pos));
 	if (GetIndex_integer(pos, &value))
 		goto decode_default;
 
@@ -420,42 +424,45 @@ static int encode_universal_time_absolute_(LocalRoot local, addr *ret,
 }
 
 /* daylight */
-static void encode_universal_diff(LocalRoot local, addr *ret, addr value)
+static int encode_universal_diff_(LocalRoot local, addr *ret, addr value)
 {
 	addr right;
-	decode_universal_diff_value(local, &right);
+
+	Return(decode_universal_diff_value_(local, &right));
 	plus_ii_real_common(local, value, right, ret);
+
+	return 0;
 }
 
-static int encode_universal_time_standard(LocalRoot local, addr *ret,
-		addr sec, addr min, addr hour, size_t day)
+static int encode_universal_time_standard_(LocalRoot local, addr *value,
+		addr sec, addr min, addr hour, size_t day, int *ret)
 {
-	size_t value;
+	size_t size;
 	time_t now, a, b;
 	struct tm str;
 
 	day -= ENCODE_UNIVERSAL_1970;
 	encode_universal_second_absolute(local, &sec, sec, min, hour, Unbound, day);
 	/* mktime */
-	if (GetIndex_integer(sec, &value))
-		return 1;  /* Too large */
-	now = (time_t)value;
+	if (GetIndex_integer(sec, &size))
+		return Result(ret, 1);  /* Too large */
+	now = (time_t)size;
 	if (now < 0)
-		return 1;  /* Too large (2038 problem in 32bit arch) */
+		return Result(ret, 1);  /* Too large (2038 problem in 32bit arch) */
 	if (gmtime_arch(&str, &now))
-		return 1;  /* error gmtime */
+		return Result(ret, 1);  /* error gmtime */
 	a = mktime(&str);
 	if (localtime_arch(&str, &now))
-		return 1;  /* error localtime */
+		return Result(ret, 1);  /* error localtime */
 	b = mktime(&str);
 	now += (a - b);
 	if (now < 0)
-		return 1;
-	value = (size_t)now;
-	make_index_integer_local(local, &sec, value);
-	encode_universal_diff(local, ret, sec);
+		return Result(ret, 1);
+	size = (size_t)now;
+	make_index_integer_local(local, &sec, size);
+	Return(encode_universal_diff_(local, value, sec));
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int encode_universal_time_offset_(LocalRoot local, addr *ret,
@@ -480,8 +487,11 @@ static int encode_universal_time_daylight_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour,
 		size_t day, size_t month, size_t year)
 {
+	int check;
+
 	Return(encode_universal_day_(day, month, year, &day));
-	if (encode_universal_time_standard(local, ret, sec, min, hour, day))
+	Return(encode_universal_time_standard_(local, ret, sec, min, hour, day, &check));
+	if (check)
 		return encode_universal_time_offset_(local, ret, sec, min, hour, day);
 
 	return 0;
@@ -549,13 +559,15 @@ _g int encode_universal_time_common_(LocalRoot local, addr *ret,
 /*
  *  get-universal-time
  */
-_g void get_universal_time_common(LocalRoot local, addr *ret)
+_g int get_universal_time_common_(LocalRoot local, addr *ret)
 {
 	addr left, right;
 
 	make_index_integer_heap(&left, (size_t)time(NULL));
-	decode_universal_diff_value(local, &right);
+	Return(decode_universal_diff_value_(local, &right));
 	plus_ii_real_common(local, left, right, ret);
+
+	return 0;
 }
 
 
@@ -565,7 +577,7 @@ _g void get_universal_time_common(LocalRoot local, addr *ret)
 _g int get_decoded_time_common_(LocalRoot local, struct universal_time_struct *u)
 {
 	addr pos;
-	get_universal_time_common(local, &pos);
+	Return(get_universal_time_common_(local, &pos));
 	return decode_universal_time_common_(local, u, pos, Nil);
 }
 
@@ -666,7 +678,8 @@ static void get_sleep_object(Execute ptr, addr *ret)
 	addr pos;
 
 	GetConst(COMMON_SLEEP, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	getspecial_local(ptr, pos, &pos);
+	Check(pos == Unbound, "unbound error");
 	CheckType(pos, LISPSYSTEM_SLEEP);
 	*ret = pos;
 }
@@ -762,7 +775,8 @@ static void get_sleep_object(Execute ptr, addr *ret)
 	addr pos;
 
 	GetConst(COMMON_SLEEP, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	getspecial_local(ptr, pos, &pos);
+	Check(pos == Unbound, "unbound error");
 	CheckType(pos, LISPSYSTEM_SLEEP);
 	*ret = pos;
 }
@@ -1039,7 +1053,7 @@ static void sleep_value_ratio(LocalRoot local, addr var, addr *ret)
 	truncate1_common(local, ret, &right, var);
 }
 
-static void sleep_value_single_float(LocalRoot local, addr var, addr *ret)
+static int sleep_value_single_float_(LocalRoot local, addr var, addr *ret)
 {
 	single_float value, moment;
 	addr left, right;
@@ -1047,14 +1061,16 @@ static void sleep_value_single_float(LocalRoot local, addr var, addr *ret)
 	GetSingleFloat(var, &value);
 	value = lisp_truncate1_s(value, &moment);
 	moment = (single_float)(moment * LISP_SLEEP_INTERVAL_F);
-	bignum_single_float_local(local, &left, value);
-	bignum_single_float_local(local, &right, moment);
+	Return(bignum_single_float_local_(local, value, &left, NULL));
+	Return(bignum_single_float_local_(local, moment, &right, NULL));
 	fixnum_heap(&var, LISP_SLEEP_INTERVAL);
 	multi_ii_real_common(local, left, var, &left);
 	plus_ii_real_common(local, left, right, ret);
+
+	return 0;
 }
 
-static void sleep_value_double_float(LocalRoot local, addr var, addr *ret)
+static int sleep_value_double_float_(LocalRoot local, addr var, addr *ret)
 {
 	double_float value, moment;
 	addr left, right;
@@ -1062,14 +1078,16 @@ static void sleep_value_double_float(LocalRoot local, addr var, addr *ret)
 	GetDoubleFloat(var, &value);
 	value = lisp_truncate1_d(value, &moment);
 	moment = (double_float)(moment * LISP_SLEEP_INTERVAL_F);
-	bignum_double_float_local(local, &left, value);
-	bignum_double_float_local(local, &right, moment);
+	Return(bignum_double_float_local_(local, value, &left, NULL));
+	Return(bignum_double_float_local_(local, moment, &right, NULL));
 	fixnum_heap(&var, LISP_SLEEP_INTERVAL);
 	multi_ii_real_common(local, left, var, &left);
 	plus_ii_real_common(local, left, right, ret);
+
+	return 0;
 }
 
-static void sleep_value_long_float(LocalRoot local, addr var, addr *ret)
+static int sleep_value_long_float_(LocalRoot local, addr var, addr *ret)
 {
 	long_float value, moment;
 	addr left, right;
@@ -1077,11 +1095,13 @@ static void sleep_value_long_float(LocalRoot local, addr var, addr *ret)
 	GetLongFloat(var, &value);
 	value = lisp_truncate1_l(value, &moment);
 	moment = (long_float)(moment * LISP_SLEEP_INTERVAL_F);
-	bignum_long_float_local(local, &left, value);
-	bignum_long_float_local(local, &right, moment);
+	Return(bignum_long_float_local_(local, value, &left, NULL));
+	Return(bignum_long_float_local_(local, moment, &right, NULL));
 	fixnum_heap(&var, LISP_SLEEP_INTERVAL);
 	multi_ii_real_common(local, left, var, &left);
 	plus_ii_real_common(local, left, right, ret);
+
+	return 0;
 }
 
 static int sleep_value_common_(LocalRoot local, addr var, addr *ret)
@@ -1097,16 +1117,13 @@ static int sleep_value_common_(LocalRoot local, addr var, addr *ret)
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			sleep_value_single_float(local, var, ret);
-			break;
+			return sleep_value_single_float_(local, var, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			sleep_value_double_float(local, var, ret);
-			break;
+			return sleep_value_double_float_(local, var, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			sleep_value_long_float(local, var, ret);
-			break;
+			return sleep_value_long_float_(local, var, ret);
 
 		default:
 			*ret = Nil;

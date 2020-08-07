@@ -22,8 +22,6 @@ _g void init_condition(void);
 
 /* deprecated */
 _g void error_function(addr condition);
-_g void callclang_error(const char *str, ...);
-#define fmte callclang_error
 
 #endif
 

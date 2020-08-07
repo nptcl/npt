@@ -246,7 +246,7 @@ static int type_function_lambda(Execute ptr, addr *ret, addr list, addr env)
 var_label:
 	if (list == Nil)
 		goto final;
-	getcons(list, &one, &list);
+	Return_getcons(list, &one, &list);
 	if (one == const_opt)
 		goto opt_label;
 	if (one == const_rest)
@@ -261,7 +261,7 @@ var_label:
 opt_label:
 	if (list == Nil)
 		goto final;
-	getcons(list, &one, &list);
+	Return_getcons(list, &one, &list);
 	if (one == const_opt)
 		return fmte_("&optional parameter don't allow this place.", NULL);
 	if (one == const_rest)
@@ -276,14 +276,14 @@ opt_label:
 rest_label:
 	if (list == Nil)
 		return fmte_("After &rest parameter must be have a typespec.", NULL);
-	getcons(list, &one, &list);
+	Return_getcons(list, &one, &list);
 	if (one == const_opt || one == const_rest || one == const_key)
 		return fmte_("After &rest parameter don't allow to be a &-symbol.", NULL);
 	Return(parse_type(ptr, &rest, one, env));
 	localhold_set(hold, 2, rest);
 	if (list == Nil)
 		goto final;
-	getcons(list, &one, &list);
+	Return_getcons(list, &one, &list);
 	if (one != const_key)
 		return fmte_("After &rest argument don't allow to be a type.", NULL);
 	goto key_label;
@@ -291,15 +291,15 @@ rest_label:
 key_label:
 	if (list == Nil)
 		goto final;
-	getcons(list, &one, &list);
+	Return_getcons(list, &one, &list);
 	if (one == const_opt || one == const_rest || one == const_key)
 		return fmte_("After &key parameter don't allow to be a &-symbol.", NULL);
 	if (! consp(one))
 		return fmte_("After &key parameter must be a list.", NULL);
-	getcons(one, &name, &one);
+	Return_getcons(one, &name, &one);
 	copyheap(&name, name);
 	localhold_set(hold, 3, name);
-	getcons(one, &type, &one);
+	Return_getcons(one, &type, &one);
 	if (one != Nil)
 		return fmte_("&key parameter must be a (key type) list.", NULL);
 	Return(parse_type(ptr, &type, type, env));
@@ -360,7 +360,7 @@ static int type_values_typespec(Execute ptr, addr list, addr env,
 var_label:
 	if (list == Nil)
 		goto final;
-	getcons(list, &var, &list);
+	Return_getcons(list, &var, &list);
 	if (var == const_opt)
 		goto optional_label;
 	if (var == const_rest)
@@ -377,7 +377,7 @@ var_label:
 optional_label:
 	if (list == Nil)
 		goto final;
-	getcons(list, &var, &list);
+	Return_getcons(list, &var, &list);
 	if (var == const_rest)
 		goto rest_label;
 #ifdef LISP_VALUES_ALLOW_ENABLE
@@ -392,7 +392,7 @@ optional_label:
 rest_label:
 	if (list == Nil)
 		return fmte_("After &rest argument must be a type.", NULL);
-	getcons(list, &var, &list);
+	Return_getcons(list, &var, &list);
 	if (var == const_opt || var == const_rest)
 		return fmte_("After &rest argument must be a type.", NULL);
 #ifdef LISP_VALUES_ALLOW_ENABLE
@@ -403,7 +403,7 @@ rest_label:
 	localhold_set(hold, 2, rest);
 	if (list == Nil)
 		goto final;
-	getcons(list, &var, &list);
+	Return_getcons(list, &var, &list);
 #ifdef LISP_VALUES_ALLOW_ENABLE
 	if (var == const_allow)
 		goto allow_label;
@@ -447,7 +447,7 @@ static int type_function_values(Execute ptr, addr *ret, addr type, addr env)
 
 	if (! consp(type))
 		return parse_type(ptr, ret, type, env);
-	getcons(type, &pos, &list);
+	Return_getcons(type, &pos, &list);
 	GetConst(COMMON_VALUES, &check);
 	if (check != pos)
 		return parse_type(ptr, ret, type, env);

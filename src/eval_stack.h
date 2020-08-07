@@ -70,9 +70,9 @@ struct eval_stack {
 #define SetEvalStackLexical(x,v)		SetEvalStackLexical_Low(x,v)
 #endif
 
-#define newstack_nil(p) newstack_eval((p), EVAL_STACK_MODE_NIL)
-#define newstack_lexical(p) newstack_eval((p), EVAL_STACK_MODE_LEXICAL)
-#define newstack_lambda(p) newstack_eval((p), EVAL_STACK_MODE_LAMBDA)
+#define newstack_nil_(p,r) newstack_eval_((p), EVAL_STACK_MODE_NIL,(r))
+#define newstack_lexical_(p,r) newstack_eval_((p), EVAL_STACK_MODE_LEXICAL,(r))
+#define newstack_lambda_(p,r) newstack_eval_((p), EVAL_STACK_MODE_LAMBDA,(r))
 
 _g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
 _g void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
@@ -92,11 +92,11 @@ _g void getevalstacklexical(addr pos, addr *ret);
 _g void setevalstacklexical(addr pos, addr value);
 
 _g int eval_stack_lambda_lexical_p(addr stack);
-_g void getstack_eval(Execute ptr, addr *ret);
-_g void getglobal_eval(Execute ptr, addr *ret);
-_g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type);
-_g void freestack_eval(Execute ptr, addr scope);
-_g void begin_eval_stack(Execute ptr);
+_g int getstack_eval_(Execute ptr, addr *ret);
+_g int getglobal_eval_(Execute ptr, addr *ret);
+_g int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret);
+_g int freestack_eval_(Execute ptr, addr scope);
+_g int begin_eval_stack_(Execute ptr);
 _g void free_eval_stack(Execute ptr);
 _g void init_eval_stack(void);
 _g int globalp_stack_eval(addr pos);
@@ -104,7 +104,7 @@ _g size_t increment_stack_eval(addr pos);
 _g size_t getlexical_stack_eval(addr pos);
 _g void getlexical_index_heap(addr stack, addr *ret);
 
-_g void apply_declaim_stack(Execute ptr, addr declare);
+_g int apply_declaim_stack_(Execute ptr, addr declare);
 _g void apply_declare_stack(LocalRoot local, addr stack, addr declare);
 _g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
 _g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);

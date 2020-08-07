@@ -22,21 +22,11 @@ _g void getnth_abort(addr cons, size_t index, addr *ret)
 			break;
 		if (! consp(cons))
 			Abort("Type error");
-		getcdr(cons, &cons);
+		GetCdr(cons, &cons);
 	}
 	if (! consp(cons))
 		Abort("Type error");
-	getcar(cons, ret);
-}
-
-_g void getnth(addr cons, size_t index, addr *ret)
-{
-	for (; index; index--) {
-		if (cons == Nil)
-			break;
-		getcdr(cons, &cons);
-	}
-	getcar(cons, ret);
+	GetCar(cons, ret);
 }
 
 _g int getnth_(addr cons, size_t index, addr *ret)
@@ -56,7 +46,7 @@ _g int getnth_large(addr cons, addr index, addr *ret)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	bignum_counter_alloc(local, &index, index);
+	Return(bignum_counter_alloc_(local, &index, index));
 	while (! zerop_bignum(index)) {
 		if (cons == Nil) {
 			*ret = Nil;
@@ -112,7 +102,7 @@ _g int getnthcdr_large(addr cons, addr index, addr *ret)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	bignum_counter_alloc(local, &index, index);
+	Return(bignum_counter_alloc_(local, &index, index));
 	while (! zerop_bignum(index)) {
 		if (cons == Nil) {
 			*ret = Nil;
@@ -174,21 +164,6 @@ _g size_t length_list_unsafe(addr list)
 	return size;
 }
 
-_g size_t length_list_safe(addr list)
-{
-	size_t size;
-
-	for (size = 0; list != Nil; size++) {
-		if (GetType(list) != LISPTYPE_CONS) {
-			fmte("cdr position must be a list type.", NULL);
-			return 0;
-		}
-		GetCdr(list, &list);
-	}
-
-	return size;
-}
-
 _g int length_list_safe_(addr list, size_t *ret)
 {
 	size_t size;
@@ -224,26 +199,26 @@ _g int length_list_p(addr list, size_t *ret)
 /*
  *  list
  */
-_g void nconc2_safe(addr left, addr right, addr *ret)
+_g int nconc2_safe_(addr left, addr right, addr *ret)
 {
 	addr check;
 
-	if (left == Nil) {
-		*ret = right;
-		return;
-	}
+	if (left == Nil)
+		return Result(ret, right);
+
 	*ret = left;
-	if (right == Nil) {
-		return;
-	}
+	if (right == Nil)
+		return 0;
 	for (;;) {
-		getcdr(left, &check);
+		Return_getcdr(left, &check);
 		if (! consp(check)) {
 			SetCdr(left, right);
 			break;
 		}
 		left = check;
 	}
+
+	return 0;
 }
 
 _g void nconc2_unsafe(addr left, addr right, addr *ret)
@@ -347,18 +322,20 @@ _g void butandlast_safe(addr *but, addr *last, addr list, size_t index)
 	*last = list;
 }
 
-_g void setlastcdr_safe(addr list, addr cdr)
+_g int setlastcdr_safe_(addr list, addr cdr)
 {
 	addr check;
 
 	for (;;) {
-		getcdr(list, &check);
+		Return_getcdr(list, &check);
 		if (! consp(check)) {
 			SetCdr(list, cdr);
-			return;
+			return 0;
 		}
 		list = check;
 	}
+
+	return 0;
 }
 
 
@@ -371,22 +348,24 @@ _g int find_list_eq_unsafe(addr key, addr cons)
 
 	while (cons != Nil) {
 		GetCons(cons, &check, &cons);
-		if (check == key) return 1;
+		if (check == key)
+			return 1;
 	}
 
 	return 0;
 }
 
-_g int find_list_eq_safe(addr key, addr cons)
+_g int find_list_eq_safe_(addr key, addr cons, int *ret)
 {
 	addr check;
 
 	while (cons != Nil) {
-		getcons(cons, &check, &cons);
-		if (check == key) return 1;
+		Return_getcons(cons, &check, &cons);
+		if (check == key)
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 _g int find_list_eql_unsafe(addr key, addr cons)
@@ -395,19 +374,8 @@ _g int find_list_eql_unsafe(addr key, addr cons)
 
 	while (cons != Nil) {
 		GetCons(cons, &check, &cons);
-		if (eql_function(check, key)) return 1;
-	}
-
-	return 0;
-}
-
-_g int find_list_eql_safe(addr key, addr cons)
-{
-	addr check;
-
-	while (cons != Nil) {
-		getcons(cons, &check, &cons);
-		if (eql_function(check, key)) return 1;
+		if (eql_function(check, key))
+			return 1;
 	}
 
 	return 0;
@@ -547,24 +515,23 @@ _g void nreverse_list_unsafe(addr *ret, addr cons)
 	*ret = cons;
 }
 
-_g void nreverse_list_safe(addr *ret, addr cons)
+_g int nreverse_list_safe_(addr *ret, addr cons)
 {
 	addr tail, next;
 
 	/* nil */
-	if (cons == Nil) {
-		*ret = Nil;
-		return;
-	}
+	if (cons == Nil)
+		return Result(ret, Nil);
 
 	/* loop */
 	for (tail = Nil; ; tail = cons, cons = next) {
-		getcdr(cons, &next);
-		setcdr(cons, tail);
+		Return_getcdr(cons, &next);
+		Return_setcdr(cons, tail);
 		if (next == Nil)
 			break;
 	}
-	*ret = cons;
+
+	return Result(ret, cons);
 }
 
 
@@ -593,26 +560,16 @@ _g void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 	*ret = root;
 }
 
-_g void reverse_list_heap_safe(addr *ret, addr cons)
-{
-	reverse_list_alloc_safe(NULL, ret, cons);
-}
-
-_g void reverse_list_local_safe(LocalRoot local, addr *ret, addr cons)
-{
-	Check(local == NULL, "local error");
-	reverse_list_alloc_safe(local, ret, cons);
-}
-
-_g void reverse_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
+_g int reverse_list_heap_safe_(addr *ret, addr cons)
 {
 	addr root, left;
 
 	for (root = Nil; cons != Nil; ) {
-		getcons(cons, &left, &cons);
-		cons_alloc(local, &root, left, root);
+		Return_getcons(cons, &left, &cons);
+		cons_heap(&root, left, root);
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
 
@@ -640,7 +597,8 @@ _g int find_list_callname_unsafe(addr callname, addr list)
 
 	while (list != Nil) {
 		GetCons(list, &check, &list);
-		if (equal_callname(check, callname)) return 1;
+		if (equal_callname(check, callname))
+			return 1;
 	}
 
 	return 0;

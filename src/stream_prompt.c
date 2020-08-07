@@ -20,7 +20,7 @@
 #ifdef LISP_PROMPT_DEFAULT
 _g void open_prompt_stream(addr *stream)
 {
-	standard_input_stream(Execute_Thread, stream);
+	Error(standard_input_stream_(Execute_Thread, stream));
 }
 #else
 _g void open_prompt_stream(addr *stream)

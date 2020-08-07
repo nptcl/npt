@@ -369,12 +369,12 @@ static int test_bignum_counter_alloc(void)
 	push_local(local, &stack);
 
 	fixnum_local(local, &left, 100);
-	bignum_counter_local(local, &right, left);
+	bignum_counter_local_(local, &right, left);
 	test(bignump(right), "bignum_counter_alloc1");
 	test(equal_fb_real(left, right), "bignum_counter_alloc2");
 
 	bignum_value_local(local, &left, SignPlus, 200);
-	bignum_counter_local(local, &right, left);
+	bignum_counter_local_(local, &right, left);
 	test(bignump(right), "bignum_counter_alloc3");
 	test(equal_bb_real(left, right), "bignum_counter_alloc4");
 

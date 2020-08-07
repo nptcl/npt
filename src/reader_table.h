@@ -92,10 +92,10 @@ _g int set_syntax_from_default_(unicode u1, unicode u2, addr to);
 _g int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from);
 
 _g int float_readtable_(Execute ptr, enum ReadTable_float *ret);
-_g enum ReadTable_Case readcase_readtable(Execute ptr);
+_g int readcase_readtable_(Execute ptr, enum ReadTable_Case *ret);
 _g enum ReadTable_Case getcase_readtable(addr pos);
 _g void setcase_readtable(addr pos, enum ReadTable_Case mode);
-_g void getreadtable(Execute ptr, addr *ret);
+_g int getreadtable_(Execute ptr, addr *ret);
 
 #endif
 

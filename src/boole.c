@@ -228,7 +228,7 @@ static void boole_call_common(LocalRoot local, addr a, addr b, addr *ret,
 		boole_call_bignum(local, a, b, ret, call);
 }
 
-static void logcall_common(LocalRoot local, addr args, addr *ret,
+static int logcall_common_(LocalRoot local, addr args, addr *ret,
 		fixnum ident, void (*call)(LocalRoot, addr, addr, addr *))
 {
 	addr left, right;
@@ -236,22 +236,21 @@ static void logcall_common(LocalRoot local, addr args, addr *ret,
 	/* no args */
 	if (args == Nil) {
 		fixnum_heap(ret, ident);
-		return;
+		return 0;
 	}
 
 	/* only one */
-	getcons(args, &left, &args);
-	if (args == Nil) {
-		*ret = left;
-		return;
-	}
+	Return(getcons_(args, &left, &args));
+	if (args == Nil)
+		return Result(ret, left);
 
 	/* list */
 	while (args != Nil) {
-		getcons(args, &right, &args);
+		Return(getcons_(args, &right, &args));
 		(*call)(local, left, right, &left);
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
@@ -268,9 +267,9 @@ static void boole_and_common(LocalRoot local, addr a, addr b, addr *ret)
 	boole_call_common(local, a, b, ret, boole_call_and);
 }
 
-_g void logand_common(LocalRoot local, addr args, addr *ret)
+_g int logand_common_(LocalRoot local, addr args, addr *ret)
 {
-	logcall_common(local, args, ret, -1, boole_and_common);
+	return logcall_common_(local, args, ret, -1, boole_and_common);
 }
 
 
@@ -319,9 +318,9 @@ static void boole_eqv_common(LocalRoot local, addr a, addr b, addr *ret)
 	boole_call_common(local, a, b, ret, boole_call_eqv);
 }
 
-_g void logeqv_common(LocalRoot local, addr args, addr *ret)
+_g int logeqv_common_(LocalRoot local, addr args, addr *ret)
 {
-	logcall_common(local, args, ret, -1, boole_eqv_common);
+	return logcall_common_(local, args, ret, -1, boole_eqv_common);
 }
 
 
@@ -338,9 +337,9 @@ static void boole_ior_common(LocalRoot local, addr a, addr b, addr *ret)
 	boole_call_common(local, a, b, ret, boole_call_ior);
 }
 
-_g void logior_common(LocalRoot local, addr args, addr *ret)
+_g int logior_common_(LocalRoot local, addr args, addr *ret)
 {
-	logcall_common(local, args, ret, 0, boole_ior_common);
+	return logcall_common_(local, args, ret, 0, boole_ior_common);
 }
 
 
@@ -442,9 +441,9 @@ static void boole_xor_common(LocalRoot local, addr a, addr b, addr *ret)
 	boole_call_common(local, a, b, ret, boole_call_xor);
 }
 
-_g void logxor_common(LocalRoot local, addr args, addr *ret)
+_g int logxor_common_(LocalRoot local, addr args, addr *ret)
 {
-	logcall_common(local, args, ret, 0, boole_xor_common);
+	return logcall_common_(local, args, ret, 0, boole_xor_common);
 }
 
 

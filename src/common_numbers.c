@@ -1163,7 +1163,7 @@ static void defun_oddp(void)
 /* (defun gcd (&rest integer) ...) -> (integer 0 *) */
 static int function_gcd(Execute ptr, addr args)
 {
-	gcd_number(ptr->local, args, &args);
+	Return(gcd_number_(ptr->local, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }
@@ -1187,7 +1187,7 @@ static void defun_gcd(void)
 /* (defun lcm (&rest integer) ...) -> (integer 0 *) */
 static int function_lcm(Execute ptr, addr args)
 {
-	lcm_number(ptr->local, args, &args);
+	Return(lcm_number_(ptr->local, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }
@@ -1431,7 +1431,9 @@ static void defun_isqrt(void)
  */
 static int function_make_random_state(Execute ptr, addr opt)
 {
-	make_random_state_heap(ptr, &opt, (opt == Unbound)? Nil: opt);
+	if (opt == Unbound)
+		opt = Nil;
+	Return(make_random_state_heap_(ptr, &opt, opt));
 	setresult_control(ptr, opt);
 	return 0;
 }
@@ -1539,7 +1541,7 @@ static void defvar_random_state(void)
 
 	/* symbol */
 	GetConst(SPECIAL_RANDOM_STATE, &symbol);
-	make_random_state_heap(NULL, &value, T);
+	Error(make_random_state_heap_(NULL, &value, T));
 	SetValueSymbol(symbol, value);
 	setspecial_symbol(symbol);
 
@@ -2126,7 +2128,7 @@ static void defun_boole(void)
 /* (defun logand (&rest integer) ...) -> integer */
 static int function_logand(Execute ptr, addr args)
 {
-	logand_common(ptr->local, args, &args);
+	Return(logand_common_(ptr->local, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }
@@ -2198,7 +2200,7 @@ static void defun_logandc2(void)
 /* (defun logeqv (&rest integer) ...) -> integer */
 static int function_logeqv(Execute ptr, addr args)
 {
-	logeqv_common(ptr->local, args, &args);
+	Return(logeqv_common_(ptr->local, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }
@@ -2222,7 +2224,7 @@ static void defun_logeqv(void)
 /* (defun logior (&rest integer) ...) -> integer */
 static int function_logior(Execute ptr, addr args)
 {
-	logior_common(ptr->local, args, &args);
+	Return(logior_common_(ptr->local, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }
@@ -2376,7 +2378,7 @@ static void defun_logorc2(void)
 /* (defun logxor (&rest integer) ...) -> integer */
 static int function_logxor(Execute ptr, addr args)
 {
-	logxor_common(ptr->local, args, &args);
+	Return(logxor_common_(ptr->local, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }

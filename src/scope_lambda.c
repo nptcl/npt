@@ -130,26 +130,27 @@ static int inline_stack_tablefunction(addr stack, addr call, enum InlineType *re
 
 	return 0;
 }
-static enum InlineType inline_tablefunction(Execute ptr, addr stack, addr call)
+static int inline_tablefunction_(Execute ptr,
+		addr stack, addr call, enum InlineType *ret)
 {
 	enum InlineType result;
 
 	/* local stack */
 	while (stack != Nil) {
 		if (inline_stack_tablefunction(stack, call, &result)) {
-			return result;
+			return Result(ret, result);
 		}
 		GetEvalStackNext(stack, &stack);
 	}
 
 	/* global stack */
-	getglobal_eval(ptr, &stack);
+	Return(getglobal_eval_(ptr, &stack));
 	if (inline_stack_tablefunction(stack, call, &result)) {
-		return result;
+		return Result(ret, result);
 	}
 
 	/* not inline or notinline */
-	return InlineType_None;
+	return Result(ret, InlineType_None);
 }
 
 static void gettype_global_callname(LocalRoot local, addr call, addr *ret)
@@ -180,7 +181,7 @@ static int type_boundary_tablefunction(addr stack, addr call, addr *ret)
 	return 1;
 }
 
-static void type_tablefunction(Execute ptr, LocalRoot local,
+static int type_tablefunction_(Execute ptr, LocalRoot local,
 		addr stack, addr call, addr *ret)
 {
 	int check;
@@ -203,7 +204,7 @@ static void type_tablefunction(Execute ptr, LocalRoot local,
 	}
 
 	/* global stack */
-	getglobal_eval(ptr, &stack);
+	Return(getglobal_eval_(ptr, &stack));
 	/* free declaration */
 	if (type_free_tablefunction(stack, call, &type)) {
 		cons_alloc(local, &root, type, root);
@@ -221,6 +222,7 @@ static void type_tablefunction(Execute ptr, LocalRoot local,
 	/* final */
 final:
 	nreverse(ret, root);
+	return 0;
 }
 
 static void push_tablefunction_lexical(Execute ptr, addr stack, addr pos)
@@ -266,7 +268,7 @@ static int make_tablefunction_stack(Execute ptr, addr *ret, addr stack, addr cal
 	return 1;
 }
 
-static void update_tablefunction(Execute ptr, addr stack, addr pos)
+static int update_tablefunction_(Execute ptr, addr stack, addr pos)
 {
 	enum InlineType Inline;
 	enum IgnoreType ignore;
@@ -275,11 +277,11 @@ static void update_tablefunction(Execute ptr, addr stack, addr pos)
 
 	/* scope */
 	getname_tablefunction(pos, &name);
-	globalp = globalp_tablefunction(ptr, stack, name);
+	Return(globalp_tablefunction_(ptr, stack, name, &globalp));
 	dynamic = dynamic_tablefunction(stack, name);
 	ignore = ignore_tablefunction(stack, name);
-	Inline = inline_tablefunction(ptr, stack, name);
-	type_tablefunction(ptr, NULL, stack, name, &type);
+	Return(inline_tablefunction_(ptr, stack, name, &Inline));
+	Return(type_tablefunction_(ptr, NULL, stack, name, &type));
 	if (type_and_array(NULL, type, &type))
 		GetTypeTable(&type, Function);
 	Check(type == Nil, "type error");
@@ -290,8 +292,10 @@ static void update_tablefunction(Execute ptr, addr stack, addr pos)
 	setignore_tablefunction(pos, ignore);
 	setinline_tablefunction(pos, Inline);
 	settype_tablefunction(pos, type);
+
+	return 0;
 }
-static void push_tablefunction_global(Execute ptr, addr stack, addr call, addr *ret)
+static int push_tablefunction_global_(Execute ptr, addr stack, addr call, addr *ret)
 {
 	enum InlineType Inline;
 	enum IgnoreType ignore;
@@ -299,11 +303,11 @@ static void push_tablefunction_global(Execute ptr, addr stack, addr call, addr *
 	addr pos, type;
 
 	/* scope */
-	globalp = globalp_tablefunction(ptr, stack, call);
+	Return(globalp_tablefunction_(ptr, stack, call, &globalp));
 	dynamic = dynamic_tablefunction(stack, call);
 	ignore = ignore_tablefunction(stack, call);
-	Inline = inline_tablefunction(ptr, stack, call);
-	type_tablefunction(ptr, NULL, stack, call, &type);
+	Return(inline_tablefunction_(ptr, stack, call, &Inline));
+	Return(type_tablefunction_(ptr, NULL, stack, call, &type));
 	if (type_and_array(NULL, type, &type))
 		GetTypeTable(&type, Function);
 	Check(type == Nil, "type error");
@@ -315,16 +319,20 @@ static void push_tablefunction_global(Execute ptr, addr stack, addr call, addr *
 	setignore_tablefunction(pos, ignore);
 	setinline_tablefunction(pos, Inline);
 	settype_tablefunction(pos, type);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-static void callname_global_tablefunction(Execute ptr, addr *ret, addr call)
+static int callname_global_tablefunction_(Execute ptr, addr *ret, addr call)
 {
 	addr stack;
 
-	getglobal_eval(ptr, &stack);
-	if (! find_tablefunction(stack, call, ret))
-		push_tablefunction_global(ptr, stack, call, ret);
+	Return(getglobal_eval_(ptr, &stack));
+	if (! find_tablefunction(stack, call, ret)) {
+		Return(push_tablefunction_global_(ptr, stack, call, ret));
+	}
+
+	return 0;
 }
 
 static void push_closure_function(addr stack, addr call, addr value, addr *ret)
@@ -345,34 +353,37 @@ static void push_closure_function(addr stack, addr call, addr value, addr *ret)
 	*ret = pos;
 }
 
-static int callname_tablefunction(Execute ptr, addr stack, addr call, addr *ret)
+static int callname_tablefunction_(Execute ptr,
+		addr stack, addr call, addr *value, int *ret)
 {
+	int check;
 	addr next;
 
 	/* global */
 	if (stack == Nil) {
-		callname_global_tablefunction(ptr, ret, call);
-		return 1; /* global-scope */
+		Return(callname_global_tablefunction_(ptr, value, call));
+		return Result(ret, 1); /* global-scope */
 	}
 
 	/* local */
-	if (getfunction_scope_evalstack(stack, call, ret)) {
-		setreference_tablefunction(*ret, 1);
-		return getglobalp_tablefunction(*ret);
+	if (getfunction_scope_evalstack(stack, call, value)) {
+		setreference_tablefunction(*value, 1);
+		return Result(ret, getglobalp_tablefunction(*value));
 	}
 
 	/* next */
 	GetEvalStackNext(stack, &next);
-	if (callname_tablefunction(ptr, next, call, ret)) {
-		return 1; /* global-scope */
+	Return(callname_tablefunction_(ptr, next, call, value, &check));
+	if (check) {
+		return Result(ret, 1); /* global-scope */
 	}
 
 	/* closure */
 	if (RefEvalStackType(stack) == EVAL_STACK_MODE_LAMBDA) {
-		push_closure_function(stack, call, *ret, ret);
+		push_closure_function(stack, call, *value, value);
 	}
 
-	return 0; /* local-scope */
+	return Result(ret, 0); /* local-scope */
 }
 
 static int scope_function_object(Execute ptr, addr *ret, addr eval)
@@ -382,22 +393,20 @@ static int scope_function_object(Execute ptr, addr *ret, addr eval)
 	gettype_function(eval, &type);
 	if (type == Nil)
 		GetTypeTable(&type, Function);
-	make_eval_scope(ptr, ret, EVAL_PARSE_FUNCTION, type, eval);
 
-	return 0;
+	return make_eval_scope_(ptr, ret, EVAL_PARSE_FUNCTION, type, eval);
 }
 
 static int scope_function_callname(Execute ptr, addr *ret, addr call)
 {
+	int ignore;
 	addr value, type, stack;
 
-	getstack_eval(ptr, &stack);
-	callname_tablefunction(ptr, stack, call, &value);
+	Return(getstack_eval_(ptr, &stack));
+	Return(callname_tablefunction_(ptr, stack, call, &value, &ignore));
 	copy_tablefunction(&value, value);
 	gettype_tablefunction(value, &type);
-	make_eval_scope(ptr, ret, EVAL_PARSE_FUNCTION, type, value);
-
-	return 0;
+	return make_eval_scope_(ptr, ret, EVAL_PARSE_FUNCTION, type, value);
 }
 
 _g int scope_function_call(Execute ptr, addr *ret, addr eval)
@@ -426,17 +435,19 @@ _g void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp
 	str->eval = eval;
 }
 
-static void lambda_init_var(Execute ptr, addr stack, addr args, addr decl, addr *ret)
+static int lambda_init_var_(Execute ptr, addr stack, addr args, addr decl, addr *ret)
 {
 	addr var, list;
 
 	list = Nil;
 	while (args != Nil) {
 		GetCons(args, &var, &args);
-		ifdeclvalue(ptr, stack, var, decl, &var);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
 		cons_heap(&list, var, list);
 	}
 	nreverse(ret, list);
+
+	return 0;
 }
 
 static int lambda_init_opt(Execute ptr, addr stack, addr args, addr decl, addr *ret)
@@ -447,8 +458,8 @@ static int lambda_init_opt(Execute ptr, addr stack, addr args, addr decl, addr *
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, &svar, NULL);
 		Return(scope_eval(ptr, &init, init));
-		ifdeclvalue(ptr, stack, var, decl, &var);
-		ifdeclvalue(ptr, stack, svar, decl, &svar);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
+		Return(ifdeclvalue_(ptr, stack, svar, decl, &svar));
 		list_heap(&var, var, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
@@ -465,8 +476,8 @@ static int lambda_init_key(Execute ptr, addr stack, addr args, addr decl, addr *
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &name, &init, &svar, NULL);
 		Return(scope_eval(ptr, &init, init));
-		ifdeclvalue(ptr, stack, var, decl, &var);
-		ifdeclvalue(ptr, stack, svar, decl, &svar);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
+		Return(ifdeclvalue_(ptr, stack, svar, decl, &svar));
 		list_heap(&var, var, name, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
@@ -483,7 +494,7 @@ static int lambda_init_aux(Execute ptr, addr stack, addr args, addr decl, addr *
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, NULL);
 		Return(scope_eval(ptr, &init, init));
-		ifdeclvalue(ptr, stack, var, decl, &var);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
 		list_heap(&var, var, init, NULL);
 		cons_heap(&root, var, root);
 	}
@@ -503,9 +514,9 @@ static int lambda_init(Execute ptr, struct lambda_struct *str)
 	/* destructuring-bind */
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, NULL);
 	/* scope */
-	lambda_init_var(ptr, stack, var, decl, &var);
+	Return(lambda_init_var_(ptr, stack, var, decl, &var));
 	Return(lambda_init_opt(ptr, stack, opt, decl, &opt));
-	ifdeclvalue(ptr, stack, rest, decl, &rest);
+	Return(ifdeclvalue_(ptr, stack, rest, decl, &rest));
 	Return(lambda_init_key(ptr, stack, key, decl, &key));
 	Return(lambda_init_aux(ptr, stack, aux, decl, &aux));
 	list_heap(&str->args, var, opt, rest, key, allow, aux, NULL);
@@ -723,13 +734,15 @@ static void lambda_closure_list(addr stack, addr *ret)
 	*ret = root;
 }
 
-static void lambda_closure(Execute ptr, struct lambda_struct *str)
+static int lambda_closure_(Execute ptr, struct lambda_struct *str)
 {
 	addr stack, list;
 
-	getstack_eval(ptr, &stack);
+	Return(getstack_eval_(ptr, &stack));
 	lambda_closure_list(stack, &list);
 	str->clos = list;
+
+	return 0;
 }
 
 _g void lambda_lexical_heap(addr stack, addr *ret)
@@ -772,16 +785,16 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	/* lambda */
 	stack = str->stack;
 	Return(lambda_init(ptr, str));
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(lambda_tablevalue_(ptr, str->args));
 	lambda_declare(ptr, str);
 	Return(lambda_progn(ptr, str));
 	Return(ignore_checkvalue_(stack));
-	lambda_closure(ptr, str);
+	Return(lambda_closure_(ptr, str));
 	lambda_lexical(str);
 
 	/* eval */
-	eval_scope_size(ptr, &eval, EvalLambda_Size, str->eval, str->the, Nil);
+	Return(eval_scope_size_(ptr, &eval, EvalLambda_Size, str->eval, str->the, Nil));
 	SetEvalScopeIndex(eval, EvalLambda_Call, str->call);
 	SetEvalScopeIndex(eval, EvalLambda_Table, str->table);
 	SetEvalScopeIndex(eval, EvalLambda_Args, str->args);
@@ -808,10 +821,10 @@ static void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
 
 static int lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
 {
-	str->stack = newstack_lambda(ptr);
+	Return(newstack_lambda_(ptr, &(str->stack)));
 	localhold_lambda_struct(ptr->local, str);
 	Return(lambda_execute(ptr, str, ret));
-	freestack_eval(ptr, str->stack);
+	Return(freestack_eval_(ptr, str->stack));
 	str->stack = NULL;
 
 	return 0;
@@ -834,13 +847,15 @@ _g int scope_lambda_call(Execute ptr, addr *ret, addr eval)
 /*
  *  defun
  */
-static void defun_update(Execute ptr, struct lambda_struct *str)
+static int defun_update_(Execute ptr, struct lambda_struct *str)
 {
 	addr stack, table;
 
-	getglobal_eval(ptr, &stack);
-	push_tablefunction_global(ptr, stack, str->call, &table);
+	Return(getglobal_eval_(ptr, &stack));
+	Return(push_tablefunction_global_(ptr, stack, str->call, &table));
 	settype_tablefunction(table, str->the);
+
+	return 0;
 }
 
 static int defun_the_(addr eval, struct lambda_struct *str)
@@ -876,7 +891,7 @@ _g int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret)
 	addr eval;
 
 	Return(lambda_object(ptr, str, &eval));
-	defun_update(ptr, str);
+	Return(defun_update_(ptr, str));
 	Return(defun_the_(eval, str));
 
 	return Result(ret, eval);
@@ -897,7 +912,7 @@ static int macro_init_var(Execute ptr, addr stack, addr args, addr decl, addr *r
 			Return(macro_init_args(ptr, stack, var, decl, &var));
 		}
 		else {
-			ifdeclvalue(ptr, stack, var, decl, &var);
+			Return(ifdeclvalue_(ptr, stack, var, decl, &var));
 		}
 		cons_heap(&root, var, root);
 	}
@@ -906,7 +921,7 @@ static int macro_init_var(Execute ptr, addr stack, addr args, addr decl, addr *r
 	return 0;
 }
 
-static void macro_init_rest(Execute ptr, addr stack, addr rest, addr decl, addr *ret)
+static int macro_init_rest_(Execute ptr, addr stack, addr rest, addr decl, addr *ret)
 {
 	addr var, type;
 
@@ -915,9 +930,11 @@ static void macro_init_rest(Execute ptr, addr stack, addr rest, addr decl, addr 
 	}
 	else {
 		GetCons(rest, &var, &type);
-		ifdeclvalue(ptr, stack, var, decl, &var);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
 		cons_heap(ret, var, type);
 	}
+
+	return 0;
 }
 
 static int macro_init_args(Execute ptr, addr stack, addr args, addr decl, addr *ret)
@@ -927,11 +944,11 @@ static int macro_init_args(Execute ptr, addr stack, addr args, addr decl, addr *
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
 	Return(macro_init_var(ptr, stack, var, decl, &var));
 	Return(lambda_init_opt(ptr, stack, opt, decl, &opt));
-	macro_init_rest(ptr, stack, rest, decl, &rest);
+	Return(macro_init_rest_(ptr, stack, rest, decl, &rest));
 	Return(lambda_init_key(ptr, stack, key, decl, &key));
 	Return(lambda_init_aux(ptr, stack, aux, decl, &aux));
-	ifdeclvalue(ptr, stack, whole, decl, &whole);
-	ifdeclvalue(ptr, stack, env, decl, &env);
+	Return(ifdeclvalue_(ptr, stack, whole, decl, &whole));
+	Return(ifdeclvalue_(ptr, stack, env, decl, &env));
 	list_heap(ret, var, opt, rest, key, allow, aux, whole, env, NULL);
 
 	return 0;
@@ -996,15 +1013,15 @@ static int macro_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	/* lambda */
 	stack = str->stack;
 	Return(macro_init(ptr, str));
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(macro_tablevalue_(ptr, str->args));
 	Return(macro_progn(ptr, str));
 	Return(ignore_checkvalue_(stack));
-	lambda_closure(ptr, str);
+	Return(lambda_closure_(ptr, str));
 	lambda_lexical(str);
 
 	/* eval */
-	eval_scope_size(ptr, &eval, EvalLambda_Size, str->eval, str->the, Nil);
+	Return(eval_scope_size_(ptr, &eval, EvalLambda_Size, str->eval, str->the, Nil));
 	SetEvalScopeIndex(eval, EvalLambda_Args, str->args);
 	SetEvalScopeIndex(eval, EvalLambda_Decl, str->decl);
 	SetEvalScopeIndex(eval, EvalLambda_Doc, str->doc);
@@ -1018,10 +1035,10 @@ static int macro_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 
 static int macro_lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
 {
-	str->stack = newstack_lambda(ptr);
+	Return(newstack_lambda_(ptr, &(str->stack)));
 	localhold_lambda_struct(ptr->local, str);
 	Return(macro_execute(ptr, str, ret));
-	freestack_eval(ptr, str->stack);
+	Return(freestack_eval_(ptr, str->stack));
 	str->stack = NULL;
 
 	return 0;
@@ -1076,10 +1093,10 @@ _g int scope_define_compiler_macro_call(Execute ptr,
  */
 static int scope_bind_lambda(Execute ptr, struct lambda_struct *str, addr *ret)
 {
-	str->stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_lambda_struct(ptr->local, str);
 	Return(macro_execute(ptr, str, ret));
-	freestack_eval(ptr, str->stack);
+	Return(freestack_eval_(ptr, str->stack));
 	str->stack = NULL;
 
 	return 0;
@@ -1099,7 +1116,8 @@ _g int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args)
 	Return(scope_bind_lambda(ptr, &str, &lambda));
 
 	/* result */
-	eval_scope_size(ptr, &eval, 5, EVAL_PARSE_DESTRUCTURING_BIND, str.body_the, Nil);
+	Return(eval_scope_size_(ptr, &eval, 5,
+				EVAL_PARSE_DESTRUCTURING_BIND, str.body_the, Nil));
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, str.args);
 	SetEvalScopeIndex(eval, 2, str.decl);
@@ -1175,7 +1193,7 @@ static int flet_applytable_(Execute ptr, struct let_struct *str)
 	while (args != Nil) {
 		GetCons(args, &call, &args);
 		GetCons(call, &call, &eval);
-		update_tablefunction(ptr, stack, call);
+		Return(update_tablefunction_(ptr, stack, call));
 		Return(checktype_function_(call, eval));
 	}
 
@@ -1218,7 +1236,7 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 	stack = str->stack;
 	Return(flet_init(ptr, str));
 	flet_maketable(ptr, str);
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(flet_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	Return(ignore_checkfunction_(stack));
@@ -1228,25 +1246,24 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 
 _g int scope_flet_call(Execute ptr, struct let_struct *str)
 {
-	str->stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
 	Return(flet_execute(ptr, str));
-	freestack_eval(ptr, str->stack);
 
-	return 0;
+	return freestack_eval_(ptr, str->stack);
 }
 
 
 /*
  *  labels
  */
-static void ifdeclcall(Execute ptr, addr stack, addr call, addr decl, addr *ret)
+static int ifdeclcall_(Execute ptr, addr stack, addr call, addr decl, addr *ret)
 {
 	addr pos;
 
 	make_tablefunction_stack(ptr, &pos, stack, call);
 	apply_declare_function_stack(ptr->local, stack, call, decl);
-	push_tablefunction_global(ptr, stack, call, ret);
+	return push_tablefunction_global_(ptr, stack, call, ret);
 }
 
 static int labels_call(Execute ptr, addr list, addr *ret)
@@ -1269,7 +1286,7 @@ static int labels_init(Execute ptr, struct let_struct *str)
 		GetCons(args, &eval, &args);
 		Return(labels_call(ptr, eval, &eval));
 		GetEvalScopeIndex(eval, EvalLambda_Call, &call);
-		ifdeclcall(ptr, stack, call, decl, &call);
+		Return(ifdeclcall_(ptr, stack, call, decl, &call));
 		cons_heap(&call, call, eval);
 		cons_heap(&root, call, root);
 	}
@@ -1298,7 +1315,7 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 
 	stack = str->stack;
 	Return(labels_init(ptr, str));
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(labels_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	Return(ignore_checkfunction_(stack));
@@ -1308,12 +1325,11 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 
 _g int scope_labels_call(Execute ptr, struct let_struct *str)
 {
-	str->stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
 	Return(labels_execute(ptr, str));
-	freestack_eval(ptr, str->stack);
 
-	return 0;
+	return freestack_eval_(ptr, str->stack);
 }
 
 
@@ -1632,7 +1648,7 @@ _g int scope_call_call(Execute ptr, addr first, addr args, addr *ret)
 	localhold_push(hold, type);
 	localhold_end(hold);
 
-	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_CALL, type, Nil);
+	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_CALL, type, Nil));
 	SetEvalScopeIndex(eval, 0, first);
 	SetEvalScopeIndex(eval, 1, args);
 	return Result(ret, eval);

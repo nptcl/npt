@@ -85,7 +85,7 @@ static int parse_compile_toplevel_symbol(addr pos)
 	return 0;
 }
 
-_g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret)
+_g int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret)
 {
 	addr compile, load, exec, toplevel, mode, eval;
 
@@ -101,23 +101,23 @@ _g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret)
 		goto return_throw;
 
 	/* toplevel */
-	gettoplevel_eval(ptr, &toplevel);
+	Return(gettoplevel_eval_(ptr, &toplevel));
 	if (toplevel == Nil)
 		goto return_throw;
 
 	/* :compile-toplevel */
-	get_compile_toplevel_eval(ptr, &compile);
+	Return(get_compile_toplevel_eval_(ptr, &compile));
 	if (compile != Nil)
 		goto return_throw;
 
 	/* compile-time-too */
-	get_compile_time_eval(ptr, &mode);
+	Return(get_compile_time_eval_(ptr, &mode));
 	if (mode != Nil)
 		goto return_throw;
 
 	/* eval-when */
-	get_load_toplevel_eval(ptr, &load);
-	get_execute_eval(ptr, &exec);
+	Return(get_load_toplevel_eval_(ptr, &load));
+	Return(get_execute_eval_(ptr, &exec));
 	conscar_heap(&list, list);
 
 	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 6);
@@ -127,11 +127,10 @@ _g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret)
 	SetEvalParse(eval, 3, exec);      /* :execute */
 	SetEvalParse(eval, 4, toplevel);  /* toplevel */
 	SetEvalParse(eval, 5, mode);      /* compile-time */
-	*ret = eval;
-	return;
+	return Result(ret, eval);
 
 return_throw:
-	*ret = list;
+	return Result(ret, list);
 }
 
 

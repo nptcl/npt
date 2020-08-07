@@ -364,9 +364,9 @@ static int test_set_ftype_declare_heap(void)
 	internchar_debug(LISP_SYSTEM, "AAA", &sym1);
 	internchar_debug(LISP_SYSTEM, "BBB", &sym2);
 	internchar_debug(LISP_SYSTEM, "CCC", &sym3);
-	parse_callname_error(&sym1, sym1);
-	parse_callname_error(&sym2, sym2);
-	parse_callname_error(&sym3, sym3);
+	parse_callname_error_(&sym1, sym1);
+	parse_callname_error_(&sym2, sym2);
+	parse_callname_error_(&sym3, sym3);
 	GetTypeTable(&type1, Atom);
 	GetTypeTable(&type2, List);
 	set_ftype_declare_heap(pos, sym1, type1);
@@ -394,7 +394,7 @@ static int test_push_ftype_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	GetTypeTable(&type1, Atom);
 	GetTypeTable(&type2, List);
 	push_ftype_declare_heap(pos, symbol, type1);
@@ -450,7 +450,7 @@ static int test_plist_callname_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	plist_callname_declare_heap(pos, symbol,
 			CONSTANT_COMMON_INLINE, EVAL_DECLARE_INLINE);
 	GetEvalDeclare(pos, EVAL_DECLARE_INLINE, &check);
@@ -470,7 +470,7 @@ static int test_plist_callname_declare_heap(void)
 				CONSTANT_COMMON_NOTINLINE, EVAL_DECLARE_INLINE),
 			"eq_callname_declare3");
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! eq_callname_declare(pos, symbol,
 				CONSTANT_COMMON_INLINE, EVAL_DECLARE_INLINE),
 			"eq_callname_declare4");
@@ -484,12 +484,12 @@ static int test_push_inline_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_inline_declare_heap(pos, symbol);
 	test(check_inline_declare(pos, symbol), "push_inline_declare1");
 	test(! check_notinline_declare(pos, symbol), "push_inline_declare2");
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_inline_declare(pos, symbol), "push_inline_declare3");
 	test(! check_notinline_declare(pos, symbol), "push_inline_declare4");
 
@@ -502,17 +502,17 @@ static int test_push_notinline_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_notinline_declare_heap(pos, symbol);
 	test(! check_inline_declare(pos, symbol), "push_notinline_declare1");
 	test(check_notinline_declare(pos, symbol), "push_notinline_declare2");
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_inline_declare(pos, symbol), "push_notinline_declare3");
 	test(! check_notinline_declare(pos, symbol), "push_notinline_declare4");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_inline_declare_heap(pos, symbol);
 	test(check_inline_declare(pos, symbol), "push_notinline_declare5");
 
@@ -570,14 +570,14 @@ static int test_push_ignore_function_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_ignore_function_declare_heap(pos, symbol);
 	test(check_ignore_function_declare(pos, symbol),
 			"push_ignore_function_declare1");
 	test(! check_ignorable_function_declare(pos, symbol),
 			"push_ignore_function_declare2");
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_ignore_function_declare(pos, symbol),
 			"push_ignore_function_declare3");
 	test(! check_ignorable_function_declare(pos, symbol),
@@ -592,21 +592,21 @@ static int test_push_ignorable_function_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_ignorable_function_declare_heap(pos, symbol);
 	test(! check_ignore_function_declare(pos, symbol),
 			"push_ignorable_function_declare1");
 	test(check_ignorable_function_declare(pos, symbol),
 			"push_ignorable_function_declare2");
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_ignore_function_declare(pos, symbol),
 			"push_ignorable_function_declare3");
 	test(! check_ignorable_function_declare(pos, symbol),
 			"push_ignorable_function_declare4");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_ignore_function_declare_heap(pos, symbol);
 	test(check_ignore_function_declare(pos, symbol),
 			"push_ignorable_function_declare5");
@@ -659,40 +659,40 @@ static int test_push_callname_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_callname_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(check != Nil, "push_callname_declare_heap1");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_callname_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_callname_declare_heap2");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_callname_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_callname_declare_heap3");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(check_callname_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_callname_declare1");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(check_callname_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_callname_declare2");
 
 	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_callname_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_callname_declare3");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_callname_declare(pos, symbol, EVAL_DECLARE_DYNAMIC_VALUE),
 			"check_callname_declare4");
 
@@ -775,35 +775,35 @@ static int test_push_dynamic_function_declare_heap(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, &check);
 	test(check != Nil, "push_dynamic_function_declare_heap1");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, &check);
 	test(length_list_unsafe(check) == 2, "push_dynamic_function_declare_heap2");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, &check);
 	test(length_list_unsafe(check) == 2, "push_dynamic_function_declare_heap3");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(check_dynamic_function_declare(pos, symbol),
 			"check_dynamic_function_declare1");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(check_dynamic_function_declare(pos, symbol),
 			"check_dynamic_function_declare2");
 
 	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(! check_dynamic_function_declare(pos, symbol),
 			"check_dynamic_function_declare3");
 
@@ -873,23 +873,23 @@ static int test_getall_inline_declare(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_inline_declare_heap(pos, symbol);
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_notinline_declare_heap(pos, symbol);
 
 	getall_inline_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "getall_inline_declare1");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_inline_declare2");
 	GetConstant(CONSTANT_COMMON_INLINE, &key);
 	test(check == key, "getall_inline_declare3");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_inline_declare4");
 	GetConstant(CONSTANT_COMMON_NOTINLINE, &key);
 	test(check == key, "getall_inline_declare5");
@@ -945,22 +945,22 @@ static int test_getall_type_function_declare(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	GetTypeTable(&type, Atom);
 	push_ftype_declare_heap(pos, symbol, type);
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	GetTypeTable(&type, List);
 	push_ftype_declare_heap(pos, symbol, type);
 
 	getall_type_function_declare(pos, &pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_type_function_declare1");
 	test(RefLispDecl(check) == LISPDECL_ATOM, "getall_type_function_declare2");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_type_function_declare3");
 	test(RefLispDecl(check) == LISPDECL_LIST, "getall_type_function_declare4");
 
@@ -991,13 +991,13 @@ static int test_getall_dynamic_function_declare(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	getall_dynamic_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "getall_dynamic_function_declare1");
@@ -1038,24 +1038,24 @@ static int test_getall_ignore_function_declare(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_ignore_function_declare_heap(pos, symbol);
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	push_ignorable_function_declare_heap(pos, symbol);
 
 	getall_ignore_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "getall_ignore_function_declare1");
 
 	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0,
 			"getall_ignore_function_declare2");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "getall_ignore_function_declare3");
 
 	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0,
 			"getall_ignore_function_declare4");
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &key);
@@ -1174,8 +1174,8 @@ static int test_decl_ftype(void)
 	internchar_debug(LISP_COMMON, "INTEGER", &key);
 	internchar_debug(LISP_PACKAGE, "BBB", &key1);
 	internchar_debug(LISP_PACKAGE, "CCC", &key2);
-	parse_callname_error(&call1, key1);
-	parse_callname_error(&call2, key2);
+	parse_callname_error_(&call1, key1);
+	parse_callname_error_(&call2, key2);
 	list_heap(&cons, key, key1, key2, NULL);
 	result = decl_ftype_(Execute_Thread, Nil, pos, cons);
 	getall_type_function_declare(pos, &cons);
@@ -1214,9 +1214,9 @@ static int test_decl_inline(void)
 	internchar_debug(LISP_PACKAGE, "AAA", &key1);
 	internchar_debug(LISP_PACKAGE, "BBB", &key2);
 	internchar_debug(LISP_PACKAGE, "CCC", &key3);
-	parse_callname_error(&call1, key1);
-	parse_callname_error(&call2, key2);
-	parse_callname_error(&call3, key3);
+	parse_callname_error_(&call1, key1);
+	parse_callname_error_(&call2, key2);
+	parse_callname_error_(&call3, key3);
 	list_heap(&cons, key1, key2, key2, NULL);
 	decl_inline_(pos, cons);
 	getall_inline_declare(pos, &cons);
@@ -1319,7 +1319,7 @@ static int test_decl_ignore(void)
 	getall_ignore_function_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 2, "decl_ignore7");
 	readstring(&check, "ccc");
-	parse_callname_error(&check, check);
+	parse_callname_error_(&check, check);
 	test(getplist_callname(cons, check, &check) == 0, "decl_ignore8");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "decl_ignore9");
@@ -1345,7 +1345,7 @@ static int test_decl_ignore(void)
 	getall_ignore_function_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 4, "decl_ignorable8");
 	readstring(&check, "(setf eee)");
-	parse_callname_error(&check, check);
+	parse_callname_error_(&check, check);
 	test(getplist_callname(cons, check, &check) == 0, "decl_ignorable9");
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &key);
 	test(check == key, "decl_ignorable10");
@@ -1370,7 +1370,7 @@ static int test_decl_dynamic_extent(void)
 	getall_dynamic_function_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 1, "decl_dynamic_extent4");
 	readstring(&check, "ccc");
-	parse_callname_error(&check, check);
+	parse_callname_error_(&check, check);
 	test(find_list_callname_unsafe(check, cons), "decl_dynamic_extent5");
 
 	RETURN;
@@ -1781,11 +1781,11 @@ static int test_copy_declare_type_f(void)
 	getall_type_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "copy_declare_type_f1");
 	readstring(&symbol, "aaa");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_type_f2");
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "copy_declare_type_f3");
 	readstring(&symbol, "bbb");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_type_f4");
 	test(RefLispDecl(check) == LISPDECL_STRING, "copy_declare_type_f5");
 
@@ -1826,13 +1826,13 @@ static int test_copy_declare_push_f(void)
 	getall_dynamic_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "copy_declare_push_f1");
 	readstring(&symbol, "aaa");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(find_list_callname_unsafe(symbol, pos), "copy_declare_push_f2");
 	readstring(&symbol, "(setf bbb)");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(find_list_callname_unsafe(symbol, pos), "copy_declare_push_f3");
 	readstring(&symbol, "ccc");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(find_list_callname_unsafe(symbol, pos), "copy_declare_push_f4");
 
 	RETURN;
@@ -1875,11 +1875,11 @@ static int test_copy_declare_plist_f(void)
 	getall_inline_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "copy_declare_plist_f1");
 	readstring(&symbol, "aaa");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_plist_f2");
 	test(check == key, "copy_declare_plist_f3");
 	readstring(&symbol, "bbb");
-	parse_callname_error(&symbol, symbol);
+	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_plist_f4");
 	test(check == key, "copy_declare_plist_f5");
 

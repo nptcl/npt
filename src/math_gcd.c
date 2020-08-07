@@ -76,7 +76,7 @@ static void gcd_loop_number(LocalRoot local, addr left, addr first, addr args)
 	}
 }
 
-_g void gcd_number(LocalRoot local, addr args, addr *ret)
+_g int gcd_number_(LocalRoot local, addr args, addr *ret)
 {
 	addr left, right, pos, first_left, first_right;
 	LocalStack stack;
@@ -87,7 +87,7 @@ _g void gcd_number(LocalRoot local, addr args, addr *ret)
 	count = 0;
 	size = 0;
 	for (right = args; right != Nil; ) {
-		getcons(right, &left, &right);
+		Return_getcons(right, &left, &right);
 		Check(! integerp(left), "type error");
 		/* ignore */
 		if (zerop_integer(left))
@@ -108,13 +108,13 @@ _g void gcd_number(LocalRoot local, addr args, addr *ret)
 	/* no argument */
 	if (count == 0) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
 	/* only one argument */
 	if (count == 1) {
 		gcd_first_number(first_left, ret);
-		return;
+		return 0;
 	}
 
 	/* second */
@@ -124,6 +124,8 @@ _g void gcd_number(LocalRoot local, addr args, addr *ret)
 	SetSignBignum(pos, SignPlus);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
@@ -150,46 +152,47 @@ static void lcm_calc_number(LocalRoot local, addr *ret, addr left, addr right)
 	rollback_local(local, stack);
 }
 
-_g void lcm_loop_number(LocalRoot local, addr left, addr args, addr *ret)
+static int lcm_loop_number_(LocalRoot local, addr left, addr args, addr *ret)
 {
 	addr right;
 
 	while (args != Nil) {
-		getcons(args, &right, &args);
+		Return_getcons(args, &right, &args);
 		Check(! integerp(right), "type error");
 		if (zerop_integer(right)) {
 			fixnum_heap(ret, 0);
-			return;
+			return 0;
 		}
 		lcm_calc_number(local, &left, left, right);
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
-_g void lcm_number(LocalRoot local, addr args, addr *ret)
+_g int lcm_number_(LocalRoot local, addr args, addr *ret)
 {
 	addr left;
 
 	if (args == Nil) {
 		fixnum_heap(ret, 1);
-		return;
+		return 0;
 	}
 
 	/* only one argument */
-	getcons(args, &left, &args);
+	Return_getcons(args, &left, &args);
 	if (args == Nil) {
 		gcd_first_number(left, ret);
-		return;
+		return 0;
 	}
 
 	/* zero */
 	Check(! integerp(left), "type error");
 	if (zerop_integer(left)) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
 	/* loop */
-	lcm_loop_number(local, left, args, ret);
+	return lcm_loop_number_(local, left, args, ret);
 }
 

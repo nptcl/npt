@@ -410,7 +410,7 @@ static int coerce_function(Execute ptr, addr pos, addr type, addr *ret)
 	addr call;
 
 	if (symbolp(pos)) {
-		getfunction_global(pos, &call);
+		Return(getfunction_global_(pos, &call));
 		return coerce_typep(ptr, pos, call, type, ret);
 	}
 	else {

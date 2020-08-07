@@ -471,61 +471,64 @@ _g int float_precision_common_(Execute ptr, addr pos, addr *ret)
 /*
  *  integer-decode-float
  */
-static int integer_decode_float_single_value(LocalRoot local,
-		single_float v, addr *ret, int *rexp, int *rsign)
+static int integer_decode_float_single_value_(LocalRoot local,
+		single_float v, addr *value, int *rexp, int *rsign, int *ret)
 {
-	int e, p;
+	int e, p, check;
 
 	*rsign = signbit(v)? -1: 1;
 	v = frexpf(fabsf(v), &e);
 	if (float_precision_single(v, &p))
-		return 1;
+		return Result(ret, 1);
 	v = ldexpf(v, p);
 	*rexp = e - p;
-	if (bignum_single_float_local(local, ret, v))
-		return 1;
+	Return(bignum_single_float_local_(local, v, value, &check));
+	if (check)
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int integer_decode_float_double_value(LocalRoot local,
-		double_float v, addr *ret, int *rexp, int *rsign)
+static int integer_decode_float_double_value_(LocalRoot local,
+		double_float v, addr *value, int *rexp, int *rsign, int *ret)
 {
-	int e, p;
+	int e, p, check;
 
 	*rsign = signbit(v)? -1: 1;
 	v = frexp(fabs(v), &e);
 	if (float_precision_double(v, &p))
-		return 1;
+		return Result(ret, 1);
 	v = ldexp(v, p);
 	*rexp = e - p;
-	if (bignum_double_float_local(local, ret, v))
-		return 1;
+	Return(bignum_double_float_local_(local, v, value, &check));
+	if (check)
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int integer_decode_float_long_value(LocalRoot local,
-		long_float v, addr *ret, int *rexp, int *rsign)
+static int integer_decode_float_long_value_(LocalRoot local,
+		long_float v, addr *value, int *rexp, int *rsign, int *ret)
 {
-	int e, p;
+	int e, p, check;
 
 	*rsign = signbit(v)? -1: 1;
 	v = frexpl(fabsl(v), &e);
 	if (float_precision_long(v, &p))
-		return 1;
+		return Result(ret, 1);
 	v = ldexpl(v, p);
 	*rexp = e - p;
-	if (bignum_long_float_local(local, ret, v))
-		return 1;
+	Return(bignum_long_float_local_(local, v, value, &check));
+	if (check)
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int integer_decode_float_single_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
-	int e, sign;
+	int e, sign, check;
 	single_float v;
 	addr temp;
 	LocalRoot local;
@@ -541,7 +544,8 @@ static int integer_decode_float_single_(Execute ptr,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (integer_decode_float_single_value(local, v, &temp, &e, &sign)) {
+	Return(integer_decode_float_single_value_(local, v, &temp, &e, &sign, &check));
+	if (check) {
 		*ret = *rexp = *rsign = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
@@ -549,13 +553,14 @@ static int integer_decode_float_single_(Execute ptr,
 	rollback_local(local, stack);
 	fixnum_heap(rexp, (fixnum)e);
 	fixnum_heap(rsign, (fixnum)sign);
+
 	return 0;
 }
 
 static int integer_decode_float_double_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
-	int e, sign;
+	int e, sign, check;
 	double_float v;
 	addr temp;
 	LocalRoot local;
@@ -571,7 +576,8 @@ static int integer_decode_float_double_(Execute ptr,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (integer_decode_float_double_value(local, v, &temp, &e, &sign)) {
+	Return(integer_decode_float_double_value_(local, v, &temp, &e, &sign, &check));
+	if (check) {
 		*ret = *rexp = *rsign = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
@@ -579,13 +585,14 @@ static int integer_decode_float_double_(Execute ptr,
 	rollback_local(local, stack);
 	fixnum_heap(rexp, (fixnum)e);
 	fixnum_heap(rsign, (fixnum)sign);
+
 	return 0;
 }
 
 static int integer_decode_float_long_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
-	int e, sign;
+	int e, sign, check;
 	long_float v;
 	addr temp;
 	LocalRoot local;
@@ -601,7 +608,8 @@ static int integer_decode_float_long_(Execute ptr,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (integer_decode_float_long_value(local, v, &temp, &e, &sign)) {
+	Return(integer_decode_float_long_value_(local, v, &temp, &e, &sign, &check));
+	if (check) {
 		*ret = *rexp = *rsign = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
@@ -609,6 +617,7 @@ static int integer_decode_float_long_(Execute ptr,
 	rollback_local(local, stack);
 	fixnum_heap(rexp, (fixnum)e);
 	fixnum_heap(rsign, (fixnum)sign);
+
 	return 0;
 }
 
@@ -654,7 +663,7 @@ static void rational_float_common(LocalRoot local,
 
 static int rational_single_common_(Execute ptr, addr pos, addr *ret)
 {
-	int e, sign;
+	int e, sign, check;
 	single_float v;
 	LocalRoot local;
 	LocalStack stack;
@@ -667,18 +676,20 @@ static int rational_single_common_(Execute ptr, addr pos, addr *ret)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (integer_decode_float_single_value(local, v, &pos, &e, &sign)) {
+	Return(integer_decode_float_single_value_(local, v, &pos, &e, &sign, &check));
+	if (check) {
 		*ret = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	rational_float_common(local, ret, pos, e, sign);
 	rollback_local(local, stack);
+
 	return 0;
 }
 
 static int rational_double_common_(Execute ptr, addr pos, addr *ret)
 {
-	int e, sign;
+	int e, sign, check;
 	double_float v;
 	LocalRoot local;
 	LocalStack stack;
@@ -691,18 +702,20 @@ static int rational_double_common_(Execute ptr, addr pos, addr *ret)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (integer_decode_float_double_value(local, v, &pos, &e, &sign)) {
+	Return(integer_decode_float_double_value_(local, v, &pos, &e, &sign, &check));
+	if (check) {
 		*ret = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	rational_float_common(local, ret, pos, e, sign);
 	rollback_local(local, stack);
+
 	return 0;
 }
 
 static int rational_long_common_(Execute ptr, addr pos, addr *ret)
 {
-	int e, sign;
+	int e, sign, check;
 	long_float v;
 	LocalRoot local;
 	LocalStack stack;
@@ -715,12 +728,14 @@ static int rational_long_common_(Execute ptr, addr pos, addr *ret)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (integer_decode_float_long_value(local, v, &pos, &e, &sign)) {
+	Return(integer_decode_float_long_value_(local, v, &pos, &e, &sign, &check));
+	if (check) {
 		*ret = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	rational_float_common(local, ret, pos, e, sign);
 	rollback_local(local, stack);
+
 	return 0;
 }
 

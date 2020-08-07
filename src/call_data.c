@@ -24,9 +24,9 @@
 /*
  *  apply
  */
-_g int apply_common(Execute ptr, addr call, addr arg, addr args)
+_g int apply_common_(Execute ptr, addr call, addr arg, addr args)
 {
-	lista_safe_local(ptr->local, &args, arg, args);
+	Return(lista_safe_local_(ptr->local, &args, arg, args));
 	return apply_control(ptr, call, args);
 }
 
@@ -94,8 +94,8 @@ _g int fdefinition_common(Execute ptr, addr name, addr *ret)
 _g int setf_fdefinition_common(addr value, addr name)
 {
 	Return(parse_callname_error_(&name, name));
-	remtype_global_callname(name);
-	setglobal_callname(name, value);
+	Return(remtype_global_callname_(name));
+	Return(setglobal_callname_(name, value));
 	return 0;
 }
 
@@ -117,8 +117,8 @@ _g int fboundp_common(addr name)
 _g int fmakunbound_common(addr name)
 {
 	Return(parse_callname_error_(&name, name));
-	remtype_global_callname(name);
-	setglobal_callname(name, Unbound);
+	Return(remtype_global_callname_(name));
+	Return(setglobal_callname_(name, Unbound));
 	return 0;
 }
 

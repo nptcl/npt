@@ -43,7 +43,7 @@ static int get_make_load_form_(Execute ptr, addr key, addr *ret)
 	addr table;
 
 	make_load_form_symbol(ptr, &table);
-	getspecialcheck_local(ptr, table, &table);
+	Return(getspecialcheck_local_(ptr, table, &table));
 
 	return find_hashtable_(table, key, ret);
 }
@@ -282,7 +282,7 @@ _g int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
 
 	/* table */
 	compile_make_load_form_symbol(ptr, &symbol);
-	getspecialcheck_local(ptr, symbol, &special);
+	Return(getspecialcheck_local_(ptr, symbol, &special));
 	GetCons(special, &index, &table); 
 
 	/* object */
@@ -309,7 +309,7 @@ _g int get_read_make_load_form_(Execute ptr, addr key, addr *ret)
 
 	/* table */
 	compile_make_load_form_symbol(ptr, &table);
-	getspecialcheck_local(ptr, table, &table);
+	Return(getspecialcheck_local_(ptr, table, &table));
 
 	/* intern */
 	Check(! integerp(key), "type error");

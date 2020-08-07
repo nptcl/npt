@@ -196,19 +196,26 @@ static int test_pushnewplist_heap(void)
 	RETURN;
 }
 
+static enum RemPlist remplist_debug(addr list, addr key, addr *ret)
+{
+	enum RemPlist value;
+	Error(remplist_safe_(list, key, ret, &value));
+	return value;
+}
+
 static int test_remplist_safe(void)
 {
 	addr pos, key, key1, key2, key3, value, list;
 
 	GetConstant(CONSTANT_COMMON_SPECIAL, &key);
-	test(remplist_safe(Nil, key, &pos) == RemPlist_NotFound, "remplist_safe.1");
+	test(remplist_debug(Nil, key, &pos) == RemPlist_NotFound, "remplist_safe.1");
 	test(pos == Nil, "remplist_safe.2");
 
 	list_heap(&list, key, T, NULL);
 	fixnum_heap(&key1, 10);
-	test(remplist_safe(list, key1, &pos) == RemPlist_NotFound, "remplist_safe.3");
+	test(remplist_debug(list, key1, &pos) == RemPlist_NotFound, "remplist_safe.3");
 	test(pos == list, "remplist_safe.4");
-	test(remplist_safe(list, key, &pos) == RemPlist_Update, "remplist_safe.5");
+	test(remplist_debug(list, key, &pos) == RemPlist_Update, "remplist_safe.5");
 	test(pos == Nil, "remplist_safe.6");
 
 	interncommon_debug("CAR", &key1);
@@ -218,9 +225,9 @@ static int test_remplist_safe(void)
 			key1, fixnumh(10),
 			key2, fixnumh(20),
 			key3, fixnumh(30), NULL);
-	test(remplist_safe(list, T, &pos) == RemPlist_NotFound, "remplist_safe.7");
+	test(remplist_debug(list, T, &pos) == RemPlist_NotFound, "remplist_safe.7");
 	test(pos == list, "remplist_safe.8");
-	test(remplist_safe(list, key1, &pos) == RemPlist_Update, "remplist_safe.9");
+	test(remplist_debug(list, key1, &pos) == RemPlist_Update, "remplist_safe.9");
 	test(length_list_unsafe(pos) == 4, "remplist_safe.10");
 	test(getplist(pos, key1, &value), "remplist_safe.11");
 	test(getplist(pos, key2, &value) == 0, "remplist_safe.12");
@@ -232,7 +239,7 @@ static int test_remplist_safe(void)
 			key1, fixnumh(10),
 			key2, fixnumh(20),
 			key3, fixnumh(30), NULL);
-	test(remplist_safe(list, key2, &pos) == RemPlist_Delete, "remplist_safe.16");
+	test(remplist_debug(list, key2, &pos) == RemPlist_Delete, "remplist_safe.16");
 	test(length_list_unsafe(pos) == 4, "remplist_safe.17");
 	test(getplist(pos, key1, &value) == 0, "remplist_safe.18");
 	test(RefFixnum(value) == 10, "remplist_safe.19");
@@ -244,7 +251,7 @@ static int test_remplist_safe(void)
 			key1, fixnumh(10),
 			key2, fixnumh(20),
 			key3, fixnumh(30), NULL);
-	test(remplist_safe(list, key3, &pos) == RemPlist_Delete, "remplist_safe.23");
+	test(remplist_debug(list, key3, &pos) == RemPlist_Delete, "remplist_safe.23");
 	test(length_list_unsafe(pos) == 4, "remplist_safe.24");
 	test(getplist(pos, key1, &value) == 0, "remplist_safe.25");
 	test(RefFixnum(value) == 10, "remplist_safe.26");

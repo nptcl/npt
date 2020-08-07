@@ -277,8 +277,8 @@ static int setf_documentation_function_function_(Execute ptr, addr name, addr ge
 static int method_documentation_list_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	parse_callname_error(&object, object);
-	getglobalcheck_callname(object, &object);
+	Return(parse_callname_error_(&object, object));
+	Return(getglobalcheck_callname_(object, &object));
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
 
@@ -288,8 +288,8 @@ static int method_documentation_list_function(Execute ptr,
 static int method_setf_documentation_list_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	parse_callname_error(&object, object);
-	getglobalcheck_callname(object, &object);
+	Return(parse_callname_error_(&object, object));
+	Return(getglobalcheck_callname_(object, &object));
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
 
@@ -333,8 +333,8 @@ static int setf_documentation_list_function_(Execute ptr, addr name, addr gen)
 static int method_documentation_list_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	parse_callname_error(&object, object);
-	getglobalcheck_callname(object, &object);
+	Return(parse_callname_error_(&object, object));
+	Return(getglobalcheck_callname_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
@@ -346,8 +346,8 @@ static int method_documentation_list_compiled_function(Execute ptr,
 static int method_setf_documentation_list_compiled_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	parse_callname_error(&object, object);
-	getglobalcheck_callname(object, &object);
+	Return(parse_callname_error_(&object, object));
+	Return(getglobalcheck_callname_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
 	setdocumentation_function(object, value);
@@ -393,7 +393,7 @@ static int setf_documentation_list_compiled_function_(Execute ptr, addr name, ad
 static int method_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	getfunction_global(object, &object);
+	Return(getfunction_global_(object, &object));
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
 
@@ -403,7 +403,7 @@ static int method_documentation_symbol_function(Execute ptr,
 static int method_setf_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	getfunction_global(object, &object);
+	Return(getfunction_global_(object, &object));
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
 
@@ -447,7 +447,7 @@ static int setf_documentation_symbol_function_(Execute ptr, addr name, addr gen)
 static int method_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	getfunction_global(object, &object);
+	Return(getfunction_global_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
@@ -459,7 +459,7 @@ static int method_documentation_symbol_compiled_function(Execute ptr,
 static int method_setf_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	getfunction_global(object, &object);
+	Return(getfunction_global_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
 	setdocumentation_function(object, value);
@@ -512,8 +512,9 @@ static int method_documentation_symbol_setf(Execute ptr,
 	/* define-setf-expander, defsetf */
 	getsetfmacro_symbol(object, &pos);
 	/* setf-function */
-	if (pos == Unbound)
-		getsetf_global(object, &pos);
+	if (pos == Unbound) {
+		Return(getsetf_global_(object, &pos));
+	}
 	/* get documentation */
 	getdocumentation_function(pos, &pos);
 	setresult_control(ptr, pos);
@@ -529,8 +530,9 @@ static int method_setf_documentation_symbol_setf(Execute ptr,
 	/* define-setf-expander, defsetf */
 	getsetfmacro_symbol(object, &pos);
 	/* setf-function */
-	if (pos == Unbound)
-		getsetf_global(object, &pos);
+	if (pos == Unbound) {
+		Return(getsetf_global_(object, &pos));
+	}
 	/* set documentation */
 	setdocumentation_function(pos, value);
 	setresult_control(ptr, value);
@@ -993,7 +995,7 @@ static int method_documentation_symbol_type(Execute ptr,
 	clos_find_class_nil(object, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
-		getfunction_global(pos, &pos);
+		Return(getfunction_global_(pos, &pos));
 		return funcall_control(ptr, pos, clos, doc_type, NULL);
 	}
 
@@ -1016,7 +1018,7 @@ static int method_setf_documentation_symbol_type(Execute ptr,
 	clos_find_class_nil(object, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
-		getsetf_global(pos, &pos);
+		Return(getsetf_global_(pos, &pos));
 		return funcall_control(ptr, pos, value, clos, doc_type, NULL);
 	}
 

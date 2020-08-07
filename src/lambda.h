@@ -84,13 +84,13 @@ _g int argument_combination_heap_(LocalRoot local, addr *ret, addr list);
 _g int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g);
 
 /* expand */
-_g void argument_ordinary_lambda_heap(addr *ret, addr pos);
-_g void argument_generic_lambda_heap(addr *ret, addr pos);
-_g void argument_method_lambda_heap(addr *ret, addr pos);
+_g int argument_ordinary_lambda_heap_(addr *ret, addr pos);
+_g int argument_generic_lambda_heap_(addr *ret, addr pos);
+_g int argument_method_lambda_heap_(addr *ret, addr pos);
 _g int argument_method_keywords_heap_(addr pos, addr *ret, int *allow);
 _g void argument_method_to_generic(addr pos, addr *ret);
-_g void argument_boa_lambda_heap(addr *ret, addr pos);
-_g void argument_boa_variables_heap(addr *ret, addr pos);
+_g int argument_boa_lambda_heap_(addr *ret, addr pos);
+_g int argument_boa_variables_heap_(addr *ret, addr pos);
 
 /* :allow-other-keys */
 _g int find_keyword_allow_other_keys(addr list);

@@ -41,7 +41,7 @@ static int test_fmtint_count(void)
 	args.index = 0;
 	print.rest = &args;
 	value = 0;
-	fmtint_count(&print, &value);
+	fmtint_count_(&print, &value);
 	test(value == 5, "fmtint_count1");
 
 	RETURN;

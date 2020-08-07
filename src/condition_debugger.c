@@ -34,7 +34,7 @@ static int function_handler_warning(Execute ptr, addr condition)
 	int check;
 	addr pos, stream, format, args;
 
-	error_output_stream(ptr, &stream);
+	Return(error_output_stream_(ptr, &stream));
 	GetConst(CONDITION_SIMPLE_WARNING, &pos);
 	Return(clos_subtype_p_(condition, pos, &check));
 	if (check) {
@@ -212,7 +212,7 @@ static int enter_debugger(Execute ptr, addr condition)
 
 	/* restarts */
 	mode_prompt_stream(ptr, PromptStreamMode_Normal);
-	debug_io_stream(ptr, &io);
+	Return(debug_io_stream_(ptr, &io));
 	Return(compute_restarts_control_(ptr, condition, &list));
 	hold = LocalHold_local_push(ptr, list);
 	if (list == Nil) {
@@ -271,27 +271,29 @@ exit:
 	return 0;
 }
 
-static int enable_debugger_p(Execute ptr)
+static int enable_debugger_p_(Execute ptr, int *ret)
 {
 	addr pos;
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	return pos != Nil;
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	return Result(ret, pos != Nil);
 }
 
 static int invoke_standard_debugger(Execute ptr, addr condition)
 {
+	int check;
 	addr io, pos, control;
 
 	/* output condition */
-	debug_io_stream(ptr, &io);
+	Return(debug_io_stream_(ptr, &io));
 	Return(clos_class_of_(condition, &pos));
 	Return(stdget_class_name_(pos, &pos));
 	Return(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
 	Return(output_debugger(ptr, io, condition));
 
 	/* no-debugger */
-	if (! enable_debugger_p(ptr)) {
+	Return(enable_debugger_p_(ptr, &check));
+	if (! check) {
 		Return(format_stream(ptr, io, "~2&Debugger is not enabled.~%", NULL));
 		abortthis();
 		return 0;
@@ -307,13 +309,14 @@ _g int invoke_debugger(Execute ptr, addr condition)
 	addr symbol, prior, call, control;
 
 	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
-	getspecialcheck_local(ptr, symbol, &prior);
+	Return(getspecialcheck_local_(ptr, symbol, &prior));
 	if (prior == Nil)
 		return invoke_standard_debugger(ptr, condition);
 	/* call function */
 	call = prior;
-	if (symbolp(call))
-		getfunction_global(call, &call);
+	if (symbolp(call)) {
+		Return(getfunction_global_(call, &call));
+	}
 	push_new_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
 	Return(funcall_control(ptr, call, condition, prior, NULL));

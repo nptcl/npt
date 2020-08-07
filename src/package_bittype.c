@@ -22,8 +22,8 @@ static void make_bitpackage(addr *ret, addr name, addr package)
 	addr bit, symbol;
 
 	symbol_heap(&symbol);
-	setname_symbol(symbol, name);
-	setpackage_symbol(symbol, package);
+	SetNameSymbol(symbol, name);
+	SetPackageSymbol(symbol, package);
 	alloc_bitpackage(&bit, symbol, PACKAGE_TYPE_INTERNAL);
 	SetBitTypeBase(bit, 1);
 	*ret = bit;
@@ -68,8 +68,8 @@ _g void shadowintern_bitpackage(addr bit, addr name, addr package)
 	struct bittype_struct *str;
 
 	symbol_heap(&symbol);
-	setname_symbol(symbol, name);
-	setpackage_symbol(symbol, package);
+	SetNameSymbol(symbol, name);
+	SetPackageSymbol(symbol, package);
 	SetBitTypeSymbol(bit, symbol);
 	str = StructBitType(bit);
 	str->intern = PACKAGE_TYPE_INTERNAL;

@@ -8,7 +8,7 @@
 _g int check_variable_(addr symbol);
 _g int check_function_variable_(addr symbol);
 _g int tagbody_tag_p(addr pos);
-_g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret);
+_g int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret);
 _g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel);
 
 #endif

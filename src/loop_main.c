@@ -31,23 +31,25 @@ static void loop_push_main_do(struct loop_main *str, addr list)
 	}
 }
 
-static void loop_push_main_return(struct loop_main *str, addr list)
+static int loop_push_main_return_(struct loop_main *str, addr list)
 {
 	addr expr, retfrom, x;
 
-	list_bind(list, &expr, NULL);
+	Return(list_bind_(list, &expr, NULL));
 	/* `(return-from ,named ,expr) */
 	GetConst(COMMON_RETURN_FROM, &retfrom);
 	list_heap(&x, retfrom, str->named, expr, NULL);
 	loop_main_push_form(str, x);
+
+	return 0;
 }
 
-static void loop_push_main_collect(struct loop_main *str, addr list)
+static int loop_push_main_collect_(struct loop_main *str, addr list)
 {
 	addr form, into, value, setq, push, append, lsym, x;
 	addr floop, fsym, nreverse;
 
-	list_bind(list, &form, &into, NULL);
+	Return(list_bind_(list, &form, &into, NULL));
 	if (into == Unbound) {
 		/* `(setq function-loop (function nreverse)) */
 		GetConst(COMMON_SETQ, &setq);
@@ -73,27 +75,31 @@ static void loop_push_main_collect(struct loop_main *str, addr list)
 		list_heap(&x, setq, into, append, NULL);
 		loop_main_push_form(str, x);
 	}
+
+	return 0;
 }
 
-static void loop_let_main_collect(addr *form, addr list)
+static int loop_let_main_collect_(addr *form, addr list)
 {
 	addr value, into, let;
 
-	list_bind(list, &value, &into, NULL);
+	Return(list_bind_(list, &value, &into, NULL));
 	if (into != Unbound) {
 		/* (let (,into) ,form) */
 		GetConst(COMMON_LET, &let);
 		list_heap(&into, into, NULL);
 		list_heap(form, let, into, *form, NULL);
 	}
+
+	return 0;
 }
 
-static void loop_push_main_append(struct loop_main *str, addr list)
+static int loop_push_main_append_(struct loop_main *str, addr list)
 {
 	addr form, into, value, setq, push, append, x;
 	addr floop, lambda, apply, fsym, nreverse;
 
-	list_bind(list, &form, &into, NULL);
+	Return(list_bind_(list, &form, &into, NULL));
 	if (into == Unbound) {
 		/* `(setq function-loop
 		 *    (lambda (x)
@@ -128,14 +134,16 @@ static void loop_push_main_append(struct loop_main *str, addr list)
 		list_heap(&x, setq, into, append, NULL);
 		loop_main_push_form(str, x);
 	}
+
+	return 0;
 }
 
-static void loop_push_main_nconc(struct loop_main *str, addr list)
+static int loop_push_main_nconc_(struct loop_main *str, addr list)
 {
 	addr form, into, value, setq, push, nconc, x;
 	addr floop, lambda, apply, fsym, nreverse;
 
-	list_bind(list, &form, &into, NULL);
+	Return(list_bind_(list, &form, &into, NULL));
 	if (into == Unbound) {
 		/* `(setq function-loop
 		 *    (lambda (x)
@@ -170,13 +178,15 @@ static void loop_push_main_nconc(struct loop_main *str, addr list)
 		list_heap(&x, setq, into, nconc, NULL);
 		loop_main_push_form(str, x);
 	}
+
+	return 0;
 }
 
-static void loop_push_main_count(struct loop_main *str, addr list)
+static int loop_push_main_count_(struct loop_main *str, addr list)
 {
 	addr form, into, type, value, setq, floop, ifsym, incf, x;
 
-	list_bind(list, &form, &into, &type, NULL);
+	Return(list_bind_(list, &form, &into, &type, NULL));
 	if (into == Unbound) {
 		/* `(setq value-loop 0) */
 		GetConst(COMMON_SETQ, &setq);
@@ -203,13 +213,15 @@ static void loop_push_main_count(struct loop_main *str, addr list)
 		list_heap(&x, ifsym, form, incf, NULL);
 		loop_main_push_form(str, x);
 	}
+
+	return 0;
 }
 
-static void loop_push_main_sum(struct loop_main *str, addr list)
+static int loop_push_main_sum_(struct loop_main *str, addr list)
 {
 	addr form, into, type, value, setq, floop, incf, x;
 
-	list_bind(list, &form, &into, &type, NULL);
+	Return(list_bind_(list, &form, &into, &type, NULL));
 	if (into == Unbound) {
 		/* `(setq value-loop 0) */
 		GetConst(COMMON_SETQ, &setq);
@@ -232,13 +244,15 @@ static void loop_push_main_sum(struct loop_main *str, addr list)
 		list_heap(&x, incf, into, form, NULL);
 		loop_main_push_form(str, x);
 	}
+
+	return 0;
 }
 
-static void loop_push_main_maxmin(struct loop_main *str, addr list, constindex index)
+static int loop_push_main_maxmin_(struct loop_main *str, addr list, constindex index)
 {
 	addr form, into, type, value, setq, floop, let, ifsym, maxmin, x, y, z, g;
 
-	list_bind(list, &form, &into, &type, NULL);
+	Return(list_bind_(list, &form, &into, &type, NULL));
 	if (into == Unbound) {
 		/* `(setq value-loop nil) */
 		GetConst(COMMON_SETQ, &setq);
@@ -271,23 +285,25 @@ static void loop_push_main_maxmin(struct loop_main *str, addr list, constindex i
 	list_heap(&ifsym, ifsym, value, y, z, NULL);
 	list_heap(&x, let, form, ifsym, NULL);
 	loop_main_push_form(str, x);
+
+	return 0;
 }
 
-static void loop_push_main_maximize(struct loop_main *str, addr list)
+static int loop_push_main_maximize_(struct loop_main *str, addr list)
 {
-	loop_push_main_maxmin(str, list, CONSTANT_COMMON_MAX);
+	return loop_push_main_maxmin_(str, list, CONSTANT_COMMON_MAX);
 }
 
-static void loop_push_main_minimize(struct loop_main *str, addr list)
+static int loop_push_main_minimize_(struct loop_main *str, addr list)
 {
-	loop_push_main_maxmin(str, list, CONSTANT_COMMON_MIN);
+	return loop_push_main_maxmin_(str, list, CONSTANT_COMMON_MIN);
 }
 
-static void loop_let_main_count(addr *form, addr list)
+static int loop_let_main_count_(addr *form, addr list)
 {
 	addr value, into, type, let, zero;
 
-	list_bind(list, &value, &into, &type, NULL);
+	Return(list_bind_(list, &value, &into, &type, NULL));
 	if (into != Unbound) {
 		/* (let ((,into 0)) ,form) */
 		GetConst(COMMON_LET, &let);
@@ -296,32 +312,38 @@ static void loop_let_main_count(addr *form, addr list)
 		list_heap(&into, into, NULL);
 		list_heap(form, let, into, *form, NULL);
 	}
+
+	return 0;
 }
 
-static void loop_let_main_maximize(addr *form, addr list)
+static int loop_let_main_maximize_(addr *form, addr list)
 {
 	addr value, into, type, let;
 
-	list_bind(list, &value, &into, &type, NULL);
+	Return(list_bind_(list, &value, &into, &type, NULL));
 	if (into != Unbound) {
 		/* (let (,into) ,form) */
 		GetConst(COMMON_LET, &let);
 		list_heap(&into, into, NULL);
 		list_heap(form, let, into, *form, NULL);
 	}
+
+	return 0;
 }
 
-static void loop_let_main_repeat(addr *form, addr list)
+static int loop_let_main_repeat_(addr *form, addr list)
 {
 	addr expr, a, b, let, zero;
 
-	list_bind(list, &expr, &a, &b, NULL);
+	Return(list_bind_(list, &expr, &a, &b, NULL));
 	/* (let ((,a 0) ,b) ,form) */
 	GetConst(COMMON_LET, &let);
 	fixnum_heap(&zero, 0);
 	list_heap(&a, a, zero, NULL);
 	list_heap(&a, a, b, NULL);
 	list_heap(form, let, a, *form, NULL);
+
+	return 0;
 }
 
 static int loop_push_main_if_unless_(struct loop_main *str,
@@ -331,7 +353,7 @@ static int loop_push_main_if_unless_(struct loop_main *str,
 	addr setq, it, if_unless, go;
 
 	GetConstant(index, &if_unless);
-	list_bind(list, &form, &expr1, &expr2, NULL);
+	Return(list_bind_(list, &form, &expr1, &expr2, NULL));
 	if (expr2 == Unbound) {
 		/* (setq it-loop ,form)
 		 * (if_unless it-loop (go #:end-if))
@@ -394,7 +416,7 @@ static int loop_let_if_unless_(addr *form, addr list)
 {
 	addr expr, expr1, expr2;
 
-	list_bind(list, &expr, &expr1, &expr2, NULL);
+	Return(list_bind_(list, &expr, &expr1, &expr2, NULL));
 	Return(loop_let_main_(form, expr1));
 	if (expr2 != Unbound) {
 		Return(loop_let_main_(form, expr2));
@@ -403,12 +425,12 @@ static int loop_let_if_unless_(addr *form, addr list)
 	return 0;
 }
 
-static void loop_push_main_while_until(struct loop_main *str,
+static int loop_push_main_while_until_(struct loop_main *str,
 		addr list, constindex index)
 {
 	addr expr, check, go, end_loop;
 
-	list_bind(list, &expr, NULL);
+	Return(list_bind_(list, &expr, NULL));
 	/* `(unless ,expr (go end-loop)) */
 	GetConstant(index, &check);
 	GetConst(COMMON_GO, &go);
@@ -416,24 +438,26 @@ static void loop_push_main_while_until(struct loop_main *str,
 	list_heap(&go, go, end_loop, NULL);
 	list_heap(&check, check, expr, go, NULL);
 	loop_main_push_form(str, check);
+
+	return 0;
 }
 
-static void loop_push_main_while(struct loop_main *str, addr list)
+static int loop_push_main_while_(struct loop_main *str, addr list)
 {
-	loop_push_main_while_until(str, list, CONSTANT_COMMON_UNLESS);
+	return loop_push_main_while_until_(str, list, CONSTANT_COMMON_UNLESS);
 }
 
-static void loop_push_main_until(struct loop_main *str, addr list)
+static int loop_push_main_until_(struct loop_main *str, addr list)
 {
-	loop_push_main_while_until(str, list, CONSTANT_COMMON_WHEN);
+	return loop_push_main_while_until_(str, list, CONSTANT_COMMON_WHEN);
 }
 
-static void loop_push_main_terminate(struct loop_main *str,
+static int loop_push_main_terminate_(struct loop_main *str,
 		addr list, constindex index)
 {
 	addr expr, setq, value, check, retfrom, x;
 
-	list_bind(list, &expr, NULL);
+	Return(list_bind_(list, &expr, NULL));
 	/* `(setq value-loop t) */
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(SYSTEM_VALUE_LOOP, &value);
@@ -445,23 +469,25 @@ static void loop_push_main_terminate(struct loop_main *str,
 	list_heap(&retfrom, retfrom, str->named, Nil, NULL);
 	list_heap(&x, check, expr, retfrom, NULL);
 	loop_main_push_form(str, x);
+
+	return 0;
 }
 
-static void loop_push_main_always(struct loop_main *str, addr list)
+static int loop_push_main_always_(struct loop_main *str, addr list)
 {
-	loop_push_main_terminate(str, list, CONSTANT_COMMON_UNLESS);
+	return loop_push_main_terminate_(str, list, CONSTANT_COMMON_UNLESS);
 }
 
-static void loop_push_main_never(struct loop_main *str, addr list)
+static int loop_push_main_never_(struct loop_main *str, addr list)
 {
-	loop_push_main_terminate(str, list, CONSTANT_COMMON_WHEN);
+	return loop_push_main_terminate_(str, list, CONSTANT_COMMON_WHEN);
 }
 
-static void loop_push_main_thereis(struct loop_main *str, addr list)
+static int loop_push_main_thereis_(struct loop_main *str, addr list)
 {
 	addr expr, setq, value, let, ifsym, retfrom, x, g;
 
-	list_bind(list, &expr, NULL);
+	Return(list_bind_(list, &expr, NULL));
 	/* `(setq value-loop nil) */
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(SYSTEM_VALUE_LOOP, &value);
@@ -480,13 +506,15 @@ static void loop_push_main_thereis(struct loop_main *str, addr list)
 	list_heap(&g, g, NULL);
 	list_heap(&x, let, g, ifsym, NULL);
 	loop_main_push_form(str, x);
+
+	return 0;
 }
 
-static void loop_push_main_repeat(struct loop_main *str, addr list)
+static int loop_push_main_repeat_(struct loop_main *str, addr list)
 {
 	addr expr, a, b, setq, ifsym, less, incf, go, end_loop, x;
 
-	list_bind(list, &expr, &a, &b, NULL);
+	Return(list_bind_(list, &expr, &a, &b, NULL));
 	/* `(setq ,b ,expr) */
 	GetConst(COMMON_SETQ, &setq);
 	list_heap(&x, setq, b, expr, NULL);
@@ -505,6 +533,8 @@ static void loop_push_main_repeat(struct loop_main *str, addr list)
 	list_heap(&less, less, a, b, NULL);
 	list_heap(&x, ifsym, less, incf, go, NULL);
 	loop_main_push_form(str, x);
+
+	return 0;
 }
 
 _g int loop_push_main_(struct loop_main *str, addr list)
@@ -549,61 +579,61 @@ _g int loop_push_main_(struct loop_main *str, addr list)
 			continue;
 		}
 		if (car == return_p) {
-			loop_push_main_return(str, cdr);
+			Return(loop_push_main_return_(str, cdr));
 			continue;
 		}
 		/* accumulation */
 		if (car == collect_p) {
-			loop_push_main_collect(str, cdr);
+			Return(loop_push_main_collect_(str, cdr));
 			continue;
 		}
 		if (car == append_p) {
-			loop_push_main_append(str, cdr);
+			Return(loop_push_main_append_(str, cdr));
 			continue;
 		}
 		if (car == nconc_p) {
-			loop_push_main_nconc(str, cdr);
+			Return(loop_push_main_nconc_(str, cdr));
 			continue;
 		}
 		if (car == count_p) {
-			loop_push_main_count(str, cdr);
+			Return(loop_push_main_count_(str, cdr));
 			continue;
 		}
 		if (car == sum_p) {
-			loop_push_main_sum(str, cdr);
+			Return(loop_push_main_sum_(str, cdr));
 			continue;
 		}
 		if (car == max_p) {
-			loop_push_main_maximize(str, cdr);
+			Return(loop_push_main_maximize_(str, cdr));
 			continue;
 		}
 		if (car == min_p) {
-			loop_push_main_minimize(str, cdr);
+			Return(loop_push_main_minimize_(str, cdr));
 			continue;
 		}
 		/* termination */
 		if (car == while_p) {
-			loop_push_main_while(str, cdr);
+			Return(loop_push_main_while_(str, cdr));
 			continue;
 		}
 		if (car == until_p) {
-			loop_push_main_until(str, cdr);
+			Return(loop_push_main_until_(str, cdr));
 			continue;
 		}
 		if (car == always_p) {
-			loop_push_main_always(str, cdr);
+			Return(loop_push_main_always_(str, cdr));
 			continue;
 		}
 		if (car == never_p) {
-			loop_push_main_never(str, cdr);
+			Return(loop_push_main_never_(str, cdr));
 			continue;
 		}
 		if (car == thereis_p) {
-			loop_push_main_thereis(str, cdr);
+			Return(loop_push_main_thereis_(str, cdr));
 			continue;
 		}
 		if (car == repeat_p) {
-			loop_push_main_repeat(str, cdr);
+			Return(loop_push_main_repeat_(str, cdr));
 			continue;
 		}
 		/* error */
@@ -658,16 +688,16 @@ _g int loop_let_main_(addr *form, addr list)
 		}
 		/* list-accumulation */
 		if (car == collect_p || car == append_p || car == nconc_p) {
-			loop_let_main_collect(form, cdr);
+			Return(loop_let_main_collect_(form, cdr));
 			continue;
 		}
 		/* numeric-accumulation */
 		if (car == count_p || car == sum_p) {
-			loop_let_main_count(form, cdr);
+			Return(loop_let_main_count_(form, cdr));
 			continue;
 		}
 		if (car == max_p || car == min_p) {
-			loop_let_main_maximize(form, cdr);
+			Return(loop_let_main_maximize_(form, cdr));
 			continue;
 		}
 		if (car == while_p || car == until_p ||
@@ -675,7 +705,7 @@ _g int loop_let_main_(addr *form, addr list)
 			continue;
 		}
 		if (car == repeat_p) {
-			loop_let_main_repeat(form, cdr);
+			Return(loop_let_main_repeat_(form, cdr));
 			continue;
 		}
 		/* error */

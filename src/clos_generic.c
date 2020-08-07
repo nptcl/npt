@@ -400,7 +400,7 @@ static int generic_no_applicable_method_(Execute ptr, addr gen, addr args)
 
 	/* call (no-applicable-method generic-function . args) */
 	GetConst(COMMON_NO_APPLICABLE_METHOD, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return applya_control(ptr, call, gen, args, NULL);
 }
 
@@ -910,7 +910,7 @@ _g int generic_common_instance_(addr *ret, addr name, addr args)
 	Return(stdset_generic_precedence_index_(pos, Nil));
 
 	/* result */
-	setglobal_parse_callname(name, pos);
+	Return(setglobal_parse_callname_(name, pos));
 	return Result(ret, pos);
 }
 
@@ -997,7 +997,7 @@ _g int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *
 result:
 	/* (apply #'ensure-generic-function-using-class ...) */
 	GetConst(CLOSNAME_ENSURE_GENERIC_FUNCTION_USING_CLASS, &ensure);
-	getfunction_global(ensure, &ensure);
+	Return(getfunction_global_(ensure, &ensure));
 	return applya_control(ptr, ensure, clos, name, rest, NULL);
 }
 
@@ -1031,7 +1031,7 @@ _g int generic_empty_(addr name, addr lambda, addr *ret)
 
 	/* result */
 	Return(generic_finalize_(pos));
-	setglobal_parse_callname(name, pos);
+	Return(setglobal_parse_callname_(name, pos));
 	return Result(ret, pos);
 }
 
@@ -1100,7 +1100,7 @@ _g int generic_add_(struct generic_argument *str, addr *ret)
 
 	/* result */
 	Return(generic_finalize_(pos));
-	setglobal_parse_callname(str->name, pos);
+	Return(setglobal_parse_callname_(str->name, pos));
 	return Result(ret, pos);
 }
 

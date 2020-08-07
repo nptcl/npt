@@ -58,15 +58,15 @@ static int test_reduction_multiple(void)
 	test(reffixed_bignum(right, 0) == 49, "reduction_multiple2");
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16, "AC8E074D2AC4CCD83E7C158CAB2BDE62A9BD0");
+	setchar_bigcons_(local, cons, 16, "AC8E074D2AC4CCD83E7C158CAB2BDE62A9BD0");
 	bignum_cons_local(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16, "13429222C878719C2E13D04BEE1AEE280815CF00");
+	setchar_bigcons_(local, cons, 16, "13429222C878719C2E13D04BEE1AEE280815CF00");
 	bignum_cons_local(local, &right, SignPlus, cons);
 	reduction_multiple(local, left, right);
-	setchar_bigcons(local, cons, 16, "10FAD49DA1EAB68EDE0E49F7717B21AC5");
+	setchar_bigcons_(local, cons, 16, "10FAD49DA1EAB68EDE0E49F7717B21AC5");
 	bignum_cons_local(local, &check, SignPlus, cons);
 	test(equal_bb_real(left, check), "reduction_multiple3");
-	setchar_bigcons(local, cons, 16, "1E52E158A845559AE45A9B18141794A4A70");
+	setchar_bigcons_(local, cons, 16, "1E52E158A845559AE45A9B18141794A4A70");
 	bignum_cons_local(local, &check, SignPlus, cons);
 	test(equal_bb_real(right, check), "reduction_multiple4");
 
@@ -97,15 +97,15 @@ static int test_reduction_local(void)
 	test(reffixed_bignum(right, 0) == 49, "reduction_local2");
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16, "AC8E074D2AC4CCD83E7C158CAB2BDE62A9BD0");
+	setchar_bigcons_(local, cons, 16, "AC8E074D2AC4CCD83E7C158CAB2BDE62A9BD0");
 	bignum_cons_local(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16, "13429222C878719C2E13D04BEE1AEE280815CF00");
+	setchar_bigcons_(local, cons, 16, "13429222C878719C2E13D04BEE1AEE280815CF00");
 	bignum_cons_local(local, &right, SignPlus, cons);
 	reduction_local(local, left, right);
-	setchar_bigcons(local, cons, 16, "10FAD49DA1EAB68EDE0E49F7717B21AC5");
+	setchar_bigcons_(local, cons, 16, "10FAD49DA1EAB68EDE0E49F7717B21AC5");
 	bignum_cons_local(local, &check, SignPlus, cons);
 	test(equal_bb_real(left, check), "reduction_local3");
-	setchar_bigcons(local, cons, 16, "1E52E158A845559AE45A9B18141794A4A70");
+	setchar_bigcons_(local, cons, 16, "1E52E158A845559AE45A9B18141794A4A70");
 	bignum_cons_local(local, &check, SignPlus, cons);
 	test(equal_bb_real(right, check), "reduction_local4");
 
@@ -1084,25 +1084,25 @@ static int test_hexadecimal_ratio(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16, "ABC0123456789ABCDEF0123456");
+	setchar_bigcons_(local, cons, 16, "ABC0123456789ABCDEF0123456");
 	bignum_cons_alloc(local, &pos, SignPlus, cons);
 	ret = hexadecimal_ratio(ptr, pos, 508);
 	*ret = 0;
 	test(strcmp(ptr, "A.BC0123456789ABCDEF0123456") == 0, "hexadecimal_ratio1");
 
-	setchar_bigcons(local, cons, 16, "ABC0123456789ABCDEF012345678");
+	setchar_bigcons_(local, cons, 16, "ABC0123456789ABCDEF012345678");
 	bignum_cons_alloc(local, &pos, SignPlus, cons);
 	ret = hexadecimal_ratio(ptr, pos, 508);
 	*ret = 0;
 	test(strcmp(ptr, "A.BC0123456789ABCDEF012345678") == 0, "hexadecimal_ratio2");
 
-	setchar_bigcons(local, cons, 16, "ABC0123456789ABCDEF012345678");
+	setchar_bigcons_(local, cons, 16, "ABC0123456789ABCDEF012345678");
 	bignum_cons_alloc(local, &pos, SignPlus, cons);
 	ret = hexadecimal_ratio(ptr, pos, 22);
 	*ret = 0;
 	test(strcmp(ptr, "A.BC012") == 0, "hexadecimal_ratio3");
 
-	setchar_bigcons(local, cons, 16, "F");
+	setchar_bigcons_(local, cons, 16, "F");
 	bignum_cons_alloc(local, &pos, SignPlus, cons);
 	ret = hexadecimal_ratio(ptr, pos, 100);
 	*ret = 0;
@@ -1123,7 +1123,7 @@ static int test_float_string_ratio(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16, "ABC");
+	setchar_bigcons_(local, cons, 16, "ABC");
 	bignum_cons_alloc(local, &pos, SignPlus, cons);
 	float_string_ratio(0, pos, ptr, 10, 50);
 	test(strcmp(ptr, "+0xA.BCp10") == 0, "float_string_ratio1");

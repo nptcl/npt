@@ -156,7 +156,7 @@ _g int typep_unbound_error(Execute ptr, addr value, addr type);
 
 _g int call_type_error_(Execute ptr, addr datum, addr expected);
 _g int call_type_error_const_(Execute ptr, addr datum, constindex expected);
-#define TypeError_(a,b) call_type_error_const_(Execute_Thread, (a), CONSTANT_COMMON_##b)
+#define TypeError_(a,b) call_type_error_const_(NULL, (a), CONSTANT_COMMON_##b)
 
 /* simple_type_error */
 _g void instance_simple_type_error(addr *ret,
@@ -184,11 +184,14 @@ _g int call_unbound_slot_(Execute ptr, addr argument, addr name);
 /* unbound_variable */
 _g void instance_unbound_variable(addr *ret, addr name);
 _g void unbound_variable(addr name);
+_g int call_unbound_variable_(Execute ptr, addr name);
 
 /* undefined_function */
 _g void instance_undefined_function(addr *ret, addr name);
 _g void undefined_function(addr name);
 _g void undefined_function_setf(addr name);
+_g int instance_undefined_function_(addr *ret, addr name);
+_g int call_undefined_function_(Execute ptr, addr name);
 
 /* savecore */
 _g void instance_savecore_condition(addr *ret);

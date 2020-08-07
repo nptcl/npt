@@ -112,11 +112,11 @@ _g int describe_common(Execute ptr, addr object, addr stream)
 	addr call;
 
 	/* stream */
-	output_stream_designer(ptr, stream, &stream);
+	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(fresh_line_stream_(stream, NULL));
 	/* call */
 	GetConst(COMMON_DESCRIBE_OBJECT, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, object, stream, NULL);
 }
 
@@ -190,14 +190,14 @@ _g int inspect_common(Execute ptr, addr object)
 {
 	addr io, symbol;
 
-	terminal_io_stream(ptr, &io);
+	Return(terminal_io_stream_(ptr, &io));
 	Return(describe_common(ptr, object, io));
 	/* *inspected* */
 	GetConst(SYSTEM_INSPECTED, &symbol);
 	pushspecial_control(ptr, symbol, object);
 	/* prompt */
 	mode_prompt_stream(ptr, PromptStreamMode_Inspect);
-	Return(eval_custom_loop(ptr, io, eval_loop_inspect_));
+	Return(eval_custom_loop_(ptr, io, eval_loop_inspect_));
 
 	return 0;
 }

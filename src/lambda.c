@@ -70,7 +70,7 @@ static int variable_check_(addr var, enum AMPERSAND_ARGUMENT ampersand)
 		return fmte_("The symbol ~S must not be a constant symbol.", var, NULL);
 	if (member_ampersand(var, ampersand))
 		return fmte_("The symbol ~S don't use in the lambda-list.", var, NULL);
-	
+
 	return 0;
 }
 
@@ -731,7 +731,7 @@ static int specialized_var_(addr cons, addr *var, addr *spec)
 	Return(specialized_var_cons_(cons, var, spec));
 	if (! check_specializer_form(*spec))
 		return fmte_("The parameter ~S don't allow a specializer form.", *spec, NULL);
-	
+
 	return 0;
 }
 
@@ -1001,7 +1001,7 @@ static int push_varcons_defsetf_(LocalRoot local, addr instance, addr var)
 	if (find_list_eq_unsafe(var, data))
 		return fmte_("The variable ~S is already used.", var, NULL);
 	pushqueue_local(local, instance, var);
-	
+
 	return 0;
 }
 
@@ -1464,7 +1464,7 @@ _g int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g)
 /*
  *  expand
  */
-_g void argument_generic_lambda_heap(addr *ret, addr pos)
+_g int argument_generic_lambda_heap_(addr *ret, addr pos)
 {
 	addr root, list, var, a, b;
 	struct argument_struct *str;
@@ -1509,7 +1509,7 @@ _g void argument_generic_lambda_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_key, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
-			list_bind(var, &a, &b, NULL);
+			Return(list_bind_(var, &a, &b, NULL));
 			list_heap(&var, b, a, NULL);
 			cons_heap(&root, var, root);
 		}
@@ -1523,9 +1523,10 @@ _g void argument_generic_lambda_heap(addr *ret, addr pos)
 
 	/* result */
 	nreverse(ret, root);
+	return 0;
 }
 
-static void argument_expand_heap(addr *ret, addr pos)
+static int argument_expand_heap_(addr *ret, addr pos)
 {
 	addr root, list, var, a, b, c, d;
 	struct argument_struct *str;
@@ -1551,7 +1552,7 @@ static void argument_expand_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_opt, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
-			list_bind(var, &a, &b, &c, NULL);
+			Return(list_bind_(var, &a, &b, &c, NULL));
 			if (c == Nil)
 				list_heap(&var, a, b, NULL);
 			else
@@ -1577,7 +1578,7 @@ static void argument_expand_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_key, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
-			list_bind(var, &a, &b, &c, &d, NULL);
+			Return(list_bind_(var, &a, &b, &c, &d, NULL));
 			list_heap(&a, b, a, NULL);
 			if (d == Nil)
 				list_heap(&var, a, c, NULL);
@@ -1606,18 +1607,19 @@ static void argument_expand_heap(addr *ret, addr pos)
 
 	/* result */
 	nreverse(ret, root);
+	return 0;
 }
 
-_g void argument_ordinary_lambda_heap(addr *ret, addr pos)
+_g int argument_ordinary_lambda_heap_(addr *ret, addr pos)
 {
 	Check(ArgumentStruct(pos)->type != ArgumentType_ordinary, "type error");
-	argument_expand_heap(ret, pos);
+	return argument_expand_heap_(ret, pos);
 }
 
-_g void argument_method_lambda_heap(addr *ret, addr pos)
+_g int argument_method_lambda_heap_(addr *ret, addr pos)
 {
 	Check(ArgumentStruct(pos)->type != ArgumentType_method, "type error");
-	argument_expand_heap(ret, pos);
+	return argument_expand_heap_(ret, pos);
 }
 
 _g int argument_method_keywords_heap_(addr pos, addr *ret, int *allow)
@@ -1697,13 +1699,13 @@ _g void argument_method_to_generic(addr method, addr *ret)
 	*ret = pos;
 }
 
-_g void argument_boa_lambda_heap(addr *ret, addr pos)
+_g int argument_boa_lambda_heap_(addr *ret, addr pos)
 {
 	Check(ArgumentStruct(pos)->type != ArgumentType_boa, "type error");
-	argument_expand_heap(ret, pos);
+	return argument_expand_heap_(ret, pos);
 }
 
-_g void argument_boa_variables_heap(addr *ret, addr pos)
+_g int argument_boa_variables_heap_(addr *ret, addr pos)
 {
 	addr root, list, var, a, b, c, d;
 	struct argument_struct *str;
@@ -1727,7 +1729,7 @@ _g void argument_boa_variables_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_opt, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
-			list_bind(var, &a, &b, &c, NULL);
+			Return(list_bind_(var, &a, &b, &c, NULL));
 			cons_heap(&root, a, root);
 		}
 	}
@@ -1743,7 +1745,7 @@ _g void argument_boa_variables_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_key, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
-			list_bind(var, &a, &b, &c, &d, NULL);
+			Return(list_bind_(var, &a, &b, &c, &d, NULL));
 			cons_heap(&root, a, root);
 		}
 	}
@@ -1760,6 +1762,7 @@ _g void argument_boa_variables_heap(addr *ret, addr pos)
 
 	/* result */
 	nreverse(ret, root);
+	return 0;
 }
 
 

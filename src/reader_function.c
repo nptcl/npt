@@ -141,7 +141,7 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 
 	mode = 0;
 	GetConst(SYSTEM_READTABLE_DOT, &dotsym);
-	getreadtable(ptr, &table);
+	Return(getreadtable_(ptr, &table));
 	queue_heap(&queue);
 	hold = LocalHold_local_push(ptr, queue);
 	for (;;) {
@@ -385,7 +385,7 @@ _g int sharp_reader(Execute ptr, addr stream, addr code)
 	y = toUpperUnicode(y);
 
 	/* macro character */
-	getreadtable(ptr, &pos);
+	Return(getreadtable_(ptr, &pos));
 	GetDispatchReadtable(pos, &pos);
 	GetCharacter(code, &x);
 	Return(findnil_character2_hashtable_(pos, x, y, &pos));
@@ -545,7 +545,7 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 	/* read list */
 	local = ptr->local;
 	push_local(local, &stack);
-	getreadtable(ptr, &table);
+	Return(getreadtable_(ptr, &table));
 	root = Nil;
 	size = 0;
 	for (;;) {
@@ -702,7 +702,7 @@ static int colon_object_dispatch_(Execute ptr, addr stream, addr *ret)
 	enum ReadTable_Result value;
 	addr table;
 
-	getreadtable(ptr, &table);
+	Return(getreadtable_(ptr, &table));
 	setstate_readinfo(ptr, ReadInfo_State_Gensym);
 	Return(readtable_result_(ptr, ret, stream, table, &value));
 	switch (value) {
@@ -755,12 +755,13 @@ _g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 	int check;
 	addr table, pos;
 
-	getreadtable(ptr, &table);
+	Return(getreadtable_(ptr, &table));
 	Return(unread_char_stream_(stream, '\\'));
 	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
 		return fmte_("Cannot read character name.", NULL);
-	if (read_suppress_p(ptr)) {
+	Return(read_suppress_p_(ptr, &check));
+	if (check) {
 		setresult_control(ptr, Nil);
 		return 0;
 	}
@@ -903,7 +904,7 @@ static int feature_cons_dispatch_(addr list, addr cons, int *ret)
 static int feature_check_dispatch_(addr list, addr pos, int *ret)
 {
 	if (symbolp(pos))
-		return Result(ret, find_list_eq_safe(pos, list));
+		return find_list_eq_safe_(pos, list, ret);
 	else if (consp(pos))
 		return feature_cons_dispatch_(list, pos, ret);
 	else
@@ -935,7 +936,7 @@ _g int plus_dispatch(Execute ptr, addr stream)
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
-	getspecialcheck_local(ptr, list, &list);
+	Return(getspecialcheck_local_(ptr, list, &list));
 	hold = LocalHold_local_push(ptr, feature);
 	Return(feature_check_dispatch_(list, feature, &check));
 	if (check) {
@@ -973,7 +974,7 @@ _g int minus_dispatch(Execute ptr, addr stream)
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
-	getspecialcheck_local(ptr, list, &list);
+	Return(getspecialcheck_local_(ptr, list, &list));
 	hold = LocalHold_local_push(ptr, feature);
 	Return(feature_check_dispatch_(list, feature, &check));
 	if (! check) {
@@ -1005,13 +1006,14 @@ _g int dot_dispatch(Execute ptr, addr stream, addr *ret)
 	LocalHold hold;
 
 	GetConst(SPECIAL_READ_EVAL, &eval);
-	getspecialcheck_local(ptr, eval, &eval);
+	Return(getspecialcheck_local_(ptr, eval, &eval));
 	if (eval == Nil)
 		return fmte_("The dispatch #. don't read when *read-eval* is nil.", NULL);
 	Return(read_recursive(ptr, stream, &check, &eval));
 	if (check)
 		return fmte_("After dispatch #. must be a object.", NULL);
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		return Result(ret, Nil);
 
 	hold = LocalHold_local_push(ptr, eval);
@@ -1055,7 +1057,8 @@ static int radix_read_dispatch(Execute ptr, addr stream, fixnum base, addr *ret)
 	Return(radix_execute_dispatch(ptr, stream, base, &check, &pos));
 	if (check)
 		return fmte_("After radix dispatch #<n>r must be an integer.", NULL);
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		return Result(ret, Nil);
 	if (! rationalp(pos))
 		return fmte_("The radix value ~S must be an integer.", pos, NULL);
@@ -1065,11 +1068,13 @@ static int radix_read_dispatch(Execute ptr, addr stream, fixnum base, addr *ret)
 
 _g int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 {
+	int check;
 	fixnum value;
 
 	GetFixnum_signed(y, &value);
 	if (! isBaseChar(value)) {
-		if (! read_suppress_p(ptr))
+		Return(read_suppress_p_(ptr, &check));
+		if (! check)
 			return fmte_("The radix ~S must be a number between 2 and 36.", y, NULL);
 	}
 
@@ -1115,7 +1120,8 @@ _g int complex_dispatch(Execute ptr, addr stream, addr *ret)
 	Return(read_recursive(ptr, stream, &check, &form));
 	if (check)
 		return fmte_("After complex dispatch must be a (real imag) form.", NULL);
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		return Result(ret, Nil);
 	pos = form;
 	if (! consp(pos))
@@ -1146,7 +1152,7 @@ _g int array_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 	int check, ignore;
 	addr form;
 
-	ignore = read_suppress_p(ptr);
+	Return(read_suppress_p_(ptr, &ignore));
 	if (y == Nil && (! ignore))
 		return fmte_("There is no rank parameter at the #<n>a dispatch.", NULL);
 	Return(read_recursive(ptr, stream, &check, &form));
@@ -1172,7 +1178,8 @@ _g int pathname_dispatch(Execute ptr, addr stream, addr *ret)
 	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
 		return fmte_("After #P must be a pathname-designer.", NULL);
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		return Result(ret, Nil);
 	Return(pathname_designer_heap_(ptr, pos, &pos));
 
@@ -1192,7 +1199,8 @@ _g int structure_dispatch(Execute ptr, addr stream, addr *ret)
 	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
 		goto error;
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		return Result(ret, Nil);
 	if (! consp(pos))
 		goto error;

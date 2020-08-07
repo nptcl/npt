@@ -467,7 +467,7 @@ static int qualifiers_equal_symbol_(Execute ptr, addr left, addr right, int *ret
 
 	push_new_control(ptr, &control);
 	conscar_local(ptr->local, &left, left);
-	getfunction_global(right, &call);
+	Return(getfunction_global_(right, &call));
 	Return(apply_control(ptr, call, left));
 	getresult_control(ptr, &left);
 	*ret = left != Nil;
@@ -1085,7 +1085,7 @@ static int comb_longmacro_form_(addr *ret,
 	GetConst(COMMON_QUOTE, &quote);
 	for (i = 0; spec != Nil; i++) {
 		Return_getcons(spec, &pos, &spec);
-		list_bind(pos, &name, &temp, &order, &req, &temp, NULL);
+		Return(list_bind_(pos, &name, &temp, &order, &req, &temp, NULL));
 		fixnum_heap(&pos, i);
 		list_heap(&nameq, quote, name, NULL);
 		list_heap(&pos, elt, nameq, array, pos, order, req, NULL);
@@ -1174,7 +1174,7 @@ static void comb_longform_macrolet(addr *ret, addr args, addr gen, addr form)
 	list_heap(ret, lambda, rest, declare, macrolet, NULL);
 }
 
-static void comb_longmacro_lambda_list(addr args, addr *ret)
+static int comb_longmacro_lambda_list_(addr args, addr *ret)
 {
 	addr root, var, list, a, b;
 	struct argument_struct *str;
@@ -1228,7 +1228,7 @@ static void comb_longmacro_lambda_list(addr args, addr *ret)
 	GetArgument(args, ArgumentIndex_key, &list);
 	while (list != Nil) {
 		GetCons(list, &var, &list);
-		list_bind(var, &a, &b, NULL);
+		Return(list_bind_(var, &a, &b, NULL));
 		if (b == Nil) {
 			cons_heap(&root, a, root);
 		}
@@ -1246,6 +1246,8 @@ static void comb_longmacro_lambda_list(addr args, addr *ret)
 
 	/* result */
 	nreverse(ret, root);
+
+	return 0;
 }
 
 static int comb_longform_arguments_(addr *ret, addr args, addr comb, addr form)
@@ -1263,7 +1265,7 @@ static int comb_longform_arguments_(addr *ret, addr args, addr comb, addr form)
 	 *   ,form)
 	 */
 	comb_longmacro_variables(comb, &list);
-	comb_longmacro_lambda_list(comb, &lambda);
+	Return(comb_longmacro_lambda_list_(comb, &lambda));
 	/* declare */
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -1366,8 +1368,9 @@ static int comb_shortform_make_(addr *ret, addr comb, addr data)
 	/* order */
 	Return(stdget_shortcomb_order_(comb, &order));
 	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &check);
-	if (order == check)
-		reverse_list_heap_safe(&primary, primary);
+	if (order == check) {
+		Return(reverse_list_heap_safe_(&primary, primary));
+	}
 	/* form */
 	Return(comb_shortform_primary_(&form, comb, primary));
 	return comb_shortform_around_(ret, comb, around, form);

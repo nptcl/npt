@@ -93,13 +93,9 @@ _g void alloc_bignum(LocalRoot local, addr *ret, size_t alloc)
 
 _g void alloc_plus_bignum(LocalRoot local, addr *ret, size_t a, size_t b)
 {
-	addr pos;
-
 	if (plussafe_size(a, b, &a)) {
-		if (local == NULL)
-			local = Local_Thread;
-		plus_ii_real_common(local, intsizeh(a), intsizeh(b), &pos);
-		fmte("Too large bignum size ~A.", pos, NULL);
+		Abort("size error");
+		*ret = NULL;
 		return;
 	}
 	alloc_bignum(local, ret, a);
@@ -255,17 +251,20 @@ _g void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value)
 	bignum_value_alloc(local, ret, sign, result);
 }
 
-_g void bignum_counter_alloc(LocalRoot local, addr *ret, addr index)
+_g int bignum_counter_alloc_(LocalRoot local, addr *ret, addr index)
 {
 	if ((! integerp(index))
 			|| minusp_integer(index)
 			|| zerop_integer(index)) {
-		fmte("The value ~S must be a positive integer.", index, NULL);
+		*ret = Nil;
+		return fmte_("The value ~S must be a positive integer.", index, NULL);
 	}
 	if (GetType(index) == LISPTYPE_FIXNUM)
 		bignum_fixnum_value_alloc(local, ret, RefFixnum(index));
 	else
 		bignum_copy_alloc(local, ret, index);
+
+	return 0;
 }
 
 _g void bignum_debug(LocalRoot local, addr *ret, int sign, size_t size)
@@ -322,10 +321,10 @@ _g void bignum_fixnum_value_debug(LocalRoot local, addr *ret, fixnum value)
 	bignum_fixnum_value_alloc(local, ret, value);
 }
 
-_g void bignum_counter_debug(LocalRoot local, addr *ret, addr index)
+_g int bignum_counter_debug_(LocalRoot local, addr *ret, addr index)
 {
 	Check(local == NULL, "local error");
-	bignum_counter_alloc(local, ret, index);
+	return bignum_counter_alloc_(local, ret, index);
 }
 
 _g void bignum_result_debug(LocalRoot local, addr pos, addr *ret)

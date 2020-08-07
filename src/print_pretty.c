@@ -207,7 +207,7 @@ static void size2_pretty_heap(addr *ret, enum print_pretty type, fixnum a, fixnu
 /*
  *  common
  */
-_g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
+_g int expand_pprint_logical_block_common_(addr *ret, addr symbol, addr pos,
 		addr prefix, addr perline, addr suffix, addr decl, addr body)
 {
 	/* `(let ((,symbol (system::make-pprint-stream
@@ -286,11 +286,13 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 	conscar_heap(&let, let);
 	cons_heap(&let, x, let);
 	while (decl != Nil) {
-		getcons(decl, &x, &decl);
+		Return_getcons(decl, &x, &decl);
 		cons_heap(&let, x, let);
 	}
 	cons_heap(&let, pretty, let);
 	nreverse(ret, let);
+
+	return 0;
 }
 
 _g int pprint_throw(Execute ptr, addr stream)
@@ -327,9 +329,11 @@ static int pprint_pop_atom(Execute ptr, addr stream)
 
 static int pprint_length_check_(Execute ptr, addr stream, int *ret)
 {
+	int check;
 	size_t x, y;
 
-	if (! length_print(ptr, &x))
+	Return(length_print_(ptr, &x, &check));
+	if (! check)
 		return Result(ret, 0);
 	Return(length_pretty_stream_(stream, &y));
 
@@ -355,7 +359,8 @@ _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 	if (pos == Nil)
 		return Result(ret, Nil);
 	/* circle */
-	if (circle_print(ptr)) {
+	Return(circle_print_(ptr, &check));
+	if (check) {
 		Return(first_pretty_stream_(stream, &check));
 		if (! check) {
 			Return(pprint_pop_circle_(ptr, stream, pos, &check));
@@ -374,7 +379,8 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	size_t level, depth;
 
 	/* *print-level* */
-	if (level_print(ptr, &level)) {
+	Return(level_print_(ptr, &level, &check));
+	if (check) {
 		getdepth_print_write(ptr, &depth);
 		if (level <= depth) {
 			setlistp_pretty_stream(stream, 0);
@@ -394,7 +400,8 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	setdepth_pretty_stream(ptr, stream, 1);
 
 	/* circle */
-	if (circle_print(ptr)) {
+	Return(circle_print_(ptr, &check));
+	if (check) {
 		if (consp(root)) {
 			Return(pprint_check_circle_(ptr, root, &root, &check));
 			if (check) {
@@ -411,17 +418,25 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	return 0;
 }
 
-static int pretty_common_p(Execute ptr, addr stream)
+static int pretty_common_p_(Execute ptr, addr stream, int *ret)
 {
-	return pretty_print(ptr) && pretty_stream_p(stream);
+	int check;
+
+	Return(pretty_print_(ptr, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	return Result(ret, pretty_stream_p(stream));
 }
 
 _g int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream)
 {
+	int check;
 	enum print_pretty type;
 	addr pos;
 
-	if (! pretty_common_p(ptr, stream))
+	Return(pretty_common_p_(ptr, stream, &check));
+	if (! check)
 		return 0;
 	type = block_p? print_pretty_indent_block: print_pretty_indent_current;
 	fixnum_pretty_heap(&pos, type, n);
@@ -430,9 +445,11 @@ _g int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream)
 
 _g int pprint_newline_print_(Execute ptr, enum pprint_newline kind, addr stream)
 {
+	int check;
 	addr pos;
 
-	if (! pretty_common_p(ptr, stream))
+	Return(pretty_common_p_(ptr, stream, &check));
+	if (! check)
 		return 0;
 	switch (kind) {
 		case pprint_newline_linear:
@@ -469,9 +486,11 @@ _g int pprint_newline_terpri_(addr stream)
 _g int pprint_tab_print_(Execute ptr,
 		addr stream, enum pprint_tabular kind, fixnum a, fixnum b)
 {
+	int check;
 	addr pos;
 
-	if (! pretty_common_p(ptr, stream))
+	Return(pretty_common_p_(ptr, stream, &check));
+	if (! check)
 		return 0;
 	switch (kind) {
 		case pprint_tabular_line:
@@ -1485,6 +1504,7 @@ static int pretty_struct_(struct pretty_block *ptr, addr pretty)
  */
 static int pprint_initialize_(struct pretty_block *str, Execute ptr, addr stream)
 {
+	int check;
 	size_t size;
 
 	/* pointer */
@@ -1508,8 +1528,15 @@ static int pprint_initialize_(struct pretty_block *str, Execute ptr, addr stream
 	str->print_miser = 0;
 	str->print_margin = 0;
 	str->break_lines_p = 0;
-	str->print_lines_p = lines_print(ptr, &(str->print_lines));
-	str->print_miser_p = miser_width_print(ptr, &(str->print_miser));
+
+	Return(lines_print_(ptr, &size, &check));
+	str->print_lines_p = check;
+	str->print_lines = check? size: 0;
+
+	Return(miser_width_print_(ptr, &size, &check));
+	str->print_miser_p = check;
+	str->print_miser = check? size: 0;
+
 	return right_margin_print_(ptr, stream, &(str->print_margin));
 }
 

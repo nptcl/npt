@@ -728,7 +728,7 @@ expand:
 	GetConst(COMMON_PROG, &prog);
 	lista_heap(&prog, prog, Nil, body, NULL);
 	list_heap(&prog, prog, NULL);
-	nconc2_safe(decl, prog, &prog);
+	Return(nconc2_safe_(decl, prog, &prog));
 	GetConst(COMMON_LAMBDA, &lambda);
 	lista_heap(&lambda, lambda, var, prog, NULL);
 	GetConstant(index, &check);
@@ -797,7 +797,7 @@ expand:
 	GetConst(COMMON_PROG, &prog);
 	lista_heap(&prog, prog, Nil, body, NULL);
 	list_heap(&prog, prog, NULL);
-	nconc2_safe(decl, prog, &prog);
+	Return(nconc2_safe_(decl, prog, &prog));
 	GetConst(COMMON_LAMBDA, &lambda);
 	lista_heap(&lambda, lambda, var, prog, NULL);
 	GetConst(SYSTEM_DO_ALL_SYMBOLS, &check);

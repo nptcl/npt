@@ -166,15 +166,21 @@ static int read_default_float_format(Execute ptr)
 	addr symbol, check;
 
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
-	getspecialcheck_local(ptr, symbol, &symbol);
+	getspecial_local(ptr, symbol, &symbol);
+	if (symbol == Unbound)
+		return 0;
 	GetConst(COMMON_SINGLE_FLOAT, &check);
-	if (symbol == check) return 'f';
+	if (symbol == check)
+		return 'f';
 	GetConst(COMMON_DOUBLE_FLOAT, &check);
-	if (symbol == check) return 'd';
+	if (symbol == check)
+		return 'd';
 	GetConst(COMMON_LONG_FLOAT, &check);
-	if (symbol == check) return 'l';
+	if (symbol == check)
+		return 'l';
 	GetConst(COMMON_SHORT_FLOAT, &check);
-	if (symbol == check) return 's';
+	if (symbol == check)
+		return 's';
 
 	return 0;
 }
@@ -235,11 +241,16 @@ static int plus_safe(long a, long b, long *result)
 static int isexponent(unicode c)
 {
 	/* "defslDEFSL" */
-	if (c == 'e' || c == 'E') return 'e'; /* default */
-	if (c == 'f' || c == 'F') return 'f'; /* single */
-	if (c == 'd' || c == 'D') return 'd'; /* double */
-	if (c == 'l' || c == 'L') return 'l'; /* long */
-	if (c == 's' || c == 'S') return 's'; /* short */
+	if (c == 'e' || c == 'E')
+		return 'e'; /* default */
+	if (c == 'f' || c == 'F')
+		return 'f'; /* single */
+	if (c == 'd' || c == 'D')
+		return 'd'; /* double */
+	if (c == 'l' || c == 'L')
+		return 'l'; /* long */
+	if (c == 's' || c == 'S')
+		return 's'; /* short */
 
 	return 0;
 }

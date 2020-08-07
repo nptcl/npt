@@ -55,12 +55,12 @@ _g void init_parse_step(Execute ptr)
 	pushspecial_control(ptr, symbol, Nil);
 }
 
-static int parse_step_p(Execute ptr)
+static int parse_step_p_(Execute ptr, int *ret)
 {
 	addr symbol, value;
 	parse_step_symbol(ptr, &symbol);
-	getspecialcheck_local(ptr, symbol, &value);
-	return value != Nil;
+	Return(getspecialcheck_local_(ptr, symbol, &value));
+	return Result(ret, value != Nil);
 }
 
 _g int parse_step(Execute ptr, addr *ret, addr form)
@@ -74,7 +74,7 @@ _g int parse_step(Execute ptr, addr *ret, addr form)
 
 	/* step */
 	parse_step_symbol(ptr, &symbol);
-	getspecialcheck_local(ptr, symbol, &value);
+	Return(getspecialcheck_local_(ptr, symbol, &value));
 	setspecial_local(ptr, symbol, T);
 	Return(parse_execute_(ptr, ret, expr));
 	setspecial_local(ptr, symbol, value);
@@ -84,19 +84,20 @@ error:
 	return fmte_("The form ~S must be (eval).", form, NULL);
 }
 
-_g void parse_step_object(Execute ptr, addr *ret, addr value, addr expr)
+_g int parse_step_object_(Execute ptr, addr *ret, addr value, addr expr)
 {
+	int check;
 	addr eval;
 
-	if (! parse_step_p(ptr)) {
-		*ret = expr;
-		return;
-	}
+	Return(parse_step_p_(ptr, &check));
+	if (! check)
+		return Result(ret, expr);
 
 	eval_parse_heap(&eval, EVAL_PARSE_STEP, 2);
 	SetEvalParse(eval, 0, expr);
 	SetEvalParse(eval, 1, value);
-	*ret = eval;
+
+	return Result(ret, eval);
 }
 
 
@@ -139,7 +140,7 @@ _g int scope_step(Execute ptr, addr *ret, addr eval)
 	localhold_end(hold);
 	GetEvalScopeThe(expr, &type);
 
-	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_STEP, type, eval);
+	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_STEP, type, eval));
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, value);
 	return Result(ret, eval);

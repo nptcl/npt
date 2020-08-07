@@ -15,8 +15,8 @@ _g void random_state_heap(addr *ret);
 
 _g void copy_random_state(addr left, addr right);
 _g void randomly_random_state(addr left);
-_g void constant_random_state(Execute ptr, addr left);
-_g void make_random_state_heap(Execute ptr, addr *ret, addr state);
+_g int constant_random_state_(Execute ptr, addr left);
+_g int make_random_state_heap_(Execute ptr, addr *ret, addr state);
 
 _g void make_bignum_random_state_alloc(LocalRoot local, addr pos, addr *ret);
 _g void make_bignum_random_state_local(LocalRoot local, addr pos, addr *ret);

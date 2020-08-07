@@ -25,7 +25,7 @@ _g int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
 	/* argument */
 	if (from == Unbound) {
 		GetConst(SPECIAL_READTABLE, &from);
-		getspecialcheck_local(ptr, from, &from);
+		Return(getspecialcheck_local_(ptr, from, &from));
 	}
 	if (to == Unbound) {
 		to = Nil;
@@ -64,7 +64,7 @@ _g int make_dispatch_macro_character_common(Execute ptr,
 	}
 	if (readtable == Nil) {
 		GetConst(SPECIAL_READTABLE, &readtable);
-		getspecialcheck_local(ptr, readtable, &readtable);
+		Return(getspecialcheck_local_(ptr, readtable, &readtable));
 	}
 
 	return make_dispatch_macro_character_(readtable, code, nonterm != Nil);
@@ -85,7 +85,7 @@ _g int read_common(Execute ptr, addr args, addr *ret)
 	}
 	else {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
-		getspecialcheck_local(ptr, stream, &stream);
+		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
 	/* errorp */
 	if (consp(args)) {
@@ -143,7 +143,7 @@ _g int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
 	}
 	else {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
-		getspecialcheck_local(ptr, stream, &stream);
+		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
 	/* errorp */
 	if (consp(args)) {
@@ -196,7 +196,7 @@ _g int read_delimited_list_common(Execute ptr, addr code, addr stream, addr recp
 
 	if (stream == Unbound) {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
-		getspecialcheck_local(ptr, stream, &stream);
+		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
 	if (recp == Unbound) {
 		recp = Nil;
@@ -398,7 +398,7 @@ _g int get_dispatch_macro_character_common(Execute ptr,
 	if (readtable == Unbound) {
 		/* *readtable* */
 		GetConst(SPECIAL_READTABLE, &readtable);
-		getspecialcheck_local(ptr, readtable, &readtable);
+		Return(getspecialcheck_local_(ptr, readtable, &readtable));
 	}
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
@@ -422,15 +422,16 @@ _g int set_dispatch_macro_character_common(Execute ptr,
 	if (readtable == Unbound) {
 		/* *readtable* */
 		GetConst(SPECIAL_READTABLE, &readtable);
-		getspecialcheck_local(ptr, readtable, &readtable);
+		Return(getspecialcheck_local_(ptr, readtable, &readtable));
 	}
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
 	if (call == Nil)
 		return rem_dispatch_macro_character_(readtable, a, b);
 	else {
-		if (symbolp(call))
-			getspecialcheck_local(ptr, call, &call);
+		if (symbolp(call)) {
+			Return(getspecialcheck_local_(ptr, call, &call));
+		}
 		return set_dispatch_macro_character_(readtable, a, b, call);
 	}
 }
@@ -455,7 +456,7 @@ _g int get_macro_character_common(Execute ptr,
 	if (readtable == Unbound) {
 		/* *readtable* */
 		GetConst(SPECIAL_READTABLE, &readtable);
-		getspecialcheck_local(ptr, readtable, &readtable);
+		Return(getspecialcheck_local_(ptr, readtable, &readtable));
 	}
 
 	Return(get_macro_character_(readtable, c, ret, &check));
@@ -482,12 +483,13 @@ _g int set_macro_character_common(Execute ptr,
 	if (readtable == Unbound) {
 		/* *readtable* */
 		GetConst(SPECIAL_READTABLE, &readtable);
-		getspecialcheck_local(ptr, readtable, &readtable);
+		Return(getspecialcheck_local_(ptr, readtable, &readtable));
 	}
 
 	GetCharacter(code, &c);
-	if (symbolp(call))
-		getspecialcheck_local(ptr, call, &call);
+	if (symbolp(call)) {
+		Return(getspecialcheck_local_(ptr, call, &call));
+	}
 
 	return set_macro_character_(readtable, c, nonterm != Nil, call);
 }
@@ -503,7 +505,7 @@ _g int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
 	if (z == Unbound) {
 		/* *readtable* */
 		GetConst(SPECIAL_READTABLE, &z);
-		getspecialcheck_local(ptr, z, &z);
+		Return(getspecialcheck_local_(ptr, z, &z));
 	}
 	if (w == Unbound) {
 		w = Nil;

@@ -21,7 +21,7 @@
  */
 _g int pop_code(Execute ptr, CodeValue x)
 {
-	popargs_control(ptr, &x.pos);
+	Return(popargs_control_(ptr, &x.pos));
 	if (x.pos == Unbound)
 		return fmte_("Too few argument.", NULL);
 	setresult_control(ptr, x.pos);
@@ -31,8 +31,9 @@ _g int pop_code(Execute ptr, CodeValue x)
 
 _g int pop_unbound_code(Execute ptr, CodeValue x)
 {
-	popargs_control(ptr, &x.pos);
+	Return(popargs_control_(ptr, &x.pos));
 	setresult_control(ptr, x.pos);
+
 	return 0;
 }
 
@@ -284,8 +285,8 @@ _g int macro_env_code(Execute ptr, CodeValue x)
 
 	GetArgsControl(ptr, &list);
 	/* ((call . args) env) */
-	getcdr(list, &list); /* (env) */
-	getcar(list, &list); /* env */
+	Return_getcdr(list, &list); /* (env) */
+	Return_getcar(list, &list); /* env */
 	setresult_control(ptr, list);
 
 	return 0;
@@ -297,7 +298,7 @@ _g int macro_whole_code(Execute ptr, CodeValue x)
 
 	/* (call . args) */
 	getresult_control(ptr, &list);
-	getcdr(list, &list); /* (args) */
+	Return_getcdr(list, &list); /* (args) */
 	SetControl(ptr->control, Control_Cons, list);
 	SetControl(ptr->control, Control_ConsTail, Nil);
 

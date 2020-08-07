@@ -310,7 +310,7 @@ _g void clos_define_class(addr name, addr value);
 
 _g void clos_find_generic_nil(addr name, addr *ret);
 _g int clos_find_generic_(addr name, addr *ret);
-_g void clos_define_generic(addr name, addr value);
+_g int clos_define_generic_(addr name, addr value);
 
 _g void clos_find_combination_nil(addr name, addr *ret);
 _g int clos_find_combination_(addr name, addr *ret);

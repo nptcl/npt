@@ -385,14 +385,14 @@ static int test_set_default_package(void)
 	find_char_package_(LISP_COMMON, &pos);
 	set_default_package(pos);
 	GetConstant(CONSTANT_SPECIAL_PACKAGE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	getspecialcheck_local_(ptr, pos, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_COMMON), "set_default_package1");
 
 	find_char_package_(LISP_PACKAGE, &pos);
 	set_default_package(pos);
 	GetConstant(CONSTANT_SPECIAL_PACKAGE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	getspecialcheck_local_(ptr, pos, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_PACKAGE), "set_default_package2");
 
@@ -2968,7 +2968,7 @@ static int test_usepackage_export(void)
 	type = internchar("AAA", "HELLO", &symbol);
 	test(type == PACKAGE_TYPE_INHERITED, "usepackage_export3");
 	value = 0;
-	getspecialcheck_local(ptr, symbol, &value);
+	getspecialcheck_local_(ptr, symbol, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "usepackage_export4");
 
 	/* use-package -> export */
@@ -2989,7 +2989,7 @@ static int test_usepackage_export(void)
 	type = internchar("AAA", "HELLO", &symbol);
 	test(type == PACKAGE_TYPE_INHERITED, "usepackage_export7");
 	value = 0;
-	getspecialcheck_local(ptr, symbol, &value);
+	_getspecialcheck_local(ptr, symbol, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "usepackage_export8");
 
 	RETURN;
@@ -3017,7 +3017,7 @@ static int test_usepackage_import(void)
 	type = internchar("AAA", "HELLO", &symbol);
 	test(type == PACKAGE_TYPE_INHERITED, "usepackage_import2");
 	value = 0;
-	getspecialcheck_local(ptr, symbol, &value);
+	getspecialcheck_local_(ptr, symbol, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "usepackage_import3");
 	/* import bbb::hello */
 	type = internchar("BBB", "HELLO", &symbol);
@@ -3041,7 +3041,7 @@ static int test_usepackage_import(void)
 	type = internchar("AAA", "HELLO", &symbol);
 	test(type == PACKAGE_TYPE_INHERITED, "usepackage_import7");
 	value = 0;
-	getspecialcheck_local(ptr, symbol, &value);
+	getspecialcheck_local_(ptr, symbol, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "usepackage_import8");
 	/* import aaa::hello */
 	type = internchar("AAA", "HELLO", &symbol);

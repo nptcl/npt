@@ -457,13 +457,13 @@ static int structure_check_name_(struct defstruct *ptr)
 	return 0;
 }
 
-static void structure_slots_heap(addr list, addr *ret)
+static int structure_slots_heap_(addr list, addr *ret)
 {
 	addr pos, name, init, type, readonly, root;
 
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &pos, &list);
-		list_bind(pos, &name, &init, &type, &readonly, NULL);
+		Return(list_bind_(pos, &name, &init, &type, &readonly, NULL));
 		slot_heap(&pos);
 		SetNameSlot(pos, name);
 		SetTypeSlot(pos, type);
@@ -472,6 +472,8 @@ static void structure_slots_heap(addr list, addr *ret)
 		cons_heap(&root, pos, root);
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
 static int structure_check_slots_(addr list)
@@ -1826,19 +1828,21 @@ static int structure_constructor_make_(struct defstruct *str)
 	return structure_constructor_default_(str, name);
 }
 
-static void structure_constructor_lambda(addr list)
+static int structure_constructor_lambda_(addr list)
 {
 	addr symbol, name, pos, type;
 
 	/* (symbol function) */
-	list_bind(list, &symbol, &pos, NULL);
-	parse_callname_error(&name, symbol);
+	Return(list_bind_(list, &symbol, &pos, NULL));
+	Return(parse_callname_error_(&name, symbol));
 	SetNameFunction(pos, name);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeTable(&type, Function);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+
+	return 0;
 }
 
 static int structure_constructor_(struct defstruct *str)
@@ -1853,7 +1857,7 @@ static int structure_constructor_(struct defstruct *str)
 		else if (symbolp(pos))
 			return structure_constructor_default_(str, pos);
 		else if (consp(pos))
-			structure_constructor_lambda(pos);
+			return structure_constructor_lambda_(pos);
 		else
 			return fmte_("Invalid constructor parameter ~S.", pos, NULL);
 	}
@@ -2224,7 +2228,7 @@ static int structure_print_add_method_(struct defstruct *str, addr name, addr me
 	Execute ptr;
 
 	ptr = str->ptr;
-	getglobalcheck_callname(name, &generic);
+	Return(getglobalcheck_callname_(name, &generic));
 	Check(! clos_generic_p_debug(generic), "type error");
 	return method_add_method_(ptr, generic, method);
 }
@@ -2295,7 +2299,7 @@ static int method_defstruct_function(Execute ptr,
 	if (! check)
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	GetConst(SPECIAL_PRINT_LEVEL, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	getdata_control(ptr, &call);
 	Return(callclang_apply(ptr, &call, call, Nil));
 	Return(callclang_funcall(ptr, &call, call, var, stream, pos, NULL));
@@ -2367,8 +2371,8 @@ _g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 
 	/* check */
 	Return(structure_check_name_(&str));
-	structure_slots_heap(str.slots, &(str.slots));
-	structure_slots_heap(str.iargs, &(str.iargs));
+	Return(structure_slots_heap_(str.slots, &(str.slots)));
+	Return(structure_slots_heap_(str.iargs, &(str.iargs)));
 	Return(structure_check_slots_(str.slots));
 	Return(structure_check_slots_(str.iargs));
 	Return(structure_check_predicate_(&str));
@@ -2528,7 +2532,7 @@ _g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *r
 _g int make_instance_structure(Execute ptr, addr rest, addr *ret)
 {
 	addr instance;
-	getcons(rest, &instance, &rest);
+	Return_getcons(rest, &instance, &rest);
 	return make_structure_common_(ptr, ret, instance, rest, 1);
 }
 

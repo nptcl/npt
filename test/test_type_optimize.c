@@ -555,7 +555,7 @@ static int equal_bignum_char(addr left, int sign, unsigned base, const char *str
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	bigcons_char_local(local, &right, base, str);
+	bigcons_char_local_(local, &right, base, str);
 	bignum_cons_alloc(local, &right, sign, right);
 	result = equal_bb_real(left, right);
 	rollback_local(local, stack);

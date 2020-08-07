@@ -366,7 +366,8 @@ static int readtable_front(Execute ptr,
 	}
 
 	/* suppress */
-	if (read_suppress_p(ptr))
+	Return(read_suppress_p_(ptr, &check));
+	if (check)
 		*ret = Nil;
 
 	/* normal */
@@ -380,7 +381,7 @@ static int readtable_front(Execute ptr,
 _g int read_call(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr table;
-	getreadtable(ptr, &table);
+	Return(getreadtable_(ptr, &table));
 	return readtable_front(ptr, result, ret, stream, table);
 }
 

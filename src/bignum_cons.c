@@ -183,11 +183,11 @@ static int getnumber(unsigned base, int c, unsigned *ret)
 	return 0;
 }
 
-_g void setchar_bigcons(LocalRoot local, addr pos, unsigned base, const char *value)
+_g int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *value)
 {
 	int c;
 	unsigned ret;
-	addr error_character;
+	addr x;
 	size_t i;
 
 	clear_bigcons(pos);
@@ -196,18 +196,45 @@ _g void setchar_bigcons(LocalRoot local, addr pos, unsigned base, const char *va
 		if (c == '\0')
 			break;
 		if (getnumber(base, c, &ret)) {
-			character_heap(&error_character, (unicode)c);
-			fmte("Invalid digit character ~S.", error_character, NULL);
+			character_heap(&x, (unicode)c);
+			return fmte_("Invalid digit character ~S.", x, NULL);
+		}
+		push_bigcons(local, pos, base, ret);
+	}
+
+	return 0;
+}
+
+_g int bigcons_char_local_(LocalRoot local, addr *ret, unsigned base, const char *value)
+{
+	bigcons_local(local, ret);
+	return setchar_bigcons_(local, *ret, base, value);
+}
+
+static void setchar_bigcons_unsafe(LocalRoot local,
+		addr pos, unsigned base, const char *value)
+{
+	int c;
+	unsigned ret;
+	size_t i;
+
+	clear_bigcons(pos);
+	for (i = 0; ; i++) {
+		c = value[i];
+		if (c == '\0')
+			break;
+		if (getnumber(base, c, &ret)) {
+			Abort("Invalid digit.");
 			return;
 		}
 		push_bigcons(local, pos, base, ret);
 	}
 }
 
-_g void bigcons_char_local(LocalRoot local, addr *ret, unsigned base, const char *value)
+_g void bigcons_char_unsafe(LocalRoot local, addr *ret, unsigned base, const char *value)
 {
 	bigcons_local(local, ret);
-	setchar_bigcons(local, *ret, base, value);
+	setchar_bigcons_unsafe(local, *ret, base, value);
 }
 
 _g int bigcons_empty_p(addr pos)

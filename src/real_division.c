@@ -2992,8 +2992,7 @@ _g void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
 	LocalStack stack;
 
 	push_local(local, &stack);
-	if (bignum_single_float_local(local, &pos, v))
-		fmte("bignum_single_float_local error.", NULL);
+	bignum_single_float_unsafe(local, v, 0, &pos);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
 }
@@ -3004,8 +3003,7 @@ _g void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
 	LocalStack stack;
 
 	push_local(local, &stack);
-	if (bignum_double_float_local(local, &pos, v))
-		fmte("bignum_double_float_local error.", NULL);
+	bignum_double_float_unsafe(local, v, 0, &pos);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
 }
@@ -3016,8 +3014,7 @@ _g void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
 	LocalStack stack;
 
 	push_local(local, &stack);
-	if (bignum_long_float_local(local, &pos, v))
-		fmte("bignum_long_float_local error.", NULL);
+	bignum_long_float_unsafe(local, v, 0, &pos);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
 }

@@ -89,13 +89,13 @@ static int vector_error_sequence_(addr type, addr arg, size_t size)
 	if (type_asterisk_p(arg))
 		return 0;
 	if (! integerp(arg)) {
-		return call_type_error_va_(Execute_Thread,
+		return call_type_error_va_(NULL,
 				Nil, Nil, "Invalid type-specifier ~S.", type, NULL);
 	}
 	if (GetIndex_integer(arg, &check))
 		return fmte_("Index size ~S is too large.", arg, NULL);
 	if (check != size) {
-		return call_type_error_va_(Execute_Thread, Nil, Nil,
+		return call_type_error_va_(NULL, Nil, Nil,
 				"The argument size ~S don't match type-spec ~S.",
 				intsizeh(size), type, NULL);
 	}
@@ -136,7 +136,7 @@ _g int array_check_sequence_(addr type, size_t size)
 		if (GetIndex_integer(arg, &check))
 			return fmte_("Index size ~S is too large.", arg, NULL);
 		if (check != 1) {
-			return call_type_error_va_(Execute_Thread, Nil, Nil,
+			return call_type_error_va_(NULL, Nil, Nil,
 					"Array ~S dimension must be 1.", type, NULL);
 		}
 		return 0;
@@ -146,14 +146,14 @@ _g int array_check_sequence_(addr type, size_t size)
 	if (GetType(arg) == LISPTYPE_VECTOR) {
 		LenArrayA4(arg, &check);
 		if (check != 1) {
-			return call_type_error_va_(Execute_Thread, Nil, Nil,
+			return call_type_error_va_(NULL, Nil, Nil,
 					"Array ~S dimension must be 1.", type, NULL);
 		}
 		GetArrayA4(arg, 0, &arg);
 		if (GetIndex_integer(arg, &check))
 			return fmte_("Index size ~S is too large.", arg, NULL);
 		if (check != size) {
-			return call_type_error_va_(Execute_Thread, Nil, Nil,
+			return call_type_error_va_(NULL, Nil, Nil,
 					"The argument size ~S don't match type-spec ~S.",
 					intsizeh(size), type, NULL);
 		}
@@ -779,12 +779,11 @@ _g int reverse_sequence_heap_(addr *ret, addr pos)
 			return Result(ret, Nil);
 
 		case LISPTYPE_CONS:
-			reverse_list_heap_safe(ret, pos);
-			break;
+			return reverse_list_heap_safe_(ret, pos);
 
 		case LISPTYPE_VECTOR:
 			vector_reverse(NULL, ret, pos);
-			break;
+			return 0;
 
 		case LISPTYPE_STRING:
 			return strvect_reverse_(NULL, ret, pos);
@@ -799,8 +798,6 @@ _g int reverse_sequence_heap_(addr *ret, addr pos)
 			*ret = 0;
 			return TypeError_(pos, SEQUENCE);
 	}
-
-	return 0;
 }
 
 _g int nreverse_sequence_(addr *ret, addr pos)
@@ -810,12 +807,11 @@ _g int nreverse_sequence_(addr *ret, addr pos)
 			return Result(ret, Nil);
 
 		case LISPTYPE_CONS:
-			nreverse_list_safe(ret, pos);
-			break;
+			return nreverse_list_safe_(ret, pos);
 
 		case LISPTYPE_VECTOR:
 			vector_nreverse(ret, pos);
-			break;
+			return 0;
 
 		case LISPTYPE_STRING:
 			return strvect_nreverse_(ret, pos);
@@ -830,7 +826,5 @@ _g int nreverse_sequence_(addr *ret, addr pos)
 			*ret = Nil;
 			return TypeError_(pos, SEQUENCE);
 	}
-
-	return 0;
 }
 

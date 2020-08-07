@@ -32,10 +32,10 @@ static int symbol_global_tablevalue_(Execute ptr, addr symbol, addr *value, int 
 	int specialp;
 	addr stack;
 
-	getglobal_eval(ptr, &stack);
+	Return(getglobal_eval_(ptr, &stack));
 	if (! find_tablevalue(stack, symbol, value)) {
 		/* heap object */
-		push_tablevalue_global(ptr, stack, symbol, value);
+		Return(push_tablevalue_global_(ptr, stack, symbol, value));
 		specialp = getspecialp_tablevalue(*value);
 		if (! specialp) {
 			Return(warning_global_lexical_(symbol));
@@ -112,16 +112,16 @@ static int find_symbol_scope_(Execute ptr, addr symbol, addr *value, int *ret)
 	int specialp;
 	addr stack, pos;
 
-	getstack_eval(ptr, &stack);
+	Return(getstack_eval_(ptr, &stack));
 	Return(symbol_tablevalue_(ptr, stack, symbol, 0, &pos, &specialp));
 	copy_tablevalue(value, pos);
 
 	return Result(ret, specialp);
 }
 
-static void scope_symbol_heap(Execute ptr, addr *ret, addr type, addr symbol)
+static int scope_symbol_heap_(Execute ptr, addr *ret, addr type, addr symbol)
 {
-	eval_scope_size(ptr, ret, 1, EVAL_PARSE_SYMBOL, type, symbol);
+	return eval_scope_size_(ptr, ret, 1, EVAL_PARSE_SYMBOL, type, symbol);
 }
 
 static int make_scope_symbol_(Execute ptr, addr symbol, addr *ret)
@@ -132,67 +132,67 @@ static int make_scope_symbol_(Execute ptr, addr symbol, addr *ret)
 	Check(! symbolp(symbol), "type error");
 	Return(find_symbol_scope_(ptr, symbol, &value, &ignore));
 	gettype_tablevalue(value, &type);
-	scope_symbol_heap(ptr, &pos, type, symbol);
+	Return(scope_symbol_heap_(ptr, &pos, type, symbol));
 	SetEvalScopeIndex(pos, 0, value);
 
 	return Result(ret, pos);
 }
 
-static int symbol_macrolet_global_p(Execute ptr, addr symbol, addr *ret)
+static int symbol_macrolet_global_p_(Execute ptr, addr symbol, addr *value, int *ret)
 {
 	addr stack, table, key;
 
 	/* global stack */
-	getglobal_eval(ptr, &stack);
+	Return(getglobal_eval_(ptr, &stack));
 	GetEvalStackTable(stack, &table);
 
 	/* global special */
 	if (getvalue_scope_evalstack(stack, symbol, &key)) {
 		if (getspecialp_tablevalue(key)) {
-			return 0; /* special variable */
+			return Result(ret, 0); /* special variable */
 		}
 	}
 
 	/* symbol special */
 	if (specialp_symbol(symbol)) {
-		return 0;
+		return Result(ret, 0);
 	}
 
 	/* define-symbol-macro */
 	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
-	if (getpplist(table, key, symbol, ret) == 0) {
-		return 1; /* define-symbol-macro */
+	if (getpplist(table, key, symbol, value) == 0) {
+		return Result(ret, 1); /* define-symbol-macro */
 	}
 
 	/* symbol info */
 	evalsymbol_macro_symbol(symbol, &table);
 	if (table != Unbound) {
-		*ret = table;
-		return 1;
+		*value = table;
+		return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int symbol_macrolet_p(Execute ptr, addr symbol, addr *ret)
+static int symbol_macrolet_p_(Execute ptr, addr symbol, addr *value, int *ret)
 {
 	addr stack, table, key;
 
 	Check(! symbolp(symbol), "type error");
 
 	/* local */
-	getstack_eval(ptr, &stack);
+	Return(getstack_eval_(ptr, &stack));
 	while (stack != Nil) {
 		/* local variable */
 		if (getvalue_scope_evalstack(stack, symbol, &key)) {
-			return 0; /* shadow */
+			return Result(ret, 0); /* shadow */
 		}
 
 		/* symbol-macrolet */
 		GetConst(SYSTEM_SYMBOL_MACROLET, &key);
 		GetEvalStackTable(stack, &table);
-		if (getpplist(table, key, symbol, ret) == 0) {
-			return 1; /* symbol-macrolet */
+		if (getpplist(table, key, symbol, value) == 0) {
+			return Result(ret, 1); /* symbol-macrolet */
 		}
 
 		/* next */
@@ -200,7 +200,7 @@ static int symbol_macrolet_p(Execute ptr, addr symbol, addr *ret)
 	}
 
 	/* global */
-	return symbol_macrolet_global_p(ptr, symbol, ret);
+	return symbol_macrolet_global_p_(ptr, symbol, value, ret);
 }
 
 static int scope_symbol_replace(Execute ptr, addr *ret, addr form)
@@ -209,7 +209,7 @@ static int scope_symbol_replace(Execute ptr, addr *ret, addr form)
 
 	/* hook */
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);
-	getspecialcheck_local(ptr, hook, &hook);
+	Return(getspecialcheck_local_(ptr, hook, &hook));
 	/* symbol-macro-expander */
 	GetConst(SYSTEM_SYMBOL_MACRO_EXPANDER, &call);
 	GetFunctionSymbol(call, &call);
@@ -225,26 +225,27 @@ static int scope_symbol_replace(Execute ptr, addr *ret, addr form)
 	return scope_eval(ptr, ret, form);
 }
 
-static void make_scope_keyword(Execute ptr, addr symbol, addr *ret)
+static int make_scope_keyword_(Execute ptr, addr symbol, addr *ret)
 {
 	addr type;
-
 	GetTypeTable(&type, Keyword);
-	scope_symbol_heap(ptr, ret, type, symbol);
+	return scope_symbol_heap_(ptr, ret, type, symbol);
 }
 
 _g int scope_symbol_call(Execute ptr, addr *ret, addr eval)
 {
+	int check;
 	addr form;
 
 	if (keywordp(eval))
-		make_scope_keyword(ptr, eval, ret);
-	else if (symbol_macrolet_p(ptr, eval, &form))
-		return scope_symbol_replace(ptr, ret, form);
-	else
-		return make_scope_symbol_(ptr, eval, ret);
+		return make_scope_keyword_(ptr, eval, ret);
 
-	return 0;
+	Return(symbol_macrolet_p_(ptr, eval, &form, &check));
+	if (check)
+		return scope_symbol_replace(ptr, ret, form);
+
+	/* else */
+	return make_scope_symbol_(ptr, eval, ret);
 }
 
 
@@ -300,19 +301,20 @@ static void push_symbol_macrolet(addr stack, addr symbol, addr form, addr env)
 	}
 }
 
-_g void scope_define_symbol_macro_call(Execute ptr,
+_g int scope_define_symbol_macro_call_(Execute ptr,
 		addr symbol, addr form, addr body, addr *ret)
 {
 	addr stack, eval;
 
-	getglobal_eval(ptr, &stack);
+	Return(getglobal_eval_(ptr, &stack));
 	push_symbol_macrolet(stack, symbol, form, Nil); /* null env */
 	GetTypeTable(&eval, Symbol);
-	eval_scope_size(ptr, &eval, 3, EVAL_PARSE_DEFINE_SYMBOL_MACRO, eval, Nil);
+	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_DEFINE_SYMBOL_MACRO, eval, Nil));
 	SetEvalScopeIndex(eval, 0, symbol);
 	SetEvalScopeIndex(eval, 1, form);
 	SetEvalScopeIndex(eval, 2, body);
-	*ret = eval;
+
+	return Result(ret, eval);
 }
 
 
@@ -335,13 +337,12 @@ static int symbol_macrolet_execute(Execute ptr,
 {
 	addr stack;
 
-	stack = newstack_nil(ptr);
-	apply_declare(ptr, stack, decl, free);
+	Return(newstack_nil_(ptr, &stack));
+	Return(apply_declare_(ptr, stack, decl, free));
 	apply_symbol_macrolet(stack, args);
 	Return(scope_allcons(ptr, ret, type, cons));
-	freestack_eval(ptr, stack);
 
-	return 0;
+	return freestack_eval_(ptr, stack);
 }
 
 _g int scope_symbol_macrolet_call(Execute ptr,
@@ -351,7 +352,7 @@ _g int scope_symbol_macrolet_call(Execute ptr,
 
 	/* symbol-macrolet -> locally */
 	Return(symbol_macrolet_execute(ptr, args, decl, cons, &cons, &eval, &free));
-	eval_scope_size(ptr, &eval, 3, EVAL_PARSE_LOCALLY, eval, Nil);
+	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOCALLY, eval, Nil));
 	SetEvalScopeIndex(eval, 0, decl);
 	SetEvalScopeIndex(eval, 1, cons);
 	SetEvalScopeIndex(eval, 2, free);
@@ -424,7 +425,7 @@ _g int scope_the_call(Execute ptr, addr type, addr form, addr *ret)
 	Return(scope_eval(ptr, &form, form));
 	Return(scope_the_check_(ptr, form, type, &check));
 	/* result */
-	eval_scope_size(ptr, &eval, 1, EVAL_PARSE_THE, type, form);
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_THE, type, form));
 	SetEvalScopeIndex(eval, 0, check);
 	return Result(ret, eval);
 }
@@ -438,12 +439,11 @@ static int locally_execute(Execute ptr,
 {
 	addr stack;
 
-	stack = newstack_nil(ptr);
-	apply_declare(ptr, stack, decl, free);
+	Return(newstack_nil_(ptr, &stack));
+	Return(apply_declare_(ptr, stack, decl, free));
 	Return(scope_allcons(ptr, ret, type, cons));
-	freestack_eval(ptr, stack);
 
-	return 0;
+	return freestack_eval_(ptr, stack);
 }
 
 _g int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret)
@@ -451,7 +451,7 @@ _g int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret)
 	addr eval, type, free;
 
 	Return(locally_execute(ptr, decl, cons, &cons, &type, &free));
-	eval_scope_size(ptr, &eval, 3, EVAL_PARSE_LOCALLY, type, Nil);
+	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOCALLY, type, Nil));
 	SetEvalScopeIndex(eval, 0, decl);
 	SetEvalScopeIndex(eval, 1, cons);
 	SetEvalScopeIndex(eval, 2, free);
@@ -533,7 +533,7 @@ static int tagbody_allcons(Execute ptr, addr tag, addr body, addr *ret)
 		GetCons(body, &pos, &body);
 		if (RefEvalParseType(pos) == EVAL_PARSE_TAG) {
 			Return(tagbody_call_find_(tag, pos, &pos));
-			make_eval_scope(ptr, &pos, EVAL_PARSE_TAG, Nil, pos);
+			Return(make_eval_scope_(ptr, &pos, EVAL_PARSE_TAG, Nil, pos));
 		}
 		else {
 			Return(scope_eval(ptr, &pos, pos));
@@ -564,13 +564,12 @@ _g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rb
 {
 	addr stack;
 
-	stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &stack));
 	tagbody_call_push(stack, tag, &tag);
 	Return(tagbody_allcons(ptr, tag, body, rbody));
 	tagbody_call_remove(stack, tag, rtag);
-	freestack_eval(ptr, stack);
 
-	return 0;
+	return freestack_eval_(ptr, stack);
 }
 
 
@@ -628,7 +627,7 @@ _g int scope_go_call_(Execute ptr, addr *ret, addr tag)
 {
 	addr stack, table;
 
-	getstack_eval(ptr, &stack);
+	Return(getstack_eval_(ptr, &stack));
 	if (! go_tabletagbody(stack, tag, &table))
 		return fmte_("Tag ~S is not found.", tag, NULL);
 	
@@ -681,13 +680,12 @@ _g int scope_block_call(Execute ptr, addr name, addr cons,
 {
 	addr stack;
 
-	stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &stack));
 	push_tableblock(stack, name, &name);
 	Return(scope_allcons(ptr, rcons, rtype, cons));
 	block_call_remove(stack, name, rname);
-	freestack_eval(ptr, stack);
 
-	return 0;
+	return freestack_eval_(ptr, stack);
 }
 
 
@@ -746,7 +744,7 @@ _g int scope_return_from_call(Execute ptr,
 {
 	addr stack;
 
-	getstack_eval(ptr, &stack);
+	Return(getstack_eval_(ptr, &stack));
 	if (! name_tableblock(stack, name, rname))
 		return fmte_("Cannot find block name ~S.", name, NULL);
 
@@ -774,7 +772,7 @@ static int mvbind_maketable_(Execute ptr, struct mvbind_struct *str)
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
 		Return(check_scope_variable_(var));
-		ifdeclvalue(ptr, stack, var, decl, &var);
+		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
 		allocate |= getspecialp_tablevalue(var);
 		cons_heap(&root, var, root);
 	}
@@ -790,7 +788,7 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 
 	stack = str->stack;
 	Return(mvbind_maketable_(ptr, str));
-	apply_declare(ptr, stack, str->decl, &str->free);
+	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	Return(ignore_checkvalue_(stack));
 
@@ -803,11 +801,10 @@ _g int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str)
 
 	hold = LocalHold_local(ptr);
 	Return(localhold_scope_eval(hold, ptr, &str->expr, str->expr));
-	str->stack = newstack_nil(ptr);
+	Return(newstack_nil_(ptr, &(str->stack)));
 	Return(mvbind_execute(ptr, str));
-	freestack_eval(ptr, str->stack);
-
-	return 0;
+	
+	return freestack_eval_(ptr, str->stack);
 }
 
 
@@ -834,7 +831,7 @@ _g int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *r
 	if (scope_multiple_value_call_type(expr, &type))
 		GetTypeTable(&type, Asterisk);
 
-	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_MULTIPLE_VALUE_CALL, type, Nil);
+	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_MULTIPLE_VALUE_CALL, type, Nil));
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, cons);
 	return Result(ret, eval);

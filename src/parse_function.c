@@ -32,7 +32,7 @@ static int parse_declare_body_(Execute ptr, addr cons, addr *retdecl, addr *retb
 	addr env;
 	LocalHold hold;
 
-	environment_heap(ptr, &env);
+	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
 	Return(declare_body_(ptr, env, cons, retdecl, retbody));
 	close_environment(env);
@@ -47,7 +47,7 @@ static int parse_declare_body_documentation_(Execute ptr,
 	addr env;
 	LocalHold hold;
 
-	environment_heap(ptr, &env);
+	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
 	Return(declare_body_documentation_(ptr, env, cons, rdoc, rdecl, rbody));
 	close_environment(env);
@@ -61,7 +61,7 @@ static int parse_parse_type_(Execute ptr, addr *ret, addr type)
 	addr env;
 	LocalHold hold;
 
-	environment_heap(ptr, &env);
+	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
 	Return(parse_type(ptr, ret, type, env));
 	close_environment(env);
@@ -180,11 +180,13 @@ static int parse_let_(Execute ptr, addr *ret, EvalParse type, addr cons)
 /* setq */
 static int parse_setq_symbol_p_(Execute ptr, addr list, int *ret)
 {
+	int check;
 	addr symbol;
 
 	while (list != Nil) {
 		Return_getcons(list, &symbol, &list);
-		if (symbol_macrolet_envstack_p(ptr, symbol, NULL))
+		Return(symbol_macrolet_envstack_p_(ptr, symbol, NULL, &check));
+		if (check)
 			return Result(ret, 1);
 		Return_getcons(list, &symbol, &list);
 	}
@@ -194,6 +196,7 @@ static int parse_setq_symbol_p_(Execute ptr, addr list, int *ret)
 
 static int parse_setq_macrolet_(Execute ptr, addr *ret, addr cons)
 {
+	int check;
 	addr progn, root, setq, setf, var, value;
 
 	/* symbol-macrolet
@@ -207,7 +210,8 @@ static int parse_setq_macrolet_(Execute ptr, addr *ret, addr cons)
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &var, &cons);
 		GetCons(cons, &value, &cons);
-		if (symbol_macrolet_envstack_p(ptr, var, &var))
+		Return(symbol_macrolet_envstack_p_(ptr, var, &var, &check));
+		if (check)
 			list_heap(&var, setf, var, value, NULL);
 		else
 			list_heap(&var, setq, var, value, NULL);
@@ -538,7 +542,7 @@ static int parse_defmacro_(Execute ptr, addr *ret, addr cons)
 	Return(make_macro_function_(ptr, &lambda, &macro, args, decl, doc, body));
 	localhold_push(hold, lambda);
 	localhold_push(hold, macro);
-	defmacro_envstack(ptr, name, lambda);
+	Return(defmacro_envstack_(ptr, name, lambda));
 	localhold_end(hold);
 
 	/* defmacro */
@@ -700,7 +704,7 @@ static int parse_define_symbol_macro_(Execute ptr, addr *ret, addr cons)
 	localhold_push(hold, form);
 	/* form */
 	Return(check_define_symbol_macro_(symbol));
-	define_symbol_macro_envstack(ptr, symbol, form); /* before parse */
+	Return(define_symbol_macro_envstack_(ptr, symbol, form)); /* before parse */
 	Return(parse_execute_(ptr, &body, form));
 	localhold_push(hold, body);
 	localhold_end(hold);
@@ -736,10 +740,11 @@ static int parse_symbol_macrolet_args_(Execute ptr, addr *ret, addr args)
 		GetCons(cons, &expansion, &cons);
 		if (cons != Nil)
 			goto error;
-		symbol_macrolet_envstack(ptr, symbol, expansion); /* before parse */
+		/* before parse */
+		Return(symbol_macrolet_envstack_(ptr, symbol, expansion));
 		Return(parse_self_(ptr, expansion));
 		/* (symbol expansion env) */
-		environment_heap(ptr, &env);
+		Return(environment_heap_(ptr, &env));
 		list_heap(&cons, symbol, expansion, env, NULL);
 		cons_heap(&root, cons, root);
 		localhold_set(hold, 0, root);
@@ -784,7 +789,7 @@ static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
 	}
 	Return_getcons(cons, &args, &cons);
 	/* local scope environment */
-	snapshot_envstack(ptr, &rollback);
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	/* args */
 	Return(parse_symbol_macrolet_args_(ptr, &args, args));
@@ -833,7 +838,7 @@ static int parse_macrolet_one_(Execute ptr, addr cons)
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	Return(make_macro_function_(ptr, &cons, NULL, args, decl, doc, cons));
 	localhold_push(hold, cons);
-	macrolet_envstack(ptr, name, cons);
+	Return(macrolet_envstack_(ptr, name, cons));
 	localhold_end(hold);
 	return 0;
 
@@ -861,7 +866,7 @@ static int parse_macrolet_(Execute ptr, addr *ret, addr cons)
 	if (! consp_getcons(cons, &args, &cons))
 		return fmte_("macrolet form must be (macrolet args . body).", NULL);
 	/* local scope environment */
-	snapshot_envstack(ptr, &rollback);
+	Return(snapshot_envstack_(ptr, &rollback));
 	Return(parse_macrolet_args_(ptr, args));
 	/* arguments */
 	hold = LocalHold_local(ptr);
@@ -1207,7 +1212,7 @@ static int parse_flet_one_(Execute ptr, addr *ret, addr cons)
 
 	if (! consp_getcons(cons, &name, &cons))
 		goto error;
-	parse_callname_error(&call, name);
+	Return(parse_callname_error_(&call, name));
 	Return(check_function_variable_(call));
 	if (! consp_getcons(cons, &args, &cons))
 		goto error;
@@ -1387,8 +1392,8 @@ static int parse_eval_when_(Execute ptr, addr *ret, addr cons)
 
 	/* arguments */
 	Return(parse_eval_when_list_(list, &compile, &load, &exec));
-	gettoplevel_eval(ptr, &toplevel);
-	get_compile_time_eval(ptr, &value);
+	Return(gettoplevel_eval_(ptr, &toplevel));
+	Return(get_compile_time_eval_(ptr, &value));
 
 	/* discard */
 	if (! parse_eval_when_process(ptr, compile, load, exec, toplevel, value)) {
@@ -1397,7 +1402,7 @@ static int parse_eval_when_(Execute ptr, addr *ret, addr cons)
 	}
 
 	/* body */
-	get_compile_time_eval(ptr, &mode);
+	Return(get_compile_time_eval_(ptr, &mode));
 	Return(parse_allcons_toplevel_(ptr, &cons, cons));
 	set_compile_time_eval(ptr, value);
 
@@ -1624,7 +1629,7 @@ static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons)
 	LocalHold hold;
 
 	/* macroexpand */
-	environment_heap(ptr, &env);
+	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
 	Return(call_macroexpand_hook(ptr, &value, call, cons, env));
 	close_environment(env);
@@ -1632,7 +1637,7 @@ static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons)
 
 	/* execute */
 	Return(parse_execute_(ptr, &value, value));
-	parse_compile_toplevel(ptr, cons, value, &value);
+	Return(parse_compile_toplevel_(ptr, cons, value, &value));
 	return Result(ret, value);
 }
 
@@ -1819,7 +1824,7 @@ static int parse_cons_expander_(Execute ptr, addr *ret, addr call, addr cons)
 	addr env, pos;
 	LocalHold hold;
 
-	environment_heap(ptr, &env);
+	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
 	Return(call_macroexpand_hook(ptr, &pos, call, cons, env));
 	close_environment(env);
@@ -1969,7 +1974,7 @@ _g int parse_allcons_(Execute ptr, addr *ret, addr cons)
 	addr toplevel;
 
 	/* toplevel */
-	gettoplevel_eval(ptr, &toplevel);
+	Return(gettoplevel_eval_(ptr, &toplevel));
 	if (toplevel == Nil)
 		return parse_allcons_toplevel_(ptr, ret, cons);
 
@@ -1986,7 +1991,7 @@ _g int parse_execute_(Execute ptr, addr *ret, addr pos)
 	addr toplevel;
 
 	/* toplevel */
-	gettoplevel_eval(ptr, &toplevel);
+	Return(gettoplevel_eval_(ptr, &toplevel));
 	if (toplevel == Nil)
 		return parse_execute_toplevel_(ptr, ret, pos);
 
@@ -2027,7 +2032,7 @@ _g int parse_execute_toplevel_(Execute ptr, addr *ret, addr pos)
 
 	hold = LocalHold_local_push(ptr, pos);
 	Return(parse_switch_(ptr, &expr, pos));
-	parse_step_object(ptr, &expr, pos, expr);
+	Return(parse_step_object_(ptr, &expr, pos, expr));
 	localhold_end(hold);
 
 	return Result(ret, expr);

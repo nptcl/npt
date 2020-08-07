@@ -23,7 +23,7 @@ _g int pprint_throw(Execute ptr, addr stream);
 _g int pprint_exit_common(Execute ptr, addr stream);
 _g int pprint_pop_common(Execute ptr, addr stream, addr *ret);
 _g int check_pretty_stream(Execute ptr, addr stream);
-_g void expand_pprint_logical_block_common(addr *ret, addr stream, addr pos,
+_g int expand_pprint_logical_block_common_(addr *ret, addr stream, addr pos,
 		addr prefix, addr per, addr suffix, addr decl, addr body);
 _g int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream);
 _g int pprint_newline_print_(Execute ptr, enum pprint_newline kind, addr stream);

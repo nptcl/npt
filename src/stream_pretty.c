@@ -441,7 +441,7 @@ static int rollback_pretty_stream_(addr stream)
 
 _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 {
-	int check;
+	int check, circlep;
 	addr pos;
 
 	Check(! pretty_stream_p(stream), "type error");
@@ -453,7 +453,8 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 		push_write_object(ptr);
 	}
 	/* normal */
-	if (! circle_print(ptr))
+	Return(circle_print_(ptr, &circlep));
+	if (! circlep)
 		return callclang_funcall(ptr, &pos, call, NULL);
 	if (check)
 		return callclang_funcall(ptr, &pos, call, NULL);

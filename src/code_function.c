@@ -198,8 +198,7 @@ _g int special_rem_code(Execute ptr, CodeValue x)
  */
 _g int declaim_special_code(Execute ptr, CodeValue x)
 {
-	setspecial_symbol(x.pos);
-	return 0;
+	return setspecial_symbol_(x.pos);
 }
 
 _g int declaim_type_value_code(Execute ptr, CodeValue x)
@@ -207,8 +206,7 @@ _g int declaim_type_value_code(Execute ptr, CodeValue x)
 	addr symbol, type;
 
 	List_bind(x.pos, &symbol, &type, NULL);
-	settype_value_symbol(symbol, type);
-	return 0;
+	return settype_value_symbol_(symbol, type);
 }
 
 _g int declaim_type_function_code(Execute ptr, CodeValue x)
@@ -218,11 +216,9 @@ _g int declaim_type_function_code(Execute ptr, CodeValue x)
 	List_bind(x.pos, &key, &type, NULL);
 	GetCallName(key, &symbol);
 	if (symbolp_callname(key))
-		settype_function_symbol(symbol, type);
+		return settype_function_symbol_(symbol, type);
 	else
-		settype_setf_symbol(symbol, type);
-
-	return 0;
+		return settype_setf_symbol_(symbol, type);
 }
 
 _g int declaim_inline_code(Execute ptr, CodeValue x)
@@ -463,7 +459,7 @@ _g int defmacro_code(Execute ptr, CodeValue x)
 	addr value;
 
 	getresult_control(ptr, &value);
-	setmacro_symbol(x.pos, value);
+	Return(setmacro_symbol_(x.pos, value));
 	setresult_control(ptr, x.pos);
 
 	return 0;
@@ -475,8 +471,8 @@ _g int deftype_code(Execute ptr, CodeValue x)
 
 	List_bind(x.pos, &symbol, &doc, NULL);
 	getresult_control(ptr, &pos);
+	Return(setdeftype_(symbol, pos));
 	setdocumentation_function(pos, doc);
-	setdeftype(symbol, pos);
 	setresult_control(ptr, symbol);
 
 	return 0;
@@ -502,7 +498,7 @@ _g int define_symbol_macro_code(Execute ptr, CodeValue x)
 
 	List_bind(x.pos, &symbol, &eval, &form, NULL);
 	Check(! symbolp(symbol), "type error");
-	setsymbol_macro_symbol(symbol, eval, form);
+	Return(setsymbol_macro_symbol_(symbol, eval, form));
 	setresult_control(ptr, symbol);
 
 	return 0;
@@ -517,11 +513,11 @@ _g int defun_code(Execute ptr, CodeValue x)
 	GetCallName(call, &symbol);
 
 	if (symbolp_callname(call)) {
-		SetFunctionSymbol(symbol, pos);
+		Return(setfunction_symbol_(symbol, pos));
 		setresult_control(ptr, symbol);
 	}
 	else {
-		setsetf_symbol(symbol, pos);
+		Return(setsetf_symbol_(symbol, pos));
 		GetConst(COMMON_SETF, &pos);
 		list_heap(&pos, pos, symbol, NULL);
 		setresult_control(ptr, pos);

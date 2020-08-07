@@ -10,7 +10,7 @@ _g int step_common(Execute ptr, addr form, addr env, addr *ret);
 /* parse */
 _g void init_parse_step(Execute ptr);
 _g int parse_step(Execute ptr, addr *ret, addr form);
-_g void parse_step_object(Execute ptr, addr *ret, addr value, addr expr);
+_g int parse_step_object_(Execute ptr, addr *ret, addr value, addr expr);
 
 /* copy-eval */
 _g void copy_eval_step(LocalRoot local, addr *ret, addr eval);

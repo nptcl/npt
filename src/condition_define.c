@@ -922,6 +922,18 @@ _g void unbound_variable(addr name)
 	error_function(instance);
 }
 
+_g int instance_unbound_variable_(addr *ret, addr name)
+{
+	return instance_condition1_(ret, CONSTANT_CONDITION_UNBOUND_VARIABLE,
+			CONSTANT_CLOSNAME_NAME, name);
+}
+_g int call_unbound_variable_(Execute ptr, addr name)
+{
+	addr instance;
+	Return(instance_unbound_variable_(&instance, name));
+	return error_function_(ptr, instance);
+}
+
 /* undefined_function (cell_error) :name */
 _g void instance_undefined_function(addr *ret, addr name)
 {
@@ -940,6 +952,18 @@ _g void undefined_function_setf(addr name)
 	GetConst(COMMON_SETF, &setf);
 	list_heap(&name, setf, name, NULL);
 	undefined_function(name);
+}
+
+_g int instance_undefined_function_(addr *ret, addr name)
+{
+	return instance_condition1_(ret, CONSTANT_CONDITION_UNDEFINED_FUNCTION,
+			CONSTANT_CLOSNAME_NAME, name);
+}
+_g int call_undefined_function_(Execute ptr, addr name)
+{
+	addr instance;
+	Return(instance_undefined_function_(&instance, name));
+	return error_function_(ptr, instance);
 }
 
 /* savecore */

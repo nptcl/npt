@@ -6,14 +6,14 @@
 
 _g void environment_symbol(addr *ret);
 _g void init_parse_environment(Execute ptr);
-_g void snapshot_envstack(Execute ptr, addr *ret);
+_g int snapshot_envstack_(Execute ptr, addr *ret);
 _g int rollback_envstack_(Execute ptr, addr pos);
-_g void defmacro_envstack(Execute ptr, addr name, addr lambda);
-_g void macrolet_envstack(Execute ptr, addr name, addr lambda);
-_g void define_symbol_macro_envstack(Execute ptr, addr name, addr form);
-_g void symbol_macrolet_envstack(Execute ptr, addr name, addr form);
-_g int symbol_macrolet_envstack_p(Execute ptr, addr name, addr *ret);
-_g void environment_heap(Execute ptr, addr *ret);
+_g int defmacro_envstack_(Execute ptr, addr name, addr lambda);
+_g int macrolet_envstack_(Execute ptr, addr name, addr lambda);
+_g int define_symbol_macro_envstack_(Execute ptr, addr name, addr form);
+_g int symbol_macrolet_envstack_(Execute ptr, addr name, addr form);
+_g int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret);
+_g int environment_heap_(Execute ptr, addr *ret);
 _g void copy_environment(addr *ret, addr pos);
 _g void close_environment(addr pos);
 _g int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret);

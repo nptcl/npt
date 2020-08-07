@@ -1111,11 +1111,11 @@ static int test_multiple_value_call1(Execute ptr, addr rest)
 	addr pos1, pos2, pos3;
 
 	if (! consp(rest)) goto result_nil;
-	getcons(rest, &pos1, &rest);
+	getcons_(rest, &pos1, &rest);
 	if (! consp(rest)) goto result_nil;
-	getcons(rest, &pos2, &rest);
+	getcons_(rest, &pos2, &rest);
 	if (! consp(rest)) goto result_nil;
-	getcons(rest, &pos3, &rest);
+	getcons_(rest, &pos3, &rest);
 	if (rest != Nil) goto result_nil;
 	rest = (RefFixnum(pos1) == 10
 			&& RefFixnum(pos2) == 20

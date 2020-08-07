@@ -673,7 +673,7 @@ static int handler_bind_clauses_common(addr form, addr *ret)
 	while (form != Nil) {
 		Return_getcons(form, &cons, &form);
 		/* (name lambda) */
-		lista_bind(cons, &name, &lambda, &temp, NULL);
+		Return(lista_bind_(cons, &name, &lambda, &temp, NULL));
 		if (temp != Nil) {
 			return fmte_("handler-bind argument ~S"
 					" must be a (name lambda) form.", cons, NULL);
@@ -773,7 +773,7 @@ static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr 
 	while (right != Nil) {
 		Return_getcons(right, &cons, &right);
 		/* (name (c) form) */
-		lista_bind(cons, &name, &args, &form, NULL);
+		Return(lista_bind_(cons, &name, &args, &form, NULL));
 		if (name == keyword) {
 			Return(handler_case_noerror_common(&noerror, cons));
 		}
@@ -876,7 +876,7 @@ _g int make_condition_common(Execute ptr, addr args, addr *ret)
 	addr call;
 
 	GetConst(COMMON_MAKE_INSTANCE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return callclang_apply(ptr, ret, call, args);
 }
 
@@ -991,7 +991,7 @@ static int restart_bind_binding_common(addr args, addr *ret)
 	 *   :report-function y
 	 *   :test-function z)
 	 */
-	lista_bind(args, &name, &lambda, &args, NULL);
+	Return(lista_bind_(args, &name, &lambda, &args, NULL));
 	inter = report = test = Nil;
 	while (args != Nil) {
 		Return_getcons(args, &pos, &args);
@@ -1130,7 +1130,7 @@ static int restart_case_clauses(addr right, addr *ret)
 	while (right != Nil) {
 		Return_getcons(right, &cons, &right);
 		/* (name (c) form) */
-		lista_bind(cons, &name, &ord, &form, NULL);
+		Return(lista_bind_(cons, &name, &ord, &form, NULL));
 		inter = report = test = Nil;
 		for (; form != Nil; form = cons) {
 			Return_getcons(form, &pos, &cons);

@@ -313,7 +313,7 @@ int lisp_error8_(const void *str, ...)
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
 
-	return call_simple_error_(Execute_Thread, format, args);
+	return call_simple_error_(NULL, format, args);
 }
 
 int lisp_error16_(const void *str, ...)
@@ -326,7 +326,7 @@ int lisp_error16_(const void *str, ...)
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
 
-	return call_simple_error_(Execute_Thread, format, args);
+	return call_simple_error_(NULL, format, args);
 }
 
 

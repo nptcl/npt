@@ -1101,7 +1101,7 @@ static int test_typep_random_state(void)
 {
 	addr v;
 
-	make_random_state_heap(Execute_Thread, &v, Nil);
+	make_random_state_heap_(Execute_Thread, &v, Nil);
 	test(typep_char(v, "random-state"), "typep_random_state1");
 	fixnum_heap(&v, 100);
 	test(! typep_char(v, "random-state"), "typep_random_state2");
@@ -1116,7 +1116,7 @@ static int test_typep_readtable(void)
 	addr v;
 
 	GetConst(SPECIAL_READTABLE, &v);
-	getspecialcheck_local(Execute_Thread, v, &v);
+	getspecialcheck_local_(Execute_Thread, v, &v);
 	test(typep_char(v, "readtable"), "typep_readtable1");
 	fixnum_heap(&v, 100);
 	test(! typep_char(v, "readtable"), "typep_readtable2");
@@ -1132,7 +1132,7 @@ static int test_typep_function(void)
 
 	GetConst(COMMON_CAR, &v);
 	test(! typep_char(v, "function"), "typep_function1");
-	getfunction_global(v, &v);
+	getfunction_global_(v, &v);
 	test(typep_char(v, "function"), "typep_function2");
 
 	RETURN;
@@ -1144,7 +1144,7 @@ static int test_typep_compiled(void)
 
 	GetConst(COMMON_CAR, &v);
 	test(! typep_char(v, "compiled-function"), "typep_compiled1");
-	getfunction_global(v, &v);
+	getfunction_global_(v, &v);
 	test(typep_char(v, "compiled-function"), "typep_compiled2");
 
 	RETURN;
@@ -1603,7 +1603,7 @@ static int test_typep_stream(void)
 
 	/* file */
 	GetConst(SYSTEM_STANDARD_INPUT, &v);
-	getspecialcheck_local(Execute_Thread, v, &v);
+	getspecialcheck_local_(Execute_Thread, v, &v);
 	test(typep_char(v, "file-stream"), "typep_file_stream1");
 	test(typep_char(v, "stream"), "typep_file_stream2");
 	test(! typep_char(Nil, "file-stream"), "typep_file_stream3");
@@ -1624,9 +1624,9 @@ static int test_typep_stream(void)
 
 	/* two-way */
 	GetConst(SYSTEM_STANDARD_INPUT, &v);
-	getspecialcheck_local(Execute_Thread, v, &v);
+	getspecialcheck_local_(Execute_Thread, v, &v);
 	GetConst(SYSTEM_STANDARD_OUTPUT, &x);
-	getspecialcheck_local(Execute_Thread, x, &x);
+	getspecialcheck_local_(Execute_Thread, x, &x);
 	open_twoway_stream(&v, v, x);
 	test(typep_char(v, "two-way-stream"), "typep_two_way_stream1");
 	test(typep_char(v, "stream"), "typep_two_way_stream2");

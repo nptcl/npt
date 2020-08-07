@@ -43,11 +43,11 @@ static void load_time_value_symbol(addr *ret)
 	GetConst(SYSTEM_SPECIAL_LOAD_TIME_VALUE, ret);
 }
 
-static void get_load_time_value_symbol(Execute ptr, addr *ret)
+static int get_load_time_value_symbol_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	load_time_value_symbol(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
 _g void set_load_time_value_symbol(Execute ptr, addr value)
@@ -72,7 +72,7 @@ _g int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos)
 {
 	addr eval;
 
-	get_load_time_value_symbol(ptr, &eval);
+	Return(get_load_time_value_symbol_(ptr, &eval));
 	if (eval == Nil)
 		return Result(ret, pos);
 
@@ -185,13 +185,15 @@ _g void init_scope_load_time_value(Execute ptr)
 	pushspecial_control(ptr, symbol, Nil);
 }
 
-static void scope_load_time_value_list(Execute ptr, addr *ret)
+static int scope_load_time_value_list_(Execute ptr, addr *ret)
 {
 	addr list;
 
-	get_load_time_value_symbol(ptr, &list);
+	Return(get_load_time_value_symbol_(ptr, &list));
 	set_load_time_value_symbol(ptr, Nil);
 	nreverse(ret, list);
+
+	return 0;
 }
 
 static int scope_load_time_value_body(Execute ptr, addr *ret, addr eval)
@@ -202,11 +204,11 @@ static int scope_load_time_value_body(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &expr);
 
 	Return(scope_eval(ptr, &expr, expr));
-	scope_load_time_value_list(ptr, &list);
+	Return(scope_load_time_value_list_(ptr, &list));
 	GetEvalScopeThe(expr, &type);
 
 	/* eval */
-	eval_scope_size(ptr, &eval, 3, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil);
+	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil));
 	SetEvalScopeIndex(eval, 0, check); /* T */
 	SetEvalScopeIndex(eval, 1, expr);
 	SetEvalScopeIndex(eval, 2, list);
@@ -235,7 +237,7 @@ static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
 	load_time_value_heap(&value);
 
 	/* eval */
-	eval_scope_size(ptr, &eval, 5, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil);
+	Return(eval_scope_size_(ptr, &eval, 5, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil));
 	SetEvalScopeIndex(eval, 0, check); /* Nil */
 	SetEvalScopeIndex(eval, 1, expr);
 	SetEvalScopeIndex(eval, 2, readonly);
@@ -243,7 +245,7 @@ static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
 	SetEvalScopeIndex(eval, 4, value);
 
 	/* push */
-	get_load_time_value_symbol(ptr, &value);
+	Return(get_load_time_value_symbol_(ptr, &value));
 	cons_heap(&value, eval, value);
 	set_load_time_value_symbol(ptr, value);
 

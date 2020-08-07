@@ -413,10 +413,10 @@ static int test_setchar_bigcons(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &pos);
-	setchar_bigcons(local, pos, 10, str1);
-	setchar_bigcons(local, pos, 10, str2);
-	setchar_bigcons(local, pos, 16, str3);
-	setchar_bigcons(local, pos, 10, str4);
+	setchar_bigcons_(local, pos, 10, str1);
+	setchar_bigcons_(local, pos, 10, str2);
+	setchar_bigcons_(local, pos, 16, str3);
+	setchar_bigcons_(local, pos, 10, str4);
 
 	test(cons_count(pos) == 1, "setchar_bigcons1");
 	test(cons_root_buffer(pos)[0] == 5, "setchar_bigcons2");
@@ -437,11 +437,11 @@ static int test_bigcons_char_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	bigcons_char_local(local, &pos, 10, "11");
+	bigcons_char_local_(local, &pos, 10, "11");
 	test(cons_count(pos) == 1, "bigcons_char_local1");
 	test(cons_root_buffer(pos)[0] == 11, "bigcons_char_local2");
 
-	bigcons_char_local(local, &pos, 16, "1234567890abcdef01234567890ABCDEF");
+	bigcons_char_local_(local, &pos, 16, "1234567890abcdef01234567890ABCDEF");
 	rollback_local(local, stack);
 
 	RETURN;

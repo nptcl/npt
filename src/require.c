@@ -21,7 +21,7 @@ _g int provide_common_(Execute ptr, addr var)
 	Return(string_designer_heap_(&var, var, NULL));
 	/* push *modules */
 	GetConst(SPECIAL_MODULES, &symbol);
-	getspecialcheck_local(ptr, symbol, &list);
+	Return(getspecialcheck_local_(ptr, symbol, &list));
 	Return(pushnew_equal_heap_(list, var, &list));
 	setspecial_local(ptr, symbol, list);
 
@@ -39,7 +39,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 
 	/* lisp-system::*module-provider-functions* */
 	GetConst(SYSTEM_MODULE_PROVIDER_FUNCTIONS, &list);
-	getspecialcheck_local(ptr, list, &list);
+	Return(getspecialcheck_local_(ptr, list, &list));
 
 	while (list != Nil) {
 		Return_getcons(list, &call, &list);

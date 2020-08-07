@@ -21,15 +21,18 @@ static int compile_eval_scope(Execute ptr, addr pos);
 /*
  *  eval-when check
  */
-static int compile_eval_execute_p(Execute ptr)
+static int compile_eval_execute_p_(Execute ptr, int *ret)
 {
-	return load_toplevel_p_eval(ptr);
+	return load_toplevel_p_eval_(ptr, ret);
 }
 
-static int compile_eval_compile_p(Execute ptr)
+static int compile_eval_compile_p_(Execute ptr, int *ret)
 {
-	return compile_toplevel_p_eval(ptr)
-		|| compile_time_too_eval(ptr);
+	Return(compile_toplevel_p_eval_(ptr, ret));
+	if (*ret)
+		return 0;
+
+	return compile_time_too_eval_(ptr, ret);
 }
 
 
@@ -38,6 +41,7 @@ static int compile_eval_compile_p(Execute ptr)
  */
 static int compile_eval_execute(Execute ptr, addr pos)
 {
+	int check;
 	addr control;
 	LocalHold hold;
 
@@ -54,13 +58,15 @@ static int compile_eval_execute(Execute ptr, addr pos)
 	code_make(ptr->local, &pos, pos);
 
 	/* execute */
-	if (compile_eval_execute_p(ptr)) {
+	Return(compile_eval_execute_p_(ptr, &check));
+	if (check) {
 		localhold_set(hold, 0, pos);
 		Return(eval_compile_file(ptr, pos));
 	}
 
 	/* compile-toplevel */
-	if (compile_eval_compile_p(ptr)) {
+	Return(compile_eval_compile_p_(ptr, &check));
+	if (check) {
 		localhold_set(hold, 0, pos);
 		Return(runcode_control(ptr, pos));
 	}
@@ -96,8 +102,8 @@ static int compile_eval_implicit(Execute ptr, addr args, addr decl, addr list)
 	addr stack, free, pos;
 
 	/* new stack */
-	stack = newstack_nil(ptr);
-	apply_declare(ptr, stack, decl, &free);
+	Return(newstack_nil_(ptr, &stack));
+	Return(apply_declare_(ptr, stack, decl, &free));
 
 	/* symbol-macrolet */
 	if (args != Nil)
@@ -117,9 +123,7 @@ static int compile_eval_implicit(Execute ptr, addr args, addr decl, addr list)
 	}
 
 	/* free stack */
-	freestack_eval(ptr, stack);
-
-	return 0;
+	return freestack_eval_(ptr, stack);
 }
 
 static int compile_eval_locally(Execute ptr, addr pos)
@@ -164,10 +168,10 @@ static int compile_eval_eval_when(Execute ptr, addr pos)
 	GetEvalParse(pos, 5, &mode);
 
 	/* save */
-	get_compile_time_eval(ptr, &mode1);
-	get_compile_toplevel_eval(ptr, &compile1);
-	get_load_toplevel_eval(ptr, &load1);
-	get_execute_eval(ptr, &exec1);
+	Return(get_compile_time_eval_(ptr, &mode1));
+	Return(get_compile_toplevel_eval_(ptr, &compile1));
+	Return(get_load_toplevel_eval_(ptr, &load1));
+	Return(get_execute_eval_(ptr, &exec1));
 
 	/* set */
 	set_compile_time_eval(ptr, mode);
@@ -243,7 +247,7 @@ _g int compile_eval(Execute ptr, addr pos)
 	push_execute_eval(ptr, T);
 	/* init */
 	init_scope_load_time_value(ptr);
-	begin_eval_stack(ptr);
+	Return(begin_eval_stack_(ptr));
 	free_eval_stack(ptr);
 	/* parse */
 	hold = LocalHold_array(ptr, 2);

@@ -815,59 +815,58 @@ _g int print_string_stream_(addr stream, addr pos)
 /*
  *  initialize
  */
-static void specialvalue(Execute ptr, constindex index, addr *ret)
+static int specialvalue_(Execute ptr, constindex index, addr *ret)
 {
 	addr symbol;
 	GetConstant(index, &symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
-_g void standard_input_stream(Execute ptr, addr *ret)
+_g int standard_input_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_STANDARD_INPUT, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_STANDARD_INPUT, ret);
 }
 
-_g void standard_output_stream(Execute ptr, addr *ret)
+_g int standard_output_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_STANDARD_OUTPUT, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_STANDARD_OUTPUT, ret);
 }
 
-_g void error_output_stream(Execute ptr, addr *ret)
+_g int error_output_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_ERROR_OUTPUT, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_ERROR_OUTPUT, ret);
 }
 
-_g void trace_output_stream(Execute ptr, addr *ret)
+_g int trace_output_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_TRACE_OUTPUT, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_TRACE_OUTPUT, ret);
 }
 
-_g void terminal_io_stream(Execute ptr, addr *ret)
+_g int terminal_io_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_TERMINAL_IO, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_TERMINAL_IO, ret);
 }
 
-_g void debug_io_stream(Execute ptr, addr *ret)
+_g int debug_io_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_DEBUG_IO, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_DEBUG_IO, ret);
 }
 
-_g void query_io_stream(Execute ptr, addr *ret)
+_g int query_io_stream_(Execute ptr, addr *ret)
 {
-	specialvalue(ptr, CONSTANT_SPECIAL_QUERY_IO, ret);
+	return specialvalue_(ptr, CONSTANT_SPECIAL_QUERY_IO, ret);
 }
 
-_g void output_stream_designer(Execute ptr, addr stream, addr *ret)
+_g int output_stream_designer_(Execute ptr, addr stream, addr *ret)
 {
 	if (stream == Unbound)
-		standard_output_stream(ptr, ret);
-	else if (stream == T)
-		terminal_io_stream(ptr, ret);
-	else if (stream == Nil)
-		standard_output_stream(ptr, ret);
-	else
-		*ret = stream;
-	Check(! streamp(*ret), "type error");
+		return standard_output_stream_(ptr, ret);
+	if (stream == T)
+		return terminal_io_stream_(ptr, ret);
+	if (stream == Nil)
+		return standard_output_stream_(ptr, ret);
+
+	return Result(ret, stream);
 }
 
 
@@ -1345,8 +1344,9 @@ _g int stream_designer_(Execute ptr, addr pos, addr *ret, int inputp)
 	}
 
 	/* symbol */
-	if (symbolp(pos))
-		getspecialcheck_local(ptr, pos, &pos);
+	if (symbolp(pos)) {
+		Return(getspecialcheck_local_(ptr, pos, &pos));
+	}
 
 	/* stream */
 	if (streamp(pos))
@@ -1465,7 +1465,7 @@ static int get_end_of_line_mode_(Execute ptr, enum EndOfLine_Mode *ret)
 	addr pos, check;
 
 	GetConst(SYSTEM_END_OF_LINE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	/* Auto */
 	GetConst(SYSTEM_AUTO, &check);
 	if (check == pos)
@@ -1713,7 +1713,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 
 	hold = LocalHold_array(ptr, 1);
 	/* output */
-	query_io_stream(ptr, &stream);
+	Return(query_io_stream_(ptr, &stream));
 	localhold_push(hold, stream);
 	Return(fresh_line_stream_(stream, NULL));
 	Return(princ_print(ptr, stream, prompt));
@@ -1762,7 +1762,7 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 
 	hold = LocalHold_array(ptr, 1);
 	/* output */
-	query_io_stream(ptr, &stream);
+	Return(query_io_stream_(ptr, &stream));
 	localhold_push(hold, stream);
 
 	if (control != Nil) {

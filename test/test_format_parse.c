@@ -287,11 +287,11 @@ static int test_fmtchar_value_parse(void)
 	strvect_char_local(local, &pos, "Hello");
 	fmtinput_init_(&input, local, pos);
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 10, "12345");
+	setchar_bigcons_(local, cons, 10, "12345");
 	fmtchar_value_parse_(&input, '+', cons, &v);
 	test(v == 12345, "fmtchar_value_parse1");
 
-	setchar_bigcons(local, cons, 10, "234");
+	setchar_bigcons_(local, cons, 10, "234");
 	fmtchar_value_parse_(&input, '-', cons, &v);
 	test(v == -234, "fmtchar_value_parse2");
 
@@ -316,7 +316,7 @@ static int test_fmtchar_value(void)
 	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 10, "12345");
+	setchar_bigcons_(local, cons, 10, "12345");
 	sign = '-';
 	fmtchar_value_(&input, &chr, &sign, cons);
 	ptr = chr.root;
@@ -342,7 +342,7 @@ static int test_fmtchar_nilcheck(void)
 	bigcons_local(local, &cons);
 	fmtchar_nilcheck_(NULL, 0, cons, &check);
 	test(check, "fmtchar_nilcheck1");
-	setchar_bigcons(local, cons, 10, "12345");
+	setchar_bigcons_(local, cons, 10, "12345");
 	fmtchar_nilcheck_(NULL, '+', cons, &check);
 	test(! check, "fmtchar_nilcheck2");
 

@@ -11,15 +11,14 @@
 #define GetFunctionSymbol_Low(s,v)  GetArrayA2((s), SYMBOL_INDEX_FUNCTION, (v))
 #define SetFunctionSymbol_Low(s,v)  SetArrayA2((s), SYMBOL_INDEX_FUNCTION, (v))
 #define GetPackageSymbol_Low(s,v)   GetArrayA2((s), SYMBOL_INDEX_PACKAGE, (v))
-#define SetPackageSymbol_Low(s,v)   SetArrayA2((s), SYMBOL_INDEX_PACKAGE, (v))
+#define SetPackageSymbol_Low(s,v)   SetArrayA2_force((s), SYMBOL_INDEX_PACKAGE, (v))
 #define GetPlistSymbol_Low(s,v)     GetArrayA2((s), SYMBOL_INDEX_PLIST, (v))
-#define SetPlistSymbol_Low(s,v)     SetArrayA2((s), SYMBOL_INDEX_PLIST, (v))
+#define SetPlistSymbol_Low(s,v)     SetArrayA2_force((s), SYMBOL_INDEX_PLIST, (v))
 
 #define GetSpecialSymbol_Low(s,v)   GetArrayA2((s), SYMBOL_INDEX_SPECIAL, (v))
 #define SetSpecialSymbol_Low(s,v)   SetArrayA2((s), SYMBOL_INDEX_SPECIAL, (v))
 #define GetInfoSymbol_Low(s,v)      GetArrayA2((s), SYMBOL_INDEX_INFO, (v))
-#define SetInfoSymbol_Low(s,v)      SetArrayA2((s), SYMBOL_INDEX_INFO, (v))
-#define SetInfoSymbol_force(s,v)    SetArrayA2_force((s), SYMBOL_INDEX_INFO, (v))
+#define SetInfoSymbol_Low(s,v)      SetArrayA2_force((s), SYMBOL_INDEX_INFO, (v))
 
 #ifdef LISP_DEBUG
 #define GetNameSymbol(s,v)          getname_symbol((s), (v))
@@ -56,32 +55,38 @@ _g int init_symbol(void);
 _g void free_symbol(void);
 _g void build_symbol(void);
 
-_g void symbol_alloc(LocalRoot local, addr *ret);
-_g void symbol_local(LocalRoot local, addr *ret);
 _g void symbol_heap(addr *ret);
 _g int symbolp(addr pos);
 _g int keywordp(addr pos);
 
-_g void getname_symbol(addr symbol, addr *value);
+_g void getname_symbol(addr symbol, addr *ret);
 _g void setname_symbol(addr symbol, addr value);
-_g void getvalue_symbol(addr symbol, addr *value);
+_g void getvalue_symbol(addr symbol, addr *ret);
 _g void setvalue_symbol(addr symbol, addr value);
-_g void getfunction_symbol(addr symbol, addr *value);
+_g int setvalue_symbol_(addr symbol, addr value);
+_g void getfunction_symbol(addr symbol, addr *ret);
 _g void setfunction_symbol(addr symbol, addr value);
-_g void getpackage_symbol(addr symbol, addr *value);
+_g int setfunction_symbol_(addr symbol, addr value);
+_g void getpackage_symbol(addr symbol, addr *ret);
 _g void setpackage_symbol(addr symbol, addr value);
-_g void getplist_symbol(addr symbol, addr *value);
+_g void getplist_symbol(addr symbol, addr *ret);
 _g void setplist_symbol(addr symbol, addr value);
 
 _g void gettype_value_symbol(addr symbol, addr *ret);
 _g void settype_value_symbol(addr symbol, addr value);
+_g int settype_value_symbol_(addr symbol, addr value);
 _g void remtype_value_symbol(addr symbol);
+
 _g void gettype_function_symbol(addr symbol, addr *ret);
 _g void settype_function_symbol(addr symbol, addr value);
-_g void remtype_function_symbol(addr symbol);
+_g int settype_function_symbol_(addr symbol, addr value);
+_g int remtype_function_symbol_(addr symbol);
+
 _g void gettype_setf_symbol(addr symbol, addr *ret);
 _g void settype_setf_symbol(addr symbol, addr value);
-_g void remtype_setf_symbol(addr symbol);
+_g int settype_setf_symbol_(addr symbol, addr value);
+_g int remtype_setf_symbol_(addr symbol);
+
 _g int inlinep_function_symbol(addr symbol);
 _g void setinline_function_symbol(addr symbol);
 _g int notinlinep_function_symbol(addr symbol);
@@ -93,44 +98,55 @@ _g int notinlinep_setf_symbol(addr symbol);
 _g void setnotinline_setf_symbol(addr symbol);
 _g void reminline_setf_symbol(addr symbol);
 
-_g void getsetf_symbol(addr symbol, addr *value);
+_g void getsetf_symbol(addr symbol, addr *ret);
 _g void setsetf_symbol(addr symbol, addr value);
+_g int setsetf_symbol_(addr symbol, addr value);
 _g void remsetf_symbol(addr symbol);
-_g void getsetfmacro_symbol(addr symbol, addr *value);
+
+_g void getsetfmacro_symbol(addr symbol, addr *ret);
 _g void setsetfmacro_symbol(addr symbol, addr value);
+_g int setsetfmacro_symbol_(addr symbol, addr value);
 _g void remsetfmacro_symbol(addr symbol);
-_g void getmacro_symbol(addr symbol, addr *value);
+
+_g void getmacro_symbol(addr symbol, addr *ret);
 _g void setmacro_symbol(addr symbol, addr value);
+_g int setmacro_symbol_(addr symbol, addr value);
 _g void remmacro_symbol(addr symbol);
+
 _g void evalsymbol_macro_symbol(addr symbol, addr *ret);
 _g void formsymbol_macro_symbol(addr symbol, addr *ret);
-_g void setsymbol_macro_symbol(addr symbol, addr eval, addr form);
+_g int setsymbol_macro_symbol_(addr symbol, addr eval, addr form);
 _g void remsymbol_macro_symbol(addr symbol);
 
-_g void get_compiler_macro_symbol(addr symbol, addr *value);
-_g void set_compiler_macro_symbol(addr symbol, addr form);
-_g void get_setf_compiler_macro_symbol(addr symbol, addr *value);
-_g void set_setf_compiler_macro_symbol(addr symbol, addr form);
+_g void get_compiler_macro_symbol(addr symbol, addr *ret);
+_g int set_compiler_macro_symbol_(addr symbol, addr value);
+_g void get_setf_compiler_macro_symbol(addr symbol, addr *ret);
+_g int set_setf_compiler_macro_symbol_(addr symbol, addr value);
 
-_g void getscope_symbol(addr symbol, addr *value);
-_g void setscope_symbol(addr symbol, addr value);
+_g void getscope_symbol(addr symbol, addr *ret);
 _g void setspecial_symbol(addr symbol);
+_g int setspecial_symbol_(addr symbol);
 _g void setlexical_symbol(addr symbol);
 _g int specialp_symbol(addr symbol);
 _g int lexicalp_symbol(addr symbol);
+
 _g void set_special_operator(addr symbol);
 _g int get_special_operator(addr symbol);
+
 _g void getdocument_variable_symbol(addr symbol, addr *ret);
 _g void setdocument_variable_symbol(addr symbol, addr value);
 _g void getdocument_type_symbol(addr symbol, addr *ret);
 _g void setdocument_type_symbol(addr symbol, addr value);
+
 _g void getdeftype_symbol(addr symbol, addr *ret);
-_g void setdeftype_symbol(addr symbol, addr value);
+_g int setdeftype_symbol_(addr symbol, addr value);
 _g void remdeftype_symbol(addr symbol);
+
 _g void getsymboltype_symbol(addr symbol, addr *ret);
 _g void setsymboltype_symbol(addr symbol, addr value);
 _g void getlisttype_symbol(addr symbol, addr *ret);
 _g void setlisttype_symbol(addr symbol, addr value);
+
 _g void getclass_symbol(addr symbol, addr *ret);
 _g void setclass_symbol(addr symbol, addr value);
 _g void remclass_symbol(addr symbol);
@@ -141,11 +157,11 @@ _g void setcombination_symbol(addr symbol, addr value);
 _g void getspecial_unsafe(Execute ptr, addr pos, addr *ret);
 _g void setspecial_unsafe(Execute ptr, addr pos, addr value);
 _g void getspecial_local(Execute ptr, addr pos, addr *ret);
-_g void getspecialcheck_local(Execute ptr, addr pos, addr *ret);
+_g int getspecialcheck_local_(Execute ptr, addr pos, addr *ret);
 _g void setspecial_local(Execute ptr, addr pos, addr value);
 
-_g void getfunction_global(addr pos, addr *ret);
-_g void getsetf_global(addr pos, addr *ret);
+_g int getfunction_global_(addr pos, addr *ret);
+_g int getsetf_global_(addr pos, addr *ret);
 
 /* gensym */
 _g int gensymp(addr pos);

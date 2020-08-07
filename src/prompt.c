@@ -39,9 +39,9 @@ static void symbol_prompt_info(addr *ret)
 static void get_prompt_info(Execute ptr, addr *ret)
 {
 	addr symbol;
-
 	symbol_prompt_info(&symbol);
-	getspecialcheck_local(ptr, symbol, ret);
+	getspecial_local(ptr, symbol, ret);
+	Check(*ret == Unbound, "unbound error");
 }
 
 _g void push_prompt_info(Execute ptr)

@@ -14,6 +14,7 @@ static int test_consp_getcons(void)
 	addr left, right, cons, check1, check2;
 
 	check1 = check2 = Nil;
+
 	fixnum_heap(&left, 100);
 	fixnum_heap(&right, 200);
 	cons_heap(&cons, left, right);
@@ -40,16 +41,18 @@ static int test_getcons(void)
 {
 	addr left, right, cons, check1, check2;
 
+	check1 = check2 = Unbound;
+
 	fixnum_heap(&left, 100);
 	fixnum_heap(&right, 200);
 	cons_heap(&cons, left, right);
-	getcons(cons, &check1, &check2);
+	getcons_(cons, &check1, &check2);
 	test(check1 == left, "getcons.1");
 	test(check2 == right, "getcons.2");
-	getcar(cons, &check1);
-	getcdr(cons, &check2);
-	test(check1 == left, "getcar.1");
-	test(check2 == right, "getcdr.1");
+	getcar_(cons, &check1);
+	getcdr_(cons, &check2);
+	test(check1 == left, "getcar_.1");
+	test(check2 == right, "getcdr_.1");
 
 	RETURN;
 }
@@ -58,22 +61,24 @@ static int test_setcons(void)
 {
 	addr a, b, c, d, cons, check1, check2;
 
+	check1 = check2 = Unbound;
+
 	fixnum_heap(&a, 100);
 	fixnum_heap(&b, 200);
 	fixnum_heap(&c, 100);
 	fixnum_heap(&d, 200);
 	cons_heap(&cons, a, b);
-	setcons(cons, c, d);
-	getcons(cons, &check1, &check2);
+	setcons_(cons, c, d);
+	getcons_(cons, &check1, &check2);
 	test(check1 == c, "setcons.1");
 	test(check2 == d, "setcons.2");
 
-	setcar(cons, a);
-	getcar(cons, &check1);
+	setcar_(cons, a);
+	getcar_(cons, &check1);
 	test(check1 == a, "setcar.1");
 
-	setcdr(cons, b);
-	getcdr(cons, &check2);
+	setcdr_(cons, b);
+	getcdr_(cons, &check2);
 	test(check2 == b, "setcdr.1");
 
 	RETURN;
@@ -108,22 +113,22 @@ static int test_lista_safe_alloc(void)
 {
 	addr cons, pos, v1, v2, v3;
 
-	lista_safe_alloc(NULL, &cons, Nil, Nil);
+	lista_safe_alloc_(NULL, &cons, Nil, Nil);
 	test(cons == Nil, "lista_safe_alloc.1");
-	lista_safe_alloc(NULL, &cons, T, Nil);
+	lista_safe_alloc_(NULL, &cons, T, Nil);
 	test(cons == T, "lista_safe_alloc.2");
 
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	fixnum_heap(&v3, 30);
 	list_heap(&cons, v2, NULL);
-	lista_safe_alloc(NULL, &cons, v1, cons);
+	lista_safe_alloc_(NULL, &cons, v1, cons);
 	GetCons(cons, &pos, &cons);
 	test(pos == v1, "lista_safe_alloc.3");
 	test(cons == v2, "lista_safe_alloc.4");
 
 	list_heap(&cons, v2, v3, NULL);
-	lista_safe_alloc(NULL, &cons, v1, cons);
+	lista_safe_alloc_(NULL, &cons, v1, cons);
 	GetCons(cons, &pos, &cons);
 	test(pos == v1, "lista_safe_alloc.5");
 	GetCons(cons, &pos, &cons);
@@ -193,7 +198,7 @@ static int test_List_bind(void)
 	test(RefFixnum(pos3) == 30, "List_bind.3");
 
 	pos1 = pos2 = pos3 = NULL;
-	list_bind(list, &pos1, &pos2, &pos3, NULL);
+	list_bind_(list, &pos1, &pos2, &pos3, NULL);
 	test(RefFixnum(pos1) == 10, "list_bind.1");
 	test(RefFixnum(pos2) == 20, "list_bind.2");
 	test(RefFixnum(pos3) == 30, "list_bind.3");
@@ -228,7 +233,7 @@ static int test_Lista_bind(void)
 
 	list_heap(&list, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	pos1 = pos2 = pos3 = NULL;
-	lista_bind(list, &pos1, &pos2, &pos3, NULL);
+	lista_bind_(list, &pos1, &pos2, &pos3, NULL);
 	test(RefFixnum(pos1) == 10, "lista_bind.1");
 	test(RefFixnum(pos2) == 20, "lista_bind.2");
 	test(consp(pos3), "lista_bind.3");
@@ -238,7 +243,7 @@ static int test_Lista_bind(void)
 
 	list_heap(&list, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	pos1 = pos2 = pos3 = NULL;
-	lista_bind(list, &pos1, &pos2, NULL);
+	lista_bind_(list, &pos1, &pos2, NULL);
 	test(RefFixnum(pos1) == 10, "lista_bind.6");
 	test(consp(pos2), "lista_bind.7");
 	GetCons(pos2, &pos1, &pos2);
@@ -249,7 +254,7 @@ static int test_Lista_bind(void)
 
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
 	pos1 = pos2 = pos3 = NULL;
-	lista_bind(list, &pos1, &pos2, &pos3, NULL);
+	lista_bind_(list, &pos1, &pos2, &pos3, NULL);
 	test(RefFixnum(pos1) == 10, "lista_bind.11");
 	test(RefFixnum(pos2) == 20, "lista_bind.12");
 	test(pos3 == Nil, "lista_bind.13");

@@ -18,21 +18,21 @@ enum PrintCase {
 };
 typedef int (*calltype_print)(Execute ptr, addr stream, addr object);
 
-_g int array_print(Execute ptr);
+_g int array_print_(Execute ptr, int *ret);
 _g int base_print_(Execute ptr, unsigned *ret);
-_g int radix_print(Execute ptr);
+_g int radix_print_(Execute ptr, int *ret);
 _g int case_print_(Execute ptr, enum PrintCase *ret);
-_g int circle_print(Execute ptr);
-_g int escape_print(Execute ptr);
-_g int gensym_print(Execute ptr);
-_g int readably_print(Execute ptr);
-_g int pretty_print(Execute ptr);
-_g int level_print(Execute ptr, size_t *ret);
-_g int length_print(Execute ptr, size_t *ret);
-_g int lines_print(Execute ptr, size_t *ret);
-_g int miser_width_print(Execute ptr, size_t *ret);
+_g int circle_print_(Execute ptr, int *ret);
+_g int escape_print_(Execute ptr, int *ret);
+_g int gensym_print_(Execute ptr, int *ret);
+_g int readably_print_(Execute ptr, int *ret);
+_g int pretty_print_(Execute ptr, int *ret);
+_g int level_print_(Execute ptr, size_t *value, int *ret);
+_g int length_print_(Execute ptr, size_t *value, int *ret);
+_g int lines_print_(Execute ptr, size_t *value, int *ret);
+_g int miser_width_print_(Execute ptr, size_t *value, int *ret);
 _g int right_margin_print_(Execute ptr, addr stream, size_t *ret);
-_g void pprint_dispatch_print(Execute ptr, addr *ret);
+_g int pprint_dispatch_print_(Execute ptr, addr *ret);
 
 _g void push_array_print(Execute ptr, int value);
 _g void push_base_print(Execute ptr, unsigned base);

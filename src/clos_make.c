@@ -139,7 +139,7 @@ _g int clos_ensure_class_direct_default_initargs_(LocalRoot local,
 	while (args != Nil) {
 		Return_getcons(args, &list, &args);
 		/* (key initform initfunction) form */
-		list_bind(list, &key, &a, &b, NULL);
+		Return(list_bind_(list, &key, &a, &b, NULL));
 		/* check duplicate */
 		if (find_list_eq_unsafe(key, check)) {
 			*ret = Nil;
@@ -377,7 +377,7 @@ static int function_clos_ensure_reader(Execute ptr, addr method, addr next, addr
 
 	/* (slot-value inst symbol) */
 	GetConst(COMMON_SLOT_VALUE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	getdata_control(ptr, &symbol);
 	return funcall_control(ptr, call, inst, symbol, NULL);
 }
@@ -426,7 +426,7 @@ static int function_clos_ensure_writer_instance(Execute ptr,
 
 	/* ((setf slot-value) value inst symbol) */
 	GetConst(COMMON_SLOT_VALUE, &call);
-	getsetf_global(call, &call);
+	Return(getsetf_global_(call, &call));
 	getdata_control(ptr, &symbol);
 	return funcall_control(ptr, call, value, inst, symbol, NULL);
 }
@@ -656,6 +656,7 @@ _g int clos_finalize_(Execute ptr, addr pos, int *ret)
 
 static int clos_ensure_class_object_(Execute ptr, addr name, addr args, addr *ret)
 {
+	int ignore;
 	addr metaclass, pos;
 	LocalRoot local;
 
@@ -664,11 +665,11 @@ static int clos_ensure_class_object_(Execute ptr, addr name, addr args, addr *re
 		GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	local = ptr->local;
 	GetConst(CLOSKEY_METACLASS, &pos);
-	(void)remplist_local(local, args, pos, &args);
+	Return(remplist_local_(local, args, pos, &args, &ignore));
 
 	/* (apply #'make-instance metaclass args) */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
-	getfunction_global(pos, &pos);
+	Return(getfunction_global_(pos, &pos));
 	return callclang_applya(ptr, ret, pos, metaclass, args, NULL);
 }
 
@@ -749,7 +750,7 @@ static int initialize_instance_(Execute ptr, addr pos, addr type, addr rest, add
 	addr call;
 
 	GetConst(COMMON_SHARED_INITIALIZE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return callclang_applya(ptr, ret, call, pos, type, rest, NULL);
 }
 
@@ -819,6 +820,16 @@ static int shared_initialize_initform_(Execute ptr, addr pos, addr key, addr slo
 	return setf_slot_value_call_(ptr, pos, key, value);
 }
 
+static int shared_initialize_stdobject_p_(addr key, addr name, int *ret)
+{
+	int check;
+
+	if (name == T)
+		return Result(ret, 0);
+	Return(find_list_eq_safe_(key, name, &check));
+	return Result(ret, ! check);
+}
+
 _g int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest)
 {
 	int check;
@@ -835,7 +846,8 @@ _g int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest)
 			continue;
 		/* initform */
 		GetNameSlot(slot, &key);
-		if ((name != T) && (! find_list_eq_safe(key, name)))
+		Return(shared_initialize_stdobject_p_(key, name, &check));
+		if (check)
 			continue;
 		Return(shared_initialize_initform_(ptr, pos, key, slot));
 	}
@@ -875,7 +887,7 @@ static int make_instance_initargs_(Execute ptr, addr clos, addr rest, addr *ret)
 	Return(stdget_class_slots_(clos, &slots));
 	for (root = Nil; list != Nil; ) {
 		Return_getcons(list, &temp, &list);
-		list_bind(temp, &key, &value, &call, NULL);
+		Return(list_bind_(temp, &key, &value, &call, NULL));
 		if (! find_list_eq_unsafe(key, keys)) {
 			if (call != Nil) {
 				Return(callclang_funcall(ptr, &value, call, NULL));
@@ -894,7 +906,7 @@ static int make_instance_initargs_(Execute ptr, addr clos, addr rest, addr *ret)
 
 static int make_instance_check_(Execute ptr, addr clos, addr rest)
 {
-	int check;
+	int loop, check;
 	addr slots, slot, key, value;
 	size_t size, i;
 
@@ -904,13 +916,14 @@ static int make_instance_check_(Execute ptr, addr clos, addr rest)
 	while (rest != Nil) {
 		Return_getcons(rest, &key, &rest);
 		Return_getcdr(rest, &rest);
-		check = 0;
+		loop = 0;
 		for (i = 0; i < size; i++) {
 			GetSlotVector(slots, i, &slot);
 			GetArgsSlot(slot, &value);
-			check |= find_list_eq_safe(key, value);
+			Return(find_list_eq_safe_(key, value, &check));
+			loop |= check;
 		}
-		if (! check) {
+		if (! loop) {
 			return fmte_("The initialize argument ~S don't exist in ~S slots.",
 					key, clos, NULL);
 		}
@@ -938,14 +951,14 @@ _g int make_instance_stdclass_(Execute ptr, addr rest, addr *ret)
 
 	/* allocation-instance */
 	GetConst(COMMON_ALLOCATE_INSTANCE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(callclang_apply(ptr, &instance, call, rest));
 
 	/* initialize-instance */
 	GetCdr(rest, &rest);
 	cons_local(ptr->local, &rest, instance, rest);
 	GetConst(COMMON_INITIALIZE_INSTANCE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(callclang_apply(ptr, &call, call, rest));
 
 	/* result */
@@ -962,7 +975,7 @@ _g int clos_slot_missing_(Execute ptr,
 	addr call;
 
 	GetConst(COMMON_SLOT_MISSING, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, clos, pos, name, operation, value, NULL);
 }
 
@@ -971,7 +984,7 @@ _g int clos_slot_unbound_(Execute ptr, addr clos, addr pos, addr name)
 	addr call;
 
 	GetConst(COMMON_SLOT_UNBOUND, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
@@ -984,7 +997,7 @@ static int slot_boundp_call_(Execute ptr, addr pos, addr key, int *ret)
 	addr call;
 
 	GetConst(COMMON_SLOT_BOUNDP, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(callclang_funcall(ptr, &pos, call, pos, key, NULL));
 	return Result(ret, (pos != Nil));
 }
@@ -1030,7 +1043,7 @@ static int slot_makunbound_call_(Execute ptr, addr pos, addr key)
 	addr call;
 
 	GetConst(COMMON_SLOT_MAKUNBOUND, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return callclang_funcall(ptr, &pos, call, pos, key, NULL);
 }
 
@@ -1074,7 +1087,7 @@ static int slot_value_call_(Execute ptr, addr pos, addr key, addr *ret)
 	addr call;
 
 	GetConst(COMMON_SLOT_VALUE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	return callclang_funcall(ptr, ret, call, pos, key, NULL);
 }
 
@@ -1129,7 +1142,7 @@ static int setf_slot_value_call_(Execute ptr, addr pos, addr key, addr value)
 	addr call;
 
 	GetConst(COMMON_SLOT_VALUE, &call);
-	getsetf_global(call, &call);
+	Return(getsetf_global_(call, &call));
 	return callclang_funcall(ptr, &value, call, value, pos, key, NULL);
 }
 

@@ -598,7 +598,7 @@ static int test_clos_find_generic(void)
 	clos_find_generic_nil(readr("aaa"), &pos);
 	test(pos == Nil, "clos_find_generic1");
 	clos_find_class_(readr("method"), &pos);
-	clos_define_generic(readr("aaa"), pos);
+	clos_define_generic_(readr("aaa"), pos);
 	pos = 0;
 	clos_find_generic_nil(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_generic2");

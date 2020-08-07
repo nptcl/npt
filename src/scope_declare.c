@@ -34,34 +34,34 @@ static int specialp_stack_tablevalue(addr stack, addr symbol, int *ret)
 	return 0;
 }
 
-_g int specialp_tablevalue(Execute ptr, addr stack, addr symbol)
+_g int specialp_tablevalue_(Execute ptr, addr stack, addr symbol, int *ret)
 {
 	int result;
 	addr global_stack;
 
 	/* symbol */
 	if (specialp_symbol(symbol)) {
-		return 1;
+		return Result(ret, 1);
 	}
 
 	/* global stack */
-	getglobal_eval(ptr, &global_stack);
+	Return(getglobal_eval_(ptr, &global_stack));
 	if (specialp_stack_tablevalue(global_stack, symbol, &result)) {
 		if (result)
-			return result;
+			return Result(ret, result);
 		/* If symbol is lexical scope, find current stack. */
 	}
 
 	/* local stack */
 	while (stack != Nil) {
 		if (specialp_stack_tablevalue(stack, symbol, &result)) {
-			return result;
+			return Result(ret, result);
 		}
 		GetEvalStackNext(stack, &stack);
 	}
 
 	/* lexical */
-	return 0;
+	return Result(ret, 0);
 }
 
 _g int find_tablevalue(addr stack, addr symbol, addr *ret)
@@ -82,18 +82,19 @@ _g int find_tablefunction(addr stack, addr call, addr *ret)
 	return getfunction_scope_evalstack(stack, call, ret);
 }
 
-static void check_value_scope(Execute ptr, addr stack, addr symbol, addr *ret)
+static int check_value_scope_(Execute ptr, addr stack, addr symbol, addr *ret)
 {
 	int specialp;
 	addr pos;
 
-	specialp = specialp_tablevalue(ptr, stack, symbol);
+	Return(specialp_tablevalue_(ptr, stack, symbol, &specialp));
 	make_tablevalue(&pos, symbol);
 	setspecialp_tablevalue(pos, specialp);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-static void check_value_declare(Execute ptr, addr stack, addr cons, addr *root)
+static int check_value_declare_(Execute ptr, addr stack, addr cons, addr *root)
 {
 	addr key, value;
 
@@ -101,12 +102,14 @@ static void check_value_declare(Execute ptr, addr stack, addr cons, addr *root)
 		GetCons(cons, &key, &cons);
 		GetCons(cons, &value, &cons);
 		if (! find_tablevalue(stack, key, NULL)) {
-			check_value_scope(ptr, stack, key, &key);
+			Return(check_value_scope_(ptr, stack, key, &key));
 			copylocal_object(NULL, &value, value);
 			cons_heap(&key, key, value);
 			cons_heap(root, key, *root);
 		}
 	}
+
+	return 0;
 }
 
 static int globalp_stack_tablefunction(addr stack, addr call)
@@ -127,47 +130,48 @@ static int globalp_stack_tablefunction(addr stack, addr call)
 	return 0;
 }
 
-_g int globalp_tablefunction(Execute ptr, addr stack, addr call)
+_g int globalp_tablefunction_(Execute ptr, addr stack, addr call, int *ret)
 {
 	addr value, global_stack;
 
 	/* local scope */
 	while (stack != Nil) {
 		if (globalp_stack_tablefunction(stack, call)) {
-			return globalp_stack_eval(stack);
+			return Result(ret, globalp_stack_eval(stack));
 		}
 		GetEvalStackNext(stack, &stack);
 	}
 
 	/* global scope */
-	getglobal_eval(ptr, &global_stack);
+	Return(getglobal_eval_(ptr, &global_stack));
 	if (globalp_stack_tablefunction(global_stack, call)) {
-		return 1;
+		return Result(ret, 1);
 	}
 
 	/* symbol */
 	getglobal_callname(call, &value);
 	if (value != Unbound) {
-		return 1;
+		return Result(ret, 1);
 	}
 
 	/* global */
-	return 1;
+	return Result(ret, 1);
 }
 
-static void check_function_scope(Execute ptr, addr stack, addr call, addr *ret)
+static int check_function_scope_(Execute ptr, addr stack, addr call, addr *ret)
 {
 	int globalp;
 	addr pos;
 
 	copylocal_object(NULL, &call, call);
-	globalp = globalp_tablefunction(ptr, stack, call);
+	Return(globalp_tablefunction_(ptr, stack, call, &globalp));
 	make_tablefunction(&pos, call);
 	setglobalp_tablefunction(pos, globalp);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-static void check_function_declare(Execute ptr, addr stack, addr cons, addr *root)
+static int check_function_declare_(Execute ptr, addr stack, addr cons, addr *root)
 {
 	addr key, value;
 
@@ -175,36 +179,40 @@ static void check_function_declare(Execute ptr, addr stack, addr cons, addr *roo
 		GetCons(cons, &key, &cons);
 		GetCons(cons, &value, &cons);
 		if (! find_tablefunction(stack, key, NULL)) {
-			check_function_scope(ptr, stack, key, &key);
+			Return(check_function_scope_(ptr, stack, key, &key));
 			copylocal_object(NULL, &value, value);
 			cons_heap(&key, key, value);
 			cons_heap(root, key, *root);
 		}
 	}
+
+	return 0;
 }
 
-static void check_declare_stack(Execute ptr, addr stack, addr decl, addr *ret)
+static int check_declare_stack_(Execute ptr, addr stack, addr decl, addr *ret)
 {
 	addr root, cons;
 
 	/* check */
 	root = Nil;
 	getall_type_value_declare(decl, &cons);
-	check_value_declare(ptr, stack, cons, &root);
+	Return(check_value_declare_(ptr, stack, cons, &root));
 	getall_type_function_declare(decl, &cons);
-	check_function_declare(ptr, stack, cons, &root);
+	Return(check_function_declare_(ptr, stack, cons, &root));
 	/* result */
 	nreverse(ret, root);
+
+	return 0;
 }
 
-_g void apply_declare(Execute ptr, addr stack, addr decl, addr *ret)
+_g int apply_declare_(Execute ptr, addr stack, addr decl, addr *ret)
 {
-	if (decl == Nil) {
-		*ret = Nil;
-		return;
-	}
-	check_declare_stack(ptr, stack, decl, ret);
+	if (decl == Nil)
+		return Result(ret, Nil);
+	Return(check_declare_stack_(ptr, stack, decl, ret));
 	apply_declare_stack(ptr->local, stack, decl);
 	gchold_push_local(ptr->local, *ret);
+
+	return 0;
 }
 

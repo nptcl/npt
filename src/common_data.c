@@ -21,7 +21,7 @@ static int check_data_function(addr call, addr *ret)
 	int check;
 
 	if (GetType(call) == LISPTYPE_SYMBOL) {
-		getfunction_global(call, &call);
+		Return(getfunction_global_(call, &call));
 		if (macro_function_p(call))
 			return fmte_("Cannot call the macro-function ~S.", call, NULL);
 	}
@@ -35,7 +35,7 @@ static int check_data_function(addr call, addr *ret)
 static int function_apply(Execute ptr, addr call, addr arg, addr args)
 {
 	Return(check_data_function(call, &call));
-	return apply_common(ptr, call, arg, args);
+	return apply_common_(ptr, call, arg, args);
 }
 
 static void type_apply(addr *ret)

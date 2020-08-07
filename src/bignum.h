@@ -61,18 +61,19 @@ _g void long_float_bignum_alloc(LocalRoot local, addr *ret, addr pos);
 _g void long_float_bignum_local(LocalRoot local, addr *ret, addr pos);
 _g void long_float_bignum_heap(addr *ret, addr pos);
 
-_g int bignum_single_float_alloc(LocalRoot local,
-		addr *ret, single_float value, int isheap);
-#define bignum_single_float_heap(m,r,v) bignum_single_float_alloc((m),(r),(v),1)
-#define bignum_single_float_local(m,r,v) bignum_single_float_alloc((m),(r),(v),0)
-_g int bignum_double_float_alloc(LocalRoot local,
-		addr *ret, double_float value, int isheap);
-#define bignum_double_float_heap(m,r,v) bignum_double_float_alloc((m),(r),(v),1)
-#define bignum_double_float_local(m,r,v) bignum_double_float_alloc((m),(r),(v),0)
-_g int bignum_long_float_alloc(LocalRoot local,
-		addr *ret, long_float value, int isheap);
-#define bignum_long_float_heap(m,r,v) bignum_long_float_alloc((m),(r),(v),1)
-#define bignum_long_float_local(m,r,v) bignum_long_float_alloc((m),(r),(v),0)
+_g void bignum_single_float_unsafe(
+		LocalRoot local, single_float v, int is_heap, addr *ret);
+_g void bignum_double_float_unsafe(
+		LocalRoot local, double_float v, int is_heap, addr *ret);
+_g void bignum_long_float_unsafe(
+		LocalRoot local, long_float v, int is_heap, addr *ret);
+
+_g int bignum_single_float_local_(LocalRoot local, single_float v, addr *rv, int *ret);
+_g int bignum_single_float_heap_(LocalRoot local, single_float v, addr *rv, int *ret);
+_g int bignum_double_float_local_(LocalRoot local, double_float v, addr *rv, int *ret);
+_g int bignum_double_float_heap_(LocalRoot local, double_float v, addr *rv, int *ret);
+_g int bignum_long_float_local_(LocalRoot local, long_float v, addr *rv, int *ret);
+_g int bignum_long_float_heap_(LocalRoot local, long_float v, addr *rv, int *ret);
 
 _g int fixnum_unsigned_byte_p(addr value, size_t size);
 _g int bignum_unsigned_byte_p(addr value, size_t size);

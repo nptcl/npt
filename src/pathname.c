@@ -72,7 +72,7 @@ static int defaults_pathname_alloc_(Execute ptr, addr *ret, addr defaults, int l
 {
 	if (defaults == Nil || defaults == Unbound) {
 		GetConst(SPECIAL_DEFAULT_PATHNAME_DEFAULTS, &defaults);
-		getspecialcheck_local(ptr, defaults, &defaults);
+		Return(getspecialcheck_local_(ptr, defaults, &defaults));
 	}
 	return pathname_designer_alloc_(ptr, defaults, ret, localp);
 }

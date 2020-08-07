@@ -22,12 +22,14 @@
 /*
  *  special variable
  */
-static int getbool_print(Execute ptr, constindex index)
+static int getbool_print_(Execute ptr, int *ret, constindex index)
 {
-	addr symbol;
-	GetConstant(index, &symbol);
-	getspecialcheck_local(ptr, symbol, &symbol);
-	return symbol != Nil;
+	addr pos;
+
+	GetConstant(index, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+
+	return Result(ret, pos != Nil);
 }
 
 static void pushbool_print(Execute ptr, constindex index, int value)
@@ -38,9 +40,9 @@ static void pushbool_print(Execute ptr, constindex index, int value)
 }
 
 /* print-array */
-_g int array_print(Execute ptr)
+_g int array_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_ARRAY);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ARRAY);
 }
 
 _g void push_array_print(Execute ptr, int value)
@@ -55,7 +57,7 @@ _g int base_print_(Execute ptr, unsigned *ret)
 	fixnum value;
 
 	GetConst(SPECIAL_PRINT_BASE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	if (! fixnump(pos))
 		return TypeError_(pos, FIXNUM);
 	GetFixnum(pos, &value);
@@ -76,9 +78,9 @@ _g void push_base_print(Execute ptr, unsigned base)
 }
 
 /* print-radix */
-_g int radix_print(Execute ptr)
+_g int radix_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_RADIX);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_RADIX);
 }
 
 _g void push_radix_print(Execute ptr, int value)
@@ -93,7 +95,7 @@ _g int case_print_(Execute ptr, enum PrintCase *ret)
 
 	/* special */
 	GetConst(SPECIAL_PRINT_CASE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	/* upcase */
 	GetConst(KEYWORD_UPCASE, &value);
 	if (pos == value)
@@ -138,9 +140,9 @@ _g int push_case_print_(Execute ptr, enum PrintCase pcase)
 }
 
 /* print-circle */
-_g int circle_print(Execute ptr)
+_g int circle_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_CIRCLE);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_CIRCLE);
 }
 
 _g void push_circle_print(Execute ptr, int value)
@@ -149,9 +151,9 @@ _g void push_circle_print(Execute ptr, int value)
 }
 
 /* print-escape */
-_g int escape_print(Execute ptr)
+_g int escape_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_ESCAPE);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ESCAPE);
 }
 
 _g void push_escape_print(Execute ptr, int value)
@@ -160,9 +162,9 @@ _g void push_escape_print(Execute ptr, int value)
 }
 
 /* print-gensym */
-_g int gensym_print(Execute ptr)
+_g int gensym_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_GENSYM);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_GENSYM);
 }
 
 _g void push_gensym_print(Execute ptr, int value)
@@ -171,9 +173,9 @@ _g void push_gensym_print(Execute ptr, int value)
 }
 
 /* print-readably */
-_g int readably_print(Execute ptr)
+_g int readably_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_READABLY);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_READABLY);
 }
 
 _g void push_readably_print(Execute ptr, int value)
@@ -182,9 +184,9 @@ _g void push_readably_print(Execute ptr, int value)
 }
 
 /* print-pretty */
-_g int pretty_print(Execute ptr)
+_g int pretty_print_(Execute ptr, int *ret)
 {
-	return getbool_print(ptr, CONSTANT_SPECIAL_PRINT_PRETTY);
+	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_PRETTY);
 }
 
 _g void push_pretty_print(Execute ptr, int value)
@@ -193,20 +195,21 @@ _g void push_pretty_print(Execute ptr, int value)
 }
 
 /* print-level */
-static int getindex_print(Execute ptr, constindex index, size_t *ret)
+static int getindex_print_(Execute ptr, size_t *value, int *ret, constindex index)
 {
 	addr pos;
 
 	/* special */
 	GetConstant(index, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	/* value */
 	if (pos == Nil) {
-		return 0;
+		*value = 0;
+		return Result(ret, 0);
 	}
 	else {
-		getindex_fixnum(pos, ret);
-		return 1;
+		getindex_fixnum(pos, value);
+		return Result(ret, 1);
 	}
 }
 
@@ -228,9 +231,9 @@ static void push_nil_print(Execute ptr, constindex index)
 	pushspecial_control(ptr, pos, Nil);
 }
 
-_g int level_print(Execute ptr, size_t *ret)
+_g int level_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_LEVEL, ret);
+	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LEVEL);
 }
 
 _g int push_level_print_(Execute ptr, size_t value)
@@ -244,9 +247,9 @@ _g void push_level_nil_print(Execute ptr)
 }
 
 /* print-length */
-_g int length_print(Execute ptr, size_t *ret)
+_g int length_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_LENGTH, ret);
+	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LENGTH);
 }
 
 _g int push_length_print_(Execute ptr, size_t value)
@@ -260,9 +263,9 @@ _g void push_length_nil_print(Execute ptr)
 }
 
 /* print-lines */
-_g int lines_print(Execute ptr, size_t *ret)
+_g int lines_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_LINES, ret);
+	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LINES);
 }
 
 _g int push_lines_print_(Execute ptr, size_t value)
@@ -276,9 +279,9 @@ _g void push_lines_nil_print(Execute ptr)
 }
 
 /* print-miser-width */
-_g int miser_width_print(Execute ptr, size_t *ret)
+_g int miser_width_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print(ptr, CONSTANT_SPECIAL_PRINT_MISER_WIDTH, ret);
+	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_MISER_WIDTH);
 }
 
 _g int push_miser_width_print_(Execute ptr, size_t value)
@@ -299,7 +302,7 @@ _g int right_margin_print_(Execute ptr, addr stream, size_t *ret)
 	size_t size;
 
 	GetConst(SPECIAL_PRINT_RIGHT_MARGIN, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
 	if (pos == Nil) {
 		Return(termsize_stream_(stream, &size, &check));
 		if (check)
@@ -324,11 +327,11 @@ _g void push_right_margin_nil_print(Execute ptr)
 }
 
 /* print-dispatch */
-_g void pprint_dispatch_print(Execute ptr, addr *ret)
+_g int pprint_dispatch_print_(Execute ptr, addr *ret)
 {
 	addr pos;
 	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &pos);
-	getspecialcheck_local(ptr, pos, ret);
+	return getspecialcheck_local_(ptr, pos, ret);
 }
 
 _g void push_pprint_dispatch(Execute ptr, addr value)

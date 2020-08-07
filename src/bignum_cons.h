@@ -31,8 +31,9 @@ struct bigcons_struct {
 _g void bigcons_local(LocalRoot local, addr *ret);
 _g void clear_bigcons(addr pos);
 _g void push_bigcons(LocalRoot local, addr pos, unsigned base, unsigned number);
-_g void setchar_bigcons(LocalRoot local, addr pos, unsigned base, const char *value);
-_g void bigcons_char_local(LocalRoot local, addr *ret, unsigned base, const char *value);
+_g int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *value);
+_g int bigcons_char_local_(LocalRoot local, addr *ret, unsigned base, const char *value);
+_g void bigcons_char_unsafe(LocalRoot local, addr *ret, unsigned base, const char *value);
 _g int bigcons_empty_p(addr pos);
 
 #endif

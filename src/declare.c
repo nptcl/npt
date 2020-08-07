@@ -527,7 +527,7 @@ static int check_callname_heap_(addr *ret, addr symbol)
 {
 	addr check;
 
-	parse_callname_error(&symbol, symbol);
+	Return(parse_callname_error_(&symbol, symbol));
 	GetCallName(symbol, &check);
 	Return(check_variable_(check));
 
@@ -1326,7 +1326,7 @@ static int parse_proclaim_heap_(Execute ptr, addr env, addr car, addr *ret)
 	return Result(ret, eval);
 }
 
-static void apply_type_value_proclaim(addr pos)
+static int apply_type_value_proclaim_(addr pos)
 {
 	addr key, value;
 
@@ -1336,11 +1336,13 @@ static void apply_type_value_proclaim(addr pos)
 		GetCons(pos, &value, &pos);
 		CheckSymbol(key);
 		CheckType(value, LISPTYPE_TYPE);
-		settype_value_symbol(key, value);
+		Return(settype_value_symbol_(key, value));
 	}
+
+	return 0;
 }
 
-static void apply_type_function_proclaim(addr pos)
+static int apply_type_function_proclaim_(addr pos)
 {
 	addr key, value, symbol;
 
@@ -1352,14 +1354,18 @@ static void apply_type_function_proclaim(addr pos)
 		CheckType(value, LISPTYPE_TYPE);
 
 		GetCallName(key, &symbol);
-		if (symbolp_callname(key))
-			settype_function_symbol(symbol, value);
-		else
-			settype_setf_symbol(symbol, value);
+		if (symbolp_callname(key)) {
+			Return(settype_function_symbol_(symbol, value));
+		}
+		else {
+			Return(settype_setf_symbol_(symbol, value));
+		}
 	}
+
+	return 0;
 }
 
-static void apply_special_proclaim(addr pos)
+static int apply_special_proclaim_(addr pos)
 {
 	addr symbol;
 
@@ -1367,8 +1373,10 @@ static void apply_special_proclaim(addr pos)
 	while (pos != Nil) {
 		GetCons(pos, &symbol, &pos);
 		CheckSymbol(symbol);
-		setspecial_symbol(symbol);
+		Return(setspecial_symbol_(symbol));
 	}
+
+	return 0;
 }
 
 static void apply_inline_value_proclaim(addr key, addr value)
@@ -1434,9 +1442,9 @@ static void apply_declaration_proclaim(addr pos)
 _g int proclaim_common(Execute ptr, addr var)
 {
 	Return(parse_proclaim_heap_(ptr, Nil, var, &var));
-	apply_type_value_proclaim(var);
-	apply_type_function_proclaim(var);
-	apply_special_proclaim(var);
+	Return(apply_type_value_proclaim_(var));
+	Return(apply_type_function_proclaim_(var));
+	Return(apply_special_proclaim_(var));
 	apply_inline_proclaim(var);
 	apply_optimize_proclaim(var);
 	apply_declaration_proclaim(var);

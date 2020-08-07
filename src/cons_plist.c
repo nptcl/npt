@@ -29,16 +29,21 @@ _g int getplist_safe(addr plist, addr key, addr *ret)
 {
 	addr check;
 
-	while (plist != Nil) {
-		getcons(plist, &check, &plist);
+	for (;;) {
+		if (GetType(plist) != LISPTYPE_CONS)
+			break;
+		GetCons(plist, &check, &plist);
 		if (check == key) {
-			getcar(plist, ret);
+			if (GetType(plist) != LISPTYPE_CONS)
+				break;
+			GetCar(plist, ret);
 			return 0;
 		}
-		getcdr(plist, &plist);
+		if (GetType(plist) != LISPTYPE_CONS)
+			break;
+		GetCdr(plist, &plist);
 	}
 	*ret = Nil;
-
 	return 1;
 }
 
@@ -77,12 +82,18 @@ _g int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, ad
 	addr check, cons;
 
 	for (cons = plist; cons != Nil; ) {
-		getcons(cons, &check, &cons);
+		if (GetType(cons) != LISPTYPE_CONS)
+			break;
+		GetCons(cons, &check, &cons);
 		if (check == key) {
-			setcar(cons, value);
+			if (GetType(cons) != LISPTYPE_CONS)
+				break;
+			SetCar(cons, value);
 			return 0;
 		}
-		getcdr(cons, &cons);
+		if (GetType(cons) != LISPTYPE_CONS)
+			break;
+		GetCdr(cons, &cons);
 	}
 	cons_alloc(local, &plist, value, plist);
 	cons_alloc(local, ret, key, plist);
@@ -130,38 +141,38 @@ _g int pushnewplist_heap(addr plist, addr key, addr value, addr *ret)
 	return pushnewplist_alloc(NULL, plist, key, value, ret);
 }
 
-_g enum RemPlist remplist_safe(addr plist, addr key, addr *ret)
+_g int remplist_safe_(addr plist, addr key, addr *value, enum RemPlist *ret)
 {
 	addr root, check;
 
 	/* first */
 	if (plist == Nil) {
-		*ret = Nil;
-		return RemPlist_NotFound;
+		*value = Nil;
+		return Result(ret, RemPlist_NotFound);
 	}
-	getcons(plist, &check, &root);
+	Return_getcons(plist, &check, &root);
 	if (check == key) {
-		getcdr(root, ret);
-		return RemPlist_Update;
+		Return_getcdr(root, value);
+		return Result(ret, RemPlist_Update);
 	}
 
 	/* second */
-	*ret = plist;
+	*value = plist;
 	for (;;) {
-		getcdr(root, &plist);
+		Return_getcdr(root, &plist);
 		if (plist == Nil)
 			break;
 
-		getcons(plist, &check, &plist);
+		Return_getcons(plist, &check, &plist);
 		if (check == key) {
-			getcdr(plist, &plist);
-			setcdr(root, plist);
-			return RemPlist_Delete;
+			Return_getcdr(plist, &plist);
+			Return_setcdr(root, plist);
+			return Result(ret, RemPlist_Delete);
 		}
 		root = plist;
 	}
 
-	return RemPlist_NotFound;
+	return Result(ret, RemPlist_NotFound);
 }
 
 _g enum RemPlist remplist_check(addr plist, addr key, addr *ret)
@@ -207,37 +218,37 @@ _g int remplist(addr plist, addr key, addr *ret)
 	return remplist_check(plist, key, ret) == RemPlist_Update;
 }
 
-_g int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret)
+static int remplist_alloc_(LocalRoot local, addr list, addr key, addr *value, int *ret)
 {
-	int result;
-	addr root, pos, value;
+	int deletep;
+	addr root, pos, next;
 
-	result = 0;
-	for (root = Nil; plist != Nil; ) {
-		getcons(plist, &pos, &plist);
-		getcons(plist, &value, &plist);
+	deletep = 0;
+	for (root = Nil; list != Nil; ) {
+		Return_getcons(list, &pos, &list);
+		Return_getcons(list, &next, &list);
 		if (pos != key) {
 			cons_alloc(local, &root, pos, root);
-			cons_alloc(local, &root, value, root);
+			cons_alloc(local, &root, next, root);
 		}
 		else {
-			result = 1;
+			deletep = 1;
 		}
 	}
-	nreverse(ret, root);
+	nreverse(value, root);
 
-	return result;
+	return Result(ret, deletep);
 }
 
-_g int remplist_local(LocalRoot local, addr plist, addr key, addr *ret)
+_g int remplist_local_(LocalRoot local, addr list, addr key, addr *value, int *ret)
 {
 	CheckLocal(local);
-	return remplist_alloc(local, plist, key, ret);
+	return remplist_alloc_(local, list, key, value, ret);
 }
 
-_g int remplist_heap(addr plist, addr key, addr *ret)
+_g int remplist_heap_(addr list, addr key, addr *value, int *ret)
 {
-	return remplist_alloc(NULL, plist, key, ret);
+	return remplist_alloc_(NULL, list, key, value, ret);
 }
 
 

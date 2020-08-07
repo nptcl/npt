@@ -1194,7 +1194,7 @@ static int method_generic_function_methods(Execute ptr,
 	for (i = 0; i < size; i++) {
 		getarray(var, i, &list);
 		while (list != Nil) {
-			getcons(list, &pos, &list);
+			Return_getcons(list, &pos, &list);
 			cons_heap(&root, pos, root);
 		}
 	}
@@ -1244,8 +1244,9 @@ static int method_generic_function_lambda_list(Execute ptr,
 		addr method, addr next, addr var)
 {
 	Return(stdget_generic_lambda_list_(var, &var));
-	if (argumentp(var))
-		argument_generic_lambda_heap(&var, var);
+	if (argumentp(var)) {
+		Return(argument_generic_lambda_heap_(&var, var));
+	}
 	setresult_control(ptr, var);
 
 	return 0;
@@ -1558,8 +1559,9 @@ static int defgeneric_method_generic_function_(Execute ptr)
 static int method_method_lambda_list(Execute ptr, addr method, addr next, addr var)
 {
 	Return(stdget_method_lambda_list_(var, &var));
-	if (argumentp(var))
-		argument_method_lambda_heap(&var, var);
+	if (argumentp(var)) {
+		Return(argument_method_lambda_heap_(&var, var));
+	}
 	setresult_control(ptr, var);
 
 	return 0;

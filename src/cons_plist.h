@@ -25,12 +25,11 @@ _g int setplist_heap_safe(addr plist, addr key, addr value, addr *ret);
 _g int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret);
 _g int pushnewplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret);
 _g int pushnewplist_heap(addr plist, addr key, addr value, addr *ret);
-_g enum RemPlist remplist_safe(addr plist, addr key, addr *ret);
+_g int remplist_safe_(addr plist, addr key, addr *value, enum RemPlist *ret);
 _g enum RemPlist remplist_check(addr plist, addr key, addr *ret);
 _g int remplist(addr plist, addr key, addr *ret);
-_g int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret);
-_g int remplist_local(LocalRoot local, addr plist, addr key, addr *ret);
-_g int remplist_heap(addr plist, addr key, addr *ret);
+_g int remplist_local_(LocalRoot local, addr list, addr key, addr *value, int *ret);
+_g int remplist_heap_(addr list, addr key, addr *value, int *ret);
 
 /* 0:find-value, 1:not-found(Nil) */
 _g int getplist_constant(addr plist, constindex index, addr *ret);

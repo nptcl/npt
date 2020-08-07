@@ -562,7 +562,7 @@ static int bq_simplify_args_(addr args, addr *ret)
 	int check;
 	addr pos, root;
 
-	reverse_list_heap_safe(&args, args);
+	Return(reverse_list_heap_safe_(&args, args));
 	for (root = Nil; args != Nil; ) {
 		Return_getcons(args, &pos, &args);
 		/* (append atom root) */

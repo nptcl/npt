@@ -98,7 +98,7 @@ static int function_ensure_class(Execute ptr, addr name, addr rest)
 
 	/* call */
 	GetConst(CLOSNAME_ENSURE_CLASS_USING_CLASS, &symbol);
-	getfunction_global(symbol, &symbol);
+	Return(getfunction_global_(symbol, &symbol));
 	return applya_control(ptr, symbol, clos, name, rest, NULL);
 }
 
@@ -540,7 +540,7 @@ static int method_make_instance_symbol(Execute ptr,
 	Return(clos_find_class_(var, &var));
 	/* call generic-function */
 	GetConst(COMMON_MAKE_INSTANCE, &symbol);
-	getfunction_global(symbol, &symbol);
+	Return(getfunction_global_(symbol, &symbol));
 	return applya_control(ptr, symbol, var, rest, NULL);
 }
 
@@ -686,7 +686,7 @@ static int method_make_instances_obsolete_symbol(Execute ptr,
 	addr call;
 
 	GetConst(COMMON_MAKE_INSTANCES_OBSOLETE, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(clos_find_class_(var, &var));
 	return funcall_control(ptr, call, var, NULL);
 }
@@ -781,7 +781,7 @@ static int method_make_load_form_class(Execute ptr,
 
 	/* (class-name var) */
 	GetConst(COMMON_CLASS_NAME, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(callclang_funcall(ptr, &var, call, var, NULL));
 	/* (find-class (quote var)) */
 	GetConst(COMMON_FIND_CLASS, &find);
@@ -898,7 +898,7 @@ static int defgeneric_make_load_form_(Execute ptr)
 static int method_slot_missing(Execute ptr, addr method, addr next, addr rest)
 {
 	addr c, obj, name, op, value;
-	lista_bind(rest, &c, &obj, &name, &op, &value, NULL);
+	Return(lista_bind_(rest, &c, &obj, &name, &op, &value, NULL));
 	return fmte_("The class ~S has no slot ~S name ~S operation.", c, name, op, NULL);
 }
 
@@ -984,7 +984,7 @@ static int defgeneric_slot_missing_mop_(Execute ptr)
 static int method_slot_unbound(Execute ptr, addr method, addr next, addr rest)
 {
 	addr clos, obj, name;
-	list_bind(rest, &clos, &obj, &name, NULL);
+	Return(list_bind_(rest, &clos, &obj, &name, NULL));
 	return fmte_("The slot ~S is unbound in the ~S.", name, obj, NULL);
 }
 
@@ -1120,7 +1120,7 @@ static int method_update_instance_for_redefined_class(
 {
 	addr pos, add, del, prop, args;
 
-	lista_bind(rest, &pos, &add, &del, &prop, &args, NULL);
+	Return(lista_bind_(rest, &pos, &add, &del, &prop, &args, NULL));
 	Return(clos_redefine_method_(ptr, pos, add, del, prop, args));
 	setresult_control(ptr, Nil);
 
@@ -1405,7 +1405,7 @@ static int method_setf_slot_value_using_class(Execute ptr,
 {
 	addr value, clos, pos, name;
 
-	list_bind(rest, &value, &clos, &pos, &name, NULL);
+	Return(list_bind_(rest, &value, &clos, &pos, &name, NULL));
 	Return(setf_slot_value_using_class_common_(ptr, clos, pos, name, value));
 	setresult_control(ptr, value);
 
@@ -1540,7 +1540,7 @@ static int method_change_class_symbol(Execute ptr,
 	addr call;
 
 	GetConst(COMMON_CHANGE_CLASS, &call);
-	getfunction_global(call, &call);
+	Return(getfunction_global_(call, &call));
 	Return(clos_find_class_(clos, &clos));
 	return applya_control(ptr, call, pos, clos, rest, NULL);
 }

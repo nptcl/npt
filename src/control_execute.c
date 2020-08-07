@@ -324,7 +324,7 @@ static int checkargs_var_(Execute ptr, addr array, addr *args)
 	while (array != Nil) {
 		if (*args == Nil)
 			return fmte_("Too few argument.", NULL);
-		getcons(*args, &value, args);
+		Return_getcons(*args, &value, args);
 		GetCons(array, &type, &array);
 		Return(typep_asterisk_error(ptr, value, type));
 	}
@@ -338,7 +338,7 @@ static int checkargs_opt_(Execute ptr, addr array, addr *args)
 
 	GetArrayA2(array, 1, &array); /* opt */
 	while (*args != Nil && array != Nil) {
-		getcons(*args, &value, args);
+		Return_getcons(*args, &value, args);
 		GetCons(array, &type, &array);
 		Return(typep_asterisk_error(ptr, value, type));
 	}
@@ -407,7 +407,7 @@ static int checkargs_restkey_(Execute ptr, addr array, addr args)
 			return fmte_("Too many argument.", NULL);
 	}
 	for (keyvalue = 0; args != Nil; keyvalue = (! keyvalue)) {
-		getcons(args, &value, &args);
+		Return_getcons(args, &value, &args);
 		/* &rest */
 		if (rest != Nil) {
 			Return(typep_asterisk_error(ptr, value, rest));
@@ -555,24 +555,19 @@ static int callclang_function_(Execute ptr, addr *ret, addr call)
 	Check(call == Unbound, "type error");
 	switch (GetType(call)) {
 		case LISPTYPE_SYMBOL:
-			getfunction_global(call, ret);
-			break;
+			return getfunction_global_(call, ret);
 
 		case LISPTYPE_CALLNAME:
-			getglobalcheck_callname(call, ret);
-			break;
+			return getglobalcheck_callname_(call, ret);
 
 		case LISPTYPE_CLOS:
 		case LISPTYPE_FUNCTION:
-			*ret = call;
-			break;
+			return Result(ret, call);
 
 		default:
 			*ret = Nil;
 			return fmte_("The object ~S cannot execute.", call, NULL);
 	}
-
-	return 0;
 }
 
 _g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)

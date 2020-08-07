@@ -34,7 +34,7 @@ _g int specialconstant_(constindex index, const char *package, const char *name)
 	addr symbol;
 
 	Return(internchar_(package, name, &symbol, NULL));
-	setspecial_symbol(symbol);
+	Return(setspecial_symbol_(symbol));
 	SetConstant(index, symbol);
 
 	return 0;

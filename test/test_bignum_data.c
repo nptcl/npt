@@ -2292,7 +2292,7 @@ static int test_div_noexpand(void)
 	test(equal_value_bignum(rem, SignPlus, 10), "div_noexpand2");
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1"
 			"fbc8730bdecb6d07b35e0b6ef1afad9bb80b2885934cb296513a351650f17914"
 			"311a68bd1425297af0ebc4c7412aa3d0544ac65ba3d62912244f7126efe7c7f3"
@@ -2301,21 +2301,21 @@ static int test_div_noexpand(void)
 			"0e15ce9c4b8e824a8beab21a4fb349c9c828566e3cae9eda4cb7d18c9739a7a4"
 			"0dcae5702352fdec5a2085b068fb5e2d883353c33e1bfda9abc56cdb6dbdbafc");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"27193fb1dc622e9bac9d7f2f5d0960e192ecd39c548afae22126b12e6d661da2"
 			"05aa3734578797d8114560c3359d52a74b7c04b4b61d2b041ac0219c258bd240"
 			"390d57eff6764b1062899b6057cd0d86e8621b3fd9ddb9253b47e799b7fd5211");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	div_noexpand(local, &quot, &rem, left, right);
 
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"38e4dc55042132062efde19fc3de51b672efb9cc835e7618245b9df3c7f0be62"
 			"2c6baa99f2e630f44435c5dbc6bd49897153ed487fbe0319b2607adce0312797"
 			"f33ae76140651edf76c646956499012e491c53f071b93f192a9722fdeff7f853"
 			"51e3a8223f74674c54123c0eda30a8b5bd50cab3ae8993ea0c4b16c28f87e293"
 			"c");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"20a6e2df2a472bfdea9804e2096afc69f73d163ab553d97e48b3bb02b40f1902"
 			"a65a4d7a70a7aa382db3b74725abc0b0c0cd31fc31e5ecab4db0a5c1cc5bb8b4"
 			"8ab331aa037fbfea6038f1b3c383504ce9d38d4c42493171faf89185dfdbc600");
@@ -2338,7 +2338,7 @@ static int test_letdiv_noexpand(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1"
 			"fbc8730bdecb6d07b35e0b6ef1afad9bb80b2885934cb296513a351650f17914"
 			"311a68bd1425297af0ebc4c7412aa3d0544ac65ba3d62912244f7126efe7c7f3"
@@ -2347,14 +2347,14 @@ static int test_letdiv_noexpand(void)
 			"0e15ce9c4b8e824a8beab21a4fb349c9c828566e3cae9eda4cb7d18c9739a7a4"
 			"0dcae5702352fdec5a2085b068fb5e2d883353c33e1bfda9abc56cdb6dbdbafc");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"27193fb1dc622e9bac9d7f2f5d0960e192ecd39c548afae22126b12e6d661da2"
 			"05aa3734578797d8114560c3359d52a74b7c04b4b61d2b041ac0219c258bd240"
 			"390d57eff6764b1062899b6057cd0d86e8621b3fd9ddb9253b47e799b7fd5211");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	letdiv_noexpand(local, left, right);
 
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"38e4dc55042132062efde19fc3de51b672efb9cc835e7618245b9df3c7f0be62"
 			"2c6baa99f2e630f44435c5dbc6bd49897153ed487fbe0319b2607adce0312797"
 			"f33ae76140651edf76c646956499012e491c53f071b93f192a9722fdeff7f853"
@@ -2378,11 +2378,11 @@ static int test_letdivvalue_buffer(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	letdivvalue_buffer(left, 0xB1);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"c91528b4ea24e11535de9b14a20a3eda0a9449606350e69de4b7c25ad81a26");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "letdivvalue_buffer1");
@@ -2415,29 +2415,29 @@ static int test_letdiv_noexpand_bigdata(void)
 
 	/* right == 1 */
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	bignum_value_alloc(local, &right, SignPlus, 1);
 	letdiv_noexpand_bigdata(local, left, right);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "letdiv_noexpand_bigdata4");
 
 	/* size2 == 1 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	bignum_value_alloc(local, &right, SignPlus, 0xB1);
 	letdiv_noexpand_bigdata(local, left, right);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"c91528b4ea24e11535de9b14a20a3eda0a9449606350e69de4b7c25ad81a26");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "letdiv_noexpand_bigdata5");
 
 	/* compare == 0 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	bignum_cons_alloc(local, &right, SignPlus, cons);
@@ -2445,23 +2445,23 @@ static int test_letdiv_noexpand_bigdata(void)
 	test(equal_value_bignum(left, SignPlus, 1), "letdiv_noexpand_bigdata6");
 
 	/* compare < 0 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	letdiv_noexpand_bigdata(local, left, right);
 	test(zerop_bignum(left), "letdiv_noexpand_bigdata7");
 
 	/* compare > 0 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16, "27193fb1dc622e9bac9d7f2f5d0960e1");
+	setchar_bigcons_(local, cons, 16, "27193fb1dc622e9bac9d7f2f5d0960e1");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	letdiv_noexpand_bigdata(local, left, right);
-	setchar_bigcons(local, cons, 16, "38e4dc55042132062efde19fc3de51b74");
+	setchar_bigcons_(local, cons, 16, "38e4dc55042132062efde19fc3de51b74");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "letdiv_noexpand_bigdata8");
 
@@ -2484,7 +2484,7 @@ static int test_setrem_noexpand(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1"
 			"fbc8730bdecb6d07b35e0b6ef1afad9bb80b2885934cb296513a351650f17914"
 			"311a68bd1425297af0ebc4c7412aa3d0544ac65ba3d62912244f7126efe7c7f3"
@@ -2493,14 +2493,14 @@ static int test_setrem_noexpand(void)
 			"0e15ce9c4b8e824a8beab21a4fb349c9c828566e3cae9eda4cb7d18c9739a7a4"
 			"0dcae5702352fdec5a2085b068fb5e2d883353c33e1bfda9abc56cdb6dbdbafc");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"27193fb1dc622e9bac9d7f2f5d0960e192ecd39c548afae22126b12e6d661da2"
 			"05aa3734578797d8114560c3359d52a74b7c04b4b61d2b041ac0219c258bd240"
 			"390d57eff6764b1062899b6057cd0d86e8621b3fd9ddb9253b47e799b7fd5211");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	setrem_noexpand(local, left, left, right);
 
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"20a6e2df2a472bfdea9804e2096afc69f73d163ab553d97e48b3bb02b40f1902"
 			"a65a4d7a70a7aa382db3b74725abc0b0c0cd31fc31e5ecab4db0a5c1cc5bb8b4"
 			"8ab331aa037fbfea6038f1b3c383504ce9d38d4c42493171faf89185dfdbc600");
@@ -2522,7 +2522,7 @@ static int test_remvalue_buffer(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	test(remvalue_buffer(left, 0xB1) == 0x5B, "remvalue_buffer1");
@@ -2557,7 +2557,7 @@ static int test_setrem_noexpand_bigdata(void)
 
 	/* right == 1 */
 	bigcons_local(local, &cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	bignum_value_alloc(local, &right, SignPlus, 1);
@@ -2565,7 +2565,7 @@ static int test_setrem_noexpand_bigdata(void)
 	test(zerop_bignum(set), "setrem_noexpand_bigdata3");
 
 	/* size2 == 1 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	bignum_value_alloc(local, &right, SignPlus, 0xB1);
@@ -2573,7 +2573,7 @@ static int test_setrem_noexpand_bigdata(void)
 	test(equal_value_bignum(set, SignPlus, 0x5B), "setrem_noexpand_bigdata4");
 
 	/* compare == 0 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	bignum_cons_alloc(local, &right, SignPlus, cons);
@@ -2581,23 +2581,23 @@ static int test_setrem_noexpand_bigdata(void)
 	test(zerop_bignum(set), "setrem_noexpand_bigdata5");
 
 	/* compare < 0 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	setrem_noexpand_bigdata(local, set, left, right);
 	test(equal_bb_real(set, left), "setrem_noexpand_bigdata6");
 
 	/* compare > 0 */
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"8b07a12515e37f9faa3ee93944091574c15086bba4aaef732b230d60cf6a14a1");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
-	setchar_bigcons(local, cons, 16, "27193fb1dc622e9bac9d7f2f5d0960e1");
+	setchar_bigcons_(local, cons, 16, "27193fb1dc622e9bac9d7f2f5d0960e1");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	setrem_noexpand_bigdata(local, set, left, right);
-	setchar_bigcons(local, cons, 16, "155735ccd816fd17b702a12563ad73ad");
+	setchar_bigcons_(local, cons, 16, "155735ccd816fd17b702a12563ad73ad");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	test(equal_bb_real(set, left), "setrem_noexpand_bigdata7");
 
@@ -2699,21 +2699,21 @@ static int test_power2_bigdata_alloc(void)
 	test(equal_value_nosign_bignum(left, 8), "power2_bigdata_alloc4");
 
 	power2_bigdata_alloc(local, &left, 400);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"100000000000000000000000000000000000000000000000000"
 			"00000000000000000000000000000000000000000000000000");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "power2_bigdata_alloc5");
 
 	power2_bigdata_alloc(local, &left, 399);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"80000000000000000000000000000000000000000000000000"
 			"00000000000000000000000000000000000000000000000000");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "power2_bigdata_alloc6");
 
 	power2_bigdata_alloc(local, &left, 398);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"40000000000000000000000000000000000000000000000000"
 			"00000000000000000000000000000000000000000000000000");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
@@ -2734,13 +2734,13 @@ static int test_shiftup_bigdata_const(LocalRoot local, size_t shift, const char 
 	push_local(local, &stack);
 	bigcons_local(local, &cons);
 
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"20a6e2df2a472bfdea9804e2096afc69f73d163ab553d97e48b3bb02b40f1902"
 			"a65a4d7a70a7aa382db3b74725abc0b0c0cd31fc31e5ecab4db0a5c1cc5bb8b4"
 			"8ab331aa037fbfea6038f1b3c383504ce9d38d4c42493171faf89185dfdbc600");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	shiftup_bigdata_alloc(local, &left, left, shift);
-	setchar_bigcons(local, cons, 16, str);
+	setchar_bigcons_(local, cons, 16, str);
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	result = equal_bb_real(left, right);
 
@@ -2835,59 +2835,59 @@ static int test_division2_bigdata_alloc(void)
 	division2_bigdata_alloc(local, &left, left);
 	test(equal_value_nosign_bignum(left, 0), "division2_bigdata_alloc2");
 
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"320a6e2df2a472bfdea9804e2096afc69f73d163ab553d97e48b3bb02b40f1902");
 	bignum_cons_alloc(local, &left, SignPlus, cons);
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"19053716f952395fef54c027104b57e34fb9e8b1d5aa9ecbf2459dd815a078c81");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc3");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"c829b8b7ca91caff7aa60138825abf1a7dcf458ead54f65f922ceec0ad03c640");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc4");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"6414dc5be548e57fbd53009c412d5f8d3ee7a2c756aa7b2fc91677605681e320");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc5");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"320a6e2df2a472bfdea9804e2096afc69f73d163ab553d97e48b3bb02b40f190");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc6");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"19053716f952395fef54c027104b57e34fb9e8b1d5aa9ecbf2459dd815a078c8");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc7");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"c829b8b7ca91caff7aa60138825abf1a7dcf458ead54f65f922ceec0ad03c64");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc8");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"6414dc5be548e57fbd53009c412d5f8d3ee7a2c756aa7b2fc91677605681e32");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc9");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"320a6e2df2a472bfdea9804e2096afc69f73d163ab553d97e48b3bb02b40f19");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc10");
 
 	division2_bigdata_alloc(local, &left, left);
-	setchar_bigcons(local, cons, 16,
+	setchar_bigcons_(local, cons, 16,
 			"19053716f952395fef54c027104b57e34fb9e8b1d5aa9ecbf2459dd815a078c");
 	bignum_cons_alloc(local, &right, SignPlus, cons);
 	test(equal_bb_real(left, right), "division2_bigdata_alloc11");
@@ -2915,12 +2915,12 @@ static int test_letdiv_half_bigdata(void)
 	test(m == 5, "letdiv_half_bigdata1");
 	test(equal_value_nosign_bignum(pos, 4), "letdiv_half_bigdata2");
 
-	bigcons_char_local(local, &cons, 10, "123456789012345678901234567890");
+	bigcons_char_local_(local, &cons, 10, "123456789012345678901234567890");
 	bignum_cons_alloc(local, &pos, SignPlus, cons);
 	m = letdiv_half_bigdata(pos, 11);
 	test(m == 7, "letdiv_half_bigdata3");
 
-	setchar_bigcons(local, cons, 10, "11223344455667788991021324353");
+	setchar_bigcons_(local, cons, 10, "11223344455667788991021324353");
 	bignum_cons_alloc(local, &check, SignPlus, cons);
 	test(equal_bb_real(pos, check), "letdiv_half_bigdata4");
 
