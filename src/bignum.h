@@ -27,20 +27,17 @@ _g void integer_bignum_local(LocalRoot local, addr *ret, addr pos);
 _g void integer_bignum_heap(addr *ret, addr pos);
 
 /* integer copy */
-_g void integer_copy_alloc(LocalRoot local, addr pos, addr *ret);
-_g void integer_copy_local(LocalRoot local, addr pos, addr *ret);
-_g void integer_copy_heap(addr pos, addr *ret);
-_g void integer_copysign_alloc(LocalRoot local, int sign, addr pos, addr *ret);
-_g void integer_copysign_local(LocalRoot local, int sign, addr pos, addr *ret);
-_g void integer_copysign_heap(int sign, addr pos, addr *ret);
+_g int integer_copysign_alloc_(LocalRoot local, int sign, addr pos, addr *ret);
+_g int integer_copysign_local_(LocalRoot local, int sign, addr pos, addr *ret);
+_g int integer_copysign_heap_(int sign, addr pos, addr *ret);
 
 /* float */
 _g single_float single_float_fixnum(addr pos);
 _g double_float double_float_fixnum(addr pos);
 _g long_float long_float_fixnum(addr pos);
-_g single_float single_float_bignum(addr pos);
-_g double_float double_float_bignum(addr pos);
-_g long_float long_float_bignum(addr pos);
+_g int single_float_bignum_(addr pos, single_float *ret);
+_g int double_float_bignum_(addr pos, double_float *ret);
+_g int long_float_bignum_(addr pos, long_float *ret);
 
 _g void single_float_fixnum_alloc(LocalRoot local, addr *ret, addr pos);
 _g void single_float_fixnum_local(LocalRoot local, addr *ret, addr pos);
@@ -51,15 +48,15 @@ _g void double_float_fixnum_heap(addr *ret, addr pos);
 _g void long_float_fixnum_alloc(LocalRoot local, addr *ret, addr pos);
 _g void long_float_fixnum_local(LocalRoot local, addr *ret, addr pos);
 _g void long_float_fixnum_heap(addr *ret, addr pos);
-_g void single_float_bignum_alloc(LocalRoot local, addr *ret, addr pos);
-_g void single_float_bignum_local(LocalRoot local, addr *ret, addr pos);
-_g void single_float_bignum_heap(addr *ret, addr pos);
-_g void double_float_bignum_alloc(LocalRoot local, addr *ret, addr pos);
-_g void double_float_bignum_local(LocalRoot local, addr *ret, addr pos);
-_g void double_float_bignum_heap(addr *ret, addr pos);
-_g void long_float_bignum_alloc(LocalRoot local, addr *ret, addr pos);
-_g void long_float_bignum_local(LocalRoot local, addr *ret, addr pos);
-_g void long_float_bignum_heap(addr *ret, addr pos);
+_g int single_float_bignum_alloc_(LocalRoot local, addr *ret, addr pos);
+_g int single_float_bignum_local_(LocalRoot local, addr *ret, addr pos);
+_g int single_float_bignum_heap_(addr *ret, addr pos);
+_g int double_float_bignum_alloc_(LocalRoot local, addr *ret, addr pos);
+_g int double_float_bignum_local_(LocalRoot local, addr *ret, addr pos);
+_g int double_float_bignum_heap_(addr *ret, addr pos);
+_g int long_float_bignum_alloc_(LocalRoot local, addr *ret, addr pos);
+_g int long_float_bignum_local_(LocalRoot local, addr *ret, addr pos);
+_g int long_float_bignum_heap_(addr *ret, addr pos);
 
 _g void bignum_single_float_unsafe(
 		LocalRoot local, single_float v, int is_heap, addr *ret);
@@ -82,9 +79,9 @@ _g int bignum_signed_byte_p(addr value, size_t size);
 
 _g int GetFixnum_bignum(addr pos, fixnum *ret);
 _g int GetFixnum_signed(addr pos, fixnum *ret);
-_g void getfixnum_signed(addr pos, fixnum *ret);
+_g int getfixnum_signed_(addr pos, fixnum *ret);
 _g int GetFixnum_unsigned(addr pos, fixnum *ret);
-_g void getfixnum_unsigned(addr pos, fixnum *ret);
+_g int getfixnum_unsigned_(addr pos, fixnum *ret);
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret);
 
 _g void abs_fixnum_integer_local(LocalRoot local, addr left, addr *ret);

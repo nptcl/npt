@@ -427,7 +427,7 @@ static int format_radix_parameter(fmtprint print, struct format_operator *str,
 	/* integer */
 	Return(fmtprint_stream_(print, &stream));
 	/* sign */
-	minusp = minusp_integer(pos);
+	Return(minusp_integer_(pos, &minusp));
 	if (str->atsign || minusp) {
 		Return(write_char_stream_(stream, minusp? '-': '+'));
 	}
@@ -860,14 +860,14 @@ static int format_fixed_fixnum_(fmtprint print, fmtfloat ff, addr pos)
 static int format_fixed_bignum_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_bignum_local(print->local, &pos, pos);
+	Return(single_float_bignum_local_(print->local, &pos, pos));
 	return format_fixed_single_(print, ff, pos);
 }
 
 static int format_fixed_ratio_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_local(print->local, &pos, single_float_ratio(pos));
+	Return(single_float_ratio_local_(print->local, &pos, pos));
 	return format_fixed_single_(print, ff, pos);
 }
 
@@ -1062,14 +1062,14 @@ static int format_exponent_fixnum_(fmtprint print, fmtfloat ff, addr pos)
 static int format_exponent_bignum_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_bignum_local(print->local, &pos, pos);
+	Return(single_float_bignum_local_(print->local, &pos, pos));
 	return format_exponent_single_(print, ff, pos);
 }
 
 static int format_exponent_ratio_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_local(print->local, &pos, single_float_ratio(pos));
+	Return(single_float_ratio_local_(print->local, &pos, pos));
 	return format_exponent_single_(print, ff, pos);
 }
 
@@ -1226,14 +1226,14 @@ static int format_general_fixnum_(fmtprint print, fmtfloat ff, addr pos)
 static int format_general_bignum_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_bignum_local(print->local, &pos, pos);
+	Return(single_float_bignum_local_(print->local, &pos, pos));
 	return format_general_single_(print, ff, pos);
 }
 
 static int format_general_ratio_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_local(print->local, &pos, single_float_ratio(pos));
+	Return(single_float_ratio_local_(print->local, &pos, pos));
 	return format_general_single_(print, ff, pos);
 }
 
@@ -1352,14 +1352,14 @@ static int format_monetary_fixnum_(fmtprint print, fmtfloat ff, addr pos)
 static int format_monetary_bignum_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_bignum_local(print->local, &pos, pos);
+	Return(single_float_bignum_local_(print->local, &pos, pos));
 	return format_monetary_single_(print, ff, pos);
 }
 
 static int format_monetary_ratio_(fmtprint print, fmtfloat ff, addr pos)
 {
 	/* force cast single-float */
-	single_float_local(print->local, &pos, single_float_ratio(pos));
+	Return(single_float_ratio_local_(print->local, &pos, pos));
 	return format_monetary_single_(print, ff, pos);
 }
 

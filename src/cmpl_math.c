@@ -81,7 +81,7 @@ _g void expt_l(long_float a, long_float b, long_float c, long_float d,
 /*
  *  clogb
  */
-_g void clogb_f(single_float a, single_float b, single_float c, single_float d,
+_g int clogb_f_(single_float a, single_float b, single_float c, single_float d,
 		single_float *re, single_float *im)
 {
 	addr real, imag;
@@ -89,14 +89,13 @@ _g void clogb_f(single_float a, single_float b, single_float c, single_float d,
 
 	/* clogb(number, base) -> log(a+ib)/log(c+id) */
 	if (a == 0.0f && b == 0.0f) {
-		complex_single_heap(&real, a, b);
-		complex_single_heap(&imag, c, d);
-		division_by_zero_real2(CONSTANT_COMMON_LOG, real, imag);
-		return;
+		Return(complex_single_heap_(&real, a, b));
+		Return(complex_single_heap_(&imag, c, d));
+		return call_division_by_zero_real2_(NULL, CONSTANT_COMMON_LOG, real, imag);
 	}
 	if (c == 0.0f && d == 0.0f) {
 		*re = *im = 0.0f;
-		return;
+		return 0;
 	}
 	/* log(a+ib) */
 	clog_f(a, b, &a, &b);
@@ -106,9 +105,11 @@ _g void clogb_f(single_float a, single_float b, single_float c, single_float d,
 	denom = c*c + d*d;
 	*re = (a*c + b*d) / denom;
 	*im = (b*c - a*d) / denom;
+
+	return 0;
 }
 
-_g void clogb_d(double_float a, double_float b, double_float c, double_float d,
+_g int clogb_d_(double_float a, double_float b, double_float c, double_float d,
 		double_float *re, double_float *im)
 {
 	addr real, imag;
@@ -116,14 +117,13 @@ _g void clogb_d(double_float a, double_float b, double_float c, double_float d,
 
 	/* clogb(number, base) -> log(a+ib)/log(c+id) */
 	if (a == 0.0 && b == 0.0) {
-		complex_double_heap(&real, a, b);
-		complex_double_heap(&imag, c, d);
-		division_by_zero_real2(CONSTANT_COMMON_LOG, real, imag);
-		return;
+		Return(complex_double_heap_(&real, a, b));
+		Return(complex_double_heap_(&imag, c, d));
+		return call_division_by_zero_real2_(NULL, CONSTANT_COMMON_LOG, real, imag);
 	}
 	if (c == 0.0 && d == 0.0) {
 		*re = *im = 0.0;
-		return;
+		return 0;
 	}
 	/* log(a+ib) */
 	clog_d(a, b, &a, &b);
@@ -133,9 +133,11 @@ _g void clogb_d(double_float a, double_float b, double_float c, double_float d,
 	denom = c*c + d*d;
 	*re = (a*c + b*d) / denom;
 	*im = (b*c - a*d) / denom;
+
+	return 0;
 }
 
-_g void clogb_l(long_float a, long_float b, long_float c, long_float d,
+_g int clogb_l_(long_float a, long_float b, long_float c, long_float d,
 		long_float *re, long_float *im)
 {
 	addr real, imag;
@@ -143,14 +145,13 @@ _g void clogb_l(long_float a, long_float b, long_float c, long_float d,
 
 	/* clogb(number, base) -> log(a+ib)/log(c+id) */
 	if (a == 0.0L && b == 0.0L) {
-		complex_long_heap(&real, a, b);
-		complex_long_heap(&imag, c, d);
-		division_by_zero_real2(CONSTANT_COMMON_LOG, real, imag);
-		return;
+		Return(complex_long_heap_(&real, a, b));
+		Return(complex_long_heap_(&imag, c, d));
+		return call_division_by_zero_real2_(NULL, CONSTANT_COMMON_LOG, real, imag);
 	}
 	if (c == 0.0L && d == 0.0L) {
 		*re = *im = 0.0L;
-		return;
+		return 0;
 	}
 	/* log(a+ib) */
 	clog_l(a, b, &a, &b);
@@ -160,6 +161,8 @@ _g void clogb_l(long_float a, long_float b, long_float c, long_float d,
 	denom = c*c + d*d;
 	*re = (a*c + b*d) / denom;
 	*im = (b*c - a*d) / denom;
+
+	return 0;
 }
 
 

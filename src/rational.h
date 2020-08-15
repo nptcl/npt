@@ -7,21 +7,21 @@
 _g int ratiop(addr pos);
 _g int rationalp(addr pos);
 
-_g void rational_result_local(LocalRoot local, addr pos, addr *ret);
-_g void rational_result_heap(LocalRoot local, addr pos, addr *ret);
-_g void rational_throw_alloc(LocalRoot local, addr pos, addr *ret);
-_g void rational_throw_local(LocalRoot local, addr pos, addr *ret);
-_g void rational_throw_heap(addr pos, addr *ret);
-_g void rational_copy_alloc(LocalRoot local, addr pos, addr *ret);
-_g void rational_copy_local(LocalRoot local, addr pos, addr *ret);
-_g void rational_copy_heap(addr pos, addr *ret);
+_g int rational_result_local_(LocalRoot local, addr pos, addr *ret);
+_g int rational_result_heap_(LocalRoot local, addr pos, addr *ret);
+_g int rational_throw_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int rational_throw_local_(LocalRoot local, addr pos, addr *ret);
+_g int rational_throw_heap_(addr pos, addr *ret);
+_g int rational_copy_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int rational_copy_local_(LocalRoot local, addr pos, addr *ret);
+_g int rational_copy_heap_(addr pos, addr *ret);
 
-_g single_float single_float_rational(addr pos);
-_g double_float double_float_rational(addr pos);
-_g long_float long_float_rational(addr pos);
+_g int single_float_rational_(addr pos, single_float *ret);
+_g int double_float_rational_(addr pos, double_float *ret);
+_g int long_float_rational_(addr pos, long_float *ret);
 
-_g void numerator_common(addr pos, addr *ret);
-_g void denominator_common(addr pos, addr *ret);
+_g int numerator_common_(addr pos, addr *ret);
+_g int denominator_common_(addr pos, addr *ret);
 
 #endif
 

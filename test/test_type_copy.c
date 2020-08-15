@@ -36,7 +36,7 @@ static int testlispdecl(addr pos, enum LISPDECL decl)
 
 static void parse_type_string(addr *ret, const char *code)
 {
-	readstring(ret, code);
+	readstring_debug(ret, code);
 	if (parse_type(Execute_Thread, ret, *ret, Nil)) {
 		Error(fmte_("parse-type error.", NULL));
 	}
@@ -423,7 +423,7 @@ static int test_typecopy_values(void)
 {
 	addr left, right;
 
-	readstring(&left, "(values integer)");
+	readstring_debug(&left, "(values integer)");
 	parse_type_values(Execute_Thread, &left, left, Nil);
 	type_copy_heap(&right, left);
 	test(left != right, "typecopy_values1");
@@ -437,7 +437,7 @@ static int test_typecopy_values(void)
 	test(testlispdecl(left, LISPDECL_INTEGER), "typecopy_values5");
 	test(testlispdecl(right, LISPDECL_INTEGER), "typecopy_values6");
 
-	readstring(&left, "(values integer &optional atom &rest t)");
+	readstring_debug(&left, "(values integer &optional atom &rest t)");
 	parse_type_values(Execute_Thread, &left, left, Nil);
 	type_copy_heap(&right, left);
 	test(left != right, "typecopy_values7");
@@ -703,7 +703,7 @@ static int test_typecopy_real_check(constindex type, const char *str)
 	addr x, y;
 
 	GetConstant(type, &x);
-	cons_heap(&x, x, readr(str));
+	cons_heap(&x, x, readr_debug(str));
 	parse_type_unsafe(&x, x);
 	type_copy_heap(&y, x);
 	type_object_(&x, x);

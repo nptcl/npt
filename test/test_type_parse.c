@@ -53,7 +53,7 @@ static void test_parse_type_error(addr *ret, addr pos)
 
 static void test_parse_char(addr *ret, const char *str)
 {
-	test_parse_type_error(ret, readr(str));
+	test_parse_type_error(ret, readr_debug(str));
 }
 
 
@@ -167,7 +167,7 @@ static int test_typelist_satisfies(void)
 	test_parse_char(&pos, "(satisfies hello)");
 	test(test_typecheck(pos, LISPDECL_SATISFIES, 1), "typelist_satisfies1");
 	GetArrayType(pos, 0, &pos);
-	test(pos == readr("hello"), "typelist_satisfies2");
+	test(pos == readr_debug("hello"), "typelist_satisfies2");
 
 	RETURN;
 }
@@ -257,7 +257,7 @@ static int test_type_function_lambda_var(void)
 	GetArrayA2(pos, 0, &pos);
 	test(pos == Nil, "type_function_lambda_var2");
 
-	pos = readr("(fixnum string)");
+	pos = readr_debug("(fixnum string)");
 	check = type_function_lambda(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_lambda_var3");
 	GetArrayA2(pos, 0, &right);
@@ -275,7 +275,7 @@ static int test_type_function_lambda_opt(void)
 	int check;
 	addr pos, left, right;
 
-	pos = readr("(&optional fixnum string)");
+	pos = readr_debug("(&optional fixnum string)");
 	check = type_function_lambda(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_lambda_opt1");
 	GetArrayA2(pos, 0, &right);
@@ -287,7 +287,7 @@ static int test_type_function_lambda_opt(void)
 	test(test_typeonly(left, LISPDECL_STRING), "type_function_lambda_opt4");
 	test(right == Nil, "type_function_lambda_opt5");
 
-	pos = readr("(fixnum &optional string)");
+	pos = readr_debug("(fixnum &optional string)");
 	check = type_function_lambda(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_lambda_opt6");
 	GetArrayA2(pos, 0, &right);
@@ -307,7 +307,7 @@ static int test_type_function_lambda_rest(void)
 	int check;
 	addr pos, left, right;
 
-	pos = readr("(fixnum &rest string)");
+	pos = readr_debug("(fixnum &rest string)");
 	check = type_function_lambda(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_lambda_rest1");
 	GetArrayA2(pos, 0, &right);
@@ -319,7 +319,7 @@ static int test_type_function_lambda_rest(void)
 	GetArrayA2(pos, 2, &right);
 	test(test_typeonly(right, LISPDECL_STRING), "type_function_lambda_rest5");
 
-	pos = readr("(&rest nil)");
+	pos = readr_debug("(&rest nil)");
 	check = type_function_lambda(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_lambda_rest6");
 	GetArrayA2(pos, 2, &right);
@@ -333,14 +333,14 @@ static int test_type_function_lambda_key(void)
 	int check;
 	addr pos, left, right;
 
-	pos = readr("(&key (hello fixnum))");
+	pos = readr_debug("(&key (hello fixnum))");
 	check = type_function_lambda(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_lambda_key1");
 	GetArrayA2(pos, 3, &right);
 	GetCons(right, &left, &right);
 	test(right == Nil, "type_function_lambda_key2");
 	GetCons(left, &left, &right);
-	test(left == readr("hello"), "type_function_lambda_key3");
+	test(left == readr_debug("hello"), "type_function_lambda_key3");
 	test(test_typeonly(right, LISPDECL_FIXNUM), "type_function_lambda_key4");
 
 	RETURN;
@@ -351,12 +351,12 @@ static int test_type_function_list(void)
 	int check;
 	addr pos, left, right;
 
-	pos = readr("*");
+	pos = readr_debug("*");
 	check = type_function_list(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_list1");
 	test(type_asterisk_p(pos), "type_function_list2");
 
-	pos = readr("(fixnum string)");
+	pos = readr_debug("(fixnum string)");
 	check = type_function_list(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "type_function_list3");
 	GetArrayA2(pos, 0, &right);
@@ -371,7 +371,7 @@ static int test_type_function_list(void)
 
 static void test_parse_values(addr *ret, const char *str)
 {
-	if (type_function_values(Execute_Thread, ret, readr(str), Nil)) {
+	if (type_function_values(Execute_Thread, ret, readr_debug(str), Nil)) {
 		Error(fmte_("type_function_values error.", NULL));
 	}
 }
@@ -538,22 +538,22 @@ static int test_parse_array_length(void)
 	addr list;
 	size_t size;
 
-	list = readr("(*)");
+	list = readr_debug("(*)");
 	size = 0;
 	test(! parse_array_length(list, &size, &check), "parse_array_length1");
 	test(check, "parse_array_length2");
 	test(size == 1, "parse_array_length3");
 
-	list = readr("(10)");
+	list = readr_debug("(10)");
 	test(! parse_array_length(list, &size, &check), "parse_array_length4");
 	test(! check, "parse_array_length5");
 
-	list = readr("(* * * *)");
+	list = readr_debug("(* * * *)");
 	test(! parse_array_length(list, &size, &check), "parse_array_length6");
 	test(check, "parse_array_length7");
 	test(size == 4, "parse_array_length8");
 
-	list = readr("(* * 10 * *)");
+	list = readr_debug("(* * 10 * *)");
 	test(! parse_array_length(list, &size, &check), "parse_array_length9");
 	test(! check, "parse_array_length10");
 
@@ -583,7 +583,7 @@ static int test_parse_array_dimension(void)
 {
 	addr pos, check;
 
-	pos = readr("(* 10 20)");
+	pos = readr_debug("(* 10 20)");
 	parse_array_dimension(&pos, pos);
 	getarray(pos, 0, &check);
 	test(test_typeonly(check, LISPDECL_ASTERISK), "parse_array_dimension1");
@@ -603,15 +603,15 @@ static int test_parse_array_second(void)
 	parse_array_second(&pos, Nil);
 	test(RefFixnum(pos) == 0, "parse_array_second1");
 
-	pos = readr("3");
+	pos = readr_debug("3");
 	parse_array_second(&pos, pos);
 	test(RefFixnum(pos) == 3, "parse_array_second2");
 
-	pos = readr("(* * * * *)");
+	pos = readr_debug("(* * * * *)");
 	parse_array_second(&pos, pos);
 	test(RefFixnum(pos) == 5, "parse_array_second3");
 
-	pos = readr("(12 34)");
+	pos = readr_debug("(12 34)");
 	parse_array_second(&pos, pos);
 	test(GetType(pos) == LISPTYPE_VECTOR, "parse_array_second4");
 	test(lenarrayr(pos) == 2, "parse_array_second5");
@@ -855,7 +855,7 @@ static int test_type_range_element(void)
 {
 	addr a, b, x, y;
 
-	a = readr("hello");
+	a = readr_debug("hello");
 	fixnum_heap(&b, 100);
 	type_range_element(a, b, typelist_real_p, &x, &y);
 	test(x == Nil, "type_range_element1");
@@ -1015,14 +1015,14 @@ static int test_parse_type_default(void)
 	int check;
 	addr symbol, args, pos;
 
-	symbol = readr("integer");
-	args = readr("(10 (20))");
+	symbol = readr_debug("integer");
+	args = readr_debug("(10 (20))");
 	check = parse_type_default(Execute_Thread, &pos, symbol, args, Nil);
 	test(check == 0, "parse_type_default1");
 	test(test_typecheck(pos, LISPDECL_INTEGER, 4), "parse_type_default2");
 
-	symbol = readr("hello");
-	args = readr("(10 (20))");
+	symbol = readr_debug("hello");
+	args = readr_debug("(10 (20))");
 	check = parse_type_default(Execute_Thread, &pos, symbol, args, Nil);
 	test(check == 0, "parse_type_default3");
 	test(pos == NULL, "parse_type_default4");
@@ -1043,7 +1043,7 @@ static int test_parse_type_list(void)
 	addr pos, symbol;
 
 	/* list */
-	pos = readr("(integer 10 20)");
+	pos = readr_debug("(integer 10 20)");
 	check = parse_type_list(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_list1");
 	test(test_typecheck(pos, LISPDECL_INTEGER, 4), "parse_type_list2");
@@ -1052,15 +1052,15 @@ static int test_parse_type_list(void)
 	compiled_system(&pos, Nil);
 	SetPointer(p_debug1, dynamic, test_parse_type_list_call);
 	setcompiled_dynamic(pos, p_debug1);
-	symbol = readr("test-parse-type-list");
+	symbol = readr_debug("test-parse-type-list");
 	setdeftype_symbol_(symbol, pos);
-	pos = readr("(test-parse-type-list)");
+	pos = readr_debug("(test-parse-type-list)");
 	check = parse_type_list(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_list3");
 	test(test_typecheck(pos, LISPDECL_KEYWORD, 0), "parse_type_list4");
 
 	/* error */
-	pos = readr("(no-such-lisp-type 10 20)");
+	pos = readr_debug("(no-such-lisp-type 10 20)");
 	check = parse_type_list(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_list5");
 	test(pos == NULL, "parse_type_list6");
@@ -1073,12 +1073,12 @@ static int test_parse_type_symbol(void)
 	int check;
 	addr pos;
 
-	pos = readr("symbol");
+	pos = readr_debug("symbol");
 	check = parse_type_symbol(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_symbol1");
 	test(test_typecheck(pos, LISPDECL_SYMBOL, 0), "parse_type_symbol2");
 
-	pos = readr("no-such-lisp-type");
+	pos = readr_debug("no-such-lisp-type");
 	check = parse_type_symbol(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_symbol3");
 	test(pos == NULL, "parse_type_symbol4");
@@ -1091,22 +1091,22 @@ static int test_parse_type_null(void)
 	int check;
 	addr pos;
 
-	pos = readr("symbol");
+	pos = readr_debug("symbol");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_null1");
 	test(test_typecheck(pos, LISPDECL_SYMBOL, 0), "parse_type_null2");
 
-	pos = readr("no-such-lisp-type");
+	pos = readr_debug("no-such-lisp-type");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_null3");
 	test(pos == NULL, "parse_type_null4");
 
-	pos = readr("(integer 10 20)");
+	pos = readr_debug("(integer 10 20)");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_null5");
 	test(test_typecheck(pos, LISPDECL_INTEGER, 4), "parse_type_null6");
 
-	pos = readr("(no-such-lisp-type 10 20)");
+	pos = readr_debug("(no-such-lisp-type 10 20)");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_null7");
 	test(pos == NULL, "parse_type_null8");
@@ -1124,7 +1124,7 @@ static int test_parse_type(void)
 	int check;
 	addr pos;
 
-	pos = readr("symbol");
+	pos = readr_debug("symbol");
 	check = parse_type(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type1");
 	test(test_typecheck(pos, LISPDECL_SYMBOL, 0), "parse_type2");
@@ -1137,7 +1137,7 @@ static int test_parse_type_not(void)
 	int check;
 	addr pos;
 
-	pos = readr("symbol");
+	pos = readr_debug("symbol");
 	check = parse_type_not(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_not1");
 	test(GetType(pos) == LISPTYPE_TYPE, "parse_type_not2");
@@ -1152,7 +1152,7 @@ static int test_parse_type_noaster(void)
 	int check;
 	addr pos;
 
-	pos = readr("symbol");
+	pos = readr_debug("symbol");
 	check = parse_type_noaster(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_noaster1");
 	test(test_typecheck(pos, LISPDECL_SYMBOL, 0), "parse_type_noaster2");
@@ -1165,7 +1165,7 @@ static int test_parse_type_values(void)
 	int check;
 	addr pos;
 
-	pos = readr("(values fixnum)");
+	pos = readr_debug("(values fixnum)");
 	check = parse_type_values(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_values1");
 	test(test_typecheck(pos, LISPDECL_VALUES, 4), "parse_type_values2");

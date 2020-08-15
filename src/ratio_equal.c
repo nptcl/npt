@@ -202,25 +202,23 @@ static int rational_float_long_local_(LocalRoot local, long_float value, addr *r
 	return 0;
 }
 
-static int equal_ratio_type(addr left, addr right)
+static int equal_ratio_type_(addr left, addr right, int *ret)
 {
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_fr_real(right, left);
+			return Result(ret, equal_fr_real(right, left));
 
 		case LISPTYPE_BIGNUM:
-			return equal_br_real(right, left);
+			return Result(ret, equal_br_real(right, left));
 
 		case LISPTYPE_RATIO:
-			return equal_rr_real(left, right);
+			return Result(ret, equal_rr_real(left, right));
 
 		default:
-			TypeError(right, INTEGER);
-			break;
+			*ret = 0;
+			return TypeError_(right, INTEGER);
 	}
-
-	return 0;
 }
 
 _g int equal_rs_real_(LocalRoot local, addr left, addr right, int *ret)
@@ -232,7 +230,7 @@ _g int equal_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	push_local(local, &stack);
 	Return(rational_float_single_local_(local, RefSingleFloat(right), &right));
-	check = equal_ratio_type(left, right);
+	Return(equal_ratio_type_(left, right, &check));
 	rollback_local(local, stack);
 
 	return Result(ret, check);
@@ -247,7 +245,7 @@ _g int equal_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	Return(rational_float_double_local_(local, RefDoubleFloat(right), &right));
-	check = equal_ratio_type(left, right);
+	Return(equal_ratio_type_(left, right, &check));
 	rollback_local(local, stack);
 
 	return Result(ret, check);
@@ -262,7 +260,7 @@ _g int equal_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	push_local(local, &stack);
 	Return(rational_float_long_local_(local, RefLongFloat(right), &right));
-	check = equal_ratio_type(left, right);
+	Return(equal_ratio_type_(left, right, &check));
 	rollback_local(local, stack);
 
 	return Result(ret, check);

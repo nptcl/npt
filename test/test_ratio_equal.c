@@ -439,6 +439,7 @@ static int test_rational_float_long_local(void)
 
 static int test_equal_ratio_type(void)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr numer, denom, left, right;
@@ -451,20 +452,24 @@ static int test_equal_ratio_type(void)
 	ratio_reduction_nocopy_local(local, &left, SignPlus, numer, denom);
 
 	fixnum_local(local, &right, 11);
-	test(! equal_ratio_type(left, right), "equal_ratio_type1");
+	equal_ratio_type_(left, right, &check);
+	test(! check, "equal_ratio_type1");
 
 	bignum_value_local(local, &right, SignPlus, 11);
-	test(! equal_ratio_type(left, right), "equal_ratio_type2");
+	equal_ratio_type_(left, right, &check);
+	test(! check, "equal_ratio_type2");
 
 	bignum_value_local(local, &numer, SignPlus, 11);
 	bignum_value_local(local, &denom, SignPlus, 1);
 	ratio_reduction_nocopy_local(local, &right, SignPlus, numer, denom);
-	test(! equal_ratio_type(left, right), "equal_ratio_type3");
+	equal_ratio_type_(left, right, &check);
+	test(! check, "equal_ratio_type3");
 
 	bignum_value_local(local, &numer, SignPlus, 11);
 	bignum_value_local(local, &denom, SignPlus, 3);
 	ratio_reduction_nocopy_local(local, &right, SignPlus, numer, denom);
-	test(equal_ratio_type(left, right), "equal_ratio_type4");
+	equal_ratio_type_(left, right, &check);
+	test(check, "equal_ratio_type4");
 
 	rollback_local(local, stack);
 

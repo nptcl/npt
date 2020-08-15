@@ -180,7 +180,7 @@ static void defvar_standard_input(void)
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_INPUT, &stream);
-	open_synonym_stream(&stream, stream);
+	Error(open_synonym_stream_(&stream, stream));
 	/* defvar */
 	GetConst(SPECIAL_STANDARD_INPUT, &symbol);
 	SetValueSymbol(symbol, stream);
@@ -192,7 +192,7 @@ static void defvar_standard_output(void)
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_OUTPUT, &stream);
-	open_synonym_stream(&stream, stream);
+	Error(open_synonym_stream_(&stream, stream));
 	/* defvar */
 	GetConst(SPECIAL_STANDARD_OUTPUT, &symbol);
 	SetValueSymbol(symbol, stream);
@@ -204,7 +204,7 @@ static void defvar_error_output(void)
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_ERROR, &stream);
-	open_synonym_stream(&stream, stream);
+	Error(open_synonym_stream_(&stream, stream));
 	/* defvar */
 	GetConst(SPECIAL_ERROR_OUTPUT, &symbol);
 	SetValueSymbol(symbol, stream);
@@ -216,9 +216,9 @@ static void defvar_terminal_io(void)
 
 	/* twoway */
 	GetConst(SYSTEM_PROMPT_VALUE, &input);
-	open_synonym_stream(&input, input);
+	Error(open_synonym_stream_(&input, input));
 	GetConst(SPECIAL_STANDARD_OUTPUT, &output);
-	open_synonym_stream(&output, output);
+	Error(open_synonym_stream_(&output, output));
 	open_twoway_stream(&stream, input, output);
 	/* defvar */
 	GetConst(SPECIAL_TERMINAL_IO, &symbol);
@@ -231,7 +231,7 @@ static void defvar_trace_output(void)
 
 	/* synonym */
 	GetConst(SPECIAL_TERMINAL_IO, &stream);
-	open_synonym_stream(&stream, stream);
+	Error(open_synonym_stream_(&stream, stream));
 	/* defvar */
 	GetConst(SPECIAL_TRACE_OUTPUT, &symbol);
 	SetValueSymbol(symbol, stream);
@@ -243,7 +243,7 @@ static void defvar_debug_io(void)
 
 	/* synonym */
 	GetConst(SPECIAL_TERMINAL_IO, &stream);
-	open_synonym_stream(&stream, stream);
+	Error(open_synonym_stream_(&stream, stream));
 	/* defvar */
 	GetConst(SPECIAL_DEBUG_IO, &symbol);
 	SetValueSymbol(symbol, stream);
@@ -255,7 +255,7 @@ static void defvar_query_io(void)
 
 	/* synonym */
 	GetConst(SPECIAL_TERMINAL_IO, &stream);
-	open_synonym_stream(&stream, stream);
+	Error(open_synonym_stream_(&stream, stream));
 	/* defvar */
 	GetConst(SPECIAL_QUERY_IO, &symbol);
 	SetValueSymbol(symbol, stream);

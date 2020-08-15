@@ -315,6 +315,28 @@ _g void floating_point_invalid_operation_stdarg(constindex index, ...)
 	floating_point_invalid_operation_constant(index, operands);
 }
 
+static int instance_float_invalid_(addr *ret, addr operation, addr operands)
+{
+	return instance_condition2_(ret,
+			CONSTANT_CONDITION_FLOATING_POINT_INVALID_OPERATION,
+			CONSTANT_CLOSNAME_OPERATION, operation,
+			CONSTANT_CLOSNAME_OPERANDS, operands);
+}
+
+_g int call_float_invalid_(Execute ptr, addr operation, addr operands)
+{
+	addr instance;
+	Return(instance_float_invalid_(&instance, operation, operands));
+	return error_function_(ptr, instance);
+}
+
+_g int call_float_invalid_const_(Execute ptr, constindex index, addr operands)
+{
+	addr operation;
+	GetConstant(index, &operation);
+	return call_float_invalid_(ptr, operation, operands);
+}
+
 /* floating_point_overflow (arithmetic_error) :operation :operands */
 _g void instance_floating_point_overflow(addr *ret, addr operation, addr operands)
 {
@@ -345,6 +367,25 @@ _g void floating_point_overflow_stdarg(constindex index, ...)
 	floating_point_overflow_constant(index, operands);
 }
 
+static int instance_floating_point_overflow_(addr *ret, addr operation, addr operands)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_FLOATING_POINT_OVERFLOW,
+			CONSTANT_CLOSNAME_OPERATION, operation,
+			CONSTANT_CLOSNAME_OPERANDS, operands);
+}
+_g int call_floating_point_overflow_(Execute ptr, addr operation, addr operands)
+{
+	addr instance;
+	Return(instance_floating_point_overflow_(&instance, operation, operands));
+	return error_function_(ptr, instance);
+}
+_g int call_floating_point_overflow_const_(Execute ptr, constindex id, addr list)
+{
+	addr pos;
+	GetConstant(id, &pos);
+	return call_floating_point_overflow_(ptr, pos, list);
+}
+
 /* floating_point_underflow (arithmetic_error) :operation :operands */
 _g void instance_floating_point_underflow(addr *ret, addr operation, addr operands)
 {
@@ -373,6 +414,26 @@ _g void floating_point_underflow_stdarg(constindex index, ...)
 	list_stdarg_alloc(NULL, &operands, va);
 	va_end(va);
 	floating_point_underflow_constant(index, operands);
+}
+
+static int instance_floating_point_underflow_(addr *ret, addr operation, addr operands)
+{
+	return instance_condition2_(ret, CONSTANT_CONDITION_FLOATING_POINT_UNDERFLOW,
+			CONSTANT_CLOSNAME_OPERATION, operation,
+			CONSTANT_CLOSNAME_OPERANDS, operands);
+}
+_g int call_floating_point_underflow_(Execute ptr, addr operation, addr operands)
+{
+	addr instance;
+	Return(instance_floating_point_underflow_(&instance, operation, operands));
+	return error_function_(ptr, instance);
+}
+
+_g int call_floating_point_underflow_const_(Execute ptr, constindex id, addr list)
+{
+	addr pos;
+	GetConstant(id, &pos);
+	return call_floating_point_underflow_(ptr, pos, list);
 }
 
 /* division_by_zero (arithmetic_error) :operation :operands */
@@ -407,15 +468,15 @@ _g void division_by_zero_stdarg(constindex index, ...)
 
 _g void division_by_zero_real1(constindex index, addr left)
 {
-	number_throw_heap(left, &left);
+	Error(number_throw_heap_(left, &left));
 	list_heap(&left, left, NULL);
 	division_by_zero_constant(index, left);
 }
 
 _g void division_by_zero_real2(constindex index, addr left, addr right)
 {
-	number_throw_heap(left, &left);
-	number_throw_heap(right, &right);
+	Error(number_throw_heap_(left, &left));
+	Error(number_throw_heap_(right, &right));
 	list_heap(&left, left, right, NULL);
 	division_by_zero_constant(index, left);
 }
@@ -456,14 +517,14 @@ _g int call_division_by_zero_const_(Execute ptr, constindex index, addr operands
 }
 _g int call_division_by_zero_real1_(Execute ptr, constindex index, addr x)
 {
-	number_throw_heap(x, &x);
+	Return(number_throw_heap_(x, &x));
 	list_heap(&x, x, NULL);
 	return call_division_by_zero_const_(ptr, index, x);
 }
 _g int call_division_by_zero_real2_(Execute ptr, constindex index, addr x, addr y)
 {
-	number_throw_heap(x, &x);
-	number_throw_heap(y, &y);
+	Return(number_throw_heap_(x, &x));
+	Return(number_throw_heap_(y, &y));
 	list_heap(&x, x, y, NULL);
 	return call_division_by_zero_const_(ptr, index, x);
 }
@@ -710,8 +771,7 @@ _g int typep_error(Execute ptr, addr value, addr type)
 {
 	int check;
 
-	if (typep_clang(ptr, value, type, &check))
-		return 1;
+	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
 		copyheap(&value, value);
 		type_copy_heap(&type, type);
@@ -725,8 +785,7 @@ _g int typep_asterisk_error(Execute ptr, addr value, addr type)
 {
 	int check;
 
-	if (typep_asterisk_clang(ptr, value, type, &check))
-		return 1;
+	Return(typep_asterisk_clang_(ptr, value, type, &check));
 	if (! check) {
 		copyheap(&value, value);
 		type_copy_heap(&type, type);

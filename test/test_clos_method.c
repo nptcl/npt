@@ -21,7 +21,7 @@ static int test_stdget_call(addr pos,
 {
 	addr check, k, v;
 
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConstant(name, &k);
 	clos_set_(pos, k, v);
 	(*get)(pos, &check);
@@ -87,7 +87,7 @@ static int test_method_instance_call(void)
 
 static void argument_method_char(addr *ret, const char *str)
 {
-	Error(argument_method_heap_(Local_Thread, ret, readr(str)));
+	Error(argument_method_heap_(Local_Thread, ret, readr_debug(str)));
 }
 
 static int test_method_specializer_list(void)
@@ -107,7 +107,7 @@ static int test_method_specializer_list(void)
 	argument_method_char(&lambda, "((a (eql hello)) b)");
 	method_specializer_list_(&lambda, lambda);
 	GetCons(lambda, &left, &lambda);
-	right = readr("hello");
+	right = readr_debug("hello");
 	clos_find_specializer_(right, &right);
 	test(left == right, "method_specializer_list4");
 	GetCons(lambda, &left, &lambda);
@@ -124,7 +124,7 @@ static int test_method_instance_lambda(void)
 	LocalRoot local;
 
 	local = Local_Thread;
-	lambda = readr("(a (b integer))");
+	lambda = readr_debug("(a (b integer))");
 	argument_method_heap_(local, &lambda, lambda);
 	method_instance_lambda_(local, &lambda, Nil, lambda);
 
@@ -188,7 +188,7 @@ static int test_null_set_diffkey(addr x, addr y)
 
 static void argument_generic_char(addr *ret, const char *str)
 {
-	Error(argument_generic_heap_(Local_Thread, ret, readr(str)));
+	Error(argument_generic_heap_(Local_Thread, ret, readr_debug(str)));
 }
 
 static int test_method_null_set_difference(void)
@@ -340,7 +340,7 @@ static int test_method_eqlcheck(void)
 	LocalRoot local;
 
 	local = Local_Thread;
-	method = readr("((a (eql hello)) b (c integer))");
+	method = readr_debug("((a (eql hello)) b (c integer))");
 	argument_method_heap_(local, &method, method);
 	method_instance_lambda_(local, &method, Nil, method);
 	method_eqlcheck_(method, &method);

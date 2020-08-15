@@ -289,8 +289,8 @@ static int test_apply_pushnew_stack(void)
 	addr pos, sym1, sym2, list, table, sym3;
 
 	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
-	readstring(&sym1, "aaa");
-	readstring(&sym2, "bbb");
+	readstring_debug(&sym1, "aaa");
+	readstring_debug(&sym2, "bbb");
 	list_heap(&list, sym1, sym2, NULL);
 	apply_pushnew_stack(NULL, pos, list, CONSTANT_SYSTEM_DECLARATION);
 	GetEvalStackTable(pos, &table);
@@ -300,7 +300,7 @@ static int test_apply_pushnew_stack(void)
 	test(find_list_eq_unsafe(sym1, table), "apply_pushnew_stack");
 	test(find_list_eq_unsafe(sym2, table), "apply_pushnew_stack");
 
-	readstring(&sym3, "ccc");
+	readstring_debug(&sym3, "ccc");
 	list_heap(&list, sym1, sym2, sym3, NULL);
 	apply_pushnew_stack(NULL, pos, list, CONSTANT_SYSTEM_DECLARATION);
 	GetEvalStackTable(pos, &table);
@@ -320,8 +320,8 @@ static int test_apply_pushnew_callname_stack(void)
 	addr pos, sym1, sym2, list, table, sym3;
 
 	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
-	readstring(&sym1, "aaa");
-	readstring(&sym2, "bbb");
+	readstring_debug(&sym1, "aaa");
+	readstring_debug(&sym2, "bbb");
 	parse_callname_alloc(NULL, &sym1, sym1);
 	parse_callname_alloc(NULL, &sym2, sym2);
 	list_heap(&list, sym1, sym2, NULL);
@@ -333,7 +333,7 @@ static int test_apply_pushnew_callname_stack(void)
 	test(find_list_callname_unsafe(sym1, table), "apply_pushnew_callname_stack");
 	test(find_list_callname_unsafe(sym2, table), "apply_pushnew_callname_stack");
 
-	readstring(&sym3, "ccc");
+	readstring_debug(&sym3, "ccc");
 	parse_callname_alloc(NULL, &sym3, sym3);
 	list_heap(&list, sym1, sym2, sym3, NULL);
 	apply_pushnew_callname_stack(NULL, pos, list, CONSTANT_SYSTEM_DECLARATION);
@@ -354,10 +354,10 @@ static int test_apply_plist_stack(void)
 	addr pos, sym1, sym2, sym3, sym4, sym5, sym6, list, table, sym;
 
 	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
-	readstring(&sym1, "aaa");
-	readstring(&sym2, "bbb");
-	readstring(&sym3, "ccc");
-	readstring(&sym4, "ddd");
+	readstring_debug(&sym1, "aaa");
+	readstring_debug(&sym2, "bbb");
+	readstring_debug(&sym3, "ccc");
+	readstring_debug(&sym4, "ddd");
 	list_heap(&list, sym1, sym2, sym3, sym4, NULL);
 	apply_plist_stack(NULL, pos, list, CONSTANT_SYSTEM_INLINE);
 	GetEvalStackTable(pos, &table);
@@ -369,8 +369,8 @@ static int test_apply_plist_stack(void)
 	test(getplist(table, sym3, &sym) == 0, "apply_plist_stack");
 	test(sym == sym4, "apply_plist_stack");
 
-	readstring(&sym5, "eee");
-	readstring(&sym6, "fff");
+	readstring_debug(&sym5, "eee");
+	readstring_debug(&sym6, "fff");
 	list_heap(&list, sym1, sym5, sym5, sym6, NULL);
 	apply_plist_stack(NULL, pos, list, CONSTANT_SYSTEM_INLINE);
 	GetEvalStackTable(pos, &table);
@@ -390,10 +390,10 @@ static int test_apply_plist_callname_stack(void)
 	addr pos, sym1, sym2, sym3, sym4, sym5, sym6, list, table, sym;
 
 	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
-	readstring(&sym1, "aaa");
-	readstring(&sym2, "bbb");
-	readstring(&sym3, "ccc");
-	readstring(&sym4, "ddd");
+	readstring_debug(&sym1, "aaa");
+	readstring_debug(&sym2, "bbb");
+	readstring_debug(&sym3, "ccc");
+	readstring_debug(&sym4, "ddd");
 	parse_callname_alloc(NULL, &sym1, sym1);
 	parse_callname_alloc(NULL, &sym2, sym2);
 	parse_callname_alloc(NULL, &sym3, sym3);
@@ -409,8 +409,8 @@ static int test_apply_plist_callname_stack(void)
 	test(getplist_callname(table, sym3, &sym) == 0, "apply_plist_callname_stack");
 	test(sym == sym4, "apply_plist_callname_stack");
 
-	readstring(&sym5, "eee");
-	readstring(&sym6, "fff");
+	readstring_debug(&sym5, "eee");
+	readstring_debug(&sym6, "fff");
 	parse_callname_alloc(NULL, &sym5, sym5);
 	parse_callname_alloc(NULL, &sym6, sym6);
 	list_heap(&list, sym1, sym5, sym5, sym6, NULL);
@@ -432,7 +432,7 @@ static int test_apply_optimize_stack(void)
 	const OptimizeType *optimize;
 
 	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
-	readstring(&decl, "((optimize (speed 0) (debug 1) safety))");
+	readstring_debug(&decl, "((optimize (speed 0) (debug 1) safety))");
 	parse_declaim_heap_(Execute_Thread, Nil, decl, &decl);
 	apply_optimize_stack(pos, decl);
 
@@ -456,7 +456,7 @@ static int test_apply_declaim_stack(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
-	readstring(&pos,
+	readstring_debug(&pos,
 			"((declaration hello) (type integer qq ww) (ftype function ee) "
 			" (special aa bb cc) (inline aa bb cc) (notinline dd) "
 			" (optimize speed compilation-speed))");
@@ -470,7 +470,7 @@ static int test_apply_declaim_stack(void)
 	test(check == 0, "apply_declaim_stack");
 	test(length_list_unsafe(list) == 8, "apply_declaim_stack");
 	GetConstant(CONSTANT_COMMON_INLINE, &constant);
-	readstring(&key, "aa");
+	readstring_debug(&key, "aa");
 	parse_callname_alloc(NULL, &key, key);
 	check = getplist_callname(list, key, &value);
 	test(check == 0, "apply_declaim_stack");
@@ -478,7 +478,7 @@ static int test_apply_declaim_stack(void)
 
 	/* notinline */
 	GetConstant(CONSTANT_COMMON_NOTINLINE, &constant);
-	readstring(&key, "dd");
+	readstring_debug(&key, "dd");
 	parse_callname_alloc(NULL, &key, key);
 	check = getplist_callname(list, key, &value);
 	test(check == 0, "apply_declaim_stack");
@@ -488,14 +488,14 @@ static int test_apply_declaim_stack(void)
 	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
 	test(check == 0, "apply_declaim_stack");
 	test(length_list_unsafe(list) == 3, "apply_declaim_stack");
-	readstring(&key, "aa");
+	readstring_debug(&key, "aa");
 	test(find_list_eq_unsafe(key, list), "apply_declaim_stack");
 
 	/* type */
 	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_VALUE, &list);
 	test(check == 0, "apply_declaim_stack");
 	test(length_list_unsafe(list) == 4, "apply_declaim_stack");
-	readstring(&key, "qq");
+	readstring_debug(&key, "qq");
 	check = getplist(list, key, &value);
 	test(check == 0, "apply_declaim_stack");
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "apply_declaim_stack");
@@ -504,7 +504,7 @@ static int test_apply_declaim_stack(void)
 	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_FUNCTION, &list);
 	test(check == 0, "apply_declaim_stack");
 	test(length_list_unsafe(list) == 2, "apply_declaim_stack");
-	readstring(&key, "ee");
+	readstring_debug(&key, "ee");
 	parse_callname_alloc(NULL, &key, key);
 	check = getplist_callname(list, key, &value);
 	test(check == 0, "apply_declaim_stack");
@@ -519,7 +519,7 @@ static int test_apply_declaim_stack(void)
 	check = getplist_constant(table, CONSTANT_SYSTEM_DECLARATION, &list);
 	test(check == 0, "apply_declaim_stack");
 	test(length_list_unsafe(list) == 1, "apply_declaim_stack");
-	readstring(&key, "hello");
+	readstring_debug(&key, "hello");
 	test(find_list_eq_unsafe(key, list), "apply_declaim_stack");
 
 	free_eval_stack(ptr);
@@ -544,7 +544,7 @@ static int test_apply_declare_stack(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
-	readstring(&pos, "((special aa bb cc) "
+	readstring_debug(&pos, "((special aa bb cc) "
 			" (dynamic-extent aa bb #'cc #'dd) "
 			" (ignore ee #'ff) (ignorable gg hh #'ii #'jj))");
 	parse_declare_heap_(Execute_Thread, Nil, pos, &pos);
@@ -556,21 +556,21 @@ static int test_apply_declare_stack(void)
 	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
 	test(check == 0, "apply_declare_stack1");
 	test(length_list_unsafe(list) == 3, "apply_declare_stack2");
-	readstring(&key, "aa");
+	readstring_debug(&key, "aa");
 	test(find_list_eq_unsafe(key, list), "apply_declare_stack3");
 
 	/* dynamic-extent value */
 	check = getplist_constant(table, CONSTANT_SYSTEM_DYNAMIC_VALUE, &list);
 	test(check == 0, "apply_declare_stack4");
 	test(length_list_unsafe(list) == 2, "apply_declare_stack5");
-	readstring(&key, "aa");
+	readstring_debug(&key, "aa");
 	test(find_list_eq_unsafe(key, list), "apply_declare_stack6");
 
 	/* dynamic-extent function */
 	check = getplist_constant(table, CONSTANT_SYSTEM_DYNAMIC_FUNCTION, &list);
 	test(check == 0, "apply_declare_stack7");
 	test(length_list_unsafe(list) == 2, "apply_declare_stack8");
-	readstring(&key, "cc");
+	readstring_debug(&key, "cc");
 	parse_callname_alloc(NULL, &key, key);
 	test(find_list_callname_unsafe(key, list), "apply_declare_stack9");
 
@@ -579,13 +579,13 @@ static int test_apply_declare_stack(void)
 	test(check == 0, "apply_declare_stack10");
 	test(length_list_unsafe(list) == 6, "apply_declare_stack11");
 	GetConstant(CONSTANT_COMMON_IGNORE, &constant);
-	readstring(&key, "ee");
+	readstring_debug(&key, "ee");
 	check = getplist(list, key, &value);
 	test(check == 0, "apply_declare_stack12");
 	test(value == constant, "apply_declare_stack13");
 
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &constant);
-	readstring(&key, "gg");
+	readstring_debug(&key, "gg");
 	check = getplist(list, key, &value);
 	test(check == 0, "apply_declare_stack14");
 	test(value == constant, "apply_declare_stack15");
@@ -595,14 +595,14 @@ static int test_apply_declare_stack(void)
 	test(check == 0, "apply_declare_stack16");
 	test(length_list_unsafe(list) == 6, "apply_declare_stack17");
 	GetConstant(CONSTANT_COMMON_IGNORE, &constant);
-	readstring(&key, "ff");
+	readstring_debug(&key, "ff");
 	parse_callname_alloc(NULL, &key, key);
 	check = getplist_callname(list, key, &value);
 	test(check == 0, "apply_declare_stack18");
 	test(value == constant, "apply_declare_stack19");
 
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &constant);
-	readstring(&key, "ii");
+	readstring_debug(&key, "ii");
 	parse_callname_alloc(NULL, &key, key);
 	check = getplist_callname(list, key, &value);
 	test(check == 0, "apply_declare_stack20");
@@ -627,8 +627,8 @@ static int test_apply_pushsymbol_stack(void)
 	begin_eval_stack_(ptr);
 
 	newstack_nil_(ptr, &stack);
-	readstring(&cons, "(aa bb cc)");
-	readstring(&symbol, "bb");
+	readstring_debug(&cons, "(aa bb cc)");
+	readstring_debug(&symbol, "bb");
 	apply_pushsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
 	GetEvalStackTable(stack, &list);
 	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
@@ -637,7 +637,7 @@ static int test_apply_pushsymbol_stack(void)
 	GetCar(list, &list);
 	test(list == symbol, "apply_pushsymbol_stack");
 
-	readstring(&var, "hello");
+	readstring_debug(&var, "hello");
 	apply_pushsymbol_stack(local, stack, var, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
 	GetEvalStackTable(stack, &list);
 	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
@@ -665,26 +665,26 @@ static int test_apply_plistsymbol_stack(void)
 	begin_eval_stack_(ptr);
 
 	newstack_nil_(ptr, &stack);
-	readstring(&cons, "(aa bb cc dd)");
-	readstring(&symbol, "cc");
+	readstring_debug(&cons, "(aa bb cc dd)");
+	readstring_debug(&symbol, "cc");
 	apply_plistsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
 	GetEvalStackTable(stack, &list);
 	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
 	test(check == 0, "apply_plistsymbol_stack");
 	test(length_list_unsafe(list) == 2, "apply_plistsymbol_stack");
 	test(getplist(list, symbol, &list) == 0, "apply_plistsymbol_stack");
-	readstring(&symbol, "dd");
+	readstring_debug(&symbol, "dd");
 	test(list == symbol, "apply_plistsymbol_stack");
 
-	readstring(&var, "hello");
+	readstring_debug(&var, "hello");
 	apply_plistsymbol_stack(local, stack, var, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
 	GetEvalStackTable(stack, &list);
 	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
 	test(check == 0, "apply_plistsymbol_stack");
 	test(length_list_unsafe(list) == 2, "apply_plistsymbol_stack");
-	readstring(&symbol, "cc");
+	readstring_debug(&symbol, "cc");
 	test(getplist(list, symbol, &list) == 0, "apply_plistsymbol_stack");
-	readstring(&symbol, "dd");
+	readstring_debug(&symbol, "dd");
 	test(list == symbol, "apply_plistsymbol_stack");
 
 	free_eval_stack(ptr);
@@ -704,12 +704,12 @@ static int test_apply_declare_value_stack(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
-	readstring(&decl, "((special aa bb cc) (integer aa bb) "
+	readstring_debug(&decl, "((special aa bb cc) (integer aa bb) "
 			" (dynamic-extent aa bb #'cc #'dd) "
 			" (ignore aa #'bb) (ignorable cc hh #'ii #'jj))");
 	parse_declare_heap_(Execute_Thread, Nil, decl, &decl);
 	newstack_nil_(ptr, &stack);
-	readstring(&symbol, "zz");
+	readstring_debug(&symbol, "zz");
 	apply_declare_value_stack(local, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);
 	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &pos);
@@ -721,7 +721,7 @@ static int test_apply_declare_value_stack(void)
 	getplist_constant(list, CONSTANT_SYSTEM_IGNORE_VALUE, &pos);
 	test(pos == Nil, "apply_declare_value_stack4");
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	apply_declare_value_stack(local, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);
 	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &pos);

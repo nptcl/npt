@@ -79,7 +79,7 @@ _g int pprint_pretty_syscode(Execute ptr, addr stream, addr call);
 _g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret);
 _g int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2);
 _g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2);
-_g void timeinfo_syscode(LocalRoot local,
+_g int timeinfo_syscode_(LocalRoot local,
 		addr *rreal, addr *rrun, addr *rsize, addr *rcount);
 _g int ed_function_syscode_(Execute ptr, addr file);
 _g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, addr *ret);

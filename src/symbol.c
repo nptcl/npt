@@ -840,7 +840,7 @@ static int make_gensym_argument_(Execute ptr,
 
 	/* (1+ *gensym-counter*) */
 	if (counter == NULL) {
-		oneplus_integer_common(local, value, &value);
+		Return(oneplus_integer_common_(local, value, &value));
 		setspecial_local(ptr, symbol, value);
 	}
 

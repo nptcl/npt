@@ -87,6 +87,8 @@ _g int string_comparep_(addr left, addr right, int *ret);
 
 _g int string_designer_equal_(addr left, addr right, int *ret);
 _g int string_designer_equal_char_(addr left, const char *right, int *ret);
+_g int string_designer_equalp_(addr left, addr right, int *ret);
+_g int string_designer_equalp_char_(addr left, const char *right, int *ret);
 _g int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret);
 _g int string_designer_local_(LocalRoot local, addr *value, addr pos, int *ret);
 _g int string_designer_heap_(addr *value, addr pos, int *ret);

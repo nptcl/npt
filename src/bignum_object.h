@@ -72,7 +72,7 @@ struct bignuminfo {
 #define bignum_fixnum_value_local bignum_fixnum_value_debug
 #define bignum_counter_local_ bignum_counter_debug_
 #define bignum_result_local bignum_result_debug
-#define bignum_integer_local bignum_integer_debug
+#define bignum_integer_local_ bignum_integer_debug_
 #else
 #define StructBignum StructBignum_Low
 #define RefAllocBignum RefAllocBignum_Low
@@ -96,7 +96,7 @@ struct bignuminfo {
 #define bignum_fixnum_value_local bignum_fixnum_value_alloc
 #define bignum_counter_local_ bignum_counter_alloc_
 #define bignum_result_local bignum_result_alloc
-#define bignum_integer_local bignum_integer_alloc
+#define bignum_integer_local_ bignum_integer_alloc_
 #endif
 
 #define fixnum_result_alloc fixnum_throw_alloc
@@ -131,7 +131,7 @@ _g void bignum_fixnum_alloc(LocalRoot local, addr *ret, addr value);
 _g void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value);
 _g int bignum_counter_alloc_(LocalRoot local, addr *ret, addr index);
 _g void bignum_result_alloc(LocalRoot local, addr pos, addr *ret);
-_g void bignum_integer_alloc(LocalRoot local, addr *ret, addr pos);
+_g int bignum_integer_alloc_(LocalRoot local, addr *ret, addr pos);
 #define bignum_heap(r,a,b) bignum_alloc(NULL,(r),(a),(b))
 #define bignum_cons_heap(r,a,b) bignum_cons_alloc(NULL,(r),(a),(b))
 #define bignum_copy_nosign_heap(r,a) bignum_copy_nosign_alloc(NULL,(r),(a))
@@ -143,7 +143,7 @@ _g void bignum_integer_alloc(LocalRoot local, addr *ret, addr pos);
 #define bignum_fixnum_value_heap(r,v) bignum_fixnum_value_alloc(NULL,(r),(v))
 #define bignum_counter_heap_(r,a) bignum_counter_alloc_(NULL,(r),(a))
 #define bignum_result_heap(p,r) bignum_result_alloc(NULL,(p),(r))
-#define bignum_integer_heap(p,r) bignum_integer_alloc(NULL,(p),(r))
+#define bignum_integer_heap_(p,r) bignum_integer_alloc_(NULL,(p),(r))
 
 _g void bignum_debug(LocalRoot local, addr *ret, int sign, size_t size);
 _g void bignum_cons_debug(LocalRoot local, addr *ret, int sign, addr cons);
@@ -156,7 +156,7 @@ _g void bignum_fixnum_debug(LocalRoot local, addr *ret, addr value);
 _g void bignum_fixnum_value_debug(LocalRoot local, addr *ret, fixnum value);
 _g int bignum_counter_debug_(LocalRoot local, addr *ret, addr index);
 _g void bignum_result_debug(LocalRoot local, addr pos, addr *ret);
-_g void bignum_integer_debug(LocalRoot local, addr *ret, addr pos);
+_g int bignum_integer_debug_(LocalRoot local, addr *ret, addr pos);
 
 _g void getfixed_bignum(addr pos, size_t index, fixed *value);
 _g fixed reffixed_bignum(addr pos, size_t index);

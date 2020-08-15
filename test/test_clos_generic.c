@@ -22,7 +22,7 @@ static int test_stdget_call(addr pos,
 {
 	addr check, k, v;
 
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConstant(name, &k);
 	clos_set_(pos, k, v);
 	(*get_)(pos, &check);
@@ -834,7 +834,7 @@ static int test_closrun_execute(void)
 	ptr = Execute_Thread;
 	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	SetFunctionSymbol(name, Unbound);
-	lambda = readr("(values)");
+	lambda = readr_debug("(values)");
 
 	argument_generic_heap_(ptr->local, &lambda, lambda);
 	parse_callname_error_(&name, name);

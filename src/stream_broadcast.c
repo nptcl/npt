@@ -9,16 +9,17 @@
 	Check(! broadcast_stream_p(stream), "type error"); \
 }
 
-_g void open_broadcast_stream(addr *stream, addr list)
+_g int open_broadcast_stream_(addr *stream, addr list)
 {
 	addr pos;
 
 	if (! listp(list))
-		TypeError(list, LIST);
+		return TypeError_(list, LIST);
 	stream_heap(&pos, StreamType_BroadCast, 0);
 	SetInfoStream(pos, list);
 	force_open_stream(pos);
-	*stream = pos;
+
+	return Result(stream, pos);
 }
 
 _g void push_broadcast_stream(addr stream, addr output)

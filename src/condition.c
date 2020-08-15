@@ -54,7 +54,7 @@ _g int signal_function_(Execute ptr, addr condition)
 	GetConst(SPECIAL_BREAK_ON_SIGNALS, &signals);
 	Return(getspecialcheck_local_(ptr, signals, &signals));
 	Return(parse_type(ptr, &type, signals, Nil));
-	Return(typep_asterisk_clang(ptr, condition, type, &check));
+	Return(typep_asterisk_clang_(ptr, condition, type, &check));
 	if (check)
 		return invoke_debugger(ptr, condition);
 	else

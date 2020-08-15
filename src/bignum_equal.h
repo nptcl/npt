@@ -24,12 +24,12 @@ _g int compare_bignum_value(addr value, fixnum right);
 _g int compare_fb_real(addr left, addr right);
 _g int compare_bf_real(addr left, addr right);
 _g int compare_bb_real(addr left, addr right);
-_g int compare_bs_real(addr left, addr right);
-_g int compare_bd_real(addr left, addr right);
-_g int compare_bl_real(addr left, addr right);
-_g int compare_sb_real(addr left, addr right);
-_g int compare_db_real(addr left, addr right);
-_g int compare_lb_real(addr left, addr right);
+_g int compare_bs_real_(addr left, addr right, int *ret);
+_g int compare_bd_real_(addr left, addr right, int *ret);
+_g int compare_bl_real_(addr left, addr right, int *ret);
+_g int compare_sb_real_(addr left, addr right, int *ret);
+_g int compare_db_real_(addr left, addr right, int *ret);
+_g int compare_lb_real_(addr left, addr right, int *ret);
 
 #endif
 

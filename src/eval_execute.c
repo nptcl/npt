@@ -219,7 +219,7 @@ static int eval_execute_scope(Execute ptr, LocalHold hold, addr pos)
 {
 	/* optimize parse */
 	localhold_set(hold, 0, pos);
-	optimize_parse(ptr->local, &pos, pos);
+	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
 	/* scope */
 	localhold_set(hold, 0, pos);
 	Return(eval_scope(ptr, &pos, pos));

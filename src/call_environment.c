@@ -502,7 +502,7 @@ static int dribble_set_stream_(addr file)
 	Return(force_output_stream_(output));
 	open_echo_stream(&echo, input, file);
 	list_heap(&broadcast, output, file, NULL);
-	open_broadcast_stream(&broadcast, broadcast);
+	Return(open_broadcast_stream_(&broadcast, broadcast));
 
 	/* variable */
 	Return(setvalue_symbol_(dfile, file));

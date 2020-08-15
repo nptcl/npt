@@ -547,12 +547,28 @@ int lisp_zerop(addr value)
 
 int lisp_plusp(addr value)
 {
-	return value && realp(value) && plusp_real_inplace(value);
+	int check;
+
+	if (value == NULL)
+		return 0;
+	if (! realp(value))
+		return 0;
+	Error(plusp_real_(value, &check));
+
+	return check;
 }
 
 int lisp_minusp(addr value)
 {
-	return value && realp(value) && minusp_real_inplace(value);
+	int check;
+
+	if (value == NULL)
+		return 0;
+	if (! realp(value))
+		return 0;
+	Error(minusp_real_(value, &check));
+
+	return check;
 }
 
 int lisp_get_character_(addr pos, unicode *ret)
@@ -567,102 +583,78 @@ int lisp_get_float_(addr pos, float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*ret = cast_ss_value(pos);
-			break;
+			return cast_ss_value_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = cast_ds_value(pos);
-			break;
+			return cast_ds_value_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			*ret = cast_ls_value(pos);
-			break;
+			return cast_ls_value_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
-			*ret = single_float_fixnum(pos);
-			break;
+			return Result(ret, single_float_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			*ret = single_float_bignum(pos);
-			break;
+			return single_float_bignum_(pos, ret);
 
 		case LISPTYPE_RATIO:
-			*ret = single_float_ratio(pos);
-			break;
+			return single_float_ratio_(pos, ret);
 
 		default:
 			return fmte_("The argument ~S must be a real type.", pos, NULL);
 	}
-
-	return 0;
 }
 
 int lisp_get_double_(addr pos, double *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*ret = cast_sd_value(pos);
-			break;
+			return cast_sd_value_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = cast_dd_value(pos);
-			break;
+			return cast_dd_value_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			*ret = cast_ld_value(pos);
-			break;
+			return cast_ld_value_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
-			*ret = double_float_fixnum(pos);
-			break;
+			return Result(ret, double_float_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			*ret = double_float_bignum(pos);
-			break;
+			return double_float_bignum_(pos, ret);
 
 		case LISPTYPE_RATIO:
-			*ret = double_float_ratio(pos);
-			break;
+			return double_float_ratio_(pos, ret);
 
 		default:
 			return fmte_("The argument ~S must be a real type.", pos, NULL);
 	}
-
-	return 0;
 }
 
 int lisp_get_long_double_(addr pos, long double *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*ret = cast_sl_value(pos);
-			break;
+			return cast_sl_value_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = cast_dl_value(pos);
-			break;
+			return cast_dl_value_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			*ret = cast_ll_value(pos);
-			break;
+			return cast_ll_value_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
-			*ret = long_float_fixnum(pos);
-			break;
+			return Result(ret, long_float_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			*ret = long_float_bignum(pos);
-			break;
+			return long_float_bignum_(pos, ret);
 
 		case LISPTYPE_RATIO:
-			*ret = long_float_ratio(pos);
-			break;
+			return long_float_ratio_(pos, ret);
 
 		default:
 			return fmte_("The argument ~S must be a real type.", pos, NULL);
 	}
-
-	return 0;
 }
 
 

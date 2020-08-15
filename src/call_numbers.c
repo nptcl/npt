@@ -439,7 +439,7 @@ _g int conjugate_common(addr var, addr *ret)
 	if (complexp(var)) {
 		GetRealComplex(var, &real);
 		GetImagComplex(var, &imag);
-		sign_reverse_real_common(imag, &imag);
+		Return(sign_reverse_real_common_(imag, &imag));
 		Return(complex_heap_(ret, real, imag));
 		return 0;
 	}
@@ -455,26 +455,28 @@ _g int conjugate_common(addr var, addr *ret)
 /*
  *  realpart
  */
-_g void realpart_common(addr var, addr *ret)
+_g int realpart_common_(addr var, addr *ret)
 {
 	if (complexp(var)) {
 		GetRealComplex(var, &var);
 	}
-	real_throw_heap(var, ret);
+
+	return real_throw_heap_(var, ret);
 }
 
 
 /*
  *  imagpart
  */
-_g void imagpart_common(addr var, addr *ret)
+_g int imagpart_common_(addr var, addr *ret)
 {
 	if (complexp(var)) {
 		GetImagComplex(var, &var);
-		real_throw_heap(var, ret);
+		return real_throw_heap_(var, ret);
 	}
 	else {
 		fixnum_heap(ret, 0);
+		return 0;
 	}
 }
 

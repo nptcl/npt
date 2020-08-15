@@ -242,7 +242,7 @@ static void bignum_copysign_alloc(LocalRoot local, int sign, addr pos, addr *ret
 	*ret = pos;
 }
 
-_g void integer_copysign_alloc(LocalRoot local, int sign, addr pos, addr *ret)
+_g int integer_copysign_alloc_(LocalRoot local, int sign, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -254,20 +254,22 @@ _g void integer_copysign_alloc(LocalRoot local, int sign, addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, INTEGER);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, INTEGER);
 	}
+
+	return 0;
 }
 
-_g void integer_copysign_local(LocalRoot local, int sign, addr pos, addr *ret)
+_g int integer_copysign_local_(LocalRoot local, int sign, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	integer_copysign_alloc(local, sign, pos, ret);
+	return integer_copysign_alloc_(local, sign, pos, ret);
 }
 
-_g void integer_copysign_heap(int sign, addr pos, addr *ret)
+_g int integer_copysign_heap_(int sign, addr pos, addr *ret)
 {
-	integer_copysign_alloc(NULL, sign, pos, ret);
+	return integer_copysign_alloc_(NULL, sign, pos, ret);
 }
 
 
@@ -369,61 +371,61 @@ _g long_float long_float_fixnum(addr pos)
 	return (long_float)RefFixnum(pos);
 }
 
-_g single_float single_float_bignum(addr pos)
+_g int single_float_bignum_(addr pos, single_float *ret)
 {
 	char buffer[64];
 	int sign;
 	size_t size;
-	single_float ret;
+	single_float value;
 
 	GetSizeBignum(pos, &size);
 	if (size == 1) {
 		GetSignBignum(pos, &sign);
 		GetRootBignum(pos, &pos);
-		ret = (single_float)PtrDataBignum(pos)[0];
-		return IsMinus(sign)? -ret: ret;
+		value = (single_float)PtrDataBignum(pos)[0];
+		return Result(ret, IsMinus(sign)? -value: value);
 	}
 	make_float_string(buffer, pos, LISP_FLOAT_SINGLE_FRACTION);
 
-	return check_strtof(buffer, pos);
+	return check_strtof_(buffer, pos, ret);
 }
 
-_g double_float double_float_bignum(addr pos)
+_g int double_float_bignum_(addr pos, double_float *ret)
 {
 	char buffer[64];
 	int sign;
 	size_t size;
-	double_float ret;
+	double_float value;
 
 	GetSizeBignum(pos, &size);
 	if (size == 1) {
 		GetSignBignum(pos, &sign);
 		GetRootBignum(pos, &pos);
-		ret = (double_float)PtrDataBignum(pos)[0];
-		return IsMinus(sign)? -ret: ret;
+		value = (double_float)PtrDataBignum(pos)[0];
+		return Result(ret, IsMinus(sign)? -value: value);
 	}
 	make_float_string(buffer, pos, LISP_FLOAT_DOUBLE_FRACTION);
 
-	return check_strtod(buffer, pos);
+	return check_strtod_(buffer, pos, ret);
 }
 
-_g long_float long_float_bignum(addr pos)
+_g int long_float_bignum_(addr pos, long_float *ret)
 {
 	char buffer[64];
 	int sign;
 	size_t size;
-	long_float ret;
+	long_float value;
 
 	GetSizeBignum(pos, &size);
 	if (size == 1) {
 		GetSignBignum(pos, &sign);
 		GetRootBignum(pos, &pos);
-		ret = (long_float)PtrDataBignum(pos)[0];
-		return IsMinus(sign)? -ret: ret;
+		value = (long_float)PtrDataBignum(pos)[0];
+		return Result(ret, IsMinus(sign)? -value: value);
 	}
 	make_float_string(buffer, pos, LISP_FLOAT_LONG_FRACTION);
 
-	return check_strtold(buffer, pos);
+	return check_strtold_(buffer, pos, ret);
 }
 
 _g void single_float_fixnum_alloc(LocalRoot local, addr *ret, addr pos)
@@ -474,52 +476,67 @@ _g void long_float_fixnum_heap(addr *ret, addr pos)
 	long_float_heap(ret, long_float_fixnum(pos));
 }
 
-_g void single_float_bignum_alloc(LocalRoot local, addr *ret, addr pos)
+_g int single_float_bignum_alloc_(LocalRoot local, addr *ret, addr pos)
 {
+	single_float value;
+
 	CheckType(pos, LISPTYPE_BIGNUM);
-	single_float_alloc(local, ret, single_float_bignum(pos));
+	Return(single_float_bignum_(pos, &value));
+	single_float_alloc(local, ret, value);
+
+	return 0;
 }
-_g void single_float_bignum_local(LocalRoot local, addr *ret, addr pos)
+_g int single_float_bignum_local_(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
-	single_float_local(local, ret, single_float_bignum(pos));
+	return single_float_bignum_alloc_(local, ret, pos);
 }
-_g void single_float_bignum_heap(addr *ret, addr pos)
+_g int single_float_bignum_heap_(addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
-	single_float_heap(ret, single_float_bignum(pos));
+	return single_float_bignum_alloc_(NULL, ret, pos);
 }
 
-_g void double_float_bignum_alloc(LocalRoot local, addr *ret, addr pos)
+_g int double_float_bignum_alloc_(LocalRoot local, addr *ret, addr pos)
 {
+	double_float value;
+
 	CheckType(pos, LISPTYPE_BIGNUM);
-	double_float_alloc(local, ret, double_float_bignum(pos));
+	Return(double_float_bignum_(pos, &value));
+	double_float_alloc(local, ret, value);
+
+	return 0;
 }
-_g void double_float_bignum_local(LocalRoot local, addr *ret, addr pos)
+_g int double_float_bignum_local_(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
-	double_float_local(local, ret, double_float_bignum(pos));
+	return double_float_bignum_alloc_(local, ret, pos);
 }
-_g void double_float_bignum_heap(addr *ret, addr pos)
+_g int double_float_bignum_heap_(addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
-	double_float_heap(ret, double_float_bignum(pos));
+	return double_float_bignum_alloc_(NULL, ret, pos);
 }
 
-_g void long_float_bignum_alloc(LocalRoot local, addr *ret, addr pos)
+_g int long_float_bignum_alloc_(LocalRoot local, addr *ret, addr pos)
 {
+	long_float value;
+
 	CheckType(pos, LISPTYPE_BIGNUM);
-	long_float_alloc(local, ret, long_float_bignum(pos));
+	Return(long_float_bignum_(pos, &value));
+	long_float_alloc(local, ret, value);
+
+	return 0;
 }
-_g void long_float_bignum_local(LocalRoot local, addr *ret, addr pos)
+_g int long_float_bignum_local_(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
-	long_float_local(local, ret, long_float_bignum(pos));
+	return long_float_bignum_alloc_(local, ret, pos);
 }
-_g void long_float_bignum_heap(addr *ret, addr pos)
+_g int long_float_bignum_heap_(addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
-	long_float_heap(ret, long_float_bignum(pos));
+	return long_float_bignum_alloc_(NULL, ret, pos);
 }
 
 
@@ -763,10 +780,12 @@ _g int GetFixnum_signed(addr pos, fixnum *ret)
 	return 1;
 }
 
-_g void getfixnum_signed(addr pos, fixnum *ret)
+_g int getfixnum_signed_(addr pos, fixnum *ret)
 {
 	if (GetFixnum_signed(pos, ret))
-		TypeError(pos, FIXNUM);
+		return TypeError_(pos, FIXNUM);
+
+	return 0;
 }
 
 _g int GetFixnum_unsigned(addr pos, fixnum *ret)
@@ -792,14 +811,16 @@ _g int GetFixnum_unsigned(addr pos, fixnum *ret)
 	return 0;
 }
 
-_g void getfixnum_unsigned(addr pos, fixnum *ret)
+_g int getfixnum_unsigned_(addr pos, fixnum *ret)
 {
 	addr type;
 
 	if (GetFixnum_unsigned(pos, ret)) {
 		type4integer_heap(Nil, 0, Nil, FIXNUM_MAX, &type);
-		type_error(pos, type);
+		return call_type_error_(NULL, pos, type);
 	}
+
+	return 0;
 }
 
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret)

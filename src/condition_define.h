@@ -59,17 +59,26 @@ _g void floating_point_invalid_operation(addr operation, addr operands);
 _g void floating_point_invalid_operation_constant(constindex index, addr operands);
 _g void floating_point_invalid_operation_stdarg(constindex index, ...);
 
+_g int call_float_invalid_(Execute ptr, addr operation, addr operands);
+_g int call_float_invalid_const_(Execute ptr, constindex index, addr operands);
+
 /* floating_point_overflow */
 _g void instance_floating_point_overflow(addr *ret, addr operation, addr operands);
 _g void floating_point_overflow(addr operation, addr operands);
 _g void floating_point_overflow_constant(constindex index, addr operands);
 _g void floating_point_overflow_stdarg(constindex index, ...);
 
+_g int call_floating_point_overflow_(Execute ptr, addr operation, addr operands);
+_g int call_floating_point_overflow_const_(Execute ptr, constindex id, addr list);
+
 /* floating_point_underflow */
 _g void instance_floating_point_underflow(addr *ret, addr operation, addr operands);
 _g void floating_point_underflow(addr operation, addr operands);
 _g void floating_point_underflow_constant(constindex index, addr operands);
 _g void floating_point_underflow_stdarg(constindex index, ...);
+
+_g int call_floating_point_underflow_(Execute ptr, addr operation, addr operands);
+_g int call_floating_point_underflow_const_(Execute ptr, constindex id, addr list);
 
 /* division_by_zero */
 _g void instance_division_by_zero(addr *ret, addr operation, addr operands);
@@ -145,7 +154,6 @@ _g void style_warning(void);
 _g void instance_type_error(addr *ret, addr datum, addr expected);
 _g void type_error(addr datum, addr expected);
 _g void type_error_constant(addr datum, constindex expected);
-#define TypeError(a,b) type_error_constant((a), CONSTANT_COMMON_##b)
 _g void type_error_datum(addr instance, addr *ret);
 _g void type_error_expected(addr instance, addr *ret);
 _g int typep_error(Execute ptr, addr value, addr type);

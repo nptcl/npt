@@ -1158,7 +1158,7 @@ static int test_english_unit(void)
 			degrade_printf("fscanf error\n");
 			break;
 		}
-		pos = readr(str1);
+		pos = readr_debug(str1);
 		push_local(local, &stack);
 		Error(english_unit_local_(local, &pos, pos, 1));
 		check = string_equal_char_debug(pos, str2);

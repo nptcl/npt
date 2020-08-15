@@ -108,7 +108,7 @@ static int test_bq_process_list(void)
 {
 	addr pos, check, value;
 
-	readstring(&pos, "(10 20)");
+	readstring_debug(&pos, "(10 20)");
 	bq_process_list_(pos, &pos);
 	test(quote_append_p(pos), "bq_process_list1");
 	getvalue_quote(pos, &pos);
@@ -133,7 +133,7 @@ static int test_bq_process_list(void)
 	test(RefFixnum(value) == 20, "bq_process_list11");
 	test(check == Nil, "bq_process_list12");
 
-	readstring(&pos, "(10 . 20)");
+	readstring_debug(&pos, "(10 . 20)");
 	bq_process_list_(pos, &pos);
 	test(quote_append_p(pos), "bq_process_list13");
 	getvalue_quote(pos, &pos);
@@ -153,8 +153,8 @@ static int test_bq_process_list(void)
 	getvalue_quote(check, &check);
 	test(RefFixnum(check) == 20, "bq_process_list21");
 
-	quote_heap(&pos, QuoteType_Comma, readr("20"));
-	cons_heap(&pos, readr("10"), pos);
+	quote_heap(&pos, QuoteType_Comma, readr_debug("20"));
+	cons_heap(&pos, readr_debug("10"), pos);
 	bq_process_list_(pos, &pos);
 	test(quote_append_p(pos), "bq_process_list22");
 	getvalue_quote(pos, &pos);
@@ -179,16 +179,16 @@ static int test_bq_process(void)
 {
 	addr pos, check, value;
 
-	bq_process_(readr("10"), &pos);
+	bq_process_(readr_debug("10"), &pos);
 	test(quote_quote_p(pos), "bq_process1");
 	getvalue_quote(pos, &pos);
 	test(RefFixnum(pos) == 10, "bq_process2");
 
-	quote_heap(&pos, QuoteType_Comma, readr("10"));
+	quote_heap(&pos, QuoteType_Comma, readr_debug("10"));
 	bq_process_(pos, &pos);
 	test(RefFixnum(pos) == 10, "bq_process3");
 
-	readstring(&pos, "(10 20)");
+	readstring_debug(&pos, "(10 20)");
 	bq_process_(pos, &pos);
 	test(quote_append_p(pos), "bq_process4");
 	getvalue_quote(pos, &pos);
@@ -234,7 +234,7 @@ static int test_bq_maptree(void)
 	getvalue_quote(pos, &pos);
 	test(RefFixnum(pos) == 21, "bq_maptree3");
 
-	readstring(&pos, "(10 20)");
+	readstring_debug(&pos, "(10 20)");
 	bq_maptree_(test_bq_maptree1, pos, &pos);
 	GetCons(pos, &check, &pos);
 	test(RefFixnum(check) == 11, "bq_maptree4");
@@ -303,14 +303,14 @@ static int test_bq_attach_append(void)
 {
 	addr pos, left, right;
 
-	bq_attach_append_(readr("10"), Nil, &pos);
+	bq_attach_append_(readr_debug("10"), Nil, &pos);
 	test(RefFixnum(pos) == 10, "bq_attach_append1");
 
 	quote_heap(&pos, QuoteExecute_Quote, Nil);
-	bq_attach_append_(readr("20"), pos, &pos);
+	bq_attach_append_(readr_debug("20"), pos, &pos);
 	test(RefFixnum(pos) == 20, "bq_attach_append2");
 
-	quote_heap(&pos, QuoteType_AtSign, readr("30"));
+	quote_heap(&pos, QuoteType_AtSign, readr_debug("30"));
 	bq_attach_append_(pos, Nil, &pos);
 	test(quote_append_p(pos), "bq_attach_append3");
 	getvalue_quote(pos, &pos);
@@ -320,46 +320,46 @@ static int test_bq_attach_append(void)
 	getvalue_quote(pos, &pos);
 	test(RefFixnum(pos) == 30, "bq_attach_append6");
 
-	quote_heap(&left, QuoteExecute_Quote, readr("(a b)"));
-	quote_heap(&right, QuoteExecute_Quote, readr("(c d e)"));
+	quote_heap(&left, QuoteExecute_Quote, readr_debug("(a b)"));
+	quote_heap(&right, QuoteExecute_Quote, readr_debug("(c d e)"));
 	bq_attach_append_(left, right, &pos);
 	test(quote_quote_p(pos), "bq_attach_append7");
 	getvalue_quote(pos, &pos);
 	test(length_list_unsafe(pos) == 5, "bq_attach_append8");
 	GetCons(pos, &left, &pos);
-	test(left == readr("a"), "bq_attach_append9");
+	test(left == readr_debug("a"), "bq_attach_append9");
 	GetCons(pos, &left, &pos);
-	test(left == readr("b"), "bq_attach_append10");
+	test(left == readr_debug("b"), "bq_attach_append10");
 	GetCons(pos, &left, &pos);
-	test(left == readr("c"), "bq_attach_append11");
+	test(left == readr_debug("c"), "bq_attach_append11");
 	GetCons(pos, &left, &pos);
-	test(left == readr("d"), "bq_attach_append12");
+	test(left == readr_debug("d"), "bq_attach_append12");
 	GetCons(pos, &left, &pos);
-	test(left == readr("e"), "bq_attach_append13");
+	test(left == readr_debug("e"), "bq_attach_append13");
 	test(pos == Nil, "bq_attach_append14");
 
-	readstring(&left, "a");
-	quote_heap(&right, QuoteExecute_Append, readr("(b c)"));
+	readstring_debug(&left, "a");
+	quote_heap(&right, QuoteExecute_Append, readr_debug("(b c)"));
 	bq_attach_append_(left, right, &pos);
 	test(quote_append_p(pos), "bq_attach_append15");
 	getvalue_quote(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "bq_attach_append16");
 	GetCons(pos, &left, &pos);
-	test(left == readr("a"), "bq_attach_append17");
+	test(left == readr_debug("a"), "bq_attach_append17");
 	GetCons(pos, &left, &pos);
-	test(left == readr("b"), "bq_attach_append18");
+	test(left == readr_debug("b"), "bq_attach_append18");
 	GetCons(pos, &left, &pos);
-	test(left == readr("c"), "bq_attach_append19");
+	test(left == readr_debug("c"), "bq_attach_append19");
 	test(pos == Nil, "bq_attach_append20");
 
-	bq_attach_append_(readr("a"), readr("b"), &pos);
+	bq_attach_append_(readr_debug("a"), readr_debug("b"), &pos);
 	test(quote_append_p(pos), "bq_attach_append21");
 	getvalue_quote(pos, &pos);
 	test(length_list_unsafe(pos) == 2, "bq_attach_append22");
 	GetCons(pos, &left, &pos);
-	test(left == readr("a"), "bq_attach_append23");
+	test(left == readr_debug("a"), "bq_attach_append23");
 	GetCons(pos, &left, &pos);
-	test(left == readr("b"), "bq_attach_append24");
+	test(left == readr_debug("b"), "bq_attach_append24");
 	test(pos == Nil, "bq_attach_append25");
 
 	RETURN;
@@ -408,11 +408,11 @@ static int test_bq_every_null_or_quoted(void)
 	bq_every_null_or_quoted_(Nil, &check);
 	test(check, "bq_every_null_or_quoted1");
 
-	readstring(&pos, "(nil)");
+	readstring_debug(&pos, "(nil)");
 	bq_every_null_or_quoted_(pos, &check);
 	test(check, "bq_every_null_or_quoted2");
 
-	readstring(&pos, "(t)");
+	readstring_debug(&pos, "(t)");
 	bq_every_null_or_quoted_(pos, &check);
 	test(! check, "bq_every_null_or_quoted3");
 
@@ -421,7 +421,7 @@ static int test_bq_every_null_or_quoted(void)
 	bq_every_null_or_quoted_(pos, &check);
 	test(check, "bq_every_null_or_quoted4");
 
-	readstring(&pos, "(nil t)");
+	readstring_debug(&pos, "(nil t)");
 	bq_every_null_or_quoted_(pos, &check);
 	test(! check, "bq_every_null_or_quoted5");
 
@@ -432,20 +432,20 @@ static int test_bq_attach_conses_mapcar(void)
 {
 	addr a, b, c, pos, check;
 
-	quote_heap(&a, QuoteExecute_Quote, readr("a"));
-	quote_heap(&b, QuoteExecute_Quote, readr("b"));
-	quote_heap(&c, QuoteExecute_Quote, readr("c"));
+	quote_heap(&a, QuoteExecute_Quote, readr_debug("a"));
+	quote_heap(&b, QuoteExecute_Quote, readr_debug("b"));
+	quote_heap(&c, QuoteExecute_Quote, readr_debug("c"));
 	list_heap(&pos, a, b, Nil, NULL);
 	bq_attach_conses_mapcar_(pos, c, &pos);
 	test(quote_quote_p(pos), "bq_attach_conses_mapcar1");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_attach_conses_mapcar2");
+	test(check == readr_debug("a"), "bq_attach_conses_mapcar2");
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_attach_conses_mapcar3");
+	test(check == readr_debug("b"), "bq_attach_conses_mapcar3");
 	GetCons(pos, &check, &pos);
 	test(check == Nil, "bq_attach_conses_mapcar4");
-	test(pos == readr("c"), "bq_attach_conses_mapcar5");
+	test(pos == readr_debug("c"), "bq_attach_conses_mapcar5");
 
 	RETURN;
 }
@@ -454,48 +454,48 @@ static int test_bq_attach_conses(void)
 {
 	addr a, b, pos, check;
 
-	quote_heap(&a, QuoteExecute_Quote, readr("a"));
-	quote_heap(&b, QuoteExecute_Quote, readr("b"));
+	quote_heap(&a, QuoteExecute_Quote, readr_debug("a"));
+	quote_heap(&b, QuoteExecute_Quote, readr_debug("b"));
 	list_heap(&pos, a, NULL);
 	bq_attach_conses_(pos, b, &pos);
 	test(quote_quote_p(pos), "bq_attach_conses1");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_attach_conses2");
-	test(pos == readr("b"), "bq_attach_conses3");
+	test(check == readr_debug("a"), "bq_attach_conses2");
+	test(pos == readr_debug("b"), "bq_attach_conses3");
 
-	list_heap(&pos, readr("a"), NULL);
+	list_heap(&pos, readr_debug("a"), NULL);
 	bq_attach_conses_(pos, Nil, &pos);
 	test(quote_list_p(pos), "bq_attach_conses4");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_attach_conses5");
+	test(check == readr_debug("a"), "bq_attach_conses5");
 	test(pos == Nil, "bq_attach_conses6");
 
-	list_heap(&a, readr("a"), readr("b"), NULL);
-	list_heap(&b, readr("c"), readr("d"), NULL);
+	list_heap(&a, readr_debug("a"), readr_debug("b"), NULL);
+	list_heap(&b, readr_debug("c"), readr_debug("d"), NULL);
 	quote_heap(&b, QuoteExecute_Lista, b);
 	bq_attach_conses_(a, b, &pos);
 	test(quote_lista_p(pos), "bq_attach_conses7");
 	getvalue_quote(pos, &pos);
-	readstring(&check, "(a b c d)");
+	readstring_debug(&check, "(a b c d)");
 	test(equal_debug(pos, check), "bq_attach_conses8");
 
-	list_heap(&a, readr("a"), readr("b"), NULL);
-	list_heap(&b, readr("c"), readr("d"), NULL);
+	list_heap(&a, readr_debug("a"), readr_debug("b"), NULL);
+	list_heap(&b, readr_debug("c"), readr_debug("d"), NULL);
 	quote_heap(&b, QuoteExecute_List, b);
 	bq_attach_conses_(a, b, &pos);
 	test(quote_list_p(pos), "bq_attach_conses9");
 	getvalue_quote(pos, &pos);
-	readstring(&check, "(a b c d)");
+	readstring_debug(&check, "(a b c d)");
 	test(equal_debug(pos, check), "bq_attach_conses10");
 
-	list_heap(&a, readr("a"), readr("b"), NULL);
-	readstring(&b, "c");
+	list_heap(&a, readr_debug("a"), readr_debug("b"), NULL);
+	readstring_debug(&b, "c");
 	bq_attach_conses_(a, b, &pos);
 	test(quote_lista_p(pos), "bq_attach_conses11");
 	getvalue_quote(pos, &pos);
-	readstring(&check, "(a b c)");
+	readstring_debug(&check, "(a b c)");
 	test(equal_debug(pos, check), "bq_attach_conses12");
 
 	RETURN;
@@ -505,24 +505,24 @@ static int test_bq_attach_conses_lista(void)
 {
 	addr a, b, pos, check;
 
-	readstring(&a, "(a b c)");
-	readstring(&b, "d");
+	readstring_debug(&a, "(a b c)");
+	readstring_debug(&b, "d");
 	quote_heap(&a, QuoteExecute_List, a);
 	bq_attach_conses_lista_(a, b, &pos);
 	test(quote_lista_p(pos), "bq_attach_conses_lista1");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_attach_conses_lista2");
+	test(check == readr_debug("a"), "bq_attach_conses_lista2");
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_attach_conses_lista3");
+	test(check == readr_debug("b"), "bq_attach_conses_lista3");
 	GetCons(pos, &check, &pos);
 	test(quote_append_p(check), "bq_attach_conses_lista4");
 	test(pos == Nil, "bq_attach_conses_lista5");
 	getvalue_quote(check, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("c"), "bq_attach_conses_lista6");
+	test(check == readr_debug("c"), "bq_attach_conses_lista6");
 	GetCons(pos, &check, &pos);
-	test(check == readr("d"), "bq_attach_conses_lista7");
+	test(check == readr_debug("d"), "bq_attach_conses_lista7");
 	test(pos == Nil, "bq_attach_conses_lista8");
 
 	RETURN;
@@ -549,16 +549,16 @@ static int test_bq_simplify_quote_p(void)
 {
 	addr pos;
 
-	list_heap(&pos, readr("x"), NULL);
+	list_heap(&pos, readr_debug("x"), NULL);
 	quote_heap(&pos, QuoteExecute_Quote, pos);
 	test(bq_simplify_quote_p(pos, &pos), "bq_simplify_quote_p1");
-	test(pos == readr("x"), "bq_simplify_quote_p2");
+	test(pos == readr_debug("x"), "bq_simplify_quote_p2");
 
-	list_heap(&pos, readr("x"), NULL);
+	list_heap(&pos, readr_debug("x"), NULL);
 	quote_heap(&pos, QuoteExecute_Append, pos);
 	test(! bq_simplify_quote_p(pos, &pos), "bq_simplify_quote_p3");
 
-	list_heap(&pos, readr("x"), readr("y"), NULL);
+	list_heap(&pos, readr_debug("x"), readr_debug("y"), NULL);
 	quote_heap(&pos, QuoteExecute_Quote, pos);
 	test(! bq_simplify_quote_p(pos, &pos), "bq_simplify_quote_p4");
 
@@ -572,51 +572,51 @@ static int test_bq_simplify_args(void)
 	bq_simplify_args_(Nil, &pos);
 	test(pos == Nil, "bq_simplify_args1");
 
-	readstring(&pos, "(a)");
+	readstring_debug(&pos, "(a)");
 	bq_simplify_args_(pos, &pos);
-	test(pos == readr("a"), "bq_simplify_args2");
+	test(pos == readr_debug("a"), "bq_simplify_args2");
 
-	readstring(&pos, "(a b)");
+	readstring_debug(&pos, "(a b)");
 	bq_simplify_args_(pos, &pos);
 	test(quote_append_p(pos), "bq_simplify_args3");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_simplify_args4");
+	test(check == readr_debug("a"), "bq_simplify_args4");
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_simplify_args5");
+	test(check == readr_debug("b"), "bq_simplify_args5");
 	test(pos == Nil, "bq_simplify_args6");
 
-	readstring(&a, "(a b)");
+	readstring_debug(&a, "(a b)");
 	quote_heap(&a, QuoteExecute_List, a);
-	readstring(&b, "c");
+	readstring_debug(&b, "c");
 	list_heap(&pos, a, b, NULL);
 	bq_simplify_args_(pos, &pos);
 	test(quote_lista_p(pos), "bq_simplify_args7");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(a b c)")), "bq_simplify_args8");
+	test(equal_debug(pos, readr_debug("(a b c)")), "bq_simplify_args8");
 
-	readstring(&a, "(a b)");
+	readstring_debug(&a, "(a b)");
 	quote_heap(&a, QuoteExecute_Lista, a);
-	readstring(&b, "c");
+	readstring_debug(&b, "c");
 	list_heap(&pos, a, b, NULL);
 	bq_simplify_args_(pos, &pos);
 	test(quote_lista_p(pos), "bq_simplify_args9");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_simplify_args10");
+	test(check == readr_debug("a"), "bq_simplify_args10");
 	GetCons(pos, &check, &pos);
 	test(quote_append_p(check), "bq_simplify_args11");
 	test(pos == Nil, "bq_simplify_args12");
 	getvalue_quote(check, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_simplify_args13");
+	test(check == readr_debug("b"), "bq_simplify_args13");
 	GetCons(pos, &check, &pos);
-	test(check == readr("c"), "bq_simplify_args14");
+	test(check == readr_debug("c"), "bq_simplify_args14");
 	test(pos == Nil, "bq_simplify_args15");
 
-	readstring(&a, "(a)");
+	readstring_debug(&a, "(a)");
 	quote_heap(&a, QuoteExecute_Quote, a);
-	readstring(&b, "b");
+	readstring_debug(&b, "b");
 	list_heap(&pos, a, b, NULL);
 	bq_simplify_args_(pos, &pos);
 	test(quote_lista_p(pos), "bq_simplify_args16");
@@ -624,25 +624,25 @@ static int test_bq_simplify_args(void)
 	GetCons(pos, &check, &pos);
 	test(quote_quote_p(check), "bq_simplify_args17");
 	getvalue_quote(check, &check);
-	test(check == readr("a"), "bq_simplify_args18");
+	test(check == readr_debug("a"), "bq_simplify_args18");
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_simplify_args19");
+	test(check == readr_debug("b"), "bq_simplify_args19");
 	test(pos == Nil, "bq_simplify_args20");
 
-	quote_heap(&a, QuoteExecute_Clobberable, readr("a"));
-	readstring(&b, "b");
+	quote_heap(&a, QuoteExecute_Clobberable, readr_debug("a"));
+	readstring_debug(&b, "b");
 	list_heap(&pos, a, b, NULL);
 	bq_simplify_args_(pos, &pos);
 	test(quote_nconc_p(pos), "bq_simplify_args21");
 	getvalue_quote(pos, &pos);
 	GetCons(pos, &check, &pos);
-	test(check == readr("a"), "bq_simplify_args22");
+	test(check == readr_debug("a"), "bq_simplify_args22");
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_simplify_args23");
+	test(check == readr_debug("b"), "bq_simplify_args23");
 	test(pos == Nil, "bq_simplify_args24");
 
-	quote_heap(&a, QuoteType_Comma, readr("a"));
-	readstring(&b, "b");
+	quote_heap(&a, QuoteType_Comma, readr_debug("a"));
+	readstring_debug(&b, "b");
 	list_heap(&pos, a, b, NULL);
 	bq_simplify_args_(pos, &pos);
 	test(quote_append_p(pos), "bq_simplify_args25");
@@ -650,7 +650,7 @@ static int test_bq_simplify_args(void)
 	GetCons(pos, &check, &pos);
 	test(quote_comma_p(check), "bq_simplify_args26");
 	GetCons(pos, &check, &pos);
-	test(check == readr("b"), "bq_simplify_args27");
+	test(check == readr_debug("b"), "bq_simplify_args27");
 	test(pos == Nil, "bq_simplify_args28");
 
 	RETURN;
@@ -660,15 +660,15 @@ static int test_bq_simplify(void)
 {
 	addr pos;
 
-	bq_simplify_(readr("10"), &pos);
+	bq_simplify_(readr_debug("10"), &pos);
 	test(RefFixnum(pos) == 10, "bq_simplify1");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Quote, pos);
 	bq_simplify_(pos, &pos);
 	test(quote_quote_p(pos), "bq_simplify2");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(a b c)")), "bq_simplify3");
+	test(equal_debug(pos, readr_debug("(a b c)")), "bq_simplify3");
 
 	RETURN;
 }
@@ -681,10 +681,10 @@ static int test_bq_remove_tokens_list(void)
 {
 	addr pos;
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_List, pos);
 	bq_remove_tokens_list_(CONSTANT_COMMON_LIST, pos, &pos);
-	test(equal_debug(pos, readr("(list a b c)")), "bq_remove_tokens_list1");
+	test(equal_debug(pos, readr_debug("(list a b c)")), "bq_remove_tokens_list1");
 
 	RETURN;
 }
@@ -693,19 +693,19 @@ static int test_quote_lista_cons_p(void)
 {
 	addr pos;
 
-	readstring(&pos, "(a b)");
+	readstring_debug(&pos, "(a b)");
 	quote_heap(&pos, QuoteExecute_Lista, pos);
 	test(quote_lista_cons_p(pos), "quote_lista_cons_p1");
 
-	readstring(&pos, "(a b)");
+	readstring_debug(&pos, "(a b)");
 	quote_heap(&pos, QuoteExecute_List, pos);
 	test(! quote_lista_cons_p(pos), "quote_lista_cons_p2");
 
-	readstring(&pos, "(a)");
+	readstring_debug(&pos, "(a)");
 	quote_heap(&pos, QuoteExecute_Lista, pos);
 	test(! quote_lista_cons_p(pos), "quote_lista_cons_p3");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Lista, pos);
 	test(! quote_lista_cons_p(pos), "quote_lista_cons_p4");
 
@@ -716,10 +716,10 @@ static int test_bq_remove_tokens_cons(void)
 {
 	addr pos;
 
-	readstring(&pos, "(a b)");
+	readstring_debug(&pos, "(a b)");
 	quote_heap(&pos, QuoteExecute_Lista, pos);
 	bq_remove_tokens_cons_(pos, &pos);
-	test(equal_debug(pos, readr("(cons a b)")), "bq_remove_tokens_cons1");
+	test(equal_debug(pos, readr_debug("(cons a b)")), "bq_remove_tokens_cons1");
 
 	RETURN;
 }
@@ -728,48 +728,48 @@ static int test_bq_remove_tokens(void)
 {
 	addr pos;
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_List, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(list a b c)")), "bq_remove_tokens1");
+	test(equal_debug(pos, readr_debug("(list a b c)")), "bq_remove_tokens1");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Append, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(append a b c)")), "bq_remove_tokens2");
+	test(equal_debug(pos, readr_debug("(append a b c)")), "bq_remove_tokens2");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Nconc, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(nconc a b c)")), "bq_remove_tokens3");
+	test(equal_debug(pos, readr_debug("(nconc a b c)")), "bq_remove_tokens3");
 
-	readstring(&pos, "(a b)");
+	readstring_debug(&pos, "(a b)");
 	quote_heap(&pos, QuoteExecute_Lista, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(cons a b)")), "bq_remove_tokens4");
+	test(equal_debug(pos, readr_debug("(cons a b)")), "bq_remove_tokens4");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Lista, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(list* a b c)")), "bq_remove_tokens5");
+	test(equal_debug(pos, readr_debug("(list* a b c)")), "bq_remove_tokens5");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Quote, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(quote (a b c))")), "bq_remove_tokens6");
+	test(equal_debug(pos, readr_debug("(quote (a b c))")), "bq_remove_tokens6");
 
-	readstring(&pos, "(a b c)");
+	readstring_debug(&pos, "(a b c)");
 	quote_heap(&pos, QuoteExecute_Clobberable, pos);
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(a b c)")), "bq_remove_tokens7");
+	test(equal_debug(pos, readr_debug("(a b c)")), "bq_remove_tokens7");
 
-	readstring(&pos, "a");
+	readstring_debug(&pos, "a");
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("a")), "bq_remove_tokens8");
+	test(equal_debug(pos, readr_debug("a")), "bq_remove_tokens8");
 
-	readstring(&pos, "(a . b)");
+	readstring_debug(&pos, "(a . b)");
 	bq_remove_tokens_(pos, &pos);
-	test(equal_debug(pos, readr("(a . b)")), "bq_remove_tokens9");
+	test(equal_debug(pos, readr_debug("(a . b)")), "bq_remove_tokens9");
 
 	RETURN;
 }
@@ -782,33 +782,33 @@ static int test_quote_back_heap(void)
 {
 	addr pos;
 
-	readstring(&pos, "`(a ,b)");
+	readstring_debug(&pos, "`(a ,b)");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(list 'a b)")), "quote_back_heap1");
+	test(equal_debug(pos, readr_debug("(list 'a b)")), "quote_back_heap1");
 
-	readstring(&pos, "`(10 20 ,(+ 10 20))");
+	readstring_debug(&pos, "`(10 20 ,(+ 10 20))");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(list '10 '20 (+ 10 20))")), "quote_back_heap2");
+	test(equal_debug(pos, readr_debug("(list '10 '20 (+ 10 20))")), "quote_back_heap2");
 
-	readstring(&pos, "`(10 20 ,@(list 30 40))");
+	readstring_debug(&pos, "`(10 20 ,@(list 30 40))");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(list* '10 '20 (list 30 40))")), "quote_back_heap3");
+	test(equal_debug(pos, readr_debug("(list* '10 '20 (list 30 40))")), "quote_back_heap3");
 
-	readstring(&pos, "``(,,q)");
+	readstring_debug(&pos, "``(,,q)");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(list 'list q)")), "quote_back_heap4");
+	test(equal_debug(pos, readr_debug("(list 'list q)")), "quote_back_heap4");
 
-	readstring(&pos, "``(,@,q)");
+	readstring_debug(&pos, "``(,@,q)");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("q")), "quote_back_heap5");
+	test(equal_debug(pos, readr_debug("q")), "quote_back_heap5");
 
-	readstring(&pos, "``(,,@q)");
+	readstring_debug(&pos, "``(,,@q)");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(cons 'list q)")), "quote_back_heap6");
+	test(equal_debug(pos, readr_debug("(cons 'list q)")), "quote_back_heap6");
 
-	readstring(&pos, "``(,@,@q)");
+	readstring_debug(&pos, "``(,@,@q)");
 	getvalue_quote(pos, &pos);
-	test(equal_debug(pos, readr("(cons 'append q)")), "quote_back_heap7");
+	test(equal_debug(pos, readr_debug("(cons 'append q)")), "quote_back_heap7");
 
 	RETURN;
 }

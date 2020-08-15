@@ -20,7 +20,8 @@ struct optimize_struct {
 	struct optimize_value value;
 };
 
-typedef int (*optimize_call)(struct optimize_struct *);
+typedef struct optimize_struct OptimizeInfo;
+typedef int (*optimize_call)(struct optimize_struct *, int *);
 
 _g void save_optimize_value(const struct optimize_struct *str,
 		struct optimize_value *save);
@@ -32,7 +33,7 @@ _g int optimize_speed_on(struct optimize_struct *str);
 _g int optimize_evaltype(addr pos, EvalParse type);
 _g int optimize_evaltype_on(struct optimize_struct *str, EvalParse type);
 _g void optimize_initialize(struct optimize_struct *str, LocalRoot local, addr pos);
-_g int optimize_extract(struct optimize_struct *str, optimize_call call);
+_g int optimize_extract_(struct optimize_struct *str, optimize_call call);
 
 #endif
 

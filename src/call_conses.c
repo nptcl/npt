@@ -1803,7 +1803,7 @@ _g int nreconc_common(addr list, addr tail, addr *ret)
 /*
  *  butlast
  */
-static int index_butlast_cons(addr list, size_t index, addr *ret)
+static int index_butlast_cons_(addr list, size_t index, addr *ret)
 {
 	addr root, pos;
 	size_t size;
@@ -1820,15 +1820,19 @@ static int index_butlast_cons(addr list, size_t index, addr *ret)
 	return 0;
 }
 
-static int large_butlast_cons(addr list, addr index, addr *ret)
+static int large_butlast_cons_(addr list, addr index, addr *ret)
 {
+	int check;
 	addr size;
 	size_t value;
 
 	length_list_p(list, &value);
 	size = intsizeh(value);
-	if (! less_equal_integer(size, index))
+	Return(less_equal_integer_(size, index, &check));
+	if (! check) {
+		*ret = Nil;
 		return fmte_("Too large butlast index ~S.", index, NULL);
+	}
 
 	return Result(ret, Nil);
 }
@@ -1838,18 +1842,18 @@ _g int butlast_common(addr list, addr index, addr *ret)
 	size_t size;
 
 	if (index == Unbound)
-		return index_butlast_cons(list, 1, ret);
+		return index_butlast_cons_(list, 1, ret);
 	if (GetIndex_integer(index, &size))
-		return large_butlast_cons(list, index, ret);
+		return large_butlast_cons_(list, index, ret);
 	else
-		return index_butlast_cons(list, size, ret);
+		return index_butlast_cons_(list, size, ret);
 }
 
 
 /*
  *  nbutlast
  */
-static int index_nbutlast_cons(addr list, size_t index, addr *ret)
+static int index_nbutlast_cons_(addr list, size_t index, addr *ret)
 {
 	size_t size;
 
@@ -1864,15 +1868,19 @@ static int index_nbutlast_cons(addr list, size_t index, addr *ret)
 	return 0;
 }
 
-static int large_nbutlast_cons(addr list, addr index, addr *ret)
+static int large_nbutlast_cons_(addr list, addr index, addr *ret)
 {
+	int check;
 	addr size;
 	size_t value;
 
 	length_list_p(list, &value);
 	size = intsizeh(value);
-	if (! less_equal_integer(size, index))
+	Return(less_equal_integer_(size, index, &check));
+	if (! check) {
+		*ret = Nil;
 		return fmte_("Too large nbutlast index ~S.", index, NULL);
+	}
 
 	return Result(ret, Nil);
 }
@@ -1882,18 +1890,18 @@ _g int nbutlast_common(addr list, addr index, addr *ret)
 	size_t size;
 
 	if (index == Unbound)
-		return index_nbutlast_cons(list, 1, ret);
+		return index_nbutlast_cons_(list, 1, ret);
 	if (GetIndex_integer(index, &size))
-		return large_nbutlast_cons(list, index, ret);
+		return large_nbutlast_cons_(list, index, ret);
 	else
-		return index_nbutlast_cons(list, size, ret);
+		return index_nbutlast_cons_(list, size, ret);
 }
 
 
 /*
  *  last
  */
-static int index_last_cons(addr list, size_t index, addr *ret)
+static int index_last_cons_(addr list, size_t index, addr *ret)
 {
 	size_t size;
 
@@ -1908,15 +1916,19 @@ static int index_last_cons(addr list, size_t index, addr *ret)
 	return Result(ret, list);
 }
 
-static int large_last_cons(addr list, addr index, addr *ret)
+static int large_last_cons_(addr list, addr index, addr *ret)
 {
+	int check;
 	addr size;
 	size_t value;
 
 	length_list_p(list, &value);
 	size = intsizeh(value);
-	if (! less_equal_integer(size, index))
+	Return(less_equal_integer_(size, index, &check));
+	if (! check) {
+		*ret = Nil;
 		return fmte_("Too large nbutlast index ~S.", index, NULL);
+	}
 
 	return Result(ret, list);
 }
@@ -1926,11 +1938,11 @@ _g int last_common(addr list, addr index, addr *ret)
 	size_t size;
 
 	if (index == Unbound)
-		return index_last_cons(list, 1, ret);
+		return index_last_cons_(list, 1, ret);
 	if (GetIndex_integer(index, &size))
-		return large_last_cons(list, index, ret);
+		return large_last_cons_(list, index, ret);
 	else
-		return index_last_cons(list, size, ret);
+		return index_last_cons_(list, size, ret);
 }
 
 

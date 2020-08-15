@@ -52,12 +52,13 @@ static void test_parse_type(addr *ret, addr pos)
 
 static void parse_type_string(addr *ret, const char *code)
 {
-	readstring(ret, code);
+	readstring_debug(ret, code);
 	test_parse_type(ret, *ret);
 }
 
 static int test_optimize_optimized(void)
 {
+	int check;
 	addr aster, pos;
 	LocalRoot local;
 	LocalStack stack;
@@ -67,15 +68,18 @@ static int test_optimize_optimized(void)
 
 	type_asterisk_local(local, &aster);
 	type1_local(local, LISPDECL_OPTIMIZED, aster, &pos);
-	test(optimize_optimized(local, &pos, pos), "optimize_optimized1");
+	optimize_optimized_(local, pos, &pos, &check);
+	test(check, "optimize_optimized1");
 	test(pos == aster, "optimize_optimized2");
 
 	type_asterisk_local(local, &aster);
 	type1_local(local, LISPDECL_SUBTYPEP, aster, &pos);
-	test(optimize_optimized(local, &pos, pos), "optimize_optimized3");
+	optimize_optimized_(local, pos, &pos, &check);
+	test(check, "optimize_optimized3");
 	test(pos == aster, "optimize_optimized4");
 
-	test(! optimize_optimized(local, &pos, pos), "optimize_optimized5");
+	optimize_optimized_(local, pos, &pos, &check);
+	test(! check, "optimize_optimized5");
 
 	rollback_local(local, stack);
 
@@ -84,6 +88,7 @@ static int test_optimize_optimized(void)
 
 static int test_optimize_not_asterisk(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local;
 	LocalStack stack;
@@ -92,7 +97,8 @@ static int test_optimize_not_asterisk(void)
 	push_local(local, &stack);
 
 	type_asterisk_local(local, &pos);
-	test(! optimize_not_asterisk(local, &pos, pos), "optimize_not_asterisk1");
+	optimize_not_asterisk_(local, pos, &pos, &check);
+	test(! check, "optimize_not_asterisk1");
 
 	rollback_local(local, stack);
 
@@ -101,64 +107,75 @@ static int test_optimize_not_asterisk(void)
 
 static int test_optimize_not_nil(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	type0_local(local, LISPDECL_NIL, &pos);
 	SetNotDecl(pos, 1);
-	test(optimize_not_nil(local, &pos, pos), "optimize_not_nil1");
+	optimize_not_nil_(local, pos, &pos, &check);
+	test(check, "optimize_not_nil1");
 	test(testlispdecl(pos, LISPDECL_T), "optimize_not_nil2");
 
 	type0_local(local, LISPDECL_NIL, &pos);
-	test(! optimize_not_nil(local, &pos, pos), "optimize_not_nil3");
+	optimize_not_nil_(local, pos, &pos, &check);
+	test(! check, "optimize_not_nil3");
 
 	type0_local(local, LISPDECL_CONS, &pos);
-	test(! optimize_not_nil(local, &pos, pos), "optimize_not_nil4");
+	optimize_not_nil_(local, pos, &pos, &check);
+	test(! check, "optimize_not_nil4");
 
 	RETURN;
 }
 
 static int test_optimize_not_t(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	type0_local(local, LISPDECL_T, &pos);
 	SetNotDecl(pos, 1);
-	test(optimize_not_t(local, &pos, pos), "optimize_not_t1");
+	optimize_not_t_(local, pos, &pos, &check);
+	test(check, "optimize_not_t1");
 	test(testlispdecl(pos, LISPDECL_NIL), "optimize_not_t2");
 
 	type0_local(local, LISPDECL_T, &pos);
-	test(! optimize_not_t(local, &pos, pos), "optimize_not_t3");
+	optimize_not_t_(local, pos, &pos, &check);
+	test(! check, "optimize_not_t3");
 
 	type0_local(local, LISPDECL_CONS, &pos);
-	test(! optimize_not_t(local, &pos, pos), "optimize_not_t4");
+	optimize_not_t_(local, pos, &pos, &check);
+	test(! check, "optimize_not_t4");
 
 	RETURN;
 }
 
 static int test_optimize_mod(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(mod 32)");
-	test(optimize_mod(local, &pos, pos), "optimize_mod1");;
+	optimize_mod_(local, pos, &pos, &check);
+	test(check, "optimize_mod1");;
 	test(testlispdecl(pos, LISPDECL_INTEGER), "optimize_mod2");
-	GetArrayType(pos, 0, &check);
-	test(check == Nil, "optimize_mod3");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_mod4");
-	test(RefFixnum(check) == 0, "optimize_mod5");
-	GetArrayType(pos, 2, &check);
-	test(check == T, "optimize_mod6");
-	GetArrayType(pos, 3, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_mod7");
-	test(RefFixnum(check) == 32, "optimize_mod8");
+	GetArrayType(pos, 0, &value);
+	test(value == Nil, "optimize_mod3");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_mod4");
+	test(RefFixnum(value) == 0, "optimize_mod5");
+	GetArrayType(pos, 2, &value);
+	test(value == T, "optimize_mod6");
+	GetArrayType(pos, 3, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_mod7");
+	test(RefFixnum(value) == 32, "optimize_mod8");
 	test(! RefNotDecl(pos), "optimize_mod9");
 
 	parse_type_string(&pos, "(mod 32)");
-	test(optimize_mod(local, &pos, pos), "optimize_mod10");
+	optimize_mod_(local, pos, &pos, &check);
+	test(check, "optimize_mod10");
 	SetNotDecl(pos, 1);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "optimize_mod11");
 	test(RefNotDecl(pos), "optimize_mod12");
@@ -168,11 +185,13 @@ static int test_optimize_mod(void)
 
 static int test_optimize_atom(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "atom");
-	test(optimize_atom(local, &pos, pos), "optimize_atom1");
+	optimize_atom_(local, pos, &pos, &check);
+	test(check, "optimize_atom1");
 	test(RefLispDecl(pos) == LISPDECL_CONS, "optimize_atom2");
 	test(RefNotDecl(pos), "optimize_atom3");
 
@@ -181,323 +200,346 @@ static int test_optimize_atom(void)
 
 static int test_optimize_list(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "list");
-	test(optimize_list(local, &pos, pos), "optimize_list1");
+	optimize_list_(local, pos, &pos, &check);
+	test(check, "optimize_list1");
 	test(RefLispDecl(pos) == LISPDECL_OR, "optimize_list2");
 	test(! RefNotDecl(pos), "optimize_list3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "optimize_list4");
-	GetArrayA4(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_NULL, "optimize_list5");
-	test(! RefNotDecl(check), "optimize_list6");
-	GetArrayA4(pos, 1, &check);
-	test(RefLispDecl(check) == LISPDECL_CONS, "optimize_list7");
-	test(! RefNotDecl(check), "optimize_list8");
+	GetArrayA4(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_NULL, "optimize_list5");
+	test(! RefNotDecl(value), "optimize_list6");
+	GetArrayA4(pos, 1, &value);
+	test(RefLispDecl(value) == LISPDECL_CONS, "optimize_list7");
+	test(! RefNotDecl(value), "optimize_list8");
 
 	RETURN;
 }
 
 static int test_optimize_boolean(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "boolean");
-	test(optimize_boolean(local, &pos, pos), "optimize_boolean1");
+	optimize_boolean_(local, pos, &pos, &check);
+	test(check, "optimize_boolean1");
 	test(RefLispDecl(pos) == LISPDECL_OR, "optimize_boolean2");
 	test(! RefNotDecl(pos), "optimize_boolean3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "optimize_boolean4");
-	GetArrayA4(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_NULL, "optimize_boolean5");
-	test(! RefNotDecl(check), "optimize_boolean6");
-	GetArrayA4(pos, 1, &check);
-	test(RefLispDecl(check) == LISPDECL_EQL, "optimize_boolean7");
-	test(! RefNotDecl(check), "optimize_boolean8");
-	GetArrayType(check, 0, &check);
-	test(check == T, "optimize_boolean9");
+	GetArrayA4(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_NULL, "optimize_boolean5");
+	test(! RefNotDecl(value), "optimize_boolean6");
+	GetArrayA4(pos, 1, &value);
+	test(RefLispDecl(value) == LISPDECL_EQL, "optimize_boolean7");
+	test(! RefNotDecl(value), "optimize_boolean8");
+	GetArrayType(value, 0, &value);
+	test(value == T, "optimize_boolean9");
 
 	RETURN;
 }
 
 static int test_optimize_vector(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "vector");
-	test(optimize_vector(local, &pos, pos), "optimize_vector1");
+	optimize_vector_(local, pos, &pos, &check);
+	test(check, "optimize_vector1");
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_vector2");
 	test(! RefNotDecl(pos), "optimize_vector3");
-	GetArrayType(pos, 0, &check);
-	test(type_asterisk_p(check), "optimize_vector4");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_vector5");
-	test(RefFixnum(check) == 1, "optimize_vector6");
+	GetArrayType(pos, 0, &value);
+	test(type_asterisk_p(value), "optimize_vector4");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_vector5");
+	test(RefFixnum(value) == 1, "optimize_vector6");
 
 	parse_type_string(&pos, "(vector integer 5)");
-	test(optimize_vector(local, &pos, pos), "optimize_vector7");
+	optimize_vector_(local, pos, &pos, &check);
+	test(check, "optimize_vector7");
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_vector8");
 	test(! RefNotDecl(pos), "optimize_vector9");
-	GetArrayType(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_T, "optimize_vector10");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_vector11");
-	test(lenarrayr(check) == 1, "optimize_vector12");
-	GetArrayA4(check, 0, &check);
-	test(RefFixnum(check) == 5, "optimize_vector13");
+	GetArrayType(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_T, "optimize_vector10");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_vector11");
+	test(lenarrayr(value) == 1, "optimize_vector12");
+	GetArrayA4(value, 0, &value);
+	test(RefFixnum(value) == 5, "optimize_vector13");
 
 	RETURN;
 }
 
 static int test_optimize_simple_vector(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "simple-vector");
-	test(optimize_simple_vector(local, &pos, pos), "optimize_simple_vector1");
+	optimize_simple_vector_(local, pos, &pos, &check);
+	test(check, "optimize_simple_vector1");
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_vector2");
 	test(! RefNotDecl(pos), "optimize_simple_vector3");
-	GetArrayType(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_T, "optimize_simple_vector4");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_simple_vector5");
-	test(RefFixnum(check) == 1, "optimize_simple_vector6");
+	GetArrayType(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_T, "optimize_simple_vector4");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_vector5");
+	test(RefFixnum(value) == 1, "optimize_simple_vector6");
 
 	parse_type_string(&pos, "(simple-vector 5)");
-	test(optimize_simple_vector(local, &pos, pos), "optimize_simple_vector7");
+	optimize_simple_vector_(local, pos, &pos, &check);
+	test(check, "optimize_simple_vector7");
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_vector8");
 	test(! RefNotDecl(pos), "optimize_simple_vector9");
-	GetArrayType(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_T, "optimize_simple_vector10");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_simple_vector11");
-	test(lenarrayr(check) == 1, "optimize_simple_vector12");
-	GetArrayA4(check, 0, &check);
-	test(RefFixnum(check) == 5, "optimize_simple_vector13");
+	GetArrayType(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_T, "optimize_simple_vector10");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_simple_vector11");
+	test(lenarrayr(value) == 1, "optimize_simple_vector12");
+	GetArrayA4(value, 0, &value);
+	test(RefFixnum(value) == 5, "optimize_simple_vector13");
 
 	RETURN;
 }
 
 static int test_optimize_bit_vector(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "bit-vector");
-	test(optimize_bit_vector(local, &pos, pos), "optimize_bit_vector1");
+	optimize_bit_vector_(local, pos, &pos, &check);
+	test(check, "optimize_bit_vector1");
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_bit_vector2");
 	test(! RefNotDecl(pos), "optimize_bit_vector3");
-	GetArrayType(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_BIT), "optimize_bit_vector4");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_bit_vector5");
-	test(RefFixnum(check) == 1, "optimize_bit_vector6");
+	GetArrayType(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_BIT), "optimize_bit_vector4");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_bit_vector5");
+	test(RefFixnum(value) == 1, "optimize_bit_vector6");
 
 	parse_type_string(&pos, "(bit-vector 5)");
-	test(optimize_bit_vector(local, &pos, pos), "optimize_bit_vector7");
+	optimize_bit_vector_(local, pos, &pos, &check);
+	test(check, "optimize_bit_vector7");
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_bit_vector8");
 	test(! RefNotDecl(pos), "optimize_bit_vector9");
-	GetArrayType(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_BIT), "optimize_bit_vector10");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_bit_vector11");
-	test(lenarrayr(check) == 1, "optimize_bit_vector12");
-	GetArrayA4(check, 0, &check);
-	test(RefFixnum(check) == 5, "optimize_bit_vector13");
+	GetArrayType(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_BIT), "optimize_bit_vector10");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_bit_vector11");
+	test(lenarrayr(value) == 1, "optimize_bit_vector12");
+	GetArrayA4(value, 0, &value);
+	test(RefFixnum(value) == 5, "optimize_bit_vector13");
 
 	RETURN;
 }
 
 static int test_optimize_simple_bit_vector(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "simple-bit-vector");
-	test(optimize_simple_bit_vector(local, &pos, pos), "optimize_simple_bit_vector1");
+	optimize_simple_bit_vector_(local, pos, &pos, &check);
+	test(check, "optimize_simple_bit_vector1");
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_bit_vector2");
 	test(! RefNotDecl(pos), "optimize_simple_bit_vector3");
-	GetArrayType(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_BIT), "optimize_simple_bit_vector4");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_simple_bit_vector5");
-	test(RefFixnum(check) == 1, "optimize_simple_bit_vector6");
+	GetArrayType(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_BIT), "optimize_simple_bit_vector4");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_bit_vector5");
+	test(RefFixnum(value) == 1, "optimize_simple_bit_vector6");
 
 	parse_type_string(&pos, "(simple-bit-vector 5)");
-	test(optimize_simple_bit_vector(local, &pos, pos), "optimize_simple_bit_vector7");
+	optimize_simple_bit_vector_(local, pos, &pos, &check);
+	test(check, "optimize_simple_bit_vector7");
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_bit_vector8");
 	test(! RefNotDecl(pos), "optimize_simple_bit_vector9");
-	GetArrayType(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_BIT), "optimize_simple_bit_vector10");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_simple_bit_vector11");
-	test(lenarrayr(check) == 1, "optimize_simple_bit_vector12");
-	GetArrayA4(check, 0, &check);
-	test(RefFixnum(check) == 5, "optimize_simple_bit_vector13");
+	GetArrayType(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_BIT), "optimize_simple_bit_vector10");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_simple_bit_vector11");
+	test(lenarrayr(value) == 1, "optimize_simple_bit_vector12");
+	GetArrayA4(value, 0, &value);
+	test(RefFixnum(value) == 5, "optimize_simple_bit_vector13");
 
 	RETURN;
 }
 
 static int test_optimize_extended_char(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "extended-char");
-	test(type_optimize(local, &pos, pos), "optimize_extended_char1");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_extended_char1");
 	test(GetType(pos) == LISPTYPE_TYPE, "optimize_extended_char2");
 	test(RefLispDecl(pos) == LISPDECL_AND, "optimize_extended_char3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "optimize_extended_char4");
-	GetArrayA4(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_CHARACTER, "optimize_extended_char5");
-	test(! RefNotDecl(check), "optimize_extended_char6");
-	GetArrayA4(pos, 1, &check);
-	test(RefLispDecl(check) == LISPDECL_BASE_CHAR, "optimize_extended_char7");
-	test(RefNotDecl(check), "optimize_extended_char8");
+	GetArrayA4(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_CHARACTER, "optimize_extended_char5");
+	test(! RefNotDecl(value), "optimize_extended_char6");
+	GetArrayA4(pos, 1, &value);
+	test(RefLispDecl(value) == LISPDECL_BASE_CHAR, "optimize_extended_char7");
+	test(RefNotDecl(value), "optimize_extended_char8");
 
 	parse_type_string(&pos, "extended-char");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	test(type_optimize(local, &pos, pos), "optimize_extended_char9");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_extended_char9");
 	test(GetType(pos) == LISPTYPE_TYPE, "optimize_extended_char10");
 	test(RefLispDecl(pos) == LISPDECL_OR, "optimize_extended_char11");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "optimize_extended_char12");
-	GetArrayA4(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_CHARACTER, "optimize_extended_char13");
-	test(RefNotDecl(check), "optimize_extended_char14");
-	GetArrayA4(pos, 1, &check);
-	test(RefLispDecl(check) == LISPDECL_BASE_CHAR, "optimize_extended_char15");
-	test(! RefNotDecl(check), "optimize_extended_char16");
+	GetArrayA4(pos, 0, &value);
+	test(RefLispDecl(value) == LISPDECL_CHARACTER, "optimize_extended_char13");
+	test(RefNotDecl(value), "optimize_extended_char14");
+	GetArrayA4(pos, 1, &value);
+	test(RefLispDecl(value) == LISPDECL_BASE_CHAR, "optimize_extended_char15");
+	test(! RefNotDecl(value), "optimize_extended_char16");
 
 	RETURN;
 }
 
 static int test_optimize_string(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "string");
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_string1");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_string2");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_string3");
-	test(RefFixnum(check) == 1, "optimize_string4");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_string2");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_string3");
+	test(RefFixnum(value) == 1, "optimize_string4");
 
 	parse_type_string(&pos, "(string 10)");
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_string5");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_string6");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_string7");
-	test(lenarrayr(check) == 1, "optimize_string8");
-	GetArrayA4(check, 0, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_string9");
-	test(RefFixnum(check) == 10, "optimize_string10");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_string6");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_string7");
+	test(lenarrayr(value) == 1, "optimize_string8");
+	GetArrayA4(value, 0, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_string9");
+	test(RefFixnum(value) == 10, "optimize_string10");
 
 	RETURN;
 }
 
 static int test_optimize_base_string(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "base-string");
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_base_string1");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_base_string2");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_base_string3");
-	test(RefFixnum(check) == 1, "optimize_base_string4");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_base_string2");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_base_string3");
+	test(RefFixnum(value) == 1, "optimize_base_string4");
 
 	parse_type_string(&pos, "(base-string 10)");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_base_string5");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_base_string6");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_base_string7");
-	test(lenarrayr(check) == 1, "optimize_base_string8");
-	GetArrayA4(check, 0, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_base_string9");
-	test(RefFixnum(check) == 10, "optimize_base_string10");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_base_string6");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_base_string7");
+	test(lenarrayr(value) == 1, "optimize_base_string8");
+	GetArrayA4(value, 0, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_base_string9");
+	test(RefFixnum(value) == 10, "optimize_base_string10");
 
 	RETURN;
 }
 
 static int test_optimize_simple_string(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "simple-string");
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_string1");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_simple_string2");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_simple_string3");
-	test(RefFixnum(check) == 1, "optimize_simple_string4");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_string2");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_string3");
+	test(RefFixnum(value) == 1, "optimize_simple_string4");
 
 	parse_type_string(&pos, "(simple-string 10)");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_string5");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_simple_string6");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_simple_string7");
-	test(lenarrayr(check) == 1, "optimize_simple_string8");
-	GetArrayA4(check, 0, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_simple_string9");
-	test(RefFixnum(check) == 10, "optimize_simple_string10");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_string6");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_simple_string7");
+	test(lenarrayr(value) == 1, "optimize_simple_string8");
+	GetArrayA4(value, 0, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_string9");
+	test(RefFixnum(value) == 10, "optimize_simple_string10");
 
 	RETURN;
 }
 
 static int test_optimize_simple_base_string(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "simple-base-string");
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_base_string1");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_simple_base_string2");
-	GetArrayType(pos, 1, &check);
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_simple_base_string3");
-	test(RefFixnum(check) == 1, "optimize_simple_base_string4");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_base_string2");
+	GetArrayType(pos, 1, &value);
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_base_string3");
+	test(RefFixnum(value) == 1, "optimize_simple_base_string4");
 
 	parse_type_string(&pos, "(simple-base-string 10)");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_base_string5");
-	GetArrayType(pos, 0, &check);
-	test(LispDecl(check) == LISPDECL_CHARACTER, "optimize_simple_base_string6");
-	GetArrayType(pos, 1, &check);
-	test(GetType(check) == LISPTYPE_VECTOR, "optimize_simple_base_string7");
-	test(lenarrayr(check) == 1, "optimize_simple_base_string8");
-	GetArrayA4(check, 0, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_simple_base_string9");
-	test(RefFixnum(check) == 10, "optimize_simple_base_string10");
+	GetArrayType(pos, 0, &value);
+	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_base_string6");
+	GetArrayType(pos, 1, &value);
+	test(GetType(value) == LISPTYPE_VECTOR, "optimize_simple_base_string7");
+	test(lenarrayr(value) == 1, "optimize_simple_base_string8");
+	GetArrayA4(value, 0, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_base_string9");
+	test(RefFixnum(value) == 10, "optimize_simple_base_string10");
 
 	RETURN;
 }
@@ -611,15 +653,20 @@ static int integer_asterisk_p(addr pos)
 {
 	addr check;
 
-	if (! testlispdecl(pos, LISPDECL_INTEGER)) return 0;
+	if (! testlispdecl(pos, LISPDECL_INTEGER))
+		return 0;
 	GetArrayType(pos, 0, &check);
-	if (RefLispDecl(check) != LISPDECL_ASTERISK) return 0;
+	if (RefLispDecl(check) != LISPDECL_ASTERISK)
+		return 0;
 	GetArrayType(pos, 1, &check);
-	if (RefLispDecl(check) != LISPDECL_ASTERISK) return 0;
+	if (RefLispDecl(check) != LISPDECL_ASTERISK)
+		return 0;
 	GetArrayType(pos, 2, &check);
-	if (RefLispDecl(check) != LISPDECL_ASTERISK) return 0;
+	if (RefLispDecl(check) != LISPDECL_ASTERISK)
+		return 0;
 	GetArrayType(pos, 3, &check);
-	if (RefLispDecl(check) != LISPDECL_ASTERISK) return 0;
+	if (RefLispDecl(check) != LISPDECL_ASTERISK)
+		return 0;
 
 	return 1;
 }
@@ -635,19 +682,19 @@ static int test_optimize_signed_byte(void)
 	push_local(local, &stack);
 
 	parse_type_string(&pos, "signed-byte");
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	test(integer_asterisk_p(pos), "optimize_signed_byte1");
 
 	parse_type_string(&pos, "(signed-byte *)");
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	test(integer_asterisk_p(pos), "optimize_signed_byte2");
 
 	parse_type_string(&pos, "(signed-byte 8)");
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, -128, 127), "optimize_signed_byte3");
 
 	parse_type_string(&pos, "(signed-byte 1)");
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, -1, 0), "optimize_signed_byte4");
 	test(! RefNotDecl(pos), "optimize_signed_byte5");
 
@@ -655,16 +702,16 @@ static int test_optimize_signed_byte(void)
 	fixnum_heap(&pos2, BIGNUM_FULLBIT);
 	list_heap(&pos, pos1, pos2, NULL);
 	test_parse_type(&pos, pos);
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, FIXNUM_MIN, FIXNUM_MAX), "optimize_signed_byte6");
 
 	parse_type_string(&pos, "(signed-byte 65)");
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	check = test_integernilnil_bignum(pos, "10000000000000000", "FFFFFFFFFFFFFFFF");
 	test(check, "optimize_signed_byte7");
 
 	parse_type_string(&pos, "(signed-byte 200)");
-	optimize_signed_byte(local, &pos, pos);
+	optimize_signed_byte_(local, pos, &pos, &check);
 	check = test_integernilnil_bignum(pos,
 			"80000000000000000000000000000000000000000000000000",
 			"7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
@@ -679,15 +726,20 @@ static int integer_zero_check(addr pos)
 {
 	addr check;
 
-	if (RefLispDecl(pos) != LISPDECL_INTEGER) return 0;
+	if (RefLispDecl(pos) != LISPDECL_INTEGER)
+		return 0;
 	GetArrayType(pos, 0, &check);
-	if (check != Nil) return 0;
+	if (check != Nil)
+		return 0;
 	GetArrayType(pos, 1, &check);
-	if (! zerop_integer(check)) return 0;
+	if (! zerop_integer_debug(check))
+		return 0;
 	GetArrayType(pos, 2, &check);
-	if (RefLispDecl(check) != LISPDECL_ASTERISK) return 0;
+	if (RefLispDecl(check) != LISPDECL_ASTERISK)
+		return 0;
 	GetArrayType(pos, 3, &check);
-	if (RefLispDecl(check) != LISPDECL_ASTERISK) return 0;
+	if (RefLispDecl(check) != LISPDECL_ASTERISK)
+		return 0;
 
 	return 1;
 }
@@ -710,7 +762,7 @@ static int test_integerhalf_bignum(addr pos, const char *str)
 		return 0;
 	}
 	GetArrayType(pos, 1, &check);
-	if (! zerop_integer(check)) {
+	if (! zerop_integer_debug(check)) {
 		degrade_printf("left value error.\n");
 		return 0;
 	}
@@ -743,35 +795,35 @@ static int test_optimize_unsigned_byte(void)
 	push_local(local, &stack);
 
 	parse_type_string(&pos, "unsigned-byte");
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	test(integer_zero_check(pos), "optimize_unsigned_byte1");
 
 	parse_type_string(&pos, "(unsigned-byte *)");
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	test(integer_zero_check(pos), "optimize_unsigned_byte2");
 
 	parse_type_string(&pos, "(unsigned-byte 8)");
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, 0, 255), "optimize_unsigned_byte3");
 
 	parse_type_string(&pos, "(unsigned-byte 1)");
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, 0, 1), "optimize_unsigned_byte4");
 
 	interncommon_debug("UNSIGNED-BYTE", &pos1);
 	fixnum_heap(&pos2, BIGNUM_FULLBIT - 1UL);
 	list_heap(&pos, pos1, pos2, NULL);
 	test_parse_type(&pos, pos);
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, 0, FIXNUM_MAX), "optimize_unsigned_byte5");
 
 	parse_type_string(&pos, "(unsigned-byte 65)");
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	check = test_integerhalf_bignum(pos, "1FFFFFFFFFFFFFFFF");
 	test(check, "optimize_unsigned_byte6");
 
 	parse_type_string(&pos, "(unsigned-byte 123)");
-	optimize_unsigned_byte(local, &pos, pos);
+	optimize_unsigned_byte_(local, pos, &pos, &check);
 	check = test_integerhalf_bignum(pos, "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 	test(check, "optimize_unsigned_byte7");
 
@@ -782,16 +834,17 @@ static int test_optimize_unsigned_byte(void)
 
 static int test_optimize_bit(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "bit");
-	optimize_bit(local, &pos, pos);
+	optimize_bit_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, 0, 1), "optimize_bit1");
 	test(! RefNotDecl(pos), "optimize_bit2");
 
 	parse_type_string(&pos, "bit");
-	optimize_bit(local, &pos, pos);
+	optimize_bit_(local, pos, &pos, &check);
 	test(test_integernilnil(pos, 0, 1), "optimize_bit3");
 	test(! RefNotDecl(pos), "optimize_bit4");
 
@@ -805,6 +858,7 @@ static int integer_fixnum_p(addr pos)
 
 static int test_optimize_fixnum(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local;
 	LocalStack stack;
@@ -813,17 +867,17 @@ static int test_optimize_fixnum(void)
 	push_local(local, &stack);
 
 	parse_type_string(&pos, "fixnum");
-	optimize_fixnum(local, &pos, pos);
+	optimize_fixnum_(local, pos, &pos, &check);
 	test(integer_fixnum_p(pos), "optimize_fixnum1");
 	test(! RefNotDecl(pos), "optimize_fixnum2");
 
 	parse_type_string(&pos, "fixnum");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	type_optimize_heap(local, &pos, pos);
+	type_optimize_heap_(local, pos, &pos, &check);
 
 	parse_type_string(&pos, "fixnum");
-	optimize_fixnum(local, &pos, pos);
+	optimize_fixnum_(local, pos, &pos, &check);
 	test(integer_fixnum_p(pos), "optimize_fixnum3");
 	test(! RefNotDecl(pos), "optimize_fixnum4");
 
@@ -834,61 +888,66 @@ static int test_optimize_fixnum(void)
 
 static int test_optimize_bignum(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "bignum");
-	optimize_bignum(local, &pos, pos);
+	optimize_bignum_(local, pos, &pos, &check);
 	test(testlispdecl(pos, LISPDECL_AND), "optimize_bignum1");
 	test(! RefNotDecl(pos), "optimize_bignum2");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "optimize_bignum3");
-	GetArrayA4(pos, 0, &check);
-	test(integer_asterisk_p(check), "optimize_bignum4");
-	test(! RefNotDecl(check), "optimize_bignum5");
-	GetArrayA4(pos, 1, &check);
-	test(integer_fixnum_p(check), "optimize_bignum6");
-	test(RefNotDecl(check), "optimize_bignum7");
+	GetArrayA4(pos, 0, &value);
+	test(integer_asterisk_p(value), "optimize_bignum4");
+	test(! RefNotDecl(value), "optimize_bignum5");
+	GetArrayA4(pos, 1, &value);
+	test(integer_fixnum_p(value), "optimize_bignum6");
+	test(RefNotDecl(value), "optimize_bignum7");
 
 	parse_type_string(&pos, "bignum");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
 
 	parse_type_string(&pos, "bignum");
-	optimize_bignum(local, &pos, pos);
+	optimize_bignum_(local, pos, &pos, &check);
 	test(testlispdecl(pos, LISPDECL_AND), "optimize_bignum8");
 	test(! RefNotDecl(pos), "optimize_bignum9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "optimize_bignum10");
-	GetArrayA4(pos, 0, &check);
-	test(integer_asterisk_p(check), "optimize_bignum11");
-	test(! RefNotDecl(check), "optimize_bignum12");
-	GetArrayA4(pos, 1, &check);
-	test(integer_fixnum_p(check), "optimize_bignum13");
-	test(RefNotDecl(check), "optimize_bignum14");
+	GetArrayA4(pos, 0, &value);
+	test(integer_asterisk_p(value), "optimize_bignum11");
+	test(! RefNotDecl(value), "optimize_bignum12");
+	GetArrayA4(pos, 1, &value);
+	test(integer_fixnum_p(value), "optimize_bignum13");
+	test(RefNotDecl(value), "optimize_bignum14");
 
 	RETURN;
 }
 
 static int test_optimize_eql(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(eql nil)");
-	test(optimize_eql(local, &pos, pos), "optimize_eql1");
+	optimize_eql_(local, pos, &pos, &check);
+	test(check, "optimize_eql1");
 	test(testlispdecl(pos, LISPDECL_NULL), "optimize_eql2");
 	test(! RefNotDecl(pos), "optimize_eql3");
 
 	parse_type_string(&pos, "(eql 100)");
-	test(! optimize_eql(local, &pos, pos), "optimize_eql4");
+	optimize_eql_(local, pos, &pos, &check);
+	test(! check, "optimize_eql4");
 
 	RETURN;
 }
 
 static int test_optimize_eql_range(void)
 {
-	addr pos, check, numer, denom;
+	int check;
+	addr pos, value, numer, denom;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -897,76 +956,87 @@ static int test_optimize_eql_range(void)
 
 	list_heap(&pos, interncommonr_debug("EQL"), fixnumh(10), NULL);
 	test_parse_type(&pos, pos);
-	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range1");
+	optimize_eql_range_(local, pos, &pos, &check);
+	test(check, "optimize_eql_range1");
 	test(testlispdecl(pos, LISPDECL_INTEGER), "optimize_eql_range2");
 	test(! RefNotDecl(pos), "optimize_eql_range3");
-	GetArrayType(pos, 0, &check);
-	test(check == Nil, "optimize_eql_range4");
-	GetArrayType(pos, 1, &check);
-	test(RefFixnum(check) == 10, "optimize_eql_range5");
-	GetArrayType(pos, 2, &check);
-	test(check == Nil, "optimize_eql_range6");
-	GetArrayType(pos, 3, &check);
-	test(RefFixnum(check) == 10, "optimize_eql_range7");
+	GetArrayType(pos, 0, &value);
+	test(value == Nil, "optimize_eql_range4");
+	GetArrayType(pos, 1, &value);
+	test(RefFixnum(value) == 10, "optimize_eql_range5");
+	GetArrayType(pos, 2, &value);
+	test(value == Nil, "optimize_eql_range6");
+	GetArrayType(pos, 3, &value);
+	test(RefFixnum(value) == 10, "optimize_eql_range7");
 
 	bignum_value_alloc(local, &numer, signplus_bignum, 12);
 	bignum_value_alloc(local, &denom, signplus_bignum, 7);
 	make_ratio_reduction_local(local, &pos, signplus_bignum, numer, denom);
 	list_local(local, &pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
-	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range8");
+	optimize_eql_range_(local, pos, &pos, &check);
+	test(check, "optimize_eql_range8");
 	test(testlispdecl(pos, LISPDECL_RATIONAL), "optimize_eql_range9");
 	rollback_local(local, stack);
 
 	single_float_heap(&pos, 20.0f);
 	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
-	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range10");
+	optimize_eql_range_(local, pos, &pos, &check);
+	test(check, "optimize_eql_range10");
 	test(testlispdecl(pos, LISPDECL_SINGLE_FLOAT), "optimize_eql_range11");
 
 	double_float_heap(&pos, 20.0);
 	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
-	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range12");
+	optimize_eql_range_(local, pos, &pos, &check);
+	test(check, "optimize_eql_range12");
 	test(testlispdecl(pos, LISPDECL_DOUBLE_FLOAT), "optimize_eql_range13");
 
 	long_float_heap(&pos, 20.0L);
 	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
-	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range14");
+	optimize_eql_range_(local, pos, &pos, &check);
+	test(check, "optimize_eql_range14");
 	test(testlispdecl(pos, LISPDECL_LONG_FLOAT), "optimize_eql_range15");
 
 	character_heap(&pos, 'A');
 	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
-	test(! optimize_eql_range(local, &pos, pos), "optimize_eql_range16");
+	optimize_eql_range_(local, pos, &pos, &check);
+	test(! check, "optimize_eql_range16");
 
 	RETURN;
 }
 
 static int test_optimize_member1(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(member)");
-	test(optimize_member1(local, &pos, pos), "optimize_member1-1");
+	optimize_member1_(local, pos, &pos, &check);
+	test(check, "optimize_member1-1");
 	test(testlispdecl(pos, LISPDECL_NIL), "optimize_member1-2");
 	test(! RefNotDecl(pos), "optimize_member1-3");
 
 	parse_type_string(&pos, "(member 100)");
-	test(! optimize_member1(local, &pos, pos), "optimize_member1-4");
+	optimize_member1_(local, pos, &pos, &check);
+	test(! check, "optimize_member1-4");
 
 	RETURN;
 }
 
 static int test_optimize_member2(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(member 10)");
-	test(optimize_member2(local, &pos, pos), "optimize_member2-1");
+	optimize_member2_(local, pos, &pos, &check);
+	test(check, "optimize_member2-1");
 	test(testlispdecl(pos, LISPDECL_EQL), "optimize_member2-2");
 	test(! RefNotDecl(pos), "optimize_member2-3");
 	GetArrayType(pos, 0, &pos);
@@ -974,56 +1044,61 @@ static int test_optimize_member2(void)
 	test(RefFixnum(pos) == 10, "optimize_member2-5");
 
 	parse_type_string(&pos, "(member)");
-	test(! optimize_member2(local, &pos, pos), "optimize_member2-6");
+	optimize_member2_(local, pos, &pos, &check);
+	test(! check, "optimize_member2-6");
 
 	RETURN;
 }
 
 static int test_optimize_member3(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(member 10 20)");
-	test(optimize_member3(local, &pos, pos), "optimize_member3-1");
+	optimize_member3_(local, pos, &pos, &check);
+	test(check, "optimize_member3-1");
 	test(testlispdecl(pos, LISPDECL_OR), "optimize_member3-2");
 	test(! RefNotDecl(pos), "optimize_member3-3");
 	GetArrayType(pos, 0, &pos);
 	test(GetType(pos) == LISPTYPE_VECTOR, "optimize_member3-4");
 	test(lenarrayr(pos) == 2, "optimize_member3-5");
 
-	GetArrayA4(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_EQL), "optimize_member3-6");
-	GetArrayType(check, 0, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_member3-7");
-	test(RefFixnum(check) == 10, "optimize_member3-8");
+	GetArrayA4(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_EQL), "optimize_member3-6");
+	GetArrayType(value, 0, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_member3-7");
+	test(RefFixnum(value) == 10, "optimize_member3-8");
 
-	GetArrayA4(pos, 1, &check);
-	test(testlispdecl(check, LISPDECL_EQL), "optimize_member3-9");
-	GetArrayType(check, 0, &check);
-	test(GetType(check) == LISPTYPE_FIXNUM, "optimize_member3-10");
-	test(RefFixnum(check) == 20, "optimize_member3-11");
+	GetArrayA4(pos, 1, &value);
+	test(testlispdecl(value, LISPDECL_EQL), "optimize_member3-9");
+	GetArrayType(value, 0, &value);
+	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_member3-10");
+	test(RefFixnum(value) == 20, "optimize_member3-11");
 
 	parse_type_string(&pos, "(member 10)");
-	test(! optimize_member3(local, &pos, pos), "optimize_member3-12");
+	optimize_member3_(local, pos, &pos, &check);
+	test(! check, "optimize_member3-12");
 
 	RETURN;
 }
 
 static int test_optimize_not(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(not cons)");
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(testlispdecl(pos, LISPDECL_CONS), "optimize_not1");
 	test(RefNotDecl(pos), "optimize_not2");
 
 	parse_type_string(&pos, "(not cons)");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	type_optimize(local, &pos, pos);
+	type_optimize_(local, pos, &pos, &check);
 	test(testlispdecl(pos, LISPDECL_CONS), "optimize_not3");
 	test(! RefNotDecl(pos), "optimize_not4");
 
@@ -1032,15 +1107,18 @@ static int test_optimize_not(void)
 
 static int test_optimize_result(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "nil");
-	test(! optimize_result(local, &pos, pos), "optimize_result1");
+	optimize_result_(local, pos, &pos, &check);
+	test(! check, "optimize_result1");
 	test(testlispdecl(pos, LISPDECL_NIL), "optimize_result2");
 
 	parse_type_string(&pos, "atom");
-	test(optimize_result(local, &pos, pos), "optimize_result3");
+	optimize_result_(local, pos, &pos, &check);
+	test(check, "optimize_result3");
 	test(testlispdecl(pos, LISPDECL_CONS), "optimize_result4");
 	test(RefNotDecl(pos), "optimize_result5");
 
@@ -1049,57 +1127,61 @@ static int test_optimize_result(void)
 
 static int test_extract_not_andor(void)
 {
-	addr pos, check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(and cons null)");
-	extract_not_andor(local, &pos, pos, LISPDECL_OR);
+	extract_not_andor_(local, &pos, pos, LISPDECL_OR);
 	test(testlispdecl(pos, LISPDECL_OR), "extract_not_andor1");
 	test(! RefNotDecl(pos), "extract_not_andor2");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "extract_not_andor3");
-	GetArrayA4(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_CONS), "extract_not_andor4");
-	test(RefNotDecl(check), "extract_not_andor5");
-	GetArrayA4(pos, 1, &check);
-	test(testlispdecl(check, LISPDECL_NULL), "extract_not_andor6");
+	GetArrayA4(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_CONS), "extract_not_andor4");
+	test(RefNotDecl(value), "extract_not_andor5");
+	GetArrayA4(pos, 1, &value);
+	test(testlispdecl(value, LISPDECL_NULL), "extract_not_andor6");
 
 	RETURN;
 }
 
 static int test_extract_array_andor(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(and cons (not null))");
-	test(extract_array_andor(local, &pos, pos), "extract_array_andor1");
+	extract_array_andor_(local, pos, &pos, &check);
+	test(check, "extract_array_andor1");
 	test(testlispdecl(pos, LISPDECL_AND), "extract_array_andor2");
 	test(! RefNotDecl(pos), "extract_array_andor3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "extract_array_andor4");
-	GetArrayA4(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_CONS), "extract_array_andor5");
-	test(! RefNotDecl(check), "extract_array_andor6");
-	GetArrayA4(pos, 1, &check);
-	test(testlispdecl(check, LISPDECL_NULL), "extract_array_andor7");
-	test(RefNotDecl(check), "extract_array_andor8");
+	GetArrayA4(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_CONS), "extract_array_andor5");
+	test(! RefNotDecl(value), "extract_array_andor6");
+	GetArrayA4(pos, 1, &value);
+	test(testlispdecl(value, LISPDECL_NULL), "extract_array_andor7");
+	test(RefNotDecl(value), "extract_array_andor8");
 
 	parse_type_string(&pos, "(and cons null)");
-	test(extract_array_andor(local, &pos, pos) == 0, "extract_array_andor9");
+	extract_array_andor_(local, pos, &pos, &check);
+	test(check == 0, "extract_array_andor9");
 
 	parse_type_string(&pos, "(or cons (not null))");
-	test(extract_array_andor(local, &pos, pos), "extract_array_andor10");
+	extract_array_andor_(local, pos, &pos, &check);
+	test(check, "extract_array_andor10");
 	test(testlispdecl(pos, LISPDECL_OR), "extract_array_andor11");
 	test(! RefNotDecl(pos), "extract_array_andor12");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "extract_array_andor13");
-	GetArrayA4(pos, 0, &check);
-	test(testlispdecl(check, LISPDECL_CONS), "extract_array_andor14");
-	test(! RefNotDecl(check), "extract_array_andor15");
-	GetArrayA4(pos, 1, &check);
-	test(testlispdecl(check, LISPDECL_NULL), "extract_array_andor16");
-	test(RefNotDecl(check), "extract_array_andor17");
+	GetArrayA4(pos, 0, &value);
+	test(testlispdecl(value, LISPDECL_CONS), "extract_array_andor14");
+	test(! RefNotDecl(value), "extract_array_andor15");
+	GetArrayA4(pos, 1, &value);
+	test(testlispdecl(value, LISPDECL_NULL), "extract_array_andor16");
+	test(RefNotDecl(value), "extract_array_andor17");
 
 	RETURN;
 }
@@ -1143,56 +1225,67 @@ static int test_check_typeand(void)
 
 static int test_optimize_and1(void)
 {
-	addr pos, array, check;
+	int check;
+	addr pos, array, value;
 	LocalRoot local = Local_Thread;
 
 	vector4_local(local, &array, 0);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(optimize_and1(local, &check, pos), "optimize_and1-1");
-	test(normlispdecl(check, LISPDECL_T), "optimize_and1-2");
+	optimize_and1_(local, pos, &value, &check);
+	test(check, "optimize_and1-1");
+	test(normlispdecl(value, LISPDECL_T), "optimize_and1-2");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_and1(local, &check, pos), "optimize_and1-3");
+	optimize_and1_(local, pos, &value, &check);
+	test(! check, "optimize_and1-3");
 
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_and1(local, &check, pos), "optimize_and1-4");
+	optimize_and1_(local, pos, &value, &check);
+	test(! check, "optimize_and1-4");
 
 	vector4_local(local, &array, 1);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_and1(local, &check, pos), "optimize_and1-5");
+	optimize_and1_(local, pos, &value, &check);
+	test(! check, "optimize_and1-5");
 
 	RETURN;
 }
 
 static int test_optimize_and2(void)
 {
-	addr pos, array, check, aster;
+	int check;
+	addr pos, array, value, aster;
 	LocalRoot local = Local_Thread;
 
 	vector4_local(local, &array, 1);
 	type_asterisk_local(local, &aster);
 	SetArrayA4(array, 0, aster);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	check = 0;
-	test(optimize_and2(local, &check, pos), "optimize_and2-1");
-	test(check == aster, "optimize_and2-2");
+	value = 0;
+	optimize_and2_(local, pos, &value, &check);
+	test(check, "optimize_and2-1");
+	test(value == aster, "optimize_and2-2");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_and2(local, &check, pos), "optimize_and2-3");
+	optimize_and2_(local, pos, &value, &check);
+	test(! check, "optimize_and2-3");
 
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_and2(local, &check, pos), "optimize_and2-4");
+	optimize_and2_(local, pos, &value, &check);
+	test(! check, "optimize_and2-4");
 
 	vector4_local(local, &array, 0);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_and2(local, &check, pos), "optimize_and2-5");
+	optimize_and2_(local, pos, &value, &check);
+	test(! check, "optimize_and2-5");
 
 	RETURN;
 }
 
 static int test_optimize_and3(void)
 {
-	addr pos, array, check, temp;
+	int check;
+	addr pos, array, value, temp;
 	size_t i, size;
 	LocalRoot local = Local_Thread;
 
@@ -1205,14 +1298,17 @@ static int test_optimize_and3(void)
 	type0_local(local, LISPDECL_NIL, &temp);
 	SetArrayA4(array, size / 2, temp);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(optimize_and3(local, &check, pos), "optimize_and3-1");
-	test(normlispdecl(check, LISPDECL_NIL), "optimize_and3-2");
+	optimize_and3_(local, pos, &value, &check);
+	test(check, "optimize_and3-1");
+	test(normlispdecl(value, LISPDECL_NIL), "optimize_and3-2");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_and3(local, &check, pos), "optimize_and3-3");
+	optimize_and3_(local, pos, &value, &check);
+	test(! check, "optimize_and3-3");
 
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_and3(local, &check, pos), "optimize_and3-4");
+	optimize_and3_(local, pos, &value, &check);
+	test(! check, "optimize_and3-4");
 
 	vector4_local(local, &array, size);
 	for (i = 0; i < size; i++) {
@@ -1220,49 +1316,55 @@ static int test_optimize_and3(void)
 		SetArrayA4(array, i, temp);
 	}
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_and3(local, &check, pos), "optimize_and3-5");
+	optimize_and3_(local, pos, &value, &check);
+	test(! check, "optimize_and3-5");
 
 	RETURN;
 }
 
 static int test_optimize_and4(void)
 {
-	addr pos, array, check, check2, temp;
+	int check;
+	addr pos, array, value1, value2, temp;
 	size_t size;
 	LocalRoot local = Local_Thread;
 
 	size = 3;
 	vector4_local(local, &array, size);
-	type0_local(local, LISPDECL_CONS, &check);
-	SetArrayA4(array, 0, check);
+	type0_local(local, LISPDECL_CONS, &value1);
+	SetArrayA4(array, 0, value1);
 	type0_local(local, LISPDECL_T, &temp);
 	SetArrayA4(array, 1, temp);
 	type0_local(local, LISPDECL_NIL, &temp);
 	SetArrayA4(array, 2, temp);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(optimize_and4(local, &check, pos), "optimize_and4-1");
-	test(normlispdecl(check, LISPDECL_AND), "optimize_and4-2");
-	GetArrayType(check, 0, &check);
-	test(lenarrayr(check) == 2, "optimize_and4-3");
-	GetArrayA4(check, 0, &check2);
-	test(normlispdecl(check2, LISPDECL_CONS), "optimize_and4-4");
-	GetArrayA4(check, 1, &check2);
-	test(normlispdecl(check2, LISPDECL_NIL), "optimize_and4-5");
+	optimize_and4_(local, pos, &value1, &check);
+	test(check, "optimize_and4-1");
+	test(normlispdecl(value1, LISPDECL_AND), "optimize_and4-2");
+	GetArrayType(value1, 0, &value1);
+	test(lenarrayr(value1) == 2, "optimize_and4-3");
+	GetArrayA4(value1, 0, &value2);
+	test(normlispdecl(value2, LISPDECL_CONS), "optimize_and4-4");
+	GetArrayA4(value1, 1, &value2);
+	test(normlispdecl(value2, LISPDECL_NIL), "optimize_and4-5");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_and4(local, &check, pos), "optimize_and4-6");
+	optimize_and4_(local, pos, &value1, &check);
+	test(! check, "optimize_and4-6");
 
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_and4(local, &check, pos), "optimize_and4-7");
+	optimize_and4_(local, pos, &value1, &check);
+	test(! check, "optimize_and4-7");
 
-	type0_local(local, LISPDECL_CONS, &check);
-	SetArrayA4(array, 0, check);
-	type0_local(local, LISPDECL_NULL, &check);
-	SetArrayA4(array, 1, check);
+	type0_local(local, LISPDECL_CONS, &value1);
+	SetArrayA4(array, 0, value1);
+	type0_local(local, LISPDECL_NULL, &value1);
+	SetArrayA4(array, 1, value1);
 	type0_local(local, LISPDECL_NIL, &temp);
 	SetArrayA4(array, 2, temp);
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_and4(local, &check, pos), "optimize_and4-8");
+	optimize_and4_(local, pos, &value1, &check);
+	test(! check, "optimize_and4-8");
 
 	RETURN;
 }
@@ -1271,48 +1373,56 @@ static int real_left_fixnum_p(addr pos, fixnum value)
 {
 	addr check;
 
-	if (! normlispdecl(pos, LISPDECL_REAL)) return 0;
+	if (! normlispdecl(pos, LISPDECL_REAL))
+		return 0;
 	GetArrayType(pos, 0, &check);
-	if (check != Nil) return 0;
+	if (check != Nil)
+		return 0;
 	GetArrayType(pos, 1, &check);
-	if (GetType(check) != LISPTYPE_FIXNUM) return 0;
+	if (GetType(check) != LISPTYPE_FIXNUM)
+		return 0;
 
 	return RefFixnum(check) == value;
 }
 
 static int test_optimize_and5(void)
 {
-	addr pos, check, array;
+	int check;
+	addr pos, value, array;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos,
 			"(and (real 1) (real 2) (and (and (real 3)) (real 4)) (real 5))");
-	test(optimize_and5(local, &check, pos), "optimize_and5-1");
-	test(normlispdecl(check, LISPDECL_AND), "optimize_and5-2");
-	GetArrayType(check, 0, &array);
+	optimize_and5_(local, pos, &value, &check);
+	test(check, "optimize_and5-1");
+	test(normlispdecl(value, LISPDECL_AND), "optimize_and5-2");
+	GetArrayType(value, 0, &array);
 	test(lenarrayr(array) == 5, "optimize_and5-3");
-	GetArrayA4(array, 0, &check);
-	test(real_left_fixnum_p(check, 1), "optimize_and5-4");
-	GetArrayA4(array, 1, &check);
-	test(real_left_fixnum_p(check, 2), "optimize_and5-5");
-	GetArrayA4(array, 2, &check);
-	test(real_left_fixnum_p(check, 3), "optimize_and5-6");
-	GetArrayA4(array, 3, &check);
-	test(real_left_fixnum_p(check, 4), "optimize_and5-7");
-	GetArrayA4(array, 4, &check);
-	test(real_left_fixnum_p(check, 5), "optimize_and5-8");
+	GetArrayA4(array, 0, &value);
+	test(real_left_fixnum_p(value, 1), "optimize_and5-4");
+	GetArrayA4(array, 1, &value);
+	test(real_left_fixnum_p(value, 2), "optimize_and5-5");
+	GetArrayA4(array, 2, &value);
+	test(real_left_fixnum_p(value, 3), "optimize_and5-6");
+	GetArrayA4(array, 3, &value);
+	test(real_left_fixnum_p(value, 4), "optimize_and5-7");
+	GetArrayA4(array, 4, &value);
+	test(real_left_fixnum_p(value, 5), "optimize_and5-8");
 
 	SetNotDecl(pos, 1);
 	type_copy_local(local, &pos, pos);
-	test(! optimize_and5(local, &check, pos), "optimize_and5-9");
+	optimize_and5_(local, pos, &value, &check);
+	test(! check, "optimize_and5-9");
 
 	parse_type_string(&pos,
 			"(or (real 1) (real 2) (and (and (real 3)) (real 4)) (real 5))");
-	test(! optimize_and5(local, &check, pos), "optimize_and5-10");
+	optimize_and5_(local, pos, &value, &check);
+	test(! check, "optimize_and5-10");
 
 	parse_type_string(&pos,
 			"(and (real 1) (real 2) (or (or (real 3)) (real 4)) (real 5))");
-	test(! optimize_and5(local, &check, pos), "optimize_and5-11");
+	optimize_and5_(local, pos, &value, &check);
+	test(! check, "optimize_and5-11");
 
 	RETURN;
 }
@@ -1340,56 +1450,67 @@ static int test_check_typeor(void)
 
 static int test_optimize_or1(void)
 {
-	addr pos, array, check;
+	int check;
+	addr pos, array, value;
 	LocalRoot local = Local_Thread;
 
 	vector4_local(local, &array, 0);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(optimize_or1(local, &check, pos), "optimize_or1-1");
-	test(normlispdecl(check, LISPDECL_NIL), "optimize_or1-2");
+	optimize_or1_(local, pos, &value, &check);
+	test(check, "optimize_or1-1");
+	test(normlispdecl(value, LISPDECL_NIL), "optimize_or1-2");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_or1(local, &check, pos), "optimize_or1-3");
+	optimize_or1_(local, pos, &value, &check);
+	test(! check, "optimize_or1-3");
 
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_or1(local, &check, pos), "optimize_or1-4");
+	optimize_or1_(local, pos, &value, &check);
+	test(! check, "optimize_or1-4");
 
 	vector4_local(local, &array, 1);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_or1(local, &check, pos), "optimize_or1-5");
+	optimize_or1_(local, pos, &value, &check);
+	test(! check, "optimize_or1-5");
 
 	RETURN;
 }
 
 static int test_optimize_or2(void)
 {
-	addr pos, array, check, aster;
+	int check;
+	addr pos, array, value, aster;
 	LocalRoot local = Local_Thread;
 
 	vector4_local(local, &array, 1);
 	type_asterisk_local(local, &aster);
 	SetArrayA4(array, 0, aster);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	check = 0;
-	test(optimize_or2(local, &check, pos), "optimize_or2-1");
-	test(check == aster, "optimize_or2-2");
+	value = 0;
+	optimize_or2_(local, pos, &value, &check);
+	test(check, "optimize_or2-1");
+	test(value == aster, "optimize_or2-2");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_or2(local, &check, pos), "optimize_or2-3");
+	optimize_or2_(local, pos, &value, &check);
+	test(! check, "optimize_or2-3");
 
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_or2(local, &check, pos), "optimize_or2-4");
+	optimize_or2_(local, pos, &value, &check);
+	test(! check, "optimize_or2-4");
 
 	vector4_local(local, &array, 0);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_or2(local, &check, pos), "optimize_or2-5");
+	optimize_or2_(local, pos, &value, &check);
+	test(! check, "optimize_or2-5");
 
 	RETURN;
 }
 
 static int test_optimize_or3(void)
 {
-	addr pos, array, check, temp;
+	int check;
+	addr pos, array, value, temp;
 	size_t i, size;
 	LocalRoot local = Local_Thread;
 
@@ -1402,14 +1523,17 @@ static int test_optimize_or3(void)
 	type0_local(local, LISPDECL_T, &temp);
 	SetArrayA4(array, size / 2, temp);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(optimize_or3(local, &check, pos), "optimize_or3-1");
-	test(normlispdecl(check, LISPDECL_T), "optimize_or3-2");
+	optimize_or3_(local, pos, &value, &check);
+	test(check, "optimize_or3-1");
+	test(normlispdecl(value, LISPDECL_T), "optimize_or3-2");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_or3(local, &check, pos), "optimize_or3-3");
+	optimize_or3_(local, pos, &value, &check);
+	test(! check, "optimize_or3-3");
 
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_or3(local, &check, pos), "optimize_or3-4");
+	optimize_or3_(local, pos, &value, &check);
+	test(! check, "optimize_or3-4");
 
 	vector4_local(local, &array, size);
 	for (i = 0; i < size; i++) {
@@ -1417,87 +1541,106 @@ static int test_optimize_or3(void)
 		SetArrayA4(array, i, temp);
 	}
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_or3(local, &check, pos), "optimize_or3-5");
+	optimize_or3_(local, pos, &value, &check);
+	test(! check, "optimize_or3-5");
 
 	RETURN;
 }
 
 static int test_optimize_or4(void)
 {
-	addr pos, array, check, check2, temp;
+	int check;
+	addr pos, array, value1, value2, temp;
 	size_t size;
 	LocalRoot local = Local_Thread;
 
 	size = 3;
 	vector4_local(local, &array, size);
-	type0_local(local, LISPDECL_CONS, &check);
-	SetArrayA4(array, 0, check);
+	type0_local(local, LISPDECL_CONS, &value1);
+	SetArrayA4(array, 0, value1);
 	type0_local(local, LISPDECL_NIL, &temp);
 	SetArrayA4(array, 1, temp);
 	type0_local(local, LISPDECL_T, &temp);
 	SetArrayA4(array, 2, temp);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(optimize_or4(local, &check, pos), "optimize_or4-1");
-	test(normlispdecl(check, LISPDECL_OR), "optimize_or4-2");
-	GetArrayType(check, 0, &check);
-	test(lenarrayr(check) == 2, "optimize_or4-3");
-	GetArrayA4(check, 0, &check2);
-	test(normlispdecl(check2, LISPDECL_CONS), "optimize_or4-4");
-	GetArrayA4(check, 1, &check2);
-	test(normlispdecl(check2, LISPDECL_T), "optimize_or4-5");
+	optimize_or4_(local, pos, &value1, &check);
+	test(check, "optimize_or4-1");
+	test(normlispdecl(value1, LISPDECL_OR), "optimize_or4-2");
+	GetArrayType(value1, 0, &value1);
+	test(lenarrayr(value1) == 2, "optimize_or4-3");
+	GetArrayA4(value1, 0, &value2);
+	test(normlispdecl(value2, LISPDECL_CONS), "optimize_or4-4");
+	GetArrayA4(value1, 1, &value2);
+	test(normlispdecl(value2, LISPDECL_T), "optimize_or4-5");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_or4(local, &check, pos), "optimize_or4-6");
+	optimize_or4_(local, pos, &value1, &check);
+	test(! check, "optimize_or4-6");
 
 	type1_local(local, LISPDECL_AND, array, &pos);
-	test(! optimize_or4(local, &check, pos), "optimize_or4-7");
+	optimize_or4_(local, pos, &value1, &check);
+	test(! check, "optimize_or4-7");
 
-	type0_local(local, LISPDECL_CONS, &check);
-	SetArrayA4(array, 0, check);
-	type0_local(local, LISPDECL_NULL, &check);
-	SetArrayA4(array, 1, check);
+	type0_local(local, LISPDECL_CONS, &value1);
+	SetArrayA4(array, 0, value1);
+	type0_local(local, LISPDECL_NULL, &value1);
+	SetArrayA4(array, 1, value1);
 	type0_local(local, LISPDECL_T, &temp);
 	SetArrayA4(array, 2, temp);
 	type1_local(local, LISPDECL_OR, array, &pos);
-	test(! optimize_or4(local, &check, pos), "optimize_or4-8");
+	optimize_or4_(local, pos, &value1, &check);
+	test(! check, "optimize_or4-8");
 
 	RETURN;
 }
 
 static int test_optimize_or5(void)
 {
-	addr pos, check, array;
+	int check;
+	addr pos, value, array;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos,
 			"(or (real 1) (real 2) (or (or (real 3)) (real 4)) (real 5))");
-	test(optimize_or5(local, &check, pos), "optimize_or5-1");
-	test(normlispdecl(check, LISPDECL_OR), "optimize_or5-2");
-	GetArrayType(check, 0, &array);
+	optimize_or5_(local, pos, &value, &check);
+	test(check, "optimize_or5-1");
+	test(normlispdecl(value, LISPDECL_OR), "optimize_or5-2");
+	GetArrayType(value, 0, &array);
 	test(lenarrayr(array) == 5, "optimize_or5-3");
-	GetArrayA4(array, 0, &check);
-	test(real_left_fixnum_p(check, 1), "optimize_or5-4");
-	GetArrayA4(array, 1, &check);
-	test(real_left_fixnum_p(check, 2), "optimize_or5-5");
-	GetArrayA4(array, 2, &check);
-	test(real_left_fixnum_p(check, 3), "optimize_or5-6");
-	GetArrayA4(array, 3, &check);
-	test(real_left_fixnum_p(check, 4), "optimize_or5-7");
-	GetArrayA4(array, 4, &check);
-	test(real_left_fixnum_p(check, 5), "optimize_or5-8");
+	GetArrayA4(array, 0, &value);
+	test(real_left_fixnum_p(value, 1), "optimize_or5-4");
+	GetArrayA4(array, 1, &value);
+	test(real_left_fixnum_p(value, 2), "optimize_or5-5");
+	GetArrayA4(array, 2, &value);
+	test(real_left_fixnum_p(value, 3), "optimize_or5-6");
+	GetArrayA4(array, 3, &value);
+	test(real_left_fixnum_p(value, 4), "optimize_or5-7");
+	GetArrayA4(array, 4, &value);
+	test(real_left_fixnum_p(value, 5), "optimize_or5-8");
 
 	SetNotDecl(pos, 1);
-	test(! optimize_or5(local, &check, pos), "optimize_or5-9");
+	optimize_or5_(local, pos, &value, &check);
+	test(! check, "optimize_or5-9");
 
 	parse_type_string(&pos,
 			"(and (real 1) (real 2) (or (or (real 3)) (real 4)) (real 5))");
-	test(! optimize_or5(local, &check, pos), "optimize_or5-10");
+	optimize_or5_(local, pos, &value, &check);
+	test(! check, "optimize_or5-10");
 
 	parse_type_string(&pos,
 			"(or (real 1) (real 2) (and (and (real 3)) (real 4)) (real 5))");
-	test(! optimize_or5(local, &check, pos), "optimize_or5-11");
+	optimize_or5_(local, pos, &value, &check);
+	test(! check, "optimize_or5-11");
 
 	RETURN;
+}
+
+static int range_valid_p_degrade(addr pos)
+{
+	int check;
+	check = 0;
+	range_valid_p_(pos, &check);
+	return check;
 }
 
 static int test_range_valid_p(void)
@@ -1506,53 +1649,57 @@ static int test_range_valid_p(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(real * *)");
-	test(range_valid_p(pos), "range_valid_p1");
+	test(range_valid_p_degrade(pos), "range_valid_p1");
 
 	parse_type_string(&pos, "(real 10 *)");
-	test(range_valid_p(pos), "range_valid_p2");
+	test(range_valid_p_degrade(pos), "range_valid_p2");
 
 	parse_type_string(&pos, "(real * 10)");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	test(range_valid_p(pos), "range_valid_p3");
+	test(range_valid_p_degrade(pos), "range_valid_p3");
 
 	parse_type_string(&pos, "(real (10) 20)");
 	type_copy_local(local, &pos, pos);
 	SetNotDecl(pos, 1);
-	test(range_valid_p(pos), "range_valid_p4");
+	test(range_valid_p_degrade(pos), "range_valid_p4");
 
 	parse_type_string(&pos, "(real (20) 10)");
-	test(! range_valid_p(pos), "range_valid_p5");
+	test(! range_valid_p_degrade(pos), "range_valid_p5");
 
 	parse_type_string(&pos, "(real 10 10)");
-	test(range_valid_p(pos), "range_valid_p6");
+	test(range_valid_p_degrade(pos), "range_valid_p6");
 
 	parse_type_string(&pos, "(real (10) 10)");
-	test(! range_valid_p(pos), "range_valid_p7");
+	test(! range_valid_p_degrade(pos), "range_valid_p7");
 
 	parse_type_string(&pos, "(real 10 (10))");
-	test(! range_valid_p(pos), "range_valid_p8");
+	test(! range_valid_p_degrade(pos), "range_valid_p8");
 
 	parse_type_string(&pos, "(real (10) (10))");
-	test(! range_valid_p(pos), "range_valid_p9");
+	test(! range_valid_p_degrade(pos), "range_valid_p9");
 
 	RETURN;
 }
 
 static int test_optimize_range(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(integer 20 10)");
-	test(optimize_range(local, &pos, pos), "optimize_range1");
+	optimize_range_(local, pos, &pos, &check);
+	test(check, "optimize_range1");
 	test(testlispdecl(pos, LISPDECL_NIL), "optimize_range2");
 
 	parse_type_string(&pos, "(integer 10 20)");
-	test(! optimize_range(local, &pos, pos), "optimize_range3");
+	optimize_range_(local, pos, &pos, &check);
+	test(! check, "optimize_range3");
 
 	parse_type_string(&pos, "cons");
-	test(! optimize_range(local, &pos, pos), "optimize_range4");
+	optimize_range_(local, pos, &pos, &check);
+	test(! check, "optimize_range4");
 
 	RETURN;
 }
@@ -1569,18 +1716,18 @@ static int test_extract_values_var(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	extract_values_var(local, &pos, Nil);
+	extract_values_var_(local, Nil, &pos);
 
 	parse_type_string(&pos1, "(and symbol cons)");
 	parse_type_string(&pos2, "cons");
 	parse_type_string(&pos3, "array");
 	list_heap(&pos, pos1, pos2, pos3, NULL);
-	extract_values_var(local, &pos, pos);
+	extract_values_var_(local, pos, &pos);
 
 	parse_type_string(&pos1, "list");
 	parse_type_string(&pos2, "array");
 	list_heap(&pos, pos1, pos2, NULL);
-	extract_values_var(local, &pos, pos);
+	extract_values_var_(local, pos, &pos);
 	GetCons(pos, &pos1, &pos);
 	test(testlispdecl(pos1, LISPDECL_OR), "extract_values_var4");
 	GetCons(pos, &pos1, &pos);
@@ -1594,7 +1741,7 @@ static int test_extract_values_var(void)
 
 static void parse_type_values_string(addr *ret, const char *code)
 {
-	readstring(ret, code);
+	readstring_debug(ret, code);
 	if (parse_type_values(Execute_Thread, ret, *ret, Nil)) {
 		Error(fmte_("parse_type_values error.", NULL));
 	}
@@ -1602,31 +1749,40 @@ static void parse_type_values_string(addr *ret, const char *code)
 
 static int test_optimize_values(void)
 {
-	addr pos, check;
+	int check;
+	addr pos, value;
 	LocalRoot local = Local_Thread;
 
 	parse_type_values_string(&pos, "(values)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_values1");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_values1");
 	parse_type_values_string(&pos, "(values *)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_values2");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_values2");
 	parse_type_values_string(&pos, "(values integer)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_values3");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_values3");
 	parse_type_values_string(&pos, "(values list)");
-	test(type_optimize(local, &pos, pos), "optimize_values4");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_values4");
 	GetArrayType(pos, 0, &pos);
-	GetCons(pos, &check, &pos);
-	test(testlispdecl(check, LISPDECL_OR), "optimize_values5");
+	GetCons(pos, &value, &pos);
+	test(testlispdecl(value, LISPDECL_OR), "optimize_values5");
 	test(pos == Nil, "optimize_values6");
 
 	parse_type_values_string(&pos, "(values &optional cons)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_values7");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_values7");
 	parse_type_values_string(&pos, "(values &optional list)");
-	test(type_optimize(local, &pos, pos), "optimize_values8");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_values8");
 
 	parse_type_values_string(&pos, "(values &rest cons)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_values9");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_values9");
 	parse_type_values_string(&pos, "(values &rest list)");
-	test(type_optimize(local, &pos, pos), "optimize_values10");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_values10");
 
 	RETURN;
 }
@@ -1639,25 +1795,25 @@ static int test_extract_function_key(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	extract_function_key(local, &pos, Nil);
+	extract_function_key_(local, Nil, &pos);
 
-	readstring(&key1, "aaa");
+	readstring_debug(&key1, "aaa");
 	parse_type_string(&key2, "cons");
 	cons_heap(&pos1, key1, key2);
-	readstring(&key1, "bbb");
+	readstring_debug(&key1, "bbb");
 	parse_type_string(&key2, "array");
 	cons_heap(&pos2, key1, key2);
 	list_heap(&pos, pos1, pos2, NULL);
-	extract_function_key(local, &pos, pos);
+	extract_function_key_(local, pos, &pos);
 
-	readstring(&key1, "aaa");
+	readstring_debug(&key1, "aaa");
 	parse_type_string(&key2, "list");
 	cons_heap(&pos1, key1, key2);
-	readstring(&key1, "bbb");
+	readstring_debug(&key1, "bbb");
 	parse_type_string(&key2, "array");
 	cons_heap(&pos2, key1, key2);
 	list_heap(&pos, pos1, pos2, NULL);
-	extract_function_key(local, &pos, pos);
+	extract_function_key_(local, pos, &pos);
 
 	GetCons(pos, &pos1, &pos);
 	GetCons(pos1, &key1, &key2);
@@ -1676,28 +1832,38 @@ static int test_extract_function_key(void)
 
 static int test_extract_function(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(function (integer))");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_function1");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_function1");
 	parse_type_string(&pos, "(function (list))");
-	test(type_optimize(local, &pos, pos), "optimize_function2");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_function2");
 	parse_type_string(&pos, "(function (&optional list))");
-	test(type_optimize(local, &pos, pos), "optimize_function3");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_function3");
 	parse_type_string(&pos, "(function (&key (hello list)))");
-	test(type_optimize(local, &pos, pos), "optimize_function4");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_function4");
 
 	parse_type_string(&pos, "function");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_function5");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_function5");
 	parse_type_string(&pos, "(function *)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_function6");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_function6");
 	parse_type_string(&pos, "(function * *)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_function7");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_function7");
 	parse_type_string(&pos, "(function * integer)");
-	test(type_optimize(local, &pos, pos) == 0, "optimize_function8");
+	type_optimize_(local, pos, &pos, &check);
+	test(check == 0, "optimize_function8");
 	parse_type_string(&pos, "(function * list)");
-	test(type_optimize(local, &pos, pos), "optimize_function9");
+	type_optimize_(local, pos, &pos, &check);
+	test(check, "optimize_function9");
 
 	RETURN;
 }

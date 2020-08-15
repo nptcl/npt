@@ -326,7 +326,7 @@ _g int file_position_common(Execute ptr, addr stream, addr pos, addr *ret)
 	}
 
 	/* set index */
-	getindex_integer(pos, &size);
+	Return(getindex_integer_(pos, &size));
 	Return(file_position_set_stream_(stream, size, &check));
 
 return_result:

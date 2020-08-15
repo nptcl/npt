@@ -296,7 +296,7 @@ _g int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
 
 	/* intern */
 	SetCdr(cons, index);
-	oneplus_integer_common(ptr->local, index, &value);
+	Return(oneplus_integer_common_(ptr->local, index, &value));
 	SetCar(special, value);
 
 	return Result(ret, index);

@@ -25,7 +25,7 @@ static void test_parse_type(addr *ret, addr pos)
 
 static void parse_type_string(addr *ret, const char *code)
 {
-	readstring(ret, code);
+	readstring_debug(ret, code);
 	test_parse_type(ret, *ret);
 }
 
@@ -248,6 +248,7 @@ static int test_subtypep_sequence(void)
 
 static SubtypepResult subtypep_value(const char *str1, const char *str2, int asterisk)
 {
+	int ignore;
 	SubtypepResult value;
 	addr left, right;
 	LocalRoot local;
@@ -256,8 +257,8 @@ static SubtypepResult subtypep_value(const char *str1, const char *str2, int ast
 	local = Local_Thread;
 	parse_type_string(&left, str1);
 	parse_type_string(&right, str2);
-	type_optimize_heap(local, &left, left);
-	type_optimize_heap(local, &right, right);
+	type_optimize_heap_(local, left, &left, &ignore);
+	type_optimize_heap_(local, right, &right, &ignore);
 	get_type_optimized(&left, left);
 	get_type_optimized(&right, right);
 
@@ -484,265 +485,326 @@ static int test_subtypep_standard_char(void)
 
 static int test_subtypep_real_less(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer * 30)");
-	test(subtypep_real_less(left, right), "subtypep_real_less1");
+	subtypep_real_less_(left, right, &check);
+	test(check, "subtypep_real_less1");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer * 20)");
-	test(subtypep_real_less(left, right), "subtypep_real_less2");
+	subtypep_real_less_(left, right, &check);
+	test(check, "subtypep_real_less2");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer * 19)");
-	test(! subtypep_real_less(left, right), "subtypep_real_less3");
+	subtypep_real_less_(left, right, &check);
+	test(! check, "subtypep_real_less3");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer * 5)");
-	test(! subtypep_real_less(left, right), "subtypep_real_less4");
+	subtypep_real_less_(left, right, &check);
+	test(! check, "subtypep_real_less4");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer * 30)");
-	test(subtypep_real_less(left, right), "subtypep_real_less5");
+	subtypep_real_less_(left, right, &check);
+	test(check, "subtypep_real_less5");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer * 20)");
-	test(subtypep_real_less(left, right), "subtypep_real_less6");
+	subtypep_real_less_(left, right, &check);
+	test(check, "subtypep_real_less6");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer * 19)");
-	test(! subtypep_real_less(left, right), "subtypep_real_less7");
+	subtypep_real_less_(left, right, &check);
+	test(! check, "subtypep_real_less7");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer * 5)");
-	test(! subtypep_real_less(left, right), "subtypep_real_less8");
+	subtypep_real_less_(left, right, &check);
+	test(! check, "subtypep_real_less8");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 5)");
-	test(! subtypep_real_less(left, right), "subtypep_real_less9");
+	subtypep_real_less_(left, right, &check);
+	test(! check, "subtypep_real_less9");
 
 	parse_type_string(&left, "(integer 10 (20))");
 	parse_type_string(&right, "(integer * 20)");
-	test(subtypep_real_less(left, right), "subtypep_real_less10");
+	subtypep_real_less_(left, right, &check);
+	test(check, "subtypep_real_less10");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer * (20))");
-	test(! subtypep_real_less(left, right), "subtypep_real_less11");
+	subtypep_real_less_(left, right, &check);
+	test(! check, "subtypep_real_less11");
 
 	parse_type_string(&left, "(integer 10 (20))");
 	parse_type_string(&right, "(integer * (20))");
-	test(subtypep_real_less(left, right), "subtypep_real_less12");
+	subtypep_real_less_(left, right, &check);
+	test(check, "subtypep_real_less12");
 
 	RETURN;
 }
 
 static int test_subtypep_real_greater(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 5 *)");
-	test(subtypep_real_greater(left, right), "subtypep_real_greater1");
+	subtypep_real_greater_(left, right, &check);
+	test(check, "subtypep_real_greater1");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 10 *)");
-	test(subtypep_real_greater(left, right), "subtypep_real_greater2");
+	subtypep_real_greater_(left, right, &check);
+	test(check, "subtypep_real_greater2");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 11 *)");
-	test(! subtypep_real_greater(left, right), "subtypep_real_greater3");
+	subtypep_real_greater_(left, right, &check);
+	test(! check, "subtypep_real_greater3");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 30 *)");
-	test(! subtypep_real_greater(left, right), "subtypep_real_greater4");
+	subtypep_real_greater_(left, right, &check);
+	test(! check, "subtypep_real_greater4");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer 5 *)");
-	test(subtypep_real_greater(left, right), "subtypep_real_greater5");
+	subtypep_real_greater_(left, right, &check);
+	test(check, "subtypep_real_greater5");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer 10 *)");
-	test(subtypep_real_greater(left, right), "subtypep_real_greater6");
+	subtypep_real_greater_(left, right, &check);
+	test(check, "subtypep_real_greater6");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer 11 *)");
-	test(! subtypep_real_greater(left, right), "subtypep_real_greater7");
+	subtypep_real_greater_(left, right, &check);
+	test(! check, "subtypep_real_greater7");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer 30 *)");
-	test(! subtypep_real_greater(left, right), "subtypep_real_greater8");
+	subtypep_real_greater_(left, right, &check);
+	test(! check, "subtypep_real_greater8");
 
 	parse_type_string(&left, "(integer * 10)");
 	parse_type_string(&right, "(integer 30 *)");
-	test(! subtypep_real_greater(left, right), "subtypep_real_greater9");
+	subtypep_real_greater_(left, right, &check);
+	test(! check, "subtypep_real_greater9");
 
 	parse_type_string(&left, "(integer (10) 20)");
 	parse_type_string(&right, "(integer 10 *)");
-	test(subtypep_real_greater(left, right), "subtypep_real_greater10");
+	subtypep_real_greater_(left, right, &check);
+	test(check, "subtypep_real_greater10");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer (10) *)");
-	test(! subtypep_real_greater(left, right), "subtypep_real_greater11");
+	subtypep_real_greater_(left, right, &check);
+	test(! check, "subtypep_real_greater11");
 
 	parse_type_string(&left, "(integer (10) 20)");
 	parse_type_string(&right, "(integer (10) *)");
-	test(subtypep_real_greater(left, right), "subtypep_real_greater12");
+	subtypep_real_greater_(left, right, &check);
+	test(check, "subtypep_real_greater12");
 
 	RETURN;
 }
 
 static int test_subtypep_real_range(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer 15 16)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(subtypep_real_range(left, right), "subtypep_real_range1");
+	subtypep_real_range_(left, right, &check);
+	test(check, "subtypep_real_range1");
 
 	parse_type_string(&left, "(integer 10 16)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(subtypep_real_range(left, right), "subtypep_real_range2");
+	subtypep_real_range_(left, right, &check);
+	test(check, "subtypep_real_range2");
 
 	parse_type_string(&left, "(integer 15 20)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(subtypep_real_range(left, right), "subtypep_real_range3");
+	subtypep_real_range_(left, right, &check);
+	test(check, "subtypep_real_range3");
 
 	parse_type_string(&left, "(integer 15 30)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(! subtypep_real_range(left, right), "subtypep_real_range4");
+	subtypep_real_range_(left, right, &check);
+	test(! check, "subtypep_real_range4");
 
 	parse_type_string(&left, "(integer 100 200)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(! subtypep_real_range(left, right), "subtypep_real_range5");
+	subtypep_real_range_(left, right, &check);
+	test(! check, "subtypep_real_range5");
 
 	RETURN;
 }
 
 static int test_subtypep_realcheck(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "integer");
-	test(subtypep_realcheck(left, right), "subtypep_realcheck1");
+	subtypep_realcheck_(left, right, &check);
+	test(check, "subtypep_realcheck1");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(integer 10 20)");
-	test(! subtypep_realcheck(left, right), "subtypep_realcheck2");
+	subtypep_realcheck_(left, right, &check);
+	test(! check, "subtypep_realcheck2");
 
 	parse_type_string(&left, "(integer 15 15)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(subtypep_realcheck(left, right), "subtypep_realcheck3");
+	subtypep_realcheck_(left, right, &check);
+	test(check, "subtypep_realcheck3");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer * 30)");
-	test(subtypep_realcheck(left, right), "subtypep_realcheck4");
+	subtypep_realcheck_(left, right, &check);
+	test(check, "subtypep_realcheck4");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 5 *)");
-	test(subtypep_realcheck(left, right), "subtypep_realcheck5");
+	subtypep_realcheck_(left, right, &check);
+	test(check, "subtypep_realcheck5");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 0 100)");
-	test(subtypep_realcheck(left, right), "subtypep_realcheck6");
+	subtypep_realcheck_(left, right, &check);
+	test(check, "subtypep_realcheck6");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 200 300)");
-	test(! subtypep_realcheck(left, right), "subtypep_realcheck7");
+	subtypep_realcheck_(left, right, &check);
+	test(! check, "subtypep_realcheck7");
 
 	RETURN;
 }
 
 static int test_realexclude_left(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer * 10)");
 	parse_type_string(&right, "(integer 20 *)");
-	test(subtypep_realexlucde(left, right), "realexclude_left1");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_left1");
 
 	parse_type_string(&left, "(integer * 30)");
 	parse_type_string(&right, "(integer 20 *)");
-	test(! subtypep_realexlucde(left, right), "realexclude_left2");
+	subtypep_realexlucde_(left, right, &check);
+	test(! check, "realexclude_left2");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 30 40)");
-	test(subtypep_realexlucde(left, right), "realexclude_left3");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_left3");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer 20 *)");
-	test(! subtypep_realexlucde(left, right), "realexclude_left4");
+	subtypep_realexlucde_(left, right, &check);
+	test(! check, "realexclude_left4");
 
 	parse_type_string(&left, "(integer * (20))");
 	parse_type_string(&right, "(integer 20 *)");
-	test(subtypep_realexlucde(left, right), "realexclude_left5");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_left5");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer (20) *)");
-	test(subtypep_realexlucde(left, right), "realexclude_left6");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_left6");
 
 	parse_type_string(&left, "(integer * (20))");
 	parse_type_string(&right, "(integer (20) *)");
-	test(subtypep_realexlucde(left, right), "realexclude_left7");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_left7");
 
 	RETURN;
 }
 
 static int test_realexclude_right(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer * 10)");
-	test(subtypep_realexlucde(left, right), "realexclude_right1");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_right1");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 20)");
-	test(! subtypep_realexlucde(left, right), "realexclude_right2");
+	subtypep_realexlucde_(left, right, &check);
+	test(! check, "realexclude_right2");
 
 	parse_type_string(&left, "(integer 30 40)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(subtypep_realexlucde(left, right), "realexclude_right3");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_right3");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 10)");
-	test(! subtypep_realexlucde(left, right), "realexclude_right4");
+	subtypep_realexlucde_(left, right, &check);
+	test(! check, "realexclude_right4");
 
 	parse_type_string(&left, "(integer (10) *)");
 	parse_type_string(&right, "(integer * 10)");
-	test(subtypep_realexlucde(left, right), "realexclude_right5");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_right5");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * (10))");
-	test(subtypep_realexlucde(left, right), "realexclude_right6");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_right6");
 
 	parse_type_string(&left, "(integer (10) *)");
 	parse_type_string(&right, "(integer * (10))");
-	test(subtypep_realexlucde(left, right), "realexclude_right7");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "realexclude_right7");
 
 	RETURN;
 }
 
 static int test_subtypep_realexclude(void)
 {
+	int check;
 	addr left, right;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(integer 30 40)");
-	test(subtypep_realexlucde(left, right), "subtypep_realexclude1");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "subtypep_realexclude1");
 
 	parse_type_string(&left, "(integer 30 40)");
 	parse_type_string(&right, "(integer 10 20)");
-	test(subtypep_realexlucde(left, right), "subtypep_realexclude2");
+	subtypep_realexlucde_(left, right, &check);
+	test(check, "subtypep_realexclude2");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 20 40)");
-	test(! subtypep_realexlucde(left, right), "subtypep_realexclude3");
+	subtypep_realexlucde_(left, right, &check);
+	test(! check, "subtypep_realexclude3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 30)");
-	test(! subtypep_realexlucde(left, right), "subtypep_realexclude4");
+	subtypep_realexlucde_(left, right, &check);
+	test(! check, "subtypep_realexclude4");
 
 	RETURN;
 }
@@ -1145,7 +1207,7 @@ static int test_ordinary_keytype(void)
 	ordinary_keytype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "ordinary_keytype2");
 	GetArrayType(pos, 0, &pos);
-	readstring(&check, "name");
+	readstring_debug(&check, "name");
 	test(pos == check, "ordinary_keytype3");
 
 	/* (or (eql key) ...) */
@@ -1158,19 +1220,19 @@ static int test_ordinary_keytype(void)
 	getarray(array, 0, &pos);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "ordinary_keytype6");
 	GetArrayType(pos, 0, &pos);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(pos == check, "ordinary_keytype7");
 
 	getarray(array, 1, &pos);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "ordinary_keytype8");
 	GetArrayType(pos, 0, &pos);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(pos == check, "ordinary_keytype9");
 
 	getarray(array, 2, &pos);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "ordinary_keytype10");
 	GetArrayType(pos, 0, &pos);
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	test(pos == check, "ordinary_keytype11");
 
 	RETURN;
@@ -1314,7 +1376,7 @@ static int test_ordinary_subtypep(void)
 
 static void parse_values_string(addr *ret, const char *code)
 {
-	readstring(ret, code);
+	readstring_debug(ret, code);
 	if (parse_type_values(Execute_Thread, ret, *ret, Nil))
 		Error(fmte_("parse-type-values error.", NULL));
 }
@@ -1325,7 +1387,7 @@ static void extractchar(addr *ret, const char *str)
 
 	local = Local_Thread;
 	parse_values_string(ret, str);
-	real_extract_subtypep(local, ret, *ret);
+	real_extract_subtypep_(local, ret, *ret);
 }
 
 static void argschar(ordargs *ret, const char *str)
@@ -1609,7 +1671,7 @@ static int test_subtypep_compiled_function(void)
  */
 static void parse_type_string_not(addr *ret, const char *code)
 {
-	readstring(ret, code);
+	readstring_debug(ret, code);
 	test_parse_type(ret, *ret);
 	type_copy_heap(ret, *ret);
 	SetNotDecl(*ret, 1);

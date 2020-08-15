@@ -2230,7 +2230,7 @@ static int syscall_timeinfo(Execute ptr)
 {
 	addr real, run, size, count;
 
-	timeinfo_syscode(ptr->local, &real, &run, &size, &count);
+	Return(timeinfo_syscode_(ptr->local, &real, &run, &size, &count));
 	setvalues_control(ptr, real, run, size, count, NULL);
 
 	return 0;

@@ -9,217 +9,261 @@
 /*
  *  rational
  */
-_g int plusp_rational(addr pos)
+_g int plusp_rational_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return plusp_fixnum(pos);
+			return Result(ret, plusp_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			return plusp_bignum(pos);
+			return Result(ret, plusp_bignum(pos));
 
 		case LISPTYPE_RATIO:
-			return plusp_ratio(pos);
+			return Result(ret, plusp_ratio(pos));
 
 		default:
-			TypeError(pos, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, RATIONAL);
 	}
 }
 
-_g int minusp_rational(addr pos)
+_g int minusp_rational_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return minusp_fixnum(pos);
+			return Result(ret, minusp_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			return minusp_bignum(pos);
+			return Result(ret, minusp_bignum(pos));
 
 		case LISPTYPE_RATIO:
-			return minusp_ratio(pos);
+			return Result(ret, minusp_ratio(pos));
 
 		default:
-			TypeError(pos, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, RATIONAL);
 	}
 }
 
-_g int zerop_rational(addr pos)
+_g int zerop_rational_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return zerop_fixnum(pos);
+			return Result(ret, zerop_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			return zerop_bignum(pos);
+			return Result(ret, zerop_bignum(pos));
 
 		case LISPTYPE_RATIO:
-			return zerop_ratio(pos);
+			return Result(ret, zerop_ratio(pos));
 
 		default:
-			TypeError(pos, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, RATIONAL);
 	}
 }
 
-static inline int equal_fixnum_rational(addr left, addr right)
+static inline int equal_fixnum_rational_(addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_ff_real(left, right);
+			return Result(ret, equal_ff_real(left, right));
 
 		case LISPTYPE_BIGNUM:
-			return equal_fb_real(left, right);
+			return Result(ret, equal_fb_real(left, right));
 
 		case LISPTYPE_RATIO:
-			return equal_fr_real(left, right);
+			return Result(ret, equal_fr_real(left, right));
 
 		default:
-			TypeError(right, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(right, RATIONAL);
 	}
 }
 
-static inline int equal_bignum_rational(addr left, addr right)
+static inline int equal_bignum_rational_(addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_bf_real(left, right);
+			return Result(ret, equal_bf_real(left, right));
 
 		case LISPTYPE_BIGNUM:
-			return equal_bb_real(left, right);
+			return Result(ret, equal_bb_real(left, right));
 
 		case LISPTYPE_RATIO:
-			return equal_br_real(left, right);
+			return Result(ret, equal_br_real(left, right));
 
 		default:
-			TypeError(right, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(right, RATIONAL);
 	}
 }
 
-static inline int equal_ratio_rational(addr left, addr right)
+static inline int equal_ratio_rational_(addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return equal_rf_real(left, right);
+			return Result(ret, equal_rf_real(left, right));
 
 		case LISPTYPE_BIGNUM:
-			return equal_rb_real(left, right);
+			return Result(ret, equal_rb_real(left, right));
 
 		case LISPTYPE_RATIO:
-			return equal_rr_real(left, right);
+			return Result(ret, equal_rr_real(left, right));
 
 		default:
-			TypeError(right, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(right, RATIONAL);
 	}
 }
 
-_g int equal_rational(addr left, addr right)
+_g int equal_rational_(addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			return equal_fixnum_rational(left, right);
+			return equal_fixnum_rational_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			return equal_bignum_rational(left, right);
+			return equal_bignum_rational_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			return equal_ratio_rational(left, right);
+			return equal_ratio_rational_(left, right, ret);
 
 		default:
-			TypeError(left, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(left, RATIONAL);
 	}
 }
 
-static inline int compare_fixnum_rational(LocalRoot local, addr left, addr right)
+_g int not_equal_rational_(addr left, addr right, int *ret)
+{
+	int check;
+	Return(equal_rational_(left, right, &check));
+	return Result(ret, ! check);
+}
+
+static inline int compare_fixnum_rational_(LocalRoot local,
+		addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return compare_ff_real(left, right);
+			return Result(ret, compare_ff_real(left, right));
 
 		case LISPTYPE_BIGNUM:
-			return compare_fb_real(left, right);
+			return Result(ret, compare_fb_real(left, right));
 
 		case LISPTYPE_RATIO:
-			return compare_fr_real(local, left, right);
+			return Result(ret, compare_fr_real(local, left, right));
 
 		default:
-			TypeError(right, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(right, RATIONAL);
 	}
 }
 
-static inline int compare_bignum_rational(LocalRoot local, addr left, addr right)
+static inline int compare_bignum_rational_(LocalRoot local,
+		addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return compare_bf_real(left, right);
+			return Result(ret, compare_bf_real(left, right));
 
 		case LISPTYPE_BIGNUM:
-			return compare_bb_real(left, right);
+			return Result(ret, compare_bb_real(left, right));
 
 		case LISPTYPE_RATIO:
-			return compare_br_real(local, left, right);
+			return Result(ret, compare_br_real(local, left, right));
 
 		default:
-			TypeError(right, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(right, RATIONAL);
 	}
 }
 
-static inline int compare_ratio_rational(LocalRoot local, addr left, addr right)
+static inline int compare_ratio_rational_(LocalRoot local,
+		addr left, addr right, int *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return compare_rf_real(local, left, right);
+			return Result(ret, compare_rf_real(local, left, right));
 
 		case LISPTYPE_BIGNUM:
-			return compare_rb_real(local, left, right);
+			return Result(ret, compare_rb_real(local, left, right));
 
 		case LISPTYPE_RATIO:
-			return compare_rr_real(local, left, right);
+			return Result(ret, compare_rr_real(local, left, right));
 
 		default:
-			TypeError(right, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(right, RATIONAL);
 	}
 }
 
-_g int compare_rational(LocalRoot local, addr left, addr right)
+_g int compare_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			return compare_fixnum_rational(local, left, right);
+			return compare_fixnum_rational_(local, left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			return compare_bignum_rational(local, left, right);
+			return compare_bignum_rational_(local, left, right, ret);
 
 		case LISPTYPE_RATIO:
-			return compare_ratio_rational(local, left, right);
+			return compare_ratio_rational_(local, left, right, ret);
 
 		default:
-			TypeError(left, RATIONAL);
-			return 0;
+			*ret = 0;
+			return TypeError_(left, RATIONAL);
 	}
 }
 
-_g int less_rational_clang(LocalRoot local, addr left, addr right)
+_g int less_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
-	return less_rational(local, left, right);
+	int check;
+	Return(compare_rational_(local, left, right, &check));
+	return Result(ret, check < 0);
 }
 
-_g int less_equal_rational_clang(LocalRoot local, addr left, addr right)
+_g int less_equal_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
-	return less_equal_rational(local, left, right);
+	int check;
+	Return(compare_rational_(local, left, right, &check));
+	return Result(ret, check <= 0);
+}
+
+_g int greater_rational_(LocalRoot local, addr left, addr right, int *ret)
+{
+	int check;
+	Return(compare_rational_(local, left, right, &check));
+	return Result(ret, check > 0);
+}
+
+_g int greater_equal_rational_(LocalRoot local, addr left, addr right, int *ret)
+{
+	int check;
+	Return(compare_rational_(local, left, right, &check));
+	return Result(ret, check >= 0);
+}
+
+_g int less_rational_debug(LocalRoot local, addr left, addr right)
+{
+	int check;
+	check = 0;
+	Error(less_rational_(local, left, right, &check));
+	return check;
+}
+
+_g int less_equal_rational_debug(LocalRoot local, addr left, addr right)
+{
+	int check;
+	check = 0;
+	Error(less_equal_rational_(local, left, right, &check));
+	return check;
 }
 

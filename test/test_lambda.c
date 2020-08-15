@@ -432,7 +432,7 @@ static void import_test(void)
 
 static void lambda_readtest(addr *ret, const char *str)
 {
-	if (readstring(ret, str)) {
+	if (readstring_debug(ret, str)) {
 		Error(fmte_("error", NULL));
 	}
 }

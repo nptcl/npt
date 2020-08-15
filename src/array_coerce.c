@@ -1684,24 +1684,24 @@ _g int array_coerce_single_t_(addr value, single_float *rv, int *ret)
 			return Result(ret, 0);
 
 		case LISPTYPE_BIGNUM:
-			*rv = single_float_bignum(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return single_float_bignum_(value, rv);
 
 		case LISPTYPE_RATIO:
-			*rv = single_float_ratio(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return single_float_ratio_(value, rv);
 
 		case LISPTYPE_SINGLE_FLOAT:
 			GetSingleFloat(value, rv);
 			return Result(ret, 0);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*rv = cast_ds_value(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_ds_value_(value, rv);
 
 		case LISPTYPE_LONG_FLOAT:
-			*rv = cast_ls_value(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_ls_value_(value, rv);
 
 		default:
 			*rv = 0.0f;
@@ -1789,12 +1789,12 @@ _g int array_coerce_single_(addr pos, size_t i, single_float *rv, int *ret)
 			return Result(ret, 0);
 
 		case ARRAY_TYPE_DOUBLE_FLOAT:
-			*rv = cast_ds_float(value.value.double_value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_ds_float_(value.value.double_value, rv);
 
 		case ARRAY_TYPE_LONG_FLOAT:
-			*rv = cast_ls_float(value.value.long_value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_ls_float_(value.value.long_value, rv);
 
 		default:
 			*rv = 0.0f;
@@ -1814,24 +1814,24 @@ _g int array_coerce_double_t_(addr value, double_float *rv, int *ret)
 			return Result(ret, 0);
 
 		case LISPTYPE_BIGNUM:
-			*rv = double_float_bignum(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return double_float_bignum_(value, rv);
 
 		case LISPTYPE_RATIO:
-			*rv = double_float_ratio(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return double_float_ratio_(value, rv);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			*rv = cast_sd_value(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_sd_value_(value, rv);
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			GetDoubleFloat(value, rv);
 			return Result(ret, 0);
 
 		case LISPTYPE_LONG_FLOAT:
-			*rv = cast_ld_value(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_ld_value_(value, rv);
 
 		default:
 			*rv = 0.0;
@@ -1915,16 +1915,16 @@ _g int array_coerce_double_(addr pos, size_t i, double_float *rv, int *ret)
 			return array_coerce_double_unsigned_(&value, rv, ret);
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
-			*rv = cast_sd_float(value.value.single_value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_sd_float_(value.value.single_value, rv);
 
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 			*rv = value.value.double_value;
 			return Result(ret, 0);
 
 		case ARRAY_TYPE_LONG_FLOAT:
-			*rv = cast_ld_float(value.value.long_value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_ld_float_(value.value.long_value, rv);
 
 		default:
 			*rv = 0.0;
@@ -1944,20 +1944,20 @@ _g int array_coerce_long_t_(addr value, long_float *rv, int *ret)
 			return Result(ret, 0);
 
 		case LISPTYPE_BIGNUM:
-			*rv = long_float_bignum(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return long_float_bignum_(value, rv);
 
 		case LISPTYPE_RATIO:
-			*rv = long_float_ratio(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return long_float_ratio_(value, rv);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			*rv = cast_sl_value(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_sl_value_(value, rv);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*rv = cast_dl_value(value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_dl_value_(value, rv);
 
 		case LISPTYPE_LONG_FLOAT:
 			GetLongFloat(value, rv);
@@ -2045,12 +2045,12 @@ _g int array_coerce_long_(addr pos, size_t i, long_float *rv, int *ret)
 			return array_coerce_long_unsigned_(&value, rv, ret);
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
-			*rv = cast_sl_float(value.value.single_value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_sl_float_(value.value.single_value, rv);
 
 		case ARRAY_TYPE_DOUBLE_FLOAT:
-			*rv = cast_dl_float(value.value.double_value);
-			return Result(ret, 0);
+			*ret = 0;
+			return cast_dl_float_(value.value.double_value, rv);
 
 		case ARRAY_TYPE_LONG_FLOAT:
 			*rv = value.value.long_value;

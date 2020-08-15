@@ -1732,7 +1732,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 		localhold_set(hold, 0, value);
 		if (type == T)
 			break;
-		Return(typep_clang(ptr, value, spec, &result));
+		Return(typep_clang_(ptr, value, spec, &result));
 		if (result)
 			break;
 

@@ -251,11 +251,24 @@ _g void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value)
 	bignum_value_alloc(local, ret, sign, result);
 }
 
+static int bignum_counter_alloc_p_(addr index, int *ret)
+{
+	if (! integerp(index))
+		return Result(ret, 1);
+	
+	Return(minusp_integer_(index, ret));
+	if (*ret)
+		return 0;
+	
+	return zerop_integer_(index, ret);
+}
+
 _g int bignum_counter_alloc_(LocalRoot local, addr *ret, addr index)
 {
-	if ((! integerp(index))
-			|| minusp_integer(index)
-			|| zerop_integer(index)) {
+	int check;
+
+	Return(bignum_counter_alloc_p_(index, &check));
+	if (check) {
 		*ret = Nil;
 		return fmte_("The value ~S must be a positive integer.", index, NULL);
 	}
@@ -333,10 +346,10 @@ _g void bignum_result_debug(LocalRoot local, addr pos, addr *ret)
 	bignum_result_alloc(local, pos, ret);
 }
 
-_g void bignum_integer_debug(LocalRoot local, addr *ret, addr pos)
+_g int bignum_integer_debug_(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
-	bignum_integer_alloc(local, ret, pos);
+	return bignum_integer_alloc_(local, ret, pos);
 }
 
 
@@ -532,7 +545,7 @@ _g void bignum_result_alloc(LocalRoot local, addr pos, addr *ret)
 	bignum_throw_alloc(local, pos, ret);
 }
 
-_g void bignum_integer_alloc(LocalRoot local, addr *ret, addr pos)
+_g int bignum_integer_alloc_(LocalRoot local, addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -544,9 +557,11 @@ _g void bignum_integer_alloc(LocalRoot local, addr *ret, addr pos)
 			break;
 
 		default:
-			TypeError(pos, INTEGER);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, INTEGER);
 	}
+
+	return 0;
 }
 
 _g void bignum_throw_heap(addr pos, addr *ret)

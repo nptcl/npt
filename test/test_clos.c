@@ -450,16 +450,16 @@ static int test_clos_getp(void)
 
 	slot_vector_heap(&slots, 4);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("aaa"));
+	SetNameSlot(pos, readr_debug("aaa"));
 	SetSlotVector(slots, 0, pos);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("bbb"));
+	SetNameSlot(pos, readr_debug("bbb"));
 	SetSlotVector(slots, 1, pos);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("standard-class"));
+	SetNameSlot(pos, readr_debug("standard-class"));
 	SetSlotVector(slots, 2, pos);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("ddd"));
+	SetNameSlot(pos, readr_debug("ddd"));
 	SetSlotVector(slots, 3, pos);
 
 	clos_heap(&pos, slots);
@@ -470,34 +470,34 @@ static int test_clos_getp(void)
 	index = CONSTANT_COMMON_STANDARD_OBJECT;
 	test(clos_errorp(pos, 3, index), "clos_errorp4");
 
-	test(! clos_getp(pos, readr("zzz"), &name), "clos_getp1");
-	test(clos_getp(pos, readr("aaa"), &name), "clos_getp2");
+	test(! clos_getp(pos, readr_debug("zzz"), &name), "clos_getp1");
+	test(clos_getp(pos, readr_debug("aaa"), &name), "clos_getp2");
 	test(name == Unbound, "clos_getp3");
 	GetValueClos(pos, &value);
 	SetClosValue(value, 1, T);
-	test(clos_getp(pos, readr("bbb"), &name), "clos_getp4");
+	test(clos_getp(pos, readr_debug("bbb"), &name), "clos_getp4");
 	test(name == T, "clos_getp5");
 
 	fixnum_heap(&v, 10);
-	test(! clos_setp(pos, readr("zzz"), v), "clos_setp1");
-	test(clos_setp(pos, readr("ddd"), v), "clos_setp2");
-	test(clos_getp(pos, readr("ddd"), &name), "clos_setp3");
+	test(! clos_setp(pos, readr_debug("zzz"), v), "clos_setp1");
+	test(clos_setp(pos, readr_debug("ddd"), v), "clos_setp2");
+	test(clos_getp(pos, readr_debug("ddd"), &name), "clos_setp3");
 	test(name == v, "clos_setp4");
 
 	name = 0;
-	clos_checkp_(pos, readr("zzz"), &name, &check);
+	clos_checkp_(pos, readr_debug("zzz"), &name, &check);
 	test(! check, "clos_checkp1");
-	clos_checkp_(pos, readr("ddd"), &name, &check);
+	clos_checkp_(pos, readr_debug("ddd"), &name, &check);
 	test(check, "clos_checkp2");
 	test(name == v, "clos_checkp3");
 
-	clos_get_(pos, readr("bbb"), &name);
+	clos_get_(pos, readr_debug("bbb"), &name);
 	test(name == T, "clos_get1");
-	clos_set_(pos, readr("bbb"), v);
-	clos_get_(pos, readr("bbb"), &name);
+	clos_set_(pos, readr_debug("bbb"), v);
+	clos_get_(pos, readr_debug("bbb"), &name);
 	test(name == v, "clos_set1");
 	name = 0;
-	clos_check_(pos, readr("bbb"), &name);
+	clos_check_(pos, readr_debug("bbb"), &name);
 	test(name == v, "clos_check1");
 
 	name = 0;
@@ -525,44 +525,44 @@ static int test_clos_slot_exists_p(void)
 
 	slot_vector_heap(&slots, 4);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("aaa"));
+	SetNameSlot(pos, readr_debug("aaa"));
 	SetSlotVector(slots, 0, pos);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("bbb"));
+	SetNameSlot(pos, readr_debug("bbb"));
 	SetSlotVector(slots, 1, pos);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("standard-class"));
+	SetNameSlot(pos, readr_debug("standard-class"));
 	SetSlotVector(slots, 2, pos);
 	slot_heap(&pos);
-	SetNameSlot(pos, readr("ddd"));
+	SetNameSlot(pos, readr_debug("ddd"));
 	SetSlotVector(slots, 3, pos);
 	clos_heap(&pos, slots);
 
-	test(clos_slot_exists_p(pos, readr("bbb")), "clos_slot_exists_p1");
-	test(! clos_slot_exists_p(pos, readr("zzz")), "clos_slot_exists_p2");
-	test(! clos_slot_boundp_nil(pos, readr("bbb")), "clos_slot_boundp_nil1");
-	clos_setp(pos, readr("bbb"), Nil);
-	test(clos_slot_boundp_nil(pos, readr("bbb")), "clos_slot_boundp_nil2");
-	test(clos_slot_boundp_nil(pos, readr("zzz")) < 0, "clos_slot_boundp_nil3");
+	test(clos_slot_exists_p(pos, readr_debug("bbb")), "clos_slot_exists_p1");
+	test(! clos_slot_exists_p(pos, readr_debug("zzz")), "clos_slot_exists_p2");
+	test(! clos_slot_boundp_nil(pos, readr_debug("bbb")), "clos_slot_boundp_nil1");
+	clos_setp(pos, readr_debug("bbb"), Nil);
+	test(clos_slot_boundp_nil(pos, readr_debug("bbb")), "clos_slot_boundp_nil2");
+	test(clos_slot_boundp_nil(pos, readr_debug("zzz")) < 0, "clos_slot_boundp_nil3");
 
-	clos_setp(pos, readr("bbb"), Unbound);
-	clos_slot_boundp_(pos, readr("bbb"), &check);
+	clos_setp(pos, readr_debug("bbb"), Unbound);
+	clos_slot_boundp_(pos, readr_debug("bbb"), &check);
 	test(! check, "clos_slot_boundp1");
-	clos_setp(pos, readr("bbb"), Nil);
-	clos_slot_boundp_(pos, readr("bbb"), &check);
+	clos_setp(pos, readr_debug("bbb"), Nil);
+	clos_slot_boundp_(pos, readr_debug("bbb"), &check);
 	test(check, "clos_slot_boundp2");
 
-	clos_slot_makunbound_nil_(pos, readr("zzz"), &check);
+	clos_slot_makunbound_nil_(pos, readr_debug("zzz"), &check);
 	test(check, "clos_slot_makunbound_nil1");
-	clos_setp(pos, readr("bbb"), Nil);
-	clos_slot_makunbound_nil_(pos, readr("bbb"), &check);
+	clos_setp(pos, readr_debug("bbb"), Nil);
+	clos_slot_makunbound_nil_(pos, readr_debug("bbb"), &check);
 	test(! check, "clos_slot_makunbound_nil2");
-	clos_slot_boundp_(pos, readr("bbb"), &check);
+	clos_slot_boundp_(pos, readr_debug("bbb"), &check);
 	test(! check, "clos_slot_makunbound_nil3");
 
-	clos_setp(pos, readr("bbb"), Nil);
-	clos_slot_makunbound_(pos, readr("bbb"));
-	clos_slot_boundp_(pos, readr("bbb"), &check);
+	clos_setp(pos, readr_debug("bbb"), Nil);
+	clos_slot_makunbound_(pos, readr_debug("bbb"));
+	clos_slot_boundp_(pos, readr_debug("bbb"), &check);
 	test(! check, "clos_slot_makunbound1");
 
 	RETURN;
@@ -576,16 +576,16 @@ static int test_clos_find_class(void)
 {
 	addr pos;
 
-	clos_find_class_nil(readr("aaa"), &pos);
+	clos_find_class_nil(readr_debug("aaa"), &pos);
 	test(pos == Nil, "clos_find_class1");
-	clos_find_class_nil(readr("method"), &pos);
+	clos_find_class_nil(readr_debug("method"), &pos);
 	test(closp(pos), "clos_find_class2");
-	clos_find_class_(readr("class"), &pos);
+	clos_find_class_(readr_debug("class"), &pos);
 	test(closp(pos), "clos_find_class3");
 
-	clos_define_class(readr("aaa"), pos);
+	clos_define_class(readr_debug("aaa"), pos);
 	pos = 0;
-	clos_find_class_(readr("aaa"), &pos);
+	clos_find_class_(readr_debug("aaa"), &pos);
 	test(closp(pos), "clos_find_class4");
 
 	RETURN;
@@ -595,15 +595,15 @@ static int test_clos_find_generic(void)
 {
 	addr pos;
 
-	clos_find_generic_nil(readr("aaa"), &pos);
+	clos_find_generic_nil(readr_debug("aaa"), &pos);
 	test(pos == Nil, "clos_find_generic1");
-	clos_find_class_(readr("method"), &pos);
-	clos_define_generic_(readr("aaa"), pos);
+	clos_find_class_(readr_debug("method"), &pos);
+	clos_define_generic_(readr_debug("aaa"), pos);
 	pos = 0;
-	clos_find_generic_nil(readr("aaa"), &pos);
+	clos_find_generic_nil(readr_debug("aaa"), &pos);
 	test(closp(pos), "clos_find_generic2");
 	pos = 0;
-	clos_find_generic_(readr("aaa"), &pos);
+	clos_find_generic_(readr_debug("aaa"), &pos);
 	test(closp(pos), "clos_find_generic3");
 
 	RETURN;
@@ -613,16 +613,16 @@ static int test_clos_find_combination(void)
 {
 	addr pos;
 
-	clos_find_combination_nil(readr("aaa"), &pos);
+	clos_find_combination_nil(readr_debug("aaa"), &pos);
 	test(pos == Nil, "clos_find_combination1");
-	clos_find_combination_nil(readr("progn"), &pos);
+	clos_find_combination_nil(readr_debug("progn"), &pos);
 	test(closp(pos), "clos_find_combination2");
-	clos_find_combination_(readr("+"), &pos);
+	clos_find_combination_(readr_debug("+"), &pos);
 	test(closp(pos), "clos_find_combination3");
 
-	clos_define_combination(readr("aaa"), pos);
+	clos_define_combination(readr_debug("aaa"), pos);
 	pos = 0;
-	clos_find_combination_(readr("aaa"), &pos);
+	clos_find_combination_(readr_debug("aaa"), &pos);
 	test(closp(pos), "clos_find_combination4");
 
 	RETURN;
@@ -632,15 +632,15 @@ static int test_clos_find_specializer(void)
 {
 	addr pos;
 
-	clos_find_specializer_nil_(readr("aaa"), &pos);
+	clos_find_specializer_nil_(readr_debug("aaa"), &pos);
 	test(pos == Nil, "clos_find_specializer1");
-	clos_find_class_(readr("method"), &pos);
-	clos_define_specializer_(readr("aaa"), pos);
+	clos_find_class_(readr_debug("method"), &pos);
+	clos_define_specializer_(readr_debug("aaa"), pos);
 	pos = 0;
-	clos_find_specializer_nil_(readr("aaa"), &pos);
+	clos_find_specializer_nil_(readr_debug("aaa"), &pos);
 	test(closp(pos), "clos_find_specializer2");
 	pos = 0;
-	clos_find_specializer_(readr("aaa"), &pos);
+	clos_find_specializer_(readr_debug("aaa"), &pos);
 	test(closp(pos), "clos_find_specializer3");
 
 	RETURN;

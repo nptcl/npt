@@ -7,128 +7,130 @@
 /*
  *  float
  */
-_g single_float lisp_floor_s(single_float a, single_float b, single_float *rem);
-_g double_float lisp_floor_d(double_float a, double_float b, double_float *rem);
-_g long_float lisp_floor_l(long_float a, long_float b, long_float *rem);
+_g int lisp_floor_s_(single_float a, single_float b, single_float *q, single_float *r);
+_g int lisp_floor_d_(double_float a, double_float b, double_float *q, double_float *r);
+_g int lisp_floor_l_(long_float a, long_float b, long_float *q, long_float *r);
 
-_g single_float lisp_floor1_s(single_float a, single_float *rem);
-_g double_float lisp_floor1_d(double_float a, double_float *rem);
-_g long_float lisp_floor1_l(long_float a, long_float *rem);
+_g int lisp_floor1_s_(single_float a, single_float *q, single_float *r);
+_g int lisp_floor1_d_(double_float a, double_float *q, double_float *r);
+_g int lisp_floor1_l_(long_float a, long_float *q, long_float *r);
 
-_g single_float lisp_ceiling_s(single_float a, single_float b, single_float *rem);
-_g double_float lisp_ceiling_d(double_float a, double_float b, double_float *rem);
-_g long_float lisp_ceiling_l(long_float a, long_float b, long_float *rem);
+_g int lisp_ceiling_s_(single_float a, single_float b, single_float *q, single_float *r);
+_g int lisp_ceiling_d_(double_float a, double_float b, double_float *q, double_float *r);
+_g int lisp_ceiling_l_(long_float a, long_float b, long_float *q, long_float *r);
 
-_g single_float lisp_ceiling1_s(single_float a, single_float *rem);
-_g double_float lisp_ceiling1_d(double_float a, double_float *rem);
-_g long_float lisp_ceiling1_l(long_float a, long_float *rem);
+_g int lisp_ceiling1_s_(single_float a, single_float *q, single_float *r);
+_g int lisp_ceiling1_d_(double_float a, double_float *q, double_float *r);
+_g int lisp_ceiling1_l_(long_float a, long_float *q, long_float *r);
 
-_g single_float lisp_truncate_s(single_float a, single_float b, single_float *rem);
-_g double_float lisp_truncate_d(double_float a, double_float b, double_float *rem);
-_g long_float lisp_truncate_l(long_float a, long_float b, long_float *rem);
+_g int lisp_truncate_s_(single_float a, single_float b,
+		single_float *q, single_float *r);
+_g int lisp_truncate_d_(double_float a, double_float b,
+		double_float *q, double_float *r);
+_g int lisp_truncate_l_(long_float a, long_float b,
+		long_float *q, long_float *r);
 
-_g single_float lisp_truncate1_s(single_float a, single_float *rem);
-_g double_float lisp_truncate1_d(double_float a, double_float *rem);
-_g long_float lisp_truncate1_l(long_float a, long_float *rem);
+_g int lisp_truncate1_s_(single_float a, single_float *q, single_float *r);
+_g int lisp_truncate1_d_(double_float a, double_float *q, double_float *r);
+_g int lisp_truncate1_l_(long_float a, long_float *q, long_float *r);
 
-_g single_float lisp_round_s(single_float a, single_float b, single_float *rem);
-_g double_float lisp_round_d(double_float a, double_float b, double_float *rem);
-_g long_float lisp_round_l(long_float a, long_float b, long_float *rem);
+_g int lisp_round_s_(single_float a, single_float b, single_float *q, single_float *r);
+_g int lisp_round_d_(double_float a, double_float b, double_float *q, double_float *r);
+_g int lisp_round_l_(long_float a, long_float b, long_float *q, long_float *r);
 
-_g single_float lisp_round1_s(single_float a, single_float *rem);
-_g double_float lisp_round1_d(double_float a, double_float *rem);
-_g long_float lisp_round1_l(long_float a, long_float *rem);
+_g int lisp_round1_s_(single_float a, single_float *q, single_float *r);
+_g int lisp_round1_d_(double_float a, double_float *q, double_float *r);
+_g int lisp_round1_l_(long_float a, long_float *q, long_float *r);
 
 
 /*
  *  fixnum
  */
-_g fixnum lisp_floor_f(fixnum a, fixnum b, fixnum *rem);
-_g fixnum lisp_ceiling_f(fixnum a, fixnum b, fixnum *rem);
-_g fixnum lisp_truncate_f(fixnum a, fixnum b, fixnum *rem);
-_g fixnum lisp_round_f(fixnum a, fixnum b, fixnum *rem);
-_g void lisp_floor_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-_g void lisp_ceiling_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-_g void lisp_truncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-_g void lisp_round_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_floor_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem);
+_g int lisp_ceiling_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem);
+_g int lisp_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem);
+_g int lisp_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem);
+_g int lisp_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
 
-_g void lisp_ffloor_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-_g void lisp_fceiling_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-_g void lisp_ftruncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-_g void lisp_fround_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
+_g int lisp_fround_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b);
 
 
 /*
  *  bignum
  */
-_g void lisp_floor_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ceiling_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_truncate_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_round_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
-_g void lisp_ffloor_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fceiling_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ftruncate_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fround_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ffloor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ftruncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
 
 /*
  *  ratio
  */
-_g void lisp_floor1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-_g void lisp_ceiling1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-_g void lisp_truncate1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-_g void lisp_round1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_floor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_truncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
 
-_g void lisp_ffloor1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-_g void lisp_fceiling1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-_g void lisp_ftruncate1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-_g void lisp_fround1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
+_g int lisp_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos);
 
-_g void lisp_floor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_truncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_round_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ffloor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ftruncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fround_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_floor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_truncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
-_g void lisp_floor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_truncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_round_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ffloor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ftruncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fround_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_floor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_truncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
-_g void lisp_floor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_truncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_round_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ffloor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_ftruncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-_g void lisp_fround_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_floor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_truncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+_g int lisp_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
 
 /*
  *  mod, rem
  */
-_g void lisp_mod_fixnum(addr *ret, fixnum a, fixnum b);
-_g void lisp_rem_fixnum(addr *ret, fixnum a, fixnum b);
-_g void lisp_mod_bignum(LocalRoot local, addr *ret, addr a, addr b);
-_g void lisp_mod_br_ratio(LocalRoot local, addr *ret, addr a, addr b);
-_g void lisp_mod_rb_ratio(LocalRoot local, addr *rem, addr a, addr b);
-_g void lisp_mod_rr_ratio(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_mod_fixnum_(addr *ret, fixnum a, fixnum b);
+_g int lisp_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b);
 _g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret);
 
-_g void lisp_rem_fixnum(addr *ret, fixnum a, fixnum b);
-_g void lisp_rem_bignum(LocalRoot local, addr *ret, addr a, addr b);
-_g void lisp_rem_br_ratio(LocalRoot local, addr *ret, addr a, addr b);
-_g void lisp_rem_rb_ratio(LocalRoot local, addr *ret, addr a, addr b);
-_g void lisp_rem_rr_ratio(LocalRoot local, addr *rem, addr a, addr b);
+_g int lisp_rem_fixnum_(addr *ret, fixnum a, fixnum b);
+_g int lisp_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b);
+_g int lisp_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b);
 _g int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret);
 
 

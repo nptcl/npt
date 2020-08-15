@@ -40,14 +40,16 @@ static void make_input_string(addr *ret, addr string, size_t start, size_t end)
 	*ret = pos;
 }
 
-_g void open_input_string_stream(addr *ret, addr string)
+_g int open_input_string_stream_(addr *ret, addr string)
 {
 	size_t size;
 
 	if (! stringp(string))
-		TypeError(string, STRING);
+		return TypeError_(string, STRING);
 	string_length(string, &size);
 	make_input_string(ret, string, 0, size);
+
+	return 0;
 }
 
 _g int open_input_string_stream1_(addr *ret, addr string, size_t start)
@@ -103,8 +105,11 @@ _g int open_input_string_stream2_(addr *ret, addr string, size_t start, size_t e
 _g void open_input_char_stream(addr *stream, const char *str)
 {
 	addr pos;
+	size_t size;
+
 	strvect_char_heap(&pos, str);
-	open_input_string_stream(stream, pos);
+	string_length(pos, &size);
+	make_input_string(stream, pos, 0, size);
 }
 
 _g void null_input_string_stream(addr *stream)

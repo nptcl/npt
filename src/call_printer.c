@@ -98,10 +98,12 @@ _g int pprint_tabular_common(Execute ptr,
 
 	if (colon == Unbound)
 		colon = T;
-	if (tabsize == Unbound)
+	if (tabsize == Unbound) {
 		size = 16;
-	else
-		getfixnum_unsigned(tabsize, &size);
+	}
+	else {
+		Return(getfixnum_unsigned_(tabsize, &size));
+	}
 	Return(output_stream_designer_(ptr, stream, &stream));
 
 	return pprint_tabular_print(ptr, stream, list, colon != Nil, size);
@@ -264,8 +266,8 @@ _g int pprint_tab_common(Execute ptr, addr kind, addr column, addr colinc, addr 
 	fixnum a, b;
 
 	Return(pprint_tab_symbol_common(kind, &value));
-	getfixnum_unsigned(column, &a);
-	getfixnum_unsigned(colinc, &b);
+	Return(getfixnum_unsigned_(column, &a));
+	Return(getfixnum_unsigned_(colinc, &b));
 	Return(output_stream_designer_(ptr, stream, &stream));
 
 	return pprint_tab_print_(ptr, stream, value, a, b);

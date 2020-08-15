@@ -972,6 +972,42 @@ _g int string_designer_equal_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
+_g int string_designer_equalp_(addr left, addr right, int *ret)
+{
+	int check1, check2, check3, check4;
+
+	if (symbolp(left))
+		GetNameSymbol(left, &left);
+	if (symbolp(right))
+		GetNameSymbol(right, &right);
+	check1 = stringp(left);
+	check2 = stringp(right);
+	check3 = characterp(left);
+	check4 = characterp(right);
+	if (check1 && check2)
+		return string_equalp_(left, right, ret);
+	if (check3 && check4)
+		return Result(ret, character_equalp(left, right));
+	if (check1 && check4)
+		return string_character_equalp_(left, right, ret);
+	if (check2 && check3)
+		return string_character_equalp_(right, left, ret);
+
+	return Result(ret, 0);
+}
+
+_g int string_designer_equalp_char_(addr left, const char *right, int *ret)
+{
+	if (symbolp(left))
+		GetNameSymbol(left, &left);
+	if (characterp(left))
+		return Result(ret, character_equalp_char(left, right));
+	if (stringp(left))
+		return string_equalp_char_(left, right, ret);
+
+	return Result(ret, 0);
+}
+
 _g int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 {
 	if (stringp(pos)) {

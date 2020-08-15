@@ -181,27 +181,30 @@ static enum ARRAY_TYPE upgraded_array_decl(addr type, int *size)
 	return ARRAY_TYPE_T;
 }
 
-static void upgraded_array_optimize(LocalRoot local,
+static int upgraded_array_optimize_(LocalRoot local,
 		addr type, enum ARRAY_TYPE *ret, int *size)
 {
+	int ignore;
 	LocalStack stack;
 
 	CheckType(type, LISPTYPE_TYPE);
 	/* local */
 	push_local(local, &stack);
 	/* upgraded-array */
-	type_optimize_local(local, &type, type);
+	Return(type_optimize_local_(local, type, &type, &ignore));
 	Check(! type_optimized_p(type), "optimize error");
 	get_type_optimized(&type, type);
 	*size = 0;
 	*ret = upgraded_array_decl(type, size);
 	/* free */
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-_g void upgraded_array_value(addr type, enum ARRAY_TYPE *ret, int *size)
+_g int upgraded_array_value_(addr type, enum ARRAY_TYPE *ret, int *size)
 {
-	upgraded_array_optimize(Local_Thread, type, ret, size);
+	return upgraded_array_optimize_(Local_Thread, type, ret, size);
 }
 
 static void upgraded_array_type_signed(int size, addr *ret)
@@ -293,21 +296,23 @@ _g void upgraded_array_object(enum ARRAY_TYPE type, int size, addr *ret)
 	}
 }
 
-static void type_upgraded_type_local(LocalRoot local, addr type, addr *ret)
+static int type_upgraded_type_local_(LocalRoot local, addr type, addr *ret)
 {
 	enum ARRAY_TYPE value;
 	int size;
 
 	CheckType(type, LISPTYPE_TYPE);
 	size = 0;
-	upgraded_array_optimize(local, type, &value, &size);
+	Return(upgraded_array_optimize_(local, type, &value, &size));
 	upgraded_array_object(value, size, ret);
+
+	return 0;
 }
 
-_g void upgraded_array_type(addr type, addr *ret)
+_g int upgraded_array_type_(addr type, addr *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
-	type_upgraded_type_local(Local_Thread, type, ret);
+	return type_upgraded_type_local_(Local_Thread, type, ret);
 }
 
 static void upgraded_array_const_signed(int size, addr *ret)
@@ -406,9 +411,8 @@ _g int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
 
 	if (env == Unbound)
 		env = Nil;
-	if (parse_type(ptr, &pos, pos, env))
-		return 1;
-	upgraded_array_optimize(ptr->local, pos, &type, &size);
+	Return(parse_type(ptr, &pos, pos, env));
+	Return(upgraded_array_optimize_(ptr->local, pos, &type, &size));
 	upgraded_array_const(type, size, ret);
 
 	return 0;

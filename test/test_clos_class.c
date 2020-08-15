@@ -81,7 +81,7 @@ static int test_stdget_class_name(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_NAME, &k);
 	clos_set_(pos, k, v);
 	stdget_class_name_(pos, &check);
@@ -100,7 +100,7 @@ static int test_stdget_class_direct_slots(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DIRECT_SLOTS, &k);
 	clos_set_(pos, k, v);
 	stdget_class_direct_slots_(pos, &check);
@@ -119,7 +119,7 @@ static int test_stdget_class_direct_subclasses(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DIRECT_SUBCLASSES, &k);
 	clos_set_(pos, k, v);
 	stdget_class_direct_subclasses_(pos, &check);
@@ -138,7 +138,7 @@ static int test_stdget_class_direct_superclasses(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DIRECT_SUPERCLASSES, &k);
 	clos_set_(pos, k, v);
 	stdget_class_direct_superclasses_(pos, &check);
@@ -157,7 +157,7 @@ static int test_stdget_class_precedence_list(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_CLASS_PRECEDENCE_LIST, &k);
 	clos_set_(pos, k, v);
 	stdget_class_precedence_list_(pos, &check);
@@ -176,7 +176,7 @@ static int test_stdget_class_slots(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_EFFECTIVE_SLOTS, &k);
 	clos_set_(pos, k, v);
 	stdget_class_slots_(pos, &check);
@@ -195,7 +195,7 @@ static int test_stdget_class_finalized_p(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_FINALIZED_P, &k);
 	clos_set_(pos, k, v);
 	stdget_class_finalized_p_(pos, &check);
@@ -214,7 +214,7 @@ static int test_stdget_class_prototype(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_PROTOTYPE, &k);
 	clos_set_(pos, k, v);
 	stdget_class_prototype_(pos, &check);
@@ -233,7 +233,7 @@ static int test_stdget_class_direct_methods(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DIRECT_METHODS, &k);
 	clos_set_(pos, k, v);
 	stdget_class_direct_methods_(pos, &check);
@@ -252,7 +252,7 @@ static int test_stdget_class_default_initargs(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DEFAULT_INITARGS, &k);
 	clos_set_(pos, k, v);
 	stdget_class_default_initargs_(pos, &check);
@@ -271,7 +271,7 @@ static int test_stdget_class_direct_default_initargs(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DIRECT_DEFAULT_INITARGS, &k);
 	clos_set_(pos, k, v);
 	stdget_class_direct_default_initargs_(pos, &check);
@@ -290,7 +290,7 @@ static int test_stdget_class_version(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_VERSION, &k);
 	clos_set_(pos, k, v);
 	stdget_class_version_(pos, &check);
@@ -309,7 +309,7 @@ static int test_stdget_class_document(void)
 
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap_(pos, &pos);
-	v = readr("aaa");
+	v = readr_debug("aaa");
 	GetConst(CLOSNAME_DOCUMENTATION, &k);
 	clos_set_(pos, k, v);
 	stdget_class_document_(pos, &check);
@@ -1374,28 +1374,28 @@ static int test_clos_slots_push(void)
 	GetArgsSlot(a, &list);
 	test(list == Nil, "clos_slots_push1");
 
-	v = readr("(aaa bbb ccc)");
+	v = readr_debug("(aaa bbb ccc)");
 	SetArgsSlot(a, v);
 	SetArgsSlot(b, Nil);
 	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
 	test(equal_debug(list, v), "clos_slots_push2");
 
-	v = readr("(aaa bbb ccc)");
+	v = readr_debug("(aaa bbb ccc)");
 	SetArgsSlot(a, Nil);
 	SetArgsSlot(b, v);
 	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
-	v = readr("(ccc bbb aaa)");
+	v = readr_debug("(ccc bbb aaa)");
 	test(equal_debug(list, v), "clos_slots_push3");
 
-	v = readr("(aaa bbb ccc)");
+	v = readr_debug("(aaa bbb ccc)");
 	SetArgsSlot(a, v);
-	v = readr("(ddd bbb ccc eee)");
+	v = readr_debug("(ddd bbb ccc eee)");
 	SetArgsSlot(b, v);
 	clos_slots_push_(a, b);
 	GetArgsSlot(a, &list);
-	v = readr("(eee ddd aaa bbb ccc)");
+	v = readr_debug("(eee ddd aaa bbb ccc)");
 	test(equal_debug(list, v), "clos_slots_push4");
 
 	RETURN;
@@ -2004,7 +2004,7 @@ static int test_clos_stdclass_va(void)
 	local = Local_Thread;
 	//test_forget_all_classes();
 
-	SetConst(DEBUG1, readr("debug1"));
+	SetConst(DEBUG1, readr_debug("debug1"));
 	clos_stdclass_metaclass_(local, &metaclass);
 	clos_stdclass_va_(local, metaclass,
 			CONSTANT_DEBUG1,
@@ -2049,7 +2049,7 @@ static int test_clos_stdclass_slotsconstant(void)
 	SetNameSlot(slot, name);
 	SetSlotVector(slots, 1, slot);
 
-	SetConst(DEBUG2, readr("debug2"));
+	SetConst(DEBUG2, readr_debug("debug2"));
 	clos_stdclass_metaclass_(local, &metaclass);
 	clos_stdclass_slotsconstant_(local, metaclass, slots,
 			CONSTANT_DEBUG2,
@@ -2541,7 +2541,7 @@ static int checkclass_va(constindex index, const char *name, va_list args)
 	const char *ptr;
 
 	/* name, clos */
-	a = readr(name);
+	a = readr_debug(name);
 	clos_find_class_(a, &x);
 	if (! closp(x)) {
 		degrade_printf("type1 %s error.\n", name);
@@ -2566,7 +2566,7 @@ static int checkclass_va(constindex index, const char *name, va_list args)
 		ptr = va_arg(args, const char *);
 		if (ptr == NULL)
 			break;
-		a = readr(ptr);
+		a = readr_debug(ptr);
 		clos_find_class_(a, &y);
 		if (! closp(y)) {
 			degrade_printf("type2 %s, %s error.\n", name, ptr);
@@ -2679,7 +2679,7 @@ static addr readr_clos(const char *str)
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	GetConst(PACKAGE_CLOS, &value);
 	pushspecial_control(ptr, symbol, value);
-	ret = readr(str);
+	ret = readr_debug(str);
 	free_control_(ptr, control);
 
 	return ret;
@@ -2691,7 +2691,7 @@ static int checkslots_va(const char *name, va_list args)
 	const char *ptr;
 	size_t size, check;
 
-	clos_find_class_(readr(name), &x);
+	clos_find_class_(readr_debug(name), &x);
 	clos_instance_heap_(x, &x);
 	for (size = 0; ; size++) {
 		ptr = va_arg(args, const char *);

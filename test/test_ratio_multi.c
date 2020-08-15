@@ -1281,42 +1281,42 @@ static int test_div_rf_ratio_local(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 7);
 	fixnum_local(local, &right, 10);
-	div_rf_ratio_local(local, left, right, &pos);
+	div_rf_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_ratio_local1");
 	test(ratiop(pos), "div_rf_ratio_local2");
 	test(zerop_ratio(pos), "div_rf_ratio_local3");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	fixnum_local(local, &right, 10);
-	div_rf_ratio_local(local, left, right, &pos);
+	div_rf_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_ratio_local4");
 	test(ratiop(pos), "div_rf_ratio_local5");
 	test(equal_value_ratio(pos, SignMinus, 1, 10), "div_rf_ratio_local6");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	fixnum_local(local, &right, 1);
-	div_rf_ratio_local(local, left, right, &pos);
+	div_rf_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_ratio_local7");
 	test(ratiop(pos), "div_rf_ratio_local8");
 	test(equal_value_ratio(pos, SignPlus, 6, 7), "div_rf_ratio_local9");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	fixnum_local(local, &right, -1);
-	div_rf_ratio_local(local, left, right, &pos);
+	div_rf_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_ratio_local10");
 	test(ratiop(pos), "div_rf_ratio_local11");
 	test(equal_value_ratio(pos, SignMinus, 6, 7), "div_rf_ratio_local12");
 
 	test_ratio_alloc(local, &left, SignMinus, 6, 7);
 	fixnum_local(local, &right, 4);
-	div_rf_ratio_local(local, left, right, &pos);
+	div_rf_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_ratio_local13");
 	test(ratiop(pos), "div_rf_ratio_local14");
 	test(equal_value_ratio(pos, SignMinus, 3, 14), "div_rf_ratio_local15");
 
 	test_ratio_alloc(local, &left, SignMinus, 30, 1);
 	fixnum_local(local, &right, 5);
-	div_rf_ratio_local(local, left, right, &pos);
+	div_rf_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_ratio_local16");
 	test(ratiop(pos), "div_rf_ratio_local17");
 	test(equal_value_ratio(pos, SignMinus, 6, 1), "div_rf_ratio_local18");
@@ -1337,42 +1337,42 @@ static int test_div_rf_real_local(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 7);
 	fixnum_local(local, &right, 10);
-	div_rf_real_local(local, left, right, &pos);
+	div_rf_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_real_local1");
 	test(fixnump(pos), "div_rf_real_local2");
 	test(RefFixnum(pos) == 0, "div_rf_real_local3");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	fixnum_local(local, &right, 10);
-	div_rf_real_local(local, left, right, &pos);
+	div_rf_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_real_local4");
 	test(ratiop(pos), "div_rf_real_local5");
 	test(equal_value_ratio(pos, SignMinus, 1, 10), "div_rf_real_local6");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	fixnum_local(local, &right, 1);
-	div_rf_real_local(local, left, right, &pos);
+	div_rf_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_real_local7");
 	test(ratiop(pos), "div_rf_real_local8");
 	test(equal_value_ratio(pos, SignPlus, 6, 7), "div_rf_real_local9");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	fixnum_local(local, &right, -1);
-	div_rf_real_local(local, left, right, &pos);
+	div_rf_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_real_local10");
 	test(ratiop(pos), "div_rf_real_local11");
 	test(equal_value_ratio(pos, SignMinus, 6, 7), "div_rf_real_local12");
 
 	test_ratio_alloc(local, &left, SignMinus, 6, 7);
 	fixnum_local(local, &right, 4);
-	div_rf_real_local(local, left, right, &pos);
+	div_rf_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_real_local13");
 	test(ratiop(pos), "div_rf_real_local14");
 	test(equal_value_ratio(pos, SignMinus, 3, 14), "div_rf_real_local15");
 
 	test_ratio_alloc(local, &left, SignMinus, 30, 1);
 	fixnum_local(local, &right, 5);
-	div_rf_real_local(local, left, right, &pos);
+	div_rf_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rf_real_local16");
 	test(fixnump(pos), "div_rf_real_local17");
 	test(RefFixnum(pos) == -6, "div_rf_real_local18");
@@ -1393,42 +1393,42 @@ static int test_div_rf_real_common(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 7);
 	fixnum_local(local, &right, 10);
-	div_rf_real_common(local, left, right, &pos);
+	div_rf_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rf_real_common1");
 	test(fixnump(pos), "div_rf_real_common2");
 	test(RefFixnum(pos) == 0, "div_rf_real_common3");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	fixnum_local(local, &right, 10);
-	div_rf_real_common(local, left, right, &pos);
+	div_rf_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rf_real_common4");
 	test(ratiop(pos), "div_rf_real_common5");
 	test(equal_value_ratio(pos, SignMinus, 1, 10), "div_rf_real_common6");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	fixnum_local(local, &right, 1);
-	div_rf_real_common(local, left, right, &pos);
+	div_rf_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rf_real_common7");
 	test(ratiop(pos), "div_rf_real_common8");
 	test(equal_value_ratio(pos, SignPlus, 6, 7), "div_rf_real_common9");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	fixnum_local(local, &right, -1);
-	div_rf_real_common(local, left, right, &pos);
+	div_rf_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rf_real_common10");
 	test(ratiop(pos), "div_rf_real_common11");
 	test(equal_value_ratio(pos, SignMinus, 6, 7), "div_rf_real_common12");
 
 	test_ratio_alloc(local, &left, SignMinus, 6, 7);
 	fixnum_local(local, &right, 4);
-	div_rf_real_common(local, left, right, &pos);
+	div_rf_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rf_real_common13");
 	test(ratiop(pos), "div_rf_real_common14");
 	test(equal_value_ratio(pos, SignMinus, 3, 14), "div_rf_real_common15");
 
 	test_ratio_alloc(local, &left, SignMinus, 30, 1);
 	fixnum_local(local, &right, 5);
-	div_rf_real_common(local, left, right, &pos);
+	div_rf_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rf_real_common16");
 	test(fixnump(pos), "div_rf_real_common17");
 	test(RefFixnum(pos) == -6, "div_rf_real_common18");
@@ -1641,35 +1641,35 @@ static int test_div_fr_ratio_local(void)
 
 	fixnum_local(local, &left, 0);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_fr_ratio_local(local, left, right, &pos);
+	div_fr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_ratio_local1");
 	test(ratiop(pos), "div_fr_ratio_local2");
 	test(zerop_ratio(pos), "div_fr_ratio_local3");
 
 	fixnum_local(local, &left, -1);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_fr_ratio_local(local, left, right, &pos);
+	div_fr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_ratio_local4");
 	test(ratiop(pos), "div_fr_ratio_local5");
 	test(equal_value_ratio(pos, SignMinus, 7, 6), "div_fr_ratio_local6");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_fr_ratio_local(local, left, right, &pos);
+	div_fr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_ratio_local7");
 	test(ratiop(pos), "div_fr_ratio_local8");
 	test(equal_value_ratio(pos, SignMinus, 7, 1), "div_fr_ratio_local9");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_fr_ratio_local(local, left, right, &pos);
+	div_fr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_ratio_local10");
 	test(ratiop(pos), "div_fr_ratio_local11");
 	test(equal_value_ratio(pos, SignPlus, 7, 1), "div_fr_ratio_local12");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignPlus, 14, 5);
-	div_fr_ratio_local(local, left, right, &pos);
+	div_fr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_ratio_local13");
 	test(ratiop(pos), "div_fr_ratio_local14");
 	test(equal_value_ratio(pos, SignMinus, 5, 2), "div_fr_ratio_local15");
@@ -1690,35 +1690,35 @@ static int test_div_fr_real_local(void)
 
 	fixnum_local(local, &left, 0);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_fr_real_local(local, left, right, &pos);
+	div_fr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_real_local1");
 	test(fixnump(pos), "div_fr_real_local2");
 	test(RefFixnum(pos) == 0, "div_fr_real_local3");
 
 	fixnum_local(local, &left, -1);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_fr_real_local(local, left, right, &pos);
+	div_fr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_real_local4");
 	test(ratiop(pos), "div_fr_real_local5");
 	test(equal_value_ratio(pos, SignMinus, 7, 6), "div_fr_real_local6");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_fr_real_local(local, left, right, &pos);
+	div_fr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_real_local7");
 	test(fixnump(pos), "div_fr_real_local8");
 	test(RefFixnum(pos) == -7, "div_fr_real_local9");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_fr_real_local(local, left, right, &pos);
+	div_fr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_real_local10");
 	test(fixnump(pos), "div_fr_real_local11");
 	test(RefFixnum(pos) == 7, "div_fr_real_local12");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignPlus, 14, 5);
-	div_fr_real_local(local, left, right, &pos);
+	div_fr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_fr_real_local13");
 	test(ratiop(pos), "div_fr_real_local14");
 	test(equal_value_ratio(pos, SignMinus, 5, 2), "div_fr_real_local15");
@@ -1739,35 +1739,35 @@ static int test_div_fr_real_common(void)
 
 	fixnum_local(local, &left, 0);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_fr_real_common(local, left, right, &pos);
+	div_fr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_fr_real_common1");
 	test(fixnump(pos), "div_fr_real_common2");
 	test(RefFixnum(pos) == 0, "div_fr_real_common3");
 
 	fixnum_local(local, &left, -1);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_fr_real_common(local, left, right, &pos);
+	div_fr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_fr_real_common4");
 	test(ratiop(pos), "div_fr_real_common5");
 	test(equal_value_ratio(pos, SignMinus, 7, 6), "div_fr_real_common6");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_fr_real_common(local, left, right, &pos);
+	div_fr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_fr_real_common7");
 	test(fixnump(pos), "div_fr_real_common8");
 	test(RefFixnum(pos) == -7, "div_fr_real_common9");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_fr_real_common(local, left, right, &pos);
+	div_fr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_fr_real_common10");
 	test(fixnump(pos), "div_fr_real_common11");
 	test(RefFixnum(pos) == 7, "div_fr_real_common12");
 
 	fixnum_local(local, &left, -7);
 	test_ratio_alloc(local, &right, SignPlus, 14, 5);
-	div_fr_real_common(local, left, right, &pos);
+	div_fr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_fr_real_common13");
 	test(ratiop(pos), "div_fr_real_common14");
 	test(equal_value_ratio(pos, SignMinus, 5, 2), "div_fr_real_common15");
@@ -1884,35 +1884,35 @@ static int test_div_rb_ratio_local(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 7);
 	bignum_value_alloc(local, &right, SignPlus, 10);
-	div_rb_ratio_local(local, left, right, &pos);
+	div_rb_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_ratio_local1");
 	test(ratiop(pos), "div_rb_ratio_local2");
 	test(zerop_ratio(pos), "div_rb_ratio_local3");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	bignum_value_alloc(local, &right, SignPlus, 10);
-	div_rb_ratio_local(local, left, right, &pos);
+	div_rb_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_ratio_local4");
 	test(ratiop(pos), "div_rb_ratio_local5");
 	test(equal_value_ratio(pos, SignMinus, 1, 10), "div_rb_ratio_local6");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	bignum_value_alloc(local, &right, SignPlus, 1);
-	div_rb_ratio_local(local, left, right, &pos);
+	div_rb_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_ratio_local7");
 	test(ratiop(pos), "div_rb_ratio_local8");
 	test(equal_value_ratio(pos, SignPlus, 6, 7), "div_rb_ratio_local9");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	bignum_value_alloc(local, &right, SignMinus, 1);
-	div_rb_ratio_local(local, left, right, &pos);
+	div_rb_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_ratio_local10");
 	test(ratiop(pos), "div_rb_ratio_local11");
 	test(equal_value_ratio(pos, SignMinus, 6, 7), "div_rb_ratio_local12");
 
 	test_ratio_alloc(local, &left, SignMinus, 6, 7);
 	bignum_value_alloc(local, &right, SignPlus, 4);
-	div_rb_ratio_local(local, left, right, &pos);
+	div_rb_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_ratio_local13");
 	test(ratiop(pos), "div_rb_ratio_local14");
 	test(equal_value_ratio(pos, SignMinus, 3, 14), "div_rb_ratio_local15");
@@ -1933,35 +1933,35 @@ static int test_div_rb_real_local(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 7);
 	bignum_value_alloc(local, &right, SignPlus, 10);
-	div_rb_real_local(local, left, right, &pos);
+	div_rb_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_real_local1");
 	test(fixnump(pos), "div_rb_real_local2");
 	test(RefFixnum(pos) == 0, "div_rb_real_local3");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	bignum_value_alloc(local, &right, SignPlus, 10);
-	div_rb_real_local(local, left, right, &pos);
+	div_rb_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_real_local4");
 	test(ratiop(pos), "div_rb_real_local5");
 	test(equal_value_ratio(pos, SignMinus, 1, 10), "div_rb_real_local6");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	bignum_value_alloc(local, &right, SignPlus, 1);
-	div_rb_real_local(local, left, right, &pos);
+	div_rb_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_real_local7");
 	test(ratiop(pos), "div_rb_real_local8");
 	test(equal_value_ratio(pos, SignPlus, 6, 7), "div_rb_real_local9");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	bignum_value_alloc(local, &right, SignMinus, 1);
-	div_rb_real_local(local, left, right, &pos);
+	div_rb_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_real_local10");
 	test(ratiop(pos), "div_rb_real_local11");
 	test(equal_value_ratio(pos, SignMinus, 6, 7), "div_rb_real_local12");
 
 	test_ratio_alloc(local, &left, SignMinus, 6, 7);
 	bignum_value_alloc(local, &right, SignPlus, 4);
-	div_rb_real_local(local, left, right, &pos);
+	div_rb_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rb_real_local13");
 	test(ratiop(pos), "div_rb_real_local14");
 	test(equal_value_ratio(pos, SignMinus, 3, 14), "div_rb_real_local15");
@@ -1982,35 +1982,35 @@ static int test_div_rb_real_common(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 7);
 	bignum_value_alloc(local, &right, SignPlus, 10);
-	div_rb_real_common(local, left, right, &pos);
+	div_rb_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rb_real_common1");
 	test(fixnump(pos), "div_rb_real_common2");
 	test(RefFixnum(pos) == 0, "div_rb_real_common3");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	bignum_value_alloc(local, &right, SignPlus, 10);
-	div_rb_real_common(local, left, right, &pos);
+	div_rb_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rb_real_common4");
 	test(ratiop(pos), "div_rb_real_common5");
 	test(equal_value_ratio(pos, SignMinus, 1, 10), "div_rb_real_common6");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	bignum_value_alloc(local, &right, SignPlus, 1);
-	div_rb_real_common(local, left, right, &pos);
+	div_rb_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rb_real_common7");
 	test(ratiop(pos), "div_rb_real_common8");
 	test(equal_value_ratio(pos, SignPlus, 6, 7), "div_rb_real_common9");
 
 	test_ratio_alloc(local, &left, SignPlus, 6, 7);
 	bignum_value_alloc(local, &right, SignMinus, 1);
-	div_rb_real_common(local, left, right, &pos);
+	div_rb_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rb_real_common10");
 	test(ratiop(pos), "div_rb_real_common11");
 	test(equal_value_ratio(pos, SignMinus, 6, 7), "div_rb_real_common12");
 
 	test_ratio_alloc(local, &left, SignMinus, 6, 7);
 	bignum_value_alloc(local, &right, SignPlus, 4);
-	div_rb_real_common(local, left, right, &pos);
+	div_rb_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rb_real_common13");
 	test(ratiop(pos), "div_rb_real_common14");
 	test(equal_value_ratio(pos, SignMinus, 3, 14), "div_rb_real_common15");
@@ -2136,35 +2136,35 @@ static int test_div_br_ratio_local(void)
 
 	bignum_value_alloc(local, &left, SignPlus, 0);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_br_ratio_local(local, left, right, &pos);
+	div_br_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_ratio_local1");
 	test(ratiop(pos), "div_br_ratio_local2");
 	test(zerop_ratio(pos), "div_br_ratio_local3");
 
 	bignum_value_alloc(local, &left, SignMinus, 1);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_br_ratio_local(local, left, right, &pos);
+	div_br_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_ratio_local4");
 	test(ratiop(pos), "div_br_ratio_local5");
 	test(equal_value_ratio(pos, SignMinus, 7, 6), "div_br_ratio_local6");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_br_ratio_local(local, left, right, &pos);
+	div_br_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_ratio_local7");
 	test(ratiop(pos), "div_br_ratio_local8");
 	test(equal_value_ratio(pos, SignMinus, 7, 1), "div_br_ratio_local9");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_br_ratio_local(local, left, right, &pos);
+	div_br_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_ratio_local10");
 	test(ratiop(pos), "div_br_ratio_local11");
 	test(equal_value_ratio(pos, SignPlus, 7, 1), "div_br_ratio_local12");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignPlus, 14, 5);
-	div_br_ratio_local(local, left, right, &pos);
+	div_br_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_ratio_local13");
 	test(ratiop(pos), "div_br_ratio_local14");
 	test(equal_value_ratio(pos, SignMinus, 5, 2), "div_br_ratio_local15");
@@ -2185,35 +2185,35 @@ static int test_div_br_real_local(void)
 
 	bignum_value_alloc(local, &left, SignPlus, 0);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_br_real_local(local, left, right, &pos);
+	div_br_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_real_local1");
 	test(fixnump(pos), "div_br_real_local2");
 	test(RefFixnum(pos) == 0, "div_br_real_local3");
 
 	bignum_value_alloc(local, &left, SignMinus, 1);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_br_real_local(local, left, right, &pos);
+	div_br_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_real_local4");
 	test(ratiop(pos), "div_br_real_local5");
 	test(equal_value_ratio(pos, SignMinus, 7, 6), "div_br_real_local6");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_br_real_local(local, left, right, &pos);
+	div_br_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_real_local7");
 	test(bignump(pos), "div_br_real_local8");
 	test(equal_value_bignum(pos, SignMinus, 7), "div_br_real_local9");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_br_real_local(local, left, right, &pos);
+	div_br_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_real_local10");
 	test(fixnump(pos), "div_br_real_local11");
 	test(RefFixnum(pos) == 7, "div_br_real_local12");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignPlus, 14, 5);
-	div_br_real_local(local, left, right, &pos);
+	div_br_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_br_real_local13");
 	test(ratiop(pos), "div_br_real_local14");
 	test(equal_value_ratio(pos, SignMinus, 5, 2), "div_br_real_local15");
@@ -2234,35 +2234,35 @@ static int test_div_br_real_common(void)
 
 	bignum_value_alloc(local, &left, SignPlus, 0);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_br_real_common(local, left, right, &pos);
+	div_br_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_br_real_common1");
 	test(fixnump(pos), "div_br_real_common2");
 	test(RefFixnum(pos) == 0, "div_br_real_common3");
 
 	bignum_value_alloc(local, &left, SignMinus, 1);
 	test_ratio_alloc(local, &right, SignPlus, 6, 7);
-	div_br_real_common(local, left, right, &pos);
+	div_br_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_br_real_common4");
 	test(ratiop(pos), "div_br_real_common5");
 	test(equal_value_ratio(pos, SignMinus, 7, 6), "div_br_real_common6");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_br_real_common(local, left, right, &pos);
+	div_br_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_br_real_common7");
 	test(bignump(pos), "div_br_real_common8");
 	test(equal_value_bignum(pos, SignMinus, 7), "div_br_real_common9");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_br_real_common(local, left, right, &pos);
+	div_br_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_br_real_common10");
 	test(fixnump(pos), "div_br_real_common11");
 	test(RefFixnum(pos) == 7, "div_br_real_common12");
 
 	bignum_value_alloc(local, &left, SignMinus, 7);
 	test_ratio_alloc(local, &right, SignPlus, 14, 5);
-	div_br_real_common(local, left, right, &pos);
+	div_br_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_br_real_common13");
 	test(ratiop(pos), "div_br_real_common14");
 	test(equal_value_ratio(pos, SignMinus, 5, 2), "div_br_real_common15");
@@ -2493,63 +2493,63 @@ static int test_div_rr_ratio_local(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 6);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local1");
 	test(ratiop(pos), "div_rr_ratio_local2");
 	test(zerop_ratio(pos), "div_rr_ratio_local3");
 
 	test_ratio_alloc(local, &left, SignPlus, 1, 1);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local4");
 	test(ratiop(pos), "div_rr_ratio_local5");
 	test(equal_value_ratio(pos, SignPlus, 4, 3), "div_rr_ratio_local6");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local7");
 	test(ratiop(pos), "div_rr_ratio_local8");
 	test(equal_value_ratio(pos, SignMinus, 4, 3), "div_rr_ratio_local9");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 6);
 	test_ratio_alloc(local, &right, SignPlus, 4, 3);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local10");
 	test(ratiop(pos), "div_rr_ratio_local11");
 	test(equal_value_ratio(pos, SignMinus, 1, 8), "div_rr_ratio_local12");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local13");
 	test(ratiop(pos), "div_rr_ratio_local14");
 	test(equal_value_ratio(pos, SignMinus, 3, 4), "div_rr_ratio_local15");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local16");
 	test(ratiop(pos), "div_rr_ratio_local17");
 	test(equal_value_ratio(pos, SignPlus, 3, 4), "div_rr_ratio_local18");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignMinus, 1, 6);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local19");
 	test(ratiop(pos), "div_rr_ratio_local20");
 	test(equal_value_ratio(pos, SignPlus, 1, 8), "div_rr_ratio_local21");
 
 	test_ratio_alloc(local, &left, SignPlus, 55, 6);
 	test_ratio_alloc(local, &right, SignMinus, 35, 4);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local22");
 	test(ratiop(pos), "div_rr_ratio_local23");
 	test(equal_value_ratio(pos, SignMinus, 22, 21), "div_rr_ratio_local24");
 
 	test_ratio_alloc(local, &left, SignPlus, 10, 7);
 	test_ratio_alloc(local, &right, SignMinus, 2, 7);
-	div_rr_ratio_local(local, left, right, &pos);
+	div_rr_ratio_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_ratio_local25");
 	test(ratiop(pos), "div_rr_ratio_local26");
 	test(equal_value_ratio(pos, SignMinus, 5, 1), "div_rr_ratio_local27");
@@ -2570,63 +2570,63 @@ static int test_div_rr_real_local(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 6);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local1");
 	test(fixnump(pos), "div_rr_real_local2");
 	test(RefFixnum(pos) == 0, "div_rr_real_local3");
 
 	test_ratio_alloc(local, &left, SignPlus, 1, 1);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local4");
 	test(ratiop(pos), "div_rr_real_local5");
 	test(equal_value_ratio(pos, SignPlus, 4, 3), "div_rr_real_local6");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local7");
 	test(ratiop(pos), "div_rr_real_local8");
 	test(equal_value_ratio(pos, SignMinus, 4, 3), "div_rr_real_local9");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 6);
 	test_ratio_alloc(local, &right, SignPlus, 4, 3);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local10");
 	test(ratiop(pos), "div_rr_real_local11");
 	test(equal_value_ratio(pos, SignMinus, 1, 8), "div_rr_real_local12");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local13");
 	test(ratiop(pos), "div_rr_real_local14");
 	test(equal_value_ratio(pos, SignMinus, 3, 4), "div_rr_real_local15");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local16");
 	test(ratiop(pos), "div_rr_real_local17");
 	test(equal_value_ratio(pos, SignPlus, 3, 4), "div_rr_real_local18");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignMinus, 1, 6);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local19");
 	test(ratiop(pos), "div_rr_real_local20");
 	test(equal_value_ratio(pos, SignPlus, 1, 8), "div_rr_real_local21");
 
 	test_ratio_alloc(local, &left, SignPlus, 55, 6);
 	test_ratio_alloc(local, &right, SignMinus, 35, 4);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local22");
 	test(ratiop(pos), "div_rr_real_local23");
 	test(equal_value_ratio(pos, SignMinus, 22, 21), "div_rr_real_local24");
 
 	test_ratio_alloc(local, &left, SignPlus, 10, 7);
 	test_ratio_alloc(local, &right, SignMinus, 2, 7);
-	div_rr_real_local(local, left, right, &pos);
+	div_rr_real_local_(local, left, right, &pos);
 	test(GetStatusDynamic(pos), "div_rr_real_local25");
 	test(fixnump(pos), "div_rr_real_local26");
 	test(RefFixnum(pos) == -5, "div_rr_real_local27");
@@ -2647,63 +2647,63 @@ static int test_div_rr_real_common(void)
 
 	test_ratio_alloc(local, &left, SignPlus, 0, 6);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common1");
 	test(fixnump(pos), "div_rr_real_common2");
 	test(RefFixnum(pos) == 0, "div_rr_real_common3");
 
 	test_ratio_alloc(local, &left, SignPlus, 1, 1);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common4");
 	test(ratiop(pos), "div_rr_real_common5");
 	test(equal_value_ratio(pos, SignPlus, 4, 3), "div_rr_real_common6");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 1);
 	test_ratio_alloc(local, &right, SignPlus, 3, 4);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common7");
 	test(ratiop(pos), "div_rr_real_common8");
 	test(equal_value_ratio(pos, SignMinus, 4, 3), "div_rr_real_common9");
 
 	test_ratio_alloc(local, &left, SignMinus, 1, 6);
 	test_ratio_alloc(local, &right, SignPlus, 4, 3);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common10");
 	test(ratiop(pos), "div_rr_real_common11");
 	test(equal_value_ratio(pos, SignMinus, 1, 8), "div_rr_real_common12");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignPlus, 1, 1);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common13");
 	test(ratiop(pos), "div_rr_real_common14");
 	test(equal_value_ratio(pos, SignMinus, 3, 4), "div_rr_real_common15");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignMinus, 1, 1);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common16");
 	test(ratiop(pos), "div_rr_real_common17");
 	test(equal_value_ratio(pos, SignPlus, 3, 4), "div_rr_real_common18");
 
 	test_ratio_alloc(local, &left, SignMinus, 3, 4);
 	test_ratio_alloc(local, &right, SignMinus, 1, 6);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common19");
 	test(ratiop(pos), "div_rr_real_common20");
 	test(equal_value_ratio(pos, SignPlus, 1, 8), "div_rr_real_common21");
 
 	test_ratio_alloc(local, &left, SignPlus, 55, 6);
 	test_ratio_alloc(local, &right, SignMinus, 35, 4);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common22");
 	test(ratiop(pos), "div_rr_real_common23");
 	test(equal_value_ratio(pos, SignMinus, 22, 21), "div_rr_real_common24");
 
 	test_ratio_alloc(local, &left, SignPlus, 10, 7);
 	test_ratio_alloc(local, &right, SignMinus, 2, 7);
-	div_rr_real_common(local, left, right, &pos);
+	div_rr_real_common_(local, left, right, &pos);
 	test(! GetStatusDynamic(pos), "div_rr_real_common25");
 	test(fixnump(pos), "div_rr_real_common26");
 	test(RefFixnum(pos) == -5, "div_rr_real_common27");

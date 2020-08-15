@@ -136,7 +136,7 @@ static int test_speed_on(void)
  */
 static void parse_eval_string(addr *ret, const char *str)
 {
-	readstring(ret, str);
+	readstring_debug(ret, str);
 	eval_parse(Execute_Thread, ret, *ret);
 }
 
@@ -185,7 +185,7 @@ static int test_check_listtype_on(void)
 	struct optstruct opt;
 
 	allminus_optstruct(&opt);
-	readstring(&pos, "10");
+	readstring_debug(&pos, "10");
 	opt.local[EVAL_OPTIMIZE_SPEED] = 3;
 	test(check_lisptype_on(&opt, pos, LISPTYPE_FIXNUM), "check_lisptype_on1");
 	test(! check_lisptype_on(&opt, pos, LISPTYPE_STRING), "check_lisptype_on2");
@@ -252,7 +252,7 @@ static void implicit_string(addr *ret, const char *str)
 {
 	addr cons, pos, root;
 
-	readstring(&cons, str);
+	readstring_debug(&cons, str);
 	Check(! listp(cons), "type error");
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
@@ -1053,16 +1053,16 @@ static int test_optparse_opt(void)
 	GetCons(var, &var, &init);
 	GetCons(init, &init, &svar);
 	GetCar(svar, &svar);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "optparse_opt1");
 	test(check_evaltype(init, EVAL_PARSE_NIL), "optparse_opt2");
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	test(svar == check, "optparse_opt3");
 
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
 	GetCar(init, &init);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "optparse_opt4");
 	test(check_evaltype(init, EVAL_PARSE_NIL), "optparse_opt5");
 
@@ -1098,21 +1098,21 @@ static int test_optparse_key(void)
 	GetCons(name, &name, &init);
 	GetCons(init, &init, &svar);
 	GetCar(svar, &svar);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "optparse_key1");
-	readstring(&check, ":aa");
+	readstring_debug(&check, ":aa");
 	test(name == check, "optparse_key2");
 	test(check_evaltype(init, EVAL_PARSE_NIL), "optparse_key3");
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	test(svar == check, "optparse_key4");
 
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &name);
 	GetCons(name, &name, &init);
 	GetCar(init, &init);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "optparse_key5");
-	readstring(&check, ":bb");
+	readstring_debug(&check, ":bb");
 	test(name == check, "optparse_key6");
 	test(check_evaltype(init, EVAL_PARSE_NIL), "optparse_key7");
 
@@ -1136,14 +1136,14 @@ static int test_optparse_aux(void)
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
 	GetCar(init, &init);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "optparse_aux1");
 	test(check_evaltype(init, EVAL_PARSE_NIL), "optparse_aux2");
 
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
 	GetCar(init, &init);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "optparse_aux3");
 	test(check_evaltype(init, EVAL_PARSE_NIL), "optparse_aux4");
 
@@ -1179,7 +1179,7 @@ static int test_optparse_lambda_ordinary(void)
 	getnth_abort(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa -> (var init svar) */
 	GetCar(pos, &pos); /* var */
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(pos == check, "optparse_lambda_ordinary1");
 
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn)) bb) :body)");
@@ -1188,7 +1188,7 @@ static int test_optparse_lambda_ordinary(void)
 	getnth_abort(pos, 3, &pos); /* key */
 	GetCar(pos, &pos); /* aa -> (var name init svar) */
 	GetCar(pos, &pos); /* var */
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(pos == check, "optparse_lambda_ordinary2");
 
 	RETURN;
@@ -1217,7 +1217,7 @@ static int test_optparse_defun_args(void)
 	getnth_abort(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa */
 	GetCons(pos, &var, &pos);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "optparse_defun_args3");
 	GetCar(pos, &var);
 	test(check_evaltype(var, EVAL_PARSE_NIL), "optparse_defun_args4");
@@ -1307,7 +1307,7 @@ static int test_optparse_lambda_args(void)
 	getnth_abort(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa */
 	GetCons(pos, &var, &pos);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "optparse_lambda_args3");
 	GetCar(pos, &var);
 	test(check_evaltype(var, EVAL_PARSE_NIL), "optparse_lambda_args4");
@@ -2237,7 +2237,7 @@ static int test_optparse_flet_args(void)
 	GetCons(pos, &var, &pos); /* name */
 	test(GetType(var) == LISPTYPE_CALLNAME, "optparse_flet_args3");
 	GetCallName(var, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "optparse_flet_args4");
 	GetCons(pos, &var, &pos); /* lambda-list */
 	getnth_abort(var, 1, &var); /* optional */

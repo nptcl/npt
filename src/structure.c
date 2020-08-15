@@ -113,7 +113,7 @@ static int ensure_structure_struct_(struct defstruct *str,
 	if (! GetKeyArgs(args, KEYWORD_INITIAL_OFFSET, &pos)) {
 		str->initial_offset_p = 1;
 		str->initial_offset = pos;
-		getindex_integer(pos, &(str->offset));
+		Return(getindex_integer_(pos, &(str->offset)));
 	}
 	/* :named */
 	if (! GetKeyArgs(args, KEYWORD_NAMED, &pos)) {
@@ -403,7 +403,7 @@ static int structure_getarray_direct_(Execute ptr,
 	addr value;
 
 	Return(getelt_sequence_(NULL, vector, i, &value));
-	Return(typep_clang(ptr, value, type, &check));
+	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
 		Return(type_object_(&type, type));
 		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
@@ -425,7 +425,7 @@ static int structure_setarray_direct_(Execute ptr,
 {
 	int check;
 
-	Return(typep_clang(ptr, value, type, &check));
+	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
 		Return(type_object_(&type, type));
 		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
@@ -839,8 +839,9 @@ static int structure_slots_make_(struct defstruct *str)
 		pos = str->iname;
 		Return(stdget_structure_slots_(pos, &list));
 		Return(stdget_structure_value_(pos, &pos));
-		if (pos != Nil)
-			getindex_integer(pos, &value);
+		if (pos != Nil) {
+			Return(getindex_integer_(pos, &value));
+		}
 		args = str->iargs;
 		LenSlotVector(list, &count);
 		for (i = 0; i < count; i++) {
@@ -2446,7 +2447,7 @@ static int make_structure_common_vector_(Execute ptr, addr *ret,
 	str->errorp = errorp;
 	str->named = (named != Nil);
 	str->size = size;
-	getindex_integer(value, &size);
+	Return(getindex_integer_(value, &size));
 	str->size_value = size;
 
 	hold = LocalHold_local_push(ptr, pos);
@@ -2479,7 +2480,7 @@ static int make_structure_common_list_(Execute ptr, addr *ret,
 	str->errorp = errorp;
 	str->named = (named != Nil);
 	str->size = size;
-	getindex_integer(value, &size);
+	Return(getindex_integer_(value, &size));
 	str->size_value = size;
 
 	hold = LocalHold_local_push(ptr, pos);

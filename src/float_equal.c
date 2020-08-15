@@ -25,28 +25,6 @@ _g int zerop_long_float(addr pos)
 	return RefLongFloat(pos) == 0.0L;
 }
 
-_g int zerop_float(addr pos)
-{
-	switch (GetType(pos)) {
-		case LISPTYPE_SINGLE_FLOAT:
-			return zerop_single_float(pos);
-
-		case LISPTYPE_DOUBLE_FLOAT:
-			return zerop_double_float(pos);
-
-		case LISPTYPE_LONG_FLOAT:
-			return zerop_long_float(pos);
-
-		case LISPTYPE_SHORT_FLOAT:
-			Abort("short float is not implemented.");
-			return 0;
-
-		default:
-			TypeError(pos, FLOAT);
-			return 0;
-	}
-}
-
 
 /*
  *  equal
@@ -70,6 +48,42 @@ _g int equal_fl_real(addr left, addr right)
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	return long_float_fixnum(left) == RefLongFloat(right);
+}
+
+_g int equal_bs_real_(addr left, addr right, int *ret)
+{
+	single_float x, y;
+
+	CheckType(left, LISPTYPE_BIGNUM);
+	CheckType(right, LISPTYPE_SINGLE_FLOAT);
+	Return(single_float_bignum_(left, &x));
+	GetSingleFloat(right, &y);
+
+	return Result(ret, x == y);
+}
+
+_g int equal_bd_real_(addr left, addr right, int *ret)
+{
+	double_float x, y;
+
+	CheckType(left, LISPTYPE_BIGNUM);
+	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
+	Return(double_float_bignum_(left, &x));
+	GetDoubleFloat(right, &y);
+
+	return Result(ret, x == y);
+}
+
+_g int equal_bl_real_(addr left, addr right, int *ret)
+{
+	long_float x, y;
+
+	CheckType(left, LISPTYPE_BIGNUM);
+	CheckType(right, LISPTYPE_LONG_FLOAT);
+	Return(long_float_bignum_(left, &x));
+	GetLongFloat(right, &y);
+
+	return Result(ret, x == y);
 }
 
 
@@ -277,7 +291,7 @@ static int compare_single_float(addr left, addr right)
 		default:
 			break;
 	}
-	TypeError(right, FLOAT);
+	Abort("type error");
 	return 0;
 }
 
@@ -296,7 +310,7 @@ static int compare_double_float(addr left, addr right)
 		default:
 			break;
 	}
-	TypeError(right, FLOAT);
+	Abort("type error");
 	return 0;
 }
 
@@ -315,7 +329,7 @@ static int compare_long_float(addr left, addr right)
 		default:
 			break;
 	}
-	TypeError(right, FLOAT);
+	Abort("type error");
 	return 0;
 }
 
@@ -334,7 +348,7 @@ _g int compare_float(addr left, addr right)
 		default:
 			break;
 	}
-	TypeError(right, FLOAT);
+	Abort("type error");
 	return 0;
 }
 
@@ -376,5 +390,95 @@ _g int less_equal_dd_clang(addr left, addr right)
 _g int less_equal_ll_clang(addr left, addr right)
 {
 	return less_equal_ll_real(left, right);
+}
+
+
+/*
+ *  compare
+ */
+static int compare_single_float_(addr left, addr right, int *ret)
+{
+	switch (GetType(right)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			return Result(ret, compare_ss_real(left, right));
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return Result(ret, compare_sd_real(left, right));
+
+		case LISPTYPE_LONG_FLOAT:
+			return Result(ret, compare_sl_real(left, right));
+
+		default:
+			*ret = 0;
+			return TypeError_(right, FLOAT);
+	}
+}
+
+static int compare_double_float_(addr left, addr right, int *ret)
+{
+	switch (GetType(right)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			return Result(ret, compare_ds_real(left, right));
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return Result(ret, compare_dd_real(left, right));
+
+		case LISPTYPE_LONG_FLOAT:
+			return Result(ret, compare_dl_real(left, right));
+
+		default:
+			*ret = 0;
+			return TypeError_(right, FLOAT);
+	}
+}
+
+static int compare_long_float_(addr left, addr right, int *ret)
+{
+	switch (GetType(right)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			return Result(ret, compare_ls_real(left, right));
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return Result(ret, compare_ld_real(left, right));
+
+		case LISPTYPE_LONG_FLOAT:
+			return Result(ret, compare_ll_real(left, right));
+
+		default:
+			*ret = 0;
+			return TypeError_(right, FLOAT);
+	}
+}
+
+_g int compare_float_(addr left, addr right, int *ret)
+{
+	switch (GetType(left)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			return compare_single_float_(left, right, ret);
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return compare_double_float_(left, right, ret);
+
+		case LISPTYPE_LONG_FLOAT:
+			return compare_long_float_(left, right, ret);
+
+		default:
+			*ret = 0;
+			return TypeError_(left, FLOAT);
+	}
+}
+
+_g int less_float_clang_(addr left, addr right, int *ret)
+{
+	int check;
+	Return(compare_float_(left, right, &check));
+	return Result(ret, check < 0);
+}
+
+_g int less_equal_float_clang_(addr left, addr right, int *ret)
+{
+	int check;
+	Return(compare_float_(left, right, &check));
+	return Result(ret, check <= 0);
 }
 

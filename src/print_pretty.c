@@ -233,7 +233,7 @@ _g int expand_pprint_logical_block_common_(addr *ret, addr symbol, addr pos,
 
 	/* (check-type symbol symbol) */
 	if (! symbolp(symbol))
-		TypeError(symbol, SYMBOL);
+		return TypeError_(symbol, SYMBOL);
 
 	/* symbol */
 	if (symbol == T) {

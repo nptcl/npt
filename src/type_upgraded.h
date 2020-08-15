@@ -10,11 +10,11 @@
 /* upgraded-type check */
 _g int upgraded_array0_equal(addr left, addr right);
 /* type -> upgraded -> value */
-_g void upgraded_array_value(addr type, enum ARRAY_TYPE *ret, int *size);
+_g int upgraded_array_value_(addr type, enum ARRAY_TYPE *ret, int *size);
 /* value, size -> type */
 _g void upgraded_array_object(enum ARRAY_TYPE type, int size, addr *ret);
 /* type -> upgraded -> type */
-_g void upgraded_array_type(addr type, addr *ret);
+_g int upgraded_array_type_(addr type, addr *ret);
 /* value -> object */
 _g void upgraded_array_const(enum ARRAY_TYPE type, int size, addr *ret);
 /* object -> upgraded -> object */

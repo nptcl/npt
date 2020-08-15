@@ -1,3 +1,4 @@
+#include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "copy.h"
@@ -237,197 +238,202 @@ static void make_range_aster_right(LocalRoot local, addr *ret, addr right)
 }
 
 /* (10 *) (20 *) */
-static void range_and_left_left(addr *ret, addr left, addr right)
+static int range_and_left_left_(addr *ret, addr left, addr right)
 {
-	*ret = range_left_left_less(left, right)? right: left;
+	int check;
+	Return(range_left_left_less_(left, right, &check));
+	return Result(ret, check? right: left);
 }
 
 /* (* 20) (10 *) */
-static void range_and_right_left(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_right_left_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_right_left_greater_equal(left, right))
+	int check;
+
+	Return(range_right_left_greater_equal_(left, right, &check));
+	if (check) {
 		make_range_left_right(local, ret, right, left);
-	else
-		*ret = Nil;
+		return 0;
+	}
+	else {
+		return Result(ret, Nil);
+	}
 }
 
 /* (10 20) (15 *) */
-static void range_and_between_left(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_between_left_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_left_left_less_equal(right, left)) {
-		*ret = left;
-		return;
+	int check;
+
+	Return(range_left_left_less_equal_(right, left, &check));
+	if (check) {
+		return Result(ret, left);
 	}
-	if (range_left_right_less_equal(right, left)) {
+	Return(range_left_right_less_equal_(right, left, &check));
+	if (check) {
 		make_range_left_right(local, ret, right, left);
-		return;
+		return 0;
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-static void range_and_left(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_left_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_asterisk_p(left)) {
-		*ret = right;
-		return;
-	}
-	if (range_left_p(left)) {
-		range_and_left_left(ret, left, right);
-		return;
-	}
-	if (range_right_p(left)) {
-		range_and_right_left(local, ret, left, right);
-		return;
-	}
-	if (range_between_p(left)) {
-		range_and_between_left(local, ret, left, right);
-		return;
-	}
-	Abort("type error");
+	if (range_asterisk_p(left))
+		return Result(ret, right);
+	if (range_left_p(left))
+		return range_and_left_left_(ret, left, right);
+	if (range_right_p(left))
+		return range_and_right_left_(local, ret, left, right);
+	if (range_between_p(left))
+		return range_and_between_left_(local, ret, left, right);
+
+	*ret = Nil;
+	return fmte_("type error", NULL);
 }
 
 /* (10 *) (* 20) */
-static void range_and_left_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_left_right_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_left_right_less_equal(left, right))
+	int check;
+
+	Return(range_left_right_less_equal_(left, right, &check));
+	if (check) {
 		make_range_left_right(local, ret, left, right);
-	else
-		*ret = Nil;
+		return 0;
+	}
+	else {
+		return Result(ret, Nil);
+	}
 }
 
 /* (* 10) (* 20) */
-static void range_and_right_right(addr *ret, addr left, addr right)
+static int range_and_right_right_(addr *ret, addr left, addr right)
 {
-	*ret = range_right_right_less(left, right)? left: right;
+	int check;
+	Return(range_right_right_less_(left, right, &check));
+	return Result(ret, check? left: right);
 }
 
 /* (10 30) (* 20) */
-static void range_and_between_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_between_right_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_right_right_less_equal(left, right)) {
-		*ret = left;
-		return;
-	}
-	if (range_left_right_less_equal(left, right)) {
+	int check;
+
+	Return(range_right_right_less_equal_(left, right, &check));
+	if (check)
+		return Result(ret, left);
+	Return(range_left_right_less_equal_(left, right, &check));
+	if (check) {
 		make_range_left_right(local, ret, left, right);
-		return;
+		return 0;
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-static void range_and_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_right_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_asterisk_p(left)) {
-		*ret = right;
-		return;
-	}
-	if (range_left_p(left)) {
-		range_and_left_right(local, ret, left, right);
-		return;
-	}
-	if (range_right_p(left)) {
-		range_and_right_right(ret, left, right);
-		return;
-	}
-	if (range_between_p(left)) {
-		range_and_between_right(local, ret, left, right);
-		return;
-	}
-	Abort("type error");
+	if (range_asterisk_p(left))
+		return Result(ret, right);
+	if (range_left_p(left))
+		return range_and_left_right_(local, ret, left, right);
+	if (range_right_p(left))
+		return range_and_right_right_(ret, left, right);
+	if (range_between_p(left))
+		return range_and_between_right_(local, ret, left, right);
+
+	*ret = Nil;
+	return fmte_("type error", NULL);
 }
 
 /* (10 40) (20 30) */
-static void range_and_between_between(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_between_between_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_between_in(left, right)) {
-		*ret = right;
-		return;
-	}
-	if (range_between_in(right, left)) {
-		*ret = left;
-		return;
-	}
-	if (range_between_left(left, right)) {
+	int check;
+
+	Return(range_between_in_(left, right, &check));
+	if (check)
+		return Result(ret, right);
+	Return(range_between_in_(right, left, &check));
+	if (check)
+		return Result(ret, left);
+	Return(range_between_left_(left, right, &check));
+	if (check) {
 		make_range_left_right(local, ret, right, left);
-		return;
+		return 0;
 	}
-	if (range_between_right(left, right)) {
+	Return(range_between_right_(left, right, &check));
+	if (check) {
 		make_range_left_right(local, ret, left, right);
-		return;
+		return 0;
 	}
+
+	return Result(ret, Nil);
+}
+
+static int range_and_between_(LocalRoot local, addr *ret, addr left, addr right)
+{
+	if (range_asterisk_p(left))
+		return Result(ret, right);
+	if (range_left_p(left))
+		return range_and_between_left_(local, ret, right, left);
+	if (range_right_p(left))
+		return range_and_between_right_(local, ret, right, left);
+	if (range_between_p(left))
+		return range_and_between_between_(local, ret, left, right);
+
 	*ret = Nil;
+	return fmte_("type error", NULL);
 }
 
-static void range_and_between(LocalRoot local, addr *ret, addr left, addr right)
+static int range_and_(LocalRoot local, addr *ret, addr left, addr right)
 {
-	if (range_asterisk_p(left)) {
-		*ret = right;
-		return;
-	}
-	if (range_left_p(left)) {
-		range_and_between_left(local, ret, right, left);
-		return;
-	}
-	if (range_right_p(left)) {
-		range_and_between_right(local, ret, right, left);
-		return;
-	}
-	if (range_between_p(left)) {
-		range_and_between_between(local, ret, left, right);
-		return;
-	}
-	Abort("type error");
+	if (range_asterisk_p(right))
+		return Result(ret, left);
+	if (range_left_p(right))
+		return range_and_left_(local, ret, left, right);
+	if (range_right_p(right))
+		return range_and_right_(local, ret, left, right);
+	if (range_between_p(right))
+		return range_and_between_(local, ret, left, right);
+
+	*ret = Nil;
+	return fmte_("type error", NULL);
 }
 
-static void range_and(LocalRoot local, addr *ret, addr left, addr right)
-{
-	if (range_asterisk_p(right)) {
-		*ret = left;
-		return;
-	}
-	if (range_left_p(right)) {
-		range_and_left(local, ret, left, right);
-		return;
-	}
-	if (range_right_p(right)) {
-		range_and_right(local, ret, left, right);
-		return;
-	}
-	if (range_between_p(right)) {
-		range_and_between(local, ret, left, right);
-		return;
-	}
-	Abort("type error");
-}
-
-static void map_range_and(LocalRoot local, addr *ret, addr list, addr right)
+static int map_range_and_(LocalRoot local, addr *ret, addr list, addr right)
 {
 	addr result, left;
 
 	for (result = Nil; list != Nil; ) {
 		GetCons(list, &left, &list);
-		range_and(local, &left, left, right);
+		Return(range_and_(local, &left, left, right));
 		if (left != Nil)
 			cons_local(local, &result, left, result);
 	}
 	nreverse(ret, result);
+
+	return 0;
 }
 
-static void merge_range_andplus(LocalRoot local, addr *ret, addr left, addr right)
+static int merge_range_andplus_(LocalRoot local, addr *ret, addr left, addr right)
 {
 	addr type;
 
 	while (right != Nil) {
 		GetCons(right, &type, &right);
-		map_range_and(local, &left, left, type);
+		Return(map_range_and_(local, &left, left, type));
 		if (left == Nil)
 			break;
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
-static void merge_range_type(LocalRoot local, addr *ret, addr type, enum LISPDECL decl);
-static void range_and_otherwise(LocalRoot local,
+static int merge_range_type_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl);
+static int range_and_otherwise_(LocalRoot local,
 		addr *ret, addr array, enum LISPDECL decl)
 {
 	addr left, right;
@@ -437,7 +443,7 @@ static void range_and_otherwise(LocalRoot local,
 	left = Nil;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(array, i, &right);
-		merge_range_type(local, &right, right, decl);
+		Return(merge_range_type_(local, &right, right, decl));
 		if (right == Nil) {
 			left = Nil;
 			break;
@@ -449,37 +455,37 @@ static void range_and_otherwise(LocalRoot local,
 			left = right;
 		}
 		else {
-			merge_range_andplus(local, &left, left, right);
+			Return(merge_range_andplus_(local, &left, left, right));
 			if (left == Nil)
 				break;
 		}
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
-static void merge_range_and(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int merge_range_and_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	size_t size;
 
 	Check(RefNotDecl(type), "not error");
 	GetArrayType(type, 0, &type);
 	LenArrayA4(type, &size);
-	if (size == 0) {
-		*ret = T;
-		return;
-	}
+	if (size == 0)
+		return Result(ret, T);
 	if (size == 1) {
 		GetArrayA4(type, 0, &type);
 		conscar_local(local, ret, type);
-		return;
+		return 0;
 	}
-	range_and_otherwise(local, ret, type, decl);
+
+	return range_and_otherwise_(local, ret, type, decl);
 }
 
 /* merge-range-or */
-typedef int (*extpairtype)(LocalRoot, addr *, addr, addr);
-static int extpaircall_right(LocalRoot local,
-		extpairtype call, addr *ret, addr left, addr cons)
+typedef int (*extpairtype)(LocalRoot, addr x, addr y, addr *value, int *ret);
+static int extpaircall_right_(LocalRoot local,
+		extpairtype call, addr left, addr cons, addr *value, int *ret)
 {
 	int check;
 	addr right;
@@ -487,18 +493,18 @@ static int extpaircall_right(LocalRoot local,
 	while (cons != Nil) {
 		GetCons(cons, &right, &cons);
 		if (left != right) {
-			check = call(local, &right, left, right);
+			Return((*call)(local, left, right, &right, &check));
 			if (check) {
-				*ret = right;
-				return check;
+				*value = right;
+				return Result(ret, check);
 			}
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static void pushlist(LocalRoot local, addr *ret, addr list, addr result)
+static void extpaircall_pushlist(LocalRoot local, addr *ret, addr list, addr result)
 {
 	addr one;
 
@@ -509,10 +515,11 @@ static void pushlist(LocalRoot local, addr *ret, addr list, addr result)
 	*ret = result;
 }
 
-static int extpaircall_left(LocalRoot local, extpairtype call, addr *ret, addr right)
+static int extpaircall_left_(
+		LocalRoot local, extpairtype call, addr right, addr *value, int *ret)
 {
 	int update, check;
-	addr left, result, value, cons;
+	addr left, result, pos, cons;
 
 	result = Nil;
 	update = 0;
@@ -522,175 +529,246 @@ static int extpaircall_left(LocalRoot local, extpairtype call, addr *ret, addr r
 			cons_local(local, &result, left, result);
 		}
 		else {
-			check = extpaircall_right(local, call, &value, left, right);
+			Return(extpaircall_right_(local, call, left, right, &pos, &check));
 			if (check < 0)
-				pushlist(local, &result, value, result);
+				extpaircall_pushlist(local, &result, pos, result);
 			else
-				cons_local(local, &result, check? value: left, result);
+				cons_local(local, &result, check? pos: left, result);
 			if (check)
 				update = 1;
 		}
 	}
 	if (update)
-		nreverse(ret, result);
-	return update;
+		nreverse(value, result);
+	return Result(ret, update);
 }
 
-static void extpaircall(LocalRoot local, extpairtype call, addr *cons, int *update)
+static int extpaircall_(LocalRoot local, extpairtype call, addr *cons, int *update)
 {
-	int check;
-	addr value;
+	int loop, check;
+	addr pos;
 
-	value = *cons;
-	check = 0;
-	while (extpaircall_left(local, call, &value, value)) {
-		check = 1;
+	pos = *cons;
+	loop = 0;
+	for (;;) {
+		Return(extpaircall_left_(local, call, pos, &pos, &check));
+		if (! check)
+			break;
+		loop = 1;
 	}
-	if (check) {
-		*cons = value;
+	if (loop) {
+		*cons = pos;
 		*update = 1;
 	}
+
+	return 0;
 }
 
 /* check only */
-static int range_or_check(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_check_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
 	Check(RefLispDecl(left) != RefLispDecl(right), "type error");
 	Check(RefNotDecl(left) || RefNotDecl(right), "not error");
-	return 0;
+	return Result(ret, 0);
 }
 
 /* (? ?) (* *) -> delete */
-static int range_or_aster(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_aster_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
 	if (range_asterisk_p(right)) {
-		*ret = Nil;
-		return -1;  /* list */
+		*value = Nil;
+		return Result(ret, -1); /* list */
 	}
-	return 0;
+
+	return Result(ret, 0);
 }
 
 /* (20 ?) (10 *) -> delete */
-static int range_or_left_left(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_left_left_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_left_any_p(left) &&
-			range_left_p(right) &&
-			range_left_left_less_equal(right, left)) {
-		*ret = Nil;
-		return -1;
-	}
-	return 0;
+	int check;
+
+	if (! range_left_any_p(left))
+		return Result(ret, 0);
+	if (! range_left_p(right))
+		return Result(ret, 0);
+	Return(range_left_left_less_equal_(right, left, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	*value = Nil;
+	return Result(ret, -1);
 }
 
 /* (? 10) (* 20) -> delete */
-static int range_or_right_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_right_right_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_any_right_p(left) &&
-			range_right_p(right) &&
-			range_right_right_less_equal(left, right)) {
-		*ret = Nil;
-		return -1;
-	}
-	return 0;
+	int check;
+
+	if (! range_any_right_p(left))
+		return Result(ret, 0);
+	if (! range_right_p(right))
+		return Result(ret, 0);
+	Return(range_right_right_less_equal_(left, right, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	*value = Nil;
+	return Result(ret, -1);
 }
 
 /* (10 *) (* 20) -> (10 20) */
-static int range_or_left_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_left_right_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_left_p(left) &&
-			range_right_p(right) &&
-			range_connect_right_left(right, left)) {
-		type4aster_local(local, RefLispDecl(left), ret);
-		return 1;
-	}
-	return 0;
+	int check;
+
+	if (! range_left_p(left))
+		return Result(ret, 0);
+	if (! range_right_p(right))
+		return Result(ret, 0);
+	Return(range_connect_right_left_(right, left, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	type4aster_local(local, RefLispDecl(left), value);
+	return Result(ret, 1);
 }
 
 /* (10 30) (20 *) -> (10 *) */
-static int range_or_range_left(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_range_left_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_between_p(left) &&
-			range_left_p(right) &&
-			range_connect_between_left(left, right)) {
-		make_range_left_aster(local, ret, left);
-		return 1;
-	}
-	return 0;
+	int check;
+
+	if (! range_between_p(left))
+		return Result(ret, 0);
+	if (! range_left_p(right))
+		return Result(ret, 0);
+	Return(range_connect_between_left_(left, right, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	make_range_left_aster(local, value, left);
+	return Result(ret, 1);
 }
 
 /* (10 30) (* 20) -> (* 30) */
-static int range_or_range_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_range_right_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_between_p(left) &&
-			range_right_p(right) &&
-			range_connect_between_right(left, right)) {
-		make_range_aster_right(local, ret, left);
-		return 1;
-	}
-	return 0;
+	int check;
+
+	if (! range_between_p(left))
+		return Result(ret, 0);
+	if (! range_right_p(right))
+		return Result(ret, 0);
+	Return(range_connect_between_right_(left, right, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	make_range_aster_right(local, value, left);
+	return Result(ret, 1);
 }
 
 /* (21 22) (10 30) -> delete */
-static int range_or_range_range_in(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_range_range_in_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_between_p(left) &&
-			range_between_p(right) &&
-			range_between_in(right, left)) {
-		*ret = Nil;
-		return -1;
-	}
-	return 0;
+	int check;
+
+	if (! range_between_p(left))
+		return Result(ret, 0);
+	if (! range_between_p(right))
+		return Result(ret, 0);
+	Return(range_between_in_(right, left, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	*value = Nil;
+	return Result(ret, -1);
 }
 
 /* (10 30) (20 40) -> (10 30) */
-static int range_or_range_range_left(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_range_range_left_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_between_p(left) &&
-			range_between_p(right) &&
-			range_between_left(left, right) &&
-			(! range_between_right(left, right))) {
-		make_range_left_right(local, ret, left, right);
-		return 1;
-	}
-	return 0;
+	int check;
+
+	if (! range_between_p(left))
+		return Result(ret, 0);
+	if (! range_between_p(right))
+		return Result(ret, 0);
+	Return(range_between_left_(left, right, &check));
+	if (! check)
+		return Result(ret, 0);
+	Return(range_between_right_(left, right, &check));
+	if (check)
+		return Result(ret, 0);
+
+	/* true */
+	make_range_left_right(local, value, left, right);
+	return Result(ret, 1);
 }
 
 /* (20 40) (10 30) -> (10 40) */
-static int range_or_range_range_right(LocalRoot local, addr *ret, addr left, addr right)
+static int range_or_range_range_right_(
+		LocalRoot local, addr left, addr right, addr *value, int *ret)
 {
-	if (range_between_p(left) &&
-			range_between_p(right) &&
-			(! range_between_left(left, right)) &&
-			range_between_right(left, right)) {
-		make_range_left_right(local, ret, right, left);
-		return 1;
-	}
-	return 0;
+	int check;
+
+	if (! range_between_p(left))
+		return Result(ret, 0);
+	if (! range_between_p(right))
+		return Result(ret, 0);
+	Return(range_between_left_(left, right, &check));
+	if (check)
+		return Result(ret, 0);
+	Return(range_between_right_(left, right, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	/* true */
+	make_range_left_right(local, value, right, left);
+	return Result(ret, 1);
 }
 
-static void merge_range_orplus(LocalRoot local, addr *ret, addr left, addr right)
+#define Return_extpaircall(a,b,c,d) Return(extpaircall_((a),(b),(c),(d)))
+static int merge_range_orplus_(LocalRoot local, addr *ret, addr left, addr right)
 {
 	int update, result;
 
 	append2_local_unsafe(local, left, right, &left);
 	for (result = 0; ; result |= update) {
 		update = 0;
-		extpaircall(local, range_or_check, &left, &update);
-		extpaircall(local, range_or_aster, &left, &update);
-		extpaircall(local, range_or_left_left, &left, &update);
-		extpaircall(local, range_or_right_right, &left, &update);
-		extpaircall(local, range_or_left_right, &left, &update);
-		extpaircall(local, range_or_range_left, &left, &update);
-		extpaircall(local, range_or_range_right, &left, &update);
-		extpaircall(local, range_or_range_range_in, &left, &update);
-		extpaircall(local, range_or_range_range_left, &left, &update);
-		extpaircall(local, range_or_range_range_right, &left, &update);
+		Return_extpaircall(local, range_or_check_, &left, &update);
+		Return_extpaircall(local, range_or_aster_, &left, &update);
+		Return_extpaircall(local, range_or_left_left_, &left, &update);
+		Return_extpaircall(local, range_or_right_right_, &left, &update);
+		Return_extpaircall(local, range_or_left_right_, &left, &update);
+		Return_extpaircall(local, range_or_range_left_, &left, &update);
+		Return_extpaircall(local, range_or_range_right_, &left, &update);
+		Return_extpaircall(local, range_or_range_range_in_, &left, &update);
+		Return_extpaircall(local, range_or_range_range_left_, &left, &update);
+		Return_extpaircall(local, range_or_range_range_right_, &left, &update);
 		if (update == 0)
-			break;                                                               }
-	*ret = left;
+			break;
+	}
+
+	return Result(ret, left);
 }
 
-static void range_or_otherwise(LocalRoot local,
+static int range_or_otherwise_(LocalRoot local,
 		addr *ret, addr array, enum LISPDECL decl)
 {
 	addr left, right;
@@ -700,7 +778,7 @@ static void range_or_otherwise(LocalRoot local,
 	left = Nil;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(array, i, &right);
-		merge_range_type(local, &right, right, decl);
+		Return(merge_range_type_(local, &right, right, decl));
 		if (right == Nil) {
 			continue;
 		}
@@ -712,47 +790,45 @@ static void range_or_otherwise(LocalRoot local,
 			left = right;
 		}
 		else {
-			merge_range_orplus(local, &left, left, right);
+			Return(merge_range_orplus_(local, &left, left, right));
 			if (left == T)
 				break;
 		}
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
-static void merge_range_or(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int merge_range_or_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	size_t size;
 
 	Check(RefNotDecl(type), "not error");
 	GetArrayType(type, 0, &type);
 	LenArrayA4(type, &size);
-	if (size == 0) {
-		*ret = Nil;
-		return;
-	}
+	if (size == 0)
+		return Result(ret, Nil);
 	if (size == 1) {
 		GetArrayA4(type, 0, &type);
 		conscar_local(local, ret, type);
-		return;
+		return 0;
 	}
-	range_or_otherwise(local, ret, type, decl);
+
+	return range_or_otherwise_(local, ret, type, decl);
 }
 
-static void merge_range_type(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int merge_range_type_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	switch (RefLispDecl(type)) {
 		case LISPDECL_AND:
-			merge_range_and(local, ret, type, decl);
-			break;
+			return merge_range_and_(local, ret, type, decl);
 
 		case LISPDECL_OR:
-			merge_range_or(local, ret, type, decl);
-			break;
+			return merge_range_or_(local, ret, type, decl);
 
 		default:
 			merge_range_cons(local, ret, type, decl);
-			break;
+			return 0;
 	}
 }
 
@@ -773,39 +849,41 @@ static void type_or_cons(LocalRoot local, addr *ret, addr cons)
 	type1_local(local, LISPDECL_OR, array, ret);
 }
 
-static void make_merge_range(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int make_merge_range_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
-	merge_range_type(local, &type, type, decl);
-	if (type == Nil) {
-		*ret = Nil;
-		return;
-	}
+	Return(merge_range_type_(local, &type, type, decl));
+	if (type == Nil)
+		return Result(ret, Nil);
 	if (type == T) {
 		type4aster_local(local, decl, ret);
-		return;
+		return 0;
 	}
 	if (singlep(type)) {
 		GetCar(type, ret);
-		return;
+		return 0;
 	}
 	if (GetType(type) == LISPTYPE_CONS) {
 		type_or_cons(local, ret, type);
-		return;
+		return 0;
 	}
-	Abort("type error");
+
+	*ret = Nil;
+	return fmte_("type error", NULL);
 }
 
-static void merge_range(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int merge_range_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
+	int ignore;
+
 	real_filter(local, &type, type, decl);
 	if (type != Nil) {
-		type_optimize_local(local, &type, type);
+		Return(type_optimize_local_(local, type, &type, &ignore));
 		get_type_optimized(&type, type);
 	}
 	if ((type == Nil) || (RefLispDecl(type) == LISPDECL_NIL))
-		*ret = Nil;
-	else
-		make_merge_range(local, ret, type, decl);
+		return Result(ret, Nil);
+
+	return make_merge_range_(local, ret, type, decl);
 }
 
 
@@ -824,7 +902,8 @@ static const enum LISPDECL RealFilterDecls[] = {
 	LISPDECL_EMPTY
 };
 
-static size_t real_filter_range_list(LocalRoot local, addr *ret, addr type)
+static int real_filter_range_list_(LocalRoot local, addr type,
+		addr *value, size_t *ret)
 {
 	addr cons, check;
 	size_t i, size;
@@ -835,15 +914,15 @@ static size_t real_filter_range_list(LocalRoot local, addr *ret, addr type)
 		decl = RealFilterDecls[i];
 		if (decl == LISPDECL_EMPTY)
 			break;
-		merge_range(local, &check, type, decl);
+		Return(merge_range_(local, &check, type, decl));
 		if (check != Nil) {
 			cons_local(local, &cons, check, cons);
 			size++;
 		}
 	}
-	nreverse(ret, cons);
+	nreverse(value, cons);
 
-	return size;
+	return Result(ret, size);
 }
 
 static void real_reject(LocalRoot local, addr *ret, addr type)
@@ -873,32 +952,36 @@ static void copy_cons_to_vector4_local(LocalRoot local,
 	*ret = array;
 }
 
-static void make_real_filter(LocalRoot local, addr *ret, addr type)
+static int make_real_filter_(LocalRoot local, addr *ret, addr type)
 {
 	addr pos;
 	size_t size;
 
-	size = real_filter_range_list(local, &pos, type);
-	if (size == 0) {
-		*ret = type;
-		return;
-	}
+	Return(real_filter_range_list_(local, type, &pos, &size));
+	if (size == 0)
+		return Result(ret, type);
 	real_reject(local, &type, type);
 	cons_local(local, &pos, type, pos);
 	copy_cons_to_vector4_local(local, &pos, pos, size + 1UL);
 	type1_local(local, LISPDECL_OR, pos, ret);
+
+	return 0;
 }
 
-static void real_extract(LocalRoot local, addr *ret, addr type)
+static int real_extract_(LocalRoot local, addr *ret, addr type)
 {
-	type_optimize_local(local, &type, type);
+	int ignore;
+
+	Return(type_optimize_local_(local, type, &type, &ignore));
 	get_type_optimized(&type, type);
-	make_real_filter(local, &type, type);
-	type_optimize_local(local, &type, type);
+	Return(make_real_filter_(local, &type, type));
+	Return(type_optimize_local_(local, type, &type, &ignore));
 	get_type_optimized(ret, type);
+
+	return 0;
 }
 
-_g void real_extract_local(LocalRoot local, addr *ret, addr type)
+_g int real_extract_local_(LocalRoot local, addr *ret, addr type)
 {
 	CheckLocal(local);
 	CheckType(type, LISPTYPE_TYPE);
@@ -906,20 +989,24 @@ _g void real_extract_local(LocalRoot local, addr *ret, addr type)
 		*ret = type;
 	}
 	else {
-		real_extract(local, &type, type);
+		Return(real_extract_(local, &type, type));
 		type1_local(local, LISPDECL_SUBTYPEP, type, ret);
 	}
+
+	return 0;
 }
 
-_g void real_extract_heap(LocalRoot local, addr *ret, addr type)
+_g int real_extract_heap_(LocalRoot local, addr *ret, addr type)
 {
 	LocalStack stack;
 
 	CheckLocal(local);
 	push_local(local, &stack);
-	real_extract_local(local, &type, type);
+	Return(real_extract_local_(local, &type, type));
 	type_copy_heap(ret, type);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 _g int type_subtypep_p(addr type)

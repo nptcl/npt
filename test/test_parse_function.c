@@ -230,7 +230,7 @@ static int test_parse_allcons(void)
 {
 	addr cons, eval;
 
-	readstring(&cons, "(10 \"Hello\" :aaa)");
+	readstring_debug(&cons, "(10 \"Hello\" :aaa)");
 	parse_allcons_(Execute_Thread, &cons, cons);
 	/* 10 */
 	getcons_(cons, &eval, &cons);
@@ -251,7 +251,7 @@ static int test_parse_progn(void)
 {
 	addr cons, eval;
 
-	readstring(&cons, "(progn 10 \"Hello\" :aaa)");
+	readstring_debug(&cons, "(progn 10 \"Hello\" :aaa)");
 	eval_parse(Execute_Thread, &eval, cons);
 
 	/* progn */
@@ -282,12 +282,12 @@ static int test_parse_letone(void)
 	test(symbol == pos, "parse_letone1");
 	test(value == Nil, "parse_letone2");
 
-	readstring(&cons, "(hello)");
+	readstring_debug(&cons, "(hello)");
 	parse_letone(cons, &symbol, &value);
 	test(symbol == pos, "parse_letone3");
 	test(value == Nil, "parse_letone4");
 
-	readstring(&cons, "(hello t)");
+	readstring_debug(&cons, "(hello t)");
 	parse_letone(cons, &symbol, &value);
 	test(symbol == pos, "parse_letone5");
 	test(value == T, "parse_letone6");
@@ -304,7 +304,7 @@ static int test_parse_letarg(void)
 	parse_letarg(ptr, &cons, Nil);
 	test(cons == Nil, "parse_letarg1");
 
-	readstring(&cons, "(aaa)");
+	readstring_debug(&cons, "(aaa)");
 	parse_letarg(ptr, &cons, cons);
 	GetCons(cons, &value, &cons);
 	/* (aaa nil) */
@@ -315,7 +315,7 @@ static int test_parse_letarg(void)
 	test(test_checktype(value, EVAL_PARSE_NIL), "parse_letarg4");
 	test(cons == Nil, "parse_letarg5");
 
-	readstring(&cons, "((aaa) (bbb 100))");
+	readstring_debug(&cons, "((aaa) (bbb 100))");
 	parse_letarg(ptr, &cons, cons);
 	GetCons(cons, &value, &cons);
 	/* (aaa nil) */
@@ -339,14 +339,14 @@ static int test_parse_let(void)
 {
 	addr cons, left, right;
 
-	readstring(&cons, "(let nil)");
+	readstring_debug(&cons, "(let nil)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_LET), "parse_let1");
 	test(RefEval(cons, 0) == Nil, "parse_let2");
 	test(RefEval(cons, 1) == Nil, "parse_let3");
 	test(RefEval(cons, 2) == Nil, "parse_let4");
 
-	readstring(&cons, "(let* (aaa) (declare (ignore aaa)) 10 20 30)");
+	readstring_debug(&cons, "(let* (aaa) (declare (ignore aaa)) 10 20 30)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_LETA), "parse_let5");
 
@@ -378,12 +378,12 @@ static int test_parse_setq(void)
 {
 	addr cons, left, right;
 
-	readstring(&cons, "(setq)");
+	readstring_debug(&cons, "(setq)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_SETQ), "parse_setq1");
 	test(RefEval(cons, 0) == Nil, "parse_setq2");
 
-	readstring(&cons, "(setq aaa 10 bbb 20)");
+	readstring_debug(&cons, "(setq aaa 10 bbb 20)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_SETQ), "parse_setq3");
 	GetEvalParse(cons, 0, &cons);
@@ -422,14 +422,14 @@ static int test_parse_var(void)
 {
 	addr cons, symbol, check;
 
-	readstring(&cons, "(aaa bbb ccc)");
+	readstring_debug(&cons, "(aaa bbb ccc)");
 	parse_var(&cons, cons);
 	test(length_list_unsafe(cons) == 3, "parse_var1");
 	GetCons(cons, &symbol, &cons);
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(symbol == check, "parse_var2");
 	GetCons(cons, &symbol, &cons);
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(symbol == check, "parse_var3");
 
 	RETURN;
@@ -444,7 +444,7 @@ static int test_parse_optional(void)
 	parse_optional(ptr, &cons, Nil);
 	test(cons == Nil, "parse_optional1");
 
-	readstring(&cons, "((bbb 10 nil) (ccc nil ddd))");
+	readstring_debug(&cons, "((bbb 10 nil) (ccc nil ddd))");
 	parse_optional(ptr, &cons, cons);
 	GetCons(cons, &right, &cons);
 	GetCons(right, &left, &right);
@@ -477,7 +477,7 @@ static int test_parse_key(void)
 	parse_key(ptr, &cons, Nil);
 	test(cons == Nil, "parse_key1");
 
-	readstring(&cons, "((bbb :bbb 10 nil) (ccc hello nil ddd))");
+	readstring_debug(&cons, "((bbb :bbb 10 nil) (ccc hello nil ddd))");
 	parse_key(ptr, &cons, cons);
 	GetCons(cons, &right, &cons);
 	GetCons(right, &left, &right);
@@ -515,7 +515,7 @@ static int test_parse_aux(void)
 	parse_aux(ptr, &cons, Nil);
 	test(cons == Nil, "parse_aux1");
 
-	readstring(&cons, "((bbb 10) (ccc nil))");
+	readstring_debug(&cons, "((bbb 10) (ccc nil))");
 	parse_aux(ptr, &cons, cons);
 	GetCons(cons, &right, &cons);
 	GetCons(right, &left, &right);
@@ -539,7 +539,7 @@ static int test_parse_ordinary(void)
 {
 	addr cons, left, right, check, keyword;
 
-	readstring(&cons, "(a b &optional c &rest d &key e &allow-other-keys &aux f)");
+	readstring_debug(&cons, "(a b &optional c &rest d &key e &allow-other-keys &aux f)");
 	parse_ordinary(Execute_Thread, &cons, cons);
 	/* var */
 	GetCons(cons, &right, &cons);
@@ -598,7 +598,7 @@ static int test_parse_defun(void)
 {
 	addr cons, left, right, check;
 
-	readstring(&cons, "(defun hello ())");
+	readstring_debug(&cons, "(defun hello ())");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_DEFUN), "parse_defun1");
 	/* name */
@@ -632,7 +632,7 @@ static int test_parse_defun(void)
 	GetEvalParse(cons, 4, &right);
 	test(right != Nil, "parse_defun14");
 
-	readstring(&cons,
+	readstring_debug(&cons,
 			"(defun (setf hello) (value)"
 			"  (declare (ignore value))"
 			"  \"HELLO\""
@@ -689,31 +689,31 @@ static int test_parse_macro_var(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	cons = readr("(x y)");
+	cons = readr_debug("(x y)");
 	lambda_macro(local, &cons, cons, Nil);
 	GetCar(cons, &cons);
 	test(length_list_unsafe(cons) == 2, "parse_macro_var1");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("x"), "parse_macro_var2");
+	test(pos == readr_debug("x"), "parse_macro_var2");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("y"), "parse_macro_var3");
+	test(pos == readr_debug("y"), "parse_macro_var3");
 
-	cons = readr("(x (y z) w)");
+	cons = readr_debug("(x (y z) w)");
 	lambda_macro(local, &cons, cons, Nil);
 	GetCar(cons, &cons);
 	test(length_list_unsafe(cons) == 3, "parse_macro_var4");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("x"), "parse_macro_var5");
+	test(pos == readr_debug("x"), "parse_macro_var5");
 	GetCons(cons, &pos, &cons);
 	test(consp(pos), "parse_macro_var6");
 	GetCar(pos, &pos);
 	test(length_list_unsafe(pos) == 2, "parse_macro_var7");
 	GetCons(pos, &check, &pos);
-	test(check == readr("y"), "parse_macro_var8");
+	test(check == readr_debug("y"), "parse_macro_var8");
 	GetCons(pos, &check, &pos);
-	test(check == readr("z"), "parse_macro_var9");
+	test(check == readr_debug("z"), "parse_macro_var9");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("w"), "parse_macro_var10");
+	test(pos == readr_debug("w"), "parse_macro_var10");
 
 	rollback_local(local, stack);
 
@@ -728,12 +728,12 @@ static int test_parse_macro_opt(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	cons = readr("(&optional x y)");
+	cons = readr_debug("(&optional x y)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &cons, &pos, NULL);
 	test(length_list_unsafe(cons) == 2, "parse_macro_opt1");
 
-	cons = readr("(&optional (x nil s))");
+	cons = readr_debug("(&optional (x nil s))");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &cons, &pos, NULL);
 	test(length_list_unsafe(cons) == 1, "parse_macro_opt2");
@@ -751,36 +751,36 @@ static int test_parse_macro_rest(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	cons = readr("(&rest x)");
+	cons = readr_debug("(&rest x)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &cons, &pos, NULL);
 	test(consp(cons), "parse_macro_rest1");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("x"), "parse_macro_rest2");
-	test(cons == readr("&rest"), "parse_macro_rest3");
+	test(pos == readr_debug("x"), "parse_macro_rest2");
+	test(cons == readr_debug("&rest"), "parse_macro_rest3");
 
-	cons = readr("(&body y)");
+	cons = readr_debug("(&body y)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &cons, &pos, NULL);
 	test(consp(cons), "parse_macro_rest4");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("y"), "parse_macro_rest5");
-	test(cons == readr("&body"), "parse_macro_rest6");
+	test(pos == readr_debug("y"), "parse_macro_rest5");
+	test(cons == readr_debug("&body"), "parse_macro_rest6");
 
-	cons = readr("(x . y)");
+	cons = readr_debug("(x . y)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &cons, &pos, NULL);
 	test(consp(cons), "parse_macro_rest7");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("y"), "parse_macro_rest8");
+	test(pos == readr_debug("y"), "parse_macro_rest8");
 	test(cons == Nil, "parse_macro_rest9");
 
-	cons = readr("z");
+	cons = readr_debug("z");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &cons, &pos, NULL);
 	test(consp(cons), "parse_macro_rest10");
 	GetCons(cons, &pos, &cons);
-	test(pos == readr("z"), "parse_macro_rest11");
+	test(pos == readr_debug("z"), "parse_macro_rest11");
 	test(cons == Nil, "parse_macro_rest12");
 
 	rollback_local(local, stack);
@@ -796,13 +796,13 @@ static int test_parse_macro_key(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	cons = readr("(&key x y)");
+	cons = readr_debug("(&key x y)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &pos, &cons, &check, &pos, NULL);
 	test(length_list_unsafe(cons) == 2, "parse_macro_key1");
 	test(check == Nil, "parse_macro_key2");
 
-	cons = readr("(&key ((x name) nil s) &allow-other-keys)");
+	cons = readr_debug("(&key ((x name) nil s) &allow-other-keys)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &pos, &cons, &check, &pos, NULL);
 	test(length_list_unsafe(cons) == 1, "parse_macro_key3");
@@ -821,12 +821,12 @@ static int test_parse_macro_aux(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	cons = readr("(&aux x y)");
+	cons = readr_debug("(&aux x y)");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &pos, &pos, &pos, &cons, &pos, NULL);
 	test(length_list_unsafe(cons) == 2, "parse_macro_aux1");
 
-	cons = readr("(&aux (x t))");
+	cons = readr_debug("(&aux (x t))");
 	lambda_macro(local, &list, cons, Nil);
 	Lista_bind(list, &pos, &pos, &pos, &pos, &pos, &cons, &pos, NULL);
 	test(length_list_unsafe(cons) == 1, "parse_macro_aux2");
@@ -844,17 +844,17 @@ static int test_parse_macro_whole_env(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	cons = readr("(&whole x &environment y)");
+	cons = readr_debug("(&whole x &environment y)");
 	lambda_macro(local, &list, cons, Nil);
 	List_bind(list, &pos, &pos, &pos, &pos, &pos, &pos, &cons, &pos, NULL);
-	test(cons == readr("x"), "parse_macro_whole1");
-	test(pos == readr("y"), "parse_macro_whole2");
+	test(cons == readr_debug("x"), "parse_macro_whole1");
+	test(pos == readr_debug("y"), "parse_macro_whole2");
 
-	cons = readr("(&whole whole b c d &optional e &environment env)");
+	cons = readr_debug("(&whole whole b c d &optional e &environment env)");
 	lambda_macro(local, &list, cons, Nil);
 	List_bind(list, &pos, &pos, &pos, &pos, &pos, &pos, &cons, &pos, NULL);
-	test(cons == readr("whole"), "parse_macro_environmente1");
-	test(pos == readr("env"), "parse_macro_environmente2");
+	test(cons == readr_debug("whole"), "parse_macro_environmente1");
+	test(pos == readr_debug("env"), "parse_macro_environmente2");
 
 	rollback_local(local, stack);
 
@@ -871,9 +871,9 @@ static int test_make_macro_function(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	args = readr("(x y z)");
+	args = readr_debug("(x y z)");
 	lambda_macro(ptr->local, &args, args, Nil);
-	cons = readr("(x y z :hello)");
+	cons = readr_debug("(x y z :hello)");
 	parse_allcons_(ptr, &cons, cons);
 
 	make_macro_function(ptr, &call, args, Nil, Nil, cons);
@@ -882,7 +882,7 @@ static int test_make_macro_function(void)
 
 	list_heap(&args, T, Nil, Nil, Nil, NULL);
 	callclang_funcall(ptr, &cons, call, args, Nil, NULL);
-	test(cons == readr(":hello"),"make_macro_function3");
+	test(cons == readr_debug(":hello"),"make_macro_function3");
 
 	free_control_(ptr, control);
 
@@ -900,15 +900,15 @@ static int test_parse_defmacro(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	eval = readr("(defmacro aaa () :hello)");
-	lambda = readr("defmacro");
+	eval = readr_debug("(defmacro aaa () :hello)");
+	lambda = readr_debug("defmacro");
 	getmacro_symbol(lambda, &lambda);
 	callclang_funcall(ptr, &eval, lambda, eval, Nil, NULL);
 	GetCdr(eval, &eval);
 	parse_defmacro(ptr, &eval, eval);
 	GetEvalParse(eval, 0, &name);
 	GetEvalParse(eval, 1, &lambda);
-	test(name == readr("aaa"), "parse_defmacro1");
+	test(name == readr_debug("aaa"), "parse_defmacro1");
 	test(functionp(lambda), "parse_defmacro2");
 
 	environment_symbol(&stack);
@@ -934,7 +934,7 @@ static int test_parse_macrolet_args(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	one = readr("(aaa (a) a ''a)");
+	one = readr_debug("(aaa (a) a ''a)");
 	hold = LocalHold_local_push(ptr, one);
 	parse_macrolet_one(ptr, one);
 	localhold_end(hold);
@@ -943,9 +943,9 @@ static int test_parse_macrolet_args(void)
 	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 1, &stack); /* local */
 	GetArrayA2(stack, 1, &stack); /* call */
-	test(stack == readr("aaa"), "parse_macrolet_args1");
+	test(stack == readr_debug("aaa"), "parse_macrolet_args1");
 
-	one = readr("((bbb (a) a ''b) (ccc (a) a ''c))");
+	one = readr_debug("((bbb (a) a ''b) (ccc (a) a ''c))");
 	hold = LocalHold_local_push(ptr, one);
 	parse_macrolet_args(ptr, one);
 	localhold_end(hold);
@@ -954,7 +954,7 @@ static int test_parse_macrolet_args(void)
 	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 1, &stack); /* local */
 	GetArrayA2(stack, 1, &stack); /* call */
-	test(stack == readr("ccc"), "parse_macrolet_args2");
+	test(stack == readr_debug("ccc"), "parse_macrolet_args2");
 
 	free_control_(ptr, control);
 
@@ -973,7 +973,7 @@ static int test_parse_macrolet(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	one = readr("(((aaa () :hello)) :bbb)");
+	one = readr_debug("(((aaa () :hello)) :bbb)");
 	hold = LocalHold_local_push(ptr, one);
 	parse_macrolet(ptr, &one, one);
 	localhold_end(hold);
@@ -1000,12 +1000,12 @@ static int test_parse_define_symbol_macro(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	one = readr("(aaa ''Hello)");
+	one = readr_debug("(aaa ''Hello)");
 	parse_define_symbol_macro(ptr, &one, one);
 	test(RefEvalParseType(one) == EVAL_PARSE_DEFINE_SYMBOL_MACRO,
 			"parse_define_symbol_macro1");
 	GetEvalParse(one, 0, &one);
-	test(one == readr("aaa"), "parse_define_symbol_macro2");
+	test(one == readr_debug("aaa"), "parse_define_symbol_macro2");
 
 	free_control_(ptr, control);
 
@@ -1023,13 +1023,13 @@ static int test_parse_symbol_macrolet_args(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	one = readr("((aaa ''Hello) (bbb ''zzz))");
+	one = readr_debug("((aaa ''Hello) (bbb ''zzz))");
 	parse_symbol_macrolet_args(ptr, &one, one);
 	test(consp(one), "parse_symbol_macrolet_args1");
 	test(length_list_unsafe(one) == 2, "parse_symbol_macrolet_args2");
 	GetCar(one, &one);
 	List_bind(one, &name, &form, &env, NULL);
-	test(name == readr("aaa"), "parse_symbol_macrolet_args3");
+	test(name == readr_debug("aaa"), "parse_symbol_macrolet_args3");
 	test(eval_parse_p(form), "parse_symbol_macrolet_args4");
 	test(GetType(env) == LISPTYPE_ENVIRONMENT, "parse_symbol_macrolet_args5");
 
@@ -1049,7 +1049,7 @@ static int test_parse_symbol_macrolet(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
-	one = readr("(((aaa ''Hello) (bbb ''zzz)) :hello)");
+	one = readr_debug("(((aaa ''Hello) (bbb ''zzz)) :hello)");
 	parse_symbol_macrolet(ptr, &one, one);
 	test(RefEvalParseType(one) == EVAL_PARSE_SYMBOL_MACROLET,
 			"parse_symbol_macrolet1");
@@ -1063,7 +1063,7 @@ static int test_parse_quote(void)
 {
 	addr cons;
 
-	readstring(&cons, "(quote hello)");
+	readstring_debug(&cons, "(quote hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_QUOTE), "parse_quote1");
 	GetEvalParse(cons, 0, &cons);
@@ -1081,7 +1081,7 @@ static int test_parse_lambda(void)
 	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
-	readstring(&cons, "(lambda ())");
+	readstring_debug(&cons, "(lambda ())");
 	parse_lambda(ptr, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_LAMBDA), "parse_lambda1");
 	/* lambda-list */
@@ -1132,7 +1132,7 @@ static int test_parse_function_argument(void)
 	GetCallName(cons, &cons);
 	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_function_argument4");
 
-	readstring(&cons, "(setf hello)");
+	readstring_debug(&cons, "(setf hello)");
 	parse_function_argument(ptr, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_FUNCTION), "parse_function_argument5");
 	GetEvalParse(cons, 0, &cons);
@@ -1141,7 +1141,7 @@ static int test_parse_function_argument(void)
 	GetCallName(cons, &cons);
 	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_function_argument8");
 
-	readstring(&cons,
+	readstring_debug(&cons,
 			"(lambda (value)"
 			"  (declare (ignore value))"
 			"  \"HELLO\""
@@ -1191,7 +1191,7 @@ static int test_parse_function_function(void)
 {
 	addr cons;
 
-	readstring(&cons, "(function hello)");
+	readstring_debug(&cons, "(function hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_FUNCTION), "parse_function1");
 	GetEvalParse(cons, 0, &cons);
@@ -1200,11 +1200,11 @@ static int test_parse_function_function(void)
 	GetCallName(cons, &cons);
 	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_function4");
 
-	readstring(&cons, "(function (lambda () :hello))");
+	readstring_debug(&cons, "(function (lambda () :hello))");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_LAMBDA), "parse_function5");
 
-	readstring(&cons, "(function (setf hello))");
+	readstring_debug(&cons, "(function (setf hello))");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_FUNCTION), "parse_function6");
 
@@ -1215,7 +1215,7 @@ static int test_parse_if(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(if 100 (progn 200))");
+	readstring_debug(&cons, "(if 100 (progn 200))");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_IF), "parse_if1");
 	GetEvalParse(cons, 0, &check);
@@ -1225,7 +1225,7 @@ static int test_parse_if(void)
 	GetEvalParse(cons, 2, &check);
 	test(test_checktype(check, EVAL_PARSE_NIL), "parse_if4");
 
-	readstring(&cons, "(if 100 (progn 200) 300)");
+	readstring_debug(&cons, "(if 100 (progn 200) 300)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_IF), "parse_if5");
 	GetEvalParse(cons, 0, &check);
@@ -1242,7 +1242,7 @@ static int test_parse_unwind_protect(void)
 {
 	addr cons, check, code;
 
-	readstring(&cons, "(unwind-protect 100)");
+	readstring_debug(&cons, "(unwind-protect 100)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_UNWIND_PROTECT), "parse_unwind_protect1");
 	GetEvalParse(cons, 0, &check);
@@ -1250,7 +1250,7 @@ static int test_parse_unwind_protect(void)
 	GetEvalParse(cons, 1, &check);
 	test(check == Nil, "parse_unwind_protect2");
 
-	readstring(&cons, "(unwind-protect 100 :hello :body)");
+	readstring_debug(&cons, "(unwind-protect 100 :hello :body)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_UNWIND_PROTECT), "parse_unwind_protect3");
 	GetEvalParse(cons, 0, &check);
@@ -1308,7 +1308,7 @@ static int test_parse_tagbody_check(void)
 	addr cons, tag, body, check;
 
 	ptr = Execute_Thread;
-	readstring(&cons, "(100 (progn) aaa (quote bbb) (function ccc))");
+	readstring_debug(&cons, "(100 (progn) aaa (quote bbb) (function ccc))");
 	parse_tagbody_check(ptr, cons, &tag, &body);
 	/* tag */
 	GetCons(tag, &check, &tag);
@@ -1336,7 +1336,7 @@ static int test_parse_tagbody(void)
 {
 	addr cons, tag, body, check;
 
-	readstring(&cons, "(tagbody (progn) 100)");
+	readstring_debug(&cons, "(tagbody (progn) 100)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_TAGBODY), "parse_tagbody1");
 	GetEvalParse(cons, 0, &tag);
@@ -1358,7 +1358,7 @@ static int test_parse_go(void)
 {
 	addr cons;
 
-	readstring(&cons, "(go hello)");
+	readstring_debug(&cons, "(go hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_GO), "parse_go1");
 	GetEvalParse(cons, 0, &cons);
@@ -1373,13 +1373,13 @@ static int test_parse_block(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(block nil)");
+	readstring_debug(&cons, "(block nil)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_BLOCK), "parse_block1");
 	test(RefEval(cons, 0) == Nil, "parse_block2");
 	test(RefEval(cons, 1) == Nil, "parse_block3");
 
-	readstring(&cons, "(block hello 10 20 30)");
+	readstring_debug(&cons, "(block hello 10 20 30)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_BLOCK), "parse_block4");
 	GetEvalParse(cons, 0, &check);
@@ -1400,14 +1400,14 @@ static int test_parse_return_from(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(return-from nil)");
+	readstring_debug(&cons, "(return-from nil)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_RETURN_FROM), "parse_return_from1");
 	test(RefEval(cons, 0) == Nil, "parse_return_from2");
 	GetEvalParse(cons, 1, &cons);
 	test(test_checktype(cons, EVAL_PARSE_NIL), "parse_return_from3");
 
-	readstring(&cons, "(return-from hello 100)");
+	readstring_debug(&cons, "(return-from hello 100)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_RETURN_FROM), "parse_return_from4");
 	GetEvalParse(cons, 0, &check);
@@ -1422,14 +1422,14 @@ static int test_parse_catch(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(catch nil)");
+	readstring_debug(&cons, "(catch nil)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_CATCH), "parse_catch1");
 	GetEvalParse(cons, 0, &check);
 	test(test_checktype(check, EVAL_PARSE_NIL), "parse_catch2");
 	test(RefEval(cons, 1) == Nil, "parse_catch3");
 
-	readstring(&cons, "(catch hello 10 20 30)");
+	readstring_debug(&cons, "(catch hello 10 20 30)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_CATCH), "parse_catch4");
 	GetEvalParse(cons, 0, &check);
@@ -1453,7 +1453,7 @@ static int test_parse_throw(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(throw nil 100)");
+	readstring_debug(&cons, "(throw nil 100)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_THROW), "parse_throw1");
 	GetEvalParse(cons, 0, &check);
@@ -1461,7 +1461,7 @@ static int test_parse_throw(void)
 	GetEvalParse(cons, 1, &check);
 	test(test_eqlfixnum(check, 100), "parse_throw6");
 
-	readstring(&cons, "(throw hello 200)");
+	readstring_debug(&cons, "(throw hello 200)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_THROW), "parse_throw4");
 	GetEvalParse(cons, 0, &check);
@@ -1484,7 +1484,7 @@ static int test_parse_flet_one(void)
 	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
-	readstring(&cons, "(hello ())");
+	readstring_debug(&cons, "(hello ())");
 	parse_flet_one(ptr, &cons, cons);
 	GetCons(cons, &check, &cons); /* name */
 	test(GetType(check) == LISPTYPE_CALLNAME, "parse_flet_one1");
@@ -1515,7 +1515,7 @@ static int test_parse_flet_args(void)
 	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
-	readstring(&cons, "((aaa (a) :aaa) (bbb (b) :bbb))");
+	readstring_debug(&cons, "((aaa (a) :aaa) (bbb (b) :bbb))");
 	parse_flet_args(ptr, &cons, cons);
 	/* (aaa (a) :aaa) */
 	GetCons(cons, &check, &cons);
@@ -1539,7 +1539,7 @@ static int test_parse_flet_labels(void)
 {
 	addr cons, left, right;
 
-	readstring(&cons, "(flet ((aaa (a) :aaa)) :hello)");
+	readstring_debug(&cons, "(flet ((aaa (a) :aaa)) :hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_FLET), "parse_flet_labels1");
 
@@ -1566,7 +1566,7 @@ static int test_parse_the(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(the integer (progn :hello))");
+	readstring_debug(&cons, "(the integer (progn :hello))");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_THE), "parse_the1");
 	GetEvalParse(cons, 0, &check);
@@ -1581,7 +1581,7 @@ static int test_parse_eval_when(void)
 {
 	addr cons, check;
 
-	readstring(&cons, "(eval-when (:compile-toplevel) :hello)");
+	readstring_debug(&cons, "(eval-when (:compile-toplevel) :hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_EVAL_WHEN), "parse_eval_when1");
 	GetEvalParse(cons, 0, &check);
@@ -1591,19 +1591,19 @@ static int test_parse_eval_when(void)
 	test(RefEval(cons, 2) == Nil, "parse_eval_when4");
 	test(RefEval(cons, 3) == Nil, "parse_eval_when5");
 
-	readstring(&cons, "(eval-when (load) :hello)");
+	readstring_debug(&cons, "(eval-when (load) :hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(RefEval(cons, 1) == Nil, "parse_eval_when6");
 	test(RefEval(cons, 2) == T, "parse_eval_when7");
 	test(RefEval(cons, 3) == Nil, "parse_eval_when8");
 
-	readstring(&cons, "(eval-when (:execute) :hello)");
+	readstring_debug(&cons, "(eval-when (:execute) :hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(RefEval(cons, 1) == Nil, "parse_eval_when9");
 	test(RefEval(cons, 2) == Nil, "parse_eval_when10");
 	test(RefEval(cons, 3) == T, "parse_eval_when11");
 
-	readstring(&cons, "(eval-when (compile :load-toplevel eval) :hello)");
+	readstring_debug(&cons, "(eval-when (compile :load-toplevel eval) :hello)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(RefEval(cons, 1) == T, "parse_eval_when12");
 	test(RefEval(cons, 2) == T, "parse_eval_when13");
@@ -1616,13 +1616,13 @@ static int test_parse_values(void)
 {
 	addr cons, pos;
 
-	readstring(&cons, "(values)");
+	readstring_debug(&cons, "(values)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_VALUES), "parse_values1");
 	GetEvalParse(cons, 0, &cons);
 	test(cons == Nil, "parse_values2");
 
-	readstring(&cons, "(values t)");
+	readstring_debug(&cons, "(values t)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_VALUES), "parse_values3");
 	GetEvalParse(cons, 0, &cons);
@@ -1631,7 +1631,7 @@ static int test_parse_values(void)
 	test(test_checktype(pos, EVAL_PARSE_T), "parse_values5");
 	test(cons == Nil, "parse_values6");
 
-	readstring(&cons, "(values 100 t)");
+	readstring_debug(&cons, "(values 100 t)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_VALUES), "parse_values7");
 	GetEvalParse(cons, 0, &cons);
@@ -1649,7 +1649,7 @@ static int test_parse_call(void)
 {
 	addr cons, left, right;
 
-	readstring(&cons, "(unbounded-function 10 20 30)");
+	readstring_debug(&cons, "(unbounded-function 10 20 30)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_CALL), "parse_call1");
 	GetEvalParse(cons, 0, &left);
@@ -1675,7 +1675,7 @@ static int test_parse_multiple_value_bind(void)
 {
 	addr pos, left, right;
 
-	readstring(&pos, "(multiple-value-bind (a b c) (call) 10 20 30)");
+	readstring_debug(&pos, "(multiple-value-bind (a b c) (call) 10 20 30)");
 	eval_parse(Execute_Thread, &pos, pos);
 	test(test_checktype(pos, EVAL_PARSE_MULTIPLE_VALUE_BIND),
 			"parse_multiple_value_bind1");
@@ -1683,7 +1683,7 @@ static int test_parse_multiple_value_bind(void)
 	test(consp(right), "parse_multiple_value_bind2");
 	test(length_list_unsafe(right) == 3, "parse_multiple_value_bind3");
 	GetCons(right, &left, &right);
-	test(left == readr("a"), "parse_multiple_value_bind4");
+	test(left == readr_debug("a"), "parse_multiple_value_bind4");
 	GetEvalParse(pos, 1, &left);
 	test(eval_parse_p(left), "parse_multiple_value_bind5");
 
@@ -1694,7 +1694,7 @@ static int test_parse_multiple_value_call(void)
 {
 	addr cons, left, right;
 
-	readstring(&cons, "(multiple-value-call #'hello 10 20 30)");
+	readstring_debug(&cons, "(multiple-value-call #'hello 10 20 30)");
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_MULTIPLE_VALUE_CALL),
 			"parse_multiple_value_call1");
@@ -1732,7 +1732,7 @@ static int test_parse_macro_function(void)
 	 *      (declare (ignore args))
 	 *      `(function ,whole))
 	 */
-	readstring(&cons, "(lambda () :hello)");
+	readstring_debug(&cons, "(lambda () :hello)");
 	eval_parse(ptr, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_LAMBDA), "parse_macro1");
 

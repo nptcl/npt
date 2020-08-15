@@ -21,19 +21,19 @@ _g int oneplus_complex_heap_(LocalRoot local, addr pos, addr *ret)
 	Check(! complexp(pos), "type error");
 	switch (getcomplex(pos, &type, &real, &imag)) {
 		case ComplexType_single:
-			plus_float_sv_heap(real, 1.0f, &real);
+			Return(plus_float_sv_heap_(real, 1.0f, &real));
 			break;
 
 		case ComplexType_double:
-			plus_float_dv_heap(real, 1.0, &real);
+			Return(plus_float_dv_heap_(real, 1.0, &real));
 			break;
 
 		case ComplexType_long:
-			plus_float_lv_heap(real, 1.0L, &real);
+			Return(plus_float_lv_heap_(real, 1.0L, &real));
 			break;
 
 		case ComplexType_rational:
-			oneplus_rational_common(local, real, &real);
+			Return(oneplus_rational_common_(local, real, &real));
 			break;
 
 		default:
@@ -52,19 +52,19 @@ _g int oneminus_complex_heap_(LocalRoot local, addr pos, addr *ret)
 	Check(! complexp(pos), "type error");
 	switch (getcomplex(pos, &type, &real, &imag)) {
 		case ComplexType_single:
-			plus_float_sv_heap(real, -1.0f, &real);
+			Return(plus_float_sv_heap_(real, -1.0f, &real));
 			break;
 
 		case ComplexType_double:
-			plus_float_dv_heap(real, -1.0, &real);
+			Return(plus_float_dv_heap_(real, -1.0, &real));
 			break;
 
 		case ComplexType_long:
-			plus_float_lv_heap(real, -1.0L, &real);
+			Return(plus_float_lv_heap_(real, -1.0L, &real));
 			break;
 
 		case ComplexType_rational:
-			oneminus_rational_common(local, real, &real);
+			Return(oneminus_rational_common_(local, real, &real));
 			break;
 
 		default:
@@ -87,15 +87,15 @@ static int plus_real_complex_(addr left, addr right, addr *value, int *ret)
 	Return(getmathcomplex2_addr_(&str, left, right, &type));
 	switch (type) {
 		case MathType_single:
-			complex_single_heap(value, str.v.s.a+str.v.s.c, str.v.s.d);
+			Return(complex_single_heap_(value, str.v.s.a+str.v.s.c, str.v.s.d));
 			return Result(ret, 0);
 
 		case MathType_double:
-			complex_double_heap(value, str.v.d.a+str.v.d.c, str.v.d.d);
+			Return(complex_double_heap_(value, str.v.d.a+str.v.d.c, str.v.d.d));
 			return Result(ret, 0);
 
 		case MathType_long:
-			complex_long_heap(value, str.v.l.a+str.v.l.c, str.v.l.d);
+			Return(complex_long_heap_(value, str.v.l.a+str.v.l.c, str.v.l.d));
 			return Result(ret, 0);
 
 		case MathType_rational:
@@ -122,7 +122,7 @@ _g int plus_rational_complex_common_(LocalRoot local, addr left, addr right, add
 	if (check) {
 		GetRealComplex(right, &real);
 		GetImagComplex(right, &imag);
-		plus_rational_common(local, left, real, &real);
+		Return(plus_rational_common_(local, left, real, &real));
 		return complex_heap_(ret, real, imag);
 	}
 
@@ -199,8 +199,8 @@ static int plus_cc_rational_common_(LocalRoot local, addr left, addr right, addr
 	GetImagComplex(left, &b);
 	GetRealComplex(right, &c);
 	GetImagComplex(right, &d);
-	plus_rational_local(local, a, c, &a);
-	plus_rational_local(local, b, d, &b);
+	Return(plus_rational_local_(local, a, c, &a));
+	Return(plus_rational_local_(local, b, d, &b));
 	Return(complex_heap_(ret, a, b));
 	rollback_local(local, stack);
 
@@ -219,16 +219,13 @@ _g int plus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 	Return(getmathcomplex2_addr_(&str, left, right, &type));
 	switch (type) {
 		case MathType_single:
-			complex_single_heap(ret, str.v.s.a+str.v.s.c, str.v.s.b+str.v.s.d);
-			break;
+			return complex_single_heap_(ret, str.v.s.a+str.v.s.c, str.v.s.b+str.v.s.d);
 
 		case MathType_double:
-			complex_double_heap(ret, str.v.d.a+str.v.d.c, str.v.d.b+str.v.d.d);
-			break;
+			return complex_double_heap_(ret, str.v.d.a+str.v.d.c, str.v.d.b+str.v.d.d);
 
 		case MathType_long:
-			complex_long_heap(ret, str.v.l.a+str.v.l.c, str.v.l.b+str.v.l.d);
-			break;
+			return complex_long_heap_(ret, str.v.l.a+str.v.l.c, str.v.l.b+str.v.l.d);
 
 		case MathType_rational:
 			return plus_cc_rational_common_(local, left, right, ret);
@@ -239,8 +236,6 @@ _g int plus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret)
 			*ret = Nil;
 			return fmte_("type error", NULL);
 	}
-
-	return 0;
 }
 
 
@@ -256,15 +251,15 @@ static int minus_real_complex_(addr left, addr right, addr *value, int *ret)
 	Return(getmathcomplex2_addr_(&str, left, right, &type));
 	switch (type) {
 		case MathType_single:
-			complex_single_heap(value, str.v.s.a-str.v.s.c, -str.v.s.d);
+			Return(complex_single_heap_(value, str.v.s.a-str.v.s.c, -str.v.s.d));
 			return Result(ret, 0);
 
 		case MathType_double:
-			complex_double_heap(value, str.v.d.a-str.v.d.c, -str.v.d.d);
+			Return(complex_double_heap_(value, str.v.d.a-str.v.d.c, -str.v.d.d));
 			return Result(ret, 0);
 
 		case MathType_long:
-			complex_long_heap(value, str.v.l.a-str.v.l.c, -str.v.l.d);
+			Return(complex_long_heap_(value, str.v.l.a-str.v.l.c, -str.v.l.d));
 			return Result(ret, 0);
 
 		case MathType_rational:
@@ -288,15 +283,15 @@ static int minus_complex_real_(addr left, addr right, addr *value, int *ret)
 	Return(getmathcomplex2_addr_(&str, left, right, &type));
 	switch (type) {
 		case MathType_single:
-			complex_single_heap(value, str.v.s.a-str.v.s.c, str.v.s.b);
+			Return(complex_single_heap_(value, str.v.s.a-str.v.s.c, str.v.s.b));
 			return Result(ret, 0);
 
 		case MathType_double:
-			complex_double_heap(value, str.v.d.a-str.v.d.c, str.v.d.b);
+			Return(complex_double_heap_(value, str.v.d.a-str.v.d.c, str.v.d.b));
 			return Result(ret, 0);
 
 		case MathType_long:
-			complex_long_heap(value, str.v.l.a-str.v.l.c, str.v.l.b);
+			Return(complex_long_heap_(value, str.v.l.a-str.v.l.c, str.v.l.b));
 			return Result(ret, 0);
 
 		case MathType_rational:
@@ -326,8 +321,8 @@ _g int minus_rational_complex_common_(LocalRoot local, addr left, addr right, ad
 		GetRealComplex(right, &a);
 		GetImagComplex(right, &b);
 		push_local(local, &stack);
-		minus_rational_local(local, left, a, &a);
-		sign_reverse_rational_local(local, b, &b);
+		Return(minus_rational_local_(local, left, a, &a));
+		Return(sign_reverse_rational_local_(local, b, &b));
 		Return(complex_heap_(ret, a, b));
 		rollback_local(local, stack);
 	}
@@ -350,7 +345,7 @@ _g int minus_complex_rational_common_(LocalRoot local, addr left, addr right, ad
 		GetRealComplex(left, &a);
 		GetImagComplex(left, &b);
 		push_local(local, &stack);
-		minus_rational_local(local, a, right, &a);
+		Return(minus_rational_local_(local, a, right, &a));
 		Return(complex_heap_(ret, a, b));
 		rollback_local(local, stack);
 	}
@@ -486,8 +481,8 @@ static int minus_cc_rational_common_(LocalRoot local, addr left, addr right, add
 	GetRealComplex(right, &c);
 	GetImagComplex(right, &d);
 	push_local(local, &stack);
-	minus_rational_local(local, a, c, &a);
-	minus_rational_local(local, b, d, &b);
+	Return(minus_rational_local_(local, a, c, &a));
+	Return(minus_rational_local_(local, b, d, &b));
 	Return(complex_heap_(ret, a, b));
 	rollback_local(local, stack);
 
@@ -506,16 +501,13 @@ _g int minus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret
 	Return(getmathcomplex2_addr_(&str, left, right, &type));
 	switch (type) {
 		case MathType_single:
-			complex_single_heap(ret, str.v.s.a-str.v.s.c, str.v.s.b-str.v.s.d);
-			break;
+			return complex_single_heap_(ret, str.v.s.a-str.v.s.c, str.v.s.b-str.v.s.d);
 
 		case MathType_double:
-			complex_double_heap(ret, str.v.d.a-str.v.d.c, str.v.d.b-str.v.d.d);
-			break;
+			return complex_double_heap_(ret, str.v.d.a-str.v.d.c, str.v.d.b-str.v.d.d);
 
 		case MathType_long:
-			complex_long_heap(ret, str.v.l.a-str.v.l.c, str.v.l.b-str.v.l.d);
-			break;
+			return complex_long_heap_(ret, str.v.l.a-str.v.l.c, str.v.l.b-str.v.l.d);
 
 		case MathType_rational:
 			return minus_cc_rational_common_(local, left, right, ret);
@@ -526,7 +518,5 @@ _g int minus_cc_number_common_(LocalRoot local, addr left, addr right, addr *ret
 			*ret = Nil;
 			return fmte_("type error", NULL);
 	}
-
-	return 0;
 }
 

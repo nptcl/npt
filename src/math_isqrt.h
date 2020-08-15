@@ -5,7 +5,7 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void isqrt_number_common(LocalRoot local, addr var, addr *ret);
+_g int isqrt_number_common_(LocalRoot local, addr var, addr *ret);
 
 #endif
 

@@ -2345,11 +2345,11 @@ static int test_readstring(void)
 {
 	addr pos;
 
-	readstring(&pos, "100");
+	readstring_debug(&pos, "100");
 	test(GetType(pos) == LISPTYPE_FIXNUM, "readstring1");
 	test(RefFixnum(pos) == 100, "readstring2");
 
-	pos = readr(":HELLO");
+	pos = readr_debug(":HELLO");
 	test(keywordp(pos), "readstring3");
 
 	RETURN;
@@ -2363,11 +2363,11 @@ static int test_double_quote_reader(void)
 {
 	addr pos;
 
-	test(readstring(&pos, "\"Hello\"") == 0, "double_quote_reader1");
+	test(readstring_debug(&pos, "\"Hello\"") == 0, "double_quote_reader1");
 	test(string_equal_char(pos, "Hello"), "double_quote_reader2");
-	test(readstring(&pos, "   \"\"   ") == 0, "double_quote_reader3");
+	test(readstring_debug(&pos, "   \"\"   ") == 0, "double_quote_reader3");
 	test(string_equal_char(pos, ""), "double_quote_reader4");
-	test(readstring(&pos, "  \"ab\\\"cd\"  ") == 0, "double_quote_reader5");
+	test(readstring_debug(&pos, "  \"ab\\\"cd\"  ") == 0, "double_quote_reader5");
 	test(string_equal_char(pos, "ab\"cd"), "double_quote_reader6");
 
 	RETURN;
@@ -2377,7 +2377,7 @@ static int test_single_quote_reader(void)
 {
 	addr pos, left, right;
 
-	test(readstring(&pos, "'Hello") == 0, "single_quote_reader1");
+	test(readstring_debug(&pos, "'Hello") == 0, "single_quote_reader1");
 	GetCons(pos, &left, &right);
 	test(check_symbol(left, LISP_COMMON, "QUOTE"), "single_quote_reader2");
 	test(right != Nil, "single_quote_reader3");
@@ -2392,34 +2392,34 @@ static int test_parensis_open_reader(void)
 {
 	addr pos, left, right;
 
-	test(readstring(&pos, "()") == 0, "parensis_open_reader1");
+	test(readstring_debug(&pos, "()") == 0, "parensis_open_reader1");
 	test(pos == Nil, "parensis_open_reader2");
 
-	test(readstring(&pos, "(100)") == 0, "parensis_open_reader3");
+	test(readstring_debug(&pos, "(100)") == 0, "parensis_open_reader3");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 100, "parensis_open_reader4");
 	test(right == Nil, "parensis_open_reader5");
 
-	test(readstring(&pos, "(10 hello)") == 0, "parensis_open_reader6");
+	test(readstring_debug(&pos, "(10 hello)") == 0, "parensis_open_reader6");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader7");
 	GetCons(right, &left, &right);
 	test(check_symbol(left, LISP_PACKAGE, "HELLO"), "parensis_open_reader8");
 	test(right == Nil, "parensis_open_reader9");
 
-	test(readstring(&pos, "(10 . hello)") == 0, "parensis_open_reader10");
+	test(readstring_debug(&pos, "(10 . hello)") == 0, "parensis_open_reader10");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader11");
 	test(check_symbol(right, LISP_PACKAGE, "HELLO"), "parensis_open_reader12");
 
-	test(readstring(&pos, "(10 20 . hello)") == 0, "parensis_open_reader13");
+	test(readstring_debug(&pos, "(10 20 . hello)") == 0, "parensis_open_reader13");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader14");
 	GetCons(right, &left, &right);
 	test(RefFixnum(left) == 20, "parensis_open_reader15");
 	test(check_symbol(right, LISP_PACKAGE, "HELLO"), "parensis_open_reader16");
 
-	test(readstring(&pos, "(10 hello (:aaa . \"str\") 40)") == 0,
+	test(readstring_debug(&pos, "(10 hello (:aaa . \"str\") 40)") == 0,
 			"parensis_open_reader17");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader18");
@@ -2440,7 +2440,7 @@ static int test_semicolon_reader(void)
 {
 	addr pos;
 
-	test(readstring(&pos, "   ;; Hello\n100") == 0, "semicolon_reader1");
+	test(readstring_debug(&pos, "   ;; Hello\n100") == 0, "semicolon_reader1");
 	test(RefFixnum(pos) == 100, "semicolon_reader2");
 
 	RETURN;
@@ -2450,10 +2450,10 @@ static int test_backquote_reader(void)
 {
 	addr pos;
 
-	test(readstring(&pos, "`hello") == 0, "backquote_reader1");
+	test(readstring_debug(&pos, "`hello") == 0, "backquote_reader1");
 	test(quote_back_p(pos), "backquote_reader2");
 	getvalue_quote(pos, &pos);
-	test(equal(pos, readr("(quote hello)")), "backquote_reader3");
+	test(equal(pos, readr_debug("(quote hello)")), "backquote_reader3");
 
 	RETURN;
 }
@@ -2466,19 +2466,19 @@ static int test_equal_dispatch(void)
 {
 	addr pos, left, right;
 
-	test(readstring(&pos, "#1= hello") == 0, "equal_dispatch1");
+	test(readstring_debug(&pos, "#1= hello") == 0, "equal_dispatch1");
 	test(symbolp(pos), "equal_dispatch2");
 
-	test(readstring(&pos, "(#1= hello #1#)") == 0, "equal_dispatch3");
+	test(readstring_debug(&pos, "(#1= hello #1#)") == 0, "equal_dispatch3");
 	test(consp(pos), "equal_dispatch4");
 	GetCons(pos, &left, &right);
-	test(left == readr("hello"), "equal_dispatch5");
+	test(left == readr_debug("hello"), "equal_dispatch5");
 	test(consp(right), "equal_dispatch6");
 	GetCons(right, &pos, &right);
 	test(pos == left, "equal_dispatch7");
 	test(right == Nil, "equal_dispatch8");
 
-	test(readstring(&pos, "(#1= (10 20 30) #1#)") == 0, "equal_dispatch9");
+	test(readstring_debug(&pos, "(#1= (10 20 30) #1#)") == 0, "equal_dispatch9");
 	test(consp(pos), "equal_dispatch10");
 	GetCons(pos, &left, &right);
 	test(length_list_unsafe(left) == 3, "equal_dispatch11");
@@ -2487,7 +2487,7 @@ static int test_equal_dispatch(void)
 	test(pos == left, "equal_dispatch13");
 	test(right == Nil, "equal_dispatch14");
 
-	test(readstring(&pos, "#1= (10 20 #1#)") == 0, "equal_dispatch15");
+	test(readstring_debug(&pos, "#1= (10 20 #1#)") == 0, "equal_dispatch15");
 	test(consp(pos), "equal_dispatch16");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "equal_dispatch17");
@@ -2497,7 +2497,7 @@ static int test_equal_dispatch(void)
 	test(left == pos, "equal_dispatch19");
 	test(right == Nil, "equal_dispatch20");
 
-	test(readstring(&pos, "#1= (30 (40 . #1#))") == 0, "equal_dispatch21");
+	test(readstring_debug(&pos, "#1= (30 (40 . #1#))") == 0, "equal_dispatch21");
 	test(consp(pos), "equal_dispatch22");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 30, "equal_dispatch23");
@@ -2515,7 +2515,7 @@ static int test_single_quote_dispatch(void)
 {
 	addr pos, left, right;
 
-	test(readstring(&pos, "#'Hello") == 0, "single_quote_dispatch1");
+	test(readstring_debug(&pos, "#'Hello") == 0, "single_quote_dispatch1");
 	GetCons(pos, &left, &right);
 	test(check_symbol(left, LISP_COMMON, "FUNCTION"), "single_quote_dispatch2");
 	test(right != Nil, "single_quote_dispatch3");
@@ -2530,10 +2530,10 @@ static int test_parensis_open_dispatch(void)
 {
 	addr pos, check;
 
-	test(! readstring(&pos, "#()"), "parensis_open_dispatch1");
+	test(! readstring_debug(&pos, "#()"), "parensis_open_dispatch1");
 	test(GetType(pos) == LISPTYPE_VECTOR, "parensis_open_dispatch2");
 	test(lenarrayr(pos) == 0, "parensis_open_dispatch3");
-	test(! readstring(&pos, "#(nil t 10)"), "parensis_open_dispatch4");
+	test(! readstring_debug(&pos, "#(nil t 10)"), "parensis_open_dispatch4");
 	test(GetType(pos) == LISPTYPE_VECTOR, "parensis_open_dispatch5");
 	test(lenarrayr(pos) == 3, "parensis_open_dispatch6");
 	getarray(pos, 0, &check);
@@ -2543,11 +2543,11 @@ static int test_parensis_open_dispatch(void)
 	getarray(pos, 2, &check);
 	test(RefFixnum(check) == 10, "parensis_open_dispatch9");
 
-	test(! readstring(&pos, "#0()"), "parensis_open_dispatch10");
+	test(! readstring_debug(&pos, "#0()"), "parensis_open_dispatch10");
 	test(GetType(pos) == LISPTYPE_VECTOR, "parensis_open_dispatch11");
 	test(lenarrayr(pos) == 0, "parensis_open_dispatch12");
 
-	test(! readstring(&pos, "#2(t t)"), "parensis_open_dispatch13");
+	test(! readstring_debug(&pos, "#2(t t)"), "parensis_open_dispatch13");
 	test(GetType(pos) == LISPTYPE_VECTOR, "parensis_open_dispatch14");
 	test(lenarrayr(pos) == 2, "parensis_open_dispatch15");
 	getarray(pos, 0, &check);
@@ -2555,7 +2555,7 @@ static int test_parensis_open_dispatch(void)
 	getarray(pos, 1, &check);
 	test(check == T, "parensis_open_dispatch17");
 
-	test(! readstring(&pos, "#4(10 t)"), "parensis_open_dispatch18");
+	test(! readstring_debug(&pos, "#4(10 t)"), "parensis_open_dispatch18");
 	test(GetType(pos) == LISPTYPE_VECTOR, "parensis_open_dispatch19");
 	test(lenarrayr(pos) == 4, "parensis_open_dispatch20");
 	getarray(pos, 0, &check);
@@ -2567,7 +2567,7 @@ static int test_parensis_open_dispatch(void)
 	getarray(pos, 3, &check);
 	test(check == T, "parensis_open_dispatch24");
 
-	test(! readstring(&pos, "#2= #(t #2#)"), "parensis_open_dispatch25");
+	test(! readstring_debug(&pos, "#2= #(t #2#)"), "parensis_open_dispatch25");
 	test(GetType(pos) == LISPTYPE_VECTOR, "parensis_open_dispatch26");
 	test(lenarrayr(pos) == 2, "parensis_open_dispatch27");
 	getarray(pos, 0, &check);
@@ -2583,12 +2583,12 @@ static int test_asterisk_dispatch(void)
 	addr pos;
 	size_t size;
 
-	test(! readstring(&pos, "#*"), "asterisk_dispatch1");
+	test(! readstring_debug(&pos, "#*"), "asterisk_dispatch1");
 	test(bitmemoryp(pos), "asterisk_dispatch2");
 	bitmemory_length(pos, &size);
 	test(size == 0, "asterisk_dispatch3");
 
-	test(! readstring(&pos, "#*1011"), "asterisk_dispatch4");
+	test(! readstring_debug(&pos, "#*1011"), "asterisk_dispatch4");
 	test(bitmemoryp(pos), "asterisk_dispatch5");
 	bitmemory_length(pos, &size);
 	test(size == 4, "asterisk_dispatch6");
@@ -2597,7 +2597,7 @@ static int test_asterisk_dispatch(void)
 	test(bitmemory_refint(pos, 2) == 1, "asterisk_dispatch9");
 	test(bitmemory_refint(pos, 3) == 1, "asterisk_dispatch10");
 
-	test(! readstring(&pos, "#*111000111000111000"), "asterisk_dispatch11");
+	test(! readstring_debug(&pos, "#*111000111000111000"), "asterisk_dispatch11");
 	test(bitmemoryp(pos), "asterisk_dispatch12");
 	bitmemory_length(pos, &size);
 	test(size == 18, "asterisk_dispatch13");
@@ -2627,14 +2627,14 @@ static int test_colon_dispatch(void)
 {
 	addr pos, check;
 
-	test(! readstring(&pos, "#:hello"), "colon_dispatch1");
+	test(! readstring_debug(&pos, "#:hello"), "colon_dispatch1");
 	test(symbolp(pos), "colon_dispatch2");
 	GetPackageSymbol(pos, &check);
 	test(check == Nil, "colon_dispatch3");
 	GetNameSymbol(pos, &check);
 	test(string_equal_char(check, "HELLO"), "colon_dispatch4");
 
-	test(! readstring(&pos, "#:|Hello|"), "colon_dispatch5");
+	test(! readstring_debug(&pos, "#:|Hello|"), "colon_dispatch5");
 	test(symbolp(pos), "colon_dispatch6");
 	GetPackageSymbol(pos, &check);
 	test(check == Nil, "colon_dispatch7");
@@ -2648,11 +2648,11 @@ static int test_backslash_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#\\a"), "backslash_dispatch1");
+	test(! readstring_debug(&pos, "#\\a"), "backslash_dispatch1");
 	test(RefCharacter(pos) == 'a', "backslash_dispatch2");
-	test(! readstring(&pos, "#\\A"), "backslash_dispatch3");
+	test(! readstring_debug(&pos, "#\\A"), "backslash_dispatch3");
 	test(RefCharacter(pos) == 'A', "backslash_dispatch4");
-	test(! readstring(&pos, "#\\SpaCE"), "backslash_dispatch5");
+	test(! readstring_debug(&pos, "#\\SpaCE"), "backslash_dispatch5");
 	test(RefCharacter(pos) == ' ', "backslash_dispatch6");
 
 	RETURN;
@@ -2662,9 +2662,9 @@ static int test_or_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#|aaa|#100"), "or_dispatch1");
+	test(! readstring_debug(&pos, "#|aaa|#100"), "or_dispatch1");
 	test(RefFixnum(pos) == 100, "or_dispatch2");
-	test(! readstring(&pos, "#|aaa#|bbb  |#ccc |#200"), "or_dispatch3");
+	test(! readstring_debug(&pos, "#|aaa#|bbb  |#ccc |#200"), "or_dispatch3");
 	test(RefFixnum(pos) == 200, "or_dispatch4");
 
 	RETURN;
@@ -2677,35 +2677,35 @@ static int test_plus_dispatch(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
-	list_heap(&list, readr(":aaa"), readr(":bbb"), readr(":ccc"), NULL);
+	list_heap(&list, readr_debug(":aaa"), readr_debug(":bbb"), readr_debug(":ccc"), NULL);
 	GetConst(SPECIAL_FEATURES, &symbol);
 	pushspecial_control(ptr, symbol, list);
 
-	test(! readstring(&pos, "#+aaa 100 200"), "plus_dispatch1");
+	test(! readstring_debug(&pos, "#+aaa 100 200"), "plus_dispatch1");
 	test(RefFixnum(pos) == 100, "plus_dispatch2");
-	test(! readstring(&pos, "#-aaa 100 200"), "plus_dispatch3");
+	test(! readstring_debug(&pos, "#-aaa 100 200"), "plus_dispatch3");
 	test(RefFixnum(pos) == 200, "plus_dispatch4");
-	test(! readstring(&pos, "#+zzz 100 200"), "plus_dispatch5");
+	test(! readstring_debug(&pos, "#+zzz 100 200"), "plus_dispatch5");
 	test(RefFixnum(pos) == 200, "plus_dispatch6");
-	test(! readstring(&pos, "#-zzz 100 200"), "plus_dispatch7");
+	test(! readstring_debug(&pos, "#-zzz 100 200"), "plus_dispatch7");
 	test(RefFixnum(pos) == 100, "plus_dispatch8");
 
-	test(! readstring(&pos, "#+(and aaa bbb) 100 200"), "plus_dispatch9");
+	test(! readstring_debug(&pos, "#+(and aaa bbb) 100 200"), "plus_dispatch9");
 	test(RefFixnum(pos) == 100, "plus_dispatch10");
-	test(! readstring(&pos, "#+(and zzz bbb) 100 200"), "plus_dispatch11");
+	test(! readstring_debug(&pos, "#+(and zzz bbb) 100 200"), "plus_dispatch11");
 	test(RefFixnum(pos) == 200, "plus_dispatch12");
-	test(! readstring(&pos, "#-(and aaa bbb) 100 200"), "plus_dispatch13");
+	test(! readstring_debug(&pos, "#-(and aaa bbb) 100 200"), "plus_dispatch13");
 	test(RefFixnum(pos) == 200, "plus_dispatch14");
-	test(! readstring(&pos, "#-(and zzz bbb) 100 200"), "plus_dispatch15");
+	test(! readstring_debug(&pos, "#-(and zzz bbb) 100 200"), "plus_dispatch15");
 	test(RefFixnum(pos) == 100, "plus_dispatch16");
 
-	test(! readstring(&pos, "#+(or (not xxx) zzz) 100 200"), "plus_dispatch17");
+	test(! readstring_debug(&pos, "#+(or (not xxx) zzz) 100 200"), "plus_dispatch17");
 	test(RefFixnum(pos) == 100, "plus_dispatch18");
-	test(! readstring(&pos, "#+(or xxx zzz) 100 200"), "plus_dispatch19");
+	test(! readstring_debug(&pos, "#+(or xxx zzz) 100 200"), "plus_dispatch19");
 	test(RefFixnum(pos) == 200, "plus_dispatch20");
-	test(! readstring(&pos, "#-(or (not xxx) zzz) 100 200"), "plus_dispatch21");
+	test(! readstring_debug(&pos, "#-(or (not xxx) zzz) 100 200"), "plus_dispatch21");
 	test(RefFixnum(pos) == 200, "plus_dispatch22");
-	test(! readstring(&pos, "#-(or xxx zzz) 100 200"), "plus_dispatch23");
+	test(! readstring_debug(&pos, "#-(or xxx zzz) 100 200"), "plus_dispatch23");
 	test(RefFixnum(pos) == 100, "plus_dispatch24");
 
 	free_control_(ptr, control);
@@ -2717,7 +2717,7 @@ static int test_dot_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#.100"), "dot_dispatch1");
+	test(! readstring_debug(&pos, "#.100"), "dot_dispatch1");
 	test(RefFixnum(pos) == 100, "dot_dispatch2");
 
 	RETURN;
@@ -2727,13 +2727,13 @@ static int test_radix_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#4r100"), "radix_dispatch1");
+	test(! readstring_debug(&pos, "#4r100"), "radix_dispatch1");
 	test(RefFixnum(pos) == 16, "radix_dispatch2");
 
-	test(! readstring(&pos, "#5r-1234"), "radix_dispatch3");
+	test(! readstring_debug(&pos, "#5r-1234"), "radix_dispatch3");
 	test(RefFixnum(pos) == -194, "radix_dispatch4");
 
-	test(! readstring(&pos, "#17rgF21"), "radix_dispatch5");
+	test(! readstring_debug(&pos, "#17rgF21"), "radix_dispatch5");
 	test(RefFixnum(pos) == 82978, "radix_dispatch6");
 
 	RETURN;
@@ -2743,9 +2743,9 @@ static int test_binary_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#b1011"), "binary_dispatch1");
+	test(! readstring_debug(&pos, "#b1011"), "binary_dispatch1");
 	test(RefFixnum(pos) == 11, "binary_dispatch2");
-	test(! readstring(&pos, "#b-1101"), "binary_dispatch3");
+	test(! readstring_debug(&pos, "#b-1101"), "binary_dispatch3");
 	test(RefFixnum(pos) == -13, "binary_dispatch4");
 
 	RETURN;
@@ -2755,9 +2755,9 @@ static int test_octal_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#o7654"), "octal_dispatch1");
+	test(! readstring_debug(&pos, "#o7654"), "octal_dispatch1");
 	test(RefFixnum(pos) == 4012, "octal_dispatch2");
-	test(! readstring(&pos, "#o-1236"), "octal_dispatch3");
+	test(! readstring_debug(&pos, "#o-1236"), "octal_dispatch3");
 	test(RefFixnum(pos) == -670, "octal_dispatch4");
 
 	RETURN;
@@ -2767,9 +2767,9 @@ static int test_hexadecimal_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#xFEab"), "hexadecimal_dispatch1");
+	test(! readstring_debug(&pos, "#xFEab"), "hexadecimal_dispatch1");
 	test(RefFixnum(pos) == 65195, "hexadecimal_dispatch2");
-	test(! readstring(&pos, "#x-123F"), "hexadecimal_dispatch3");
+	test(! readstring_debug(&pos, "#x-123F"), "hexadecimal_dispatch3");
 	test(RefFixnum(pos) == -4671, "hexadecimal_dispatch4");
 
 	RETURN;
@@ -2779,13 +2779,13 @@ static int test_complex_dispatch(void)
 {
 	addr pos, check;
 
-	test(! readstring(&pos, "#c(10 20)"), "complex_dispatch1");
+	test(! readstring_debug(&pos, "#c(10 20)"), "complex_dispatch1");
 	test(complexp(pos), "complex_dispatch2");
 	GetRealComplex(pos, &check);
 	test(RefFixnum(check) == 10, "complex_dispatch3");
 	GetImagComplex(pos, &check);
 	test(RefFixnum(check) == 20, "complex_dispatch4");
-	test(! readstring(&pos, "#C(-10.0 20.0)"), "complex_dispatch5");
+	test(! readstring_debug(&pos, "#C(-10.0 20.0)"), "complex_dispatch5");
 	test(complexp(pos), "complex_dispatch6");
 	GetRealComplex(pos, &check);
 	test(RefSingleFloat(check) == -10.0f, "complex_dispatch7");
@@ -2799,9 +2799,9 @@ static int test_pathname_dispatch(void)
 {
 	addr pos, check;
 
-	test(! readstring(&pos, "#p\"\""), "pathname_dispatch1");
+	test(! readstring_debug(&pos, "#p\"\""), "pathname_dispatch1");
 	test(GetType(pos) == LISPTYPE_PATHNAME, "pathname_dispatch2");
-	test(! readstring(&pos, "#p\"file.txt\""), "pathname_dispatch3");
+	test(! readstring_debug(&pos, "#p\"file.txt\""), "pathname_dispatch3");
 	test(GetType(pos) == LISPTYPE_PATHNAME, "pathname_dispatch4");
 	GetNamePathname(pos, &check);
 	test(string_equalp_char(check, "file"), "pathname_dispatch5");
@@ -2819,15 +2819,15 @@ static int test_basic_token(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "100"), "basic_token1");
+	test(! readstring_debug(&pos, "100"), "basic_token1");
 	test(GetType(pos) == LISPTYPE_FIXNUM, "basic_token2");
 	test(RefFixnum(pos) == 100, "basic_token3");
-	test(! readstring(&pos, "-9999999999999999999999999"), "basic_token4");
+	test(! readstring_debug(&pos, "-9999999999999999999999999"), "basic_token4");
 	test(GetType(pos) == LISPTYPE_BIGNUM, "basic_token5");
-	test(! readstring(&pos, "1.23d4"), "basic_token6");
+	test(! readstring_debug(&pos, "1.23d4"), "basic_token6");
 	test(GetType(pos) == LISPTYPE_DOUBLE_FLOAT, "basic_token7");
 	test(RefDoubleFloat(pos) == 1.23e4, "basic_token8");
-	test(! readstring(&pos, "2/3"), "basic_token9");
+	test(! readstring_debug(&pos, "2/3"), "basic_token9");
 	test(GetType(pos) == LISPTYPE_RATIO, "basic_token10");
 
 	RETURN;

@@ -1138,6 +1138,7 @@ static int test_single_float_ratio(void)
 	addr numer, denom, pos;
 	LocalRoot local;
 	LocalStack stack;
+	single_float value;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1145,22 +1146,26 @@ static int test_single_float_ratio(void)
 	bignum_value_alloc(local, &numer, signplus_bignum, 0);
 	bignum_value_alloc(local, &denom, signplus_bignum, 4);
 	make_ratio_alloc_unsafe(local, &pos, signplus_bignum, numer, denom);
-	test(single_float_ratio(pos) == 0.0f, "single_float_ratio1");
+	single_float_ratio_(pos, &value);
+	test(value == 0.0f, "single_float_ratio1");
 
 	bignum_value_alloc(local, &numer, signminus_bignum, 123);
 	bignum_value_alloc(local, &denom, signplus_bignum, 1);
 	make_ratio_alloc_unsafe(local, &pos, signplus_bignum, numer, denom);
-	test(single_float_ratio(pos) == 123.0f, "single_float_ratio2");
+	single_float_ratio_(pos, &value);
+	test(value == 123.0f, "single_float_ratio2");
 
 	bignum_value_alloc(local, &numer, signplus_bignum, 1);
 	bignum_value_alloc(local, &denom, signminus_bignum, 4);
 	make_ratio_alloc_unsafe(local, &pos, signminus_bignum, numer, denom);
-	test(single_float_ratio(pos) == -0.25f, "single_float_ratio3");
+	single_float_ratio_(pos, &value);
+	test(value == -0.25f, "single_float_ratio3");
 
 	bignum_value_alloc(local, &numer, signminus_bignum, 123);
 	bignum_value_alloc(local, &denom, signminus_bignum, 984);
 	make_ratio_alloc_unsafe(local, &pos, signminus_bignum, numer, denom);
-	test(single_float_ratio(pos) == -0.125f, "single_float_ratio4");
+	single_float_ratio_(pos, &value);
+	test(value == -0.125f, "single_float_ratio4");
 
 	rollback_local(local, stack);
 
@@ -1172,6 +1177,7 @@ static int test_double_float_ratio(void)
 	addr numer, denom, pos;
 	LocalRoot local;
 	LocalStack stack;
+	double_float value;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1179,22 +1185,26 @@ static int test_double_float_ratio(void)
 	bignum_value_alloc(local, &numer, signplus_bignum, 0);
 	bignum_value_alloc(local, &denom, signplus_bignum, 4);
 	make_ratio_alloc_unsafe(local, &pos, signplus_bignum, numer, denom);
-	test(double_float_ratio(pos) == 0.0, "double_float_ratio1");
+	double_float_ratio_(pos, &value);
+	test(value == 0.0, "double_float_ratio1");
 
 	bignum_value_alloc(local, &numer, signminus_bignum, 123);
 	bignum_value_alloc(local, &denom, signplus_bignum, 1);
 	make_ratio_alloc_unsafe(local, &pos, signplus_bignum, numer, denom);
-	test(double_float_ratio(pos) == 123.0, "double_float_ratio2");
+	double_float_ratio_(pos, &value);
+	test(value == 123.0, "double_float_ratio2");
 
 	bignum_value_alloc(local, &numer, signplus_bignum, 1);
 	bignum_value_alloc(local, &denom, signminus_bignum, 4);
 	make_ratio_alloc_unsafe(local, &pos, signminus_bignum, numer, denom);
-	test(double_float_ratio(pos) == -0.25, "double_float_ratio3");
+	double_float_ratio_(pos, &value);
+	test(value == -0.25, "double_float_ratio3");
 
 	bignum_value_alloc(local, &numer, signminus_bignum, 123);
 	bignum_value_alloc(local, &denom, signminus_bignum, 984);
 	make_ratio_alloc_unsafe(local, &pos, signminus_bignum, numer, denom);
-	test(double_float_ratio(pos) == -0.125, "double_float_ratio4");
+	double_float_ratio_(pos, &value);
+	test(value == -0.125, "double_float_ratio4");
 
 	rollback_local(local, stack);
 
@@ -1206,6 +1216,7 @@ static int test_long_float_ratio(void)
 	addr numer, denom, pos;
 	LocalRoot local;
 	LocalStack stack;
+	long_float value;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1213,22 +1224,26 @@ static int test_long_float_ratio(void)
 	bignum_value_alloc(local, &numer, signplus_bignum, 0);
 	bignum_value_alloc(local, &denom, signplus_bignum, 4);
 	make_ratio_alloc_unsafe(local, &pos, signplus_bignum, numer, denom);
-	test(long_float_ratio(pos) == 0.0L, "long_float_ratio1");
+	long_float_ratio_(pos, &value);
+	test(value == 0.0L, "long_float_ratio1");
 
 	bignum_value_alloc(local, &numer, signminus_bignum, 123);
 	bignum_value_alloc(local, &denom, signplus_bignum, 1);
 	make_ratio_alloc_unsafe(local, &pos, signplus_bignum, numer, denom);
-	test(long_float_ratio(pos) == 123.0L, "long_float_ratio2");
+	long_float_ratio_(pos, &value);
+	test(value == 123.0L, "long_float_ratio2");
 
 	bignum_value_alloc(local, &numer, signplus_bignum, 1);
 	bignum_value_alloc(local, &denom, signminus_bignum, 4);
 	make_ratio_alloc_unsafe(local, &pos, signminus_bignum, numer, denom);
-	test(long_float_ratio(pos) == -0.25L, "long_float_ratio3");
+	long_float_ratio_(pos, &value);
+	test(value == -0.25L, "long_float_ratio3");
 
 	bignum_value_alloc(local, &numer, signminus_bignum, 123);
 	bignum_value_alloc(local, &denom, signminus_bignum, 984);
 	make_ratio_alloc_unsafe(local, &pos, signminus_bignum, numer, denom);
-	test(long_float_ratio(pos) == -0.125L, "long_float_ratio4");
+	long_float_ratio_(pos, &value);
+	test(value == -0.125L, "long_float_ratio4");
 
 	rollback_local(local, stack);
 

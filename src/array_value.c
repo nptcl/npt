@@ -154,11 +154,13 @@ _g int arrayvalue_get_signed_(struct array_value *str, addr x, unsigned size)
 
 _g int arrayvalue_get_unsigned8_(struct array_value *str, addr x)
 {
+	int check;
 	fixnum init;
 
 	if (! integerp(x))
 		return fmte_("~S must be an integer type.", x, NULL);
-	if (minusp_integer(x))
+	Return(minusp_integer_(x, &check));
+	if (check)
 		return fmte_("~S must be a non-negative integer.", x, NULL);
 	if (! fixnump(x))
 		goto error;
@@ -176,11 +178,13 @@ error:
 
 _g int arrayvalue_get_unsigned16_(struct array_value *str, addr x)
 {
+	int check;
 	fixnum init;
 
 	if (! integerp(x))
 		return fmte_("~S must be an integer type.", x, NULL);
-	if (minusp_integer(x))
+	Return(minusp_integer_(x, &check));
+	if (check)
 		return fmte_("~S must be a non-negative integer.", x, NULL);
 	if (! fixnump(x))
 		goto error;
@@ -199,11 +203,13 @@ error:
 #ifdef LISP_64BIT
 _g int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
 {
+	int check;
 	fixnum init;
 
 	if (! integerp(x))
 		return fmte_("~S must be an integer type.", x, NULL);
-	if (minusp_integer(x))
+	Return(minusp_integer_(x, &check));
+	if (check)
 		return fmte_("~S must be a non-negative integer.", x, NULL);
 	if (! fixnump(x))
 		goto error;
@@ -221,13 +227,15 @@ error:
 
 _g int arrayvalue_get_unsigned64_(struct array_value *str, addr x)
 {
+	int check;
 	fixnum init;
 	bigtype bigv;
 	size_t size;
 
 	if (! integerp(x))
 		return fmte_("~S must be an integer type.", x, NULL);
-	if (minusp_integer(x))
+	Return(minusp_integer_(x, &check));
+	if (check)
 		return fmte_("~S must be a non-negative integer.", x, NULL);
 	if (fixnump(x)) {
 		GetFixnum(x, &init);
@@ -251,13 +259,15 @@ _g int arrayvalue_get_unsigned64_(struct array_value *str, addr x)
 #else
 _g int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
 {
+	int check;
 	fixnum init;
 	bigtype bigv;
 	size_t size;
 
 	if (! integerp(x))
 		return fmte_("~S must be an integer type.", x, NULL);
-	if (minusp_integer(x))
+	Return(minusp_integer_(x, &check));
+	if (check)
 		return fmte_("~S must be a non-negative integer.", x, NULL);
 	if (fixnump(x)) {
 		GetFixnum(x, &init);

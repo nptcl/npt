@@ -114,25 +114,20 @@ _g int scale_float_common_(addr pos, addr scale, addr *ret)
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
 			GetSingleFloat(pos, &vs);
-			single_float_check_heap(ret, scalblnf(vs, n));
-			break;
+			return single_float_check_heap_(ret, scalblnf(vs, n));
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			GetDoubleFloat(pos, &vd);
-			double_float_check_heap(ret, scalbln(vd, n));
-			break;
+			return double_float_check_heap_(ret, scalbln(vd, n));
 
 		case LISPTYPE_LONG_FLOAT:
 			GetLongFloat(pos, &vl);
-			long_float_check_heap(ret, scalblnl(vl, n));
-			break;
+			return long_float_check_heap_(ret, scalblnl(vl, n));
 
 		default:
 			*ret = 0;
 			return TypeError_(pos, FLOAT);
 	}
-
-	return 0;
 }
 
 
@@ -224,25 +219,20 @@ static int float_sign2_single_(single_float left, addr opt, addr *ret)
 	switch (GetType(opt)) {
 		case LISPTYPE_SINGLE_FLOAT:
 			GetSingleFloat(opt, &vs);
-			single_float_check_heap(ret, copysign_ss(left, vs));
-			break;
+			return single_float_check_heap_(ret, copysign_ss(left, vs));
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			GetDoubleFloat(opt, &vd);
-			double_float_check_heap(ret, copysign_sd(left, vd));
-			break;
+			return double_float_check_heap_(ret, copysign_sd(left, vd));
 
 		case LISPTYPE_LONG_FLOAT:
 			GetLongFloat(opt, &vl);
-			long_float_check_heap(ret, copysign_sl(left, vl));
-			break;
+			return long_float_check_heap_(ret, copysign_sl(left, vl));
 
 		default:
 			*ret = 0;
 			return TypeError_(opt, FLOAT);
 	}
-
-	return 0;
 }
 
 static int float_sign2_double_(double_float left, addr opt, addr *ret)
@@ -254,25 +244,20 @@ static int float_sign2_double_(double_float left, addr opt, addr *ret)
 	switch (GetType(opt)) {
 		case LISPTYPE_SINGLE_FLOAT:
 			GetSingleFloat(opt, &vs);
-			single_float_check_heap(ret, copysign_ds(left, vs));
-			break;
+			return single_float_check_heap_(ret, copysign_ds(left, vs));
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			GetDoubleFloat(opt, &vd);
-			double_float_check_heap(ret, copysign_dd(left, vd));
-			break;
+			return double_float_check_heap_(ret, copysign_dd(left, vd));
 
 		case LISPTYPE_LONG_FLOAT:
 			GetLongFloat(opt, &vl);
-			long_float_check_heap(ret, copysign_dl(left, vl));
-			break;
+			return long_float_check_heap_(ret, copysign_dl(left, vl));
 
 		default:
 			*ret = 0;
 			return TypeError_(opt, FLOAT);
 	}
-
-	return 0;
 }
 
 static int float_sign2_long_(long_float left, addr opt, addr *ret)
@@ -284,25 +269,20 @@ static int float_sign2_long_(long_float left, addr opt, addr *ret)
 	switch (GetType(opt)) {
 		case LISPTYPE_SINGLE_FLOAT:
 			GetSingleFloat(opt, &vs);
-			single_float_check_heap(ret, copysign_ls(left, vs));
-			break;
+			return single_float_check_heap_(ret, copysign_ls(left, vs));
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			GetDoubleFloat(opt, &vd);
-			double_float_check_heap(ret, copysign_ld(left, vd));
-			break;
+			return double_float_check_heap_(ret, copysign_ld(left, vd));
 
 		case LISPTYPE_LONG_FLOAT:
 			GetLongFloat(opt, &vl);
-			long_float_check_heap(ret, copysign_ll(left, vl));
-			break;
+			return long_float_check_heap_(ret, copysign_ll(left, vl));
 
 		default:
 			*ret = 0;
 			return TypeError_(opt, FLOAT);
 	}
-
-	return 0;
 }
 
 static int float_sign2_common_(addr pos, addr opt, addr *ret)
@@ -811,8 +791,8 @@ static int rationalize_build_ratio_(addr *ret, addr numer, addr denom)
 {
 	int sign1, sign2;
 
-	getsign_integer(numer, &sign1);
-	getsign_integer(denom, &sign2);
+	Return(getsign_integer_(numer, &sign1));
+	Return(getsign_integer_(denom, &sign2));
 	sign1 = SignMulti(sign1, sign2);
 	Return(rationalize_copy_(&numer, numer));
 	Return(rationalize_copy_(&denom, denom));
@@ -821,13 +801,13 @@ static int rationalize_build_ratio_(addr *ret, addr numer, addr denom)
 	return 0;
 }
 
-static void rationalize_multi2(LocalRoot local, addr *ret, addr frac)
+static int rationalize_multi2_(LocalRoot local, addr *ret, addr frac)
 {
 	addr value;
 
 	/* (* 2 frac) */
 	fixnum_heap(&value, 2);
-	multi_ii_real_common(local, frac, value, ret);
+	return multi_ii_real_common_(local, frac, value, ret);
 }
 
 static int rationalize_letdenom_(LocalRoot local, addr expo, addr *ret)
@@ -836,7 +816,7 @@ static int rationalize_letdenom_(LocalRoot local, addr expo, addr *ret)
 
 	/* (ash 1 (- 1 expo)) */
 	fixnum_heap(&one, 1);
-	minus_ii_real_common(local, one, expo, &expo);
+	Return(minus_ii_real_common_(local, one, expo, &expo));
 	return ash_integer_common_(local, one, expo, ret);
 }
 
@@ -844,9 +824,9 @@ static int rationalize_ab_(LocalRoot local, addr *ra, addr *fb, addr frac, addr 
 {
 	addr a, b;
 
-	rationalize_multi2(local, &frac, frac);
-	oneminus_integer_common(local, frac, &a);
-	oneplus_integer_common(local, frac, &b);
+	Return(rationalize_multi2_(local, &frac, frac));
+	Return(oneminus_integer_common_(local, frac, &a));
+	Return(oneplus_integer_common_(local, frac, &b));
 	Return(rationalize_letdenom_(local, expo, &expo));
 	Return(rationalize_build_ratio_(ra, a, expo));
 	Return(rationalize_build_ratio_(fb, b, expo));
@@ -854,29 +834,41 @@ static int rationalize_ab_(LocalRoot local, addr *ra, addr *fb, addr frac, addr 
 	return 0;
 }
 
-static void rationalize_let(LocalRoot local, addr z, addr x1, addr x0, addr *ret)
+static int rationalize_let_(LocalRoot local, addr z, addr x1, addr x0, addr *ret)
 {
-	multi_ii_real_common(local, z, x1, &z);
-	plus_ii_real_common(local, z, x0, ret);
+	Return(multi_ii_real_common_(local, z, x1, &z));
+	Return(plus_ii_real_common_(local, z, x0, ret));
+	return 0;
 }
 
-static void rationalize_minus1(LocalRoot local, addr x, addr *ret)
+static int rationalize_minus1_(LocalRoot local, addr x, addr *ret)
 {
 	/* (- x 1) */
 	addr one;
 	fixnum_heap(&one, 1);
-	minus_ii_real_common(local, x, one, ret);
+	return minus_ii_real_common_(local, x, one, ret);
 }
 
-static void rationalize_psetf(LocalRoot local, addr x, addr k, addr *ret)
+static int rationalize_psetf_(LocalRoot local, addr x, addr k, addr *ret)
 {
 	/* (/ (- x k)) */
-	minus_rational_common(local, x, k, &x);
-	inverse_rational_common(local, x, ret);
+	Return(minus_rational_common_(local, x, k, &x));
+	Return(inverse_rational_common_(local, x, ret));
+	return 0;
+}
+
+static int rationalize_zero_check_(addr frac, addr expo, int *ret)
+{
+	Return(zerop_integer_(frac, ret));
+	if (*ret)
+		return 0;
+
+	return zerop_or_plusp_integer_(expo, ret);
 }
 
 static int rationalize_float_(Execute ptr, addr x, addr *ret)
 {
+	int check;
 	addr frac, expo, sign, v1, v2;
 	addr a, b, c, p0, q0, p1, q1, top, bot, k, p2, q2;
 	LocalRoot local;
@@ -885,10 +877,13 @@ static int rationalize_float_(Execute ptr, addr x, addr *ret)
 	/* multiple-value-bind */
 	Return(integer_decode_float_common_(ptr, x, &frac, &expo, &sign));
 	/* cond */
-	if (zerop_integer(frac) || zerop_or_plusp_integer(expo)) {
+	Return(rationalize_zero_check_(frac, expo, &check));
+	if (check) {
 		Return(ash_integer_common_(local, frac, expo, ret));
-		if (minusp_integer(sign))
-			sign_reverse_integer_common(*ret, ret);
+		Return(minusp_integer_(sign, &check));
+		if (check) {
+			Return(sign_reverse_integer_common_(*ret, ret));
+		}
 		return 0;
 	}
 	/* a, b */
@@ -900,21 +895,24 @@ static int rationalize_float_(Execute ptr, addr x, addr *ret)
 	fixnum_heap(&q1, 0);
 	/* do */
 	for (;;) {
-		ceiling1_common(local, &c, &v1, a);
+		Return(ceiling1_common_(local, &c, &v1, a));
 		/* result */
-		if (less_rational(local, c, b)) {
-			rationalize_let(local, c, p1, p0, &top);
-			rationalize_let(local, c, q1, q0, &bot);
-			if (minusp_integer(sign))
-				sign_reverse_integer_common(top, &top);
+		Return(less_rational_(local, c, b, &check));
+		if (check) {
+			Return(rationalize_let_(local, c, p1, p0, &top));
+			Return(rationalize_let_(local, c, q1, q0, &bot));
+			Return(minusp_integer_(sign, &check));
+			if (check) {
+				Return(sign_reverse_integer_common_(top, &top));
+			}
 			return rationalize_build_ratio_(ret, top, bot);
 		}
 		/* body */
-		rationalize_minus1(local, c, &k);
-		rationalize_let(local, k, p1, p0, &p2);
-		rationalize_let(local, k, q1, q0, &q2);
-		rationalize_psetf(local, b, k, &v1);
-		rationalize_psetf(local, a, k, &v2);
+		Return(rationalize_minus1_(local, c, &k));
+		Return(rationalize_let_(local, k, p1, p0, &p2));
+		Return(rationalize_let_(local, k, q1, q0, &q2));
+		Return(rationalize_psetf_(local, b, k, &v1));
+		Return(rationalize_psetf_(local, a, k, &v2));
 		a = v1;
 		b = v2;
 		p0 = p1;
@@ -926,17 +924,16 @@ static int rationalize_float_(Execute ptr, addr x, addr *ret)
 
 _g int rationalize_common_(Execute ptr, addr pos, addr *ret)
 {
-	if (rationalp(pos)) {
-		rational_throw_heap(pos, ret);
-		return 0;
-	}
+	if (rationalp(pos))
+		return rational_throw_heap_(pos, ret);
+
 	if (floatp(pos)) {
 		Return(rationalize_float_(ptr, pos, &pos));
 		ratio_result_noreduction_heap(ptr->local, pos, ret);
 		return 0;
 	}
 
-	*ret = 0;
+	*ret = Nil;
 	return TypeError_(pos, REAL);
 }
 

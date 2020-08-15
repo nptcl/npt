@@ -27,28 +27,22 @@ _g int numberp(addr pos)
 _g int number_result_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	if (complexp(pos)) {
+	if (complexp(pos))
 		return complex_result_local_(local, pos, ret);
-	}
-	else {
-		rational_result_local(local, pos, ret);
-		return 0;
-	}
+	else
+		return rational_result_local_(local, pos, ret);
 }
 
 _g int number_result_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	if (complexp(pos)) {
+	if (complexp(pos))
 		return complex_result_heap_(local, pos, ret);
-	}
-	else {
-		rational_result_heap(local, pos, ret);
-		return 0;
-	}
+	else
+		return rational_result_heap_(local, pos, ret);
 }
 
-_g void number_throw_alloc(LocalRoot local, addr pos, addr *ret)
+_g int number_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -76,43 +70,44 @@ _g void number_throw_alloc(LocalRoot local, addr pos, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			complex_throw_alloc(local, pos, ret);
-			break;
+			return complex_throw_alloc_(local, pos, ret);
 
 		default:
-			TypeError(pos, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-_g void number_throw_local(LocalRoot local, addr pos, addr *ret)
+_g int number_throw_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	number_throw_alloc(local, pos, ret);
+	return number_throw_alloc_(local, pos, ret);
 }
 
-_g void number_throw_heap(addr pos, addr *ret)
+_g int number_throw_heap_(addr pos, addr *ret)
 {
-	number_throw_alloc(NULL, pos, ret);
+	return number_throw_alloc_(NULL, pos, ret);
 }
 
-_g void number_copy_alloc(LocalRoot local, addr pos, addr *ret)
+_g int number_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	if (complexp(pos))
-		complex_copy_alloc(local, pos, ret);
+		return complex_copy_alloc_(local, pos, ret);
 	else
-		real_copy_alloc(local, pos, ret);
+		return real_copy_alloc_(local, pos, ret);
 }
 
-_g void number_copy_local(LocalRoot local, addr pos, addr *ret)
+_g int number_copy_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	number_copy_alloc(local, pos, ret);
+	return number_copy_alloc_(local, pos, ret);
 }
 
-_g void number_copy_heap(addr pos, addr *ret)
+_g int number_copy_heap_(addr pos, addr *ret)
 {
-	number_copy_alloc(NULL, pos, ret);
+	return number_copy_alloc_(NULL, pos, ret);
 }
 
 
@@ -268,48 +263,48 @@ _g int signum_number_common_(addr pos, addr *ret)
 /*
  *  sqrt
  */
-static void sqrt_single_common(struct mathreal2_struct *ptr, addr *ret)
+static int sqrt_single_common_(struct mathreal2_struct *ptr, addr *ret)
 {
 	single_float real, imag;
 
 	real = ptr->v.s.a;
 	imag = ptr->v.s.b;
 	if (0.0f <= real && imag == 0.0f) {
-		single_float_check_heap(ret, sqrtf(real));
+		return single_float_check_heap_(ret, sqrtf(real));
 	}
 	else {
 		csqrt_f(real, imag, &real, &imag);
-		complex_single_heap(ret, real, imag);
+		return complex_single_heap_(ret, real, imag);
 	}
 }
 
-static void sqrt_double_common(struct mathreal2_struct *ptr, addr *ret)
+static int sqrt_double_common_(struct mathreal2_struct *ptr, addr *ret)
 {
 	double_float real, imag;
 
 	real = ptr->v.d.a;
 	imag = ptr->v.d.b;
 	if (0.0 <= real && imag == 0.0) {
-		double_float_check_heap(ret, sqrt(real));
+		return double_float_check_heap_(ret, sqrt(real));
 	}
 	else {
 		csqrt_d(real, imag, &real, &imag);
-		complex_double_heap(ret, real, imag);
+		return complex_double_heap_(ret, real, imag);
 	}
 }
 
-static void sqrt_long_common(struct mathreal2_struct *ptr, addr *ret)
+static int sqrt_long_common_(struct mathreal2_struct *ptr, addr *ret)
 {
 	long_float real, imag;
 
 	real = ptr->v.l.a;
 	imag = ptr->v.l.b;
 	if (0.0L <= real && imag == 0.0L) {
-		long_float_check_heap(ret, sqrtl(real));
+		return long_float_check_heap_(ret, sqrtl(real));
 	}
 	else {
 		csqrt_l(real, imag, &real, &imag);
-		complex_long_heap(ret, real, imag);
+		return complex_long_heap_(ret, real, imag);
 	}
 }
 
@@ -321,16 +316,13 @@ _g int sqrt_number_common_(addr pos, addr *ret)
 	Return(getmathcomplex1_sqrt_(&str, pos, &type));
 	switch (type) {
 		case MathType_single:
-			sqrt_single_common(&str, ret);
-			break;
+			return sqrt_single_common_(&str, ret);
 
 		case MathType_double:
-			sqrt_double_common(&str, ret);
-			break;
+			return sqrt_double_common_(&str, ret);
 
 		case MathType_long:
-			sqrt_long_common(&str, ret);
-			break;
+			return sqrt_long_common_(&str, ret);
 
 		case MathType_complex:
 		case MathType_rational:
@@ -339,7 +331,5 @@ _g int sqrt_number_common_(addr pos, addr *ret)
 			*ret = Nil;
 			return TypeError_(pos, NUMBER);
 	}
-
-	return 0;
 }
 

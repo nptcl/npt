@@ -53,7 +53,7 @@ static void codechar_call(addr *ret, const char *str,
 
 	code_queue_local(local, &code);
 	code_queue_push_simple(local, code);
-	readstring(&pos, str);
+	readstring_debug(&pos, str);
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	call(local, code, pos);
@@ -178,7 +178,7 @@ static int test_code_declaim_special(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (special code-declaim-special-test))");
-	readstring(&symbol, "code-declaim-special-test");
+	readstring_debug(&symbol, "code-declaim-special-test");
 	setvalues_control(ptr, T, T, T, NULL);
 	setlexical_symbol(symbol);
 	localhold_runcode_control(ptr, pos);
@@ -199,7 +199,7 @@ static int test_code_declaim_type_value(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (type integer code-declaim-type-value-test))");
-	readstring(&symbol, "code-declaim-type-value-test");
+	readstring_debug(&symbol, "code-declaim-type-value-test");
 	localhold_runcode_control(ptr, pos);
 	gettype_value_symbol(symbol, &pos);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "code_declaim_type_value1");
@@ -218,7 +218,7 @@ static int test_code_declaim_type_function(void)
 	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (ftype (function * integer) "
 			"code-declaim-type-function-test))");
-	readstring(&symbol, "code-declaim-type-function-test");
+	readstring_debug(&symbol, "code-declaim-type-function-test");
 	localhold_runcode_control(ptr, pos);
 	gettype_function_symbol(symbol, &pos);
 	test(RefLispDecl(pos) == LISPDECL_FUNCTION, "code_declaim_type_function1");
@@ -242,9 +242,9 @@ static int test_code_declaim_inline(void)
 			"(notinline code-declaim-notinline-test))");
 	localhold_runcode_control(ptr, pos);
 
-	readstring(&symbol, "code-declaim-inline-test");
+	readstring_debug(&symbol, "code-declaim-inline-test");
 	test(inlinep_function_symbol(symbol), "code_declaim_inline1");
-	readstring(&symbol, "code-declaim-notinline-test");
+	readstring_debug(&symbol, "code-declaim-notinline-test");
 	test(notinlinep_function_symbol(symbol), "code_declaim_inline2");
 
 	free_control_(ptr, control);
@@ -290,7 +290,7 @@ static int test_code_declaim_declaration(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 
-	readstring(&symbol, "code-declaim-declaration-test");
+	readstring_debug(&symbol, "code-declaim-declaration-test");
 	getroot_declare(&pos);
 	getall_declaration_declare(pos, &pos);
 	test(! find_list_eq_unsafe(symbol, pos), "code_declaim_declaration1");
@@ -319,10 +319,10 @@ static int test_code_symbol(void)
 	setvalues_control(ptr, T, T, T, NULL);
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
-	readstring(&check, ":hello");
+	readstring_debug(&check, ":hello");
 	test(pos == check, "code_symbol1");
 
-	readstring(&symbol, "code-symbol-test");
+	readstring_debug(&symbol, "code-symbol-test");
 	pushlexical_control(ptr, symbol, fixnumh(10));
 	pushspecial_control(ptr, symbol, fixnumh(20));
 
@@ -584,7 +584,7 @@ static int test_code_setq(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 
-	readstring(&symbol, "code-setq-test");
+	readstring_debug(&symbol, "code-setq-test");
 
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "(setq code-setq-test 10)");
@@ -1136,7 +1136,7 @@ static int test_code_multiple_value_call(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 
-	readstring(&pos, LISP_PACKAGE "::test-multiple-value-call1");
+	readstring_debug(&pos, LISP_PACKAGE "::test-multiple-value-call1");
 	compiled_system(&call, pos);
 	SetPointer(p_debug1, dynamic, test_multiple_value_call1);
 	setcompiled_dynamic(call, p_debug1);
@@ -1204,7 +1204,7 @@ static int test_code_make_specialize_symbol_p(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &control);
 
-	readstring(&pos, "(hello 10 20 30)");
+	readstring_debug(&pos, "(hello 10 20 30)");
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeValue(pos, &pos); /* lexical */
@@ -1212,7 +1212,7 @@ static int test_code_make_specialize_symbol_p(void)
 	test(! code_make_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
 			"code_make_specialize_symbol_p1");
 
-	readstring(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
+	readstring_debug(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeValue(pos, &pos); /* lexical */

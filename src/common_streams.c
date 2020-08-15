@@ -1172,7 +1172,7 @@ static void defun_yes_or_no_p(void)
 /* (defun make-synonym-stream (symbol) ...) -> synonym-stream */
 static int function_make_synonym_stream(Execute ptr, addr var)
 {
-	open_synonym_stream(&var, var);
+	Return(open_synonym_stream_(&var, var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1243,7 +1243,7 @@ static void defun_synonym_stream_symbol(void)
  */
 static int function_make_broadcast_stream(Execute ptr, addr var)
 {
-	open_broadcast_stream(&var, var);
+	Return(open_broadcast_stream_(&var, var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1526,7 +1526,7 @@ static void defun_echo_stream_output_stream(void)
  */
 static int function_make_concatenated_stream(Execute ptr, addr var)
 {
-	open_concatenated_stream(&var, var);
+	Return(open_concatenated_stream_(&var, var));
 	setresult_control(ptr, var);
 	return 0;
 }

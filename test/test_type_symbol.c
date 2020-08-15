@@ -48,7 +48,7 @@ static int test_find_symbol_type(void)
 	compiled_system(&pos, Nil);
 	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
 	setcompiled_dynamic(pos, p_debug1);
-	symbol = readr("TEST-FIND-SYMBOL-TYPE");
+	symbol = readr_debug("TEST-FIND-SYMBOL-TYPE");
 	setdeftype_symbol_(symbol, pos);
 	check = find_symbol_type(ptr, &pos, symbol, Nil);
 	test(check == 0, "find_symbol_type7");
@@ -56,7 +56,7 @@ static int test_find_symbol_type(void)
 	test(LispDecl(pos) == LISPDECL_FIXNUM, "find_symbol_type9");
 
 	/* no-type */
-	symbol = readr("TEST-FIND-SYMBOL-NO-SUCH-TYPE");
+	symbol = readr_debug("TEST-FIND-SYMBOL-NO-SUCH-TYPE");
 	check = find_symbol_type(ptr, &pos, symbol, Nil);
 	test(check == 0, "find_symbol_type10");
 	test(pos == NULL, "find_symbol_type11");
@@ -89,22 +89,22 @@ static int test_type_symbol_p(void)
 	test(! type_symbol_p(pos), "type_symbol_p1");
 
 	/* symbol type */
-	pos = readr("INTEGER");
+	pos = readr_debug("INTEGER");
 	test(type_symbol_p(pos), "type_symbol_p2");
 
 	/* symbol no-type */
-	pos = readr("VALUES");
+	pos = readr_debug("VALUES");
 	test(! type_symbol_p(pos), "type_symbol_p3");
 
 	/* symbol clos */
-	pos = readr("STANDARD-CLASS");
+	pos = readr_debug("STANDARD-CLASS");
 	test(type_symbol_p(pos), "type_symbol_p4");
 
 	/* deftype */
 	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
 	setcompiled_dynamic(call, p_debug1);
-	pos = readr("TEST-FIND-SYMBOL-TYPE");
+	pos = readr_debug("TEST-FIND-SYMBOL-TYPE");
 	setdeftype_symbol_(pos, call);
 	test(type_symbol_p(pos), "type_symbol_p5");
 

@@ -1300,51 +1300,51 @@ static int test_decl_ignore(void)
 	addr pos, cons, check, key;
 
 	eval_declare_heap(&pos);
-	readstring(&cons, "(aaa bbb (function ccc))");
+	readstring_debug(&cons, "(aaa bbb (function ccc))");
 	decl_ignore_(pos, cons);
 	getall_ignore_value_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 4, "decl_ignore1");
 
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(getplist(cons, check, &check) == 0, "decl_ignore2");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "decl_ignore3");
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(getplist(cons, check, &check) == 0, "decl_ignore4");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "decl_ignore5");
-	readstring(&check, "ccc");
+	readstring_debug(&check, "ccc");
 	test(getplist(cons, check, &check), "decl_ignore6");
 
 	getall_ignore_function_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 2, "decl_ignore7");
-	readstring(&check, "ccc");
+	readstring_debug(&check, "ccc");
 	parse_callname_error_(&check, check);
 	test(getplist_callname(cons, check, &check) == 0, "decl_ignore8");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "decl_ignore9");
 
-	readstring(&cons, "((function (setf eee)) aaa ddd)");
+	readstring_debug(&cons, "((function (setf eee)) aaa ddd)");
 	decl_ignorable_(pos, cons);
 	getall_ignore_value_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 6, "decl_ignorable1");
 
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(getplist(cons, check, &check) == 0, "decl_ignorable2");
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &key);
 	test(check == key, "decl_ignorable3");
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(getplist(cons, check, &check) == 0, "decl_ignorable4");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "decl_ignorable5");
-	readstring(&check, "ddd");
+	readstring_debug(&check, "ddd");
 	test(getplist(cons, check, &check) == 0, "decl_ignorable6");
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &key);
 	test(check == key, "decl_ignorable7");
 
 	getall_ignore_function_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 4, "decl_ignorable8");
-	readstring(&check, "(setf eee)");
+	readstring_debug(&check, "(setf eee)");
 	parse_callname_error_(&check, check);
 	test(getplist_callname(cons, check, &check) == 0, "decl_ignorable9");
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &key);
@@ -1358,18 +1358,18 @@ static int test_decl_dynamic_extent(void)
 	addr pos, cons, check;
 
 	eval_declare_heap(&pos);
-	readstring(&cons, "(aaa bbb (function ccc))");
+	readstring_debug(&cons, "(aaa bbb (function ccc))");
 	decl_dynamic_extent_(pos, cons);
 	getall_dynamic_value_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 2, "decl_dynamic_extent1");
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(find_list_eq_unsafe(check, cons), "decl_dynamic_extent2");
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(find_list_eq_unsafe(check, cons), "decl_dynamic_extent3");
 
 	getall_dynamic_function_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 1, "decl_dynamic_extent4");
-	readstring(&check, "ccc");
+	readstring_debug(&check, "ccc");
 	parse_callname_error_(&check, check);
 	test(find_list_callname_unsafe(check, cons), "decl_dynamic_extent5");
 
@@ -1381,19 +1381,19 @@ static int test_check_optimize_symbol(void)
 	enum EVAL_OPTIMIZE check;
 	addr value;
 
-	readstring(&value, "compilation-speed");
+	readstring_debug(&value, "compilation-speed");
 	check_optimize_symbol_(value, &check);
 	test(check == EVAL_OPTIMIZE_COMPILATION, "check_optimize_symbol1");
-	readstring(&value, "debug");
+	readstring_debug(&value, "debug");
 	check_optimize_symbol_(value, &check);
 	test(check == EVAL_OPTIMIZE_DEBUG, "check_optimize_symbol2");
-	readstring(&value, "speed");
+	readstring_debug(&value, "speed");
 	check_optimize_symbol_(value, &check);
 	test(check == EVAL_OPTIMIZE_SPEED, "check_optimize_symbol3");
-	readstring(&value, "safety");
+	readstring_debug(&value, "safety");
 	check_optimize_symbol_(value, &check);
 	test(check == EVAL_OPTIMIZE_SAFETY, "check_optimize_symbol4");
-	readstring(&value, "space");
+	readstring_debug(&value, "space");
 	check_optimize_symbol_(value, &check);
 	test(check == EVAL_OPTIMIZE_SPACE, "check_optimize_symbol5");
 
@@ -1417,11 +1417,11 @@ static int test_decl_optimize_cons(void)
 	addr pos, cons;
 
 	eval_declare_heap(&pos);
-	readstring(&cons, "(speed)");
+	readstring_debug(&cons, "(speed)");
 	decl_optimize_cons_(pos, cons);
 	test(get_optimize_speed_declare(pos) == 3, "decl_optimize_cons1");
 
-	readstring(&cons, "(safety 1)");
+	readstring_debug(&cons, "(safety 1)");
 	decl_optimize_cons_(pos, cons);
 	test(get_optimize_safety_declare(pos) == 1, "decl_optimize_cons2");
 
@@ -1433,15 +1433,15 @@ static int test_decl_optimize(void)
 	addr pos, cons;
 
 	eval_declare_heap(&pos);
-	readstring(&cons, "(speed)");
+	readstring_debug(&cons, "(speed)");
 	decl_optimize_(pos, cons);
 	test(get_optimize_speed_declare(pos) == 3, "decl_optimize1");
 
-	readstring(&cons, "((safety 1))");
+	readstring_debug(&cons, "((safety 1))");
 	decl_optimize_(pos, cons);
 	test(get_optimize_safety_declare(pos) == 1, "decl_optimize2");
 
-	readstring(&cons, "(space (debug 3) (compilation-speed 2))");
+	readstring_debug(&cons, "(space (debug 3) (compilation-speed 2))");
 	decl_optimize_(pos, cons);
 	test(get_optimize_space_declare(pos) == 3, "decl_optimize3");
 	test(get_optimize_debug_declare(pos) == 3, "decl_optimize4");
@@ -1457,7 +1457,7 @@ static int test_declaration_p(void)
 	eval_declare_heap(&pos);
 	setroot_declare(pos);
 	eval_declare_heap(&pos);
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(! declaration_p(pos, symbol), "declaration_p1");
 
 	push_declaration_declare_heap(pos, symbol);
@@ -1467,12 +1467,12 @@ static int test_declaration_p(void)
 	eval_declare_heap(&pos);
 	test(declaration_p(pos, symbol), "declaration_p3");
 
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	push_declaration_declare_heap(pos, symbol);
 
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(declaration_p(pos, symbol), "declaration_p4");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	test(declaration_p(pos, symbol), "declaration_p5");
 
 	/* free */
@@ -1491,21 +1491,21 @@ static int test_decl_otherwise(void)
 	setroot_declare(pos);
 	eval_declare_heap(&pos);
 
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	push_declaration_declare_heap(pos, symbol);
 	result = decl_otherwise_(Execute_Thread, Nil, pos, symbol, Nil);
 	test(result == 0, "decl_otherwise1");
 
-	readstring(&symbol, "integer");
-	readstring(&cons, "(aaa bbb)");
+	readstring_debug(&symbol, "integer");
+	readstring_debug(&cons, "(aaa bbb)");
 	result = decl_otherwise_(Execute_Thread, Nil, pos, symbol, cons);
 	test(result == 0, "decl_otherwise2");
 	getall_type_value_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "decl_otherwise3");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(getplist(pos, symbol, &check) == 0, "decl_otherwise4");
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "decl_otherwise5");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	test(getplist(pos, symbol, &check) == 0, "decl_otherwise6");
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "decl_otherwise7");
 
@@ -1518,8 +1518,8 @@ static int test_push_declaim(void)
 	addr pos, symbol, cons;
 
 	eval_declare_heap(&pos);
-	readstring(&symbol, "special");
-	readstring(&cons, "(aaa bbb)");
+	readstring_debug(&symbol, "special");
+	readstring_debug(&cons, "(aaa bbb)");
 	result = push_declaim_(Execute_Thread, Nil, pos, symbol, cons);
 	test(result == 0, "push_declaim1");
 	getall_special_declare(pos, &pos);
@@ -1534,8 +1534,8 @@ static int test_push_declare(void)
 	addr pos, symbol, cons;
 
 	eval_declare_heap(&pos);
-	readstring(&symbol, "special");
-	readstring(&cons, "(aaa bbb)");
+	readstring_debug(&symbol, "special");
+	readstring_debug(&cons, "(aaa bbb)");
 	result = push_declare_(Execute_Thread, Nil, pos, symbol, cons);
 	test(result == 0, "push_declare1");
 	getall_special_declare(pos, &pos);
@@ -1549,7 +1549,7 @@ static int test_parse_declare_form(void)
 	int result;
 	addr pos, cons;
 
-	readstring(&cons, "((special aaa bbb) (inline ccc))");
+	readstring_debug(&cons, "((special aaa bbb) (inline ccc))");
 	pos = NULL;
 	result = parse_declare_form_(Execute_Thread, Nil, cons, &pos, push_declare_);
 	test(result == 0, "parse_declare_form1");
@@ -1566,7 +1566,7 @@ static int test_parse_declaim_heap(void)
 	int result;
 	addr pos, cons;
 
-	readstring(&cons,
+	readstring_debug(&cons,
 			"((type integer aaa) (ftype function bbb)"
 			"(special ccc ddd) (inline eee) (notinline fff)"
 			"(declaration hello) (optimize speed)"
@@ -1585,7 +1585,7 @@ static int test_parse_declare_heap(void)
 	int result;
 	addr pos, cons;
 
-	readstring(&cons,
+	readstring_debug(&cons,
 			"((type integer aaa) (ftype function bbb)"
 			"(special ccc ddd) (inline eee) (notinline fff)"
 			"(ignore ggg) (ignorable hh ii)"
@@ -1609,21 +1609,21 @@ static int test_declare_split(void)
 {
 	addr cons, decl, body, check;
 
-	readstring(&cons,
+	readstring_debug(&cons,
 			"((declare (ignore hello) (special a))"
 			" (declare (inline aaa))"
 			" hello"
 			" (cons 10 20))");
 	declare_split_(cons, &decl, &body);
-	readstring(&check, "((ignore hello) (special a) (inline aaa))");
+	readstring_debug(&check, "((ignore hello) (special a) (inline aaa))");
 	test(equal_debug(decl, check), "declare_split1");
-	readstring(&check, "(hello (cons 10 20))");
+	readstring_debug(&check, "(hello (cons 10 20))");
 	test(equal_debug(body, check), "declare_split2");
 
-	readstring(&cons, "((cons 10 20) hello)");
+	readstring_debug(&cons, "((cons 10 20) hello)");
 	declare_split_(cons, &decl, &body);
 	test(decl == Nil, "declare_split3");
-	readstring(&check, "((cons 10 20) hello)");
+	readstring_debug(&check, "((cons 10 20) hello)");
 	test(equal_debug(body, check), "declare_split4");
 
 	RETURN;
@@ -1634,7 +1634,7 @@ static int test_declare_body(void)
 	int result;
 	addr cons, decl, body, check;
 
-	readstring(&cons,
+	readstring_debug(&cons,
 			"((declare (ignore hello) (special a))"
 			" (declare (inline aaa))"
 			" hello"
@@ -1642,16 +1642,16 @@ static int test_declare_body(void)
 	decl = NULL;
 	result = declare_body_(Execute_Thread, Nil, cons, &decl, &body);
 	test(result == 0, "declare_body1");
-	readstring(&check, "((ignore hello) (special a) (inline aaa))");
+	readstring_debug(&check, "((ignore hello) (special a) (inline aaa))");
 	test(GetType(decl) == LISPTYPE_EVAL, "declare_body2");
-	readstring(&check, "(hello (cons 10 20))");
+	readstring_debug(&check, "(hello (cons 10 20))");
 	test(equal_debug(body, check), "declare_body3");
 
-	readstring(&cons, "((cons 10 20) hello)");
+	readstring_debug(&cons, "((cons 10 20) hello)");
 	result = declare_body_(Execute_Thread, Nil, cons, &decl, &body);
 	test(result == 0, "declare_body4");
 	test(decl == Nil, "declare_body5");
-	readstring(&check, "((cons 10 20) hello)");
+	readstring_debug(&check, "((cons 10 20) hello)");
 	test(equal_debug(body, check), "declare_body6");
 
 	RETURN;
@@ -1668,56 +1668,56 @@ static int test_declare_body_documentation(void)
 	test(doc == Nil, "declare_body_documentation2");
 	test(decl == Nil && body == Nil, "declare_body_documentation3");
 
-	readstring(&cons, "(\"Hello\")");
+	readstring_debug(&cons, "(\"Hello\")");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(doc == Nil, "declare_body_documentation4");
 	test(decl == Nil, "declare_body_documentation5");
 	test(body != Nil, "declare_body_documentation6");
 
-	readstring(&cons, "(\"Hello\" 100 200)");
+	readstring_debug(&cons, "(\"Hello\" 100 200)");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(string_equal_char_debug(doc, "Hello"), "declare_body_documentation7");
 	test(decl == Nil, "declare_body_documentation8");
 	test(body != Nil, "declare_body_documentation9");
 
-	readstring(&cons, "((declare (ignore hello)))");
+	readstring_debug(&cons, "((declare (ignore hello)))");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(doc == Nil, "declare_body_documentation10");
 	test(decl != Nil, "declare_body_documentation11");
 	test(body == Nil, "declare_body_documentation12");
 
-	readstring(&cons, "((declare (ignore hello)) \"Hello\" 10 20 30)");
+	readstring_debug(&cons, "((declare (ignore hello)) \"Hello\" 10 20 30)");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(doc != Nil, "declare_body_documentation13");
 	test(decl != Nil, "declare_body_documentation14");
 	test(body != Nil, "declare_body_documentation15");
 
-	readstring(&cons, "((declare (ignore hello)) \"Hello\")");
+	readstring_debug(&cons, "((declare (ignore hello)) \"Hello\")");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(doc == Nil, "declare_body_documentation16");
 	test(decl != Nil, "declare_body_documentation17");
 	test(body != Nil, "declare_body_documentation18");
 
-	readstring(&cons, "((declare (ignore hello)) 10 20 30)");
+	readstring_debug(&cons, "((declare (ignore hello)) 10 20 30)");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(doc == Nil, "declare_body_documentation19");
 	test(decl != Nil, "declare_body_documentation20");
 	test(body != Nil, "declare_body_documentation21");
 
-	readstring(&cons, "(10 20 30)");
+	readstring_debug(&cons, "(10 20 30)");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(doc == Nil, "declare_body_documentation22");
 	test(decl == Nil, "declare_body_documentation23");
 	test(body != Nil, "declare_body_documentation24");
 
-	readstring(&cons, "(100)");
+	readstring_debug(&cons, "(100)");
 	doc = decl = body = NULL;
 	declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(singlep(cons), "declare_body_documentation25-error");
@@ -1733,7 +1733,7 @@ static int test_declare_body_documentation_error(void)
 	int result;
 	addr cons, doc, decl, body;
 
-	readstring(&cons, "((declare (optimize speed)) (progn 10))");
+	readstring_debug(&cons, "((declare (optimize speed)) (progn 10))");
 	doc = decl = body = NULL;
 	result = declare_body_documentation_(Execute_Thread, Nil, cons, &doc, &decl, &body);
 	test(result == 0, "declare_body_documentation_error1");
@@ -1752,17 +1752,17 @@ static int test_copy_declare_type_v(void)
 {
 	addr cons, pos, source, symbol, check;
 
-	readstring(&cons, "((type integer aaa) (type string bbb))");
+	readstring_debug(&cons, "((type integer aaa) (type string bbb))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_type_v(NULL, EVAL_DECLARE_TYPE_VALUE, source, pos);
 	getall_type_value_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "copy_declare_type_v1");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(getplist(pos, symbol, &check) == 0, "copy_declare_type_v2");
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "copy_declare_type_v3");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	test(getplist(pos, symbol, &check) == 0, "copy_declare_type_v4");
 	test(RefLispDecl(check) == LISPDECL_STRING, "copy_declare_type_v5");
 
@@ -1773,18 +1773,18 @@ static int test_copy_declare_type_f(void)
 {
 	addr cons, pos, source, symbol, check;
 
-	readstring(&cons, "((ftype integer aaa) (ftype string bbb))");
+	readstring_debug(&cons, "((ftype integer aaa) (ftype string bbb))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_type_f(NULL, EVAL_DECLARE_TYPE_FUNCTION, source, pos);
 	getall_type_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "copy_declare_type_f1");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_type_f2");
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "copy_declare_type_f3");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_type_f4");
 	test(RefLispDecl(check) == LISPDECL_STRING, "copy_declare_type_f5");
@@ -1796,7 +1796,7 @@ static int test_copy_declare_push_v(void)
 {
 	addr cons, pos, source, symbol;
 
-	readstring(&cons, "((special aaa bbb ccc))");
+	readstring_debug(&cons, "((special aaa bbb ccc))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	pos = NULL;
@@ -1804,11 +1804,11 @@ static int test_copy_declare_push_v(void)
 	copy_declare_push_v(NULL, EVAL_DECLARE_SPECIAL, source, pos);
 	getall_special_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "copy_declare_push_v1");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(find_list_eq_unsafe(symbol, pos), "copy_declare_push_v2");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	test(find_list_eq_unsafe(symbol, pos), "copy_declare_push_v3");
-	readstring(&symbol, "ccc");
+	readstring_debug(&symbol, "ccc");
 	test(find_list_eq_unsafe(symbol, pos), "copy_declare_push_v4");
 
 	RETURN;
@@ -1818,20 +1818,20 @@ static int test_copy_declare_push_f(void)
 {
 	addr cons, pos, source, symbol;
 
-	readstring(&cons, "((dynamic-extent #'aaa #'(setf bbb) #'ccc))");
+	readstring_debug(&cons, "((dynamic-extent #'aaa #'(setf bbb) #'ccc))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_push_f(NULL, EVAL_DECLARE_DYNAMIC_FUNCTION, source, pos);
 	getall_dynamic_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "copy_declare_push_f1");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	parse_callname_error_(&symbol, symbol);
 	test(find_list_callname_unsafe(symbol, pos), "copy_declare_push_f2");
-	readstring(&symbol, "(setf bbb)");
+	readstring_debug(&symbol, "(setf bbb)");
 	parse_callname_error_(&symbol, symbol);
 	test(find_list_callname_unsafe(symbol, pos), "copy_declare_push_f3");
-	readstring(&symbol, "ccc");
+	readstring_debug(&symbol, "ccc");
 	parse_callname_error_(&symbol, symbol);
 	test(find_list_callname_unsafe(symbol, pos), "copy_declare_push_f4");
 
@@ -1842,7 +1842,7 @@ static int test_copy_declare_plist_v(void)
 {
 	addr cons, pos, source, symbol, check, key;
 
-	readstring(&cons, "((ignore aaa bbb))");
+	readstring_debug(&cons, "((ignore aaa bbb))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
@@ -1851,10 +1851,10 @@ static int test_copy_declare_plist_v(void)
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	getall_ignore_value_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "copy_declare_plist_v1");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(getplist(pos, symbol, &check) == 0, "copy_declare_plist_v2");
 	test(check == key, "copy_declare_plist_v3");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	test(getplist(pos, symbol, &check) == 0, "copy_declare_plist_v4");
 	test(check == key, "copy_declare_plist_v5");
 
@@ -1865,7 +1865,7 @@ static int test_copy_declare_plist_f(void)
 {
 	addr cons, pos, source, symbol, check, key;
 
-	readstring(&cons, "((inline aaa bbb))");
+	readstring_debug(&cons, "((inline aaa bbb))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
@@ -1874,11 +1874,11 @@ static int test_copy_declare_plist_f(void)
 	GetConstant(CONSTANT_COMMON_INLINE, &key);
 	getall_inline_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "copy_declare_plist_f1");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_plist_f2");
 	test(check == key, "copy_declare_plist_f3");
-	readstring(&symbol, "bbb");
+	readstring_debug(&symbol, "bbb");
 	parse_callname_error_(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "copy_declare_plist_f4");
 	test(check == key, "copy_declare_plist_f5");
@@ -1890,7 +1890,7 @@ static int test_copy_eval_declare_alloc(void)
 {
 	addr cons, pos, source, symbol;
 
-	readstring(&cons, "((special aaa) (inline bbb) (optimize speed))");
+	readstring_debug(&cons, "((special aaa) (inline bbb) (optimize speed))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	copy_eval_declare_alloc(NULL, &pos, source);
@@ -1898,7 +1898,7 @@ static int test_copy_eval_declare_alloc(void)
 
 	getall_special_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 1, "copy_eval_declare_alloc2");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(find_list_eq_unsafe(symbol, cons), "copy_eval_declare_alloc3");
 
 	RETURN;
@@ -1912,7 +1912,7 @@ static int test_copy_eval_declare_local(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	readstring(&cons, "((special aaa) (inline bbb) (optimize speed))");
+	readstring_debug(&cons, "((special aaa) (inline bbb) (optimize speed))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	copy_eval_declare_local(local, &pos, source);
@@ -1920,7 +1920,7 @@ static int test_copy_eval_declare_local(void)
 
 	getall_special_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 1, "copy_eval_declare_local2");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(find_list_eq_unsafe(symbol, cons), "copy_eval_declare_local3");
 	rollback_local(local, stack);
 
@@ -1935,7 +1935,7 @@ static int test_copy_eval_declare_heap(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	readstring(&cons, "((special aaa) (inline bbb) (optimize speed))");
+	readstring_debug(&cons, "((special aaa) (inline bbb) (optimize speed))");
 	source = NULL;
 	parse_declare_heap_(Execute_Thread, Nil, cons, &source);
 	copy_eval_declare_heap(&pos, source);
@@ -1943,7 +1943,7 @@ static int test_copy_eval_declare_heap(void)
 
 	getall_special_declare(pos, &cons);
 	test(length_list_unsafe(cons) == 1, "copy_eval_declare_heap2");
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	test(find_list_eq_unsafe(symbol, cons), "copy_eval_declare_heap3");
 	rollback_local(local, stack);
 

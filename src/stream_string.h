@@ -4,7 +4,7 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void open_input_string_stream(addr *stream, addr string);
+_g int open_input_string_stream_(addr *stream, addr string);
 _g int open_input_string_stream1_(addr *stream, addr string, size_t start);
 _g int open_input_string_stream2_(addr *stream, addr string, size_t start, size_t end);
 _g void open_input_char_stream(addr *stream, const char *str);

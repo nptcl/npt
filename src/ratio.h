@@ -96,13 +96,19 @@ _g int minusp_ratio(addr left);
 _g void cast_fixnum_ratio_local(LocalRoot local, addr pos, addr *ret);
 _g void cast_bignum_ratio_local(LocalRoot local, addr pos, addr *ret);
 
-_g single_float single_float_ratio(addr pos);
-_g double_float double_float_ratio(addr pos);
-_g long_float long_float_ratio(addr pos);
+_g int single_float_ratio_(addr pos, single_float *ret);
+_g int double_float_ratio_(addr pos, double_float *ret);
+_g int long_float_ratio_(addr pos, long_float *ret);
 
-_g void single_float_ratio_heap(addr *ret, addr pos);
-_g void double_float_ratio_heap(addr *ret, addr pos);
-_g void long_float_ratio_heap(addr *ret, addr pos);
+_g int single_float_ratio_alloc_(LocalRoot local, addr *ret, addr pos);
+_g int single_float_ratio_local_(LocalRoot local, addr *ret, addr pos);
+_g int single_float_ratio_heap_(addr *ret, addr pos);
+_g int double_float_ratio_alloc_(LocalRoot local, addr *ret, addr pos);
+_g int double_float_ratio_local_(LocalRoot local, addr *ret, addr pos);
+_g int double_float_ratio_heap_(addr *ret, addr pos);
+_g int long_float_ratio_alloc_(LocalRoot local, addr *ret, addr pos);
+_g int long_float_ratio_local_(LocalRoot local, addr *ret, addr pos);
+_g int long_float_ratio_heap_(addr *ret, addr pos);
 
 _g void abs_ratio_alloc(LocalRoot local, addr left, addr *ret);
 _g void abs_ratio_local(LocalRoot local, addr left, addr *ret);

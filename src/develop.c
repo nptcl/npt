@@ -140,7 +140,7 @@ void degrade_output_null(Execute ptr)
 {
 	addr stream, null;
 
-	open_broadcast_stream(&null, Nil);
+	Error(open_broadcast_stream_(&null, Nil));
 	GetConst(SPECIAL_STANDARD_OUTPUT, &stream);
 	setspecial_local(ptr, stream, null);
 	GetConst(SPECIAL_ERROR_OUTPUT, &stream);

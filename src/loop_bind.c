@@ -117,7 +117,7 @@ static int loop_typep_(Execute ptr, addr pos, addr value, addr type)
 	if (GetType(type) != LISPTYPE_TYPE) {
 		Return(parse_type(ptr, &type, type, Nil));
 	}
-	Return(typep_clang(ptr, value, type, &check));
+	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
 		Return(type_object_(&type, type));
 		return fmte_("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);

@@ -558,16 +558,18 @@ static int defpackage_intern_common(addr *ret, addr expt, addr intern, addr root
 
 static int defpackage_size_common(addr *ret, addr info, addr list)
 {
-	addr size, check;
+	int check;
+	addr size, value;
 
 	if (! consp(list))
 		return fmte_(":size option ~S don't allow a dotted list.", list, NULL);
-	GetCons(list, &size, &check);
+	GetCons(list, &size, &value);
 	if (! integerp(size))
 		return fmte_(":size ~S must be a string.", size, NULL);
-	if (minusp_integer(size))
+	Return(minusp_integer_(size, &check));
+	if (check)
 		return fmte_(":size ~S must be a positive integer.", size, NULL);
-	if (check != Nil)
+	if (value != Nil)
 		return fmte_(":size argument ~S must be a single list.", list, NULL);
 	if (info != Nil) {
 		return fmte_(":size option don't accept "

@@ -75,15 +75,18 @@ _g int getfixnum_ratio(addr pos, fixnum *ret)
 		return 1;
 	GetSignRatio(pos, &sign);
 	GetNumerRatio(pos, &pos);
-	if (RefSizeBignum(pos) != 1) return 1;
+	if (RefSizeBignum(pos) != 1)
+		return 1;
 	getfixed_bignum(pos, 0, &value);
 	if (IsPlus(sign)) {
-		if (FIXNUM_MAX < value) return 1;
+		if (FIXNUM_MAX < value)
+			return 1;
 		*ret = (fixnum)value;
 		return 0;
 	}
 	else {
-		if (FIXNUM_UMIN < value) return 1;
+		if (FIXNUM_UMIN < value)
+			return 1;
 		*ret = -(fixnum)value;
 		return 0;
 	}
@@ -218,7 +221,8 @@ _g void reduction_local(LocalRoot local, addr numer, addr denom)
 
 	Check(local == NULL, "local error");
 	Check(zerop_bignum(denom), "division-by-zero error");
-	if (zerop_bignum(numer)) return;
+	if (zerop_bignum(numer))
+		return;
 	GetSizeBignum(numer, &size1);
 	GetSizeBignum(denom, &size2);
 	if (size1 == 1 && size2 == 1)
@@ -683,14 +687,16 @@ _g int zerop_ratio(addr left)
 _g int plusp_ratio(addr left)
 {
 	Check(GetType(left) != LISPTYPE_RATIO, "type error");
-	if (IsMinus(RefSignRatio(left))) return 0;
+	if (IsMinus(RefSignRatio(left)))
+		return 0;
 	return ! zerop_ratio(left);
 }
 
 _g int minusp_ratio(addr left)
 {
 	Check(GetType(left) != LISPTYPE_RATIO, "type error");
-	if (IsPlus(RefSignRatio(left))) return 0;
+	if (IsPlus(RefSignRatio(left)))
+		return 0;
 	return ! zerop_ratio(left);
 }
 
@@ -833,7 +839,7 @@ static void float_string_ratio(int sign, addr pos, char *str, size_t exp, size_t
 	snprintf(str, 8, "%d", (int)exp); /* less than OVERFLOW_EXPONENT */
 }
 
-_g single_float single_float_ratio(addr pos)
+_g int single_float_ratio_(addr pos, single_float *ret)
 {
 	char str1[64], str2[64];
 	int sign;
@@ -845,24 +851,26 @@ _g single_float single_float_ratio(addr pos)
 	GetSignRatio(pos, &sign);
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
-	if (zerop_bignum(denom))
-		division_by_zero_real1(CONSTANT_COMMON_COERCE, pos);
+	if (zerop_bignum(denom)) {
+		*ret = 0.0f;
+		return call_division_by_zero_real1_(NULL, CONSTANT_COMMON_COERCE, pos);
+	}
 	if (zerop_bignum(numer))
-		return sign? -0.0f: +0.0f;
+		return Result(ret, sign? -0.0f: +0.0f);
 	size1 = hexfloat_exponent(numer);
 	size2 = hexfloat_exponent(denom);
 	diff_exponent_ratio(&size1, &size2, pos);
 	float_string_ratio(sign, numer, str1, size1, LISP_FLOAT_SINGLE_FRACTION);
 	float_string_ratio(SignPlus, denom, str2, size2, LISP_FLOAT_SINGLE_FRACTION);
-	v1 = check_strtof(str1, pos);
-	v2 = check_strtof_reverse(str2, pos);
+	Return(check_strtof_(str1, pos, &v1));
+	Return(check_strtof_reverse_(str2, pos, &v2));
 	v1 /= v2;
-	float_errorcheck1(CONSTANT_COMMON_COERCE, v1, pos);
+	Return_float_errorcheck1(CONSTANT_COMMON_COERCE, v1, pos);
 
-	return v1;
+	return Result(ret, v1);
 }
 
-_g double_float double_float_ratio(addr pos)
+_g int double_float_ratio_(addr pos, double_float *ret)
 {
 	char str1[64], str2[64];
 	int sign;
@@ -874,24 +882,26 @@ _g double_float double_float_ratio(addr pos)
 	GetSignRatio(pos, &sign);
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
-	if (zerop_bignum(denom))
-		division_by_zero_real1(CONSTANT_COMMON_COERCE, pos);
+	if (zerop_bignum(denom)) {
+		*ret = 0.0;
+		return call_division_by_zero_real1_(NULL, CONSTANT_COMMON_COERCE, pos);
+	}
 	if (zerop_bignum(numer))
-		return sign? -0.0: +0.0;
+		return Result(ret, sign? -0.0: +0.0);
 	size1 = hexfloat_exponent(numer);
 	size2 = hexfloat_exponent(denom);
 	diff_exponent_ratio(&size1, &size2, pos);
 	float_string_ratio(sign, numer, str1, size1, LISP_FLOAT_DOUBLE_FRACTION);
 	float_string_ratio(SignPlus, denom, str2, size2, LISP_FLOAT_DOUBLE_FRACTION);
-	v1 = check_strtod(str1, pos);
-	v2 = check_strtod_reverse(str2, pos);
+	Return(check_strtod_(str1, pos, &v1));
+	Return(check_strtod_reverse_(str2, pos, &v2));
 	v1 /= v2;
-	float_errorcheck1(CONSTANT_COMMON_COERCE, v1, pos);
+	Return_float_errorcheck1(CONSTANT_COMMON_COERCE, v1, pos);
 
-	return v1;
+	return Result(ret, v1);
 }
 
-_g long_float long_float_ratio(addr pos)
+_g int long_float_ratio_(addr pos, long_float *ret)
 {
 	char str1[64], str2[64];
 	int sign;
@@ -903,39 +913,83 @@ _g long_float long_float_ratio(addr pos)
 	GetSignRatio(pos, &sign);
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
-	if (zerop_bignum(denom))
-		division_by_zero_real1(CONSTANT_COMMON_COERCE, pos);
+	if (zerop_bignum(denom)) {
+		*ret = 0.0L;
+		return call_division_by_zero_real1_(NULL, CONSTANT_COMMON_COERCE, pos);
+	}
 	if (zerop_bignum(numer))
-		return sign? -0.0L: +0.0L;
+		return Result(ret, sign? -0.0L: +0.0L);
 	size1 = hexfloat_exponent(numer);
 	size2 = hexfloat_exponent(denom);
 	diff_exponent_ratio(&size1, &size2, pos);
 	float_string_ratio(sign, numer, str1, size1, LISP_FLOAT_LONG_FRACTION);
 	float_string_ratio(SignPlus, denom, str2, size2, LISP_FLOAT_LONG_FRACTION);
-	v1 = check_strtold(str1, pos);
-	v2 = check_strtold_reverse(str2, pos);
+	Return(check_strtold_(str1, pos, &v1));
+	Return(check_strtold_reverse_(str2, pos, &v2));
 	v1 /= v2;
-	float_errorcheck1(CONSTANT_COMMON_COERCE, v1, pos);
+	Return_float_errorcheck1(CONSTANT_COMMON_COERCE, v1, pos);
 
-	return v1;
+	return Result(ret, v1);
 }
 
-_g void single_float_ratio_heap(addr *ret, addr pos)
+_g int single_float_ratio_alloc_(LocalRoot local, addr *ret, addr pos)
 {
+	single_float value;
+
 	CheckType(pos, LISPTYPE_RATIO);
-	single_float_heap(ret, single_float_ratio(pos));
+	Return(single_float_ratio_(pos, &value));
+	single_float_alloc(local, ret, value);
+
+	return 0;
+}
+_g int single_float_ratio_local_(LocalRoot local, addr *ret, addr pos)
+{
+	CheckLocal(local);
+	return single_float_ratio_alloc_(local, ret, pos);
+}
+_g int single_float_ratio_heap_(addr *ret, addr pos)
+{
+	return single_float_ratio_alloc_(NULL, ret, pos);
 }
 
-_g void double_float_ratio_heap(addr *ret, addr pos)
+_g int double_float_ratio_alloc_(LocalRoot local, addr *ret, addr pos)
 {
+	double_float value;
+
 	CheckType(pos, LISPTYPE_RATIO);
-	double_float_heap(ret, double_float_ratio(pos));
+	Return(double_float_ratio_(pos, &value));
+	double_float_alloc(local, ret, value);
+
+	return 0;
+}
+_g int double_float_ratio_local_(LocalRoot local, addr *ret, addr pos)
+{
+	CheckLocal(local);
+	return double_float_ratio_alloc_(local, ret, pos);
+}
+_g int double_float_ratio_heap_(addr *ret, addr pos)
+{
+	return double_float_ratio_alloc_(NULL, ret, pos);
 }
 
-_g void long_float_ratio_heap(addr *ret, addr pos)
+_g int long_float_ratio_alloc_(LocalRoot local, addr *ret, addr pos)
 {
+	long_float value;
+
 	CheckType(pos, LISPTYPE_RATIO);
-	long_float_heap(ret, long_float_ratio(pos));
+	Return(long_float_ratio_(pos, &value));
+	long_float_alloc(local, ret, value);
+
+	return 0;
+}
+_g int long_float_ratio_local_(LocalRoot local, addr *ret, addr pos)
+{
+	CheckLocal(local);
+	return long_float_ratio_alloc_(local, ret, pos);
+}
+_g int long_float_ratio_heap_(addr *ret, addr pos)
+{
+	return long_float_ratio_alloc_(NULL, ret, pos);
 }
 
 

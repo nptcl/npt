@@ -9,37 +9,43 @@
 /*
  *  common
  */
-static void round1_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static int round1_float_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
 	GetSingleFloat(left, &v);
-	v = lisp_round1_s(v, &r);
+	Return(lisp_round1_s_(v, &v, &r));
 	single_float_integer_heap(local, quot, v);
 	single_float_heap(rem, r);
+
+	return 0;
 }
 
-static void round1_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static int round1_double_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
 	GetDoubleFloat(left, &v);
-	v = lisp_round1_d(v, &r);
+	Return(lisp_round1_d_(v, &v, &r));
 	double_float_integer_heap(local, quot, v);
 	double_float_heap(rem, r);
+
+	return 0;
 }
 
-static void round1_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static int round1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
 	GetLongFloat(left, &v);
-	v = lisp_round1_l(v, &r);
+	Return(lisp_round1_l_(v, &v, &r));
 	long_float_integer_heap(local, quot, v);
 	long_float_heap(rem, r);
+
+	return 0;
 }
 
-_g void round1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g int round1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -53,59 +59,63 @@ _g void round1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_round1_ratio(local, quot, rem, left);
-			break;
+			return lisp_round1_ratio_(local, quot, rem, left);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round1_float(local, quot, rem, left);
-			break;
+			return round1_float_(local, quot, rem, left);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round1_double(local, quot, rem, left);
-			break;
+			return round1_double_(local, quot, rem, left);
 
 		case LISPTYPE_LONG_FLOAT:
-			round1_long(local, quot, rem, left);
-			break;
+			return round1_long_(local, quot, rem, left);
 
 		default:
-			TypeError(left, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(left, REAL);
 	}
+
+	return 0;
 }
 
-static void fround1_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static int fround1_float_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
 	GetSingleFloat(left, &v);
-	v = lisp_round1_s(v, &r);
+	Return(lisp_round1_s_(v, &v, &r));
 	single_float_heap(quot, v);
 	single_float_heap(rem, r);
+
+	return 0;
 }
 
-static void fround1_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static int fround1_double_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
 	GetDoubleFloat(left, &v);
-	v = lisp_round1_d(v, &r);
+	Return(lisp_round1_d_(v, &v, &r));
 	double_float_heap(quot, v);
 	double_float_heap(rem, r);
+
+	return 0;
 }
 
-static void fround1_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static int fround1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
 	GetLongFloat(left, &v);
-	v = lisp_round1_l(v, &r);
+	Return(lisp_round1_l_(v, &v, &r));
 	long_float_heap(quot, v);
 	long_float_heap(rem, r);
+
+	return 0;
 }
 
-_g void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g int fround1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -114,34 +124,32 @@ _g void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			single_float_bignum_heap(quot, left);
+			Return(single_float_bignum_heap_(quot, left));
 			fixnum_heap(rem, 0);
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_fround1_ratio(local, quot, rem, left);
-			break;
+			return lisp_fround1_ratio_(local, quot, rem, left);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround1_float(local, quot, rem, left);
-			break;
+			return fround1_float_(local, quot, rem, left);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround1_double(local, quot, rem, left);
-			break;
+			return fround1_double_(local, quot, rem, left);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround1_long(local, quot, rem, left);
-			break;
+			return fround1_long_(local, quot, rem, left);
 
 		default:
-			TypeError(left, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(left, REAL);
 	}
+
+	return 0;
 }
 
-static void round_ff_common(addr *quot, addr *rem, addr left, addr right)
+static int round_ff_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	fixnum a, b;
 
@@ -149,10 +157,10 @@ static void round_ff_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	GetFixnum(left, &a);
 	GetFixnum(right, &b);
-	lisp_round_fixnum(quot, rem, a, b);
+	return lisp_round_fixnum_(quot, rem, a, b);
 }
 
-static void round_fb_common(LocalRoot local,
+static int round_fb_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -161,11 +169,13 @@ static void round_fb_common(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	lisp_round_bignum(local, quot, rem, left, right);
+	Return(lisp_round_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void round_fr_common(LocalRoot local,
+static int round_fr_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -174,11 +184,13 @@ static void round_fr_common(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	lisp_round_br_ratio(local, quot, rem, left, right);
+	Return(lisp_round_br_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void round_fs_common(LocalRoot local,
+static int round_fs_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
@@ -187,12 +199,14 @@ static void round_fs_common(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = single_float_fixnum(left);
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_fd_common(LocalRoot local,
+static int round_fd_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -201,12 +215,14 @@ static void round_fd_common(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = double_float_fixnum(left);
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_fl_common(LocalRoot local,
+static int round_fl_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -215,47 +231,43 @@ static void round_fl_common(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = long_float_fixnum(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_fixnum_common(LocalRoot local,
+static int round_fixnum_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			round_ff_common(quot, rem, left, right);
-			break;
+			return round_ff_common_(quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			round_fb_common(local, quot, rem, left, right);
-			break;
+			return round_fb_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			round_fr_common(local, quot, rem, left, right);
-			break;
+			return round_fr_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_fs_common(local, quot, rem, left, right);
-			break;
+			return round_fs_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_fd_common(local, quot, rem, left, right);
-			break;
+			return round_fd_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_fl_common(local, quot, rem, left, right);
-			break;
+			return round_fl_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void round_bf_common(LocalRoot local,
+static int round_bf_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -264,88 +276,90 @@ static void round_bf_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	lisp_round_bignum(local, quot, rem, left, right);
+	Return(lisp_round_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void round_bs_common(LocalRoot local,
+static int round_bs_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
 	CheckType(left, LISPTYPE_BIGNUM);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
-	a = single_float_bignum(left);
+	Return(single_float_bignum_(left, &a));
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_bd_common(LocalRoot local,
+static int round_bd_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
 	CheckType(left, LISPTYPE_BIGNUM);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
-	a = double_float_bignum(left);
+	Return(double_float_bignum_(left, &a));
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_bl_common(LocalRoot local,
+static int round_bl_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
 	CheckType(left, LISPTYPE_BIGNUM);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
-	a = long_float_bignum(left);
+	Return(long_float_bignum_(left, &a));
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_bignum_common(LocalRoot local,
+static int round_bignum_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			round_bf_common(local, quot, rem, left, right);
-			break;
+			return round_bf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			lisp_round_bignum(local, quot, rem, left, right);
-			break;
+			return lisp_round_bignum_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			lisp_round_br_ratio(local, quot, rem, left, right);
-			break;
+			return lisp_round_br_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_bs_common(local, quot, rem, left, right);
-			break;
+			return round_bs_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_bd_common(local, quot, rem, left, right);
-			break;
+			return round_bd_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_bl_common(local, quot, rem, left, right);
-			break;
+			return round_bl_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void round_rf_common(LocalRoot local,
+static int round_rf_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -354,88 +368,90 @@ static void round_rf_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	lisp_round_rb_ratio(local, quot, rem, left, right);
+	Return(lisp_round_rb_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void round_rs_common(LocalRoot local,
+static int round_rs_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
 	CheckType(left, LISPTYPE_RATIO);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
-	a = single_float_ratio(left);
+	Return(single_float_ratio_(left, &a));
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_rd_common(LocalRoot local,
+static int round_rd_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
 	CheckType(left, LISPTYPE_RATIO);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
-	a = double_float_ratio(left);
+	Return(double_float_ratio_(left, &a));
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_rl_common(LocalRoot local,
+static int round_rl_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
 	CheckType(left, LISPTYPE_RATIO);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
-	a = long_float_ratio(left);
+	Return(long_float_ratio_(left, &a));
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_ratio_common(LocalRoot local,
+static int round_ratio_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			round_rf_common(local, quot, rem, left, right);
-			break;
+			return round_rf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			lisp_round_rb_ratio(local, quot, rem, left, right);
-			break;
+			return lisp_round_rb_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			lisp_round_rr_ratio(local, quot, rem, left, right);
-			break;
+			return lisp_round_rr_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_rs_common(local, quot, rem, left, right);
-			break;
+			return round_rs_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_rd_common(local, quot, rem, left, right);
-			break;
+			return round_rd_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_rl_common(local, quot, rem, left, right);
-			break;
+			return round_rl_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void round_sf_common(LocalRoot local,
+static int round_sf_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
@@ -444,12 +460,14 @@ static void round_sf_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefSingleFloat(left);
 	b = single_float_fixnum(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_sb_common(LocalRoot local,
+static int round_sb_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
@@ -457,13 +475,15 @@ static void round_sb_common(LocalRoot local,
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefSingleFloat(left);
-	b = single_float_bignum(right);
-	a = lisp_round_s(a, b, &b);
+	Return(single_float_bignum_(right, &b));
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_sr_common(LocalRoot local,
+static int round_sr_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
@@ -471,13 +491,15 @@ static void round_sr_common(LocalRoot local,
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefSingleFloat(left);
-	b = single_float_ratio(right);
-	a = lisp_round_s(a, b, &b);
+	Return(single_float_ratio_(right, &b));
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_ss_common(LocalRoot local,
+static int round_ss_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
@@ -486,12 +508,14 @@ static void round_ss_common(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefSingleFloat(left);
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_sd_common(LocalRoot local,
+static int round_sd_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -500,12 +524,14 @@ static void round_sd_common(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = (double_float)RefSingleFloat(left);
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_sl_common(LocalRoot local,
+static int round_sl_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -514,47 +540,43 @@ static void round_sl_common(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefSingleFloat(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_single_common(LocalRoot local,
+static int round_single_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			round_sf_common(local, quot, rem, left, right);
-			break;
+			return round_sf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			round_sb_common(local, quot, rem, left, right);
-			break;
+			return round_sb_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			round_sr_common(local, quot, rem, left, right);
-			break;
+			return round_sr_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_ss_common(local, quot, rem, left, right);
-			break;
+			return round_ss_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_sd_common(local, quot, rem, left, right);
-			break;
+			return round_sd_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_sl_common(local, quot, rem, left, right);
-			break;
+			return round_sl_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void round_df_common(LocalRoot local,
+static int round_df_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -563,12 +585,14 @@ static void round_df_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefDoubleFloat(left);
 	b = double_float_fixnum(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_db_common(LocalRoot local,
+static int round_db_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -576,13 +600,15 @@ static void round_db_common(LocalRoot local,
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefDoubleFloat(left);
-	b = double_float_bignum(right);
-	a = lisp_round_d(a, b, &b);
+	Return(double_float_bignum_(right, &b));
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_dr_common(LocalRoot local,
+static int round_dr_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -590,13 +616,15 @@ static void round_dr_common(LocalRoot local,
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefDoubleFloat(left);
-	b = double_float_ratio(right);
-	a = lisp_round_d(a, b, &b);
+	Return(double_float_ratio_(right, &b));
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_ds_common(LocalRoot local,
+static int round_ds_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -605,12 +633,14 @@ static void round_ds_common(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = (double_float)RefSingleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_dd_common(LocalRoot local,
+static int round_dd_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
@@ -619,12 +649,14 @@ static void round_dd_common(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_dl_common(LocalRoot local,
+static int round_dl_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -633,47 +665,43 @@ static void round_dl_common(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefDoubleFloat(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_double_common(LocalRoot local,
+static int round_double_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			round_df_common(local, quot, rem, left, right);
-			break;
+			return round_df_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			round_db_common(local, quot, rem, left, right);
-			break;
+			return round_db_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			round_dr_common(local, quot, rem, left, right);
-			break;
+			return round_dr_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_ds_common(local, quot, rem, left, right);
-			break;
+			return round_ds_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_dd_common(local, quot, rem, left, right);
-			break;
+			return round_dd_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_dl_common(local, quot, rem, left, right);
-			break;
+			return round_dl_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void round_lf_common(LocalRoot local,
+static int round_lf_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -682,12 +710,14 @@ static void round_lf_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefLongFloat(left);
 	b = long_float_fixnum(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_lb_common(LocalRoot local,
+static int round_lb_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -695,13 +725,15 @@ static void round_lb_common(LocalRoot local,
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefLongFloat(left);
-	b = long_float_bignum(right);
-	a = lisp_round_l(a, b, &b);
+	Return(long_float_bignum_(right, &b));
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_lr_common(LocalRoot local,
+static int round_lr_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -709,13 +741,15 @@ static void round_lr_common(LocalRoot local,
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefLongFloat(left);
-	b = long_float_ratio(right);
-	a = lisp_round_l(a, b, &b);
+	Return(long_float_ratio_(right, &b));
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_ls_common(LocalRoot local,
+static int round_ls_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -724,12 +758,14 @@ static void round_ls_common(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefSingleFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_ld_common(LocalRoot local,
+static int round_ld_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -738,12 +774,14 @@ static void round_ld_common(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefDoubleFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_ll_common(LocalRoot local,
+static int round_ll_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
@@ -752,81 +790,71 @@ static void round_ll_common(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = RefLongFloat(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void round_long_common(LocalRoot local,
+static int round_long_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			round_lf_common(local, quot, rem, left, right);
-			break;
+			return round_lf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			round_lb_common(local, quot, rem, left, right);
-			break;
+			return round_lb_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			round_lr_common(local, quot, rem, left, right);
-			break;
+			return round_lr_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_ls_common(local, quot, rem, left, right);
-			break;
+			return round_ls_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_ld_common(local, quot, rem, left, right);
-			break;
+			return round_ld_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_ll_common(local, quot, rem, left, right);
-			break;
+			return round_ll_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-_g void round2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g int round2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			round_fixnum_common(local, quot, rem, left, right);
-			break;
+			return round_fixnum_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			round_bignum_common(local, quot, rem, left, right);
-			break;
+			return round_bignum_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			round_ratio_common(local, quot, rem, left, right);
-			break;
+			return round_ratio_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_single_common(local, quot, rem, left, right);
-			break;
+			return round_single_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_double_common(local, quot, rem, left, right);
-			break;
+			return round_double_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			round_long_common(local, quot, rem, left, right);
-			break;
+			return round_long_common_(local, quot, rem, left, right);
 
 		default:
-			TypeError(left, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(left, REAL);
 	}
 }
 
-static void fround_ff_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_ff_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	fixnum a, b;
 
@@ -834,10 +862,10 @@ static void fround_ff_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	GetFixnum(left, &a);
 	GetFixnum(right, &b);
-	lisp_fround_fixnum(quot, rem, a, b);
+	return lisp_fround_fixnum_(quot, rem, a, b);
 }
 
-static void fround_fb_common(LocalRoot local,
+static int fround_fb_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -846,11 +874,13 @@ static void fround_fb_common(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	lisp_fround_bignum(local, quot, rem, left, right);
+	Return(lisp_fround_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void fround_fr_common(LocalRoot local,
+static int fround_fr_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -859,11 +889,13 @@ static void fround_fr_common(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	lisp_fround_br_ratio(local, quot, rem, left, right);
+	Return(lisp_fround_br_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void fround_fs_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_fs_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
@@ -871,12 +903,14 @@ static void fround_fs_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = single_float_fixnum(left);
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_fd_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_fd_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
@@ -884,12 +918,14 @@ static void fround_fd_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = double_float_fixnum(left);
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_fl_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_fl_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -897,47 +933,43 @@ static void fround_fl_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = long_float_fixnum(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_fixnum_common(LocalRoot local,
+static int fround_fixnum_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			fround_ff_common(quot, rem, left, right);
-			break;
+			return fround_ff_common_(quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			fround_fb_common(local, quot, rem, left, right);
-			break;
+			return fround_fb_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			fround_fr_common(local, quot, rem, left, right);
-			break;
+			return fround_fr_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_fs_common(quot, rem, left, right);
-			break;
+			return fround_fs_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_fd_common(quot, rem, left, right);
-			break;
+			return fround_fd_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_fl_common(quot, rem, left, right);
-			break;
+			return fround_fl_common_(quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void fround_bf_common(LocalRoot local,
+static int fround_bf_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -946,85 +978,87 @@ static void fround_bf_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	lisp_fround_bignum(local, quot, rem, left, right);
+	Return(lisp_fround_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void fround_bs_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_bs_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
 	CheckType(left, LISPTYPE_BIGNUM);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
-	a = single_float_bignum(left);
+	Return(single_float_bignum_(left, &a));
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_bd_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_bd_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
 	CheckType(left, LISPTYPE_BIGNUM);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
-	a = double_float_bignum(left);
+	Return(double_float_bignum_(left, &a));
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_bl_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_bl_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
 	CheckType(left, LISPTYPE_BIGNUM);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
-	a = long_float_bignum(left);
+	Return(long_float_bignum_(left, &a));
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_bignum_common(LocalRoot local,
+static int fround_bignum_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			fround_bf_common(local, quot, rem, left, right);
-			break;
+			return fround_bf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			lisp_fround_bignum(local, quot, rem, left, right);
-			break;
+			return lisp_fround_bignum_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			lisp_fround_br_ratio(local, quot, rem, left, right);
-			break;
+			return lisp_fround_br_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_bs_common(quot, rem, left, right);
-			break;
+			return fround_bs_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_bd_common(quot, rem, left, right);
-			break;
+			return fround_bd_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_bl_common(quot, rem, left, right);
-			break;
+			return fround_bl_common_(quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void fround_rf_common(LocalRoot local,
+static int fround_rf_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	LocalStack stack;
@@ -1033,85 +1067,87 @@ static void fround_rf_common(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	lisp_fround_rb_ratio(local, quot, rem, left, right);
+	Return(lisp_fround_rb_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void fround_rs_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_rs_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
 	CheckType(left, LISPTYPE_RATIO);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
-	a = single_float_ratio(left);
+	Return(single_float_ratio_(left, &a));
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_rd_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_rd_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
 	CheckType(left, LISPTYPE_RATIO);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
-	a = double_float_ratio(left);
+	Return(double_float_ratio_(left, &a));
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_rl_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_rl_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
 	CheckType(left, LISPTYPE_RATIO);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
-	a = long_float_ratio(left);
+	Return(long_float_ratio_(left, &a));
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_ratio_common(LocalRoot local,
+static int fround_ratio_common_(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			fround_rf_common(local, quot, rem, left, right);
-			break;
+			return fround_rf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			lisp_fround_rb_ratio(local, quot, rem, left, right);
-			break;
+			return lisp_fround_rb_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			lisp_fround_rr_ratio(local, quot, rem, left, right);
-			break;
+			return lisp_fround_rr_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_rs_common(quot, rem, left, right);
-			break;
+			return fround_rs_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_rd_common(quot, rem, left, right);
-			break;
+			return fround_rd_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_rl_common(quot, rem, left, right);
-			break;
+			return fround_rl_common_(quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void fround_sf_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_sf_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
@@ -1119,38 +1155,44 @@ static void fround_sf_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefSingleFloat(left);
 	b = single_float_fixnum(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_sb_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_sb_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefSingleFloat(left);
-	b = single_float_bignum(right);
-	a = lisp_round_s(a, b, &b);
+	Return(single_float_bignum_(right, &b));
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_sr_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_sr_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefSingleFloat(left);
-	b = single_float_ratio(right);
-	a = lisp_round_s(a, b, &b);
+	Return(single_float_ratio_(right, &b));
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_ss_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_ss_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	single_float a, b;
 
@@ -1158,12 +1200,14 @@ static void fround_ss_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefSingleFloat(left);
 	b = RefSingleFloat(right);
-	a = lisp_round_s(a, b, &b);
+	Return(lisp_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_sd_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_sd_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
@@ -1171,12 +1215,14 @@ static void fround_sd_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = (double_float)RefSingleFloat(left);
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_sl_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_sl_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -1184,46 +1230,42 @@ static void fround_sl_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefSingleFloat(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_single_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_single_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			fround_sf_common(quot, rem, left, right);
-			break;
+			return fround_sf_common_(quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			fround_sb_common(quot, rem, left, right);
-			break;
+			return fround_sb_common_(quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			fround_sr_common(quot, rem, left, right);
-			break;
+			return fround_sr_common_(quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_ss_common(quot, rem, left, right);
-			break;
+			return fround_ss_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_sd_common(quot, rem, left, right);
-			break;
+			return fround_sd_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_sl_common(quot, rem, left, right);
-			break;
+			return fround_sl_common_(quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void fround_df_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_df_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
@@ -1231,38 +1273,44 @@ static void fround_df_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefDoubleFloat(left);
 	b = double_float_fixnum(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_db_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_db_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefDoubleFloat(left);
-	b = double_float_bignum(right);
-	a = lisp_round_d(a, b, &b);
+	Return(double_float_bignum_(right, &b));
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_dr_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_dr_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefDoubleFloat(left);
-	b = double_float_ratio(right);
-	a = lisp_round_d(a, b, &b);
+	Return(double_float_ratio_(right, &b));
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_ds_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_ds_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
@@ -1270,12 +1318,14 @@ static void fround_ds_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = (double_float)RefSingleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_dd_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_dd_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	double_float a, b;
 
@@ -1283,12 +1333,14 @@ static void fround_dd_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = RefDoubleFloat(right);
-	a = lisp_round_d(a, b, &b);
+	Return(lisp_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_dl_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_dl_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -1296,46 +1348,42 @@ static void fround_dl_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefDoubleFloat(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_double_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_double_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			fround_df_common(quot, rem, left, right);
-			break;
+			return fround_df_common_(quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			fround_db_common(quot, rem, left, right);
-			break;
+			return fround_db_common_(quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			fround_dr_common(quot, rem, left, right);
-			break;
+			return fround_dr_common_(quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_ds_common(quot, rem, left, right);
-			break;
+			return fround_ds_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_dd_common(quot, rem, left, right);
-			break;
+			return fround_dd_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_dl_common(quot, rem, left, right);
-			break;
+			return fround_dl_common_(quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-static void fround_lf_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_lf_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -1343,38 +1391,44 @@ static void fround_lf_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefLongFloat(left);
 	b = long_float_fixnum(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_lb_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_lb_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefLongFloat(left);
-	b = long_float_bignum(right);
-	a = lisp_round_l(a, b, &b);
+	Return(long_float_bignum_(right, &b));
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_lr_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_lr_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefLongFloat(left);
-	b = long_float_ratio(right);
-	a = lisp_round_l(a, b, &b);
+	Return(long_float_ratio_(right, &b));
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_ls_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_ls_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -1382,12 +1436,14 @@ static void fround_ls_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefSingleFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_ld_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_ld_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -1395,12 +1451,14 @@ static void fround_ld_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefDoubleFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_ll_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_ll_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	long_float a, b;
 
@@ -1408,92 +1466,83 @@ static void fround_ll_common(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = RefLongFloat(left);
 	b = RefLongFloat(right);
-	a = lisp_round_l(a, b, &b);
+	Return(lisp_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
+
+	return 0;
 }
 
-static void fround_long_common(addr *quot, addr *rem, addr left, addr right)
+static int fround_long_common_(addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			fround_lf_common(quot, rem, left, right);
-			break;
+			return fround_lf_common_(quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			fround_lb_common(quot, rem, left, right);
-			break;
+			return fround_lb_common_(quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			fround_lr_common(quot, rem, left, right);
-			break;
+			return fround_lr_common_(quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_ls_common(quot, rem, left, right);
-			break;
+			return fround_ls_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_ld_common(quot, rem, left, right);
-			break;
+			return fround_ld_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_ll_common(quot, rem, left, right);
-			break;
+			return fround_ll_common_(quot, rem, left, right);
 
 		default:
-			TypeError(right, REAL);
-			break;
+			*quot = *rem = Nil;
+			return TypeError_(right, REAL);
 	}
 }
 
-_g void fround2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g int fround2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			fround_fixnum_common(local, quot, rem, left, right);
-			break;
+			return fround_fixnum_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			fround_bignum_common(local, quot, rem, left, right);
-			break;
+			return fround_bignum_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			fround_ratio_common(local, quot, rem, left, right);
-			break;
+			return fround_ratio_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_single_common(quot, rem, left, right);
-			break;
+			return fround_single_common_(quot, rem, left, right);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_double_common(quot, rem, left, right);
-			break;
+			return fround_double_common_(quot, rem, left, right);
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_long_common(quot, rem, left, right);
-			break;
+			return fround_long_common_(quot, rem, left, right);
 
 		default:
-			TypeError(left, REAL);
+			*quot = *rem = Nil;
+			return TypeError_(left, REAL);
 			break;
 	}
 }
 
-_g void round_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+_g int round_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
 {
 	if (div == Unbound)
-		round1_common(local, ret1, ret2, var);
+		return round1_common_(local, ret1, ret2, var);
 	else
-		round2_common(local, ret1, ret2, var, div);
+		return round2_common_(local, ret1, ret2, var, div);
 }
 
-_g void fround_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+_g int fround_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
 {
 	if (div == Unbound)
-		fround1_common(local, ret1, ret2, var);
+		return fround1_common_(local, ret1, ret2, var);
 	else
-		fround2_common(local, ret1, ret2, var, div);
+		return fround2_common_(local, ret1, ret2, var, div);
 }
 

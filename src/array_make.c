@@ -111,10 +111,12 @@ static void array_set_dimension0(addr pos, size_t *ret)
 
 static int array_set_dimension1_(addr pos, addr value, size_t *ret)
 {
+	int check;
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	if (minusp_integer(value)) {
+	Return(minusp_integer_(value, &check));
+	if (check) {
 		*ret = 0;
 		return fmte_("Array index ~A must be a non-negative integer.", value, NULL);
 	}
@@ -130,6 +132,7 @@ static int array_set_dimension1_(addr pos, addr value, size_t *ret)
 
 static int array_set_dimension2_(addr pos, addr value, size_t *ret)
 {
+	int check;
 	struct array_struct *str;
 	addr temp, index;
 	size_t size, *data, i;
@@ -148,7 +151,8 @@ static int array_set_dimension2_(addr pos, addr value, size_t *ret)
 			*ret = 0;
 			return fmte_("Array index ~A must be an integer.", index, NULL);
 		}
-		if (minusp_integer(index)) {
+		Return(minusp_integer_(index, &check));
+		if (check) {
 			*ret = 0;
 			return fmte_("Array index ~A must be a non-negative integer.", index, NULL);
 		}
@@ -247,6 +251,7 @@ static void array_set_adjustable(struct array_struct *str, addr adjustable)
 
 static int array_set_fillpointer_(struct array_struct *str, addr fill)
 {
+	int check;
 	size_t size;
 
 	str->fillpointer = (fill != Nil);
@@ -258,7 +263,8 @@ static int array_set_fillpointer_(struct array_struct *str, addr fill)
 		return 0;
 	if (! integerp(fill))
 		return fmte_("fill-pointer ~A must be an integer.", fill, NULL);
-	if (minusp_integer(fill))
+	Return(minusp_integer_(fill, &check));
+	if (check)
 		return fmte_("fill-pointer ~A must be a non-negative integer.", fill, NULL);
 	if (GetIndex_integer(fill, &size))
 		return fmte_("fill-pointer ~A is too large.", fill, NULL);
@@ -358,6 +364,7 @@ static int array_set_displaced_string_(
 static int array_set_displaced_value_(
 		addr pos, size_t size, addr displaced, addr offset)
 {
+	int check;
 	struct array_struct *str;
 	size_t value;
 
@@ -367,7 +374,8 @@ static int array_set_displaced_value_(
 	/* displaced-index-offset */
 	if (! integerp(offset))
 		return fmte_("Array offset ~A must be an integer.", offset, NULL);
-	if (minusp_integer(offset))
+	Return(minusp_integer_(offset, &check));
+	if (check)
 		return fmte_("Array offset ~A must be a non-negative integer.", offset, NULL);
 	if (GetIndex_integer(offset, &value))
 		return fmte_("Array offset ~A is too large.", offset, NULL);
@@ -1049,13 +1057,15 @@ _g int array_make_initial_(addr pos, addr initial, addr contents)
 	return 0;
 }
 
-static void array_set_type_upgraded(addr pos, addr type)
+static int array_set_type_upgraded_(addr pos, addr type)
 {
 	enum ARRAY_TYPE value;
 	int size;
 
-	upgraded_array_value(type, &value, &size);
+	Return(upgraded_array_value_(type, &value, &size));
 	array_set_type_value(pos, value, size);
+
+	return 0;
 }
 
 _g int array_make_array_(addr *ret, addr dimension,
@@ -1065,7 +1075,7 @@ _g int array_make_array_(addr *ret, addr dimension,
 	addr pos;
 
 	array_empty_heap(&pos);
-	array_set_type_upgraded(pos, type);
+	Return(array_set_type_upgraded_(pos, type));
 	array_set_element_size(pos);
 	Return(array_set_dimension_(pos, dimension));
 	Return(array_make_memory_(pos, adjustable, fillpointer, displaced, offset));

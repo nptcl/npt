@@ -3,7 +3,7 @@
 
 #include "typedef.h"
 
-_g void open_concatenated_stream(addr *stream, addr list);
+_g int open_concatenated_stream_(addr *stream, addr list);
 _g void push_concatenated_stream(addr stream, addr input);
 _g void get_concatenated_stream(addr stream, addr *ret);
 _g void init_stream_concatenated(void);

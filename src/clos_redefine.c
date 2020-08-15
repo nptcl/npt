@@ -141,7 +141,7 @@ static int clos_redefine_information_(LocalRoot local, addr clos, addr slots)
 	Return(stdset_class_redefined_class_(clos, pos));
 	/* increment */
 	Return(stdget_class_version_(clos, &value));
-	oneplus_integer_common(local, value, &value);
+	Return(oneplus_integer_common_(local, value, &value));
 	Return(stdset_class_version_(clos, value));
 	/* finalized_p */
 	Return(stdset_class_finalized_p_(clos, Nil));

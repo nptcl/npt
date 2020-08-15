@@ -21,8 +21,8 @@ _g int incf_common(Execute ptr, addr form, addr env, addr *ret);
 _g int decf_common(Execute ptr, addr form, addr env, addr *ret);
 _g int random_common(Execute ptr, addr limit, addr state, addr *ret);
 _g int conjugate_common(addr var, addr *ret);
-_g void realpart_common(addr var, addr *ret);
-_g void imagpart_common(addr var, addr *ret);
+_g int realpart_common_(addr var, addr *ret);
+_g int imagpart_common_(addr var, addr *ret);
 _g int parse_integer_common(LocalRoot local,
 		addr var, addr rest, addr *ret1, addr *ret2);
 

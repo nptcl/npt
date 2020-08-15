@@ -208,7 +208,7 @@ static int getindex_print_(Execute ptr, size_t *value, int *ret, constindex inde
 		return Result(ret, 0);
 	}
 	else {
-		getindex_fixnum(pos, value);
+		Return(getindex_fixnum_(pos, value));
 		return Result(ret, 1);
 	}
 }
@@ -310,7 +310,7 @@ _g int right_margin_print_(Execute ptr, addr stream, size_t *ret)
 		*ret = size;
 	}
 	else {
-		getindex_fixnum(pos, ret);
+		Return(getindex_fixnum_(pos, ret));
 	}
 
 	return 0;

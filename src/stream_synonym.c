@@ -9,16 +9,17 @@
 	Check(! synonym_stream_p(stream), "type error"); \
 }
 
-_g void open_synonym_stream(addr *stream, addr symbol)
+_g int open_synonym_stream_(addr *stream, addr symbol)
 {
 	addr pos;
 
 	if (! symbolp(symbol))
-		TypeError(symbol, SYMBOL);
+		return TypeError_(symbol, SYMBOL);
 	stream_heap(&pos, StreamType_Synonym, 0);
 	SetInfoStream(pos, symbol);
 	force_open_stream(pos);
-	*stream = pos;
+
+	return Result(stream, pos);
 }
 
 _g void get_synonym_stream(addr stream, addr *ret)

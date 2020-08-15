@@ -35,12 +35,12 @@ static void test_parse_type_error(addr *ret, addr pos)
 
 static void test_parse_char(addr *ret, const char *str)
 {
-	test_parse_type_error(ret, readr(str));
+	test_parse_type_error(ret, readr_debug(str));
 }
 
 static int TypepClang(addr value, addr type, int *ret)
 {
-	return typep_clang(Execute_Thread, value, type, ret);
+	return typep_clang_(Execute_Thread, value, type, ret);
 }
 
 static int typep_object(addr x, addr y) 
@@ -61,7 +61,7 @@ static int typep_char(addr x, const char *str)
 
 static int TypepAsteriskClang(addr x, addr y, int *ret)
 {
-	return typep_asterisk_clang(Execute_Thread, x, y, ret);
+	return typep_asterisk_clang_(Execute_Thread, x, y, ret);
 }
 
 static int typep_asterisk_char(addr x, const char *str)
@@ -86,7 +86,7 @@ static int test_typep_clos(void)
 {
 	addr v;
 
-	v = readr("standard-class");
+	v = readr_debug("standard-class");
 	clos_find_class_(v, &v);
 	test(typep_char(v, "class"), "typep_clos1");
 	fixnum_heap(&v, 100);
@@ -148,7 +148,7 @@ static int test_typep_eql(void)
 	character_heap(&v, 'A');
 	test(typep_char(v, "(eql #\\A)"), "typep_eql3");
 
-	v = readr("(10)");
+	v = readr_debug("(10)");
 	test(! typep_char(v, "(eql (10))"), "typep_eql4");
 
 	RETURN;
@@ -192,7 +192,7 @@ static int test_typep_mod(void)
 	fixnum_heap(&v, -1);
 	test(! typep_char(v, "(mod 256)"), "typep_mod5");
 
-	v = readr(":hello");
+	v = readr_debug(":hello");
 	test(! typep_char(v, "(mod 256)"), "typep_mod6");
 
 	RETURN;
@@ -202,7 +202,7 @@ static int test_typep_not(void)
 {
 	addr v;
 
-	v = readr(":hello");
+	v = readr_debug(":hello");
 	test(typep_char(v, "(not integer)"), "typep_not1");
 
 	fixnum_heap(&v, 10);
@@ -280,19 +280,19 @@ static int test_typep_vector_vector(void)
 	SetArrayA4(x, 1, fixnumh(20));
 	SetArrayA4(x, 2, fixnumh(30));
 	test_parse_char(&y, "vector");
-	test(! typep_vector_vector(x, y, &check), "tytep_vector_vector1");
+	test(! typep_vector_vector_(x, y, &check), "tytep_vector_vector1");
 	test(check, "tytep_vector_vector2");
 
 	test_parse_char(&y, "(vector integer)"); /* integer -> t */
-	test(! typep_vector_vector(x, y, &check), "typep_vector_vector3");
+	test(! typep_vector_vector_(x, y, &check), "typep_vector_vector3");
 	test(check, "typep_vector_vector4");
 
 	test_parse_char(&y, "(vector * 3)");
-	test(! typep_vector_vector(x, y, &check), "typep_vector_vector5");
+	test(! typep_vector_vector_(x, y, &check), "typep_vector_vector5");
 	test(check, "typep_vector_vector6");
 
 	test_parse_char(&y, "(vector * 4)");
-	test(! typep_vector_vector(x, y, &check), "typep_vector_vector7");
+	test(! typep_vector_vector_(x, y, &check), "typep_vector_vector7");
 	test(! check, "typep_vector_vector8");
 
 	vector4_heap(&x, 3);
@@ -303,7 +303,7 @@ static int test_typep_vector_vector(void)
 	character_heap(&y, 'C');
 	SetArrayA4(x, 2, y);
 	test_parse_char(&y, "(vector character)");
-	test(! typep_vector_vector(x, y, &check), "typep_vector_vector9");
+	test(! typep_vector_vector_(x, y, &check), "typep_vector_vector9");
 	test(! check, "typep_vector_vector10");
 
 	RETURN;
@@ -316,28 +316,28 @@ static int test_typep_vector_string(void)
 
 	strvect_char_heap(&x, "Hello");
 	test_parse_char(&y, "vector");
-	test(! typep_vector_string(x, y, &check), "typep_vector_string1");
+	test(! typep_vector_string_(x, y, &check), "typep_vector_string1");
 	test(check, "typep_vector_string2");
 
 	test_parse_char(&y, "(vector character)");
-	test(! typep_vector_string(x, y, &check), "typep_vector_string3");
+	test(! typep_vector_string_(x, y, &check), "typep_vector_string3");
 	test(check, "typep_vector_string4");
 
 	test_parse_char(&y, "(vector integer)");
-	test(! typep_vector_string(x, y, &check), "typep_vector_string5");
+	test(! typep_vector_string_(x, y, &check), "typep_vector_string5");
 	test(! check, "typep_vector_string6");
 
 	test_parse_char(&y, "(vector * 5)");
-	test(! typep_vector_string(x, y, &check), "typep_vector_string7");
+	test(! typep_vector_string_(x, y, &check), "typep_vector_string7");
 	test(check, "typep_vector_string8");
 
 	test_parse_char(&y, "(vector * 6)");
-	test(! typep_vector_string(x, y, &check), "typep_vector_string9");
+	test(! typep_vector_string_(x, y, &check), "typep_vector_string9");
 	test(! check, "typep_vector_string10");
 
 	strarray_char_heap_(&x, "Hello");
 	test_parse_char(&y, "(vector * 5)");
-	test(! typep_vector_string(x, y, &check), "typep_vector_string11");
+	test(! typep_vector_string_(x, y, &check), "typep_vector_string11");
 	test(check, "typep_vector_string12");
 
 	RETURN;
@@ -348,29 +348,29 @@ static int test_typep_vector_bitvector(void)
 	int check;
 	addr x, y;
 
-	x = readr("#*10011");
+	x = readr_debug("#*10011");
 	test_parse_char(&y, "vector");
-	test(! typep_vector_bitvector(x, y, &check), "typep_vector_bitvector1");
+	test(! typep_vector_bitvector_(x, y, &check), "typep_vector_bitvector1");
 	test(check, "typep_vector_bitvector2");
 
 	test_parse_char(&y, "(vector bit)");
-	test(! typep_vector_bitvector(x, y, &check), "typep_vector_bitvector3");
+	test(! typep_vector_bitvector_(x, y, &check), "typep_vector_bitvector3");
 	test(check, "typep_vector_bitvector4");
 
 	test_parse_char(&y, "(vector integer)");
-	test(! typep_vector_bitvector(x, y, &check), "typep_vector_bitvector5");
+	test(! typep_vector_bitvector_(x, y, &check), "typep_vector_bitvector5");
 	test(! check, "typep_vector_bitvector6");
 
 	test_parse_char(&y, "(vector * 5)");
-	test(! typep_vector_bitvector(x, y, &check), "typep_vector_bitvector7");
+	test(! typep_vector_bitvector_(x, y, &check), "typep_vector_bitvector7");
 	test(check, "typep_vector_bitvector8");
 
 	test_parse_char(&y, "(vector * 6)");
-	test(! typep_vector_bitvector(x, y, &check), "typep_vector_bitvector9");
+	test(! typep_vector_bitvector_(x, y, &check), "typep_vector_bitvector9");
 	test(! check, "typep_vector_bitvector10");
 
 	test_parse_char(&y, "(vector bit 5)");
-	test(! typep_vector_bitvector(x, y, &check), "typep_vector_bitvector11");
+	test(! typep_vector_bitvector_(x, y, &check), "typep_vector_bitvector11");
 	test(check, "typep_vector_bitvector12");
 
 	RETURN;
@@ -384,31 +384,31 @@ static int test_typep_vector_dimension(void)
 	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector * *)");
 	GetArrayType(y, 1, &y);
-	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension1");
+	test(! typep_vector_dimension_(x, y, &check), "typep_vector_dimension1");
 	test(check, "typep_vector_dimension2");
 
 	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector * 10)");
 	GetArrayType(y, 1, &y);
-	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension3");
+	test(! typep_vector_dimension_(x, y, &check), "typep_vector_dimension3");
 	test(check, "typep_vector_dimension4");
 
 	array_va_heap_(&x, 0);
 	test_parse_char(&y, "(vector * 0)");
 	GetArrayType(y, 1, &y);
-	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension5");
+	test(! typep_vector_dimension_(x, y, &check), "typep_vector_dimension5");
 	test(! check, "typep_vector_dimension6");
 
 	array_va_heap_(&x, 10, 10, 0);
 	test_parse_char(&y, "(vector * 2)");
 	GetArrayType(y, 1, &y);
-	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension7");
+	test(! typep_vector_dimension_(x, y, &check), "typep_vector_dimension7");
 	test(! check, "typep_vector_dimension8");
 
 	array_va_heap_(&x, 10, 10, 0);
 	test_parse_char(&y, "(vector * *)");
 	GetArrayType(y, 1, &y);
-	test(! typep_vector_dimension(x, y, &check), "typep_vector_dimension9");
+	test(! typep_vector_dimension_(x, y, &check), "typep_vector_dimension9");
 	test(! check, "typep_vector_dimension10");
 
 	RETURN;
@@ -421,27 +421,27 @@ static int test_typep_vector_array(void)
 
 	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "vector");
-	test(! typep_vector_array(x, y, &check), "typep_vector_array1");
+	test(! typep_vector_array_(x, y, &check), "typep_vector_array1");
 	test(check, "typep_vector_array2");
 
 	array_va_heap_(&x, 10, 20, 0);
 	test_parse_char(&y, "vector");
-	test(! typep_vector_array(x, y, &check), "typep_vector_array3");
+	test(! typep_vector_array_(x, y, &check), "typep_vector_array3");
 	test(! check, "typep_vector_array4");
 
 	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector t 10)");
-	test(! typep_vector_array(x, y, &check), "typep_vector_array5");
+	test(! typep_vector_array_(x, y, &check), "typep_vector_array5");
 	test(check, "typep_vector_array6");
 
 	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector character *)");
-	test(! typep_vector_array(x, y, &check), "typep_vector_array7");
+	test(! typep_vector_array_(x, y, &check), "typep_vector_array7");
 	test(! check, "typep_vector_array8");
 
 	array_va_heap_(&x, 10, 0);
 	test_parse_char(&y, "(vector * 9)");
-	test(! typep_vector_array(x, y, &check), "typep_vector_array9");
+	test(! typep_vector_array_(x, y, &check), "typep_vector_array9");
 	test(! check, "typep_vector_array10");
 
 	RETURN;
@@ -467,7 +467,7 @@ static int test_typep_vector(void)
 	test(typep_char(v, "(vector t 10)"), "typep_vector3");
 
 	/* bit-vector */
-	v = readr("#*1100110");
+	v = readr_debug("#*1100110");
 	test(typep_char(v, "(vector bit 7)"), "typep_vector4");
 
 	RETURN;
@@ -484,15 +484,15 @@ static int test_typep_simple_vector_vector(void)
 	SetArrayA4(x, 2, fixnumh(30));
 
 	test_parse_char(&y, "simple-vector");
-	test(! typep_simple_vector_vector(x, y, &check), "typep_simple_vector_vector1");
+	test(! typep_simple_vector_vector_(x, y, &check), "typep_simple_vector_vector1");
 	test(check, "typep_simple_vector_vector2");
 
 	test_parse_char(&y, "(simple-vector 3)");
-	test(! typep_simple_vector_vector(x, y, &check), "typep_simple_vector_vector3");
+	test(! typep_simple_vector_vector_(x, y, &check), "typep_simple_vector_vector3");
 	test(check, "typep_simple_vector_vector4");
 
 	test_parse_char(&y, "(simple-vector 4)");
-	test(! typep_simple_vector_vector(x, y, &check), "typep_simple_vector_vector5");
+	test(! typep_simple_vector_vector_(x, y, &check), "typep_simple_vector_vector5");
 	test(! check, "typep_simple_vector_vector6");
 
 	RETURN;
@@ -506,45 +506,45 @@ static int test_typep_type_vector_array(void)
 	array_va_heap_(&x, 10, 0);
 	array_build_(x);
 	test_parse_char(&y, "simple-vector");
-	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array1");
 	test(check, "typep_type_vector_array2");
 
 	array_va_heap_(&x, 10, 20, 0);
 	array_build_(x);
 	test_parse_char(&y, "simple-vector");
-	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array3");
 	test(! check, "typep_type_vector_array4");
 
 	array_va_heap_(&x, 10, 0);
 	array_build_(x);
 	test_parse_char(&y, "(simple-vector 10)");
-	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array5");
 	test(check, "typep_type_vector_array6");
 
 	array_va_heap_(&x, 10, 0);
 	array_build_(x);
 	test_parse_char(&y, "(simple-vector *)");
-	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array7");
 	test(check, "typep_type_vector_array8");
 
 	array_va_heap_(&x, 10, 0);
 	array_build_(x);
 	test_parse_char(&y, "(simple-vector 9)");
-	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array9");
 	test(! check, "typep_type_vector_array10");
 
 	strarray_char_heap_(&x, "Hello");
 	test_parse_char(&y, "(simple-vector *)");
-	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array11");
 	test(! check, "typep_type_vector_array12");
 
-	test(! typep_type_vector_array(x, y, LISPDECL_CHARACTER, &check),
+	test(! typep_type_vector_array_(x, y, LISPDECL_CHARACTER, &check),
 			"typep_type_vector_array13");
 	test(check, "typep_type_vector_array14");
 
@@ -998,34 +998,34 @@ static int test_typep_cons(void)
 	test(! typep_char(Nil, "(cons integer)"), "typep_cons15");
 	test(! typep_char(T, "(cons integer)"), "typep_cons16");
 
-	v = readr("(10)");
+	v = readr_debug("(10)");
 	test(typep_char(v, "(cons integer)"), "typep_cons17");
 
-	v = readr("(10 . \"Hello\")");
+	v = readr_debug("(10 . \"Hello\")");
 	test(typep_char(v, "(cons integer)"), "typep_cons18");
-	v = readr("(\"Hello\")");
+	v = readr_debug("(\"Hello\")");
 	test(! typep_char(v, "(cons integer)"), "typep_cons19");
-	v = readr("(\"Hello\" . 10)");
+	v = readr_debug("(\"Hello\" . 10)");
 	test(! typep_char(v, "(cons integer)"), "typep_cons20");
 
-	v = readr("(200)");
+	v = readr_debug("(200)");
 	test(typep_char(v, "(cons integer *)"), "typep_cons21");
-	v = readr("(200)");
+	v = readr_debug("(200)");
 	test(! typep_char(v, "(cons * integer)"), "typep_cons22");
-	v = readr("(nil . 200)");
+	v = readr_debug("(nil . 200)");
 	test(typep_char(v, "(cons * integer)"), "typep_cons23");
-	v = readr("(200 . 200)");
+	v = readr_debug("(200 . 200)");
 	test(typep_char(v, "(cons * integer)"), "typep_cons24");
 
-	v = readr("(200)");
+	v = readr_debug("(200)");
 	test(! typep_char(v, "(cons string integer)"), "typep_cons25");
-	v = readr("(nil . 200)");
+	v = readr_debug("(nil . 200)");
 	test(! typep_char(v, "(cons string integer)"), "typep_cons26");
-	v = readr("(200 . 200)");
+	v = readr_debug("(200 . 200)");
 	test(! typep_char(v, "(cons string integer)"), "typep_cons27");
-	v = readr("(200 . \"Hello\")");
+	v = readr_debug("(200 . \"Hello\")");
 	test(! typep_char(v, "(cons string integer)"), "typep_cons28");
-	v = readr("(\"Hello\" . 200)");
+	v = readr_debug("(\"Hello\" . 200)");
 	test(typep_char(v, "(cons string integer)"), "typep_cons29");
 
 	RETURN;
@@ -1049,9 +1049,9 @@ static int test_typep_symbol(void)
 {
 	addr v;
 
-	v = readr("hello");
+	v = readr_debug("hello");
 	test(typep_char(v, "symbol"), "typep_symbol1");
-	v = readr(":aaa");
+	v = readr_debug(":aaa");
 	test(typep_char(v, "symbol"), "typep_symbol2");
 	symbol_heap(&v);
 	test(typep_char(v, "symbol"), "typep_symbol3");
@@ -1068,9 +1068,9 @@ static int test_typep_keyword(void)
 {
 	addr v;
 
-	v = readr("hello");
+	v = readr_debug("hello");
 	test(! typep_char(v, "keyword"), "typep_keyword1");
-	v = readr(":aaa");
+	v = readr_debug(":aaa");
 	test(typep_char(v, "keyword"), "typep_keyword2");
 	symbol_heap(&v);
 	test(! typep_char(v, "keyword"), "typep_keyword3");
@@ -1382,7 +1382,7 @@ static int test_typep_array_bitvector(void)
 {
 	addr value, type;
 
-	value = readr("#*1101100100");
+	value = readr_debug("#*1101100100");
 	test_parse_char(&type, "(array * *)");
 	test(typep_array_bitvector(value, type), "typep_array_bitvector1");
 
@@ -1531,13 +1531,13 @@ static int test_typep_ratio(void)
 {
 	addr v;
 
-	v = readr("12/7");
+	v = readr_debug("12/7");
 	test(typep_char(v, "ratio"), "typep_ratio1");
 
 	fixnum_heap(&v, 10);
 	test(! typep_char(v, "ratio"), "typep_ratio2");
 
-	v = readr("hello");
+	v = readr_debug("hello");
 	test(! typep_char(v, "ratio"), "typep_ratio3");
 
 	RETURN;
@@ -1583,19 +1583,19 @@ static int test_typep_stream(void)
 	test(! typep_char(Nil, "stream"), "typep_stream2");
 
 	/* broadcast */
-	open_broadcast_stream(&v, Nil);
+	open_broadcast_stream_(&v, Nil);
 	test(typep_char(v, "broadcast-stream"), "typep_broadcast_stream1");
 	test(typep_char(v, "stream"), "typep_broadcast_stream2");
 	test(! typep_char(Nil, "broadcast-stream"), "typep_broadcast_stream3");
 
 	/* concatenated */
-	open_concatenated_stream(&v, Nil);
+	open_concatenated_stream_(&v, Nil);
 	test(typep_char(v, "concatenated-stream"), "typep_concatenated_stream1");
 	test(typep_char(v, "stream"), "typep_concatenated_stream2");
 	test(! typep_char(Nil, "concatenated-stream"), "typep_concatenated_stream3");
 
 	/* echo */
-	open_concatenated_stream(&x, Nil);
+	open_concatenated_stream_(&x, Nil);
 	open_echo_stream(&v, x, x);
 	test(typep_char(v, "echo-stream"), "typep_echo_stream1");
 	test(typep_char(v, "stream"), "typep_echo_stream2");
@@ -1610,14 +1610,14 @@ static int test_typep_stream(void)
 
 	/* string */
 	strvect_char_heap(&v, "Hello");
-	open_input_string_stream(&v, v);
+	open_input_string_stream_(&v, v);
 	test(typep_char(v, "string-stream"), "typep_string_stream1");
 	test(typep_char(v, "stream"), "typep_string_stream2");
 	test(! typep_char(Nil, "string-stream"), "typep_string_stream3");
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_INPUT, &v);
-	open_synonym_stream(&v, v);
+	open_synonym_stream_(&v, v);
 	test(typep_char(v, "synonym-stream"), "typep_synonym_stream1");
 	test(typep_char(v, "stream"), "typep_synonym_stream2");
 	test(! typep_char(Nil, "synonym-stream"), "typep_synonym_stream3");
@@ -1641,11 +1641,14 @@ static int test_typep_stream(void)
  */
 static int test_less_integer(addr mode, fixnum left, fixnum right)
 {
-	return less_mode_nolocal(mode,
+	int check;
+	less_mode_nolocal_(mode,
 			fixnumh(left),
 			fixnumh(right),
-			less_integer_clang,
-			less_equal_integer_clang);
+			&check,
+			less_integer_,
+			less_equal_integer_);
+	return check;
 }
 
 static int test_less_mode_nolocal(void)
@@ -1725,11 +1728,14 @@ static int test_typep_range_nolocal(void)
 
 static int test_less_real(addr mode, fixnum left, fixnum right)
 {
-	return less_mode_local(Local_Thread, mode,
+	int check;
+	less_mode_local_(Local_Thread, mode,
 			fixnumh(left),
 			fixnumh(right),
-			less_real_inplace,
-			less_equal_real_inplace);
+			&check,
+			less_real_,
+			less_equal_real_);
+	return check;
 }
 
 static int test_less_mode_local(void)
@@ -1895,7 +1901,7 @@ static int test_typep_table(void)
 
 	fixnum_heap(&x, 20);
 	test_parse_char(&y, "fixnum");
-	test(! typep_table(Execute_Thread, x, y, &check), "typep_table1");
+	test(! typep_table_(Execute_Thread, x, y, &check), "typep_table1");
 	test(check, "typep_table2");
 
 	RETURN;
@@ -1903,7 +1909,7 @@ static int test_typep_table(void)
 
 static int TypepCall(addr value, addr type, int aster, int *ret)
 {
-	return typep_call(Execute_Thread, value, type, aster, ret);
+	return typep_call_(Execute_Thread, value, type, aster, ret);
 }
 
 static int test_typep_call(void)

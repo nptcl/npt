@@ -917,29 +917,29 @@ static int test_array_contents_setf(void)
 	/* make-array */
 	array_empty_alloc(NULL, &pos);
 	GetTypeTable(&check, T);
-	array_set_type_upgraded(pos, check);
+	array_set_type_upgraded_(pos, check);
 	array_set_element_size(pos);
-	array_set_dimension_(pos, readr("6"));
+	array_set_dimension_(pos, readr_debug("6"));
 	array_make_memory_(pos, Nil, Nil, Nil, Nil);
 	/* test */
-	array_contents_setf_(pos, readr("(1 2 a b 5 6)"));
+	array_contents_setf_(pos, readr_debug("(1 2 a b 5 6)"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 1, "array_contents_setf.1");
 	arraygen_get(mem, 1, &check);
 	test(RefFixnum(check) == 2, "array_contents_setf.2");
 	arraygen_get(mem, 2, &check);
-	test(check == readr("a"), "array_contents_setf.3");
+	test(check == readr_debug("a"), "array_contents_setf.3");
 	arraygen_get(mem, 3, &check);
-	test(check == readr("b"), "array_contents_setf.4");
+	test(check == readr_debug("b"), "array_contents_setf.4");
 	arraygen_get(mem, 4, &check);
 	test(RefFixnum(check) == 5, "array_contents_setf.5");
 	arraygen_get(mem, 5, &check);
 	test(RefFixnum(check) == 6, "array_contents_setf.6");
 
-	array_set_dimension_(pos, readr("(2 3)"));
+	array_set_dimension_(pos, readr_debug("(2 3)"));
 	array_make_memory_(pos, Nil, Nil, Nil, Nil);
-	array_contents_setf_(pos, readr("((1 2 3) (4 5 6))"));
+	array_contents_setf_(pos, readr_debug("((1 2 3) (4 5 6))"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 1, "array_contents_setf.7");
@@ -954,20 +954,20 @@ static int test_array_contents_setf(void)
 	arraygen_get(mem, 5, &check);
 	test(RefFixnum(check) == 6, "array_contents_setf.12");
 
-	array_set_dimension_(pos, readr("(4 2 3)"));
+	array_set_dimension_(pos, readr_debug("(4 2 3)"));
 	array_make_memory_(pos, Nil, Nil, Nil, Nil);
 	array_contents_setf_(pos,
-			readr("(((a b c) (1 2 3))"
+			readr_debug("(((a b c) (1 2 3))"
 				"((d e f) (3 1 2))"
 				"((g h i) (2 3 1))"
 				"((j k l) (0 0 0))))"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
-	test(check == readr("a"), "array_contents_setf.13");
+	test(check == readr_debug("a"), "array_contents_setf.13");
 	arraygen_get(mem, 4, &check);
 	test(RefFixnum(check) == 2, "array_contents_setf.14");
 	arraygen_get(mem, 14, &check);
-	test(check == readr("i"), "array_contents_setf.15");
+	test(check == readr_debug("i"), "array_contents_setf.15");
 
 	RETURN;
 }
@@ -979,12 +979,12 @@ static int test_array_initial_contents(void)
 	/* make-array */
 	array_empty_alloc(NULL, &pos);
 	GetTypeTable(&check, T);
-	array_set_type_upgraded(pos, check);
+	array_set_type_upgraded_(pos, check);
 	array_set_element_size(pos);
-	array_set_dimension_(pos, readr("6"));
+	array_set_dimension_(pos, readr_debug("6"));
 	array_make_memory_(pos, Nil, Nil, Nil, Nil);
 	/* test */
-	array_initial_contents_(pos, readr("(1 2 a b 5 6)"));
+	array_initial_contents_(pos, readr_debug("(1 2 a b 5 6)"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 1, "array_initial_contents.1");
@@ -993,7 +993,7 @@ static int test_array_initial_contents(void)
 
 	array_set_dimension_(pos, Nil);
 	array_make_memory_(pos, Nil, Nil, Nil, Nil);
-	array_initial_contents_(pos, readr("9"));
+	array_initial_contents_(pos, readr_debug("9"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 9, "array_initial_contents.3");
@@ -1008,16 +1008,16 @@ static int test_array_set_type_upgraded(void)
 
 	GetTypeTable(&type, StandardChar);
 	array_empty_alloc(NULL, &pos);
-	array_set_type_upgraded(pos, type);
+	array_set_type_upgraded_(pos, type);
 	str = ArrayInfoStruct(pos);
 	test(str->type == ARRAY_TYPE_CHARACTER, "array_set_type_upgraded.1");
 	test(str->bytesize == 0, "array_set_type_upgraded.2");
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_CHARACTER, "array_set_type_upgraded.3");
 
-	type = readr("(mod 256)");
+	type = readr_debug("(mod 256)");
 	parse_type_unsafe(&type, type);
-	array_set_type_upgraded(pos, type);
+	array_set_type_upgraded_(pos, type);
 	test(str->type == ARRAY_TYPE_UNSIGNED, "array_set_type_upgraded.4");
 	test(str->bytesize == 8, "array_set_type_upgraded.5");
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
@@ -1045,7 +1045,7 @@ static int test_array_contents_size(void)
 
 	array_empty_alloc(NULL, &pos);
 	GetTypeTable(&check, T);
-	array_set_type_upgraded(pos, check);
+	array_set_type_upgraded_(pos, check);
 	array_set_element_size(pos);
 	array_contents_size_(pos, fixnumh(0), T);
 	str = ArrayInfoStruct(pos);
@@ -1053,12 +1053,12 @@ static int test_array_contents_size(void)
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_contents_size.2");
 
-	array_contents_size_(pos, fixnumh(1), readr("(10 20 30)"));
+	array_contents_size_(pos, fixnumh(1), readr_debug("(10 20 30)"));
 	test(str->dimension == 1, "array_contents_size.3");
 	data = array_ptrsize(pos);
 	test(data[0] == 3, "array_contents_size.4");
 
-	array_contents_size_(pos, fixnumh(2), readr("((1 2) (2 3) (3 4))"));
+	array_contents_size_(pos, fixnumh(2), readr_debug("((1 2) (2 3) (3 4))"));
 	test(str->dimension == 2, "array_contents_size.5");
 	data = array_ptrsize(pos);
 	test(data[0] == 3, "array_contents_size.6");

@@ -80,13 +80,13 @@ static void isqrt_loop(addr var, size_t size, addr x, addr y, addr z)
 	}
 }
 
-static void isqrt_buffer(addr var, addr x, addr y, addr z)
+static int isqrt_buffer_(addr var, addr x, addr y, addr z)
 {
 	unsigned a, b;
 	bigtype value;
 	size_t size;
 
-	integer_length_value(var, &size);
+	Return(integer_length_value_(var, &size));
 	Check(size == 0, "size error");
 	if (size % 2) {
 		value = (bigtype)getbit_bignum(var, --size);
@@ -101,9 +101,11 @@ static void isqrt_buffer(addr var, addr x, addr y, addr z)
 	setvalue_bignum(z, SignPlus, value);
 	setminusvalue_bigdata(z, z, SignPlus, 1);
 	isqrt_loop(var, size, x, y, z);
+
+	return 0;
 }
 
-static void isqrt_bignum(LocalRoot local, addr var, addr *ret)
+static int isqrt_bignum_(LocalRoot local, addr var, addr *ret)
 {
 	addr x, y, z;
 	size_t size;
@@ -116,27 +118,33 @@ static void isqrt_bignum(LocalRoot local, addr var, addr *ret)
 	bignum_local(local, &z, SignPlus, size);
 
 	/* result */
-	isqrt_buffer(var, x, y, z);
+	Return(isqrt_buffer_(var, x, y, z));
 	*ret = x;
+
+	return 0;
 }
 
-_g void isqrt_number_common(LocalRoot local, addr var, addr *ret)
+_g int isqrt_number_common_(LocalRoot local, addr var, addr *ret)
 {
+	int check;
 	LocalStack stack;
 
 	/* zero */
-	Check(minusp_integer(var), "minum error");
-	if (! plusp_integer(var)) {
+	Check(minusp_integer_debug(var), "minum error");
+	Return(plusp_integer_(var, &check));
+	if (! check) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
 	/* isqrt */
 	push_local(local, &stack);
 	if (fixnump(var))
 		bignum_fixnum_local(local, &var, var);
-	isqrt_bignum(local, var, &var);
+	Return(isqrt_bignum_(local, var, &var));
 	bignum_result_heap(var, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 

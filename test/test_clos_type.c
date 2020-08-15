@@ -30,27 +30,27 @@ static int test_clos_class_of(void)
 	GetConst(CLOS_SYMBOL, &y);
 	test(x == y, "clos_class_of-t");
 
-	clos_class_of_(readr("(a b c)"), &x);
+	clos_class_of_(readr_debug("(a b c)"), &x);
 	GetConst(CLOS_CONS, &y);
 	test(x == y, "clos_class_of-cons");
 
-	clos_class_of_(readr("#1a(a b c)"), &x);
+	clos_class_of_(readr_debug("#1a(a b c)"), &x);
 	GetConst(CLOS_SIMPLE_VECTOR, &y);
 	test(x == y, "clos_class_of-array1");
 
-	clos_class_of_(readr("#2a((a b c) (c d e))"), &x);
+	clos_class_of_(readr_debug("#2a((a b c) (c d e))"), &x);
 	GetConst(CLOS_SIMPLE_ARRAY, &y);
 	test(x == y, "clos_class_of-array2");
 
-	clos_class_of_(readr("#(a b c)"), &x);
+	clos_class_of_(readr_debug("#(a b c)"), &x);
 	GetConst(CLOS_SIMPLE_VECTOR, &y);
 	test(x == y, "clos_class_of-vector");
 
-	clos_class_of_(readr("#\\a"), &x);
+	clos_class_of_(readr_debug("#\\a"), &x);
 	GetConst(CLOS_CHARACTER, &y);
 	test(x == y, "clos_class_of-character");
 
-	clos_class_of_(readr("\"Hello\""), &x);
+	clos_class_of_(readr_debug("\"Hello\""), &x);
 	GetConst(CLOS_SIMPLE_BASE_STRING, &y);
 	test(x == y, "clos_class_of-string");
 
@@ -65,11 +65,11 @@ static int test_clos_class_of(void)
 	GetConst(CLOS_READTABLE, &y);
 	test(x == y, "clos_class_of-readtable");
 
-	clos_class_of_(readr("hello"), &x);
+	clos_class_of_(readr_debug("hello"), &x);
 	GetConst(CLOS_SYMBOL, &y);
 	test(x == y, "clos_class_of-symbol");
 
-	clos_class_of_(readr(":hello"), &x);
+	clos_class_of_(readr_debug(":hello"), &x);
 	GetConst(CLOS_KEYWORD, &y);
 	test(x == y, "clos_class_of-keyword");
 
@@ -83,27 +83,27 @@ static int test_clos_class_of(void)
 	GetConst(CLOS_BIGNUM, &y);
 	test(x == y, "clos_class_of-bignum");
 
-	clos_class_of_(readr("2/3"), &x);
+	clos_class_of_(readr_debug("2/3"), &x);
 	GetConst(CLOS_RATIO, &y);
 	test(x == y, "clos_class_of-ratio");
 
-	clos_class_of_(readr("1.23f0"), &x);
+	clos_class_of_(readr_debug("1.23f0"), &x);
 	GetConst(CLOS_SINGLE_FLOAT, &y);
 	test(x == y, "clos_class_of-single-float");
 
-	clos_class_of_(readr("1.23d0"), &x);
+	clos_class_of_(readr_debug("1.23d0"), &x);
 	GetConst(CLOS_DOUBLE_FLOAT, &y);
 	test(x == y, "clos_class_of-double-float");
 
-	clos_class_of_(readr("1.23L0"), &x);
+	clos_class_of_(readr_debug("1.23L0"), &x);
 	GetConst(CLOS_LONG_FLOAT, &y);
 	test(x == y, "clos_class_of-long-float");
 
-	clos_class_of_(readr("#c(1 2)"), &x);
+	clos_class_of_(readr_debug("#c(1 2)"), &x);
 	GetConst(CLOS_COMPLEX, &y);
 	test(x == y, "clos_class_of-complex");
 
-	parse_callname_heap(&x, readr("hello"));
+	parse_callname_heap(&x, readr_debug("hello"));
 	function_empty_heap(&x, x);
 	clos_class_of_(x, &x);
 	GetConst(CLOS_FUNCTION, &y);
@@ -127,23 +127,23 @@ static int test_clos_class_of(void)
 	GetConst(CLOS_RANDOM_STATE, &y);
 	test(x == y, "clos_class_of-random-state");
 
-	x = readr("#p\"Hello\"");
+	x = readr_debug("#p\"Hello\"");
 	clos_class_of_(x, &x);
 	GetConst(CLOS_PATHNAME, &y);
 	test(x == y, "clos_class_of-pathname");
 
-	x = readr("#p\"Hello\"");
+	x = readr_debug("#p\"Hello\"");
 	SetLogicalPathname(x, 1);
 	clos_class_of_(x, &x);
 	GetConst(CLOS_LOGICAL_PATHNAME, &y);
 	test(x == y, "clos_class_of-logical-pathname");
 
-	open_broadcast_stream(&x, Nil);
+	open_broadcast_stream_(&x, Nil);
 	clos_class_of_(x, &x);
 	GetConst(CLOS_BROADCAST_STREAM, &y);
 	test(x == y, "clos_class_of-broadcast-stream");
 
-	clos_class_of_(readr("#*11011"), &x);
+	clos_class_of_(readr_debug("#*11011"), &x);
 	GetConst(CLOS_SIMPLE_BIT_VECTOR, &y);
 	test(x == y, "clos_class_of-bit-vector");
 

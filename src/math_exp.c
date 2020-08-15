@@ -15,7 +15,6 @@
  *  exp
  */
 struct mathcall_struct {
-	void (*call)(addr pos, addr *ret);
 	void (*complex_f)(single_float, single_float, single_float *, single_float *);
 	void (*complex_d)(double_float, double_float, double_float *, double_float *);
 	void (*complex_l)(long_float, long_float, long_float *, long_float *);
@@ -27,7 +26,7 @@ struct mathcall_struct {
 	int (*range_l)(long_float);
 };
 
-static void call_complex_common(struct mathcall_struct *ptr, addr pos, addr *ret)
+static int call_complex_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	single_float af, bf;
 	double_float ad, bd;
@@ -42,91 +41,85 @@ static void call_complex_common(struct mathcall_struct *ptr, addr pos, addr *ret
 			af = RefSingleFloat(real);
 			bf = RefSingleFloat(imag);
 			(ptr->complex_f)(af, bf, &af, &bf);
-			complex_single_heap(ret, af, bf);
-			break;
+			return complex_single_heap_(ret, af, bf);
 
 		case ComplexType_double:
 			ad = RefDoubleFloat(real);
 			bd = RefDoubleFloat(imag);
 			(ptr->complex_d)(ad, bd, &ad, &bd);
-			complex_double_heap(ret, ad, bd);
-			break;
+			return complex_double_heap_(ret, ad, bd);
 
 		case ComplexType_long:
 			al = RefLongFloat(real);
 			bl = RefLongFloat(imag);
 			(ptr->complex_l)(al, bl, &al, &bl);
-			complex_long_heap(ret, al, bl);
-			break;
+			return complex_long_heap_(ret, al, bl);
 
 		case ComplexType_rational:
-			af = single_float_rational(real);
-			bf = single_float_rational(imag);
+			Return(single_float_rational_(real, &af));
+			Return(single_float_rational_(imag, &bf));
 			(ptr->complex_f)(af, bf, &af, &bf);
-			complex_single_heap(ret, af, bf);
-			break;
+			return complex_single_heap_(ret, af, bf);
 
 		default:
-			TypeError(pos, COMPLEX);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, COMPLEX);
 	}
+
+	return 0;
 }
 
-static void forcef_complex_common(struct mathcall_struct *ptr,
+static int forcef_complex_common_(struct mathcall_struct *ptr,
 		single_float a, addr *ret)
 {
 	single_float real, imag;
 	(ptr->complex_f)(a, 0.0f, &real, &imag);
-	complex_single_heap(ret, real, imag);
+	return complex_single_heap_(ret, real, imag);
 }
 
-static void forced_complex_common(struct mathcall_struct *ptr,
+static int forced_complex_common_(struct mathcall_struct *ptr,
 		double_float a, addr *ret)
 {
 	double_float real, imag;
 	(ptr->complex_d)(a, 0.0, &real, &imag);
-	complex_double_heap(ret, real, imag);
+	return complex_double_heap_(ret, real, imag);
 }
 
-static void forcel_complex_common(struct mathcall_struct *ptr,
+static int forcel_complex_common_(struct mathcall_struct *ptr,
 		long_float a, addr *ret)
 {
 	long_float real, imag;
 	(ptr->complex_l)(a, 0.0L, &real, &imag);
-	complex_long_heap(ret, real, imag);
+	return complex_long_heap_(ret, real, imag);
 }
 
-_g void call_common(struct mathcall_struct *ptr, addr pos, addr *ret)
+_g int call_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	enum MathType type;
 	struct mathtype_struct str;
 
-	getmathtype_float(&str, pos, &type);
+	Return(getmathtype_float_(&str, pos, &type));
 	switch (type) {
 		case MathType_single:
-			single_float_check_heap(ret, (ptr->call_s)(str.v.s));
-			break;
+			return single_float_check_heap_(ret, (ptr->call_s)(str.v.s));
 
 		case MathType_double:
-			double_float_check_heap(ret, (ptr->call_d)(str.v.d));
-			break;
+			return double_float_check_heap_(ret, (ptr->call_d)(str.v.d));
 
 		case MathType_long:
-			long_float_check_heap(ret, (ptr->call_l)(str.v.l));
-			break;
+			return long_float_check_heap_(ret, (ptr->call_l)(str.v.l));
 
 		case MathType_complex:
-			call_complex_common(ptr, pos, ret);
-			break;
+			return call_complex_common_(ptr, pos, ret);
 
 		case MathType_error:
 		default:
-			TypeError(pos, NUMBER);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, NUMBER);
 	}
 }
 
-_g void call_range_common(struct mathcall_struct *ptr, addr pos, addr *ret)
+_g int call_range_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	enum MathType type;
 	single_float vs;
@@ -134,150 +127,143 @@ _g void call_range_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 	long_float vl;
 	struct mathtype_struct str;
 
-	getmathtype_float(&str, pos, &type);
+	Return(getmathtype_float_(&str, pos, &type));
 	switch (type) {
 		case MathType_single:
 			vs = str.v.s;
 			if ((ptr->range_f)(vs))
-				single_float_check_heap(ret, (ptr->call_s)(vs));
+				return single_float_check_heap_(ret, (ptr->call_s)(vs));
 			else
-				forcef_complex_common(ptr, vs, ret);
+				return forcef_complex_common_(ptr, vs, ret);
 			break;
 
 		case MathType_double:
 			vd = str.v.d;
 			if ((ptr->range_d)(vd))
-				double_float_check_heap(ret, (ptr->call_d)(vd));
+				return double_float_check_heap_(ret, (ptr->call_d)(vd));
 			else
-				forced_complex_common(ptr, vd, ret);
+				return forced_complex_common_(ptr, vd, ret);
 			break;
 
 		case MathType_long:
 			vl = str.v.l;
 			if ((ptr->range_l)(vl))
-				long_float_check_heap(ret, (ptr->call_l)(vl));
+				return long_float_check_heap_(ret, (ptr->call_l)(vl));
 			else
-				forcel_complex_common(ptr, vl, ret);
+				return forcel_complex_common_(ptr, vl, ret);
 			break;
 
 		case MathType_complex:
-			call_complex_common(ptr, pos, ret);
-			break;
+			return call_complex_common_(ptr, pos, ret);
 
 		case MathType_error:
 		default:
-			TypeError(pos, NUMBER);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, NUMBER);
 	}
+
+	return 0;
 }
 
-_g void exp_common(addr pos, addr *ret)
+_g int exp_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = exp_common;
 	str.complex_f = cexp_f;
 	str.complex_d = cexp_d;
 	str.complex_l = cexp_l;
 	str.call_s = expf;
 	str.call_d = exp;
 	str.call_l = expl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void sin_common(addr pos, addr *ret)
+_g int sin_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = sin_common;
 	str.complex_f = csin_f;
 	str.complex_d = csin_d;
 	str.complex_l = csin_l;
 	str.call_s = sinf;
 	str.call_d = sin;
 	str.call_l = sinl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void cos_common(addr pos, addr *ret)
+_g int cos_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = cos_common;
 	str.complex_f = ccos_f;
 	str.complex_d = ccos_d;
 	str.complex_l = ccos_l;
 	str.call_s = cosf;
 	str.call_d = cos;
 	str.call_l = cosl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void tan_common(addr pos, addr *ret)
+_g int tan_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = tan_common;
 	str.complex_f = ctan_f;
 	str.complex_d = ctan_d;
 	str.complex_l = ctan_l;
 	str.call_s = tanf;
 	str.call_d = tan;
 	str.call_l = tanl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void sinh_common(addr pos, addr *ret)
+_g int sinh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = sinh_common;
 	str.complex_f = csinh_f;
 	str.complex_d = csinh_d;
 	str.complex_l = csinh_l;
 	str.call_s = sinhf;
 	str.call_d = sinh;
 	str.call_l = sinhl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void cosh_common(addr pos, addr *ret)
+_g int cosh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = cosh_common;
 	str.complex_f = ccosh_f;
 	str.complex_d = ccosh_d;
 	str.complex_l = ccosh_l;
 	str.call_s = coshf;
 	str.call_d = cosh;
 	str.call_l = coshl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void tanh_common(addr pos, addr *ret)
+_g int tanh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = tanh_common;
 	str.complex_f = ctanh_f;
 	str.complex_d = ctanh_d;
 	str.complex_l = ctanh_l;
 	str.call_s = tanhf;
 	str.call_d = tanh;
 	str.call_l = tanhl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
 static int asinf_range(single_float v)  { return -1.0f <= v && v <= 1.0f; }
 static int asind_range(double_float v)  { return -1.0  <= v && v <= 1.0;  }
 static int asinl_range(long_float v)    { return -1.0L <= v && v <= 1.0L; }
 
-_g void asin_common(addr pos, addr *ret)
+_g int asin_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = asin_common;
 	str.complex_f = casin_f;
 	str.complex_d = casin_d;
 	str.complex_l = casin_l;
@@ -287,14 +273,13 @@ _g void asin_common(addr pos, addr *ret)
 	str.range_f = asinf_range;
 	str.range_d = asind_range;
 	str.range_l = asinl_range;
-	call_range_common(&str, pos, ret);
+	return call_range_common_(&str, pos, ret);
 }
 
-_g void acos_common(addr pos, addr *ret)
+_g int acos_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = acos_common;
 	str.complex_f = cacos_f;
 	str.complex_d = cacos_d;
 	str.complex_l = cacos_l;
@@ -304,46 +289,43 @@ _g void acos_common(addr pos, addr *ret)
 	str.range_f = asinf_range; /* asin */
 	str.range_d = asind_range; /* asin */
 	str.range_l = asinl_range; /* asin */
-	call_range_common(&str, pos, ret);
+	return call_range_common_(&str, pos, ret);
 }
 
-_g void atan_common(addr pos, addr *ret)
+_g int atan_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = atan_common;
 	str.complex_f = catan_f;
 	str.complex_d = catan_d;
 	str.complex_l = catan_l;
 	str.call_s = atanf;
 	str.call_d = atan;
 	str.call_l = atanl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
-_g void asinh_common(addr pos, addr *ret)
+_g int asinh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = asinh_common;
 	str.complex_f = casinh_f;
 	str.complex_d = casinh_d;
 	str.complex_l = casinh_l;
 	str.call_s = asinhf;
 	str.call_d = asinh;
 	str.call_l = asinhl;
-	call_common(&str, pos, ret);
+	return call_common_(&str, pos, ret);
 }
 
 static int acoshf_range(single_float v)  { return 1.0f <= v; }
 static int acoshd_range(double_float v)  { return 1.0  <= v; }
 static int acoshl_range(long_float v)    { return 1.0L <= v; }
 
-_g void acosh_common(addr pos, addr *ret)
+_g int acosh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = acosh_common;
 	str.complex_f = cacosh_f;
 	str.complex_d = cacosh_d;
 	str.complex_l = cacosh_l;
@@ -353,14 +335,13 @@ _g void acosh_common(addr pos, addr *ret)
 	str.range_f = acoshf_range;
 	str.range_d = acoshd_range;
 	str.range_l = acoshl_range;
-	call_range_common(&str, pos, ret);
+	return call_range_common_(&str, pos, ret);
 }
 
-_g void atanh_common(addr pos, addr *ret)
+_g int atanh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
-	str.call = atanh_common;
 	str.complex_f = catanh_f;
 	str.complex_d = catanh_d;
 	str.complex_l = catanh_l;
@@ -370,7 +351,7 @@ _g void atanh_common(addr pos, addr *ret)
 	str.range_f = asinf_range; /* asin */
 	str.range_d = asind_range; /* asin */
 	str.range_l = asinl_range; /* asin */
-	call_range_common(&str, pos, ret);
+	return call_range_common_(&str, pos, ret);
 }
 
 
@@ -395,7 +376,7 @@ static inline void cis_l(long_float x, long_float *Re, long_float *Im)
 	*Im = sinl(x);
 }
 
-_g void cis_common(addr pos, addr *ret)
+_g int cis_common_(addr pos, addr *ret)
 {
 	enum MathType type;
 	single_float single1, single2;
@@ -403,28 +384,25 @@ _g void cis_common(addr pos, addr *ret)
 	long_float long1, long2;
 	struct mathtype_struct str;
 
-	getmathtype_float(&str, pos, &type);
+	Return(getmathtype_float_(&str, pos, &type));
 	switch (type) {
 		case MathType_single:
 			cis_f(str.v.s, &single1, &single2);
-			complex_single_heap(ret, single1, single2);
-			break;
+			return complex_single_heap_(ret, single1, single2);
 
 		case MathType_double:
 			cis_d(str.v.d, &double1, &double2);
-			complex_double_heap(ret, double1, double2);
-			break;
+			return complex_double_heap_(ret, double1, double2);
 
 		case MathType_long:
 			cis_l(str.v.l, &long1, &long2);
-			complex_long_heap(ret, long1, long2);
-			break;
+			return complex_long_heap_(ret, long1, long2);
 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			TypeError(pos, REAL);
-			return;
+			*ret = Nil;
+			return TypeError_(pos, REAL);
 	}
 }
 
@@ -440,16 +418,13 @@ _g int atan2_common_(addr left, addr right, addr *ret)
 	Return(getmathreal2_float_(&str, left, right, &type));
 	switch (type) {
 		case MathType_single:
-			single_float_check_heap(ret, atan2f(str.v.s.a, str.v.s.b));
-			break;
+			return single_float_check_heap_(ret, atan2f(str.v.s.a, str.v.s.b));
 
 		case MathType_double:
-			double_float_check_heap(ret, atan2(str.v.d.a, str.v.d.b));
-			break;
+			return double_float_check_heap_(ret, atan2(str.v.d.a, str.v.d.b));
 
 		case MathType_long:
-			long_float_check_heap(ret, atan2l(str.v.l.a, str.v.l.b));
-			break;
+			return long_float_check_heap_(ret, atan2l(str.v.l.a, str.v.l.b));
 
 		case MathType_complex:
 		case MathType_error:
@@ -457,19 +432,14 @@ _g int atan2_common_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return fmte_("type error", NULL);
 	}
-
-	return 0;
 }
 
 _g int atan_optional_common_(addr var, addr opt, addr *ret)
 {
-	if (opt == Unbound) {
-		atan_common(var, ret);
-		return 0;
-	}
-	else {
+	if (opt == Unbound)
+		return atan_common_(var, ret);
+	else
 		return atan2_common_(var, opt, ret);
-	}
 }
 
 
@@ -488,28 +458,23 @@ static int log_natural_complex_(addr value, addr *ret)
 		case ComplexType_single:
 			Return(single_float_complex_(value, &reals, &imags));
 			clog_f(reals, imags, &reals, &imags);
-			complex_single_heap(ret, reals, imags);
-			break;
+			return complex_single_heap_(ret, reals, imags);
 
 		case ComplexType_double:
 			Return(double_float_complex_(value, &reald, &imagd));
 			clog_d(reald, imagd, &reald, &imagd);
-			complex_double_heap(ret, reald, imagd);
-			break;
+			return complex_double_heap_(ret, reald, imagd);
 
 		case ComplexType_long:
 			Return(long_float_complex_(value, &reall, &imagl));
 			clog_l(reall, imagl, &reall, &imagl);
-			complex_long_heap(ret, reall, imagl);
-			break;
+			return complex_long_heap_(ret, reall, imagl);
 
 		case ComplexType_error:
 		default:
 			*ret = Nil;
 			return TypeError_(value, COMPLEX);
 	}
-
-	return 0;
 }
 
 _g int log_natural_common_(addr value, addr *ret)
@@ -524,18 +489,15 @@ _g int log_natural_common_(addr value, addr *ret)
 	switch (type) {
 		case MathType_single:
 			clog_f(str.v.s.a, str.v.s.b, &reals, &imags);
-			complex_single_heap(ret, reals, imags);
-			break;
+			return complex_single_heap_(ret, reals, imags);
 
 		case MathType_double:
 			clog_d(str.v.d.a, str.v.d.b, &reald, &imagd);
-			complex_double_heap(ret, reald, imagd);
-			break;
+			return complex_double_heap_(ret, reald, imagd);
 
 		case MathType_long:
 			clog_l(str.v.l.a, str.v.l.b, &reall, &imagl);
-			complex_long_heap(ret, reall, imagl);
-			break;
+			return complex_long_heap_(ret, reall, imagl);
 
 		case MathType_complex:
 			return log_natural_complex_(value, ret);
@@ -546,8 +508,6 @@ _g int log_natural_common_(addr value, addr *ret)
 			*ret = Nil;
 			return fmte_("type error", NULL);
 	}
-
-	return 0;
 }
 
 _g int log_base_common_(addr value, addr base, addr *ret)
@@ -561,19 +521,16 @@ _g int log_base_common_(addr value, addr base, addr *ret)
 	Return(getmathcomplex2_float_(&str, value, base, &type));
 	switch (type) {
 		case MathType_single:
-			clogb_f(str.v.s.a, str.v.s.b, str.v.s.c, str.v.s.d, &reals, &imags);
-			complex_single_heap(ret, reals, imags);
-			break;
+			Return(clogb_f_(str.v.s.a, str.v.s.b, str.v.s.c, str.v.s.d, &reals, &imags));
+			return complex_single_heap_(ret, reals, imags);
 
 		case MathType_double:
-			clogb_d(str.v.d.a, str.v.d.b, str.v.d.c, str.v.d.d, &reald, &imagd);
-			complex_double_heap(ret, reald, imagd);
-			break;
+			Return(clogb_d_(str.v.d.a, str.v.d.b, str.v.d.c, str.v.d.d, &reald, &imagd));
+			return complex_double_heap_(ret, reald, imagd);
 
 		case MathType_long:
-			clogb_l(str.v.l.a, str.v.l.b, str.v.l.c, str.v.l.d, &reall, &imagl);
-			complex_long_heap(ret, reall, imagl);
-			break;
+			Return(clogb_l_(str.v.l.a, str.v.l.b, str.v.l.c, str.v.l.d, &reall, &imagl));
+			return complex_long_heap_(ret, reall, imagl);
 
 		case MathType_complex:
 		case MathType_rational:
@@ -582,8 +539,6 @@ _g int log_base_common_(addr value, addr base, addr *ret)
 			*ret = Nil;
 			return fmte_("type error", NULL);
 	}
-
-	return 0;
 }
 
 _g int log_common_(addr value, addr base, addr *ret)

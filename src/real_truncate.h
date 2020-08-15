@@ -4,13 +4,13 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void truncate1_common(LocalRoot local, addr *quot, addr *rem, addr left);
-_g void truncate2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-_g void truncate_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
-_g void ftruncate1_common(LocalRoot local, addr *quot, addr *rem, addr left);
-_g void ftruncate2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-_g void ftruncate_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
-_g void rem_rational_common(LocalRoot local, addr left, addr right, addr *ret);
+_g int truncate1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
+_g int truncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+_g int truncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
+_g int ftruncate1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
+_g int ftruncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+_g int ftruncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
+_g int rem_rational_common_(LocalRoot local, addr left, addr right, addr *ret);
 
 #endif
 

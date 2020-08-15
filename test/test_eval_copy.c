@@ -63,7 +63,7 @@ static int test_copy_eval_single(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readstring(&pos, "t");
+	readstring_debug(&pos, "t");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_single(NULL, &pos, pos);
 	test(! GetStatusDynamic(pos), "copy_eval_single1");
@@ -91,7 +91,7 @@ static int test_copy_nil(void)
 {
 	addr pos;
 
-	readstring(&pos, "nil");
+	readstring_debug(&pos, "nil");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_nil1");
@@ -105,7 +105,7 @@ static int test_copy_t(void)
 {
 	addr pos;
 
-	readstring(&pos, "t");
+	readstring_debug(&pos, "t");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_t1");
@@ -149,7 +149,7 @@ static int test_copy_symbol(void)
 {
 	addr pos;
 
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_symbol1");
@@ -166,7 +166,7 @@ static int test_copy_float(void)
 {
 	addr pos;
 
-	readstring(&pos, "10.5s0");
+	readstring_debug(&pos, "10.5s0");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_float1");
@@ -182,7 +182,7 @@ static int test_copy_function(void)
 {
 	addr pos;
 
-	readstring(&pos, "#'hello");
+	readstring_debug(&pos, "#'hello");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_function1");
@@ -200,7 +200,7 @@ static int test_copy_quote(void)
 {
 	addr pos;
 
-	readstring(&pos, "'hello");
+	readstring_debug(&pos, "'hello");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_quote1");
@@ -217,7 +217,7 @@ static int test_copy_go(void)
 {
 	addr pos;
 
-	readstring(&pos, "(go hello)");
+	readstring_debug(&pos, "(go hello)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_go1");
@@ -234,7 +234,7 @@ static int test_copy_declaim(void)
 {
 	addr pos;
 
-	readstring(&pos, "(declaim (special aaa))");
+	readstring_debug(&pos, "(declaim (special aaa))");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_declaim1");
@@ -254,7 +254,7 @@ static int test_copy_allcons(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readstring(&pos, "(progn 10 20 30)");
+	readstring_debug(&pos, "(progn 10 20 30)");
 	test_eval_copy_parse(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 
@@ -278,7 +278,7 @@ static int test_copy_allcons(void)
 	test(RefFixnum(check) == 30, "copy_allcons8");
 	test(pos == Nil, "copy_allcons9");
 
-	readstring(&pos, "(progn 10 20 30)");
+	readstring_debug(&pos, "(progn 10 20 30)");
 	test_eval_copy_parse(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 
@@ -299,7 +299,7 @@ static int test_copy_progn(void)
 {
 	addr pos;
 
-	readstring(&pos, "(progn 10 20 30)");
+	readstring_debug(&pos, "(progn 10 20 30)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_progn1");
@@ -314,7 +314,7 @@ static int test_copy_let(void)
 {
 	addr pos, check, var, init, sym;
 
-	readstring(&pos, "(let (a (b 100)) (declare (special a)) :hello)");
+	readstring_debug(&pos, "(let (a (b 100)) (declare (special a)) :hello)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_let1");
@@ -324,12 +324,12 @@ static int test_copy_let(void)
 	test(length_list_unsafe(check) == 2, "copy_let3");
 	GetCons(check, &var, &check);
 	GetCons(var, &var, &init);
-	readstring(&sym, "a");
+	readstring_debug(&sym, "a");
 	test(var == sym, "copy_let4");
 	test(RefEvalParseType(init) == EVAL_PARSE_NIL, "copy_let5");
 	GetCons(check, &var, &check);
 	GetCons(var, &var, &init);
-	readstring(&sym, "b");
+	readstring_debug(&sym, "b");
 	test(var == sym, "copy_let6");
 	test(RefEvalParseType(init) == EVAL_PARSE_INTEGER, "copy_let7");
 
@@ -341,7 +341,7 @@ static int test_copy_let(void)
 	GetCar(check, &check);
 	test(RefEvalParseType(check) == EVAL_PARSE_SYMBOL, "copy_let10");
 
-	readstring(&pos, "(let* (a (b 100)) (declare (special a)) :hello)");
+	readstring_debug(&pos, "(let* (a (b 100)) (declare (special a)) :hello)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(RefEvalParseType(pos) == EVAL_PARSE_LETA, "copy_let11");
@@ -353,7 +353,7 @@ static int test_copy_setq(void)
 {
 	addr pos, symbol, value, check;
 
-	readstring(&pos, "(setq aaa 10 bbb 20)");
+	readstring_debug(&pos, "(setq aaa 10 bbb 20)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_setq1");
@@ -363,7 +363,7 @@ static int test_copy_setq(void)
 
 	GetCons(pos, &symbol, &pos);
 	GetCons(symbol, &symbol, &value);
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(symbol == check, "copy_setq4");
 	test(RefEvalParseType(value) == EVAL_PARSE_INTEGER, "copy_setq5");
 	GetEvalParse(value, 0, &value);
@@ -371,7 +371,7 @@ static int test_copy_setq(void)
 
 	GetCons(pos, &symbol, &pos);
 	GetCons(symbol, &symbol, &value);
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(symbol == check, "copy_setq7");
 	test(RefEvalParseType(value) == EVAL_PARSE_INTEGER, "copy_setq8");
 	GetEvalParse(value, 0, &value);
@@ -384,7 +384,7 @@ static int test_copy_eval_ordinary_optional(void)
 {
 	addr pos, var, init, svar, check;
 
-	readstring(&pos, "(&optional aaa (bbb 10))");
+	readstring_debug(&pos, "(&optional aaa (bbb 10))");
 	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
 	getnth_abort(pos, 1, &pos);
@@ -394,7 +394,7 @@ static int test_copy_eval_ordinary_optional(void)
 	GetCons(svar, &var, &svar);
 	GetCons(svar, &init, &svar);
 	GetCar(svar, &svar);
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(var == check, "copy_eval_ordinary_optional2");
 	test(RefEvalParseType(init) == EVAL_PARSE_NIL, "copy_eval_ordinary_optional3");
 	test(svar == Nil, "copy_eval_ordinary_optional4");
@@ -403,7 +403,7 @@ static int test_copy_eval_ordinary_optional(void)
 	GetCons(svar, &var, &svar);
 	GetCons(svar, &init, &svar);
 	GetCar(svar, &svar);
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(var == check, "copy_eval_ordinary_optional5");
 	test(RefEvalParseType(init) == EVAL_PARSE_INTEGER, "copy_eval_ordinary_optional6");
 
@@ -414,7 +414,7 @@ static int test_copy_eval_ordinary_key(void)
 {
 	addr pos, var, name, init, svar, check;
 
-	readstring(&pos, "(&key aaa ((name bbb) 10 ddd))");
+	readstring_debug(&pos, "(&key aaa ((name bbb) 10 ddd))");
 	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
 	getnth_abort(pos, 3, &pos);
@@ -425,9 +425,9 @@ static int test_copy_eval_ordinary_key(void)
 	GetCons(svar, &name, &svar);
 	GetCons(svar, &init, &svar);
 	GetCar(svar, &svar);
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(var == check, "copy_eval_ordinary_key2");
-	readstring(&check, ":aaa");
+	readstring_debug(&check, ":aaa");
 	test(name == check, "copy_eval_ordinary_key3");
 	test(RefEvalParseType(init) == EVAL_PARSE_NIL, "copy_eval_ordinary_key4");
 	test(svar == Nil, "copy_eval_ordinary_key5");
@@ -437,12 +437,12 @@ static int test_copy_eval_ordinary_key(void)
 	GetCons(svar, &name, &svar);
 	GetCons(svar, &init, &svar);
 	GetCar(svar, &svar);
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(var == check, "copy_eval_ordinary_key6");
-	readstring(&check, "name");
+	readstring_debug(&check, "name");
 	test(name == check, "copy_eval_ordinary_key7");
 	test(RefEvalParseType(init) == EVAL_PARSE_INTEGER, "copy_eval_ordinary_key8");
-	readstring(&check, "ddd");
+	readstring_debug(&check, "ddd");
 	test(svar == check, "copy_eval_ordinary_key9");
 
 	RETURN;
@@ -452,7 +452,7 @@ static int test_copy_eval_ordinary_aux(void)
 {
 	addr pos, var, init, check;
 
-	readstring(&pos, "(&aux aaa (bbb 10))");
+	readstring_debug(&pos, "(&aux aaa (bbb 10))");
 	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
 	getnth_abort(pos, 5, &pos);
@@ -461,14 +461,14 @@ static int test_copy_eval_ordinary_aux(void)
 	GetCons(pos, &init, &pos);
 	GetCons(init, &var, &init);
 	GetCar(init, &init);
-	readstring(&check, "aaa");
+	readstring_debug(&check, "aaa");
 	test(var == check, "copy_eval_ordinary_aux2");
 	test(RefEvalParseType(init) == EVAL_PARSE_NIL, "copy_eval_ordinary_aux3");
 
 	GetCons(pos, &init, &pos);
 	GetCons(init, &var, &init);
 	GetCar(init, &init);
-	readstring(&check, "bbb");
+	readstring_debug(&check, "bbb");
 	test(var == check, "copy_eval_ordinary_aux4");
 	test(RefEvalParseType(init) == EVAL_PARSE_INTEGER, "copy_eval_ordinary_aux5");
 
@@ -479,31 +479,31 @@ static int test_copy_eval_ordinary(void)
 {
 	addr pos, var, check;
 
-	readstring(&pos, "(aa &optional bb &rest cc &key dd &allow-other-keys &aux ee)");
+	readstring_debug(&pos, "(aa &optional bb &rest cc &key dd &allow-other-keys &aux ee)");
 	test_eval_copy_ordinary(&pos, pos);
 	copy_eval_ordinary(NULL, &pos, pos);
 	/* var */
 	GetCons(pos, &var, &pos);
 	test(length_list_unsafe(var) == 1, "copy_eval_ordinary1");
 	GetCar(var, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_eval_ordinary2");
 	/* optional */
 	GetCons(pos, &var, &pos);
 	test(length_list_unsafe(var) == 1, "copy_eval_ordinary3");
 	GetCar(var, &var);
 	GetCar(var, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	/* rest */
 	GetCons(pos, &var, &pos);
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	test(var == check, "copy_eval_ordinary5");
 	/* key */
 	GetCons(pos, &var, &pos);
 	test(length_list_unsafe(var) == 1, "copy_eval_ordinary6");
 	GetCar(var, &var);
 	GetCar(var, &var);
-	readstring(&check, "dd");
+	readstring_debug(&check, "dd");
 	test(var == check, "copy_eval_ordinary7");
 	/* allow-other-keys */
 	GetCons(pos, &var, &pos);
@@ -513,7 +513,7 @@ static int test_copy_eval_ordinary(void)
 	test(length_list_unsafe(var) == 1, "copy_eval_ordinary9");
 	GetCar(var, &var);
 	GetCar(var, &var);
-	readstring(&check, "ee");
+	readstring_debug(&check, "ee");
 	test(var == check, "copy_eval_ordinary10");
 
 	RETURN;
@@ -523,7 +523,7 @@ static int test_copy_defun(void)
 {
 	addr pos, symbol, check;
 
-	readstring(&pos, "(defun aa (bb) (declare (special cc)) \"DOC\" 10 20)");
+	readstring_debug(&pos, "(defun aa (bb) (declare (special cc)) \"DOC\" 10 20)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_defun1");
@@ -532,13 +532,13 @@ static int test_copy_defun(void)
 	GetEvalParse(pos, 0, &symbol);
 	test(GetType(symbol) == LISPTYPE_CALLNAME, "copy_defun3");
 	GetCallName(symbol, &symbol);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(symbol == check, "copy_defun4");
 	/* args */
 	GetEvalParse(pos, 1, &symbol);
 	GetCar(symbol, &symbol);
 	GetCar(symbol, &symbol);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(symbol == check, "copy_defun5");
 	/* decl */
 	GetEvalParse(pos, 2, &symbol);
@@ -558,7 +558,7 @@ static int test_copy_lambda(void)
 {
 	addr pos, symbol, check;
 
-	readstring(&pos, "#'(lambda (bb) (declare (special cc)) \"DOC\" 10 20)");
+	readstring_debug(&pos, "#'(lambda (bb) (declare (special cc)) \"DOC\" 10 20)");
 	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_lambda1");
@@ -567,7 +567,7 @@ static int test_copy_lambda(void)
 	GetEvalParse(pos, 0, &symbol);
 	GetCar(symbol, &symbol);
 	GetCar(symbol, &symbol);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(symbol == check, "copy_lambda3");
 	/* decl */
 	GetEvalParse(pos, 1, &symbol);
@@ -589,7 +589,7 @@ static int test_copy_if(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(if aa bb cc)");
+	readstring_debug(&check, "(if aa bb cc)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_if1");
@@ -599,19 +599,19 @@ static int test_copy_if(void)
 	GetEvalParse(pos, 0, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_if4");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_if5");
 	/* then */
 	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_if6");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_if7");
 	/* last  */
 	GetEvalParse(pos, 2, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_if8");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	test(var == check, "copy_if9");
 
 	RETURN;
@@ -621,7 +621,7 @@ static int test_copy_unwind_protect(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(unwind-protect aa bb cc)");
+	readstring_debug(&check, "(unwind-protect aa bb cc)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_unwind_protect1");
@@ -631,7 +631,7 @@ static int test_copy_unwind_protect(void)
 	GetEvalParse(pos, 0, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_unwind_protect4");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_unwind_protect5");
 	/* cons */
 	GetEvalParse(pos, 1, &var);
@@ -639,7 +639,7 @@ static int test_copy_unwind_protect(void)
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_unwind_protect7");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_unwind_protect8");
 
 	RETURN;
@@ -649,7 +649,7 @@ static int test_copy_tagbody(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(tagbody aa (progn) (hello) cc)");
+	readstring_debug(&check, "(tagbody aa (progn) (hello) cc)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_tagbody1");
@@ -661,7 +661,7 @@ static int test_copy_tagbody(void)
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_TAG, "copy_tagbody5");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_tagbody7");
 	/* cons */
 	GetEvalParse(pos, 1, &var);
@@ -677,7 +677,7 @@ static int test_copy_tag(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(tagbody aa bb cc)");
+	readstring_debug(&check, "(tagbody aa bb cc)");
 	test_eval_copy_parse(&check, check);
 	GetEvalParse(check, 0, &check);
 	GetCar(check, &check); /* tag aa */
@@ -687,7 +687,7 @@ static int test_copy_tag(void)
 	test(RefEvalParseType(pos) == EVAL_PARSE_TAG, "copy_tag3");
 	/* tag */
 	GetEvalParse(pos, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_tag4");
 
 	RETURN
@@ -697,7 +697,7 @@ static int test_copy_block(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(block aa bb cc)");
+	readstring_debug(&check, "(block aa bb cc)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_block1");
@@ -705,7 +705,7 @@ static int test_copy_block(void)
 	test(RefEvalParseType(pos) == EVAL_PARSE_BLOCK, "copy_block3");
 	/* name */
 	GetEvalParse(pos, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_block4");
 	/* cons */
 	GetEvalParse(pos, 1, &var);
@@ -713,7 +713,7 @@ static int test_copy_block(void)
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_block6");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_block7");
 
 	RETURN;
@@ -723,7 +723,7 @@ static int test_copy_return_from(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(return-from aa bb)");
+	readstring_debug(&check, "(return-from aa bb)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_return_from1");
@@ -731,13 +731,13 @@ static int test_copy_return_from(void)
 	test(RefEvalParseType(pos) == EVAL_PARSE_RETURN_FROM, "copy_return_from3");
 	/* name */
 	GetEvalParse(pos, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_return_from4");
 	/* value */
 	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_return_from5");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_return_from6");
 
 	RETURN;
@@ -747,7 +747,7 @@ static int test_copy_catch(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(catch aa bb cc)");
+	readstring_debug(&check, "(catch aa bb cc)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_catch1");
@@ -757,7 +757,7 @@ static int test_copy_catch(void)
 	GetEvalParse(pos, 0, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_catch4");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_catch5");
 	/* cons */
 	GetEvalParse(pos, 1, &var);
@@ -765,7 +765,7 @@ static int test_copy_catch(void)
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_catch7");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_catch8");
 
 	RETURN;
@@ -775,7 +775,7 @@ static int test_copy_throw(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(throw aa bb)");
+	readstring_debug(&check, "(throw aa bb)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_throw1");
@@ -785,13 +785,13 @@ static int test_copy_throw(void)
 	GetEvalParse(pos, 0, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_throw4");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_throw5");
 	/* cons */
 	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_throw6");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_throw7");
 
 	RETURN;
@@ -801,7 +801,7 @@ static int test_copy_eval_flet_one(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(flet ((aa (bb) (declare (special bb)) \"HELLO\" :hello)))");
+	readstring_debug(&check, "(flet ((aa (bb) (declare (special bb)) \"HELLO\" :hello)))");
 	test_eval_copy_parse(&check, check);
 	GetEvalParse(check, 0, &check); /* args */
 	GetCar(check, &check);
@@ -811,13 +811,13 @@ static int test_copy_eval_flet_one(void)
 	GetCons(pos, &var, &pos);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_eval_flet_one2");
 	GetCallName(var, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_eval_flet_one3");
 	/* args */
 	GetCons(pos, &var, &pos);
 	GetCar(var, &var);
 	GetCar(var, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_eval_flet_one4");
 	/* decl */
 	GetCons(pos, &var, &pos);
@@ -838,7 +838,7 @@ static int test_copy_eval_flet_args(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(flet ((aa () :aa) (bb (b) :bb)) :hello)");
+	readstring_debug(&check, "(flet ((aa () :aa) (bb (b) :bb)) :hello)");
 	test_eval_copy_parse(&check, check);
 	GetEvalParse(check, 0, &check); /* args */
 	copy_eval_flet_args(NULL, &pos, check);
@@ -849,14 +849,14 @@ static int test_copy_eval_flet_args(void)
 	GetCar(var, &var);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_eval_flet_args3");
 	GetCallName(var, &var);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(var == check, "copy_eval_flet_args4");
 	/* bb */
 	GetCons(pos, &var, &pos);
 	GetCar(var, &var);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_eval_flet_args5");
 	GetCallName(var, &var);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(var == check, "copy_eval_flet_args6");
 
 	RETURN;
@@ -867,7 +867,7 @@ static int test_copy_eval_flet(void)
 	addr pos, var, check;
 
 	/* flet */
-	readstring(&check, "(flet ((aa () :aa)) (declare (special bb)) :hello)");
+	readstring_debug(&check, "(flet ((aa () :aa)) (declare (special bb)) :hello)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_eval_flet1");
@@ -885,11 +885,11 @@ static int test_copy_eval_flet(void)
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_eval_flet7");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, ":hello");
+	readstring_debug(&check, ":hello");
 	test(var == check, "copy_eval_flet8");
 
 	/* labels */
-	readstring(&check, "(labels ((aa () :aa) (bb (cc) dd)) :hello)");
+	readstring_debug(&check, "(labels ((aa () :aa) (bb (cc) dd)) :hello)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_eval_flet9");
@@ -906,7 +906,7 @@ static int test_copy_the(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(the integer (progn aa bb cc))");
+	readstring_debug(&check, "(the integer (progn aa bb cc))");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_the1");
@@ -927,7 +927,7 @@ static int test_copy_eval_when(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(eval-when (eval compile) :hello1 :hello2)");
+	readstring_debug(&check, "(eval-when (eval compile) :hello1 :hello2)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_eval_when1");
@@ -939,7 +939,7 @@ static int test_copy_eval_when(void)
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_eval_when5");
 	GetEvalParse(var, 0, &var);
-	readstring(&check, ":hello1");
+	readstring_debug(&check, ":hello1");
 	test(var == check, "copy_eval_when6");
 	/* compilep */
 	GetEvalParse(pos, 1, &var);
@@ -958,7 +958,7 @@ static int test_copy_values(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(values 10 20 30)");
+	readstring_debug(&check, "(values 10 20 30)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_values1");
@@ -979,7 +979,7 @@ static int test_copy_locally(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(locally (declare (special a)) 10 20)");
+	readstring_debug(&check, "(locally (declare (special a)) 10 20)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_locally1");
@@ -1003,7 +1003,7 @@ static int test_copy_call(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(hello 10 20)");
+	readstring_debug(&check, "(hello 10 20)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_call1");
@@ -1015,7 +1015,7 @@ static int test_copy_call(void)
 	GetEvalParse(var, 0, &var);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_call5");
 	GetCallName(var, &var);
-	readstring(&check, "hello");
+	readstring_debug(&check, "hello");
 	test(var == check, "copy_call6");
 	/* cons */
 	GetEvalParse(pos, 1, &var);
@@ -1032,7 +1032,7 @@ static int test_copy_multiple_value_bind(void)
 {
 	addr check, pos;
 
-	readstring(&check, "(multiple-value-bind (a b c) (call) 10 20 30)");
+	readstring_debug(&check, "(multiple-value-bind (a b c) (call) 10 20 30)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_multiple_value_bind1");
@@ -1047,7 +1047,7 @@ static int test_copy_multiple_value_call(void)
 {
 	addr pos, var, check;
 
-	readstring(&check, "(multiple-value-call #'hello 10 20)");
+	readstring_debug(&check, "(multiple-value-call #'hello 10 20)");
 	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_multiple_value_call1");
@@ -1060,7 +1060,7 @@ static int test_copy_multiple_value_call(void)
 	GetEvalParse(var, 0, &var);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_multiple_value_call5");
 	GetCallName(var, &var);
-	readstring(&check, "hello");
+	readstring_debug(&check, "hello");
 	test(var == check, "copy_multiple_value_call6");
 	/* cons */
 	GetEvalParse(pos, 1, &var);

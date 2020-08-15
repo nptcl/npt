@@ -118,7 +118,7 @@ static int make_hash_table_rehash_size_common(addr rest,
 		return 0;
 	}
 	else {
-		valuef = cast_double_float_unsafe(pos);
+		Return(cast_double_float_unsafe_(pos, &valuef));
 		if (valuef <= 1.0) {
 			*floatp = 0;
 			*rehashf = 0;
@@ -143,7 +143,7 @@ static int make_hash_table_rehash_threshold_common(addr rest, double_float *ret)
 		value = HASHTABLE_REHASH_THRESHOLD_DEFAULT;
 	}
 	else {
-		value = cast_double_float_unsafe(pos);
+		Return(cast_double_float_unsafe_(pos, &value));
 		if (value < 0.0 || 1.0 < value) {
 			*ret = 0.0;
 			return fmte_("rehash-threshold ~S "

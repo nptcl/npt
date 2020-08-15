@@ -184,31 +184,28 @@ _g void build_real(void)
 /*
  *  common-lisp
  */
-static void unbound_float_cast(addr *ret, addr pos)
+static int unbound_float_cast_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 			single_float_fixnum_heap(ret, pos);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
-			single_float_bignum_heap(ret, pos);
-			break;
+			return single_float_bignum_heap_(ret, pos);
 
 		case LISPTYPE_RATIO:
-			single_float_heap(ret, single_float_ratio(pos));
-			break;
+			return single_float_ratio_heap_(ret, pos);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
 		case LISPTYPE_DOUBLE_FLOAT:
 		case LISPTYPE_LONG_FLOAT:
-			*ret = pos;
-			break;
+			return Result(ret, pos);
 
 		default:
-			TypeError(pos, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, REAL);
 	}
 }
 
@@ -254,7 +251,7 @@ static void double_from_long_cast(addr *ret, addr pos)
 	double_float_heap(ret, (double_float)v);
 }
 
-static void single_float_cast(addr *ret, addr pos)
+static int single_float_cast_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -262,12 +259,10 @@ static void single_float_cast(addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			single_float_bignum_heap(ret, pos);
-			break;
+			return single_float_bignum_heap_(ret, pos);
 
 		case LISPTYPE_RATIO:
-			single_float_heap(ret, single_float_ratio(pos));
-			break;
+			return single_float_ratio_heap_(ret, pos);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -283,12 +278,14 @@ static void single_float_cast(addr *ret, addr pos)
 			break;
 
 		default:
-			TypeError(pos, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-static void double_float_cast(addr *ret, addr pos)
+static int double_float_cast_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -296,12 +293,10 @@ static void double_float_cast(addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			double_float_bignum_heap(ret, pos);
-			break;
+			return double_float_bignum_heap_(ret, pos);
 
 		case LISPTYPE_RATIO:
-			double_float_heap(ret, double_float_ratio(pos));
-			break;
+			return double_float_ratio_heap_(ret, pos);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -317,12 +312,14 @@ static void double_float_cast(addr *ret, addr pos)
 			break;
 
 		default:
-			TypeError(pos, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-static void long_float_cast(addr *ret, addr pos)
+static int long_float_cast_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -330,12 +327,10 @@ static void long_float_cast(addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			long_float_bignum_heap(ret, pos);
-			break;
+			return long_float_bignum_heap_(ret, pos);
 
 		case LISPTYPE_RATIO:
-			long_float_heap(ret, long_float_ratio(pos));
-			break;
+			return long_float_ratio_heap_(ret, pos);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -351,34 +346,32 @@ static void long_float_cast(addr *ret, addr pos)
 			break;
 
 		default:
-			TypeError(pos, REAL);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, REAL);
 	}
+
+	return 0;
 }
 
-_g void float_common(addr *ret, addr pos, addr type)
+_g int float_common_(addr *ret, addr pos, addr type)
 {
-	if (type == Unbound) {
-		unbound_float_cast(ret, pos);
-		return;
-	}
+	if (type == Unbound)
+		return unbound_float_cast_(ret, pos);
+
 	switch (GetType(type)) {
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			single_float_cast(ret, pos);
-			break;
+			return single_float_cast_(ret, pos);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			double_float_cast(ret, pos);
-			break;
+			return double_float_cast_(ret, pos);
 
 		case LISPTYPE_LONG_FLOAT:
-			long_float_cast(ret, pos);
-			break;
+			return long_float_cast_(ret, pos);
 
 		default:
-			TypeError(type, FLOAT);
-			break;
+			*ret = Nil;
+			return TypeError_(type, FLOAT);
 	}
 }
 

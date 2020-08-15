@@ -8,16 +8,16 @@ _g void build_real(void);
 _g int floatp(addr pos);
 _g int realp(addr pos);
 
-_g void real_result_local(LocalRoot local, addr pos, addr *ret);
-_g void real_result_heap(LocalRoot local, addr pos, addr *ret);
-_g void real_throw_alloc(LocalRoot local, addr pos, addr *ret);
-_g void real_throw_local(LocalRoot local, addr pos, addr *ret);
-_g void real_throw_heap(addr pos, addr *ret);
-_g void real_copy_alloc(LocalRoot local, addr pos, addr *ret);
-_g void real_copy_local(LocalRoot local, addr pos, addr *ret);
-_g void real_copy_heap(addr pos, addr *ret);
+_g int real_result_local_(LocalRoot local, addr pos, addr *ret);
+_g int real_result_heap_(LocalRoot local, addr pos, addr *ret);
+_g int real_throw_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int real_throw_local_(LocalRoot local, addr pos, addr *ret);
+_g int real_throw_heap_(addr pos, addr *ret);
+_g int real_copy_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int real_copy_local_(LocalRoot local, addr pos, addr *ret);
+_g int real_copy_heap_(addr pos, addr *ret);
 
-_g double_float cast_double_float_unsafe(addr value);
+_g int cast_double_float_unsafe_(addr value, double_float *ret);
 
 #endif
 

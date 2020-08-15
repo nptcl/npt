@@ -210,10 +210,8 @@ _g int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
  */
 static int restart_function_use_function(Execute ptr, addr value)
 {
-	if (! functionp(value)) {
-		TypeError(value, FUNCTION);
-		return 0;
-	}
+	if (! functionp(value))
+		return TypeError_(value, FUNCTION);
 	setresult_control(ptr, value);
 
 	return 0;

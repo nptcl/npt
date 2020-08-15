@@ -20,7 +20,7 @@ _g void long_float_negative_epsilon(addr *ret);
 _g void build_real(void);
 
 /* common-lisp */
-_g void float_common(addr *ret, addr var, addr type);
+_g int float_common_(addr *ret, addr var, addr type);
 
 #endif
 

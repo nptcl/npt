@@ -117,6 +117,7 @@ static int typelist_member(Execute ptr, addr *ret,
 static int typelist_mod(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
 {
+	int check;
 	addr pos, list;
 
 	if (! consp(right))
@@ -126,7 +127,8 @@ static int typelist_mod(Execute ptr, addr *ret,
 		return fmte_("~A arguments ~S must be one integer.", right, NULL);
 	if (! integerp(pos))
 		return fmte_("~A argument ~S must be an integer type.", left, pos, NULL);
-	if (! plusp_integer(pos))
+	Return(plusp_integer_(pos, &check));
+	if (! check)
 		return fmte_("~A argument ~S must be a plus integer.", left, pos, NULL);
 	copyheap(&pos, pos);
 	type1_heap(type, pos, ret);
@@ -637,8 +639,9 @@ static int typelist_array(Execute ptr, addr *ret,
 			Return(parse_array_second(&second, second));
 		}
 	}
-	if (! type_asterisk_p(first))
-		upgraded_array_type(first, &first);
+	if (! type_asterisk_p(first)) {
+		Return(upgraded_array_type_(first, &first));
+	}
 	type2_heap(type, first, second, ret);
 	return 0;
 
@@ -692,8 +695,9 @@ static int typelist_vector(Execute ptr, addr *ret,
 			Return(parse_array_fixnum_check(&second, second));
 		}
 	}
-	if (! type_asterisk_p(first))
-		upgraded_array_type(first, &first);
+	if (! type_asterisk_p(first)) {
+		Return(upgraded_array_type_(first, &first));
+	}
 	type2_heap(type, first, second, ret);
 	return 0;
 
@@ -947,10 +951,19 @@ static int typelist_long(Execute ptr, addr *ret,
  */
 static int type_byte_integer_check(addr *ret, addr pos)
 {
-	if (GetType(pos) != LISPTYPE_FIXNUM || (! plusp_integer(pos)))
-		return fmte_("The imension value ~S must be a positive integer.", pos, NULL);
+	int check;
+
+	if (GetType(pos) != LISPTYPE_FIXNUM)
+		goto error;
+	Return(plusp_integer_(pos, &check));
+	if (! check)
+		goto error;
 	copyheap(ret, pos);
 	return 0;
+
+error:
+	*ret = Nil;
+	return fmte_("The imension value ~S must be a positive integer.", pos, NULL);
 }
 
 static int typelist_byte(Execute ptr, addr *ret,

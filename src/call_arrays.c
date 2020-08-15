@@ -140,6 +140,7 @@ _g int setf_aref_common(addr value, addr var, addr rest)
  */
 static int array_array_dimension_common(addr array, addr axis, addr *ret)
 {
+	int check;
 	struct array_struct *str;
 	size_t index, dimension;
 
@@ -150,7 +151,8 @@ static int array_array_dimension_common(addr array, addr axis, addr *ret)
 		return fmte_("The array have no dimension.", NULL);
 
 	if (GetIndex_integer(axis, &index)) {
-		if (minusp_integer(axis))
+		Return(minusp_integer_(axis, &check));
+		if (check)
 			return fmte_("Index ~A must be a non-negative integer.", axis, NULL);
 		else
 			return fmte_("Index ~A is too large.", axis, NULL);

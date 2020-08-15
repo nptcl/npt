@@ -316,7 +316,7 @@ static void defun_zerop(void)
  */
 static int function_floor(Execute ptr, addr var, addr div)
 {
-	floor_common(ptr->local, var, div, &var, &div);
+	Return(floor_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -345,7 +345,7 @@ static void defun_floor(void)
  */
 static int function_ffloor(Execute ptr, addr var, addr div)
 {
-	ffloor_common(ptr->local, var, div, &var, &div);
+	Return(ffloor_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -374,7 +374,7 @@ static void defun_ffloor(void)
  */
 static int function_ceiling(Execute ptr, addr var, addr div)
 {
-	ceiling_common(ptr->local, var, div, &var, &div);
+	Return(ceiling_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -403,7 +403,7 @@ static void defun_ceiling(void)
  */
 static int function_fceiling(Execute ptr, addr var, addr div)
 {
-	fceiling_common(ptr->local, var, div, &var, &div);
+	Return(fceiling_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -432,7 +432,7 @@ static void defun_fceiling(void)
  */
 static int function_truncate(Execute ptr, addr var, addr div)
 {
-	truncate_common(ptr->local, var, div, &var, &div);
+	Return(truncate_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -461,7 +461,7 @@ static void defun_truncate(void)
  */
 static int function_ftruncate(Execute ptr, addr var, addr div)
 {
-	ftruncate_common(ptr->local, var, div, &var, &div);
+	Return(ftruncate_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -490,7 +490,7 @@ static void defun_ftruncate(void)
  */
 static int function_round(Execute ptr, addr var, addr div)
 {
-	round_common(ptr->local, var, div, &var, &div);
+	Return(round_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -519,7 +519,7 @@ static void defun_round(void)
  */
 static int function_fround(Execute ptr, addr var, addr div)
 {
-	fround_common(ptr->local, var, div, &var, &div);
+	Return(fround_common_(ptr->local, var, div, &var, &div));
 	setvalues_control(ptr, var, div, NULL);
 	return 0;
 }
@@ -543,7 +543,7 @@ static void defun_fround(void)
 /* (defun cis (real) ...) -> number */
 static int function_cis(Execute ptr, addr var)
 {
-	cis_common(var, &var);
+	Return(cis_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -577,7 +577,7 @@ static void defun_cis(void)
 /* (defun sin (number) ...) -> number */
 static int function_sin(Execute ptr, addr var)
 {
-	sin_common(var, &var);
+	Return(sin_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -601,7 +601,7 @@ static void defun_sin(void)
 /* (defun cos (number) ...) -> number */
 static int function_cos(Execute ptr, addr var)
 {
-	cos_common(var, &var);
+	Return(cos_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -625,7 +625,7 @@ static void defun_cos(void)
 /* (defun tan (number) ...) -> number */
 static int function_tan(Execute ptr, addr var)
 {
-	tan_common(var, &var);
+	Return(tan_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -649,7 +649,7 @@ static void defun_tan(void)
 /* (defun sinh (number) ...) -> number */
 static int function_sinh(Execute ptr, addr var)
 {
-	sinh_common(var, &var);
+	Return(sinh_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -673,7 +673,7 @@ static void defun_sinh(void)
 /* (defun cosh (number) ...) -> number */
 static int function_cosh(Execute ptr, addr var)
 {
-	cosh_common(var, &var);
+	Return(cosh_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -697,7 +697,7 @@ static void defun_cosh(void)
 /* (defun tanh (number) ...) -> number */
 static int function_tanh(Execute ptr, addr var)
 {
-	tanh_common(var, &var);
+	Return(tanh_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -721,7 +721,7 @@ static void defun_tanh(void)
 /* (defun asin (number) ...) -> number */
 static int function_asin(Execute ptr, addr var)
 {
-	asin_common(var, &var);
+	Return(asin_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -745,7 +745,7 @@ static void defun_asin(void)
 /* (defun acos (number) ...) -> number */
 static int function_acos(Execute ptr, addr var)
 {
-	acos_common(var, &var);
+	Return(acos_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -804,7 +804,7 @@ static void defun_atan(void)
 /* (defun asinh (number) ...) -> number */
 static int function_asinh(Execute ptr, addr var)
 {
-	asinh_common(var, &var);
+	Return(asinh_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -828,7 +828,7 @@ static void defun_asinh(void)
 /* (defun acosh (number) ...) -> number */
 static int function_acosh(Execute ptr, addr var)
 {
-	acosh_common(var, &var);
+	Return(acosh_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -852,7 +852,7 @@ static void defun_acosh(void)
 /* (defun atanh (number) ...) -> number */
 static int function_atanh(Execute ptr, addr var)
 {
-	atanh_common(var, &var);
+	Return(atanh_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -876,7 +876,7 @@ static void defun_atanh(void)
 /* (defun exp (number) ...) -> number */
 static int function_exp(Execute ptr, addr var)
 {
-	exp_common(var, &var);
+	Return(exp_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1117,7 +1117,11 @@ static void defun_abs(void)
 /* (defun evenp (integer) ...) -> boolean */
 static int function_evenp(Execute ptr, addr var)
 {
-	setbool_control(ptr, evenp_integer(var));
+	int check;
+
+	Return(evenp_integer_(var, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -1140,7 +1144,11 @@ static void defun_evenp(void)
 /* (defun oddp (integer) ...) -> boolean */
 static int function_oddp(Execute ptr, addr var)
 {
-	setbool_control(ptr, ! evenp_integer(var));
+	int check;
+
+	Return(evenp_integer_(var, &check));
+	setbool_control(ptr, ! check);
+
 	return 0;
 }
 
@@ -1395,7 +1403,7 @@ static void defun_sqrt(void)
  */
 static int function_isqrt(Execute ptr, addr var)
 {
-	isqrt_number_common(ptr->local, var, &var);
+	Return(isqrt_number_common_(ptr->local, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1688,7 +1696,7 @@ static void defun_phase(void)
 /* (defun realpart (number) ...) -> real */
 static int function_realpart(Execute ptr, addr var)
 {
-	realpart_common(var, &var);
+	Return(realpart_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1712,7 +1720,7 @@ static void defun_realpart(void)
 /* (defun imagpart (number) ...) -> real */
 static int function_imagpart(Execute ptr, addr var)
 {
-	imagpart_common(var, &var);
+	Return(imagpart_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1788,7 +1796,7 @@ static void defun_realp(void)
 /* (defun numerator (rational) ...) -> integer */
 static int function_numerator(Execute ptr, addr var)
 {
-	numerator_common(var, &var);
+	Return(numerator_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1822,7 +1830,7 @@ static void defun_numerator(void)
 /* (defun denominator (rational) ...) -> positive-integer */
 static int function_denominator(Execute ptr, addr var)
 {
-	denominator_common(var, &var);
+	Return(denominator_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1975,7 +1983,7 @@ static void defun_ash(void)
  */
 static int function_integer_length(Execute ptr, addr var)
 {
-	integer_length_common(var, &var);
+	Return(integer_length_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2092,7 +2100,7 @@ static void defun_parse_integer(void)
 /* (defun boole (op integer1 integer2) ...) -> integer */
 static int function_boole(Execute ptr, addr op, addr a, addr b)
 {
-	boole_common(ptr->local, op, a, b, &a);
+	Return(boole_common_(ptr->local, op, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2152,7 +2160,7 @@ static void defun_logand(void)
 /* (defun logandc1 (integer integer) ...) -> integer */
 static int function_logandc1(Execute ptr, addr a, addr b)
 {
-	logandc1_common(ptr->local, a, b, &a);
+	Return(logandc1_common_(ptr->local, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2176,7 +2184,7 @@ static void defun_logandc1(void)
 /* (defun logandc2 (integer integer) ...) -> integer */
 static int function_logandc2(Execute ptr, addr a, addr b)
 {
-	logandc2_common(ptr->local, a, b, &a);
+	Return(logandc2_common_(ptr->local, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2248,7 +2256,7 @@ static void defun_logior(void)
 /* (defun lognand (integer integer) ...) -> integer */
 static int function_lognand(Execute ptr, addr a, addr b)
 {
-	lognand_common(ptr->local, a, b, &a);
+	Return(lognand_common_(ptr->local, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2272,7 +2280,7 @@ static void defun_lognand(void)
 /* (defun lognor (integer integer) ...) -> integer */
 static int function_lognor(Execute ptr, addr a, addr b)
 {
-	lognor_common(ptr->local, a, b, &a);
+	Return(lognor_common_(ptr->local, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2296,7 +2304,7 @@ static void defun_lognor(void)
 /* (defun lognot (integer) ...) -> integer */
 static int function_lognot(Execute ptr, addr a)
 {
-	lognot_common(ptr->local, a, &a);
+	Return(lognot_common_(ptr->local, a, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2330,7 +2338,7 @@ static void defun_lognot(void)
 /* (defun logorc1 (integer integer) ...) -> integer */
 static int function_logorc1(Execute ptr, addr a, addr b)
 {
-	logorc1_common(ptr->local, a, b, &a);
+	Return(logorc1_common_(ptr->local, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2354,7 +2362,7 @@ static void defun_logorc1(void)
 /* (defun logorc2 (integer integer) ...) -> integer */
 static int function_logorc2(Execute ptr, addr a, addr b)
 {
-	logorc2_common(ptr->local, a, b, &a);
+	Return(logorc2_common_(ptr->local, a, b, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -2406,8 +2414,11 @@ static void defun_logxor(void)
  */
 static int function_logbitp(Execute ptr, addr index, addr pos)
 {
-	int check = logbitp_common(index, pos);
+	int check;
+
+	Return(logbitp_common_(index, pos, &check));
 	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -2441,8 +2452,11 @@ static void defun_logbitp(void)
 /* (defun logcount (integer) ...) -> (integer 0 *) */
 static int function_logcount(Execute ptr, addr pos)
 {
-	size_t size = logcount_common(pos);
+	size_t size;
+
+	Return(logcount_common_(pos, &size));
 	setresult_control(ptr, intsizeh(size));
+
 	return 0;
 }
 
@@ -2475,8 +2489,11 @@ static void defun_logcount(void)
 /* (defun logtest (integer integer) ...) -> boolean */
 static int function_logtest(Execute ptr, addr left, addr right)
 {
-	int check = logtest_common(ptr->local, left, right);
+	int check;
+
+	Return(logtest_common_(ptr->local, left, right, &check));
 	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -2601,7 +2618,7 @@ static void defun_byte_position(void)
  */
 static int function_deposit_field(Execute ptr, addr left, addr spec, addr right)
 {
-	deposit_field_common(ptr->local, &left, left, spec, right);
+	Return(deposit_field_common_(ptr->local, &left, left, spec, right));
 	setresult_control(ptr, left);
 	return 0;
 }
@@ -2625,7 +2642,7 @@ static void defun_deposit_field(void)
 /* (defun dpb (integer bytespec integer) ...) -> integer */
 static int function_dpb(Execute ptr, addr left, addr spec, addr right)
 {
-	dpb_common(ptr->local, &left, left, spec, right);
+	Return(dpb_common_(ptr->local, &left, left, spec, right));
 	setresult_control(ptr, left);
 	return 0;
 }
@@ -2649,7 +2666,7 @@ static void defun_dpb(void)
 /* (defun ldb (bytespec integer) ...) -> (integer 0 *) */
 static int function_ldb(Execute ptr, addr spec, addr var)
 {
-	ldb_common(ptr->local, &var, spec, var);
+	Return(ldb_common_(ptr->local, &var, spec, var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2691,7 +2708,8 @@ static void define_setf_expander_ldb(void)
 /* (defun ldb-test (bytespec integer) ...) -> boolean */
 static int function_ldb_test(Execute ptr, addr spec, addr var)
 {
-	int check = ldb_test_common(spec, var);
+	int check;
+	Return(ldb_test_common_(spec, var, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -2726,7 +2744,7 @@ static void defun_ldb_test(void)
 /* (defun mask-field (bytespec integer) ...) -> (integer 0 *) */
 static int function_mask_field(Execute ptr, addr spec, addr var)
 {
-	mask_field_common(ptr->local, &var, spec, var);
+	Return(mask_field_common_(ptr->local, &var, spec, var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -3018,7 +3036,7 @@ static void defun_integer_decode_float(void)
 /* (defun float (real &optional prototype) ...) -> float */
 static int function_float(Execute ptr, addr var, addr type)
 {
-	float_common(&var, var, type);
+	Return(float_common_(&var, var, type));
 	setresult_control(ptr, var);
 	return 0;
 }

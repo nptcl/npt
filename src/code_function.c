@@ -760,13 +760,15 @@ _g int funcall_code(Execute ptr, CodeValue x)
 
 _g int nth_value_code(Execute ptr, CodeValue x)
 {
+	int check;
 	addr pos;
 	size_t index;
 
 	getargs_control(ptr, 0, &pos);
 	if (! integerp(pos))
 		return fmte_("NTH-VALUE argument ~S must be integer type.", pos, NULL);
-	if (! zerop_or_plusp_integer(pos))
+	Return(zerop_or_plusp_integer_(pos, &check));
+	if (! check)
 		return fmte_("NTH-VALUE argument ~S must be greater than equal to 0.", pos, NULL);
 	if (GetIndex_integer(pos, &index)) {
 		setresult_control(ptr, Nil);

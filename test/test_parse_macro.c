@@ -33,23 +33,23 @@ static int test_findstack_environment(void)
 	init_parse_environment(ptr);
 
 	fixnum_heap(&v1, 10);
-	name = readr("aaa");
+	name = readr_debug("aaa");
 	defmacro_envstack_(ptr, name, v1);
 	fixnum_heap(&v2, 20);
-	name = readr("bbb");
+	name = readr_debug("bbb");
 	defmacro_envstack_(ptr, name, v2);
 
 	environment_symbol(&stack);
 	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 0, &stack); /* root */
 	check = NULL;
-	test(findstack_environment(readr("aaa"), stack, T, &check), "findstack_environment1");
+	test(findstack_environment(readr_debug("aaa"), stack, T, &check), "findstack_environment1");
 	test(check == v1, "findstack_environment2");
 	check = NULL;
-	test(findstack_environment(readr("bbb"), stack, T, &check), "findstack_environment3");
+	test(findstack_environment(readr_debug("bbb"), stack, T, &check), "findstack_environment3");
 	test(check == v2, "findstack_environment4");
 	check = NULL;
-	test(! findstack_environment(readr("ccc"), stack, T, &check), "findstack_environment5");
+	test(! findstack_environment(readr_debug("ccc"), stack, T, &check), "findstack_environment5");
 
 	free_control_(ptr, control);
 
@@ -65,10 +65,10 @@ static int test_check_macro_function(void)
 	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
-	sym1 = readr("aaa");
-	sym2 = readr("bbb");
-	sym3 = readr("ccc");
-	sym4 = readr("ddd");
+	sym1 = readr_debug("aaa");
+	sym2 = readr_debug("bbb");
+	sym3 = readr_debug("ccc");
+	sym4 = readr_debug("ddd");
 
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);

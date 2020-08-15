@@ -11,34 +11,37 @@
 /*
  *  gcd
  */
-static size_t gcd_buffer_size(addr pos)
+static int gcd_buffer_size_(addr pos, size_t *ret)
 {
 	size_t size;
 
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return 1;
+			return Result(ret, 1);
 
 		case LISPTYPE_BIGNUM:
 			GetSizeBignum(pos, &size);
-			return size;
+			return Result(ret, size);
 
 		default:
-			TypeError(pos, INTEGER);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
-static void gcd_first_number(addr pos, addr *ret)
+static int gcd_first_number_(addr pos, addr *ret)
 {
+	int check;
+
 	Check(! integerp(pos), "type error");
-	if (minusp_integer(pos))
-		sign_reverse_integer_common(pos, ret);
+	Return(minusp_integer_(pos, &check));
+	if (check)
+		return sign_reverse_integer_common_(pos, ret);
 	else
-		integer_throw_heap(pos, ret);
+		return integer_throw_heap_(pos, ret);
 }
 
-static void copy_noexpand_integer(addr left, addr right)
+static int copy_noexpand_integer_(addr left, addr right)
 {
 	int sign;
 	fixed value;
@@ -54,33 +57,39 @@ static void copy_noexpand_integer(addr left, addr right)
 			break;
 
 		default:
-			TypeError(right, INTEGER);
-			break;
+			return TypeError_(right, INTEGER);
 	}
+
+	return 0;
 }
 
-static void gcd_loop_number(LocalRoot local, addr left, addr first, addr args)
+static int gcd_loop_number_(LocalRoot local, addr left, addr first, addr args)
 {
+	int check;
 	addr right;
 	LocalStack stack;
 
-	copy_noexpand_integer(left, first);
+	Return(copy_noexpand_integer_(left, first));
 	while (args != Nil) {
 		GetCons(args, &right, &args);
-		if (zerop_integer(right))
+		Return(zerop_integer_(right, &check));
+		if (check)
 			continue;
 		push_local(local, &stack);
-		bignum_integer_local(local, &right, right);
+		Return(bignum_integer_local_(local, &right, right));
 		euclidean_bignum(local, left, right);
 		rollback_local(local, stack);
 	}
+
+	return 0;
 }
 
 _g int gcd_number_(LocalRoot local, addr args, addr *ret)
 {
+	int check;
 	addr left, right, pos, first_left, first_right;
 	LocalStack stack;
-	size_t count, check, size;
+	size_t count, value, size;
 
 	/* check */
 	first_left = Unbound;
@@ -90,7 +99,8 @@ _g int gcd_number_(LocalRoot local, addr args, addr *ret)
 		Return_getcons(right, &left, &right);
 		Check(! integerp(left), "type error");
 		/* ignore */
-		if (zerop_integer(left))
+		Return(zerop_integer_(left, &check));
+		if (check)
 			continue;
 		/* first */
 		if (first_left == Unbound) {
@@ -98,9 +108,9 @@ _g int gcd_number_(LocalRoot local, addr args, addr *ret)
 			first_right = right;
 		}
 		/* max size */
-		check = gcd_buffer_size(left);
-		if (size < check)
-			size = check;
+		Return(gcd_buffer_size_(left, &value));
+		if (size < value)
+			size = value;
 		/* count */
 		count++;
 	}
@@ -112,15 +122,13 @@ _g int gcd_number_(LocalRoot local, addr args, addr *ret)
 	}
 
 	/* only one argument */
-	if (count == 1) {
-		gcd_first_number(first_left, ret);
-		return 0;
-	}
+	if (count == 1)
+		return gcd_first_number_(first_left, ret);
 
 	/* second */
 	push_local(local, &stack);
 	bignum_local(local, &pos, SignPlus, size);
-	gcd_loop_number(local, pos, first_left, first_right);
+	Return(gcd_loop_number_(local, pos, first_left, first_right));
 	SetSignBignum(pos, SignPlus);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
@@ -132,15 +140,15 @@ _g int gcd_number_(LocalRoot local, addr args, addr *ret)
 /*
  *  lcm
  */
-static void lcm_calc_number(LocalRoot local, addr *ret, addr left, addr right)
+static int lcm_calc_number_(LocalRoot local, addr *ret, addr left, addr right)
 {
 	LocalStack stack;
 	addr temp;
 
 	/* (lcm a b) ==  (/ (abs (* a b)) (gcd a b)) */
 	push_local(local, &stack);
-	bignum_integer_local(local, &left, left);
-	bignum_integer_local(local, &right, right);
+	Return(bignum_integer_local_(local, &left, left));
+	Return(bignum_integer_local_(local, &right, right));
 	/* (* a b) */
 	multi_bb_bignum_local(local, left, right, &temp);
 	/* (gcd a b) */
@@ -150,20 +158,24 @@ static void lcm_calc_number(LocalRoot local, addr *ret, addr left, addr right)
 	bignum_throw_heap(temp, ret);
 	/* result */
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 static int lcm_loop_number_(LocalRoot local, addr left, addr args, addr *ret)
 {
+	int check;
 	addr right;
 
 	while (args != Nil) {
 		Return_getcons(args, &right, &args);
 		Check(! integerp(right), "type error");
-		if (zerop_integer(right)) {
+		Return(zerop_integer_(right, &check));
+		if (check) {
 			fixnum_heap(ret, 0);
 			return 0;
 		}
-		lcm_calc_number(local, &left, left, right);
+		Return(lcm_calc_number_(local, &left, left, right));
 	}
 
 	return Result(ret, left);
@@ -171,6 +183,7 @@ static int lcm_loop_number_(LocalRoot local, addr left, addr args, addr *ret)
 
 _g int lcm_number_(LocalRoot local, addr args, addr *ret)
 {
+	int check;
 	addr left;
 
 	if (args == Nil) {
@@ -180,14 +193,13 @@ _g int lcm_number_(LocalRoot local, addr args, addr *ret)
 
 	/* only one argument */
 	Return_getcons(args, &left, &args);
-	if (args == Nil) {
-		gcd_first_number(left, ret);
-		return 0;
-	}
+	if (args == Nil)
+		return gcd_first_number_(left, ret);
 
 	/* zero */
 	Check(! integerp(left), "type error");
-	if (zerop_integer(left)) {
+	Return(zerop_integer_(left, &check));
+	if (check) {
 		fixnum_heap(ret, 0);
 		return 0;
 	}

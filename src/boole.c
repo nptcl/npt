@@ -9,7 +9,7 @@
 #include "setf.h"
 #include "symbol.h"
 
-typedef void (*BooleCall)(LocalRoot, addr, addr, addr *);
+typedef int (*BooleCall)(LocalRoot, addr, addr, addr *);
 static BooleCall BooleTable[Boole_Size];
 
 union boole_fixnumfixed {
@@ -67,7 +67,7 @@ static void boole_struct_bignum(struct boole_struct *ptr, addr pos)
 	ptr->pos = pos;
 }
 
-static void boole_struct_integer(struct boole_struct *ptr, addr pos)
+static int boole_struct_integer_(struct boole_struct *ptr, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -79,9 +79,10 @@ static void boole_struct_integer(struct boole_struct *ptr, addr pos)
 			break;
 
 		default:
-			TypeError(pos, INTEGER);
-			return;
+			return TypeError_(pos, INTEGER);
 	}
+
+	return 0;
 }
 
 static int boole_struct_sign(
@@ -181,20 +182,22 @@ static void boole_call2_common(
 	}
 }
 
-static void boole_call_bignum(LocalRoot local, addr a, addr b, addr *ret,
+static int boole_call_bignum_(LocalRoot local, addr a, addr b, addr *ret,
 		bigtype (*call)(bigtype, bigtype))
 {
 	struct boole_struct boole1, boole2, boole3;
 	LocalStack stack;
 
 	push_local(local, &stack);
-	boole_struct_integer(&boole1, a);
-	boole_struct_integer(&boole2, b);
+	Return(boole_struct_integer_(&boole1, a));
+	Return(boole_struct_integer_(&boole2, b));
 	boole_struct_alloc(local, &boole1, &boole2, &boole3, call);
 	boole_call2_common(&boole1, &boole2, &boole3, call);
 	boole_struct_result(&boole3);
 	bignum_result_heap(boole3.pos, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 static void boole_call_fixnum(LocalRoot local, addr a, addr b, addr *ret,
@@ -212,24 +215,28 @@ static int boole_fixnum_p(addr a, addr b)
 {
 	fixnum x, y;
 
-	if ((! fixnump(a)) || (! fixnump(b))) return 0;
+	if ((! fixnump(a)) || (! fixnump(b)))
+		return 0;
 	GetFixnum(a, &x);
 	GetFixnum(b, &y);
 
 	return (x != FIXNUM_MIN) && (y != FIXNUM_MIN);
 }
 
-static void boole_call_common(LocalRoot local, addr a, addr b, addr *ret,
+static int boole_call_common_(LocalRoot local, addr a, addr b, addr *ret,
 		bigtype (*call)(bigtype, bigtype))
 {
-	if (boole_fixnum_p(a, b))
+	if (boole_fixnum_p(a, b)) {
 		boole_call_fixnum(local, a, b, ret, call);
-	else
-		boole_call_bignum(local, a, b, ret, call);
+		return 0;
+	}
+	else {
+		return boole_call_bignum_(local, a, b, ret, call);
+	}
 }
 
 static int logcall_common_(LocalRoot local, addr args, addr *ret,
-		fixnum ident, void (*call)(LocalRoot, addr, addr, addr *))
+		fixnum ident, int (*call)(LocalRoot, addr, addr, addr *))
 {
 	addr left, right;
 
@@ -247,7 +254,7 @@ static int logcall_common_(LocalRoot local, addr args, addr *ret,
 	/* list */
 	while (args != Nil) {
 		Return(getcons_(args, &right, &args));
-		(*call)(local, left, right, &left);
+		Return((*call)(local, left, right, &left));
 	}
 
 	return Result(ret, left);
@@ -262,14 +269,14 @@ static bigtype boole_call_and(bigtype a, bigtype b)
 	return a & b;
 }
 
-static void boole_and_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_and_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_and);
+	return boole_call_common_(local, a, b, ret, boole_call_and);
 }
 
 _g int logand_common_(LocalRoot local, addr args, addr *ret)
 {
-	return logcall_common_(local, args, ret, -1, boole_and_common);
+	return logcall_common_(local, args, ret, -1, boole_and_common_);
 }
 
 
@@ -281,12 +288,12 @@ static bigtype boole_call_andc1(bigtype a, bigtype b)
 	return (~a) & b;
 }
 
-_g void logandc1_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int logandc1_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_andc1);
+	return boole_call_common_(local, a, b, ret, boole_call_andc1);
 }
 
-#define boole_andc1_common logandc1_common
+#define boole_andc1_common_ logandc1_common_
 
 
 /*
@@ -297,12 +304,12 @@ static bigtype boole_call_andc2(bigtype a, bigtype b)
 	return a & (~b);
 }
 
-_g void logandc2_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int logandc2_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_andc2);
+	return boole_call_common_(local, a, b, ret, boole_call_andc2);
 }
 
-#define boole_andc2_common logandc2_common
+#define boole_andc2_common_ logandc2_common_
 
 
 /*
@@ -313,14 +320,14 @@ static bigtype boole_call_eqv(bigtype a, bigtype b)
 	return ~(a ^ b);
 }
 
-static void boole_eqv_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_eqv_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_eqv);
+	return boole_call_common_(local, a, b, ret, boole_call_eqv);
 }
 
 _g int logeqv_common_(LocalRoot local, addr args, addr *ret)
 {
-	return logcall_common_(local, args, ret, -1, boole_eqv_common);
+	return logcall_common_(local, args, ret, -1, boole_eqv_common_);
 }
 
 
@@ -332,14 +339,14 @@ static bigtype boole_call_ior(bigtype a, bigtype b)
 	return a | b;
 }
 
-static void boole_ior_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_ior_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_ior);
+	return boole_call_common_(local, a, b, ret, boole_call_ior);
 }
 
 _g int logior_common_(LocalRoot local, addr args, addr *ret)
 {
-	return logcall_common_(local, args, ret, 0, boole_ior_common);
+	return logcall_common_(local, args, ret, 0, boole_ior_common_);
 }
 
 
@@ -351,12 +358,12 @@ static bigtype boole_call_nand(bigtype a, bigtype b)
 	return ~(a & b);
 }
 
-_g void lognand_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int lognand_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_nand);
+	return boole_call_common_(local, a, b, ret, boole_call_nand);
 }
 
-#define boole_nand_common lognand_common
+#define boole_nand_common_ lognand_common_
 
 
 /*
@@ -367,32 +374,32 @@ static bigtype boole_call_nor(bigtype a, bigtype b)
 	return ~(a | b);
 }
 
-_g void lognor_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int lognor_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_nor);
+	return boole_call_common_(local, a, b, ret, boole_call_nor);
 }
 
-#define boole_nor_common lognor_common
+#define boole_nor_common_ lognor_common_
 
 
 /*
  *  lognot
  */
-_g void lognot_common(LocalRoot local, addr a, addr *ret)
+_g int lognot_common_(LocalRoot local, addr a, addr *ret)
 {
 	addr b;
 	fixnum_heap(&b, 0);
-	logorc1_common(local, a, b, ret);
+	return logorc1_common_(local, a, b, ret);
 }
 
-static void boole_c1_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_c1_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	lognot_common(local, a, ret);
+	return lognot_common_(local, a, ret);
 }
 
-static void boole_c2_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_c2_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	lognot_common(local, b, ret);
+	return lognot_common_(local, b, ret);
 }
 
 
@@ -404,12 +411,12 @@ static bigtype boole_call_orc1(bigtype a, bigtype b)
 	return (~a) | b;
 }
 
-_g void logorc1_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int logorc1_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_orc1);
+	return boole_call_common_(local, a, b, ret, boole_call_orc1);
 }
 
-#define boole_orc1_common logorc1_common
+#define boole_orc1_common_ logorc1_common_
 
 
 /*
@@ -420,12 +427,12 @@ static bigtype boole_call_orc2(bigtype a, bigtype b)
 	return a | (~b);
 }
 
-_g void logorc2_common(LocalRoot local, addr a, addr b, addr *ret)
+_g int logorc2_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_orc2);
+	return boole_call_common_(local, a, b, ret, boole_call_orc2);
 }
 
-#define boole_orc2_common logorc2_common
+#define boole_orc2_common_ logorc2_common_
 
 
 /*
@@ -436,41 +443,43 @@ static bigtype boole_call_xor(bigtype a, bigtype b)
 	return a ^ b;
 }
 
-static void boole_xor_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_xor_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	boole_call_common(local, a, b, ret, boole_call_xor);
+	return boole_call_common_(local, a, b, ret, boole_call_xor);
 }
 
 _g int logxor_common_(LocalRoot local, addr args, addr *ret)
 {
-	return logcall_common_(local, args, ret, 0, boole_xor_common);
+	return logcall_common_(local, args, ret, 0, boole_xor_common_);
 }
 
 
 /*
  *  boole
  */
-static void boole_1_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_1_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	integer_throw_heap(a, ret);
+	return integer_throw_heap_(a, ret);
 }
 
-static void boole_2_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_2_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
-	integer_throw_heap(b, ret);
+	return integer_throw_heap_(b, ret);
 }
 
-static void boole_clr_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_clr_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
 	fixnum_heap(ret, 0);
+	return 0;
 }
 
-static void boole_set_common(LocalRoot local, addr a, addr b, addr *ret)
+static int boole_set_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
 	fixnum_heap(ret, -1);
+	return 0;
 }
 
-_g void boole_common(LocalRoot local, addr op, addr a, addr b, addr *ret)
+_g int boole_common_(LocalRoot local, addr op, addr a, addr b, addr *ret)
 {
 	fixnum index;
 	BooleCall call;
@@ -480,7 +489,7 @@ _g void boole_common(LocalRoot local, addr op, addr a, addr b, addr *ret)
 	Check(index < 0 || ((fixnum)Boole_Size) <= index, "index error");
 	call = BooleTable[(int)index];
 	Check(call == NULL, "boole call error");
-	(*call)(local, a, b, ret);
+	return (*call)(local, a, b, ret);
 }
 
 
@@ -555,18 +564,18 @@ static int logbitp_bignum(addr index, addr pos)
 		return logbitp_minus(pos, size);
 }
 
-_g int logbitp_common(addr index, addr pos)
+_g int logbitp_common_(addr index, addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return logbitp_fixnum(index, pos);
+			return Result(ret, logbitp_fixnum(index, pos));
 
 		case LISPTYPE_BIGNUM:
-			return logbitp_bignum(index, pos);
+			return Result(ret, logbitp_bignum(index, pos));
 
 		default:
-			TypeError(pos, INTEGER);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
@@ -616,18 +625,18 @@ static size_t logcount_bignum(addr pos)
 	return count;
 }
 
-_g size_t logcount_common(addr pos)
+_g int logcount_common_(addr pos, size_t *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return logcount_fixnum(pos);
+			return Result(ret, logcount_fixnum(pos));
 
 		case LISPTYPE_BIGNUM:
-			return logcount_bignum(pos);
+			return Result(ret, logcount_bignum(pos));
 
 		default:
-			TypeError(pos, INTEGER);
-			return 0;
+			*ret = 0;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
@@ -635,24 +644,24 @@ _g size_t logcount_common(addr pos)
 /*
  *  logtest
  */
-_g int logtest_common(LocalRoot local, addr a, addr b)
+_g int logtest_common_(LocalRoot local, addr a, addr b, int *ret)
 {
 	struct boole_struct boole1, boole2;
 	bigtype x, y;
 	size_t size, i;
 
-	boole_struct_integer(&boole1, a);
-	boole_struct_integer(&boole2, b);
+	Return(boole_struct_integer_(&boole1, a));
+	Return(boole_struct_integer_(&boole2, b));
 	size = (boole1.size < boole2.size)? boole2.size: boole1.size;
 	size++; /* sign check */
 	for (i = 0; i < size; i++) {
 		x = boole_struct_get(&boole1);
 		y = boole_struct_get(&boole2);
 		if (x & y)
-			return 1;
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 
@@ -661,22 +670,22 @@ _g int logtest_common(LocalRoot local, addr a, addr b)
  */
 _g void init_boole(void)
 {
-	BooleTable[Boole_1] = boole_1_common;
-	BooleTable[Boole_2] = boole_2_common;
-	BooleTable[Boole_And] = boole_and_common;
-	BooleTable[Boole_AndC1] = boole_andc1_common;
-	BooleTable[Boole_AndC2] = boole_andc2_common;
-	BooleTable[Boole_C1] = boole_c1_common;
-	BooleTable[Boole_C2] = boole_c2_common;
-	BooleTable[Boole_Clr] = boole_clr_common;
-	BooleTable[Boole_Eqv] = boole_eqv_common;
-	BooleTable[Boole_Ior] = boole_ior_common;
-	BooleTable[Boole_Nand] = boole_nand_common;
-	BooleTable[Boole_Nor] = boole_nor_common;
-	BooleTable[Boole_Orc1] = boole_orc1_common;
-	BooleTable[Boole_Orc2] = boole_orc2_common;
-	BooleTable[Boole_Set] = boole_set_common;
-	BooleTable[Boole_Xor] = boole_xor_common;
+	BooleTable[Boole_1] = boole_1_common_;
+	BooleTable[Boole_2] = boole_2_common_;
+	BooleTable[Boole_And] = boole_and_common_;
+	BooleTable[Boole_AndC1] = boole_andc1_common_;
+	BooleTable[Boole_AndC2] = boole_andc2_common_;
+	BooleTable[Boole_C1] = boole_c1_common_;
+	BooleTable[Boole_C2] = boole_c2_common_;
+	BooleTable[Boole_Clr] = boole_clr_common_;
+	BooleTable[Boole_Eqv] = boole_eqv_common_;
+	BooleTable[Boole_Ior] = boole_ior_common_;
+	BooleTable[Boole_Nand] = boole_nand_common_;
+	BooleTable[Boole_Nor] = boole_nor_common_;
+	BooleTable[Boole_Orc1] = boole_orc1_common_;
+	BooleTable[Boole_Orc2] = boole_orc2_common_;
+	BooleTable[Boole_Set] = boole_set_common_;
+	BooleTable[Boole_Xor] = boole_xor_common_;
 }
 
 
@@ -732,7 +741,7 @@ static void deposit_field_copy(
 	}
 }
 
-_g void deposit_field_common(LocalRoot local, addr *ret, addr a, addr spec, addr b)
+_g int deposit_field_common_(LocalRoot local, addr *ret, addr a, addr spec, addr b)
 {
 	struct boole_struct str1, str2, write;
 	struct bytespec_mask mask;
@@ -741,12 +750,10 @@ _g void deposit_field_common(LocalRoot local, addr *ret, addr a, addr spec, addr
 
 	CheckLocalType(local, spec, LISPTYPE_BYTESPEC);
 	bytespec_mask_init(&mask, spec);
-	if (mask.size == 0) {
-		integer_throw_heap(b, ret);
-		return;
-	}
-	boole_struct_integer(&str1, a);
-	boole_struct_integer(&str2, b);
+	if (mask.size == 0)
+		return integer_throw_heap_(b, ret);
+	Return(boole_struct_integer_(&str1, a));
+	Return(boole_struct_integer_(&str2, b));
 	size = deposit_field_maxsize(&str1, &str2, &mask);
 
 	push_local(local, &stack);
@@ -755,6 +762,8 @@ _g void deposit_field_common(LocalRoot local, addr *ret, addr a, addr spec, addr
 	boole_struct_result(&write);
 	bignum_result_heap(write.pos, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
@@ -767,11 +776,11 @@ struct dpb_struct {
 	bigtype carry;
 };
 
-static void dbp_struct_integer(struct dpb_struct *ptr, addr pos, size_t shift)
+static int dbp_struct_integer_(struct dpb_struct *ptr, addr pos, size_t shift)
 {
 	size_t m, n, size;
 
-	boole_struct_integer(&(ptr->boole), pos);
+	Return(boole_struct_integer_(&(ptr->boole), pos));
 	n = shift / BIGNUM_FULLBIT;
 	m = shift % BIGNUM_FULLBIT;
 	size = m? n+1: n;
@@ -782,6 +791,8 @@ static void dbp_struct_integer(struct dpb_struct *ptr, addr pos, size_t shift)
 	ptr->size = size;
 	ptr->carry = 0;
 	ptr->index = 0;
+
+	return 0;
 }
 
 static size_t dpb_maxsize(
@@ -846,7 +857,7 @@ static void dpb_copy(
 	}
 }
 
-_g void dpb_common(LocalRoot local, addr *ret, addr a, addr spec, addr b)
+_g int dpb_common_(LocalRoot local, addr *ret, addr a, addr spec, addr b)
 {
 	struct dpb_struct str1;
 	struct boole_struct str2, write;
@@ -856,12 +867,10 @@ _g void dpb_common(LocalRoot local, addr *ret, addr a, addr spec, addr b)
 
 	CheckLocalType(local, spec, LISPTYPE_BYTESPEC);
 	bytespec_mask_init(&mask, spec);
-	if (mask.size == 0) {
-		integer_throw_heap(b, ret);
-		return;
-	}
-	dbp_struct_integer(&str1, a, mask.position);
-	boole_struct_integer(&str2, b);
+	if (mask.size == 0)
+		return integer_throw_heap_(b, ret);
+	Return(dbp_struct_integer_(&str1, a, mask.position));
+	Return(boole_struct_integer_(&str2, b));
 	size = dpb_maxsize(&str1, &str2, &mask);
 
 	push_local(local, &stack);
@@ -870,6 +879,8 @@ _g void dpb_common(LocalRoot local, addr *ret, addr a, addr spec, addr b)
 	boole_struct_result(&write);
 	bignum_result_heap(write.pos, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
@@ -920,7 +931,7 @@ static void boole_struct_front(struct boole_struct *ptr, size_t front)
 	ptr->index += front;
 }
 
-static void ldb_struct_integer(struct ldb_struct *ptr, addr var, addr spec)
+static int ldb_struct_integer_(struct ldb_struct *ptr, addr var, addr spec)
 {
 	size_t size, pos, shift, div;
 	struct bytespec_struct *str;
@@ -934,7 +945,7 @@ static void ldb_struct_integer(struct ldb_struct *ptr, addr var, addr spec)
 	/* size == 0 */
 	if (size == 0) {
 		ptr->count = 0;
-		return;
+		return 0;
 	}
 
 	/* size */
@@ -948,13 +959,15 @@ static void ldb_struct_integer(struct ldb_struct *ptr, addr var, addr spec)
 
 	/* boole */
 	boole = &(ptr->boole);
-	boole_struct_integer(boole, var);
+	Return(boole_struct_integer_(boole, var));
 	boole_struct_front(boole, div);
 
 	/* struct */
 	ptr->carry = shift? boole_struct_get(boole): 0;
 	ptr->shift = shift;
 	ptr->size = size;
+
+	return 0;
 }
 
 static void ldb_struct_alloc(LocalRoot local, size_t count, addr *ret)
@@ -982,7 +995,7 @@ static bigtype ldb_struct_get(struct ldb_struct *ptr)
 	return v;
 }
 
-_g void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos)
+_g int ldb_common_(LocalRoot local, addr *ret, addr spec, addr pos)
 {
 	LocalStack stack;
 	struct ldb_struct str;
@@ -990,11 +1003,11 @@ _g void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos)
 	bigtype *data, v, m;
 
 	CheckLocalType(local, spec, LISPTYPE_BYTESPEC);
-	ldb_struct_integer(&str, pos, spec);
+	Return(ldb_struct_integer_(&str, pos, spec));
 	count = str.count;
 	if (count == 0) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
 	push_local(local, &stack);
@@ -1019,6 +1032,8 @@ _g void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos)
 	sizepress_bignum(pos);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
@@ -1072,17 +1087,17 @@ error:
 /*
  *  ldb-test
  */
-_g int ldb_test_common(addr spec, addr pos)
+_g int ldb_test_common_(addr spec, addr pos, int *ret)
 {
 	struct ldb_struct str;
 	size_t size, count, i;
 	bigtype v, m;
 
 	CheckType(spec, LISPTYPE_BYTESPEC);
-	ldb_struct_integer(&str, pos, spec);
+	Return(ldb_struct_integer_(&str, pos, spec));
 	count = str.count;
 	if (count == 0)
-		return 0;
+		return Result(ret, 0);
 
 	size = str.size;
 	for (i = 0; i < count; i++) {
@@ -1091,19 +1106,19 @@ _g int ldb_test_common(addr spec, addr pos)
 		}
 		else if (BIGNUM_FULLBIT <= size) {
 			if (ldb_struct_get(&str))
-				return 1;
+				return Result(ret, 1);
 			size -= BIGNUM_FULLBIT;
 		}
 		else {
 			v = ldb_struct_get(&str);
 			m = (1ULL << size) - 1ULL;
 			if (v & m)
-				return 1;
+				return Result(ret, 1);
 			size = 0;
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 
@@ -1142,7 +1157,7 @@ static void mask_field_copy(
 	}
 }
 
-_g void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos)
+_g int mask_field_common_(LocalRoot local, addr *ret, addr spec, addr pos)
 {
 	struct boole_struct str;
 	struct bytespec_mask mask;
@@ -1151,11 +1166,9 @@ _g void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos)
 
 	CheckLocalType(local, spec, LISPTYPE_BYTESPEC);
 	bytespec_mask_init(&mask, spec);
-	if (mask.size == 0) {
-		integer_throw_heap(pos, ret);
-		return;
-	}
-	boole_struct_integer(&str, pos);
+	if (mask.size == 0)
+		return integer_throw_heap_(pos, ret);
+	Return(boole_struct_integer_(&str, pos));
 	size = mask_field_maxsize(&str, &mask);
 
 	push_local(local, &stack);
@@ -1164,6 +1177,8 @@ _g void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos)
 	sizepress_bignum(pos);
 	bignum_result_heap(pos, ret);
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 

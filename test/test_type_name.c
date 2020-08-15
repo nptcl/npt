@@ -38,12 +38,12 @@ static int test_type_name_symbol(void)
 {
 	addr x, y;
 
-	x = readr("hello");
+	x = readr_debug("hello");
 	type_name_(x, &x);
 	GetConst(COMMON_SYMBOL, &y);
 	test(x == y, "type_name_symbol1");
 
-	x = readr(":hello");
+	x = readr_debug(":hello");
 	type_name_(x, &x);
 	GetConst(COMMON_KEYWORD, &y);
 	test(x == y, "type_name_symbol2");
@@ -75,19 +75,19 @@ static int test_type_name_stream(void)
 	addr x, y;
 
 	/* broadcast */
-	open_broadcast_stream(&x, Nil);
+	open_broadcast_stream_(&x, Nil);
 	type_name_(x, &x);
 	GetConst(COMMON_BROADCAST_STREAM, &y);
 	test(x == y, "type_name_stream1");
 
 	/* concatenated */
-	open_concatenated_stream(&x, Nil);
+	open_concatenated_stream_(&x, Nil);
 	type_name_(x, &x);
 	GetConst(COMMON_CONCATENATED_STREAM, &y);
 	test(x == y, "type_name_stream2");
 
 	/* echo */
-	open_concatenated_stream(&y, Nil);
+	open_concatenated_stream_(&y, Nil);
 	open_echo_stream(&x, y, y);
 	type_name_(x, &x);
 	GetConst(COMMON_ECHO_STREAM, &y);
@@ -95,14 +95,14 @@ static int test_type_name_stream(void)
 
 	/* string */
 	strvect_char_heap(&x, "Hello");
-	open_input_string_stream(&x, x);
+	open_input_string_stream_(&x, x);
 	type_name_(x, &x);
 	GetConst(COMMON_STRING_STREAM, &y);
 	test(x == y, "type_name_stream4");
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_INPUT, &x);
-	open_synonym_stream(&x, x);
+	open_synonym_stream_(&x, x);
 	type_name_(x, &x);
 	GetConst(COMMON_SYNONYM_STREAM, &y);
 	test(x == y, "type_name_stream5");

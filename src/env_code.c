@@ -213,18 +213,21 @@ _g int untrace_common_(addr form, addr env, addr *ret)
 /*
  *  trace-add
  */
-static void defun_trace_function_index(Execute ptr, addr *ret)
+static int defun_trace_function_index_(Execute ptr, addr *ret)
 {
 	addr symbol, pos;
 
 	GetConst(SYSTEM_TRACE_DEPTH, &symbol);
 	getspecial_local(ptr, symbol, &pos);
-	if (pos == Unbound)
+	if (pos == Unbound) {
 		fixnum_heap(&pos, 1);
-	else
-		oneplus_integer_common(ptr->local, pos, &pos);
+	}
+	else {
+		Return(oneplus_integer_common_(ptr->local, pos, &pos));
+	}
 	pushspecial_control(ptr, symbol, pos);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static int defun_trace_function(Execute ptr, addr rest)
@@ -235,7 +238,7 @@ static int defun_trace_function(Execute ptr, addr rest)
 	/* index */
 	getdata_control(ptr, &list);
 	GetCons(list, &name, &pos);
-	defun_trace_function_index(ptr, &index);
+	Return(defun_trace_function_index_(ptr, &index));
 	/* begin */
 	Return(trace_output_stream_(ptr, &stream));
 	cons_heap(&list, name, rest);

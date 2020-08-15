@@ -140,75 +140,81 @@ static void makefloat_buffer(int sign, const char *fract, int exp, char *ret)
 	}
 }
 
-static int makefloat_single(const char *ptr, addr *ret)
+static int makefloat_single_(const char *ptr, addr *ret)
 {
-	single_float value = check_strtof(ptr, NULL);
+	single_float value;
+
+	Return(check_strtof_(ptr, NULL, &value));
 	single_float_heap(ret, value);
+
 	return 0;
 }
 
-static int makefloat_double(const char *ptr, addr *ret)
+static int makefloat_double_(const char *ptr, addr *ret)
 {
-	double_float value = check_strtod(ptr, NULL);
+	double_float value;
+
+	Return(check_strtod_(ptr, NULL, &value));
 	double_float_heap(ret, value);
+
 	return 0;
 }
 
-static int makefloat_long(const char *ptr, addr *ret)
+static int makefloat_long_(const char *ptr, addr *ret)
 {
-	long_float value = check_strtold(ptr, NULL);
+	long_float value;
+
+	Return(check_strtold_(ptr, NULL, &value));
 	long_float_heap(ret, value);
+
 	return 0;
 }
 
-static int read_default_float_format(Execute ptr)
+static int read_default_float_format_(Execute ptr, int *ret)
 {
 	addr symbol, check;
 
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
-	getspecial_local(ptr, symbol, &symbol);
-	if (symbol == Unbound)
-		return 0;
+	Return(getspecialcheck_local_(ptr, symbol, &symbol));
 	GetConst(COMMON_SINGLE_FLOAT, &check);
 	if (symbol == check)
-		return 'f';
+		return Result(ret, 'f');
 	GetConst(COMMON_DOUBLE_FLOAT, &check);
 	if (symbol == check)
-		return 'd';
+		return Result(ret, 'd');
 	GetConst(COMMON_LONG_FLOAT, &check);
 	if (symbol == check)
-		return 'l';
+		return Result(ret, 'l');
 	GetConst(COMMON_SHORT_FLOAT, &check);
 	if (symbol == check)
-		return 's';
+		return Result(ret, 's');
 
-	return 0;
+	return Result(ret, 0); /* error */
 }
 
-static int makefloat(Execute ptr,
+static int makefloat_(Execute ptr,
 		int sign, const char *fract, int v, int type, addr *ret)
 {
 	char buffer[FLOATBUFFER];
 
 	makefloat_buffer(sign, fract, v, buffer);
-	if (type == 'e')
-		type = read_default_float_format(ptr);
+	if (type == 'e') {
+		Return(read_default_float_format_(ptr, &type));
+	}
 	switch (type) {
 		case 's': /* short */
 		case 'f': /* single */
-			return makefloat_single(buffer, ret);
+			return makefloat_single_(buffer, ret);
 
 		case 'd': /* double */
-			return makefloat_double(buffer, ret);
+			return makefloat_double_(buffer, ret);
 
 		case 'l': /* long */
-			return makefloat_long(buffer, ret);
+			return makefloat_long_(buffer, ret);
 
 		default: /* error */
-			return 1;
+			return Result(ret, Unbound);
 	}
-
-	return 0;
 }
 
 static int atolcheck(const char *str, long *value)
@@ -257,7 +263,7 @@ static int isexponent(unicode c)
 
 #define NextChar() (i < size? str[i++]: 0)
 
-static int floattable(Execute ptr, const unicode *str, size_t size, addr *ret)
+static int floattable_(Execute ptr, const unicode *str, size_t size, addr *ret)
 {
 	int w, e, ds, zero, sign, type;
 	long v;
@@ -360,23 +366,23 @@ expnext:
 	goto error;
 
 error:
-	return 1;
+	return Result(ret, Unbound);
 
 final:
 	if (zero == 0) {
 		fract[0] = 0;
-		return makefloat(ptr, sign, fract, 0, type, ret);
+		return makefloat_(ptr, sign, fract, 0, type, ret);
 	}
 	fract[w < FLOATSIZE-1? w: FLOATSIZE-1] = 0;
 	exp[e] = 0;
 
 	v = 0;
 	if (e && atolcheck(exp, &v))  /* atol(exp) error */
-		return 1;
+		return Result(ret, Unbound);
 	if (plus_safe(v, ds, &v))  /* v += ds; overflow */
-		return 1;
+		return Result(ret, Unbound);
 
-	return makefloat(ptr, sign, fract, (int)v, type, ret);
+	return makefloat_(ptr, sign, fract, (int)v, type, ret);
 }
 
 _g int maketoken_float_(Execute ptr, addr queue, addr *ret)
@@ -386,9 +392,10 @@ _g int maketoken_float_(Execute ptr, addr queue, addr *ret)
 
 	make_charqueue_heap(queue, &queue);
 	strvect_posbodylen(queue, &body, &size);
-	if (floattable(ptr, body, size, ret))
+	Return(floattable_(ptr, body, size, ret));
+	if (*ret == Unbound)
 		return fmte_("parse-float error", NULL);
-	
+
 	return 0;
 }
 

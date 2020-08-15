@@ -11,67 +11,58 @@
 #include "strvect.h"
 #include "typedef.h"
 
-_g void single_float_check_alloc(LocalRoot local, addr *ret, single_float value)
+_g int single_float_check_alloc_(LocalRoot local, addr *ret, single_float value)
 {
-	fltclasstype type;
-
-	type = getfltclassify(value);
-	if (type != fltclass_normal)
-		float_fltclass(CONSTANT_COMMON_FLOAT, type, NULL);
+	Return_float_errorcheck0(CONSTANT_COMMON_FLOAT, value);
 	single_float_alloc(local, ret, value);
+	return 0;
 }
 
-_g void single_float_check_local(LocalRoot local, addr *ret, single_float value)
+_g int single_float_check_local_(LocalRoot local, addr *ret, single_float value)
 {
 	Check(local == NULL, "local error");
-	single_float_check_alloc(local, ret, value);
+	return single_float_check_alloc_(local, ret, value);
 }
 
-_g void single_float_check_heap(addr *ret, single_float value)
+_g int single_float_check_heap_(addr *ret, single_float value)
 {
-	single_float_check_alloc(NULL, ret, value);
+	return single_float_check_alloc_(NULL, ret, value);
 }
 
-_g void double_float_check_alloc(LocalRoot local, addr *ret, double_float value)
+_g int double_float_check_alloc_(LocalRoot local, addr *ret, double_float value)
 {
-	fltclasstype type;
-
-	type = getfltclassify(value);
-	if (type != fltclass_normal)
-		float_fltclass(CONSTANT_COMMON_FLOAT, type, NULL);
+	Return_float_errorcheck0(CONSTANT_COMMON_FLOAT, value);
 	double_float_alloc(local, ret, value);
+	return 0;
 }
 
-_g void double_float_check_local(LocalRoot local, addr *ret, double_float value)
+_g int double_float_check_local_(LocalRoot local, addr *ret, double_float value)
 {
 	Check(local == NULL, "local error");
-	double_float_check_alloc(local, ret, value);
+	return double_float_check_alloc_(local, ret, value);
 }
 
-_g void double_float_check_heap(addr *ret, double_float value)
+_g int double_float_check_heap_(addr *ret, double_float value)
 {
-	double_float_check_alloc(NULL, ret, value);
+	return double_float_check_alloc_(NULL, ret, value);
 }
 
-_g void long_float_check_alloc(LocalRoot local, addr *ret, long_float value)
+_g int long_float_check_alloc_(LocalRoot local, addr *ret, long_float value)
 {
-	fltclasstype type;
-
-	type = getfltclassify(value);
-	if (type != fltclass_normal)
-		float_fltclass(CONSTANT_COMMON_FLOAT, type, NULL);
+	Return_float_errorcheck0(CONSTANT_COMMON_FLOAT, value);
 	long_float_alloc(local, ret, value);
+	return 0;
 }
 
-_g void long_float_check_local(LocalRoot local, addr *ret, long_float value)
+_g int long_float_check_local_(LocalRoot local, addr *ret, long_float value)
 {
 	Check(local == NULL, "local error");
-	long_float_check_alloc(local, ret, value);
+	return long_float_check_alloc_(local, ret, value);
 }
 
-_g void long_float_check_heap(addr *ret, long_float value)
+_g int long_float_check_heap_(addr *ret, long_float value)
 {
-	long_float_check_alloc(NULL, ret, value);
+	return long_float_check_alloc_(NULL, ret, value);
 }
 
 _g void single_float_throw_heap(addr pos, addr *ret)
@@ -155,18 +146,18 @@ _g void long_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 		long_float_throw_heap(pos, ret);
 }
 
-_g void float_throw_heap(addr pos, addr *ret)
+_g int float_throw_heap_(addr pos, addr *ret)
 {
-	float_throw_alloc(NULL, pos, ret);
+	return float_throw_alloc_(NULL, pos, ret);
 }
 
-_g void float_throw_local(LocalRoot local, addr pos, addr *ret)
+_g int float_throw_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	float_throw_alloc(local, pos, ret);
+	return float_throw_alloc_(local, pos, ret);
 }
 
-_g void float_throw_alloc(LocalRoot local, addr pos, addr *ret)
+_g int float_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -186,9 +177,11 @@ _g void float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, FLOAT);
-			break;
+			*ret = Nil;
+			return TypeError_(pos, FLOAT);
 	}
+
+	return 0;
 }
 
 static void single_float_copy_alloc(LocalRoot local, addr pos, addr *ret)
@@ -229,7 +222,8 @@ _g void float_copy_alloc(LocalRoot local, addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, FLOAT);
+			*ret = Nil;
+			Abort("type error");
 			break;
 	}
 }
@@ -264,7 +258,7 @@ _g fltclasstype fltclassify(int check, int sign)
 	return fltclass_normal;
 }
 
-_g void float_fltclass(constindex index, fltclasstype type, ...)
+_g int float_fltclass_(constindex index, fltclasstype type, ...)
 {
 	va_list args;
 	addr list;
@@ -275,17 +269,14 @@ _g void float_fltclass(constindex index, fltclasstype type, ...)
 
 	switch (type) {
 		case fltclass_overflow:
-			floating_point_overflow_constant(index, list);
-			break;
+			return call_floating_point_overflow_const_(NULL, index, list);
 
 		case fltclass_underflow:
-			floating_point_underflow_constant(index, list);
-			break;
+			return call_floating_point_underflow_const_(NULL, index, list);
 
 		case fltclass_nan:
 		default:
-			floating_point_invalid_operation_constant(index, list);
-			break;
+			return call_float_invalid_const_(NULL, index, list);
 	}
 }
 
@@ -370,7 +361,7 @@ static long_float strtold_c(const char *str)
 	return value;
 }
 
-_g single_float check_strtof(const char *str, addr pos)
+_g int check_strtof_(const char *str, addr pos, single_float *ret)
 {
 	fltclasstype type;
 	single_float value;
@@ -380,13 +371,14 @@ _g single_float check_strtof(const char *str, addr pos)
 	if (type != fltclass_normal) {
 		if (pos == NULL)
 			strvect_char_heap(&pos, str);
-		float_fltclass(CONSTANT_SYSTEM_CAST_SINGLE_FLOAT, type, pos, NULL);
+		*ret = 0.0f;
+		return float_fltclass_(CONSTANT_SYSTEM_CAST_SINGLE_FLOAT, type, pos, NULL);
 	}
 
-	return value;
+	return Result(ret, value);
 }
 
-_g double_float check_strtod(const char *str, addr pos)
+_g int check_strtod_(const char *str, addr pos, double_float *ret)
 {
 	fltclasstype type;
 	double_float value;
@@ -396,13 +388,14 @@ _g double_float check_strtod(const char *str, addr pos)
 	if (type != fltclass_normal) {
 		if (pos == NULL)
 			strvect_char_heap(&pos, str);
-		float_fltclass(CONSTANT_SYSTEM_CAST_DOUBLE_FLOAT, type, pos, NULL);
+		*ret = 0.0;
+		return float_fltclass_(CONSTANT_SYSTEM_CAST_DOUBLE_FLOAT, type, pos, NULL);
 	}
 
-	return value;
+	return Result(ret, value);
 }
 
-_g long_float check_strtold(const char *str, addr pos)
+_g int check_strtold_(const char *str, addr pos, long_float *ret)
 {
 	fltclasstype type;
 	long_float value;
@@ -412,13 +405,14 @@ _g long_float check_strtold(const char *str, addr pos)
 	if (type != fltclass_normal) {
 		if (pos == NULL)
 			strvect_char_heap(&pos, str);
-		float_fltclass(CONSTANT_SYSTEM_CAST_LONG_FLOAT, type, pos, NULL);
+		*ret = 0.0L;
+		return float_fltclass_(CONSTANT_SYSTEM_CAST_LONG_FLOAT, type, pos, NULL);
 	}
 
-	return value;
+	return Result(ret, value);
 }
 
-_g single_float check_strtof_reverse(const char *str, addr pos)
+_g int check_strtof_reverse_(const char *str, addr pos, single_float *ret)
 {
 	fltclasstype type;
 	single_float value;
@@ -428,13 +422,14 @@ _g single_float check_strtof_reverse(const char *str, addr pos)
 	if (type != fltclass_normal) {
 		if (pos == NULL)
 			strvect_char_heap(&pos, str);
-		float_fltclass(CONSTANT_SYSTEM_CAST_SINGLE_FLOAT, type, pos, NULL);
+		*ret = 0.0f;
+		return float_fltclass_(CONSTANT_SYSTEM_CAST_SINGLE_FLOAT, type, pos, NULL);
 	}
 
-	return value;
+	return Result(ret, value);
 }
 
-_g double_float check_strtod_reverse(const char *str, addr pos)
+_g int check_strtod_reverse_(const char *str, addr pos, double_float *ret)
 {
 	fltclasstype type;
 	double_float value;
@@ -444,13 +439,14 @@ _g double_float check_strtod_reverse(const char *str, addr pos)
 	if (type != fltclass_normal) {
 		if (pos == NULL)
 			strvect_char_heap(&pos, str);
-		float_fltclass(CONSTANT_SYSTEM_CAST_DOUBLE_FLOAT, type, pos, NULL);
+		*ret = 0.0;
+		return float_fltclass_(CONSTANT_SYSTEM_CAST_DOUBLE_FLOAT, type, pos, NULL);
 	}
 
-	return value;
+	return Result(ret, value);
 }
 
-_g long_float check_strtold_reverse(const char *str, addr pos)
+_g int check_strtold_reverse_(const char *str, addr pos, long_float *ret)
 {
 	fltclasstype type;
 	long_float value;
@@ -460,10 +456,11 @@ _g long_float check_strtold_reverse(const char *str, addr pos)
 	if (type != fltclass_normal) {
 		if (pos == NULL)
 			strvect_char_heap(&pos, str);
-		float_fltclass(CONSTANT_SYSTEM_CAST_LONG_FLOAT, type, pos, NULL);
+		*ret = 0.0L;
+		return float_fltclass_(CONSTANT_SYSTEM_CAST_LONG_FLOAT, type, pos, NULL);
 	}
 
-	return value;
+	return Result(ret, value);
 }
 
 
@@ -540,162 +537,142 @@ _g void abs_floatl_heap(addr left, addr *ret)
 /*
  *  cast
  */
-_g double_float cast_sd_float(single_float v)
+_g int cast_sd_float_(single_float v, double_float *ret)
 {
-	return (double_float)v;
+	return Result(ret, (double_float)v);
 }
 
-_g long_float cast_sl_float(single_float v)
+_g int cast_sl_float_(single_float v, long_float *ret)
 {
-	return (long_float)v;
+	return Result(ret, (long_float)v);
 }
 
-_g single_float cast_ds_float(double_float v)
+_g int cast_ds_float_(double_float v, single_float *ret)
 {
 	fltclasstype type;
-	single_float ret;
+	single_float value;
 	addr pos;
 
-	ret = (single_float)v;
-	type = getfltclassify(ret);
+	value = (single_float)v;
+	type = getfltclassify(value);
 	if (type != fltclass_normal) {
 		double_float_heap(&pos, v);
-		float_fltclass(CONSTANT_COMMON_COERCE, type, pos, NULL);
+		*ret = 0.0f;
+		return float_fltclass_(CONSTANT_COMMON_COERCE, type, pos, NULL);
 	}
 
-	return ret;
+	return Result(ret, value);
 }
 
-_g long_float cast_dl_float(double_float v)
+_g int cast_dl_float_(double_float v, long_float *ret)
 {
-	return (long_float)v;
+	return Result(ret, (long_float)v);
 }
 
-_g single_float cast_ls_float(long_float v)
+_g int cast_ls_float_(long_float v, single_float *ret)
 {
 	fltclasstype type;
-	single_float ret;
+	single_float value;
 	addr pos;
 
-	ret = (single_float)v;
-	type = getfltclassify(ret);
+	value = (single_float)v;
+	type = getfltclassify(value);
 	if (type != fltclass_normal) {
 		long_float_heap(&pos, v);
-		float_fltclass(CONSTANT_COMMON_COERCE, type, pos, NULL);
+		*ret = 0.0f;
+		return float_fltclass_(CONSTANT_COMMON_COERCE, type, pos, NULL);
 	}
 
-	return ret;
+	return Result(ret, value);
 }
 
-_g double_float cast_ld_float(long_float v)
+_g int cast_ld_float_(long_float v, double_float *ret)
 {
 	fltclasstype type;
-	double_float ret;
+	double_float value;
 	addr pos;
 
-	ret = (double_float)v;
-	type = getfltclassify(ret);
+	value = (double_float)v;
+	type = getfltclassify(value);
 	if (type != fltclass_normal) {
 		long_float_heap(&pos, v);
-		float_fltclass(CONSTANT_COMMON_COERCE, type, pos, NULL);
+		*ret = 0.0;
+		return float_fltclass_(CONSTANT_COMMON_COERCE, type, pos, NULL);
 	}
 
-	return ret;
+	return Result(ret, value);
 }
 
-_g double_float cast_sd_value(addr pos)
+_g int cast_sd_value_(addr pos, double_float *ret)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
-	return (double_float)RefSingleFloat(pos);
+	return Result(ret, (double_float)RefSingleFloat(pos));
 }
 
-_g long_float cast_sl_value(addr pos)
+_g int cast_sl_value_(addr pos, long_float *ret)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
-	return (long_float)RefSingleFloat(pos);
+	return Result(ret, (long_float)RefSingleFloat(pos));
 }
 
-_g single_float cast_ds_value(addr pos)
+_g int cast_ds_value_(addr pos, single_float *ret)
 {
 	single_float v;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	v = (single_float)RefDoubleFloat(pos);
-	float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
+	Return_float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
 
-	return v;
+	return Result(ret, v);
 }
 
-_g long_float cast_dl_value(addr pos)
+_g int cast_dl_value_(addr pos, long_float *ret)
 {
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
-	return (long_float)RefDoubleFloat(pos);
+	return Result(ret, (long_float)RefDoubleFloat(pos));
 }
 
-_g single_float cast_ls_value(addr pos)
+_g int cast_ls_value_(addr pos, single_float *ret)
 {
 	single_float v;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	v = (single_float)RefLongFloat(pos);
-	float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
+	Return_float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
 
-	return v;
+	return Result(ret, v);
 }
 
-_g double_float cast_ld_value(addr pos)
+_g int cast_ld_value_(addr pos, double_float *ret)
 {
 	double_float v;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	v = (double_float)RefLongFloat(pos);
-	float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
+	Return_float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
 
-	return v;
+	return Result(ret, v);
 }
 
-_g void cast_float_alloc(LocalRoot local, addr left, addr *ret)
+_g int cast_ss_value_(addr pos, single_float *ret)
 {
-	switch (GetType(left)) {
-		case LISPTYPE_FIXNUM:
-			single_float_fixnum_alloc(local, ret, left);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			single_float_bignum_alloc(local, ret, left);
-			break;
-
-		case LISPTYPE_RATIO:
-			single_float_alloc(local, ret, single_float_ratio(left));
-			break;
-
-		case LISPTYPE_SINGLE_FLOAT:
-			single_float_throw_alloc(local, left, ret);
-			break;
-
-		case LISPTYPE_DOUBLE_FLOAT:
-			double_float_throw_alloc(local, left, ret);
-			break;
-
-		case LISPTYPE_LONG_FLOAT:
-			long_float_throw_alloc(local, left, ret);
-			break;
-
-		default:
-			TypeError(left, REAL);
-			break;
-	}
+	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
+	GetSingleFloat(pos, ret);
+	return 0;
 }
 
-_g void cast_float_local(LocalRoot local, addr left, addr *ret)
+_g int cast_dd_value_(addr pos, double_float *ret)
 {
-	Check(local == NULL, "local error");
-	cast_float_alloc(local, left, ret);
+	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
+	GetDoubleFloat(pos, ret);
+	return 0;
 }
 
-_g void cast_float_heap(addr left, addr *ret)
+_g int cast_ll_value_(addr pos, long_float *ret)
 {
-	cast_float_alloc(NULL, left, ret);
+	CheckType(pos, LISPTYPE_LONG_FLOAT);
+	GetLongFloat(pos, ret);
+	return 0;
 }
 
 

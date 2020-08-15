@@ -270,67 +270,73 @@ _g int compare_bb_real(addr left, addr right)
 	return IsPlus(sign1)? sign2: -sign2;
 }
 
-_g int compare_bs_real(addr left, addr right)
+_g int compare_bs_real_(addr left, addr right, int *ret)
 {
 	float value1, value2;
 
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
-	value1 = single_float_bignum(left);
+	Return(single_float_bignum_(left, &value1));
 	GetSingleFloat(right, &value2);
 	if (value1 < value2)
-		return -1;
+		return Result(ret, -1);
 	if (value1 > value2)
-		return 1;
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int compare_bd_real(addr left, addr right)
+_g int compare_bd_real_(addr left, addr right, int *ret)
 {
 	double_float value1, value2;
 
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
-	value1 = double_float_bignum(left);
+	Return(double_float_bignum_(left, &value1));
 	GetDoubleFloat(right, &value2);
 	if (value1 < value2)
-		return -1;
+		return Result(ret, -1);
 	if (value1 > value2)
-		return 1;
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int compare_bl_real(addr left, addr right)
+_g int compare_bl_real_(addr left, addr right, int *ret)
 {
 	long_float value1, value2;
 
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
-	value1 = long_float_bignum(left);
+	Return(long_float_bignum_(left, &value1));
 	GetLongFloat(right, &value2);
 	if (value1 < value2)
-		return -1;
+		return Result(ret, -1);
 	if (value1 > value2)
-		return 1;
+		return Result(ret, 1);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int compare_sb_real(addr left, addr right)
+_g int compare_sb_real_(addr left, addr right, int *ret)
 {
-	return -compare_bs_real(right, left);
+	int check;
+	Return(compare_bs_real_(right, left, &check));
+	return Result(ret, -check);
 }
 
-_g int compare_db_real(addr left, addr right)
+_g int compare_db_real_(addr left, addr right, int *ret)
 {
-	return -compare_bd_real(right, left);
+	int check;
+	Return(compare_bd_real_(right, left, &check));
+	return Result(ret, -check);
 }
 
-_g int compare_lb_real(addr left, addr right)
+_g int compare_lb_real_(addr left, addr right, int *ret)
 {
-	return -compare_bl_real(right, left);
+	int check;
+	Return(compare_bl_real_(right, left, &check));
+	return Result(ret, -check);
 }
 
 /* compare byte */

@@ -214,7 +214,7 @@ static int array_adjust_element_type_(addr pos, addr type, addr array)
 		str1->bytesize = str2->bytesize;
 	}
 	else {
-		upgraded_array_value(type, &value, &size);
+		Return(upgraded_array_value_(type, &value, &size));
 		if (! array_equal_type(str2, value, size))
 			return fmte_(":element-type ~S must be equal to base array.", type, NULL);
 		str1->type = value;
@@ -232,6 +232,7 @@ static void array_adjust_adjustable(addr pos, addr array)
 
 static int array_adjust_fillpointer_(addr pos, addr array, addr fill)
 {
+	int check;
 	struct array_struct *str1;
 	struct array_struct *str2;
 	size_t size;
@@ -254,7 +255,8 @@ static int array_adjust_fillpointer_(addr pos, addr array, addr fill)
 	}
 	/* integer */
 	if (integerp(fill)) {
-		if (minusp_integer(fill))
+		Return(minusp_integer_(fill, &check));
+		if (check)
 			return fmte_("fill-pointer ~A must be a non-negative integer.", fill, NULL);
 		if (GetIndex_integer(fill, &size))
 			return fmte_("fill-pointer ~A is too large.", fill, NULL);
@@ -457,7 +459,7 @@ static int array_adjust_vector_type_(addr pos, addr type, enum ARRAY_TYPE check)
 		str->bytesize = 0;
 	}
 	else {
-		upgraded_array_value(type, &value, &size);
+		Return(upgraded_array_value_(type, &value, &size));
 		if (check != value)
 			return fmte_(":element-type ~S must be equal to base array.", type, NULL);
 		str->type = value;

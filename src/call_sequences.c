@@ -208,7 +208,7 @@ static int vector_upgraded_make_sequence(addr *ret, addr type, size_t size, addr
 	int upsize;
 
 	GetArrayType(type, 0, &type);
-	upgraded_array_value(type, &upgraded, &upsize);
+	Return(upgraded_array_value_(type, &upgraded, &upsize));
 	switch (upgraded) {
 		case ARRAY_TYPE_BIT:
 			return alloc_bitvector_make_sequence(ret, size, value);
@@ -626,7 +626,7 @@ static int vector_upgraded_map_sequence(Execute ptr,
 	int upsize;
 
 	GetArrayType(type, 0, &type);
-	upgraded_array_value(type, &upgraded, &upsize);
+	Return(upgraded_array_value_(type, &upgraded, &upsize));
 	switch (upgraded) {
 		case ARRAY_TYPE_BIT:
 			return vector_bitvector_map_sequence(ptr, ret, call, group);
@@ -1587,7 +1587,7 @@ static int array_upgraded_merge_sequence(addr *ret, addr type, size_t size)
 	int upsize;
 
 	GetArrayType(type, 0, &type);
-	upgraded_array_value(type, &upgraded, &upsize);
+	Return(upgraded_array_value_(type, &upgraded, &upsize));
 	return make_specialized_sequence(ret, upgraded, upsize, size);
 }
 
@@ -2066,7 +2066,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
-	getindex_integer(start, &(str.start_value));
+	Return(getindex_integer_(start, &(str.start_value)));
 	str.ptr = ptr;
 	str.local = ptr->local;
 	str.fromp = fromp;
@@ -2132,7 +2132,7 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	Return(listp_sequence_(pos, &listp));
 	fromp = (from != Nil);
 	range = &(str.range);
-	getindex_integer(start, &(str.start_value));
+	Return(getindex_integer_(start, &(str.start_value)));
 	str.ptr = ptr;
 	str.local = ptr->local;
 	str.fromp = fromp;
@@ -2471,7 +2471,7 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	str.end2 = end2;
 	str.pos1 = pos1;
 	str.pos2 = pos2;
-	getindex_integer(start2, &(str.start_value));
+	Return(getindex_integer_(start2, &(str.start_value)));
 	if (fromp) {
 		Return(make_sequence_range_endp_(local, pos1, start1, end1, &(str.range1)));
 		Return(make_sequence_range_vector_(local, pos2, start2, end2, &(str.range2)));
@@ -2990,6 +2990,7 @@ static int normal_substitute_sequence(
 
 static int setcount_sequence(struct count_struct *str, addr count)
 {
+	int check;
 	size_t limit;
 
 	if (count == Nil) {
@@ -3000,7 +3001,8 @@ static int setcount_sequence(struct count_struct *str, addr count)
 	if (! integerp(count)) {
 		return fmte_(":COUNT argument ~S must be an integer type.", count, NULL);
 	}
-	if (minusp_integer(count)) {
+	Return(minusp_integer_(count, &check));
+	if (check) {
 		count = fixnumh(0);
 		limit = 0;
 	}

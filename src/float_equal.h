@@ -14,7 +14,6 @@
 _g int zerop_single_float(addr pos);
 _g int zerop_double_float(addr pos);
 _g int zerop_long_float(addr pos);
-_g int zerop_float(addr pos);
 
 _g int equal_fs_real(addr left, addr right);
 _g int equal_fd_real(addr left, addr right);
@@ -22,12 +21,12 @@ _g int equal_fl_real(addr left, addr right);
 #define equal_sf_real(a,b) equal_fs_real((b),(a))
 #define equal_df_real(a,b) equal_fd_real((b),(a))
 #define equal_lf_real(a,b) equal_fl_real((b),(a))
-#define equal_bs_real(a,b) (single_float_bignum(a) == RefSingleFloat(b))
-#define equal_bd_real(a,b) (double_float_bignum(a) == RefDoubleFloat(b))
-#define equal_bl_real(a,b) (long_float_bignum(a) == RefLongFloat(b))
-#define equal_sb_real(a,b) equal_bs_real((b),(a))
-#define equal_db_real(a,b) equal_bd_real((b),(a))
-#define equal_lb_real(a,b) equal_bl_real((b),(a))
+_g int equal_bs_real_(addr left, addr right, int *ret);
+_g int equal_bd_real_(addr left, addr right, int *ret);
+_g int equal_bl_real_(addr left, addr right, int *ret);
+#define equal_sb_real_(a,b,r) equal_bs_real_((b),(a),(r))
+#define equal_db_real_(a,b,r) equal_bd_real_((b),(a),(r))
+#define equal_lb_real_(a,b,r) equal_bl_real_((b),(a),(r))
 #define equal_ss_real(a,b) (RefSingleFloat(a) == RefSingleFloat(b))
 #define equal_dd_real(a,b) (RefDoubleFloat(a) == RefDoubleFloat(b))
 #define equal_ll_real(a,b) (RefLongFloat(a) == RefLongFloat(b))
@@ -79,6 +78,10 @@ _g int less_ll_clang(addr left, addr right);
 _g int less_equal_ss_clang(addr left, addr right);
 _g int less_equal_dd_clang(addr left, addr right);
 _g int less_equal_ll_clang(addr left, addr right);
+
+_g int compare_float_(addr left, addr right, int *ret);
+_g int less_float_clang_(addr left, addr right, int *ret);
+_g int less_equal_float_clang_(addr left, addr right, int *ret);
 
 #endif
 

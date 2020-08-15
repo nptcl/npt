@@ -385,65 +385,89 @@ static int subtypep_standard_char_(addr left, addr right, SubtypepResult *ret)
 	}
 }
 
-static int subtypep_real_less(addr left, addr right)
+static int subtypep_real_less_(addr left, addr right, int *ret)
 {
-	return range_any_right_p(left) && range_right_right_less_equal(left, right);
+	if (! range_any_right_p(left))
+		return Result(ret, 0);
+
+	return range_right_right_less_equal_(left, right, ret);
 }
 
-static int subtypep_real_greater(addr left, addr right)
+static int subtypep_real_greater_(addr left, addr right, int *ret)
 {
-	return range_left_any_p(left) && range_left_left_greater_equal(left, right);
+	if (! range_left_any_p(left))
+		return Result(ret, 0);
+
+	return range_left_left_greater_equal_(left, right, ret);
 }
 
-static int subtypep_real_range(addr left, addr right)
+static int subtypep_real_range_(addr left, addr right, int *ret)
 {
-	return range_between_p(left) && range_in_between(left, right);
+	if (! range_between_p(left))
+		return Result(ret, 0);
+
+	return range_in_between_(left, right, ret);
 }
 
-static int subtypep_realcheck(addr left, addr right)
+static int subtypep_realcheck_(addr left, addr right, int *ret)
 {
 	addr check1, check2;
 
 	if (range_asterisk_p(right))
-		return 1;
+		return Result(ret, 1);
 	if (range_asterisk_p(left))
-		return 0;
+		return Result(ret, 0);
 	GetArrayType(right, 0, &check1);
 	GetArrayType(right, 2, &check2);
 	if (type_asterisk_p(check1))
-		return subtypep_real_less(left, right);
+		return subtypep_real_less_(left, right, ret);
 	if (type_asterisk_p(check2))
-		return subtypep_real_greater(left, right);
+		return subtypep_real_greater_(left, right, ret);
 	else
-		return subtypep_real_range(left, right);
+		return subtypep_real_range_(left, right, ret);
 }
 
-static int realexclude_left(addr left, addr right)
+static int realexclude_left_(addr left, addr right, int *ret)
 {
-	return range_any_right_p(left) &&
-		range_left_any_p(right) &&
-		range_right_left_less(left, right);
+	if (! range_any_right_p(left))
+		return Result(ret, 0);
+	if (! range_left_any_p(right))
+		return Result(ret, 0);
+
+	return range_right_left_less_(left, right, ret);
 }
 
-static int realexclude_right(addr left, addr right)
+static int realexclude_right_(addr left, addr right, int *ret)
 {
-	return range_left_any_p(left) &&
-		range_any_right_p(right) &&
-		range_left_right_greater(left, right);
+	if (! range_left_any_p(left))
+		return Result(ret, 0);
+	if (! range_any_right_p(right))
+		return Result(ret, 0);
+
+	return range_left_right_greater_(left, right, ret);
 }
 
-static int subtypep_realexlucde(addr left, addr right)
+static int subtypep_realexlucde_(addr left, addr right, int *ret)
 {
-	return
-		realexclude_left(left, right) ||
-		realexclude_right(left, right);
+	int check;
+
+	Return(realexclude_left_(left, right, &check));
+	if (check)
+		return Result(ret, 1);
+	
+	return realexclude_right_(left, right, ret);
 }
 
 static int subtypep_realparameter_(addr left, addr right, SubtypepResult *ret)
 {
-	if (subtypep_realcheck(left, right))
+	int check;
+
+	Return(subtypep_realcheck_(left, right, &check));
+	if (check)
 		return ReturnInclude(ret);
-	else if (subtypep_realexlucde(left, right))
+
+	Return(subtypep_realexlucde_(left, right, &check));
+	if (check)
 		return ReturnExclude(ret);
 	else
 		return ReturnFalse(ret);
@@ -1094,7 +1118,7 @@ static int subtypep_eql_type_(addr left, addr right, SubtypepResult *ret)
 
 	/* (subtypep '(eql x) right) */
 	GetArrayType(left, 0, &left);
-	Return(typep_table(Execute_Thread, left, right, &check));
+	Return(typep_table_(Execute_Thread, left, right, &check));
 	if (check)
 		return ReturnInclude(ret);
 	else
@@ -1112,7 +1136,7 @@ static int subtypep_type_eql_(addr left, addr right, SubtypepResult *ret)
 
 	/* (subtypep left '(eql x)) */
 	GetArrayType(right, 0, &right);
-	Return(typep_table(Execute_Thread, right, left, &check));
+	Return(typep_table_(Execute_Thread, right, left, &check));
 	if (check)
 		return ReturnFalse(ret);
 	else
@@ -1988,11 +2012,13 @@ static int subtypep_call_(addr left, addr right, int aster, SubtypepResult *ret)
 		return subtypep_call_normal_(left, right, ret);
 }
 
-static void real_extract_subtypep(LocalRoot local, addr *ret, addr type)
+static int real_extract_subtypep_(LocalRoot local, addr *ret, addr type)
 {
 	type_copy_local(local, &type, type);
-	real_extract_local(local, &type, type);
+	Return(real_extract_local_(local, &type, type));
 	get_type_subtypep(ret, type);
+
+	return 0;
 }
 
 _g int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
@@ -2005,8 +2031,8 @@ _g int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
 	CheckType(right, LISPTYPE_TYPE);
 	local = Local_Thread;
 	push_local(local, &stack);
-	real_extract_subtypep(local, &left, left);
-	real_extract_subtypep(local, &right, right);
+	Return(real_extract_subtypep_(local, &left, left));
+	Return(real_extract_subtypep_(local, &right, right));
 	Return(subtypep_call_(left, right, aster, &result));
 	rollback_local(local, stack);
 

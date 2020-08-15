@@ -48,7 +48,7 @@ static int coerce_typep(Execute ptr, addr pos, addr value, addr type, addr *ret)
 {
 	int check;
 
-	Return(typep_clang(ptr, value, type, &check));
+	Return(typep_clang_(ptr, value, type, &check));
 	if (! check)
 		return coerce_error(ptr, pos, type);
 
@@ -73,7 +73,7 @@ static int coerce_bignum_single(Execute ptr, addr pos, addr type, addr *ret)
 	addr value;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
-	single_float_bignum_heap(&value, pos);
+	Return(single_float_bignum_heap_(&value, pos));
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -82,7 +82,7 @@ static int coerce_ratio_single(Execute ptr, addr pos, addr type, addr *ret)
 	addr value;
 
 	CheckType(pos, LISPTYPE_RATIO);
-	single_float_ratio_heap(&value, pos);
+	Return(single_float_ratio_heap_(&value, pos));
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -116,18 +116,22 @@ static int coerce_float(Execute ptr, addr pos, addr type, addr *ret)
 static int coerce_double_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
+	single_float v;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
-	single_float_heap(&value, cast_ds_value(pos));
+	Return(cast_ds_value_(pos, &v));
+	single_float_heap(&value, v);
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
 static int coerce_long_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
+	single_float v;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
-	single_float_heap(&value, cast_ls_value(pos));
+	Return(cast_ls_value_(pos, &v));
+	single_float_heap(&value, v);
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -165,18 +169,22 @@ static int coerce_single(Execute ptr, addr pos, addr type, addr *ret)
 static int coerce_single_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
+	double_float v;
 
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
-	double_float_heap(&value, cast_sd_value(pos));
+	Return(cast_sd_value_(pos, &v));
+	double_float_heap(&value, v);
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
 static int coerce_long_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
+	double_float v;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
-	double_float_heap(&value, cast_ld_value(pos));
+	Return(cast_ld_value_(pos, &v));
+	double_float_heap(&value, v);
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -194,7 +202,7 @@ static int coerce_bignum_double(Execute ptr, addr pos, addr type, addr *ret)
 	addr value;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
-	double_float_bignum_heap(&value, pos);
+	Return(double_float_bignum_heap_(&value, pos));
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -203,7 +211,7 @@ static int coerce_ratio_double(Execute ptr, addr pos, addr type, addr *ret)
 	addr value;
 
 	CheckType(pos, LISPTYPE_RATIO);
-	double_float_ratio_heap(&value, pos);
+	Return(double_float_ratio_heap_(&value, pos));
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -241,18 +249,22 @@ static int coerce_double(Execute ptr, addr pos, addr type, addr *ret)
 static int coerce_single_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
+	long_float v;
 
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
-	long_float_heap(&value, cast_sl_value(pos));
+	Return(cast_sl_value_(pos, &v));
+	long_float_heap(&value, v);
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
 static int coerce_double_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
+	long_float v;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
-	long_float_heap(&value, cast_dl_value(pos));
+	Return(cast_dl_value_(pos, &v));
+	long_float_heap(&value, v);
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -270,7 +282,7 @@ static int coerce_bignum_long(Execute ptr, addr pos, addr type, addr *ret)
 	addr value;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
-	long_float_bignum_heap(&value, pos);
+	Return(long_float_bignum_heap_(&value, pos));
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -279,7 +291,7 @@ static int coerce_ratio_long(Execute ptr, addr pos, addr type, addr *ret)
 	addr value;
 
 	CheckType(pos, LISPTYPE_RATIO);
-	long_float_ratio_heap(&value, pos);
+	Return(long_float_ratio_heap_(&value, pos));
 	return coerce_typep(ptr, pos, value, type, ret);
 }
 
@@ -2565,12 +2577,13 @@ static int coerce_table(Execute ptr, addr pos, addr type, addr *ret)
 
 static int coerce_optimize(Execute ptr, addr pos, addr type, addr *ret)
 {
+	int ignore;
 	LocalRoot local;
 	LocalStack stack;
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	type_optimize_local(local, &type, type);
+	Return(type_optimize_local_(local, type, &type, &ignore));
 	get_type_optimized(&type, type);
 	Return(coerce_table(ptr, pos, type, ret));
 	rollback_local(local, stack);

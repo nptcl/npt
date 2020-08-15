@@ -442,7 +442,7 @@ _g int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
 	addr stream;
 	LocalHold hold;
 
-	open_input_string_stream(&stream, pos);
+	Return(open_input_string_stream_(&stream, pos));
 	hold = LocalHold_local_push(ptr, stream);
 	Return(read_stream(ptr, stream, result, ret));
 	localhold_end(hold);
@@ -451,7 +451,7 @@ _g int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
 	return 0;
 }
 
-_g int readstring(addr *ret, const char *code)
+_g int readstring_debug(addr *ret, const char *code)
 {
 	int result;
 	addr stream;
@@ -464,10 +464,10 @@ _g int readstring(addr *ret, const char *code)
 	return result;
 }
 
-_g addr readr(const char *code)
+_g addr readr_debug(const char *code)
 {
 	addr pos;
-	if (readstring(&pos, code))
+	if (readstring_debug(&pos, code))
 		return Nil;
 	else
 		return pos;

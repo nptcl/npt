@@ -25,16 +25,13 @@ _g int oneplus_number_common_(LocalRoot local, addr value, addr *ret)
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_sv_heap(value, 1.0f, ret);
-			break;
+			return plus_float_sv_heap_(value, 1.0f, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_dv_heap(value, 1.0, ret);
-			break;
+			return plus_float_dv_heap_(value, 1.0, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_lv_heap(value, 1.0L, ret);
-			break;
+			return plus_float_lv_heap_(value, 1.0L, ret);
 
 		case LISPTYPE_COMPLEX:
 			return oneplus_complex_heap_(local, value, ret);
@@ -63,16 +60,13 @@ _g int oneminus_number_common_(LocalRoot local, addr value, addr *ret)
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_sv_heap(value, -1.0f, ret);
-			break;
+			return plus_float_sv_heap_(value, -1.0f, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_dv_heap(value, -1.0, ret);
-			break;
+			return plus_float_dv_heap_(value, -1.0, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_lv_heap(value, -1.0L, ret);
-			break;
+			return plus_float_lv_heap_(value, -1.0L, ret);
 
 		case LISPTYPE_COMPLEX:
 			return oneminus_complex_heap_(local, value, ret);
@@ -144,16 +138,13 @@ static int plus_fixnum_number_heap_(LocalRoot local, addr left, addr right, addr
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_fs_heap(left, right, ret);
-			break;
+			return plus_float_fs_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_fd_heap(left, right, ret);
-			break;
+			return plus_float_fd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_fl_heap(left, right, ret);
-			break;
+			return plus_float_fl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return plus_fc_number_common_(local, left, right, ret);
@@ -183,16 +174,13 @@ static int plus_bignum_number_heap_(LocalRoot local, addr left, addr right, addr
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_bs_heap(left, right, ret);
-			break;
+			return plus_float_bs_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_bd_heap(left, right, ret);
-			break;
+			return plus_float_bd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_bl_heap(left, right, ret);
-			break;
+			return plus_float_bl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return plus_bc_number_common_(local, left, right, ret);
@@ -222,16 +210,13 @@ static int plus_ratio_number_heap_(LocalRoot local, addr left, addr right, addr 
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_rs_heap(left, right, ret);
-			break;
+			return plus_float_rs_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_rd_heap(left, right, ret);
-			break;
+			return plus_float_rd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_rl_heap(left, right, ret);
-			break;
+			return plus_float_rl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return plus_rc_number_common_(local, left, right, ret);
@@ -249,28 +234,22 @@ static int plus_single_float_number_heap_(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_sf_heap(left, right, ret);
-			break;
+			return plus_float_sf_heap_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			plus_float_sb_heap(left, right, ret);
-			break;
+			return plus_float_sb_heap_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			plus_float_sr_heap(left, right, ret);
-			break;
+			return plus_float_sr_heap_(left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_ss_heap(left, right, ret);
-			break;
+			return plus_float_ss_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_sd_heap(left, right, ret);
-			break;
+			return plus_float_sd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_sl_heap(left, right, ret);
-			break;
+			return plus_float_sl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return plus_sc_number_common_(left, right, ret);
@@ -279,8 +258,6 @@ static int plus_single_float_number_heap_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return TypeError_(right, NUMBER);
 	}
-
-	return 0;
 }
 
 static int plus_double_float_number_heap_(addr left, addr right, addr *ret)
@@ -288,28 +265,22 @@ static int plus_double_float_number_heap_(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_df_heap(left, right, ret);
-			break;
+			return plus_float_df_heap_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			plus_float_db_heap(left, right, ret);
-			break;
+			return plus_float_db_heap_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			plus_float_dr_heap(left, right, ret);
-			break;
+			return plus_float_dr_heap_(left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_ds_heap(left, right, ret);
-			break;
+			return plus_float_ds_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_dd_heap(left, right, ret);
-			break;
+			return plus_float_dd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_dl_heap(left, right, ret);
-			break;
+			return plus_float_dl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return plus_dc_number_common_(left, right, ret);
@@ -318,8 +289,6 @@ static int plus_double_float_number_heap_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return TypeError_(right, NUMBER);
 	}
-
-	return 0;
 }
 
 static int plus_long_float_number_heap_(addr left, addr right, addr *ret)
@@ -327,28 +296,22 @@ static int plus_long_float_number_heap_(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_lf_heap(left, right, ret);
-			break;
+			return plus_float_lf_heap_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			plus_float_lb_heap(left, right, ret);
-			break;
+			return plus_float_lb_heap_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			plus_float_lr_heap(left, right, ret);
-			break;
+			return plus_float_lr_heap_(left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_ls_heap(left, right, ret);
-			break;
+			return plus_float_ls_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_ld_heap(left, right, ret);
-			break;
+			return plus_float_ld_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			plus_float_ll_heap(left, right, ret);
-			break;
+			return plus_float_ll_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return plus_lc_number_common_(left, right, ret);
@@ -357,8 +320,6 @@ static int plus_long_float_number_heap_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return TypeError_(right, NUMBER);
 	}
-
-	return 0;
 }
 
 static int plus_complex_number_heap_(LocalRoot local,
@@ -445,16 +406,13 @@ static int minus_fixnum_number_heap_(LocalRoot local,
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			minus_float_fs_heap(left, right, ret);
-			break;
+			return minus_float_fs_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			minus_float_fd_heap(left, right, ret);
-			break;
+			return minus_float_fd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			minus_float_fl_heap(left, right, ret);
-			break;
+			return minus_float_fl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return minus_fc_number_common_(local, left, right, ret);
@@ -485,16 +443,13 @@ static int minus_bignum_number_heap_(LocalRoot local,
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			minus_float_bs_heap(left, right, ret);
-			break;
+			return minus_float_bs_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			minus_float_bd_heap(left, right, ret);
-			break;
+			return minus_float_bd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			minus_float_bl_heap(left, right, ret);
-			break;
+			return minus_float_bl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return minus_bc_number_common_(local, left, right, ret);
@@ -525,16 +480,13 @@ static int minus_ratio_number_heap_(LocalRoot local,
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			minus_float_rs_heap(left, right, ret);
-			break;
+			return minus_float_rs_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			minus_float_rd_heap(left, right, ret);
-			break;
+			return minus_float_rd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			minus_float_rl_heap(left, right, ret);
-			break;
+			return minus_float_rl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return minus_rc_number_common_(local, left, right, ret);
@@ -552,28 +504,22 @@ static int minus_single_float_number_heap_(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			minus_float_sf_heap(left, right, ret);
-			break;
+			return minus_float_sf_heap_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			minus_float_sb_heap(left, right, ret);
-			break;
+			return minus_float_sb_heap_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			minus_float_sr_heap(left, right, ret);
-			break;
+			return minus_float_sr_heap_(left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			minus_float_ss_heap(left, right, ret);
-			break;
+			return minus_float_ss_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			minus_float_sd_heap(left, right, ret);
-			break;
+			return minus_float_sd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			minus_float_sl_heap(left, right, ret);
-			break;
+			return minus_float_sl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return minus_sc_number_common_(left, right, ret);
@@ -582,8 +528,6 @@ static int minus_single_float_number_heap_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return TypeError_(right, NUMBER);
 	}
-
-	return 0;
 }
 
 static int minus_double_float_number_heap_(addr left, addr right, addr *ret)
@@ -591,28 +535,22 @@ static int minus_double_float_number_heap_(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			minus_float_df_heap(left, right, ret);
-			break;
+			return minus_float_df_heap_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			minus_float_db_heap(left, right, ret);
-			break;
+			return minus_float_db_heap_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			minus_float_dr_heap(left, right, ret);
-			break;
+			return minus_float_dr_heap_(left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			minus_float_ds_heap(left, right, ret);
-			break;
+			return minus_float_ds_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			minus_float_dd_heap(left, right, ret);
-			break;
+			return minus_float_dd_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			minus_float_dl_heap(left, right, ret);
-			break;
+			return minus_float_dl_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return minus_dc_number_common_(left, right, ret);
@@ -621,8 +559,6 @@ static int minus_double_float_number_heap_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return TypeError_(right, NUMBER);
 	}
-
-	return 0;
 }
 
 static int minus_long_float_number_heap_(addr left, addr right, addr *ret)
@@ -630,28 +566,22 @@ static int minus_long_float_number_heap_(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			minus_float_lf_heap(left, right, ret);
-			break;
+			return minus_float_lf_heap_(left, right, ret);
 
 		case LISPTYPE_BIGNUM:
-			minus_float_lb_heap(left, right, ret);
-			break;
+			return minus_float_lb_heap_(left, right, ret);
 
 		case LISPTYPE_RATIO:
-			minus_float_lr_heap(left, right, ret);
-			break;
+			return minus_float_lr_heap_(left, right, ret);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			minus_float_ls_heap(left, right, ret);
-			break;
+			return minus_float_ls_heap_(left, right, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			minus_float_ld_heap(left, right, ret);
-			break;
+			return minus_float_ld_heap_(left, right, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			minus_float_ll_heap(left, right, ret);
-			break;
+			return minus_float_ll_heap_(left, right, ret);
 
 		case LISPTYPE_COMPLEX:
 			return minus_lc_number_common_(left, right, ret);
@@ -660,8 +590,6 @@ static int minus_long_float_number_heap_(addr left, addr right, addr *ret)
 			*ret = Nil;
 			return TypeError_(right, NUMBER);
 	}
-
-	return 0;
 }
 
 static int minus_complex_number_heap_(LocalRoot local,

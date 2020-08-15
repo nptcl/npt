@@ -51,33 +51,33 @@ _g int complex_alloc_(LocalRoot local, addr *ret, addr real, addr imag);
 _g int complex_local_(LocalRoot local, addr *ret, addr real, addr imag);
 _g int complex_heap_(addr *ret, addr real, addr imag);
 
-_g void complex_single_alloc(LocalRoot local,
+_g int complex_single_alloc_(LocalRoot local,
 		addr *ret, single_float real, single_float imag);
-_g void complex_single_local(LocalRoot local,
+_g int complex_single_local_(LocalRoot local,
 		addr *ret, single_float real, single_float imag);
-_g void complex_single_heap(addr *ret,
+_g int complex_single_heap_(addr *ret,
 		single_float real, single_float imag);
-_g void complex_double_alloc(LocalRoot local,
+_g int complex_double_alloc_(LocalRoot local,
 		addr *ret, double_float real, double_float imag);
-_g void complex_double_local(LocalRoot local,
+_g int complex_double_local_(LocalRoot local,
 		addr *ret, double_float real, double_float imag);
-_g void complex_double_heap(addr *ret,
+_g int complex_double_heap_(addr *ret,
 		double_float real, double_float imag);
-_g void complex_long_alloc(LocalRoot local,
+_g int complex_long_alloc_(LocalRoot local,
 		addr *ret, long_float real, long_float imag);
-_g void complex_long_local(LocalRoot local,
+_g int complex_long_local_(LocalRoot local,
 		addr *ret, long_float real, long_float imag);
-_g void complex_long_heap(addr *ret,
+_g int complex_long_heap_(addr *ret,
 		long_float real, long_float imag);
 
-_g void complex_copy_alloc(LocalRoot local, addr pos, addr *ret);
-_g void complex_copy_local(LocalRoot local, addr pos, addr *ret);
-_g void complex_copy_heap(addr pos, addr *ret);
+_g int complex_copy_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int complex_copy_local_(LocalRoot local, addr pos, addr *ret);
+_g int complex_copy_heap_(addr pos, addr *ret);
 _g int complex_result_local_(LocalRoot local, addr pos, addr *ret);
 _g int complex_result_heap_(LocalRoot local, addr pos, addr *ret);
-_g void complex_throw_alloc(LocalRoot local, addr pos, addr *ret);
-_g void complex_throw_local(LocalRoot local, addr pos, addr *ret);
-_g void complex_throw_heap(addr pos, addr *ret);
+_g int complex_throw_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int complex_throw_local_(LocalRoot local, addr pos, addr *ret);
+_g int complex_throw_heap_(addr pos, addr *ret);
 _g int complex_force_heap_(addr *ret, addr real, addr imag, enum ComplexType type);
 
 _g int single_float_complex_(addr pos, single_float *re, single_float *im);
@@ -86,20 +86,19 @@ _g int long_float_complex_(addr pos, long_float *re, long_float *im);
 
 _g int zerop_complex_(addr pos, int *ret);
 _g int eql_complex(addr left, addr right);
-_g int equal_complex(LocalRoot local, addr left, addr right);
-#define not_equal_complex(m,a,b) (! equal_complex((m),(a),(b)))
-_g int equal_fc_number(addr left, addr right);
-_g int equal_bc_number(addr left, addr right);
-_g int equal_rc_number(LocalRoot local, addr left, addr right);
-_g int equal_sc_number(LocalRoot local, addr left, addr right);
-_g int equal_dc_number(LocalRoot local, addr left, addr right);
-_g int equal_lc_number(LocalRoot local, addr left, addr right);
-#define equal_cf_number(a,b) equal_fc_number((b),(a))
-#define equal_cb_number(a,b) equal_bc_number((b),(a))
-#define equal_cr_number(m,a,b) equal_rc_number((m),(b),(a))
-#define equal_cs_number(m,a,b) equal_sc_number((m),(b),(a))
-#define equal_cd_number(m,a,b) equal_dc_number((m),(b),(a))
-#define equal_cl_number(m,a,b) equal_lc_number((m),(b),(a))
+_g int equal_complex_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_fc_number_(addr left, addr right, int *ret);
+_g int equal_bc_number_(addr left, addr right, int *ret);
+_g int equal_rc_number_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_sc_number_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_dc_number_(LocalRoot local, addr left, addr right, int *ret);
+_g int equal_lc_number_(LocalRoot local, addr left, addr right, int *ret);
+#define equal_cf_number_(a,b,r) equal_fc_number_((b),(a),(r))
+#define equal_cb_number_(a,b,r) equal_bc_number_((b),(a),(r))
+#define equal_cr_number_(m,a,b,r) equal_rc_number_((m),(b),(a),(r))
+#define equal_cs_number_(m,a,b,r) equal_sc_number_((m),(b),(a),(r))
+#define equal_cd_number_(m,a,b,r) equal_dc_number_((m),(b),(a),(r))
+#define equal_cl_number_(m,a,b,r) equal_lc_number_((m),(b),(a),(r))
 
 _g int sign_reverse_complex_common_(addr pos, addr *ret);
 _g int abs_complex_common_(addr pos, addr *ret);

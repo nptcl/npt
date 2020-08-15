@@ -47,36 +47,36 @@ static int test_build_type_upgraded(void)
 	test(x == y, "build_type_upgraded6");
 
 	GetConst(ARRAY_SIGNED8, &x);
-	y = readr("(signed-byte 8)");
+	y = readr_debug("(signed-byte 8)");
 	test(equal_debug(x, y), "build_type_upgraded7");
 
 	GetConst(ARRAY_SIGNED16, &x);
-	y = readr("(signed-byte 16)");
+	y = readr_debug("(signed-byte 16)");
 	test(equal_debug(x, y), "build_type_upgraded8");
 
 	GetConst(ARRAY_SIGNED32, &x);
-	y = readr("(signed-byte 32)");
+	y = readr_debug("(signed-byte 32)");
 	test(equal_debug(x, y), "build_type_upgraded9");
 
 	GetConst(ARRAY_UNSIGNED8, &x);
-	y = readr("(unsigned-byte 8)");
+	y = readr_debug("(unsigned-byte 8)");
 	test(equal_debug(x, y), "build_type_upgraded10");
 
 	GetConst(ARRAY_UNSIGNED16, &x);
-	y = readr("(unsigned-byte 16)");
+	y = readr_debug("(unsigned-byte 16)");
 	test(equal_debug(x, y), "build_type_upgraded11");
 
 	GetConst(ARRAY_UNSIGNED32, &x);
-	y = readr("(unsigned-byte 32)");
+	y = readr_debug("(unsigned-byte 32)");
 	test(equal_debug(x, y), "build_type_upgraded12");
 
 #ifdef LISP_64BIT
 	GetConst(ARRAY_SIGNED64, &x);
-	y = readr("(signed-byte 64)");
+	y = readr_debug("(signed-byte 64)");
 	test(equal_debug(x, y), "build_type_upgraded13");
 
 	GetConst(ARRAY_UNSIGNED64, &x);
-	y = readr("(unsigned-byte 64)");
+	y = readr_debug("(unsigned-byte 64)");
 	test(equal_debug(x, y), "build_type_upgraded14");
 #endif
 
@@ -91,18 +91,18 @@ static int test_upgraded_array0_equal(void)
 	type0_heap(LISPDECL_KEYWORD, &y);
 	test(! upgraded_array0_equal(x, y), "upgraded_array0_equal1");
 
-	parse_type_unsafe(&x, readr("integer"));
-	parse_type_unsafe(&y, readr("(integer 10 20)"));
+	parse_type_unsafe(&x, readr_debug("integer"));
+	parse_type_unsafe(&y, readr_debug("(integer 10 20)"));
 	test(upgraded_array0_equal(x, y), "upgraded_array0_equal2");
 
-	parse_type_unsafe(&x, readr("(signed-byte 8)"));
-	parse_type_unsafe(&y, readr("(signed-byte 5)"));
+	parse_type_unsafe(&x, readr_debug("(signed-byte 8)"));
+	parse_type_unsafe(&y, readr_debug("(signed-byte 5)"));
 	test(! upgraded_array0_equal(x, y), "upgraded_array0_equal3");
 
 	test(upgraded_array0_equal(y, y), "upgraded_array0_equal4");
 
-	parse_type_unsafe(&x, readr("(unsigned-byte 5)"));
-	parse_type_unsafe(&y, readr("(signed-byte 5)"));
+	parse_type_unsafe(&x, readr_debug("(unsigned-byte 5)"));
+	parse_type_unsafe(&y, readr_debug("(signed-byte 5)"));
 	test(! upgraded_array0_equal(x, y), "upgraded_array0_equal5");
 
 	test(upgraded_array0_equal(y, y), "upgraded_array0_equal6");
@@ -296,11 +296,11 @@ static int test_upgraded_array_optimize(void)
 
 	local = Local_Thread;
 	GetTypeTable(&pos, Character);
-	upgraded_array_optimize(local, pos, &type, &size);
+	upgraded_array_optimize_(local, pos, &type, &size);
 	test(type == ARRAY_TYPE_CHARACTER, "upgraded_array_optimize1");
-	pos = readr("(or (integer -3 5))");
+	pos = readr_debug("(or (integer -3 5))");
 	parse_type_unsafe(&pos, pos);
-	upgraded_array_optimize(local, pos, &type, &size);
+	upgraded_array_optimize_(local, pos, &type, &size);
 	test(type == ARRAY_TYPE_SIGNED, "upgraded_array_optimize2");
 	test(size == 8, "upgraded_array_optimize3");
 
@@ -314,11 +314,11 @@ static int test_upgraded_array_value(void)
 	addr pos;
 
 	GetTypeTable(&pos, Character);
-	upgraded_array_value(pos, &type, &size);
+	upgraded_array_value_(pos, &type, &size);
 	test(type == ARRAY_TYPE_CHARACTER, "upgraded_array_value1");
-	pos = readr("(or (integer -3 5))");
+	pos = readr_debug("(or (integer -3 5))");
 	parse_type_unsafe(&pos, pos);
-	upgraded_array_value(pos, &type, &size);
+	upgraded_array_value_(pos, &type, &size);
 	test(type == ARRAY_TYPE_SIGNED, "upgraded_array_value2");
 	test(size == 8, "upgraded_array_value3");
 
@@ -418,26 +418,26 @@ static int test_upgraded_array_type(void)
 {
 	addr pos;
 
-	pos = readr("integer");
+	pos = readr_debug("integer");
 	parse_type_unsafe(&pos, pos);
-	upgraded_array_type(pos, &pos);
+	upgraded_array_type_(pos, &pos);
 	test(LispDecl(pos) == LISPDECL_T, "upgraded_array_type1");
 
-	pos = readr("single-float");
+	pos = readr_debug("single-float");
 	parse_type_unsafe(&pos, pos);
-	upgraded_array_type(pos, &pos);
+	upgraded_array_type_(pos, &pos);
 	test(LispDecl(pos) == LISPDECL_SINGLE_FLOAT, "upgraded_array_type2");
 
-	pos = readr("(signed-byte 16)");
+	pos = readr_debug("(signed-byte 16)");
 	parse_type_unsafe(&pos, pos);
-	upgraded_array_type(pos, &pos);
+	upgraded_array_type_(pos, &pos);
 	test(LispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type3");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 16, "upgraded_array_type4");
 
-	pos = readr("(unsigned-byte 22)");
+	pos = readr_debug("(unsigned-byte 22)");
 	parse_type_unsafe(&pos, pos);
-	upgraded_array_type(pos, &pos);
+	upgraded_array_type_(pos, &pos);
 	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type5");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 32, "upgraded_array_type6");
@@ -453,11 +453,11 @@ static int test_upgraded_array_const_signed(void)
 	test(x == T, "upgraded_array_const_signed1");
 
 	upgraded_array_const_signed(8, &x);
-	y = readr("(signed-byte 8)");
+	y = readr_debug("(signed-byte 8)");
 	test(equal_debug(x, y), "upgraded_array_const_signed2");
 
 	upgraded_array_const_signed(32, &x);
-	y = readr("(signed-byte 32)");
+	y = readr_debug("(signed-byte 32)");
 	test(equal_debug(x, y), "upgraded_array_const_signed3");
 
 	RETURN;
@@ -471,11 +471,11 @@ static int test_upgraded_array_const_unsigned(void)
 	test(x == T, "upgraded_array_const_unsigned1");
 
 	upgraded_array_const_unsigned(8, &x);
-	y = readr("(unsigned-byte 8)");
+	y = readr_debug("(unsigned-byte 8)");
 	test(equal_debug(x, y), "upgraded_array_const_unsigned2");
 
 	upgraded_array_const_unsigned(16, &x);
-	y = readr("(unsigned-byte 16)");
+	y = readr_debug("(unsigned-byte 16)");
 	test(equal_debug(x, y), "upgraded_array_const_unsigned3");
 
 	RETURN;
@@ -486,11 +486,11 @@ static int test_upgraded_array_const(void)
 	addr x, y;
 
 	upgraded_array_const(ARRAY_TYPE_BIT, 999, &x);
-	y = readr("bit");
+	y = readr_debug("bit");
 	test(equal_debug(x, y), "upgraded_array_const1");
 
 	upgraded_array_const(ARRAY_TYPE_SIGNED, 8, &x);
-	y = readr("(signed-byte 8)");
+	y = readr_debug("(signed-byte 8)");
 	test(equal_debug(x, y), "upgraded_array_const2");
 
 	RETURN;
@@ -501,13 +501,13 @@ static int test_upgraded_array_common(void)
 	int check;
 	addr x, y;
 
-	x = readr("(integer 10 20)");
+	x = readr_debug("(integer 10 20)");
 	check = upgraded_array_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_array_common1");
-	y = readr("(unsigned-byte 8)");
+	y = readr_debug("(unsigned-byte 8)");
 	test(equal_debug(x, y), "upgraded_array_common2");
 
-	x = readr("readtable");
+	x = readr_debug("readtable");
 	check = upgraded_array_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_array_common3");
 	test(x == T,"upgraded_array_common4");
@@ -553,19 +553,19 @@ static int test_upgraded_complex_type(void)
 {
 	addr x;
 
-	x = readr("(integer 10 20)");
+	x = readr_debug("(integer 10 20)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_type_(x, &x);
 	test(LispDecl(x) == LISPDECL_INTEGER, "upgraded_complex_type1");
 	GetArrayType(x, 0, &x);
 	test(type_asterisk_p(x), "upgraded_complex_type2");
 
-	x = readr("ratio");
+	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_type_(x, &x);
 	test(LispDecl(x) == LISPDECL_RATIONAL, "upgraded_complex_type3");
 
-	x = readr("(long-float 10.0L0)");
+	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_type_(x, &x);
 	test(LispDecl(x) == LISPDECL_LONG_FLOAT, "upgraded_complex_type4");
@@ -577,22 +577,22 @@ static int test_upgraded_complex_const(void)
 {
 	addr x, y;
 
-	x = readr("(integer 10 20)");
+	x = readr_debug("(integer 10 20)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_const_(x, &x);
-	y = readr("integer");
+	y = readr_debug("integer");
 	test(equal_debug(x, y), "upgraded_complex_const1");
 
-	x = readr("ratio");
+	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_const_(x, &x);
-	y = readr("rational");
+	y = readr_debug("rational");
 	test(equal_debug(x, y), "upgraded_complex_const2");
 
-	x = readr("(long-float 10.0L0)");
+	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_const_(x, &x);
-	y = readr("long-float");
+	y = readr_debug("long-float");
 	test(equal_debug(x, y), "upgraded_complex_const3");
 
 	RETURN;
@@ -603,24 +603,24 @@ static int test_upgraded_complex_common(void)
 	int check;
 	addr x, y;
 
-	x = readr("(integer 10 20)");
+	x = readr_debug("(integer 10 20)");
 	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common1");
-	y = readr("integer");
+	y = readr_debug("integer");
 	test(equal_debug(x, y), "upgraded_complex_common2");
 
-	x = readr("ratio");
+	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
 	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common3");
-	y = readr("rational");
+	y = readr_debug("rational");
 	test(equal_debug(x, y), "upgraded_complex_common4");
 
-	x = readr("(long-float 10.0L0)");
+	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
 	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common5");
-	y = readr("long-float");
+	y = readr_debug("long-float");
 	test(equal_debug(x, y), "upgraded_complex_common6");
 
 	RETURN;

@@ -58,7 +58,7 @@ static int test_eval_scope_size(void)
 {
 	addr pos, type, value;
 
-	readstring(&type, "integer");
+	readstring_debug(&type, "integer");
 	test_parse_type(&type, type);
 	fixnum_heap(&value, 10);
 	eval_scope_size(Execute_Thread, &pos, 5, EVAL_PARSE_T, type, value);
@@ -91,7 +91,7 @@ static int test_StructEvalScope(void)
 	addr pos, type, value, check;
 	struct eval_scope *str;
 
-	readstring(&type, "integer");
+	readstring_debug(&type, "integer");
 	test_parse_type(&type, type);
 	fixnum_heap(&value, 10);
 	eval_scope_size(Execute_Thread, &pos, 5, EVAL_PARSE_T, type, value);
@@ -134,7 +134,7 @@ static void eval_parse_execute(addr *ret, addr value)
 
 static void parse_eval_string(addr *ret, const char *str)
 {
-	readstring(ret, str);
+	readstring_debug(ret, str);
 	eval_parse_execute(ret, *ret);
 }
 
@@ -317,7 +317,7 @@ static int test_scope_quote(void)
 {
 	addr eval, check, symbol;
 
-	readstring(&symbol, "hello");
+	readstring_debug(&symbol, "hello");
 	eval_parse_execute(&eval, symbol);
 	scope_quote(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_quote1");
@@ -401,7 +401,7 @@ static int test_scope_declaim(void)
 	getglobal_eval(ptr, &pos);
 	GetEvalStackTable(pos, &check);
 	getplist_constant(check, CONSTANT_SYSTEM_TYPE_SCOPE, &check);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_list_eq_unsafe(pos, check), "scope_declaim5");
 
 	free_eval_stack(ptr);
@@ -448,24 +448,24 @@ static int test_find_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "aa");
-	readstring(&value, "bb");
+	readstring_debug(&pos, "aa");
+	readstring_debug(&value, "bb");
 	setpplist_value(local, stack, pos, value);
 
-	readstring(&pos, "cc");
-	readstring(&value, "dd");
+	readstring_debug(&pos, "cc");
+	readstring_debug(&value, "dd");
 	setpplist_value(local, stack, pos, value);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(stack, pos, &check), "find_tablevalue1");
-	readstring(&value, "bb");
+	readstring_debug(&value, "bb");
 	test(check == value, "find_tablevalue2");
 	test(find_tablevalue(stack, pos, NULL), "find_tablevalue3");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(! find_tablevalue(stack, pos, NULL), "find_tablevalue4");
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	test(find_tablevalue(stack, pos, &check), "find_tablevalue5");
-	readstring(&value, "dd");
+	readstring_debug(&value, "dd");
 	test(check == value, "find_tablevalue6");
 
 	free_eval_stack(ptr);
@@ -486,27 +486,27 @@ static int test_find_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "aa");
-	readstring(&value, "bb");
+	readstring_debug(&pos, "aa");
+	readstring_debug(&value, "bb");
 	setpplist_function(local, stack, pos, value);
 
-	readstring(&pos, "cc");
-	readstring(&value, "dd");
+	readstring_debug(&pos, "cc");
+	readstring_debug(&value, "dd");
 	setpplist_function(local, stack, pos, value);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(stack, pos, &check), "find_tablefunction1");
-	readstring(&value, "bb");
+	readstring_debug(&value, "bb");
 	test(check == value, "find_tablefunction2");
 	test(find_tablefunction(stack, pos, NULL), "find_tablefunction3");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	test(! find_tablefunction(stack, pos, NULL), "find_tablefunction4");
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(stack, pos, &check), "find_tablefunction5");
-	readstring(&value, "dd");
+	readstring_debug(&value, "dd");
 	test(check == value, "find_tablefunction6");
 
 	free_eval_stack(ptr);
@@ -528,12 +528,12 @@ static int test_check_value_declare(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&key1, "aa");
-	readstring(&val1, "bb");
-	readstring(&key2, "cc");
-	readstring(&val2, "dd");
-	readstring(&key3, "ee");
-	readstring(&val3, "ff");
+	readstring_debug(&key1, "aa");
+	readstring_debug(&val1, "bb");
+	readstring_debug(&key2, "cc");
+	readstring_debug(&val2, "dd");
+	readstring_debug(&key3, "ee");
+	readstring_debug(&val3, "ff");
 	setpplist_value(local, stack, key1, val1);
 	setpplist_value(local, stack, key3, val3);
 	list_local(local, &list, key1, val1, key2, val2, key3, val3, NULL);
@@ -546,9 +546,9 @@ static int test_check_value_declare(void)
 	GetCons(key, &key, &value);
 	test(eval_tablevalue_p(key), "check_value_declare2");
 	getname_tablevalue(key, &key);
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	test(key == pos, "check_value_declare3");
-	readstring(&pos, "dd");
+	readstring_debug(&pos, "dd");
 	test(value == pos, "check_value_declare4");
 
 	free_eval_stack(ptr);
@@ -570,12 +570,12 @@ static int test_check_function_declare(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&key1, "aa");
-	readstring(&val1, "bb");
-	readstring(&key2, "cc");
-	readstring(&val2, "dd");
-	readstring(&key3, "ee");
-	readstring(&val3, "ff");
+	readstring_debug(&key1, "aa");
+	readstring_debug(&val1, "bb");
+	readstring_debug(&key2, "cc");
+	readstring_debug(&val2, "dd");
+	readstring_debug(&key3, "ee");
+	readstring_debug(&val3, "ff");
 	parse_callname_local(local, &key1, key1);
 	parse_callname_local(local, &key2, key2);
 	parse_callname_local(local, &key3, key3);
@@ -591,10 +591,10 @@ static int test_check_function_declare(void)
 	GetCons(key, &key, &value);
 	test(eval_tablefunction_p(key), "check_function_declare2");
 	getname_tablefunction(key, &key);
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	parse_callname_local(local, &pos, pos);
 	test(equal_callname(key, pos), "check_function_declare3");
-	readstring(&pos, "dd");
+	readstring_debug(&pos, "dd");
 	test(value == pos, "check_function_declare4");
 
 	free_eval_stack(ptr);
@@ -615,14 +615,14 @@ static int test_check_declare_stack(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&decl, "((type integer aa bb) (ftype function cc dd ee))");
+	readstring_debug(&decl, "((type integer aa bb) (ftype function cc dd ee))");
 	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 
-	readstring(&pos, "aa");
-	readstring(&value, "hello1");
+	readstring_debug(&pos, "aa");
+	readstring_debug(&value, "hello1");
 	setpplist_value(local, stack, pos, value);
-	readstring(&pos, "dd");
-	readstring(&value, "hello2");
+	readstring_debug(&pos, "dd");
+	readstring_debug(&value, "hello2");
 	setpplist_function(local, stack, pos, value);
 
 	check_declare_stack(ptr, stack, decl, &list);
@@ -631,16 +631,16 @@ static int test_check_declare_stack(void)
 	GetCons(list, &pos, &list);
 	GetCons(pos, &pos, &value);
 	getname_tablevalue(pos, &pos);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(pos == check, "check_declare_stack2");
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "check_declare_stack3");
 
 	GetCons(list, &pos, &list);
 	GetCons(pos, &pos, &value);
 	getname_tablefunction(pos, &pos);
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	parse_callname_local(local, &check, check);
-	readstring(&check2, "ee");
+	readstring_debug(&check2, "ee");
 	parse_callname_local(local, &check2, check2);
 	test(equal_callname(pos, check) || equal_callname(pos, check2),
 			"check_declare_stack4");
@@ -664,14 +664,14 @@ static int test_apply_declare(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&decl, "((type integer aa bb) (ftype function cc dd ee))");
+	readstring_debug(&decl, "((type integer aa bb) (ftype function cc dd ee))");
 	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 
-	readstring(&pos, "aa");
-	readstring(&value, "hello1");
+	readstring_debug(&pos, "aa");
+	readstring_debug(&value, "hello1");
 	setpplist_value(local, stack, pos, value);
-	readstring(&pos, "dd");
-	readstring(&value, "hello2");
+	readstring_debug(&pos, "dd");
+	readstring_debug(&value, "hello2");
 	setpplist_function(local, stack, pos, value);
 
 	apply_declare(ptr, stack, decl, &list);
@@ -679,7 +679,7 @@ static int test_apply_declare(void)
 
 	GetConstant(CONSTANT_SYSTEM_TYPE_VALUE, &pos);
 	GetEvalStackTable(stack, &list);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(getpplist(list, pos, check, &check) == 0, "apply_declare2");
 
 	free_eval_stack(ptr);
@@ -696,7 +696,7 @@ static int test_check_scope_variable(void)
 {
 	addr symbol;
 
-	readstring(&symbol, "aaa");
+	readstring_debug(&symbol, "aaa");
 	check_scope_variable(symbol);
 	test(1, "check_scope_variable1");
 
@@ -714,7 +714,7 @@ static int test_let_init(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(let ((a 10) (b (progn 20)) (c)) :hello)");
+	readstring_debug(&pos, "(let ((a 10) (b (progn 20)) (c)) :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos); /* let-args */
 	str.args = pos;
@@ -724,13 +724,13 @@ static int test_let_init(void)
 	test(length_list_unsafe(pos) == 3, "let_init1");
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
-	readstring(&check, "a");
+	readstring_debug(&check, "a");
 	test(var == check, "let_init2");
 	test(RefEvalScopeType(init) == EVAL_PARSE_INTEGER, "let_init3");
 
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
-	readstring(&check, "b");
+	readstring_debug(&check, "b");
 	test(var == check, "let_init4");
 	test(RefEvalScopeType(init) == EVAL_PARSE_PROGN, "let_init5");
 
@@ -753,7 +753,7 @@ static int test_make_tablevalue_stack(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	make_tablevalue_stack(local, &value, stack, symbol);
 	test(eval_tablevalue_p(value), "make_tablevalue_stack1");
 
@@ -781,14 +781,14 @@ static int test_let_maketable(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let ((a 10) (b (progn 20)) (c)) :hello)");
+	readstring_debug(&pos, "(let ((a 10) (b (progn 20)) (c)) :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos); /* let-args */
 	str.args = pos;
 	let_init(ptr, &str);
 	let_maketable(local, &str);
 
-	readstring(&pos, "a");
+	readstring_debug(&pos, "a");
 	test(find_tablevalue(str.stack, pos, &pos), "let_maketable1");
 	test(eval_tablevalue_p(pos), "let_maketable2");
 	gettype_tablevalue(pos, &pos);
@@ -813,25 +813,25 @@ static int test_specialp_stack_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	specialp = 0;
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result == 0, "specialp_stack_tablevalue1");
 
-	readstring(&pos, "((special bb))");
+	readstring_debug(&pos, "((special bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result == 0, "specialp_stack_tablevalue2");
 
-	readstring(&pos, "((special aa))");
+	readstring_debug(&pos, "((special aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result, "specialp_stack_tablevalue3");
 	test(specialp, "specialp_stack_tablevalue4");
 
-	readstring(&symbol, "cc");
+	readstring_debug(&symbol, "cc");
 	make_tablevalue_stack(local, &pos, stack, symbol);
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result, "specialp_stack_tablevalue5");
@@ -861,7 +861,7 @@ static int test_specialp_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "specialp_tablevalue-temp-symbol");
+	readstring_debug(&symbol, "specialp_tablevalue-temp-symbol");
 	specialp = specialp_tablevalue(ptr, stack, symbol);
 	test(! specialp, "specialp_tablevalue1");
 
@@ -869,15 +869,15 @@ static int test_specialp_tablevalue(void)
 	specialp = specialp_tablevalue(ptr, stack, symbol);
 	test(specialp, "specialp_tablevalue2");
 
-	readstring(&symbol, "aa");
-	readstring(&pos, "((special aa))");
+	readstring_debug(&symbol, "aa");
+	readstring_debug(&pos, "((special aa))");
 	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	specialp = specialp_tablevalue(ptr, stack, symbol);
 	test(specialp, "specialp_tablevalue3");
 
-	readstring(&symbol, "bb");
-	readstring(&pos, "((special bb))");
+	readstring_debug(&symbol, "bb");
+	readstring_debug(&pos, "((special bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	specialp = specialp_tablevalue(ptr, stack, symbol);
@@ -909,25 +909,25 @@ static int test_dynamic_stack_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	dynamic = 999;
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result == 0, "dynamic_stack_tablevalue1");
 
-	readstring(&pos, "((dynamic-extent bb))");
+	readstring_debug(&pos, "((dynamic-extent bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result == 0, "dynamic_stack_tablevalue2");
 
-	readstring(&pos, "((dynamic-extent aa))");
+	readstring_debug(&pos, "((dynamic-extent aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result, "dynamic_stack_tablevalue3");
 	test(dynamic, "dynamic_stack_tablevalue4");
 
-	readstring(&symbol, "cc");
+	readstring_debug(&symbol, "cc");
 	make_tablevalue_stack(local, &pos, stack, symbol);
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result, "dynamic_stack_tablevalue5");
@@ -957,12 +957,12 @@ static int test_dynamic_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	dynamic = dynamic_tablevalue(stack, symbol);
 	test(! dynamic, "dynamic_tablevalue1");
 
-	readstring(&symbol, "bb");
-	readstring(&pos, "((dynamic-extent bb))");
+	readstring_debug(&symbol, "bb");
+	readstring_debug(&pos, "((dynamic-extent bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	dynamic = dynamic_tablevalue(stack, symbol);
@@ -996,29 +996,29 @@ static int test_ignore_stack_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(! result, "ignore_stack_tablevalue1");
 
-	readstring(&pos, "((ignorable bb))");
+	readstring_debug(&pos, "((ignorable bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(! result, "ignore_stack_tablevalue2");
 
-	readstring(&pos, "((ignore aa))");
+	readstring_debug(&pos, "((ignore aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(result, "ignore_stack_tablevalue3");
 	test(ignore == IgnoreType_Ignore, "ignore_stack_tablevalue4");
 
-	readstring(&symbol, "bb");
+	readstring_debug(&symbol, "bb");
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(result, "ignore_stack_tablevalue5");
 	test(ignore == IgnoreType_Ignorable, "ignore_stack_tablevalue6");
 
-	readstring(&symbol, "cc");
+	readstring_debug(&symbol, "cc");
 	make_tablevalue_stack(local, &pos, stack, symbol);
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(result, "ignore_stack_tablevalue7");
@@ -1048,12 +1048,12 @@ static int test_ignore_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	ignore = ignore_tablevalue(stack, symbol);
 	test(ignore == IgnoreType_None, "ignore_tablevalue1");
 
-	readstring(&symbol, "bb");
-	readstring(&pos, "((ignore bb))");
+	readstring_debug(&symbol, "bb");
+	readstring_debug(&pos, "((ignore bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	ignore = ignore_tablevalue(stack, symbol);
@@ -1084,16 +1084,16 @@ static int test_type_free_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa bb cc) (string dd ee))");
+	readstring_debug(&pos, "((type integer aa bb cc) (string dd ee))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(type_free_tablevalue(stack, pos, &value), "type_free_tablevalue1");
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_free_tablevalue2");
-	readstring(&pos, "zz");
+	readstring_debug(&pos, "zz");
 	test(! type_free_tablevalue(stack, pos, &value), "type_free_tablevalue3");
-	readstring(&pos, "ee");
+	readstring_debug(&pos, "ee");
 	test(type_free_tablevalue(stack, pos, &value), "type_free_tablevalue4");
 	test(RefLispDecl(value) == LISPDECL_STRING, "type_free_tablevalue5");
 
@@ -1116,24 +1116,24 @@ static int test_type_boundary_tablevalue(void)
 
 	stack = newstack_nil(ptr);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	make_tablevalue_stack(local, &pos, stack, pos);
-	readstring(&value, "integer");
+	readstring_debug(&value, "integer");
 	test_parse_type(&value, value);
 	settype_tablevalue(pos, value);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	make_tablevalue_stack(local, &pos, stack, pos);
-	readstring(&value, "string");
+	readstring_debug(&value, "string");
 	test_parse_type(&value, value);
 	settype_tablevalue(pos, value);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(type_boundary_tablevalue(stack, pos, &value), "type_boundary_tablevalue1");
 	test(RefLispDecl(value) == LISPDECL_STRING, "type_boundary_tablevalue2");
-	readstring(&pos, "zz");
+	readstring_debug(&pos, "zz");
 	test(! type_boundary_tablevalue(stack, pos, &value), "type_boundary_tablevalue3");
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(type_boundary_tablevalue(stack, pos, &value), "type_boundary_tablevalue4");
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_boundary_tablevalue5");
 
@@ -1155,22 +1155,22 @@ static int test_type_tablevalue_local(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa))");
+	readstring_debug(&pos, "((type integer aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	type_tablevalue(ptr, local, stack, pos, 0, &pos);
 	test(length_list_unsafe(pos) == 1, "type_tablevalue_local1");
 	GetCar(pos, &value);
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablevalue_local2");
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((type string aa))");
+	readstring_debug(&pos, "((type string aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	type_tablevalue(ptr, local, stack, pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "type_tablevalue_local3");
 	GetCons(pos, &value, &pos);
@@ -1178,13 +1178,13 @@ static int test_type_tablevalue_local(void)
 	GetCar(pos, &value);
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablevalue_local5");
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	make_tablevalue_stack(local, &pos, stack, pos);
-	readstring(&value, "null");
+	readstring_debug(&value, "null");
 	test_parse_type(&value, value);
 	settype_tablevalue(pos, value);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	type_tablevalue(ptr, local, stack, pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "type_tablevalue_local6");
 	GetCons(pos, &value, &pos);
@@ -1192,7 +1192,7 @@ static int test_type_tablevalue_local(void)
 	GetCar(pos, &value);
 	test(RefLispDecl(value) == LISPDECL_NULL, "type_tablevalue_local8");
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	type_tablevalue(ptr, local, stack, pos, 1, &pos);
 	test(length_list_unsafe(pos) == 3, "type_tablevalue_local9");
 	GetCons(pos, &value, &pos);
@@ -1220,11 +1220,11 @@ static int test_type_tablevalue_global(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "type-tablevalue-global-temp-symbol");
+	readstring_debug(&pos, "type-tablevalue-global-temp-symbol");
 	type_tablevalue(ptr, local, stack, pos, 0, &value);
 	test(value == Nil, "type_tablevalue_global1");
 
-	readstring(&value, "null");
+	readstring_debug(&value, "null");
 	test_parse_type(&value, value);
 	settype_value_symbol(pos, value);
 	type_tablevalue(ptr, local, stack, pos, 0, &value);
@@ -1234,7 +1234,7 @@ static int test_type_tablevalue_global(void)
 
 	getglobal_eval(ptr, &geval);
 	make_tablevalue_stack(NULL, &value, geval, pos);
-	readstring(&type, "integer");
+	readstring_debug(&type, "integer");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
@@ -1243,7 +1243,7 @@ static int test_type_tablevalue_global(void)
 	GetCar(value, &value);
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablevalue_global5");
 
-	readstring(&value, "((type string type-tablevalue-global-temp-symbol))");
+	readstring_debug(&value, "((type string type-tablevalue-global-temp-symbol))");
 	parse_declaim_heap(Execute_Thread, Nil, value, &value);
 	apply_declaim_stack(ptr, value);
 	type_tablevalue(ptr, local, stack, pos, 0, &value);
@@ -1252,7 +1252,7 @@ static int test_type_tablevalue_global(void)
 	test(RefLispDecl(value) == LISPDECL_STRING, "type_tablevalue_global7");
 
 	make_tablevalue_stack(local, &value, stack, pos);
-	readstring(&type, "null");
+	readstring_debug(&type, "null");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
@@ -1324,20 +1324,20 @@ static int test_push_tablevalue_alloc(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	push_tablevalue_alloc(ptr, local, stack, symbol, &value);
 	test(! getspecialp_tablevalue(value), "push_tablevalue_alloc1");
 
-	readstring(&symbol, "bb");
-	readstring(&pos, "((special bb))");
+	readstring_debug(&symbol, "bb");
+	readstring_debug(&pos, "((special bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablevalue_alloc(ptr, local, stack, symbol, &value);
 	test(getspecialp_tablevalue(value), "push_tablevalue_alloc2");
 
 	getglobal_eval(ptr, &stack);
-	readstring(&symbol, "bb");
-	readstring(&pos, "((special bb))");
+	readstring_debug(&symbol, "bb");
+	readstring_debug(&pos, "((special bb))");
 	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	push_tablevalue_alloc(ptr, NULL, stack, symbol, &value);
@@ -1354,25 +1354,25 @@ static int test_checktype_p(void)
 	int check, warning;
 	addr form, symbol;
 
-	readstring(&form, "integer");
+	readstring_debug(&form, "integer");
 	test_parse_type(&form, form);
-	readstring(&symbol, "real");
+	readstring_debug(&symbol, "real");
 	test_parse_type(&symbol, symbol);
 	warning = checktype_p(form, symbol, &check);
 	test(! check, "checktype_p1");
 	test(! warning, "checktype_p2");
 
-	readstring(&form, "real");
+	readstring_debug(&form, "real");
 	test_parse_type(&form, form);
-	readstring(&symbol, "integer");
+	readstring_debug(&symbol, "integer");
 	test_parse_type(&symbol, symbol);
 	warning = checktype_p(form, symbol, &check);
 	test(check, "checktype_p3");
 	test(! warning, "checktype_p4");
 
-	readstring(&form, "string");
+	readstring_debug(&form, "string");
 	test_parse_type(&form, form);
-	readstring(&symbol, "integer");
+	readstring_debug(&symbol, "integer");
 	test_parse_type(&symbol, symbol);
 	warning = checktype_p(form, symbol, &check);
 	test(check, "checktype_p5");
@@ -1393,19 +1393,19 @@ static int test_checktype_value(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	push_tablevalue_alloc(ptr, local, stack, symbol, &value);
-	readstring(&type, "integer");
+	readstring_debug(&type, "integer");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
-	readstring(&type, "fixnum");
+	readstring_debug(&type, "fixnum");
 	test_parse_type(&type, type);
 	make_eval_scope(Execute_Thread, &init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_value(value, init);
 	test(getcheck_tablevalue(value) == 0, "checktype_value1");
 
-	readstring(&type, "real");
+	readstring_debug(&type, "real");
 	test_parse_type(&type, type);
 	make_eval_scope(Execute_Thread, &init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_value(value, init);
@@ -1431,7 +1431,7 @@ static int test_let_applytable(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
+	readstring_debug(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -1439,31 +1439,31 @@ static int test_let_applytable(void)
 	apply_declare_stack(local, str.stack, str.decl);
 
 	let_applytable(ptr, &str);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable1");
 	test(! getspecialp_tablevalue(value), "let_applytable2");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable3");
 	test(getspecialp_tablevalue(value), "let_applytable4");
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable5");
-	readstring(&type, "fixnum");
+	readstring_debug(&type, "fixnum");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable6");
-	readstring(&type, "(satisfies hello)");
+	readstring_debug(&type, "(satisfies hello)");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	let_applytable(ptr, &str);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable7");
 	test(! getspecialp_tablevalue(value), "let_applytable8");
 	test(! getcheck_tablevalue(value), "let_applytable9");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable10");
 	test(getspecialp_tablevalue(value), "let_applytable11");
 	test(getcheck_tablevalue(value), "let_applytable12");
@@ -1488,7 +1488,7 @@ static int test_ignore_checkvalue(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
+	readstring_debug(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -1496,10 +1496,10 @@ static int test_ignore_checkvalue(void)
 	apply_declare_stack(local, str.stack, str.decl);
 	let_applytable(ptr, &str);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	find_tablevalue(str.stack, pos, &value);
 	setreference_tablevalue(value, 1);
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	find_tablevalue(str.stack, pos, &value);
 	setreference_tablevalue(value, 1);
 	ignore_checkvalue(str.stack);
@@ -1521,7 +1521,7 @@ static int test_tablevalue_update(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	push_tablevalue_local(ptr, stack, pos, &value);
 	GetConstant(CONSTANT_SYSTEM_TABLE_VALUE, &key);
 	GetEvalStackTable(stack, &stack);
@@ -1551,7 +1551,7 @@ static int test_let_update(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
+	readstring_debug(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -1589,7 +1589,7 @@ static int test_let_execute(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos,
+	readstring_debug(&pos,
 			"(let ((aa 10) (bb 20)) "
 			"  (declare (special bb) (ignorable aa bb)) :aa)");
 	eval_parse_execute(&pos, pos);
@@ -1614,7 +1614,7 @@ static int test_scope_let(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos,
+	readstring_debug(&pos,
 			"(let ((aa 10) (bb 20)) "
 			"  (declare (special bb) (ignorable aa bb)) :aa)");
 	eval_parse_execute(&pos, pos);
@@ -1638,24 +1638,24 @@ static int test_ifdeclvalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&decl, "()");
+	readstring_debug(&decl, "()");
 	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	ifdeclvalue_(ptr, stack, symbol, decl, &value);
 	test(eval_tablevalue_p(value), "ifdeclvalue1");
 	test(! getspecialp_tablevalue(value), "ifdeclvalue2");
 	gettype_tablevalue(value, &check);
 	test(type_asterisk_p(check), "ifdeclvalue3");
 
-	readstring(&decl, "((special bb) (null bb))");
+	readstring_debug(&decl, "((special bb) (null bb))");
 	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
-	readstring(&symbol, "bb");
+	readstring_debug(&symbol, "bb");
 	ifdeclvalue_(ptr, stack, symbol, decl, &value);
 	test(eval_tablevalue_p(value), "ifdeclvalue4");
 	test(getspecialp_tablevalue(value), "ifdeclvalue5");
 	gettype_tablevalue(value, &check);
 
-	readstring(&pos, "null");
+	readstring_debug(&pos, "null");
 	test_parse_type(&pos, pos);
 	test(subtypep_clang(check, pos, &invalidp), "ifdeclvalue6");
 
@@ -1679,7 +1679,7 @@ static int test_leta_checktype(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
+	readstring_debug(&pos, "(let ((aa 10) (bb 20)) (declare (special bb)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -1687,24 +1687,24 @@ static int test_leta_checktype(void)
 	leta_init(ptr, &str);
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "leta_checktype1");
-	readstring(&type, "fixnum");
+	readstring_debug(&type, "fixnum");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "leta_checktype2");
-	readstring(&type, "(satisfies hello)");
+	readstring_debug(&type, "(satisfies hello)");
 	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	leta_checktype(ptr, &str);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "leta_checktype3");
 	test(! getspecialp_tablevalue(value), "leta_checktype4");
 	test(! getcheck_tablevalue(value), "leta_checktype5");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "leta_checktype6");
 	test(getspecialp_tablevalue(value), "leta_checktype7");
 	test(getcheck_tablevalue(value), "leta_checktype8");
@@ -1727,7 +1727,7 @@ static int test_leta_execute(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos,
+	readstring_debug(&pos,
 			"(let* ((aa 10) (bb 20)) "
 			"  (declare (special bb) (ignorable aa bb)) :aa)");
 	eval_parse_execute(&pos, pos);
@@ -1752,7 +1752,7 @@ static int test_scope_leta(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos,
+	readstring_debug(&pos,
 			"(let* ((aa 10) (bb 20)) "
 			"  (declare (special bb) (ignorable aa bb)) :aa)");
 	eval_parse_execute(&pos, pos);
@@ -1779,7 +1779,7 @@ static int test_let_special(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let (aa) (declare (special aa)) :hello)");
+	readstring_debug(&pos, "(let (aa) (declare (special aa)) :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -1788,12 +1788,12 @@ static int test_let_special(void)
 	apply_declare_stack(local, str.stack, str.decl);
 	let_applytable(ptr, &str);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	find_tablevalue(str.stack, symbol, &value);
 	test(getspecialp_tablevalue(value), "let_special1");
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(let (aa) :hello)");
+	readstring_debug(&pos, "(let (aa) :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -1802,7 +1802,7 @@ static int test_let_special(void)
 	apply_declare_stack(local, str.stack, str.decl);
 	let_applytable(ptr, &str);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	find_tablevalue(str.stack, symbol, &value);
 	test(! getspecialp_tablevalue(value), "let_special2");
 
@@ -1826,7 +1826,7 @@ static int test_symbol_global_tablevalue(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	specialp = symbol_global_tablevalue(ptr, symbol, &pos);
 	test(! specialp, "symbol_global_tablevalue1");
 	getglobal_eval(ptr, &stack);
@@ -1836,10 +1836,10 @@ static int test_symbol_global_tablevalue(void)
 	specialp = symbol_global_tablevalue(ptr, symbol, &pos);
 	test(! specialp, "symbol_global_tablevalue4");
 
-	readstring(&pos, "((special bb))");
+	readstring_debug(&pos, "((special bb))");
 	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
-	readstring(&symbol, "bb");
+	readstring_debug(&symbol, "bb");
 	specialp = symbol_global_tablevalue(ptr, symbol, &pos);
 	test(specialp, "symbol_global_tablevalue5");
 
@@ -1861,8 +1861,8 @@ static int test_push_closure_value(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
-	readstring(&value, "bb");
+	readstring_debug(&symbol, "aa");
+	readstring_debug(&value, "bb");
 	push_closure_value(stack, symbol, value);
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_VALUE, &key);
 	GetEvalStackTable(stack, &table);
@@ -1870,7 +1870,7 @@ static int test_push_closure_value(void)
 	test(result == 0, "push_closure_value1");
 	test(check == value, "push_closure_value2");
 
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	push_closure_value(stack, symbol, check);
 	GetEvalStackTable(stack, &table);
 	result = getpplist(table, key, symbol, &check);
@@ -1898,29 +1898,29 @@ static int test_symbol_tablevalue(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((special bb))");
+	readstring_debug(&pos, "((special bb))");
 	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
-	readstring(&symbol, "bb");
+	readstring_debug(&symbol, "bb");
 	specialp = symbol_tablevalue(ptr, Nil, symbol, &pos);
 	test(specialp, "symbol_tablevalue1");
 
-	readstring(&symbol, "cc");
-	readstring(&pos, "((special cc))");
+	readstring_debug(&symbol, "cc");
+	readstring_debug(&pos, "((special cc))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablevalue_local(ptr, stack, symbol, &pos);
 	specialp = symbol_tablevalue(ptr, stack, symbol, &pos);
 	test(specialp, "symbol_tablevalue2");
 
-	readstring(&symbol, "dd");
+	readstring_debug(&symbol, "dd");
 	specialp = symbol_tablevalue(ptr, stack, symbol, &pos);
 	test(! specialp, "symbol_tablevalue3");
 
-	readstring(&pos, "((integer ee))");
+	readstring_debug(&pos, "((integer ee))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
-	readstring(&symbol, "ee");
+	readstring_debug(&symbol, "ee");
 	make_tablevalue_stack(local, &value, stack, symbol);
 	apply_declare_value_stack(local, stack, symbol, pos);
 	push_tablevalue_local(ptr, stack, symbol, &value);
@@ -1931,11 +1931,11 @@ static int test_symbol_tablevalue(void)
 	newstack_nil(ptr);
 	newstack_nil(ptr);
 
-	readstring(&symbol, "cc");
+	readstring_debug(&symbol, "cc");
 	specialp = symbol_tablevalue(ptr, stack, symbol, &pos);
 	test(specialp, "symbol_tablevalue4");
 
-	readstring(&symbol, "dd");
+	readstring_debug(&symbol, "dd");
 	specialp = symbol_tablevalue(ptr, stack, symbol, &pos);
 	test(! specialp, "symbol_tablevalue5");
 
@@ -1945,7 +1945,7 @@ static int test_symbol_tablevalue(void)
 	specialp = getpplist(table, key, symbol, &pos);
 	test(! specialp , "symbol_tablevalue6");
 
-	readstring(&symbol, "ee");
+	readstring_debug(&symbol, "ee");
 	specialp = symbol_tablevalue(ptr, stack, symbol, &pos);
 	test(! specialp, "symbol_tablevalue7");
 
@@ -1970,7 +1970,7 @@ static int test_find_symbol_scope(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	specialp = find_symbol_scope(ptr, symbol, &value);
 	test(! specialp, "find_symbol_scope1");
 	test(eval_tablevalue_p(value), "find_symbol_scope2");
@@ -1996,7 +1996,7 @@ static int test_make_scope_symbol(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	make_scope_symbol(ptr, symbol, &pos);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_SYMBOL, "make_scope_symbol1");
 	GetEvalScopeThe(pos, &check);
@@ -2022,13 +2022,13 @@ static int test_symbol_macrolet_global_p(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	symbol_global_tablevalue(ptr, symbol, &value);
 	setspecialp_tablevalue(value, 1);
 	test(! symbol_macrolet_global_p(ptr, symbol, &value),
 			"symbol_macrolet_global_p1");
 
-	symbol = readr("bb");
+	symbol = readr_debug("bb");
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	getglobal_eval(ptr, &stack);
@@ -2037,7 +2037,7 @@ static int test_symbol_macrolet_global_p(void)
 			"symbol_macrolet_global_p2");
 	test(consp(value), "symbol_macrolet_global_p3");
 
-	symbol = readr("test-symbol-macrolet-global-p");
+	symbol = readr_debug("test-symbol-macrolet-global-p");
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	cons_heap(&v1, v1, v2);
@@ -2073,7 +2073,7 @@ static int test_symbol_macrolet_p(void)
 	newstack_nil(ptr);
 	newstack_nil(ptr);
 
-	symbol = readr("bb");
+	symbol = readr_debug("bb");
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	push_symbol_macrolet(stack, symbol, v1, v2);
@@ -2145,12 +2145,12 @@ static int test_scope_symbol(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	eval_parse_execute(&pos, symbol);
 	scope_symbol(ptr, &pos, pos);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_SYMBOL, "scope_symbol1");
 
-	readstring(&symbol, ":aa");
+	readstring_debug(&symbol, ":aa");
 	eval_parse_execute(&pos, symbol);
 	scope_symbol(ptr, &pos, pos);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_SYMBOL, "scope_symbol2");
@@ -2180,7 +2180,7 @@ static int test_scope_setq_cons(void)
 	test(cons == Nil, "scope_setq_cons1");
 	test(RefLispDecl(type) == LISPDECL_NULL, "scope_setq_cons2");
 
-	readstring(&cons, "(setq aa 100 bb 200)");
+	readstring_debug(&cons, "(setq aa 100 bb 200)");
 	eval_parse_execute(&cons, cons);
 	GetEvalParse(cons, 0, &cons);
 	scope_setq_cons(ptr, cons, &cons, &type);
@@ -2190,7 +2190,7 @@ static int test_scope_setq_cons(void)
 	GetCons(pos, &pos, &value);
 	test(eval_tablevalue_p(pos), "scope_setq_cons5");
 	getname_tablevalue(pos, &symbol);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	test(symbol == check, "scope_setq_cons6");
 	test(! getcheck_tablevalue(pos), "scope_setq_cons7");
 	GetEvalScopeValue(value, &value);
@@ -2200,20 +2200,20 @@ static int test_scope_setq_cons(void)
 	GetCons(pos, &pos, &value);
 	test(eval_tablevalue_p(pos), "scope_setq_cons9");
 	getname_tablevalue(pos, &symbol);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	test(symbol == check, "scope_setq_cons10");
 	test(! getcheck_tablevalue(pos), "scope_setq_cons11");
 	GetEvalScopeValue(value, &value);
 	test(RefFixnum(value) == 200, "scope_setq_cons12");
 
 	stack = newstack_nil(ptr);
-	readstring(&check, "cc");
-	readstring(&pos, "((type (satisfies hello) cc))");
+	readstring_debug(&check, "cc");
+	readstring_debug(&pos, "((type (satisfies hello) cc))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablevalue_local(ptr, stack, check, &pos);
 
-	readstring(&cons, "(setq cc 300)");
+	readstring_debug(&cons, "(setq cc 300)");
 	eval_parse_execute(&cons, cons);
 	GetEvalParse(cons, 0, &cons);
 	scope_setq_cons(ptr, cons, &cons, &type);
@@ -2224,7 +2224,7 @@ static int test_scope_setq_cons(void)
 	GetCons(pos, &pos, &value);
 	test(eval_tablevalue_p(pos), "scope_setq_cons15");
 	getname_tablevalue(pos, &symbol);
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	test(symbol == check, "scope_setq_cons16");
 	test(getcheck_tablevalue(pos), "scope_setq_cons17");
 	GetEvalScopeValue(value, &value);
@@ -2245,7 +2245,7 @@ static int test_scope_setq(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&cons, "(setq aa 100 bb 200)");
+	readstring_debug(&cons, "(setq aa 100 bb 200)");
 	eval_parse_execute(&cons, cons);
 	scope_setq(ptr, &cons, cons);
 	test(RefEvalScopeType(cons) == EVAL_PARSE_SETQ, "scope_setq1");
@@ -2277,25 +2277,25 @@ static int test_globalp_stack_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((ftype function bb))");
+	readstring_debug(&pos, "((ftype function bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	result = globalp_stack_tablefunction(stack, pos);
 	test(result == 0, "globalp_stack_tablefunction1");
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	result = globalp_stack_tablefunction(stack, pos);
 	test(result, "globalp_stack_tablefunction2");
 
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	parse_callname_local(local, &pos, pos);
 	result = globalp_stack_tablefunction(stack, pos);
 	test(result, "globalp_stack_tablefunction3");
@@ -2319,12 +2319,12 @@ static int test_globalp_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "aa");
+	readstring_debug(&symbol, "aa");
 	parse_callname_local(local, &call, symbol);
 	result = globalp_tablefunction(ptr, stack, call);
 	test(result, "globalp_tablefunction1");
 
-	readstring(&pos, "((ftype function aa))");
+	readstring_debug(&pos, "((ftype function aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = globalp_tablefunction(ptr, stack, call);
@@ -2337,9 +2337,9 @@ static int test_globalp_tablefunction(void)
 	result = globalp_tablefunction(ptr, stack, call);
 	test(! result, "globalp_tablefunction4");
 
-	readstring(&symbol, "bb");
+	readstring_debug(&symbol, "bb");
 	parse_callname_local(local, &call, symbol);
-	readstring(&pos, "((ftype function aa))");
+	readstring_debug(&pos, "((ftype function aa))");
 	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	result = globalp_tablefunction(ptr, stack, call);
@@ -2364,26 +2364,26 @@ static int test_dynamic_stack_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	dynamic = 999;
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
 	test(result == 0, "dynamic_stack_tablefunction1");
 
-	readstring(&pos, "((dynamic-extent #'bb))");
+	readstring_debug(&pos, "((dynamic-extent #'bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
 	test(result == 0, "dynamic_stack_tablefunction2");
 
-	readstring(&pos, "((dynamic-extent #'aa))");
+	readstring_debug(&pos, "((dynamic-extent #'aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
 	test(result, "dynamic_stack_tablefunction3");
 	test(dynamic, "dynamic_stack_tablefunction4");
 
-	readstring(&call, "cc");
+	readstring_debug(&call, "cc");
 	parse_callname_local(local, &call, call);
 	make_tablefunction_stack(local, &pos, stack, call);
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
@@ -2414,14 +2414,14 @@ static int test_dynamic_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	dynamic = dynamic_tablefunction(stack, call);
 	test(! dynamic, "dynamic_tablefunction1");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
-	readstring(&pos, "((dynamic-extent #'bb))");
+	readstring_debug(&pos, "((dynamic-extent #'bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	dynamic = dynamic_tablefunction(stack, call);
@@ -2455,31 +2455,31 @@ static int test_ignore_stack_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
 	test(! result, "ignore_stack_tablefunction1");
 
-	readstring(&pos, "((ignorable #'bb))");
+	readstring_debug(&pos, "((ignorable #'bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
 	test(! result, "ignore_stack_tablefunction2");
 
-	readstring(&pos, "((ignore #'aa))");
+	readstring_debug(&pos, "((ignore #'aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
 	test(result, "ignore_stack_tablefunction3");
 	test(ignore == IgnoreType_Ignore, "ignore_stack_tablefunction4");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
 	test(result, "ignore_stack_tablefunction5");
 	test(ignore == IgnoreType_Ignorable, "ignore_stack_tablefunction6");
 
-	readstring(&call, "cc");
+	readstring_debug(&call, "cc");
 	parse_callname_local(local, &call, call);
 	make_tablefunction_stack(local, &pos, stack, call);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
@@ -2510,14 +2510,14 @@ static int test_ignore_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	ignore = ignore_tablefunction(stack, call);
 	test(ignore == IgnoreType_None, "ignore_tablefunction1");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
-	readstring(&pos, "((ignore #'bb))");
+	readstring_debug(&pos, "((ignore #'bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	ignore = ignore_tablefunction(stack, call);
@@ -2551,31 +2551,31 @@ static int test_inline_stack_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	result = inline_stack_tablefunction(stack, call, &Inline);
 	test(! result, "inline_stack_tablefunction1");
 
-	readstring(&pos, "((notinline bb))");
+	readstring_debug(&pos, "((notinline bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = inline_stack_tablefunction(stack, call, &Inline);
 	test(! result, "inline_stack_tablefunction2");
 
-	readstring(&pos, "((inline aa))");
+	readstring_debug(&pos, "((inline aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = inline_stack_tablefunction(stack, call, &Inline);
 	test(result, "inline_stack_tablefunction3");
 	test(Inline == InlineType_Inline, "inline_stack_tablefunction4");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
 	result = inline_stack_tablefunction(stack, call, &Inline);
 	test(result, "inline_stack_tablefunction5");
 	test(Inline == InlineType_NotInline, "inline_stack_tablefunction6");
 
-	readstring(&call, "cc");
+	readstring_debug(&call, "cc");
 	parse_callname_local(local, &call, call);
 	make_tablefunction_stack(local, &pos, stack, call);
 	result = inline_stack_tablefunction(stack, call, &Inline);
@@ -2606,14 +2606,14 @@ static int test_inline_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	Inline = inline_tablefunction(ptr, stack, call);
 	test(Inline == InlineType_None, "inline_tablefunction1");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
-	readstring(&pos, "((inline bb))");
+	readstring_debug(&pos, "((inline bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	Inline = inline_tablefunction(ptr, stack, call);
@@ -2626,9 +2626,9 @@ static int test_inline_tablefunction(void)
 	Inline = inline_tablefunction(ptr, stack, call);
 	test(Inline == InlineType_Inline, "inline_tablefunction3");
 
-	readstring(&call, "cc");
+	readstring_debug(&call, "cc");
 	parse_callname_local(local, &call, call);
-	readstring(&pos, "((notinline cc))");
+	readstring_debug(&pos, "((notinline cc))");
 	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	Inline = inline_tablefunction(ptr, stack, call);
@@ -2644,7 +2644,7 @@ static int test_gettype_global_callname(void)
 {
 	addr symbol, call, pos;
 
-	readstring(&symbol, "gettype-global-callname-temp-symbol");
+	readstring_debug(&symbol, "gettype-global-callname-temp-symbol");
 	parse_callname_heap(&call, symbol);
 	gettype_global_callname(NULL, call, &pos);
 	test(pos == Nil, "gettype_global_callname1");
@@ -2657,7 +2657,7 @@ static int test_gettype_global_callname(void)
 	gettype_global_callname(NULL, call, &pos);
 	test(RefLispDecl(pos) == LISPDECL_NULL, "gettype_global_callname2");
 
-	readstring(&call, "(setf gettype-global-callname-temp-symbol)");
+	readstring_debug(&call, "(setf gettype-global-callname-temp-symbol)");
 	parse_callname_heap(&call, call);
 	gettype_global_callname(NULL, call, &pos);
 	test(RefLispDecl(pos) == LISPDECL_ATOM, "gettype_global_callname3");
@@ -2679,22 +2679,22 @@ static int test_type_free_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos,
+	readstring_debug(&pos,
 			"((ftype (function * integer) aa bb cc) "
 			" (ftype (function * string) dd ee))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	test(type_free_tablefunction(stack, pos, &value), "type_free_tablefunction1");
 	test(RefLispDecl(value) == LISPDECL_FUNCTION, "type_free_tablefunction2");
 	GetArrayType(value, 1, &value);
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_free_tablefunction3");
-	readstring(&pos, "zz");
+	readstring_debug(&pos, "zz");
 	parse_callname_local(local, &pos, pos);
 	test(! type_free_tablefunction(stack, pos, &value), "type_free_tablefunction4");
-	readstring(&pos, "ee");
+	readstring_debug(&pos, "ee");
 	parse_callname_local(local, &pos, pos);
 	test(type_free_tablefunction(stack, pos, &value), "type_free_tablefunction5");
 	test(RefLispDecl(value) == LISPDECL_FUNCTION, "type_free_tablefunction6");
@@ -2720,31 +2720,31 @@ static int test_type_boundary_tablefunction(void)
 
 	stack = newstack_nil(ptr);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
-	readstring(&value, "(function * integer)");
+	readstring_debug(&value, "(function * integer)");
 	test_parse_type(&value, value);
 	settype_tablefunction(pos, value);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
-	readstring(&value, "(function * string)");
+	readstring_debug(&value, "(function * string)");
 	test_parse_type(&value, value);
 	settype_tablefunction(pos, value);
 
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	test(type_boundary_tablefunction(stack, pos, &value),
 			"type_boundary_tablefunction1");
 	GetArrayType(value, 1, &value);
 	test(RefLispDecl(value) == LISPDECL_STRING, "type_boundary_tablefunction2");
-	readstring(&pos, "zz");
+	readstring_debug(&pos, "zz");
 	parse_callname_local(local, &pos, pos);
 	test(! type_boundary_tablefunction(stack, pos, &value),
 			"type_boundary_tablefunction3");
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(type_boundary_tablefunction(stack, pos, &value),
 			"type_boundary_tablefunction4");
@@ -2769,11 +2769,11 @@ static int test_type_tablefunction_local(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((ftype (function * integer) aa))");
+	readstring_debug(&pos, "((ftype (function * integer) aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	type_tablefunction(ptr, local, stack, pos, &pos);
 	test(length_list_unsafe(pos) == 1, "type_tablefunction_local1");
@@ -2782,11 +2782,11 @@ static int test_type_tablefunction_local(void)
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablefunction_local2");
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "((ftype (function * string) aa))");
+	readstring_debug(&pos, "((ftype (function * string) aa))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	type_tablefunction(ptr, local, stack, pos, &pos);
 	test(length_list_unsafe(pos) == 2, "type_tablefunction_local3");
@@ -2797,14 +2797,14 @@ static int test_type_tablefunction_local(void)
 	GetArrayType(value, 1, &value);
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablefunction_local5");
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
-	readstring(&value, "(function * null)");
+	readstring_debug(&value, "(function * null)");
 	test_parse_type(&value, value);
 	settype_tablefunction(pos, value);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	type_tablefunction(ptr, local, stack, pos, &pos);
 	test(length_list_unsafe(pos) == 2, "type_tablefunction_local6");
@@ -2833,12 +2833,12 @@ static int test_type_tablefunction_global(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&symbol, "type-tablefunction-global-temp-symbol");
+	readstring_debug(&symbol, "type-tablefunction-global-temp-symbol");
 	parse_callname_local(local, &pos, symbol);
 	type_tablefunction(ptr, local, stack, pos, &value);
 	test(value == Nil, "type_tablefunction_global1");
 
-	readstring(&value, "(function * null)");
+	readstring_debug(&value, "(function * null)");
 	test_parse_type(&value, value);
 	settype_function_symbol(symbol, value);
 	type_tablefunction(ptr, local, stack, pos, &value);
@@ -2849,7 +2849,7 @@ static int test_type_tablefunction_global(void)
 
 	getglobal_eval(ptr, &geval);
 	make_tablefunction_stack(NULL, &value, geval, pos);
-	readstring(&type, "(function * integer)");
+	readstring_debug(&type, "(function * integer)");
 	test_parse_type(&type, type);
 	settype_tablefunction(value, type);
 
@@ -2859,7 +2859,7 @@ static int test_type_tablefunction_global(void)
 	GetArrayType(value, 1, &value);
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablefunction_global5");
 
-	readstring(&value,
+	readstring_debug(&value,
 			"((ftype (function * string) "
 			"  type-tablefunction-global-temp-symbol))");
 	parse_declaim_heap(Execute_Thread, Nil, value, &value);
@@ -2871,7 +2871,7 @@ static int test_type_tablefunction_global(void)
 	test(RefLispDecl(value) == LISPDECL_STRING, "type_tablefunction_global7");
 
 	make_tablefunction_stack(local, &value, stack, pos);
-	readstring(&type, "(function * null)");
+	readstring_debug(&type, "(function * null)");
 	test_parse_type(&type, type);
 	settype_tablefunction(value, type);
 
@@ -2900,7 +2900,7 @@ static int test_make_tablefunction_stack(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	make_tablefunction_stack(local, &value, stack, call);
 	test(eval_tablefunction_p(value), "make_tablefunction_stack1");
@@ -2926,16 +2926,16 @@ static int test_push_tablefunction_alloc(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	push_tablefunction_alloc(ptr, local, stack, call, &value);
 	test(getglobalp_tablefunction(value), "push_tablefunction_alloc1");
 	push_tablefunction_alloc(ptr, local, stack, call, &value);
 	test(! getglobalp_tablefunction(value), "push_tablefunction_alloc2");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
-	readstring(&pos, "((dynamic-extent #'bb))");
+	readstring_debug(&pos, "((dynamic-extent #'bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablefunction_alloc(ptr, local, stack, call, &value);
@@ -2958,7 +2958,7 @@ static int test_callname_global_tablefunction(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	callname_global_tablefunction(ptr, &pos1, call);
 	test(getglobalp_tablefunction(pos1), "callname_global_tablefunction1");
@@ -2984,9 +2984,9 @@ static int test_push_closure_function(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
-	readstring(&value, "bb");
+	readstring_debug(&value, "bb");
 	push_closure_function(stack, call, value);
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_FUNCTION, &key);
 	GetEvalStackTable(stack, &table);
@@ -2994,7 +2994,7 @@ static int test_push_closure_function(void)
 	test(result == 0, "push_closure_function1");
 	test(check == value, "push_closure_function2");
 
-	readstring(&check, "cc");
+	readstring_debug(&check, "cc");
 	parse_callname_local(local, &call, call);
 	push_closure_function(stack, call, check);
 	GetEvalStackTable(stack, &table);
@@ -3021,7 +3021,7 @@ static int test_callname_tablefunction(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	check = callname_tablefunction(ptr, Nil, call, &pos);
 	test(check, "callname_tablefunction1");
@@ -3051,7 +3051,7 @@ static int test_callname_tablefunction(void)
 	check = getpplist_callname(table, key, call, &pos);
 	test(check == 0, "callname_tablefunction7");
 
-	readstring(&call, "ee");
+	readstring_debug(&call, "ee");
 	parse_callname_local(local, &call, call);
 	check = callname_tablefunction(ptr, front, call, &pos);
 	test(check, "callname_tablefunction8");
@@ -3083,7 +3083,7 @@ static int test_scope_function(void)
 	test(eval_tablefunction_p(check), "scope_function2");
 	test(getreference_tablefunction(check), "scope_function3");
 	getname_tablefunction(check, &check);
-	readstring(&call, "hello");
+	readstring_debug(&call, "hello");
 	parse_callname_heap(&call, call);
 	test(equal_callname(check, call), "scope_function4");
 	GetEvalScopeThe(pos, &check);
@@ -3116,9 +3116,9 @@ static int test_lambda_init_var(void)
 	GetEvalParse(args, 0, &args); /* args */
 	getnth_abort(args, 0, &args); /* var */
 	lambda_init_var(ptr, stack, args, decl);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_var1");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_var2");
 
 	free_eval_stack(ptr);
@@ -3145,11 +3145,11 @@ static int test_lambda_init_opt(void)
 	getnth_abort(args, 1, &args); /* optional */
 	lambda_init_opt(ptr, stack, args, decl, &args);
 	test(length_list_unsafe(args) == 2, "lambda_init_opt1");
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_opt2");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_opt3");
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_opt4");
 
 	GetCons(args, &pos, &args);
@@ -3183,11 +3183,11 @@ static int test_lambda_init_key(void)
 	getnth_abort(args, 3, &args); /* key */
 	lambda_init_key(ptr, stack, args, decl, &args);
 	test(length_list_unsafe(args) == 2, "lambda_init_key1");
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_key2");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_key3");
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_key4");
 
 	GetCons(args, &pos, &args);
@@ -3221,11 +3221,11 @@ static int test_lambda_init_aux(void)
 	getnth_abort(args, 5, &args); /* aux */
 	lambda_init_aux(ptr, stack, args, decl, &args);
 	test(length_list_unsafe(args) == 2, "lambda_init_aux1");
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_aux2");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(! find_tablevalue(stack, pos, &pos), "lambda_init_aux3");
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_aux4");
 
 	GetCar(args, &args);
@@ -3259,15 +3259,15 @@ static int test_lambda_init(void)
 			"(lambda (aa &optional bb &rest cc &key dd &allow-other-keys &aux ee))");
 	GetEvalParse(pos, 0, &str.args); /* args */
 	lambda_init(ptr, &str);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &pos), "lambda_init1");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &pos), "lambda_init2");
-	readstring(&pos, "cc");
+	readstring_debug(&pos, "cc");
 	test(find_tablevalue(str.stack, pos, &pos), "lambda_init3");
-	readstring(&pos, "dd");
+	readstring_debug(&pos, "dd");
 	test(find_tablevalue(str.stack, pos, &pos), "lambda_init4");
-	readstring(&pos, "ee");
+	readstring_debug(&pos, "ee");
 	test(find_tablevalue(str.stack, pos, &pos), "lambda_init5");
 
 	getnth_abort(str.args, 1, &pos); /* optional */
@@ -3483,7 +3483,7 @@ static int test_type_ordinary_var(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa) (type string bb))");
+	readstring_debug(&pos, "((type integer aa) (type string bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda (aa bb))");
@@ -3495,12 +3495,12 @@ static int test_type_ordinary_var(void)
 	type_ordinary_var(local, args, &args);
 	test(length_list_unsafe(args) == 2, "type_ordinary_var1");
 	GetCons(args, &pos, &args);
-	readstring(&check, "integer");
+	readstring_debug(&check, "integer");
 	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_var2");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_var3");
 	GetCons(args, &pos, &args);
-	readstring(&check, "string");
+	readstring_debug(&check, "string");
 	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_var4");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_var5");
@@ -3526,7 +3526,7 @@ static int test_type_ordinary_opt(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa) (type string bb))");
+	readstring_debug(&pos, "((type integer aa) (type string bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda (&optional (aa 10) (bb \"Hello\")) :hello)");
@@ -3538,12 +3538,12 @@ static int test_type_ordinary_opt(void)
 	type_ordinary_opt(local, args, &args);
 	test(length_list_unsafe(args) == 2, "type_ordinary_opt1");
 	GetCons(args, &pos, &args);
-	readstring(&check, "integer");
+	readstring_debug(&check, "integer");
 	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_opt2");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_opt3");
 	GetCons(args, &pos, &args);
-	readstring(&check, "string");
+	readstring_debug(&check, "string");
 	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_opt4");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_opt5");
@@ -3584,7 +3584,7 @@ static int test_type_ordinary_key(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa) (type string bb))");
+	readstring_debug(&pos, "((type integer aa) (type string bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda (&key ((hello aa) 10) (bb \"Hello\")))");
@@ -3597,17 +3597,17 @@ static int test_type_ordinary_key(void)
 	test(length_list_unsafe(args) == 2, "type_ordinary_key1");
 	GetCons(args, &pos, &args);
 	GetCons(pos, &key, &value);
-	readstring(&check, "hello");
+	readstring_debug(&check, "hello");
 	test(key == check, "type_ordinary_key2");
-	readstring(&check, "integer");
+	readstring_debug(&check, "integer");
 	test_parse_type(&check, check);
 	test(subtypep_clang(value, check, &invalid), "type_ordinary_key3");
 	test(subtypep_clang(check, value, &invalid), "type_ordinary_key4");
 	GetCons(args, &pos, &args);
 	GetCons(pos, &key, &value);
-	readstring(&check, ":bb");
+	readstring_debug(&check, ":bb");
 	test(key == check, "type_ordinary_key5");
-	readstring(&check, "string");
+	readstring_debug(&check, "string");
 	test_parse_type(&check, check);
 	test(subtypep_clang(value, check, &invalid), "type_ordinary_key6");
 	test(subtypep_clang(check, value, &invalid), "type_ordinary_key7");
@@ -3635,7 +3635,7 @@ static int test_make_type_ordinary(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa) (type string bb))");
+	readstring_debug(&pos, "((type integer aa) (type string bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda ())");
@@ -3684,7 +3684,7 @@ static int test_lambda_type_incomplete(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "((type integer aa) (type string bb))");
+	readstring_debug(&pos, "((type integer aa) (type string bb))");
 	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda ())");
@@ -3733,7 +3733,7 @@ static int test_lambda_declare(void)
 	test(str.table == Nil, "lambda_declare1");
 	test(RefLispDecl(str.the) == LISPDECL_FUNCTION, "lambda_declare2");
 
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	parse_callname_local(local, &str.call, pos);
 	str.table = Nil;
 	str.the = Nil;
@@ -3776,7 +3776,7 @@ static int test_lambda_progn(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	parse_callname_local(local, &str.call, pos);
 	str.table = Nil;
 	str.the = Nil;
@@ -3958,7 +3958,7 @@ static int test_lambda_update(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	parse_callname_local(local, &str.call, pos);
 	str.table = Nil;
 	str.globalp = 1;
@@ -4010,7 +4010,7 @@ static int test_lambda_closure(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	push_tablevalue_local(ptr, stack, pos, &table);
 
 	str.call = Nil;
@@ -4028,7 +4028,7 @@ static int test_lambda_closure(void)
 	lambda_update(&str);
 
 	current = newstack_nil(ptr);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(! find_symbol_scope(ptr, pos, &pos), "lambda_closure1");
 	freestack_eval(ptr, current);
 
@@ -4039,7 +4039,7 @@ static int test_lambda_closure(void)
 	test(eval_tablevalue_p(check), "lambda_closure3");
 	test(pos == Nil, "lambda_closure4");
 	getname_tablevalue(check, &check);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	test(check == pos, "lambda_closure5");
 
 	free_eval_stack(ptr);
@@ -4114,7 +4114,7 @@ static int test_defun_update(void)
 	defun_update(ptr, &str);
 
 	getglobal_eval(ptr, &stack);
-	readstring(&call, "name");
+	readstring_debug(&call, "name");
 	parse_callname_local(local, &call, call);
 	test(find_tablefunction(stack, call, &pos), "defun_update1");
 	getname_tablefunction(pos, &check);
@@ -4135,7 +4135,7 @@ static int test_defun_the(void)
 
 	begin_eval_stack(Execute_Thread);
 	init_lambda_struct(&str, EVAL_PARSE_DEFUN, 1);
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	parse_callname_heap(&pos, pos);
 	str.call = pos;
 	eval_scope_size(Execute_Thread, &eval, EvalLambda_Size, EVAL_PARSE_EMPTY, Nil, Nil);
@@ -4144,7 +4144,7 @@ static int test_defun_the(void)
 	test(RefLispDecl(type) == LISPDECL_SYMBOL, "defun_the1");
 
 	init_lambda_struct(&str, EVAL_PARSE_DEFUN, 1);
-	readstring(&pos, "(setf hello)");
+	readstring_debug(&pos, "(setf hello)");
 	parse_callname_heap(&pos, pos);
 	str.call = pos;
 	eval_scope_size(Execute_Thread, &eval, EvalLambda_Size, EVAL_PARSE_EMPTY, Nil, Nil);
@@ -4163,7 +4163,7 @@ static int test_defun_the(void)
 	GetArrayType(cdr, 1, &cdr);
 	test(RefLispDecl(car) == LISPDECL_EQL, "defun_the6");
 	GetArrayType(car, 0, &car);
-	readstring(&check, "hello");
+	readstring_debug(&check, "hello");
 	test(car == check, "defun_the7");
 	test(RefLispDecl(cdr) == LISPDECL_NULL, "defun_the8");
 
@@ -4205,7 +4205,7 @@ static int test_macro_init_var(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(aa bb)");
+	readstring_debug(&args, "(aa bb)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4214,11 +4214,11 @@ static int test_macro_init_var(void)
 	GetCar(args, &args);
 	test(length_list_unsafe(args) == 2, "macro_init_var2");
 	GetCons(args, &pos, &args);
-	test(pos == readr("aa"), "macro_init_var3");
+	test(pos == readr_debug("aa"), "macro_init_var3");
 	GetCons(args, &pos, &args);
-	test(pos == readr("bb"), "macro_init_var4");
+	test(pos == readr_debug("bb"), "macro_init_var4");
 
-	readstring(&args, "(aa (bb cc) dd)");
+	readstring_debug(&args, "(aa (bb cc) dd)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4227,7 +4227,7 @@ static int test_macro_init_var(void)
 	GetCar(args, &args);
 	test(length_list_unsafe(args) == 3, "macro_init_var6");
 	GetCons(args, &pos, &args);
-	test(pos == readr("aa"), "macro_init_var7");
+	test(pos == readr_debug("aa"), "macro_init_var7");
 	GetCons(args, &pos, &args);
 	GetCar(pos, &pos);
 	test(length_list_unsafe(pos) == 2, "macro_init_var8");
@@ -4247,7 +4247,7 @@ static int test_macro_init_rest(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(&rest aa)");
+	readstring_debug(&args, "(&rest aa)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4255,9 +4255,9 @@ static int test_macro_init_rest(void)
 	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_init_rest1");
 	GetCar(pos, &pos);
-	test(pos == readr("aa"), "macro_init_rest2");
+	test(pos == readr_debug("aa"), "macro_init_rest2");
 
-	readstring(&args, "(&body bb)");
+	readstring_debug(&args, "(&body bb)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4265,9 +4265,9 @@ static int test_macro_init_rest(void)
 	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_init_rest3");
 	GetCar(pos, &pos);
-	test(pos == readr("bb"), "macro_init_rest4");
+	test(pos == readr_debug("bb"), "macro_init_rest4");
 
-	readstring(&args, "(cc . dd)");
+	readstring_debug(&args, "(cc . dd)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4275,7 +4275,7 @@ static int test_macro_init_rest(void)
 	lista_bind_(args, &pos, &pos, &pos, &args, NULL);
 	test(consp(pos), "macro_init_rest5");
 	GetCar(pos, &pos);
-	test(pos == readr("dd"), "macro_init_rest6");
+	test(pos == readr_debug("dd"), "macro_init_rest6");
 
 	free_eval_stack(ptr);
 	free_control_(ptr, control);
@@ -4292,7 +4292,7 @@ static int test_macro_init_args(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(&whole whole &environment env aa (&rest bb))");
+	readstring_debug(&args, "(&whole whole &environment env aa (&rest bb))");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4314,7 +4314,7 @@ static int test_macro_tablevalue_var(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(aa bb)");
+	readstring_debug(&args, "(aa bb)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4326,13 +4326,13 @@ static int test_macro_tablevalue_var(void)
 	GetCons(args, &pos, &args);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_var3");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("aa"), "macro_tablevalue_var4");
+	test(pos == readr_debug("aa"), "macro_tablevalue_var4");
 	GetCons(args, &pos, &args);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_var5");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("bb"), "macro_tablevalue_var6");
+	test(pos == readr_debug("bb"), "macro_tablevalue_var6");
 
-	readstring(&args, "(aa (bb cc) dd)");
+	readstring_debug(&args, "(aa (bb cc) dd)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4344,7 +4344,7 @@ static int test_macro_tablevalue_var(void)
 	GetCons(args, &pos, &args);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_var9");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("aa"), "macro_tablevalue_var10");
+	test(pos == readr_debug("aa"), "macro_tablevalue_var10");
 	GetCons(args, &pos, &args);
 	GetCar(pos, &pos);
 	test(length_list_unsafe(pos) == 2, "macro_tablevalue_var11");
@@ -4364,7 +4364,7 @@ static int test_macro_tablevalue_rest(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(&rest aa)");
+	readstring_debug(&args, "(&rest aa)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4375,9 +4375,9 @@ static int test_macro_tablevalue_rest(void)
 	GetCar(pos, &pos);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_rest2");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("aa"), "macro_tablevalue_rest3");
+	test(pos == readr_debug("aa"), "macro_tablevalue_rest3");
 
-	readstring(&args, "(&body bb)");
+	readstring_debug(&args, "(&body bb)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4388,9 +4388,9 @@ static int test_macro_tablevalue_rest(void)
 	GetCar(pos, &pos);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_rest5");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("bb"), "macro_tablevalue_rest6");
+	test(pos == readr_debug("bb"), "macro_tablevalue_rest6");
 
-	readstring(&args, "(cc . dd)");
+	readstring_debug(&args, "(cc . dd)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4401,7 +4401,7 @@ static int test_macro_tablevalue_rest(void)
 	GetCar(pos, &pos);
 	test(eval_tablevalue_p(pos), "macro_tablevalue_rest8");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("dd"), "macro_tablevalue_rest9");
+	test(pos == readr_debug("dd"), "macro_tablevalue_rest9");
 
 	free_eval_stack(ptr);
 	free_control_(ptr, control);
@@ -4418,7 +4418,7 @@ static int test_macro_tablevalue_args(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(&whole aa &environment bb cc (&rest dd))");
+	readstring_debug(&args, "(&whole aa &environment bb cc (&rest dd))");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4428,10 +4428,10 @@ static int test_macro_tablevalue_args(void)
 	list_bind(args, &pos, &pos, &pos, &pos, &pos, &pos, &whole, &env, NULL);
 	test(eval_tablevalue_p(whole), "macro_tablevalue_args2");
 	getname_tablevalue(whole, &whole);
-	test(whole == readr("aa"), "macro_tablevalue_args3");
+	test(whole == readr_debug("aa"), "macro_tablevalue_args3");
 	test(eval_tablevalue_p(env), "macro_tablevalue_args4");
 	getname_tablevalue(env, &env);
-	test(env == readr("bb"), "macro_tablevalue_args5");
+	test(env == readr_debug("bb"), "macro_tablevalue_args5");
 
 	free_eval_stack(ptr);
 	free_control_(ptr, control);
@@ -4448,7 +4448,7 @@ static int test_macro_update_var(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(aa (bb cc) dd)");
+	readstring_debug(&args, "(aa (bb cc) dd)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4461,7 +4461,7 @@ static int test_macro_update_var(void)
 	GetCons(args, &pos, &args);
 	test(eval_tablevalue_p(pos), "macro_update_var3");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("aa"), "macro_update_var4");
+	test(pos == readr_debug("aa"), "macro_update_var4");
 	GetCons(args, &pos, &args);
 	GetCar(pos, &pos);
 	test(length_list_unsafe(pos) == 2, "macro_update_var5");
@@ -4485,7 +4485,7 @@ static int test_macro_update_rest(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(&rest aa)");
+	readstring_debug(&args, "(&rest aa)");
 	stack = newstack_nil(ptr);
 	lambda_macro(ptr->local, &args, args, Nil);
 	parse_macro_lambda_list(ptr, &args, args);
@@ -4499,7 +4499,7 @@ static int test_macro_update_rest(void)
 	test(eval_tablevalue_p(pos), "macro_update_rest3");
 	test(! GetStatusDynamic(pos), "macro_update_rest4");
 	getname_tablevalue(pos, &pos);
-	test(pos == readr("aa"), "macro_update_rest5");
+	test(pos == readr_debug("aa"), "macro_update_rest5");
 
 	free_eval_stack(ptr);
 	free_control_(ptr, control);
@@ -4520,7 +4520,7 @@ static int test_scope_defmacro(void)
 	GetEvalParse(pos, 0, &name);
 	GetEvalParse(pos, 1, &lambda);
 	test(symbolp(name), "scope_defmacro1");
-	test(name == readr("aaa"), "scope_defmacro2");
+	test(name == readr_debug("aaa"), "scope_defmacro2");
 	test(macro_function_p(lambda), "scope_defmacro3");
 
 	free_eval_stack(ptr);
@@ -4539,7 +4539,7 @@ static int test_push_symbol_macrolet(void)
 	begin_eval_stack(ptr);
 	stack = newstack_nil(ptr);
 
-	symbol = readr("aaa");
+	symbol = readr_debug("aaa");
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	push_symbol_macrolet(stack, symbol, v1, v2);
@@ -4572,7 +4572,7 @@ static int test_scope_define_symbol_macro(void)
 	GetEvalParse(pos, 0, &name);
 	GetEvalParse(pos, 1, &form);
 	test(symbolp(name), "scope_define_symbol_macro1");
-	test(name == readr("aaa"), "scope_define_symbol_macro2");
+	test(name == readr_debug("aaa"), "scope_define_symbol_macro2");
 	test(eval_parse_p(form), "scope_define_symbol_macro3");
 
 	free_eval_stack(ptr);
@@ -4598,14 +4598,14 @@ static int test_apply_symbol_macrolet(void)
 
 	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
 	GetEvalStackTable(stack, &table);
-	pos = readr("aaa");
+	pos = readr_debug("aaa");
 	test(getpplist(table, key, pos, &right) == 0, "apply_symbol_macrolet1");
 	test(consp(right), "apply_symbol_macrolet2");
 	GetCons(right, &left, &right);
 	test(eval_parse_p(left), "apply_symbol_macrolet3");
 	test(GetType(right) == LISPTYPE_ENVIRONMENT, "apply_symbol_macrolet4");
 
-	pos = readr("bbb");
+	pos = readr_debug("bbb");
 	test(getpplist(table, key, pos, &right) == 0, "apply_symbol_macrolet5");
 	test(consp(right), "apply_symbol_macrolet6");
 	GetCons(right, &left, &right);
@@ -4684,13 +4684,13 @@ static int test_flet_init(void)
 	test(length_list_unsafe(args) == 2, "flet_init1");
 	GetCons(args, &pos, &args);
 	GetCons(pos, &pos, &eval);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	parse_callname_local(local, &check, check);
 	test(equal_callname(pos, check), "flet_init2");
 	test(eval_scope_p(eval), "flet_init3");
 	GetCons(args, &pos, &args);
 	GetCons(pos, &pos, &eval);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	parse_callname_local(local, &check, check);
 	test(equal_callname(pos, check), "flet_init4");
 	test(eval_scope_p(eval), "flet_init5");
@@ -4715,14 +4715,14 @@ static int test_flet_maketable(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((a () 10) (b () (progn 20)) (c ())) :hello)");
+	readstring_debug(&pos, "(flet ((a () 10) (b () (progn 20)) (c ())) :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos); /* let-args */
 	str.args = pos;
 	flet_init(ptr, &str);
 	flet_maketable(local, &str);
 
-	readstring(&pos, "a");
+	readstring_debug(&pos, "a");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &pos), "flet_maketable1");
 	test(eval_tablefunction_p(pos), "flet_maketable2");
@@ -4747,14 +4747,14 @@ static int test_checktype_function(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&call, "aa");
+	readstring_debug(&call, "aa");
 	parse_callname_local(local, &call, call);
 	push_tablefunction_alloc(ptr, local, stack, call, &table);
-	readstring(&type, "(function * *)");
+	readstring_debug(&type, "(function * *)");
 	test_parse_type(&type, type);
 	settype_tablefunction(table, type);
 
-	readstring(&type, "(function * *)");
+	readstring_debug(&type, "(function * *)");
 	test_parse_type(&type, type);
 	make_eval_scope(Execute_Thread, &init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_function(table, init);
@@ -4780,7 +4780,7 @@ static int test_flet_applytable(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((aa () 10) (bb () 20)) :aa)");
+	readstring_debug(&pos, "(flet ((aa () 10) (bb () 20)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -4789,24 +4789,24 @@ static int test_flet_applytable(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	flet_applytable(ptr, &str);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "flet_applytable1");
 	test(! getglobalp_tablefunction(table), "flet_applytable2");
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "flet_applytable3");
 	test(! getglobalp_tablefunction(table), "flet_applytable4");
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "flet_applytable5");
-	readstring(&type, "(function * *)");
+	readstring_debug(&type, "(function * *)");
 	test_parse_type(&type, type);
 	settype_tablefunction(table, type);
 
 	flet_applytable(ptr, &str);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "flet_applytable7");
 	test(! getglobalp_tablefunction(table), "flet_applytable8");
@@ -4831,7 +4831,7 @@ static int test_ignore_checkfunction(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((aa () 10) (bb () 20)) :aa)");
+	readstring_debug(&pos, "(flet ((aa () 10) (bb () 20)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -4840,11 +4840,11 @@ static int test_ignore_checkfunction(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	flet_applytable(ptr, &str);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	find_tablefunction(str.stack, pos, &table);
 	setreference_tablefunction(table, 1);
-	readstring(&pos, "bb");
+	readstring_debug(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	find_tablefunction(str.stack, pos, &table);
 	setreference_tablefunction(table, 1);
@@ -4872,7 +4872,7 @@ static int test_flet_update(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((aa () 10) (bb () 20)) :aa)");
+	readstring_debug(&pos, "(flet ((aa () 10) (bb () 20)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args); /* let-args */
 	GetEvalParse(pos, 1, &str.decl); /* let-decl */
@@ -4911,7 +4911,7 @@ static int test_scope_flet(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
+	readstring_debug(&pos, "(flet ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -4920,7 +4920,7 @@ static int test_scope_flet(void)
 	test(RefLispDecl(str.the) == LISPDECL_KEYWORD, "flet_execute1");
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
+	readstring_debug(&pos, "(flet ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -4929,7 +4929,7 @@ static int test_scope_flet(void)
 	test(RefLispDecl(str.the) == LISPDECL_KEYWORD, "flet_object1");
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(flet ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
+	readstring_debug(&pos, "(flet ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
 	eval_parse_execute(&pos, pos);
 	scope_flet(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_flet1");
@@ -4958,7 +4958,7 @@ static int test_ifdeclcall(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos,
+	readstring_debug(&pos,
 			"(labels ((aa () 10) (bb () 20)) "
 			"  (declare (inline aa bb cc)) "
 			"  (aa) (bb) :aa)");
@@ -4966,7 +4966,7 @@ static int test_ifdeclcall(void)
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
 	ifdeclcall(ptr, str.stack, call, str.decl, &pos);
 	test(eval_tablefunction_p(pos), "ifdeclcall1");
@@ -4993,7 +4993,7 @@ static int test_labels_init(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos,
+	readstring_debug(&pos,
 			"(labels ((aa () 10) (bb () 20)) "
 			"  (declare (inline aa bb cc)) "
 			"  (aa) (bb) :aa)");
@@ -5005,18 +5005,18 @@ static int test_labels_init(void)
 	test(length_list_unsafe(args) == 2, "labels_init1");
 	GetCons(args, &pos, &args);
 	GetCons(pos, &pos, &eval);
-	readstring(&check, "aa");
+	readstring_debug(&check, "aa");
 	parse_callname_local(local, &check, check);
 	test(equal_callname(pos, check), "labels_init2");
 	test(eval_scope_p(eval), "labels_init3");
 	GetCons(args, &pos, &args);
 	GetCons(pos, &pos, &eval);
-	readstring(&check, "bb");
+	readstring_debug(&check, "bb");
 	parse_callname_local(local, &check, check);
 	test(equal_callname(pos, check), "labels_init4");
 	test(eval_scope_p(eval), "labels_init5");
 
-	readstring(&call, "bb");
+	readstring_debug(&call, "bb");
 	parse_callname_local(local, &call, call);
 	test(find_tablefunction(str.stack, call, &pos), "labels_init6");
 	test(getinline_tablefunction(pos) == InlineType_Inline, "labels_init7");
@@ -5041,7 +5041,7 @@ static int test_labels_checktype(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(labels ((aa () 10) (bb () 20)) :aa)");
+	readstring_debug(&pos, "(labels ((aa () 10) (bb () 20)) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -5049,15 +5049,15 @@ static int test_labels_checktype(void)
 	labels_init(ptr, &str);
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "labels_checktype1");
-	readstring(&type, "(function * *)");
+	readstring_debug(&type, "(function * *)");
 	test_parse_type(&type, type);
 	settype_tablefunction(table, type);
 
 	labels_checktype(&str);
-	readstring(&pos, "aa");
+	readstring_debug(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "labels_checktype2");
 	test(! getglobalp_tablefunction(table), "labels_checktype3");
@@ -5080,7 +5080,7 @@ static int test_scope_labels(void)
 	begin_eval_stack(ptr);
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(labels ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
+	readstring_debug(&pos, "(labels ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -5089,7 +5089,7 @@ static int test_scope_labels(void)
 	test(RefLispDecl(str.the) == LISPDECL_KEYWORD, "labels_execute1");
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(labels ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
+	readstring_debug(&pos, "(labels ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &str.args);
 	GetEvalParse(pos, 1, &str.decl);
@@ -5098,7 +5098,7 @@ static int test_scope_labels(void)
 	test(RefLispDecl(str.the) == LISPDECL_KEYWORD, "labels_object1");
 
 	str.stack = newstack_nil(ptr);
-	readstring(&pos, "(labels ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
+	readstring_debug(&pos, "(labels ((aa () 10) (bb () 20)) (aa) (bb) :aa)");
 	eval_parse_execute(&pos, pos);
 	scope_labels(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_labels1");
@@ -5122,14 +5122,14 @@ static int test_call_first(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(hello 10 20 30)");
+	readstring_debug(&pos, "(hello 10 20 30)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 	call_first(ptr, &pos, pos);
 	test(eval_scope_p(pos), "call_first1");
 	test(RefEvalScopeType(pos) == EVAL_PARSE_FUNCTION, "call_first2");
 
-	readstring(&pos, "((lambda ()) 10 20 30)");
+	readstring_debug(&pos, "((lambda ()) 10 20 30)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 	call_first(ptr, &pos, pos);
@@ -5151,9 +5151,9 @@ static int test_check_tablecall(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "100");
+	readstring_debug(&pos, "100");
 	eval_parse_execute(&pos, pos);
-	readstring(&type, "integer");
+	readstring_debug(&type, "integer");
 	test_parse_type(&type, type);
 	check_tablecall(ptr, pos, type, &pos);
 	test(eval_tablecall_p(pos), "check_tablecall1");
@@ -5163,9 +5163,9 @@ static int test_check_tablecall(void)
 	test(eval_scope_p(check), "check_tablecall3");
 	test(! getcheck_tablecall(pos), "check_tablecall4");
 
-	readstring(&pos, "100");
+	readstring_debug(&pos, "100");
 	eval_parse_execute(&pos, pos);
-	readstring(&type, "(satisfies hello)");
+	readstring_debug(&type, "(satisfies hello)");
 	test_parse_type(&type, type);
 	check_tablecall(ptr, pos, type, &pos);
 	test(getcheck_tablecall(pos), "check_tablecall5");
@@ -5185,10 +5185,10 @@ static int test_callargs_var(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(function (integer character))");
+	readstring_debug(&pos, "(function (integer character))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10 #\\a)");
+	readstring_debug(&args, "(call 10 #\\a)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5202,19 +5202,19 @@ static int test_callargs_var(void)
 	test(RefEvalScopeType(check) == EVAL_PARSE_CHARACTER, "callargs_var5");
 	test(! getcheck_tablecall(pos), "callargs_var6");
 
-	readstring(&pos, "(function (integer character real))");
+	readstring_debug(&pos, "(function (integer character real))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10 #\\a)");
+	readstring_debug(&args, "(call 10 #\\a)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
 	test(callargs_var(ptr, pos, &args, &root), "callargs_var7");
 
-	readstring(&pos, "(function ((satisfies hello)))");
+	readstring_debug(&pos, "(function ((satisfies hello)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10)");
+	readstring_debug(&args, "(call 10)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5238,10 +5238,10 @@ static int test_callargs_opt(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(function (&optional integer character))");
+	readstring_debug(&pos, "(function (&optional integer character))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10 #\\a)");
+	readstring_debug(&args, "(call 10 #\\a)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5255,10 +5255,10 @@ static int test_callargs_opt(void)
 	test(RefEvalScopeType(check) == EVAL_PARSE_CHARACTER, "callargs_opt4");
 	test(! getcheck_tablecall(pos), "callargs_opt5");
 
-	readstring(&pos, "(function (&optional (satisfies hello)))");
+	readstring_debug(&pos, "(function (&optional (satisfies hello)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10)");
+	readstring_debug(&args, "(call 10)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5277,7 +5277,7 @@ static int test_callargs_keyvalue(void)
 {
 	addr cons, key, type, check;
 
-	readstring(&key, "hello");
+	readstring_debug(&key, "hello");
 	GetTypeTable(&type, Atom);
 	cons_heap(&cons, key, type);
 	callargs_keyvalue(0, cons, &check);
@@ -5300,7 +5300,7 @@ static int test_callargs_key(void)
 	callargs_key(1, T, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "callargs_key2");
 
-	readstring(&key, "hello");
+	readstring_debug(&key, "hello");
 	GetTypeTable(&type, Atom);
 	cons_heap(&cons, key, type);
 	list_heap(&cons, cons, NULL);
@@ -5329,17 +5329,17 @@ static int test_callargs_restkey(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(function ())");
+	readstring_debug(&pos, "(function ())");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10 #\\a)");
+	readstring_debug(&args, "(call 10 #\\a)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
 	callargs_restkey(ptr, pos, &args, &root, &result);
 	test(result, "callargs_restkey1");
 
-	readstring(&args, "(call)");
+	readstring_debug(&args, "(call)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5347,10 +5347,10 @@ static int test_callargs_restkey(void)
 	test(! result, "callargs_restkey2");
 	test(root == Nil, "callargs_restkey3");
 
-	readstring(&pos, "(function (&rest integer))");
+	readstring_debug(&pos, "(function (&rest integer))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10)");
+	readstring_debug(&args, "(call 10)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5361,10 +5361,10 @@ static int test_callargs_restkey(void)
 	gettype_tablecall(root, &root);
 	test(RefLispDecl(root) == LISPDECL_INTEGER, "callargs_restkey6");
 
-	readstring(&pos, "(function (&key (aaa integer) (bbb real)))");
+	readstring_debug(&pos, "(function (&key (aaa integer) (bbb real)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call aaa 10)");
+	readstring_debug(&args, "(call aaa 10)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5375,10 +5375,10 @@ static int test_callargs_restkey(void)
 	gettype_tablecall(check, &check);
 	test(RefLispDecl(check) == LISPDECL_OR, "callargs_restkey9");
 
-	readstring(&pos, "(function (&rest fixnum &key (aaa integer) (bbb real)))");
+	readstring_debug(&pos, "(function (&rest fixnum &key (aaa integer) (bbb real)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call aaa 10 bbb 20)");
+	readstring_debug(&args, "(call aaa 10 bbb 20)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	root = Nil;
@@ -5404,28 +5404,28 @@ static int test_callargs_check(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(function ())");
+	readstring_debug(&pos, "(function ())");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call)");
+	readstring_debug(&args, "(call)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
 	test(root == Nil, "callargs_check1");
 
-	readstring(&pos, "(function (integer))");
+	readstring_debug(&pos, "(function (integer))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10)");
+	readstring_debug(&args, "(call 10)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
 	test(length_list_unsafe(root) == 1, "callargs_check2");
 
-	readstring(&pos, "(function (integer &optional real))");
+	readstring_debug(&pos, "(function (integer &optional real))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10 20)");
+	readstring_debug(&args, "(call 10 20)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
@@ -5435,37 +5435,37 @@ static int test_callargs_check(void)
 	GetEvalScopeValue(check, &check);
 	test(RefFixnum(check) == 10, "callargs_check4");
 
-	readstring(&pos, "(function (integer &rest real))");
+	readstring_debug(&pos, "(function (integer &rest real))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call 10 20 30 40 50)");
+	readstring_debug(&args, "(call 10 20 30 40 50)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
 	test(length_list_unsafe(root) == 5, "callargs_check5");
 
-	readstring(&pos, "(function (&rest t &key (hello integer)))");
+	readstring_debug(&pos, "(function (&rest t &key (hello integer)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call)");
+	readstring_debug(&args, "(call)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
 	test(length_list_unsafe(root) == 0, "callargs_check6");
 
-	readstring(&pos, "(function (&rest t &key (hello integer)))");
+	readstring_debug(&pos, "(function (&rest t &key (hello integer)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call hello 20)");
+	readstring_debug(&args, "(call hello 20)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
 	test(length_list_unsafe(root) == 2, "callargs_check7");
 
-	readstring(&pos, "(function (&key (hello integer)))");
+	readstring_debug(&pos, "(function (&key (hello integer)))");
 	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
-	readstring(&args, "(call hello 100)");
+	readstring_debug(&args, "(call hello 100)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_check(ptr, pos, args, &root);
@@ -5484,15 +5484,15 @@ static int test_asterisk_function_argument(void)
 	GetTypeTable(&pos, Asterisk);
 	test(asterisk_function_argument(pos, &pos), "asterisk_function_argument1");
 
-	readstring(&pos, "function");
+	readstring_debug(&pos, "function");
 	test_parse_type(&pos, pos);
 	test(asterisk_function_argument(pos, &pos), "asterisk_function_argument2");
 
-	readstring(&pos, "(function * integer)");
+	readstring_debug(&pos, "(function * integer)");
 	test_parse_type(&pos, pos);
 	test(asterisk_function_argument(pos, &pos), "asterisk_function_argument3");
 
-	readstring(&pos, "(function ())");
+	readstring_debug(&pos, "(function ())");
 	test_parse_type(&pos, pos);
 	test(! asterisk_function_argument(pos, &pos), "asterisk_function_argument4");
 	test(GetType(pos) == LISPTYPE_VECTOR, "asterisk_function_argument5");
@@ -5509,7 +5509,7 @@ static int test_callargs_nocheck(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&args, "(call 10 20 30 40)");
+	readstring_debug(&args, "(call 10 20 30 40)");
 	eval_parse_execute(&args, args);
 	GetEvalParse(args, 1, &args); /* args */
 	callargs_nocheck(ptr, args, &args);
@@ -5534,12 +5534,12 @@ static int test_call_args(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(call 10 20 30 40)");
+	readstring_debug(&pos, "(call 10 20 30 40)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &first);
 	GetEvalParse(pos, 1, &args);
 	call_first(ptr, &first, first);
-	readstring(&pos, "(function * *)");
+	readstring_debug(&pos, "(function * *)");
 	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 
@@ -5550,12 +5550,12 @@ static int test_call_args(void)
 	gettype_tablecall(check, &check);
 	test(type_asterisk_p(check), "call_args3");
 
-	readstring(&pos, "(call 10 20 30 40)");
+	readstring_debug(&pos, "(call 10 20 30 40)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &first);
 	GetEvalParse(pos, 1, &args);
 	call_first(ptr, &first, first);
-	readstring(&pos, "(function (&rest integer) *)");
+	readstring_debug(&pos, "(function (&rest integer) *)");
 	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 
@@ -5581,7 +5581,7 @@ static int test_call_result(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(call 10 20 30 40)");
+	readstring_debug(&pos, "(call 10 20 30 40)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &first);
 	call_first(ptr, &first, first);
@@ -5591,13 +5591,13 @@ static int test_call_result(void)
 	call_result(&check, first);
 	test(type_asterisk_p(check), "call_result1");
 
-	readstring(&pos, "(function * *)");
+	readstring_debug(&pos, "(function * *)");
 	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 	call_result(&check, first);
 	test(type_asterisk_p(check), "call_result2");
 
-	readstring(&pos, "(function * integer)");
+	readstring_debug(&pos, "(function * integer)");
 	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 	call_result(&check, first);
@@ -5618,7 +5618,7 @@ static int test_scope_call(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(call 10 20 30 40)");
+	readstring_debug(&pos, "(call 10 20 30 40)");
 	eval_parse_execute(&pos, pos);
 	scope_call(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_call1");
@@ -5642,7 +5642,7 @@ static int test_values_args(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(values 10 #\\A)");
+	readstring_debug(&pos, "(values 10 #\\A)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 	values_args(ptr, pos, &cons, &type);
@@ -5675,7 +5675,7 @@ static int test_scope_values(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(values 10 #\\A)");
+	readstring_debug(&pos, "(values 10 #\\A)");
 	eval_parse_execute(&pos, pos);
 	scope_values(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_values1");
@@ -5699,7 +5699,7 @@ static int test_the_check(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(the integer 100)");
+	readstring_debug(&pos, "(the integer 100)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &type);
 	GetEvalParse(pos, 1, &eval);
@@ -5707,7 +5707,7 @@ static int test_the_check(void)
 	the_check(eval, type, &check);
 	test(check == Nil, "the_check1");
 
-	readstring(&pos, "(the (satisfies hello) 100)");
+	readstring_debug(&pos, "(the (satisfies hello) 100)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &type);
 	GetEvalParse(pos, 1, &eval);
@@ -5730,7 +5730,7 @@ static int test_scope_the(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(the (satisfies hello) 100)");
+	readstring_debug(&pos, "(the (satisfies hello) 100)");
 	eval_parse_execute(&pos, pos);
 	scope_the(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_the1");
@@ -5754,7 +5754,7 @@ static int test_locally_execute(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(locally (declare (type integer aaa)) 100 :hello)");
+	readstring_debug(&pos, "(locally (declare (type integer aaa)) 100 :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &decl);
 	GetEvalParse(pos, 1, &cons);
@@ -5781,7 +5781,7 @@ static int test_scope_locally(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(locally (declare (type integer aaa)) 100 :hello)");
+	readstring_debug(&pos, "(locally (declare (type integer aaa)) 100 :hello)");
 	eval_parse_execute(&pos, pos);
 	scope_locally(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_locally1");
@@ -5810,7 +5810,7 @@ static int test_scope_if(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(if 10 20 30)");
+	readstring_debug(&pos, "(if 10 20 30)");
 	eval_parse_execute(&pos, pos);
 	scope_if(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_if1");
@@ -5836,7 +5836,7 @@ static int test_scope_unwind_protect(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(unwind-protect 10 20 :hello)");
+	readstring_debug(&pos, "(unwind-protect 10 20 :hello)");
 	eval_parse_execute(&pos, pos);
 	scope_unwind_protect(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_unwind_protect1");
@@ -5869,22 +5869,22 @@ static int test_push_tabletagbody(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	push_tabletagbody(stack, pos);
-	readstring(&pos, "hello");
-	push_tabletagbody(stack, pos);
-	make_fixnum_heap(&pos, 10);
+	readstring_debug(&pos, "hello");
 	push_tabletagbody(stack, pos);
 	make_fixnum_heap(&pos, 10);
 	push_tabletagbody(stack, pos);
-	readstring(&pos, "aaa");
+	make_fixnum_heap(&pos, 10);
+	push_tabletagbody(stack, pos);
+	readstring_debug(&pos, "aaa");
 	push_tabletagbody(stack, pos);
 
 	GetConstant(CONSTANT_SYSTEM_TABLE_TAGBODY, &pos);
 	GetEvalStackTable(stack, &table);
 	getplist(table, pos, &table);
 	test(length_list_unsafe(table) == 6, "push_tabletagbody1");
-	readstring(&pos, "10");
+	readstring_debug(&pos, "10");
 	test(getplist_eql(table, pos, &pos) == 0, "push_tabletagbody2");
 	test(eval_tabletagbody_p(pos), "push_tabletagbody3");
 	gettag_tabletagbody(pos, &pos);
@@ -5906,7 +5906,7 @@ static int test_tagbody_push(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "(tagbody 10 20 hello 40 (call))");
+	readstring_debug(&pos, "(tagbody 10 20 hello 40 (call))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &pos); /* tag */
 	tagbody_push(stack, pos);
@@ -5915,7 +5915,7 @@ static int test_tagbody_push(void)
 	GetEvalStackTable(stack, &table);
 	getplist(table, pos, &table);
 	test(length_list_unsafe(table) == 8, "tagbody_push1");
-	readstring(&pos, "10");
+	readstring_debug(&pos, "10");
 	test(getplist_eql(table, pos, &pos) == 0, "tagbody_push2");
 	test(eval_tabletagbody_p(pos), "tagbody_push3");
 	gettag_tabletagbody(pos, &pos);
@@ -5937,7 +5937,7 @@ static int test_tagbody_allcons(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "(tagbody 10 20 hello 40 (call))");
+	readstring_debug(&pos, "(tagbody 10 20 hello 40 (call))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
@@ -5965,7 +5965,7 @@ static int test_tagbody_check(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
@@ -5989,7 +5989,7 @@ static int test_scope_tagbody(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	scope_tagbody(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_tagbody1");
@@ -6016,17 +6016,17 @@ static int test_find_tabletagbody(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
 	tagbody_push(stack, tag);
 
-	readstring(&pos, "20");
+	readstring_debug(&pos, "20");
 	test(find_tabletagbody(stack, pos, &check), "find_tabletagbody1");
 	test(find_tabletagbody(stack, pos, NULL), "find_tabletagbody2");
 	test(eval_tabletagbody_p(check), "find_tabletagbody3");
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	test(! find_tabletagbody(stack, pos, &check), "find_tabletagbody4");
 
 	free_eval_stack(ptr);
@@ -6045,16 +6045,16 @@ static int test_push_closure_tagbody(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
 	tagbody_push(stack, tag);
 
-	readstring(&pos, "20");
+	readstring_debug(&pos, "20");
 	test(find_tabletagbody(stack, pos, &check), "push_closure_tagbody1");
 	push_closure_tagbody(stack, pos, check);
-	readstring(&pos, "10");
+	readstring_debug(&pos, "10");
 	test(find_tabletagbody(stack, pos, &check), "push_closure_tagbody2");
 	push_closure_tagbody(stack, pos, check);
 
@@ -6079,12 +6079,12 @@ static int test_go_tabletagbody(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_tagbody(ptr);
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
 	tagbody_push(stack, tag);
-	readstring(&pos, "20");
+	readstring_debug(&pos, "20");
 	test(find_tabletagbody(stack, pos, &check), "go_tabletagbody1");
 
 	stack = newstack_nil(ptr);
@@ -6092,7 +6092,7 @@ static int test_go_tabletagbody(void)
 	stack = newstack_nil(ptr);
 	stack = newstack_nil(ptr);
 
-	readstring(&pos, "20");
+	readstring_debug(&pos, "20");
 	test(go_tabletagbody(stack, pos, &pos), "go_tabletagbody2");
 	test(pos == check, "go_tabletagbody3");
 
@@ -6101,7 +6101,7 @@ static int test_go_tabletagbody(void)
 	getplist(table, key, &pos);
 	test(length_list_unsafe(pos) == 2, "go_tabletagbody4");
 
-	readstring(&pos, "hello");
+	readstring_debug(&pos, "hello");
 	test(! go_tabletagbody(stack, pos, &pos), "go_tabletagbody5");
 
 	free_eval_stack(ptr);
@@ -6120,13 +6120,13 @@ static int test_go_execute(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_tagbody(ptr);
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
 	tagbody_push(stack, tag);
 
-	readstring(&pos, "20");
+	readstring_debug(&pos, "20");
 	go_execute(ptr, &pos, pos);
 	test(eval_tabletagbody_p(pos), "go_execute1");
 	test(getreference_tabletagbody(pos), "go_execute2");
@@ -6147,13 +6147,13 @@ static int test_scope_go(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_tagbody(ptr);
-	readstring(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
+	readstring_debug(&pos, "(tagbody 10 20 (go 10) (call) (go 20))");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &tag); /* tag */
 	GetEvalParse(pos, 1, &body); /* body */
 	tagbody_push(stack, tag);
 
-	readstring(&pos, "(go 20)");
+	readstring_debug(&pos, "(go 20)");
 	eval_parse_execute(&pos, pos);
 	scope_go(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_go1");
@@ -6181,7 +6181,7 @@ static int test_push_tableblock(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_tagbody(ptr);
-	readstring(&pos, "aaa");
+	readstring_debug(&pos, "aaa");
 	push_tableblock(stack, pos);
 
 	GetConstant(CONSTANT_SYSTEM_TABLE_BLOCK, &key);
@@ -6205,7 +6205,7 @@ static int test_block_execute(void)
 	begin_eval_stack(ptr);
 
 	newstack_tagbody(ptr);
-	readstring(&pos, "(block name 10 20 :hello)");
+	readstring_debug(&pos, "(block name 10 20 :hello)");
 	eval_parse_execute(&pos, pos);
 	GetEvalParse(pos, 0, &name);
 	GetEvalParse(pos, 1, &cons);
@@ -6229,7 +6229,7 @@ static int test_scope_block(void)
 	begin_eval_stack(ptr);
 
 	newstack_tagbody(ptr);
-	readstring(&pos, "(block name 10 20 :hello)");
+	readstring_debug(&pos, "(block name 10 20 :hello)");
 	eval_parse_execute(&pos, pos);
 	scope_block(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_block1");
@@ -6251,20 +6251,20 @@ static int test_push_closure_block(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_tagbody(ptr);
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	push_closure_block(stack, pos);
-	readstring(&pos, "aaa");
+	readstring_debug(&pos, "aaa");
 	push_closure_block(stack, pos);
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	push_closure_block(stack, pos);
-	readstring(&pos, "bbb");
+	readstring_debug(&pos, "bbb");
 	push_closure_block(stack, pos);
 
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_BLOCK, &key);
 	GetEvalStackTable(stack, &table);
 	test(getplist(table, key, &table) == 0, "push_closure_block1");
 	test(length_list_unsafe(table) == 3, "push_closure_block2");
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(find_list_eq_unsafe(pos, table), "push_closure_block3");
 
 	free_eval_stack(ptr);
@@ -6283,15 +6283,15 @@ static int test_find_tableblock(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_tagbody(ptr);
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(! find_tableblock(stack, pos), "find_tableblock1");
 
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	push_tableblock(stack, pos);
 
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(find_tableblock(stack, pos), "find_tableblock2");
-	readstring(&pos, "bbb");
+	readstring_debug(&pos, "bbb");
 	test(! find_tableblock(stack, pos), "find_tableblock3");
 
 	free_eval_stack(ptr);
@@ -6309,23 +6309,23 @@ static int test_name_tableblock(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(! name_tableblock(Nil, pos), "name_tableblock1");
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	push_tableblock(stack, pos);
 
-	readstring(&pos, "aaa");
+	readstring_debug(&pos, "aaa");
 	test(! name_tableblock(stack, pos), "name_tableblock2");
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(name_tableblock(stack, pos), "name_tableblock3");
 
 	stack = newstack_nil(ptr);
 	stack = newstack_nil(ptr);
-	readstring(&pos, "aaa");
+	readstring_debug(&pos, "aaa");
 	test(! name_tableblock(stack, pos), "name_tableblock4");
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(name_tableblock(stack, pos), "name_tableblock5");
 
 	lambda = newstack_lambda(ptr);
@@ -6333,9 +6333,9 @@ static int test_name_tableblock(void)
 	stack = newstack_nil(ptr);
 	stack = newstack_nil(ptr);
 
-	readstring(&pos, "aaa");
+	readstring_debug(&pos, "aaa");
 	test(! name_tableblock(stack, pos), "name_tableblock6");
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	test(name_tableblock(stack, pos), "name_tableblock7");
 
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_BLOCK, &key);
@@ -6361,10 +6361,10 @@ static int test_scope_return_from(void)
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
-	readstring(&pos, "name");
+	readstring_debug(&pos, "name");
 	push_tableblock(stack, pos);
 
-	readstring(&pos, "(return-from name 100)");
+	readstring_debug(&pos, "(return-from name 100)");
 	eval_parse_execute(&pos, pos);
 	scope_return_from(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_return_from1");
@@ -6391,7 +6391,7 @@ static int test_scope_catch(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(catch 'hello 20 30)");
+	readstring_debug(&pos, "(catch 'hello 20 30)");
 	eval_parse_execute(&pos, pos);
 	scope_catch(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_catch1");
@@ -6419,7 +6419,7 @@ static int test_scope_throw(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(throw 'name 100)");
+	readstring_debug(&pos, "(throw 'name 100)");
 	eval_parse_execute(&pos, pos);
 	scope_throw(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_throw1");
@@ -6503,12 +6503,12 @@ static int test_scope_eval_when(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(eval-when nil 100)");
+	readstring_debug(&pos, "(eval-when nil 100)");
 	eval_parse_execute(&pos, pos);
 	scope_eval_when(ptr, &pos, pos);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_NIL, "scope_eval_when1");
 
-	readstring(&pos, "(eval-when (:execute) 100)");
+	readstring_debug(&pos, "(eval-when (:execute) 100)");
 	eval_parse_execute(&pos, pos);
 	scope_eval_when(ptr, &pos, pos);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_PROGN, "scope_eval_when2");
@@ -6537,12 +6537,12 @@ static int test_function_result_type(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	readstring(&pos, "(progn 100)");
+	readstring_debug(&pos, "(progn 100)");
 	eval_parse_execute(&pos, pos);
 	eval_scope(ptr, &pos, pos);
 	test(function_result_type(pos, &pos), "function_result_type1");
 
-	readstring(&pos, "(lambda () 100)");
+	readstring_debug(&pos, "(lambda () 100)");
 	eval_parse_execute(&pos, pos);
 	eval_scope(ptr, &pos, pos);
 	test(! function_result_type(pos, &pos), "function_result_type2");
@@ -6560,7 +6560,7 @@ static int test_scope_multiple_value_call(void)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
-	readstring(&pos, "(multiple-value-call (lambda () 100) (values 10 20 30) 40)");
+	readstring_debug(&pos, "(multiple-value-call (lambda () 100) (values 10 20 30) 40)");
 	eval_parse_execute(&pos, pos);
 	scope_multiple_value_call(ptr, &pos, pos);
 	test(eval_scope_p(pos), "scope_multiple_value_call1");

@@ -20,8 +20,8 @@ _g int read_stream(Execute ptr, addr stream, int *result, addr *ret);
 _g int read_preserving(Execute ptr, addr stream, int *result, addr *ret);
 _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret);
 _g int read_from_string(Execute ptr, int *result, addr *ret, addr pos);
-_g int readstring(addr *ret, const char *code);
-_g addr readr(const char *code);
+_g int readstring_debug(addr *ret, const char *code);
+_g addr readr_debug(const char *code);
 
 _g void init_reader(void);
 _g void build_reader(void);

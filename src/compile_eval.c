@@ -255,7 +255,7 @@ _g int compile_eval(Execute ptr, addr pos)
 	Return(eval_parse(ptr, &pos, pos, T));
 	/* optimize parse */
 	localhold_set(hold, 0, pos);
-	optimize_parse(ptr->local, &pos, pos);
+	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
 	/* scope */
 	localhold_set(hold, 0, pos);
 	Return(compile_eval_hold(ptr, pos));

@@ -5,7 +5,7 @@
 #include "local.h"
 #include "typedef.h"
 
-_g int optimize_parse(LocalRoot local, addr *ret, addr eval);
+_g int optimize_parse_(LocalRoot local, addr pos, addr *value, int *ret);
 
 #endif
 

@@ -25,28 +25,28 @@ enum Boole_Index {
 };
 
 _g int logand_common_(LocalRoot local, addr args, addr *ret);
-_g void logandc1_common(LocalRoot local, addr a, addr b, addr *ret);
-_g void logandc2_common(LocalRoot local, addr a, addr b, addr *ret);
+_g int logandc1_common_(LocalRoot local, addr a, addr b, addr *ret);
+_g int logandc2_common_(LocalRoot local, addr a, addr b, addr *ret);
 _g int logeqv_common_(LocalRoot local, addr args, addr *ret);
 _g int logior_common_(LocalRoot local, addr args, addr *ret);
-_g void lognand_common(LocalRoot local, addr a, addr b, addr *ret);
-_g void lognor_common(LocalRoot local, addr a, addr b, addr *ret);
-_g void lognot_common(LocalRoot local, addr a, addr *ret);
-_g void logorc1_common(LocalRoot local, addr a, addr b, addr *ret);
-_g void logorc2_common(LocalRoot local, addr a, addr b, addr *ret);
+_g int lognand_common_(LocalRoot local, addr a, addr b, addr *ret);
+_g int lognor_common_(LocalRoot local, addr a, addr b, addr *ret);
+_g int lognot_common_(LocalRoot local, addr a, addr *ret);
+_g int logorc1_common_(LocalRoot local, addr a, addr b, addr *ret);
+_g int logorc2_common_(LocalRoot local, addr a, addr b, addr *ret);
 _g int logxor_common_(LocalRoot local, addr args, addr *ret);
-_g void boole_common(LocalRoot local, addr op, addr a, addr b, addr *ret);
-_g int logbitp_common(addr index, addr pos);
-_g size_t logcount_common(addr pos);
-_g int logtest_common(LocalRoot local, addr a, addr b);
+_g int boole_common_(LocalRoot local, addr op, addr a, addr b, addr *ret);
+_g int logbitp_common_(addr index, addr pos, int *ret);
+_g int logcount_common_(addr pos, size_t *ret);
+_g int logtest_common_(LocalRoot local, addr a, addr b, int *ret);
 _g void init_boole(void);
 
-_g void deposit_field_common(LocalRoot local, addr *ret, addr a, addr spec, addr b);
-_g void dpb_common(LocalRoot local, addr *ret, addr a, addr spec, addr b);
-_g void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos);
+_g int deposit_field_common_(LocalRoot local, addr *ret, addr a, addr spec, addr b);
+_g int dpb_common_(LocalRoot local, addr *ret, addr a, addr spec, addr b);
+_g int ldb_common_(LocalRoot local, addr *ret, addr spec, addr pos);
 _g int function_setf_ldb(Execute ptr, addr args, addr env);
-_g int ldb_test_common(addr spec, addr pos);
-_g void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos);
+_g int ldb_test_common_(addr spec, addr pos, int *ret);
+_g int mask_field_common_(LocalRoot local, addr *ret, addr spec, addr pos);
 _g int function_setf_mask_field(Execute ptr, addr args, addr env);
 
 #endif

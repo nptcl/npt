@@ -62,7 +62,7 @@ struct mathcomplex2_struct {
 	} v;
 };
 
-_g void getmathtype_float(struct mathtype_struct *ptr,
+_g int getmathtype_float_(struct mathtype_struct *ptr,
 		addr pos, enum MathType *ret);
 _g int getmathreal2_float_(struct mathreal2_struct *ptr,
 		addr x, addr y, enum MathType *ret);

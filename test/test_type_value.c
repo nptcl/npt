@@ -503,7 +503,7 @@ static int test_type_value_complex(void)
 {
 	addr x, y;
 
-	x = readr("#c(10 20)");
+	x = readr_debug("#c(10 20)");
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_COMPLEX, "type_value_complex1");
 	GetArrayType(x, 0, &y);
@@ -552,7 +552,7 @@ static int test_type_value_pathname(void)
 {
 	addr x;
 
-	x = readr("#p\"test/\"");
+	x = readr_debug("#p\"test/\"");
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_PATHNAME, "type_value_pathname1");
 
@@ -564,30 +564,30 @@ static int test_type_value_stream(void)
 	addr x, y;
 
 	/* broadcast */
-	open_broadcast_stream(&x, Nil);
+	open_broadcast_stream_(&x, Nil);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_BROADCAST_STREAM, "type_value_stream1");
 
 	/* concatenated */
-	open_concatenated_stream(&x, Nil);
+	open_concatenated_stream_(&x, Nil);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_CONCATENATED_STREAM, "type_value_stream2");
 
 	/* echo */
-	open_concatenated_stream(&y, Nil);
+	open_concatenated_stream_(&y, Nil);
 	open_echo_stream(&x, y, y);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_ECHO_STREAM, "type_value_stream3");
 
 	/* string */
 	strvect_char_heap(&x, "Hello");
-	open_input_string_stream(&x, x);
+	open_input_string_stream_(&x, x);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_STRING_STREAM, "type_value_stream4");
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_INPUT, &x);
-	open_synonym_stream(&x, x);
+	open_synonym_stream_(&x, x);
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_SYNONYM_STREAM, "type_value_stream5");
 
@@ -613,7 +613,7 @@ static int test_type_value_bitvector(void)
 {
 	addr x;
 
-	x = readr("#*10011");
+	x = readr_debug("#*10011");
 	type_value_(&x, x);
 	test(LispDecl(x) == LISPDECL_SIMPLE_BIT_VECTOR, "type_value_bitvector1");
 	GetArrayType(x, 0, &x);

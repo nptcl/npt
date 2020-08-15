@@ -63,7 +63,7 @@ _g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 		rollback_local(local, stack);
 
 		/* (1+ *gentemp-counter*) */
-		oneplus_integer_common(local, value, &value);
+		Return(oneplus_integer_common_(local, value, &value));
 		SetConst(PACKAGE_GENTEMP, value);
 
 		/* check intern */

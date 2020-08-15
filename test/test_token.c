@@ -150,7 +150,7 @@ static int test_makefloat_single(void)
 {
 	addr pos;
 
-	test(makefloat_single("+1.23", &pos) == 0, "makefloat_single1");
+	test(makefloat_single_("+1.23", &pos) == 0, "makefloat_single1");
 	test(GetType(pos) == LISPTYPE_SINGLE_FLOAT, "makefloat_single2");
 	test(RefSingleFloat(pos) == 1.23f, "makefloat_single3");
 
@@ -161,7 +161,7 @@ static int test_makefloat_double(void)
 {
 	addr pos;
 
-	test(makefloat_double("+1.23", &pos) == 0, "makefloat_double1");
+	test(makefloat_double_("+1.23", &pos) == 0, "makefloat_double1");
 	test(GetType(pos) == LISPTYPE_DOUBLE_FLOAT, "makefloat_double2");
 	test(RefDoubleFloat(pos) == 1.23, "makefloat_double3");
 
@@ -172,7 +172,7 @@ static int test_makefloat_long(void)
 {
 	addr pos;
 
-	test(makefloat_long("+1.23", &pos) == 0, "makefloat_long1");
+	test(makefloat_long_("+1.23", &pos) == 0, "makefloat_long1");
 	test(GetType(pos) == LISPTYPE_LONG_FLOAT, "makefloat_long2");
 	test(RefLongFloat(pos) == 1.23L, "makefloat_long3");
 
@@ -181,11 +181,13 @@ static int test_makefloat_long(void)
 
 static int test_read_default_float_format(void)
 {
+	int check;
 	Execute ptr;
 	addr control, symbol, pos;
 
 	ptr = Execute_Thread;
-	test(read_default_float_format(ptr) == 'f', "read_default_float_format1");
+	read_default_float_format_(ptr, &check);
+	test(check == 'f', "read_default_float_format1");
 
 	push_new_control(ptr, &control);
 	GetConstant(CONSTANT_SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
@@ -193,27 +195,33 @@ static int test_read_default_float_format(void)
 
 	interncommon_debug("DOUBLE-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
-	test(read_default_float_format(ptr) == 'd', "read_default_float_format2");
+	read_default_float_format_(ptr, &check);
+	test(check == 'd', "read_default_float_format2");
 
 	interncommon_debug("LONG-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
-	test(read_default_float_format(ptr) == 'l', "read_default_float_format3");
+	read_default_float_format_(ptr, &check);
+	test(check == 'l', "read_default_float_format3");
 
 	interncommon_debug("SINGLE-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
-	test(read_default_float_format(ptr) == 'f', "read_default_float_format4");
+	read_default_float_format_(ptr, &check);
+	test(check == 'f', "read_default_float_format4");
 
 	interncommon_debug("SHORT-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
-	test(read_default_float_format(ptr) == 's', "read_default_float_format5");
+	read_default_float_format_(ptr, &check);
+	test(check == 's', "read_default_float_format5");
 
 	interncommon_debug("CONS", &pos);
 	setspecial_local(ptr, symbol, pos);
-	test(read_default_float_format(ptr) == 0, "read_default_float_format6");
+	read_default_float_format_(ptr, &check);
+	test(check == 0, "read_default_float_format6");
 
 	free_control_(ptr, control);
 
-	test(read_default_float_format(ptr) == 'f', "read_default_float_format7");
+	read_default_float_format_(ptr, &check);
+	test(check == 'f', "read_default_float_format7");
 
 	RETURN;
 }
@@ -225,17 +233,18 @@ static int test_makefloat(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	test(makefloat(ptr, 0, "0", 0, 'f', &pos) == 0, "makefloat1");
+	test(makefloat_(ptr, 0, "0", 0, 'f', &pos) == 0, "makefloat1");
 	test(RefSingleFloat(pos) == 0.0, "makefloat2");
-	test(makefloat(ptr, 0, "123", 4, 'd', &pos) == 0, "makefloat3");
+	test(makefloat_(ptr, 0, "123", 4, 'd', &pos) == 0, "makefloat3");
 	test(RefDoubleFloat(pos) == 1.23e4, "makefloat4");
-	test(makefloat(ptr, 1, "2", 3, 'l', &pos) == 0, "makefloat5");
+	test(makefloat_(ptr, 1, "2", 3, 'l', &pos) == 0, "makefloat5");
 	test(RefLongFloat(pos) == -2.0e3L, "makefloat6");
-	test(makefloat(ptr, 1, "123", -4, 'e', &pos) == 0, "makefloat7");
+	test(makefloat_(ptr, 1, "123", -4, 'e', &pos) == 0, "makefloat7");
 	test(RefSingleFloat(pos) == -1.23e-4f, "makefloat8");
-	test(makefloat(ptr, 1, "123", -4, 's', &pos) == 0, "makefloat9");
+	test(makefloat_(ptr, 1, "123", -4, 's', &pos) == 0, "makefloat9");
 	test(RefSingleFloat(pos) == -1.23e-4f, "makefloat10");
-	test(makefloat(ptr, 1, "123", -4, 0, &pos), "makefloat11");
+	test(makefloat_(ptr, 1, "123", -4, 0, &pos) == 0, "makefloat11");
+	test(pos == Unbound, "makefloat12");
 
 	RETURN;
 }
@@ -295,7 +304,8 @@ static int check_floattable(addr *ret, const char *str)
 	ptr = Execute_Thread;
 	strvect_char_heap(&pos, str);
 	strvect_posbodylen(pos, &body, &size);
-	return floattable(ptr, body, size, ret);
+	floattable_(ptr, body, size, ret);
+	return *ret == Unbound;
 }
 
 static int test_floattable(void)

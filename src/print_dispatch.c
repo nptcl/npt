@@ -154,7 +154,7 @@ static int find_print_dispatch(Execute ptr, addr var, addr list, addr *ret)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		GetTypePrintTable(pos, &type);
-		Return(typep_clang(ptr, var, type, &check));
+		Return(typep_clang_(ptr, var, type, &check));
 		if (check) {
 			GetPriorityPrintTable(pos, &b);
 			Return(find_print_dispatch_p_(ptr->local, a, b, &check));

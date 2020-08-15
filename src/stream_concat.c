@@ -9,16 +9,17 @@
 	Check(! concatenated_stream_p(stream), "type error"); \
 }
 
-_g void open_concatenated_stream(addr *stream, addr list)
+_g int open_concatenated_stream_(addr *stream, addr list)
 {
 	addr pos;
 
 	if (! listp(list))
-		TypeError(list, LIST);
+		return TypeError_(list, LIST);
 	stream_heap(&pos, StreamType_Concatenated, 0);
 	SetInfoStream(pos, list);
 	force_open_stream(pos);
-	*stream = pos;
+
+	return Result(stream, pos);
 }
 
 _g void push_concatenated_stream(addr stream, addr input)

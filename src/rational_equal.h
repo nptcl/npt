@@ -4,18 +4,19 @@
 #include "local.h"
 #include "typedef.h"
 
-_g int plusp_rational(addr pos);
-_g int minusp_rational(addr pos);
-_g int zerop_rational(addr pos);
-_g int equal_rational(addr left, addr right);
-#define not_equal_rational(a,b) (! equal_rational((a), (b)))
-_g int compare_rational(LocalRoot local, addr left, addr right);
-#define less_rational(m,a,b) (compare_rational((m),(a), (b)) < 0)
-#define less_equal_rational(m,a,b) (compare_rational((m),(a), (b)) <= 0)
-#define greater_rational(m,a,b) (compare_rational((m),(a), (b)) > 0)
-#define greater_equal_rational(m,a,b) (compare_rational((m),(a), (b)) >= 0)
-_g int less_rational_clang(LocalRoot local, addr left, addr right);
-_g int less_equal_rational_clang(LocalRoot local, addr left, addr right);
+_g int plusp_rational_(addr pos, int *ret);
+_g int minusp_rational_(addr pos, int *ret);
+_g int zerop_rational_(addr pos, int *ret);
+_g int equal_rational_(addr left, addr right, int *ret);
+_g int not_equal_rational_(addr left, addr right, int *ret);
+_g int compare_rational_(LocalRoot local, addr left, addr right, int *ret);
+_g int less_rational_(LocalRoot local, addr left, addr right, int *ret);
+_g int less_equal_rational_(LocalRoot local, addr left, addr right, int *ret);
+_g int greater_rational_(LocalRoot local, addr left, addr right, int *ret);
+_g int greater_equal_rational_(LocalRoot local, addr left, addr right, int *ret);
+
+_g int less_rational_debug(LocalRoot local, addr left, addr right);
+_g int less_equal_rational_debug(LocalRoot local, addr left, addr right);
 
 #endif
 

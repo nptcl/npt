@@ -967,13 +967,15 @@ _g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2)
 
 
 /* timeinfo */
-_g void timeinfo_syscode(LocalRoot local,
+_g int timeinfo_syscode_(LocalRoot local,
 		addr *rreal, addr *rrun, addr *rsize, addr *rcount)
 {
-	get_internal_real_time_common(local, rreal);
+	Return(get_internal_real_time_common_(local, rreal));
 	get_internal_run_time_common(rrun);
 	make_index_integer_heap(rsize, get_heap_object());
 	make_index_integer_heap(rcount, get_heap_count());
+
+	return 0;
 }
 
 

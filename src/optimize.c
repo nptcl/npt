@@ -54,15 +54,19 @@ _g void optimize_initialize(struct optimize_struct *str, LocalRoot local, addr p
 	copy_eval_parse_local(local, &(str->pos), pos);
 }
 
-_g int optimize_extract(struct optimize_struct *str, optimize_call call)
+_g int optimize_extract_(struct optimize_struct *str, optimize_call call)
 {
-	int update;
+	int update, check;
 
 	update = 0;
-	while (call(str))
+	for (;;) {
+		Return((*call)(str, &check));
+		if (! check)
+			break;
 		update = 1;
+	}
 	str->update |= update;
 
-	return update;
+	return 0;
 }
 

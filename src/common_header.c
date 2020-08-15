@@ -58,7 +58,7 @@ _g void define_special_operator(constindex index)
 /*
  *  :start, :end
  */
-static void getsize_keyword_start(addr key, addr rest, addr *reta, size_t *rets)
+static int getsize_keyword_start_(addr key, addr rest, addr *reta, size_t *rets)
 {
 	addr pos;
 
@@ -67,12 +67,14 @@ static void getsize_keyword_start(addr key, addr rest, addr *reta, size_t *rets)
 		*rets = 0;
 	}
 	else {
-		getindex_integer(pos, rets);
+		Return(getindex_integer_(pos, rets));
 		*reta = pos;
 	}
+
+	return 0;
 }
 
-static void getsize_keyword_end(addr key, addr rest, size_t size,
+static int getsize_keyword_end_(addr key, addr rest, size_t size,
 		addr *reta, size_t *rets)
 {
 	addr pos;
@@ -82,9 +84,11 @@ static void getsize_keyword_end(addr key, addr rest, size_t size,
 		*rets = size;
 	}
 	else {
-		getindex_integer(pos, rets);
+		Return(getindex_integer_(pos, rets));
 		*reta = pos;
 	}
+
+	return 0;
 }
 
 static int keyword_start_end_const_(constindex cstart, constindex cend,
@@ -95,8 +99,8 @@ static int keyword_start_end_const_(constindex cstart, constindex cend,
 
 	GetConstant(cstart, &kstart);
 	GetConstant(cend, &kend);
-	getsize_keyword_start(kstart, rest, &astart, &start);
-	getsize_keyword_end(kend, rest, size, &aend, &end);
+	Return(getsize_keyword_start_(kstart, rest, &astart, &start));
+	Return(getsize_keyword_end_(kend, rest, size, &aend, &end));
 	if (size < start) {
 		return fmte_("The ~S position ~S must be less than "
 				"the sequence length.", kstart, astart, NULL);

@@ -167,7 +167,7 @@ static int function_typep(Execute ptr, addr x, addr y, addr env)
 	if (env == Unbound)
 		env = Nil;
 	Return(parse_type(ptr, &y, y, env));
-	Return(typep_clang(ptr, x, y, &check));
+	Return(typep_clang_(ptr, x, y, &check));
 	setbool_control(ptr, check);
 
 	return 0;

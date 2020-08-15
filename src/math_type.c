@@ -11,7 +11,7 @@
 /*
  *  getmathtype
  */
-_g void getmathtype_float(struct mathtype_struct *ptr, addr pos, enum MathType *ret)
+_g int getmathtype_float_(struct mathtype_struct *ptr, addr pos, enum MathType *ret)
 {
 	enum MathType type;
 
@@ -42,12 +42,12 @@ _g void getmathtype_float(struct mathtype_struct *ptr, addr pos, enum MathType *
 
 		case LISPTYPE_BIGNUM:
 			type = MathType_single;
-			ptr->v.s = single_float_bignum(pos);
+			Return(single_float_bignum_(pos, &(ptr->v.s)));
 			break;
 
 		case LISPTYPE_RATIO:
 			type = MathType_single;
-			ptr->v.s = single_float_ratio(pos);
+			Return(single_float_ratio_(pos, &(ptr->v.s)));
 			break;
 
 		default:
@@ -55,7 +55,7 @@ _g void getmathtype_float(struct mathtype_struct *ptr, addr pos, enum MathType *
 			break;
 	}
 	ptr->type = type;
-	*ret = type;
+	return Result(ret, type);
 }
 
 
@@ -204,105 +204,84 @@ static int getmathreal2_single1_(addr pos, single_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*ret = cast_ss_value(pos);
-			break;
+			return cast_ss_value_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = cast_ds_value(pos);
-			break;
+			return cast_ds_value_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			*ret = cast_ls_value(pos);
-			break;
+			return cast_ls_value_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
 			*ret = single_float_fixnum(pos);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
-			*ret = single_float_bignum(pos);
-			break;
+			return single_float_bignum_(pos, ret);
 
 		case LISPTYPE_RATIO:
-			*ret = single_float_ratio(pos);
-			break;
+			return single_float_ratio_(pos, ret);
 
 		default:
 			*ret = 0;
 			return TypeError_(pos, REAL);
 	}
-
-	return 0;
 }
 
 static int getmathreal2_double1_(addr pos, double_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*ret = cast_sd_value(pos);
-			break;
+			return cast_sd_value_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = cast_dd_value(pos);
-			break;
+			return cast_dd_value_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			*ret = cast_ld_value(pos);
-			break;
+			return cast_ld_value_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
 			*ret = double_float_fixnum(pos);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
-			*ret = double_float_bignum(pos);
-			break;
+			return double_float_bignum_(pos, ret);
 
 		case LISPTYPE_RATIO:
-			*ret = double_float_ratio(pos);
-			break;
+			return double_float_ratio_(pos, ret);
 
 		default:
 			*ret = 0;
 			return TypeError_(pos, REAL);
 	}
-
-	return 0;
 }
 
 static int getmathreal2_long1_(addr pos, long_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*ret = cast_sl_value(pos);
-			break;
+			return cast_sl_value_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = cast_dl_value(pos);
-			break;
+			return cast_dl_value_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			*ret = cast_ll_value(pos);
-			break;
+			return cast_ll_value_(pos, ret);
 
 		case LISPTYPE_FIXNUM:
 			*ret = long_float_fixnum(pos);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
-			*ret = long_float_bignum(pos);
-			break;
+			return long_float_bignum_(pos, ret);
 
 		case LISPTYPE_RATIO:
-			*ret = long_float_ratio(pos);
-			break;
+			return long_float_ratio_(pos, ret);
 
 		default:
 			*ret = 0;
 			return TypeError_(pos, REAL);
 	}
-
-	return 0;
 }
 
 static int getmathreal2_single_(struct mathreal2_struct *ptr, addr x, addr y)
@@ -549,22 +528,22 @@ _g int getmathcomplex1_log_(struct mathreal2_struct *ptr,
 	getmathcomplex1_log_type(pos, &type);
 	switch (type) {
 		case MathType_single:
-			ptr->v.s.a = cast_ss_value(pos);
+			Return(cast_ss_value_(pos, &(ptr->v.s.a)));
 			ptr->v.s.b = 0.0f;
 			break;
 
 		case MathType_double:
-			ptr->v.d.a = cast_dd_value(pos);
+			Return(cast_dd_value_(pos, &(ptr->v.d.a)));
 			ptr->v.d.b = 0.0;
 			break;
 
 		case MathType_long:
-			ptr->v.l.a = cast_ll_value(pos);
+			Return(cast_ll_value_(pos, &(ptr->v.l.a)));
 			ptr->v.l.b = 0.0L;
 			break;
 
 		case MathType_rational:
-			ptr->v.s.a = single_float_rational(pos);
+			Return(single_float_rational_(pos, &(ptr->v.s.a)));
 			ptr->v.s.b = 0.0f;
 			type = MathType_single;
 			break;
@@ -590,17 +569,17 @@ _g int getmathcomplex1_inverse_(struct mathreal2_struct *ptr,
 	getmathcomplex1_inverse_type(pos, &type);
 	switch (type) {
 		case MathType_single:
-			ptr->v.s.a = cast_ss_value(pos);
+			Return(cast_ss_value_(pos, &(ptr->v.s.a)));
 			ptr->v.s.b = 0.0f;
 			break;
 
 		case MathType_double:
-			ptr->v.d.a = cast_dd_value(pos);
+			Return(cast_dd_value_(pos, &(ptr->v.d.a)));
 			ptr->v.d.b = 0.0;
 			break;
 
 		case MathType_long:
-			ptr->v.l.a = cast_ll_value(pos);
+			Return(cast_ll_value_(pos, &(ptr->v.l.a)));
 			ptr->v.l.b = 0.0L;
 			break;
 
@@ -630,22 +609,22 @@ _g int getmathcomplex1_sqrt_(struct mathreal2_struct *ptr,
 	getmathcomplex1_log_type(pos, &type);
 	switch (type) {
 		case MathType_single:
-			ptr->v.s.a = cast_ss_value(pos);
+			Return(cast_ss_value_(pos, &(ptr->v.s.a)));
 			ptr->v.s.b = 0.0f;
 			break;
 
 		case MathType_double:
-			ptr->v.d.a = cast_dd_value(pos);
+			Return(cast_dd_value_(pos, &(ptr->v.d.a)));
 			ptr->v.d.b = 0.0;
 			break;
 
 		case MathType_long:
-			ptr->v.l.a = cast_ll_value(pos);
+			Return(cast_ll_value_(pos, &(ptr->v.l.a)));
 			ptr->v.l.b = 0.0L;
 			break;
 
 		case MathType_rational:
-			ptr->v.s.a = single_float_rational(pos);
+			Return(single_float_rational_(pos, &(ptr->v.s.a)));
 			ptr->v.s.b = 0.0f;
 			type = MathType_single;
 			break;
@@ -813,17 +792,17 @@ static int getmathcomplex2_single1_(addr pos, single_float *re, single_float *im
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*re = cast_ss_value(pos);
+			Return(cast_ss_value_(pos, re));
 			*im = 0.0f;
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*re = cast_ds_value(pos);
+			Return(cast_ds_value_(pos, re));
 			*im = 0.0f;
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			*re = cast_ls_value(pos);
+			Return(cast_ls_value_(pos, re));
 			*im = 0.0f;
 			break;
 
@@ -836,14 +815,14 @@ static int getmathcomplex2_single1_(addr pos, single_float *re, single_float *im
 			break;
 
 		case LISPTYPE_BIGNUM:
-			*re = single_float_bignum(pos);
+			Return(single_float_bignum_(pos, re));
 			*im = 0.0f;
-			break;
+			return 0;
 
 		case LISPTYPE_RATIO:
-			*re = single_float_ratio(pos);
+			Return(single_float_ratio_(pos, re));
 			*im = 0.0f;
-			break;
+			return 0;
 
 		default:
 			*re = 0.0f;
@@ -858,17 +837,17 @@ static int getmathcomplex2_double1_(addr pos, double_float *re, double_float *im
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*re = cast_sd_value(pos);
+			Return(cast_sd_value_(pos, re));
 			*im = 0.0;
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*re = cast_dd_value(pos);
+			Return(cast_dd_value_(pos, re));
 			*im = 0.0;
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			*re = cast_ld_value(pos);
+			Return(cast_ld_value_(pos, re));
 			*im = 0.0;
 			break;
 
@@ -881,12 +860,12 @@ static int getmathcomplex2_double1_(addr pos, double_float *re, double_float *im
 			break;
 
 		case LISPTYPE_BIGNUM:
-			*re = double_float_bignum(pos);
+			Return(double_float_bignum_(pos, re));
 			*im = 0.0;
 			break;
 
 		case LISPTYPE_RATIO:
-			*re = double_float_ratio(pos);
+			Return(double_float_ratio_(pos, re));
 			*im = 0.0;
 			break;
 
@@ -903,17 +882,17 @@ static int getmathcomplex2_long1_(addr pos, long_float *re, long_float *im)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			*re = cast_sl_value(pos);
+			Return(cast_sl_value_(pos, re));
 			*im = 0.0L;
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			*re = cast_dl_value(pos);
+			Return(cast_dl_value_(pos, re));
 			*im = 0.0L;
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			*re = cast_ll_value(pos);
+			Return(cast_ll_value_(pos, re));
 			*im = 0.0L;
 			break;
 
@@ -926,12 +905,12 @@ static int getmathcomplex2_long1_(addr pos, long_float *re, long_float *im)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			*re = long_float_bignum(pos);
+			Return(long_float_bignum_(pos, re));
 			*im = 0.0L;
 			break;
 
 		case LISPTYPE_RATIO:
-			*re = long_float_ratio(pos);
+			Return(long_float_ratio_(pos, re));
 			*im = 0.0L;
 			break;
 
