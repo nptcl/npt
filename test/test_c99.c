@@ -81,7 +81,7 @@ static int test_sscanc(void)
  */
 int test_c99(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	TestBreak(test_setlocale_c);
 	TestBreak(test_vsnprintc);

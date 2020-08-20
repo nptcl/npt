@@ -4,8 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g int runcode_control(Execute ptr, addr code);
-_g int runcode_switch(Execute ptr, addr code);
+_g int runcode_control_(Execute ptr, addr code);
 
 _g int execute_control(Execute ptr, addr call);
 _g int apply_control(Execute ptr, addr call, addr args);

@@ -31,12 +31,12 @@ _g int nop_code(Execute ptr, CodeValue x)
 
 _g int execute_control_set_code(Execute ptr, CodeValue x)
 {
-	return runcode_control(ptr, x.pos);
+	return runcode_control_(ptr, x.pos);
 }
 
 _g int execute_control_push_code(Execute ptr, CodeValue x)
 {
-	Return(runcode_control(ptr, x.pos));
+	Return(runcode_control_(ptr, x.pos));
 	getresult_control(ptr, &x.pos);
 	pushargs_control(ptr, x.pos);
 	return 0;
@@ -47,24 +47,11 @@ _g int execute_control_save_code(Execute ptr, CodeValue x)
 	addr control, values;
 	size_t size;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	save_values_control(ptr, &values, &size);
-	Return(runcode_control(ptr, x.pos));
-	restore_values_control(ptr, values, size);
-	return free_control_(ptr, control);
-}
-
-_g int execute_switch_set_code(Execute ptr, CodeValue x)
-{
-	return runcode_switch(ptr, x.pos);
-}
-
-_g int execute_switch_push_code(Execute ptr, CodeValue x)
-{
-	Return(runcode_switch(ptr, x.pos));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-	return 0;
+	if (runcode_control_(ptr, x.pos) == 0)
+		restore_values_control(ptr, values, size);
+	return pop_control_(ptr, control);
 }
 
 
@@ -292,7 +279,7 @@ _g int type_result_code(Execute ptr, CodeValue x)
 	/* the-set-code */
 	addr value;
 	getresult_control(ptr, &value);
-	return typep_error(ptr, value, x.pos);
+	return call_typep_error_(ptr, value, x.pos);
 }
 
 _g int type_lexical_code(Execute ptr, CodeValue x)
@@ -304,7 +291,7 @@ _g int type_lexical_code(Execute ptr, CodeValue x)
 	GetIndex(pos, &index);
 	get_lexical_control(ptr, index, &pos);
 
-	return typep_error(ptr, pos, type);
+	return call_typep_error_(ptr, pos, type);
 }
 
 _g int type_special_code(Execute ptr, CodeValue x)
@@ -312,7 +299,7 @@ _g int type_special_code(Execute ptr, CodeValue x)
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
 	getspecial_local(ptr, pos, &pos);
-	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+	return call_typep_unbound_error_(ptr, pos, type);
 }
 
 _g int type_global_code(Execute ptr, CodeValue x)
@@ -320,7 +307,7 @@ _g int type_global_code(Execute ptr, CodeValue x)
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
 	GetValueSymbol(pos, &pos);
-	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+	return call_typep_unbound_error_(ptr, pos, type);
 }
 
 _g int type_function_code(Execute ptr, CodeValue x)
@@ -328,7 +315,7 @@ _g int type_function_code(Execute ptr, CodeValue x)
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
 	GetFunctionSymbol(pos, &pos);
-	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+	return call_typep_unbound_error_(ptr, pos, type);
 }
 
 _g int type_setf_code(Execute ptr, CodeValue x)
@@ -336,7 +323,7 @@ _g int type_setf_code(Execute ptr, CodeValue x)
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
 	getsetf_symbol(pos, &pos);
-	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+	return call_typep_unbound_error_(ptr, pos, type);
 }
 
 _g int let_lexical_code(Execute ptr, CodeValue x)
@@ -540,7 +527,7 @@ _g int call_type_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getargs_tail_control(ptr, &value);
-	return typep_error(ptr, value, x.pos);
+	return call_typep_error_(ptr, value, x.pos);
 }
 
 _g int call_function_code(Execute ptr, CodeValue x)
@@ -598,14 +585,14 @@ _g int the_set_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getresult_control(ptr, &value);
-	return typep_error(ptr, value, x.pos);
+	return call_typep_error_(ptr, value, x.pos);
 }
 
 _g int the_push_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getargs_control(ptr, 0, &value);
-	return typep_error(ptr, value, x.pos);
+	return call_typep_error_(ptr, value, x.pos);
 }
 
 

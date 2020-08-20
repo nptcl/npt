@@ -625,6 +625,8 @@ static int test_specialized_var_cons(void)
 {
 	addr pos, pos2, var, spec;
 
+	spec = NULL;
+
 	fixnum_heap(&pos, 100);
 	specialized_var_cons_(pos, &var, &spec);
 	test(var == pos, "specialized_var_cons1");
@@ -918,7 +920,7 @@ static int test_lambda_specialized_aux(void)
 /*
  *  main
  */
-static int testgroup_lambda(void)
+static int testcase_lambda(void)
 {
 	TestBreak(test_constant_eq);
 	TestBreak(test_member_ampersand);
@@ -959,41 +961,27 @@ static int testgroup_lambda(void)
 	return 0;
 }
 
+static void testinit_lambda(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_code();
+}
+
 int test_lambda(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_code();
-		lisp_initialize = 1;
-		result = testgroup_lambda();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(lambda);
 }
 

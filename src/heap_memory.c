@@ -20,7 +20,7 @@ static addr              GcCheck4 = 0;
 static void memoryerror_heap(void)
 {
 	Debug("heap memory overflow.");
-	exitthis(LISPCODE_MEMORY);
+	abort_execute();
 }
 
 

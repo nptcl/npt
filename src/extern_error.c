@@ -14,7 +14,7 @@
  */
 void lisp_exit_error(void)
 {
-	abortthis();
+	abort_execute();
 }
 
 void lisp_abort(const char *fmt, ...)

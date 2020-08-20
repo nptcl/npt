@@ -1856,7 +1856,7 @@ static int test_type2realf_cd_heap(void)
 /*
  *  main
  */
-static int testbreak_type_table(void)
+static int testcase_type_table(void)
 {
 	/* interface */
 	TestBreak(test_gettypetable);
@@ -1923,35 +1923,21 @@ static int testbreak_type_table(void)
 	return 0;
 }
 
+static void testinit_type_table(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_package();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_common();
+}
+
 int test_type_table(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_package();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_common();
-		lisp_initialize = 1;
-		result = testbreak_type_table();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(type_table);
 }
 

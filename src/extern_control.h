@@ -5,7 +5,7 @@
 
 /* control */
 void lisp_push_control(addr *ret);
-int lisp_free_control_(addr control);
+int lisp_pop_control_(addr control);
 int lisp_eval_control_(addr eval);
 int lisp_eval_string_control_(addr eval);
 void lisp_nth_values_control(size_t index, addr *ret);

@@ -8,8 +8,6 @@ _g int nop_code(Execute ptr, CodeValue x);
 _g int execute_control_set_code(Execute ptr, CodeValue x);
 _g int execute_control_push_code(Execute ptr, CodeValue x);
 _g int execute_control_save_code(Execute ptr, CodeValue x);
-_g int execute_switch_set_code(Execute ptr, CodeValue x);
-_g int execute_switch_push_code(Execute ptr, CodeValue x);
 
 _g int set_code(Execute ptr, CodeValue x);
 _g int push_code(Execute ptr, CodeValue x);

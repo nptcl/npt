@@ -6,7 +6,7 @@
 
 typedef int (*eval_loop_calltype)(Execute, addr, addr, int *exit, int *exec);
 
-_g int eval_loop_output(Execute ptr, addr stream, addr control);
+_g int eval_loop_output(Execute ptr, addr stream);
 _g int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call);
 _g int eval_main_loop_(Execute ptr);
 _g int eval_main_string_(Execute ptr, addr eval);

@@ -232,7 +232,7 @@ static int test_unread_byte_file(void)
 /*
  *  main
  */
-static int testbreak_file(void)
+static int testcase_file(void)
 {
 	TestBreak(test_open_output_binary_stream);
 	TestBreak(test_open_input_binary_stream);
@@ -249,46 +249,31 @@ static int testbreak_file(void)
 
 	return 0;
 }
+
+static void testinit_file(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+}
 #endif
 
 int test_file(void)
 {
 #if 0
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		lisp_initialize = 1;
-		result = testbreak_file();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(file);
 #endif
 	return 0;
 }

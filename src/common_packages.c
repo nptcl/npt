@@ -849,7 +849,7 @@ static void defvar_package(void)
 /* (defun package-error-package (package-error) ...) -> package-designer */
 static int function_package_error_package(Execute ptr, addr var)
 {
-	package_error_package(var, &var);
+	Return(package_error_package_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

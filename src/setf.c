@@ -232,16 +232,10 @@ static void getvalues_nil_control(Execute ptr, size_t index, addr *ret)
 		*ret = Nil;
 }
 
-static int setf_expander(Execute ptr, addr call, addr form, addr env,
+static int setf_expander_call_(Execute ptr, LocalHold hold,
+		addr call, addr form, addr env,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
-	addr control;
-	LocalHold hold;
-
-	/* push */
-	hold = LocalHold_array(ptr, 5);
-	push_new_control(ptr, &control);
-	/* code */
 	Return(funcall_control(ptr, call, form, env, NULL));
 	getvalues_nil_control(ptr, 0, vars);
 	getvalues_nil_control(ptr, 1, vals);
@@ -253,7 +247,21 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 	localhold_set(hold, 2, *store);
 	localhold_set(hold, 3, *writer);
 	localhold_set(hold, 4, *reader);
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+static int setf_expander(Execute ptr, addr call, addr form, addr env,
+		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 5);
+	push_control(ptr, &control);
+	(void)setf_expander_call_(ptr, hold,
+			call, form, env, vars, vals, store, writer, reader);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

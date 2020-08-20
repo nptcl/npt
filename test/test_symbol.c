@@ -620,9 +620,7 @@ static void testinit_symbol(Execute ptr)
 
 int test_symbol(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_symbol,
-			testcase_symbol);
+	DegradeTitle;
+	return DegradeCode(symbol);
 }
 

@@ -177,9 +177,7 @@ static void testinit_character_name(Execute ptr)
 
 int test_character_name(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_character_name,
-			testcase_character_name);
+	DegradeTitle;
+	return DegradeCode(character_name);
 }
 

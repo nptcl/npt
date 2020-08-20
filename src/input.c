@@ -36,6 +36,18 @@ static int readlist_loop(Execute ptr, addr stream, addr *ret)
 	return 0;
 }
 
+static int readlist_unwind_protect_call_(
+		Execute ptr, LocalHold hold, addr stream, addr *ret)
+{
+	addr pos;
+
+	push_close_stream(ptr, stream);
+	Return(readlist_loop(ptr, stream, &pos));
+	localhold_set(hold, 0, pos);
+
+	return Result(ret, pos);
+}
+
 static int readlist_unwind_protect_(Execute ptr, addr file, addr *ret)
 {
 	addr stream, control;
@@ -45,12 +57,9 @@ static int readlist_unwind_protect_(Execute ptr, addr file, addr *ret)
 	hold = LocalHold_array(ptr, 1);
 	localhold_push(hold, stream);
 	/* finalize */
-	push_new_control(ptr, &control);
-	push_close_stream(ptr, stream);
-	/* code */
-	Return(readlist_loop(ptr, stream, ret));
-	localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	(void)readlist_unwind_protect_call_(ptr, hold, stream, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -60,6 +69,7 @@ _g int readlist_input(Execute ptr, addr file, addr *ret)
 {
 	addr list;
 
+	list = Nil;
 	Return(readlist_unwind_protect_(ptr, file, &list));
 	if (list == Unbound)
 		return fmte_("Invalid file ~S.", file, NULL);

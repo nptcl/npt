@@ -20,8 +20,5 @@ _g int callclang_warning_(const char *str, ...);
 _g void build_condition(Execute ptr);
 _g void init_condition(void);
 
-/* deprecated */
-_g void error_function(addr condition);
-
 #endif
 

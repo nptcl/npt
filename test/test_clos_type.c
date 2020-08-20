@@ -194,7 +194,7 @@ static int test_clos_intern_specializer(void)
 /*
  *  main
  */
-static int testbreak_clos_type(void)
+static int testcase_clos_type(void)
 {
 	TestBreak(test_clos_class_of);
 	TestBreak(test_clos_intern_specializer);
@@ -202,42 +202,27 @@ static int testbreak_clos_type(void)
 	return 0;
 }
 
+static void testinit_clos_type(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_real();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+}
+
 int test_clos_type(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_real();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		lisp_initialize = 1;
-		result = testbreak_clos_type();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(clos_type);
 }
 

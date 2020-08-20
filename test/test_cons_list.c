@@ -535,9 +535,7 @@ static void testinit_cons_list(Execute ptr)
 
 int test_cons_list(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_cons_list,
-			testcase_cons_list);
+	DegradeTitle;
+	return DegradeCode(cons_list);
 }
 

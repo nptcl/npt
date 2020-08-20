@@ -48,7 +48,7 @@ static int optcode_result_type_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &pos);
 	Return(typep_clang_(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, x.pos);
+		return call_type_error_(ptr, pos, x.pos);
 
 	return 0;
 }
@@ -87,7 +87,7 @@ static int optcode_car1_set_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &pos);
 	Return(typep_clang_(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, x.pos);
+		return call_type_error_(ptr, pos, x.pos);
 	GetCar(pos, &pos);
 	setresult_control(ptr, pos);
 
@@ -102,7 +102,7 @@ static int optcode_car1_push_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &pos);
 	Return(typep_clang_(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, x.pos);
+		return call_type_error_(ptr, pos, x.pos);
 	GetCar(pos, &pos);
 	pushargs_control(ptr, pos);
 
@@ -212,7 +212,7 @@ static int optcode_cdr1_set_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &pos);
 	Return(typep_clang_(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, x.pos);
+		return call_type_error_(ptr, pos, x.pos);
 	GetCdr(pos, &pos);
 	setresult_control(ptr, pos);
 
@@ -227,7 +227,7 @@ static int optcode_cdr1_push_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &pos);
 	Return(typep_clang_(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, x.pos);
+		return call_type_error_(ptr, pos, x.pos);
 	GetCdr(pos, &pos);
 	pushargs_control(ptr, pos);
 

@@ -194,7 +194,7 @@ static int test_isextendedtype(void)
  */
 int test_character_check(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	/* character check */
 	TestBreak(test_isbasechar);

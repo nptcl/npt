@@ -105,13 +105,13 @@ static int test_getreadinfo(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	readinfo_symbol(&symbol);
 	readinfo_local(local, &value);
 	pushspecial_control(ptr, symbol, value);
 	getreadinfo(ptr, &pos);
 	test(pos == value, "getreadinfo1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -122,12 +122,12 @@ static int test_pushreadinfo(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	test(GetType(pos) == LISPSYSTEM_READINFO, "pushreadinfo1");
 	getreadinfo(ptr, &check);
 	test(check == pos, "pushreadinfo2");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -139,7 +139,7 @@ static int test_pushreadinfo_recursive(void)
 	struct readinfo_struct *str;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	str = ReadInfoStruct(pos);
 	str->preserving = 1;
@@ -166,7 +166,7 @@ static int test_getpackage_readinfo(void)
 	struct readinfo_struct *str;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	fixnum_heap(&value, 10);
 	SetReadInfo(pos, ReadInfo_Package, value);
@@ -209,7 +209,7 @@ static int test_clear_readinfo(void)
 	struct readinfo_struct *str;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	setpackage_readinfo(ptr, T);
 	getqueue_readinfo(ptr, &check);
@@ -1861,23 +1861,17 @@ static int test_checktoken(void)
 static unsigned getreadbasecheck(fixnum value)
 {
 	unsigned result;
-	codejump jump;
 	addr control, symbol, pos;
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	result = 999;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		GetConst(SPECIAL_READ_BASE, &symbol);
-		fixnum_heap(&pos, value);
-		pushspecial_control(ptr, symbol, pos);
-		result = getreadbase(ptr);
-	}
-	end_switch(&jump);
-	free_control_(ptr, control);
-	throw_switch(&jump);
+	GetConst(SPECIAL_READ_BASE, &symbol);
+	fixnum_heap(&pos, value);
+	pushspecial_control(ptr, symbol, pos);
+	result = getreadbase(ptr);
+	pop_control_(ptr, control);
 
 	return result;
 }
@@ -2092,7 +2086,7 @@ static int test_maketoken(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 
 	/* symbol */
@@ -2109,7 +2103,7 @@ static int test_maketoken(void)
 	GetPackageSymbol(pos, &left);
 	test(left == Nil, "maketoken3");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -2162,7 +2156,7 @@ static int test_tokenmode_readtable(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 
 	setescape_readinfo(ptr, 1);
@@ -2176,7 +2170,7 @@ static int test_tokenmode_readtable(void)
 	testcharqueue("HELLO");
 	test(tokenmode_readtable(ptr) == TokenType_symbol, "tokenmode_readtable3");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -2187,7 +2181,7 @@ static int test_setpackage_readtable(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 
 	setescape_readinfo(ptr, 1);
@@ -2215,7 +2209,7 @@ static int test_setpackage_readtable(void)
 	getpackage_readinfo(ptr, &pos);
 	test(string_equal_char(pos, "AAA"), "setpackage_readtable4");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -2676,7 +2670,7 @@ static int test_plus_dispatch(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	list_heap(&list, readr_debug(":aaa"), readr_debug(":bbb"), readr_debug(":ccc"), NULL);
 	GetConst(SPECIAL_FEATURES, &symbol);
 	pushspecial_control(ptr, symbol, list);
@@ -2708,7 +2702,7 @@ static int test_plus_dispatch(void)
 	test(! readstring_debug(&pos, "#-(or xxx zzz) 100 200"), "plus_dispatch23");
 	test(RefFixnum(pos) == 100, "plus_dispatch24");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -2838,7 +2832,7 @@ static int test_basic_token(void)
 /*
  *  main
  */
-static int testbreak_reader(void)
+static int testcase_reader(void)
 {
 	Error(in_package_lisp_package_());
 #if 0
@@ -2955,43 +2949,28 @@ static int testbreak_reader(void)
 	return 0;
 }
 
+static void testinit_reader(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_declare();
+	build_code();
+}
+
 int test_reader(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_declare();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_reader();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(reader);
 }
 

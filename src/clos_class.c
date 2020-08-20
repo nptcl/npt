@@ -1605,7 +1605,7 @@ static int build_clos_class_condition_(LocalRoot local)
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_SIMPLE_CONDITION,
 			CONDITION_ERROR);
-	/* simple_type_error (simple_condition type_error)
+	/* simple_type_error (simple-condition type_error)
 	 *   :format-control :format-arguments :datum :expected-type */
 	ClosMakeClass2_(local, metaclass,
 			COMMON_SIMPLE_TYPE_ERROR,
@@ -1671,13 +1671,20 @@ static int build_clos_class_condition_(LocalRoot local)
 
 static int build_clos_class_system_(LocalRoot local)
 {
-	addr metaclass;
+	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* savecore (serious-condition) */
-	ClosMakeClass1_(local, metaclass,
+	SlotMakeCondition1(&slots, PATHNAME);
+	ClosMakeClassSlot_(local, metaclass, slots,
 			SYSTEM_SAVECORE,
 			CONDITION_SAVECORE,
+			CONDITION_SERIOUS_CONDITION);
+	/* exit (serious-condition) */
+	SlotMakeCondition1(&slots, VALUE);
+	ClosMakeClassSlot_(local, metaclass, slots,
+			SYSTEM_EXIT,
+			CONDITION_EXIT,
 			CONDITION_SERIOUS_CONDITION);
 
 	return 0;

@@ -17,8 +17,6 @@ enum pointer_index {
 	p_execute_control_set_code,
 	p_execute_control_push_code,
 	p_execute_control_save_code,
-	p_execute_switch_set_code,
-	p_execute_switch_push_code,
 
 	p_set_code,
 	p_push_code,
@@ -1115,7 +1113,7 @@ enum pointer_index {
 	/* condition */
 	p_defun_restart_warning,
 	p_defun_handler_warning,
-	p_defun_handler_savecore,
+	p_defun_handler_empty,
 	/* eval */
 	p_defun_eval_loop_abort_function,
 	p_defun_eval_loop_abort_report,

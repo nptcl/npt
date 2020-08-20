@@ -183,7 +183,7 @@ _g int checkhandler_control_(addr pos, addr instance, int *ret)
 /*
  *  push control
  */
-_g struct control_struct *push_control(Execute ptr)
+_g void push_control(Execute ptr, addr *ret)
 {
 	addr pos;
 	LocalRoot local;
@@ -207,15 +207,7 @@ _g struct control_struct *push_control(Execute ptr)
 
 	/* push */
 	SetControl(pos, Control_Next, ptr->control);
-	ptr->control = pos;
-
-	return str;
-}
-
-_g void push_new_control(Execute ptr, addr *ret)
-{
-	push_control(ptr);
-	*ret = ptr->control;
+	*ret = ptr->control = pos;
 }
 
 _g void push_args_control(Execute ptr, addr *ret)
@@ -223,7 +215,7 @@ _g void push_args_control(Execute ptr, addr *ret)
 	addr prev, next, pos;
 
 	prev = ptr->control;
-	push_new_control(ptr, &next);
+	push_control(ptr, &next);
 	GetControl(prev, Control_Cons, &pos);
 	SetControl(next, Control_Cons, pos);
 	*ret = next;
@@ -231,27 +223,54 @@ _g void push_args_control(Execute ptr, addr *ret)
 
 
 /*
- *  free_control
+ *  pop_control
  */
+static int apply_empty_control_(Execute ptr, addr call)
+{
+	if (functionp(call))
+		return apply_control(ptr, call, Nil);
+	else
+		return runcode_control_(ptr, call);
+}
+
+static int close_protect_normal_(Execute ptr, addr call)
+{
+	addr control, values;
+	size_t size;
+
+	push_control(ptr, &control);
+	save_values_control(ptr, &values, &size);
+	if (apply_empty_control_(ptr, call) == 0)
+		restore_values_control(ptr, values, size);
+
+	return pop_control_(ptr, control);
+}
+
+static int close_protect_throw_(Execute ptr, addr call)
+{
+	struct execute_throw save;
+
+	save_throw_control(ptr, &save);
+	normal_throw_control(ptr);
+	Return(close_protect_normal_(ptr, call));
+	restore_throw_control(ptr, &save);
+
+	return 1; /* throw */
+}
+
 static int close_protect_control_(Execute ptr, addr control)
 {
-	addr call, values;
-	size_t size;
+	addr call;
 
 	GetControl(control, Control_Protect, &call);
 	if (call == Nil)
 		return 0;
+
 	SetControl(control, Control_Protect, Nil);
-	push_new_control(ptr, &control);
-	save_values_control(ptr, &values, &size);
-	if (functionp(call)) {
-		Return(apply_control(ptr, call, Nil));
-	}
-	else {
-		Return(runcode_control(ptr, call));
-	}
-	restore_values_control(ptr, values, size);
-	return free_control_(ptr, control);
+	if (ptr->throw_value == throw_normal)
+		return close_protect_normal_(ptr, call);
+	else
+		return close_protect_throw_(ptr, call);
 }
 
 static void close_special_control(Execute ptr, addr pos)
@@ -290,21 +309,20 @@ static void close_close_control(Execute ptr, addr control)
 	}
 }
 
-_g int pop_control_(Execute ptr)
+_g int pop_control_(Execute ptr, addr control)
 {
-	addr control, *lexical_reader, lexical_vector;
+	addr *lexical_reader, lexical_vector;
 	LocalStack stack;
 	struct control_struct *str;
 
-	control = ptr->control;
-	Check(control == Nil, "Execute error");
+	Check(ptr->control != control, "control error");
 	str = StructControl(control);
 	stack = str->stack;
 	lexical_reader = str->lexical_reader;
 	lexical_vector = str->lexical_vector;
 
 	/* close */
-	Return(close_protect_control_(ptr, control));
+	close_protect_control_(ptr, control);
 	close_close_control(ptr, control);
 
 	/* pop */
@@ -314,10 +332,10 @@ _g int pop_control_(Execute ptr)
 	ptr->lexical_vector = lexical_vector;
 	rollback_local(ptr->local, stack);
 
-	return 0;
+	return ptr->throw_value != throw_normal;
 }
 
-_g int free_control_(Execute ptr, addr control)
+_g int free_control_degrade_(Execute ptr, addr control)
 {
 	addr root;
 
@@ -333,32 +351,8 @@ _g int free_control_(Execute ptr, addr control)
 	do {
 		root = ptr->control;
 		Check(root == Nil, "free_control error");
-		Return(pop_control_(ptr));
+		Return(pop_control_(ptr, root));
 	} while (root != control);
-
-	return 0;
-}
-
-_g int rollback_control_(Execute ptr, addr control)
-{
-	addr root;
-
-	/* check */
-#ifdef LISP_DEBUG
-	for (root = ptr->control; root == control; ) {
-		Check(root == Nil, "free_control check error");
-		GetControl(root, Control_Next, &root);
-	}
-#endif
-
-	/* rollback */
-	for (;;) {
-		root = ptr->control;
-		Check(root == Nil, "free_control error");
-		if (root == control)
-			break;
-		Return(pop_control_(ptr));
-	}
 
 	return 0;
 }

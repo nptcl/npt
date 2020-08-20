@@ -767,7 +767,7 @@ static size_t hexfloat_exponent(addr pos)
 }
 
 #define OVERFLOW_EXPONENT		20000
-static void diff_exponent_ratio(size_t *size1, size_t *size2, addr pos)
+static int diff_exponent_ratio_(size_t *size1, size_t *size2, addr pos)
 {
 	if (*size1 < *size2) {
 		*size2 -= *size1;
@@ -778,11 +778,15 @@ static void diff_exponent_ratio(size_t *size1, size_t *size2, addr pos)
 		*size2 = 0;
 	}
 	if (OVERFLOW_EXPONENT < *size1) {
-		floating_point_overflow_stdarg(CONSTANT_COMMON_COERCE, pos, NULL);
+		*size1 = *size2 = 0;
+		return call_float_overflow_va_(NULL, CONSTANT_COMMON_COERCE, pos, NULL);
 	}
 	if (OVERFLOW_EXPONENT < *size2) {
-		floating_point_underflow_stdarg(CONSTANT_COMMON_COERCE, pos, NULL);
+		*size1 = *size2 = 0;
+		return call_float_underflow_va_(NULL, CONSTANT_COMMON_COERCE, pos, NULL);
 	}
+
+	return 0;
 }
 
 #define HexToChar(x) (((x) < 10)? ('0' + (x)): ('A' - 10 + (x)))
@@ -859,7 +863,7 @@ _g int single_float_ratio_(addr pos, single_float *ret)
 		return Result(ret, sign? -0.0f: +0.0f);
 	size1 = hexfloat_exponent(numer);
 	size2 = hexfloat_exponent(denom);
-	diff_exponent_ratio(&size1, &size2, pos);
+	Return(diff_exponent_ratio_(&size1, &size2, pos));
 	float_string_ratio(sign, numer, str1, size1, LISP_FLOAT_SINGLE_FRACTION);
 	float_string_ratio(SignPlus, denom, str2, size2, LISP_FLOAT_SINGLE_FRACTION);
 	Return(check_strtof_(str1, pos, &v1));
@@ -890,7 +894,7 @@ _g int double_float_ratio_(addr pos, double_float *ret)
 		return Result(ret, sign? -0.0: +0.0);
 	size1 = hexfloat_exponent(numer);
 	size2 = hexfloat_exponent(denom);
-	diff_exponent_ratio(&size1, &size2, pos);
+	Return(diff_exponent_ratio_(&size1, &size2, pos));
 	float_string_ratio(sign, numer, str1, size1, LISP_FLOAT_DOUBLE_FRACTION);
 	float_string_ratio(SignPlus, denom, str2, size2, LISP_FLOAT_DOUBLE_FRACTION);
 	Return(check_strtod_(str1, pos, &v1));
@@ -921,7 +925,7 @@ _g int long_float_ratio_(addr pos, long_float *ret)
 		return Result(ret, sign? -0.0L: +0.0L);
 	size1 = hexfloat_exponent(numer);
 	size2 = hexfloat_exponent(denom);
-	diff_exponent_ratio(&size1, &size2, pos);
+	Return(diff_exponent_ratio_(&size1, &size2, pos));
 	float_string_ratio(sign, numer, str1, size1, LISP_FLOAT_LONG_FRACTION);
 	float_string_ratio(SignPlus, denom, str2, size2, LISP_FLOAT_LONG_FRACTION);
 	Return(check_strtold_(str1, pos, &v1));

@@ -385,6 +385,30 @@ static int save_object_stream(struct filememory *fm, addr pos, size_t *ret)
 }
 
 
+/* save/load symstack */
+static int save_symstack(struct filememory *fm, addr pos, size_t *ret)
+{
+	*ret = getobjectlength(pos);
+	IfWriteCheck(fm, pos, 16UL, "writecheck error: save_symstack");
+	return 0;
+}
+
+static int load_symstack(struct filememory *fm, addr pos, size_t *ret)
+{
+	addr *array;
+	size_t size, i;
+
+	IfReadCheck(fm, pos + 1UL, 15L, "readcheck error: load_symstack");
+	array = PtrArrayA4(pos);
+	size = (size_t)GetLenArrayA4(pos);
+	for (i = 0; i < size; i++)
+		array[i] = NULL;
+	*ret = getobjectlength(pos);
+
+	return 0;
+}
+
+
 /* save/load dump */
 static int save_dump(struct filememory *fm)
 {
@@ -407,6 +431,10 @@ static int save_dump(struct filememory *fm)
 
 			case LISPTYPE_STREAM:
 				IfDebug(save_object_stream(fm, pos, &size), "save_object_stream error.");
+				break;
+
+			case LISPSYSTEM_SYMSTACK:
+				IfDebug(save_symstack(fm, pos, &size), "save_symstack error.");
 				break;
 
 			default:
@@ -444,6 +472,10 @@ static int load_dump(struct filememory *fm)
 			case LISPTYPE_CODE:
 				IfDebug(load_object(fm, pos, &size), "load_object error.");
 				IfDebug(load_store_push(pos), "load_store_push error.");
+				break;
+
+			case LISPSYSTEM_SYMSTACK:
+				IfDebug(load_symstack(fm, pos, &size), "load_symstack error.");
 				break;
 
 			default:

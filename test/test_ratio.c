@@ -1000,36 +1000,36 @@ static int test_diff_exponent_ratio(void)
 	size_t size1, size2;
 
 	size1 = size2 = 0;
-	diff_exponent_ratio(&size1, &size2, Nil);
+	diff_exponent_ratio_(&size1, &size2, Nil);
 	test(size1 == 0, "diff_exponent_ratio1");
 	test(size2 == 0, "diff_exponent_ratio2");
 
 	size1 = size2 = 10;
-	diff_exponent_ratio(&size1, &size2, Nil);
+	diff_exponent_ratio_(&size1, &size2, Nil);
 	test(size1 == 0, "diff_exponent_ratio3");
 	test(size2 == 0, "diff_exponent_ratio4");
 
 	size1 = 5;
 	size2 = 7;
-	diff_exponent_ratio(&size1, &size2, Nil);
+	diff_exponent_ratio_(&size1, &size2, Nil);
 	test(size1 == 0, "diff_exponent_ratio5");
 	test(size2 == 2, "diff_exponent_ratio6");
 
 	size1 = 9;
 	size2 = 3;
-	diff_exponent_ratio(&size1, &size2, Nil);
+	diff_exponent_ratio_(&size1, &size2, Nil);
 	test(size1 == 6, "diff_exponent_ratio7");
 	test(size2 == 0, "diff_exponent_ratio8");
 
 	size1 = 0;
 	size2 = 6;
-	diff_exponent_ratio(&size1, &size2, Nil);
+	diff_exponent_ratio_(&size1, &size2, Nil);
 	test(size1 == 0, "diff_exponent_ratio9");
 	test(size2 == 6, "diff_exponent_ratio10");
 
 	size1 = 6;
 	size2 = 0;
-	diff_exponent_ratio(&size1, &size2, Nil);
+	diff_exponent_ratio_(&size1, &size2, Nil);
 	test(size1 == 6, "diff_exponent_ratio11");
 	test(size2 == 0, "diff_exponent_ratio12");
 
@@ -1314,7 +1314,7 @@ static int test_output_nosign_ratio(void)
 /*
  *  Main
  */
-static int testbreak_ratio(void)
+static int testcase_ratio(void)
 {
 	/* operation */
 	TestBreak(test_reduction_single);
@@ -1361,31 +1361,16 @@ static int testbreak_ratio(void)
 	return 0;
 }
 
+static void testinit_ratio(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_ratio(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_ratio();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(ratio);
 }
 

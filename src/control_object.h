@@ -34,7 +34,6 @@ struct control_struct {
 	size_t point;
 };
 
-#define exit_control(ptr)				exit_code(ptr, LISPCODE_CONTROL);
 #define PtrBodyControl_Low(p)			PtrBodySSa(p, Control_Size)
 #define StructControl_Low(p)			((struct control_struct *)PtrBodyControl(p))
 #define GetControl_Low					GetArraySS
@@ -152,12 +151,10 @@ _g int checkhandler_control_(addr pos, addr instance, int *ret);
  *  function
  */
 /* push control */
-_g struct control_struct *push_control(Execute ptr);
-_g void push_new_control(Execute ptr, addr *ret);
+_g void push_control(Execute ptr, addr *ret);
 _g void push_args_control(Execute ptr, addr *ret);
-_g int pop_control_(Execute ptr);
-_g int free_control_(Execute ptr, addr control);
-_g int rollback_control_(Execute ptr, addr control);
+_g int pop_control_(Execute ptr, addr control);
+_g int free_control_degrade_(Execute ptr, addr control);
 
 /* data */
 _g int stack_check_control(Execute ptr);

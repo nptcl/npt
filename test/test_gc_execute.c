@@ -342,7 +342,7 @@ static int test_setallobject_local(void)
  */
 int test_gc_execute(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	/* walkthrough */
 	TestBreak(test_resetrecursive);

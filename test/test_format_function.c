@@ -161,6 +161,8 @@ static int test_fmtchar_argument(void)
 	struct fmtstack args;
 	unicode value;
 
+	check = 0;
+
 	cleartype(print);
 	cleartype(args);
 	list_heap(&rest,
@@ -1155,7 +1157,7 @@ static int test_format_call_Exponent(void)
 	test(string_equal_char_debug(pos, "-2.5E-1"), "format_call_Exponent17");
 
 	/* marker */
-	push_new_control(ptr, &value);
+	push_control(ptr, &value);
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	GetConst(COMMON_DOUBLE_FLOAT, &pos);
 	pushspecial_control(ptr, symbol, pos);
@@ -1190,7 +1192,7 @@ static int test_format_call_Exponent(void)
 	format_string_lisp(ptr, pos, args, &pos);
 	test(string_equal_char_debug(pos, "1.23D+1"), "format_call_Exponent23");
 
-	free_control_(ptr, value);
+	pop_control_(ptr, value);
 
 	strvect_char_heap(&pos, "~@E");
 	list_heap(&args, doubleh(12.3), NULL);
@@ -1318,7 +1320,7 @@ static int test_format_call_General(void)
 	test(string_equal_char_debug(pos, "9.0E-02"), "format_call_General21");
 
 	/* marker */
-	push_new_control(ptr, &value);
+	push_control(ptr, &value);
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	GetConst(COMMON_DOUBLE_FLOAT, &pos);
 	pushspecial_control(ptr, symbol, pos);
@@ -1353,7 +1355,7 @@ static int test_format_call_General(void)
 	format_string_lisp(ptr, pos, args, &pos);
 	test(string_equal_char_debug(pos, "1.23D-4"), "format_call_General27");
 
-	free_control_(ptr, value);
+	pop_control_(ptr, value);
 
 	strvect_char_heap(&pos, "~@G");
 	list_heap(&args, doubleh(12.3), NULL);
@@ -2125,7 +2127,7 @@ static int test_format_call_CallFunction(void)
 /*
  *  main
  */
-static int testbreak_format_function(void)
+static int testcase_format_function(void)
 {
 	TestBreak(test_fmtint_count);
 	TestBreak(test_fmtint_argument);
@@ -2170,44 +2172,29 @@ static int testbreak_format_function(void)
 	return 0;
 }
 
+static void testinit_format_function(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+	build_code();
+}
+
 int test_format_function(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_format_function();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(format_function);
 }
 

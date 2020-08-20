@@ -4,6 +4,7 @@
 #include "constant.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "degrade.h"
 #include "equal.h"
 #include "eval_execute.h"
 #include "format.h"
@@ -389,17 +390,24 @@ static int do_test_output_loop_(Execute ptr, addr io, const char *str, addr list
 	return terpri_stream_(io);
 }
 
-static int do_test_output_(Execute ptr,
-		addr io, addr name, fixnum index,
-		addr values, addr result, int check)
+static int do_test_getindex_(Execute ptr, addr *ret)
 {
-	addr pos;
+	addr symbol;
+	GetConst(RT_INDEX, &symbol);
+	return getspecialcheck_local_(ptr, symbol, ret);
+}
+
+static int do_test_output_(Execute ptr, addr name, addr values, addr result, int check)
+{
+	addr pos, io;
 	LocalRoot local;
 	LocalStack stack;
 
+	Return(debug_io_stream_(ptr, &io));
+	Return(do_test_getindex_(ptr, &pos));
+
 	local = ptr->local;
 	push_local(local, &stack);
-	fixnum_heap(&pos, index);
 	if (check) {
 		Return(format_stream(ptr, io, "~&[RT] ~6@A: ~A~%", pos, name, NULL));
 	}
@@ -413,16 +421,17 @@ static int do_test_output_(Execute ptr,
 	return 0;
 }
 
-static int do_test_output_unhandling_(Execute ptr,
-		addr io, addr name, addr values, fixnum index)
+static int do_test_output_unhandling_(Execute ptr, addr name, addr values)
 {
-	addr pos;
+	addr pos, io;
 	LocalRoot local;
 	LocalStack stack;
 
+	Return(debug_io_stream_(ptr, &io));
+	Return(do_test_getindex_(ptr, &pos));
+
 	local = ptr->local;
 	push_local(local, &stack);
-	fixnum_heap(&pos, index);
 	Return(format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL));
 	Return(do_test_output_loop_(ptr, io, "  *** Expect:", values));
 	Return(format_stream(ptr, io,
@@ -432,103 +441,101 @@ static int do_test_output_unhandling_(Execute ptr,
 	return 0;
 }
 
-static int do_test_execute_(Execute ptr,
-		addr io, addr name, fixnum index,
-		addr expr, addr values, int *ret)
+static int do_test_execute_(Execute ptr, addr name, addr expr, addr values, int *ret)
 {
 	int check;
 	addr result;
 
 	Return(do_test_equal_(ptr, expr, values, &result, &check));
-	Return(do_test_output_(ptr, io, name, index, values, result, check));
+	Return(do_test_output_(ptr, name, values, result, check));
 
 	return Result(ret, check);
 }
 
-static int do_test_(Execute ptr,
-		addr io, addr name, addr table, fixnum index, int *ret)
+static int do_test_call_(Execute ptr, addr name, addr expr, addr values, int *ret)
+{
+	int check, finish;
+	lisp_abort_calltype handler;
+
+	check = 0;
+	finish = 0;
+
+	handler = set_degrade_setjmp_handler();
+	Lisp_degrade_Begin {
+		if (do_test_execute_(ptr, name, expr, values, &check))
+			abort_execute();
+		finish = 1;
+	}
+	Lisp_degrade_End;
+	(void)set_abort_handler(handler);
+
+	if (finish == 0) {
+		Return(do_test_output_unhandling_(ptr, name, values));
+		check = 0; /* error */
+	}
+
+	return Result(ret, check);
+}
+
+static int do_test_(Execute ptr, addr name, addr table, int *ret)
 {
 	int check;
 	addr control, expr, values;
-	codejump jump;
 
 	/* table */
 	Return(find_hashtable_(table, name, &expr));
-	if (expr == Unbound)
+	if (expr == Unbound) {
+		*ret = 0;
 		return fmte_("The deftest ~S is not exist.", name, NULL);
+	}
 	GetCons(expr, &expr, &values);
 
 	/* test */
-	check = 0;
-	push_new_control(ptr, &control);
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		if (do_test_execute_(ptr, io, name, index, expr, values, &check))
-			exitexecute(ptr, LISPCODE_ERROR);
-	}
-	end_switch(&jump);
-	if (codejump_error_p(&jump)) {
-		Return(do_test_output_unhandling_(ptr, io, name, values, index));
-		check = 0; /* error */
-	}
-	if (free_control_(ptr, control)) {
-		Return(do_test_output_unhandling_(ptr, io, name, values, index));
+	push_control(ptr, &control);
+	(void)do_test_call_(ptr, name, expr, values, &check);
+	if (free_control_degrade_(ptr, control)) {
+		Return(do_test_output_unhandling_(ptr, name, values));
 		check = 0; /* error */
 	}
 
 	return Result(ret, check);
 }
 
-static int function_do_tests_getindex(Execute ptr, fixnum *ret)
+static void function_do_tests_initindex(Execute ptr)
 {
 	addr symbol, value;
 
 	GetConst(RT_INDEX, &symbol);
 	getspecial_local(ptr, symbol, &value);
-	if (value == Unbound)
-		*ret = 0;
-	else
-		GetFixnum(value, ret);
-
-	return 0;
+	if (value == Unbound) {
+		fixnum_heap(&value, 0);
+		setspecial_local(ptr, symbol, value);
+	}
 }
 
-static int function_do_tests_setindex(Execute ptr, fixnum index)
+static int function_do_tests_variables_(Execute ptr, addr *rlist, addr *rtable)
 {
-	addr symbol, value;
+	addr list, table;
 
-	GetConst(RT_INDEX, &symbol);
-	fixnum_heap(&value, index);
-	setspecial_local(ptr, symbol, value);
-
-	return 0;
-}
-
-static int function_do_tests_variables_(Execute ptr,
-		addr *rio, addr *rlist, addr *rtable)
-{
-	addr io, list, table;
-
-	Return(debug_io_stream_(ptr, &io));
 	GetConst(RT_ENTRIES, &list);
 	Return(getspecialcheck_local_(ptr, list, &list));
 	rootqueue(list, &list);
 	GetConst(RT_ENTRIES_TABLE, &table);
 	Return(getspecialcheck_local_(ptr, table, &table));
 
-	*rio = io;
 	*rlist = list;
 	*rtable = table;
 
 	return 0;
 }
 
-static int function_do_tests_output2_(Execute ptr, addr io, fixnum count2)
+static int function_do_tests_output2_(Execute ptr, fixnum count2)
 {
-	addr root2;
+	addr io, root2;
 
 	if (count2 == 0)
 		return 0;
+	Return(debug_io_stream_(ptr, &io));
 	make_index_integer_heap(&root2, count2);
 	gchold_push_local(ptr->local, root2);
 	Return(format_stream(ptr, io, "~%", NULL));
@@ -540,15 +547,16 @@ static int function_do_tests_output2_(Execute ptr, addr io, fixnum count2)
 	return 0;
 }
 
-static int function_do_tests_duplicated_(Execute ptr, addr io)
+static int function_do_tests_duplicated_(Execute ptr)
 {
-	addr pos;
+	addr io, pos;
 
 	/* *entries-warning* */
 	GetConst(RT_ENTRIES_WARNING, &pos);
 	Return(getspecialcheck_local_(ptr, pos, &pos));
 	rootqueue(pos, &pos);
 	if (pos != Nil) {
+		Return(debug_io_stream_(ptr, &io));
 		Return(format_stream(ptr, io,
 					"~&[DUPLICATED] These testcases is ignored.~%", NULL));
 		Return(format_stream(ptr, io,
@@ -558,25 +566,44 @@ static int function_do_tests_duplicated_(Execute ptr, addr io)
 	return 0;
 }
 
-static int function_do_tests_execute_(Execute ptr, fixnum *value)
+static void do_tests_increment(Execute ptr)
+{
+	addr symbol, pos;
+	fixnum value;
+
+	GetConst(RT_INDEX, &symbol);
+	getspecial_local(ptr, symbol, &pos);
+	if (pos == Unbound || ! fixnump(pos)) {
+		fixnum_heap(&pos, 1);
+	}
+	else {
+		GetFixnum(pos, &value);
+		fixnum_heap(&pos, value + 1);
+	}
+	setspecial_local(ptr, symbol, pos);
+}
+
+static int function_do_tests_execute_(Execute ptr)
 {
 	int check;
-	addr list, table, name, root1, root2, io;
-	fixnum index, count1, count2;
+	addr list, table, name, root1, root2;
+	fixnum count1, count2;
 	LocalRoot local;
 	LocalStack stack;
 
 	/* initialize */
-	Return(function_do_tests_variables_(ptr, &io, &list, &table));
+	Return(function_do_tests_variables_(ptr, &list, &table));
 	root1 = root2 = Nil;
 	count1 = count2 = 0;
 	local = ptr->local;
 	push_local(local, &stack);
 
 	/* loop */
-	for (index = *value; list != Nil; ) {
+	while (list != Nil) {
+		do_tests_increment(ptr);
 		GetCons(list, &name, &list);
-		Return(do_test_(ptr, io, name, table, ++index, &check));
+		check = 0;
+		Return(do_test_(ptr, name, table, &check));
 		if (check) {
 			/* ok */
 			cons_local(local, &root1, name, root1);
@@ -590,27 +617,24 @@ static int function_do_tests_execute_(Execute ptr, fixnum *value)
 	}
 
 	/* output */
-	Return(function_do_tests_output2_(ptr, io, count2));
-	Return(function_do_tests_duplicated_(ptr, io));
+	Return(function_do_tests_output2_(ptr, count2));
+	Return(function_do_tests_duplicated_(ptr));
 
 	/* result */
 	rollback_local(local, stack);
 	setbool_control(ptr, count2 == 0);
-	return Result(value, index);
+	return 0;
 }
 
 static int function_do_tests(Execute ptr, addr rest)
 {
-	fixnum index;
-
 	/* argument */
 	if (GetKeyArgs(rest, KEYWORD_TEST, &rest))
 		rest = Nil;
 
 	/* do-tests */
-	function_do_tests_getindex(ptr, &index);
-	Return(function_do_tests_execute_(ptr, &index));
-	function_do_tests_setindex(ptr, index);
+	function_do_tests_initindex(ptr);
+	Return(function_do_tests_execute_(ptr));
 
 	/* rem-all-tests */
 	if (rest != Nil) {

@@ -334,11 +334,26 @@ static int comb_standard_funcall_(Execute ptr, addr rest, addr around, addr prim
 	return comb_standard_method_(ptr, around, primary, rest);
 }
 
+static int function_standard_lambda_after_(Execute ptr, addr after, addr args)
+{
+	addr control, values, one;
+	size_t size;
+
+	push_control(ptr, &control);
+	save_values_control(ptr, &values, &size);
+	while (after != Nil) {
+		GetCons(after, &one, &after);
+		if (comb_standard_method_(ptr, one, Nil, args))
+			goto finish;
+	}
+	restore_values_control(ptr, values, size);
+finish:
+	return pop_control_(ptr, control);
+}
+
 static int function_standard_lambda(Execute ptr)
 {
-	addr args, data, before, primary, after, one, control, car, cdr;
-	addr values;
-	size_t size;
+	addr args, data, before, primary, after, one, car, cdr;
 
 	/*
 	 *  (lambda (method next &rest args)
@@ -366,14 +381,7 @@ static int function_standard_lambda(Execute ptr)
 
 	/* after */
 	if (after != Nil) {
-		push_new_control(ptr, &control);
-		save_values_control(ptr, &values, &size);
-		while (after != Nil) {
-			GetCons(after, &one, &after);
-			Return(comb_standard_method_(ptr, one, Nil, args));
-		}
-		restore_values_control(ptr, values, size);
-		Return(free_control_(ptr, control));
+		Return(function_standard_lambda_after_(ptr, after, args));
 	}
 
 	return 0;
@@ -430,9 +438,9 @@ static int comb_standard_call_(Execute ptr, addr inst, addr gen, addr rest)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(comb_standard_execute_(ptr, inst, gen, rest));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)comb_standard_execute_(ptr, inst, gen, rest);
+	return pop_control_(ptr, control);
 }
 
 static int comb_standard_(addr *ret, addr data)
@@ -453,10 +461,10 @@ static int comb_define_call_(Execute ptr, addr inst, addr gen, addr rest)
 {
 	addr control, call;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	GetClosGenericCallArray(inst, 0, &call);
-	Return(apply_control(ptr, call, rest));
-	return free_control_(ptr, control);
+	(void)apply_control(ptr, call, rest);
+	return pop_control_(ptr, control);
 }
 
 static int comb_long_(Execute ptr, addr *ret, addr gen, addr comb, addr data)

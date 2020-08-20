@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include "bignum.h"
 #include "build.h"
 #include "condition.h"
 #include "condition_debugger.h"
@@ -7,6 +8,7 @@
 #include "core.h"
 #include "define.h"
 #include "eval_main.h"
+#include "execute_object.h"
 #include "extern_init.h"
 #include "extern_string.h"
 #include "file.h"
@@ -679,36 +681,7 @@ static int lisp_argv_arguments_(struct lispargv *argv)
 	return 0;
 }
 
-static int lisp_argv_switch_execute_(Execute ptr, struct lispargv *argv)
-{
-	push_prompt_info(ptr);
-	Return(handler_warning_(ptr));
-	Return(handler_savecore_(ptr));
-	Return(lisp_argv_environment_(argv));
-	Return(lisp_argv_arguments_(argv));
-	return lisp_argv_execute_(ptr, argv);
-}
-
-static int lisp_argv_switch_(Execute ptr, struct lispargv *argv)
-{
-	int check;
-	addr control;
-	codejump jump;
-
-	push_new_control(ptr, &control);
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		check = lisp_argv_switch_execute_(ptr, argv);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
-	throw_switch(&jump);
-
-	return free_control_(ptr, control);
-}
-
-/* result */
+/* savecore */
 static void lisp_argv_makunbound(constindex index)
 {
 	addr symbol;
@@ -716,80 +689,105 @@ static void lisp_argv_makunbound(constindex index)
 	SetValueSymbol(symbol, Unbound);
 }
 
-static int lisp_argv_core(Execute ptr)
+static int lisp_argv_core_(Execute ptr)
 {
 	lisp_argv_makunbound(CONSTANT_SYSTEM_SPECIAL_ENVIRONMENT);
 	lisp_argv_makunbound(CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);
 	lisp_result = save_core(ptr);
-	return lisp_result;
+
+	return 0;
 }
 
-static int lisp_argv_result(Execute ptr, lispcode code)
+static int lisp_argv_exit_(Execute ptr)
 {
-	switch (code) {
-		case LISPCODE_EXECUTE:
-		case LISPCODE_SUCCESS:
-		case LISPCODE_EXIT:
-			lisp_result = ptr->result;
-			return 0;
+	lisp_result = (int)ptr->result;
+	return 0;
+}
 
-		case LISPCODE_SAVECORE:
-			return lisp_argv_core(ptr);
+static int lisp_argv_switch_call_(Execute ptr, struct lispargv *argv)
+{
+	push_prompt_info(ptr);
+	Return(handler_warning_(ptr));
+	Return(handler_savecore_(ptr));
+	Return(handler_exit_(ptr));
+	Return(lisp_argv_environment_(argv));
+	Return(lisp_argv_arguments_(argv));
+	Return(lisp_argv_execute_(ptr, argv));
 
-		case LISPCODE_ERROR:
-			lisperror("ABORT: lisp error, interrupt. (error)");
-			return 1;
+	return 0;
+}
 
-		case LISPCODE_ABORT:
-			lisperror("ABORT: lisp error, interrupt. (abort)");
-			return 1;
+static int lisp_argv_condition_p_(Execute ptr, constindex index, int *ret)
+{
+	addr pos, clos;
 
-		case LISPCODE_MEMORY:
-			lisperror("ABORT: lisp error, interrupt. (memory)");
-			return 1;
+	if (ptr->throw_value != throw_handler_case)
+		return Result(ret, 0);
+	pos = ptr->throw_handler;
+	GetConstant(index, &clos);
+	GetNameHandler(pos, &pos);
+	return Result(ret, pos == clos);
+}
 
-		case LISPCODE_CONFLICT:
-			lisperror("ABORT: lisp error, interrupt. (conflict)");
-			return 1;
+static int lisp_argv_savecore_p_(Execute ptr, int *ret)
+{
+	return lisp_argv_condition_p_(ptr, CONSTANT_CONDITION_SAVECORE, ret);
+}
 
-		case LISPCODE_CONTROL:
-			lisperror("ABORT: lisp error, interrupt. (control)");
-			return 1;
+static int lisp_argv_exit_p_(Execute ptr, int *ret)
+{
+	return lisp_argv_condition_p_(ptr, CONSTANT_CONDITION_EXIT, ret);
+}
 
-		default:
-			lisperror("ABORT: lisp error, interrupt. (others)");
-			return 1;
+static int lisp_argv_switch_(Execute ptr, struct lispargv *argv)
+{
+	int check;
+	addr control;
+
+	push_control(ptr, &control);
+	if (lisp_argv_switch_call_(ptr, argv) == 0)
+		return pop_control_(ptr, control);
+
+	/* savecore */
+	Return(lisp_argv_savecore_p_(ptr, &check));
+	if (check) {
+		normal_throw_control(ptr);
+		Return(pop_control_(ptr, control));
+		return lisp_argv_core_(ptr);
 	}
+
+	/* exit */
+	Return(lisp_argv_exit_p_(ptr, &check));
+	if (check) {
+		normal_throw_control(ptr);
+		Return(pop_control_(ptr, control));
+		return lisp_argv_exit_(ptr);
+	}
+
+	return fmte_("Invalid result.", NULL);
 }
 
 /* runcode */
-static void lisp_argv_code_execute(Execute ptr, struct lispargv *argv)
-{
-	if (argv->nocore)
-		buildlisp(ptr);
-	if (lisp_argv_switch_(ptr, argv))
-		exitexecute(ptr, LISPCODE_ABORT);
-}
-
 static int lisp_argv_code(struct lispargv *argv)
 {
-	lispcode code;
 	Execute ptr;
-	LocalRoot local;
-	LocalStack stack;
 
 	ptr = getexecute(0);
 	Check(ptr == NULL, "getexecute error.");
 	ptr->result = 0;
-	local = ptr->local;
-	push_local(local, &stack);
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code))
-		lisp_argv_code_execute(ptr, argv);
-	end_setjmp(ptr);
-	rollback_local(local, stack);
 
-	return lisp_argv_result(ptr, code);
+	/* execute */
+	if (argv->nocore) {
+		buildlisp(ptr);
+	}
+	if (lisp_argv_switch_(ptr, argv)) {
+		abort_execute();
+		return 1;
+	}
+
+	/* result */
+	lisp_result = ptr->result;
+	return 0;
 }
 
 int lisp_argv_run(struct lispargv *ptr)

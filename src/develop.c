@@ -20,29 +20,40 @@ int DegradeError = 0;
 static int DegradeSwitch = 1;
 static int DegradePosition;
 
+
+/* degrade */
 int degrade_code(void (*init)(Execute), int (*call)(void))
 {
-	int ret;
-	lispcode code;
+	int errorp, finish;
+	lisp_abort_calltype handler;
 	Execute ptr;
 
 	freelisp();
 	alloclisp(0, 0);
+
 	lisp_info_enable = 1;
 	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
+	errorp = 0;
+	finish = 0;
+	handler = set_degrade_setjmp_handler();
+	Lisp_degrade_Begin {
 		lisp_initialize = 1;
 		if (init)
 			(*init)(ptr);
-		ret = (*call)();
+		errorp = (*call)();
+		finish = 1;
 	}
-	end_setjmp(ptr);
+	Lisp_degrade_End;
+	(void)set_abort_handler(handler);
 	freelisp();
-	TestCheck(code_error_p(code));
 	lisp_info_enable = 1;
 
-	return ret;
+	/* result */
+	if (finish == 0) {
+		errorp = 1;
+	}
+
+	return errorp;
 }
 
 int degrade_printf(const char *fmt, ...)
@@ -110,27 +121,6 @@ int degrade_testcheck(int check)
 	return check;
 }
 
-int degrade_testnormal(int (*call)(void))
-{
-	int result;
-	codejump jump;
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	begin_switch(ptr, &jump);
-	result = 1;
-	if (codejump_run_p(&jump)) {
-		result = (*call)();
-	}
-	end_switch(&jump);
-	if (result && codejump_error_p(&jump)) {
-		DegradeError++;
-		return 1;
-	}
-
-	return 0;
-}
-
 void degrade_increment(void)
 {
 	DegradeError++;
@@ -149,6 +139,24 @@ void degrade_output_null(Execute ptr)
 	setspecial_local(ptr, stream, null);
 }
 
+static void degrade_execute_call(void)
+{
+	int finish;
+	lisp_abort_calltype handler;
+
+	handler = set_abort_setjmp_handler();
+	finish = 0;
+	Lisp_abort_Begin {
+		degrade_execute();
+		finish = 1;
+	}
+	Lisp_abort_End;
+	(void)set_abort_handler(handler);
+
+	if (finish == 0)
+		DegradeError++;
+}
+
 int degradelisp(void)
 {
 	file = stdout;
@@ -160,7 +168,7 @@ int degradelisp(void)
 	GcCounterForce = 0;
 #endif
 	degrade_printf("DEGRADE - start: %s\n", LISP_INFO);
-	degrade_execute();
+	degrade_execute_call();
 	degrade_freshline();
 	degrade_printf("---\n");
 	degrade_printf("DEGRADE - end: %s\n", LISP_INFO);

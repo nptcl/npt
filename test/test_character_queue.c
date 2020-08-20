@@ -507,9 +507,7 @@ static void testinit_character_queue(Execute ptr)
 
 int test_character_queue(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_character_queue,
-			testcase_character_queue);
+	DegradeTitle;
+	return DegradeCode(character_queue);
 }
 

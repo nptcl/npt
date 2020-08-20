@@ -42,14 +42,6 @@
 
 #define GetValueSymbol(s,v)         getvalue_symbol((s), (v))
 #define SetValueSymbol(s,v)         setvalue_symbol((s), (v))
-#define GetValueCheckSymbol(s,v)    { \
-	GetValueSymbol((s), (v)); \
-	if (*(addr *)(v) == Unbound) errorunbound(s); \
-}
-#define GetFunctionCheckSymbol(s,v) { \
-	GetFunctionSymbol((s), (v)); \
-	if (*(addr *)(v) == Unbound) undefined_function(s); \
-}
 
 _g int init_symbol(void);
 _g void free_symbol(void);

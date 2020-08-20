@@ -2071,20 +2071,24 @@ static int WriteCall_package_(Execute ptr, addr stream, addr pos)
 /*
  *  random-state
  */
-static int WriteBody_random_state_(Execute ptr, addr stream, addr pos)
+static int WriteBody_random_state_call_(Execute ptr, addr stream, addr pos)
 {
-	addr control;
-
-	push_new_control(ptr, &control);
 	push_escape_print(ptr, 0);
 	push_readably_print(ptr, 0);
 	push_radix_print(ptr, 1);
 	push_base_print(ptr, 16);
 	Return(push_case_print_(ptr, PrintCase_upcase));
 	make_bignum_random_state_local(ptr->local, pos, &pos);
-	Return(WriteCall_bignum_(ptr, stream, pos));
+	return WriteCall_bignum_(ptr, stream, pos);
+}
 
-	return free_control_(ptr, control);
+static int WriteBody_random_state_(Execute ptr, addr stream, addr pos)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)WriteBody_random_state_call_(ptr, stream, pos);
+	return pop_control_(ptr, control);
 }
 
 static int WriteCall_random_state_(Execute ptr, addr stream, addr pos)
@@ -2380,23 +2384,21 @@ _g int princ_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	push_escape_print(ptr, 0);
 	push_readably_print(ptr, 0);
-	Return(write_print(ptr, stream, pos));
-
-	return free_control_(ptr, control);
+	(void)write_print(ptr, stream, pos);
+	return pop_control_(ptr, control);
 }
 
 _g int prin1_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	push_escape_print(ptr, 1);
-	Return(write_print(ptr, stream, pos));
-
-	return free_control_(ptr, control);
+	(void)write_print(ptr, stream, pos);
+	return pop_control_(ptr, control);
 }
 
 _g int print_print(Execute ptr, addr stream, addr pos)
@@ -2406,43 +2408,63 @@ _g int print_print(Execute ptr, addr stream, addr pos)
 	return write_char_stream_(stream, ' ');
 }
 
+static int pprint_print_call_(Execute ptr, addr stream, addr pos)
+{
+	push_escape_print(ptr, 1);
+	push_pretty_print(ptr, 1);
+	Return(terpri_stream_(stream));
+	return write_print(ptr, stream, pos);
+}
+
 _g int pprint_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	push_escape_print(ptr, 1);
-	push_pretty_print(ptr, 1);
-	Return(terpri_stream_(stream));
-	Return(write_print(ptr, stream, pos));
-
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)pprint_print_call_(ptr, stream, pos);
+	return pop_control_(ptr, control);
 }
 
-_g int write_string_heap(Execute ptr, addr *ret, addr pos)
+static int write_string_heap_call_(Execute ptr, addr *ret, addr pos)
 {
-	addr control, stream;
+	addr stream;
 
-	push_new_control(ptr, &control);
 	open_output_string_stream(&stream, 0);
 	Return(write_print(ptr, stream, pos));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
-	return free_control_(ptr, control);
+	return 0;
 }
 
-_g int write_string_local(Execute ptr, addr *ret, addr pos)
+_g int write_string_heap(Execute ptr, addr *ret, addr pos)
 {
-	addr control, stream;
+	addr control;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
+	(void)write_string_heap_call_(ptr, ret, pos);
+	return pop_control_(ptr, control);
+}
+
+static int write_string_local_call_(Execute ptr, addr *ret, addr pos)
+{
+	addr stream;
+
 	open_output_string_stream(&stream, 0);
 	Return(write_print(ptr, stream, pos));
 	Return(string_stream_local_(ptr->local, stream, ret));
 	close_output_string_stream(stream);
 
-	return free_control_(ptr, control);
+	return 0;
+}
+
+_g int write_string_local(Execute ptr, addr *ret, addr pos)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)write_string_local_call_(ptr, ret, pos);
+	return pop_control_(ptr, control);
 }
 
 _g int princ_string_heap(Execute ptr, addr *ret, addr pos)

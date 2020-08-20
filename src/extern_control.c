@@ -27,14 +27,15 @@
  */
 void lisp_push_control(addr *ret)
 {
-	push_new_control(Execute_Thread, ret);
+	push_control(Execute_Thread, ret);
 }
 
-int lisp_free_control_(addr control)
+int lisp_pop_control_(addr control)
 {
 	if (GetType(control) != LISPTYPE_CONTROL)
 		return fmte_("Invalid argument ~S.", control, NULL);
-	return free_control_(Execute_Thread, control);
+
+	return pop_control_(Execute_Thread, control);
 }
 
 int lisp_eval_control_(addr eval)
@@ -143,7 +144,7 @@ static int lisp_format_call(addr stream, addr format, addr args)
 	Return(format_lisp(ptr, stream, format, args, &args));
 	localhold_end(hold);
 
-	return lisp_free_control_(control);
+	return lisp_pop_control_(control);
 }
 
 int lisp_format8_(addr stream, const void *str, ...)
@@ -253,38 +254,6 @@ void lisp_syscall_getvalue(addr *ret)
 /*
  *  unwind-protect
  */
-#if 0
-static int extern_unwind_protect(Execute ptr)
-{
-	addr clean;
-	getdata_control(ptr, &clean);
-	return funcall_control(ptr, clean, NULL);
-}
-
-int lisp_unwind_protect(addr code, addr clean)
-{
-	addr control;
-	Execute ptr;
-	LocalHold hold;
-
-	ptr = Execute_Thread;
-	hold = LocalHold_array(ptr, 2);
-
-	/* finalize */
-	push_new_control(ptr, &control);
-	localhold_set(hold, 0, code);
-	localhold_set(hold, 1, clean);
-	/* cleanup form */
-	setprotect_control(ptr, p_extern_unwind_protect, clean);
-	/* code */
-	Return(lisp_funcall(&code, code, NULL));
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
-
-	return 0;
-}
-#endif
-
 void lisp_set_unwind_protect(addr clean)
 {
 	set_protect_control(Execute_Thread, clean);
@@ -333,26 +302,39 @@ int lisp_error16_(const void *str, ...)
 /*
  *  throw
  */
+static int lisp_catch_call_(Execute ptr, LocalHold hold,
+		addr symbol, addr code, addr *ret)
+{
+	addr control, value;
+
+	/* begin catch */
+	push_control(ptr, &control);
+	catch_control(ptr, symbol);
+	(void)apply_control(ptr, code, Nil);
+	Return(pop_control_(ptr, control));
+	/* end catch */
+	getresult_control(ptr, &value);
+	localhold_set(hold, 0, value);
+
+	return Result(ret, value);
+}
+
 int lisp_catch_(addr symbol, addr code, addr *ret)
 {
 	Execute ptr;
 	addr control, value;
 	LocalHold hold;
 
-	if (! symbolp(symbol))
+	if (! symbolp(symbol)) {
+		*ret = Nil;
 		return fmte_("CATCH argument ~S must be a symbol.", symbol, NULL);
+	}
 	ptr = Execute_Thread;
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	/* begin catch */
-	push_new_control(ptr, &value);
-	catch_control(ptr, symbol);
-	Return(apply_control(ptr, code, Nil));
-	Return(free_control_(ptr, value));
-	/* end catch */
-	getresult_control(ptr, &value);
-	localhold_set(hold, 0, value);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	value = Nil;
+	(void)lisp_catch_call_(ptr, hold, symbol, code, &value);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 	if (ret)
 		*ret = value;

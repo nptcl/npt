@@ -289,7 +289,7 @@ static int test_getcallname_global(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	test_reinternchar("HELLO", &symbol);
 
 	getglobal_parse_callname(symbol, &pos);
@@ -313,7 +313,7 @@ static int test_getcallname_global(void)
 	getglobal_parse_callname(key, &pos);
 	test(pos == call1, "getglobal_parse_callname.5");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -324,7 +324,7 @@ static int test_getcallnamecheck_global(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	test_reinternchar("HELLO", &symbol);
 
 	fixnum_heap(&call1, 10);
@@ -345,7 +345,7 @@ static int test_getcallnamecheck_global(void)
 	getglobalcheck_parse_callname_(key, &pos);
 	test(pos == call1, "getglobalcheck_parse_callname.4");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -388,9 +388,7 @@ static void testinit_callname(Execute ptr)
 
 int test_callname(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_callname,
-			testcase_callname);
+	DegradeTitle;
+	return DegradeCode(callname);
 }
 

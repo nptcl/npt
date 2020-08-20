@@ -111,10 +111,10 @@ _g int warning_restart_case_(Execute ptr, addr instance)
 
 	if (ptr == NULL)
 		ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	warning_restart_make(&restart);
-	Return(restart1_control(ptr, restart, signal_function_, instance));
-	return free_control_(ptr, control);
+	(void)restart1_control(ptr, restart, signal_function_, instance);
+	return pop_control_(ptr, control);
 }
 
 _g int callclang_warning_(const char *str, ...)
@@ -126,40 +126,8 @@ _g int callclang_warning_(const char *str, ...)
 	va_start(va, str);
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
-	instance_simple_warning(&instance, format, args);
+	Return(instance_simple_warning_(&instance, format, args));
 	return warning_restart_case_(NULL, instance);
-}
-
-
-/*
- *  deprecated
- */
-static void callclang_error(const char *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	strvect_char_heap(&format, str);
-	va_start(va, str);
-	copylocal_list_stdarg(NULL, &args, va);
-	va_end(va);
-	simple_error(format, args);
-}
-
-_g void error_function(addr condition)
-{
-	int check;
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	gchold_push_local(ptr->local, condition);
-	check = signal_function_(ptr, condition)
-		|| invoke_debugger(ptr, condition);
-	if (check) {
-		callclang_error("~&Invalid signal call.~%", NULL);
-		abortthis();
-		return;
-	}
 }
 
 

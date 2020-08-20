@@ -293,6 +293,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute_setjmp.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_execute.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_argv.c" />
@@ -622,6 +623,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_setjmp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />

@@ -2933,7 +2933,7 @@ static int test_letdiv_half_bigdata(void)
 /*
  *  Main
  */
-static int testbreak_bignum_data(void)
+static int testcase_bignum_data(void)
 {
 	/* Calculate */
 	TestBreak(test_multinumber1);
@@ -2999,31 +2999,16 @@ static int testbreak_bignum_data(void)
 	return 0;
 }
 
+static void testinit_bignum_data(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_bignum_data(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_bignum_data();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(bignum_data);
 }
 

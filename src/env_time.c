@@ -985,7 +985,7 @@ static int sleep_execute_restart_(Execute ptr, addr var, addr *ret)
 
 	/* invoke-debugger */
 	strvect_char_heap(&condition, "Break SIGINT");
-	instance_simple_condition(&condition, condition, Nil);
+	Return(instance_simple_condition_(&condition, condition, Nil));
 	localhold_push(hold, condition);
 	Return(invoke_debugger(ptr, condition));
 	localhold_end(hold);
@@ -1011,19 +1011,27 @@ static void sleep_make_restart(addr *ret)
 	*ret = inst;
 }
 
+static int sleep_break_restart_call_(
+		Execute ptr, LocalHold hold, addr restart, addr var, addr *ret)
+{
+	Return(push_sleep_object_(ptr));
+	setprotect_control(ptr, p_sleep_close_object, Nil);
+	*ret = Nil;
+	Return(restart1r_control(ptr, restart, sleep_execute_restart_, var, ret));
+	localhold_set(hold, 0, *ret);
+
+	return 0;
+}
+
 static int sleep_break_restart_(Execute ptr, addr restart, addr var, addr *ret)
 {
 	addr control;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	Return(push_sleep_object_(ptr));
-	setprotect_control(ptr, p_sleep_close_object, Nil);
-	*ret = Nil;
-	Return(restart1r_control(ptr, restart, sleep_execute_restart_, var, ret));
-	localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	(void)sleep_break_restart_call_(ptr, hold, restart, var, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

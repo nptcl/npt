@@ -226,10 +226,11 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 		Return(read_stream(ptr, stream, &check, &pos));
 	}
 	if (check) {
-		if (eofp)
-			end_of_file(stream);
-		else
-			pos = eof;
+		if (eofp) {
+			*ret = *sec = Nil;
+			return call_end_of_file_(ptr, stream);
+		}
+		pos = eof;
 	}
 	getindex_input_stream(stream, &size);
 	Return(close_stream_(stream));

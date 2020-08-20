@@ -1133,9 +1133,7 @@ static void testinit_array_make(Execute ptr)
 
 int test_array_make(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_array_make,
-			testcase_array_make);
+	DegradeTitle;
+	return DegradeCode(array_make);
 }
 

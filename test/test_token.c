@@ -189,7 +189,7 @@ static int test_read_default_float_format(void)
 	read_default_float_format_(ptr, &check);
 	test(check == 'f', "read_default_float_format1");
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	GetConstant(CONSTANT_SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
 
@@ -218,7 +218,7 @@ static int test_read_default_float_format(void)
 	read_default_float_format_(ptr, &check);
 	test(check == 0, "read_default_float_format6");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	read_default_float_format_(ptr, &check);
 	test(check == 'f', "read_default_float_format7");
@@ -387,7 +387,7 @@ static int test_maketoken_ratio(void)
 /*
  *  main
  */
-static int testbreak_token(void)
+static int testcase_token(void)
 {
 	/* integer */
 	TestBreak(test_getvalue_digit);
@@ -413,42 +413,27 @@ static int testbreak_token(void)
 	return 0;
 }
 
+static void testinit_token(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+}
+
 int test_token(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		lisp_initialize = 1;
-		result = testbreak_token();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(token);
 }
 

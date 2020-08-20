@@ -25,6 +25,10 @@ checkerr "test_script error."
 
 ./test_configure.sh "$1"
 checkerr "test_configure error."
+
+./test_core.sh "$1"
+checkerr "test_core error."
+
 } 2>&1 | tee result.txt
 
 exit 0

@@ -251,14 +251,9 @@ static int compile_execute(Execute ptr, addr var, addr opt, addr *ret)
 			"in COMPILE must be a function-name.", var, NULL);
 }
 
-_g int compile_common(Execute ptr, addr var, addr opt,
-		addr *ret1, addr *ret2, addr *ret3)
+static int compile_common_call_(Execute ptr, LocalHold hold,
+		addr var, addr opt, addr *ret1, addr *ret2, addr *ret3)
 {
-	addr control;
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	Return(handler_compile_(ptr));
 	Return(compile_execute(ptr, var, opt, ret1));
 	localhold_set(hold, 0, *ret1);
@@ -268,8 +263,20 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	/* style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &var);
 	Return(getspecialcheck_local_(ptr, var, ret3));
-	/* free */
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+_g int compile_common(Execute ptr, addr var, addr opt,
+		addr *ret1, addr *ret2, addr *ret3)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)compile_common_call_(ptr, hold, var, opt, ret1, ret2, ret3);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

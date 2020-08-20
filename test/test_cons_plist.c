@@ -555,9 +555,7 @@ static void testinit_cons_plist(Execute ptr)
 
 int test_cons_plist(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_cons_plist,
-			testcase_cons_plist);
+	DegradeTitle;
+	return DegradeCode(cons_plist);
 }
 

@@ -403,9 +403,7 @@ static void testinit_function(Execute ptr)
 
 int test_function(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_function,
-			testcase_function);
+	DegradeTitle;
+	return DegradeCode(function);
 }
 

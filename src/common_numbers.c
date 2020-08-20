@@ -3094,7 +3094,7 @@ static void defun_floatp(void)
 /* (defun arithmetic-error-operands (arithmetic-error) ...) -> list */
 static int function_arithmetic_error_operands(Execute ptr, addr var)
 {
-	arithmetic_error_operands(var, &var);
+	Return(arithmetic_error_operands_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -3128,7 +3128,7 @@ static void defun_arithmetic_error_operands(void)
 /* (defun arithmetic-error-operation (arithmetic-error) ...) -> list */
 static int function_arithmetic_error_operation(Execute ptr, addr var)
 {
-	arithmetic_error_operation(var, &var);
+	Return(arithmetic_error_operation_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

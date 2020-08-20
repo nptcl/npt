@@ -655,8 +655,6 @@ static int getindex_integer_bignum(addr pos, size_t *ret)
 
 _g int GetIndex_integer(addr pos, size_t *ret)
 {
-	addr type;
-
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 			return getindex_integer_fixnum(pos, ret);
@@ -665,8 +663,6 @@ _g int GetIndex_integer(addr pos, size_t *ret)
 			return getindex_integer_bignum(pos, ret);
 
 		default:
-			GetTypeTable(&type, Index);
-			type_error(pos, type);
 			return 1;
 	}
 }

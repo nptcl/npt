@@ -2614,7 +2614,7 @@ static int test_minus_rr_real_common(void)
 /*
  *  Main
  */
-static int testbreak_ratio_plus(void)
+static int testcase_ratio_plus(void)
 {
 	TestBreak(test_sign_reverse_ratio_inplace);
 	TestBreak(test_sign_reverse_ratio_common);
@@ -2678,31 +2678,16 @@ static int testbreak_ratio_plus(void)
 	return 0;
 }
 
+static void testinit_ratio_plus(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_ratio_plus(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_ratio_plus();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(ratio_plus);
 }
 

@@ -213,9 +213,7 @@ static void testinit_sxhash(Execute ptr)
 
 int test_sxhash(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_sxhash,
-			testcase_sxhash);
+	DegradeTitle;
+	return DegradeCode(sxhash);
 }
 

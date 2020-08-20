@@ -742,7 +742,7 @@ static void defun_class_of(void)
 /* (defun unbound-slot-instance ...) */
 static int function_unbound_slot_instance(Execute ptr, addr var)
 {
-	unbound_slot_instance(var, &var);
+	Return(unbound_slot_instance_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

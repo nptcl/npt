@@ -114,7 +114,7 @@ static int runcode_control_check(Execute ptr)
 #define TraceControl(str, x)
 #endif
 
-static int runcode_execute(Execute ptr, addr code)
+static int runcode_execute_(Execute ptr, addr code)
 {
 	addr control, throw_control;
 	struct control_struct *str;
@@ -158,6 +158,8 @@ loop:
 		Check(runcode_control_check(ptr), "throw_control error");
 		return 1;
 	}
+	ptr->throw_value = throw_normal;
+	ptr->throw_handler = NULL;
 	ptr->throw_control = NULL;
 
 	/* block */
@@ -171,27 +173,7 @@ loop:
 	goto loop;
 }
 
-static int runcode_free(Execute ptr, addr control)
-{
-	int throw_point_p;
-	addr throw_control;
-	size_t throw_point;
-
-	throw_control = ptr->throw_control;
-	throw_point = ptr->throw_point;
-	throw_point_p = ptr->throw_point_p;
-	ptr->throw_control = NULL;
-	ptr->throw_point = 0;
-	ptr->throw_point_p = 0;
-	Return(free_control_(ptr, control));
-	ptr->throw_control = throw_control;
-	ptr->throw_point = throw_point;
-	ptr->throw_point_p = throw_point_p;
-
-	return 1;
-}
-
-_g int runcode_control(Execute ptr, addr code)
+_g int runcode_control_(Execute ptr, addr code)
 {
 	addr control;
 	struct code_struct *str;
@@ -200,83 +182,24 @@ _g int runcode_control(Execute ptr, addr code)
 	str = StructCode(code);
 	/* no-control */
 	if (str->p_control == 0)
-		return runcode_execute(ptr, code);
+		return runcode_execute_(ptr, code);
 
 	/* push-control */
 	if (str->p_args)
 		push_args_control(ptr, &control);
 	else
-		push_new_control(ptr, &control);
+		push_control(ptr, &control);
 
 	/* execute */
-	if (runcode_execute(ptr, code))
-		return runcode_free(ptr, control);
-	else
-		return free_control_(ptr, control);
-}
-
-
-/*
- *  execute-switch  (handler-case, restart-case)
- */
-static int runcode_switch_execute(Execute ptr, addr code)
-{
-	int check;
-	addr control;
-	codejump jump;
-
-	/* execute */
-	check = 0;
-	control = ptr->control;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		check = runcode_execute(ptr, code);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
-
-	/* handler */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			return 1;
-		return rollback_control_(ptr, control);
-	}
-
-	/* normal */
-	throw_switch(&jump);
-	return 0;
-}
-
-_g int runcode_switch(Execute ptr, addr code)
-{
-	addr control;
-	struct code_struct *str;
-
-	CheckType(code, LISPTYPE_CODE);
-	str = StructCode(code);
-	/* no-control */
-	if (str->p_control == 0)
-		return runcode_switch_execute(ptr, code);
-
-	/* push-control */
-	if (str->p_args)
-		push_args_control(ptr, &control);
-	else
-		push_new_control(ptr, &control);
-
-	/* execute */
-	if (runcode_switch_execute(ptr, code))
-		return runcode_free(ptr, control);
-	else
-		return free_control_(ptr, control);
+	(void)runcode_execute_(ptr, code);
+	return pop_control_(ptr, control);
 }
 
 
 /*
  *  (call ...) execute
  */
-static int execute_no_control(Execute ptr, addr call)
+static int execute_no_control_(Execute ptr, addr call)
 {
 	addr value;
 
@@ -300,7 +223,7 @@ static int execute_no_control(Execute ptr, addr call)
 
 	/* interpreted function */
 	GetCodeFunction(call, &value);
-	return runcode_control(ptr, value);
+	return runcode_control_(ptr, value);
 }
 
 _g int execute_control(Execute ptr, addr call)
@@ -308,8 +231,8 @@ _g int execute_control(Execute ptr, addr call)
 	addr control;
 
 	push_args_control(ptr, &control);
-	Return(execute_no_control(ptr, call));
-	return free_control_(ptr, control);
+	execute_no_control_(ptr, call);
+	return pop_control_(ptr, control);
 }
 
 
@@ -326,7 +249,7 @@ static int checkargs_var_(Execute ptr, addr array, addr *args)
 			return fmte_("Too few argument.", NULL);
 		Return_getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		Return(typep_asterisk_error(ptr, value, type));
+		Return(call_typep_asterisk_error_(ptr, value, type));
 	}
 
 	return 0;
@@ -340,7 +263,7 @@ static int checkargs_opt_(Execute ptr, addr array, addr *args)
 	while (*args != Nil && array != Nil) {
 		Return_getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		Return(typep_asterisk_error(ptr, value, type));
+		Return(call_typep_asterisk_error_(ptr, value, type));
 	}
 
 	return 0;
@@ -410,12 +333,12 @@ static int checkargs_restkey_(Execute ptr, addr array, addr args)
 		Return_getcons(args, &value, &args);
 		/* &rest */
 		if (rest != Nil) {
-			Return(typep_asterisk_error(ptr, value, rest));
+			Return(call_typep_asterisk_error_(ptr, value, rest));
 		}
 		/* &key */
 		if (key != Nil) {
 			contargs_key(ptr, keyvalue, key, &type);
-			Return(typep_asterisk_error(ptr, value, type));
+			Return(call_typep_asterisk_error_(ptr, value, type));
 		}
 	}
 
@@ -469,7 +392,7 @@ static int checkargs_control_(Execute ptr, addr call, addr args)
 /*
  *  apply
  */
-static int apply_no_control(Execute ptr, addr call, addr list)
+static int apply_no_control_(Execute ptr, addr call, addr list)
 {
 	addr value;
 
@@ -497,16 +420,16 @@ static int apply_no_control(Execute ptr, addr call, addr list)
 
 	/* interpreted function */
 	GetCodeFunction(call, &value);
-	return runcode_control(ptr, value);
+	return runcode_control_(ptr, value);
 }
 
 _g int apply_control(Execute ptr, addr call, addr list)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(apply_no_control(ptr, call, list));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)apply_no_control_(ptr, call, list);
+	return pop_control_(ptr, control);
 }
 
 _g int applya_control(Execute ptr, addr call, ...)
@@ -514,13 +437,12 @@ _g int applya_control(Execute ptr, addr call, ...)
 	addr control, list;
 	va_list va;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	va_start(va, call);
 	lista_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	Return(apply_control(ptr, call, list));
-
-	return free_control_(ptr, control);
+	(void)apply_control(ptr, call, list);
+	return pop_control_(ptr, control);
 }
 
 _g int funcall_control(Execute ptr, addr call, ...)
@@ -528,13 +450,12 @@ _g int funcall_control(Execute ptr, addr call, ...)
 	addr control, list;
 	va_list va;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	va_start(va, call);
 	list_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	Return(apply_no_control(ptr, call, list));
-
-	return free_control_(ptr, control);
+	(void)apply_no_control_(ptr, call, list);
+	return pop_control_(ptr, control);
 }
 
 _g int call_control(Execute ptr, addr args)
@@ -570,16 +491,22 @@ static int callclang_function_(Execute ptr, addr *ret, addr call)
 	}
 }
 
+static int callclang_apply_no_control_(Execute ptr, addr call, addr list)
+{
+	Return(callclang_function_(ptr, &call, call));
+	return apply_no_control_(ptr, call, list);
+}
+
 _g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(callclang_function_(ptr, &call, call));
-	Return(apply_no_control(ptr, call, list));
+	push_control(ptr, &control);
+	(void)callclang_apply_no_control_(ptr, call, list);
+	Return(pop_control_(ptr, control));
 	getresult_control(ptr, ret);
 
-	return free_control_(ptr, control);
+	return 0;
 }
 
 _g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
@@ -587,15 +514,16 @@ _g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 	addr control, list;
 	va_list va;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	va_start(va, call);
 	lista_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	Return(callclang_function_(ptr, &call, call));
-	Return(apply_no_control(ptr, call, list));
+
+	(void)callclang_apply_no_control_(ptr, call, list);
+	Return(pop_control_(ptr, control));
 	getresult_control(ptr, ret);
 
-	return free_control_(ptr, control);
+	return 0;
 }
 
 _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
@@ -603,14 +531,15 @@ _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	addr control, list;
 	va_list va;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	va_start(va, call);
 	list_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	Return(callclang_function_(ptr, &call, call));
-	Return(apply_no_control(ptr, call, list));
+
+	(void)callclang_apply_no_control_(ptr, call, list);
+	Return(pop_control_(ptr, control));
 	getresult_control(ptr, ret);
 
-	return free_control_(ptr, control);
+	return 0;
 }
 

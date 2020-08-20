@@ -70,7 +70,7 @@ static int test_integerp(void)
 /*
  *  Main
  */
-static int testbreak_number(void)
+static int testcase_number(void)
 {
 	TestBreak(test_fixnump);
 	TestBreak(test_bignump);
@@ -79,31 +79,16 @@ static int testbreak_number(void)
 	return 0;
 }
 
+static void testinit_number(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_number(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_number();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(number);
 }
 

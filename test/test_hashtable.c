@@ -616,9 +616,7 @@ static void testinit_hashtable(Execute ptr)
 
 int test_hashtable(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_hashtable,
-			testcase_hashtable);
+	DegradeTitle;
+	return DegradeCode(hashtable);
 }
 

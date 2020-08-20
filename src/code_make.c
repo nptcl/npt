@@ -2024,7 +2024,7 @@ static int code_make_specialize_handler(LocalRoot local, addr code, addr scope)
 	code_queue_push_new(local, code);
 	code_make_specialize_allcons(local, code, args);
 	code_queue_pop(local, code, &args);
-	code_make_execute_switch(local, code, args);
+	code_make_execute_control(local, code, args);
 
 	return 1;
 }
@@ -2037,7 +2037,7 @@ static int code_make_specialize_restart(LocalRoot local, addr code, addr scope)
 	code_queue_push_new(local, code);
 	code_make_specialize_allcons(local, code, args);
 	code_queue_pop(local, code, &args);
-	code_make_execute_switch(local, code, args);
+	code_make_execute_control(local, code, args);
 
 	return 1;
 }

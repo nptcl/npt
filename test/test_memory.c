@@ -1624,7 +1624,7 @@ static int test_unboundarray(void)
  */
 int test_memory(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	/* memory */
 	TestBreak(test_GetType);

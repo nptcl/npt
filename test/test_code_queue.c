@@ -720,7 +720,7 @@ static int test_code_queue_pop(void)
 /*
  *  Main
  */
-static int testbreak_code_queue(void)
+static int testcase_code_queue(void)
 {
 	/* code_queue-stack */
 	TestBreak(test_alloc_code_stack);
@@ -761,52 +761,37 @@ static void test_build_eval_scope(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	init_eval_when(ptr);
+}
+
+static void testinit_code_queue(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+	build_code();
+	test_build_eval_scope();
 }
 #endif
 
 int test_code_queue(void)
 {
 #if 0
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		build_code();
-		test_build_eval_scope();
-		lisp_initialize = 1;
-		result = testbreak_code_queue();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(code_queue);
 #endif
 	return 0;
 }

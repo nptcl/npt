@@ -146,13 +146,9 @@ static void init_parse_eval_when(Execute ptr, addr toplevel)
 	push_execute_eval(ptr, T);
 }
 
-_g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
+static int eval_parse_call_(
+		Execute ptr, LocalHold hold, addr *ret, addr pos, addr toplevel)
 {
-	addr control;
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	init_parse_step(ptr);
 	init_parse_environment(ptr);
 	init_parse_load_time_value(ptr);
@@ -162,8 +158,21 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
 	localhold_set(hold, 0, pos);
 	Return(eval_parse_load_time_value(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);
-	Return(free_control_(ptr, control));
+
+	return Result(ret, pos);
+}
+
+_g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)eval_parse_call_(ptr, hold, &pos, pos, toplevel);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
+
 	return Result(ret, pos);
 }
 

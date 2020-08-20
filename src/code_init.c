@@ -38,8 +38,6 @@ _g void init_code_init(void)
 	initcode(execute_control_set_code, Addr);
 	initcode(execute_control_push_code, Addr);
 	initcode(execute_control_save_code, Addr);
-	initcode(execute_switch_set_code, Addr);
-	initcode(execute_switch_push_code, Addr);
 
 	/* object */
 	initcode(set_code, Addr);
@@ -189,8 +187,6 @@ _g void build_code_init(void)
 	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
 	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
 	defcode(EXECUTE_CONTROL_SAVE, execute_control_save_code);
-	defcode(EXECUTE_SWITCH_SET, execute_switch_set_code);
-	defcode(EXECUTE_SWITCH_PUSH, execute_switch_push_code);
 
 	/* object */
 	defcode(SET, set_code);

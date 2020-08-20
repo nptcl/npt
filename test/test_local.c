@@ -522,7 +522,7 @@ static int test_local_body(void)
  */
 int test_local(void)
 {
-	TITLE;
+	DegradeTitle;
 
 #ifndef LISP_MEMORY_MALLOC
 	TestBreak(test_lowlevel_unsafe);

@@ -306,7 +306,7 @@ static int test_alloc_heap(void)
  */
 int test_heap_memory(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	TestBreak(test_GcCheck);
 	TestBreak(test_allocfront_size);

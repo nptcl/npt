@@ -191,14 +191,11 @@ static int parse_make_load_lambda_(Execute ptr, addr pos, addr init, addr *ret)
 	return 0;
 }
 
-static int parse_make_load_form_generic(Execute ptr, addr pos, addr *ret1, addr *ret2)
+static int parse_make_load_form_generic_call_(
+		Execute ptr, LocalHold hold, addr pos, addr *rexpr, addr *rinit)
 {
-	addr control, call, expr, init;
-	LocalHold hold;
+	addr call, expr, init;
 
-	hold = LocalHold_array(ptr, 2);
-	/* (make-load-form clos) */
-	push_new_control(ptr, &control);
 	GetConst(COMMON_MAKE_LOAD_FORM, &call);
 	GetFunctionSymbol(call, &call);
 	Return(funcall_control(ptr, call, pos, NULL));
@@ -209,7 +206,23 @@ static int parse_make_load_form_generic(Execute ptr, addr pos, addr *ret1, addr 
 	if (init == Unbound)
 		init = Nil;
 	localhold_set(hold, 1, init);
-	Return(free_control_(ptr, control));
+
+	*rexpr = expr;
+	*rinit = init;
+	return 0;
+}
+
+static int parse_make_load_form_generic(Execute ptr, addr pos, addr *ret1, addr *ret2)
+{
+	addr control, expr, init;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 2);
+	/* (make-load-form clos) */
+	push_control(ptr, &control);
+	expr = init = Nil;
+	(void)parse_make_load_form_generic_call_(ptr, hold, pos, &expr, &init);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	*ret1 = expr;

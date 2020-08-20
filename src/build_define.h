@@ -16,8 +16,8 @@
 #define LispRoot(x)             (lisp_root[LISPINDEX_##x])
 #define SetLispRoot(x,y)		setlisproot(LISPINDEX_##x, (y));
 
-#define Abort(x)                {Debug(x); abortthis();}
-#define Abort2(x,y)             {Debug2(x,y); abortthis();}
+#define Abort(x)                {Debug(x); abort_execute();}
+#define Abort2(x,y)             {Debug2(x,y); abort_execute();}
 #define IfDebug(x,y)            {if (x) { Debug(y); return 1; }}
 #define CheckType(x,y)          Check(GetType(x) != (y), "type error")
 #define CheckType2(x,y,z)       Check(GetType(x) != (y), (z))

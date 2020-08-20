@@ -449,9 +449,9 @@ static int test_bigcons_char_local(void)
 
 
 /*
- *  Main
+ *  bignum_cons
  */
-static int testbreak_bignum_cons(void)
+static int testcase_bignum_cons(void)
 {
 	/* Bigcons */
 	TestBreak(test_bigbuffer_local);
@@ -468,31 +468,16 @@ static int testbreak_bignum_cons(void)
 	return 0;
 }
 
+static void testinit_bignum_cons(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_bignum_cons(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_bignum_cons();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(bignum_cons);
 }
 

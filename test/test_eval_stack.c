@@ -91,14 +91,14 @@ static int test_getstack_eval(void)
 	addr control, symbol, check;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	fixnum_heap(&check, 100);
 	getstack_symbol(&symbol);
 	pushspecial_control(ptr, symbol, check);
 
 	getstack_eval_(ptr, &symbol);
 	test(check == symbol, "getstack_eval1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -109,14 +109,14 @@ static int test_getglobal_eval(void)
 	addr control, symbol, check;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	fixnum_heap(&check, 100);
 	getglobal_symbol(&symbol);
 	pushspecial_control(ptr, symbol, check);
 
 	getglobal_eval_(ptr, &symbol);
 	test(check == symbol, "getglobal_eval1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -134,7 +134,7 @@ static int test_newstack_eval(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	temp_eval_stack(ptr);
 	newstack_eval_(ptr, EVAL_STACK_MODE_LAMBDA, &pos1);
 	getstack_eval_(ptr, &check);
@@ -147,7 +147,7 @@ static int test_newstack_eval(void)
 
 	getstack_symbol(&check);
 	setspecial_local(ptr, check, Nil);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -158,7 +158,7 @@ static int test_closestack_unsafe(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
 	temp_eval_stack(ptr);
 	newstack_nil_(ptr, &pos0);
@@ -180,7 +180,7 @@ static int test_closestack_unsafe(void)
 
 	getstack_symbol(&check);
 	setspecial_local(ptr, check, Nil);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -191,7 +191,7 @@ static int test_freestack_eval(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
 	temp_eval_stack(ptr);
 	newstack_lambda_(ptr, &pos0);
@@ -213,7 +213,7 @@ static int test_freestack_eval(void)
 
 	getstack_symbol(&check);
 	setspecial_local(ptr, check, Nil);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -224,7 +224,7 @@ static int test_begin_eval_stack(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
 	getglobal_symbol(&symbol1);
 	getstack_symbol(&symbol2);
@@ -243,7 +243,7 @@ static int test_begin_eval_stack(void)
 	setspecial_local(ptr, check, Nil);
 	getglobal_symbol(&check);
 	setspecial_local(ptr, check, Nil);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -254,8 +254,8 @@ static int test_free_eval_stack(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
-	push_new_control(ptr, &control2);
+	push_control(ptr, &control);
+	push_control(ptr, &control2);
 
 	getglobal_symbol(&symbol1);
 	getstack_symbol(&symbol2);
@@ -268,13 +268,13 @@ static int test_free_eval_stack(void)
 	newstack_lambda_(ptr, &check);
 	newstack_nil_(ptr, &check);
 	newstack_nil_(ptr, &check);
-	free_control_(ptr, control2);
+	pop_control_(ptr, control2);
 
 	getspecial_local(ptr, symbol1, &check);
 	test(check == Unbound,"free_eval_stack1");
 	getspecial_local(ptr, symbol2, &check);
 	test(check == Unbound,"free_eval_stack2");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -453,7 +453,7 @@ static int test_apply_declaim_stack(void)
 	const OptimizeType *optimize;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
 	readstring_debug(&pos,
@@ -523,7 +523,7 @@ static int test_apply_declaim_stack(void)
 	test(find_list_eq_unsafe(key, list), "apply_declaim_stack");
 
 	free_eval_stack(ptr);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -541,7 +541,7 @@ static int test_apply_declare_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
 	readstring_debug(&pos, "((special aa bb cc) "
@@ -609,7 +609,7 @@ static int test_apply_declare_stack(void)
 	test(value == constant, "apply_declare_stack21");
 
 	free_eval_stack(ptr);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -623,7 +623,7 @@ static int test_apply_pushsymbol_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
 	newstack_nil_(ptr, &stack);
@@ -647,7 +647,7 @@ static int test_apply_pushsymbol_stack(void)
 	test(list == symbol, "apply_pushsymbol_stack");
 
 	free_eval_stack(ptr);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -661,7 +661,7 @@ static int test_apply_plistsymbol_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
 	newstack_nil_(ptr, &stack);
@@ -688,7 +688,7 @@ static int test_apply_plistsymbol_stack(void)
 	test(list == symbol, "apply_plistsymbol_stack");
 
 	free_eval_stack(ptr);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -701,7 +701,7 @@ static int test_apply_declare_value_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
 	readstring_debug(&decl, "((special aa bb cc) (integer aa bb) "
@@ -741,7 +741,7 @@ static int test_apply_declare_value_stack(void)
 	test(constant == value, "apply_declare_value_stack14");
 
 	free_eval_stack(ptr);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -750,7 +750,7 @@ static int test_apply_declare_value_stack(void)
 /*
  *  Main
  */
-static int testbreak_eval_stack(void)
+static int testcase_eval_stack(void)
 {
 	/* memory */
 	TestBreak(test_eval_stack_alloc);
@@ -780,44 +780,29 @@ static int testbreak_eval_stack(void)
 	return 0;
 }
 
+static void testinit_eval_stack(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+	build_code();
+}
+
 int test_eval_stack(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_eval_stack();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(eval_stack);
 }
 

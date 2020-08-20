@@ -445,17 +445,14 @@ static int format_radix_parameter(fmtprint print, struct format_operator *str,
 	return format_write_margin_(print, pos, 1, mincol, 1, 0, padchar);
 }
 
-static int format_radix_integer(fmtprint print,
+static int format_radix_integer_call_(fmtprint print,
 		struct format_operator *str, unsigned radix)
 {
 	Execute ptr;
-	addr control;
 	fixnum mincol, range;
 	unicode padchar, comma;
 
-	Check(4 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/*
 	 *  (let ((*print-escape* nil)
 	 *        (*print-radix* nil)
@@ -478,42 +475,51 @@ static int format_radix_integer(fmtprint print,
 				"The parameter must be greate than 1.", NULL);
 	}
 
-	Return(format_radix_parameter(print, str, radix, mincol, padchar, range, comma));
-	return free_control_(ptr, control);
+	return format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
+}
+
+static int format_radix_integer_(fmtprint print,
+		struct format_operator *str, unsigned radix)
+{
+	Execute ptr;
+	addr control;
+
+	Check(4 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_radix_integer_call_(print, str, radix);
+	return pop_control_(ptr, control);
 }
 
 static int format_call_Binary(fmtprint print, struct format_operator *str)
 {
-	return format_radix_integer(print, str, 2);
+	return format_radix_integer_(print, str, 2);
 }
 static int format_call_Octal(fmtprint print, struct format_operator *str)
 {
-	return format_radix_integer(print, str, 8);
+	return format_radix_integer_(print, str, 8);
 }
 static int format_call_Decimal(fmtprint print, struct format_operator *str)
 {
-	return format_radix_integer(print, str, 10);
+	return format_radix_integer_(print, str, 10);
 }
 static int format_call_Hexadecimal(fmtprint print, struct format_operator *str)
 {
-	return format_radix_integer(print, str, 16);
+	return format_radix_integer_(print, str, 16);
 }
 
 
 /*
  *  Radix
  */
-static int format_call_Radix(fmtprint print, struct format_operator *str)
+static int format_call_Radix_call_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
-	addr control;
 	fixnum mincol, range;
 	unicode padchar, comma;
 	unsigned radix;
 
-	Check(5 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/*
 	 *  (let ((*print-escape* nil)
 	 *        (*print-radix* nil)
@@ -543,9 +549,20 @@ static int format_call_Radix(fmtprint print, struct format_operator *str)
 		return fmtargs_abort_(print, str, 4,
 				"The parameter must be greater than 1.", NULL);
 	}
-	format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
 
-	return free_control_(ptr, control);
+	return format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
+}
+
+static int format_call_Radix(fmtprint print, struct format_operator *str)
+{
+	Execute ptr;
+	addr control;
+
+	Check(5 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_Radix_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -588,14 +605,12 @@ static int format_call_RadixText_english_(fmtprint print,
 	return fmtprint_stream_output_(print);
 }
 
-static int format_call_RadixText(fmtprint print, struct format_operator *str)
+static int format_call_RadixText_call_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
-	addr control, pos;
+	addr pos;
 
-	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/*
 	 *  (let ((*print-escape* nil)
 	 *        (*print-radix* nil)
@@ -607,14 +622,22 @@ static int format_call_RadixText(fmtprint print, struct format_operator *str)
 	push_base_print(ptr, 10);
 	/* output */
 	Return(fmtprint_pop_(print, str, &pos));
-	if (str->atsign) {
-		Return(format_call_RadixText_roma_(print, str, pos));
-	}
-	else {
-		Return(format_call_RadixText_english_(print, str, pos));
-	}
+	if (str->atsign)
+		return format_call_RadixText_roma_(print, str, pos);
+	else
+		return format_call_RadixText_english_(print, str, pos);
+}
 
-	return free_control_(ptr, control);
+static int format_call_RadixText(fmtprint print, struct format_operator *str)
+{
+	Execute ptr;
+	addr control;
+
+	Check(0 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_RadixText_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -902,21 +925,30 @@ static int format_fixed_float_(fmtprint print,
 	}
 }
 
-static int format_call_Fixed(fmtprint print, struct format_operator *str)
+static int format_call_Fixed_call_(fmtprint print, struct format_operator *str)
 {
-	addr control;
 	Execute ptr;
 	struct fmtfloat_struct ff;
 
-	Check(5 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_fixed_argument_(print, str, &ff));
 	Return(format_fixed_float_(print, str, &ff));
 
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int format_call_Fixed(fmtprint print, struct format_operator *str)
+{
+	addr control;
+	Execute ptr;
+
+	Check(5 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_Fixed_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -1101,15 +1133,13 @@ static int format_exponent_float_(fmtprint print,
 	}
 }
 
-static int format_call_Exponential(fmtprint print, struct format_operator *str)
+static int format_call_Exponential_call_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
-	addr control, pos;
+	addr pos;
 	struct fmtfloat_struct ff;
 
-	Check(7 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_exponent_argument_(print, str, &ff));
@@ -1117,7 +1147,19 @@ static int format_call_Exponential(fmtprint print, struct format_operator *str)
 	Return(fmtfloat_marker_(print, str, &ff, pos));
 	Return(format_exponent_float_(print, str, &ff, pos));
 
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int format_call_Exponential(fmtprint print, struct format_operator *str)
+{
+	Execute ptr;
+	addr control;
+
+	Check(7 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_Exponential_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -1265,15 +1307,13 @@ static int format_general_float_(fmtprint print,
 	}
 }
 
-static int format_call_General(fmtprint print, struct format_operator *str)
+static int format_call_General_call_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
-	addr control, pos;
+	addr pos;
 	struct fmtfloat_struct ff;
 
-	Check(7 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_general_argument_(print, str, &ff));
@@ -1281,7 +1321,19 @@ static int format_call_General(fmtprint print, struct format_operator *str)
 	Return(fmtfloat_marker_(print, str, &ff, pos));
 	Return(format_general_float_(print, str, &ff, pos));
 
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int format_call_General(fmtprint print, struct format_operator *str)
+{
+	Execute ptr;
+	addr control;
+
+	Check(7 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_General_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -1429,20 +1481,29 @@ static int format_monetary_argument_(fmtprint print,
 	return 0;
 }
 
-static int format_call_Monetary(fmtprint print, struct format_operator *str)
+static int format_call_Monetary_call_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
-	addr control;
 	struct fmtfloat_struct ff;
 
-	Check(4 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_monetary_argument_(print, str, &ff));
 	Return(format_monetary_float_(print, str, &ff));
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int format_call_Monetary(fmtprint print, struct format_operator *str)
+{
+	Execute ptr;
+	addr control;
+
+	Check(4 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_Monetary_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -1783,14 +1844,12 @@ static int format_call_ConditionalNewline(fmtprint print, struct format_operator
 /*
  *  Write
  */
-static int format_call_Write(fmtprint print, struct format_operator *str)
+static int format_call_Write_call_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
-	addr control, pos, stream;
+	addr pos, stream;
 
-	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
 	if (str->colon) {
 		push_pretty_print(ptr, 1);
 	}
@@ -1803,7 +1862,19 @@ static int format_call_Write(fmtprint print, struct format_operator *str)
 	Return(write_print(ptr, stream, pos));
 	Return(fmtprint_stream_output_(print));
 
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int format_call_Write(fmtprint print, struct format_operator *str)
+{
+	Execute ptr;
+	addr control;
+
+	Check(0 < str->args_size, "size error");
+	ptr = print->ptr;
+	push_control(ptr, &control);
+	(void)format_call_Write_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 
@@ -2958,21 +3029,27 @@ static int format_logicalblock2(Execute ptr)
 	return fmtcall(&print, NULL);
 }
 
+static int format_logicalblock1_call_(Execute ptr, addr pretty, addr stream)
+{
+	addr gensym;
+
+	setprotect_control(ptr, p_pprint_logical_block_close, stream);
+	Return(gensym_pretty_stream_(stream, &gensym));
+	return catch_clang(ptr, p_format_logicalblock2, gensym, pretty);
+}
+
 static int format_logicalblock1(Execute ptr)
 {
-	addr pretty, stream, control, gensym;
+	addr pretty, stream, control;
 
 	/* stream */
 	getdata_control(ptr, &pretty);
 	getstream_format_pretty(pretty, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_new_control(ptr, &control);
-	setprotect_control(ptr, p_pprint_logical_block_close, stream);
-	/* code */
-	Return(gensym_pretty_stream_(stream, &gensym));
-	Return(catch_clang(ptr, p_format_logicalblock2, gensym, pretty));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)format_logicalblock1_call_(ptr, pretty, stream);
+	return pop_control_(ptr, control);
 }
 
 static int format_make_strvect_alloc_(LocalRoot local,
@@ -3122,6 +3199,14 @@ static int format_call_LogicalBlock_call2_(fmtprint print, struct format_operato
 	return fmtprint_clear_(print);
 }
 
+static int format_call_LogicalBlock_call_(fmtprint print, struct format_operator *str)
+{
+	if (str->atsign == 0)
+		return format_call_LogicalBlock_call1_(print, str);
+	else
+		return format_call_LogicalBlock_call2_(print, str);
+}
+
 static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
@@ -3129,15 +3214,9 @@ static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
 
 	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_new_control(ptr, &control);
-	if (str->atsign == 0) {
-		Return(format_call_LogicalBlock_call1_(print, str));
-	}
-	else {
-		Return(format_call_LogicalBlock_call2_(print, str));
-	}
-
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)format_call_LogicalBlock_call_(print, str);
+	return pop_control_(ptr, control);
 }
 
 

@@ -159,9 +159,7 @@ static void testinit_sort(Execute ptr)
 
 int test_sort(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_sort,
-			testcase_sort);
+	DegradeTitle;
+	return DegradeCode(sort);
 }
 

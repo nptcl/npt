@@ -282,7 +282,7 @@ static void defun_delete_file(void)
 /* (defun file-error-pathname (condition) ...) -> pathname-designer */
 static int function_file_error_pathname(Execute ptr, addr var)
 {
-	file_error_pathname(var, &var);
+	Return(file_error_pathname_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

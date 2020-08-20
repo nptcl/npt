@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "alloc.h"
 #include "build.h"
 #include "define.h"
@@ -9,6 +7,7 @@
 #include "memory.h"
 #include "thread.h"
 
+/* constant */
 #ifdef LISP_DEBUG
 #define EXECUTE_SIZE      2
 #define EXECUTE_PLUS      3
@@ -38,7 +37,7 @@ size_t *Degrade_execute_Position(void) { return &ExecutePosition; }
 
 
 /*
- *  execute
+ *  Thread
  */
 static void init_execute_local(void)
 {
@@ -435,157 +434,16 @@ _g struct execute *getexecute(size_t index)
 	return result;
 }
 
-_g void exitexecute(struct execute *ptr, lispcode code)
-{
-	if (ptr == NULL || (! ptr->jump)) {
-		Debug("exitexecute error");
-		exitindex(0, LISPCODE_ABORT);
-	}
-	exit_code(ptr, code);
-}
-
-_g void exitindex(size_t index, lispcode code)
-{
-	struct execute *ptr;
-
-	ptr = getexecute(index);
-	if (ptr == NULL) {
-		Debug("getexecute error");
-		abortindex(0);
-		return;
-	}
-	exitexecute(ptr, code);
-}
-
-_g void abortexecute(struct execute *ptr)
-{
-	if (ptr == NULL || (! ptr->jump)) {
-		if (ptr == NULL || ptr->index == 0) {
-			Debug("abort.");
-			exit(1);
-		}
-		else {
-			abortindex(0);
-		}
-	}
-	ptr->abort = 1;
-	exitexecute(ptr, LISPCODE_ABORT);
-}
-
-_g void abortindex(size_t index)
-{
-	struct execute *ptr;
-
-	ptr = getexecute(index);
-	if (ptr == NULL) {
-		Debug("getexecute error");
-		if (index == 0) {
-			Debug("abort.");
-			exit(1);
-		}
-		else {
-			abortindex(0);
-		}
-		return;
-	}
-	abortexecute(ptr);
-}
-
-
-/*
- *  codejump
- */
-_g int begin_setjmp_check(Execute ptr, lispcode *code)
-{
-	if (ptr->jump) {
-		*code = LISPCODE_CONFLICT;
-		return 0;
-	}
-	else {
-		ptr->jump = 1;
-		return 1;
-	}
-}
-
-_g void end_setjmp(Execute ptr)
-{
-	ptr->jump = 0;
-	ClearJmpBuf(ptr->exec);
-}
-_g void end_code_thread(void)
-{
-	end_setjmp(Execute_Thread);
-}
-
-_g int code_run_p(lispcode code)
-{
-	return code == LISPCODE_EXECUTE;
-}
-_g int code_end_p(lispcode code)
-{
-	return code == LISPCODE_SUCCESS;
-}
-_g int code_error_p(lispcode code)
-{
-	return code >= LISPCODE_ERROR;
-}
-
-_g void begin_switch_check(Execute ptr, codejump *code)
-{
-	Check(! ptr->jump, "begin_switch error");
-	code->ptr = ptr;
-	CopyJmpBuf(&(code->jump), ptr->exec);
-}
-
-_g void end_switch(codejump *code)
-{
-	Execute ptr = code->ptr;
-	CopyJmpBuf(ptr->exec, &(code->jump));
-}
-
-_g int codejump_run_p(codejump *code)
-{
-	return code_run_p(code->code);
-}
-_g int codejump_end_p(codejump *code)
-{
-	return code_end_p(code->code);
-}
-_g int codejump_error_p(codejump *code)
-{
-	return code_error_p(code->code);
-}
-
-_g int codejump_control_p(codejump *code)
-{
-	return code_error_p(code->code) && (code->code != LISPCODE_CONTROL);
-}
-
-_g void exit_code(Execute ptr, lispcode code)
-{
-	longjmp(*(ptr->exec), code);
-}
-
-_g void break_code(Execute ptr)
-{
-	exit_code(ptr, LISPCODE_SUCCESS);
-}
-
-_g void throw_code(Execute ptr, lispcode code)
-{
-	if (code_error_p(code))
-		exit_code(ptr, code);
-}
-_g void throw_switch(codejump *code)
-{
-	throw_code(code->ptr, code->code);
-}
 _g int equal_control_restart(Execute ptr, addr control)
 {
-	addr left;
+	return ptr->throw_value == throw_restart_case
+		&& ptr->throw_control == control;
+}
 
-	left = ptr->throw_control;
-	return left && left == control;
+_g int equal_control_catch(Execute ptr, addr symbol)
+{
+	return ptr->throw_value == throw_catch
+		&& ptr->throw_handler == symbol;
 }
 
 
@@ -668,18 +526,5 @@ _g int foreach_check_execute(int (*call)(struct execute *))
 	}
 
 	return 0;
-}
-
-
-/*
- *  exit
- */
-_g void exit_execute(int value)
-{
-	Execute ptr;
-
-	ptr = getexecute(0);
-	ptr->result = value;
-	exitexecute(ptr, LISPCODE_EXIT);
 }
 

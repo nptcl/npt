@@ -36,9 +36,8 @@ static void test_eval_copy_ordinary(addr *ret, addr pos)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
-	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_compile_time_eval(ptr, Nil);
 	push_compile_toplevel_eval(ptr, Nil);
@@ -47,7 +46,7 @@ static void test_eval_copy_ordinary(addr *ret, addr pos)
 	init_parse_step(ptr);
 
 	parse_ordinary_(ptr, ret, pos);
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 }
 
 
@@ -1077,7 +1076,7 @@ static int test_copy_multiple_value_call(void)
 /*
  *  Main
  */
-static int testbreak_eval_copy(void)
+static int testcase_eval_copy(void)
 {
 	Error(in_package_lisp_package_());
 	/* copy eval-parse */
@@ -1124,44 +1123,29 @@ static int testbreak_eval_copy(void)
 	return 0;
 }
 
+static void testinit_eval_copy(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+	build_code();
+}
+
 int test_eval_copy(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_eval_copy();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(eval_copy);
 }
 

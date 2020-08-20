@@ -16,6 +16,15 @@
 /*
  *  execute
  */
+enum throw_type {
+	throw_normal,
+	throw_tagbody,
+	throw_block,
+	throw_catch,
+	throw_handler_case,
+	throw_restart_case
+};
+
 enum ThreadState {
 	ThreadState_Empty = 0,
 	ThreadState_Run,
@@ -45,7 +54,9 @@ struct execute {
 	addr lexical_vector, *lexical_reader;
 
 	/* runcode */
+	enum throw_type throw_value;
 	size_t throw_point;
+	addr throw_handler;
 	addr throw_control;
 
 	/* thread info */
@@ -60,12 +71,13 @@ struct execute {
 };
 typedef struct execute *Execute;
 
-struct CodeJump {
-	Execute ptr;
-	lispcode code;
-	jmp_buf jump;
+struct execute_throw {
+	unsigned throw_point_p   : 1;
+	enum throw_type throw_value;
+	size_t throw_point;
+	addr throw_handler;
+	addr throw_control;
 };
-typedef struct CodeJump codejump;
 
 
 /*

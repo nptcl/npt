@@ -385,7 +385,7 @@ static int type_symbol_number(void)
 /*
  *  main
  */
-static int testbreak_type_symbol(void)
+static int testcase_type_symbol(void)
 {
 	TestBreak(test_find_symbol_type);
 	TestBreak(test_getdeclname);
@@ -400,41 +400,27 @@ static int testbreak_type_symbol(void)
 	return 0;
 }
 
+static void testinit_type_symbol(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_code();
+}
+
 int test_type_symbol(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_type_symbol();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(type_symbol);
 }
 

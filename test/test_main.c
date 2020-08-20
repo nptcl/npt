@@ -480,7 +480,7 @@ static int test_make_envarray(void)
 /*
  *  main
  */
-static int testbreak_main(void)
+static int testcase_main(void)
 {
 #if 0
 	TestBreak(test_make_unimem);
@@ -511,29 +511,14 @@ static int testbreak_main(void)
 	return 0;
 }
 
+static void testinit_main(Execute ptr)
+{
+	buildlisp(ptr);
+}
+
 int test_main(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		buildlisp(ptr);
-		lisp_initialize = 1;
-		result = testbreak_main();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(main);
 }
 

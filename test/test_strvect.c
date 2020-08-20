@@ -573,9 +573,7 @@ static void testinit_strvect(Execute ptr)
 
 int test_strvect(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_strvect,
-			testcase_strvect);
+	DegradeTitle;
+	return DegradeCode(strvect);
 }
 

@@ -347,14 +347,9 @@ _g int readtype_readtable_(addr pos, unicode c, addr *ret)
 	return 0;
 }
 
-static int macro_character_call(Execute ptr, int *result, addr *ret,
-		addr call, addr stream, addr code)
+static int macro_character_call_call_(Execute ptr, LocalHold hold,
+		int *result, addr *ret, addr call, addr stream, addr code)
 {
-	addr control;
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	Return(funcall_control(ptr, call, stream, code, NULL));
 	if (lengthvalues_control(ptr) == 0) {
 		*result = 0;
@@ -364,7 +359,20 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 		localhold_set(hold, 0, *ret);
 		*result = 1;
 	}
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+static int macro_character_call(Execute ptr, int *result, addr *ret,
+		addr call, addr stream, addr code)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)macro_character_call_call_(ptr, hold, result, ret, call, stream, code);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

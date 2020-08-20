@@ -148,9 +148,7 @@ static void testinit_sequence(Execute ptr)
 
 int test_sequence(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_sequence,
-			testcase_sequence);
+	DegradeTitle;
+	return DegradeCode(sequence);
 }
 

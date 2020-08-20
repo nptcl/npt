@@ -502,7 +502,7 @@ static int test_ComparePointer(void)
  */
 int test_alloc(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	TestBreak(test_CopyJmpBuf);
 	TestBreak(test_WtType);

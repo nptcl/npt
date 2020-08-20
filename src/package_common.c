@@ -274,17 +274,13 @@ static int function_defpackage_make(Execute ptr, addr condition)
 	getdata_control(ptr, &pos);
 	Return(delete_package_(pos, &check));
 	/* throw */
-	error_function(condition);
-
-	return 0;
+	return error_function_(ptr, condition);
 }
 
-static int defpackage_make(Execute ptr, addr pos, addr rest)
+static int defpackage_make_call_(Execute ptr, addr pos, addr rest)
 {
-	addr control, symbol, call;
+	addr symbol, call;
 
-	/* push */
-	push_new_control(ptr, &control);
 	/* handler-case */
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);
@@ -292,9 +288,16 @@ static int defpackage_make(Execute ptr, addr pos, addr rest)
 	SetDataFunction(call, pos);
 	Return(pushhandler_common_(ptr, symbol, call, 0));
 	/* code */
-	Return(defpackage_update_(ptr->local, pos, rest));
-	/* free */
-	return free_control_(ptr, control);
+	return defpackage_update_(ptr->local, pos, rest);
+}
+
+static int defpackage_make(Execute ptr, addr pos, addr rest)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)defpackage_make_call_(ptr, pos, rest);
+	return pop_control_(ptr, control);
 }
 
 static int resize_pacakge_(addr pos, size_t size)

@@ -546,7 +546,7 @@ static int test_range_connect_between_right(void)
 /*
  *  main
  */
-static int testbreak_type_range(void)
+static int testcase_type_range(void)
 {
 	TestBreak(test_range_asterisk_p);
 	TestBreak(test_range_left_p);
@@ -586,40 +586,26 @@ static int testbreak_type_range(void)
 	return 0;
 }
 
+static void testinit_type_range(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+}
+
 int test_type_range(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		lisp_initialize = 1;
-		result = testbreak_type_range();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(type_range);
 }
 

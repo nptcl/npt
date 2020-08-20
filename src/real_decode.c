@@ -17,7 +17,7 @@
 #include "real_decode.h"
 
 #define real_decode_inexact_(ptr, x,y) \
-	call_floating_point_inexact_va_(ptr, CONSTANT_COMMON_##x, (y), NULL)
+	call_float_inexact_va_(ptr, CONSTANT_COMMON_##x, (y), NULL)
 
 /*
  *  decode-float

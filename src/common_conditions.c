@@ -11,7 +11,7 @@
 /* (defun cell-error-name (condition) ...) -> t */
 static int function_cell_error_name(Execute ptr, addr var)
 {
-	cell_error_name(var, &var);
+	Return(cell_error_name_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -258,7 +258,7 @@ static void defun_signal(void)
 /* (defun defun-simple-condition-format-control (condition) ...) -> t */
 static int function_simple_condition_format_control(Execute ptr, addr var)
 {
-	simple_condition_format_control(var, &var);
+	Return(simple_condition_format_control_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -292,7 +292,7 @@ static void defun_simple_condition_format_control(void)
 /* (defun simple-condition-format-arguments (conditino) ...) -> list */
 static int function_simple_condition_format_arguments(Execute ptr, addr var)
 {
-	simple_condition_format_arguments(var, &var);
+	Return(simple_condition_format_arguments_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

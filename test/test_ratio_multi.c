@@ -2717,7 +2717,7 @@ static int test_div_rr_real_common(void)
 /*
  *  Main
  */
-static int testbreak_ratio_multi(void)
+static int testcase_ratio_multi(void)
 {
 	TestBreak(test_equal_rv_nosign);
 	TestBreak(test_multi_rv_ratio);
@@ -2786,31 +2786,16 @@ static int testbreak_ratio_multi(void)
 	return 0;
 }
 
+static void testinit_ratio_multi(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_ratio_multi(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_ratio_multi();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(ratio_multi);
 }
 

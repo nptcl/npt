@@ -162,15 +162,16 @@ static int function_finalize_delay_warning(Execute ptr)
 	return 0;
 }
 
-_g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
+static int with_compilation_unit_call_(Execute ptr, addr call)
 {
-	addr control, restart, pos;
+	Return(handler_delay_warning_(ptr));
+	return funcall_control(ptr, call, NULL);
+}
 
-	if (! with_compilation_unit_override(ptr, over))
-		return funcall_control(ptr, call, NULL);
+static int with_compilation_unit_special_(Execute ptr, addr call)
+{
+	addr control, pos;
 
-	/* unwind-protect */
-	push_new_control(ptr, &control);
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);
 	pushspecial_control(ptr, pos, Nil);
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
@@ -178,13 +179,22 @@ _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr cal
 	setprotect_control(ptr, p_defun_finalize_delay_warning, Nil);
 
 	/* push control */
-	push_new_control(ptr, &restart);
-	Return(handler_delay_warning_(ptr));
+	push_control(ptr, &control);
+	(void)with_compilation_unit_call_(ptr, call);
+	return pop_control_(ptr, control);
+}
 
-	/* funcall */
-	Return(funcall_control(ptr, call, NULL));
-	Return(free_control_(ptr, restart));
-	return free_control_(ptr, control);
+_g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
+{
+	addr control;
+
+	if (! with_compilation_unit_override(ptr, over))
+		return funcall_control(ptr, call, NULL);
+
+	/* unwind-protect */
+	push_control(ptr, &control);
+	(void)with_compilation_unit_special_(ptr, call);
+	return pop_control_(ptr, control);
 }
 
 

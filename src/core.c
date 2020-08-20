@@ -155,14 +155,15 @@ _g int savecore_execute_(Execute ptr, addr file)
 		return fmte_("Thread Index must be 0.", NULL);
 	if (count_execute() != 1)
 		return fmte_("Any child thread must be destroyed.", NULL);
+	/* (setq system::*savecore* file) */
 	Return(pathname_designer_heap_(ptr, file, &file));
 	Return(name_pathname_heap_(ptr, file, &file));
 	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
 	setspecial_symbol(symbol);
 	SetValueSymbol(symbol, file);
-	exitthis(LISPCODE_SAVECORE);
 
-	return 0;
+	/* invoke */
+	return call_savecore_condition_(ptr, file);
 }
 
 static void save_core_stream(Execute ptr, struct filememory *fm)
@@ -187,25 +188,15 @@ static void save_core_result(Execute ptr)
 	format_stdout(ptr, "~&Core file: ~A~%", pos, NULL);
 }
 
-static int open_corefile(Execute ptr, struct filememory *fm)
+static void open_corefile(Execute ptr, struct filememory *fm)
 {
-	lispcode code;
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code))
-		save_core_stream(ptr, fm);
-	end_setjmp(ptr);
+	save_core_stream(ptr, fm);
 	rollback_local(local, stack);
-	if (code_error_p(code)) {
-		Debug("save_core error, interrupt.");
-		return 1;
-	}
-
-	return 0;
 }
 
 _g int save_core(Execute ptr)
@@ -213,10 +204,7 @@ _g int save_core(Execute ptr)
 	struct filememory fm;
 
 	/* open file */
-	if (open_corefile(ptr, &fm)) {
-		Debug("open_corefile error.");
-		return 1;
-	}
+	open_corefile(ptr, &fm);
 
 	/* write file */
 	gcexec(GcMode_Full);

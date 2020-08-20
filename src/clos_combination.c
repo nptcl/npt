@@ -461,17 +461,25 @@ static int qualifiers_equal_list(addr left, addr right)
 	return qualifiers_equal_list(left2, right2);
 }
 
-static int qualifiers_equal_symbol_(Execute ptr, addr left, addr right, int *ret)
+static int qualifiers_equal_symbol_call_(Execute ptr, addr left, addr right, int *ret)
 {
-	addr control, call;
+	addr call;
 
-	push_new_control(ptr, &control);
 	conscar_local(ptr->local, &left, left);
 	Return(getfunction_global_(right, &call));
 	Return(apply_control(ptr, call, left));
 	getresult_control(ptr, &left);
 	*ret = left != Nil;
-	return free_control_(ptr, control);
+
+	return 0;
+}
+
+static int qualifiers_equal_symbol_(Execute ptr, addr left, addr right, int *ret)
+{
+	addr control;
+	push_control(ptr, &control);
+	(void)qualifiers_equal_symbol_call_(ptr, left, right, ret);
+	return pop_control_(ptr, control);
 }
 
 static int qualifiers_equal_(Execute ptr, addr left, addr right, int *ret)
@@ -1278,20 +1286,40 @@ static int comb_longform_arguments_(addr *ret, addr args, addr comb, addr form)
 	return 0;
 }
 
-_g int comb_longform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+static int comb_longform_call_(Execute ptr, LocalHold hold,
+		addr gen, addr comb, addr data, addr *ret)
 {
-	addr control, pos, args;
-	LocalHold hold;
+	addr pos;
 
-	/* execute */
 	Return(stdget_longcomb_form_(comb, &pos));
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	Return(funcall_control(ptr, pos, gen, comb, data, NULL));
 	getresult_control(ptr, &pos);
 	localhold_set(hold, 0, pos);
-	Return(free_control_(ptr, control));
+
+	return Result(ret, pos);
+}
+
+static int comb_longform_push_(Execute ptr, addr gen, addr comb, addr data, addr *ret)
+{
+	addr control, pos;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	pos = Nil;
+	(void)comb_longform_call_(ptr, hold, gen, comb, data, &pos);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
+
+	return Result(ret, pos);
+}
+
+_g int comb_longform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+{
+	addr pos, args;
+
+	/* execute */
+	Return(comb_longform_push_(ptr, gen, comb, data, &pos));
 
 	/* make-form */
 	make_symbolchar(&args, "ARGS");

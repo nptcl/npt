@@ -144,7 +144,7 @@ static int test_type_name_call(void)
 /*
  *  main
  */
-static int testbreak_type_name(void)
+static int testcase_type_name(void)
 {
 	TestBreak(test_type_name_clos);
 	TestBreak(test_type_name_symbol);
@@ -155,42 +155,28 @@ static int testbreak_type_name(void)
 	return 0;
 }
 
+static void testinit_type_name(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+}
+
 int test_type_name(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		lisp_initialize = 1;
-		result = testbreak_type_name();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(type_name);
 }
 

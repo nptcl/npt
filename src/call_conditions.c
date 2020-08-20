@@ -324,9 +324,9 @@ static int cerror_restart_common(Execute ptr, addr restart, addr datum)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(restart1_control(ptr, restart, invoke_debugger, datum));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)restart1_control(ptr, restart, invoke_debugger, datum);
+	return pop_control_(ptr, control);
 }
 
 _g int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
@@ -337,7 +337,7 @@ _g int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
 	/* signal */
 	if (stringp(datum)) {
 		/* string -> simple-condition */
-		instance_simple_error(&datum, datum, rest);
+		Return(instance_simple_error_(&datum, datum, rest));
 	}
 	else {
 		Return(error_datum_common(ptr, datum, rest, &datum));
@@ -528,7 +528,7 @@ _g int invalid_method_error_common(Execute ptr, addr method, addr format, addr a
 
 	strvect_char_heap(&control, "Method error: ~S~%~?");
 	list_heap(&arguments, method, format, args, NULL);
-	instance_simple_error(&pos, control, arguments);
+	Return(instance_simple_error_(&pos, control, arguments));
 	return error_function_(ptr, pos);
 }
 
@@ -542,7 +542,7 @@ _g int method_combination_error_common(Execute ptr, addr format, addr args)
 
 	strvect_char_heap(&control, "Method-combination error:~%~?");
 	list_heap(&arguments, format, args, NULL);
-	instance_simple_error(&pos, control, arguments);
+	Return(instance_simple_error_(&pos, control, arguments));
 	return error_function_(ptr, pos);
 }
 
@@ -554,7 +554,7 @@ _g int signal_common(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-condition */
-		instance_simple_condition(&datum, datum, rest);
+		Return(instance_simple_condition_(&datum, datum, rest));
 	}
 	else {
 		Return(error_datum_common(ptr, datum, rest, &datum));
@@ -570,7 +570,7 @@ _g int warn_common(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-warning */
-		instance_simple_warning(&datum, datum, rest);
+		Return(instance_simple_warning_(&datum, datum, rest));
 	}
 	else {
 		Return(error_datum_common(ptr, datum, rest, &datum));
@@ -596,7 +596,7 @@ static int break_invoke_common(Execute ptr, addr format, addr args)
 
 	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
-	instance_simple_condition(&condition, format, args);
+	Return(instance_simple_condition_(&condition, format, args));
 
 	hold = LocalHold_local_push(ptr, condition);
 	Return(invoke_debugger(ptr, condition));
@@ -609,9 +609,9 @@ static int break_restart_common(Execute ptr, addr restart, addr format, addr arg
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(restart2_control(ptr, restart, break_invoke_common, format, args));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)restart2_control(ptr, restart, break_invoke_common, format, args);
+	return pop_control_(ptr, control);
 }
 
 static void break_make_common(addr *ret)

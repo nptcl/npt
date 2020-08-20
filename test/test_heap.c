@@ -308,7 +308,7 @@ static int test_heap_body(void)
  */
 int test_heap(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	TestBreak(test_heap_cons);
 	TestBreak(test_heap_symbol);

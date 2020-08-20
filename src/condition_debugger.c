@@ -38,8 +38,8 @@ static int function_handler_warning(Execute ptr, addr condition)
 	GetConst(CONDITION_SIMPLE_WARNING, &pos);
 	Return(clos_subtype_p_(condition, pos, &check));
 	if (check) {
-		simple_condition_format_control(condition, &format);
-		simple_condition_format_arguments(condition, &args);
+		Return(simple_condition_format_control_(condition, &format));
+		Return(simple_condition_format_arguments_(condition, &args));
 		Return(format_stream(ptr, stream, "~&WARNING: ", NULL));
 		Return(format_lisp(ptr, stream, format, args, &args));
 		Return(fresh_line_stream_(stream, NULL));
@@ -65,9 +65,9 @@ _g int handler_warning_(Execute ptr)
 /*
  *  (handler-case
  *    ...
- *    ((system::savecore #'function-handler-savecore)))
+ *    ((system::savecore #'function-handler-empty)))
  */
-static int function_handler_savecore(Execute ptr, addr condition)
+static int function_handler_empty(Execute ptr, addr condition)
 {
 	/* do-nothing */
 	return 0;
@@ -79,7 +79,23 @@ _g int handler_savecore_(Execute ptr)
 
 	GetConst(CONDITION_SAVECORE, &pos);
 	compiled_local(ptr->local, &call, Nil);
-	setcompiled_var1(call, p_defun_handler_savecore);
+	setcompiled_var1(call, p_defun_handler_empty);
+	return pushhandler_common_(ptr, pos, call, 1);
+}
+
+
+/*
+ *  (handler-case
+ *    ...
+ *    ((system::exit #'function-handler-empty)))
+ */
+_g int handler_exit_(Execute ptr)
+{
+	addr pos, call;
+
+	GetConst(CONDITION_EXIT, &pos);
+	compiled_local(ptr->local, &call, Nil);
+	setcompiled_var1(call, p_defun_handler_empty);
 	return pushhandler_common_(ptr, pos, call, 1);
 }
 
@@ -89,13 +105,13 @@ _g int handler_savecore_(Execute ptr)
  */
 static int output_unbound_variable_(Execute ptr, addr stream, addr condition)
 {
-	cell_error_name(condition, &condition);
+	Return(cell_error_name_(condition, &condition));
 	return format_stream(ptr, stream, "Unbound variable ~S.~%", condition, NULL);
 }
 
 static int output_undefined_function_(Execute ptr, addr stream, addr condition)
 {
-	cell_error_name(condition, &condition);
+	Return(cell_error_name_(condition, &condition));
 	return format_stream(ptr, stream, "Undefined function ~S.~%", condition, NULL);
 }
 
@@ -103,7 +119,7 @@ static int output_simple_error_(Execute ptr, addr stream, addr condition)
 {
 	addr control, arguments;
 
-	simple_condition_format(condition, &control, &arguments);
+	Return(simple_condition_format_(condition, &control, &arguments));
 	Return(format_stream_lisp(ptr, stream, control, arguments));
 	Return(fresh_line_stream_(stream, NULL));
 	Return(terpri_stream_(stream));
@@ -115,8 +131,8 @@ static int output_type_error_(Execute ptr, addr stream, addr instance)
 {
 	addr datum, expected;
 
-	type_error_datum(instance, &datum);
-	type_error_expected(instance, &expected);
+	Return(type_error_datum_(instance, &datum));
+	Return(type_error_expected_(instance, &expected));
 	if (GetType(expected) == LISPTYPE_TYPE) {
 		Return(type_object_(&expected, expected));
 	}
@@ -193,14 +209,19 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 	return 0;
 }
 
+static int eval_debugger_call_(Execute ptr, addr io, addr eval)
+{
+	Return(eval_execute_partial(ptr, eval));
+	return eval_loop_output(ptr, io);
+}
+
 static int eval_debugger(Execute ptr, addr io, addr eval)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(eval_execute_partial(ptr, eval));
-	Return(eval_loop_output(ptr, io, control));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)eval_debugger_call_(ptr, io, eval);
+	return pop_control_(ptr, control);
 }
 
 static int enter_debugger(Execute ptr, addr condition)
@@ -217,7 +238,7 @@ static int enter_debugger(Execute ptr, addr condition)
 	hold = LocalHold_local_push(ptr, list);
 	if (list == Nil) {
 		Return(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
-		abortthis();
+		abort_execute();
 		return 0;
 	}
 	Return(output_restarts_debugger(ptr, io, list));
@@ -267,7 +288,7 @@ loop:
 	goto loop;
 
 exit:
-	exit_code(ptr, LISPCODE_ERROR);
+	abort_execute();
 	return 0;
 }
 
@@ -295,13 +316,14 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 	Return(enable_debugger_p_(ptr, &check));
 	if (! check) {
 		Return(format_stream(ptr, io, "~2&Debugger is not enabled.~%", NULL));
-		abortthis();
+		abort_execute();
 		return 0;
 	}
 
 	/* debugger */
-	push_new_control(ptr, &control);
-	return enter_debugger(ptr, condition);
+	push_control(ptr, &control);
+	(void)enter_debugger(ptr, condition);
+	return pop_control_(ptr, control);
 }
 
 _g int invoke_debugger(Execute ptr, addr condition)
@@ -317,10 +339,10 @@ _g int invoke_debugger(Execute ptr, addr condition)
 	if (symbolp(call)) {
 		Return(getfunction_global_(call, &call));
 	}
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
-	Return(funcall_control(ptr, call, condition, prior, NULL));
-	Return(free_control_(ptr, control));
+	(void)funcall_control(ptr, call, condition, prior, NULL);
+	Return(pop_control_(ptr, control));
 	/* invoke-debugger is not returned. */
 	return invoke_standard_debugger(ptr, condition);
 }
@@ -349,6 +371,6 @@ _g void build_condition_debugger(Execute ptr)
 _g void init_condition_debugger(void)
 {
 	SetPointerCall(defun, var1, handler_warning);
-	SetPointerCall(defun, var1, handler_savecore);
+	SetPointerCall(defun, var1, handler_empty);
 }
 

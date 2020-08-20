@@ -8,7 +8,7 @@
 #include <stddef.h>
 
 /* setjmp */
-typedef enum LISPCODE lispcode;
+typedef void (*lisp_abort_calltype)(void);
 
 /* code */
 union CODEVALUE {

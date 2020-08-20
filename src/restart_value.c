@@ -157,9 +157,7 @@ static int symbol_restart_code(Execute ptr, void *voidp)
 	str = (struct symbol_restart_struct *)voidp;
 	symbol_store_restart(ptr, str->symbol, str->call);
 	symbol_use_restart(ptr);
-	unbound_variable(str->symbol);
-
-	return 0;
+	return call_unbound_variable_(ptr, str->symbol);
 }
 
 static int symbol_restart_control(Execute ptr, addr symbol, pointer call)
@@ -167,12 +165,23 @@ static int symbol_restart_control(Execute ptr, addr symbol, pointer call)
 	addr control;
 	struct symbol_restart_struct str;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	str.symbol = symbol;
 	str.call = call;
-	Return(restart_control(ptr, symbol_restart_code, (void *)&str));
+	(void)restart_control(ptr, symbol_restart_code, (void *)&str);
+	return pop_control_(ptr, control);
+}
 
-	return free_control_(ptr, control);
+static int symbol_restart_call_call_(Execute ptr, LocalHold hold,
+		addr symbol, pointer call, addr *ret)
+{
+	addr value;
+
+	Return(symbol_restart_control(ptr, symbol, call));
+	getresult_control(ptr, &value);
+	localhold_set(hold, 0, value);
+
+	return Result(ret, value);
 }
 
 static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret)
@@ -181,11 +190,10 @@ static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	Return(symbol_restart_control(ptr, symbol, call));
-	getresult_control(ptr, &value);
-	localhold_set(hold, 0, value);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	value = Nil;
+	(void)symbol_restart_call_call_(ptr, hold, symbol, call, &value);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return Result(ret, value);
@@ -249,35 +257,41 @@ static void function_use_restart(addr *ret)
 static int function_restart_code(Execute ptr, addr name)
 {
 	name_callname_heap(name, &name);
-	undefined_function(name);
-	return 0;
+	return call_undefined_function_(ptr, name);
 }
 
 static int function_restart_control(Execute ptr, addr name)
 {
 	addr restart, control;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	function_use_restart(&restart);
-	Return(restart1_control(ptr, restart, function_restart_code, name));
+	(void)restart1_control(ptr, restart, function_restart_code, name);
+	return pop_control_(ptr, control);
+}
 
-	return free_control_(ptr, control);
+static int function_restart_call_call_(Execute ptr, LocalHold hold,
+		addr name, addr *ret)
+{
+	Return(function_restart_control(ptr, name));
+	getresult_control(ptr, &name);
+	localhold_set(hold, 0, name);
+
+	return Result(ret, name);
 }
 
 static int function_restart_call(Execute ptr, addr name, addr *ret)
 {
-	addr control, value;
+	addr control;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	Return(function_restart_control(ptr, name));
-	getresult_control(ptr, &value);
-	localhold_set(hold, 0, value);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	(void)function_restart_call_call_(ptr, hold, name, &name);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
-	return Result(ret, value);
+	return Result(ret, name);
 }
 
 _g int callname_global_restart(Execute ptr, addr name, addr *ret)

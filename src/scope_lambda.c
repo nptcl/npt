@@ -1383,7 +1383,7 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 	return Result(ret, table);
 }
 
-static int callargs_var(Execute ptr, addr array, addr *args, addr *root)
+static int callargs_var(Execute ptr, addr array, addr *args, addr *root, int *ret)
 {
 	addr eval, right;
 	LocalHold hold;
@@ -1392,7 +1392,7 @@ static int callargs_var(Execute ptr, addr array, addr *args, addr *root)
 	hold = LocalHold_array(ptr, 1);
 	while (array != Nil) {
 		if (*args == Nil)
-			break;
+			return Result(ret, 1);
 		GetCons(*args, &eval, args);
 		GetCons(array, &right, &array);
 		Return(check_tablecall(ptr, eval, right, &eval));
@@ -1401,7 +1401,7 @@ static int callargs_var(Execute ptr, addr array, addr *args, addr *root)
 	}
 	localhold_end(hold);
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int callargs_opt(Execute ptr, addr array, addr *args, addr *root)
@@ -1539,7 +1539,8 @@ static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 	root = Nil;
 	hold = LocalHold_array(ptr, 1);
 	/* var */
-	if (callargs_var(ptr, array, &args, &root))
+	Return(callargs_var(ptr, array, &args, &root, &check));
+	if (check)
 		goto toofew;
 	localhold_set(hold, 0, root);
 	/* opt */

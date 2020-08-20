@@ -161,7 +161,6 @@ _g int alloclisp(size_t heap, size_t stack)
 
 	/* check */
 	lisp_initialize = 1;
-
 	return 0;
 
 error_object:
@@ -353,12 +352,6 @@ _g int save_lisp(struct filememory *fm)
 	}
 
 	/* build.c */
-#if 0
-	if (writecheck_filememory(fm, &lisp_property, sizeoft(lisp_property))) {
-		Debug("writecheck error: lisp_property.");
-		return 1;
-	}
-#endif
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
 		if (writeaddr_filememory(fm, lisp_root[i])) {
 			Debug2("writeaddr error: lisp_root[%d].", i);
@@ -380,12 +373,6 @@ _g int load_lisp(struct filememory *fm)
 	}
 
 	/* build.c */
-#if 0
-	if (readcheck_filememory(fm, &lisp_property, sizeoft(lisp_property))) {
-		Debug("readcheck error: lisp_property.");
-		return 1;
-	}
-#endif
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
 		if (readaddr_filememory(fm, &(lisp_root[i]))) {
 			Debug2("readaddr error: lisp_root[%d].", i);

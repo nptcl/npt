@@ -1258,7 +1258,7 @@ static int test_type_clos_heap(void)
 /*
  *  main
  */
-static int testbreak_type(void)
+static int testcase_type(void)
 {
 	/* allocate */
 	TestBreak(test_type_heap);
@@ -1311,35 +1311,21 @@ static int testbreak_type(void)
 	return 0;
 }
 
+static void testinit_type(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_package();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_common();
+}
+
 int test_type(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_package();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_common();
-		lisp_initialize = 1;
-		result = testbreak_type();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(type);
 }
 

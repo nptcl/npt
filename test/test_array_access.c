@@ -181,9 +181,7 @@ static void testinit_array_access(Execute ptr)
 
 int test_array_access(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_array_access,
-			testcase_array_access);
+	DegradeTitle;
+	return DegradeCode(array_access);
 }
 

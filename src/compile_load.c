@@ -25,7 +25,7 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 		Return(faslread_value(ptr, stream, &code));
 		localhold_set(hold, 0, code);
 		CheckType(code, LISPTYPE_CODE);
-		Return(runcode_control(ptr, code));
+		Return(runcode_control_(ptr, code));
 	}
 	localhold_end(hold);
 

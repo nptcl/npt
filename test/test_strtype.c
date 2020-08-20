@@ -1014,9 +1014,7 @@ static void testinit_strtype(Execute ptr)
 
 int test_strtype(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_strtype,
-			testcase_strtype);
+	DegradeTitle;
+	return DegradeCode(strtype);
 }
 

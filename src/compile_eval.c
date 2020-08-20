@@ -16,7 +16,7 @@
 #include "scope_declare.h"
 #include "typedef.h"
 
-static int compile_eval_scope(Execute ptr, addr pos);
+static int compile_eval_scope_(Execute ptr, addr pos);
 
 /*
  *  eval-when check
@@ -39,13 +39,11 @@ static int compile_eval_compile_p_(Execute ptr, int *ret)
 /*
  *  execute
  */
-static int compile_eval_execute(Execute ptr, addr pos)
+static int compile_eval_execute_call_(Execute ptr, addr pos)
 {
 	int check;
-	addr control;
 	LocalHold hold;
 
-	push_new_control(ptr, &control);
 	hold = LocalHold_array(ptr, 1);
 	localhold_push(hold, pos);
 
@@ -68,12 +66,21 @@ static int compile_eval_execute(Execute ptr, addr pos)
 	Return(compile_eval_compile_p_(ptr, &check));
 	if (check) {
 		localhold_set(hold, 0, pos);
-		Return(runcode_control(ptr, pos));
+		Return(runcode_control_(ptr, pos));
 	}
 
 	/* end */
 	localhold_end(hold);
-	return free_control_(ptr, control);;
+	return 0;
+}
+
+static int compile_eval_execute_(Execute ptr, addr pos)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)compile_eval_execute_call_(ptr, pos);
+	return pop_control_(ptr, control);
 }
 
 
@@ -87,7 +94,7 @@ static int compile_eval_progn(Execute ptr, addr pos)
 	GetEvalParse(pos, 0, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(compile_eval_scope(ptr, pos));
+		Return(compile_eval_scope_(ptr, pos));
 	}
 
 	return 0;
@@ -114,12 +121,12 @@ static int compile_eval_implicit(Execute ptr, addr args, addr decl, addr list)
 	SetEvalParse(pos, 0, decl);
 	SetEvalParse(pos, 1, Nil);
 	SetEvalParse(pos, 2, free);
-	Return(compile_eval_execute(ptr, pos));
+	Return(compile_eval_execute_(ptr, pos));
 
 	/* body */
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(compile_eval_scope(ptr, pos));
+		Return(compile_eval_scope_(ptr, pos));
 	}
 
 	/* free stack */
@@ -182,7 +189,7 @@ static int compile_eval_eval_when(Execute ptr, addr pos)
 	/* body */
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(compile_eval_scope(ptr, pos));
+		Return(compile_eval_scope_(ptr, pos));
 	}
 
 	/* rollback */
@@ -217,28 +224,26 @@ static int compile_eval_hold(Execute ptr, addr pos)
 			return compile_eval_eval_when(ptr, pos);
 
 		default:
-			return compile_eval_execute(ptr, pos);
+			return compile_eval_execute_(ptr, pos);
 	}
 }
 
-static int compile_eval_scope(Execute ptr, addr pos)
+static int compile_eval_scope_(Execute ptr, addr pos)
 {
 	addr control;
 	LocalHold hold;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	hold = LocalHold_local_push(ptr, pos);
-	Return(compile_eval_hold(ptr, pos));
-	localhold_end(hold);
-	return free_control_(ptr, control);
+	if (compile_eval_hold(ptr, pos) == 0)
+		localhold_end(hold);
+	return pop_control_(ptr, control);
 }
 
-_g int compile_eval(Execute ptr, addr pos)
+static int compile_eval_call_(Execute ptr, addr pos)
 {
-	addr control;
 	LocalHold hold;
 
-	push_new_control(ptr, &control);
 	/* special variable */
 	push_toplevel_eval(ptr, T);
 	push_compile_time_eval(ptr, Nil);
@@ -261,6 +266,15 @@ _g int compile_eval(Execute ptr, addr pos)
 	Return(compile_eval_hold(ptr, pos));
 	/* free */
 	localhold_end(hold);
-	return free_control_(ptr, control);
+	return 0;
+}
+
+_g int compile_eval(Execute ptr, addr pos)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)compile_eval_call_(ptr, pos);
+	return pop_control_(ptr, control);
 }
 

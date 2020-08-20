@@ -107,7 +107,7 @@ static int test_getreference_tablevalue(void)
 /*
  *  Main
  */
-static int testbreak_eval_table(void)
+static int testcase_eval_table(void)
 {
 	/* tablevalue */
 	TestBreak(test_make_tablevalue);
@@ -120,34 +120,19 @@ static int testbreak_eval_table(void)
 	return 0;
 }
 
+static void testinit_eval_table(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_symbol();
+}
+
 int test_eval_table(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_symbol();
-		lisp_initialize = 1;
-		result = testbreak_eval_table();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(eval_table);
 }
 

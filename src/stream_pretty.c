@@ -439,24 +439,14 @@ static int rollback_pretty_stream_(addr stream)
 	return setleft_stream_(stream, str->terpri);
 }
 
-_g int call_pretty_stream(Execute ptr, addr stream, addr call)
+static int call_pretty_stream_call_(Execute ptr, addr stream, addr call)
 {
-	int check, circlep;
+	int circlep;
 	addr pos;
 
-	Check(! pretty_stream_p(stream), "type error");
-	Check(! functionp(call), "type error");
-
-	Return(Push_pretty_stream_p_(stream, &check));
-	if (! check) {
-		push_new_control(ptr, &pos);
-		push_write_object(ptr);
-	}
 	/* normal */
 	Return(circle_print_(ptr, &circlep));
 	if (! circlep)
-		return callclang_funcall(ptr, &pos, call, NULL);
-	if (check)
 		return callclang_funcall(ptr, &pos, call, NULL);
 	/* circle check */
 	setdiscard_pretty_stream(stream, 1);
@@ -469,6 +459,25 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 	Return(rollback_pretty_stream_(stream));
 	write_check_all_clear(ptr);
 	return callclang_funcall(ptr, &pos, call, NULL);
+}
+
+_g int call_pretty_stream(Execute ptr, addr stream, addr call)
+{
+	int check;
+	addr control;
+
+	Check(! pretty_stream_p(stream), "type error");
+	Check(! functionp(call), "type error");
+
+	Return(Push_pretty_stream_p_(stream, &check));
+	if (check)
+		return callclang_funcall(ptr, &call, call, NULL);
+
+	/* push */
+	push_control(ptr, &control);
+	push_write_object(ptr);
+	(void)call_pretty_stream_call_(ptr, stream, call);
+	return pop_control_(ptr, control);
 }
 
 

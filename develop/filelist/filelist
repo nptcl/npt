@@ -148,6 +148,7 @@ eval_stack.c
 eval_table.c
 eval.c
 execute_object.c
+execute_setjmp.c
 execute_values.c
 execute.c
 extern_argv.c

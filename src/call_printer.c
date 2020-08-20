@@ -433,6 +433,12 @@ static void write_keyword_common(Execute ptr, addr args)
 	}
 }
 
+static int write_common_call_(Execute ptr, addr stream, addr var)
+{
+	Return(write_print(ptr, stream, var));
+	return exitpoint_stream_(stream);
+}
+
 _g int write_common(Execute ptr, addr var, addr args)
 {
 	addr stream, control;
@@ -441,12 +447,11 @@ _g int write_common(Execute ptr, addr var, addr args)
 		stream = Unbound;
 	Return(output_stream_designer_(ptr, stream, &stream));
 
-	push_new_control(ptr, &control);
+	/* write */
+	push_control(ptr, &control);
 	write_keyword_common(ptr, args);
-	Return(write_print(ptr, stream, var));
-	Return(exitpoint_stream_(stream));
-
-	return free_control_(ptr, control);
+	(void)write_common_call_(ptr, stream, var);
+	return pop_control_(ptr, control);
 }
 
 
@@ -497,18 +502,24 @@ _g int pprint_common(Execute ptr, addr var, addr stream)
 /*
  *  write-to-string
  */
+static int write_to_string_common_call_(Execute ptr, addr stream, addr var, addr *ret)
+{
+	Return(write_print(ptr, stream, var));
+	Return(string_stream_heap_(stream, ret));
+	close_output_string_stream(stream);
+
+	return 0;
+}
+
 _g int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
 {
 	addr stream, control;
 
 	open_output_string_stream(&stream, 0);
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	write_keyword_common(ptr, args);
-	Return(write_print(ptr, stream, var));
-	Return(string_stream_heap_(stream, ret));
-	close_output_string_stream(stream);
-
-	return free_control_(ptr, control);
+	(void)write_to_string_common_call_(ptr, stream, var, ret);
+	return pop_control_(ptr, control);
 }
 
 

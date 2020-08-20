@@ -542,14 +542,6 @@ _g void code_make_execute_control(LocalRoot local, addr code, addr pos)
 		CodeQueue_cons(local, code, EXECUTE_CONTROL_SET, pos);
 }
 
-_g void code_make_execute_switch(LocalRoot local, addr code, addr pos)
-{
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, EXECUTE_SWITCH_PUSH, pos);
-	else
-		CodeQueue_cons(local, code, EXECUTE_SWITCH_SET, pos);
-}
-
 _g void code_make_single(LocalRoot local, addr code,
 		constindex set, constindex push)
 {

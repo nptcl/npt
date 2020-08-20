@@ -209,14 +209,14 @@ static int test_pushrange_local(void)
 	const unicode *body;
 	Execute ptr = Execute_Thread;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	strvect_char_heap(&thing, "abcHello1234567890");
 	charqueue_heap(&queue, 0);
 	GetStringUnicode(thing, &body);
 	pushrange_local(ptr->local, queue, body, 3, 8);
 	make_charqueue_local(ptr->local, queue, &thing);
 	test(string_equal_char(thing, "Hello"), "pushrange_local1");
-	free_control(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -306,7 +306,7 @@ static int test_check_logical(void)
 	LocalRoot local;
 
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	strvect_char_heap(&name, "hello");
 	sethost_pathname(name, T);
 	charqueue_local(local, &queue, 0);
@@ -319,7 +319,7 @@ static int test_check_logical(void)
 
 	/* close */
 	sethost_pathname(name, Nil);
-	free_control(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -437,7 +437,7 @@ static void parser_replace(struct fileparse *pa,
 	LocalRoot local;
 
 	local = pa->local;
-	push_new_control(pa->ptr, &control);
+	push_control(pa->ptr, &control);
 	string_length(pa->thing, &size);
 	charqueue_local(local, &queue, 0);
 	for (i = 0; i < size; i++) {
@@ -446,7 +446,7 @@ static void parser_replace(struct fileparse *pa,
 	}
 	make_charqueue_heap(queue, &pa->thing);
 	call(pa);
-	free_control(pa->ptr, control);
+	pop_control_(pa->ptr, control);
 }
 
 static void parser_logicalsemi(struct fileparse *pa)
@@ -987,7 +987,7 @@ static int test_merge_pathnames_clang(void)
 /*
  *  Main
  */
-static int testbreak_pathname(void)
+static int testcase_pathname(void)
 {
 #if 0
 	/* parse-namestring */
@@ -1022,42 +1022,27 @@ static int testbreak_pathname(void)
 	return 0;
 }
 
+static void testinit_pathname(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+}
+
 int test_pathname(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		lisp_initialize = 1;
-		result = testbreak_pathname();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(pathname);
 }
 

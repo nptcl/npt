@@ -398,12 +398,10 @@ static void ed_function_name(Execute ptr, addr *ret)
 	*ret = file;
 }
 
-static int ed_function_write(Execute ptr, addr file, addr lambda)
+static int ed_function_write_call_(Execute ptr, addr file, addr lambda)
 {
-	addr control;
 	size_t width;
 
-	push_new_control(ptr, &control);
 	Return(open_stream_(ptr, &file, file,
 				Stream_Open_Direction_Output,
 				Stream_Open_Element_Character,
@@ -415,7 +413,16 @@ static int ed_function_write(Execute ptr, addr file, addr lambda)
 	Return(prin1_print(ptr, file, lambda));
 	Return(close_stream_(file));
 
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int ed_function_write_(Execute ptr, addr file, addr lambda)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)ed_function_write_call_(ptr, file, lambda);
+	return pop_control_(ptr, control);
 }
 
 static int ed_function_common(Execute ptr, addr symbol)
@@ -425,7 +432,7 @@ static int ed_function_common(Execute ptr, addr symbol)
 
 	Return(ed_function_lambda(symbol, &lambda));
 	ed_function_name(ptr, &file);
-	Return(ed_function_write(ptr, file, lambda));
+	Return(ed_function_write_(ptr, file, lambda));
 	Return(ed_file_common(ptr, file));
 	Return(eval_load(ptr, &result, file, Unbound, Unbound, 1, Unbound));
 

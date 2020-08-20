@@ -11,6 +11,8 @@ static int test_hashindex_cache(void)
 	addr pos;
 	size_t value1, value2;
 
+	value1 = value2 = 0;
+
 	hashindex_cache_(Nil, 1000, &value1);
 	test(value1 == 0, "hashindex_cache1");
 
@@ -57,7 +59,7 @@ static int test_cache_equal_function(void)
 /*
  *  main
  */
-static int testbreak_clos_cache(void)
+static int testcase_clos_cache(void)
 {
 	TestBreak(test_hashindex_cache);
 	TestBreak(test_cache_equal_function);
@@ -65,33 +67,18 @@ static int testbreak_clos_cache(void)
 	return 0;
 }
 
+static void testinit_clos_cache(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_package();
+	build_clos(ptr);
+}
+
 int test_clos_cache(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_package();
-		build_clos(ptr);
-		lisp_initialize = 1;
-		result = testbreak_clos_cache();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(clos_cache);
 }
 

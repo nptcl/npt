@@ -68,7 +68,6 @@ _g void code_make_execute_set(LocalRoot local, addr code, addr scope);
 _g void code_make_execute_push(LocalRoot local, addr code, addr scope);
 _g void code_make_execute_rem(LocalRoot local, addr code, addr scope);
 _g void code_make_execute_control(LocalRoot local, addr code, addr pos);
-_g void code_make_execute_switch(LocalRoot local, addr code, addr pos);
 _g void code_make_single(LocalRoot, addr, constindex, constindex);
 _g void code_make_object(LocalRoot local, addr code, addr value);
 

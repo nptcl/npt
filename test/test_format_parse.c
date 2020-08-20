@@ -52,6 +52,8 @@ static int test_fmtinput_getc(void)
 	struct fmtinput_struct input;
 	unicode u;
 
+	check = 0;
+
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
@@ -1030,7 +1032,7 @@ static int test_fmtprint_absolute(void)
 /*
  *  main
  */
-static int testbreak_format_parse(void)
+static int testcase_format_parse(void)
 {
 	/* fmtinput */
 	TestBreak(test_fmtinput_init);
@@ -1071,44 +1073,29 @@ static int testbreak_format_parse(void)
 	return 0;
 }
 
+static void testinit_format_parse(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+	build_code();
+}
+
 int test_format_parse(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_format_parse();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(format_parse);
 }
 

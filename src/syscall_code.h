@@ -41,7 +41,7 @@ _g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
 _g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
 _g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
 _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
-_g int exit_syscode(addr code);
+_g int exit_syscode_(Execute ptr, addr code);
 _g void end_input_stream_syscode(addr var, addr *ret);
 _g void make_extend_output_stream_syscode(addr var, addr rest, addr *ret);
 _g int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret);

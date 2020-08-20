@@ -343,7 +343,7 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 	Return(sequence_make_sequence(ptr, &rest, check, index, element));
 	localhold_push(hold, rest);
 
-	Return(typep_asterisk_error(ptr, rest, check));
+	Return(call_typep_asterisk_error_(ptr, rest, check));
 	localhold_end(hold);
 
 	return Result(ret, rest);
@@ -870,7 +870,7 @@ _g int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
 	if (type == Nil)
 		return 0;
 
-	Return(typep_asterisk_error(ptr, rest, check));
+	Return(call_typep_asterisk_error_(ptr, rest, check));
 	localhold_end(hold);
 
 	return Result(ret, rest);
@@ -1796,7 +1796,7 @@ _g int merge_common(Execute ptr, addr *ret,
 	localhold_push(hold, check);
 	Return(execute_merge_sequence(ptr, &call, check, pos1, pos2, call, key));
 	localhold_push(hold, call);
-	Return(typep_asterisk_error(ptr, call, check));
+	Return(call_typep_asterisk_error_(ptr, call, check));
 
 	return Result(ret, call);
 }
@@ -3593,7 +3593,7 @@ _g int concatenate_common(Execute ptr, addr *ret, addr type, addr rest)
 	Return(parse_type(ptr, &check, type, Nil));
 	Return(type_concatenate_sequence(ptr, ret, check, rest));
 
-	return typep_asterisk_error(ptr, *ret, check);
+	return call_typep_asterisk_error_(ptr, *ret, check);
 }
 
 

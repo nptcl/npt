@@ -277,6 +277,7 @@
     "localtime.h"
     "execute_typedef.h"
     "execute_object.h"
+    "execute_setjmp.h"
     "execute_values.h"
     "execute.h"
     ("file_type.h" :header t)
@@ -759,6 +760,7 @@
     "optimize_parse.c"
     "execute.c"
     "execute_object.c"
+    "execute_setjmp.c"
     "execute_values.c"
     ("file_memory.c" :include
      ("file_ansi.h" "file_posix.h" "file_windows.h"))

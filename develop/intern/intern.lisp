@@ -225,6 +225,7 @@
 :up
 :upcase
 :use
+:value  ;; lisp-system::exit
 :verbose
 :version
 :wild
@@ -1595,8 +1596,6 @@ lisp-code::nop
 lisp-code::execute-control-set
 lisp-code::execute-control-push
 lisp-code::execute-control-save
-lisp-code::execute-switch-set
-lisp-code::execute-switch-push
 
 lisp-code::set
 lisp-code::push

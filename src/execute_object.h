@@ -14,6 +14,12 @@ _g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize);
 _g void restore_values_control(struct execute *ptr, addr pos, size_t size);
 
 
+/* throw */
+_g void normal_throw_control(struct execute *ptr);
+_g void save_throw_control(struct execute *ptr, struct execute_throw *save);
+_g void restore_throw_control(struct execute *ptr, const struct execute_throw *save);
+
+
 /* lexical */
 #define SetExecuteLexical		SetArrayA4
 #ifdef LISP_DEBUG

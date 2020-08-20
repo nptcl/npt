@@ -89,27 +89,27 @@ static void loadrt_declare_optimize(void)
 	apply_speed_declaim(0);
 }
 
-static int loadrt_execute(Execute ptr, const char *name)
+static int loadrt_execute_call_(Execute ptr, const char *name)
 {
 	int check;
-	addr control;
-	codejump jump;
 
-	begin_switch(ptr, &jump);
-	push_new_control(ptr, &control);
-	if (codejump_run_p(&jump)) {
-		Return(handler_warning_(ptr));
-		loadrt_disable_debugger(ptr);
-		loadrt_declare_optimize();
-		Return(loadrt_init(ptr, name, &check));
-		if (check)
-			return fmte_("result code error.", NULL);
-	}
-	end_switch(&jump);
-	Return(free_control_(ptr, control));
-	throw_switch(&jump);
+	Return(handler_warning_(ptr));
+	loadrt_disable_debugger(ptr);
+	loadrt_declare_optimize();
+	Return(loadrt_init(ptr, name, &check));
+	if (check)
+		return fmte_("result code error.", NULL);
 
 	return 0;
+}
+
+static int loadrt_execute(Execute ptr, const char *name)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)loadrt_execute_call_(ptr, name);
+	return pop_control_(ptr, control);
 }
 
 static int loadrt_nickname_(const char *str1, const char *str2)
@@ -178,30 +178,24 @@ static int loadrt_body_lisp_(Execute ptr, const char *name)
 
 static int loadrt_lisp(const char *name)
 {
-	int result;
-	lispcode code;
+	int errorp;
 	Execute ptr;
 
 	freelisp();
 	alloclisp(0, 0);
 	ptr = Execute_Thread;
-	result = 1;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		buildlisp(ptr);
-		result = loadrt_body_lisp_(ptr, name);
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
 
-	return result;
+	buildlisp(ptr);
+	errorp = loadrt_body_lisp_(ptr, name);
+	freelisp();
+
+	return errorp;
 }
 
 #include "load.h"
 _g int loadrt(void)
 {
-	TITLE;
+	DegradeTitle;
 #ifdef LISP_DEBUG_FORCE_GC
 	GcCounterForce = LISP_DEBUG_FORCE_GC;
 #endif

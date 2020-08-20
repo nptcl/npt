@@ -165,7 +165,7 @@ static int test_comb_standard_method(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &call);
@@ -178,7 +178,7 @@ static int test_comb_standard_method(void)
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_method1");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -223,7 +223,7 @@ static int test_comb_standard_funcall(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC2", &call);
@@ -241,7 +241,7 @@ static int test_comb_standard_funcall(void)
 	comb_standard_funcall_(ptr, args, around, primary);
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_funcall1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -252,7 +252,7 @@ static int test_function_standard_lambda(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 
 	test_make_method(&method);
 	internchar_debug(LISP_PACKAGE, "TEST-GENERIC3", &call);
@@ -269,7 +269,7 @@ static int test_function_standard_lambda(void)
 
 	getresult_control(ptr, &call);
 	test(call == T, "function_standard_lambda1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -298,13 +298,13 @@ static int test_comb_standard_qualifiers(void)
 	list_heap(&primary, method, NULL);
 	comb_standard_qualifiers_(local, &method, generic, Nil, primary, Nil);
 	/* run method */
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	list_heap(&args, T, NULL);
 	comb_standard_method_(ptr, method, Nil, args);
 
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_qualifiers1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -330,7 +330,7 @@ static int test_comb_standard(void)
 	/* call */
 	comb_standard_(&call, data);
 	/* clos_generic_call */
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	CallClosGenericCall(call, &callproc);
 	test_make_generic(&generic);
 	GetConst(CLOS_STANDARD_METHOD, &args);
@@ -340,7 +340,7 @@ static int test_comb_standard(void)
 
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -740,12 +740,12 @@ static int test_generic_make_type(void)
 	ptr = Execute_Thread;
 	/* others */
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	call(ptr, pos, generic, args);
 	/* check */
 	getresult_control(ptr, &pos);
 	test(pos == T, "generic_make_type1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -811,13 +811,13 @@ static int test_generic_make_lambda_call(void)
 
 	/* call */
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	fixnum_heap(&pos, 100);
 	list_heap(&pos, pos, NULL);
 	generic_make_lambda_call_(ptr, instance, Nil, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "generic_make_lambda_call1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -858,7 +858,7 @@ static int test_closrun_execute(void)
 	/* finalize */
 	generic_finalize_(generic);
 	/* execute */
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	fixnum_heap(&value, 100);
 	list_heap(&args, value, NULL);
 	getglobal_parse_callname(name, &name);
@@ -866,7 +866,7 @@ static int test_closrun_execute(void)
 
 	getresult_control(ptr, &pos);
 	test(pos == value, "closrun_execute1");
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -875,7 +875,7 @@ static int test_closrun_execute(void)
 /*
  *  main
  */
-static int testbreak_clos_generic(void)
+static int testcase_clos_generic(void)
 {
 	/* access */
 	TestBreak(test_stdget_generic);
@@ -912,42 +912,27 @@ static int testbreak_clos_generic(void)
 	return 0;
 }
 
+static void testinit_clos_generic(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_real();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+}
+
 int test_clos_generic(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_real();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		lisp_initialize = 1;
-		result = testbreak_clos_generic();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(clos_generic);
 }
 

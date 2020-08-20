@@ -5716,7 +5716,7 @@ static int test_output_nosign_comma_bignum(void)
 /*
  *  Main
  */
-static int testbreak_bignum(void)
+static int testcase_bignum(void)
 {
 	/* bignum */
 	TestBreak(test_alloc_bignum);
@@ -5885,35 +5885,21 @@ static int testbreak_bignum(void)
 
 	return 0;
 }
+
+static void testinit_bignum(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 #endif
 
 int test_bignum(void)
 {
 #if 0
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_bignum();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(bignum);
 #endif
 	return 0;
 }

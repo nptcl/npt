@@ -385,53 +385,83 @@ _g int read_call(Execute ptr, addr stream, int *result, addr *ret)
 	return readtable_front(ptr, result, ret, stream, table);
 }
 
-_g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
+static int read_stream_call_(Execute ptr, LocalHold hold,
+		addr stream, int *result, addr *ret)
 {
-	addr control, info;
-	LocalHold hold;
+	addr info;
 
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &info);
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+_g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)read_stream_call_(ptr, hold, stream, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
+
+	return 0;
+}
+
+static int read_preserving_call_(Execute ptr, LocalHold hold,
+		addr stream, int *result, addr *ret)
+{
+	addr info;
+
+	pushreadinfo(ptr, &info);
+	ReadInfoStruct(info)->preserving = 1;
+	Return(read_call(ptr, stream, result, ret));
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
 
 	return 0;
 }
 
 _g int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 {
-	addr control, info;
+	addr control;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	pushreadinfo(ptr, &info);
-	ReadInfoStruct(info)->preserving = 1;
+	push_control(ptr, &control);
+	(void)read_preserving_call_(ptr, hold, stream, result, ret);
+	Return(pop_control_(ptr, control));
+	localhold_end(hold);
+
+	return 0;
+}
+
+static int read_recursive_call_(Execute ptr, LocalHold hold,
+		addr stream, int *result, addr *ret)
+{
+	addr info;
+
+	Return(pushreadinfo_recursive_(ptr, &info));
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
 
 	return 0;
 }
 
 _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 {
-	addr control, info;
+	addr control;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	Return(pushreadinfo_recursive_(ptr, &info));
-	Return(read_call(ptr, stream, result, ret));
-	if (*result == 0)
-		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	(void)read_recursive_call_(ptr, hold, stream, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

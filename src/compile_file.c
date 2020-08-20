@@ -73,7 +73,7 @@ static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
 	return 0;
 }
 
-static int compile_file_execute(Execute ptr,
+static int compile_file_execute_(Execute ptr,
 		addr input, addr output, addr rest, addr *ret)
 {
 	addr symbol;
@@ -93,40 +93,56 @@ static int compile_file_execute(Execute ptr,
 	return 0;
 }
 
-static int compile_file_output_stream(Execute ptr,
+static int compile_file_output_stream_call_(Execute ptr,
 		addr input, addr output, addr rest, addr *ret)
 {
-	addr control, stream;
+	addr stream;
 
-	if (streamp(output))
-		return compile_file_output_stream(ptr, input, output, rest, ret);
-
-	/* open input */
-	push_new_control(ptr, &control);
 	Return(open_output_binary_stream_(ptr, &stream, output, FileOutput_supersede));
 	if (stream == NULL)
 		return fmte_("Cannot open the output file ~S.", output, NULL);
 	push_close_stream(ptr, stream);
-	Return(compile_file_execute(ptr, input, stream, rest, ret));
-	return free_control_(ptr, control);
+	return compile_file_execute_(ptr, input, stream, rest, ret);
 }
 
-static int compile_file_input_stream(Execute ptr,
+static int compile_file_output_stream_(Execute ptr,
 		addr input, addr output, addr rest, addr *ret)
 {
-	addr control, stream;
+	addr control;
 
-	if (streamp(input))
-		return compile_file_output_stream(ptr, input, output, rest, ret);
+	if (streamp(output))
+		return compile_file_execute_(ptr, input, output, rest, ret);
 
 	/* open input */
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
+	(void)compile_file_output_stream_call_(ptr, input, output, rest, ret);
+	return pop_control_(ptr, control);
+}
+
+static int compile_file_input_stream_call_(Execute ptr,
+		addr input, addr output, addr rest, addr *ret)
+{
+	addr stream;
+
 	Return(open_input_stream_(ptr, &stream, input));
 	if (stream == NULL)
 		return fmte_("Cannot open the input file ~S.", input, NULL);
 	push_close_stream(ptr, stream);
-	Return(compile_file_output_stream(ptr, stream, output, rest, ret));
-	return free_control_(ptr, control);
+	return compile_file_output_stream_(ptr, stream, output, rest, ret);
+}
+
+static int compile_file_input_stream_(Execute ptr,
+		addr input, addr output, addr rest, addr *ret)
+{
+	addr control;
+
+	if (streamp(input))
+		return compile_file_output_stream_(ptr, input, output, rest, ret);
+
+	/* open input */
+	push_control(ptr, &control);
+	(void)compile_file_input_stream_call_(ptr, input, output, rest, ret);
+	return pop_control_(ptr, control);
 }
 
 static int function_handler_compile(Execute ptr, addr condition)
@@ -176,20 +192,15 @@ _g int handler_compile_(Execute ptr)
 	return pushhandler_common_(ptr, pos, call, 0);
 }
 
-_g int compile_file_common(Execute ptr, addr input, addr rest,
+static int compile_file_common_call_(Execute ptr,
+		LocalHold hold, addr input, addr output, addr rest,
 		addr *ret1, addr *ret2, addr *ret3)
 {
-	addr output, control, pos;
-	LocalHold hold;
+	addr pos;
 
-	/* pathname-designer */
-	compile_file_pathname_common(ptr, input, rest, &output);
-	/* push control */
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	Return(handler_compile_(ptr));
 	init_write_make_load_form(ptr);
-	Return(compile_file_input_stream(ptr, input, output, rest, ret1));
+	Return(compile_file_input_stream_(ptr, input, output, rest, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &pos);
@@ -197,8 +208,24 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	/* style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
 	Return(getspecialcheck_local_(ptr, pos, ret3));
-	/* free */
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+_g int compile_file_common(Execute ptr, addr input, addr rest,
+		addr *ret1, addr *ret2, addr *ret3)
+{
+	addr control, output;
+	LocalHold hold;
+
+	/* pathname-designer */
+	compile_file_pathname_common(ptr, input, rest, &output);
+
+	/* push control */
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)compile_file_common_call_(ptr, hold, input, output, rest, ret1, ret2, ret3);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

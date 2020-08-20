@@ -544,9 +544,7 @@ static void testinit_array(Execute ptr)
 
 int test_array(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_array,
-			testcase_array);
+	DegradeTitle;
+	return DegradeCode(array);
 }
 

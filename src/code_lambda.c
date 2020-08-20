@@ -321,7 +321,7 @@ _g int bind1_type_code(Execute ptr, CodeValue x)
 	if (value == Unbound)
 		value = Nil;
 
-	return typep_error(ptr, value, type);
+	return call_typep_error_(ptr, value, type);
 }
 
 _g int bind1_special_code(Execute ptr, CodeValue x)
@@ -365,7 +365,7 @@ _g int bind2_type_code(Execute ptr, CodeValue x)
 	if (value == Unbound)
 		value = Nil;
 
-	return typep_error(ptr, value, x.pos);
+	return call_typep_error_(ptr, value, x.pos);
 }
 
 _g int bind2_special_code(Execute ptr, CodeValue x)

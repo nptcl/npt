@@ -42,7 +42,7 @@ static int test_call_callbind_any(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, any, test_function_any);
@@ -56,7 +56,7 @@ static int test_call_callbind_any(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value, "call_callbind_any2");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -67,7 +67,7 @@ static int test_call_callbind_empty(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, empty, test_function_any);
@@ -76,7 +76,7 @@ static int test_call_callbind_empty(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value, "call_callbind_empty1");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -93,7 +93,7 @@ static int test_call_callbind_dynamic(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, dynamic, test_function_dynamic);
@@ -107,7 +107,7 @@ static int test_call_callbind_dynamic(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 2, "call_callbind_dynamic2");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -128,7 +128,7 @@ static int test_call_callbind_rest(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, rest, test_function_rest);
@@ -142,7 +142,7 @@ static int test_call_callbind_rest(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 2, "call_callbind_rest2");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -159,7 +159,7 @@ static int test_call_callbind_var1(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1, test_function_var1);
@@ -168,7 +168,7 @@ static int test_call_callbind_var1(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 10, "call_callbind_var1-1");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -185,7 +185,7 @@ static int test_call_callbind_var2(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var2, test_function_var2);
@@ -194,7 +194,7 @@ static int test_call_callbind_var2(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 30, "call_callbind_var2-1");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -212,7 +212,7 @@ static int test_call_callbind_var3(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var3, test_function_var3);
@@ -221,7 +221,7 @@ static int test_call_callbind_var3(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 60, "call_callbind_var3-1");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -238,7 +238,7 @@ static int test_call_callbind_opt1(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, opt1, test_function_opt1);
@@ -253,7 +253,7 @@ static int test_call_callbind_opt1(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 10, "call_callbind_opt1-2");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -275,7 +275,7 @@ static int test_call_callbind_opt2(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, opt2, test_function_opt2);
@@ -295,7 +295,7 @@ static int test_call_callbind_opt2(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 30, "call_callbind_opt2-3");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -330,7 +330,7 @@ static int test_call_callbind_opt3(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, opt3, test_function_opt3);
@@ -359,7 +359,7 @@ static int test_call_callbind_opt3(void)
 	test(test_function_mode == 3, "call_callbind_opt3-7");
 	test(test_function_value == 60, "call_callbind_opt3-8");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -384,7 +384,7 @@ static int test_call_callbind_var1opt1(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1opt1, test_function_var1opt1);
@@ -401,7 +401,7 @@ static int test_call_callbind_var1opt1(void)
 	test(test_function_mode == 2, "call_callbind_var1opt1-3");
 	test(test_function_value == 30, "call_callbind_var1opt1-4");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -427,7 +427,7 @@ static int test_call_callbind_var2opt1(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var2opt1, test_function_var2opt1);
@@ -444,7 +444,7 @@ static int test_call_callbind_var2opt1(void)
 	test(test_function_mode == 3, "call_callbind_var2opt1-3");
 	test(test_function_value == 60, "call_callbind_var2opt1-4");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -474,7 +474,7 @@ static int test_call_callbind_var1opt2(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1opt2, test_function_var1opt2);
@@ -497,7 +497,7 @@ static int test_call_callbind_var1opt2(void)
 	test(test_function_mode == 3, "call_callbind_var1opt2-5");
 	test(test_function_value == 60, "call_callbind_var1opt2-6");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -524,7 +524,7 @@ static int test_call_callbind_var1rest(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var1rest, test_function_var1rest);
@@ -541,7 +541,7 @@ static int test_call_callbind_var1rest(void)
 	test(test_function_mode == 2, "call_callbind_var1rest3");
 	test(test_function_value == 60, "call_callbind_var1rest4");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -568,7 +568,7 @@ static int test_call_callbind_var2rest(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&pos, Nil);
 
 	SetPointer(p_debug1, var2rest, test_function_var2rest);
@@ -585,7 +585,7 @@ static int test_call_callbind_var2rest(void)
 	test(test_function_mode == 1, "call_callbind_var2rest3");
 	test(test_function_value == 60, "call_callbind_var2rest4");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -594,7 +594,7 @@ static int test_call_callbind_var2rest(void)
 /*
  *  Main
  */
-static int testbreak_control_callbind(void)
+static int testcase_control_callbind(void)
 {
 	TestBreak(test_call_callbind_code);
 	TestBreak(test_call_callbind_any);
@@ -616,42 +616,27 @@ static int testbreak_control_callbind(void)
 	return 0;
 }
 
+static void testinit_control_callbind(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_code();
+}
+
 int test_control_callbind(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_control_callbind();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(control_callbind);
 }
 

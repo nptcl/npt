@@ -59,6 +59,8 @@ static int test_qualifiers_equal_symbol(void)
 	const char *str = "TEST-SYMBOL-CALL";
 	Execute ptr;
 
+	check = 0;
+
 	ptr = Execute_Thread;
 	internchar_debug(LISP_PACKAGE, str, &symbol);
 	compiled_system(&call, symbol);
@@ -542,7 +544,7 @@ static int test_define_method_combination_standard(void)
 /*
  *  main
  */
-static int testbreak_clos_combination(void)
+static int testcase_clos_combination(void)
 {
 	/* qualifiers-check */
 	TestBreak(test_qualifiers_equal_list);
@@ -570,33 +572,18 @@ static int testbreak_clos_combination(void)
 	return 0;
 }
 
+static void testinit_clos_combination(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_package();
+	build_clos(ptr);
+}
+
 int test_clos_combination(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_package();
-		build_clos(ptr);
-		lisp_initialize = 1;
-		result = testbreak_clos_combination();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(clos_combination);
 }
 

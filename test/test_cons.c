@@ -294,9 +294,7 @@ static void testinit_cons(Execute ptr)
 
 int test_cons(void)
 {
-	TITLE;
-	return degrade_code(
-			testinit_cons,
-			testcase_cons);
+	DegradeTitle;
+	return DegradeCode(cons);
 }
 

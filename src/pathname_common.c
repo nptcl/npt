@@ -504,13 +504,11 @@ static int set_logical_pathname_translations_code_(Execute ptr,
 	return 0;
 }
 
-static int set_logical_pathname_translations_intern_(Execute ptr,
+static int set_logical_pathname_translations_intern_call_(Execute ptr,
 		addr host, addr list, addr table)
 {
-	addr control, symbol, call, cons;
+	addr symbol, call, cons;
 
-	/* push */
-	push_new_control(ptr, &control);
 	/* handler-case */
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);
@@ -521,7 +519,17 @@ static int set_logical_pathname_translations_intern_(Execute ptr,
 	SetDataFunction(call, host);
 	Return(set_logical_pathname_translations_code_(ptr, host, list, cons));
 	/* free */
-	return free_control_(ptr, control);
+	return 0;
+}
+
+static int set_logical_pathname_translations_intern_(Execute ptr,
+		addr host, addr list, addr table)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)set_logical_pathname_translations_intern_call_(ptr, host, list, table);
+	return pop_control_(ptr, control);
 }
 
 _g int set_logical_pathname_translations_(Execute ptr, addr host, addr list)

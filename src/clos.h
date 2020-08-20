@@ -294,7 +294,7 @@ _g int clos_setconst_(addr pos, constindex index, addr value);
 _g int clos_checkconst_(addr pos, constindex index, addr *ret);
 #define ClosGetConst_(p,n,r) clos_getconst_((p),CONSTANT_##n,(r))
 #define ClosSetConst_(p,n,v) clos_setconst_((p),CONSTANT_##n,(v))
-#define ClosCheckConst(p,n,r) clos_checkconst_((p),CONSTANT_##n,(r))
+#define ClosCheckConst_(p,n,r) clos_checkconst_((p),CONSTANT_##n,(r))
 
 /* check */
 _g int clos_slot_exists_p(addr pos, addr name);

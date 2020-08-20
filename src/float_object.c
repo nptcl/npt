@@ -269,10 +269,10 @@ _g int float_fltclass_(constindex index, fltclasstype type, ...)
 
 	switch (type) {
 		case fltclass_overflow:
-			return call_floating_point_overflow_const_(NULL, index, list);
+			return call_float_overflow_const_(NULL, index, list);
 
 		case fltclass_underflow:
-			return call_floating_point_underflow_const_(NULL, index, list);
+			return call_float_underflow_const_(NULL, index, list);
 
 		case fltclass_nan:
 		default:

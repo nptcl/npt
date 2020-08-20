@@ -29,7 +29,7 @@ static int test_findstack_environment(void)
 	addr control, name, v1, v2, stack, check;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	fixnum_heap(&v1, 10);
@@ -51,7 +51,7 @@ static int test_findstack_environment(void)
 	check = NULL;
 	test(! findstack_environment(readr_debug("ccc"), stack, T, &check), "findstack_environment5");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -62,7 +62,7 @@ static int test_check_macro_function(void)
 	addr control, v1, v2, v3, sym1, sym2, sym3, sym4, check;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	sym1 = readr_debug("aaa");
@@ -89,7 +89,7 @@ static int test_check_macro_function(void)
 
 	remmacro_symbol(sym3);
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -108,7 +108,7 @@ static int test_call_macroexpand_hook(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	compiled_system(&call, Nil);
 	SetPointer(p_debug1, var3, test_call_macroexpand_hook_function);
 	setcompiled_var3(call, p_debug1);
@@ -117,7 +117,7 @@ static int test_call_macroexpand_hook(void)
 	call_macroexpand_hook(ptr, &call, T, fixnumh(10), Nil);
 	test(RefFixnum(call) == 11, "call_macroexpand_hook1");
 
-	free_control_(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -126,7 +126,7 @@ static int test_call_macroexpand_hook(void)
 /*
  *  Main
  */
-static int testbreak_parse_macro(void)
+static int testcase_parse_macro(void)
 {
 	Error(in_package_lisp_package_());
 	/* macro */
@@ -137,44 +137,29 @@ static int testbreak_parse_macro(void)
 	return 0;
 }
 
+static void testinit_parse_macro(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_declare();
+	build_code();
+}
+
 int test_parse_macro(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_declare();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_parse_macro();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(parse_macro);
 }
 

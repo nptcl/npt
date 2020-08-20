@@ -204,7 +204,7 @@ static void defun_typep(void)
 /* (defun type-error-datum (condition) -> object */
 static int function_type_error_datum(Execute ptr, addr pos)
 {
-	type_error_datum(pos, &pos);
+	Return(type_error_datum_(pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -238,7 +238,7 @@ static void defun_type_error_datum(void)
 /* (defun type-error-expected-type (condition) -> type-spec */
 static int function_type_error_expected_type(Execute ptr, addr pos)
 {
-	type_error_expected(pos, &pos);
+	Return(type_error_expected_(pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }

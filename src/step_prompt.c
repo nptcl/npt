@@ -101,25 +101,29 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 	return 0;
 }
 
-static int step_prompt_query_(Execute ptr, addr value, int *ret)
+static int step_prompt_query_call_(Execute ptr, addr io, addr value, int *ret)
 {
-	int check;
-	addr io, symbol, control;
+	addr symbol;
 
-	Return(debug_io_stream_(ptr, &io));
-	Return(format_stream(ptr, io, "~&STEP: ~S~%", value, NULL));
-
-	/* prompt */
-	push_new_control(ptr, &control);
 	GetConst(SYSTEM_STEP_VALUE, &symbol);
 	pushspecial_control(ptr, symbol, T);
 	mode_prompt_stream(ptr, PromptStreamMode_Step);
 	Return(eval_custom_loop_(ptr, io, step_prompt_loop_));
 	getspecial_local(ptr, symbol, &value);
-	check = (value != Nil);
-	Return(free_control_(ptr, control));
 
-	return Result(ret, check);
+	return Result(ret, (value != Nil));
+}
+
+static int step_prompt_query_(Execute ptr, addr value, int *ret)
+{
+	addr io, control;
+
+	Return(debug_io_stream_(ptr, &io));
+	Return(format_stream(ptr, io, "~&STEP: ~S~%", value, NULL));
+
+	push_control(ptr, &control);
+	(void)step_prompt_query_call_(ptr, io, value, ret);
+	return pop_control_(ptr, control);
 }
 
 
@@ -136,20 +140,21 @@ _g int execute_step_code(Execute ptr, addr expr, addr value)
 	getspecial_local(ptr, symbol, &check);
 	if (check == Nil) {
 		/* step throw */
-		return runcode_control(ptr, expr);
+		return runcode_control_(ptr, expr);
 	}
 
 	/* query */
+	stepin = 0;
 	Return(step_prompt_query_(ptr, value, &stepin));
 	if (stepin) {
 		/* step in */
-		return runcode_control(ptr, expr);
+		return runcode_control_(ptr, expr);
 	}
 
 	/* step over */
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
-	Return(runcode_control(ptr, expr));
-	return free_control_(ptr, control);
+	(void)runcode_control_(ptr, expr);
+	return pop_control_(ptr, control);
 }
 

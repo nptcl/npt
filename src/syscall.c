@@ -1038,7 +1038,7 @@ static void defun_merge_sort(void)
 /* (defun exit/quit (&optional code) ...) -> (values &rest nil) */
 static int syscall_exit(Execute ptr, addr code)
 {
-	Return(exit_syscode(code));
+	Return(exit_syscode_(ptr, code));
 	setvalues_nil_control(ptr);
 	return 0;
 }

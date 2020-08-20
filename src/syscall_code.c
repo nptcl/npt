@@ -1,3 +1,4 @@
+#include "bignum.h"
 #include "bignum_data.h"
 #include "bignum_object.h"
 #include "callname.h"
@@ -603,24 +604,21 @@ _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 
 
 /* exit */
-_g int exit_syscode(addr code)
+_g int exit_syscode_(Execute ptr, addr code)
 {
-	int result;
 	fixnum value;
 
-	if (code == Unbound) {
-		exit_execute(0);
-		return 0;
-	}
-	if (! fixnump(code))
-		return fmte_("Invalid code type ~S.", code, NULL);
-	GetFixnum(code, &value);
-	result = (int)value;
-	if (value != (fixnum)result)
-		return fmte_("The result code ~S must be a int type.", code, NULL);
-	exit_execute(result);
+	/* default 0 */
+	if (code == Unbound)
+		fixnum_heap(&code, 0);
 
-	return 0;
+	/* value */
+	if (GetFixnum_signed(code, &value))
+		return fmte_("EXIT code ~S must be a integer type.", code, NULL);
+	ptr->result = (int)value;
+
+	/* invoke */
+	return call_exit_condition_(ptr, code);
 }
 
 
@@ -749,18 +747,26 @@ _g int print_unreadable_call_syscode(Execute ptr,
 
 
 /* write-default */
-_g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
+static int write_default_syscode_call_(Execute ptr, addr stream, addr var, addr *ret)
 {
-	addr control;
 	LocalHold hold;
 
 	Return(output_stream_designer_(ptr, stream, &stream));
-	push_new_control(ptr, &control);
 	hold = LocalHold_local_push(ptr, stream);
 	Return(write_default_print_(ptr, stream, var));
 	localhold_end(hold);
 
 	return Result(ret, var);
+}
+
+_g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
+{
+	addr control;
+
+	Return(output_stream_designer_(ptr, stream, &stream));
+	push_control(ptr, &control);
+	(void)write_default_syscode_call_(ptr, stream, var, ret);
+	return pop_control_(ptr, control);
 }
 
 

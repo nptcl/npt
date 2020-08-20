@@ -15,7 +15,7 @@
 static void memoryerror_local(void)
 {
 	Debug("local memory overflow.");
-	exitthis(LISPCODE_MEMORY);
+	abort_execute();
 }
 
 

@@ -46,8 +46,6 @@ enum FaslCode {
 	FaslCode_execute_control_set,
 	FaslCode_execute_control_push,
 	FaslCode_execute_control_save,
-	FaslCode_execute_switch_set,
-	FaslCode_execute_switch_push,
 
 	FaslCode_set,
 	FaslCode_push,

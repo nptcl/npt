@@ -63,6 +63,37 @@ _g void restore_values_control(struct execute *ptr, addr pos, size_t size)
 
 
 /*
+ *  throw
+ */
+_g void normal_throw_control(struct execute *ptr)
+{
+	ptr->throw_value = throw_normal;
+	ptr->throw_handler = NULL;
+	ptr->throw_control = NULL;
+	ptr->throw_point = 0;
+	ptr->throw_point_p = 0;
+}
+
+_g void save_throw_control(struct execute *ptr, struct execute_throw *save)
+{
+	save->throw_point_p = ptr->throw_point_p;
+	save->throw_value = ptr->throw_value;
+	save->throw_point = ptr->throw_point;
+	save->throw_handler = ptr->throw_handler;
+	save->throw_control = ptr->throw_control;
+}
+
+_g void restore_throw_control(struct execute *ptr, const struct execute_throw *save)
+{
+	ptr->throw_point_p = save->throw_point_p;
+	ptr->throw_value = save->throw_value;
+	ptr->throw_point = save->throw_point;
+	ptr->throw_handler = save->throw_handler;
+	ptr->throw_control = save->throw_control;
+}
+
+
+/*
  *  lexical
  */
 #define PtrExecuteLexical(x)	((addr *)PtrArrayA4(x))

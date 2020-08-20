@@ -119,6 +119,16 @@ checkerr "ERROR: npt --script"
 echo "OK: npt --script"
 
 
+## exit / quit
+${npt} --quit --eval '(npt-system:exit 10)' > /dev/null 2>&1
+[ "$?" == 10 ]
+checkerr "ERROR: npt exit"
+${npt} --quit --eval '(npt-system:quit 20)' > /dev/null 2>&1
+[ "$?" == 20 ]
+checkerr "ERROR: npt quit"
+echo "OK: npt exit / quit"
+
+
 ## rt.lisp
 cd ../../root/.
 checkerr "cd error"

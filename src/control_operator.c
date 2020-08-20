@@ -183,6 +183,8 @@ _g int go_control_(Execute ptr, addr pos)
 	}
 
 	/* rollback */
+	ptr->throw_value = throw_tagbody;
+	ptr->throw_handler = pos;
 	ptr->throw_control = str->control;
 	ptr->throw_point = str->point;
 	ptr->throw_point_p = 1;
@@ -202,6 +204,8 @@ _g int return_from_control_(Execute ptr, addr pos)
 	}
 
 	/* rollback */
+	ptr->throw_value = throw_block;
+	ptr->throw_handler = pos;
 	ptr->throw_control = str->control;
 	ptr->throw_point_p = 0;
 	return 1;
@@ -238,6 +242,8 @@ _g int throw_control_(Execute ptr, addr name)
 	if (! throw_find_control(ptr, &next, name))
 		return fmte_("Cannot find catch name ~S.", name, NULL);
 	/* rollback */
+	ptr->throw_value = throw_catch;
+	ptr->throw_handler = name;
 	ptr->throw_control = next;
 	ptr->throw_point_p = 0;
 	return 1;
@@ -342,9 +348,10 @@ static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 	/* escape */
 	GetEscapeHandler(pos, &escape);
 	if (escape) {
+		ptr->throw_value = throw_handler_case;
+		ptr->throw_handler = pos;
 		ptr->throw_control = next;
 		ptr->throw_point_p = 0;
-		exit_control(ptr);
 		return 1;
 	}
 
@@ -424,9 +431,10 @@ _g int invoke_restart_control_(Execute ptr, addr restart, addr args)
 	escape = getescape_restart(restart);
 	if (escape) {
 		Return(rollback_restart_control_(ptr->control, restart, &next));
+		ptr->throw_value = throw_restart_case;
+		ptr->throw_handler = restart;
 		ptr->throw_control = next;
 		ptr->throw_point_p = 0;
-		exit_control(ptr);
 		return 1;
 	}
 
@@ -618,36 +626,25 @@ struct restart_call {
 static int restart_call_control(struct restart_call *str,
 		int (*call)(struct restart_call *))
 {
-	int check;
 	Execute ptr;
 	addr control;
-	codejump jump;
 
 	/* execute */
 	ptr = str->ptr;
 	control = ptr->control;
-	check = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		if (str->restart)
-			pushrestart_control(ptr, str->restart);
-		check = (*call)(str);
+	if (str->restart) {
+		pushrestart_control(ptr, str->restart);
 	}
-	end_switch(&jump);
-	if (check)
-		return 1;
-
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
+	if ((*call)(str)) {
 		if (! equal_control_restart(ptr, control)) {
-			throw_switch(&jump);
 			return 1;
 		}
+		/* restart abort */
+		normal_throw_control(ptr);
 		return 0;
 	}
 
 	/* free control */
-	throw_switch(&jump);
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -783,12 +780,13 @@ _g int catch_clang(Execute ptr, pointer call, addr tag, addr value)
 	setcompiled_empty(pos, call);
 	SetDataFunction(pos, value);
 	/* execute */
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	catch_control(ptr, tag);
-	if (callclang_apply(ptr, &pos, pos, Nil)) {
-		if (! equal_control_restart(ptr, control))
-			return 1;
+	if (apply_control(ptr, pos, Nil)) {
+		if (equal_control_catch(ptr, tag))
+			normal_throw_control(ptr);
 	}
-	return free_control_(ptr, control);
+
+	return pop_control_(ptr, control);
 }
 

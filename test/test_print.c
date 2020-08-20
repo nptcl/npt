@@ -798,10 +798,10 @@ static int test_getboolean(void)
 
 	ptr = Execute_Thread;
 	GetConst(SPECIAL_PRINT_ARRAY, &symbol);
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
 	test(! getboolean(ptr, CONSTANT_SPECIAL_PRINT_ARRAY), "getboolean1");
-	free_control(ptr, control);
+	pop_control_(ptr, control);
 
 	RETURN;
 }
@@ -811,7 +811,7 @@ static int test_getboolean(void)
 /*
  *  main
  */
-static int testbreak_print(void)
+static int testcase_print(void)
 {
 #if 0
 	in_package_lisp_package();
@@ -846,43 +846,28 @@ static int testbreak_print(void)
 	return 0;
 }
 
+static void testinit_print(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_character();
+	build_package();
+	build_stream();
+	build_symbol();
+	build_clos(ptr);
+	build_condition(ptr);
+	build_type();
+	build_syscall();
+	build_common();
+	build_reader();
+	build_pathname();
+	build_code();
+}
+
 int test_print(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
-	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_setjmp(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_character();
-		build_package();
-		build_stream();
-		build_symbol();
-		build_clos(ptr);
-		build_condition(ptr);
-		build_type();
-		build_syscall();
-		build_common();
-		build_reader();
-		build_pathname();
-		build_code();
-		lisp_initialize = 1;
-		result = testbreak_print();
-	}
-	end_setjmp(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	DegradeTitle;
+	return DegradeCode(print);
 }
 

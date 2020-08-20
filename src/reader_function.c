@@ -183,15 +183,14 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 	return 0;
 }
 
-_g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive)
+static int read_delimited_list_call_(Execute ptr, addr stream, unicode limit, int recp)
 {
-	addr control, info;
+	addr info;
 	struct readinfo_struct *str;
 
 	/* push */
-	push_new_control(ptr, &control);
 	/* code */
-	if (recursive) {
+	if (recp) {
 		Return(pushreadinfo_recursive_(ptr, &info));
 	}
 	else {
@@ -199,8 +198,16 @@ _g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursiv
 	}
 	str = ReadInfoStruct(info);
 	str->dot = 1;
-	Return(read_delimited_execute(ptr, stream, limit));
-	return free_control_(ptr, control);
+	return read_delimited_execute(ptr, stream, limit);
+}
+
+_g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recp)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)read_delimited_list_call_(ptr, stream, limit, recp);
+	return pop_control_(ptr, control);
 }
 
 _g int parensis_open_reader(Execute ptr, addr stream)
@@ -239,19 +246,29 @@ _g int semicolon_reader_(addr stream)
 /*
  *  reader `
  */
-static int backquote_read_reader(Execute ptr, addr stream, int *result, addr *ret)
+static int backquote_read_reader_call_(Execute ptr, LocalHold hold,
+		addr stream, int *result, addr *ret)
 {
-	addr control, info;
-	LocalHold hold;
+	addr info;
 
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	Return(pushreadinfo_recursive_(ptr, &info));
 	ReadInfoStruct(info)->backquote++;
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+static int backquote_read_reader(Execute ptr, addr stream, int *result, addr *ret)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)backquote_read_reader_call_(ptr, hold, stream, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -273,19 +290,29 @@ _g int backquote_reader(Execute ptr, addr stream, addr *ret)
 /*
  *  reader ,
  */
-static int comma_read_reader(Execute ptr, addr stream, int *result, addr *ret)
+static int comma_read_reader_call_(Execute ptr, LocalHold hold,
+		addr stream, int *result, addr *ret)
 {
-	addr control, info;
-	LocalHold hold;
+	addr info;
 
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
 	Return(pushreadinfo_recursive_(ptr, &info));
 	ReadInfoStruct(info)->backquote--;
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+static int comma_read_reader(Execute ptr, addr stream, int *result, addr *ret)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)comma_read_reader_call_(ptr, hold, stream, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -423,9 +450,9 @@ static int equal_finalize_dispatch(Execute ptr)
 	return 0;
 }
 
-static int equal_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
+static int equal_read_dispatch_call_(Execute ptr, addr stream, int *result, addr *ret)
 {
-	addr pos, value, control;
+	addr pos, value;
 	struct readinfo_struct *str;
 	LocalHold hold;
 
@@ -436,14 +463,25 @@ static int equal_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
 	str->replace = 1;
 	hold = LocalHold_array(ptr, 1);
 	/* finalize */
-	push_new_control(ptr, &control);
 	cons_local(ptr->local, &pos, pos, value);
 	setprotect_control_local(ptr, p_equal_finalize_dispatch, pos);
 	/* code */
 	Return(read_recursive(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+static int equal_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)equal_read_dispatch_call_(ptr, stream, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -722,19 +760,20 @@ static int colon_object_dispatch_(Execute ptr, addr stream, addr *ret)
 	return 0;
 }
 
+static int colon_dispatch_call_(Execute ptr, addr stream, addr *ret)
+{
+	addr pos;
+	Return(pushreadinfo_recursive_(ptr, &pos));
+	return colon_object_dispatch_(ptr, stream, ret);
+}
+
 _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
 {
-	addr control, pos;
+	addr control;
 
-	/* push */
-	push_new_control(ptr, &control);
-	/* code */
-	Return(pushreadinfo_recursive_(ptr, &pos));
-	Return(colon_object_dispatch_(ptr, stream, &pos));
-	/* free */
-	Return(free_control_(ptr, control));
-	/* result */
-	return Result(ret, pos);
+	push_control(ptr, &control);
+	(void)colon_dispatch_call_(ptr, stream, ret);
+	return pop_control_(ptr, control);
 }
 
 
@@ -815,9 +854,24 @@ _g int or_dispatch_(addr stream)
 /*
  *  dispatch #+
  */
+static int feature_read_dispatch_call_(Execute ptr, LocalHold hold,
+		addr stream, int *result, addr *ret)
+{
+	addr symbol, keyword;
+
+	GetConst(SPECIAL_PACKAGE, &symbol);
+	GetConst(PACKAGE_KEYWORD, &keyword);
+	pushspecial_control(ptr, symbol, keyword);
+	Return(read_recursive(ptr, stream, result, ret));
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+
+	return 0;
+}
+
 static int feature_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
 {
-	addr control, symbol, keyword;
+	addr control;
 	LocalHold hold;
 
 	/* (let ((*package* (find-package "KEYWORD")))
@@ -825,15 +879,9 @@ static int feature_read_dispatch(Execute ptr, addr stream, int *result, addr *re
 	 */
 	/* push */
 	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	/* code */
-	GetConst(SPECIAL_PACKAGE, &symbol);
-	GetConst(PACKAGE_KEYWORD, &keyword);
-	pushspecial_control(ptr, symbol, keyword);
-	Return(read_recursive(ptr, stream, result, ret));
-	if (*result == 0)
-		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+	push_control(ptr, &control);
+	feature_read_dispatch_call_(ptr, hold, stream, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -916,11 +964,11 @@ static int feature_ignore_dispatch(Execute ptr, addr stream, int *result)
 	/* (let ((*read-suppress* t)) ...) */
 	addr control, symbol;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	GetConst(SPECIAL_READ_SUPPRESS, &symbol);
 	pushspecial_control(ptr, symbol, T);
-	Return(read_recursive(ptr, stream, result, &stream));
-	return free_control_(ptr, control);
+	(void)read_recursive(ptr, stream, result, &stream);
+	return pop_control_(ptr, control);
 }
 
 _g int plus_dispatch(Execute ptr, addr stream)
@@ -1027,23 +1075,31 @@ _g int dot_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #R
  */
-static int radix_execute_dispatch(Execute ptr, addr stream, fixnum base,
-		int *result, addr *ret)
+static int radix_execute_dispatch_call_(Execute ptr, LocalHold hold,
+		addr stream, fixnum base, int *result, addr *ret)
 {
-	addr control, symbol, value;
-	LocalHold hold;
+	addr symbol, value;
 
-	/* push */
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	/* code */
 	GetConst(SPECIAL_READ_BASE, &symbol);
 	fixnum_heap(&value, base);
 	pushspecial_control(ptr, symbol, value);
 	Return(read_recursive(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
+
+	return 0;
+}
+
+static int radix_execute_dispatch(Execute ptr, addr stream, fixnum base,
+		int *result, addr *ret)
+{
+	addr control;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_control(ptr, &control);
+	(void)radix_execute_dispatch_call_(ptr, hold, stream, base, result, ret);
+	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

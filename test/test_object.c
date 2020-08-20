@@ -563,7 +563,7 @@ static int testcase_object(void)
 
 int test_object(void)
 {
-	TITLE;
+	DegradeTitle;
 	return degrade_code(NULL, testcase_object);
 }
 

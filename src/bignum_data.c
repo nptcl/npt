@@ -1182,7 +1182,7 @@ _g void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type left error");
 	if (zerop_bignum(right)) {
-		division_by_zero2(left, right);
+		Abort("division-by-zero error.");
 		return;
 	}
 	if (zerop_bignum(left)) {
@@ -1273,7 +1273,7 @@ _g void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type left error");
 	if (zerop_bignum(right)) {
-		division_by_zero2(left, right);
+		Abort("division-by-zero error.");
 		return;
 	}
 	if (zerop_bignum(left)) {
@@ -1326,7 +1326,7 @@ _g void divrem_bigdata_local(LocalRoot local,
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type left error");
 	if (zerop_bignum(right)) {
-		division_by_zero2(left, right);
+		Abort("division-by-zero error.");
 		return;
 	}
 	if (zerop_bignum(left)) {

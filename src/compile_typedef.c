@@ -14,8 +14,6 @@ static void init_compile_typedef_write(void)
 	defwrite(execute_control_set);
 	defwrite(execute_control_push);
 	defwrite(execute_control_save);
-	defwrite(execute_switch_set);
-	defwrite(execute_switch_push);
 
 	defwrite(set);
 	defwrite(push);
@@ -156,8 +154,6 @@ static void init_compile_typedef_read(void)
 	defread(execute_control_set, EXECUTE_CONTROL_SET);
 	defread(execute_control_push, EXECUTE_CONTROL_PUSH);
 	defread(execute_control_save, EXECUTE_CONTROL_SAVE);
-	defread(execute_switch_set, EXECUTE_SWITCH_SET);
-	defread(execute_switch_push, EXECUTE_SWITCH_PUSH);
 
 	defread(set, SET);
 	defread(push, PUSH);

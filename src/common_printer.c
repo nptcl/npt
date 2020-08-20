@@ -939,7 +939,7 @@ static void defvar_print_right_margin(void)
 /* (defun print-not-readable-object (print-not-readable) ...) -> t */
 static int function_print_not_readable_object(Execute ptr, addr var)
 {
-	print_not_readable_object(var, &var);
+	Return(print_not_readable_object_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

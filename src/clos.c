@@ -741,8 +741,10 @@ _g int clos_checkp_(addr pos, addr key, addr *value, int *ret)
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_getp(pos, key, &check))
 		return Result(ret, 0);
-	if (check == Unbound)
+	if (check == Unbound) {
+		*ret = 0;
 		return call_unbound_slot_(NULL, pos, key);
+	}
 	*value = check;
 	return Result(ret, 1);
 }
@@ -750,8 +752,10 @@ _g int clos_checkp_(addr pos, addr key, addr *value, int *ret)
 _g int clos_get_(addr pos, addr key, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
-	if (! clos_getp(pos, key, ret))
+	if (! clos_getp(pos, key, ret)) {
+		*ret = Nil;
 		return fmte_("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+	}
 
 	return 0;
 }
@@ -771,8 +775,10 @@ _g int clos_check_(addr pos, addr key, addr *ret)
 
 	CheckType(pos, LISPTYPE_CLOS);
 	Return(clos_checkp_(pos, key, ret, &check));
-	if (! check)
+	if (! check) {
+		*ret = Nil;
 		return fmte_("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+	}
 
 	return 0;
 }
@@ -815,10 +821,13 @@ _g int clos_checkelt_(addr pos, size_t index, addr *ret)
 
 	CheckType(pos, LISPTYPE_CLOS);
 	clos_getelt(pos, index, &check);
-	if (check == Unbound)
+	if (check == Unbound) {
+		*ret = Nil;
 		return call_unbound_slot_(NULL, pos, check);
-	else
+	}
+	else {
 		return Result(ret, check);
+	}
 }
 
 _g int clos_getconst_(addr pos, constindex index, addr *ret)

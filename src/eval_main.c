@@ -115,7 +115,7 @@ static void eval_loop_shift(Execute ptr, addr list)
 	setspecial_local(ptr, sym3, pos3);
 }
 
-_g int eval_loop_output(Execute ptr, addr stream, addr control)
+_g int eval_loop_output(Execute ptr, addr stream)
 {
 	addr list, pos;
 
@@ -132,15 +132,20 @@ _g int eval_loop_output(Execute ptr, addr stream, addr control)
 	return force_output_stream_(stream);
 }
 
+static int eval_loop_stream_call_(Execute ptr, addr stream, addr pos)
+{
+	eval_loop_minus(ptr, pos);
+	Return(eval_execute_partial(ptr, pos));
+	return eval_loop_output(ptr, stream);
+}
+
 static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	eval_loop_minus(ptr, pos);
-	Return(eval_execute_partial(ptr, pos));
-	Return(eval_loop_output(ptr, stream, pos));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)eval_loop_stream_call_(ptr, stream, pos);
+	return pop_control_(ptr, control);
 }
 
 static void eval_loop_variable(Execute ptr)
@@ -219,14 +224,13 @@ static int eval_loop_restart(Execute ptr, addr stream,
 	addr control, restart;
 	struct eval_loop_struct str;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	str.stream = stream;
 	str.call = call;
 	str.ret = ret;
 	eval_main_restart_abort(&restart);
-	Return(restart0_control(ptr, restart, eval_loop_execute, (void *)&str));
-
-	return free_control_(ptr, control);
+	(void)restart0_control(ptr, restart, eval_loop_execute, (void *)&str);
+	return pop_control_(ptr, control);
 }
 
 _g int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call)
@@ -278,10 +282,10 @@ _g int eval_main_string_(Execute ptr, addr eval)
 {
 	addr control, restart;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	eval_main_restart_abort(&restart);
-	Return(restart1_control(ptr, restart, evalcall_string_result_, eval));
-	return free_control_(ptr, control);
+	(void)restart1_control(ptr, restart, evalcall_string_result_, eval);
+	return pop_control_(ptr, control);
 }
 
 
@@ -307,14 +311,13 @@ _g int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 	addr control, restart;
 	struct eval_main_load_struct str;
 
-	push_new_control(ptr, &control);
+	push_control(ptr, &control);
 	str.file = file;
 	str.exists = exists;
 	str.ret = ret? ret: &check;
 	eval_main_restart_abort(&restart);
-	Return(restart0_control(ptr, restart, eval_main_load_execute, (void *)&str));
-
-	return free_control_(ptr, control);
+	(void)restart0_control(ptr, restart, eval_main_load_execute, (void *)&str);
+	return pop_control_(ptr, control);
 }
 
 

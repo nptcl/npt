@@ -2,6 +2,7 @@
 #define __EXECUTE_HEADER__
 
 #include <signal.h>
+#include "execute_setjmp.h"
 #include "execute_typedef.h"
 #include "thread.h"
 
@@ -31,49 +32,8 @@ _g int create_thread(execfunction, struct execute *);
 _g int join_thread(threadhandle *);
 
 _g struct execute *getexecute(size_t index);
-_g void exitexecute(struct execute *ptr, lispcode code);
-_g void exitindex(size_t index, lispcode code);
-#define exitthis(code) exitexecute(Execute_Thread, code)
-_g void abortexecute(struct execute *ptr);
-_g void abortindex(size_t index);
-#define abortthis() abortexecute(Execute_Thread)
-
-
-/* codejump */
-#define setjmp_execute(ptr, code) { \
-	*(int *)(code) = setjmp(*(ptr)->exec); \
-}
-#define begin_setjmp(ptr, code) { \
-	if (begin_setjmp_check((ptr), (code))) { \
-		int __begin_setjmp; \
-		setjmp_execute((ptr), &__begin_setjmp); \
-		*(code) = (lispcode)__begin_setjmp; \
-	} \
-}
-_g int begin_setjmp_check(Execute ptr, lispcode *code);
-_g void end_setjmp(Execute ptr);
-_g int code_run_p(lispcode code);
-_g int code_end_p(lispcode code);
-_g int code_error_p(lispcode code);
-
-#define begin_switch(ptr, jump) { \
-	int __begin_value; \
-	begin_switch_check((ptr), (jump)); \
-	setjmp_execute((ptr), &__begin_value); \
-	(jump)->code = (lispcode)__begin_value; \
-}
-_g void begin_switch_check(Execute ptr, codejump *code);
-_g void end_switch(codejump *code);
-_g int codejump_run_p(codejump *code);
-_g int codejump_end_p(codejump *code);
-_g int codejump_error_p(codejump *code);
-_g int codejump_control_p(codejump *code);
-
-_g void exit_code(Execute ptr, lispcode code);
-_g void break_code(Execute ptr);
-_g void throw_code(Execute ptr, lispcode code);
-_g void throw_switch(codejump *code);
 _g int equal_control_restart(Execute ptr, addr control);
+_g int equal_control_catch(Execute ptr, addr symbol);
 
 
 /* gc sync */
@@ -83,9 +43,6 @@ _g void gcwait_execute(struct execute *ptr);
 _g void gcend_execute(void);
 _g void foreach_execute(void (*call)(struct execute *));
 _g int foreach_check_execute(int (*call)(struct execute *));
-
-/* exit */
-_g void exit_execute(int value);
 
 #endif
 

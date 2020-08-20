@@ -1764,7 +1764,7 @@ static void defmacro_with_output_to_string(void)
 /* (defun stream-error-stream (condition) -> stream */
 static int function_stream_error_stream(Execute ptr, addr var)
 {
-	stream_error_stream(var, &var);
+	Return(stream_error_stream_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

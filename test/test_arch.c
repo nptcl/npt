@@ -191,7 +191,7 @@ static int test_plussafe_size(void)
  */
 int test_arch(void)
 {
-	TITLE;
+	DegradeTitle;
 
 	TestBreak(test_read_clang);
 	TestBreak(test_readforce_clang);

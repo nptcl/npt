@@ -32,6 +32,13 @@ _g int provide_common_(Execute ptr, addr var)
 /*
  *  require
  */
+static int require_function_common_call_(Execute ptr, addr call, addr var, int *ret)
+{
+	Return(funcall_control(ptr, call, var, NULL));
+	getresult_control(ptr, &var);
+	return Result(ret, (var == Nil)? 0: 1);
+}
+
 static int require_function_common(Execute ptr, addr var, int *ret)
 {
 	int check;
@@ -44,11 +51,9 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 	while (list != Nil) {
 		Return_getcons(list, &call, &list);
 		/* funcall */
-		push_new_control(ptr, &control);
-		Return(funcall_control(ptr, call, var, NULL));
-		getresult_control(ptr, &call);
-		check = (call == Nil)? 0: 1;
-		Return(free_control_(ptr, control));
+		push_control(ptr, &control);
+		(void)require_function_common_call_(ptr, call, var, &check);
+		Return(pop_control_(ptr, control));
 		/* check */
 		if (check)
 			return Result(ret, 1);

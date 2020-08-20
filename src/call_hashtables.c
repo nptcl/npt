@@ -310,9 +310,9 @@ static int maphash_execute_common(Execute ptr, addr call, addr key, addr value)
 {
 	addr control;
 
-	push_new_control(ptr, &control);
-	Return(funcall_control(ptr, call, key, value, NULL));
-	return free_control_(ptr, control);
+	push_control(ptr, &control);
+	(void)funcall_control(ptr, call, key, value, NULL);
+	return pop_control_(ptr, control);
 }
 
 _g int maphash_common(Execute ptr, addr call, addr table)
