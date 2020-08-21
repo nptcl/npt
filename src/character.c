@@ -4,6 +4,7 @@
 #include "condition.h"
 #include "constant.h"
 #include "heap.h"
+#include "integer.h"
 #include "memory.h"
 #include "strtype.h"
 
@@ -69,6 +70,19 @@ _g addr characterh(unicode value) /* for debug */
 	addr pos;
 	character_heap(&pos, value);
 	return pos;
+}
+
+_g int character_unicode_heap(addr *ret, unicode c)
+{
+	addr pos;
+
+	if (UnicodeCount <= c || isSurrogatePair(c)) {
+		*ret = Nil;
+		make_index_integer_heap(&pos, (size_t)c);
+		return fmte_("Invalid unicode ~X.", pos, NULL);
+	}
+	character_heap(ret, c);
+	return 0;
 }
 
 _g const unicode *ptrcharacter(addr pos)

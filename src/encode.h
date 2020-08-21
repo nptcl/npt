@@ -37,6 +37,10 @@ _g int UTF16_null_strlen(const byte16 *src, size_t *ret);
 _g int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret);
 _g int UTF16_null_makeunicode(unicode *dst, const byte16 *src);
 _g int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size);
+_g int UTF32_null_strlen(const unicode *src, size_t *ret);
+_g int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret);
+_g int UTF32_null_makeunicode(unicode *dst, const unicode *src);
+_g int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size);
 
 _g int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret);
 _g int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret);

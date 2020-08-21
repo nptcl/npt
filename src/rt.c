@@ -492,6 +492,7 @@ static int do_test_(Execute ptr, addr name, addr table, int *ret)
 
 	/* test */
 	push_control(ptr, &control);
+	check = 0;
 	(void)do_test_call_(ptr, name, expr, values, &check);
 	if (free_control_degrade_(ptr, control)) {
 		Return(do_test_output_unhandling_(ptr, name, values));

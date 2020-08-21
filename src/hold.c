@@ -53,14 +53,16 @@ static void gchold_pushva_stdarg(LocalRoot local, va_list args)
 	va_copy(dest, args);
 	for (size = 0; ; size++) {
 		pos = va_arg(dest, addr);
-		if (pos == NULL) break;
+		if (pos == NULL)
+			break;
 	}
 
 	/* make */
 	gchold_local(local, &array, size);
 	for (i = 0; ; i++) {
 		pos = va_arg(args, addr);
-		if (pos == NULL) break;
+		if (pos == NULL)
+			break;
 		Check(size <= i, "size error");
 		setgchold(array, i, pos);
 	}
@@ -153,14 +155,16 @@ _g void gchold_pushva_special(Execute ptr, ...)
 	va_copy(dest, args);
 	for (size = 0; ; size++) {
 		pos = va_arg(dest, addr);
-		if (pos == NULL) break;
+		if (pos == NULL)
+			break;
 	}
 
 	/* make */
 	gchold_heap(&array, size);
 	for (i = 0; ; i++) {
 		pos = va_arg(args, addr);
-		if (pos == NULL) break;
+		if (pos == NULL)
+			break;
 		Check(size <= i, "size error");
 		setgchold(array, i, pos);
 	}
@@ -249,5 +253,58 @@ _g void localhold_set_force(LocalHold hold, size_t index, addr value)
 	CheckType(hold->array, LISPSYSTEM_GCHOLD);
 	if (setgchold_p(value))
 		setgchold(hold->array, index, value);
+}
+
+
+/*
+ *  hold object
+ */
+_g void Hold_local(addr *ret, addr value)
+{
+	hold_value(value, &value);
+	hold_local(Local_Thread, ret, value);
+}
+
+_g void hold_local(LocalRoot local, addr *ret, addr value)
+{
+	hold_value(value, &value);
+	local_array2(local, ret, LISPSYSTEM_HOLD, 1);
+}
+
+_g int holdp(addr pos)
+{
+	return pos && (pos != Unbound) && GetType(pos) == LISPSYSTEM_HOLD;
+}
+
+_g void hold_set(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_HOLD);
+	hold_value(value, &value);
+	SetArrayA2(pos, 0, value);
+}
+
+_g void hold_get(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_HOLD);
+	GetArrayA2(pos, 0, ret);
+}
+
+_g void hold_value(addr pos, addr *ret)
+{
+	if (holdp(pos))
+		GetArrayA2(pos, 0, ret);
+	else
+		*ret = pos;
+}
+
+_g addr holdv(addr pos)
+{
+	if (holdp(pos)) {
+		GetArrayA2(pos, 0, &pos);
+		return pos;
+	}
+	else {
+		return pos;
+	}
 }
 

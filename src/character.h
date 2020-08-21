@@ -40,6 +40,7 @@ _g void character_alloc(LocalRoot root, addr *ret, unicode value);
 _g void character_local(LocalRoot root, addr *ret, unicode value);
 _g void character_heap(addr *ret, unicode value);
 _g addr characterh(unicode value); /* for debug */
+_g int character_unicode_heap(addr *ret, unicode c);
 
 _g const unicode *ptrcharacter(addr pos);
 _g unicode refcharacter(addr pos);

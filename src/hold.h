@@ -34,5 +34,17 @@ _g void localhold_set_force(LocalHold hold, size_t index, addr value);
 #define LocalHold_local_push(ptr, pos) localhold_local_push((ptr)->local, (pos))
 #define LocalHold_array(ptr, size) localhold_array((ptr)->local, (size))
 
+
+/*
+ *  hold object
+ */
+_g void Hold_local(addr *ret, addr value);
+_g void hold_local(LocalRoot local, addr *ret, addr value);
+_g int holdp(addr pos);
+_g void hold_set(addr pos, addr value);
+_g void hold_get(addr pos, addr *ret);
+_g void hold_value(addr pos, addr *ret);
+_g addr holdv(addr pos);
+
 #endif
 

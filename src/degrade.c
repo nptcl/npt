@@ -104,7 +104,6 @@ int test_eval_stack(void);
 int test_equal(void);
 int test_condition(void);
 int test_bit(void);
-int test_main(void);
 int test_extern_object(void);
 int test_optimize(void);
 int loadrt(void);
@@ -214,7 +213,6 @@ void degrade_execute(void)
 	DegradeCheck(test_format);
 	DegradeCheck(test_print);
 	DegradeCheck(test_stream);
-	DegradeCheck(test_main);
 	DegradeCheck(test_condition);
 	DegradeCheck(test_extern_object);
 	DegradeCheck(test_optimize);

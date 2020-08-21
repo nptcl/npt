@@ -341,7 +341,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_symbol.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_variables.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_main.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\main.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\make_load_form.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_gcd.c" />

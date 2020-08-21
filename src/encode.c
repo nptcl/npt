@@ -1148,6 +1148,80 @@ _g int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
 	return 0;
 }
 
+_g int UTF32_null_strlen(const unicode *src, size_t *ret)
+{
+	unicode c;
+	size_t i;
+
+	for (i = 0; ; i++) {
+		c = src[i];
+		if (c == 0)
+			break;
+		if (UnicodeCount <= c)
+			return 1;
+		if (isSurrogatePair(c))
+			return 1;
+	}
+
+	*ret = i;
+	return 0;
+}
+
+_g int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret)
+{
+	unicode c;
+	size_t i;
+
+	for (i = 0; i < size; i++) {
+		c = src[i];
+		if (UnicodeCount <= c)
+			return 1;
+		if (isSurrogatePair(c))
+			return 1;
+	}
+
+	*ret = size;
+	return 0;
+}
+
+_g int UTF32_null_makeunicode(unicode *dst, const unicode *src)
+{
+	unicode c;
+	size_t i;
+
+	for (i = 0; ; i++) {
+		c = src[i];
+		if (c == 0)
+			break;
+		if (UnicodeCount <= c)
+			return 1;
+		if (isSurrogatePair(c))
+			return 1;
+		dst[i] = c;
+	}
+
+	return 0;
+}
+
+_g int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size)
+{
+	unicode c;
+	size_t i;
+
+	for (i = 0; ; i++) {
+		c = src[i];
+		if (c == 0)
+			break;
+		if (UnicodeCount <= c)
+			return 1;
+		if (isSurrogatePair(c))
+			return 1;
+		dst[i] = c;
+	}
+
+	return 0;
+}
+
 _g int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
 {
 	byte data[8];

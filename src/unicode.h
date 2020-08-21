@@ -18,5 +18,12 @@ _g int string16_null_alloc_(LocalRoot local, addr *ret, const byte16 *name);
 _g int string16_null_local_(LocalRoot local, addr *ret, const byte16 *name);
 _g int string16_null_heap_(addr *ret, const byte16 *name);
 
+_g int string32_size_alloc_(LocalRoot local, addr *ret, const unicode *name, size_t len);
+_g int string32_size_local_(LocalRoot local, addr *ret, const unicode *name, size_t len);
+_g int string32_size_heap_(addr *ret, const unicode *name, size_t len);
+_g int string32_null_alloc_(LocalRoot local, addr *ret, const unicode *name);
+_g int string32_null_local_(LocalRoot local, addr *ret, const unicode *name);
+_g int string32_null_heap_(addr *ret, const unicode *name);
+
 #endif
 

@@ -5,6 +5,7 @@
 #include "encode.h"
 #include "encode_unicode.h"
 #include "extern_unicode.h"
+#include "hold.h"
 #include "strtype.h"
 
 /*
@@ -95,8 +96,10 @@ enum LispEastAsianType lisp_eastasian_type_character(addr value)
 {
 	unicode c;
 
+	hold_value(value, &value);
 	if (! characterp(value))
 		return LispEastAsianType_error;
+
 	GetCharacter(value, &c);
 	return lisp_eastasian_type_unicode(c);
 }
@@ -110,6 +113,7 @@ int lisp_eastasian_character_(addr value, unsigned *ret)
 {
 	unicode c;
 
+	hold_value(value, &value);
 	if (! characterp(value))
 		return fmte_("Invalid character type ~S.", value, NULL);
 	GetCharacter(value, &c);
@@ -118,6 +122,7 @@ int lisp_eastasian_character_(addr value, unsigned *ret)
 
 int lisp_eastasian_string_(addr value, size_t *ret)
 {
+	hold_value(value, &value);
 	if (! stringp(value))
 		return fmte_("Invalid string type ~S.", value, NULL);
 	return eastasian_length_(value, ret, NULL);
@@ -127,6 +132,7 @@ int lisp_eastasian_width_(addr value, size_t *ret)
 {
 	unicode c;
 
+	hold_value(value, &value);
 	if (characterp(value)) {
 		GetCharacter(value, &c);
 		return Result(ret, eastasian_width(c));
