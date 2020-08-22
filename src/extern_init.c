@@ -672,8 +672,8 @@ static int lisp_argv_arguments_(struct lispargv *argv)
 		copy = size - comm;
 		vector_heap(&pos, copy + 1UL);
 		Return(lisp_argv_arguments_copy_(pos, 0, data[0]));
-		for (i = 1; i < copy; i++) {
-			Return(lisp_argv_arguments_copy_(pos, i, data[comm + i]));
+		for (i = 0; i < copy; i++) {
+			Return(lisp_argv_arguments_copy_(pos, i + 1, data[comm + i]));
 		}
 	}
 	lisp_argv_intern(pos, CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);

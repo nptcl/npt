@@ -129,6 +129,20 @@ checkerr "ERROR: npt quit"
 echo "OK: npt exit / quit"
 
 
+## *arguments*
+check="$(${npt} --quit --eval '(princ (subseq npt-system::*arguments* 1))')"
+checkerr "ERROR: npt *arguments*"
+[ "${check}" = "#()" ]
+checkerr "ERROR: npt *arguments*"
+
+check="$(${npt} --quit --eval '(princ (subseq npt-system::*arguments* 1))' -- 10 20 30)"
+checkerr "ERROR: npt *arguments*"
+[ "${check}" = "#(10 20 30)" ]
+checkerr "ERROR: npt *arguments*"
+
+echo "OK: npt --script"
+
+
 ## rt.lisp
 cd ../../root/.
 checkerr "cd error"

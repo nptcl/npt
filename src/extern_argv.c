@@ -102,16 +102,18 @@ static int mainparse_inputs_copy(struct lispargv_input *input,
 	allsize = argv->size;
 	ptr = argv->ptr;
 	for (size = 0; index < allsize; size++) {
-		s = ptr[index++];
+		s = ptr[index];
 		if (! mainparse_inputs_string(s, &type))
 			return 1;
 		if (type == lispargv_minusminus) {
 			index++;
 			break;
 		}
+		index++; /* key */
 		if (allsize <= index)
 			return 1;
-		s = copy_stringu(ptr[index++]);
+		s = copy_stringu(ptr[index]);
+		index++; /* value */
 		if (s == NULL)
 			return 1;
 		data[size].type = type;
@@ -384,19 +386,23 @@ static int mainparse_loop(struct lispargv *ptr)
 	for (i = 1; i < size; i++) {
 		s = argv[i];
 		if (LispArgv_equal(s, Heap)) {
-			if (lispargs_heap(ptr, i++)) return 1;
+			if (lispargs_heap(ptr, i++))
+				return 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Local)) {
-			if (lispargs_local(ptr, i++)) return 1;
+			if (lispargs_local(ptr, i++))
+				return 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Corefile)) {
-			if (lispargs_corefile(ptr, i++)) return 1;
+			if (lispargs_corefile(ptr, i++))
+				return 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Initfile)) {
-			if (lispargs_initfile(ptr, i++)) return 1;
+			if (lispargs_initfile(ptr, i++))
+				return 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Nocore)) {
@@ -479,13 +485,17 @@ inputs:
 static int mainparse(struct lispargv *ptr)
 {
 	/* default mode */
-	if (mainparse_initmode(ptr)) return 0;
+	if (mainparse_initmode(ptr))
+		return 0;
 	/* first argument */
-	if (mainparse_modecheck(ptr)) return 0;
+	if (mainparse_modecheck(ptr))
+		return 0;
 	/* loop */
-	if (mainparse_loop(ptr)) return 1;
+	if (mainparse_loop(ptr))
+		return 1;
 	/* inputs */
-	if (mainparse_inputs(ptr)) return 1;
+	if (mainparse_inputs(ptr))
+		return 1;
 
 	return 0;
 }
