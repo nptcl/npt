@@ -4,7 +4,9 @@
 #include "local.h"
 #include "typedef.h"
 
+_g int plusp_realp(addr pos, int *ret);
 _g int plusp_real_(addr pos, int *ret);
+_g int minusp_realp(addr pos, int *ret);
 _g int minusp_real_(addr pos, int *ret);
 _g int zerop_real_(addr pos, int *ret);
 _g int equal_fixnum_real_(addr left, addr right, int *ret);

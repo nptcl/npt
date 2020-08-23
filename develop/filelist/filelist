@@ -151,13 +151,11 @@ execute_object.c
 execute_setjmp.c
 execute_values.c
 execute.c
-extern_argv.c
 extern_control.c
 extern_error.c
 extern_init.c
 extern_object.c
 extern_stream.c
-extern_string.c
 extern_unicode.c
 extern.c
 file_memory.c
@@ -197,6 +195,8 @@ loop_symbol.c
 loop_variables.c
 loop.c
 main.c
+main_argv.c
+main_string.c
 make_load_form.c
 math_exp.c
 math_gcd.c

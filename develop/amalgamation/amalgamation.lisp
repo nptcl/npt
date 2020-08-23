@@ -577,15 +577,15 @@
     "loop_symbol.h"
     "loop_variables.h"
     "user.h"
-    "main_string.h"
+    "main_typedef.h"
     "main_argv.h"
     "main_init.h"
+    "main_string.h"
     "extern.h"
     "extern_init.h"
     "extern_error.h"
     "extern_control.h"
     "extern_object.h"
-    "extern_string.h"
     "extern_stream.h"
     "extern_unicode.h"
     ))
@@ -926,14 +926,14 @@
     "loop_variables.c"
     "user.c"
     "extern.c"
-    ("extern_argv.c" :header t)
     "extern_init.c"
     "extern_error.c"
     "extern_control.c"
     "extern_object.c"
-    "extern_string.c"
     "extern_stream.c"
     "extern_unicode.c"
+    ("main_argv.c" :header t)
+    "main_string.c"
     ))
 
 (defun header-common ()
@@ -990,7 +990,7 @@
     "typedef_basic.h"
     "typedef_integer.h"
     "typedef_stream.h"
-    "main_string.h"
+    "main_typedef.h"
     "main_argv.h"
     "main_init.h"
     "extern_control.h"

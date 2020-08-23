@@ -55,9 +55,9 @@ addr lisp_holdv(addr x)
 	return holdv(x);
 }
 
-void lisp_hold(addr *ret)
+void lisp_hold(addr *ret, addr value)
 {
-	Hold_local(ret, Nil);
+	Hold_local(ret, value);
 }
 
 addr Lisp_hold(void)
@@ -1049,9 +1049,9 @@ int lisp_zerop(addr value)
 	int check;
 
 	hold_value(value, &value);
-	if (! numberp(value))
+	if (zerop_numberp(value, &check))
 		return 0;
-	Error(zerop_number_(value, &check));
+
 	return check;
 }
 
@@ -1060,9 +1060,9 @@ int lisp_plusp(addr value)
 	int check;
 
 	hold_value(value, &value);
-	if (! realp(value))
+	if (plusp_realp(value, &check))
 		return 0;
-	Error(plusp_real_(value, &check));
+	
 	return check;
 }
 

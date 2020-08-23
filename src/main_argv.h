@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include "define.h"
-#include "main_string.h"
+#include "main_typedef.h"
 
 enum lispargv_execute {
 	lispargv_load,

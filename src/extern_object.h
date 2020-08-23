@@ -8,7 +8,7 @@ int lisp_hold_p(addr x);
 void lisp_hold_value(addr x, addr *ret);
 void lisp_hold_set(addr x, addr value);
 addr lisp_holdv(addr x);
-void lisp_hold(addr *ret);
+void lisp_hold(addr *ret, addr value);
 addr Lisp_hold(void);
 
 /* nil, t */

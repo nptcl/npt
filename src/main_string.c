@@ -1,5 +1,5 @@
 /*
- *  extern-string
+ *  main-string
  */
 #include <ctype.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@
 #include "character.h"
 #include "encode.h"
 #include "extern_init.h"
-#include "extern_string.h"
+#include "main_string.h"
 #include "typedef.h"
 
 

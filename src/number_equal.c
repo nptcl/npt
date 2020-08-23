@@ -8,7 +8,7 @@
 #include "ratio_equal.h"
 #include "typedef.h"
 
-_g int zerop_number_(addr pos, int *ret)
+_g int zerop_numberp(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -40,8 +40,16 @@ _g int zerop_number_(addr pos, int *ret)
 
 		default:
 			*ret = 0;
-			return TypeError_(pos, NUMBER);
+			return 1;
 	}
+
+	return 0;
+}
+
+_g int zerop_number_(addr pos, int *ret)
+{
+	if (zerop_numberp(pos, ret))
+		return TypeError_(pos, NUMBER);
 
 	return 0;
 }

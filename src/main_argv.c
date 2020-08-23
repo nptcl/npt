@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "alloc.h"
 #include "extern_init.h"
-#include "extern_string.h"
 #include "main_argv.h"
+#include "main_string.h"
 
 #ifdef LISP_WINMAIN_WIDE
 #include <windows.h>

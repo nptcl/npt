@@ -10,7 +10,7 @@
 #include "real_equal.h"
 #include "typedef.h"
 
-_g int plusp_real_(addr pos, int *ret)
+_g int plusp_realp(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -39,13 +39,21 @@ _g int plusp_real_(addr pos, int *ret)
 
 		default:
 			*ret = 0;
-			return TypeError_(pos, REAL);
+			return 1;
 	}
 
 	return 0;
 }
 
-_g int minusp_real_(addr pos, int *ret)
+_g int plusp_real_(addr pos, int *ret)
+{
+	if (plusp_realp(pos, ret))
+		return TypeError_(pos, REAL);
+
+	return 0;
+}
+
+_g int minusp_realp(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -74,8 +82,16 @@ _g int minusp_real_(addr pos, int *ret)
 
 		default:
 			*ret = 0;
-			return TypeError_(pos, REAL);
+			return 1;
 	}
+
+	return 0;
+}
+
+_g int minusp_real_(addr pos, int *ret)
+{
+	if (minusp_realp(pos, ret))
+		return TypeError_(pos, REAL);
 
 	return 0;
 }

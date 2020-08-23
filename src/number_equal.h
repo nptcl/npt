@@ -7,6 +7,7 @@
 
 #define plusp_number_ plusp_real_
 #define minusp_number_ minusp_real_
+_g int zerop_numberp(addr left, int *ret);
 _g int zerop_number_(addr left, int *ret);
 _g int equal_number_(LocalRoot local, addr left, addr right, int *ret);
 _g int not_equal_number_(LocalRoot local, addr left, addr right, int *ret);
