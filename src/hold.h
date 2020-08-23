@@ -42,6 +42,7 @@ _g void Hold_local(addr *ret, addr value);
 _g void hold_local(LocalRoot local, addr *ret, addr value);
 _g int holdp(addr pos);
 _g void hold_set(addr pos, addr value);
+_g void hold_set_null(addr pos, addr value);
 _g void hold_get(addr pos, addr *ret);
 _g void hold_value(addr pos, addr *ret);
 _g addr holdv(addr pos);

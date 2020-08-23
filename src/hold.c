@@ -283,6 +283,15 @@ _g void hold_set(addr pos, addr value)
 	SetArrayA2(pos, 0, value);
 }
 
+_g void hold_set_null(addr pos, addr value)
+{
+	if (pos) {
+		CheckType(pos, LISPSYSTEM_HOLD);
+		hold_value(value, &value);
+		SetArrayA2(pos, 0, value);
+	}
+}
+
 _g void hold_get(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_HOLD);

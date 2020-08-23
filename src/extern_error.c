@@ -12,7 +12,7 @@
 /*
  *  lisp_abort
  */
-void lisp_exit_error(void)
+void lisp_abort_execute(void)
 {
 	abort_execute();
 }
@@ -39,7 +39,7 @@ void lisp_abort(const char *fmt, ...)
 	getspecial_local(ptr, stream, &stream);
 	if (stream == Unbound) {
 		lisperror("lisp_abort error: Invalid error-output.", fmt);
-		lisp_exit_error();
+		abort_execute();
 		return;
 	}
 	/* output */
@@ -47,12 +47,12 @@ void lisp_abort(const char *fmt, ...)
 	check |= format_stream_lisp(ptr, stream, format, list);
 	if (check) {
 		lisperror("lisp_abort error: %s.", fmt);
-		lisp_exit_error();
+		abort_execute();
 		return;
 	}
 
 	/* abort */
-	lisp_exit_error();
+	abort_execute();
 }
 
 void lisp_abort_type(addr value, constindex index)

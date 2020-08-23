@@ -46,6 +46,8 @@ int lisp_unwind_protect(addr code, addr clean);
 void lisp_set_unwind_protect(addr clean);
 
 /* error */
+void lisp_abort_execute(void);
+void lisp_abort(const char *fmt, ...);
 int lisp_error8_(const void *str, ...);
 int lisp_error16_(const void *str, ...);
 int lisp_error32_(const void *str, ...);

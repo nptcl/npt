@@ -75,6 +75,12 @@ void lisp0_result_control(addr *ret)
 	getresult_control(Execute_Thread, ret);
 }
 
+static void lisp0_result_control_null(addr *ret)
+{
+	if (ret)
+		getresult_control(Execute_Thread, ret);
+}
+
 void lisp0_result2_control(addr *ret1, addr *ret2)
 {
 	addr x, y;
@@ -126,12 +132,10 @@ int lisp0_eval8_(addr *ret, const void *str)
 	push_local(local, &stack);
 	Return(string8_null_local_(local, &pos, (const char *)str));
 	Return(lisp0_reader_(&value, pos));
-	if (pos == NULL) {
-		*ret = Nil;
+	if (pos == NULL)
 		return fmte_("Invalid eval string ~S.", pos, NULL);
-	}
 	Return(lisp_eval_control_(value));
-	lisp0_result_control(ret);
+	lisp0_result_control_null(ret);
 	rollback_local(local, stack);
 
 	return 0;
@@ -147,12 +151,10 @@ int lisp0_eval16_(addr *ret, const void *str)
 	push_local(local, &stack);
 	Return(string16_null_local_(local, &pos, (const byte16 *)str));
 	Return(lisp0_reader_(&value, pos));
-	if (pos == NULL) {
-		*ret = Nil;
+	if (pos == NULL)
 		return fmte_("Invalid eval string ~S.", pos, NULL);
-	}
 	Return(lisp_eval_control_(value));
-	getresult_control(Execute_Thread, ret);
+	lisp0_result_control_null(ret);
 	rollback_local(local, stack);
 
 	return 0;
@@ -168,12 +170,10 @@ int lisp0_eval32_(addr *ret, const void *str)
 	push_local(local, &stack);
 	Return(string32_null_local_(local, &pos, (const unicode *)str));
 	Return(lisp0_reader_(&value, pos));
-	if (pos == NULL) {
-		*ret = Nil;
+	if (pos == NULL)
 		return fmte_("Invalid eval string ~S.", pos, NULL);
-	}
 	Return(lisp_eval_control_(value));
-	getresult_control(Execute_Thread, ret);
+	lisp0_result_control_null(ret);
 	rollback_local(local, stack);
 
 	return 0;
@@ -184,7 +184,7 @@ int lisp_eval8_(addr x, const void *str)
 	addr pos;
 
 	Return(lisp0_eval8_(&pos, str));
-	hold_set(x, pos);
+	hold_set_null(x, pos);
 	return 0;
 }
 
@@ -193,7 +193,7 @@ int lisp_eval16_(addr x, const void *str)
 	addr pos;
 
 	Return(lisp0_eval16_(&pos, str));
-	hold_set(x, pos);
+	hold_set_null(x, pos);
 	return 0;
 }
 
@@ -202,7 +202,7 @@ int lisp_eval32_(addr x, const void *str)
 	addr pos;
 
 	Return(lisp0_eval32_(&pos, str));
-	hold_set(x, pos);
+	hold_set_null(x, pos);
 	return 0;
 }
 

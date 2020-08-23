@@ -1265,8 +1265,10 @@ int lisp0_funcall_(addr *ret, addr call, ...)
 
 	hold_value(call, &call);
 	Return(lisp0_function_(&call, call));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1287,8 +1289,10 @@ int lisp0_funcall8_(addr *ret, const void *str, ...)
 	va_end(va);
 
 	Return(lisp0_function8_(&call, str));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1309,8 +1313,10 @@ int lisp0_funcall16_(addr *ret, const void *str, ...)
 	va_end(va);
 
 	Return(lisp0_function16_(&call, str));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1331,8 +1337,10 @@ int lisp0_funcall32_(addr *ret, const void *str, ...)
 	va_end(va);
 
 	Return(lisp0_function32_(&call, str));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1357,7 +1365,7 @@ int lisp_funcall_(addr x, addr call, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1380,7 +1388,7 @@ int lisp_funcall8_(addr x, const void *str, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1403,7 +1411,7 @@ int lisp_funcall16_(addr x, const void *str, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1426,7 +1434,7 @@ int lisp_funcall32_(addr x, const void *str, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1451,8 +1459,10 @@ int lisp0_apply_(addr *ret, addr call, ...)
 
 	hold_value(call, &call);
 	Return(lisp0_function_(&call, call));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1473,8 +1483,10 @@ int lisp0_apply8_(addr *ret, const void *str, ...)
 	va_end(va);
 
 	Return(lisp0_function8_(&call, str));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1495,8 +1507,10 @@ int lisp0_apply16_(addr *ret, const void *str, ...)
 	va_end(va);
 
 	Return(lisp0_function16_(&call, str));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1517,8 +1531,10 @@ int lisp0_apply32_(addr *ret, const void *str, ...)
 	va_end(va);
 
 	Return(lisp0_function32_(&call, str));
-	Return(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
+	if (ret)
+		*ret = call;
 
 	return 0;
 }
@@ -1543,7 +1559,7 @@ int lisp_apply_(addr x, addr call, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1566,7 +1582,7 @@ int lisp_apply8_(addr x, const void *str, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1589,7 +1605,7 @@ int lisp_apply16_(addr x, const void *str, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
@@ -1612,7 +1628,7 @@ int lisp_apply32_(addr x, const void *str, ...)
 	Return(callclang_apply(ptr, &call, call, args));
 	rollback_local(local, stack);
 
-	hold_set(x, call);
+	hold_set_null(x, call);
 	return 0;
 }
 
