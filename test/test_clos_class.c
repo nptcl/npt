@@ -402,7 +402,7 @@ static int test_clos_subtype_p2(void)
 
 	local = Local_Thread;
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	clos = Nil;
 	clos_stdclass_type_(local, &clos, metaclass, name, Nil);
 	clos_instance_heap_(clos, &instance);
@@ -1333,17 +1333,17 @@ static int test_clos_slots_name(void)
 
 	check = 0;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 
 	check = clos_slots_name(&cons, name, Nil);
 	test(check == 0, "clos_slots_name1");
 
 	slot_heap(&slot1);
-	internchar_debug(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_COMMON_USER, "AAA", &pos);
 	SetNameSlot(slot1, pos);
 
 	slot_heap(&slot2);
-	internchar_debug(LISP_PACKAGE, "BBB", &pos);
+	internchar_debug(LISP_COMMON_USER, "BBB", &pos);
 	SetNameSlot(slot2, pos);
 
 	list_heap(&cons, slot1, slot2, NULL);
@@ -1351,7 +1351,7 @@ static int test_clos_slots_name(void)
 	test(check == 0, "clos_slots_name2");
 
 	slot_heap(&slot2);
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	SetNameSlot(slot2, pos);
 
 	list_heap(&cons, slot1, slot2, NULL);
@@ -1406,7 +1406,7 @@ static void test_makeclos_slotname_heap(addr *ret, const char *name)
 {
 	addr symbol;
 	slot_heap(ret);
-	internchar_debug(LISP_PACKAGE, name, &symbol);
+	internchar_debug(LISP_COMMON_USER, name, &symbol);
 	SetNameSlot(*ret, symbol);
 }
 
@@ -1448,7 +1448,7 @@ static int slotnamecheck(addr slot, const char *name)
 {
 	addr check;
 	GetNameSlot(slot, &slot);
-	internchar_debug(LISP_PACKAGE, name, &check);
+	internchar_debug(LISP_COMMON_USER, name, &check);
 	return check == slot;
 }
 
@@ -1727,7 +1727,7 @@ static int test_clos_stdclass_make(void)
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy_(&clos, slots);
 	test_slot_vector_heap(&slots, 4);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	clos_stdclass_make_(&clos, clos, name, slots);
 	stdget_class_name_(clos, &check);
 	test(check == name, "clos_stdclass_make1");
@@ -1748,7 +1748,7 @@ static int test_clos_stdclass_empty(void)
 
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy_(&clos, slots);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	clos_stdclass_empty_(&clos, clos, name);
 	stdget_class_direct_slots_(clos, &check);
 	LenSlotVector(check, &size);
@@ -1764,7 +1764,7 @@ static int test_clos_stdclass_class_of(void)
 
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy_(&clos, slots);
-	internchar_debug(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_COMMON_USER, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&clos, clos, name, slots);
 
@@ -1788,17 +1788,17 @@ static int test_clos_stdclass_inherit(void)
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy_(&metaclass, slots);
-	internchar_debug(LISP_PACKAGE, "METACLASS", &name);
+	internchar_debug(LISP_COMMON_USER, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&metaclass, metaclass, name, slots);
 	clos_stdclass_inherit_(local, metaclass, metaclass, Nil);
 
-	internchar_debug(LISP_PACKAGE, "SUPER", &name);
+	internchar_debug(LISP_COMMON_USER, "SUPER", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&super, metaclass, name, slots);
 	clos_stdclass_inherit_(local, super, metaclass, Nil);
 
-	internchar_debug(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_COMMON_USER, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&clos, metaclass, name, slots);
 	list_heap(&supers, super, NULL);
@@ -1837,17 +1837,17 @@ static int test_clos_stdclass_single(void)
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy_(&metaclass, slots);
-	internchar_debug(LISP_PACKAGE, "METACLASS", &name);
+	internchar_debug(LISP_COMMON_USER, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&metaclass, metaclass, name, slots);
 	clos_stdclass_inherit_(local, metaclass, metaclass, Nil);
 
-	internchar_debug(LISP_PACKAGE, "SUPER", &name);
+	internchar_debug(LISP_COMMON_USER, "SUPER", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&super, metaclass, name, slots);
 	clos_stdclass_inherit_(local, super, metaclass, Nil);
 
-	internchar_debug(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_COMMON_USER, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make_(&clos, metaclass, name, slots);
 	clos_stdclass_single_(local, clos, metaclass, super);
@@ -1941,15 +1941,15 @@ static int test_clos_stdclass_supers(void)
 
 	local = Local_Thread;
 	clos_stdclass_metaclass_(local, &metaclass);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	clos_find_class_(T, &check);
 	list_heap(&supers, check, NULL);
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
-	internchar_debug(LISP_PACKAGE, "AAA", &symbol);
+	internchar_debug(LISP_COMMON_USER, "AAA", &symbol);
 	SetNameSlot(slot, symbol);
 	SetSlotVector(slots, 0, slot);
-	internchar_debug(LISP_PACKAGE, "BBB", &symbol);
+	internchar_debug(LISP_COMMON_USER, "BBB", &symbol);
 	slot_heap(&slot);
 	SetNameSlot(slot, symbol);
 	SetSlotVector(slots, 1, slot);
@@ -1977,7 +1977,7 @@ static int test_clos_stdclass_type(void)
 
 	local = Local_Thread;
 	clos_stdclass_metaclass_(local, &metaclass);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	clos_find_class_(T, &tclass);
 	list_heap(&supers, tclass, NULL);
 	instance = Nil;
@@ -2041,11 +2041,11 @@ static int test_clos_stdclass_slotsconstant(void)
 	local = Local_Thread;
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
-	internchar_debug(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_COMMON_USER, "AAA", &name);
 	SetNameSlot(slot, name);
 	SetSlotVector(slots, 0, slot);
 	slot_heap(&slot);
-	internchar_debug(LISP_PACKAGE, "BBB", &name);
+	internchar_debug(LISP_COMMON_USER, "BBB", &name);
 	SetNameSlot(slot, name);
 	SetSlotVector(slots, 1, slot);
 

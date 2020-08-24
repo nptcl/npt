@@ -62,7 +62,7 @@ static int test_qualifiers_equal_symbol(void)
 	check = 0;
 
 	ptr = Execute_Thread;
-	internchar_debug(LISP_PACKAGE, str, &symbol);
+	internchar_debug(LISP_COMMON_USER, str, &symbol);
 	compiled_system(&call, symbol);
 	SetPointer_rest(p_debug1, test_symbolcall);
 	setcompiled_rest(call, p_debug1);
@@ -94,7 +94,7 @@ static int test_qualifiers_equal(void)
 	qualifiers_equal_(ptr, left, right, &check);
 	test(check, "qualifiers_equal2");
 
-	internchar_debug(LISP_PACKAGE, str, &right);
+	internchar_debug(LISP_COMMON_USER, str, &right);
 	compiled_system(&call, right);
 	SetPointer_rest(p_debug1, test_symbolcall);
 	setcompiled_rest(call, p_debug1);
@@ -226,7 +226,7 @@ static int test_check_qualifiers_equal_short(void)
 	addr comb, name, pos;
 
 	test_make_instance_shortcomb(&comb);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	stdset_shortcomb_name_(comb, name);
 
 	check_qualifiers_equal_short_(comb, Nil, &check);
@@ -258,7 +258,7 @@ static int test_check_qualifiers_equal(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	internchar_debug(LISP_PACKAGE, "HELLO", &hello);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &hello);
 	list_heap(&name, hello, NULL);
 
 	/* standard */
@@ -380,7 +380,7 @@ static int test_qualifiers_position_short_nil(void)
 
 	test_make_instance_shortcomb(&comb);
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	stdset_shortcomb_name_(comb, pos);
 
 	list_heap(&pos, pos, NULL);
@@ -434,7 +434,7 @@ static int test_qualifiers_position(void)
 
 	ptr = Execute_Thread;
 	test_make_instance_shortcomb(&comb);
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	stdset_shortcomb_name_(comb, pos);
 	list_heap(&pos, pos, NULL);
 	index = 0;

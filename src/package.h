@@ -28,9 +28,7 @@ _g int package_size_heap_(addr *ret, addr name, size_t size);
 _g int package_heap_(addr *ret, addr name);
 _g int find_allsymbols_package_(addr name, addr *ret);
 _g int list_all_packages_(addr *ret);
-
 _g int in_package_(Execute ptr, addr package, addr *ret);
-_g int in_package_lisp_package_(void);
 
 _g int externalp_package_(addr symbol, addr package, int *ret);
 _g int exportp_package_(addr symbol, addr package, int *ret);

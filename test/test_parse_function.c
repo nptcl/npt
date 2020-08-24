@@ -50,7 +50,7 @@ static int test_parse_eval_symbol(void)
 {
 	addr pos, value;
 
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	eval_parse(Execute_Thread, &pos, value);
 	test(GetType(pos) == LISPTYPE_EVAL, "parse_eval_symbol1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_SYMBOL, "parse_eval_symbol2");
@@ -171,7 +171,7 @@ static int test_evalkeyword(addr symbol, const char *name)
 
 static int test_evalsymlocal(addr symbol, const char *name)
 {
-	return symbol == interncharr(LISP_PACKAGE, name);
+	return symbol == interncharr(LISP_COMMON_USER, name);
 }
 
 #if 0
@@ -196,7 +196,7 @@ static int test_eqsymbol(addr symbol, const char *name)
 		degrade_printf("symbol type error\n");
 		return 0;
 	}
-	if (symbol != interncharr(LISP_PACKAGE, name)) {
+	if (symbol != interncharr(LISP_COMMON_USER, name)) {
 		degrade_printf("symbol error\n");
 		return 0;
 	}
@@ -277,7 +277,7 @@ static int test_parse_letone(void)
 {
 	addr pos, cons, symbol, value;
 
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_COMMON_USER, "HELLO", &pos);
 	parse_letone(pos, &symbol, &value);
 	test(symbol == pos, "parse_letone1");
 	test(value == Nil, "parse_letone2");
@@ -410,7 +410,7 @@ static int test_check_variable_notnil(void)
 	pos = Nil;
 	check_variable_notnil(&pos);
 	test(pos == Nil, "check_variable_notnil1");
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar(LISP_COMMON_USER, "AAA", &pos);
 	check_variable_notnil(&pos);
 	test(symbolp(pos), "check_variable_notnil2");
 	test(test_eqsymbol(pos, "AAA"), "check_variable_notnil3");
@@ -606,7 +606,7 @@ static int test_parse_defun(void)
 	test(GetType(left) == LISPTYPE_CALLNAME, "parse_defun2");
 	test(RefCallNameType(left) == CALLNAME_SYMBOL, "parse_defun3");
 	GetCallName(left, &left);
-	test(left == interncharr(LISP_PACKAGE, "HELLO"), "parse_defun4");
+	test(left == interncharr(LISP_COMMON_USER, "HELLO"), "parse_defun4");
 	/* lambda-list */
 	GetEvalParse(cons, 1, &right);
 	GetCons(right, &left, &right); /* var */
@@ -644,7 +644,7 @@ static int test_parse_defun(void)
 	test(GetType(left) == LISPTYPE_CALLNAME, "parse_defun16");
 	test(RefCallNameType(left) == CALLNAME_SETF, "parse_defun17");
 	GetCallName(left, &left);
-	test(left == interncharr(LISP_PACKAGE, "HELLO"), "parse_defun18");
+	test(left == interncharr(LISP_COMMON_USER, "HELLO"), "parse_defun18");
 	/* lambda-list */
 	GetEvalParse(cons, 1, &right);
 	GetCons(right, &left, &right); /* var */
@@ -1067,7 +1067,7 @@ static int test_parse_quote(void)
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_QUOTE), "parse_quote1");
 	GetEvalParse(cons, 0, &cons);
-	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_quote2");
+	test(cons == interncharr(LISP_COMMON_USER, "HELLO"), "parse_quote2");
 
 	RETURN;
 }
@@ -1123,14 +1123,14 @@ static int test_parse_function_argument(void)
 	push_control(ptr, &control);
 	init_parse_environment(ptr);
 
-	internchar(LISP_PACKAGE, "HELLO", &cons);
+	internchar(LISP_COMMON_USER, "HELLO", &cons);
 	parse_function_argument(ptr, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_FUNCTION), "parse_function_argument1");
 	GetEvalParse(cons, 0, &cons);
 	test(GetType(cons) == LISPTYPE_CALLNAME, "parse_function_argument2");
 	test(RefCallNameType(cons) == CALLNAME_SYMBOL, "parse_function_argument3");
 	GetCallName(cons, &cons);
-	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_function_argument4");
+	test(cons == interncharr(LISP_COMMON_USER, "HELLO"), "parse_function_argument4");
 
 	readstring_debug(&cons, "(setf hello)");
 	parse_function_argument(ptr, &cons, cons);
@@ -1139,7 +1139,7 @@ static int test_parse_function_argument(void)
 	test(GetType(cons) == LISPTYPE_CALLNAME, "parse_function_argument6");
 	test(RefCallNameType(cons) == CALLNAME_SETF, "parse_function_argument7");
 	GetCallName(cons, &cons);
-	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_function_argument8");
+	test(cons == interncharr(LISP_COMMON_USER, "HELLO"), "parse_function_argument8");
 
 	readstring_debug(&cons,
 			"(lambda (value)"
@@ -1198,7 +1198,7 @@ static int test_parse_function_function(void)
 	test(GetType(cons) == LISPTYPE_CALLNAME, "parse_function2");
 	test(RefCallNameType(cons) == CALLNAME_SYMBOL, "parse_function3");
 	GetCallName(cons, &cons);
-	test(cons == interncharr(LISP_PACKAGE, "HELLO"), "parse_function4");
+	test(cons == interncharr(LISP_COMMON_USER, "HELLO"), "parse_function4");
 
 	readstring_debug(&cons, "(function (lambda () :hello))");
 	eval_parse(Execute_Thread, &cons, cons);
@@ -1276,7 +1276,7 @@ static int test_tagsymbol(addr eval, const char *name)
 		degrade_printf("symbol type error\n");
 		return 0;
 	}
-	if (pos == interncharr(LISP_PACKAGE, name)) {
+	if (pos == interncharr(LISP_COMMON_USER, name)) {
 		degrade_printf("symbol name error\n");
 		return 0;
 	}
@@ -1383,7 +1383,7 @@ static int test_parse_block(void)
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_BLOCK), "parse_block4");
 	GetEvalParse(cons, 0, &check);
-	test(check == interncharr(LISP_PACKAGE, "HELLO"), "parse_block5");
+	test(check == interncharr(LISP_COMMON_USER, "HELLO"), "parse_block5");
 	GetEvalParse(cons, 1, &cons);
 	GetCons(cons, &check, &cons);
 	test(test_eqlfixnum(check, 10), "parse_block6");
@@ -1411,7 +1411,7 @@ static int test_parse_return_from(void)
 	eval_parse(Execute_Thread, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_RETURN_FROM), "parse_return_from4");
 	GetEvalParse(cons, 0, &check);
-	test(check == interncharr(LISP_PACKAGE, "HELLO"), "parse_return_from5");
+	test(check == interncharr(LISP_COMMON_USER, "HELLO"), "parse_return_from5");
 	GetEvalParse(cons, 1, &cons);
 	test(test_eqlfixnum(cons, 100), "parse_return_from6");
 
@@ -1489,7 +1489,7 @@ static int test_parse_flet_one(void)
 	GetCons(cons, &check, &cons); /* name */
 	test(GetType(check) == LISPTYPE_CALLNAME, "parse_flet_one1");
 	GetCallName(check, &check);
-	test(check == interncharr(LISP_PACKAGE, "HELLO"), "parse_flet_one2");
+	test(check == interncharr(LISP_COMMON_USER, "HELLO"), "parse_flet_one2");
 	GetCons(cons, &check, &cons); /* args */
 	GetCar(check, &check);
 	test(check == Nil, "parse_flet_one3");

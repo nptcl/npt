@@ -1,10 +1,8 @@
 #ifndef __BUILD_DEFINE_HEADER__
 #define __BUILD_DEFINE_HEADER__
 
-#define LISP_PACKAGE            LISPNAME
 #define LISP_SYSTEM             LISPNAME "-SYSTEM"
 #define LISP_CODE               LISPNAME "-CODE"
-#define LISP_USER               LISPNAME "-USER"
 #define LISP_CLOS               LISPNAME "-CLOS"
 #define LISP_RT                 LISPNAME "-RT"
 #define LISP_KEYWORD            "KEYWORD"

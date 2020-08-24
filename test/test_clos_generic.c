@@ -168,7 +168,7 @@ static int test_comb_standard_method(void)
 	push_control(ptr, &control);
 
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &call);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC1", &call);
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -226,7 +226,7 @@ static int test_comb_standard_funcall(void)
 	push_control(ptr, &control);
 
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC2", &call);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC2", &call);
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_funcall_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -255,7 +255,7 @@ static int test_function_standard_lambda(void)
 	push_control(ptr, &control);
 
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC3", &call);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC3", &call);
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -290,7 +290,7 @@ static int test_comb_standard_qualifiers(void)
 	stdset_generic_method_class_(generic, method);
 	/* make method */
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC4", &call);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC4", &call);
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -320,7 +320,7 @@ static int test_comb_standard(void)
 	/* data */
 	vector4_heap(&data, 4);
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC5", &call);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC5", &call);
 	compiled_system(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -718,7 +718,7 @@ static int test_generic_make_type(void)
 	stdset_generic_method_class_(generic, pos);
 	/* method */
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC1", &pos);
 	compiled_system(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);
@@ -832,7 +832,7 @@ static int test_closrun_execute(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	SetFunctionSymbol(name, Unbound);
 	lambda = readr_debug("(values)");
 
@@ -843,7 +843,7 @@ static int test_closrun_execute(void)
 	stdset_generic_eqlcheck_(generic, pos);
 	/* method */
 	test_make_method(&method);
-	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
+	internchar_debug(LISP_COMMON_USER, "TEST-GENERIC1", &pos);
 	compiled_system(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);

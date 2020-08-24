@@ -17,11 +17,11 @@ static int test_getcallname(void)
 {
 	addr pos, name, check;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	pos = Nil;
 	parse_callname_heap(&pos, name);
 	test(refcallname(pos) == name, "getcallname.1");
-	internchar_debug(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_COMMON_USER, "AAA", &name);
 	setcallname(pos, name);
 	getcallname(pos, &check);
 	test(check == name, "getcallname.2");
@@ -34,7 +34,7 @@ static int test_getcallnametype(void)
 	CallNameType check;
 	addr pos;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	parse_callname_heap(&pos, pos);
 	test(refcallnametype(pos) == CALLNAME_SYMBOL, "getcallnametype.1");
 	setcallnametype(pos, CALLNAME_SETF);
@@ -50,7 +50,7 @@ static int test_callname_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	callname_alloc(NULL, &pos, name, CALLNAME_SYMBOL);
 	test(GetType(pos) == LISPTYPE_CALLNAME, "callname_alloc.1");
 	GetCallName_Low(pos, &check);
@@ -79,7 +79,7 @@ static int test_copy_callname_alloc(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	parse_callname_heap(&pos, pos);
 	check = NULL;
 	copy_callname_alloc(local, &check, pos);
@@ -109,11 +109,11 @@ static int test_parse_callname(void)
 	test(check == Nil, "parse_callname.2");
 	test(parse_callname(T, &check) == CALLNAME_SYMBOL, "parse_callname.3");
 	test(check == T, "parse_callname.4");
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	test(parse_callname(pos, &check) == CALLNAME_SYMBOL, "parse_callname.5");
 	test(check == pos, "parse_callname.6");
 	GetConstant(CONSTANT_COMMON_SETF, &setf);
-	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
 	list_heap(&pos, setf, symbol, NULL);
 	test(parse_callname(pos, &check) == CALLNAME_SETF, "parse_callname.7");
 	test(check == symbol, "parse_callname.8");
@@ -121,7 +121,7 @@ static int test_parse_callname(void)
 	fixnum_heap(&pos, 10);
 	test(parse_callname(pos, &check) == CALLNAME_ERROR, "parse_callname.9");
 	fixnum_heap(&pos, 10);
-	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
 	list_heap(&pos, pos, symbol, NULL);
 	test(parse_callname(pos, &check) == CALLNAME_ERROR, "parse_callname.10");
 	list_heap(&pos, setf, NULL);
@@ -144,7 +144,7 @@ static int test_parse_callname_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	test(parse_callname_alloc(NULL, &pos, name) == 0, "parse_callname_alloc.1");
 	test(GetType(pos) == LISPTYPE_CALLNAME, "parse_callname_alloc.2");
 	GetCallName(pos, &check);
@@ -156,13 +156,13 @@ static int test_parse_callname_alloc(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	test(parse_callname_local(local, &pos, name) == 0, "parse_callname_alloc.6");
 	test(GetType(pos) == LISPTYPE_CALLNAME, "parse_callname_alloc.7");
 	test(GetStatusDynamic(pos), "parse_callname_alloc.8");
 	rollback_local(local, stack);
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	test(parse_callname_heap(&pos, name) == 0, "parse_callname_alloc.9");
 	test(GetType(pos) == LISPTYPE_CALLNAME, "parse_callname_alloc.10");
 	test(! GetStatusDynamic(pos), "parse_callname_alloc.11");
@@ -174,11 +174,11 @@ static int test_function_name_p(void)
 {
 	addr pos, name;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	callname_heap(&pos, name, CALLNAME_SYMBOL);
 	test(function_name_p(pos), "function_name_p.1");
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	test(function_name_p(name), "function_name_p.2");
 
 	fixnum_heap(&pos, 100);
@@ -191,7 +191,7 @@ static int test_constantp_callname(void)
 {
 	addr pos;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	parse_callname_heap(&pos, pos);
 	test(! constantp_callname(pos), "constantp_callname.1");
 
@@ -205,20 +205,20 @@ static int test_equal_callname(void)
 {
 	addr left, right;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &left);
-	internchar_debug(LISP_PACKAGE, "HELLO", &right);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &left);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &right);
 	parse_callname_heap(&left, left);
 	parse_callname_heap(&right, right);
 	test(equal_callname(left, right), "equal_callname.1");
 
-	internchar_debug(LISP_PACKAGE, "AAA", &left);
-	internchar_debug(LISP_PACKAGE, "HELLO", &right);
+	internchar_debug(LISP_COMMON_USER, "AAA", &left);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &right);
 	parse_callname_heap(&left, left);
 	parse_callname_heap(&right, right);
 	test(! equal_callname(left, right), "equal_callname.2");
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &left);
-	internchar_debug(LISP_PACKAGE, "HELLO", &right);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &left);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &right);
 	parse_callname_heap(&left, left);
 	parse_callname_heap(&right, right);
 	SetCallNameType(right, CALLNAME_SETF);
@@ -257,13 +257,13 @@ static int test_callnametype(void)
 {
 	addr name, pos, check;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	parse_callname_heap(&pos, name);
 	check = NULL;
 	test(callnametype(pos, &check) == CALLNAME_SYMBOL, "callnametype.1");
 	test(check == name, "callnametype.2");
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	test_setfcons(&pos, name);
 	check = NULL;
 	test(callnametype(pos, &check) == CALLNAME_SETF, "callnametype.3");
@@ -277,10 +277,10 @@ static void test_reinternchar(const char *name, addr *ret)
 	int check;
 	addr package, symbol;
 
-	internchar_debug(LISP_PACKAGE, name, &symbol);
-	Error(find_char_package_(LISP_PACKAGE, &package));
+	internchar_debug(LISP_COMMON_USER, name, &symbol);
+	Error(find_char_package_(LISP_COMMON_USER, &package));
 	unintern_package_(package, symbol, &check);
-	internchar_debug(LISP_PACKAGE, name, ret);
+	internchar_debug(LISP_COMMON_USER, name, ret);
 }
 
 static int test_getcallname_global(void)

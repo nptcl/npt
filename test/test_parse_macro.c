@@ -128,8 +128,6 @@ static int test_call_macroexpand_hook(void)
  */
 static int testcase_parse_macro(void)
 {
-	Error(in_package_lisp_package_());
-	/* macro */
 	TestBreak(test_findstack_environment);
 	TestBreak(test_check_macro_function);
 	TestBreak(test_call_macroexpand_hook);

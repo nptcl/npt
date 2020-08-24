@@ -2098,24 +2098,24 @@ static int test_format_call_CallFunction(void)
 
 	ptr = Execute_Thread;
 
-	internchar_debug(LISP_PACKAGE, "FORMAT-FUNCTION-TEST", &symbol);
+	internchar_debug(LISP_COMMON_USER, "FORMAT-FUNCTION-TEST", &symbol);
 	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_format_call_CallFunction_test);
 	setcompiled_dynamic(call, p_debug1);
 	SetFunctionSymbol(symbol, call);
-	strvect_char_heap(&pos, "~/" LISP_PACKAGE "::format-function-test/-~A");
+	strvect_char_heap(&pos, "~/" LISP_COMMON_USER "::format-function-test/-~A");
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
 	format_string_lisp(ptr, pos, list, &pos);
 	test(string_equal_char_debug(pos, "10-0-20"), "format_call_CallFunction1");
 
 	strvect_char_heap(&pos,
-			"~1,2,3:@/" LISP_PACKAGE "::format-function-test/-~A");
+			"~1,2,3:@/" LISP_COMMON_USER "::format-function-test/-~A");
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
 	format_string_lisp(ptr, pos, list, &pos);
 	test(string_equal_char_debug(pos, "10:@-3-20"), "format_call_CallFunction2");
 
 	strvect_char_heap(&pos,
-			"~1,2,'*,#,#,2,3,4,5,6@/" LISP_PACKAGE "::format-function-test/-~A");
+			"~1,2,'*,#,#,2,3,4,5,6@/" LISP_COMMON_USER "::format-function-test/-~A");
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
 	format_string_lisp(ptr, pos, list, &pos);
 	test(string_equal_char_debug(pos, "10@-10-20"), "format_call_CallFunction3");

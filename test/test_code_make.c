@@ -1130,42 +1130,42 @@ static int test_code_multiple_value_call(void)
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
 
-	readstring_debug(&pos, LISP_PACKAGE "::test-multiple-value-call1");
+	readstring_debug(&pos, LISP_COMMON_USER "::test-multiple-value-call1");
 	compiled_system(&call, pos);
 	SetPointer(p_debug1, dynamic, test_multiple_value_call1);
 	setcompiled_dynamic(call, p_debug1);
 	SetFunctionSymbol(pos, call);
 
 	codechar_set(&pos, "(multiple-value-call #'"
-			LISP_PACKAGE "::test-multiple-value-call1 "
+			LISP_COMMON_USER "::test-multiple-value-call1 "
 			"10 20 30)");
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call1");
 
 	codechar_set(&pos, "(multiple-value-call #'"
-			LISP_PACKAGE "::test-multiple-value-call1 "
+			LISP_COMMON_USER "::test-multiple-value-call1 "
 			"(values 10 20) 30)");
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call2");
 
 	codechar_set(&pos, "(multiple-value-call #'"
-			LISP_PACKAGE "::test-multiple-value-call1 "
+			LISP_COMMON_USER "::test-multiple-value-call1 "
 			"10 (values 20 30))");
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call3");
 
 	codechar_set(&pos, "(multiple-value-call #'"
-			LISP_PACKAGE "::test-multiple-value-call1 "
+			LISP_COMMON_USER "::test-multiple-value-call1 "
 			"(values 10 20 30))");
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call4");
 
 	codechar_set(&pos, "(multiple-value-call #'"
-			LISP_PACKAGE "::test-multiple-value-call1 "
+			LISP_COMMON_USER "::test-multiple-value-call1 "
 			"10 20 30 40)");
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);

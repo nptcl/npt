@@ -64,10 +64,10 @@ static int test_setplist_alloc(void)
 {
 	addr pos, list, check, sym1, sym2, sym3, sym4;
 
-	internchar_debug(LISP_PACKAGE, "HELLO1", &sym1);
-	internchar_debug(LISP_PACKAGE, "HELLO2", &sym2);
-	internchar_debug(LISP_PACKAGE, "HELLO3", &sym3);
-	internchar_debug(LISP_PACKAGE, "HELLO4", &sym4);
+	internchar_debug(LISP_COMMON_USER, "HELLO1", &sym1);
+	internchar_debug(LISP_COMMON_USER, "HELLO2", &sym2);
+	internchar_debug(LISP_COMMON_USER, "HELLO3", &sym3);
+	internchar_debug(LISP_COMMON_USER, "HELLO4", &sym4);
 	test(setplist_alloc(NULL, Nil, sym1, sym2, &list), "setplist_alloc.1");
 	test(GetType(list) == LISPTYPE_CONS, "setplist_alloc.2");
 	GetCons(list, &pos, &check);
@@ -136,10 +136,10 @@ static int test_pushnewplist_alloc(void)
 {
 	addr pos, list, check, sym1, sym2, sym3, sym4;
 
-	internchar_debug(LISP_PACKAGE, "HELLO1", &sym1);
-	internchar_debug(LISP_PACKAGE, "HELLO2", &sym2);
-	internchar_debug(LISP_PACKAGE, "HELLO3", &sym3);
-	internchar_debug(LISP_PACKAGE, "HELLO4", &sym4);
+	internchar_debug(LISP_COMMON_USER, "HELLO1", &sym1);
+	internchar_debug(LISP_COMMON_USER, "HELLO2", &sym2);
+	internchar_debug(LISP_COMMON_USER, "HELLO3", &sym3);
+	internchar_debug(LISP_COMMON_USER, "HELLO4", &sym4);
 	test(pushnewplist_alloc(NULL, Nil, sym1, sym2, &list), "pushnewplist_alloc.1");
 	test(GetType(list) == LISPTYPE_CONS, "pushnewplist_alloc.2");
 	GetCons(list, &pos, &check);

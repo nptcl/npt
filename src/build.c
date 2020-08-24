@@ -53,7 +53,6 @@
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
-#include "user.h"
 
 #define DEFAULT_MEMORY		(320UL * 1024UL * 1024UL)
 #define DEFAULT_STACK		(160UL * 1024UL * 1024UL)
@@ -94,7 +93,6 @@ _g void initlisp(void)
 	init_sxhash();
 	init_syscall();
 	init_type();
-	init_user();
 }
 
 static void clearlisp_force(void)
@@ -330,7 +328,6 @@ _g void buildlisp(Execute ptr)
 	build_declare();
 	build_code();
 	build_require();
-	build_user();
 	build_rt();
 	set_features();
 	set_pretty_printing();

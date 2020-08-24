@@ -5,7 +5,6 @@
 
 enum pointer_index {
 	p_empty,
-	p_user,
 #ifdef LISP_DEGRADE
 	/* debug */
 	p_debug1,

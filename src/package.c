@@ -228,10 +228,6 @@ static int build_package_settings_(void)
 	Return(append_nicknames_package_(package, cons));
 	Return(use_package_(package, common));
 
-	/* LISP-PACKAGE */
-	Return(find_char_package_(LISP_PACKAGE, &package));
-	Return(use_package_(package, common));
-
 	return 0;
 }
 
@@ -281,7 +277,7 @@ static int system_package_(const char *name, size_t size, constindex index)
 }
 static int build_package_value_(void)
 {
-	addr root, package, user;
+	addr root, user;
 
 	/* package root */
 	package_root_heap(&root);
@@ -295,8 +291,6 @@ static int build_package_value_(void)
 	SystemPackage(CLOS, CLOS, CLOS);
 	SystemPackage(RT, RT, RT);
 	Return(package_char_heap_(&user, LISP_COMMON_USER));
-	Return(package_char_heap_(&package, LISP_PACKAGE));
-	Return(package_char_heap_(&package, LISP_USER));
 
 	/* symbol setting */
 	Return(intern_common_default_());
@@ -915,19 +909,6 @@ _g int in_package_(Execute ptr, addr package, addr *ret)
 	setspecial_local(ptr, symbol, package);
 	if (ret)
 		*ret = package;
-
-	return 0;
-}
-
-_g int in_package_lisp_package_(void)
-{
-	addr package, symbol;
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	Return(find_char_package_(LISP_PACKAGE, &package));
-	GetConst(SPECIAL_PACKAGE, &symbol);
-	setspecial_local(ptr, symbol, package);
 
 	return 0;
 }

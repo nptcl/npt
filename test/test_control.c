@@ -195,7 +195,7 @@ static int test_pushlexical_control(void)
 
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_COMMON_USER, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushlexical_control(ptr, pos, check);
 	getlexical_local(ptr, pos, &check);
@@ -213,7 +213,7 @@ static int test_pushspecial_control(void)
 
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_COMMON_USER, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushspecial_control(ptr, pos, check);
 	getspecial_local(ptr, pos, &check);
@@ -231,14 +231,14 @@ static int test_pushtable_control(void)
 
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_COMMON_USER, "HELLO", &pos);
 	pushtable_control(ptr, CONSTANT_COMMON_KEYWORD, pos);
 	gettable_control(control, CONSTANT_COMMON_KEYWORD, &cons);
 	test(length_list_unsafe(cons) == 1, "pushtable_control1");
 	GetCar(cons, &check);
 	test(pos == check, "pushtable_control2");
 
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar(LISP_COMMON_USER, "AAA", &pos);
 	pushtable_control(ptr, CONSTANT_COMMON_KEYWORD, pos);
 	gettable_control(control, CONSTANT_COMMON_KEYWORD, &cons);
 	test(length_list_unsafe(cons) == 2, "pushtable_control3");
@@ -257,7 +257,7 @@ static int test_pushfunction_control(void)
 
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_COMMON_USER, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushfunction_control(ptr, pos, check);
 	GetFunctionSymbol(pos, &check);
@@ -275,7 +275,7 @@ static int test_pushsetf_control(void)
 
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_COMMON_USER, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushsetf_control(ptr, pos, check);
 	getsetf_local(ptr, pos, &check);
@@ -2116,7 +2116,7 @@ static int test_execute_go(void)
 
 	vector4_heap(&array, 6);
 	internchar(LISP_CODE, "GO", &pos);
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 0, pos);
 	cons_heap(&pos, debug, fixnumh(11));
@@ -2133,7 +2133,7 @@ static int test_execute_go(void)
 	conscar_heap(&pos, pos);
 	setarray(array, 5, pos);
 	/* function */
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&value, value, index_heapr(3));
 	conscar_heap(&value, value);
 	code_heap(&pos, array);
@@ -2160,7 +2160,7 @@ static int test_execute_go(void)
 	 */
 	vector4_heap(&array, 3);
 	internchar(LISP_CODE, "GO", &pos);
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 0, pos);
 	cons_heap(&pos, debug, fixnumh(11));
@@ -2186,7 +2186,7 @@ static int test_execute_go(void)
 	conscar_heap(&pos, pos);
 	setarray(array, 4, pos);
 	/* function */
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&value, value, index_heapr(3));
 	conscar_heap(&value, value);
 	code_heap(&pos, array);
@@ -2217,7 +2217,7 @@ static int test_execute_go(void)
 	 */
 	vector4_heap(&array, 2);
 	internchar(LISP_CODE, "GO", &pos);
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "END", &pos);
@@ -2255,7 +2255,7 @@ static int test_execute_go(void)
 	conscar_heap(&pos, pos);
 	setarray(array, 4, pos);
 	/* function */
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&value, value, index_heapr(3));
 	conscar_heap(&value, value);
 	code_heap(&pos, array);
@@ -2294,7 +2294,7 @@ static int test_execute_return_from(void)
 	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "RETURN-FROM", &pos);
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "SET", &pos);
@@ -2304,7 +2304,7 @@ static int test_execute_return_from(void)
 	conscar_heap(&pos, pos);
 	setarray(array, 3, pos);
 	/* function */
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	code_heap(&pos, array);
 	settype_code(pos, CodeType_Block);
 	setinfo_code(pos, value);
@@ -2329,7 +2329,7 @@ static int test_execute_return_from(void)
 	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "RETURN-FROM", &pos);
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "SET", &pos);
@@ -2351,7 +2351,7 @@ static int test_execute_return_from(void)
 	conscar_heap(&pos, pos);
 	setarray(array, 2, pos);
 	/* function */
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar(LISP_COMMON_USER, "HELLO", &value);
 	code_heap(&pos, array);
 	settype_code(pos, CodeType_Block);
 	setinfo_code(pos, value);
@@ -2460,9 +2460,9 @@ static int test_callclang_values_char_heap(void)
 	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar(LISP_COMMON_USER, "AAA", &pos);
 	SetFunctionSymbol(pos, call);
-	callclang_values_char_heap(Execute_Thread, &pos, LISP_PACKAGE, "AAA", T, T, T, NULL);
+	callclang_values_char_heap(Execute_Thread, &pos, LISP_COMMON_USER, "AAA", T, T, T, NULL);
 	test(singlep(pos), "callclang_values_char_heap1");
 	GetCar(pos, &pos);
 	test(RefFixnum(pos) == 3, "callclang_values_char_heap2");
@@ -2526,9 +2526,9 @@ static int test_callclang_char(void)
 	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar(LISP_COMMON_USER, "AAA", &pos);
 	SetFunctionSymbol(pos, call);
-	callclang_char(Execute_Thread, &pos, LISP_PACKAGE, "AAA", T, T, T, NULL);
+	callclang_char(Execute_Thread, &pos, LISP_COMMON_USER, "AAA", T, T, T, NULL);
 	test(RefFixnum(pos) == 3, "callclang_char1");
 
 	RETURN;

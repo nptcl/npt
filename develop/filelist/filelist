@@ -342,6 +342,5 @@ type_upgraded.c
 type_value.c
 type.c
 unicode.c
-user.c
 variable.c
 

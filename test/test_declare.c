@@ -1121,7 +1121,7 @@ static int test_check_variable(void)
 {
 	addr symbol;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
 	check_variable_(symbol);
 	test(1, "check_variable1");
 
@@ -1134,7 +1134,7 @@ static int test_check_callname_heap(void)
 
 	symbol = pos = check = NULL;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
 	check_callname_heap_(&pos, symbol);
 	test(GetType(pos) == LISPTYPE_CALLNAME, "check_callname_heap1");
 	GetCallName(pos, &check);
@@ -1150,8 +1150,8 @@ static int test_decl_type(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_COMMON, "INTEGER", &key);
-	internchar_debug(LISP_PACKAGE, "BBB", &key1);
-	internchar_debug(LISP_PACKAGE, "CCC", &key2);
+	internchar_debug(LISP_COMMON_USER, "BBB", &key1);
+	internchar_debug(LISP_COMMON_USER, "CCC", &key2);
 	list_heap(&cons, key, key1, key2, NULL);
 	result = decl_type_(Execute_Thread, Nil,  pos, cons);
 	test(result == 0, "decl_type1");
@@ -1172,8 +1172,8 @@ static int test_decl_ftype(void)
 
 	eval_declare_heap(&pos);
 	internchar_debug(LISP_COMMON, "INTEGER", &key);
-	internchar_debug(LISP_PACKAGE, "BBB", &key1);
-	internchar_debug(LISP_PACKAGE, "CCC", &key2);
+	internchar_debug(LISP_COMMON_USER, "BBB", &key1);
+	internchar_debug(LISP_COMMON_USER, "CCC", &key2);
 	parse_callname_error_(&call1, key1);
 	parse_callname_error_(&call2, key2);
 	list_heap(&cons, key, key1, key2, NULL);
@@ -1194,8 +1194,8 @@ static int test_decl_special(void)
 	addr pos, key1, key2, cons;
 
 	eval_declare_heap(&pos);
-	internchar_debug(LISP_PACKAGE, "AAA", &key1);
-	internchar_debug(LISP_PACKAGE, "BBB", &key2);
+	internchar_debug(LISP_COMMON_USER, "AAA", &key1);
+	internchar_debug(LISP_COMMON_USER, "BBB", &key2);
 	list_heap(&cons, key1, key2, key2, NULL);
 	decl_special_(pos, cons);
 	getall_special_declare(pos, &cons);
@@ -1211,9 +1211,9 @@ static int test_decl_inline(void)
 	addr pos, key1, key2, key3, call1, call2, call3, cons, check, key;
 
 	eval_declare_heap(&pos);
-	internchar_debug(LISP_PACKAGE, "AAA", &key1);
-	internchar_debug(LISP_PACKAGE, "BBB", &key2);
-	internchar_debug(LISP_PACKAGE, "CCC", &key3);
+	internchar_debug(LISP_COMMON_USER, "AAA", &key1);
+	internchar_debug(LISP_COMMON_USER, "BBB", &key2);
+	internchar_debug(LISP_COMMON_USER, "CCC", &key3);
 	parse_callname_error_(&call1, key1);
 	parse_callname_error_(&call2, key2);
 	parse_callname_error_(&call3, key3);
@@ -1248,8 +1248,8 @@ static int test_decl_declaration(void)
 	addr pos, key1, key2, cons;
 
 	eval_declare_heap(&pos);
-	internchar_debug(LISP_PACKAGE, "AAA", &key1);
-	internchar_debug(LISP_PACKAGE, "BBB", &key2);
+	internchar_debug(LISP_COMMON_USER, "AAA", &key1);
+	internchar_debug(LISP_COMMON_USER, "BBB", &key2);
 	list_heap(&cons, key1, key2, key2, NULL);
 	decl_declaration_(pos, cons);
 	getall_declaration_declare(pos, &cons);
@@ -1268,7 +1268,7 @@ static int test_function_callname_p(void)
 	check = 0;
 
 	internchar_debug(LISP_COMMON, "FUNCTION", &type);
-	internchar_debug(LISP_PACKAGE, "VARIABLE", &symbol);
+	internchar_debug(LISP_COMMON_USER, "VARIABLE", &symbol);
 	list_heap(&cons, type, symbol, NULL);
 	function_callname_p_(&cons, cons, &check);
 	test(check, "function_callname_p1");

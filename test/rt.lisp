@@ -9,7 +9,6 @@
     (rename-package name name (list lisp))))
 
 (rt-package 'system)
-(rt-package 'user)
 (rt-package 'clos)
 (rt-package 'rt)
 (use-package 'lisp-rt)

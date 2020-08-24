@@ -487,7 +487,6 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\type_value.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\unicode.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\user.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\variable.c" />
   </ItemGroup>
   <ItemGroup>
@@ -840,7 +839,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\unicode.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\user.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

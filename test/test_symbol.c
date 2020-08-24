@@ -46,7 +46,7 @@ static int test_symbolp(void)
 	internchar_keyword_debug("HELLO", &pos);
 	test(symbolp(pos), "symbolp.4");
 
-	internchar_debug(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_COMMON_USER, "AAA", &pos);
 	test(symbolp(pos), "symbolp.5");
 
 	test(symbolp(T), "symbolp.6");
@@ -68,7 +68,7 @@ static int test_keywordp(void)
 	fixnum_heap(&pos, 100);
 	test(! keywordp(pos), "keywordp.4");
 
-	internchar_debug(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_COMMON_USER, "AAA", &pos);
 	test(! keywordp(pos), "keywordp.5");
 
 	RETURN;

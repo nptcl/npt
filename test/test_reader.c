@@ -2376,7 +2376,7 @@ static int test_single_quote_reader(void)
 	test(check_symbol(left, LISP_COMMON, "QUOTE"), "single_quote_reader2");
 	test(right != Nil, "single_quote_reader3");
 	GetCons(right, &left, &right);
-	test(check_symbol(left, LISP_PACKAGE, "HELLO"), "single_quote_reader4");
+	test(check_symbol(left, LISP_COMMON_USER, "HELLO"), "single_quote_reader4");
 	test(right == Nil, "single_quote_reader5");
 
 	RETURN;
@@ -2398,27 +2398,27 @@ static int test_parensis_open_reader(void)
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader7");
 	GetCons(right, &left, &right);
-	test(check_symbol(left, LISP_PACKAGE, "HELLO"), "parensis_open_reader8");
+	test(check_symbol(left, LISP_COMMON_USER, "HELLO"), "parensis_open_reader8");
 	test(right == Nil, "parensis_open_reader9");
 
 	test(readstring_debug(&pos, "(10 . hello)") == 0, "parensis_open_reader10");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader11");
-	test(check_symbol(right, LISP_PACKAGE, "HELLO"), "parensis_open_reader12");
+	test(check_symbol(right, LISP_COMMON_USER, "HELLO"), "parensis_open_reader12");
 
 	test(readstring_debug(&pos, "(10 20 . hello)") == 0, "parensis_open_reader13");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader14");
 	GetCons(right, &left, &right);
 	test(RefFixnum(left) == 20, "parensis_open_reader15");
-	test(check_symbol(right, LISP_PACKAGE, "HELLO"), "parensis_open_reader16");
+	test(check_symbol(right, LISP_COMMON_USER, "HELLO"), "parensis_open_reader16");
 
 	test(readstring_debug(&pos, "(10 hello (:aaa . \"str\") 40)") == 0,
 			"parensis_open_reader17");
 	GetCons(pos, &left, &right);
 	test(RefFixnum(left) == 10, "parensis_open_reader18");
 	GetCons(right, &left, &right);
-	test(check_symbol(left, LISP_PACKAGE, "HELLO"), "parensis_open_reader19");
+	test(check_symbol(left, LISP_COMMON_USER, "HELLO"), "parensis_open_reader19");
 	GetCons(right, &left, &pos);
 	GetCons(left, &left, &right);
 	test(check_symbol(left, LISP_KEYWORD, "AAA"), "parensis_open_reader20");
@@ -2514,7 +2514,7 @@ static int test_single_quote_dispatch(void)
 	test(check_symbol(left, LISP_COMMON, "FUNCTION"), "single_quote_dispatch2");
 	test(right != Nil, "single_quote_dispatch3");
 	GetCons(right, &left, &right);
-	test(check_symbol(left, LISP_PACKAGE, "HELLO"), "single_quote_dispatch4");
+	test(check_symbol(left, LISP_COMMON_USER, "HELLO"), "single_quote_dispatch4");
 	test(right == Nil, "single_quote_dispatch5");
 
 	RETURN;
@@ -2834,7 +2834,6 @@ static int test_basic_token(void)
  */
 static int testcase_reader(void)
 {
-	Error(in_package_lisp_package_());
 #if 0
 	/* chartable */
 	TestBreak(test_init_reader);

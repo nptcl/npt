@@ -127,7 +127,6 @@ static int loadrt_nicknames_(void)
 	addr symbol, keyword, cons;
 
 	Return(loadrt_nickname_(LISP_SYSTEM, "LISP-SYSTEM"));
-	Return(loadrt_nickname_(LISP_USER, "LISP-USER"));
 	Return(loadrt_nickname_(LISP_CLOS, "LISP-CLOS"));
 	Return(loadrt_nickname_(LISP_RT, "LISP-RT"));
 

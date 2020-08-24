@@ -24,7 +24,7 @@ static int test_check_variable(void)
 {
 	addr pos;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	Error(check_variable_(pos));
 	test(1, "check_variable1");
 
@@ -35,7 +35,7 @@ static int test_check_function_variable(void)
 {
 	addr pos;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	Error(check_function_variable_(pos));
 	test(1, "check_function_variable1");
 	test(parse_callname_heap(&pos, pos) == 0, "check_function_variable2");
@@ -49,7 +49,7 @@ static int test_tagbody_tag_p(void)
 {
 	addr tag;
 
-	internchar_debug(LISP_PACKAGE, "HELLO", &tag);
+	internchar_debug(LISP_COMMON_USER, "HELLO", &tag);
 	test(tagbody_tag_p(tag), "tagbody_tag_p1");
 	internchar_debug(LISP_KEYWORD, "HELLO", &tag);
 	test(tagbody_tag_p(tag), "tagbody_tag_p2");
@@ -69,8 +69,6 @@ static int test_tagbody_tag_p(void)
  */
 static int testcase_parse(void)
 {
-	Error(in_package_lisp_package_());
-	/* environment */
 	TestBreak(test_check_variable);
 	TestBreak(test_check_function_variable);
 	TestBreak(test_tagbody_tag_p);

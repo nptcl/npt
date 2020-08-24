@@ -133,7 +133,6 @@ static int test_RefEvalParseType(void)
  */
 static int testcase_parse_object(void)
 {
-	Error(in_package_lisp_package_());
 	TestBreak(test_eval_parse_alloc);
 	TestBreak(test_eval_single_parse_alloc);
 	TestBreak(test_StructEvalParse);

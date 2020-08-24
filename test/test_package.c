@@ -389,12 +389,12 @@ static int test_set_default_package(void)
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_COMMON), "set_default_package1");
 
-	find_char_package_(LISP_PACKAGE, &pos);
+	find_char_package_(LISP_COMMON_USER, &pos);
 	set_default_package(pos);
 	GetConstant(CONSTANT_SPECIAL_PACKAGE, &pos);
 	getspecialcheck_local_(ptr, pos, &pos);
 	getname_package(pos, &pos);
-	test(string_equal_char(pos, LISP_PACKAGE), "set_default_package2");
+	test(string_equal_char(pos, LISP_COMMON_USER), "set_default_package2");
 
 	RETURN;
 }
@@ -415,9 +415,9 @@ static int test_initpackage(void)
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_COMMON_USER), "initpackage3");
 
-	find_char_package_(LISP_PACKAGE, &pos);
+	find_char_package_(LISP_COMMON_USER, &pos);
 	getname_package(pos, &pos);
-	test(string_equal_char(pos, LISP_PACKAGE), "initpackage4");
+	test(string_equal_char(pos, LISP_COMMON_USER), "initpackage4");
 
 	find_char_package_(LISP_SYSTEM, &pos);
 	getname_package(pos, &pos);
@@ -436,7 +436,7 @@ static int test_getpackage(void)
 
 	getpackage(Execute_Thread, &pos);
 	getname_package(pos, &pos);
-	test(string_equal_char(pos, LISP_PACKAGE), "getpackage1");
+	test(string_equal_char(pos, LISP_COMMON_USER), "getpackage1");
 
 	RETURN;
 }
