@@ -7,7 +7,7 @@
 int lisp_hold_p(addr x);
 void lisp_hold_value(addr x, addr *ret);
 void lisp_hold_set(addr x, addr value);
-addr lisp_holdv(addr x);
+addr Lisp_holdv(addr x);
 void lisp_hold(addr *ret, addr value);
 addr Lisp_hold(void);
 
@@ -16,6 +16,8 @@ void lisp0_nil(addr *ret);
 void lisp0_t(addr *ret);
 void lisp_nil(addr x);
 void lisp_t(addr x);
+addr Lisp_nil(void);
+addr Lisp_t(void);
 
 /* type */
 int lisp_nil_p(addr x);
@@ -25,15 +27,35 @@ int lisp_character_p(addr x);
 int lisp_cons_p(addr x);
 int lisp_list_p(addr x);
 int lisp_string_p(addr x);
+int lisp_strvect_p(addr x);
 int lisp_symbol_p(addr x);
 int lisp_array_p(addr x);
 int lisp_vector_p(addr x);
 
-/* cons */
+/* sequence */
 void lisp0_cons(addr *ret, addr car, addr cdr);
 void lisp_cons(addr x, addr car, addr cdr);
+void lisp0_vector(addr *ret, size_t size);
 void lisp_vector(addr x, size_t size);
 
+void lisp0_list_va(addr *ret, va_list args);
+void lisp0_lista_va(addr *ret, va_list args);
+void lisp0_list(addr *ret, ...);
+void lisp_list(addr x, ...);
+void lisp0_lista(addr *ret, ...);
+void lisp_lista(addr x, ...);
+
+int lisp0_getelt_(addr *ret, addr pos, size_t index);
+int lisp_getelt_(addr x, addr pos, size_t index);
+int lisp_setelt_(addr pos, size_t index, addr value);
+int lisp_length_(addr pos, size_t *ret);
+
+int lisp0_reverse_(addr *ret, addr pos);
+int lisp0_nreverse_(addr *ret, addr pos);
+int lisp_reverse_(addr x, addr pos);
+int lisp_nreverse_(addr x, addr pos);
+
+/* cons */
 void lisp0_car(addr *ret, addr list);
 void lisp0_cdr(addr *ret, addr list);
 void lisp0_carcdr(addr *car, addr *cdr, addr list);
@@ -44,24 +66,6 @@ void lisp_carcdr(addr x, addr y, addr list);
 void lisp_setf_car(addr cons, addr value);
 void lisp_setf_cdr(addr cons, addr value);
 void lisp_setf_carcdr(addr cons, addr car, addr cdr);
-
-/* list */
-void lisp0_list_va(addr *ret, va_list args);
-void lisp0_lista_va(addr *ret, va_list args);
-void lisp0_list(addr *ret, ...);
-void lisp_list(addr x, ...);
-void lisp0_lista(addr *ret, ...);
-void lisp_lista(addr x, ...);
-int lisp0_reverse_(addr *ret, addr list);
-int lisp0_nreverse_(addr *ret, addr list);
-int lisp_reverse_(addr x, addr list);
-int lisp_nreverse_(addr x, addr list);
-
-/* sequence */
-int lisp0_getelt_(addr *ret, addr pos, size_t index);
-int lisp_getelt_(addr x, addr pos, size_t index);
-int lisp_setelt_(addr vector, size_t index, addr value);
-int lisp_length_(addr vector, size_t *ret);
 
 /* string */
 int lisp0_string8_(addr *ret, const void *str);

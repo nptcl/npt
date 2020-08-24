@@ -1,5 +1,5 @@
-#ifndef __EXTERN_STRING_HEADER__
-#define __EXTERN_STRING_HEADER__
+#ifndef __LISP_MAIN_STRING_HEADER__
+#define __LISP_MAIN_STRING_HEADER__
 
 #include <stdio.h>
 #include "main_typedef.h"

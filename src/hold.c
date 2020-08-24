@@ -269,6 +269,7 @@ _g void hold_local(LocalRoot local, addr *ret, addr value)
 {
 	hold_value(value, &value);
 	local_array2(local, ret, LISPSYSTEM_HOLD, 1);
+	SetArrayA2(*ret, 0, value);
 }
 
 _g int holdp(addr pos)

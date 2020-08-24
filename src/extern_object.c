@@ -50,7 +50,7 @@ void lisp_hold_set(addr x, addr value)
 	hold_set(x, value);
 }
 
-addr lisp_holdv(addr x)
+addr Lisp_holdv(addr x)
 {
 	return holdv(x);
 }
@@ -89,6 +89,16 @@ void lisp_nil(addr x)
 void lisp_t(addr x)
 {
 	hold_set(x, T);
+}
+
+addr Lisp_nil(void)
+{
+	return Nil;
+}
+
+addr Lisp_t(void)
+{
+	return T;
 }
 
 
@@ -137,6 +147,12 @@ int lisp_string_p(addr x)
 	return stringp(x);
 }
 
+int lisp_strvect_p(addr x)
+{
+	hold_value(x, &x);
+	return strvectp(x);
+}
+
 int lisp_symbol_p(addr x)
 {
 	hold_value(x, &x);
@@ -152,26 +168,38 @@ int lisp_array_p(addr x)
 int lisp_vector_p(addr x)
 {
 	hold_value(x, &x);
-	return vector_type_p(x);
+	return GetType(x) == LISPTYPE_VECTOR;
 }
 
 
 /*
- *  cons
+ *  sequence
  */
 void lisp0_cons(addr *ret, addr car, addr cdr)
 {
-	hold_value(car, &car);
-	hold_value(cdr, &cdr);
+	/* car */
+	if (car == NULL)
+		car = Nil;
+	else
+		hold_value(car, &car);
+	/* cdr */
+	if (cdr == NULL)
+		cdr = Nil;
+	else
+		hold_value(cdr, &cdr);
+	/* cons */
 	cons_heap(ret, car, cdr);
 }
 
 void lisp_cons(addr x, addr car, addr cdr)
 {
-	hold_value(car, &car);
-	hold_value(cdr, &cdr);
-	cons_heap(&car, car, cdr);
+	lisp0_cons(&car, car, cdr);
 	hold_set(x, car);
+}
+
+void lisp0_vector(addr *ret, size_t size)
+{
+	vector_heap(ret, size);
 }
 
 void lisp_vector(addr x, size_t size)
@@ -181,89 +209,6 @@ void lisp_vector(addr x, size_t size)
 	hold_set(x, pos);
 }
 
-void lisp0_car(addr *ret, addr list)
-{
-	hold_value(list, &list);
-	Check(! listp(list), "type error");
-	GetCar(list, ret);
-}
-
-void lisp0_cdr(addr *ret, addr list)
-{
-	hold_value(list, &list);
-	Check(! listp(list), "type error");
-	GetCdr(list, ret);
-}
-
-void lisp0_carcdr(addr *car, addr *cdr, addr list)
-{
-	hold_value(list, &list);
-	Check(! listp(list), "type error");
-	GetCons(list, car, cdr);
-}
-
-void lisp_car(addr x, addr list)
-{
-	hold_value(list, &list);
-	if (! listp(list))
-		Lisp_abort_type(list, LIST);
-	GetCar(list, &list);
-	hold_set(x, list);
-}
-
-void lisp_cdr(addr x, addr list)
-{
-	hold_value(list, &list);
-	if (! listp(list))
-		Lisp_abort_type(list, LIST);
-	GetCdr(list, &list);
-	hold_set(x, list);
-}
-
-void lisp_carcdr(addr x, addr y, addr list)
-{
-	addr car, cdr;
-
-	hold_value(list, &list);
-	if (! listp(list))
-		Lisp_abort_type(list, LIST);
-	GetCons(list, &car, &cdr);
-	hold_set(x, car);
-	hold_set(y, cdr);
-}
-
-void lisp_setf_car(addr cons, addr value)
-{
-	hold_value(cons, &cons);
-	if (! consp(cons))
-		Lisp_abort_type(cons, CONS);
-	hold_value(value, &value);
-	SetCar(cons, value);
-}
-
-void lisp0_setf_cdr(addr cons, addr value)
-{
-	hold_value(cons, &cons);
-	if (! consp(cons))
-		Lisp_abort_type(cons, CONS);
-	hold_value(value, &value);
-	SetCdr(cons, value);
-}
-
-void lisp_setf_carcdr(addr cons, addr car, addr cdr)
-{
-	hold_value(cons, &cons);
-	if (! consp(cons))
-		Lisp_abort_type(cons, CONS);
-	hold_value(car, &car);
-	hold_value(cdr, &cdr);
-	SetCons(cons, car, cdr);
-}
-
-
-/*
- *  list
- */
 static void lisp0_list_va_alloc(LocalRoot local, addr *ret, va_list args)
 {
 	addr x, y, next;
@@ -382,52 +327,9 @@ void lisp_lista(addr x, ...)
 	hold_set(x, pos);
 }
 
-int lisp0_reverse_(addr *ret, addr list)
-{
-	hold_value(list, &list);
-	if (! listp(list))
-		return TypeError_(list, LIST);
-
-	return reverse_list_heap_safe_(ret, list);
-}
-
-int lisp0_nreverse_(addr *ret, addr list)
-{
-	hold_value(list, &list);
-	if (! listp(list))
-		return TypeError_(list, LIST);
-
-	return nreverse_list_safe_(ret, list);
-}
-
-int lisp_reverse_(addr x, addr list)
-{
-	addr pos;
-
-	Return(lisp0_reverse_(&pos, list));
-	hold_set(x, pos);
-	return 0;
-}
-
-int lisp_nreverse_(addr x, addr list)
-{
-	addr pos;
-
-	Return(lisp0_nreverse_(&pos, list));
-	hold_set(x, pos);
-	return 0;
-}
-
-
-/*
- *  sequence
- */
 int lisp0_getelt_(addr *ret, addr pos, size_t index)
 {
 	hold_value(pos, &pos);
-	if (! sequencep(pos))
-		return TypeError_(pos, SEQUENCE);
-
 	return getelt_sequence_(NULL, pos, index, ret);
 }
 
@@ -441,9 +343,6 @@ int lisp_getelt_(addr x, addr pos, size_t index)
 int lisp_setelt_(addr pos, size_t index, addr value)
 {
 	hold_value(pos, &pos);
-	if (! sequencep(pos))
-		return TypeError_(pos, SEQUENCE);
-
 	hold_value(value, &value);
 	return setelt_sequence_(pos, index, value);
 }
@@ -451,10 +350,116 @@ int lisp_setelt_(addr pos, size_t index, addr value)
 int lisp_length_(addr pos, size_t *ret)
 {
 	hold_value(pos, &pos);
-	if (! sequencep(pos))
-		return TypeError_(pos, SEQUENCE);
-
 	return length_sequence_(pos, 1, ret);
+}
+
+int lisp0_reverse_(addr *ret, addr pos)
+{
+	hold_value(pos, &pos);
+	return reverse_sequence_heap_(ret, pos);
+}
+
+int lisp0_nreverse_(addr *ret, addr pos)
+{
+	hold_value(pos, &pos);
+	return nreverse_sequence_(ret, pos);
+}
+
+int lisp_reverse_(addr x, addr pos)
+{
+	Return(lisp0_reverse_(&pos, pos));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_nreverse_(addr x, addr pos)
+{
+	Return(lisp0_nreverse_(&pos, pos));
+	hold_set(x, pos);
+	return 0;
+}
+
+
+/*
+ *  cons
+ */
+void lisp0_car(addr *ret, addr list)
+{
+	hold_value(list, &list);
+	Check(! listp(list), "type error");
+	GetCar(list, ret);
+}
+
+void lisp0_cdr(addr *ret, addr list)
+{
+	hold_value(list, &list);
+	Check(! listp(list), "type error");
+	GetCdr(list, ret);
+}
+
+void lisp0_carcdr(addr *car, addr *cdr, addr list)
+{
+	hold_value(list, &list);
+	Check(! listp(list), "type error");
+	GetCons(list, car, cdr);
+}
+
+void lisp_car(addr x, addr list)
+{
+	hold_value(list, &list);
+	if (! listp(list))
+		Lisp_abort_type(list, LIST);
+	GetCar(list, &list);
+	hold_set(x, list);
+}
+
+void lisp_cdr(addr x, addr list)
+{
+	hold_value(list, &list);
+	if (! listp(list))
+		Lisp_abort_type(list, LIST);
+	GetCdr(list, &list);
+	hold_set(x, list);
+}
+
+void lisp_carcdr(addr x, addr y, addr list)
+{
+	addr car, cdr;
+
+	hold_value(list, &list);
+	if (! listp(list))
+		Lisp_abort_type(list, LIST);
+	GetCons(list, &car, &cdr);
+	hold_set(x, car);
+	hold_set(y, cdr);
+}
+
+void lisp_setf_car(addr cons, addr value)
+{
+	hold_value(cons, &cons);
+	if (! consp(cons))
+		Lisp_abort_type(cons, CONS);
+	hold_value(value, &value);
+	SetCar(cons, value);
+}
+
+void lisp_setf_cdr(addr cons, addr value)
+{
+	hold_value(cons, &cons);
+	if (! consp(cons))
+		Lisp_abort_type(cons, CONS);
+	hold_value(value, &value);
+	SetCdr(cons, value);
+}
+
+void lisp_setf_carcdr(addr cons, addr car, addr cdr)
+{
+	hold_value(cons, &cons);
+	if (! consp(cons))
+		Lisp_abort_type(cons, CONS);
+	hold_value(car, &car);
+	hold_value(cdr, &cdr);
+	SetCons(cons, car, cdr);
 }
 
 
@@ -1062,7 +1067,7 @@ int lisp_plusp(addr value)
 	hold_value(value, &value);
 	if (plusp_realp(value, &check))
 		return 0;
-	
+
 	return check;
 }
 
