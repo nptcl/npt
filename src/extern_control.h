@@ -56,5 +56,24 @@ int lisp_error32_(const void *str, ...);
 int lisp_catch_(addr symbol, addr code, addr *ret);
 int lisp_throw_(addr symbol);
 
+/* let */
+int lisp_push_special_(addr symbol, addr value);
+int lisp_push_special8_(const void *name, addr value);
+int lisp_push_special16_(const void *name, addr value);
+int lisp_push_special32_(const void *name, addr value);
+int lisp0_get_special_(addr *ret, addr symbol);
+int lisp0_get_special8_(addr *ret, const void *name);
+int lisp0_get_special16_(addr *ret, const void *name);
+int lisp0_get_special32_(addr *ret, const void *name);
+int lisp_get_special_(addr x, addr symbol);
+int lisp_get_special8_(addr x, const void *name);
+int lisp_get_special16_(addr x, const void *name);
+int lisp_get_special32_(addr x, const void *name);
+
+int lisp_set_special_(addr symbol, addr value);
+int lisp_set_special8_(const void *name, addr value);
+int lisp_set_special16_(const void *name, addr value);
+int lisp_set_special32_(const void *name, addr value);
+
 #endif
 

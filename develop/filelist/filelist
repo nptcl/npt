@@ -152,10 +152,14 @@ execute_setjmp.c
 execute_values.c
 execute.c
 extern_control.c
+extern_develop.c
 extern_error.c
+extern_function.c
 extern_init.c
 extern_object.c
+extern_sequence.c
 extern_stream.c
+extern_type.c
 extern_unicode.c
 extern.c
 file_memory.c

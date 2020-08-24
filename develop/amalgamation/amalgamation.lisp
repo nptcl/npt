@@ -581,13 +581,17 @@
     "main_argv.h"
     "main_init.h"
     "main_string.h"
-    "extern.h"
-    "extern_init.h"
-    "extern_error.h"
     "extern_control.h"
+    "extern_develop.h"
+    "extern_error.h"
+    "extern_function.h"
+    "extern_init.h"
     "extern_object.h"
+    "extern_sequence.h"
     "extern_stream.h"
+    "extern_type.h"
     "extern_unicode.h"
+    "extern.h"
     ))
 
 (defparameter *lispc-source*
@@ -925,13 +929,17 @@
     "loop_symbol.c"
     "loop_variables.c"
     "user.c"
-    "extern.c"
-    "extern_init.c"
-    "extern_error.c"
     "extern_control.c"
+    "extern_develop.c"
+    "extern_error.c"
+    "extern_function.c"
+    "extern_init.c"
     "extern_object.c"
+    "extern_sequence.c"
     "extern_stream.c"
+    "extern_type.c"
     "extern_unicode.c"
+    "extern.c"
     ("main_argv.c" :header t)
     "main_string.c"
     ))
@@ -994,8 +1002,11 @@
     "main_argv.h"
     "main_init.h"
     "extern_control.h"
+    "extern_function.h"
     "extern_object.h"
+    "extern_sequence.h"
     "extern_stream.h"
+    "extern_type.h"
     "extern_unicode.h"
     ))
 

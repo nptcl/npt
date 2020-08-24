@@ -9,6 +9,7 @@
 #include "extern_control.h"
 #include "extern_error.h"
 #include "extern_object.h"
+#include "extern_sequence.h"
 #include "eval_execute.h"
 #include "eval_main.h"
 #include "execute.h"
@@ -479,5 +480,141 @@ int lisp_throw_(addr symbol)
 		return fmte_("THROW argument ~S must be a symbol.", symbol, NULL);
 	else
 		return throw_control_(Execute_Thread, symbol);
+}
+
+
+/*
+ *  let
+ */
+int lisp_push_special_(addr symbol, addr value)
+{
+	hold_value(symbol, &symbol);
+	hold_value(value, &value);
+	if (! symbolp(symbol))
+		return fmte_("The argument ~S must be a symbol type.", symbol, NULL);
+	if (value == NULL)
+		value = Unbound;
+	pushspecial_control(Execute_Thread, symbol, value);
+	return 0;
+}
+
+int lisp_push_special8_(const void *name, addr value)
+{
+	addr symbol;
+	Return(lisp0_intern8_(&symbol, NULL, name));
+	return lisp_push_special_(symbol, value);
+}
+
+int lisp_push_special16_(const void *name, addr value)
+{
+	addr symbol;
+	Return(lisp0_intern16_(&symbol, NULL, name));
+	return lisp_push_special_(symbol, value);
+}
+
+int lisp_push_special32_(const void *name, addr value)
+{
+	addr symbol;
+	Return(lisp0_intern32_(&symbol, NULL, name));
+	return lisp_push_special_(symbol, value);
+}
+
+int lisp0_get_special_(addr *ret, addr symbol)
+{
+	hold_value(symbol, &symbol);
+	if (! symbolp(symbol)) {
+		*ret = Nil;
+		return fmte_("The argument ~S must be a symbol type.", symbol, NULL);
+	}
+	getspecial_local(Execute_Thread, symbol, &symbol);
+	return Result(ret, (symbol == Unbound)? NULL: symbol);
+}
+
+int lisp0_get_special8_(addr *ret, const void *name)
+{
+	addr symbol;
+	Return(lisp0_intern8_(&symbol, NULL, name));
+	return lisp0_get_special_(ret, symbol);
+}
+
+int lisp0_get_special16_(addr *ret, const void *name)
+{
+	addr symbol;
+	Return(lisp0_intern16_(&symbol, NULL, name));
+	return lisp0_get_special_(ret, symbol);
+}
+
+int lisp0_get_special32_(addr *ret, const void *name)
+{
+	addr symbol;
+	Return(lisp0_intern32_(&symbol, NULL, name));
+	return lisp0_get_special_(ret, symbol);
+}
+
+int lisp_get_special_(addr x, addr symbol)
+{
+	Return(lisp0_get_special_(&symbol, symbol));
+	hold_set(x, symbol);
+	return 0;
+}
+
+int lisp_get_special8_(addr x, const void *name)
+{
+	addr pos;
+
+	Return(lisp0_get_special8_(&pos, name));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_get_special16_(addr x, const void *name)
+{
+	addr pos;
+
+	Return(lisp0_get_special16_(&pos, name));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_get_special32_(addr x, const void *name)
+{
+	addr pos;
+
+	Return(lisp0_get_special32_(&pos, name));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_set_special_(addr symbol, addr value)
+{
+	hold_value(symbol, &symbol);
+	hold_value(value, &value);
+	if (! symbolp(symbol))
+		return fmte_("The argument ~S must be a symbol type.", symbol, NULL);
+	if (value == NULL)
+		value = Unbound;
+	setspecial_local(Execute_Thread, symbol, value);
+	return 0;
+}
+
+int lisp_set_special8_(const void *name, addr value)
+{
+	addr symbol;
+	Return(lisp0_intern8_(&symbol, NULL, name));
+	return lisp_set_special_(symbol, value);
+}
+
+int lisp_set_special16_(const void *name, addr value)
+{
+	addr symbol;
+	Return(lisp0_intern16_(&symbol, NULL, name));
+	return lisp_set_special_(symbol, value);
+}
+
+int lisp_set_special32_(const void *name, addr value)
+{
+	addr symbol;
+	Return(lisp0_intern32_(&symbol, NULL, name));
+	return lisp_set_special_(symbol, value);
 }
 
