@@ -75,3 +75,54 @@
     (get 'symbol-plist-error 'hello))
   nil)
 
+
+;;
+;;  recursive handler call
+;;
+(defvar *handler-call* nil)
+
+(deftest handler-call.1
+  (progn
+    (setq *handler-call* nil)
+    (handler-case
+      (handler-case
+        (handler-case
+          (progn
+            (push 1 *handler-call*)
+            (error "AAA"))
+          (error ()
+            (push 2 *handler-call*)
+            (error "BBB")))
+        (error ()
+          (push 3 *handler-call*)
+          (error "CCC")))
+      (error ()
+        (push 4 *handler-call*)))
+    *handler-call*)
+  (4 3 2 1))
+
+(deftest handler-call.2
+  (progn
+    (setq *handler-call* nil)
+    (handler-case
+      (handler-bind
+        ((error (lambda (c)
+                  (declare (ignore c))
+                  (push 3 *handler-call*)
+                  (error "BBB"))))
+        (handler-bind
+          ((error (lambda (c)
+                    (declare (ignore c))
+                    (push 2 *handler-call*)
+                    (error "CCC"))))
+          (handler-bind
+            ((error (lambda (c)
+                      (declare (ignore c))
+                      (push 1 *handler-call*)
+                      (error "DDD"))))
+            (error "AAA"))))
+      (error ()
+        (push 4 *handler-call*)))
+    *handler-call*)
+  (4 3 2 1))
+

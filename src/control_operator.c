@@ -336,9 +336,8 @@ _g int find_condition_control_(Execute ptr, addr instance, int *ret)
 /*
  *  invoke-handler
  */
-static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
+static int wake_handler_call_(Execute ptr, addr next, addr instance, addr pos)
 {
-	int escape;
 	addr call;
 
 	/* call */
@@ -346,8 +345,7 @@ static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 	Return(funcall_control(ptr, call, instance, NULL));
 
 	/* escape */
-	GetEscapeHandler(pos, &escape);
-	if (escape) {
+	if (getescape_handler(pos)) {
 		ptr->throw_value = throw_handler_case;
 		ptr->throw_handler = pos;
 		ptr->throw_control = next;
@@ -356,6 +354,23 @@ static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 	}
 
 	return 0;
+}
+
+static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
+{
+	int check, disable;
+
+	/* ignore */
+	disable = getdisable_handler(pos);
+	if (disable)
+		return 0;
+
+	/* wake */
+	setdisable_handler(pos, 1);
+	check = wake_handler_call_(ptr, next, instance, pos);
+	setdisable_handler(pos, disable);
+
+	return check;
 }
 
 _g int invoke_handler_control_(Execute ptr, addr instance)

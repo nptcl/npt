@@ -50,7 +50,7 @@ int lisp_hashtable_p(addr x);
 int lisp_readtable_p(addr x);
 int lisp_control_p(addr x);
 int lisp_callname_p(addr x);
-int lisp_funciton_p(addr x);
+int lisp_function_p(addr x);
 int lisp_package_p(addr x);
 int lisp_random_state_p(addr x);
 int lisp_pathname_p(addr x);

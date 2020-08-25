@@ -118,23 +118,17 @@ enum Handler_Index {
 #define SetNameHandler_Low(p,x)		SetArrayA2((p), Handler_Name, (x))
 #define GetCallHandler_Low(p,x)		GetArrayA2((p), Handler_Call, (x))
 #define SetCallHandler_Low(p,x)		SetArrayA2((p), Handler_Call, (x))
-#define GetEscapeHandler_Low(p,x)	(*(x) = (int)GetUser(p))
-#define SetEscapeHandler_Low(p,x)	SetUser((p), (byte)(x))
 
 #ifdef LISP_DEBUG
 #define GetNameHandler				getnamehandler_debug
 #define SetNameHandler				setnamehandler_debug
 #define GetCallHandler				getcallhandler_debug
 #define SetCallHandler				setcallhandler_debug
-#define GetEscapeHandler			getescapehandler_debug
-#define SetEscapeHandler			setescapehandler_debug
 #else
 #define GetNameHandler				GetNameHandler_Low
 #define SetNameHandler				SetNameHandler_Low
 #define GetCallHandler				GetCallHandler_Low
 #define SetCallHandler				SetCallHandler_Low
-#define GetEscapeHandler			GetEscapeHandler_Low
-#define SetEscapeHandler			SetEscapeHandler_Low
 #endif
 
 _g void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc);
@@ -142,8 +136,11 @@ _g void getnamehandler_debug(addr pos, addr *ret);
 _g void setnamehandler_debug(addr pos, addr value);
 _g void getcallhandler_debug(addr pos, addr *ret);
 _g void setcallhandler_debug(addr pos, addr value);
-_g void getescapehandler_debug(addr pos, int *ret);
-_g void setescapehandler_debug(addr pos, int value);
+
+_g int getescape_handler(addr pos);
+_g void setescape_handler(addr pos, int value);
+_g int getdisable_handler(addr pos);
+_g void setdisable_handler(addr pos, int value);
 _g int checkhandler_control_(addr pos, addr instance, int *ret);
 
 

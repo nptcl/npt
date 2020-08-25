@@ -127,7 +127,8 @@ _g void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc)
 	local_array2(local, &pos, LISPSYSTEM_HANDLER, Handler_Size);
 	SetNameHandler_Low(pos, name);
 	SetCallHandler_Low(pos, call);
-	SetEscapeHandler_Low(pos, esc);
+	setescape_handler(pos, esc);
+	setdisable_handler(pos, 0);
 	*ret = pos;
 }
 
@@ -155,16 +156,42 @@ _g void setcallhandler_debug(addr pos, addr value)
 	SetCallHandler_Low(pos, value);
 }
 
-_g void getescapehandler_debug(addr pos, int *ret)
+_g int getescape_handler(addr pos)
 {
+	byte c;
+
 	CheckType(pos, LISPSYSTEM_HANDLER);
-	GetEscapeHandler_Low(pos, ret);
+	c = (byte)GetUser(pos);
+	return (int)GetBitByte(c, 0);
 }
 
-_g void setescapehandler_debug(addr pos, int value)
+_g void setescape_handler(addr pos, int value)
 {
+	byte c;
+
 	CheckType(pos, LISPSYSTEM_HANDLER);
-	SetEscapeHandler_Low(pos, value);
+	c = (byte)GetUser(pos);
+	SetBitByte(c, 0, value);
+	SetUser(pos, c);
+}
+
+_g int getdisable_handler(addr pos)
+{
+	byte c;
+
+	CheckType(pos, LISPSYSTEM_HANDLER);
+	c = (byte)GetUser(pos);
+	return (int)GetBitByte(c, 1);
+}
+
+_g void setdisable_handler(addr pos, int value)
+{
+	byte c;
+
+	CheckType(pos, LISPSYSTEM_HANDLER);
+	c = (byte)GetUser(pos);
+	SetBitByte(c, 1, value);
+	SetUser(pos, c);
 }
 
 _g int checkhandler_control_(addr pos, addr instance, int *ret)

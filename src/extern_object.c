@@ -437,7 +437,9 @@ int lisp_intern32_(addr x, const void *package, const void *name)
 }
 
 
-/* reader */
+/*
+ *  reader
+ */
 int lisp0_reader_(addr *ret, addr str)
 {
 	int check;

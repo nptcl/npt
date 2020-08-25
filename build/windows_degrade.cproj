@@ -299,7 +299,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_control.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_develop.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_error.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_sequence.c" />

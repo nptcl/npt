@@ -240,7 +240,7 @@ int lisp_callname_p(addr x)
 	return lisp_type_p(x, LISPTYPE_CALLNAME);
 }
 
-int lisp_funciton_p(addr x)
+int lisp_function_p(addr x)
 {
 	return lisp_type_p(x, LISPTYPE_FUNCTION);
 }
