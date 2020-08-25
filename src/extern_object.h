@@ -57,8 +57,14 @@ int lisp_reader32_(addr x, const void *str);
 
 /* pathname */
 int lisp0_pathname_(addr *ret, addr name);
+int lisp0_pathname8_(addr *ret, const void *str);
+int lisp0_pathname16_(addr *ret, const void *str);
+int lisp0_pathname32_(addr *ret, const void *str);
 int lisp0_namestring_(addr *ret, addr path);
 int lisp_pathname_(addr x, addr name);
+int lisp_pathname8_(addr x, const void *str);
+int lisp_pathname16_(addr x, const void *str);
+int lisp_pathname32_(addr x, const void *str);
 int lisp_namestring_(addr x, addr path);
 
 #endif

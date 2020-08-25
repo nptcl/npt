@@ -5,12 +5,14 @@
 #include "constant.h"
 #include "control.h"
 #include "degrade.h"
+#include "extern_sequence.h"
 #include "integer.h"
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
 #include "reader.h"
 #include "stream.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
@@ -154,6 +156,10 @@ static int test_lisp_long_double(void)
 	RETURN;
 }
 
+
+/*
+ *  access
+ */
 static int test_lisp_zero_p(void)
 {
 	LocalRoot local;
@@ -356,6 +362,376 @@ static int test_lisp_get_long_double(void)
 
 
 /*
+ *  package
+ */
+static int test_lisp_package(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	strvect_char_heap(&y, "COMMON-LISP-USER");
+	lisp_package_(x, y);
+	test(lisp_package_p(x), "lisp_package.1");
+
+	strvect_char_heap(&y, "COMMON-LISP");
+	lisp_hold_set(x, y);
+	lisp_package_(x, x);
+	test(lisp_package_p(x), "lisp_package.2");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_package8(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_package8_(x, "COMMON-LISP-USER");
+	test(lisp_package_p(x), "lisp_package8.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_package16(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const byte16 str[] = { 'C','O','M','M','O','N','-','L','I','S','P',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_package16_(x, (const void *)str);
+	test(lisp_package_p(x), "lisp_package16.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_package32(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const unicode str[] = { 'C','O','M','M','O','N','-','L','I','S','P',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_package32_(x, (const void *)str);
+	test(lisp_package_p(x), "lisp_package32.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  intern
+ */
+static int test_lisp_intern(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y, z, a, b;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+	a = Lisp_hold();
+	b = Lisp_hold();
+
+	strvect_char_heap(&y, "COMMON-LISP-USER");
+	strvect_char_heap(&z, "HELLO");
+	lisp_intern_(x, y, z);
+	test(lisp_symbol_p(x), "lisp_intern.1");
+	lisp_hold_value(x, &y);
+	internchar_("COMMON-LISP-USER", "HELLO", &z, NULL);
+	test(y == z, "lisp_intern.2");
+
+	lisp_package8_(a, "COMMON-LISP-USER");
+	lisp_string8_(b, "ABC");
+	lisp_intern_(x, a, b);
+	test(lisp_symbol_p(x), "lisp_intern.3");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_intern8(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_intern8_(x, "COMMON-LISP-USER", "HELLO");
+	test(lisp_symbol_p(x), "lisp_intern8.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_intern16(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const byte16 p[] = { 'C','O','M','M','O','N','-','L','I','S','P',0 };
+	const byte16 n[] = { 'H','E','L','L','O',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_intern16_(x, (const void *)p, (const void *)n);
+	test(lisp_symbol_p(x), "lisp_intern16.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_intern32(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const unicode p[] = { 'C','O','M','M','O','N','-','L','I','S','P',0 };
+	const unicode n[] = { 'H','E','L','L','O',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_intern32_(x, (const void *)p, (const void *)n);
+	test(lisp_symbol_p(x), "lisp_intern32.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  reader
+ */
+static int test_lisp_reader(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	strvect_char_heap(&y, "(10 20 30)");
+	lisp_reader_(x, y);
+	test(lisp_cons_p(x), "lisp_reader.1");
+
+	strvect_char_heap(&y, "123 abc");
+	lisp_hold_set(x, y);
+	lisp_reader_(x, x);
+	test(lisp_fixnum_p(x), "lisp_reader.2");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_reader8(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_reader8_(x, "(10 20 30)");
+	test(lisp_cons_p(x), "lisp_reader8.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_reader16(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const byte16 str[] = { '1','2','3',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_reader16_(x, (const void *)str);
+	test(lisp_fixnum_p(x), "lisp_reader16.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_reader32(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const unicode str[] = { '1','2','3',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_reader32_(x, (const void *)str);
+	test(lisp_fixnum_p(x), "lisp_reader32.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  pathname
+ */
+static int test_lisp_pathname(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	strvect_char_heap(&y, "/usr/local/bin/");
+	lisp_pathname_(x, y);
+	test(lisp_pathname_p(x), "lisp_pathname.1");
+
+	strvect_char_heap(&y, "/usr/local/bin/");
+	lisp_hold_set(x, y);
+	lisp_pathname_(x, y);
+	test(lisp_pathname_p(x), "lisp_pathname.2");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_pathname8(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_pathname8_(x, "/usr/local/bin/");
+	test(lisp_pathname_p(x), "lisp_pathname8.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_pathname16(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const byte16 str[] = { '/','u','s','r','/',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_pathname16_(x, (const void *)str);
+	test(lisp_pathname_p(x), "lisp_pathname16.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_pathname32(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+	const unicode str[] = { '/','u','s','r','/',0 };
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_pathname32_(x, (const void *)str);
+	test(lisp_pathname_p(x), "lisp_pathname32.1");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_namestring(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_pathname8_(x, "/usr/local/bin/");
+	lisp_hold_value(x, &y);
+	lisp_namestring_(x, y);
+	lisp_hold_value(x, &y);
+	test(lisp_string_p(y), "lisp_namestring.1");
+
+	lisp_pathname8_(x, "/usr/local/");
+	lisp_namestring_(x, x);
+	lisp_hold_value(x, &y);
+	test(lisp_string_p(y), "lisp_namestring.2");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
  *  Main
  */
 static int testcase_extern_object(void)
@@ -366,6 +742,7 @@ static int testcase_extern_object(void)
 	TestBreak(test_lisp_float);
 	TestBreak(test_lisp_double);
 	TestBreak(test_lisp_long_double);
+	/* access */
 	TestBreak(test_lisp_zero_p);
 	TestBreak(test_lisp_plus_p);
 	TestBreak(test_lisp_minus_p);
@@ -374,6 +751,27 @@ static int testcase_extern_object(void)
 	TestBreak(test_lisp_get_float);
 	TestBreak(test_lisp_get_double);
 	TestBreak(test_lisp_get_long_double);
+	/* package */
+	TestBreak(test_lisp_package);
+	TestBreak(test_lisp_package8);
+	TestBreak(test_lisp_package16);
+	TestBreak(test_lisp_package32);
+	/* intern */
+	TestBreak(test_lisp_intern);
+	TestBreak(test_lisp_intern8);
+	TestBreak(test_lisp_intern16);
+	TestBreak(test_lisp_intern32);
+	/* reader */
+	TestBreak(test_lisp_reader);
+	TestBreak(test_lisp_reader8);
+	TestBreak(test_lisp_reader16);
+	TestBreak(test_lisp_reader32);
+	/* pathname */
+	TestBreak(test_lisp_pathname);
+	TestBreak(test_lisp_pathname8);
+	TestBreak(test_lisp_pathname16);
+	TestBreak(test_lisp_pathname32);
+	TestBreak(test_lisp_namestring);
 
 	return 0;
 }

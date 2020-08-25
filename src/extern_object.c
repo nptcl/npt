@@ -285,7 +285,6 @@ int lisp0_package32_(addr *ret, const void *str)
 
 int lisp_package_(addr x, addr pos)
 {
-	hold_value(pos, &pos);
 	Return(lisp0_package_(&pos, pos));
 	hold_set(x, pos);
 	return 0;
@@ -451,47 +450,23 @@ int lisp0_reader_(addr *ret, addr str)
 
 int lisp0_reader8_(addr *ret, const void *str)
 {
-	LocalRoot local;
-	LocalStack stack;
-	addr x;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	Return(string8_null_local_(local, &x, (const char *)str));
-	Return(lisp0_reader_(ret, x));
-	rollback_local(local, stack);
-
-	return 0;
+	addr pos;
+	Return(string8_null_heap_(&pos, (const char *)str));
+	return lisp0_reader_(ret, pos);
 }
 
 int lisp0_reader16_(addr *ret, const void *str)
 {
-	LocalRoot local;
-	LocalStack stack;
-	addr x;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	Return(string16_null_local_(local, &x, (const byte16 *)str));
-	Return(lisp0_reader_(ret, x));
-	rollback_local(local, stack);
-
-	return 0;
+	addr pos;
+	Return(string16_null_heap_(&pos, (const byte16 *)str));
+	return lisp0_reader_(ret, pos);
 }
 
 int lisp0_reader32_(addr *ret, const void *str)
 {
-	LocalRoot local;
-	LocalStack stack;
-	addr x;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	Return(string32_null_local_(local, &x, (const unicode *)str));
-	Return(lisp0_reader_(ret, x));
-	rollback_local(local, stack);
-
-	return 0;
+	addr pos;
+	Return(string32_null_heap_(&pos, (const unicode *)str));
+	return lisp0_reader_(ret, pos);
 }
 
 int lisp_reader_(addr x, addr str)
@@ -538,6 +513,51 @@ int lisp0_pathname_(addr *ret, addr name)
 	return pathname_designer_heap_(Execute_Thread, name, ret);
 }
 
+int lisp0_pathname8_(addr *ret, const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string8_null_local_(local, &x, (const char *)str));
+	Return(lisp0_pathname_(ret, x));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp0_pathname16_(addr *ret, const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string16_null_local_(local, &x, (const byte16 *)str));
+	Return(lisp0_pathname_(ret, x));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp0_pathname32_(addr *ret, const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string32_null_local_(local, &x, (const unicode *)str));
+	Return(lisp0_pathname_(ret, x));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
 int lisp0_namestring_(addr *ret, addr path)
 {
 	hold_value(path, &path);
@@ -548,6 +568,33 @@ int lisp_pathname_(addr x, addr name)
 {
 	Return(lisp0_pathname_(&name, name));
 	hold_set(x, name);
+	return 0;
+}
+
+int lisp_pathname8_(addr x, const void *str)
+{
+	addr pos;
+
+	Return(lisp0_pathname8_(&pos, str));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_pathname16_(addr x, const void *str)
+{
+	addr pos;
+
+	Return(lisp0_pathname16_(&pos, str));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_pathname32_(addr x, const void *str)
+{
+	addr pos;
+
+	Return(lisp0_pathname32_(&pos, str));
+	hold_set(x, pos);
 	return 0;
 }
 

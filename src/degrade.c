@@ -107,6 +107,7 @@ int test_bit(void);
 int test_extern_type(void);
 int test_extern_sequence(void);
 int test_extern_object(void);
+int test_extern_control(void);
 int test_optimize(void);
 int loadrt(void);
 
@@ -219,6 +220,7 @@ void degrade_execute(void)
 	DegradeCheck(test_extern_type);
 	DegradeCheck(test_extern_sequence);
 	DegradeCheck(test_extern_object);
+	DegradeCheck(test_extern_control);
 	DegradeCheck(test_optimize);
 	DegradeCheck(loadrt);
 #if 0

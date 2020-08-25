@@ -207,12 +207,11 @@ static int test_lisp_length(void)
 {
 	LocalRoot local;
 	LocalStack stack;
-	addr x, v;
+	addr v;
 	size_t size;
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	x = Lisp_hold();
 
 	vector_heap(&v, 4);
 	size = 0;
