@@ -800,6 +800,77 @@ static int call_callbind_extend_rest(Execute ptr, addr pos, CallStruct call)
 	return (call->call.extend_rest)(cons);
 }
 
+static int call_callbind_extend_empty(Execute ptr, addr pos, CallStruct call)
+{
+	addr cons;
+	getargs_list_control_heap(ptr, 0, &cons);
+	return (call->call.extend_empty)();
+}
+
+static int call_callbind_extend_var1(Execute ptr, addr pos, CallStruct call)
+{
+	addr check, cons, var1;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcons(cons, &var1, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too many call argument ~S.", check, NULL);
+	}
+	return (call->call.extend_var1)(var1);
+}
+
+static int call_callbind_extend_var2(Execute ptr, addr pos, CallStruct call)
+{
+	addr check, cons, var1, var2;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too many call argument ~S.", check, NULL);
+	}
+	return (call->call.extend_var2)(var1, var2);
+
+toofew:
+	GetNameFunction(pos, &check);
+	return fmte_("Too few call argument ~S.", check, NULL);
+}
+
+static int call_callbind_extend_var3(Execute ptr, addr pos, CallStruct call)
+{
+	addr check, cons, var1, var2, var3;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil)
+		goto toofew;
+	Inline_getcons(cons, &var3, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	return (call->call.extend_var3)(var1, var2, var3);
+
+toofew:
+	GetNameFunction(pos, &check);
+	return fmte_("Too few call argument ~S.", check, NULL);
+}
+
 _g int call_compiled_function(Execute ptr, addr compiled)
 {
 	struct callbind_struct *str;
@@ -852,5 +923,9 @@ _g void init_callbind_control(void)
 	CallBindTable[CallBind_opt1dynamic] = call_callbind_opt1dynamic;
 	CallBindTable[CallBind_extend_dynamic] = call_callbind_extend_dynamic;
 	CallBindTable[CallBind_extend_rest] = call_callbind_extend_rest;
+	CallBindTable[CallBind_extend_empty] = call_callbind_extend_empty;
+	CallBindTable[CallBind_extend_var1] = call_callbind_extend_var1;
+	CallBindTable[CallBind_extend_var2] = call_callbind_extend_var2;
+	CallBindTable[CallBind_extend_var3] = call_callbind_extend_var3;
 }
 

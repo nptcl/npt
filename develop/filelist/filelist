@@ -154,6 +154,7 @@ execute.c
 extern_control.c
 extern_develop.c
 extern_error.c
+extern_execute.c
 extern_function.c
 extern_init.c
 extern_object.c

@@ -3,15 +3,6 @@
 
 #include "typedef_basic.h"
 
-enum lisp_escape {
-	lisp_escape_normal,
-	lisp_escape_tagbody,
-	lisp_escape_block,
-	lisp_escape_catch,
-	lisp_escape_handler_case,
-	lisp_escape_restart_case
-};
-
 /* function */
 void lisp0_get_function(addr *ret, addr symbol);
 void lisp0_get_setf(addr *ret, addr symbol);
@@ -36,66 +27,40 @@ int lisp_get_setf8_(addr x, const void *str);
 int lisp_get_setf16_(addr x, const void *str);
 int lisp_get_setf32_(addr x, const void *str);
 
-/* eval */
-int lisp0_eval_(addr *ret, addr pos);
-int lisp0_eval8_(addr *ret, const void *str);
-int lisp0_eval16_(addr *ret, const void *str);
-int lisp0_eval32_(addr *ret, const void *str);
-int lisp_eval_(addr x, addr pos);
-int lisp_eval8_(addr x, const void *str);
-int lisp_eval16_(addr x, const void *str);
-int lisp_eval32_(addr x, const void *str);
+/* compiled */
+typedef int (*lisp_calltype_dynamic)(addr args);
+typedef int (*lisp_calltype_rest)(addr args);
+typedef int (*lisp_calltype_empty)(void);
+typedef int (*lisp_calltype_var1)(addr var);
+typedef int (*lisp_calltype_var2)(addr var1, addr var2);
+typedef int (*lisp_calltype_var3)(addr var1, addr var2, addr var3);
 
-/* call */
-int lisp0_call_(addr *ret, addr call, addr args);
-int lisp_call_(addr x, addr call, addr args);
+void lisp_compiled_dynamic(int index, lisp_calltype_dynamic call);
+void lisp_compiled_rest(int index, lisp_calltype_rest call);
+void lisp_compiled_empty(int index, lisp_calltype_empty call);
+void lisp_compiled_var1(int index, lisp_calltype_var1 call);
+void lisp_compiled_var2(int index, lisp_calltype_var2 call);
+void lisp_compiled_var3(int index, lisp_calltype_var3 call);
 
-/* funcall */
-int lisp0_funcall_(addr *ret, addr call, ...);
-int lisp0_funcall8_(addr *ret, const void *str, ...);
-int lisp0_funcall16_(addr *ret, const void *str, ...);
-int lisp0_funcall32_(addr *ret, const void *str, ...);
-int lisp_funcall_(addr x, addr call, ...);
-int lisp_funcall8_(addr x, const void *str, ...);
-int lisp_funcall16_(addr x, const void *str, ...);
-int lisp_funcall32_(addr x, const void *str, ...);
+int lisp0_compiled_function_(addr *ret, int index, addr symbol);
+int lisp0_compiled_function8_(addr *ret, int index, const void *str);
+int lisp0_compiled_function16_(addr *ret, int index, const void *str);
+int lisp0_compiled_function32_(addr *ret, int index, const void *str);
+int lisp_compiled_function_(addr x, int index, addr symbol);
+int lisp_compiled_function8_(addr x, int index, const void *str);
+int lisp_compiled_function16_(addr x, int index, const void *str);
+int lisp_compiled_function32_(addr x, int index, const void *str);
+int lisp_compiled_defun_(int index, addr symbol);
+int lisp_compiled_defun8_(int index, const void *str);
+int lisp_compiled_defun16_(int index, const void *str);
+int lisp_compiled_defun32_(int index, const void *str);
+int lisp_compiled_defun_setf_(int index, addr symbol);
+int lisp_compiled_defun_setf8_(int index, const void *str);
+int lisp_compiled_defun_setf16_(int index, const void *str);
+int lisp_compiled_defun_setf32_(int index, const void *str);
 
-/* apply */
-int lisp0_apply_(addr *ret, addr call, ...);
-int lisp0_apply8_(addr *ret, const void *str, ...);
-int lisp0_apply16_(addr *ret, const void *str, ...);
-int lisp0_apply32_(addr *ret, const void *str, ...);
-int lisp_apply_(addr x, addr call, ...);
-int lisp_apply8_(addr x, const void *str, ...);
-int lisp_apply16_(addr x, const void *str, ...);
-int lisp_apply32_(addr x, const void *str, ...);
-
-/* lowlevel */
-int lisp_eval_control_(addr eval);
-int lisp_eval_string_control_(addr eval);
-int lisp_call_control_(addr call, addr args);
-int lisp_funcall_control_(addr call, ...);
-int lisp_apply_control_(addr call, ...);
-
-/* values */
-void lisp0_result_control(addr *ret);
-void lisp0_result2_control(addr *ret1, addr *ret2);
-void lisp0_values_control(addr *ret);
-void lisp0_nth_value_control(addr *ret, size_t index);
-void lisp_result_control(addr x);
-void lisp_result2_control(addr x, addr y);
-void lisp_values_control(addr x);
-void lisp_nth_value_control(addr x, size_t index);
-void lisp_set_result_control(addr value);
-void lisp_set_values_control(addr first, ...);
-void lisp_set_values_nil_control(void);
-void lisp_set_values_list_control(addr list);
-
-/* system */
-int lisp_escape_control(void);
-void lisp_escape_reset_control(void);
-enum lisp_escape lisp_escape_type_control(void);
-int lisp_eval_loop_(void);
+void lisp_compiled_setvalue(addr pos, addr value);
+void lisp0_compiled_getvalue(addr *ret);
 
 #endif
 

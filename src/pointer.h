@@ -97,8 +97,16 @@ __extern struct callbind_struct pointer_table[SizePointer];
 #define GetPointer_opt1dynamic(p, x)  GetPointer(p, opt1dynamic, x)
 #define SetPointer_extend_dynamic(p, x)  SetPointer(p, extend_dynamic, x)
 #define GetPointer_extend_dynamic(p, x)  GetPointer(p, extend_dynamic, x)
-#define SetPointer_extend_rest(p, x)  SetPointer(p, extend_rest, x)
-#define GetPointer_extend_rest(p, x)  GetPointer(p, extend_rest, x)
+#define SetPointer_extend_rest(p, x)     SetPointer(p, extend_rest, x)
+#define GetPointer_extend_rest(p, x)     GetPointer(p, extend_rest, x)
+#define SetPointer_extend_empty(p, x)    SetPointer(p, extend_empty, x)
+#define GetPointer_extend_empty(p, x)    GetPointer(p, extend_empty, x)
+#define SetPointer_extend_var1(p, x)     SetPointer(p, extend_var1, x)
+#define GetPointer_extend_var1(p, x)     GetPointer(p, extend_var1, x)
+#define SetPointer_extend_var2(p, x)     SetPointer(p, extend_var2, x)
+#define GetPointer_extend_var2(p, x)     GetPointer(p, extend_var2, x)
+#define SetPointer_extend_var3(p, x)     SetPointer(p, extend_var3, x)
+#define GetPointer_extend_var3(p, x)     GetPointer(p, extend_var3, x)
 
 _g void clear_pointer(void);
 

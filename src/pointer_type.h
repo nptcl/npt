@@ -41,6 +41,10 @@ typedef int (*callbind_var4dynamic)(Execute, addr, addr, addr, addr, addr);
 typedef int (*callbind_opt1dynamic)(Execute, addr, addr);
 typedef int (*callbind_extend_dynamic)(addr);
 typedef int (*callbind_extend_rest)(addr);
+typedef int (*callbind_extend_empty)();
+typedef int (*callbind_extend_var1)(addr);
+typedef int (*callbind_extend_var2)(addr, addr);
+typedef int (*callbind_extend_var3)(addr, addr, addr);
 
 enum CallBind_index {
        CallBind_error,
@@ -80,6 +84,10 @@ enum CallBind_index {
        CallBind_opt1dynamic,
        CallBind_extend_dynamic,
        CallBind_extend_rest,
+       CallBind_extend_empty,
+       CallBind_extend_var1,
+       CallBind_extend_var2,
+       CallBind_extend_var3,
        CallBind_size
 };
 
@@ -123,6 +131,10 @@ struct callbind_struct {
 		callbind_opt1dynamic opt1dynamic;
 		callbind_extend_dynamic extend_dynamic;
 		callbind_extend_rest extend_rest;
+		callbind_extend_empty extend_empty;
+		callbind_extend_var1 extend_var1;
+		callbind_extend_var2 extend_var2;
+		callbind_extend_var3 extend_var3;
 	} call;
 };
 

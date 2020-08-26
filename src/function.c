@@ -395,6 +395,34 @@ _g void setcompiled_extend_rest(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
+_g void setcompiled_extend_empty(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_empty, "type error");
+	StructFunction(pos)->index = p;
+}
+
+_g void setcompiled_extend_var1(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var1, "type error");
+	StructFunction(pos)->index = p;
+}
+
+_g void setcompiled_extend_var2(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var2, "type error");
+	StructFunction(pos)->index = p;
+}
+
+_g void setcompiled_extend_var3(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var3, "type error");
+	StructFunction(pos)->index = p;
+}
+
 _g struct function_struct *structfunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);

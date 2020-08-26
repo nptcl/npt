@@ -107,6 +107,10 @@ _g void setcompiled_var4dynamic(addr pos, pointer p);
 _g void setcompiled_opt1dynamic(addr pos, pointer p);
 _g void setcompiled_extend_dynamic(addr pos, pointer p);
 _g void setcompiled_extend_rest(addr pos, pointer p);
+_g void setcompiled_extend_empty(addr pos, pointer p);
+_g void setcompiled_extend_var1(addr pos, pointer p);
+_g void setcompiled_extend_var2(addr pos, pointer p);
+_g void setcompiled_extend_var3(addr pos, pointer p);
 
 _g struct function_struct *structfunction(addr pos);
 _g void getcodefunction(addr pos, addr *ret);

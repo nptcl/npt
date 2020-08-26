@@ -30,14 +30,6 @@ int lisp_format8_(addr stream, const void *str, ...);
 int lisp_format16_(addr stream, const void *str, ...);
 int lisp_format32_(addr stream, const void *str, ...);
 
-/* syscall */
-typedef int (*lisp_calltype_syscall)(addr args);
-void lisp_syscall_rest(int index, lisp_calltype_syscall);
-void lisp_syscall_dynamic(int index, lisp_calltype_syscall);
-void lisp_syscall_function(int index, addr name, addr *ret);
-void lisp_syscall_setvalue(addr pos, addr value);
-void lisp_syscall_getvalue(addr *ret);
-
 /* unwind-protect */
 int lisp_unwind_protect(addr code, addr clean);
 void lisp_set_unwind_protect(addr clean);
