@@ -323,8 +323,9 @@ _g int find_condition_control_(Execute ptr, addr instance, int *ret)
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
 			Return(checkhandler_control_(pos, instance, &check));
-			if (check)
+			if (check) {
 				return Result(ret, 1);
+			}
 		}
 		GetControl(control, Control_Next, &control);
 	}
@@ -358,17 +359,11 @@ static int wake_handler_call_(Execute ptr, addr next, addr instance, addr pos)
 
 static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 {
-	int check, disable;
+	int check;
 
-	/* ignore */
-	disable = getdisable_handler(pos);
-	if (disable)
-		return 0;
-
-	/* wake */
 	setdisable_handler(pos, 1);
 	check = wake_handler_call_(ptr, next, instance, pos);
-	setdisable_handler(pos, disable);
+	setdisable_handler(pos, 0);
 
 	return check;
 }

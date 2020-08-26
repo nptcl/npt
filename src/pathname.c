@@ -90,7 +90,7 @@ static int parse_pathname_full_alloc_(Execute ptr,
 	struct fileparse pa;
 
 	/* argument */
-	defaults_pathname_alloc_(ptr, &defaults, defaults, localp);
+	Return(defaults_pathname_alloc_(ptr, &defaults, defaults, localp));
 	init_fileparse(&pa, ptr, localp);
 	pa.thing = thing;
 	pa.path = defaults;

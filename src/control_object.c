@@ -199,11 +199,17 @@ _g int checkhandler_control_(addr pos, addr instance, int *ret)
 	addr clos;
 
 	CheckType(pos, LISPSYSTEM_HANDLER);
+
+	/* ignore */
+	if (getdisable_handler(pos))
+		return Result(ret, 0);
+
+	/* check */
 	GetNameHandler(pos, &clos);
 	if (clos == Nil)
 		return Result(ret, 0);
-	else
-		return clos_subtype_p_(instance, clos, ret);
+
+	return clos_subtype_p_(instance, clos, ret);
 }
 
 

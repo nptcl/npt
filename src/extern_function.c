@@ -22,40 +22,40 @@
 /*
  *  function
  */
-void lisp0_get_function(addr *ret, addr value)
+void lisp0_get_function(addr *ret, addr symbol)
 {
-	hold_value(value, &value);
-	if (! symbolp(value)) {
+	hold_value(symbol, &symbol);
+	if (! symbolp(symbol)) {
 		*ret = Nil;
-		Lisp_abort_type(value, SYMBOL);
+		Lisp_abort_type(symbol, SYMBOL);
 		return;
 	}
-	GetFunctionSymbol(value, &value);
-	*ret = (value == Unbound)? NULL: value;
+	GetFunctionSymbol(symbol, &symbol);
+	*ret = (symbol == Unbound)? NULL: symbol;
 }
 
-void lisp0_get_setf(addr *ret, addr value)
+void lisp0_get_setf(addr *ret, addr symbol)
 {
-	hold_value(value, &value);
-	if (! symbolp(value)) {
+	hold_value(symbol, &symbol);
+	if (! symbolp(symbol)) {
 		*ret = Nil;
-		Lisp_abort_type(value, SYMBOL);
+		Lisp_abort_type(symbol, SYMBOL);
 		return;
 	}
-	getsetf_symbol(value, &value);
-	*ret = (value == Unbound)? NULL: value;
+	getsetf_symbol(symbol, &symbol);
+	*ret = (symbol == Unbound)? NULL: symbol;
 }
 
-void lisp_get_function(addr x, addr value)
+void lisp_get_function(addr x, addr symbol)
 {
-	lisp0_get_function(&value, value);
-	hold_set(x, value);
+	lisp0_get_function(&symbol, symbol);
+	hold_set(x, symbol);
 }
 
-void lisp_get_setf(addr x, addr value)
+void lisp_get_setf(addr x, addr symbol)
 {
-	lisp0_get_setf(&value, value);
-	hold_set(x, value);
+	lisp0_get_setf(&symbol, symbol);
+	hold_set(x, symbol);
 }
 
 int lisp0_get_function_(addr *ret, addr value)
@@ -701,36 +701,10 @@ int lisp_apply_control_(addr call, ...)
 	return 0;
 }
 
-void lisp_clean_control(void)
-{
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	setvalues_nil_control(ptr);
-	normal_throw_control(ptr);
-}
-
-int lisp_eval_loop_(void)
-{
-	return eval_main_loop_(Execute_Thread);
-}
-
 
 /*
  *  values
  */
-void lisp0_nth_values_control(addr *ret, size_t index)
-{
-	addr pos;
-	getvalues_control(Execute_Thread, index, &pos);
-	*ret = (pos == Unbound)? Nil: pos;
-}
-
-void lisp0_values_control(addr *ret)
-{
-	getvalues_list_control_heap(Execute_Thread, ret);
-}
-
 void lisp0_result_control(addr *ret)
 {
 	getresult_control(Execute_Thread, ret);
@@ -748,18 +722,16 @@ void lisp0_result2_control(addr *ret1, addr *ret2)
 	*ret2 = (y == Unbound)? Nil: y;
 }
 
-void lisp_nth_values_control(addr x, size_t index)
+void lisp0_values_control(addr *ret)
 {
-	addr pos;
-	lisp0_nth_values_control(&pos, index);
-	hold_set(x, pos);
+	getvalues_list_control_heap(Execute_Thread, ret);
 }
 
-void lisp_values_control(addr x)
+void lisp0_nth_value_control(addr *ret, size_t index)
 {
 	addr pos;
-	lisp0_values_control(&pos);
-	hold_set(x, pos);
+	getvalues_control(Execute_Thread, index, &pos);
+	*ret = (pos == Unbound)? Nil: pos;
 }
 
 void lisp_result_control(addr x)
@@ -775,5 +747,112 @@ void lisp_result2_control(addr x, addr y)
 	lisp0_result2_control(&pos1, &pos2);
 	hold_set(x, pos1);
 	hold_set(y, pos2);
+}
+
+void lisp_values_control(addr x)
+{
+	addr pos;
+	lisp0_values_control(&pos);
+	hold_set(x, pos);
+}
+
+void lisp_nth_value_control(addr x, size_t index)
+{
+	addr pos;
+	lisp0_nth_value_control(&pos, index);
+	hold_set(x, pos);
+}
+
+void lisp_set_result_control(addr value)
+{
+	hold_value(value, &value);
+	setresult_control(Execute_Thread, value);
+}
+
+void lisp_set_values_control(addr first, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+
+	/* list */
+	va_start(va, first);
+	lisp0_list_va_alloc(local, &args, va);
+	hold_value(first, &first);
+	cons_local(local, &args, first, args);
+
+	/* setvalues */
+	setvalues_list_control(ptr, args);
+	rollback_local(local, stack);
+}
+
+void lisp_set_values_nil_control(void)
+{
+	setvalues_nil_control(Execute_Thread);
+}
+
+void lisp_set_values_list_control(addr list)
+{
+	hold_value(list, &list);
+	setvalues_list_control(Execute_Thread, list);
+}
+
+
+/*
+ *  system
+ */
+int lisp_escape_control(void)
+{
+	Execute ptr;
+	ptr = Execute_Thread;
+	return ptr->throw_value != throw_normal;
+}
+
+void lisp_escape_reset_control(void)
+{
+	Execute ptr;
+	ptr = Execute_Thread;
+	normal_throw_control(ptr);
+}
+
+enum lisp_escape lisp_escape_type_control(void)
+{
+	Execute ptr;
+	ptr = Execute_Thread;
+	switch (ptr->throw_value) {
+		case throw_normal:
+			return lisp_escape_normal;
+
+		case throw_tagbody:
+			return lisp_escape_tagbody;
+
+		case throw_block:
+			return lisp_escape_block;
+
+		case throw_catch:
+			return lisp_escape_catch;
+
+		case throw_handler_case:
+			return lisp_escape_handler_case;
+
+		case throw_restart_case:
+			return lisp_escape_restart_case;
+
+		default:
+			lisp_abort("Invalid escape type.", NULL);
+			return lisp_escape_normal;
+	}
+}
+
+
+int lisp_eval_loop_(void)
+{
+	return eval_main_loop_(Execute_Thread);
 }
 
