@@ -14,6 +14,7 @@
 
 _g FILE *lisperror_stream(void);
 _g int lisperror_noeol(const char *fmt, ...);
+_g int lisperror_va(const char *fmt, va_list args);
 _g int lisperror(const char *fmt, ...);
 
 #endif

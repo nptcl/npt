@@ -514,6 +514,21 @@
 #undef LISP_WINMAIN_WIDE
 #endif
 
+/* setjmp */
+#ifdef __cplusplus
+#ifdef LISP_ABORT_SETJMP
+#undef LISP_ABORT_EXCEPTION
+#else
+#undef LISP_ABORT_SETJMP
+#undef LISP_ABORT_EXCEPTION
+#define LISP_ABORT_EXCEPTION
+#endif
+#else
+#undef LISP_ABORT_SETJMP
+#undef LISP_ABORT_EXCEPTION
+#define LISP_ABORT_SETJMP
+#endif
+
 /* end of header file */
 #endif
 

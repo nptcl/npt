@@ -606,6 +606,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\declare.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define_compile.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define_setjmp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\degrade.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\document.h" />

@@ -43,18 +43,27 @@ _g int lisperror_noeol(const char *fmt, ...)
 	return check;
 }
 
-_g int lisperror(const char *fmt, ...)
+_g int lisperror_va(const char *fmt, va_list args)
 {
 	int check;
 	FILE *file;
-	va_list args;
 
 	file = lisperror_stream();
-	va_start(args, fmt);
 	check = vfprintf(file, fmt, args);
-	va_end(args);
 	fprintf(file, "\n");
 	fflush(file);
+
+	return check;
+}
+
+_g int lisperror(const char *fmt, ...)
+{
+	int check;
+	va_list args;
+
+	va_start(args, fmt);
+	check = lisperror_va(fmt, args);
+	va_end(args);
 
 	return check;
 }
@@ -214,6 +223,7 @@ int lisp_main_version_script(FILE *file)
 #else
 	fprintf(file, "%s\t%s\n", "memory-malloc", "false");
 #endif
+	fprintf(file, "%s\t%d\n", "pointer-extend", LISP_POINTER_EXTEND);
 	lisp_result = 0;
 
 	return 0;

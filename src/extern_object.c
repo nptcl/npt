@@ -1,6 +1,7 @@
 #include "bignum.h"
 #include "character.h"
 #include "condition.h"
+#include "extern_develop.h"
 #include "extern_error.h"
 #include "extern_type.h"
 #include "float_object.h"

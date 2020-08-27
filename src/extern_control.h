@@ -25,21 +25,9 @@ int lisp_set_special8_(const void *name, addr value);
 int lisp_set_special16_(const void *name, addr value);
 int lisp_set_special32_(const void *name, addr value);
 
-/* format */
-int lisp_format8_(addr stream, const void *str, ...);
-int lisp_format16_(addr stream, const void *str, ...);
-int lisp_format32_(addr stream, const void *str, ...);
-
 /* unwind-protect */
 int lisp_unwind_protect(addr code, addr clean);
 void lisp_set_unwind_protect(addr clean);
-
-/* error */
-void lisp_abort_execute(void);
-void lisp_abort(const char *fmt, ...);
-int lisp_error8_(const void *str, ...);
-int lisp_error16_(const void *str, ...);
-int lisp_error32_(const void *str, ...);
 
 /* catch / throw */
 int lisp_catch_(addr symbol, addr code, addr *ret);

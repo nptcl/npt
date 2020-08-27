@@ -667,7 +667,7 @@ enum lisp_escape lisp_escape_type_control(void)
 			return lisp_escape_restart_case;
 
 		default:
-			lisp_abort("Invalid escape type.", NULL);
+			lisp_abortf("Invalid escape type.", NULL);
 			return lisp_escape_normal;
 	}
 }

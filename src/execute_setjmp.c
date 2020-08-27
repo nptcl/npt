@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "define.h"
 #include "execute_setjmp.h"
 #include "typedef.h"
 
-#ifndef __cplusplus
+#ifdef LISP_ABORT_SETJMP
 #include <setjmp.h>
-_g jmp_buf Lisp_abort_setjmp;
-_g jmp_buf Lisp_degrade_setjmp;
+jmp_buf Lisp_abort_setjmp;
+jmp_buf Lisp_degrade_setjmp;
 #endif
 
 _g lisp_abort_calltype Lisp_abort_handler = NULL;
@@ -15,12 +16,16 @@ _g lisp_abort_calltype Lisp_abort_handler = NULL;
 /*
  *  abort
  */
+static void abort_shutdown(void)
+{
+	exit(1); /* or abort(); */
+}
+
 _g void abort_execute(void)
 {
 	/* handler */
 	if (Lisp_abort_handler) {
 		(*Lisp_abort_handler)();
-		return;
 	}
 
 	/* default */
@@ -28,7 +33,7 @@ _g void abort_execute(void)
 	fprintf(stderr, "**************\n");
 	fprintf(stderr, "  LISP ABORT  \n");
 	fprintf(stderr, "**************\n");
-	exit(1); /* or abort(); */
+	abort_shutdown();
 }
 
 _g lisp_abort_calltype set_abort_handler(lisp_abort_calltype call)

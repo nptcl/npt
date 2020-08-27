@@ -5,6 +5,7 @@
 #include "typedef_basic.h"
 #include "typedef_stream.h"
 
+/* stream object */
 int lisp_stream_define_(addr *ret, int type, size_t size);
 int lisp_stream_memory_(addr stream, void **ret);
 int lisp_getinfo_stream_(addr stream, addr *ret);
@@ -85,6 +86,11 @@ LispStreamExtendError(force_output);
 LispStreamExtendError(clear_output);
 LispStreamExtendError(exitpoint);
 LispStreamExtendError(termsize);
+
+/* format */
+int lisp_format8_(addr stream, const void *str, ...);
+int lisp_format16_(addr stream, const void *str, ...);
+int lisp_format32_(addr stream, const void *str, ...);
 
 #endif
 

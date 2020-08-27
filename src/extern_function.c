@@ -2,6 +2,7 @@
 #include "condition.h"
 #include "control_object.h"
 #include "extern_control.h"
+#include "extern_develop.h"
 #include "extern_error.h"
 #include "extern_function.h"
 #include "extern_object.h"
@@ -196,7 +197,7 @@ static void lisp_compiled_index_check(int index)
 
 	if (index < 0 || LISP_POINTER_EXTEND <= index) {
 		fixnum_heap(&pos, (fixnum)index);
-		lisp_abort("Invalid index value ~S.", pos, NULL);
+		lisp_abort8("Invalid index value ~S.", pos, NULL);
 	}
 }
 
@@ -457,7 +458,7 @@ void lisp_compiled_setvalue(addr pos, addr value)
 	hold_value(pos, &pos);
 	hold_value(value, &value);
 	if (! functionp(pos)) {
-		lisp_abort("Invalid function object ~S.", pos, NULL);
+		lisp_abort8("Invalid function object ~S.", pos, NULL);
 		return;
 	}
 	SetDataFunction(pos, value);

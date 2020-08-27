@@ -1,10 +1,27 @@
 #include <stdarg.h>
 #include "cons.h"
+#include "constant.h"
+#include "extern_error.h"
 #include "hold.h"
 #include "object.h"
 #include "local.h"
 #include "typedef.h"
 
+/*
+ *  error
+ */
+void lisp_abort_type(addr value, constindex index)
+{
+	addr type;
+
+	GetConstant(index, &type);
+	lisp_abort8("type error: ~S must be a ~A type.", value, type, NULL);
+}
+
+
+/*
+ *  list
+ */
 void lisp0_list_va_alloc(LocalRoot local, addr *ret, va_list args)
 {
 	addr x, y, next;
