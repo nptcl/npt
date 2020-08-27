@@ -428,9 +428,7 @@ static int test_lisp_compiled_defun(void)
 static int test_lisp_compiled_defun8(void)
 {
 	addr control, x, y;
-	Execute ptr;
 
-	ptr = Execute_Thread;
 	lisp_compiled_dynamic(0, test_lisp_compiled_dynamic_);
 
 	lisp_push_control(&control);
@@ -450,10 +448,8 @@ static int test_lisp_compiled_defun8(void)
 static int test_lisp_compiled_defun16(void)
 {
 	addr control, x, y;
-	Execute ptr;
 	const byte16 str[] = { 'H','E','L','L','O',0 };
 
-	ptr = Execute_Thread;
 	lisp_compiled_dynamic(0, test_lisp_compiled_dynamic_);
 
 	lisp_push_control(&control);
@@ -473,10 +469,8 @@ static int test_lisp_compiled_defun16(void)
 static int test_lisp_compiled_defun32(void)
 {
 	addr control, x, y;
-	Execute ptr;
 	const unicode str[] = { 'H','E','L','L','O',0 };
 
-	ptr = Execute_Thread;
 	lisp_compiled_dynamic(0, test_lisp_compiled_dynamic_);
 
 	lisp_push_control(&control);

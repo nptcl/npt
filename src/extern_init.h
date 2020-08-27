@@ -2,6 +2,7 @@
 #define __EXTERN_INIT_HEADER__
 
 #include <stdio.h>
+#include <stdarg.h>
 #include "define.h"
 
 #ifdef LISP_DEBUG

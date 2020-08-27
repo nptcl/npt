@@ -287,8 +287,10 @@ int lisp0_compiled_function_(addr *ret, int index, addr symbol)
 		symbol = Nil;
 	hold_value(symbol, &symbol);
 
-	if (! symbolp(symbol))
+	if (! symbolp(symbol)) {
+		*ret = Nil;
 		return TypeError_(symbol, SYMBOL);
+	}
 
 	/* function */
 	compiled_system(&pos, symbol);
