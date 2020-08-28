@@ -576,6 +576,109 @@ static int test_lisp_string32(void)
 	RETURN;
 }
 
+static int test_lisp_string_getc(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+	unicode c;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_string8_(&y, "ABC");
+	c = 0;
+	lisp_string_getc_(y, 0, &c);
+	test(c == 'A', "lisp_string_getc.1");
+	lisp_string_getc_(y, 1, &c);
+	test(c == 'B', "lisp_string_getc.2");
+	lisp_string_getc_(y, 2, &c);
+	test(c == 'C', "lisp_string_getc.3");
+
+	lisp_string8_(x, "ABC");
+	lisp_hold_value(x, &y);
+	c = 0;
+	lisp_string_getc_(y, 0, &c);
+	test(c == 'A', "lisp_string_getc.4");
+	lisp_string_getc_(y, 1, &c);
+	test(c == 'B', "lisp_string_getc.5");
+	lisp_string_getc_(y, 2, &c);
+	test(c == 'C', "lisp_string_getc.6");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  strvect
+ */
+static int test_lisp_strvect_getc(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+	unicode c;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	test(lisp_strvect_getc(Nil, 0, &c) == -1, "lisp_strvect_getc.1");
+
+	lisp0_string8_(&y, "ABC");
+	c = 0;
+	test(lisp_strvect_getc(y, 0, &c) == 0, "lisp_strvect_getc.2");
+	test(c == 'A', "lisp_strvect_getc.3");
+	test(lisp_strvect_getc(y, 1, &c) == 0, "lisp_strvect_getc.4");
+	test(c == 'B', "lisp_strvect_getc.5");
+	test(lisp_strvect_getc(y, 2, &c) == 0, "lisp_strvect_getc.6");
+	test(c == 'C', "lisp_strvect_getc.7");
+	test(lisp_strvect_getc(y, 3, &c) == 1, "lisp_strvect_getc.8");
+
+	lisp_string8_(x, "ABC");
+	lisp_hold_value(x, &y);
+	c = 0;
+	test(lisp_strvect_getc(y, 0, &c) == 0, "lisp_strvect_getc.9");
+	test(c == 'A', "lisp_strvect_getc.10");
+	test(lisp_strvect_getc(y, 3, &c) == 1, "lisp_strvect_getc.11");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_strvect_length(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+	size_t size;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	test(lisp_strvect_length(Nil, &size) == -1, "lisp_strvect_length.1");
+
+	lisp0_string8_(&y, "ABC");
+	size = 0;
+	test(lisp_strvect_length(y, &size) == 0, "lisp_strvect_length.2");
+	test(size == 3, "lisp_strvect_length.3");
+
+	lisp_string8_(x, "ABC");
+	lisp_hold_value(x, &y);
+	size = 0;
+	test(lisp_strvect_length(y, &size) == 0, "lisp_strvect_length.4");
+	test(size == 3, "lisp_strvect_length.5");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
 
 /*
  *  Main
@@ -604,6 +707,10 @@ static int testcase_extern_sequence(void)
 	TestBreak(test_lisp_string8);
 	TestBreak(test_lisp_string16);
 	TestBreak(test_lisp_string32);
+	TestBreak(test_lisp_string_getc);
+	/* strvect */
+	TestBreak(test_lisp_strvect_getc);
+	TestBreak(test_lisp_strvect_length);
 
 	return 0;
 }

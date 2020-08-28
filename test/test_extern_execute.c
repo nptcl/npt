@@ -849,6 +849,42 @@ static int test_lisp_set_values_list_control(void)
 /*
  *  others
  */
+static int test_lisp_break_control(void)
+{
+	Execute ptr;
+	addr x, y, z;
+
+	ptr = Execute_Thread;
+	normal_throw_control(ptr);
+
+	lisp_push_control(&x);
+	lisp_push_control(&y);
+	lisp_push_control(&z);
+
+	ptr->throw_control = z;
+	ptr->throw_value = throw_normal;
+	test(! lisp_break_control(), "lisp_break_control.1");
+
+	ptr->throw_control = y;
+	ptr->throw_value = throw_normal;
+	test(! lisp_break_control(), "lisp_break_control.2");
+
+	ptr->throw_control = z;
+	ptr->throw_value = throw_handler_case;
+	test(lisp_break_control(), "lisp_break_control.3");
+
+	ptr->throw_control = y;
+	ptr->throw_value = throw_handler_case;
+	test(! lisp_break_control(), "lisp_break_control.4");
+
+	normal_throw_control(ptr);
+	lisp_pop_control_(z);
+	lisp_pop_control_(y);
+	lisp_pop_control_(x);
+
+	RETURN;
+}
+
 static int test_lisp_escape_control(void)
 {
 	Execute ptr;
@@ -913,6 +949,39 @@ static int test_lisp_escape_type_control(void)
 	RETURN;
 }
 
+static int test_lisp_save_control(void)
+{
+	addr control, save, cont, x;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	lisp_push_control(&control);
+
+	normal_throw_control(ptr);
+	ptr->throw_value = throw_restart_case;
+	lisp_push_control(&cont);
+	setvalues_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
+
+	/* save */
+	lisp_save_control(&save);
+	ptr->throw_value = throw_normal;
+	setresult_control(ptr, fixnumh(40));
+
+	/* rollback */
+	lisp_rollback_control(save);
+	test(ptr->throw_value == throw_restart_case, "lisp_save_control.1");
+	getresult_control(ptr, &x);
+	test(RefFixnum(x) == 10, "lisp_save_control.2");
+	test(lengthvalues_control(ptr) == 3, "lisp_save_control.3");
+
+	lisp_pop_control_(cont);
+	normal_throw_control(ptr);
+	lisp_set_values_nil_control();
+	lisp_pop_control_(control);
+
+	RETURN;
+}
+
 
 /*
  *  Main
@@ -949,9 +1018,11 @@ static int testcase_extern_execute(void)
 	TestBreak(test_lisp_set_values_nil_control);
 	TestBreak(test_lisp_set_values_list_control);
 	/* others */
+	TestBreak(test_lisp_break_control);
 	TestBreak(test_lisp_escape_control);
 	TestBreak(test_lisp_reset_control);
 	TestBreak(test_lisp_escape_type_control);
+	TestBreak(test_lisp_save_control);
 
 	return 0;
 }

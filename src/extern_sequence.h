@@ -45,6 +45,11 @@ int lisp0_string32_(addr *ret, const void *str);
 int lisp_string8_(addr x, const void *str);
 int lisp_string16_(addr x, const void *str);
 int lisp_string32_(addr x, const void *str);
+int lisp_string_getc_(addr pos, size_t i, unicode *c);
+
+/* strvect */
+int lisp_strvect_getc(addr pos, size_t i, unicode *c);
+int lisp_strvect_length(addr pos, size_t *ret);
 
 #endif
 

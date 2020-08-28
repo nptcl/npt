@@ -627,7 +627,7 @@ void lisp_set_values_list_control(addr list)
 
 
 /*
- *  system
+ *  escape
  */
 int lisp_equal_control(addr control)
 {
@@ -700,6 +700,10 @@ void lisp_rollback_control(addr value)
 	restore_execute_control(Execute_Thread, value);
 }
 
+
+/*
+ *  system
+ */
 int lisp_eval_loop_(void)
 {
 	return eval_main_loop_(Execute_Thread);

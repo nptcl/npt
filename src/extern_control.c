@@ -202,7 +202,7 @@ int lisp_throw_(addr symbol)
 
 
 /*
- *  signal
+ *  handler
  */
 int lisp_handler_bind_(addr name, addr call)
 {
@@ -231,6 +231,8 @@ void lisp0_restart_make(addr *ret, addr name, addr call, int casep)
 {
 	addr restart;
 
+	if (name == NULL)
+		name = Nil;
 	hold_value(name, &name);
 	hold_value(call, &call);
 	restart_heap(&restart, name);
@@ -252,6 +254,8 @@ void lisp_restart_interactive(addr restart, addr call)
 		Lisp_abort_type(restart, RESTART);
 		return;
 	}
+	if (call == NULL)
+		call = Nil;
 	hold_value(call, &call);
 	setinteractive_restart(restart, call);
 }
@@ -263,6 +267,8 @@ void lisp_restart_report(addr restart, addr call)
 		Lisp_abort_type(restart, RESTART);
 		return;
 	}
+	if (call == NULL)
+		call = Nil;
 	hold_value(call, &call);
 	setreport_restart(restart, call);
 }
@@ -274,6 +280,8 @@ void lisp_restart_test(addr restart, addr call)
 		Lisp_abort_type(restart, RESTART);
 		return;
 	}
+	if (call == NULL)
+		call = Nil;
 	hold_value(call, &call);
 	settest_restart(restart, call);
 }

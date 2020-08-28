@@ -32,7 +32,7 @@ void lisp_unwind_protect(addr clean);
 void lisp_catch(addr symbol);
 int lisp_throw_(addr symbol);
 
-/* signal */
+/* handler */
 int lisp_handler_bind_(addr name, addr call);
 int lisp_handler_case_(addr name, addr call);
 void lisp_handler_reverse(void);

@@ -3,6 +3,8 @@
 #include "hold.h"
 #include "object.h"
 #include "sequence.h"
+#include "strtype.h"
+#include "strvect.h"
 #include "typedef.h"
 #include "unicode.h"
 
@@ -285,6 +287,40 @@ int lisp_string32_(addr x, const void *str)
 
 	Return(string32_null_heap_(&pos, (const unicode *)str));
 	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_string_getc_(addr pos, size_t i, unicode *c)
+{
+	hold_value(pos, &pos);
+	return string_getc_(pos, i, c);
+}
+
+
+/*
+ *  strvect
+ */
+int lisp_strvect_getc(addr pos, size_t i, unicode *c)
+{
+	const unicode *body;
+	size_t size;
+
+	hold_value(pos, &pos);
+	if (! strvectp(pos))
+		return -1; /* type error */
+	strvect_posbodylen(pos, &body, &size);
+	if (size <= i)
+		return 1; /* size error */
+	*c = body[i];
+	return 0;
+}
+
+int lisp_strvect_length(addr pos, size_t *ret)
+{
+	hold_value(pos, &pos);
+	if (! strvectp(pos))
+		return -1; /* type error */
+	GetStringSize(pos, ret);
 	return 0;
 }
 
