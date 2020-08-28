@@ -549,6 +549,10 @@ static int argv_env_main(lisptableu *ret, char *env[])
 {
 	lisptableu a;
 
+	if (env == NULL) {
+		*ret = NULL;
+		return 0;
+	}
 	a = tableu_env_main((const byte *const *)env);
 	if (a == NULL)
 		return 1;

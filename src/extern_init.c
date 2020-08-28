@@ -633,21 +633,27 @@ static int lisp_argv_environment_(struct lispargv *argv)
 
 	/* make hashtable */
 	env = argv->env;
-	kv = env->table;
-	size = env->size;
-	hashtable_size_heap(&table, env->size);
-	settest_hashtable(table, HASHTABLE_TEST_EQUAL);
+	if (env == NULL) {
+		hashtable_heap(&table);
+		settest_hashtable(table, HASHTABLE_TEST_EQUAL);
+	}
+	else {
+		kv = env->table;
+		size = env->size;
+		hashtable_size_heap(&table, env->size);
+		settest_hashtable(table, HASHTABLE_TEST_EQUAL);
 
-	/* intern hashtable */
-	for (i = 0; i < size; i++) {
-		k = kv[i].key;
-		v = kv[i].value;
-		if (k->size == 0 || v->size == 0)
-			return fmte_("lisp_argv_environment error.", NULL);
-		Return(lispstringu_heap_(&key, k));
-		Return(lispstringu_heap_(&value, v));
-		Return(intern_hashheap_(table, key, &cons));
-		SetCdr(cons, value);
+		/* intern hashtable */
+		for (i = 0; i < size; i++) {
+			k = kv[i].key;
+			v = kv[i].value;
+			if (k->size == 0 || v->size == 0)
+				return fmte_("lisp_argv_environment error.", NULL);
+			Return(lispstringu_heap_(&key, k));
+			Return(lispstringu_heap_(&value, v));
+			Return(intern_hashheap_(table, key, &cons));
+			SetCdr(cons, value);
+		}
 	}
 	lisp_argv_intern(table, CONSTANT_SYSTEM_SPECIAL_ENVIRONMENT);
 
