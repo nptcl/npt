@@ -26,12 +26,25 @@ int lisp_set_special16_(const void *name, addr value);
 int lisp_set_special32_(const void *name, addr value);
 
 /* unwind-protect */
-int lisp_unwind_protect(addr code, addr clean);
-void lisp_set_unwind_protect(addr clean);
+void lisp_unwind_protect(addr clean);
 
 /* catch / throw */
-int lisp_catch_(addr symbol, addr code, addr *ret);
+void lisp_catch(addr symbol);
 int lisp_throw_(addr symbol);
+
+/* signal */
+int lisp_handler_bind_(addr name, addr call);
+int lisp_handler_case_(addr name, addr call);
+void lisp_handler_reverse(void);
+
+/* restart */
+void lisp0_restart_make(addr *ret, addr name, addr call, int casep);
+void lisp_restart_make(addr x, addr name, addr call, int casep);
+void lisp_restart_interactive(addr restart, addr call);
+void lisp_restart_report(addr restart, addr call);
+void lisp_restart_test(addr restart, addr call);
+void lisp_restart_push(addr restart);
+void lisp_restart_reverse(void);
 
 #endif
 

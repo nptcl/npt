@@ -629,6 +629,24 @@ void lisp_set_values_list_control(addr list)
 /*
  *  system
  */
+int lisp_equal_control(addr control)
+{
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	return (ptr->throw_value != throw_normal)
+		&& (ptr->throw_control == control);
+}
+
+int lisp_break_control(void)
+{
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	return (ptr->throw_value != throw_normal)
+		&& (ptr->throw_control == ptr->control);
+}
+
 int lisp_escape_control(void)
 {
 	Execute ptr;
@@ -636,7 +654,7 @@ int lisp_escape_control(void)
 	return ptr->throw_value != throw_normal;
 }
 
-void lisp_escape_reset_control(void)
+void lisp_reset_control(void)
 {
 	Execute ptr;
 	ptr = Execute_Thread;
@@ -672,6 +690,15 @@ enum lisp_escape lisp_escape_type_control(void)
 	}
 }
 
+void lisp_save_control(addr *ret)
+{
+	save_execute_control(Execute_Thread, ret);
+}
+
+void lisp_rollback_control(addr value)
+{
+	restore_execute_control(Execute_Thread, value);
+}
 
 int lisp_eval_loop_(void)
 {

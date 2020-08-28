@@ -864,15 +864,15 @@ static int test_lisp_escape_control(void)
 	RETURN;
 }
 
-static int test_lisp_escape_reset_control(void)
+static int test_lisp_reset_control(void)
 {
 	Execute ptr;
 
 	ptr = Execute_Thread;
 	normal_throw_control(ptr);
 	ptr->throw_value = throw_handler_case;
-	lisp_escape_reset_control();
-	test(! lisp_escape_control(), "lisp_escape_reset_control.1");
+	lisp_reset_control();
+	test(! lisp_escape_control(), "lisp_reset_control.1");
 	normal_throw_control(ptr);
 
 	RETURN;
@@ -884,7 +884,7 @@ static int test_lisp_escape_type_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	lisp_escape_reset_control();
+	lisp_reset_control();
 	v = lisp_escape_type_control();
 	test(v == lisp_escape_normal, "lisp_escape_type_control.1");
 
@@ -950,7 +950,7 @@ static int testcase_extern_execute(void)
 	TestBreak(test_lisp_set_values_list_control);
 	/* others */
 	TestBreak(test_lisp_escape_control);
-	TestBreak(test_lisp_escape_reset_control);
+	TestBreak(test_lisp_reset_control);
 	TestBreak(test_lisp_escape_type_control);
 
 	return 0;

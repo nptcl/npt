@@ -17,6 +17,11 @@ enum Restart_Index {
 #define GetRestart		GetArrayA2
 #define SetRestart		SetArrayA2
 
+_g int restartp(addr pos)
+{
+	return GetType(pos) == LISPTYPE_RESTART;
+}
+
 _g void restart_heap(addr *ret, addr name)
 {
 	addr pos;

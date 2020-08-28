@@ -593,7 +593,10 @@ static int lisp_argv_execute_(Execute ptr, struct lispargv *argv)
 
 	/* call */
 	if (argv->call) {
-		if ((argv->call)(argv->call_ptr)) {
+		check = (argv->call)(argv->call_ptr);
+		if (ptr->throw_value != throw_normal)
+			return 1;
+		if (check) {
 			lisp_result = 1;
 			return 0;
 		}

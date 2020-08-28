@@ -5,14 +5,21 @@
 #include "typedef_basic.h"
 #include "typedef_stream.h"
 
+/* format */
+int lisp_format8_(addr stream, const void *str, ...);
+int lisp_format16_(addr stream, const void *str, ...);
+int lisp_format32_(addr stream, const void *str, ...);
+
 /* stream object */
-int lisp_stream_define_(addr *ret, int type, size_t size);
-int lisp_stream_memory_(addr stream, void **ret);
-int lisp_getinfo_stream_(addr stream, addr *ret);
-int lisp_setinfo_stream_(addr stream, addr value);
+void lisp0_stream_define(addr *ret, int index, size_t size);
+void lisp_stream_define(addr x, int index, size_t size);
+void lisp_stream_memory(addr stream, void **ret);
+void lisp0_getinfo_stream(addr *ret, addr stream);
+void lisp_getinfo_stream(addr x, addr stream);
+void lisp_setinfo_stream(addr stream, addr value);
 
 #define LispStreamExtendDeclare(name) \
-	int lisp_stream_calltype_##name##_(int, lisp_streamtype_##name)
+	void lisp_stream_calltype_##name(int, lisp_streamtype_##name)
 LispStreamExtendDeclare(close);
 LispStreamExtendDeclare(read_binary);
 LispStreamExtendDeclare(readf_binary);
@@ -50,7 +57,7 @@ LispStreamExtendDeclare(exitpoint);
 LispStreamExtendDeclare(termsize);
 
 #define LispStreamExtendError(name) \
-	int lisp_stream_calltype_error_##name##_(int)
+	void lisp_stream_calltype_error_##name(int)
 LispStreamExtendError(close);
 LispStreamExtendError(read_binary);
 LispStreamExtendError(readf_binary);
@@ -86,11 +93,6 @@ LispStreamExtendError(force_output);
 LispStreamExtendError(clear_output);
 LispStreamExtendError(exitpoint);
 LispStreamExtendError(termsize);
-
-/* format */
-int lisp_format8_(addr stream, const void *str, ...);
-int lisp_format16_(addr stream, const void *str, ...);
-int lisp_format32_(addr stream, const void *str, ...);
 
 #endif
 

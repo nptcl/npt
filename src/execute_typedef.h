@@ -77,6 +77,7 @@ struct execute_throw {
 	size_t throw_point;
 	addr throw_handler;
 	addr throw_control;
+	size_t size;
 };
 
 

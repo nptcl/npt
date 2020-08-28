@@ -20,6 +20,11 @@ _g void save_throw_control(struct execute *ptr, struct execute_throw *save);
 _g void restore_throw_control(struct execute *ptr, const struct execute_throw *save);
 
 
+/* save */
+_g void save_execute_control(struct execute *ptr, addr *ret);
+_g void restore_execute_control(struct execute *ptr, addr pos);
+
+
 /* lexical */
 #define SetExecuteLexical		SetArrayA4
 #ifdef LISP_DEBUG

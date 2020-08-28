@@ -68,9 +68,13 @@ void lisp_set_values_nil_control(void);
 void lisp_set_values_list_control(addr list);
 
 /* system */
+int lisp_equal_control(addr control);
+int lisp_break_control(void);
 int lisp_escape_control(void);
-void lisp_escape_reset_control(void);
+void lisp_reset_control(void);
 enum lisp_escape lisp_escape_type_control(void);
+void lisp_save_control(addr *ret);
+void lisp_rollback_control(addr value);
 int lisp_eval_loop_(void);
 
 #endif

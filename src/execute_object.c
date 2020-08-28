@@ -94,6 +94,51 @@ _g void restore_throw_control(struct execute *ptr, const struct execute_throw *s
 
 
 /*
+ *  save
+ */
+static void execute_object_alloc(LocalRoot local, addr *ret, size_t size)
+{
+	local_smallsize(local, ret, LISPSYSTEM_EXECUTE, 1, size);
+}
+
+_g void save_execute_control(struct execute *ptr, addr *ret)
+{
+	addr pos, values;
+	struct execute_throw *str;
+	size_t size;
+
+	/* object */
+	execute_object_alloc(ptr->local, &pos, sizeoft(struct execute_throw));
+
+	/* throw */
+	str = (struct execute_throw *)PtrBodySS(pos);
+	save_throw_control(ptr, str);
+
+	/* values */
+	save_values_control(ptr, &values, &size);
+	str->size = size;
+	SetArraySS(pos, 0, values);
+
+	/* result */
+	*ret = pos;
+}
+
+_g void restore_execute_control(struct execute *ptr, addr pos)
+{
+	addr values;
+	struct execute_throw *str;
+	size_t size;
+
+	CheckType(pos, LISPSYSTEM_EXECUTE);
+	str = (struct execute_throw *)PtrBodySS(pos);
+	size = str->size;
+	GetArraySS(pos, 0, &values);
+	restore_throw_control(ptr, str);
+	restore_values_control(ptr, values, size);
+}
+
+
+/*
  *  lexical
  */
 #define PtrExecuteLexical(x)	((addr *)PtrArrayA4(x))

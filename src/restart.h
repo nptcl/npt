@@ -3,6 +3,7 @@
 
 #include "typedef.h"
 
+_g int restartp(addr pos);
 _g void restart_heap(addr *ret, addr name);
 _g void getname_restart(addr pos, addr *ret);
 _g void setname_restart(addr pos, addr value);
