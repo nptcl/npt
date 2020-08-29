@@ -3,76 +3,11 @@
 #include "extern_error.h"
 #include "extern_sequence.h"
 #include "extern_stream.h"
-#include "format.h"
 #include "integer.h"
 #include "hold.h"
 #include "stream.h"
 #include "stream_error.h"
 #include "typedef.h"
-
-/*
- *  format
- */
-static int lisp_format_call_(addr stream, addr format, addr args)
-{
-	addr control;
-	Execute ptr;
-	LocalHold hold;
-
-	if (stream == NULL)
-		stream = T;
-	ptr = Execute_Thread;
-	lisp_push_control(&control);
-	hold = LocalHold_local(ptr);
-	localhold_pushva_force(hold, stream, format, args, NULL);
-	Return(format_lisp(ptr, stream, format, args, &args));
-	localhold_end(hold);
-
-	return lisp_pop_control_(control);
-}
-
-int lisp_format8_(addr stream, const void *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	hold_value(stream, &stream);
-	Return(lisp0_string8_(&format, str));
-	va_start(va, str);
-	lisp0_list_va(&args, va);
-	va_end(va);
-
-	return lisp_format_call_(stream, format, args);
-}
-
-int lisp_format16_(addr stream, const void *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	hold_value(stream, &stream);
-	Return(lisp0_string16_(&format, str));
-	va_start(va, str);
-	lisp0_list_va(&args, va);
-	va_end(va);
-
-	return lisp_format_call_(stream, format, args);
-}
-
-int lisp_format32_(addr stream, const void *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	hold_value(stream, &stream);
-	Return(lisp0_string32_(&format, str));
-	va_start(va, str);
-	lisp0_list_va(&args, va);
-	va_end(va);
-
-	return lisp_format_call_(stream, format, args);
-}
-
 
 /*
  *  stream object

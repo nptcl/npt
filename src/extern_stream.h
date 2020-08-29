@@ -5,11 +5,6 @@
 #include "typedef_basic.h"
 #include "typedef_stream.h"
 
-/* format */
-int lisp_format8_(addr stream, const void *str, ...);
-int lisp_format16_(addr stream, const void *str, ...);
-int lisp_format32_(addr stream, const void *str, ...);
-
 /* stream object */
 void lisp0_stream_define(addr *ret, int index, size_t size);
 void lisp_stream_define(addr x, int index, size_t size);

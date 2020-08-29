@@ -303,6 +303,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_print.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_sequence.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_type.c" />
@@ -639,6 +640,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_print.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_sequence.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_type.h" />

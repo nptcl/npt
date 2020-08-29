@@ -721,7 +721,7 @@ static int test_lisp_compiled_value_(void)
 {
 	addr x;
 
-	lisp0_compiled_getvalue(&x);
+	lisp_compiled_getvalue(&x);
 	if (x == Nil)
 		lisp_compiled_var_value = 999;
 	else

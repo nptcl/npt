@@ -25,6 +25,12 @@ int lisp_set_special8_(const void *name, addr value);
 int lisp_set_special16_(const void *name, addr value);
 int lisp_set_special32_(const void *name, addr value);
 
+/* defvar */
+int lisp_defvar_(addr symbol);
+int lisp_defvar8_(const void *str);
+int lisp_defvar16_(const void *str);
+int lisp_defvar32_(const void *str);
+
 /* unwind-protect */
 void lisp_unwind_protect(addr clean);
 

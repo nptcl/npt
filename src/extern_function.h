@@ -60,7 +60,7 @@ int lisp_compiled_defun_setf16_(int index, const void *str);
 int lisp_compiled_defun_setf32_(int index, const void *str);
 
 void lisp_compiled_setvalue(addr pos, addr value);
-void lisp0_compiled_getvalue(addr *ret);
+void lisp_compiled_getvalue(addr *ret);
 
 #endif
 

@@ -169,6 +169,39 @@ int lisp_set_special32_(const void *name, addr value)
 
 
 /*
+ *  defvar
+ */
+int lisp_defvar_(addr symbol)
+{
+	hold_value(symbol, &symbol);
+	if (! symbolp(symbol))
+		return TypeError_(symbol, SYMBOL);
+	return setspecial_symbol_(symbol);
+}
+
+int lisp_defvar8_(const void *str)
+{
+	addr symbol;
+	Return(lisp0_intern8_(&symbol, NULL, str));
+	return lisp_defvar_(symbol);
+}
+
+int lisp_defvar16_(const void *str)
+{
+	addr symbol;
+	Return(lisp0_intern16_(&symbol, NULL, str));
+	return lisp_defvar_(symbol);
+}
+
+int lisp_defvar32_(const void *str)
+{
+	addr symbol;
+	Return(lisp0_intern32_(&symbol, NULL, str));
+	return lisp_defvar_(symbol);
+}
+
+
+/*
  *  unwind-protect
  */
 void lisp_unwind_protect(addr clean)

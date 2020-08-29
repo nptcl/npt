@@ -158,6 +158,7 @@ extern_execute.c
 extern_function.c
 extern_init.c
 extern_object.c
+extern_print.c
 extern_sequence.c
 extern_stream.c
 extern_type.c

@@ -466,7 +466,7 @@ void lisp_compiled_setvalue(addr pos, addr value)
 	SetDataFunction(pos, value);
 }
 
-void lisp0_compiled_getvalue(addr *ret)
+void lisp_compiled_getvalue(addr *ret)
 {
 	addr value;
 
