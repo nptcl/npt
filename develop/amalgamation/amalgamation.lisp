@@ -22,7 +22,7 @@
           (read-line s nil nil))
        list)
     ((null x) (nreverse list))
-    (push x list)))
+    (push (string-right-trim '(#\Return) x) list)))
 
 (defun read-line-list (&optional (s *standard-input*))
   (if (streamp s)
@@ -201,10 +201,22 @@
           (write-line x))))
   (fresh-line))
 
+(defconstant +header-standard+
+  '("<ctype.h>" "<errno.h>" "<float.h>" "<inttypes.h>"
+    "<limits.h>" "<locale.h>" "<math.h>" "<memory.h>"
+    "<setjmp.h>" "<signal.h>" "<stdarg.h>" "<stddef.h>"
+    "<stdint.h>" "<stdio.h>" "<stdlib.h>" "<string.h>"
+    "<time.h>"))
+
+(defun header-standard-p (x)
+  (member x +header-standard+ :test #'equal))
+
 (defun header-include-file (x)
   (dolist (x (read-line-source x))
     (mvbind (check name) (include-system-p x)
       (when check
+        (unless (header-standard-p name)
+          (error "Unknown header file ~S" name))
         (pushnew name *include-list* :test 'equal)))))
 
 (defun file-include-list (list)
@@ -713,7 +725,7 @@
     ("console.c" :include ("console_posix.h" "console_ansi.h"))
     ("control.c" :header t)
     "control_callbind.c"
-    "control_execute.c"
+    ("control_execute.c" :header t)
     "control_object.c"
     "control_operator.c"
     "copy.c"
@@ -825,7 +837,7 @@
     "pathname_localp.c"
     "pathname_logical.c"
     "pathname_object.c"
-    "pathname_posix.c"
+    ("pathname_posix.c" :header t)
     "pathname_table.c"
     "pathname_translate.c"
     "pathname_windows.c"
@@ -949,7 +961,7 @@
 
 (defun header-common ()
   (format t "/*~%")
-  (format t " *  ~A -- Lisp Programming Language.~%" +name+)
+  (format t " *  ~A -- ANSI Common Lisp Programming Language.~%" +name+)
   (dolist (x +url+)
     (format t " *    ~A~%" x))
   (format t " */~%"))
