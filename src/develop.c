@@ -7,6 +7,7 @@
 #include "control_object.h"
 #include "degrade.h"
 #include "execute.h"
+#include "build.h"
 #include "stream_broadcast.h"
 #include "symbol.h"
 #include "typedef.h"
@@ -184,6 +185,7 @@ int degradelisp(void)
 }
 
 #else
+#include "build.h"
 #include "info.h"
 
 int degradelisp(void)

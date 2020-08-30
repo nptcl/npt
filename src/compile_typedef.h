@@ -5,6 +5,12 @@
 #include "define.h"
 #include "pointer.h"
 
+#define CompileWrite _n(CompileWrite)
+#define CompileRead _n(CompileRead)
+#define get_compile_write _n(get_compile_write)
+#define get_compile_read _n(get_compile_read)
+#define init_compile_typedef _n(init_compile_typedef)
+
 enum FaslCode {
 	/* fasl */
 	FaslCode_error = 0,

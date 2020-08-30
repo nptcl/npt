@@ -11,6 +11,7 @@
 #include "hold.h"
 #include "integer.h"
 #include "load_time_value.h"
+#include "make_load_form.h"
 #include "parse_function.h"
 #include "parse_object.h"
 #include "parse_typedef.h"

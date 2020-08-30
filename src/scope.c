@@ -2,8 +2,9 @@
 #include "eval_stack.h"
 #include "gc.h"
 #include "load_time_value.h"
-#include "scope_object.h"
+#include "scope.h"
 #include "scope_function.h"
+#include "scope_object.h"
 
 static int eval_scope_call_(Execute ptr, LocalHold hold, addr *ret, addr eval)
 {

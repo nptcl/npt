@@ -5,9 +5,9 @@ object = ${source:.c=.o}
 depend = depend.mk
 a.out = npt
 
-LISP_C = -DLISP_FREEBSD -DLISP_THREAD -DLISP_PROMPT_EDITLINE
+LISP_C = -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE
 LISP_C += -DLISP_MODE_STANDALONE -O3
-LISP_LIB = -lm -lpthread -ledit
+LISP_LIB = -lm -ledit
 CFLAGS = -std=c99 -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}

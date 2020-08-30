@@ -28,8 +28,8 @@ _g int init_symbol(void)
 		Debug("InitObject error.");
 		return 1;
 	}
-	if (make_rwlocklite(&MutexSymbol)) {
-		Debug("make_mutexlite error");
+	if (lispd_make_rwlocklite(&MutexSymbol)) {
+		Debug("lispd_make_mutexlite error");
 		return 1;
 	}
 	InitObject = 1;
@@ -40,7 +40,7 @@ _g int init_symbol(void)
 _g void free_symbol(void)
 {
 	if (InitObject) {
-		destroy_rwlocklite(&MutexSymbol);
+		lispd_destroy_rwlocklite(&MutexSymbol);
 		InitObject = 0;
 	}
 }
@@ -674,24 +674,24 @@ static void symstack(size_t index, addr symbol, addr *ret)
 	size_t i, size, size2;
 
 	Check(GetStatusDynamic(symbol), "dynamic error.");
-	rdlock_rwlocklite(&MutexSymbol);
+	lispd_rdlock_rwlocklite(&MutexSymbol);
 	GetSpecialSymbol_Low(symbol, &stack);
 	size = GetLenArrayA4(stack);
 	if (index < size) {
 		*ret = stack;
-		unrdlock_rwlocklite(&MutexSymbol);
+		lispd_unrdlock_rwlocklite(&MutexSymbol);
 		return;
 	}
 
 	/* write lock */
-	unrdlock_rwlocklite(&MutexSymbol);
-	wrlock_rwlocklite(&MutexSymbol);
+	lispd_unrdlock_rwlocklite(&MutexSymbol);
+	lispd_wrlock_rwlocklite(&MutexSymbol);
 	/* reload */
 	GetSpecialSymbol_Low(symbol, &stack);
 	size = GetLenArrayA4(stack);
 	if (index < size) {
 		*ret = stack;
-		unwrlock_rwlocklite(&MutexSymbol);
+		lispd_unwrlock_rwlocklite(&MutexSymbol);
 		return;
 	}
 
@@ -705,7 +705,7 @@ static void symstack(size_t index, addr symbol, addr *ret)
 		SetArrayA4(stack, i, child);
 	}
 	*ret = stack;
-	unwrlock_rwlocklite(&MutexSymbol);
+	lispd_unwrlock_rwlocklite(&MutexSymbol);
 }
 
 _g void getspecial_unsafe(Execute ptr, addr pos, addr *ret)

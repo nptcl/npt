@@ -4,6 +4,36 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define getarray_readtable _n(getarray_readtable)
+#define setarray_readtable _n(setarray_readtable)
+#define gettable_readtable _n(gettable_readtable)
+#define settable_readtable _n(settable_readtable)
+#define getdispatch_readtable _n(getdispatch_readtable)
+#define setdispatch_readtable _n(setdispatch_readtable)
+#define ptr_readtable _n(ptr_readtable)
+#define ptrcase_readtable _n(ptrcase_readtable)
+#define readtable_heap_ _n(readtable_heap_)
+#define copy_readtable_ _n(copy_readtable_)
+#define copy_readtable_heap_ _n(copy_readtable_heap_)
+#define copy_default_readtable_ _n(copy_default_readtable_)
+#define make_dispatch_macro_character_ _n(make_dispatch_macro_character_)
+#define get_default_dispatch_macro_ _n(get_default_dispatch_macro_)
+#define macro_character_execute _n(macro_character_execute)
+#define get_dispatch_macro_character_ _n(get_dispatch_macro_character_)
+#define rem_dispatch_macro_character_ _n(rem_dispatch_macro_character_)
+#define set_dispatch_macro_character_ _n(set_dispatch_macro_character_)
+#define get_default_macro_character _n(get_default_macro_character)
+#define readtype_readtable_ _n(readtype_readtable_)
+#define get_macro_character_ _n(get_macro_character_)
+#define set_macro_character_ _n(set_macro_character_)
+#define set_syntax_from_default_ _n(set_syntax_from_default_)
+#define set_syntax_from_char_ _n(set_syntax_from_char_)
+#define float_readtable_ _n(float_readtable_)
+#define readcase_readtable_ _n(readcase_readtable_)
+#define getcase_readtable _n(getcase_readtable)
+#define setcase_readtable _n(setcase_readtable)
+#define getreadtable_ _n(getreadtable_)
+
 /*
  *  readtable                  : smallsize
  *    READTABLE_ARRAY          : array2(80)

@@ -4,6 +4,36 @@
 #include "local.h"
 #include "typedef.h"
 
+#define lambda_macro_ _n(lambda_macro_)
+#define lambda_deftype_ _n(lambda_deftype_)
+#define lambda_generic_function_ _n(lambda_generic_function_)
+#define lambda_specialized_ _n(lambda_specialized_)
+#define lambda_ordinary_ _n(lambda_ordinary_)
+#define atleast_argument_count _n(atleast_argument_count)
+#define lambda_defsetf_ _n(lambda_defsetf_)
+#define getenvironment_macro_lambda _n(getenvironment_macro_lambda)
+#define allsymbol_macro_lambda_heap_ _n(allsymbol_macro_lambda_heap_)
+#define argumentp _n(argumentp)
+#define getargument _n(getargument)
+#define setargument _n(setargument)
+#define argumentstruct _n(argumentstruct)
+#define argument_alloc _n(argument_alloc)
+#define argument_local _n(argument_local)
+#define argument_heap _n(argument_heap)
+#define argument_ordinary_heap_ _n(argument_ordinary_heap_)
+#define argument_generic_heap_ _n(argument_generic_heap_)
+#define argument_method_heap_ _n(argument_method_heap_)
+#define argument_combination_heap_ _n(argument_combination_heap_)
+#define argument_boa_heap_ _n(argument_boa_heap_)
+#define argument_ordinary_lambda_heap_ _n(argument_ordinary_lambda_heap_)
+#define argument_generic_lambda_heap_ _n(argument_generic_lambda_heap_)
+#define argument_method_lambda_heap_ _n(argument_method_lambda_heap_)
+#define argument_method_keywords_heap_ _n(argument_method_keywords_heap_)
+#define argument_method_to_generic _n(argument_method_to_generic)
+#define argument_boa_lambda_heap_ _n(argument_boa_lambda_heap_)
+#define argument_boa_variables_heap_ _n(argument_boa_variables_heap_)
+#define find_keyword_allow_other_keys _n(find_keyword_allow_other_keys)
+
 enum ArgumentType {
 	ArgumentType_macro,
 	ArgumentType_ordinary,

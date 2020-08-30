@@ -2,6 +2,7 @@
 #include "clos_class.h"
 #include "clos_type.h"
 #include "condition.h"
+#include "condition_debugger.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control_execute.h"

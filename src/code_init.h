@@ -5,6 +5,11 @@
 #include "pointer.h"
 #include "typedef.h"
 
+#define init_code_init _n(init_code_init)
+#define build_code_init _n(build_code_init)
+#define defcode_constant _n(defcode_constant)
+#define CodeValueArray _n(CodeValueArray)
+
 enum CodeValueType {
 	CodeValueType_Addr,
 	CodeValueType_Index,

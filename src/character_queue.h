@@ -6,6 +6,30 @@
 #include "local.h"
 #include "memory.h"
 
+#define charqueue_heapr _n(charqueue_heapr)
+#define charqueue_localr _n(charqueue_localr)
+#define charqueue_allocr _n(charqueue_allocr)
+#define charqueue_heap _n(charqueue_heap)
+#define charqueue_local _n(charqueue_local)
+#define charqueue_alloc _n(charqueue_alloc)
+#define getsize_charqueue _n(getsize_charqueue)
+#define getchar_charqueue _n(getchar_charqueue)
+#define push_charqueue_alloc_ _n(push_charqueue_alloc_)
+#define push_charqueue_local_ _n(push_charqueue_local_)
+#define push_charqueue_heap_ _n(push_charqueue_heap_)
+#define make_charqueue_alloc _n(make_charqueue_alloc)
+#define make_charqueue_local _n(make_charqueue_local)
+#define make_charqueue_heap _n(make_charqueue_heap)
+#define clear_charqueue _n(clear_charqueue)
+#define free_charqueue _n(free_charqueue)
+#define position_charqueue _n(position_charqueue)
+#define pushstring_charqueue_alloc_ _n(pushstring_charqueue_alloc_)
+#define pushstring_charqueue_local_ _n(pushstring_charqueue_local_)
+#define pushstring_charqueue_heap_ _n(pushstring_charqueue_heap_)
+#define pushchar_charqueue_alloc_ _n(pushchar_charqueue_alloc_)
+#define pushchar_charqueue_local_ _n(pushchar_charqueue_local_)
+#define pushchar_charqueue_heap_ _n(pushchar_charqueue_heap_)
+
 struct charqueue_struct {
 	size_t size, max;
 };

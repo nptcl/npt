@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "ratio.h"
 #include "ratio_equal.h"
+#include "ratio_plus.h"
 #include "typedef.h"
 
 _g void sign_reverse_ratio_inplace(addr pos)

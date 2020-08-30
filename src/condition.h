@@ -6,6 +6,17 @@
 #include "constant.h"
 #include "execute.h"
 
+#define conditionp_ _n(conditionp_)
+#define conditionp_debug _n(conditionp_debug)
+#define condition_instance_p_ _n(condition_instance_p_)
+#define signal_function_ _n(signal_function_)
+#define error_function_ _n(error_function_)
+#define warning_restart_case_ _n(warning_restart_case_)
+#define callclang_error_ _n(callclang_error_)
+#define callclang_warning_ _n(callclang_warning_)
+#define build_condition _n(build_condition)
+#define init_condition _n(init_condition)
+
 _g int conditionp_(addr pos, int *ret);
 _g int conditionp_debug(addr pos);
 _g int condition_instance_p_(addr pos, int *ret);

@@ -5,6 +5,13 @@
 #include "local.h"
 #include "typedef.h"
 
+#define copyhard_object _n(copyhard_object)
+#define copylocal_object _n(copylocal_object)
+#define copylocal_list_stdarg _n(copylocal_list_stdarg)
+#define copyheap _n(copyheap)
+#define copyheapr _n(copyheapr)
+#define init_copy _n(init_copy)
+
 _g void copyhard_object(LocalRoot local, addr *ret, addr pos);
 _g int copylocal_object(LocalRoot local, addr *ret, addr pos);
 _g void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args);

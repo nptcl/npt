@@ -6,7 +6,7 @@
 /*
  *  access
  */
-_g struct eval_parse *structevalparse(addr pos)
+_g struct parse_struct *structevalparse(addr pos)
 {
 	Check(! eval_parse_p(pos), "type error");
 	return StructEvalParse_Low(pos);
@@ -50,8 +50,8 @@ _g void eval_parse_alloc(LocalRoot local, addr *ret, EvalParse type, byte array)
 {
 	addr pos;
 
-	Check(0xFF < sizeof(struct eval_parse), "struct size error");
-	eval_alloc(local, &pos, EVAL_TYPE_PARSE, array, sizeoft(struct eval_parse));
+	Check(0xFF < sizeof(struct parse_struct), "struct size error");
+	eval_alloc(local, &pos, EVAL_TYPE_PARSE, array, sizeoft(struct parse_struct));
 	SetEvalParseType(pos, type);
 
 	*ret = pos;

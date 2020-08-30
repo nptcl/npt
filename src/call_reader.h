@@ -4,6 +4,21 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define copy_readtable_common _n(copy_readtable_common)
+#define make_dispatch_macro_character_common _n(make_dispatch_macro_character_common)
+#define read_common _n(read_common)
+#define read_preserving_whitespace_common _n(read_preserving_whitespace_common)
+#define read_delimited_list_common _n(read_delimited_list_common)
+#define read_from_string_common _n(read_from_string_common)
+#define readtable_case_common _n(readtable_case_common)
+#define setf_readtable_case_common _n(setf_readtable_case_common)
+#define get_dispatch_macro_character_common _n(get_dispatch_macro_character_common)
+#define set_dispatch_macro_character_common _n(set_dispatch_macro_character_common)
+#define get_macro_character_common _n(get_macro_character_common)
+#define set_macro_character_common _n(set_macro_character_common)
+#define set_syntax_from_char_common _n(set_syntax_from_char_common)
+#define with_standard_io_syntax_common _n(with_standard_io_syntax_common)
+
 _g int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret);
 _g int make_dispatch_macro_character_common(Execute ptr,
 		addr code, addr nonterm, addr readtable);

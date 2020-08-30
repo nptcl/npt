@@ -21,6 +21,7 @@
 #include "quote.h"
 #include "rational.h"
 #include "reader.h"
+#include "reader_function.h"
 #include "reader_info.h"
 #include "reader_label.h"
 #include "reader_table.h"

@@ -3,6 +3,16 @@
 
 #include "typedef.h"
 
+#define expt_f _n(expt_f)
+#define expt_d _n(expt_d)
+#define expt_l _n(expt_l)
+#define clogb_f_ _n(clogb_f_)
+#define clogb_d_ _n(clogb_d_)
+#define clogb_l_ _n(clogb_l_)
+#define csqrt_f _n(csqrt_f)
+#define csqrt_d _n(csqrt_d)
+#define csqrt_l _n(csqrt_l)
+
 _g void expt_f(single_float a, single_float b, single_float c, single_float d,
 		single_float *re, single_float *im);
 _g void expt_d(double_float a, double_float b, double_float c, double_float d,

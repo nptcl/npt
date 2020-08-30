@@ -6,9 +6,9 @@ depend = depend.mk
 a.out = npt
 
 LISP_C = -m64 -DLISP_64BIT
-LISP_C += -DLISP_FREEBSD -DLISP_THREAD -DLISP_PROMPT_EDITLINE
+LISP_C += -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE
 LISP_C += -g -DLISP_DEGRADE -DLISP_DEBUG -DLISP_MODE_DEGRADE
-LISP_LIB = -lm -lpthread -ledit
+LISP_LIB = -lm -ledit
 CFLAGS = -std=c99 -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}

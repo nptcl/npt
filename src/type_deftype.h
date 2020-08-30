@@ -4,6 +4,13 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define getdeftype _n(getdeftype)
+#define setdeftype_ _n(setdeftype_)
+#define symbol_deftypep _n(symbol_deftypep)
+#define execute_list_deftype _n(execute_list_deftype)
+#define execute_symbol_deftype _n(execute_symbol_deftype)
+#define deftype_common _n(deftype_common)
+
 _g void getdeftype(addr symbol, addr *ret);
 _g int setdeftype_(addr symbol, addr pos);
 _g int symbol_deftypep(addr symbol);

@@ -39,7 +39,7 @@ static void copyhard_type(LocalRoot local, addr *ret, addr pos)
 	type_copy_alloc(local, ret, pos);
 }
 
-_g void copyhard_cons(LocalRoot local, addr *ret, addr pos)
+static void copyhard_cons(LocalRoot local, addr *ret, addr pos)
 {
 	addr left, right;
 
@@ -50,7 +50,7 @@ _g void copyhard_cons(LocalRoot local, addr *ret, addr pos)
 	cons_alloc(local, ret, left, right);
 }
 
-_g void copyhard_vectorA2(LocalRoot local, addr *ret, addr left)
+static void copyhard_vectorA2(LocalRoot local, addr *ret, addr left)
 {
 	addr right, pos;
 	size_t size, i;
@@ -67,7 +67,7 @@ _g void copyhard_vectorA2(LocalRoot local, addr *ret, addr left)
 	*ret = right;
 }
 
-_g void copyhard_vectorA4(LocalRoot local, addr *ret, addr left)
+static void copyhard_vectorA4(LocalRoot local, addr *ret, addr left)
 {
 	addr right, pos;
 	size_t size, i;
@@ -85,7 +85,7 @@ _g void copyhard_vectorA4(LocalRoot local, addr *ret, addr left)
 }
 
 #ifdef LISP_ARCH_64BIT
-_g void copyhard_vectorA8(LocalRoot local, addr *ret, addr left)
+static void copyhard_vectorA8(LocalRoot local, addr *ret, addr left)
 {
 	addr right, pos;
 	size_t size, i;
@@ -103,7 +103,7 @@ _g void copyhard_vectorA8(LocalRoot local, addr *ret, addr left)
 }
 #endif
 
-_g void copyhard_vector(LocalRoot local, addr *ret, addr pos)
+static void copyhard_vector(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_VECTOR);
 	switch (GetStatusSize(pos)) {
@@ -127,55 +127,55 @@ _g void copyhard_vector(LocalRoot local, addr *ret, addr pos)
 	}
 }
 
-_g void copyhard_character(LocalRoot local, addr *ret, addr pos)
+static void copyhard_character(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_CHARACTER);
 	character_alloc(local, ret, RefCharacter(pos));
 }
 
-_g void copyhard_string(LocalRoot local, addr *ret, addr pos)
+static void copyhard_string(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_STRING);
 	strvect_copy_alloc(local, ret, pos);
 }
 
-_g void copyhard_fixnum(LocalRoot local, addr *ret, addr pos)
+static void copyhard_fixnum(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_FIXNUM);
 	fixnum_alloc(local, ret, RefFixnum(pos));
 }
 
-_g void copyhard_bignum(LocalRoot local, addr *ret, addr pos)
+static void copyhard_bignum(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
 	bignum_copy_alloc(local, ret, pos);
 }
 
-_g void copyhard_ratio(LocalRoot local, addr *ret, addr pos)
+static void copyhard_ratio(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_RATIO);
 	ratio_copy_alloc(local, ret, pos);
 }
 
-_g void copyhard_float(LocalRoot local, addr *ret, addr pos)
+static void copyhard_float(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	single_float_alloc(local, ret, RefSingleFloat(pos));
 }
 
-_g void copyhard_double(LocalRoot local, addr *ret, addr pos)
+static void copyhard_double(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	double_float_alloc(local, ret, RefDoubleFloat(pos));
 }
 
-_g void copyhard_long_double(LocalRoot local, addr *ret, addr pos)
+static void copyhard_long_double(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	long_float_alloc(local, ret, RefLongFloat(pos));
 }
 
-_g void copyhard_complex(LocalRoot local, addr *ret, addr pos)
+static void copyhard_complex(LocalRoot local, addr *ret, addr pos)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -193,7 +193,7 @@ _g void copyhard_complex(LocalRoot local, addr *ret, addr pos)
 	*ret = pos;
 }
 
-_g void copyhard_callname(LocalRoot local, addr *ret, addr pos)
+static void copyhard_callname(LocalRoot local, addr *ret, addr pos)
 {
 	CallNameType type;
 	addr name;
@@ -205,7 +205,7 @@ _g void copyhard_callname(LocalRoot local, addr *ret, addr pos)
 	callname_alloc(local, ret, name, type);
 }
 
-_g void copyhard_random_state(LocalRoot local, addr *ret, addr pos)
+static void copyhard_random_state(LocalRoot local, addr *ret, addr pos)
 {
 	addr one;
 
@@ -215,7 +215,7 @@ _g void copyhard_random_state(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-_g void copyhard_pathname(LocalRoot local, addr *ret, addr pos)
+static void copyhard_pathname(LocalRoot local, addr *ret, addr pos)
 {
 	int i;
 	addr one, child;

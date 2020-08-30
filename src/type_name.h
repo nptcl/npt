@@ -3,6 +3,10 @@
 
 #include "typedef.h"
 
+#define type_name_p_ _n(type_name_p_)
+#define type_name_ _n(type_name_)
+#define init_type_name _n(init_type_name)
+
 /*  function type_name
  *     input: type
  *    output: symbol  [not cons]

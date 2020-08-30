@@ -3,6 +3,26 @@
 
 #include "typedef.h"
 
+#define ptr_readtype _n(ptr_readtype)
+#define struct_readtype _n(struct_readtype)
+#define get_readtype _n(get_readtype)
+#define set_readtype _n(set_readtype)
+#define dispatch_readtype _n(dispatch_readtype)
+#define make_readtype _n(make_readtype)
+#define copy_readtype _n(copy_readtype)
+#define default_array_readtype _n(default_array_readtype)
+#define default_dispatch_readtype_ _n(default_dispatch_readtype_)
+#define array_readtype_heap _n(array_readtype_heap)
+#define dispatch_readtype_heap _n(dispatch_readtype_heap)
+#define make_array_readtype _n(make_array_readtype)
+#define make_table_readtype _n(make_table_readtype)
+#define make_dispatch_readtype_ _n(make_dispatch_readtype_)
+#define readtype_whitespace _n(readtype_whitespace)
+#define readtype_constituent _n(readtype_constituent)
+#define readtype_termmacro _n(readtype_termmacro)
+#define readtype_sharpmacro _n(readtype_sharpmacro)
+#define delete_readtype_ _n(delete_readtype_)
+
 enum ReadTable_Type {
 	ReadTable_Type_illegal,
 	ReadTable_Type_whitespace,

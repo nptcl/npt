@@ -1,3 +1,4 @@
+#include "compile_load.h"
 #include "compile_read.h"
 #include "compile_stream.h"
 #include "compile_typedef.h"

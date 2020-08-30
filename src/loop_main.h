@@ -4,6 +4,10 @@
 #include "define.h"
 #include "typedef.h"
 
+#define make_loop_main _n(make_loop_main)
+#define loop_push_main_ _n(loop_push_main_)
+#define loop_let_main_ _n(loop_let_main_)
+
 struct loop_main {
 	addr form, init, named;
 };

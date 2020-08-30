@@ -5,6 +5,66 @@
 #include "local.h"
 #include "typedef.h"
 
+#define bignump _n(bignump)
+#define struct_bignum _n(struct_bignum)
+#define refalloc_bignum _n(refalloc_bignum)
+#define setsize_bignum _n(setsize_bignum)
+#define getsize_bignum _n(getsize_bignum)
+#define refsize_bignum _n(refsize_bignum)
+#define setroot_bignum _n(setroot_bignum)
+#define getroot_bignum _n(getroot_bignum)
+#define setsign_bignum _n(setsign_bignum)
+#define getsign_bignum _n(getsign_bignum)
+#define refsign_bignum _n(refsign_bignum)
+#define alloc_bignum _n(alloc_bignum)
+#define alloc_plus_bignum _n(alloc_plus_bignum)
+#define realloc_bignum _n(realloc_bignum)
+#define bignum_alloc _n(bignum_alloc)
+#define bignum_cons_alloc _n(bignum_cons_alloc)
+#define bignum_copy_nosign_alloc _n(bignum_copy_nosign_alloc)
+#define bignum_copy_alloc _n(bignum_copy_alloc)
+#define bignum_value_alloc _n(bignum_value_alloc)
+#define bignum_value2_alloc _n(bignum_value2_alloc)
+#define bignum_zero_alloc _n(bignum_zero_alloc)
+#define bignum_fixnum_alloc _n(bignum_fixnum_alloc)
+#define bignum_fixnum_value_alloc _n(bignum_fixnum_value_alloc)
+#define bignum_counter_alloc_ _n(bignum_counter_alloc_)
+#define bignum_result_alloc _n(bignum_result_alloc)
+#define bignum_integer_alloc_ _n(bignum_integer_alloc_)
+#define bignum_debug _n(bignum_debug)
+#define bignum_cons_debug _n(bignum_cons_debug)
+#define bignum_copy_nosign_debug _n(bignum_copy_nosign_debug)
+#define bignum_copy_debug _n(bignum_copy_debug)
+#define bignum_value_debug _n(bignum_value_debug)
+#define bignum_value2_debug _n(bignum_value2_debug)
+#define bignum_zero_debug _n(bignum_zero_debug)
+#define bignum_fixnum_debug _n(bignum_fixnum_debug)
+#define bignum_fixnum_value_debug _n(bignum_fixnum_value_debug)
+#define bignum_counter_debug_ _n(bignum_counter_debug_)
+#define bignum_result_debug _n(bignum_result_debug)
+#define bignum_integer_debug_ _n(bignum_integer_debug_)
+#define getfixed_bignum _n(getfixed_bignum)
+#define reffixed_bignum _n(reffixed_bignum)
+#define setfixed_bignum _n(setfixed_bignum)
+#define diet_bignum _n(diet_bignum)
+#define sizepress_bignum _n(sizepress_bignum)
+#define copy_bignum _n(copy_bignum)
+#define copy_noexpand_bignum _n(copy_noexpand_bignum)
+#define setvalue_bignum _n(setvalue_bignum)
+#define setzero_bignum _n(setzero_bignum)
+#define getbit_bignum _n(getbit_bignum)
+#define incf_bignum _n(incf_bignum)
+#define decf_bignum _n(decf_bignum)
+#define bignum_throw_heap _n(bignum_throw_heap)
+#define bignum_throw_local _n(bignum_throw_local)
+#define bignum_throw_alloc _n(bignum_throw_alloc)
+#define fixnum_throw_heap _n(fixnum_throw_heap)
+#define fixnum_throw_local _n(fixnum_throw_local)
+#define fixnum_throw_alloc _n(fixnum_throw_alloc)
+#define castfixed _n(castfixed)
+#define castfixed_fixnum _n(castfixed_fixnum)
+#define castfixed_integer _n(castfixed_integer)
+
 struct bignuminfo {
 	size_t alloc, size;
 };
@@ -103,7 +163,6 @@ struct bignuminfo {
 #define fixnum_result_local fixnum_throw_local
 #define fixnum_result_heap fixnum_throw_heap
 
-_g int fixnump(addr pos);
 _g int bignump(addr pos);
 _g struct bignuminfo *struct_bignum(addr pos);
 _g size_t refalloc_bignum(addr pos);
@@ -161,6 +220,7 @@ _g int bignum_integer_debug_(LocalRoot local, addr *ret, addr pos);
 _g void getfixed_bignum(addr pos, size_t index, fixed *value);
 _g fixed reffixed_bignum(addr pos, size_t index);
 _g void setfixed_bignum(addr pos, size_t index, fixed value);
+_g void diet_bignum(LocalRoot local, addr pos);
 _g void sizepress_bignum(addr left);
 _g void copy_bignum(LocalRoot local, addr left, addr right, int force);
 _g void copy_noexpand_bignum(addr left, addr right);

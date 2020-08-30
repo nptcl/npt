@@ -41,21 +41,21 @@ size_t *Degrade_execute_Position(void) { return &ExecutePosition; }
  */
 static void init_execute_local(void)
 {
-	make_threadlocal(&ThreadLocal_Execute);
-	make_threadlocal(&ThreadLocal_Index);
-	make_threadlocal(&ThreadLocal_Local);
+	lispd_make_threadlocal(&ThreadLocal_Execute);
+	lispd_make_threadlocal(&ThreadLocal_Index);
+	lispd_make_threadlocal(&ThreadLocal_Local);
 }
 static void free_execute_local(void)
 {
-	destroy_threadlocal(ThreadLocal_Execute);
-	destroy_threadlocal(ThreadLocal_Index);
-	destroy_threadlocal(ThreadLocal_Local);
+	lispd_destroy_threadlocal(ThreadLocal_Execute);
+	lispd_destroy_threadlocal(ThreadLocal_Index);
+	lispd_destroy_threadlocal(ThreadLocal_Local);
 }
 _g void set_execute_local(struct execute *ptr)
 {
-	set_threadlocal(ThreadLocal_Execute, (void *)ptr);
-	set_threadlocal(ThreadLocal_Index, (void *)&ptr->index);
-	set_threadlocal(ThreadLocal_Local, (void *)ptr->local);
+	lispd_set_threadlocal(ThreadLocal_Execute, (void *)ptr);
+	lispd_set_threadlocal(ThreadLocal_Index, (void *)&ptr->index);
+	lispd_set_threadlocal(ThreadLocal_Local, (void *)ptr->local);
 }
 
 static struct execute *allocmembit(size_t index)
@@ -67,8 +67,8 @@ static struct execute *allocmembit(size_t index)
 		Debug("malloctype error");
 		return NULL;
 	}
-	if (make_mutexlite(&bit->mutex)) {
-		Debug("make_mutexlite error");
+	if (lispd_make_mutexlite(&bit->mutex)) {
+		Debug("lispd_make_mutexlite error");
 		free(bit);
 		return NULL;
 	}
@@ -82,7 +82,7 @@ static struct execute *allocmembit(size_t index)
 
 static void freemembit(struct execute *bit)
 {
-	destroy_mutexlite(&bit->mutex);
+	lispd_destroy_mutexlite(&bit->mutex);
 	free(bit);
 }
 
@@ -189,11 +189,11 @@ _g int init_execute(size_t size)
 	}
 
 	/* sync object */
-	if (make_mutexlite(&ExecuteMutex)) {
-		Debug("make_mutexlite error");
+	if (lispd_make_mutexlite(&ExecuteMutex)) {
+		Debug("lispd_make_mutexlite error");
 		goto error1;
 	}
-	make_condlite(&ExecuteCond);
+	lispd_make_condlite(&ExecuteCond);
 
 	/* threadlocal */
 	init_execute_local();
@@ -213,9 +213,9 @@ _g int init_execute(size_t size)
 
 error3:
 	freebuffer(ptr);
-	destroy_condlite(&ExecuteCond);
+	lispd_destroy_condlite(&ExecuteCond);
 error1:
-	destroy_mutexlite(&ExecuteMutex);
+	lispd_destroy_mutexlite(&ExecuteMutex);
 	return 1;
 }
 
@@ -239,8 +239,8 @@ _g void free_execute(void)
 	free_execute_local();
 
 	/* Global variables */
-	destroy_condlite(&ExecuteCond);
-	destroy_mutexlite(&ExecuteMutex);
+	lispd_destroy_condlite(&ExecuteCond);
+	lispd_destroy_mutexlite(&ExecuteMutex);
 	freebuffer(ExecuteArray);
 	ExecuteArray = 0;
 	ExecuteSize = 0;
@@ -306,7 +306,7 @@ static int findempty(struct execute **ret)
 
 static int findstate(struct execute **ptr)
 {
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 
 	/* find state=ThreadState_Empty */
 	if (findempty(ptr)) goto finish;
@@ -314,23 +314,23 @@ static int findstate(struct execute **ptr)
 	/* extend memory */
 	if (extendmemory()) {
 		Debug("expandmemory error");
-		unlock_mutexlite(&ExecuteMutex);
+		lispd_unlock_mutexlite(&ExecuteMutex);
 		return 1;
 	}
 	*ptr = ExecuteArray[ExecutePosition];
 
 finish:
 	(*ptr)->state = ThreadState_Run;
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 
 	return 0;
 }
 
 _g void setstate_execute(struct execute *ptr, enum ThreadState value)
 {
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 	ptr->state = value;
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
 _g int make_execute(execfunction proc, struct execute **ret, size_t size)
@@ -363,7 +363,7 @@ _g int join_execute(struct execute *ptr)
 {
 	int result;
 
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 	switch (ptr->state) {
 		case ThreadState_Empty:
 			break;
@@ -382,11 +382,11 @@ _g int join_execute(struct execute *ptr)
 			Debug("join_thread  state error");
 			goto error;
 	}
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 	return 0;
 
 join:
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 	result = join_thread(&ptr->handle);
 	if (result) {
 		Debug("join_thread error");
@@ -396,7 +396,7 @@ join:
 	return 0;
 
 error:
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 	return 1;
 }
 
@@ -422,14 +422,14 @@ _g struct execute *getexecute(size_t index)
 {
 	struct execute *result;
 
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 	if (ExecuteSize <= index) {
-		unlock_mutexlite(&ExecuteMutex);
+		lispd_unlock_mutexlite(&ExecuteMutex);
 		Debug("index error");
 		return NULL;
 	}
 	result = ExecuteArray[index];
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 
 	return result;
 }
@@ -469,20 +469,20 @@ static int gcstart_execute_check(struct execute *ptr)
 
 _g void gcstart_execute(struct execute *ptr)
 {
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 	ptr->state = ThreadState_GcWait;
-	broadcast_condlite(&ExecuteCond);
+	lispd_broadcast_condlite(&ExecuteCond);
 	while (gcstart_execute_check(ptr))
-		wait_condlite(&ExecuteCond, &ExecuteMutex);
-	unlock_mutexlite(&ExecuteMutex);
+		lispd_wait_condlite(&ExecuteCond, &ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void gcwait_execute(struct execute *ptr)
 {
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 	while (ptr->state != ThreadState_Run)
-		wait_condlite(&ExecuteCond, &ExecuteMutex);
-	unlock_mutexlite(&ExecuteMutex);
+		lispd_wait_condlite(&ExecuteCond, &ExecuteMutex);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void gcend_execute(void)
@@ -490,14 +490,14 @@ _g void gcend_execute(void)
 	size_t i;
 	struct execute *ptr;
 
-	lock_mutexlite(&ExecuteMutex);
+	lispd_lock_mutexlite(&ExecuteMutex);
 	for (i = 0; i < ExecuteSize; i++) {
 		ptr = ExecuteArray[i];
 		if (ptr->state == ThreadState_GcWait)
 			ptr->state = ThreadState_Run;
 	}
-	broadcast_condlite(&ExecuteCond);
-	unlock_mutexlite(&ExecuteMutex);
+	lispd_broadcast_condlite(&ExecuteCond);
+	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void foreach_execute(void (*call)(struct execute *))

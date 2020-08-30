@@ -1,5 +1,6 @@
 #include "define.h"
 #include "file_memory.h"
+#include "heap_memory.h"
 
 #ifdef LISP_ANSI
 #undef FILEMEMORY_RESTRICT
@@ -1278,9 +1279,6 @@ _g int file_position_set_filememory(struct filememory *fm, size_t pos)
 /*
  *  core
  */
-__extern addr heap_root;
-__extern addr heap_front;
-
 _g int readcheck_filememory(struct filememory *fm, void *dst, size_t size)
 {
 	size_t check;

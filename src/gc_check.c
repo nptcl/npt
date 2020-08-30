@@ -1,3 +1,4 @@
+#include "gc_check.h"
 #include "info.h"
 #include "heap.h"
 #include "heap_memory.h"

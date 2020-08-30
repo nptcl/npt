@@ -5,6 +5,11 @@
 #include "pointer.h"
 #include "typedef.h"
 
+#define code_heap _n(code_heap)
+#define function_empty_heap _n(function_empty_heap)
+#define getarray_code _n(getarray_code)
+#define update_code _n(update_code)
+
 enum Code_Index {
 	Code_Array,
 	Code_Call,

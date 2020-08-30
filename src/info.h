@@ -8,6 +8,16 @@
 #include "define.h"
 #include "typedef.h"
 
+#define info _n(info)
+#define info_noeol _n(info_noeol)
+#define infobit _n(infobit)
+#define infoprint _n(infoprint)
+#define infoprint_depth _n(infoprint_depth)
+#define infoprint_noeol _n(infoprint_noeol)
+#define infoprint_once _n(infoprint_once)
+#define infoerror _n(infoerror)
+#define infosystem _n(infosystem)
+
 _g void info(const char *, ...);
 _g void info_noeol(const char *, ...);
 _g void infobit(addr pos);

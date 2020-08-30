@@ -6,6 +6,7 @@
 #include "constant.h"
 #include "control_execute.h"
 #include "control_object.h"
+#include "eval_execute.h"
 #include "execute.h"
 #include "execute_values.h"
 #include "file_open.h"

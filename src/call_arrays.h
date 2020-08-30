@@ -5,6 +5,34 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define make_array_common _n(make_array_common)
+#define adjust_array_common _n(adjust_array_common)
+#define adjustable_array_p_common _n(adjustable_array_p_common)
+#define aref_common _n(aref_common)
+#define setf_aref_common _n(setf_aref_common)
+#define array_dimension_common _n(array_dimension_common)
+#define array_dimensions_common _n(array_dimensions_common)
+#define array_element_type_common _n(array_element_type_common)
+#define array_has_fill_pointer_p_common _n(array_has_fill_pointer_p_common)
+#define array_displacement_common _n(array_displacement_common)
+#define array_in_bounds_p_common _n(array_in_bounds_p_common)
+#define array_rank_common _n(array_rank_common)
+#define array_row_major_index_common _n(array_row_major_index_common)
+#define array_total_size_common _n(array_total_size_common)
+#define arrayp_common _n(arrayp_common)
+#define fill_pointer_common _n(fill_pointer_common)
+#define setf_fill_pointer_common _n(setf_fill_pointer_common)
+#define row_major_aref_common _n(row_major_aref_common)
+#define setf_row_major_aref_common _n(setf_row_major_aref_common)
+#define simple_vector_p_common _n(simple_vector_p_common)
+#define svref_common _n(svref_common)
+#define setf_svref_common _n(setf_svref_common)
+#define vectorp_common _n(vectorp_common)
+#define bit_common _n(bit_common)
+#define setf_bit_common _n(setf_bit_common)
+#define bit_vector_p_common _n(bit_vector_p_common)
+#define simple_bit_vector_p_common _n(simple_bit_vector_p_common)
+
 _g int make_array_common(Execute ptr, addr var, addr rest, addr *ret);
 _g int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret);
 _g int adjustable_array_p_common(addr var, int *ret);

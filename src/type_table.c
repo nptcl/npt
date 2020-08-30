@@ -642,7 +642,8 @@ _g void type2integer_cd_heap(addr c, fixnum d, addr *ret)
 	type4_heap(LISPDECL_INTEGER, aster, aster, c, y, ret);
 }
 
-_g void type4declf_heap(enum LISPDECL type, addr a, float b, addr c, float d, addr *ret)
+static void type4declf_heap(enum LISPDECL type,
+		addr a, float b, addr c, float d, addr *ret)
 {
 	addr x, y;
 
@@ -653,7 +654,7 @@ _g void type4declf_heap(enum LISPDECL type, addr a, float b, addr c, float d, ad
 	type4_heap(type, a, x, c, y, ret);
 }
 
-_g void type2declf_ab_heap(enum LISPDECL type, addr a, float b, addr *ret)
+static void type2declf_ab_heap(enum LISPDECL type, addr a, float b, addr *ret)
 {
 	addr x, aster;
 
@@ -663,7 +664,7 @@ _g void type2declf_ab_heap(enum LISPDECL type, addr a, float b, addr *ret)
 	type4_heap(type, a, x, aster, aster, ret);
 }
 
-_g void type2declf_cd_heap(enum LISPDECL type, addr c, float d, addr *ret)
+static void type2declf_cd_heap(enum LISPDECL type, addr c, float d, addr *ret)
 {
 	addr y, aster;
 

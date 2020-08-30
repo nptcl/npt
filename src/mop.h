@@ -4,6 +4,27 @@
 #include "constant.h"
 #include "typedef.h"
 
+#define mop_export_symbol_ _n(mop_export_symbol_)
+#define mop_argument_generic_var1 _n(mop_argument_generic_var1)
+#define mop_argument_generic_var2 _n(mop_argument_generic_var2)
+#define mop_argument_generic_var3 _n(mop_argument_generic_var3)
+#define mop_argument_generic_var4 _n(mop_argument_generic_var4)
+#define mop_argument_generic_var5 _n(mop_argument_generic_var5)
+#define mop_argument_generic_var1opt1 _n(mop_argument_generic_var1opt1)
+#define mop_argument_generic_var3opt1 _n(mop_argument_generic_var3opt1)
+#define mop_argument_generic_var1rest _n(mop_argument_generic_var1rest)
+#define mop_argument_generic_var2rest _n(mop_argument_generic_var2rest)
+#define mop_argument_generic_var1rest1key0 _n(mop_argument_generic_var1rest1key0)
+#define mop_argument_generic_var2rest1key0 _n(mop_argument_generic_var2rest1key0)
+#define mop_argument_generic_var4rest1key0 _n(mop_argument_generic_var4rest1key0)
+#define mop_argument_method_var _n(mop_argument_method_var)
+#define mop_argument_method_var1 _n(mop_argument_method_var1)
+#define mop_argument_method_var1opt1 _n(mop_argument_method_var1opt1)
+#define mop_argument_method_var1rest _n(mop_argument_method_var1rest)
+#define mop_argument_method_var2 _n(mop_argument_method_var2)
+#define mop_argument_method_var2rest _n(mop_argument_method_var2rest)
+#define mop_argument_method_print_object _n(mop_argument_method_print_object)
+
 _g int mop_export_symbol_(addr symbol);
 
 #define ClosKeyTypeTable(r,a,b) \

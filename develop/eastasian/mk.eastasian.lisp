@@ -260,10 +260,19 @@
   (format t "};~%"))
 
 (defun write-header-table ()
+  (format t "#define EastAsianSymbol _n(EastAsianSymbol)~%")
+  (format t "#define EastAsianAscii _n(EastAsianAscii)~%")
+  (format t "#define EastAsianTable _n(EastAsianTable)~%")
+  (format t "#define eastasian_symbol _n(eastasian_symbol)~%")
+  (format t "#define eastasian_width _n(eastasian_width)~%")
+  (format t "#define init_eastasian _n(init_eastasian)~%")
   (format t "__extern unsigned EastAsianSymbol[EastAsian_Size];~%")
   (format t "__extern const enum EastAsianType EastAsianAscii[0x80];~%")
   (format t "__extern const struct eastasian_struct ")
-  (format t "EastAsianTable[EastAsianTable_Size];~%"))
+  (format t "EastAsianTable[EastAsianTable_Size];~%")
+  (format t "_g enum EastAsianType eastasian_symbol(unicode c);~%")
+  (format t "_g unsigned eastasian_width(unicode c);~%")
+  (format t "_g void init_eastasian(void);~2%"))
 
 (defun write-source-list ()
   (mapbind (x y z) *width-table*
@@ -320,9 +329,6 @@
     (write-structure)
     (terpri)
     (write-header-table)
-    (format t "_g enum EastAsianType eastasian_symbol(unicode c);~%")
-    (format t "_g unsigned eastasian_width(unicode c);~%")
-    (format t "_g void init_eastasian(void);~2%")
     (format t "#endif~2%")))
 
 (defun write-source ()

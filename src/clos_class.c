@@ -1865,7 +1865,7 @@ static int build_clos_class_mop_(LocalRoot local)
 /*
  *  build-clos-class
  */
-_g void build_clos_class_variable(void)
+static void build_clos_class_variable(void)
 {
 	addr pos;
 

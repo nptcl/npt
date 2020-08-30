@@ -4,6 +4,16 @@
 #include "typedef.h"
 #include "local.h"
 
+#define bytespec_alloc _n(bytespec_alloc)
+#define bytespec_local _n(bytespec_local)
+#define bytespec_heap _n(bytespec_heap)
+#define byte_common_ _n(byte_common_)
+#define byte_size_common _n(byte_size_common)
+#define byte_position_common _n(byte_position_common)
+#define bytespec_mask_init _n(bytespec_mask_init)
+#define bytespec_mask_get _n(bytespec_mask_get)
+#define bytespec_mask_getsize _n(bytespec_mask_getsize)
+
 struct bytespec_struct {
 	size_t size, position;
 };

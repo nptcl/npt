@@ -6,6 +6,17 @@
 #ifdef LISP_DEGRADE
 #include "execute.h"
 
+#define degrade_execute _n(degrade_execute)
+#define DegradeCount _n(DegradeCount)
+#define DegradeError _n(DegradeError)
+#define degrade_code _n(degrade_code)
+#define degrade_printf _n(degrade_printf)
+#define degrade_test _n(degrade_test)
+#define degrade_title _n(degrade_title)
+#define degrade_testcheck _n(degrade_testcheck)
+#define degrade_increment _n(degrade_increment)
+#define degrade_output_null _n(degrade_output_null)
+
 extern int DegradeCount;
 extern int DegradeError;
 int degrade_code(void (*init)(Execute), int (*call)(void));

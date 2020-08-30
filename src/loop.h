@@ -5,6 +5,7 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define loop_common _n(loop_common)
 _g int loop_common(Execute ptr, addr *ret, addr form);
 
 #endif

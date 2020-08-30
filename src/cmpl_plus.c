@@ -9,7 +9,6 @@
 #include "rational_plus.h"
 #include "real.h"
 
-
 /*
  *  oneplus
  */

@@ -19,11 +19,6 @@
 /*
  *  type
  */
-_g int fixnump(addr pos)
-{
-	return GetType(pos) == LISPTYPE_FIXNUM;
-}
-
 _g int integerp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);

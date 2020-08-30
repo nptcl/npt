@@ -5,6 +5,16 @@
 #include "local.h"
 #include "typedef.h"
 
+#define decode_universal_time_common_ _n(decode_universal_time_common_)
+#define encode_universal_time_common_ _n(encode_universal_time_common_)
+#define get_universal_time_common_ _n(get_universal_time_common_)
+#define get_decoded_time_common_ _n(get_decoded_time_common_)
+#define get_internal_time_units_per_second _n(get_internal_time_units_per_second)
+#define get_internal_real_time_common_ _n(get_internal_real_time_common_)
+#define get_internal_run_time_common _n(get_internal_run_time_common)
+#define sleep_common_ _n(sleep_common_)
+#define init_environemnt_time _n(init_environemnt_time)
+
 struct universal_time_struct {
 	addr second, minute, hour, date, month, year, week, daylight_p, zone;
 };

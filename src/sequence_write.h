@@ -5,6 +5,15 @@
 #include "typedef.h"
 #include "sequence_range.h"
 
+#define build_sequence_write_list _n(build_sequence_write_list)
+#define build_sequence_write_result _n(build_sequence_write_result)
+#define build_sequence_write_ _n(build_sequence_write_)
+#define result_sequence_write _n(result_sequence_write)
+#define push_sequence_write_ _n(push_sequence_write_)
+#define before_sequence_write_ _n(before_sequence_write_)
+#define after_sequence_write_ _n(after_sequence_write_)
+#define reverse_sequence_write _n(reverse_sequence_write)
+
 struct sequence_write {
 	unsigned listp : 1;
 	unsigned reverse : 1;

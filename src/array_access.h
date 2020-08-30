@@ -6,6 +6,37 @@
 #include "local.h"
 #include "typedef.h"
 
+#define arraymemory_get_ _n(arraymemory_get_)
+#define array_arefindex_ _n(array_arefindex_)
+#define array_get_t_ _n(array_get_t_)
+#define array_get_bit_ _n(array_get_bit_)
+#define array_get_unicode_ _n(array_get_unicode_)
+#define array_get_ _n(array_get_)
+#define array_set_bit_ _n(array_set_bit_)
+#define array_set_character_ _n(array_set_character_)
+#define array_set_signed8_ _n(array_set_signed8_)
+#define array_set_signed16_ _n(array_set_signed16_)
+#define array_set_signed32_ _n(array_set_signed32_)
+#define array_set_unsigned8_ _n(array_set_unsigned8_)
+#define array_set_unsigned16_ _n(array_set_unsigned16_)
+#define array_set_unsigned32_ _n(array_set_unsigned32_)
+#define array_set_signed64_ _n(array_set_signed64_)
+#define array_set_unsigned64_ _n(array_set_unsigned64_)
+#define array_set_single_ _n(array_set_single_)
+#define array_set_double_ _n(array_set_double_)
+#define array_set_long_ _n(array_set_long_)
+#define array_set_ _n(array_set_)
+#define array_setget_ _n(array_setget_)
+#define array_aref_ _n(array_aref_)
+#define array_setf_aref_ _n(array_setf_aref_)
+#define array_aref_bit_ _n(array_aref_bit_)
+#define array_setf_aref_bit_ _n(array_setf_aref_bit_)
+#define array_equal_type _n(array_equal_type)
+#define array_equal_dimension _n(array_equal_dimension)
+#define array_get_element_type_ _n(array_get_element_type_)
+#define array_get_vector_length _n(array_get_vector_length)
+#define array_get_rowlength _n(array_get_rowlength)
+
 _g int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *ret);
 _g int array_arefindex_(addr pos, addr args, size_t *ret);
 

@@ -2,6 +2,7 @@
 #include "bignum_equal.h"
 #include "condition.h"
 #include "float_object.h"
+#include "float_plus.h"
 #include "object.h"
 #include "ratio.h"
 #include "typedef.h"

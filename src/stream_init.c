@@ -10,6 +10,7 @@
 #include "stream_echo.h"
 #include "stream_error.h"
 #include "stream_file.h"
+#include "stream_init.h"
 #include "stream_pretty.h"
 #include "stream_prompt.h"
 #include "stream_string.h"

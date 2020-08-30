@@ -7,6 +7,7 @@
 #include "heap.h"
 #include "md5encode.h"
 #include "random.h"
+#include "random_state.h"
 #include "thread.h"
 #include "symbol.h"
 
@@ -273,8 +274,8 @@ _g int init_random_state(void)
 		Debug("InitRandomState error.");
 		return 1;
 	}
-	if (make_mutexlite(&RandomStateMutex)) {
-		Debug("make_mutexlite error.");
+	if (lispd_make_mutexlite(&RandomStateMutex)) {
+		Debug("lispd_make_mutexlite error.");
 		return 1;
 	}
 	InitRandomState = 1;
@@ -285,7 +286,7 @@ _g int init_random_state(void)
 _g void free_random_state(void)
 {
 	if (InitRandomState) {
-		destroy_mutexlite(&RandomStateMutex);
+		lispd_destroy_mutexlite(&RandomStateMutex);
 		InitRandomState = 0;
 	}
 }
@@ -299,9 +300,9 @@ static void make_random_seed(struct md5encode *md5)
 	/* environment */
 	random_seed_os(md5);
 	/* counter */
-	lock_mutexlite(&RandomStateMutex);
+	lispd_lock_mutexlite(&RandomStateMutex);
 	counter++;
-	unlock_mutexlite(&RandomStateMutex);
+	lispd_unlock_mutexlite(&RandomStateMutex);
 	readmd5(md5, &counter, sizeof(counter));
 	/* function pointer */
 	call = make_random_seed;

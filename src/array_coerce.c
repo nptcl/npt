@@ -1,5 +1,6 @@
 #include "array.h"
 #include "array_access.h"
+#include "array_coerce.h"
 #include "array_copy.h"
 #include "array_inplace.h"
 #include "array_make.h"

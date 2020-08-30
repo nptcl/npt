@@ -29,6 +29,12 @@
 #include <stdint.h>
 #include "define.h"
 
+#define clear_md5encode _n(clear_md5encode)
+#define read_md5encode _n(read_md5encode)
+#define calc_md5encode _n(calc_md5encode)
+#define sequence_md5encode _n(sequence_md5encode)
+#define string_md5encode _n(string_md5encode)
+
 #define MD5ENCODE_SIZE 16
 
 struct md5encode {

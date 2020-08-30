@@ -1072,7 +1072,7 @@ _g void init_type_parse(void)
 
 #define SetTypeParseObject(x,v) (*(enum LISPDECL *)PtrBodyB2(x) = (v))
 #define GetTypeParseObject(x,r) (*(r) = *(enum LISPDECL *)PtrBodyB2(x))
-_g void make_type_parse_object(addr *ret, enum LISPDECL type)
+static void make_type_parse_object(addr *ret, enum LISPDECL type)
 {
 	addr pos;
 

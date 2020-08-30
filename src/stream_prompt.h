@@ -5,6 +5,10 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define open_prompt_stream _n(open_prompt_stream)
+#define mode_prompt_stream _n(mode_prompt_stream)
+#define init_stream_prompt _n(init_stream_prompt)
+
 enum PromptStreamMode {
 	PromptStreamMode_Normal,
 	PromptStreamMode_Inspect,

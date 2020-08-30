@@ -1,5 +1,6 @@
 #include "clos_class.h"
 #include "compile.h"
+#include "compile_file.h"
 #include "compile_write.h"
 #include "condition.h"
 #include "cons_plist.h"

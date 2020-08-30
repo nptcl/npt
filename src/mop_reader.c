@@ -13,6 +13,7 @@
 #include "function.h"
 #include "lambda.h"
 #include "mop.h"
+#include "mop_common.h"
 #include "symbol.h"
 #include "type_object.h"
 #include "type_table.h"

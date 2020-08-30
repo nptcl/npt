@@ -4,6 +4,14 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define init_type_parse _n(init_type_parse)
+#define build_type_parse _n(build_type_parse)
+#define parse_type _n(parse_type)
+#define parse_type_not _n(parse_type_not)
+#define parse_type_noaster _n(parse_type_noaster)
+#define parse_type_unsafe _n(parse_type_unsafe)
+#define parse_type_values _n(parse_type_values)
+
 _g void init_type_parse(void);
 _g void build_type_parse(void);
 _g int parse_type(Execute ptr, addr *ret, addr pos, addr env);

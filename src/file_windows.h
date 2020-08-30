@@ -10,6 +10,7 @@
 #include "cons.h"
 #include "condition.h"
 #include "encode.h"
+#include "file.h"
 #include "object.h"
 #include "pathname.h"
 #include "strtype.h"

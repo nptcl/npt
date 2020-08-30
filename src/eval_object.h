@@ -5,6 +5,29 @@
 #include "memory.h"
 #include "typedef.h"
 
+#define eval_heap _n(eval_heap)
+#define eval_local _n(eval_local)
+#define eval_alloc _n(eval_alloc)
+#define refeval _n(refeval)
+#define geteval _n(geteval)
+#define seteval _n(seteval)
+#define refevaltype _n(refevaltype)
+#define getevaltype _n(getevaltype)
+#define setevaltype _n(setevaltype)
+#define eval_p _n(eval_p)
+#define eval_declare_p _n(eval_declare_p)
+#define eval_declare_nil_p _n(eval_declare_nil_p)
+#define eval_parse_p _n(eval_parse_p)
+#define eval_scope_p _n(eval_scope_p)
+#define eval_stack_p _n(eval_stack_p)
+#define eval_table_p _n(eval_table_p)
+#define eval_tablevalue_p _n(eval_tablevalue_p)
+#define eval_tablefunction_p _n(eval_tablefunction_p)
+#define eval_tabletagbody_p _n(eval_tabletagbody_p)
+#define eval_tableblock_p _n(eval_tableblock_p)
+#define eval_tablecall_p _n(eval_tablecall_p)
+#define eval_code_p _n(eval_code_p)
+
 enum EVAL_TYPE {
 	EVAL_TYPE_DECLARE,
 	EVAL_TYPE_PARSE,

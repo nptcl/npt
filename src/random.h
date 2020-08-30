@@ -26,6 +26,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define random_number_32bit _n(random_number_32bit)
+#define random_number_64bit _n(random_number_64bit)
+#define random_equal_32bit _n(random_equal_32bit)
+#define random_equal_64bit _n(random_equal_64bit)
+#define random_less_32bit _n(random_less_32bit)
+#define random_less_64bit _n(random_less_64bit)
+#define random_seed_buffer _n(random_seed_buffer)
+#define random_seed_string _n(random_seed_string)
+#define random_state_equal _n(random_state_equal)
+
 struct random_state {
 	union {
 		uint64_t u64[2];

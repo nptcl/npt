@@ -4,6 +4,7 @@
 #include "parse.h"
 #include "parse_object.h"
 #include "scope_call.h"
+#include "scope_function.h"
 #include "scope_lambda.h"
 #include "scope_object.h"
 #include "step.h"

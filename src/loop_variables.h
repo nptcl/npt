@@ -5,6 +5,13 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define loop_filter_initially _n(loop_filter_initially)
+#define loop_filter_finally _n(loop_filter_finally)
+#define loop_filter_with_ _n(loop_filter_with_)
+#define loop_variables_with_ _n(loop_variables_with_)
+#define loop_push_for_as_ _n(loop_push_for_as_)
+#define loop_variables_for_as_ _n(loop_variables_for_as_)
+
 _g void loop_filter_initially(addr *form, addr *list);
 _g void loop_filter_finally(addr *form, addr *list);
 _g int loop_filter_with_(Execute ptr, addr *form, addr *list);

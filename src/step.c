@@ -7,6 +7,7 @@
 #include "parse_function.h"
 #include "parse_object.h"
 #include "scope_object.h"
+#include "step.h"
 #include "symbol.h"
 #include "typedef.h"
 

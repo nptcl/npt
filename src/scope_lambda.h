@@ -6,6 +6,19 @@
 #include "scope_let.h"
 #include "typedef.h"
 
+#define scope_init_lambda _n(scope_init_lambda)
+#define scope_function_call _n(scope_function_call)
+#define lambda_lexical_heap _n(lambda_lexical_heap)
+#define scope_lambda_call _n(scope_lambda_call)
+#define scope_defun_call _n(scope_defun_call)
+#define scope_macro_lambda_call _n(scope_macro_lambda_call)
+#define scope_deftype_call _n(scope_deftype_call)
+#define scope_define_compiler_macro_call _n(scope_define_compiler_macro_call)
+#define scope_bind_call _n(scope_bind_call)
+#define scope_flet_call _n(scope_flet_call)
+#define scope_labels_call _n(scope_labels_call)
+#define scope_call_call _n(scope_call_call)
+
 struct lambda_struct {
 	addr stack, call, table, lexical;
 	addr args, decl, doc, cons, clos, free, the;

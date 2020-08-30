@@ -4,6 +4,11 @@
 #include "local.h"
 #include "typedef.h"
 
+#define package_iterator_alloc_ _n(package_iterator_alloc_)
+#define package_iterator_local_ _n(package_iterator_local_)
+#define package_iterator_heap_ _n(package_iterator_heap_)
+#define next_package_iterator_ _n(next_package_iterator_)
+
 struct StructPackageIterator {
 	unsigned internal : 1;
 	unsigned external : 1;

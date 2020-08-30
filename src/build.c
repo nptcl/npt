@@ -41,7 +41,7 @@
 #include "print.h"
 #include "random_state.h"
 #include "reader.h"
-#include "real_common.h"
+#include "real.h"
 #include "restart.h"
 #include "require.h"
 #include "rt.h"

@@ -6,6 +6,7 @@
 #include "condition.h"
 #include "float_object.h"
 #include "math_type.h"
+#include "number.h"
 #include "ratio.h"
 #include "rational.h"
 #include "real.h"

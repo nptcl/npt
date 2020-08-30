@@ -596,7 +596,7 @@ static struct lispargv *make_lispargv(void)
 	return ptr;
 }
 
-static void free_lispargv_input(struct lispargv_input *ptr)
+static void lispargv_free_input(struct lispargv_input *ptr)
 {
 	size_t i, size;
 	struct lispargv_string *data;
@@ -612,14 +612,14 @@ static void free_lispargv_input(struct lispargv_input *ptr)
 	}
 }
 
-void free_lispargv(struct lispargv *ptr)
+void lispargv_free(struct lispargv *ptr)
 {
 	if (ptr) {
 		free_stringu(ptr->core);
 		free_stringu(ptr->init);
 		free_arrayu(ptr->argv);
 		free_tableu(ptr->env);
-		free_lispargv_input(ptr->input);
+		lispargv_free_input(ptr->input);
 		free(ptr);
 	}
 }
@@ -661,7 +661,7 @@ struct lispargv *lispargv_main_force(int argc, char *argv[], char *env[])
 	return ptr;
 
 error:
-	free_lispargv(ptr);
+	lispargv_free(ptr);
 	return NULL;
 }
 
@@ -699,7 +699,7 @@ struct lispargv *lispargv_windows(void)
 	return ptr;
 
 error:
-	free_lispargv(ptr);
+	lispargv_free(ptr);
 	return NULL;
 }
 #endif

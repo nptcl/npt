@@ -8,6 +8,7 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "control_callbind.h"
+#include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
 #include "execute.h"

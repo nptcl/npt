@@ -4,6 +4,12 @@
 #include "local.h"
 #include "typedef.h"
 
+#define copy_eval_parse_alloc _n(copy_eval_parse_alloc)
+#define copy_eval_parse_local _n(copy_eval_parse_local)
+#define copy_eval_parse_heap _n(copy_eval_parse_heap)
+#define copy_eval_parse _n(copy_eval_parse)
+#define init_eval_copy _n(init_eval_copy)
+
 _g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval);
 _g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval);
 _g void copy_eval_parse_heap(addr *ret, addr eval);

@@ -5,6 +5,21 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define pprint_throw _n(pprint_throw)
+#define pprint_exit_common _n(pprint_exit_common)
+#define pprint_pop_common _n(pprint_pop_common)
+#define check_pretty_stream _n(check_pretty_stream)
+#define expand_pprint_logical_block_common_ _n(expand_pprint_logical_block_common_)
+#define pprint_indent_print_ _n(pprint_indent_print_)
+#define pprint_newline_print_ _n(pprint_newline_print_)
+#define pprint_newline_terpri_ _n(pprint_newline_terpri_)
+#define pprint_tab_print_ _n(pprint_tab_print_)
+#define pprint_tab_section_ _n(pprint_tab_section_)
+#define pprint_tab_section_relative_ _n(pprint_tab_section_relative_)
+#define pprint_tab_absolute_force_ _n(pprint_tab_absolute_force_)
+#define pprint_tab_relative_force_ _n(pprint_tab_relative_force_)
+#define pprint_output_ _n(pprint_output_)
+
 enum pprint_newline {
 	pprint_newline_linear,
 	pprint_newline_fill,

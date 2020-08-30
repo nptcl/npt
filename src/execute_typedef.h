@@ -7,6 +7,10 @@
 #include "typedef.h"
 #include "typedef_thread.h"
 
+#define ThreadLocal_Execute _n(ThreadLocal_Execute)
+#define ThreadLocal_Index _n(ThreadLocal_Index)
+#define ThreadLocal_Local _n(ThreadLocal_Local)
+
 #ifdef LISP_DEBUG
 #define EXECUTE_VALUES		2
 #else

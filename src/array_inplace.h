@@ -6,6 +6,9 @@
 #include "local.h"
 #include "typedef.h"
 
+#define arrayinplace_get_ _n(arrayinplace_get_)
+#define arrayinplace_set_ _n(arrayinplace_set_)
+
 _g int arrayinplace_get_(addr pos, size_t index, struct array_value *str);
 _g int arrayinplace_set_(addr pos, size_t index, const struct array_value *str);
 

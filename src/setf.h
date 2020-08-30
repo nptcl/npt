@@ -3,6 +3,10 @@
 
 #include "typedef.h"
 
+#define function_setf_values _n(function_setf_values)
+#define function_setf_getf _n(function_setf_getf)
+#define get_setf_expansion _n(get_setf_expansion)
+
 /* common-lisp setf-expansion */
 _g int function_setf_values(Execute ptr, addr args, addr env);
 _g int function_setf_getf(Execute ptr, addr args, addr env);

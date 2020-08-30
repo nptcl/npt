@@ -817,6 +817,7 @@
     "md5encode.c"
     "memory.c"
     "mop_class.c"
+    "mop_common.c"
     "mop_generic.c"
     "mop_protocols.c"
     "mop_reader.c"
@@ -985,6 +986,7 @@
   (format t "#define _g static~%")
   (format t "#define _s static~%")
   (format t "#define __extern static~%")
+  (format t "#define _n(x) x~%")
   (terpri)
   (header-cplusplus)
   (terpri)

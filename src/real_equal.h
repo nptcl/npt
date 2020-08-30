@@ -4,6 +4,40 @@
 #include "local.h"
 #include "typedef.h"
 
+#define plusp_realp _n(plusp_realp)
+#define plusp_real_ _n(plusp_real_)
+#define minusp_realp _n(minusp_realp)
+#define minusp_real_ _n(minusp_real_)
+#define zerop_real_ _n(zerop_real_)
+#define equal_fixnum_real_ _n(equal_fixnum_real_)
+#define equal_bignum_real_ _n(equal_bignum_real_)
+#define equal_ratio_real_ _n(equal_ratio_real_)
+#define equal_single_float_real_ _n(equal_single_float_real_)
+#define equal_double_float_real_ _n(equal_double_float_real_)
+#define equal_long_float_real_ _n(equal_long_float_real_)
+#define equal_real_ _n(equal_real_)
+#define not_equal_real_ _n(not_equal_real_)
+#define compare_ratio_real_ _n(compare_ratio_real_)
+#define compare_real_ _n(compare_real_)
+#define less_real_ _n(less_real_)
+#define less_equal_real_ _n(less_equal_real_)
+#define greater_real_ _n(greater_real_)
+#define greater_equal_real_ _n(greater_equal_real_)
+#define plusp_real_debug _n(plusp_real_debug)
+#define minusp_real_debug _n(minusp_real_debug)
+#define zerop_real_debug _n(zerop_real_debug)
+#define equal_fixnum_real_debug _n(equal_fixnum_real_debug)
+#define equal_bignum_real_debug _n(equal_bignum_real_debug)
+#define equal_ratio_real_debug _n(equal_ratio_real_debug)
+#define equal_single_float_real_debug _n(equal_single_float_real_debug)
+#define equal_double_float_real_debug _n(equal_double_float_real_debug)
+#define equal_long_float_real_debug _n(equal_long_float_real_debug)
+#define equal_real_debug _n(equal_real_debug)
+#define less_real_debug _n(less_real_debug)
+#define less_equal_real_debug _n(less_equal_real_debug)
+#define greater_real_debug _n(greater_real_debug)
+#define greater_equal_real_debug _n(greater_equal_real_debug)
+
 _g int plusp_realp(addr pos, int *ret);
 _g int plusp_real_(addr pos, int *ret);
 _g int minusp_realp(addr pos, int *ret);

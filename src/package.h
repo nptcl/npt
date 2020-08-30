@@ -6,6 +6,31 @@
 #include "local.h"
 #include "package_object.h"
 
+#define build_package _n(build_package)
+#define getpackage_ _n(getpackage_)
+#define pushlist_package _n(pushlist_package)
+#define append_nicknames_package_ _n(append_nicknames_package_)
+#define make_package_ _n(make_package_)
+#define remove_check_package _n(remove_check_package)
+#define delete_package_ _n(delete_package_)
+#define delete_renameone_package_ _n(delete_renameone_package_)
+#define rename_package_ _n(rename_package_)
+#define find_symbol_package_ _n(find_symbol_package_)
+#define find_package_ _n(find_package_)
+#define find_char_package_ _n(find_char_package_)
+#define package_designer_ _n(package_designer_)
+#define package_size_heap_ _n(package_size_heap_)
+#define package_heap_ _n(package_heap_)
+#define find_allsymbols_package_ _n(find_allsymbols_package_)
+#define list_all_packages_ _n(list_all_packages_)
+#define in_package_ _n(in_package_)
+#define externalp_package_ _n(externalp_package_)
+#define exportp_package_ _n(exportp_package_)
+#define exportp_name_package_ _n(exportp_name_package_)
+#define checksymbol_package_ _n(checksymbol_package_)
+#define keyword_packagetype _n(keyword_packagetype)
+#define init_package _n(init_package)
+
 #define PackageTable(x) (*(x) = LispRoot(PACKAGE))
 
 _g void build_package(void);

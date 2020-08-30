@@ -1,6 +1,7 @@
 #ifndef __COMMON_HEADER_HEADER__
 #define __COMMON_HEADER_HEADER__
 
+#include "common.h"
 #include "condition.h"
 #include "constant.h"
 #include "control_operator.h"
@@ -9,6 +10,15 @@
 #include "symbol.h"
 #include "type.h"
 #include "type_table.h"
+
+#define setfunction_common _n(setfunction_common)
+#define setmacro_common _n(setmacro_common)
+#define setsetfmacro_common _n(setsetfmacro_common)
+#define defconstant_symbol _n(defconstant_symbol)
+#define define_special_operator _n(define_special_operator)
+#define keyword_start_end_ _n(keyword_start_end_)
+#define keyword_start1_end1_ _n(keyword_start1_end1_)
+#define keyword_start2_end2_ _n(keyword_start2_end2_)
 
 /* helper */
 #ifdef LISP_DEBUG

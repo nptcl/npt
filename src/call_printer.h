@@ -4,6 +4,26 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define formatter_common _n(formatter_common)
+#define pprint_fill_common _n(pprint_fill_common)
+#define pprint_linear_common _n(pprint_linear_common)
+#define pprint_tabular_common _n(pprint_tabular_common)
+#define pprint_indent_common _n(pprint_indent_common)
+#define pprint_logical_block_common _n(pprint_logical_block_common)
+#define pprint_newline_common _n(pprint_newline_common)
+#define pprint_tab_common _n(pprint_tab_common)
+#define print_unreadable_object_common _n(print_unreadable_object_common)
+#define set_pprint_dispatch_common _n(set_pprint_dispatch_common)
+#define write_common _n(write_common)
+#define prin1_common _n(prin1_common)
+#define princ_common _n(princ_common)
+#define print_common _n(print_common)
+#define pprint_common _n(pprint_common)
+#define write_to_string_common _n(write_to_string_common)
+#define prin1_to_string_common _n(prin1_to_string_common)
+#define princ_to_string_common _n(princ_to_string_common)
+#define init_call_printer _n(init_call_printer)
+
 _g int formatter_common(LocalRoot local, addr var, addr env, addr *ret);
 _g int pprint_fill_common(Execute ptr, addr stream, addr list, addr colon);
 _g int pprint_linear_common(Execute ptr, addr stream, addr list, addr colon);

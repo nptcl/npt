@@ -1090,7 +1090,7 @@ static int sleep_value_single_float_(LocalRoot local, addr var, addr *ret)
 	addr left, right;
 
 	GetSingleFloat(var, &value);
-	Return(lisp_truncate1_s_(value, &value, &moment));
+	Return(float_truncate1_s_(value, &value, &moment));
 	moment = (single_float)(moment * LISP_SLEEP_INTERVAL_F);
 	Return(bignum_single_float_local_(local, value, &left, NULL));
 	Return(bignum_single_float_local_(local, moment, &right, NULL));
@@ -1107,7 +1107,7 @@ static int sleep_value_double_float_(LocalRoot local, addr var, addr *ret)
 	addr left, right;
 
 	GetDoubleFloat(var, &value);
-	Return(lisp_truncate1_d_(value, &value, &moment));
+	Return(float_truncate1_d_(value, &value, &moment));
 	moment = (double_float)(moment * LISP_SLEEP_INTERVAL_F);
 	Return(bignum_double_float_local_(local, value, &left, NULL));
 	Return(bignum_double_float_local_(local, moment, &right, NULL));
@@ -1124,7 +1124,7 @@ static int sleep_value_long_float_(LocalRoot local, addr var, addr *ret)
 	addr left, right;
 
 	GetLongFloat(var, &value);
-	Return(lisp_truncate1_l_(value, &value, &moment));
+	Return(float_truncate1_l_(value, &value, &moment));
 	moment = (long_float)(moment * LISP_SLEEP_INTERVAL_F);
 	Return(bignum_long_float_local_(local, value, &left, NULL));
 	Return(bignum_long_float_local_(local, moment, &right, NULL));

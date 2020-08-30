@@ -4,6 +4,24 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define getlistprintdispatch _n(getlistprintdispatch)
+#define setlistprintdispatch _n(setlistprintdispatch)
+#define gettypeprinttable _n(gettypeprinttable)
+#define settypeprinttable _n(settypeprinttable)
+#define getspecifierprinttable _n(getspecifierprinttable)
+#define setspecifierprinttable _n(setspecifierprinttable)
+#define getfunctionprinttable _n(getfunctionprinttable)
+#define setfunctionprinttable _n(setfunctionprinttable)
+#define getpriorityprinttable _n(getpriorityprinttable)
+#define setpriorityprinttable _n(setpriorityprinttable)
+#define find_function_print_dispatch _n(find_function_print_dispatch)
+#define print_dispatch_p _n(print_dispatch_p)
+#define pprint_dispatch_heap _n(pprint_dispatch_heap)
+#define copy_pprint_dispatch_common_ _n(copy_pprint_dispatch_common_)
+#define pprint_dispatch_common_ _n(pprint_dispatch_common_)
+#define set_pprint_dispatch_print_ _n(set_pprint_dispatch_print_)
+#define build_print_dispatch_ _n(build_print_dispatch_)
+
 enum PrintTable_Index {
 	PrintTable_type,
 	PrintTable_specifier,

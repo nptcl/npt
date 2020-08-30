@@ -58,7 +58,7 @@ static int division_by_zero_l_(constindex index, long_float a, long_float b)
 /*
  *  floor
  */
-_g int lisp_floor_s_(single_float a, single_float b, single_float *q, single_float *r)
+_g int float_floor_s_(single_float a, single_float b, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -94,7 +94,7 @@ floor2:
 	return 0;
 }
 
-_g int lisp_floor_d_(double_float a, double_float b, double_float *q, double_float *r)
+_g int float_floor_d_(double_float a, double_float b, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -130,7 +130,7 @@ floor2:
 	return 0;
 }
 
-_g int lisp_floor_l_(long_float a, long_float b, long_float *q, long_float *r)
+_g int float_floor_l_(long_float a, long_float b, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -166,7 +166,7 @@ floor2:
 	return 0;
 }
 
-_g int lisp_floor1_s_(single_float a, single_float *q, single_float *r)
+_g int float_floor1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -190,7 +190,7 @@ _g int lisp_floor1_s_(single_float a, single_float *q, single_float *r)
 	return 0;
 }
 
-_g int lisp_floor1_d_(double_float a, double_float *q, double_float *r)
+_g int float_floor1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -214,7 +214,7 @@ _g int lisp_floor1_d_(double_float a, double_float *q, double_float *r)
 	return 0;
 }
 
-_g int lisp_floor1_l_(long_float a, long_float *q, long_float *r)
+_g int float_floor1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -242,7 +242,7 @@ _g int lisp_floor1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  ceiling
  */
-_g int lisp_ceiling_s_(single_float a, single_float b, single_float *q, single_float *r)
+_g int float_ceiling_s_(single_float a, single_float b, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -279,7 +279,7 @@ ceiling2:
 	return 0;
 }
 
-_g int lisp_ceiling_d_(double_float a, double_float b, double_float *q, double_float *r)
+_g int float_ceiling_d_(double_float a, double_float b, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -316,7 +316,7 @@ ceiling2:
 	return 0;
 }
 
-_g int lisp_ceiling_l_(long_float a, long_float b, long_float *q, long_float *r)
+_g int float_ceiling_l_(long_float a, long_float b, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -353,7 +353,7 @@ ceiling2:
 	return 0;
 }
 
-_g int lisp_ceiling1_s_(single_float a, single_float *q, single_float *r)
+_g int float_ceiling1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -377,7 +377,7 @@ _g int lisp_ceiling1_s_(single_float a, single_float *q, single_float *r)
 	return 0;
 }
 
-_g int lisp_ceiling1_d_(double_float a, double_float *q, double_float *r)
+_g int float_ceiling1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -401,7 +401,7 @@ _g int lisp_ceiling1_d_(double_float a, double_float *q, double_float *r)
 	return 0;
 }
 
-_g int lisp_ceiling1_l_(long_float a, long_float *q, long_float *r)
+_g int float_ceiling1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -429,7 +429,7 @@ _g int lisp_ceiling1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  truncate
  */
-_g int lisp_truncate_s_(single_float a, single_float b,
+_g int float_truncate_s_(single_float a, single_float b,
 		single_float *q, single_float *r)
 {
 	single_float m;
@@ -466,7 +466,7 @@ ceiling:
 	return 0;
 }
 
-_g int lisp_truncate_d_(double_float a, double_float b,
+_g int float_truncate_d_(double_float a, double_float b,
 		double_float *q, double_float *r)
 {
 	double_float m;
@@ -503,7 +503,7 @@ ceiling:
 	return 0;
 }
 
-_g int lisp_truncate_l_(long_float a, long_float b,
+_g int float_truncate_l_(long_float a, long_float b,
 		long_float *q, long_float *r)
 {
 	long_float m;
@@ -540,7 +540,7 @@ ceiling:
 	return 0;
 }
 
-_g int lisp_truncate1_s_(single_float a, single_float *q, single_float *r)
+_g int float_truncate1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -560,7 +560,7 @@ _g int lisp_truncate1_s_(single_float a, single_float *q, single_float *r)
 	return 0;
 }
 
-_g int lisp_truncate1_d_(double_float a, double_float *q, double_float *r)
+_g int float_truncate1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -580,7 +580,7 @@ _g int lisp_truncate1_d_(double_float a, double_float *q, double_float *r)
 	return 0;
 }
 
-_g int lisp_truncate1_l_(long_float a, long_float *q, long_float *r)
+_g int float_truncate1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -604,12 +604,12 @@ _g int lisp_truncate1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  round
  */
-static int lisp_round_even_s(single_float f)
+static int float_round_even_s(single_float f)
 {
 	return fmodf(f, 2.0f) == 0.0f;
 }
 
-_g int lisp_round_s_(single_float a, single_float b, single_float *q, single_float *r)
+_g int float_round_s_(single_float a, single_float b, single_float *q, single_float *r)
 {
 	single_float i, f;
 
@@ -620,32 +620,32 @@ _g int lisp_round_s_(single_float a, single_float b, single_float *q, single_flo
 	f = modff(a / b, &i);
 	if (0.0f <= f) {
 		if (f < 0.5f)
-			return lisp_floor_s_(a, b, q, r);
+			return float_floor_s_(a, b, q, r);
 		else if (0.5f < f)
-			return lisp_ceiling_s_(a, b, q, r);
-		else if (lisp_round_even_s(i))
-			return lisp_floor_s_(a, b, q, r);
+			return float_ceiling_s_(a, b, q, r);
+		else if (float_round_even_s(i))
+			return float_floor_s_(a, b, q, r);
 		else
-			return lisp_ceiling_s_(a, b, q, r);
+			return float_ceiling_s_(a, b, q, r);
 	}
 	else {
 		if (-0.5f < f)
-			return lisp_ceiling_s_(a, b, q, r);
+			return float_ceiling_s_(a, b, q, r);
 		else if (f < -0.5f)
-			return lisp_floor_s_(a, b, q, r);
-		else if (lisp_round_even_s(i))
-			return lisp_ceiling_s_(a, b, q, r);
+			return float_floor_s_(a, b, q, r);
+		else if (float_round_even_s(i))
+			return float_ceiling_s_(a, b, q, r);
 		else
-			return lisp_floor_s_(a, b, q, r);
+			return float_floor_s_(a, b, q, r);
 	}
 }
 
-static int lisp_round_even_d(double_float f)
+static int float_round_even_d(double_float f)
 {
 	return fmod(f, 2.0) == 0.0;
 }
 
-_g int lisp_round_d_(double_float a, double_float b, double_float *q, double_float *r)
+_g int float_round_d_(double_float a, double_float b, double_float *q, double_float *r)
 {
 	double_float i, f;
 
@@ -656,32 +656,32 @@ _g int lisp_round_d_(double_float a, double_float b, double_float *q, double_flo
 	f = modf(a / b, &i);
 	if (0.0 <= f) {
 		if (f < 0.5)
-			return lisp_floor_d_(a, b, q, r);
+			return float_floor_d_(a, b, q, r);
 		else if (0.5 < f)
-			return lisp_ceiling_d_(a, b, q, r);
-		else if (lisp_round_even_d(i))
-			return lisp_floor_d_(a, b, q, r);
+			return float_ceiling_d_(a, b, q, r);
+		else if (float_round_even_d(i))
+			return float_floor_d_(a, b, q, r);
 		else
-			return lisp_ceiling_d_(a, b, q, r);
+			return float_ceiling_d_(a, b, q, r);
 	}
 	else {
 		if (-0.5 < f)
-			return lisp_ceiling_d_(a, b, q, r);
+			return float_ceiling_d_(a, b, q, r);
 		else if (f < -0.5)
-			return lisp_floor_d_(a, b, q, r);
-		else if (lisp_round_even_d(i))
-			return lisp_ceiling_d_(a, b, q, r);
+			return float_floor_d_(a, b, q, r);
+		else if (float_round_even_d(i))
+			return float_ceiling_d_(a, b, q, r);
 		else
-			return lisp_floor_d_(a, b, q, r);
+			return float_floor_d_(a, b, q, r);
 	}
 }
 
-static int lisp_round_even_l(long_float f)
+static int float_round_even_l(long_float f)
 {
 	return fmodl(f, 2.0L) == 0.0L;
 }
 
-_g int lisp_round_l_(long_float a, long_float b, long_float *q, long_float *r)
+_g int float_round_l_(long_float a, long_float b, long_float *q, long_float *r)
 {
 	long_float i, f;
 
@@ -692,104 +692,104 @@ _g int lisp_round_l_(long_float a, long_float b, long_float *q, long_float *r)
 	f = modfl(a / b, &i);
 	if (0.0L <= f) {
 		if (f < 0.5L)
-			return lisp_floor_l_(a, b, q, r);
+			return float_floor_l_(a, b, q, r);
 		else if (0.5L < f)
-			return lisp_ceiling_l_(a, b, q, r);
-		else if (lisp_round_even_l(i))
-			return lisp_floor_l_(a, b, q, r);
+			return float_ceiling_l_(a, b, q, r);
+		else if (float_round_even_l(i))
+			return float_floor_l_(a, b, q, r);
 		else
-			return lisp_ceiling_l_(a, b, q, r);
+			return float_ceiling_l_(a, b, q, r);
 	}
 	else {
 		if (-0.5L < f)
-			return lisp_ceiling_l_(a, b, q, r);
+			return float_ceiling_l_(a, b, q, r);
 		else if (f < -0.5L)
-			return lisp_floor_l_(a, b, q, r);
-		else if (lisp_round_even_l(i))
-			return lisp_ceiling_l_(a, b, q, r);
+			return float_floor_l_(a, b, q, r);
+		else if (float_round_even_l(i))
+			return float_ceiling_l_(a, b, q, r);
 		else
-			return lisp_floor_l_(a, b, q, r);
+			return float_floor_l_(a, b, q, r);
 	}
 }
 
-_g int lisp_round1_s_(single_float a, single_float *q, single_float *r)
+_g int float_round1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float i, f;
 
 	f = modff(a, &i);
 	if (0.0f <= f) {
 		if (f < 0.5f)
-			return lisp_floor1_s_(a, q, r);
+			return float_floor1_s_(a, q, r);
 		else if (0.5f < f)
-			return lisp_ceiling1_s_(a, q, r);
-		else if (lisp_round_even_s(i))
-			return lisp_floor1_s_(a, q, r);
+			return float_ceiling1_s_(a, q, r);
+		else if (float_round_even_s(i))
+			return float_floor1_s_(a, q, r);
 		else
-			return lisp_ceiling1_s_(a, q, r);
+			return float_ceiling1_s_(a, q, r);
 	}
 	else {
 		if (-0.5f < f)
-			return lisp_ceiling1_s_(a, q, r);
+			return float_ceiling1_s_(a, q, r);
 		else if (f < -0.5f)
-			return lisp_floor1_s_(a, q, r);
-		else if (lisp_round_even_s(i))
-			return lisp_ceiling1_s_(a, q, r);
+			return float_floor1_s_(a, q, r);
+		else if (float_round_even_s(i))
+			return float_ceiling1_s_(a, q, r);
 		else
-			return lisp_floor1_s_(a, q, r);
+			return float_floor1_s_(a, q, r);
 	}
 }
 
-_g int lisp_round1_d_(double_float a, double_float *q, double_float *r)
+_g int float_round1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float i, f;
 
 	f = modf(a, &i);
 	if (0.0 <= f) {
 		if (f < 0.5)
-			return lisp_floor1_d_(a, q, r);
+			return float_floor1_d_(a, q, r);
 		else if (0.5 < f)
-			return lisp_ceiling1_d_(a, q, r);
-		else if (lisp_round_even_d(i))
-			return lisp_floor1_d_(a, q, r);
+			return float_ceiling1_d_(a, q, r);
+		else if (float_round_even_d(i))
+			return float_floor1_d_(a, q, r);
 		else
-			return lisp_ceiling1_d_(a, q, r);
+			return float_ceiling1_d_(a, q, r);
 	}
 	else {
 		if (-0.5 < f)
-			return lisp_ceiling1_d_(a, q, r);
+			return float_ceiling1_d_(a, q, r);
 		else if (f < -0.5)
-			return lisp_floor1_d_(a, q, r);
-		else if (lisp_round_even_d(i))
-			return lisp_ceiling1_d_(a, q, r);
+			return float_floor1_d_(a, q, r);
+		else if (float_round_even_d(i))
+			return float_ceiling1_d_(a, q, r);
 		else
-			return lisp_floor1_d_(a, q, r);
+			return float_floor1_d_(a, q, r);
 	}
 }
 
-_g int lisp_round1_l_(long_float a, long_float *q, long_float *r)
+_g int float_round1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float i, f;
 
 	f = modfl(a, &i);
 	if (0.0L <= f) {
 		if (f < 0.5L)
-			return lisp_floor1_l_(a, q, r);
+			return float_floor1_l_(a, q, r);
 		else if (0.5L < f)
-			return lisp_ceiling1_l_(a, q, r);
-		else if (lisp_round_even_l(i))
-			return lisp_floor1_l_(a, q, r);
+			return float_ceiling1_l_(a, q, r);
+		else if (float_round_even_l(i))
+			return float_floor1_l_(a, q, r);
 		else
-			return lisp_ceiling1_l_(a, q, r);
+			return float_ceiling1_l_(a, q, r);
 	}
 	else {
 		if (-0.5L < f)
-			return lisp_ceiling1_l_(a, q, r);
+			return float_ceiling1_l_(a, q, r);
 		else if (f < -0.5L)
-			return lisp_floor1_l_(a, q, r);
-		else if (lisp_round_even_l(i))
-			return lisp_ceiling1_l_(a, q, r);
+			return float_floor1_l_(a, q, r);
+		else if (float_round_even_l(i))
+			return float_ceiling1_l_(a, q, r);
 		else
-			return lisp_floor1_l_(a, q, r);
+			return float_floor1_l_(a, q, r);
 	}
 }
 
@@ -797,7 +797,7 @@ _g int lisp_round1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  fixnum
  */
-_g int lisp_floor_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+_g int float_floor_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	fixnum q, r;
 
@@ -831,7 +831,7 @@ floor2:
 	return 0;
 }
 
-_g int lisp_ceiling_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+_g int float_ceiling_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	fixnum q, r;
 
@@ -865,7 +865,7 @@ ceiling2:
 	return 0;
 }
 
-_g int lisp_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+_g int float_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	if (b == 0) {
 		*quot = *rem = 0;
@@ -878,7 +878,7 @@ _g int lisp_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 	return 0;
 }
 
-_g int lisp_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+_g int float_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	fixnum q, r, b2;
 
@@ -916,29 +916,29 @@ _g int lisp_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 			/* a:plus, b:plus, q:plus, r:plus */
 			b2 = b / 2;
 			if (r < b2)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			if (b2 < r)
-				return lisp_ceiling_f_(a, b, quot, rem);
+				return float_ceiling_f_(a, b, quot, rem);
 			if (b % 2)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			else if (q % 2)
-				return lisp_ceiling_f_(a, b, quot, rem);
+				return float_ceiling_f_(a, b, quot, rem);
 			else
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 		}
 		else {
 			/* a:plus, b:minus, q:minus, r:plus */
 			b2 = -(b / 2);
 			if (r < b2)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			if (b2 < r)
-				return lisp_floor_f_(a, b, quot, rem);
+				return float_floor_f_(a, b, quot, rem);
 			if (b % 2)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			else if (q % 2)
-				return lisp_floor_f_(a, b, quot, rem);
+				return float_floor_f_(a, b, quot, rem);
 			else
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 		}
 	}
 	else {
@@ -946,41 +946,41 @@ _g int lisp_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 			/* a:minus, b:plus, q:minus, r:minus */
 			b2 = -(b / 2);
 			if (b2 < r)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			if (r < b2)
-				return lisp_floor_f_(a, b, quot, rem);
+				return float_floor_f_(a, b, quot, rem);
 			if (b % 2)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			else if (q % 2)
-				return lisp_floor_f_(a, b, quot, rem);
+				return float_floor_f_(a, b, quot, rem);
 			else
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 		}
 		else {
 			/* a:minus, b:minus, q:plus, r:minus */
 			b2 = b / 2;
 			if (r < b2)
-				return lisp_ceiling_f_(a, b, quot, rem);
+				return float_ceiling_f_(a, b, quot, rem);
 			if (b2 < r)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			if (b % 2)
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 			else if (q % 2)
-				return lisp_ceiling_f_(a, b, quot, rem);
+				return float_ceiling_f_(a, b, quot, rem);
 			else
-				return lisp_truncate_f_(a, b, quot, rem);
+				return float_truncate_f_(a, b, quot, rem);
 		}
 	}
 }
 
-_g int lisp_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_floor_f_(a, b, &a, &b));
+		Return(float_floor_f_(a, b, &a, &b));
 		fixnum_heap(quot, a);
 		fixnum_heap(rem, b);
 	}
@@ -988,14 +988,14 @@ _g int lisp_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_ceiling_f_(a, b, &a, &b));
+		Return(float_ceiling_f_(a, b, &a, &b));
 		fixnum_heap(quot, a);
 		fixnum_heap(rem, b);
 	}
@@ -1003,14 +1003,14 @@ _g int lisp_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_truncate_f_(a, b, &a, &b));
+		Return(float_truncate_f_(a, b, &a, &b));
 		fixnum_heap(quot, a);
 		fixnum_heap(rem, b);
 	}
@@ -1018,14 +1018,14 @@ _g int lisp_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_round_f_(a, b, &a, &b));
+		Return(float_round_f_(a, b, &a, &b));
 		fixnum_heap(quot, a);
 		fixnum_heap(rem, b);
 	}
@@ -1033,14 +1033,14 @@ _g int lisp_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_floor_f_(a, b, &a, &b));
+		Return(float_floor_f_(a, b, &a, &b));
 		single_float_heap(quot, (single_float)a);
 		fixnum_heap(rem, b);
 	}
@@ -1048,14 +1048,14 @@ _g int lisp_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_ceiling_f_(a, b, &a, &b));
+		Return(float_ceiling_f_(a, b, &a, &b));
 		single_float_heap(quot, (single_float)a);
 		fixnum_heap(rem, b);
 	}
@@ -1063,14 +1063,14 @@ _g int lisp_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_truncate_f_(a, b, &a, &b));
+		Return(float_truncate_f_(a, b, &a, &b));
 		single_float_heap(quot, (single_float)a);
 		fixnum_heap(rem, b);
 	}
@@ -1078,14 +1078,14 @@ _g int lisp_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int lisp_fround_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+_g int float_fround_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
 		fixnum_heap(rem, 0);
 	}
 	else {
-		Return(lisp_round_f_(a, b, &a, &b));
+		Return(float_round_f_(a, b, &a, &b));
 		single_float_heap(quot, (single_float)a);
 		fixnum_heap(rem, b);
 	}
@@ -1184,7 +1184,7 @@ static void divrem_struct_close(struct divrem_struct *ptr)
 #endif
 }
 
-static void lisp_floor_bb(struct divrem_struct *ptr)
+static void float_floor_bb(struct divrem_struct *ptr)
 {
 	divrem_struct_call(ptr);
 	if (zerop_bignum(ptr->rem)) {
@@ -1198,7 +1198,7 @@ static void lisp_floor_bb(struct divrem_struct *ptr)
 	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
-_g int lisp_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1216,13 +1216,13 @@ _g int lisp_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_floor_bb(&str);
+	float_floor_bb(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-_g int lisp_ffloor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ffloor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1240,13 +1240,13 @@ _g int lisp_ffloor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_floor_bb(&str);
+	float_floor_bb(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
 }
 
-static void lisp_ceiling_bb(struct divrem_struct *ptr)
+static void float_ceiling_bb(struct divrem_struct *ptr)
 {
 	divrem_struct_call(ptr);
 	if (zerop_bignum(ptr->rem)) {
@@ -1260,7 +1260,7 @@ static void lisp_ceiling_bb(struct divrem_struct *ptr)
 	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
-_g int lisp_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1278,13 +1278,13 @@ _g int lisp_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_ceiling_bb(&str);
+	float_ceiling_bb(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-_g int lisp_fceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1302,19 +1302,19 @@ _g int lisp_fceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_ceiling_bb(&str);
+	float_ceiling_bb(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
 }
 
-static void lisp_truncate_bb(struct divrem_struct *ptr)
+static void float_truncate_bb(struct divrem_struct *ptr)
 {
 	divrem_struct_call(ptr);
 	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
-_g int lisp_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1332,13 +1332,13 @@ _g int lisp_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_truncate_bb(&str);
+	float_truncate_bb(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-_g int lisp_ftruncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ftruncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1356,13 +1356,13 @@ _g int lisp_ftruncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_truncate_bb(&str);
+	float_truncate_bb(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
 }
 
-static int lisp_round_bb_check(struct divrem_struct *ptr)
+static int float_round_bb_check(struct divrem_struct *ptr)
 {
 	int sign, check;
 	addr b;
@@ -1401,23 +1401,23 @@ static int lisp_round_bb_check(struct divrem_struct *ptr)
 	return check;
 }
 
-static void lisp_round_bb(struct divrem_struct *ptr)
+static void float_round_bb(struct divrem_struct *ptr)
 {
 	int check;
 
 	Check(zerop_bignum(ptr->a), "zero error: a");
 	Check(zerop_bignum(ptr->b), "zero error: b");
 
-	check = lisp_round_bb_check(ptr);
+	check = float_round_bb_check(ptr);
 	if (check < 0)
-		lisp_floor_bb(ptr);
+		float_floor_bb(ptr);
 	else if (0 < check)
-		lisp_ceiling_bb(ptr);
+		float_ceiling_bb(ptr);
 	else
 		fixnum_heap(&(ptr->rem), 0);
 }
 
-_g int lisp_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1435,13 +1435,13 @@ _g int lisp_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_round_bb(&str);
+	float_round_bb(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-_g int lisp_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1459,7 +1459,7 @@ _g int lisp_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_round_bb(&str);
+	float_round_bb(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
@@ -1469,7 +1469,7 @@ _g int lisp_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 /*
  *  ratio
  */
-static void lisp_floor1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
+static void float_floor1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
 {
 	int check;
 	addr quot, rem, temp;
@@ -1496,7 +1496,7 @@ static void lisp_floor1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
 	ptr->rem = rem;
 }
 
-static void lisp_ceiling1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
+static void float_ceiling1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
 {
 	int check;
 	addr quot, rem, temp;
@@ -1523,18 +1523,18 @@ static void lisp_ceiling1_nosign(struct divrem_struct *ptr, int sign1, int sign2
 	ptr->rem = rem;
 }
 
-static void lisp_floor1_r(struct divrem_struct *ptr)
+static void float_floor1_r(struct divrem_struct *ptr)
 {
 	int sign;
 
 	GetSignRatio(ptr->pos, &sign);
 	if (IsPlus(sign))
-		lisp_floor1_nosign(ptr, SignPlus, SignPlus);
+		float_floor1_nosign(ptr, SignPlus, SignPlus);
 	else
-		lisp_ceiling1_nosign(ptr, SignMinus, SignPlus);
+		float_ceiling1_nosign(ptr, SignMinus, SignPlus);
 }
 
-_g int lisp_floor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_floor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1547,24 +1547,24 @@ _g int lisp_floor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	}
 
 	divrem_struct_initialize1(local, &str, pos);
-	lisp_floor1_r(&str);
+	float_floor1_r(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-static void lisp_ceiling1_r(struct divrem_struct *ptr)
+static void float_ceiling1_r(struct divrem_struct *ptr)
 {
 	int sign;
 
 	GetSignRatio(ptr->pos, &sign);
 	if (IsPlus(sign))
-		lisp_ceiling1_nosign(ptr, SignPlus, SignMinus);
+		float_ceiling1_nosign(ptr, SignPlus, SignMinus);
 	else
-		lisp_floor1_nosign(ptr, SignMinus, SignMinus);
+		float_floor1_nosign(ptr, SignMinus, SignMinus);
 }
 
-_g int lisp_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1577,13 +1577,13 @@ _g int lisp_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	}
 
 	divrem_struct_initialize1(local, &str, pos);
-	lisp_ceiling1_r(&str);
+	float_ceiling1_r(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-_g int lisp_truncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_truncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	int sign;
 	struct divrem_struct str;
@@ -1598,36 +1598,36 @@ _g int lisp_truncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 
 	divrem_struct_initialize1(local, &str, pos);
 	GetSignRatio(pos, &sign);
-	lisp_floor1_nosign(&str, sign, sign);
+	float_floor1_nosign(&str, sign, sign);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-static int lisp_round1_half(addr numer, addr denom)
+static int float_round1_half(addr numer, addr denom)
 {
 	return equal_value_nosign_bignum(numer, 1)
 		&& equal_value_nosign_bignum(denom, 2);
 }
 
-static void lisp_round1_r(struct divrem_struct *ptr)
+static void float_round1_r(struct divrem_struct *ptr)
 {
 	addr denom2;
 
 	divrem_struct_call(ptr);
-	if (lisp_round1_half(ptr->rem, ptr->b)) {
+	if (float_round1_half(ptr->rem, ptr->b)) {
 		/* rem = 1/2 */
 		if (plusp_ratio(ptr->pos)) {
 			if (evenp_bignum(ptr->quot))
-				lisp_floor1_r(ptr);
+				float_floor1_r(ptr);
 			else
-				lisp_ceiling1_r(ptr);
+				float_ceiling1_r(ptr);
 		}
 		else {
 			if (evenp_bignum(ptr->quot))
-				lisp_ceiling1_r(ptr);
+				float_ceiling1_r(ptr);
 			else
-				lisp_floor1_r(ptr);
+				float_floor1_r(ptr);
 		}
 	}
 	else {
@@ -1635,20 +1635,20 @@ static void lisp_round1_r(struct divrem_struct *ptr)
 		division2_bigdata_alloc(ptr->local, &denom2, ptr->b);
 		if (plusp_ratio(ptr->pos)) {
 			if (compare_bb_real(ptr->rem, denom2) <= 0)
-				lisp_floor1_r(ptr);
+				float_floor1_r(ptr);
 			else
-				lisp_ceiling1_r(ptr);
+				float_ceiling1_r(ptr);
 		}
 		else {
 			if (compare_bb_real(ptr->rem, denom2) <= 0)
-				lisp_ceiling1_r(ptr);
+				float_ceiling1_r(ptr);
 			else
-				lisp_floor1_r(ptr);
+				float_floor1_r(ptr);
 		}
 	}
 }
 
-_g int lisp_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1661,13 +1661,13 @@ _g int lisp_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	}
 
 	divrem_struct_initialize1(local, &str, pos);
-	lisp_round1_r(&str);
+	float_round1_r(&str);
 	divrem_struct_integer(&str, quot, rem);
 
 	return 0;
 }
 
-_g int lisp_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1680,13 +1680,13 @@ _g int lisp_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	}
 
 	divrem_struct_initialize1(local, &str, pos);
-	lisp_floor1_r(&str);
+	float_floor1_r(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
 }
 
-_g int lisp_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1699,13 +1699,13 @@ _g int lisp_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	}
 
 	divrem_struct_initialize1(local, &str, pos);
-	lisp_ceiling1_r(&str);
+	float_ceiling1_r(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
 }
 
-_g int lisp_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	int sign;
 	struct divrem_struct str;
@@ -1719,13 +1719,13 @@ _g int lisp_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 
 	divrem_struct_initialize1(local, &str, pos);
 	GetSignRatio(pos, &sign);
-	lisp_floor1_nosign(&str, sign, sign);
+	float_floor1_nosign(&str, sign, sign);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
 }
 
-_g int lisp_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+_g int float_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1738,7 +1738,7 @@ _g int lisp_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	}
 
 	divrem_struct_initialize1(local, &str, pos);
-	lisp_round1_r(&str);
+	float_round1_r(&str);
 	Return(divrem_struct_float_(&str, quot, rem));
 
 	return 0;
@@ -1748,7 +1748,7 @@ _g int lisp_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 /*
  *  bignum-ratio
  */
-static int lisp_floor_br_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_floor_br_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	addr numer, denom;
 
@@ -1774,11 +1774,11 @@ static int lisp_floor_br_plus(LocalRoot local, addr *ret, int sign, addr a, addr
 	}
 }
 
-static int lisp_floor_br_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_floor_br_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
 
-	check = lisp_floor_br_plus(local, ret, sign, a, b);
+	check = float_floor_br_plus(local, ret, sign, a, b);
 	if (check)
 		plus_bv_bignum_local(local, *ret, -1, ret);
 
@@ -1792,7 +1792,7 @@ static void remainder_br_ratio(LocalRoot local, addr *ret, addr a, addr b, addr 
 	minus_br_ratio_local(local, a, b, ret);
 }
 
-static void lisp_floor_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_floor_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2, check;
 	addr q, r;
@@ -1801,9 +1801,9 @@ static void lisp_floor_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
 	if (IsPlus(sign))
-		check = lisp_floor_br_plus(local, &q, sign, a, b);
+		check = float_floor_br_plus(local, &q, sign, a, b);
 	else
-		check = lisp_floor_br_minus(local, &q, sign, a, b);
+		check = float_floor_br_minus(local, &q, sign, a, b);
 	if (check) {
 		remainder_br_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
@@ -1814,7 +1814,7 @@ static void lisp_floor_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	*quot = q;
 }
 
-_g int lisp_floor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_floor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1832,25 +1832,25 @@ _g int lisp_floor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	}
 
 	push_local(local, &stack);
-	lisp_floor_br(local, quot, rem, a, b);
+	float_floor_br(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int lisp_ceiling_br_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_ceiling_br_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
 
-	check = lisp_floor_br_plus(local, ret, sign, a, b);
+	check = float_floor_br_plus(local, ret, sign, a, b);
 	if (check)
 		plus_bv_bignum_local(local, *ret, 1, ret);
 
 	return check;
 }
 
-_g void lisp_ceiling_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_ceiling_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2, check;
 	addr q, r;
@@ -1859,9 +1859,9 @@ _g void lisp_ceiling_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
 	if (IsPlus(sign))
-		check = lisp_ceiling_br_minus(local, &q, sign, a, b);
+		check = float_ceiling_br_minus(local, &q, sign, a, b);
 	else
-		check = lisp_floor_br_plus(local, &q, sign, a, b);
+		check = float_floor_br_plus(local, &q, sign, a, b);
 	if (check) {
 		remainder_br_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
@@ -1872,7 +1872,7 @@ _g void lisp_ceiling_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 	*quot = q;
 }
 
-_g int lisp_ceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1890,14 +1890,14 @@ _g int lisp_ceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	}
 
 	push_local(local, &stack);
-	lisp_ceiling_br(local, quot, rem, a, b);
+	float_ceiling_br(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g void lisp_truncate_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_truncate_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2;
 	addr q, r;
@@ -1905,7 +1905,7 @@ _g void lisp_truncate_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 	GetSignBignum(a, &sign1);
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
-	if (lisp_floor_br_plus(local, &q, sign, a, b)) {
+	if (float_floor_br_plus(local, &q, sign, a, b)) {
 		remainder_br_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
 	}
@@ -1915,7 +1915,7 @@ _g void lisp_truncate_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 	*quot = q;
 }
 
-_g int lisp_truncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_truncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1933,14 +1933,14 @@ _g int lisp_truncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, a
 	}
 
 	push_local(local, &stack);
-	lisp_truncate_br(local, quot, rem, a, b);
+	float_truncate_br(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int lisp_round_br_check(LocalRoot local, addr a, addr b)
+static int float_round_br_check(LocalRoot local, addr a, addr b)
 {
 	int check, sign1, sign2;
 	addr numer, denom;
@@ -1961,25 +1961,25 @@ static int lisp_round_br_check(LocalRoot local, addr a, addr b)
 	SetSignBignum(b, sign2);
 
 	divrem_struct_initialize(local, &str, a, b);
-	check = lisp_round_bb_check(&str);
+	check = float_round_bb_check(&str);
 	divrem_struct_close(&str);
 	rollback_local(local, stack);
 
 	return check;
 }
 
-static void lisp_round_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_round_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int check;
 
-	check = lisp_round_br_check(local, a, b);
+	check = float_round_br_check(local, a, b);
 	if (check < 0)
-		lisp_floor_br(local, quot, rem, a, b);
+		float_floor_br(local, quot, rem, a, b);
 	else
-		lisp_ceiling_br(local, quot, rem, a, b);
+		float_ceiling_br(local, quot, rem, a, b);
 }
 
-_g int lisp_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1997,14 +1997,14 @@ _g int lisp_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	}
 
 	push_local(local, &stack);
-	lisp_round_br(local, quot, rem, a, b);
+	float_round_br(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2022,14 +2022,14 @@ _g int lisp_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	}
 
 	push_local(local, &stack);
-	lisp_floor_br(local, quot, rem, a, b);
+	float_floor_br(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2047,14 +2047,14 @@ _g int lisp_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, a
 	}
 
 	push_local(local, &stack);
-	lisp_ceiling_br(local, quot, rem, a, b);
+	float_ceiling_br(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2072,14 +2072,14 @@ _g int lisp_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, 
 	}
 
 	push_local(local, &stack);
-	lisp_truncate_br(local, quot, rem, a, b);
+	float_truncate_br(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2097,7 +2097,7 @@ _g int lisp_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	}
 
 	push_local(local, &stack);
-	lisp_round_br(local, quot, rem, a, b);
+	float_round_br(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
@@ -2108,7 +2108,7 @@ _g int lisp_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 /*
  *  ratio-bignum
  */
-static int lisp_floor_rb_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_floor_rb_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	addr numer, denom;
 
@@ -2134,11 +2134,11 @@ static int lisp_floor_rb_plus(LocalRoot local, addr *ret, int sign, addr a, addr
 	}
 }
 
-static int lisp_floor_rb_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_floor_rb_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
 
-	check = lisp_floor_rb_plus(local, ret, sign, a, b);
+	check = float_floor_rb_plus(local, ret, sign, a, b);
 	if (check)
 		plus_bv_bignum_local(local, *ret, -1, ret);
 
@@ -2152,7 +2152,7 @@ static void remainder_rb_ratio(LocalRoot local, addr *ret, addr a, addr b, addr 
 	minus_rb_ratio_local(local, a, b, ret);
 }
 
-static void lisp_floor_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_floor_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2, check;
 	addr q, r;
@@ -2161,9 +2161,9 @@ static void lisp_floor_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	GetSignBignum(b, &sign2);
 	sign = SignMulti(sign1, sign2);
 	if (IsPlus(sign))
-		check = lisp_floor_rb_plus(local, &q, sign, a, b);
+		check = float_floor_rb_plus(local, &q, sign, a, b);
 	else
-		check = lisp_floor_rb_minus(local, &q, sign, a, b);
+		check = float_floor_rb_minus(local, &q, sign, a, b);
 	if (check) {
 		remainder_rb_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
@@ -2174,7 +2174,7 @@ static void lisp_floor_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	*quot = q;
 }
 
-_g int lisp_floor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_floor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2191,25 +2191,25 @@ _g int lisp_floor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_floor_rb(local, quot, rem, a, b);
+	float_floor_rb(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int lisp_ceiling_rb_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_ceiling_rb_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
 
-	check = lisp_floor_rb_plus(local, ret, sign, a, b);
+	check = float_floor_rb_plus(local, ret, sign, a, b);
 	if (check)
 		plus_bv_bignum_local(local, *ret, 1, ret);
 
 	return check;
 }
 
-static void lisp_ceiling_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_ceiling_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2, check;
 	addr q, r;
@@ -2218,9 +2218,9 @@ static void lisp_ceiling_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	GetSignBignum(b, &sign2);
 	sign = SignMulti(sign1, sign2);
 	if (IsPlus(sign))
-		check = lisp_ceiling_rb_minus(local, &q, sign, a, b);
+		check = float_ceiling_rb_minus(local, &q, sign, a, b);
 	else
-		check = lisp_floor_rb_plus(local, &q, sign, a, b);
+		check = float_floor_rb_plus(local, &q, sign, a, b);
 	if (check) {
 		remainder_rb_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
@@ -2231,7 +2231,7 @@ static void lisp_ceiling_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	*quot = q;
 }
 
-_g int lisp_ceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2248,14 +2248,14 @@ _g int lisp_ceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_ceiling_rb(local, quot, rem, a, b);
+	float_ceiling_rb(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static void lisp_truncate_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_truncate_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2;
 	addr q, r;
@@ -2263,7 +2263,7 @@ static void lisp_truncate_rb(LocalRoot local, addr *quot, addr *rem, addr a, add
 	GetSignRatio(a, &sign1);
 	GetSignBignum(b, &sign2);
 	sign = SignMulti(sign1, sign2);
-	if (lisp_floor_rb_plus(local, &q, sign, a, b)) {
+	if (float_floor_rb_plus(local, &q, sign, a, b)) {
 		remainder_rb_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
 	}
@@ -2273,7 +2273,7 @@ static void lisp_truncate_rb(LocalRoot local, addr *quot, addr *rem, addr a, add
 	*quot = q;
 }
 
-_g int lisp_truncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_truncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2290,14 +2290,14 @@ _g int lisp_truncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, a
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_truncate_rb(local, quot, rem, a, b);
+	float_truncate_rb(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int lisp_round_rb_check(LocalRoot local, addr a, addr b)
+static int float_round_rb_check(LocalRoot local, addr a, addr b)
 {
 	int check, sign1, sign2;
 	addr numer, denom;
@@ -2318,25 +2318,25 @@ static int lisp_round_rb_check(LocalRoot local, addr a, addr b)
 	SetSignBignum(b, sign2);
 
 	divrem_struct_initialize(local, &str, a, b);
-	check = lisp_round_bb_check(&str);
+	check = float_round_bb_check(&str);
 	divrem_struct_close(&str);
 	rollback_local(local, stack);
 
 	return check;
 }
 
-_g void lisp_round_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_round_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int check;
 
-	check = lisp_round_rb_check(local, a, b);
+	check = float_round_rb_check(local, a, b);
 	if (check < 0)
-		lisp_floor_rb(local, quot, rem, a, b);
+		float_floor_rb(local, quot, rem, a, b);
 	else
-		lisp_ceiling_rb(local, quot, rem, a, b);
+		float_ceiling_rb(local, quot, rem, a, b);
 }
 
-_g int lisp_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2353,14 +2353,14 @@ _g int lisp_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_round_rb(local, quot, rem, a, b);
+	float_round_rb(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2377,14 +2377,14 @@ _g int lisp_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_floor_rb(local, quot, rem, a, b);
+	float_floor_rb(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2401,14 +2401,14 @@ _g int lisp_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, a
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_ceiling_rb(local, quot, rem, a, b);
+	float_ceiling_rb(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2425,14 +2425,14 @@ _g int lisp_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, 
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_truncate_rb(local, quot, rem, a, b);
+	float_truncate_rb(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2449,7 +2449,7 @@ _g int lisp_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_round_rb(local, quot, rem, a, b);
+	float_round_rb(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
@@ -2460,7 +2460,7 @@ _g int lisp_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 /*
  *  ratio-ratio
  */
-static int lisp_floor_rr_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_floor_rr_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	addr numer1, denom1, numer2, denom2;
 
@@ -2492,11 +2492,11 @@ static int lisp_floor_rr_plus(LocalRoot local, addr *ret, int sign, addr a, addr
 	}
 }
 
-static int lisp_floor_rr_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_floor_rr_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
 
-	check = lisp_floor_rr_plus(local, ret, sign, a, b);
+	check = float_floor_rr_plus(local, ret, sign, a, b);
 	if (check)
 		plus_bv_bignum_local(local, *ret, -1, ret);
 
@@ -2510,7 +2510,7 @@ static void remainder_rr_ratio(LocalRoot local, addr *ret, addr a, addr b, addr 
 	minus_rr_ratio_local(local, a, b, ret);
 }
 
-static void lisp_floor_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_floor_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2, check;
 	addr q, r;
@@ -2519,9 +2519,9 @@ static void lisp_floor_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
 	if (IsPlus(sign))
-		check = lisp_floor_rr_plus(local, &q, sign, a, b);
+		check = float_floor_rr_plus(local, &q, sign, a, b);
 	else
-		check = lisp_floor_rr_minus(local, &q, sign, a, b);
+		check = float_floor_rr_minus(local, &q, sign, a, b);
 	if (check) {
 		remainder_rr_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
@@ -2532,7 +2532,7 @@ static void lisp_floor_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	*quot = q;
 }
 
-_g int lisp_floor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_floor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2549,25 +2549,25 @@ _g int lisp_floor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_floor_rr(local, quot, rem, a, b);
+	float_floor_rr(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int lisp_ceiling_rr_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+static int float_ceiling_rr_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
 
-	check = lisp_floor_rr_plus(local, ret, sign, a, b);
+	check = float_floor_rr_plus(local, ret, sign, a, b);
 	if (check)
 		plus_bv_bignum_local(local, *ret, 1, ret);
 
 	return check;
 }
 
-static void lisp_ceiling_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_ceiling_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2, check;
 	addr q, r;
@@ -2576,9 +2576,9 @@ static void lisp_ceiling_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
 	if (IsPlus(sign))
-		check = lisp_ceiling_rr_minus(local, &q, sign, a, b);
+		check = float_ceiling_rr_minus(local, &q, sign, a, b);
 	else
-		check = lisp_floor_rr_plus(local, &q, sign, a, b);
+		check = float_floor_rr_plus(local, &q, sign, a, b);
 	if (check) {
 		remainder_rr_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
@@ -2589,7 +2589,7 @@ static void lisp_ceiling_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr
 	*quot = q;
 }
 
-_g int lisp_ceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2606,14 +2606,14 @@ _g int lisp_ceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_ceiling_rr(local, quot, rem, a, b);
+	float_ceiling_rr(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static void lisp_truncate_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_truncate_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int sign, sign1, sign2;
 	addr q, r;
@@ -2621,7 +2621,7 @@ static void lisp_truncate_rr(LocalRoot local, addr *quot, addr *rem, addr a, add
 	GetSignRatio(a, &sign1);
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
-	if (lisp_floor_rr_plus(local, &q, sign, a, b)) {
+	if (float_floor_rr_plus(local, &q, sign, a, b)) {
 		remainder_rr_ratio(local, &r, a, b, q);
 		ratio_result_noreduction_heap(local, r, rem);
 	}
@@ -2631,7 +2631,7 @@ static void lisp_truncate_rr(LocalRoot local, addr *quot, addr *rem, addr a, add
 	*quot = q;
 }
 
-_g int lisp_truncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_truncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2648,14 +2648,14 @@ _g int lisp_truncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, a
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_truncate_rr(local, quot, rem, a, b);
+	float_truncate_rr(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int lisp_round_rr_check(LocalRoot local, addr a, addr b)
+static int float_round_rr_check(LocalRoot local, addr a, addr b)
 {
 	int check, sign1, sign2;
 	addr numer1, denom1, numer2, denom2, reduct1, reduct2;
@@ -2708,25 +2708,25 @@ static int lisp_round_rr_check(LocalRoot local, addr a, addr b)
 	SetSignBignum(a, sign1);
 	SetSignBignum(b, sign2);
 	divrem_struct_initialize(local, &str, a, b);
-	check = lisp_round_bb_check(&str);
+	check = float_round_bb_check(&str);
 	divrem_struct_close(&str);
 	rollback_local(local, stack);
 
 	return check;
 }
 
-static void lisp_round_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void float_round_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	int check;
 
-	check = lisp_round_rr_check(local, a, b);
+	check = float_round_rr_check(local, a, b);
 	if (check < 0)
-		lisp_floor_rr(local, quot, rem, a, b);
+		float_floor_rr(local, quot, rem, a, b);
 	else
-		lisp_ceiling_rr(local, quot, rem, a, b);
+		float_ceiling_rr(local, quot, rem, a, b);
 }
 
-_g int lisp_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2743,14 +2743,14 @@ _g int lisp_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_round_rr(local, quot, rem, a, b);
+	float_round_rr(local, quot, rem, a, b);
 	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2767,14 +2767,14 @@ _g int lisp_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_floor_rr(local, quot, rem, a, b);
+	float_floor_rr(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2791,14 +2791,14 @@ _g int lisp_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, a
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_ceiling_rr(local, quot, rem, a, b);
+	float_ceiling_rr(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2815,14 +2815,14 @@ _g int lisp_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, 
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_truncate_rr(local, quot, rem, a, b);
+	float_truncate_rr(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+_g int float_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2839,7 +2839,7 @@ _g int lisp_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 		return 0;
 	}
 	push_local(local, &stack);
-	lisp_round_rr(local, quot, rem, a, b);
+	float_round_rr(local, quot, rem, a, b);
 	Return(single_float_bignum_heap_(quot, *quot));
 	rollback_local(local, stack);
 
@@ -2850,20 +2850,20 @@ _g int lisp_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 /*
  *  mod -> floor
  */
-_g int lisp_mod_fixnum_(addr *ret, fixnum a, fixnum b)
+_g int float_mod_fixnum_(addr *ret, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		fixnum_heap(ret, 0);
 	}
 	else {
-		Return(lisp_floor_f_(a, b, &a, &b));
+		Return(float_floor_f_(a, b, &a, &b));
 		fixnum_heap(ret, b);
 	}
 
 	return 0;
 }
 
-_g int lisp_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -2880,13 +2880,13 @@ _g int lisp_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_floor_bb(&str);
+	float_floor_bb(&str);
 	rem_struct_integer(&str, ret);
 
 	return 0;
 }
 
-_g int lisp_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2903,13 +2903,13 @@ _g int lisp_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	push_local(local, &stack);
-	lisp_floor_br(local, &a, ret, a, b);
+	float_floor_br(local, &a, ret, a, b);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2926,13 +2926,13 @@ _g int lisp_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	push_local(local, &stack);
-	lisp_floor_rb(local, &a, ret, a, b);
+	float_floor_rb(local, &a, ret, a, b);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2949,7 +2949,7 @@ _g int lisp_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	push_local(local, &stack);
-	lisp_floor_rr(local, &a, ret, a, b);
+	float_floor_rr(local, &a, ret, a, b);
 	rollback_local(local, stack);
 
 	return 0;
@@ -2966,15 +2966,15 @@ _g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 	Return(getmathreal2_addr_(&str, a, b, &type));
 	switch (type) {
 		case MathType_single:
-			Return(lisp_floor_s_(str.v.s.a, str.v.s.b, &igs, &vs));
+			Return(float_floor_s_(str.v.s.a, str.v.s.b, &igs, &vs));
 			return single_float_check_heap_(ret, vs);
 
 		case MathType_double:
-			Return(lisp_floor_d_(str.v.d.a, str.v.d.b, &igd, &vd));
+			Return(float_floor_d_(str.v.d.a, str.v.d.b, &igd, &vd));
 			return double_float_check_heap_(ret, vd);
 
 		case MathType_long:
-			Return(lisp_floor_l_(str.v.l.a, str.v.l.b, &igl, &vl));
+			Return(float_floor_l_(str.v.l.a, str.v.l.b, &igl, &vl));
 			return long_float_check_heap_(ret, vl);
 
 		case MathType_rational:
@@ -2992,20 +2992,20 @@ _g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  rem -> truncate
  */
-_g int lisp_rem_fixnum_(addr *ret, fixnum a, fixnum b)
+_g int float_rem_fixnum_(addr *ret, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		fixnum_heap(ret, 0);
 	}
 	else {
-		Return(lisp_truncate_f_(a, b, &a, &b));
+		Return(float_truncate_f_(a, b, &a, &b));
 		fixnum_heap(ret, b);
 	}
 
 	return 0;
 }
 
-_g int lisp_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -3022,13 +3022,13 @@ _g int lisp_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	divrem_struct_initialize(local, &str, a, b);
-	lisp_truncate_bb(&str);
+	float_truncate_bb(&str);
 	rem_struct_integer(&str, ret);
 
 	return 0;
 }
 
-_g int lisp_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -3045,13 +3045,13 @@ _g int lisp_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	push_local(local, &stack);
-	lisp_truncate_br(local, &a, ret, a, b);
+	float_truncate_br(local, &a, ret, a, b);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -3068,13 +3068,13 @@ _g int lisp_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	push_local(local, &stack);
-	lisp_truncate_rb(local, &a, ret, a, b);
+	float_truncate_rb(local, &a, ret, a, b);
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int lisp_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+_g int float_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -3091,7 +3091,7 @@ _g int lisp_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	}
 
 	push_local(local, &stack);
-	lisp_truncate_rr(local, &a, ret, a, b);
+	float_truncate_rr(local, &a, ret, a, b);
 	rollback_local(local, stack);
 
 	return 0;
@@ -3108,15 +3108,15 @@ _g int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 	Return(getmathreal2_addr_(&str, a, b, &type));
 	switch (type) {
 		case MathType_single:
-			Return(lisp_truncate_s_(str.v.s.a, str.v.s.b, &igs, &vs));
+			Return(float_truncate_s_(str.v.s.a, str.v.s.b, &igs, &vs));
 			return single_float_check_heap_(ret, vs);
 
 		case MathType_double:
-			Return(lisp_truncate_d_(str.v.d.a, str.v.d.b, &igd, &vd));
+			Return(float_truncate_d_(str.v.d.a, str.v.d.b, &igd, &vd));
 			return double_float_check_heap_(ret, vd);
 
 		case MathType_long:
-			Return(lisp_truncate_l_(str.v.l.a, str.v.l.b, &igl, &vl));
+			Return(float_truncate_l_(str.v.l.a, str.v.l.b, &igl, &vl));
 			return long_float_check_heap_(ret, vl);
 
 		case MathType_rational:

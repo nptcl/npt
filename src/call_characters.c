@@ -1,3 +1,4 @@
+#include "call_characters.h"
 #include "character.h"
 #include "character_name.h"
 #include "condition.h"

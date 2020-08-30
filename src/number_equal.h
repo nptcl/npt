@@ -5,6 +5,11 @@
 #include "real_equal.h"
 #include "typedef.h"
 
+#define zerop_numberp _n(zerop_numberp)
+#define zerop_number_ _n(zerop_number_)
+#define equal_number_ _n(equal_number_)
+#define not_equal_number_ _n(not_equal_number_)
+
 #define plusp_number_ plusp_real_
 #define minusp_number_ minusp_real_
 _g int zerop_numberp(addr left, int *ret);

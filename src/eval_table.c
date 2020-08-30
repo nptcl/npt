@@ -389,7 +389,7 @@ _g void setvalue_tablefunction(Execute ptr, addr pos, addr value)
 /*
  *  tabletagbody
  */
-_g void alloc_tabletagbody(LocalRoot local, addr *ret)
+static void alloc_tabletagbody(LocalRoot local, addr *ret)
 {
 	eval_alloc(local, ret, EVAL_TYPE_TABLETAGBODY,
 			TABLETAGBODY_INDEX_SIZE,
@@ -512,7 +512,7 @@ _g void setjump_tabletagbody(addr pos, size_t value)
 /*
  *  tableblock
  */
-_g void alloc_tableblock(LocalRoot local, addr *ret)
+static void alloc_tableblock(LocalRoot local, addr *ret)
 {
 	eval_alloc(local, ret, EVAL_TYPE_TABLEBLOCK,
 			TABLEBLOCK_INDEX_SIZE,
@@ -780,7 +780,7 @@ _g int getclosurep_evaltable(addr table)
 /*
  *  tablecall
  */
-_g void alloc_tablecall(LocalRoot local, addr *ret)
+static void alloc_tablecall(LocalRoot local, addr *ret)
 {
 	eval_alloc(local, ret, EVAL_TYPE_TABLECALL,
 			TABLECALL_INDEX_SIZE,

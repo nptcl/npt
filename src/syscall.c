@@ -7,6 +7,7 @@
 #include "type_constant.h"
 #include "type_table.h"
 #include "pointer.h"
+#include "syscall.h"
 #include "syscall_code.h"
 #include "symbol.h"
 

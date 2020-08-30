@@ -3,6 +3,22 @@
 
 #include "typedef.h"
 
+#define isbasechar _n(isbasechar)
+#define isuppercase _n(isuppercase)
+#define islowercase _n(islowercase)
+#define isdigitcase _n(isdigitcase)
+#define isalphabetic _n(isalphabetic)
+#define isalphanumeric _n(isalphanumeric)
+#define isgraphunicode _n(isgraphunicode)
+#define isspaceunicode _n(isspaceunicode)
+#define toupperunicode _n(toupperunicode)
+#define tolowerunicode _n(tolowerunicode)
+#define issurrogatepair _n(issurrogatepair)
+#define isbaserange _n(isbaserange)
+#define isstandardtype _n(isstandardtype)
+#define isbasetype _n(isbasetype)
+#define isextendedtype _n(isextendedtype)
+
 #define IntegerBaseMax		36
 #define isBaseChar(x)       (2 <= (x) && (x) <= IntegerBaseMax)
 #define isUpperCase(x)      ('A' <= (x) && (x) <= 'Z')

@@ -5,6 +5,21 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define lambda_common _n(lambda_common)
+#define eval_common _n(eval_common)
+#define compiler_macro_function_common _n(compiler_macro_function_common)
+#define setf_compiler_macro_function_common _n(setf_compiler_macro_function_common)
+#define define_compiler_macro_common _n(define_compiler_macro_common)
+#define set_define_compiler_macro _n(set_define_compiler_macro)
+#define compile_common _n(compile_common)
+#define defmacro_common _n(defmacro_common)
+#define macro_function_common_ _n(macro_function_common_)
+#define macroexpand_common _n(macroexpand_common)
+#define macroexpand_1_common _n(macroexpand_1_common)
+#define define_symbol_macro_common _n(define_symbol_macro_common)
+#define declaim_common _n(declaim_common)
+#define constantp_common _n(constantp_common)
+
 _g void lambda_common(addr form, addr *ret);
 _g int eval_common(Execute ptr, addr var);
 _g int compiler_macro_function_common(addr var, addr env, addr *ret);

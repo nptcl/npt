@@ -111,7 +111,7 @@ int test_extern_control(void);
 int test_extern_function(void);
 int test_extern_execute(void);
 int test_optimize(void);
-int loadrt(void);
+int test_loadrt(void);
 
 
 /*
@@ -120,7 +120,7 @@ int loadrt(void);
 void degrade_execute(void)
 {
 #ifdef LISP_DEGRADE_RTONLY
-	DegradeCheck(loadrt);
+	DegradeCheck(test_loadrt);
 #else
 #if 0
 #endif
@@ -226,7 +226,7 @@ void degrade_execute(void)
 	DegradeCheck(test_extern_function);
 	DegradeCheck(test_extern_execute);
 	DegradeCheck(test_optimize);
-	DegradeCheck(loadrt);
+	DegradeCheck(test_loadrt);
 #if 0
 #endif
 #endif

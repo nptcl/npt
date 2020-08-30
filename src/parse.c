@@ -10,6 +10,7 @@
 #include "parse_function.h"
 #include "load_time_value.h"
 #include "make_load_form.h"
+#include "parse.h"
 #include "parse_macro.h"
 #include "parse_object.h"
 #include "step.h"

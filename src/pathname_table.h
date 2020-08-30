@@ -6,6 +6,21 @@
 #include "pathname_localp.h"
 #include "typedef.h"
 
+#define init_fileparse _n(init_fileparse)
+#define pathname_fileparse_alloc _n(pathname_fileparse_alloc)
+#define wild_value_pathname_ _n(wild_value_pathname_)
+#define make_parse_logical_pathname_ _n(make_parse_logical_pathname_)
+#define pushrange_pathname_ _n(pushrange_pathname_)
+#define make_charqueue_fileparse _n(make_charqueue_fileparse)
+#define nametype_pathname_ _n(nametype_pathname_)
+#define pushdirectory_fileparse_ _n(pushdirectory_fileparse_)
+#define pushconstant_fileparse _n(pushconstant_fileparse)
+#define check_host_logical_pathname_ _n(check_host_logical_pathname_)
+#define check_drive_logical_pathname_ _n(check_drive_logical_pathname_)
+#define parser_logical_pathname_ _n(parser_logical_pathname_)
+#define parser_unix_pathname_ _n(parser_unix_pathname_)
+#define parser_windows_pathname_ _n(parser_windows_pathname_)
+
 struct fileparse {
 	unsigned junk : 1;
 	unsigned force_host : 1;

@@ -4,6 +4,16 @@
 #include "package_object.h"
 #include "typedef.h"
 
+#define make_bitpackage_symbol _n(make_bitpackage_symbol)
+#define internbitpackage _n(internbitpackage)
+#define importbitpackage _n(importbitpackage)
+#define inheritedbitpackage _n(inheritedbitpackage)
+#define shadowintern_bitpackage _n(shadowintern_bitpackage)
+#define shadowimport_bitpackage _n(shadowimport_bitpackage)
+#define intern_bitpackage_ _n(intern_bitpackage_)
+#define find_bitpackage_ _n(find_bitpackage_)
+#define find_char_bitpackage_ _n(find_char_bitpackage_)
+
 struct bittype_struct {
 	unsigned base : 1;
 	unsigned expt : 1;

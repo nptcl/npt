@@ -7,6 +7,7 @@
 #include "integer.h"
 #include "memory.h"
 #include "ratio.h"
+#include "ratio_multi.h"
 #include "ratio_plus.h"
 #include "typedef.h"
 

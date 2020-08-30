@@ -89,7 +89,7 @@ static int test_eval_single_parse_alloc(void)
 static int test_StructEvalParse(void)
 {
 	addr pos;
-	struct eval_parse *str;
+	struct parse_struct *str;
 
 	eval_single_parse_heap(&pos, EVAL_PARSE_T, T);
 	str = StructEvalParse(pos);

@@ -11,6 +11,7 @@
 #include "ratio.h"
 #include "real_decode.h"
 #include "strtype.h"
+#include "sxhash.h"
 #include "typedef.h"
 
 /*

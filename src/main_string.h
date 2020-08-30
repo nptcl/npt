@@ -5,6 +5,22 @@
 #include "main_typedef.h"
 #include "typedef.h"
 
+#define getsize_stringu _n(getsize_stringu)
+#define char_stringu _n(char_stringu)
+#define copy_stringu _n(copy_stringu)
+#define concatchar_stringu _n(concatchar_stringu)
+#define output_stringu _n(output_stringu)
+#define free_stringu _n(free_stringu)
+#define equal_stringu _n(equal_stringu)
+#define equalchar_stringu _n(equalchar_stringu)
+#define arrayu_argv_utf8 _n(arrayu_argv_utf8)
+#define arrayu_argv_utf16 _n(arrayu_argv_utf16)
+#define free_arrayu _n(free_arrayu)
+#define free_tableu _n(free_tableu)
+#define tableu_env_main _n(tableu_env_main)
+#define tableu_env_windows _n(tableu_env_windows)
+#define findchar_tableu _n(findchar_tableu)
+
 /* lispstringu */
 _g int getsize_stringu(lispstringu str, size_t *ret);
 _g lispstringu char_stringu(const char *str);

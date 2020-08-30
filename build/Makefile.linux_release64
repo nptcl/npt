@@ -7,9 +7,9 @@ depend = depend.mk
 a.out = npt
 
 LISP_C = -m64 -DLISP_64BIT
-LISP_C += -DLISP_LINUX -DLISP_THREAD -DLISP_PROMPT_READLINE
+LISP_C += -DLISP_LINUX -DLISP_PROMPT_READLINE
 LISP_C += -DLISP_DEGRADE -DLISP_MODE_STANDALONE -O3
-LISP_LIB = -lm -lpthread -lreadline
+LISP_LIB = -lm -lreadline
 CFLAGS = -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}

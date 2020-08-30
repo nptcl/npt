@@ -4,6 +4,24 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define environment_symbol _n(environment_symbol)
+#define init_parse_environment _n(init_parse_environment)
+#define snapshot_envstack_ _n(snapshot_envstack_)
+#define rollback_envstack_ _n(rollback_envstack_)
+#define defmacro_envstack_ _n(defmacro_envstack_)
+#define macrolet_envstack_ _n(macrolet_envstack_)
+#define define_symbol_macro_envstack_ _n(define_symbol_macro_envstack_)
+#define symbol_macrolet_envstack_ _n(symbol_macrolet_envstack_)
+#define symbol_macrolet_envstack_p_ _n(symbol_macrolet_envstack_p_)
+#define environment_heap_ _n(environment_heap_)
+#define copy_environment _n(copy_environment)
+#define close_environment _n(close_environment)
+#define parse_cons_check_macro _n(parse_cons_check_macro)
+#define find_environment_ _n(find_environment_)
+#define call_macroexpand_hook _n(call_macroexpand_hook)
+#define macroexpand1 _n(macroexpand1)
+#define macroexpand _n(macroexpand)
+
 _g void environment_symbol(addr *ret);
 _g void init_parse_environment(Execute ptr);
 _g int snapshot_envstack_(Execute ptr, addr *ret);

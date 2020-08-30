@@ -1,5 +1,6 @@
 #include "control_operator.h"
 #include "function.h"
+#include "reader_dispatch.h"
 #include "reader_function.h"
 #include "symbol.h"
 #include "type_table.h"

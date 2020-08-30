@@ -1,6 +1,7 @@
 #include "code_object.h"
 #include "core_store.h"
 #include "file_memory.h"
+#include "heap_core.h"
 #include "heap_memory.h"
 #include "memory.h"
 #include "stream.h"

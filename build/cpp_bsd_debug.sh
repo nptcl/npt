@@ -9,7 +9,7 @@ cat << __EOF__ > Makefile
 VPATH = src:test
 CC = c++
 CFLAGS = -g -Wall -Wno-deprecated -fstack-protector -Isrc -Itest
-CFLAGS += -DLISP_FREEBSD -DLISP_EDITLINE -DLISP_DEBUG -DLISP_MODE_STANDARD
+CFLAGS += -DLISP_FREEBSD -DLISP_EDITLINE -DLISP_MODE_STANDARD -DLISP_DEBUG
 a.out = npt
 source = ${files}
 object = \$(source:.c=.o)

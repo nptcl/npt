@@ -241,36 +241,3 @@ _g void mop_argument_method_print_object(addr *ret, addr clos)
 	*ret = pos;
 }
 
-
-/*
- *  function
- */
-_g void init_mop_reader(void);
-_g void init_mop_class(void);
-_g void init_mop_generic(void);
-_g void init_mop_protocols(void);
-
-_g int build_mop_class_(Execute ptr);
-_g int build_mop_reader_(Execute ptr);
-_g int build_mop_generic_(Execute ptr);
-_g int build_mop_protocols_(Execute ptr);
-
-_g void init_metaobject_protocol(void)
-{
-	init_mop_class();
-	init_mop_reader();
-	init_mop_generic();
-	init_mop_protocols();
-}
-
-_g void build_metaobject_protocol(void)
-{
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	Error(build_mop_class_(ptr));
-	Error(build_mop_reader_(ptr));
-	Error(build_mop_generic_(ptr));
-	Error(build_mop_protocols_(ptr));
-}
-

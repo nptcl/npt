@@ -1,3 +1,4 @@
+#include "code.h"
 #include "code_init.h"
 #include "code_make.h"
 #include "optimize_common.h"

@@ -7,6 +7,29 @@
 #include "parse.h"
 #include "typedef.h"
 
+#define eval_scope_heap_ _n(eval_scope_heap_)
+#define eval_scope_size_ _n(eval_scope_size_)
+#define make_eval_scope_ _n(make_eval_scope_)
+#define structevalscope _n(structevalscope)
+#define refevalscopetype _n(refevalscopetype)
+#define getevalscopetype _n(getevalscopetype)
+#define setevalscopetype _n(setevalscopetype)
+#define refevalscopethe _n(refevalscopethe)
+#define getevalscopethe _n(getevalscopethe)
+#define setevalscopethe _n(setevalscopethe)
+#define refevalscopevalue _n(refevalscopevalue)
+#define getevalscopevalue _n(getevalscopevalue)
+#define setevalscopevalue _n(setevalscopevalue)
+#define refevalscopeindex _n(refevalscopeindex)
+#define getevalscopeindex _n(getevalscopeindex)
+#define setevalscopeindex _n(setevalscopeindex)
+#define EvalScopeTable _n(EvalScopeTable)
+#define scope_eval _n(scope_eval)
+#define scope_allcons _n(scope_allcons)
+#define localhold_scope_eval _n(localhold_scope_eval)
+#define localhold_scope_allcons _n(localhold_scope_allcons)
+#define scope_eval_lexical _n(scope_eval_lexical)
+
 enum EVAL_SCOPE {
 	EVAL_SCOPE_THE,
 	EVAL_SCOPE_VALUE,

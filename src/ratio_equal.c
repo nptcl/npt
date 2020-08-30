@@ -7,6 +7,7 @@
 #include "condition.h"
 #include "memory.h"
 #include "ratio.h"
+#include "ratio_equal.h"
 #include "real_equal.h"
 #include "typedef.h"
 

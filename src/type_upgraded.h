@@ -4,6 +4,19 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define upgraded_array0_equal _n(upgraded_array0_equal)
+#define upgraded_array_value_ _n(upgraded_array_value_)
+#define upgraded_array_object _n(upgraded_array_object)
+#define upgraded_array_type_ _n(upgraded_array_type_)
+#define upgraded_array_const _n(upgraded_array_const)
+#define upgraded_array_common _n(upgraded_array_common)
+#define upgraded_array_t_local _n(upgraded_array_t_local)
+#define upgraded_array_bit_local _n(upgraded_array_bit_local)
+#define upgraded_array_character_local _n(upgraded_array_character_local)
+#define upgraded_complex_type_ _n(upgraded_complex_type_)
+#define upgraded_complex_common _n(upgraded_complex_common)
+#define build_type_upgraded _n(build_type_upgraded)
+
 /*
  *  upgraded-array-element-type
  */

@@ -1,55 +1,8 @@
 /*
  *  ANSI COMMON LISP Function
  */
-#include "common_header.h"
-
-_g void init_common_eval(void);
-_g void init_common_types(void);
-_g void init_common_data(void);
-_g void init_common_iteration(void);
-_g void init_common_objects(void);
-_g void init_common_structures(void);
-_g void init_common_conditions(void);
-_g void init_common_symbols(void);
-_g void init_common_packages(void);
-_g void init_common_numbers(void);
-_g void init_common_characters(void);
-_g void init_common_conses(void);
-_g void init_common_arrays(void);
-_g void init_common_strings(void);
-_g void init_common_sequences(void);
-_g void init_common_hashtables(void);
-_g void init_common_filenames(void);
-_g void init_common_files(void);
-_g void init_common_streams(void);
-_g void init_common_printer(void);
-_g void init_common_reader(void);
-_g void init_common_system(void);
-_g void init_common_environment(void);
-
-_g void build_common_eval(void);
-_g void build_common_types(void);
-_g void build_common_data(void);
-_g void build_common_iteration(void);
-_g void build_common_objects(void);
-_g void build_common_structures(void);
-_g void build_common_conditions(void);
-_g void build_common_symbols(void);
-_g void build_common_packages(void);
-_g void build_common_numbers(void);
-_g void build_common_characters(void);
-_g void build_common_conses(void);
-_g void build_common_arrays(void);
-_g void build_common_strings(void);
-_g void build_common_sequences(void);
-_g void build_common_hashtables(void);
-_g void build_common_filenames(void);
-_g void build_common_files(void);
-_g void build_common_streams(void);
-_g void build_common_printer(void);
-_g void build_common_reader(void);
-_g void build_common_system(void);
-_g void build_common_environment(void);
+#include "common.h"
+#include "typedef.h"
 
 _g void init_common(void)
 {

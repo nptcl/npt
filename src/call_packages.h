@@ -4,6 +4,25 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define export_common_ _n(export_common_)
+#define find_symbol_common_ _n(find_symbol_common_)
+#define import_common_ _n(import_common_)
+#define rename_package_common_ _n(rename_package_common_)
+#define shadow_common_ _n(shadow_common_)
+#define shadowing_import_common_ _n(shadowing_import_common_)
+#define make_package_common_ _n(make_package_common_)
+#define with_package_iterator_common _n(with_package_iterator_common)
+#define unexport_common_ _n(unexport_common_)
+#define unintern_common_ _n(unintern_common_)
+#define in_package_common _n(in_package_common)
+#define unuse_package_common_ _n(unuse_package_common_)
+#define use_package_common_ _n(use_package_common_)
+#define defpackage_common _n(defpackage_common)
+#define do_symbols_common _n(do_symbols_common)
+#define do_external_symbols_common _n(do_external_symbols_common)
+#define do_all_symbols_common _n(do_all_symbols_common)
+#define intern_common_ _n(intern_common_)
+
 _g int export_common_(Execute ptr, addr symbols, addr pg);
 _g int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *state);
 _g int import_common_(Execute ptr, addr symbols, addr pg);

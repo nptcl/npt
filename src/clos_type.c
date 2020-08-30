@@ -4,6 +4,7 @@
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_generic.h"
+#include "clos_type.h"
 #include "condition.h"
 #include "constant.h"
 #include "function.h"

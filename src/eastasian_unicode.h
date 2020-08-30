@@ -26,6 +26,12 @@ struct eastasian_struct {
     enum EastAsianType c;
 };
 
+#define EastAsianSymbol _n(EastAsianSymbol)
+#define EastAsianAscii _n(EastAsianAscii)
+#define EastAsianTable _n(EastAsianTable)
+#define eastasian_symbol _n(eastasian_symbol)
+#define eastasian_width _n(eastasian_width)
+#define init_eastasian _n(init_eastasian)
 __extern unsigned EastAsianSymbol[EastAsian_Size];
 __extern const enum EastAsianType EastAsianAscii[0x80];
 __extern const struct eastasian_struct EastAsianTable[EastAsianTable_Size];

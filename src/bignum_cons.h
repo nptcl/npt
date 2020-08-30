@@ -6,6 +6,14 @@
 #include "memory.h"
 #include "typedef.h"
 
+#define bigcons_local _n(bigcons_local)
+#define clear_bigcons _n(clear_bigcons)
+#define push_bigcons _n(push_bigcons)
+#define setchar_bigcons_ _n(setchar_bigcons_)
+#define bigcons_char_local_ _n(bigcons_char_local_)
+#define bigcons_char_unsafe _n(bigcons_char_unsafe)
+#define bigcons_empty_p _n(bigcons_empty_p)
+
 #define PtrBigbuffer(x) PtrBodyABa(x, 1)
 #define StructBigbuffer(x) ((struct bigbuffer *)PtrBigbuffer(x))
 #define SetNextBigbuffer(x,v) SetArrayAB(x,0,v)

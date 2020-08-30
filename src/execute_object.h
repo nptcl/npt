@@ -4,6 +4,28 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define init_execute_values _n(init_execute_values)
+#define save_values_control _n(save_values_control)
+#define restore_values_control _n(restore_values_control)
+#define normal_throw_control _n(normal_throw_control)
+#define save_throw_control _n(save_throw_control)
+#define restore_throw_control _n(restore_throw_control)
+#define save_execute_control _n(save_execute_control)
+#define restore_execute_control _n(restore_execute_control)
+#define lexical_control _n(lexical_control)
+#define getlow_lexical_debug _n(getlow_lexical_debug)
+#define setlow_lexical_debug _n(setlow_lexical_debug)
+#define get_lexical_control _n(get_lexical_control)
+#define set_lexical_control _n(set_lexical_control)
+#define reference_lexical_control _n(reference_lexical_control)
+#define closure_heap _n(closure_heap)
+#define get_closure _n(get_closure)
+#define lexical_closure _n(lexical_closure)
+#define reference_heap _n(reference_heap)
+#define get_reference _n(get_reference)
+#define set_reference _n(set_reference)
+#define getvalue_reference _n(getvalue_reference)
+
 /* values */
 #define SetExecuteValues			SetArrayA4
 #define GetExecuteValues			GetArrayA4

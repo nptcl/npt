@@ -4,6 +4,8 @@
 #include "float_object.h"
 #include "ratio.h"
 #include "rational.h"
+#include "real.h"
+#include "real_common.h"
 #include "typedef.h"
 
 _g int floatp(addr pos)
@@ -144,5 +146,14 @@ _g int cast_double_float_unsafe_(addr value, double_float *ret)
 	}
 
 	return 0;
+}
+
+
+/*
+ *  build_real
+ */
+_g void build_real(void)
+{
+	build_real_common();
 }
 

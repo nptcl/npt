@@ -21,15 +21,15 @@ typedef long double complex long_complex;
 #define cacoshl cacosh
 #define catanhl catanh
 
-_g single_complex clogf_define(single_complex z)
+static single_complex clogf_define(single_complex z)
 {
 	return logf(cabsf(z)) + I * cargf(z);
 }
-_g double_complex clogd_define(double_complex z)
+static double_complex clogd_define(double_complex z)
 {
 	return log(cabs(z)) + I * carg(z);
 }
-_g long_complex clogl_define(long_complex z)
+static long_complex clogl_define(long_complex z)
 {
 	return logl(cabsl(z)) + I * cargl(z);
 }

@@ -172,7 +172,7 @@ static void build_float_epsilon(void)
 	SetConstant(CONSTANT_SINGLE_FLOAT_NEGATIVE_EPSILON, value);
 }
 
-_g void build_real(void)
+_g void build_real_common(void)
 {
 	build_index_max();
 	build_float_max();

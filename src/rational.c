@@ -2,6 +2,7 @@
 #include "bignum_object.h"
 #include "condition.h"
 #include "ratio.h"
+#include "rational.h"
 #include "integer.h"
 #include "typedef.h"
 

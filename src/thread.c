@@ -39,44 +39,44 @@
 /*
  *  tools
  */
-_g void threaderror(void)
+_g void lispd_threaderror(void)
 {
 	Abort("thread error");
 }
 
-_g void wrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
+_g void lispd_wrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 {
 	if (lock1 == lock2) {
-		wrlock_rwlocklite(lock1);
+		lispd_wrlock_rwlocklite(lock1);
 		return;
 	}
 	if (lock2 < lock1)
 		goto trylock2;
 
 trylock1:
-	wrlock_rwlocklite(lock1);
-	if (trywrlock_rwlocklite(lock2) == 0) return;
-	unwrlock_rwlocklite(lock1);
+	lispd_wrlock_rwlocklite(lock1);
+	if (lispd_trywrlock_rwlocklite(lock2) == 0) return;
+	lispd_unwrlock_rwlocklite(lock1);
 trylock2:
-	wrlock_rwlocklite(lock2);
-	if (trywrlock_rwlocklite(lock1) == 0) return;
-	unwrlock_rwlocklite(lock2);
+	lispd_wrlock_rwlocklite(lock2);
+	if (lispd_trywrlock_rwlocklite(lock1) == 0) return;
+	lispd_unwrlock_rwlocklite(lock2);
 	goto trylock1;
 }
 
-_g void unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
+_g void lispd_unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 {
 	if (lock1 == lock2) {
-		unwrlock_rwlocklite(lock1);
+		lispd_unwrlock_rwlocklite(lock1);
 	}
 	else {
-		unwrlock_rwlocklite(lock1);
-		unwrlock_rwlocklite(lock2);
+		lispd_unwrlock_rwlocklite(lock1);
+		lispd_unwrlock_rwlocklite(lock2);
 	}
 }
 
 #define SwapVariable(a,b,temp) { temp = a; a = b; b = temp; }
-_g void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
+_g void lispd_wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 {
 	int check1, check2;
 	rwlocklite *temp;
@@ -84,16 +84,16 @@ _g void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 	check1 = (m1 == m2);
 	check2 = (m2 == m3);
 	if (check1 && check2) {
-		wrlock_rwlocklite(m1);
+		lispd_wrlock_rwlocklite(m1);
 	}
 	else if (check1) {
-		wrlock2_rwlocklite(m2, m3);
+		lispd_wrlock2_rwlocklite(m2, m3);
 	}
 	else if (check2) {
-		wrlock2_rwlocklite(m3, m1);
+		lispd_wrlock2_rwlocklite(m3, m1);
 	}
 	else if (m3 == m1) {
-		wrlock2_rwlocklite(m1, m2);
+		lispd_wrlock2_rwlocklite(m1, m2);
 	}
 	else {
 		if (m2 < m1) SwapVariable(m2, m1, temp);
@@ -101,63 +101,63 @@ _g void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 		if (m3 < m2) SwapVariable(m3, m2, temp);
 
 trylock1: /* m1->m2->m3 */
-		wrlock_rwlocklite(m1);
-		if (trywrlock_rwlocklite(m2) == 0) {
-			if (trywrlock_rwlocklite(m3) == 0) return;
-			unwrlock_rwlocklite(m2);
-			unwrlock_rwlocklite(m1);
+		lispd_wrlock_rwlocklite(m1);
+		if (lispd_trywrlock_rwlocklite(m2) == 0) {
+			if (lispd_trywrlock_rwlocklite(m3) == 0) return;
+			lispd_unwrlock_rwlocklite(m2);
+			lispd_unwrlock_rwlocklite(m1);
 			goto trylock3;
 		}
-		unwrlock_rwlocklite(m1);
+		lispd_unwrlock_rwlocklite(m1);
 
 trylock2: /* m2->m3->m1 */
-		wrlock_rwlocklite(m2);
-		if (trywrlock_rwlocklite(m3) == 0) {
-			if (trywrlock_rwlocklite(m1) == 0) return;
-			unwrlock_rwlocklite(m3);
-			unwrlock_rwlocklite(m2);
+		lispd_wrlock_rwlocklite(m2);
+		if (lispd_trywrlock_rwlocklite(m3) == 0) {
+			if (lispd_trywrlock_rwlocklite(m1) == 0) return;
+			lispd_unwrlock_rwlocklite(m3);
+			lispd_unwrlock_rwlocklite(m2);
 			goto trylock1;
 		}
-		unwrlock_rwlocklite(m2);
+		lispd_unwrlock_rwlocklite(m2);
 
 trylock3: /* m3->m1->m2 */
-		wrlock_rwlocklite(m3);
-		if (trywrlock_rwlocklite(m1) == 0) {
-			if (trywrlock_rwlocklite(m2) == 0) return;
-			unwrlock_rwlocklite(m1);
-			unwrlock_rwlocklite(m3);
+		lispd_wrlock_rwlocklite(m3);
+		if (lispd_trywrlock_rwlocklite(m1) == 0) {
+			if (lispd_trywrlock_rwlocklite(m2) == 0) return;
+			lispd_unwrlock_rwlocklite(m1);
+			lispd_unwrlock_rwlocklite(m3);
 			goto trylock2;
 		}
-		unwrlock_rwlocklite(m3);
+		lispd_unwrlock_rwlocklite(m3);
 		goto trylock1;
 	}
 }
 
-_g void unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
+_g void lispd_unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 {
 	int check1, check2;
 
 	check1 = (m1 == m2);
 	check2 = (m2 == m3);
 	if (check1 && check2) {
-		unwrlock_rwlocklite(m1);
+		lispd_unwrlock_rwlocklite(m1);
 	}
 	else if (check1) {
-		unwrlock_rwlocklite(m2);
-		unwrlock_rwlocklite(m3);
+		lispd_unwrlock_rwlocklite(m2);
+		lispd_unwrlock_rwlocklite(m3);
 	}
 	else if (check2) {
-		unwrlock_rwlocklite(m3);
-		unwrlock_rwlocklite(m1);
+		lispd_unwrlock_rwlocklite(m3);
+		lispd_unwrlock_rwlocklite(m1);
 	}
 	else if (m3 == m1) {
-		unwrlock_rwlocklite(m1);
-		unwrlock_rwlocklite(m2);
+		lispd_unwrlock_rwlocklite(m1);
+		lispd_unwrlock_rwlocklite(m2);
 	}
 	else {
-		unwrlock_rwlocklite(m1);
-		unwrlock_rwlocklite(m2);
-		unwrlock_rwlocklite(m3);
+		lispd_unwrlock_rwlocklite(m1);
+		lispd_unwrlock_rwlocklite(m2);
+		lispd_unwrlock_rwlocklite(m3);
 	}
 }
 

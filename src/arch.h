@@ -5,6 +5,15 @@
 #include <stddef.h>
 #include "typedef.h"
 
+#define read_posix _n(read_posix)
+#define readforce_posix _n(readforce_posix)
+#define read_windows _n(read_windows)
+#define readforce_windows _n(readforce_windows)
+#define read_clang _n(read_clang)
+#define readforce_clang _n(readforce_clang)
+#define multisafe_size _n(multisafe_size)
+#define plussafe_size _n(plussafe_size)
+
 /* readforce */
 #ifdef LISP_POSIX
 _g int read_posix(int file, void *pos, size_t size, size_t *ret);

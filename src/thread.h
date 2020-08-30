@@ -5,43 +5,42 @@
 #include "typedef.h"
 #include "typedef_thread.h"
 
-
 /*
  *  single
  */
 #ifdef LISP_THREAD_SINGLE
 /* mutex */
-_g int make_mutexlite(mutexlite *mutex);
-_g void destroy_mutexlite(mutexlite *mutex);
-_g void lock_mutexlite(mutexlite *mutex);
-_g int trylock_mutexlite(mutexlite *mutex);
-_g void unlock_mutexlite(mutexlite *mutex);
+_g int lispd_make_mutexlite(mutexlite *mutex);
+_g void lispd_destroy_mutexlite(mutexlite *mutex);
+_g void lispd_lock_mutexlite(mutexlite *mutex);
+_g int lispd_trylock_mutexlite(mutexlite *mutex);
+_g void lispd_unlock_mutexlite(mutexlite *mutex);
 /* read / write */
-_g int make_rwlocklite(rwlocklite *lock);
-_g void destroy_rwlocklite(rwlocklite *lock);
-_g void rdlock_rwlocklite(rwlocklite *lock);
-_g void wrlock_rwlocklite(rwlocklite *lock);
-_g int tryrdlock_rwlocklite(rwlocklite *lock);
-_g int trywrlock_rwlocklite(rwlocklite *lock);
-_g void unrdlock_rwlocklite(rwlocklite *lock);
-_g void unwrlock_rwlocklite(rwlocklite *lock);
+_g int lispd_make_rwlocklite(rwlocklite *lock);
+_g void lispd_destroy_rwlocklite(rwlocklite *lock);
+_g void lispd_rdlock_rwlocklite(rwlocklite *lock);
+_g void lispd_wrlock_rwlocklite(rwlocklite *lock);
+_g int lispd_tryrdlock_rwlocklite(rwlocklite *lock);
+_g int lispd_trywrlock_rwlocklite(rwlocklite *lock);
+_g void lispd_unrdlock_rwlocklite(rwlocklite *lock);
+_g void lispd_unwrlock_rwlocklite(rwlocklite *lock);
 /* thread local */
-_g void make_threadlocal(threadlocal *key);
-_g void destroy_threadlocal(threadlocal key);
-_g const void *get_threadlocal(threadlocal key);
-_g void set_threadlocal(threadlocal key, const void *value);
+_g void lispd_make_threadlocal(threadlocal *key);
+_g void lispd_destroy_threadlocal(threadlocal key);
+_g const void *lispd_get_threadlocal(threadlocal key);
+_g void lispd_set_threadlocal(threadlocal key, const void *value);
 /* binary semaphore */
-_g void make_binsem(binsem *x);
-_g void destroy_binsem(binsem *x);
-_g void lock_binsem(binsem *x);
-_g int trylock_binsem(binsem *x);
-_g void unlock_binsem(binsem *x);
+_g void lispd_make_binsem(binsem *x);
+_g void lispd_destroy_binsem(binsem *x);
+_g void lispd_lock_binsem(binsem *x);
+_g int lispd_trylock_binsem(binsem *x);
+_g void lispd_unlock_binsem(binsem *x);
 /* condition variable */
-_g void make_condlite(condlite *x);
-_g void destroy_condlite(condlite *x);
-_g void wait_condlite(condlite *x, mutexlite *m);
-_g void signal_condlite(condlite *x);
-_g void broadcast_condlite(condlite *x);
+_g void lispd_make_condlite(condlite *x);
+_g void lispd_destroy_condlite(condlite *x);
+_g void lispd_wait_condlite(condlite *x, mutexlite *m);
+_g void lispd_signal_condlite(condlite *x);
+_g void lispd_broadcast_condlite(condlite *x);
 #endif
 
 
@@ -50,40 +49,40 @@ _g void broadcast_condlite(condlite *x);
  */
 #ifdef LISP_THREAD_REMOVE
 /* mutex */
-#define make_mutexlite(mutex) (*(mutex) = 0)
-#define destroy_mutexlite(mutex) ((void)mutex)
-#define lock_mutexlite(mutex) ((void)mutex)
-#define trylock_mutexlite(mutex) 0
-#define unlock_mutexlite(mutex) ((void)mutex)
+#define lispd_make_mutexlite(mutex) (*(mutex) = 0)
+#define lispd_destroy_mutexlite(mutex) ((void)mutex)
+#define lispd_lock_mutexlite(mutex) ((void)mutex)
+#define lispd_trylock_mutexlite(mutex) 0
+#define lispd_unlock_mutexlite(mutex) ((void)mutex)
 /* read / write */
-#define make_rwlocklite(rw) (*(rw) = 0)
-#define destroy_rwlocklite(rw) ((void)rw)
-#define rdlock_rwlocklite(rw) ((void)rw)
-#define wrlock_rwlocklite(rw) ((void)rw)
-#define tryrdlock_rwlocklite(rw) 0
-#define trywrlock_rwlocklite(rw) 0
-#define unrdlock_rwlocklite(rw) ((void)rw)
-#define unwrlock_rwlocklite(rw)((void)rw)
+#define lispd_make_rwlocklite(rw) (*(rw) = 0)
+#define lispd_destroy_rwlocklite(rw) ((void)rw)
+#define lispd_rdlock_rwlocklite(rw) ((void)rw)
+#define lispd_wrlock_rwlocklite(rw) ((void)rw)
+#define lispd_tryrdlock_rwlocklite(rw) 0
+#define lispd_trywrlock_rwlocklite(rw) 0
+#define lispd_unrdlock_rwlocklite(rw) ((void)rw)
+#define lispd_unwrlock_rwlocklite(rw)((void)rw)
 /* thread local */
-#define make_threadlocal(key) ((void)key)
-#define destroy_threadlocal(key) ((void)key)
+#define lispd_make_threadlocal(key) ((void)key)
+#define lispd_destroy_threadlocal(key) ((void)key)
 /*static int __get_threadlocal;
-#define get_threadlocal(key) ((void *)&__get_threadlocal)
+#define lispd_get_threadlocal(key) ((void *)&__get_threadlocal)
  */
-#define get_threadlocal(key) ((void *)NULL)
-#define set_threadlocal(key, value) ((void)NULL)
+#define lispd_get_threadlocal(key) ((void *)NULL)
+#define lispd_set_threadlocal(key, value) ((void)NULL)
 /* binary semaphore */
-#define make_binsem(x) (*(x) = 0)
-#define destroy_binsem(x) ((void)x)
-#define lock_binsem(x) ((void)x)
-#define trylock_binsem(x) 0
-#define unlock_binsem(x) ((void)x)
+#define lispd_make_binsem(x) (*(x) = 0)
+#define lispd_destroy_binsem(x) ((void)x)
+#define lispd_lock_binsem(x) ((void)x)
+#define lispd_trylock_binsem(x) 0
+#define lispd_unlock_binsem(x) ((void)x)
 /* condition variable */
-#define make_condlite(x) (*(x) = 0)
-#define destroy_condlite(x) ((void)x)
-#define wait_condlite(x, m)  ((void)x)
-#define signal_condlite(x)  ((void)x)
-#define broadcast_condlite(x)  ((void)x)
+#define lispd_make_condlite(x) (*(x) = 0)
+#define lispd_destroy_condlite(x) ((void)x)
+#define lispd_wait_condlite(x, m)  ((void)x)
+#define lispd_signal_condlite(x)  ((void)x)
+#define lispd_broadcast_condlite(x)  ((void)x)
 #endif
 
 
@@ -92,154 +91,154 @@ _g void broadcast_condlite(condlite *x);
  */
 #ifdef LISP_THREAD_POSIX
 /* mutex */
-#define make_mutexlite(mutex) \
+#define lispd_make_mutexlite(mutex) \
 	pthread_mutex_init((mutex), NULL)
-#define destroy_mutexlite(mutex) \
+#define lispd_destroy_mutexlite(mutex) \
 	if (pthread_mutex_destroy(mutex)) { \
 		Debug("pthread_mutex_destroy error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define lock_mutexlite(mutex) \
+#define lispd_lock_mutexlite(mutex) \
 	if (pthread_mutex_lock(mutex)) { \
 		Debug("pthread_mutex_lock error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
 /* trylock_mutelite return zero if success. */
 /* pthread_mutex_trylock: return zero if success, else non-zero. */
-#define trylock_mutexlite(mutex) \
+#define lispd_trylock_mutexlite(mutex) \
 	pthread_mutex_trylock(mutex)
-#define unlock_mutexlite(mutex) \
+#define lispd_unlock_mutexlite(mutex) \
 	if (pthread_mutex_unlock(mutex)) { \
 		Debug("pthread_mutex_unlock error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
 
 /* read / write */
-#define make_rwlocklite(rw) \
+#define lispd_make_rwlocklite(rw) \
 	pthread_rwlock_init((rw), NULL)
-#define destroy_rwlocklite(rw) \
+#define lispd_destroy_rwlocklite(rw) \
 	if (pthread_rwlock_destroy(rw)) { \
 		Debug("pthread_rwlock_destroy error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define rdlock_rwlocklite(rw) \
+#define lispd_rdlock_rwlocklite(rw) \
 	if (pthread_rwlock_rdlock(rw)) { \
 		Debug("pthread_rwlock_rdlock error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define wrlock_rwlocklite(rw) \
+#define lispd_wrlock_rwlocklite(rw) \
 	if (pthread_rwlock_wrlock(rw)) { \
 		Debug("pthread_rwlock_wrlock error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-/* tryrdlock_rwlocklite return zero if success. */
+/* lispd_tryrdlock_rwlocklite return zero if success. */
 /* pthread_rwlock_tryrdlock: return zero if success, else non-zero. */
-#define tryrdlock_rwlocklite(rw) \
+#define lispd_tryrdlock_rwlocklite(rw) \
 	pthread_rwlock_tryrdlock(rw)
-/* trywrlock_rwlocklite return zero if success. */
+/* lispd_trywrlock_rwlocklite return zero if success. */
 /* pthread_rwlock_trywrlock: return zero if success, else non-zero. */
-#define trywrlock_rwlocklite(rw) \
+#define lispd_trywrlock_rwlocklite(rw) \
 	pthread_rwlock_trywrlock(rw)
-#define unrdlock_rwlocklite(rw) \
+#define lispd_unrdlock_rwlocklite(rw) \
 	if (pthread_rwlock_unlock(rw)) { \
 		Debug("pthread_rwlock_unlock [unrdlock] error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define unwrlock_rwlocklite(rw) \
+#define lispd_unwrlock_rwlocklite(rw) \
 	if (pthread_rwlock_unlock(rw)) { \
 		Debug("pthread_rwlock_unlock [unwrlock] error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
 
-#define make_threadlocal(key) \
+#define lispd_make_threadlocal(key) \
 	if (pthread_key_create(key, NULL)) { \
 		Debug("pthread_key_create error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
 
 /* thread local */
-#define destroy_threadlocal(key) \
+#define lispd_destroy_threadlocal(key) \
 	if (pthread_key_delete(key)) { \
 		Debug("pthread_key_delete error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define get_threadlocal(key) pthread_getspecific(key)
-#define set_threadlocal(key, value) \
+#define lispd_get_threadlocal(key) pthread_getspecific(key)
+#define lispd_set_threadlocal(key, value) \
 	if (pthread_setspecific(key, value)) { \
 		Debug("pthread_setspecific error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
 
 /* posix semaphore */
 #define make_semposix(x, v) { \
 	if (sem_init((x), 0, (v))) { \
 		Debug("sem_init error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
 #define destroy_semposix(x) { \
 	if (sem_destroy(x)) { \
 		Debug("sem_destroy error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
 #define lock_semposix(x) { \
 	if (sem_wait(x)) { \
 		Debug("sem_destroy error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-_g int trylock_semposix(semposix *sem);
+_g int lispd_trylock_semposix(semposix *sem);
 #define unlock_semposix(x) { \
 	if (sem_post(x)) { \
 		Debug("sem_post error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-_g int get_semposix(semposix *sem);
+_g int lispd_get_semposix(semposix *sem);
 
 /* binary semaphore */
-#define make_binsem(x) make_semposix((x), 1);
-#define destroy_binsem destroy_semposix
-#define lock_binsem lock_semposix
-#define trylock_binsem trylock_semposix
-#define unlock_binsem(x) { \
+#define lispd_make_binsem(x) make_semposix((x), 1);
+#define lispd_destroy_binsem destroy_semposix
+#define lispd_lock_binsem lock_semposix
+#define lispd_trylock_binsem lispd_trylock_semposix
+#define lispd_unlock_binsem(x) { \
 	unlock_semposix(x); \
-	if (1 < get_semposix(x)) { \
-		Debug("unlock_binsem error"); \
-		threaderror(); \
+	if (1 < lispd_get_semposix(x)) { \
+		Debug("lispd_unlock_binsem error"); \
+		lispd_threaderror(); \
 	} \
 }
 
 /* condition variable */
-#define make_condlite(x) { \
+#define lispd_make_condlite(x) { \
 	if (pthread_cond_init(x, NULL)) { \
 		Debug("pthread_cond_init error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-#define destroy_condlite(x) { \
+#define lispd_destroy_condlite(x) { \
 	if (pthread_cond_destroy(x)) { \
 		Debug("pthread_cond_destroy error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-#define wait_condlite(x, m) { \
+#define lispd_wait_condlite(x, m) { \
 	if (pthread_cond_wait((x), (m))) { \
 		Debug("pthread_cond_wait error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-#define signal_condlite(x) { \
+#define lispd_signal_condlite(x) { \
 	if (pthread_cond_signal(x)) { \
 		Debug("pthread_cond_signal error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-#define broadcast_condlite(x) { \
+#define lispd_broadcast_condlite(x) { \
 	if (pthread_cond_broadcast(x)) { \
 		Debug("pthread_cond_broadcast error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
 #endif
@@ -253,44 +252,44 @@ _g int get_semposix(semposix *sem);
 #include <Synchapi.h>
 
 /* mutex */
-_g int make_mutexlite(mutexlite *);
-#define destroy_mutexlite DeleteCriticalSection
-#define lock_mutexlite EnterCriticalSection
+_g int lispd_make_mutexlite(mutexlite *);
+#define lispd_destroy_mutexlite DeleteCriticalSection
+#define lispd_lock_mutexlite EnterCriticalSection
 /* trylock_mutelite return zero if success. */
 /* TryEnterCriticalSection: return non-zero if success, else zero. */
-#define trylock_mutexlite(mutex) (TryEnterCriticalSection(mutex) == 0)
-#define unlock_mutexlite LeaveCriticalSection
+#define lispd_trylock_mutexlite(mutex) (TryEnterCriticalSection(mutex) == 0)
+#define lispd_unlock_mutexlite LeaveCriticalSection
 
 /* read / write  [SRWLock Vista module] */
-_g int make_rwlocklite(rwlocklite *);
-#define destroy_rwlocklite(rw)
-#define rdlock_rwlocklite(rw) AcquireSRWLockShared(rw)
-#define wrlock_rwlocklite(rw) AcquireSRWLockExclusive(rw)
-/* tryrdlock_rwlocklite return zero if success. */
+_g int lispd_make_rwlocklite(rwlocklite *);
+#define lispd_destroy_rwlocklite(rw)
+#define lispd_rdlock_rwlocklite(rw) AcquireSRWLockShared(rw)
+#define lispd_wrlock_rwlocklite(rw) AcquireSRWLockExclusive(rw)
+/* lispd_tryrdlock_rwlocklite return zero if success. */
 /* TryAcquireSRWLockShared: return non-zero if success, else zero. */
-#define tryrdlock_rwlocklite(rw) (TryAcquireSRWLockShared(rw) == 0)
-/* trywrlock_rwlocklite return zero if success. */
+#define lispd_tryrdlock_rwlocklite(rw) (TryAcquireSRWLockShared(rw) == 0)
+/* lispd_trywrlock_rwlocklite return zero if success. */
 /* TryAcquireSRWLockExclusive: return non-zero if success, else zero. */
-#define trywrlock_rwlocklite(rw) (TryAcquireSRWLockExclusive(rw) == 0)
-#define unrdlock_rwlocklite(rw) ReleaseSRWLockShared(rw)
-#define unwrlock_rwlocklite(rw) ReleaseSRWLockExclusive(rw)
+#define lispd_trywrlock_rwlocklite(rw) (TryAcquireSRWLockExclusive(rw) == 0)
+#define lispd_unrdlock_rwlocklite(rw) ReleaseSRWLockShared(rw)
+#define lispd_unwrlock_rwlocklite(rw) ReleaseSRWLockExclusive(rw)
 
 /* thread local */
-#define make_threadlocal(key) \
+#define lispd_make_threadlocal(key) \
 	if ((*key = TlsAlloc()) == 0xFFFFFFFF) { \
 		Debug("TlsAlloc error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define destroy_threadlocal(key) \
+#define lispd_destroy_threadlocal(key) \
 	if (TlsFree(key) == 0) { \
 		Debug("TlsFree error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
-#define get_threadlocal(key) TlsGetValue(key)
-#define set_threadlocal(key, value) \
+#define lispd_get_threadlocal(key) TlsGetValue(key)
+#define lispd_set_threadlocal(key, value) \
 	if (TlsSetValue(key, value) == 0) { \
 		Debug("TlsSetValue error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	}
 
 /* windows semaphore */
@@ -298,61 +297,61 @@ _g int make_rwlocklite(rwlocklite *);
 	HANDLE __handle = CreateSemaphore(NULL, (init), (maxvalue), NULL); \
 	if (__handle == NULL) { \
 		Debug("CreateSemaphore error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 	*(x) = __handle; \
 }
 #define destroy_semwindows(x) { \
 	if (CloseHandle(*(x)) == 0) { \
 		Debug("CloseHandle (semaphore) error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
 #define lock_semwindows(x) { \
 	if (WaitForSingleObject(*(x), INFINITE) != WAIT_OBJECT_0) { \
 		Debug("WaitForSingleObject (lock semaphore) error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-_g int trylock_semwindows(semwindows *ptr);
+_g int lispd_trylock_semwindows(semwindows *ptr);
 #define unlock_semwindows(x) { \
 	if (ReleaseSemaphore(*(x), 1, NULL) == 0) { \
 		Debug("ReleaseSemaphore (semaphore) error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
 
 #if 0
 /* binary semaphore */
-#define make_binsem(x) make_semwindows((x), 1, 1)
-#define destroy_binsem destroy_semwindows
-#define lock_binsem lock_semwindows
-#define trylock_binsem trylock_semwindows
-#define unlock_binsem unlock_semwindows
+#define lispd_make_binsem(x) make_semwindows((x), 1, 1)
+#define lispd_destroy_binsem destroy_semwindows
+#define lispd_lock_binsem lock_semwindows
+#define lispd_trylock_binsem lispd_trylock_semwindows
+#define lispd_unlock_binsem unlock_semwindows
 #endif
 /* binary semaphore  [condition variable] */
-#define make_binsem make_binsemlite
-#define destroy_binsem destroy_binsemlite
-#define lock_binsem lock_binsemlite
-#define unlock_binsem unlock_binsemlite
-#define trylock_binsem trylock_binsemlite
-_g void make_binsemlite(binsemlite *ptr);
-_g void destroy_binsemlite(binsemlite *ptr);
-_g void lock_binsemlite(binsemlite *ptr);
-_g void unlock_binsemlite(binsemlite *ptr);
-_g int trylock_binsemlite(binsemlite *ptr);
+#define lispd_make_binsem lispd_make_binsemlite
+#define lispd_destroy_binsem lispd_destroy_binsemlite
+#define lispd_lock_binsem lispd_lock_binsemlite
+#define lispd_unlock_binsem lispd_unlock_binsemlite
+#define lispd_trylock_binsem lispd_trylock_binsemlite
+_g void lispd_make_binsemlite(binsemlite *ptr);
+_g void lispd_destroy_binsemlite(binsemlite *ptr);
+_g void lispd_lock_binsemlite(binsemlite *ptr);
+_g void lispd_unlock_binsemlite(binsemlite *ptr);
+_g int lispd_trylock_binsemlite(binsemlite *ptr);
 
 /* condition variable */
-#define make_condlite(x) InitializeConditionVariable(x)
-#define destroy_condlite(x)
-#define wait_condlite(x, m) { \
+#define lispd_make_condlite(x) InitializeConditionVariable(x)
+#define lispd_destroy_condlite(x)
+#define lispd_wait_condlite(x, m) { \
 	if (SleepConditionVariableCS((x), (m), INFINITE) == 0) { \
 		Debug("SleepConditionVariableCS error"); \
-		threaderror(); \
+		lispd_threaderror(); \
 	} \
 }
-#define signal_condlite(x) WakeConditionVariable(x)
-#define broadcast_condlite(x) WakeAllConditionVariable(x)
+#define lispd_signal_condlite(x) WakeConditionVariable(x)
+#define lispd_broadcast_condlite(x) WakeAllConditionVariable(x)
 
 #endif
 
@@ -360,11 +359,11 @@ _g int trylock_binsemlite(binsemlite *ptr);
 /*
  *  tools
  */
-_g void threaderror(void);
-_g void wrlock2_rwlocklite(rwlocklite *, rwlocklite *);
-_g void unwrlock2_rwlocklite(rwlocklite *, rwlocklite *);
-_g void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
-_g void unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
+_g void lispd_threaderror(void);
+_g void lispd_wrlock2_rwlocklite(rwlocklite *, rwlocklite *);
+_g void lispd_unwrlock2_rwlocklite(rwlocklite *, rwlocklite *);
+_g void lispd_wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
+_g void lispd_unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
 
 #endif
 

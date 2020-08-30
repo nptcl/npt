@@ -3,6 +3,15 @@
 
 #include "typedef.h"
 
+#define getmathtype_float_ _n(getmathtype_float_)
+#define getmathreal2_float_ _n(getmathreal2_float_)
+#define getmathreal2_addr_ _n(getmathreal2_addr_)
+#define getmathcomplex1_log_ _n(getmathcomplex1_log_)
+#define getmathcomplex1_inverse_ _n(getmathcomplex1_inverse_)
+#define getmathcomplex1_sqrt_ _n(getmathcomplex1_sqrt_)
+#define getmathcomplex2_float_ _n(getmathcomplex2_float_)
+#define getmathcomplex2_addr_ _n(getmathcomplex2_addr_)
+
 enum MathType {
 	MathType_single,
 	MathType_double,

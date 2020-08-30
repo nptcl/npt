@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 	if (ptr == NULL)
 		return 1;
 	result = main_execute(ptr);
-	free_lispargv(ptr);
+	lispargv_free(ptr);
 	lisp_free();
 
 	return result;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[], char *env[])
 	if (ptr == NULL)
 		return 1;
 	result = main_execute(ptr);
-	free_lispargv(ptr);
+	lispargv_free(ptr);
 	lisp_free();
 
 	return result;

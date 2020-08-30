@@ -9,6 +9,7 @@
 #include "function.h"
 #include "hold.h"
 #include "typedef.h"
+#include "scope_declare.h"
 #include "symbol.h"
 
 /*

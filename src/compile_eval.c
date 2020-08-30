@@ -1,4 +1,5 @@
 #include "code_make.h"
+#include "compile_eval.h"
 #include "compile_file.h"
 #include "condition.h"
 #include "control_execute.h"

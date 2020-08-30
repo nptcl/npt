@@ -5,6 +5,22 @@
 #include "scope_let.h"
 #include "typedef.h"
 
+#define scope_symbol_call _n(scope_symbol_call)
+#define scope_setq_call _n(scope_setq_call)
+#define scope_define_symbol_macro_call_ _n(scope_define_symbol_macro_call_)
+#define apply_symbol_macrolet _n(apply_symbol_macrolet)
+#define scope_symbol_macrolet_call _n(scope_symbol_macrolet_call)
+#define scope_values_call _n(scope_values_call)
+#define scope_the_call _n(scope_the_call)
+#define scope_locally_call _n(scope_locally_call)
+#define scope_tagbody_call _n(scope_tagbody_call)
+#define scope_go_call_ _n(scope_go_call_)
+#define scope_block_call _n(scope_block_call)
+#define scope_return_from_call _n(scope_return_from_call)
+#define scope_init_mvbind _n(scope_init_mvbind)
+#define scope_multiple_value_bind_call _n(scope_multiple_value_bind_call)
+#define scope_multiple_value_call_call _n(scope_multiple_value_call_call)
+
 struct mvbind_struct {
 	addr stack, args, decl, doc, cons, free, the, expr, allocate;
 };

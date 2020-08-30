@@ -5,6 +5,44 @@
 #include "local.h"
 #include "typedef.h"
 
+#define getarray_pathname _n(getarray_pathname)
+#define setarray_pathname _n(setarray_pathname)
+#define reflogical_pathname _n(reflogical_pathname)
+#define getlogical_pathname _n(getlogical_pathname)
+#define setlogical_pathname _n(setlogical_pathname)
+#define gethost_pathname _n(gethost_pathname)
+#define sethost_pathname _n(sethost_pathname)
+#define getdevice_pathname _n(getdevice_pathname)
+#define setdevice_pathname _n(setdevice_pathname)
+#define getdirectory_pathname _n(getdirectory_pathname)
+#define setdirectory_pathname _n(setdirectory_pathname)
+#define getname_pathname _n(getname_pathname)
+#define setname_pathname _n(setname_pathname)
+#define gettype_pathname _n(gettype_pathname)
+#define settype_pathname _n(settype_pathname)
+#define getversion_pathname _n(getversion_pathname)
+#define setversion_pathname _n(setversion_pathname)
+#define make_pathname_alloc _n(make_pathname_alloc)
+#define pathname_alloc _n(pathname_alloc)
+#define pathname_local _n(pathname_local)
+#define pathname_heap _n(pathname_heap)
+#define logical_pathname_alloc _n(logical_pathname_alloc)
+#define logical_pathname_local _n(logical_pathname_local)
+#define logical_pathname_heap _n(logical_pathname_heap)
+#define pathnamep _n(pathnamep)
+#define pathname_pathname_p _n(pathname_pathname_p)
+#define pathname_logical_p _n(pathname_logical_p)
+#define pathname_file_p _n(pathname_file_p)
+#define pathname_directory_p _n(pathname_directory_p)
+#define copylocal_pathname_array _n(copylocal_pathname_array)
+#define copy_pathname_alloc _n(copy_pathname_alloc)
+#define pathname_equal_ _n(pathname_equal_)
+#define wild_pathname_boolean_ _n(wild_pathname_boolean_)
+#define wildcard_stringp_p_ _n(wildcard_stringp_p_)
+#define wildcard_string_pathname_ _n(wildcard_string_pathname_)
+#define wildcard_eq_pathname_ _n(wildcard_eq_pathname_)
+#define wildcard_pathname_ _n(wildcard_pathname_)
+
 enum PATHNAME_INDEX {
 	PATHNAME_INDEX_HOST,
 	PATHNAME_INDEX_DEVICE,
@@ -132,6 +170,7 @@ _g int wild_pathname_boolean_(addr file, addr field, int *ret);
 _g int wildcard_stringp_p_(addr pos, int *ret);
 _g int wildcard_string_pathname_(addr a, addr b, int *ret);
 _g int wildcard_eq_pathname_(addr a, addr b, int *ret);
+_g int wildcard_pathname_(addr a, addr b, int wild, int *ret);
 
 #endif
 

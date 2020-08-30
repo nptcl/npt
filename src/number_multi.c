@@ -2,6 +2,7 @@
 #include "cmpl_multi.h"
 #include "condition.h"
 #include "float_multi.h"
+#include "number_multi.h"
 #include "ratio_multi.h"
 #include "typedef.h"
 

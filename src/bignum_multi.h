@@ -4,6 +4,19 @@
 #include "local.h"
 #include "typedef.h"
 
+#define multi_ff_bignum_local _n(multi_ff_bignum_local)
+#define multi_ff_real_local _n(multi_ff_real_local)
+#define multi_ff_real_common _n(multi_ff_real_common)
+#define multi_bf_bignum_local _n(multi_bf_bignum_local)
+#define multi_bf_real_local _n(multi_bf_real_local)
+#define multi_bf_real_common _n(multi_bf_real_common)
+#define multi_bb_bignum_local _n(multi_bb_bignum_local)
+#define multi_bb_real_local _n(multi_bb_real_local)
+#define multi_bb_real_common _n(multi_bb_real_common)
+#define multi_bb_nosign_bignum_local _n(multi_bb_nosign_bignum_local)
+#define multi_bb_nosign_real_local _n(multi_bb_nosign_real_local)
+#define multi_bb_nosign_real_common _n(multi_bb_nosign_real_common)
+
 _g void multi_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
 _g void multi_ff_real_local(LocalRoot local, addr left, addr right, addr *ret);
 _g void multi_ff_real_common(addr left, addr right, addr *ret);

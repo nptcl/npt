@@ -4,6 +4,12 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define init_reader_token _n(init_reader_token)
+#define tokentype _n(tokentype)
+#define getreadbase_ _n(getreadbase_)
+#define read_suppress_p_ _n(read_suppress_p_)
+#define maketoken_ _n(maketoken_)
+
 enum TokenType {
 	TokenType_symbol = 0,
 	TokenType_potential,

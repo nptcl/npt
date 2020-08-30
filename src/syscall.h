@@ -3,6 +3,9 @@
 
 #include "define.h"
 
+#define init_syscall _n(init_syscall)
+#define build_syscall _n(build_syscall)
+
 _g void init_syscall(void);
 _g void build_syscall(void);
 

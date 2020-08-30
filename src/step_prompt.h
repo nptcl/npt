@@ -4,6 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define execute_step_code _n(execute_step_code)
 _g int execute_step_code(Execute ptr, addr expr, addr value);
 
 #endif

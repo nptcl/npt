@@ -5,6 +5,7 @@
 #include "equal.h"
 #include "heap.h"
 #include "integer.h"
+#include "reader_label.h"
 #include "symbol.h"
 #include "typedef.h"
 #include "reader_info.h"

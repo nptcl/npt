@@ -6,11 +6,25 @@
 #include "parse_typedef.h"
 #include "typedef.h"
 
-struct eval_parse {
+#define structevalparse _n(structevalparse)
+#define refevalparse _n(refevalparse)
+#define getevalparse _n(getevalparse)
+#define setevalparse _n(setevalparse)
+#define refevalparsetype _n(refevalparsetype)
+#define getevalparsetype _n(getevalparsetype)
+#define setevalparsetype _n(setevalparsetype)
+#define eval_parse_alloc _n(eval_parse_alloc)
+#define eval_parse_local _n(eval_parse_local)
+#define eval_parse_heap _n(eval_parse_heap)
+#define eval_single_parse_alloc _n(eval_single_parse_alloc)
+#define eval_single_parse_local _n(eval_single_parse_local)
+#define eval_single_parse_heap _n(eval_single_parse_heap)
+
+struct parse_struct {
 	EvalParse type;
 };
 
-#define StructEvalParse_Low(x)		((struct eval_parse *)PtrEvalBodyAny(x))
+#define StructEvalParse_Low(x)		((struct parse_struct *)PtrEvalBodyAny(x))
 #define RefEvalParse_Low(x,i)		RefEval((x),(i))
 #define GetEvalParse_Low(x,i,v)		GetEval((x),(i),(v))
 #define SetEvalParse_Low(x,i,v)		SetEval((x),(i),(v))
@@ -36,7 +50,7 @@ struct eval_parse {
 #define SetEvalParseType(x,v)		SetEvalParseType_Low(x,v)
 #endif
 
-_g struct eval_parse *structevalparse(addr pos);
+_g struct parse_struct *structevalparse(addr pos);
 _g addr refevalparse(addr pos, size_t index);
 _g void getevalparse(addr pos, size_t index, addr *ret);
 _g void setevalparse(addr pos, size_t index, addr value);

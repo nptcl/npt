@@ -301,7 +301,7 @@ _g int getpplist(addr plist, addr key1, addr key2, addr *ret)
 	return getplist(plist, key2, ret);
 }
 
-_g int setpplist_equal_alloc(LocalRoot local,
+static int setpplist_equal_alloc(LocalRoot local,
 		addr plist, addr key1, addr key2, addr value, addr *ret,
 		int (*equal)(addr, addr))
 {

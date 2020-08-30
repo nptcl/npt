@@ -4,6 +4,25 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define get_readinfo _n(get_readinfo)
+#define set_readinfo _n(set_readinfo)
+#define struct_readinfo _n(struct_readinfo)
+#define getreadinfo _n(getreadinfo)
+#define getreadinfo_struct _n(getreadinfo_struct)
+#define pushreadinfo _n(pushreadinfo)
+#define pushreadinfo_recursive_ _n(pushreadinfo_recursive_)
+#define getpackage_readinfo _n(getpackage_readinfo)
+#define setpackage_readinfo _n(setpackage_readinfo)
+#define getqueue_readinfo _n(getqueue_readinfo)
+#define getpreserving_readinfo _n(getpreserving_readinfo)
+#define getescape_readinfo _n(getescape_readinfo)
+#define setescape_readinfo _n(setescape_readinfo)
+#define getdot_readinfo _n(getdot_readinfo)
+#define getreplace_readinfo _n(getreplace_readinfo)
+#define getstate_readinfo _n(getstate_readinfo)
+#define setstate_readinfo _n(setstate_readinfo)
+#define clear_readinfo _n(clear_readinfo)
+
 enum ReadInfo_Index {
 	ReadInfo_Package,
 	ReadInfo_Queue,

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "core_store.h"
 #include "code_object.h"
 #include "define.h"
 #include "typedef.h"

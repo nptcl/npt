@@ -4,6 +4,7 @@
 #include "eval_main.h"
 #include "execute.h"
 #include "format.h"
+#include "step_prompt.h"
 #include "stream.h"
 #include "stream_prompt.h"
 #include "strtype.h"

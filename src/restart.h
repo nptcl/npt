@@ -3,6 +3,30 @@
 
 #include "typedef.h"
 
+#define restartp _n(restartp)
+#define restart_heap _n(restart_heap)
+#define getname_restart _n(getname_restart)
+#define setname_restart _n(setname_restart)
+#define getfunction_restart _n(getfunction_restart)
+#define setfunction_restart _n(setfunction_restart)
+#define getinteractive_restart _n(getinteractive_restart)
+#define setinteractive_restart _n(setinteractive_restart)
+#define getreport_restart _n(getreport_restart)
+#define setreport_restart _n(setreport_restart)
+#define gettest_restart _n(gettest_restart)
+#define settest_restart _n(settest_restart)
+#define getcondition_restart _n(getcondition_restart)
+#define setcondition_restart _n(setcondition_restart)
+#define getreference_restart _n(getreference_restart)
+#define setreference_restart _n(setreference_restart)
+#define setescape_restart _n(setescape_restart)
+#define getescape_restart _n(getescape_restart)
+#define setenable_restart _n(setenable_restart)
+#define getenable_restart _n(getenable_restart)
+#define setredirect_restart _n(setredirect_restart)
+#define getredirect_restart _n(getredirect_restart)
+#define init_restart _n(init_restart)
+
 _g int restartp(addr pos);
 _g void restart_heap(addr *ret, addr name);
 _g void getname_restart(addr pos, addr *ret);

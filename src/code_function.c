@@ -1,5 +1,6 @@
 #include "call_eval.h"
 #include "callname.h"
+#include "code_function.h"
 #include "code_lambda.h"
 #include "condition.h"
 #include "cons.h"

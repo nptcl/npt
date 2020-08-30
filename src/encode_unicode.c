@@ -2,6 +2,7 @@
 #include "build.h"
 #include "character.h"
 #include "encode.h"
+#include "encode_unicode.h"
 #include "execute.h"
 #include "file_memory.h"
 #include "thread.h"

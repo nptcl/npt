@@ -46,7 +46,7 @@ _g void setargs_va_control(Execute ptr, ...)
 	va_end(args);
 }
 
-_g void pushargs_list_control(Execute ptr, addr list)
+static void pushargs_list_control(Execute ptr, addr list)
 {
 	addr pos;
 

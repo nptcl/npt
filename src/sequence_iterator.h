@@ -5,6 +5,17 @@
 #include "local.h"
 #include "typedef.h"
 
+#define make_sequence_iterator_local_ _n(make_sequence_iterator_local_)
+#define end_sequence_iterator _n(end_sequence_iterator)
+#define length_sequence_iterator_ _n(length_sequence_iterator_)
+#define object_sequence_iterator_ _n(object_sequence_iterator_)
+#define set_sequence_iterator_ _n(set_sequence_iterator_)
+#define make_sequence_group_local_ _n(make_sequence_group_local_)
+#define list_sequence_group_local _n(list_sequence_group_local)
+#define set_sequence_group_ _n(set_sequence_group_)
+#define clear_sequence_group _n(clear_sequence_group)
+#define count_sequence_group_ _n(count_sequence_group_)
+
 struct sequence_iterator {
 	unsigned listp : 1;
 	addr pos, root;

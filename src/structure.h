@@ -5,6 +5,40 @@
 #include "hold.h"
 #include "typedef.h"
 
+#define localhold_destruct _n(localhold_destruct)
+#define defstruct_clean _n(defstruct_clean)
+#define stdget_structure_name_ _n(stdget_structure_name_)
+#define stdset_structure_name_ _n(stdset_structure_name_)
+#define stdget_structure_slots_ _n(stdget_structure_slots_)
+#define stdset_structure_slots_ _n(stdset_structure_slots_)
+#define stdget_structure_documentation_ _n(stdget_structure_documentation_)
+#define stdset_structure_documentation_ _n(stdset_structure_documentation_)
+#define stdget_structure_include_ _n(stdget_structure_include_)
+#define stdset_structure_include_ _n(stdset_structure_include_)
+#define stdget_structure_precedence_list_ _n(stdget_structure_precedence_list_)
+#define stdset_structure_precedence_list_ _n(stdset_structure_precedence_list_)
+#define stdget_structure_type_ _n(stdget_structure_type_)
+#define stdset_structure_type_ _n(stdset_structure_type_)
+#define stdget_structure_vector_ _n(stdget_structure_vector_)
+#define stdset_structure_vector_ _n(stdset_structure_vector_)
+#define stdget_structure_named_ _n(stdget_structure_named_)
+#define stdset_structure_named_ _n(stdset_structure_named_)
+#define stdget_structure_named_index_ _n(stdget_structure_named_index_)
+#define stdset_structure_named_index_ _n(stdset_structure_named_index_)
+#define stdget_structure_value_ _n(stdget_structure_value_)
+#define stdset_structure_value_ _n(stdset_structure_value_)
+#define structure_class_p_ _n(structure_class_p_)
+#define structure_class_p_debug _n(structure_class_p_debug)
+#define structure_instance_p_ _n(structure_instance_p_)
+#define structure_instance_p_debug _n(structure_instance_p_debug)
+#define equalp_structure_ _n(equalp_structure_)
+#define equalrt_structure_ _n(equalrt_structure_)
+#define ensure_structure_common_ _n(ensure_structure_common_)
+#define structure_constructor_common _n(structure_constructor_common)
+#define make_instance_structure _n(make_instance_structure)
+#define copy_structure_common _n(copy_structure_common)
+#define init_structure _n(init_structure)
+
 /*
  *  structure
  */

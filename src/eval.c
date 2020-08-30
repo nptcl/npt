@@ -1,3 +1,4 @@
+#include "eval.h"
 #include "eval_copy.h"
 #include "eval_main.h"
 #include "eval_stack.h"

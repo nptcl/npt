@@ -3,6 +3,7 @@
 #include "array_inplace.h"
 #include "array_make.h"
 #include "bit.h"
+#include "compile_array.h"
 #include "compile_read.h"
 #include "compile_stream.h"
 #include "compile_typedef.h"

@@ -1,8 +1,8 @@
+#include "compile_stream.h"
 #include "compile_typedef.h"
 #include "condition.h"
 #include "stream.h"
 #include "typedef.h"
-
 
 /*
  *  write

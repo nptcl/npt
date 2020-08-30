@@ -5,6 +5,9 @@
 #include "pointer_type.h"
 #include "typedef.h"
 
+#define pointer_table _n(pointer_table)
+#define clear_pointer _n(clear_pointer)
+
 #define SizePointer (p_size + LISP_POINTER_EXTEND)
 
 __extern struct callbind_struct pointer_table[SizePointer];

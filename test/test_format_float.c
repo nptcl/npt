@@ -8,13 +8,13 @@
 static size_t fmtfloat_degrade_index;
 static char fmtfloat_degrade_buffer[FMTFLOAT_DEGRADE_SIZE + 1];
 
-void fmtfloat_degrade_clear(void)
+static void fmtfloat_degrade_clear(void)
 {
 	fmtfloat_degrade_index = 0;
 	fmtfloat_degrade_buffer[0] = 0;
 }
 
-int fmtfloat_write_char_(addr stream, unicode c)
+_g int fmtfloat_write_char_(addr stream, unicode c)
 {
 	if (stream == NULL) {
 		if (FMTFLOAT_DEGRADE_SIZE <= fmtfloat_degrade_index) {
@@ -30,7 +30,7 @@ int fmtfloat_write_char_(addr stream, unicode c)
 	}
 }
 
-int fmtfloat_print_ascii_(addr stream, const char *ptr)
+_g int fmtfloat_print_ascii_(addr stream, const char *ptr)
 {
 	int c;
 
@@ -58,7 +58,7 @@ static int fmtfloat_degrade_count = 1;
 			fmtfloat_degrade_count,x, str, fmtfloat_degrade_buffer, value,w,d,k); \
 }
 
-int fmtfloat_degrade_fixfloat(single_float value,
+static int fmtfloat_degrade_fixfloat(single_float value,
 		const char *str1, const char *str2,
 		int w, int d, int k)
 {
@@ -93,7 +93,7 @@ int fmtfloat_degrade_fixfloat(single_float value,
 	return 0;
 }
 
-int fmtfloat_degrade_fixdouble(double_float value,
+static int fmtfloat_degrade_fixdouble(double_float value,
 		const char *str1, const char *str2,
 		int w, int d, int k)
 {
@@ -137,7 +137,7 @@ int fmtfloat_degrade_fixdouble(double_float value,
 			fmtfloat_degrade_count,x, str, fmtfloat_degrade_buffer, value,w,d,e,k); \
 }
 
-int fmtfloat_degrade_expfloat(single_float value,
+static int fmtfloat_degrade_expfloat(single_float value,
 		const char *str1, const char *str2,
 		int w, int d, int e, int k)
 {
@@ -172,7 +172,7 @@ int fmtfloat_degrade_expfloat(single_float value,
 	return 0;
 }
 
-int fmtfloat_degrade_expdouble(double_float value,
+static int fmtfloat_degrade_expdouble(double_float value,
 		const char *str1, const char *str2,
 		int w, int d, int e, int k)
 {
@@ -213,7 +213,7 @@ int fmtfloat_degrade_expdouble(double_float value,
 #define fixdouble(v,s1,s2,w,d,k) { \
 	if (fmtfloat_degrade_fixdouble(v,s1,s2,w,d,k)) return 1; \
 }
-int test_case_fixed(void)
+static int test_case_fixed(void)
 {
 	fmtfloat_degrade_count = 1;
 #include "case_fixed.c"
@@ -229,7 +229,7 @@ int test_case_fixed(void)
 #define expdouble(v,s1,s2,w,d,e,k) { \
 	if (fmtfloat_degrade_expdouble(v,s1,s2,w,d,e,k)) return 1; \
 }
-int test_case_exponent(void)
+static int test_case_exponent(void)
 {
 	fmtfloat_degrade_count = 1;
 #include "case_exponent.c"

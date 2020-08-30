@@ -5,6 +5,37 @@
 #include "local.h"
 #include "typedef.h"
 
+#define consp_getcons _n(consp_getcons)
+#define consp_getcar _n(consp_getcar)
+#define consp_getcdr _n(consp_getcdr)
+#define getcons_ _n(getcons_)
+#define getcar_ _n(getcar_)
+#define getcdr_ _n(getcdr_)
+#define setcons_ _n(setcons_)
+#define setcar_ _n(setcar_)
+#define setcdr_ _n(setcdr_)
+#define list_stdarg_alloc _n(list_stdarg_alloc)
+#define list_heap _n(list_heap)
+#define list_local _n(list_local)
+#define list_alloc _n(list_alloc)
+#define pushva_heap _n(pushva_heap)
+#define lista_safe_alloc_ _n(lista_safe_alloc_)
+#define lista_safe_local_ _n(lista_safe_local_)
+#define lista_safe_heap_ _n(lista_safe_heap_)
+#define lista_stdarg_noerror _n(lista_stdarg_noerror)
+#define lista_stdarg_safe_ _n(lista_stdarg_safe_)
+#define lista_stdarg_alloc _n(lista_stdarg_alloc)
+#define lista_alloc _n(lista_alloc)
+#define lista_local _n(lista_local)
+#define lista_heap _n(lista_heap)
+#define List_bind _n(List_bind)
+#define list_bind_ _n(list_bind_)
+#define Lista_bind _n(Lista_bind)
+#define lista_bind_ _n(lista_bind_)
+#define copy_tree_alloc _n(copy_tree_alloc)
+#define copy_tree_local _n(copy_tree_local)
+#define copy_tree_heap _n(copy_tree_heap)
+
 #define Inline_getcons(x,y,z) { \
 	if (GetType(x) != LISPTYPE_CONS) { \
 		return TypeError_((x), CONS); \

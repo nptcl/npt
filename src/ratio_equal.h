@@ -4,6 +4,26 @@
 #include "local.h"
 #include "typedef.h"
 
+#define equal_value_nosign_ratio _n(equal_value_nosign_ratio)
+#define equal_value_ratio _n(equal_value_ratio)
+#define equal_fr_real _n(equal_fr_real)
+#define equal_br_real _n(equal_br_real)
+#define equal_rr_real _n(equal_rr_real)
+#define equal_rs_real_ _n(equal_rs_real_)
+#define equal_rd_real_ _n(equal_rd_real_)
+#define equal_rl_real_ _n(equal_rl_real_)
+#define compare_fr_real _n(compare_fr_real)
+#define compare_rf_real _n(compare_rf_real)
+#define compare_br_real _n(compare_br_real)
+#define compare_rb_real _n(compare_rb_real)
+#define compare_rr_real _n(compare_rr_real)
+#define compare_rs_real_ _n(compare_rs_real_)
+#define compare_rd_real_ _n(compare_rd_real_)
+#define compare_rl_real_ _n(compare_rl_real_)
+#define compare_sr_real_ _n(compare_sr_real_)
+#define compare_dr_real_ _n(compare_dr_real_)
+#define compare_lr_real_ _n(compare_lr_real_)
+
 _g int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom);
 _g int equal_value_ratio(addr pos, int sign, bigtype numer, bigtype denom);
 _g int equal_fr_real(addr left, addr right);

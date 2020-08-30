@@ -2,6 +2,7 @@
 #include "clos_class.h"
 #include "compile_read.h"
 #include "compile_stream.h"
+#include "compile_type.h"
 #include "compile_value.h"
 #include "compile_write.h"
 #include "type.h"

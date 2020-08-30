@@ -4,6 +4,26 @@
 #include "memory.h"
 #include "typedef.h"
 
+#define heap_cons _n(heap_cons)
+#define heap_symbol _n(heap_symbol)
+#define heap_array2_memory _n(heap_array2_memory)
+#define heap_array4_memory _n(heap_array4_memory)
+#define heap_body2_memory _n(heap_body2_memory)
+#define heap_body4_memory _n(heap_body4_memory)
+#define heap_smallsize_memory _n(heap_smallsize_memory)
+#define heap_arraybody_memory _n(heap_arraybody_memory)
+#define heap_array _n(heap_array)
+#define heap_body _n(heap_body)
+#define heap_array8 _n(heap_array8)
+#define heap_body8 _n(heap_body8)
+#define heap_array2_debug _n(heap_array2_debug)
+#define heap_array4_debug _n(heap_array4_debug)
+#define heap_body2_debug _n(heap_body2_debug)
+#define heap_body4_debug _n(heap_body4_debug)
+#define heap_smallsize_debug _n(heap_smallsize_debug)
+#define heap_arraybody_debug _n(heap_arraybody_debug)
+#define init_heap _n(init_heap)
+
 _g void heap_cons(addr *ret);
 _g void heap_symbol(addr *ret);
 _g void heap_array2_memory(addr *ret, enum LISPTYPE type, byte16 array);

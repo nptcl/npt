@@ -24,6 +24,7 @@
 #include "strvect.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_coerce.h"
 #include "type_object.h"
 #include "type_optimize.h"
 #include "type_parse.h"

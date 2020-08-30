@@ -6,6 +6,24 @@
 #include "local.h"
 #include "typedef.h"
 
+#define fmtprint_abort_ _n(fmtprint_abort_)
+#define fmtprop_abort_ _n(fmtprop_abort_)
+#define fmtprint_operator _n(fmtprint_operator)
+#define fmtprint_make _n(fmtprint_make)
+#define fmtprint_copy _n(fmtprint_copy)
+#define fmtprint_make_string_ _n(fmtprint_make_string_)
+#define fmtprint_stream_ _n(fmtprint_stream_)
+#define fmtprint_stream_output_ _n(fmtprint_stream_output_)
+#define fmtprint_putc_ _n(fmtprint_putc_)
+#define fmtprint_putc_times_ _n(fmtprint_putc_times_)
+#define fmtprint_string_ _n(fmtprint_string_)
+#define fmtprint_pop_ _n(fmtprint_pop_)
+#define fmtprint_peek_ _n(fmtprint_peek_)
+#define fmtprint_forward_ _n(fmtprint_forward_)
+#define fmtprint_absolute_ _n(fmtprint_absolute_)
+#define fmtprint_rollback_ _n(fmtprint_rollback_)
+#define fmtprint_clear_ _n(fmtprint_clear_)
+
 /*
  *  fmtprint
  */

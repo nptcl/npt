@@ -548,6 +548,11 @@ _g void copy_vector_heap(addr *ret, addr pos)
 }
 
 /* fixnum */
+_g int fixnump(addr pos)
+{
+	return GetType(pos) == LISPTYPE_FIXNUM;
+}
+
 _g void make_fixnum_heap(addr *ret, fixnum value)
 {
 	addr pos;

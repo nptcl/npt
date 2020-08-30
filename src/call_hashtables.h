@@ -5,6 +5,19 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define make_hash_table_common _n(make_hash_table_common)
+#define hash_table_count_common _n(hash_table_count_common)
+#define hash_table_rehash_size_common _n(hash_table_rehash_size_common)
+#define hash_table_rehash_threshold_common _n(hash_table_rehash_threshold_common)
+#define hash_table_size_common _n(hash_table_size_common)
+#define hash_table_test_common _n(hash_table_test_common)
+#define gethash_common_ _n(gethash_common_)
+#define setf_gethash_common_ _n(setf_gethash_common_)
+#define remhash_common_ _n(remhash_common_)
+#define maphash_common _n(maphash_common)
+#define with_hash_table_iterator_common _n(with_hash_table_iterator_common)
+#define sxhash_common_ _n(sxhash_common_)
+
 _g int make_hash_table_common(addr rest, addr *ret);
 _g void hash_table_count_common(addr var, addr *ret);
 _g int hash_table_rehash_size_common(addr var, addr *ret);

@@ -1,6 +1,7 @@
 #include <math.h>
 #include "array_vector.h"
 #include "bignum.h"
+#include "bignum_object.h"
 #include "character.h"
 #include "character_name.h"
 #include "character_queue.h"

@@ -2,6 +2,7 @@
 #include "condition.h"
 #include "float_plus.h"
 #include "ratio_plus.h"
+#include "rational_plus.h"
 #include "typedef.h"
 
 /*

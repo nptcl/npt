@@ -15,13 +15,13 @@
 /*
  *  mutexlite
  */
-_g int make_mutexlite(mutexlite *ptr)
+_g int lispd_make_mutexlite(mutexlite *ptr)
 {
 	InitializeCriticalSection(ptr);
 	return 0;
 }
 
-_g int make_rwlocklite(rwlocklite *ptr)
+_g int lispd_make_rwlocklite(rwlocklite *ptr)
 {
 	InitializeSRWLock(ptr);
 	return 0;
@@ -31,13 +31,13 @@ _g int make_rwlocklite(rwlocklite *ptr)
 /*
  *  semaphore windows
  */
-_g int trylock_semwindows(semwindows *ptr)
+_g int lispd_trylock_semwindows(semwindows *ptr)
 {
 	DWORD result = WaitForSingleObject(*ptr, 0);
 	if (result == WAIT_TIMEOUT) return 1;
 	if (result != WAIT_OBJECT_0) {
 		Debug("WaitForSingleObject (trylock semaphore) error");
-		threaderror();
+		lispd_threaderror();
 	}
 	return 0;
 }
@@ -46,45 +46,45 @@ _g int trylock_semwindows(semwindows *ptr)
 /*
  *  binary semaphore  [condition variable]
  */
-_g void make_binsemlite(binsemlite *ptr)
+_g void lispd_make_binsemlite(binsemlite *ptr)
 {
-	make_mutexlite(&ptr->mutex);
-	make_condlite(&ptr->cond);
+	lispd_make_mutexlite(&ptr->mutex);
+	lispd_make_condlite(&ptr->cond);
 	ptr->value = 1;
 }
-_g void destroy_binsemlite(binsemlite *ptr)
+_g void lispd_destroy_binsemlite(binsemlite *ptr)
 {
-	destroy_condlite(&ptr->cond);
-	destroy_mutexlite(&ptr->mutex);
+	lispd_destroy_condlite(&ptr->cond);
+	lispd_destroy_mutexlite(&ptr->mutex);
 }
-_g void lock_binsemlite(binsemlite *ptr)
+_g void lispd_lock_binsemlite(binsemlite *ptr)
 {
-	lock_mutexlite(&ptr->mutex);
+	lispd_lock_mutexlite(&ptr->mutex);
 	while (ptr->value <= 0)
-		wait_condlite(&ptr->cond, &ptr->mutex);
+		lispd_wait_condlite(&ptr->cond, &ptr->mutex);
 	ptr->value--;
-	unlock_mutexlite(&ptr->mutex);
+	lispd_unlock_mutexlite(&ptr->mutex);
 }
-_g void unlock_binsemlite(binsemlite *ptr)
+_g void lispd_unlock_binsemlite(binsemlite *ptr)
 {
-	lock_mutexlite(&ptr->mutex);
+	lispd_lock_mutexlite(&ptr->mutex);
 	/* binary semaphore check */
 	if (1 <= ptr->value) {
-		unlock_mutexlite(&ptr->mutex);
-		Debug("unlock_binsemlite error");
-		threaderror();
+		lispd_unlock_mutexlite(&ptr->mutex);
+		Debug("lispd_unlock_binsemlite error");
+		lispd_threaderror();
 	}
 	/* semaphore */
 	if (ptr->value <= 0)
-		signal_condlite(&ptr->cond);
+		lispd_signal_condlite(&ptr->cond);
 	ptr->value++;
-	unlock_mutexlite(&ptr->mutex);
+	lispd_unlock_mutexlite(&ptr->mutex);
 }
-_g int trylock_binsemlite(binsemlite *ptr)
+_g int lispd_trylock_binsemlite(binsemlite *ptr)
 {
 	int result;
 
-	lock_mutexlite(&ptr->mutex);
+	lispd_lock_mutexlite(&ptr->mutex);
 	if (ptr->value <= 0) {
 		result = 1;
 	}
@@ -92,7 +92,7 @@ _g int trylock_binsemlite(binsemlite *ptr)
 		ptr->value--;
 		result = 0;
 	}
-	unlock_mutexlite(&ptr->mutex);
+	lispd_unlock_mutexlite(&ptr->mutex);
 
 	return result;
 }

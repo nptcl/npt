@@ -6,6 +6,7 @@
 #include "eval_object.h"
 #include "function.h"
 #include "optimize.h"
+#include "optimize_parse.h"
 #include "parse.h"
 #include "parse_object.h"
 #include "strtype.h"

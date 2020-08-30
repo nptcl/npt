@@ -157,6 +157,7 @@ extern_error.c
 extern_execute.c
 extern_function.c
 extern_init.c
+extern_instance.c
 extern_object.c
 extern_print.c
 extern_sequence.c
@@ -211,6 +212,7 @@ math_power.c
 math_type.c
 md5encode.c
 memory.c
+mop_common.c
 mop_class.c
 mop_generic.c
 mop_protocols.c

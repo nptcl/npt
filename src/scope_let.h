@@ -4,6 +4,18 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define scope_init_let _n(scope_init_let)
+#define check_scope_variable_ _n(check_scope_variable_)
+#define type_and_array _n(type_and_array)
+#define push_tablevalue_global_ _n(push_tablevalue_global_)
+#define checktype_p _n(checktype_p)
+#define checktype_value_ _n(checktype_value_)
+#define ignore_checkvalue_ _n(ignore_checkvalue_)
+#define localhold_let_struct _n(localhold_let_struct)
+#define scope_let_call _n(scope_let_call)
+#define ifdeclvalue_ _n(ifdeclvalue_)
+#define scope_leta_call _n(scope_leta_call)
+
 struct let_struct {
 	addr stack, args, decl, doc, cons, free, the, allocate;
 };

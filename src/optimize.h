@@ -8,6 +8,15 @@
 #include "parse.h"
 #include "typedef.h"
 
+#define save_optimize_value _n(save_optimize_value)
+#define rollback_optimize_value _n(rollback_optimize_value)
+#define optimize_declare_value _n(optimize_declare_value)
+#define optimize_speed_on _n(optimize_speed_on)
+#define optimize_evaltype _n(optimize_evaltype)
+#define optimize_evaltype_on _n(optimize_evaltype_on)
+#define optimize_initialize _n(optimize_initialize)
+#define optimize_extract_ _n(optimize_extract_)
+
 struct optimize_value {
 	OptimizeType declaim[EVAL_OPTIMIZE_SIZE];
 	OptimizeType local[EVAL_OPTIMIZE_SIZE];

@@ -3,6 +3,24 @@
 
 #include "typedef.h"
 
+#define type_value_nil _n(type_value_nil)
+#define type_value_t _n(type_value_t)
+#define type_value_type _n(type_value_type)
+#define type_value_clos_ _n(type_value_clos_)
+#define type_value_array _n(type_value_array)
+#define type_value_vector _n(type_value_vector)
+#define type_value_character _n(type_value_character)
+#define type_value_integer _n(type_value_integer)
+#define type_value_rational _n(type_value_rational)
+#define type_value_bitvector _n(type_value_bitvector)
+#define type_value_float _n(type_value_float)
+#define type_value_complex_ _n(type_value_complex_)
+#define type_value_random_state _n(type_value_random_state)
+#define type_value_pathname _n(type_value_pathname)
+#define type_value_environment _n(type_value_environment)
+#define type_value_ _n(type_value_)
+#define init_type_value _n(init_type_value)
+
 /*  function type_value
  *     input: object
  *    output: type

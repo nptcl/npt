@@ -88,7 +88,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_32BIT;LISP_DEBUG;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_32BIT;LISP_DEBUG;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -101,7 +101,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_64BIT;LISP_DEBUG;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_64BIT;LISP_DEBUG;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -116,7 +116,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_32BIT;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_32BIT;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_64BIT;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_64BIT;LISP_MODE_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -302,6 +302,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_execute.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_instance.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_print.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_sequence.c" />
@@ -356,6 +357,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\md5encode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\memory.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_class.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_generic.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_protocols.c" />
@@ -639,6 +641,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_execute.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_instance.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_print.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_sequence.h" />

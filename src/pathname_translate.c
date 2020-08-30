@@ -10,6 +10,7 @@
 #include "pathname.h"
 #include "pathname_localp.h"
 #include "pathname_object.h"
+#include "pathname_translate.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"

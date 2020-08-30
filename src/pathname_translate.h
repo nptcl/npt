@@ -3,6 +3,13 @@
 
 #include "typedef.h"
 
+#define table_logical_pathname _n(table_logical_pathname)
+#define gethost_logical_pathname_ _n(gethost_logical_pathname_)
+#define sethost_logical_pathname_ _n(sethost_logical_pathname_)
+#define translate_pathname_alloc_ _n(translate_pathname_alloc_)
+#define translate_pathname_heap_ _n(translate_pathname_heap_)
+#define build_pathname_translate _n(build_pathname_translate)
+
 /* found=0, notfound=1 */
 _g void table_logical_pathname(addr *ret);
 _g int gethost_logical_pathname_(addr key, addr *ret);

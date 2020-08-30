@@ -4,6 +4,30 @@
 #include "execute.h"
 #include "local.h"
 
+#define logand_common_ _n(logand_common_)
+#define logandc1_common_ _n(logandc1_common_)
+#define logandc2_common_ _n(logandc2_common_)
+#define logeqv_common_ _n(logeqv_common_)
+#define logior_common_ _n(logior_common_)
+#define lognand_common_ _n(lognand_common_)
+#define lognor_common_ _n(lognor_common_)
+#define lognot_common_ _n(lognot_common_)
+#define logorc1_common_ _n(logorc1_common_)
+#define logorc2_common_ _n(logorc2_common_)
+#define logxor_common_ _n(logxor_common_)
+#define boole_common_ _n(boole_common_)
+#define logbitp_common_ _n(logbitp_common_)
+#define logcount_common_ _n(logcount_common_)
+#define logtest_common_ _n(logtest_common_)
+#define init_boole _n(init_boole)
+#define deposit_field_common_ _n(deposit_field_common_)
+#define dpb_common_ _n(dpb_common_)
+#define ldb_common_ _n(ldb_common_)
+#define function_setf_ldb _n(function_setf_ldb)
+#define ldb_test_common_ _n(ldb_test_common_)
+#define mask_field_common_ _n(mask_field_common_)
+#define function_setf_mask_field _n(function_setf_mask_field)
+
 enum Boole_Index {
 	Boole_1,
 	Boole_2,

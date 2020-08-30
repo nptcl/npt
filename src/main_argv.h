@@ -46,7 +46,7 @@ struct lispargv {
 	void *call_ptr;
 };
 
-void free_lispargv(struct lispargv *ptr);
+void lispargv_free(struct lispargv *ptr);
 struct lispargv *lispargv_main(int argc, char *argv[], char *env[]);
 struct lispargv *lispargv_main_force(int argc, char *argv[], char *env[]);
 #ifdef LISP_WINMAIN_WIDE

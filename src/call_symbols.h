@@ -4,6 +4,19 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define make_symbol_common _n(make_symbol_common)
+#define copy_symbol_common_ _n(copy_symbol_common_)
+#define gensym_common _n(gensym_common)
+#define gentemp_common _n(gentemp_common)
+#define setf_symbol_function_common _n(setf_symbol_function_common)
+#define setf_symbol_value_common _n(setf_symbol_value_common)
+#define setf_symbol_plist_common _n(setf_symbol_plist_common)
+#define get_common _n(get_common)
+#define setf_get_common _n(setf_get_common)
+#define remprop_common _n(remprop_common)
+#define makunbound_common _n(makunbound_common)
+#define set_common _n(set_common)
+
 _g void make_symbol_common(addr var, addr *ret);
 _g int copy_symbol_common_(addr var, addr opt, addr *ret);
 _g int gensym_common(Execute ptr, addr opt, addr *ret);

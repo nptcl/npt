@@ -4,6 +4,12 @@
 #include "local.h"
 #include "typedef.h"
 
+#define oneplus_number_common_ _n(oneplus_number_common_)
+#define oneminus_number_common_ _n(oneminus_number_common_)
+#define sign_reverse_number_common_ _n(sign_reverse_number_common_)
+#define plus_number_heap_ _n(plus_number_heap_)
+#define minus_number_heap_ _n(minus_number_heap_)
+
 _g int oneplus_number_common_(LocalRoot local, addr value, addr *ret);
 _g int oneminus_number_common_(LocalRoot local, addr value, addr *ret);
 _g int sign_reverse_number_common_(addr left, addr *ret);

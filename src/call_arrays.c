@@ -3,6 +3,7 @@
 #include "array_make.h"
 #include "array_vector.h"
 #include "bit.h"
+#include "call_arrays.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"

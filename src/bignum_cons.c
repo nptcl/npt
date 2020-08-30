@@ -7,7 +7,7 @@
 #include "character.h"
 #include "condition.h"
 
-_g void bigbuffer_local(LocalRoot local, addr *ret, bigtype value)
+static void bigbuffer_local(LocalRoot local, addr *ret, bigtype value)
 {
 	addr pos;
 	struct bigbuffer *ptr;

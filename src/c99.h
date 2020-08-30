@@ -9,6 +9,11 @@
 #include <limits.h>
 #include "define.h"
 
+#define setlocale_c _n(setlocale_c)
+#define vsnprintc _n(vsnprintc)
+#define snprintc _n(snprintc)
+#define sscanc _n(sscanc)
+
 #ifdef _WIN32
 
 /* Visual C++ 2010 Express */

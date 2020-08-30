@@ -14,7 +14,7 @@ static int ceiling1_float_(LocalRoot local, addr *quot, addr *rem, addr left)
 	single_float v, r;
 
 	GetSingleFloat(left, &v);
-	Return(lisp_ceiling1_s_(v, &v, &r));
+	Return(float_ceiling1_s_(v, &v, &r));
 	single_float_integer_heap(local, quot, v);
 	single_float_heap(rem, r);
 
@@ -26,7 +26,7 @@ static int ceiling1_double_(LocalRoot local, addr *quot, addr *rem, addr left)
 	double_float v, r;
 
 	GetDoubleFloat(left, &v);
-	Return(lisp_ceiling1_d_(v, &v, &r));
+	Return(float_ceiling1_d_(v, &v, &r));
 	double_float_integer_heap(local, quot, v);
 	double_float_heap(rem, r);
 
@@ -38,7 +38,7 @@ static int ceiling1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float v, r;
 
 	GetLongFloat(left, &v);
-	Return(lisp_ceiling1_l_(v, &v, &r));
+	Return(float_ceiling1_l_(v, &v, &r));
 	long_float_integer_heap(local, quot, v);
 	long_float_heap(rem, r);
 
@@ -59,7 +59,7 @@ _g int ceiling1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			return lisp_ceiling1_ratio_(local, quot, rem, left);
+			return float_ceiling1_ratio_(local, quot, rem, left);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -84,7 +84,7 @@ static int fceiling1_float_(LocalRoot local, addr *quot, addr *rem, addr left)
 	single_float v, r;
 
 	GetSingleFloat(left, &v);
-	Return(lisp_ceiling1_s_(v, &v, &r));
+	Return(float_ceiling1_s_(v, &v, &r));
 	single_float_heap(quot, v);
 	single_float_heap(rem, r);
 
@@ -96,7 +96,7 @@ static int fceiling1_double_(LocalRoot local, addr *quot, addr *rem, addr left)
 	double_float v, r;
 
 	GetDoubleFloat(left, &v);
-	Return(lisp_ceiling1_d_(v, &v, &r));
+	Return(float_ceiling1_d_(v, &v, &r));
 	double_float_heap(quot, v);
 	double_float_heap(rem, r);
 
@@ -108,7 +108,7 @@ static int fceiling1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float v, r;
 
 	GetLongFloat(left, &v);
-	Return(lisp_ceiling1_l_(v, &v, &r));
+	Return(float_ceiling1_l_(v, &v, &r));
 	long_float_heap(quot, v);
 	long_float_heap(rem, r);
 
@@ -129,7 +129,7 @@ _g int fceiling1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			return lisp_fceiling1_ratio_(local, quot, rem, left);
+			return float_fceiling1_ratio_(local, quot, rem, left);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -157,7 +157,7 @@ static int ceiling_ff_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	GetFixnum(left, &a);
 	GetFixnum(right, &b);
-	return lisp_ceiling_fixnum_(quot, rem, a, b);
+	return float_ceiling_fixnum_(quot, rem, a, b);
 }
 
 static int ceiling_fb_common_(LocalRoot local,
@@ -169,7 +169,7 @@ static int ceiling_fb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_ceiling_bignum_(local, quot, rem, left, right));
+	Return(float_ceiling_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -184,7 +184,7 @@ static int ceiling_fr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_ceiling_br_ratio_(local, quot, rem, left, right));
+	Return(float_ceiling_br_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -199,7 +199,7 @@ static int ceiling_fs_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = single_float_fixnum(left);
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -215,7 +215,7 @@ static int ceiling_fd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = double_float_fixnum(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -231,7 +231,7 @@ static int ceiling_fl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = long_float_fixnum(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -276,7 +276,7 @@ static int ceiling_bf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_ceiling_bignum_(local, quot, rem, left, right));
+	Return(float_ceiling_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -291,7 +291,7 @@ static int ceiling_bs_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_bignum_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -307,7 +307,7 @@ static int ceiling_bd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_bignum_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -323,7 +323,7 @@ static int ceiling_bl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_bignum_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -338,10 +338,10 @@ static int ceiling_bignum_common_(LocalRoot local,
 			return ceiling_bf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_ceiling_bignum_(local, quot, rem, left, right);
+			return float_ceiling_bignum_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_ceiling_br_ratio_(local, quot, rem, left, right);
+			return float_ceiling_br_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -368,7 +368,7 @@ static int ceiling_rf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_ceiling_rb_ratio_(local, quot, rem, left, right));
+	Return(float_ceiling_rb_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -383,7 +383,7 @@ static int ceiling_rs_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_ratio_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -399,7 +399,7 @@ static int ceiling_rd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_ratio_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -415,7 +415,7 @@ static int ceiling_rl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_ratio_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -430,10 +430,10 @@ static int ceiling_ratio_common_(LocalRoot local,
 			return ceiling_rf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_ceiling_rb_ratio_(local, quot, rem, left, right);
+			return float_ceiling_rb_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_ceiling_rr_ratio_(local, quot, rem, left, right);
+			return float_ceiling_rr_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -460,7 +460,7 @@ static int ceiling_sf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefSingleFloat(left);
 	b = single_float_fixnum(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -476,7 +476,7 @@ static int ceiling_sb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefSingleFloat(left);
 	Return(single_float_bignum_(right, &b));
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -492,7 +492,7 @@ static int ceiling_sr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefSingleFloat(left);
 	Return(single_float_ratio_(right, &b));
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -508,7 +508,7 @@ static int ceiling_ss_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefSingleFloat(left);
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -524,7 +524,7 @@ static int ceiling_sd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = (double_float)RefSingleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -540,7 +540,7 @@ static int ceiling_sl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefSingleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -585,7 +585,7 @@ static int ceiling_df_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefDoubleFloat(left);
 	b = double_float_fixnum(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -601,7 +601,7 @@ static int ceiling_db_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefDoubleFloat(left);
 	Return(double_float_bignum_(right, &b));
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -617,7 +617,7 @@ static int ceiling_dr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefDoubleFloat(left);
 	Return(double_float_ratio_(right, &b));
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -633,7 +633,7 @@ static int ceiling_ds_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = (double_float)RefSingleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -649,7 +649,7 @@ static int ceiling_dd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -665,7 +665,7 @@ static int ceiling_dl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefDoubleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -710,7 +710,7 @@ static int ceiling_lf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefLongFloat(left);
 	b = long_float_fixnum(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -726,7 +726,7 @@ static int ceiling_lb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefLongFloat(left);
 	Return(long_float_bignum_(right, &b));
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -742,7 +742,7 @@ static int ceiling_lr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefLongFloat(left);
 	Return(long_float_ratio_(right, &b));
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -758,7 +758,7 @@ static int ceiling_ls_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefSingleFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -774,7 +774,7 @@ static int ceiling_ld_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefDoubleFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -790,7 +790,7 @@ static int ceiling_ll_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = RefLongFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -862,7 +862,7 @@ static int fceiling_ff_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	GetFixnum(left, &a);
 	GetFixnum(right, &b);
-	return lisp_fceiling_fixnum_(quot, rem, a, b);
+	return float_fceiling_fixnum_(quot, rem, a, b);
 }
 
 static int fceiling_fb_common_(LocalRoot local,
@@ -874,7 +874,7 @@ static int fceiling_fb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_fceiling_bignum_(local, quot, rem, left, right));
+	Return(float_fceiling_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -889,7 +889,7 @@ static int fceiling_fr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_fceiling_br_ratio_(local, quot, rem, left, right));
+	Return(float_fceiling_br_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -903,7 +903,7 @@ static int fceiling_fs_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = single_float_fixnum(left);
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -919,7 +919,7 @@ static int fceiling_fd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = double_float_fixnum(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -934,7 +934,7 @@ static int fceiling_fl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = long_float_fixnum(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -979,7 +979,7 @@ static int fceiling_bf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_fceiling_bignum_(local, quot, rem, left, right));
+	Return(float_fceiling_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -993,7 +993,7 @@ static int fceiling_bs_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_bignum_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1008,7 +1008,7 @@ static int fceiling_bd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_bignum_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1023,7 +1023,7 @@ static int fceiling_bl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_bignum_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1038,10 +1038,10 @@ static int fceiling_bignum_common_(LocalRoot local,
 			return fceiling_bf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_fceiling_bignum_(local, quot, rem, left, right);
+			return float_fceiling_bignum_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_fceiling_br_ratio_(local, quot, rem, left, right);
+			return float_fceiling_br_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1068,7 +1068,7 @@ static int fceiling_rf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_fceiling_rb_ratio_(local, quot, rem, left, right));
+	Return(float_fceiling_rb_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -1082,7 +1082,7 @@ static int fceiling_rs_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_ratio_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1097,7 +1097,7 @@ static int fceiling_rd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_ratio_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1112,7 +1112,7 @@ static int fceiling_rl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_ratio_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1127,10 +1127,10 @@ static int fceiling_ratio_common_(LocalRoot local,
 			return fceiling_rf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_fceiling_rb_ratio_(local, quot, rem, left, right);
+			return float_fceiling_rb_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_fceiling_rr_ratio_(local, quot, rem, left, right);
+			return float_fceiling_rr_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1156,7 +1156,7 @@ static int fceiling_sf_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefSingleFloat(left);
 	b = single_float_fixnum(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1171,7 +1171,7 @@ static int fceiling_sb_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefSingleFloat(left);
 	Return(single_float_bignum_(right, &b));
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1186,7 +1186,7 @@ static int fceiling_sr_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefSingleFloat(left);
 	Return(single_float_ratio_(right, &b));
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1201,7 +1201,7 @@ static int fceiling_ss_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefSingleFloat(left);
 	b = RefSingleFloat(right);
-	Return(lisp_ceiling_s_(a, b, &a, &b));
+	Return(float_ceiling_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1216,7 +1216,7 @@ static int fceiling_sd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = (double_float)RefSingleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1231,7 +1231,7 @@ static int fceiling_sl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefSingleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1274,7 +1274,7 @@ static int fceiling_df_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefDoubleFloat(left);
 	b = double_float_fixnum(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1289,7 +1289,7 @@ static int fceiling_db_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefDoubleFloat(left);
 	Return(double_float_bignum_(right, &b));
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1304,7 +1304,7 @@ static int fceiling_dr_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefDoubleFloat(left);
 	Return(double_float_ratio_(right, &b));
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1319,7 +1319,7 @@ static int fceiling_ds_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = (double_float)RefSingleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1334,7 +1334,7 @@ static int fceiling_dd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_ceiling_d_(a, b, &a, &b));
+	Return(float_ceiling_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1349,7 +1349,7 @@ static int fceiling_dl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefDoubleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1392,7 +1392,7 @@ static int fceiling_lf_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefLongFloat(left);
 	b = long_float_fixnum(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1407,7 +1407,7 @@ static int fceiling_lb_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefLongFloat(left);
 	Return(long_float_bignum_(right, &b));
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1422,7 +1422,7 @@ static int fceiling_lr_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefLongFloat(left);
 	Return(long_float_ratio_(right, &b));
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1437,7 +1437,7 @@ static int fceiling_ls_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefSingleFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1452,7 +1452,7 @@ static int fceiling_ld_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefDoubleFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1467,7 +1467,7 @@ static int fceiling_ll_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = RefLongFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_ceiling_l_(a, b, &a, &b));
+	Return(float_ceiling_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 

@@ -14,7 +14,7 @@ static int round1_float_(LocalRoot local, addr *quot, addr *rem, addr left)
 	single_float v, r;
 
 	GetSingleFloat(left, &v);
-	Return(lisp_round1_s_(v, &v, &r));
+	Return(float_round1_s_(v, &v, &r));
 	single_float_integer_heap(local, quot, v);
 	single_float_heap(rem, r);
 
@@ -26,7 +26,7 @@ static int round1_double_(LocalRoot local, addr *quot, addr *rem, addr left)
 	double_float v, r;
 
 	GetDoubleFloat(left, &v);
-	Return(lisp_round1_d_(v, &v, &r));
+	Return(float_round1_d_(v, &v, &r));
 	double_float_integer_heap(local, quot, v);
 	double_float_heap(rem, r);
 
@@ -38,7 +38,7 @@ static int round1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float v, r;
 
 	GetLongFloat(left, &v);
-	Return(lisp_round1_l_(v, &v, &r));
+	Return(float_round1_l_(v, &v, &r));
 	long_float_integer_heap(local, quot, v);
 	long_float_heap(rem, r);
 
@@ -59,7 +59,7 @@ _g int round1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			return lisp_round1_ratio_(local, quot, rem, left);
+			return float_round1_ratio_(local, quot, rem, left);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -84,7 +84,7 @@ static int fround1_float_(LocalRoot local, addr *quot, addr *rem, addr left)
 	single_float v, r;
 
 	GetSingleFloat(left, &v);
-	Return(lisp_round1_s_(v, &v, &r));
+	Return(float_round1_s_(v, &v, &r));
 	single_float_heap(quot, v);
 	single_float_heap(rem, r);
 
@@ -96,7 +96,7 @@ static int fround1_double_(LocalRoot local, addr *quot, addr *rem, addr left)
 	double_float v, r;
 
 	GetDoubleFloat(left, &v);
-	Return(lisp_round1_d_(v, &v, &r));
+	Return(float_round1_d_(v, &v, &r));
 	double_float_heap(quot, v);
 	double_float_heap(rem, r);
 
@@ -108,7 +108,7 @@ static int fround1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float v, r;
 
 	GetLongFloat(left, &v);
-	Return(lisp_round1_l_(v, &v, &r));
+	Return(float_round1_l_(v, &v, &r));
 	long_float_heap(quot, v);
 	long_float_heap(rem, r);
 
@@ -129,7 +129,7 @@ _g int fround1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			return lisp_fround1_ratio_(local, quot, rem, left);
+			return float_fround1_ratio_(local, quot, rem, left);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -157,7 +157,7 @@ static int round_ff_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	GetFixnum(left, &a);
 	GetFixnum(right, &b);
-	return lisp_round_fixnum_(quot, rem, a, b);
+	return float_round_fixnum_(quot, rem, a, b);
 }
 
 static int round_fb_common_(LocalRoot local,
@@ -169,7 +169,7 @@ static int round_fb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_round_bignum_(local, quot, rem, left, right));
+	Return(float_round_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -184,7 +184,7 @@ static int round_fr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_round_br_ratio_(local, quot, rem, left, right));
+	Return(float_round_br_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -199,7 +199,7 @@ static int round_fs_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = single_float_fixnum(left);
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -215,7 +215,7 @@ static int round_fd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = double_float_fixnum(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -231,7 +231,7 @@ static int round_fl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = long_float_fixnum(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -276,7 +276,7 @@ static int round_bf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_round_bignum_(local, quot, rem, left, right));
+	Return(float_round_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -291,7 +291,7 @@ static int round_bs_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_bignum_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -307,7 +307,7 @@ static int round_bd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_bignum_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -323,7 +323,7 @@ static int round_bl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_bignum_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -338,10 +338,10 @@ static int round_bignum_common_(LocalRoot local,
 			return round_bf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_round_bignum_(local, quot, rem, left, right);
+			return float_round_bignum_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_round_br_ratio_(local, quot, rem, left, right);
+			return float_round_br_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -368,7 +368,7 @@ static int round_rf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_round_rb_ratio_(local, quot, rem, left, right));
+	Return(float_round_rb_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -383,7 +383,7 @@ static int round_rs_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_ratio_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -399,7 +399,7 @@ static int round_rd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_ratio_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -415,7 +415,7 @@ static int round_rl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_ratio_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -430,10 +430,10 @@ static int round_ratio_common_(LocalRoot local,
 			return round_rf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_round_rb_ratio_(local, quot, rem, left, right);
+			return float_round_rb_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_round_rr_ratio_(local, quot, rem, left, right);
+			return float_round_rr_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -460,7 +460,7 @@ static int round_sf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefSingleFloat(left);
 	b = single_float_fixnum(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -476,7 +476,7 @@ static int round_sb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefSingleFloat(left);
 	Return(single_float_bignum_(right, &b));
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -492,7 +492,7 @@ static int round_sr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefSingleFloat(left);
 	Return(single_float_ratio_(right, &b));
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -508,7 +508,7 @@ static int round_ss_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefSingleFloat(left);
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_integer_heap(local, quot, a);
 	single_float_heap(rem, b);
 
@@ -524,7 +524,7 @@ static int round_sd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = (double_float)RefSingleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -540,7 +540,7 @@ static int round_sl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefSingleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -585,7 +585,7 @@ static int round_df_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefDoubleFloat(left);
 	b = double_float_fixnum(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -601,7 +601,7 @@ static int round_db_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefDoubleFloat(left);
 	Return(double_float_bignum_(right, &b));
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -617,7 +617,7 @@ static int round_dr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefDoubleFloat(left);
 	Return(double_float_ratio_(right, &b));
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -633,7 +633,7 @@ static int round_ds_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = (double_float)RefSingleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -649,7 +649,7 @@ static int round_dd_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_integer_heap(local, quot, a);
 	double_float_heap(rem, b);
 
@@ -665,7 +665,7 @@ static int round_dl_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefDoubleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -710,7 +710,7 @@ static int round_lf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefLongFloat(left);
 	b = long_float_fixnum(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -726,7 +726,7 @@ static int round_lb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefLongFloat(left);
 	Return(long_float_bignum_(right, &b));
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -742,7 +742,7 @@ static int round_lr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefLongFloat(left);
 	Return(long_float_ratio_(right, &b));
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -758,7 +758,7 @@ static int round_ls_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefSingleFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -774,7 +774,7 @@ static int round_ld_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefDoubleFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -790,7 +790,7 @@ static int round_ll_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = RefLongFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_integer_heap(local, quot, a);
 	long_float_heap(rem, b);
 
@@ -862,7 +862,7 @@ static int fround_ff_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	GetFixnum(left, &a);
 	GetFixnum(right, &b);
-	return lisp_fround_fixnum_(quot, rem, a, b);
+	return float_fround_fixnum_(quot, rem, a, b);
 }
 
 static int fround_fb_common_(LocalRoot local,
@@ -874,7 +874,7 @@ static int fround_fb_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_BIGNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_fround_bignum_(local, quot, rem, left, right));
+	Return(float_fround_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -889,7 +889,7 @@ static int fround_fr_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_RATIO);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &left, left);
-	Return(lisp_fround_br_ratio_(local, quot, rem, left, right));
+	Return(float_fround_br_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -903,7 +903,7 @@ static int fround_fs_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = single_float_fixnum(left);
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -918,7 +918,7 @@ static int fround_fd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = double_float_fixnum(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -933,7 +933,7 @@ static int fround_fl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = long_float_fixnum(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -978,7 +978,7 @@ static int fround_bf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_fround_bignum_(local, quot, rem, left, right));
+	Return(float_fround_bignum_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -992,7 +992,7 @@ static int fround_bs_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_bignum_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1007,7 +1007,7 @@ static int fround_bd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_bignum_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1022,7 +1022,7 @@ static int fround_bl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_bignum_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1037,10 +1037,10 @@ static int fround_bignum_common_(LocalRoot local,
 			return fround_bf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_fround_bignum_(local, quot, rem, left, right);
+			return float_fround_bignum_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_fround_br_ratio_(local, quot, rem, left, right);
+			return float_fround_br_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1067,7 +1067,7 @@ static int fround_rf_common_(LocalRoot local,
 	CheckType(right, LISPTYPE_FIXNUM);
 	push_local(local, &stack);
 	bignum_fixnum_local(local, &right, right);
-	Return(lisp_fround_rb_ratio_(local, quot, rem, left, right));
+	Return(float_fround_rb_ratio_(local, quot, rem, left, right));
 	rollback_local(local, stack);
 
 	return 0;
@@ -1081,7 +1081,7 @@ static int fround_rs_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	Return(single_float_ratio_(left, &a));
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1096,7 +1096,7 @@ static int fround_rd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	Return(double_float_ratio_(left, &a));
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1111,7 +1111,7 @@ static int fround_rl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	Return(long_float_ratio_(left, &a));
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1126,10 +1126,10 @@ static int fround_ratio_common_(LocalRoot local,
 			return fround_rf_common_(local, quot, rem, left, right);
 
 		case LISPTYPE_BIGNUM:
-			return lisp_fround_rb_ratio_(local, quot, rem, left, right);
+			return float_fround_rb_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_RATIO:
-			return lisp_fround_rr_ratio_(local, quot, rem, left, right);
+			return float_fround_rr_ratio_(local, quot, rem, left, right);
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1155,7 +1155,7 @@ static int fround_sf_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefSingleFloat(left);
 	b = single_float_fixnum(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1170,7 +1170,7 @@ static int fround_sb_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefSingleFloat(left);
 	Return(single_float_bignum_(right, &b));
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1185,7 +1185,7 @@ static int fround_sr_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefSingleFloat(left);
 	Return(single_float_ratio_(right, &b));
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1200,7 +1200,7 @@ static int fround_ss_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefSingleFloat(left);
 	b = RefSingleFloat(right);
-	Return(lisp_round_s_(a, b, &a, &b));
+	Return(float_round_s_(a, b, &a, &b));
 	single_float_heap(quot, a);
 	single_float_heap(rem, b);
 
@@ -1215,7 +1215,7 @@ static int fround_sd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = (double_float)RefSingleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1230,7 +1230,7 @@ static int fround_sl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefSingleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1273,7 +1273,7 @@ static int fround_df_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefDoubleFloat(left);
 	b = double_float_fixnum(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1288,7 +1288,7 @@ static int fround_db_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefDoubleFloat(left);
 	Return(double_float_bignum_(right, &b));
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1303,7 +1303,7 @@ static int fround_dr_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefDoubleFloat(left);
 	Return(double_float_ratio_(right, &b));
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1318,7 +1318,7 @@ static int fround_ds_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = (double_float)RefSingleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1333,7 +1333,7 @@ static int fround_dd_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefDoubleFloat(left);
 	b = RefDoubleFloat(right);
-	Return(lisp_round_d_(a, b, &a, &b));
+	Return(float_round_d_(a, b, &a, &b));
 	double_float_heap(quot, a);
 	double_float_heap(rem, b);
 
@@ -1348,7 +1348,7 @@ static int fround_dl_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = (long_float)RefDoubleFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1391,7 +1391,7 @@ static int fround_lf_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_FIXNUM);
 	a = RefLongFloat(left);
 	b = long_float_fixnum(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1406,7 +1406,7 @@ static int fround_lb_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_BIGNUM);
 	a = RefLongFloat(left);
 	Return(long_float_bignum_(right, &b));
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1421,7 +1421,7 @@ static int fround_lr_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_RATIO);
 	a = RefLongFloat(left);
 	Return(long_float_ratio_(right, &b));
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1436,7 +1436,7 @@ static int fround_ls_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefSingleFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1451,7 +1451,7 @@ static int fround_ld_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	a = RefLongFloat(left);
 	b = (long_float)RefDoubleFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 
@@ -1466,7 +1466,7 @@ static int fround_ll_common_(addr *quot, addr *rem, addr left, addr right)
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	a = RefLongFloat(left);
 	b = RefLongFloat(right);
-	Return(lisp_round_l_(a, b, &a, &b));
+	Return(float_round_l_(a, b, &a, &b));
 	long_float_heap(quot, a);
 	long_float_heap(rem, b);
 

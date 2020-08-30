@@ -337,7 +337,7 @@ static void push_dynamic_function_declare_heap(addr pos, addr callname)
 	push_callname_declare_heap(pos, callname, EVAL_DECLARE_DYNAMIC_FUNCTION);
 }
 
-_g void push_declaration_declare_heap(addr pos, addr symbol)
+static void push_declaration_declare_heap(addr pos, addr symbol)
 {
 	push_constant_declare_heap(pos, symbol, EVAL_DECLARE_DECLARATION);
 }

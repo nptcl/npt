@@ -93,7 +93,7 @@ static int forcel_complex_common_(struct mathcall_struct *ptr,
 	return complex_long_heap_(ret, real, imag);
 }
 
-_g int call_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
+static int call_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	enum MathType type;
 	struct mathtype_struct str;
@@ -119,7 +119,7 @@ _g int call_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 	}
 }
 
-_g int call_range_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
+static int call_range_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	enum MathType type;
 	single_float vs;

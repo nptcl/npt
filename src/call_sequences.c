@@ -4,6 +4,7 @@
 #include "array_sequence.h"
 #include "array_vector.h"
 #include "bit.h"
+#include "call_sequences.h"
 #include "character.h"
 #include "condition.h"
 #include "cons.h"

@@ -1,6 +1,7 @@
 #include "bignum_data.h"
 #include "bignum_object.h"
 #include "bignum_plus.h"
+#include "bignum_multi.h"
 #include "bignum.h"
 #include "memory.h"
 #include "typedef.h"

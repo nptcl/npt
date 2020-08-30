@@ -2,6 +2,7 @@
 #include "file.h"
 #include "gc.h"
 #include "gc_check.h"
+#include "gc_execute.h"
 #include "heap.h"
 #include "heap_memory.h"
 #include "memory.h"
@@ -17,6 +18,7 @@
 /*
  *  checkallobject
  */
+#ifdef LISP_DEBUG
 static void checkallobject_heap(void)
 {
 	addr pos;
@@ -54,11 +56,12 @@ static void checkallobject_local(Execute ptr)
 		checkallarray_loop(cell->point, cell->count);
 }
 
-_g void checkallobject_debug(void)
+static void checkallobject_debug(void)
 {
 	checkallobject_heap();
 	foreach_execute(checkallobject_local);
 }
+#endif
 
 
 /*

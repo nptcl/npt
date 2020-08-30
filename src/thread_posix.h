@@ -4,7 +4,7 @@
 /*
  *  posix semaphore
  */
-_g int trylock_semposix(semposix *sem)
+_g int lispd_trylock_semposix(semposix *sem)
 {
 	int result;
 
@@ -12,18 +12,18 @@ _g int trylock_semposix(semposix *sem)
 	if (result) {
 		if (errno == EAGAIN) return 1;
 		Debug("sem_trywait error");
-		threaderror();
+		lispd_threaderror();
 	}
 	return 0;
 }
 
-_g int get_semposix(semposix *sem)
+_g int lispd_get_semposix(semposix *sem)
 {
 	int result;
 
 	if (sem_getvalue(sem, &result)) {
 		Debug("sem_post error");
-		threaderror();
+		lispd_threaderror();
 	}
 
 	return result;

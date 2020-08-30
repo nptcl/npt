@@ -11,6 +11,19 @@ enum ReadTable_Result {
 	ReadTable_Result_eof
 };
 
+#define readtable_typetable_ _n(readtable_typetable_)
+#define readtable_result_ _n(readtable_result_)
+#define readtable_novalue _n(readtable_novalue)
+#define read_call _n(read_call)
+#define read_stream _n(read_stream)
+#define read_preserving _n(read_preserving)
+#define read_recursive _n(read_recursive)
+#define read_from_string _n(read_from_string)
+#define readstring_debug _n(readstring_debug)
+#define readr_debug _n(readr_debug)
+#define init_reader _n(init_reader)
+#define build_reader _n(build_reader)
+
 _g int readtable_typetable_(addr pos, unicode c, enum ReadTable_Type *ret);
 _g int readtable_result_(Execute ptr,
 		addr *token, addr stream, addr table, enum ReadTable_Result *ret);

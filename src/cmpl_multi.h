@@ -4,6 +4,31 @@
 #include "local.h"
 #include "typedef.h"
 
+#define multi_rational_complex_common_ _n(multi_rational_complex_common_)
+#define multi_fc_number_common_ _n(multi_fc_number_common_)
+#define multi_bc_number_common_ _n(multi_bc_number_common_)
+#define multi_rc_number_common_ _n(multi_rc_number_common_)
+#define multi_sc_number_common_ _n(multi_sc_number_common_)
+#define multi_dc_number_common_ _n(multi_dc_number_common_)
+#define multi_lc_number_common_ _n(multi_lc_number_common_)
+#define multi_cc_number_common_ _n(multi_cc_number_common_)
+#define inverse_complex_common_ _n(inverse_complex_common_)
+#define div_rational_complex_common_ _n(div_rational_complex_common_)
+#define div_complex_rational_common_ _n(div_complex_rational_common_)
+#define div_fc_number_common_ _n(div_fc_number_common_)
+#define div_cf_number_common_ _n(div_cf_number_common_)
+#define div_bc_number_common_ _n(div_bc_number_common_)
+#define div_cb_number_common_ _n(div_cb_number_common_)
+#define div_rc_number_common_ _n(div_rc_number_common_)
+#define div_cr_number_common_ _n(div_cr_number_common_)
+#define div_sc_number_common_ _n(div_sc_number_common_)
+#define div_cs_number_common_ _n(div_cs_number_common_)
+#define div_dc_number_common_ _n(div_dc_number_common_)
+#define div_cd_number_common_ _n(div_cd_number_common_)
+#define div_lc_number_common_ _n(div_lc_number_common_)
+#define div_cl_number_common_ _n(div_cl_number_common_)
+#define div_cc_number_common_ _n(div_cc_number_common_)
+
 _g int multi_rational_complex_common_(LocalRoot local, addr left, addr right, addr *ret);
 _g int multi_fc_number_common_(LocalRoot local, addr left, addr right, addr *ret);
 _g int multi_bc_number_common_(LocalRoot local, addr left, addr right, addr *ret);

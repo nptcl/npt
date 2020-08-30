@@ -4,6 +4,7 @@
 #include "call_system.h"
 #include "common_header.h"
 #include "compile.h"
+#include "compile_file.h"
 #include "cons.h"
 #include "cons_plist.h"
 #include "control.h"

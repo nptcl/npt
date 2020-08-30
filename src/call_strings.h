@@ -4,6 +4,34 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define simple_string_p_common _n(simple_string_p_common)
+#define char_common _n(char_common)
+#define schar_common _n(schar_common)
+#define setf_char_common _n(setf_char_common)
+#define string_common _n(string_common)
+#define string_upcase_common _n(string_upcase_common)
+#define string_downcase_common _n(string_downcase_common)
+#define string_capitalize_common _n(string_capitalize_common)
+#define nstring_upcase_common _n(nstring_upcase_common)
+#define nstring_downcase_common _n(nstring_downcase_common)
+#define nstring_capitalize_common _n(nstring_capitalize_common)
+#define string_trim_common _n(string_trim_common)
+#define string_left_trim_common _n(string_left_trim_common)
+#define string_right_trim_common _n(string_right_trim_common)
+#define string_eql_common _n(string_eql_common)
+#define string_not_eql_common _n(string_not_eql_common)
+#define string_less_common _n(string_less_common)
+#define string_greater_common _n(string_greater_common)
+#define string_less_equal_common _n(string_less_equal_common)
+#define string_greater_equal_common _n(string_greater_equal_common)
+#define string_equal_common _n(string_equal_common)
+#define string_not_equal_common _n(string_not_equal_common)
+#define string_lessp_common _n(string_lessp_common)
+#define string_greaterp_common _n(string_greaterp_common)
+#define string_not_greaterp_common _n(string_not_greaterp_common)
+#define string_not_lessp_common _n(string_not_lessp_common)
+#define make_string_common _n(make_string_common)
+
 _g void simple_string_p_common(addr var, addr *ret);
 _g int char_common(addr str, addr pos, addr *ret);
 _g int schar_common(addr str, addr pos, addr *ret);

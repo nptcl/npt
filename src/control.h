@@ -3,6 +3,7 @@
 
 #include "typedef.h"
 
+#define init_control _n(init_control)
 _g void init_control(void);
 
 #endif

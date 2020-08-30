@@ -4,6 +4,11 @@
 #include "define.h"
 #include "typedef.h"
 
+#define init_localtime _n(init_localtime)
+#define gmtime_arch _n(gmtime_arch)
+#define localtime_arch _n(localtime_arch)
+#define nowtime_string _n(nowtime_string)
+
 #if defined(LISP_WINDOWS)
 /* Windows */
 #define __STDC_WANT_LIB_EXT1__ 1

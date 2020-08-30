@@ -12,7 +12,6 @@
 #include "main_string.h"
 #include "typedef.h"
 
-
 /*
  *  getsize_stringu
  */

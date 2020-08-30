@@ -4,6 +4,22 @@
 #include "memory.h"
 #include "typedef.h"
 
+#define packagep _n(packagep)
+#define package_designer_p _n(package_designer_p)
+#define package_designer_equal_ _n(package_designer_equal_)
+#define getname_package_ _n(getname_package_)
+#define getnickname_package_ _n(getnickname_package_)
+#define getuselist_package_ _n(getuselist_package_)
+#define getusedbylist_package_ _n(getusedbylist_package_)
+#define getshadow_package_ _n(getshadow_package_)
+#define getdocument_package _n(getdocument_package)
+#define setdocument_package _n(setdocument_package)
+#define getname_package_unsafe _n(getname_package_unsafe)
+#define getnickname_package_unsafe _n(getnickname_package_unsafe)
+#define getuselist_package_unsafe _n(getuselist_package_unsafe)
+#define getusedbylist_package_unsafe _n(getusedbylist_package_unsafe)
+#define getshadow_package_unsafe _n(getshadow_package_unsafe)
+
 enum PACKAGE_INDEX {
 	PACKAGE_INDEX_TABLE = 0,
 	PACKAGE_INDEX_NAME,

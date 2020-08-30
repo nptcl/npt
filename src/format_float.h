@@ -7,6 +7,22 @@
 #ifndef __FMTFLOAT_HEADER__
 #define __FMTFLOAT_HEADER__
 
+#define fmtfloat_write_char_ _n(fmtfloat_write_char_)
+#define fmtfloat_print_ascii_ _n(fmtfloat_print_ascii_)
+#define fmtdecimal_zerop _n(fmtdecimal_zerop)
+#define fmtdecimal_round _n(fmtdecimal_round)
+#define fmtdecimal_single_float _n(fmtdecimal_single_float)
+#define fmtdecimal_double_float _n(fmtdecimal_double_float)
+#define fmtdecimal_long_float _n(fmtdecimal_long_float)
+#define fmtdecimal_dump _n(fmtdecimal_dump)
+#define fmtfloat_fixed_ _n(fmtfloat_fixed_)
+#define fmtfloat_exponent_ _n(fmtfloat_exponent_)
+#define fmtfloat_general_ _n(fmtfloat_general_)
+#define fmtfloat_monetary_ _n(fmtfloat_monetary_)
+#define fmtfloat_princ_single_float_ _n(fmtfloat_princ_single_float_)
+#define fmtfloat_princ_double_float_ _n(fmtfloat_princ_double_float_)
+#define fmtfloat_princ_long_float_ _n(fmtfloat_princ_long_float_)
+
 #include <stddef.h>
 #include "typedef.h"
 
@@ -96,6 +112,29 @@ _g int fmtfloat_princ_double_float_(addr stream,
 		double_float value, int markerp, unicode marker, int *ret);
 _g int fmtfloat_princ_long_float_(addr stream,
 		long_float value, int markerp, unicode marker, int *ret);
+
+/* debug */
+#define fmtfloat_fixed_float_ _n(fmtfloat_fixed_float_)
+#define fmtfloat_fixed_double_ _n(fmtfloat_fixed_double_)
+#define fmtfloat_exponent_float_ _n(fmtfloat_exponent_float_)
+#define fmtfloat_exponent_double_ _n(fmtfloat_exponent_double_)
+
+_g int fmtfloat_fixed_float_(addr stream, single_float value,
+		int sign,
+		fixnum w, fixnum d, fixnum k,
+		unicode overflow, unicode pad);
+_g int fmtfloat_fixed_double_(addr stream, double_float value,
+		int sign,
+		fixnum w, fixnum d, fixnum k,
+		unicode overflow, unicode pad);
+_g int fmtfloat_exponent_float_(addr stream, single_float value,
+		int sign, fixnum w,
+		fixnum d, fixnum e, fixnum k,
+		unicode overflow, unicode pad, unicode exponent);
+_g int fmtfloat_exponent_double_(addr stream, double_float value,
+		int sign, fixnum w,
+		fixnum d, fixnum e, fixnum k,
+		unicode overflow, unicode pad, unicode exponent);
 
 #endif
 

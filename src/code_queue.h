@@ -5,6 +5,39 @@
 #include "local.h"
 #include "typedef.h"
 
+#define code_queue_local _n(code_queue_local)
+#define code_queue_mode _n(code_queue_mode)
+#define code_queue_setp _n(code_queue_setp)
+#define code_queue_pushp _n(code_queue_pushp)
+#define code_queue_remp _n(code_queue_remp)
+#define code_queue_rollback _n(code_queue_rollback)
+#define code_queue_setmode _n(code_queue_setmode)
+#define code_queue_pushmode _n(code_queue_pushmode)
+#define code_queue_remmode _n(code_queue_remmode)
+#define code_queue_add2 _n(code_queue_add2)
+#define code_queue_push _n(code_queue_push)
+#define code_queue_list _n(code_queue_list)
+#define code_queue_single _n(code_queue_single)
+#define code_queue_cons _n(code_queue_cons)
+#define code_queue_double _n(code_queue_double)
+#define code_queue_ifpush _n(code_queue_ifpush)
+#define code_queue_push_simple _n(code_queue_push_simple)
+#define code_queue_push_new _n(code_queue_push_new)
+#define code_queue_push_args _n(code_queue_push_args)
+#define code_queue_pop _n(code_queue_pop)
+#define code_make_execute_set _n(code_make_execute_set)
+#define code_make_execute_push _n(code_make_execute_push)
+#define code_make_execute_rem _n(code_make_execute_rem)
+#define code_make_execute_control _n(code_make_execute_control)
+#define code_make_single _n(code_make_single)
+#define code_make_object _n(code_make_object)
+#define code_queue_make_label _n(code_queue_make_label)
+#define code_queue_push_label _n(code_queue_push_label)
+#define code_queue_if_unbound _n(code_queue_if_unbound)
+#define code_queue_if_nil _n(code_queue_if_nil)
+#define code_queue_if_t _n(code_queue_if_t)
+#define code_queue_goto _n(code_queue_goto)
+
 enum CodeQueue_Mode {
 	CodeQueue_ModeSet,
 	CodeQueue_ModePush,

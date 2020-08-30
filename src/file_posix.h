@@ -15,6 +15,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "encode.h"
+#include "file.h"
 #include "local.h"
 #include "object.h"
 #include "pathname.h"

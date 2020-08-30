@@ -78,7 +78,7 @@ _g int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
 	return 0;
 }
 
-_g int format_array_lisp(Execute ptr, addr array, addr format, addr args, addr *ret)
+static int format_array_lisp(Execute ptr, addr array, addr format, addr args, addr *ret)
 {
 	int result;
 	addr stream;

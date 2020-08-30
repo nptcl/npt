@@ -5,6 +5,25 @@
 #include "local.h"
 #include "typedef.h"
 
+#define sequencep _n(sequencep)
+#define listp_sequence_ _n(listp_sequence_)
+#define vectorp_sequence_ _n(vectorp_sequence_)
+#define vectorp_sequence_debug _n(vectorp_sequence_debug)
+#define vector_check_sequence_ _n(vector_check_sequence_)
+#define simple_vector_check_sequence_ _n(simple_vector_check_sequence_)
+#define array_check_sequence_ _n(array_check_sequence_)
+#define make_vector_from_list_ _n(make_vector_from_list_)
+#define make_vector4_from_list_ _n(make_vector4_from_list_)
+#define list_start_end_sequence_ _n(list_start_end_sequence_)
+#define size_start_end_sequence_ _n(size_start_end_sequence_)
+#define length_sequence_ _n(length_sequence_)
+#define getelt_inplace_sequence_ _n(getelt_inplace_sequence_)
+#define setelt_inplace_sequence_ _n(setelt_inplace_sequence_)
+#define getelt_sequence_ _n(getelt_sequence_)
+#define setelt_sequence_ _n(setelt_sequence_)
+#define reverse_sequence_heap_ _n(reverse_sequence_heap_)
+#define nreverse_sequence_ _n(nreverse_sequence_)
+
 _g int sequencep(addr pos);
 _g int listp_sequence_(addr pos, int *ret);
 _g int vectorp_sequence_(addr pos, int *ret);

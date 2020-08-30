@@ -3,6 +3,7 @@
 #include "control_object.h"
 #include "encode.h"
 #include "strvect.h"
+#include "unicode.h"
 
 /*
  *  UTF-8

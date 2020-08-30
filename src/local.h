@@ -4,6 +4,34 @@
 #include <stddef.h>
 #include "typedef.h"
 
+#define decrement_local _n(decrement_local)
+#define lowlevel_local _n(lowlevel_local)
+#define alloc_local _n(alloc_local)
+#define make_local _n(make_local)
+#define free_local _n(free_local)
+#define push_local _n(push_local)
+#define rollback_local _n(rollback_local)
+#define local_cons _n(local_cons)
+#define local_symbol _n(local_symbol)
+#define local_array2_memory _n(local_array2_memory)
+#define local_array4_memory _n(local_array4_memory)
+#define local_body2_memory _n(local_body2_memory)
+#define local_body4_memory _n(local_body4_memory)
+#define local_smallsize_memory _n(local_smallsize_memory)
+#define local_arraybody_memory _n(local_arraybody_memory)
+#define local_array4_unbound_memory _n(local_array4_unbound_memory)
+#define local_array _n(local_array)
+#define local_body _n(local_body)
+#define local_array8 _n(local_array8)
+#define local_body8 _n(local_body8)
+#define local_array2_debug _n(local_array2_debug)
+#define local_array4_debug _n(local_array4_debug)
+#define local_body2_debug _n(local_body2_debug)
+#define local_body4_debug _n(local_body4_debug)
+#define local_smallsize_debug _n(local_smallsize_debug)
+#define local_arraybody_debug _n(local_arraybody_debug)
+#define local_array4_unbound_debug _n(local_array4_unbound_debug)
+
 #ifdef LISP_DEBUG
 #define LocalCount		8
 #else
