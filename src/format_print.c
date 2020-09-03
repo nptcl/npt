@@ -201,6 +201,7 @@ static int fmtprint_pop_error_(fmtprint print, struct format_operator *str,
 	addr pos;
 	size_t i;
 
+	pos = Nil;
 	for (i = 0; i < n; i++) {
 		if (! consp(list))
 			return fmtprop_abort_(print, str, "Too few format arguments.", NULL);

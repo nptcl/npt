@@ -2428,6 +2428,7 @@ static int test_nintersection_cons(Execute ptr, addr *ret,
 	}
 
 	/* tail */
+	next2 = Nil;
 	while (list1 != Nil) {
 		Return_getcons(list1, &left, &next1);
 		while (next1 != Nil) {
@@ -2741,6 +2742,7 @@ static int test_nset_difference_cons(Execute ptr, addr *ret,
 	}
 
 	/* tail */
+	next2 = Nil;
 	while (list1 != Nil) {
 		Return_getcons(list1, &left, &next1);
 		while (next1 != Nil) {

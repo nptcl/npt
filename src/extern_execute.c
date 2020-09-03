@@ -15,6 +15,7 @@
 #include "execute_values.h"
 #include "hold.h"
 #include "local.h"
+#include "prompt.h"
 #include "typedef.h"
 
 /*
@@ -707,5 +708,20 @@ void lisp_rollback_control(addr value)
 int lisp_eval_loop_(void)
 {
 	return eval_main_loop_(Execute_Thread);
+}
+
+size_t lisp_prompt_indent(void)
+{
+	return getindex_prompt_safe(Execute_Thread);
+}
+
+int lisp_prompt_show(void)
+{
+	return getshow_prompt_safe(Execute_Thread);
+}
+
+void lisp_prompt_end(void)
+{
+	endshow_prompt_safe(Execute_Thread);
 }
 

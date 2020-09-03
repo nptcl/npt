@@ -571,7 +571,7 @@ static int argv_env_windows(lisptableu *ret)
 	if (ptr == NULL)
 		return 1;
 	a = tableu_env_windows((const byte16 *)ptr);
-	FreeEnvironmentStrings(ptr);
+	FreeEnvironmentStringsW(ptr);
 	if (a == NULL)
 		return 1;
 	*ret = a;

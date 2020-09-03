@@ -717,6 +717,7 @@ static int loop_push_for_as_hash_(Execute ptr, addr *expr1, addr *expr2, addr li
 	list_heap(&declare, declare, ignorable, NULL);
 	list_heap(&go, go, end_loop, NULL);
 	list_heap(&unless, unless, check, go, NULL);
+	y = Nil;
 	if (keyp != Nil) {
 		Return(loop_destructuring_setq_(ptr, var, type, key, &x));
 		if (use != Unbound)

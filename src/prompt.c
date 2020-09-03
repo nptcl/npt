@@ -60,6 +60,17 @@ _g size_t getindex_prompt(Execute ptr)
 	return PtrPromptInfo(pos)->index;
 }
 
+_g size_t getindex_prompt_safe(Execute ptr)
+{
+	addr pos;
+	struct prompt_info *str;
+
+	symbol_prompt_info(&pos);
+	getspecial_local(ptr, pos, &pos);
+	str = PtrPromptInfo(pos);
+	return (pos == Unbound)? 0: str->index;
+}
+
 _g void setindex_prompt(Execute ptr, size_t index)
 {
 	addr pos;
@@ -88,12 +99,40 @@ _g int getshow_prompt(Execute ptr)
 	return PtrPromptInfo(pos)->show_p;
 }
 
+_g int getshow_prompt_safe(Execute ptr)
+{
+	addr pos;
+	struct prompt_info *str;
+
+	symbol_prompt_info(&pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Unbound)
+		return 0;
+
+	str = PtrPromptInfo(pos);
+	return str->show_p;
+}
+
 _g void setshow_prompt(Execute ptr, int value)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	PtrPromptInfo(pos)->show_p = (value != 0);
 }
+
+_g void endshow_prompt_safe(Execute ptr)
+{
+	addr pos;
+	struct prompt_info *str;
+
+	symbol_prompt_info(&pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos != Unbound) {
+		str = PtrPromptInfo(pos);
+		str->show_p = 0;
+	}
+}
+
 
 #ifdef LISP_PROMPT_DEFAULT
 _g int show_prompt_(Execute ptr, addr io)

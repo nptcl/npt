@@ -92,7 +92,7 @@ _g int gcd_number_(LocalRoot local, addr args, addr *ret)
 	size_t count, value, size;
 
 	/* check */
-	first_left = Unbound;
+	first_left = first_right = Unbound;
 	count = 0;
 	size = 0;
 	for (right = args; right != Nil; ) {

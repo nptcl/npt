@@ -141,7 +141,7 @@ static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 		return fmte_("Cannot convert ~S to UTF-16 string.", file, NULL);
 	}
 	body = (const WCHAR *)posbodyr(pos);
-	check = PathIsDirectory(body);
+	check = PathIsDirectoryW(body);
 	rollback_local(local, stack);
 
 	return Result(ret, check);
@@ -257,7 +257,7 @@ static int wild_check_directory_files(struct directory_struct *str, addr name, i
 	if (value == Unbound)
 		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
 	ptr = (const WCHAR *)posbodyr(value);
-	check = PathIsDirectory(ptr);
+	check = PathIsDirectoryW(ptr);
 	rollback_local(local, stack);
 
 	return Result(ret, check);
@@ -571,8 +571,8 @@ static int ensure_directories_exist_run_files(Execute ptr,
 			return fmte_("Cannot decode UTF-16 string ~S.", temp, NULL);
 		str = (const WCHAR *)posbodyr(value);
 		/* already exist */
-		if (PathFileExists(str)) {
-			if (! PathIsDirectory(str))
+		if (PathFileExistsW(str)) {
+			if (! PathIsDirectoryW(str))
 				return fmte_("Cannot make directory ~S.", pos, NULL);
 			rollback_local(local, stack);
 			continue;

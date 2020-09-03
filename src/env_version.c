@@ -281,6 +281,7 @@ _g int software_version_common(addr *ret)
 	return Result(ret, Nil);
 #endif
 
+	ptr = NULL;
 	/* VERSION.DLL */
 	version_dll = LoadLibraryA("VERSION.DLL");
 	if (version_dll == NULL) {

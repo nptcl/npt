@@ -491,6 +491,7 @@ static int merge_sort_list_sequence_(struct sort_struct *str,
 	Return(getnthcdr_(a, s1, &b));
 
 	/* memory */
+	stack = NULL;
 	check = (str->mem == Nil);
 	if (check) {
 		push_local(str->local, &stack);
@@ -603,6 +604,7 @@ static int merge_sort_vector_sequence_(struct sort_struct *str,
 	b = a + s1;
 
 	/* memory */
+	stack = NULL;
 	check = (str->mem == Nil);
 	if (check) {
 		push_local(str->local, &stack);

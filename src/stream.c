@@ -1720,6 +1720,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 	Return(finish_output_stream_(stream));
 
 	/* query */
+	spec = Nil;
 	if (type != T) {
 		Return(parse_type(ptr, &spec, type, Nil));
 		localhold_push(hold, spec);

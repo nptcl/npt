@@ -2091,6 +2091,7 @@ static int format_call_Iteration_list(fmtprint print,
 	now = print->now;
 
 	stream = print->stream;
+	root = Nil;
 	check = pretty_stream_p(stream);
 	if (check) {
 		Return(root_pretty_stream_(stream, &root));
@@ -2155,6 +2156,7 @@ static int format_call_Iteration_listargs(fmtprint print,
 
 	/* save */
 	stream = print->stream;
+	root = Nil;
 	check = pretty_stream_p(stream);
 	if (check) {
 		Return(root_pretty_stream_(stream, &root));
@@ -2212,6 +2214,7 @@ static int format_call_Iteration_restargs(fmtprint print,
 	stream = print->stream;
 	check = pretty_stream_p(stream);
 
+	root = Nil;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, rest->front, &forcep))
 			break;
@@ -2296,6 +2299,7 @@ static int format_call_Iteration2_list(fmtprint print,
 	args.index = 0;
 	print->rest = &args;
 
+	root = Nil;
 	stream = print->stream;
 	check = pretty_stream_p(stream);
 	if (check) {
@@ -2357,6 +2361,7 @@ static int format_call_Iteration2_listargs(fmtprint print,
 
 	/* save */
 	stream = print->stream;
+	root = Nil;
 	check = pretty_stream_p(stream);
 	if (check) {
 		Return(root_pretty_stream_(stream, &root));
@@ -2414,6 +2419,7 @@ static int format_call_Iteration2_restargs(fmtprint print,
 			break;
 		print->rest = rest;
 		Return(fmtprint_pop_(print, str, &pos));
+		root = Nil;
 		if (check) {
 			Return(root_pretty_stream_(stream, &root));
 		}

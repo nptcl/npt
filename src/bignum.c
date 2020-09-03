@@ -624,6 +624,7 @@ static int bignum_single_float_alloc_(
 	}
 
 	/* cast */
+	stack = NULL;
 	if (is_heap) {
 		push_local(local, &stack);
 	}
@@ -665,6 +666,7 @@ static int bignum_double_float_alloc_(
 	}
 
 	/* cast */
+	stack = NULL;
 	if (is_heap) {
 		push_local(local, &stack);
 	}
@@ -706,6 +708,7 @@ static int bignum_long_float_alloc_(
 	}
 
 	/* cast */
+	stack = NULL;
 	if (is_heap) {
 		push_local(local, &stack);
 	}

@@ -201,7 +201,7 @@ static int run_process_list_utf16_(LocalRoot local, addr var, addr list, wchar_t
 static int run_process_windows_(LocalRoot local, addr var, addr args, addr *ret)
 {
 	wchar_t *list;
-	STARTUPINFO sinfo;
+	STARTUPINFOW sinfo;
 	PROCESS_INFORMATION pinfo;
 	HANDLE child;
 	DWORD status;
@@ -211,7 +211,7 @@ static int run_process_windows_(LocalRoot local, addr var, addr args, addr *ret)
 	Return(run_process_list_utf16_(local, var, args, &list));
 	cleartype(sinfo);
 	cleartype(pinfo);
-	if (! CreateProcess(NULL, list, NULL, NULL,
+	if (! CreateProcessW(NULL, list, NULL, NULL,
 				FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
 		return fmte_("Cannot run process ~S.", var, NULL);
 	}
