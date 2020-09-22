@@ -2657,6 +2657,38 @@ static void defun_type_object(void)
 }
 
 
+/* (defun extension (t) ...) -> t */
+static int syscall_extension(Execute ptr, addr var)
+{
+	return extension_syscode(ptr, var);
+}
+
+static void type_syscall_extension(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_extension(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_EXTENSION, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_extension);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_extension(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2745,6 +2777,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defmacro, macro, declare_parse);
 	SetPointerSysCall(defun, var1, parse_type);
 	SetPointerSysCall(defun, var1, type_object);
+	SetPointerSysCall(defun, var1, extension);
 }
 
 _g void build_syscall(void)
@@ -2833,5 +2866,6 @@ _g void build_syscall(void)
 	defmacro_declare_parse();
 	defun_parse_type();
 	defun_type_object();
+	defun_extension();
 }
 

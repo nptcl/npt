@@ -15,6 +15,7 @@
 #include "control_operator.h"
 #include "core.h"
 #include "declare.h"
+#include "define.h"
 #include "eastasian.h"
 #include "env_code.h"
 #include "env_time.h"
@@ -1107,5 +1108,18 @@ _g int parse_type_syscode(Execute ptr, addr var, addr *ret)
 _g int type_object_syscode(addr var, addr *ret)
 {
 	return type_object_(ret, var);
+}
+
+/* extension */
+#ifdef LISP_EXTENSION
+#include "ext_eval.h"
+#endif
+_g int extension_syscode(Execute ptr, addr var)
+{
+#ifdef LISP_EXTENSION
+	return lisps_eval_(ptr, var);
+#else
+	return fmte_("The implementation is not supported.", NULL);
+#endif
 }
 

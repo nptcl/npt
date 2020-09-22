@@ -810,7 +810,7 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	return Result(ret, eval);
 }
 
-static void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
+_g void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
 {
 	gchold_pushva_force_local(local,
 			str->stack, str->call, str->table, str->lexical,

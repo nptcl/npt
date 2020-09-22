@@ -1271,6 +1271,11 @@ enum pointer_index {
 	p_defmacro_syscall_declare_parse,
 	p_defun_syscall_parse_type,
 	p_defun_syscall_type_object,
+	p_defun_syscall_extension,
+
+#ifdef LISP_EXTENSION
+#include "ext_include_pointer.h"
+#endif
 
 	/* size */
 	p_size

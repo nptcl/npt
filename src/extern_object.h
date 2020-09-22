@@ -67,5 +67,20 @@ int lisp_pathname16_(addr x, const void *str);
 int lisp_pathname32_(addr x, const void *str);
 int lisp_namestring_(addr x, addr path);
 
+/* user */
+void lisp0_user_heap(addr *ret, size_t size);
+void lisp0_user_local(addr *ret, size_t size);
+void lisp0_user_resize_heap(addr *ret, addr pos, size_t size);
+void lisp0_user_resize_local(addr *ret, addr pos, size_t size);
+void lisp_user_heap(addr x, size_t size);
+void lisp_user_local(addr x, size_t size);
+void lisp_user_resize_heap(addr x, addr pos, size_t size);
+void lisp_user_resize_local(addr x, addr pos, size_t size);
+int lisp_user_p(addr pos);
+void lisp_user_getsize(addr pos, size_t *ret);
+int lisp_user_getvalue(addr pos);
+void lisp_user_setvalue(addr pos, byte c);
+byte *lisp_object_body(addr pos);
+
 #endif
 

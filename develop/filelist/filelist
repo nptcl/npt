@@ -348,3 +348,11 @@ type.c
 unicode.c
 variable.c
 
+ext/ext_code.c
+ext/ext_eval.c
+ext/ext_main.c
+ext/ext_package.c
+ext/ext_parse.c
+ext/ext_reader.c
+ext/ext_scope.c
+

@@ -62,6 +62,10 @@ enum EVAL_PARSE {
 	EVAL_PARSE_PROGV,
 	EVAL_PARSE_LOAD_TIME_VALUE,
 	EVAL_PARSE_STEP,
+	/* extension */
+#ifdef LISP_EXTENSION
+#include "ext_include_parse.h"
+#endif
 	/* size */
 	EVAL_PARSE_SIZE
 };

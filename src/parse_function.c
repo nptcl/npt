@@ -174,7 +174,7 @@ static int parse_let_(Execute ptr, addr *ret, EvalParse type, addr cons)
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, cons);
-	return Result(ret, eval);;
+	return Result(ret, eval);
 }
 
 /* setq */

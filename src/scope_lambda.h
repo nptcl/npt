@@ -9,6 +9,7 @@
 #define scope_init_lambda _n(scope_init_lambda)
 #define scope_function_call _n(scope_function_call)
 #define lambda_lexical_heap _n(lambda_lexical_heap)
+#define localhold_lambda_struct _n(localhold_lambda_struct)
 #define scope_lambda_call _n(scope_lambda_call)
 #define scope_defun_call _n(scope_defun_call)
 #define scope_macro_lambda_call _n(scope_macro_lambda_call)
@@ -31,6 +32,7 @@ _g void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp
 
 _g int scope_function_call(Execute ptr, addr *ret, addr eval);
 _g void lambda_lexical_heap(addr stack, addr *ret);
+_g void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str);
 _g int scope_lambda_call(Execute ptr, addr *ret, addr eval);
 _g int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret);
 _g int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret);

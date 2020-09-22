@@ -5,8 +5,10 @@
 (defparameter +filetest+       #p"filelist.test")
 (defparameter +source-file+    #p"source.mk")
 (defparameter +release-file+   #p"release.mk")
+(defparameter +extension+      #p"EXTENSION")
 (defvar *list*)
 (defvar *test*)
+(defvar *ext*)
 
 ;; input
 (defun read-list (input)
@@ -16,12 +18,17 @@
       (return (nreverse list)))
     (push (string-trim '(#\space #\tab) x) list)))
 
-(defun read-list-noempty (input)
-  (let (list)
-    (dolist (x (read-list input))
-      (unless (= (length x) 0)
-        (push x list)))
-    (nreverse list)))
+(defun read-list-remove (input)
+  (remove-if
+    (lambda (x)
+      (let ((len (length x)))
+        (or (= len 0)
+            (and (<= 1 len)
+                 (char= (char x 0) #\#))
+            (and (null *ext*)
+                 (<= 4 len)
+                 (string-equal (subseq x 0 4) "ext/")))))
+    (read-list input)))
 
 (defun parse-namestring-p (str &optional base)
   (let ((path (parse-namestring str)))
@@ -53,20 +60,24 @@
     (lambda (x)
       (let ((p (file-source-p x)))
         (unless p
-          (error "File ~A is not found." p))
+          (error "File ~A is not found." x))
         (file-name-type p)))
-    (read-list-noempty input)))
+    (read-list-remove input)))
 
-(with-open-file (input +filelist+)
-  (setq *list* (read-source-list input))
-  (setq *test* (mapcar #'testfile *list*)))
-
-;; filelist
 (defmacro with-overwrite-file ((var file) &body body)
   `(with-open-file (,var ,file :direction :output
                          :if-exists :supersede
                          :if-does-not-exist :create)
      ,@body))
+
+
+;;
+;;  open file
+;;
+(setq *ext* (probe-file +extension+))
+(with-open-file (input +filelist+)
+  (setq *list* (read-source-list input))
+  (setq *test* (mapcar #'testfile *list*)))
 
 
 ;;

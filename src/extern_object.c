@@ -3,8 +3,10 @@
 #include "condition.h"
 #include "extern_develop.h"
 #include "extern_error.h"
+#include "extern_object.h"
 #include "extern_type.h"
 #include "float_object.h"
+#include "local.h"
 #include "hold.h"
 #include "integer.h"
 #include "number_equal.h"
@@ -606,5 +608,198 @@ int lisp_namestring_(addr x, addr path)
 	Return(lisp0_namestring_(&path, path));
 	hold_set(x, path);
 	return 0;
+}
+
+
+/*
+ *  user
+ */
+#ifdef LISP_DEBUG
+static void lisp0_user_alloc(LocalRoot local, addr *ret, size_t size)
+{
+	addr pos;
+	size_t size1, alloc;
+	byte *body;
+
+	size1 = size + IdxSize;
+	alloc = size + IdxSize + 8UL;
+	if (size1 < size || alloc < size) {
+		*ret = Nil;
+		lisp_abortf("lisp0_user_heap error");
+		return;
+	}
+
+	alloc_body(local, &pos, LISPSYSTEM_USER, alloc);
+	SetUser(pos, 0);
+	posbody(pos, (addr *)&body);
+	*((size_t *)body) = size;
+	memcpy(body + size1, "\xFF\x00\xAA\xAA\xAA\xAA\xAA\xAA", 8);
+	*ret = pos;
+}
+
+static void lisp_object_check(addr pos)
+{
+	byte *body;
+	size_t size;
+
+	posbody(pos, (addr *)&body);
+	size = *((size_t *)body) + 8UL;
+	body += size;
+	if (body[0] != 0xFF || body[1] != 0x00) {
+		lisp_abortf("The user object may be destroyed.");
+		return;
+	}
+}
+#define Lisp_object_check(x) lisp_object_check(x)
+#else
+static void lisp0_user_alloc(LocalRoot local, addr *ret, size_t size)
+{
+	addr pos;
+	size_t alloc;
+	byte *body;
+
+	alloc = size + IdxSize;
+	if (alloc < size) {
+		*ret = Nil;
+		lisp_abortf("lisp0_user_heap error");
+		return;
+	}
+
+	alloc_body(local, &pos, LISPSYSTEM_USER, alloc);
+	SetUser(pos, 0);
+	posbody(pos, (addr *)&body);
+	*((size_t *)body) = size;
+	*ret = pos;
+}
+#define Lisp_object_check(x)
+#endif
+
+void lisp0_user_heap(addr *ret, size_t size)
+{
+	lisp0_user_alloc(NULL, ret, size);
+}
+
+void lisp0_user_local(addr *ret, size_t size)
+{
+	lisp0_user_alloc(Local_Thread, ret, size);
+}
+
+static void lisp0_user_resize_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
+{
+	addr value;
+	byte *body1, *body2;
+	size_t copy;
+
+	/* check */
+	hold_value(pos, &pos);
+	if (! lisp_user_p(pos)) {
+		*ret = Nil;
+		lisp_abortf("The object is not user type.");
+		return;
+	}
+	Lisp_object_check(pos);
+
+	lisp0_user_alloc(local, &value, size);
+	posbody(pos, (addr *)&body1);
+	posbody(value, (addr *)&body2);
+	copy = *((size_t *)body1);
+	memcpy(body2 + IdxSize, body1 + IdxSize, (copy < size)? copy: size);
+	SetUser(value, GetUser(pos));
+	*ret = value;
+}
+
+void lisp0_user_resize_heap(addr *ret, addr pos, size_t size)
+{
+	lisp0_user_resize_alloc(NULL, ret, pos, size);
+}
+
+void lisp0_user_resize_local(addr *ret, addr pos, size_t size)
+{
+	lisp0_user_resize_alloc(Local_Thread, ret, pos, size);
+}
+
+void lisp_user_heap(addr x, size_t size)
+{
+	addr pos;
+	lisp0_user_heap(&pos, size);
+	hold_set(x, pos);
+}
+
+void lisp_user_local(addr x, size_t size)
+{
+	addr pos;
+	lisp0_user_local(&pos, size);
+	hold_set(x, pos);
+}
+
+void lisp_user_resize_heap(addr x, addr pos, size_t size)
+{
+	lisp0_user_resize_heap(&pos, pos, size);
+	hold_set(x, pos);
+}
+
+void lisp_user_resize_local(addr x, addr pos, size_t size)
+{
+	lisp0_user_resize_local(&pos, pos, size);
+	hold_set(x, pos);
+}
+
+int lisp_user_p(addr pos)
+{
+	if (pos == NULL || pos == Unbound)
+		return 0;
+	hold_value(pos, &pos);
+	return GetType(pos) == LISPSYSTEM_USER;
+}
+
+void lisp_user_getsize(addr pos, size_t *ret)
+{
+	addr body;
+
+	hold_value(pos, &pos);
+	if (! lisp_user_p(pos)) {
+		*ret = 0;
+		lisp_abortf("The object is not user type.");
+		return;
+	}
+	Lisp_object_check(pos);
+
+	posbody(pos, &body);
+	*ret = *((size_t *)body);
+}
+
+int lisp_user_getvalue(addr pos)
+{
+	hold_value(pos, &pos);
+	if (! lisp_user_p(pos)) {
+		lisp_abortf("The object is not user type.");
+		return 0;
+	}
+	Lisp_object_check(pos);
+
+	return GetUser(pos);
+}
+
+void lisp_user_setvalue(addr pos, byte c)
+{
+	hold_value(pos, &pos);
+	if (! lisp_user_p(pos)) {
+		lisp_abortf("The object is not user type.");
+		return;
+	}
+
+	Lisp_object_check(pos);
+	SetUser(pos, c);
+}
+
+byte *lisp_object_body(addr pos)
+{
+	byte *body;
+
+	hold_value(pos, &pos);
+	Lisp_object_check(pos);
+	posbody(pos, (addr *)&body);
+
+	return body + IdxSize;
 }
 
