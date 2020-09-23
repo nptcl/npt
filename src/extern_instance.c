@@ -38,21 +38,21 @@ int lisp0_find_class_(addr *ret, addr symbol)
 int lisp0_find_class8_(addr *ret, const void *str)
 {
 	addr pos;
-	lisp0_intern8_(&pos, NULL, str);
+	Return(lisp0_intern8_(&pos, NULL, str));
 	return clos_find_class_(pos, ret);
 }
 
 int lisp0_find_class16_(addr *ret, const void *str)
 {
 	addr pos;
-	lisp0_intern16_(&pos, NULL, str);
+	Return(lisp0_intern16_(&pos, NULL, str));
 	return clos_find_class_(pos, ret);
 }
 
 int lisp0_find_class32_(addr *ret, const void *str)
 {
 	addr pos;
-	lisp0_intern32_(&pos, NULL, str);
+	Return(lisp0_intern32_(&pos, NULL, str));
 	return clos_find_class_(pos, ret);
 }
 
@@ -100,35 +100,37 @@ int lisp_find_class32_(addr x, const void *str)
 /*
  *  make-instance
  */
-int lisp0_instance_(addr *ret, addr instance, ...)
+int lisp0_instance_(addr *ret, addr clos, ...)
 {
 	addr list, call;
 	va_list va;
 
-	va_start(va, instance);
+	va_start(va, clos);
 	lisp0_list_va(&list, va);
 	va_end(va);
-	hold_value(instance, &instance);
-	cons_heap(&list, instance, list);
+	hold_value(clos, &clos);
+	cons_heap(&list, clos, list);
 
 	GetConst(COMMON_MAKE_INSTANCE, &call);
 	GetFunctionSymbol(call, &call);
 	return callclang_apply(Execute_Thread, ret, call, list);
 }
 
-static int lisp0_instance_call_(addr *ret, addr instance, va_list va,
+static int lisp0_instance_call_(addr *ret, const void *clos, va_list va,
 		int (*call0)(addr *, const void *))
 {
-	addr control, x, list, pos;
+	addr control, list, pos;
 	const void *str;
 
 	lisp_push_control(&control);
-	x = Lisp_hold();
 	list = Lisp_hold();
 
+	/* class */
+	if ((*call0)(&pos, clos))
+		goto escape;
+	lisp_cons(list, pos, NULL);
+
 	/* list */
-	hold_value(instance, &instance);
-	lisp_cons(list, instance, NULL);
 	for (;;) {
 		/* key */
 		str = va_arg(va, void *);
@@ -148,124 +150,128 @@ static int lisp0_instance_call_(addr *ret, addr instance, va_list va,
 	}
 	if (lisp_nreverse_(list, list))
 		goto escape;
+	hold_value(list, &list);
 
 	/* make-instance */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
 	GetFunctionSymbol(pos, &pos);
-	if (lisp_apply_(x, pos, list))
+	if (callclang_apply(Execute_Thread, ret, pos, list))
 		goto escape;
-
-	/* result */
-	hold_value(x, ret);
 escape:
 	return lisp_pop_control_(control);
 }
 
-static int lisp0_instance8_call_(addr *ret, addr instance, va_list va)
+static int lisp0_instance8_call_(addr *ret, const void *clos, va_list va)
 {
-	return lisp0_instance_call_(ret, instance, va, lisp0_eval8_);
+	return lisp0_instance_call_(ret, clos, va, lisp0_reader8_);
 }
 
-static int lisp0_instance16_call_(addr *ret, addr instance, va_list va)
+static int lisp0_instance16_call_(addr *ret, const void *clos, va_list va)
 {
-	return lisp0_instance_call_(ret, instance, va, lisp0_eval16_);
+	return lisp0_instance_call_(ret, clos, va, lisp0_reader16_);
 }
 
-static int lisp0_instance32_call_(addr *ret, addr instance, va_list va)
+static int lisp0_instance32_call_(addr *ret, const void *clos, va_list va)
 {
-	return lisp0_instance_call_(ret, instance, va, lisp0_eval32_);
+	return lisp0_instance_call_(ret, clos, va, lisp0_reader32_);
 }
 
-int lisp0_instance8_(addr *ret, addr instance, ...)
+int lisp0_instance8_(addr *ret, const void *clos, ...)
 {
 	int check;
 	va_list va;
 
-	va_start(va, instance);
-	check = lisp0_instance8_call_(ret, instance, va);
+	va_start(va, clos);
+	check = lisp0_instance8_call_(ret, clos, va);
 	va_end(va);
 
 	return check;
 }
 
-int lisp0_instance16_(addr *ret, addr instance, ...)
+int lisp0_instance16_(addr *ret, const void *clos, ...)
 {
 	int check;
 	va_list va;
 
-	va_start(va, instance);
-	check = lisp0_instance16_call_(ret, instance, va);
+	va_start(va, clos);
+	check = lisp0_instance16_call_(ret, clos, va);
 	va_end(va);
 
 	return check;
 }
 
-int lisp0_instance32_(addr *ret, addr instance, ...)
+int lisp0_instance32_(addr *ret, const void *clos, ...)
 {
 	int check;
 	va_list va;
 
-	va_start(va, instance);
-	check = lisp0_instance32_call_(ret, instance, va);
+	va_start(va, clos);
+	check = lisp0_instance32_call_(ret, clos, va);
 	va_end(va);
 
 	return check;
 }
 
-int lisp_instance_(addr x, addr instance, ...)
+int lisp_instance_(addr x, addr clos, ...)
 {
 	addr list, call;
 	va_list va;
 
-	va_start(va, instance);
+	va_start(va, clos);
 	lisp0_list_va(&list, va);
 	va_end(va);
-	hold_value(instance, &instance);
-	cons_heap(&list, instance, list);
+	hold_value(clos, &clos);
+	cons_heap(&list, clos, list);
 
 	GetConst(COMMON_MAKE_INSTANCE, &call);
 	GetFunctionSymbol(call, &call);
-	return lisp_apply_(x, call, list);
+	Return(callclang_apply(Execute_Thread, &list, call, list));
+	hold_set(x, list);
+
+	return 0;
 }
 
-int lisp_instance8_(addr x, addr instance, ...)
+int lisp_instance8_(addr x, const void *clos, ...)
 {
 	int check;
+	addr pos;
 	va_list va;
 
-	va_start(va, instance);
-	check = lisp0_instance8_call_(&instance, instance, va);
+	va_start(va, clos);
+	check = lisp0_instance8_call_(&pos, clos, va);
 	va_end(va);
 	if (check == 0)
-		hold_set(x, instance);
+		hold_set(x, pos);
 
 	return check;
 }
 
-int lisp_instance16_(addr x, addr instance, ...)
+int lisp_instance16_(addr x, const void *clos, ...)
 {
 	int check;
+	addr pos;
 	va_list va;
 
-	va_start(va, instance);
-	check = lisp0_instance16_call_(&instance, instance, va);
+	va_start(va, clos);
+	check = lisp0_instance16_call_(&pos, clos, va);
 	va_end(va);
 	if (check == 0)
-		hold_set(x, instance);
+		hold_set(x, pos);
 
 	return check;
 }
 
-int lisp_instance32_(addr x, addr instance, ...)
+int lisp_instance32_(addr x, const void *clos, ...)
 {
 	int check;
+	addr pos;
 	va_list va;
 
-	va_start(va, instance);
-	check = lisp0_instance32_call_(&instance, instance, va);
+	va_start(va, clos);
+	check = lisp0_instance32_call_(&pos, clos, va);
 	va_end(va);
 	if (check == 0)
-		hold_set(x, instance);
+		hold_set(x, pos);
 
 	return check;
 }
@@ -285,21 +291,21 @@ int lisp_slot_exists_(addr instance, addr symbol, int *ret)
 int lisp_slot_exists8_(addr instance, const void *str, int *ret)
 {
 	addr pos;
-	Return(lisp0_eval8_(&pos, str));
+	Return(lisp0_reader8_(&pos, str));
 	return lisp_slot_exists_(instance, pos, ret);
 }
 
 int lisp_slot_exists16_(addr instance, const void *str, int *ret)
 {
 	addr pos;
-	Return(lisp0_eval16_(&pos, str));
+	Return(lisp0_reader16_(&pos, str));
 	return lisp_slot_exists_(instance, pos, ret);
 }
 
 int lisp_slot_exists32_(addr instance, const void *str, int *ret)
 {
 	addr pos;
-	Return(lisp0_eval32_(&pos, str));
+	Return(lisp0_reader32_(&pos, str));
 	return lisp_slot_exists_(instance, pos, ret);
 }
 
@@ -317,21 +323,21 @@ int lisp_slot_boundp_(addr instance, addr symbol, int *ret)
 int lisp_slot_boundp8_(addr instance, const void *str, int *ret)
 {
 	addr pos;
-	Return(lisp0_eval8_(&pos, str));
+	Return(lisp0_reader8_(&pos, str));
 	return lisp_slot_boundp_(instance, pos, ret);
 }
 
 int lisp_slot_boundp16_(addr instance, const void *str, int *ret)
 {
 	addr pos;
-	Return(lisp0_eval16_(&pos, str));
+	Return(lisp0_reader16_(&pos, str));
 	return lisp_slot_boundp_(instance, pos, ret);
 }
 
 int lisp_slot_boundp32_(addr instance, const void *str, int *ret)
 {
 	addr pos;
-	Return(lisp0_eval32_(&pos, str));
+	Return(lisp0_reader32_(&pos, str));
 	return lisp_slot_boundp_(instance, pos, ret);
 }
 
@@ -349,21 +355,21 @@ int lisp_slot_makunbound_(addr instance, addr symbol)
 int lisp_slot_makunbound8_(addr instance, const void *str)
 {
 	addr pos;
-	Return(lisp0_eval8_(&pos, str));
+	Return(lisp0_reader8_(&pos, str));
 	return lisp_slot_makunbound_(instance, pos);
 }
 
 int lisp_slot_makunbound16_(addr instance, const void *str)
 {
 	addr pos;
-	Return(lisp0_eval16_(&pos, str));
+	Return(lisp0_reader16_(&pos, str));
 	return lisp_slot_makunbound_(instance, pos);
 }
 
 int lisp_slot_makunbound32_(addr instance, const void *str)
 {
 	addr pos;
-	Return(lisp0_eval32_(&pos, str));
+	Return(lisp0_reader32_(&pos, str));
 	return lisp_slot_makunbound_(instance, pos);
 }
 
@@ -371,58 +377,58 @@ int lisp_slot_makunbound32_(addr instance, const void *str)
 /*
  *  slot-value
  */
-int lisp0_get_slot_(addr *ret, addr instance, addr symbol)
+int lisp0_slot_value_(addr *ret, addr instance, addr symbol)
 {
 	hold_value(instance, &instance);
 	hold_value(symbol, &symbol);
 	return clos_check_(instance, symbol, ret);
 }
 
-int lisp0_get_slot8_(addr *ret, addr instance, const void *str)
+int lisp0_slot_value8_(addr *ret, addr instance, const void *str)
 {
 	addr pos;
-	Return(lisp0_eval8_(&pos, str));
-	return lisp0_get_slot_(ret, instance, pos);
+	Return(lisp0_reader8_(&pos, str));
+	return lisp0_slot_value_(ret, instance, pos);
 }
 
-int lisp0_get_slot16_(addr *ret, addr instance, const void *str)
+int lisp0_slot_value16_(addr *ret, addr instance, const void *str)
 {
 	addr pos;
-	Return(lisp0_eval16_(&pos, str));
-	return lisp0_get_slot_(ret, instance, pos);
+	Return(lisp0_reader16_(&pos, str));
+	return lisp0_slot_value_(ret, instance, pos);
 }
 
-int lisp0_get_slot32_(addr *ret, addr instance, const void *str)
+int lisp0_slot_value32_(addr *ret, addr instance, const void *str)
 {
 	addr pos;
-	Return(lisp0_eval32_(&pos, str));
-	return lisp0_get_slot_(ret, instance, pos);
+	Return(lisp0_reader32_(&pos, str));
+	return lisp0_slot_value_(ret, instance, pos);
 }
 
-int lisp_get_slot_(addr x, addr instance, addr symbol)
+int lisp_slot_value_(addr x, addr instance, addr symbol)
 {
-	Return(lisp0_get_slot_(&instance, instance, symbol));
+	Return(lisp0_slot_value_(&instance, instance, symbol));
 	hold_set(x, instance);
 	return 0;
 }
 
-int lisp_get_slot8_(addr x, addr instance, const void *str)
+int lisp_slot_value8_(addr x, addr instance, const void *str)
 {
-	Return(lisp0_get_slot8_(&instance, instance, str));
+	Return(lisp0_slot_value8_(&instance, instance, str));
 	hold_set(x, instance);
 	return 0;
 }
 
-int lisp_get_slot16_(addr x, addr instance, const void *str)
+int lisp_slot_value16_(addr x, addr instance, const void *str)
 {
-	Return(lisp0_get_slot16_(&instance, instance, str));
+	Return(lisp0_slot_value16_(&instance, instance, str));
 	hold_set(x, instance);
 	return 0;
 }
 
-int lisp_get_slot32_(addr x, addr instance, const void *str)
+int lisp_slot_value32_(addr x, addr instance, const void *str)
 {
-	Return(lisp0_get_slot32_(&instance, instance, str));
+	Return(lisp0_slot_value32_(&instance, instance, str));
 	hold_set(x, instance);
 	return 0;
 }
@@ -431,7 +437,7 @@ int lisp_get_slot32_(addr x, addr instance, const void *str)
 /*
  *  setf slot-value
  */
-int lisp_set_slot_(addr instance, addr symbol, addr value)
+int lisp_slot_setf_(addr instance, addr symbol, addr value)
 {
 	hold_value(instance, &instance);
 	hold_value(symbol, &symbol);
@@ -439,24 +445,24 @@ int lisp_set_slot_(addr instance, addr symbol, addr value)
 	return clos_set_(instance, symbol, value);
 }
 
-int lisp_set_slot8_(addr instance, const void *str, addr value)
+int lisp_slot_setf8_(addr instance, const void *str, addr value)
 {
 	addr pos;
-	Return(lisp0_eval8_(&pos, str));
-	return lisp_set_slot_(instance, pos, value);
+	Return(lisp0_reader8_(&pos, str));
+	return lisp_slot_setf_(instance, pos, value);
 }
 
-int lisp_set_slot16_(addr instance, const void *str, addr value)
+int lisp_slot_setf16_(addr instance, const void *str, addr value)
 {
 	addr pos;
-	Return(lisp0_eval16_(&pos, str));
-	return lisp_set_slot_(instance, pos, value);
+	Return(lisp0_reader16_(&pos, str));
+	return lisp_slot_setf_(instance, pos, value);
 }
 
-int lisp_set_slot32_(addr instance, const void *str, addr value)
+int lisp_slot_setf32_(addr instance, const void *str, addr value)
 {
 	addr pos;
-	Return(lisp0_eval32_(&pos, str));
-	return lisp_set_slot_(instance, pos, value);
+	Return(lisp0_reader32_(&pos, str));
+	return lisp_slot_setf_(instance, pos, value);
 }
 

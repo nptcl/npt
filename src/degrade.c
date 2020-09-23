@@ -110,6 +110,7 @@ int test_extern_object(void);
 int test_extern_control(void);
 int test_extern_function(void);
 int test_extern_execute(void);
+int test_extern_instance(void);
 int test_optimize(void);
 int test_loadrt(void);
 
@@ -225,6 +226,7 @@ void degrade_execute(void)
 	DegradeCheck(test_extern_control);
 	DegradeCheck(test_extern_function);
 	DegradeCheck(test_extern_execute);
+	DegradeCheck(test_extern_instance);
 	DegradeCheck(test_optimize);
 	DegradeCheck(test_loadrt);
 #if 0

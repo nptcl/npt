@@ -645,13 +645,15 @@ static int test_lisp_restart_make(void)
 
 static int test_lisp_restart_interactive(void)
 {
-	addr control, restart, y, pos;
+	addr control, restart, x, y, pos;
 
 	lisp_push_control(&control);
+	x = Lisp_hold();
 	y = Lisp_hold();
 
 	lisp_eval8_(y, "(lambda ())");
-	lisp0_restart_make(&restart, NULL, y, 0);
+	lisp_restart_make(x, NULL, y, 0);
+	hold_value(x, &restart);
 	lisp_eval8_(y, "(lambda () :hello)");
 	lisp_restart_interactive(restart, y);
 	getinteractive_restart(restart, &pos);
@@ -668,13 +670,15 @@ static int test_lisp_restart_interactive(void)
 
 static int test_lisp_restart_report(void)
 {
-	addr control, restart, y, pos;
+	addr control, restart, x, y, pos;
 
 	lisp_push_control(&control);
+	x = Lisp_hold();
 	y = Lisp_hold();
 
 	lisp_eval8_(y, "(lambda ())");
-	lisp0_restart_make(&restart, NULL, y, 0);
+	lisp_restart_make(x, NULL, y, 0);
+	hold_value(x, &restart);
 	lisp_eval8_(y, "(lambda (&rest args) (declare (ignore args)) :hello)");
 	lisp_restart_report(restart, y);
 	getreport_restart(restart, &pos);
@@ -691,13 +695,15 @@ static int test_lisp_restart_report(void)
 
 static int test_lisp_restart_test(void)
 {
-	addr control, restart, y, pos;
+	addr control, restart, x, y, pos;
 
 	lisp_push_control(&control);
+	x = Lisp_hold();
 	y = Lisp_hold();
 
 	lisp_eval8_(y, "(lambda ())");
-	lisp0_restart_make(&restart, NULL, y, 0);
+	lisp_restart_make(x, NULL, y, 0);
+	hold_value(x, &restart);
 	lisp_eval8_(y, "(lambda (&rest args) (declare (ignore args)) :hello)");
 	lisp_restart_test(restart, y);
 	gettest_restart(restart, &pos);

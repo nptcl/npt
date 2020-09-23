@@ -16,14 +16,14 @@ int lisp_find_class16_(addr x, const void *str);
 int lisp_find_class32_(addr x, const void *str);
 
 /* make-instance */
-int lisp0_instance_(addr *ret, addr instance, ...);
-int lisp0_instance8_(addr *ret, addr instance, ...);
-int lisp0_instance16_(addr *ret, addr instance, ...);
-int lisp0_instance32_(addr *ret, addr instance, ...);
-int lisp_instance_(addr x, addr instance, ...);
-int lisp_instance8_(addr x, addr instance, ...);
-int lisp_instance16_(addr x, addr instance, ...);
-int lisp_instance32_(addr x, addr instance, ...);
+int lisp0_instance_(addr *ret, addr clos, ...);
+int lisp0_instance8_(addr *ret, const void *clos, ...);
+int lisp0_instance16_(addr *ret, const void *clos, ...);
+int lisp0_instance32_(addr *ret, const void *clos, ...);
+int lisp_instance_(addr x, addr clos, ...);
+int lisp_instance8_(addr x, const void *clos, ...);
+int lisp_instance16_(addr x, const void *clos, ...);
+int lisp_instance32_(addr x, const void *clos, ...);
 
 /* slot-exists-p */
 int lisp_slot_exists_(addr instance, addr symbol, int *ret);
@@ -44,20 +44,20 @@ int lisp_slot_makunbound16_(addr instance, const void *str);
 int lisp_slot_makunbound32_(addr instance, const void *str);
 
 /* slot-value */
-int lisp0_get_slot_(addr *ret, addr instance, addr symbol);
-int lisp0_get_slot8_(addr *ret, addr instance, const void *str);
-int lisp0_get_slot16_(addr *ret, addr instance, const void *str);
-int lisp0_get_slot32_(addr *ret, addr instance, const void *str);
-int lisp_get_slot_(addr x, addr instance, addr symbol);
-int lisp_get_slot8_(addr x, addr instance, const void *str);
-int lisp_get_slot16_(addr x, addr instance, const void *str);
-int lisp_get_slot32_(addr x, addr instance, const void *str);
+int lisp0_slot_value_(addr *ret, addr instance, addr symbol);
+int lisp0_slot_value8_(addr *ret, addr instance, const void *str);
+int lisp0_slot_value16_(addr *ret, addr instance, const void *str);
+int lisp0_slot_value32_(addr *ret, addr instance, const void *str);
+int lisp_slot_value_(addr x, addr instance, addr symbol);
+int lisp_slot_value8_(addr x, addr instance, const void *str);
+int lisp_slot_value16_(addr x, addr instance, const void *str);
+int lisp_slot_value32_(addr x, addr instance, const void *str);
 
 /* setf slot-value */
-int lisp_set_slot_(addr instance, addr symbol, addr value);
-int lisp_set_slot8_(addr instance, const void *str, addr value);
-int lisp_set_slot16_(addr instance, const void *str, addr value);
-int lisp_set_slot32_(addr instance, const void *str, addr value);
+int lisp_slot_setf_(addr instance, addr symbol, addr value);
+int lisp_slot_setf8_(addr instance, const void *str, addr value);
+int lisp_slot_setf16_(addr instance, const void *str, addr value);
+int lisp_slot_setf32_(addr instance, const void *str, addr value);
 
 #endif
 
