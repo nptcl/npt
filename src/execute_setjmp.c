@@ -10,9 +10,6 @@ jmp_buf Lisp_abort_setjmp;
 jmp_buf Lisp_degrade_setjmp;
 #endif
 
-_g lisp_abort_calltype Lisp_abort_handler = NULL;
-
-
 /*
  *  abort
  */

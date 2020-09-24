@@ -740,7 +740,7 @@ _g int getspecialcheck_local_(Execute ptr, addr pos, addr *ret)
 	getspecial_local(ptr, pos, ret);
 	if (*ret == Unbound)
 		return call_unbound_variable_(ptr, pos);
-	
+
 	return 0;
 }
 

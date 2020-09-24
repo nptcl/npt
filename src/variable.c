@@ -65,6 +65,7 @@ _g addr Clos_standard_specializer = 0;
 _g threadlocal ThreadLocal_Execute;
 _g threadlocal ThreadLocal_Index;
 _g threadlocal ThreadLocal_Local;
+_g lisp_abort_calltype Lisp_abort_handler = NULL;
 
 
 /*

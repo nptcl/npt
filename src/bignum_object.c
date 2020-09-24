@@ -255,11 +255,11 @@ static int bignum_counter_alloc_p_(addr index, int *ret)
 {
 	if (! integerp(index))
 		return Result(ret, 1);
-	
+
 	Return(minusp_integer_(index, ret));
 	if (*ret)
 		return 0;
-	
+
 	return zerop_integer_(index, ret);
 }
 

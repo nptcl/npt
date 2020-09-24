@@ -6,6 +6,7 @@
 
 extern int lisp_code;
 extern int lisp_result;
+extern FILE *lisp_stderr;
 
 void lisp_init(void);
 void lisp_free(void);

@@ -939,7 +939,7 @@ static int test_macro_character_call1(Execute ptr, addr stream, addr code)
 		setresult_control(ptr, code);
 	else
 		setvalues_nil_control(ptr);
-	
+
 	return 0;
 }
 
@@ -973,7 +973,7 @@ static int test_macro_character_execute1(Execute ptr, addr stream, addr code)
 		setresult_control(ptr, T);
 	else
 		setvalues_nil_control(ptr);
-	
+
 	return 0;
 }
 

@@ -630,7 +630,7 @@ _g int scope_go_call_(Execute ptr, addr *ret, addr tag)
 	Return(getstack_eval_(ptr, &stack));
 	if (! go_tabletagbody(stack, tag, &table))
 		return fmte_("Tag ~S is not found.", tag, NULL);
-	
+
 	return Result(ret, table);
 }
 
@@ -803,7 +803,7 @@ _g int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str)
 	Return(localhold_scope_eval(hold, ptr, &str->expr, str->expr));
 	Return(newstack_nil_(ptr, &(str->stack)));
 	Return(mvbind_execute(ptr, str));
-	
+
 	return freestack_eval_(ptr, str->stack);
 }
 

@@ -30,7 +30,7 @@ void lisp_abortf(const char *fmt, ...)
 
 	/* abort */
 	lisp_abort();
-}	
+}
 
 static void lisp_abort_call(addr format, addr list)
 {

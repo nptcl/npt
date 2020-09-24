@@ -297,7 +297,7 @@ _g int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
 	/* table */
 	compile_make_load_form_symbol(ptr, &symbol);
 	Return(getspecialcheck_local_(ptr, symbol, &special));
-	GetCons(special, &index, &table); 
+	GetCons(special, &index, &table);
 
 	/* object */
 	CheckType(key, LISPTYPE_LOAD_TIME_VALUE);

@@ -202,7 +202,7 @@ _g int show_prompt_(Execute ptr, addr io)
 	str = PtrPromptInfo(pos);
 	if (! str->break_p)
 		str->show_p = 1;
-	
+
 	return 0;
 }
 

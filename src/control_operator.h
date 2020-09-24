@@ -85,7 +85,7 @@ _g int restart1r_control(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr *), addr v1, addr *ret);
 _g int restart2_control(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr), addr v1, addr v2);
-	
+
 _g void set_taginfo_control(Execute ptr, addr list);
 _g void set_blockinfo_control(Execute ptr, addr pos);
 _g void set_protect_control(Execute ptr, addr pos);

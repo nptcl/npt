@@ -98,7 +98,7 @@ _g int multi_sc_number_common_(addr left, addr right, addr *ret)
 	Return(multi_real_complex_(left, right, ret, &check));
 	if (check)
 		return fmte_("Type error", NULL);
-	
+
 	return 0;
 }
 

@@ -575,7 +575,7 @@ _g int find_class_common_(addr pos, int errorp, addr env, addr *ret)
 	else {
 		clos_find_class_nil(pos, ret);
 	}
-	
+
 	return 0;
 }
 

@@ -77,7 +77,7 @@ _g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 	if (keyword) {
 		Return(export_package_(package, gentemp));
 	}
-	
+
 	return Result(ret, gentemp);
 }
 

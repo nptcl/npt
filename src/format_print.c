@@ -343,7 +343,7 @@ _g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n)
 	if (print->pretty) {
 		Return(fmtprint_rollback2_(print, str, n));
 	}
-	
+
 	return 0;
 }
 

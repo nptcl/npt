@@ -23,6 +23,7 @@
 #include "environment.h"
 #include "eval.h"
 #include "execute.h"
+#include "execute_setjmp.h"
 #include "extern.h"
 #include "file.h"
 #include "file_memory.h"
@@ -108,9 +109,10 @@ static void clearlisp_force(void)
 
 	for (i = 0; i < LISPINDEX_SIZE; i++)
 		lisp_root[i] = 0;
-	lisp_nil_object  = 0;
-	lisp_t_object    = 0;
-	lisp_gcsync      = GcMode_Off;
+	lisp_nil_object = 0;
+	lisp_t_object = 0;
+	lisp_gcsync = GcMode_Off;
+	Lisp_abort_handler = NULL;
 }
 
 _g int alloclisp(size_t heap, size_t stack)

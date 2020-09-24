@@ -1811,7 +1811,7 @@ static int structure_constructor_default_(struct defstruct *str, addr symbol)
 		structure_constructor_default_vector(pos, symbol);
 	else
 		structure_constructor_default_clos(pos, symbol);
-	
+
 	return 0;
 }
 
@@ -2034,7 +2034,7 @@ static int structure_copier_(struct defstruct *str)
 		structure_copier_vector(str, symbol);
 	else
 		structure_copier_clos(str->instance, symbol);
-	
+
 	return 0;
 }
 
@@ -2170,7 +2170,7 @@ static int structure_predicate_(struct defstruct *str)
 		structure_predicate_vector(str, symbol);
 	else
 		structure_predicate_clos(str->instance, symbol);
-	
+
 	return 0;
 }
 

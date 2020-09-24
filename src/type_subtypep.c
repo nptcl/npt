@@ -143,7 +143,7 @@ static int subtypep_symbol_(addr left, addr right, SubtypepResult *ret)
 		case LISPDECL_KEYWORD:
 			return ReturnInclude(ret);
 
-		default: 
+		default:
 			return ReturnExclude(ret);
 	}
 }
@@ -454,7 +454,7 @@ static int subtypep_realexlucde_(addr left, addr right, int *ret)
 	Return(realexclude_left_(left, right, &check));
 	if (check)
 		return Result(ret, 1);
-	
+
 	return realexclude_right_(left, right, ret);
 }
 

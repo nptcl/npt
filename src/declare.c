@@ -889,12 +889,12 @@ static int push_declare_(Execute ptr, addr env, addr eval, addr symbol, addr con
 	GetConst(COMMON_FTYPE, &check);
 	if (check == symbol)
 		return decl_ftype_(ptr, env, eval, cons);
-	
+
 	/* special */
 	GetConst(COMMON_SPECIAL, &check);
 	if (check == symbol)
 		return decl_special_(eval, cons);
-	
+
 	/* inline */
 	GetConst(COMMON_INLINE, &check);
 	if (check == symbol)

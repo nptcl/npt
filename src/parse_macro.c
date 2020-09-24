@@ -50,7 +50,7 @@ _g int snapshot_envstack_(Execute ptr, addr *ret)
 	environment_symbol(&root);
 	Return(getspecialcheck_local_(ptr, root, &root));
 	GetArrayA2(root, 1, ret); /* local */
-	
+
 	return 0;
 }
 

@@ -43,7 +43,7 @@ static int TypepClang(addr value, addr type, int *ret)
 	return typep_clang_(Execute_Thread, value, type, ret);
 }
 
-static int typep_object(addr x, addr y) 
+static int typep_object(addr x, addr y)
 {
 	int check = 0;
 	if (TypepClang(x, y, &check)) {

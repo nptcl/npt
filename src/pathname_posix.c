@@ -254,7 +254,7 @@ static int parser_home_directory_pathname_(struct fileparse *pa)
 	Return(make_home_pathname_(pa, list, &list));
 	if (list != Unbound)
 		pa->directory = list;
-	
+
 	return 0;
 }
 #else

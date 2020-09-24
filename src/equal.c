@@ -208,7 +208,7 @@ static int equal_function_pathname_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 	if (! pathnamep(b))
 		return Result(ret, 0);
-	
+
 	return pathname_equal_(a, b, ret);
 }
 

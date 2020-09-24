@@ -536,7 +536,7 @@ _g int clear_input_file_(addr stream)
 	fm = PtrFileMemory(stream);
 	if (clear_input_filememory(fm))
 		return fmte_("clear-input error.", NULL);
-	
+
 	return 0;
 }
 
@@ -548,7 +548,7 @@ _g int finish_output_file_(addr stream)
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
 		return fmte_("flush-filememory error.", NULL);
-	
+
 	return 0;
 }
 

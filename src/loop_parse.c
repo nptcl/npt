@@ -781,7 +781,7 @@ static int loop_parse_variable_clause_update_(Execute ptr, addr *root, addr *lis
 	Return(loop_symbol_for_as_p_(pos, &check));
 	if (check)
 		return loop_parse_for_as_clause_(ptr, root, list);
-	
+
 	return 0;
 }
 

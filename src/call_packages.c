@@ -239,7 +239,7 @@ _g int unexport_common_(Execute ptr, addr symbols, addr pg)
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
 	}
-	
+
 	return unexport_package_(pg, symbols);
 }
 
@@ -301,7 +301,7 @@ _g int unuse_package_common_(Execute ptr, addr unuse, addr pg)
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
 	}
-	
+
 	return unuse_package_(pg, unuse);
 }
 

@@ -319,7 +319,7 @@ static int bq_maptree_cons_(int (*call)(addr, addr *), addr pos, addr *ret)
 		*ret = pos;
 	else
 		cons_heap(ret, a, b);
-	
+
 	return 0;
 }
 

@@ -170,7 +170,7 @@ _g int plus_dc_number_common_(addr left, addr right, addr *ret)
 		return fmte_("Type error", NULL);
 
 	return 0;
-}	
+}
 
 _g int plus_lc_number_common_(addr left, addr right, addr *ret)
 {

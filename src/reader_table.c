@@ -704,7 +704,7 @@ _g int getreadtable_(Execute ptr, addr *ret)
 		*ret = Nil;
 		return TypeError_(pos, READTABLE);
 	}
-	
+
 	return Result(ret, pos);
 }
 

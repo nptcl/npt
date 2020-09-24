@@ -22,10 +22,11 @@
 
 int lisp_code = 0;
 int lisp_result = 0;
+FILE *lisp_stderr = NULL;
 
 _g FILE *lisperror_stream(void)
 {
-	return stderr;
+	return (lisp_stderr == NULL)? stderr: lisp_stderr;
 }
 
 _g int lisperror_noeol(const char *fmt, ...)
@@ -73,6 +74,7 @@ void lisp_init(void)
 	initlisp();
 	lisp_code = 0;
 	lisp_result = 1;
+	lisp_stderr = NULL;
 }
 
 void lisp_free(void)

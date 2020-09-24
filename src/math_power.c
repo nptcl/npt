@@ -259,7 +259,7 @@ static int expt_complex_heap_(LocalRoot local, addr *ret, addr base, size_t powe
 		fixnum_heap(ret, 1);
 	else
 		*ret = v;
-	
+
 	return 0;
 }
 

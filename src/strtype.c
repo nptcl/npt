@@ -440,7 +440,7 @@ _g int strarray_comparep_binary_(addr left,
 
 _g int strarray_compare_char_(addr left, const char *right, int *ret)
 {
-	const byte *body; 
+	const byte *body;
 	unicode a, b;
 	size_t size1, size2, i;
 
@@ -466,7 +466,7 @@ _g int strarray_compare_char_(addr left, const char *right, int *ret)
 
 _g int strarray_comparep_char_(addr left, const char *right, int *ret)
 {
-	const byte *body; 
+	const byte *body;
 	unicode a, b;
 	size_t size1, size2, i;
 
