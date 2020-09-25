@@ -74,9 +74,9 @@ static int test_lisp_abortf(void)
 		return 1;
 	}
 	memset(buffer, 0, sizeof(buffer));
-	(void)fread(buffer, 1, 64, file);
+	test(10 <= fread(buffer, 1, 64, file), "lisp_abortf.2");
 	fclose(file);
-	test(memcmp(buffer, "Hello: 100", 10) == 0, "lisp_abortf.2");
+	test(memcmp(buffer, "Hello: 100", 10) == 0, "lisp_abortf.3");
 
 	RETURN;
 }

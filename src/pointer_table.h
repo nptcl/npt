@@ -1124,6 +1124,7 @@ enum pointer_index {
 	p_defun_rem_all_tests,
 	p_defmacro_deftest,
 	p_defmacro_deftest_error,
+	p_defmacro_deftest_error_,
 	p_defun_do_tests,
 	p_defun_equalrt,
 	/* structure */

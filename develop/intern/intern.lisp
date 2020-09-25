@@ -1839,6 +1839,7 @@ lisp-rt::error  ;; for deftest-error
 lisp-rt::push-entries
 lisp-rt::deftest
 lisp-rt::deftest-error
+(lisp-rt::deftest-error! :constant rt :name deftest-error-)
 lisp-rt::do-tests
 lisp-rt::rem-all-tests
 lisp-rt::equalrt

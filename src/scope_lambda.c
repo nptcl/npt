@@ -1530,6 +1530,24 @@ static int callargs_restkey(Execute ptr,
 	return Result(result, 0);
 }
 
+static int callargs_toomany(Execute ptr, addr *args, addr *root)
+{
+	addr eval, type;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	GetTypeTable(&type, Asterisk);
+	while (consp(*args)) {
+		GetCons(*args, &eval, args);
+		Return(check_tablecall(ptr, eval, type, &eval));
+		cons_heap(root, eval, *root);
+		localhold_set(hold, 0, *root);
+	}
+	localhold_end(hold);
+
+	return 0;
+}
+
 static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 {
 	int check;
@@ -1561,9 +1579,12 @@ static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 toofew:
 	Return(fmtw_("Too few arguments.", NULL));
 	goto final;
+
 toomany:
 	Return(fmtw_("Too many arguments.", NULL));
+	Return(callargs_toomany(ptr, &args, &root));
 	goto final;
+
 final:
 	localhold_end(hold);
 	nreverse(ret, root);

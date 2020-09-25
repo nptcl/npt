@@ -287,7 +287,6 @@ static void defmacro_deftest(void)
  *   expr    t
  *   error   symbol
  *   (export 'deftest-error 'lisp-rt)
- *
  */
 static int function_deftest_error(Execute ptr, addr form, addr env)
 {
@@ -336,6 +335,70 @@ static void defmacro_deftest_error(void)
 	GetConst(RT_DEFTEST_ERROR, &symbol);
 	compiled_macro_system(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_deftest_error);
+	setmacro_symbol(symbol, pos);
+	export_symbol_rt(symbol);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defmacro deftest-error! (name expr &optional (error error))
+ *   `(deftest-error ,name
+ *      (handler-bind ((warning (function muffle-warning)))
+ *        ,expr)
+ *      ,error))
+ */
+static int function_deftest_error_(Execute ptr, addr form, addr env)
+{
+	addr args, name, expr, error;
+	addr rterror, handler, warning, quote, muffle;
+
+	/* args */
+	Return_getcdr(form, &args);
+	if (! consp(args))
+		goto error;
+	GetCons(args, &name, &args);
+	if (! consp(args))
+		goto error;
+	GetCons(args, &expr, &args);
+	if (args == Nil) {
+		GetConst(COMMON_ERROR, &error);
+		goto make_deftest;
+	}
+	if (! consp(args))
+		goto error;
+	GetCons(args, &error, &args);
+	if (args != Nil)
+		goto error;
+	goto make_deftest;
+
+	/* make body */
+make_deftest:
+	GetConst(RT_DEFTEST_ERROR, &rterror);
+	GetConst(COMMON_HANDLER_BIND, &handler);
+	GetConst(COMMON_WARNING, &warning);
+	GetConst(COMMON_FUNCTION, &quote);
+	GetConst(COMMON_MUFFLE_WARNING, &muffle);
+	list_heap(&quote, quote, muffle, NULL);
+	list_heap(&warning, warning, quote, NULL);
+	list_heap(&warning, warning, NULL);
+	list_heap(&handler, handler, warning, expr, NULL);
+	list_heap(&form, rterror, name, handler, error, NULL);
+	setresult_control(ptr, form);
+	return 0;
+
+error:
+	return fmte_("Invalid deftest-error! form ~S.", form, NULL);
+}
+
+static void defmacro_deftest_error_(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(RT_DEFTEST_ERROR_, &symbol);
+	compiled_macro_system(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_deftest_error_);
 	setmacro_symbol(symbol, pos);
 	export_symbol_rt(symbol);
 	/* type */
@@ -710,6 +773,7 @@ _g void init_rt(void)
 	SetPointerCall(defun, empty, rem_all_tests);
 	SetPointerCall(defmacro, macro, deftest);
 	SetPointerCall(defmacro, macro, deftest_error);
+	SetPointerCall(defmacro, macro, deftest_error_);
 	SetPointerCall(defun, dynamic, do_tests);
 	SetPointerCall(defun, var2, equalrt);
 }
@@ -724,6 +788,7 @@ _g void build_rt(void)
 	defun_rem_all_tests();
 	defmacro_deftest();
 	defmacro_deftest_error();
+	defmacro_deftest_error_();
 	defun_do_tests();
 	defun_equalrt();
 }
