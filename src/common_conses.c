@@ -1047,12 +1047,22 @@ static void defun_copy_list(void)
 }
 
 
-/* (defun copy-tree (list) ...) -> list */
+/* (defun copy-tree (t) ...) -> t */
 static int function_copy_tree(Execute ptr, addr list)
 {
 	copy_tree_heap(&list, list);
 	setresult_control(ptr, list);
 	return 0;
+}
+
+static void type_copy_tree(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_copy_tree(void)
@@ -1065,7 +1075,7 @@ static void defun_copy_tree(void)
 	setcompiled_var1(pos, p_defun_copy_tree);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetTypeCompiled(&type, List_List);
+	type_copy_tree(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

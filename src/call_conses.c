@@ -138,8 +138,9 @@ static int recursive_sublis_cons(struct sublis_struct *str, addr tree, addr *ret
 	LocalHold hold;
 
 	/* atom */
+	Return(replace_sublis_cons(str, tree, &check, &tree));
 	if (! consp(tree))
-		return replace_sublis_cons(str, tree, &check, ret);
+		return Result(ret, tree);
 
 	hold = LocalHold_local(str->ptr);
 	GetCons(tree, &car, &cdr);
@@ -226,8 +227,9 @@ static int recursive_nsublis_cons(struct sublis_struct *str, addr tree, addr *re
 	LocalHold hold;
 
 	/* atom */
+	Return(replace_sublis_cons(str, tree, &check, &tree));
 	if (! consp(tree))
-		return replace_sublis_cons(str, tree, &check, ret);
+		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
@@ -361,25 +363,37 @@ static int test_not_subst_cons(struct subst_struct *str,
 static int replace_subst_cons(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
+	addr check;
+
 	/* key */
 	if (str->key != Nil) {
-		Return(callclang_funcall(str->ptr, &tree, str->key, tree, NULL));
+		Return(callclang_funcall(str->ptr, &check, str->key, tree, NULL));
 	}
+	else {
+		check = tree;
+	}
+
 	/* test */
 	switch (str->test) {
 		case 0: /* nil */
-			*result = default_subst_cons(str, tree, ret);
-			return 0;
+			*result = default_subst_cons(str, check, ret);
+			break;
 
 		case 1: /* :test */
-			return test_subst_cons(str, tree, result, ret);
+			Return(test_subst_cons(str, check, result, ret));
+			break;
 
 		case 2: /* :test-not */
-			return test_not_subst_cons(str, tree, result, ret);
+			Return(test_not_subst_cons(str, check, result, ret));
+			break;;
 
 		default:
 			return fmte_("Invalid test mode.", NULL);
 	}
+	if (*result == 0)
+		*ret = tree;
+
+	return 0;
 }
 
 static int recursive_subst_cons(struct subst_struct *str, addr tree, addr *ret)
@@ -389,8 +403,9 @@ static int recursive_subst_cons(struct subst_struct *str, addr tree, addr *ret)
 	LocalHold hold;
 
 	/* atom */
+	Return(replace_subst_cons(str, tree, &check, &tree));
 	if (! consp(tree))
-		return replace_subst_cons(str, tree, &check, ret);
+		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
@@ -437,8 +452,9 @@ static int recursive_nsubst_cons(struct subst_struct *str, addr tree, addr *ret)
 	LocalHold hold;
 
 	/* atom */
+	Return(replace_subst_cons(str, tree, &check, &tree));
 	if (! consp(tree))
-		return replace_subst_cons(str, tree, &check, ret);
+		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
@@ -539,21 +555,33 @@ static int call_subst_if_not_cons(struct subst_struct *str,
 static int replace_subst_if(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
+	addr check;
+
 	/* key */
 	if (str->key != Nil) {
-		Return(callclang_funcall(str->ptr, &tree, str->key, tree, NULL));
+		Return(callclang_funcall(str->ptr, &check, str->key, tree, NULL));
 	}
+	else {
+		check = tree;
+	}
+
 	/* test */
 	switch (str->test) {
 		case 1: /* :test */
-			return call_subst_if_cons(str, tree, result, ret);
+			Return(call_subst_if_cons(str, check, result, ret));
+			break;
 
 		case 2: /* :test-not */
-			return call_subst_if_not_cons(str, tree, result, ret);
+			Return(call_subst_if_not_cons(str, check, result, ret));
+			break;
 
 		default:
 			return fmte_("Invalid test mode.", NULL);
 	}
+	if (*result == 0)
+		*ret = tree;
+
+	return 0;
 }
 
 static int recursive_subst_if_cons(struct subst_struct *str, addr tree, addr *ret)
@@ -563,8 +591,9 @@ static int recursive_subst_if_cons(struct subst_struct *str, addr tree, addr *re
 	LocalHold hold;
 
 	/* atom */
+	Return(replace_subst_if(str, tree, &check, &tree));
 	if (! consp(tree))
-		return replace_subst_if(str, tree, &check, ret);
+		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
@@ -610,8 +639,9 @@ static int recursive_nsubst_if_cons(struct subst_struct *str, addr tree, addr *r
 	LocalHold hold;
 
 	/* atom */
+	Return(replace_subst_if(str, tree, &check, &tree));
 	if (! consp(tree))
-		return replace_subst_if(str, tree, &check, ret);
+		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);

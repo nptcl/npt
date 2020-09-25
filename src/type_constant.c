@@ -1693,19 +1693,18 @@ static void typecompiled_sublis(void)
 static void typecompiled_subst(void)
 {
 	/* (function
-	 *   (t t list
+	 *   (t t t
 	 *    &key (:key      (or (function (t &rest t) *)   symbol))
 	 *         (:test     (or (function (t t &rest t) *) symbol))
 	 *         (:test-not (or (function (t t &rest t) *) symbol)))
-	 *   (values list &rest nil))
+	 *   (values t &rest nil))
 	 */
-	addr args, values, type, list;
+	addr args, values, type;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&list, List);
 	GetTypeTable(&args, KeyTestList);
-	typeargs_var3key(&args, type, type, list, args);
-	typevalues_result(&values, list);
+	typeargs_var3key(&args, type, type, type, args);
+	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(Subst, args);
 }
@@ -1713,20 +1712,19 @@ static void typecompiled_subst(void)
 static void typecompiled_subst_if(void)
 {
 	/* (function
-	 *   (t (or (function (t &rest t) *) symbol) list
+	 *   (t (or (function (t &rest t) *) symbol) t
 	 *    &key (:key (or (function (t &rest t) *) symbol)))
-	 *   (values list &rest nil))
+	 *   (values t &rest nil))
 	 */
-	addr args, values, type, call, list, key;
+	addr args, values, type, call, key;
 
 	GetTypeTable(&type, T);
 	GetTypeTable(&call, FunctionDesigner);
-	GetTypeTable(&list, List);
 	GetConst(KEYWORD_KEY, &key);
 	cons_heap(&key, key, call);
 	conscar_heap(&key, key);
-	typeargs_var3key(&args, type, call, list, key);
-	typevalues_result(&values, list);
+	typeargs_var3key(&args, type, call, type, key);
+	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(SubstIf, args);
 }

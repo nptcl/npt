@@ -10,34 +10,35 @@
   nil)
 
 (deftest copy-tree.2
+  (copy-tree 10)
+  10)
+
+(deftest copy-tree.3
   (copy-tree '(a b c))
   (a b c))
 
-(deftest copy-tree.3
+(deftest copy-tree.4
   (let ((x '(a b c d)))
     (eq (copy-tree x) x))
   nil)
 
-(deftest copy-tree.4
+(deftest copy-tree.5
   (copy-tree '(a b . c))
   (a b . c))
 
-(deftest copy-tree.5
+(deftest copy-tree.6
   (copy-tree '(a (b (c) (d) ((e))) . c))
   (a (b (c) (d) ((e))) . c))
 
-(deftest copy-tree.6
+(deftest copy-tree.7
   (let ((x '(x y z)))
     (eq x (car (copy-tree (list x 'b 'c 'd)))))
   nil)
 
-(deftest-error copy-tree.7
-  (eval '(copy-tree :hello)))
-
-(deftest-error! copy-tree.8
+(deftest-error! copy-tree-error.1
   (eval '(copy-tree)))
 
-(deftest-error! copy-tree.9
+(deftest-error! copy-tree-error.2
   (eval '(copy-tree nil nil)))
 
 
@@ -79,6 +80,12 @@
 
 (deftest sublis.7
   (sublis '((a . 10)) 'a)
+  10)
+
+(deftest sublis.8
+  (sublis '((a . 10)) '(a b c)
+          :test (lambda (x y)
+                  (or (listp x) (listp y))))
   10)
 
 (deftest-error sublis-error.1
@@ -142,7 +149,11 @@
 (deftest nsublis.7
   (nsublis '((a . 10)) 'a)
   10)
-
+(deftest nsublis.8
+  (nsublis '((a . 10)) '(a b c)
+           :test (lambda (x y)
+                   (or (listp x) (listp y))))
+  10)
 (deftest-error nsublis-error.1
   (eval '(nsublis :hello nil)))
 
@@ -165,70 +176,65 @@
   (eval '(nsublis nil nil :test (constantly t) :test-not (constantly t))))
 
 
-#|
-(deftest subst.1
-  (subst 10 20 nil)
-  nil)
+;;  ANSI Common Lisp
+(deftest sublis-test.1
+  (sublis '((x . 100) (z . zprime))
+          '(plus x (minus g z x p) 4 . x))
+  (plus 100 (minus g zprime 100 p) 4 . 100))
 
-(deftest subst.2
-  (subst 'z 'a '(a b c (d e f (a))))
-  (z b c (d e f (z))))
+(deftest sublis-test.2
+  (sublis '(((+ x y) . (- x y)) ((- x y) . (+ x y)))
+          '(* (/ (+ x y) (+ x p)) (- x y))
+          :test #'equal)
+  (* (/ (- x y) (+ x p)) (+ x y)))
 
-(deftest nsubst.1
-  (nsubst 10 20 nil)
-  nil)
+(defparameter *sublis-tree1* '(1 (1 2) ((1 2 3)) (((1 2 3 4)))))
 
-(deftest nsubst.2
-  (nsubst 'z 'a '(a b c (d e f (a))))
-  (z b c (d e f (z))))
+(deftest sublis-test.3
+  (sublis '((3 . "three")) *sublis-tree1*)
+  (1 (1 2) ((1 2 "three")) (((1 2 "three" 4)))))
 
-(deftest subst-if.1
-  (subst-if 10 (constantly nil) nil)
-  nil)
+(deftest sublis-test.4
+  (values
+    (sublis '((t . "string"))
+            (sublis '((1 . "") (4 . 44)) *sublis-tree1*)
+            :key #'stringp)
+    *sublis-tree1*)
+  ("string" ("string" 2) (("string" 2 3)) ((("string" 2 3 44))))
+  (1 (1 2) ((1 2 3)) (((1 2 3 4)))))
 
-(deftest subst-if.2
-  (subst-if 10 (constantly nil) '(a b c (d e (f)) g))
-  (a b c (d e (f)) g))
+(defparameter *sublis-tree2* '("one" ("one" "two") (("one" "Two" "three"))))
 
-(deftest subst-if.3
-  (subst-if 10 (lambda (x) (eq x 'd)) '(a b c (d e (f)) g))
-  (a b c (10 e (f)) g))
+(deftest sublis-test.5
+  (values
+    (sublis '(("two" . 2)) *sublis-tree2*)
+    *sublis-tree2*)
+  ("one" ("one" "two") (("one" "Two" "three")))
+  ("one" ("one" "two") (("one" "Two" "three"))))
 
-(deftest nsubst-if.1
-  (nsubst-if 10 (constantly nil) nil)
-  nil)
+(deftest sublis-test.6
+  (sublis '(("two" . 2)) *sublis-tree2* :test 'equal)
+  ("one" ("one" 2) (("one" "Two" "three"))))
 
-(deftest nsubst-if.2
-  (nsubst-if 10 (constantly nil) '(a b c (d e (f)) g))
-  (a b c (d e (f)) g))
+(deftest sublis-test.7
+  (nsublis '((t . 'temp))
+           *sublis-tree1*
+           :key #'(lambda (x) (or (atom x) (< (list-length x) 3))))
+  ((quote temp) (quote temp) quote temp))
 
-(deftest nsubst-if.3
-  (nsubst-if 10 (lambda (x) (eq x 'd)) '(a b c (d e (f)) g))
-  (a b c (10 e (f)) g))
+(defun test-sublis-it (fn)
+  (let* ((shared-piece (list 'a 'b))
+         (data (list shared-piece shared-piece)))
+    (funcall fn '((a . b) (b . a)) data)))
 
-(deftest subst-if-not.1
-  (subst-if-not 10 (constantly t) nil)
-  nil)
+(deftest sublis-test.8
+  (test-sublis-it #'sublis)
+  ((b a) (b a)))
 
-(deftest subst-if-not.2
-  (subst-if-not 10 (constantly t) '(a b c (d e (f)) g))
-  (a b c (d e (f)) g))
+(deftest sublis-test.9
+  (test-sublis-it #'nsublis)
+  ((a b) (a b)))
 
-(deftest subst-if-not.3
-  (subst-if-not 10 (lambda (x) (not (eq x 'd))) '(a b c (d e (f)) g))
-  (a b c (10 e (f)) g))
-
-(deftest nsubst-if-not.1
-  (nsubst-if-not 10 (constantly t) nil)
-  nil)
-
-(deftest nsubst-if-not.2
-  (nsubst-if-not 10 (constantly t) '(a b c (d e (f)) g))
-  (a b c (d e (f)) g))
-
-(deftest nsubst-if-not.3
-  (nsubst-if-not 10 (lambda (x) (not (eq x 'd))) '(a b c (d e (f)) g))
-  (a b c (10 e (f)) g))
 
 (deftest tree-equal.1
   (tree-equal nil nil)
@@ -1457,5 +1463,4 @@
 (deftest nunion.6
   (nunion '(a b b b b c) '(b b b d d d e))
   (e d a b c))
-|#
 
