@@ -304,7 +304,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_instance.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_object.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_print.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_print.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_sequence.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_type.c" />
