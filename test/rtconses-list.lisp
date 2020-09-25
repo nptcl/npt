@@ -1,22 +1,171 @@
 ;;
 ;;  ANSI COMMON LISP: 14. Conses
 ;;
+
+;;
+;;  Function COPY-TREE
+;;
+(deftest copy-tree.1
+  (copy-tree nil)
+  nil)
+
+(deftest copy-tree.2
+  (copy-tree '(a b c))
+  (a b c))
+
+(deftest copy-tree.3
+  (let ((x '(a b c d)))
+    (eq (copy-tree x) x))
+  nil)
+
+(deftest copy-tree.4
+  (copy-tree '(a b . c))
+  (a b . c))
+
+(deftest copy-tree.5
+  (copy-tree '(a (b (c) (d) ((e))) . c))
+  (a (b (c) (d) ((e))) . c))
+
+(deftest copy-tree.6
+  (let ((x '(x y z)))
+    (eq x (car (copy-tree (list x 'b 'c 'd)))))
+  nil)
+
+(deftest-error copy-tree.7
+  (eval '(copy-tree :hello)))
+
+(deftest-error! copy-tree.8
+  (eval '(copy-tree)))
+
+(deftest-error! copy-tree.9
+  (eval '(copy-tree nil nil)))
+
+
+;;
+;;  Function SUBLIS
+;;
 (deftest sublis.1
   (sublis nil nil)
   nil)
 
 (deftest sublis.2
+  (sublis nil 10)
+  10)
+
+(deftest sublis.3
   (sublis '((a . b) (c . d)) '(a b c d e f))
   (b b d d e f))
 
+(deftest sublis.4
+  (let ((x '(a b c d e f)))
+    (eq (sublis '((a . b) (c . d)) '(a b c d e f)) x))
+  nil)
+
+(deftest sublis.5
+  (sublis '((4 . a) (5 . b)) '(2 3 4 5 6 7 8 9)
+          :key (lambda (x)
+                 (if (realp x)
+                   (1+ x)
+                   x)))
+  (2 a b 5 6 7 8 9))
+
+(deftest sublis.6
+  (sublis '((2 . a) (7 . b)) '(2 3 4 5 6 7 8 9)
+          :test (lambda (x y)
+                  (and (realp x)
+                       (realp y)
+                       (zerop (mod (max x y) (min x y))))))
+  (a 3 a 5 a b a 9))
+
+(deftest sublis.7
+  (sublis '((a . 10)) 'a)
+  10)
+
+(deftest-error sublis-error.1
+  (eval '(sublis :hello nil)))
+
+(deftest-error! sublis-error.2
+  (eval '(sublis nil)))
+
+(deftest-error! sublis-error.3
+  (eval '(sublis nil nil nil)))
+
+(deftest-error! sublis-error.4
+  (eval '(sublis nil nil :test)))
+
+(deftest-error! sublis-error.5
+  (eval '(sublis nil nil :hello 10)))
+
+(deftest-error! sublis-error.6
+  (eval '(sublis nil nil :key 10)))
+
+(deftest-error! sublis-error.7
+  (eval '(sublis nil nil :test (constantly t) :test-not (constantly t))))
+
+
+;;
+;;  Function NSUBLIS
+;;
 (deftest nsublis.1
   (nsublis nil nil)
   nil)
 
 (deftest nsublis.2
+  (nsublis nil 10)
+  10)
+
+(deftest nsublis.3
   (nsublis '((a . b) (c . d)) '(a b c d e f))
   (b b d d e f))
 
+(deftest nsublis.4
+  (let ((x '(a b c d e f)))
+    (eq (nsublis '((a . b) (c . d)) '(a b c d e f)) x))
+  nil)
+
+(deftest nsublis.5
+  (nsublis '((4 . a) (5 . b)) '(2 3 4 5 6 7 8 9)
+           :key (lambda (x)
+                  (if (realp x)
+                    (1+ x)
+                    x)))
+  (2 a b 5 6 7 8 9))
+
+(deftest nsublis.6
+  (nsublis '((2 . a) (7 . b)) '(2 3 4 5 6 7 8 9)
+           :test (lambda (x y)
+                   (and (realp x)
+                        (realp y)
+                        (zerop (mod (max x y) (min x y))))))
+  (a 3 a 5 a b a 9))
+
+(deftest nsublis.7
+  (nsublis '((a . 10)) 'a)
+  10)
+
+(deftest-error nsublis-error.1
+  (eval '(nsublis :hello nil)))
+
+(deftest-error! nsublis-error.2
+  (eval '(nsublis nil)))
+
+(deftest-error! nsublis-error.3
+  (eval '(nsublis nil nil nil)))
+
+(deftest-error! nsublis-error.4
+  (eval '(nsublis nil nil :test)))
+
+(deftest-error! nsublis-error.5
+  (eval '(nsublis nil nil :hello 10)))
+
+(deftest-error! nsublis-error.6
+  (eval '(nsublis nil nil :key 10)))
+
+(deftest-error! nsublis-error.7
+  (eval '(nsublis nil nil :test (constantly t) :test-not (constantly t))))
+
+
+#|
 (deftest subst.1
   (subst 10 20 nil)
   nil)
@@ -1308,4 +1457,5 @@
 (deftest nunion.6
   (nunion '(a b b b b c) '(b b b d d d e))
   (e d a b c))
+|#
 

@@ -1679,11 +1679,12 @@ static void typecompiled_sublis(void)
 	 *         (:test-not (or (function (t t &rest t) *) symbol)))
 	 *   (values list &rest nil))
 	 */
-	addr args, values, list;
+	addr args, values, list, tree;
 
 	GetTypeTable(&list, List);
+	GetTypeTable(&tree, T);
 	GetTypeTable(&args, KeyTestList);
-	typeargs_var2key(&args, list, list, args);
+	typeargs_var2key(&args, list, tree, args);
 	typevalues_result(&values, list);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(Sublis, args);
