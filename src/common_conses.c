@@ -1009,17 +1009,17 @@ static int function_setf_tenth(Execute ptr, addr value, addr list)
 
 static void defun_setf_first(void)
 {
-	DefunSetfCxr(REST, cdr, Cxr);
-	DefunSetfCxr(FIRST, car, Cxr);
-	DefunSetfCxr(SECOND, cadr, Cxdr);
-	DefunSetfCxr(THIRD, caddr, Cxddr);
-	DefunSetfCxr(FOURTH, cadddr, Cxdddr);
-	DefunSetfCxr(FIFTH, fifth, Fifth);
-	DefunSetfCxr(SIXTH, sixth, Sixth);
-	DefunSetfCxr(SEVENTH, seventh, Seventh);
-	DefunSetfCxr(EIGHTH, eighth, Eighth);
-	DefunSetfCxr(NINTH, ninth, Ninth);
-	DefunSetfCxr(TENTH, tenth, Tenth);
+	DefunSetfCxr(REST, cdr, Cons);
+	DefunSetfCxr(FIRST, car, Cons);
+	DefunSetfCxr(SECOND, cadr, SetfCxdr);
+	DefunSetfCxr(THIRD, caddr, SetfCxddr);
+	DefunSetfCxr(FOURTH, cadddr, SetfCxdddr);
+	DefunSetfCxr(FIFTH, fifth, SetfFifth);
+	DefunSetfCxr(SIXTH, sixth, SetfSixth);
+	DefunSetfCxr(SEVENTH, seventh, SetfSeventh);
+	DefunSetfCxr(EIGHTH, eighth, SetfEighth);
+	DefunSetfCxr(NINTH, ninth, SetfNinth);
+	DefunSetfCxr(TENTH, tenth, SetfTenth);
 }
 
 

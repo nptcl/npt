@@ -249,11 +249,17 @@ static void typetable_car(void)
 	SetTypeTable(Tenth, tenth);
 }
 
+static void type_setf_cxr_carcdr(addr car, addr cdr, addr *ret)
+{
+	/* (cons car cdr) */
+	typetable_cons2(car, cdr, ret);
+}
+
 static addr type_cons_car(addr type)
 {
 	addr pos;
 	GetTypeTable(&pos, Asterisk);
-	type_cxr_carcdr(type, pos, &pos);
+	type_setf_cxr_carcdr(type, pos, &pos);
 	return pos;
 }
 
@@ -261,7 +267,7 @@ static addr type_cons_cdr(addr type)
 {
 	addr pos;
 	GetTypeTable(&pos, Asterisk);
-	type_cxr_carcdr(pos, type, &pos);
+	type_setf_cxr_carcdr(pos, type, &pos);
 	return pos;
 }
 

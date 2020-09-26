@@ -3,330 +3,6 @@
 ;;
 
 ;;
-;;  Function COPY-TREE
-;;
-(deftest copy-tree.1
-  (copy-tree nil)
-  nil)
-
-(deftest copy-tree.2
-  (copy-tree 10)
-  10)
-
-(deftest copy-tree.3
-  (copy-tree '(a b c))
-  (a b c))
-
-(deftest copy-tree.4
-  (let ((x '(a b c d)))
-    (eq (copy-tree x) x))
-  nil)
-
-(deftest copy-tree.5
-  (copy-tree '(a b . c))
-  (a b . c))
-
-(deftest copy-tree.6
-  (copy-tree '(a (b (c) (d) ((e))) . c))
-  (a (b (c) (d) ((e))) . c))
-
-(deftest copy-tree.7
-  (let ((x '(x y z)))
-    (eq x (car (copy-tree (list x 'b 'c 'd)))))
-  nil)
-
-(deftest-error! copy-tree-error.1
-  (eval '(copy-tree)))
-
-(deftest-error! copy-tree-error.2
-  (eval '(copy-tree nil nil)))
-
-
-;;
-;;  Function SUBLIS
-;;
-(deftest sublis.1
-  (sublis nil nil)
-  nil)
-
-(deftest sublis.2
-  (sublis nil 10)
-  10)
-
-(deftest sublis.3
-  (sublis '((a . b) (c . d)) '(a b c d e f))
-  (b b d d e f))
-
-(deftest sublis.4
-  (let ((x '(a b c d e f)))
-    (eq (sublis '((a . b) (c . d)) '(a b c d e f)) x))
-  nil)
-
-(deftest sublis.5
-  (sublis '((4 . a) (5 . b)) '(2 3 4 5 6 7 8 9)
-          :key (lambda (x)
-                 (if (realp x)
-                   (1+ x)
-                   x)))
-  (2 a b 5 6 7 8 9))
-
-(deftest sublis.6
-  (sublis '((2 . a) (7 . b)) '(2 3 4 5 6 7 8 9)
-          :test (lambda (x y)
-                  (and (realp x)
-                       (realp y)
-                       (zerop (mod (max x y) (min x y))))))
-  (a 3 a 5 a b a 9))
-
-(deftest sublis.7
-  (sublis '((a . 10)) 'a)
-  10)
-
-(deftest sublis.8
-  (sublis '((a . 10)) '(a b c)
-          :test (lambda (x y)
-                  (or (listp x) (listp y))))
-  10)
-
-(deftest-error sublis-error.1
-  (eval '(sublis :hello nil)))
-
-(deftest-error! sublis-error.2
-  (eval '(sublis nil)))
-
-(deftest-error! sublis-error.3
-  (eval '(sublis nil nil nil)))
-
-(deftest-error! sublis-error.4
-  (eval '(sublis nil nil :test)))
-
-(deftest-error! sublis-error.5
-  (eval '(sublis nil nil :hello 10)))
-
-(deftest-error! sublis-error.6
-  (eval '(sublis nil nil :key 10)))
-
-(deftest-error! sublis-error.7
-  (eval '(sublis nil nil :test (constantly t) :test-not (constantly t))))
-
-
-;;
-;;  Function NSUBLIS
-;;
-(deftest nsublis.1
-  (nsublis nil nil)
-  nil)
-
-(deftest nsublis.2
-  (nsublis nil 10)
-  10)
-
-(deftest nsublis.3
-  (nsublis '((a . b) (c . d)) '(a b c d e f))
-  (b b d d e f))
-
-(deftest nsublis.4
-  (let ((x '(a b c d e f)))
-    (eq (nsublis '((a . b) (c . d)) '(a b c d e f)) x))
-  nil)
-
-(deftest nsublis.5
-  (nsublis '((4 . a) (5 . b)) '(2 3 4 5 6 7 8 9)
-           :key (lambda (x)
-                  (if (realp x)
-                    (1+ x)
-                    x)))
-  (2 a b 5 6 7 8 9))
-
-(deftest nsublis.6
-  (nsublis '((2 . a) (7 . b)) '(2 3 4 5 6 7 8 9)
-           :test (lambda (x y)
-                   (and (realp x)
-                        (realp y)
-                        (zerop (mod (max x y) (min x y))))))
-  (a 3 a 5 a b a 9))
-
-(deftest nsublis.7
-  (nsublis '((a . 10)) 'a)
-  10)
-(deftest nsublis.8
-  (nsublis '((a . 10)) '(a b c)
-           :test (lambda (x y)
-                   (or (listp x) (listp y))))
-  10)
-(deftest-error nsublis-error.1
-  (eval '(nsublis :hello nil)))
-
-(deftest-error! nsublis-error.2
-  (eval '(nsublis nil)))
-
-(deftest-error! nsublis-error.3
-  (eval '(nsublis nil nil nil)))
-
-(deftest-error! nsublis-error.4
-  (eval '(nsublis nil nil :test)))
-
-(deftest-error! nsublis-error.5
-  (eval '(nsublis nil nil :hello 10)))
-
-(deftest-error! nsublis-error.6
-  (eval '(nsublis nil nil :key 10)))
-
-(deftest-error! nsublis-error.7
-  (eval '(nsublis nil nil :test (constantly t) :test-not (constantly t))))
-
-
-;;  ANSI Common Lisp
-(deftest sublis-test.1
-  (sublis '((x . 100) (z . zprime))
-          '(plus x (minus g z x p) 4 . x))
-  (plus 100 (minus g zprime 100 p) 4 . 100))
-
-(deftest sublis-test.2
-  (sublis '(((+ x y) . (- x y)) ((- x y) . (+ x y)))
-          '(* (/ (+ x y) (+ x p)) (- x y))
-          :test #'equal)
-  (* (/ (- x y) (+ x p)) (+ x y)))
-
-(defparameter *sublis-tree1* '(1 (1 2) ((1 2 3)) (((1 2 3 4)))))
-
-(deftest sublis-test.3
-  (sublis '((3 . "three")) *sublis-tree1*)
-  (1 (1 2) ((1 2 "three")) (((1 2 "three" 4)))))
-
-(deftest sublis-test.4
-  (values
-    (sublis '((t . "string"))
-            (sublis '((1 . "") (4 . 44)) *sublis-tree1*)
-            :key #'stringp)
-    *sublis-tree1*)
-  ("string" ("string" 2) (("string" 2 3)) ((("string" 2 3 44))))
-  (1 (1 2) ((1 2 3)) (((1 2 3 4)))))
-
-(defparameter *sublis-tree2* '("one" ("one" "two") (("one" "Two" "three"))))
-
-(deftest sublis-test.5
-  (values
-    (sublis '(("two" . 2)) *sublis-tree2*)
-    *sublis-tree2*)
-  ("one" ("one" "two") (("one" "Two" "three")))
-  ("one" ("one" "two") (("one" "Two" "three"))))
-
-(deftest sublis-test.6
-  (sublis '(("two" . 2)) *sublis-tree2* :test 'equal)
-  ("one" ("one" 2) (("one" "Two" "three"))))
-
-(deftest sublis-test.7
-  (nsublis '((t . 'temp))
-           *sublis-tree1*
-           :key #'(lambda (x) (or (atom x) (< (list-length x) 3))))
-  ((quote temp) (quote temp) quote temp))
-
-(defun test-sublis-it (fn)
-  (let* ((shared-piece (list 'a 'b))
-         (data (list shared-piece shared-piece)))
-    (funcall fn '((a . b) (b . a)) data)))
-
-(deftest sublis-test.8
-  (test-sublis-it #'sublis)
-  ((b a) (b a)))
-
-(deftest sublis-test.9
-  (test-sublis-it #'nsublis)
-  ((a b) (a b)))
-
-
-;;
-;;  Function TREE-EQUAL
-;;
-(deftest tree-equal.1
-  (tree-equal nil nil)
-  t)
-
-(deftest tree-equal.2
-  (tree-equal 10 10)
-  t)
-
-(deftest tree-equal.3
-  (tree-equal 10 20)
-  nil)
-
-(deftest tree-equal.4
-  (tree-equal '(10) 10)
-  nil)
-
-(deftest tree-equal.5
-  (tree-equal 10 '(10))
-  nil)
-
-(deftest tree-equal.6
-  (tree-equal '(10) '(10))
-  t)
-
-(deftest tree-equal.7
-  (tree-equal '(20) '(10))
-  nil)
-
-(deftest tree-equal.8
-  (tree-equal '(a b (c d) e) '(a b (c d) e))
-  t)
-
-(deftest tree-equal.9
-  (tree-equal '(a b (c d . f) e) '(a b (c d) e))
-  nil)
-
-(deftest tree-equal.11
-  (let (list)
-    (values
-      (tree-equal '(a b c) '(a b (c))
-                  :test (lambda (x y)
-                          (push x list)
-                          (push y list)
-                          (equal x y)))
-      (nreverse list)))
-  nil
-  (a a b b))
-
-(deftest tree-equal.12
-  (tree-equal '(2 a (5)) '(3 "A" (10))
-              :test (lambda (x y) (eq (realp x) (realp y))))
-  t)
-
-(deftest tree-equal.13
-  (tree-equal '(2 a (5)) '(3 "A" ((10)))
-              :test (lambda (x y) (eq (realp x) (realp y))))
-  nil)
-
-(deftest tree-equal.14
-  (tree-equal '(2 a (5 . 4) . 7) '("a" 3 (#\A) . t)
-              :test-not (lambda (x y) (eq (realp x) (realp y))))
-  t)
-
-(deftest tree-equal.15
-  (tree-equal '(2 a (5 . 4) . 7) '("a" 3 (#\A . 4) . t)
-              :test-not (lambda (x y) (eq (realp x) (realp y))))
-  nil)
-
-(deftest-error! tree-equal-error.1
-  (eval '(tree-equal 10)))
-
-(deftest-error tree-equal-error.2
-  (eval '(tree-equal 10 20 30)))
-
-(deftest-error tree-equal-error.3
-  (eval '(tree-equal 10 20 :test)))
-
-(deftest-error tree-equal-error.4
-  (eval '(tree-equal 10 20 :test 10)))
-
-(deftest-error tree-equal-error.5
-  (eval '(tree-equal 10 20 :hello 10)))
-
-(deftest-error tree-equal-error.6
-  (eval '(tree-equal 10 20 :test (constantly t) :test-not (constantly t))))
-
-
-;;
 ;;  Function COPY-LIST
 ;;
 (deftest copy-list.1
@@ -541,40 +217,6 @@
 
 
 ;;
-;;  Function LISTP
-;;
-(deftest listp.1
-  (listp nil)
-  t)
-
-(deftest listp.2
-  (listp '(10 . 20))
-  t)
-
-(deftest listp.3
-  (listp 10)
-  nil)
-
-(deftest listp.4
- (listp (cons 1 2))
- t)
-
-(deftest listp.5
-  (listp (make-array 6))
-  nil)
-
-(deftest listp.6
-  (listp t)
-  nil)
-
-(deftest-error! listp-error.1
-  (eval '(listp)))
-
-(deftest-error! listp-error.2
-  (eval '(listp 10 20)))
-
-
-;;
 ;;  Function MAKE-LIST
 ;;
 (deftest make-list.1
@@ -761,44 +403,120 @@
   (eval '(let ((x 10)) (pop x))))
 
 
+;;
+;;  Accessor NTH
+;;
 (deftest nth.1
+  (nth 0 nil)
+  nil)
+
+(deftest nth.2
+  (nth 1 nil)
+  nil)
+
+(deftest nth.3
   (nth 0 '(10 20 30 40))
   10)
 
-(deftest nth.2
+(deftest nth.4
   (nth 2 '(10 20 30 40))
   30)
 
-(deftest nth.3
+(deftest nth.5
   (nth 3 '(10 20 30))
   nil)
 
+(deftest nth.6
+  (nth 1 '(a b . c))
+  b)
+
+(deftest-error nth-error.1
+  (nth 2 '(a b . c)))
+
+(deftest-error nth-error.2
+  (eval '(nth 1 #(a b c))))
+
+(deftest-error! nth-error.3
+  (eval '(nth -1 nil)))
+
+(deftest-error! nth-error.4
+  (eval '(nth 1)))
+
+(deftest-error! nth-error.5
+  (eval '(nth 1 nil nil)))
+
+
+;;
+;;  Accessor (SETF NTH)
+;;
 (deftest setf-nth.1
   (let ((a '(10 20 30)))
     (setf (nth 1 a) 999)
     a)
   (10 999 30))
 
-(deftest endp.1
-  (endp nil)
-  t)
+(deftest setf-nth.2
+  (let ((a '(10 20 30)))
+    (setf (nth 0 a) 999)
+    a)
+  (999 20 30))
 
-(deftest endp.2
-  (endp '(10 20 30))
+(deftest setf-nth.3
+  (let ((a '(10 20 30)))
+    (setf (nth 2 a) 999)
+    a)
+  (10 20 999))
+
+(deftest-error setf-nth-error.1
+  (let ((a '(10 20 30)))
+    (setf (nth 3 a) 999)))
+
+(deftest-error setf-nth-error.2
+  (let ((a '(10 20 . 30)))
+    (setf (nth 2 a) 999)))
+
+(deftest-error setf-nth-error.3
+  (let ((a #(10 20 30)))
+    (setf (nth 2 a) 999)))
+
+(deftest-error setf-nth-error.4
+  (let ((a '(10 20 30)))
+    (setf (nth -1 a) 999)))
+
+(deftest-error setf-nth-error.5
+  (setf (nth 2) 999))
+
+(deftest-error setf-nth-error.6
+  (let ((a '(10 20 30)))
+    (setf (nth 2 a a) 999)))
+
+;; ANSI Common Lisp
+(deftest nth-test.1
+  (nth 0 '(foo bar baz))
+  foo)
+
+(deftest nth-test.2
+  (nth 1 '(foo bar baz))
+  bar)
+
+(deftest nth-test.3
+  (nth 3 '(foo bar baz))
   nil)
 
-(deftest null.1
-  (null nil)
-  t)
+(defparameter *nth-list* (list 0 1 2 3))
 
-(deftest null.2
-  (null '(10 20 30))
-  nil)
+(deftest nth-test.4
+  (setf (nth 2 *nth-list*) "two")
+  "two")
 
-(deftest null.3
-  (null "Hello")
-  nil)
+(deftest nth-test.5
+  *nth-list*
+  (0 1 "two" 3))
 
+
+;;
+;;  Function NCONC
+;;
 (deftest nconc.1
   (nconc)
   nil)
@@ -829,6 +547,47 @@
     (eq (nconc nil nil x nil nil) x))
   t)
 
+(deftest nconc.8
+  (let ((x '(a b c))
+        (y '(d e f)))
+    (values
+      (nconc x y)
+      x))
+  (a b c d e f)
+  (a b c d e f))
+
+(deftest nconc.9
+  (let ((x (list 'a 'b 'c 'd 'e))
+        (y (list 'f 'g 'h 'i 'j))
+        (z (list 'k 'l 'm)))
+    (setq x (nconc x y z))
+    (values x y z))
+  (a b c d e f g h i j k l m)
+  (f g h i j k l m)
+  (k l m))
+
+(deftest nconc.10
+  (let ((x (list 'a 'b 'c 'd 'e))
+        (y (list 'f 'g 'h 'i 'j))
+        (z (list 'k 'l 'm)))
+    (setq x (nconc nil x y nil z))
+    (values x y z))
+  (a b c d e f g h i j k l m)
+  (f g h i j k l m)
+  (k l m))
+
+(deftest nconc.11
+  (let ((x '(a b c)))
+    (list-length (nconc x x)))
+  nil)
+
+(deftest-error nconc-error.1
+  (nconc 10 20 30))
+
+
+;;
+;;  Function APPEND
+;;
 (deftest append.1
   (append)
   nil)
@@ -855,6 +614,68 @@
     a)
   (10 20))
 
+(deftest append.7
+  (let ((x '(t t)))
+    (eq (append nil nil x nil nil) x))
+  t)
+
+(deftest append.8
+  (let ((x '(a b c))
+        (y '(d e f)))
+    (values
+      (append x y)
+      x))
+  (a b c d e f)
+  (a b c))
+
+(deftest append.9
+  (let ((x (list 'a 'b 'c 'd 'e))
+        (y (list 'f 'g 'h 'i 'j))
+        (z (list 'k 'l 'm)))
+    (setq x (append x y z))
+    (values x y z))
+  (a b c d e f g h i j k l m)
+  (f g h i j)
+  (k l m))
+
+(deftest append.11
+  (let ((x '(a b c)))
+    (list-length (append x x)))
+  6)
+
+(deftest append.12
+  (append '(a b c) '(d e f) '() '(g))
+  (a b c d e f g))
+
+(deftest append.13
+  (append '(a b c) 'd)
+  (a b c . d))
+
+(defparameter *append-list* '(a b c))
+
+(deftest append.14
+  (append *append-list* '(d))
+  (a b c d))
+
+(deftest append.15
+  *append-list*
+  (a b c))
+
+(deftest append.16
+  (append)
+  nil)
+
+(deftest append.17
+  (append 'a)
+  a)
+
+(deftest-error append-error.1
+  (append 10 20 30))
+
+
+;;
+;;  Function REVAPPEND
+;;
 (deftest revappend.1
   (revappend nil nil)
   nil)
@@ -877,6 +698,51 @@
     a)
   (a b c))
 
+(deftest revappend.6
+  (let ((x (list 1 2 3))
+        (y (list 'a 'b 'c)))
+    (values
+      (revappend x y)
+      (equal x '(1 2 3))
+      (equal y '(a b c))))
+  (3 2 1 a b c) t t)
+
+(deftest revappend.7
+  (revappend '(1 2 3) '())
+  (3 2 1))
+
+(deftest revappend.8
+  (revappend '(1 2 3) '(a . b))
+  (3 2 1 a . b))
+
+(deftest revappend.9
+  (revappend '() '(a b c))
+  (a b c))
+
+(deftest revappend.10
+  (revappend '(1 2 3) 'a)
+  (3 2 1 . a))
+
+(deftest revappend.11
+  (revappend '() 'a)
+  a)
+
+(deftest-error! revappend-error.1
+  (eval '(revappend 10 20)))
+
+(deftest-error! revappend-error.2
+  (eval '(revappend nil)))
+
+(deftest-error! revappend-error.3
+  (eval '(revappend nil nil nil)))
+
+(deftest-error revappend-error.4
+  (revappend '(x y z . w) 10))
+
+
+;;
+;;  Function NRECONC
+;;
 (deftest nreconc.1
   (nreconc nil nil)
   nil)
@@ -893,6 +759,51 @@
   (nreconc (list 'c 'b 'a) (list 'd 'e 'f))
   (a b c d e f))
 
+(deftest nreconc.5
+  (let ((x '(1 2 3))
+        (y '(a b c)))
+    (values
+      (nreconc x y)
+      (equal x '(1 2 3))
+      (equal y '(a b c))))
+  (3 2 1 a b c) nil t)
+
+(deftest nreconc.7
+  (nreconc '(1 2 3) '())
+  (3 2 1))
+
+(deftest nreconc.8
+  (nreconc '(1 2 3) '(a . b))
+  (3 2 1 a . b))
+
+(deftest nreconc.9
+  (nreconc '() '(a b c))
+  (a b c))
+
+(deftest nreconc.10
+  (nreconc '(1 2 3) 'a)
+  (3 2 1 . a))
+
+(deftest nreconc.11
+  (nreconc '() 'a)
+  a)
+
+(deftest-error! nreconc-error.1
+  (eval '(nreconc 10 20)))
+
+(deftest-error! nreconc-error.2
+  (eval '(nreconc nil)))
+
+(deftest-error! nreconc-error.3
+  (eval '(nreconc nil nil nil)))
+
+(deftest-error nreconc-error.4
+  (nreconc '(x y z . w) 10))
+
+
+;;
+;;  Function BUTLAST
+;;
 (deftest butlast.1
   (butlast nil)
   nil)
@@ -921,6 +832,23 @@
     (butlast '(a b c) 100000000000000000000000000000000000000))
   (a b c) (a b) (a) nil nil nil)
 
+(deftest-error! butlast-error.1
+  (eval '(butlast 10)))
+
+(deftest-error! butlast-error.2
+  (eval '(butlast nil -1))
+  type-error)
+
+(deftest-error! butlast-error.3
+  (eval '(butlast)))
+
+(deftest-error! butlast-error.4
+  (eval '(butlast nil 1 nil)))
+
+
+;;
+;;  Function NBUTLAST
+;;
 (deftest nbutlast.1
   (nbutlast nil)
   nil)
@@ -948,6 +876,88 @@
     (nbutlast (list 'a 'b 'c) 4)
     (nbutlast (list 'a 'b 'c) 100000000000000000000000000000000000000))
   (a b c) (a b) (a) nil nil nil)
+
+(deftest-error! nbutlast-error.1
+  (eval '(nbutlast 10)))
+
+(deftest-error! nbutlast-error.2
+  (eval '(nbutlast nil -1))
+  type-error)
+
+(deftest-error! nbutlast-error.3
+  (eval '(nbutlast)))
+
+(deftest-error! nbutlast-error.4
+  (eval '(nbutlast nil 1 nil)))
+
+;; ANSI Common Lisp
+(defparameter *butlast-list1* '(1 2 3 4 5 6 7 8 9))
+
+(deftest butlast-test.1
+  (butlast *butlast-list1*)
+  (1 2 3 4 5 6 7 8))
+
+(deftest butlast-test.2
+  (butlast *butlast-list1* 5)
+  (1 2 3 4))
+
+(deftest butlast-test.3
+  (butlast *butlast-list1* (+ 5 5))
+  nil)
+
+(deftest butlast-test.4
+  *butlast-list1*
+  (1 2 3 4 5 6 7 8 9))
+
+(deftest butlast-test.5
+  (nbutlast *butlast-list1* 3)
+  (1 2 3 4 5 6))
+
+(deftest butlast-test.6
+  *butlast-list1*
+  (1 2 3 4 5 6))
+
+(deftest butlast-test.7
+  (nbutlast *butlast-list1* 99)
+  nil)
+
+(deftest butlast-test.8
+  *butlast-list1*
+  (1 2 3 4 5 6))
+
+(deftest butlast-test.9
+  (butlast '(a b c d))
+  (a b c))
+
+(deftest butlast-test.10
+  (butlast '((a b) (c d)))
+  ((a b)))
+
+(deftest butlast-test.11
+  (butlast '(a))
+  nil)
+
+(deftest butlast-test.12
+  (butlast nil)
+  nil)
+
+(defparameter *butlast-list2* (list 'a 'b 'c 'd))
+
+(deftest butlast-test.13
+  (nbutlast *butlast-list2*)
+  (a b c))
+
+(deftest butlast-test.14
+  *butlast-list2*
+  (a b c))
+
+(deftest butlast-test.15
+  (nbutlast (list 'a))
+  nil)
+
+(deftest butlast-test.16
+  (nbutlast '())
+  nil)
 
 
 ;;
@@ -1013,19 +1023,26 @@
   (a . b)
   (a . b))
 
-(deftest-error last.11
+(deftest-error last-error.1
   (eval '(last :hello)))
 
-(deftest-error last.12
+(deftest-error last-error.2
+  (eval '(last nil -1))
+  type-error)
+
+(deftest-error last-error.3
   (eval '(last '(a b c) :hello)))
 
-(deftest-error! last.13
+(deftest-error! last-error.4
   (eval '(last)))
 
-(deftest-error! last.14
+(deftest-error! last-error.5
   (eval '(last nil 10 20)))
 
 
+;;
+;;  Function LDIFF
+;;
 (deftest ldiff.1
   (ldiff nil nil)
   nil)
@@ -1064,6 +1081,29 @@
     (ldiff a a))
   nil)
 
+(deftest ldiff.9
+  (mapcar
+    (lambda (x)
+      (mapcar
+        (lambda (y) (ldiff x y))
+        (list x (cddr x) (copy-list (cddr x)) '(f g h) '() 'd 'x)))
+    '((a b c) (a b c . d)))
+  ((nil (a b) (a b c) (a b c) (a b c) (a b c) (a b c))
+   (nil (a b) (a b c . d) (a b c . d) (a b c . d) (a b c) (a b c . d))))
+
+(deftest-error ldiff-error.1
+  (eval '(ldiff 10 20)))
+
+(deftest-error! ldiff-error.2
+  (eval '(ldiff nil)))
+
+(deftest-error! ldiff-error.3
+  (eval '(ldiff nil nil nil)))
+
+
+;;
+;;  Function TAILP
+;;
 (deftest tailp.1
   (tailp nil nil)
   t)
@@ -1091,6 +1131,29 @@
     (tailp a a))
   t)
 
+(deftest tailp.7
+  (mapcar
+    (lambda (x)
+      (mapcar
+        (lambda (y) (tailp y x))
+        (list x (cddr x) (copy-list (cddr x)) '(f g h) '() 'd 'x)))
+    '((a b c) (a b c . d)))
+  ((t t nil nil t nil nil)
+   (t t nil nil nil t nil)))
+
+(deftest-error tailp-error.1
+  (eval '(tailp 10 20)))
+
+(deftest-error! tailp-error.2
+  (eval '(tailp 10)))
+
+(deftest-error! tailp-error.3
+  (eval '(tailp 10 nil nil)))
+
+
+;;
+;;  Function NTHCDR
+;;
 (deftest nthcdr.1
   (nthcdr 0 '(10 20 30 40))
   (10 20 30 40))
@@ -1103,225 +1166,49 @@
   (nthcdr 3 '(10 20 30))
   nil)
 
-(deftest member.1
-  (member 20 '(10 20 30 40))
-  (20 30 40))
-
-(deftest member.2
-  (member 999 '(10 20 30 40))
+(deftest nthcdr.4
+  (nthcdr 0 '())
   nil)
 
-(deftest member.3
-  (member 31 '(10 20 30 40) :key #'1+)
-  (30 40))
-
-(deftest member.4
-  (member '(b) '((a) (b) (c) (d)) :test #'equal)
-  ((b) (c) (d)))
-
-(deftest member.5
-  (member '(a) '((a) (b) (c) (d)) :test-not #'equal)
-  ((b) (c) (d)))
-
-(deftest member-if.1
-  (member-if (lambda (x) (eq 'b x)) '(a b c d))
-  (b c d))
-
-(deftest member-if.2
-  (member-if (lambda (x) (eq 'z x)) '(a b c d))
+(deftest nthcdr.5
+  (nthcdr 3 '())
   nil)
 
-(deftest member-if.3
-  (member-if (lambda (x) (eql 21 x)) '(10 20 30 40) :key #'1+)
-  (20 30 40))
+(deftest nthcdr.6
+  (nthcdr 0 '(a b c))
+  (a b c))
 
-(deftest member-if-not.1
-  (member-if-not (lambda (x) (eq 'a x)) '(a b c d))
-  (b c d))
+(deftest nthcdr.7
+  (nthcdr 2 '(a b c))
+  (c))
 
-(deftest member-if-not.2
-  (member-if-not (lambda (x) x) '(a b c d))
-  nil)
+(deftest nthcdr.8
+  (nthcdr 4 '(a b c))
+  ())
 
-(deftest member-if-not.3
-  (member-if-not (lambda (x) (eql 11 x)) '(10 20 30 40) :key #'1+)
-  (20 30 40))
+(deftest nthcdr.9
+  (nthcdr 1 '(0 . 1))
+  1)
 
-(deftest mapc.1
-  (mapc #'1+ '(10 20 30))
-  (10 20 30))
+(deftest-error nthcdr-error.1
+  (eval '(locally
+           (declare (optimize (safety 3)))
+           (nthcdr 3 '(0 . 1)))))
 
-(deftest mapc.2
-  (mapc #'1+ nil)
-  nil)
+(deftest-error nthcdr-error.2
+  (eval '(nthcdr -1 nil))
+  type-error)
 
-(deftest mapc.3
-  (let (a)
-    (mapc (lambda (x) (push x a)) '(10 20 30))
-    (nreverse a))
-  (10 20 30))
+(deftest-error nthcdr-error.3
+  (eval '(nthcdr 0 10)))
 
-(deftest mapc.4
-  (let (a)
-    (mapc (lambda (&rest x) (push x a)) '(10 20 30) '(40 50 60))
-    (nreverse a))
-  ((10 40) (20 50) (30 60)))
+(deftest-error! nthcdr-error.4
+  (eval '(nthcdr 0)))
 
-(deftest mapc.5
-  (let (a)
-    (mapc (lambda (&rest x) (push x a)) '(10 20 30) '(40 50))
-    (nreverse a))
-  ((10 40) (20 50)))
+(deftest-error! nthcdr-error.5
+  (eval '(nthcdr 0 nil nil)))
 
-(deftest mapc.6
-  (let (a)
-    (mapc (lambda (&rest x) (push x a)) '(10) '(40 50 60) '(1 2 3 4))
-    a)
-  ((10 40 1)))
 
-(deftest mapc.7
-  (let (a)
-    (mapc (lambda (&rest x) (push x a)) '(10 20 30) nil '(40 50 60))
-    a)
-  nil)
-
-(deftest mapcar.1
-  (mapcar #'1+ '(10 20 30))
-  (11 21 31))
-
-(deftest mapcar.2
-  (mapcar #'1+ nil)
-  nil)
-
-(deftest mapcar.3
-  (mapcar #'list'(10 20 30) '(40 50 60))
-  ((10 40) (20 50) (30 60)))
-
-(deftest mapcar.4
-  (mapcar #'list '(10 20 30) '(40 50))
-  ((10 40) (20 50)))
-
-(deftest mapcar.5
-  (mapcar #'list '(10) '(40 50 60) '(1 2 3 4))
-  ((10 40 1)))
-
-(deftest mapcar.6
-  (mapcar #'list '(10 20 30) nil '(40 50 60))
-  nil)
-
-(deftest mapcan.1
-  (mapcan #'list '(10 20 30))
-  (10 20 30))
-
-(deftest mapcan.2
-  (mapcan #'list nil)
-  nil)
-
-(deftest mapcan.3
-  (mapcan #'list'(10 20 30) '(40 50 60))
-  (10 40 20 50 30 60))
-
-(deftest mapcan.4
-  (mapcan #'list '(10 20 30) '(40 50))
-  (10 40 20 50))
-
-(deftest mapcan.5
-  (mapcan #'list '(10) '(40 50 60) '(1 2 3 4))
-  (10 40 1))
-
-(deftest mapcan.6
-  (mapcan #'list '(10 20 30) nil '(40 50 60))
-  nil)
-
-(deftest mapcan-error.7
-  (mapcan #'values '(nil (d e f) (g h i)))
-  (d e f g h i))
-
-(deftest mapl.1
-  (mapl #'list '(10 20 30))
-  (10 20 30))
-
-(deftest mapl.2
-  (mapl #'list nil)
-  nil)
-
-(deftest mapl.3
-  (let (a)
-    (mapl (lambda (x) (push x a)) '(10 20 30))
-    (nreverse a))
-  ((10 20 30) (20 30) (30)))
-
-(deftest mapl.4
-  (let (a)
-    (mapl (lambda (&rest x) (push x a)) '(10 20 30) '(40 50 60))
-    (nreverse a))
-  (((10 20 30) (40 50 60)) ((20 30) (50 60)) ((30) (60))))
-
-(deftest mapl.5
-  (let (a)
-    (mapl (lambda (&rest x) (push x a)) '(10 20 30) '(40 50))
-    (nreverse a))
-  (((10 20 30) (40 50)) ((20 30) (50))))
-
-(deftest mapl.6
-  (let (a)
-    (mapl (lambda (&rest x) (push x a)) '(10) '(40 50 60))
-    (nreverse a))
-  (((10) (40 50 60))))
-
-(deftest mapl.7
-  (let (a)
-    (mapl (lambda (&rest x) (push x a)) '(10 20 30) nil '(40 50 60))
-    (nreverse a))
-  nil)
-
-(deftest maplist.1
-  (maplist #'values '(10 20 30))
-  ((10 20 30) (20 30) (30)))
-
-(deftest maplist.2
-  (maplist #'list nil)
-  nil)
-
-(deftest maplist.3
-  (maplist #'list '(10 20 30) '(40 50 60))
-  (((10 20 30) (40 50 60)) ((20 30) (50 60)) ((30) (60))))
-
-(deftest maplist.4
-  (maplist #'list '(10 20 30) '(40 50))
-  (((10 20 30) (40 50)) ((20 30) (50))))
-
-(deftest maplist.5
-  (maplist #'list '(10) '(40 50 60))
-  (((10) (40 50 60))))
-
-(deftest maplist.6
-  (maplist #'list '(10 20 30) '(40 50 60) nil)
-  nil)
-
-(deftest mapcon.1
-  (mapcon #'list '(10 20 30))
-  ((10 20 30) (20 30) (30)))
-
-(deftest mapcon.2
-  (mapcon #'list nil)
-  nil)
-
-(deftest mapcon.3
-  (mapcon #'list '(10 20 30) '(40 50 60))
-  ((10 20 30) (40 50 60) (20 30) (50 60) (30) (60)))
-
-(deftest mapcon.4
-  (mapcon #'list '(10 20 30) '(40 50))
-  ((10 20 30) (40 50) (20 30) (50)))
-
-(deftest mapcon.5
-  (mapcon #'list '(10) '(40 50 60))
-  ((10) (40 50 60)))
-
-(deftest mapcon.6
-  (mapcon #'list '(10 20 30) '(40 50 60) nil)
-  nil)
 
 (deftest acons.1
   (acons 10 20 nil)

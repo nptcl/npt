@@ -1331,8 +1331,10 @@ _g int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
 	push_local(local, &stack);
 
 	/* first */
-	if (rest == Nil)
-		goto finish;
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few MAPC arguments.", NULL);
+	}
 	args = next = Nil;
 	while (rest != Nil) {
 		Return_getcons(rest, &pos, &rest);
@@ -1383,8 +1385,10 @@ _g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 	push_local(local, &stack);
 
 	/* first */
-	if (rest == Nil)
-		goto finish;
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few MAPCAR arguments.", NULL);
+	}
 	args = next = Nil;
 	while (rest != Nil) {
 		Return_getcons(rest, &pos, &rest);
@@ -1442,8 +1446,10 @@ _g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 	push_local(local, &stack);
 
 	/* first */
-	if (rest == Nil)
-		goto finish;
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few MAPCAN arguments.", NULL);
+	}
 	args = next = Nil;
 	while (rest != Nil) {
 		Return_getcons(rest, &pos, &rest);
@@ -1510,8 +1516,10 @@ _g int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
 	push_local(local, &stack);
 
 	/* first */
-	if (rest == Nil)
-		goto finish;
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few MAPL arguments.", NULL);
+	}
 	args = next = Nil;
 	loop = 1;
 	while (rest != Nil) {
@@ -1566,8 +1574,10 @@ _g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 	push_local(local, &stack);
 
 	/* first */
-	if (rest == Nil)
-		goto finish;
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few MAPLIST arguments.", NULL);
+	}
 	args = next = Nil;
 	loop = 1;
 	while (rest != Nil) {
@@ -1629,8 +1639,10 @@ _g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 	push_local(local, &stack);
 
 	/* first */
-	if (rest == Nil)
-		goto finish;
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few MAPCON arguments.", NULL);
+	}
 	args = next = Nil;
 	loop = 1;
 	while (rest != Nil) {

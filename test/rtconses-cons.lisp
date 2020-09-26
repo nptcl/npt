@@ -62,88 +62,6 @@
 
 
 ;;
-;;  Function CONSP
-;;
-(deftest consp.1
-  (consp nil)
-  nil)
-
-(deftest consp.2
-  (consp (cons 1 2))
-  t)
-
-(deftest consp.3
-  (consp #(10 20 30))
-  nil)
-
-(deftest consp.4
-  (consp '())
-  nil)
-
-(deftest consp.5
-  (consp 'nil)
-  nil)
-
-(deftest consp.6
-  (consp '(10 20 30))
-  t)
-
-(deftest consp.7
-  (consp 10)
-  nil)
-
-(deftest-error! consp.8
-  (eval '(consp)))
-
-(deftest-error! consp.9
-  (eval '(consp 10 20)))
-
-(deftest-error consp.10
-  (funcall #'consp))
-
-(deftest consp.11
-  (funcall #'consp '(10))
-  t)
-
-(deftest-error consp.12
-  (funcall #'consp 10 20))
-
-
-;;
-;;  Function ATOM
-;;
-(deftest atom.1
-  (atom 'sss)
-  t)
-
-(deftest atom.2
-  (atom (cons 1 2))
-  nil)
-
-(deftest atom.3
-  (atom nil)
-  t)
-
-(deftest atom.4
-  (atom '())
-  t)
-
-(deftest atom.5
-  (atom 3)
-  t)
-
-(deftest atom.6
-  (atom '(10 20 30))
-  nil)
-
-(deftest-error! atom.7
-  (eval '(atom)))
-
-(deftest-error! atom.8
-  (eval '(atom 10 20)))
-
-
-;;
 ;;  Function RPLACA
 ;;
 (deftest rplaca.1
@@ -776,4 +694,108 @@
 (deftest setf-tenth.10
   (setf-tenth-eq (tenth *tenth*) (car (cdr (cddddr (cddddr *tenth*)))))
   t)
+
+(deftest-error setf-first-error.1
+  (setf (first nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.2
+  (setf (second nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.3
+  (setf (third nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.4
+  (setf (fourth nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.5
+  (setf (fifth nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.6
+  (setf (eighth nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.7
+  (setf (seventh nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.8
+  (setf (ninth nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.9
+  (setf (tenth nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.10
+  (setf (car nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.11
+  (setf (cdr nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.12
+  (setf (cadr nil) 999)
+  type-error)
+
+(deftest-error setf-first-error.13
+  (setf (caddr nil) 999)
+  type-error)
+
+
+;;
+;;  Funciton REST
+;;
+(deftest rest.1
+  (rest nil)
+  nil)
+
+(deftest rest.2
+  (rest '(10 . 20))
+  20)
+
+(deftest-error rest.3
+  (eval '(rest 'hello))
+  type-error)
+
+(deftest-error! rest.4
+  (eval '(rest)))
+
+(deftest-error! rest.5
+  (eval '(rest nil nil)))
+
+
+;;
+;;  Function (SETF REST)
+;;
+(deftest setf-rest.1
+  (let ((a '(10 20 30)))
+    (setf (rest a) 999))
+  999)
+
+(deftest setf-rest.2
+  (let ((a '(10 20 30)))
+    (setf (rest a) 999)
+    a)
+  (10 . 999))
+
+(deftest-error setf-rest.3
+  (setf (rest 'hello) 999)
+  type-error)
+
+(deftest-error setf-rest.4
+  (setf (rest nil) 999)
+  type-error)
+
+(deftest-error! setf-rest.5
+  (setf (rest) 999))
+
+(deftest-error! setf-rest.6
+  (let ((x '(10 20 30)))
+    (setf (rest x 10 20) 999)))
 
