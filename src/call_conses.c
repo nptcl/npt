@@ -778,14 +778,19 @@ static int replace_tree_equal_cons(struct tree_equal_struct *str,
 static int recursive_tree_equal_cons(struct tree_equal_struct *str,
 		int *result, addr tree1, addr tree2)
 {
-	int check;
+	int check, atom1, atom2;
 	addr car1, cdr1, car2, cdr2;
 
-	if (atom_function(tree1) || atom_function(tree2))
+	atom1 = atom_function(tree1);
+	atom2 = atom_function(tree2);
+	if (atom1 && atom2)
 		return replace_tree_equal_cons(str, result, tree1, tree2);
+	if (atom1 || atom2)
+		return Result(result, 0);
+
+	/* cons */
 	GetCons(tree1, &car1, &cdr1);
 	GetCons(tree2, &car2, &cdr2);
-
 	Return(recursive_tree_equal_cons(str, &check, car1, car2));
 	if (! check)
 		return Result(result, 0);

@@ -236,6 +236,9 @@
   ((a b) (a b)))
 
 
+;;
+;;  Function TREE-EQUAL
+;;
 (deftest tree-equal.1
   (tree-equal nil nil)
   t)
@@ -272,11 +275,139 @@
   (tree-equal '(a b (c d . f) e) '(a b (c d) e))
   nil)
 
-(deftest push.1
-  (let (x)
-    (push 10 x))
-  (10))
+(deftest tree-equal.11
+  (let (list)
+    (values
+      (tree-equal '(a b c) '(a b (c))
+                  :test (lambda (x y)
+                          (push x list)
+                          (push y list)
+                          (equal x y)))
+      (nreverse list)))
+  nil
+  (a a b b))
 
+(deftest tree-equal.12
+  (tree-equal '(2 a (5)) '(3 "A" (10))
+              :test (lambda (x y) (eq (realp x) (realp y))))
+  t)
+
+(deftest tree-equal.13
+  (tree-equal '(2 a (5)) '(3 "A" ((10)))
+              :test (lambda (x y) (eq (realp x) (realp y))))
+  nil)
+
+(deftest tree-equal.14
+  (tree-equal '(2 a (5 . 4) . 7) '("a" 3 (#\A) . t)
+              :test-not (lambda (x y) (eq (realp x) (realp y))))
+  t)
+
+(deftest tree-equal.15
+  (tree-equal '(2 a (5 . 4) . 7) '("a" 3 (#\A . 4) . t)
+              :test-not (lambda (x y) (eq (realp x) (realp y))))
+  nil)
+
+(deftest-error! tree-equal-error.1
+  (eval '(tree-equal 10)))
+
+(deftest-error tree-equal-error.2
+  (eval '(tree-equal 10 20 30)))
+
+(deftest-error tree-equal-error.3
+  (eval '(tree-equal 10 20 :test)))
+
+(deftest-error tree-equal-error.4
+  (eval '(tree-equal 10 20 :test 10)))
+
+(deftest-error tree-equal-error.5
+  (eval '(tree-equal 10 20 :hello 10)))
+
+(deftest-error tree-equal-error.6
+  (eval '(tree-equal 10 20 :test (constantly t) :test-not (constantly t))))
+
+
+;;
+;;  Function COPY-LIST
+;;
+(deftest copy-list.1
+  (copy-list nil)
+  nil)
+
+(deftest copy-list.2
+  (copy-list '(10 20))
+  (10 20))
+
+(deftest copy-list.3
+  (copy-list '(10 20 . 30))
+  (10 20 . 30))
+
+(deftest copy-list.4
+  (let ((x '(10 20)))
+    (eq x (copy-list x)))
+  nil)
+
+(deftest copy-list.5
+  (let ((x '(10 20)))
+    (eq x (car (copy-list (list x 30 40)))))
+  t)
+
+(defparameter *copy-list1* (list 1 (list 2 3)))
+(defparameter *copy-list2* *copy-list1*)
+(defparameter *copy-list3* (copy-list *copy-list1*))
+
+(deftest copy-list.6
+  (eq *copy-list2* *copy-list1*)
+  t)
+
+(deftest copy-list.7
+  (eq *copy-list3* *copy-list1*)
+  nil)
+
+(deftest copy-list.8
+  (equal *copy-list3* *copy-list1*)
+  t)
+
+(deftest copy-list.9
+  (rplaca *copy-list1* "one")
+  ("one" (2 3)))
+
+(deftest copy-list.10
+  *copy-list2*
+  ("one" (2 3)))
+
+(deftest copy-list.11
+  *copy-list3*
+  (1 (2 3)))
+
+(deftest copy-list.12
+  (setf (caadr *copy-list1*) "two")
+  "two")
+
+(deftest copy-list.13
+  *copy-list1*
+  ("one" ("two" 3)))
+
+(deftest copy-list.14
+  *copy-list2*
+  ("one" ("two" 3)))
+
+(deftest copy-list.15
+  *copy-list3*
+  (1 ("two" 3)))
+
+(deftest-error copy-list-error.1
+  (eval '(copy-list 10)))
+
+(deftest-error! copy-list-error.2
+  (eval '(copy-list)))
+
+(deftest-error! copy-list-error.3
+  (eval '(copy-list nil nil)))
+
+
+;;
+;;  Function LIST
+;;
 (deftest list.1
   (list)
   nil)
@@ -285,6 +416,10 @@
   (list 10 20 30)
   (10 20 30))
 
+
+;;
+;;  Function LIST*
+;;
 (deftest list*.1
   (list* 10)
   10)
@@ -293,6 +428,60 @@
   (list* 10 20 30)
   (10 20 . 30))
 
+(deftest-error! list*.3
+  (eval '(list*)))
+
+;; ANSI Common Lisp
+(deftest list-test.1
+  (list 1)
+  (1))
+
+(deftest list-test.2
+  (list* 1)
+  1)
+
+(defparameter *list-test1* 1)
+
+(deftest list-test.3
+  (list *list-test1* 2)
+  (1 2))
+
+(deftest list-test.4
+  (list* *list-test1* 2)
+  (1 . 2))
+
+(deftest list-test.5
+  (list)
+  nil)
+
+(deftest list-test.6
+  (setq *list-test1* '(1 2))
+  (1 2))
+
+(deftest list-test.7
+  (eq *list-test1* (list* *list-test1*))
+  t)
+
+(deftest list-test.8
+  (list 3 4 'a (car '(b . c)) (+ 6 -2))
+  (3 4 a b 4))
+
+(deftest list-test.9
+  (list* 'a 'b 'c 'd)
+  (a b c . d))
+
+(deftest list-test.10
+  (cons 'a (cons 'b (cons 'c 'd)))
+  (a b c . d))
+
+(deftest list-test.11
+  (list* 'a 'b 'c '(d e f))
+  (a b c d e f))
+
+
+;;
+;;  Function LIST-LENGTH
+;;
 (deftest list-length.1
   (list-length nil)
   0)
@@ -305,6 +494,55 @@
   (list-length (quote #1= (10 20 . #1#)))
   nil)
 
+(deftest-error list-length-error.1
+  (eval '(list-length 10)))
+
+(deftest-error! list-length-error.2
+  (eval '(list-length)))
+
+(deftest-error! list-length-error.3
+  (eval '(list-length nil nil)))
+
+(deftest-error! list-length-error.4
+  (eval '(list-length '(a b c . d))))
+
+;; ANSI Common Lisp
+(deftest list-length-test.1
+  (list-length '(a b c d))
+  4)
+
+(deftest list-length-test.2
+  (list-length '(a (b c) d))
+  3)
+
+(deftest list-length-test.3
+  (list-length '())
+  0)
+
+(deftest list-length-test.4
+  (list-length nil)
+  0)
+
+(defun list-length-circular-list (&rest elements)
+  (let ((cycle (copy-list elements)))
+    (nconc cycle cycle)))
+
+(deftest list-length-test.5
+  (list-length (list-length-circular-list 'a 'b))
+  nil)
+
+(deftest list-length-test.6
+  (list-length (list-length-circular-list 'a))
+  nil)
+
+(deftest list-length-test.7
+  (list-length (list-length-circular-list))
+  0)
+
+
+;;
+;;  Function LISTP
+;;
 (deftest listp.1
   (listp nil)
   t)
@@ -317,13 +555,75 @@
   (listp 10)
   nil)
 
+(deftest listp.4
+ (listp (cons 1 2))
+ t)
+
+(deftest listp.5
+  (listp (make-array 6))
+  nil)
+
+(deftest listp.6
+  (listp t)
+  nil)
+
+(deftest-error! listp-error.1
+  (eval '(listp)))
+
+(deftest-error! listp-error.2
+  (eval '(listp 10 20)))
+
+
+;;
+;;  Function MAKE-LIST
+;;
 (deftest make-list.1
-  (make-list 3)
-  (nil nil nil))
+  (make-list 5)
+  (nil nil nil nil nil))
 
 (deftest make-list.2
-  (make-list 4 :initial-element 10)
-  (10 10 10 10))
+  (make-list 3 :initial-element 'rah)
+  (rah rah rah))
+
+(deftest make-list.3
+  (make-list 2 :initial-element '(1 2 3))
+  ((1 2 3) (1 2 3)))
+
+(deftest make-list.4
+  (make-list 0)
+  nil)
+
+(deftest make-list.5
+  (make-list 0 :initial-element 'new-element)
+  nil)
+
+(deftest-error! make-list-error.1
+  (eval '(make-list -1))
+  type-error)
+
+(deftest-error! make-list-error.2
+  (eval '(make-list)))
+
+(deftest-error! make-list-error.3
+  (eval '(make-list :hello)))
+
+(deftest-error make-list-error.4
+  (eval '(make-list 10 20)))
+
+(deftest-error make-list-error.5
+  (eval '(make-list 0 :initial-element)))
+
+(deftest-error make-list-error.6
+  (eval '(make-list 0 :hello t)))
+
+
+;;
+;;  Macro PUSH
+;;
+(deftest push.1
+  (let (x)
+    (push 10 x))
+  (10))
 
 (deftest push.2
   (let (x)
@@ -351,6 +651,60 @@
     (push 30 x))
   (30 20 10))
 
+(deftest push.6
+  (let ((x (list 10)))
+    (push 20 (cdr x))
+    (push 30 (cdr x))
+    (push 40 (cdr x))
+    x)
+  (10 40 30 20))
+
+(defparameter *push-list* '(nil))
+
+(deftest push.7
+  (push 1 (car *push-list*))
+  (1))
+
+(deftest push.8
+  *push-list*
+  ((1)))
+
+(deftest push.9
+  (push 1 (car *push-list*))
+  (1 1))
+
+(deftest push.10
+  *push-list*
+  ((1 1)))
+
+(deftest push.11
+  (setq *push-list* '(a (b c) d))
+  (a (b c) d))
+
+(deftest push.12
+  (push 5 (cadr *push-list*))
+  (5 b c))
+
+(deftest push.13
+  *push-list*
+  (a (5 b c) d))
+
+(deftest-error push-error.1
+  (eval '(push)))
+
+(deftest-error push-error.2
+  (eval '(push 10)))
+
+(deftest-error push-error.3
+  (eval '(let (x) (push 10 x 20))))
+
+(deftest-error push-error.4
+  (eval '(push 10 :hello)))
+
+
+;;
+;;  Macro POP
+;;
 (deftest pop.1
   (let (x)
     (pop x))
@@ -366,6 +720,46 @@
   (let ((x '(10 20 30)))
     (values (pop x) x))
   10 (20 30))
+
+(deftest pop.4
+  (let ((x '(10 20 30)))
+    (values (pop (cdr x)) x))
+  20 (10 30))
+
+(defparameter *pop-list* '(a b c))
+
+(deftest pop.5
+  (pop *pop-list*)
+  a)
+
+(deftest pop.6
+  *pop-list*
+  (b c))
+
+(deftest pop.7
+  (setq *pop-list* '((1 2 3 4)))
+  ((1 2 3 4)))
+
+(deftest pop.8
+  (pop (car *pop-list*))
+  1)
+
+(deftest pop.9
+  *pop-list*
+  ((2 3 4)))
+
+(deftest-error pop-error.1
+  (eval '(pop)))
+
+(deftest-error pop-error.2
+  (eval '(let (x) (pop x x))))
+
+(deftest-error pop-error.3
+  (eval '(pop :hello)))
+
+(deftest-error pop-error.4
+  (eval '(let ((x 10)) (pop x))))
+
 
 (deftest nth.1
   (nth 0 '(10 20 30 40))
