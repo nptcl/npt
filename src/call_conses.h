@@ -48,6 +48,7 @@
 #define rassoc_if_common _n(rassoc_if_common)
 #define rassoc_if_not_common _n(rassoc_if_not_common)
 #define get_properties_common _n(get_properties_common)
+#define getf_common _n(getf_common)
 #define remf_common _n(remf_common)
 #define intersection_common _n(intersection_common)
 #define nintersection_common _n(nintersection_common)
@@ -109,6 +110,7 @@ _g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
 _g int get_properties_common(addr plist, addr indicator,
 		addr *rkey, addr *rvalue, addr *rlist);
+_g int getf_common(addr list, addr key, addr value, addr *ret);
 _g int remf_common(Execute ptr, addr form, addr env, addr *ret);
 _g int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
 _g int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);

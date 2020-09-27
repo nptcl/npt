@@ -47,6 +47,8 @@ static int default_sublis_cons(addr alist, addr left, int *result, addr *ret)
 
 	while (alist != Nil) {
 		Return_getcons(alist, &right, &alist);
+		if (right == Nil)
+			continue;
 		Return_getcons(right, &right, &value);
 		if (eql_function(left, right)) {
 			*result = 1;
@@ -64,6 +66,8 @@ static int test_sublis_cons(Execute ptr,
 
 	while (alist != Nil) {
 		Return_getcons(alist, &right, &alist);
+		if (right == Nil)
+			continue;
 		Return_getcons(right, &right, &value);
 		Return(callclang_funcall(ptr, &check, test, left, right, NULL));
 		if (check != Nil) {
@@ -82,6 +86,8 @@ static int test_not_sublis_cons(Execute ptr,
 
 	while (alist != Nil) {
 		Return_getcons(alist, &right, &alist);
+		if (right == Nil)
+			continue;
 		Return_getcons(right, &right, &value);
 		Return(callclang_funcall(ptr, &check, test, left, right, NULL));
 		if (check == Nil) {
@@ -2065,6 +2071,8 @@ static int test_assoc_cons(Execute ptr, addr *ret,
 		if (! consp(list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
+		if (cons == Nil)
+			continue;
 		Return_getcar(cons, &value);
 		Return(function_call_cons(ptr, &check, item, key, call, value, notret));
 		if (check)
@@ -2116,6 +2124,8 @@ _g int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 		if (! consp(list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
+		if (cons == Nil)
+			continue;
 		Return_getcar(cons, &value);
 		Return(function_if_call_cons(ptr, &check, key, call, value));
 		if (check)
@@ -2140,6 +2150,8 @@ _g int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *r
 		if (! consp(list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
+		if (cons == Nil)
+			continue;
 		Return_getcar(cons, &value);
 		Return(function_if_call_cons(ptr, &check, key, call, value));
 		if (! check)
@@ -2159,8 +2171,10 @@ _g int copy_alist_common(addr list, addr *ret)
 
 	for (root = Nil; list != Nil; ) {
 		Return_getcons(list, &cons, &list);
-		Return_getcons(cons, &car, &cdr);
-		cons_heap(&cons, car, cdr);
+		if (cons != Nil) {
+			Return_getcons(cons, &car, &cdr);
+			cons_heap(&cons, car, cdr);
+		}
 		cons_heap(&root, cons, root);
 	}
 	nreverse(ret, root);
@@ -2209,6 +2223,8 @@ static int test_rassoc_cons(Execute ptr, addr *ret,
 		if (! consp(list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
+		if (cons == Nil)
+			continue;
 		Return_getcdr(cons, &value);
 		Return(function_call_cons(ptr, &check, item, key, call, value, notret));
 		if (check)
@@ -2260,6 +2276,8 @@ _g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 		if (! consp(list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
+		if (cons == Nil)
+			continue;
 		Return_getcdr(cons, &value);
 		Return(function_if_call_cons(ptr, &check, key, call, value));
 		if (check)
@@ -2284,6 +2302,8 @@ _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 		if (! consp(list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
+		if (cons == Nil)
+			continue;
 		Return_getcdr(cons, &value);
 		Return(function_if_call_cons(ptr, &check, key, call, value));
 		if (! check)
@@ -2304,6 +2324,10 @@ _g int get_properties_common(addr plist, addr indicator,
 
 	while (plist != Nil) {
 		Return_getcons(plist, &key, &next);
+		if (! consp(next)) {
+			*rkey = *rvalue = *rlist = Nil;
+			return fmte_("The proper list ~S must be a cons object.", next, NULL);
+		}
 		Return_getcons(next, &value, &next);
 		for (list = indicator; list != Nil; ) {
 			Return_getcons(list, &check, &list);
@@ -2320,6 +2344,28 @@ find:
 	*rvalue = value;
 	*rlist = plist;
 	return 0;
+}
+
+
+/*
+ *  getf
+ */
+_g int getf_common(addr list, addr key, addr value, addr *ret)
+{
+	addr x, y;
+
+	while (list != Nil) {
+		Return_getcons(list, &x, &list);
+		if (! consp(list)) {
+			*ret = Nil;
+			return fmte_("The proper list ~S must be a cons object.", list, NULL);
+		}
+		GetCons(list, &y, &list);
+		if (x == key)
+			return Result(ret, y);
+	}
+
+	return Result(ret, value == Unbound? Nil: value);
 }
 
 

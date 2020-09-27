@@ -8,6 +8,7 @@
 (load #p"test/rtconses-list.lisp")
 (load #p"test/rtconses-sequence.lisp")
 (load #p"test/rtconses-map.lisp")
+(load #p"test/rtconses-value.lisp")
 
 
 ;;

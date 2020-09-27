@@ -2543,12 +2543,8 @@ static void defun_get_properties(void)
  */
 static int function_getf(Execute ptr, addr list, addr key, addr value)
 {
-	if (value == Unbound)
-		value = Nil;
-	if (getplist_safe(list, key, &key))
-		key = value;
-	setresult_control(ptr, key);
-
+	Return(getf_common(list, key, value, &value));
+	setresult_control(ptr, value);
 	return 0;
 }
 

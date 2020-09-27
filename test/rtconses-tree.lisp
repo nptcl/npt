@@ -88,6 +88,10 @@
                   (or (listp x) (listp y))))
   10)
 
+(deftest sublis.9
+  (sublis '((a . 10) nil (nil . 20)) '(a nil c))
+  (10 20 c . 20))
+
 (deftest-error sublis-error.1
   (eval '(sublis :hello nil)))
 
@@ -155,6 +159,10 @@
            :test (lambda (x y)
                    (or (listp x) (listp y))))
   10)
+
+(deftest nsublis.9
+  (nsublis '((a . 10) nil (nil . 20)) '(a nil c))
+  (10 20 c . 20))
 
 (deftest-error nsublis-error.1
   (eval '(nsublis :hello nil)))
