@@ -2519,36 +2519,49 @@ static int test_nintersection_cons(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
-	addr list, left, next1, next2;
+	addr list, pos, x, y, z;
+
+	if (list1 == Nil)
+		return Result(ret, Nil);
+	if (list2 == Nil)
+		return Result(ret, Nil);
 
 	/* first */
 	list = list1;
 	for (;;) {
-		Return_getcons(list1, &left, &next1);
-		Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
+		Return_getcons(list, &pos, &x);
+		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
 		if (check)
 			break;
-		list = list1 = next1;
-		if (list1 == Nil)
+		if (x == Nil) {
+			list = Nil;
 			goto finish;
+		}
+		list = x;
 	}
+	list1 = x;
 
 	/* tail */
-	next2 = Nil;
+	z = list;
 	while (list1 != Nil) {
-		Return_getcons(list1, &left, &next1);
-		while (next1 != Nil) {
-			Return_getcons(next1, &left, &next2);
-			Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
-			if (! check)
-				break;
-			next1 = next2;
+		Return_getcons(list1, &pos, &y);
+		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
+		if (! check) {
+			list1 = y;
+			continue;
 		}
-		if (next1 == Nil)
-			goto finish;
-		Return_setcdr(list1, next2);
-		list1 = next2;
+		if (list1 == x) {
+			z = x;
+			list1 = x = y;
+			continue;
+		}
+		GetCar(list1, &pos);
+		SetCar(x, pos);
+		z = x;
+		GetCdr(x, &x);
+		list1 = y;
 	}
+	SetCdr(z, Nil);
 
 finish:
 	return Result(ret, list);
@@ -2591,11 +2604,20 @@ static int test_adjoin_cons(Execute ptr, addr *ret,
 		addr left, addr list, addr key, addr test, int notret)
 {
 	int check;
-	addr find, right;
+	addr find, item, right;
 
+	/* item */
+	if (key != Nil) {
+		Return(callclang_funcall(ptr, &item, key, left, NULL));
+	}
+	else {
+		item = left;
+	}
+
+	/* adjoin */
 	for (find = list; find != Nil; ) {
 		Return_getcons(find, &right, &find);
-		Return(function_call_cons(ptr, &check, left, key, test, right, notret));
+		Return(function_call_cons(ptr, &check, item, key, test, right, notret));
 		if (check)
 			return Result(ret, list);
 	}
@@ -2833,40 +2855,54 @@ static int test_nset_difference_cons(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
-	addr list, left, next1, next2;
+	addr list, pos, x, y, z;
+
+	if (list1 == Nil)
+		return Result(ret, Nil);
+	if (list2 == Nil)
+		return Result(ret, list1);
 
 	/* first */
 	list = list1;
 	for (;;) {
-		Return_getcons(list1, &left, &next1);
-		Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
+		Return_getcons(list, &pos, &x);
+		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
 		if (! check)
 			break;
-		list = list1 = next1;
-		if (list1 == Nil)
+		if (x == Nil) {
+			list = Nil;
 			goto finish;
+		}
+		list = x;
 	}
+	list1 = x;
 
 	/* tail */
-	next2 = Nil;
+	z = list;
 	while (list1 != Nil) {
-		Return_getcons(list1, &left, &next1);
-		while (next1 != Nil) {
-			Return_getcons(next1, &left, &next2);
-			Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
-			if (check)
-				break;
-			next1 = next2;
+		Return_getcons(list1, &pos, &y);
+		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
+		if (check) {
+			list1 = y;
+			continue;
 		}
-		if (next1 == Nil)
-			goto finish;
-		Return_setcdr(list1, next2);
-		list1 = next2;
+		if (list1 == x) {
+			z = x;
+			list1 = x = y;
+			continue;
+		}
+		GetCar(list1, &pos);
+		SetCar(x, pos);
+		z = x;
+		GetCdr(x, &x);
+		list1 = y;
 	}
+	SetCdr(z, Nil);
 
 finish:
 	return Result(ret, list);
 }
+
 
 _g int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
@@ -2968,31 +3004,101 @@ _g int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret
 /*
  *  nset-exclucive-or
  */
+static int test_nset_exclusive_or_remove_(Execute ptr, int *ret, addr *rlist,
+		addr x, addr list, addr key, addr test, int notret)
+{
+	int check, remove;
+	addr y, z, next, tail;
+
+	/* nil */
+	remove = 0;
+	if (list == Nil)
+		goto finish;
+
+	/* key */
+	if (key != Nil) {
+		Return(callclang_funcall(ptr, &x, key, x, NULL));
+	}
+
+	/* first */
+	while (list != Nil) {
+		Return_getcons(list, &y, &next);
+		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+		if (! check)
+			break;
+		remove = 1;
+		list = next;
+	}
+	if (list == Nil)
+		goto finish;
+
+	/* tail */
+	tail = list;
+	z = next;
+	while (z != Nil) {
+		Return_getcons(z, &y, &next);
+		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+		if (! check) {
+			tail = z;
+			z = next;
+			continue;
+		}
+		SetCdr(tail, next);
+		z = next;
+		remove = 1;
+	}
+
+finish:
+	*ret = remove;
+	*rlist = list;
+	return 0;
+}
+
 static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
-	addr result, list, left;
-	LocalHold hold;
+	addr x, z, next, tail;
 
-	result = Nil;
-	/* right -> left */
-	hold = LocalHold_array(ptr, 1);
-	for (list = list2; list != Nil; ) {
-		Return_getcons(list, &left, &list);
-		Return(check_intersection_cons(ptr, &check, left, list1, key, test, notret));
+	/* nil */
+	if (list1 == Nil)
+		return Result(ret, list2);
+	if (list2 == Nil)
+		return Result(ret, list1);
+
+	/* first */
+	while (list1 != Nil) {
+		Return_getcons(list1, &x, &next);
+		Return(test_nset_exclusive_or_remove_(ptr,
+					&check, &list2, x, list2, key, test, notret));
+		if (! check)
+			break;
+		if (list2 == Nil)
+			return Result(ret, next);
+		list1 = next;
+	}
+	if (list1 == Nil)
+		return Result(ret, list2);
+
+	/* tail */
+	tail = list1;
+	z = next;
+	while (z != Nil) {
+		Return_getcons(z, &x, &next);
+		Return(test_nset_exclusive_or_remove_(ptr,
+					&check, &list2, x, list2, key, test, notret));
 		if (! check) {
-			cons_heap(&result, left, result);
-			localhold_set(hold, 0, result);
+			tail = z;
+			z = next;
+			continue;
 		}
+		SetCdr(tail, next);
+		z = next;
 	}
 
-	/* left -> right */
-	Return(test_nset_difference_cons(ptr, &list1, list1, list2, key, test, notret));
-
 	/* result */
-	localhold_end(hold);
-	return nconc2_safe_(result, list1, ret);
+	SetCdr(tail, list2);
+	return Result(ret, list1);
 }
 
 _g int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
@@ -3033,6 +3139,11 @@ static int test_subsetp_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr left, result;
+
+	if (list1 == Nil)
+		return Result(ret, T);
+	if (list2 == Nil)
+		return Result(ret, Nil);
 
 	for (result = T; list1 != Nil; ) {
 		Return_getcons(list1, &left, &list1);
@@ -3075,138 +3186,69 @@ _g int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 
 
 /*
- *  union
- */
-static int test_union_cons(Execute ptr, addr *ret,
-		addr list1, addr list2, addr key, addr test, int notret)
-{
-	int check;
-	addr list, left;
-	LocalHold hold;
-
-	list = Nil;
-	/* left */
-	hold = LocalHold_array(ptr, 1);
-	while (list1 != Nil) {
-		Return_getcons(list1, &left, &list1);
-		Return(check_intersection_cons(ptr, &check, left, list, key, test, notret));
-		if (! check) {
-			cons_heap(&list, left, list);
-			localhold_set(hold, 0, list);
-		}
-	}
-
-	/* right */
-	while (list2 != Nil) {
-		Return_getcons(list2, &left, &list2);
-		Return(check_intersection_cons(ptr, &check, left, list, key, test, notret));
-		if (! check) {
-			cons_heap(&list, left, list);
-			localhold_set(hold, 0, list);
-		}
-	}
-
-	/* result */
-	localhold_end(hold);
-	return Result(ret, list);
-}
-
-_g int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
-{
-	int check1, check2;
-	addr key, test, testnot;
-
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
-		key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test))
-		test = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot))
-		testnot = Unbound;
-	check1 = (test != Unbound);
-	check2 = (testnot != Unbound);
-	if (check1 && check2)
-		return fmte_("UNION don't accept both :test and :test-not parameter.", NULL);
-	else if (check2)
-		return test_union_cons(ptr, ret, list1, list2, key, testnot, 1);
-	else if (check1)
-		return test_union_cons(ptr, ret, list1, list2, key, test, 0);
-	else {
-		GetConst(COMMON_EQL, &test);
-		return test_union_cons(ptr, ret, list1, list2, key, test, 0);
-	}
-
-	return Result(ret, Nil);
-}
-
-
-/*
  *  nunion
  */
-static int single_nunion_cons(Execute ptr, addr *ret,
-		addr list1, addr key, addr test, int notret)
+static int test_nunion_remove_(Execute ptr, addr *ret,
+		addr x, addr list, addr key, addr test, int notret)
 {
 	int check;
-	addr list2, list3, left, right;
+	addr y, z, next, tail;
 
 	/* nil */
-	if (list1 == Nil)
+	if (list == Nil)
 		return Result(ret, Nil);
 
-	/* single */
-	Return_getcons(list1, &left, &list2);
-	*ret = list1;
-	if (list2 == Nil)
-		return 0;
-
+	/* key */
 	if (key != Nil) {
-		Return(callclang_funcall(ptr, &left, key, left, NULL));
+		Return(callclang_funcall(ptr, &x, key, x, NULL));
 	}
 
-	/* list */
-	while (list2 != Nil) {
-		Return_getcons(list2, &right, &list3);
-		Return(function_call_cons(ptr, &check, left, key, test, right, notret));
+	/* first */
+	Return_getcons(list, &y, &next);
+	Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+	if (check)
+		return Result(ret, next);
+
+	/* tail */
+	tail = list;
+	z = next;
+	while (z != Nil) {
+		Return_getcons(z, &y, &next);
+		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
 		if (check) {
-			SetCdr(list1, list3);
-			list2 = list3;
+			SetCdr(tail, next);
+			break;
 		}
-		else {
-			left = right;
-			if (key != Nil) {
-				Return(callclang_funcall(ptr, &left, key, left, NULL));
-			}
-			list1 = list2;
-			list2 = list3;
-		}
+		tail = z;
+		z = next;
 	}
 
-	return 0;
+	return Result(ret, list);
 }
 
 static int test_nunion_cons(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
-	int check;
-	addr left;
-	LocalHold hold;
+	addr list, x, next;
 
-	/* left */
-	Return(single_nunion_cons(ptr, &list1, list1, key, test, notret));
-	hold = LocalHold_array(ptr, 1);
-	localhold_set(hold, 0, list1);
+	/* nil */
+	if (list1 == Nil)
+		return Result(ret, list2);
+	if (list2 == Nil)
+		return Result(ret, list1);
 
-	/* right */
-	while (list2 != Nil) {
-		Return_getcons(list2, &left, &list2);
-		Return(check_intersection_cons(ptr, &check, left, list1, key, test, notret));
-		if (! check) {
-			cons_heap(&list1, left, list1);
-			localhold_set(hold, 0, list1);
+	/* nunion */
+	list = list1;
+	for (;;) {
+		Return_getcons(list, &x, &next);
+		Return(test_nunion_remove_(ptr, &list2, x, list2, key, test, notret));
+		if (next == Nil) {
+			SetCdr(list, list2);
+			break;
 		}
+		list = next;
 	}
 
-	/* result */
-	localhold_end(hold);
 	return Result(ret, list1);
 }
 
@@ -3223,8 +3265,10 @@ _g int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 		testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
-	if (check1 && check2)
-		return fmte_("NUNION don't accept both :test and :test-not parameter.", NULL);
+	if (check1 && check2) {
+		return fmte_("UNION/NUNION don't accept "
+				"both :test and :test-not parameter.", NULL);
+	}
 	else if (check2)
 		return test_nunion_cons(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
@@ -3232,6 +3276,61 @@ _g int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	else {
 		GetConst(COMMON_EQL, &test);
 		return test_nunion_cons(ptr, ret, list1, list2, key, test, 0);
+	}
+
+	return Result(ret, Nil);
+}
+
+
+/*
+ *  union
+ */
+static int test_union_cons(Execute ptr, addr *ret,
+		addr list1, addr list2, addr key, addr test, int notret)
+{
+	LocalHold hold;
+
+	if (list1 == Nil)
+		return Result(ret, list2);
+	if (list2 == Nil)
+		return Result(ret, list1);
+
+	copy_list_heap_safe(&list1, list1);
+	copy_list_heap_safe(&list2, list2);
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva(hold, list1, list2, NULL);
+	Return(test_nunion_cons(ptr, ret, list1, list2, key, test, notret));
+	localhold_end(hold);
+
+	return 0;
+}
+
+_g int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+
+{
+	int check1, check2;
+	addr key, test, testnot;
+
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test))
+		test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot))
+		testnot = Unbound;
+	check1 = (test != Unbound);
+	check2 = (testnot != Unbound);
+	if (check1 && check2) {
+		return fmte_("UNION/NUNION don't accept "
+				"both :test and :test-not parameter.", NULL);
+	}
+	else if (check2)
+		return test_union_cons(ptr, ret, list1, list2, key, testnot, 1);
+	else if (check1)
+		return test_union_cons(ptr, ret, list1, list2, key, test, 0);
+	else {
+		GetConst(COMMON_EQL, &test);
+		return test_union_cons(ptr, ret, list1, list2, key, test, 0);
 	}
 
 	return Result(ret, Nil);

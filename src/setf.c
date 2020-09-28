@@ -85,17 +85,13 @@ _g int function_setf_values(Execute ptr, addr form, addr env)
  *    (let ((g3 (system::setplist g2 g1 r)))  ;; key, value, plist
  *      (setq x g3)
  *      g1)
- *    (multiple-value-bind (ign value check) (get-properties x `(,g2))
- *      (declare (ignore ign))
- *      (if check
- *        value
- *        default))
+ *    (getf r g2 g4))
  */
 _g int function_setf_getf(Execute ptr, addr form, addr env)
 {
 	addr args, place, indicator, value;
-	addr a, b, g, w, r, g1, g2, g3, g4, g5, g6, g7;
-	addr let, setplist, mvbind, getp, list, declare, ignore, ifsym;
+	addr a, b, g, w, r, g1, g2, g3, g4;
+	addr let, setplist, getf;
 
 	/* arguments */
 	Return_getcdr(form, &args);
@@ -121,9 +117,6 @@ _g int function_setf_getf(Execute ptr, addr form, addr env)
 	Return(make_gensym_(ptr, &g2)); /* indicator */
 	Return_getcar(g, &g3);			/* temporary */
 	Return(make_gensym_(ptr, &g4)); /* default */
-	Return(make_gensym_(ptr, &g5));
-	Return(make_gensym_(ptr, &g6));
-	Return(make_gensym_(ptr, &g7));
 	/* `(,g2 ,g4 ,@a) */
 	cons_heap(&a, g4, a);
 	cons_heap(&a, g2, a);
@@ -139,24 +132,9 @@ _g int function_setf_getf(Execute ptr, addr form, addr env)
 	list_heap(&setplist, g3, setplist, NULL);
 	conscar_heap(&setplist, setplist);
 	list_heap(&w, let, setplist, w, g1, NULL);
-	/*
-	 *  `(multiple-value-bind (,g5 ,g6 ,g7) (get-properties ,r (list ,g2))
-	 *     (declare (ignore ,g5))
-	 *     (if ,g7 ,g6 ,g4))
-	 */
-	GetConst(COMMON_MULTIPLE_VALUE_BIND, &mvbind);
-	GetConst(COMMON_GET_PROPERTIES, &getp);
-	GetConst(COMMON_LIST, &list);
-	GetConst(COMMON_DECLARE, &declare);
-	GetConst(COMMON_IGNORE, &ignore);
-	GetConst(COMMON_IF, &ifsym);
-	list_heap(&ifsym, ifsym, g7, g6, g4, NULL);
-	list_heap(&ignore, ignore, g5, NULL);
-	list_heap(&declare, declare, ignore, NULL);
-	list_heap(&list, list, g2, NULL);
-	list_heap(&getp, getp, r, list, NULL);
-	list_heap(&g5, g5, g6, g7, NULL);
-	list_heap(&r, mvbind, g5, getp, declare, ifsym, NULL);
+	/* `(getf ,r ,g2 ,g4) */
+	GetConst(COMMON_GETF, &getf);
+	list_heap(&r, getf, r, g2, g4, NULL);
 	/* result */
 	setvalues_control(ptr, a, b, g, w, r, NULL);
 	return 0;
