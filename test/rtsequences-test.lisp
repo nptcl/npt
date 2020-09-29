@@ -1,6 +1,10 @@
 ;;
 ;;  ANSI COMMON LISP: 17. Sequences
 ;;
+
+;;
+;;  Function COPY-SEQ
+;;
 (deftest copy-seq.1
   (copy-seq nil)
   nil)
@@ -10,26 +14,63 @@
   (10 20 30))
 
 (deftest copy-seq.3
+  (let ((x '(10 20 30)))
+    (eq x (copy-seq '(10 20 30))))
+  nil)
+
+(deftest copy-seq.4
   (copy-seq #(a b c))
   #(a b c))
 
-(deftest copy-seq.4
+(deftest copy-seq.5
+  (let ((x #(a b c)))
+    (eq x (copy-seq x)))
+  nil)
+
+(deftest copy-seq.6
   (copy-seq #1a(10 20 30))
   #1a(10 20 30))
 
-(deftest copy-seq.5
+(deftest copy-seq.7
+  (let ((x #1a(10 20 30)))
+    (eq x #1a(10 20 30)))
+  nil)
+
+(deftest copy-seq.8
   (copy-seq #*1100110000)
   #*1100110000)
 
-(deftest copy-seq.6
-  (copy-seq "Hello")
-  "Hello")
-
-(deftest copy-seq.7
-  (let ((a '(10 20 30)))
-    (eq (copy-seq '(10 20 30)) a))
+(deftest copy-seq.9
+  (let ((x #*1100110000))
+    (eq x (copy-seq #*1100110000)))
   nil)
 
+(deftest copy-seq.10
+  (let ((x "Hello"))
+    (eq x (copy-seq "Hello")))
+  nil)
+
+(deftest copy-seq.11
+  (let ((str "a string"))
+    (values
+      (equalp str (copy-seq str))
+      (eql str (copy-seq str))))
+  t nil)
+
+(deftest-error copy-seq-error.1
+  (eval '(copy-seq 10))
+  type-error)
+
+(deftest-error! copy-seq-error.2
+  (eval '(copy-seq)))
+
+(deftest-error! copy-seq-error.3
+  (eval '(copy-seq nil nil)))
+
+
+;;
+;;  Accessor ELT
+;;
 (deftest elt.1
   (elt '(10 20 30 40 50) 3)
   40)
@@ -74,6 +115,27 @@
                    :fill-pointer 3)
        3))
 
+(deftest-error elt.11
+  (elt #2a((a b c) (d e f)) 0))
+
+(deftest-error elt-error.1
+  (eval '(elt 10 20))
+  type-error)
+
+(deftest-error elt-error.2
+  (eval '(elt nil "hello"))
+  type-error)
+
+(deftest-error! elt-error.3
+  (eval '(elt nil)))
+
+(deftest-error! elt-error.4
+  (eval '(elt nil 3 4)))
+
+
+;;
+;;  Accessor (SETF ELT)
+;;
 (deftest setf-elt.1
   (let ((x '(10 20 30 40 50)))
     (values
@@ -142,599 +204,295 @@
                        :fill-pointer 3)))
     (setf (elt x 3) #\z)))
 
-(deftest fill.1
+(deftest-error setf-elt.11
+  (setf (elt #2a((a b c) (d e f)) 0) 100))
+
+(deftest-error setf-elt-error.1
+  (eval '(setf (elt 10 20) nil))
+  type-error)
+
+(deftest-error setf-elt-error.2
+  (eval '(setf (elt nil "hello") nil))
+  type-error)
+
+(deftest-error! setf-elt-error.3
+  (eval '(setf (elt nil) nil)))
+
+(deftest-error! setf-elt-error.4
+  (eval '(setf (elt nil 3 4) nil)))
+
+;; ANSI Common Lisp
+(deftest elt-test.1
+  (let ((str (copy-seq "0123456789")))
+    (values
+      (elt str 6)
+      (setf (elt str 0) #\#)
+      str))
+  #\6 #\# "#123456789")
+
+
+;;
+;;  Function FILL
+;;
+
+;; list
+(deftest fill-list.1
   (fill nil 10)
   nil)
 
-(deftest fill.2
+(deftest fill-list.2
   (fill '(a b c) 10)
   (10 10 10))
 
-(deftest fill.3
+(deftest fill-list.3
   (fill '(a b c d e) 9 :start 2)
   (a b 9 9 9))
 
-(deftest fill.4
+(deftest fill-list.4
   (fill '(a b c d e) 9 :start 2 :end 4)
   (a b 9 9 e))
 
-(deftest fill.5
+(deftest fill-list.5
   (let* ((a '(a b c d e))
          (b (fill a 9 :start 2 :end 4)))
     (eq a b))
   t)
 
-(deftest fill.6
+(deftest-error fill-list.6
+  (fill '(a b c d e) 9 :start 6))
+
+(deftest-error fill-list.7
+  (fill '(a b c d e) 9 :end 6))
+
+(deftest-error fill-list.8
+  (fill '(a b c d e) 9 :start 2 :end 1))
+
+(deftest fill-list.9
+  (fill '(a b c d e) 9 :start 2 :end 2)
+  (a b c d e))
+
+(deftest fill-list.10
+  (fill '(a b c d e) 9 :start 2 :end nil)
+  (a b 9 9 9))
+
+;; vector
+(deftest fill-vector.1
   (fill #() 10)
   #())
 
-(deftest fill.7
+(deftest fill-vector.2
   (fill #(10 20 30) 'a)
   #(a a a))
 
 
-(deftest fill.8
+(deftest fill-vector.3
   (fill #(a b c d e) 9 :start 2)
   #(a b 9 9 9))
 
-(deftest fill.9
+(deftest fill-vector.4
   (fill #(a b c d e) 9 :start 2 :end 4)
   #(a b 9 9 e))
 
-(deftest fill.10
+(deftest fill-vector.5
   (let* ((a #(a b c d e))
          (b (fill a 9 :start 2 :end 4)))
     (eq a b))
   t)
 
-(deftest fill.11
+(deftest-error fill-vector.6
+  (fill #(a b c d e) 9 :start 6))
+
+(deftest-error fill-vector.7
+  (fill #(a b c d e) 9 :end 6))
+
+(deftest-error fill-vector.8
+  (fill #(a b c d e) 9 :start 2 :end 1))
+
+(deftest fill-vector.9
+  (fill #(a b c d e) 9 :start 2 :end 2)
+  #(a b c d e))
+
+(deftest fill-vector.10
+  (fill #(a b c d e) 9 :start 2 :end nil)
+  #(a b 9 9 9))
+
+
+;; string
+(deftest fill-string.1
   (fill "" #\a)
   "")
 
-(deftest fill.12
+(deftest fill-string.2
   (fill "xyz" #\a)
   "aaa")
 
-(deftest fill.13
+(deftest fill-string.3
   (fill "abcde" #\9 :start 2)
   "ab999")
 
-(deftest fill.14
+(deftest fill-string.4
   (fill "abcde" #\9 :start 2 :end 4)
   "ab99e")
 
-(deftest fill.15
+(deftest fill-string.5
   (let* ((a "abcde")
          (b (fill a #\9 :start 2 :end 4)))
     (eq a b))
   t)
 
-(deftest fill.16
+(deftest-error fill-string.6
+  (fill "abcde" #\Z :start 6))
+
+(deftest-error fill-string.7
+  (fill "abcde" #\Z :end 6))
+
+(deftest-error fill-string.8
+  (fill "abcde" #\Z :start 2 :end 1))
+
+(deftest fill-string.9
+  (fill "abcde" #\Z :start 2 :end 2)
+  "abcde")
+
+(deftest fill-string.10
+  (fill "abcde" #\Z :start 2 :end nil)
+  "abZZZ")
+
+
+;; simple array
+(deftest fill-array.1
   (fill #1a() 'a)
   #1a())
 
-(deftest fill.17
+(deftest fill-array.2
   (fill #1a(10 20 :hello) 'a)
   #1a(a a a))
 
-(deftest fill.18
+(deftest fill-array.3
   (fill #1a(a b c d e) 9 :start 2)
   #1a(a b 9 9 9))
 
-(deftest fill.19
+(deftest fill-array.4
   (fill #1a(a b c d e) 9 :start 2 :end 4)
   #1a(a b 9 9 e))
 
-(deftest fill.20
+(deftest fill-array.5
   (let* ((a #1a(a b c d e))
          (b (fill a 9 :start 2 :end 4)))
     (eq a b))
   t)
 
-(deftest fill.21
+(deftest-error fill-array.6
+  (fill #1a(a b c d e) 9 :start 6))
+
+(deftest-error fill-array.7
+  (fill #1a(a b c d e) 9 :end 6))
+
+(deftest-error fill-array.8
+  (fill #1a(a b c d e) 9 :start 2 :end 1))
+
+(deftest fill-array.9
+  (fill #1a(a b c d e) 9 :start 2 :end 2)
+  #1a(a b c d e))
+
+(deftest fill-array.10
+  (fill #1a(a b c d e) 9 :start 2 :end nil)
+  #1a(a b 9 9 9))
+
+
+;; bit-vector
+(deftest fill-bit-vector.1
   (fill #* 1)
   #*)
 
-(deftest fill.22
+(deftest fill-bit-vector.2
   (fill #*1101 0)
   #*0000)
 
-(deftest fill.23
+(deftest fill-bit-vector.3
   (fill #*1101 1)
   #*1111)
 
-(deftest fill.24
+(deftest fill-bit-vector.4
   (fill #*110111100010111 0 :start 5)
   #*110110000000000)
 
-(deftest fill.25
+(deftest fill-bit-vector.5
   (fill #*110001100001111 1 :start 4 :end 8)
   #*110011110001111)
 
-(deftest fill.26
+(deftest fill-bit-vector.6
   (let* ((a #*110111101)
          (b (fill a 1 :start 2 :end 4)))
     (eq a b))
   t)
 
-(deftest make-sequence-list.1
-  (make-sequence 'list 0)
-  nil)
+(deftest-error fill-bit-vector.7
+  (fill #*11011 1 :start 6))
 
-(deftest make-sequence-list.2
-  (make-sequence 'list 5)
-  (nil nil nil nil nil))
+(deftest-error fill-bit-vector.8
+  (fill #*11011 1 :end 6))
 
-(deftest make-sequence-list.3
-  (make-sequence 'cons 5 :initial-element 'a)
-  (a a a a a))
+(deftest-error fill-bit-vector.9
+  (fill #*11011 1 :start 2 :end 1))
 
-(deftest make-sequence-vector.1
-  (make-sequence 'vector 5)
-  #(nil nil nil nil nil))
+(deftest fill-bit-vector.10
+  (fill #*11011 1 :start 2 :end 2)
+  #*11011)
 
-(deftest make-sequence-vector.2
-  (make-sequence 'vector 5 :initial-element 'a)
-  #(a a a a a))
-
-(deftest make-sequence-vector.3
-  (make-sequence '(vector t 5) 5)
-  #(nil nil nil nil nil))
-
-(deftest-error make-sequence-vector.4
-  (make-sequence '(vector t 6) 5))
-
-(deftest make-sequence-vector.5
-  (let ((a (make-sequence '(vector character *) 5)))
-    (values (stringp a) (length a)))
-  t 5)
-
-(deftest make-sequence-vector.6
-  (make-sequence '(vector character *) 5 :initial-element #\a)
-  "aaaaa")
-
-(deftest make-sequence-vector.7
-  (make-sequence '(vector bit *) 5)
-  #*00000)
-
-(deftest make-sequence-vector.8
-  (make-sequence '(vector bit *) 5 :initial-element 1)
+(deftest fill-bit-vector.11
+  (fill #*11011 1 :start 2 :end nil)
   #*11111)
 
-(deftest make-sequence-vector.9
-  (make-sequence '(vector (unsigned-byte 8) *) 5)
-  #(0 0 0 0 0))
 
-(deftest make-sequence-vector.10
-  (make-sequence '(vector (unsigned-byte 32) *) 5 :initial-element 1)
-  #(1 1 1 1 1))
+;; error
+(deftest-error fill-error.1
+  (eval '(fill 10 20))
+  type-error)
 
-(deftest make-sequence-vector.11
-  (make-sequence '(vector long-float *) 5 :initial-element 1.25l0)
-  #(1.25l0 1.25l0 1.25l0 1.25l0 1.25l0))
+(deftest-error! fill-error.2
+  (eval '(fill nil)))
 
-(deftest make-sequence-simple-vector.1
-  (make-sequence 'simple-vector 3 :initial-element nil)
-  #(nil nil nil))
+(deftest-error! fill-error.3
+  (eval '(fill nil 10 nil)))
 
-(deftest make-sequence-simple-vector.2
-  (make-sequence '(simple-vector 3) 3)
-  #(nil nil nil))
+(deftest-error fill-error.4
+  (eval '(fill nil 10 :start)))
 
-(deftest-error make-sequence-simple-vector.3
-  (make-sequence '(simple-vector 3) 4))
+(deftest-error fill-error.5
+  (eval '(fill nil 10 :start t)))
 
-(deftest make-sequence-string.1
-  (make-sequence 'string 5 :initial-element #\A)
-  "AAAAA")
+(deftest-error fill-error.6
+  (eval '(fill nil 10 :hello t)))
 
-(deftest make-sequence-string.2
-  (make-sequence '(string 5) 5 :initial-element #\A)
-  "AAAAA")
 
-(deftest-error make-sequence-string.3
-  (make-sequence '(string 5) 4 :initial-element #\A))
+;; ANSI Common Lisp
+(deftest fill-test.1
+  (fill (list 0 1 2 3 4 5) '(444))
+  ((444) (444) (444) (444) (444) (444)))
 
-(deftest make-sequence-array.1
-  (make-sequence 'array 5)
-  #(nil nil nil nil nil))
+(deftest fill-test.2
+  (fill (copy-seq "01234") #\e :start 3)
+  "012ee")
 
-(deftest make-sequence-array.2
-  (make-sequence '(array * *) 5)
-  #(nil nil nil nil nil))
+(deftest fill-test.3
+  (let ((x (vector 'a 'b 'c 'd 'e)))
+    (values
+      (fill x 'z :start 1 :end 3)
+      x))
+  #(a z z d e)
+  #(a z z d e))
 
-(deftest make-sequence-array.3
-  (make-sequence '(array * 1) 5)
-  #(nil nil nil nil nil))
+(deftest fill-test.4
+  (let ((x (vector 'a 'b 'c 'd 'e)))
+    (fill x 'z :start 1 :end 3)
+    x
+    (values
+      (fill x 'p)
+      x))
+  #(p p p p p)
+  #(p p p p p))
 
-(deftest make-sequence-array.4
-  (make-sequence '(array * (*)) 5)
-  #(nil nil nil nil nil))
 
-(deftest make-sequence-array.5
-  (make-sequence '(array * (5)) 5)
-  #(nil nil nil nil nil))
-
-(deftest-error make-sequence-array.6
-  (make-sequence '(array * 2) 5))
-
-(deftest-error make-sequence-array.7
-  (make-sequence '(array * (* *)) 5))
-
-(deftest-error make-sequence-array.8
-  (make-sequence '(array * (4)) 5))
-
-(deftest make-sequence-bitvector.1
-  (make-sequence 'bit-vector 5 :initial-element 1)
-  #*11111)
-
-(deftest make-sequence-bitvector.2
-  (make-sequence '(bit-vector 5) 5 :initial-element 0)
-  #*00000)
-
-(deftest-error make-sequence-bitvector.3
-  (make-sequence '(bit-vector 5) 4))
-
-(deftest make-sequence-bitvector.4
-  (make-sequence 'simple-bit-vector 5 :initial-element 1)
-  #*11111)
-
-(deftest-error make-sequence-not.1
-  (make-sequence '(not list) 5))
-
- (deftest-error make-sequence-not.2
-  (make-sequence '(not cons) 5 :initial-element 'a))
-
-(deftest-error make-sequence-not.3
-  (make-sequence '(not vector) 5 :initial-element 'a))
-
-(deftest-error make-sequence-not.4
-  (make-sequence '(not (simple-vector 3)) 3))
-
-(deftest-error make-sequence-not.5
-  (make-sequence '(not string) 5 :initial-element #\A))
-
-(deftest-error make-sequence-not.6
-  (make-sequence '(not array) 5))
-
-(deftest-error make-sequence-not.7
-  (make-sequence '(not bit-vector) 5 :initial-element 1))
-
-(deftest subseq-list.1
-  (subseq nil 0)
-  nil)
-
-(deftest subseq-list.2
-  (subseq nil 0 0)
-  nil)
-
-(deftest subseq-list.3
-  (subseq '(a b c) 0 0)
-  nil)
-
-(deftest subseq-list.4
-  (subseq '(a b c d e) 3)
-  (d e))
-
-(deftest subseq-list.5
-  (subseq '(a b c d e) 3 3)
-  nil)
-
-(deftest subseq-list.6
-  (subseq '(a b c d e) 0 5)
-  (a b c d e))
-
-(deftest subseq-list.7
-  (subseq '(a b c d e) 1 3)
-  (b c))
-
-(deftest subseq-vector.1
-  (subseq #() 0)
-  #())
-
-(deftest subseq-vector.2
-  (subseq #() 0 0)
-  #())
-
-(deftest subseq-vector.3
-  (subseq #(a b c) 0 0)
-  #())
-
-(deftest subseq-vector.4
-  (subseq #(a b c d e) 3)
-  #(d e))
-
-(deftest subseq-vector.5
-  (subseq #(a b c d e) 3 3)
-  #())
-
-(deftest subseq-vector.6
-  (subseq #(a b c d e) 0 5)
-  #(a b c d e))
-
-(deftest subseq-vector.7
-  (subseq #(a b c d e) 1 3)
-  #(b c))
-
-(deftest subseq-vector.8
-  (subseq #(a b c d e) 5 5)
-  #())
-
-(deftest subseq-string.1
-  (subseq "" 0)
-  "")
-
-(deftest subseq-string.2
-  (subseq "" 0 0)
-  "")
-
-(deftest subseq-string.3
-  (subseq "abc" 0 0)
-  "")
-
-(deftest subseq-string.4
-  (subseq "abcde" 3)
-  "de")
-
-(deftest subseq-string.5
-  (subseq "abcde" 3 3)
-  "")
-
-(deftest subseq-string.6
-  (subseq "abcde" 0 5)
-  "abcde")
-
-(deftest subseq-string.7
-  (subseq "abcde" 1 3)
-  "bc")
-
-(deftest subseq-string.8
-  (subseq "abcde" 5 5)
-  "")
-
-(deftest subseq-general.1
-  (subseq #1a() 0)
-  #())
-
-(deftest subseq-general.2
-  (subseq #1a() 0 0)
-  #())
-
-(deftest subseq-general.3
-  (subseq #1a(a b 10) 0 0)
-  #())
-
-(deftest subseq-general.4
-  (subseq #1a(a b 10 20 #\c) 3)
-  #(20 #\c))
-
-(deftest subseq-general.5
-  (subseq #1a(a b 10 20 #\c) 3 3)
-  #())
-
-(deftest subseq-general.6
-  (subseq #1a(a b 10 20 #\c) 0 5)
-  #1a(a b 10 20 #\c))
-
-(deftest subseq-general.7
-  (subseq #1a(a b 10 20 #\c) 1 3)
-  #(b 10))
-
-(deftest subseq-general.8
-  (subseq #1a(a b 10 20 #\c) 5 5)
-  #())
-
-(defun arrayspec (&rest args)
-  (make-array (length args) :element-type '(unsigned-byte 16) :initial-contents args))
-
-(deftest arrayspec.1
-  (arrayspec)
-  #())
-
-(deftest arrayspec.2
-  (arrayspec 10 20 30)
-  #(10 20 30))
-
-(deftest arrayspec.3
-  (lisp-system::array-specialized-p
-    (arrayspec 10 20 30))
-  t)
-
-(deftest subseq-specialized.1
-  (subseq (arrayspec) 0)
-  #())
-
-(deftest subseq-specialized.2
-  (subseq (arrayspec) 0 0)
-  #())
-
-(deftest subseq-specialized.3
-  (subseq (arrayspec 10 20 30) 0 0)
-  #())
-
-(deftest subseq-specialized.4
-  (subseq (arrayspec 5 6 7 8 9) 3)
-  #(8 9))
-
-(deftest subseq-specialized.5
-  (subseq (arrayspec 5 6 7 8 9) 3 3)
-  #())
-
-(deftest subseq-specialized.6
-  (subseq (arrayspec 5 6 7 8 9) 0 5)
-  #(5 6 7 8 9))
-
-(deftest subseq-specialized.7
-  (subseq (arrayspec 5 6 7 8 9) 1 3)
-  #(6 7))
-
-(deftest subseq-specialized.8
-  (subseq (arrayspec 5 6 7 8 9) 5 5)
-  #())
-
-(deftest setf-subseq-ll.1
-  (let ((a '(a b c d e)))
-    (setf (subseq a 0) '(x y z)))
-  (x y z))
-
-(deftest setf-subseq-ll.2
-  (let ((a '(a b c d e)))
-    (setf (subseq a 0) '(x y z))
-    a)
-  (x y z d e))
-
-(deftest setf-subseq-ll.3
-  (let ((a '()))
-    (setf (subseq a 0) '(x y z))
-    a)
-  nil)
-
-(deftest setf-subseq-ll.4
-  (let ((a '(a b c d e f g)))
-    (setf (subseq a 2) '(x y z))
-    a)
-  (a b x y z f g))
-
-(deftest setf-subseq-ll.5
-  (let ((a '(a b c d e f g)))
-    (setf (subseq a 2 4) '(x y z))
-    a)
-  (a b x y e f g))
-
-(deftest setf-subseq-ll.6
-  (let ((a '(a b c d e f g)))
-    (setf (subseq a 2 7) '(x y z))
-    a)
-  (a b x y z f g))
-
-(deftest setf-subseq-ll.7
-  (let ((a '(a b)))
-    (setf (subseq a 0) '(x y z))
-    a)
-  (x y))
-
-(deftest setf-subseq-ls.1
-  (let ((a '(a b c d e)))
-    (setf (subseq a 0) #(x y z)))
-  #(x y z))
-
-(deftest setf-subseq-ls.2
-  (let ((a '(a b c d e)))
-    (setf (subseq a 0) #(x y z))
-    a)
-  (x y z d e))
-
-(deftest setf-subseq-ls.3
-  (let ((a '()))
-    (setf (subseq a 0) #(x y z))
-    a)
-  nil)
-
-(deftest setf-subseq-ls.4
-  (let ((a '(a b c d e f g)))
-    (setf (subseq a 2) #(x y z))
-    a)
-  (a b x y z f g))
-
-(deftest setf-subseq-ls.5
-  (let ((a '(a b c d e f g)))
-    (setf (subseq a 2 4) #(x y z))
-    a)
-  (a b x y e f g))
-
-(deftest setf-subseq-ls.6
-  (let ((a '(a b c d e f g)))
-    (setf (subseq a 2 7) #(x y z))
-    a)
-  (a b x y z f g))
-
-(deftest setf-subseq-ls.7
-  (let ((a '(a b)))
-    (setf (subseq a 0) #(x y z))
-    a)
-  (x y))
-
-(deftest setf-subseq-sl.1
-  (let ((a #(a b c d e)))
-    (setf (subseq a 0) '(x y z)))
-  (x y z))
-
-(deftest setf-subseq-sl.2
-  (let ((a #(a b c d e)))
-    (setf (subseq a 0) '(x y z))
-    a)
-  #(x y z d e))
-
-(deftest setf-subseq-sl.3
-  (let ((a #()))
-    (setf (subseq a 0) '(x y z))
-    a)
-  #())
-
-(deftest setf-subseq-sl.4
-  (let ((a #(a b c d e f g)))
-    (setf (subseq a 2) '(x y z))
-    a)
-  #(a b x y z f g))
-
-(deftest setf-subseq-sl.5
-  (let ((a #(a b c d e f g)))
-    (setf (subseq a 2 4) '(x y z))
-    a)
-  #(a b x y e f g))
-
-(deftest setf-subseq-sl.6
-  (let ((a #(a b c d e f g)))
-    (setf (subseq a 2 7) '(x y z))
-    a)
-  #(a b x y z f g))
-
-(deftest setf-subseq-sl.7
-  (let ((a #(a b)))
-    (setf (subseq a 0) '(x y z))
-    a)
-  #(x y))
-
-(deftest setf-subseq-ss.1
-  (let ((a #(a b c d e)))
-    (setf (subseq a 0) #(x y z)))
-  #(x y z))
-
-(deftest setf-subseq-ss.2
-  (let ((a #(a b c d e)))
-    (setf (subseq a 0) #(x y z))
-    a)
-  #(x y z d e))
-
-(deftest setf-subseq-ss.3
-  (let ((a #()))
-    (setf (subseq a 0) #(x y z))
-    a)
-  #())
-
-(deftest setf-subseq-ss.4
-  (let ((a #(a b c d e f g)))
-    (setf (subseq a 2) #(x y z))
-    a)
-  #(a b x y z f g))
-
-(deftest setf-subseq-ss.5
-  (let ((a #(a b c d e f g)))
-    (setf (subseq a 2 4) #(x y z))
-    a)
-  #(a b x y e f g))
-
-(deftest setf-subseq-ss.6
-  (let ((a #(a b c d e f g)))
-    (setf (subseq a 2 7) #(x y z))
-    a)
-  #(a b x y z f g))
-
-(deftest setf-subseq-ss.7
-  (let ((a #(a b)))
-    (setf (subseq a 0) #(x y z))
-    a)
-  #(x y))
 
 (deftest map-nil.1
   (let (a)

@@ -278,10 +278,6 @@ static int size_start_end_sequence_call_(addr start, addr end,
 {
 	size_t index1, index2;
 
-	if (size == 0) {
-		*ret1 = *ret2 = 0;
-		return Result(ret, 1);
-	}
 	if (GetIndex_integer(start, &index1)) {
 		*ret = 0;
 		*ret1 = *ret2 = 0;

@@ -650,6 +650,10 @@ static int array_initial_unsigned8_(addr pos, addr value)
 
 	if (! integerp(value))
 		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
+	if (minusp_integerp(value)) {
+		return fmte_(":initial-element ~A "
+				"must be greater than equal to 0.", value, NULL);
+	}
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -672,6 +676,10 @@ static int array_initial_unsigned16_(addr pos, addr value)
 
 	if (! integerp(value))
 		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
+	if (minusp_integerp(value)) {
+		return fmte_(":initial-element ~A "
+				"must be greater than equal to 0.", value, NULL);
+	}
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -693,6 +701,10 @@ static int array_initial_unsigned32_(addr pos, addr value)
 
 	if (! integerp(value))
 		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
+	if (minusp_integerp(value)) {
+		return fmte_(":initial-element ~A "
+				"must be greater than equal to 0.", value, NULL);
+	}
 	if (! fixnump(value))
 		goto error;
 	GetFixnum(value, &init);
@@ -714,6 +726,10 @@ static int array_initial_unsigned64_(addr pos, addr value)
 
 	if (! integerp(value))
 		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
+	if (minusp_integerp(value)) {
+		return fmte_(":initial-element ~A "
+				"must be greater than equal to 0.", value, NULL);
+	}
 	if (fixnump(value)) {
 		GetFixnum(value, &init);
 		if (init < 0)
@@ -745,6 +761,10 @@ static int array_initial_unsigned32_(addr pos, addr value)
 
 	if (! integerp(value))
 		return fmte_(":initial-element ~A must be an integer type.", value, NULL);
+	if (minusp_integerp(value)) {
+		return fmte_(":initial-element ~A "
+				"must be greater than equal to 0.", value, NULL);
+	}
 	if (fixnump(value)) {
 		GetFixnum(value, &init);
 		if (init < 0)

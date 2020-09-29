@@ -6,6 +6,7 @@
 #include "typedef.h"
 
 #define integerp _n(integerp)
+#define minusp_integerp _n(minusp_integerp)
 #define integer_throw_alloc_ _n(integer_throw_alloc_)
 #define integer_throw_local_ _n(integer_throw_local_)
 #define integer_throw_heap_ _n(integer_throw_heap_)
@@ -81,6 +82,7 @@
 #define parse_integer_clang _n(parse_integer_clang)
 
 _g int integerp(addr pos);
+_g int minusp_integerp(addr pos);
 
 _g int integer_throw_alloc_(LocalRoot local, addr pos, addr *ret);
 _g int integer_throw_local_(LocalRoot local, addr pos, addr *ret);

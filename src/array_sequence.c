@@ -483,9 +483,6 @@ static int array_subseq_type_(addr *ret, addr pos, size_t index1, size_t index2)
 			return bitmemory_subseq_index_(ret, pos, index1, index2);
 
 		case ARRAY_TYPE_CHARACTER:
-			GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
-			return strvect_subseq_index_(ret, pos, index1, index2);
-
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
 		case ARRAY_TYPE_SINGLE_FLOAT:

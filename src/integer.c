@@ -25,6 +25,20 @@ _g int integerp(addr pos)
 	return type == LISPTYPE_FIXNUM || type == LISPTYPE_BIGNUM;
 }
 
+_g int minusp_integerp(addr pos)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			return minusp_fixnum(pos);
+
+		case LISPTYPE_BIGNUM:
+			return minusp_bignum(pos);
+
+		default:
+			return 0;
+	}
+}
+
 
 /*
  *  throw

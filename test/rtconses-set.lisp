@@ -1048,3 +1048,18 @@
 (deftest-error nunion-error.8
   (eval '(nunion nil nil :test (constantly t) :test-not (constantly t))))
 
+(deftest union-test.1
+  (union '(a b c) '(f a d))
+  (a b c f d))
+
+(deftest union-test.2
+  (union '((x 5) (y 6)) '((z 2) (x 4)) :key #'car)
+  ((X 5) (Y 6) (Z 2)))
+
+(defparameter *union-list1* (list 1 2 '(1 2) "a" "b"))
+(defparameter *union-list2* (list 2 3 '(2 3) "B" "C"))
+
+(deftest union-test.3
+  (nunion *union-list1* *union-list2*)
+  (1 2 (1 2) "a" "b" 3 (2 3) "B" "C"))
+

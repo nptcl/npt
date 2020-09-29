@@ -1,7 +1,10 @@
 ;;
 ;;  ANSI COMMON LISP: 17. Sequences
 ;;
+(load #p"test/rtsequences-type.lisp")
 (load #p"test/rtsequences-test.lisp")
+(load #p"test/rtsequences-make.lisp")
+(load #p"test/rtsequences-subseq.lisp")
 (load #p"test/rtsequences-position.lisp")
 (load #p"test/rtsequences-substitute.lisp")
 (load #p"test/rtsequences-remove.lisp")
