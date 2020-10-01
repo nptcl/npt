@@ -57,6 +57,7 @@
 #define defun_code _n(defun_code)
 #define call_result_code _n(call_result_code)
 #define call_type_code _n(call_type_code)
+#define call_key_code _n(call_key_code)
 #define call_function_code _n(call_function_code)
 #define call_setf_code _n(call_setf_code)
 #define call_lexical_code _n(call_lexical_code)
@@ -149,6 +150,7 @@ _g int defun_code(Execute ptr, CodeValue x);
 
 _g int call_result_code(Execute ptr, CodeValue x);
 _g int call_type_code(Execute ptr, CodeValue x);
+_g int call_key_code(Execute ptr, CodeValue x);
 _g int call_function_code(Execute ptr, CodeValue x);
 _g int call_setf_code(Execute ptr, CodeValue x);
 _g int call_lexical_code(Execute ptr, CodeValue x);

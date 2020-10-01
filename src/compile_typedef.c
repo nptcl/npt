@@ -71,6 +71,7 @@ static void init_compile_typedef_write(void)
 
 	defwrite(call_result);
 	defwrite(call_type);
+	defwrite(call_key);
 	defwrite(call_function);
 	defwrite(call_setf);
 	defwrite(call_lexical);
@@ -211,6 +212,7 @@ static void init_compile_typedef_read(void)
 
 	defread(call_result, CALL_RESULT);
 	defread(call_type, CALL_TYPE);
+	defread(call_key, CALL_KEY);
 	defread(call_function, CALL_FUNCTION);
 	defread(call_setf, CALL_SETF);
 	defread(call_lexical, CALL_LEXICAL);

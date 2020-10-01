@@ -114,12 +114,31 @@ static int subtypep_asterisk_or_t_(addr left, addr right, SubtypepResult *ret)
 		return subtypep_result_(left, right, 0, ret);
 }
 
+static int subtypep_null_(addr left, addr right, SubtypepResult *ret)
+{
+	switch (RefLispDecl(left)) {
+		case LISPDECL_NULL:
+			return ReturnInclude(ret);
+
+		case LISPDECL_CONS:
+		case LISPDECL_SEQUENCE:
+			return ReturnFalse(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
+}
+
 static int subtypep_cons_(addr left, addr right, SubtypepResult *ret)
 {
+	enum LISPDECL decl;
 	SubtypepResult value;
 	addr car1, car2, cdr1, cdr2;
 
-	if (RefLispDecl(left) != LISPDECL_CONS)
+	GetLispDecl(left, &decl);
+	if (decl == LISPDECL_SEQUENCE)
+		return ReturnFalse(ret);
+	if (decl != LISPDECL_CONS)
 		return ReturnExclude(ret);
 
 	GetArrayType(left, 0, &car1);
@@ -1924,7 +1943,7 @@ _g void init_type_subtypep(void)
 	TypeSubtypep[LISPDECL_ASTERISK] = subtypep_error_;
 	TypeSubtypep[LISPDECL_NIL] = subtypep_nil_;
 	TypeSubtypep[LISPDECL_T] = subtypep_t_;
-	TypeSubtypep[LISPDECL_NULL] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_NULL] = subtypep_null_;
 	TypeSubtypep[LISPDECL_CONS] = subtypep_cons_;
 	TypeSubtypep[LISPDECL_HASH_TABLE] = subtypep_equaltype_;
 	TypeSubtypep[LISPDECL_SYMBOL] = subtypep_symbol_;

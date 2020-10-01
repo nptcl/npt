@@ -531,6 +531,25 @@ _g int call_type_code(Execute ptr, CodeValue x)
 	return call_typep_error_(ptr, value, x.pos);
 }
 
+_g int call_key_code(Execute ptr, CodeValue x)
+{
+	addr list, key, value, pos, type;
+
+	list = x.pos;
+	getresult_control(ptr, &value);
+	getargs_tail_control(ptr, &key);
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(pos, &pos, &type);
+		if (pos == key) {
+			return call_typep_asterisk_error_(ptr, value, type);
+		}
+	}
+
+	return fmte_("Invalid argument key ~S.", key, NULL);
+}
+
 _g int call_function_code(Execute ptr, CodeValue x)
 {
 	addr value;

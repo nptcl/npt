@@ -2140,21 +2140,124 @@ static int code_make_specialize(LocalRoot local, addr code, addr scope)
 /*
  *  call
  */
-static void code_make_call_args(LocalRoot local, addr code, addr args)
+static void code_make_call_args_push(LocalRoot local, addr code, addr pos)
 {
-	addr pos, value;
+	addr value;
 
-	while (args != Nil) {
-		GetCons(args, &pos, &args);
-		getvalue_tablecall(pos, &value);
-		code_make_execute_push(local, code, value);
-		if (getcheck_tablecall(pos)) {
-			gettype_tablecall(pos, &value);
-			if (! type_astert_p(value)) {
-				CodeQueue_cons(local, code, CALL_TYPE, value);
-			}
+	getvalue_tablecall(pos, &value);
+	code_make_execute_push(local, code, value);
+	if (getcheck_tablecall(pos)) {
+		gettype_tablecall(pos, &value);
+		if (! type_astert_p(value)) {
+			CodeQueue_cons(local, code, CALL_TYPE, value);
 		}
 	}
+}
+
+static void code_make_call_args_type(LocalRoot local, addr code, addr args)
+{
+	addr pos;
+
+	while (consp_getcons(args, &pos, &args))
+		code_make_call_args_push(local, code, pos);
+}
+
+static void code_make_call_args_count(LocalRoot local, addr code,
+		addr list, addr args, addr *ret)
+{
+	addr pos;
+
+	while (list != Nil) {
+		GetCdr(list, &list);
+		if (! consp_getcons(args, &pos, &args))
+			break;
+		code_make_call_args_push(local, code, pos);
+	}
+	*ret = args;
+}
+
+static int code_make_call_type(addr pos, addr *ret)
+{
+	GetEvalScopeThe(pos, &pos);
+	if (! type_function_p(pos))
+		return 1;
+	GetArrayType(pos, 0, &pos); /* args */
+	if (type_asterisk_p(pos))
+		return 1;
+	*ret = pos;
+	return 0;
+}
+
+static void code_make_call_args_value(LocalRoot local, addr code, addr pos, addr key)
+{
+	addr value;
+	modeswitch mode;
+
+	getvalue_tablecall(pos, &value);
+
+	/* setmode */
+	code_queue_setmode(code, &mode);
+	code_make_execute(local, code, value);
+	code_queue_rollback(code, &mode);
+
+	/* type check */
+	if (getcheck_tablecall(pos)) {
+		gettype_tablecall(pos, &value);
+		if (! type_astert_p(value)) {
+			CodeQueue_cons(local, code, TYPE_RESULT, value);
+		}
+	}
+
+	/* key */
+	CodeQueue_cons(local, code, CALL_KEY, key);
+
+	/* push */
+	CodeQueue_single(local, code, PUSH_RESULT);
+}
+
+static void code_make_call_args_key(LocalRoot local, addr code, addr key, addr args)
+{
+	int kv;
+	addr pos;
+
+	for (kv = 0; args != Nil; kv = ! kv) {
+		GetCons(args, &pos, &args);
+		if (kv == 0) {
+			code_make_call_args_push(local, code, pos);
+		}
+		else {
+			code_make_call_args_value(local, code, pos, key);
+		}
+	}
+}
+
+static void code_make_call_args(LocalRoot local, addr code, addr first, addr args)
+{
+	addr var, opt, key;
+
+	/* type */
+	if (code_make_call_type(first, &first)) {
+		code_make_call_args_type(local, code, args);
+		return;
+	}
+	GetArrayA2(first, 0, &var);
+	GetArrayA2(first, 1, &opt);
+	GetArrayA2(first, 3, &key);
+
+	/* var, &optional */
+	code_make_call_args_count(local, code, var, args, &args);
+	code_make_call_args_count(local, code, opt, args, &args);
+	if (! consp(args))
+		return;
+
+	/* not key */
+	if (! consp(key)) {
+		code_make_call_args_type(local, code, args);
+		return;
+	}
+
+	/* key */
+	code_make_call_args_key(local, code, key, args);
 }
 
 static void code_make_call_global(LocalRoot local, addr code, addr pos)
@@ -2209,7 +2312,7 @@ static void code_make_call(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 1, &args);
 	code_queue_push_new(local, code);
 	/* args -> first */
-	code_make_call_args(local, code, args);
+	code_make_call_args(local, code, first, args);
 	code_make_call_first(local, code, first);
 	/* execute */
 	code_queue_pop(local, code, &pos);

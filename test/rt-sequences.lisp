@@ -3,6 +3,7 @@
 ;;
 (load #p"test/rtsequences-type.lisp")
 (load #p"test/rtsequences-test.lisp")
+(load #p"test/rtsequences-map.lisp")
 (load #p"test/rtsequences-make.lisp")
 (load #p"test/rtsequences-subseq.lisp")
 (load #p"test/rtsequences-position.lisp")

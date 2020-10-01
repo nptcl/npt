@@ -103,6 +103,7 @@ _g void init_code_init(void)
 	/* call */
 	initcode(call_result_code, Addr);
 	initcode(call_type_code, Addr);
+	initcode(call_key_code, Addr);
 	initcode(call_function_code, Addr);
 	initcode(call_setf_code, Addr);
 	initcode(call_lexical_code, Index);
@@ -252,6 +253,7 @@ _g void build_code_init(void)
 	/* call */
 	defcode(CALL_RESULT, call_result_code);
 	defcode(CALL_TYPE, call_type_code);
+	defcode(CALL_KEY, call_key_code);
 	defcode(CALL_FUNCTION, call_function_code);
 	defcode(CALL_SETF, call_setf_code);
 	defcode(CALL_LEXICAL, call_lexical_code);

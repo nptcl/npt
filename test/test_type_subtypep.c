@@ -93,7 +93,8 @@ static int test_subtypep_t(void)
 static int test_subtypep_null(void)
 {
 	test(strtable_true("null", "null"), "subtypep_null1");
-	test(strtable_exclude("cons", "null"), "subtypep_null2");
+	test(strtable_false("cons", "null"), "subtypep_null2");
+	test(strtable_exclude("integer", "null"), "subtypep_null3");
 	RETURN;
 }
 

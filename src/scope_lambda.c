@@ -1423,53 +1423,27 @@ static int callargs_opt(Execute ptr, addr array, addr *args, addr *root)
 	return 0;
 }
 
-static void callargs_keyvalue(int keyvalue, addr cons, addr *ret)
+static int callargs_restonly_(Execute ptr, addr rest, addr *args, addr *root)
 {
-	if (keyvalue == 0) {
-		/* name */
-		GetCar(cons, &cons);
-		type_eql_heap(cons, ret);
+	LocalHold hold;
+	addr eval;
+
+	hold = LocalHold_array(ptr, 1);
+	copylocal_object(NULL, &rest, rest);
+	localhold_push(hold, rest);
+
+	while (*args != Nil) {
+		GetCons(*args, &eval, args);
+		Return(check_tablecall(ptr, eval, rest, &eval));
+		cons_heap(root, eval, *root);
+		localhold_set(hold, 0, *root);
 	}
-	else {
-		/* type */
-		GetCdr(cons, &cons);
-		copylocal_object(NULL, ret, cons);
-	}
+	localhold_end(hold);
+
+	return 0;
 }
 
-static void callargs_key(int keyvalue, addr cons, addr *ret)
-{
-	addr pos, array;
-	size_t size, i;
-
-	/* &allow-other-keys */
-	if (cons == T) {
-		if (keyvalue)
-			GetTypeTable(ret, T);
-		else
-			GetTypeTable(ret, Symbol);
-		return;
-	}
-
-	/* &key */
-	size = length_list_unsafe(cons);
-	if (size == 1) {
-		GetCar(cons, &pos);
-		callargs_keyvalue(keyvalue, pos, ret);
-		return;
-	}
-
-	/* or */
-	vector4_heap(&array, size);
-	for (i = 0; cons != Nil; i++) {
-		GetCons(cons, &pos, &cons);
-		callargs_keyvalue(keyvalue, pos, &pos);
-		SetArrayA4(array, i, pos);
-	}
-	type1_heap(LISPDECL_OR, array, ret);
-}
-
-static void type_and_nil(LocalRoot local, addr type1, addr type2, addr *ret)
+static void type_and_nil(addr type1, addr type2, addr *ret)
 {
 	int check1, check2;
 
@@ -1488,46 +1462,72 @@ static void type_and_nil(LocalRoot local, addr type1, addr type2, addr *ret)
 		return;
 	}
 	else {
-		type2and_alloc(local, type1, type2, ret);
+		type2and_heap(type1, type2, ret);
 		return;
 	}
 }
 
-static int callargs_restkey(Execute ptr,
-		addr array, addr *args, addr *root, int *result)
+static int callargs_rest_or_key_(Execute ptr, addr rest, addr *args, addr *root)
 {
-	int keyvalue;
-	addr rest, key, eval, type1, type2, right;
+	int kv;
 	LocalHold hold;
-
-	GetArrayA2(array, 2, &rest);
-	GetArrayA2(array, 3, &key);
-	if (rest == Nil && key == Nil)
-		return Result(result, (*args != Nil));
+	addr eval, type1, type2;
 
 	hold = LocalHold_array(ptr, 1);
-	for (keyvalue = 0; *args != Nil; keyvalue = (! keyvalue)) {
+	/* type */
+	if (rest == Nil) {
+		GetTypeTable(&type1, Symbol);
+		GetTypeTable(&type2, T);
+	}
+	else {
+		/* type1 == (or symbol rest), type2 == rest */
+		GetTypeTable(&type1, Symbol);
+		copylocal_object(NULL, &rest, rest);
+		type_and_nil(type1, rest, &type1);
+		type2 = rest;
+	}
+	localhold_push(hold, type1);
+	localhold_push(hold, type2);
+
+	/* check */
+	for (kv = 0; *args != Nil; kv = ! kv) {
 		GetCons(*args, &eval, args);
-		type1 = type2 = Nil;
-		/* &rest */
-		if (rest != Nil)
-			copylocal_object(NULL, &type1, rest);
-		/* &key */
-		if (key != Nil)
-			callargs_key(keyvalue, key, &type2);
-		/* result */
-		type_and_nil(NULL, type1, type2, &right);
-		Return(check_tablecall(ptr, eval, right, &eval));
+		rest = (kv == 0)? type1: type2;
+		Return(check_tablecall(ptr, eval, rest, &eval));
 		cons_heap(root, eval, *root);
 		localhold_set(hold, 0, *root);
 	}
 	localhold_end(hold);
 
-	/* error check */
-	if (key != Nil && keyvalue)
-		return fmte_("Invalid keyword argument ~S.", key, NULL);
+	/* key-value error */
+	if (kv)
+		return fmte_("There is no value in &key argument.", NULL);
 
-	return Result(result, 0);
+	return 0;
+}
+
+static int callargs_restkey(Execute ptr,
+		addr array, addr *args, addr *root, int *ret)
+{
+	addr rest, key;
+
+	/* type */
+	GetArrayA2(array, 2, &rest);
+	GetArrayA2(array, 3, &key);
+
+	/* no-rest and no-key */
+	if (rest == Nil && key == Nil)
+		return Result(ret, (*args != Nil));
+
+	/* &rest only */
+	if (key == Nil) {
+		Return(callargs_restonly_(ptr, rest, args, root));
+		return Result(ret, 0);
+	}
+
+	/* [&rest] &key &allow-other-keys */
+	Return(callargs_rest_or_key_(ptr, rest, args, root));
+	return Result(ret, 0);
 }
 
 static int callargs_toomany(Execute ptr, addr *args, addr *root)

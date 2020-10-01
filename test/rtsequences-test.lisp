@@ -493,182 +493,9 @@
   #(p p p p p))
 
 
-
-(deftest map-nil.1
-  (let (a)
-    (map nil (lambda (x) (push x a)) "abc")
-    a)
-  (#\c #\b #\a))
-
-(deftest map-nil.2
-  (let (a)
-    (map nil (lambda (x) (push x a)) "abc"))
-  nil)
-
-(deftest map-nil.3
-  (let (a)
-    (map nil (lambda (x y) (push (list x y) a)) "abc" nil)
-    a)
-  nil)
-
-(deftest map-nil.4
-  (let (a)
-    (map nil (lambda (x y) (push (list x y) a)) "abc" '(d e))
-    a)
-  ((#\b e) (#\a d)))
-
-(deftest map-nil.5
-  (let (a)
-    (map nil (lambda (x y) (push (list x y) a)) "abc" '(d e f g))
-    a)
-  ((#\c f) (#\b e) (#\a d)))
-
-(defun map-list-test1 (x)
-  (code-char
-    (1+ (char-code x))))
-
-(defun map-list-test2 (x y)
-  (list (map-list-test1 x)
-        (map-list-test1 y)))
-
-(deftest map-list.1
-  (map 'list #'map-list-test1 "abc")
-  (#\b #\c #\d))
-
-(deftest map-list.2
-  (map 'list #'map-list-test2 "abc" nil)
-  nil)
-
-(deftest map-list.3
-  (map 'list #'map-list-test2 "abc" '(#\d #\e))
-  ((#\b #\e) (#\c #\f)))
-
-(deftest map-list.4
-  (map 'list #'map-list-test2 "abc" '(#\d #\e #\f #\g))
-  ((#\b #\e) (#\c #\f) (#\d #\g)))
-
-(defun map-bit-test1 (x)
-  (if (eql x 0) 1 0))
-
-(defun map-bit-test2 (x y)
-  (if (or (eql x 1) (eql y 1)) 1 0))
-
-(deftest map-vector.1
-  (map '(vector bit) #'map-bit-test1 #*1101)
-  #*0010)
-
-(deftest map-vector.2
-  (map '(vector bit) #'map-bit-test2 #*1001 #*0101)
-  #*1101)
-
-(deftest map-vector.3
-  (map '(vector bit) #'map-bit-test2 #*100 #*0101)
-  #*110)
-
-(deftest map-vector.4
-  (map '(vector bit) #'map-bit-test2 #*10011 '(0 1 0 1))
-  #*1101)
-
-(deftest map-vector.5
-  (map '(vector character) #'map-list-test1 "abc")
-  "bcd")
-
-(deftest map-vector.6
-  (map '(vector (signed-byte 8)) #'1+ '(10 20 30))
-  #(11 21 31))
-
-(deftest-error map-vector.7
-  (map '(vector (signed-byte 8)) #'1+ '(10 20 255)))
-
-(deftest map-vector.8
-  (map '(vector (signed-byte 8)) #'+ '(10 20 30) '(3 4 5 6))
-  #(13 24 35))
-
-(deftest map-vector.9
-  (map '(vector double-float) #'1+ '(10d0 20d0 30d0))
-  #(11d0 21d0 31d0))
-
-(deftest map-vector.10
-  (map '(vector pathname) #'1+ '(10 20 30))
-  #(11 21 31))
-
-(deftest map-simple-vector.1
-  (map 'simple-vector #'1+ '(10 20 30))
-  #(11 21 31))
-
-(deftest map-simple-vector.2
-  (map '(simple-vector 3) #'1+ '(10 20 30))
-  #(11 21 31))
-
-(deftest-error map-simple-vector.3
-  (map '(simple-vector 4) #'1+ '(10 20 30)))
-
-(deftest map-string.1
-  (map 'string #'map-list-test1 "abc")
-  "bcd")
-
-(deftest map-string.2
-  (map '(string 3) #'map-list-test1 "abc")
-  "bcd")
-
-(deftest-error map-string.3
-  (map '(string 4) #'map-list-test1 "abc"))
-
-(deftest map-array.1
-  (map 'array #'1+ #(10 20 30))
-  #(11 21 31))
-
-(deftest map-array.2
-  (map '(array character) #'map-list-test1 '(#\a #\b #\c))
-  "bcd")
-
-(deftest map-bit-vector.1
-  (map 'bit-vector #'map-bit-test1 '(1 0 0 1))
-  #*0110)
-
-(deftest map-bit-vector.2
-  (map '(bit-vector 4) #'map-bit-test1 '(1 0 0 1))
-  #*0110)
-
-(deftest-error map-bit-vector.3
-  (map '(bit-vector 5) #'map-bit-test1 '(1 0 0 1)))
-
-(deftest map-into.1
-  (let ((a '(10 20 30)))
-    (map-into a #'+ '(1 2) '(3 4 5 6 7)))
-  (4 6 30))
-
-(deftest map-into.2
-  (let ((a '(10 20 30)))
-    (map-into a #'+ #(1 2 3 4) '(3 4 5 6 7))
-    a)
-  (4 6 8))
-
-(deftest map-into.3
-  (let ((a #(10 20 30)))
-    (map-into a #'+ '(1 2) '(3 4 5 6 7)))
-  #(4 6 30))
-
-(deftest map-into.4
-  (let ((a #(10 20 30)))
-    (map-into a #'+ #(1 2 3 4) '(3 4 5 6 7))
-    a)
-  #(4 6 8))
-
-(deftest map-into.5
-  (let ((a (make-array
-             10 :element-type 'character
-             :fill-pointer nil :initial-contents "Helloaaaaa")))
-    (map-into a #'values "abcd"))
-  "abcdoaaaaa")
-
-(deftest map-into.6
-  (let ((a (make-array
-             10 :element-type 'character
-             :fill-pointer t :initial-contents "Helloaaaaa")))
-    (map-into a #'values "abcd"))
-  "abcd")
-
+;;
+;;  Function REDUCE
+;;
 (deftest reduce-list.1
   (reduce #'+ nil)
   0)
@@ -678,52 +505,80 @@
   15)
 
 (deftest reduce-list.3
-  (reduce #'+ nil)
-  0)
-
-(deftest reduce-list.4
   (reduce #'+ nil :initial-value 10 :key #'1+)
   10)
 
-(deftest reduce-list.5
+(deftest reduce-list.4
   (reduce #'+ '(20) :initial-value 10 :key #'1+)
   31)
 
+(deftest reduce-list.5
+  (reduce #'+ '(20) :initial-value 10 :key nil)
+  30)
+
 (deftest reduce-list.6
+  (reduce #'+ '(1 2 3 4 5) :initial-value 1000)
+  1015)
+
+(deftest reduce-list.7
   (reduce #'+ '(10) :key #'1+)
   11)
 
-(deftest reduce-list.7
-  (reduce #'+ '(10 20) :key #'1+)
-  32)
-
 (deftest reduce-list.8
-  (reduce #'+ '(10 20) :key #'1+ :start 1)
-  21)
+  (reduce #'+ '(1 2 3 4 5) :key #'1+)
+  20)
 
 (deftest reduce-list.9
+  (reduce #'+ '(1 2 3 4 5) :key #'1+ :start 1)
+  18)
+
+(deftest reduce-list.10
+  (reduce #'+ '(1 2 3 4 5) :key #'1+ :start 5)
+  0)
+
+(deftest-error reduce-list.11
+  (reduce #'+ '(1 2 3 4 5) :key #'1+ :start 6))
+
+(deftest reduce-list.12
   (reduce #'+ '(1 2 3 4 5) :start 2 :end 2)
   0)
 
-(deftest reduce-list.10
+(deftest reduce-list.13
   (reduce #'+ '(1 2 3 4 5) :start 2 :end 3 :key #'1+)
   4)
-
-(deftest reduce-list.11
+(deftest reduce-list.14
   (reduce #'+ '(1 2 3 4 5) :start 2 :end 4 :key #'1+)
   9)
 
-(deftest reduce-list.12
-  (reduce #'+ '(1 2 3 4 5) :start 2 :end 3 :key #'1+ :initial-value 4)
-  8)
+(deftest reduce-list.15
+  (reduce #'+ '(1 2 3 4 5) :start 2 :end 5 :key #'1+)
+  15)
 
-(deftest reduce-list.13
+(deftest reduce-list.16
+  (reduce #'+ '(1 2 3 4 5) :start 2 :end nil :key #'1+)
+  15)
+
+(deftest-error reduce-list.17
+  (reduce #'+ '(1 2 3 4 5) :start 2 :end 6 :key #'1+))
+
+(deftest-error reduce-list.18
+  (reduce #'+ '(1 2 3 4 5) :start 2 :end 1 :key #'1+))
+
+(deftest reduce-list.19
+  (reduce #'+ '(1 2 3 4 5) :start 2 :end 4 :key #'1+ :initial-value 4)
+  13)
+
+(deftest reduce-list.20
   (reduce #'- '(10 1 2 3))
   4)
 
-(deftest reduce-list.14
+(deftest reduce-list.21
   (reduce #'- '(10 1 2 3 4 5 6) :from-end t :start 1 :end 4)
   2)
+
+(deftest reduce-list.22
+  (reduce #'- '(10 1 2 3 4 5 6) :from-end t)
+  13)
 
 (deftest reduce-vector.1
   (reduce #'+ #())
@@ -738,48 +593,99 @@
   10)
 
 (deftest reduce-vector.4
-  (reduce #'+ #(10) :key #'1+)
-  11)
-
-(deftest reduce-vector.5
   (reduce #'+ #(20) :initial-value 10 :key #'1+)
   31)
 
+(deftest reduce-vector.5
+  (reduce #'+ #(20) :initial-value 10 :key nil)
+  30)
+
 (deftest reduce-vector.6
-  (reduce #'+ #(10 20) :key #'1+)
-  32)
+  (reduce #'+ #(1 2 3 4 5) :initial-value 1000)
+  1015)
 
 (deftest reduce-vector.7
-  (reduce #'+ #(20 30) :initial-value 10 :key #'1+)
-  62)
+  (reduce #'+ #(10) :key #'1+)
+  11)
 
 (deftest reduce-vector.8
-  (reduce #'+ #(10 20) :key #'1+ :start 1)
-  21)
+  (reduce #'+ #(1 2 3 4 5) :key #'1+)
+  20)
 
 (deftest reduce-vector.9
+  (reduce #'+ #(1 2 3 4 5) :key #'1+ :start 1)
+  18)
+
+(deftest reduce-vector.10
+  (reduce #'+ #(1 2 3 4 5) :key #'1+ :start 5)
+  0)
+
+(deftest-error reduce-vector.11
+  (reduce #'+ #(1 2 3 4 5) :key #'1+ :start 6))
+
+(deftest reduce-vector.12
   (reduce #'+ #(1 2 3 4 5) :start 2 :end 2)
   0)
 
-(deftest reduce-vector.10
+(deftest reduce-vector.13
   (reduce #'+ #(1 2 3 4 5) :start 2 :end 3 :key #'1+)
   4)
-
-(deftest reduce-vector.11
+(deftest reduce-vector.14
   (reduce #'+ #(1 2 3 4 5) :start 2 :end 4 :key #'1+)
   9)
 
-(deftest reduce-vector.12
-  (reduce #'+ #(1 2 3 4 5) :start 2 :end 3 :key #'1+ :initial-value 4)
-  8)
+(deftest reduce-vector.15
+  (reduce #'+ #(1 2 3 4 5) :start 2 :end 5 :key #'1+)
+  15)
 
-(deftest reduce-vector.13
+(deftest reduce-vector.16
+  (reduce #'+ #(1 2 3 4 5) :start 2 :end nil :key #'1+)
+  15)
+
+(deftest-error reduce-vector.17
+  (reduce #'+ #(1 2 3 4 5) :start 2 :end 6 :key #'1+))
+
+(deftest-error reduce-vector.18
+  (reduce #'+ #(1 2 3 4 5) :start 2 :end 1 :key #'1+))
+
+(deftest reduce-vector.19
+  (reduce #'+ #(1 2 3 4 5) :start 2 :end 4 :key #'1+ :initial-value 4)
+  13)
+
+(deftest reduce-vector.20
   (reduce #'- #(10 1 2 3))
   4)
 
-(deftest reduce-vector.14
+(deftest reduce-vector.21
   (reduce #'- #(10 1 2 3 4 5 6) :from-end t :start 1 :end 4)
   2)
+
+(deftest reduce-vector.22
+  (reduce #'- #(10 1 2 3 4 5 6) :from-end t)
+  13)
+
+(deftest-error reduce-error.1
+  (eval '(reduce 10 nil))
+  type-error)
+
+(deftest-error reduce-error.2
+  (eval '(reduce #'+ 20)))
+
+(deftest-error! reduce-error.3
+  (eval '(reduce #'+)))
+
+(deftest-error! reduce-error.4
+  (eval '(reduce #'+ nil :key)))
+
+(deftest-error reduce-error.5
+  (eval '(reduce #'+ nil :hello 10)))
+
+(deftest-error reduce-error.6
+  (eval '(reduce #'+ nil :start 10)))
+
+(deftest-error reduce-error.7
+  (eval '(reduce #'+ nil :key 10)))
+
 
 (deftest count.1
   (count #\a "aabbccaabbcc")

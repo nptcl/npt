@@ -74,6 +74,7 @@ enum pointer_index {
 	p_call_code,
 	p_call_result_code,
 	p_call_type_code,
+	p_call_key_code,
 	p_call_function_code,
 	p_call_setf_code,
 	p_call_lexical_code,

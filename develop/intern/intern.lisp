@@ -1653,6 +1653,7 @@ lisp-code::defun
 
 lisp-code::call-result
 lisp-code::call-type
+lisp-code::call-key
 lisp-code::call-function
 lisp-code::call-setf
 lisp-code::call-lexical

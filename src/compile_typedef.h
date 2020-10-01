@@ -109,6 +109,7 @@ enum FaslCode {
 
 	FaslCode_call_result,
 	FaslCode_call_type,
+	FaslCode_call_key,
 	FaslCode_call_function,
 	FaslCode_call_setf,
 	FaslCode_call_lexical,

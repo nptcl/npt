@@ -862,6 +862,10 @@ _g int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
 	addr check;
 	LocalHold hold;
 
+	if (rest == Nil) {
+		*ret = Nil;
+		return fmte_("Too few map arguments.", NULL);
+	}
 	hold = LocalHold_local(ptr);
 	Return(parse_type(ptr, &check, type, Nil));
 	localhold_push(hold, check);
