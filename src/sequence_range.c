@@ -104,7 +104,7 @@ static int start_end_sequence_range_(
 	size_t size;
 
 	for (size = 0; ; size++, index1++) {
-		if (end != Unbound || end != Unbound) {
+		if (end != Nil && end != Unbound) {
 			if (index2 <= index1)
 				break;
 			if (list == Nil) {

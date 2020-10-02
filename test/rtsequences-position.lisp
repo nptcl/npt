@@ -1,6 +1,10 @@
 ;;
 ;;  ANSI COMMON LISP: 17. Sequences
 ;;
+
+;;
+;;  Function POSITION
+;;
 (deftest position.1
   (position 10 nil)
   nil)
@@ -18,421 +22,755 @@
   3)
 
 (deftest position.5
+  (position 'z '(a b c d e))
+  nil)
+
+(deftest position.6
   (position 'a #(a b c d e))
   0)
 
-(deftest position.6
+(deftest position.7
   (position 'd #(a b c d e))
   3)
 
-(deftest position-start.1
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0))
+(deftest position.8
+  (position 'z #(a b c d e))
+  nil)
+
+(deftest position.9
+  (position 4 '(1 2 3 4 5 6 7) :key #'1+)
+  2)
+
+(deftest position.10
+  (position '(4) '((1) (2) (3) (4) (5)))
+  nil)
+
+(deftest position.11
+  (position '(4) '((1) (2) (3) (4) (5)) :test #'equal)
   3)
 
-(deftest position-start.2
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :start 2)
+(deftest position.12
+  (position '(4) '((1) (2) (3) (4) (5)) :test-not #'equal)
+  0)
+
+(deftest position.13
+  (position '(4) '((4) (4) (3) (4) (5)) :test-not #'equal)
+  2)
+
+(deftest position.14
+  (position 3 '(1 2 3 1 2 3 1 2) :from-end t)
+  5)
+
+(deftest position-range-list.1
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9))
   3)
 
-(deftest position-start.3
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :end 6)
+(deftest position-range-list.2
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :start 3)
   3)
 
-(deftest position-start.4
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :start 2 :end 6)
+(deftest position-range-list.3
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :start 4)
+  6)
+
+(deftest position-range-list.4
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :end 3)
+  nil)
+
+(deftest position-range-list.5
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :end 4)
   3)
 
-(deftest position-start.5
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :from-end t)
+(deftest position-range-list.6
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :start 4 :end 6)
+  nil)
+
+(deftest position-range-list.7
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :start 4 :end 7)
+  6)
+
+(deftest position-range-list.8
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :start 4 :end nil)
+  6)
+
+(deftest position-range-list.9
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t)
+  10)
+
+(deftest position-range-list.10
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 11)
+  nil)
+
+(deftest position-range-list.11
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 10)
+  10)
+
+(deftest position-range-list.12
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :end 12)
+  10)
+
+(deftest position-range-list.13
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :end 11)
+  10)
+
+(deftest position-range-list.14
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :end 10)
+  7)
+
+(deftest position-range-list.15
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 8 :end 12)
+  10)
+
+(deftest position-range-list.16
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 8 :end nil)
+  10)
+
+(deftest position-range-list.17
+  (position 3 '(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 8 :end 9)
+  nil)
+
+(deftest position-range-vector.1
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9))
   3)
 
-(deftest position-start.6
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2)
+(deftest position-range-vector.2
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :start 3)
   3)
 
-(deftest position-start.7
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :end 6)
+(deftest position-range-vector.3
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :start 4)
+  6)
+
+(deftest position-range-vector.4
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :end 3)
+  nil)
+
+(deftest position-range-vector.5
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :end 4)
   3)
 
-(deftest position-start.8
-  (position 3 '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2 :end 6)
-  3)
+(deftest position-range-vector.6
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :start 4 :end 6)
+  nil)
 
-(deftest position-start.9
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0))
-  3)
+(deftest position-range-vector.7
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :start 4 :end 7)
+  6)
 
-(deftest position-start.10
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :start 2)
-  3)
+(deftest position-range-vector.8
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :start 4 :end nil)
+  6)
 
-(deftest position-start.11
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :end 6)
-  3)
+(deftest position-range-vector.9
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t)
+  10)
 
-(deftest position-start.12
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :start 2 :end 6)
-  3)
+(deftest position-range-vector.10
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 11)
+  nil)
 
-(deftest position-start.13
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :from-end t)
-  3)
+(deftest position-range-vector.11
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 10)
+  10)
 
-(deftest position-start.14
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2)
-  3)
+(deftest position-range-vector.12
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :end 12)
+  10)
 
-(deftest position-start.15
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :end 6)
-  3)
+(deftest position-range-vector.13
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :end 11)
+  10)
 
-(deftest position-start.16
-  (position 3 #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2 :end 6)
-  3)
+(deftest position-range-vector.14
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :end 10)
+  7)
 
+(deftest position-range-vector.15
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 8 :end 12)
+  10)
+
+(deftest position-range-vector.16
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 8 :end nil)
+  10)
+
+(deftest position-range-vector.17
+  (position 3 #(0 1 2 3 4 5 3 3 6 7 3 9) :from-end t :start 8 :end 9)
+  nil)
+
+(deftest-error position-error.1
+  (eval '(position 3 10))
+  type-error)
+
+(deftest-error! position-error.2
+  (eval '(position 3)))
+
+(deftest-error position-error.3
+  (eval '(position 3 nil nil)))
+
+(deftest-error position-error.4
+  (eval '(position 3 nil :key)))
+
+(deftest-error position-error.5
+  (eval '(position 3 nil :key 10)))
+
+(deftest-error position-error.6
+  (eval '(position 3 nil :hello 10)))
+
+(deftest-error position-error.7
+  (eval '(position 3 nil :test (constantly t) :test-not (constantly t))))
+
+(deftest position-error.8
+  (eval '(position 3 '(a b c) :start 3))
+  nil)
+
+(deftest-error position-error.9
+  (eval '(position 3 '(a b c) :start 4)))
+
+(deftest position-error.10
+  (eval '(position 3 '(a b c) :end 3))
+  nil)
+
+(deftest-error position-error.11
+  (eval '(position 3 '(a b c) :end 4)))
+
+(deftest-error position-error.12
+  (eval '(position 3 '(a b c) :start 2 :end 1)))
+
+
+;;
+;;  Function POSITION-IF
+;;
 (deftest position-if.1
   (position-if #'evenp '(1 3 5 4 9))
   3)
 
 (deftest position-if.2
+  (position-if (lambda (x) (eql x 10)) nil)
+  nil)
+
+(deftest position-if.3
+  (position-if (lambda (x) (eql x 10)) #())
+  nil)
+
+(deftest position-if.4
+  (position-if (lambda (x) (eq x 'a)) '(a b c d e))
+  0)
+
+(deftest position-if.5
+  (position-if (lambda (x) (eq x 'd)) '(a b c d e))
+  3)
+
+(deftest position-if.6
+  (position-if (lambda (x) (eq x 'z)) '(a b c d e))
+  nil)
+
+(deftest position-if.7
+  (position-if (lambda (x) (eq x 'a)) #(a b c d e))
+  0)
+
+(deftest position-if.8
+  (position-if (lambda (x) (eq x 'd)) #(a b c d e))
+  3)
+
+(deftest position-if.9
+  (position-if (lambda (x) (eq x 'z)) #(a b c d e))
+  nil)
+
+(deftest position-if.10
+  (position-if (lambda (x) (eql x 4)) '(1 2 3 4 5 6 7) :key #'1+)
+  2)
+
+(deftest position-if.11
+  (position-if (lambda (x) (equal x '(4))) '((1) (2) (3) (4) (5)))
+  3)
+
+(deftest position-if.12
+  (position-if (lambda (x) (eql x 3)) '(1 2 3 1 2 3 1 2) :from-end t)
+  5)
+
+(deftest position-if-range-list.1
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9))
+  3)
+
+(deftest position-if-range-list.2
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 3)
+  3)
+
+(deftest position-if-range-list.3
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4)
+  6)
+
+(deftest position-if-range-list.4
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :end 3)
+  nil)
+
+(deftest position-if-range-list.5
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :end 4)
+  3)
+
+(deftest position-if-range-list.6
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4 :end 6)
+  nil)
+
+(deftest position-if-range-list.7
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4 :end 7)
+  6)
+
+(deftest position-if-range-list.8
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4 :end nil)
+  6)
+
+(deftest position-if-range-list.9
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t)
+  10)
+
+(deftest position-if-range-list.10
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 11)
+  nil)
+
+(deftest position-if-range-list.11
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 10)
+  10)
+
+(deftest position-if-range-list.12
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :end 12)
+  10)
+
+(deftest position-if-range-list.13
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :end 11)
+  10)
+
+(deftest position-if-range-list.14
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :end 10)
+  7)
+
+(deftest position-if-range-list.15
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 8 :end 12)
+  10)
+
+(deftest position-if-range-list.16
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 8 :end nil)
+  10)
+
+(deftest position-if-range-list.17
+  (position-if (lambda (x) (eql x 3)) '(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 8 :end 9)
+  nil)
+
+(deftest position-if-range-vector.1
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9))
+  3)
+
+(deftest position-if-range-vector.2
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 3)
+  3)
+
+(deftest position-if-range-vector.3
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4)
+  6)
+
+(deftest position-if-range-vector.4
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :end 3)
+  nil)
+
+(deftest position-if-range-vector.5
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :end 4)
+  3)
+
+(deftest position-if-range-vector.6
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4 :end 6)
+  nil)
+
+(deftest position-if-range-vector.7
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4 :end 7)
+  6)
+
+(deftest position-if-range-vector.8
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :start 4 :end nil)
+  6)
+
+(deftest position-if-range-vector.9
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t)
+  10)
+
+(deftest position-if-range-vector.10
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 11)
+  nil)
+
+(deftest position-if-range-vector.11
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 10)
+  10)
+
+(deftest position-if-range-vector.12
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :end 12)
+  10)
+
+(deftest position-if-range-vector.13
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :end 11)
+  10)
+
+(deftest position-if-range-vector.14
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :end 10)
+  7)
+
+(deftest position-if-range-vector.15
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 8 :end 12)
+  10)
+
+(deftest position-if-range-vector.16
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 8 :end nil)
+  10)
+
+(deftest position-if-range-vector.17
+  (position-if (lambda (x) (eql x 3)) #(0 1 2 3 4 5 3 3 6 7 3 9)
+               :from-end t :start 8 :end 9)
+  nil)
+
+(deftest-error position-if-error.1
+  (eval '(position-if 10 nil))
+  type-error)
+
+(deftest-error position-if-error.2
+  (eval '(position-if (constantly t) 20))
+  type-error)
+
+(deftest-error! position-if-error.3
+  (eval '(position-if (constantly t))))
+
+(deftest-error position-if-error.4
+  (eval '(position-if (constantly t) nil nil)))
+
+(deftest-error position-if-error.5
+  (eval '(position-if (constantly t) nil :key)))
+
+(deftest-error position-if-error.6
+  (eval '(position-if (constantly t) nil :key 10)))
+
+(deftest-error position-if-error.7
+  (eval '(position-if (constantly t) nil :hello 10)))
+
+(deftest position-if-error.8
+  (eval '(position-if (constantly t) '(a b c) :start 3))
+  nil)
+
+(deftest-error position-if-error.9
+  (eval '(position-if (constantly t) '(a b c) :start 4)))
+
+(deftest position-if-error.10
+  (eval '(position-if (lambda (x) (eql x 'z)) '(a b c) :end 3))
+  nil)
+
+(deftest-error position-if-error.11
+  (eval '(position-if (constantly nil) '(a b c) :end 4)))
+
+(deftest-error position-if-error.12
+  (eval '(position-if (constantly t) '(a b c) :start 2 :end 1)))
+
+
+;;
+;;  Function POSITION-IF-NOT
+;;
+(deftest position-if-not.1
   (position-if-not #'oddp #(1 3 5 4 9))
   3)
 
-(deftest position-if-start.1
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0))
-  3)
+(deftest position-if-not.2
+  (position-if-not (lambda (x) (not (eql x 10))) nil)
+  nil)
 
-(deftest position-if-start.2
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :start 2)
-  3)
+(deftest position-if-not.3
+  (position-if-not (lambda (x) (not (eql x 10))) #())
+  nil)
 
-(deftest position-if-start.3
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :end 6)
-  3)
-
-(deftest position-if-start.4
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :start 2 :end 6)
-  3)
-
-(deftest position-if-start.5
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t)
-  3)
-
-(deftest position-if-start.6
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2)
-  3)
-
-(deftest position-if-start.7
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :end 6)
-  3)
-
-(deftest position-if-start.8
-  (position-if
-    (lambda (x) (= 3 x)) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2 :end 6)
-  3)
-
-(deftest position-if-start.9
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0))
-  3)
-
-(deftest position-if-start.10
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :start 2)
-  3)
-
-(deftest position-if-start.11
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :end 6)
-  3)
-
-(deftest position-if-start.12
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :start 2 :end 6)
-  3)
-
-(deftest position-if-start.13
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t)
-  3)
-
-(deftest position-if-start.14
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2)
-  3)
-
-(deftest position-if-start.15
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :end 6)
-  3)
-
-(deftest position-if-start.16
-  (position-if
-    (lambda (x) (= 3 x)) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start 2 :end 6)
-  3)
-
-
-(deftest search-list.1
-  (search nil '(a b c d))
+(deftest position-if-not.4
+  (position-if-not (lambda (x) (not (eq x 'a))) '(a b c d e))
   0)
 
-(deftest search-list.2
-  (search '(a) '(a b c d))
+(deftest position-if-not.5
+  (position-if-not (lambda (x) (not (eq x 'd))) '(a b c d e))
+  3)
+
+(deftest position-if-not.6
+  (position-if-not (lambda (x) (not (eq x 'z))) '(a b c d e))
+  nil)
+
+(deftest position-if-not.7
+  (position-if-not (lambda (x) (not (eq x 'a))) #(a b c d e))
   0)
 
-(deftest search-list.3
-  (search '(b) '(a b c d))
-  1)
+(deftest position-if-not.8
+  (position-if-not (lambda (x) (not (eq x 'd))) #(a b c d e))
+  3)
 
-(deftest search-list.4
-  (search '(z) '(a b c d))
+(deftest position-if-not.9
+  (position-if-not (lambda (x) (not (eq x 'z))) #(a b c d e))
   nil)
 
-(deftest search-list.5
-  (search '(a b c d e) '(a b c d))
+(deftest position-if-not.10
+  (position-if-not (lambda (x) (not (eql x 4))) '(1 2 3 4 5 6 7) :key #'1+)
+  2)
+
+(deftest position-if-not.11
+  (position-if-not (lambda (x) (not (equal x '(4)))) '((1) (2) (3) (4) (5)))
+  3)
+
+(deftest position-if-not.12
+  (position-if-not (lambda (x) (not (eql x 3))) '(1 2 3 1 2 3 1 2) :from-end t)
+  5)
+
+(deftest position-if-not-range-list.1
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9))
+  3)
+
+(deftest position-if-not-range-list.2
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 3)
+  3)
+
+(deftest position-if-not-range-list.3
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4)
+  6)
+
+(deftest position-if-not-range-list.4
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :end 3)
   nil)
 
-(deftest search-list.6
-  (search '(b c) '(a b c d))
-  1)
+(deftest position-if-not-range-list.5
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :end 4)
+  3)
 
-(deftest search-list.7
-  (search '(b d) '(a b c d))
+(deftest position-if-not-range-list.6
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4 :end 6)
   nil)
 
-(deftest search-vector.1
-  (search "" "abcd")
-  0)
+(deftest position-if-not-range-list.7
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4 :end 7)
+  6)
 
-(deftest search-vector.2
-  (search "a" "abcd")
-  0)
+(deftest position-if-not-range-list.8
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4 :end nil)
+  6)
 
-(deftest search-vector.3
-  (search "b" "abcd")
-  1)
+(deftest position-if-not-range-list.9
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t)
+  10)
 
-(deftest search-vector.4
-  (search "z" "abcd")
+(deftest position-if-not-range-list.10
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 11)
   nil)
 
-(deftest search-vector.5
-  (search "abcde" "abcd")
+(deftest position-if-not-range-list.11
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 10)
+  10)
+
+(deftest position-if-not-range-list.12
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :end 12)
+  10)
+
+(deftest position-if-not-range-list.13
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :end 11)
+  10)
+
+(deftest position-if-not-range-list.14
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :end 10)
+  7)
+
+(deftest position-if-not-range-list.15
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 8 :end 12)
+  10)
+
+(deftest position-if-not-range-list.16
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 8 :end nil)
+  10)
+
+(deftest position-if-not-range-list.17
+  (position-if-not (lambda (x) (not (eql x 3))) '(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 8 :end 9)
   nil)
 
-(deftest search-vector.6
-  (search "bc" "abcd")
-  1)
+(deftest position-if-not-range-vector.1
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9))
+  3)
 
-(deftest search-vector.7
-  (search "bd" "abcd")
+(deftest position-if-not-range-vector.2
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 3)
+  3)
+
+(deftest position-if-not-range-vector.3
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4)
+  6)
+
+(deftest position-if-not-range-vector.4
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :end 3)
   nil)
 
-(deftest search-list-end.1
-  (search nil '(a b c d) :from-end t)
-  0)
+(deftest position-if-not-range-vector.5
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :end 4)
+  3)
 
-(deftest search-list-end.2
-  (search '(a) '(a b c d) :from-end t)
-  0)
-
-(deftest search-list-end.3
-  (search '(b) '(a b c d) :from-end t)
-  1)
-
-(deftest search-list-end.4
-  (search '(z) '(a b c d) :from-end t)
+(deftest position-if-not-range-vector.6
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4 :end 6)
   nil)
 
-(deftest search-list-end.5
-  (search '(a b c d e) '(a b c d) :from-end t)
+(deftest position-if-not-range-vector.7
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4 :end 7)
+  6)
+
+(deftest position-if-not-range-vector.8
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :start 4 :end nil)
+  6)
+
+(deftest position-if-not-range-vector.9
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t)
+  10)
+
+(deftest position-if-not-range-vector.10
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 11)
   nil)
 
-(deftest search-list-end.6
-  (search '(b c) '(a b c d) :from-end t)
-  1)
+(deftest position-if-not-range-vector.11
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 10)
+  10)
 
-(deftest search-list-end.7
-  (search '(b d) '(a b c d) :from-end t)
+(deftest position-if-not-range-vector.12
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :end 12)
+  10)
+
+(deftest position-if-not-range-vector.13
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :end 11)
+  10)
+
+(deftest position-if-not-range-vector.14
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :end 10)
+  7)
+
+(deftest position-if-not-range-vector.15
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 8 :end 12)
+  10)
+
+(deftest position-if-not-range-vector.16
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 8 :end nil)
+  10)
+
+(deftest position-if-not-range-vector.17
+  (position-if-not (lambda (x) (not (eql x 3))) #(0 1 2 3 4 5 3 3 6 7 3 9)
+                   :from-end t :start 8 :end 9)
   nil)
 
-(deftest search-vector-end.1
-  (search "" "abcd" :from-end t)
-  0)
+(deftest-error position-if-not-error.1
+  (eval '(position-if-not 10 nil))
+  type-error)
 
-(deftest search-vector-end.2
-  (search "a" "abcd" :from-end t)
-  0)
+(deftest-error position-if-not-error.2
+  (eval '(position-if-not (constantly nil) 20))
+  type-error)
 
-(deftest search-vector-end.3
-  (search "b" "abcd" :from-end t)
-  1)
+(deftest-error! position-if-not-error.3
+  (eval '(position-if-not (constantly nil))))
 
-(deftest search-vector-end.4
-  (search "z" "abcd" :from-end t)
+(deftest-error position-if-not-error.4
+  (eval '(position-if-not (constantly nil) nil nil)))
+
+(deftest-error position-if-not-error.5
+  (eval '(position-if-not (constantly nil) nil :key)))
+
+(deftest-error position-if-not-error.6
+  (eval '(position-if-not (constantly nil) nil :key 10)))
+
+(deftest-error position-if-not-error.7
+  (eval '(position-if-not (constantly nil) nil :hello 10)))
+
+(deftest position-if-not-error.8
+  (eval '(position-if-not (constantly nil) '(a b c) :start 3))
   nil)
 
-(deftest search-vector-end.5
-  (search "abcde" "abcd" :from-end t)
+(deftest-error position-if-not-error.9
+  (eval '(position-if-not (constantly nil) '(a b c) :start 4)))
+
+(deftest position-if-not-error.10
+  (eval '(position-if-not (constantly t) '(a b c) :end 3))
   nil)
 
-(deftest search-vector-end.6
-  (search "bc" "abcd" :from-end t)
-  1)
+(deftest-error position-if-not-error.11
+  (eval '(position-if-not (constantly t) '(a b c) :end 4)))
 
-(deftest search-vector-end.7
-  (search "bd" "abcd" :from-end t)
+(deftest-error position-if-not-error.12
+  (eval '(position-if-not (constantly nil) '(a b c) :start 2 :end 1)))
+
+
+;;  ANSI Common Lisp
+(deftest position-test.1
+  (position #\a "baobab" :from-end t)
+  4)
+
+(deftest position-test.2
+  (position-if #'oddp '((1) (2) (3) (4)) :start 1 :key #'car)
+  2)
+
+(deftest position-test.3
+  (position 595 '())
   nil)
 
-
-(deftest search-start2.1
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0))
-  3)
-
-(deftest search-start2.2
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :start2 2)
-  3)
-
-(deftest search-start2.3
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :end2 6)
-  3)
-
-(deftest search-start2.4
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :start2 2 :end2 6)
-  3)
-
-(deftest search-start2.5
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t)
-  3)
-
-(deftest search-start2.6
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start2 2)
-  3)
-
-(deftest search-start2.7
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :end2 6)
-  3)
-
-(deftest search-start2.8
-  (search '(3 4) '(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start2 2 :end2 6)
-  3)
-
-(deftest search-start2.9
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0))
-  3)
-
-(deftest search-start2.10
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :start2 2)
-  3)
-
-(deftest search-start2.11
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :end2 6)
-  3)
-
-(deftest search-start2.12
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :start2 2 :end2 6)
-  3)
-
-(deftest search-start2.13
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t)
-  3)
-
-(deftest search-start2.14
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start2 2)
-  3)
-
-(deftest search-start2.15
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :end2 6)
-  3)
-
-(deftest search-start2.16
-  (search '(3 4) #(0 1 2 3 4 5 6 7 8 9 0) :from-end t :start2 2 :end2 6)
-  3)
-
-
-(deftest search-start.1
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4)
-  7)
-
-(deftest search-start.2
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :start2 2)
-  7)
-
-(deftest search-start.3
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :end2 9)
-  7)
-
-(deftest search-start.4
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :start2 2 :end2 9)
-  7)
-
-(deftest search-start.5
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t)
-  7)
-
-(deftest search-start.6
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t :start2 2)
-  7)
-
-(deftest search-start.7
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t :end2 9)
-  7)
-
-(deftest search-start.8
-  (search '(1 1 7 8 9 9 9 10) '(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t :start2 2 :end2 9)
-  7)
-
-(deftest search-start.9
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4)
-  7)
-
-(deftest search-start.10
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :start2 2)
-  7)
-
-(deftest search-start.11
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :end2 9)
-  7)
-
-(deftest search-start.12
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :start2 2 :end2 9)
-  7)
-
-(deftest search-start.13
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t)
-  7)
-
-(deftest search-start.14
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t :start2 2)
-  7)
-
-(deftest search-start.15
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t :end2 9)
-  7)
-
-(deftest search-start.16
-  (search '(1 1 7 8 9 9 9 10) #(0 1 2 3 4 5 6 7 8 9 0)
-          :start1 2 :end1 4 :from-end t :start2 2 :end2 9)
-  7)
+(deftest position-test.4
+  (position-if-not #'integerp '(1 2 3 4 5.0))
+  4)
 
