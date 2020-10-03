@@ -391,7 +391,7 @@ static int replace_subst_cons(struct subst_struct *str,
 
 		case 2: /* :test-not */
 			Return(test_not_subst_cons(str, check, result, ret));
-			break;;
+			break;
 
 		default:
 			return fmte_("Invalid test mode.", NULL);

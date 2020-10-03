@@ -768,7 +768,7 @@ static int string_callp_common(addr var1, addr var2, addr rest, addr *ret,
 		goto finish;
 
 finish_nil:
-	return Result(ret, Nil);;
+	return Result(ret, Nil);
 
 finish:
 	make_index_integer_heap(ret, start1 + i);

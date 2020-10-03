@@ -5,6 +5,50 @@
 ;;
 ;;  Function SEARCH
 ;;
+(deftest search.1
+  (search nil nil)
+  0)
+
+(deftest search.2
+  (search '(a b c) nil)
+  nil)
+
+(deftest search.3
+  (search nil '(a b c))
+  0)
+
+(deftest search.4
+  (search '(c d) '(a b c d e f g h))
+  2)
+
+(deftest search.5
+  (search #(c d) '(a b c d e f g h))
+  2)
+
+(deftest search.6
+  (search '(c d) #(a b c d e f g h))
+  2)
+
+(deftest search.7
+  (search #(c d) #(a b c d e f g h))
+  2)
+
+(deftest search.8
+  (search "hello" "abcdhelloefghellohijk")
+  4)
+
+(deftest search.9
+  (search '(4 5) '(1 2 3 4 5 6 7 8 9) :key #'1+)
+  3)
+
+(deftest search.10
+  (search '(4 5) '(1 2 3 4 5 6 7 8 9)
+          :test (lambda (x y)
+                  (eql (1+ x) (1+ y))))
+  3)
+
+
+
 (deftest search-list.1
   (search nil '(a b c d))
   0)
@@ -33,6 +77,8 @@
   (search '(b d) '(a b c d))
   nil)
 
+
+
 (deftest search-vector.1
   (search "" "abcd")
   0)
@@ -60,6 +106,8 @@
 (deftest search-vector.7
   (search "bd" "abcd")
   nil)
+
+
 
 (deftest search-list-end.1
   (search nil '(a b c d) :from-end t)

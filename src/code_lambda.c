@@ -262,6 +262,34 @@ _g int lambda_lexical_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+_g int lambda_cache_code(Execute ptr, CodeValue x)
+{
+	addr jump, pos;
+	size_t index;
+
+	List_bind(x.pos, &jump, &pos, NULL);
+	GetValueSymbol(pos, &pos);
+	if (pos == Unbound)
+		return 0;
+
+	/* cache hit */
+	setresult_control(ptr, pos);
+	GetIndex(jump, &index);
+	return goto_control_(ptr, index);
+}
+
+_g int lambda_cache_set_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+
+	getresult_control(ptr, &pos);
+	CheckType(pos, LISPTYPE_FUNCTION);
+	CheckType(x.pos, LISPTYPE_SYMBOL);
+	SetValueSymbol(x.pos, pos);
+
+	return 0;
+}
+
 
 /*
  *  macro object

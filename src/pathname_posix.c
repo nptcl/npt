@@ -81,7 +81,7 @@ static int strvect_home_pathname_(LocalRoot local, const byte *pw_dir, addr *ret
 		return Result(ret, Unbound); /* encode error */
 	Return(strvect_update_character_type_(pos));
 
-	return Result(ret, pos);;
+	return Result(ret, pos);
 }
 
 static int passwd_home_pathname_(

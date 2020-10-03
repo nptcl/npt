@@ -1562,6 +1562,8 @@ lisp-system::delay-warning
   :constant system :name module-provider-functions)
 (lisp-system::*compile-output* :constant system :name compile-output)
 (lisp-system::*compile-code* :constant system :name compile-code)
+(lisp-system::*compile-gensym* :constant system :name compile-gensym)
+(lisp-system::*compile-gensym-index* :constant system :name compile-gensym-index)
 
 
 ;;
@@ -1701,6 +1703,8 @@ lisp-code::lambda-form
 lisp-code::lambda-defun
 lisp-code::lambda-closure
 lisp-code::lambda-lexical
+lisp-code::lambda-cache
+lisp-code::lambda-cache-set
 lisp-code::macro
 lisp-code::macro-special
 lisp-code::macro-env

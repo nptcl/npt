@@ -265,7 +265,7 @@ static int expt_complex_heap_(LocalRoot local, addr *ret, addr base, size_t powe
 
 static int expt_complex_integer_(LocalRoot local, addr *ret, addr base, addr power)
 {
-	int inverse, check;;
+	int inverse, check;
 	size_t size;
 
 	CheckLocal(local);

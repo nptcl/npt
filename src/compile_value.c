@@ -13,6 +13,7 @@
 #include "define.h"
 #include "execute.h"
 #include "hashtable.h"
+#include "integer.h"
 #include "load_time_value.h"
 #include "make_load_form.h"
 #include "package.h"
@@ -343,6 +344,70 @@ _g int faslread_value_hashtable(Execute ptr, addr stream, addr *ret)
 
 
 /*
+ *  gensym
+ */
+static int faslwrite_value_gensym(Execute ptr, addr stream, addr pos)
+{
+	int check;
+	addr symbol, table, cons, value;
+
+	Check(! gensymp(pos), "type error");
+	Return(faslwrite_type_(stream, FaslCode_gensym));
+
+	/* gensym table */
+	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &table));
+	Return(internp_hashheap_(table, pos, &cons, &check));
+	if (check) {
+		GetCdr(cons, &value);
+	}
+	else {
+		/* increment table */
+		GetConst(SYSTEM_COMPILE_GENSYM_INDEX, &symbol);
+		Return(getspecialcheck_local_(ptr, symbol, &value));
+		Return(oneplus_integer_common_(ptr->local, value, &value));
+		setspecial_local(ptr, symbol, value);
+		SetCdr(cons, value);
+	}
+
+	/* index */
+	Return(faslwrite_value(ptr, stream, value));
+	/* name */
+	GetNameSymbol(pos, &value);
+	Return(faslwrite_value_string(ptr, stream, value));
+
+	return 0;
+}
+
+_g int faslread_value_gensym(Execute ptr, addr stream, addr *ret)
+{
+	int check;
+	addr index, name, symbol, table, cons, pos;
+
+	/* raed file */
+	Return(faslread_value(ptr, stream, &index));
+	Return(faslread_value(ptr, stream, &name));
+
+	/* cache hit */
+	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &table));
+	Return(internp_hashheap_(table, index, &cons, &check));
+	if (check) {
+		GetCdr(cons, ret);
+		return 0;
+	}
+
+	/* add cache */
+	symbol_heap(&pos);
+	SetNameSymbol(pos, name);
+	SetCdr(cons, pos);
+
+	return Result(ret, pos);
+}
+
+
+
+/*
  *  symbol
  */
 _g int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
@@ -350,6 +415,11 @@ _g int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
 	addr value;
 
 	CheckType(pos, LISPTYPE_SYMBOL);
+	/* gensym */
+	if (gensymp(pos))
+		return faslwrite_value_gensym(ptr, stream, pos);
+
+	/* symbol */
 	Return(faslwrite_type_(stream, FaslCode_symbol));
 	/* package */
 	GetPackageSymbol(pos, &value);
@@ -367,16 +437,8 @@ _g int faslread_value_symbol(Execute ptr, addr stream, addr *ret)
 
 	Return(faslread_value(ptr, stream, &package));
 	Return(faslread_value(ptr, stream, &name));
-
-	if (package == Nil) {
-		/* gensym */
-		symbol_heap(ret);
-		SetNameSymbol(*ret, name);
-	}
-	else {
-		/* intern */
-		Return(intern_package_(package, name, ret, NULL));
-	}
+	Check(package == Nil, "package error");
+	Return(intern_package_(package, name, ret, NULL));
 
 	return 0;
 }

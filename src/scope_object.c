@@ -16,21 +16,49 @@
 /*
  *  memory
  */
+static int optimize_eval_stack_(Execute ptr, OptimizeType *optimize)
+{
+	int i;
+	addr stack;
+	struct eval_stack *str;
+	OptimizeType value;
+
+	/* initial value */
+	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++)
+		optimize[i] = -1;
+
+	/* stack */
+	Return(getstack_eval_(ptr, &stack));
+	while (stack != Nil) {
+		str = StructEvalStack(stack);
+		for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
+			/* already set */
+			if (0 <= optimize[i])
+				continue;
+			/* stack is not set */
+			value = str->optimize[i];
+			if (value < 0)
+				continue;
+			optimize[i] = value;
+		}
+		GetEvalStackNext(stack, &stack);
+	}
+
+	return 0;
+}
+
 _g int eval_scope_heap_(Execute ptr, addr *ret, size_t size)
 {
-	addr pos, stack;
+	addr pos;
 	struct eval_scope *a;
-	struct eval_stack *b;
 
 	Check(0xFF < sizeoft(struct eval_scope), "struct size error");
 	Check(0xFF < 2UL + size, "size argument error");
 	eval_heap(&pos, EVAL_TYPE_SCOPE,
 			(byte)(2UL + size),
 			(byte)sizeoft(struct eval_scope));
-	Return(getstack_eval_(ptr, &stack));
 	a = StructEvalScope(pos);
-	b = StructEvalStack(stack);
-	memcpy(a->optimize, b->optimize, sizeoft(OptimizeType) * EVAL_OPTIMIZE_SIZE);
+	Return(optimize_eval_stack_(ptr, a->optimize));
 
 	return Result(ret, pos);
 }

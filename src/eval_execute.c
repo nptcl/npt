@@ -11,6 +11,7 @@
 #include "execute_values.h"
 #include "file_open.h"
 #include "files.h"
+#include "hashtable.h"
 #include "hold.h"
 #include "make_load_form.h"
 #include "optimize_parse.h"
@@ -428,12 +429,23 @@ static int eval_load_open_(Execute ptr, addr file, int exist, int binary,
 	return Result(ret, Nil);
 }
 
+static void init_read_compile_gensym(Execute ptr)
+{
+	addr symbol, pos;
+
+	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
+	hashtable_heap(&pos);
+	settest_hashtable(pos, HASHTABLE_TEST_EQL);
+	pushspecial_control(ptr, symbol, pos);
+}
+
 static int eval_load_fasl_call_(Execute ptr, addr file, int closep)
 {
 	gchold_push_local(ptr->local, file);
 	if (closep)
 		push_close_stream(ptr, file);
 	init_read_make_load_form(ptr);
+	init_read_compile_gensym(ptr);
 	return eval_compile_load(ptr, file);
 }
 

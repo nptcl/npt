@@ -159,7 +159,7 @@ static int test_optimize_mod(void)
 
 	parse_type_string(&pos, "(mod 32)");
 	optimize_mod_(local, pos, &pos, &check);
-	test(check, "optimize_mod1");;
+	test(check, "optimize_mod1");
 	test(testlispdecl(pos, LISPDECL_INTEGER), "optimize_mod2");
 	GetArrayType(pos, 0, &value);
 	test(value == Nil, "optimize_mod3");

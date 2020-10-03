@@ -19,6 +19,8 @@
 #define lambda_defun_code _n(lambda_defun_code)
 #define lambda_closure_code _n(lambda_closure_code)
 #define lambda_lexical_code _n(lambda_lexical_code)
+#define lambda_cache_code _n(lambda_cache_code)
+#define lambda_cache_set_code _n(lambda_cache_set_code)
 #define macro_code _n(macro_code)
 #define macro_special_code _n(macro_special_code)
 #define macro_env_code _n(macro_env_code)
@@ -45,6 +47,8 @@ _g int lambda_form_code(Execute ptr, CodeValue x);
 _g int lambda_defun_code(Execute ptr, CodeValue x);
 _g int lambda_closure_code(Execute ptr, CodeValue x);
 _g int lambda_lexical_code(Execute ptr, CodeValue x);
+_g int lambda_cache_code(Execute ptr, CodeValue x);
+_g int lambda_cache_set_code(Execute ptr, CodeValue x);
 _g int macro_code(Execute ptr, CodeValue x);
 _g int macro_special_code(Execute ptr, CodeValue x);
 _g int macro_env_code(Execute ptr, CodeValue x);

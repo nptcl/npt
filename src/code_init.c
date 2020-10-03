@@ -154,6 +154,8 @@ _g void init_code_init(void)
 	initcode(lambda_defun_code, Addr);
 	initcode(lambda_closure_code, Addr);
 	initcode(lambda_lexical_code, Addr);
+	initcode(lambda_cache_code, Addr);
+	initcode(lambda_cache_set_code, Addr);
 	initcode(macro_code, Addr);
 	initcode(macro_special_code, Addr);
 	initcode(macro_env_code, Null);
@@ -304,6 +306,8 @@ _g void build_code_init(void)
 	defcode(LAMBDA_DEFUN, lambda_defun_code);
 	defcode(LAMBDA_CLOSURE, lambda_closure_code);
 	defcode(LAMBDA_LEXICAL, lambda_lexical_code);
+	defcode(LAMBDA_CACHE, lambda_cache_code);
+	defcode(LAMBDA_CACHE_SET, lambda_cache_set_code);
 	defcode(MACRO, macro_code);
 	defcode(MACRO_SPECIAL, macro_special_code);
 	defcode(MACRO_ENV, macro_env_code);

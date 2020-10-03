@@ -1172,7 +1172,7 @@ _g int restart_case_common(addr right, addr env, addr *ret)
 		return fmte_("Too few restart-case argument.", NULL);
 	GetCons(right, &expr, &right);
 	if (right == Nil)
-		return Result(ret, expr);;
+		return Result(ret, expr);
 
 	GetConst(SYSTEM_RESTART, &symbol);
 	Return(restart_case_clauses(right, &right));

@@ -57,7 +57,7 @@ _g int formatter_common(LocalRoot local, addr var, addr env, addr *ret)
 	Return(format_parse_heap_(local, &var, var));
 	SetDataFunction(pos, var);
 	/* result */
-	return Result(ret, pos);;
+	return Result(ret, pos);
 
 error:
 	return fmte_("FORMATTER argument must be a (FORMATTER string) form.", NULL);

@@ -35,6 +35,7 @@
 #define faslread_value_vector8 _n(faslread_value_vector8)
 #define faslread_value_character _n(faslread_value_character)
 #define faslread_value_string _n(faslread_value_string)
+#define faslread_value_gensym _n(faslread_value_gensym)
 #define faslread_value_symbol _n(faslread_value_symbol)
 #define faslread_value_hashtable _n(faslread_value_hashtable)
 #define faslread_value_fixnum _n(faslread_value_fixnum)
@@ -85,6 +86,7 @@ _g int faslread_value_vector8(Execute ptr, addr stream, addr *ret);
 #endif
 _g int faslread_value_character(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_string(Execute ptr, addr stream, addr *ret);
+_g int faslread_value_gensym(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_symbol(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_hashtable(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_fixnum(Execute ptr, addr stream, addr *ret);

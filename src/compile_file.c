@@ -11,6 +11,7 @@
 #include "file_open.h"
 #include "files.h"
 #include "function.h"
+#include "hashtable.h"
 #include "hold.h"
 #include "make_load_form.h"
 #include "pathname.h"
@@ -77,7 +78,7 @@ static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
 static int compile_file_execute_(Execute ptr,
 		addr input, addr output, addr rest, addr *ret)
 {
-	addr symbol;
+	addr symbol, pos;
 
 	Check(! streamp(input), "input error");
 	Check(! streamp(output), "output error");
@@ -86,6 +87,17 @@ static int compile_file_execute_(Execute ptr,
 	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
 	pushspecial_control(ptr, symbol, output);
 	set_eval_compile_mode(ptr, T);
+
+	/* gensym table */
+	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
+	hashtable_heap(&pos);
+	settest_hashtable(pos, HASHTABLE_TEST_EQ);
+	pushspecial_control(ptr, symbol, pos);
+
+	/* gensym index */
+	GetConst(SYSTEM_COMPILE_GENSYM_INDEX, &symbol);
+	fixnum_heap(&pos, 0);
+	pushspecial_control(ptr, symbol, pos);
 
 	/* compile */
 	Return(compile_file_output(ptr, input, output, rest));

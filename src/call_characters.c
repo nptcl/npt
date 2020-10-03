@@ -237,7 +237,7 @@ _g int character_common(addr var, addr *ret)
 		return TypeError_(var, CHARACTER);
 	}
 
-	return Result(ret, var);;
+	return Result(ret, var);
 }
 
 

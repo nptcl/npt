@@ -185,3 +185,39 @@
       (make-hash-table :rehash-threshold 0.5d0)))
   0.5d0)
 
+
+;;
+;;  lambda
+;;
+(deftest compile-lambda.1
+  (value-compile
+    (locally
+      (declare (optimize (speed 3)))
+      (flet ((aaa () (lambda () :hello)))
+        (eq (aaa) (aaa)))))
+  t)
+
+(deftest compile-lambda.2
+  (value-compile
+    (locally
+      (declare (optimize (speed 0)))
+      (flet ((aaa () (lambda () :hello)))
+        (eq (aaa) (aaa)))))
+  nil)
+
+(deftest compile-lambda.3
+  (value-compile
+    (locally
+      (declare (optimize (speed 3)))
+      (flet ((aaa (x) (lambda () x)))
+        (eq (aaa 10) (aaa 10)))))
+  nil)
+
+(deftest compile-lambda.4
+  (value-compile
+    (locally
+      (declare (optimize (speed 0)))
+      (flet ((aaa (x) (lambda () x)))
+        (eq (aaa 10) (aaa 10)))))
+  nil)
+

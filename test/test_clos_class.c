@@ -1501,7 +1501,7 @@ static int test_clos_compute_slots(void)
 	addr clos1, clos2, cons, check, aaa;
 	size_t size;
 
-	local = Local_Thread;;
+	local = Local_Thread;
 	test_makeclos_heap(&clos1, "HELLO", "AAA", "BBB", NULL);
 	clos_compute_slots(local, clos1, &cons);
 	test(cons != Nil, "clos_compute_slots1");
@@ -1881,7 +1881,7 @@ static int test_clos_stdclass_metaclass(void)
 	addr metaclass, tclass, object, classclass, check, left;
 	LocalRoot local;
 
-	local = Local_Thread;;
+	local = Local_Thread;
 	clos_stdclass_metaclass_(local, &metaclass);
 
 	/* t */

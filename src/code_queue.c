@@ -303,6 +303,16 @@ static int code_queue_pop_goto_p(addr pos)
 	return 0;
 }
 
+static int code_queue_pop_lambda_cache_p(addr pos)
+{
+	if (GetType(pos) != LISPTYPE_CONS)
+		return 0;
+	GetCar(pos, &pos);
+	CodeQueueGoto(pos, CODE_LAMBDA_CACHE);
+
+	return 0;
+}
+
 static int code_queue_pop_tag_p(addr pos, addr *ret)
 {
 	addr check, left;
@@ -381,6 +391,17 @@ static void code_queue_pop_replace(addr label, addr pos, addr *ret)
 	cons_heap(ret, pos, cdr);
 }
 
+static void code_queue_pop_lambda_cache_replace(addr label, addr list, addr *ret)
+{
+	addr pos, cdr, tail;
+	size_t value;
+
+	Lista_bind(list, &pos, &cdr, &tail, NULL);
+	value = code_queue_pop_find(label, cdr);
+	index_heap(&cdr, value);
+	lista_heap(ret, pos, cdr, tail, NULL);
+}
+
 static void code_queue_pop_goto(LocalRoot local,
 		addr list, addr label, addr array, size_t size)
 {
@@ -396,6 +417,8 @@ static void code_queue_pop_goto(LocalRoot local,
 			continue;
 		if (code_queue_pop_goto_p(pos))
 			code_queue_pop_replace(label, pos, &pos);
+		else if (code_queue_pop_lambda_cache_p(pos))
+			code_queue_pop_lambda_cache_replace(label, pos, &pos);
 		SetArrayA4(array, i++, pos);
 	}
 }

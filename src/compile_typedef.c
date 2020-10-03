@@ -118,6 +118,8 @@ static void init_compile_typedef_write(void)
 	defwrite(lambda_defun);
 	defwrite(lambda_closure);
 	defwrite(lambda_lexical);
+	defwrite(lambda_cache);
+	defwrite(lambda_cache_set);
 	defwrite(macro);
 	defwrite(macro_special);
 	defwrite(macro_env);
@@ -259,6 +261,8 @@ static void init_compile_typedef_read(void)
 	defread(lambda_defun, LAMBDA_DEFUN);
 	defread(lambda_closure, LAMBDA_CLOSURE);
 	defread(lambda_lexical, LAMBDA_LEXICAL);
+	defread(lambda_cache, LAMBDA_CACHE);
+	defread(lambda_cache_set, LAMBDA_CACHE_SET);
 	defread(macro, MACRO);
 	defread(macro_special, MACRO_SPECIAL);
 	defread(macro_env, MACRO_ENV);

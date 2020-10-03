@@ -122,6 +122,8 @@ enum pointer_index {
 	p_lambda_defun_code,
 	p_lambda_closure_code,
 	p_lambda_lexical_code,
+	p_lambda_cache_code,
+	p_lambda_cache_set_code,
 	p_macro_code,
 	p_macro_special_code,
 	p_macro_env_code,

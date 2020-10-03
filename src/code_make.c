@@ -10,6 +10,7 @@
 #include "function.h"
 #include "optimize_common.h"
 #include "scope_object.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "type.h"
 
@@ -914,10 +915,52 @@ static void code_lambda_function(LocalRoot local, addr code, addr scope)
 	code_queue_ifpush(local, code);
 }
 
+static int code_make_lambda_cache_p(addr scope)
+{
+	OptimizeType value;
+	struct eval_scope *str;
+	addr pos;
+
+	/* closure */
+	code_lambda_closure(scope, &pos);
+	if (pos != Nil)
+		return 0;
+
+	/* optimize */
+	str = StructEvalScope(scope);
+	value = str->optimize[EVAL_OPTIMIZE_SPEED];
+	return value < 0 || 1 <= value;
+}
+
 static void code_make_lambda(LocalRoot local, addr code, addr scope)
 {
-	if (! code_queue_remp(code))
+	addr gensym, name, label;
+	modeswitch mode;
+
+	/* rem mode */
+	if (code_queue_remp(code))
+		return;
+
+	/* closure check */
+	if (! code_make_lambda_cache_p(scope)) {
 		code_lambda_function(local, code, scope);
+		return;
+	}
+
+	/* cache */
+	symbol_heap(&gensym);
+	strvect_char_heap(&name, "LAMBDA-CACHE");
+	SetNameSymbol(gensym, name);
+
+	/* code */
+	code_queue_make_label(local, code, &label);
+	code_queue_setmode(code, &mode);
+	CodeQueue_double(local, code, LAMBDA_CACHE, label, gensym);
+	code_lambda_function(local, code, scope);
+	CodeQueue_cons(local, code, LAMBDA_CACHE_SET, gensym);
+	code_queue_push_label(local, code, label);
+	code_queue_rollback(code, &mode);
+	code_queue_ifpush(local, code);
 }
 
 

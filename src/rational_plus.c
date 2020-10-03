@@ -428,15 +428,15 @@ _g int minus_ratio_rational_common_(LocalRoot local, addr left, addr right, addr
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			minus_rf_real_common(local, left, right, ret);
-			return 0;;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
 			minus_rb_real_common(local, left, right, ret);
-			return 0;;
+			return 0;
 
 		case LISPTYPE_RATIO:
 			minus_rr_real_common(local, left, right, ret);
-			return 0;;
+			return 0;
 
 		default:
 			*ret = Nil;

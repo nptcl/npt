@@ -243,6 +243,46 @@
     (lambda () :hello))
   nil)
 
+(deftest lambda-cache.1
+  (flet ((aaa () (lambda () :hello)))
+    (eq (aaa) (aaa)))
+  t)
+
+(deftest lambda-cache.2
+  (locally
+    (declare (optimize speed))
+    (flet ((aaa () (lambda () :hello)))
+      (eq (aaa) (aaa))))
+  t)
+
+(deftest lambda-cache.3
+  (locally
+    (declare (optimize (speed 0)))
+    (flet ((aaa () (lambda () :hello)))
+      (eq (aaa) (aaa))))
+  nil)
+
+(deftest lambda-cache.4
+  (locally
+    (declare (optimize (speed 1)))
+    (flet ((aaa () (lambda () :hello)))
+      (eq (aaa) (aaa))))
+  t)
+
+(deftest lambda-cache.5
+  (locally
+    (declare (optimize (speed 0)))
+    (flet ((aaa (x) (lambda () x)))
+      (eq (aaa 10) (aaa 10))))
+  nil)
+
+(deftest lambda-cache.6
+  (locally
+    (declare (optimize (speed 1)))
+    (flet ((aaa (x) (lambda () x)))
+      (eq (aaa 10) (aaa 10))))
+  nil)
+
 
 ;;
 ;;  defun

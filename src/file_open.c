@@ -447,7 +447,7 @@ static inline int outputstream_(Execute ptr,
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
 
-	return Result(ret, pos);;
+	return Result(ret, pos);
 }
 
 _g int open_output_binary_stream_(Execute ptr, addr *ret,
@@ -681,7 +681,7 @@ static inline int iostream_(Execute ptr,
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
 
-	return Result(ret, pos);;
+	return Result(ret, pos);
 }
 
 _g int open_io_binary_stream_(Execute ptr, addr *ret,
