@@ -798,23 +798,6 @@
   "12345689")
 
 
-(deftest replace.1
-  (replace "abcdefghij" "0123456789" :start1 4 :end1 7 :start2 4)
-  "abcd456hij")
-
-(deftest replace.2
-  (replace '(a b c d e f g h i j) "0123456789" :start1 4 :end1 7 :start2 4)
-  (a b c d #\4 #\5 #\6 h i j))
-
-(deftest replace.3
-  (replace "abcdefghij" '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
-           :start1 4 :end1 7 :start2 4)
-  "abcd456hij")
-
-(deftest replace.4
-  (replace '(a b c d e f g h i j) '(0 1 2 3 4 5 6 7 8 9) :start1 4 :end1 7 :start2 4)
-  (a b c d 4 5 6 h i j))
-
 (deftest concatenate.1
   (concatenate 'string "all" " " "together" " " "now")
   "all together now")

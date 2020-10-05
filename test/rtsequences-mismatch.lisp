@@ -469,29 +469,77 @@
   (mismatch '(a b   c d e   f g a b c)
             '(z x c v z z x x q w    c d e   z a b c)
             :start1 2 :end1 5
-            :start2 10 :end2 12)
-  4)
+            :start2 10 :end2 13)
+  nil)
 
 (deftest mismatch-start-end-list.2
   (mismatch '(a b   c d e f   g a b c)
             '(z x c v z z x x q w   c d e z   a b c)
             :start1 2 :end1 6
-            :start2 10 :end2 13)
+            :start2 10 :end2 14)
   5)
+
+(deftest mismatch-start-end-list.3
+  (mismatch '(a b   c d e   f g a b c)
+            '(z x c v z z x x q w    c d e   z a b c)
+            :start1 2 :end1 5
+            :start2 10 :end2 13
+            :from-end t)
+  nil)
+
+(deftest mismatch-start-end-list.4
+  (mismatch '(a b   c d e f   g a b c)
+            '(z x c v z z x x q w   c d e z   a b c)
+            :start1 2 :end1 6
+            :start2 10 :end2 14
+            :from-end t)
+  6)
+
+(deftest mismatch-start-end-list.5
+  (mismatch '(a b   c d e f   g a b c)
+            '(z x c v z z x x q w   c z e f   a b c)
+            :start1 2 :end1 6
+            :start2 10 :end2 14
+            :from-end t)
+  4)
 
 (deftest mismatch-start-end-vector.1
   (mismatch #(a b   c d e   f g a b c)
             #(z x c v z z x x q w    c d e   z a b c)
             :start1 2 :end1 5
-            :start2 10 :end2 12)
-  4)
+            :start2 10 :end2 13)
+  nil)
 
 (deftest mismatch-start-end-vector.2
   (mismatch #(a b   c d e f   g a b c)
             #(z x c v z z x x q w   c d e z   a b c)
             :start1 2 :end1 6
-            :start2 10 :end2 13)
+            :start2 10 :end2 14)
   5)
+
+(deftest mismatch-start-end-vector.3
+  (mismatch #(a b   c d e   f g a b c)
+            #(z x c v z z x x q w    c d e   z a b c)
+            :start1 2 :end1 5
+            :start2 10 :end2 13
+            :from-end t)
+  nil)
+
+(deftest mismatch-start-end-vector.4
+  (mismatch #(a b   c d e f   g a b c)
+            #(z x c v z z x x q w   c d e z   a b c)
+            :start1 2 :end1 6
+            :start2 10 :end2 14
+            :from-end t)
+  6)
+
+(deftest mismatch-start-end-vector.5
+  (mismatch #(a b   c d e f   g a b c)
+            #(z x c v z z x x q w   c z e f   a b c)
+            :start1 2 :end1 6
+            :start2 10 :end2 14
+            :from-end t)
+  4)
 
 (deftest-error mismatch-error.1
   (eval '(mismatch 10 nil)))

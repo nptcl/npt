@@ -2755,7 +2755,7 @@ static int eq_replace_sequence_(LocalRoot local,
 {
 	if (range1->start == range2->start)
 		return 0;
-	if (range1->start > range2->start)
+	if (range2->end < range1->start || range2->end < range1->start)
 		return forward_replace_sequence_(range1, range2);
 	else
 		return list_replace_sequence_(local, range1, range2);
