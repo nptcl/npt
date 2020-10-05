@@ -1120,7 +1120,7 @@ _g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
@@ -1273,7 +1273,7 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -1332,7 +1332,7 @@ static int argument_count_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -1872,7 +1872,7 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -1931,7 +1931,7 @@ static int argument_find_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -2055,7 +2055,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -2127,7 +2127,7 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -2438,9 +2438,9 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START1, &start1))
-		start1 = fixnumh(0);
+		fixnum_heap(&start1, 0);
 	if (GetKeyArgs(rest, KEYWORD_START2, &start2))
-		start2 = fixnumh(0);
+		fixnum_heap(&start2, 0);
 	if (GetKeyArgs(rest, KEYWORD_END1, &end1))
 		end1 = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
@@ -2508,6 +2508,19 @@ _g int search_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 /*
  *  mismatch
  */
+static int reverse_result_mismatch_sequence_(
+		addr *ret,
+		struct sequence_range *range,
+		size_t i)
+{
+	size_t size;
+
+	size = range->end - i;
+	make_index_integer_heap(ret, size);
+
+	return 0;
+}
+
 static int reverse_mismatch_sequence(struct search_struct *str, addr *ret)
 {
 	int check, check1, check2;
@@ -2540,7 +2553,7 @@ static int reverse_mismatch_sequence(struct search_struct *str, addr *ret)
 
 		Return(call_search_sequence(str, &check, a, b));
 		if (! check)
-			goto result_t;
+			goto result_diff;
 	}
 
 result_nil:
@@ -2549,8 +2562,11 @@ result_nil:
 
 result_t:
 	localhold_end(hold);
-	*ret = fixnumh(i);
-	return 0;
+	return reverse_result_mismatch_sequence_(ret, range1, i);
+
+result_diff:
+	localhold_end(hold);
+	return reverse_result_mismatch_sequence_(ret, range1, i);
 }
 
 static int normal_mismatch_sequence(struct search_struct *str, addr *ret)
@@ -2592,7 +2608,7 @@ result_nil:
 
 result_t:
 	localhold_end(hold);
-	*ret = fixnumh(i);
+	make_index_integer_heap(ret, i + range1->start);
 	return 0;
 }
 
@@ -2613,9 +2629,9 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START1, &start1))
-		start1 = fixnumh(0);
+		fixnum_heap(&start1, 0);
 	if (GetKeyArgs(rest, KEYWORD_START2, &start2))
-		start2 = fixnumh(0);
+		fixnum_heap(&start2, 0);
 	if (GetKeyArgs(rest, KEYWORD_END1, &end1))
 		end1 = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
@@ -2652,8 +2668,8 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	str.pos1 = pos1;
 	str.pos2 = pos2;
 	if (fromp) {
-		Return(make_sequence_range_vector_(local, pos1, start1, end1, &(str.range1)));
-		Return(make_sequence_range_vector_(local, pos2, start2, end2, &(str.range2)));
+		Return(make_sequence_range_mismatch_(local, pos1, start1, end1, &(str.range1)));
+		Return(make_sequence_range_mismatch_(local, pos2, start2, end2, &(str.range2)));
 		Return(reverse_mismatch_sequence(&str, ret));
 	}
 	else {
@@ -2752,9 +2768,9 @@ _g int replace_common_(Execute ptr, addr pos1, addr pos2, addr rest)
 	struct sequence_range range1, range2;
 
 	if (GetKeyArgs(rest, KEYWORD_START1, &start1))
-		start1 = fixnumh(0);
+		fixnum_heap(&start1, 0);
 	if (GetKeyArgs(rest, KEYWORD_START2, &start2))
-		start2 = fixnumh(0);
+		fixnum_heap(&start2, 0);
 	if (GetKeyArgs(rest, KEYWORD_END1, &end1))
 		end1 = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
@@ -3008,7 +3024,7 @@ static int setcount_sequence(struct count_struct *str, addr count)
 	}
 	Return(minusp_integer_(count, &check));
 	if (check) {
-		count = fixnumh(0);
+		fixnum_heap(&count, 0);
 		limit = 0;
 	}
 	else if (GetIndex_integer(count, &limit)) {
@@ -3035,7 +3051,7 @@ _g int substitute_common(Execute ptr,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -3107,7 +3123,7 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -3277,7 +3293,7 @@ _g int nsubstitute_common(Execute ptr,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -3342,7 +3358,7 @@ static int argument_nsubstitute_sequence(Execute ptr,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -3917,7 +3933,7 @@ static int argument_remove_sequence(Execute ptr,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -3989,7 +4005,7 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
@@ -4364,7 +4380,7 @@ static int argument_remove_duplicates(Execute ptr,
 	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
 		from = Nil;
 	if (GetKeyArgs(rest, KEYWORD_START, &start))
-		start = fixnumh(0);
+		fixnum_heap(&start, 0);
 	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))

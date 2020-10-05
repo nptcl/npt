@@ -226,7 +226,7 @@ _g int list_start_end_sequence_(addr *list, addr *prev,
 		addr start, addr end, size_t *ret1, size_t *ret2)
 {
 	addr temp;
-	size_t index1, index2, i;
+	size_t index1, index2, i, size;
 
 	/* argument */
 	if (GetIndex_integer(start, &index1)) {
@@ -246,6 +246,11 @@ _g int list_start_end_sequence_(addr *list, addr *prev,
 			*ret1 = *ret2 = 0;
 			return fmte_(":START ~A "
 					"must be less than equal to :END ~A.", start, end, NULL);
+		}
+		length_list_p(*list, &size);
+		if (size < index2) {
+			*ret1 = *ret2 = 0;
+			return fmte_(":END ~A must be less than sequence length.", end, NULL);
 		}
 	}
 	else {

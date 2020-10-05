@@ -81,6 +81,32 @@ _g int build_sequence_range_(struct sequence_range *ptr,
 	return 0;
 }
 
+static int build_sequence_range_force_vector_(struct sequence_range *ptr,
+		addr pos, addr start, addr end)
+{
+	size_t index1, index2, size;
+
+	clearpoint(ptr);
+	ptr->pos = pos;
+	ptr->listp = 0;
+	if (start == Nil || start == Unbound)
+		start = fixnumh(0);
+	if (end == Nil)
+		end = Unbound;
+
+	Return(length_sequence_(pos, 1, &size));
+	Return(size_start_end_sequence_(start, end, size, &index1, &index2, NULL));
+	ptr->prev = Nil;
+	ptr->start = index1;
+	ptr->endp = 1;
+	ptr->end = index2;
+	ptr->size = index2 - index1;
+	ptr->index = index1;
+	save_sequence_range(ptr);
+
+	return 0;
+}
+
 static struct sequence_range *sequence_range_local(LocalRoot local)
 {
 	return (struct sequence_range *)lowlevel_local(local,
@@ -192,6 +218,17 @@ _g int make_sequence_range_vector_(LocalRoot local,
 
 	ptr = sequence_range_local(local);
 	Return(build_sequence_range_vector_(local, ptr, list, start, end));
+
+	return Result(ret, ptr);
+}
+
+_g int make_sequence_range_mismatch_(LocalRoot local,
+		addr list, addr start, addr end, struct sequence_range **ret)
+{
+	struct sequence_range *ptr;
+
+	ptr = sequence_range_local(local);
+	Return(build_sequence_range_force_vector_(ptr, list, start, end));
 
 	return Result(ret, ptr);
 }

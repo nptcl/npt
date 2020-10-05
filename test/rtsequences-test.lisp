@@ -798,22 +798,6 @@
   "12345689")
 
 
-(deftest mismatch.1
-  (mismatch "abcd" "ABCDE" :test #'char-equal)
-  4)
-
-(deftest mismatch.2
-  (mismatch '(3 2 1 1 2 3) '(1 2 3) :from-end t)
-  3)
-
-(deftest mismatch.3
-  (mismatch '(1 2 3) '(2 3 4) :test-not #'eq :key #'oddp)
-  nil)
-
-(deftest mismatch.4
-  (mismatch '(1 2 3 4 5 6) '(3 4 5 6 7) :start1 2 :end2 4)
-  nil)
-
 (deftest replace.1
   (replace "abcdefghij" "0123456789" :start1 4 :end1 7 :start2 4)
   "abcd456hij")

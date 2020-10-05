@@ -15,6 +15,7 @@
 #define build_sequence_range_vector2_ _n(build_sequence_range_vector2_)
 #define build_sequence_range_vector_ _n(build_sequence_range_vector_)
 #define make_sequence_range_vector_ _n(make_sequence_range_vector_)
+#define make_sequence_range_mismatch_ _n(make_sequence_range_mismatch_)
 #define get_sequence_range_ _n(get_sequence_range_)
 #define getnext_sequence_range_ _n(getnext_sequence_range_)
 #define next_sequence_range_ _n(next_sequence_range_)
@@ -59,6 +60,8 @@ _g int build_sequence_range_vector2_(LocalRoot local,
 _g int build_sequence_range_vector_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end);
 _g int make_sequence_range_vector_(LocalRoot local,
+		addr list, addr start, addr end, struct sequence_range **ret);
+_g int make_sequence_range_mismatch_(LocalRoot local,
 		addr list, addr start, addr end, struct sequence_range **ret);
 
 /* access */

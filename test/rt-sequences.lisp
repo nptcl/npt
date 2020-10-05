@@ -12,6 +12,7 @@
 (load #p"test/rtsequences-find.lisp")
 (load #p"test/rtsequences-position.lisp")
 (load #p"test/rtsequences-search.lisp")
+(load #p"test/rtsequences-mismatch.lisp")
 
 (load #p"test/rtsequences-substitute.lisp")
 (load #p"test/rtsequences-remove.lisp")
