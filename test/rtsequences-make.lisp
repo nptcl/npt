@@ -238,9 +238,18 @@
 (deftest-error make-sequence-bit-vector.3
   (make-sequence '(bit-vector 5) 4))
 
-(deftest make-sequence-bit-vector.4
+
+;;  simple-bit-vector
+(deftest make-sequence-simple-bit-vector.1
   (make-sequence 'simple-bit-vector 5 :initial-element 1)
   #*11111)
+
+(deftest make-sequence-simple-bit-vector.2
+  (make-sequence '(simple-bit-vector 5) 5 :initial-element 0)
+  #*00000)
+
+(deftest-error make-sequence-simple-bit-vector.3
+  (make-sequence '(simple-bit-vector 5) 4))
 
 
 ;;  not
@@ -264,6 +273,9 @@
 
 (deftest-error make-sequence-not.7
   (make-sequence '(not bit-vector) 5 :initial-element 1))
+
+(deftest-error make-sequence-not.8
+  (make-sequence '(not simple-bit-vector) 5 :initial-element 1))
 
 
 ;;  error

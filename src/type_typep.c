@@ -338,6 +338,19 @@ static int typep_simple_vector_(Execute ptr, addr value, addr type, int *ret)
 	}
 }
 
+static int typep_bit_vector_bit_vector_(addr value, addr type, int *ret)
+{
+	fixnum size2;
+	size_t size1;
+
+	GetArrayType(type, 0, &type);
+	if (type_asterisk_p(type))
+		return Result(ret, 1);
+	bitmemory_length(value, &size1);
+	GetFixnum(type, &size2);
+	return Result(ret, (size1 == (size_t)size2));
+}
+
 static int typep_bit_vector_(Execute ptr, addr value, addr type, int *ret)
 {
 	switch (GetType(value)) {
@@ -345,7 +358,7 @@ static int typep_bit_vector_(Execute ptr, addr value, addr type, int *ret)
 			return typep_type_vector_array_(value, type, LISPDECL_BIT, ret);
 
 		case LISPTYPE_BITVECTOR:
-			return Result(ret, 1);
+			return typep_bit_vector_bit_vector_(value, type, ret);
 
 		default:
 			return Result(ret, 0);
@@ -361,7 +374,7 @@ static int typep_simple_bit_vector_(Execute ptr, addr value, addr type, int *ret
 			return typep_type_vector_array_(value, type, LISPDECL_BIT, ret);
 
 		case LISPTYPE_BITVECTOR:
-			return Result(ret, 1);
+			return typep_bit_vector_bit_vector_(value, type, ret);
 
 		default:
 			return Result(ret, 0);

@@ -1799,7 +1799,8 @@ _g int merge_common(Execute ptr, addr *ret,
 	hold = LocalHold_local(ptr);
 	Return(parse_type(ptr, &check, type, Nil));
 	localhold_push(hold, check);
-	Return(execute_merge_sequence(ptr, &call, check, pos1, pos2, call, key));
+	/* pos2 -> pos1 */
+	Return(execute_merge_sequence(ptr, &call, check, pos2, pos1, call, key));
 	localhold_push(hold, call);
 	Return(call_typep_asterisk_error_(ptr, call, check));
 

@@ -446,6 +446,52 @@
 (deftest-error map-bit-vector.12
   (map '(bit-vector 5) #'map-bit-not '(1 0 0 1)))
 
+;;  simple-bit-vector
+(deftest map-simple-bit-vector.1
+  (map 'simple-bit-vector #'map-bit-not #*1101)
+  #*0010)
+
+(deftest map-simple-bit-vector.2
+  (map 'simple-bit-vector #'logior #*1001 #*0101)
+  #*1101)
+
+(deftest map-simple-bit-vector.3
+  (map 'simple-bit-vector #'logior #*100 #*0101)
+  #*110)
+
+(deftest map-simple-bit-vector.4
+  (map 'simple-bit-vector #'logior #*10011 '(0 1 0 1))
+  #*1101)
+
+(deftest map-simple-bit-vector.5
+  (map 'simple-bit-vector #'logior #*1001 '(0 1 0 1 1 1 0 0 0))
+  #*1101)
+
+(deftest map-simple-bit-vector.6
+  (map 'simple-bit-vector #'logior nil)
+  #*)
+
+(deftest-error map-simple-bit-vector.7
+  (map 'simple-bit-vector #'logior '(0 1 1 2 2 1 1)))
+
+(deftest map-simple-bit-vector.8
+  (map '(simple-bit-vector 3) #'values '(0 1 1))
+  #*011)
+
+(deftest-error map-simple-bit-vector.9
+  (map '(simple-bit-vector 2) #'values '(0 1 1)))
+
+(deftest map-simple-bit-vector.10
+  (map 'simple-bit-vector #'map-bit-not '(1 0 0 1))
+  #*0110)
+
+(deftest map-simple-bit-vector.11
+  (map '(simple-bit-vector 4) #'map-bit-not '(1 0 0 1))
+  #*0110)
+
+(deftest-error map-simple-bit-vector.12
+  (map '(simple-bit-vector 5) #'map-bit-not '(1 0 0 1)))
+
 ;;  error
 (deftest-error map-error.1
   (eval '(map 10 #'values nil))

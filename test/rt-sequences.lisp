@@ -14,8 +14,10 @@
 (load #p"test/rtsequences-search.lisp")
 (load #p"test/rtsequences-mismatch.lisp")
 (load #p"test/rtsequences-replace.lisp")
-
 (load #p"test/rtsequences-substitute.lisp")
+(load #p"test/rtsequences-concatenate.lisp")
+(load #p"test/rtsequences-merge.lisp")
+
 (load #p"test/rtsequences-remove.lisp")
 (load #p"test/rtsequences-duplicates.lisp")
 

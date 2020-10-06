@@ -444,6 +444,51 @@
   #*11111)
 
 
+;; simple-bit-vector
+(deftest fill-simple-bit-vector.1
+  (fill #* 1)
+  #*)
+
+(deftest fill-simple-bit-vector.2
+  (fill #*1101 0)
+  #*0000)
+
+(deftest fill-simple-bit-vector.3
+  (fill #*1101 1)
+  #*1111)
+
+(deftest fill-simple-bit-vector.4
+  (fill #*110111100010111 0 :start 5)
+  #*110110000000000)
+
+(deftest fill-simple-bit-vector.5
+  (fill #*110001100001111 1 :start 4 :end 8)
+  #*110011110001111)
+
+(deftest fill-simple-bit-vector.6
+  (let* ((a #*110111101)
+         (b (fill a 1 :start 2 :end 4)))
+    (eq a b))
+  t)
+
+(deftest-error fill-simple-bit-vector.7
+  (fill #*11011 1 :start 6))
+
+(deftest-error fill-simple-bit-vector.8
+  (fill #*11011 1 :end 6))
+
+(deftest-error fill-simple-bit-vector.9
+  (fill #*11011 1 :start 2 :end 1))
+
+(deftest fill-simple-bit-vector.10
+  (fill #*11011 1 :start 2 :end 2)
+  #*11011)
+
+(deftest fill-simple-bit-vector.11
+  (fill #*11011 1 :start 2 :end nil)
+  #*11111)
+
+
 ;; error
 (deftest-error fill-error.1
   (eval '(fill 10 20))
@@ -754,62 +799,4 @@
     (setf (fill-pointer *length-array*) 2)
     (length *length-array*))
   2)
-
-
-
-(deftest merge-list.1
-  (merge 'list '(1 3 4 6 8) '(2 5 9) #'<)
-  (1 2 3 4 5 6 8 9))
-
-(deftest merge-list.2
-  (merge 'list '(1 3 4 6 8) #(2 5 9) #'<)
-  (1 2 3 4 5 6 8 9))
-
-(deftest merge-list.3
-  (merge 'list #(1 3 4 6 8) nil #'<)
-  (1 3 4 6 8))
-
-(deftest merge-list.4
-  (merge 'list #() '(1 3 4 6 8) #'<)
-  (1 3 4 6 8))
-
-(deftest merge-vector.1
-  (merge 'vector '(1 3 4 6 8) '(2 5 9) #'<)
-  #(1 2 3 4 5 6 8 9))
-
-(deftest merge-vector.2
-  (merge 'vector '(1 3 4 6 8) #(2 5 9) #'<)
-  #(1 2 3 4 5 6 8 9))
-
-(deftest merge-vector.3
-  (merge 'vector #(1 3 4 6 8) nil #'<)
-  #(1 3 4 6 8))
-
-(deftest merge-vector.4
-  (merge 'vector #() '(1 3 4 6 8) #'<)
-  #(1 3 4 6 8))
-
-(deftest merge-simple-vector.1
-  (merge '(simple-vector 8) #1a(1 3 4 6 8) '(2 5 9) #'<)
-  #(1 2 3 4 5 6 8 9))
-
-(deftest merge-string.1
-  (merge 'string '(#\1 #\3 #\4 #\6 #\8) "259" #'char<)
-  "12345689")
-
-
-(deftest concatenate.1
-  (concatenate 'string "all" " " "together" " " "now")
-  "all together now")
-
-(deftest concatenate.2
-  (concatenate 'list "ABC" '(d e f) #(1 2 3) #*1011)
-  (#\A #\B #\C D E F 1 2 3 1 0 1 1))
-
-(deftest concatenate.3
-  (concatenate 'list)
-  nil)
-
-(deftest-error concatenate.4
-  (concatenate '(vector * 2) "a" "bc"))
 
