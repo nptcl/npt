@@ -24,7 +24,7 @@ static void defun_char_check(constindex index, pointer p)
 	/* function */
 	GetConstant(index, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var1dynamic(pos, p);
+	setcompiled_dynamic(pos, p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, CharEql);
@@ -32,10 +32,10 @@ static void defun_char_check(constindex index, pointer p)
 	settype_function_symbol(symbol, type);
 }
 
-static int function_char_eql(Execute ptr, addr var, addr list)
+static int function_char_eql(Execute ptr, addr list)
 {
-	Return(char_eql_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_eql_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -70,10 +70,10 @@ static void defun_char_not_eql(void)
 
 
 /* (defun char< (character &rest character) ...) -> boolean */
-static int function_char_less(Execute ptr, addr var, addr list)
+static int function_char_less(Execute ptr, addr list)
 {
-	Return(char_less_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_less_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -84,10 +84,10 @@ static void defun_char_less(void)
 
 
 /* (defun char> (character &rest character) ...) -> boolean */
-static int function_char_greater(Execute ptr, addr var, addr list)
+static int function_char_greater(Execute ptr, addr list)
 {
-	Return(char_greater_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_greater_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -98,10 +98,10 @@ static void defun_char_greater(void)
 
 
 /* (defun char<= (character &rest character) ...) -> boolean */
-static int function_char_less_equal(Execute ptr, addr var, addr list)
+static int function_char_less_equal(Execute ptr, addr list)
 {
-	Return(char_less_equal_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_less_equal_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -112,10 +112,10 @@ static void defun_char_less_equal(void)
 
 
 /* (defun char>= (character &rest character) ...) -> boolean */
-static int function_char_greater_equal(Execute ptr, addr var, addr list)
+static int function_char_greater_equal(Execute ptr, addr list)
 {
-	Return(char_greater_equal_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_greater_equal_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -126,10 +126,10 @@ static void defun_char_greater_equal(void)
 
 
 /* (defun char-equal (character &rest character) ...) -> boolean */
-static int function_char_equal(Execute ptr, addr var, addr list)
+static int function_char_equal(Execute ptr, addr list)
 {
-	Return(char_equal_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_equal_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -164,10 +164,10 @@ static void defun_char_not_equal(void)
 
 
 /* (defun char-lessp (character &rest character) ...) -> boolean */
-static int function_char_lessp(Execute ptr, addr var, addr list)
+static int function_char_lessp(Execute ptr, addr list)
 {
-	Return(char_lessp_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_lessp_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -178,10 +178,10 @@ static void defun_char_lessp(void)
 
 
 /* (defun char-greaterp (character &rest character) ...) -> boolean */
-static int function_char_greaterp(Execute ptr, addr var, addr list)
+static int function_char_greaterp(Execute ptr, addr list)
 {
-	Return(char_greaterp_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_greaterp_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -192,10 +192,10 @@ static void defun_char_greaterp(void)
 
 
 /* (defun char-not-lessp (character &rest character) ...) -> boolean */
-static int function_char_not_lessp(Execute ptr, addr var, addr list)
+static int function_char_not_lessp(Execute ptr, addr list)
 {
-	Return(char_not_lessp_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_not_lessp_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -206,10 +206,10 @@ static void defun_char_not_lessp(void)
 
 
 /* (defun char-not-greaterp (character &rest character) ...) -> boolean */
-static int function_char_not_greaterp(Execute ptr, addr var, addr list)
+static int function_char_not_greaterp(Execute ptr, addr list)
 {
-	Return(char_not_greaterp_common(var, list, &var));
-	setresult_control(ptr, var);
+	Return(char_not_greaterp_common(list, &list));
+	setresult_control(ptr, list);
 	return 0;
 }
 
@@ -674,7 +674,7 @@ static void defun_char_int(void)
 
 
 /* (defun code-char (code) ...) -> char-p
- *   code    (integer 0 UnicodeCount)
+ *   code    (integer 0 (UnicodeCount))
  *   char-p  (or character boolean)
  */
 static int function_code_char(Execute ptr, addr var)
@@ -691,7 +691,7 @@ static void type_code_char(addr *ret)
 	/* (function
 	 *   ((integer 0 UnicodeCount))
 	 *   (values (or character boolean))) */
-	type4integer_heap(Nil, 0, Nil, (fixnum)UnicodeCount, &arg);
+	type4integer_heap(Nil, 0, T, (fixnum)UnicodeCount, &arg);
 	typeargs_var1(&arg, arg);
 	GetTypeTable(&values, Character);
 	GetTypeTable(&type, Boolean);
@@ -794,16 +794,16 @@ static void defun_name_char(void)
  */
 _g void init_common_characters(void)
 {
-	SetPointerCall(defun, var1dynamic, char_eql);
-	SetPointerCall(defun, var1dynamic, char_less);
-	SetPointerCall(defun, var1dynamic, char_greater);
-	SetPointerCall(defun, var1dynamic, char_less_equal);
-	SetPointerCall(defun, var1dynamic, char_greater_equal);
-	SetPointerCall(defun, var1dynamic, char_equal);
-	SetPointerCall(defun, var1dynamic, char_lessp);
-	SetPointerCall(defun, var1dynamic, char_greaterp);
-	SetPointerCall(defun, var1dynamic, char_not_lessp);
-	SetPointerCall(defun, var1dynamic, char_not_greaterp);
+	SetPointerCall(defun, dynamic, char_eql);
+	SetPointerCall(defun, dynamic, char_less);
+	SetPointerCall(defun, dynamic, char_greater);
+	SetPointerCall(defun, dynamic, char_less_equal);
+	SetPointerCall(defun, dynamic, char_greater_equal);
+	SetPointerCall(defun, dynamic, char_equal);
+	SetPointerCall(defun, dynamic, char_lessp);
+	SetPointerCall(defun, dynamic, char_greaterp);
+	SetPointerCall(defun, dynamic, char_not_lessp);
+	SetPointerCall(defun, dynamic, char_not_greaterp);
 	SetPointerCall(defun, dynamic, char_not_eql);
 	SetPointerCall(defun, dynamic, char_not_equal);
 	SetPointerCall(defun, var1, character);

@@ -136,6 +136,10 @@
 #define call_simple_file_error_ _n(call_simple_file_error_)
 #define call_simple_file_error_va_ _n(call_simple_file_error_va_)
 
+#define instance_simple_program_error_ _n(instance_simple_program_error_)
+#define call_simple_program_error_ _n(call_simple_program_error_)
+#define call_simple_program_error_va_ _n(call_simple_program_error_va_)
+
 /* serious_condition */
 _g int instance_serious_condition_(addr *ret);
 _g int call_serious_condition_(Execute ptr);
@@ -302,6 +306,11 @@ _g int exit_condition_value_(addr instance, addr *ret);
 _g int instance_simple_file_error_(addr *ret, addr pathname, addr control, addr args);
 _g int call_simple_file_error_(Execute ptr, addr pathname, addr control, addr args);
 _g int call_simple_file_error_va_(Execute ptr, addr pathname, const char *fmt, ...);
+
+/* simple_program_error */
+_g int instance_simple_program_error_(addr *ret, addr control, addr args);
+_g int call_simple_program_error_(Execute ptr, addr control, addr args);
+_g int call_simple_program_error_va_(Execute ptr, const char *fmt, ...);
 
 #endif
 

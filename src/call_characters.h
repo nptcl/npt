@@ -33,18 +33,18 @@
 #define char_name_common_ _n(char_name_common_)
 #define name_char_common_ _n(name_char_common_)
 
-_g int char_eql_common(addr var, addr list, addr *ret);
+_g int char_eql_common(addr list, addr *ret);
 _g int char_not_eql_common(addr list, addr *ret);
-_g int char_less_common(addr var, addr list, addr *ret);
-_g int char_greater_common(addr var, addr list, addr *ret);
-_g int char_less_equal_common(addr var, addr list, addr *ret);
-_g int char_greater_equal_common(addr var, addr list, addr *ret);
-_g int char_equal_common(addr var, addr list, addr *ret);
+_g int char_less_common(addr list, addr *ret);
+_g int char_greater_common(addr list, addr *ret);
+_g int char_less_equal_common(addr list, addr *ret);
+_g int char_greater_equal_common(addr list, addr *ret);
+_g int char_equal_common(addr list, addr *ret);
 _g int char_not_equal_common(addr list, addr *ret);
-_g int char_lessp_common(addr var, addr list, addr *ret);
-_g int char_greaterp_common(addr var, addr list, addr *ret);
-_g int char_not_lessp_common(addr var, addr list, addr *ret);
-_g int char_not_greaterp_common(addr var, addr list, addr *ret);
+_g int char_lessp_common(addr list, addr *ret);
+_g int char_greaterp_common(addr list, addr *ret);
+_g int char_not_lessp_common(addr list, addr *ret);
+_g int char_not_greaterp_common(addr list, addr *ret);
 _g int character_common(addr var, addr *ret);
 _g void alpha_char_p_common(addr var, addr *ret);
 _g void alphanumericp_common(addr var, addr *ret);

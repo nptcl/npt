@@ -1399,6 +1399,7 @@ lisp-system::pretty-stream
 ;;  condition
 ;;
 lisp-system::simple-file-error
+lisp-system::simple-program-error
 
 
 ;;

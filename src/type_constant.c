@@ -2833,7 +2833,7 @@ static void typecompiled_chareql(void)
 	addr args, values;
 
 	GetTypeTable(&args, Character);
-	typeargs_var1rest(&args, args, args);
+	typeargs_rest(&args, args);
 	GetTypeValues(&values, Boolean);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(CharEql, args);

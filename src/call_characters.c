@@ -11,11 +11,19 @@
 /*
  *  char=
  */
-static int char_eql_check_common(
-		addr var, addr list, addr *ret, int (*call)(unicode, unicode))
+static int char_eql_check_common_(
+		constindex name, addr list, addr *ret, int (*call)(unicode, unicode))
 {
-	addr pos;
+	addr var, pos;
 	unicode a, b;
+
+	if (list == Nil) {
+		*ret = Nil;
+		GetConstant(name, &pos);
+		return call_simple_program_error_va_(Execute_Thread,
+				"Too few arguemnts ~A.", pos, NULL);
+	}
+	GetCons(list, &var, &list);
 
 	GetCharacter(var, &a);
 	while (list != Nil) {
@@ -27,15 +35,17 @@ static int char_eql_check_common(
 	}
 	return Result(ret, T);
 }
+#define CharEqlCheckCommon(name, list, ret, call) \
+	char_eql_check_common_(CONSTANT_COMMON_##name, list, ret, call)
 
 static int call_char_eql(unicode a, unicode b)
 {
 	return a == b;
 }
 
-_g int char_eql_common(addr var, addr list, addr *ret)
+_g int char_eql_common(addr list, addr *ret)
 {
-	return char_eql_check_common(var, list, ret, call_char_eql);
+	return CharEqlCheckCommon(CHAR_EQL, list, ret, call_char_eql);
 }
 
 
@@ -46,6 +56,13 @@ _g int char_not_eql_common(addr list, addr *ret)
 {
 	addr left, right, loop;
 	unicode a, b;
+
+	if (list == Nil) {
+		*ret = Nil;
+		GetConst(COMMON_CHAR_NOT_EQL, &left);
+		return call_simple_program_error_va_(Execute_Thread,
+				"Too few arguemnts ~A.", left, NULL);
+	}
 
 	for (;;) {
 		Return_getcons(list, &left, &list);
@@ -71,9 +88,9 @@ static int call_char_less(unicode a, unicode b)
 	return a < b;
 }
 
-_g int char_less_common(addr var, addr list, addr *ret)
+_g int char_less_common(addr list, addr *ret)
 {
-	return char_eql_check_common(var, list, ret, call_char_less);
+	return CharEqlCheckCommon(CHAR_LESS, list, ret, call_char_less);
 }
 
 
@@ -85,9 +102,9 @@ static int call_char_greater(unicode a, unicode b)
 	return a > b;
 }
 
-_g int char_greater_common(addr var, addr list, addr *ret)
+_g int char_greater_common(addr list, addr *ret)
 {
-	return char_eql_check_common(var, list, ret, call_char_greater);
+	return CharEqlCheckCommon(CHAR_GREATER, list, ret, call_char_greater);
 }
 
 
@@ -99,9 +116,9 @@ static int call_char_less_equal(unicode a, unicode b)
 	return a <= b;
 }
 
-_g int char_less_equal_common(addr var, addr list, addr *ret)
+_g int char_less_equal_common(addr list, addr *ret)
 {
-	return char_eql_check_common(var, list, ret, call_char_less_equal);
+	return CharEqlCheckCommon(CHAR_LESS_EQUAL, list, ret, call_char_less_equal);
 }
 
 
@@ -113,20 +130,28 @@ static int call_char_greater_equal(unicode a, unicode b)
 	return a >= b;
 }
 
-_g int char_greater_equal_common(addr var, addr list, addr *ret)
+_g int char_greater_equal_common(addr list, addr *ret)
 {
-	return char_eql_check_common(var, list, ret, call_char_greater_equal);
+	return CharEqlCheckCommon(CHAR_GREATER_EQUAL, list, ret, call_char_greater_equal);
 }
 
 
 /*
  *  char-equal
  */
-static int char_equal_check_common(
-		addr var, addr list, addr *ret, int (*call)(unicode, unicode))
+static int char_equal_check_common_(
+		constindex name, addr list, addr *ret, int (*call)(unicode, unicode))
 {
-	addr pos;
+	addr var, pos;
 	unicode a, b;
+
+	if (list == Nil) {
+		*ret = Nil;
+		GetConstant(name, &pos);
+		return call_simple_program_error_va_(Execute_Thread,
+				"Too few arguemnts ~A.", pos, NULL);
+	}
+	GetCons(list, &var, &list);
 
 	GetCharacter(var, &a);
 	a = toUpperUnicode(a);
@@ -140,10 +165,12 @@ static int char_equal_check_common(
 	}
 	return Result(ret, T);
 }
+#define CharEqualCheckCommon(name, list, ret, call) \
+	char_equal_check_common_(CONSTANT_COMMON_##name, list, ret, call)
 
-_g int char_equal_common(addr var, addr list, addr *ret)
+_g int char_equal_common(addr list, addr *ret)
 {
-	return char_equal_check_common(var, list, ret, call_char_eql);
+	return CharEqualCheckCommon(CHAR_EQUAL, list, ret, call_char_eql);
 }
 
 
@@ -155,6 +182,12 @@ _g int char_not_equal_common(addr list, addr *ret)
 	addr left, right, loop;
 	unicode a, b;
 
+	if (list == Nil) {
+		*ret = Nil;
+		GetConst(COMMON_CHAR_NOT_EQUAL, &left);
+		return call_simple_program_error_va_(Execute_Thread,
+				"Too few arguemnts ~A.", left, NULL);
+	}
 	for (;;) {
 		Return_getcons(list, &left, &list);
 		if (list == Nil)
@@ -176,42 +209,53 @@ _g int char_not_equal_common(addr list, addr *ret)
 /*
  *  char-lessp
  */
-_g int char_lessp_common(addr var, addr list, addr *ret)
+_g int char_lessp_common(addr list, addr *ret)
 {
-	return char_equal_check_common(var, list, ret, call_char_less);
+	return CharEqualCheckCommon(CHAR_LESSP, list, ret, call_char_less);
 }
 
 
 /*
  *  char-greaterp
  */
-_g int char_greaterp_common(addr var, addr list, addr *ret)
+_g int char_greaterp_common(addr list, addr *ret)
 {
-	return char_equal_check_common(var, list, ret, call_char_greater);
+	return CharEqualCheckCommon(CHAR_GREATERP, list, ret, call_char_greater);
 }
 
 
 /*
  *  char-not-lessp
  */
-_g int char_not_lessp_common(addr var, addr list, addr *ret)
+_g int char_not_lessp_common(addr list, addr *ret)
 {
-	return char_equal_check_common(var, list, ret, call_char_greater_equal);
+	return CharEqualCheckCommon(CHAR_NOT_LESSP, list, ret, call_char_greater_equal);
 }
 
 
 /*
  *  char-not-greaterp
  */
-_g int char_not_greaterp_common(addr var, addr list, addr *ret)
+_g int char_not_greaterp_common(addr list, addr *ret)
 {
-	return char_equal_check_common(var, list, ret, call_char_less_equal);
+	return CharEqualCheckCommon(CHAR_NOT_GREATERP, list, ret, call_char_less_equal);
 }
 
 
 /*
  *  character
  */
+static int character_common_error(addr var)
+{
+	addr pos, size;
+
+	GetConst(COMMON_STRING, &pos);
+	fixnum_heap(&size, 1);
+	list_heap(&pos, pos, size, NULL);
+	return call_type_error_va_(Execute_Thread, var, pos,
+			"The length of symbol ~S name must be 1.", var, NULL);
+}
+
 _g int character_common(addr var, addr *ret)
 {
 	unicode c;
@@ -221,15 +265,19 @@ _g int character_common(addr var, addr *ret)
 		/* string check */
 		GetNameSymbol(var, &var);
 		string_length(var, &size);
-		if (size != 1)
-			return fmte_("The length of symbol ~S name must be 1.", NULL);
+		if (size != 1) {
+			*ret = Nil;
+			return character_common_error(var);
+		}
 		Return(string_getc_(var, 0, &c));
 		character_heap(&var, c);
 	}
 	else if (stringp(var)) {
 		string_length(var, &size);
-		if (size != 1)
-			return fmte_("The length of string ~S name must be 1.", NULL);
+		if (size != 1) {
+			*ret = Nil;
+			return character_common_error(var);
+		}
 		Return(string_getc_(var, 0, &c));
 		character_heap(&var, c);
 	}
@@ -430,10 +478,12 @@ _g void char_code_common(addr var, addr *ret)
 _g void code_char_common(addr var, addr *ret)
 {
 	fixnum v;
+	unicode c;
 
 	GetFixnum(var, &v);
-	if (0 <= v && v < (fixnum)UnicodeCount)
-		character_heap(ret, (unicode)v);
+	c = (unicode)v;
+	if (isBaseType(c))
+		character_heap(ret, c);
 	else
 		*ret = Nil;
 }
