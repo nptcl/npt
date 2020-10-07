@@ -2371,7 +2371,7 @@ static void typecompiled_removeduplicates(void)
 	KeyTypeTable(&key4, KEY, FunctionDesigner);
 	KeyTypeTable(&key5, START, KeywordStart);
 	KeyTypeTable(&key6, END, KeywordEnd);
-	list_heap(&key, key1, key2, key3, key4, key5, NULL);
+	list_heap(&key, key1, key2, key3, key4, key5, key6, NULL);
 
 	/* type */
 	GetTypeTable(&args, Sequence);

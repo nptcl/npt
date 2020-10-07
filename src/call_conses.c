@@ -3021,6 +3021,7 @@ static int test_nset_exclusive_or_remove_(Execute ptr, int *ret, addr *rlist,
 	}
 
 	/* first */
+	next = Nil;
 	while (list != Nil) {
 		Return_getcons(list, &y, &next);
 		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
@@ -3067,6 +3068,7 @@ static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
 		return Result(ret, list1);
 
 	/* first */
+	next = Nil;
 	while (list1 != Nil) {
 		Return_getcons(list1, &x, &next);
 		Return(test_nset_exclusive_or_remove_(ptr,

@@ -4088,7 +4088,7 @@ _g int delete_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr re
 /*
  *  remove-duplicates / delete-duplicates
  */
-static int list_reverse_duplicates_sequence(struct count_struct *str,
+static int list_normal_duplicates_sequence(struct count_struct *str,
 		struct sequence_range *range, addr table, size_t size, size_t *ret)
 {
 	int check;
@@ -4107,9 +4107,110 @@ static int list_reverse_duplicates_sequence(struct count_struct *str,
 		getarray(table, --i, &a);
 		if (a == Unbound)
 			continue;
+		if (str->key != Nil) {
+			Return(callclang_funcall(str->ptr, &a, str->key, a, NULL));
+		}
 		str->item = a;
 		for (k = i; k; ) {
 			getarray(table, --k, &b);
+			if (b == Unbound)
+				continue;
+			Return(boolean_substitute_sequence(str, &check, b));
+			if (check) {
+				setarray(table, k, Unbound);
+				n++;
+			}
+		}
+	}
+	if (ret)
+		*ret = n;
+
+	return 0;
+}
+
+static int list_normal_delete_duplicates(
+		struct count_struct *str, struct sequence_write *ret)
+{
+	int check;
+	addr table, pos;
+	struct sequence_range *range;
+	size_t size, i;
+
+	/* copy */
+	range = &(str->range);
+	size = range->size;
+	vector_local(str->local, &table, size);
+	save_sequence_range(range);
+	Return(list_normal_duplicates_sequence(str, range, table, size, NULL));
+	load_sequence_range(range);
+
+	/* result */
+	for (i = 0; i < size; i++) {
+		getarray(table, i, &pos);
+		if (pos == Unbound) {
+			Return(remove_sequence_range_(range));
+		}
+		else {
+			Return(next_sequence_range_(range, &check));
+		}
+	}
+	build_sequence_write_result(ret, range->pos);
+
+	return 0;
+}
+
+static int list_normal_remove_duplicates(
+		struct count_struct *str, struct sequence_write *ret)
+{
+	addr table, pos;
+	struct sequence_range *range;
+	size_t size, i;
+
+	/* copy */
+	range = &(str->range);
+	size = range->size;
+	vector_local(str->local, &table, size);
+	Return(list_normal_duplicates_sequence(str, range, table, size, NULL));
+
+	/* result */
+	build_sequence_write_list(ret);
+	Return(before_sequence_write_(ret, range));
+	for (i = 0; i < size; i++) {
+		getarray(table, i, &pos);
+		if (pos != Unbound) {
+			Return(push_sequence_write_(ret, pos));
+		}
+	}
+	Return(after_sequence_write_(ret, range));
+
+	return 0;
+}
+
+static int list_reverse_duplicates_sequence(struct count_struct *str,
+		struct sequence_range *range, addr table, size_t size, size_t *ret)
+{
+	int check;
+	addr a, b;
+	size_t i, k, n;
+
+	for (i = 0; ; i++) {
+		Return(getnext_sequence_range_(range, &a, &check));
+		if (check)
+			break;
+		setarray(table, i, a);
+	}
+
+	n = 0;
+	for (i = 0; i < size; i++) {
+		getarray(table, i, &a);
+		if (a == Unbound)
+			continue;
+		if (str->key != Nil) {
+			Return(callclang_funcall(str->ptr, &a, str->key, a, NULL));
+		}
+		str->item = a;
+		for (k = i + 1; k < size; k++) {
+			getarray(table, k, &b);
 			if (b == Unbound)
 				continue;
 			Return(boolean_substitute_sequence(str, &check, b));
@@ -4183,102 +4284,6 @@ static int list_reverse_remove_duplicates(
 	return 0;
 }
 
-static int list_normal_duplicates_sequence(struct count_struct *str,
-		struct sequence_range *range, addr table, size_t size, size_t *ret)
-{
-	int check;
-	addr a, b;
-	size_t i, k, n;
-
-	for (i = 0; ; i++) {
-		Return(getnext_sequence_range_(range, &a, &check));
-		if (check)
-			break;
-		setarray(table, i, a);
-	}
-
-	n = 0;
-	for (i = 0; i < size; i++) {
-		getarray(table, i, &a);
-		if (a == Unbound)
-			continue;
-		str->item = a;
-		for (k = i + 1; k < size; k++) {
-			getarray(table, k, &b);
-			if (b == Unbound)
-				continue;
-			if (boolean_substitute_sequence(str, &check, b))
-				return 1;
-			if (check) {
-				setarray(table, k, Unbound);
-				n++;
-			}
-		}
-	}
-	if (ret)
-		*ret = n;
-
-	return 0;
-}
-
-static int list_normal_delete_duplicates(
-		struct count_struct *str, struct sequence_write *ret)
-{
-	int check;
-	addr table, pos;
-	struct sequence_range *range;
-	size_t size, i;
-
-	/* copy */
-	range = &(str->range);
-	size = range->size;
-	vector_local(str->local, &table, size);
-	save_sequence_range(range);
-	Return(list_normal_duplicates_sequence(str, range, table, size, NULL));
-	load_sequence_range(range);
-
-	/* result */
-	for (i = 0; i < size; i++) {
-		getarray(table, i, &pos);
-		if (pos == Unbound) {
-			Return(remove_sequence_range_(range));
-		}
-		else {
-			Return(next_sequence_range_(range, &check));
-		}
-	}
-	build_sequence_write_result(ret, range->pos);
-
-	return 0;
-}
-
-static int list_normal_remove_duplicates(
-		struct count_struct *str, struct sequence_write *ret)
-{
-	addr table, pos;
-	struct sequence_range *range;
-	size_t size, i;
-
-	/* copy */
-	range = &(str->range);
-	size = range->size;
-	vector_local(str->local, &table, size);
-	Return(list_normal_duplicates_sequence(str, range, table, size, NULL));
-
-	/* result */
-	build_sequence_write_list(ret);
-	Return(before_sequence_write_(ret, range));
-	for (i = 0; i < size; i++) {
-		getarray(table, i, &pos);
-		if (pos != Unbound) {
-			Return(push_sequence_write_(ret, pos));
-		}
-	}
-	Return(after_sequence_write_(ret, range));
-
-	return 0;
-}
-
 static int list_remove_duplicates(struct count_struct *str, struct sequence_write *ret)
 {
 	if (str->fromp) {
@@ -4295,7 +4300,7 @@ static int list_remove_duplicates(struct count_struct *str, struct sequence_writ
 	}
 }
 
-static int vector_reverse_remove_duplicates(
+static int vector_normal_remove_duplicates(
 		struct count_struct *str, struct sequence_write *ret)
 {
 	addr table, pos;
@@ -4306,7 +4311,7 @@ static int vector_reverse_remove_duplicates(
 	range = &(str->range);
 	size = range->size;
 	vector_local(str->local, &table, size);
-	Return(list_reverse_duplicates_sequence(str, range, table, size, &loc));
+	Return(list_normal_duplicates_sequence(str, range, table, size, &loc));
 
 	/* copy */
 	pos = range->pos;
@@ -4326,7 +4331,7 @@ static int vector_reverse_remove_duplicates(
 	return 0;
 }
 
-static int vector_normal_remove_duplicates(
+static int vector_reverse_remove_duplicates(
 		struct count_struct *str, struct sequence_write *ret)
 {
 	addr table, pos;
@@ -4337,7 +4342,7 @@ static int vector_normal_remove_duplicates(
 	range = &(str->range);
 	size = range->size;
 	vector_local(str->local, &table, size);
-	Return(list_normal_duplicates_sequence(str, range, table, size, &loc));
+	Return(list_reverse_duplicates_sequence(str, range, table, size, &loc));
 
 	/* copy */
 	pos = range->pos;

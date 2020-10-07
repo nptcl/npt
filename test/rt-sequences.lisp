@@ -1,6 +1,16 @@
 ;;
 ;;  ANSI COMMON LISP: 17. Sequences
 ;;
+
+;;  function
+(defun eqlf (v)
+  (lambda (x) (eql v x)))
+
+(defun noteqlf (v)
+  (lambda (x) (not (eql v x))))
+
+
+;;  load
 (load #p"test/rtsequences-type.lisp")
 (load #p"test/rtsequences-test.lisp")
 (load #p"test/rtsequences-map.lisp")
@@ -17,8 +27,8 @@
 (load #p"test/rtsequences-substitute.lisp")
 (load #p"test/rtsequences-concatenate.lisp")
 (load #p"test/rtsequences-merge.lisp")
-
 (load #p"test/rtsequences-remove.lisp")
+(load #p"test/rtsequences-delete.lisp")
 (load #p"test/rtsequences-duplicates.lisp")
 
 

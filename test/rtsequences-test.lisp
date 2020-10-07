@@ -800,3 +800,91 @@
     (length *length-array*))
   2)
 
+
+;;
+;;  ANSI Common Lisp  REMOVE / DELETE
+;;
+(deftest remove-test.1
+  (remove 4 '(1 3 4 5 9))
+  (1 3 5 9))
+
+(deftest remove-test.2
+  (remove 4 '(1 2 4 1 3 4 5))
+  (1 2 1 3 5))
+
+(deftest remove-test.3
+  (remove 4 '(1 2 4 1 3 4 5) :count 1)
+  (1 2 1 3 4 5))
+
+(deftest remove-test.4
+  (remove 4 '(1 2 4 1 3 4 5) :count 1 :from-end t)
+  (1 2 4 1 3 5))
+
+(deftest remove-test.5
+  (remove 3 '(1 2 4 1 3 4 5) :test #'>)
+  (4 3 4 5))
+
+(deftest remove-test.6
+  (let* ((lst '(list of four elements))
+         (lst2 (copy-seq lst)))
+    (values
+      (delete 'four lst)
+      (equal lst lst2)))
+  (list of elements)
+  nil)
+
+(deftest remove-test.7
+  (remove-if #'oddp '(1 2 4 1 3 4 5))
+  (2 4 4))
+
+(deftest remove-test.8
+  (remove-if #'evenp '(1 2 4 1 3 4 5) :count 1 :from-end t)
+  (1 2 4 1 3 5))
+
+(deftest remove-test.9
+  (remove-if-not #'evenp '(1 2 3 4 5 6 7 8 9) :count 2 :from-end t)
+  (1 2 3 4 5 6 8))
+
+(deftest remove-test.10
+  (let ((tester (list 1 2 4 1 3 4 5)))
+    (delete 4 tester))
+  (1 2 1 3 5))
+
+(deftest remove-test.11
+  (let ((tester (list 1 2 4 1 3 4 5)))
+    (delete 4 tester :count 1))
+  (1 2 1 3 4 5))
+
+(deftest remove-test.12
+  (let ((tester (list 1 2 4 1 3 4 5)))
+    (delete 4 tester :count 1 :from-end t))
+  (1 2 4 1 3 5))
+
+(deftest remove-test.13
+  (let ((tester (list 1 2 4 1 3 4 5)))
+    (delete 3 tester :test #'>))
+  (4 3 4 5))
+
+(deftest remove-test.14
+  (let ((tester (list 1 2 4 1 3 4 5)))
+    (delete-if #'oddp tester))
+  (2 4 4))
+
+(deftest remove-test.15
+  (let ((tester (list 1 2 4 1 3 4 5)))
+    (delete-if #'evenp tester :count 1 :from-end t))
+  (1 2 4 1 3 5))
+
+(deftest remove-test.16
+  (let ((tester (list 1 2 3 4 5 6)))
+    (delete-if #'evenp tester))
+  (1 3 5))
+
+(deftest remove-test.17
+  (let (foo bar)
+    (setq foo (list 'a 'b 'c))
+    (setq bar (cdr foo))
+    (setq foo (delete 'b foo))
+    foo)
+  (a c))
+
