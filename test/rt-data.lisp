@@ -97,6 +97,10 @@
   (fboundp '(setf fboundp-setf-test))
   nil)
 
+(deftest fboundp.5
+  (fboundp 'dotimes)
+  t)
+
 (deftest fmakunbound.1
   (fmakunbound 'hello)
   hello)
@@ -120,6 +124,13 @@
       (fmakunbound '(setf fmakunbound-4))
       (values result (fboundp '(setf fmakunbound-4)))))
   t nil)
+
+(deftest fmakunbound.5
+  (progn
+    (defmacro fmakunbound-5 () nil)
+    (fmakunbound 'fmakunbound-5)
+    (fboundp 'fmakunbound-5))
+  nil)
 
 (deftest flet.1
   (flet ((aaa () :hello))

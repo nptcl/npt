@@ -104,11 +104,28 @@ _g int setf_fdefinition_common(addr value, addr name)
 /*
  *  fboundp
  */
-_g int fboundp_common(addr name)
+_g int fboundp_common_(addr name, int *ret)
 {
+	addr check;
+	CallNameType type;
+
+	/* callname */
 	Return(parse_callname_error_(&name, name));
-	getglobal_callname(name, &name);
-	return name != Unbound;
+
+	/* function check */
+	getglobal_callname(name, &check);
+	if (check != Unbound)
+		return Result(ret, 1);
+
+	/* setf */
+	GetCallNameType(name, &type);
+	if (type != CALLNAME_SYMBOL)
+		return Result(ret, 0);
+
+	/* macro check */
+	GetCallName(name, &check);
+	getmacro_symbol(check, &check);
+	return Result(ret, check != Unbound);
 }
 
 
@@ -117,9 +134,25 @@ _g int fboundp_common(addr name)
  */
 _g int fmakunbound_common(addr name)
 {
+	addr check;
+	CallNameType type;
+
+	/* callname */
 	Return(parse_callname_error_(&name, name));
+
+	/* remove function */
 	Return(remtype_global_callname_(name));
 	Return(setglobal_callname_(name, Unbound));
+
+	/* setf */
+	GetCallNameType(name, &type);
+	if (type != CALLNAME_SYMBOL)
+		return 0;
+
+	/* remove macro */
+	GetCallName(name, &check);
+	remmacro_symbol(check);
+
 	return 0;
 }
 

@@ -8,7 +8,7 @@
 #define defun_common _n(defun_common)
 #define fdefinition_common _n(fdefinition_common)
 #define setf_fdefinition_common _n(setf_fdefinition_common)
-#define fboundp_common _n(fboundp_common)
+#define fboundp_common_ _n(fboundp_common_)
 #define fmakunbound_common _n(fmakunbound_common)
 #define function_lambda_expression_common _n(function_lambda_expression_common)
 #define lambda_list_keywords_common _n(lambda_list_keywords_common)
@@ -55,7 +55,7 @@ _g int apply_common_(Execute ptr, addr call, addr arg, addr args);
 _g int defun_common(Execute ptr, addr right, addr env, addr *ret);
 _g int fdefinition_common(Execute ptr, addr name, addr *ret);
 _g int setf_fdefinition_common(addr value, addr name);
-_g int fboundp_common(addr name);
+_g int fboundp_common_(addr name, int *ret);
 _g int fmakunbound_common(addr name);
 _g void function_lambda_expression_common(addr var, addr *ret1, addr *ret2, addr *ret3);
 _g void lambda_list_keywords_common(addr *ret);

@@ -165,8 +165,11 @@ static void defun_setf_fdefinition(void)
  */
 static int function_fboundp(Execute ptr, addr name)
 {
-	int check = fboundp_common(name);
+	int check;
+
+	Return(fboundp_common_(name, &check));
 	setbool_control(ptr, check);
+
 	return 0;
 }
 
