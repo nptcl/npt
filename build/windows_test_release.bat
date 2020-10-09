@@ -2,12 +2,12 @@
 cd /d %~dp0
 cd ..
 
-if not exist test (
+if not exist npt.exe (
   echo directory error
   goto error
 )
 
-.\build\x64\Debug\npt --degrade
+.\npt.exe --script test\rt.lisp
 if errorlevel 1 (
   echo test error
   goto error
@@ -18,3 +18,4 @@ exit /b 0
 :error
 pause
 exit /b 1
+
