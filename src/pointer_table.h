@@ -773,7 +773,6 @@ enum pointer_index {
 	p_defun_stringp,
 	p_defun_simple_string_p,
 	p_defun_char,
-	p_defun_schar,
 	p_defun_setf_char,
 	p_defun_string,
 	p_defun_string_upcase,

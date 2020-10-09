@@ -79,7 +79,6 @@ static int strvect_home_pathname_(LocalRoot local, const byte *pw_dir, addr *ret
 	GetStringUnicode(pos, &body);
 	if (UTF8_null_makeunicode(body, pw_dir))
 		return Result(ret, Unbound); /* encode error */
-	Return(strvect_update_character_type_(pos));
 
 	return Result(ret, pos);
 }

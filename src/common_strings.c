@@ -95,13 +95,6 @@ static void defun_char(void)
  *   string   string
  *   index    index
  */
-static int function_schar(Execute ptr, addr str, addr pos)
-{
-	Return(schar_common(str, pos, &str));
-	setresult_control(ptr, str);
-	return 0;
-}
-
 static void type_schar(addr *ret)
 {
 	addr arg, values, type;
@@ -120,7 +113,7 @@ static void defun_schar(void)
 	/* function */
 	GetConst(COMMON_SCHAR, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var2(pos, p_defun_schar);
+	setcompiled_var2(pos, p_defun_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_schar(&type);
@@ -828,8 +821,6 @@ _g void init_common_strings(void)
 	SetPointerCall(defun, var1, stringp);
 	SetPointerCall(defun, var1, simple_string_p);
 	SetPointerCall(defun, var2, char);
-	SetPointerCall(defun, var2, schar);
-	SetPointerCall(defun, var3, setf_char);
 	SetPointerCall(defun, var3, setf_char);
 	SetPointerCall(defun, var1, string);
 	SetPointerCall(defun, var1dynamic, string_upcase);

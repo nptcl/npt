@@ -413,7 +413,7 @@ static int typep_base_string_size_(addr value, addr type, int *ret)
 {
 	enum CHARACTER_TYPE check;
 
-	GetCharacterType(value, &check);
+	Return(string_character_type_(value, &check));
 	if (check == CHARACTER_TYPE_EMPTY ||
 			check == CHARACTER_TYPE_STANDARD ||
 			check == CHARACTER_TYPE_BASE) {

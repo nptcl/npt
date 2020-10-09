@@ -80,41 +80,17 @@ static int test_strarray_alloc(void)
 	test(strarrayp(pos), "strarray_alloc.2");
 	str = ArrayInfoStruct(pos);
 	test(str->front == 10, "strarray_alloc.3");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_EMPTY, "strarray_alloc.4");
 
 	local = Local_Thread;
 	push_local(local, &stack);
 	strarray_local_(local, &pos, 10);
-	test(stringp(pos), "strarray_alloc.5");
-	test(GetStatusDynamic(pos), "strarray_alloc.6");
+	test(stringp(pos), "strarray_alloc.4");
+	test(GetStatusDynamic(pos), "strarray_alloc.5");
 	rollback_local(local, stack);
 
 	strarray_heap_(&pos, 10);
-	test(stringp(pos), "strarray_alloc.7");
-	test(! GetStatusDynamic(pos), "strarray_alloc.8");
-
-	RETURN;
-}
-
-static int test_strarray_update_character_type(void)
-{
-	addr pos;
-
-	pos = Nil;
-	strarray_heap_(&pos, 3);
-	strarray_setc_(pos, 0, 'a');
-	strarray_setc_(pos, 1, 'b');
-	strarray_setc_(pos, 2, 'c');
-	strarray_update_character_type_(pos);
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD,
-			"strarray_update_character_type.1");
-
-	strarray_setc_(pos, 0, 'a');
-	strarray_setc_(pos, 1, 0x0D);
-	strarray_setc_(pos, 2, 'c');
-	strarray_update_character_type_(pos);
-	test(RefCharacterType(pos) == CHARACTER_TYPE_BASE,
-			"strarray_update_character_type.2");
+	test(stringp(pos), "strarray_alloc.6");
+	test(! GetStatusDynamic(pos), "strarray_alloc.7");
 
 	RETURN;
 }
@@ -959,7 +935,6 @@ static int testcase_strtype(void)
 	TestBreak(test_stringp);
 	/* strarray */
 	TestBreak(test_strarray_alloc);
-	TestBreak(test_strarray_update_character_type);
 	TestBreak(test_strarray_char_alloc);
 	TestBreak(test_strarray_size1_alloc);
 	TestBreak(test_strarray_sizeu_alloc);

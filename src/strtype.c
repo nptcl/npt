@@ -58,14 +58,27 @@ _g int string_simple_p(addr pos)
 	return 0;
 }
 
+_g int string_character_type_(addr pos, enum CHARACTER_TYPE *ret)
+{
+	if (strvectp(pos))
+		return strvect_character_type_(pos, ret);
+
+	if (strarrayp(pos))
+		return strarray_character_type_(pos, ret);
+
+	*ret = CHARACTER_TYPE_INVALID;
+	return fmte_("Invalid string object ~S.", pos, NULL);
+}
+
 _g int strarray_base_p_(addr pos, int *ret)
 {
 	enum CHARACTER_TYPE type;
 
 	if (! strarrayp(pos))
 		return Result(ret, 0);
-	Return(strarray_update_character_type_(pos));
-	GetCharacterType(pos, &type);
+
+	type = CHARACTER_TYPE_INVALID;
+	Return(strarray_character_type_(pos, &type));
 	switch (type) {
 		case CHARACTER_TYPE_EMPTY:
 		case CHARACTER_TYPE_STANDARD:
@@ -82,7 +95,7 @@ _g int strarray_simple_p(addr pos)
 	return strarrayp(pos) && array_simple_p(pos);
 }
 
-_g int strarray_update_character_type_(addr pos)
+_g int strarray_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 {
 	enum CHARACTER_TYPE type;
 	unicode c;
@@ -96,9 +109,8 @@ _g int strarray_update_character_type_(addr pos)
 		if (type == CHARACTER_TYPE_INVALID)
 			return fmte_("Invalid character code.", NULL);
 	}
-	SetCharacterType(pos, type);
 
-	return 0;
+	return Result(ret, type);
 }
 
 
@@ -111,7 +123,6 @@ _g int strarray_alloc_(LocalRoot local, addr *ret, size_t len)
 
 	Return(array_alloc_(local, &pos, 1, len));
 	Return(array_character_alloc_(local, pos));
-	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	return Result(ret, pos);
 }
 
@@ -122,7 +133,6 @@ _g int strarray_local_(LocalRoot local, addr *ret, size_t len)
 	Check(local == NULL, "local error");
 	Return(array_local_(local, &pos, 1, len));
 	Return(array_character_alloc_(local, pos));
-	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	return Result(ret, pos);
 }
 
@@ -132,7 +142,6 @@ _g int strarray_heap_(addr *ret, size_t len)
 
 	Return(array_heap_(&pos, 1, len));
 	Return(array_character_alloc_(NULL, pos));
-	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	return Result(ret, pos);
 }
 
@@ -220,13 +229,9 @@ _g int strarray_getc_(addr pos, size_t index, unicode *u)
 
 _g int strarray_setc_(addr pos, size_t index, unicode u)
 {
-	enum CHARACTER_TYPE type;
-
 	Check(! array_stringp(pos), "string type error");
-	type = unicode_character_type(RefCharacterType(pos), u);
-	if (type == CHARACTER_TYPE_INVALID)
+	if (character_type(u) == CHARACTER_TYPE_INVALID)
 		return fmte_("Invalid character code.", NULL);
-	SetCharacterType(pos, type);
 	return array_set_character_(pos, index, u);
 }
 

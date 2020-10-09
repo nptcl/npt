@@ -170,18 +170,17 @@ static int test_strvect_alloc(void)
 	strvect_alloc(NULL, &pos, 10);
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_alloc.1");
 	test(RefStringSize(pos) == 10, "strvect_alloc.2");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_EMPTY, "strvect_alloc.3");
 
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_local(local, &pos, 10);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_alloc.4");
-	test(GetStatusDynamic(pos), "strvect_alloc.5");
+	test(GetType(pos) == LISPTYPE_STRING, "strvect_alloc.3");
+	test(GetStatusDynamic(pos), "strvect_alloc.4");
 	rollback_local(local, stack);
 
 	strvect_heap(&pos, 10);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_alloc.6");
-	test(! GetStatusDynamic(pos), "strvect_alloc.7");
+	test(GetType(pos) == LISPTYPE_STRING, "strvect_alloc.5");
+	test(! GetStatusDynamic(pos), "strvect_alloc.6");
 
 	RETURN;
 }
@@ -262,32 +261,9 @@ static int test_unicode_character_type(void)
 	RETURN;
 }
 
-static int test_strvect_update_character_type(void)
-{
-	addr pos;
-	unicode *body;
-
-	strvect_heap(&pos, 3);
-	GetStringUnicode(pos, &body);
-	body[0] = 'a';
-	body[1] = 0x0A;
-	body[2] = '%';
-	strvect_update_character_type_(pos);
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD,
-			"strvect_update_character_type.1");
-
-	body[0] = 'a';
-	body[1] = 0xFF;
-	body[2] = 0x0A;
-	strvect_update_character_type_(pos);
-	test(RefCharacterType(pos) == CHARACTER_TYPE_BASE,
-			"strvect_update_character_type.2");
-
-	RETURN;
-}
-
 static int test_strvect_char_alloc(void)
 {
+	enum CHARACTER_TYPE type;
 	addr pos;
 	unicode *body;
 	LocalRoot local;
@@ -295,7 +271,8 @@ static int test_strvect_char_alloc(void)
 
 	strvect_char_alloc(NULL, &pos, "Hello");
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_char_alloc.1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_char_alloc.2");
+	strvect_character_type_(pos, &type);
+	test(type == CHARACTER_TYPE_STANDARD, "strvect_char_alloc.2");
 	test(RefStringSize(pos) == 5, "strvect_char_alloc.3");
 	GetStringUnicode(pos, &body);
 	test(body[0] == 'H', "strvect_char_alloc.4");
@@ -317,6 +294,7 @@ static int test_strvect_char_alloc(void)
 
 static int test_strvect_sizeu_alloc(void)
 {
+	enum CHARACTER_TYPE type;
 	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
 	addr pos;
 	unicode *body;
@@ -325,7 +303,8 @@ static int test_strvect_sizeu_alloc(void)
 
 	strvect_sizeu_alloc_(NULL, &pos, Hello, 5);
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_alloc.1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_sizeu_alloc.2");
+	strvect_character_type_(pos, &type);
+	test(type == CHARACTER_TYPE_STANDARD, "strvect_sizeu_alloc.2");
 	test(RefStringSize(pos) == 5, "strvect_sizeu_alloc.3");
 	GetStringUnicode(pos, &body);
 	test(body[0] == 'H', "strvect_sizeu_alloc.4");
@@ -542,7 +521,6 @@ static int testcase_strvect(void)
 	TestBreak(test_strvect_length);
 	TestBreak(test_strvect_posbodylen);
 	TestBreak(test_unicode_character_type);
-	TestBreak(test_strvect_update_character_type);
 	TestBreak(test_strvect_char_alloc);
 	TestBreak(test_strvect_sizeu_alloc);
 	/* strvect_equal */

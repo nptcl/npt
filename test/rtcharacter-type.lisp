@@ -11,12 +11,10 @@
   t)
 
 (deftest character-type.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'character))))))
-    (every #'findc '(character t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'character)))
+  (character t))
 
 (deftest character-type.3
   (typep #\A 'character)

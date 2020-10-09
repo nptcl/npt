@@ -11,12 +11,10 @@
   t)
 
 (deftest list-type.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'list))))))
-    (every #'findc '(list sequence t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'list)))
+  (list sequence t))
 
 (deftest list-type.3
   (typep nil 'list)
@@ -48,12 +46,10 @@
   t)
 
 (deftest null-type.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'null))))))
-    (every #'findc '(null symbol list sequence t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'null)))
+  (null symbol list sequence t))
 
 (deftest null-type.3
   (typep nil 'null)
@@ -85,12 +81,10 @@
   t)
 
 (deftest cons-type.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'cons))))))
-    (every #'findc '(cons list sequence t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'cons)))
+  (cons list sequence t))
 
 (deftest cons-type.3
   (typep nil 'cons)

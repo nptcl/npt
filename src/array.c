@@ -506,9 +506,10 @@ _g int array_setf_fill_pointer_(addr array, addr value, int *ret)
 		*ret = 0;
 		return fmte_("Invalid fill-pointer value ~S.", value, NULL);
 	}
-	if (str->size <= size) {
+	if (str->size < size) {
 		*ret = 0;
-		return fmte_("Fill-pointer value ~A must be less than array size ~A.",
+		return fmte_("Fill-pointer value ~A "
+				"must be less than equal to array size ~A.",
 				value, intsizeh(str->size), NULL);
 	}
 	str->front = size;

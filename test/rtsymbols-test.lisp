@@ -477,13 +477,11 @@
   t)
 
 (deftest unbound-variable.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'unbound-variable))))))
-    (every #'findc '(unbound-variable
-                      cell-error error serious-condition condition t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'unbound-variable)))
+  (unbound-variable cell-error error serious-condition
+                    condition standard-object t))
 
 (deftest unbound-variable.3
   (handler-case

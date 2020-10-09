@@ -1783,7 +1783,7 @@ static int build_clos_class_type_(LocalRoot local)
 
 	ClosMakeType1_(local, LIST, SEQUENCE);
 	ClosMakeType1_(local, CONS, LIST);
-	ClosMakeType1_(local, VECTOR, SEQUENCE);
+	ClosMakeType2_(local, VECTOR, ARRAY, SEQUENCE);
 	ClosMakeType1_(local, BIT_VECTOR, VECTOR);
 	ClosMakeType2_(local, NULL, SYMBOL, LIST);
 	ClosMakeType1_(local, STRING, VECTOR);

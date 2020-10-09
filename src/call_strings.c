@@ -12,6 +12,7 @@
 #include "strvect.h"
 #include "type_subtypep.h"
 #include "type_parse.h"
+#include "type_typep.h"
 
 /*
  *  simple-string-p
@@ -46,80 +47,64 @@ _g int char_common(addr str, addr pos, addr *ret)
 	size_t index, size;
 
 	if (GetIndex_integer(pos, &index))
-		return fmte_("Too large index value ~S.", pos, NULL);
+		goto error;
 	if (GetType(str) == LISPTYPE_STRING) {
 		strvect_length(str, &size);
 		if (size <= index)
-			return fmte_("Out of valid string index, ~S.", pos, NULL);
+			goto error;
 		strvect_getc(str, index, &c);
 	}
 	else if (strarrayp(str)) {
 		strarray_length_buffer(str, &size); /* Don't use strarray_length */
 		if (size <= index)
-			return fmte_("Out of valid string index, ~S.", pos, NULL);
+			goto error;
 		Return(strarray_getc_(str, index, &c));
 	}
 	else {
-		return fmte_("The object ~S must be a string type.", str, NULL);
+		return TypeError_(str, STRING);
 	}
 	character_heap(ret, c);
 	return 0;
-}
 
-
-/*
- *  schar
- */
-_g int schar_common(addr str, addr pos, addr *ret)
-{
-	unicode c;
-	size_t index, size;
-
-	if (GetIndex_integer(pos, &index))
-		return fmte_("Too large index value ~S.", pos, NULL);
-	if (GetType(str) == LISPTYPE_STRING) {
-		strvect_length(str, &size);
-		if (size <= index)
-			return fmte_("Out of valid string index, ~S.", pos, NULL);
-		strvect_getc(str, index, &c);
-	}
-	else if (strarrayp(str)) {
-		strarray_length(str, &size); /* Don't use strarray_length_buffer */
-		if (size <= index)
-			return fmte_("Out of valid string index, ~S.", pos, NULL);
-		Return(strarray_getc_(str, index, &c));
-	}
-	else {
-		return fmte_("The object ~S must be a string type.", str, NULL);
-	}
-	character_heap(ret, c);
-	return 0;
+error:
+	*ret = Nil;
+	return fmte_("Too large index value ~S at ~S.", pos, str, NULL);
 }
 
 
 /*
  *  (setf char)
  */
-_g int setf_char_common(addr value, addr pos, addr index)
+_g int setf_char_common(addr value, addr str, addr pos)
 {
-	size_t size;
+	size_t size, index;
 	unicode c;
 
-	if (GetIndex_integer(index, &size))
-		return fmte_("Too large index value ~S.", index, NULL);
+	if (GetIndex_integer(pos, &index))
+		goto error;
 	GetCharacter(value, &c);
-	switch (GetType(pos)) {
+	switch (GetType(str)) {
 		case LISPTYPE_STRING:
-			return strvect_setc_(pos, size, c);
+			strvect_length(str, &size);
+			if (size <= index)
+				goto error;
+			return strvect_setc_(str, index, c);
 
 		case LISPTYPE_ARRAY:
-			if (! array_stringp(pos))
-				return TypeError_(pos, STRING);
-			return array_set_character_(pos, size, c);
+			if (! array_stringp(str))
+				return TypeError_(str, STRING);
+			strarray_length_buffer(str, &size); /* Don't use strarray_length */
+			if (size <= index)
+				goto error;
+			return array_set_character_(str, index, c);
 
 		default:
-			return TypeError_(pos, STRING);
+			break;
 	}
+	return TypeError_(str, STRING);
+
+error:
+	return fmte_("Too large index value ~S at ~S.", pos, str, NULL);
 }
 
 
@@ -827,8 +812,8 @@ _g int string_not_lessp_common(addr var1, addr var2, addr rest, addr *ret)
  */
 _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 {
-	int result;
-	addr symbol, value;
+	int check;
+	addr symbol, value, type;
 	unicode c;
 	size_t size;
 
@@ -837,6 +822,7 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 		return fmte_("Too large index value ~S.", var, NULL);
 
 	/* initial-elemnet */
+	value = NULL;
 	c = 0;
 	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
 	if (getplist(rest, symbol, &value) == 0) {
@@ -847,15 +833,22 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 
 	/* element-type */
 	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
-	if (getplist(rest, symbol, &value) == 0) {
+	if (getplist(rest, symbol, &type) == 0) {
 		GetTypeTable(&symbol, Character);
-		Return(parse_type(ptr, &value, value, Nil));
-		Return(subtypep_clang_(value, symbol, &result, NULL));
-		if (! result) {
+		Return(parse_type(ptr, &type, type, Nil));
+		Return(subtypep_clang_(type, symbol, &check, NULL));
+		if (! check) {
 			return fmte_(":element-type ~S "
-					"must be a subtype of character.", value, NULL);
+					"must be a subtype of character.", type, NULL);
 		}
-		/* check only */
+		/* type check */
+		if (value == NULL)
+			character_heap(&value, c);
+		Return(typep_clang_(ptr, value, type, &check));
+		if (! check) {
+			return fmte_("The initial-element ~S "
+					"must be a ~S type.", value, type, NULL);
+		}
 	}
 
 	/* make-string */

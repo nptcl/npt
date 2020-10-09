@@ -70,7 +70,7 @@ static int type_value_cons_(addr *ret, addr value)
 }
 
 /* array */
-static void type_value_strarray(addr *ret, addr value)
+static int type_value_strarray_(addr *ret, addr value)
 {
 	enum LISPDECL decl;
 	enum CHARACTER_TYPE type;
@@ -84,7 +84,7 @@ static void type_value_strarray(addr *ret, addr value)
 	strarray_length(value, &size);
 	make_index_integer_heap(&arg, size);
 
-	GetCharacterType(value, &type);
+	Return(strarray_character_type_(value, &type));
 	switch (type) {
 		case CHARACTER_TYPE_STANDARD:
 		case CHARACTER_TYPE_BASE:
@@ -97,7 +97,8 @@ static void type_value_strarray(addr *ret, addr value)
 			type1_heap(decl, arg, &pos);
 			break;
 	}
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static void type_value_array_nil(addr *ret, addr value)
@@ -152,25 +153,25 @@ static void type_value_array_multiple(addr *ret, addr value)
 	type2_heap(decl, type, array, ret);
 }
 
-_g void type_value_array(addr *ret, addr value)
+_g int type_value_array_(addr *ret, addr value)
 {
 	size_t size;
 
 	Check(GetType(value) != LISPTYPE_ARRAY, "type error");
 	size = ArrayInfoStruct(value)->dimension;
-	if (array_stringp(value))
-		type_value_strarray(ret, value);
-	else if (size == 0)
+	if (array_stringp(value)) {
+		Return(type_value_strarray_(ret, value));
+	}
+	else if (size == 0) {
 		type_value_array_nil(ret, value);
-	else if (size == 1)
+	}
+	else if (size == 1) {
 		type_value_array_single(ret, value);
-	else
+	}
+	else {
 		type_value_array_multiple(ret, value);
-}
+	}
 
-static int type_value_array_(addr *ret, addr value)
-{
-	type_value_array(ret, value);
 	return 0;
 }
 
@@ -198,7 +199,7 @@ _g void type_value_character(addr *ret, addr value)
 	enum CHARACTER_TYPE type;
 
 	Check(GetType(value) != LISPTYPE_CHARACTER, "type error");
-	GetCharacterType(value, &type);
+	get_character_type(value, &type);
 	switch (type) {
 		case CHARACTER_TYPE_STANDARD:
 			GetTypeTable(ret, StandardChar);
@@ -235,7 +236,7 @@ static int type_value_string_(addr *ret, addr value)
 	strvect_length(value, &size);
 	make_index_integer_heap(&arg, size);
 
-	GetCharacterType(value, &type);
+	Return(strvect_character_type_(value, &type));
 	switch (type) {
 		case CHARACTER_TYPE_STANDARD:
 		case CHARACTER_TYPE_BASE:

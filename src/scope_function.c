@@ -108,7 +108,7 @@ static int scope_array(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_array(&type, eval);
+	Return(type_value_array_(&type, eval));
 	return make_eval_scope_(ptr, ret, EVAL_PARSE_ARRAY, type, eval);
 }
 

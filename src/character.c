@@ -115,6 +115,24 @@ _g enum CHARACTER_TYPE character_type(unicode c)
 	return CHARACTER_TYPE_INVALID;
 }
 
+_g enum CHARACTER_TYPE ref_character_type(addr pos)
+{
+	unicode c;
+
+	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter(pos, &c);
+	return character_type(c);
+}
+
+_g void get_character_type(addr pos, enum CHARACTER_TYPE *ret)
+{
+	unicode c;
+
+	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter(pos, &c);
+	*ret = character_type(c);
+}
+
 _g int isvalidunicode(unicode c)
 {
 	return character_type(c) != CHARACTER_TYPE_INVALID;
@@ -122,13 +140,9 @@ _g int isvalidunicode(unicode c)
 
 _g void setcharacter_unsafe(addr pos, unicode value)
 {
-	enum CHARACTER_TYPE type;
-
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
-	type = character_type(value);
-	Check(type == CHARACTER_TYPE_INVALID, "Invaild character code.");
-	SetCharacterType(pos, type);
+	Check(character_type(value) == CHARACTER_TYPE_INVALID, "Invaild character code.");
 	SetCharacter_Low(pos, value);
 }
 

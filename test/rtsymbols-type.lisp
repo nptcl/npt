@@ -11,12 +11,10 @@
   t)
 
 (deftest symbol-type.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'symbol))))))
-    (every #'findc '(symbol t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'symbol)))
+  (symbol t))
 
 (deftest symbol-type.3
   (typep 'hello 'symbol)

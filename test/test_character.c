@@ -4,7 +4,6 @@
 
 static int test_character_access(void)
 {
-	enum CHARACTER_TYPE type;
 	addr pos;
 	unicode c;
 	const unicode *ptr;
@@ -23,13 +22,6 @@ static int test_character_access(void)
 	GetCharacter(pos, &c);
 	test(c == 'z', "GetCharacter.1");
 
-	SetUser(pos, (byte)CHARACTER_TYPE_EMPTY);
-	test(RefCharacterType(pos) == CHARACTER_TYPE_EMPTY, "RefCharacterType.1");
-	SetCharacterType(pos, CHARACTER_TYPE_INVALID);
-	test(RefCharacterType(pos) == CHARACTER_TYPE_INVALID, "SetCharacterType.1");
-	GetCharacterType(pos, &type);
-	test(type == CHARACTER_TYPE_INVALID, "GetCharacterType.1");
-
 	RETURN;
 }
 
@@ -42,7 +34,7 @@ static int test_character_alloc(void)
 	character_alloc(NULL, &pos, 'a');
 	test(GetType(pos) == LISPTYPE_CHARACTER, "character_alloc.1");
 	test(RefCharacter(pos) == 'a', "character_alloc.2");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "character_alloc.3");
+	test(ref_character_type(pos) == CHARACTER_TYPE_STANDARD, "character_alloc.3");
 	test(lenbodyr(pos) == sizeoft(unicode), "character_alloc.4");
 	test(! GetStatusDynamic(pos), "character_alloc.5");
 
@@ -88,10 +80,10 @@ static int test_setcharacter_unsafe(void)
 	make_character_heap(&pos, 0xFF);
 	setcharacter_unsafe(pos, 'A');
 	test(RefCharacter(pos) == 'A', "setcharacter_unsafe.1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "setcharacter_unsafe.2");
+	test(ref_character_type(pos) == CHARACTER_TYPE_STANDARD, "setcharacter_unsafe.2");
 	setcharacter_unsafe(pos, 0x100000);
 	test(RefCharacter(pos) == 0x100000, "setcharacter_unsafe.3");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_BASE, "setcharacter_unsafe.4");
+	test(ref_character_type(pos) == CHARACTER_TYPE_BASE, "setcharacter_unsafe.4");
 
 	RETURN;
 }

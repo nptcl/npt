@@ -7,7 +7,7 @@
 #define type_value_t _n(type_value_t)
 #define type_value_type _n(type_value_type)
 #define type_value_clos_ _n(type_value_clos_)
-#define type_value_array _n(type_value_array)
+#define type_value_array_ _n(type_value_array_)
 #define type_value_vector _n(type_value_vector)
 #define type_value_character _n(type_value_character)
 #define type_value_integer _n(type_value_integer)
@@ -29,7 +29,7 @@ _g void type_value_nil(addr *ret);
 _g void type_value_t(addr *ret);
 _g void type_value_type(addr *ret);
 _g int type_value_clos_(addr *ret, addr value);
-_g void type_value_array(addr *ret, addr value);
+_g int type_value_array_(addr *ret, addr value);
 _g void type_value_vector(addr *ret, addr value);
 _g void type_value_character(addr *ret, addr value);
 

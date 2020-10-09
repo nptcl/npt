@@ -238,16 +238,13 @@ _g int faslread_value_character(Execute ptr, addr stream, addr *ret)
  */
 _g int faslwrite_value_string(Execute ptr, addr stream, addr pos)
 {
-	enum CHARACTER_TYPE type;
 	const unicode *data;
 	size_t size;
 
 	CheckType(pos, LISPTYPE_STRING);
 	Return(faslwrite_type_(stream, FaslCode_string));
 	strvect_posbodylen(pos, &data, &size);
-	GetCharacterType(pos, &type);
 	/* write */
-	Return(faslwrite_byte_(stream, (byte)type));
 	Return(faslwrite_buffer_(stream, &size, IdxSize));
 	Return(faslwrite_buffer_(stream, data, sizeoft(unicode) * size));
 
@@ -256,18 +253,15 @@ _g int faslwrite_value_string(Execute ptr, addr stream, addr pos)
 
 static int faslread_string_code_local_(LocalRoot local, addr stream, addr *ret)
 {
-	byte type;
 	addr pos;
 	unicode *data;
 	size_t size;
 
 	Return(faslread_type_check_(stream, FaslCode_string));
-	Return(faslread_byte_(stream, &type));
 	Return(faslread_buffer_(stream, &size, IdxSize));
 
 	strvect_local(local, &pos, size);
 	GetStringUnicode(pos, &data);
-	SetCharacterType(pos, type);
 	Return(faslread_buffer_(stream, data, sizeoft(unicode) * size));
 
 	return Result(ret, pos);
@@ -275,17 +269,14 @@ static int faslread_string_code_local_(LocalRoot local, addr stream, addr *ret)
 
 _g int faslread_value_string(Execute ptr, addr stream, addr *ret)
 {
-	byte type;
 	addr pos;
 	unicode *data;
 	size_t size;
 
-	Return(faslread_byte_(stream, &type));
 	Return(faslread_buffer_(stream, &size, IdxSize));
 
 	strvect_heap(&pos, size);
 	GetStringUnicode(pos, &data);
-	SetCharacterType(pos, type);
 	Return(faslread_buffer_(stream, data, sizeoft(unicode) * size));
 
 	return Result(ret, pos);
@@ -404,7 +395,6 @@ _g int faslread_value_gensym(Execute ptr, addr stream, addr *ret)
 
 	return Result(ret, pos);
 }
-
 
 
 /*

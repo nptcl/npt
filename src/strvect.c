@@ -122,7 +122,6 @@ _g void strvect_alloc(LocalRoot local, addr *ret, size_t len)
 	addr pos;
 
 	alloc_body(local, &pos, LISPTYPE_STRING, StringBodyLength(len));
-	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	SetStringSize(pos, len);
 	*ret = pos;
 }
@@ -132,7 +131,6 @@ _g void strvect_local(LocalRoot local, addr *ret, size_t len)
 
 	Check(local == NULL, "local error");
 	local_body(local, &pos, LISPTYPE_STRING, StringBodyLength(len));
-	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	SetStringSize(pos, len);
 	*ret = pos;
 }
@@ -141,14 +139,12 @@ _g void strvect_heap(addr *ret, size_t len)
 	addr pos;
 
 	heap_body(&pos, LISPTYPE_STRING, StringBodyLength(len));
-	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	SetStringSize(pos, len);
 	*ret = pos;
 }
 
 _g void strvect_copy_alloc(LocalRoot local, addr *ret, addr value)
 {
-	enum CHARACTER_TYPE type;
 	addr pos;
 	unicode *dst;
 	const unicode *src;
@@ -156,13 +152,11 @@ _g void strvect_copy_alloc(LocalRoot local, addr *ret, addr value)
 
 	CheckType(value, LISPTYPE_STRING);
 	/* source */
-	GetCharacterType(value, &type);
 	GetStringSize(value, &size);
 	GetStringUnicode(value, (const unicode **)&src);
 	/* destination */
 	strvect_alloc(local, &pos, size);
 	GetStringUnicode(pos, (const unicode **)&dst);
-	SetCharacterType(pos, type);
 	/* copy */
 	memcpy(dst, src, sizeoft(unicode) * size);
 	/* result */
@@ -232,7 +226,7 @@ _g enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode 
 	return CHARACTER_TYPE_INVALID;
 }
 
-_g int strvect_update_character_type_(addr pos)
+_g int strvect_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 {
 	enum CHARACTER_TYPE type;
 	const unicode *body;
@@ -245,9 +239,8 @@ _g int strvect_update_character_type_(addr pos)
 		if (type == CHARACTER_TYPE_INVALID)
 			return fmte_("Invalid character code.", NULL);
 	}
-	SetCharacterType(pos, type);
 
-	return 0;
+	return Result(ret, type);
 }
 
 _g int strvectp(addr pos)
@@ -261,8 +254,7 @@ _g int strvect_base_p_(addr pos, int *ret)
 
 	if (! strvectp(pos))
 		return Result(ret, 0);
-	Return(strvect_update_character_type_(pos));
-	GetCharacterType(pos, &type);
+	Return(strvect_character_type_(pos, &type));
 	switch (type) {
 		case CHARACTER_TYPE_EMPTY:
 		case CHARACTER_TYPE_STANDARD:
@@ -291,7 +283,6 @@ _g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
-	Error(strvect_update_character_type_(pos));
 	*ret = pos;
 }
 _g void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
@@ -319,7 +310,6 @@ _g int strvect_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size
 	strvect_alloc(local, &pos, size);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	memcpy(destroy, arg, sizeoft(unicode) * size);
-	Return(strvect_update_character_type_(pos));
 	return Result(ret, pos);
 }
 _g int strvect_sizeu_local_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
@@ -571,7 +561,6 @@ _g void strvect_setc_unsafe(addr pos, size_t index, unicode c)
 
 _g int strvect_setc_(addr pos, size_t index, unicode c)
 {
-	enum CHARACTER_TYPE type;
 	unicode *destroy;
 #ifdef LISP_DEBUG
 	size_t size;
@@ -583,10 +572,8 @@ _g int strvect_setc_(addr pos, size_t index, unicode c)
 	Check(size <= index, "size error");
 #endif
 
-	type = unicode_character_type(RefCharacterType(pos), c);
-	if (type == CHARACTER_TYPE_INVALID)
+	if (character_type(c) == CHARACTER_TYPE_INVALID)
 		return fmte_("Invalid character code.", NULL);
-	SetCharacterType(pos, type);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	destroy[index] = c;
 
@@ -595,17 +582,14 @@ _g int strvect_setc_(addr pos, size_t index, unicode c)
 
 _g int strvect_setall_(addr pos, unicode c)
 {
-	enum CHARACTER_TYPE type;
 	unicode *destroy;
 	size_t size, i;
 
 	strvect_length(pos, &size);
 	if (size == 0)
 		return 0;
-	type = character_type(c);
-	if (type == CHARACTER_TYPE_INVALID)
+	if (character_type(c) == CHARACTER_TYPE_INVALID)
 		return fmte_("Invalid character code.", NULL);
-	SetCharacterType(pos, type);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	for (i = 0; i < size; i++)
 		destroy[i] = c;
@@ -702,7 +686,7 @@ _g int strvect_fill_(addr pos, addr item, addr start, addr end)
 	for (; index1 < index2; index1++)
 		strvect_setc_unsafe(pos, index1, c);
 
-	return strvect_update_character_type_(pos);
+	return 0;
 }
 
 _g int strvect_subseq_alloc_(LocalRoot local, addr *ret, addr pos, size_t x, size_t y)
@@ -718,7 +702,6 @@ _g int strvect_subseq_alloc_(LocalRoot local, addr *ret, addr pos, size_t x, siz
 	GetStringUnicode(root, &data1);
 	GetStringUnicode(pos, &data2);
 	memcpy(data1, data2 + x, diff * sizeoft(unicode));
-	Return(strvect_update_character_type_(pos));
 
 	return Result(ret, root);
 }
@@ -800,7 +783,6 @@ _g int strvect_char1_heap_(addr *ret, const char *arg, unicode c)
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
 	destroy[i] = c;
-	Return(strvect_update_character_type_(pos));
 	return Result(ret, pos);
 }
 
@@ -814,7 +796,6 @@ _g int strvect_size1_heap_(addr *ret, const char *arg, size_t size)
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
-	Return(strvect_update_character_type_(pos));
 	return Result(ret, pos);
 }
 

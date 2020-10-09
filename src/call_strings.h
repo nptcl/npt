@@ -35,7 +35,7 @@
 _g void simple_string_p_common(addr var, addr *ret);
 _g int char_common(addr str, addr pos, addr *ret);
 _g int schar_common(addr str, addr pos, addr *ret);
-_g int setf_char_common(addr value, addr pos, addr index);
+_g int setf_char_common(addr value, addr str, addr pos);
 _g int string_common(addr var, addr *ret);
 _g int string_upcase_common(addr var, addr rest, addr *ret);
 _g int string_downcase_common(addr var, addr rest, addr *ret);

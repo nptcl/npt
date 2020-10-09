@@ -16,6 +16,8 @@
 #define getcharacter _n(getcharacter)
 #define setcharacter_unsafe _n(setcharacter_unsafe)
 #define character_type _n(character_type)
+#define ref_character_type _n(ref_character_type)
+#define get_character_type _n(get_character_type)
 #define isvalidunicode _n(isvalidunicode)
 #define standard_char_p _n(standard_char_p)
 #define base_char_p _n(base_char_p)
@@ -48,22 +50,10 @@
 
 #define LISP_CHARACTER_CACHE		0x80
 
-enum CHARACTER_TYPE {
-	CHARACTER_TYPE_EMPTY,
-	CHARACTER_TYPE_STANDARD,
-	CHARACTER_TYPE_BASE,
-	CHARACTER_TYPE_EXTENDED,
-	CHARACTER_TYPE_INVALID,
-	CHARACTER_TYPE_SIZE
-};
-
 #define PtrCharacter_Low(x)			((const unicode *)PtrBodyB2(x))
 #define RefCharacter_Low(x)			(*PtrCharacter_Low(x))
 #define GetCharacter_Low(x,v)		GetvBodyB2((x),unicode,(v))
 #define SetCharacter_Low(x,v)		SetvBodyB2((x),unicode,(v))
-#define RefCharacterType(x)			((enum CHARACTER_TYPE)GetUser(x))
-#define GetCharacterType(x,v)		(*(v) = RefCharacterType(x))
-#define SetCharacterType(x,v)		SetUser((x),(byte)(v))
 
 #ifdef LISP_DEBUG
 #define RefCharacter(x)				(*ptrcharacter(x))
@@ -88,6 +78,8 @@ _g unicode refcharacter(addr pos);
 _g void getcharacter(addr pos, unicode *value);
 _g void setcharacter_unsafe(addr pos, unicode value);
 _g enum CHARACTER_TYPE character_type(unicode c);
+_g enum CHARACTER_TYPE ref_character_type(addr pos);
+_g void get_character_type(addr pos, enum CHARACTER_TYPE *ret);
 _g int isvalidunicode(unicode c);
 _g int standard_char_p(addr pos);
 _g int base_char_p(addr pos);

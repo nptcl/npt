@@ -9,9 +9,10 @@
 #define string_designer_p _n(string_designer_p)
 #define string_base_p_ _n(string_base_p_)
 #define string_simple_p _n(string_simple_p)
+#define string_character_type_ _n(string_character_type_)
 #define strarray_base_p_ _n(strarray_base_p_)
 #define strarray_simple_p _n(strarray_simple_p)
-#define strarray_update_character_type_ _n(strarray_update_character_type_)
+#define strarray_character_type_ _n(strarray_character_type_)
 #define strarray_alloc_ _n(strarray_alloc_)
 #define strarray_local_ _n(strarray_local_)
 #define strarray_heap_ _n(strarray_heap_)
@@ -90,9 +91,10 @@ _g int string_designer_p(addr pos);
 
 _g int string_base_p_(addr pos, int *ret);
 _g int string_simple_p(addr pos);
+_g int string_character_type_(addr pos, enum CHARACTER_TYPE *ret);
 _g int strarray_base_p_(addr pos, int *ret);
 _g int strarray_simple_p(addr pos);
-_g int strarray_update_character_type_(addr pos);
+_g int strarray_character_type_(addr pos, enum CHARACTER_TYPE *ret);
 
 /* strarray */
 _g int strarray_alloc_(LocalRoot local, addr *ret, size_t len);

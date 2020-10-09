@@ -18,7 +18,7 @@
 #define strvect_length _n(strvect_length)
 #define strvect_posbodylen _n(strvect_posbodylen)
 #define unicode_character_type _n(unicode_character_type)
-#define strvect_update_character_type_ _n(strvect_update_character_type_)
+#define strvect_character_type_ _n(strvect_character_type_)
 #define strvectp _n(strvectp)
 #define strvect_base_p_ _n(strvect_base_p_)
 #define strvect_simple_p _n(strvect_simple_p)
@@ -87,7 +87,7 @@ _g int strvect_character_heap_(addr *ret, addr pos);
 _g void strvect_length(addr pos, size_t *ret);
 _g void strvect_posbodylen(addr pos, const unicode **body, size_t *len);
 _g enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u);
-_g int strvect_update_character_type_(addr pos);
+_g int strvect_character_type_(addr pos, enum CHARACTER_TYPE *ret);
 
 _g int strvectp(addr pos);
 _g int strvect_base_p_(addr pos, int *ret);

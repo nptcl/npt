@@ -11,12 +11,10 @@
   t)
 
 (deftest sequence-type.2
-  (flet ((findc (x) (lisp-system:closp
-                      (find (find-class x)
-                            (lisp-clos:class-precedence-list
-                              (find-class 'sequence))))))
-    (every #'findc '(sequence t)))
-  t)
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'sequence)))
+  (sequence t))
 
 (deftest sequence-type.3
   (typep nil 'sequence)
