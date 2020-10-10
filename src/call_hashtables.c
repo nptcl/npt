@@ -59,6 +59,8 @@ static int make_hash_table_test_common(addr rest, enum HASHTABLE_TEST *ret)
 	}
 	if (functionp(pos)) {
 		GetNameFunction(pos, &check);
+		if (check == Nil)
+			goto error;
 		GetCallName(check, &check);
 		if (make_hash_table_symbol_common(check, ret))
 			goto error;

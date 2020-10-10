@@ -1955,6 +1955,8 @@ lisp-system::unbound-value
 (lisp-system::large-number :export t)
  lisp-system::print-unreadable-call
  lisp-system::write-default
+(lisp-system::make-character :export t)
+(lisp-system::make-fixnum :export t)
 (lisp-system::make-bignum :export t)
 (lisp-system::make-ratio :export t)
 (lisp-system::make-complex :export t)

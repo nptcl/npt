@@ -381,13 +381,16 @@ static void defun_make_hash_iterator(void)
 }
 
 
-/* (defun next-hash-iterator (iterator) ...) -> (values boolean key value) */
+/* (defun next-hash-iterator (iterator) ...) -> (values boolean &rest t) */
 static int syscall_next_hash_iterator(Execute ptr, addr pos)
 {
 	addr key, value;
 
 	next_hash_iterator_syscode(pos, &pos, &key, &value);
-	setvalues_control(ptr, pos, key, value, NULL);
+	if (pos == Nil)
+		setresult_control(ptr, Nil);
+	else
+		setvalues_control(ptr, pos, key, value, NULL);
 
 	return 0;
 }
@@ -398,8 +401,11 @@ static void type_next_hash_iterator(addr *ret)
 
 	GetTypeTable(&type, T);
 	typeargs_var1(&args, type);
+	/* (values boolean &rest t) */
 	GetTypeValues(&values, Boolean);
-	typevalues_values3(&values, values, type, type);
+	conscar_heap(&values, values);
+	type_values_heap(values, Nil, type, Nil, &values);
+	/* result */
 	type_compiled_heap(args, values, ret);
 }
 
@@ -1504,6 +1510,74 @@ static void defun_write_default(void)
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_write_default(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun make-character (integer) ...) -> character */
+static int syscall_make_character(Execute ptr, addr var)
+{
+	Return(make_character_syscode(var, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_make_character(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Character);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Character);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_character(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_CHARACTER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_make_character);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_make_character(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun make-fixnum (integer) ...) -> fixnum */
+static int syscall_make_fixnum(Execute ptr, addr var)
+{
+	Return(make_fixnum_syscode(var, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_make_fixnum(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&values, Fixnum);
+	typeargs_var1(&args, values);
+	typevalues_result(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_fixnum(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_FIXNUM, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_make_fixnum);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_make_fixnum(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2744,6 +2818,8 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1opt1, large_number);
 	SetPointerSysCall(defun, var5, print_unreadable_call);
 	SetPointerSysCall(defun, var2, write_default);
+	SetPointerSysCall(defun, var1, make_character);
+	SetPointerSysCall(defun, var1, make_fixnum);
 	SetPointerSysCall(defun, var1, make_bignum);
 	SetPointerSysCall(defun, var2, make_ratio);
 	SetPointerSysCall(defun, var2, make_complex);
@@ -2832,6 +2908,8 @@ _g void build_syscall(void)
 	defun_large_number();
 	defun_print_unreadable_call();
 	defun_write_default();
+	defun_make_character();
+	defun_make_fixnum();
 	defun_make_bignum();
 	defun_make_ratio();
 	defun_make_complex();

@@ -53,6 +53,8 @@
 #define large_number_syscode_ _n(large_number_syscode_)
 #define print_unreadable_call_syscode _n(print_unreadable_call_syscode)
 #define write_default_syscode _n(write_default_syscode)
+#define make_character_syscode _n(make_character_syscode)
+#define make_fixnum_syscode _n(make_fixnum_syscode)
 #define make_bignum_syscode _n(make_bignum_syscode)
 #define make_ratio_syscode _n(make_ratio_syscode)
 #define make_complex_code_ _n(make_complex_code_)
@@ -140,6 +142,8 @@ _g int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret);
 _g int print_unreadable_call_syscode(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body);
 _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret);
+_g int make_character_syscode(addr var, addr *ret);
+_g int make_fixnum_syscode(addr var, addr *ret);
 _g int make_bignum_syscode(addr var, addr *ret);
 _g int make_ratio_syscode(addr numer, addr denom, addr *ret);
 _g int make_complex_code_(addr real, addr imag, addr *ret);

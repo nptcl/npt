@@ -1241,6 +1241,8 @@ enum pointer_index {
 	p_defun_syscall_large_number,
 	p_defun_syscall_print_unreadable_call,
 	p_defun_syscall_write_default,
+	p_defun_syscall_make_character,
+	p_defun_syscall_make_fixnum,
 	p_defun_syscall_make_bignum,
 	p_defun_syscall_make_ratio,
 	p_defun_syscall_make_complex,

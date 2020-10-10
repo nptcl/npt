@@ -771,6 +771,46 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 }
 
 
+/* make-character */
+_g int make_character_syscode(addr var, addr *ret)
+{
+	unicode c;
+
+	switch (GetType(var)) {
+		case LISPTYPE_CHARACTER:
+			GetCharacter(var, &c);
+			make_character_heap(ret, c);
+			break;
+
+		default:
+			*ret = Nil;
+			return TypeError_(var, CHARACTER);
+	}
+
+	return 0;
+}
+
+
+/* make-fixnum */
+_g int make_fixnum_syscode(addr var, addr *ret)
+{
+	fixnum value;
+
+	switch (GetType(var)) {
+		case LISPTYPE_FIXNUM:
+			GetFixnum(var, &value);
+			make_fixnum_heap(ret, value);
+			break;
+
+		default:
+			*ret = Nil;
+			return TypeError_(var, FIXNUM);
+	}
+
+	return 0;
+}
+
+
 /* make-bignum */
 _g int make_bignum_syscode(addr var, addr *ret)
 {

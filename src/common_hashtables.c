@@ -371,7 +371,7 @@ static void type_maphash(addr *ret)
 	addr arg, values;
 
 	GetTypeTable(&arg, Hashtable);
-	GetTypeTable(&values, Function);
+	GetTypeTable(&values, FunctionDesigner);
 	typeargs_var2(&arg, values, arg);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(arg, values, ret);
