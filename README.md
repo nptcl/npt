@@ -1,6 +1,6 @@
 # Npt
 
-Npt is a small Lisp Programming Language.
+Npt is an ANSI Common Lisp Programming Language.
 
 ## Install (configure)
 
