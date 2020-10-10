@@ -1,5 +1,6 @@
 @echo off
 set build_path=%~dp0
+cd /d %build_path%
 
 
 REM *** Target

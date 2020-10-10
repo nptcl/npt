@@ -2,8 +2,8 @@
 object = $(source:.c=.obj)
 output = npt.exe
 
-LISP_C = /DLISP_32BIT /DLISP_WINDOWS /DLISP_DEGRADE /DLISP_DEBUG /DLISP_MODE_DEGRADE
 LISP_LIB = Shell32.lib
+LISP_C = /DLISP_32BIT /DLISP_WINDOWS /DLISP_DEGRADE /DLISP_DEBUG /DLISP_MODE_DEGRADE
 CFLAGS = /Zi /GS /RTCscu /TC /W3 /Isrc /Itest $(LISP_C)
 
 $(output) : $(object)
