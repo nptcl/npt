@@ -83,20 +83,13 @@ _g int callclang_error_(const char *str, ...)
 	return call_simple_error_(NULL, format, args);
 }
 
-static int function_restart_warning(Execute ptr)
-{
-	setresult_control(ptr, Nil);
-	return 0;
-}
-
 static void warning_restart_make(addr *ret)
 {
 	addr inst, pos;
 
 	GetConst(COMMON_MUFFLE_WARNING, &pos);
 	restart_heap(&inst, pos);
-	compiled_heap(&pos, Nil);
-	setcompiled_empty(pos, p_defun_restart_warning);
+	GetConst(FUNCTION_NIL, &pos);
 	setfunction_restart(inst, pos);
 	setinteractive_restart(inst, Nil);
 	setreport_restart(inst, Nil);
@@ -141,7 +134,6 @@ _g void build_condition(Execute ptr)
 
 _g void init_condition(void)
 {
-	SetPointerCall(defun, empty, restart_warning);
 	init_condition_debugger();
 }
 

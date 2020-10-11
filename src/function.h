@@ -90,6 +90,8 @@
 #define compiled_macro_function_p _n(compiled_macro_function_p)
 #define settrace_function _n(settrace_function)
 #define tracep_function _n(tracep_function)
+#define build_function _n(build_function)
+#define init_function _n(init_function)
 
 enum FUNCTION_INDEX {
 	FUNCTION_INDEX_CODE,
@@ -224,6 +226,9 @@ _g int compiled_funcall_function_p(addr pos);
 _g int compiled_macro_function_p(addr pos);
 _g void settrace_function(addr pos);
 _g int tracep_function(addr pos);
+
+_g void build_function(void);
+_g void init_function(void);
 
 #endif
 

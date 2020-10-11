@@ -14,6 +14,7 @@
 #include "package.h"
 #include "package_bittype.h"
 #include "package_common.h"
+#include "package_delete.h"
 #include "package_object.h"
 #include "package_symbol.h"
 #include "strtype.h"

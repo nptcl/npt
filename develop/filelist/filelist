@@ -179,6 +179,7 @@ format_parse.c
 format_print.c
 format.c
 function.c
+function_constant.c
 gc_check.c
 gc_execute.c
 gc.c
@@ -229,6 +230,7 @@ optimize_parse.c
 optimize.c
 package_bittype.c
 package_common.c
+package_delete.c
 package_iterator.c
 package_object.c
 package_symbol.c

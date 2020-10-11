@@ -28,6 +28,7 @@
 #include "file.h"
 #include "file_memory.h"
 #include "format.h"
+#include "function.h"
 #include "gc.h"
 #include "heap.h"
 #include "heap_core.h"
@@ -84,6 +85,7 @@ _g void initlisp(void)
 	init_eval();
 	init_extern();
 	init_format();
+	init_function();
 	init_heap();
 	init_localtime();
 	init_package();
@@ -322,6 +324,7 @@ _g void buildlisp(Execute ptr)
 	build_lisproot(ptr);
 	build_constant();
 	build_object();
+	build_function();
 	build_character();
 	build_real();
 	build_package();

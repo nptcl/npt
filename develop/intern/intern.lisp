@@ -1400,6 +1400,7 @@ lisp-system::pretty-stream
 ;;
 lisp-system::simple-file-error
 lisp-system::simple-program-error
+lisp-system::simple-package-error
 
 
 ;;

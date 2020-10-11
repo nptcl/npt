@@ -6,6 +6,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "package.h"
+#include "package_delete.h"
 #include "package_object.h"
 
 /* (defun export (symbols &optional package) ...) -> (eql t)

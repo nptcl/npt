@@ -19,12 +19,6 @@
 /*
  *  restart abort
  */
-static int function_eval_loop_abort_function(Execute ptr)
-{
-	setresult_control(ptr, Nil);
-	return 0;
-}
-
 static int function_eval_loop_abort_report(Execute ptr, addr stream)
 {
 	Return(format_stream(ptr, stream, "Return to eval-loop.", NULL));
@@ -46,8 +40,7 @@ static void eval_main_restart_abort(addr *ret)
 	GetConst(COMMON_ABORT, &pos);
 	restart_heap(&pos, pos);
 	/* function */
-	compiled_heap(&value, Nil);
-	setcompiled_empty(value, p_defun_eval_loop_abort_function);
+	GetConst(FUNCTION_NIL, &value);
 	setfunction_restart(pos, value);
 	/* interactive */
 	setinteractive_restart(pos, Nil);
@@ -326,7 +319,6 @@ _g int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
  */
 _g void init_eval_main(void)
 {
-	SetPointerCall(defun, empty, eval_loop_abort_function);
 	SetPointerCall(defun, var1, eval_loop_abort_report);
 	SetPointerCall(defun, var1, eval_loop_abort_test);
 }

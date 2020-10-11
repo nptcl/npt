@@ -358,7 +358,6 @@ enum pointer_index {
 	p_defmacro_assert,
 	p_defun_error,
 	p_defun_cerror,
-	p_defun_cerror_continue,
 	p_defmacro_check_type,
 	p_defun_invalid_method_error,
 	p_defun_method_combination_error,
@@ -369,7 +368,6 @@ enum pointer_index {
 	p_defun_warn_restart,
 	p_defun_invoke_debugger,
 	p_defun_break,
-	p_defun_break_continue,
 	p_defmacro_handler_bind,
 	p_defmacro_handler_case,
 	p_defmacro_ignore_errors,
@@ -1005,7 +1003,6 @@ enum pointer_index {
 	p_defun_get_universal_time,
 	p_defun_get_decoded_time,
 	p_defun_sleep,
-	p_sleep_continue,
 	p_sleep_close_object,
 	p_defun_apropos,
 	p_defun_apropos_list,
@@ -1107,16 +1104,17 @@ enum pointer_index {
 	p_defun_dispatch_pathname,
 	p_defun_dispatch_structure,
 	p_equal_finalize_dispatch,
+	/* function */
+	p_defun_constantly_nil,
+	p_defun_constantly_t,
 	/* package */
 	p_defun_defpackage_make,
 	/* pathname */
 	p_defun_set_logical_pathname_translations,
 	/* condition */
-	p_defun_restart_warning,
 	p_defun_handler_warning,
 	p_defun_handler_empty,
 	/* eval */
-	p_defun_eval_loop_abort_function,
 	p_defun_eval_loop_abort_report,
 	p_defun_eval_loop_abort_test,
 	p_defun_handler_compile,

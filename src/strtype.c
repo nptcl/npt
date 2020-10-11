@@ -1036,7 +1036,9 @@ _g int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 
 	if (ret)
 		*ret = 0;
-	return 0;
+
+	/* error */
+	return fmte_("The object ~S is not string-designer.", pos, NULL);
 }
 
 _g int string_designer_local_(LocalRoot local, addr *value, addr pos, int *ret)

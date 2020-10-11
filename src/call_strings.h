@@ -6,7 +6,6 @@
 
 #define simple_string_p_common _n(simple_string_p_common)
 #define char_common _n(char_common)
-#define schar_common _n(schar_common)
 #define setf_char_common _n(setf_char_common)
 #define string_common _n(string_common)
 #define string_upcase_common _n(string_upcase_common)
@@ -34,7 +33,6 @@
 
 _g void simple_string_p_common(addr var, addr *ret);
 _g int char_common(addr str, addr pos, addr *ret);
-_g int schar_common(addr str, addr pos, addr *ret);
 _g int setf_char_common(addr value, addr str, addr pos);
 _g int string_common(addr var, addr *ret);
 _g int string_upcase_common(addr var, addr rest, addr *ret);

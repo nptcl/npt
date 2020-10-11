@@ -5,7 +5,6 @@
 
 _g void init_call(void)
 {
-	init_call_conditions();
 	init_call_printer();
 }
 

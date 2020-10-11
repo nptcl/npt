@@ -20,7 +20,7 @@ static int char_eql_check_common_(
 	if (list == Nil) {
 		*ret = Nil;
 		GetConstant(name, &pos);
-		return call_simple_program_error_va_(Execute_Thread,
+		return call_simple_program_error_va_(NULL,
 				"Too few arguemnts ~A.", pos, NULL);
 	}
 	GetCons(list, &var, &list);
@@ -60,7 +60,7 @@ _g int char_not_eql_common(addr list, addr *ret)
 	if (list == Nil) {
 		*ret = Nil;
 		GetConst(COMMON_CHAR_NOT_EQL, &left);
-		return call_simple_program_error_va_(Execute_Thread,
+		return call_simple_program_error_va_(NULL,
 				"Too few arguemnts ~A.", left, NULL);
 	}
 
@@ -148,7 +148,7 @@ static int char_equal_check_common_(
 	if (list == Nil) {
 		*ret = Nil;
 		GetConstant(name, &pos);
-		return call_simple_program_error_va_(Execute_Thread,
+		return call_simple_program_error_va_(NULL,
 				"Too few arguemnts ~A.", pos, NULL);
 	}
 	GetCons(list, &var, &list);
@@ -185,7 +185,7 @@ _g int char_not_equal_common(addr list, addr *ret)
 	if (list == Nil) {
 		*ret = Nil;
 		GetConst(COMMON_CHAR_NOT_EQUAL, &left);
-		return call_simple_program_error_va_(Execute_Thread,
+		return call_simple_program_error_va_(NULL,
 				"Too few arguemnts ~A.", left, NULL);
 	}
 	for (;;) {

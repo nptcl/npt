@@ -297,12 +297,6 @@ _g int error_common(Execute ptr, addr datum, addr rest)
 /*
  *  cerror
  */
-static int function_cerror_continue(Execute ptr)
-{
-	/* do nothing */
-	return 0;
-}
-
 static int cerror_make_common(Execute ptr, addr *ret, addr format, addr args)
 {
 	addr inst, pos;
@@ -310,8 +304,7 @@ static int cerror_make_common(Execute ptr, addr *ret, addr format, addr args)
 	Return(format_string_lisp(ptr, format, args, &format));
 	GetConst(COMMON_CONTINUE, &pos);
 	restart_heap(&inst, pos);
-	compiled_heap(&pos, Nil);
-	setcompiled_empty(pos, p_defun_cerror_continue);
+	GetConst(FUNCTION_NIL, &pos);
 	setfunction_restart(inst, pos);
 	setinteractive_restart(inst, Nil);
 	setreport_restart(inst, format);
@@ -584,12 +577,6 @@ _g int warn_common(Execute ptr, addr datum, addr rest)
 /*
  *  break
  */
-static int function_break_continue(Execute ptr)
-{
-	/* do nothing */
-	return 0;
-}
-
 static int break_invoke_common(Execute ptr, addr format, addr args)
 {
 	addr symbol, condition;
@@ -622,8 +609,7 @@ static void break_make_common(addr *ret)
 
 	GetConst(COMMON_CONTINUE, &pos);
 	restart_heap(&inst, pos);
-	compiled_heap(&pos, Nil);
-	setcompiled_empty(pos, p_defun_break_continue);
+	GetConst(FUNCTION_NIL, &pos);
 	setfunction_restart(inst, pos);
 	setinteractive_restart(inst, Nil);
 	strvect_char_heap(&pos, message);
@@ -1355,15 +1341,5 @@ _g int use_value_common(Execute ptr, addr var, addr opt)
 	}
 
 	return 0;
-}
-
-
-/*
- *  initialize
- */
-_g void init_call_conditions(void)
-{
-	SetPointerCall(defun, empty, cerror_continue);
-	SetPointerCall(defun, empty, break_continue);
 }
 

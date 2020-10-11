@@ -29,7 +29,6 @@
 #define muffle_warning_common _n(muffle_warning_common)
 #define store_value_common _n(store_value_common)
 #define use_value_common _n(use_value_common)
-#define init_call_conditions _n(init_call_conditions)
 
 _g int assert_common(Execute ptr, addr form, addr env, addr *ret);
 _g int error_common(Execute ptr, addr datum, addr rest);
@@ -55,8 +54,6 @@ _g int continue_common(Execute ptr, addr opt);
 _g int muffle_warning_common(Execute ptr, addr opt);
 _g int store_value_common(Execute ptr, addr var, addr opt);
 _g int use_value_common(Execute ptr, addr var, addr opt);
-
-_g void init_call_conditions(void);
 
 #endif
 

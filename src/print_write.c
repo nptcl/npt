@@ -2058,7 +2058,10 @@ static int WriteCall_index_(Execute ptr, addr stream, addr pos)
 static int WriteBody_package_(Execute ptr, addr stream, addr pos)
 {
 	Return(getname_package_(pos, &pos));
-	return print_string_stream_(stream, pos);
+	if (stringp(pos))
+		return print_string_stream_(stream, pos);
+	else
+		return write_print_call_(ptr, stream, pos);
 }
 
 static int WriteCall_package_(Execute ptr, addr stream, addr pos)

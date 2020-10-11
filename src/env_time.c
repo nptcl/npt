@@ -877,12 +877,6 @@ static int sleep_close_object(Execute ptr)
 }
 #endif
 
-static int sleep_continue(Execute ptr)
-{
-	/* do nothing */
-	return 0;
-}
-
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
 static int sleep_integer_common(Execute ptr, addr var)
 {
@@ -1000,8 +994,7 @@ static void sleep_make_restart(addr *ret)
 
 	GetConst(COMMON_CONTINUE, &pos);
 	restart_heap(&inst, pos);
-	compiled_heap(&pos, Nil);
-	setcompiled_empty(pos, p_sleep_continue);
+	GetConst(FUNCTION_NIL, &pos);
 	setfunction_restart(inst, pos);
 	setinteractive_restart(inst, Nil);
 	strvect_char_heap(&pos, message);
@@ -1177,7 +1170,6 @@ _g int sleep_common_(Execute ptr, addr var)
  */
 _g void init_environemnt_time(void)
 {
-	SetPointerType(empty, sleep_continue);
 	SetPointerType(empty, sleep_close_object);
 }
 

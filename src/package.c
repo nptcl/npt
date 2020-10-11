@@ -6,6 +6,7 @@
 #include "package.h"
 #include "package_bittype.h"
 #include "package_common.h"
+#include "package_delete.h"
 #include "package_object.h"
 #include "package_symbol.h"
 #include "strtype.h"
@@ -506,160 +507,6 @@ _g int make_package_(addr name, addr names, addr use, addr *ret)
 
 
 /*
- *  delete_package
- */
-static int delete_eqlist_package(addr root, addr check, addr *ret)
-{
-	addr left, right1, right2, right3;
-
-	right1 = NULL;
-	right2 = root;
-	while (right2 != Nil) {
-		GetCons(right2, &left, &right3);
-		if (left == check) {
-			/* delete */
-			if (right1 == NULL) {
-				*ret = right3;
-			}
-			else {
-				SetCdr(right1, right3);
-				*ret = root;
-			}
-			return 0;
-		}
-		right1 = right2;
-		right2 = right3;
-	}
-
-	/* not found */
-	return 1;
-}
-
-_g int remove_check_package(addr package, enum PACKAGE_INDEX index, addr symbol)
-{
-	addr right;
-
-	GetPackage(package, index, &right);
-	if (delete_eqlist_package(right, symbol, &right)) {
-		/* Cannot delete, abort. */
-		return 1;
-	}
-	SetPackage(package, index, right);
-
-	return 0;
-}
-
-static int allunintern_inherited_package_(addr pos, addr right)
-{
-	int ignore;
-	addr left, table, value;
-
-	GetPackage(pos, PACKAGE_INDEX_TABLE, &table);
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		Return(findnil_hashtable_(table, left, &value));
-		Check(value == Nil, "symbol error");
-		if (StructBitType(value)->inherit) {
-			Return(delete_hashtable_(table, left, &ignore));
-		}
-	}
-
-	return 0;
-}
-
-static int allunintern_uselist_package_(addr pos)
-{
-	addr left, right, root;
-
-	GetPackage(pos, PACKAGE_INDEX_EXPORT, &root);
-	GetPackage(pos, PACKAGE_INDEX_USE, &right);
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		/* unintern symbols */
-		Return(allunintern_inherited_package_(left, root));
-		/* remove use-list */
-		if (remove_check_package(left, PACKAGE_INDEX_USED, pos))
-			Abort("remove-eqpackage error");
-	}
-
-	return 0;
-}
-
-static void all_unintern_package(addr pos)
-{
-	addr table, array, left, right;
-	size_t i, size;
-
-	GetPackage(pos, PACKAGE_INDEX_TABLE, &table);
-
-	/* all unintern */
-	GetTableHash(table, &array);
-	LenArrayHash(array, &size);
-	for (i = 0; i < size; i++) {
-		GetArrayHash(array, i, &right);
-		while (right != Nil) {
-			GetCons(right, &left, &right);
-			GetCdr(left, &left);
-
-			/* package nil */
-			if (StructBitType(left)->base) {
-				GetBitTypeSymbol(left, &left);
-				SetPackageSymbol(left, Nil);
-			}
-		}
-	}
-	clear_hashtable(table);
-
-	SetPackage(pos, PACKAGE_INDEX_USE, Nil);
-	SetPackage(pos, PACKAGE_INDEX_SHADOW, Nil);
-	SetPackage(pos, PACKAGE_INDEX_EXPORT, Nil);
-}
-
-/*
- *  return 0:  delete package.
- *  return 1:  package name is nil.
- */
-_g int delete_package_(addr pos, int *ret)
-{
-	int check;
-	addr name, right, table;
-
-	Return(package_designer_(pos, &pos));
-	GetPackage(pos, PACKAGE_INDEX_NAME, &name);
-	if (name == Nil) {
-		/* package object already deleted. */
-		return Result(ret, 1);
-	}
-
-	/* used-by-list */
-	GetPackage(pos, PACKAGE_INDEX_USED, &right);
-	if (right != Nil) {
-		*ret = 1;
-		return fmte_("Package ~S is used by ~S.", name, right, NULL);
-	}
-
-	/* all symbon unintern in use-list. */
-	Return(allunintern_uselist_package_(pos));
-
-	/* all symbol unintern in my package. */
-	all_unintern_package(pos);
-
-	/* delete name and nickname */
-	PackageTable(&table);
-	GetPackage(pos, PACKAGE_INDEX_NICKNAME, &right);
-	Return(delete_hashtable_(table, name, &check));
-	while (right != Nil) {
-		GetCons(right, &name, &right);
-		Return(delete_hashtable_(table, name, &check));
-	}
-	SetPackage(pos, PACKAGE_INDEX_NICKNAME, Nil);
-	SetPackage(pos, PACKAGE_INDEX_NAME, Nil);
-
-	return Result(ret, 0);
-}
-
-
-/*
  *  rename_package
  */
 static int check_renameone_package_(
@@ -909,6 +756,51 @@ _g int in_package_(Execute ptr, addr package, addr *ret)
 	setspecial_local(ptr, symbol, package);
 	if (ret)
 		*ret = package;
+
+	return 0;
+}
+
+
+/*
+ *  remove-check-package
+ */
+static int delete_eqlist_package(addr root, addr check, addr *ret)
+{
+	addr left, right1, right2, right3;
+
+	right1 = NULL;
+	right2 = root;
+	while (right2 != Nil) {
+		GetCons(right2, &left, &right3);
+		if (left == check) {
+			/* delete */
+			if (right1 == NULL) {
+				*ret = right3;
+			}
+			else {
+				SetCdr(right1, right3);
+				*ret = root;
+			}
+			return 0;
+		}
+		right1 = right2;
+		right2 = right3;
+	}
+
+	/* not found */
+	return 1;
+}
+
+_g int remove_check_package(addr package, enum PACKAGE_INDEX index, addr symbol)
+{
+	addr right;
+
+	GetPackage(package, index, &right);
+	if (delete_eqlist_package(right, symbol, &right)) {
+		/* Cannot delete, abort. */
+		return 1;
+	}
+	SetPackage(package, index, right);
 
 	return 0;
 }
