@@ -7,6 +7,7 @@
 #include "package_bittype.h"
 #include "package_common.h"
 #include "package_delete.h"
+#include "package_make.h"
 #include "package_object.h"
 #include "package_symbol.h"
 #include "strtype.h"
@@ -346,78 +347,6 @@ _g void pushlist_package(addr package, enum PACKAGE_INDEX index, addr pos)
 	}
 }
 
-static void pushnewlist_package(addr package, enum PACKAGE_INDEX index, addr pos)
-{
-	addr left, right;
-
-	GetPackage(package, index, &right);
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		if (left == pos)
-			return; /* don't push */
-	}
-	pushlist_package(package, index, pos);
-}
-
-static int check_nicknames_package_(addr name, addr right)
-{
-	addr left, check, table;
-
-	/* check name */
-	PackageTable(&table);
-	Return(findcons_hashtable_(table, name, &check));
-	if (check != Nil)
-		return fmte_("Package ~S already exists.", name, NULL);
-
-	/* check names */
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		Return(string_designer_heap_(&left, left, NULL));
-		Return(findcons_hashtable_(table, left, &check));
-		if (check != Nil)
-			return fmte_("Nickname ~S already exists.", left, NULL);
-	}
-
-	return 0;
-}
-
-static int check_listconflict_package_(addr pos1, addr pos2)
-{
-	int check;
-	addr one1, one2, loop;
-
-	GetPackage(pos1, PACKAGE_INDEX_EXPORT, &pos1);
-	GetPackage(pos2, PACKAGE_INDEX_EXPORT, &pos2);
-	while (pos1 != Nil) {
-		GetCons(pos1, &one1, &pos1);
-		for (loop = pos2; loop != Nil; ) {
-			GetCons(loop, &one2, &loop);
-			Return(string_equal_(one1, one2, &check));
-			if (check)
-				return fmte_("Conflict occured name ~S.", one1, NULL);
-		}
-	}
-
-	return 0;
-}
-
-static int check_first_usepackage_(addr right)
-{
-	addr left, one, next;
-
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		Return(package_designer_(left, &left));
-		for (next = right; next != Nil; ) {
-			GetCons(next, &one, &next);
-			Return(package_designer_(one, &one));
-			Return(check_listconflict_package_(left, one));
-		}
-	}
-
-	return 0;
-}
-
 _g int append_nicknames_package_(addr pos, addr right)
 {
 	addr table, left, cons, check;
@@ -440,69 +369,6 @@ _g int append_nicknames_package_(addr pos, addr right)
 	}
 
 	return 0;
-}
-
-static int append_exportname_package_(addr pos, addr left, addr name)
-{
-	addr bit, cons, one;
-
-	GetPackage(pos, PACKAGE_INDEX_TABLE, &one);
-	Return(intern_hashheap_(one, name, &cons));
-
-	/* duplicate check (if same package in use list.) */
-	GetCdr(cons, &one);
-	if (one == Nil) {
-		/* make bitpackage */
-		Return(findnil_hashtable_(left, name, &one));
-		Check(one == Nil, "export nil error");
-		Check(StructBitType(one)->expt == 0, "export error");
-		GetBitTypeSymbol(one, &one);
-		inheritedbitpackage(&bit, one);
-		/* push package */
-		SetCdr(cons, bit);
-	}
-
-	return 0;
-}
-
-static int append_usepackage_package_(addr pos, addr right)
-{
-	addr left, table, cons, name;
-
-	while (right != Nil) {
-		/* intern export */
-		GetCons(right, &left, &right);
-		Return(package_designer_(left, &left));
-		GetPackage(left, PACKAGE_INDEX_EXPORT, &cons);
-		GetPackage(left, PACKAGE_INDEX_TABLE, &table);
-		while (cons != Nil) {
-			GetCons(cons, &name, &cons);
-			Return(append_exportname_package_(pos, table, name));
-		}
-
-		/* push use-list, used-by-list */
-		pushnewlist_package(pos, PACKAGE_INDEX_USE, left);
-		pushnewlist_package(left, PACKAGE_INDEX_USED, pos);
-	}
-
-	return 0;
-}
-
-_g int make_package_(addr name, addr names, addr use, addr *ret)
-{
-	addr pos;
-
-	/* check */
-	Return(string_designer_heap_(&name, name, NULL));
-	Return(check_nicknames_package_(name, names));
-	Return(check_first_usepackage_(use));
-
-	/* make package */
-	Return(package_heap_(&pos, name));
-	Return(append_nicknames_package_(pos, names));
-	Return(append_usepackage_package_(pos, use));
-
-	return Result(ret, pos);
 }
 
 
@@ -906,5 +772,6 @@ _g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
 _g void init_package(void)
 {
 	init_package_common();
+	init_package_make();
 }
 

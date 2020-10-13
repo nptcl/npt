@@ -1107,7 +1107,9 @@ enum pointer_index {
 	/* function */
 	p_defun_constantly_nil,
 	p_defun_constantly_t,
+	p_defun_constantly_values,
 	/* package */
+	p_defun_make_package_input,
 	p_defun_defpackage_make,
 	/* pathname */
 	p_defun_set_logical_pathname_translations,

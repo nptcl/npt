@@ -10,7 +10,6 @@
 #define getpackage_ _n(getpackage_)
 #define pushlist_package _n(pushlist_package)
 #define append_nicknames_package_ _n(append_nicknames_package_)
-#define make_package_ _n(make_package_)
 #define delete_renameone_package_ _n(delete_renameone_package_)
 #define rename_package_ _n(rename_package_)
 #define find_symbol_package_ _n(find_symbol_package_)
@@ -37,7 +36,6 @@ _g int getpackage_(Execute ptr, addr *ret);
 
 _g void pushlist_package(addr package, enum PACKAGE_INDEX index, addr pos);
 _g int append_nicknames_package_(addr pos, addr right);
-_g int make_package_(addr name, addr names, addr use, addr *ret);
 _g int delete_renameone_package_(addr table, addr name);
 _g int rename_package_(addr pos, addr name, addr right, addr *ret);
 

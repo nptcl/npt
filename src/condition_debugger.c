@@ -225,6 +225,37 @@ static int eval_debugger(Execute ptr, addr io, addr eval)
 	return pop_control_(ptr, control);
 }
 
+static int eval_symbol_debugger(Execute ptr, addr io, addr list, addr eval)
+{
+	int check;
+	addr root, restart, x, y;
+
+	/* eq check */
+	root = list;
+	while (root != Nil) {
+		GetCons(root, &restart, &root);
+		getname_restart(restart, &x);
+		if (x == eval)
+			return invoke_restart_interactively_control_(ptr, restart);
+	}
+
+	/* symbol= check */
+	Return(string_designer_heap_(&y, eval, &check));
+	if (check) {
+		root = list;
+		while (root != Nil) {
+			GetCons(root, &restart, &root);
+			getname_restart(restart, &x);
+			Return(string_designer_equal_(x, y, &check));
+			if (check)
+				return invoke_restart_interactively_control_(ptr, restart);
+		}
+	}
+
+	/* eval */
+	return eval_debugger(ptr, io, eval);
+}
+
 static int enter_debugger(Execute ptr, addr condition)
 {
 	int check, result;
@@ -270,8 +301,7 @@ loop:
 	}
 	/* check */
 	if (! fixnump(pos)) {
-		if (eval_debugger(ptr, io, pos))
-			return 1;
+		Return(eval_symbol_debugger(ptr, io, list, pos));
 		goto loop;
 	}
 	if (GetIndex_integer(pos, &select)) {

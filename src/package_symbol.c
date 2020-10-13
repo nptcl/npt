@@ -385,14 +385,13 @@ static int shadow_symbol_package_(addr package, addr pos)
 
 _g int shadow_list_package_(addr package, addr pos)
 {
-	enum LISPTYPE type;
 	addr left, right;
 
 	/* type check */
+	Check(! listp(pos), "type error");
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		type = GetType(left);
-		if ((! IsValueSymbol(type)) && (! stringp(left)))
+		if (! string_designer_p(left))
 			return fmte_("shadow ~S must be a string-desinger.", left, NULL);
 	}
 
@@ -915,14 +914,12 @@ static int check_user_package_list_package_(addr package, addr right)
 
 _g int use_package_list_package_(addr package, addr pos)
 {
-	enum LISPTYPE type;
 	addr left, right;
 
 	/* type check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		type = GetType(left);
-		if (type != LISPTYPE_PACKAGE && (! IsValueSymbol(type)) && (! stringp(left)))
+		if (! package_designer_p(left))
 			return fmte_("use-package ~S must be a package-desinger.", left, NULL);
 	}
 
@@ -1018,14 +1015,12 @@ static int unuse_package_operator_package_(addr package, addr pos)
 
 static int unuse_package_list_package_(addr package, addr pos)
 {
-	enum LISPTYPE type;
 	addr left, right;
 
 	/* type check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		type = GetType(left);
-		if (type != LISPTYPE_PACKAGE && (! IsValueSymbol(type)) && (! stringp(left)))
+		if (! package_designer_p(left))
 			return fmte_("unuse-package ~S must be a package-desinger.", left, NULL);
 	}
 

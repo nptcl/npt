@@ -8,6 +8,7 @@
 #include "eval_execute.h"
 #include "integer.h"
 #include "package.h"
+#include "package_make.h"
 #include "package_symbol.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -114,7 +115,7 @@ _g int make_package_common_(Execute ptr, addr name, addr rest, addr *ret)
 		GetConst(PACKAGE_DEFAULT_USE, &use);
 	}
 	/* make-package */
-	return make_package_(name, nicknames, use, ret);
+	return make_package_(ptr, name, nicknames, use, ret);
 }
 
 

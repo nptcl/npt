@@ -232,6 +232,7 @@ package_bittype.c
 package_common.c
 package_delete.c
 package_iterator.c
+package_make.c
 package_object.c
 package_symbol.c
 package.c

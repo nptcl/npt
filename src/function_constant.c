@@ -20,6 +20,12 @@ static int function_constantly_t(Execute ptr, addr ignore)
 	return 0;
 }
 
+static int function_constantly_values(Execute ptr, addr list)
+{
+	setvalues_list_control(ptr, list);
+	return 0;
+}
+
 _g void build_function(void)
 {
 	addr pos;
@@ -32,11 +38,16 @@ _g void build_function(void)
 	compiled_heap(&pos, Nil);
 	setcompiled_dynamic(pos, p_defun_constantly_t);
 	SetConst(FUNCTION_T, pos);
+	/* values */
+	compiled_heap(&pos, Nil);
+	setcompiled_dynamic(pos, p_defun_constantly_values);
+	SetConst(FUNCTION_VALUES, pos);
 }
 
 _g void init_function(void)
 {
 	SetPointerCall(defun, dynamic, constantly_nil);
 	SetPointerCall(defun, dynamic, constantly_t);
+	SetPointerCall(defun, dynamic, constantly_values);
 }
 

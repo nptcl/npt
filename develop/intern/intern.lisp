@@ -1865,6 +1865,13 @@ lisp-system::prompt-step
 
 
 ;;
+;;  restart name
+;;
+lisp-system::input
+lisp-system::shadow
+
+
+;;
 ;;  syscall
 ;;
 lisp-system::readtable-dot

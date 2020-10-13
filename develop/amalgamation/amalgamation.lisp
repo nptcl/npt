@@ -490,6 +490,7 @@
     "package_common.h"
     "package_delete.h"
     "package_iterator.h"
+    "package_make.h"
     "package_symbol.h"
     "package.h"
     "reader_dispatch.h"
@@ -834,6 +835,7 @@
     "package_common.c"
     "package_delete.c"
     "package_iterator.c"
+    "package_make.c"
     "package_object.c"
     "package_symbol.c"
     ("package.c" :include "intern_count.h")

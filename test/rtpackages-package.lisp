@@ -392,14 +392,13 @@
 
 
 ;;
-;;
+;;  Function MAKE-PACKAGE
 ;;
 (deftest make-package.1
   (progn
     (make-package 'make-package-1)
-    (let ((result (packagep (find-package 'make-package-1))))
-      (delete-package 'make-package-1)
-      result))
+    (prog1 (packagep (find-package 'make-package-1))
+      (delete-package 'make-package-1)))
   t)
 
 (deftest make-package.2
@@ -407,9 +406,8 @@
     (make-package
       'make-package-2 :nicknames
       '(make-package-2-1 make-package-2-2 make-package-2-3 make-package-2-4))
-    (let ((result (packagep (find-package 'make-package-2-2))))
-      (delete-package 'make-package-2)
-      result))
+    (prog1 (packagep (find-package 'make-package-2-2))
+      (delete-package 'make-package-2)))
   t)
 
 (deftest make-package.3
@@ -422,6 +420,223 @@
                 status))))
   "HELLO" "MAKE-PACKAGE-3-1" :inherited)
 
+(deftest-error make-package-name.1
+  (progn
+    (make-package 'make-package-4)
+    (make-package 'make-package-4))
+  package-error)
+
+(deftest-error make-package-name.2
+  (progn
+    (make-package 'make-package-name-2
+                  :nicknames '(make-package-name-2a make-package-name-2b))
+    (make-package 'make-package-name-2a))
+  package-error)
+
+(deftest make-package-name.3
+  (packagep
+    (handler-bind ((package-error #'continue))
+      (make-package 'make-package-name-3)
+      (make-package 'make-package-name-3)))
+  t)
+
+(deftest make-package-name.4
+  (packagep
+    (handler-bind ((package-error #'continue))
+      (make-package 'make-package-name-4
+                    :nicknames '(make-package-name-4a make-package-name-4b))
+      (make-package 'make-package-name-4a)))
+  t)
+
+(deftest make-package-nicknames.1
+  (packagep
+    (make-package 'make-package-nicknames-1
+                  :nicknames '(make-package-nicknames-1a)))
+  t)
+
+(deftest make-package-nicknames.2
+  (progn
+    (make-package 'make-package-nicknames-2
+                  :nicknames '(make-package-nicknames-2a))
+    (packagep
+      (find-package 'make-package-nicknames-2a)))
+  t)
+
+(deftest make-package-nicknames.3
+  (packagep
+    (make-package 'make-package-nicknames-3
+                  :nicknames '(make-package-nicknames-3)))
+  t)
+
+(deftest make-package-nicknames.4
+  (progn
+    (make-package 'make-package-nicknames-4
+                  :nicknames '(make-package-nicknames-4a
+                                make-package-nicknames-4b))
+    (values
+      (packagep (find-package 'make-package-nicknames-4))
+      (packagep (find-package 'make-package-nicknames-4a))
+      (packagep (find-package 'make-package-nicknames-4b))))
+  t t t)
+
+(deftest-error make-package-nicknames.5
+  (progn
+    (make-package 'make-package-nicknames-5a)
+    (make-package 'make-package-nicknames-5b
+                  :nicknames '(make-package-nicknames-5a)))
+  package-error)
+
+(deftest-error make-package-nicknames.6
+  (progn
+    (make-package 'make-package-nicknames-6a
+                  :nicknames '(make-package-nicknames-6b))
+    (make-package 'make-package-nicknames-6c
+                  :nicknames '(make-package-nicknames-6b)))
+  package-error)
+
+(deftest make-package-nicknames.7
+  (package-name
+    (handler-bind ((package-error #'continue))
+      (make-package 'make-package-nicknames-7)
+      (make-package 'make-package-nicknames-7a
+                    :nicknames '(make-package-nicknames-7))))
+  "MAKE-PACKAGE-NICKNAMES-7A")
+
+(deftest make-package-nicknames.8
+  (package-nicknames
+    (handler-bind ((package-error #'continue))
+      (make-package 'make-package-nicknames-8)
+      (make-package 'make-package-nicknames-8a
+                    :nicknames '(make-package-nicknames-8b
+                                  make-package-nicknames-7
+                                  make-package-nicknames-8c))))
+  ("MAKE-PACKAGE-NICKNAMES-8B" "MAKE-PACKAGE-NICKNAMES-8C"))
+
+(deftest make-package-use.1
+  (packagep
+    (progn
+      (make-package 'make-package-use-1a)
+      (make-package 'make-package-use-1b :use '(make-package-use-1a))))
+  t)
+
+(deftest-error make-package-use.2
+  (packagep
+    (progn
+      (make-package 'make-package-use-2a)
+      (make-package 'make-package-use-2b :use '(20)))))
+
+(deftest make-package-use.3
+  (mapcar #'package-name
+          (package-use-list
+            (make-package 'make-package-use-3)))
+  ("COMMON-LISP"))
+
+(deftest make-package-use.4
+  (package-used-by-list
+    (make-package 'make-package-use-4))
+  nil)
+
+(deftest make-package-use.5
+  (progn
+    (make-package 'make-package-use-5a :use nil)
+    (make-package 'make-package-use-5b :use '(make-package-use-5a))
+    (values
+      (mapcar #'package-name (package-use-list 'make-package-use-5a))
+      (mapcar #'package-name (package-used-by-list 'make-package-use-5a))
+      (mapcar #'package-name (package-use-list 'make-package-use-5b))
+      (mapcar #'package-name (package-used-by-list 'make-package-use-5b))))
+  () ("MAKE-PACKAGE-USE-5B")
+  ("MAKE-PACKAGE-USE-5A") ())
+
+(deftest-error make-package-use.6
+  (make-package 'make-package-use-6 :use '(no-such-package-name)))
+
+(deftest-error make-package-use.7
+  (progn
+    (make-package 'make-package-use-7a)
+    (make-package 'make-package-use-7b)
+    (export (intern "X" 'make-package-use-7a) 'make-package-use-7a)
+    (export (intern "X" 'make-package-use-7b) 'make-package-use-7b)
+    (make-package 'make-package-use-7c
+                  :use '(make-package-use-7a make-package-use-7b)))
+  package-error)
+
+(deftest make-package-use.8
+  (handler-bind ((package-error #'continue))
+    (make-package 'make-package-use-8a)
+    (make-package 'make-package-use-8b)
+    (export (intern "X" 'make-package-use-8a) 'make-package-use-8a)
+    (export (intern "X" 'make-package-use-8b) 'make-package-use-8b)
+    (make-package 'make-package-use-8c :use '(make-package-use-8a make-package-use-8b))
+    (mapcar #'package-name (package-use-list 'make-package-use-8c)))
+  nil)
+
+(deftest make-package-use.9
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'lisp-system::shadow c))))
+    (make-package 'make-package-use-9a)
+    (make-package 'make-package-use-9b)
+    (export (intern "X" 'make-package-use-9a) 'make-package-use-9a)
+    (export (intern "X" 'make-package-use-9b) 'make-package-use-9b)
+    (make-package 'make-package-use-9c :use '(make-package-use-9a make-package-use-9b))
+    (sort (mapcar #'package-name (package-use-list 'make-package-use-9c))
+          #'string<))
+  ("MAKE-PACKAGE-USE-9A" "MAKE-PACKAGE-USE-9B"))
+
+(deftest make-package-use.10
+  (mapcar #'symbol-name (package-shadowing-symbols 'make-package-use-9c))
+  ("X"))
+
+(deftest-error make-package-error.1
+  (eval '(make-package 10))
+  type-error)
+
+(deftest-error! make-package-error.2
+  (eval '(make-package)))
+
+(deftest-error make-package-error.3
+  (eval '(make-package 'make-package-error-3 :nicknames)))
+
+(deftest-error make-package-error.4
+  (eval '(make-package 'make-package-error-4 :nicknames 20)))
+
+(deftest-error make-package-error.5
+  (eval '(make-package 'make-package-error-5 :hello 20)))
+
+(deftest-error make-package-error.6
+  (eval '(make-package 'make-package-error-6 :use 20)))
+
+(deftest-error make-package-error.7
+  (eval '(make-package 'make-package-error-7 :nicknames '(10))))
+
+(deftest-error make-package-error.8
+  (eval '(make-package 'make-package-error-8 :use '(10))))
+
+;;  ANSI Common Lisp
+(deftest make-package-test.1
+  (packagep
+    (make-package 'make-package-test-1
+                  :nicknames '("MAKE-PACKAGE-TEST-2" "MAKE-PACKAGE-TEST-3")))
+  t)
+
+(deftest make-package-test.2
+  (packagep
+    (make-package "MAKE-PACKAGE-TEST-4" :use '("MAKE-PACKAGE-TEST-3")))
+  t)
+
+(deftest make-package-test.3
+  (mapcar #'package-name (package-used-by-list 'make-package-test-3))
+  ("MAKE-PACKAGE-TEST-4"))
+
+(deftest make-package-test.4
+  (mapcar #'package-name (package-use-list 'make-package-test-4))
+  ("MAKE-PACKAGE-TEST-1"))
+
+
+;;
+;;
+;;
 (deftest with-package-iterator.1
   (with-package-iterator
     (call *package* :internal)
