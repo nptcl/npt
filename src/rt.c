@@ -12,6 +12,7 @@
 #include "hashtable.h"
 #include "integer.h"
 #include "hold.h"
+#include "package_export.h"
 #include "package_symbol.h"
 #include "print_write.h"
 #include "rt.h"

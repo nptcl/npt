@@ -5,8 +5,9 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_common.h"
 #include "package_delete.h"
+#include "package_designer.h"
+#include "package_export.h"
 #include "package_make.h"
 #include "package_object.h"
 #include "package_symbol.h"
@@ -85,17 +86,6 @@ _g int find_char_package_(const char *name, addr *ret)
 	addr pos;
 	PackageTable(&pos);
 	return findnil_char_hashtable_(pos, name, ret);
-}
-
-_g int package_designer_(addr pos, addr *ret)
-{
-	addr package;
-
-	Return(find_package_(pos, &package));
-	if (package == Nil)
-		return fmte_("No such a package ~S.", pos, NULL);
-
-	return Result(ret, package);
 }
 
 static int append_root_package_(addr name, addr package)
@@ -771,7 +761,7 @@ _g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
  */
 _g void init_package(void)
 {
-	init_package_common();
+	init_package_designer();
 	init_package_make();
 }
 

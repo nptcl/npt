@@ -104,7 +104,7 @@ _g void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3)
 _g int make_package_iterator_syscode_(addr pos, addr a, addr b, addr c, addr *ret);
 _g int next_package_iterator_syscode_(Execute ptr, addr pos,
 		addr *ret1, addr *ret2, addr *ret3, addr *ret4);
-_g int defpackage_syscode(Execute ptr, addr rest, addr *ret);
+_g int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret);
 _g int do_symbols_syscode(Execute ptr, addr call, addr package);
 _g int do_external_symbols_syscode(Execute ptr, addr call, addr package);
 _g int do_all_symbols_syscode_(Execute ptr, addr call);

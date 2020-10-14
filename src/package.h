@@ -15,7 +15,6 @@
 #define find_symbol_package_ _n(find_symbol_package_)
 #define find_package_ _n(find_package_)
 #define find_char_package_ _n(find_char_package_)
-#define package_designer_ _n(package_designer_)
 #define package_size_heap_ _n(package_size_heap_)
 #define package_heap_ _n(package_heap_)
 #define find_allsymbols_package_ _n(find_allsymbols_package_)
@@ -43,7 +42,6 @@ _g int find_symbol_package_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret);
 _g int find_package_(addr name, addr *ret);
 _g int find_char_package_(const char *name, addr *ret);
-_g int package_designer_(addr pos, addr *ret);
 _g int package_size_heap_(addr *ret, addr name, size_t size);
 _g int package_heap_(addr *ret, addr name);
 _g int find_allsymbols_package_(addr name, addr *ret);

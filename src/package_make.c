@@ -10,6 +10,7 @@
 #include "hold.h"
 #include "package.h"
 #include "package_bittype.h"
+#include "package_designer.h"
 #include "package_make.h"
 #include "package_symbol.h"
 #include "restart.h"
@@ -63,7 +64,7 @@ static void restart_input_name_make_package(addr *ret)
 	GetConst(SYSTEM_INPUT, &pos);
 	restart_heap(&restart, pos);
 	/* report */
-	strvect_char_heap(&pos, "Input another pacakge name.");
+	strvect_char_heap(&pos, "Input another package name.");
 	setreport_restart(restart, pos);
 	/* function */
 	GetConst(FUNCTION_VALUES, &pos);
@@ -250,7 +251,7 @@ static int conflict_nicknames_make_package_(addr list, addr *ret)
 	return Result(ret, root);
 }
 
-static int nicknames_make_package_(Execute ptr, LocalHold hold, addr list, addr *ret)
+_g int nicknames_make_package_(Execute ptr, addr list, addr *ret)
 {
 	addr remove;
 
@@ -258,7 +259,6 @@ static int nicknames_make_package_(Execute ptr, LocalHold hold, addr list, addr 
 	if (remove != Nil) {
 		Return(error_nicknames_make_package_(ptr, remove));
 		Return(remove_nicknames_make_package_(ptr, list, &list));
-		localhold_set(hold, 1, list);
 	}
 
 	return Result(ret, list);
@@ -297,7 +297,7 @@ static void restart_shadow_use_make_package(addr *ret)
 	addr restart, pos;
 
 	/* name */
-	GetConst(SYSTEM_SHADOW, &pos);
+	GetConst(COMMON_SHADOW, &pos);
 	restart_heap(&restart, pos);
 	/* report */
 	strvect_char_heap(&pos, "Make newly symbols shadowing.");
@@ -505,7 +505,8 @@ _g int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret)
 		return Result(ret, name);
 
 	/* nicknames */
-	Return(nicknames_make_package_(ptr, hold, names, &names));
+	Return(nicknames_make_package_(ptr, names, &names));
+	localhold_set(hold, 1, names);
 
 	/* use-package */
 	Return(use_make_package_(ptr, hold, use, &use, &shadow));

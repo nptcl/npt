@@ -7,6 +7,7 @@
 
 (load #p"test/rtpackages-object.lisp")
 (load #p"test/rtpackages-package.lisp")
+(load #p"test/rtpackages-defpackage.lisp")
 (load #p"test/rtpackages-symbol.lisp")
 
 

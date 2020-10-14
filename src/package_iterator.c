@@ -2,6 +2,7 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
+#include "package_designer.h"
 #include "package_iterator.h"
 #include "package_object.h"
 #include "typedef.h"

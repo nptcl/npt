@@ -1868,7 +1868,7 @@ lisp-system::prompt-step
 ;;  restart name
 ;;
 lisp-system::input
-lisp-system::shadow
+lisp-system::ignore
 
 
 ;;

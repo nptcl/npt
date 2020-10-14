@@ -131,7 +131,7 @@
 ;;  ANSI Common Lisp
 (deftest rename-package-test.1
   (progn
-    (make-package 'rename-pacakge-temporary :nicknames '("RENAME-PACKAGE-TEMP"))
+    (make-package 'rename-package-temporary :nicknames '("RENAME-PACKAGE-TEMP"))
     (rename-package 'rename-package-temp 'rename-package-ephemeral)
     (package-nicknames (find-package 'rename-package-ephemeral)))
   nil)
@@ -232,7 +232,7 @@
 (defvar *delete-package-foo-symbol*)
 (defvar *delete-package-bar-package*)
 (defvar *delete-package-bar-symbol*)
-(defvar *delete-pacakge-baz-package*)
+(defvar *delete-package-baz-package*)
 
 (deftest delete-package-test.1
   (progn
@@ -249,7 +249,7 @@
     (export *delete-package-foo-symbol* *delete-package-bar-package*)
     (export *delete-package-bar-symbol* *delete-package-bar-package*)
 
-    (setq *delete-pacakge-baz-package*
+    (setq *delete-package-baz-package*
           (make-package "DELETE-PACKAGE-BAZ" :use '("DELETE-PACKAGE-BAR")))
 
     (package-name
@@ -277,13 +277,13 @@
 
 (deftest delete-package-test.6
   (multiple-value-bind (x y)
-    (find-symbol "FOO" *delete-pacakge-baz-package*)
+    (find-symbol "FOO" *delete-package-baz-package*)
     (values (prin1-to-string x) y))
   "DELETE-PACKAGE-FOO:FOO" :inherited)
 
 (deftest delete-package-test.7
   (multiple-value-bind (x y)
-    (find-symbol "BAR" *delete-pacakge-baz-package*)
+    (find-symbol "BAR" *delete-package-baz-package*)
     (values (prin1-to-string x) y))
   "DELETE-PACKAGE-BAR:BAR" :inherited)
 
@@ -291,14 +291,14 @@
   (values
     (packagep *delete-package-foo-package*)
     (packagep *delete-package-bar-package*)
-    (packagep *delete-pacakge-baz-package*))
+    (packagep *delete-package-baz-package*))
   t t t)
 
 (deftest delete-package-test.9
   (values
     (package-name *delete-package-foo-package*)
     (package-name *delete-package-bar-package*)
-    (package-name *delete-pacakge-baz-package*))
+    (package-name *delete-package-baz-package*))
   "DELETE-PACKAGE-FOO"
   "DELETE-PACKAGE-BAR"
   "DELETE-PACKAGE-BAZ")
@@ -310,7 +310,7 @@
     (mapcar #'package-name
             (package-use-list *delete-package-bar-package*))
     (mapcar #'package-name
-            (package-use-list *delete-pacakge-baz-package*)))
+            (package-use-list *delete-package-baz-package*)))
   () ("DELETE-PACKAGE-FOO") ("DELETE-PACKAGE-BAR"))
 
 (deftest delete-package-test.11
@@ -320,7 +320,7 @@
     (mapcar #'package-name
             (package-used-by-list *delete-package-bar-package*))
     (mapcar #'package-name
-            (package-used-by-list *delete-pacakge-baz-package*)))
+            (package-used-by-list *delete-package-baz-package*)))
   ("DELETE-PACKAGE-BAR") ("DELETE-PACKAGE-BAZ") ())
 
 (deftest-error delete-package-test.12
@@ -353,25 +353,25 @@
   nil nil)
 
 (deftest delete-package-test.19
-  (find-symbol "DELETE-PACKAGE-FOO" *delete-pacakge-baz-package*)
+  (find-symbol "DELETE-PACKAGE-FOO" *delete-package-baz-package*)
   nil nil)
 
 (deftest delete-package-test.20
-  (find-symbol "DELETE-PACKAGE-BAR" *delete-pacakge-baz-package*)
+  (find-symbol "DELETE-PACKAGE-BAR" *delete-package-baz-package*)
   nil nil)
 
 (deftest delete-package-test.21
   (values
     (packagep *delete-package-foo-package*)
     (packagep *delete-package-bar-package*)
-    (packagep *delete-pacakge-baz-package*))
+    (packagep *delete-package-baz-package*))
   t t t)
 
 (deftest delete-package-test.22
   (values
     (package-name *delete-package-foo-package*)
     (package-name *delete-package-bar-package*)
-    (package-name *delete-pacakge-baz-package*))
+    (package-name *delete-package-baz-package*))
   "DELETE-PACKAGE-FOO"
   nil
   "DELETE-PACKAGE-BAZ")
@@ -380,14 +380,14 @@
   (values
     (package-use-list *delete-package-foo-package*)
     (package-use-list *delete-package-bar-package*)
-    (package-use-list *delete-pacakge-baz-package*))
+    (package-use-list *delete-package-baz-package*))
   nil nil nil)
 
 (deftest delete-package-test.24
   (values
     (package-used-by-list *delete-package-foo-package*)
     (package-used-by-list *delete-package-bar-package*)
-    (package-used-by-list *delete-pacakge-baz-package*))
+    (package-used-by-list *delete-package-baz-package*))
   nil nil nil)
 
 
@@ -574,7 +574,7 @@
 (deftest make-package-use.9
   (handler-bind ((package-error
                    (lambda (c)
-                     (invoke-restart 'lisp-system::shadow c))))
+                     (invoke-restart 'shadow c))))
     (make-package 'make-package-use-9a)
     (make-package 'make-package-use-9b)
     (export (intern "X" 'make-package-use-9a) 'make-package-use-9a)
@@ -635,7 +635,7 @@
 
 
 ;;
-;;
+;;  Macro WITH-PACKAGE-ITERATOR
 ;;
 (deftest with-package-iterator.1
   (with-package-iterator
@@ -644,6 +644,107 @@
       (values check (symbolp symbol) status (eq package *package*))))
   t t :internal t)
 
+(deftest with-package-iterator.2
+  (with-package-iterator
+    (call (list *package*) :internal)
+    (multiple-value-bind (check symbol status package) (call)
+      (values check (symbolp symbol) status (eq package *package*))))
+  t t :internal t)
+
+(deftest with-package-iterator.3
+  (let ((x (make-package 'with-package-iterator-3 :use nil)))
+    (with-package-iterator
+      (call x :internal :external :inherited)
+      (call)))
+  nil)
+
+(defun with-package-iterator-loop (call)
+  (do (list) (nil)
+    (multiple-value-bind (check x y z) (funcall call)
+      (unless check
+        (return list))
+      (push (list x y z) list))))
+
+(defun with-package-iterator-string (call)
+  (mapcar (lambda (list)
+            (destructuring-bind (x y z) list
+              (list
+                (package-name
+                  (symbol-package x))
+                (symbol-name x)
+                y
+                (package-name z))))
+          (with-package-iterator-loop call)))
+
+(defun with-package-iterator-list (call)
+  (sort (with-package-iterator-string call)
+        (lambda (x y)
+          (or (string< (car x) (car y))
+              (string< (cadr x) (cadr y))))))
+
+(deftest with-package-iterator.4
+  (progn
+    (make-package 'with-package-iterator-4a)
+    (make-package 'with-package-iterator-4b)
+    (make-package 'with-package-iterator-4c)
+    (intern "A" 'with-package-iterator-4a)
+    (intern "B" 'with-package-iterator-4a)
+    (intern "C" 'with-package-iterator-4b)
+    (intern "D" 'with-package-iterator-4b)
+    (intern "E" 'with-package-iterator-4c)
+    (let ((x '(with-package-iterator-4a
+                with-package-iterator-4b
+                with-package-iterator-4c)))
+      (with-package-iterator
+        (call x :internal)
+        (with-package-iterator-list (lambda () (call))))))
+  (("WITH-PACKAGE-ITERATOR-4A" "A" :internal "WITH-PACKAGE-ITERATOR-4A")
+   ("WITH-PACKAGE-ITERATOR-4A" "B" :internal "WITH-PACKAGE-ITERATOR-4A")
+   ("WITH-PACKAGE-ITERATOR-4B" "C" :internal "WITH-PACKAGE-ITERATOR-4B")
+   ("WITH-PACKAGE-ITERATOR-4B" "D" :internal "WITH-PACKAGE-ITERATOR-4B")
+   ("WITH-PACKAGE-ITERATOR-4C" "E" :internal "WITH-PACKAGE-ITERATOR-4C")))
+
+(deftest-error with-package-iterator-error.1
+  (eval '(with-package-iterator
+           (10 *package* :internal :external :inherited)
+           :hello)))
+
+(deftest-error with-package-iterator-error.2
+  (eval '(with-package-iterator
+           (call 20 :internal :external :inherited)
+           :hello)))
+
+(deftest-error with-package-iterator-error.3
+  (eval '(with-package-iterator
+           (call '(10 20 30) :internal :external :inherited)
+           :hello)))
+
+(deftest-error with-package-iterator-error.4
+  (eval '(with-package-iterator
+           (call *package*)
+           :hello))
+  package-error)
+
+(deftest-error with-package-iterator-error.5
+  (eval '(with-package-iterator
+           (call *package* :hello)
+           :hello))
+  package-error)
+
+(deftest-error with-package-iterator-error.6
+  (eval '(with-package-iterator
+           (call)
+           :hello)))
+
+(deftest-error with-package-iterator-error.7
+  (eval '(with-package-iterator
+           (call *package* :internal :external :inherited)
+           (call 10))))
+
+
+;;
+;;  Macro IN-PACKAGE
+;;
 (deftest in-package.1
   (let (name)
     (in-package test1)
@@ -652,91 +753,24 @@
     name)
   "TEST1")
 
-(deftest defpackage.1
-  (packagep
-    (defpackage defpackage-1))
-  t)
+(deftest-error in-package.2
+  (in-package no-such-package-name)
+  package-error)
 
-(deftest defpackage.2
+(deftest in-package.3
   (package-name
-    (defpackage defpackage-2))
-  "DEFPACKAGE-2")
+    (handler-bind ((package-error
+                     (lambda (x)
+                       (use-value 'common-lisp-user x ))))
+      (in-package no-such-package-name)))
+  "COMMON-LISP-USER")
 
-(deftest defpackage.3
-  (progn
-    (defpackage defpackage-3)
-    (packagep (find-package 'defpackage-1)))
-  t)
+(deftest-error in-package.4
+  (eval '(in-package 10)))
 
-(deftest defpackage.4
-  (progn
-    (defpackage defpackage-4 (:nicknames defpackage-4-1 defpackage-4-2))
-    (values
-      (packagep (find-package 'defpackage-4))
-      (packagep (find-package 'defpackage-4-1))
-      (packagep (find-package 'defpackage-4-2))))
-  t t t)
+(deftest-error in-package.5
+  (eval '(in-package)))
 
-(deftest defpackage.5
-  (progn
-    (defpackage defpackage-5 (:shadow aaa))
-    (symbol-name
-      (car (package-shadowing-symbols 'defpackage-5))))
-  "AAA")
-
-(deftest defpackage.6
-  (progn
-    (defpackage defpackage-6)
-    (intern "BBB" 'defpackage-6)
-    (defpackage defpackage-6-1 (:shadowing-import-from defpackage-6 bbb))
-    (symbol-name
-      (car (package-shadowing-symbols 'defpackage-6-1))))
-  "BBB")
-
-(deftest defpackage.7
-  (progn
-    (defpackage defpackage-7 (:export aaa))
-    (defpackage defpackage-7-1 (:use defpackage-7 common-lisp))
-    (multiple-value-bind (symbol check) (find-symbol "AAA" 'defpackage-7-1)
-      (values
-        (symbol-name symbol)
-        (package-name (symbol-package symbol))
-        check)))
-  "AAA" "DEFPACKAGE-7" :inherited)
-
-(deftest defpackage.8
-  (progn
-    (defpackage defpackage-8 (:export aaa bbb))
-    (multiple-value-bind (symbol check) (find-symbol "BBB" 'defpackage-8)
-      (values
-        (symbol-name symbol)
-        (package-name (symbol-package symbol))
-        check)))
-  "BBB" "DEFPACKAGE-8" :external)
-
-(deftest defpackage.9
-  (progn
-    (defpackage defpackage-9 (:intern aaa bbb))
-    (defpackage defpackage-9-1 (:import-from defpackage-9 aaa))
-    (multiple-value-bind (symbol check) (find-symbol "AAA" 'defpackage-9-1)
-      (values
-        (symbol-name symbol)
-        (package-name (symbol-package symbol))
-        check)))
-  "AAA" "DEFPACKAGE-9" :internal)
-
-(deftest defpackage.10
-  (progn
-    (defpackage defpackage-10 (:intern aaa))
-    (multiple-value-bind (symbol check) (find-symbol "AAA" 'defpackage-10)
-      (values
-        (symbol-name symbol)
-        (package-name (symbol-package symbol))
-        check)))
-  "AAA" "DEFPACKAGE-10" :internal)
-
-(deftest defpackage.11
-  (packagep
-    (defpackage defpackage-11 (:size 10) (:documentation "Hello")))
-  t)
+(deftest-error in-package.6
+  (eval '(in-package common-lisp-user common-lisp-user)))
 

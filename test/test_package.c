@@ -1151,7 +1151,7 @@ static int test_delete_package(void)
 	test(findcharlocal("AAA") == Nil, "delete_package10");
 	test(findcharlocal("BBB") == Nil, "delete_package11");
 	GetPackageSymbol(name, &name);
-	test(name == Nil, "delete_pacakge12");
+	test(name == Nil, "delete_package12");
 
 	RETURN;
 }
@@ -1349,7 +1349,7 @@ static int test_rename_package(void)
 	test(findcharlocal("BITPACKAGE") == Nil, "rename_package1");
 	test(findcharlocal("AAA") != Nil, "rename_package2");
 	getname_package(pos, &name);
-	test(string_equal_char(name, "AAA"), "rename_pacakge3");
+	test(string_equal_char(name, "AAA"), "rename_package3");
 
 	RETURN;
 }
@@ -1435,10 +1435,10 @@ static int test_find_bitpackage(void)
 	internchar("AAA", "HELLO", &check);
 	strvect_char_heap(&name, "HELLO");
 	find_bitpackage(pos, name, &check);
-	test(check != Nil, "find_bitpacakge1");
+	test(check != Nil, "find_bitpackage1");
 	strvect_char_heap(&name, "ZZZZ");
 	find_bitpackage(pos, name, &check);
-	test(check == Nil, "find_bitpacakge2");
+	test(check == Nil, "find_bitpackage2");
 	force_delete_package("AAA");
 
 	RETURN;
@@ -3160,7 +3160,7 @@ static int testcase_package(void)
 	TestBreak(test_unexportsymbol);
 	TestBreak(test_unexportlist);
 	TestBreak(test_unexport_package);
-	/* use_pacakge */
+	/* use_package */
 	TestBreak(test_check_alreadyuse);
 	TestBreak(test_check_useconflict);
 	TestBreak(test_check_usepackage);
@@ -3168,7 +3168,7 @@ static int testcase_package(void)
 	TestBreak(test_check_usepackagelist);
 	TestBreak(test_usepackagelist);
 	TestBreak(test_use_package);
-	/* unuse_pacakge */
+	/* unuse_package */
 	TestBreak(test_check_uselist);
 	TestBreak(test_unusepackageoperator);
 	TestBreak(test_unusepackagelist);

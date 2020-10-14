@@ -6,7 +6,7 @@
 #include "cons.h"
 #include "lambda.h"
 #include "mop.h"
-#include "package_symbol.h"
+#include "package_export.h"
 #include "symbol.h"
 #include "type_table.h"
 

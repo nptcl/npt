@@ -3,6 +3,8 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
+#include "package_designer.h"
+#include "package_export.h"
 #include "package_object.h"
 #include "package_symbol.h"
 #include "strtype.h"
@@ -313,7 +315,7 @@ static int import_list_package_(addr package, addr pos)
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
 		if (! symbolp(left))
-			return fmte_("Import ~S must be a string-desinger.", left, NULL);
+			return fmte_("Import ~S must be a symbol type.", left, NULL);
 	}
 
 	/* conflict check */
@@ -500,147 +502,6 @@ _g int shadowing_import_package_(addr package, addr pos)
 
 
 /*
- *  export
- */
-static int check_exportsymbol_package_(addr package, addr symbol)
-{
-	addr name, left, right;
-
-	GetNameSymbol(symbol, &name);
-
-	/* export check */
-	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
-	Return(findnil_hashtable_(right, name, &right));
-	if (right == Nil)
-		return fmte_("Package don't have a symbol ~S.", symbol, NULL);
-
-	/* Invalid package */
-	GetBitTypeSymbol(right, &left);
-	if (left != symbol)
-		return fmte_("The symbol ~S is not accesble in this package.", symbol, NULL);
-
-	/* already exported */
-	if (StructBitType(right)->expt)
-		return 0;
-
-	/* use-list */
-	GetPackage(package, PACKAGE_INDEX_USED, &right);
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		Return(find_bitpackage_(left, name, &left));
-		if (left != Nil && ! StructBitType(left)->shadow) {
-			/* symbol exists */
-			return fmte_("export ~S occer conflict.", symbol, NULL);
-		}
-	}
-
-	return 0;
-}
-
-static int intern_export_symbol_package_(addr package, addr symbol, addr name)
-{
-	addr left, right, bit;
-
-	GetPackage(package, PACKAGE_INDEX_USED, &right);
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		GetPackage(left, PACKAGE_INDEX_TABLE, &left);
-		Return(intern_hashheap_(left, name, &left));
-		GetCdr(left, &bit);
-		if (bit == Nil) {
-			inheritedbitpackage(&bit, symbol);
-			SetCdr(left, bit);
-		}
-		/* If left != Nil, the symbol may be a shadowing symbol. */
-	}
-
-	return 0;
-}
-
-static int exportsymbol_nocheck_package_(addr package, addr symbol)
-{
-	addr table, bit, name;
-	struct bittype_struct *str;
-
-	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
-	GetNameSymbol(symbol, &name);
-	Return(findnil_hashtable_(table, name, &bit));
-	str = StructBitType(bit);
-	if (str->expt) {
-		/* symbol is already exported. */
-		return 0;
-	}
-	if (str->inherit) {
-		/* If the symbol type is inherited, the type change to import.  */
-		str->inherit = 0;
-		str->import = 1;
-		str->expt = 1;
-		str->intern = PACKAGE_TYPE_EXTERNAL;
-	}
-	else {
-		/* export symbol */
-		str->expt = 1;
-		str->intern = PACKAGE_TYPE_EXTERNAL;
-	}
-	Return(intern_export_symbol_package_(package, symbol, name));
-	pushlist_package(package, PACKAGE_INDEX_EXPORT, name);
-
-	return 0;
-}
-
-static int export_symbol_package_(addr package, addr symbol)
-{
-	if (! symbolp(symbol))
-		return fmte_("export ~S must be a symbol.", symbol, NULL);
-	Return(check_exportsymbol_package_(package, symbol));
-	return exportsymbol_nocheck_package_(package, symbol);
-}
-
-_g int export_list_package_(addr package, addr pos)
-{
-	addr left, right;
-
-	/* type check */
-	for (right = pos; right != Nil; ) {
-		GetCons(right, &left, &right);
-		if (! symbolp(left))
-			return fmte_("export ~S must be a string-desinger.", left, NULL);
-	}
-
-	/* conflict check */
-	for (right = pos; right != Nil; ) {
-		GetCons(right, &left, &right);
-		Return(check_exportsymbol_package_(package, left));
-	}
-
-	/* export */
-	for (right = pos; right != Nil; ) {
-		GetCons(right, &left, &right);
-		Return(exportsymbol_nocheck_package_(package, left));
-	}
-
-	return 0;
-}
-
-_g int export_package_(addr package, addr pos)
-{
-	Return(package_designer_(package, &package));
-	switch (GetType(pos)) {
-		case LISPTYPE_NIL:
-		case LISPTYPE_T:
-		case LISPTYPE_SYMBOL:
-			return export_symbol_package_(package, pos);
-
-		case LISPTYPE_CONS:
-			return export_list_package_(package, pos);
-
-		default:
-			return fmte_("export ~S must be a symbol or list.", pos, NULL);
-	}
-}
-
-
-/*
  *  unexport
  */
 static int delete_stringlist_package_(addr root, addr right, addr *value, int *ret)
@@ -758,7 +619,7 @@ static int unexport_list_package_(addr package, addr pos)
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
 		if (! symbolp(left))
-			return fmte_("unexport ~S must be a string-desinger.", left, NULL);
+			return fmte_("unexport ~S must be a symbol type.", left, NULL);
 	}
 
 	/* conflict check */

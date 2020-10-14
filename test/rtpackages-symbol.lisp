@@ -1,6 +1,21 @@
 ;;
 ;;  ANSI COMMON LISP: 11. Packages
 ;;
+(defun find-symbol-list (x &optional (y *package*))
+  (multiple-value-bind (symbol status) (find-symbol x y)
+    (when status
+      (list (package-name
+              (symbol-package symbol))
+            (symbol-name symbol)
+            status))))
+
+(defun package-shadowing-symbols-list (package)
+  (mapcar
+    (lambda (x)
+      (list (package-name (symbol-package x))
+            (symbol-name x)))
+    (package-shadowing-symbols package)))
+
 
 ;;
 ;;  Function EXPORT
@@ -13,32 +28,234 @@
 (deftest export.2
   (let ((symbol (intern "EXPORT2" 'test1)))
     (export symbol 'test1)
-    (multiple-value-bind (symbol status) (find-symbol "EXPORT2" 'test1)
-      (values (symbol-name symbol) status)))
-  "EXPORT2" :external)
+    (find-symbol-list "EXPORT2" 'test1))
+  ("TEST1" "EXPORT2" :external))
 
 (deftest export.3
   (progn
     (intern "EXPORT3" 'test1)
-    (multiple-value-bind (symbol status) (find-symbol "EXPORT3" 'test1)
-      (values (symbol-name symbol) status)))
-  "EXPORT3" :internal)
+    (find-symbol-list "EXPORT3" 'test1))
+  ("TEST1" "EXPORT3" :internal))
 
 (deftest export.4
-  (progn
-    (unintern (intern "EXPORT4"))
-    (export (intern "EXPORT4")))
+  (let ((x (intern "EXPORT4" 'test1)))
+    (export x 'test1)
+    (export x 'test1)
+    (export x 'test1))
   t)
 
 (deftest export.5
+  (let ((x (intern "EXPORT5" 'test1)))
+    (export x 'test1)
+    (export x 'test1)
+    (export x 'test1)
+    (find-symbol-list "EXPORT5" 'test1))
+  ("TEST1" "EXPORT5" :external))
+
+;;  list
+(deftest export-list.1
+  (let ((x (list (intern "EXPORT-LIST-1A" 'test1)
+                 (intern "EXPORT-LIST-1B" 'test1)
+                 (intern "EXPORT-LIST-1C" 'test1))))
+    (export x 'test1))
+  t)
+
+(deftest export-list.2
+  (let ((x (list (intern "EXPORT-LIST-2A" 'test1)
+                 (intern "EXPORT-LIST-2B" 'test1)
+                 (intern "EXPORT-LIST-2C" 'test1))))
+    (export x 'test1)
+    (mapcar
+      (lambda (symbol)
+        (find-symbol-list (symbol-name symbol) 'test1))
+      x))
+  (("TEST1" "EXPORT-LIST-2A" :external)
+   ("TEST1" "EXPORT-LIST-2B" :external)
+   ("TEST1" "EXPORT-LIST-2C" :external)))
+
+;;  package
+(deftest export-package.1
   (progn
-    (unintern (intern "EXPORT5"))
-    (export (list (intern "EXPORT5")))
-    (multiple-value-bind (symbol status) (find-symbol "EXPORT5")
-      (values (symbol-name symbol) status)))
-  "EXPORT5" :external)
+    (let ((*package* (find-package 'test2)))
+      (export (intern "EXPORT-PACKAGE-1")))
+    (find-symbol-list "EXPORT-PACKAGE-1" 'test2))
+  ("TEST2" "EXPORT-PACKAGE-1" :external))
+
+(deftest export-package.2
+  (progn
+    (export (intern "EXPORT-PACKAGE-2" 'test2) 'test2)
+    (find-symbol-list "EXPORT-PACKAGE-2" 'test2))
+  ("TEST2" "EXPORT-PACKAGE-2" :external))
 
 
+;;  accessible
+(deftest-error export-access.1
+  (export (intern "EXPORT-ACCESS-1" 'test1) 'test2)
+  package-error)
+
+(deftest export-access.2
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'lisp-system::ignore c))))
+    (export (intern "EXPORT-ACCESS-2" 'test1) 'test2))
+  t)
+
+(deftest export-access.3
+  (values
+    (find-symbol-list "EXPORT-ACCESS-2" 'test1)
+    (find-symbol-list "EXPORT-ACCESS-2" 'test2))
+  ("TEST1" "EXPORT-ACCESS-2" :internal)
+  nil)
+
+(deftest export-access.4
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'import c))))
+    (export (intern "EXPORT-ACCESS-4" 'test1) 'test2))
+  t)
+
+(deftest export-access.5
+  (values
+    (find-symbol-list "EXPORT-ACCESS-4" 'test1)
+    (find-symbol-list "EXPORT-ACCESS-4" 'test2))
+  ("TEST1" "EXPORT-ACCESS-4" :internal)
+  ("TEST1" "EXPORT-ACCESS-4" :external))
+
+
+;;  conflict
+(deftest-error export-conflict.1
+  (progn
+    (make-package 'export-conflict-1a)
+    (make-package 'export-conflict-1b)
+    (intern "X" 'export-conflict-1a)
+    (intern "X" 'export-conflict-1b)
+    (use-package 'export-conflict-1a 'export-conflict-1b)
+    (export (intern "X" 'export-conflict-1a) 'export-conflict-1a))
+  package-error)
+
+(deftest export-conflict.2
+  (progn
+    (handler-bind ((package-error
+                     (lambda (c)
+                       (invoke-restart 'lisp-system::ignore c))))
+      (make-package 'export-conflict-2a)
+      (make-package 'export-conflict-2b)
+      (intern "Y" 'export-conflict-2a)
+      (intern "Y" 'export-conflict-2b)
+      (use-package 'export-conflict-2a 'export-conflict-2b)
+      (export (intern "Y" 'export-conflict-2a) 'export-conflict-2a))
+    (values (find-symbol-list "Y" 'export-conflict-2a)
+            (find-symbol-list "Y" 'export-conflict-2b)))
+  ("EXPORT-CONFLICT-2A" "Y" :internal)
+  ("EXPORT-CONFLICT-2B" "Y" :internal))
+
+(deftest export-conflict.3
+  (progn
+    (handler-bind ((package-error
+                     (lambda (c)
+                       (invoke-restart 'shadow c))))
+      (make-package 'export-conflict-3a)
+      (make-package 'export-conflict-3b)
+      (intern "Y" 'export-conflict-3a)
+      (intern "Y" 'export-conflict-3b)
+      (use-package 'export-conflict-3a 'export-conflict-3b)
+      (export (intern "Y" 'export-conflict-3a) 'export-conflict-3a))
+    (values (find-symbol-list "Y" 'export-conflict-3a)
+            (find-symbol-list "Y" 'export-conflict-3b)
+            (package-shadowing-symbols-list 'export-conflict-3a)
+            (package-shadowing-symbols-list 'export-conflict-3b)))
+  ("EXPORT-CONFLICT-3A" "Y" :external)
+  ("EXPORT-CONFLICT-3B" "Y" :internal)
+  nil
+  (("EXPORT-CONFLICT-3B" "Y")))
+
+(deftest export-conflict.4
+  (progn
+    (handler-bind ((package-error
+                     (lambda (c)
+                       (invoke-restart 'unintern c))))
+      (make-package 'export-conflict-4a)
+      (make-package 'export-conflict-4b)
+      (intern "Y" 'export-conflict-4a)
+      (intern "Y" 'export-conflict-4b)
+      (use-package 'export-conflict-4a 'export-conflict-4b)
+      (export (intern "Y" 'export-conflict-4a) 'export-conflict-4a))
+    (values (find-symbol-list "Y" 'export-conflict-4a)
+            (find-symbol-list "Y" 'export-conflict-4b)
+            (package-shadowing-symbols-list 'export-conflict-4a)
+            (package-shadowing-symbols-list 'export-conflict-4b)))
+  ("EXPORT-CONFLICT-4A" "Y" :external)
+  ("EXPORT-CONFLICT-4A" "Y" :inherited)
+  nil
+  nil)
+
+;;  error
+(deftest-error export-error.1
+  (eval '(export 10))
+  type-error)
+
+(deftest-error export-error.2
+  (eval '(export 'hello 20))
+  type-error)
+
+(deftest-error export-error.3
+  (eval '(export '(10 20 30)))
+  type-error)
+
+(deftest-error! export-error.4
+  (eval '(export)))
+
+(deftest-error! export-error.5
+  (eval '(export 'hello *package* 40)))
+
+(deftest-error! export-error.6
+  (eval '(export 'hello *package* 40)))
+
+(deftest-error! export-error.7
+  (eval '(export 'hello 'no-such-package-name)))
+
+
+;;  ANSI Common Lisp
+(deftest export-test.1
+  (progn
+    (make-package 'export-test-0 :use nil)
+    (package-name
+      (make-package 'export-test-1 :use nil)))
+  "EXPORT-TEST-1")
+
+(deftest export-test.2
+  (use-package 'export-test-1 'export-test-0)
+  t)
+
+(deftest export-test.3
+  (multiple-value-bind (x y) (intern "TEMP-SYM" 'export-test-1)
+    (values (package-name (symbol-package x))
+            (symbol-name x)
+            y))
+  "EXPORT-TEST-1" "TEMP-SYM" nil)
+
+(deftest export-test.4
+  (find-symbol "TEMP-SYM")
+  nil nil)
+
+(deftest export-test.5
+  (find-symbol "TEMP-SYM" 'export-test-0)
+  nil nil)
+
+(deftest export-test.6
+  (export (find-symbol "TEMP-SYM" 'export-test-1) 'export-test-1)
+  t)
+
+(deftest export-test.7
+  (multiple-value-bind (x y) (find-symbol "TEMP-SYM" 'export-test-0)
+    (values (symbolp x) y))
+  t :inherited)
+
+
+
+;;
+;;
+;;
 (deftest find-symbol.1
   (find-symbol "CAR")
   car :inherited)
@@ -315,7 +532,9 @@
 
 (deftest do-external-symbols.1
   (let (a)
-    (do-external-symbols (v)
+    (make-package 'aaa)
+    (export (intern "X" 'aaa) 'aaa)
+    (do-external-symbols (v 'aaa)
       (declare (ignore v))
       (setq a t))
     a)

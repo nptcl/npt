@@ -5,8 +5,6 @@
 #include "typedef.h"
 
 #define packagep _n(packagep)
-#define package_designer_p _n(package_designer_p)
-#define package_designer_equal_ _n(package_designer_equal_)
 #define getname_package_ _n(getname_package_)
 #define getnickname_package_ _n(getnickname_package_)
 #define getuselist_package_ _n(getuselist_package_)
@@ -44,8 +42,6 @@ enum PACKAGE_TYPE {
 #define SetPackage      SetArrayA2
 
 _g int packagep(addr pos);
-_g int package_designer_p(addr pos);
-_g int package_designer_equal_(addr left, addr right, int *ret);
 
 _g int getname_package_(addr pos, addr *ret);
 _g int getnickname_package_(addr pos, addr *ret);

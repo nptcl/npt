@@ -1042,6 +1042,36 @@ static void typetable_time_zone(void)
 	SetTypeTable(TimeZone, type);
 }
 
+static void typetable_orlist(enum TypeTable type, enum TypeTable typelist)
+{
+	addr pos, list;
+
+	gettypetable(type, &pos);
+	GetTypeTable(&list, List);
+	type2or_heap(pos, list, &pos);
+	settypetable(typelist, pos);
+}
+
+static void typetable_symbol_list(void)
+{
+	typetable_orlist(TypeTable_Symbol, TypeTable_SymbolList);
+}
+
+static void typetable_string_list(void)
+{
+	typetable_orlist(TypeTable_String, TypeTable_StringList);
+}
+
+static void typetable_string_designer_list(void)
+{
+	typetable_orlist(TypeTable_StringDesigner, TypeTable_StringDesignerList);
+}
+
+static void typetable_package_designer_list(void)
+{
+	typetable_orlist(TypeTable_PackageDesigner, TypeTable_PackageDesignerList);
+}
+
 static void typetable_method(void)
 {
 	addr pos;
@@ -1890,11 +1920,9 @@ static void typecompiled_export(void)
 	 *   ((or list symbol) &optional package-designer)
 	 *   (values (eql t) &rest nil))
 	 */
-	addr args, values, type1, type2;
+	addr args, values;
 
-	GetTypeTable(&type1, List);
-	GetTypeTable(&type2, Symbol);
-	type2or_heap(type1, type2, &args);
+	GetTypeTable(&args, SymbolList);
 	GetTypeTable(&values, PackageDesigner);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, EqlT);
@@ -3003,6 +3031,11 @@ _g void build_type_constant(void)
 	typetable_time_day();
 	typetable_time_month();
 	typetable_time_zone();
+	typetable_symbol_list();
+	typetable_string_list();
+	typetable_string_designer_list();
+	typetable_package_designer_list();
+
 	typetable_method();
 	typetable_class();
 	typetable_classnull();

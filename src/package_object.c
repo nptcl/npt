@@ -1,4 +1,5 @@
 #include "package.h"
+#include "package_designer.h"
 #include "package_object.h"
 #include "strtype.h"
 #include "typedef.h"
@@ -6,21 +7,6 @@
 _g int packagep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_PACKAGE;
-}
-
-_g int package_designer_p(addr pos)
-{
-	return packagep(pos) || string_designer_p(pos);
-}
-
-_g int package_designer_equal_(addr left, addr right, int *ret)
-{
-	if (packagep(left))
-		GetPackage(left, PACKAGE_INDEX_NAME, &left);
-	if (packagep(right))
-		GetPackage(right, PACKAGE_INDEX_NAME, &right);
-
-	return string_designer_equal_(left, right, ret);
 }
 
 

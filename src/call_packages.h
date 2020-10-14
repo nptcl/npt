@@ -17,7 +17,6 @@
 #define in_package_common _n(in_package_common)
 #define unuse_package_common_ _n(unuse_package_common_)
 #define use_package_common_ _n(use_package_common_)
-#define defpackage_common _n(defpackage_common)
 #define do_symbols_common _n(do_symbols_common)
 #define do_external_symbols_common _n(do_external_symbols_common)
 #define do_all_symbols_common _n(do_all_symbols_common)
@@ -36,7 +35,6 @@ _g int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret);
 _g int in_package_common(Execute ptr, addr form, addr env, addr *ret);
 _g int unuse_package_common_(Execute ptr, addr unuse, addr pg);
 _g int use_package_common_(Execute ptr, addr use, addr pg);
-_g int defpackage_common(addr form, addr env, addr *ret);
 _g int do_symbols_common(addr form, addr env, addr *ret);
 _g int do_external_symbols_common(addr form, addr env, addr *ret);
 _g int do_all_symbols_common(addr form, addr env, addr *ret);

@@ -14,8 +14,6 @@
 #define shadow_package_ _n(shadow_package_)
 #define shadowing_import_symbol_package_ _n(shadowing_import_symbol_package_)
 #define shadowing_import_package_ _n(shadowing_import_package_)
-#define export_list_package_ _n(export_list_package_)
-#define export_package_ _n(export_package_)
 #define unexport_package_ _n(unexport_package_)
 #define use_package_list_package_ _n(use_package_list_package_)
 #define use_package_ _n(use_package_)
@@ -46,8 +44,6 @@ _g int shadow_list_package_(addr package, addr pos);
 _g int shadow_package_(addr package, addr pos);
 _g int shadowing_import_symbol_package_(addr package, addr symbol);
 _g int shadowing_import_package_(addr package, addr pos);
-_g int export_list_package_(addr package, addr pos);
-_g int export_package_(addr package, addr pos);
 _g int unexport_package_(addr package, addr pos);
 _g int use_package_list_package_(addr package, addr pos);
 _g int use_package_(addr package, addr pos);

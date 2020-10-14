@@ -33,6 +33,7 @@
 #include "loop_bind.h"
 #include "package.h"
 #include "package_common.h"
+#include "package_defpackage.h"
 #include "package_iterator.h"
 #include "package_object.h"
 #include "pathname.h"
@@ -238,17 +239,9 @@ _g int next_package_iterator_syscode_(Execute ptr, addr pos,
 
 
 /* defpackage */
-_g int defpackage_syscode(Execute ptr, addr rest, addr *ret)
+_g int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret)
 {
-	LocalRoot local;
-	LocalStack stack;
-
-	local = ptr->local;
-	push_local(local, &stack);
-	Return(defpackage_execute(ptr, rest, ret));
-	rollback_local(local, stack);
-
-	return 0;
+	return defpackage_execute(ptr, var, rest, ret);
 }
 
 

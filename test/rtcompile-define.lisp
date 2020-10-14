@@ -283,7 +283,7 @@
 ;;
 ;;  defpackage
 ;;
-(deftest compile-defpacakge.1
+(deftest compile-defpackage.1
   (progn
     (setq *result* nil)
     (test-file-compile
@@ -293,7 +293,7 @@
     *result*)
   "COMPILE-DEFPACKAGE-1")
 
-(deftest compile-defpacakge.2
+(deftest compile-defpackage.2
   (progn
     (setq *result* nil)
     (test-file-compile-string

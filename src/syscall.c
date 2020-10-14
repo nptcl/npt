@@ -467,34 +467,27 @@ static void defun_make_package_iterator(void)
 }
 
 
-/* (defun next-package-iterator (iterator) ...)
- *     -> (values boolean symbol status package)
- *   status  (member :internal :external :inherited)
- */
+/* (defun next-package-iterator (iterator) ...) -> * */
 static int syscall_next_package_iterator(Execute ptr, addr pos)
 {
 	addr symbol, status, package;
 
 	Return(next_package_iterator_syscode_(ptr, pos, &pos, &symbol, &status, &package));
-	setvalues_control(ptr, pos, symbol, status, package, NULL);
+	if (pos == Nil)
+		setresult_control(ptr, Nil);
+	else
+		setvalues_control(ptr, pos, symbol, status, package, NULL);
 
 	return 0;
 }
 
 static void type_next_package_iterator(addr *ret)
 {
-	addr args, values, type1, type2, type3, type4, key1, key2, key3;
+	addr args, values;
 
 	GetTypeTable(&args, T);
 	typeargs_var1(&args, args);
-	GetTypeTable(&type1, Boolean);
-	GetTypeTable(&type2, Symbol);
-	GetConst(KEYWORD_INTERNAL, &key1);
-	GetConst(KEYWORD_EXTERNAL, &key2);
-	GetConst(KEYWORD_INHERITED, &key3);
-	type_member_heap(&type3, key1, key2, key3, NULL);
-	GetTypeTable(&type4, Package);
-	typevalues_values4(&values, type1, type2, type3, type4);
+	GetTypeTable(&values, Asterisk);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -514,33 +507,45 @@ static void defun_next_package_iterator(void)
 }
 
 
-/* (defun defpackage (name size docuemntation nicknames use
+/* (defun defpackage (name &key size docuemntation nicknames use
  *     shadow shadowing-import-from import-from export intern)
  *     -> package
- *   name                   string-designer
- *   size                   (or null (integer 0 *))
- *   documentation          (or null string)
- *   nicknames              list
- *   use                    list
- *   shadow                 list
- *   shadowing-import-from  list
- *   import-from            list
- *   export                 list
- *   intern                 list
+ *   name                    string
+ *   :size                   (or null (integer 0 *))
+ *   :documentation          (or null string)
+ *   :nicknames              list
+ *   :use                    list
+ *   :shadow                 list
+ *   :shadowing-import-from  list
+ *   :import-from            list
+ *   :export                 list
+ *   :intern                 list
  */
-static int syscall_defpackage(Execute ptr, addr rest)
+static int syscall_defpackage(Execute ptr, addr var, addr rest)
 {
-	Return(defpackage_syscode(ptr, rest, &rest));
-	setresult_control(ptr, rest);
+	Return(defpackage_syscode(ptr, var, rest, &var));
+	setresult_control(ptr, var);
 	return 0;
 }
 
-static void type_defpackage(addr *ret)
+static void type_syscall_defpackage(addr *ret)
 {
 	addr args, values;
+	addr key, key1, key2, key3, key4, key5, key6, key7, key8, key9, key10;
 
-	GetTypeTable(&args, T);
-	typeargs_rest(&args, args);
+	GetTypeTable(&args, String);
+	KeyTypeTable(&key1, SIZE, IntplusNull);
+	KeyTypeTable(&key2, DOCUMENTATION, StringNull);
+	KeyTypeTable(&key3, NICKNAMES, List);
+	KeyTypeTable(&key4, USE, List);
+	KeyTypeTable(&key5, SHADOW, List);
+	KeyTypeTable(&key6, SHADOWING_IMPORT_FROM, List);
+	KeyTypeTable(&key7, SHADOWING_IMPORT_FROM, List);
+	KeyTypeTable(&key8, IMPORT_FROM, List);
+	KeyTypeTable(&key9, EXPORT, List);
+	KeyTypeTable(&key10, INTERN, List);
+	list_heap(&key, key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, NULL);
+	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, Package);
 	type_compiled_heap(args, values, ret);
 }
@@ -552,10 +557,10 @@ static void defun_defpackage(void)
 	/* function */
 	GetConst(SYSTEM_DEFPACKAGE, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_syscall_defpackage);
+	setcompiled_var1dynamic(pos, p_defun_syscall_defpackage);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_defpackage(&type);
+	type_syscall_defpackage(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2783,7 +2788,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, next_hash_iterator);
 	SetPointerSysCall(defun, var4, make_package_iterator);
 	SetPointerSysCall(defun, var1, next_package_iterator);
-	SetPointerSysCall(defun, dynamic, defpackage);
+	SetPointerSysCall(defun, var1dynamic, defpackage);
 	SetPointerSysCall(defun, var2, do_symbols);
 	SetPointerSysCall(defun, var2, do_external_symbols);
 	SetPointerSysCall(defun, var1, do_all_symbols);

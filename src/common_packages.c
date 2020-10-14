@@ -7,6 +7,7 @@
 #include "cons_list.h"
 #include "package.h"
 #include "package_delete.h"
+#include "package_defpackage.h"
 #include "package_object.h"
 
 /* (defun export (symbols &optional package) ...) -> (eql t)
@@ -305,7 +306,7 @@ static void defun_shadowing_import(void)
 }
 
 
-/* (defun delete-package (pacakge) ...) -> booelan
+/* (defun delete-package (package) ...) -> booelan
  *   package  package-designer
  */
 static int function_delete_package(Execute ptr, addr package)
@@ -832,7 +833,7 @@ static void defun_packagep(void)
 }
 
 
-/* (defvar *pacakge*) */
+/* (defvar *package*) */
 static void defvar_package(void)
 {
 	addr symbol, type;

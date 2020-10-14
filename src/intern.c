@@ -4,6 +4,7 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
+#include "package_export.h"
 #include "package_object.h"
 #include "package_symbol.h"
 #include "strvect.h"

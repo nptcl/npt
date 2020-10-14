@@ -216,6 +216,10 @@ enum TypeTable {
 	TypeTable_TimeDay,
 	TypeTable_TimeMonth,
 	TypeTable_TimeZone,
+	TypeTable_SymbolList,
+	TypeTable_StringList,
+	TypeTable_StringDesignerList,
+	TypeTable_PackageDesignerList,
 
 	TypeTable_Method,
 	TypeTable_Method1,
@@ -340,6 +344,7 @@ enum TypeTable {
 	TypeCompiled_HashTableCount,
 	TypeCompiled_Evenp,
 	TypeCompiled_Export,
+	TypeCompiled_Import,
 	TypeCompiled_UsePackage,
 	TypeCompiled_Intern,
 	TypeCompiled_PackageNicknames,
