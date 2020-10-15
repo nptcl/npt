@@ -1,290 +1,12 @@
 ;;
 ;;  ANSI COMMON LISP: 11. Packages
 ;;
-(defun find-symbol-list (x &optional (y *package*))
-  (multiple-value-bind (symbol status) (find-symbol x y)
-    (when status
-      (list (package-name
-              (symbol-package symbol))
-            (symbol-name symbol)
-            status))))
-
-(defun package-shadowing-symbols-list (package)
-  (mapcar
-    (lambda (x)
-      (list (package-name (symbol-package x))
-            (symbol-name x)))
-    (package-shadowing-symbols package)))
-
 
 ;;
-;;  Function EXPORT
+;;  Function IMPORT
 ;;
-(deftest export.1
-  (let ((symbol (intern "EXPORT1" 'test1)))
-    (export symbol 'test1))
-  t)
-
-(deftest export.2
-  (let ((symbol (intern "EXPORT2" 'test1)))
-    (export symbol 'test1)
-    (find-symbol-list "EXPORT2" 'test1))
-  ("TEST1" "EXPORT2" :external))
-
-(deftest export.3
-  (progn
-    (intern "EXPORT3" 'test1)
-    (find-symbol-list "EXPORT3" 'test1))
-  ("TEST1" "EXPORT3" :internal))
-
-(deftest export.4
-  (let ((x (intern "EXPORT4" 'test1)))
-    (export x 'test1)
-    (export x 'test1)
-    (export x 'test1))
-  t)
-
-(deftest export.5
-  (let ((x (intern "EXPORT5" 'test1)))
-    (export x 'test1)
-    (export x 'test1)
-    (export x 'test1)
-    (find-symbol-list "EXPORT5" 'test1))
-  ("TEST1" "EXPORT5" :external))
-
-;;  list
-(deftest export-list.1
-  (let ((x (list (intern "EXPORT-LIST-1A" 'test1)
-                 (intern "EXPORT-LIST-1B" 'test1)
-                 (intern "EXPORT-LIST-1C" 'test1))))
-    (export x 'test1))
-  t)
-
-(deftest export-list.2
-  (let ((x (list (intern "EXPORT-LIST-2A" 'test1)
-                 (intern "EXPORT-LIST-2B" 'test1)
-                 (intern "EXPORT-LIST-2C" 'test1))))
-    (export x 'test1)
-    (mapcar
-      (lambda (symbol)
-        (find-symbol-list (symbol-name symbol) 'test1))
-      x))
-  (("TEST1" "EXPORT-LIST-2A" :external)
-   ("TEST1" "EXPORT-LIST-2B" :external)
-   ("TEST1" "EXPORT-LIST-2C" :external)))
-
-;;  package
-(deftest export-package.1
-  (progn
-    (let ((*package* (find-package 'test2)))
-      (export (intern "EXPORT-PACKAGE-1")))
-    (find-symbol-list "EXPORT-PACKAGE-1" 'test2))
-  ("TEST2" "EXPORT-PACKAGE-1" :external))
-
-(deftest export-package.2
-  (progn
-    (export (intern "EXPORT-PACKAGE-2" 'test2) 'test2)
-    (find-symbol-list "EXPORT-PACKAGE-2" 'test2))
-  ("TEST2" "EXPORT-PACKAGE-2" :external))
-
-
-;;  accessible
-(deftest-error export-access.1
-  (export (intern "EXPORT-ACCESS-1" 'test1) 'test2)
-  package-error)
-
-(deftest export-access.2
-  (handler-bind ((package-error
-                   (lambda (c)
-                     (invoke-restart 'lisp-system::ignore c))))
-    (export (intern "EXPORT-ACCESS-2" 'test1) 'test2))
-  t)
-
-(deftest export-access.3
-  (values
-    (find-symbol-list "EXPORT-ACCESS-2" 'test1)
-    (find-symbol-list "EXPORT-ACCESS-2" 'test2))
-  ("TEST1" "EXPORT-ACCESS-2" :internal)
-  nil)
-
-(deftest export-access.4
-  (handler-bind ((package-error
-                   (lambda (c)
-                     (invoke-restart 'import c))))
-    (export (intern "EXPORT-ACCESS-4" 'test1) 'test2))
-  t)
-
-(deftest export-access.5
-  (values
-    (find-symbol-list "EXPORT-ACCESS-4" 'test1)
-    (find-symbol-list "EXPORT-ACCESS-4" 'test2))
-  ("TEST1" "EXPORT-ACCESS-4" :internal)
-  ("TEST1" "EXPORT-ACCESS-4" :external))
-
-
-;;  conflict
-(deftest-error export-conflict.1
-  (progn
-    (make-package 'export-conflict-1a)
-    (make-package 'export-conflict-1b)
-    (intern "X" 'export-conflict-1a)
-    (intern "X" 'export-conflict-1b)
-    (use-package 'export-conflict-1a 'export-conflict-1b)
-    (export (intern "X" 'export-conflict-1a) 'export-conflict-1a))
-  package-error)
-
-(deftest export-conflict.2
-  (progn
-    (handler-bind ((package-error
-                     (lambda (c)
-                       (invoke-restart 'lisp-system::ignore c))))
-      (make-package 'export-conflict-2a)
-      (make-package 'export-conflict-2b)
-      (intern "Y" 'export-conflict-2a)
-      (intern "Y" 'export-conflict-2b)
-      (use-package 'export-conflict-2a 'export-conflict-2b)
-      (export (intern "Y" 'export-conflict-2a) 'export-conflict-2a))
-    (values (find-symbol-list "Y" 'export-conflict-2a)
-            (find-symbol-list "Y" 'export-conflict-2b)))
-  ("EXPORT-CONFLICT-2A" "Y" :internal)
-  ("EXPORT-CONFLICT-2B" "Y" :internal))
-
-(deftest export-conflict.3
-  (progn
-    (handler-bind ((package-error
-                     (lambda (c)
-                       (invoke-restart 'shadow c))))
-      (make-package 'export-conflict-3a)
-      (make-package 'export-conflict-3b)
-      (intern "Y" 'export-conflict-3a)
-      (intern "Y" 'export-conflict-3b)
-      (use-package 'export-conflict-3a 'export-conflict-3b)
-      (export (intern "Y" 'export-conflict-3a) 'export-conflict-3a))
-    (values (find-symbol-list "Y" 'export-conflict-3a)
-            (find-symbol-list "Y" 'export-conflict-3b)
-            (package-shadowing-symbols-list 'export-conflict-3a)
-            (package-shadowing-symbols-list 'export-conflict-3b)))
-  ("EXPORT-CONFLICT-3A" "Y" :external)
-  ("EXPORT-CONFLICT-3B" "Y" :internal)
-  nil
-  (("EXPORT-CONFLICT-3B" "Y")))
-
-(deftest export-conflict.4
-  (progn
-    (handler-bind ((package-error
-                     (lambda (c)
-                       (invoke-restart 'unintern c))))
-      (make-package 'export-conflict-4a)
-      (make-package 'export-conflict-4b)
-      (intern "Y" 'export-conflict-4a)
-      (intern "Y" 'export-conflict-4b)
-      (use-package 'export-conflict-4a 'export-conflict-4b)
-      (export (intern "Y" 'export-conflict-4a) 'export-conflict-4a))
-    (values (find-symbol-list "Y" 'export-conflict-4a)
-            (find-symbol-list "Y" 'export-conflict-4b)
-            (package-shadowing-symbols-list 'export-conflict-4a)
-            (package-shadowing-symbols-list 'export-conflict-4b)))
-  ("EXPORT-CONFLICT-4A" "Y" :external)
-  ("EXPORT-CONFLICT-4A" "Y" :inherited)
-  nil
-  nil)
-
-;;  error
-(deftest-error export-error.1
-  (eval '(export 10))
-  type-error)
-
-(deftest-error export-error.2
-  (eval '(export 'hello 20))
-  type-error)
-
-(deftest-error export-error.3
-  (eval '(export '(10 20 30)))
-  type-error)
-
-(deftest-error! export-error.4
-  (eval '(export)))
-
-(deftest-error! export-error.5
-  (eval '(export 'hello *package* 40)))
-
-(deftest-error! export-error.6
-  (eval '(export 'hello *package* 40)))
-
-(deftest-error! export-error.7
-  (eval '(export 'hello 'no-such-package-name)))
-
-
-;;  ANSI Common Lisp
-(deftest export-test.1
-  (progn
-    (make-package 'export-test-0 :use nil)
-    (package-name
-      (make-package 'export-test-1 :use nil)))
-  "EXPORT-TEST-1")
-
-(deftest export-test.2
-  (use-package 'export-test-1 'export-test-0)
-  t)
-
-(deftest export-test.3
-  (multiple-value-bind (x y) (intern "TEMP-SYM" 'export-test-1)
-    (values (package-name (symbol-package x))
-            (symbol-name x)
-            y))
-  "EXPORT-TEST-1" "TEMP-SYM" nil)
-
-(deftest export-test.4
-  (find-symbol "TEMP-SYM")
-  nil nil)
-
-(deftest export-test.5
-  (find-symbol "TEMP-SYM" 'export-test-0)
-  nil nil)
-
-(deftest export-test.6
-  (export (find-symbol "TEMP-SYM" 'export-test-1) 'export-test-1)
-  t)
-
-(deftest export-test.7
-  (multiple-value-bind (x y) (find-symbol "TEMP-SYM" 'export-test-0)
-    (values (symbolp x) y))
-  t :inherited)
-
-
-
-;;
-;;
-;;
-(deftest find-symbol.1
-  (find-symbol "CAR")
-  car :inherited)
-
-(deftest find-symbol.2
-  (find-symbol "NO-SUCH-SYMBOL")
-  nil nil)
-
-(deftest find-symbol.3
-  (let ((symbol (intern "FIND-SYMBOL-3" 'test1)))
-    (eq (find-symbol "FIND-SYMBOL-3" 'test1) symbol))
-  t)
-
-(deftest find-symbol.4
-  (progn
-    (intern "FIND-SYMBOL-4" 'test1)
-    (multiple-value-bind (symbol status) (find-symbol "FIND-SYMBOL-4" 'test1)
-      (values (symbol-name symbol) status)))
-  "FIND-SYMBOL-4" :internal)
-
-(deftest find-all-symbols.1
-  (set-exclusive-or
-    (find-all-symbols "COMMON-LISP")
-    '(common-lisp :common-lisp))
-  nil)
-
-(deftest find-all-symbols.2
-  (find-all-symbols "NO-SUCH-SYMBOL-ALL-TEST")
-  nil)
+(deftest import-init
+  (init-test-package))
 
 (deftest import.1
   (let ((symbol (intern "IMPORT1" 'test1)))
@@ -294,130 +16,483 @@
 (deftest import.2
   (progn
     (import (intern "IMPORT2" 'test1) 'test2)
-    (multiple-value-bind (symbol status) (find-symbol "IMPORT2" 'test2)
-      (values (symbol-name symbol)
-              (package-name
-                (symbol-package symbol))
-              status)))
-  "IMPORT2" "TEST1" :internal)
+    (find-symbol-list "IMPORT2" 'test2))
+  ("TEST1" "IMPORT2" :internal))
 
 (deftest import.3
   (progn
     (import (intern "IMPORT3" 'test1))
-    (multiple-value-bind (symbol status) (find-symbol "IMPORT3")
-      (values (symbol-name symbol)
-              (package-name
-                (symbol-package symbol))
-              status)))
-  "IMPORT3" "TEST1" :internal)
+    (find-symbol-list "IMPORT3"))
+  ("TEST1" "IMPORT3" :internal))
 
 (deftest import.4
   (progn
     (import (list (intern "IMPORT4" 'test1)))
-    (multiple-value-bind (symbol status) (find-symbol "IMPORT4")
-      (values (symbol-name symbol)
-              (package-name
-                (symbol-package symbol))
-              status)))
-  "IMPORT4" "TEST1" :internal)
+    (find-symbol-list "IMPORT4"))
+  ("TEST1" "IMPORT4" :internal))
+
+(deftest import.5
+  (progn
+    (import (make-symbol "IMPORT5") 'test1)
+    (find-symbol-list "IMPORT5" 'test1))
+  ("TEST1" "IMPORT5" :internal))
+
+(deftest import.6
+  (progn
+    (import (intern "IMPORT6" 'test2) 'test1)
+    (export (intern "IMPORT6" 'test2) 'test1)
+    (find-symbol-list "IMPORT6" 'test1))
+  ("TEST2" "IMPORT6" :external))
+
+(deftest import-list.1
+  (let ((x (list (intern "IMPORT-LIST-1A" 'test1)
+                 (intern "IMPORT-LIST-1B" 'test1)
+                 (intern "IMPORT-LIST-1C" 'test1))))
+    (import x 'test2))
+  t)
+
+(deftest import-list.2
+  (let ((x (list (intern "IMPORT-LIST-2A" 'test1)
+                 (intern "IMPORT-LIST-2B" 'test1)
+                 (intern "IMPORT-LIST-2C" 'test1))))
+    (import x 'test2)
+    (mapcar
+      (lambda (symbol)
+        (find-symbol-list (symbol-name symbol) 'test2))
+      x))
+  (("TEST1" "IMPORT-LIST-2A" :internal)
+   ("TEST1" "IMPORT-LIST-2B" :internal)
+   ("TEST1" "IMPORT-LIST-2C" :internal)))
+
+(deftest-error import-restart.1
+  (progn
+    (intern "IMPORT-RESTART-1" 'test1)
+    (intern "IMPORT-RESTART-1" 'test2)
+    (import (intern "IMPORT-RESTART-1" 'test2) 'test1))
+  package-error)
+
+(deftest import-restart.2
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'import c))))
+    (intern "IMPORT-RESTART-2" 'test1)
+    (intern "IMPORT-RESTART-2" 'test2)
+    (import (intern "IMPORT-RESTART-2" 'test2) 'test1)
+    (values
+      (find-symbol-list "IMPORT-RESTART-2" 'test1)
+      (find-symbol-list "IMPORT-RESTART-2" 'test2)))
+  ("TEST2" "IMPORT-RESTART-2" :internal)
+  ("TEST2" "IMPORT-RESTART-2" :internal))
+
+(deftest import-restart.3
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'ignore c))))
+    (intern "IMPORT-RESTART-3" 'test1)
+    (intern "IMPORT-RESTART-3" 'test2)
+    (import (intern "IMPORT-RESTART-3" 'test2) 'test1)
+    (values
+      (find-symbol-list "IMPORT-RESTART-3" 'test1)
+      (find-symbol-list "IMPORT-RESTART-3" 'test2)))
+  ("TEST1" "IMPORT-RESTART-3" :internal)
+  ("TEST2" "IMPORT-RESTART-3" :internal))
+
+(deftest-error import-restart.4
+  (progn
+    (shadow "IMPORT-RESTART-4" 'test1)
+    (shadow "IMPORT-RESTART-4" 'test2)
+    (import (intern "IMPORT-RESTART-4" 'test2) 'test1))
+  package-error)
+
+(deftest-error import-restart.5
+  (progn
+    (make-package 'import-restart-5a)
+    (make-package 'import-restart-5b)
+    (make-package 'import-restart-5c)
+    (export (intern "X" 'import-restart-5a) 'import-restart-5a)
+    (use-package 'import-restart-5a 'import-restart-5b)
+    (import (intern "X" 'import-restart-5c) 'import-restart-5b))
+  package-error)
+
+(deftest-error import-error.1
+  (eval '(import 10))
+  type-error)
+
+(deftest-error import-error.2
+  (eval '(import 'hello 20))
+  type-error)
+
+(deftest-error import-error.3
+  (eval '(import '(10 20 30)))
+  type-error)
+
+(deftest-error! import-error.4
+  (eval '(import)))
+
+(deftest-error! import-error.5
+  (eval '(import 'hello *package* 40)))
+
+(deftest-error! import-error.6
+  (eval '(import 'hello *package* 40)))
+
+(deftest-error! import-error.7
+  (eval '(import 'hello 'no-such-package-name)))
+
+;;  ANSI Common Lisp
+(deftest import-test.1
+  (import 'common-lisp::car (make-package 'import-test-1 :use nil))
+  t)
+
+(deftest import-test.2
+  (find-symbol "CAR" 'import-test-1)
+  car :internal)
+
+(deftest import-test.3
+  (find-symbol "CDR" 'import-test-1)
+  nil nil)
+
+
+;;
+;;  Function SHADOW
+;;
+(deftest shadow-init
+  (init-test-package))
 
 (deftest shadow.1
   (shadow "SHADOW1" 'test1)
   t)
 
 (deftest shadow.2
-  (shadow '("SHADOW2" "SHADOW2-2") 'test1)
-  t)
+  (find-symbol-list "SHADOW1" 'test1)
+  ("TEST1" "SHADOW1" :internal))
 
 (deftest shadow.3
-  (shadow "SHADOW3")
-  t)
+  (count-shadowing-symbols "SHADOW1" 'test1)
+  1)
 
 (deftest shadow.4
-  (let ((symbol (intern "SHADOW4")))
-    (shadow "SHADOW4")
+  (progn
+    (shadow 'shadow4 'test1)
+    (values
+      (find-symbol-list "SHADOW4" 'test1)
+      (count-shadowing-symbols "SHADOW4" 'test1)))
+  ("TEST1" "SHADOW4" :internal)
+  1)
+
+(deftest shadow.5
+  (progn
+    (intern "SHADOW5" 'test1)
+    (shadow "SHADOW5" 'test1))
+  t)
+
+(deftest-error shadow.6
+  (shadow (make-array 5 :initial-contents "Hello"))
+  type-error)
+
+(deftest shadow.7
+  (progn
+    (make-package 'shadow-1)
+    (make-package 'shadow-2)
+    (export (intern "X" 'shadow-1) 'shadow-1)
+    (use-package 'shadow-1 'shadow-2)
+    (multiple-value-bind (x y) (find-symbol "X" 'shadow-2)
+      (declare (ignore x))
+      (shadow "X" 'shadow-2)
+      (values
+        y
+        (find-symbol-list "X" 'shadow-2))))
+  :inherited
+  ("SHADOW-2" "X" :internal))
+
+(deftest shadow.8
+  (shadow "SHADOW8")
+  t)
+
+(deftest shadow.9
+  (let ((symbol (intern "SHADOW9")))
+    (shadow "SHADOW9")
     (eq (car (member symbol (package-shadowing-symbols *package*)))
         symbol))
   t)
 
+(deftest shadow-list.1
+  (shadow '("SHADOW-LIST-1" "SHADOW-LIST-2") 'test1)
+  t)
+
+(deftest shadow-list.2
+  (values
+    (find-symbol-list "SHADOW-LIST-1" 'test1)
+    (find-symbol-list "SHADOW-LIST-2" 'test1)
+    (count-shadowing-symbols "SHADOW-LIST-1" 'test1)
+    (count-shadowing-symbols "SHADOW-LIST-2" 'test1))
+  ("TEST1" "SHADOW-LIST-1" :internal)
+  ("TEST1" "SHADOW-LIST-2" :internal)
+  1 1)
+
+(deftest-error shadow-error.1
+  (eval '(shadow 10))
+  type-error)
+
+(deftest-error shadow-error.2
+  (eval '(shadow 'hello 20))
+  type-error)
+
+(deftest-error shadow-error.3
+  (eval '(shadow '(10 20 30)))
+  type-error)
+
+(deftest-error! shadow-error.4
+  (eval '(shadow)))
+
+(deftest-error! shadow-error.5
+  (eval '(shadow 'hello *package* 40)))
+
+(deftest-error! shadow-error.6
+  (eval '(shadow 'hello *package* 40)))
+
+(deftest-error! shadow-error.7
+  (eval '(shadow 'hello 'no-such-package-name)))
+
+;;  ANSI Common Lisp
+(deftest shadow-test.1
+  (package-shadowing-symbols
+    (make-package 'shadow-test-1))
+  nil)
+
+(deftest shadow-test.2
+  (find-symbol "CAR" 'shadow-test-1)
+  car :inherited)
+
+(deftest shadow-test.3
+  (shadow 'car 'shadow-test-1)
+  t)
+
+(deftest shadow-test.4
+  (find-symbol-list "CAR" 'shadow-test-1)
+  ("SHADOW-TEST-1" "CAR" :internal))
+
+(deftest shadow-test.5
+  (package-shadowing-symbols-list 'shadow-test-1)
+  (("SHADOW-TEST-1" "CAR")))
+
+(deftest shadow-test.6
+  (progn
+    (make-package 'shadow-test-2)
+    (shadow
+      (intern "TEST" (find-package 'shadow-test-2))
+      (find-package 'shadow-test-2)))
+  t)
+
+(deftest shadow-test.7
+  (shadow 'TEST (find-package 'shadow-test-2))
+  t)
+
+(deftest shadow-test.8
+  (package-shadowing-symbols-list 'shadow-test-2)
+  (("SHADOW-TEST-2" "TEST")))
+
+(deftest shadow-test.9
+  (progn
+    (make-package 'shadow-test-3)
+    (intern "TEST" (find-package 'shadow-test-3))
+    (export (intern "TEST" 'shadow-test-3) (find-package 'shadow-test-3))
+    (use-package 'shadow-test-3 (find-package 'shadow-test-2)))
+  t)
+
+
+;;
+;;  Function SHADOWING-IMPORT
+;;
+(deftest shadowing-import-init
+  (init-test-package))
+
 (deftest shadowing-import.1
-  (shadowing-import (intern "SHADOWING-IMPORT1" 'test1) 'test2)
+  (shadowing-import
+    (intern "SHADOWING1" 'test1) 'test2)
   t)
 
 (deftest shadowing-import.2
-  (shadowing-import
-    (list (intern "SHADOWING-IMPORT2" 'test1) 'shadowing-import3)
-    'test2)
-  t)
+  (let ((x (intern "SHADOWING3" 'test1)))
+    (shadowing-import x 'test2)
+    (count-shadowing-symbols x 'test2))
+  1)
 
 (deftest shadowing-import.3
-  (let ((symbol (intern "SHADOWING-IMPORT3" 'test1)))
-    (shadowing-import (intern "SHADOWING-IMPORT3" 'test1) 'test2)
-    (eq (car (member symbol (package-shadowing-symbols 'test2)))
-        symbol))
-  t)
+  (progn
+    (shadowing-import (intern "SHADOWING3" 'test1) 'test2)
+    (find-symbol-list "SHADOWING3" 'test2))
+  ("TEST1" "SHADOWING3" :internal))
 
 (deftest shadowing-import.4
-  (progn
-    (shadowing-import (intern "SHADOWING-IMPORT4" 'test1) 'test2)
-    (multiple-value-bind (symbol status) (find-symbol  "SHADOWING-IMPORT4" 'test2)
-      (values (symbol-name symbol)
-              (package-name (symbol-package symbol))
-              status)))
-  "SHADOWING-IMPORT4" "TEST1" :internal)
+  (shadowing-import (intern "SHADOWING4" 'test1))
+  t)
 
 (deftest shadowing-import.5
-  (shadowing-import (intern "SHADOWING-IMPORT5" 'test1))
-  t)
+  (let ((x (intern "SHADOWING5" 'test1)))
+    (shadowing-import x)
+    (count-shadowing-symbols x *package*))
+  1)
 
 (deftest shadowing-import.6
-  (let ((symbol (intern "SHADOWING-IMPORT6" 'test1)))
-    (shadowing-import (intern "SHADOWING-IMPORT6" 'test1))
-    (eq (car (member symbol (package-shadowing-symbols *package*)))
-        symbol))
-  t)
-
-(deftest shadowing-import.7
   (progn
-    (shadowing-import (intern "SHADOWING-IMPORT7" 'test1))
-    (multiple-value-bind (symbol status) (find-symbol  "SHADOWING-IMPORT7")
-      (values (symbol-name symbol)
-              (package-name (symbol-package symbol))
-              status)))
-  "SHADOWING-IMPORT7" "TEST1" :internal)
+    (shadowing-import (intern "SHADOWING6" 'test1))
+    (find-symbol-list "SHADOWING6" *package*))
+  ("TEST1" "SHADOWING6" :internal))
 
-(deftest unexport.1
-  (unexport (intern "UNEXPORT1" 'test1) 'test1)
+(deftest shadowing-import-list.1
+  (shadowing-import
+    (list (intern "SHADOWING-LIST-1A" 'test1) 'shadowing-list-1b)
+    'test1)
   t)
 
-(deftest unexport.2
-  (unexport (list (intern "UNEXPORT2-1" 'test1)
-                  (intern "UNEXPORT2-2" 'test1)) 'test1)
+(deftest shadowing-import-list.2
+  (values
+    (find-symbol-list "SHADOWING-LIST-1A" 'test1)
+    (find-symbol-list "SHADOWING-LIST-1B" *package*)
+    (count-shadowing-symbols "SHADOWING-LIST-1A" 'test1)
+    (count-shadowing-symbols "SHADOWING-LIST-1B" 'test1))
+  ("TEST1" "SHADOWING-LIST-1A" :internal)
+  ("COMMON-LISP-USER" "SHADOWING-LIST-1B" :internal)
+  1 1)
+
+(deftest shadowing-import-conflict.1
+  (let ((x (intern "SHADOWING-CONFLICT-1" 'test2)))
+    (intern "SHADOWING-CONFLICT-1" 'test1)
+    (shadowing-import x 'test1))
   t)
 
-(deftest unexport.3
+(deftest shadowing-import-conflict.2
+  (values
+    (find-symbol-list "SHADOWING-CONFLICT-1" 'test1)
+    (find-symbol-list "SHADOWING-CONFLICT-1" 'test2)
+    (count-shadowing-symbols "SHADOWING-CONFLICT-1" 'test1)
+    (count-shadowing-symbols "SHADOWING-CONFLICT-1" 'test2))
+  ("TEST2" "SHADOWING-CONFLICT-1" :internal)
+  ("TEST2" "SHADOWING-CONFLICT-1" :internal)
+  1 0)
+
+(deftest shadowing-import-conflict.3
+  (let ((x (intern "SHADOWING-CONFLICT-3" 'test2)))
+    (intern "SHADOWING-CONFLICT-3" 'test1)
+    (shadowing-import x 'test1)
+    (values
+      (eq x (find-symbol "SHADOWING-CONFLICT-3" 'test1))
+      (eq x (find-symbol "SHADOWING-CONFLICT-3" 'test2))))
+  t t)
+
+(deftest shadowing-import-conflict.4
+  (let ((x (intern "SHADOWING-CONFLICT-4" 'test2))
+        (y (intern "SHADOWING-CONFLICT-4" 'test3)))
+    (import x 'test1)
+    (shadowing-import y 'test1)
+    (values
+      (eq y (find-symbol "SHADOWING-CONFLICT-4" 'test1))
+      (eq y (find-symbol "SHADOWING-CONFLICT-4" 'test2))
+      (eq y (find-symbol "SHADOWING-CONFLICT-4" 'test3))
+      (count-shadowing-symbols "SHADOWING-CONFLICT-4" 'test1)
+      (count-shadowing-symbols "SHADOWING-CONFLICT-4" 'test2)
+      (count-shadowing-symbols "SHADOWING-CONFLICT-4" 'test3)))
+  t nil t
+  1 0 0)
+
+(deftest shadowing-import-conflict.5
   (progn
-    (make-package 'unexport3)
-    (let ((symbol (intern "UNEXPORT3-1" 'unexport3)))
-      (export symbol 'unexport3)
-      (make-package 'unexport3-2 :use '(unexport3))
-      (multiple-value-bind (symbol check)
-        (find-symbol "UNEXPORT3-1" 'unexport3)
-        (declare (ignore symbol))
-        (unless (eq check :external)
-          (error "find-symbol error")))
-      (unexport symbol 'unexport3)
-      (multiple-value-bind (symbol check)
-        (find-symbol "UNEXPORT3-1" 'unexport3)
-        (declare (ignore symbol))
-        (eq check :external))))
+    (shadow "SHADOWING-CONFLICT-5" 'test1)
+    (export (intern "SHADOWING-CONFLICT-5" 'test2) 'test2)
+    (export (intern "SHADOWING-CONFLICT-5" 'test3) 'test3)
+    (use-package 'test2 'test1)
+    (use-package 'test3 'test1)
+    ;;  unintern error
+    ;; (unintern (intern "SHADOWING-CONFLICT-5" 'test1) 'test1)
+    (shadowing-import
+      (intern "SHADOWING-CONFLICT-5" 'common-lisp-user)
+      'test1)
+    (values
+      (find-symbol-list "SHADOWING-CONFLICT-5" 'test1)
+      (count-shadowing-symbols "SHADOWING-CONFLICT-5" 'test1)))
+  ("COMMON-LISP-USER" "SHADOWING-CONFLICT-5" :internal)
+  1)
+
+(deftest shadowing-import-conflict.6
+  (progn
+    (unuse-package 'test3 'test1)
+    (unuse-package 'test2 'test1)
+    (values)))
+
+(deftest-error shadowing-import-error.1
+  (eval '(shadowing-import 10))
+  type-error)
+
+(deftest-error shadowing-import-error.2
+  (eval '(shadowing-import 'hello 20))
+  type-error)
+
+(deftest-error shadowing-import-error.3
+  (eval '(shadowing-import '(10 20 30)))
+  type-error)
+
+(deftest-error! shadowing-import-error.4
+  (eval '(shadowing-import)))
+
+(deftest-error! shadowing-import-error.5
+  (eval '(shadowing-import 'hello *package* 40)))
+
+(deftest-error! shadowing-import-error.6
+  (eval '(shadowing-import 'hello *package* 40)))
+
+(deftest-error! shadowing-import-error.7
+  (eval '(shadowing-import 'hello 'no-such-package-name)))
+
+;;  ANSI Common Lisp
+(deftest shadowing-import-test.1
+  (package-name
+    (in-package "COMMON-LISP-USER"))
+  "COMMON-LISP-USER")
+
+(defvar shadowing-import-test-sym)
+(deftest shadowing-import-test.2
+  (symbolp
+    (setq shadowing-import-test-sym (intern "SHADOWING-IMPORT-TEST-CONFLICT")))
+  t)
+
+(deftest shadowing-import-test.3
+  (multiple-value-bind (x y)
+    (intern "SHADOWING-IMPORT-TEST-CONFLICT"
+            (make-package 'shadowing-import-test-temp))
+    (values
+      (package-name (symbol-package x))
+      (symbol-name x)
+      y))
+  "SHADOWING-IMPORT-TEST-TEMP"
+  "SHADOWING-IMPORT-TEST-CONFLICT"
   nil)
 
-(deftest unexport.4
-  (progn
-    (export (intern "UNEXPORT4"))
-    (unexport (intern "UNEXPORT4")))
+(deftest shadowing-import-test.4
+  (package-shadowing-symbols 'shadowing-import-test-temp)
+  nil)
+
+(deftest shadowing-import-test.5
+  (shadowing-import shadowing-import-test-sym 'shadowing-import-test-temp)
   t)
+
+(deftest shadowing-import-test.6
+  (count-shadowing-symbols
+    "SHADOWING-IMPORT-TEST-CONFLICT"
+    'shadowing-import-test-temp)
+  1)
+
+
+;;
+;;
+;;
+(deftest intern-error.1
+  (let ((x (intern "KEYWORD-TEST" "KEYWORD")))
+    (values
+      (symbol-name
+        (symbol-value x))
+      (package-name
+        (symbol-package x))))
+  "KEYWORD-TEST" "KEYWORD")
 
 (deftest unintern.1
   (unintern (intern "UNINTERN1" 'test1) 'test1)
@@ -439,175 +514,4 @@
     (unintern symbol 'test1)
     (find-symbol "UNINTERN4" 'test1))
   nil nil)
-
-(deftest use-package.1
-  (use-package 'test2 'test1)
-  t)
-
-(deftest use-package.2
-  (progn
-    (use-package 'test2 'test1)
-    (use-package '(test2) 'test1))
-  t)
-
-(deftest use-package.3
-  (progn
-    (unuse-package 'test2 'test1)
-    (let ((symbol (intern "USE-PACKAGE3" 'test2)))
-      (export symbol 'test2))
-    (use-package 'test2 'test1)
-    (multiple-value-bind (symbol status) (find-symbol "USE-PACKAGE3" 'test2)
-      (values (symbol-name symbol) status)))
-  "USE-PACKAGE3" :external)
-
-(deftest use-package.4
-  (progn
-    (unuse-package 'test2 'test1)
-    (use-package 'test2 'test1)
-    (car (member
-           "TEST2"
-           (mapcar #'package-name (package-use-list 'test1))
-           :test 'equal)))
-  "TEST2")
-
-(deftest unuse-package.1
-  (unuse-package 'test2 'test1)
-  t)
-
-(deftest unuse-package.2
-  (unuse-package '(test2) 'test1)
-  t)
-
-(deftest unuse-package.3
-  (progn
-    (unuse-package 'test2 'test1)
-    (use-package 'test2 'test1)
-    (unuse-package 'test2 'test1)
-    (car (member
-           "TEST2"
-           (mapcar #'package-name (package-use-list 'test1))
-           :test 'equal)))
-  nil)
-
-(deftest do-symbols.1
-  (let (a)
-    (do-symbols (v)
-      (declare (ignore v))
-      (setq a t))
-    a)
-  t)
-
-(deftest do-symbols.2
-  (let ((a :hello))
-    (do-symbols (v 'common-lisp-user a)
-      (declare (ignore v))))
-  :hello)
-
-(deftest do-symbols.3
-  (progn
-    (defpackage do-symbols-3 (:use))
-    (intern "AAA" 'do-symbols-3)
-    (intern "BBB" 'do-symbols-3)
-    (intern "CCC" 'do-symbols-3)
-    (let ((count 0))
-      (do-symbols
-        (v 'do-symbols-3)
-        (declare (ignorable v))
-        (setq count (1+ count)))
-      count))
-  3)
-
-(deftest do-symbols.4
-  (progn
-    (defpackage do-symbols-4 (:use))
-    (intern "AAA" 'do-symbols-4)
-    (intern "BBB" 'do-symbols-4)
-    (intern "CCC" 'do-symbols-4)
-    (let ((count 0))
-      (do-symbols
-        (v 'do-symbols-4 :hello)
-        (declare (ignorable v))
-        (setq count (1+ count)))))
-  :hello)
-
-(deftest do-external-symbols.1
-  (let (a)
-    (make-package 'aaa)
-    (export (intern "X" 'aaa) 'aaa)
-    (do-external-symbols (v 'aaa)
-      (declare (ignore v))
-      (setq a t))
-    a)
-  t)
-
-(deftest do-external-symbols.2
-  (let ((a :hello))
-    (do-external-symbols (v 'common-lisp-user a)
-      (declare (ignore v))))
-  :hello)
-
-(deftest do-external-symbols.3
-  (progn
-    (defpackage do-external-symbols-3 (:use))
-    (intern "AAA" 'do-external-symbols-3)
-    (intern "BBB" 'do-external-symbols-3)
-    (intern "CCC" 'do-external-symbols-3)
-    (let ((count 0))
-      (do-external-symbols
-        (v 'do-external-symbols-3)
-        (declare (ignorable v))
-        (setq count (1+ count)))
-      count))
-  0)
-
-(deftest do-external-symbols.4
-  (progn
-    (defpackage do-external-symbols-4 (:use))
-    (intern "AAA" 'do-external-symbols-4)
-    (intern "BBB" 'do-external-symbols-4)
-    (intern "CCC" 'do-external-symbols-4)
-    (export (intern "BBB" 'do-external-symbols-4) 'do-external-symbols-4)
-    (export (intern "CCC" 'do-external-symbols-4) 'do-external-symbols-4)
-    (let ((count 0))
-      (do-external-symbols
-        (v 'do-external-symbols-4)
-        (declare (ignorable v))
-        (setq count (1+ count)))
-      count))
-  2)
-
-(deftest do-external-symbols.5
-  (progn
-    (defpackage do-external-symbols-5 (:use))
-    (intern "AAA" 'do-external-symbols-5)
-    (intern "BBB" 'do-external-symbols-5)
-    (intern "CCC" 'do-external-symbols-5)
-    (export (intern "BBB" 'do-external-symbols-5) 'do-external-symbols-5)
-    (export (intern "CCC" 'do-external-symbols-5) 'do-external-symbols-5)
-    (let ((count 0))
-      (do-external-symbols
-        (v 'do-external-symbols-5 :hello)
-        (declare (ignorable v))
-        (setq count (1+ count)))))
-  :hello)
-
-(deftest do-all-symbols.1
-  (do-all-symbols (v)
-    (declare (ignore v)))
-  nil)
-
-(deftest do-all-symbols.2
-  (let ((a :hello))
-    (do-all-symbols (v a)
-      (declare (ignore v))))
-  :hello)
-
-(deftest intern-error.1
-  (let ((x (intern "KEYWORD-TEST" "KEYWORD")))
-    (values
-      (symbol-name
-        (symbol-value x))
-      (package-name
-        (symbol-package x))))
-  "KEYWORD-TEST" "KEYWORD")
 

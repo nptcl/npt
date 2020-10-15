@@ -9,12 +9,8 @@
 #define intern_package_ _n(intern_package_)
 #define intern_char_package_ _n(intern_char_package_)
 #define unintern_package_ _n(unintern_package_)
-#define import_package_ _n(import_package_)
-#define shadow_list_package_ _n(shadow_list_package_)
 #define shadow_package_ _n(shadow_package_)
-#define shadowing_import_symbol_package_ _n(shadowing_import_symbol_package_)
 #define shadowing_import_package_ _n(shadowing_import_package_)
-#define unexport_package_ _n(unexport_package_)
 #define use_package_list_package_ _n(use_package_list_package_)
 #define use_package_ _n(use_package_)
 #define unuse_package_ _n(unuse_package_)
@@ -39,12 +35,8 @@ _g int intern_package_(addr package, addr name,
 _g int intern_char_package_(addr package, const char *name,
 		addr *value, enum PACKAGE_TYPE *ret);
 _g int unintern_package_(addr package, addr symbol, int *ret);
-_g int import_package_(addr package, addr pos);
-_g int shadow_list_package_(addr package, addr pos);
 _g int shadow_package_(addr package, addr pos);
-_g int shadowing_import_symbol_package_(addr package, addr symbol);
 _g int shadowing_import_package_(addr package, addr pos);
-_g int unexport_package_(addr package, addr pos);
 _g int use_package_list_package_(addr package, addr pos);
 _g int use_package_(addr package, addr pos);
 _g int unuse_package_(addr package, addr pos);

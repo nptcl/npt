@@ -17,6 +17,7 @@
 #include "package_delete.h"
 #include "package_designer.h"
 #include "package_export.h"
+#include "package_import.h"
 #include "package_make.h"
 #include "package_object.h"
 #include "package_symbol.h"
@@ -58,7 +59,7 @@ static int defpackage_update_shadowing_(addr pos, addr list)
 			GetCons(child, &key, &child);
 			Return(string_designer_heap_(&key, key, NULL));
 			Return(intern_package_(package, key, &key, NULL));
-			Return(shadowing_import_symbol_package_(pos, key));
+			Return(shadowing_import_package_(pos, key));
 		}
 	}
 
@@ -142,7 +143,7 @@ static int defpackage_update_(Execute ptr, addr pos, addr rest)
 	Return(defpackage_update_nicknames_(pos, names));
 	/* shadow, shadowing-symbols */
 	if (shadow != Nil) {
-		Return(shadow_list_package_(pos, shadow));
+		Return(shadow_package_(pos, shadow));
 	}
 	if (shadowing != Nil) {
 		Return(defpackage_update_shadowing_(pos, shadowing));

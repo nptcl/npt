@@ -13,6 +13,7 @@
 #include "integer.h"
 #include "hold.h"
 #include "package_export.h"
+#include "package_import.h"
 #include "package_symbol.h"
 #include "print_write.h"
 #include "rt.h"
@@ -688,6 +689,9 @@ static int function_do_tests_execute_(Execute ptr)
 	/* result */
 	rollback_local(local, stack);
 	setbool_control(ptr, count2 == 0);
+	GetConst(RT_RESULT, &name);
+	setspecial_local(ptr, name, (count2 == 0)? T: Nil);
+
 	return 0;
 }
 

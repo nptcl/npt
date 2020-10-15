@@ -10,6 +10,7 @@
 #include "package.h"
 #include "package_designer.h"
 #include "package_export.h"
+#include "package_import.h"
 #include "package_make.h"
 #include "package_symbol.h"
 #include "strtype.h"
@@ -39,7 +40,7 @@ _g int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sta
 		Return(getpackage_(ptr, &pg));
 	}
 	Return(find_symbol_package_(pg, name, &name, &type));
-	if (name == Nil) {
+	if (type == PACKAGE_TYPE_NIL) {
 		*ret = Nil;
 		*state = Nil;
 	}

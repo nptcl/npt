@@ -15,8 +15,10 @@
 
 (defun loadrt (file)
   (format t "~&[~A]~%" file)
-  (unless (load (merge-pathnames file #p"test/"))
-    (error "loadrt error: ~S" file)))
+  (let ((lisp-rt::*result* nil))
+    (load (merge-pathnames file #p"test/"))
+    (unless lisp-rt::*result*
+      (error "loadrt error: ~S" file))))
 
 
 ;;

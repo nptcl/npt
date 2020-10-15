@@ -234,6 +234,7 @@ package_delete.c
 package_defpackage.c
 package_designer.c
 package_export.c
+package_import.c
 package_iterator.c
 package_make.c
 package_object.c

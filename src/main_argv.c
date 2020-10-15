@@ -428,8 +428,10 @@ static int mainparse_loop(struct lispargv *ptr)
 			continue;
 		}
 		if (LispArgv_equal(s, Script)) {
-			if (ptr->debuggerp == 0)
+			if (ptr->debuggerp == 0) {
+				ptr->debuggerp = 1;
 				ptr->debugger = 0;
+			}
 			ptr->quit = 1;
 			goto inputs;
 		}

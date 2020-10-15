@@ -806,7 +806,7 @@ static void defun_wild_pathname_p(void)
 
 
 /* (defun pathname-match-p (path wildcard) ...) -> boolean
- *   path      pathname-desinger
+ *   path      pathname-designer
  *   wildcard  pathname-designer
  */
 static int function_pathname_match_p(Execute ptr, addr pos, addr wild)

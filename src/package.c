@@ -8,6 +8,7 @@
 #include "package_delete.h"
 #include "package_designer.h"
 #include "package_export.h"
+#include "package_import.h"
 #include "package_make.h"
 #include "package_object.h"
 #include "package_symbol.h"
@@ -545,6 +546,7 @@ _g int find_allsymbols_package_(addr name, addr *ret)
 	addr array, left, right, key, cons;
 	size_t i, size;
 
+	Return(string_designer_heap_(&name, name, NULL));
 	cons = Nil;
 	PackageTable(&array);
 	GetTableHash(array, &array);

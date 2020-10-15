@@ -10,12 +10,17 @@
 #include "package_bittype.h"
 #include "package_designer.h"
 #include "package_export.h"
+#include "package_import.h"
 #include "package_symbol.h"
 #include "restart.h"
 #include "strvect.h"
+#include "strtype.h"
 #include "symbol.h"
 #include "type_table.h"
 
+/****************************************************************************
+ *  Function EXPORT
+ ****************************************************************************/
 /*
  *  restart conflict
  *    shadow    Make ~S accessible (shadowing ~S).
@@ -77,7 +82,7 @@ static void restart_ignore_export_package(addr *ret)
 	addr restart, pos;
 
 	/* name */
-	GetConst(SYSTEM_IGNORE, &pos);
+	GetConst(COMMON_IGNORE, &pos);
 	restart_heap(&restart, pos);
 	/* report */
 	strvect_char_heap(&pos, "Ignore export.");
@@ -111,9 +116,12 @@ static int restart_conflict_export_package_(
 	pushrestart_control(ptr, ignore);
 	pushrestart_control(ptr, unintern);
 	pushrestart_control(ptr, shadow);
-	(void)call_simple_package_error_va_(NULL,
+	(void)call_simple_package_error_va_(ptr,
 			"The symbol ~S occer conflict between ~S and ~S.",
 			symbol1, package1, package2, NULL);
+
+	if (ptr->throw_value == throw_normal)
+		goto escape;
 	if (ptr->throw_control != control)
 		goto escape;
 
@@ -173,6 +181,8 @@ static int restart_pop_export_package_(Execute ptr,
 		addr control, addr import, addr ignore,
 		addr package, addr symbol)
 {
+	if (ptr->throw_value == throw_normal)
+		goto escape;
 	if (ptr->throw_control != control)
 		goto escape;
 
@@ -205,7 +215,7 @@ static int restart_exist_export_package_(addr package, addr symbol)
 	push_control(ptr, &control);
 	pushrestart_control(ptr, pos2);
 	pushrestart_control(ptr, pos1);
-	(void)call_simple_package_error_va_(NULL,
+	(void)call_simple_package_error_va_(ptr,
 			"There is no symbol ~S in package ~S.",
 			symbol, package, NULL);
 	return restart_pop_export_package_(ptr, control, pos1, pos2, package, symbol);
@@ -223,7 +233,7 @@ static int restart_access_export_package_(addr package, addr symbol)
 	push_control(ptr, &control);
 	pushrestart_control(ptr, pos2);
 	pushrestart_control(ptr, pos1);
-	(void)call_simple_package_error_va_(NULL,
+	(void)call_simple_package_error_va_(ptr,
 			"The symbol ~S is not accessible in package ~S.",
 			symbol, package, NULL);
 	return restart_pop_export_package_(ptr, control, pos1, pos2, package, symbol);
@@ -360,27 +370,30 @@ static int symbol_export_package_(addr package, addr symbol)
 
 static int list_export_package_(addr package, addr args)
 {
-	addr pos, type, list;
+	addr list, pos, type;
 
 	/* type check */
 	Check(! listp(args), "type error");
-	for (list = args; list != Nil; ) {
+	list = args;
+	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		if (! symbolp(pos)) {
 			GetTypeTable(&type, Symbol);
 			return call_type_error_va_(NULL, pos, type,
-					"export ~S must be a symbol type.", pos, NULL);
+					"EXPORT ~S must be a symbol type.", pos, NULL);
 		}
 	}
 
 	/* check */
-	for (list = args; list != Nil; ) {
+	list = args;
+	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		Return(check_export_package_(package, pos));
 	}
 
 	/* export */
-	for (list = args; list != Nil; ) {
+	list = args;
+	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		Return(execute_export_package_(package, pos));
 	}
@@ -405,7 +418,203 @@ _g int export_package_(addr package, addr pos)
 		default:
 			GetTypeTable(&type, SymbolList);
 			return call_type_error_va_(NULL, pos, type,
-					"export ~S must be a symbol or list.", pos, NULL);
+					"EXPORT ~S must be a symbol or list.", pos, NULL);
+	}
+}
+
+
+/****************************************************************************
+ *  Function UNEXPORT
+ ****************************************************************************/
+static int check_unexport_package_(addr package, addr symbol)
+{
+	addr table, name;
+
+	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
+	GetNameSymbol(symbol, &name);
+	Return(findnil_hashtable_(table, name, &name));
+	if (name == Nil)
+		goto error;
+	GetBitTypeSymbol(name, &name);
+	if (symbol != name)
+		goto error;
+
+	return 0;
+
+error:
+	return call_simple_package_error_va_(NULL,
+			"The symbol ~S is not accesible in the ~S package.",
+			symbol, package, NULL);
+}
+
+static int execute_used_unexport_package_(addr package, addr symbol)
+{
+	int check;
+	addr pos, list, table;
+
+	GetNameSymbol(symbol, &symbol);
+	GetPackage(package, PACKAGE_INDEX_USED, &list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetPackage(pos, PACKAGE_INDEX_TABLE, &table);
+		Return(findnil_hashtable_(table, symbol, &pos));
+		if (pos != Nil) {
+			if (StructBitType(pos)->inherit) {
+				Return(delete_hashtable_(table, symbol, &check));
+			}
+		}
+	}
+
+	return 0;
+}
+
+static int delete_list_unexport_package_(addr list, addr name, addr *value, int *ret)
+{
+	int check;
+	addr pos, list1, list2, list3;
+
+	list1 = NULL;
+	list2 = list;
+	while (list2 != Nil) {
+		GetCons(list2, &pos, &list3);
+		Return(string_equal_(pos, name, &check));
+		if (check) {
+			/* delete */
+			if (list1 == NULL) {
+				*value = list3;
+			}
+			else {
+				SetCdr(list1, list3);
+				*value = list;
+			}
+			return Result(ret, 0);
+		}
+		list1 = list2;
+		list2 = list3;
+	}
+
+	/* not found */
+	return Result(ret, 1);
+}
+
+static int delete_export_unexport_package_(addr package, addr name)
+{
+	int check;
+	addr list;
+
+	GetPackage(package, PACKAGE_INDEX_EXPORT, &list);
+	Return(delete_list_unexport_package_(list, name, &list, &check));
+	if (check) {
+		/* Abnormal error */
+		return fmte_("There is no ~S in export list.", name, NULL);
+	}
+	SetPackage(package, PACKAGE_INDEX_EXPORT, list);
+
+	return 0;
+}
+
+static int execute_type_unexport_package_(addr package, addr symbol)
+{
+	addr table, name, bit;
+	struct bittype_struct *str;
+
+	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
+	GetNameSymbol(symbol, &name);
+	Return(findnil_hashtable_(table, name, &bit));
+	str = StructBitType(bit);
+	if (str->expt) {
+		str->intern = PACKAGE_TYPE_INTERNAL;
+		str->expt = 0;
+		Return(delete_export_unexport_package_(package, name));
+	}
+
+	return 0;
+}
+
+static int symbol_unexport_package_(addr package, addr symbol)
+{
+	Return(check_unexport_package_(package, symbol));
+	Return(execute_used_unexport_package_(package, symbol));
+	Return(execute_type_unexport_package_(package, symbol));
+
+	return 0;
+}
+
+static int list_unexport_package_(addr package, addr args)
+{
+	addr list, pos, type;
+
+	/* type check */
+	Check(! listp(args), "type error");
+	list = args;
+	while (list != Nil) {
+		Return_getcons(list, &pos, &list);
+		if (! symbolp(pos)) {
+			GetTypeTable(&type, Symbol);
+			return call_type_error_va_(NULL, pos, type,
+					"UNEXPORT ~S must be a symbol type.", pos, NULL);
+		}
+	}
+
+	/* conflict check */
+	list = args;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		Return(check_unexport_package_(package, pos));
+	}
+
+	/* unexport */
+	list = args;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		Return(symbol_unexport_package_(package, pos));
+	}
+
+	return 0;
+}
+
+static int package_designer_unexport_package_(addr pos, addr *ret)
+{
+	addr check;
+
+	Return(package_designer_(pos, &pos));
+
+	/* KEYWORD */
+	GetConst(PACKAGE_KEYWORD, &check);
+	if (pos == check)
+		goto error;
+
+	/* COMMON-LISP */
+	GetConst(PACKAGE_COMMON_LISP, &check);
+	if (pos == check)
+		goto error;
+
+	/* normal */
+	return Result(ret, pos);
+
+error:
+	*ret = Nil;
+	return fmte_("UNEXPORT can't unexport the ~S package.", pos, NULL);
+}
+
+_g int unexport_package_(addr package, addr pos)
+{
+	addr type;
+
+	Return(package_designer_unexport_package_(package, &package));
+	switch (GetType(pos)) {
+		case LISPTYPE_NIL:
+		case LISPTYPE_T:
+		case LISPTYPE_SYMBOL:
+			return symbol_unexport_package_(package, pos);
+
+		case LISPTYPE_CONS:
+			return list_unexport_package_(package, pos);
+
+		default:
+			GetTypeTable(&type, SymbolList);
+			return call_type_error_va_(NULL, pos, type,
+					"UNEXPORT ~S must be a symbol or list.", pos, NULL);
 	}
 }
 

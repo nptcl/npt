@@ -1838,6 +1838,7 @@ lisp-clos::make-method-lambda
 ;;
 ;;  rt
 ;;
+(lisp-rt::*result* :constant rt :name result)
 (lisp-rt::*index* :constant rt :name index)
 (lisp-rt::*entries* :constant rt :name entries)
 (lisp-rt::*entries-table* :constant rt :name entries-table)
@@ -1868,7 +1869,6 @@ lisp-system::prompt-step
 ;;  restart name
 ;;
 lisp-system::input
-lisp-system::ignore
 
 
 ;;

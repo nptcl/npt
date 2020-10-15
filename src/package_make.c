@@ -209,9 +209,13 @@ static int error_nicknames_make_package_(Execute ptr, addr remove)
 	pushrestart_control(ptr, restart);
 	(void)call_simple_package_error_va_(NULL,
 			"Nicknames ~S already exist.", remove, NULL);
-	if (ptr->throw_control == control)
-		normal_throw_control(ptr);
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
 
+	normal_throw_control(ptr);
+escape:
 	return pop_control_(ptr, control);
 }
 
@@ -333,6 +337,8 @@ static int error_use_make_package_(Execute ptr,
 	*rshadow = shadow;
 
 	/* others */
+	if (ptr->throw_value == throw_normal)
+		goto escape;
 	if (ptr->throw_control != control)
 		goto escape;
 
@@ -513,7 +519,9 @@ _g int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret)
 
 	/* make package */
 	Return(package_heap_(&pos, name));
-	Return(shadow_list_package_(pos, shadow));
+	if (shadow != Nil) {
+		Return(shadow_package_(pos, shadow));
+	}
 	Return(append_nicknames_package_(pos, names));
 	Return(append_usepackage_package_(pos, use));
 

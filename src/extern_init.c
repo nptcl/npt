@@ -513,7 +513,12 @@ static int lisp_argv_load_default_(Execute ptr, struct lispargv *argv, int *a)
 
 static int lisp_argv_loadinit_(Execute ptr, struct lispargv *argv, int *ret)
 {
+	int value;
 	lispstringu file;
+
+	/* --debugger */
+	value = argv->debuggerp? argv->debugger: consolep_file();
+	set_enable_debugger(ptr, value);
 
 	/* --noinit */
 	if (argv->noinit)
@@ -565,17 +570,6 @@ static int lisp_argv_inputs_(Execute ptr, struct lispargv *argv)
 	return 0;
 }
 
-static int lisp_argv_debugger_(Execute ptr, struct lispargv *argv)
-{
-	int v;
-
-	/* debugger */
-	v = argv->debuggerp? argv->debugger: consolep_file();
-	set_enable_debugger(ptr, v);
-	/* eval-loop */
-	return eval_main_loop_(ptr);
-}
-
 static int lisp_argv_execute_(Execute ptr, struct lispargv *argv)
 {
 	int check;
@@ -607,7 +601,7 @@ static int lisp_argv_execute_(Execute ptr, struct lispargv *argv)
 	/* debugger */
 	setindex_prompt(ptr, 0);
 	if (argv->quit == 0)
-		return lisp_argv_debugger_(ptr, argv);
+		return eval_main_loop_(ptr);
 
 	return 0;
 }

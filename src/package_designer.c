@@ -94,9 +94,11 @@ static int restart_package_designer_(addr pos, addr *ret)
 	pushrestart_control(ptr, restart);
 
 	(void)call_simple_package_error_va_(NULL, "No such a package ~S.", pos, NULL);
-
+	if (ptr->throw_value == throw_normal)
+		goto escape;
 	if (ptr->throw_control != control)
 		goto escape;
+
 	/* use_value */
 	normal_throw_control(ptr);
 	getresult_control(ptr, ret);

@@ -248,7 +248,7 @@ static void defun_defconstant(void)
 }
 
 
-/* (defun in-package (string-desinger) ...) -> package */
+/* (defun in-package (string-designer) ...) -> package */
 static int syscall_in_package(Execute ptr, addr name)
 {
 	Return(in_package_syscode_(ptr, name, &name));

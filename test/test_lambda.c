@@ -8,6 +8,7 @@
 #include "degrade.h"
 #include "function.h"
 #include "object.h"
+#include "package_import.h"
 #include "pathname.h"
 #include "print.h"
 #include "reader.h"
