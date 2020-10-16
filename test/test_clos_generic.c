@@ -4,7 +4,7 @@
 #include "degrade.h"
 #include "execute.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "reader.h"
 #include "real.h"
 #include "stream.h"

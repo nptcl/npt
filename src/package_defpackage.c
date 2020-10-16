@@ -18,9 +18,11 @@
 #include "package_designer.h"
 #include "package_export.h"
 #include "package_import.h"
+#include "package_intern.h"
 #include "package_make.h"
 #include "package_object.h"
-#include "package_symbol.h"
+#include "package_shadow.h"
+#include "package_use.h"
 #include "pointer.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -150,7 +152,7 @@ static int defpackage_update_(Execute ptr, addr pos, addr rest)
 	}
 	/* use */
 	if (use != Nil) {
-		Return(use_package_list_package_(pos, use));
+		Return(use_package_(pos, use));
 	}
 	/* import-from */
 	if (import != Nil) {

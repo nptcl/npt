@@ -674,7 +674,7 @@ _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 				*ret = cons1;
 			else
 				SetCdr(cons2, cons1);
-			update++;
+			update = 1;
 		}
 		else {
 			cons2 = cons;

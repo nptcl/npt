@@ -8,7 +8,6 @@
 
 #define build_package _n(build_package)
 #define getpackage_ _n(getpackage_)
-#define pushlist_package _n(pushlist_package)
 #define append_nicknames_package_ _n(append_nicknames_package_)
 #define delete_renameone_package_ _n(delete_renameone_package_)
 #define rename_package_ _n(rename_package_)
@@ -20,7 +19,6 @@
 #define find_allsymbols_package_ _n(find_allsymbols_package_)
 #define list_all_packages_ _n(list_all_packages_)
 #define in_package_ _n(in_package_)
-#define remove_check_package _n(remove_check_package)
 #define externalp_package_ _n(externalp_package_)
 #define exportp_package_ _n(exportp_package_)
 #define exportp_name_package_ _n(exportp_name_package_)
@@ -33,7 +31,6 @@
 _g void build_package(void);
 _g int getpackage_(Execute ptr, addr *ret);
 
-_g void pushlist_package(addr package, enum PACKAGE_INDEX index, addr pos);
 _g int append_nicknames_package_(addr pos, addr right);
 _g int delete_renameone_package_(addr table, addr name);
 _g int rename_package_(addr pos, addr name, addr right, addr *ret);
@@ -47,7 +44,6 @@ _g int package_heap_(addr *ret, addr name);
 _g int find_allsymbols_package_(addr name, addr *ret);
 _g int list_all_packages_(addr *ret);
 _g int in_package_(Execute ptr, addr package, addr *ret);
-_g int remove_check_package(addr package, enum PACKAGE_INDEX index, addr symbol);
 
 _g int externalp_package_(addr symbol, addr package, int *ret);
 _g int exportp_package_(addr symbol, addr package, int *ret);

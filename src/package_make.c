@@ -12,7 +12,7 @@
 #include "package_bittype.h"
 #include "package_designer.h"
 #include "package_make.h"
-#include "package_symbol.h"
+#include "package_shadow.h"
 #include "restart.h"
 #include "stream.h"
 #include "strtype.h"
@@ -458,37 +458,35 @@ static int append_exportname_package_(addr pos, addr left, addr name)
 	return 0;
 }
 
-static void pushnewlist_package(addr package, enum PACKAGE_INDEX index, addr pos)
+static void pushnew_list_package(addr package, enum PACKAGE_INDEX index, addr pos)
 {
-	addr left, right;
+	addr list;
 
-	GetPackage(package, index, &right);
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		if (left == pos)
-			return; /* don't push */
+	GetPackage(package, index, &list);
+	if (find_list_eq_unsafe(pos, list) == 0) {
+		cons_heap(&list, pos, list);
+		SetPackage(package, index, list);
 	}
-	pushlist_package(package, index, pos);
 }
 
-static int append_usepackage_package_(addr pos, addr right)
+static int append_usepackage_package_(addr pos, addr list)
 {
-	addr left, table, cons, name;
+	addr pg, hash, expt, name;
 
-	while (right != Nil) {
+	while (list != Nil) {
 		/* intern export */
-		GetCons(right, &left, &right);
-		Return(package_designer_(left, &left));
-		GetPackage(left, PACKAGE_INDEX_EXPORT, &cons);
-		GetPackage(left, PACKAGE_INDEX_TABLE, &table);
-		while (cons != Nil) {
-			GetCons(cons, &name, &cons);
-			Return(append_exportname_package_(pos, table, name));
+		GetCons(list, &pg, &list);
+		Return(package_designer_(pg, &pg));
+		GetPackage(pg, PACKAGE_INDEX_EXPORT, &expt);
+		GetPackage(pg, PACKAGE_INDEX_TABLE, &hash);
+		while (expt != Nil) {
+			GetCons(expt, &name, &expt);
+			Return(append_exportname_package_(pos, hash, name));
 		}
 
 		/* push use-list, used-by-list */
-		pushnewlist_package(pos, PACKAGE_INDEX_USE, left);
-		pushnewlist_package(left, PACKAGE_INDEX_USED, pos);
+		pushnew_list_package(pos, PACKAGE_INDEX_USE, pg);
+		pushnew_list_package(pg, PACKAGE_INDEX_USED, pos);
 	}
 
 	return 0;

@@ -1111,6 +1111,8 @@ enum pointer_index {
 	/* package */
 	p_defun_package_designer_interactive,
 	p_defun_make_package_input,
+	p_defun_unintern_call,
+	p_defun_unintern_input,
 	/* pathname */
 	p_defun_set_logical_pathname_translations,
 	/* condition */
@@ -1211,6 +1213,7 @@ enum pointer_index {
 	p_defun_syscall_do_symbols,
 	p_defun_syscall_do_external_symbols,
 	p_defun_syscall_do_all_symbols,
+	p_defun_syscall_package_export_list,
 	p_defun_syscall_getdoc_variable,
 	p_defun_syscall_setdoc_variable,
 	p_defun_syscall_specialp,

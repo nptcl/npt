@@ -5,7 +5,7 @@
 #include "hashtable.h"
 #include "memory.h"
 #include "object.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "reader.h"
 #include "stream.h"
 #include "strvect.h"

@@ -11,7 +11,8 @@
 #include "package_designer.h"
 #include "package_export.h"
 #include "package_import.h"
-#include "package_symbol.h"
+#include "package_intern.h"
+#include "package_shadow.h"
 #include "restart.h"
 #include "strvect.h"
 #include "strtype.h"
@@ -103,7 +104,6 @@ static int restart_conflict_export_package_(
 		addr package1, addr symbol1,
 		addr package2, addr symbol2)
 {
-	int check;
 	addr shadow, unintern, ignore, control;
 	Execute ptr;
 
@@ -135,7 +135,7 @@ static int restart_conflict_export_package_(
 	/* unintern */
 	if (ptr->throw_handler == unintern) {
 		normal_throw_control(ptr);
-		Return(unintern_package_(package2, symbol2, &check));
+		Return(unintern_package_(package2, symbol2, NULL));
 		goto escape;
 	}
 
@@ -356,7 +356,7 @@ static int execute_export_package_(addr package, addr symbol)
 		str->intern = PACKAGE_TYPE_EXTERNAL;
 	}
 	Return(intern_export_package_(package, symbol, name));
-	pushlist_package(package, PACKAGE_INDEX_EXPORT, name);
+	Return(push_list_export_package_(package, name));
 
 	return 0;
 }
@@ -468,51 +468,6 @@ static int execute_used_unexport_package_(addr package, addr symbol)
 	return 0;
 }
 
-static int delete_list_unexport_package_(addr list, addr name, addr *value, int *ret)
-{
-	int check;
-	addr pos, list1, list2, list3;
-
-	list1 = NULL;
-	list2 = list;
-	while (list2 != Nil) {
-		GetCons(list2, &pos, &list3);
-		Return(string_equal_(pos, name, &check));
-		if (check) {
-			/* delete */
-			if (list1 == NULL) {
-				*value = list3;
-			}
-			else {
-				SetCdr(list1, list3);
-				*value = list;
-			}
-			return Result(ret, 0);
-		}
-		list1 = list2;
-		list2 = list3;
-	}
-
-	/* not found */
-	return Result(ret, 1);
-}
-
-static int delete_export_unexport_package_(addr package, addr name)
-{
-	int check;
-	addr list;
-
-	GetPackage(package, PACKAGE_INDEX_EXPORT, &list);
-	Return(delete_list_unexport_package_(list, name, &list, &check));
-	if (check) {
-		/* Abnormal error */
-		return fmte_("There is no ~S in export list.", name, NULL);
-	}
-	SetPackage(package, PACKAGE_INDEX_EXPORT, list);
-
-	return 0;
-}
-
 static int execute_type_unexport_package_(addr package, addr symbol)
 {
 	addr table, name, bit;
@@ -525,7 +480,7 @@ static int execute_type_unexport_package_(addr package, addr symbol)
 	if (str->expt) {
 		str->intern = PACKAGE_TYPE_INTERNAL;
 		str->expt = 0;
-		Return(delete_export_unexport_package_(package, name));
+		Return(delete_list_export_package_(package, name));
 	}
 
 	return 0;

@@ -37,7 +37,7 @@
 #include "localtime.h"
 #include "object.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "pathname.h"
 #include "pointer.h"
 #include "print.h"

@@ -483,17 +483,114 @@
 
 
 ;;
+;;  Function INTERN
 ;;
-;;
-(deftest intern-error.1
-  (let ((x (intern "KEYWORD-TEST" "KEYWORD")))
+(defun intern-list (name &optional (package *package*))
+  (multiple-value-bind (x y) (intern name package)
     (values
-      (symbol-name
-        (symbol-value x))
-      (package-name
-        (symbol-package x))))
-  "KEYWORD-TEST" "KEYWORD")
+      (package-name (symbol-package x))
+      (symbol-name x)
+      y)))
 
+(deftest intern.1
+  (intern-list "INTERN-1" 'test1)
+  "TEST1" "INTERN-1" nil)
+
+(deftest intern.2
+  (intern-list "INTERN-1" 'test1)
+  "TEST1" "INTERN-1" :internal)
+
+(deftest intern.3
+  (progn
+    (export (intern "INTERN-1" 'test1) 'test1)
+    (intern-list "INTERN-1" 'test1))
+  "TEST1" "INTERN-1" :external)
+
+(deftest intern.4
+  (let ((x (intern "INTERN-4" 'test2)))
+    (import x 'test1)
+    (intern-list "INTERN-4" 'test1))
+  "TEST2" "INTERN-4" :internal)
+
+(deftest intern.5
+  (progn
+    (make-package 'intern1)
+    (make-package 'intern2)
+    (use-package 'intern2 'intern1)
+    (export (intern "X" 'intern2) 'intern2)
+    (intern-list "X" 'intern1))
+  "INTERN2" "X" :inherited)
+
+(deftest intern.6
+  (intern-list "INTERN-6")
+  "COMMON-LISP-USER" "INTERN-6" nil)
+
+(deftest intern.7
+  (intern-list "INTERN-6")
+  "COMMON-LISP-USER" "INTERN-6" :internal)
+
+(deftest intern-keyword.1
+  (intern-list "KEYWORD-TEST" "KEYWORD")
+  "KEYWORD" "KEYWORD-TEST" nil)
+
+(deftest intern-keyword.2
+  (intern-list "KEYWORD-TEST" "KEYWORD")
+  "KEYWORD" "KEYWORD-TEST" :external)
+
+(deftest-error intern-keyword.3
+  (set (intern "KEYWORD-TEST" "KEYWORD") 100))
+
+;;  error
+(deftest-error intern-error.1
+  (eval '(intern 10))
+  type-error)
+
+(deftest-error intern-error.2
+  (eval '(intern "HELLO" 20))
+  type-error)
+
+(deftest-error intern-error.3
+  (eval '(intern '(10 20 30)))
+  type-error)
+
+(deftest-error! intern-error.4
+  (eval '(intern)))
+
+(deftest-error! intern-error.5
+  (eval '(intern "HELLO" *package* 40)))
+
+(deftest-error! intern-error.6
+  (eval '(intern "HELLO" *package* 40)))
+
+(deftest-error! intern-error.7
+  (eval '(intern "HELLO" 'no-such-package-name)))
+
+;;  ANSI Common Lisp
+(deftest intern-test.1
+  (package-name
+    (in-package "COMMON-LISP-USER"))
+  "COMMON-LISP-USER")
+
+(deftest intern-test.2
+  (intern-list "Never-Before")
+  "COMMON-LISP-USER" "Never-Before" nil)
+
+(deftest intern-test.3
+  (intern-list "Never-Before")
+  "COMMON-LISP-USER" "Never-Before" :internal)
+
+(deftest intern-test.4
+  (intern-list "NEVER-BEFORE" "KEYWORD")
+  "KEYWORD" "NEVER-BEFORE" nil)
+
+(deftest intern-test.5
+  (intern-list "NEVER-BEFORE" "KEYWORD")
+  "KEYWORD" "NEVER-BEFORE" :external)
+
+
+;;
+;;
+;;
 (deftest unintern.1
   (unintern (intern "UNINTERN1" 'test1) 'test1)
   t)
@@ -505,13 +602,152 @@
   t)
 
 (deftest unintern.3
-  (let ((symbol (intern "UNINTERN2" 'test2)))
+  (let ((symbol (intern "UNINTERN3" 'test1)))
+    (unintern symbol 'test1)
     (unintern symbol 'test1))
   nil)
 
 (deftest unintern.4
-  (let ((symbol (intern "UNINTERN4" 'test1)))
+  (let ((symbol (intern "UNINTERN4" 'test2)))
+    (unintern symbol 'test1))
+  nil)
+
+(deftest unintern.5
+  (let ((symbol (intern "UNINTERN5" 'test1)))
     (unintern symbol 'test1)
-    (find-symbol "UNINTERN4" 'test1))
+    (find-symbol "UNINTERN5" 'test1))
   nil nil)
+
+(deftest unintern.6
+  (progn
+    (make-package 'unintern-package-6)
+    (make-package 'unintern-package-7)
+    (use-package 'unintern-package-7 'unintern-package-6)
+    (export (intern "X" 'unintern-package-7) 'unintern-package-7)
+    (unintern (find-symbol "X" 'unintern-package-6) 'unintern-package-6))
+  nil)
+
+(deftest unintern.7
+  (find-symbol-list "X" 'unintern-package-6)
+  ("UNINTERN-PACKAGE-7" "X" :inherited))
+
+(deftest-error unintern-conflict.1
+  (progn
+    (make-package 'unintern1)
+    (make-package 'unintern2)
+    (make-package 'unintern3 :use '(unintern1 unintern2))
+    (shadow "X" 'unintern3)
+    (export (intern "X" 'unintern1) 'unintern1)
+    (export (intern "X" 'unintern2) 'unintern2)
+    (unintern (intern "X" 'unintern3) 'unintern3))
+  package-error)
+
+(deftest unintern-conflict.2
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (declare (ignore c))
+                     (invoke-restart 'ignore))))
+    (unintern (intern "X" 'unintern3) 'unintern3))
+  nil)
+
+(deftest-error unintern-conflict.3
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'shadow 10 c))))
+    (unintern (intern "X" 'unintern3) 'unintern3))
+  type-error)
+
+(deftest-error unintern-conflict.4
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'shadow 'hello c))))
+    (unintern (intern "X" 'unintern3) 'unintern3)))
+
+(deftest unintern-conflict.5
+  (handler-bind ((package-error
+                   (lambda (c)
+                     (invoke-restart 'shadow (intern "X" 'unintern1) c))))
+    (unintern (intern "X" 'unintern3) 'unintern3))
+  t)
+
+(deftest unintern-conflict.6
+  (find-symbol-list "X" 'unintern3)
+  ("UNINTERN1" "X" :internal))
+
+(deftest unintern-conflict.7
+  (progn
+    (unuse-package 'unintern1 'unintern3)
+    (unuse-package 'unintern2 'unintern3)
+    (delete-package 'unintern1)
+    (delete-package 'unintern2)
+    (delete-package 'unintern3)
+    (make-package 'unintern1)
+    (make-package 'unintern2)
+    (make-package 'unintern3 :use '(unintern1 unintern2))
+    (shadow "X" 'unintern3)
+    (export (intern "X" 'unintern1) 'unintern1)
+    (export (intern "X" 'unintern2) 'unintern2)
+    (handler-bind ((package-error
+                     (lambda (c)
+                       (declare (ignore c))
+                       (invoke-restart 'shadow (intern "X" 'unintern1)))))
+      (unintern (intern "X" 'unintern3) 'unintern3)))
+  t)
+
+(deftest unintern-conflict.8
+  (find-symbol-list "X" 'unintern3)
+  ("UNINTERN1" "X" :internal))
+
+;;  error
+(deftest-error unintern-error.1
+  (eval '(unintern 10))
+  type-error)
+
+(deftest-error unintern-error.2
+  (eval '(unintern 'hello 20))
+  type-error)
+
+(deftest-error unintern-error.3
+  (eval '(unintern '(10 20 30)))
+  type-error)
+
+(deftest-error! unintern-error.4
+  (eval '(unintern)))
+
+(deftest-error! unintern-error.5
+  (eval '(unintern 'hello *package* 40)))
+
+(deftest-error! unintern-error.6
+  (eval '(unintern 'hello *package* 40)))
+
+(deftest-error! unintern-error.7
+  (eval '(unintern 'hello 'no-such-package-name)))
+
+;;  ANSI Common Lisp
+(deftest unintern-test.1
+  (package-name
+    (in-package "COMMON-LISP-USER"))
+  "COMMON-LISP-USER")
+
+(defvar *unintern-test-unpack*)
+
+(deftest unintern-test.2
+  (symbolp
+    (setq *unintern-test-unpack*
+          (intern "UNINTERN-TEST-UNPACK" (make-package 'unintern-test-package))))
+  t)
+
+(deftest unintern-test.3
+  (unintern *unintern-test-unpack* 'unintern-test-package)
+  t)
+
+(deftest unintern-test.4
+  (find-symbol "UNINTERN-TEST-UNPACK" 'unintern-test-package)
+  nil nil)
+
+(deftest unintern-test.5
+  (values
+    (symbol-package *unintern-test-unpack*)
+    (symbol-name *unintern-test-unpack*))
+  nil "UNINTERN-TEST-UNPACK")
 

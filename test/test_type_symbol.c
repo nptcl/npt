@@ -8,7 +8,7 @@
 #include "degrade.h"
 #include "function.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "reader.h"
 #include "stream.h"
 #include "symbol.h"

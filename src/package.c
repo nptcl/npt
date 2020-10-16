@@ -1,5 +1,6 @@
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "local.h"
 #include "intern_count.h"
 #include "hashtable.h"
@@ -9,9 +10,10 @@
 #include "package_designer.h"
 #include "package_export.h"
 #include "package_import.h"
+#include "package_intern.h"
 #include "package_make.h"
 #include "package_object.h"
-#include "package_symbol.h"
+#include "package_use.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -319,25 +321,6 @@ _g int getpackage_(Execute ptr, addr *ret)
 /*
  *  make_package
  */
-_g void pushlist_package(addr package, enum PACKAGE_INDEX index, addr pos)
-{
-	addr check, right;
-
-	GetPackage(package, index, &check);
-	if (check == Nil) {
-		/* first element */
-		consnil_heap(&check);
-		SetCar(check, pos);
-		SetPackage(package, index, check);
-	}
-	else {
-		/* push */
-		consnil_heap(&right);
-		SetCons(right, pos, check);
-		SetPackage(package, index, right);
-	}
-}
-
 _g int append_nicknames_package_(addr pos, addr right)
 {
 	addr table, left, cons, check;
@@ -354,7 +337,7 @@ _g int append_nicknames_package_(addr pos, addr right)
 			if (check == Nil) {
 				SetCdr(cons, pos);
 				/* push nickname */
-				pushlist_package(pos, PACKAGE_INDEX_NICKNAME, left);
+				push_list_nicknames_package(pos, left);
 			}
 		}
 	}
@@ -465,7 +448,7 @@ static int intern_renameone_package_(addr pos, addr table, addr name, int nickna
 			SetPackage(pos, PACKAGE_INDEX_NAME, name);
 		}
 		else {
-			pushlist_package(pos, PACKAGE_INDEX_NICKNAME, name);
+			push_list_nicknames_package(pos, name);
 		}
 	}
 
@@ -620,51 +603,6 @@ _g int in_package_(Execute ptr, addr package, addr *ret)
 
 
 /*
- *  remove-check-package
- */
-static int delete_eqlist_package(addr root, addr check, addr *ret)
-{
-	addr left, right1, right2, right3;
-
-	right1 = NULL;
-	right2 = root;
-	while (right2 != Nil) {
-		GetCons(right2, &left, &right3);
-		if (left == check) {
-			/* delete */
-			if (right1 == NULL) {
-				*ret = right3;
-			}
-			else {
-				SetCdr(right1, right3);
-				*ret = root;
-			}
-			return 0;
-		}
-		right1 = right2;
-		right2 = right3;
-	}
-
-	/* not found */
-	return 1;
-}
-
-_g int remove_check_package(addr package, enum PACKAGE_INDEX index, addr symbol)
-{
-	addr right;
-
-	GetPackage(package, index, &right);
-	if (delete_eqlist_package(right, symbol, &right)) {
-		/* Cannot delete, abort. */
-		return 1;
-	}
-	SetPackage(package, index, right);
-
-	return 0;
-}
-
-
-/*
  *  for C language
  */
 _g int externalp_package_(addr symbol, addr package, int *ret)
@@ -764,6 +702,7 @@ _g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
 _g void init_package(void)
 {
 	init_package_designer();
+	init_package_intern();
 	init_package_make();
 }
 

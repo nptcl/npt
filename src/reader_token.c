@@ -3,7 +3,7 @@
 #include "condition.h"
 #include "constant.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "reader_info.h"
 #include "reader_token.h"
 #include "symbol.h"

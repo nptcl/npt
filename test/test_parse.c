@@ -11,7 +11,7 @@
 #include "ratio.h"
 #include "reader.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"

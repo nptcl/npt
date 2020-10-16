@@ -3,7 +3,7 @@
 #include "degrade.h"
 #include "execute.h"
 #include "function.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 
 /*
  *  qualifiers-check

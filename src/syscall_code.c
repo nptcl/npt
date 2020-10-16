@@ -34,6 +34,7 @@
 #include "package.h"
 #include "package_common.h"
 #include "package_defpackage.h"
+#include "package_designer.h"
 #include "package_iterator.h"
 #include "package_object.h"
 #include "pathname.h"
@@ -263,6 +264,15 @@ _g int do_external_symbols_syscode(Execute ptr, addr call, addr package)
 _g int do_all_symbols_syscode_(Execute ptr, addr call)
 {
 	return do_all_symbols_package_(ptr, call);
+}
+
+
+/* package-export-list */
+_g int package_export_list_syscode_(addr var, addr *ret)
+{
+	Return(package_designer_(var, &var));
+	getexport_package_unsafe(var, ret);
+	return 0;
 }
 
 

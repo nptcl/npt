@@ -649,6 +649,41 @@ static void defun_do_all_symbols(void)
 }
 
 
+/* (defun package-export-list (package-designer) ...) -> list */
+static int syscall_package_export_list(Execute ptr, addr var)
+{
+	Return(package_export_list_syscode_(var, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_package_export_list(addr *ret)
+{
+	/* (function (package_designer) (values list &rest nil)) */
+	addr args, values;
+
+	GetTypeTable(&args, PackageDesigner);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_package_export_list(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PACKAGE_EXPORT_LIST, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_package_export_list);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_package_export_list(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun getdoc-variable (symbol) ...) -> (or string null) */
 static int syscall_getdoc_variable(Execute ptr, addr var)
 {
@@ -2792,6 +2827,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var2, do_symbols);
 	SetPointerSysCall(defun, var2, do_external_symbols);
 	SetPointerSysCall(defun, var1, do_all_symbols);
+	SetPointerSysCall(defun, var1, package_export_list);
 	SetPointerSysCall(defun, var1, getdoc_variable);
 	SetPointerSysCall(defun, var2, setdoc_variable);
 	SetPointerSysCall(defun, var1, specialp);
@@ -2882,6 +2918,7 @@ _g void build_syscall(void)
 	defun_do_symbols();
 	defun_do_external_symbols();
 	defun_do_all_symbols();
+	defun_package_export_list();
 	defun_getdoc_variable();
 	defun_setdoc_variable();
 	defun_specialp();

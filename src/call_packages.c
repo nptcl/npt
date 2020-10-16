@@ -11,8 +11,10 @@
 #include "package_designer.h"
 #include "package_export.h"
 #include "package_import.h"
+#include "package_intern.h"
 #include "package_make.h"
-#include "package_symbol.h"
+#include "package_shadow.h"
+#include "package_use.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -262,7 +264,7 @@ _g int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret)
 		Return(getpackage_(ptr, &pg));
 	}
 	Return(unintern_package_(pg, symbol, &check));
-	return Result(ret, check? Nil: T);
+	return Result(ret, check? T: Nil);
 }
 
 

@@ -6,7 +6,7 @@
 #include "package.h"
 #include "package_bittype.h"
 #include "package_delete.h"
-#include "package_symbol.h"
+#include "package_use.h"
 #include "restart.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -118,10 +118,10 @@ static int delete_package_used_unuse_(addr pos)
 	}
 #ifdef LISP_DEBUG
 	GetPackage(pos, PACKAGE_INDEX_USED, &list);
-	Check(list != Nil, "used-list error.")
+	Check(list != Nil, "used-list error.");
 #endif
 
-		return 0;
+	return 0;
 }
 
 static int delete_package_used_(addr pos)
@@ -155,10 +155,7 @@ static int allunintern_uselist_package_(addr pos)
 	GetPackage(pos, PACKAGE_INDEX_USE, &right);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		/* remove use-list */
-		if (remove_check_package(left, PACKAGE_INDEX_USED, pos)) {
-			Abort("remove-eqpackage error");
-		}
+		delete_list_used_package(left, pos);
 	}
 
 	return 0;

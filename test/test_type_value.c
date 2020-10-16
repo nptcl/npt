@@ -9,7 +9,7 @@
 #include "file_open.h"
 #include "hashtable.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "reader.h"
 #include "stream.h"
 #include "stream_broadcast.h"

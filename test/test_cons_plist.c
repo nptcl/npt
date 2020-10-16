@@ -5,7 +5,7 @@
 #include "constant.h"
 #include "degrade.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "sequence.h"
 #include "type.h"
 #include "type_table.h"

@@ -43,7 +43,7 @@ static int test_delete_list_eq_unsafe(void)
 	test(cons == Nil, "delete_list_eq_unsafe.5");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v1, cons, &cons) == 1, "delete_list_eq_unsafe.6");
+	test(delete_list_eq_unsafe(v1, cons, &cons) != 0, "delete_list_eq_unsafe.6");
 	GetCons(cons, &check, &cons);
 	test(check == v2, "delete_list_eq_unsafe.7");
 	GetCons(cons, &check, &cons);
@@ -51,7 +51,7 @@ static int test_delete_list_eq_unsafe(void)
 	test(cons == Nil, "delete_list_eq_unsafe.9");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v2, cons, &cons) == 1, "delete_list_eq_unsafe.10");
+	test(delete_list_eq_unsafe(v2, cons, &cons) != 0, "delete_list_eq_unsafe.10");
 	GetCons(cons, &check, &cons);
 	test(check == v1, "delete_list_eq_unsafe.11");
 	GetCons(cons, &check, &cons);
@@ -59,7 +59,7 @@ static int test_delete_list_eq_unsafe(void)
 	test(cons == Nil, "delete_list_eq_unsafe.13");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v3, cons, &cons) == 1, "delete_list_eq_unsafe.14");
+	test(delete_list_eq_unsafe(v3, cons, &cons) != 0, "delete_list_eq_unsafe.14");
 	GetCons(cons, &check, &cons);
 	test(check == v1, "delete_list_eq_unsafe.15");
 	GetCons(cons, &check, &cons);
@@ -67,7 +67,7 @@ static int test_delete_list_eq_unsafe(void)
 	test(cons == Nil, "delete_list_eq_unsafe.17");
 
 	list_heap(&cons, v1, v1, v1, NULL);
-	test(delete_list_eq_unsafe(v1, cons, &cons) == 3, "delete_list_eq_unsafe.18");
+	test(delete_list_eq_unsafe(v1, cons, &cons) != 0, "delete_list_eq_unsafe.18");
 	test(cons == Nil, "delete_list_eq_unsafe.19");
 
 	RETURN;

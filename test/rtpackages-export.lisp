@@ -40,6 +40,12 @@
     (find-symbol-list "EXPORT5" 'test1))
   ("TEST1" "EXPORT5" :external))
 
+(deftest export.6
+  (let ((x (intern "EXPORT6" 'test1)))
+    (export x 'test1)
+    (count "EXPORT6" (package-export-list 'test1) :test #'equal))
+  1)
+
 ;;  list
 (deftest export-list.1
   (let ((x (list (intern "EXPORT-LIST-1A" 'test1)
@@ -308,6 +314,25 @@
     (export (intern "UNEXPORT4"))
     (unexport (intern "UNEXPORT4")))
   t)
+
+(deftest unexport.12
+  (let ((x (intern "EXPORT12" 'test1)))
+    (export x 'test1)
+    (unexport x 'test1)
+    (count "EXPORT12" (package-export-list 'test1) :test #'equal))
+  0)
+
+(deftest unexport.13
+  (progn
+    (make-package 'unexport-13a)
+    (make-package 'unexport-13b)
+    (export (intern "X" 'unexport-13a) 'unexport-13a)
+    (use-package 'unexport-13a 'unexport-13b)
+    (let ((x (find-symbol-list "X" 'unexport-13b)))
+      (unexport (intern "X" 'unexport-13a) 'unexport-13a)
+      (values x (find-symbol-list "X" 'unexport-13b))))
+  ("UNEXPORT-13A" "X" :inherited)
+  nil)
 
 (deftest unexport-list.1
   (let ((x (list (intern "UNEXPORT-LIST-1" 'test1)

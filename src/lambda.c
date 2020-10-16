@@ -5,8 +5,8 @@
 #include "constant.h"
 #include "condition.h"
 #include "lambda.h"
-#include "package_symbol.h"
 #include "package.h"
+#include "package_intern.h"
 #include "sequence.h"
 #include "symbol.h"
 

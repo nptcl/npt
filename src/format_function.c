@@ -27,7 +27,7 @@
 #include "local.h"
 #include "integer.h"
 #include "object.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "pointer.h"
 #include "print_pretty.h"
 #include "print_write.h"

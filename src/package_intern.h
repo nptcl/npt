@@ -1,5 +1,5 @@
-#ifndef __PACKAGE_SYMBOL_HEADER__
-#define __PACKAGE_SYMBOL_HEADER__
+#ifndef __PACKAGE_INTERN_HEADER__
+#define __PACKAGE_INTERN_HEADER__
 
 #include "execute.h"
 #include "package_object.h"
@@ -9,11 +9,6 @@
 #define intern_package_ _n(intern_package_)
 #define intern_char_package_ _n(intern_char_package_)
 #define unintern_package_ _n(unintern_package_)
-#define shadow_package_ _n(shadow_package_)
-#define shadowing_import_package_ _n(shadowing_import_package_)
-#define use_package_list_package_ _n(use_package_list_package_)
-#define use_package_ _n(use_package_)
-#define unuse_package_ _n(unuse_package_)
 #define setkeyword_package_ _n(setkeyword_package_)
 #define intern_default_package_ _n(intern_default_package_)
 #define internchar_ _n(internchar_)
@@ -27,6 +22,7 @@
 #define interncharr_debug _n(interncharr_debug)
 #define interncharr_null_debug _n(interncharr_null_debug)
 #define interncommonr_debug _n(interncommonr_debug)
+#define init_package_intern _n(init_package_intern)
 
 _g int intern_package_table_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret);
@@ -35,11 +31,6 @@ _g int intern_package_(addr package, addr name,
 _g int intern_char_package_(addr package, const char *name,
 		addr *value, enum PACKAGE_TYPE *ret);
 _g int unintern_package_(addr package, addr symbol, int *ret);
-_g int shadow_package_(addr package, addr pos);
-_g int shadowing_import_package_(addr package, addr pos);
-_g int use_package_list_package_(addr package, addr pos);
-_g int use_package_(addr package, addr pos);
-_g int unuse_package_(addr package, addr pos);
 _g int setkeyword_package_(addr pos);
 
 _g int intern_default_package_(Execute ptr, addr name,
@@ -59,6 +50,8 @@ _g void interncommon_debug(const char *name, addr *value);
 _g addr interncharr_debug(const char *pname, const char *sname);
 _g addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname);
 _g addr interncommonr_debug(const char *name);
+
+_g void init_package_intern(void);
 
 #endif
 

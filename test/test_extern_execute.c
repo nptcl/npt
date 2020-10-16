@@ -16,7 +16,6 @@
 #include "integer.h"
 #include "object.h"
 #include "package.h"
-#include "package_symbol.h"
 #include "pathname.h"
 #include "reader.h"
 #include "stream.h"

@@ -17,6 +17,17 @@
 #define getuselist_package_unsafe _n(getuselist_package_unsafe)
 #define getusedbylist_package_unsafe _n(getusedbylist_package_unsafe)
 #define getshadow_package_unsafe _n(getshadow_package_unsafe)
+#define getexport_package_unsafe _n(getexport_package_unsafe)
+
+#define push_list_nicknames_package _n(push_list_nicknames_package)
+#define push_list_use_package _n(push_list_use_package)
+#define push_list_used_package _n(push_list_used_package)
+#define push_list_export_package_ _n(push_list_export_package_)
+#define push_list_shadow_package_ _n(push_list_shadow_package_)
+#define delete_list_use_package _n(delete_list_use_package)
+#define delete_list_used_package _n(delete_list_used_package)
+#define delete_list_export_package_ _n(delete_list_export_package_)
+#define delete_list_shadow_package_ _n(delete_list_shadow_package_)
 
 enum PACKAGE_INDEX {
 	PACKAGE_INDEX_TABLE = 0,
@@ -56,6 +67,18 @@ _g void getnickname_package_unsafe(addr pos, addr *ret);
 _g void getuselist_package_unsafe(addr pos, addr *ret);
 _g void getusedbylist_package_unsafe(addr pos, addr *ret);
 _g void getshadow_package_unsafe(addr pos, addr *ret);
+_g void getexport_package_unsafe(addr pos, addr *ret);
+
+/* package list */
+_g void push_list_nicknames_package(addr package, addr pos);
+_g void push_list_use_package(addr package, addr pos);
+_g void push_list_used_package(addr package, addr pos);
+_g int push_list_export_package_(addr package, addr name);
+_g int push_list_shadow_package_(addr package, addr symbol);
+_g void delete_list_use_package(addr package, addr pos);
+_g void delete_list_used_package(addr package, addr pos);
+_g int delete_list_export_package_(addr package, addr name);
+_g int delete_list_shadow_package_(addr package, addr symbol);
 
 #endif
 

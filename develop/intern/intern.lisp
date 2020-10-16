@@ -1932,6 +1932,7 @@ lisp-system::unbound-value
  lisp-system::do-symbols
  lisp-system::do-external-symbols
  lisp-system::do-all-symbols
+(lisp-system::package-export-list :export t)
 (lisp-system::getdoc-variable :export t)
 (lisp-system::setdoc-variable :export t)
 (lisp-system::specialp :export t)

@@ -10,7 +10,7 @@
 #include "package_bittype.h"
 #include "package_designer.h"
 #include "package_import.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "restart.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -69,7 +69,6 @@ static void restart_ignore_import_package(addr *ret)
 static int restart_import_package_(Execute ptr,
 		addr package, addr symbol1, addr symbol2)
 {
-	int check;
 	addr force, ignore, control;
 
 	Return(restart_force_import_package_(ptr, &force, symbol1, symbol2));
@@ -89,7 +88,7 @@ static int restart_import_package_(Execute ptr,
 	/* force import */
 	if (ptr->throw_handler == force) {
 		normal_throw_control(ptr);
-		Return(unintern_package_(package, symbol2, &check));
+		Return(unintern_package_(package, symbol2, NULL));
 		goto escape;
 	}
 

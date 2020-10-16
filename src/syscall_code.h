@@ -23,6 +23,7 @@
 #define do_symbols_syscode _n(do_symbols_syscode)
 #define do_external_symbols_syscode _n(do_external_symbols_syscode)
 #define do_all_symbols_syscode_ _n(do_all_symbols_syscode_)
+#define package_export_list_syscode_ _n(package_export_list_syscode_)
 #define getdoc_variable_syscode _n(getdoc_variable_syscode)
 #define setdoc_variable_syscode _n(setdoc_variable_syscode)
 #define specialp_syscode _n(specialp_syscode)
@@ -108,6 +109,7 @@ _g int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret);
 _g int do_symbols_syscode(Execute ptr, addr call, addr package);
 _g int do_external_symbols_syscode(Execute ptr, addr call, addr package);
 _g int do_all_symbols_syscode_(Execute ptr, addr call);
+_g int package_export_list_syscode_(addr var, addr *ret);
 _g void getdoc_variable_syscode(addr var, addr *ret);
 _g void setdoc_variable_syscode(addr var, addr value);
 _g void specialp_syscode(addr var, addr *ret);

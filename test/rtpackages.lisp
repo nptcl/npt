@@ -4,6 +4,7 @@
 (make-package 'test1)
 (make-package 'test2)
 (make-package 'test3)
+(import 'lisp-system:package-export-list 'common-lisp-user)
 
 (defun init-test-package ()
   (delete-package 'test3)

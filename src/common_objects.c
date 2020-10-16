@@ -18,7 +18,6 @@
 #include "package.h"
 #include "package_export.h"
 #include "package_import.h"
-#include "package_symbol.h"
 
 /*
  *  import

@@ -9,7 +9,7 @@
 #include "equal.h"
 #include "hashtable.h"
 #include "package.h"
-#include "package_symbol.h"
+#include "package_intern.h"
 #include "pathname.h"
 #include "random_state.h"
 #include "ratio.h"

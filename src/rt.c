@@ -14,7 +14,6 @@
 #include "hold.h"
 #include "package_export.h"
 #include "package_import.h"
-#include "package_symbol.h"
 #include "print_write.h"
 #include "rt.h"
 #include "stream.h"
