@@ -333,6 +333,24 @@ _g int get_default_dispatch_macro_(addr code1, addr code2, addr *ret)
 /*
  *  macro_character_execute
  */
+static int readtype_unicode_readtable_(addr hash, unicode c, addr *ret)
+{
+	addr pos, value;
+
+	/* find hashtable */
+	Return(find_unicode_hashtable_(hash, c, &value));
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* new object */
+	character_heap(&pos, c);
+	make_readtype(&value, ReadTable_Type_constituent, c, 0);
+	Return(intern_hashheap_(hash, pos, &pos));
+	SetCdr(pos, value);
+
+	return Result(ret, value);
+}
+
 _g int readtype_readtable_(addr pos, unicode c, addr *ret)
 {
 	if (c < 0x80) {
@@ -341,7 +359,7 @@ _g int readtype_readtable_(addr pos, unicode c, addr *ret)
 	}
 	else {
 		GetTableReadtable(pos, &pos);
-		Return(findnil_unicode_hashtable_(pos, c, ret));
+		Return(readtype_unicode_readtable_(pos, c, ret));
 	}
 
 	return 0;

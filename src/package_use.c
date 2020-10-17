@@ -2,17 +2,105 @@
 #include "condition_define.h"
 #include "cons.h"
 #include "cons_list.h"
+#include "control_object.h"
+#include "execute_object.h"
+#include "format.h"
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
 #include "package_designer.h"
+#include "package_intern.h"
+#include "package_shadow.h"
 #include "package_use.h"
+#include "restart.h"
 #include "type_table.h"
 #include "typedef.h"
 
 /****************************************************************************
  *  Function USE-PACKAGE
  ****************************************************************************/
+/*
+ *  restart
+ */
+static int shadow_execute_use_package_(addr pg, addr name)
+{
+	enum PACKAGE_TYPE ignore;
+	addr pos;
+
+	Return(intern_package_(pg, name, &pos, &ignore));
+	return shadow_package_(pg, pos);
+}
+
+static int restart_shadow_report_use_package_(
+		Execute ptr, addr pg, addr name, addr *ret)
+{
+	enum PACKAGE_TYPE type;
+	addr pos;
+
+	Return(find_symbol_package_(pg, name, &pos, &type));
+	if (type == PACKAGE_TYPE_NIL)
+		pos = name;
+
+	return format_string(ptr, ret, "Make the symbol ~S shadowing.", pos, NULL);
+}
+
+static int restart_shadow_use_package_(Execute ptr, addr pg, addr name, addr *ret)
+{
+	addr restart, pos;
+
+	/* name */
+	GetConst(COMMON_SHADOW, &pos);
+	restart_heap(&restart, pos);
+	/* report */
+	Return(restart_shadow_report_use_package_(ptr, pg, name, &pos));
+	setreport_restart(restart, pos);
+	/* function */
+	GetConst(FUNCTION_NIL, &pos);
+	setfunction_restart(restart, pos);
+	/* condition */
+	GetConst(CONDITION_PACKAGE_ERROR, &pos);
+	setcondition_restart(restart, pos);
+	/* restart-case */
+	setescape_restart(restart, 1);
+
+	return Result(ret, restart);
+}
+
+static int shadow_use_package_(addr pg, addr name)
+{
+	Execute ptr;
+	addr restart, control;
+
+	ptr = Execute_Thread;
+	Return(restart_shadow_use_package_(ptr, pg, name, &restart));
+
+	push_control(ptr, &control);
+	pushrestart_control(ptr, restart);
+
+	(void)call_simple_package_error_va_(NULL,
+			"The name ~S causes a conflict in the ~S package.",
+			name, pg, NULL);
+
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
+
+	/* shadow */
+	if (ptr->throw_handler == restart) {
+		normal_throw_control(ptr);
+		Return(shadow_execute_use_package_(pg, name));
+		goto escape;
+	}
+
+escape:
+	return pop_control_(ptr, control);
+}
+
+
+/*
+ *  use-package
+ */
 static int package_designer_use_package_(addr pos, addr *ret)
 {
 	addr keyword;
@@ -37,26 +125,25 @@ static int check_already_use_package(addr package, addr pos)
 	return find_list_eq_unsafe(pos, list);
 }
 
-static int check_conflict_use_package_(addr package, addr pos)
+static int check_conflict_use_package_(addr package, addr pos, addr name)
 {
 	enum PACKAGE_TYPE type;
-	addr table, list, name, bit, check;
+	addr hash, bit;
 
-	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
-	GetPackage(pos, PACKAGE_INDEX_EXPORT, &list);
-	while (list != Nil) {
-		GetCons(list, &name, &list);
-		Return(findnil_hashtable_(table, name, &bit));
-		if (bit == Nil)
-			continue;
-		if (StructBitType(bit)->shadow)
-			continue;
+	/* package check */
+	GetPackage(package, PACKAGE_INDEX_TABLE, &hash);
+	Return(findnil_hashtable_(hash, name, &bit));
+	if (bit == Nil)
+		return 0;
+	if (StructBitType(bit)->shadow)
+		return 0;
 
-		GetBitTypeSymbol(bit, &bit);
-		Return(find_symbol_package_(pos, name, &check, &type));
-		Check(type == PACKAGE_TYPE_NIL, "find_symbol error.");
-		if (bit != check)
-			return fmte_("Symbol ~S conflict occered.", name, NULL);
+	/* symbol check */
+	Return(find_symbol_package_(pos, name, &pos, &type));
+	Check(type == PACKAGE_TYPE_NIL, "find_symbol error.");
+	GetBitTypeSymbol(bit, &bit);
+	if (bit != pos) {
+		Return(shadow_use_package_(package, name));
 	}
 
 	return 0;
@@ -64,34 +151,67 @@ static int check_conflict_use_package_(addr package, addr pos)
 
 static int check_use_package_(addr package, addr pos)
 {
+	addr list, name;
+
+	/* fiest check */
 	if (check_already_use_package(package, pos))
 		return 0;
-	return check_conflict_use_package_(package, pos);
+
+	/* loop */
+	GetPackage(pos, PACKAGE_INDEX_EXPORT, &list);
+	while (list != Nil) {
+		GetCons(list, &name, &list);
+		Return(check_conflict_use_package_(package, pos, name));
+	}
+
+	return 0;
 }
 
-static int check_export_use_package_(addr hash1, addr hash2, addr list)
+static int check_name_use_package_(addr package, addr hash1, addr hash2, addr name)
 {
-	addr pos, bit1, bit2;
+	enum PACKAGE_TYPE type;
+	addr bit1, bit2, pos;
 
+	/* left */
+	Return(findnil_hashtable_(hash1, name, &bit1));
+	if (bit1 == Nil)
+		return 0;
+	if (StructBitType(bit1)->expt == 0)
+		return 0;
+
+	/* right */
+	Return(findnil_hashtable_(hash2, name, &bit2));
+	Check(bit2 == Nil, "hashtable error.");
+	if (bit2 == Nil)
+		return 0;
+	if (StructBitType(bit2)->expt == 0)
+		return 0;
+
+	/* package */
+	Return(find_symbol_package_(package, name, &pos, &type));
+	if (type == PACKAGE_TYPE_NIL)
+		goto error;
+
+	/* symbol check */
+	GetBitTypeSymbol(bit1, &bit1);
+	GetBitTypeSymbol(bit2, &bit2);
+	if (pos == bit1 && pos == bit2)
+		return 0;
+
+	/* error */
+error:
+	return shadow_use_package_(package, name);
+}
+
+static int check_export_use_package_(addr package, addr hash1, addr pos)
+{
+	addr hash2, list, name;
+
+	GetPackage(pos, PACKAGE_INDEX_TABLE, &hash2);
+	GetPackage(pos, PACKAGE_INDEX_EXPORT, &list);
 	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		Return(findnil_hashtable_(hash2, pos, &bit1));
-		if (bit1 == Nil)
-			continue;
-		if (StructBitType(bit1)->expt == 0)
-			continue;
-
-		/* Conflict occured */
-		Return(findnil_hashtable_(hash1, pos, &bit2));
-		if (bit2 != Nil && StructBitType(bit2)->shadow)
-			continue;
-		GetBitTypeSymbol(bit1, &bit1);
-		GetBitTypeSymbol(bit2, &bit2);
-		/* eq symbol */
-		if (bit1 == bit2)
-			continue;
-		/* error */
-		return fmte_("The name ~S causes a conflict in the package.", pos, NULL);
+		GetCons(list, &name, &list);
+		Return(check_name_use_package_(package, hash1, hash2, name));
 	}
 
 	return 0;
@@ -99,10 +219,9 @@ static int check_export_use_package_(addr hash1, addr hash2, addr list)
 
 static int check_loop_use_package_(addr package, addr pos, addr list)
 {
-	addr hash1, hash2, check;
+	addr hash1, check;
 
-	GetPackage(package, PACKAGE_INDEX_TABLE, &hash1);
-	GetPackage(pos, PACKAGE_INDEX_TABLE, &hash2);
+	GetPackage(pos, PACKAGE_INDEX_TABLE, &hash1);
 	while (list != Nil) {
 		GetCons(list, &check, &list);
 		Return(package_designer_use_package_(check, &check));
@@ -111,8 +230,7 @@ static int check_loop_use_package_(addr package, addr pos, addr list)
 		if (check == package)
 			continue;
 
-		GetPackage(check, PACKAGE_INDEX_EXPORT, &check);
-		Return(check_export_use_package_(hash1, hash2, check));
+		Return(check_export_use_package_(package, hash1, check));
 	}
 
 	return 0;
@@ -125,6 +243,8 @@ static int check_list_use_package_(addr package, addr list)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		Return(package_designer_use_package_(pos, &pos));
+		if (package == pos)
+			continue;
 		Return(check_loop_use_package_(package, pos, list));
 	}
 

@@ -348,6 +348,19 @@
   ("TEST1" "UNEXPORT-LIST-1" :internal)
   ("TEST1" "UNEXPORT-LIST-2" :internal))
 
+(deftest unexport-inherit.1
+  (progn
+    (make-package 'unexport-inherit-1)
+    (make-package 'unexport-inherit-2 :use '(unexport-inherit-1))
+    (export (intern "X" 'unexport-inherit-1) 'unexport-inherit-1)
+    (unexport (intern "X" 'unexport-inherit-1) 'unexport-inherit-1)
+    (find-symbol-list "X" 'unexport-inherit-2))
+  nil)
+
+(deftest unexport-inherit.2
+  (find "X" (package-export-list 'unexport-inherit-1) :test #'equal)
+  nil)
+
 
 ;;  error
 (deftest-error unexport-error.1

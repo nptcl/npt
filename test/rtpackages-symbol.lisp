@@ -44,6 +44,22 @@
     (find-symbol-list "IMPORT6" 'test1))
   ("TEST2" "IMPORT6" :external))
 
+(deftest-error import-conflict.1
+  (progn
+    (make-package 'import-conflict-1)
+    (make-package 'import-conflict-2 :use '(import-conflict-1))
+    (export (intern "X" 'import-conflict-1) 'import-conflict-1)
+    (import 'x 'import-conflict-1))
+  package-error)
+
+(deftest import-conflict.2
+  (import (intern "X" 'import-conflict-1) 'import-conflict-1)
+  t)
+
+(deftest import-conflict.3
+  (find-symbol-list "X" 'import-conflict-1)
+  ("IMPORT-CONFLICT-1" "X" :external))
+
 (deftest import-list.1
   (let ((x (list (intern "IMPORT-LIST-1A" 'test1)
                  (intern "IMPORT-LIST-1B" 'test1)
@@ -492,6 +508,9 @@
       (symbol-name x)
       y)))
 
+(deftest intern-init
+  (init-test-package))
+
 (deftest intern.1
   (intern-list "INTERN-1" 'test1)
   "TEST1" "INTERN-1" nil)
@@ -589,8 +608,11 @@
 
 
 ;;
+;;  Function UNINTERN
 ;;
-;;
+(deftest unintern-init
+  (init-test-package))
+
 (deftest unintern.1
   (unintern (intern "UNINTERN1" 'test1) 'test1)
   t)

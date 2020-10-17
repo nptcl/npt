@@ -87,6 +87,11 @@ static int checktable_isalpha(unicode c)
 	return (c < 0x80) && isAlphabetic(c);
 }
 
+static int checktable_force(unicode c)
+{
+	return (0x80 <= c);
+}
+
 /* for debug */
 /* #define OUTPUTSTATE(x, c)  printf("[%s:%c]\n", x, c) */
 #define OUTPUTSTATE(x, c)  /*donothing*/
@@ -324,8 +329,13 @@ token_potential:
 	return pot? TokenType_potential: TokenType_symbol;
 
 error:
+	if (checktable_force(c)) goto force;
 	OUTPUTSTATE("error", '-');
 	return TokenType_error;
+
+force:
+	OUTPUTSTATE("force_unicode", '-');
+	return TokenType_symbol;
 }
 
 
@@ -497,7 +507,7 @@ static int maketoken_gensym_(Execute ptr, addr *ret)
 
 		default:
 			*ret = Nil;
-			return fmte_("token error", NULL);
+			return fmte_("token error (gensym)", NULL);
 	}
 }
 
