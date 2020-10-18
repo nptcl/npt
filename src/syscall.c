@@ -510,7 +510,7 @@ static void defun_next_package_iterator(void)
 /* (defun defpackage (name &key size docuemntation nicknames use
  *     shadow shadowing-import-from import-from export intern)
  *     -> package
- *   name                    string
+ *   name                    string-designer
  *   :size                   (or null (integer 0 *))
  *   :documentation          (or null string)
  *   :nicknames              list
@@ -533,7 +533,7 @@ static void type_syscall_defpackage(addr *ret)
 	addr args, values;
 	addr key, key1, key2, key3, key4, key5, key6, key7, key8, key9, key10;
 
-	GetTypeTable(&args, String);
+	GetTypeTable(&args, StringDesigner);
 	KeyTypeTable(&key1, SIZE, IntplusNull);
 	KeyTypeTable(&key2, DOCUMENTATION, StringNull);
 	KeyTypeTable(&key3, NICKNAMES, List);

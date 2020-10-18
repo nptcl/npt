@@ -121,8 +121,6 @@
 #define write_string_stream _n(write_string_stream)
 #define read_sequence_stream _n(read_sequence_stream)
 #define write_sequence_stream _n(write_sequence_stream)
-#define prompt_for_stream _n(prompt_for_stream)
-#define yes_or_no_p_common _n(yes_or_no_p_common)
 #define update_standard_stream _n(update_standard_stream)
 #define save_stream _n(save_stream)
 
@@ -475,8 +473,6 @@ _g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret);
 _g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end);
 _g int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end);
-_g int prompt_for_stream(Execute ptr, addr check, addr prompt, addr *ret);
-_g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret);
 
 /* core */
 _g void update_standard_stream(void);

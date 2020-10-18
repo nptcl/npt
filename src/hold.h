@@ -8,6 +8,7 @@
 #define setgchold _n(setgchold)
 #define gchold_local _n(gchold_local)
 #define gchold_push_local _n(gchold_push_local)
+#define gchold_push_force_local _n(gchold_push_force_local)
 #define gchold_pushva_local _n(gchold_pushva_local)
 #define gchold_pushva_force_local _n(gchold_pushva_force_local)
 #define gchold_push_special _n(gchold_push_special)
@@ -40,6 +41,7 @@ typedef struct localhold *LocalHold;
 _g void setgchold(addr pos, size_t index, addr value);
 _g void gchold_local(LocalRoot local, addr *ret, size_t size);
 _g void gchold_push_local(LocalRoot local, addr pos);
+_g void gchold_push_force_local(LocalRoot local, addr pos);
 _g void gchold_pushva_local(LocalRoot local, ...);
 _g void gchold_pushva_force_local(LocalRoot local, ...);
 _g void gchold_push_special(Execute ptr, addr pos);

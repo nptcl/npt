@@ -333,53 +333,50 @@ _g int use_package_common_(Execute ptr, addr use, addr pg)
  */
 static int do_symbols_const_common(addr form, addr *ret, constindex index)
 {
-	/* `(progn
+	/* `(block nil
 	 *    (system::do-symbols
 	 *      (lambda (,var)
 	 *        ,@decl
-	 *        (prog () ,@body))
+	 *        (tagbody ,@body))
 	 *      ,package)
 	 *    ,result)
 	 */
-	addr check, var, package, result, decl, body, lambda, prog, progn;
+	addr check, var, package, result, decl, body, lambda, tagbody, block;
 
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &check, &body))
 		goto error;
-	GetCons(form, &check, &body);
-	if (! consp(check))
+	if (! consp_getcons(check, &var, &check))
 		goto error;
-	GetCons(check, &var, &check);
 	if (check == Nil) {
 		GetConst(SPECIAL_PACKAGE, &package);
 		result = Nil;
 		goto expand;
 	}
-	if (! consp(check))
+	if (! consp_getcons(check, &package, &check))
 		goto error;
-	GetCons(check, &package, &check);
 	if (check == Nil) {
 		result = Nil;
 		goto expand;
 	}
-	if (! consp(check))
+	if (! consp_getcons(check, &result, &check))
 		goto error;
-	GetCons(check, &result, &check);
 	if (check != Nil)
 		goto error;
+
 expand:
 	Return(declare_body_form_(body, &decl, &body));
-	list_heap(&var, var, NULL);
-	GetConst(COMMON_PROG, &prog);
-	lista_heap(&prog, prog, Nil, body, NULL);
-	list_heap(&prog, prog, NULL);
-	Return(nconc2_safe_(decl, prog, &prog));
+	GetConst(COMMON_TAGBODY, &tagbody);
+	cons_heap(&tagbody, tagbody, body);
+	conscar_heap(&tagbody, tagbody);
+	Return(nconc2_safe_(decl, tagbody, &tagbody));
 	GetConst(COMMON_LAMBDA, &lambda);
-	lista_heap(&lambda, lambda, var, prog, NULL);
+	conscar_heap(&var, var);
+	lista_heap(&lambda, lambda, var, tagbody, NULL);
 	GetConstant(index, &check);
 	list_heap(&check, check, lambda, package, NULL);
-	GetConst(COMMON_PROGN, &progn);
-	list_heap(ret, progn, check, result, NULL);
+	GetConst(COMMON_BLOCK, &block);
+	list_heap(ret, block, Nil, check, result, NULL);
 	return 0;
 
 error:
@@ -408,29 +405,26 @@ _g int do_external_symbols_common(addr form, addr env, addr *ret)
  */
 _g int do_all_symbols_common(addr form, addr env, addr *ret)
 {
-	/* `(progn
+	/* `(block nil
 	 *    (system::do-all-symbols
 	 *      (lambda (,var)
 	 *        ,@decl
-	 *        (prog () ,@body)))
+	 *        (tagbody ,@body)))
 	 *    ,result)
 	 */
-	addr check, var, result, decl, body, lambda, prog, progn;
+	addr check, var, result, decl, body, lambda, tagbody, block;
 
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &check, &body))
 		goto error;
-	GetCons(form, &check, &body);
-	if (! consp(check))
+	if (! consp_getcons(check, &var, &check))
 		goto error;
-	GetCons(check, &var, &check);
 	if (check == Nil) {
 		result = Nil;
 		goto expand;
 	}
-	if (! consp(check))
+	if (! consp_getcons(check, &result, &check))
 		goto error;
-	GetCons(check, &result, &check);
 	if (check == Nil) {
 		goto expand;
 	}
@@ -438,17 +432,17 @@ _g int do_all_symbols_common(addr form, addr env, addr *ret)
 		goto error;
 expand:
 	Return(declare_body_form_(body, &decl, &body));
-	list_heap(&var, var, NULL);
-	GetConst(COMMON_PROG, &prog);
-	lista_heap(&prog, prog, Nil, body, NULL);
-	list_heap(&prog, prog, NULL);
-	Return(nconc2_safe_(decl, prog, &prog));
+	GetConst(COMMON_TAGBODY, &tagbody);
+	cons_heap(&tagbody, tagbody, body);
+	conscar_heap(&tagbody, tagbody);
+	Return(nconc2_safe_(decl, tagbody, &tagbody));
 	GetConst(COMMON_LAMBDA, &lambda);
-	lista_heap(&lambda, lambda, var, prog, NULL);
+	conscar_heap(&var, var);
+	lista_heap(&lambda, lambda, var, tagbody, NULL);
 	GetConst(SYSTEM_DO_ALL_SYMBOLS, &check);
 	list_heap(&check, check, lambda, NULL);
-	GetConst(COMMON_PROGN, &progn);
-	list_heap(ret, progn, check, result, NULL);
+	GetConst(COMMON_BLOCK, &block);
+	list_heap(ret, block, Nil, check, result, NULL);
 	return 0;
 
 error:

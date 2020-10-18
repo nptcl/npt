@@ -42,6 +42,7 @@
 #include "print_pretty.h"
 #include "print_write.h"
 #include "process.h"
+#include "prompt_for.h"
 #include "radix.h"
 #include "random_state.h"
 #include "ratio.h"

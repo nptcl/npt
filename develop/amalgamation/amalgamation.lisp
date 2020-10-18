@@ -515,6 +515,7 @@
     "print_write.h"
     "process.h"
     "prompt.h"
+    "prompt_for.h"
     "quote.h"
     "radix.h"
     "random.h"
@@ -869,6 +870,7 @@
     "print_write.c"
     ("process.c" :header t)
     ("prompt.c" :header t)
+    "prompt_for.c"
     "quote.c"
     "radix.c"
     "random_float.c"

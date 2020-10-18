@@ -8,8 +8,8 @@
 #include "hold.h"
 #include "package.h"
 #include "package_designer.h"
+#include "prompt_for.h"
 #include "restart.h"
-#include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "typedef.h"
@@ -90,7 +90,7 @@ static int restart_package_designer_(addr pos, addr *ret)
 	ptr = Execute_Thread;
 	restart_use_value_package_designer(&restart);
 	push_control(ptr, &control);
-	gchold_push_local(ptr->local, pos);
+	gchold_push_force_local(ptr->local, pos);
 	pushrestart_control(ptr, restart);
 
 	(void)call_simple_package_error_va_(NULL, "No such a package ~S.", pos, NULL);

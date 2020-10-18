@@ -13,6 +13,7 @@
 #include "package_designer.h"
 #include "package_make.h"
 #include "package_shadow.h"
+#include "prompt_for.h"
 #include "restart.h"
 #include "stream.h"
 #include "strtype.h"
@@ -255,7 +256,7 @@ static int conflict_nicknames_make_package_(addr list, addr *ret)
 	return Result(ret, root);
 }
 
-_g int nicknames_make_package_(Execute ptr, addr list, addr *ret)
+static int nicknames_make_package_(Execute ptr, addr list, addr *ret)
 {
 	addr remove;
 

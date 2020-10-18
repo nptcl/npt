@@ -264,6 +264,7 @@ print_write.c
 print.c
 process.c
 prompt.c
+prompt_for.c
 quote.c
 radix.c
 random_float.c

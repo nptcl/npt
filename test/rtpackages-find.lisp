@@ -179,118 +179,241 @@
 
 
 ;;
-;;
+;;  Macro DO-SYMBOLS
 ;;
 (deftest do-symbols.1
-  (let (a)
-    (do-symbols (v)
-      (declare (ignore v))
-      (setq a t))
-    a)
+  (progn
+    (make-package 'do-symbols-1 :use ())
+    (intern "X" 'do-symbols-1)
+    (intern "Y" 'do-symbols-1)
+    (export (intern "Z" 'do-symbols-1) 'do-symbols-1)
+    (let ((*package* (find-package 'do-symbols-1))
+          value)
+      (do-symbols (x)
+        (declare (ignore x))
+        (setq value t))
+      value))
   t)
 
 (deftest do-symbols.2
-  (let ((a :hello))
-    (do-symbols (v 'common-lisp-user a)
+  (let ((value 0))
+    (do-symbols (x 'do-symbols-1)
+      (declare (ignore x))
+      (incf value 1))
+    value)
+  3)
+
+(deftest do-symbols.3
+  (let ((value :hello))
+    (do-symbols (v 'do-symbols-1 value)
       (declare (ignore v))))
   :hello)
 
-(deftest do-symbols.3
-  (progn
-    (defpackage do-symbols-3 (:use))
-    (intern "AAA" 'do-symbols-3)
-    (intern "BBB" 'do-symbols-3)
-    (intern "CCC" 'do-symbols-3)
-    (let ((count 0))
-      (do-symbols
-        (v 'do-symbols-3)
-        (declare (ignorable v))
-        (setq count (1+ count)))
-      count))
-  3)
-
 (deftest do-symbols.4
-  (progn
-    (defpackage do-symbols-4 (:use))
-    (intern "AAA" 'do-symbols-4)
-    (intern "BBB" 'do-symbols-4)
-    (intern "CCC" 'do-symbols-4)
-    (let ((count 0))
-      (do-symbols
-        (v 'do-symbols-4 :hello)
-        (declare (ignorable v))
-        (setq count (1+ count)))))
-  :hello)
+  (let ((value 0))
+    (do-symbols (x 'do-symbols-1 :hello)
+      (declare (ignore x))
+      (incf value 1)
+      (return value)))
+  1)
 
+(deftest do-symbols.5
+  (let ((value 0))
+    (do-symbols (x 'do-symbols-1 value)
+      (declare (ignore x))
+      (go label)
+      (incf value 1)
+      label))
+  0)
+
+(deftest do-symbols.6
+  (let (list)
+    (do-symbols (x 'do-symbols-1)
+      (push x list))
+    (sort (mapcar #'symbol-name list) #'string<))
+  ("X" "Y" "Z"))
+
+(deftest-error do-symbols-error.1
+  (eval '(do-symbols (10))))
+
+(deftest-error do-symbols-error.2
+  (eval '(do-symbols (x 20) (symbolp x))))
+
+(deftest-error do-symbols-error.3
+  (eval '(do-symbols ())))
+
+(deftest-error do-symbols-error.4
+  (eval '(do-symbols (x *package* 30 40) (symbolp x))))
+
+
+;;
+;;  Macro DO-EXTERNAL-SYMBOLS
+;;
 (deftest do-external-symbols.1
-  (let (a)
-    (make-package 'aaa)
-    (export (intern "X" 'aaa) 'aaa)
-    (do-external-symbols (v 'aaa)
-      (declare (ignore v))
-      (setq a t))
-    a)
+  (progn
+    (make-package 'do-external-symbols-1 :use ())
+    (intern "W" 'do-external-symbols-1)
+    (export (intern "X" 'do-external-symbols-1) 'do-external-symbols-1)
+    (export (intern "Y" 'do-external-symbols-1) 'do-external-symbols-1)
+    (export (intern "Z" 'do-external-symbols-1) 'do-external-symbols-1)
+    (let ((*package* (find-package 'do-external-symbols-1))
+          value)
+      (do-external-symbols (x)
+        (declare (ignore x))
+        (setq value t))
+      value))
   t)
 
 (deftest do-external-symbols.2
-  (let ((a :hello))
-    (do-external-symbols (v 'common-lisp-user a)
+  (let ((value 0))
+    (do-external-symbols (x 'do-external-symbols-1)
+      (declare (ignore x))
+      (incf value 1))
+    value)
+  3)
+
+(deftest do-external-symbols.3
+  (let ((value :hello))
+    (do-external-symbols (v 'do-external-symbols-1 value)
       (declare (ignore v))))
   :hello)
 
-(deftest do-external-symbols.3
-  (progn
-    (defpackage do-external-symbols-3 (:use))
-    (intern "AAA" 'do-external-symbols-3)
-    (intern "BBB" 'do-external-symbols-3)
-    (intern "CCC" 'do-external-symbols-3)
-    (let ((count 0))
-      (do-external-symbols
-        (v 'do-external-symbols-3)
-        (declare (ignorable v))
-        (setq count (1+ count)))
-      count))
-  0)
-
 (deftest do-external-symbols.4
-  (progn
-    (defpackage do-external-symbols-4 (:use))
-    (intern "AAA" 'do-external-symbols-4)
-    (intern "BBB" 'do-external-symbols-4)
-    (intern "CCC" 'do-external-symbols-4)
-    (export (intern "BBB" 'do-external-symbols-4) 'do-external-symbols-4)
-    (export (intern "CCC" 'do-external-symbols-4) 'do-external-symbols-4)
-    (let ((count 0))
-      (do-external-symbols
-        (v 'do-external-symbols-4)
-        (declare (ignorable v))
-        (setq count (1+ count)))
-      count))
-  2)
+  (let ((value 0))
+    (do-external-symbols (x 'do-external-symbols-1 :hello)
+      (declare (ignore x))
+      (incf value 1)
+      (return value)))
+  1)
 
 (deftest do-external-symbols.5
-  (progn
-    (defpackage do-external-symbols-5 (:use))
-    (intern "AAA" 'do-external-symbols-5)
-    (intern "BBB" 'do-external-symbols-5)
-    (intern "CCC" 'do-external-symbols-5)
-    (export (intern "BBB" 'do-external-symbols-5) 'do-external-symbols-5)
-    (export (intern "CCC" 'do-external-symbols-5) 'do-external-symbols-5)
-    (let ((count 0))
-      (do-external-symbols
-        (v 'do-external-symbols-5 :hello)
-        (declare (ignorable v))
-        (setq count (1+ count)))))
-  :hello)
+  (let ((value 0))
+    (do-external-symbols (x 'do-external-symbols-1 value)
+      (declare (ignore x))
+      (go label)
+      (incf value 1)
+      label))
+  0)
 
+(deftest do-external-symbols.6
+  (let (list)
+    (do-external-symbols (x 'do-external-symbols-1)
+      (push x list))
+    (sort (mapcar #'symbol-name list) #'string<))
+  ("X" "Y" "Z"))
+
+(deftest-error do-external-symbols-error.1
+  (eval '(do-external-symbols (10))))
+
+(deftest-error do-external-symbols-error.2
+  (eval '(do-external-symbols (x 20) (symbolp x))))
+
+(deftest-error do-external-symbols-error.3
+  (eval '(do-external-symbols ())))
+
+(deftest-error do-external-symbols-error.4
+  (eval '(do-external-symbols (x *package* 30 40) (symbolp x))))
+
+
+;;
+;;  Macro DO-ALL-SYMBOLS
+;;
 (deftest do-all-symbols.1
   (do-all-symbols (v)
     (declare (ignore v)))
   nil)
 
 (deftest do-all-symbols.2
-  (let ((a :hello))
-    (do-all-symbols (v a)
+  (let ((value 0))
+    (do-all-symbols (x)
+      (declare (ignore x))
+      (incf value 1))
+    (< 1 value))
+  t)
+
+(deftest do-all-symbols.3
+  (let ((value :hello))
+    (do-all-symbols (v value)
       (declare (ignore v))))
   :hello)
+
+(deftest do-all-symbols.4
+  (let ((value 0))
+    (do-all-symbols (x :hello)
+      (declare (ignore x))
+      (incf value 1)
+      (return value)))
+  1)
+
+(deftest do-all-symbols.5
+  (let ((value 0))
+    (do-all-symbols (x value)
+      (declare (ignore x))
+      (go label)
+      (incf value 1)
+      label))
+  0)
+
+(deftest-error do-all-symbols-error.1
+  (eval '(do-all-symbols (10))))
+
+(deftest-error do-all-symbols-error.2
+  (eval '(do-all-symbols ())))
+
+(deftest-error do-all-symbols-error.3
+  (eval '(do-all-symbols (x 30 40) (symbolp x))))
+
+
+;;  ANSI Common Lisp
+(deftest do-symbols-test.1
+  (package-name
+    (make-package 'do-symbols-test-1 :use nil))
+  "DO-SYMBOLS-TEST-1")
+
+(deftest do-symbols-test.2
+  (multiple-value-bind (x y) (intern "SHY" 'do-symbols-test-1)
+    (values (package-name (symbol-package x))
+            (symbol-name x)
+            y))
+  "DO-SYMBOLS-TEST-1" "SHY" nil)
+
+(deftest do-symbols-test.3
+  (export (intern "BOLD" 'do-symbols-test-1) 'do-symbols-test-1)
+  t)
+
+(deftest do-symbols-test.4
+  (let ((lst ()))
+    (do-symbols (s (find-package 'do-symbols-test-1))
+      (push s lst))
+    (mapcar
+      (lambda (x)
+        (list (package-name (symbol-package x))
+              (symbol-name x)))
+      (sort lst #'string< :key #'symbol-name)))
+  (("DO-SYMBOLS-TEST-1" "BOLD")
+   ("DO-SYMBOLS-TEST-1" "SHY")))
+
+(deftest do-symbols-test.5
+  (let ((lst ()))
+    (do-external-symbols (s (find-package 'do-symbols-test-1) lst)
+      (push s lst))
+    (mapcar
+      (lambda (x)
+        (list (package-name (symbol-package x))
+              (symbol-name x)))
+      (sort lst #'string< :key #'symbol-name)))
+  (("DO-SYMBOLS-TEST-1" "BOLD")))
+
+(deftest do-symbols-test.6
+  (let ((lst ()))
+    (do-all-symbols (s lst)
+      (when (eq (find-package 'do-symbols-test-1) (symbol-package s))
+        (push s lst)))
+    (mapcar
+      (lambda (x)
+        (list (package-name (symbol-package x))
+              (symbol-name x)))
+      (sort lst #'string< :key #'symbol-name)))
+  (("DO-SYMBOLS-TEST-1" "BOLD")
+   ("DO-SYMBOLS-TEST-1" "SHY")))
 

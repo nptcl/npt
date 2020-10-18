@@ -7,6 +7,7 @@
 #include "function.h"
 #include "hold.h"
 #include "pointer.h"
+#include "prompt_for.h"
 #include "restart.h"
 #include "restart_value.h"
 #include "stream.h"

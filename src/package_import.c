@@ -213,7 +213,7 @@ static int list_import_package_(addr package, addr args)
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
 	hold = LocalHold_local(ptr);
-	localhold_pushva(hold, package, args, NULL);
+	localhold_pushva_force(hold, package, args, NULL);
 	(void)execute_import_package_(ptr, package, args);
 	return pop_control_(ptr, control);
 }

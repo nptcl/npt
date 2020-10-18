@@ -17,6 +17,7 @@
 #include "package_intern.h"
 #include "package_shadow.h"
 #include "pointer.h"
+#include "prompt_for.h"
 #include "restart.h"
 #include "stream.h"
 #include "strtype.h"

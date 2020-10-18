@@ -5,6 +5,7 @@
 #include "common_header.h"
 #include "cons.h"
 #include "file.h"
+#include "prompt_for.h"
 #include "stream.h"
 #include "stream_broadcast.h"
 #include "stream_concat.h"

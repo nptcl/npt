@@ -43,6 +43,12 @@ _g void gchold_push_local(LocalRoot local, addr pos)
 	setgchold(array, 0, pos);
 }
 
+_g void gchold_push_force_local(LocalRoot local, addr pos)
+{
+	if (setgchold_p(pos))
+		gchold_push_local(local, pos);
+}
+
 static void gchold_pushva_stdarg(LocalRoot local, va_list args)
 {
 	addr pos, array;

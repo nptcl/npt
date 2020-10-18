@@ -30,6 +30,11 @@
             (symbol-name x)))
     (package-shadowing-symbols package)))
 
+(defun package-shadowing-symbols-name (package)
+  (sort (mapcar #'symbol-name
+                (package-shadowing-symbols package))
+        #'string<))
+
 (defun count-shadowing-symbols (name package)
   (let ((list (package-shadowing-symbols package)))
     (if (symbolp name)
