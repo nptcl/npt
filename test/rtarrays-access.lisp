@@ -727,38 +727,6 @@
 
 
 ;;
-;;  arrayp
-;;
-(deftest arrayp.1
-  (arrayp (make-array '(2 3 4) :adjustable t))
-  t)
-
-(deftest arrayp.2
-  (arrayp (make-array 6))
-  t)
-
-(deftest arrayp.3
-  (arrayp #(1 2 3))
-  t)
-
-(deftest arrayp.4
-  (arrayp #*1011)
-  t)
-
-(deftest arrayp.5
-  (arrayp "hi")
-  t)
-
-(deftest arrayp.6
-  (arrayp 'hi)
-  nil)
-
-(deftest arrayp.7
-  (arrayp 12)
-  nil)
-
-
-;;
 ;;  fill-pointer
 ;;
 (deftest fill-pointer.1

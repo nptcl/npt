@@ -1,6 +1,10 @@
 ;;
 ;;  ANSI COMMON LISP: 15. Arrays
 ;;
+
+;;
+;;  Function MAKE-ARRAY
+;;
 (deftest make-array.1
   (arrayp
     (make-array 10))
@@ -10,6 +14,11 @@
   (length
     (make-array 10))
   10)
+
+(deftest make-array.3
+  (arrayp
+    (make-array nil))
+  t)
 
 
 ;;
@@ -34,6 +43,18 @@
   (array-dimensions
     (make-array nil))
   nil)
+
+(deftest-error make-array-dimension-error.1
+  (eval '(make-array :hello)))
+
+(deftest-error make-array-dimension-error.2
+  (eval '(make-array #(10 20 30))))
+
+(deftest-error make-array-dimension-error.3
+  (make-array '(3 4 . 5)))
+
+(deftest-error make-array-dimension-error.6
+  (make-array '(3 :hello 5)))
 
 
 ;;
@@ -845,4 +866,153 @@
   (array-element-type
     (make-array 3 :element-type '(not (unsigned-byte 8))))
   t)
+
+
+;;
+;;  error
+;;
+(deftest-error make-array-error.1
+  (eval '(make-array :hello))
+  type-error)
+
+(deftest-error make-array-error.2
+  (eval '(make-array 3 :element-type)))
+
+(deftest-error make-array-error.3
+  (eval '(make-array 3 :hello 10)))
+
+(deftest-error! make-array-error.4
+  (eval '(make-array)))
+
+
+;;
+;;  ANSI Common Lisp
+;;
+(deftest make-array-test.1
+  (arrayp
+    (make-array '(4 2 3) :initial-contents
+                '(((a b c) (1 2 3))
+                  ((d e f) (3 1 2))
+                  ((g h i) (2 3 1))
+                  ((j k l) (0 0 0)))))
+  t)
+
+(deftest make-array-test.2
+  (array-dimensions
+    (make-array 5))
+  (5))
+
+(deftest make-array-test.3
+  (let ((x (make-array '(3 4) :element-type '(mod 16))))
+    (values (array-dimensions x)
+            (array-element-type x)))
+  (3 4)
+  (unsigned-byte 8))
+
+(deftest make-array-test.4
+  (let ((x (make-array 5 :element-type 'single-float)))
+    (values (array-dimensions x)
+            (array-element-type x)))
+  (5)
+  single-float)
+
+(deftest make-array-test.5
+  (make-array nil :initial-element nil)
+  #0a())
+
+(deftest make-array-test.6
+  (make-array 4 :initial-element nil)
+  #(nil nil nil nil))
+
+(deftest make-array-test.7
+  (make-array '(2 4)
+              :element-type '(unsigned-byte 2)
+              :initial-contents '((0 1 2 3) (3 2 1 0)))
+  #2a((0 1 2 3) (3 2 1 0)))
+
+(deftest make-array-test.8
+  (make-array 6
+              :element-type 'character
+              :initial-element #\a
+              :fill-pointer 3)
+  "aaa")
+
+(defvar *make-array-test-1*)
+(defvar *make-array-test-2*)
+
+(deftest make-array-test.9
+  (progn
+    (setq *make-array-test-1* (make-array '(4 3)))
+    (dotimes (i 4)
+      (dotimes (j 3)
+        (setf (aref *make-array-test-1* i j) (list i 'x j '= (* i j)))))
+    (setq *make-array-test-2*
+          (make-array 8 :displaced-to *make-array-test-1*
+                      :displaced-index-offset 2))
+    (let (list)
+      (dotimes (i 8)
+        (push (list i (aref *make-array-test-2* i)) list))
+
+      (nreverse list)))
+  ((0 (0 x 2 = 0))
+   (1 (1 x 0 = 0))
+   (2 (1 x 1 = 1))
+   (3 (1 x 2 = 2))
+   (4 (2 x 0 = 0))
+   (5 (2 x 1 = 2))
+   (6 (2 x 2 = 4))
+   (7 (3 x 0 = 0))))
+
+(defvar *make-array-test-3*)
+(defvar *make-array-test-4*)
+
+(deftest make-array-test.10
+  (progn
+    (setq *make-array-test-3* (make-array 50))
+    (setq *make-array-test-4*
+          (make-array 20 :displaced-to *make-array-test-3*
+                      :displaced-index-offset 10))
+    (length *make-array-test-4*))
+  20)
+
+(defvar *make-array-test-5*)
+(defvar *make-array-test-6*)
+
+(deftest make-array-test.11
+  (progn
+    (setq *make-array-test-5* (make-array 50 :fill-pointer 10))
+    (setq *make-array-test-6*
+          (make-array 20 :displaced-to *make-array-test-5*
+                      :displaced-index-offset 10))
+    (values
+      (length *make-array-test-5*)
+      (length *make-array-test-6*)))
+  10 20)
+
+(defvar *make-array-test-7*)
+(defvar *make-array-test-8*)
+
+(deftest make-array-test.12
+  (progn
+    (setq *make-array-test-7* (make-array 50 :fill-pointer 10))
+    (setq *make-array-test-8*
+          (make-array 20 :displaced-to *make-array-test-7*
+                      :displaced-index-offset 10
+                      :fill-pointer 5))
+    (values
+      (length *make-array-test-7*)
+      (length *make-array-test-8*)))
+  10 5)
+
+
+;;
+;;  bugfix
+;;
+(deftest-error adjust-array-bugfix.1
+  (make-array '(4 4) :initial-contents
+              #2a(( alpha     beta      gamma     delta )
+                  ( epsilon   zeta      eta       theta )
+                  ( iota      kappa     lambda    mu    )
+                  ( nu        xi        omicron   pi    )))
+  type-error)
 

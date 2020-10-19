@@ -49,34 +49,45 @@
 ;;  Type BASE-STRING
 ;;
 (deftest base-string-type.1
+  (lisp-system:closp
+    (find-class 'base-string))
+  t)
+
+(deftest base-string-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'base-string)))
+  (base-string string vector array sequence t))
+
+(deftest base-string-type.3
   (subtypep 'base-string 'string)
   t t)
 
-(deftest base-string-type.2
+(deftest base-string-type.4
   (typep "Hello" 'base-string)
   t)
 
-(deftest base-string-type.3
+(deftest base-string-type.5
   (typep "Hello" '(base-string *))
   t)
 
-(deftest base-string-type.4
+(deftest base-string-type.6
   (typep "Hello" '(base-string 5))
   t)
 
-(deftest base-string-type.5
+(deftest base-string-type.7
   (typep "Hello" '(base-string 4))
   nil)
 
-(deftest base-string-type.6
+(deftest base-string-type.8
   (subtypep '(base-string 5) '(vector base-char 5))
   t t)
 
-(deftest base-string-type.7
+(deftest base-string-type.9
   (subtypep '(vector base-char 5) '(base-string 5))
   t t)
 
-(deftest base-string-type.8
+(deftest base-string-type.10
   (typep 10 'base-string)
   nil)
 
@@ -85,44 +96,55 @@
 ;;  Type SIMPLE-STRING
 ;;
 (deftest simple-string-type.1
+  (lisp-system:closp
+    (find-class 'simple-string))
+  t)
+
+(deftest simple-string-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'simple-string)))
+  (simple-string string vector simple-array array sequence t))
+
+(deftest simple-string-type.3
   (subtypep 'simple-string 'string)
   t t)
 
-(deftest simple-string-type.2
+(deftest simple-string-type.4
   (typep "Hello" 'simple-string)
   t)
 
-(deftest simple-string-type.3
+(deftest simple-string-type.5
   (typep "Hello" '(simple-string *))
   t)
 
-(deftest simple-string-type.4
+(deftest simple-string-type.6
   (typep "Hello" '(simple-string 5))
   t)
 
-(deftest simple-string-type.5
+(deftest simple-string-type.7
   (typep "Hello" '(simple-string 4))
   nil)
 
-(deftest simple-string-type.6
+(deftest simple-string-type.8
   (subtypep '(simple-string 5) '(simple-array character (5)))
   t t)
 
-(deftest simple-string-type.7
+(deftest simple-string-type.9
   (subtypep '(simple-array character (5)) '(simple-string 5))
   t t)
 
-(deftest simple-string-type.8
+(deftest simple-string-type.10
   (typep 10 'simple-string)
   nil)
 
-(deftest simple-string-type.9
+(deftest simple-string-type.11
   (typep (make-array 5 :element-type 'character
                      :initial-contents "Hello")
          'simple-string)
   t)
 
-(deftest simple-string-type.10
+(deftest simple-string-type.12
   (typep (make-array 5 :element-type 'character
                      :initial-contents "Hello"
                      :adjustable t)
@@ -134,44 +156,57 @@
 ;;  Type SIMPLE-BASE-STRING
 ;;
 (deftest simple-base-string-type.1
+  (lisp-system:closp
+    (find-class 'simple-base-string))
+  t)
+
+(deftest simple-base-string-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'simple-base-string)))
+  (simple-base-string
+    base-string simple-string
+    string vector simple-array array sequence t))
+
+(deftest simple-base-string-type.3
   (subtypep 'simple-base-string 'string)
   t t)
 
-(deftest simple-base-string-type.2
+(deftest simple-base-string-type.4
   (typep "Hello" 'simple-base-string)
   t)
 
-(deftest simple-base-string-type.3
+(deftest simple-base-string-type.5
   (typep "Hello" '(simple-base-string *))
   t)
 
-(deftest simple-base-string-type.4
+(deftest simple-base-string-type.6
   (typep "Hello" '(simple-base-string 5))
   t)
 
-(deftest simple-base-string-type.5
+(deftest simple-base-string-type.7
   (typep "Hello" '(simple-base-string 4))
   nil)
 
-(deftest simple-base-string-type.6
+(deftest simple-base-string-type.8
   (subtypep '(simple-base-string 5) '(simple-array base-char (5)))
   t t)
 
-(deftest simple-base-string-type.7
+(deftest simple-base-string-type.9
   (subtypep '(simple-array base-char (5)) '(simple-base-string 5))
   t t)
 
-(deftest simple-base-string-type.8
+(deftest simple-base-string-type.10
   (typep 10 'simple-base-string)
   nil)
 
-(deftest simple-base-string-type.9
+(deftest simple-base-string-type.11
   (typep (make-array 5 :element-type 'base-char
                      :initial-contents "Hello")
          'simple-base-string)
   t)
 
-(deftest simple-base-string-type.10
+(deftest simple-base-string-type.12
   (typep (make-array 5 :element-type 'base-char
                      :initial-contents "Hello"
                      :adjustable t)

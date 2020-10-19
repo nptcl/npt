@@ -33,26 +33,37 @@
 ;;  Type KEYWORD
 ;;
 (deftest keyword-type.1
+  (lisp-system:closp
+    (find-class 'keyword))
+  t)
+
+(deftest keyword-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'keyword)))
+  (keyword symbol t))
+
+(deftest keyword-type.3
   (subtypep 'keyword 'symbol)
   t t)
 
-(deftest keyword-type.2
+(deftest keyword-type.4
   (typep :hello 'keyword)
   t)
 
-(deftest keyword-type.3
+(deftest keyword-type.5
   (typep 'hello 'keyword)
   nil)
 
-(deftest keyword-type.4
+(deftest keyword-type.6
   (typep 10 'keyword)
   nil)
 
-(deftest keyword-type.5
+(deftest keyword-type.7
   :hello
   :hello)
 
-(deftest-error keyword-type.6
+(deftest-error keyword-type.8
   (eval '(setq :hello 10)))
 
 

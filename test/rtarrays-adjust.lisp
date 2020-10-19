@@ -3,7 +3,7 @@
 ;;
 
 ;;
-;;  adjust-array
+;;  Function ADJUST-ARRAY
 ;;
 (deftest adjust-array.1
   (arrayp
@@ -231,10 +231,10 @@
       3 :fill-pointer 4)))
 
 (deftest-error adjust-array-fill-pointer.9
-  (fill-pointer
-    (adjust-array
-      (make-array 6)
-      3 :fill-pointer t)))
+  (adjust-array
+    (make-array 6)
+    3 :fill-pointer t)
+  type-error)
 
 
 ;;
@@ -529,4 +529,89 @@
                 :displaced-to #*10101100
                 :displaced-index-offset 2)
   #*101)
+
+
+;;
+;;  error
+;;
+(deftest-error adjust-array-error.1
+  (eval '(adjust-array :hello 3))
+  type-error)
+
+(deftest-error adjust-array-error.2
+  (eval '(adjust-array (make-array 3) :hello))
+  type-error)
+
+(deftest-error adjust-array-error.4
+  (eval '(adjust-array (make-array 3) 4 :element-type)))
+
+(deftest-error adjust-array-error.5
+  (eval '(adjust-array (make-array 3) 4 :hello)))
+
+(deftest-error adjust-array-error.6
+  (eval '(adjust-array (make-array 3) 4 :hello 10)))
+
+(deftest-error! adjust-array-error.7
+  (eval '(adjust-array (make-array 3))))
+
+
+;;
+;;  ANSI Common Lisp
+;;
+(defvar *adjust-array-1*)
+(defvar *adjust-array-2*)
+(defvar *adjust-array-3*)
+
+(deftest adjust-array-test.1
+  (adjustable-array-p
+    (setq *adjust-array-1*
+          (adjust-array
+            (make-array '(2 3)
+                        :adjustable t
+                        :initial-contents '((a b c) (1 2 3)))
+            '(4 6))))
+  t)
+
+(deftest adjust-array-test.2
+  (array-dimensions *adjust-array-1*)
+  (4 6))
+
+(deftest adjust-array-test.3
+  (aref *adjust-array-1* 1 1)
+  2)
+
+(deftest adjust-array-test.4
+  (setq *adjust-array-2* (make-array '(2 3) :adjustable t))
+  #2a((nil nil nil) (nil nil nil)))
+
+(deftest adjust-array-test.5
+  (adjust-array *adjust-array-2* '(4 6) :displaced-to *adjust-array-1*)
+  #2a((a b c nil nil nil)
+      (1 2 3 nil nil nil)
+      (nil nil nil nil nil nil)
+      (nil nil nil nil nil nil)))
+
+(deftest adjust-array-test.6
+  (array-dimensions *adjust-array-2*)
+  (4 6))
+
+(deftest adjust-array-test.7
+  (aref *adjust-array-2* 1 1)
+  2)
+
+(deftest adjust-array-test.8
+  (arrayp
+    (setq *adjust-array-3*
+          (make-array '(4 4) :initial-contents
+                      '(( alpha     beta      gamma     delta )
+                        ( epsilon   zeta      eta       theta )
+                        ( iota      kappa     lambda    mu    )
+                        ( nu        xi        omicron   pi    )))))
+  t)
+
+(deftest adjust-array-test.9
+  (adjust-array *adjust-array-3* '(3 5) :initial-element 'baz)
+  #2a(( alpha     beta      gamma     delta     baz )
+      ( epsilon   zeta      eta       theta     baz )
+      ( iota      kappa     lambda    mu        baz )))
 

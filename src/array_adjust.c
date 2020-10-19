@@ -14,6 +14,7 @@
 #include "sequence.h"
 #include "strtype.h"
 #include "strvect.h"
+#include "type_table.h"
 #include "type_upgraded.h"
 
 /*
@@ -235,6 +236,7 @@ static int array_adjust_fillpointer_(addr pos, addr array, addr fill)
 	int check;
 	struct array_struct *str1;
 	struct array_struct *str2;
+	addr type;
 	size_t size;
 
 	str1 = ArrayInfoStruct(pos);
@@ -268,8 +270,11 @@ static int array_adjust_fillpointer_(addr pos, addr array, addr fill)
 	return fmte_("Invalid fill-pointer value ~S.", fill, NULL);
 
 fill_check:
-	if (str2->fillpointer == 0)
-		return fmte_("The argument ~S must be a fill-pointer array.", array, NULL);
+	if (str2->fillpointer == 0) {
+		GetTypeTable(&type, Array);
+		return call_type_error_va_(NULL, array, type,
+				"The argument ~S must be a fill-pointer array.", array, NULL);
+	}
 	if (str1->dimension != 1)
 		return fmte_("fill-pointer array must be a 1 dimensional.", NULL);
 	if (str1->size < str1->front) {
@@ -527,8 +532,13 @@ static void array_adjust_vector_adjustable(addr pos)
 
 static int array_adjust_vector_fillpointer_(addr pos, addr array, addr fill)
 {
-	if (fill != Nil)
-		return fmte_("The argument ~S must be a fill-pointer array.", array, NULL);
+	addr type;
+
+	if (fill != Nil) {
+		GetTypeTable(&type, Array);
+		return call_type_error_va_(NULL, array, type,
+				"The argument ~S must be a fill-pointer array.", array, NULL);
+	}
 	ArrayInfoStruct(pos)->fillpointer = 0;
 	return 0;
 }

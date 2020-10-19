@@ -15,10 +15,35 @@
 /*
  *  charqueue
  */
-static void charbit_alloc(LocalRoot local, addr *ret, size_t size)
+static void charbit_size(size_t max, size_t *rsize, size_t *rmax)
 {
-	size = IdxSize + size*sizeoft(unicode);
+	size_t size;
+
+	if (0xFFFF < max)
+		goto maxsize;
+	size = IdxSize + max*sizeoft(unicode);
+	if (0xFFFF < size)
+		goto maxsize;
+
+	*rmax = max;
+	*rsize = size;
+	return;
+
+maxsize:
+	max = 0x3900;
+	size = IdxSize + max*sizeoft(unicode);
 	Check(0xFFFF < size, "size error");
+	*rmax = max;
+	*rsize = size;
+}
+
+static void charbit_alloc(LocalRoot local, addr *ret, size_t max, size_t *rmax)
+{
+	size_t size;
+
+	charbit_size(max, &size, &max);
+	if (rmax)
+		*rmax = max;
 	alloc_arraybody(local, ret, LISPSYSTEM_CHARBIT, 1, (byte16)size);
 	SetCharBitSize(*ret, 0);
 }
@@ -37,15 +62,16 @@ _g addr charqueue_allocr(LocalRoot local, size_t max)
 	addr pos, root;
 	struct charqueue_struct *str;
 
-	if (max == 0) max = LISP_CHARQUEUESIZE;
-	Check(0xFFFF < max, "size error");
+	if (max == 0)
+		max = LISP_CHARQUEUESIZE;
 	alloc_smallsize(local, &pos, LISPSYSTEM_CHARQUEUE,
 			2, sizeoft(struct charqueue_struct));
 	str = StructCharQueue(pos);
 	str->size = 0;
+
+	charbit_alloc(local, &root, max, &max);
 	str->max = max;
 
-	charbit_alloc(local, &root, max);
 	SetCharQueueRoot(pos, root);
 	SetCharQueueTail(pos, root);
 
@@ -120,7 +146,7 @@ _g int push_charqueue_alloc_(LocalRoot local, addr pos, unicode c)
 		GetCharBitNext(tail, &next);
 		if (next == Nil) {
 			/* new bit */
-			charbit_alloc(local, &next, max);
+			charbit_alloc(local, &next, max, NULL);
 			SetCharBitNext(tail, next);
 			SetCharQueueTail(pos, next);
 		}

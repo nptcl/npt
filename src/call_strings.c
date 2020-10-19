@@ -350,7 +350,7 @@ static int string_trim_array_common(addr pos, unicode c, int *ret)
 		return string_trim_string_common(pos, c, ret);
 	if (! array_vector_p(pos))
 		return TypeError_(pos, SEQUENCE);
-	size = array_get_vector_length(pos, 1);
+	Return(array_get_vector_length_(pos, 1, &size));
 	for (i = 0; i < size; i++) {
 		Return(array_get_unicode_(pos, i, &check));
 		if (check == c)

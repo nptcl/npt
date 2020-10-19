@@ -10,7 +10,7 @@ static int test_charbit_macro(void)
 	unicode u;
 	size_t size;
 
-	charbit_alloc(NULL, &pos, 100);
+	charbit_alloc(NULL, &pos, 100, NULL);
 	PtrArrayAB(pos)[0] = T;
 	check = 0;
 	GetCharBitNext(pos, &check);
@@ -46,7 +46,7 @@ static int test_charbit_alloc(void)
 	addr pos;
 	size_t size;
 
-	charbit_alloc(NULL, &pos, 12);
+	charbit_alloc(NULL, &pos, 12, NULL);
 	test(GetType(pos) == LISPSYSTEM_CHARBIT, "charbit_alloc.1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAYBODY, "charbit_alloc.2");
 	test(GetLenArrayAB(pos) == 1, "charbit_alloc.3");
@@ -63,7 +63,7 @@ static int test_charbit_push(void)
 	unicode u;
 	size_t size;
 
-	charbit_alloc(NULL, &pos, 100);
+	charbit_alloc(NULL, &pos, 100, NULL);
 
 	charbit_push(pos, 100);
 	GetCharBitSize(pos, &size);

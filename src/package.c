@@ -18,6 +18,7 @@
 #include "strvect.h"
 #include "symbol.h"
 #include "typedef.h"
+#include "type_table.h"
 
 #define LISP_PACKAGE_HASHSIZE        16
 
@@ -54,6 +55,8 @@ static int find_package_local_(addr pos, addr *ret)
 
 _g int find_package_(addr pos, addr *ret)
 {
+	addr type;
+
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
 			return Result(ret, pos);
@@ -80,8 +83,9 @@ _g int find_package_(addr pos, addr *ret)
 	}
 
 error:
-	*ret = NULL;
-	return fmte_("Argument ~S must be a string, symbol or package.", pos, NULL);
+	*ret = Nil;
+	GetTypeTable(&type, PackageDesigner);
+	return call_type_error_(NULL, pos, type);
 }
 
 _g int find_char_package_(const char *name, addr *ret)
@@ -109,8 +113,10 @@ _g int package_size_heap_(addr *ret, addr name, size_t size)
 	/* name check */
 	Return(string_designer_heap_(&name, name, NULL));
 	Return(find_package_direct_(name, &pos));
-	if (pos != Nil)
-		return fmte_("Package name ~S already used.", name, NULL);
+	if (pos != Nil) {
+		return call_simple_package_error_va_(NULL,
+				"The package name ~S is already used.", name, NULL);
+	}
 
 	/* make package */
 	heap_array2(&pos, LISPTYPE_PACKAGE, PACKAGE_INDEX_SIZE);
@@ -307,12 +313,14 @@ _g void build_package(void)
 
 _g int getpackage_(Execute ptr, addr *ret)
 {
-	addr pos;
+	addr pos, type;
 
 	GetConst(SPECIAL_PACKAGE, &pos);
 	Return(getspecialcheck_local_(ptr, pos, &pos));
-	if (GetType(pos) != LISPTYPE_PACKAGE)
-		return fmte_("symbol *package* is not a package type.", NULL);
+	if (GetType(pos) != LISPTYPE_PACKAGE) {
+		GetTypeTable(&type, Package);
+		return call_type_error_(NULL, pos, type);
+	}
 
 	return Result(ret, pos);
 }

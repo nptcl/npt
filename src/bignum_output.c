@@ -184,7 +184,8 @@ _g int output_nosign_bignum_(LocalRoot local,
 	/* loop */
 	push_local(local, &stack);
 	GetSizeBignum(pos, &size);
-	charqueue_local(local, &queue, size * 20); /* size * (log10(2**64)+1) */
+	size = (0x010000 < size)? 0x010000: size * 20; /* size * (log10(2**64)+1) */
+	charqueue_local(local, &queue, size);
 	bignum_copy_local(local, &pos, pos);
 	do {
 		rem = letdiv_half_bigdata(pos, (bigtype)base);
@@ -259,7 +260,8 @@ _g int output_nosign_comma_bignum_(LocalRoot local,
 	/* loop */
 	push_local(local, &stack);
 	GetSizeBignum(pos, &size);
-	charqueue_local(local, &queue, size * 20); /* size * (log10(2**64)+1) */
+	size = (0x010000 < size)? 0x010000: size * 20; /* size * (log10(2**64)+1) */
+	charqueue_local(local, &queue, size);
 	bignum_copy_local(local, &pos, pos);
 	index = 0;
 	do {

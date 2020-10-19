@@ -3,62 +3,6 @@
 ;;
 
 ;;
-;;  simple-vector-p
-;;
-(deftest simple-vector-p.1
-  (simple-vector-p
-    (make-array 6))
-  t)
-
-(deftest simple-vector-p.2
-  (simple-vector-p
-    (make-array '(10)))
-  t)
-
-(deftest simple-vector-p.3
-  (simple-vector-p
-    (make-array nil))
-  nil)
-
-(deftest simple-vector-p.4
-  (simple-vector-p
-    (make-array '(4 5)))
-  nil)
-
-(deftest simple-vector-p.5
-  (simple-vector-p
-    (make-array 10 :fill-pointer t))
-  nil)
-
-(deftest simple-vector-p.6
-  (simple-vector-p
-    (make-array 10 :adjustable t))
-  nil)
-
-(deftest simple-vector-p.7
-  (simple-vector-p
-    (make-array 10 :displaced-to (make-array 10)))
-  nil)
-
-(deftest simple-vector-p.8
-  (simple-vector-p "aaa")
-  nil)
-
-(deftest simple-vector-p.10
-  (simple-vector-p #(10 20 30))
-  t)
-
-(deftest simple-vector-p.11
-  (simple-vector-p
-    (make-array 10 :element-type 'single-float))
-  nil)
-
-(deftest simple-vector-p.12
-  (simple-vector-p 100)
-  nil)
-
-
-;;
 ;;  svref
 ;;
 (deftest svref.1
@@ -254,42 +198,6 @@
 
 
 ;;
-;;  vectorp
-;;
-(deftest vectorp.1
-  (vectorp "aaaaaa")
-  t)
-
-(deftest vectorp.2
-  (vectorp (make-array 6 :fill-pointer t))
-  t)
-
-(deftest vectorp.3
-  (vectorp (make-array '(2 3 4)))
-  nil)
-
-(deftest vectorp.4
-  (vectorp #*11)
-  t)
-
-(deftest vectorp.5
-  (vectorp #b11)
-  nil)
-
-(deftest vectorp.6
-  (vectorp "hello")
-  t)
-
-(deftest vectorp.7
-  (vectorp #(10 20 30))
-  t)
-
-(deftest vectorp.8
-  (vectorp '(10 20 30))
-  nil)
-
-
-;;
 ;;  bit
 ;;
 (deftest bit.1
@@ -417,74 +325,6 @@
       (sbit a 1 1)
       (sbit a 1 2)))
   0 1 0 0 0 0)
-
-
-;;
-;;  bit-vecotr-p
-;;
-(deftest bit-vector-p.1
-  (bit-vector-p
-    (make-array 10 :element-type 'bit :fill-pointer t))
-  t)
-
-(deftest bit-vector-p.2
-  (bit-vector-p #*)
-  t)
-
-(deftest bit-vector-p.3
-  (bit-vector-p #*110)
-  t)
-
-(deftest bit-vector-p.4
-  (bit-vector-p
-    (make-array '(2 3) :element-type 'bit))
-  nil)
-
-(deftest bit-vector-p.5
-  (bit-vector-p #(1 0 1 1))
-  nil)
-
-(deftest bit-vector-p.6
-  (bit-vector-p (make-array 6))
-  nil)
-
-(deftest bit-vector-p.7
-  (bit-vector-p 100)
-  nil)
-
-
-;;
-;;  simple-bit-vector-p
-;;
-(deftest simple-bit-vector-p.1
-  (simple-bit-vector-p #*110)
-  t)
-
-(deftest simple-bit-vector-p.2
-  (simple-bit-vector-p
-    (make-array 10 :element-type 'bit :fill-pointer t))
-  nil)
-
-(deftest simple-bit-vector-p.3
-  (simple-bit-vector-p
-    (make-array 10 :element-type 'bit
-                :fill-pointer nil
-                :adjustable nil
-                :displaced-to nil))
-  t)
-
-(deftest simple-bit-vector-p.4
-  (simple-bit-vector-p
-    (make-array '(2 3) :element-type 'bit))
-  nil)
-
-(deftest simple-bit-vector-p.5
-  (simple-bit-vector-p #(1 0 1 1))
-  nil)
-
-(deftest simple-bit-vector-p.6
-  (simple-bit-vector-p 100)
-  nil)
 
 
 ;;

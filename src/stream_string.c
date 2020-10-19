@@ -546,10 +546,13 @@ static int file_position_StringOutput(addr stream, size_t *value, int *ret)
 
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
-	if (extend_string_p(stream))
-		*value = array_get_vector_length(queue, 1); /* fill-pointer */
-	else
+	if (extend_string_p(stream)) {
+		/* fill-pointer */
+		Return(array_get_vector_length_(queue, 1, value));
+	}
+	else {
 		getsize_charqueue(queue, value);
+	}
 
 	return Result(ret, 0);
 }

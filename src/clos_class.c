@@ -1811,7 +1811,7 @@ static int build_clos_class_type_(LocalRoot local)
 
 	ClosMakeType1_(local, BASE_CHAR, CHARACTER);
 	ClosMakeType1_(local, EXTENDED_CHAR, CHARACTER);
-	ClosMakeType1_(local, STANDARD_CHAR, CHARACTER);
+	ClosMakeType1_(local, STANDARD_CHAR, BASE_CHAR);
 	ClosMakeType1_(local, SIMPLE_ARRAY, ARRAY);
 	ClosMakeType2_(local, SIMPLE_VECTOR, VECTOR, SIMPLE_ARRAY);
 

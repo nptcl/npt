@@ -480,7 +480,7 @@ static int coerce_array_list(Execute ptr, addr pos, addr type, addr *ret)
 
 	/* cast list */
 	list = Nil;
-	size = array_get_vector_length(pos, 1);
+	Return(array_get_vector_length_(pos, 1, &size));
 	for (i = 0; i < size; i++) {
 		Return(array_get_(NULL, pos, i, &x));
 		cons_heap(&list, x, list);

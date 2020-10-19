@@ -767,13 +767,17 @@ _g int array_get_element_type_(addr pos, addr *ret)
 	return type_object_(ret, pos);
 }
 
-_g size_t array_get_vector_length(addr pos, int fill)
+_g int array_get_vector_length_(addr pos, int fill, size_t *ret)
 {
 	struct array_struct *str;
 
-	Check(! array_vector_p(pos), "type error");
+	if (! array_vector_p(pos)) {
+		*ret = 0;
+		return TypeError_(pos, VECTOR);
+	}
 	str = ArrayInfoStruct(pos);
-	return fill? str->front: str->size;
+	*ret = fill? str->front: str->size;
+	return 0;
 }
 
 _g void array_get_rowlength(addr pos, size_t *ret)

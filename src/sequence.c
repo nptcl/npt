@@ -352,8 +352,7 @@ _g int length_sequence_(addr pos, int fill, size_t *ret)
 			return 0;
 
 		case LISPTYPE_ARRAY:
-			*ret = array_get_vector_length(pos, fill);
-			return 0;
+			return array_get_vector_length_(pos, fill, ret);
 
 		case LISPTYPE_BITVECTOR:
 			return bitvector_length_(pos, ret);
@@ -685,7 +684,7 @@ static int getelt_array_(LocalRoot local, addr pos, size_t index, addr *ret)
 		*ret = Nil;
 		return TypeError_(pos, SEQUENCE);
 	}
-	size = array_get_vector_length(pos, 1);
+	Return(array_get_vector_length_(pos, 1, &size));
 	if (size <= index) {
 		*ret = Nil;
 		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
@@ -738,7 +737,7 @@ static int setelt_array_(addr pos, size_t index, addr value)
 
 	if (! array_vector_p(pos))
 		return TypeError_(pos, SEQUENCE);
-	size = array_get_vector_length(pos, 1);
+	Return(array_get_vector_length_(pos, 1, &size));
 	if (size <= index)
 		return fmte_("Index ~S is too large.", intsizeh(index), NULL);
 

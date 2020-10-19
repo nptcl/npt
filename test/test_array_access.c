@@ -115,11 +115,13 @@ static int test_array_get_element_type(void)
 static int test_array_get_vector_length(void)
 {
 	addr pos;
+	size_t size;
 
 	GetTypeTable(&pos, T);
 	array_make_array_(&pos, fixnumh(22), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
-	test(array_get_vector_length(pos, 0) == 22, "array_get_vector_length.1");
+	array_get_vector_length_(pos, 0, &size);
+	test(size == 22, "array_get_vector_length.1");
 
 	RETURN;
 }

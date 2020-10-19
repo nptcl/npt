@@ -34,7 +34,7 @@
 #define array_equal_type _n(array_equal_type)
 #define array_equal_dimension _n(array_equal_dimension)
 #define array_get_element_type_ _n(array_get_element_type_)
-#define array_get_vector_length _n(array_get_vector_length)
+#define array_get_vector_length_ _n(array_get_vector_length_)
 #define array_get_rowlength _n(array_get_rowlength)
 
 _g int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *ret);
@@ -71,7 +71,7 @@ _g int array_setf_aref_bit_(addr pos, addr args, addr value);
 _g int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size);
 _g int array_equal_dimension(addr left, addr right);
 _g int array_get_element_type_(addr pos, addr *ret);
-_g size_t array_get_vector_length(addr pos, int fill);
+_g int array_get_vector_length_(addr pos, int fill, size_t *ret);
 _g void array_get_rowlength(addr pos, size_t *ret);
 
 #endif

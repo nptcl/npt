@@ -74,7 +74,7 @@ static int defpackage_find_import_(addr x, addr list, int *ret)
 /*
  *  restart
  */
-static void defpacakge_restart_import_symbol(addr *ret)
+static void defpackage_restart_import_symbol(addr *ret)
 {
 	addr restart, pos;
 
@@ -109,7 +109,7 @@ static int defpackage_import_symbol_(addr package, addr name, addr *ret)
 
 	/* restart */
 	ptr = Execute_Thread;
-	defpacakge_restart_import_symbol(&restart);
+	defpackage_restart_import_symbol(&restart);
 	push_control(ptr, &control);
 	pushrestart_control(ptr, restart);
 

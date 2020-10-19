@@ -37,26 +37,37 @@
 ;;  Type BASE-CHAR
 ;;
 (deftest base-char-type.1
+  (lisp-system:closp
+    (find-class 'base-char))
+  t)
+
+(deftest base-char-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'base-char)))
+  (base-char character t))
+
+(deftest base-char-type.3
   (subtypep 'base-char 'character)
   t t)
 
-(deftest base-char-type.2
+(deftest base-char-type.4
   (subtypep 'standard-char 'base-char)
   t t)
 
-(deftest base-char-type.3
+(deftest base-char-type.5
   (subtypep 'base-char 'standard-char)
   nil t)
 
-(deftest base-char-type.4
+(deftest base-char-type.6
   (typep #\A 'base-char)
   t)
 
-(deftest base-char-type.5
+(deftest base-char-type.7
   (typep #\u3030 'base-char)
   t)
 
-(deftest base-char-type.6
+(deftest base-char-type.8
   (typep nil 'base-char)
   nil)
 
@@ -64,23 +75,34 @@
 ;;
 ;;  Type STANDARD-CHAR
 ;;
-(deftest standard-char.1
+(deftest standard-char-type.1
+  (lisp-system:closp
+    (find-class 'standard-char))
+  t)
+
+(deftest standard-char-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'standard-char)))
+  (standard-char base-char character t))
+
+(deftest standard-char-type.3
   (subtypep 'standard-char 'character)
   t t)
 
-(deftest standard-char.2
+(deftest standard-char-type.4
   (typep #\A 'standard-char)
   t)
 
-(deftest standard-char.3
+(deftest standard-char-type.5
   (typep #\u3030 'standard-char)
   nil)
 
-(deftest standard-char.4
+(deftest standard-char-type.6
   (typep nil 'standard-char)
   nil)
 
-(deftest standard-char.5
+(deftest standard-char-type.7
   (every
     (lambda (x)
       (typep x 'standard-char))
@@ -96,15 +118,26 @@
 ;;
 ;;  Type EXTENDED-CHAR
 ;;
-(deftest extended-char.1
+(deftest extended-char-type.1
+  (lisp-system:closp
+    (find-class 'extended-char))
+  t)
+
+(deftest extended-char-type.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'extended-char)))
+  (extended-char character t))
+
+(deftest extended-char-type.3
   (subtypep 'extended-char 'character)
   t t)
 
-(deftest extended-char.2
+(deftest extended-char-type.4
   (typep #\A 'extended-char)
   nil)
 
-(deftest extended-char.3
+(deftest extended-char-type.5
   (typep nil 'extended-char)
   nil)
 
