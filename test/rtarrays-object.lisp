@@ -338,9 +338,8 @@
   t 2)
 
 
-
 ;;
-;;  array-in-bounds-p
+;;  Function ARRAY-IN-BOUNDS-P
 ;;
 (deftest array-in-bounds-p.1
   (array-in-bounds-p
@@ -469,9 +468,46 @@
     30)
   nil)
 
+(deftest-error array-in-bounds-p-error.1
+  (eval '(array-in-bounds-p 10 20 30))
+  type-error)
+
+(deftest-error array-in-bounds-p-error.2
+  (eval '(array-in-bounds-p "Hello" :hello))
+  type-error)
+
+(deftest-error! array-in-bounds-p-error.3
+  (eval '(array-in-bounds-p)))
+
+;;  ANSI Common Lisp
+(defvar *array-in-bounds-p-1*)
+
+(deftest array-in-bounds-p-test.1
+  (progn
+    (setq *array-in-bounds-p-1*
+          (make-array '(7 11) :element-type 'standard-char))
+    (array-in-bounds-p *array-in-bounds-p-1* 0  0))
+  t)
+
+(deftest array-in-bounds-p-test.2
+  (array-in-bounds-p *array-in-bounds-p-1* 6 10)
+  t)
+
+(deftest array-in-bounds-p-test.3
+  (array-in-bounds-p *array-in-bounds-p-1* 0 -1)
+  nil)
+
+(deftest array-in-bounds-p-test.4
+  (array-in-bounds-p *array-in-bounds-p-1* 0 11)
+  nil)
+
+(deftest array-in-bounds-p-test.5
+  (array-in-bounds-p *array-in-bounds-p-1* 7  0)
+  nil)
+
 
 ;;
-;;  array-rank
+;;  Function ARRAY-RANK
 ;;
 (deftest array-rank.1
   (array-rank (make-array nil))
@@ -501,13 +537,36 @@
   (array-rank #*11011)
   1)
 
-(deftest-error array-rank.8
+(deftest-error array-rank-error.1
   (eval '(array-rank (list 10 20 30)))
   type-error)
 
+(deftest-error! array-rank-error.2
+  (eval '(array-rank)))
+
+(deftest-error! array-rank-error.3
+  (eval '(array-rank "Hello" nil)))
+
+;;  ANSI Common Lisp
+(deftest array-rank-test.1
+  (array-rank (make-array '()))
+  0)
+
+(deftest array-rank-test.2
+  (array-rank (make-array 4))
+  1)
+
+(deftest array-rank-test.3
+  (array-rank (make-array '(4)))
+  1)
+
+(deftest array-rank-test.4
+  (array-rank (make-array '(2 3)))
+  2)
+
 
 ;;
-;;  array-total-size
+;;  Function ARRAY-TOTAL-SIZE
 ;;
 (deftest array-total-size.1
   (array-total-size (make-array nil))
@@ -549,6 +608,41 @@
   (array-total-size #*11011)
   5)
 
+(deftest-error array-total-size-error.1
+  (eval '(array-total-size 100))
+  type-error)
+
+(deftest-error! array-total-size-error.2
+  (eval '(array-total-size)))
+
+(deftest-error! array-total-size-error.3
+  (eval '(array-total-size "Hello" nil)))
+
+;;  ANSI Common Lisp
+(deftest array-total-size-test.1
+  (array-total-size (make-array 4))
+  4)
+
+(deftest array-total-size-test.2
+  (array-total-size (make-array 4 :fill-pointer 2))
+  4)
+
+(deftest array-total-size-test.3
+  (array-total-size (make-array 0))
+  0)
+
+(deftest array-total-size-test.4
+  (array-total-size (make-array '(4 2)))
+  8)
+
+(deftest array-total-size-test.5
+  (array-total-size (make-array '(4 0)))
+  0)
+
+(deftest array-total-size-test.6
+  (array-total-size (make-array '()))
+  1)
+
 
 ;;
 ;;  array-dimension-limit
@@ -560,6 +654,9 @@
 (deftest array-dimension-limit.2
   (< array-dimension-limit 1024)
   nil)
+
+(deftest-error array-dimension-limit.3
+  (eval '(setq array-dimension-limit 2048)))
 
 
 ;;
@@ -573,6 +670,9 @@
   (< array-rank-limit 8)
   nil)
 
+(deftest-error array-rank-limit.3
+  (eval '(setq array-rank-limit 16)))
+
 
 ;;
 ;;  array-total-size-limit
@@ -584,4 +684,7 @@
 (deftest array-total-size-limit.2
   (< array-total-size-limit 1024)
   nil)
+
+(deftest-error array-total-size-limit.3
+  (eval '(setq array-total-size-limit 2048)))
 

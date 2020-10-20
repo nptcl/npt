@@ -779,7 +779,7 @@ static void defun_simple_vector_p(void)
 }
 
 
-/* (defun svref (vector index) ...) -> t */
+/* (defun svref (simple-vector index) ...) -> t */
 static int function_svref(Execute ptr, addr pos, addr index)
 {
 	Return(svref_common(pos, index, &pos));
@@ -791,7 +791,7 @@ static void type_svref(addr *ret)
 {
 	addr arg, values;
 
-	GetTypeTable(&arg, Vector);
+	GetTypeTable(&arg, SimpleVector);
 	GetTypeTable(&values, Index);
 	typeargs_var2(&arg, arg, values);
 	GetTypeValues(&values, T);
@@ -814,7 +814,7 @@ static void defun_svref(void)
 }
 
 
-/* (defun (setf svref) (value vector index) ...) -> t */
+/* (defun (setf svref) (value simple-vector index) ...) -> t */
 static int function_setf_svref(Execute ptr, addr value, addr pos, addr index)
 {
 	Return(setf_svref_common(value, pos, index));
@@ -827,7 +827,7 @@ static void type_setf_svref(addr *ret)
 	addr arg, values, type;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&arg, Vector);
+	GetTypeTable(&arg, SimpleVector);
 	GetTypeTable(&values, Index);
 	typeargs_var3(&arg, type, arg, values);
 	GetTypeValues(&values, T);

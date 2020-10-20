@@ -9,6 +9,7 @@
 (load #p"test/rtarrays-access.lisp")
 (load #p"test/rtarrays-upgraded.lisp")
 (load #p"test/rtarrays-vector.lisp")
+(load #p"test/rtarrays-bit.lisp")
 
 
 ;;

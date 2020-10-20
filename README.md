@@ -26,7 +26,7 @@ $ su
 ```
 
 
-# configure (autoconf, automake)
+# Make (autoconf, automake)
 ```
 $ ./bootstrap.sh
 $ ./configure
@@ -57,14 +57,14 @@ $
 # Compile
 ## FreeBSD
 ```
-$ cc -O3 -o npt -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE -lm -ledit src/*.c
+$ cc -O3 -o npt -DLISP_FREEBSD -DLISP_EDITLINE -lm -ledit src/*.c
 $ ./npt
 *
 ```
 
 ## Linux
 ```
-$ cc -O3 -o npt -DLISP_LINUX -DLISP_PROMPT_READLINE -lm -lreadline src/*.c
+$ cc -O3 -o npt -DLISP_LINUX -DLISP_READLINE -lm -lreadline src/*.c
 $ ./npt
 *
 ```
@@ -83,3 +83,4 @@ $ ./npt.exe
 
 # Distribution
 https://github.com/nptcl/npt
+

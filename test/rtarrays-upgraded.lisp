@@ -171,8 +171,9 @@
   (array-element-type (make-array 5 :element-type '(mod 5)))
   (unsigned-byte 8))
 
+
 ;;
-;;  upgraded-array-element-type
+;;  Function UPGRADED-ARRAY-ELEMENT-TYPE
 ;;
 (deftest upgraded-array-element-type.1
   (upgraded-array-element-type 'standard-char)
@@ -239,4 +240,18 @@
 (deftest upgraded-array-element-type-64bit.2
   (upgraded-array-element-type '(unsigned-byte 64))
   (unsigned-byte 64))
+
+(deftest-error upgraded-array-element-type-error.1
+  (eval '(upgraded-array-element-type 10))
+  type-error)
+
+(deftest-error upgraded-array-element-type-error.2
+  (eval '(upgraded-array-element-type 'integer 20))
+  type-error)
+
+(deftest-error! upgraded-array-element-type-error.3
+  (eval '(upgraded-array-element-type)))
+
+(deftest-error! upgraded-array-element-type-error.4
+  (eval '(upgraded-array-element-type 'integer nil nil)))
 

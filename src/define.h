@@ -444,6 +444,18 @@
 #endif
 
 /* readline editline */
+#ifdef LISP_EDITLINE
+#ifndef LISP_PROMPT_EDITLINE
+#define LISP_PROMPT_EDITLINE
+#endif
+#endif
+
+#ifdef LISP_READLINE
+#ifndef LISP_PROMPT_READLINE
+#define LISP_PROMPT_READLINE
+#endif
+#endif
+
 #if defined(LISP_PROMPT_DEFAULT)
 #define LISP_PROMPT_STRING "lisp"
 #undef LISP_PROMPT_READLINE

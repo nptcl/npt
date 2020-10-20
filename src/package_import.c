@@ -30,7 +30,7 @@ static int restart_force_import_package_(Execute ptr,
 	restart_heap(&restart, pos);
 	/* report */
 	Return(format_string(ptr, &pos,
-				"Import ~S and unintern ~S)", symbol1, symbol2, NULL));
+				"Import ~S and unintern ~S.", symbol1, symbol2, NULL));
 	setreport_restart(restart, pos);
 	/* function */
 	GetConst(FUNCTION_NIL, &pos);

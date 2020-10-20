@@ -212,7 +212,7 @@
 
 
 ;;
-;;  array-row-major-index
+;;  Function ARRAY-ROW-MAJOR-INDEX
 ;;
 (deftest array-row-major-index.1
   (array-row-major-index (make-array nil))
@@ -275,6 +275,22 @@
     0 2 1)
   9)
 
+(deftest-error array-row-major-index-error.1
+  (eval '(array-row-major-index 100))
+  type-error)
+
+(deftest-error array-row-major-index-error.2
+  (eval '(array-row-major-index "Hello" -2))
+  type-error)
+
+(deftest-error array-row-major-index-error.3
+  (eval '(array-row-major-index "Hello" :hello))
+  type-error)
+
+(deftest-error! array-row-major-index-error.4
+  (eval '(array-row-major-index)))
+
+
 ;;  ANSI Common Lisp
 (defvar *array-row-major-index-test-1*)
 
@@ -296,7 +312,7 @@
 
 
 ;;
-;;  fill-pointer
+;;  Accessor FILL-POINTER
 ;;
 (deftest fill-pointer.1
   (fill-pointer
@@ -325,6 +341,20 @@
   (fill-pointer #*111)
   type-error)
 
+(deftest-error fill-pointer-error.1
+  (eval '(fill-pointer 100))
+  type-error)
+
+(deftest-error! fill-pointer-error.2
+  (eval '(fill-pointer)))
+
+(deftest-error! fill-pointer-error.3
+  (eval '(fill-pointer "Hello" nil)))
+
+
+;;
+;;  Accessor (SETF FILL-POINTER)
+;;
 (deftest setf-fill-pointer.1
   (let ((pos (make-array 10 :fill-pointer t)))
     (setf (fill-pointer pos) 9))
@@ -341,31 +371,96 @@
     (setf (fill-pointer pos) 9))
   type-error)
 
-(deftest-error setf-fill-pointer.4
-  (let ((pos (make-array 10 :fill-pointer nil)))
-    (setf (fill-pointer pos) 10)))
+(deftest setf-fill-pointer.4
+  (let ((pos (make-array 10 :fill-pointer t)))
+    (setf (fill-pointer pos) 10))
+  10)
 
 (deftest-error setf-fill-pointer.5
+  (let ((pos (make-array 10 :fill-pointer t)))
+    (setf (fill-pointer pos) 11)))
+
+(deftest setf-fill-pointer.6
+  (let ((pos (make-array 10 :fill-pointer t)))
+    (setf (fill-pointer pos) 0))
+  0)
+
+(deftest-error setf-fill-pointer.7
+  (let ((pos (make-array 10 :fill-pointer t)))
+    (setf (fill-pointer pos) -2)))
+
+(deftest-error setf-fill-pointer.8
   (setf (fill-pointer "Hello") 1)
   type-error)
 
-(deftest-error setf-fill-pointer.6
+(deftest-error setf-fill-pointer.9
   (setf (fill-pointer #(10 20 30)) 1)
   type-error)
 
-(deftest-error setf-fill-pointer.7
+(deftest-error setf-fill-pointer.10
   (setf (fill-pointer #*110111) 1)
   type-error)
 
-(deftest setf-fill-pointer.8
+(deftest setf-fill-pointer.11
   (let ((pos (make-array 5 :fill-pointer 3 :initial-contents '(1 2 3 4 5))))
     (setf (fill-pointer pos) 4)
     pos)
   #(1 2 3 4))
 
+(deftest-error setf-fill-pointer.12
+  (let ((x (make-array '(3 4))))
+    (setf (fill-pointer x) 2)))
+
+(deftest-error setf-fill-pointer-error.1
+  (eval '(setf (fill-pointer 10) 20))
+  type-error)
+
+(deftest-error setf-fill-pointer-error.2
+  (eval '(setf (fill-pointer) 20)))
+
+(deftest-error setf-fill-pointer-error.3
+  (eval '(let ((x (make-array 10 :fill-pointer t)))
+           (setf (fill-pointer x nil) 4))))
+
+;;  ANSI Common Lisp
+(defvar *fill-pointer*)
+
+(deftest fill-pointer-test.1
+  (progn
+    (setq *fill-pointer* (make-array 8 :fill-pointer 4))
+    (fill-pointer *fill-pointer*))
+  4)
+
+(deftest fill-pointer-test.2
+  (progn
+    (dotimes (i (length *fill-pointer*))
+      (setf (aref *fill-pointer* i) (* i i)))
+    *fill-pointer*)
+  #(0 1 4 9))
+
+(deftest fill-pointer-test.3
+  (setf (fill-pointer *fill-pointer*) 3)
+  3)
+
+(deftest fill-pointer-test.4
+  (fill-pointer *fill-pointer*)
+  3)
+
+(deftest fill-pointer-test.5
+  *fill-pointer*
+  #(0 1 4))
+
+(deftest fill-pointer-test.6
+  (setf (fill-pointer *fill-pointer*) 8)
+  8)
+
+(deftest fill-pointer-test.7
+  *fill-pointer*
+  #(0 1 4 9 nil nil nil nil))
+
 
 ;;
-;;  row-major-aref
+;;  Accessor ROW-MAJOR-AREF
 ;;
 (deftest row-major-aref.1
   (let ((pos (make-array 10)))
@@ -407,6 +502,28 @@
   (row-major-aref #*10110011 3)
   1)
 
+(deftest-error row-major-aref-error.1
+  (eval '(row-major-aref 100 10))
+  type-error)
+
+(deftest-error row-major-aref-error.2
+  (eval '(row-major-aref "Hello" -1))
+  type-error)
+
+(deftest-error row-major-aref-error.3
+  (eval '(row-major-aref "Hello" nil))
+  type-error)
+
+(deftest-error! row-major-aref-error.4
+  (eval '(row-major-aref)))
+
+(deftest-error! row-major-aref-error.5
+  (eval '(row-major-aref "Hello" 1 2)))
+
+
+;;
+;;  Accessor (SETF ROW-MAJOR-AREF)
+;;
 (deftest setf-row-major-aref.1
   (let ((pos (make-array 10)))
     (setf (row-major-aref pos 3) :hello))
@@ -453,4 +570,24 @@
     (setf (row-major-aref pos 2) 1)
     (aref pos 2))
   1)
+
+(deftest-error setf-row-major-aref-error.1
+  (eval '(setf (row-major-aref :hello 1) 10))
+  type-error)
+
+(deftest-error setf-row-major-aref-error.2
+  (eval '(setf (row-major-aref (make-array 5) -1) #\A))
+  type-error)
+
+(deftest-error setf-row-major-aref-error.3
+  (eval '(setf (row-major-aref (make-array 5) 5) #\A)))
+
+(deftest-error setf-row-major-aref-error.4
+  (eval '(setf (row-major-aref (make-array 5) 5) #\A)))
+
+(deftest-error! setf-row-major-aref-error.5
+  (eval '(setf (row-major-aref (make-array 5)) #\A)))
+
+(deftest-error! setf-row-major-aref-error.6
+  (eval '(setf (row-major-aref (make-array 5) 1 2) #\A)))
 
