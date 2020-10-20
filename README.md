@@ -1,47 +1,42 @@
 # Npt
-
 Npt is an ANSI Common Lisp Programming Language.
 
-## Install (configure)
 
+# Make (script)
+## FreeBSD
 ```
-$ tar zxf npt-x.x.x.tar.gz
-$ cd npt-x.x.x
+$ ./bsd_release.sh
+...
+$ ./npt
+*
+```
+
+## Linux
+```
+$ ./linux_release.sh
+...
+$ ./npt
+*
+```
+
+## Install
+```
+$ su
+# cp -i npt /usr/local/bin/.
+```
+
+
+# configure (autoconf, automake)
+```
+$ ./bootstrap.sh
 $ ./configure
 $ make
 $ make install
 ```
 
 
-## Install (script)
-
-FreeBSD
-```
-$ tar zxf npt-x.x.x.tar.gz
-$ cd npt-x.x.x
-$ ./bsd_release.sh
-...
-$
-```
-
-Linux
-```
-$ tar zxf npt-x.x.x.tar.gz
-$ cd npt-x.x.x
-$ ./linux_release.sh
-...
-$
-```
-
-Install
-```
-$ su
-# cp -i npt /usr/local/bin/.
-```
-
-## Example
-
-Prompt
+# Example
+## Prompt
 ```
 $ ./npt
 * (format t "Hello~%")
@@ -51,19 +46,40 @@ NIL
 $
 ```
 
-Command Line
+## Command Line
 ```
 $ ./npt --quit --eval '(format t "Hello~%")'
 Hello
 $
 ```
 
-## License
 
+# Compile
+## FreeBSD
+```
+$ cc -O3 -o npt -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE -lm -ledit src/*.c
+$ ./npt
+*
+```
+
+## Linux
+```
+$ cc -O3 -o npt -DLISP_LINUX -DLISP_PROMPT_READLINE -lm -lreadline src/*.c
+$ ./npt
+*
+```
+
+## Windows
+```
+$ cc -o npt.exe -DLISP_WINDOWS -lm src/*.c
+$ ./npt.exe
+*
+```
+
+
+# License
 [The Unlicense](LICENSE)
 
 
-## Distribution
-
+# Distribution
 https://github.com/nptcl/npt
-
