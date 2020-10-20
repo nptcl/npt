@@ -177,6 +177,7 @@ format_float.c
 format_function.c
 format_parse.c
 format_print.c
+format_radix.c
 format.c
 function.c
 function_constant.c
@@ -266,7 +267,6 @@ process.c
 prompt.c
 prompt_for.c
 quote.c
-radix.c
 random_float.c
 random_state.c
 random.c

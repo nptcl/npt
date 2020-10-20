@@ -318,11 +318,13 @@
 ;;
 ;;  Macro DO-ALL-SYMBOLS
 ;;
+#-force-gc
 (deftest do-all-symbols.1
   (do-all-symbols (v)
     (declare (ignore v)))
   nil)
 
+#-force-gc
 (deftest do-all-symbols.2
   (let ((value 0))
     (do-all-symbols (x)
@@ -331,6 +333,7 @@
     (< 1 value))
   t)
 
+#-force-gc
 (deftest do-all-symbols.3
   (let ((value :hello))
     (do-all-symbols (v value)
@@ -345,6 +348,7 @@
       (return value)))
   1)
 
+#-force-gc
 (deftest do-all-symbols.5
   (let ((value 0))
     (do-all-symbols (x value)
@@ -365,11 +369,13 @@
 
 
 ;;  ANSI Common Lisp
+#-force-gc
 (deftest do-symbols-test.1
   (package-name
     (make-package 'do-symbols-test-1 :use nil))
   "DO-SYMBOLS-TEST-1")
 
+#-force-gc
 (deftest do-symbols-test.2
   (multiple-value-bind (x y) (intern "SHY" 'do-symbols-test-1)
     (values (package-name (symbol-package x))
@@ -377,10 +383,12 @@
             y))
   "DO-SYMBOLS-TEST-1" "SHY" nil)
 
+#-force-gc
 (deftest do-symbols-test.3
   (export (intern "BOLD" 'do-symbols-test-1) 'do-symbols-test-1)
   t)
 
+#-force-gc
 (deftest do-symbols-test.4
   (let ((lst ()))
     (do-symbols (s (find-package 'do-symbols-test-1))
@@ -393,6 +401,7 @@
   (("DO-SYMBOLS-TEST-1" "BOLD")
    ("DO-SYMBOLS-TEST-1" "SHY")))
 
+#-force-gc
 (deftest do-symbols-test.5
   (let ((lst ()))
     (do-external-symbols (s (find-package 'do-symbols-test-1) lst)
@@ -404,6 +413,7 @@
       (sort lst #'string< :key #'symbol-name)))
   (("DO-SYMBOLS-TEST-1" "BOLD")))
 
+#-force-gc
 (deftest do-symbols-test.6
   (let ((lst ()))
     (do-all-symbols (s lst)

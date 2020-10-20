@@ -22,6 +22,7 @@ static int setf_atom(addr pos)
 
 /*
  *  setf-values
+ *
  *  (define-setf-expander values (&rest form &environment env) ...)
  */
 _g int function_setf_values(Execute ptr, addr form, addr env)
@@ -77,6 +78,7 @@ _g int function_setf_values(Execute ptr, addr form, addr env)
 
 /*
  *  setf-getf
+ *
  *  (define-setf-expander getf (place indicator &optional default) ...)
  *  (get-setf-expansion '(getf x y))
  *    (g2)  ;; (indicator)
@@ -85,7 +87,7 @@ _g int function_setf_values(Execute ptr, addr form, addr env)
  *    (let ((g3 (system::setplist g2 g1 r)))  ;; key, value, plist
  *      (setq x g3)
  *      g1)
- *    (getf r g2 g4))
+ *    (getf r g2 g4)
  */
 _g int function_setf_getf(Execute ptr, addr form, addr env)
 {
@@ -146,8 +148,79 @@ error:
 
 
 /*
+ *  setf-apply
+ *
+ *  (define-setf-expander apply (call &rest args) ...)
+ *  (get-setf-expansion '(apply call x y z))
+ *    (g1 g2 g3)
+ *    (x y z)
+ *    (g)
+ *    (apply (function (setf call)) g g1 g2 g3)
+ *    (apply (function call) g1 g2 g3)
+ */
+_g int function_setf_apply(Execute ptr, addr form, addr env)
+{
+	addr args, call, pos, list, a, b, g, w, r;
+	addr apply, funct, setf;
+
+	GetConst(COMMON_APPLY, &apply);
+	GetConst(COMMON_FUNCTION, &funct);
+	GetConst(COMMON_SETF, &setf);
+
+	Return_getcdr(form, &args);
+	if (! consp_getcons(args, &call, &args))
+		goto error;
+
+	/* call check */
+	if (! consp_getcons(call, &call, &list))
+		goto error_call;
+	if (call != funct)
+		goto error_call;
+	if (! consp_getcons(list, &call, &list))
+		goto error_call;
+	if (! symbolp(call))
+		goto error_call;
+	if (list != Nil)
+		goto error_call;
+
+	/* gensym */
+	Return(make_gensym_(ptr, &g));
+	/* a */
+	a = Nil;
+	list = args;
+	while (list != Nil) {
+		Return_getcdr(list, &list);
+		Return(make_gensym_(ptr, &pos));
+		cons_heap(&a, pos, a);
+	}
+	/* b */
+	b = args;
+	/* w */
+	list_heap(&pos, setf, call, NULL);
+	list_heap(&pos, funct, pos, NULL);
+	lista_heap(&w, apply, pos, g, a, NULL);
+	/* r */
+	list_heap(&pos, funct, call, NULL);
+	list_heap(&r, apply, pos, a, NULL);
+	/* g */
+	conscar_heap(&g, g);
+	/* result */
+	setvalues_control(ptr, a, b, g, w, r, NULL);
+	return 0;
+
+error:
+	return fmte_("(setf apply) argument ~S "
+			"must be (call &rest args) form.", form, NULL);
+
+error_call:
+	return fmte_("APPLY argument ~S must be a (FUNCTION symbol) form.", call, NULL);
+}
+
+
+/*
  *  setf-symbol
- *    nil nil (#:g) (setq x #:g) x
+ *
+ *  nil nil (#:g) (setq x #:g) x
  */
 static int setf_symbol_(Execute ptr, addr form,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)

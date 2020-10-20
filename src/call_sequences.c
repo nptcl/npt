@@ -3670,6 +3670,7 @@ static int list_reverse_remove_sequence(
 	Return(before_sequence_write_(ret, range));
 	/* between start and end */
 	push_local(local, &stack);
+	gchold_push_local(local, ret->pos);
 	vector_local(local, &table, range->size);
 	Return(reverse_list_local_remove_sequence(str, ret, table));
 	rollback_local(local, stack);

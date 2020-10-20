@@ -65,6 +65,25 @@ static void defun_apply(void)
 }
 
 
+/* (define-setf-expander apply (place indicator &optional default) ...)
+ *   place      t
+ *   default    t   ;; default nil
+ *   value      t
+ */
+static void define_setf_expander_apply(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_APPLY, &symbol);
+	compiled_macro_system(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_setf_apply);
+	SetSetfMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /* (defmacro defun (name lambda-list &rest body) ...) */
 static int function_defun(Execute ptr, addr right, addr env)
 {
@@ -1744,6 +1763,7 @@ static void defmacro_rotatef(void)
 _g void init_common_data(void)
 {
 	SetPointerCall(defun,     var2dynamic,  apply);
+	SetPointerCall(defmacro,  macro,        setf_apply);
 	SetPointerCall(defmacro,  macro,        defun);
 	SetPointerCall(defun,     var1,         fdefinition);
 	SetPointerCall(defun,     var2,         setf_fdefinition);
@@ -1808,6 +1828,7 @@ _g void init_common_data(void)
 _g void build_common_data(void)
 {
 	defun_apply();
+	define_setf_expander_apply();
 	defmacro_defun();
 	defun_fdefinition();
 	defun_setf_fdefinition();

@@ -185,6 +185,7 @@ enum pointer_index {
 	p_defun_type_error_expected_type,
 	/* common-data */
 	p_defun_apply,
+	p_defmacro_setf_apply,
 	p_defmacro_defun,
 	p_defun_fdefinition,
 	p_defun_setf_fdefinition,

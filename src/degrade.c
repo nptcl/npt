@@ -53,11 +53,11 @@ int test_format_parse(void);
 int test_format_print(void);
 int test_format_function(void);
 int test_format_float(void);
+int test_format_radix(void);
 int test_format(void);
 int test_bignum_cons(void);
 int test_bignum_data(void);
 int test_bignum(void);
-int test_radix(void);
 int test_ratio(void);
 int test_ratio_equal(void);
 int test_ratio_plus(void);
@@ -167,7 +167,6 @@ void degrade_execute(void)
 	DegradeCheck(test_bignum_cons);
 	DegradeCheck(test_bignum_data);
 	DegradeCheck(test_bignum);
-	DegradeCheck(test_radix);
 	DegradeCheck(test_ratio);
 	DegradeCheck(test_ratio_equal);
 	DegradeCheck(test_ratio_plus);
@@ -218,6 +217,7 @@ void degrade_execute(void)
 	DegradeCheck(test_format_print);
 	DegradeCheck(test_format_function);
 	DegradeCheck(test_format_float);
+	DegradeCheck(test_format_radix);
 	DegradeCheck(test_format);
 	DegradeCheck(test_print);
 	DegradeCheck(test_stream);

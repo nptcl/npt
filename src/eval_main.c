@@ -241,7 +241,8 @@ _g int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call)
 			break;
 	}
 
-	return terpri_stream_(stream);
+	Return(terpri_stream_(stream));
+	return finish_output_stream_(stream);
 }
 
 static int eval_main_execute(Execute ptr, addr stream, addr pos, int *exit, int *exec)

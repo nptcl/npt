@@ -597,11 +597,11 @@ _g int array_set_(addr pos, size_t index, addr value)
 
 	if (GetStatusReadOnly(pos))
 		return fmte_("Object ~S is constant.", pos, NULL);
-	Return(arraymemory_get_(pos, index, &mem, &index, &check))
-		if (check)
-			return arraymemory_set_(pos, mem, index, value);
-		else
-			return setelt_sequence_(mem, index, value);
+	Return(arraymemory_get_(pos, index, &mem, &index, &check));
+	if (check)
+		return arraymemory_set_(pos, mem, index, value);
+	else
+		return setelt_sequence_(mem, index, value);
 }
 
 
@@ -641,7 +641,7 @@ static int array1arefindex_(addr pos, addr args, struct array_struct *str, size_
 		return fmte_("Subscripts ~S too many arguments.", args, NULL);
 	if (GetIndex_integer(arg, &index))
 		return fmte_("Invalid subscript argument ~S.", arg, NULL);
-	if (str->front <= index)
+	if (str->size <= index)
 		return fmte_("Subscript ~S is too large.", arg, NULL);
 
 	return Result(ret, index);

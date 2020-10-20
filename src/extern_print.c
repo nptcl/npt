@@ -119,6 +119,52 @@ int lisp_stdout32_(const void *str, ...)
 
 
 /*
+ *  stderr
+ */
+int lisp_stderr8_(const void *str, ...)
+{
+	addr format, args, stream;
+	va_list va;
+
+	Return(lisp0_string8_(&format, str));
+	va_start(va, str);
+	lisp0_list_va(&args, va);
+	va_end(va);
+
+	Return(error_output_stream_(Execute_Thread, &stream));
+	return lisp_format_call_(stream, format, args);
+}
+
+int lisp_stderr16_(const void *str, ...)
+{
+	addr format, args, stream;
+	va_list va;
+
+	Return(lisp0_string16_(&format, str));
+	va_start(va, str);
+	lisp0_list_va(&args, va);
+	va_end(va);
+
+	Return(error_output_stream_(Execute_Thread, &stream));
+	return lisp_format_call_(NULL, format, args);
+}
+
+int lisp_stderr32_(const void *str, ...)
+{
+	addr format, args, stream;
+	va_list va;
+
+	Return(lisp0_string32_(&format, str));
+	va_start(va, str);
+	lisp0_list_va(&args, va);
+	va_end(va);
+
+	Return(error_output_stream_(Execute_Thread, &stream));
+	return lisp_format_call_(NULL, format, args);
+}
+
+
+/*
  *  stringf
  */
 static int lisp_format_string_call_(addr format, addr args, addr *ret)

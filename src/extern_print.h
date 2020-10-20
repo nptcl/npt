@@ -15,6 +15,11 @@ int lisp_stdout8_(const void *str, ...);
 int lisp_stdout16_(const void *str, ...);
 int lisp_stdout32_(const void *str, ...);
 
+/* stderr */
+int lisp_stderr8_(const void *str, ...);
+int lisp_stderr16_(const void *str, ...);
+int lisp_stderr32_(const void *str, ...);
+
 /* stringf */
 int lisp0_stringf8_(addr *ret, const void *str, ...);
 int lisp0_stringf16_(addr *ret, const void *str, ...);

@@ -2938,9 +2938,9 @@ static int testcase_reader(void)
 	TestBreak(test_octal_dispatch);
 	TestBreak(test_hexadecimal_dispatch);
 	TestBreak(test_complex_dispatch);
-	//TestBreak(test_array_dispatch); /* TODO */
+	TestBreak(test_array_dispatch);
 	TestBreak(test_pathname_dispatch);
-	//TestBreak(test_structure_dispatch); /* TODO */
+	TestBreak(test_structure_dispatch);
 	/* basic object */
 	TestBreak(test_basic_token);
 #endif

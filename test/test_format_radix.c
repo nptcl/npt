@@ -1,4 +1,4 @@
-#include "radix.c"
+#include "format_radix.c"
 #include "character.h"
 #include "clos.h"
 #include "code.h"
@@ -1009,14 +1009,14 @@ static int test_english_output(void)
 	push_local(local, &stack);
 	open_output_string_stream(&stream, 0);
 
-	strvect_char_local(local, &pos1, "cc"),
-	strvect_char_local(local, &pos2, "dd"),
-	strvect_char_local(local, &pos3, "ee"),
+	strvect_char_local(local, &pos1, "cc");
+	strvect_char_local(local, &pos2, "dd");
+	strvect_char_local(local, &pos3, "ee");
 	list_local(local, &cons, pos1, pos2, pos3, NULL);
 
-	strvect_char_local(local, &pos1, "aa"),
-	strvect_char_local(local, &pos2, "bb"),
-	strvect_char_local(local, &pos3, "ff"),
+	strvect_char_local(local, &pos1, "aa");
+	strvect_char_local(local, &pos2, "bb");
+	strvect_char_local(local, &pos3, "ff");
 	list_local(local, &cons, pos1, pos2, cons, pos3, NULL);
 	input.root = cons;
 	english_output_(stream, &input, 0);
@@ -1229,7 +1229,7 @@ static int test_roma_integer(void)
 /*
  *  Main
  */
-static int testcase_radix(void)
+static int testcase_format_radix(void)
 {
 	/* english */
 	TestBreak(test_name_standard_char);
@@ -1268,7 +1268,7 @@ static int testcase_radix(void)
 	return 0;
 }
 
-static void testinit_radix(Execute ptr)
+static void testinit_format_radix(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -1288,9 +1288,9 @@ static void testinit_radix(Execute ptr)
 	build_code();
 }
 
-int test_radix(void)
+int test_format_radix(void)
 {
 	DegradeTitle;
-	return DegradeCode(radix);
+	return DegradeCode(format_radix);
 }
 

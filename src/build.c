@@ -302,11 +302,19 @@ static void set_features(void)
 #ifdef LISP_FLOAT_LONG_128
 	push_features("LONG-FLOAT-128");
 #endif
+
+#ifdef LISP_DEBUG
+#ifdef LISP_DEBUG_FORCE_GC
+	push_features("FORCE-GC");
+#endif
+#endif
+
 #if 0
 #ifdef LISP_THREAD_ENABLE
 	push_features("THREAD");
 #endif
 #endif
+
 #ifdef LISP_EXTENSION
 	push_features("EXTENSION");
 #endif

@@ -463,6 +463,7 @@
     "format_function.h"
     "format_parse.h"
     "format_print.h"
+    "format_radix.h"
     "format.h"
     "function.h"
     "hashtable.h"
@@ -517,7 +518,6 @@
     "prompt.h"
     "prompt_for.h"
     "quote.h"
-    "radix.h"
     "random.h"
     "random_float.h"
     "random_state.h"
@@ -799,6 +799,7 @@
     "format_function.c"
     "format_parse.c"
     "format_print.c"
+    "format_radix.c"
     "format.c"
     "function.c"
     "function_constant.c"
@@ -872,7 +873,6 @@
     ("prompt.c" :header t)
     "prompt_for.c"
     "quote.c"
-    "radix.c"
     "random_float.c"
     ("random_state.c" :header t)
     "random.c"
