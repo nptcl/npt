@@ -7,6 +7,8 @@
 #include "prompt_for.h"
 #include "reader.h"
 #include "stream.h"
+#include "stream_common.h"
+#include "stream_function.h"
 #include "strtype.h"
 #include "typedef.h"
 #include "type_parse.h"

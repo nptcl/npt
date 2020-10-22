@@ -11,6 +11,7 @@
 #include "reader_token.h"
 #include "reader_type.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "symbol.h"
 

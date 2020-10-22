@@ -16,6 +16,7 @@
 #include "make_load_form.h"
 #include "pathname.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_init.h"
 #include "symbol.h"
 

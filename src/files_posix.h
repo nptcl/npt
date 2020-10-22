@@ -23,6 +23,7 @@
 #include "pathname.h"
 #include "sequence.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -847,7 +848,7 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 	}
 	/* stream */
 	if (streamp(pos)) {
-		Return(close_stream_(pos));
+		Return(close_stream_(pos, NULL));
 	}
 
 	return Result(ret, 1);
@@ -914,7 +915,7 @@ _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 	}
 	/* stream */
 	if (streamp(pos)) {
-		Return(close_stream_(pos));
+		Return(close_stream_(pos, NULL));
 	}
 
 	return Result(ret, 1);

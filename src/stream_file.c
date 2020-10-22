@@ -2,6 +2,7 @@
 #include "file.h"
 #include "stream_error.h"
 #include "stream_file.h"
+#include "stream_variable.h"
 #include "stream.h"
 
 _g void init_stream_binary_input(void)

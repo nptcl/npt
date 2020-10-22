@@ -2,6 +2,7 @@
 #include "compile_typedef.h"
 #include "condition.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "typedef.h"
 
 /*

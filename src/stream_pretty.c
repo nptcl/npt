@@ -10,8 +10,10 @@
 #include "print_pretty.h"
 #include "stream.h"
 #include "stream_error.h"
+#include "stream_function.h"
 #include "stream_pretty.h"
 #include "stream_string.h"
+#include "stream_variable.h"
 #include "strtype.h"
 #include "symbol.h"
 

@@ -1,8 +1,10 @@
 #include "condition.h"
 #include "object.h"
-#include "stream_error.h"
-#include "stream_twoway.h"
 #include "stream.h"
+#include "stream_error.h"
+#include "stream_function.h"
+#include "stream_twoway.h"
+#include "stream_variable.h"
 
 #define CheckTwoWayStream(stream) { \
 	Check(! twoway_stream_p(stream), "type error"); \

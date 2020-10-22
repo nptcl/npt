@@ -2,10 +2,12 @@
 #include "control_object.h"
 #include "file.h"
 #include "prompt.h"
+#include "stream.h"
 #include "stream_error.h"
+#include "stream_function.h"
 #include "stream_prompt.h"
 #include "stream_string.h"
-#include "stream.h"
+#include "stream_variable.h"
 #include "symbol.h"
 
 #define CheckPromptStream(stream) { \

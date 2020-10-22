@@ -9,6 +9,7 @@
 #include "hold.h"
 #include "print_pretty.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "stream_pretty.h"
 #include "strtype.h"

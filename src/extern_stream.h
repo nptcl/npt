@@ -2,6 +2,7 @@
 #define __LISP_EXTERN_STREAM_HEADER__
 
 #include <stddef.h>
+#include "stream_variable.h"
 #include "typedef_basic.h"
 #include "typedef_stream.h"
 

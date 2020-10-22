@@ -10,6 +10,7 @@
 #include "stream_broadcast.h"
 #include "stream_concat.h"
 #include "stream_echo.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "stream_synonym.h"
 #include "stream_twoway.h"

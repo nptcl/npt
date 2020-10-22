@@ -7,6 +7,7 @@
 #include "hold.h"
 #include "stream.h"
 #include "stream_error.h"
+#include "stream_variable.h"
 #include "typedef.h"
 
 /*

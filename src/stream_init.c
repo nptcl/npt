@@ -10,12 +10,14 @@
 #include "stream_echo.h"
 #include "stream_error.h"
 #include "stream_file.h"
+#include "stream_function.h"
 #include "stream_init.h"
 #include "stream_pretty.h"
 #include "stream_prompt.h"
 #include "stream_string.h"
 #include "stream_synonym.h"
 #include "stream_twoway.h"
+#include "stream_variable.h"
 #include "symbol.h"
 
 /*
@@ -76,7 +78,7 @@ static int finalize_close_stream(Execute ptr)
 
 	getdata_control(ptr, &stream);
 	CheckType(stream, LISPTYPE_STREAM);
-	return close_stream_(stream);
+	return close_stream_(stream, NULL);
 }
 
 _g void push_close_stream(Execute ptr, addr stream)

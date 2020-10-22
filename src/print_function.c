@@ -13,6 +13,7 @@
 #include "print_write.h"
 #include "sequence.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "strvect.h"
 #include "stream_pretty.h"
 #include "symbol.h"

@@ -7,8 +7,9 @@
 #include "bignum_object.h"
 #include "bignum_output.h"
 #include "token.h"
-#include "stream_string.h"
 #include "stream.h"
+#include "stream_function.h"
+#include "stream_string.h"
 
 /*
  *  output

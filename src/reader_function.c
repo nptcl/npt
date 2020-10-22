@@ -28,6 +28,7 @@
 #include "reader_token.h"
 #include "real.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "structure.h"
 #include "symbol.h"
 
@@ -148,7 +149,7 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 	for (;;) {
 		Return(read_char_stream_(stream, &c, &check));
 		if (check)
-			return fmte_("Don't allow end-of-file in the parensis.", NULL);
+			return call_end_of_file_(ptr, stream);
 		Return(readtable_typetable_(table, c, &type));
 		if (type == ReadTable_Type_whitespace) {
 			/* discard character */
@@ -590,7 +591,7 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 	for (;;) {
 		Return(read_char_stream_(stream, &c, &check));
 		if (check)
-			return fmte_("Don't allow end-of-file in the parensis.", NULL);
+			return call_end_of_file_(ptr, stream);
 		Return(readtable_typetable_(table, c, &type));
 		if (type == ReadTable_Type_whitespace)
 			continue;

@@ -8,9 +8,11 @@
 #include "eastasian_unicode.h"
 #include "integer.h"
 #include "object.h"
-#include "stream_error.h"
-#include "stream_string.h"
 #include "stream.h"
+#include "stream_error.h"
+#include "stream_function.h"
+#include "stream_string.h"
+#include "stream_variable.h"
 #include "strtype.h"
 #include "strvect.h"
 

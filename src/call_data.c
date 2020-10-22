@@ -18,6 +18,7 @@
 #include "sequence.h"
 #include "setf.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -1104,7 +1105,7 @@ static int function_ccase_string(Execute ptr,
 
 	Return(write_char_stream_(stream, '.'));
 	Return(string_stream_heap_(stream, ret));
-	Return(close_stream_(stream));
+	Return(close_stream_(stream, NULL));
 	nreverse(rtype, list);
 
 	return 0;

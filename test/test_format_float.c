@@ -1,4 +1,5 @@
 #include "format_float.c"
+#include "stream_function.h"
 #include "degrade.h"
 
 /*

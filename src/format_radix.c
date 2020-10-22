@@ -14,6 +14,7 @@
 #include "object.h"
 #include "sequence.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "strvect.h"
 #include "typedef.h"
 

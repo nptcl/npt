@@ -17,6 +17,7 @@
 #include "print_pretty.h"
 #include "print_write.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"

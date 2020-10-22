@@ -28,6 +28,8 @@
 #include "stream.h"
 #include "stream_broadcast.h"
 #include "stream_echo.h"
+#include "stream_function.h"
+#include "stream_open.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -412,7 +414,7 @@ static int ed_function_write_call_(Execute ptr, addr file, addr lambda)
 	Return(right_margin_print_(ptr, file, &width));
 	Return(push_right_margin_print_(ptr, width));
 	Return(prin1_print(ptr, file, lambda));
-	Return(close_stream_(file));
+	Return(close_stream_(file, NULL));
 
 	return 0;
 }
@@ -589,9 +591,9 @@ static int dribble_close_stream(Execute ptr)
 	Return(setvalue_symbol_(dbroadcast, Unbound));
 	Return(setvalue_symbol_(sinput, input));
 	Return(setvalue_symbol_(soutput, output));
-	Return(close_stream_(echo));
-	Return(close_stream_(broadcast));
-	Return(close_stream_(file));
+	Return(close_stream_(echo, NULL));
+	Return(close_stream_(broadcast, NULL));
+	Return(close_stream_(file, NULL));
 
 	return 0;
 }

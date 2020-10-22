@@ -6,6 +6,7 @@
 #include "format.h"
 #include "step_prompt.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_prompt.h"
 #include "strtype.h"
 #include "symbol.h"

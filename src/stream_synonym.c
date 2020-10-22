@@ -2,7 +2,9 @@
 #include "object.h"
 #include "stream.h"
 #include "stream_error.h"
+#include "stream_function.h"
 #include "stream_synonym.h"
+#include "stream_variable.h"
 #include "symbol.h"
 
 #define CheckSynonymStream(stream) { \

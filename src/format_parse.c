@@ -12,6 +12,7 @@
 #include "format_parse.h"
 #include "format_typedef.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "strvect.h"

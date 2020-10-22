@@ -12,6 +12,7 @@
 #include "define.h"
 #include "format_float.h"
 #include "stream.h"
+#include "stream_function.h"
 
 #define FMTDECIMAL_FLOAT_PARSE	"%+20.10e"
 #define FMTDECIMAL_DOUBLE_PARSE	"%+30.20e"

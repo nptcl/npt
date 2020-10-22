@@ -8,6 +8,7 @@
 #include "execute.h"
 #include "hold.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "typedef.h"
 
 static int eval_compile_load_loop(Execute ptr, addr stream)

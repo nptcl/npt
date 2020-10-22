@@ -14,6 +14,9 @@
 #include "pathname.h"
 #include "sequence.h"
 #include "stream.h"
+#include "stream_common.h"
+#include "stream_function.h"
+#include "stream_open.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "type_parse.h"
@@ -745,7 +748,7 @@ _g int close_common(Execute ptr, addr pos, addr rest, addr *ret)
 		pushspecial_control(ptr, abort, T);
 	}
 
-	return close_stream_common(pos, ret);
+	return close_stream_(pos, ret);
 }
 
 

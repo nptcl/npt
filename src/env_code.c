@@ -12,6 +12,7 @@
 #include "function.h"
 #include "integer.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "symbol.h"
 
 #define Fmt1(x) Return(format_stream(ptr, stream, x, NULL))

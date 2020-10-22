@@ -15,6 +15,7 @@
 #include "stream_concat.h"
 #include "stream_echo.h"
 #include "stream_file.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "stream_synonym.h"
 #include "stream_twoway.h"
@@ -121,7 +122,7 @@ static int test_type_name_stream(void)
 	strvect_char_heap(&y, "test/empty.file");
 	open_input_stream_error_(Execute_Thread, &y, y);
 	type_name_(y, &x);
-	close_stream_(y);
+	close_stream_(y, NULL);
 	GetConst(COMMON_FILE_STREAM, &y);
 	test(x == y, "type_name_stream7");
 

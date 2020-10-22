@@ -14,6 +14,7 @@
 #include "print_write.h"
 #include "reader.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "symbol.h"
 #include "type_object.h"

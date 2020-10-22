@@ -2,6 +2,8 @@
 #include "object.h"
 #include "stream_echo.h"
 #include "stream_error.h"
+#include "stream_function.h"
+#include "stream_variable.h"
 #include "stream.h"
 
 #define CheckEchoStream(stream) { \

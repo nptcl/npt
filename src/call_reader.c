@@ -12,6 +12,7 @@
 #include "reader_function.h"
 #include "reader_table.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "symbol.h"
 #include "strtype.h"
@@ -92,8 +93,9 @@ _g int read_common(Execute ptr, addr args, addr *ret)
 	if (consp(args)) {
 		GetCons(args, &error, &args);
 	}
-	else
-		error = Nil;
+	else {
+		error = T;
+	}
 	/* eof */
 	if (consp(args)) {
 		GetCons(args, &eof, &args);
@@ -150,8 +152,9 @@ _g int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
 	if (consp(args)) {
 		GetCons(args, &error, &args);
 	}
-	else
-		error = Nil;
+	else {
+		error = T;
+	}
 	/* eof */
 	if (consp(args)) {
 		GetCons(args, &eof, &args);
@@ -234,7 +237,7 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 		pos = eof;
 	}
 	getindex_input_stream(stream, &size);
-	Return(close_stream_(stream));
+	Return(close_stream_(stream, NULL));
 
 	/* result */
 	*ret = pos;

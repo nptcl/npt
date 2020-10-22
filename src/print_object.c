@@ -12,6 +12,7 @@
 #include "print_object.h"
 #include "print_write.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "structure.h"
 #include "symbol.h"
 #include "type_table.h"

@@ -3,6 +3,8 @@
 #include "object.h"
 #include "stream_broadcast.h"
 #include "stream_error.h"
+#include "stream_function.h"
+#include "stream_variable.h"
 #include "stream.h"
 
 #define CheckBroadCastStream(stream) { \

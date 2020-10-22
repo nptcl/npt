@@ -17,6 +17,7 @@
 #include "print_write.h"
 #include "rt.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "symbol.h"
 #include "type_parse.h"
 #include "type_table.h"

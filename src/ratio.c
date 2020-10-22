@@ -13,6 +13,7 @@
 #include "ratio.h"
 #include "ratio_equal.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "stream_string.h"
 #include "strtype.h"
 

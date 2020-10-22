@@ -7,6 +7,7 @@
 #include "prompt.h"
 #include "reader.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "strvect.h"
 #include "symbol.h"
 

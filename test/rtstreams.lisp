@@ -69,3 +69,14 @@
                          :if-does-not-exist :create)
      ,@body))
 
+(defmacro with-overwrite-and-delete ((var file &rest args) &body body)
+  (let ((g (gensym)))
+    `(let ((,g ,file))
+       (with-open-file (,var ,g ,@args :direction :output
+                             :if-exists :supersede
+                             :if-does-not-exist :create)
+         (unwind-protect
+           (progn ,@body)
+           (when (probe-file ,g)
+             (delete-file ,g)))))))
+

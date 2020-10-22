@@ -3,6 +3,8 @@
 #include "object.h"
 #include "stream_concat.h"
 #include "stream_error.h"
+#include "stream_function.h"
+#include "stream_variable.h"
 #include "stream.h"
 
 #define CheckConcatenatedStream(stream) { \
