@@ -50,6 +50,7 @@
 #include "sort.h"
 #include "stream.h"
 #include "stream_function.h"
+#include "stream_open.h"
 #include "stream_pretty.h"
 #include "stream_string.h"
 #include "strtype.h"
@@ -1153,6 +1154,12 @@ _g int parse_type_syscode(Execute ptr, addr var, addr *ret)
 _g int type_object_syscode(addr var, addr *ret)
 {
 	return type_object_(ret, var);
+}
+
+/* upgraded-open-element-type */
+_g int upgraded_open_element_type_syscode_(addr var, addr *ret)
+{
+	return upgrade_open_element_type_stream_(var, ret);
 }
 
 /* extension */

@@ -68,7 +68,7 @@ static int readf_binary_Concatenated(addr stream, void *pos, size_t size, size_t
 	return readf_binary_stream_(stream, pos, size, ret);
 }
 
-static int read_byte_Concatenated(addr stream, byte *c, int *ret)
+static int read_byte_Concatenated(addr stream, addr *value, int *ret)
 {
 	int check;
 	addr list, pos;
@@ -79,7 +79,7 @@ static int read_byte_Concatenated(addr stream, byte *c, int *ret)
 		if (list == Nil)
 			return Result(ret, 1);
 		Return_getcons(list, &pos, &list);
-		Return(read_byte_stream_(pos, c, &check));
+		Return(read_byte_stream_(pos, value, &check));
 		if (! check)
 			break;
 		SetInfoStream(stream, list);
@@ -143,15 +143,6 @@ static int unread_char_Concatenated(addr stream, unicode c)
 		return unread_char_stream_(stream, c);
 
 	return 0;
-}
-
-static int outputp_Concatenated(addr stream, int *ret)
-{
-	current_concatenated(stream, &stream);
-	if (stream == Nil)
-		return Result(ret, 0);
-	else
-		return outputp_stream_(stream, ret);
 }
 
 static int interactivep_Concatenated(addr stream, int *ret)
@@ -233,7 +224,7 @@ _g void init_stream_concatenated(void)
 	DefineStream___(Concatenated, setleft);
 	DefineStream___(Concatenated, fresh_line);
 	DefineStreamChk(Concatenated, inputp, true);
-	DefineStreamSet(Concatenated, outputp);
+	DefineStreamChk(Concatenated, outputp, false);
 	DefineStreamSet(Concatenated, interactivep);
 	DefineStreamSet(Concatenated, characterp);
 	DefineStreamSet(Concatenated, binaryp);

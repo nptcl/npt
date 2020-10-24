@@ -25,6 +25,8 @@
 #define debug_io_stream_ _n(debug_io_stream_)
 #define query_io_stream_ _n(query_io_stream_)
 #define output_stream_designer_ _n(output_stream_designer_)
+#define read_unsigned8_stream_ _n(read_unsigned8_stream_)
+#define write_unsigned8_stream_ _n(write_unsigned8_stream_)
 
 #define update_standard_stream _n(update_standard_stream)
 #define save_stream _n(save_stream)
@@ -46,6 +48,10 @@ _g int terminal_io_stream_(Execute ptr, addr *ret);
 _g int debug_io_stream_(Execute ptr, addr *ret);
 _g int query_io_stream_(Execute ptr, addr *ret);
 _g int output_stream_designer_(Execute ptr, addr stream, addr *ret);
+
+/* wrapper */
+_g int read_unsigned8_stream_(addr stream, byte *value, int *ret);
+_g int write_unsigned8_stream_(addr stream, byte value);
 
 /* core */
 _g void update_standard_stream(void);

@@ -42,11 +42,11 @@ _g int readf_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
 	return (Stream_readf_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-_g int read_byte_stream_(addr stream, byte *c, int *ret)
+_g int read_byte_stream_(addr stream, addr *value, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_read_byte[(int)ptr->type])(stream, c, ret);
+	return (Stream_read_byte[(int)ptr->type])(stream, value, ret);
 }
 
 _g int unread_byte_stream_(addr stream, byte c)
@@ -63,11 +63,11 @@ _g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *r
 	return (Stream_write_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-_g int write_byte_stream_(addr stream, byte c)
+_g int write_byte_stream_(addr stream, addr pos)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_write_byte[(int)ptr->type])(stream, c);
+	return (Stream_write_byte[(int)ptr->type])(stream, pos);
 }
 
 _g int read_char_stream_(addr stream, unicode *c, int *ret)

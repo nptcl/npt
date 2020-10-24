@@ -56,7 +56,7 @@ static int write_binary_BroadCast(addr stream,
 	return 0;
 }
 
-static int write_byte_BroadCast(addr stream, byte c)
+static int write_byte_BroadCast(addr stream, addr value)
 {
 	addr list, pos;
 
@@ -64,7 +64,7 @@ static int write_byte_BroadCast(addr stream, byte c)
 	GetInfoStream(stream, &list);
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		Return(write_byte_stream_(pos, c));
+		Return(write_byte_stream_(pos, value));
 	}
 
 	return 0;

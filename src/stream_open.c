@@ -2,6 +2,7 @@
 #include "character_queue.h"
 #include "condition.h"
 #include "condition_define.h"
+#include "constant.h"
 #include "file_open.h"
 #include "files.h"
 #include "integer.h"
@@ -10,8 +11,122 @@
 #include "stream_function.h"
 #include "stream_open.h"
 #include "strtype.h"
+#include "type_parse.h"
+#include "type_table.h"
+#include "type_subtypep.h"
 #include "typedef.h"
 
+/*
+ *  upgraded-open-element-type
+ */
+_g int upgrade_open_element_type_stream_(addr var, addr *ret)
+{
+	*ret = Nil;
+	return 0;
+}
+
+_g int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret)
+{
+	int result;
+	addr check, type;
+
+	/* default */
+	if (value == Unbound)
+		return Result(ret, Stream_Open_Element_Character);
+
+	/* :default */
+	GetConst(KEYWORD_DEFAULT, &check);
+	if (value == check)
+		return Result(ret, Stream_Open_Element_Character);
+
+	/* unsigned-byte */
+	GetConst(COMMON_UNSIGNED_BYTE, &check);
+	if (value == check)
+		return Result(ret, Stream_Open_Element_Unsigned8);
+
+	/* character */
+	GetConst(COMMON_CHARACTER, &check);
+	if (value == check)
+		return Result(ret, Stream_Open_Element_Character);
+
+	/* type */
+	if (parse_type(ptr, &check, value, Nil))
+		goto error;
+
+	/* Unicode */
+	GetTypeTable(&type, Character);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Character);
+
+	/* bit */
+	GetTypeTable(&type, Bit);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Unsigned8);
+
+	/* (unsigned-byte 8) */
+	GetTypeTable(&type, Unsigned8);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Unsigned8);
+
+	/* (unsigned-byte 16) */
+	GetTypeTable(&type, Unsigned16);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Unsigned16);
+
+	/* (unsigned-byte 32) */
+	GetTypeTable(&type, Unsigned32);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Unsigned32);
+
+#ifdef LISP_ARCH_64BIT
+	/* (unsigned-byte 64) 64-bit only */
+	GetTypeTable(&type, Unsigned64);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Unsigned64);
+#endif
+
+	/* (signed-byte 8) */
+	GetTypeTable(&type, Signed8);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Signed8);
+
+	/* (signed-byte 16) */
+	GetTypeTable(&type, Signed16);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Signed16);
+
+	/* (signed-byte 32) */
+	GetTypeTable(&type, Signed32);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Signed32);
+
+#ifdef LISP_ARCH_64BIT
+	/* (signed-byte 64) 64-bit only */
+	GetTypeTable(&type, Signed64);
+	Return(subtypep_clang_(check, type, &result, NULL));
+	if (result)
+		return Result(ret, Stream_Open_Element_Signed64);
+#endif
+
+	/* error */
+error:
+	*ret = Stream_Open_Element_Character;
+	return fmte_("Invalid :element-type value ~S.", value, NULL);
+}
+
+
+/*
+ *  open
+ */
 static int open_make_empty_stream_(Execute ptr, addr file)
 {
 	addr stream;
@@ -216,13 +331,43 @@ static int open_direct_input_stream_(Execute ptr, addr *ret, addr pos,
 
 	/* :element-type */
 	switch (type) {
-		case Stream_Open_Element_Binary:
-			Return(open_input_binary_stream_(ptr, &stream, pos));
-			break;
-
 		case Stream_Open_Element_Character:
 			Return(open_external_input_stream_(ptr, &stream, pos, ext));
 			break;
+
+		case Stream_Open_Element_Unsigned8:
+			Return(open_input_binary_stream_(ptr, &stream, pos));
+			break;
+
+		case Stream_Open_Element_Unsigned16:
+			Return(open_input_unsigned16_stream_(ptr, &stream, pos));
+			break;
+
+		case Stream_Open_Element_Unsigned32:
+			Return(open_input_unsigned32_stream_(ptr, &stream, pos));
+			break;
+
+		case Stream_Open_Element_Signed8:
+			Return(open_input_signed8_stream_(ptr, &stream, pos));
+			break;
+
+		case Stream_Open_Element_Signed16:
+			Return(open_input_signed16_stream_(ptr, &stream, pos));
+			break;
+
+		case Stream_Open_Element_Signed32:
+			Return(open_input_signed32_stream_(ptr, &stream, pos));
+			break;
+
+#ifdef LISP_64BIT
+		case Stream_Open_Element_Unsigned64:
+			Return(open_input_unsigned64_stream_(ptr, &stream, pos));
+			break;
+
+		case Stream_Open_Element_Signed64:
+			Return(open_input_signed64_stream_(ptr, &stream, pos));
+			break;
+#endif
 
 		default:
 			*ret = Nil;
@@ -311,13 +456,43 @@ static int open_direct_output_stream_(Execute ptr, addr *ret, addr pos,
 
 	/* :element-type */
 	switch (type) {
-		case Stream_Open_Element_Binary:
-			Return(open_output_binary_stream_(ptr, &stream, pos, mode));
-			break;
-
 		case Stream_Open_Element_Character:
 			Return(open_external_output_stream_(ptr, &stream, pos, ext, mode));
 			break;
+
+		case Stream_Open_Element_Unsigned8:
+			Return(open_output_binary_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Unsigned16:
+			Return(open_output_unsigned16_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Unsigned32:
+			Return(open_output_unsigned32_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed8:
+			Return(open_output_signed8_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed16:
+			Return(open_output_signed16_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed32:
+			Return(open_output_signed32_stream_(ptr, &stream, pos, mode));
+			break;
+
+#ifdef LISP_64BIT
+		case Stream_Open_Element_Unsigned64:
+			Return(open_output_unsigned64_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed64:
+			Return(open_output_signed64_stream_(ptr, &stream, pos, mode));
+			break;
+#endif
 
 		default:
 			*ret = Nil;
@@ -406,13 +581,43 @@ static int open_direct_io_stream_(Execute ptr, addr *ret, addr pos,
 
 	/* :element-type */
 	switch (type) {
-		case Stream_Open_Element_Binary:
-			Return(open_io_binary_stream_(ptr, &stream, pos, mode));
-			break;
-
 		case Stream_Open_Element_Character:
 			Return(open_external_io_stream_(ptr, &stream, pos, ext, mode));
 			break;
+
+		case Stream_Open_Element_Unsigned8:
+			Return(open_io_binary_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Unsigned16:
+			Return(open_io_unsigned16_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Unsigned32:
+			Return(open_io_unsigned32_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed8:
+			Return(open_io_signed8_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed16:
+			Return(open_io_signed16_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed32:
+			Return(open_io_signed32_stream_(ptr, &stream, pos, mode));
+			break;
+
+#ifdef LISP_64BIT
+		case Stream_Open_Element_Unsigned64:
+			Return(open_io_unsigned64_stream_(ptr, &stream, pos, mode));
+			break;
+
+		case Stream_Open_Element_Signed64:
+			Return(open_io_signed64_stream_(ptr, &stream, pos, mode));
+			break;
+#endif
 
 		default:
 			*ret = Nil;

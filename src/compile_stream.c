@@ -21,12 +21,12 @@ _g int faslwrite_buffer_(addr stream, const void *ptr, size_t size)
 
 _g int faslwrite_type_(addr stream, enum FaslCode code)
 {
-	return write_byte_stream_(stream, (byte)code);
+	return write_unsigned8_stream_(stream, (byte)code);
 }
 
 _g int faslwrite_byte_(addr stream, byte value)
 {
-	return write_byte_stream_(stream, value);
+	return write_unsigned8_stream_(stream, value);
 }
 
 
@@ -56,7 +56,7 @@ _g int faslread_type_(addr stream, enum FaslCode *ret)
 	int check;
 	byte c;
 
-	Return(read_byte_stream_(stream, &c, &check));
+	Return(read_unsigned8_stream_(stream, &c, &check));
 	if (check) {
 		*ret = FaslCode_error;
 		return fmte_("read-byte-stream error.", NULL);
@@ -80,7 +80,7 @@ _g int faslread_byte_(addr stream, byte *ret)
 {
 	int check;
 
-	Return(read_byte_stream_(stream, ret, &check));
+	Return(read_unsigned8_stream_(stream, ret, &check));
 	if (check) {
 		*ret = 0;
 		return fmte_("read-byte-stream error.", NULL);

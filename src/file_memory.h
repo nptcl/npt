@@ -28,6 +28,22 @@
 #define ungetc_filememory _n(ungetc_filememory)
 #define putc_filememory _n(putc_filememory)
 #define write_filememory _n(write_filememory)
+
+#define read_s16_filememory _n(read_s16_filememory)
+#define read_s32_filememory _n(read_s32_filememory)
+#define read_u16_filememory _n(read_u16_filememory)
+#define read_u32_filememory _n(read_u32_filememory)
+#define write_s16_filememory _n(write_s16_filememory)
+#define write_s32_filememory _n(write_s32_filememory)
+#define write_u16_filememory _n(write_u16_filememory)
+#define write_u32_filememory _n(write_u32_filememory)
+#ifdef LISP_ARCH_64BIT
+#define read_s64_filememory _n(read_s64_filememory)
+#define read_u64_filememory _n(read_u64_filememory)
+#define write_s64_filememory _n(write_s64_filememory)
+#define write_u64_filememory _n(write_u64_filememory)
+#endif
+
 #define flush_filememory _n(flush_filememory)
 #define exitpoint_filememory _n(exitpoint_filememory)
 #define end_filememory _n(end_filememory)
@@ -75,6 +91,21 @@ _g int ungetc_filememory(struct filememory *fm, byte c);
 _g int putc_filememory(struct filememory *fm, byte c);
 _g int write_filememory(struct filememory *fm,
 		const void *dst, size_t size, size_t *ret);
+
+_g int read_s16_filememory(struct filememory *fm, int16_t *ret);
+_g int read_s32_filememory(struct filememory *fm, int32_t *ret);
+_g int read_u16_filememory(struct filememory *fm, uint16_t *ret);
+_g int read_u32_filememory(struct filememory *fm, uint32_t *ret);
+_g int write_s16_filememory(struct filememory *fm, int16_t c);
+_g int write_s32_filememory(struct filememory *fm, int32_t c);
+_g int write_u16_filememory(struct filememory *fm, uint16_t c);
+_g int write_u32_filememory(struct filememory *fm, uint32_t c);
+#ifdef LISP_ARCH_64BIT
+_g int read_s64_filememory(struct filememory *fm, int64_t *ret);
+_g int read_u64_filememory(struct filememory *fm, uint64_t *ret);
+_g int write_s64_filememory(struct filememory *fm, int64_t c);
+_g int write_u64_filememory(struct filememory *fm, uint64_t c);
+#endif
 
 _g int flush_filememory(struct filememory *fm);
 _g void exitpoint_filememory(struct filememory *fm);

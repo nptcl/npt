@@ -1280,6 +1280,7 @@ enum pointer_index {
 	p_defmacro_syscall_declare_parse,
 	p_defun_syscall_parse_type,
 	p_defun_syscall_type_object,
+	p_defun_syscall_upgraded_open_element_type,
 	p_defun_syscall_extension,
 
 #ifdef LISP_EXTENSION

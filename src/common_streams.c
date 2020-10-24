@@ -186,8 +186,8 @@ static void defun_stream_element_type(void)
  */
 static int function_read_byte(Execute ptr, addr stream, addr errorp, addr value)
 {
-	Return(read_byte_common(ptr, stream, errorp, value, &stream));
-	setresult_control(ptr, stream);
+	Return(read_byte_common_(ptr, stream, errorp, value, &value));
+	setresult_control(ptr, value);
 	return 0;
 }
 

@@ -1,3 +1,4 @@
+#include "bignum.h"
 #include "condition.h"
 #include "condition_define.h"
 #include "constant.h"
@@ -161,6 +162,38 @@ _g int output_stream_designer_(Execute ptr, addr stream, addr *ret)
 		return standard_output_stream_(ptr, ret);
 
 	return Result(ret, stream);
+}
+
+
+/*
+ *  wrapper
+ */
+_g int read_unsigned8_stream_(addr stream, byte *value, int *ret)
+{
+	int check;
+	addr pos, type;
+	fixnum v;
+
+	Return(read_byte_stream_(stream, &pos, &check));
+	if (check) {
+		*value = 0;
+		return Result(ret, 1);
+	}
+	if (GetFixnum_signed(pos, &v) || v < 0 || 0xFF < v) {
+		GetConst(STREAM_BINARY_TYPE, &type);
+		return call_type_error_(NULL, pos, type);
+	}
+	*value = (byte)v;
+	return Result(ret, 0);
+}
+
+_g int write_unsigned8_stream_(addr stream, byte value)
+{
+	addr pos;
+
+	fixnum_heap(&pos, (fixnum)value);
+	Return(write_byte_stream_(stream, pos));
+	return exitpoint_stream_(stream);
 }
 
 

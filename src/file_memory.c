@@ -1001,6 +1001,174 @@ _g int write_filememory(struct filememory *fm,
 	return 0;
 }
 
+/* read type */
+_g int read_s16_filememory(struct filememory *fm, int16_t *ret)
+{
+	int check;
+	union read_s16_union {
+		byte a[2];
+		int16_t v;
+	} u;
+	size_t size;
+
+	check = readforce_filememory(fm, (void *)u.a, 2, &size);
+	if (check)
+		return check;
+	if (size != 2)
+		return 1;
+
+	*ret = u.v;
+	return 0;
+}
+
+_g int read_s32_filememory(struct filememory *fm, int32_t *ret)
+{
+	int check;
+	union read_s32_union {
+		byte a[4];
+		int32_t v;
+	} u;
+	size_t size;
+
+	check = readforce_filememory(fm, (void *)u.a, 4, &size);
+	if (check)
+		return check;
+	if (size != 4)
+		return 1;
+
+	*ret = u.v;
+	return 0;
+}
+
+#ifdef LISP_ARCH_64BIT
+_g int read_s64_filememory(struct filememory *fm, int64_t *ret)
+{
+	int check;
+	union read_s64_union {
+		byte a[8];
+		int64_t v;
+	} u;
+	size_t size;
+
+	check = readforce_filememory(fm, (void *)u.a, 8, &size);
+	if (check)
+		return check;
+	if (size != 8)
+		return 1;
+
+	*ret = u.v;
+	return 0;
+}
+#endif
+
+_g int read_u16_filememory(struct filememory *fm, uint16_t *ret)
+{
+	int check;
+	union read_u16_union {
+		byte a[2];
+		uint16_t v;
+	} u;
+	size_t size;
+
+	check = readforce_filememory(fm, (void *)u.a, 2, &size);
+	if (check)
+		return check;
+	if (size != 2)
+		return 1;
+
+	*ret = u.v;
+	return 0;
+}
+
+_g int read_u32_filememory(struct filememory *fm, uint32_t *ret)
+{
+	int check;
+	union read_u32_union {
+		byte a[4];
+		uint32_t v;
+	} u;
+	size_t size;
+
+	check = readforce_filememory(fm, (void *)u.a, 4, &size);
+	if (check)
+		return check;
+	if (size != 4)
+		return 1;
+
+	*ret = u.v;
+	return 0;
+}
+
+#ifdef LISP_ARCH_64BIT
+_g int read_u64_filememory(struct filememory *fm, uint64_t *ret)
+{
+	int check;
+	union read_u64_union {
+		byte a[8];
+		uint64_t v;
+	} u;
+	size_t size;
+
+	check = readforce_filememory(fm, (void *)u.a, 8, &size);
+	if (check)
+		return check;
+	if (size != 8)
+		return 1;
+
+	*ret = u.v;
+	return 0;
+}
+#endif
+
+/* write type */
+static int write_type_filememory(struct filememory *fm, const void *p, size_t n)
+{
+	int check;
+	size_t size;
+
+	check = write_filememory(fm, p, n, &size);
+	if (check)
+		return check;
+	if (size != n)
+		return 1;
+
+	return 0;
+}
+
+_g int write_s16_filememory(struct filememory *fm, int16_t c)
+{
+	return write_type_filememory(fm, (const void *)&c, 2);
+}
+
+_g int write_s32_filememory(struct filememory *fm, int32_t c)
+{
+	return write_type_filememory(fm, (const void *)&c, 4);
+}
+
+#ifdef LISP_ARCH_64BIT
+_g int write_s64_filememory(struct filememory *fm, int64_t c)
+{
+	return write_type_filememory(fm, (const void *)&c, 8);
+}
+#endif
+
+_g int write_u16_filememory(struct filememory *fm, uint16_t c)
+{
+	return write_type_filememory(fm, (const void *)&c, 2);
+}
+
+_g int write_u32_filememory(struct filememory *fm, uint32_t c)
+{
+	return write_type_filememory(fm, (const void *)&c, 4);
+}
+
+#ifdef LISP_ARCH_64BIT
+_g int write_u64_filememory(struct filememory *fm, uint64_t c)
+{
+	return write_type_filememory(fm, (const void *)&c, 8);
+}
+#endif
+
 
 /*
  *  putc

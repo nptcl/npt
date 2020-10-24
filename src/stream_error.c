@@ -20,9 +20,9 @@ _g int readf_binary_stream_error(addr stream, void *ptr, size_t size, size_t *re
 	return fmte_("The stream ~S don't run readforce-binary function.", stream, NULL);
 }
 
-_g int read_byte_stream_error(addr stream, byte *c, int *ret)
+_g int read_byte_stream_error(addr stream, addr *value, int *ret)
 {
-	*c = 0;
+	*value = 0;
 	*ret = 0;
 	return fmte_("The stream ~S don't run read-byte function.", stream, NULL);
 }
@@ -37,7 +37,7 @@ _g int write_binary_stream_error(addr stream, const void *ptr, size_t size, size
 	return fmte_("The stream ~S don't run write-binary function.", stream, NULL);
 }
 
-_g int write_byte_stream_error(addr stream, byte c)
+_g int write_byte_stream_error(addr stream, addr pos)
 {
 	return fmte_("The stream ~S don't run write-byte function.", stream, NULL);
 }

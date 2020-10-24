@@ -94,15 +94,15 @@ static int readf_binary_Echo(addr stream, void *pos, size_t size, size_t *ret)
 	return Result(ret, size);
 }
 
-static int read_byte_Echo(addr stream, byte *c, int *ret)
+static int read_byte_Echo(addr stream, addr *value, int *ret)
 {
 	int check;
 	addr input, output;
 
 	io_Echo(stream, &input, &output);
-	Return(read_byte_stream_(input, c, &check));
+	Return(read_byte_stream_(input, value, &check));
 	if (check == 0) {
-		Return(write_byte_stream_(output, *c));
+		Return(write_byte_stream_(output, *value));
 	}
 
 	return Result(ret, check);
@@ -120,10 +120,10 @@ static int write_binary_Echo(addr stream, const void *pos, size_t size, size_t *
 	return write_binary_stream_(stream, pos, size, ret);
 }
 
-static int write_byte_Echo(addr stream, byte c)
+static int write_byte_Echo(addr stream, addr pos)
 {
 	output_Echo(stream, &stream);
-	return write_byte_stream_(stream, c);
+	return write_byte_stream_(stream, pos);
 }
 
 static int read_char_Echo(addr stream, unicode *u, int *ret)

@@ -74,10 +74,14 @@ _g void force_close_stream_file(addr stream);
 _g int close_stream_file_(addr stream, addr *ret);
 _g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret);
 _g int readf_binary_file_(addr stream, void *pos, size_t size, size_t *ret);
-_g int read_byte_file_(addr stream, byte *c, int *ret);
+_g int read_byte_file_(addr stream, addr *value, int *ret);
 _g int unread_byte_file_(addr stream, byte c);
 _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret);
-_g int write_byte_file_(addr stream, byte c);
+_g int write_byte_file_(addr stream, addr pos);
+
+_g int read_integer_file_(addr stream, addr *value, int *ret);
+_g int unread_integer_file_(addr stream, addr pos);
+_g int write_integer_file_(addr stream, addr pos);
 
 _g int read_char_file_(addr stream, unicode *c, int *ret);
 _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret);

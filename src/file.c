@@ -1,3 +1,5 @@
+#include "bignum.h"
+#include "bignum_object.h"
 #include "character.h"
 #include "condition.h"
 #include "constant.h"
@@ -199,19 +201,186 @@ _g int readf_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 	return check;
 }
 
-_g int read_byte_file_(addr stream, byte *c, int *ret)
+
+/* read-byte */
+static int read_byte_file_u8(struct filememory *fm, addr *ret)
 {
 	int check;
+	byte v;
+
+	check = getc_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	fixnum_heap(ret, (fixnum)v);
+
+	return 0;
+}
+
+static int read_byte_file_u16(struct filememory *fm, addr *ret)
+{
+	int check;
+	uint16_t v;
+
+	check = read_u16_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	fixnum_heap(ret, (fixnum)v);
+
+	return 0;
+}
+
+static int read_byte_file_u32(struct filememory *fm, addr *ret)
+{
+	int check;
+	uint32_t v;
+
+	check = read_u32_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+#ifdef LISP_64BIT
+	fixnum_heap(ret, (fixnum)v);
+#else
+	integer_fixed_heap(ret, signplus_bignum, (fixed)v);
+#endif
+
+	return 0;
+}
+
+#ifdef LISP_64BIT
+static int read_byte_file_u64(struct filememory *fm, addr *ret)
+{
+	int check;
+	uint64_t v;
+
+	check = read_u64_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	integer_fixed_heap(ret, signplus_bignum, (fixed)v);
+
+	return 0;
+}
+#endif
+
+static int read_byte_file_s8(struct filememory *fm, addr *ret)
+{
+	int check;
+	signed char v;
+
+	check = getc_filememory(fm, (byte *)&v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	fixnum_heap(ret, (fixnum)v);
+
+	return 0;
+}
+
+static int read_byte_file_s16(struct filememory *fm, addr *ret)
+{
+	int check;
+	int16_t v;
+
+	check = read_s16_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	fixnum_heap(ret, (fixnum)v);
+
+	return 0;
+}
+
+static int read_byte_file_s32(struct filememory *fm, addr *ret)
+{
+	int check;
+	int32_t v;
+
+	check = read_s32_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	fixnum_heap(ret, (fixnum)v);
+
+	return 0;
+}
+
+#ifdef LISP_64BIT
+static int read_byte_file_s64(struct filememory *fm, addr *ret)
+{
+	int check;
+	int64_t v;
+
+	check = read_s64_filememory(fm, &v);
+	if (check) {
+		*ret = Nil;
+		return check;
+	}
+	fixnum_heap(ret, (fixnum)v);
+
+	return 0;
+}
+#endif
+
+static int read_byte_file_type(addr stream, addr *ret)
+{
 	struct filememory *fm;
 
-	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = getc_filememory(fm, c);
+	switch (fm->encode.type) {
+		case EncodeType_binary:
+			return read_byte_file_u8(fm, ret);
+
+		case EncodeType_unsigned16:
+			return read_byte_file_u16(fm, ret);
+
+		case EncodeType_unsigned32:
+			return read_byte_file_u32(fm, ret);
+
+		case EncodeType_signed8:
+			return read_byte_file_s8(fm, ret);
+
+		case EncodeType_signed16:
+			return read_byte_file_s16(fm, ret);
+
+		case EncodeType_signed32:
+			return read_byte_file_s32(fm, ret);
+
+#ifdef LISP_ARCH_64BIT
+		case EncodeType_unsigned64:
+			return read_byte_file_u64(fm, ret);
+
+		case EncodeType_signed64:
+			return read_byte_file_s64(fm, ret);
+#endif
+
+		default:
+			*ret = Nil;
+			return -1;
+	}
+}
+
+_g int read_byte_file_(addr stream, addr *value, int *ret)
+{
+	int check;
+
+	CheckFileStream(stream);
+	check = read_byte_file_type(stream, value);
 	if (check < 0)
-		return fmte_("getc error", NULL);
+		return fmte_("read-byte-file error", NULL);
 
 	return Result(ret, check);
 }
+
 
 _g int unread_byte_file_(addr stream, byte c)
 {
@@ -239,18 +408,269 @@ _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret
 	return 0;
 }
 
-_g int write_byte_file_(addr stream, byte c)
+/* write-byte */
+static int write_byte_file_u8_(struct filememory *fm, addr pos)
+{
+	fixnum v;
+
+	if (GetFixnum_unsigned(pos, &v))
+		goto error;
+	if (0xFF < v)
+		goto error;
+	return putc_filememory(fm, (byte)v);
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+
+static int write_byte_file_u16_(struct filememory *fm, addr pos)
 {
 	int check;
+	fixnum v;
+	uint16_t u16;
+	size_t size;
+
+	if (GetFixnum_unsigned(pos, &v))
+		goto error;
+	if (0xFFFF < v)
+		goto error;
+
+	u16 = (uint16_t)v;
+	check = write_filememory(fm, (const void *)&u16, 2, &size);
+	if (check)
+		return check;
+	if (size != 2)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+
+#ifdef LISP_64BIT
+static int write_byte_file_u32_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixnum v;
+	uint32_t u32;
+	size_t size;
+
+	if (GetFixnum_unsigned(pos, &v))
+		goto error;
+	if (0xFFFFFFFF < v)
+		goto error;
+
+	u32 = (uint32_t)v;
+	check = write_filememory(fm, (const void *)&u32, 4, &size);
+	if (check)
+		return check;
+	if (size != 4)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+#else
+static int write_byte_file_u32_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixed v;
+	size_t size;
+
+	if (getfixed1_integer(pos, &check, &v))
+		goto error;
+	if (check != signplus_bignum)
+		goto error;
+
+	check = write_filememory(fm, (const void *)&v, 4, &size);
+	if (check)
+		return check;
+	if (size != 4)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+#endif
+
+#ifdef LISP_64BIT
+static int write_byte_file_u64_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixed v;
+	size_t size;
+
+	if (getfixed1_integer(pos, &check, &v))
+		goto error;
+	if (check != signplus_bignum)
+		goto error;
+
+	check = write_filememory(fm, (const void *)&v, 8, &size);
+	if (check)
+		return check;
+	if (size != 8)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+#endif
+
+static int write_byte_file_s8_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixnum v;
+	int8_t u8;
+	size_t size;
+
+	if (GetFixnum_signed(pos, &v))
+		goto error;
+	if (v < -0x80 || 0x7F < v)
+		goto error;
+
+	u8 = (int8_t)v;
+	check = write_filememory(fm, (const void *)&u8, 1, &size);
+	if (check)
+		return check;
+	if (size != 1)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+
+static int write_byte_file_s16_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixnum v;
+	int16_t u16;
+	size_t size;
+
+	if (GetFixnum_signed(pos, &v))
+		goto error;
+	if (v < -0x8000 || 0x7FFF < v)
+		goto error;
+
+	u16 = (int16_t)v;
+	check = write_filememory(fm, (const void *)&u16, 2, &size);
+	if (check)
+		return check;
+	if (size != 2)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+
+#ifdef LISP_64BIT
+static int write_byte_file_s32_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixnum v;
+	int32_t u32;
+	size_t size;
+
+	if (GetFixnum_signed(pos, &v))
+		goto error;
+	if (v < -0x80000000LL || 0x7FFFFFFFLL < v)
+		goto error;
+
+	u32 = (int32_t)v;
+	check = write_filememory(fm, (const void *)&u32, 4, &size);
+	if (check)
+		return check;
+	if (size != 4)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+#else
+static int write_byte_file_s32_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixnum v;
+	size_t size;
+
+	if (GetFixnum_signed(pos, &v))
+		goto error;
+
+	check = write_filememory(fm, (const void *)&v, 4, &size);
+	if (check)
+		return check;
+	if (size != 4)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+#endif
+
+#ifdef LISP_64BIT
+static int write_byte_file_s64_(struct filememory *fm, addr pos)
+{
+	int check;
+	fixnum v;
+	size_t size;
+
+	if (GetFixnum_signed(pos, &v))
+		goto error;
+
+	check = write_filememory(fm, (const void *)&v, 8, &size);
+	if (check)
+		return check;
+	if (size != 8)
+		return -1;
+	return 0;
+
+error:
+	return fmte_("Cannot write the value ~S.", pos, NULL);
+}
+#endif
+
+_g int write_byte_file_(addr stream, addr pos)
+{
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = putc_filememory(fm, c);
-	if (check)
-		return fmte_("write_byte error", NULL);
+	switch (fm->encode.type) {
+		case EncodeType_binary:
+			return write_byte_file_u8_(fm, pos);
 
-	return 0;
+		case EncodeType_unsigned16:
+			return write_byte_file_u16_(fm, pos);
+
+		case EncodeType_unsigned32:
+			return write_byte_file_u32_(fm, pos);
+
+		case EncodeType_signed8:
+			return write_byte_file_s8_(fm, pos);
+
+		case EncodeType_signed16:
+			return write_byte_file_s16_(fm, pos);
+
+		case EncodeType_signed32:
+			return write_byte_file_s32_(fm, pos);
+
+#ifdef LISP_ARCH_64BIT
+		case EncodeType_unsigned64:
+			return write_byte_file_u64_(fm, pos);
+
+		case EncodeType_signed64:
+			return write_byte_file_s64_(fm, pos);
+#endif
+
+		default:
+			return fmte_("Invalid stream type.", NULL);
+	}
 }
 
 
@@ -455,14 +875,12 @@ _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 _g void external_format_file(addr stream, addr *ret)
 {
 	enum EncodeBom bom;
-	enum EncodeType type;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	type = (enum EncodeType)fm->encode.type;
 	bom = (enum EncodeBom)fm->encode.bom;
-	switch (type) {
+	switch (fm->encode.type) {
 		case EncodeType_binary:
 			GetConst(STREAM_BINARY_TYPE, ret);
 			break;

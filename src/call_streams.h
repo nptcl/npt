@@ -4,7 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define read_byte_common _n(read_byte_common)
+#define read_byte_common_ _n(read_byte_common_)
 #define write_byte_common _n(write_byte_common)
 #define peek_char_common _n(peek_char_common)
 #define read_char_common _n(read_char_common)
@@ -32,7 +32,8 @@
 #define with_input_from_string_common _n(with_input_from_string_common)
 #define with_output_to_string_common _n(with_output_to_string_common)
 
-_g int read_byte_common(Execute ptr, addr stream, addr errorp, addr value, addr *ret);
+_g int read_byte_common_(Execute ptr,
+		addr stream, addr errorp, addr value, addr *ret);
 _g int write_byte_common(Execute ptr, addr value, addr stream);
 _g int peek_char_common(Execute ptr, addr type, addr stream,
 		addr errorp, addr value, addr recp, addr *ret);

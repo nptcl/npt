@@ -4,6 +4,8 @@
 #include "execute.h"
 #include "typedef.h"
 
+#define upgrade_open_element_type_stream_ _n(upgrade_open_element_type_stream_)
+#define open_element_stream_ _n(open_element_stream_)
 #define open_stream_ _n(open_stream_)
 
 enum Stream_Open_Direction {
@@ -15,7 +17,15 @@ enum Stream_Open_Direction {
 
 enum Stream_Open_Element {
 	Stream_Open_Element_Character,
-	Stream_Open_Element_Binary
+	Stream_Open_Element_Bit,
+	Stream_Open_Element_Unsigned8,
+	Stream_Open_Element_Unsigned16,
+	Stream_Open_Element_Unsigned32,
+	Stream_Open_Element_Unsigned64,
+	Stream_Open_Element_Signed8,
+	Stream_Open_Element_Signed16,
+	Stream_Open_Element_Signed32,
+	Stream_Open_Element_Signed64
 };
 
 enum Stream_Open_IfExists {
@@ -52,6 +62,8 @@ enum Stream_Open_External {
 	Stream_Open_External_Utf32BeBom
 };
 
+_g int upgrade_open_element_type_stream_(addr var, addr *ret);
+_g int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret);
 _g int open_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_Element element,

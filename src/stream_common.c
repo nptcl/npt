@@ -266,14 +266,12 @@ static int read_sequence_binary_(addr *ret,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	int check;
-	byte c;
 	addr value;
 
 	for (; start < end; start++) {
-		Return(read_byte_stream_(stream, &c, &check));
+		Return(read_byte_stream_(stream, &value, &check));
 		if (check)
 			break;
-		fixnum_heap(&value, c);
 		Return(setelt_sequence_(seq, start, value));
 	}
 	make_index_integer_heap(&value, start);
@@ -322,7 +320,6 @@ static int write_sequence_character_(LocalRoot local,
 static int write_sequence_binary_(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
-	fixnum c;
 	addr value;
 	LocalStack stack;
 
@@ -331,11 +328,8 @@ static int write_sequence_binary_(LocalRoot local,
 		Return(getelt_sequence_(local, seq, start, &value));
 		if (! fixnump(value))
 			return TypeError_(value, INTEGER);
-		GetFixnum(value, &c);
+		Return(write_byte_stream_(stream, value));
 		rollback_local(local, stack);
-		if (c < 0 || 0xFF < c)
-			return fmte_("Invalid binary value ~S.", fixnumh(c), NULL);
-		Return(write_byte_stream_(stream, (byte)c));
 	}
 
 	return 0;

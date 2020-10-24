@@ -1999,6 +1999,7 @@ lisp-system::unbound-value
 (lisp-system::declare-parse :export t)
 (lisp-system::parse-type :export t)
 (lisp-system::type-object :export t)
+(lisp-system::upgraded-open-element-type :export t)
 (lisp-system::extension :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)

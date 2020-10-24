@@ -2771,6 +2771,30 @@ static void defun_type_object(void)
 }
 
 
+/* (defun upgraded-open-element-type (type) ...) -> type */
+static int syscall_upgraded_open_element_type(Execute ptr, addr var)
+{
+	Return(upgraded_open_element_type_syscode_(var, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void defun_upgraded_open_element_type(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_UPGRADED_OPEN_ELEMENT_TYPE, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_upgraded_open_element_type);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, UpgradedType);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun extension (t) ...) -> t */
 static int syscall_extension(Execute ptr, addr var)
 {
@@ -2894,6 +2918,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defmacro, macro, declare_parse);
 	SetPointerSysCall(defun, var1, parse_type);
 	SetPointerSysCall(defun, var1, type_object);
+	SetPointerSysCall(defun, var1, upgraded_open_element_type);
 	SetPointerSysCall(defun, var1, extension);
 }
 
@@ -2986,6 +3011,7 @@ _g void build_syscall(void)
 	defmacro_declare_parse();
 	defun_parse_type();
 	defun_type_object();
+	defun_upgraded_open_element_type();
 	defun_extension();
 }
 

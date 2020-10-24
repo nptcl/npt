@@ -826,6 +826,29 @@ _g int getfixnum_unsigned_(addr pos, fixnum *ret)
 	return 0;
 }
 
+static int getfixed1_fixnum(addr pos, int *sign, fixed *ret)
+{
+	fixnum v;
+
+	CheckType(pos, LISPTYPE_FIXNUM);
+	GetFixnum(pos, &v);
+	if (v == FIXNUM_MIN) {
+		*sign = signminus_bignum;
+		*ret = (fixed)FIXNUM_MIN;
+		return 0;
+	}
+	if (v < 0) {
+		*sign = signminus_bignum;
+		*ret = (fixed)-v;
+	}
+	else {
+		*sign = signplus_bignum;
+		*ret = (fixed)v;
+	}
+
+	return 0;
+}
+
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
@@ -835,6 +858,22 @@ _g int getfixed1_bignum(addr pos, int *sign, fixed *ret)
 	getfixed_bignum(pos, 0, ret);
 
 	return 0;
+}
+
+_g int getfixed1_integer(addr pos, int *sign, fixed *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			return getfixed1_fixnum(pos, sign, ret);
+
+		case LISPTYPE_BIGNUM:
+			return getfixed1_bignum(pos, sign, ret);
+
+		default:
+			*sign = signplus_bignum;
+			*ret = 0;
+			return 1;
+	}
 }
 
 

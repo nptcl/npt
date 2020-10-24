@@ -7,10 +7,10 @@
 typedef int (*lisp_streamtype_close)(addr, addr *);
 typedef int (*lisp_streamtype_read_binary)(addr, void *, size_t, size_t *);
 typedef int (*lisp_streamtype_readf_binary)(addr, void *, size_t, size_t *);
-typedef int (*lisp_streamtype_read_byte)(addr, byte *, int *);
+typedef int (*lisp_streamtype_read_byte)(addr, addr *, int *);
 typedef int (*lisp_streamtype_unread_byte)(addr, byte);
 typedef int (*lisp_streamtype_write_binary)(addr, const void *, size_t, size_t *);
-typedef int (*lisp_streamtype_write_byte)(addr, byte);
+typedef int (*lisp_streamtype_write_byte)(addr, addr);
 typedef int (*lisp_streamtype_read_char)(addr, unicode *, int *);
 typedef int (*lisp_streamtype_read_hang)(addr, unicode *, int *, int *);
 typedef int (*lisp_streamtype_unread_char)(addr, unicode);

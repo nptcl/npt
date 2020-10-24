@@ -71,10 +71,10 @@ static int readf_binary_TwoWay(addr stream, void *pos, size_t size, size_t *ret)
 	return readf_binary_stream_(stream, pos, size, ret);
 }
 
-static int read_byte_TwoWay(addr stream, byte *c, int *ret)
+static int read_byte_TwoWay(addr stream, addr *value, int *ret)
 {
 	input_twoway(stream, &stream);
-	return read_byte_stream_(stream, c, ret);
+	return read_byte_stream_(stream, value, ret);
 }
 
 static int unread_byte_TwoWay(addr stream, byte c)
@@ -89,10 +89,10 @@ static int write_binary_TwoWay(addr stream, const void *pos, size_t size, size_t
 	return write_binary_stream_(stream, pos, size, ret);
 }
 
-static int write_byte_TwoWay(addr stream, byte c)
+static int write_byte_TwoWay(addr stream, addr pos)
 {
 	output_twoway(stream, &stream);
-	return write_byte_stream_(stream, c);
+	return write_byte_stream_(stream, pos);
 }
 
 static int read_char_TwoWay(addr stream, unicode *u, int *ret)

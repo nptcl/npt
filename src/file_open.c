@@ -48,6 +48,120 @@ _g int open_input_binary_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
+_g int open_input_unsigned16_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned16;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_input_unsigned32_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned32;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_input_signed8_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed8;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_input_signed16_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed16;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_input_signed32_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed32;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+#ifdef LISP_64BIT
+_g int open_input_unsigned64_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned64;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_input_signed64_stream_(Execute ptr, addr *ret, addr file)
+{
+	struct filememory *fm;
+
+	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed64;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+#endif
+
 _g int open_input_ascii_stream_(Execute ptr, addr *ret, addr file)
 {
 	struct filememory *fm;
@@ -467,6 +581,127 @@ _g int open_output_binary_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
+_g int open_output_unsigned16_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned16;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_output_unsigned32_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned32;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_output_signed8_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed8;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_output_signed16_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed16;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_output_signed32_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed32;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+#ifdef LISP_64BIT
+_g int open_output_unsigned64_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned64;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_output_signed64_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed64;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+#endif
+
 _g int open_output_ascii_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
@@ -700,6 +935,127 @@ _g int open_io_binary_stream_(Execute ptr, addr *ret,
 
 	return Result(ret, file);
 }
+
+_g int open_io_unsigned16_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned16;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_io_unsigned32_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned32;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_io_signed8_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed8;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_io_signed16_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed16;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_io_signed32_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed32;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+#ifdef LISP_64BIT
+_g int open_io_unsigned64_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_unsigned64;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+
+_g int open_io_signed64_stream_(Execute ptr, addr *ret,
+		addr file, enum FileOutput mode)
+{
+	struct filememory *fm;
+
+	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
+	if (file == NULL)
+		return Result(ret, NULL);
+	fm = PtrFileMemory(file);
+	fm->encode.type = EncodeType_signed64;
+	fm->encode.bom = EncodeBom_empty;
+	fm->encode.error = 1;
+	force_open_stream(file);
+
+	return Result(ret, file);
+}
+#endif
 
 _g int open_io_ascii_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)

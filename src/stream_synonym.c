@@ -56,10 +56,10 @@ static int readf_binary_Synonym(addr stream, void *pos, size_t size, size_t *ret
 	return readf_binary_stream_(stream, pos, size, ret);
 }
 
-static int read_byte_Synonym(addr stream, byte *c, int *ret)
+static int read_byte_Synonym(addr stream, addr *value, int *ret)
 {
 	Return(getstream_synonym_(stream, &stream));
-	return read_byte_stream_(stream, c, ret);
+	return read_byte_stream_(stream, value, ret);
 }
 
 static int unread_byte_Synonym(addr stream, byte c)
@@ -74,10 +74,10 @@ static int write_binary_Synonym(addr stream, const void *pos, size_t size, size_
 	return write_binary_stream_(stream, pos, size, ret);
 }
 
-static int write_byte_Synonym(addr stream, byte c)
+static int write_byte_Synonym(addr stream, addr pos)
 {
 	Return(getstream_synonym_(stream, &stream));
-	return write_byte_stream_(stream, c);
+	return write_byte_stream_(stream, pos);
 }
 
 static int read_char_Synonym(addr stream, unicode *u, int *ret)

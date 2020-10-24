@@ -25,24 +25,26 @@
 /*
  *  read-byte
  */
-_g int read_byte_common(Execute ptr, addr stream, addr errorp, addr value, addr *ret)
+_g int read_byte_common_(Execute ptr,
+		addr stream, addr errorp, addr value, addr *ret)
 {
 	int check;
-	byte c;
 
 	if (errorp == Unbound)
 		errorp = T;
 	if (value == Unbound)
 		value = Nil;
-	Return(read_byte_stream_(stream, &c, &check));
-	if (check) {
-		if (errorp != Nil)
-			return call_end_of_file_(ptr, stream);
-		else
-			return Result(ret, value);
+
+	Return(read_byte_stream_(stream, ret, &check));
+	if (! check)
+		return 0;
+
+	/* EOF */
+	if (errorp != Nil) {
+		*ret = Nil;
+		return call_end_of_file_(ptr, stream);
 	}
-	fixnum_heap(ret, (fixnum)c);
-	return 0;
+	return Result(ret, value);
 }
 
 
@@ -51,14 +53,7 @@ _g int read_byte_common(Execute ptr, addr stream, addr errorp, addr value, addr 
  */
 _g int write_byte_common(Execute ptr, addr value, addr stream)
 {
-	addr pos;
-	fixnum c;
-
-	if (GetFixnum_signed(value, &c) || c < 0 || 0xFF < c) {
-		GetConst(STREAM_BINARY_TYPE, &pos);
-		return call_type_error_(ptr, value, pos);
-	}
-	Return(write_byte_stream_(stream, (byte)c));
+	Return(write_byte_stream_(stream, value));
 	return exitpoint_stream_(stream);
 }
 
@@ -400,44 +395,6 @@ static int open_common_direction(addr value, enum Stream_Open_Direction *ret)
 	return fmte_("Invalid :direction value ~S.", value, NULL);
 }
 
-static int open_common_element(Execute ptr, addr value, enum Stream_Open_Element *ret)
-{
-	int result;
-	addr check, type;
-
-	/* default */
-	if (value == Unbound)
-		return Result(ret, Stream_Open_Element_Character);
-
-	/* :default */
-	GetConst(KEYWORD_DEFAULT, &check);
-	if (value == check)
-		return Result(ret, Stream_Open_Element_Character);
-
-	/* unsigned-byte */
-	GetConst(COMMON_UNSIGNED_BYTE, &check);
-	if (value == check)
-		return Result(ret, Stream_Open_Element_Binary);
-
-	/* character */
-	if (! parse_type(ptr, &check, value, Nil)) {
-		GetTypeTable(&type, Character);
-		Return(subtypep_clang_(check, type, &result, NULL));
-		if (result)
-			return Result(ret, Stream_Open_Element_Character);
-
-		/* Binary */
-		GetTypeTable(&type, Unsigned8);
-		Return(subtypep_clang_(check, type, &result, NULL));
-		if (result)
-			return Result(ret, Stream_Open_Element_Binary);
-	}
-
-	/* error */
-	*ret = Stream_Open_Element_Character;
-	return fmte_("Invalid :element-type value ~S.", value, NULL);
-}
-
 static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists *ret)
 {
 	addr check;
@@ -663,7 +620,7 @@ _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 	Return(open_common_direction(value, &direction));
 	if (GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &value))
 		value = Unbound;
-	Return(open_common_element(ptr, value, &element));
+	Return(open_element_stream_(ptr, value, &element));
 	if (GetKeyArgs(rest, KEYWORD_IF_EXISTS, &value))
 		value = Unbound;
 	Return(open_common_ifexists(value, pos, &exists));

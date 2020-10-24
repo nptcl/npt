@@ -43,10 +43,10 @@
 _g int close_stream_error(addr pos, addr *ret);
 _g int read_binary_stream_error(addr stream, void *pos, size_t size, size_t *ret);
 _g int readf_binary_stream_error(addr stream, void *pos, size_t size, size_t *ret);
-_g int read_byte_stream_error(addr stream, byte *c, int *ret);
+_g int read_byte_stream_error(addr stream, addr *value, int *ret);
 _g int unread_byte_stream_error(addr stream, byte c);
 _g int write_binary_stream_error(addr stream, const void *pos, size_t size, size_t *ret);
-_g int write_byte_stream_error(addr stream, byte c);
+_g int write_byte_stream_error(addr stream, addr pos);
 _g int read_char_stream_error(addr stream, unicode *c, int *ret);
 _g int read_hang_stream_error(addr stream, unicode *c, int *hang, int *ret);
 _g int unread_char_stream_error(addr stream, unicode c);

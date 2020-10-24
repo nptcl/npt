@@ -7,6 +7,13 @@
 
 enum EncodeType {
 	EncodeType_binary,
+	EncodeType_unsigned16,
+	EncodeType_unsigned32,
+	EncodeType_unsigned64,
+	EncodeType_signed8,
+	EncodeType_signed16,
+	EncodeType_signed32,
+	EncodeType_signed64,
 	EncodeType_ascii,
 	EncodeType_utf8,
 	EncodeType_utf16le,
@@ -33,7 +40,7 @@ struct FileEncode {
 	unsigned error : 1;
 	unsigned create : 1;
 	unsigned bom : 2;
-	unsigned type : 4;
+	enum EncodeType type : 5;
 	unicode code;
 };
 

@@ -1,6 +1,232 @@
 ;;
 ;;  ANSI COMMON LISP: 21. Streams
 ;;
+
+;;
+;;  Function INPUT-STREAM-P
+;;
+(deftest input-stream-p.1
+  (input-stream-p
+    *standard-input*)
+  t)
+
+(deftest input-stream-p.2
+  (input-stream-p
+    *error-output*)
+  nil)
+
+(deftest input-stream-p.3
+  (input-stream-p
+    *terminal-io*)
+  t)
+
+(deftest-error input-stream-p-error.1
+  (eval '(input-stream-p 10))
+  type-error)
+
+(deftest-error! input-stream-p-error.2
+  (eval '(input-stream-p)))
+
+(deftest-error! input-stream-p-error.3
+  (eval '(input-stream-p *standard-input* nil)))
+
+;;  ANSI Common Lisp
+(deftest input-stream-p-test.1
+  (input-stream-p *standard-input*)
+  t)
+
+(deftest input-stream-p-test.2
+  (input-stream-p *terminal-io*)
+  t)
+
+(deftest input-stream-p-test.3
+  (input-stream-p (make-string-output-stream))
+  nil)
+
+
+;;
+;;  Function OUTPUT-STREAM-P
+;;
+(deftest output-stream-p.1
+  (output-stream-p
+    *standard-output*)
+  t)
+
+(deftest output-stream-p.2
+  (output-stream-p
+    *standard-input*)
+  nil)
+
+(deftest output-stream-p.3
+  (output-stream-p
+    *terminal-io*)
+  t)
+
+(deftest-error output-stream-p-error.1
+  (eval '(output-stream-p 10))
+  type-error)
+
+(deftest-error! output-stream-p-error.2
+  (eval '(output-stream-p)))
+
+(deftest-error! output-stream-p-error.3
+  (eval '(output-stream-p *standard-output* nil)))
+
+;;  ANSI Common Lisp
+(deftest output-stream-p-test.1
+  (output-stream-p *standard-output*)
+  t)
+
+(deftest output-stream-p-test.2
+  (output-stream-p *terminal-io*)
+  t)
+
+(deftest output-stream-p-test.3
+  (output-stream-p (make-string-input-stream "jr"))
+  nil)
+
+
+;;
+;;  Function INTERACTIVE-STREAM-P
+;;
+(deftest interactive-stream-p.1
+  (interactive-stream-p
+    *standard-input*)
+  t)
+
+(deftest interactive-stream-p.2
+  (interactive-stream-p
+    *standard-output*)
+  t)
+
+(deftest interactive-stream-p.3
+  (interactive-stream-p
+    *error-output*)
+  t)
+
+(deftest-error interactive-stream-p-error.1
+  (eval '(interactive-stream-p 10))
+  type-error)
+
+(deftest-error! interactive-stream-p-error.2
+  (eval '(interactive-stream-p)))
+
+(deftest-error! interactive-stream-p-error.3
+  (eval '(interactive-stream-p *standard-output* nil)))
+
+
+;;
+;;  Function OPEN-STREAM-P
+;;
+(deftest open-stream-p.1
+  (open-stream-p
+    *standard-input*)
+  t)
+
+(deftest open-stream-p.2
+  (open-stream-p
+    *standard-output*)
+  t)
+
+(deftest open-stream-p.3
+  (let (x)
+    (with-output-to-string (stream)
+      (setq x (open-stream-p stream)))
+    x)
+  t)
+
+(deftest open-stream-p.4
+  (let (x)
+    (with-output-to-string (stream)
+      (setq x stream))
+    (open-stream-p x))
+  nil)
+
+(deftest open-stream-p.5
+  (let (x)
+    (with-temp-file
+      (with-open-file (stream *file* :direction :input)
+        (setq x (open-stream-p stream))))
+    x)
+  t)
+
+(deftest open-stream-p.6
+  (let (x)
+    (with-temp-file
+      (with-open-file (stream *file* :direction :input)
+        (setq x stream)))
+    (open-stream-p x))
+  nil)
+
+(deftest open-stream-p.7
+  (with-input-from-string (stream "Hello")
+    (open-stream-p stream))
+  t)
+
+(deftest open-stream-p.8
+  (let (x)
+    (with-input-from-string (stream "Hello")
+      (setq x stream))
+    (open-stream-p x))
+  nil)
+
+(deftest open-stream-p.9
+  (with-open-stream (stream (make-broadcast-stream))
+    (open-stream-p stream))
+  t)
+
+(deftest open-stream-p.10
+  (let (x)
+    (with-open-stream (stream (make-broadcast-stream))
+      (setq x stream))
+    (open-stream-p x))
+  nil)
+
+(deftest-error open-stream-p-error.1
+  (eval '(open-stream-p 10))
+  type-error)
+
+(deftest-error! open-stream-p-error.2
+  (eval '(open-stream-p)))
+
+(deftest-error! open-stream-p-error.3
+  (eval '(open-stream-p *standard-output* nil)))
+
+
+;;
+;;  Function STREAM-ELEMENT-TYPE
+;;
+(deftest stream-element-type.1
+  (stream-element-type *standard-input*)
+  character)
+
+(deftest stream-element-type.2
+  (stream-element-type *standard-output*)
+  character)
+
+(deftest stream-element-type.3
+  (with-open-file (s *file* :element-type '(integer 0 1)
+                     :if-exists :supersede
+                     :if-does-not-exist :create
+                     :direction :output)
+    (stream-element-type s))
+  (unsigned-byte 8))
+
+(deftest-error stream-element-type-error.1
+  (eval '(stream-element-type 10))
+  type-error)
+
+(deftest-error! stream-element-type-error.2
+  (eval '(stream-element-type)))
+
+(deftest-error! stream-element-type-error.3
+  (eval '(stream-element-type *standard-output* nil)))
+
+
+
+;;
+;;
+;;
 (deftest make-synonym-stream.1
   (typep (make-synonym-stream 'hello) 'synonym-stream)
   t)
@@ -384,637 +610,6 @@
     (close inst :abort t)
     (probe-file *file*))
   t)
-
-
-;;
-;;  input-stream-p
-;;
-(deftest input-stream-p.1
-  (input-stream-p
-    *standard-input*)
-  t)
-
-(deftest input-stream-p.2
-  (input-stream-p
-    *error-output*)
-  nil)
-
-(deftest input-stream-p.3
-  (input-stream-p
-    *terminal-io*)
-  t)
-
-(deftest input-stream-p-file.1
-  (with-temp-file
-    (with-open-file (stream *file* :direction :input)
-      (input-stream-p stream)))
-  t)
-
-(deftest input-stream-p-file.2
-  (with-temp-file
-    (with-open-file (stream *file* :direction :output :if-exists :supersede)
-      (input-stream-p stream)))
-  nil)
-
-(deftest input-stream-p-file.3
-  (with-temp-file
-    (with-open-file (stream *file* :direction :io :if-exists :supersede)
-      (input-stream-p stream)))
-  t)
-
-(deftest input-stream-p-broadcast.1
-  (with-open-stream (inst (make-broadcast-stream))
-    (input-stream-p inst))
-  nil)
-
-(deftest input-stream-p-broadcast.2
-  (with-open-stream (inst (make-broadcast-stream *terminal-io*))
-    (input-stream-p inst))
-  nil)
-
-(deftest input-stream-p-broadcast.3
-  (with-open-stream (inst (make-broadcast-stream *standard-output*))
-    (input-stream-p inst))
-  nil)
-
-(deftest input-stream-p-concatenated.1
-  (with-open-stream (inst (make-concatenated-stream))
-    (input-stream-p inst))
-  t)
-
-(deftest input-stream-p-echo.1
-  (with-open-stream (inst (make-echo-stream *standard-input* *standard-output*))
-    (input-stream-p inst))
-  t)
-
-(deftest input-stream-p-synonym.1
-  (with-temp-file
-    (with-open-file (hello *file* :direction :input)
-      (declare (special hello))
-      (with-open-stream (inst (make-synonym-stream 'hello))
-        (input-stream-p inst))))
-  t)
-
-(deftest input-stream-p-synonym.2
-  (with-temp-file
-    (with-open-file (hello *file* :direction :output :if-exists :supersede)
-      (declare (special hello))
-      (with-open-stream (inst (make-synonym-stream 'hello))
-        (input-stream-p inst))))
-  nil)
-
-(deftest input-stream-p-two-way.1
-  (with-open-stream (inst (make-two-way-stream *standard-input* *standard-output*))
-    (input-stream-p inst))
-  t)
-
-(deftest input-stream-p-input-string.1
-  (with-input-from-string (stream "Hello")
-    (input-stream-p stream))
-  t)
-
-(deftest input-stream-p-output-string.1
-  (let ((result 'error))
-    (with-output-to-string (stream)
-      (setq result (input-stream-p stream)))
-    result)
-  nil)
-
-(deftest input-stream-p-extend-string.1
-  (with-extend-to-string
-    (inst array)
-    (input-stream-p inst))
-  nil)
-
-
-;;
-;;  output-stream-p
-;;
-(deftest output-stream-p.1
-  (output-stream-p
-    *standard-output*)
-  t)
-
-(deftest output-stream-p.2
-  (output-stream-p
-    *standard-input*)
-  nil)
-
-(deftest output-stream-p.3
-  (output-stream-p
-    *terminal-io*)
-  t)
-
-(deftest output-stream-p-file.1
-  (with-temp-file
-    (with-open-file (stream *file* :direction :input)
-      (output-stream-p stream)))
-  nil)
-
-(deftest output-stream-p-file.2
-  (with-temp-file
-    (with-open-file (stream *file* :direction :output :if-exists :supersede)
-      (output-stream-p stream)))
-  t)
-
-(deftest output-stream-p-file.3
-  (with-temp-file
-    (with-open-file (stream *file* :direction :io :if-exists :supersede)
-      (output-stream-p stream)))
-  t)
-
-(deftest output-stream-p-broadcast.1
-  (with-open-stream (inst (make-broadcast-stream))
-    (output-stream-p inst))
-  t)
-
-(deftest output-stream-p-broadcast.2
-  (with-open-stream (inst (make-broadcast-stream *terminal-io*))
-    (output-stream-p inst))
-  t)
-
-(deftest output-stream-p-broadcast.3
-  (with-open-stream (inst (make-broadcast-stream *standard-output*))
-    (output-stream-p inst))
-  t)
-
-(deftest output-stream-p-concatenated.1
-  (with-open-stream (inst (make-concatenated-stream))
-    (output-stream-p inst))
-  nil)
-
-(deftest output-stream-p-echo.1
-  (with-open-stream (inst (make-echo-stream *standard-input* *standard-output*))
-    (output-stream-p inst))
-  t)
-
-(deftest output-stream-p-synonym.1
-  (with-temp-file
-    (with-open-file (hello *file* :direction :input)
-      (declare (special hello))
-      (with-open-stream (inst (make-synonym-stream 'hello))
-        (output-stream-p inst))))
-  nil)
-
-(deftest output-stream-p-synonym.2
-  (with-temp-file
-    (with-open-file (hello *file* :direction :output :if-exists :supersede)
-      (declare (special hello))
-      (with-open-stream (inst (make-synonym-stream 'hello))
-        (output-stream-p inst))))
-  t)
-
-(deftest output-stream-p-two-way.1
-  (with-open-stream (inst (make-two-way-stream *standard-input* *standard-output*))
-    (output-stream-p inst))
-  t)
-
-(deftest output-stream-p-input-string.1
-  (with-input-from-string (stream "Hello")
-    (output-stream-p stream))
-  nil)
-
-(deftest output-stream-p-output-string.1
-  (let ((result 'error))
-    (with-output-to-string (stream)
-      (setq result (output-stream-p stream)))
-    result)
-  t)
-
-(deftest output-stream-p-extend-string.1
-  (with-extend-to-string
-    (inst array)
-    (output-stream-p inst))
-  t)
-
-
-;;
-;;  interactive-stream-p
-;;
-(deftest interactive-stream-p.1
-  (interactive-stream-p
-    *standard-input*)
-  t)
-
-(deftest interactive-stream-p.2
-  (interactive-stream-p
-    *standard-output*)
-  t)
-
-(deftest interactive-stream-p.3
-  (interactive-stream-p
-    *error-output*)
-  t)
-
-(deftest interactive-stream-p-file.1
-  (with-temp-file
-    (with-open-file (stream *file* :direction :input)
-      (interactive-stream-p stream)))
-  nil)
-
-(deftest interactive-stream-p-file.2
-  (with-temp-file
-    (with-open-file (stream *file* :direction :output :if-exists :supersede)
-      (interactive-stream-p stream)))
-  nil)
-
-(deftest interactive-stream-p-file.3
-  (with-temp-file
-    (with-open-file (stream *file* :direction :io :if-exists :supersede)
-      (interactive-stream-p stream)))
-  nil)
-
-(deftest interactive-stream-p-broadcast.1
-  (with-open-stream (inst (make-broadcast-stream))
-    (interactive-stream-p inst))
-  nil)
-
-(deftest interactive-stream-p-broadcast.2
-  (with-open-stream (inst (make-broadcast-stream *query-io*))
-    (interactive-stream-p inst))
-  nil)
-
-(deftest interactive-stream-p-broadcast.3
-  (with-open-stream (inst (make-broadcast-stream *standard-output*))
-    (interactive-stream-p inst))
-  nil)
-
-(deftest interactive-stream-p-concatenated.1
-  (with-open-stream (inst (make-concatenated-stream))
-    (interactive-stream-p inst))
-  nil)
-
-(deftest interactive-stream-p-echo.1
-  (with-open-stream (inst (make-echo-stream *standard-input* *standard-output*))
-    (interactive-stream-p inst))
-  nil)
-
-(deftest interactive-stream-p-synonym.1
-  (with-temp-file
-    (with-open-file (hello *file* :direction :input)
-      (declare (special hello))
-      (with-open-stream (inst (make-synonym-stream 'hello))
-        (interactive-stream-p inst))))
-  nil)
-
-(deftest interactive-stream-p-synonym.2
-  (with-temp-file
-    (with-open-file (hello *file* :direction :output :if-exists :supersede)
-      (declare (special hello))
-      (with-open-stream (inst (make-synonym-stream 'hello))
-        (interactive-stream-p inst))))
-  nil)
-
-(deftest interactive-stream-p-synonym.3
-  (with-open-stream (stream (make-synonym-stream '*standard-input*))
-    (interactive-stream-p stream))
-  t)
-
-(deftest interactive-stream-p-two-way.1
-  (with-open-stream (inst (make-two-way-stream *standard-input* *standard-output*))
-    (interactive-stream-p inst))
-  t)
-
-(deftest interactive-stream-p-input-string.1
-  (with-input-from-string (stream "Hello")
-    (interactive-stream-p stream))
-  nil)
-
-(deftest interactive-stream-p-output-string.1
-  (let ((result 'error))
-    (with-output-to-string (stream)
-      (setq result (interactive-stream-p stream)))
-    result)
-  nil)
-
-(deftest interactive-stream-p-extend-string.1
-  (with-extend-to-string
-    (inst array)
-    (interactive-stream-p inst))
-  nil)
-
-
-;;
-;;  open-stream-p
-;;
-(deftest open-stream-p.1
-  (open-stream-p
-    *standard-input*)
-  t)
-
-(deftest open-stream-p.2
-  (open-stream-p
-    *standard-output*)
-  t)
-
-(deftest open-stream-p.3
-  (open-stream-p
-    (open #p"test/empty.file" :direction :probe))
-  nil)
-
-(deftest open-stream-p-file.1
-  (with-temp-file
-    (with-open-file (stream *file* :direction :input)
-      (open-stream-p stream)))
-  t)
-
-(deftest open-stream-p-file.2
-  (with-temp-file
-    (let ((stream (open *file* :direction :input)))
-      (close stream)
-      (open-stream-p stream)))
-  nil)
-
-(deftest open-stream-p-file.3
-  (with-temp-file
-    (with-open-file (stream *file* :direction :output :if-exists :supersede)
-      (open-stream-p stream)))
-  t)
-
-(deftest open-stream-p-file.4
-  (with-temp-file
-    (let ((stream (open *file* :direction :output :if-exists :supersede)))
-      (close stream)
-      (open-stream-p stream)))
-  nil)
-
-(deftest open-stream-p-file.5
-  (with-temp-file
-    (with-open-file (stream *file* :direction :io :if-exists :supersede)
-      (open-stream-p stream)))
-  t)
-
-(deftest open-stream-p-file.6
-  (with-temp-file
-    (let ((stream (open *file* :direction :io :if-exists :supersede)))
-      (close stream)
-      (open-stream-p stream)))
-  nil)
-
-(deftest open-stream-p-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (open-stream-p stream))
-  t)
-
-(deftest open-stream-p-broadcast.2
-  (let ((stream (make-broadcast-stream)))
-    (close stream)
-    (open-stream-p stream))
-  nil)
-
-(deftest open-stream-p-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (open-stream-p stream))
-  t)
-
-(deftest open-stream-p-concatenated.2
-  (let ((stream (make-concatenated-stream)))
-    (close stream)
-    (open-stream-p stream))
-  nil)
-
-(deftest open-stream-p-echo.1
-  (with-open-stream (stream (make-echo-stream *standard-input* *standard-output*))
-    (open-stream-p stream))
-  t)
-
-(deftest open-stream-p-echo.2
-  (let ((stream (make-echo-stream *standard-input* *standard-output*)))
-    (close stream)
-    (open-stream-p stream))
-  nil)
-
-(deftest open-stream-p-synonym.1
-  (with-open-stream (stream (make-synonym-stream '*standard-input*))
-    (values
-      (open-stream-p stream)
-      (open-stream-p *standard-input*)))
-  t t)
-
-(deftest open-stream-p-synonym.2
-  (let ((stream (make-synonym-stream '*standard-input*)))
-    (close stream)
-    (values
-      (open-stream-p stream)
-      (open-stream-p *standard-input*)))
-  nil t)
-
-(deftest open-stream-p-two-way.1
-  (with-open-stream (stream (make-two-way-stream *standard-input* *standard-output*))
-    (open-stream-p stream))
-  t)
-
-(deftest open-stream-p-two-way.2
-  (let ((stream (make-two-way-stream *standard-input* *standard-output*)))
-    (close stream)
-    (values
-      (open-stream-p stream)
-      (open-stream-p *standard-input*)
-      (open-stream-p *standard-output*)))
-  nil t t)
-
-(deftest open-stream-p-input-string.1
-  (with-input-from-string (stream "Hello")
-    (open-stream-p stream))
-  t)
-
-(deftest open-stream-p-input-string.2
-  (let ((stream (make-string-input-stream "Hello")))
-    (close stream)
-    (open-stream-p stream))
-  nil)
-
-(deftest open-stream-p-output-string.1
-  (let ((result 'error))
-    (with-output-to-string (stream)
-      (setq result (open-stream-p stream)))
-    result)
-  t)
-
-(deftest open-stream-p-output-string.2
-  (let ((stream (make-string-output-stream)))
-    (close stream)
-    (open-stream-p stream))
-  nil)
-
-(deftest open-stream-p-extend-string.1
-  (with-extend-to-string
-    (inst array)
-    (open-stream-p inst))
-  t)
-
-(deftest open-stream-p-extend-string.2
-  (let (stream)
-    (with-extend-to-string
-      (inst array)
-      (setq stream inst))
-    (open-stream-p stream))
-  nil)
-
-
-;;
-;;  stream-element-type
-;;
-(deftest stream-element-type.1
-  (stream-element-type *standard-input*)
-  character)
-
-(deftest stream-element-type.2
-  (stream-element-type *standard-output*)
-  character)
-
-(deftest stream-element-type-file.1
-  (with-temp-file
-    (with-open-file (stream *file* :direction :input)
-      (stream-element-type stream)))
-  character)
-
-(deftest stream-element-type-file.2
-  (with-temp-file
-    (with-open-file (stream *file* :direction :input :element-type 'unsigned-byte)
-      (stream-element-type stream)))
-  (unsigned-byte 8))
-
-(deftest stream-element-type-file.3
-  (with-temp-file
-    (with-open-file (stream *file* :direction :output :if-exists :supersede)
-      (stream-element-type stream)))
-  character)
-
-(deftest stream-element-type-file.4
-  (with-temp-file
-    (with-open-file (stream *file* :direction :output
-                            :if-exists :supersede :element-type 'unsigned-byte)
-      (stream-element-type stream)))
-  (unsigned-byte 8))
-
-(deftest stream-element-type-file.5
-  (with-temp-file
-    (with-open-file (stream *file* :direction :io :if-exists :supersede)
-      (stream-element-type stream)))
-  character)
-
-(deftest stream-element-type-file.6
-  (with-temp-file
-    (with-open-file (stream *file* :direction :io
-                            :if-exists :supersede :element-type 'unsigned-byte)
-      (stream-element-type stream)))
-  (unsigned-byte 8))
-
-(deftest stream-element-type-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (stream-element-type stream))
-  t)
-
-(deftest stream-element-type-broadcast.2
-  (with-temp-file
-    (with-open-file (output *file* :direction :io
-                            :if-exists :supersede
-                            :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-broadcast-stream *standard-output* output))
-        (stream-element-type stream))))
-  (unsigned-byte 8))
-
-(deftest stream-element-type-broadcast.3
-  (with-temp-file
-    (with-open-file (output *file* :direction :io
-                            :if-exists :supersede
-                            :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-broadcast-stream output *standard-output*))
-        (stream-element-type stream))))
-  character)
-
-(deftest stream-element-type-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (stream-element-type stream))
-  nil)
-
-(deftest stream-element-type-concatenated.2
-  (with-temp-file
-    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-concatenated-stream *standard-input* input))
-        (stream-element-type stream))))
-  character)
-
-(deftest stream-element-type-concatenated.3
-  (with-temp-file
-    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-concatenated-stream input *standard-input*))
-        (stream-element-type stream))))
-  (unsigned-byte 8))
-
-(deftest stream-element-type-echo.1
-  (with-open-stream (stream (make-echo-stream *standard-input* *standard-output*))
-    (stream-element-type stream))
-  character)
-
-(deftest stream-element-type-echo.2
-  (with-temp-file
-    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-echo-stream input *standard-output*))
-        (stream-element-type stream))))
-  (or (unsigned-byte 8) character))
-
-(deftest stream-element-type-echo.3
-  (with-temp-file
-    (with-open-file (output *file* :direction :output
-                            :if-exists :supersede
-                            :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-echo-stream *standard-input* output))
-        (stream-element-type stream))))
-  (or character (unsigned-byte 8)))
-
-(deftest stream-element-type-synonym.1
-  (with-open-stream (stream (make-synonym-stream '*standard-input*))
-    (stream-element-type stream))
-  character)
-
-(deftest stream-element-type-synonym.2
-  (with-temp-file
-    (with-open-file (hello *file* :direction :input :element-type 'unsigned-byte)
-      (declare (special hello))
-      (with-open-stream (stream (make-synonym-stream 'hello))
-        (stream-element-type stream))))
-  (unsigned-byte 8))
-
-(deftest stream-element-type-two-way.1
-  (with-open-stream (stream (make-two-way-stream *standard-input* *standard-output*))
-    (stream-element-type stream))
-  character)
-
-(deftest stream-element-type-two-way.2
-  (with-temp-file
-    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-two-way-stream input *standard-output*))
-        (stream-element-type stream))))
-  (or (unsigned-byte 8) character))
-
-(deftest stream-element-type-two-way.3
-  (with-temp-file
-    (with-open-file (output *file* :direction :output
-                            :if-exists :supersede
-                            :element-type 'unsigned-byte)
-      (with-open-stream (stream (make-two-way-stream *standard-input* output))
-        (stream-element-type stream))))
-  (or character (unsigned-byte 8)))
-
-(deftest stream-element-type-input-string.1
-  (with-input-from-string (stream "Hello")
-    (stream-element-type stream))
-  character)
-
-(deftest stream-element-type-output-string.1
-  (let ((result 'error))
-    (with-output-to-string (stream)
-      (setq result (stream-element-type stream)))
-    result)
-  character)
-
-(deftest stream-element-type-extend-string.1
-  (with-extend-to-string
-    (inst array)
-    (stream-element-type inst))
-  character)
 
 
 ;;

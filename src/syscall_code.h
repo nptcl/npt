@@ -88,6 +88,7 @@
 #define declare_parse_syscode _n(declare_parse_syscode)
 #define parse_type_syscode _n(parse_type_syscode)
 #define type_object_syscode _n(type_object_syscode)
+#define upgraded_open_element_type_syscode_ _n(upgraded_open_element_type_syscode_)
 #define extension_syscode _n(extension_syscode)
 
 _g int hello_syscode(Execute ptr);
@@ -180,6 +181,7 @@ _g int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g int declare_parse_syscode(addr form, addr *ret);
 _g int parse_type_syscode(Execute ptr, addr var, addr *ret);
 _g int type_object_syscode(addr var, addr *ret);
+_g int upgraded_open_element_type_syscode_(addr var, addr *ret);
 _g int extension_syscode(Execute ptr, addr var);
 
 #endif
