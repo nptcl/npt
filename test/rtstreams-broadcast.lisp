@@ -104,3 +104,58 @@
         (stream-element-type stream))))
   character)
 
+
+;;
+;;  read-byte
+;;
+(deftest-error broadcast-read-byte.1
+  (with-temp-file
+    (with-open-file (output *file* :direction :io :element-type 'unsigned-byte)
+      (with-open-stream (stream (make-broadcast-stream output))
+        (read-byte stream nil :eof))))
+  file-error)
+
+
+;;
+;;  write-byte
+;;
+(deftest broadcast-write-byte.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (write-byte 70 stream))
+  70)
+
+(deftest broadcast-write-byte.2
+  (with-temp-file1-file2
+    (with-binary-output
+      (output1 *file1*)
+      (with-binary-output
+        (output2 *file2*)
+        (with-open-stream (stream (make-broadcast-stream output1 output2))
+          (write-byte 70 stream)
+          (write-byte 71 stream))))
+    (let (result)
+      (with-open-file (input *file1*)
+        (push (read-char input nil :eof) result)
+        (push (read-char input nil :eof) result)
+        (push (read-char input nil :eof) result))
+      (with-open-file (input *file2*)
+        (push (read-char input nil :eof) result)
+        (push (read-char input nil :eof) result)
+        (push (read-char input nil :eof) result))
+      (nreverse result)))
+  (#\F #\G :eof #\F #\G :eof))
+
+(deftest-error broadcast-write-byte.3
+  (with-temp-file1-file2
+    (with-overwrite-file (output *file*)
+      (with-open-stream (stream (make-broadcast-stream output))
+        (write-byte 70 stream)))))
+
+
+;;
+;;  read-char
+;;
+(deftest-error broadcast-read-char.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (read-char stream nil)))
+

@@ -195,12 +195,6 @@ _g int element_type_character_stream(addr stream, addr *ret)
 	return 0;
 }
 
-_g int element_type_binary_stream(addr stream, addr *ret)
-{
-	GetConst(STREAM_BINARY_TYPE, ret);
-	return 0;
-}
-
 _g int element_type_io_stream(addr stream, addr *ret)
 {
 	int check;

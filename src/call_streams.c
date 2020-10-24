@@ -85,13 +85,7 @@ _g int peek_char_common(Execute ptr, addr type, addr stream,
  */
 static int call_end_of_file_recursive_(Execute ptr, addr pos, int recp)
 {
-	if (recp) {
-		return fmte_("The stream ~S "
-				"reach end-of-file, but recursive-p is true.", pos, NULL);
-	}
-	else {
-		return call_end_of_file_(ptr, pos);
-	}
+	return call_end_of_file_(ptr, pos);
 }
 
 _g int read_char_common(Execute ptr,

@@ -117,3 +117,91 @@
         (stream-element-type stream))))
   (unsigned-byte 8))
 
+
+;;
+;;  read-byte
+;;
+(deftest synonym-read-byte.1
+  (with-temp-file
+    (with-open-file (*hello* *file* :element-type 'unsigned-byte)
+      (declare (special *hello*))
+      (with-open-stream (stream (make-synonym-stream '*hello*))
+        (read-byte stream))))
+  65)
+
+(deftest synonym-read-byte.2
+  (with-temp-file
+    (with-open-file (*hello* *file* :element-type 'unsigned-byte)
+      (declare (special *hello*))
+      (with-open-stream (stream (make-synonym-stream '*hello*))
+        (values
+          (read-byte stream nil :eof)
+          (read-byte stream nil :eof)
+          (read-byte stream nil :eof)
+          (read-byte stream nil :eof)
+          (read-byte stream nil :eof)))))
+  65 66 67 :eof :eof)
+
+(deftest-error synonym-read-byte.3
+  (with-temp-file
+    (with-open-file (*hello* *file* :element-type 'unsigned-byte)
+      (declare (special *hello*))
+      (with-open-stream (stream (make-synonym-stream '*hello*))
+        (read-byte stream)
+        (read-byte stream)
+        (read-byte stream)
+        (read-byte stream)
+        (read-byte stream))))
+  end-of-file)
+
+
+;;
+;;  write-byte
+;;
+(deftest synonym-write-byte.1
+  (with-temp-file
+    (with-binary-output
+      (hello *file*)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (write-byte 70 stream)
+        (write-byte 71 stream)))
+    (with-open-file (input *file*)
+      (values
+        (read-char input nil :eof)
+        (read-char input nil :eof)
+        (read-char input nil :eof))))
+  #\F #\G :eof)
+
+(deftest-error synonym-write-byte.2
+  (with-temp-file
+    (with-overwrite-file (hello *file*)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (write-byte 70 stream)))))
+
+
+;;
+;;  read-char
+;;
+(deftest synonym-read-char.1
+  (with-temp-file
+    (with-open-file (hello *file*)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (read-char stream))))
+  #\A)
+
+(deftest synonym-read-char.2
+  (with-temp-file
+    (with-open-file (hello *file*)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (values
+          (read-char stream nil :eof)
+          (read-char stream nil :eof)
+          (read-char stream nil :eof)
+          (read-char stream nil :eof)
+          (read-char stream nil :eof)))))
+  #\A #\B #\C :eof :eof)
+

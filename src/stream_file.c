@@ -27,7 +27,7 @@ _g void init_stream_binary_input(void)
 	DefineStreamChk(BinaryInput, interactivep, false);
 	DefineStreamChk(BinaryInput, characterp, false);
 	DefineStreamChk(BinaryInput, binaryp, true);
-	DefineStreamLet(BinaryInput, element_type, binary_stream);
+	DefineStreamLet(BinaryInput, element_type, file_);
 	DefineStreamDef(BinaryInput, file_length);
 	DefineStreamLet(BinaryInput, file_position, file_);
 	DefineStreamLet(BinaryInput, file_position_start, file_);
@@ -66,7 +66,7 @@ _g void init_stream_binary_output(void)
 	DefineStreamChk(BinaryOutput, interactivep, false);
 	DefineStreamChk(BinaryOutput, characterp, false);
 	DefineStreamChk(BinaryOutput, binaryp, true);
-	DefineStreamLet(BinaryOutput, element_type, binary_stream);
+	DefineStreamLet(BinaryOutput, element_type, file_);
 	DefineStreamDef(BinaryOutput, file_length);
 	DefineStreamLet(BinaryOutput, file_position, file_);
 	DefineStreamLet(BinaryOutput, file_position_start, file_);
@@ -105,7 +105,7 @@ _g void init_stream_binary_io(void)
 	DefineStreamChk(BinaryIO, interactivep, false);
 	DefineStreamChk(BinaryIO, characterp, false);
 	DefineStreamChk(BinaryIO, binaryp, true);
-	DefineStreamLet(BinaryIO, element_type, binary_stream);
+	DefineStreamLet(BinaryIO, element_type, file_);
 	DefineStreamDef(BinaryIO, file_length);
 	DefineStreamLet(BinaryIO, file_position, file_);
 	DefineStreamLet(BinaryIO, file_position_start, file_);

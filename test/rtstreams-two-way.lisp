@@ -97,3 +97,94 @@
         (stream-element-type stream))))
   (or character (unsigned-byte 8)))
 
+
+;;
+;;  read-byte
+;;
+(deftest two-way-read-byte.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1* :element-type 'unsigned-byte)
+      (with-binary-output
+        (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (read-byte stream)))))
+  65)
+
+(deftest two-way-read-byte.2
+  (with-temp-file1-file2
+    (with-open-file (input *file1* :element-type 'unsigned-byte)
+      (with-binary-output
+        (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (values
+            (read-byte stream nil :eof)
+            (read-byte stream nil :eof)
+            (read-byte stream nil :eof)
+            (read-byte stream nil :eof)
+            (read-byte stream nil :eof))))))
+  65 66 67 :eof :eof)
+
+(deftest-error two-way-read-byte.3
+  (with-temp-file1-file2
+    (with-open-file (input *file1* :element-type 'unsigned-byte)
+      (with-binary-output
+        (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (read-byte stream)
+          (read-byte stream)
+          (read-byte stream)
+          (read-byte stream)
+          (read-byte stream)))))
+  end-of-file)
+
+
+;;
+;;  write-byte
+;;
+(deftest two-way-write-byte.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1* :element-type 'unsigned-byte)
+      (with-binary-output
+        (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (write-byte 70 stream)
+          (write-byte 71 stream))))
+    (with-open-file (input *file2*)
+      (values
+        (read-char input nil :eof)
+        (read-char input nil :eof)
+        (read-char input nil :eof))))
+  #\F #\G :eof)
+
+(deftest-error two-way-write-byte.2
+  (with-temp-file1-file2
+    (with-open-file (input *file1* :element-type 'unsigned-byte)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (write-byte 70 stream))))))
+
+
+;;
+;;  read-char
+;;
+(deftest two-way-read-char.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (read-char stream)))))
+  #\A)
+
+(deftest two-way-read-char.2
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (values
+            (read-char stream nil :eof)
+            (read-char stream nil :eof)
+            (read-char stream nil :eof)
+            (read-char stream nil :eof)
+            (read-char stream nil :eof))))))
+  #\A #\B #\C :eof :eof)
+

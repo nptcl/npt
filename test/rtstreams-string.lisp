@@ -140,3 +140,67 @@
     (stream-element-type inst))
   character)
 
+
+;;
+;;  read-byte
+;;
+(deftest-error string-read-byte.1
+  (with-input-from-string (stream "Hello")
+    (read-byte stream)))
+
+(deftest-error string-read-byte.2
+  (with-output-to-string (stream)
+    (read-byte stream))
+  type-error)
+
+(deftest-error string-read-byte.3
+  (with-extend-to-string
+    (inst array)
+    (read-byte inst))
+  type-error)
+
+
+;;
+;;  write-byte
+;;
+(deftest-error string-write-byte.1
+  (with-input-from-string (input "Hello")
+    (write-byte 70 input)))
+
+(deftest-error string-write-byte.2
+  (with-output-to-string (output)
+    (write-byte 70 output)))
+
+(deftest-error string-write-byte.3
+  (with-extend-to-string
+    (output array)
+    (write-byte 70 output)))
+
+
+;;
+;;  read-char
+;;
+(deftest string-read-char.1
+  (with-input-from-string (stream "ABC")
+    (read-char stream))
+  #\A)
+
+(deftest string-read-char.2
+  (with-input-from-string (stream "ABC")
+    (values
+      (read-char stream nil :eof)
+      (read-char stream nil :eof)
+      (read-char stream nil :eof)
+      (read-char stream nil :eof)
+      (read-char stream nil :eof)))
+  #\A #\B #\C :eof :eof)
+
+(deftest-error string-read-char.3
+  (with-output-to-string (stream)
+    (read-char stream nil :eof)))
+
+(deftest-error string-read-char.4
+  (with-extend-to-string
+    (stream array)
+    (read-char stream nil :eof)))
+

@@ -27,7 +27,6 @@
 #define checkp_true_stream _n(checkp_true_stream)
 #define checkp_false_stream _n(checkp_false_stream)
 #define element_type_character_stream _n(element_type_character_stream)
-#define element_type_binary_stream _n(element_type_binary_stream)
 #define element_type_io_stream _n(element_type_io_stream)
 
 _g int close_default_stream(addr stream, addr *ret);
@@ -54,7 +53,6 @@ _g int termsize_default_stream(addr stream, size_t *value, int *ret);
 _g int checkp_true_stream(addr stream, int *ret);
 _g int checkp_false_stream(addr stream, int *ret);
 _g int element_type_character_stream(addr stream, addr *ret);
-_g int element_type_binary_stream(addr stream, addr *ret);
 _g int element_type_io_stream(addr stream, addr *ret);
 
 #endif

@@ -2,6 +2,7 @@
 #include "bignum_object.h"
 #include "character.h"
 #include "condition.h"
+#include "cons.h"
 #include "constant.h"
 #include "console.h"
 #include "encode.h"
@@ -714,6 +715,12 @@ _g int write_char_file_(addr stream, unicode c)
 	return write_char_encode_(fm, c);
 }
 
+_g int element_type_file_(addr stream, addr *ret)
+{
+	external_format_file(stream, ret);
+	return 0;
+}
+
 _g int file_length_file_(addr stream, size_t *value, int *ret)
 {
 	int check;
@@ -872,6 +879,24 @@ _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 	return length_string_encode_(fm, pos, value, ret);
 }
 
+static void external_format_unsigned_byte(fixnum v, addr *ret)
+{
+	addr type, value;
+
+	GetConst(COMMON_UNSIGNED_BYTE, &type);
+	fixnum_heap(&value, v);
+	list_heap(ret, type, value, NULL);
+}
+
+static void external_format_signed_byte(fixnum v, addr *ret)
+{
+	addr type, value;
+
+	GetConst(COMMON_SIGNED_BYTE, &type);
+	fixnum_heap(&value, v);
+	list_heap(ret, type, value, NULL);
+}
+
 _g void external_format_file(addr stream, addr *ret)
 {
 	enum EncodeBom bom;
@@ -882,7 +907,35 @@ _g void external_format_file(addr stream, addr *ret)
 	bom = (enum EncodeBom)fm->encode.bom;
 	switch (fm->encode.type) {
 		case EncodeType_binary:
-			GetConst(STREAM_BINARY_TYPE, ret);
+			external_format_unsigned_byte(8, ret);
+			break;
+
+		case EncodeType_unsigned16:
+			external_format_unsigned_byte(16, ret);
+			break;
+
+		case EncodeType_unsigned32:
+			external_format_unsigned_byte(32, ret);
+			break;
+
+		case EncodeType_unsigned64:
+			external_format_unsigned_byte(64, ret);
+			break;
+
+		case EncodeType_signed8:
+			external_format_signed_byte(8, ret);
+			break;
+
+		case EncodeType_signed16:
+			external_format_signed_byte(16, ret);
+			break;
+
+		case EncodeType_signed32:
+			external_format_signed_byte(32, ret);
+			break;
+
+		case EncodeType_signed64:
+			external_format_signed_byte(64, ret);
 			break;
 
 		case EncodeType_ascii:

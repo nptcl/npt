@@ -220,3 +220,182 @@
       (stream-element-type stream)))
   (unsigned-byte 8))
 
+(defun file-open-element-type (type)
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input :element-type type)
+      (stream-element-type stream))))
+
+(deftest file-stream-element-type.7
+  (file-open-element-type '(unsigned-byte 3))
+  (unsigned-byte 8))
+
+(deftest file-stream-element-type.8
+  (file-open-element-type '(unsigned-byte 8))
+  (unsigned-byte 8))
+
+(deftest file-stream-element-type.9
+  (file-open-element-type '(unsigned-byte 16))
+  (unsigned-byte 16))
+
+(deftest file-stream-element-type.10
+  (file-open-element-type '(unsigned-byte 32))
+  (unsigned-byte 32))
+
+#+64-bit
+(deftest file-stream-element-type.11
+  (file-open-element-type '(unsigned-byte 64))
+  (unsigned-byte 64))
+
+(deftest file-stream-element-type.12
+  (file-open-element-type '(signed-byte 8))
+  (signed-byte 8))
+
+(deftest file-stream-element-type.13
+  (file-open-element-type '(signed-byte 16))
+  (signed-byte 16))
+
+(deftest file-stream-element-type.14
+  (file-open-element-type '(signed-byte 32))
+  (signed-byte 32))
+
+#+64-bit
+(deftest file-stream-element-type.15
+  (file-open-element-type '(signed-byte 64))
+  (signed-byte 64))
+
+
+;;
+;;  read-byte
+;;
+(deftest file-read-byte.1
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input :element-type 'unsigned-byte)
+      (read-byte stream)))
+  65)
+
+(deftest file-read-byte.2
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input :element-type 'unsigned-byte)
+      (read-byte stream)
+      (read-byte stream)))
+  66)
+
+(deftest-error file-read-byte.3
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input :element-type 'unsigned-byte)
+      (read-byte stream)
+      (read-byte stream)
+      (read-byte stream)
+      (read-byte stream)
+      (read-byte stream)))
+  end-of-file)
+
+(deftest-error file-read-byte.4
+  (with-temp-file
+    (with-binary-output
+      (stream *file*)
+      (read-byte stream)))
+  type-error)
+
+(deftest-error file-read-byte.5
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input)
+      (read-byte stream))))
+
+(deftest-error file-read-byte.6
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input :element-type 'unsigned-byte)
+      (read-byte stream)
+      (read-byte stream)
+      (read-byte stream)
+      (read-byte stream)
+      (read-byte stream)))
+  end-of-file)
+
+(deftest file-read-byte.7
+  (with-temp-file
+    (with-open-file (stream *file* :direction :input :element-type 'unsigned-byte)
+      (values
+        (read-byte stream nil :eof)
+        (read-byte stream nil :eof)
+        (read-byte stream nil :eof)
+        (read-byte stream nil :eof)
+        (read-byte stream nil :eof))))
+  65 66 67 :eof :eof)
+
+
+;;
+;;  write-byte
+;;
+(deftest file-write-byte.1
+  (with-temp-file
+    (with-binary-output
+      (output *file*)
+      (write-byte 70 output)
+      (write-byte 71 output))
+    (with-open-file (input *file*)
+      (values
+        (read-char input nil :eof)
+        (read-char input nil :eof)
+        (read-char input nil :eof))))
+  #\F #\G :eof)
+
+(deftest-error file-write-byte.2
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (write-byte 70 output))))
+
+
+;;
+;;  read-char
+;;
+(deftest file-read-char.1
+  (with-temp-file
+    (with-open-file (input *file*)
+      (read-char input)))
+  #\A)
+
+(deftest file-read-char.2
+  (with-temp-file
+    (with-open-file (input *file*)
+      (values
+        (read-char input)
+        (read-char input)
+        (read-char input))))
+  #\A #\B #\C)
+
+(deftest-error file-read-char.3
+  (with-temp-file
+    (with-open-file (input *file*)
+      (values
+        (read-char input)
+        (read-char input)
+        (read-char input)
+        (read-char input))))
+  end-of-file)
+
+(deftest file-read-char.4
+  (with-temp-file
+    (with-open-file (input *file*)
+      (values
+        (read-char input nil)
+        (read-char input nil)
+        (read-char input nil)
+        (read-char input nil))))
+  #\A #\B #\C nil)
+
+(deftest file-read-char.5
+  (with-temp-file
+    (with-open-file (input *file*)
+      (values
+        (read-char input nil :eof)
+        (read-char input nil :eof)
+        (read-char input nil :eof)
+        (read-char input nil :eof))))
+  #\A #\B #\C :eof)
+
+(deftest-error file-read-char.6
+  (with-temp-file
+    (with-open-file (input *file* :element-type 'unsigned-byte)
+      (read-char input nil :eof))))
+

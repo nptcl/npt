@@ -93,3 +93,122 @@
         (stream-element-type stream))))
   (unsigned-byte 8))
 
+
+;;
+;;  read-byte
+;;
+(deftest concatenated-read-byte.1
+  (with-temp-file
+    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (read-byte input))))
+  65)
+
+(deftest-error concatenated-read-byte.2
+  (with-temp-file
+    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (read-byte input)
+        (read-byte input)
+        (read-byte input)
+        (read-byte input))))
+  end-of-file)
+
+(deftest concatenated-read-byte.3
+  (with-temp-file
+    (with-open-file (input *file* :direction :input :element-type 'unsigned-byte)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (values
+          (read-byte input nil :eof)
+          (read-byte input nil :eof)
+          (read-byte input nil :eof)
+          (read-byte input nil :eof)
+          (read-byte input nil :eof)))))
+  65 66 67 :eof :eof)
+
+(deftest concatenated-read-byte.4
+  (with-make-file
+    (*file1* "AB")
+    (with-make-file
+      (*file2* "ab")
+      (with-open-file (input1 *file1* :element-type 'unsigned-byte)
+        (with-open-file (input2 *file2* :element-type 'unsigned-byte)
+          (with-open-stream (stream (make-concatenated-stream input1 input2))
+            (values
+              (read-byte stream nil :eof)
+              (read-byte stream nil :eof)
+              (read-byte stream nil :eof)
+              (read-byte stream nil :eof)
+              (read-byte stream nil :eof)
+              (read-byte stream nil :eof)))))))
+  65 66 97 98 :eof :eof)
+
+(deftest-error concatenated-read-byte.5
+  (with-make-file
+    (*file1* "AB")
+    (with-make-file
+      (*file2* "ab")
+      (with-open-file (input1 *file1* :element-type 'unsigned-byte)
+        (with-open-file (input2 *file2* :element-type 'unsigned-byte)
+          (with-open-stream (stream (make-concatenated-stream input1 input2))
+            (values
+              (read-byte stream)
+              (read-byte stream)
+              (read-byte stream)
+              (read-byte stream)
+              (read-byte stream)))))))
+  end-of-file)
+
+
+;;
+;;  write-byte
+;;
+(deftest-error concatenated-write-byte.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (write-byte 70 stream)))
+
+
+;;
+;;  read-char
+;;
+(deftest concatenated-read-char.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (read-char stream nil))
+  nil)
+
+(deftest concatenated-read-char.2
+  (with-make-file
+    (*file1* "AB")
+    (with-open-file (input *file1*)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (read-char stream))))
+  #\A)
+
+(deftest concatenated-read-char.3
+  (with-make-file
+    (*file1* "AB")
+    (with-open-file (input *file1*)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (values
+          (read-char stream nil :eof)
+          (read-char stream nil :eof)
+          (read-char stream nil :eof)))))
+  #\A #\B :eof)
+
+(deftest concatenated-read-char.4
+  (with-make-file
+    (*file1* "AB")
+    (with-make-file
+      (*file2* "CD")
+      (with-open-file (input1 *file1*)
+        (with-open-file (input2 *file2*)
+          (with-open-stream (stream (make-concatenated-stream input1 input2))
+            (values
+              (read-char stream nil :eof)
+              (read-char stream nil :eof)
+              (read-char stream nil :eof)
+              (read-char stream nil :eof)
+              (read-char stream nil :eof)
+              (read-char stream nil :eof)))))))
+  #\A #\B #\C #\D :eof :eof)
+

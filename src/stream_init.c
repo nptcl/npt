@@ -119,16 +119,6 @@ _g void init_stream(void)
 /*
  *  build
  */
-static void defvar_stream_binary_type(void)
-{
-	addr symbol, value;
-
-	GetConst(COMMON_UNSIGNED_BYTE, &symbol);
-	fixnum_heap(&value, 8);
-	list_heap(&value, symbol, value, NULL);
-	SetConstant(CONSTANT_STREAM_BINARY_TYPE, value);
-}
-
 static void defvar_external_format(void)
 {
 	addr symbol, value;
@@ -275,7 +265,6 @@ static void defvar_end_of_line(void)
 
 _g void build_stream(void)
 {
-	defvar_stream_binary_type();
 	defvar_external_format();
 	defvar_system_standard_input();
 	defvar_system_standard_output();

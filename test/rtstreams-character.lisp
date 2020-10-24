@@ -3,7 +3,7 @@
 ;;
 
 ;;
-;;  peek-char
+;;  Function PEEK-CHAR
 ;;
 (deftest peek-char.1
   (with-temp-file
@@ -47,8 +47,10 @@
     (with-open-file (stream *file*)
       (values
         (peek-char #\B stream nil :eof)
+        (peek-char #\B stream nil :eof)
+        (read-char stream)
         (peek-char #\B stream nil :eof))))
-  #\C :eof)
+  #\B #\B #\B :eof)
 
 (deftest-error peek-char.6
   (with-make-file
@@ -56,6 +58,8 @@
     (with-open-file (stream *file*)
       (values
         (peek-char #\B stream)
+        (peek-char #\B stream)
+        (read-char stream)
         (peek-char #\B stream))))
   end-of-file)
 
@@ -65,222 +69,98 @@
     (with-open-file (stream *file* :element-type 'unsigned-byte)
       (peek-char nil stream))))
 
-
-;;
-;;  read-char
-;;
-(deftest read-char-file.1
-  (with-temp-file
-    (with-open-file (input *file*)
-      (read-char input)))
+(deftest peek-char.8
+  (with-input-from-string (*standard-input* "ABC")
+    (peek-char))
   #\A)
 
-(deftest read-char-file.2
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char input)
-        (read-char input)
-        (read-char input))))
-  #\A #\B #\C)
+(deftest peek-char.9
+  (with-input-from-string (*standard-input* "  ABC")
+    (peek-char))
+  #\Space)
 
-(deftest-error read-char-file.3
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char input)
-        (read-char input)
-        (read-char input)
-        (read-char input))))
+(deftest-error peek-char.10
+  (with-input-from-string (stream "  ")
+    (peek-char t stream t nil t))
   end-of-file)
 
-(deftest read-char-file.4
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil))))
-  #\A #\B #\C nil)
+(deftest-error peek-char-error.1
+  (eval '(peek-char 10))
+  type-error)
 
-(deftest read-char-file.5
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char input nil :eof)
-        (read-char input nil :eof)
-        (read-char input nil :eof)
-        (read-char input nil :eof))))
-  #\A #\B #\C :eof)
+(deftest-error peek-char-error.2
+  (eval '(peek-char nil 20))
+  type-error)
 
-(deftest-error read-char-file.6
-  (with-temp-file
-    (with-open-file (input *file* :element-type 'unsigned-byte)
-      (read-char input nil :eof))))
+(deftest-error! peek-char-error.3
+  (eval '(peek-char nil *standard-input* nil nil nil nil)))
 
-(deftest-error read-char-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (read-char stream nil)))
-
-(deftest read-char-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (read-char stream nil))
-  nil)
-
-(deftest read-char-concatenated.2
-  (with-make-file
-    (*file1* "AB")
-    (with-open-file (input *file1*)
-      (with-open-stream (stream (make-concatenated-stream input))
-        (read-char stream))))
-  #\A)
-
-(deftest read-char-concatenated.3
-  (with-make-file
-    (*file1* "AB")
-    (with-open-file (input *file1*)
-      (with-open-stream (stream (make-concatenated-stream input))
-        (values
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)))))
-  #\A #\B :eof)
-
-(deftest read-char-concatenated.4
-  (with-make-file
-    (*file1* "AB")
-    (with-make-file
-      (*file2* "CD")
-      (with-open-file (input1 *file1*)
-        (with-open-file (input2 *file2*)
-          (with-open-stream (stream (make-concatenated-stream input1 input2))
-            (values
-              (read-char stream nil :eof)
-              (read-char stream nil :eof)
-              (read-char stream nil :eof)
-              (read-char stream nil :eof)
-              (read-char stream nil :eof)
-              (read-char stream nil :eof)))))))
-  #\A #\B #\C #\D :eof :eof)
-
-(deftest read-char-echo.1
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (read-char stream)))))
-  #\A)
-
-(deftest read-char-echo.2
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (read-char stream))))
-    (with-open-file (input *file2*)
-      (values
-        (read-char input nil nil)
-        (read-char input nil nil))))
-  #\A nil)
-
-(deftest read-char-echo.3
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (values
-            (read-char stream nil :eof)
-            (read-char stream nil :eof)
-            (read-char stream nil :eof)
-            (read-char stream nil :eof)
-            (read-char stream nil :eof))))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-echo.4
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof))))
-    (with-open-file (input *file2*)
-      (values
-        (read-char input nil :eof)
-        (read-char input nil :eof)
-        (read-char input nil :eof)
-        (read-char input nil :eof)
-        (read-char input nil :eof))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-synonym.1
-  (with-temp-file
-    (with-open-file (hello *file*)
-      (declare (special hello))
-      (with-open-stream (stream (make-synonym-stream 'hello))
-        (read-char stream))))
-  #\A)
-
-(deftest read-char-synonym.2
-  (with-temp-file
-    (with-open-file (hello *file*)
-      (declare (special hello))
-      (with-open-stream (stream (make-synonym-stream 'hello))
-        (values
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)
-          (read-char stream nil :eof)))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-two-way.1
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-two-way-stream input output))
-          (read-char stream)))))
-  #\A)
-
-(deftest read-char-two-way.2
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-two-way-stream input output))
-          (values
-            (read-char stream nil :eof)
-            (read-char stream nil :eof)
-            (read-char stream nil :eof)
-            (read-char stream nil :eof)
-            (read-char stream nil :eof))))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-input-string.1
-  (with-input-from-string (stream "ABC")
-    (read-char stream))
-  #\A)
-
-(deftest read-char-input-string.2
-  (with-input-from-string (stream "ABC")
+;;  ANSI Common Lisp
+(deftest peek-char-test.1
+  (with-input-from-string (input-stream "    1 2 3 4 5")
     (values
-      (read-char stream nil :eof)
-      (read-char stream nil :eof)
-      (read-char stream nil :eof)
-      (read-char stream nil :eof)
-      (read-char stream nil :eof)))
-  #\A #\B #\C :eof :eof)
+      (peek-char t input-stream)
+      (peek-char #\4 input-stream)
+      (peek-char nil input-stream)))
+  #\1 #\4 #\4)
 
-(deftest-error read-char-output-string.1
-  (with-output-to-string (stream)
-    (read-char stream nil :eof)))
 
-(deftest-error read-char-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (read-char stream nil :eof)))
+;;
+;;  Function READ-CHAR
+;;
+(deftest read-char.1
+  (with-input-from-string (*standard-input* "ABC")
+    (read-char))
+  #\A)
+
+(deftest-error read-char.2
+  (with-input-from-string (*standard-input* "")
+    (read-char))
+  end-of-file)
+
+(deftest-error read-char.3
+  (with-input-from-string (stream "")
+    (read-char stream t nil))
+  end-of-file)
+
+(deftest-error read-char.4
+  (with-input-from-string (stream "")
+    (read-char stream t nil t))
+  end-of-file)
+
+(deftest read-char.5
+  (with-input-from-string (stream "")
+    (read-char stream nil :hello t))
+  :hello)
+
+(deftest-error read-char.6
+  (let ((stream (make-string-input-stream "Hello")))
+    (close stream)
+    (read-char stream)))
+
+(deftest read-char.7
+  (with-input-from-string (stream "ABC")
+    (read-char stream)
+    (unread-char #\Z stream)
+    (read-char stream))
+  #\Z)
+
+(deftest-error read-char-error.1
+  (eval '(read-char 10))
+  type-error)
+
+(deftest-error! read-char-error.2
+  (eval '(read-char *standard-input* nil nil nil nil)))
+
+;;  ANSI Common Lisp
+(deftest read-char-test.1
+  (with-input-from-string (is "0123")
+    (do ((c (read-char is) (read-char is nil 'the-end))
+         list)
+      ((not (characterp c))
+       (nreverse list))
+      (push c list)))
+  (#\0 #\1 #\2 #\3))
 
 
 ;;

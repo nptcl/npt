@@ -27,6 +27,7 @@
 #define read_char_file_ _n(read_char_file_)
 #define read_hang_file_ _n(read_hang_file_)
 #define write_char_file_ _n(write_char_file_)
+#define element_type_file_ _n(element_type_file_)
 #define file_length_file_ _n(file_length_file_)
 #define file_position_file_ _n(file_position_file_)
 #define file_position_start_file_ _n(file_position_start_file_)
@@ -79,13 +80,10 @@ _g int unread_byte_file_(addr stream, byte c);
 _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret);
 _g int write_byte_file_(addr stream, addr pos);
 
-_g int read_integer_file_(addr stream, addr *value, int *ret);
-_g int unread_integer_file_(addr stream, addr pos);
-_g int write_integer_file_(addr stream, addr pos);
-
 _g int read_char_file_(addr stream, unicode *c, int *ret);
 _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret);
 _g int write_char_file_(addr stream, unicode c);
+_g int element_type_file_(addr stream, addr *ret);
 _g int file_length_file_(addr file, size_t *value, int *ret);
 _g int file_position_file_(addr stream, size_t *value, int *ret);
 _g int file_position_start_file_(addr stream, int *ret);
