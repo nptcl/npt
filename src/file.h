@@ -19,7 +19,6 @@
 #define force_close_stream_file _n(force_close_stream_file)
 #define close_stream_file_ _n(close_stream_file_)
 #define read_binary_file_ _n(read_binary_file_)
-#define readf_binary_file_ _n(readf_binary_file_)
 #define read_byte_file_ _n(read_byte_file_)
 #define unread_byte_file_ _n(unread_byte_file_)
 #define write_binary_file_ _n(write_binary_file_)
@@ -74,12 +73,10 @@ _g int script_header(addr stream);
 _g void force_close_stream_file(addr stream);
 _g int close_stream_file_(addr stream, addr *ret);
 _g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret);
-_g int readf_binary_file_(addr stream, void *pos, size_t size, size_t *ret);
 _g int read_byte_file_(addr stream, addr *value, int *ret);
 _g int unread_byte_file_(addr stream, byte c);
 _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret);
 _g int write_byte_file_(addr stream, addr pos);
-
 _g int read_char_file_(addr stream, unicode *c, int *ret);
 _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret);
 _g int write_char_file_(addr stream, unicode c);

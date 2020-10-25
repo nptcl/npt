@@ -515,12 +515,6 @@ static int write_char_Pretty(addr stream, unicode u)
 	return character_pretty_stream_(stream, u);
 }
 
-static int terpri_Pretty(addr stream)
-{
-	Return(alive_pretty_stream_(stream));
-	return pprint_newline_terpri_(stream);
-}
-
 static int getleft_Pretty(addr stream, size_t *ret)
 {
 	Return(getstream_pretty_stream_(stream, &stream));
@@ -531,12 +525,6 @@ static int setleft_Pretty(addr stream, size_t value)
 {
 	Return(getstream_pretty_stream_(stream, &stream));
 	return setleft_stream_(stream, value);
-}
-
-static int fresh_line_Pretty(addr stream, int *ret)
-{
-	Return(getstream_pretty_stream_(stream, &stream));
-	return fresh_line_stream_(stream, ret);
 }
 
 static int inputp_Pretty(addr stream, int *ret)
@@ -656,20 +644,15 @@ static int termsize_Pretty(addr stream, size_t *value, int *ret)
 _g void init_stream_pretty(void)
 {
 	DefineStreamSet(Pretty, close);
-	DefineStream___(Pretty, read_binary);
-	DefineStream___(Pretty, readf_binary);
 	DefineStream___(Pretty, read_byte);
 	DefineStream___(Pretty, unread_byte);
-	DefineStream___(Pretty, write_binary);
 	DefineStream___(Pretty, write_byte);
 	DefineStreamSet(Pretty, read_char);
 	DefineStreamSet(Pretty, read_hang);
 	DefineStreamSet(Pretty, unread_char);
 	DefineStreamSet(Pretty, write_char);
-	DefineStreamSet(Pretty, terpri);
 	DefineStreamSet(Pretty, getleft);
 	DefineStreamSet(Pretty, setleft);
-	DefineStreamSet(Pretty, fresh_line);
 	DefineStreamSet(Pretty, inputp);
 	DefineStreamSet(Pretty, outputp);
 	DefineStreamSet(Pretty, interactivep);

@@ -188,3 +188,61 @@
             (read-char stream nil :eof))))))
   #\A #\B #\C :eof :eof)
 
+
+;;
+;;  read-char-no-hang
+;;
+(deftest two-way-read-char-no-hang.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (read-char-no-hang stream)))))
+  #\A)
+
+(deftest two-way-read-char-no-hang.2
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (values
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof))))))
+  #\A #\B #\C :eof :eof)
+
+
+;;
+;;  unread-char
+;;
+(deftest two-way-unread-char.1
+  (with-open-stream (input (make-string-input-stream "ABC"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-two-way-stream input output))
+        (read-char stream)
+        (unread-char #\Z stream)
+        (values
+          (read-char stream nil)
+          (read-char stream nil)
+          (read-char stream nil)
+          (read-char stream nil)
+          (read-char stream nil)))))
+  #\Z #\B #\C nil nil)
+
+
+;;
+;;  write-char
+;;
+(deftest two-way-write-char.1
+  (with-open-stream (input (make-string-input-stream "ABC"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-two-way-stream input output))
+        (write-char #\A stream)
+        (write-char #\B stream)
+        (read-char stream)
+        (read-char stream))
+      (get-output-stream-string output)))
+  "AB")
+

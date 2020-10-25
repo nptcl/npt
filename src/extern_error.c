@@ -8,6 +8,7 @@
 #include "format.h"
 #include "hold.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "stream_function.h"
 #include "strvect.h"
 #include "symbol.h"

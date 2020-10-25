@@ -159,3 +159,40 @@
   (with-open-stream (stream (make-broadcast-stream))
     (read-char stream nil)))
 
+
+;;
+;;  read-char-no-hang
+;;
+(deftest-error broadcast-read-char-no-hang.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (read-char-no-hang stream nil)))
+
+
+;;
+;;  unread-char
+;;
+(deftest-error broadcast-unread-char.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (unread-char #\Z stream)))
+
+
+;;
+;;  write-char
+;;
+(deftest broadcast-write-char.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (write-char #\A stream))
+  #\A)
+
+(deftest broadcast-write-char.2
+  (with-open-stream (output1 (make-string-output-stream))
+    (with-open-stream (output2 (make-string-output-stream))
+      (with-open-stream (stream (make-broadcast-stream output1 output2))
+        (write-char #\Z output1)
+        (write-char #\A stream)
+        (write-char #\B stream))
+      (values
+        (get-output-stream-string output1)
+        (get-output-stream-string output2))))
+  "ZAB" "AB")
+

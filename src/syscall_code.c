@@ -49,6 +49,7 @@
 #include "sequence.h"
 #include "sort.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "stream_function.h"
 #include "stream_open.h"
 #include "stream_pretty.h"

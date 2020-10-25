@@ -205,3 +205,59 @@
           (read-char stream nil :eof)))))
   #\A #\B #\C :eof :eof)
 
+
+;;
+;;  read-char-no-hang
+;;
+(deftest synonym-read-char-no-hang.1
+  (with-temp-file
+    (with-open-file (hello *file*)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (read-char-no-hang stream))))
+  #\A)
+
+(deftest synonym-read-char-no-hang.2
+  (with-temp-file
+    (with-open-file (hello *file*)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (values
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)))))
+  #\A #\B #\C :eof :eof)
+
+
+;;
+;;  unread-char
+;;
+(deftest synonym-unread-char.1
+  (with-input-from-string (hello "ABC")
+    (declare (special hello))
+    (with-open-stream (stream (make-synonym-stream 'hello))
+      (read-char stream)
+      (unread-char #\Z stream)
+      (values
+        (read-char stream nil)
+        (read-char stream nil)
+        (read-char stream nil)
+        (read-char stream nil)
+        (read-char stream nil))))
+  #\Z #\B #\C nil nil)
+
+
+;;
+;;  write-char
+;;
+(deftest synonym-write-char.1
+  (with-open-stream (hello (make-string-output-stream))
+    (declare (special hello))
+    (with-open-stream (stream (make-synonym-stream 'hello))
+      (write-char #\A stream)
+      (write-char #\B stream))
+    (get-output-stream-string hello))
+  "AB")
+

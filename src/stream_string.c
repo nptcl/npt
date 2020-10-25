@@ -321,20 +321,15 @@ static int clear_input_StringInput(addr stream)
 _g void init_stream_string_input(void)
 {
 	DefineStreamDef(StringInput, close);
-	DefineStream___(StringInput, read_binary);
-	DefineStream___(StringInput, readf_binary);
 	DefineStream___(StringInput, read_byte);
 	DefineStream___(StringInput, unread_byte);
-	DefineStream___(StringInput, write_binary);
 	DefineStream___(StringInput, write_byte);
 	DefineStreamSet(StringInput, read_char);
 	DefineStreamSet(StringInput, read_hang);
 	DefineStreamSet(StringInput, unread_char);
 	DefineStream___(StringInput, write_char);
-	DefineStream___(StringInput, terpri);
 	DefineStream___(StringInput, getleft);
 	DefineStream___(StringInput, setleft);
-	DefineStream___(StringInput, fresh_line);
 	DefineStreamChk(StringInput, inputp, true);
 	DefineStreamChk(StringInput, outputp, false);
 	DefineStreamChk(StringInput, interactivep, false);
@@ -633,20 +628,15 @@ static int termsize_StringOutput(addr stream, size_t *value, int *ret)
 _g void init_stream_string_output(void)
 {
 	DefineStreamSet(StringOutput, close);
-	DefineStream___(StringOutput, read_binary);
-	DefineStream___(StringOutput, readf_binary);
 	DefineStream___(StringOutput, read_byte);
 	DefineStream___(StringOutput, unread_byte);
-	DefineStream___(StringOutput, write_binary);
 	DefineStream___(StringOutput, write_byte);
 	DefineStream___(StringOutput, read_char);
 	DefineStream___(StringOutput, read_hang);
 	DefineStream___(StringOutput, unread_char);
 	DefineStreamSet(StringOutput, write_char);
-	DefineStreamDef(StringOutput, terpri);
 	DefineStreamDef(StringOutput, getleft);
 	DefineStreamDef(StringOutput, setleft);
-	DefineStreamDef(StringOutput, fresh_line);
 	DefineStreamChk(StringOutput, inputp, false);
 	DefineStreamChk(StringOutput, outputp, true);
 	DefineStreamChk(StringOutput, interactivep, false);

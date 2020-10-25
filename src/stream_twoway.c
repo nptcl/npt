@@ -59,18 +59,6 @@ static void output_twoway(addr stream, addr *ret)
 	GetOutputStream(stream, ret);
 }
 
-static int read_binary_TwoWay(addr stream, void *pos, size_t size, size_t *ret)
-{
-	input_twoway(stream, &stream);
-	return read_binary_stream_(stream, pos, size, ret);
-}
-
-static int readf_binary_TwoWay(addr stream, void *pos, size_t size, size_t *ret)
-{
-	input_twoway(stream, &stream);
-	return readf_binary_stream_(stream, pos, size, ret);
-}
-
 static int read_byte_TwoWay(addr stream, addr *value, int *ret)
 {
 	input_twoway(stream, &stream);
@@ -81,12 +69,6 @@ static int unread_byte_TwoWay(addr stream, byte c)
 {
 	input_twoway(stream, &stream);
 	return unread_byte_stream_(stream, c);
-}
-
-static int write_binary_TwoWay(addr stream, const void *pos, size_t size, size_t *ret)
-{
-	output_twoway(stream, &stream);
-	return write_binary_stream_(stream, pos, size, ret);
 }
 
 static int write_byte_TwoWay(addr stream, addr pos)
@@ -119,12 +101,6 @@ static int write_char_TwoWay(addr stream, unicode u)
 	return write_char_stream_(stream, u);
 }
 
-static int terpri_TwoWay(addr stream)
-{
-	output_twoway(stream, &stream);
-	return terpri_stream_(stream);
-}
-
 static int getleft_TwoWay(addr stream, size_t *ret)
 {
 	output_twoway(stream, &stream);
@@ -135,12 +111,6 @@ static int setleft_TwoWay(addr stream, size_t value)
 {
 	output_twoway(stream, &stream);
 	return setleft_stream_(stream, value);
-}
-
-static int fresh_line_TwoWay(addr stream, int *ret)
-{
-	output_twoway(stream, &stream);
-	return fresh_line_stream_(stream, ret);
 }
 
 static int interactivep_TwoWay(addr stream, int *ret)
@@ -242,20 +212,15 @@ static int termsize_TwoWay(addr stream, size_t *value, int *ret)
 _g void init_stream_twoway(void)
 {
 	DefineStreamDef(TwoWay, close);
-	DefineStreamSet(TwoWay, read_binary);
-	DefineStreamSet(TwoWay, readf_binary);
 	DefineStreamSet(TwoWay, read_byte);
 	DefineStreamSet(TwoWay, unread_byte);
-	DefineStreamSet(TwoWay, write_binary);
 	DefineStreamSet(TwoWay, write_byte);
 	DefineStreamSet(TwoWay, read_char);
 	DefineStreamSet(TwoWay, read_hang);
 	DefineStreamSet(TwoWay, unread_char);
 	DefineStreamSet(TwoWay, write_char);
-	DefineStreamSet(TwoWay, terpri);
 	DefineStreamSet(TwoWay, getleft);
 	DefineStreamSet(TwoWay, setleft);
-	DefineStreamSet(TwoWay, fresh_line);
 	DefineStreamChk(TwoWay, inputp, true);
 	DefineStreamChk(TwoWay, outputp, true);
 	DefineStreamSet(TwoWay, interactivep);

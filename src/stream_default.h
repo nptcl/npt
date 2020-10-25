@@ -8,11 +8,9 @@
 #define read_hang_default_stream _n(read_hang_default_stream)
 #define unread_char_default_stream _n(unread_char_default_stream)
 #define write_char_default_stream _n(write_char_default_stream)
-#define terpri_default_stream _n(terpri_default_stream)
 #define getleft_default_stream _n(getleft_default_stream)
 #define setleft_default_stream _n(setleft_default_stream)
 #define charleft_default_stream _n(charleft_default_stream)
-#define fresh_line_default_stream _n(fresh_line_default_stream)
 #define file_length_default_stream _n(file_length_default_stream)
 #define file_position_default_stream _n(file_position_default_stream)
 #define file_position_start_default_stream _n(file_position_start_default_stream)
@@ -34,11 +32,9 @@ _g int read_char_default_stream(addr stream, unicode *c, int *ret);
 _g int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret);
 _g int unread_char_default_stream(addr stream, unicode c);
 _g int write_char_default_stream(addr stream, unicode c);
-_g int terpri_default_stream(addr stream);
 _g int getleft_default_stream(addr stream, size_t *ret);
 _g int setleft_default_stream(addr stream, size_t value);
 _g void charleft_default_stream(addr stream, unicode c);
-_g int fresh_line_default_stream(addr stream, int *ret);
 _g int file_length_default_stream(addr stream, addr *ret);
 _g int file_position_default_stream(addr stream, size_t *value, int *ret);
 _g int file_position_start_default_stream(addr stream, int *ret);

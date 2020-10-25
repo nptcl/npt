@@ -5,21 +5,15 @@
 #include "typedef_stream.h"
 
 _g lisp_streamtype_close Stream_close[StreamType_Array];
-_g lisp_streamtype_read_binary Stream_read_binary[StreamType_Array];
-_g lisp_streamtype_readf_binary Stream_readf_binary[StreamType_Array];
 _g lisp_streamtype_read_byte Stream_read_byte[StreamType_Array];
 _g lisp_streamtype_unread_byte Stream_unread_byte[StreamType_Array];
-_g lisp_streamtype_write_binary Stream_write_binary[StreamType_Array];
 _g lisp_streamtype_write_byte Stream_write_byte[StreamType_Array];
 _g lisp_streamtype_read_char Stream_read_char[StreamType_Array];
 _g lisp_streamtype_read_hang Stream_read_hang[StreamType_Array];
 _g lisp_streamtype_unread_char Stream_unread_char[StreamType_Array];
 _g lisp_streamtype_write_char Stream_write_char[StreamType_Array];
-_g lisp_streamtype_terpri Stream_terpri[StreamType_Array];
 _g lisp_streamtype_getleft Stream_getleft[StreamType_Array];
 _g lisp_streamtype_setleft Stream_setleft[StreamType_Array];
-_g lisp_streamtype_fresh_line Stream_fresh_line[StreamType_Array];
-_g lisp_streamtype_clear_input Stream_clear_input[StreamType_Array];
 _g lisp_streamtype_inputp Stream_inputp[StreamType_Array];
 _g lisp_streamtype_outputp Stream_outputp[StreamType_Array];
 _g lisp_streamtype_interactivep Stream_interactivep[StreamType_Array];
@@ -34,6 +28,7 @@ _g lisp_streamtype_file_position_set Stream_file_position_set[StreamType_Array];
 _g lisp_streamtype_file_charlen Stream_file_charlen[StreamType_Array];
 _g lisp_streamtype_file_strlen Stream_file_strlen[StreamType_Array];
 _g lisp_streamtype_listen Stream_listen[StreamType_Array];
+_g lisp_streamtype_clear_input Stream_clear_input[StreamType_Array];
 _g lisp_streamtype_finish_output Stream_finish_output[StreamType_Array];
 _g lisp_streamtype_force_output Stream_force_output[StreamType_Array];
 _g lisp_streamtype_clear_output Stream_clear_output[StreamType_Array];

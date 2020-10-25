@@ -2,6 +2,7 @@
 #include "compile_typedef.h"
 #include "condition.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "stream_function.h"
 #include "typedef.h"
 
@@ -36,7 +37,7 @@ _g int faslwrite_byte_(addr stream, byte value)
 _g int faslread_buffer_check_(addr stream, void *ptr, size_t size, int *ret)
 {
 	size_t check;
-	Return(readf_binary_stream_(stream, ptr, size, &check));
+	Return(read_binary_stream_(stream, ptr, size, &check));
 	return Result(ret, (size != check));
 }
 

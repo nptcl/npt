@@ -212,3 +212,79 @@
               (read-char stream nil :eof)))))))
   #\A #\B #\C #\D :eof :eof)
 
+
+;;
+;;  read-char-no-hang
+;;
+(deftest concatenated-read-char-no-hang.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (read-char-no-hang stream nil))
+  nil)
+
+(deftest concatenated-read-char-no-hang.2
+  (with-make-file
+    (*file1* "AB")
+    (with-open-file (input *file1*)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (read-char-no-hang stream))))
+  #\A)
+
+(deftest concatenated-read-char-no-hang.3
+  (with-make-file
+    (*file1* "AB")
+    (with-open-file (input *file1*)
+      (with-open-stream (stream (make-concatenated-stream input))
+        (values
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)))))
+  #\A #\B :eof)
+
+(deftest concatenated-read-char-no-hang.4
+  (with-make-file
+    (*file1* "AB")
+    (with-make-file
+      (*file2* "CD")
+      (with-open-file (input1 *file1*)
+        (with-open-file (input2 *file2*)
+          (with-open-stream (stream (make-concatenated-stream input1 input2))
+            (values
+              (read-char-no-hang stream nil :eof)
+              (read-char-no-hang stream nil :eof)
+              (read-char-no-hang stream nil :eof)
+              (read-char-no-hang stream nil :eof)
+              (read-char-no-hang stream nil :eof)
+              (read-char-no-hang stream nil :eof)))))))
+  #\A #\B #\C #\D :eof :eof)
+
+
+;;
+;;  unread-char
+;;
+(deftest concatenated-unread-char.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (unread-char #\Z stream))
+  nil)
+
+(deftest concatenated-unread-char.2
+  (with-input-from-string (str "Hello")
+    (with-open-stream (stream (make-concatenated-stream str))
+      (read-char stream)
+      (read-char stream)
+      (read-char stream)
+      (unread-char #\Z stream)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  #\Z #\l #\o :eof)
+
+
+;;
+;;  write-char
+;;
+(deftest-error concatenated-write-char.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (write-char #\A stream)))
+

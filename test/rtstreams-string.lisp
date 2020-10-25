@@ -204,3 +204,78 @@
     (stream array)
     (read-char stream nil :eof)))
 
+
+;;
+;;  read-char-no-hang
+;;
+(deftest string-read-char-no-hang.1
+  (with-input-from-string (stream "ABC")
+    (read-char-no-hang stream))
+  #\A)
+
+(deftest string-read-char-no-hang.2
+  (with-input-from-string (stream "ABC")
+    (values
+      (read-char-no-hang stream nil :eof)
+      (read-char-no-hang stream nil :eof)
+      (read-char-no-hang stream nil :eof)
+      (read-char-no-hang stream nil :eof)
+      (read-char-no-hang stream nil :eof)))
+  #\A #\B #\C :eof :eof)
+
+(deftest-error string-read-char-no-hang.3
+  (with-output-to-string (stream)
+    (read-char-no-hang stream nil :eof)))
+
+(deftest-error string-read-char-no-hang.4
+  (with-extend-to-string
+    (stream array)
+    (read-char-no-hang stream nil :eof)))
+
+
+;;
+;;  unread-char
+;;
+(deftest string-unread-char.1
+  (with-input-from-string (stream "ABC")
+    (read-char stream)
+    (unread-char #\Z stream)
+    (values
+      (read-char stream nil)
+      (read-char stream nil)
+      (read-char stream nil)
+      (read-char stream nil)
+      (read-char stream nil)))
+  #\Z #\B #\C nil nil)
+
+(deftest-error string-unread-char.2
+  (with-output-to-string (stream)
+    (unread-char #\Z stream)))
+
+(deftest-error string-unread-char.3
+  (with-extend-to-string
+    (stream array)
+    (unread-char #\Z stream)))
+
+
+;;
+;;  write-char
+;;
+(deftest-error string-write-char.1
+  (with-open-stream (stream (make-string-input-stream "ABC"))
+    (write-char #\A stream)))
+
+(deftest string-write-char.2
+  (with-output-to-string (stream)
+    (write-char #\A stream)
+    (write-char #\B stream))
+  "AB")
+
+(deftest string-write-char.3
+  (with-extend-to-string
+    (stream array)
+    (write-char #\A stream)
+    (write-char #\B stream)
+    array)
+  "AB")
+

@@ -4,15 +4,126 @@
 #include "condition.h"
 #include "condition_define.h"
 #include "cons.h"
+#include "file.h"
 #include "integer.h"
 #include "sequence.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
+#include "stream_synonym.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "typedef.h"
 
+/*
+ *  binary
+ */
+static int get_binary_stream(addr stream, addr *ret)
+{
+	struct StructStream *str;
+
+	str = PtrStructStream(stream);
+	switch (str->type) {
+		case StreamType_BinaryInput:
+		case StreamType_BinaryOutput:
+		case StreamType_BinaryIO:
+		case StreamType_BincharInput:
+		case StreamType_BincharOutput:
+		case StreamType_BincharIO:
+			*ret = stream;
+			return 1;
+
+		case StreamType_Synonym:
+			get_synonym_stream(stream, &stream);
+			return get_binary_stream(stream, ret);
+
+		default:
+			*ret = stream;
+			return 0;
+	}
+}
+
+static int read_binary_from_byte_(addr stream, byte *pos, size_t size, size_t *ret)
+{
+	int check;
+	byte c;
+	size_t x;
+
+	for (x = 0; x < size; x++) {
+		Return(read_unsigned8_stream_(stream, &c, &check));
+		if (check)
+			break;
+		pos[x] = c;
+	}
+
+	return Result(ret, x);
+}
+
+_g int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	if (get_binary_stream(stream, &stream))
+		return read_binary_file_(stream, pos, size, ret);
+	else
+		return read_binary_from_byte_(stream, (byte *)pos, size, ret);
+}
+
+static int write_binary_from_byte_(addr stream,
+		const byte *pos, size_t size, size_t *ret)
+{
+	size_t x;
+
+	for (x = 0; x < size; x++) {
+		Return(write_unsigned8_stream_(stream, pos[x]));
+	}
+
+	return Result(ret, x);
+}
+
+_g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	if (get_binary_stream(stream, &stream))
+		return write_binary_file_(stream, pos, size, ret);
+	else
+		return write_binary_from_byte_(stream, (const byte *)pos, size, ret);
+}
+
+
+/*
+ *  terpri
+ */
+_g int terpri_stream_(addr stream)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	return write_char_stream_(stream, '\n');
+}
+
+
+/*
+ *  fresh-line
+ */
+_g int fresh_line_stream_(addr stream, int *ret)
+{
+	size_t size;
+
+	CheckType(stream, LISPTYPE_STREAM);
+	Return(getleft_stream_(stream, &size));
+	if (size == 0) {
+		if (ret)
+			*ret = 0;
+		return 0;
+	}
+	Return(terpri_stream_(stream));
+	if (ret)
+		*ret = 1;
+	return 0;
+}
+
+
+/*
+ *  peek-char
+ */
 static int end_of_file_recursive_(Execute ptr, addr pos, int recp)
 {
 	return call_end_of_file_(ptr, pos);
@@ -103,6 +214,10 @@ _g int peek_char_stream_(Execute ptr, addr *ret,
 		return peek_char_character_(ptr, ret, type, stream, errorp, value, recp);
 }
 
+
+/*
+ *  read-line
+ */
 enum EndOfLine_Mode {
 	EndOfLine_Auto,
 	EndOfLine_CR,
@@ -211,6 +326,10 @@ finish_error:
 	return Result(miss, 1);
 }
 
+
+/*
+ *  write-string
+ */
 _g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 {
 	unicode c;
@@ -238,6 +357,10 @@ _g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 	return Result(ret, stream);
 }
 
+
+/*
+ *  read-sequence
+ */
 static int read_sequence_character_(addr *ret,
 		addr seq, addr stream, size_t start, size_t end)
 {
@@ -292,6 +415,10 @@ _g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size
 	return fmte_("Invalid stream ~S.", stream, NULL);
 }
 
+
+/*
+ *  write-sequence
+ */
 static int write_sequence_character_(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {

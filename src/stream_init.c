@@ -28,21 +28,15 @@
 static void init_stream_extend_type(int type)
 {
 	LispStreamTypeError(close, type);
-	LispStreamTypeError(read_binary, type);
-	LispStreamTypeError(readf_binary, type);
 	LispStreamTypeError(read_byte, type);
 	LispStreamTypeError(unread_byte, type);
-	LispStreamTypeError(write_binary, type);
 	LispStreamTypeError(write_byte, type);
 	LispStreamTypeError(read_char, type);
 	LispStreamTypeError(read_hang, type);
 	LispStreamTypeError(unread_char, type);
 	LispStreamTypeError(write_char, type);
-	LispStreamTypeError(terpri, type);
 	LispStreamTypeError(getleft, type);
 	LispStreamTypeError(setleft, type);
-	LispStreamTypeError(fresh_line, type);
-	LispStreamTypeError(clear_input, type);
 	LispStreamTypeError(inputp, type);
 	LispStreamTypeError(outputp, type);
 	LispStreamTypeError(interactivep, type);
@@ -57,6 +51,7 @@ static void init_stream_extend_type(int type)
 	LispStreamTypeError(file_charlen, type);
 	LispStreamTypeError(file_strlen, type);
 	LispStreamTypeError(listen, type);
+	LispStreamTypeError(clear_input, type);
 	LispStreamTypeError(finish_output, type);
 	LispStreamTypeError(force_output, type);
 	LispStreamTypeError(clear_output, type);

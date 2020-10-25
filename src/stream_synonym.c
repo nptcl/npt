@@ -44,18 +44,6 @@ static int getstream_synonym_(addr stream, addr *ret)
 	return getspecialcheck_local_(Execute_Thread, stream, ret);
 }
 
-static int read_binary_Synonym(addr stream, void *pos, size_t size, size_t *ret)
-{
-	Return(getstream_synonym_(stream, &stream));
-	return read_binary_stream_(stream, pos, size, ret);
-}
-
-static int readf_binary_Synonym(addr stream, void *pos, size_t size, size_t *ret)
-{
-	Return(getstream_synonym_(stream, &stream));
-	return readf_binary_stream_(stream, pos, size, ret);
-}
-
 static int read_byte_Synonym(addr stream, addr *value, int *ret)
 {
 	Return(getstream_synonym_(stream, &stream));
@@ -66,12 +54,6 @@ static int unread_byte_Synonym(addr stream, byte c)
 {
 	Return(getstream_synonym_(stream, &stream));
 	return unread_byte_stream_(stream, c);
-}
-
-static int write_binary_Synonym(addr stream, const void *pos, size_t size, size_t *ret)
-{
-	Return(getstream_synonym_(stream, &stream));
-	return write_binary_stream_(stream, pos, size, ret);
 }
 
 static int write_byte_Synonym(addr stream, addr pos)
@@ -104,12 +86,6 @@ static int write_char_Synonym(addr stream, unicode u)
 	return write_char_stream_(stream, u);
 }
 
-static int terpri_Synonym(addr stream)
-{
-	Return(getstream_synonym_(stream, &stream));
-	return terpri_stream_(stream);
-}
-
 static int getleft_Synonym(addr stream, size_t *ret)
 {
 	Return(getstream_synonym_(stream, &stream));
@@ -120,12 +96,6 @@ static int setleft_Synonym(addr stream, size_t value)
 {
 	Return(getstream_synonym_(stream, &stream));
 	return setleft_stream_(stream, value);
-}
-
-static int fresh_line_Synonym(addr stream, int *ret)
-{
-	Return(getstream_synonym_(stream, &stream));
-	return fresh_line_stream_(stream, ret);
 }
 
 static int inputp_Synonym(addr stream, int *ret)
@@ -251,20 +221,15 @@ static int termsize_Synonym(addr stream, size_t *value, int *ret)
 _g void init_stream_synonym(void)
 {
 	DefineStreamDef(Synonym, close);
-	DefineStreamSet(Synonym, read_binary);
-	DefineStreamSet(Synonym, readf_binary);
 	DefineStreamSet(Synonym, read_byte);
 	DefineStreamSet(Synonym, unread_byte);
-	DefineStreamSet(Synonym, write_binary);
 	DefineStreamSet(Synonym, write_byte);
 	DefineStreamSet(Synonym, read_char);
 	DefineStreamSet(Synonym, read_hang);
 	DefineStreamSet(Synonym, unread_char);
 	DefineStreamSet(Synonym, write_char);
-	DefineStreamSet(Synonym, terpri);
 	DefineStreamSet(Synonym, getleft);
 	DefineStreamSet(Synonym, setleft);
-	DefineStreamSet(Synonym, fresh_line);
 	DefineStreamSet(Synonym, inputp);
 	DefineStreamSet(Synonym, outputp);
 	DefineStreamSet(Synonym, interactivep);

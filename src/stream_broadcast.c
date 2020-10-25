@@ -40,22 +40,6 @@ _g void get_broadcast_stream(addr stream, addr *ret)
 	GetInfoStream(stream, ret);
 }
 
-static int write_binary_BroadCast(addr stream,
-		const void *ptr, size_t size, size_t *ret)
-{
-	addr list, pos;
-
-	CheckBroadCastStream(stream);
-	GetInfoStream(stream, &list);
-	*ret = 0;
-	while (list != Nil) {
-		Return_getcons(list, &pos, &list);
-		Return(write_binary_stream_(stream, ptr, size, ret));
-	}
-
-	return 0;
-}
-
 static int write_byte_BroadCast(addr stream, addr value)
 {
 	addr list, pos;
@@ -72,30 +56,15 @@ static int write_byte_BroadCast(addr stream, addr value)
 
 static int write_char_BroadCast(addr stream, unicode c)
 {
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	while (list != Nil) {
-		Return_getcons(list, &stream, &list);
-		Return(write_char_stream_(stream, c));
+		Return_getcons(list, &pos, &list);
+		Return(write_char_stream_(pos, c));
 	}
 	charleft_default_stream(stream, c);
-
-	return 0;
-}
-
-static int terpri_BroadCast(addr stream)
-{
-	addr list;
-
-	CheckBroadCastStream(stream);
-	GetInfoStream(stream, &list);
-	while (list != Nil) {
-		Return_getcons(list, &stream, &list);
-		Return(terpri_stream_(stream));
-	}
-	setleft_default_stream(stream, 0);
 
 	return 0;
 }
@@ -112,31 +81,16 @@ static int setleft_BroadCast(addr stream, size_t value)
 	return setleft_default_stream(stream, value);
 }
 
-static int fresh_line_BroadCast(addr stream, int *ret)
-{
-	int check;
-	addr list;
-
-	CheckBroadCastStream(stream);
-	GetInfoStream(stream, &list);
-	for (check = 0; list != Nil; ) {
-		Return_getcons(list, &stream, &list);
-		Return(fresh_line_stream_(stream, &check));
-	}
-
-	return Result(ret, check);
-}
-
 static int characterp_BroadCast(addr stream, int *ret)
 {
 	int value, check;
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	for (value = 1; list != Nil; ) {
-		Return_getcons(list, &stream, &list);
-		Return(characterp_stream_(stream, &check));
+		Return_getcons(list, &pos, &list);
+		Return(characterp_stream_(pos, &check));
 		value = value && check;
 	}
 
@@ -146,13 +100,13 @@ static int characterp_BroadCast(addr stream, int *ret)
 static int binaryp_BroadCast(addr stream, int *ret)
 {
 	int value, check;
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	for (value = 1; list != Nil; ) {
-		Return_getcons(list, &stream, &list);
-		Return(binaryp_stream_(stream, &check));
+		Return_getcons(list, &pos, &list);
+		Return(binaryp_stream_(pos, &check));
 		value = value && check;
 	}
 
@@ -207,13 +161,13 @@ static int file_position_BroadCast(addr stream, size_t *value, int *ret)
 static int file_position_start_BroadCast(addr stream, int *ret)
 {
 	int check;
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	for (check = 1; list != Nil; ) {
-		Return_getcons(list, &stream, &list);
-		Return(file_position_start_stream_(stream, &check));
+		Return_getcons(list, &pos, &list);
+		Return(file_position_start_stream_(pos, &check));
 	}
 
 	return Result(ret, check);
@@ -222,13 +176,13 @@ static int file_position_start_BroadCast(addr stream, int *ret)
 static int file_position_end_BroadCast(addr stream, int *ret)
 {
 	int check;
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	for (check = 1; list != Nil; ) {
-		Return_getcons(list, &stream, &list);
-		Return(file_position_end_stream_(stream, &check));
+		Return_getcons(list, &pos, &list);
+		Return(file_position_end_stream_(pos, &check));
 	}
 
 	return Result(ret, check);
@@ -237,13 +191,13 @@ static int file_position_end_BroadCast(addr stream, int *ret)
 static int file_position_set_BroadCast(addr stream, size_t value, int *ret)
 {
 	int check;
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	for (check = 1; list != Nil; ) {
-		Return_getcons(list, &stream, &list);
-		Return(file_position_set_stream_(stream, value, &check));
+		Return_getcons(list, &pos, &list);
+		Return(file_position_set_stream_(pos, value, &check));
 	}
 
 	return Result(ret, check);
@@ -274,13 +228,13 @@ static int file_strlen_BroadCast(addr stream, addr pos, size_t *value, int *ret)
 
 static int finish_output_BroadCast(addr stream)
 {
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	while (list != Nil) {
-		Return_getcons(list, &stream, &list);
-		Return(finish_output_stream_(stream));
+		Return_getcons(list, &pos, &list);
+		Return(finish_output_stream_(pos));
 	}
 
 	return 0;
@@ -288,13 +242,13 @@ static int finish_output_BroadCast(addr stream)
 
 static int force_output_BroadCast(addr stream)
 {
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	while (list != Nil) {
-		Return_getcons(list, &stream, &list);
-		Return(force_output_stream_(stream));
+		Return_getcons(list, &pos, &list);
+		Return(force_output_stream_(pos));
 	}
 
 	return 0;
@@ -302,13 +256,13 @@ static int force_output_BroadCast(addr stream)
 
 static int clear_output_BroadCast(addr stream)
 {
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	while (list != Nil) {
-		Return_getcons(list, &stream, &list);
-		Return(clear_output_stream_(stream));
+		Return_getcons(list, &pos, &list);
+		Return(clear_output_stream_(pos));
 	}
 
 	return 0;
@@ -316,13 +270,13 @@ static int clear_output_BroadCast(addr stream)
 
 static int exitpoint_BroadCast(addr stream)
 {
-	addr list;
+	addr list, pos;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
 	while (list != Nil) {
-		Return_getcons(list, &stream, &list);
-		Return(exitpoint_stream_(stream));
+		Return_getcons(list, &pos, &list);
+		Return(exitpoint_stream_(pos));
 	}
 
 	return 0;
@@ -331,20 +285,15 @@ static int exitpoint_BroadCast(addr stream)
 _g void init_stream_broadcast(void)
 {
 	DefineStreamDef(BroadCast, close);
-	DefineStream___(BroadCast, read_binary);
-	DefineStream___(BroadCast, readf_binary);
 	DefineStream___(BroadCast, read_byte);
 	DefineStream___(BroadCast, unread_byte);
-	DefineStreamSet(BroadCast, write_binary);
 	DefineStreamSet(BroadCast, write_byte);
 	DefineStream___(BroadCast, read_char);
 	DefineStream___(BroadCast, read_hang);
 	DefineStream___(BroadCast, unread_char);
 	DefineStreamSet(BroadCast, write_char);
-	DefineStreamSet(BroadCast, terpri);
 	DefineStreamSet(BroadCast, getleft);
 	DefineStreamSet(BroadCast, setleft);
-	DefineStreamSet(BroadCast, fresh_line);
 	DefineStreamChk(BroadCast, inputp, false);
 	DefineStreamChk(BroadCast, outputp, true);
 	DefineStreamChk(BroadCast, interactivep, false);

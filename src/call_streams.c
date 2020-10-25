@@ -191,7 +191,7 @@ _g int unread_char_common(Execute ptr, addr pos, addr stream)
 	unicode c;
 
 	if (stream == Unbound) {
-		Return(standard_output_stream_(ptr, &stream));
+		Return(standard_input_stream_(ptr, &stream));
 	}
 	GetCharacter(pos, &c);
 	return unread_char_stream_(stream, c);

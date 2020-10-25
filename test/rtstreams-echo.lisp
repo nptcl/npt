@@ -32,18 +32,18 @@
 ;;
 ;;  open-stream-p
 ;;
-(deftest open-stream-p-echo.1
+(deftest echo-open-stream-p.1
   (with-open-stream (stream (make-echo-stream *standard-input* *standard-output*))
     (open-stream-p stream))
   t)
 
-(deftest open-stream-p-echo.2
+(deftest echo-open-stream-p.2
   (let ((stream (make-echo-stream *standard-input* *standard-output*)))
     (close stream)
     (open-stream-p stream))
   nil)
 
-(deftest open-stream-p-echo.3
+(deftest echo-open-stream-p.3
   (let* ((x (make-string-input-stream "Hello"))
          (y (make-string-output-stream))
          (stream (make-echo-stream x y)))
@@ -53,7 +53,7 @@
       (open-stream-p y)))
   t t)
 
-(deftest open-stream-p-echo.4
+(deftest echo-open-stream-p.4
   (let* ((x (make-string-input-stream "Hello"))
          (y (make-string-output-stream))
          (stream (make-echo-stream x y)))
@@ -241,4 +241,120 @@
         (read-char input nil :eof)
         (read-char input nil :eof))))
   #\A #\B #\C :eof :eof)
+
+
+;;
+;;  read-char-no-hang
+;;
+(deftest echo-read-char-no-hang.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (read-char-no-hang stream)))))
+  #\A)
+
+(deftest echo-read-char-no-hang.2
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (read-char-no-hang stream))))
+    (with-open-file (input *file2*)
+      (values
+        (read-char-no-hang input nil nil)
+        (read-char-no-hang input nil nil))))
+  #\A nil)
+
+(deftest echo-read-char-no-hang.3
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (values
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof)
+            (read-char-no-hang stream nil :eof))))))
+  #\A #\B #\C :eof :eof)
+
+(deftest echo-read-char-no-hang.4
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof)
+          (read-char-no-hang stream nil :eof))))
+    (with-open-file (input *file2*)
+      (values
+        (read-char-no-hang input nil :eof)
+        (read-char-no-hang input nil :eof)
+        (read-char-no-hang input nil :eof)
+        (read-char-no-hang input nil :eof)
+        (read-char-no-hang input nil :eof))))
+  #\A #\B #\C :eof :eof)
+
+
+;;
+;;  unread-char
+;;
+(deftest echo-unread-char.1
+  (with-open-stream (input (make-string-input-stream "ABC"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (read-char stream)
+        (unread-char #\Z stream)
+        (values
+          (read-char stream nil)
+          (read-char stream nil)
+          (read-char stream nil)
+          (read-char stream nil)
+          (read-char stream nil)))))
+  #\Z #\B #\C nil nil)
+
+(deftest echo-unread-char.2
+  (with-input-from-string (input "Hello")
+    (with-output-to-string (output)
+      (with-open-stream (stream (make-echo-stream input output))
+        (read-char stream)
+        (read-char stream)
+        (unread-char #\e stream)
+        (read-char stream)
+        (unread-char #\e stream)
+        (read-char stream)
+        (unread-char #\e stream)
+        (read-char stream))))
+  "He")
+
+(deftest echo-unread-char.3
+  (with-input-from-string (input "Hello")
+    (with-output-to-string (output)
+      (with-open-stream (stream (make-echo-stream input output))
+        (read-char-no-hang stream)
+        (read-char-no-hang stream)
+        (unread-char #\e stream)
+        (read-char-no-hang stream)
+        (unread-char #\e stream)
+        (read-char-no-hang stream)
+        (unread-char #\e stream)
+        (read-char-no-hang stream))))
+  "He")
+
+
+;;
+;;  write-char
+;;
+(deftest echo-write-char.1
+  (with-open-stream (input (make-string-input-stream "ABC"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (write-char #\Z stream)
+        (read-char stream)
+        (read-char stream))
+      (get-output-stream-string output)))
+  "ZAB")
 

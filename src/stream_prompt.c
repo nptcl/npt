@@ -221,20 +221,15 @@ _g void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode)
 _g void init_stream_prompt(void)
 {
 	DefineStreamSet(Prompt, close);
-	DefineStream___(Prompt, read_binary);
-	DefineStream___(Prompt, readf_binary);
 	DefineStream___(Prompt, read_byte);
 	DefineStream___(Prompt, unread_byte);
-	DefineStream___(Prompt, write_binary);
 	DefineStream___(Prompt, write_byte);
 	DefineStreamSet(Prompt, read_char);
 	DefineStreamSet(Prompt, read_hang);
 	DefineStreamDef(Prompt, unread_char);
 	DefineStream___(Prompt, write_char);
-	DefineStream___(Prompt, terpri);
 	DefineStream___(Prompt, getleft);
 	DefineStream___(Prompt, setleft);
-	DefineStream___(Prompt, fresh_line);
 	DefineStreamChk(Prompt, inputp, true);
 	DefineStreamChk(Prompt, outputp, false);
 	DefineStreamChk(Prompt, interactivep, true);

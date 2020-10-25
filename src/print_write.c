@@ -34,6 +34,7 @@
 #include "reader_table.h"
 #include "restart.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "stream_function.h"
 #include "stream_pretty.h"
 #include "stream_string.h"

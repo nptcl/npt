@@ -28,20 +28,6 @@ _g int close_stream_(addr stream, addr *ret)
 	return 0;
 }
 
-_g int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	return (Stream_read_binary[(int)ptr->type])(stream, pos, size, ret);
-}
-
-_g int readf_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	return (Stream_readf_binary[(int)ptr->type])(stream, pos, size, ret);
-}
-
 _g int read_byte_stream_(addr stream, addr *value, int *ret)
 {
 	struct StructStream *ptr;
@@ -54,13 +40,6 @@ _g int unread_byte_stream_(addr stream, byte c)
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_unread_byte[(int)ptr->type])(stream, c);
-}
-
-_g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	return (Stream_write_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
 _g int write_byte_stream_(addr stream, addr pos)
@@ -98,13 +77,6 @@ _g int write_char_stream_(addr stream, unicode c)
 	return (Stream_write_char[(int)ptr->type])(stream, c);
 }
 
-_g int terpri_stream_(addr stream)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	return (Stream_terpri[(int)ptr->type])(stream);
-}
-
 _g int getleft_stream_(addr stream, size_t *ret)
 {
 	struct StructStream *ptr;
@@ -117,19 +89,6 @@ _g int setleft_stream_(addr stream, size_t value)
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_setleft[(int)ptr->type])(stream, value);
-}
-
-_g int fresh_line_stream_(addr stream, int *ret)
-{
-	int check;
-	struct StructStream *ptr;
-
-	CheckStream(stream, ptr);
-	Return((Stream_fresh_line[(int)ptr->type])(stream, &check));
-	if (ret)
-		*ret = check;
-
-	return 0;
 }
 
 _g int clear_input_stream_(addr stream)

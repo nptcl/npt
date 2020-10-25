@@ -27,6 +27,7 @@
 #include "sort.h"
 #include "stream.h"
 #include "stream_broadcast.h"
+#include "stream_common.h"
 #include "stream_echo.h"
 #include "stream_function.h"
 #include "stream_open.h"

@@ -52,22 +52,6 @@ static void current_concatenated(addr stream, addr *ret)
 	}
 }
 
-static int read_binary_Concatenated(addr stream, void *pos, size_t size, size_t *ret)
-{
-	current_concatenated(stream, &stream);
-	if (stream == Nil)
-		return Result(ret, 0);
-	return read_binary_stream_(stream, pos, size, ret);
-}
-
-static int readf_binary_Concatenated(addr stream, void *pos, size_t size, size_t *ret)
-{
-	current_concatenated(stream, &stream);
-	if (stream == Nil)
-		return Result(ret, 0);
-	return readf_binary_stream_(stream, pos, size, ret);
-}
-
 static int read_byte_Concatenated(addr stream, addr *value, int *ret)
 {
 	int check;
@@ -209,20 +193,15 @@ static int exitpoint_Concatenated(addr stream)
 _g void init_stream_concatenated(void)
 {
 	DefineStreamDef(Concatenated, close);
-	DefineStreamSet(Concatenated, read_binary);
-	DefineStreamSet(Concatenated, readf_binary);
 	DefineStreamSet(Concatenated, read_byte);
 	DefineStreamSet(Concatenated, unread_byte);
-	DefineStream___(Concatenated, write_binary);
 	DefineStream___(Concatenated, write_byte);
 	DefineStreamSet(Concatenated, read_char);
 	DefineStreamSet(Concatenated, read_hang);
 	DefineStreamSet(Concatenated, unread_char);
 	DefineStream___(Concatenated, write_char);
-	DefineStream___(Concatenated, terpri);
 	DefineStream___(Concatenated, getleft);
 	DefineStream___(Concatenated, setleft);
-	DefineStream___(Concatenated, fresh_line);
 	DefineStreamChk(Concatenated, inputp, true);
 	DefineStreamChk(Concatenated, outputp, false);
 	DefineStreamSet(Concatenated, interactivep);

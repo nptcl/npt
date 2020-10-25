@@ -179,22 +179,6 @@ _g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = read_filememory(fm, pos, size, ret);
-	if (check < 0)
-		return fmte_("read error", NULL);
-	if (check)
-		return Result(ret, 0);
-
-	return 0;
-}
-
-_g int readf_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
-{
-	int check;
-	struct filememory *fm;
-
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
 	check = readforce_filememory(fm, pos, size, ret);
 	if (check < 0)
 		return fmte_("read error", NULL);

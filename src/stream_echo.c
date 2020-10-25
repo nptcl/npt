@@ -66,34 +66,6 @@ static void io_Echo(addr stream, addr *input, addr *output)
 	GetOutputStream(stream, output);
 }
 
-static int read_binary_Echo(addr stream, void *pos, size_t size, size_t *ret)
-{
-	addr input, output;
-	size_t value;
-
-	io_Echo(stream, &input, &output);
-	Return(read_binary_stream_(input, pos, size, &size));
-	if (size) {
-		Return(write_binary_stream_(output, pos, size, &value));
-	}
-
-	return Result(ret, size);
-}
-
-static int readf_binary_Echo(addr stream, void *pos, size_t size, size_t *ret)
-{
-	addr input, output;
-	size_t value;
-
-	io_Echo(stream, &input, &output);
-	Return(readf_binary_stream_(stream, pos, size, &size));
-	if (size) {
-		Return(write_binary_stream_(stream, pos, size, &value));
-	}
-
-	return Result(ret, size);
-}
-
 static int read_byte_Echo(addr stream, addr *value, int *ret)
 {
 	int check;
@@ -112,12 +84,6 @@ static int unread_byte_Echo(addr stream, byte c)
 {
 	input_Echo(stream, &stream);
 	return unread_byte_stream_(stream, c);
-}
-
-static int write_binary_Echo(addr stream, const void *pos, size_t size, size_t *ret)
-{
-	output_Echo(stream, &stream);
-	return write_binary_stream_(stream, pos, size, ret);
 }
 
 static int write_byte_Echo(addr stream, addr pos)
@@ -180,12 +146,6 @@ static int write_char_Echo(addr stream, unicode u)
 	return write_char_stream_(stream, u);
 }
 
-static int terpri_Echo(addr stream)
-{
-	output_Echo(stream, &stream);
-	return terpri_stream_(stream);
-}
-
 static int getleft_Echo(addr stream, size_t *ret)
 {
 	output_Echo(stream, &stream);
@@ -196,12 +156,6 @@ static int setleft_Echo(addr stream, size_t value)
 {
 	output_Echo(stream, &stream);
 	return setleft_stream_(stream, value);
-}
-
-static int fresh_line_Echo(addr stream, int *ret)
-{
-	output_Echo(stream, &stream);
-	return fresh_line_stream_(stream, ret);
 }
 
 static int characterp_Echo(addr stream, int *ret)
@@ -285,20 +239,15 @@ static int termsize_Echo(addr stream, size_t *value, int *ret)
 _g void init_stream_echo(void)
 {
 	DefineStreamDef(Echo, close);
-	DefineStreamSet(Echo, read_binary);
-	DefineStreamSet(Echo, readf_binary);
 	DefineStreamSet(Echo, read_byte);
 	DefineStreamSet(Echo, unread_byte);
-	DefineStreamSet(Echo, write_binary);
 	DefineStreamSet(Echo, write_byte);
 	DefineStreamSet(Echo, read_char);
 	DefineStreamSet(Echo, read_hang);
 	DefineStreamSet(Echo, unread_char);
 	DefineStreamSet(Echo, write_char);
-	DefineStreamSet(Echo, terpri);
 	DefineStreamSet(Echo, getleft);
 	DefineStreamSet(Echo, setleft);
-	DefineStreamSet(Echo, fresh_line);
 	DefineStreamChk(Echo, inputp, true);
 	DefineStreamChk(Echo, outputp, true);
 	DefineStreamChk(Echo, interactivep, false);

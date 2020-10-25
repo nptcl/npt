@@ -164,231 +164,57 @@
 
 
 ;;
-;;  read-char-no-hang
+;;  Function READ-CHAR-NO-HANG
 ;;
-#-windows
 (deftest read-char-no-hang.1
-  (read-char-no-hang *standard-input*)
+  (dotimes (i 100 t)
+    (unless (read-char-no-hang *standard-input*)
+      (return nil)))
   nil)
 
-#-windows
-(deftest read-char-no-hang-file.1
-  (with-temp-file
-    (with-open-file (input *file*)
-      (read-char-no-hang input)))
+(deftest read-char-no-hang.2
+  (with-input-from-string (*standard-input* "ABC")
+    (read-char-no-hang))
   #\A)
 
-#-windows
-(deftest read-char-no-hang-file.2
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char-no-hang input)
-        (read-char-no-hang input)
-        (read-char-no-hang input))))
-  #\A #\B #\C)
-
-#-windows
-(deftest-error read-char-no-hang-file.3
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char-no-hang input)
-        (read-char-no-hang input)
-        (read-char-no-hang input)
-        (read-char-no-hang input))))
+(deftest-error read-char-no-hang.3
+  (with-input-from-string (*standard-input* "")
+    (read-char-no-hang))
   end-of-file)
 
-#-windows
-(deftest read-char-no-hang-file.4
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char-no-hang input nil)
-        (read-char-no-hang input nil)
-        (read-char-no-hang input nil)
-        (read-char-no-hang input nil))))
-  #\A #\B #\C nil)
+(deftest-error read-char-no-hang.4
+  (with-input-from-string (stream "")
+    (read-char-no-hang stream t nil))
+  end-of-file)
 
-#-windows
-(deftest read-char-no-hang-file.5
-  (with-temp-file
-    (with-open-file (input *file*)
-      (values
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof))))
-  #\A #\B #\C :eof)
+(deftest-error read-char-no-hang.5
+  (with-input-from-string (stream "")
+    (read-char-no-hang stream t nil t))
+  end-of-file)
 
-#-windows
-(deftest-error read-char-no-hang-file.6
-  (with-temp-file
-    (with-open-file (input *file* :element-type 'unsigned-byte)
-      (read-char-no-hang input nil :eof))))
+(deftest read-char-no-hang.6
+  (with-input-from-string (stream "")
+    (read-char-no-hang stream nil :hello t))
+  :hello)
 
-(deftest-error read-char-no-hang-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (read-char-no-hang stream nil)))
+(deftest-error read-char-no-hang.7
+  (let ((stream (make-string-input-stream "Hello")))
+    (close stream)
+    (read-char-no-hang stream)))
 
-(deftest read-char-no-hang-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (read-char-no-hang stream nil))
-  nil)
-
-(deftest read-char-no-hang-concatenated.2
-  (with-make-file
-    (*file1* "AB")
-    (with-open-file (input *file1*)
-      (with-open-stream (stream (make-concatenated-stream input))
-        (read-char-no-hang stream))))
-  #\A)
-
-(deftest read-char-no-hang-concatenated.3
-  (with-make-file
-    (*file1* "AB")
-    (with-open-file (input *file1*)
-      (with-open-stream (stream (make-concatenated-stream input))
-        (values
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)))))
-  #\A #\B :eof)
-
-(deftest read-char-no-hang-concatenated.4
-  (with-make-file
-    (*file1* "AB")
-    (with-make-file
-      (*file2* "CD")
-      (with-open-file (input1 *file1*)
-        (with-open-file (input2 *file2*)
-          (with-open-stream (stream (make-concatenated-stream input1 input2))
-            (values
-              (read-char-no-hang stream nil :eof)
-              (read-char-no-hang stream nil :eof)
-              (read-char-no-hang stream nil :eof)
-              (read-char-no-hang stream nil :eof)
-              (read-char-no-hang stream nil :eof)
-              (read-char-no-hang stream nil :eof)))))))
-  #\A #\B #\C #\D :eof :eof)
-
-(deftest read-char-no-hang-echo.1
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (read-char-no-hang stream)))))
-  #\A)
-
-(deftest read-char-no-hang-echo.2
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (read-char-no-hang stream))))
-    (with-open-file (input *file2*)
-      (values
-        (read-char-no-hang input nil nil)
-        (read-char-no-hang input nil nil))))
-  #\A nil)
-
-(deftest read-char-no-hang-echo.3
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (values
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof))))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-no-hang-echo.4
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-echo-stream input output))
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof))))
-    (with-open-file (input *file2*)
-      (values
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof)
-        (read-char-no-hang input nil :eof))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-no-hang-synonym.1
-  (with-temp-file
-    (with-open-file (hello *file*)
-      (declare (special hello))
-      (with-open-stream (stream (make-synonym-stream 'hello))
-        (read-char-no-hang stream))))
-  #\A)
-
-(deftest read-char-no-hang-synonym.2
-  (with-temp-file
-    (with-open-file (hello *file*)
-      (declare (special hello))
-      (with-open-stream (stream (make-synonym-stream 'hello))
-        (values
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)
-          (read-char-no-hang stream nil :eof)))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-no-hang-two-way.1
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-two-way-stream input output))
-          (read-char-no-hang stream)))))
-  #\A)
-
-(deftest read-char-no-hang-two-way.2
-  (with-temp-file1-file2
-    (with-open-file (input *file1*)
-      (with-overwrite-file (output *file2*)
-        (with-open-stream (stream (make-two-way-stream input output))
-          (values
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof)
-            (read-char-no-hang stream nil :eof))))))
-  #\A #\B #\C :eof :eof)
-
-(deftest read-char-no-hang-input-string.1
+(deftest read-char-no-hang.8
   (with-input-from-string (stream "ABC")
+    (read-char-no-hang stream)
+    (unread-char #\Z stream)
     (read-char-no-hang stream))
-  #\A)
+  #\Z)
 
-(deftest read-char-no-hang-input-string.2
-  (with-input-from-string (stream "ABC")
-    (values
-      (read-char-no-hang stream nil :eof)
-      (read-char-no-hang stream nil :eof)
-      (read-char-no-hang stream nil :eof)
-      (read-char-no-hang stream nil :eof)
-      (read-char-no-hang stream nil :eof)))
-  #\A #\B #\C :eof :eof)
+(deftest-error read-char-no-hang-error.1
+  (eval '(read-char-no-hang 10))
+  type-error)
 
-(deftest-error read-char-no-hang-output-string.1
-  (with-output-to-string (stream)
-    (read-char-no-hang stream nil :eof)))
-
-(deftest-error read-char-no-hang-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (read-char-no-hang stream nil :eof)))
+(deftest-error! read-char-no-hang-error.2
+  (eval '(read-char-no-hang *standard-input* nil nil nil nil)))
 
 
 ;;
@@ -402,6 +228,52 @@
          (terpri stream)
          (terpri stream)))
   (10 10 10))
+
+(deftest terpri.2
+  (map 'list
+       #'char-code
+       (with-output-to-string (*standard-output*)
+         (terpri)))
+  (10))
+
+(deftest terpri.3
+  (with-open-stream (stream (make-broadcast-stream))
+    (terpri stream))
+  nil)
+
+(deftest terpri.4
+  (map 'list
+       #'char-code
+       (with-output-to-string (stream)
+         (terpri stream)
+         (fresh-line stream)
+         (fresh-line stream)
+         (fresh-line stream)
+         (terpri stream)
+         (terpri stream)))
+  (10 10 10))
+
+(deftest-error terpri-error.1
+  (eval '(terpri 10))
+  type-error)
+
+(deftest-error terpri-error.2
+  (eval '(terpri *standard-input*))
+  type-error)
+
+(deftest-error! terpri-error.3
+  (eval '(terpri *standard-output* nil)))
+
+;;  ANSI Common Lisp
+(deftest terpri-test.1
+  (equal
+    (with-output-to-string (s)
+      (write-string "some text" s)
+      (terpri s)
+      (terpri s)
+      (write-string "more text" s))
+    (concatenate 'string "some text" '(#\newline #\newline) "more text"))
+  t)
 
 
 ;;
@@ -513,233 +385,167 @@
     (map 'list #'values array))
   (#\A #\Newline))
 
+(deftest fresh-line.1
+  (map 'list
+       #'char-code
+       (with-output-to-string (stream)
+         (fresh-line stream)
+         (fresh-line stream)
+         (fresh-line stream)))
+  nil)
 
-;;
-;;  unread-char
-;;
-(deftest unread-char-file.1
-  (with-temp-file
-    (with-open-file (input *file*)
-      (read-char input)
-      (unread-char #\Z input)
-      (values
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil))))
-  #\Z #\B #\C nil)
+(deftest fresh-line.2
+  (map 'list
+       #'char-code
+       (with-output-to-string (*standard-output*)
+         (write-char #\A)
+         (fresh-line)
+         (fresh-line)))
+  (65 10))
 
-(deftest unread-char-file.2
-  (with-temp-file
-    (with-open-file (input *file*)
-      (unread-char #\Z input)
-      (values
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil))))
-  #\Z #\A #\B #\C nil)
-
-(deftest-error unread-char-file.3
-  (with-temp-file
-    (with-overwrite-file (output *file*)
-      (read-char input))))
-
-(deftest-error unread-char-file.4
-  (with-temp-file
-    (with-open-file (output *file* :element-type 'unsigned-byte)
-      (read-char input))))
-
-(deftest-error unread-char-broadcast.1
+(deftest fresh-line.3
   (with-open-stream (stream (make-broadcast-stream))
-    (unread-char #\Z stream)))
+    (fresh-line stream))
+  nil)
 
-(deftest unread-char-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
+(deftest-error fresh-line-error.1
+  (eval '(fresh-line 10))
+  type-error)
+
+(deftest-error fresh-line-error.2
+  (eval '(fresh-line *standard-input*))
+  type-error)
+
+(deftest-error! fresh-line-error.3
+  (eval '(fresh-line *standard-output* nil)))
+
+(deftest fresh-line-test.1
+  (equal
+    (with-output-to-string (s)
+      (write-string "some text" s)
+      (fresh-line s)
+      (fresh-line s)
+      (write-string "more text" s))
+    (concatenate 'string "some text" '(#\newline) "more text"))
+  t)
+
+
+;;
+;;  Function UNREAD-CHAR
+;;
+(deftest unread-char.1
+  (with-input-from-string (stream "ABCD")
+    (read-char stream)  ;; A
+    (read-char stream)  ;; B
+    (read-char stream)  ;; C
+    (unread-char #\Z stream)
+    (values
+      (read-char stream nil :eof)    ;; Z
+      (read-char stream nil :eof)    ;; D
+      (read-char stream nil :eof)))  ;; EOF
+  #\Z #\D :eof)
+
+(deftest unread-char.2
+  (with-input-from-string (*standard-input* "ABCD")
+    (read-char)
+    (read-char)
+    (unread-char #\Z)
+    (read-char))
+  #\Z)
+
+(deftest unread-char.3
+  (with-input-from-string (stream "ABCD")
+    (read-char stream)
     (unread-char #\Z stream))
   nil)
 
-(deftest unread-char-echo.1
-  (with-open-stream (input (make-string-input-stream "ABC"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (read-char stream)
-        (unread-char #\Z stream)
-        (values
-          (read-char stream nil)
-          (read-char stream nil)
-          (read-char stream nil)
-          (read-char stream nil)
-          (read-char stream nil)))))
-  #\Z #\B #\C nil nil)
-
-(deftest unread-char-echo.2
-  (with-input-from-string (input "Hello")
-    (with-output-to-string (output)
-      (with-open-stream (stream (make-echo-stream input output))
-        (read-char stream)
-        (read-char stream)
-        (unread-char #\e stream)
-        (read-char stream)
-        (unread-char #\e stream)
-        (read-char stream)
-        (unread-char #\e stream)
-        (read-char stream))))
-  "He")
-
-(deftest unread-char-echo.3
-  (with-input-from-string (input "Hello")
-    (with-output-to-string (output)
-      (with-open-stream (stream (make-echo-stream input output))
-        (read-char-no-hang stream)
-        (read-char-no-hang stream)
-        (unread-char #\e stream)
-        (read-char-no-hang stream)
-        (unread-char #\e stream)
-        (read-char-no-hang stream)
-        (unread-char #\e stream)
-        (read-char-no-hang stream))))
-  "He")
-
-(deftest unread-char-synonym.1
-  (with-input-from-string (hello "ABC")
-    (declare (special hello))
-    (with-open-stream (stream (make-synonym-stream 'hello))
-      (read-char stream)
-      (unread-char #\Z stream)
-      (values
-        (read-char stream nil)
-        (read-char stream nil)
-        (read-char stream nil)
-        (read-char stream nil)
-        (read-char stream nil))))
-  #\Z #\B #\C nil nil)
-
-(deftest unread-char-two-way.2
-  (with-open-stream (input (make-string-input-stream "ABC"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (read-char stream)
-        (unread-char #\Z stream)
-        (values
-          (read-char stream nil)
-          (read-char stream nil)
-          (read-char stream nil)
-          (read-char stream nil)
-          (read-char stream nil)))))
-  #\Z #\B #\C nil nil)
-
-(deftest unread-char-input-string.1
-  (with-input-from-string (stream "ABC")
+(deftest-error unread-char.4
+  (with-input-from-string (stream "ABCD")
     (read-char stream)
     (unread-char #\Z stream)
-    (values
-      (read-char stream nil)
-      (read-char stream nil)
-      (read-char stream nil)
-      (read-char stream nil)
-      (read-char stream nil)))
-  #\Z #\B #\C nil nil)
-
-(deftest-error unread-char-output-string.1
-  (with-output-to-string (stream)
     (unread-char #\Z stream)))
 
-(deftest-error unread-char-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (unread-char #\Z stream)))
+(deftest-error unread-char-error.1
+  (eval '(unread-char 10))
+  type-error)
+
+(deftest-error unread-char-error.2
+  (eval '(unread-char #\a 20))
+  type-error)
+
+(deftest-error unread-char-error.3
+  (eval '(unread-char #\a *standard-output*))
+  type-error)
+
+(deftest-error! unread-char-error.4
+  (eval '(unread-char)))
+
+(deftest-error! unread-char-error.5
+  (eval '(unread-char #\A *standard-input* nil)))
+
+;;  ANSI Common Lisp
+(deftest unread-char-test.1
+  (let (list)
+    (with-input-from-string (is "0123")
+      (dotimes (i 6)
+        (let ((c (read-char is)))
+          (if (evenp i)
+            (push (list i c) list)
+            (unread-char c is)))))
+    (nreverse list))
+  ((0 #\0) (2 #\1) (4 #\2)))
 
 
 ;;
-;;  write-char
+;;  Function WRITE-CHAR
 ;;
-(deftest write-char-file.1
-  (with-temp-file
-    (with-overwrite-file (stream *file*)
-      (write-char #\A stream)
-      (write-char #\B stream))
-    (with-open-file (input *file*)
-      (values
-        (read-char input nil)
-        (read-char input nil)
-        (read-char input nil))))
-  #\A #\B nil)
+(deftest write-char.1
+  (with-output-to-string (*standard-output*)
+    (write-char #\A))
+  "A")
 
-(deftest-error write-char-file.2
-  (with-temp-file
-    (with-open-file (input *file*)
-      (write-char #\A stream))))
-
-(deftest write-char-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (write-char #\A stream))
-  #\A)
-
-(deftest write-char-broadcast.2
-  (with-open-stream (output1 (make-string-output-stream))
-    (with-open-stream (output2 (make-string-output-stream))
-      (with-open-stream (stream (make-broadcast-stream output1 output2))
-        (write-char #\Z output1)
-        (write-char #\A stream)
-        (write-char #\B stream))
-      (values
-        (get-output-stream-string output1)
-        (get-output-stream-string output2))))
-  "ZAB" "AB")
-
-(deftest-error write-char-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (write-char #\A stream)))
-
-(deftest write-char-echo.1
-  (with-open-stream (input (make-string-input-stream "ABC"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (write-char #\Z stream)
-        (read-char stream)
-        (read-char stream))
-      (get-output-stream-string output)))
-  "ZAB")
-
-(deftest write-char-synonym.1
-  (with-open-stream (hello (make-string-output-stream))
-    (declare (special hello))
-    (with-open-stream (stream (make-synonym-stream 'hello))
-      (write-char #\A stream)
-      (write-char #\B stream))
-    (get-output-stream-string hello))
-  "AB")
-
-(deftest write-char-two-way.1
-  (with-open-stream (input (make-string-input-stream "ABC"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (write-char #\A stream)
-        (write-char #\B stream)
-        (read-char stream)
-        (read-char stream))
-      (get-output-stream-string output)))
-  "AB")
-
-(deftest-error write-char-input-string.1
-  (with-open-stream (stream (make-string-input-stream "ABC"))
-    (write-char #\A stream)))
-
-(deftest write-char-output-string.1
+(deftest write-char.2
   (with-output-to-string (stream)
-    (write-char #\A stream)
-    (write-char #\B stream))
-  "AB")
-
-(deftest write-char-extend-string.1
-  (with-extend-to-string
-    (stream array)
     (write-char #\A stream)
     (write-char #\B stream)
-    array)
-  "AB")
+    (write-char #\C stream))
+  "ABC")
+
+(deftest-error write-char-error.1
+  (eval '(write-char 10))
+  type-error)
+
+(deftest-error write-char-error.2
+  (eval '(write-char #\A 20))
+  type-error)
+
+(deftest-error write-char-error.3
+  (eval '(write-char #\A *standard-input*))
+  type-error)
+
+(deftest-error! write-char-error.4
+  (eval '(write-char)))
+
+(deftest-error! write-char-error.5
+  (eval '(write-char #\Z *standard-output* nil)))
+
+;;  ANSI Common Lisp
+(deftest write-char-test.1
+  (with-output-to-string (*standard-output*)
+    (write-char #\a))
+  "a")
+
+(deftest write-char-test.2
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (write-char #\a))
+  #\a)
+
+(deftest write-char-test.3
+  (with-output-to-string (s)
+    (write-char #\a s)
+    (write-char #\Space s)
+    (write-char #\b s))
+  "a b")
 
 
 ;;

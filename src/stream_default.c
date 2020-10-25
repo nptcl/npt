@@ -66,12 +66,6 @@ _g int write_char_default_stream(addr stream, unicode c)
 	return 0;
 }
 
-_g int terpri_default_stream(addr stream)
-{
-	Return(write_char_stream_(stream, '\n'));
-	return setleft_default_stream(stream, 0);
-}
-
 _g int getleft_default_stream(addr stream, size_t *ret)
 {
 	*ret = PtrStructStream(stream)->terpri;
@@ -93,22 +87,6 @@ _g void charleft_default_stream(addr stream, unicode c)
 		ptr->terpri = 0;
 	else
 		ptr->terpri += eastasian_width(c);
-}
-
-_g int fresh_line_default_stream(addr stream, int *ret)
-{
-	size_t size;
-
-	Return(getleft_stream_(stream, &size));
-	if (size == 0) {
-		if (ret)
-			*ret = 0;
-		return 0;
-	}
-	Return(terpri_stream_(stream));
-	if (ret)
-		*ret = 1;
-	return 0;
 }
 
 _g int file_length_default_stream(addr stream, addr *ret)

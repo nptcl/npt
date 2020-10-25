@@ -399,8 +399,7 @@ static inline int flush_arch(file_type file)
 
 static inline int read_ready_arch(file_type file)
 {
-	/* Don't use in Windows environment. */
-	return 1;
+	return (file != fileio_input);
 }
 
 static int large_integer_value(PLARGE_INTEGER ptr, size_t *ret)
