@@ -255,7 +255,7 @@ static int file_position_StringInput(addr stream, size_t *value, int *ret)
 			*ret = 0;
 			return fmte_("The stream ~S position is minus value.", stream, NULL);
 		}
-		size--;
+		size--;  /* TODO */
 	}
 	*value = size;
 	return Result(ret, 0);
@@ -290,18 +290,18 @@ static int file_position_end_StringInput(addr stream, int *ret)
 static int file_position_set_StringInput(addr stream, size_t value, int *ret)
 {
 	struct stream_StringInput *str;
+	addr pos;
 
 	CheckInputStringStream(stream);
 	str = PtrStringInputStream(stream);
-	if (value <= str->size) {
-		str->index = value;
-	}
-	else {
+	if (str->size < value) {
 		*ret = 0;
-		return fmte_("The position ~A is too large.", intsizeh(value), NULL);
+		make_index_integer_heap(&pos, value);
+		return fmte_("The position ~A is too large.", pos, NULL);
 	}
-	PtrStructStream(stream)->unread_check = 0;
 
+	str->index = value;
+	PtrStructStream(stream)->unread_check = 0;
 	return Result(ret, 0);
 }
 
@@ -417,12 +417,15 @@ _g int string_stream_alloc_(LocalRoot local, addr stream, addr *string)
 	addr queue;
 
 	if (extend_string_p(stream)) {
+		*string = Nil;
 		return fmte_("The extended-string-stream ~S "
 				"don't make a string.", stream, NULL);
 	}
 	GetInfoStream(stream, &queue);
-	if (queue == Nil)
+	if (queue == Nil) {
+		*string = Nil;
 		return fmte_("stream is already closed.", NULL);
+	}
 	make_charqueue_alloc(local, queue, string);
 
 	return 0;

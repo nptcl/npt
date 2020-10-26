@@ -1392,6 +1392,7 @@ lisp-system::reserved
 lisp-system::end
 lisp-system::prompt-stream
 lisp-system::pretty-stream
+lisp-system::memory-stream
 (lisp-system::*gchold* :name gchold :constant system)
 
 
@@ -2000,6 +2001,11 @@ lisp-system::unbound-value
 (lisp-system::parse-type :export t)
 (lisp-system::type-object :export t)
 (lisp-system::upgraded-open-element-type :export t)
+(lisp-system::make-memory-input-stream :export t)
+(lisp-system::make-memory-output-stream :export t)
+(lisp-system::with-input-from-memory :export t)
+(lisp-system::with-output-to-memory :export t)
+(lisp-system::get-output-stream-memory :export t)
 (lisp-system::extension :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)

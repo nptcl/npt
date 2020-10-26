@@ -288,3 +288,18 @@
   (with-open-stream (stream (make-concatenated-stream))
     (write-char #\A stream)))
 
+
+;;
+;;  read-line
+;;
+(deftest concatenated-read-line.1
+  (with-input-from-string (input1 (format nil "aaa~%bbb"))
+    (with-input-from-string (input2 (format nil "ccc~%ddd~%"))
+      (with-open-stream (stream (make-concatenated-stream input1 input2))
+        (values
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)))))
+  "aaa" "bbbccc" "ddd" :eof)
+

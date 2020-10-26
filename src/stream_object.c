@@ -197,6 +197,29 @@ _g int pretty_stream_p(addr stream)
 		&& getstreamtype(stream) == StreamType_Pretty;
 }
 
+_g int input_memory_stream_p(addr stream)
+{
+	return streamp(stream)
+		&& getstreamtype(stream) == StreamType_MemoryInput;
+}
+
+_g int output_memory_stream_p(addr stream)
+{
+	return streamp(stream)
+		&& getstreamtype(stream) == StreamType_MemoryOutput;
+}
+
+_g int memory_stream_p(addr stream)
+{
+	enum StreamType check;
+
+	if (! streamp(stream))
+		return 0;
+	check = getstreamtype(stream);
+	return check == StreamType_MemoryInput
+		|| check == StreamType_MemoryOutput;
+}
+
 _g int extend_stream_p(addr stream)
 {
 	return streamp(stream)

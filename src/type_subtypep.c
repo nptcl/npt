@@ -1038,6 +1038,7 @@ static int subtypep_stream_(addr left, addr right, SubtypepResult *ret)
 		case LISPDECL_TWO_WAY_STREAM:
 		case LISPDECL_PROMPT_STREAM:
 		case LISPDECL_PRETTY_STREAM:
+		case LISPDECL_MEMORY_STREAM:
 			return ReturnInclude(ret);
 
 		default:
@@ -1984,6 +1985,7 @@ _g void init_type_subtypep(void)
 	TypeSubtypep[LISPDECL_TWO_WAY_STREAM] = subtypep_stream_child_;
 	TypeSubtypep[LISPDECL_PROMPT_STREAM] = subtypep_stream_child_;
 	TypeSubtypep[LISPDECL_PRETTY_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_MEMORY_STREAM] = subtypep_stream_child_;
 	TypeSubtypep[LISPDECL_BYTESPEC] = subtypep_equaltype_;
 	TypeSubtypep[LISPDECL_PRINT_DISPATCH] = subtypep_equaltype_;
 	TypeSubtypep[LISPDECL_EVAL] = subtypep_equaltype_;

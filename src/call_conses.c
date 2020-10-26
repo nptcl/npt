@@ -185,13 +185,13 @@ static int argument_sublis_cons(Execute ptr,
 	}
 	else {
 		GetConst(KEYWORD_KEY, &key);
-		if (getplist(rest, key, &key))
+		if (getplist_safe(rest, key, &key))
 			key = Nil;
 		GetConst(KEYWORD_TEST, &test1);
-		if (getplist(rest, test1, &test1))
+		if (getplist_safe(rest, test1, &test1))
 			test1 = Nil;
 		GetConst(KEYWORD_TEST_NOT, &test2);
-		if (getplist(rest, test2, &test2))
+		if (getplist_safe(rest, test2, &test2))
 			test2 = Nil;
 		if (test1 != Nil && test2 != Nil)
 			return 1;
@@ -291,13 +291,13 @@ static int argument_subst_cons(Execute ptr,
 	}
 	else {
 		GetConst(KEYWORD_KEY, &key);
-		if (getplist(rest, key, &key))
+		if (getplist_safe(rest, key, &key))
 			key = Nil;
 		GetConst(KEYWORD_TEST, &test1);
-		if (getplist(rest, test1, &test1))
+		if (getplist_safe(rest, test1, &test1))
 			test1 = Nil;
 		GetConst(KEYWORD_TEST_NOT, &test2);
-		if (getplist(rest, test2, &test2))
+		if (getplist_safe(rest, test2, &test2))
 			test2 = Nil;
 		if (test1 != Nil && test2 != Nil)
 			return 1;
@@ -505,7 +505,7 @@ static int argument_subst_if_cons(Execute ptr,
 	addr key;
 
 	GetConst(KEYWORD_KEY, &key);
-	if (getplist(rest, key, &key))
+	if (getplist_safe(rest, key, &key))
 		key = Nil;
 
 	clearpoint(str);
@@ -726,10 +726,10 @@ static int argument_tree_equal_cons(Execute ptr,
 	}
 	else {
 		GetConst(KEYWORD_TEST, &test1);
-		if (getplist(rest, test1, &test1))
+		if (getplist_safe(rest, test1, &test1))
 			test1 = Nil;
 		GetConst(KEYWORD_TEST_NOT, &test2);
-		if (getplist(rest, test2, &test2))
+		if (getplist_safe(rest, test2, &test2))
 			test2 = Nil;
 		if (test1 != Nil && test2 != Nil)
 			return 1;

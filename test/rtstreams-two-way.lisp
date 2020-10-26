@@ -246,3 +246,17 @@
       (get-output-stream-string output)))
   "AB")
 
+
+;;
+;;  read-line
+;;
+(deftest two-way-read-line.1
+  (with-input-from-string (input (format nil "aaa~%BBB"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-two-way-stream input output))
+        (values
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)))))
+  "aaa" "BBB" :eof)
+

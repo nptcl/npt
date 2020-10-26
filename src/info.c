@@ -77,6 +77,9 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_BITVECTOR:			return "bitvector";
 		case LISPTYPE_PRINT_DISPATCH:		return "print-dispatch";
 		case LISPTYPE_BYTESPEC:				return "bytespec";
+		case LISPTYPE_FORMAT:				return "format";
+		case LISPTYPE_LOAD_TIME_VALUE:		return "load-time-value";
+		case LISPTYPE_COMPILE:				return "??compile";
 
 		case LISPSYSTEM_CONSTANT:			return "?constant";
 		case LISPSYSTEM_FIXNUM_CACHE:		return "?fixnum-cache";
@@ -118,6 +121,20 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_PRINT_PRETTY:		return "?print-pretty";
 		case LISPSYSTEM_EVALSTACK:			return "?eval-stack";
 		case LISPSYSTEM_GCHOLD:				return "?gchold";
+		case LISPSYSTEM_FORMAT_PRETTY:		return "?format-pretty";
+		case LISPSYSTEM_SLEEP:				return "?sleep";
+		case LISPSYSTEM_REDEFINE:			return "?redefine";
+		case LISPSYSTEM_HANDLER:			return "?handler";
+		case LISPSYSTEM_SPECIAL:			return "?special";
+		case LISPSYSTEM_VALUES:				return "?values";
+		case LISPSYSTEM_EXECUTE:			return "?execute";
+		case LISPSYSTEM_LEXICAL:			return "?lexical";
+		case LISPSYSTEM_CLOSURE:			return "?closure";
+		case LISPSYSTEM_REFERENCE:			return "?reference";
+		case LISPSYSTEM_HOLD:				return "?hold";
+		case LISPSYSTEM_BUFFERING:			return "?buffering";
+		case LISPSYSTEM_BUFCELL:			return "?bufcell";
+		case LISPSYSTEM_USER:				return "?user";
 		case LISPSYSTEM_CHECK:				return "?check";
 
 		case LISPSYSTEM_UNBOUND:			return "unboundtype";
@@ -223,6 +240,7 @@ static const char *infochar_decl(enum LISPDECL decl)
 		case LISPDECL_TWO_WAY_STREAM:		return "two-way-stream";
 		case LISPDECL_PROMPT_STREAM:		return "prompt-stream";
 		case LISPDECL_PRETTY_STREAM:		return "pretty-stream";
+		case LISPDECL_MEMORY_STREAM:		return "memory-stream";
 		default:							return "invalid";
 	}
 }

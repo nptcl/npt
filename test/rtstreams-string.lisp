@@ -279,3 +279,24 @@
     array)
   "AB")
 
+
+;;
+;;  read-line
+;;
+(deftest string-read-line.1
+  (with-input-from-string (stream (format nil "aaa~%BBB"))
+    (values
+      (read-line stream nil :eof)
+      (read-line stream nil :eof)
+      (read-line stream nil :eof)))
+  "aaa" "BBB" :eof)
+
+(deftest-error string-read-line.2
+  (with-output-to-string (stream)
+    (read-line stream)))
+
+(deftest-error string-read-line.3
+  (with-extend-to-string
+    (stream array)
+    (read-line stream)))
+

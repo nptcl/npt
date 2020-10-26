@@ -90,6 +90,11 @@ static int type_name_stream_(addr pos, addr *value, int *ret)
 			GetConst(SYSTEM_PRETTY_STREAM, value);
 			goto normal;
 
+		case StreamType_MemoryInput:
+		case StreamType_MemoryOutput:
+			GetConst(SYSTEM_MEMORY_STREAM, value);
+			goto normal;
+
 		default:
 			break;
 	}

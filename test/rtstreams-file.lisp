@@ -512,3 +512,83 @@
     (with-open-file (input *file*)
       (write-char #\A stream))))
 
+
+;;
+;;  read-line
+;;
+(deftest file-read-line.1
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file*)
+      (read-line input)))
+  "abcd" t)
+
+(deftest file-read-line.2
+  (with-make-file
+    (*file* "abcd~%")
+    (with-open-file (input *file*)
+      (read-line input)))
+  "abcd" nil)
+
+(deftest-error file-read-line.3
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file*)
+      (read-line input)
+      (read-line input)))
+  end-of-file)
+
+(deftest-error file-read-line.4
+  (with-make-file
+    (*file* "abcd~%")
+    (with-open-file (input *file*)
+      (read-line input)
+      (read-line input)))
+  end-of-file)
+
+(deftest file-read-line.5
+  (with-make-file
+    (*file* "aaa~%~%bbb")
+    (with-open-file (input *file*)
+      (values
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof))))
+  "aaa" "" "bbb" :eof)
+
+(deftest file-read-line.6
+  (with-make-file
+    (*file* "aaa~%~%bbb~%")
+    (with-open-file (input *file*)
+      (values
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof))))
+  "aaa" "" "bbb" :eof)
+
+(deftest file-read-line.7
+  (with-make-file
+    (*file* "aaa~%~%bbb~%~%")
+    (with-open-file (input *file*)
+      (values
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof)
+        (read-line input nil :eof))))
+  "aaa" "" "bbb" "" :eof)
+
+(deftest-error file-read-line.8
+  (with-make-file
+    (*file* "aaa")
+    (with-open-file (input *file* :element-type 'unsigned-byte)
+      (read-line input))))
+
+(deftest-error file-read-line.9
+  (with-make-file
+    (*file* "aaa")
+    (with-overwrite-file (input *file*)
+      (read-line input))))
+

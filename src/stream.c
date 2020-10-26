@@ -91,6 +91,12 @@ _g int stream_designer_(Execute ptr, addr pos, addr *ret, int inputp)
 		GetConstant(index, &pos);
 	}
 
+	/* boolean */
+	if (pos == T)
+		return terminal_io_stream_(ptr, ret);
+	if (pos == Nil)
+		return standard_output_stream_(ptr, ret);
+
 	/* symbol */
 	if (symbolp(pos)) {
 		Return(getspecialcheck_local_(ptr, pos, &pos));

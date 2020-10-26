@@ -196,3 +196,11 @@
         (get-output-stream-string output2))))
   "ZAB" "AB")
 
+
+;;
+;;  read-line
+;;
+(deftest-error broadcast-read-line.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (read-line stream)))
+

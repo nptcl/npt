@@ -62,7 +62,7 @@ static int getsize_keyword_start_(addr key, addr rest, addr *reta, size_t *rets)
 {
 	addr pos;
 
-	if (getplist(rest, key, &pos)) {
+	if (getplist_safe(rest, key, &pos)) {
 		*reta = fixnumh(0);
 		*rets = 0;
 	}
@@ -79,7 +79,7 @@ static int getsize_keyword_end_(addr key, addr rest, size_t size,
 {
 	addr pos;
 
-	if (getplist(rest, key, &pos) || pos == Nil) {
+	if (getplist_safe(rest, key, &pos) || pos == Nil) {
 		*reta = intsizeh(size);
 		*rets = size;
 	}

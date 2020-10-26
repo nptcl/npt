@@ -20,6 +20,7 @@ bignum_plus.c
 bignum.c
 bit.c
 boole.c
+buffering.c
 build.c
 bytespec.c
 c99.c
@@ -326,6 +327,7 @@ stream_error.c
 stream_file.c
 stream_function.c
 stream_init.c
+stream_memory.c
 stream_object.c
 stream_open.c
 stream_pretty.c
@@ -340,8 +342,11 @@ structure.c
 strvect.c
 sxhash.c
 symbol.c
-syscall_code.c
 syscall.c
+syscall_common.c
+syscall_function.c
+syscode_common.c
+syscode_function.c
 thread.c
 token.c
 type_coerce.c

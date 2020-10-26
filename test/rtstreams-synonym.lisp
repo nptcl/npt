@@ -261,3 +261,18 @@
     (get-output-stream-string hello))
   "AB")
 
+
+;;
+;;  read-line
+;;
+(deftest synonym-read-line.1
+  (with-input-from-string (hello (format nil "aaa~%~%bbb~%"))
+    (declare (special hello))
+    (with-open-stream (stream (make-synonym-stream 'hello))
+      (values
+        (read-line stream nil :eof)
+        (read-line stream nil :eof)
+        (read-line stream nil :eof)
+        (read-line stream nil :eof))))
+  "aaa" "" "bbb" :eof)
+

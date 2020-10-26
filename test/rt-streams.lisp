@@ -8,6 +8,7 @@
 (load #p"test/rtstreams-character.lisp")
 (load #p"test/rtstreams-control.lisp")
 (load #p"test/rtstreams-encode.lisp")
+(load #p"test/rtstreams-memory.lisp")
 
 (load #p"test/rtstreams-broadcast.lisp")
 (load #p"test/rtstreams-concatenated.lisp")

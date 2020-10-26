@@ -12,6 +12,7 @@
 #include "stream_file.h"
 #include "stream_function.h"
 #include "stream_init.h"
+#include "stream_memory.h"
 #include "stream_pretty.h"
 #include "stream_prompt.h"
 #include "stream_string.h"
@@ -107,6 +108,8 @@ _g void init_stream(void)
 	init_stream_prompt();
 	init_stream_pretty();
 	init_stream_extend();
+	init_stream_memory_input();
+	init_stream_memory_output();
 	init_stream_function();
 }
 

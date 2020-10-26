@@ -358,3 +358,28 @@
       (get-output-stream-string output)))
   "ZAB")
 
+
+;;
+;;  readl-line
+;;
+(deftest echo-read-line.1
+  (with-input-from-string (input (format nil "aaa~%BBB"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (values
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)
+          (read-line stream nil :eof)))))
+  "aaa" "BBB" :eof)
+
+(deftest echo-read-line.2
+  (with-input-from-string (input (format nil "aaa~%BBB"))
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (read-line stream nil :eof)
+        (read-line stream nil :eof)
+        (read-line stream nil :eof))
+      (equal (format nil "aaa~%BBB")
+             (get-output-stream-string output))))
+  t)
+

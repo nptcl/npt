@@ -5,6 +5,12 @@
 (defvar *file1* #p"_rt-stream1.txt")
 (defvar *file2* #p"_rt-stream2.txt")
 
+(import 'lisp-system::make-memory-input-stream)
+(import 'lisp-system::make-memory-output-stream)
+(import 'lisp-system::with-input-from-memory)
+(import 'lisp-system::with-output-to-memory)
+(import 'lisp-system::get-output-stream-memory)
+
 (defmacro with-extend-to-string ((var array) &body body)
   `(let ((,array (make-array
                    10 :fill-pointer 0 :adjustable t :element-type 'character)))

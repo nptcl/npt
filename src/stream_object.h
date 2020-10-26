@@ -30,6 +30,9 @@
 #define string_stream_p _n(string_stream_p)
 #define prompt_stream_p _n(prompt_stream_p)
 #define pretty_stream_p _n(pretty_stream_p)
+#define input_memory_stream_p _n(input_memory_stream_p)
+#define output_memory_stream_p _n(output_memory_stream_p)
+#define memory_stream_p _n(memory_stream_p)
 #define extend_stream_p _n(extend_stream_p)
 #define extend_type_stream_p _n(extend_type_stream_p)
 
@@ -65,6 +68,8 @@ enum StreamType {
 	/* system object */
 	StreamType_Prompt,
 	StreamType_Pretty,
+	StreamType_MemoryInput,
+	StreamType_MemoryOutput,
 	StreamType_Size
 };
 
@@ -154,6 +159,9 @@ _g int output_string_stream_p(addr stream);
 _g int string_stream_p(addr stream);
 _g int prompt_stream_p(addr stream);
 _g int pretty_stream_p(addr stream);
+_g int input_memory_stream_p(addr stream);
+_g int output_memory_stream_p(addr stream);
+_g int memory_stream_p(addr stream);
 _g int extend_stream_p(addr stream);
 _g int extend_type_stream_p(addr stream, int type);
 

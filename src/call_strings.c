@@ -825,7 +825,7 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 	value = NULL;
 	c = 0;
 	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
-	if (getplist(rest, symbol, &value) == 0) {
+	if (getplist_safe(rest, symbol, &value) == 0) {
 		if (GetType(value) != LISPTYPE_CHARACTER)
 			return fmte_("Invalid :initial-element ~S.", value, NULL);
 		GetCharacter(value, &c);
@@ -833,7 +833,7 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 
 	/* element-type */
 	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
-	if (getplist(rest, symbol, &type) == 0) {
+	if (getplist_safe(rest, symbol, &type) == 0) {
 		GetTypeTable(&symbol, Character);
 		Return(parse_type(ptr, &type, type, Nil));
 		Return(subtypep_clang_(type, symbol, &check, NULL));

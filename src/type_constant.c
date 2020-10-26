@@ -113,6 +113,7 @@ DefTypeTable(0,  SYNONYM_STREAM,       SynonymStream        );
 DefTypeTable(0,  TWO_WAY_STREAM,       TwoWayStream         );
 DefTypeTable(0,  PROMPT_STREAM,        PromptStream         );
 DefTypeTable(0,  PRETTY_STREAM,        PrettyStream         );
+DefTypeTable(0,  MEMORY_STREAM,        MemoryStream         );
 DefTypeTable(0,  QUOTE,                Quote                );
 DefTypeTable(0,  BYTESPEC,             ByteSpec             );
 DefTypeTable(0,  PRINT_DISPATCH,       PrintDispatch        );
@@ -461,11 +462,12 @@ static void typetable_pathnamedesigner(void)
 static void typetable_streamdesigner(void)
 {
 	/* (or stream symbol) */
-	addr type1, type2, pos;
+	addr type1, type2, type3, pos;
 
 	GetTypeTable(&type1, Stream);
 	GetTypeTable(&type2, String);
-	type2or_heap(type1, type2, &pos);
+	GetTypeTable(&type3, Boolean);
+	type3or_heap(type1, type2, type3, &pos);
 	SetTypeTable(StreamDesigner, pos);
 }
 
@@ -1360,6 +1362,7 @@ DefTypeValues(SimpleString);
 DefTypeValues(Stream);
 DefTypeValues(StreamNull);
 DefTypeValues(PrettyStream);
+DefTypeValues(MemoryStream);
 DefTypeValues(Function);
 DefTypeValues(FunctionNull);
 DefTypeValues(EqlT);
@@ -2937,6 +2940,7 @@ _g void build_type_constant(void)
 	typetable_TwoWayStream();
 	typetable_PromptStream();
 	typetable_PrettyStream();
+	typetable_MemoryStream();
 	typetable_Quote();
 	typetable_ByteSpec();
 	typetable_PrintDispatch();
@@ -3089,6 +3093,7 @@ _g void build_type_constant(void)
 	typevalues_Stream();
 	typevalues_StreamNull();
 	typevalues_PrettyStream();
+	typevalues_MemoryStream();
 	typevalues_Function();
 	typevalues_FunctionNull();
 	typevalues_EqlT();

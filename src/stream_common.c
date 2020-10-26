@@ -252,78 +252,176 @@ static int get_end_of_line_mode_(Execute ptr, enum EndOfLine_Mode *ret)
 	return fmte_("Invalid *end-of-line* value ~S.", pos, NULL);
 }
 
+static int read_line_stream_auto_(LocalRoot local,
+		addr pos, addr queue, int *rloop, int *ret)
+{
+	int loop, check, type;
+	unicode c;
+
+	type = 0;
+	for (loop = 0; ; loop = 1) {
+		Return(read_char_stream_(pos, &c, &check));
+		if (check) {
+			type = 0;
+			break;
+		}
+		if (c == 0x0A) {
+			type = 1;
+			break;
+		}
+		if (c == 0x0D) {
+			Return(read_char_stream_(pos, &c, &check));
+			if (check == 0 && c != 0x0A) {
+				Return(unread_char_stream_(pos, c));
+			}
+			type = 1;
+			break;
+		}
+		Return(push_charqueue_local_(local, queue, c));
+	}
+
+	*rloop = loop;
+	return Result(ret, type);
+}
+
+static int read_line_stream_value_(LocalRoot local,
+		addr pos, addr queue, unicode eol, int *rloop, int *ret)
+{
+	int loop, check, type;
+	unicode c;
+
+	type = 0;
+	for (loop = 0; ; loop = 1) {
+		Return(read_char_stream_(pos, &c, &check));
+		if (check) {
+			type = 0;
+			break;
+		}
+		if (c == eol) {
+			type = 1;
+			break;
+		}
+		Return(push_charqueue_local_(local, queue, c));
+	}
+
+	*rloop = loop;
+	return Result(ret, type);
+}
+
+static int read_line_stream_cr_(LocalRoot local,
+		addr pos, addr queue, int *rloop, int *ret)
+{
+	return read_line_stream_value_(local, pos, queue, 0x0D, rloop, ret);
+}
+
+static int read_line_stream_lf_(LocalRoot local,
+		addr pos, addr queue, int *rloop, int *ret)
+{
+	return read_line_stream_value_(local, pos, queue, 0x0A, rloop, ret);
+}
+
+static int read_line_stream_crlf_(LocalRoot local,
+		addr pos, addr queue, int *rloop, int *ret)
+{
+	int loop, check, type;
+	unicode c;
+
+	type = 0;
+	for (loop = 0; ; loop = 1) {
+		Return(read_char_stream_(pos, &c, &check));
+		if (check) {
+			type = 0;
+			break;
+		}
+		if (c == 0x0A)
+			goto error;
+		if (c == 0x0D) {
+			Return(read_char_stream_(pos, &c, &check));
+			if (check || c != 0x0A)
+				goto error;
+			type = 1;
+			break;
+		}
+		Return(push_charqueue_local_(local, queue, c));
+	}
+
+	*rloop = loop;
+	return Result(ret, type);
+
+error:
+	*rloop = 0;
+	*ret = 0;
+	return fmte_("Invalid CR-LF code.", NULL);
+}
+
+static int read_line_stream_mode_(Execute ptr,
+		addr pos, addr queue, int *loop, int *ret)
+{
+	enum EndOfLine_Mode mode;
+	LocalRoot local;
+
+	local = ptr->local;
+	Return(get_end_of_line_mode_(ptr, &mode));
+	switch (mode) {
+		case EndOfLine_Auto:
+			return read_line_stream_auto_(local, pos, queue, loop, ret);
+
+		case EndOfLine_CR:
+			return read_line_stream_cr_(local, pos, queue, loop, ret);
+
+		case EndOfLine_LF:
+			return read_line_stream_lf_(local, pos, queue, loop, ret);
+
+		case EndOfLine_CRLF:
+			return read_line_stream_crlf_(local, pos, queue, loop, ret);
+
+		default:
+			return read_line_stream_auto_(local, pos, queue, loop, ret);
+	}
+}
+
+static int read_line_stream_loop_(Execute ptr, addr *ret, int *miss,
+		addr pos, int errorp, addr value, int recp)
+{
+	int loop, type;
+	addr queue;
+
+	charqueue_local(ptr->local, &queue, 0);
+	Return(read_line_stream_mode_(ptr, pos, queue, &loop, &type));
+	if (type) {
+		make_charqueue_heap(queue, ret);
+		return Result(miss, 0);
+	}
+
+	/* result */
+	if (loop != 0) {
+		make_charqueue_heap(queue, ret);
+		return Result(miss, 1);
+	}
+
+	/* error */
+	if (errorp) {
+		*ret = Nil;
+		*miss = 0;
+		return end_of_file_recursive_(ptr, pos, recp);
+	}
+	*ret = value;
+	return Result(miss, 1);
+}
+
 _g int read_line_stream_(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp)
 {
-	int docheck, check;
-	enum EndOfLine_Mode mode;
-	unicode c;
-	addr queue;
 	LocalRoot local;
 	LocalStack stack;
 
 	Return(stream_designer_(ptr, pos, &pos, 1));
 	local = ptr->local;
 	push_local(local, &stack);
-	charqueue_local(local, &queue, 0);
-	Return(get_end_of_line_mode_(ptr, &mode));
-	for (docheck = 0; ; docheck = 1) {
-		Return(read_char_stream_(pos, &c, &check));
-		if (check)
-			goto finish_eof;
-		switch (mode) {
-			case EndOfLine_CR:
-				if (c == 0x0D)
-					goto finish_value;
-				break;
-
-			case EndOfLine_LF:
-				if (c == 0x0A)
-					goto finish_value;
-				break;
-
-			case EndOfLine_CRLF:
-				if (c == 0x0D) {
-					Return(read_char_stream_(pos, &c, &check));
-					if (check || c != 0x0A)
-						return fmte_("Invalid CR-LF code.", NULL);
-					goto finish_value;
-				}
-				break;
-
-			case EndOfLine_Auto:
-			default:
-				if (c == 0x0A)
-					goto finish_value;
-				if (c == 0x0D) {
-					Return(read_char_stream_(pos, &c, &check));
-					if (check == 0 && c != 0x0A) {
-						Return(unread_char_stream_(pos, c));
-					}
-					goto finish_value;
-				}
-				break;
-		}
-		Return(push_charqueue_local_(local, queue, c));
-	}
-
-finish_eof:
-	if (docheck == 0)
-		goto finish_error;
-	make_charqueue_heap(queue, ret);
+	Return(read_line_stream_loop_(ptr, ret, miss, pos, errorp, value, recp));
 	rollback_local(local, stack);
-	return Result(miss, 1);
 
-finish_value:
-	make_charqueue_heap(queue, ret);
-	rollback_local(local, stack);
-	return Result(miss, 0);
-
-finish_error:
-	if (errorp)
-		return end_of_file_recursive_(ptr, pos, recp);
-	*ret = value;
-	return Result(miss, 1);
+	return 0;
 }
 
 

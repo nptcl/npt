@@ -277,7 +277,7 @@ _g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 		goto error;
 	/* key start */
 	GetConst(KEYWORD_START, &key);
-	if (getplist(args, key, &pos)) {
+	if (getplist_safe(args, key, &pos)) {
 		start = 0;
 	}
 	else {
@@ -286,7 +286,7 @@ _g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 	}
 	/* key end */
 	GetConst(KEYWORD_END, &key);
-	if (getplist(args, key, &pos)) {
+	if (getplist_safe(args, key, &pos)) {
 		string_length(str, &end);
 	}
 	else {
@@ -295,7 +295,7 @@ _g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 	}
 	/* key preserving-whitespace */
 	GetConst(KEYWORD_PRESERVING_WHITESPACE, &key);
-	if (getplist(args, key, &pos))
+	if (getplist_safe(args, key, &pos))
 		preserve = 0;
 	else
 		preserve = (pos != Nil);

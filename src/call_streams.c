@@ -935,7 +935,7 @@ _g int with_input_from_string_common(addr form, addr *ret)
 	GetCons(args, &string, &args);
 	/* make form */
 	GetConst(KEYWORD_INDEX, &key);
-	if (getplist(args, key, &index)) {
+	if (getplist_safe(args, key, &index)) {
 		Return(with_input_from_string_noindex_common_(ret, var, string, args, body));
 	}
 	else {

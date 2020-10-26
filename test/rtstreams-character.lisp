@@ -549,1018 +549,436 @@
 
 
 ;;
-;;  read-line
+;;  Function READ-LINE
 ;;
-(deftest read-line-file.1
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file*)
-      (read-line input)))
-  "abcd" t)
+(deftest read-line.1
+  (with-input-from-string (*standard-input* "Hello")
+    (read-line))
+  "Hello" t)
 
-(deftest read-line-file.2
-  (with-make-file
-    (*file* "abcd~%")
-    (with-open-file (input *file*)
-      (read-line input)))
-  "abcd" nil)
+(deftest read-line.2
+  (with-input-from-string (stream (format nil "Hello~%"))
+    (read-line stream))
+  "Hello" nil)
 
-(deftest-error read-line-file.3
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file*)
-      (read-line input)
-      (read-line input)))
+(deftest-error read-line.3
+  (with-input-from-string (*standard-input* "Hello")
+    (read-line)
+    (read-line))
   end-of-file)
 
-(deftest-error read-line-file.4
-  (with-make-file
-    (*file* "abcd~%")
-    (with-open-file (input *file*)
-      (read-line input)
-      (read-line input)))
+(deftest read-line.4
+  (with-input-from-string (stream (format nil "Hello~%"))
+    (read-line stream nil)
+    (read-line stream nil))
+  nil t)
+
+(deftest read-line.5
+  (with-input-from-string (stream (format nil "Hello~%"))
+    (read-line stream nil :eof)
+    (read-line stream nil :eof))
+  :eof t)
+
+(deftest-error read-line.6
+  (with-input-from-string (stream "Hello")
+    (read-line stream t nil t)
+    (read-line stream t nil t))
   end-of-file)
 
-(deftest read-line-file.5
-  (with-make-file
-    (*file* "aaa~%~%bbb")
-    (with-open-file (input *file*)
+(deftest read-line.7
+  (with-input-from-string (stream (format nil "Hello~%"))
+    (read-line stream nil :eof t)
+    (read-line stream nil :eof t))
+  :eof t)
+
+(deftest-error read-line-error.1
+  (eval '(read-line 10))
+  type-error)
+
+(deftest-error! read-line-error.2
+  (eval '(read-line *standard-input* t nil t nil)))
+
+(deftest-error read-line-error.3
+  (with-temp-file
+    (eval '(with-open-file (stream *file* :direction :input
+                                   :element-type 'unsigned-byte)
+             (read-line stream))))
+  type-error)
+
+;;  ANSI Common Lisp
+(defvar *read-line-test*)
+
+(deftest read-line-test.1
+  (read-line
+    (setq *read-line-test*
+          (make-string-input-stream
+            (concatenate 'string "line 1" '(#\newline) "line2"))))
+  "line 1" nil)
+
+(deftest read-line-test.2
+  (read-line *read-line-test*)
+  "line2" t)
+
+(deftest read-line-test.3
+  (read-line *read-line-test* nil nil)
+  nil t)
+
+;;  EOL mode
+(deftest read-line-auto.1
+  ;;  default value
+  lisp-system::*end-of-line*
+  lisp-system::auto)
+
+(deftest read-line-auto.2
+  (let ((lisp-system::*end-of-line* 'lisp-system::auto))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0A))
       (values
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof))))
-  "aaa" "" "bbb" :eof)
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "DEF")
 
-(deftest read-line-file.6
-  (with-make-file
-    (*file* "aaa~%~%bbb~%")
-    (with-open-file (input *file*)
+(deftest read-line-auto.3
+  (let ((lisp-system::*end-of-line* 'lisp-system::auto))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0D))
       (values
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof))))
-  "aaa" "" "bbb" :eof)
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "DEF")
 
-(deftest read-line-file.7
-  (with-make-file
-    (*file* "aaa~%~%bbb~%~%")
-    (with-open-file (input *file*)
+(deftest read-line-auto.4
+  (let ((lisp-system::*end-of-line* 'lisp-system::auto))
+    (with-input-from-string
+      (stream (format nil "ABC~A~ADEF" #\u0D #\u0A))
       (values
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof)
-        (read-line input nil :eof))))
-  "aaa" "" "bbb" "" :eof)
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "DEF")
 
-(deftest-error read-line-file.8
-  (with-make-file
-    (*file* "aaa")
-    (with-open-file (input *file* :element-type 'unsigned-byte)
-      (read-line input))))
+(deftest read-line-auto.5
+  (let ((lisp-system::*end-of-line* 'lisp-system::auto))
+    (with-input-from-string
+      (stream (format nil "ABC~A~ADEF" #\u0A #\u0D))
+      (values
+        (read-line stream)
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "" "DEF")
 
-(deftest-error read-line-file.9
-  (with-make-file
-    (*file* "aaa")
-    (with-overwrite-file (input *file*)
-      (read-line input))))
+(deftest read-line-cr.1
+  (let ((lisp-system::*end-of-line* 'lisp-system::cr))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0D))
+      (values
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "DEF")
 
-(deftest-error read-line-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (read-line stream)))
-
-(deftest read-line-concatenated.1
-  (with-input-from-string (input1 (format nil "aaa~%bbb"))
-    (with-input-from-string (input2 (format nil "ccc~%ddd~%"))
-      (with-open-stream (stream (make-concatenated-stream input1 input2))
-        (values
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)))))
-  "aaa" "bbbccc" "ddd" :eof)
-
-(deftest read-line-echo.1
-  (with-input-from-string (input (format nil "aaa~%BBB"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (values
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)))))
-  "aaa" "BBB" :eof)
-
-(deftest read-line-echo.2
-  (with-input-from-string (input (format nil "aaa~%BBB"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (read-line stream nil :eof)
-        (read-line stream nil :eof)
-        (read-line stream nil :eof))
-      (equal (format nil "aaa~%BBB")
-             (get-output-stream-string output))))
+(deftest read-line-cr.2
+  (let ((lisp-system::*end-of-line* 'lisp-system::cr))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0A))
+      (equal (read-line stream)
+             (format nil "ABC~ADEF" #\u0A))))
   t)
 
-(deftest read-line-synonym.1
-  (with-input-from-string (hello (format nil "aaa~%~%bbb~%"))
-    (declare (special hello))
-    (with-open-stream (stream (make-synonym-stream 'hello))
+(deftest read-line-lf.1
+  (let ((lisp-system::*end-of-line* 'lisp-system::lf))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0A))
       (values
-        (read-line stream nil :eof)
-        (read-line stream nil :eof)
-        (read-line stream nil :eof)
-        (read-line stream nil :eof))))
-  "aaa" "" "bbb" :eof)
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "DEF")
 
-(deftest read-line-two-way.1
-  (with-input-from-string (input (format nil "aaa~%BBB"))
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (values
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)
-          (read-line stream nil :eof)))))
-  "aaa" "BBB" :eof)
+(deftest read-line-lf.2
+  (let ((lisp-system::*end-of-line* 'lisp-system::lf))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0D))
+      (equal (read-line stream)
+             (format nil "ABC~ADEF" #\u0D))))
+  t)
 
-(deftest read-line-input-string.1
-  (with-input-from-string (stream (format nil "aaa~%BBB"))
-    (values
-      (read-line stream nil :eof)
-      (read-line stream nil :eof)
-      (read-line stream nil :eof)))
-  "aaa" "BBB" :eof)
+(deftest read-line-crlf.1
+  (let ((lisp-system::*end-of-line* 'lisp-system::crlf))
+    (with-input-from-string
+      (stream (format nil "ABC~A~ADEF" #\u0D #\u0A))
+      (values
+        (read-line stream)
+        (read-line stream))))
+  "ABC" "DEF")
 
-(deftest-error read-line-output-string.1
-  (with-output-to-string (stream)
-    (read-line stream)))
+(deftest-error read-line-crlf.2
+  (let ((lisp-system::*end-of-line* 'lisp-system::crlf))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0A))
+      (read-line stream))))
 
-(deftest-error read-line-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (read-line stream)))
+(deftest-error read-line-crlf.3
+  (let ((lisp-system::*end-of-line* 'lisp-system::crlf))
+    (with-input-from-string
+      (stream (format nil "ABC~ADEF" #\u0D))
+      (read-line stream))))
 
 
 ;;
-;;  write-string
+;;  Function WRITE-STRING
 ;;
-(deftest write-string-file.1
+(deftest write-string.1
+  (with-output-to-string (*standard-output*)
+    (write-string "aaa"))
+  "aaa")
+
+(deftest write-string.2
+  (with-open-stream (stream (make-string-output-stream))
+    (write-string "aaa" stream))
+  "aaa")
+
+(deftest write-string.3
   (with-output-to-string (stream)
     (write-string "aaa" stream)
     (write-string "bbb" stream))
   "aaabbb")
 
-(deftest write-string-file.2
+(deftest write-string-range.1
+  (with-output-to-string (stream)
+    (write-string "abc" stream :start 0))
+  "abc")
+
+(deftest write-string-range.2
+  (with-output-to-string (stream)
+    (write-string "abc" stream :start 1))
+  "bc")
+
+(deftest write-string-range.3
+  (with-open-stream (stream (make-string-output-stream))
+    (write-string "abc" stream :start 1))
+  "abc")
+
+(deftest write-string-range.4
+  (with-output-to-string (stream)
+    (write-string "abc" stream :start 3))
+  "")
+
+(deftest write-string-range.5
+  (with-output-to-string (stream)
+    (write-string "abc" stream :end 0))
+  "")
+
+(deftest write-string-range.6
+  (with-output-to-string (stream)
+    (write-string "abc" stream :end 1))
+  "a")
+
+(deftest write-string-range.7
+  (with-output-to-string (stream)
+    (write-string "abc" stream :end 3))
+  "abc")
+
+(deftest write-string-range.8
+  (with-output-to-string (stream)
+    (write-string "abc" stream :end nil))
+  "abc")
+
+(deftest write-string-range.9
   (with-output-to-string (stream)
     (write-string "abcdef" stream :start 2)
     (write-string "bbb" stream))
   "cdefbbb")
 
-(deftest write-string-file.3
+(deftest write-string-range.10
   (with-output-to-string (stream)
     (write-string "abcdef" stream :end 2)
     (write-string "bbb" stream))
   "abbbb")
 
-(deftest write-string-file.4
+(deftest write-string-range.11
   (with-output-to-string (stream)
     (write-string "abcdef" stream :start 3 :end 5)
     (write-string "bbb" stream))
   "debbb")
 
+(deftest-error write-string-error.1
+  (eval '(write-string 10))
+  type-error)
+
+(deftest-error write-string-error.2
+  (eval '(write-string "Hello" 20))
+  type-error)
+
+(deftest-error write-string-error.3
+  (eval '(write-string "Hello" *standard-output* :start)))
+
+(deftest-error write-string-error.4
+  (eval '(write-string "Hello" *standard-output* :start :hello)))
+
+(deftest-error write-string-error.5
+  (eval '(write-string "Hello" *standard-output* :hello 10)))
+
+(deftest-error! write-string-error.6
+  (eval '(write-string)))
+
+(deftest-error! write-string-error.7
+  (eval '(write-string "Hello" *standard-output* :start -1)))
+
+(deftest-error! write-string-error.8
+  (eval '(write-string "Hello" *standard-output* :start 6)))
+
+(deftest-error! write-string-error.9
+  (eval '(write-string "Hello" *standard-output* :end -1)))
+
+(deftest-error! write-string-error.10
+  (eval '(write-string "Hello" *standard-output* :end 6)))
+
+(deftest-error! write-string-error.11
+  (eval '(write-string "Hello" *standard-output* :start 4 :end 3)))
+
 
 ;;
 ;;  write-line
 ;;
-(deftest write-line-file.1
-  (equal (format nil "aaa~%bbb~%")
-         (with-output-to-string (stream)
-           (write-line "aaa" stream)
-           (write-line "bbb" stream)))
+(deftest write-line.1
+  (equal (with-output-to-string (*standard-output*)
+           (write-line "aaa"))
+         (format nil "aaa~%"))
   t)
 
-(deftest write-line-file.2
+(deftest write-line.2
+  (with-open-stream (stream (make-string-output-stream))
+    (write-line "aaa" stream))
+  "aaa")
+
+(deftest write-line.3
+  (equal (with-output-to-string (stream)
+           (write-line "aaa" stream)
+           (write-line "bbb" stream))
+         (format nil "aaa~%bbb~%"))
+  t)
+
+(deftest write-line-range.1
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :start 0))
+         (format nil "abc~%"))
+  t)
+
+(deftest write-line-range.2
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :start 1))
+         (format nil "bc~%"))
+  t)
+
+(deftest write-line-range.3
+  (with-open-stream (stream (make-string-output-stream))
+    (write-line "abc" stream :start 1))
+  "abc")
+
+(deftest write-line-range.4
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :start 3))
+         (format nil "~%"))
+  t)
+
+(deftest write-line-range.5
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :end 0))
+         (format nil "~%"))
+  t)
+
+(deftest write-line-range.6
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :end 1))
+         (format nil "a~%"))
+  t)
+
+(deftest write-line-range.7
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :end 3))
+         (format nil "abc~%"))
+  t)
+
+(deftest write-line-range.8
+  (equal (with-output-to-string (stream)
+           (write-line "abc" stream :end nil))
+         (format nil "abc~%"))
+  t)
+
+(deftest write-line-range.9
   (equal (format nil "cdef~%bbb~%")
          (with-output-to-string (stream)
            (write-line "abcdef" stream :start 2)
            (write-line "bbb" stream)))
   t)
 
-(deftest write-line-file.3
+(deftest write-line-range.10
   (equal (format nil "ab~%bbb~%")
          (with-output-to-string (stream)
            (write-line "abcdef" stream :end 2)
            (write-line "bbb" stream)))
   t)
 
-(deftest write-line-file.4
+(deftest write-line-range.11
   (equal (format nil "de~%bbb~%")
          (with-output-to-string (stream)
            (write-line "abcdef" stream :start 3 :end 5)
            (write-line "bbb" stream)))
   t)
 
+(deftest-error write-line-error.1
+  (eval '(write-line 10))
+  type-error)
 
-;;
-;;  read-sequence
-;;
-(deftest read-sequence.1
-  (let ((array (make-array 10 :initial-element :a)))
-    (with-input-from-string (input "Hello a")
-      (values
-        (read-sequence array input)
-        array)))
-  7 #(#\H #\e #\l #\l #\o #\Space #\a :a :a :a))
+(deftest-error write-line-error.2
+  (eval '(write-line "Hello" 20))
+  type-error)
 
-(deftest read-sequence.2
-  (let ((array (make-array 10 :initial-element :a)))
-    (with-input-from-string (input "abc")
-      (values
-        (read-sequence array input :start 5)
-        array)))
-  8 #(:a :a :a :a :a #\a #\b #\c :a :a))
+(deftest-error write-line-error.3
+  (eval '(write-line "Hello" *standard-output* :start)))
 
-(deftest read-sequence.3
-  (let ((array (make-array 10 :initial-element :a)))
-    (with-input-from-string (input "abc")
-      (values
-        (read-sequence array input :start 5 :end 7)
-        array)))
-  7 #(:a :a :a :a :a #\a #\b :a :a :a))
+(deftest-error write-line-error.4
+  (eval '(write-line "Hello" *standard-output* :start :hello)))
 
-(deftest read-sequence.4
-  (let ((array (make-array 10 :initial-element :a)))
-    (with-input-from-string (input "abcdefg")
-      (values
-        (read-sequence array input :start 5)
-        array)))
-  10 #(:a :a :a :a :a #\a #\b #\c #\d #\e))
+(deftest-error write-line-error.5
+  (eval '(write-line "Hello" *standard-output* :hello 10)))
 
+(deftest-error! write-line-error.6
+  (eval '(write-line)))
 
-;;
-;;  write-sequence
-;;
-(deftest write-sequence.1
-  (with-output-to-string (stream)
-    (write-sequence "abcdef" stream))
-  "abcdef")
+(deftest-error! write-line-error.7
+  (eval '(write-line "Hello" *standard-output* :start -1)))
 
-(deftest write-sequence.2
-  (with-output-to-string (stream)
-    (write-char #\Z stream)
-    (write-sequence "abcdef" stream :start 4))
-  "Zef")
+(deftest-error! write-line-error.8
+  (eval '(write-line "Hello" *standard-output* :start 6)))
 
-(deftest write-sequence.3
-  (with-output-to-string (stream)
-    (write-char #\Z stream)
-    (write-sequence "abcdef" stream :end 3))
-  "Zabc")
+(deftest-error! write-line-error.9
+  (eval '(write-line "Hello" *standard-output* :end -1)))
 
-(deftest write-sequence.4
-  (with-output-to-string (stream)
-    (write-char #\Z stream)
-    (write-sequence "abcdef" stream :start 2 :end 3))
-  "Zc")
+(deftest-error! write-line-error.10
+  (eval '(write-line "Hello" *standard-output* :end 6)))
 
-(deftest write-sequence.5
-  (with-open-stream (stream (make-string-output-stream))
-    (write-char #\Z stream)
-    (write-sequence "abcdef" stream :start 2 :end 3))
-  "abcdef")
+(deftest-error! write-line-error.11
+  (eval '(write-line "Hello" *standard-output* :start 4 :end 3)))
 
+;;  ANSI Common Lisp
+(deftest write-string-test.1
+  (with-output-to-string (*standard-output*)
+    (prog1 (write-string "books" nil :end 4)
+      (write-string "worms")))
+  "bookworms")
 
-;;
-;;  file-length
-;;
-(deftest file-length-file.1
-  (with-temp-file
-    (with-open-file (input *file*)
-      (file-length input)))
-  3)
+(deftest write-string-test.2
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (prog1 (write-string "books" nil :end 4)
+      (write-string "worms")))
+  "books")
 
-(deftest file-length-file.2
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file* :element-type 'unsigned-byte)
-      (file-length input)))
-  6)
-
-(deftest file-length-file.3
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file* :direction :io :if-exists :overwrite)
-      (file-length input)))
-  6)
-
-(deftest file-length-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (file-length stream))
-  0)
-
-(deftest file-length-broadcast.2
-  (with-make-file
-    (*file1* "abc")
-    (with-make-file
-      (*file2* "cdef")
-      (with-open-file (input1 *file1* :direction :io :if-exists :overwrite)
-        (with-open-file (input2 *file2* :direction :io :if-exists :overwrite)
-          (with-open-stream (stream (make-broadcast-stream input1 input2))
-            (file-length stream))))))
-  4)
-
-(deftest-error file-length-concatenated.1
-  (with-make-file
-    (*file1* "abc")
-    (with-make-file
-      (*file2* "cdef")
-      (with-open-file (input1 *file1*)
-        (with-open-file (input2 *file2*)
-          (with-open-stream (stream (make-concatenated-stream input1 input2))
-            (file-length stream)))))))
-
-(deftest-error file-length-echo.1
-  (with-make-file
-    (*file1* "abc")
-    (with-make-file
-      (*file2* "cdef")
-      (with-open-file (input *file1*)
-        (with-overwrite-file (output *file2*)
-          (with-open-stream (stream (make-echo-stream input output))
-            (file-length stream)))))))
-
-(deftest file-length-synonym.1
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file*)
-      (declare (special input))
-      (with-open-stream (stream (make-synonym-stream 'input))
-        (file-length stream))))
-  4)
-
-(deftest-error file-length-two-way.1
-  (with-make-file
-    (*file1* "abc")
-    (with-make-file
-      (*file2* "cdef")
-      (with-open-file (input *file1*)
-        (with-overwrite-file (output *file2*)
-          (with-open-stream (stream (make-echo-stream input output))
-            (file-length stream)))))))
-
-(deftest-error file-length-input-stream.1
-  (with-input-from-string (stream "Hello")
-    (file-length stream)))
-
-(deftest-error file-length-output-stream.1
-  (with-output-to-string (stream)
-    (format stream "Hello")
-    (file-length stream)))
-
-(deftest-error file-length-extend-stream.1
-  (with-extend-to-string
-    (stream array)
-    (format stream "Hello")
-    (file-length stream)))
-
-
-;;
-;;  file-position
-;;
-(deftest file-position-file.1
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file*)
-      (file-position input)))
-  0)
-
-(deftest file-position-file.2
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file*)
-      (read-char input)
-      (file-position input)))
-  1)
-
-(deftest file-position-file.3
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file*)
-      (read-char input)
-      (read-char input)
-      (unread-char #\a input)
-      (file-position input)))
-  1)
-
-(deftest file-position-file.4
-  (with-temp-file
-    (with-overwrite-file (output *file*)
-      (file-position output)))
-  0)
-
-(deftest file-position-file.5
-  (with-temp-file
-    (with-overwrite-file (output *file*)
-      (format output "Hello")
-      (file-position output)))
-  5)
-
-(deftest file-position-file.6
-  (with-temp-file
-    (with-overwrite-file (output *file*)
-      (let ((array (make-array 70000 :initial-element #\z)))
-        (write-sequence array output)
-        (file-position output))))
-  70000)
-
-(deftest file-position-file.7
-  (with-make-file
-    (*file* "abcd")
-    (with-open-file (input *file* :direction :io :if-exists :overwrite)
-      (read-char input)
-      (read-char input)
-      (file-position input)))
-  2)
-
-(deftest file-position-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (file-position stream))
-  0)
-
-(deftest file-position-broadcast.2
-  (with-make-file
-    (*file1* "Hello")
-    (with-make-file
-      (*file2* "abcdef")
-      (with-open-file (input1 *file1* :direction :io :if-exists :overwrite)
-        (with-open-file (input2 *file2* :direction :io :if-exists :overwrite)
-          (read-char input1)
-          (read-char input1)
-          (read-char input2)
-          (read-char input2)
-          (read-char input2)
-          (with-open-stream (stream (make-broadcast-stream input1 input2))
-            (file-position stream))))))
-  3)
-
-(deftest file-position-concatenated.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (stream (make-concatenated-stream input))
-      (file-position stream)))
-  nil)
-
-(deftest file-position-echo.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (file-position stream))))
-  nil)
-
-(deftest file-position-synonym.1
-  (with-input-from-string (input "Hello")
-    (declare (special input))
-    (read-char input)
-    (read-char input)
-    (with-open-stream (stream (make-synonym-stream 'hello))
-      (file-position input)))
-  2)
-
-(deftest file-position-two-way.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (file-position stream))))
-  nil)
-
-(deftest file-position-input-string.1
-  (with-input-from-string (input "Hello")
-    (read-char input)
-    (read-char input)
-    (read-char input)
-    (file-position input))
-  3)
-
-(deftest file-position-output-string.1
-  (with-open-stream (stream (make-string-output-stream))
-    (format stream "abc")
-    (file-position stream))
-  3)
-
-(deftest file-position-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (format stream "abc")
-    (file-position stream))
-  3)
-
-
-;;
-;;  file-position set
-;;
-(deftest file-position-set-file.1
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file*)
-      (values
-        (file-position input 3)
-        (read-char input)
-        (read-char input))))
-  t #\d #\e)
-
-(deftest file-position-set-file.2
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file*)
-      (read-char input)
-      (unread-char #\a input)
-      (values
-        (file-position input 3)
-        (read-char input)
-        (read-char input))))
-  t #\d #\e)
-
-(deftest file-position-set-file.3
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file*)
-      (values
-        (file-position input 3)
-        (read-char input)
-        (read-char input))))
-  t #\d #\e)
-
-(deftest file-position-set-file.4
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file*)
-      (values
-        (file-position input :start)
-        (read-char input))))
-  t #\a)
-
-(deftest file-position-set-file.5
-  (with-make-file
-    (*file* "abcdef")
-    (with-open-file (input *file*)
-      (values
-        (file-position input :end)
-        (read-char input nil :eof))))
-  t :eof)
-
-(deftest file-position-set-file.6
-  (with-make-file
-    (*file* "")
-    (with-overwrite-file (stream *file*)
-      (format stream "abc")
-      (file-position stream :start)))
+(deftest write-string-test.3
+  (equal (with-output-to-string (*standard-output*)
+           (progn (write-char #\*)
+                  (write-line "test12" *standard-output* :end 5)
+                  (write-line "*test2")
+                  (write-char #\*)
+                  nil))
+         (format nil "*test1~%*test2~%*"))
   t)
-
-(deftest file-position-set-file.7
-  (with-make-file
-    (*file* "")
-    (with-overwrite-file (stream *file*)
-      (format stream "abc")
-      (file-position stream :start)
-      (format stream "cdef"))
-    (with-open-file (input *file*)
-      (read-line input)))
-  "cdef" t)
-
-(deftest file-position-set-file.8
-  (with-make-file
-    (*file* "")
-    (with-overwrite-file (stream *file*)
-      (format stream "abc")
-      (file-position stream :end)))
-  t)
-
-(deftest file-position-set-file.9
-  (with-make-file
-    (*file* "")
-    (with-overwrite-file (stream *file*)
-      (format stream "abc")
-      (file-position stream :end)
-      (format stream "cdef"))
-    (with-open-file (input *file*)
-      (read-line input)))
-  "abccdef" t)
-
-(deftest file-position-set-file.10
-  (with-make-file
-    (*file* "")
-    (with-overwrite-file (stream *file*)
-      (format stream "abc")
-      (file-position stream 2)))
-  t)
-
-(deftest file-position-set-file.11
-  (with-make-file
-    (*file* "")
-    (with-overwrite-file (stream *file*)
-      (format stream "abc")
-      (file-position stream 2)
-      (format stream "cdef"))
-    (with-open-file (input *file*)
-      (read-line input)))
-  "abcdef" t)
-
-(deftest file-position-set-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (file-position stream :start))
-  nil)
-
-(deftest file-position-set-broadcast.2
-  (with-make-file
-    (*file1* "Hello")
-    (with-make-file
-      (*file2* "abcdefg")
-      (with-open-file (stream1 *file1* :direction :io :if-exists :overwrite)
-        (with-open-file (stream2 *file2* :direction :io :if-exists :overwrite)
-          (read-char stream1)
-          (read-char stream1)
-          (read-char stream2)
-          (read-char stream2)
-          (read-char stream2)
-          (with-open-stream (stream (make-broadcast-stream stream1 stream2))
-            (values
-              (file-position stream :start)
-              (read-char stream1)
-              (read-char stream2)))))))
-  t #\H #\a)
-
-(deftest file-position-set-broadcast.3
-  (with-make-file
-    (*file1* "Hello")
-    (with-make-file
-      (*file2* "abcdefg")
-      (with-open-file (stream1 *file1* :direction :io :if-exists :overwrite)
-        (with-open-file (stream2 *file2* :direction :io :if-exists :overwrite)
-          (read-char stream1)
-          (read-char stream1)
-          (read-char stream2)
-          (read-char stream2)
-          (read-char stream2)
-          (with-open-stream (stream (make-broadcast-stream stream1 stream2))
-            (values
-              (file-position stream :end)
-              (read-char stream1 nil :eof)
-              (read-char stream2 nil :eof)))))))
-  t :eof :eof)
-
-(deftest file-position-set-broadcast.4
-  (with-make-file
-    (*file1* "Hello")
-    (with-make-file
-      (*file2* "abcdefg")
-      (with-open-file (stream1 *file1* :direction :io :if-exists :overwrite)
-        (with-open-file (stream2 *file2* :direction :io :if-exists :overwrite)
-          (read-char stream1)
-          (read-char stream1)
-          (read-char stream2)
-          (read-char stream2)
-          (read-char stream2)
-          (with-open-stream (stream (make-broadcast-stream stream1 stream2))
-            (values
-              (file-position stream 2)
-              (read-char stream1)
-              (read-char stream2)))))))
-  t #\l #\c)
-
-(deftest file-position-set-concatenated.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (stream (make-concatenated-stream input))
-      (file-position stream :start)))
-  nil)
-
-(deftest file-position-set-concatenated.2
-  (with-input-from-string (input "Hello")
-    (with-open-stream (stream (make-concatenated-stream input))
-      (file-position stream :end)))
-  nil)
-
-(deftest file-position-set-concatenated.3
-  (with-input-from-string (input "Hello")
-    (with-open-stream (stream (make-concatenated-stream input))
-      (file-position stream 2)))
-  nil)
-
-(deftest file-position-set-echo.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (file-position stream :start))))
-  nil)
-
-(deftest file-position-set-echo.2
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (file-position stream :end))))
-  nil)
-
-(deftest file-position-set-echo.3
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (file-position stream 3))))
-  nil)
-
-(deftest file-position-set-synonym.1
-  (with-input-from-string (input "Hello")
-    (declare (special input))
-    (read-char input)
-    (read-char input)
-    (with-open-stream (stream (make-synonym-stream 'input))
-      (values
-        (file-position stream :start)
-        (read-char stream))))
-  t #\H)
-
-(deftest file-position-set-synonym.2
-  (with-input-from-string (input "Hello")
-    (declare (special input))
-    (read-char input)
-    (read-char input)
-    (with-open-stream (stream (make-synonym-stream 'input))
-      (values
-        (file-position stream :end)
-        (read-char stream nil))))
-  t nil)
-
-(deftest file-position-set-synonym.3
-  (with-input-from-string (input "abcdef")
-    (declare (special input))
-    (read-char input)
-    (read-char input)
-    (with-open-stream (stream (make-synonym-stream 'input))
-      (values
-        (file-position stream 3)
-        (read-char stream))))
-  t #\d)
-
-(deftest file-position-set-two-way.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (file-position stream :start))))
-  nil)
-
-(deftest file-position-set-two-way.2
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (file-position stream :end))))
-  nil)
-
-(deftest file-position-set-two-way.3
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (file-position stream 3))))
-  nil)
-
-(deftest file-position-set-input-string.1
-  (with-input-from-string (input "abcdef")
-    (read-char input)
-    (read-char input)
-    (values
-      (file-position input :start)
-      (read-char input)))
-  t #\a)
-
-(deftest file-position-set-input-string.2
-  (with-input-from-string (input "abcdef")
-    (values
-      (file-position input :end)
-      (read-char input nil)))
-  t nil)
-
-(deftest file-position-set-input-string.3
-  (with-input-from-string (input "abcdef")
-    (values
-      (file-position input 3)
-      (read-char input)))
-  t #\d)
-
-(deftest file-position-set-output-string.1
-  (with-open-stream (output (make-string-output-stream))
-    (format output "abc")
-    (values
-      (file-position output :start)
-      (progn
-        (format output "defg")
-        (get-output-stream-string output))))
-  t "defg")
-
-(deftest file-position-set-output-string.2
-  (with-open-stream (output (make-string-output-stream))
-    (format output "abc")
-    (values
-      (file-position output :end)
-      (progn
-        (format output "defg")
-        (get-output-stream-string output))))
-  t "abcdefg")
-
-(deftest file-position-set-output-string.3
-  (with-open-stream (output (make-string-output-stream))
-    (format output "abc")
-    (values
-      (file-position output 2)
-      (progn
-        (format output "defg")
-        (get-output-stream-string output))))
-  t "abdefg")
-
-(deftest file-position-set-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (format stream "abc")
-    (values
-      (file-position stream :start)
-      (progn
-        (format stream "defg")
-        array)))
-  t "defg")
-
-(deftest file-position-set-extend-string.2
-  (with-extend-to-string
-    (stream array)
-    (format stream "abc")
-    (values
-      (file-position stream :end)
-      (progn
-        (format stream "defg")
-        array)))
-  t "abcdefg")
-
-(deftest file-position-set-extend-string.3
-  (with-extend-to-string
-    (stream array)
-    (format stream "abc")
-    (values
-      (file-position stream 2)
-      (progn
-        (format stream "defg")
-        array)))
-  t "abdefg")
-
-
-;;
-;;  file-string-length
-;;
-(deftest file-string-length-file.1
-  (with-temp-file
-    (with-overwrite-file (stream *file*)
-      (file-string-length stream #\a)))
-  1)
-
-(deftest file-string-length-file.2
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-8)
-      (file-string-length stream #\u7F)))
-  1)
-
-(deftest file-string-length-file.3
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-8)
-      (file-string-length stream #\u80)))
-  2)
-
-(deftest file-string-length-file.4
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-8)
-      (file-string-length stream #\u0800)))
-  3)
-
-(deftest file-string-length-file.5
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-16)
-      (file-string-length stream #\uFFFF)))
-  2)
-
-(deftest file-string-length-file.6
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-16)
-      (file-string-length stream #\u010000)))
-  4)
-
-(deftest file-string-length-file.7
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-32)
-      (file-string-length stream #\A)))
-  4)
-
-(deftest file-string-length-file.8
-  (with-temp-file
-    (with-overwrite-file (stream *file*)
-      (file-string-length stream "abcd")))
-  4)
-
-(deftest file-string-length-file.9
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-8)
-      (file-string-length stream (format nil "a~A~Ac" #\u80 #\u0811))))
-  7)
-
-(deftest file-string-length-file.10
-  (with-temp-file
-    (with-overwrite-file (stream *file* :external-format 'utf-16)
-      (file-string-length stream (format nil "ab~Ad" #\u011111))))
-  10)
-
-(deftest file-string-length-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (values
-      (file-string-length stream #\a)
-      (file-string-length stream "abcd")))
-  1 1)
-
-(deftest file-string-length-broadcast.2
-  (with-temp-file1-file2
-    (with-overwrite-file (output1 *file1* :external-format 'utf-8)
-      (with-overwrite-file (output2 *file2* :external-format 'utf-32)
-        (with-open-stream (stream (make-broadcast-stream output1 output2))
-          (values
-            (file-string-length stream #\a)
-            (file-string-length stream "abcd"))))))
-  4 16)
-
-(deftest-error file-string-length-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (values
-      (file-string-length stream #\a)
-      (file-string-length stream "abcd"))))
-
-(deftest file-string-length-echo.1
-  (with-temp-file1-file2
-    (with-open-file (input *file1* :external-format 'utf-8)
-      (with-overwrite-file (output *file2* :external-format 'utf-32)
-        (with-open-stream (stream (make-echo-stream input output))
-          (values
-            (file-string-length stream #\a)
-            (file-string-length stream "abcd"))))))
-  4 16)
-
-(deftest file-string-length-synonym.1
-  (with-temp-file
-    (with-overwrite-file (hello *file* :external-format 'utf-32)
-      (declare (special hello))
-      (with-open-stream (stream (make-synonym-stream 'hello))
-        (values
-          (file-string-length stream #\a)
-          (file-string-length stream "abcd")))))
-  4 16)
-
-(deftest file-string-length-two-way.1
-  (with-temp-file1-file2
-    (with-open-file (input *file1* :external-format 'utf-8)
-      (with-overwrite-file (output *file2* :external-format 'utf-32)
-        (with-open-stream (stream (make-two-way-stream input output))
-          (values
-            (file-string-length stream #\a)
-            (file-string-length stream "abcd"))))))
-  4 16)
-
-(deftest-error file-string-length-input-string.1
-  (with-input-from-string (stream "Hello")
-    (values
-      (file-string-length stream #\u10000)
-      (file-string-length stream (format nil "ab~Ad" #\u011111)))))
-
-(deftest file-string-length-output-string.1
-  (with-open-stream (stream (make-string-output-stream))
-    (values
-      (file-string-length stream #\u10000)
-      (file-string-length stream (format nil "ab~Ad" #\u011111))))
-  1 4)
-
-(deftest file-string-length-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (values
-      (file-string-length stream #\u10000)
-      (file-string-length stream (format nil "ab~Ad" #\u011111))))
-  1 4)
-
-(deftest stream-external-format.1
-  (with-temp-file
-    (with-open-file (input *file*)
-      (stream-external-format input)))
-  lisp-system::utf-8)
-
-(deftest stream-external-format.2
-  (with-temp-file
-    (with-overwrite-file (input *file* :external-format 'ascii)
-      (stream-external-format input)))
-  lisp-system::ascii)
-
-(deftest stream-external-format.3
-  (with-temp-file
-    (with-open-file (input *file* :direction :io
-                           :if-exists :overwrite
-                           :element-type 'unsigned-byte)
-      (stream-external-format input)))
-  (unsigned-byte 8))
 
