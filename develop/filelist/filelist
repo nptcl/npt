@@ -166,6 +166,7 @@ extern_stream.c
 extern_type.c
 extern_unicode.c
 extern.c
+file_buffering.c
 file_memory.c
 file_open.c
 file.c
@@ -312,6 +313,7 @@ scope_object.c
 scope.c
 sequence_iterator.c
 sequence_range.c
+sequence_safe.c
 sequence_write.c
 sequence.c
 setf.c

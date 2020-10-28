@@ -97,18 +97,20 @@ enum filememory_direct {
 struct filememory {
 	unsigned cache : 1;
 	unsigned readio : 1;
+	unsigned redirect : 1;
 	enum filememory_system system : 4;
 	enum filememory_mode mode : 4;
 	enum filememory_direct direct : 4;
 	unsigned ungetc : FILEMEMORY_UNGETC_BIT;
-	size_t index, size;
+	addr pos;
 	file_type file;
+	size_t index, size;
 	struct FileEncode encode;
 	byte ungetc_value[FILEMEMORY_UNGETC_SIZE];
 	byte buffer[FILEMEMORY_SIZE];
 };
 
-typedef struct filememory *file_stream;
+typedef struct filememory *filestream;
 
 #endif
 

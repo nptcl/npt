@@ -21,13 +21,13 @@
 static int test_open_input_binary_stream(void)
 {
 	addr name, stream;
-	struct filememory *fm;
+	filestream fm;
 
 	strvect_char_heap(&name, TESTFILE);
 	stream = 0;
 	open_input_binary_stream_(Local_Thread, &stream, name);
 	test(stream, "open_input_binary_stream1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_input, "open_input_binary_stream2");
 	close_stream_file_(stream, &stream);
 
@@ -37,13 +37,13 @@ static int test_open_input_binary_stream(void)
 static int test_open_output_binary_stream(void)
 {
 	addr name, stream;
-	struct filememory *fm;
+	filestream fm;
 
 	strvect_char_heap(&name, TESTFILE);
 	stream = 0;
 	open_output_binary_stream(Execute_Thread, &stream, name, FileOutput_supersede);
 	test(stream, "open_output_binary_stream1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_output, "open_output_binary_stream2");
 	close_stream_file_(stream, &stream);
 
@@ -53,13 +53,13 @@ static int test_open_output_binary_stream(void)
 static int test_open_input_stream(void)
 {
 	addr name, stream;
-	struct filememory *fm;
+	filestream fm;
 
 	strvect_char_heap(&name, TESTFILE);
 	stream = 0;
 	open_input_stream(Execute_Thread, &stream, name);
 	test(stream, "open_input_stream1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_input, "open_input_stream2");
 	close_stream_file_(stream, &stream);
 
@@ -69,13 +69,13 @@ static int test_open_input_stream(void)
 static int test_open_output_stream(void)
 {
 	addr name, stream;
-	struct filememory *fm;
+	filestream fm;
 
 	strvect_char_heap(&name, TESTFILE);
 	stream = 0;
 	open_output_stream(Execute_Thread, &stream, name, FileOutput_supersede);
 	test(stream, "open_output_stream1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_output, "open_output_stream2");
 	close_stream_file_(stream, &stream);
 
@@ -85,11 +85,11 @@ static int test_open_output_stream(void)
 static int test_make_standard_input(void)
 {
 	addr stream;
-	struct filememory *fm;
+	filestream fm;
 
 	make_standard_input(&stream);
 	test(stream, "make_standard_input1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_input, "make_standard_input2");
 
 	RETURN;
@@ -98,11 +98,11 @@ static int test_make_standard_input(void)
 static int test_make_standard_output(void)
 {
 	addr stream;
-	struct filememory *fm;
+	filestream fm;
 
 	make_standard_output(&stream);
 	test(stream, "make_standard_output1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_output, "make_standard_output2");
 
 	RETURN;
@@ -111,11 +111,11 @@ static int test_make_standard_output(void)
 static int test_make_standard_error(void)
 {
 	addr stream;
-	struct filememory *fm;
+	filestream fm;
 
 	make_standard_error(&stream);
 	test(stream, "make_standard_error1");
-	fm = (struct filememory *)PtrDataStream(stream);
+	fm = (filestream)PtrDataStream(stream);
 	test(fm->direct == filememory_output, "make_standard_error2");
 
 	RETURN;

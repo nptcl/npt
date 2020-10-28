@@ -42,16 +42,16 @@
 	((((((a)>>6UL)&0x0FUL)+1UL)<<16UL) | (((a)&0x3FUL)<<10UL) | ((b)&0x03FFUL))
 
 /* Byte Order Mark */
-_g int readbom8_encode(struct filememory *fm);
-_g int readbom16_encode(struct filememory *fm); /* 1:le, 2:be */
-_g int readbom32_encode(struct filememory *fm); /* 1:le, 2:be */
-_g int writebom_encode_(struct filememory *fm);
+_g int readbom8_encode(filestream fm);
+_g int readbom16_encode(filestream fm); /* 1:le, 2:be */
+_g int readbom32_encode(filestream fm); /* 1:le, 2:be */
+_g int writebom_encode_(filestream fm);
 
-_g int read_char_encode_(struct filememory *fm, unicode *c, int *ret);
-_g int read_hang_encode_(struct filememory *fm, unicode *c, int *hang, int *ret);
-_g int write_char_encode_(struct filememory *fm, unicode c);
-_g int length_char_encode(struct filememory *fm, unicode c);
-_g int length_string_encode_(struct filememory *fm, addr pos, size_t *rsize, int *ret);
+_g int read_char_encode_(filestream fm, unicode *c, int *ret);
+_g int read_hang_encode_(filestream fm, unicode *c, int *hang, int *ret);
+_g int write_char_encode_(filestream fm, unicode c);
+_g int length_char_encode(filestream fm, unicode c);
+_g int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret);
 
 /* unicode buffer */
 _g int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string);

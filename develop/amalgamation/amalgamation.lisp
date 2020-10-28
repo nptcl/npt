@@ -455,6 +455,7 @@
     "pathname_table.h"
     "pathname_translate.h"
     "pathname.h"
+    "file_buffering.h"
     "file_memory.h"
     "file.h"
     "file_open.h"
@@ -548,6 +549,7 @@
     "sequence.h"
     "sequence_iterator.h"
     "sequence_range.h"
+    "sequence_safe.h"
     "sequence_write.h"
     "sort.h"
     "setf.h"
@@ -802,8 +804,9 @@
     "execute_setjmp.c"
     "execute_values.c"
     ("file_memory.c" :include
-     ("file_ansi.h" "file_posix.h" "file_windows.h"))
+     ("file_ansi.h" "file_posix.h" "file_windows.h" "file_arch.h"))
     "file.c"
+    "file_buffering.c"
     "file_open.c"
     ("files.c" :include
      ("files_posix.h" "files_windows.h" "files_ansi.h"))
@@ -923,6 +926,7 @@
     "sequence.c"
     "sequence_iterator.c"
     "sequence_range.c"
+    "sequence_safe.c"
     "sequence_write.c"
     "sort.c"
     "setf.c"

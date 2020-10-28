@@ -92,6 +92,7 @@ static int type_name_stream_(addr pos, addr *value, int *ret)
 
 		case StreamType_MemoryInput:
 		case StreamType_MemoryOutput:
+		case StreamType_MemoryIO:
 			GetConst(SYSTEM_MEMORY_STREAM, value);
 			goto normal;
 

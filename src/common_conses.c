@@ -18,12 +18,12 @@ static int function_cons(Execute ptr, addr var1, addr var2)
 
 static void type_cons_common(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Asterisk);
-	typeargs_var2(&arg, arg, arg);
+	GetTypeTable(&args, Asterisk);
+	typeargs_var2(&args, args, args);
 	GetTypeValues(&values, Cons);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_cons(void)
@@ -141,12 +141,12 @@ static void defun_rplacd(void)
  */
 static void type_cxr(addr *ret, enum TypeTable cxr)
 {
-	addr arg, values;
+	addr args, values;
 
-	gettypetable(cxr, &arg);
-	typeargs_var1(&arg, arg);
+	gettypetable(cxr, &args);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_cxr(constindex index, pointer p, enum TypeTable cxr)
@@ -483,13 +483,13 @@ static void defun_car(void)
  */
 static void type_setf_cxr(addr *ret, enum TypeTable cxr)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	gettypetable(cxr, &arg);
+	gettypetable(cxr, &args);
 	GetTypeTable(&type, T);
-	typeargs_var2(&arg, type, arg);
+	typeargs_var2(&args, type, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_cxr(constindex index, pointer p, enum TypeTable cxr)
@@ -1341,7 +1341,7 @@ static int function_tree_equal(Execute ptr, addr tree1, addr tree2, addr key)
 
 static void type_tree_equal(addr *ret)
 {
-	addr arg, values, key, test, test_not, call;
+	addr args, values, key, test, test_not, call;
 
 	GetConst(KEYWORD_TEST, &test);
 	GetConst(KEYWORD_TEST_NOT, &test_not);
@@ -1349,10 +1349,10 @@ static void type_tree_equal(addr *ret)
 	cons_heap(&test, test, call);
 	cons_heap(&test_not, test_not, call);
 	list_heap(&key, test, test_not, NULL);
-	GetTypeTable(&arg, T);
-	typeargs_var2key(&arg, arg, arg, key);
+	GetTypeTable(&args, T);
+	typeargs_var2key(&args, args, args, key);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_tree_equal(void)
@@ -1380,12 +1380,12 @@ static int function_list(Execute ptr, addr rest)
 
 static void type_list_common(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
-	typeargs_rest(&arg, arg);
+	GetTypeTable(&args, T);
+	typeargs_rest(&args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_list(void)
@@ -1414,12 +1414,12 @@ static int function_lista(Execute ptr, addr var, addr rest)
 
 static void type_lista_common(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
-	typeargs_var1rest(&arg, arg, arg);
+	GetTypeTable(&args, T);
+	typeargs_var1rest(&args, args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_lista(void)
@@ -1448,13 +1448,13 @@ static int function_list_length(Execute ptr, addr list)
 
 static void type_list_length(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, List);
-	typeargs_var1rest(&arg, arg, arg);
+	GetTypeTable(&args, List);
+	typeargs_var1rest(&args, args, args);
 	GetTypeTable(&values, IndexNull);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_list_length(void)
@@ -1509,16 +1509,16 @@ static int function_make_list(Execute ptr, addr var, addr rest)
 
 static void type_make_list(addr *ret)
 {
-	addr arg, values, key, symbol, type;
+	addr args, values, key, symbol, type;
 
-	GetTypeTable(&arg, Index);
+	GetTypeTable(&args, Index);
 	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
 	GetTypeTable(&type, T);
 	cons_heap(&key, symbol, type);
 	conscar_heap(&key, key);
-	typeargs_var1key(&arg, arg, key);
+	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_list(void)
@@ -1625,14 +1625,14 @@ static int function_setf_nth(Execute ptr, addr value, addr index, addr list)
 
 static void type_setf_nth(addr *ret)
 {
-	addr arg, values, type, value;
+	addr args, values, type, value;
 
 	GetTypeTable(&value, T);
-	GetTypeTable(&arg, Index);
+	GetTypeTable(&args, Index);
 	GetTypeTable(&type, List);
-	typeargs_var3(&arg, value, arg, type);
+	typeargs_var3(&args, value, args, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_nth(void)
@@ -1917,12 +1917,12 @@ static int function_endp(Execute ptr, addr list)
 
 static void type_endp(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, List);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, List);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_endp(void)
@@ -2139,13 +2139,13 @@ static int function_last(Execute ptr, addr list, addr index)
 
 static void type_last(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, List);
+	GetTypeTable(&args, List);
 	GetTypeTable(&type, Intplus);
-	typeargs_var1opt1(&arg, arg, type);
+	typeargs_var1opt1(&args, args, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_last(void)
@@ -2174,13 +2174,13 @@ static int function_ldiff(Execute ptr, addr list, addr object)
 
 static void type_ldiff(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, List);
+	GetTypeTable(&args, List);
 	GetTypeTable(&type, T);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_ldiff(void)
@@ -2212,13 +2212,13 @@ static int function_tailp(Execute ptr, addr object, addr list)
 
 static void type_tailp(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&type, List);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_tailp(void)
@@ -2253,13 +2253,13 @@ static int function_acons(Execute ptr, addr key, addr datum, addr list)
 
 static void type_acons(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&type, List);
-	typeargs_var3(&arg, arg, arg, type);
+	typeargs_var3(&args, args, args, type);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_acons(void)
@@ -2391,12 +2391,12 @@ static int function_pairlis(Execute ptr, addr keys, addr data, addr list)
 
 static void type_pairlis(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, List);
-	typeargs_var2opt1(&arg, arg, arg, arg);
+	GetTypeTable(&args, List);
+	typeargs_var2opt1(&args, args, args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_pairlis(void)
@@ -2510,14 +2510,14 @@ static int function_get_properties(Execute ptr, addr plist, addr indicator)
 
 static void type_get_properties(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, List);
-	typeargs_var2(&arg, arg, arg);
+	GetTypeTable(&args, List);
+	typeargs_var2(&args, args, args);
 	GetTypeTable(&type, T);
 	GetTypeTable(&values, List);
 	typevalues_values3(&values, type, type, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_get_properties(void)
@@ -2550,13 +2550,13 @@ static int function_getf(Execute ptr, addr list, addr key, addr value)
 
 static void type_getf(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, List);
-	typeargs_var2opt1(&arg, values, arg, arg);
+	typeargs_var2opt1(&args, values, args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_getf(void)
@@ -2684,14 +2684,14 @@ static int function_adjoin(Execute ptr, addr item, addr list, addr rest)
 
 static void type_adjoin(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, List);
 	GetTypeTable(&key, KeyTestList);
-	typeargs_var2key(&arg, arg, values, key);
+	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_adjoin(void)
@@ -2854,13 +2854,13 @@ static int function_subsetp(Execute ptr, addr list1, addr list2, addr rest)
 
 static void type_subsetp(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, List);
+	GetTypeTable(&args, List);
 	GetTypeTable(&values, KeyTestList);
-	typeargs_var2key(&arg, arg, arg, values);
+	typeargs_var2key(&args, args, args, values);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_subsetp(void)

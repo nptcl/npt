@@ -53,15 +53,15 @@ static int test_init_input_filememory(void)
 	RETURN;
 }
 
-static int test_init_output(void)
+static int test_init_output_filememory(void)
 {
 	struct filememory fm;
 
 	aatype(fm);
-	init_output(&fm, 0);
-	test(fm.file == 0, "init_output1");
-	test(fm.mode == filememory_normal, "init_output2");
-	test(fm.direct == filememory_output, "init_output3");
+	init_output_filememory(&fm, 0);
+	test(fm.file == 0, "init_output_filememory1");
+	test(fm.mode == filememory_normal, "init_output_filememory2");
+	test(fm.direct == filememory_output, "init_output_filememory3");
 
 	RETURN;
 }
@@ -164,7 +164,7 @@ static int test_close_filememory(void)
 	RETURN;
 }
 
-static int openinput(struct filememory *fm)
+static int openinput(filestream fm)
 {
 	int check;
 	addr name;
@@ -200,31 +200,31 @@ static int test_readforce(void)
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 10);
-	result = readforce(fm.file, buffer, 5, &size);
+	result = readforce(&fm, buffer, 5, &size);
 	test(result == 0, "readforce1");
 	test(size == 5, "readforce2");
 	test(memcmp(buffer, "01234", 5) == 0, "readforce3");
 
 	aamemory(buffer, 10);
-	result = readforce(fm.file, buffer, 3, &size);
+	result = readforce(&fm, buffer, 3, &size);
 	test(result == 0, "readforce4");
 	test(size == 3, "readforce5");
 	test(memcmp(buffer, "567", 3) == 0, "readforce6");
 
 	aamemory(buffer, 10);
-	result = readforce(fm.file, buffer, 10, &size);
+	result = readforce(&fm, buffer, 10, &size);
 	test(result == 0, "readforce7");
 	test(size == 2, "readforce8");
 	test(memcmp(buffer, "89", 2) == 0, "readforce9");
 
-	result = readforce(fm.file, buffer, 10, &size);
+	result = readforce(&fm, buffer, 10, &size);
 	test(result == 1, "readforce10");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int openoutput(struct filememory *fm)
+static int openoutput(filestream fm)
 {
 	int check;
 	addr name;
@@ -247,17 +247,17 @@ static int test_writeforce(void)
 	if (writetest("aabbccddeeffgghh", 10)) return 1;
 	if (openoutput(&fm)) return 1;
 	size = 0;
-	result = writeforce(fm.file, (const byte *)"Hello", 5, &size);
+	result = writeforce(&fm, (const byte *)"Hello", 5, &size);
 	test(result == 0, "writeforce1");
 	test(size == 5, "writeforce2");
-	result = writeforce(fm.file, (const byte *)"abc", 3, &size);
+	result = writeforce(&fm, (const byte *)"abc", 3, &size);
 	test(result == 0, "writeforce3");
 	test(size == 3, "writeforce4");
 	close_filememory(&fm);
 
 	openinput(&fm);
 	aamemory(buffer, 100);
-	result = readforce(fm.file, buffer, 100, &size);
+	result = readforce(&fm, buffer, 100, &size);
 	test(result == 0 && memcmp(buffer, "Helloabc", 8) == 0, "writeforce5");
 	close_filememory(&fm);
 
@@ -275,24 +275,24 @@ static int test_readforce_nonblocking(void)
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 10);
-	result = readforce_nonblocking(fm.file, buffer, 5, &size);
+	result = readforce_nonblocking(&fm, buffer, 5, &size);
 	test(result == 0, "readforce_nonblocking1");
 	test(size == 5, "readforce_nonblocking2");
 	test(memcmp(buffer, "01234", 5) == 0, "readforce_nonblocking3");
 
 	aamemory(buffer, 10);
-	result = readforce_nonblocking(fm.file, buffer, 3, &size);
+	result = readforce_nonblocking(&fm, buffer, 3, &size);
 	test(result == 0, "readforce_nonblocking4");
 	test(size == 3, "readforce_nonblocking5");
 	test(memcmp(buffer, "567", 3) == 0, "readforce_nonblocking6");
 
 	aamemory(buffer, 10);
-	result = readforce_nonblocking(fm.file, buffer, 10, &size);
+	result = readforce_nonblocking(&fm, buffer, 10, &size);
 	test(result == 0, "readforce_nonblocking7");
 	test(size == 2, "readforce_nonblocking8");
 	test(memcmp(buffer, "89", 2) == 0, "readforce_nonblocking9");
 
-	result = readforce_nonblocking(fm.file, buffer, 10, &size);
+	result = readforce_nonblocking(&fm, buffer, 10, &size);
 	test(result == 1, "readforce_nonblocking10");
 	close_filememory(&fm);
 
@@ -542,7 +542,7 @@ static int test_read_normal_force(void)
 	RETURN;
 }
 
-static int test_readforce_filememory(void)
+static int test_readf_filememory(void)
 {
 	byte buffer[100];
 	int result;
@@ -551,26 +551,26 @@ static int test_readforce_filememory(void)
 
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
-	result = readforce_filememory(&fm, buffer, 2, &size);
-	test(result == 0, "readforce_filememory1");
-	test(size == 2, "readforce_filememory2");
-	test(memcmp(buffer, "01", 2) == 0, "readforce_filememory3");
+	result = readf_filememory(&fm, buffer, 2, &size);
+	test(result == 0, "readf_filememory1");
+	test(size == 2, "readf_filememory2");
+	test(memcmp(buffer, "01", 2) == 0, "readf_filememory3");
 	fm.ungetc_value[1] = 'A';
 	fm.ungetc_value[0] = 'B';
 	fm.ungetc = 2;
-	result = readforce_filememory(&fm, buffer, 4, &size);
-	test(result == 0, "readforce_filememory4");
-	test(size == 4, "readforce_filememory5");
-	test(memcmp(buffer, "AB23", 4) == 0, "readforce_filememory6");
+	result = readf_filememory(&fm, buffer, 4, &size);
+	test(result == 0, "readf_filememory4");
+	test(size == 4, "readf_filememory5");
+	test(memcmp(buffer, "AB23", 4) == 0, "readf_filememory6");
 	close_filememory(&fm);
 
 	fm.direct = filememory_output;
-	test(readforce_filememory(&fm, buffer, 10, &size) < 0, "readforce_filememory7");
+	test(readf_filememory(&fm, buffer, 10, &size) < 0, "readf_filememory7");
 	fm.direct = filememory_input;
 	fm.mode = filememory_end;
-	test(readforce_filememory(&fm, buffer, 10, &size) == 1, "readforce_filememory8");
+	test(readf_filememory(&fm, buffer, 10, &size) == 1, "readf_filememory8");
 	fm.mode = filememory_error;
-	test(readforce_filememory(&fm, buffer, 10, &size) < 0, "readforce_filememory9");
+	test(readf_filememory(&fm, buffer, 10, &size) < 0, "readf_filememory9");
 
 	RETURN;
 }
@@ -1165,7 +1165,7 @@ static int test_flush_write(void)
 	RETURN;
 }
 
-static int test_writenormal(void)
+static int test_write_normal(void)
 {
 #ifdef LISP_DEBUG
 	byte buffer[100];
@@ -1177,31 +1177,31 @@ static int test_writenormal(void)
 	size = 0;
 	memcpy(fm.buffer, "abcdefg", 7);
 	fm.index = 7;
-	result = writenormal(&fm, (const byte *)"12345678901234567890", 20, &size);
-	test(result == 0, "writenormal1");
-	test(size == 20, "writenormal2");
-	test(fm.index == 0, "writenormal3");
+	result = write_normal(&fm, (const byte *)"12345678901234567890", 20, &size);
+	test(result == 0, "write_normal1");
+	test(size == 20, "write_normal2");
+	test(fm.index == 0, "write_normal3");
 	flush_arch(fm.file);
 	if (readfile(buffer, 100, &size)) return 1;
-	test(size == 27, "writenormal4");
-	test(memcmp(buffer, "abcdefg12345678901234567890", 27) == 0, "writenormal5");
+	test(size == 27, "write_normal4");
+	test(memcmp(buffer, "abcdefg12345678901234567890", 27) == 0, "write_normal5");
 
-	result = writenormal(&fm, (const byte *)"123", 3, &size);
-	test(result == 0, "writenormal6");
-	test(size == 3, "writenormal6");
-	test(memcmp(fm.buffer, "123", 3) == 0, "writenormal7");
-	test(fm.index == 3, "writenormal8");
-	result = writenormal(&fm, (const byte *)"1234567", 7, &size);
-	test(result == 0, "writenormal8");
-	test(size == 7, "writenormal9");
-	test(memcmp(fm.buffer, "67", 2) == 0, "writenormal10");
-	test(fm.index == 2, "writenormal11");
+	result = write_normal(&fm, (const byte *)"123", 3, &size);
+	test(result == 0, "write_normal6");
+	test(size == 3, "write_normal6");
+	test(memcmp(fm.buffer, "123", 3) == 0, "write_normal7");
+	test(fm.index == 3, "write_normal8");
+	result = write_normal(&fm, (const byte *)"1234567", 7, &size);
+	test(result == 0, "write_normal8");
+	test(size == 7, "write_normal9");
+	test(memcmp(fm.buffer, "67", 2) == 0, "write_normal10");
+	test(fm.index == 2, "write_normal11");
 
 	flush_arch(fm.file);
 	if (readfile(buffer, 100, &size)) return 1;
-	test(size == 35, "writenormal12");
+	test(size == 35, "write_normal12");
 	test(memcmp(buffer, "abcdefg1234567890123456789012312345", 35) == 0,
-			"writenormal13");
+			"write_normal13");
 	close_filememory(&fm);
 
 	RETURN;
@@ -1255,7 +1255,7 @@ static int testcase_file_memory(void)
 	lisp_info_enable = 0;
 	TestBreak(test_init_filememory);
 	TestBreak(test_init_input_filememory);
-	TestBreak(test_init_output);
+	TestBreak(test_init_output_filememory);
 	TestBreak(test_standard_input_filememory);
 	TestBreak(test_standard_output_filememory);
 	TestBreak(test_standard_error_filememory);
@@ -1273,7 +1273,7 @@ static int testcase_file_memory(void)
 	TestBreak(test_read_normal);
 	TestBreak(test_read_filememory);
 	TestBreak(test_read_normal_force);
-	TestBreak(test_readforce_filememory);
+	TestBreak(test_readf_filememory);
 	TestBreak(test_readnext_nonblocking_large);
 	TestBreak(test_readnext_nonblocking_small);
 	TestBreak(test_readnext_nonblocking);
@@ -1291,7 +1291,7 @@ static int testcase_file_memory(void)
 	TestBreak(test_getc_nonblocking_filememory);
 	TestBreak(test_ungetc_filememory);
 	TestBreak(test_flush_write);
-	TestBreak(test_writenormal);
+	TestBreak(test_write_normal);
 	TestBreak(test_write_filememory);
 	TestBreak(test_putcnormal);
 	lisp_info_enable = 1;

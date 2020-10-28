@@ -16,6 +16,7 @@
 #include "execute.h"
 #include "files.h"
 #include "format_radix.h"
+#include "integer.h"
 #include "package_designer.h"
 #include "package_object.h"
 #include "pathname.h"
@@ -623,6 +624,43 @@ error:
 _g int get_output_stream_memory_syscode_(addr var, addr *ret)
 {
 	return memory_stream_heap_(var, ret);
+}
+
+
+/* byte-integer */
+static int byte_integer_endian_(addr list, int littlep, addr *ret)
+{
+	addr x, y, i, v8;
+	LocalRoot local;
+
+	local = Local_Thread;
+	fixnum_heap(&x, 0);
+	fixnum_heap(&i, 0);
+	fixnum_heap(&v8, 8);
+	while (list != Nil) {
+		Return_getcons(list, &y, &list);
+		if (littlep) {
+			Return(ash_integer_common_(local, y, i, &y));
+		}
+		else {
+			Return(ash_integer_common_(local, x, i, &x));
+		}
+		Return(plus_ii_real_common_(local, x, y, &x));
+		Return(plus_ii_real_common_(local, i, v8, &i));
+	}
+
+	return Result(ret, x);
+}
+
+_g int byte_integer_syscode_(addr list, addr *ret)
+{
+	union byte_integer_union {
+		uint16_t u16;
+		uint8_t u8[2];
+	} u;
+
+	u.u16 = 1;
+	return byte_integer_endian_(list, u.u8[0] != 0, ret);
 }
 
 

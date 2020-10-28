@@ -19,12 +19,12 @@ static int function_directory(Execute ptr, addr pos)
 
 static void type_directory(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, PathnameDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_directory(void)
@@ -85,18 +85,18 @@ static int function_ensure_directories_exist(Execute ptr, addr pos, addr rest)
 
 static void type_ensure_directories_exist(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	/* key */
 	KeyTypeTable(&type, VERBOSE, T);
 	conscar_heap(&type, type);
 	/* type */
-	GetTypeTable(&arg, PathnameDesigner);
-	typeargs_var1key(&arg, arg, type);
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_var1key(&args, args, type);
 	GetTypeTable(&values, Pathname);
 	GetTypeTable(&type, Boolean);
 	typevalues_values2(&values, values, type);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_ensure_directories_exist(void)
@@ -149,12 +149,12 @@ static int function_file_author(Execute ptr, addr pos)
 
 static void type_file_author(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, PathnameDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, StringNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_file_author(void)
@@ -183,13 +183,13 @@ static int function_file_write_date(Execute ptr, addr pos)
 
 static void type_file_write_date(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, PathnameDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, IntegerNull);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_file_write_date(void)
@@ -221,12 +221,12 @@ static int function_rename_file(Execute ptr, addr file1, addr file2)
 
 static void type_rename_file(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	GetTypeTable(&values, PathnameDesigner);
-	typeargs_var2(&arg, values, values);
+	typeargs_var2(&args, values, values);
 	typevalues_values3(&values, values, values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_rename_file(void)
@@ -255,12 +255,12 @@ static int function_delete_file(Execute ptr, addr pos)
 
 static void type_delete_file(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, PathnameDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, EqlT);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_delete_file(void)
@@ -289,13 +289,13 @@ static int function_file_error_pathname(Execute ptr, addr var)
 
 static void type_file_error_pathname(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, FileError);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, FileError);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, T);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_file_error_pathname(void)

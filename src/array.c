@@ -336,6 +336,11 @@ _g int array_vector_p(addr pos)
 	return arrayp(pos) && ArrayInfoStruct(pos)->dimension == 1;
 }
 
+_g int array_displaced_p(addr pos)
+{
+	return arrayp(pos) && ArrayInfoStruct(pos)->displaced;
+}
+
 _g int array_size_vector_p(addr pos, size_t size)
 {
 	struct array_struct *str;

@@ -364,7 +364,7 @@ _g void buildlisp(Execute ptr)
 /*
  *  core
  */
-_g int save_lisp(struct filememory *fm)
+_g int save_lisp(filestream fm)
 {
 	int i;
 
@@ -385,7 +385,7 @@ _g int save_lisp(struct filememory *fm)
 	return 0;
 }
 
-_g int load_lisp(struct filememory *fm)
+_g int load_lisp(filestream fm)
 {
 	int i;
 

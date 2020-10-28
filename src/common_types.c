@@ -25,13 +25,13 @@ static int function_coerce(Execute ptr, addr pos, addr type)
 
 static void type_coerce(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, TypeSpec);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_coerce(void)
@@ -95,14 +95,14 @@ static int function_subtypep(Execute ptr, addr x, addr y, addr env)
 
 static void type_subtypep(addr *ret)
 {
-	addr arg, values, type, env;
+	addr args, values, type, env;
 
 	GetTypeTable(&type, TypeSpec);
 	GetTypeTable(&env, EnvironmentNull);
-	typeargs_var2opt1(&arg, type, type, env);
+	typeargs_var2opt1(&args, type, type, env);
 	GetTypeTable(&values, Boolean);
 	typevalues_values2(&values, values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_subtypep(void)
@@ -133,12 +133,12 @@ static int function_type_of(Execute ptr, addr pos)
 
 static void type_type_of(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, TypeSymbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_type_of(void)
@@ -175,14 +175,14 @@ static int function_typep(Execute ptr, addr x, addr y, addr env)
 
 static void type_typep(addr *ret)
 {
-	addr arg, values, type, env;
+	addr args, values, type, env;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&type, TypeSpec);
 	GetTypeTable(&env, EnvironmentNull);
-	typeargs_var2opt1(&arg, arg, type, env);
+	typeargs_var2opt1(&args, args, type, env);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_typep(void)
@@ -211,12 +211,12 @@ static int function_type_error_datum(Execute ptr, addr pos)
 
 static void type_type_error_datum(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, TypeError);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, TypeError);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_type_error_datum(void)
@@ -245,13 +245,13 @@ static int function_type_error_expected_type(Execute ptr, addr pos)
 
 static void type_type_error_expected_type(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, TypeError);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, TypeError);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, TypeSpec);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_type_error_expected_type(void)

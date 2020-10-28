@@ -22,7 +22,7 @@ struct lisp_core_header {
 	uint16_t endian, a, b, c, arch;
 };
 
-static int save_coreheader(struct filememory *fm)
+static int save_coreheader(filestream fm)
 {
 	struct lisp_core_header header;
 
@@ -44,7 +44,7 @@ static int save_coreheader(struct filememory *fm)
 
 	return 0;
 }
-static int load_coreheader(struct filememory *fm)
+static int load_coreheader(filestream fm)
 {
 	struct lisp_core_header header;
 
@@ -82,7 +82,7 @@ static int load_coreheader(struct filememory *fm)
 }
 
 /* save/load corefile */
-static int save_corefile(struct filememory *fm)
+static int save_corefile(filestream fm)
 {
 	if (save_coreheader(fm)) {
 		Debug("save_coreheader error.");
@@ -95,7 +95,7 @@ static int save_corefile(struct filememory *fm)
 
 	return 0;
 }
-static int load_corefile(struct filememory *fm)
+static int load_corefile(filestream fm)
 {
 	if (load_coreheader(fm)) {
 		Debug("load_coreheader error.");
@@ -111,7 +111,7 @@ static int load_corefile(struct filememory *fm)
 
 
 /* save/load root */
-static int save_root(struct filememory *fm)
+static int save_root(filestream fm)
 {
 	unsigned i;
 
@@ -124,7 +124,7 @@ static int save_root(struct filememory *fm)
 
 	return 0;
 }
-static int load_root(struct filememory *fm)
+static int load_root(filestream fm)
 {
 	unsigned i;
 
@@ -166,7 +166,7 @@ _g int savecore_execute_(Execute ptr, addr file)
 	return call_savecore_condition_(ptr, file);
 }
 
-static void save_core_stream(Execute ptr, struct filememory *fm)
+static void save_core_stream(Execute ptr, filestream fm)
 {
 	int check;
 	addr pos;
@@ -188,7 +188,7 @@ static void save_core_result(Execute ptr)
 	format_stdout(ptr, "~&Core file: ~A~%", pos, NULL);
 }
 
-static void open_corefile(Execute ptr, struct filememory *fm)
+static void open_corefile(Execute ptr, filestream fm)
 {
 	LocalRoot local;
 	LocalStack stack;

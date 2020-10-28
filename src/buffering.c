@@ -1,84 +1,43 @@
 #include "array.h"
 #include "array_access.h"
 #include "array_make.h"
+#include "condition.h"
 #include "buffering.h"
 #include "heap.h"
+#include "integer.h"
+#include "sequence.h"
 #include "typedef.h"
 
 /*
  *  bufcell
  */
-struct bufcell_struct {
-	size_t size, index;
-	byte data[1];
-};
-
-#define StructBufcell_Low(x)  ((struct bufcell_struct *)PtrBodyAB(x))
-#define GetNextBufcell_Low(x, y)  GetArrayAB((x), 0, (y))
-#define SetNextBufcell_Low(x, y)  SetArrayAB((x), 0, (y))
-
-static struct bufcell_struct *struct_bufcell(addr pos)
-{
-	CheckType(pos, LISPSYSTEM_BUFCELL);
-	return StructBufcell_Low(pos);
-}
-
-static void getnext_bufcell(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_BUFCELL);
-	GetNextBufcell_Low(pos, ret);
-}
-
-static void setnext_bufcell(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_BUFCELL);
-	SetNextBufcell_Low(pos, value);
-}
-
-static void bufcell_heap(addr *ret, size_t size)
+#define PtrBufCell(x) ((byte *)PtrBodyB2(x))
+static void bufcell_heap(addr *ret, size_t cell)
 {
 	addr pos;
-	struct bufcell_struct *str;
-	size_t alloc;
 
-	/* size */
-	alloc = size + (size_t)(((struct bufcell_struct *)NULL)->data);
-
-	/* heap */
-	heap_arraybody(&pos, LISPSYSTEM_BUFCELL, 1, alloc);
-	str = struct_bufcell(pos);
-	str->size = size;
-	str->index = 0;
+	Check(0xFFFF < cell, "cell error");
+	heap_body2(&pos, LISPSYSTEM_BUFCELL, cell);
+	memset(PtrBufCell(pos), '\0', cell);
 	*ret = pos;
 }
 
-static void push_bufcell(addr pos, byte c)
+static void get_bufcell(addr pos, size_t m, byte *ret)
 {
-	struct bufcell_struct *str;
+	byte *data;
 
 	CheckType(pos, LISPSYSTEM_BUFCELL);
-	str = struct_bufcell(pos);
-	Check(str->size <= str->index, "index error");
-	str->data[str->index] = c;
-	str->index++;
+	data = PtrBufCell(pos);
+	*ret = data[m];
 }
 
-static void position_bufcell(addr pos, size_t size, addr *ret)
+static void set_bufcell(addr pos, size_t m, byte c)
 {
-	struct bufcell_struct *str;
+	byte *data;
 
 	CheckType(pos, LISPSYSTEM_BUFCELL);
-	str = struct_bufcell(pos);
-	if (str->index <= size) {
-		setnext_bufcell(pos, Nil);
-		str->index = size;
-		*ret = pos;
-		return;
-	}
-
-	size -= str->index;
-	getnext_bufcell(pos, &pos);
-	position_bufcell(pos, size, ret);
+	data = PtrBufCell(pos);
+	data[m] = c;
 }
 
 
@@ -86,20 +45,20 @@ static void position_bufcell(addr pos, size_t size, addr *ret)
  *  buffering
  */
 struct buffering_struct {
-	size_t size, index;
+	size_t cell, width, size, index;
 };
 
 #ifdef LISP_DEBUG
-#define BUFFERING_SIZE		1024
+#define BUFFERING_CELL		8
+#define BUFFERING_WIDTH		1
 #else
-#define BUFFERING_SIZE		8
+#define BUFFERING_CELL		4096
+#define BUFFERING_WIDTH		8
 #endif
 
 #define StructBuffering_Low(x)  ((struct buffering_struct *)PtrBodySS(x))
 #define GetRootBuffering_Low(x, y)  GetArraySS((x), 0, (y))
 #define SetRootBuffering_Low(x, y)  SetArraySS((x), 0, (y))
-#define GetTailBuffering_Low(x, y)  GetArraySS((x), 1, (y))
-#define SetTailBuffering_Low(x, y)  SetArraySS((x), 1, (y))
 
 static struct buffering_struct *struct_buffering(addr pos)
 {
@@ -119,34 +78,35 @@ static void setroot_buffering(addr pos, addr value)
 	SetRootBuffering_Low(pos, value);
 }
 
-static void gettail_buffering(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_BUFFERING);
-	GetTailBuffering_Low(pos, ret);
-}
-
-static void settail_buffering(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_BUFFERING);
-	SetTailBuffering_Low(pos, value);
-}
-
 _g int bufferingp(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_BUFFERING;
 }
 
-_g void buffering_heap(addr *ret, size_t size)
+static void buffering_clear_root(addr pos)
+{
+	addr root;
+	struct buffering_struct *str;
+
+	str = struct_buffering(pos);
+	vector_heap(&root, str->width);
+	setroot_buffering(pos, root);
+}
+
+_g void buffering_heap(addr *ret, size_t cell)
 {
 	addr pos;
 	struct buffering_struct *str;
 
-	if (size == 0)
-		size = BUFFERING_SIZE;
-	heap_smallsize(&pos, LISPSYSTEM_BUFFERING, 2, sizeoft(struct buffering_struct));
+	if (cell == 0)
+		cell = BUFFERING_CELL;
+	heap_smallsize(&pos, LISPSYSTEM_BUFFERING, 1, sizeoft(struct buffering_struct));
 	str = struct_buffering(pos);
-	str->size = size;
+	str->cell = cell;
+	str->width = BUFFERING_WIDTH;
 	str->index = 0;
+	str->size = 0;
+	buffering_clear_root(pos);
 	*ret = pos;
 }
 
@@ -156,70 +116,121 @@ _g void clear_buffering(addr pos)
 
 	CheckType(pos, LISPSYSTEM_BUFFERING);
 	str = struct_buffering(pos);
+	str->width = BUFFERING_WIDTH;
 	str->index = 0;
-	setroot_buffering(pos, Nil);
-	settail_buffering(pos, Nil);
+	str->size = 0;
+	buffering_clear_root(pos);
 }
 
-static void new_buffering(addr pos)
+static int realloc_buffering(addr pos, size_t n)
 {
 	struct buffering_struct *str;
-	addr cell, tail;
+	addr dst, src, value;
+	size_t width, x, i;
+
+	str = struct_buffering(pos);
+	width = str->width;
+	if (n < width)
+		return 0;
+
+	/* realloc width */
+	while (width <= n) {
+		x = width;
+		width <<= 1ULL;
+		if (width <= x)
+			return 1; /* overflow */
+	}
+	str->width = width;
+
+	/* realloc */
+	vector_heap(&dst, width);
+	getroot_buffering(pos, &src);
+	lenarray(src, &width);
+	for (i = 0; i < width; i++) {
+		getarray(src, i, &value);
+		setarray(dst, i, value);
+	}
+	setroot_buffering(pos, dst);
+
+	return 0;
+}
+
+static void new_buffering(addr root, size_t n, size_t cell, addr *ret)
+{
+	addr pos;
+	bufcell_heap(&pos, cell);
+	setarray(root, n, pos);
+	*ret = pos;
+}
+
+_g int putc_buffering(addr pos, byte c)
+{
+	struct buffering_struct *str;
+	addr root, page;
+	size_t cell, m, n;
 
 	CheckType(pos, LISPSYSTEM_BUFFERING);
 	str = struct_buffering(pos);
-	bufcell_heap(&cell, str->size);
-	gettail_buffering(pos, &tail);
-	if (tail == Nil)
-		setroot_buffering(pos, cell);
-	else
-		setnext_bufcell(tail, cell);
-	settail_buffering(pos, cell);
-}
+	cell = str->cell;
+	n = str->index / cell;
+	m = str->index % cell;
 
-_g void push_buffering(addr pos, byte c)
-{
-	struct buffering_struct *str;
+	/* page */
+	if (realloc_buffering(pos, n))
+		return 1;
+	getroot_buffering(pos, &root);
+	getarray(root, n, &page);
+	if (page == Nil)
+		new_buffering(root, n, cell, &page);
 
-	CheckType(pos, LISPSYSTEM_BUFFERING);
-	str = struct_buffering(pos);
-	if (str->index % str->size == 0)
-		new_buffering(pos);
-	gettail_buffering(pos, &pos);
-	push_bufcell(pos, c);
+	/* write */
+	set_bufcell(page, m, c);
 	str->index++;
+	if (str->size < str->index)
+		str->size = str->index;
+
+	return 0;
 }
 
-_g void position_buffering(addr pos, size_t value, int *ret)
+static int get_buffering(addr pos, size_t index, byte *ret)
 {
 	struct buffering_struct *str;
-	addr x;
+	size_t m, n;
 
 	CheckType(pos, LISPSYSTEM_BUFFERING);
 	str = struct_buffering(pos);
-	if (str->index < value) {
-		*ret = 1;  /* error */
-		return;
-	}
-	if (str->index == value) {
-		*ret = 0;  /* current position */
-		return;
-	}
-	if (value == 0) {
-		str->index = 0;  /* all clear */
-		setroot_buffering(pos, Nil);
-		settail_buffering(pos, Nil);
-		return;
-	}
+	if (str->size <= index)
+		return 1; /* EOF */
 
-	/* set position */
-	getroot_buffering(pos, &x);
-	position_bufcell(x, value, &x);
-	settail_buffering(pos, x);
-	*ret = 0; /* ok */
+	n = index / str->cell;
+	m = index % str->cell;
+	getroot_buffering(pos, &pos);
+	getarray(pos, n, &pos);
+	if (pos == Nil)
+		*ret = 0;
+	else
+		get_bufcell(pos, m, ret);
+
+	return 0;
 }
 
-_g void get_length_buffering(addr pos, size_t *ret)
+_g int getc_buffering(addr pos, byte *ret)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	if (get_buffering(pos, str->index, ret))
+		return 1;
+
+	str->index++;
+	if (str->size < str->index)
+		str->size = str->index;
+
+	return 0;
+}
+
+_g void position_get_buffering(addr pos, size_t *ret)
 {
 	struct buffering_struct *str;
 
@@ -228,23 +239,46 @@ _g void get_length_buffering(addr pos, size_t *ret)
 	*ret = str->index;
 }
 
-static int write_buffering_(addr array, addr pos, size_t bias, size_t size)
+_g void position_set_buffering(addr pos, size_t value)
 {
-	byte c, *data;
-	struct bufcell_struct *cell;
-	size_t i;
+	struct buffering_struct *str;
 
-	CheckType(pos, LISPSYSTEM_BUFCELL);
-	cell = struct_bufcell(pos);
-	data = cell->data;
-	for (i = 0; i < size; i++) {
-		c = data[i];
-		Return(array_set_unsigned8_(array, bias + i, c));
-	}
-
-	return 0;
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	str->index = value;
 }
 
+_g void position_start_buffering(addr pos)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	str->index = 0;
+}
+
+_g void position_end_buffering(addr pos)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	str->index = str->size;
+}
+
+_g void length_buffering(addr pos, size_t *ret)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	*ret = str->size;
+}
+
+
+/*
+ *  make vector
+ */
 static int make_array_buffering_(addr *ret, size_t size)
 {
 	addr pos;
@@ -259,25 +293,44 @@ static int make_array_buffering_(addr *ret, size_t size)
 	return Result(ret, pos);
 }
 
-_g int get_buffering_heap_(addr pos, addr *ret)
+_g int make_vector_buffering_heap_(addr pos, addr *ret)
 {
+	byte c;
 	struct buffering_struct *str;
-	struct bufcell_struct *cell;
 	addr array;
-	size_t i;
+	size_t size, i;
 
 	CheckType(pos, LISPSYSTEM_BUFFERING);
 	str = struct_buffering(pos);
-	Return(make_array_buffering_(&array, str->index));
+	size = str->size;
+	Return(make_array_buffering_(&array, size));
 
-	getroot_buffering(pos, &pos);
-	for (i = 0; pos != Nil; i += cell->index) {
-		CheckType(pos, LISPSYSTEM_BUFCELL);
-		cell = struct_bufcell(pos);
-		Return(write_buffering_(array, pos, i, cell->index));
-		getnext_bufcell(pos, &pos);
+	for (i = 0; i < size; i++) {
+		if (get_buffering(pos, i, &c))
+			return fmte_("end-of-file error.", NULL);
+		Return(array_set_unsigned8_(array, i, c));
 	}
 
 	return Result(ret, array);
+}
+
+_g int read_buffering_(addr pos, addr vector)
+{
+	byte c;
+	addr value;
+	size_t size, i;
+
+	Return(length_sequence_(vector, 1, &size));
+	for (i = 0; i < size; i++) {
+		Return(getelt_sequence_(NULL, vector, i, &value));
+		if (GetByte_integer(value, &c)) {
+			return fmte_("The value ~S "
+					"must be a (unsigned-byte 8) type.", value, NULL);
+		}
+		if (putc_buffering(pos, c))
+			return fmte_("Too large file size.", NULL);
+	}
+
+	return 0;
 }
 

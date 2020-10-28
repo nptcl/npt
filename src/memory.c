@@ -7,9 +7,12 @@
  */
 _g enum LISPTYPE gettype(addr pos)
 {
-	if (pos == Unbound) return LISPSYSTEM_UNBOUND;
-	if (pos == Nil) return LISPTYPE_NIL;
-	if (pos == T) return LISPTYPE_T;
+	if (pos == Unbound)
+		return LISPSYSTEM_UNBOUND;
+	if (pos == Nil)
+		return LISPTYPE_NIL;
+	if (pos == T)
+		return LISPTYPE_T;
 
 	return GetType(pos);
 }

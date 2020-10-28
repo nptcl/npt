@@ -32,6 +32,9 @@
 #define pretty_stream_p _n(pretty_stream_p)
 #define input_memory_stream_p _n(input_memory_stream_p)
 #define output_memory_stream_p _n(output_memory_stream_p)
+#define io_memory_stream_p _n(io_memory_stream_p)
+#define read_memory_stream_p _n(read_memory_stream_p)
+#define write_memory_stream_p _n(write_memory_stream_p)
 #define memory_stream_p _n(memory_stream_p)
 #define extend_stream_p _n(extend_stream_p)
 #define extend_type_stream_p _n(extend_type_stream_p)
@@ -70,6 +73,7 @@ enum StreamType {
 	StreamType_Pretty,
 	StreamType_MemoryInput,
 	StreamType_MemoryOutput,
+	StreamType_MemoryIO,
 	StreamType_Size
 };
 
@@ -161,6 +165,9 @@ _g int prompt_stream_p(addr stream);
 _g int pretty_stream_p(addr stream);
 _g int input_memory_stream_p(addr stream);
 _g int output_memory_stream_p(addr stream);
+_g int io_memory_stream_p(addr stream);
+_g int read_memory_stream_p(addr stream);
+_g int write_memory_stream_p(addr stream);
 _g int memory_stream_p(addr stream);
 _g int extend_stream_p(addr stream);
 _g int extend_type_stream_p(addr stream, int type);

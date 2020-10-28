@@ -9,6 +9,7 @@
 #include "local.h"
 #include "pathname_object.h"
 #include "stream_function.h"
+#include "stream_object.h"
 #include "stream_open.h"
 #include "strtype.h"
 #include "type_parse.h"
@@ -127,25 +128,32 @@ error:
 /*
  *  open
  */
-static int open_make_empty_stream_(Execute ptr, addr file)
+static int open_make_empty_stream_(Execute ptr, addr pos)
 {
+	int ignore;
 	addr stream;
 
-	Return(open_output_binary_stream_(ptr, &stream, file, FileOutput_supersede));
+	/* memory-stream */
+	if (streamp(pos))
+		return file_position_start_stream_(pos, &ignore);
+
+	/* pathname */
+	Return(open_output_binary_stream_(ptr, &stream, pos, FileOutput_supersede));
 	if (stream == NULL)
-		return call_file_error_(ptr, file);
+		return call_file_error_(ptr, pos);
 
 	return close_stream_(stream, NULL);
 }
 
-static int open_probe_file_stream_(Execute ptr, addr file, int *ret)
+static int open_probe_file_stream_(Execute ptr, addr pos, int *ret)
 {
-#ifdef LISP_ANSI
-	return Result(ret, 1);
-#else
-	Return(probe_file_files_(ptr, &file, file));
-	return Result(ret, file != Nil);
-#endif
+	/* memory-stream */
+	if (streamp(pos))
+		return Result(ret, 1); /* always exist */
+
+	/* pathname */
+	Return(probe_file_files_(ptr, &pos, pos));
+	return Result(ret, pos != Nil);
 }
 
 static int open_if_does_not_exist_stream_(Execute ptr, addr *ret, addr pos,
@@ -184,6 +192,11 @@ static int open_if_exists_rename_stream_(Execute ptr, addr pos)
 	addr path, type, queue, ret1, ret2, ret3;
 	size_t i;
 
+	/* memory-stream */
+	if (streamp(pos))
+		return 0;
+
+	/* pathname */
 	Return(open_probe_file_stream_(ptr, pos, &check));
 	if (! check)
 		return 0;

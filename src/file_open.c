@@ -19,22 +19,30 @@ static inline int inputstream_(Execute ptr,
 {
 	int check;
 	addr pos, name;
-	struct filememory *fm;
+	filestream fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
+	SetPathnameStream(pos, file);
 	fm = PtrFileMemory(pos);
+
+	/* stream */
+	if (streamp(file)) {
+		open_input_redirect_filememory_(fm, file);
+		return Result(ret, pos);
+	}
+
+	/* pathname */
 	Return(name_pathname_local_(ptr, file, &name));
 	Return(open_input_filememory_(ptr->local, fm, name, &check));
 	if (check)
 		return Result(ret, NULL);
-	SetPathnameStream(pos, file);
 
 	return Result(ret, pos);
 }
 
 _g int open_input_binary_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -50,7 +58,7 @@ _g int open_input_binary_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_unsigned16_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -66,7 +74,7 @@ _g int open_input_unsigned16_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_unsigned32_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -82,7 +90,7 @@ _g int open_input_unsigned32_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_signed8_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -98,7 +106,7 @@ _g int open_input_signed8_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_signed16_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -114,7 +122,7 @@ _g int open_input_signed16_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_signed32_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -131,7 +139,7 @@ _g int open_input_signed32_stream_(Execute ptr, addr *ret, addr file)
 #ifdef LISP_64BIT
 _g int open_input_unsigned64_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -147,7 +155,7 @@ _g int open_input_unsigned64_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_signed64_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_BinaryInput));
 	if (file == NULL)
@@ -164,7 +172,7 @@ _g int open_input_signed64_stream_(Execute ptr, addr *ret, addr file)
 
 _g int open_input_ascii_stream_(Execute ptr, addr *ret, addr file)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -181,7 +189,7 @@ _g int open_input_ascii_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf8_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -203,7 +211,7 @@ _g int open_input_utf8_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf8bom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -225,7 +233,7 @@ _g int open_input_utf8bom_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf16_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -250,7 +258,7 @@ _g int open_input_utf16_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf16le_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -272,7 +280,7 @@ _g int open_input_utf16le_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf16be_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -294,7 +302,7 @@ _g int open_input_utf16be_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf16lebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -316,7 +324,7 @@ _g int open_input_utf16lebom_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf16bebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -338,7 +346,7 @@ _g int open_input_utf16bebom_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf32_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -363,7 +371,7 @@ _g int open_input_utf32_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf32le_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -385,7 +393,7 @@ _g int open_input_utf32le_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf32be_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -407,7 +415,7 @@ _g int open_input_utf32be_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf32lebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -429,7 +437,7 @@ _g int open_input_utf32lebom_stream_(Execute ptr, addr *ret, addr file)
 _g int open_input_utf32bebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	Return(inputstream_(ptr, &file, file, StreamType_CharacterInput));
 	if (file == NULL)
@@ -551,15 +559,23 @@ static inline int outputstream_(Execute ptr,
 {
 	int check;
 	addr pos, name;
-	struct filememory *fm;
+	filestream fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
+	SetPathnameStream(pos, file);
 	fm = PtrFileMemory(pos);
+
+	/* stream */
+	if (streamp(file)) {
+		open_output_redirect_filememory_(fm, file);
+		return Result(ret, pos);
+	}
+
+	/* pathname */
 	Return(name_pathname_local_(ptr, file, &name));
 	Return(open_output_filememory_(ptr->local, fm, name, mode, &check));
 	if (check)
 		return Result(ret, NULL);
-	SetPathnameStream(pos, file);
 
 	return Result(ret, pos);
 }
@@ -567,7 +583,7 @@ static inline int outputstream_(Execute ptr,
 _g int open_output_binary_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -584,7 +600,7 @@ _g int open_output_binary_stream_(Execute ptr, addr *ret,
 _g int open_output_unsigned16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -601,7 +617,7 @@ _g int open_output_unsigned16_stream_(Execute ptr, addr *ret,
 _g int open_output_unsigned32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -618,7 +634,7 @@ _g int open_output_unsigned32_stream_(Execute ptr, addr *ret,
 _g int open_output_signed8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -635,7 +651,7 @@ _g int open_output_signed8_stream_(Execute ptr, addr *ret,
 _g int open_output_signed16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -652,7 +668,7 @@ _g int open_output_signed16_stream_(Execute ptr, addr *ret,
 _g int open_output_signed32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -670,7 +686,7 @@ _g int open_output_signed32_stream_(Execute ptr, addr *ret,
 _g int open_output_unsigned64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -687,7 +703,7 @@ _g int open_output_unsigned64_stream_(Execute ptr, addr *ret,
 _g int open_output_signed64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_BinaryOutput, mode));
 	if (file == NULL)
@@ -705,7 +721,7 @@ _g int open_output_signed64_stream_(Execute ptr, addr *ret,
 _g int open_output_ascii_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_CharacterOutput, mode));
 	if (file == NULL)
@@ -722,7 +738,7 @@ _g int open_output_ascii_stream_(Execute ptr, addr *ret,
 _g int open_output_utf8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_CharacterOutput, mode));
 	if (file == NULL)
@@ -742,7 +758,7 @@ _g int open_output_utf8_stream_(Execute ptr, addr *ret,
 _g int open_output_utf16le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_CharacterOutput, mode));
 	if (file == NULL)
@@ -762,7 +778,7 @@ _g int open_output_utf16le_stream_(Execute ptr, addr *ret,
 _g int open_output_utf16be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_CharacterOutput, mode));
 	if (file == NULL)
@@ -782,7 +798,7 @@ _g int open_output_utf16be_stream_(Execute ptr, addr *ret,
 _g int open_output_utf32le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_CharacterOutput, mode));
 	if (file == NULL)
@@ -802,7 +818,7 @@ _g int open_output_utf32le_stream_(Execute ptr, addr *ret,
 _g int open_output_utf32be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(outputstream_(ptr, &file, file, StreamType_CharacterOutput, mode));
 	if (file == NULL)
@@ -906,15 +922,23 @@ static inline int iostream_(Execute ptr,
 {
 	int check;
 	addr pos, name;
-	struct filememory *fm;
+	filestream fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
+	SetPathnameStream(pos, file);
 	fm = PtrFileMemory(pos);
+
+	/* stream */
+	if (streamp(file)) {
+		open_io_redirect_filememory_(fm, file);
+		return Result(ret, pos);
+	}
+
+	/* pathname */
 	Return(name_pathname_local_(ptr, file, &name));
 	Return(open_io_filememory_(ptr->local, fm, name, mode, &check));
 	if (check)
 		return Result(ret, NULL);
-	SetPathnameStream(pos, file);
 
 	return Result(ret, pos);
 }
@@ -922,7 +946,7 @@ static inline int iostream_(Execute ptr,
 _g int open_io_binary_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -939,7 +963,7 @@ _g int open_io_binary_stream_(Execute ptr, addr *ret,
 _g int open_io_unsigned16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -956,7 +980,7 @@ _g int open_io_unsigned16_stream_(Execute ptr, addr *ret,
 _g int open_io_unsigned32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -973,7 +997,7 @@ _g int open_io_unsigned32_stream_(Execute ptr, addr *ret,
 _g int open_io_signed8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -990,7 +1014,7 @@ _g int open_io_signed8_stream_(Execute ptr, addr *ret,
 _g int open_io_signed16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -1007,7 +1031,7 @@ _g int open_io_signed16_stream_(Execute ptr, addr *ret,
 _g int open_io_signed32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -1025,7 +1049,7 @@ _g int open_io_signed32_stream_(Execute ptr, addr *ret,
 _g int open_io_unsigned64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -1042,7 +1066,7 @@ _g int open_io_unsigned64_stream_(Execute ptr, addr *ret,
 _g int open_io_signed64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_BinaryIO, mode));
 	if (file == NULL)
@@ -1060,7 +1084,7 @@ _g int open_io_signed64_stream_(Execute ptr, addr *ret,
 _g int open_io_ascii_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1077,7 +1101,7 @@ _g int open_io_ascii_stream_(Execute ptr, addr *ret,
 _g int open_io_utf8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1094,7 +1118,7 @@ _g int open_io_utf8_stream_(Execute ptr, addr *ret,
 _g int open_io_utf8bom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1112,7 +1136,7 @@ _g int open_io_utf8bom_stream_(Execute ptr, addr *ret,
 _g int open_io_utf16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1129,7 +1153,7 @@ _g int open_io_utf16_stream_(Execute ptr, addr *ret,
 _g int open_io_utf16le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1146,7 +1170,7 @@ _g int open_io_utf16le_stream_(Execute ptr, addr *ret,
 _g int open_io_utf16be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1163,7 +1187,7 @@ _g int open_io_utf16be_stream_(Execute ptr, addr *ret,
 _g int open_io_utf16lebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1181,7 +1205,7 @@ _g int open_io_utf16lebom_stream_(Execute ptr, addr *ret,
 _g int open_io_utf16bebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1199,7 +1223,7 @@ _g int open_io_utf16bebom_stream_(Execute ptr, addr *ret,
 _g int open_io_utf32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1216,7 +1240,7 @@ _g int open_io_utf32_stream_(Execute ptr, addr *ret,
 _g int open_io_utf32le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1233,7 +1257,7 @@ _g int open_io_utf32le_stream_(Execute ptr, addr *ret,
 _g int open_io_utf32be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1250,7 +1274,7 @@ _g int open_io_utf32be_stream_(Execute ptr, addr *ret,
 _g int open_io_utf32lebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)
@@ -1268,7 +1292,7 @@ _g int open_io_utf32lebom_stream_(Execute ptr, addr *ret,
 _g int open_io_utf32bebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	Return(iostream_(ptr, &file, file, StreamType_CharacterIO, mode));
 	if (file == NULL)

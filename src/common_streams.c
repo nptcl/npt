@@ -153,13 +153,13 @@ static int function_stream_element_type(Execute ptr, addr var)
 
 static void type_stream_element_type(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Stream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Stream);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, TypeSpec);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_stream_element_type(void)
@@ -193,13 +193,13 @@ static int function_read_byte(Execute ptr, addr stream, addr errorp, addr value)
 
 static void type_read_byte(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, InputStream);
+	GetTypeTable(&args, InputStream);
 	GetTypeTable(&values, T);
-	typeargs_var1opt2(&arg, arg, values, values);
+	typeargs_var1opt2(&args, args, values, values);
 	GetTypeValues(&values, Integer);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_read_byte(void)
@@ -231,13 +231,13 @@ static int function_write_byte(Execute ptr, addr value, addr stream)
 
 static void type_write_byte(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Integer);
+	GetTypeTable(&args, Integer);
 	GetTypeTable(&values, OutputStream);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, Integer);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_write_byte(void)
@@ -274,16 +274,16 @@ static int function_peek_char(Execute ptr, addr type, addr stream,
 
 static void type_peek_char(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&values, Boolean);
-	type2or_heap(arg, values, &arg);
+	type2or_heap(args, values, &args);
 	GetTypeTable(&values, StreamDesigner);
 	GetTypeTable(&type, T);
-	typeargs_opt5(&arg, arg, values, type, type, type);
+	typeargs_opt5(&args, args, values, type, type, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_peek_char(void)
@@ -374,12 +374,12 @@ static int function_terpri(Execute ptr, addr stream)
 
 static void type_terpri(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StreamDesigner);
-	typeargs_opt1(&arg, arg);
+	GetTypeTable(&args, StreamDesigner);
+	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Null);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_terpri(void)
@@ -408,12 +408,12 @@ static int function_fresh_line(Execute ptr, addr stream)
 
 static void type_fresh_line(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StreamDesigner);
-	typeargs_opt1(&arg, arg);
+	GetTypeTable(&args, StreamDesigner);
+	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_fresh_line(void)
@@ -442,13 +442,13 @@ static int function_unread_char(Execute ptr, addr pos, addr stream)
 
 static void type_unread_char(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&values, StreamDesigner);
-	typeargs_var1opt1(&arg, arg, values);
+	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Null);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_unread_char(void)
@@ -477,13 +477,13 @@ static int function_write_char(Execute ptr, addr pos, addr stream)
 
 static void type_write_char(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&values, StreamDesigner);
-	typeargs_var1opt1(&arg, arg, values);
+	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_write_char(void)
@@ -521,14 +521,14 @@ static int function_read_line(Execute ptr,
 
 static void type_read_line(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, StreamDesigner);
+	GetTypeTable(&args, StreamDesigner);
 	GetTypeTable(&type, T);
-	typeargs_opt4(&arg, arg, type, type, type);
+	typeargs_opt4(&args, args, type, type, type);
 	GetTypeTable(&values, Boolean);
 	typevalues_values2(&values, type, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_read_line(void)
@@ -611,18 +611,18 @@ static int function_read_sequence(Execute ptr, addr var, addr stream, addr rest)
 
 static void type_read_sequence(addr *ret)
 {
-	addr arg, values, key, type1, type2;
+	addr args, values, key, type1, type2;
 
 	/* key */
 	KeyTypeTable(&type1, START, KeywordStart);
 	KeyTypeTable(&type2, END, KeywordEnd);
 	list_heap(&key, type1, type2, NULL);
-	/* arg */
+	/* args */
 	GetTypeTable(&type1, Sequence);
 	GetTypeTable(&type2, InputStream);
-	typeargs_var2key(&arg, type1, type2, key);
+	typeargs_var2key(&args, type1, type2, key);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_read_sequence(void)
@@ -651,18 +651,18 @@ static int function_write_sequence(Execute ptr, addr var, addr stream, addr rest
 
 static void type_write_sequence(addr *ret)
 {
-	addr arg, values, key, type1, type2;
+	addr args, values, key, type1, type2;
 
 	/* key */
 	KeyTypeTable(&type1, START, KeywordStart);
 	KeyTypeTable(&type2, END, KeywordEnd);
 	list_heap(&key, type1, type2, NULL);
-	/* arg */
+	/* args */
 	GetTypeTable(&type1, Sequence);
 	GetTypeTable(&type2, OutputStream);
-	typeargs_var2key(&arg, type1, type2, key);
+	typeargs_var2key(&args, type1, type2, key);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_write_sequence(void)
@@ -694,12 +694,12 @@ static int function_file_length(Execute ptr, addr stream)
 
 static void type_file_length(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Stream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Stream);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, IntplusNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_file_length(void)
@@ -732,7 +732,7 @@ static int function_file_position(Execute ptr, addr stream, addr pos)
 
 static void type_file_position(addr *ret)
 {
-	addr arg, values, type, type2, type3;
+	addr args, values, type, type2, type3;
 
 	/* position-designer */
 	GetTypeTable(&type, Index);
@@ -742,10 +742,10 @@ static void type_file_position(addr *ret)
 	type_eql_heap(type3, &type3);
 	type3or_heap(type, type2, type3, &type);
 	/* type */
-	GetTypeTable(&arg, Stream);
-	typeargs_var1opt1(&arg, arg, type);
+	GetTypeTable(&args, Stream);
+	typeargs_var1opt1(&args, args, type);
 	GetTypeValues(&values, IndexNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_file_position(void)
@@ -778,15 +778,15 @@ static int function_file_string_length(Execute ptr, addr stream, addr pos)
 
 static void type_file_string_length(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, OutputStream);
+	GetTypeTable(&args, OutputStream);
 	GetTypeTable(&type, String);
 	GetTypeTable(&values, Character);
 	type2or_heap(type, values, &values);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, IndexNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_file_string_length(void)
@@ -808,6 +808,7 @@ static void defun_file_string_length(void)
 /* (defun open (filespec
  *     &key direction element-type if-exists if-does-not-exist external-format)
  *     ...) -> (or stream null)
+ *   filespec  (or pathname-designer stream)
  */
 static int function_open(Execute ptr, addr pos, addr rest)
 {
@@ -818,7 +819,7 @@ static int function_open(Execute ptr, addr pos, addr rest)
 
 static void type_open(addr *ret)
 {
-	addr arg, values, key, key1, key2, key3, key4, key5;
+	addr args, values, key, key1, key2, key3, key4, key5;
 
 	/* key */
 	KeyTypeTable(&key1, DIRECTION, OpenDirection);
@@ -828,10 +829,12 @@ static void type_open(addr *ret)
 	KeyTypeTable(&key5, EXTERNAL_FORMAT, ExternalFormat);
 	list_heap(&key, key1, key2, key3, key4, key5, NULL);
 	/* type */
-	GetTypeTable(&arg, PathnameDesigner);
-	typeargs_var1key(&arg, arg, key);
+	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&values, Stream);
+	type2or_heap(args, values, &args);
+	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, StreamNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_open(void)
@@ -863,13 +866,13 @@ static int function_stream_external_format(Execute ptr, addr stream)
 
 static void type_stream_external_format(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, FileStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, FileStream);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, ExternalFormat);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_stream_external_format(void)
@@ -920,16 +923,16 @@ static int function_close(Execute ptr, addr pos, addr rest)
 
 static void type_close(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
 	/* key */
 	KeyTypeTable(&key, ABORT, T);
 	conscar_heap(&key, key);
 	/* type */
-	GetTypeTable(&arg, Stream);
-	typeargs_var1key(&arg, arg, key);
+	GetTypeTable(&args, Stream);
+	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, T); /* any */
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_close(void)
@@ -980,12 +983,12 @@ static int function_listen(Execute ptr, addr stream)
 
 static void type_listen(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, InputStream);
-	typeargs_opt1(&arg, arg);
+	GetTypeTable(&args, InputStream);
+	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_listen(void)
@@ -1014,12 +1017,12 @@ static int function_clear_input(Execute ptr, addr stream)
 
 static void type_clear_input(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, InputStream);
-	typeargs_opt1(&arg, arg);
+	GetTypeTable(&args, InputStream);
+	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Null);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_clear_input(void)
@@ -1181,13 +1184,13 @@ static int function_make_synonym_stream(Execute ptr, addr var)
 
 static void type_make_synonym_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&values, SynonymStream);
-	typeargs_var1(&arg, arg);
+	typeargs_var1(&args, args);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_synonym_stream(void)
@@ -1216,12 +1219,12 @@ static int function_synonym_stream_symbol(Execute ptr, addr var)
 
 static void type_synonym_stream_symbol(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, SynonymStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, SynonymStream);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_synonym_stream_symbol(void)
@@ -1252,13 +1255,13 @@ static int function_make_broadcast_stream(Execute ptr, addr var)
 
 static void type_make_broadcast_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, OutputStream);
-	typeargs_rest(&arg, arg);
+	GetTypeTable(&args, OutputStream);
+	typeargs_rest(&args, args);
 	GetTypeTable(&values, BroadcastStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_broadcast_stream(void)
@@ -1287,12 +1290,12 @@ static int function_broadcast_stream_streams(Execute ptr, addr var)
 
 static void type_broadcast_stream_streams(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, BroadcastStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, BroadcastStream);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_broadcast_stream_streams(void)
@@ -1321,14 +1324,14 @@ static int function_make_two_way_stream(Execute ptr, addr input, addr output)
 
 static void type_make_two_way_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, InputStream);
+	GetTypeTable(&args, InputStream);
 	GetTypeTable(&values, OutputStream);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeTable(&values, TwoWayStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_two_way_stream(void)
@@ -1357,13 +1360,13 @@ static int function_two_way_stream_input_stream(Execute ptr, addr var)
 
 static void type_two_way_stream_input_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, TwoWayStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, TwoWayStream);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, InputStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_two_way_stream_input_stream(void)
@@ -1392,13 +1395,13 @@ static int function_two_way_stream_output_stream(Execute ptr, addr var)
 
 static void type_two_way_stream_output_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, TwoWayStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, TwoWayStream);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, OutputStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_two_way_stream_output_stream(void)
@@ -1427,14 +1430,14 @@ static int function_make_echo_stream(Execute ptr, addr input, addr output)
 
 static void type_make_echo_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, InputStream);
+	GetTypeTable(&args, InputStream);
 	GetTypeTable(&values, OutputStream);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeTable(&values, EchoStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_echo_stream(void)
@@ -1463,13 +1466,13 @@ static int function_echo_stream_input_stream(Execute ptr, addr var)
 
 static void type_echo_stream_input_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, EchoStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, EchoStream);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, InputStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_echo_stream_input_stream(void)
@@ -1498,13 +1501,13 @@ static int function_echo_stream_output_stream(Execute ptr, addr var)
 
 static void type_echo_stream_output_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, EchoStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, EchoStream);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, InputStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_echo_stream_output_stream(void)
@@ -1535,13 +1538,13 @@ static int function_make_concatenated_stream(Execute ptr, addr var)
 
 static void type_make_concatenated_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, InputStream);
-	typeargs_rest(&arg, arg);
+	GetTypeTable(&args, InputStream);
+	typeargs_rest(&args, args);
 	GetTypeTable(&values, ConcatenatedStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_concatenated_stream(void)
@@ -1570,12 +1573,12 @@ static int function_concatenated_stream_streams(Execute ptr, addr var)
 
 static void type_concatenated_stream_streams(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, ConcatenatedStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, ConcatenatedStream);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_concatenated_stream_streams(void)
@@ -1609,18 +1612,18 @@ static int function_make_string_input_stream(Execute ptr, addr var, addr rest)
 
 static void type_make_string_input_stream(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
 	/* key */
-	KeyTypeTable(&arg, START, KeywordStart);
+	KeyTypeTable(&args, START, KeywordStart);
 	KeyTypeTable(&values, END, KeywordEnd);
-	list_heap(&key, arg, values, NULL);
+	list_heap(&key, args, values, NULL);
 	/* type */
-	GetTypeTable(&arg, String);
-	typeargs_var1key(&arg, arg, key);
+	GetTypeTable(&args, String);
+	typeargs_var1key(&args, args, key);
 	GetTypeTable(&values, StringStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_string_input_stream(void)
@@ -1649,16 +1652,16 @@ static int function_make_string_output_stream(Execute ptr, addr rest)
 
 static void type_make_string_output_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	/* key */
-	KeyTypeTable(&arg, ELEMENT_TYPE, Symbol);
-	list_heap(&arg, arg, NULL);
+	KeyTypeTable(&args, ELEMENT_TYPE, Symbol);
+	list_heap(&args, args, NULL);
 	/* type */
-	typeargs_key(&arg, arg);
+	typeargs_key(&args, args);
 	GetTypeTable(&values, StringStream);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_string_output_stream(void)
@@ -1687,12 +1690,12 @@ static int function_get_output_stream_string(Execute ptr, addr var)
 
 static void type_get_output_stream_string(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StringStream);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, StringStream);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, SimpleString);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_get_output_stream_string(void)

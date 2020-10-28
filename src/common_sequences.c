@@ -27,12 +27,12 @@ static int function_copy_seq(Execute ptr, addr var)
 
 static void type_copy_seq(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Sequence);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Sequence);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_copy_seq(void)
@@ -66,13 +66,13 @@ static int function_elt(Execute ptr, addr var, addr index)
 
 static void type_elt(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&args, Sequence);
 	GetTypeTable(&values, Index);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_elt(void)
@@ -106,14 +106,14 @@ static int function_setf_elt(Execute ptr, addr value, addr pos, addr index)
 
 static void type_setf_elt(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&args, Sequence);
 	GetTypeTable(&values, Index);
 	GetTypeTable(&type, T);
-	typeargs_var3(&arg, type, arg, values);
+	typeargs_var3(&args, type, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_elt(void)
@@ -153,7 +153,7 @@ static int function_fill(Execute ptr, addr var, addr item, addr rest)
 
 static void type_fill(addr *ret)
 {
-	addr arg, values, key1, key2;
+	addr args, values, key1, key2;
 
 	/* key */
 	GetConst(KEYWORD_START, &key1);
@@ -164,11 +164,11 @@ static void type_fill(addr *ret)
 	cons_heap(&key2, key2, values);
 	list_heap(&key1, key1, key2, NULL);
 	/* type */
-	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&args, Sequence);
 	GetTypeTable(&values, T);
-	typeargs_var2key(&arg, arg, values, key1);
+	typeargs_var2key(&args, args, values, key1);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_fill(void)
@@ -197,7 +197,7 @@ static int function_make_sequence(Execute ptr, addr type, addr size, addr rest)
 
 static void type_make_sequence(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
 	/* key */
 	GetConst(KEYWORD_INITIAL_ELEMENT, &key);
@@ -205,11 +205,11 @@ static void type_make_sequence(addr *ret)
 	cons_heap(&key, key, values);
 	list_heap(&key, key, NULL);
 	/* type */
-	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&args, TypeSpec);
 	GetTypeTable(&values, Index);
-	typeargs_var2key(&arg, arg, values, key);
+	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_sequence(void)
@@ -241,14 +241,14 @@ static int function_subseq(Execute ptr, addr var, addr start, addr end)
 
 static void type_subseq(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&args, Sequence);
 	GetTypeTable(&values, KeywordStart);
 	GetTypeTable(&type, KeywordEnd);
-	typeargs_var2opt1(&arg, arg, values, type);
+	typeargs_var2opt1(&args, args, values, type);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_subseq(void)
@@ -278,14 +278,14 @@ static int function_setf_subseq(Execute ptr,
 
 static void type_setf_subseq(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&args, Sequence);
 	GetTypeTable(&values, KeywordStart);
 	GetTypeTable(&type, KeywordEnd);
-	typeargs_var3opt1(&arg, arg, arg, values, type);
+	typeargs_var3opt1(&args, args, args, values, type);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_subseq(void)
@@ -318,14 +318,14 @@ static int function_map(Execute ptr, addr type, addr call, addr rest)
 
 static void type_map(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&args, TypeSpec);
 	GetTypeTable(&values, FunctionDesigner);
 	GetTypeTable(&type, Sequence);
-	typeargs_var3rest(&arg, arg, values, type, type);
+	typeargs_var3rest(&args, args, values, type, type);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_map(void)
@@ -354,13 +354,13 @@ static int function_map_into(Execute ptr, addr var, addr call, addr rest)
 
 static void type_map_into(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&args, Sequence);
 	GetTypeTable(&values, FunctionDesigner);
-	typeargs_var2rest(&arg, arg, values, arg);
+	typeargs_var2rest(&args, args, values, args);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_map_into(void)
@@ -395,7 +395,7 @@ static int function_reduce(Execute ptr, addr call, addr pos, addr rest)
 
 static void type_reduce(addr *ret)
 {
-	addr arg, values, type, key1, key2, key3, key4, key5;
+	addr args, values, type, key1, key2, key3, key4, key5;
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key1);
@@ -415,11 +415,11 @@ static void type_reduce(addr *ret)
 	cons_heap(&key5, key5, type);
 	list_heap(&type, key1, key2, key3, key4, key5, NULL);
 	/* type */
-	GetTypeTable(&arg, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesigner);
 	GetTypeTable(&values, Sequence);
-	typeargs_var2key(&arg, arg, values, type);
+	typeargs_var2key(&args, args, values, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_reduce(void)
@@ -456,14 +456,14 @@ static int function_count(Execute ptr, addr item, addr pos, addr rest)
 
 static void type_count(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, Sequence);
 	GetTypeTable(&key, CountKey);
-	typeargs_var2key(&arg, arg, values, key);
+	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_count(void)
@@ -543,12 +543,12 @@ static int function_length(Execute ptr, addr var)
 
 static void type_length(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Sequence);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Sequence);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_length(void)
@@ -631,7 +631,7 @@ static int function_merge(Execute ptr,
 
 static void type_merge(addr *ret)
 {
-	addr arg, values, type, key;
+	addr args, values, type, key;
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key);
@@ -639,11 +639,11 @@ static void type_merge(addr *ret)
 	cons_heap(&key, key, type);
 	conscar_heap(&key, key);
 	/* type */
-	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&args, TypeSpec);
 	GetTypeTable(&values, Sequence);
-	typeargs_var4key(&arg, arg, values, values, type, key);
+	typeargs_var4key(&args, args, values, values, type, key);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_merge(void)
@@ -732,14 +732,14 @@ static int function_find(Execute ptr, addr item, addr pos, addr rest)
 
 static void type_find(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, Sequence);
 	GetTypeTable(&key, CountKey);
-	typeargs_var2key(&arg, arg, values, key);
+	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_find(void)
@@ -818,14 +818,14 @@ static int function_position(Execute ptr, addr item, addr pos, addr rest)
 
 static void type_position(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, Sequence);
 	GetTypeTable(&key, CountKey);
-	typeargs_var2key(&arg, arg, values, key);
+	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, IndexNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_position(void)
@@ -956,7 +956,7 @@ static int function_replace(Execute ptr, addr pos1, addr pos2, addr rest)
 
 static void type_replace(addr *ret)
 {
-	addr arg, values, key, key1, key2, key3, key4;
+	addr args, values, key, key1, key2, key3, key4;
 
 	/* key */
 	KeyTypeTable(&key1, START1, KeywordStart);
@@ -966,10 +966,10 @@ static void type_replace(addr *ret)
 	list_heap(&key, key1, key2, key3, key4, NULL);
 
 	/* type */
-	GetTypeTable(&arg, Sequence);
-	typeargs_var2key(&arg, arg, arg, key);
+	GetTypeTable(&args, Sequence);
+	typeargs_var2key(&args, args, args, key);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_replace(void)
@@ -1176,13 +1176,13 @@ static int function_concatenate(Execute ptr, addr type, addr rest)
 
 static void type_concatenate(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&args, TypeSpec);
 	GetTypeTable(&values, Sequence);
-	typeargs_var1rest(&arg, arg, values);
+	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, Sequence);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_concatenate(void)

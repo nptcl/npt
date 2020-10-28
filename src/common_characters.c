@@ -251,11 +251,11 @@ static void type_character_arguments(addr *ret)
 
 static void type_character(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	type_character_arguments(&arg);
+	type_character_arguments(&args);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_character(void)
@@ -307,13 +307,13 @@ static int function_alpha_char_p(Execute ptr, addr var)
 
 static void type_character_boolean(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	/* (function (character) boolean) */
-	GetTypeTable(&arg, Character);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Character);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_alpha_char_p(void)
@@ -370,16 +370,16 @@ static int function_digit_char(Execute ptr, addr var, addr opt)
 
 static void type_digit_char(addr *ret)
 {
-	addr weight, radix, arg, values;
+	addr weight, radix, args, values;
 
 	/* ((integer 0 *) &optional (integer 2 36)) */
 	GetTypeTable(&weight, Intplus);
 	GetTypeTable(&radix, RadixInteger);
-	typeargs_var1opt1(&arg, weight, radix);
+	typeargs_var1opt1(&args, weight, radix);
 	/* (or character null) */
 	GetTypeValues(&values, CharacterNull);
 	/* function */
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_digit_char(void)
@@ -412,16 +412,16 @@ static int function_digit_char_p(Execute ptr, addr var, addr opt)
 
 static void type_digit_char_p(addr *ret)
 {
-	addr character, radix, arg, values;
+	addr character, radix, args, values;
 
 	/* (character &optional (integer 2 36)) */
 	GetTypeTable(&character, Character);
 	GetTypeTable(&radix, RadixInteger);
-	typeargs_var1opt1(&arg, character, radix);
+	typeargs_var1opt1(&args, character, radix);
 	/* (or (integer 0 *) null) */
 	GetTypeValues(&values, IntplusNull);
 	/* function */
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_digit_char_p(void)
@@ -498,13 +498,13 @@ static int function_char_upcase(Execute ptr, addr var)
 
 static void type_character_character(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	/* (function (character) character) */
-	GetTypeTable(&arg, Character);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Character);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_char_upcase(void)
@@ -631,14 +631,14 @@ static int function_char_code(Execute ptr, addr var)
 
 static void type_char_code(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	/* (function (character) (values (integer 0 UnicodeCount))) */
-	GetTypeTable(&arg, Character);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Character);
+	typeargs_var1(&args, args);
 	type4integer_heap(Nil, 0, Nil, (fixnum)UnicodeCount, &values);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_char_code(void)
@@ -686,18 +686,18 @@ static int function_code_char(Execute ptr, addr var)
 
 static void type_code_char(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	/* (function
 	 *   ((integer 0 UnicodeCount))
 	 *   (values (or character boolean))) */
-	type4integer_heap(Nil, 0, T, (fixnum)UnicodeCount, &arg);
-	typeargs_var1(&arg, arg);
+	type4integer_heap(Nil, 0, T, (fixnum)UnicodeCount, &args);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, Character);
 	GetTypeTable(&type, Boolean);
 	type2or_heap(values, type, &values);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_code_char(void)
@@ -728,12 +728,12 @@ static int function_char_name(Execute ptr, addr var)
 
 static void type_char_name(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Character);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Character);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, StringNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_char_name(void)
@@ -765,12 +765,12 @@ static int function_name_char(Execute ptr, addr var)
 
 static void type_name_char(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StringDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, StringDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, CharacterNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_name_char(void)

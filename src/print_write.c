@@ -2194,6 +2194,9 @@ static int WriteBody_stream_(Execute ptr, addr stream, addr pos)
 		case StreamType_MemoryOutput:
 			return print_ascii_stream_(stream, "STREAM MEMORY-OUTPUT");
 
+		case StreamType_MemoryIO:
+			return print_ascii_stream_(stream, "STREAM MEMORY-IO");
+
 		default:
 			return print_ascii_stream_(stream, "STREAM");
 	}

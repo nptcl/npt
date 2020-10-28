@@ -23,7 +23,7 @@ static int function_make_hash_table(Execute ptr, addr rest)
 
 static void type_make_hash_table(addr *ret)
 {
-	addr arg, values, key, type;
+	addr args, values, key, type;
 	addr key1, key2, key3, key4;
 
 	/* test */
@@ -43,12 +43,12 @@ static void type_make_hash_table(addr *ret)
 	GetTypeTable(&type, RehashThreshold);
 	cons_heap(&key4, key, type);
 	/* &key */
-	list_heap(&arg, key1, key2, key3, key4, NULL);
-	typeargs_key(&arg, arg);
+	list_heap(&args, key1, key2, key3, key4, NULL);
+	typeargs_key(&args, args);
 	/* values */
 	GetTypeTable(&values, Hashtable);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_hash_table(void)
@@ -128,13 +128,13 @@ static int function_hash_table_rehash_size(Execute ptr, addr var)
 
 static void type_hash_table_rehash_size(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Hashtable);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Hashtable);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, RehashSize);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_hash_table_rehash_size(void)
@@ -165,13 +165,13 @@ static int function_hash_table_rehash_threshold(Execute ptr, addr var)
 
 static void type_hash_table_rehash_threshold(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Hashtable);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Hashtable);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, RehashThreshold);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_hash_table_rehash_threshold(void)
@@ -226,12 +226,12 @@ static int function_hash_table_test(Execute ptr, addr var)
 
 static void type_hash_table_test(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Hashtable);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Hashtable);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_hash_table_test(void)
@@ -260,14 +260,14 @@ static int function_gethash(Execute ptr, addr key, addr table, addr value)
 
 static void type_gethash(addr *ret)
 {
-	addr arg, values, type1, type2;
+	addr args, values, type1, type2;
 
-	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&args, Hashtable);
 	GetTypeTable(&type1, T);
 	GetTypeTable(&type2, Boolean);
-	typeargs_var2opt1(&arg, type1, arg, type1);
+	typeargs_var2opt1(&args, type1, args, type1);
 	typevalues_values2(&values, type1, type2);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_gethash(void)
@@ -298,13 +298,13 @@ static int function_setf_gethash(Execute ptr,
 
 static void type_setf_gethash(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&args, Hashtable);
 	GetTypeTable(&values, T);
-	typeargs_var3opt1(&arg, values, values, arg, values);
+	typeargs_var3opt1(&args, values, values, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_gethash(void)
@@ -333,13 +333,13 @@ static int function_remhash(Execute ptr, addr key, addr table)
 
 static void type_remhash(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&args, Hashtable);
 	GetTypeTable(&values, T);
-	typeargs_var2(&arg, values, arg);
+	typeargs_var2(&args, values, args);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_remhash(void)
@@ -368,13 +368,13 @@ static int function_maphash(Execute ptr, addr call, addr table)
 
 static void type_maphash(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&args, Hashtable);
 	GetTypeTable(&values, FunctionDesigner);
-	typeargs_var2(&arg, values, arg);
+	typeargs_var2(&args, values, args);
 	GetTypeValues(&values, Null);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_maphash(void)
@@ -425,12 +425,12 @@ static int function_clrhash(Execute ptr, addr var)
 
 static void type_clrhash(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	GetTypeTable(&values, Hashtable);
-	typeargs_var1(&arg, values);
+	typeargs_var1(&args, values);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_clrhash(void)
@@ -461,13 +461,13 @@ static int function_sxhash(Execute ptr, addr var)
 
 static void type_sxhash(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, Index);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_sxhash(void)

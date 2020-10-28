@@ -50,7 +50,7 @@ static void test_fopen_output_binary(const void *ptr, size_t size)
 	fclose(file);
 }
 
-static void test_open_input_filememory(struct filememory *fm)
+static void test_open_input_filememory(filestream fm)
 {
 	int result;
 	addr name;
@@ -335,7 +335,7 @@ static int test_readbom32_encode(void)
 	RETURN;
 }
 
-static void test_open_output_filememory(struct filememory *fm)
+static void test_open_output_filememory(filestream fm)
 {
 	int result;
 	addr name;
@@ -452,7 +452,7 @@ static int test_writebom32_encode(void)
 /*
  *  read-char
  */
-static int read_char_encode_abort(struct filememory *fm, unicode *c)
+static int read_char_encode_abort(filestream fm, unicode *c)
 {
 	int check;
 	Error(read_char_encode_(fm, c, &check));
@@ -493,7 +493,7 @@ static int test_read_char_ascii(void)
 	RETURN;
 }
 
-static void test_read_char_utf8_file(struct filememory *fm,
+static void test_read_char_utf8_file(filestream fm,
 		const char *str, size_t size)
 {
 	test_fopen_output_binary(str, size);
@@ -714,7 +714,7 @@ static int test_read_char_utf8(void)
 	RETURN;
 }
 
-static void test_read_char_utf16le_file(struct filememory *fm,
+static void test_read_char_utf16le_file(filestream fm,
 		const char *str, size_t size)
 {
 	test_fopen_output_binary(str, size);
@@ -835,7 +835,7 @@ static int test_read_char_utf16le(void)
 	RETURN;
 }
 
-static void test_read_char_utf16be_file(struct filememory *fm,
+static void test_read_char_utf16be_file(filestream fm,
 		const char *str, size_t size)
 {
 	test_fopen_output_binary(str, size);
@@ -956,7 +956,7 @@ static int test_read_char_utf16be(void)
 	RETURN;
 }
 
-static void test_read_char_utf32le_file(struct filememory *fm,
+static void test_read_char_utf32le_file(filestream fm,
 		const char *str, size_t size)
 {
 	test_fopen_output_binary(str, size);
@@ -1021,7 +1021,7 @@ static int test_read_char_utf32le(void)
 	RETURN;
 }
 
-static void test_read_char_utf32be_file(struct filememory *fm,
+static void test_read_char_utf32be_file(filestream fm,
 		const char *str, size_t size)
 {
 	test_fopen_output_binary(str, size);
@@ -1674,7 +1674,7 @@ static int test_read_hang_utf32be(void)
 /*
  *  write-char
  */
-static void test_write_char_ascii_file(struct filememory *fm)
+static void test_write_char_ascii_file(filestream fm)
 {
 	test_open_output_filememory(fm);
 	fm->encode.type = EncodeType_ascii;
@@ -1713,7 +1713,7 @@ static int test_write_char_ascii(void)
 	RETURN;
 }
 
-static void test_write_char_utf8_file(struct filememory *fm)
+static void test_write_char_utf8_file(filestream fm)
 {
 	test_open_output_filememory(fm);
 	fm->encode.type = EncodeType_utf8;
@@ -1855,7 +1855,7 @@ static int test_write_char_utf8(void)
 	RETURN;
 }
 
-static void test_write_char_utf16le_file(struct filememory *fm)
+static void test_write_char_utf16le_file(filestream fm)
 {
 	test_open_output_filememory(fm);
 	fm->encode.type = EncodeType_utf16le;
@@ -1964,7 +1964,7 @@ static int test_write_char_utf16le(void)
 	RETURN;
 }
 
-static void test_write_char_utf16be_file(struct filememory *fm)
+static void test_write_char_utf16be_file(filestream fm)
 {
 	test_open_output_filememory(fm);
 	fm->encode.type = EncodeType_utf16be;
@@ -2073,7 +2073,7 @@ static int test_write_char_utf16be(void)
 	RETURN;
 }
 
-static void test_write_char_utf32le_file(struct filememory *fm)
+static void test_write_char_utf32le_file(filestream fm)
 {
 	test_open_output_filememory(fm);
 	fm->encode.type = EncodeType_utf32le;
@@ -2212,7 +2212,7 @@ static int test_write_char_utf32le(void)
 	RETURN;
 }
 
-static void test_write_char_utf32be_file(struct filememory *fm)
+static void test_write_char_utf32be_file(filestream fm)
 {
 	test_open_output_filememory(fm);
 	fm->encode.type = EncodeType_utf32be;

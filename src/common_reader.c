@@ -19,16 +19,16 @@ static int function_copy_readtable(Execute ptr, addr from, addr to)
 
 static void type_copy_readtable(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	/* (function (readtable-designer readtable-designer)
 	 *   (values readtable &rest nil))
 	 */
-	GetTypeTable(&arg, ReadtableDesigner);
-	typeargs_opt2(&arg, arg, arg);
+	GetTypeTable(&args, ReadtableDesigner);
+	typeargs_opt2(&args, args, args);
 	GetTypeTable(&values, Readtable);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_copy_readtable(void)
@@ -63,17 +63,17 @@ static int function_make_dispatch_macro_character(Execute ptr,
 
 static void type_make_dispatch_macro_character(addr *ret)
 {
-	addr arg, values, type1, type2;
+	addr args, values, type1, type2;
 
 	/* (function (character &optional t readtable) ...)
 	 *    -> (values (eql t) &rest nil)
 	 */
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type1, T);
 	GetTypeTable(&type2, Readtable);
-	typeargs_var1opt2(&arg, arg, type1, type2);
+	typeargs_var1opt2(&args, args, type1, type2);
 	GetTypeValues(&values, EqlT);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_dispatch_macro_character(void)
@@ -159,18 +159,18 @@ static int function_read_delimited_list(Execute ptr,
 
 static void type_read_delimited_list(addr *ret)
 {
-	addr arg, values, type1, type2;
+	addr args, values, type1, type2;
 
 	/* (function (character &optional stream t) ...)
 	 *    -> (values list &rest nil)
 	 */
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type1, Stream);
 	GetTypeTable(&type2, T);
-	typeargs_var1opt2(&arg, arg, type1, type2);
+	typeargs_var1opt2(&args, args, type1, type2);
 	GetTypeTable(&values, List);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_read_delimited_list(void)
@@ -220,7 +220,7 @@ static void type_read_from_string(addr *ret)
 	 *    (values t index &rest nil))
 	 */
 	addr str, type, type1, type2, size, var, opt, key, start, end, pre;
-	addr arg, values;
+	addr args, values;
 
 	GetTypeTable(&str, String);
 	GetTypeTable(&type, T);
@@ -236,9 +236,9 @@ static void type_read_from_string(addr *ret)
 	cons_heap(&end, end, type2);
 	cons_heap(&pre, pre, type);
 	list_heap(&key, start, end, pre, NULL);
-	typeargs_full(&arg, var, opt, Nil, key);
+	typeargs_full(&args, var, opt, Nil, key);
 	typevalues_values2(&values, type, size);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_read_from_string(void)
@@ -270,12 +270,12 @@ static void type_readtable_case(addr *ret)
 	/* (function (readtable)
 	 *   (values (member :upcase :downcase :preserve :invert) &rest nil))
 	 */
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Readtable);
+	GetTypeTable(&args, Readtable);
 	GetTypeTable(&values, CaseSensitivity);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_readtable_case(void)
@@ -304,13 +304,13 @@ static int function_setf_readtable_case(Execute ptr, addr value, addr var)
 
 static void type_setf_readtable_case(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	GetTypeTable(&values, CaseSensitivity);
 	GetTypeTable(&type, Readtable);
-	typeargs_var2(&arg, values, type);
+	typeargs_var2(&args, values, type);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_readtable_case(void)
@@ -369,14 +369,14 @@ static int function_get_dispatch_macro_character(Execute ptr,
 
 static void type_get_dispatch_macro_character(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type, ReadtableDesigner);
-	typeargs_var2opt1(&arg, arg, arg, type);
+	typeargs_var2opt1(&args, args, args, type);
 	GetTypeTable(&values, FunctionNull);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_get_dispatch_macro_character(void)
@@ -412,14 +412,14 @@ static int function_set_dispatch_macro_character(Execute ptr,
 
 static void type_set_dispatch_macro_character(addr *ret)
 {
-	addr arg, values, type1, type2;
+	addr args, values, type1, type2;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type1, FunctionNull);
 	GetTypeTable(&type2, ReadtableDesigner);
-	typeargs_var3opt1(&arg, arg, arg, type1, type2);
+	typeargs_var3opt1(&args, args, args, type1, type2);
 	GetTypeValues(&values, EqlT);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_set_dispatch_macro_character(void)
@@ -454,15 +454,15 @@ static int function_get_macro_character(Execute ptr, addr code, addr table)
 
 static void type_get_macro_character(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type, ReadtableDesigner);
-	typeargs_var1opt1(&arg, arg, type);
+	typeargs_var1opt1(&args, args, type);
 	GetTypeTable(&values, FunctionNull);
 	GetTypeTable(&type, Boolean);
 	typevalues_values2(&values, values, type);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_get_macro_character(void)
@@ -499,15 +499,15 @@ static int function_set_macro_character(Execute ptr,
 
 static void type_set_macro_character(addr *ret)
 {
-	addr arg, values, type1, type2, type3;
+	addr args, values, type1, type2, type3;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type1, FunctionDesigner);
 	GetTypeTable(&type2, T);
 	GetTypeTable(&type3, ReadtableDesigner);
-	typeargs_var2opt2(&arg, arg, type1, type2, type3);
+	typeargs_var2opt2(&args, args, type1, type2, type3);
 	GetTypeValues(&values, EqlT);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_set_macro_character(void)
@@ -543,14 +543,14 @@ static int function_set_syntax_from_char(Execute ptr, addr x, addr y, addr z, ad
 
 static void type_set_syntax_from_char(addr *ret)
 {
-	addr arg, values, type1, type2;
+	addr args, values, type1, type2;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&type1, Readtable);
 	GetTypeTable(&type2, ReadtableDesigner);
-	typeargs_var2opt2(&arg, arg, arg, type1, type2);
+	typeargs_var2opt2(&args, args, args, type1, type2);
 	GetTypeValues(&values, EqlT);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_set_syntax_from_char(void)

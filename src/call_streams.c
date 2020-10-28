@@ -395,6 +395,10 @@ static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists 
 
 	/* default */
 	if (value == Unbound) {
+		/* binary-stream */
+		if (streamp(pos))
+			return Result(ret, Stream_Open_IfExists_Supersede);
+		/* pathname */
 		GetVersionPathname(pos, &value);
 		GetConst(KEYWORD_NEWEST, &check);
 		return Result(ret, value == check?
@@ -608,7 +612,9 @@ _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 	enum Stream_Open_External external;
 
 	/* argument */
-	Return(physical_pathname_heap_(ptr, pos, &pos));
+	if (! streamp(pos)) {
+		Return(physical_pathname_heap_(ptr, pos, &pos));
+	}
 	if (GetKeyArgs(rest, KEYWORD_DIRECTION, &value))
 		value = Unbound;
 	Return(open_common_direction(value, &direction));

@@ -1399,6 +1399,40 @@ static void defun_get_output_stream_memory(void)
 }
 
 
+/* (defun byte-integer (&rest unsigned-byte-8) ...) -> (integer 0 *) */
+static int syscall_byte_integer(Execute ptr, addr list)
+{
+	Return(byte_integer_syscode_(list, &list));
+	setresult_control(ptr, list);
+	return 0;
+}
+
+static void type_syscall_byte_integer(addr *ret)
+{
+	addr args, values;
+
+	type4integer_heap(Nil, 0, Nil, 0xFF, &args);
+	typeargs_rest(&args, args);
+	GetTypeValues(&values, Intplus);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_byte_integer(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_BYTE_INTEGER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_dynamic(pos, p_defun_syscall_byte_integer);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_byte_integer(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun extension (t) ...) -> t */
 static int syscall_extension(Execute ptr, addr var)
 {
@@ -1483,6 +1517,7 @@ _g void init_syscall_function(void)
 	SetPointerSysCall(defmacro, macro, with_input_from_memory);
 	SetPointerSysCall(defmacro, macro, with_output_to_memory);
 	SetPointerSysCall(defun, var1, get_output_stream_memory);
+	SetPointerSysCall(defun, dynamic, byte_integer);
 	SetPointerSysCall(defun, var1, extension);
 }
 
@@ -1536,6 +1571,7 @@ _g void build_syscall_function(void)
 	defmacro_with_input_from_memory();
 	defmacro_with_output_to_memory();
 	defun_get_output_stream_memory();
+	defun_byte_integer();
 	defun_extension();
 }
 

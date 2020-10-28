@@ -80,15 +80,15 @@ static void type_make_array_key(addr *ret, int adjustable)
 
 static void type_make_array(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Index);
+	GetTypeTable(&args, Index);
 	GetTypeTable(&values, List);
-	type2or_heap(arg, values, &arg);
+	type2or_heap(args, values, &args);
 	type_make_array_key(&values, 1);
-	typeargs_var1key(&arg, arg, values);
+	typeargs_var1key(&args, args, values);
 	GetTypeValues(&values, Array);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_array(void)
@@ -127,16 +127,16 @@ static int function_adjust_array(Execute ptr, addr pos, addr dim, addr rest)
 
 static void type_adjust_array(addr *ret)
 {
-	addr arg, values, key;
+	addr args, values, key;
 
-	GetTypeTable(&arg, Index);
+	GetTypeTable(&args, Index);
 	GetTypeTable(&values, List);
-	type2or_heap(arg, values, &values);
+	type2or_heap(args, values, &values);
 	type_make_array_key(&key, 0);
-	GetTypeTable(&arg, Array);
-	typeargs_var2key(&arg, arg, values, key);
+	GetTypeTable(&args, Array);
+	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, Array);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_adjust_array(void)
@@ -190,13 +190,13 @@ static int function_aref(Execute ptr, addr var, addr rest)
 
 static void type_aref(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Index);
-	typeargs_var1rest(&arg, arg, values);
+	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_aref(void)
@@ -225,14 +225,14 @@ static int function_setf_aref(Execute ptr, addr value, addr var, addr rest)
 
 static void type_setf_aref(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Index);
-	typeargs_var2rest(&arg, type, arg, values);
+	typeargs_var2rest(&args, type, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_aref(void)
@@ -264,13 +264,13 @@ static int function_array_dimension(Execute ptr, addr var, addr axis)
 
 static void type_array_dimension(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Index);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_array_dimension(void)
@@ -323,13 +323,13 @@ static int function_array_element_type(Execute ptr, addr var)
 
 static void type_array_element_type(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Array);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Array);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, TypeSpec);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_array_element_type(void)
@@ -384,16 +384,16 @@ static int function_array_displacement(Execute ptr, addr pos)
 
 static void type_array_displacement(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Array);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Array);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, Array);
 	GetTypeTable(&type, Null);
 	type2or_heap(values, type, &values);
 	GetTypeTable(&type, Index);
 	typevalues_values2(&values, values, type);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_array_displacement(void)
@@ -423,13 +423,13 @@ static int function_array_in_bounds_p(Execute ptr, addr array, addr rest)
 
 static void type_array_in_bounds_p(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Integer);
-	typeargs_var1rest(&arg, arg, values);
+	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_array_in_bounds_p(void)
@@ -482,13 +482,13 @@ static int function_array_row_major_index(Execute ptr, addr array, addr rest)
 
 static void type_array_row_major_index(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Index);
-	typeargs_var1rest(&arg, arg, values);
+	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_array_row_major_index(void)
@@ -564,12 +564,12 @@ static int function_fill_pointer(Execute ptr, addr array)
 
 static void type_fill_pointer(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Vector);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Vector);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_fill_pointer(void)
@@ -600,13 +600,13 @@ static int function_setf_fill_pointer(Execute ptr, addr value, addr array)
 
 static void type_setf_fill_pointer(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
 	GetTypeTable(&values, Index);
-	GetTypeTable(&arg, Vector);
-	typeargs_var2(&arg, values, arg);
+	GetTypeTable(&args, Vector);
+	typeargs_var2(&args, values, args);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_fill_pointer(void)
@@ -635,13 +635,13 @@ static int function_row_major_aref(Execute ptr, addr array, addr index)
 
 static void type_row_major_aref(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Index);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_row_major_aref(void)
@@ -671,14 +671,14 @@ static int function_setf_row_major_aref(Execute ptr,
 
 static void type_setf_row_major_aref(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&arg, Array);
+	GetTypeTable(&args, Array);
 	GetTypeTable(&values, Index);
-	typeargs_var3(&arg, type, arg, values);
+	typeargs_var3(&args, type, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_row_major_aref(void)
@@ -789,13 +789,13 @@ static int function_svref(Execute ptr, addr pos, addr index)
 
 static void type_svref(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, SimpleVector);
+	GetTypeTable(&args, SimpleVector);
 	GetTypeTable(&values, Index);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_svref(void)
@@ -824,14 +824,14 @@ static int function_setf_svref(Execute ptr, addr value, addr pos, addr index)
 
 static void type_setf_svref(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&arg, SimpleVector);
+	GetTypeTable(&args, SimpleVector);
 	GetTypeTable(&values, Index);
-	typeargs_var3(&arg, type, arg, values);
+	typeargs_var3(&args, type, args, values);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_svref(void)
@@ -860,12 +860,12 @@ static int function_vector(Execute ptr, addr rest)
 
 static void type_common_vector(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
-	typeargs_rest(&arg, arg);
+	GetTypeTable(&args, T);
+	typeargs_rest(&args, args);
 	GetTypeValues(&values, SimpleVector);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_vector(void)
@@ -894,12 +894,12 @@ static int function_vector_pop(Execute ptr, addr pos)
 
 static void type_vector_pop(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Vector);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Vector);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_vector_pop(void)
@@ -928,13 +928,13 @@ static int function_vector_push(Execute ptr, addr value, addr pos)
 
 static void type_vector_push(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, Vector);
-	typeargs_var2(&arg, arg, values);
+	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, IndexNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_vector_push(void)
@@ -967,14 +967,14 @@ static int function_vector_push_extend(Execute ptr,
 
 static void type_vector_push_extend(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, Vector);
 	type2integer_ab_heap(Nil, 1, &type);
-	typeargs_var2opt1(&arg, arg, values, type);
+	typeargs_var2opt1(&args, args, values, type);
 	GetTypeValues(&values, Index);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_vector_push_extend(void)
@@ -1026,13 +1026,13 @@ static int function_bit(Execute ptr, addr pos, addr rest)
 
 static void type_bit_common(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, BitArray);
+	GetTypeTable(&args, BitArray);
 	GetTypeTable(&values, Index);
-	typeargs_var1rest(&arg, arg, values);
+	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, Bit);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_bit(void)
@@ -1054,13 +1054,13 @@ static void defun_bit(void)
 /* (defun sbit (simple-bit-array &rest args) ...) -> bit */
 static void type_sbit_common(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, SimpleBitArray);
+	GetTypeTable(&args, SimpleBitArray);
 	GetTypeTable(&values, Index);
-	typeargs_var1rest(&arg, arg, values);
+	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, Bit);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_sbit(void)
@@ -1089,14 +1089,14 @@ static int function_setf_bit(Execute ptr, addr value, addr pos, addr rest)
 
 static void type_setf_bit(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	GetTypeTable(&type, Bit);
-	GetTypeTable(&arg, BitArray);
+	GetTypeTable(&args, BitArray);
 	GetTypeTable(&values, Index);
-	typeargs_var2rest(&arg, type, arg, values);
+	typeargs_var2rest(&args, type, args, values);
 	GetTypeValues(&values, Bit);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_bit(void)
@@ -1118,14 +1118,14 @@ static void defun_setf_bit(void)
 /* (defun (setf sbit) (bit simple-bit-array &rest args) ...) -> bit */
 static void type_setf_sbit(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
 	GetTypeTable(&type, Bit);
-	GetTypeTable(&arg, SimpleBitArray);
+	GetTypeTable(&args, SimpleBitArray);
 	GetTypeTable(&values, Index);
-	typeargs_var2rest(&arg, type, arg, values);
+	typeargs_var2rest(&args, type, args, values);
 	GetTypeValues(&values, Bit);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_sbit(void)
@@ -1190,9 +1190,9 @@ static void defun_simple_bit_vector_p(void)
 }
 
 
-/* (defun bit-and (bit-array1 bit-array2 &optional opt-arg) ...)
+/* (defun bit-and (bit-array1 bit-array2 &optional opt-args) ...)
  *     -> bit-array
- *   opt-arg  (or boolean bit-array)
+ *   opt-args  (or boolean bit-array)
  */
 static fixed bitcalc_and(fixed a, fixed b)
 {
@@ -1225,7 +1225,7 @@ static void defun_bit_and(void)
 }
 
 
-/* (defun bit-andc1 (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-andc1 (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_andc1(fixed a, fixed b)
 {
 	return (~a) & b;
@@ -1257,7 +1257,7 @@ static void defun_bit_andc1(void)
 }
 
 
-/* (defun bit-andc2 (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-andc2 (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_andc2(fixed a, fixed b)
 {
 	return a & (~b);
@@ -1289,7 +1289,7 @@ static void defun_bit_andc2(void)
 }
 
 
-/* (defun bit-eqv (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-eqv (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_eqv(fixed a, fixed b)
 {
 	return a ^ b;
@@ -1321,7 +1321,7 @@ static void defun_bit_eqv(void)
 }
 
 
-/* (defun bit-ior (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-ior (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_ior(fixed a, fixed b)
 {
 	return a | b;
@@ -1353,7 +1353,7 @@ static void defun_bit_ior(void)
 }
 
 
-/* (defun bit-nand (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-nand (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_nand(fixed a, fixed b)
 {
 	return ~(a & b);
@@ -1385,7 +1385,7 @@ static void defun_bit_nand(void)
 }
 
 
-/* (defun bit-nor (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-nor (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_nor(fixed a, fixed b)
 {
 	return ~(a | b);
@@ -1417,7 +1417,7 @@ static void defun_bit_nor(void)
 }
 
 
-/* (defun bit-orc1 (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-orc1 (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_orc1(fixed a, fixed b)
 {
 	return (~a) | b;
@@ -1449,7 +1449,7 @@ static void defun_bit_orc1(void)
 }
 
 
-/* (defun bit-orc2 (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-orc2 (bit-array1 bit-array2 &optional opt-args) ...) */
 static fixed bitcalc_orc2(fixed a, fixed b)
 {
 	return a | (~b);
@@ -1481,7 +1481,7 @@ static void defun_bit_orc2(void)
 }
 
 
-/* (defun bit-xor (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-xor (bit-array1 bit-array2 &optional opt-args) ...) */
 static void defun_bit_xor(void)
 {
 	addr symbol, pos, type;
@@ -1498,7 +1498,7 @@ static void defun_bit_xor(void)
 }
 
 
-/* (defun bit-not (bit-array1 bit-array2 &optional opt-arg) ...) */
+/* (defun bit-not (bit-array1 bit-array2 &optional opt-args) ...) */
 static int function_bit_not(Execute ptr, addr array, addr opt)
 {
 	if (opt == Unbound)
@@ -1511,14 +1511,14 @@ static int function_bit_not(Execute ptr, addr array, addr opt)
 
 static void type_bit_not(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, BitArray);
+	GetTypeTable(&args, BitArray);
 	GetTypeTable(&values, Boolean);
-	type2or_heap(arg, values, &values);
-	typeargs_var1opt1(&arg, arg, values);
+	type2or_heap(args, values, &values);
+	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, BitArray);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_bit_not(void)

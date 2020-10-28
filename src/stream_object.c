@@ -209,6 +209,12 @@ _g int output_memory_stream_p(addr stream)
 		&& getstreamtype(stream) == StreamType_MemoryOutput;
 }
 
+_g int io_memory_stream_p(addr stream)
+{
+	return streamp(stream)
+		&& getstreamtype(stream) == StreamType_MemoryIO;
+}
+
 _g int memory_stream_p(addr stream)
 {
 	enum StreamType check;
@@ -217,7 +223,30 @@ _g int memory_stream_p(addr stream)
 		return 0;
 	check = getstreamtype(stream);
 	return check == StreamType_MemoryInput
-		|| check == StreamType_MemoryOutput;
+		|| check == StreamType_MemoryOutput
+		|| check == StreamType_MemoryIO;
+}
+
+_g int read_memory_stream_p(addr stream)
+{
+	enum StreamType check;
+
+	if (! streamp(stream))
+		return 0;
+	check = getstreamtype(stream);
+	return check == StreamType_MemoryInput
+		|| check == StreamType_MemoryIO;
+}
+
+_g int write_memory_stream_p(addr stream)
+{
+	enum StreamType check;
+
+	if (! streamp(stream))
+		return 0;
+	check = getstreamtype(stream);
+	return check == StreamType_MemoryOutput
+		|| check == StreamType_MemoryIO;
 }
 
 _g int extend_stream_p(addr stream)

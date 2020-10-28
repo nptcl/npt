@@ -74,12 +74,12 @@ static int function_find_package(Execute ptr, addr name)
 
 static void type_find_package(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StringDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, StringDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, PackageNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_find_package(void)
@@ -111,12 +111,12 @@ static int function_find_all_symbols(Execute ptr, addr name)
 
 static void type_find_all_symbols(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StringDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, StringDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_find_all_symbols(void)
@@ -214,13 +214,13 @@ static int function_rename_package(Execute ptr,
 
 static void type_rename_package(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, PackageDesigner);
+	GetTypeTable(&args, PackageDesigner);
 	GetTypeTable(&values, List);
-	typeargs_var2opt1(&arg, arg, arg, values);
+	typeargs_var2opt1(&args, args, args, values);
 	GetTypeValues(&values, Package);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_rename_package(void)
@@ -252,15 +252,15 @@ static int function_shadow(Execute ptr, addr symbols, addr package)
 
 static void type_shadow(addr *ret)
 {
-	addr arg, values, type1, type2;
+	addr args, values, type1, type2;
 
 	GetTypeTable(&type1, List);
 	GetTypeTable(&type2, StringDesigner);
-	type2or_heap(type1, type2, &arg);
+	type2or_heap(type1, type2, &args);
 	GetTypeTable(&values, PackageDesigner);
-	typeargs_var1opt1(&arg, arg, values);
+	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, EqlT);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_shadow(void)
@@ -321,11 +321,11 @@ static int function_delete_package(Execute ptr, addr package)
 
 static void type_delete_package(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeArgs(&arg, PackageDesigner);
+	GetTypeArgs(&args, PackageDesigner);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_delete_package(void)
@@ -359,20 +359,20 @@ static int function_make_package(Execute ptr, addr name, addr rest)
 
 static void type_make_package(addr *ret)
 {
-	addr arg, values, type1, type2, symbol, type, key;
+	addr args, values, type1, type2, symbol, type, key;
 
-	/* arg */
-	GetTypeTable(&arg, StringDesigner);
+	/* args */
+	GetTypeTable(&args, StringDesigner);
 	GetTypeTable(&type, List);
 	GetConst(KEYWORD_NICKNAMES, &symbol);
 	cons_heap(&type1, symbol, type);
 	GetConst(KEYWORD_USE, &symbol);
 	cons_heap(&type2, symbol, type);
 	list_heap(&key, type1, type2, NULL);
-	typeargs_var1key(&arg, arg, key);
+	typeargs_var1key(&args, args, key);
 	/* values */
 	GetTypeValues(&values, Package);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_package(void)
@@ -452,13 +452,13 @@ static int function_unintern(Execute ptr, addr symbol, addr package)
 
 static void type_unintern(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&values, PackageDesigner);
-	typeargs_var1opt1(&arg, arg, values);
+	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_unintern(void)
@@ -691,11 +691,11 @@ static int function_package_name(Execute ptr, addr package)
 
 static void type_package_name(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeArgs(&arg, PackageDesigner);
+	GetTypeArgs(&args, PackageDesigner);
 	GetTypeValues(&values, StringNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_package_name(void)
@@ -858,13 +858,13 @@ static int function_package_error_package(Execute ptr, addr var)
 
 static void type_package_error_package(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, PackageError);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, PackageError);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, PackageDesigner);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_package_error_package(void)

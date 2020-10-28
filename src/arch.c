@@ -149,7 +149,7 @@ _g int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
 		check = read_clang(file, (void *)pos, diff, &rsize);
 		/* Error */
 		if (check < 0) {
-			Debug("readcall_arch error");
+			Debug("read_clang error");
 			*ret = 0;
 			return check;
 		}

@@ -48,6 +48,7 @@
 #define arrayp _n(arrayp)
 #define array_simple_p _n(array_simple_p)
 #define array_vector_p _n(array_vector_p)
+#define array_displaced_p _n(array_displaced_p)
 #define array_size_vector_p _n(array_size_vector_p)
 #define array_general_p _n(array_general_p)
 #define array_specialized_p _n(array_specialized_p)
@@ -177,6 +178,7 @@ _g int array_system_p(addr pos);
 _g int arrayp(addr pos);
 _g int array_simple_p(addr pos);
 _g int array_vector_p(addr pos);
+_g int array_displaced_p(addr pos);
 _g int array_size_vector_p(addr pos, size_t size);
 _g int array_general_p(addr pos);
 _g int array_specialized_p(addr pos);

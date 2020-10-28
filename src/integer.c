@@ -811,6 +811,22 @@ _g int fixnum_index_heap_(addr *ret, size_t value)
 	return 0;
 }
 
+_g int GetByte_integer(addr pos, byte *ret)
+{
+	fixnum v;
+
+	if (GetFixnum_signed(pos, &v))
+		goto error;
+	if (! IsByteSign(v))
+		goto error;
+	*ret = (byte)v;
+	return 0;
+
+error:
+	*ret = 0;
+	return 1;
+}
+
 
 /*
  *  standard type

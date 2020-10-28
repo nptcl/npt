@@ -54,6 +54,7 @@
 #define GetIndex_fixnum _n(GetIndex_fixnum)
 #define getindex_fixnum_ _n(getindex_fixnum_)
 #define fixnum_index_heap_ _n(fixnum_index_heap_)
+#define GetByte_integer _n(GetByte_integer)
 #define int8_integer_alloc _n(int8_integer_alloc)
 #define int16_integer_alloc _n(int16_integer_alloc)
 #define int32_integer_alloc _n(int32_integer_alloc)
@@ -80,6 +81,9 @@
 #define integer_length_value_ _n(integer_length_value_)
 #define integer_length_common_ _n(integer_length_common_)
 #define parse_integer_clang _n(parse_integer_clang)
+
+#define IsByteSign(x)  (0 <= (x) && (x) <= 0xFF)
+#define IsByteUnsign(x)  ((x) <= 0xFF)
 
 _g int integerp(addr pos);
 _g int minusp_integerp(addr pos);
@@ -154,6 +158,7 @@ _g int getindex_sign_integer_(addr pos, int *sign, size_t *value, int *ret);
 _g int GetIndex_fixnum(addr pos, size_t *ret);
 _g int getindex_fixnum_(addr pos, size_t *ret);
 _g int fixnum_index_heap_(addr *ret, size_t value);
+_g int GetByte_integer(addr pos, byte *ret);
 
 /* standard type */
 _g void int8_integer_alloc(LocalRoot local, addr *ret, int8_t value);

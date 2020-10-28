@@ -17,7 +17,7 @@ enum read_unicode_result {
 #define READ_UNICODE_DATA 8
 struct read_unicode_struct {
 	byte data[READ_UNICODE_DATA];
-	struct filememory *fm;
+	filestream fm;
 	int hang;
 	unsigned rollback;
 	const byte *src;
@@ -214,7 +214,7 @@ static enum read_unicode_result getc_utf8_normal(
 		return read_unicode_result_error;
 }
 
-_g int read_utf8_normal(struct filememory *fm, unicode *ret)
+_g int read_utf8_normal(filestream fm, unicode *ret)
 {
 	struct read_unicode_struct str;
 
@@ -246,7 +246,7 @@ static enum read_unicode_result getc_utf8_nonblocking(
 		return read_unicode_result_error;
 }
 
-_g int read_utf8_nonblocking(struct filememory *fm, unicode *ret, int *hang)
+_g int read_utf8_nonblocking(filestream fm, unicode *ret, int *hang)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -405,7 +405,7 @@ rollback:
 
 
 /* read_utf16_normal */
-_g int read_utf16_normal(struct filememory *fm, unicode *ret, int be)
+_g int read_utf16_normal(filestream fm, unicode *ret, int be)
 {
 	struct read_unicode_struct str;
 
@@ -420,7 +420,7 @@ _g int read_utf16_normal(struct filememory *fm, unicode *ret, int be)
 
 
 /* read_utf16_nonblocking */
-_g int read_utf16_nonblocking(struct filememory *fm, unicode *ret, int *hang, int be)
+_g int read_utf16_nonblocking(filestream fm, unicode *ret, int *hang, int be)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -519,7 +519,7 @@ rollback:
 
 
 /* read_utf32_normal */
-_g int read_utf32_normal(struct filememory *fm, unicode *ret, int be)
+_g int read_utf32_normal(filestream fm, unicode *ret, int be)
 {
 	struct read_unicode_struct str;
 
@@ -534,7 +534,7 @@ _g int read_utf32_normal(struct filememory *fm, unicode *ret, int be)
 
 
 /* read_utf32_nonblocking */
-_g int read_utf32_nonblocking(struct filememory *fm, unicode *ret, int *hang, int be)
+_g int read_utf32_nonblocking(filestream fm, unicode *ret, int *hang, int be)
 {
 	int check;
 	struct read_unicode_struct str;

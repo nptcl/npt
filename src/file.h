@@ -19,18 +19,25 @@
 #define force_close_stream_file _n(force_close_stream_file)
 #define close_stream_file_ _n(close_stream_file_)
 #define read_binary_file_ _n(read_binary_file_)
+#define read_byte_file_type _n(read_byte_file_type)
 #define read_byte_file_ _n(read_byte_file_)
 #define unread_byte_file_ _n(unread_byte_file_)
 #define write_binary_file_ _n(write_binary_file_)
+#define write_byte_file_type_ _n(write_byte_file_type_)
 #define write_byte_file_ _n(write_byte_file_)
 #define read_char_file_ _n(read_char_file_)
 #define read_hang_file_ _n(read_hang_file_)
 #define write_char_file_ _n(write_char_file_)
 #define element_type_file_ _n(element_type_file_)
+#define file_length_file_type_ _n(file_length_file_type_)
 #define file_length_file_ _n(file_length_file_)
+#define file_position_file_type_ _n(file_position_file_type_)
 #define file_position_file_ _n(file_position_file_)
+#define file_position_start_file_type_ _n(file_position_start_file_type_)
 #define file_position_start_file_ _n(file_position_start_file_)
+#define file_position_end_file_type_ _n(file_position_end_file_type_)
 #define file_position_end_file_ _n(file_position_end_file_)
+#define file_position_set_file_type_ _n(file_position_set_file_type_)
 #define file_position_set_file_ _n(file_position_set_file_)
 #define file_charlen_file_ _n(file_charlen_file_)
 #define file_strlen_file_ _n(file_strlen_file_)
@@ -45,7 +52,8 @@
 #define save_stream_file _n(save_stream_file)
 #define save_stream_system _n(save_stream_system)
 
-#define PtrFileMemory(stream) ((struct filememory *)PtrDataStream(stream))
+#define CheckFileStream(stream) Check(! file_stream_p(stream), "type error")
+#define PtrFileMemory(stream) ((filestream)PtrDataStream(stream))
 
 /*
  *  initialize
@@ -73,18 +81,25 @@ _g int script_header(addr stream);
 _g void force_close_stream_file(addr stream);
 _g int close_stream_file_(addr stream, addr *ret);
 _g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret);
+_g int read_byte_file_type(addr stream, addr *ret);
 _g int read_byte_file_(addr stream, addr *value, int *ret);
 _g int unread_byte_file_(addr stream, byte c);
 _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret);
+_g int write_byte_file_type_(filestream fm, addr pos);
 _g int write_byte_file_(addr stream, addr pos);
 _g int read_char_file_(addr stream, unicode *c, int *ret);
 _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret);
 _g int write_char_file_(addr stream, unicode c);
 _g int element_type_file_(addr stream, addr *ret);
+_g int file_length_file_type_(filestream fm, size_t *value, int *ret);
 _g int file_length_file_(addr file, size_t *value, int *ret);
+_g int file_position_file_type_(addr stream, size_t *value, int *ret);
 _g int file_position_file_(addr stream, size_t *value, int *ret);
+_g int file_position_start_file_type_(addr stream, int *ret);
 _g int file_position_start_file_(addr stream, int *ret);
+_g int file_position_end_file_type_(addr stream, int *ret);
 _g int file_position_end_file_(addr stream, int *ret);
+_g int file_position_set_file_type_(addr stream, size_t value, int *ret);
 _g int file_position_set_file_(addr stream, size_t value, int *ret);
 _g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret);
 _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret);

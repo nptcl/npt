@@ -66,13 +66,13 @@ static int function_char(Execute ptr, addr str, addr pos)
 
 static void type_char(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, String);
+	GetTypeTable(&args, String);
 	GetTypeTable(&type, Index);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_char(void)
@@ -97,13 +97,13 @@ static void defun_char(void)
  */
 static void type_schar(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, SimpleString);
+	GetTypeTable(&args, SimpleString);
 	GetTypeTable(&type, Index);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_schar(void)
@@ -132,14 +132,14 @@ static int function_setf_char(Execute ptr, addr value, addr pos, addr index)
 
 static void type_setf_char(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&values, String);
 	GetTypeTable(&type, Index);
-	typeargs_var3(&arg, arg, values, type);
+	typeargs_var3(&args, args, values, type);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_char(void)
@@ -161,14 +161,14 @@ static void defun_setf_char(void)
 /* (defun (setf schar) (character simple-string index) ...) -> character */
 static void type_setf_schar(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Character);
+	GetTypeTable(&args, Character);
 	GetTypeTable(&values, SimpleString);
 	GetTypeTable(&type, Index);
-	typeargs_var3(&arg, arg, values, type);
+	typeargs_var3(&args, args, values, type);
 	GetTypeValues(&values, Character);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_schar(void)
@@ -199,12 +199,12 @@ static int function_string(Execute ptr, addr var)
 
 static void type_string(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, StringDesigner);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, StringDesigner);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, String);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_string(void)
@@ -780,10 +780,10 @@ static void type_make_string(addr *ret)
 	 *             (element-type t))
 	 *           (values simple-string &rest nil))
 	 */
-	addr arg, values, symbol, type1, type2;
+	addr args, values, symbol, type1, type2;
 
-	/* arg */
-	GetTypeTable(&arg, Index);
+	/* args */
+	GetTypeTable(&args, Index);
 	GetTypeTable(&type1, Character);
 	GetTypeTable(&type2, T);
 	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
@@ -791,10 +791,10 @@ static void type_make_string(addr *ret)
 	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
 	cons_heap(&type2, symbol, type2);
 	list_heap(&type1, type1, type2, NULL);
-	typeargs_var1key(&arg, arg, type1);
+	typeargs_var1key(&args, args, type1);
 	/* values */
 	GetTypeValues(&values, SimpleString);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_string(void)

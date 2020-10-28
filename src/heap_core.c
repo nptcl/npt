@@ -19,7 +19,7 @@
 #define IfReadSize(fm,p,m) IfDebug(readsize_filememory((fm),(p)),(m))
 
 /* save/load array2 */
-static int writearray(struct filememory *fm, const addr *array, size_t size)
+static int writearray(filestream fm, const addr *array, size_t size)
 {
 	size_t i;
 
@@ -29,7 +29,7 @@ static int writearray(struct filememory *fm, const addr *array, size_t size)
 
 	return 0;
 }
-static int readarray(struct filememory *fm, addr *array, size_t size)
+static int readarray(filestream fm, addr *array, size_t size)
 {
 	size_t i;
 
@@ -40,7 +40,7 @@ static int readarray(struct filememory *fm, addr *array, size_t size)
 	return 0;
 }
 
-static int save_object_array2(struct filememory *fm, addr pos)
+static int save_object_array2(filestream fm, addr pos)
 {
 	addr *array;
 	size_t size;
@@ -51,7 +51,7 @@ static int save_object_array2(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_array2(struct filememory *fm, addr pos)
+static int load_object_array2(filestream fm, addr pos)
 {
 	addr *array;
 	size_t size;
@@ -65,7 +65,7 @@ static int load_object_array2(struct filememory *fm, addr pos)
 
 
 /* save/load array4 */
-static int save_object_array4(struct filememory *fm, addr pos)
+static int save_object_array4(filestream fm, addr pos)
 {
 	addr *array;
 	size_t size;
@@ -77,7 +77,7 @@ static int save_object_array4(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_array4(struct filememory *fm, addr pos)
+static int load_object_array4(filestream fm, addr pos)
 {
 	addr *array;
 	size_t size;
@@ -93,7 +93,7 @@ static int load_object_array4(struct filememory *fm, addr pos)
 
 /* save/load array8 */
 #ifdef LISP_ARCH_64BIT
-static int save_object_array8(struct filememory *fm, addr pos)
+static int save_object_array8(filestream fm, addr pos)
 {
 	addr *array;
 	size_t size;
@@ -105,7 +105,7 @@ static int save_object_array8(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_array8(struct filememory *fm, addr pos)
+static int load_object_array8(filestream fm, addr pos)
 {
 	addr *array;
 	size_t size;
@@ -118,12 +118,12 @@ static int load_object_array8(struct filememory *fm, addr pos)
 	return 0;
 }
 #else
-static int save_object_array8(struct filememory *fm, addr pos)
+static int save_object_array8(filestream fm, addr pos)
 {
 	Abort("Invalid object size: size8 [32bit]");
 	return 1;
 }
-static int load_object_array8(struct filememory *fm, addr pos)
+static int load_object_array8(filestream fm, addr pos)
 {
 	Abort("Invalid object size: size8 [32bit]");
 	return 1;
@@ -132,7 +132,7 @@ static int load_object_array8(struct filememory *fm, addr pos)
 
 
 /* save/load smallsize */
-static int save_object_smallsize(struct filememory *fm, addr pos)
+static int save_object_smallsize(filestream fm, addr pos)
 {
 	addr *array;
 	byte *body;
@@ -149,7 +149,7 @@ static int save_object_smallsize(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_smallsize(struct filememory *fm, addr pos)
+static int load_object_smallsize(filestream fm, addr pos)
 {
 	addr *array;
 	byte *body;
@@ -169,7 +169,7 @@ static int load_object_smallsize(struct filememory *fm, addr pos)
 
 
 /* save/load arraybody */
-static int save_object_arraybody(struct filememory *fm, addr pos)
+static int save_object_arraybody(filestream fm, addr pos)
 {
 	addr *array;
 	byte *body;
@@ -187,7 +187,7 @@ static int save_object_arraybody(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_arraybody(struct filememory *fm, addr pos)
+static int load_object_arraybody(filestream fm, addr pos)
 {
 	addr *array;
 	byte *body;
@@ -208,7 +208,7 @@ static int load_object_arraybody(struct filememory *fm, addr pos)
 
 
 /* save/load body2 */
-static int save_object_body2(struct filememory *fm, addr pos)
+static int save_object_body2(filestream fm, addr pos)
 {
 	size_t size;
 
@@ -217,7 +217,7 @@ static int save_object_body2(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_body2(struct filememory *fm, addr pos)
+static int load_object_body2(filestream fm, addr pos)
 {
 	size_t size;
 
@@ -229,7 +229,7 @@ static int load_object_body2(struct filememory *fm, addr pos)
 
 
 /* save/load body4 */
-static int save_object_body4(struct filememory *fm, addr pos)
+static int save_object_body4(filestream fm, addr pos)
 {
 	size_t size;
 
@@ -238,7 +238,7 @@ static int save_object_body4(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_body4(struct filememory *fm, addr pos)
+static int load_object_body4(filestream fm, addr pos)
 {
 	size_t size;
 
@@ -251,7 +251,7 @@ static int load_object_body4(struct filememory *fm, addr pos)
 
 /* save/load body8 */
 #ifdef LISP_ARCH_64BIT
-static int save_object_body8(struct filememory *fm, addr pos)
+static int save_object_body8(filestream fm, addr pos)
 {
 	size_t size;
 
@@ -260,7 +260,7 @@ static int save_object_body8(struct filememory *fm, addr pos)
 
 	return 0;
 }
-static int load_object_body8(struct filememory *fm, addr pos)
+static int load_object_body8(filestream fm, addr pos)
 {
 	size_t size;
 
@@ -271,12 +271,12 @@ static int load_object_body8(struct filememory *fm, addr pos)
 	return 0;
 }
 #else
-static int save_object_body8(struct filememory *fm, addr pos)
+static int save_object_body8(filestream fm, addr pos)
 {
 	Abort("Invalid object size: size8 [32bit]");
 	return 1;
 }
-static int load_object_body8(struct filememory *fm, addr pos)
+static int load_object_body8(filestream fm, addr pos)
 {
 	Abort("Invalid object size: size8 [32bit]");
 	return 1;
@@ -285,12 +285,12 @@ static int load_object_body8(struct filememory *fm, addr pos)
 
 
 /* save/load object */
-typedef int (*save_object_call)(struct filememory *, addr);
-typedef int (*load_object_call)(struct filememory *, addr);
+typedef int (*save_object_call)(filestream , addr);
+typedef int (*load_object_call)(filestream , addr);
 static save_object_call Heap_SaveObject[LISPSIZE_SIZE];
 static load_object_call Heap_LoadObject[LISPSIZE_SIZE];
 
-static int save_object(struct filememory *fm, addr pos, size_t *ret)
+static int save_object(filestream fm, addr pos, size_t *ret)
 {
 	unsigned index;
 
@@ -300,7 +300,7 @@ static int save_object(struct filememory *fm, addr pos, size_t *ret)
 	Check(LISPSIZE_SIZE <= index, "size error");
 	return (Heap_SaveObject[index])(fm, pos);
 }
-static int load_object(struct filememory *fm, addr pos, size_t *ret)
+static int load_object(filestream fm, addr pos, size_t *ret)
 {
 	unsigned index;
 
@@ -318,13 +318,13 @@ static int load_object(struct filememory *fm, addr pos, size_t *ret)
 
 
 /* save/load space1 */
-static int save_space1(struct filememory *fm, addr pos, size_t *ret)
+static int save_space1(filestream fm, addr pos, size_t *ret)
 {
 	GetSizeSpace1(pos, ret);
 	IfWriteCheck(fm, pos, 2UL, "writecheck error.");
 	return 0;
 }
-static int load_space1(struct filememory *fm, addr pos, size_t *ret)
+static int load_space1(filestream fm, addr pos, size_t *ret)
 {
 	IfDebug(getc_filememory(fm, pos + 1), "readcheck error.");
 	GetSizeSpace1(pos, ret);
@@ -333,7 +333,7 @@ static int load_space1(struct filememory *fm, addr pos, size_t *ret)
 
 
 /* save/load space */
-static int save_space(struct filememory *fm, addr pos, size_t *ret)
+static int save_space(filestream fm, addr pos, size_t *ret)
 {
 	size_t size;
 
@@ -343,7 +343,7 @@ static int save_space(struct filememory *fm, addr pos, size_t *ret)
 	IfWriteCheck(fm, &size, IdxSize, "writecheck error.");
 	return 0;
 }
-static int load_space(struct filememory *fm, addr pos, size_t *ret)
+static int load_space(filestream fm, addr pos, size_t *ret)
 {
 	IfReadCheck(fm, pos + 8UL, IdxSize, "readcheck error.");
 	GetSizeSpace(pos, ret);
@@ -352,7 +352,7 @@ static int load_space(struct filememory *fm, addr pos, size_t *ret)
 
 
 /* save/load reserved */
-static int save_reserved(struct filememory *fm, addr pos, size_t *ret)
+static int save_reserved(filestream fm, addr pos, size_t *ret)
 {
 	size_t size;
 
@@ -362,7 +362,7 @@ static int save_reserved(struct filememory *fm, addr pos, size_t *ret)
 	IfWriteCheck(fm, &size, IdxSize, "writecheck error.");
 	return 0;
 }
-static int load_reserved(struct filememory *fm, addr pos, size_t *ret)
+static int load_reserved(filestream fm, addr pos, size_t *ret)
 {
 	IfReadCheck(fm, pos + 8UL, IdxSize, "readcheck error.");
 	GetSizeReserved(pos, ret);
@@ -371,7 +371,7 @@ static int load_reserved(struct filememory *fm, addr pos, size_t *ret)
 
 
 /* save-dump-stream */
-static int save_object_stream(struct filememory *fm, addr pos, size_t *ret)
+static int save_object_stream(filestream fm, addr pos, size_t *ret)
 {
 	if (save_stream(pos)) {
 		Debug("save_stream error");
@@ -387,14 +387,14 @@ static int save_object_stream(struct filememory *fm, addr pos, size_t *ret)
 
 
 /* save/load symstack */
-static int save_symstack(struct filememory *fm, addr pos, size_t *ret)
+static int save_symstack(filestream fm, addr pos, size_t *ret)
 {
 	*ret = getobjectlength(pos);
 	IfWriteCheck(fm, pos, 16UL, "writecheck error: save_symstack");
 	return 0;
 }
 
-static int load_symstack(struct filememory *fm, addr pos, size_t *ret)
+static int load_symstack(filestream fm, addr pos, size_t *ret)
 {
 	addr *array;
 	size_t size, i;
@@ -411,7 +411,7 @@ static int load_symstack(struct filememory *fm, addr pos, size_t *ret)
 
 
 /* save/load dump */
-static int save_dump(struct filememory *fm)
+static int save_dump(filestream fm)
 {
 	addr pos;
 	size_t size;
@@ -449,7 +449,7 @@ static int save_dump(struct filememory *fm)
 
 	return 0;
 }
-static int load_dump(struct filememory *fm)
+static int load_dump(filestream fm)
 {
 	byte c;
 	addr pos;
@@ -494,7 +494,7 @@ static int load_dump(struct filememory *fm)
 
 
 /* save/load info */
-static int save_info(struct filememory *fm)
+static int save_info(filestream fm)
 {
 	addr pos;
 	struct heap_addr *str;
@@ -512,7 +512,7 @@ static int save_info(struct filememory *fm)
 	return 0;
 }
 
-static int load_info(struct filememory *fm)
+static int load_info(filestream fm)
 {
 	addr pos;
 	struct heap_addr *str;
@@ -533,7 +533,7 @@ static int load_info(struct filememory *fm)
 
 
 /* save/load data */
-static int save_data(struct filememory *fm)
+static int save_data(filestream fm)
 {
 	IfWriteSize(fm, heap_object, "writeptr error: heap_object");
 	IfWriteSize(fm, heap_count, "writeptr error: heap_count");
@@ -549,7 +549,7 @@ static int save_data(struct filememory *fm)
 
 	return 0;
 }
-static int load_data(struct filememory *fm)
+static int load_data(filestream fm)
 {
 	IfReadSize(fm, &heap_object, "readptr error: heap_object");
 	IfReadSize(fm, &heap_count, "readptr error: heap_count");
@@ -568,7 +568,7 @@ static int load_data(struct filememory *fm)
 
 
 /* save/load info */
-_g int save_heap(struct filememory *fm)
+_g int save_heap(filestream fm)
 {
 	if (save_data(fm)) {
 		Debug("save_data error.");
@@ -581,7 +581,7 @@ _g int save_heap(struct filememory *fm)
 
 	return 0;
 }
-_g int load_heap(struct filememory *fm)
+_g int load_heap(filestream fm)
 {
 	if (load_store_init()) {
 		Debug("load_store_init error.");

@@ -216,7 +216,7 @@ finish:
 	return 0;
 }
 
-static inline int readcall_arch(file_type file, void *pos, size_t size, size_t *ret)
+static inline int read_arch(file_type file, void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 
@@ -236,8 +236,7 @@ static inline int readcall_arch(file_type file, void *pos, size_t size, size_t *
 	}
 }
 
-static inline int writecall_arch(file_type file,
-		const void *pos, size_t size, size_t *ret)
+static inline int write_arch(file_type file, const void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 

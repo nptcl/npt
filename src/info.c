@@ -759,7 +759,8 @@ static void infobit_symbol(addr pos)
 		len = 0;
 		for (i = 0; i < size; i++) {
 			c = RdByte(body + i);
-			if (c < 0) return;
+			if (c < 0)
+				return;
 			buffer[i + len] = c;
 			if (20 <= i) {
 				buffer[i + len + 1] = '.';
@@ -777,7 +778,8 @@ static void infobit_symbol(addr pos)
 	posbodylen(name, &body, &size);
 	for (i = 0; i < size; i++) {
 		c = RdByte(body + i);
-		if (c < 0) return;
+		if (c < 0)
+			return;
 		buffer[i + len] = c;
 		if (20 <= i) {
 			buffer[i + len + 1] = '.';

@@ -3,6 +3,7 @@
 #include "condition_define.h"
 #include "constant.h"
 #include "file.h"
+#include "integer.h"
 #include "stream.h"
 #include "stream_function.h"
 #include "stream_object.h"
@@ -185,7 +186,7 @@ _g int read_unsigned8_stream_(addr stream, byte *value, int *ret)
 		*value = 0;
 		return Result(ret, 1);
 	}
-	if (GetFixnum_signed(pos, &v) || v < 0 || 0xFF < v) {
+	if (GetFixnum_signed(pos, &v) || ! IsByteSign(v)) {
 		external_format_file(stream, &type);
 		return call_type_error_(NULL, pos, type);
 	}

@@ -78,12 +78,12 @@ static int function_make_symbol(Execute ptr, addr var)
 
 static void type_make_symbol(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, String);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, String);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_make_symbol(void)
@@ -112,13 +112,13 @@ static int function_copy_symbol(Execute ptr, addr var, addr opt)
 
 static void type_copy_symbol(addr *ret)
 {
-	addr arg, values, boolean;
+	addr args, values, boolean;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&boolean, Boolean);
-	typeargs_var1opt1(&arg, arg, boolean);
+	typeargs_var1opt1(&args, args, boolean);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_copy_symbol(void)
@@ -149,14 +149,14 @@ static int function_gensym(Execute ptr, addr opt)
 
 static void type_gensym(addr *ret)
 {
-	addr arg, values, pos;
+	addr args, values, pos;
 
-	GetTypeTable(&arg, String);
+	GetTypeTable(&args, String);
 	GetTypeTable(&pos, Intplus);
-	type2or_heap(arg, pos, &arg);
-	typeargs_opt1(&arg, arg);
+	type2or_heap(args, pos, &args);
+	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_gensym(void)
@@ -188,13 +188,13 @@ static int function_gentemp(Execute ptr, addr opt1, addr opt2)
 
 static void type_gentemp(addr *ret)
 {
-	addr arg, values, pos;
+	addr args, values, pos;
 
-	GetTypeTable(&arg, String);
+	GetTypeTable(&args, String);
 	GetTypeTable(&pos, PackageDesigner);
-	typeargs_opt2(&arg, arg, pos);
+	typeargs_opt2(&args, args, pos);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_gentemp(void)
@@ -223,12 +223,12 @@ static int function_symbol_function(Execute ptr, addr var)
 
 static void type_symbol_function(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Function);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_symbol_function(void)
@@ -257,13 +257,13 @@ static int function_setf_symbol_function(Execute ptr, addr value, addr symbol)
 
 static void type_setf_symbol_function(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Function);
+	GetTypeTable(&args, Function);
 	GetTypeTable(&type, Symbol);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, Function);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_symbol_function(void)
@@ -292,12 +292,12 @@ static int function_symbol_value(Execute ptr, addr var)
 
 static void type_symbol_value(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_symbol_value(void)
@@ -326,13 +326,13 @@ static int function_setf_symbol_value(Execute ptr, addr value, addr symbol)
 
 static void type_setf_symbol_value(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&type, Symbol);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_symbol_value(void)
@@ -361,12 +361,12 @@ static int function_symbol_plist(Execute ptr, addr var)
 
 static void type_symbol_plist(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_symbol_plist(void)
@@ -395,13 +395,13 @@ static int function_setf_symbol_plist(Execute ptr, addr value, addr symbol)
 
 static void type_setf_symbol_plist(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, List);
+	GetTypeTable(&args, List);
 	GetTypeTable(&type, Symbol);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_symbol_plist(void)
@@ -430,12 +430,12 @@ static int function_symbol_name(Execute ptr, addr var)
 
 static void type_symbol_name(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, String);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_symbol_name(void)
@@ -466,12 +466,12 @@ static int function_symbol_package(Execute ptr, addr var)
 
 static void type_symbol_package(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, PackageNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_symbol_package(void)
@@ -504,13 +504,13 @@ static int function_get(Execute ptr, addr var1, addr var2, addr opt)
 
 static void type_get(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&type, T);
-	typeargs_var2opt1(&arg, arg, type, type);
+	typeargs_var2opt1(&args, args, type, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_get(void)
@@ -545,13 +545,13 @@ static int function_setf_get(Execute ptr,
 
 static void type_setf_get(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&type, T);
-	typeargs_var3opt1(&arg, type, arg, type, type);
+	typeargs_var3opt1(&args, type, args, type, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_get(void)
@@ -583,13 +583,13 @@ static int function_remprop(Execute ptr, addr symbol, addr key)
 
 static void type_remprop(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&type, T);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_remprop(void)
@@ -642,12 +642,12 @@ static int function_makunbound(Execute ptr, addr symbol)
 
 static void type_makunbound(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Symbol);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, Symbol);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_makunbound(void)
@@ -676,13 +676,13 @@ static int function_set(Execute ptr, addr symbol, addr value)
 
 static void type_set(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&type, T);
-	typeargs_var2(&arg, arg, type);
+	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_set(void)

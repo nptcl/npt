@@ -1287,6 +1287,7 @@ enum pointer_index {
 	p_defmacro_syscall_with_input_from_memory,
 	p_defmacro_syscall_with_output_to_memory,
 	p_defun_syscall_get_output_stream_memory,
+	p_defun_syscall_byte_integer,
 	p_defun_syscall_extension,
 
 #ifdef LISP_EXTENSION

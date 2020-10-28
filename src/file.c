@@ -8,6 +8,7 @@
 #include "encode.h"
 #include "execute.h"
 #include "file.h"
+#include "file_buffering.h"
 #include "file_type.h"
 #include "file_memory.h"
 #include "files.h"
@@ -21,10 +22,10 @@
  */
 static void standard_constant_stream(addr *stream,
 		enum StreamType type,
-		void (*call)(struct filememory *))
+		void (*call)(filestream))
 {
 	addr pos;
-	struct filememory *fm;
+	filestream fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
@@ -35,7 +36,7 @@ static void standard_constant_stream(addr *stream,
 
 static void encode_standard_stream(addr pos)
 {
-	struct filememory *fm;
+	filestream fm;
 	struct FileEncode *encode;
 
 	fm = PtrFileMemory(pos);
@@ -88,9 +89,9 @@ _g int script_header(addr stream)
 {
 	int check;
 	byte a, b;
-	struct filememory *fm;
+	filestream fm;
 
-	CheckType(stream, LISPTYPE_STREAM);
+	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	/* read UTF-8 BOM */
 	if (readbom8_encode(fm) < 0)
@@ -125,21 +126,20 @@ _g int script_header(addr stream)
 /*
  *  stream function
  */
-#define CheckFileStream(stream) Check(! file_stream_p(stream), "type error")
-
 _g void force_close_stream_file(addr stream)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
-	if (open_stream_p(stream)) {
-		fm = PtrFileMemory(stream);
-		(void)close_filememory(fm);
-		force_close_stream(stream);
-	}
+	if (! open_stream_p(stream))
+		return;
+
+	fm = PtrFileMemory(stream);
+	(void)close_filememory(fm);
+	force_close_stream(stream);
 }
 
-static int close_stream_abort(addr stream)
+static int close_stream_abort_(addr stream)
 {
 	addr check;
 	Execute ptr;
@@ -157,16 +157,25 @@ static int close_stream_abort(addr stream)
 _g int close_stream_file_(addr stream, addr *ret)
 {
 	int outputp;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
-	if (open_stream_p(stream)) {
-		fm = PtrFileMemory(stream);
-		outputp = (fm->direct == filememory_output);
-		if (close_filememory(fm))
-			return fmte_("close error", NULL);
-		if (outputp)
-			Return(close_stream_abort(stream));
+	if (! open_stream_p(stream))
+		return Result(ret, T);
+
+	/* buffering */
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return close_stream_buffering_(stream, ret);
+
+	/* filememory */
+	outputp = (fm->direct == filememory_output);
+	if (close_filememory(fm)) {
+		*ret = Nil;
+		return fmte_("close error", NULL);
+	}
+	if (outputp) {
+		Return(close_stream_abort_(stream));
 	}
 
 	return Result(ret, T);
@@ -175,20 +184,23 @@ _g int close_stream_file_(addr stream, addr *ret)
 _g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = readforce_filememory(fm, pos, size, ret);
+	if (fm->redirect)
+		return read_binary_buffering_(stream, pos, size, ret);
+
+	check = readf_filememory(fm, pos, size, ret);
 	if (check < 0)
 		return fmte_("read error", NULL);
 
-	return check;
+	return 0;
 }
 
 
 /* read-byte */
-static int read_byte_file_u8(struct filememory *fm, addr *ret)
+static int read_byte_file_u8(filestream fm, addr *ret)
 {
 	int check;
 	byte v;
@@ -203,7 +215,7 @@ static int read_byte_file_u8(struct filememory *fm, addr *ret)
 	return 0;
 }
 
-static int read_byte_file_u16(struct filememory *fm, addr *ret)
+static int read_byte_file_u16(filestream fm, addr *ret)
 {
 	int check;
 	uint16_t v;
@@ -218,7 +230,7 @@ static int read_byte_file_u16(struct filememory *fm, addr *ret)
 	return 0;
 }
 
-static int read_byte_file_u32(struct filememory *fm, addr *ret)
+static int read_byte_file_u32(filestream fm, addr *ret)
 {
 	int check;
 	uint32_t v;
@@ -238,7 +250,7 @@ static int read_byte_file_u32(struct filememory *fm, addr *ret)
 }
 
 #ifdef LISP_64BIT
-static int read_byte_file_u64(struct filememory *fm, addr *ret)
+static int read_byte_file_u64(filestream fm, addr *ret)
 {
 	int check;
 	uint64_t v;
@@ -254,7 +266,7 @@ static int read_byte_file_u64(struct filememory *fm, addr *ret)
 }
 #endif
 
-static int read_byte_file_s8(struct filememory *fm, addr *ret)
+static int read_byte_file_s8(filestream fm, addr *ret)
 {
 	int check;
 	signed char v;
@@ -269,7 +281,7 @@ static int read_byte_file_s8(struct filememory *fm, addr *ret)
 	return 0;
 }
 
-static int read_byte_file_s16(struct filememory *fm, addr *ret)
+static int read_byte_file_s16(filestream fm, addr *ret)
 {
 	int check;
 	int16_t v;
@@ -284,7 +296,7 @@ static int read_byte_file_s16(struct filememory *fm, addr *ret)
 	return 0;
 }
 
-static int read_byte_file_s32(struct filememory *fm, addr *ret)
+static int read_byte_file_s32(filestream fm, addr *ret)
 {
 	int check;
 	int32_t v;
@@ -300,7 +312,7 @@ static int read_byte_file_s32(struct filememory *fm, addr *ret)
 }
 
 #ifdef LISP_64BIT
-static int read_byte_file_s64(struct filememory *fm, addr *ret)
+static int read_byte_file_s64(filestream fm, addr *ret)
 {
 	int check;
 	int64_t v;
@@ -316,9 +328,9 @@ static int read_byte_file_s64(struct filememory *fm, addr *ret)
 }
 #endif
 
-static int read_byte_file_type(addr stream, addr *ret)
+_g int read_byte_file_type(addr stream, addr *ret)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	fm = PtrFileMemory(stream);
 	switch (fm->encode.type) {
@@ -357,8 +369,13 @@ static int read_byte_file_type(addr stream, addr *ret)
 _g int read_byte_file_(addr stream, addr *value, int *ret)
 {
 	int check;
+	filestream fm;
 
 	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return read_byte_buffering_(stream, value, ret);
+
 	check = read_byte_file_type(stream, value);
 	if (check < 0)
 		return fmte_("read-byte-file error", NULL);
@@ -366,10 +383,9 @@ _g int read_byte_file_(addr stream, addr *value, int *ret)
 	return Result(ret, check);
 }
 
-
 _g int unread_byte_file_(addr stream, byte c)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -382,10 +398,13 @@ _g int unread_byte_file_(addr stream, byte c)
 _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return write_binary_buffering_(stream, pos, size, ret);
+
 	check = write_filememory(fm, pos, size, ret);
 	if (check)
 		return fmte_("write error", NULL);
@@ -394,7 +413,7 @@ _g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret
 }
 
 /* write-byte */
-static int write_byte_file_u8_(struct filememory *fm, addr pos)
+static int write_byte_file_u8_(filestream fm, addr pos)
 {
 	fixnum v;
 
@@ -402,13 +421,15 @@ static int write_byte_file_u8_(struct filememory *fm, addr pos)
 		goto error;
 	if (0xFF < v)
 		goto error;
-	return putc_filememory(fm, (byte)v);
+	if (putc_filememory(fm, (byte)v))
+		goto error;
+	return 0;
 
 error:
 	return fmte_("Cannot write the value ~S.", pos, NULL);
 }
 
-static int write_byte_file_u16_(struct filememory *fm, addr pos)
+static int write_byte_file_u16_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -423,9 +444,9 @@ static int write_byte_file_u16_(struct filememory *fm, addr pos)
 	u16 = (uint16_t)v;
 	check = write_filememory(fm, (const void *)&u16, 2, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 2)
-		return -1;
+		goto error;
 	return 0;
 
 error:
@@ -433,7 +454,7 @@ error:
 }
 
 #ifdef LISP_64BIT
-static int write_byte_file_u32_(struct filememory *fm, addr pos)
+static int write_byte_file_u32_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -448,16 +469,16 @@ static int write_byte_file_u32_(struct filememory *fm, addr pos)
 	u32 = (uint32_t)v;
 	check = write_filememory(fm, (const void *)&u32, 4, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 4)
-		return -1;
+		goto error;
 	return 0;
 
 error:
 	return fmte_("Cannot write the value ~S.", pos, NULL);
 }
 #else
-static int write_byte_file_u32_(struct filememory *fm, addr pos)
+static int write_byte_file_u32_(filestream fm, addr pos)
 {
 	int check;
 	fixed v;
@@ -470,9 +491,9 @@ static int write_byte_file_u32_(struct filememory *fm, addr pos)
 
 	check = write_filememory(fm, (const void *)&v, 4, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 4)
-		return -1;
+		goto error;
 	return 0;
 
 error:
@@ -481,7 +502,7 @@ error:
 #endif
 
 #ifdef LISP_64BIT
-static int write_byte_file_u64_(struct filememory *fm, addr pos)
+static int write_byte_file_u64_(filestream fm, addr pos)
 {
 	int check;
 	fixed v;
@@ -494,9 +515,9 @@ static int write_byte_file_u64_(struct filememory *fm, addr pos)
 
 	check = write_filememory(fm, (const void *)&v, 8, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 8)
-		return -1;
+		goto error;
 	return 0;
 
 error:
@@ -504,7 +525,7 @@ error:
 }
 #endif
 
-static int write_byte_file_s8_(struct filememory *fm, addr pos)
+static int write_byte_file_s8_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -519,16 +540,16 @@ static int write_byte_file_s8_(struct filememory *fm, addr pos)
 	u8 = (int8_t)v;
 	check = write_filememory(fm, (const void *)&u8, 1, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 1)
-		return -1;
+		goto error;
 	return 0;
 
 error:
 	return fmte_("Cannot write the value ~S.", pos, NULL);
 }
 
-static int write_byte_file_s16_(struct filememory *fm, addr pos)
+static int write_byte_file_s16_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -543,9 +564,9 @@ static int write_byte_file_s16_(struct filememory *fm, addr pos)
 	u16 = (int16_t)v;
 	check = write_filememory(fm, (const void *)&u16, 2, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 2)
-		return -1;
+		goto error;
 	return 0;
 
 error:
@@ -553,7 +574,7 @@ error:
 }
 
 #ifdef LISP_64BIT
-static int write_byte_file_s32_(struct filememory *fm, addr pos)
+static int write_byte_file_s32_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -568,16 +589,16 @@ static int write_byte_file_s32_(struct filememory *fm, addr pos)
 	u32 = (int32_t)v;
 	check = write_filememory(fm, (const void *)&u32, 4, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 4)
-		return -1;
+		goto error;
 	return 0;
 
 error:
 	return fmte_("Cannot write the value ~S.", pos, NULL);
 }
 #else
-static int write_byte_file_s32_(struct filememory *fm, addr pos)
+static int write_byte_file_s32_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -588,9 +609,9 @@ static int write_byte_file_s32_(struct filememory *fm, addr pos)
 
 	check = write_filememory(fm, (const void *)&v, 4, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 4)
-		return -1;
+		goto error;
 	return 0;
 
 error:
@@ -599,7 +620,7 @@ error:
 #endif
 
 #ifdef LISP_64BIT
-static int write_byte_file_s64_(struct filememory *fm, addr pos)
+static int write_byte_file_s64_(filestream fm, addr pos)
 {
 	int check;
 	fixnum v;
@@ -610,9 +631,9 @@ static int write_byte_file_s64_(struct filememory *fm, addr pos)
 
 	check = write_filememory(fm, (const void *)&v, 8, &size);
 	if (check)
-		return check;
+		goto error;
 	if (size != 8)
-		return -1;
+		goto error;
 	return 0;
 
 error:
@@ -620,12 +641,8 @@ error:
 }
 #endif
 
-_g int write_byte_file_(addr stream, addr pos)
+_g int write_byte_file_type_(filestream fm, addr pos)
 {
-	struct filememory *fm;
-
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
 	switch (fm->encode.type) {
 		case EncodeType_binary:
 			return write_byte_file_u8_(fm, pos);
@@ -658,6 +675,18 @@ _g int write_byte_file_(addr stream, addr pos)
 	}
 }
 
+_g int write_byte_file_(addr stream, addr pos)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return write_byte_buffering_(stream, pos);
+
+	return write_byte_file_type_(fm, pos);
+}
+
 
 /*
  *  character
@@ -665,10 +694,13 @@ _g int write_byte_file_(addr stream, addr pos)
 _g int read_char_file_(addr stream, unicode *c, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return read_char_buffering_(stream, c, ret);
+
 	Return(read_char_encode_(fm, c, &check));
 	if (check < 0)
 		return fmte_("read_char_encode error", NULL);
@@ -679,10 +711,13 @@ _g int read_char_file_(addr stream, unicode *c, int *ret)
 _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return read_hang_buffering_(stream, c, hang, ret);
+
 	Return(read_hang_encode_(fm, c, hang, &check));
 	if (check < 0)
 		return fmte_("read_hang_encode error", NULL);
@@ -692,10 +727,13 @@ _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
 
 _g int write_char_file_(addr stream, unicode c)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return write_char_buffering_(stream, c);
+
 	return write_char_encode_(fm, c);
 }
 
@@ -705,13 +743,10 @@ _g int element_type_file_(addr stream, addr *ret)
 	return 0;
 }
 
-_g int file_length_file_(addr stream, size_t *value, int *ret)
+_g int file_length_file_type_(filestream fm, size_t *value, int *ret)
 {
 	int check;
-	struct filememory *fm;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm)) {
 		*value = 0;
 		*ret = 0;
@@ -727,10 +762,22 @@ _g int file_length_file_(addr stream, size_t *value, int *ret)
 	return Result(ret, check);
 }
 
-_g int file_position_file_(addr stream, size_t *value, int *ret)
+_g int file_length_file_(addr stream, size_t *value, int *ret)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return file_length_buffering_(stream, value, ret);
+
+	return file_length_file_type_(fm, value, ret);
+}
+
+_g int file_position_file_type_(addr stream, size_t *value, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 	struct StructStream *ptr;
 	size_t size, unread;
 
@@ -770,10 +817,22 @@ _g int file_position_file_(addr stream, size_t *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int file_position_start_file_(addr stream, int *ret)
+_g int file_position_file_(addr stream, size_t *value, int *ret)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return file_position_buffering_(stream, value, ret);
+
+	return file_position_file_type_(stream, value, ret);
+}
+
+_g int file_position_start_file_type_(addr stream, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -793,10 +852,22 @@ _g int file_position_start_file_(addr stream, int *ret)
 	return Result(ret, check);
 }
 
-_g int file_position_end_file_(addr stream, int *ret)
+_g int file_position_start_file_(addr stream, int *ret)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return file_position_start_buffering_(stream, ret);
+
+	return file_position_start_file_type_(stream, ret);
+}
+
+_g int file_position_end_file_type_(addr stream, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -816,10 +887,22 @@ _g int file_position_end_file_(addr stream, int *ret)
 	return Result(ret, check);
 }
 
-_g int file_position_set_file_(addr stream, size_t value, int *ret)
+_g int file_position_end_file_(addr stream, int *ret)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return file_position_end_buffering_(stream, ret);
+
+	return file_position_end_file_type_(stream, ret);
+}
+
+_g int file_position_set_file_type_(addr stream, size_t value, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -839,10 +922,22 @@ _g int file_position_set_file_(addr stream, size_t value, int *ret)
 	return Result(ret, check);
 }
 
+_g int file_position_set_file_(addr stream, size_t value, int *ret)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return file_position_set_buffering_(stream, value, ret);
+
+	return file_position_set_file_type_(stream, value, ret);
+}
+
 _g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret)
 {
 	int check;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -856,7 +951,7 @@ _g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret)
 
 _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -884,7 +979,7 @@ static void external_format_signed_byte(fixnum v, addr *ret)
 _g void external_format_file(addr stream, addr *ret)
 {
 	enum EncodeBom bom;
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -973,7 +1068,7 @@ _g void external_format_file(addr stream, addr *ret)
 
 _g int listen_file_(addr stream, int *ret)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	if (PtrStructStream(stream)->unread_check)
@@ -984,7 +1079,7 @@ _g int listen_file_(addr stream, int *ret)
 
 _g int clear_input_file_(addr stream)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	PtrStructStream(stream)->unread_check = 0;
@@ -997,10 +1092,13 @@ _g int clear_input_file_(addr stream)
 
 _g int finish_output_file_(addr stream)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return finish_output_buffering_(stream);
+
 	if (flush_filememory(fm))
 		return fmte_("flush-filememory error.", NULL);
 
@@ -1014,7 +1112,7 @@ _g int force_output_file_(addr stream)
 
 _g int clear_output_file_(addr stream)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
@@ -1026,10 +1124,13 @@ _g int clear_output_file_(addr stream)
 
 _g int exitpoint_file_(addr stream)
 {
-	struct filememory *fm;
+	filestream fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	if (fm->redirect)
+		return exitpoint_buffering_(stream);
+
 	exitpoint_filememory(fm);
 	return 0;
 }
@@ -1046,7 +1147,7 @@ _g int termsize_file_(addr stream, size_t *value, int *ret)
  */
 _g int save_stream_file(addr pos)
 {
-	struct filememory *fm;
+	filestream fm;
 	struct StructStream *ptr;
 
 	fm = PtrFileMemory(pos);

@@ -40,8 +40,8 @@ _g void build_lisproot(Execute ptr);
 _g void buildlisp(Execute ptr);
 
 /* core */
-_g int save_lisp(struct filememory *fm);
-_g int load_lisp(struct filememory *fm);
+_g int save_lisp(filestream fm);
+_g int load_lisp(filestream fm);
 
 #endif
 
