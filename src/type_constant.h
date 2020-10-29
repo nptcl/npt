@@ -165,6 +165,8 @@ enum TypeTable {
 	TypeTable_ConditionDesigner,
 	TypeTable_Index,
 	TypeTable_IndexNull,
+	TypeTable_Plus1,
+	TypeTable_Plus1Null,
 	TypeTable_Intplus,
 	TypeTable_IntplusNull,
 	TypeTable_InputStream,

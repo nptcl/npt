@@ -1250,20 +1250,30 @@ static void defun_upgraded_open_element_type(void)
 }
 
 
-/* (defun make-memory-input-stream (vector) ...) -> stream-memory */
-static int syscall_make_memory_input_stream(Execute ptr, addr var)
+/* (defun make-memory-input-stream (sequence &key size array) ...) -> stream
+ *   sequence  sequence
+ *   size      (or null (integer 1 *))
+ *   array     (or null (integer 1 *))
+ *   stream    input-memory-stream
+ */
+static int syscall_make_memory_input_stream(Execute ptr, addr var, addr rest)
 {
-	Return(make_memory_input_stream_syscode_(var, &var));
+	Return(make_memory_input_stream_syscode_(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
 
 static void type_syscall_make_memory_input_stream(addr *ret)
 {
-	addr args, values;
+	addr args, values, key1, key2, key;
 
-	GetTypeTable(&args, Vector);
-	typeargs_var1(&args, args);
+	/* key */
+	KeyTypeTable(&key1, SIZE, Plus1Null);
+	KeyTypeTable(&key2, ARRAY, Plus1Null);
+	list_heap(&key, key1, key2, NULL);
+	/* type */
+	GetTypeTable(&args, Sequence);
+	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, MemoryStream);
 	type_compiled_heap(args, values, ret);
 }
@@ -1275,7 +1285,7 @@ static void defun_make_memory_input_stream(void)
 	/* function */
 	GetConst(SYSTEM_MAKE_MEMORY_INPUT_STREAM, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var1(pos, p_defun_syscall_make_memory_input_stream);
+	setcompiled_var1dynamic(pos, p_defun_syscall_make_memory_input_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_syscall_make_memory_input_stream(&type);
@@ -1284,20 +1294,28 @@ static void defun_make_memory_input_stream(void)
 }
 
 
-/* (defun make-memroy-output-stream () ...) -> stream-memory */
-static int syscall_make_memory_output_stream(Execute ptr)
+/* (defun make-memroy-output-stream (&key size array) ...) -> stream
+ *   size      (or null (integer 1 *))
+ *   array     (or null (integer 1 *))
+ *   stream    output-memory-stream
+ */
+static int syscall_make_memory_output_stream(Execute ptr, addr rest)
 {
-	addr pos;
-	Return(make_memory_output_stream_syscode_(&pos));
-	setresult_control(ptr, pos);
+	Return(make_memory_output_stream_syscode_(rest, &rest));
+	setresult_control(ptr, rest);
 	return 0;
 }
 
 static void type_syscall_make_memory_output_stream(addr *ret)
 {
-	addr args, values;
+	addr args, values, key1, key2, key;
 
-	typeargs_empty(&args);
+	/* key */
+	KeyTypeTable(&key1, SIZE, Plus1Null);
+	KeyTypeTable(&key2, ARRAY, Plus1Null);
+	list_heap(&key, key1, key2, NULL);
+	/* type */
+	typeargs_key(&args, key);
 	GetTypeValues(&values, MemoryStream);
 	type_compiled_heap(args, values, ret);
 }
@@ -1309,7 +1327,7 @@ static void defun_make_memory_output_stream(void)
 	/* function */
 	GetConst(SYSTEM_MAKE_MEMORY_OUTPUT_STREAM, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_empty(pos, p_defun_syscall_make_memory_output_stream);
+	setcompiled_dynamic(pos, p_defun_syscall_make_memory_output_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_syscall_make_memory_output_stream(&type);
@@ -1318,9 +1336,53 @@ static void defun_make_memory_output_stream(void)
 }
 
 
+/* (defun make-memroy-io-stream (&key input size array) ...) -> stream
+ *   input     sequence
+ *   size      (or null (integer 1 *))
+ *   array     (or null (integer 1 *))
+ *   stream    io-memory-stream
+ */
+static int syscall_make_memory_io_stream(Execute ptr, addr rest)
+{
+	Return(make_memory_io_stream_syscode_(rest, &rest));
+	setresult_control(ptr, rest);
+	return 0;
+}
+
+static void type_syscall_make_memory_io_stream(addr *ret)
+{
+	addr args, values, key1, key2, key3, key;
+
+	/* key */
+	KeyTypeTable(&key1, INPUT, Sequence);
+	KeyTypeTable(&key2, SIZE, Plus1Null);
+	KeyTypeTable(&key3, ARRAY, Plus1Null);
+	list_heap(&key, key1, key2, NULL);
+	/* type */
+	typeargs_key(&args, key);
+	GetTypeValues(&values, MemoryStream);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_memory_io_stream(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_MEMORY_IO_STREAM, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_dynamic(pos, p_defun_syscall_make_memory_io_stream);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_make_memory_io_stream(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defmacro with-input-from-memory
- *   ((stream vector)
- *     declaration* form*) ...) -> result
+ *   ((stream vector &key size array) declaration* form*) ...)
+ *   -> result
  */
 static int syscall_with_input_from_memory(Execute ptr, addr form, addr env)
 {
@@ -1343,7 +1405,10 @@ static void defmacro_with_input_from_memory(void)
 }
 
 
-/* (defmacro with-output-to-memory ((var) declaration* form*) ...) -> result */
+/* (defmacro with-output-to-memory
+ *   ((var &key size array) declaration* form*) ...)
+ *   -> result
+ */
 static int syscall_with_output_to_memory(Execute ptr, addr form, addr env)
 {
 	Return(with_output_to_memory_syscode_(ptr, form, &form));
@@ -1433,6 +1498,38 @@ static void defun_byte_integer(void)
 }
 
 
+/* (defun question (object &rest args) ...) -> (values &rest t) */
+static int syscall_question(Execute ptr, addr var, addr args)
+{
+	return question_syscode_(ptr, var, args);
+}
+
+static void type_syscall_question(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&type, T);
+	typeargs_var1rest(&args, type, type);
+	typevalues_rest(&values, type);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_question(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_QUESTION, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_question);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_question(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun extension (t) ...) -> t */
 static int syscall_extension(Execute ptr, addr var)
 {
@@ -1512,12 +1609,14 @@ _g void init_syscall_function(void)
 	SetPointerSysCall(defun, var1, parse_type);
 	SetPointerSysCall(defun, var1, type_object);
 	SetPointerSysCall(defun, var1, upgraded_open_element_type);
-	SetPointerSysCall(defun, var1, make_memory_input_stream);
-	SetPointerSysCall(defun, empty, make_memory_output_stream);
+	SetPointerSysCall(defun, var1dynamic, make_memory_input_stream);
+	SetPointerSysCall(defun, dynamic, make_memory_output_stream);
+	SetPointerSysCall(defun, dynamic, make_memory_io_stream);
 	SetPointerSysCall(defmacro, macro, with_input_from_memory);
 	SetPointerSysCall(defmacro, macro, with_output_to_memory);
 	SetPointerSysCall(defun, var1, get_output_stream_memory);
 	SetPointerSysCall(defun, dynamic, byte_integer);
+	SetPointerSysCall(defun, var1dynamic, question);
 	SetPointerSysCall(defun, var1, extension);
 }
 
@@ -1568,10 +1667,12 @@ _g void build_syscall_function(void)
 	defun_upgraded_open_element_type();
 	defun_make_memory_input_stream();
 	defun_make_memory_output_stream();
+	defun_make_memory_io_stream();
 	defmacro_with_input_from_memory();
 	defmacro_with_output_to_memory();
 	defun_get_output_stream_memory();
 	defun_byte_integer();
+	defun_question();
 	defun_extension();
 }
 

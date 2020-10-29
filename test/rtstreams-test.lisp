@@ -556,35 +556,6 @@
 ;;
 ;;  open
 ;;
-(deftest open.1
-  (with-delete-temp-file
-    (let ((inst (open *file* :direction :output)))
-      (prog1
-        (streamp inst)
-        (close inst))))
-  t)
-
-(deftest open.2
-  (with-delete-temp-file
-    (let ((inst (open *file* :direction :output)))
-      (format inst "Hello")
-      (close inst))
-    (let ((inst (open *file* :direction :input)))
-      (values (read-line inst))))
-  "Hello")
-
-(deftest open.3
-  (with-delete-temp-file
-    (let ((inst (open *file* :direction :output)))
-      (format inst "Hello")
-      (close inst))
-    (let ((inst (open *file* :direction :output :if-exists :supersede)))
-      (format inst "abc")
-      (close inst))
-    (let ((inst (open *file* :direction :input)))
-      (values (read-line inst))))
-  "abc")
-
 (deftest with-open-file.1
   (with-delete-temp-file
     (with-open-file (inst *file* :direction :output)

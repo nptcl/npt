@@ -231,6 +231,7 @@ _g int save_stream(addr pos)
 		case StreamType_CharacterInput:
 		case StreamType_CharacterOutput:
 		case StreamType_CharacterIO:
+		case StreamType_Probe:
 			return save_stream_file(pos);
 
 		case StreamType_BincharInput:

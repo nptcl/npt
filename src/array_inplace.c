@@ -46,7 +46,7 @@ static int arrayinplace_get_specialized_(
 {
 	if (arrayinplace_get_specialized_safe(pos, mem, index, value))
 		return fmte_("Invaild array object, ~S.", pos, NULL);
-	
+
 	return 0;
 }
 

@@ -45,12 +45,12 @@ static void set_bufcell(addr pos, size_t m, byte c)
  *  buffering
  */
 struct buffering_struct {
-	size_t cell, width, size, index;
+	size_t cell, width, size, index, init_width;
 };
 
 #ifdef LISP_DEBUG
-#define BUFFERING_CELL		8
-#define BUFFERING_WIDTH		1
+#define BUFFERING_CELL		64
+#define BUFFERING_WIDTH		4
 #else
 #define BUFFERING_CELL		4096
 #define BUFFERING_WIDTH		8
@@ -93,17 +93,20 @@ static void buffering_clear_root(addr pos)
 	setroot_buffering(pos, root);
 }
 
-_g void buffering_heap(addr *ret, size_t cell)
+_g void buffering_heap(addr *ret, size_t cell, size_t width)
 {
 	addr pos;
 	struct buffering_struct *str;
 
 	if (cell == 0)
 		cell = BUFFERING_CELL;
+	if (width == 0)
+		width = BUFFERING_WIDTH;
 	heap_smallsize(&pos, LISPSYSTEM_BUFFERING, 1, sizeoft(struct buffering_struct));
 	str = struct_buffering(pos);
 	str->cell = cell;
-	str->width = BUFFERING_WIDTH;
+	str->width = width;
+	str->init_width = width;
 	str->index = 0;
 	str->size = 0;
 	buffering_clear_root(pos);
@@ -116,10 +119,28 @@ _g void clear_buffering(addr pos)
 
 	CheckType(pos, LISPSYSTEM_BUFFERING);
 	str = struct_buffering(pos);
-	str->width = BUFFERING_WIDTH;
+	str->width = str->init_width;
 	str->index = 0;
 	str->size = 0;
 	buffering_clear_root(pos);
+}
+
+_g void getcell_buffering(addr pos, size_t *ret)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	*ret = str->cell;
+}
+
+_g void getwidth_buffering(addr pos, size_t *ret)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	*ret = str->width;
 }
 
 static int realloc_buffering(addr pos, size_t n)

@@ -42,10 +42,10 @@
 	((((((a)>>6UL)&0x0FUL)+1UL)<<16UL) | (((a)&0x3FUL)<<10UL) | ((b)&0x03FFUL))
 
 /* Byte Order Mark */
-_g int readbom8_encode(filestream fm);
-_g int readbom16_encode(filestream fm); /* 1:le, 2:be */
-_g int readbom32_encode(filestream fm); /* 1:le, 2:be */
-_g int writebom_encode_(filestream fm);
+_g int readbom8_encode(addr stream);
+_g int readbom16_encode(addr stream); /* 1:le, 2:be */
+_g int readbom32_encode(addr stream); /* 1:le, 2:be */
+_g int writebom_encode_(addr stream);
 
 _g int read_char_encode_(filestream fm, unicode *c, int *ret);
 _g int read_hang_encode_(filestream fm, unicode *c, int *hang, int *ret);

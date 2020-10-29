@@ -1,9 +1,4 @@
-/*
- *  load.c
- */
-#define loadrt_file(x) { \
-	if (loadrt_lisp(x)) return 1; \
-}
+#define loadrt_file(x) { if (loadrt_lisp(x)) return 1; }
 
 static int loadrt_files(void)
 {

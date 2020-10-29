@@ -268,6 +268,7 @@ print.c
 process.c
 prompt.c
 prompt_for.c
+question.c
 quote.c
 random_float.c
 random_state.c

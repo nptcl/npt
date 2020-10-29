@@ -6,10 +6,12 @@
 #define INPUT_MEMORY_UNREAD_SIZE	16
 
 #define open_input_memory_stream_ _n(open_input_memory_stream_)
-#define open_output_memory_stream _n(open_output_memory_stream)
-#define open_io_memory_stream _n(open_io_memory_stream)
+#define open_output_memory_stream_ _n(open_output_memory_stream_)
+#define open_io_memory_stream_ _n(open_io_memory_stream_)
 #define memory_stream_heap_ _n(memory_stream_heap_)
-#define clear_output_memory_stream _n(clear_output_memory_stream)
+#define clear_memory_stream_ _n(clear_memory_stream_)
+#define getsize_memory_stream _n(getsize_memory_stream)
+#define getarray_memory_stream _n(getarray_memory_stream)
 #define init_stream_memory_input _n(init_stream_memory_input)
 #define init_stream_memory_output _n(init_stream_memory_output)
 #define init_stream_memory_io _n(init_stream_memory_io)
@@ -22,11 +24,14 @@
 #define file_position_end_memory_stream _n(file_position_end_memory_stream)
 #define file_position_set_memory_stream _n(file_position_set_memory_stream)
 
-_g int open_input_memory_stream_(addr *ret, addr pos);
-_g void open_output_memory_stream(addr *ret, size_t size);
-_g int open_io_memory_stream(addr *ret, addr pos, size_t cell);
+_g int open_input_memory_stream_(addr *ret, addr input, size_t cell, size_t array);
+_g int open_output_memory_stream_(addr *ret, size_t cell, size_t array);
+_g int open_io_memory_stream_(addr *ret, addr input, size_t cell, size_t array);
 _g int memory_stream_heap_(addr stream, addr *ret);
-_g void clear_output_memory_stream(addr stream);
+_g int clear_memory_stream_(addr stream);
+_g void getsize_memory_stream(addr stream, size_t *ret);
+_g void getarray_memory_stream(addr stream, size_t *ret);
+
 _g void init_stream_memory_input(void);
 _g void init_stream_memory_output(void);
 _g void init_stream_memory_io(void);

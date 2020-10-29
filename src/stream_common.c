@@ -30,6 +30,7 @@ static int get_binary_stream(addr stream, addr *ret)
 		case StreamType_BincharInput:
 		case StreamType_BincharOutput:
 		case StreamType_BincharIO:
+		case StreamType_Probe:
 			*ret = stream;
 			return 1;
 

@@ -23,9 +23,9 @@
 #define close_filememory _n(close_filememory)
 #define read_filememory _n(read_filememory)
 #define readf_filememory _n(readf_filememory)
-#define read_nonblocking_filememory _n(read_nonblocking_filememory)
+#define read_nonblock_filememory _n(read_nonblock_filememory)
 #define getc_filememory _n(getc_filememory)
-#define getc_nonblocking_filememory _n(getc_nonblocking_filememory)
+#define getc_nonblock_filememory _n(getc_nonblock_filememory)
 #define ungetc_filememory _n(ungetc_filememory)
 #define putc_filememory _n(putc_filememory)
 #define write_filememory _n(write_filememory)
@@ -86,10 +86,10 @@ _g void open_io_redirect_filememory_(filestream fm, addr pos);
 _g int close_filememory(filestream fm);
 _g int read_filememory(filestream fm, void *dst, size_t size, size_t *ret);
 _g int readf_filememory(filestream fm, void *dst, size_t size, size_t *ret);
-_g int read_nonblocking_filememory(filestream fm,
+_g int read_nonblock_filememory(filestream fm,
 		void *dst, size_t size, size_t *ret);
 _g int getc_filememory(filestream fm, byte *pos);
-_g int getc_nonblocking_filememory(filestream fm, byte *pos, size_t *ret);
+_g int getc_nonblock_filememory(filestream fm, byte *pos, size_t *ret);
 _g int ungetc_filememory(filestream fm, byte c);
 _g int putc_filememory(filestream fm, byte c);
 _g int write_filememory(filestream fm,

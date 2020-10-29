@@ -21,6 +21,7 @@
 #include "package_object.h"
 #include "pathname.h"
 #include "process.h"
+#include "question.h"
 #include "random_state.h"
 #include "ratio.h"
 #include "sort.h"
@@ -497,19 +498,67 @@ _g int upgraded_open_element_type_syscode_(addr var, addr *ret)
 
 
 /* make-memory-input-stream */
-_g int make_memory_input_stream_syscode_(addr var, addr *ret)
+static int getkeyindex_null_(addr list, constindex key, size_t *ret)
 {
-	Return(open_input_memory_stream_(&var, var));
+	addr pos;
+
+	if (getplist_constant_safe(list, key, &pos)) {
+		*ret = 0;
+	}
+	else if (pos == Nil) {
+		*ret = 0;
+	}
+	else {
+		Return(getindex_integer_(pos, ret));
+	}
+
+	return 0;
+}
+
+_g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
+{
+	size_t size, array;
+
+	/* &key */
+	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_SIZE, &size));
+	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+
+	/* call */
+	Return(open_input_memory_stream_(&var, var, size, array));
 	return Result(ret, var);
 }
 
 
 /* make-memory-output-stream */
-_g int make_memory_output_stream_syscode_(addr *ret)
+_g int make_memory_output_stream_syscode_(addr rest, addr *ret)
 {
-	addr pos;
-	open_output_memory_stream(&pos, 0);
-	return Result(ret, pos);
+	size_t size, array;
+
+	/* &key */
+	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_SIZE, &size));
+	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+
+	/* call */
+	Return(open_output_memory_stream_(&rest, size, array));
+	return Result(ret, rest);
+}
+
+
+/* make-memory-io-stream */
+_g int make_memory_io_stream_syscode_(addr rest, addr *ret)
+{
+	addr input;
+	size_t size, array;
+
+	/* &key */
+	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_SIZE, &size));
+	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+	if (GetKeyArgs(rest, KEYWORD_INPUT, &input))
+		input = Nil;
+
+	/* call */
+	Return(open_io_memory_stream_(&rest, input, size, array));
+	return Result(ret, rest);
 }
 
 
@@ -574,10 +623,8 @@ _g int with_output_to_memory_syscode_(Execute ptr, addr form, addr *ret)
 		goto error;
 	if (! consp_getcons(args, &var, &args))
 		goto error;
-	if (args != Nil)
-		goto error;
 
-	/* `(let ((,var (make-string-output-stream)))
+	/* `(let ((,var (make-string-output-stream ...)))
 	 *    ,@decl
 	 *    (unwind-protect
 	 *      (progn ,@body
@@ -601,7 +648,7 @@ _g int with_output_to_memory_syscode_(Execute ptr, addr form, addr *ret)
 	cons_heap(&progn, get, progn);
 	nreverse(&progn, progn);
 	list_heap(&unwind, unwind, progn, close, NULL);
-	conscar_heap(&make, make);
+	cons_heap(&make, make, args);
 	list_heap(&make, var, make, NULL);
 	conscar_heap(&make, make);
 	conscar_heap(&let, let);
@@ -663,6 +710,11 @@ _g int byte_integer_syscode_(addr list, addr *ret)
 	return byte_integer_endian_(list, u.u8[0] != 0, ret);
 }
 
+/* question */
+_g int question_syscode_(Execute ptr, addr var, addr args)
+{
+	return question_values_(ptr, var, args);
+}
 
 /* extension */
 #ifdef LISP_EXTENSION

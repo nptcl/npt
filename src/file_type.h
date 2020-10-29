@@ -72,7 +72,6 @@ typedef FILE *file_type;
 #define FILEMEMORY_SIZE     4096
 #endif
 #define FILEMEMORY_UNGETC_SIZE  16
-#define FILEMEMORY_UNGETC_BIT   4
 
 enum filememory_system {
 	filememory_stream,
@@ -101,10 +100,10 @@ struct filememory {
 	enum filememory_system system : 4;
 	enum filememory_mode mode : 4;
 	enum filememory_direct direct : 4;
-	unsigned ungetc : FILEMEMORY_UNGETC_BIT;
+	uint8_t ungetc;
 	addr pos;
 	file_type file;
-	size_t index, size;
+	size_t index, size, now;
 	struct FileEncode encode;
 	byte ungetc_value[FILEMEMORY_UNGETC_SIZE];
 	byte buffer[FILEMEMORY_SIZE];

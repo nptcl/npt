@@ -67,6 +67,18 @@
     (close x))
   t)
 
+(deftest make-memory-input-stream-args.1
+  (question
+    (make-memory-input-stream nil :size 10)
+    'size)
+  10)
+
+(deftest make-memory-input-stream-args.2
+  (question
+    (make-memory-input-stream nil :array 20)
+    'array)
+  20)
+
 
 ;;
 ;;  Function MAKE-MEMORY-OUTPUT-STREAM
@@ -98,6 +110,18 @@
       (length y)))
   256)
 
+(deftest make-memory-output-stream-args.1
+  (question
+    (make-memory-output-stream :size 10)
+    'size)
+  10)
+
+(deftest make-memory-output-stream-args.2
+  (question
+    (make-memory-output-stream :array 20)
+    'array)
+  20)
+
 
 ;;
 ;;  Function GET-OUTPUT-STREAM-MEMORY
@@ -126,6 +150,14 @@
     999)
   999)
 
+(deftest with-input-from-memory.3
+  (let (list)
+    (with-input-from-memory (stream #(10 20 30) :size 11 :array 22)
+      (setq list (list (question stream 'size)
+                       (question stream 'array))))
+    list)
+  (11 22))
+
 
 ;;
 ;;  Macro WITH-OUTPUT-TO-MEMORY
@@ -141,4 +173,154 @@
   (with-output-to-memory (stream)
     100)
   #())
+
+(deftest with-output-to-memory.3
+  (let (list)
+    (with-output-to-memory (stream :size 33 :array 44)
+      (setq list (list (question stream 'size)
+                       (question stream 'array))))
+    list)
+  (33 44))
+
+
+;;
+;;  open input
+;;
+(deftest open-input-memory.1
+  (with-open-stream (input (make-memory-input-stream #()))
+    (with-open-file (stream input)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  :eof :eof)
+
+(deftest open-input-memory.2
+  (with-open-stream (input (make-memory-input-stream #(65 66 67 68)))
+    (with-open-file (stream input)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  #\A #\B #\C #\D :eof :eof)
+
+(deftest open-input-memory.3
+  (with-open-stream (input (make-memory-input-stream #(0 65 0 66 0 67 0 68)))
+    (with-open-file (stream input :external-format 'utf16be)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  #\A #\B #\C #\D :eof :eof)
+
+
+;;
+;;  open output
+;;
+(deftest open-output-memory.1
+  (with-open-stream (output (make-memory-output-stream))
+    (with-open-file (stream output :direction :output)
+      )
+    (get-output-stream-memory output))
+  #())
+
+(deftest open-output-memory.2
+  (with-open-stream (output (make-memory-output-stream))
+    (with-open-file (stream output :direction :output)
+      (write-char #\A stream)
+      (write-char #\B stream)
+      (write-char #\C stream))
+    (get-output-stream-memory output))
+  #(65 66 67))
+
+(deftest open-output-memory.3
+  (with-open-stream (output (make-memory-output-stream))
+    (with-open-file (stream output :direction :output :external-format 'utf8bom)
+      (write-char #\A stream)
+      (write-char #\B stream)
+      (write-char #\C stream))
+    (get-output-stream-memory output))
+  #(#xEF #xBB #xBF 65 66 67))
+
+
+;;
+;;  open io
+;;
+(deftest open-io-memory.1
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (stream io)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  :eof :eof)
+
+(deftest open-io-memory.2
+  (with-open-stream (io (make-memory-io-stream :input #(65 66 67 68)))
+    (file-position io :start)
+    (with-open-file (stream io)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  #\A #\B #\C #\D :eof :eof)
+
+(deftest open-io-memory.3
+  (with-open-stream (io (make-memory-io-stream :input #(0 65 0 66 0 67 0 68)))
+    (file-position io :start)
+    (with-open-file (stream io :external-format 'utf16be)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  #\A #\B #\C #\D :eof :eof)
+
+(deftest open-io-memory.4
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (stream io :direction :io)
+      )
+    (get-output-stream-memory io))
+  #())
+
+(deftest open-io-memory.5
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (stream io :direction :io)
+      (write-char #\A stream)
+      (write-char #\B stream)
+      (write-char #\C stream))
+    (get-output-stream-memory io))
+  #(65 66 67))
+
+(deftest open-io-memory.6
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (stream io :direction :io :external-format 'utf8bom)
+      (write-char #\A stream)
+      (write-char #\B stream)
+      (write-char #\C stream))
+    (get-output-stream-memory io))
+  #(#xEF #xBB #xBF 65 66 67))
+
+(deftest open-io-memory.7
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (stream io :direction :io :external-format 'utf8)
+      (write-char #\A stream)
+      (write-char #\B stream)
+      (write-char #\C stream)
+      (file-position stream :start)
+      (values
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof)
+        (read-char stream nil :eof))))
+  #\A #\B #\C :eof)
 

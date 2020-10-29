@@ -32,7 +32,9 @@
 
 static inline void init_filememory(filestream fm)
 {
-	fm->index = fm->size = 0;
+	fm->index = 0;
+	fm->size = 0;
+	fm->now = 0;
 	fm->cache = 1;
 	fm->readio = 0;
 	fm->redirect = 0;
@@ -232,7 +234,7 @@ _g int close_filememory(filestream fm)
 /*
  *  read/write call
  */
-#define stream_errorcheck(fm, check, name) { \
+#define FM_errorcheck(fm, check, name) { \
 	if (check < 0) { \
 		Debug(name "error"); \
 		fm->mode = filememory_error; \
@@ -240,11 +242,11 @@ _g int close_filememory(filestream fm)
 	} \
 }
 
-#define fmend(fm) (fm->size <= fm->index)
-#define fmreadforce(fm, s, r) (readforce(fm, fm->buffer, s, r))
-#define fmwriteforce(fm, s, r) (writeforce(fm, fm->buffer, s, r))
+#define FM_end(fm) (fm->size <= fm->index)
+#define FM_readforce(fm, s, r) (fm_readforce(fm, fm->buffer, s, r))
+#define FM_writeforce(fm, s, r) (fm_writeforce(fm, fm->buffer, s, r))
 
-static inline int readforce(filestream fm, byte *pos, size_t size, size_t *ret)
+static inline int fm_readforce(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;
@@ -271,7 +273,8 @@ static inline int readforce(filestream fm, byte *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-static inline int writeforce(filestream fm, const byte *pos, size_t size, size_t *ret)
+static inline int fm_writeforce(filestream fm,
+		const byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;
@@ -298,7 +301,7 @@ static inline int writeforce(filestream fm, const byte *pos, size_t size, size_t
 	return 0;
 }
 
-static inline int readforce_nonblocking(filestream fm,
+static inline int fm_readforce_nonblock(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
 	int check;
@@ -341,16 +344,122 @@ static inline int readforce_nonblocking(filestream fm,
 
 
 /*
- *  read
+ *  flush
  */
-static inline int readnext_large(filestream fm,
-		byte *pos, size_t size, size_t *ret)
+static inline int flush_write_filememory(filestream fm)
 {
 	int check;
 	size_t rsize;
 
-	check = readforce(fm, pos, size, &rsize);
-	stream_errorcheck(fm, check, "readforce");
+	if (fm->index) {
+		check = FM_writeforce(fm, fm->index, &rsize);
+		FM_errorcheck(fm, check, "FM_writeforce");
+		if (check) {
+			fm->mode = filememory_end;
+			return check;
+		}
+		fm->index = 0;
+	}
+
+	return 0;
+}
+
+static int flush_output_filememory(filestream fm)
+{
+	int check;
+
+	check = flush_write_filememory(fm);
+	FM_errorcheck(fm, check, "flush_write_filememory");
+	if (check)
+		fm->mode = filememory_end;
+	flush_low(fm);
+
+	return 0;
+}
+
+static int flush_end_filememory(filestream fm)
+{
+	switch (fm->direct) {
+		case filememory_output:
+			flush_low(fm);
+
+		case filememory_io:
+			if (! fm->readio)
+				flush_low(fm);
+			break;
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+_g int flush_filememory(filestream fm)
+{
+	if (fm->mode == filememory_end)
+		return flush_end_filememory(fm);
+
+	switch (fm->direct) {
+		case filememory_input:
+			break;
+
+		case filememory_output:
+			return flush_output_filememory(fm);
+
+		case filememory_io:
+			if (! fm->readio)
+				return flush_output_filememory(fm);
+			break;
+
+		default:
+			Debug("direction error");
+			return -1;
+	}
+
+	return 0;
+}
+
+static inline int flush_read_io_filememory(filestream fm)
+{
+	int check;
+
+	if (fm->direct != filememory_io)
+		return 0;
+	if (fm->readio)
+		return 0;
+	check = flush_output_filememory(fm);
+	if (check)
+		return check;
+	fm->readio = 1; /* read */
+	fm->ungetc = 0;
+	fm->index = 0;
+	return file_position_set_low(fm, fm->now);
+}
+
+static inline int flush_write_io_filememory(filestream fm)
+{
+	if (fm->direct != filememory_io)
+		return 0;
+	if (fm->readio == 0)
+		return 0;
+	fm->readio = 0; /* write */
+	fm->ungetc = 0;
+	fm->index = 0;
+	return file_position_set_low(fm, fm->now);
+}
+
+
+/*
+ *  read
+ */
+static inline int fm_readnext_large(filestream fm, byte *pos, size_t size, size_t *ret)
+{
+	int check;
+	size_t rsize;
+
+	check = fm_readforce(fm, pos, size, &rsize);
+	FM_errorcheck(fm, check, "fm_readforce");
 	if (check) {
 		fm->mode = filememory_end;
 		return check;
@@ -360,14 +469,13 @@ static inline int readnext_large(filestream fm,
 	return 0;
 }
 
-static inline int readnext_small(filestream fm,
-		byte *pos, size_t size, size_t *ret)
+static inline int fm_readnext_small(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t rsize;
 
-	check = fmreadforce(fm, FILEMEMORY_SIZE, &rsize);
-	stream_errorcheck(fm, check, "fmreadforce");
+	check = FM_readforce(fm, FILEMEMORY_SIZE, &rsize);
+	FM_errorcheck(fm, check, "FM_readforce");
 	if (check) {
 		fm->mode = filememory_end;
 		return check;
@@ -387,15 +495,15 @@ static inline int readnext_small(filestream fm,
 	return 0;
 }
 
-static inline int readnext(filestream fm, byte *pos, size_t size, size_t *ret)
+static inline int fm_readnext(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	if ((FILEMEMORY_SIZE / 2) < size)
-		return readnext_large(fm, pos, size, ret);
+		return fm_readnext_large(fm, pos, size, ret);
 	else
-		return readnext_small(fm, pos, size, ret);
+		return fm_readnext_small(fm, pos, size, ret);
 }
 
-static inline int readbuffer_call(filestream fm,
+static inline int fm_readbuffer_call(filestream fm,
 		byte *pos, size_t size, size_t *ret,
 		int (*next)(filestream , byte *, size_t, size_t *))
 {
@@ -420,7 +528,7 @@ static inline int readbuffer_call(filestream fm,
 	}
 
 	/* Request size is greater than fm.buffer. -> next */
-	check = next(fm, pos + diff, size - diff, &result);
+	check = (*next)(fm, pos + diff, size - diff, &result);
 	if (check < 0) {
 		Debug("call next error");
 		return check;
@@ -434,13 +542,12 @@ static inline int readbuffer_call(filestream fm,
 	return 0;
 }
 
-static inline int readbuffer(filestream fm,
-		byte *pos, size_t size, size_t *ret)
+static inline int fm_readbuffer(filestream fm, byte *pos, size_t size, size_t *ret)
 {
-	return readbuffer_call(fm, pos, size, ret, readnext);
+	return fm_readbuffer_call(fm, pos, size, ret, fm_readnext);
 }
 
-static inline int readungetc_call(filestream fm,
+static inline int fm_readungetc_call(filestream fm,
 		byte *pos, size_t size, size_t *ret,
 		int (*next)(filestream , byte *, size_t, size_t *),
 		int (*buffer)(filestream , byte *, size_t, size_t *))
@@ -463,9 +570,9 @@ static inline int readungetc_call(filestream fm,
 
 	/* Read tail */
 	if (fm->index == 0)
-		check = next(fm, pos, size, &result);
+		check = (*next)(fm, pos, size, &result);
 	else
-		check = buffer(fm, pos, size, &result);
+		check = (*buffer)(fm, pos, size, &result);
 	if (check < 0) {
 		Debug("call function error");
 		return check;
@@ -479,13 +586,14 @@ static inline int readungetc_call(filestream fm,
 	return 0;
 }
 
-static inline int readungetc(filestream fm,
-		byte *pos, size_t size, size_t *ret)
+static inline int fm_readungetc(filestream fm, byte *pos, size_t size, size_t *ret)
 {
-	return readungetc_call(fm, pos, size, ret, readnext, readbuffer);
+	return fm_readungetc_call(fm, pos, size, ret,
+			fm_readnext,
+			fm_readbuffer);
 }
 
-static int readnocache(filestream fm, byte *pos, size_t size, size_t *ret)
+static int fm_readnocache(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, result;
@@ -510,8 +618,8 @@ static int readnocache(filestream fm, byte *pos, size_t size, size_t *ret)
 		Debug("call function error");
 		return check;
 	}
-	if (check) {
-		*ret = 1;
+	if (check) {  /* EOF */
+		*ret = count;
 		return count == 0;
 	}
 	*ret = result + count;
@@ -519,39 +627,29 @@ static int readnocache(filestream fm, byte *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-static inline int read_normal(filestream fm, byte *pos, size_t size, size_t *ret)
+static inline int fm_read_normal(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	if (! fm->cache)
-		return readnocache(fm, pos, size, ret);
+		return fm_readnocache(fm, pos, size, ret);
 	if (fm->ungetc)
-		return readungetc(fm, pos, size, ret);
+		return fm_readungetc(fm, pos, size, ret);
 	if (fm->index == 0)
-		return readnext(fm, pos, size, ret);
+		return fm_readnext(fm, pos, size, ret);
 	else
-		return readbuffer(fm, pos, size, ret);
-}
-
-static int flush_io_filememory(filestream fm, int readp)
-{
-	if (readp && fm->readio)
-		return 0;
-	if ((! readp) && (! fm->readio))
-		return 0;
-	fm->readio = readp? 1: 0;
-	return flush_filememory(fm);
+		return fm_readbuffer(fm, pos, size, ret);
 }
 
 _g int read_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 {
+	int check;
+
 	if (fm->direct == filememory_output) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 1)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_read_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 	if (size == 0) {
 		*ret = 0;
@@ -560,7 +658,7 @@ _g int read_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return read_normal(fm, (byte *)dst, size, ret);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -571,18 +669,24 @@ _g int read_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 			return -1;
 	}
 
+	/* read */
+	check = fm_read_normal(fm, (byte *)dst, size, ret);
+	if (check)
+		return check;
+	fm->now += *ret;
+
 	return 0;
 }
 
-static inline int read_normal_force(filestream fm,
+static inline int fm_read_normal_force(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, result;
 
 	for (count = 0; count < size; count += result) {
-		check = read_normal(fm, pos + count, size - count, &result);
-		stream_errorcheck(fm, check, "read_normal");
+		check = fm_read_normal(fm, pos + count, size - count, &result);
+		FM_errorcheck(fm, check, "fm_read_normal");
 		if (check) {
 			if (count)
 				break;
@@ -597,15 +701,15 @@ static inline int read_normal_force(filestream fm,
 
 _g int readf_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 {
+	int check;
+
 	if (fm->direct == filememory_output) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 1)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_read_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 	if (size == 0) {
 		*ret = 0;
@@ -614,7 +718,7 @@ _g int readf_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return read_normal_force(fm, (byte *)dst, size, ret);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -625,21 +729,27 @@ _g int readf_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 			return -1;
 	}
 
+	/* read */
+	check = fm_read_normal_force(fm, (byte *)dst, size, ret);
+	if (check)
+		return check;
+	fm->now += *ret;
+
 	return 0;
 }
 
 
 /*
- *  read-nonblocking
+ *  read-nonblock
  */
-static inline int readnext_nonblocking_large(filestream fm,
+static inline int fm_readnext_nonblock_large(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t rsize;
 
-	check = readforce_nonblocking(fm, pos, size, &rsize);
-	stream_errorcheck(fm, check, "readforce_nonblocking");
+	check = fm_readforce_nonblock(fm, pos, size, &rsize);
+	FM_errorcheck(fm, check, "fm_readforce_nonblock");
 	if (check) {
 		fm->mode = filememory_end;
 		return check;
@@ -649,14 +759,14 @@ static inline int readnext_nonblocking_large(filestream fm,
 	return 0;
 }
 
-static inline int readnext_nonblocking_small(filestream fm,
+static inline int fm_readnext_nonblock_small(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t rsize;
 
-	check = readforce_nonblocking(fm, fm->buffer, FILEMEMORY_SIZE, &rsize);
-	stream_errorcheck(fm, check, "readforce_nonblocking");
+	check = fm_readforce_nonblock(fm, fm->buffer, FILEMEMORY_SIZE, &rsize);
+	FM_errorcheck(fm, check, "fm_readforce_nonblock");
 	if (check) {
 		fm->mode = filememory_end;
 		return check;
@@ -676,30 +786,30 @@ static inline int readnext_nonblocking_small(filestream fm,
 	return 0;
 }
 
-static inline int readnext_nonblocking(filestream fm,
+static inline int fm_readnext_nonblock(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
 	if ((FILEMEMORY_SIZE / 2) < size)
-		return readnext_nonblocking_large(fm, pos, size, ret);
+		return fm_readnext_nonblock_large(fm, pos, size, ret);
 	else
-		return readnext_nonblocking_small(fm, pos, size, ret);
+		return fm_readnext_nonblock_small(fm, pos, size, ret);
 }
 
-static inline int readbuffer_nonblocking(filestream fm,
+static inline int fm_readbuffer_nonblock(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
-	return readbuffer_call(fm, pos, size, ret, readnext_nonblocking);
+	return fm_readbuffer_call(fm, pos, size, ret, fm_readnext_nonblock);
 }
 
-static inline int readungetc_nonblocking(filestream fm,
+static inline int fm_readungetc_nonblock(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
-	return readungetc_call(fm, pos, size, ret,
-			readnext_nonblocking, readbuffer_nonblocking);
+	return fm_readungetc_call(fm, pos, size, ret,
+			fm_readnext_nonblock,
+			fm_readbuffer_nonblock);
 }
 
-static int readnocache_nonblocking(filestream fm,
-		byte *pos, size_t size, size_t *ret)
+static int readnocache_nonblock(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, result;
@@ -745,31 +855,29 @@ static int readnocache_nonblocking(filestream fm,
 	return 0;
 }
 
-static inline int read_nonblocking(filestream fm,
-		byte *pos, size_t size, size_t *ret)
+static inline int read_nonblock(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	if (! fm->cache)
-		return readnocache_nonblocking(fm, pos, size, ret);
+		return readnocache_nonblock(fm, pos, size, ret);
 	if (fm->ungetc)
-		return readungetc_nonblocking(fm, pos, size, ret);
+		return fm_readungetc_nonblock(fm, pos, size, ret);
 	if (fm->index == 0)
-		return readnext_nonblocking(fm, pos, size, ret);
+		return fm_readnext_nonblock(fm, pos, size, ret);
 	else
-		return readbuffer_nonblocking(fm, pos, size, ret);
+		return fm_readbuffer_nonblock(fm, pos, size, ret);
 }
 
-_g int read_nonblocking_filememory(filestream fm,
-		void *dst, size_t size, size_t *ret)
+_g int read_nonblock_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 {
+	int check;
+
 	if (fm->direct == filememory_output) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 1)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_read_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 	if (size == 0) {
 		*ret = 0;
@@ -778,7 +886,7 @@ _g int read_nonblocking_filememory(filestream fm,
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return read_nonblocking(fm, (byte *)dst, size, ret);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -788,6 +896,12 @@ _g int read_nonblocking_filememory(filestream fm,
 			Debug("type error");
 			return -1;
 	}
+
+	/* read */
+	check = read_nonblock(fm, (byte *)dst, size, ret);
+	if (check)
+		return check;
+	fm->now += *ret;
 
 	return 0;
 }
@@ -796,16 +910,18 @@ _g int read_nonblocking_filememory(filestream fm,
 /*
  *  getc
  */
-static inline int readbuffer_small(filestream fm,
+static inline int fm_readbuffer_small(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
-	return readbuffer_call(fm, pos, size, ret, readnext_small);
+	return fm_readbuffer_call(fm, pos, size, ret, fm_readnext_small);
 }
 
-static inline int readungetc_small(filestream fm,
+static inline int fm_readungetc_small(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
-	return readungetc_call(fm, pos, size, ret, readnext_small, readbuffer_small);
+	return fm_readungetc_call(fm, pos, size, ret,
+			fm_readnext_small,
+			fm_readbuffer_small);
 }
 
 static inline int getc_normal(filestream fm, byte *pos)
@@ -813,31 +929,31 @@ static inline int getc_normal(filestream fm, byte *pos)
 	size_t dummy;
 
 	if (! fm->cache)
-		return readnocache(fm, pos, 1, &dummy);
+		return fm_readnocache(fm, pos, 1, &dummy);
 	if (fm->ungetc)
-		return readungetc_small(fm, pos, 1, &dummy);
+		return fm_readungetc_small(fm, pos, 1, &dummy);
 	if (fm->index == 0)
-		return readnext_small(fm, pos, 1, &dummy);
+		return fm_readnext_small(fm, pos, 1, &dummy);
 	else
-		return readbuffer_small(fm, pos, 1, &dummy);
+		return fm_readbuffer_small(fm, pos, 1, &dummy);
 }
 
 _g int getc_filememory(filestream fm, byte *pos)
 {
+	int check;
+
 	if (fm->direct == filememory_output) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 1)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_read_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return getc_normal(fm, pos);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -847,52 +963,58 @@ _g int getc_filememory(filestream fm, byte *pos)
 			Debug("type error");
 			return -1;
 	}
+
+	/* read */
+	check = getc_normal(fm, pos);
+	if (check)
+		return check;
+	fm->now++;
 
 	return 0;
 }
 
-static inline int readbuffer_nonblocking_small(filestream fm,
+static inline int fm_readbuffer_nonblock_small(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
-	return readbuffer_call(fm, pos, size, ret, readnext_nonblocking_small);
+	return fm_readbuffer_call(fm, pos, size, ret, fm_readnext_nonblock_small);
 }
 
-static inline int readungetc_nonblocking_small(filestream fm,
+static inline int fm_readungetc_nonblock_small(filestream fm,
 		byte *pos, size_t size, size_t *ret)
 {
-	return readungetc_call(fm, pos, size, ret,
-			readnext_nonblocking_small,
-			readbuffer_nonblocking_small);
+	return fm_readungetc_call(fm, pos, size, ret,
+			fm_readnext_nonblock_small,
+			fm_readbuffer_nonblock_small);
 }
 
-static int getc_nonblocking(filestream fm, byte *pos, size_t *ret)
+static int getc_nonblock(filestream fm, byte *pos, size_t *ret)
 {
 	if (! fm->cache)
-		return readnocache_nonblocking(fm, pos, 1, ret);
+		return readnocache_nonblock(fm, pos, 1, ret);
 	if (fm->ungetc)
-		return readungetc_nonblocking_small(fm, pos, 1, ret);
+		return fm_readungetc_nonblock_small(fm, pos, 1, ret);
 	if (fm->index == 0)
-		return readnext_nonblocking_small(fm, pos, 1, ret);
+		return fm_readnext_nonblock_small(fm, pos, 1, ret);
 	else
-		return readbuffer_nonblocking_small(fm, pos, 1, ret);
+		return fm_readbuffer_nonblock_small(fm, pos, 1, ret);
 }
 
-_g int getc_nonblocking_filememory(filestream fm, byte *pos, size_t *ret)
+_g int getc_nonblock_filememory(filestream fm, byte *pos, size_t *ret)
 {
+	int check;
+
 	if (fm->direct == filememory_output) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 1)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_read_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return getc_nonblocking(fm, pos, ret);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -902,6 +1024,12 @@ _g int getc_nonblocking_filememory(filestream fm, byte *pos, size_t *ret)
 			Debug("type error");
 			return -1;
 	}
+
+	/* read */
+	check = getc_nonblock(fm, pos, ret);
+	if (check)
+		return check;
+	fm->now++;
 
 	return 0;
 }
@@ -912,6 +1040,9 @@ _g int ungetc_filememory(filestream fm, byte c)
 		Debug("direction error");
 		return -1;
 	}
+	if (fm->now == 0) {
+		return -1;
+	}
 	if (FILEMEMORY_UNGETC_SIZE <= fm->ungetc) {
 		Debug("ungetc stack overflow.");
 		return -1;
@@ -919,8 +1050,7 @@ _g int ungetc_filememory(filestream fm, byte c)
 
 	switch (fm->mode) {
 		case filememory_normal:
-			fm->ungetc_value[fm->ungetc++] = c;
-			return 0;
+			break;
 
 		case filememory_end:
 			return 1;
@@ -931,6 +1061,10 @@ _g int ungetc_filememory(filestream fm, byte c)
 			return -1;
 	}
 
+	/* unread */
+	fm->ungetc_value[fm->ungetc++] = c;
+	fm->now--;
+
 	return 0;
 }
 
@@ -938,26 +1072,7 @@ _g int ungetc_filememory(filestream fm, byte c)
 /*
  *  write
  */
-static inline int flush_write(filestream fm)
-{
-	int check;
-	size_t rsize;
-
-	if (fm->index) {
-		check = fmwriteforce(fm, fm->index, &rsize);
-		stream_errorcheck(fm, check, "fmwriteforce");
-		if (check) {
-			fm->mode = filememory_end;
-			return check;
-		}
-		fm->index = 0;
-	}
-
-	return 0;
-}
-
-static int write_normal(filestream fm,
-		const byte *pos, size_t size, size_t *ret)
+static int write_normal(filestream fm, const byte *pos, size_t size, size_t *ret)
 {
 	int check;
 	size_t index, rsize, diff;
@@ -965,15 +1080,15 @@ static int write_normal(filestream fm,
 	index = fm->index;
 	/* large copy */
 	if (FILEMEMORY_SIZE <= size) {
-		check = flush_write(fm);
-		stream_errorcheck(fm, check, "flush_write");
+		check = flush_write_filememory(fm);
+		FM_errorcheck(fm, check, "flush_write_filememory");
 		if (check) { /* EOF */
 			return check;
 		}
 
 		/* write from memory */
-		check = writeforce(fm, pos, size, &rsize);
-		stream_errorcheck(fm, check, "writeforce");
+		check = fm_writeforce(fm, pos, size, &rsize);
+		FM_errorcheck(fm, check, "fm_writeforce");
 		if (check) {
 			fm->mode = filememory_end;
 			return check;
@@ -987,8 +1102,8 @@ static int write_normal(filestream fm,
 		diff = FILEMEMORY_SIZE - index;
 		memcpy(fm->buffer + index, pos, diff);
 
-		check = fmwriteforce(fm, FILEMEMORY_SIZE, &rsize);
-		stream_errorcheck(fm, check, "fmwriteforce");
+		check = FM_writeforce(fm, FILEMEMORY_SIZE, &rsize);
+		FM_errorcheck(fm, check, "FM_writeforce");
 		if (check) {
 			fm->mode = filememory_end;
 			return check;
@@ -1009,18 +1124,17 @@ static int write_normal(filestream fm,
 	return 0;
 }
 
-_g int write_filememory(filestream fm,
-		const void *dst, size_t size, size_t *ret)
+_g int write_filememory(filestream fm, const void *dst, size_t size, size_t *ret)
 {
+	int check;
+
 	if (fm->direct == filememory_input) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 0)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_write_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 	if (size == 0) {
 		*ret = 0;
@@ -1029,7 +1143,7 @@ _g int write_filememory(filestream fm,
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return write_normal(fm, (byte *)dst, size, ret);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -1039,6 +1153,12 @@ _g int write_filememory(filestream fm,
 			Debug("type error");
 			return -1;
 	}
+
+	/* write */
+	check = write_normal(fm, (byte *)dst, size, ret);
+	if (check)
+		return check;
+	fm->now += *ret;
 
 	return 0;
 }
@@ -1215,14 +1335,14 @@ _g int write_u64_filememory(filestream fm, uint64_t c)
 /*
  *  putc
  */
-static int putcnormal(filestream fm, byte c)
+static int fm_putcnormal(filestream fm, byte c)
 {
 	int check;
 	size_t rsize;
 
 	if (FILEMEMORY_SIZE <= fm->index) {
-		check = fmwriteforce(fm, FILEMEMORY_SIZE, &rsize);
-		stream_errorcheck(fm, check, "fmwriteforce");
+		check = FM_writeforce(fm, FILEMEMORY_SIZE, &rsize);
+		FM_errorcheck(fm, check, "FM_writeforce");
 		if (check) {
 			fm->mode = filememory_end;
 			return check;
@@ -1236,20 +1356,20 @@ static int putcnormal(filestream fm, byte c)
 
 _g int putc_filememory(filestream fm, byte c)
 {
+	int check;
+
 	if (fm->direct == filememory_input) {
 		Debug("direction error");
 		return -1;
 	}
-	if (fm->direct == filememory_io) {
-		if (flush_io_filememory(fm, 0)) {
-			Debug("flush_io error");
-			return -1;
-		}
+	if (flush_write_io_filememory(fm)) {
+		Debug("flush_io error");
+		return -1;
 	}
 
 	switch (fm->mode) {
 		case filememory_normal:
-			return putcnormal(fm, c);
+			break;
 
 		case filememory_end:
 			return 1;
@@ -1260,48 +1380,11 @@ _g int putc_filememory(filestream fm, byte c)
 			return -1;
 	}
 
-	return 0;
-}
-
-
-/*
- *  flush
- */
-_g int flush_filememory(filestream fm)
-{
-	int check;
-
-	if (fm->mode == filememory_end)
-		goto sync;
-	switch (fm->direct) {
-		case filememory_input:
-			break;
-
-		case filememory_output:
-			check = flush_write(fm);
-			stream_errorcheck(fm, check, "flush_write");
-			if (check)
-				fm->mode = filememory_end;
-			break;
-
-		case filememory_io:
-			if (! fm->readio) {
-				check = flush_write(fm);
-				stream_errorcheck(fm, check, "flush_write");
-				if (check)
-					fm->mode = filememory_end;
-			}
-			break;
-
-		default:
-			Debug("direction error");
-			return -1;
-	}
-
-sync:
-	if (fm->direct == filememory_output
-			|| (fm->direct == filememory_io && (! fm->readio)))
-		flush_low(fm);
+	/* write */
+	check = fm_putcnormal(fm, c);
+	if (check)
+		return check;
+	fm->now++;
 
 	return 0;
 }
@@ -1415,11 +1498,14 @@ static int file_position_input(filestream fm)
 
 _g int file_position_filememory(filestream fm, size_t *ret)
 {
+	int check;
 	size_t size, unread;
 
 	if (fm->mode != filememory_normal && fm->mode != filememory_end)
 		return 1;
-	file_position_low(fm, &size);
+	check = file_position_low(fm, &size);
+	if (check)
+		return check;
 	if (file_position_input(fm)) {
 		/* input */
 		size += fm->index;
@@ -1447,6 +1533,7 @@ _g int file_position_start_filememory(filestream fm)
 			return check;
 		fm->index = 0;
 		fm->ungetc = 0;
+		fm->now = 0;
 		return 0;
 	}
 
@@ -1456,13 +1543,18 @@ _g int file_position_start_filememory(filestream fm)
 _g int file_position_end_filememory(filestream fm)
 {
 	int check;
+	size_t size;
 
 	if (fm->mode == filememory_normal || fm->mode == filememory_end) {
 		check = file_position_end_low(fm);
 		if (check)
 			return check;
+		check = file_position_low(fm, &size);
+		if (check)
+			return check;
 		fm->index = 0;
 		fm->ungetc = 0;
+		fm->now = size;
 		return 0;
 	}
 
@@ -1479,6 +1571,7 @@ _g int file_position_set_filememory(filestream fm, size_t pos)
 			return check;
 		fm->index = 0;
 		fm->ungetc = 0;
+		fm->now = pos;
 		return 0;
 	}
 

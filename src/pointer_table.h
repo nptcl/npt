@@ -1284,10 +1284,12 @@ enum pointer_index {
 	p_defun_syscall_upgraded_open_element_type,
 	p_defun_syscall_make_memory_input_stream,
 	p_defun_syscall_make_memory_output_stream,
+	p_defun_syscall_make_memory_io_stream,
 	p_defmacro_syscall_with_input_from_memory,
 	p_defmacro_syscall_with_output_to_memory,
 	p_defun_syscall_get_output_stream_memory,
 	p_defun_syscall_byte_integer,
+	p_defun_syscall_question,
 	p_defun_syscall_extension,
 
 #ifdef LISP_EXTENSION

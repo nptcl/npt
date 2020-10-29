@@ -510,6 +510,19 @@ static void typetable_indexnull(void)
 	SetTypeTableNull(Index);
 }
 
+static void typetable_plus1(void)
+{
+	addr pos;
+
+	type2integer_ab_heap(Nil, 1, &pos);
+	SetTypeTable(Plus1, pos);
+}
+
+static void typetable_plus1null(void)
+{
+	SetTypeTableNull(Plus1);
+}
+
 static void typetable_intplus(void)
 {
 	addr pos;
@@ -2983,6 +2996,8 @@ _g void build_type_constant(void)
 	typetable_conditiondesigner();
 	typetable_index();
 	typetable_indexnull();
+	typetable_plus1();
+	typetable_plus1null();
 	typetable_intplus();
 	typetable_intplusnull();
 	typetable_input_stream();

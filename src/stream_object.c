@@ -129,7 +129,8 @@ _g int file_stream_p(addr stream)
 		|| check == StreamType_CharacterIO
 		|| check == StreamType_BincharInput
 		|| check == StreamType_BincharOutput
-		|| check == StreamType_BincharIO;
+		|| check == StreamType_BincharIO
+		|| check == StreamType_Probe;
 }
 
 _g int broadcast_stream_p(addr stream)

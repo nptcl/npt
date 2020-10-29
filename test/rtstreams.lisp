@@ -5,11 +5,14 @@
 (defvar *file1* #p"_rt-stream1.txt")
 (defvar *file2* #p"_rt-stream2.txt")
 
-(import 'lisp-system::make-memory-input-stream)
-(import 'lisp-system::make-memory-output-stream)
-(import 'lisp-system::with-input-from-memory)
-(import 'lisp-system::with-output-to-memory)
-(import 'lisp-system::get-output-stream-memory)
+(import 'lisp-system:make-memory-input-stream)
+(import 'lisp-system:make-memory-output-stream)
+(import 'lisp-system:make-memory-io-stream)
+(import 'lisp-system:with-input-from-memory)
+(import 'lisp-system:with-output-to-memory)
+(import 'lisp-system:get-output-stream-memory)
+(import 'lisp-system:question)
+(import 'lisp-system:byte-integer)
 
 (defmacro with-extend-to-string ((var array) &body body)
   `(let ((,array (make-array
@@ -26,9 +29,13 @@
 (defun test-delete-file (file)
   (declare (ignore file)))
 
+(defun delete-probe-file (&rest args)
+  (dolist (file args)
+    (when (probe-file file)
+      (test-delete-file file))))
+
 (defun delete-temp-file ()
-  (when (probe-file *file*)
-    (test-delete-file *file*)))
+  (delete-probe-file *file*))
 
 (defmacro with-delete-temp-file (&body body)
   `(progn
@@ -85,4 +92,16 @@
            (progn ,@body)
            (when (probe-file ,g)
              (delete-file ,g)))))))
+
+(defun open-unsigned8 (vector)
+  (with-open-file (stream *file* :direction :output
+                          :if-exists :supersede :if-does-not-exist :create
+                          :element-type 'unsigned-byte)
+    (map nil (lambda (x)
+               (write-byte x stream))
+         vector)))
+
+(defun read-line-1 (&optional (file *file*))
+  (with-open-file (x file)
+    (values (read-line x))))
 

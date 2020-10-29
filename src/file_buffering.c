@@ -20,15 +20,17 @@ _g int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret)
 
 	stream = fm->pos;
 	if (! read_memory_stream_p(stream)) {
-		*ret = 0;
-		return 1;
+		i = 0;
+		goto error;
 	}
 
 	for (i = 0; i < size; i++) {
 		if (read_byte_memory_stream(stream, &c, &check))
 			goto error;
-		if (check)
-			break;
+		if (check) {
+			*ret = i;
+			return 1; /* EOF */
+		}
 		pos[i] = c;
 	}
 	*ret = i;
@@ -36,7 +38,7 @@ _g int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret)
 
 error:
 	*ret = i;
-	return 1;
+	return -1;
 }
 
 _g int write_low_buffering(filestream fm, const byte *pos, size_t size, size_t *ret)
@@ -116,25 +118,42 @@ _g int file_position_set_low_buffering(filestream fm, size_t pos)
 /*
  *  file
  */
-_g int close_stream_buffering_(addr stream, addr *ret)
+static filestream begin_buffering(addr stream, addr *ret)
 {
-	int check;
+	addr mem;
 	filestream fm;
-	addr mem, prev;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	Check(fm->redirect == 0, "redirect error");
 	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
+	Check(! memory_stream_p(mem), "type error");
 
-	/* close */
-	prev = fm->pos;
-	fm->pos = stream;
-	check = close_filememory(fm);
+	*ret = fm->pos;
+	fm->pos = mem;
+
+	return fm;
+}
+
+static void end_buffering(addr stream, addr prev)
+{
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
 	fm->pos = prev;
+}
 
-	/* result */
+_g int close_stream_buffering_(addr stream, addr *ret)
+{
+	int check;
+	filestream fm;
+	addr prev;
+
+	fm = begin_buffering(stream, &prev);
+	check = close_filememory(fm);
+	end_buffering(stream, prev);
+
 	if (check) {
 		*ret = Nil;
 		return fmte_("close error.", NULL);
@@ -149,21 +168,12 @@ _g int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	int check;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* read */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	check = readf_filememory(fm, pos, size, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	if (check < 0)
 		return fmte_("read error", NULL);
 
@@ -173,22 +183,12 @@ _g int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret)
 _g int read_byte_buffering_(addr stream, addr *value, int *ret)
 {
 	int check;
-	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* read */
-	prev = fm->pos;
-	fm->pos = stream;
+	(void)begin_buffering(stream, &prev);
 	check = read_byte_file_type(stream, value);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	if (check < 0)
 		return fmte_("read-byte-file error", NULL);
 
@@ -199,21 +199,12 @@ _g int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t
 {
 	int check;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* write */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	check = write_filememory(fm, pos, size, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	if (check)
 		return fmte_("write error", NULL);
 
@@ -224,21 +215,12 @@ _g int write_byte_buffering_(addr stream, addr pos)
 {
 	int check;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* write */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	check = write_byte_file_type_(fm, pos);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
@@ -246,21 +228,12 @@ _g int read_char_buffering_(addr stream, unicode *c, int *ret)
 {
 	int check, escape;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* write */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	escape = read_char_encode_(fm, c, &check);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	if (escape)
 		return 1;
 	if (check < 0)
@@ -273,21 +246,12 @@ _g int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret)
 {
 	int check, escape;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* write */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	escape = read_hang_encode_(fm, c, hang, &check);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	if (escape)
 		return 1;
 	if (check < 0)
@@ -300,21 +264,12 @@ _g int write_char_buffering_(addr stream, unicode c)
 {
 	int check;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* write */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	check = write_char_encode_(fm, c);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
@@ -322,109 +277,60 @@ _g int file_length_buffering_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(stream), "type error");
-
-	/* file-length */
-	prev = fm->pos;
-	fm->pos = stream;
+	fm = begin_buffering(stream, &prev);
 	check = file_length_file_type_(fm, value, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
 _g int file_position_buffering_(addr stream, size_t *value, int *ret)
 {
 	int check;
-	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(mem), "type error");
-
-	/* file-position */
-	prev = fm->pos;
-	fm->pos = mem;
+	(void)begin_buffering(stream, &prev);
 	check = file_position_file_type_(stream, value, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
 _g int file_position_start_buffering_(addr stream, int *ret)
 {
 	int check;
-	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(mem), "type error");
-
-	/* file-position-start */
-	prev = fm->pos;
-	fm->pos = mem;
+	(void)begin_buffering(stream, &prev);
 	check = file_position_start_file_type_(stream, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
 _g int file_position_end_buffering_(addr stream, int *ret)
 {
 	int check;
-	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(mem), "type error");
-
-	/* file-position-end */
-	prev = fm->pos;
-	fm->pos = mem;
+	(void)begin_buffering(stream, &prev);
 	check = file_position_end_file_type_(stream, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
 _g int file_position_set_buffering_(addr stream, size_t value, int *ret)
 {
 	int check;
-	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(mem), "type error");
-
-	/* file-position-set */
-	prev = fm->pos;
-	fm->pos = mem;
+	(void)begin_buffering(stream, &prev);
 	check = file_position_set_file_type_(stream, value, ret);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return check;
 }
 
@@ -432,21 +338,12 @@ _g int finish_output_buffering_(addr stream)
 {
 	int check;
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(mem), "type error");
-
-	/* finish-output */
-	prev = fm->pos;
-	fm->pos = mem;
+	fm = begin_buffering(stream, &prev);
 	check = flush_filememory(fm);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	if (check)
 		return fmte_("flush-filememory error.", NULL);
 
@@ -456,21 +353,12 @@ _g int finish_output_buffering_(addr stream)
 _g int exitpoint_buffering_(addr stream)
 {
 	filestream fm;
-	addr mem, prev;
+	addr prev;
 
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	Check(fm->redirect == 0, "redirect error");
-	GetPathnameStream(stream, &mem);
-	Check(! memory_stream_p(mem), "type error");
-
-	/* finish-output */
-	prev = fm->pos;
-	fm->pos = mem;
+	fm = begin_buffering(stream, &prev);
 	exitpoint_filememory(fm);
-	fm->pos = prev;
+	end_buffering(stream, prev);
 
-	/* result */
 	return 0;
 }
 

@@ -228,14 +228,14 @@ _g int read_utf8_normal(filestream fm, unicode *ret)
 }
 
 
-/* read_utf8_nonblocking */
-static enum read_unicode_result getc_utf8_nonblocking(
+/* read_utf8_nonblock */
+static enum read_unicode_result getc_utf8_nonblock(
 		struct read_unicode_struct *ptr, byte *ret)
 {
 	int check;
 	size_t size;
 
-	check = getc_nonblocking_filememory(ptr->fm, ret, &size);
+	check = getc_nonblock_filememory(ptr->fm, ret, &size);
 	if (check == 0)
 		return size?
 			read_unicode_result_normal:
@@ -246,7 +246,7 @@ static enum read_unicode_result getc_utf8_nonblocking(
 		return read_unicode_result_error;
 }
 
-_g int read_utf8_nonblocking(filestream fm, unicode *ret, int *hang)
+_g int read_utf8_nonblock(filestream fm, unicode *ret, int *hang)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -258,7 +258,7 @@ _g int read_utf8_nonblocking(filestream fm, unicode *ret, int *hang)
 	str.rollback = 0;
 	str.hang = 0;
 
-	check = read_utf8_call(&str, ret, getc_utf8_nonblocking);
+	check = read_utf8_call(&str, ret, getc_utf8_nonblock);
 	*hang = str.hang;
 
 	return check;
@@ -419,8 +419,8 @@ _g int read_utf16_normal(filestream fm, unicode *ret, int be)
 }
 
 
-/* read_utf16_nonblocking */
-_g int read_utf16_nonblocking(filestream fm, unicode *ret, int *hang, int be)
+/* read_utf16_nonblock */
+_g int read_utf16_nonblock(filestream fm, unicode *ret, int *hang, int be)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -432,7 +432,7 @@ _g int read_utf16_nonblocking(filestream fm, unicode *ret, int *hang, int be)
 	str.rollback = 0;
 	str.hang = 0;
 
-	check = read_utf16_call(&str, ret, be, getc_utf8_nonblocking);
+	check = read_utf16_call(&str, ret, be, getc_utf8_nonblock);
 	*hang = str.hang;
 
 	return check;
@@ -533,8 +533,8 @@ _g int read_utf32_normal(filestream fm, unicode *ret, int be)
 }
 
 
-/* read_utf32_nonblocking */
-_g int read_utf32_nonblocking(filestream fm, unicode *ret, int *hang, int be)
+/* read_utf32_nonblock */
+_g int read_utf32_nonblock(filestream fm, unicode *ret, int *hang, int be)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -546,7 +546,7 @@ _g int read_utf32_nonblocking(filestream fm, unicode *ret, int *hang, int be)
 	str.rollback = 0;
 	str.hang = 0;
 
-	check = read_utf32_call(&str, ret, be, getc_utf8_nonblocking);
+	check = read_utf32_call(&str, ret, be, getc_utf8_nonblock);
 	*hang = str.hang;
 
 	return check;

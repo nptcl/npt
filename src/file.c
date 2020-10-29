@@ -93,8 +93,9 @@ _g int script_header(addr stream)
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	Check(fm->redirect, "redirect error");
 	/* read UTF-8 BOM */
-	if (readbom8_encode(fm) < 0)
+	if (readbom8_encode(stream) < 0)
 		return end_filememory(fm);
 	/* #\# */
 	check = getc_filememory(fm, &a);

@@ -249,6 +249,32 @@ finish:
 	return 0;
 }
 
+static inline file_type open_io_chartype_append(LPCWSTR name)
+{
+	file_type file;
+	LARGE_INTEGER zero, pos;
+
+	file = CreateFileW(
+			name,
+			GENERIC_READ | GENERIC_WRITE,
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			NULL,
+			OPEN_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+	if (file == INVALID_HANDLE_VALUE)
+		return file;
+
+	/* file-position-end */
+	zero.QuadPart = 0ULL;
+	if (SetFilePointerEx(file, zero, &pos, FILE_END) != 0)
+		return file;  /* success */
+
+	/* error */
+	(void)CloseHandle(file);
+	return INVALID_HANDLE_VALUE;
+}
+
 static inline int open_io_chartype(file_type *ret,
 		LPCWSTR name, enum FileOutput mode)
 {
@@ -267,14 +293,7 @@ static inline int open_io_chartype(file_type *ret,
 			break;
 
 		case FileOutput_append:
-			file = CreateFileW(
-					name,
-					GENERIC_READ | GENERIC_WRITE | FILE_APPEND_DATA,
-					FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-					NULL,
-					OPEN_ALWAYS,
-					FILE_ATTRIBUTE_NORMAL,
-					NULL);
+			file = open_io_chartype_append(name);
 			break;
 
 		case FileOutput_overwrite:

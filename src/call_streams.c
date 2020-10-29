@@ -407,7 +407,7 @@ static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists 
 	}
 
 	/* :error */
-	GetConst(KEYWORD_APPEND, &check);
+	GetConst(KEYWORD_ERROR, &check);
 	if (value == check)
 		return Result(ret, Stream_Open_IfExists_Error);
 

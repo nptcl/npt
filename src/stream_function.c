@@ -131,7 +131,8 @@ _g int binaryp_stream_(addr stream, int *ret)
 _g int element_type_stream_(addr stream, addr *ret)
 {
 	struct StructStream *ptr;
-	CheckStream(stream, ptr);
+	CheckType(stream, LISPTYPE_STREAM);
+	ptr = PtrStructStream(stream);
 	return (Stream_element_type[(int)ptr->type])(stream, ret);
 }
 

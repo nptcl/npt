@@ -311,3 +311,37 @@ _g void init_stream_binchar_io(void)
 	DefineStreamLet(BincharIO, termsize, file_);
 }
 
+_g void init_stream_probe(void)
+{
+	DefineStreamLet(Probe, close, stream_file_);
+	DefineStream___(Probe, read_byte);
+	DefineStream___(Probe, unread_byte);
+	DefineStream___(Probe, write_byte);
+	DefineStream___(Probe, read_char);
+	DefineStream___(Probe, read_hang);
+	DefineStream___(Probe, unread_char);
+	DefineStream___(Probe, write_char);
+	DefineStream___(Probe, getleft);
+	DefineStream___(Probe, setleft);
+	DefineStreamChk(Probe, inputp, false);
+	DefineStreamChk(Probe, outputp, false);
+	DefineStreamChk(Probe, interactivep, false);
+	DefineStreamChk(Probe, characterp, true);
+	DefineStreamChk(Probe, binaryp, false);
+	DefineStreamLet(Probe, element_type, character_stream);
+	DefineStream___(Probe, file_length);
+	DefineStream___(Probe, file_position);
+	DefineStream___(Probe, file_position_start);
+	DefineStream___(Probe, file_position_end);
+	DefineStream___(Probe, file_position_set);
+	DefineStream___(Probe, file_charlen);
+	DefineStream___(Probe, file_strlen);
+	DefineStream___(Probe, listen);
+	DefineStream___(Probe, clear_input);
+	DefineStream___(Probe, finish_output);
+	DefineStream___(Probe, force_output);
+	DefineStream___(Probe, clear_output);
+	DefineStream___(Probe, exitpoint);
+	DefineStream___(Probe, termsize);
+}
+

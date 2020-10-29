@@ -49,10 +49,12 @@
 #define upgraded_open_element_type_syscode_ _n(upgraded_open_element_type_syscode_)
 #define make_memory_input_stream_syscode_ _n(make_memory_input_stream_syscode_)
 #define make_memory_output_stream_syscode_ _n(make_memory_output_stream_syscode_)
+#define make_memory_io_stream_syscode_ _n(make_memory_io_stream_syscode_)
 #define with_input_from_memory_syscode_ _n(with_input_from_memory_syscode_)
 #define with_output_to_memory_syscode_ _n(with_output_to_memory_syscode_)
 #define get_output_stream_memory_syscode_ _n(get_output_stream_memory_syscode_)
 #define byte_integer_syscode_ _n(byte_integer_syscode_)
+#define question_syscode_ _n(question_syscode_)
 #define extension_syscode _n(extension_syscode)
 
 _g int hello_syscode(Execute ptr);
@@ -97,12 +99,14 @@ _g int declare_parse_syscode(addr form, addr *ret);
 _g int parse_type_syscode(Execute ptr, addr var, addr *ret);
 _g int type_object_syscode(addr var, addr *ret);
 _g int upgraded_open_element_type_syscode_(addr var, addr *ret);
-_g int make_memory_input_stream_syscode_(addr var, addr *ret);
-_g int make_memory_output_stream_syscode_(addr *ret);
+_g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret);
+_g int make_memory_output_stream_syscode_(addr rest, addr *ret);
+_g int make_memory_io_stream_syscode_(addr rest, addr *ret);
 _g int with_input_from_memory_syscode_(Execute ptr, addr form, addr *ret);
 _g int with_output_to_memory_syscode_(Execute ptr, addr form, addr *ret);
 _g int get_output_stream_memory_syscode_(addr var, addr *ret);
 _g int byte_integer_syscode_(addr list, addr *ret);
+_g int question_syscode_(Execute ptr, addr var, addr args);
 _g int extension_syscode(Execute ptr, addr var);
 
 #endif

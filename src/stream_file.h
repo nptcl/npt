@@ -10,6 +10,7 @@
 #define init_stream_binchar_input _n(init_stream_binchar_input)
 #define init_stream_binchar_output _n(init_stream_binchar_output)
 #define init_stream_binchar_io _n(init_stream_binchar_io)
+#define init_stream_probe _n(init_stream_probe)
 
 _g void init_stream_binary_input(void);
 _g void init_stream_binary_output(void);
@@ -20,6 +21,7 @@ _g void init_stream_character_io(void);
 _g void init_stream_binchar_input(void);
 _g void init_stream_binchar_output(void);
 _g void init_stream_binchar_io(void);
+_g void init_stream_probe(void);
 
 #endif
 

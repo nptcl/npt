@@ -9,6 +9,9 @@
 (load #p"test/rtstreams-control.lisp")
 (load #p"test/rtstreams-encode.lisp")
 (load #p"test/rtstreams-memory.lisp")
+(load #p"test/rtstreams-open.lisp")
+(load #p"test/rtstreams-output.lisp")
+(load #p"test/rtstreams-io.lisp")
 
 (load #p"test/rtstreams-broadcast.lisp")
 (load #p"test/rtstreams-concatenated.lisp")

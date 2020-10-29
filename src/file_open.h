@@ -72,6 +72,7 @@
 #define open_io_utf32lebom_stream_ _n(open_io_utf32lebom_stream_)
 #define open_io_utf32bebom_stream_ _n(open_io_utf32bebom_stream_)
 #define open_io_stream_ _n(open_io_stream_)
+#define open_probe_stream_ _n(open_probe_stream_)
 
 /* input */
 _g int open_input_binary_stream_(Execute ptr, addr *stream, addr file);
@@ -183,6 +184,9 @@ _g int open_io_utf32bebom_stream_(Execute ptr, addr *stream,
 		addr file, enum FileOutput mode);
 _g int open_io_stream_(Execute ptr, addr *stream,
 		addr file, enum FileOutput mode);
+
+/* probe */
+_g int open_probe_stream_(Execute ptr, addr *stream, addr file);
 
 #endif
 

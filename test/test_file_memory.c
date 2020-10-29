@@ -200,24 +200,24 @@ static int test_readforce(void)
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 10);
-	result = readforce(&fm, buffer, 5, &size);
+	result = fm_readforce(&fm, buffer, 5, &size);
 	test(result == 0, "readforce1");
 	test(size == 5, "readforce2");
 	test(memcmp(buffer, "01234", 5) == 0, "readforce3");
 
 	aamemory(buffer, 10);
-	result = readforce(&fm, buffer, 3, &size);
+	result = fm_readforce(&fm, buffer, 3, &size);
 	test(result == 0, "readforce4");
 	test(size == 3, "readforce5");
 	test(memcmp(buffer, "567", 3) == 0, "readforce6");
 
 	aamemory(buffer, 10);
-	result = readforce(&fm, buffer, 10, &size);
+	result = fm_readforce(&fm, buffer, 10, &size);
 	test(result == 0, "readforce7");
 	test(size == 2, "readforce8");
 	test(memcmp(buffer, "89", 2) == 0, "readforce9");
 
-	result = readforce(&fm, buffer, 10, &size);
+	result = fm_readforce(&fm, buffer, 10, &size);
 	test(result == 1, "readforce10");
 	close_filememory(&fm);
 
@@ -247,24 +247,24 @@ static int test_writeforce(void)
 	if (writetest("aabbccddeeffgghh", 10)) return 1;
 	if (openoutput(&fm)) return 1;
 	size = 0;
-	result = writeforce(&fm, (const byte *)"Hello", 5, &size);
+	result = fm_writeforce(&fm, (const byte *)"Hello", 5, &size);
 	test(result == 0, "writeforce1");
 	test(size == 5, "writeforce2");
-	result = writeforce(&fm, (const byte *)"abc", 3, &size);
+	result = fm_writeforce(&fm, (const byte *)"abc", 3, &size);
 	test(result == 0, "writeforce3");
 	test(size == 3, "writeforce4");
 	close_filememory(&fm);
 
 	openinput(&fm);
 	aamemory(buffer, 100);
-	result = readforce(&fm, buffer, 100, &size);
+	result = fm_readforce(&fm, buffer, 100, &size);
 	test(result == 0 && memcmp(buffer, "Helloabc", 8) == 0, "writeforce5");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readforce_nonblocking(void)
+static int test_readforce_nonblock(void)
 {
 	byte buffer[100];
 	int result;
@@ -275,31 +275,31 @@ static int test_readforce_nonblocking(void)
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 10);
-	result = readforce_nonblocking(&fm, buffer, 5, &size);
-	test(result == 0, "readforce_nonblocking1");
-	test(size == 5, "readforce_nonblocking2");
-	test(memcmp(buffer, "01234", 5) == 0, "readforce_nonblocking3");
+	result = fm_readforce_nonblock(&fm, buffer, 5, &size);
+	test(result == 0, "readforce_nonblock1");
+	test(size == 5, "readforce_nonblock2");
+	test(memcmp(buffer, "01234", 5) == 0, "readforce_nonblock3");
 
 	aamemory(buffer, 10);
-	result = readforce_nonblocking(&fm, buffer, 3, &size);
-	test(result == 0, "readforce_nonblocking4");
-	test(size == 3, "readforce_nonblocking5");
-	test(memcmp(buffer, "567", 3) == 0, "readforce_nonblocking6");
+	result = fm_readforce_nonblock(&fm, buffer, 3, &size);
+	test(result == 0, "readforce_nonblock4");
+	test(size == 3, "readforce_nonblock5");
+	test(memcmp(buffer, "567", 3) == 0, "readforce_nonblock6");
 
 	aamemory(buffer, 10);
-	result = readforce_nonblocking(&fm, buffer, 10, &size);
-	test(result == 0, "readforce_nonblocking7");
-	test(size == 2, "readforce_nonblocking8");
-	test(memcmp(buffer, "89", 2) == 0, "readforce_nonblocking9");
+	result = fm_readforce_nonblock(&fm, buffer, 10, &size);
+	test(result == 0, "readforce_nonblock7");
+	test(size == 2, "readforce_nonblock8");
+	test(memcmp(buffer, "89", 2) == 0, "readforce_nonblock9");
 
-	result = readforce_nonblocking(&fm, buffer, 10, &size);
-	test(result == 1, "readforce_nonblocking10");
+	result = fm_readforce_nonblock(&fm, buffer, 10, &size);
+	test(result == 1, "readforce_nonblock10");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readnext_large(void)
+static int test_fm_readnext_large(void)
 {
 	byte buffer[100];
 	int result;
@@ -309,18 +309,18 @@ static int test_readnext_large(void)
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
 	size = 0;
-	result = readnext_large(&fm, buffer, 100, &size);
-	test(result == 0, "readnext_large1");
-	test(size == 10, "readnext_large2");
-	result = readnext_large(&fm, buffer, 100, &size);
-	test(result == 1, "readnext_large3");
-	test(fm.mode == filememory_end, "readnext_large4");
+	result = fm_readnext_large(&fm, buffer, 100, &size);
+	test(result == 0, "fm_readnext_large1");
+	test(size == 10, "fm_readnext_large2");
+	result = fm_readnext_large(&fm, buffer, 100, &size);
+	test(result == 1, "fm_readnext_large3");
+	test(fm.mode == filememory_end, "fm_readnext_large4");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readnext_small(void)
+static int test_fm_readnext_small(void)
 {
 	byte buffer[100];
 	int result;
@@ -331,30 +331,30 @@ static int test_readnext_small(void)
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readnext_small(&fm, buffer, 3, &size);
-	test(result == 0, "readnext_small1");
-	test(size == 3, "readnext_small2");
-	test(fm.index == 3, "readnext_small3");
-	test(fm.size == 4, "readnext_small4");
-	test(fm.mode == filememory_normal, "readnext_small5");
-	test(memcmp(buffer, "012", 3) == 0, "readnext_small6");
+	result = fm_readnext_small(&fm, buffer, 3, &size);
+	test(result == 0, "fm_readnext_small1");
+	test(size == 3, "fm_readnext_small2");
+	test(fm.index == 3, "fm_readnext_small3");
+	test(fm.size == 4, "fm_readnext_small4");
+	test(fm.mode == filememory_normal, "fm_readnext_small5");
+	test(memcmp(buffer, "012", 3) == 0, "fm_readnext_small6");
 	close_filememory(&fm);
 
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readnext_small(&fm, buffer, 100, &size);
-	test(result == 0, "readnext_small7");
-	test(size == 4, "readnext_small8");
-	test(fm.index == 0, "readnext_small9");
-	test(fm.mode == filememory_normal, "readnext_small10");
-	test(memcmp(buffer, "0123", 4) == 0, "readnext_small11");
+	result = fm_readnext_small(&fm, buffer, 100, &size);
+	test(result == 0, "fm_readnext_small7");
+	test(size == 4, "fm_readnext_small8");
+	test(fm.index == 0, "fm_readnext_small9");
+	test(fm.mode == filememory_normal, "fm_readnext_small10");
+	test(memcmp(buffer, "0123", 4) == 0, "fm_readnext_small11");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readnext(void)
+static int test_fm_readnext(void)
 {
 	byte buffer[100];
 	int result;
@@ -364,18 +364,18 @@ static int test_readnext(void)
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
 	size = 0;
-	result = readnext(&fm, buffer, 100, &size);
-	test(result == 0, "readnext1");
-	test(size == 10, "readnext2");
-	result = readnext(&fm, buffer, 100, &size);
-	test(result == 1, "readnext3");
-	test(fm.mode == filememory_end, "readnext4");
+	result = fm_readnext(&fm, buffer, 100, &size);
+	test(result == 0, "fm_readnext1");
+	test(size == 10, "fm_readnext2");
+	result = fm_readnext(&fm, buffer, 100, &size);
+	test(result == 1, "fm_readnext3");
+	test(fm.mode == filememory_end, "fm_readnext4");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readbuffer(void)
+static int test_fm_readbuffer(void)
 {
 	byte buffer[100];
 	int result;
@@ -389,30 +389,30 @@ static int test_readbuffer(void)
 	fm.size = 8;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readbuffer(&fm, buffer, 5, &size);
-	test(result == 0, "readbuffer1");
-	test(size == 5, "readbuffer2");
-	test(fm.index == 7, "readbuffer3");
-	test(memcmp(buffer, "cdefg", 5) == 0, "readbuffer4");
-	result = readbuffer(&fm, buffer, 1, &size);
-	test(result == 0, "readbuffer5");
-	test(size == 1, "readbuffer6");
-	test(fm.index == 0, "readbuffer7");
-	test(memcmp(buffer, "h", 1) == 0, "readbuffer8");
+	result = fm_readbuffer(&fm, buffer, 5, &size);
+	test(result == 0, "fm_readbuffer1");
+	test(size == 5, "fm_readbuffer2");
+	test(fm.index == 7, "fm_readbuffer3");
+	test(memcmp(buffer, "cdefg", 5) == 0, "fm_readbuffer4");
+	result = fm_readbuffer(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readbuffer5");
+	test(size == 1, "fm_readbuffer6");
+	test(fm.index == 0, "fm_readbuffer7");
+	test(memcmp(buffer, "h", 1) == 0, "fm_readbuffer8");
 
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	fm.index = 2;
 	fm.size = 8;
-	result = readbuffer(&fm, buffer, 10, &size);
-	test(result == 0, "readbuffer9");
-	test(size == 10, "readbuffer10");
-	test(memcmp(buffer, "cdefgh0123", 10) == 0, "readbuffer11");
+	result = fm_readbuffer(&fm, buffer, 10, &size);
+	test(result == 0, "fm_readbuffer9");
+	test(size == 10, "fm_readbuffer10");
+	test(memcmp(buffer, "cdefgh0123", 10) == 0, "fm_readbuffer11");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readungetc(void)
+static int test_fm_readungetc(void)
 {
 	byte buffer[100];
 	size_t size;
@@ -429,17 +429,17 @@ static int test_readungetc(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc(&fm, buffer, 1, &size);
-	test(result == 0, "readungetc1");
-	test(size == 1, "readungetc2");
-	test(buffer[0] == 'A', "readungetc3");
-	test(fm.ungetc == 2, "readungetc4");
+	result = fm_readungetc(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readungetc1");
+	test(size == 1, "fm_readungetc2");
+	test(buffer[0] == 'A', "fm_readungetc3");
+	test(fm.ungetc == 2, "fm_readungetc4");
 
 	aamemory(buffer, 100);
-	result = readungetc(&fm, buffer, 2, &size);
-	test(result == 0, "readungetc5");
-	test(size == 2, "readungetc6");
-	test(memcmp(buffer, "BC", 2) == 0, "readungetc7");
+	result = fm_readungetc(&fm, buffer, 2, &size);
+	test(result == 0, "fm_readungetc5");
+	test(size == 2, "fm_readungetc6");
+	test(memcmp(buffer, "BC", 2) == 0, "fm_readungetc7");
 
 	fm.ungetc = 3;
 	fm.ungetc_value[2] = 'A';
@@ -449,16 +449,16 @@ static int test_readungetc(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc(&fm, buffer, 3+6+5, &size);
-	test(result == 0, "readungetc8");
-	test(size == 3+6+5, "readungetc9");
-	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "readungetc10");
+	result = fm_readungetc(&fm, buffer, 3+6+5, &size);
+	test(result == 0, "fm_readungetc8");
+	test(size == 3+6+5, "fm_readungetc9");
+	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "fm_readungetc10");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_read_normal(void)
+static int test_fm_read_normal(void)
 {
 	byte buffer[100];
 	int result;
@@ -467,17 +467,17 @@ static int test_read_normal(void)
 
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
-	result = read_normal(&fm, buffer, 2, &size);
-	test(result == 0, "read_normal1");
-	test(size == 2, "read_normal2");
-	test(memcmp(buffer, "01", 2) == 0, "read_normal3");
+	result = fm_read_normal(&fm, buffer, 2, &size);
+	test(result == 0, "fm_read_normal1");
+	test(size == 2, "fm_read_normal2");
+	test(memcmp(buffer, "01", 2) == 0, "fm_read_normal3");
 	fm.ungetc_value[1] = 'A';
 	fm.ungetc_value[0] = 'B';
 	fm.ungetc = 2;
-	result = read_normal(&fm, buffer, 4, &size);
-	test(result == 0, "read_normal4");
-	test(size == 4, "read_normal5");
-	test(memcmp(buffer, "AB23", 4) == 0, "read_normal6");
+	result = fm_read_normal(&fm, buffer, 4, &size);
+	test(result == 0, "fm_read_normal4");
+	test(size == 4, "fm_read_normal5");
+	test(memcmp(buffer, "AB23", 4) == 0, "fm_read_normal6");
 	close_filememory(&fm);
 
 	RETURN;
@@ -516,7 +516,7 @@ static int test_read_filememory(void)
 	RETURN;
 }
 
-static int test_read_normal_force(void)
+static int test_fm_read_normal_force(void)
 {
 	byte buffer[100];
 	int result;
@@ -526,17 +526,17 @@ static int test_read_normal_force(void)
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
 	size = 999;
-	result = read_normal_force(&fm, buffer, 2, &size);
-	test(result == 0, "read_normal_force1");
-	test(size == 2, "read_normal_force2");
-	test(memcmp(buffer, "01", 2) == 0, "read_normal_force3");
+	result = fm_read_normal_force(&fm, buffer, 2, &size);
+	test(result == 0, "fm_read_normal_force1");
+	test(size == 2, "fm_read_normal_force2");
+	test(memcmp(buffer, "01", 2) == 0, "fm_read_normal_force3");
 	fm.ungetc_value[1] = 'A';
 	fm.ungetc_value[0] = 'B';
 	fm.ungetc = 2;
-	result = read_normal_force(&fm, buffer, 4, &size);
-	test(result == 0, "read_normal_force4");
-	test(size == 4, "read_normal_force5");
-	test(memcmp(buffer, "AB23", 4) == 0, "read_normal_force6");
+	result = fm_read_normal_force(&fm, buffer, 4, &size);
+	test(result == 0, "fm_read_normal_force4");
+	test(size == 4, "fm_read_normal_force5");
+	test(memcmp(buffer, "AB23", 4) == 0, "fm_read_normal_force6");
 	close_filememory(&fm);
 
 	RETURN;
@@ -575,7 +575,7 @@ static int test_readf_filememory(void)
 	RETURN;
 }
 
-static int test_readnext_nonblocking_large(void)
+static int test_fm_readnext_nonblock_large(void)
 {
 	byte buffer[100];
 	int result;
@@ -585,18 +585,18 @@ static int test_readnext_nonblocking_large(void)
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
 	size = 0;
-	result = readnext_nonblocking_large(&fm, buffer, 100, &size);
-	test(result == 0, "readnext_nonblocking_large1");
-	test(size == 10, "readnext_nonblocking_large2");
-	result = readnext_nonblocking_large(&fm, buffer, 100, &size);
-	test(result == 1, "readnext_nonblocking_large3");
-	test(fm.mode == filememory_end, "readnext_nonblocking_large4");
+	result = fm_readnext_nonblock_large(&fm, buffer, 100, &size);
+	test(result == 0, "fm_readnext_nonblock_large1");
+	test(size == 10, "fm_readnext_nonblock_large2");
+	result = fm_readnext_nonblock_large(&fm, buffer, 100, &size);
+	test(result == 1, "fm_readnext_nonblock_large3");
+	test(fm.mode == filememory_end, "fm_readnext_nonblock_large4");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readnext_nonblocking_small(void)
+static int test_fm_readnext_nonblock_small(void)
 {
 	byte buffer[100];
 	int result;
@@ -607,30 +607,30 @@ static int test_readnext_nonblocking_small(void)
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readnext_nonblocking_small(&fm, buffer, 3, &size);
-	test(result == 0, "readnext_nonblocking_small1");
-	test(size == 3, "readnext_nonblocking_small2");
-	test(fm.index == 3, "readnext_nonblocking_small3");
-	test(fm.size == 4, "readnext_nonblocking_small4");
-	test(fm.mode == filememory_normal, "readnext_nonblocking_small5");
-	test(memcmp(buffer, "012", 3) == 0, "readnext_nonblocking_small6");
+	result = fm_readnext_nonblock_small(&fm, buffer, 3, &size);
+	test(result == 0, "fm_readnext_nonblock_small1");
+	test(size == 3, "fm_readnext_nonblock_small2");
+	test(fm.index == 3, "fm_readnext_nonblock_small3");
+	test(fm.size == 4, "fm_readnext_nonblock_small4");
+	test(fm.mode == filememory_normal, "fm_readnext_nonblock_small5");
+	test(memcmp(buffer, "012", 3) == 0, "fm_readnext_nonblock_small6");
 	close_filememory(&fm);
 
 	if (openinput(&fm)) return 1;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readnext_nonblocking_small(&fm, buffer, 100, &size);
-	test(result == 0, "readnext_nonblocking_small7");
-	test(size == 4, "readnext_nonblocking_small8");
-	test(fm.index == 0, "readnext_nonblocking_small9");
-	test(fm.mode == filememory_normal, "readnext_nonblocking_small10");
-	test(memcmp(buffer, "0123", 4) == 0, "readnext_nonblocking_small11");
+	result = fm_readnext_nonblock_small(&fm, buffer, 100, &size);
+	test(result == 0, "fm_readnext_nonblock_small7");
+	test(size == 4, "fm_readnext_nonblock_small8");
+	test(fm.index == 0, "fm_readnext_nonblock_small9");
+	test(fm.mode == filememory_normal, "fm_readnext_nonblock_small10");
+	test(memcmp(buffer, "0123", 4) == 0, "fm_readnext_nonblock_small11");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readnext_nonblocking(void)
+static int test_fm_readnext_nonblock(void)
 {
 	byte buffer[100];
 	int result;
@@ -640,18 +640,18 @@ static int test_readnext_nonblocking(void)
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
 	size = 0;
-	result = readnext_nonblocking(&fm, buffer, 100, &size);
-	test(result == 0, "readnext_nonblocking1");
-	test(size == 10, "readnext_nonblocking2");
-	result = readnext_nonblocking(&fm, buffer, 100, &size);
-	test(result == 1, "readnext_nonblocking3");
-	test(fm.mode == filememory_end, "readnext_nonblocking4");
+	result = fm_readnext_nonblock(&fm, buffer, 100, &size);
+	test(result == 0, "fm_readnext_nonblock1");
+	test(size == 10, "fm_readnext_nonblock2");
+	result = fm_readnext_nonblock(&fm, buffer, 100, &size);
+	test(result == 1, "fm_readnext_nonblock3");
+	test(fm.mode == filememory_end, "fm_readnext_nonblock4");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readbuffer_nonblocking(void)
+static int test_fm_readbuffer_nonblock(void)
 {
 	byte buffer[100];
 	int result;
@@ -665,30 +665,30 @@ static int test_readbuffer_nonblocking(void)
 	fm.size = 8;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readbuffer_nonblocking(&fm, buffer, 5, &size);
-	test(result == 0, "readbuffer1");
-	test(size == 5, "readbuffer_nonblocking2");
-	test(fm.index == 7, "readbuffer_nonblocking3");
-	test(memcmp(buffer, "cdefg", 5) == 0, "readbuffer_nonblocking4");
-	result = readbuffer_nonblocking(&fm, buffer, 1, &size);
-	test(result == 0, "readbuffer_nonblocking5");
-	test(size == 1, "readbuffer_nonblocking6");
-	test(fm.index == 0, "readbuffer_nonblocking7");
-	test(memcmp(buffer, "h", 1) == 0, "readbuffer_nonblocking8");
+	result = fm_readbuffer_nonblock(&fm, buffer, 5, &size);
+	test(result == 0, "fm_readbuffer1");
+	test(size == 5, "fm_readbuffer_nonblock2");
+	test(fm.index == 7, "fm_readbuffer_nonblock3");
+	test(memcmp(buffer, "cdefg", 5) == 0, "fm_readbuffer_nonblock4");
+	result = fm_readbuffer_nonblock(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readbuffer_nonblock5");
+	test(size == 1, "fm_readbuffer_nonblock6");
+	test(fm.index == 0, "fm_readbuffer_nonblock7");
+	test(memcmp(buffer, "h", 1) == 0, "fm_readbuffer_nonblock8");
 
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	fm.index = 2;
 	fm.size = 8;
-	result = readbuffer_nonblocking(&fm, buffer, 10, &size);
-	test(result == 0, "readbuffer_nonblocking9");
-	test(size == 10, "readbuffer_nonblocking10");
-	test(memcmp(buffer, "cdefgh0123", 10) == 0, "readbuffer_nonblocking11");
+	result = fm_readbuffer_nonblock(&fm, buffer, 10, &size);
+	test(result == 0, "fm_readbuffer_nonblock9");
+	test(size == 10, "fm_readbuffer_nonblock10");
+	test(memcmp(buffer, "cdefgh0123", 10) == 0, "fm_readbuffer_nonblock11");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readungetc_nonblocking(void)
+static int test_fm_readungetc_nonblock(void)
 {
 	byte buffer[100];
 	size_t size;
@@ -705,17 +705,17 @@ static int test_readungetc_nonblocking(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc_nonblocking(&fm, buffer, 1, &size);
-	test(result == 0, "readungetc_nonblocking1");
-	test(size == 1, "readungetc_nonblocking2");
-	test(buffer[0] == 'A', "readungetc_nonblocking3");
-	test(fm.ungetc == 2, "readungetc_nonblocking4");
+	result = fm_readungetc_nonblock(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readungetc_nonblock1");
+	test(size == 1, "fm_readungetc_nonblock2");
+	test(buffer[0] == 'A', "fm_readungetc_nonblock3");
+	test(fm.ungetc == 2, "fm_readungetc_nonblock4");
 
 	aamemory(buffer, 100);
-	result = readungetc_nonblocking(&fm, buffer, 2, &size);
-	test(result == 0, "readungetc_nonblocking5");
-	test(size == 2, "readungetc_nonblocking6");
-	test(memcmp(buffer, "BC", 2) == 0, "readungetc_nonblocking7");
+	result = fm_readungetc_nonblock(&fm, buffer, 2, &size);
+	test(result == 0, "fm_readungetc_nonblock5");
+	test(size == 2, "fm_readungetc_nonblock6");
+	test(memcmp(buffer, "BC", 2) == 0, "fm_readungetc_nonblock7");
 
 	fm.ungetc = 3;
 	fm.ungetc_value[2] = 'A';
@@ -725,16 +725,16 @@ static int test_readungetc_nonblocking(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc_nonblocking(&fm, buffer, 3+6+5, &size);
-	test(result == 0, "readungetc_nonblocking8");
-	test(size == 3+6+5, "readungetc_nonblocking9");
-	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "readungetc_nonblocking10");
+	result = fm_readungetc_nonblock(&fm, buffer, 3+6+5, &size);
+	test(result == 0, "fm_readungetc_nonblock8");
+	test(size == 3+6+5, "fm_readungetc_nonblock9");
+	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "fm_readungetc_nonblock10");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_read_nonblocking(void)
+static int test_read_nonblock(void)
 {
 	byte buffer[100];
 	int result;
@@ -743,23 +743,23 @@ static int test_read_nonblocking(void)
 
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
-	result = read_nonblocking(&fm, buffer, 2, &size);
-	test(result == 0, "read_nonblocking1");
-	test(size == 2, "read_nonblocking2");
-	test(memcmp(buffer, "01", 2) == 0, "read_nonblocking3");
+	result = read_nonblock(&fm, buffer, 2, &size);
+	test(result == 0, "read_nonblock1");
+	test(size == 2, "read_nonblock2");
+	test(memcmp(buffer, "01", 2) == 0, "read_nonblock3");
 	fm.ungetc_value[1] = 'A';
 	fm.ungetc_value[0] = 'B';
 	fm.ungetc = 2;
-	result = read_nonblocking(&fm, buffer, 4, &size);
-	test(result == 0, "read_nonblocking4");
-	test(size == 4, "read_nonblocking5");
-	test(memcmp(buffer, "AB23", 4) == 0, "read_nonblocking6");
+	result = read_nonblock(&fm, buffer, 4, &size);
+	test(result == 0, "read_nonblock4");
+	test(size == 4, "read_nonblock5");
+	test(memcmp(buffer, "AB23", 4) == 0, "read_nonblock6");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_read_nonblocking_filememory(void)
+static int test_read_nonblock_filememory(void)
 {
 	byte buffer[100];
 	int result;
@@ -768,34 +768,34 @@ static int test_read_nonblocking_filememory(void)
 
 	if (writetest("0123456789", 10)) return 1;
 	if (openinput(&fm)) return 1;
-	result = read_nonblocking_filememory(&fm, buffer, 2, &size);
-	test(result == 0, "read_nonblocking_filememory1");
-	test(size == 2, "read_nonblocking_filememory2");
-	test(memcmp(buffer, "01", 2) == 0, "read_nonblocking_filememory3");
+	result = read_nonblock_filememory(&fm, buffer, 2, &size);
+	test(result == 0, "read_nonblock_filememory1");
+	test(size == 2, "read_nonblock_filememory2");
+	test(memcmp(buffer, "01", 2) == 0, "read_nonblock_filememory3");
 	fm.ungetc_value[1] = 'A';
 	fm.ungetc_value[0] = 'B';
 	fm.ungetc = 2;
-	result = read_nonblocking_filememory(&fm, buffer, 4, &size);
-	test(result == 0, "read_nonblocking_filememory4");
-	test(size == 4, "read_nonblocking_filememory5");
-	test(memcmp(buffer, "AB23", 4) == 0, "read_nonblocking_filememory6");
+	result = read_nonblock_filememory(&fm, buffer, 4, &size);
+	test(result == 0, "read_nonblock_filememory4");
+	test(size == 4, "read_nonblock_filememory5");
+	test(memcmp(buffer, "AB23", 4) == 0, "read_nonblock_filememory6");
 	close_filememory(&fm);
 
 	fm.direct = filememory_output;
-	test(read_nonblocking_filememory(&fm, buffer, 10, &size) < 0,
-			"read_nonblocking_filememory7");
+	test(read_nonblock_filememory(&fm, buffer, 10, &size) < 0,
+			"read_nonblock_filememory7");
 	fm.direct = filememory_input;
 	fm.mode = filememory_end;
-	test(read_nonblocking_filememory(&fm, buffer, 10, &size) == 1,
-			"read_nonblocking_filememory8");
+	test(read_nonblock_filememory(&fm, buffer, 10, &size) == 1,
+			"read_nonblock_filememory8");
 	fm.mode = filememory_error;
-	test(read_nonblocking_filememory(&fm, buffer, 10, &size) < 0,
-			"read_nonblocking_filememory8");
+	test(read_nonblock_filememory(&fm, buffer, 10, &size) < 0,
+			"read_nonblock_filememory8");
 
 	RETURN;
 }
 
-static int test_readbuffer_small(void)
+static int test_fm_readbuffer_small(void)
 {
 	byte buffer[100];
 	int result;
@@ -809,30 +809,30 @@ static int test_readbuffer_small(void)
 	fm.size = 8;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readbuffer_small(&fm, buffer, 5, &size);
-	test(result == 0, "readbuffer_small1");
-	test(size == 5, "readbuffer_small2");
-	test(fm.index == 7, "readbuffer_small3");
-	test(memcmp(buffer, "cdefg", 5) == 0, "readbuffer_small4");
-	result = readbuffer_small(&fm, buffer, 1, &size);
-	test(result == 0, "readbuffer_small5");
-	test(size == 1, "readbuffer_small6");
-	test(fm.index == 0, "readbuffer_small7");
-	test(memcmp(buffer, "h", 1) == 0, "readbuffer_small8");
+	result = fm_readbuffer_small(&fm, buffer, 5, &size);
+	test(result == 0, "fm_readbuffer_small1");
+	test(size == 5, "fm_readbuffer_small2");
+	test(fm.index == 7, "fm_readbuffer_small3");
+	test(memcmp(buffer, "cdefg", 5) == 0, "fm_readbuffer_small4");
+	result = fm_readbuffer_small(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readbuffer_small5");
+	test(size == 1, "fm_readbuffer_small6");
+	test(fm.index == 0, "fm_readbuffer_small7");
+	test(memcmp(buffer, "h", 1) == 0, "fm_readbuffer_small8");
 
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	fm.index = 2;
 	fm.size = 8;
-	result = readbuffer_small(&fm, buffer, 10, &size);
-	test(result == 0, "readbuffer_small9");
-	test(size == 10, "readbuffer_small10");
-	test(memcmp(buffer, "cdefgh0123", 10) == 0, "readbuffer_small11");
+	result = fm_readbuffer_small(&fm, buffer, 10, &size);
+	test(result == 0, "fm_readbuffer_small9");
+	test(size == 10, "fm_readbuffer_small10");
+	test(memcmp(buffer, "cdefgh0123", 10) == 0, "fm_readbuffer_small11");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readungetc_small(void)
+static int test_fm_readungetc_small(void)
 {
 	byte buffer[100];
 	size_t size;
@@ -849,17 +849,17 @@ static int test_readungetc_small(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc_small(&fm, buffer, 1, &size);
-	test(result == 0, "readungetc_small1");
-	test(size == 1, "readungetc_small2");
-	test(buffer[0] == 'A', "readungetc_small3");
-	test(fm.ungetc == 2, "readungetc_small4");
+	result = fm_readungetc_small(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readungetc_small1");
+	test(size == 1, "fm_readungetc_small2");
+	test(buffer[0] == 'A', "fm_readungetc_small3");
+	test(fm.ungetc == 2, "fm_readungetc_small4");
 
 	aamemory(buffer, 100);
-	result = readungetc_small(&fm, buffer, 2, &size);
-	test(result == 0, "readungetc_small5");
-	test(size == 2, "readungetc_small6");
-	test(memcmp(buffer, "BC", 2) == 0, "readungetc_small7");
+	result = fm_readungetc_small(&fm, buffer, 2, &size);
+	test(result == 0, "fm_readungetc_small5");
+	test(size == 2, "fm_readungetc_small6");
+	test(memcmp(buffer, "BC", 2) == 0, "fm_readungetc_small7");
 
 	fm.ungetc = 3;
 	fm.ungetc_value[2] = 'A';
@@ -869,10 +869,10 @@ static int test_readungetc_small(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc_small(&fm, buffer, 3+6+5, &size);
-	test(result == 0, "readungetc_small8");
-	test(size == 3+6+5, "readungetc_small9");
-	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "readungetc_small10");
+	result = fm_readungetc_small(&fm, buffer, 3+6+5, &size);
+	test(result == 0, "fm_readungetc_small8");
+	test(size == 3+6+5, "fm_readungetc_small9");
+	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "fm_readungetc_small10");
 	close_filememory(&fm);
 
 	RETURN;
@@ -944,7 +944,7 @@ static int test_getc_filememory(void)
 	RETURN;
 }
 
-static int test_readbuffer_nonblocking_small(void)
+static int test_fm_readbuffer_nonblock_small(void)
 {
 	byte buffer[100];
 	int result;
@@ -958,30 +958,30 @@ static int test_readbuffer_nonblocking_small(void)
 	fm.size = 8;
 	size = 0;
 	aamemory(buffer, 100);
-	result = readbuffer_nonblocking_small(&fm, buffer, 5, &size);
-	test(result == 0, "readbuffer_nonblocking_small1");
-	test(size == 5, "readbuffer_nonblocking_small2");
-	test(fm.index == 7, "readbuffer_nonblocking_small3");
-	test(memcmp(buffer, "cdefg", 5) == 0, "readbuffer_nonblocking_small4");
-	result = readbuffer_nonblocking_small(&fm, buffer, 1, &size);
-	test(result == 0, "readbuffer_nonblocking_small5");
-	test(size == 1, "readbuffer_nonblocking_small6");
-	test(fm.index == 0, "readbuffer_nonblocking_small7");
-	test(memcmp(buffer, "h", 1) == 0, "readbuffer_nonblocking_small8");
+	result = fm_readbuffer_nonblock_small(&fm, buffer, 5, &size);
+	test(result == 0, "fm_readbuffer_nonblock_small1");
+	test(size == 5, "fm_readbuffer_nonblock_small2");
+	test(fm.index == 7, "fm_readbuffer_nonblock_small3");
+	test(memcmp(buffer, "cdefg", 5) == 0, "fm_readbuffer_nonblock_small4");
+	result = fm_readbuffer_nonblock_small(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readbuffer_nonblock_small5");
+	test(size == 1, "fm_readbuffer_nonblock_small6");
+	test(fm.index == 0, "fm_readbuffer_nonblock_small7");
+	test(memcmp(buffer, "h", 1) == 0, "fm_readbuffer_nonblock_small8");
 
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	fm.index = 2;
 	fm.size = 8;
-	result = readbuffer_nonblocking_small(&fm, buffer, 10, &size);
-	test(result == 0, "readbuffer_nonblocking_small9");
-	test(size == 10, "readbuffer_nonblocking_small10");
-	test(memcmp(buffer, "cdefgh0123", 10) == 0, "readbuffer_nonblocking_small11");
+	result = fm_readbuffer_nonblock_small(&fm, buffer, 10, &size);
+	test(result == 0, "fm_readbuffer_nonblock_small9");
+	test(size == 10, "fm_readbuffer_nonblock_small10");
+	test(memcmp(buffer, "cdefgh0123", 10) == 0, "fm_readbuffer_nonblock_small11");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_readungetc_nonblocking_small(void)
+static int test_fm_readungetc_nonblock_small(void)
 {
 	byte buffer[100];
 	size_t size;
@@ -998,17 +998,17 @@ static int test_readungetc_nonblocking_small(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc_nonblocking_small(&fm, buffer, 1, &size);
-	test(result == 0, "readungetc_nonblocking_small1");
-	test(size == 1, "readungetc_nonblocking_small2");
-	test(buffer[0] == 'A', "readungetc_nonblocking_small3");
-	test(fm.ungetc == 2, "readungetc_nonblocking_small4");
+	result = fm_readungetc_nonblock_small(&fm, buffer, 1, &size);
+	test(result == 0, "fm_readungetc_nonblock_small1");
+	test(size == 1, "fm_readungetc_nonblock_small2");
+	test(buffer[0] == 'A', "fm_readungetc_nonblock_small3");
+	test(fm.ungetc == 2, "fm_readungetc_nonblock_small4");
 
 	aamemory(buffer, 100);
-	result = readungetc_nonblocking_small(&fm, buffer, 2, &size);
-	test(result == 0, "readungetc_nonblocking_small5");
-	test(size == 2, "readungetc_nonblocking_small6");
-	test(memcmp(buffer, "BC", 2) == 0, "readungetc_nonblocking_small7");
+	result = fm_readungetc_nonblock_small(&fm, buffer, 2, &size);
+	test(result == 0, "fm_readungetc_nonblock_small5");
+	test(size == 2, "fm_readungetc_nonblock_small6");
+	test(memcmp(buffer, "BC", 2) == 0, "fm_readungetc_nonblock_small7");
 
 	fm.ungetc = 3;
 	fm.ungetc_value[2] = 'A';
@@ -1018,16 +1018,16 @@ static int test_readungetc_nonblocking_small(void)
 	fm.size = 8;
 	memcpy(fm.buffer, "abcdefghijkl", 8);
 	aamemory(buffer, 100);
-	result = readungetc_nonblocking_small(&fm, buffer, 3+6+5, &size);
-	test(result == 0, "readungetc_nonblocking_small8");
-	test(size == 3+6+5, "readungetc_nonblocking_small9");
-	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "readungetc_nonblocking_small10");
+	result = fm_readungetc_nonblock_small(&fm, buffer, 3+6+5, &size);
+	test(result == 0, "fm_readungetc_nonblock_small8");
+	test(size == 3+6+5, "fm_readungetc_nonblock_small9");
+	test(memcmp(buffer, "ABCcdefgh01234", 3+6+5) == 0, "fm_readungetc_nonblock_small10");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_getc_nonblocking(void)
+static int test_getc_nonblock(void)
 {
 	byte c;
 	int result;
@@ -1044,24 +1044,24 @@ static int test_getc_nonblocking(void)
 	fm.buffer[0] = 'D';
 	c = 0;
 	size = 0;
-	result = getc_nonblocking(&fm, &c, &size);
-	test(result == 0, "getc_nonblocking1");
-	test(c == 'C', "getc_nonblocking2");
-	test(size == 1, "getc_nonblocking3");
-	result = getc_nonblocking(&fm, &c, &size);
-	test(result == 0, "getc_nonblocking4");
-	test(c == 'h', "getc_nonblocking5");
-	test(size == 1, "getc_nonblocking6");
-	result = getc_nonblocking(&fm, &c, &size);
-	test(result == 0, "getc_nonblocking7");
-	test(c == '0', "getc_nonblocking8");
-	test(size == 1, "getc_nonblocking9");
+	result = getc_nonblock(&fm, &c, &size);
+	test(result == 0, "getc_nonblock1");
+	test(c == 'C', "getc_nonblock2");
+	test(size == 1, "getc_nonblock3");
+	result = getc_nonblock(&fm, &c, &size);
+	test(result == 0, "getc_nonblock4");
+	test(c == 'h', "getc_nonblock5");
+	test(size == 1, "getc_nonblock6");
+	result = getc_nonblock(&fm, &c, &size);
+	test(result == 0, "getc_nonblock7");
+	test(c == '0', "getc_nonblock8");
+	test(size == 1, "getc_nonblock9");
 	close_filememory(&fm);
 
 	RETURN;
 }
 
-static int test_getc_nonblocking_filememory(void)
+static int test_getc_nonblock_filememory(void)
 {
 	byte c;
 	int result;
@@ -1078,30 +1078,30 @@ static int test_getc_nonblocking_filememory(void)
 	fm.buffer[0] = 'D';
 	c = 0;
 	size = 0;
-	result = getc_nonblocking_filememory(&fm, &c, &size);
-	test(result == 0, "getc_nonblocking_filememory1");
-	test(c == 'C', "getc_nonblocking_filememory2");
-	test(size == 1, "getc_nonblocking_filememory3");
-	result = getc_nonblocking_filememory(&fm, &c, &size);
-	test(result == 0, "getc_nonblocking_filememory4");
-	test(c == 'h', "getc_nonblocking_filememory5");
-	test(size == 1, "getc_nonblocking_filememory6");
-	result = getc_nonblocking_filememory(&fm, &c, &size);
-	test(result == 0, "getc_nonblocking_filememory7");
-	test(c == '0', "getc_nonblocking_filememory8");
-	test(size == 1, "getc_nonblocking_filememory9");
+	result = getc_nonblock_filememory(&fm, &c, &size);
+	test(result == 0, "getc_nonblock_filememory1");
+	test(c == 'C', "getc_nonblock_filememory2");
+	test(size == 1, "getc_nonblock_filememory3");
+	result = getc_nonblock_filememory(&fm, &c, &size);
+	test(result == 0, "getc_nonblock_filememory4");
+	test(c == 'h', "getc_nonblock_filememory5");
+	test(size == 1, "getc_nonblock_filememory6");
+	result = getc_nonblock_filememory(&fm, &c, &size);
+	test(result == 0, "getc_nonblock_filememory7");
+	test(c == '0', "getc_nonblock_filememory8");
+	test(size == 1, "getc_nonblock_filememory9");
 	close_filememory(&fm);
 
 	fm.direct = filememory_output;
-	test(getc_nonblocking_filememory(&fm, &c, &size) < 0,
-			"getc_nonblocking_filememory10");
+	test(getc_nonblock_filememory(&fm, &c, &size) < 0,
+			"getc_nonblock_filememory10");
 	fm.direct = filememory_input;
 	fm.mode = filememory_end;
-	test(getc_nonblocking_filememory(&fm, &c, &size) == 1,
-			"getc_nonblocking_filememory11");
+	test(getc_nonblock_filememory(&fm, &c, &size) == 1,
+			"getc_nonblock_filememory11");
 	fm.mode = filememory_error;
-	test(getc_nonblocking_filememory(&fm, &c, &size) < 0,
-			"getc_nonblocking_filememory12");
+	test(getc_nonblock_filememory(&fm, &c, &size) < 0,
+			"getc_nonblock_filememory12");
 
 	RETURN;
 }
@@ -1142,7 +1142,7 @@ static int readfile(void *ptr, size_t size, size_t *ret)
 	return 0;
 }
 
-static int test_flush_write(void)
+static int test_flush_write_filememory(void)
 {
 	byte buffer[100];
 	int result;
@@ -1152,14 +1152,14 @@ static int test_flush_write(void)
 	if (openoutput(&fm)) return 1;
 	memcpy(fm.buffer, "XYZ", 3);
 	fm.index = 3;
-	result = flush_write(&fm);
-	test(result == 0, "flush_write1");
-	test(fm.index == 0, "flush_write2");
+	result = flush_write_filememory(&fm);
+	test(result == 0, "flush_write_filememory1");
+	test(fm.index == 0, "flush_write_filememory2");
 
 	flush_arch(fm.file);
 	if (readfile(buffer, 100, &size)) return 1;
-	test(size == 3, "flush_write3");
-	test(memcmp(buffer, "XYZ", 3) == 0, "flush_write4");
+	test(size == 3, "flush_write_filememory3");
+	test(memcmp(buffer, "XYZ", 3) == 0, "flush_write_filememory4");
 	close_filememory(&fm);
 
 	RETURN;
@@ -1236,7 +1236,7 @@ static int test_write_filememory(void)
 	RETURN;
 }
 
-static int test_putcnormal(void)
+static int test_fm_putcnormal(void)
 {
 	struct filememory fm;
 
@@ -1264,36 +1264,36 @@ static int testcase_file_memory(void)
 	TestBreak(test_close_filememory);
 	TestBreak(test_readforce);
 	TestBreak(test_writeforce);
-	TestBreak(test_readforce_nonblocking);
-	TestBreak(test_readnext_large);
-	TestBreak(test_readnext_small);
-	TestBreak(test_readnext);
-	TestBreak(test_readbuffer);
-	TestBreak(test_readungetc);
-	TestBreak(test_read_normal);
+	TestBreak(test_readforce_nonblock);
+	TestBreak(test_fm_readnext_large);
+	TestBreak(test_fm_readnext_small);
+	TestBreak(test_fm_readnext);
+	TestBreak(test_fm_readbuffer);
+	TestBreak(test_fm_readungetc);
+	TestBreak(test_fm_read_normal);
 	TestBreak(test_read_filememory);
-	TestBreak(test_read_normal_force);
+	TestBreak(test_fm_read_normal_force);
 	TestBreak(test_readf_filememory);
-	TestBreak(test_readnext_nonblocking_large);
-	TestBreak(test_readnext_nonblocking_small);
-	TestBreak(test_readnext_nonblocking);
-	TestBreak(test_readbuffer_nonblocking);
-	TestBreak(test_readungetc_nonblocking);
-	TestBreak(test_read_nonblocking);
-	TestBreak(test_read_nonblocking_filememory);
-	TestBreak(test_readbuffer_small);
-	TestBreak(test_readungetc_small);
+	TestBreak(test_fm_readnext_nonblock_large);
+	TestBreak(test_fm_readnext_nonblock_small);
+	TestBreak(test_fm_readnext_nonblock);
+	TestBreak(test_fm_readbuffer_nonblock);
+	TestBreak(test_fm_readungetc_nonblock);
+	TestBreak(test_read_nonblock);
+	TestBreak(test_read_nonblock_filememory);
+	TestBreak(test_fm_readbuffer_small);
+	TestBreak(test_fm_readungetc_small);
 	TestBreak(test_getc_normal);
 	TestBreak(test_getc_filememory);
-	TestBreak(test_readbuffer_nonblocking_small);
-	TestBreak(test_readungetc_nonblocking_small);
-	TestBreak(test_getc_nonblocking);
-	TestBreak(test_getc_nonblocking_filememory);
+	TestBreak(test_fm_readbuffer_nonblock_small);
+	TestBreak(test_fm_readungetc_nonblock_small);
+	TestBreak(test_getc_nonblock);
+	TestBreak(test_getc_nonblock_filememory);
 	TestBreak(test_ungetc_filememory);
-	TestBreak(test_flush_write);
+	TestBreak(test_flush_write_filememory);
 	TestBreak(test_write_normal);
 	TestBreak(test_write_filememory);
-	TestBreak(test_putcnormal);
+	TestBreak(test_fm_putcnormal);
 	lisp_info_enable = 1;
 
 	return 0;

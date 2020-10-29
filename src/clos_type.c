@@ -223,6 +223,7 @@ static int class_of_stream_(addr object, addr *ret)
 		case StreamType_BincharInput:
 		case StreamType_BincharOutput:
 		case StreamType_BincharIO:
+		case StreamType_Probe:
 			GetConst(CLOS_FILE_STREAM, ret);
 			break;
 

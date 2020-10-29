@@ -519,6 +519,7 @@
     "process.h"
     "prompt.h"
     "prompt_for.h"
+    "question.h"
     "quote.h"
     "random.h"
     "random_float.h"
@@ -887,6 +888,7 @@
     ("process.c" :header t)
     ("prompt.c" :header t)
     "prompt_for.c"
+    "question.c"
     "quote.c"
     "random_float.c"
     ("random_state.c" :header t)

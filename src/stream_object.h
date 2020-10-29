@@ -60,6 +60,7 @@ enum StreamType {
 	StreamType_BincharInput,
 	StreamType_BincharOutput,
 	StreamType_BincharIO,
+	StreamType_Probe,
 	/* stream object */
 	StreamType_StringInput,
 	StreamType_StringOutput,

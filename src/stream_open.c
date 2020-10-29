@@ -51,6 +51,8 @@ _g int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *r
 		return Result(ret, Stream_Open_Element_Character);
 
 	/* type */
+	if (value == Nil)
+		goto error;
 	if (parse_type(ptr, &check, value, Nil))
 		goto error;
 
@@ -184,12 +186,32 @@ static int open_if_does_not_exist_stream_(Execute ptr, addr *ret, addr pos,
 	}
 }
 
+static int open_if_exists_pathname_stream_(LocalRoot local,
+		addr pos, size_t i, addr *ret)
+{
+	addr queue, type;
+
+	copy_pathname_alloc(local, &pos, pos);
+	charqueue_local(local, &queue, 0);
+	GetTypePathname(pos, &type);
+	if (stringp(type)) {
+		Return(pushstring_charqueue_local_(local, queue, type));
+		Return(pushchar_charqueue_local_(local, queue, "."));
+	}
+	make_index_integer_local(local, &type, i);
+	Return(decimal_charqueue_integer_local_(local, type, queue));
+	make_charqueue_local(local, queue, &type);
+	SetTypePathname(pos, type);
+
+	return Result(ret, pos);
+}
+
 static int open_if_exists_rename_stream_(Execute ptr, addr pos)
 {
 	int check;
 	LocalRoot local;
 	LocalStack stack;
-	addr path, type, queue, ret1, ret2, ret3;
+	addr path, ret1, ret2, ret3;
 	size_t i;
 
 	/* memory-stream */
@@ -200,31 +222,21 @@ static int open_if_exists_rename_stream_(Execute ptr, addr pos)
 	Return(open_probe_file_stream_(ptr, pos, &check));
 	if (! check)
 		return 0;
-	/* rename */
+
+	/* make pathname */
 	local = ptr->local;
+	push_local(local, &stack);
 	for (i = 0; ; i++) {
-		push_local(local, &stack);
-		/* make filename */
-		copy_pathname_alloc(local, &path, pos);
-		charqueue_local(local, &queue, 0);
-		GetTypePathname(path, &type);
-		if (stringp(type)) {
-			Return(pushstring_charqueue_local_(local, queue, type));
-			Return(pushchar_charqueue_local_(local, queue, "."));
-		}
-		make_index_integer_alloc(local, &type, i);
-		Return(decimal_charqueue_integer_local_(local, type, queue));
-		make_charqueue_local(local, queue, &type);
-		SetTypePathname(path, type);
-		/* check */
+		Return(open_if_exists_pathname_stream_(local, pos, i, &path));
 		Return(open_probe_file_stream_(ptr, path, &check));
-		if (! check) {
-			Return(rename_file_files_(ptr, &ret1, &ret2, &ret3, pos, path));
-			rollback_local(local, stack);
-			return 0;
-		}
-		rollback_local(local, stack);
+		if (! check)
+			break;
 	}
+
+	/* rename */
+	Return(rename_file_files_(ptr, &ret1, &ret2, &ret3, pos, path));
+	rollback_local(local, stack);
+	return 0;
 }
 
 static int open_if_exists_stream_(Execute ptr, addr *ret, addr pos,
@@ -336,6 +348,13 @@ static int open_direct_input_stream_(Execute ptr, addr *ret, addr pos,
 {
 	int check;
 	addr stream;
+
+	/* rewind */
+	if (memory_stream_p(pos)) {
+		Return(file_position_start_stream_(pos, &check));
+		if (check)
+			return call_file_error_(ptr, pos);
+	}
 
 	/* :if-does-not-exist */
 	Return(open_if_does_not_exist_stream_(ptr, ret, pos, if2, 1, &check));
@@ -647,13 +666,24 @@ static int open_direct_io_stream_(Execute ptr, addr *ret, addr pos,
 static int open_direct_probe_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfDoesNot if2,
-		enum Stream_Open_External ext)
+		enum Stream_Open_External ignore)
 {
-	Return(open_direct_input_stream_(ptr, &pos, pos, type, if2, ext));
-	if (pos != Nil) {
-		Return(close_stream_(pos, NULL));
-	}
-	return Result(ret, pos);
+	int check;
+	addr stream;
+
+	/* :if-does-not-exist */
+	Return(open_if_does_not_exist_stream_(ptr, ret, pos, if2, 1, &check));
+	if (check)
+		return 0;
+
+	/* :element-type */
+	Return(open_probe_stream_(ptr, &stream, pos));
+
+	/* error check */
+	if (stream == NULL)
+		return call_file_error_(ptr, pos);
+
+	return Result(ret, stream);
 }
 
 _g int open_stream_(Execute ptr, addr *ret, addr pos,

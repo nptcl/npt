@@ -98,6 +98,7 @@ _g void init_stream(void)
 	init_stream_binchar_input();
 	init_stream_binchar_output();
 	init_stream_binchar_io();
+	init_stream_probe();
 	init_stream_string_input();
 	init_stream_string_output();
 	init_stream_synonym();
@@ -110,6 +111,7 @@ _g void init_stream(void)
 	init_stream_extend();
 	init_stream_memory_input();
 	init_stream_memory_output();
+	init_stream_memory_io();
 	init_stream_function();
 }
 

@@ -2,9 +2,11 @@
 #include "condition.h"
 #include "encode.h"
 #include "encode_unicode.h"
+#include "file.h"
 #include "file_memory.h"
 #include "object.h"
 #include "stream.h"
+#include "stream_function.h"
 #include "strtype.h"
 
 typedef int (*read_char_calltype)(filestream , unicode *, int *);
@@ -19,7 +21,7 @@ static length_char_calltype length_char_call[EncodeType_size];
 /*
  *  Byte Order Mark
  */
-_g int readbom8_encode(filestream fm)
+static int readbom8_encode_filememory(filestream fm)
 {
 	byte c;
 	int check;
@@ -53,7 +55,7 @@ exist:
 	return 1;
 }
 
-_g int readbom16_encode(filestream fm)
+static int readbom16_encode_filememory(filestream fm)
 {
 	byte a, b;
 	int check;
@@ -88,7 +90,7 @@ big_endian:
 	return 2;
 }
 
-_g int readbom32_encode(filestream fm)
+static int readbom32_encode_filememory(filestream fm)
 {
 	byte a, b, c, d;
 	int check;
@@ -131,9 +133,79 @@ big_endian:
 	return 2;
 }
 
-_g int writebom_encode_(filestream fm)
+static filestream begin_readbom_buffering(addr stream, addr *ret)
 {
-	return write_char_encode_(fm, 0xFEFF);
+	filestream fm;
+	addr mem;
+
+	Check(! file_stream_p(stream), "type error");
+	fm = PtrFileMemory(stream);
+	if (fm->redirect) {
+		GetPathnameStream(stream, &mem);
+		Check(! memory_stream_p(mem), "type error");
+		*ret = fm->pos;
+		fm->pos = mem;
+	}
+	else {
+		*ret = Nil;
+	}
+
+	return fm;
+}
+
+static void end_readbom_buffering(addr stream, addr prev)
+{
+	filestream fm;
+
+	Check(! file_stream_p(stream), "type error");
+	fm = PtrFileMemory(stream);
+	if (fm->redirect) {
+		fm->pos = prev;
+	}
+}
+
+_g int readbom8_encode(addr stream)
+{
+	int check;
+	filestream fm;
+	addr prev;
+
+	fm = begin_readbom_buffering(stream, &prev);
+	check = readbom8_encode_filememory(fm);
+	end_readbom_buffering(stream, prev);
+
+	return check;
+}
+
+_g int readbom16_encode(addr stream)
+{
+	int check;
+	filestream fm;
+	addr prev;
+
+	fm = begin_readbom_buffering(stream, &prev);
+	check = readbom16_encode_filememory(fm);
+	end_readbom_buffering(stream, prev);
+
+	return check;
+}
+
+_g int readbom32_encode(addr stream)
+{
+	int check;
+	filestream fm;
+	addr prev;
+
+	fm = begin_readbom_buffering(stream, &prev);
+	check = readbom32_encode_filememory(fm);
+	end_readbom_buffering(stream, prev);
+
+	return check;
+}
+
+_g int writebom_encode_(addr stream)
+{
+	return write_char_stream_(stream, 0xFEFF);
 }
 
 
@@ -295,12 +367,12 @@ static int read_hang_ascii_(filestream fm, unicode *u, int *hang, int *ret)
 	int check;
 	size_t size;
 
-	check = getc_nonblocking_filememory(fm, &c, &size);
+	check = getc_nonblock_filememory(fm, &c, &size);
 	if (check < 0) {
 		*u = 0;
 		*hang = 0;
 		*ret = 0;
-		return fmte_("getc_nonblocking error", NULL);
+		return fmte_("getc_nonblock error", NULL);
 	}
 	if (check) {
 		*u = 0;
@@ -332,7 +404,7 @@ static int read_hang_utf8_(filestream fm, unicode *u, int *hang, int *ret)
 {
 	int check;
 
-	check = read_utf8_nonblocking(fm, u, hang);
+	check = read_utf8_nonblock(fm, u, hang);
 	/* normal */
 	if (check == 0)
 		return Result(ret, 0);
@@ -367,7 +439,7 @@ static int read_hang_utf16_(filestream fm,
 {
 	int check;
 
-	check = read_utf16_nonblocking(fm, u, hang, be);
+	check = read_utf16_nonblock(fm, u, hang, be);
 	/* normal */
 	if (check == 0)
 		return Result(ret, 0);
@@ -412,7 +484,7 @@ static int read_hang_utf32_(filestream fm,
 {
 	int check;
 
-	check = read_utf32_nonblocking(fm, u, hang, be);
+	check = read_utf32_nonblock(fm, u, hang, be);
 	/* normal */
 	if (check == 0)
 		return Result(ret, 0);

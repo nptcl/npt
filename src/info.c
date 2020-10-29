@@ -1057,6 +1057,7 @@ static void infoprint_streamtype(addr pos)
 		case StreamType_BincharInput: info_stdarg("BINCHAR-INPUT"); break;
 		case StreamType_BincharOutput: info_stdarg("BINCHAR-OUTPUT"); break;
 		case StreamType_BincharIO: info_stdarg("BINCHAR-IO"); break;
+		case StreamType_Probe: info_stdarg("PROBE"); break;
 		case StreamType_StringInput: info_stdarg("STRING-INPUT"); break;
 		case StreamType_StringOutput: info_stdarg("STRING-OUTPUT"); break;
 		case StreamType_Synonym: info_stdarg("SYNONYM"); break;
@@ -1066,6 +1067,9 @@ static void infoprint_streamtype(addr pos)
 		case StreamType_Echo: info_stdarg("ECHO"); break;
 		case StreamType_Prompt: info_stdarg("PROMPT"); break;
 		case StreamType_Pretty: info_stdarg("PRETTY"); break;
+		case StreamType_MemoryInput: info_stdarg("MEMORY-INPUT"); break;
+		case StreamType_MemoryOutput: info_stdarg("MEMORY-OUTPUT"); break;
+		case StreamType_MemoryIO: info_stdarg("MEMORY-IO"); break;
 		default: info_stdarg("ERROR"); break;
 	}
 	info_stdarg(">");

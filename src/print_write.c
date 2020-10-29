@@ -2161,6 +2161,9 @@ static int WriteBody_stream_(Execute ptr, addr stream, addr pos)
 		case StreamType_BincharIO:
 			return print_ascii_stream_(stream, "FILE-IO SYSTEM");
 
+		case StreamType_Probe:
+			return print_ascii_stream_(stream, "FILE-IO PROBE");
+
 		case StreamType_StringInput:
 			return print_ascii_stream_(stream, "STREAM STRING-INPUT");
 
