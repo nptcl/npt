@@ -236,6 +236,7 @@ _g void init_stream_prompt(void)
 	DefineStreamChk(Prompt, characterp, true);
 	DefineStreamChk(Prompt, binaryp, false);
 	DefineStreamLet(Prompt, element_type, character_stream);
+	DefineStreamDef(Prompt, external_format);
 	DefineStream___(Prompt, file_length);
 	DefineStreamDef(Prompt, file_position);
 	DefineStreamDef(Prompt, file_position_start);

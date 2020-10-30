@@ -134,6 +134,12 @@ static int element_type_Synonym(addr stream, addr *ret)
 	return element_type_stream_(stream, ret);
 }
 
+static int external_format_Synonym(addr stream, addr *ret)
+{
+	Return(getstream_synonym_(stream, &stream));
+	return external_format_stream_(stream, ret);
+}
+
 static int file_length_Synonym(addr stream, addr *ret)
 {
 	Return(getstream_synonym_(stream, &stream));
@@ -236,6 +242,7 @@ _g void init_stream_synonym(void)
 	DefineStreamSet(Synonym, characterp);
 	DefineStreamSet(Synonym, binaryp);
 	DefineStreamSet(Synonym, element_type);
+	DefineStreamSet(Synonym, external_format);
 	DefineStreamSet(Synonym, file_length);
 	DefineStreamSet(Synonym, file_position);
 	DefineStreamSet(Synonym, file_position_start);

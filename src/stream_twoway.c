@@ -155,6 +155,15 @@ static int binaryp_TwoWay(addr stream, int *ret)
 	return Result(ret, check1 && check2);
 }
 
+static int external_format_TwoWay(addr stream, addr *ret)
+{
+	addr input;
+
+	CheckTwoWayStream(stream);
+	GetInputStream(stream, &input);
+	return external_format_stream_(input, ret);
+}
+
 static int file_charlen_TwoWay(addr stream, unicode u, size_t *value, int *ret)
 {
 	output_twoway(stream, &stream);
@@ -227,6 +236,7 @@ _g void init_stream_twoway(void)
 	DefineStreamSet(TwoWay, characterp);
 	DefineStreamSet(TwoWay, binaryp);
 	DefineStreamLet(TwoWay, element_type, io_stream);
+	DefineStreamSet(TwoWay, external_format);
 	DefineStream___(TwoWay, file_length);
 	DefineStreamDef(TwoWay, file_position);
 	DefineStreamDef(TwoWay, file_position_start);

@@ -255,7 +255,6 @@ static int file_position_StringInput(addr stream, size_t *value, int *ret)
 			*ret = 0;
 			return fmte_("The stream ~S position is minus value.", stream, NULL);
 		}
-		size--;  /* TODO */
 	}
 	*value = size;
 	return Result(ret, 0);
@@ -271,7 +270,6 @@ static int file_position_start_StringInput(addr stream, int *ret)
 	input = PtrStringInputStream(stream);
 	str->unread_check = 0;
 	input->index = 0;
-
 	return Result(ret, 0);
 }
 
@@ -336,6 +334,7 @@ _g void init_stream_string_input(void)
 	DefineStreamChk(StringInput, characterp, true);
 	DefineStreamChk(StringInput, binaryp, false);
 	DefineStreamLet(StringInput, element_type, character_stream);
+	DefineStreamDef(StringInput, external_format);
 	DefineStream___(StringInput, file_length);
 	DefineStreamSet(StringInput, file_position);
 	DefineStreamSet(StringInput, file_position_start);
@@ -646,6 +645,7 @@ _g void init_stream_string_output(void)
 	DefineStreamChk(StringOutput, characterp, true);
 	DefineStreamChk(StringOutput, binaryp, false);
 	DefineStreamLet(StringOutput, element_type, character_stream);
+	DefineStreamDef(StringOutput, external_format);
 	DefineStream___(StringOutput, file_length);
 	DefineStreamSet(StringOutput, file_position);
 	DefineStreamSet(StringOutput, file_position_start);

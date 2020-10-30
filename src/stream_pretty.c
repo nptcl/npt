@@ -563,6 +563,12 @@ static int element_type_Pretty(addr stream, addr *ret)
 	return element_type_stream_(stream, ret);
 }
 
+static int external_format_Pretty(addr stream, addr *ret)
+{
+	Return(getstream_pretty_stream_(stream, &stream));
+	return external_format_stream_(stream, ret);
+}
+
 static int file_length_Pretty(addr stream, addr *ret)
 {
 	Return(getstream_pretty_stream_(stream, &stream));
@@ -659,6 +665,7 @@ _g void init_stream_pretty(void)
 	DefineStreamSet(Pretty, characterp);
 	DefineStreamSet(Pretty, binaryp);
 	DefineStreamSet(Pretty, element_type);
+	DefineStreamSet(Pretty, external_format);
 	DefineStreamSet(Pretty, file_length);
 	DefineStreamSet(Pretty, file_position);
 	DefineStreamSet(Pretty, file_position_start);

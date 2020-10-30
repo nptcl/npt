@@ -182,6 +182,13 @@ static int binaryp_Echo(addr stream, int *ret)
 	return Result(ret, check1 && check2);
 }
 
+static int external_format_Echo(addr stream, addr *ret)
+{
+	addr input;
+	input_Echo(stream, &input);
+	return external_format_stream_(input, ret);
+}
+
 static int file_charlen_Echo(addr stream, unicode u, size_t *value, int *ret)
 {
 	output_Echo(stream, &stream);
@@ -254,6 +261,7 @@ _g void init_stream_echo(void)
 	DefineStreamSet(Echo, characterp);
 	DefineStreamSet(Echo, binaryp);
 	DefineStreamLet(Echo, element_type, io_stream);
+	DefineStreamSet(Echo, external_format);
 	DefineStream___(Echo, file_length);
 	DefineStreamDef(Echo, file_position);
 	DefineStreamDef(Echo, file_position_start);

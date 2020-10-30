@@ -738,13 +738,132 @@ _g int write_char_file_(addr stream, unicode c)
 	return write_char_encode_(fm, c);
 }
 
+static void element_type_unsigned_byte(fixnum v, addr *ret)
+{
+	addr type, value;
+
+	GetConst(COMMON_UNSIGNED_BYTE, &type);
+	fixnum_heap(&value, v);
+	list_heap(ret, type, value, NULL);
+}
+
+static void element_type_signed_byte(fixnum v, addr *ret)
+{
+	addr type, value;
+
+	GetConst(COMMON_SIGNED_BYTE, &type);
+	fixnum_heap(&value, v);
+	list_heap(ret, type, value, NULL);
+}
+
 _g int element_type_file_(addr stream, addr *ret)
 {
-	external_format_file(stream, ret);
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	switch (fm->encode.type) {
+		case EncodeType_binary:
+			element_type_unsigned_byte(8, ret);
+			break;
+
+		case EncodeType_unsigned16:
+			element_type_unsigned_byte(16, ret);
+			break;
+
+		case EncodeType_unsigned32:
+			element_type_unsigned_byte(32, ret);
+			break;
+
+		case EncodeType_unsigned64:
+			element_type_unsigned_byte(64, ret);
+			break;
+
+		case EncodeType_signed8:
+			element_type_signed_byte(8, ret);
+			break;
+
+		case EncodeType_signed16:
+			element_type_signed_byte(16, ret);
+			break;
+
+		case EncodeType_signed32:
+			element_type_signed_byte(32, ret);
+			break;
+
+		case EncodeType_signed64:
+			element_type_signed_byte(64, ret);
+			break;
+
+		default:
+			GetConst(COMMON_CHARACTER, ret);
+			break;
+	}
+
 	return 0;
 }
 
-_g int file_length_file_type_(filestream fm, size_t *value, int *ret)
+_g int external_format_file_(addr stream, addr *ret)
+{
+	enum EncodeBom bom;
+	filestream fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	bom = (enum EncodeBom)fm->encode.bom;
+	switch (fm->encode.type) {
+		case EncodeType_ascii:
+			GetConst(SYSTEM_ASCII, ret);
+			break;
+
+		case EncodeType_utf8:
+			if (bom == EncodeBom_exist)
+				GetConst(SYSTEM_UTF_8_BOM, ret);
+			else
+				GetConst(SYSTEM_UTF_8, ret);
+			break;
+
+		case EncodeType_utf16le:
+			if (bom == EncodeBom_exist)
+				GetConst(SYSTEM_UTF_16LE_BOM, ret);
+			else
+				GetConst(SYSTEM_UTF_16LE, ret);
+			break;
+
+		case EncodeType_utf16be:
+			if (bom == EncodeBom_exist)
+				GetConst(SYSTEM_UTF_16BE_BOM, ret);
+			else
+				GetConst(SYSTEM_UTF_16BE, ret);
+			break;
+
+		case EncodeType_utf32le:
+			if (bom == EncodeBom_exist)
+				GetConst(SYSTEM_UTF_32LE_BOM, ret);
+			else
+				GetConst(SYSTEM_UTF_32LE, ret);
+			break;
+
+		case EncodeType_utf32be:
+			if (bom == EncodeBom_exist)
+				GetConst(SYSTEM_UTF_32BE_BOM, ret);
+			else
+				GetConst(SYSTEM_UTF_32BE, ret);
+			break;
+
+		case EncodeType_windows:
+			GetConst(SYSTEM_WINDOWS, ret);
+			break;
+
+		default:
+			GetConst(KEYWORD_DEFAULT, ret);
+			break;
+	}
+
+	return 0;
+}
+
+static int file_length_file_value_(filestream fm, size_t *value, int *ret)
 {
 	int check;
 
@@ -763,6 +882,61 @@ _g int file_length_file_type_(filestream fm, size_t *value, int *ret)
 	return Result(ret, check);
 }
 
+static size_t file_length_division(filestream fm, size_t size)
+{
+	switch (fm->encode.type) {
+		case EncodeType_unsigned16:
+		case EncodeType_signed16:
+			return size / 2;
+
+		case EncodeType_unsigned32:
+		case EncodeType_signed32:
+			return size / 4;
+
+		case EncodeType_unsigned64:
+		case EncodeType_signed64:
+			return size / 8;
+
+		default:
+			return size;
+	}
+}
+
+static size_t file_length_multiple(filestream fm, size_t size)
+{
+	switch (fm->encode.type) {
+		case EncodeType_unsigned16:
+		case EncodeType_signed16:
+			return size * 2;
+
+		case EncodeType_unsigned32:
+		case EncodeType_signed32:
+			return size * 4;
+
+		case EncodeType_unsigned64:
+		case EncodeType_signed64:
+			return size * 8;
+
+		default:
+			return size;
+	}
+}
+
+_g int file_length_file_type_(filestream fm, size_t *value, int *ret)
+{
+	int check;
+	size_t size;
+
+	Return(file_length_file_value_(fm, &size, &check));
+	if (check) {
+		*value = 0;
+		return Result(ret, check);
+	}
+
+	*value = file_length_division(fm, size);
+	return Result(ret, 0);
+}
+
 _g int file_length_file_(addr stream, size_t *value, int *ret)
 {
 	filestream fm;
@@ -775,46 +949,55 @@ _g int file_length_file_(addr stream, size_t *value, int *ret)
 	return file_length_file_type_(fm, value, ret);
 }
 
+static int file_position_file_unread_(addr stream, size_t *ret)
+{
+	int check;
+	struct StructStream *ptr;
+	filestream fm;
+	addr pos;
+
+	ptr = PtrStructStream(stream);
+	if (ptr->unread_check == 0)
+		return Result(ret, 0);
+
+	/* unread */
+	fm = PtrFileMemory(stream);
+	check = length_char_encode(fm, ptr->unread);
+	if (check < 0) {
+		*ret = 0;
+		character_heap(&pos, ptr->unread);
+		return fmte_("Invalid unread character ~S.", pos, NULL);
+	}
+
+	return Result(ret, (size_t)check);
+}
+
 _g int file_position_file_type_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	filestream fm;
-	struct StructStream *ptr;
 	size_t size, unread;
 
-	/* file-memory position */
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
+	*value = 0;
+	*ret = 0;
+
+	/* file-memory position */
 	check = file_position_filememory(fm, &size);
-	if (check < 0) {
-		*value = 0;
-		*ret = 0;
+	if (check < 0)
 		return fmte_("file-position error.", NULL);
-	}
-	if (check) {
-		*value = 0;
+	if (check)
 		return Result(ret, 1);
-	}
 
 	/* unread */
-	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) {
-		check = length_char_encode(fm, ptr->unread);
-		if (check < 0) {
-			*value = 0;
-			*ret = 0;
-			character_heap(&stream, ptr->unread);
-			return fmte_("Invalid unread character ~S.", stream, NULL);
-		}
-		unread = (size_t)check;
-		if (size < unread) {
-			*value = 0;
-			*ret = 0;
-			return fmte_("The stream ~S position is a minus value.", stream, NULL);
-		}
-		size -= unread;
-	}
-	*value = size;
+	Return(file_position_file_unread_(stream, &unread));
+	size = file_length_division(fm, size);
+
+	/* result */
+	if (size < unread)
+		return fmte_("The stream ~S position is a minus value.", stream, NULL);
+	*value = size - unread;
 	return Result(ret, 0);
 }
 
@@ -911,6 +1094,7 @@ _g int file_position_set_file_type_(addr stream, size_t value, int *ret)
 		*ret = 0;
 		return fmte_("flush error.", NULL);
 	}
+	value = file_length_multiple(fm, value);
 	check = file_position_set_filememory(fm, value);
 	if (check < 0) {
 		*ret = 0;
@@ -957,114 +1141,6 @@ _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	return length_string_encode_(fm, pos, value, ret);
-}
-
-static void external_format_unsigned_byte(fixnum v, addr *ret)
-{
-	addr type, value;
-
-	GetConst(COMMON_UNSIGNED_BYTE, &type);
-	fixnum_heap(&value, v);
-	list_heap(ret, type, value, NULL);
-}
-
-static void external_format_signed_byte(fixnum v, addr *ret)
-{
-	addr type, value;
-
-	GetConst(COMMON_SIGNED_BYTE, &type);
-	fixnum_heap(&value, v);
-	list_heap(ret, type, value, NULL);
-}
-
-_g void external_format_file(addr stream, addr *ret)
-{
-	enum EncodeBom bom;
-	filestream fm;
-
-	CheckFileStream(stream);
-	fm = PtrFileMemory(stream);
-	bom = (enum EncodeBom)fm->encode.bom;
-	switch (fm->encode.type) {
-		case EncodeType_binary:
-			external_format_unsigned_byte(8, ret);
-			break;
-
-		case EncodeType_unsigned16:
-			external_format_unsigned_byte(16, ret);
-			break;
-
-		case EncodeType_unsigned32:
-			external_format_unsigned_byte(32, ret);
-			break;
-
-		case EncodeType_unsigned64:
-			external_format_unsigned_byte(64, ret);
-			break;
-
-		case EncodeType_signed8:
-			external_format_signed_byte(8, ret);
-			break;
-
-		case EncodeType_signed16:
-			external_format_signed_byte(16, ret);
-			break;
-
-		case EncodeType_signed32:
-			external_format_signed_byte(32, ret);
-			break;
-
-		case EncodeType_signed64:
-			external_format_signed_byte(64, ret);
-			break;
-
-		case EncodeType_ascii:
-			GetConst(SYSTEM_ASCII, ret);
-			break;
-
-		case EncodeType_utf8:
-			if (bom == EncodeBom_exist)
-				GetConst(SYSTEM_UTF_8_BOM, ret);
-			else
-				GetConst(SYSTEM_UTF_8, ret);
-			break;
-
-		case EncodeType_utf16le:
-			if (bom == EncodeBom_exist)
-				GetConst(SYSTEM_UTF_16LE_BOM, ret);
-			else
-				GetConst(SYSTEM_UTF_16LE, ret);
-			break;
-
-		case EncodeType_utf16be:
-			if (bom == EncodeBom_exist)
-				GetConst(SYSTEM_UTF_16BE_BOM, ret);
-			else
-				GetConst(SYSTEM_UTF_16BE, ret);
-			break;
-
-		case EncodeType_utf32le:
-			if (bom == EncodeBom_exist)
-				GetConst(SYSTEM_UTF_32LE_BOM, ret);
-			else
-				GetConst(SYSTEM_UTF_32LE, ret);
-			break;
-
-		case EncodeType_utf32be:
-			if (bom == EncodeBom_exist)
-				GetConst(SYSTEM_UTF_32BE_BOM, ret);
-			else
-				GetConst(SYSTEM_UTF_32BE, ret);
-			break;
-
-		case EncodeType_windows:
-			GetConst(SYSTEM_WINDOWS, ret);
-			break;
-
-		default:
-			*ret = Nil;
-			break;
-	}
 }
 
 _g int listen_file_(addr stream, int *ret)

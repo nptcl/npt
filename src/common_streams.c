@@ -854,12 +854,12 @@ static void defun_open(void)
 
 
 /* (defun stream-external-format (stream) ...) -> format
- *   stream  file-stream
+ *   stream  stream
  *   format  external-format-designer
  */
 static int function_stream_external_format(Execute ptr, addr stream)
 {
-	external_format_file(stream, &stream);
+	Return(external_format_stream_(stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -868,7 +868,7 @@ static void type_stream_external_format(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, FileStream);
+	GetTypeTable(&args, Stream);
 	typeargs_var1(&args, args);
 	GetTypeTable(&values, ExternalFormat);
 	typevalues_result(&values, values);

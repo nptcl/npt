@@ -383,3 +383,76 @@
              (get-output-stream-string output))))
   t)
 
+
+;;
+;;  file-length
+;;
+(deftest-error echo-file-length.1
+  (with-make-file
+    (*file1* "abc")
+    (with-make-file
+      (*file2* "cdef")
+      (with-open-file (input *file1*)
+        (with-overwrite-file (output *file2*)
+          (with-open-stream (stream (make-echo-stream input output))
+            (file-length stream)))))))
+
+
+;;
+;;  file-position
+;;
+(deftest echo-file-position.1
+  (with-input-from-string (input "Hello")
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (file-position stream))))
+  nil)
+
+(deftest echo-file-position-set.1
+  (with-input-from-string (input "Hello")
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (file-position stream :start))))
+  nil)
+
+(deftest echo-file-position-set.2
+  (with-input-from-string (input "Hello")
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (file-position stream :end))))
+  nil)
+
+(deftest echo-file-position-set.3
+  (with-input-from-string (input "Hello")
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-echo-stream input output))
+        (file-position stream 3))))
+  nil)
+
+
+;;
+;;  file-string-length
+;;
+(deftest echo-file-string-length.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1* :external-format 'utf-8)
+      (with-overwrite-file (output *file2* :external-format 'utf-32)
+        (with-open-stream (stream (make-echo-stream input output))
+          (values
+            (file-string-length stream #\a)
+            (file-string-length stream "abcd"))))))
+  4 16)
+
+
+;;
+;;  stream-external-format
+;;
+(deftest echo-stream-external-format.1
+  (with-open-stream (a (make-memory-io-stream))
+    (with-open-stream (b (make-memory-io-stream))
+      (with-open-file (x a :direction :input :external-format 'utf8)
+        (with-open-file (y b :direction :output :external-format 'ascii)
+          (with-open-stream (z (make-echo-stream x y))
+            (stream-external-format z))))))
+  lisp-system::utf-8)
+

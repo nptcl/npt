@@ -95,7 +95,6 @@ _g int file_length_default_stream(addr stream, addr *ret)
 	addr pos;
 	size_t size;
 
-	/* TODO: :element-type '(unsigned-byte 16) */
 	Return(file_length_file_(stream, &size, &check));
 	if (check) {
 		return Result(ret, Nil);
@@ -191,5 +190,11 @@ _g int element_type_io_stream(addr stream, addr *ret)
 		list_heap(ret, stream, input, output, NULL);
 		return 0;
 	}
+}
+
+_g int external_format_default_stream(addr stream, addr *ret)
+{
+	GetConst(KEYWORD_DEFAULT, ret);
+	return 0;
 }
 

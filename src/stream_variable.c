@@ -20,6 +20,7 @@ _g lisp_streamtype_interactivep Stream_interactivep[StreamType_Array];
 _g lisp_streamtype_characterp Stream_characterp[StreamType_Array];
 _g lisp_streamtype_binaryp Stream_binaryp[StreamType_Array];
 _g lisp_streamtype_element_type Stream_element_type[StreamType_Array];
+_g lisp_streamtype_external_format Stream_external_format[StreamType_Array];
 _g lisp_streamtype_file_length Stream_file_length[StreamType_Array];
 _g lisp_streamtype_file_position Stream_file_position[StreamType_Array];
 _g lisp_streamtype_file_position_start Stream_file_position_start[StreamType_Array];

@@ -204,3 +204,149 @@
   (with-open-stream (stream (make-broadcast-stream))
     (read-line stream)))
 
+
+;;
+;;  file-length
+;;
+(deftest broadcast-file-length.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (file-length stream))
+  0)
+
+(deftest broadcast-file-length.2
+  (with-make-file
+    (*file1* "abc")
+    (with-make-file
+      (*file2* "cdef")
+      (with-open-file (input1 *file1* :direction :io :if-exists :overwrite)
+        (with-open-file (input2 *file2* :direction :io :if-exists :overwrite)
+          (with-open-stream (stream (make-broadcast-stream input1 input2))
+            (file-length stream))))))
+  4)
+
+
+;;
+;;  file-position
+;;
+(deftest broadcast-file-position.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (file-position stream))
+  0)
+
+(deftest broadcast-file-position.2
+  (with-make-file
+    (*file1* "Hello")
+    (with-make-file
+      (*file2* "abcdef")
+      (with-open-file (input1 *file1* :direction :io :if-exists :overwrite)
+        (with-open-file (input2 *file2* :direction :io :if-exists :overwrite)
+          (read-char input1)
+          (read-char input1)
+          (read-char input2)
+          (read-char input2)
+          (read-char input2)
+          (with-open-stream (stream (make-broadcast-stream input1 input2))
+            (file-position stream))))))
+  3)
+
+(deftest broadcast-file-position-set.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (file-position stream :start))
+  nil)
+
+(deftest broadcast-file-position-set.2
+  (with-make-file
+    (*file1* "Hello")
+    (with-make-file
+      (*file2* "abcdefg")
+      (with-open-file (stream1 *file1* :direction :io :if-exists :overwrite)
+        (with-open-file (stream2 *file2* :direction :io :if-exists :overwrite)
+          (read-char stream1)
+          (read-char stream1)
+          (read-char stream2)
+          (read-char stream2)
+          (read-char stream2)
+          (with-open-stream (stream (make-broadcast-stream stream1 stream2))
+            (values
+              (file-position stream :start)
+              (read-char stream1)
+              (read-char stream2)))))))
+  t #\H #\a)
+
+(deftest broadcast-file-position-set.3
+  (with-make-file
+    (*file1* "Hello")
+    (with-make-file
+      (*file2* "abcdefg")
+      (with-open-file (stream1 *file1* :direction :io :if-exists :overwrite)
+        (with-open-file (stream2 *file2* :direction :io :if-exists :overwrite)
+          (read-char stream1)
+          (read-char stream1)
+          (read-char stream2)
+          (read-char stream2)
+          (read-char stream2)
+          (with-open-stream (stream (make-broadcast-stream stream1 stream2))
+            (values
+              (file-position stream :end)
+              (read-char stream1 nil :eof)
+              (read-char stream2 nil :eof)))))))
+  t :eof :eof)
+
+(deftest broadcast-file-position-set.4
+  (with-make-file
+    (*file1* "Hello")
+    (with-make-file
+      (*file2* "abcdefg")
+      (with-open-file (stream1 *file1* :direction :io :if-exists :overwrite)
+        (with-open-file (stream2 *file2* :direction :io :if-exists :overwrite)
+          (read-char stream1)
+          (read-char stream1)
+          (read-char stream2)
+          (read-char stream2)
+          (read-char stream2)
+          (with-open-stream (stream (make-broadcast-stream stream1 stream2))
+            (values
+              (file-position stream 2)
+              (read-char stream1)
+              (read-char stream2)))))))
+  t #\l #\c)
+
+
+;;
+;;  file-string-length
+;;
+(deftest broadcast-file-string-length.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (values
+      (file-string-length stream #\a)
+      (file-string-length stream "abcd")))
+  1 1)
+
+(deftest broadcast-file-string-length.2
+  (with-temp-file1-file2
+    (with-overwrite-file (output1 *file1* :external-format 'utf-8)
+      (with-overwrite-file (output2 *file2* :external-format 'utf-32)
+        (with-open-stream (stream (make-broadcast-stream output1 output2))
+          (values
+            (file-string-length stream #\a)
+            (file-string-length stream "abcd"))))))
+  4 16)
+
+
+;;
+;;  stream-external-format
+;;
+(deftest broadcast-stream-external-format.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (stream-external-format stream))
+  :default)
+
+(deftest broadcast-stream-external-format.2
+  (with-open-stream (a (make-memory-io-stream))
+    (with-open-stream (b (make-memory-io-stream))
+      (with-open-file (x a :direction :output :external-format 'utf8)
+        (with-open-file (y b :direction :output :external-format 'ascii)
+          (with-open-stream (z (make-broadcast-stream x y))
+            (stream-external-format z))))))
+  lisp-system::ascii)
+

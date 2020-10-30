@@ -592,3 +592,281 @@
     (with-overwrite-file (input *file*)
       (read-line input))))
 
+
+;;
+;;  file-length
+;;
+(deftest file-file-length.1
+  (with-temp-file
+    (with-open-file (input *file*)
+      (file-length input)))
+  3)
+
+(deftest file-file-length.2
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file* :element-type 'unsigned-byte)
+      (file-length input)))
+  6)
+
+(deftest file-file-length.3
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file* :direction :io :if-exists :overwrite)
+      (file-length input)))
+  6)
+
+
+;;
+;;  file-position
+;;
+(deftest file-file-position.1
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file*)
+      (file-position input)))
+  0)
+
+(deftest file-file-position.2
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file*)
+      (read-char input)
+      (file-position input)))
+  1)
+
+(deftest file-file-position.3
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file*)
+      (read-char input)
+      (read-char input)
+      (unread-char #\a input)
+      (file-position input)))
+  1)
+
+(deftest file-file-position.4
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (file-position output)))
+  0)
+
+(deftest file-file-position.5
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (format output "Hello")
+      (file-position output)))
+  5)
+
+(deftest file-file-position.6
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (let ((array (make-array 70000 :initial-element #\z)))
+        (write-sequence array output)
+        (file-position output))))
+  70000)
+
+(deftest file-file-position.7
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file* :direction :io :if-exists :overwrite)
+      (read-char input)
+      (read-char input)
+      (file-position input)))
+  2)
+
+(deftest file-file-position-set.1
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file*)
+      (values
+        (file-position input 3)
+        (read-char input)
+        (read-char input))))
+  t #\d #\e)
+
+(deftest file-file-position-set.2
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file*)
+      (read-char input)
+      (unread-char #\a input)
+      (values
+        (file-position input 3)
+        (read-char input)
+        (read-char input))))
+  t #\d #\e)
+
+(deftest file-file-position-set.3
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file*)
+      (values
+        (file-position input 3)
+        (read-char input)
+        (read-char input))))
+  t #\d #\e)
+
+(deftest file-file-position-set.4
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file*)
+      (values
+        (file-position input :start)
+        (read-char input))))
+  t #\a)
+
+(deftest file-file-position-set.5
+  (with-make-file
+    (*file* "abcdef")
+    (with-open-file (input *file*)
+      (values
+        (file-position input :end)
+        (read-char input nil :eof))))
+  t :eof)
+
+(deftest file-file-position-set.6
+  (with-make-file
+    (*file* "")
+    (with-overwrite-file (stream *file*)
+      (format stream "abc")
+      (file-position stream :start)))
+  t)
+
+(deftest file-file-position-set.7
+  (with-make-file
+    (*file* "")
+    (with-overwrite-file (stream *file*)
+      (format stream "abc")
+      (file-position stream :start)
+      (format stream "cdef"))
+    (with-open-file (input *file*)
+      (read-line input)))
+  "cdef" t)
+
+(deftest file-file-position-set.8
+  (with-make-file
+    (*file* "")
+    (with-overwrite-file (stream *file*)
+      (format stream "abc")
+      (file-position stream :end)))
+  t)
+
+(deftest file-file-position-set.9
+  (with-make-file
+    (*file* "")
+    (with-overwrite-file (stream *file*)
+      (format stream "abc")
+      (file-position stream :end)
+      (format stream "cdef"))
+    (with-open-file (input *file*)
+      (read-line input)))
+  "abccdef" t)
+
+(deftest file-file-position-set.10
+  (with-make-file
+    (*file* "")
+    (with-overwrite-file (stream *file*)
+      (format stream "abc")
+      (file-position stream 2)))
+  t)
+
+(deftest file-file-position-set.11
+  (with-make-file
+    (*file* "")
+    (with-overwrite-file (stream *file*)
+      (format stream "abc")
+      (file-position stream 2)
+      (format stream "cdef"))
+    (with-open-file (input *file*)
+      (read-line input)))
+  "abcdef" t)
+
+
+;;
+;;  file-string-length
+;;
+(deftest file-file-string-length.1
+  (with-temp-file
+    (with-overwrite-file (stream *file*)
+      (file-string-length stream #\a)))
+  1)
+
+(deftest file-file-string-length.2
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-8)
+      (file-string-length stream #\u7F)))
+  1)
+
+(deftest file-file-string-length.3
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-8)
+      (file-string-length stream #\u80)))
+  2)
+
+(deftest file-file-string-length.4
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-8)
+      (file-string-length stream #\u0800)))
+  3)
+
+(deftest file-file-string-length.5
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-16)
+      (file-string-length stream #\uFFFF)))
+  2)
+
+(deftest file-file-string-length.6
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-16)
+      (file-string-length stream #\u010000)))
+  4)
+
+(deftest file-file-string-length.7
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-32)
+      (file-string-length stream #\A)))
+  4)
+
+(deftest file-file-string-length.8
+  (with-temp-file
+    (with-overwrite-file (stream *file*)
+      (file-string-length stream "abcd")))
+  4)
+
+(deftest file-file-string-length.9
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-8)
+      (file-string-length stream (format nil "a~A~Ac" #\u80 #\u0811))))
+  7)
+
+(deftest file-file-string-length.10
+  (with-temp-file
+    (with-overwrite-file (stream *file* :external-format 'utf-16)
+      (file-string-length stream (format nil "ab~Ad" #\u011111))))
+  10)
+
+
+;;
+;;  stream-external-format
+;;
+(deftest file-stream-external-format.1
+  (with-temp-file
+    (with-open-file (input *file*)
+      (stream-external-format input)))
+  lisp-system::utf-8)
+
+(deftest file-stream-external-format.2
+  (with-temp-file
+    (with-overwrite-file (input *file* :external-format 'ascii)
+      (stream-external-format input)))
+  lisp-system::ascii)
+
+(deftest file-stream-external-format.3
+  (with-temp-file
+    (with-open-file (input *file* :direction :io
+                           :if-exists :overwrite
+                           :element-type 'unsigned-byte)
+      (stream-external-format input)))
+  :default)
+

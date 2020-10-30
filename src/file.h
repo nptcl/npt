@@ -29,6 +29,7 @@
 #define read_hang_file_ _n(read_hang_file_)
 #define write_char_file_ _n(write_char_file_)
 #define element_type_file_ _n(element_type_file_)
+#define external_format_file_ _n(external_format_file_)
 #define file_length_file_type_ _n(file_length_file_type_)
 #define file_length_file_ _n(file_length_file_)
 #define file_position_file_type_ _n(file_position_file_type_)
@@ -41,7 +42,6 @@
 #define file_position_set_file_ _n(file_position_set_file_)
 #define file_charlen_file_ _n(file_charlen_file_)
 #define file_strlen_file_ _n(file_strlen_file_)
-#define external_format_file _n(external_format_file)
 #define listen_file_ _n(listen_file_)
 #define clear_input_file_ _n(clear_input_file_)
 #define finish_output_file_ _n(finish_output_file_)
@@ -91,6 +91,7 @@ _g int read_char_file_(addr stream, unicode *c, int *ret);
 _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret);
 _g int write_char_file_(addr stream, unicode c);
 _g int element_type_file_(addr stream, addr *ret);
+_g int external_format_file_(addr stream, addr *ret);
 _g int file_length_file_type_(filestream fm, size_t *value, int *ret);
 _g int file_length_file_(addr file, size_t *value, int *ret);
 _g int file_position_file_type_(addr stream, size_t *value, int *ret);
@@ -103,7 +104,6 @@ _g int file_position_set_file_type_(addr stream, size_t value, int *ret);
 _g int file_position_set_file_(addr stream, size_t value, int *ret);
 _g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret);
 _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret);
-_g void external_format_file(addr stream, addr *ret);
 _g int listen_file_(addr stream, int *ret);
 _g int clear_input_file_(addr stream);
 _g int finish_output_file_(addr stream);

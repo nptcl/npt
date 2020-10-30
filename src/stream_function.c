@@ -136,6 +136,14 @@ _g int element_type_stream_(addr stream, addr *ret)
 	return (Stream_element_type[(int)ptr->type])(stream, ret);
 }
 
+_g int external_format_stream_(addr stream, addr *ret)
+{
+	struct StructStream *ptr;
+	CheckType(stream, LISPTYPE_STREAM);
+	ptr = PtrStructStream(stream);
+	return (Stream_external_format[(int)ptr->type])(stream, ret);
+}
+
 _g int file_length_stream_(addr stream, addr *ret)
 {
 	struct StructStream *ptr;

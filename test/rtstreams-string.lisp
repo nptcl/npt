@@ -300,3 +300,205 @@
     (stream array)
     (read-line stream)))
 
+
+;;
+;;  file-length
+;;
+(deftest-error string-file-length.1
+  (with-input-from-string (stream "Hello")
+    (file-length stream)))
+
+(deftest-error string-file-length.2
+  (with-output-to-string (stream)
+    (format stream "Hello")
+    (file-length stream)))
+
+(deftest-error string-file-length.3
+  (with-extend-to-string
+    (stream array)
+    (format stream "Hello")
+    (file-length stream)))
+
+
+;;
+;;  file-position
+;;
+(deftest string-file-position.1
+  (with-input-from-string (input "Hello")
+    (read-char input)
+    (read-char input)
+    (read-char input)
+    (file-position input))
+  3)
+
+(deftest string-file-position.2
+  (with-open-stream (stream (make-string-output-stream))
+    (format stream "abc")
+    (file-position stream))
+  3)
+
+(deftest string-file-position.3
+  (with-extend-to-string
+    (stream array)
+    (format stream "abc")
+    (file-position stream))
+  3)
+
+(deftest string-file-position-set.1
+  (with-input-from-string (input "abcdef")
+    (read-char input)
+    (read-char input)
+    (values
+      (file-position input :start)
+      (read-char input)))
+  t #\a)
+
+(deftest string-file-position-set.2
+  (with-input-from-string (input "abcdef")
+    (values
+      (file-position input :end)
+      (read-char input nil)))
+  t nil)
+
+(deftest string-file-position-set.3
+  (with-input-from-string (input "abcdef")
+    (values
+      (file-position input 3)
+      (read-char input)))
+  t #\d)
+
+(deftest string-file-position-set.4
+  (with-open-stream (output (make-string-output-stream))
+    (format output "abc")
+    (values
+      (file-position output :start)
+      (progn
+        (format output "defg")
+        (get-output-stream-string output))))
+  t "defg")
+
+(deftest string-file-position-set.5
+  (with-open-stream (output (make-string-output-stream))
+    (format output "abc")
+    (values
+      (file-position output :end)
+      (progn
+        (format output "defg")
+        (get-output-stream-string output))))
+  t "abcdefg")
+
+(deftest string-file-position-set.6
+  (with-open-stream (output (make-string-output-stream))
+    (format output "abc")
+    (values
+      (file-position output 2)
+      (progn
+        (format output "defg")
+        (get-output-stream-string output))))
+  t "abdefg")
+
+(deftest string-file-position-set.7
+  (with-extend-to-string
+    (stream array)
+    (format stream "abc")
+    (values
+      (file-position stream :start)
+      (progn
+        (format stream "defg")
+        array)))
+  t "defg")
+
+(deftest string-file-position-set.8
+  (with-extend-to-string
+    (stream array)
+    (format stream "abc")
+    (values
+      (file-position stream :end)
+      (progn
+        (format stream "defg")
+        array)))
+  t "abcdefg")
+
+(deftest string-file-position-set.9
+  (with-extend-to-string
+    (stream array)
+    (format stream "abc")
+    (values
+      (file-position stream 2)
+      (progn
+        (format stream "defg")
+        array)))
+  t "abdefg")
+
+(deftest string-file-position-unread.1
+  (with-input-from-string (x "abcdef")
+    (values
+      (read-char x)
+      (read-char x)
+      (read-char x)
+      (file-position x)
+      (unread-char #\c x)
+      (file-position x)
+      (read-char x)
+      (file-position x)))
+  #\a #\b #\c 3 nil 2 #\c 3)
+
+(deftest string-file-position-unread.2
+  (with-input-from-string (x "abcdef")
+    (values
+      (read-char x)
+      (read-char x)
+      (read-char x)
+      (file-position x)
+      (unread-char #\c x)
+      (file-position x 1)
+      (read-char x)
+      (file-position x)))
+  #\a #\b #\c 3 nil t #\b 2)
+
+
+
+;;
+;;  file-string-length
+;;
+(deftest-error string-file-string-length.1
+  (with-input-from-string (stream "Hello")
+    (values
+      (file-string-length stream #\u10000)
+      (file-string-length stream (format nil "ab~Ad" #\u011111)))))
+
+(deftest string-file-string-length.2
+  (with-open-stream (stream (make-string-output-stream))
+    (values
+      (file-string-length stream #\u10000)
+      (file-string-length stream (format nil "ab~Ad" #\u011111))))
+  1 4)
+
+(deftest string-file-string-length.3
+  (with-extend-to-string
+    (stream array)
+    (values
+      (file-string-length stream #\u10000)
+      (file-string-length stream (format nil "ab~Ad" #\u011111))))
+  1 4)
+
+
+;;
+;;  stream-external-format
+;;
+(deftest string-stream-external-format.1
+  (with-input-from-string (stream "Hello")
+    (stream-external-format stream))
+  :default)
+
+(deftest string-stream-external-format.2
+  (with-open-stream (stream (make-string-output-stream))
+    (stream-external-format stream))
+  :default)
+
+(deftest string-stream-external-format.3
+  (with-extend-to-string
+    (stream array)
+    (stream-external-format stream))
+  :default)
+

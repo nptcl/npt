@@ -44,6 +44,7 @@ static void init_stream_extend_type(int type)
 	LispStreamTypeError(characterp, type);
 	LispStreamTypeError(binaryp, type);
 	LispStreamTypeError(element_type, type);
+	LispStreamTypeError(external_format, type);
 	LispStreamTypeError(file_length, type);
 	LispStreamTypeError(file_position, type);
 	LispStreamTypeError(file_position_start, type);

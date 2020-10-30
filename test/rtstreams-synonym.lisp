@@ -276,3 +276,88 @@
         (read-line stream nil :eof))))
   "aaa" "" "bbb" :eof)
 
+
+;;
+;;  file-length
+;;
+(deftest synonym-file-length.1
+  (with-make-file
+    (*file* "abcd")
+    (with-open-file (input *file*)
+      (declare (special input))
+      (with-open-stream (stream (make-synonym-stream 'input))
+        (file-length stream))))
+  4)
+
+
+;;
+;;  file-position
+;;
+(deftest synonym-file-position.1
+  (with-input-from-string (input "Hello")
+    (declare (special input))
+    (read-char input)
+    (read-char input)
+    (with-open-stream (stream (make-synonym-stream 'hello))
+      (file-position input)))
+  2)
+
+(deftest synonym-file-position-set.1
+  (with-input-from-string (input "Hello")
+    (declare (special input))
+    (read-char input)
+    (read-char input)
+    (with-open-stream (stream (make-synonym-stream 'input))
+      (values
+        (file-position stream :start)
+        (read-char stream))))
+  t #\H)
+
+(deftest synonym-file-position-set.2
+  (with-input-from-string (input "Hello")
+    (declare (special input))
+    (read-char input)
+    (read-char input)
+    (with-open-stream (stream (make-synonym-stream 'input))
+      (values
+        (file-position stream :end)
+        (read-char stream nil))))
+  t nil)
+
+(deftest synonym-file-position-set.3
+  (with-input-from-string (input "abcdef")
+    (declare (special input))
+    (read-char input)
+    (read-char input)
+    (with-open-stream (stream (make-synonym-stream 'input))
+      (values
+        (file-position stream 3)
+        (read-char stream))))
+  t #\d)
+
+
+;;
+;;  file-string-length
+;;
+(deftest synonym-file-string-length.1
+  (with-temp-file
+    (with-overwrite-file (hello *file* :external-format 'utf-32)
+      (declare (special hello))
+      (with-open-stream (stream (make-synonym-stream 'hello))
+        (values
+          (file-string-length stream #\a)
+          (file-string-length stream "abcd")))))
+  4 16)
+
+
+;;
+;;  stream-external-format
+;;
+(deftest synonym-stream-external-format.1
+  (with-open-stream (x (make-memory-io-stream))
+    (with-open-file (*stream* x :direction :output :external-format 'utf16le)
+      (declare (special *stream*))
+      (with-open-stream (z (make-synonym-stream '*stream*))
+        (stream-external-format z))))
+  lisp-system::utf-16le)
+

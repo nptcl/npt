@@ -26,6 +26,7 @@
 #define checkp_false_stream _n(checkp_false_stream)
 #define element_type_character_stream _n(element_type_character_stream)
 #define element_type_io_stream _n(element_type_io_stream)
+#define external_format_default_stream _n(external_format_default_stream)
 
 _g int close_default_stream(addr stream, addr *ret);
 _g int read_char_default_stream(addr stream, unicode *c, int *ret);
@@ -50,6 +51,7 @@ _g int checkp_true_stream(addr stream, int *ret);
 _g int checkp_false_stream(addr stream, int *ret);
 _g int element_type_character_stream(addr stream, addr *ret);
 _g int element_type_io_stream(addr stream, addr *ret);
+_g int external_format_default_stream(addr stream, addr *ret);
 
 #endif
 

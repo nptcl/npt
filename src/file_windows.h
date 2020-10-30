@@ -267,12 +267,13 @@ static inline file_type open_io_chartype_append(LPCWSTR name)
 
 	/* file-position-end */
 	zero.QuadPart = 0ULL;
-	if (SetFilePointerEx(file, zero, &pos, FILE_END) != 0)
-		return file;  /* success */
+	if (SetFilePointerEx(file, zero, &pos, FILE_END) == 0) {
+		(void)CloseHandle(file);
+		return INVALID_HANDLE_VALUE;
+	}
 
-	/* error */
-	(void)CloseHandle(file);
-	return INVALID_HANDLE_VALUE;
+	/* success */
+	return file;
 }
 
 static inline int open_io_chartype(file_type *ret,

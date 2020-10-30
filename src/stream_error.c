@@ -120,6 +120,13 @@ _g int element_type_stream_error(addr stream, addr *ret)
 			"The stream ~S don't run element-type function.", stream);
 }
 
+_g int external_format_stream_error(addr stream, addr *ret)
+{
+	*ret = Nil;
+	return stream_type_error(
+			"The stream ~S don't run external_format function.", stream);
+}
+
 _g int file_length_stream_error(addr stream, addr *ret)
 {
 	*ret = Nil;

@@ -165,6 +165,17 @@ static int element_type_Concatenated(addr stream, addr *ret)
 		return element_type_stream_(stream, ret);
 }
 
+static int external_format_Concatenated(addr stream, addr *ret)
+{
+	current_concatenated(stream, &stream);
+	if (stream == Nil) {
+		GetConst(KEYWORD_DEFAULT, ret);
+		return 0;
+	}
+
+	return external_format_stream_(stream, ret);
+}
+
 static int listen_Concatenated(addr stream, int *ret)
 {
 	current_concatenated(stream, &stream);
@@ -208,6 +219,7 @@ _g void init_stream_concatenated(void)
 	DefineStreamSet(Concatenated, characterp);
 	DefineStreamSet(Concatenated, binaryp);
 	DefineStreamSet(Concatenated, element_type);
+	DefineStreamSet(Concatenated, external_format);
 	DefineStream___(Concatenated, file_length);
 	DefineStreamDef(Concatenated, file_position);
 	DefineStreamDef(Concatenated, file_position_start);

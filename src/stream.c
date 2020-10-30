@@ -187,7 +187,7 @@ _g int read_unsigned8_stream_(addr stream, byte *value, int *ret)
 		return Result(ret, 1);
 	}
 	if (GetFixnum_signed(pos, &v) || ! IsByteSign(v)) {
-		external_format_file(stream, &type);
+		Return(element_type_stream_(stream, &type));
 		return call_type_error_(NULL, pos, type);
 	}
 	*value = (byte)v;

@@ -136,6 +136,16 @@ static int element_type_BroadCast(addr stream, addr *ret)
 		return element_type_stream_(stream, ret);
 }
 
+static int external_format_BroadCast(addr stream, addr *ret)
+{
+	if (last_component_BroadCast(stream, &stream)) {
+		GetConst(KEYWORD_DEFAULT, ret);
+		return 0;
+	}
+
+	return external_format_stream_(stream, ret);
+}
+
 static int file_length_BroadCast(addr stream, addr *ret)
 {
 	if (last_component_BroadCast(stream, &stream)) {
@@ -300,6 +310,7 @@ _g void init_stream_broadcast(void)
 	DefineStreamSet(BroadCast, characterp);
 	DefineStreamSet(BroadCast, binaryp);
 	DefineStreamSet(BroadCast, element_type);
+	DefineStreamSet(BroadCast, external_format);
 	DefineStreamSet(BroadCast, file_length);
 	DefineStreamSet(BroadCast, file_position);
 	DefineStreamSet(BroadCast, file_position_start);

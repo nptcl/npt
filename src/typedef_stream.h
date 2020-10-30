@@ -20,6 +20,7 @@ typedef int (*lisp_streamtype_interactivep)(addr, int *);
 typedef int (*lisp_streamtype_characterp)(addr, int *);
 typedef int (*lisp_streamtype_binaryp)(addr, int *);
 typedef int (*lisp_streamtype_element_type)(addr, addr *);
+typedef int (*lisp_streamtype_external_format)(addr, addr *);
 typedef int (*lisp_streamtype_file_length)(addr, addr *);
 typedef int (*lisp_streamtype_file_position)(addr, size_t *, int *);
 typedef int (*lisp_streamtype_file_position_start)(addr, int *);

@@ -23,6 +23,7 @@ _g void init_stream_binary_input(void)
 	DefineStreamChk(BinaryInput, characterp, false);
 	DefineStreamChk(BinaryInput, binaryp, true);
 	DefineStreamLet(BinaryInput, element_type, file_);
+	DefineStreamLet(BinaryInput, external_format, file_);
 	DefineStreamDef(BinaryInput, file_length);
 	DefineStreamLet(BinaryInput, file_position, file_);
 	DefineStreamLet(BinaryInput, file_position_start, file_);
@@ -57,6 +58,7 @@ _g void init_stream_binary_output(void)
 	DefineStreamChk(BinaryOutput, characterp, false);
 	DefineStreamChk(BinaryOutput, binaryp, true);
 	DefineStreamLet(BinaryOutput, element_type, file_);
+	DefineStreamLet(BinaryOutput, external_format, file_);
 	DefineStreamDef(BinaryOutput, file_length);
 	DefineStreamLet(BinaryOutput, file_position, file_);
 	DefineStreamLet(BinaryOutput, file_position_start, file_);
@@ -91,6 +93,7 @@ _g void init_stream_binary_io(void)
 	DefineStreamChk(BinaryIO, characterp, false);
 	DefineStreamChk(BinaryIO, binaryp, true);
 	DefineStreamLet(BinaryIO, element_type, file_);
+	DefineStreamLet(BinaryIO, external_format, file_);
 	DefineStreamDef(BinaryIO, file_length);
 	DefineStreamLet(BinaryIO, file_position, file_);
 	DefineStreamLet(BinaryIO, file_position_start, file_);
@@ -125,6 +128,7 @@ _g void init_stream_character_input(void)
 	DefineStreamChk(CharacterInput, characterp, true);
 	DefineStreamChk(CharacterInput, binaryp, false);
 	DefineStreamLet(CharacterInput, element_type, character_stream);
+	DefineStreamLet(CharacterInput, external_format, file_);
 	DefineStreamDef(CharacterInput, file_length);
 	DefineStreamLet(CharacterInput, file_position, file_);
 	DefineStreamLet(CharacterInput, file_position_start, file_);
@@ -159,6 +163,7 @@ _g void init_stream_character_output(void)
 	DefineStreamChk(CharacterOutput, characterp, true);
 	DefineStreamChk(CharacterOutput, binaryp, false);
 	DefineStreamLet(CharacterOutput, element_type, character_stream);
+	DefineStreamLet(CharacterOutput, external_format, file_);
 	DefineStreamDef(CharacterOutput, file_length);
 	DefineStreamLet(CharacterOutput, file_position, file_);
 	DefineStreamLet(CharacterOutput, file_position_start, file_);
@@ -193,6 +198,7 @@ _g void init_stream_character_io(void)
 	DefineStreamChk(CharacterIO, characterp, true);
 	DefineStreamChk(CharacterIO, binaryp, false);
 	DefineStreamLet(CharacterIO, element_type, character_stream);
+	DefineStreamLet(CharacterIO, external_format, file_);
 	DefineStreamDef(CharacterIO, file_length);
 	DefineStreamLet(CharacterIO, file_position, file_);
 	DefineStreamLet(CharacterIO, file_position_start, file_);
@@ -227,6 +233,7 @@ _g void init_stream_binchar_input(void)
 	DefineStreamChk(BincharInput, characterp, true);
 	DefineStreamChk(BincharInput, binaryp, true);
 	DefineStreamLet(BincharInput, element_type, character_stream);
+	DefineStreamLet(BincharInput, external_format, file_);
 	DefineStream___(BincharInput, file_length);
 	DefineStreamLet(BincharInput, file_position, file_);
 	DefineStreamLet(BincharInput, file_position_start, file_);
@@ -261,6 +268,7 @@ _g void init_stream_binchar_output(void)
 	DefineStreamChk(BincharOutput, characterp, true);
 	DefineStreamChk(BincharOutput, binaryp, true);
 	DefineStreamLet(BincharOutput, element_type, character_stream);
+	DefineStreamLet(BincharOutput, external_format, file_);
 	DefineStream___(BincharOutput, file_length);
 	DefineStreamLet(BincharOutput, file_position, file_);
 	DefineStreamLet(BincharOutput, file_position_start, file_);
@@ -295,6 +303,7 @@ _g void init_stream_binchar_io(void)
 	DefineStreamChk(BincharIO, characterp, true);
 	DefineStreamChk(BincharIO, binaryp, true);
 	DefineStreamLet(BincharIO, element_type, character_stream);
+	DefineStreamLet(BincharIO, external_format, file_);
 	DefineStream___(BincharIO, file_length);
 	DefineStreamLet(BincharIO, file_position, file_);
 	DefineStreamLet(BincharIO, file_position_start, file_);
@@ -329,6 +338,7 @@ _g void init_stream_probe(void)
 	DefineStreamChk(Probe, characterp, true);
 	DefineStreamChk(Probe, binaryp, false);
 	DefineStreamLet(Probe, element_type, character_stream);
+	DefineStreamLet(Probe, external_format, file_);
 	DefineStream___(Probe, file_length);
 	DefineStream___(Probe, file_position);
 	DefineStream___(Probe, file_position_start);

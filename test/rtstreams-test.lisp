@@ -223,6 +223,42 @@
   (eval '(stream-element-type *standard-output* nil)))
 
 
+;;
+;;  Function STREAM-EXTERNAL-FORMAT
+;;
+(deftest stream-external-format.1
+  (stream-external-format *standard-input*)
+  lisp-system::utf-8)
+
+(deftest stream-external-format.2
+  (stream-external-format *standard-output*)
+  lisp-system::utf-8)
+
+(deftest stream-external-format.3
+  (with-open-file (s *file* :element-type '(integer 0 1)
+                     :if-exists :supersede
+                     :if-does-not-exist :create
+                     :direction :output)
+    (stream-external-format s))
+  :default)
+
+(deftest stream-external-format.4
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (s io :external-format 'utf-16le)
+      (stream-external-format s)))
+  lisp-system::utf-16le)
+
+(deftest-error stream-external-format-error.1
+  (eval '(stream-external-format 10))
+  type-error)
+
+(deftest-error! stream-external-format-error.2
+  (eval '(stream-external-format)))
+
+(deftest-error! stream-external-format-error.3
+  (eval '(stream-external-format *standard-output* nil)))
+
+
 
 ;;
 ;;

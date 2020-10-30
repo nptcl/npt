@@ -20,6 +20,7 @@
 #define characterp_stream_error _n(characterp_stream_error)
 #define binaryp_stream_error _n(binaryp_stream_error)
 #define element_type_stream_error _n(element_type_stream_error)
+#define external_format_stream_error _n(external_format_stream_error)
 #define file_length_stream_error _n(file_length_stream_error)
 #define file_position_stream_error _n(file_position_stream_error)
 #define file_position_start_stream_error _n(file_position_start_stream_error)
@@ -51,6 +52,7 @@ _g int interactivep_stream_error(addr stream, int *ret);
 _g int characterp_stream_error(addr stream, int *ret);
 _g int binaryp_stream_error(addr stream, int *ret);
 _g int element_type_stream_error(addr stream, addr *ret);
+_g int external_format_stream_error(addr stream, addr *ret);
 _g int file_length_stream_error(addr stream, addr *ret);
 _g int file_position_stream_error(addr stream, size_t *value, int *ret);
 _g int file_position_start_stream_error(addr stream, int *ret);

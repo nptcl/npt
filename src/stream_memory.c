@@ -351,6 +351,7 @@ _g void init_stream_memory_input(void)
 	DefineStreamChk(MemoryInput, characterp, false);
 	DefineStreamChk(MemoryInput, binaryp, true);
 	DefineStreamLet(MemoryInput, element_type, MemoryStream);
+	DefineStreamDef(MemoryInput, external_format);
 	DefineStreamLet(MemoryInput, file_length, MemoryStream);
 	DefineStreamLet(MemoryInput, file_position, MemoryStream);
 	DefineStreamLet(MemoryInput, file_position_start, MemoryStream);
@@ -394,6 +395,7 @@ _g void init_stream_memory_output(void)
 	DefineStreamChk(MemoryOutput, characterp, false);
 	DefineStreamChk(MemoryOutput, binaryp, true);
 	DefineStreamLet(MemoryOutput, element_type, MemoryStream);
+	DefineStreamDef(MemoryOutput, external_format);
 	DefineStreamLet(MemoryOutput, file_length, MemoryStream);
 	DefineStreamLet(MemoryOutput, file_position, MemoryStream);
 	DefineStreamLet(MemoryOutput, file_position_start, MemoryStream);
@@ -437,6 +439,7 @@ _g void init_stream_memory_io(void)
 	DefineStreamChk(MemoryIO, characterp, false);
 	DefineStreamChk(MemoryIO, binaryp, true);
 	DefineStreamLet(MemoryIO, element_type, MemoryStream);
+	DefineStreamDef(MemoryIO, external_format);
 	DefineStreamLet(MemoryIO, file_length, MemoryStream);
 	DefineStreamLet(MemoryIO, file_position, MemoryStream);
 	DefineStreamLet(MemoryIO, file_position_start, MemoryStream);

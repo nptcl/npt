@@ -303,3 +303,67 @@
           (read-line stream nil :eof)))))
   "aaa" "bbbccc" "ddd" :eof)
 
+
+;;
+;;  file-length
+;;
+(deftest-error concatenated-file-length.1
+  (with-make-file
+    (*file1* "abc")
+    (with-make-file
+      (*file2* "cdef")
+      (with-open-file (input1 *file1*)
+        (with-open-file (input2 *file2*)
+          (with-open-stream (stream (make-concatenated-stream input1 input2))
+            (file-length stream)))))))
+
+
+;;
+;;  file-position
+;;
+(deftest concatenated-file-position.1
+  (with-input-from-string (input "Hello")
+    (with-open-stream (stream (make-concatenated-stream input))
+      (file-position stream)))
+  nil)
+
+(deftest concatenated-file-position-set.1
+  (with-input-from-string (input "Hello")
+    (with-open-stream (stream (make-concatenated-stream input))
+      (file-position stream :start)))
+  nil)
+
+(deftest concatenated-file-position-set.2
+  (with-input-from-string (input "Hello")
+    (with-open-stream (stream (make-concatenated-stream input))
+      (file-position stream :end)))
+  nil)
+
+(deftest concatenated-file-position-set.3
+  (with-input-from-string (input "Hello")
+    (with-open-stream (stream (make-concatenated-stream input))
+      (file-position stream 2)))
+  nil)
+
+
+;;
+;;  file-string-length
+;;
+(deftest-error concatenated-file-string-length.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (values
+      (file-string-length stream #\a)
+      (file-string-length stream "abcd"))))
+
+
+;;
+;;  stream-external-format
+;;
+(deftest concatenated-stream-external-format.1
+  (with-open-stream (a (make-memory-io-stream))
+    (with-open-stream (b (make-memory-io-stream))
+      (with-open-file (x a :direction :input :external-format 'utf8)
+        (with-open-file (y b :direction :input :external-format 'ascii)
+          (with-open-stream (z (make-concatenated-stream x y))
+            (stream-external-format z))))))
+  lisp-system::utf-8)
