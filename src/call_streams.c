@@ -103,7 +103,7 @@ _g int read_char_common(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	Return(stream_designer_(ptr, stream, &stream, 1));
+	Return(input_stream_designer_(ptr, stream, &stream));
 
 	/* read-char */
 	Return(read_char_stream_(stream, &c, &check));
@@ -136,7 +136,7 @@ _g int read_char_no_hang_common(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	Return(stream_designer_(ptr, stream, &stream, 1));
+	Return(input_stream_designer_(ptr, stream, &stream));
 
 	/* read-char */
 	Return(read_hang_stream_(stream, &c, &hang, &check));
@@ -205,7 +205,7 @@ _g int write_char_common(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
-	Return(stream_designer_(ptr, stream, &stream, 0));
+	Return(output_stream_designer_(ptr, stream, &stream));
 	GetCharacter(pos, &c);
 	Return(write_char_stream_(stream, c));
 	return exitpoint_stream_(stream);
@@ -602,6 +602,22 @@ static int open_common_external(addr value, enum Stream_Open_External *ret)
 	return fmte_("Invalid external-format ~S.", value, NULL);
 }
 
+static int open_pathname_designer_(Execute ptr, addr pos, addr *ret)
+{
+	addr value;
+
+	if (memory_stream_p(pos))
+		return Result(ret, pos);
+
+	if (streamp(pos)) {
+		GetPathnameStream(pos, &value);
+		if (memory_stream_p(value))
+			return Result(ret, value);
+	}
+
+	return physical_pathname_heap_(ptr, pos, ret);
+}
+
 _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	addr value;
@@ -612,9 +628,7 @@ _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 	enum Stream_Open_External external;
 
 	/* argument */
-	if (! streamp(pos)) {
-		Return(physical_pathname_heap_(ptr, pos, &pos));
-	}
+	Return(open_pathname_designer_(ptr, pos, &pos));
 	if (GetKeyArgs(rest, KEYWORD_DIRECTION, &value))
 		value = Unbound;
 	Return(open_common_direction(value, &direction));
@@ -645,10 +659,11 @@ _g int with_open_file_common(addr form, addr *ret)
 	 *   ,@decl
 	 *   (unwind-protect
 	 *     (progn . body)
-	 *     (close var)))
+	 *     (when var  ;; valid check.
+	 *       (close var))))
 	 */
 	addr args, var, file, body, decl, root;
-	addr let, open, protect, progn, close;
+	addr let, open, protect, progn, when, close;
 
 	/* argument */
 	Return_getcdr(form, &form);
@@ -668,10 +683,12 @@ _g int with_open_file_common(addr form, addr *ret)
 	GetConst(COMMON_OPEN, &open);
 	GetConst(COMMON_UNWIND_PROTECT, &protect);
 	GetConst(COMMON_PROGN, &progn);
+	GetConst(COMMON_WHEN, &when);
 	GetConst(COMMON_CLOSE, &close);
 	list_heap(&close, close, var, NULL);
+	list_heap(&when, when, var, close, NULL);
 	cons_heap(&progn, progn, body);
-	list_heap(&protect, protect, progn, close, NULL);
+	list_heap(&protect, protect, progn, when, NULL);
 	lista_heap(&args, open, file, args, NULL);
 	list_heap(&args, var, args, NULL);
 	conscar_heap(&args, args);

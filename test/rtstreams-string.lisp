@@ -502,3 +502,69 @@
     (stream-external-format stream))
   :default)
 
+
+;;
+;;  close
+;;
+(deftest string-close.1
+  (let ((stream (make-string-input-stream "Hello")))
+    (values
+      (open-stream-p stream)
+      (close stream)
+      (open-stream-p stream)
+      (close stream)
+      (open-stream-p stream)))
+  t t nil t nil)
+
+(deftest string-close.2
+  (let ((stream (make-string-output-stream)))
+    (values
+      (open-stream-p stream)
+      (close stream)
+      (open-stream-p stream)
+      (close stream)
+      (open-stream-p stream)))
+  t t nil t nil)
+
+(deftest string-close.3
+  (let ((x (make-string-input-stream "Hello")))
+    (values
+      (close x)
+      (open-stream-p x)
+      (input-stream-p x)
+      (output-stream-p x)
+      (interactive-stream-p x)
+      (streamp x)
+      (close x)))
+  t nil t nil nil t t)
+
+(deftest string-close.4
+  (let ((x (make-string-output-stream)))
+    (values
+      (close x)
+      (open-stream-p x)
+      (input-stream-p x)
+      (output-stream-p x)
+      (interactive-stream-p x)
+      (streamp x)
+      (close x)))
+  t nil nil t nil t t)
+
+
+;;
+;;  listen
+;;
+(deftest string-listen.1
+  (with-input-from-string (stream "Hello")
+    (listen stream))
+  t)
+
+(deftest-error string-listen.2
+  (with-output-to-string (stream)
+    (listen stream)))
+
+(deftest-error string-listen.3
+  (with-extend-to-string
+    (stream array)
+    (listen stream)))
+

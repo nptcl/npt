@@ -498,7 +498,7 @@ _g int upgraded_open_element_type_syscode_(addr var, addr *ret)
 
 
 /* make-memory-input-stream */
-static int getkeyindex_null_(addr list, constindex key, size_t *ret)
+static int getkeyindex_syscode_(addr list, constindex key, size_t *ret)
 {
 	addr pos;
 
@@ -515,16 +515,31 @@ static int getkeyindex_null_(addr list, constindex key, size_t *ret)
 	return 0;
 }
 
+static int getkeycache_syscode(addr list)
+{
+	if (GetKeyArgs(list, KEYWORD_CACHE, &list)) {
+#ifdef LISP_DEBUG
+		return 1;  /* on */
+#else
+		return 0;  /* off */
+#endif
+	}
+
+	return (list == Nil)? 0: 1;
+}
+
 _g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
 {
+	int cache;
 	size_t size, array;
 
 	/* &key */
-	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_SIZE, &size));
-	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_SIZE, &size));
+	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+	cache = getkeycache_syscode(rest);
 
 	/* call */
-	Return(open_input_memory_stream_(&var, var, size, array));
+	Return(open_input_memory_stream_(&var, var, size, array, cache));
 	return Result(ret, var);
 }
 
@@ -532,14 +547,16 @@ _g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
 /* make-memory-output-stream */
 _g int make_memory_output_stream_syscode_(addr rest, addr *ret)
 {
+	int cache;
 	size_t size, array;
 
 	/* &key */
-	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_SIZE, &size));
-	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_SIZE, &size));
+	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+	cache = getkeycache_syscode(rest);
 
 	/* call */
-	Return(open_output_memory_stream_(&rest, size, array));
+	Return(open_output_memory_stream_(&rest, size, array, cache));
 	return Result(ret, rest);
 }
 
@@ -547,17 +564,19 @@ _g int make_memory_output_stream_syscode_(addr rest, addr *ret)
 /* make-memory-io-stream */
 _g int make_memory_io_stream_syscode_(addr rest, addr *ret)
 {
+	int cache;
 	addr input;
 	size_t size, array;
 
 	/* &key */
-	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_SIZE, &size));
-	Return(getkeyindex_null_(rest, CONSTANT_KEYWORD_ARRAY, &array));
 	if (GetKeyArgs(rest, KEYWORD_INPUT, &input))
 		input = Nil;
+	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_SIZE, &size));
+	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_ARRAY, &array));
+	cache = getkeycache_syscode(rest);
 
 	/* call */
-	Return(open_io_memory_stream_(&rest, input, size, array));
+	Return(open_io_memory_stream_(&rest, input, size, array, cache));
 	return Result(ret, rest);
 }
 
@@ -674,6 +693,20 @@ _g int get_output_stream_memory_syscode_(addr var, addr *ret)
 }
 
 
+/* memory-stream-p */
+_g void memory_stream_p_syscode(addr var, addr *ret)
+{
+	gettype_memory_stream(var, ret);
+}
+
+
+/* (setf memory-stream-p) */
+_g int setf_memory_stream_p_syscode_(addr var, addr value)
+{
+	return settype_memory_stream_(var, value);
+}
+
+
 /* byte-integer */
 static int byte_integer_endian_(addr list, int littlep, addr *ret)
 {
@@ -710,11 +743,13 @@ _g int byte_integer_syscode_(addr list, addr *ret)
 	return byte_integer_endian_(list, u.u8[0] != 0, ret);
 }
 
+
 /* question */
 _g int question_syscode_(Execute ptr, addr var, addr args)
 {
 	return question_values_(ptr, var, args);
 }
+
 
 /* extension */
 #ifdef LISP_EXTENSION

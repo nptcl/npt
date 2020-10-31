@@ -54,6 +54,8 @@
 #define with_output_to_memory_syscode_ _n(with_output_to_memory_syscode_)
 #define get_output_stream_memory_syscode_ _n(get_output_stream_memory_syscode_)
 #define byte_integer_syscode_ _n(byte_integer_syscode_)
+#define memory_stream_p_syscode _n(memory_stream_p_syscode)
+#define setf_memory_stream_p_syscode_ _n(setf_memory_stream_p_syscode_)
 #define question_syscode_ _n(question_syscode_)
 #define extension_syscode _n(extension_syscode)
 
@@ -106,6 +108,8 @@ _g int with_input_from_memory_syscode_(Execute ptr, addr form, addr *ret);
 _g int with_output_to_memory_syscode_(Execute ptr, addr form, addr *ret);
 _g int get_output_stream_memory_syscode_(addr var, addr *ret);
 _g int byte_integer_syscode_(addr list, addr *ret);
+_g void memory_stream_p_syscode(addr var, addr *ret);
+_g int setf_memory_stream_p_syscode_(addr var, addr value);
 _g int question_syscode_(Execute ptr, addr var, addr args);
 _g int extension_syscode(Execute ptr, addr var);
 

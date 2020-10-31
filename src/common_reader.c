@@ -93,7 +93,7 @@ static void defun_make_dispatch_macro_character(void)
 
 
 /* (defun read (&optional stream errorp eof recp) ...) -> object
- *   stream  stream
+ *   stream  input-stream-designer
  *   errorp  t  (boolean)
  *   eof     t
  *   recp    t  (boolean)
@@ -122,7 +122,7 @@ static void defun_read(void)
 
 
 /* (defun read-preserving-whitespace (&optional stream errorp eof recp) ...) -> object
- *   stream  stream
+ *   stream  input-stream-designer
  *   errorp  t  (boolean)
  *   eof     t
  *   recp    t  (boolean)

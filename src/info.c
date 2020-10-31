@@ -182,6 +182,7 @@ static const char *infochar_decl(enum LISPDECL decl)
 
 		case LISPDECL_ATOM:					return "atom";
 		case LISPDECL_LIST:					return "list";
+		case LISPDECL_BOOLEAN:				return "boolean";
 		case LISPDECL_VECTOR:				return "vector";
 		case LISPDECL_SIMPLE_VECTOR:		return "simple-vector";
 		case LISPDECL_BIT_VECTOR:			return "bit-vector";

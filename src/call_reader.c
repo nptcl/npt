@@ -84,6 +84,7 @@ _g int read_common(Execute ptr, addr args, addr *ret)
 	/* stream */
 	if (consp(args)) {
 		GetCons(args, &stream, &args);
+		Return(input_stream_designer_(ptr, stream, &stream));
 	}
 	else {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
@@ -143,6 +144,7 @@ _g int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
 	/* stream */
 	if (consp(args)) {
 		GetCons(args, &stream, &args);
+		Return(input_stream_designer_(ptr, stream, &stream));
 	}
 	else {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);

@@ -2,6 +2,7 @@
 #include "execute.h"
 #include "execute_values.h"
 #include "integer.h"
+#include "object.h"
 #include "question.h"
 #include "stream_memory.h"
 #include "stream_object.h"
@@ -33,6 +34,17 @@ static int question_memory_stream_array_(Execute ptr, addr pos, addr args)
 	return 0;
 }
 
+static int question_memory_stream_cache_(Execute ptr, addr pos, addr args)
+{
+	int cache;
+
+	cache = getcache_memory_stream(pos);
+	fixnum_heap(&pos, (fixnum)cache);
+	setresult_control(ptr, pos);
+
+	return 0;
+}
+
 static int question_memory_stream_(Execute ptr, addr pos, addr args)
 {
 	int check;
@@ -48,6 +60,11 @@ static int question_memory_stream_(Execute ptr, addr pos, addr args)
 	Return(string_designer_equalp_char_(type, "array", &check));
 	if (check)
 		return question_memory_stream_array_(ptr, pos, args);
+
+	/* cache */
+	Return(string_designer_equalp_char_(type, "cache", &check));
+	if (check)
+		return question_memory_stream_cache_(ptr, pos, args);
 
 	/* error */
 	setresult_control(ptr, Nil);

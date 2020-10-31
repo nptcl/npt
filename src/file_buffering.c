@@ -29,7 +29,7 @@ _g int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret)
 			goto error;
 		if (check) {
 			*ret = i;
-			return 1; /* EOF */
+			return i == 0; /* Normal or EOF */
 		}
 		pos[i] = c;
 	}
@@ -158,7 +158,6 @@ _g int close_stream_buffering_(addr stream, addr *ret)
 		*ret = Nil;
 		return fmte_("close error.", NULL);
 	}
-	SetPathnameStream(stream, Nil);
 	force_close_stream(stream);
 
 	return Result(ret, T);

@@ -361,3 +361,55 @@
         (stream-external-format z))))
   lisp-system::utf-16le)
 
+
+;;
+;;  close
+;;
+(deftest synonym-close.1
+  (with-input-from-string (input "Hello")
+    (declare (special input))
+    (let ((stream (make-synonym-stream 'input)))
+      (values
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (open-stream-p input))))
+  t t nil t nil t)
+
+(deftest synonym-close.2
+  (with-open-stream (output (make-string-output-stream))
+    (declare (special output))
+    (with-open-stream (x (make-synonym-stream 'output))
+      (close x)
+      (values
+        (open-stream-p output)
+        (open-stream-p x))))
+  t nil)
+
+(deftest synonym-close.3
+  (with-open-stream (output (make-string-output-stream))
+    (declare (special output))
+    (let ((x (make-synonym-stream 'output)))
+      (values
+        (close x)
+        (open-stream-p x)
+        (input-stream-p x)
+        (output-stream-p x)
+        (interactive-stream-p x)
+        (streamp x)
+        (close x))))
+  t nil nil t nil t t)
+
+
+;;
+;;  listen
+;;
+(deftest synonym-listen.1
+  (with-input-from-string (input "Hello")
+    (declare (special input))
+    (with-open-stream (stream (make-synonym-stream 'input))
+      (listen stream)))
+  t)
+

@@ -181,33 +181,33 @@ _g void open_input_redirect_filememory_(filestream fm, addr pos)
 {
 	file_type file;
 
-	Check(! streamp(pos), "stream error");
+	Check(! memory_stream_p(pos), "stream error");
 	cleartype(file);
 	init_input_filememory(fm, file);
 	fm->redirect = 1;
-	fm->cache = 0;
+//	fm->cache = 0;
 }
 
 _g void open_output_redirect_filememory_(filestream fm, addr pos)
 {
 	file_type file;
 
-	Check(! streamp(pos), "stream error");
+	Check(! memory_stream_p(pos), "stream error");
 	cleartype(file);
 	init_output_filememory(fm, file);
 	fm->redirect = 1;
-	fm->cache = 0;
+//	fm->cache = 0;
 }
 
 _g void open_io_redirect_filememory_(filestream fm, addr pos)
 {
 	file_type file;
 
-	Check(! streamp(pos), "stream error");
+	Check(! memory_stream_p(pos), "stream error");
 	cleartype(file);
 	init_io_filememory(fm, file);
 	fm->redirect = 1;
-	fm->cache = 0;
+//	fm->cache = 0;
 }
 
 _g int close_filememory(filestream fm)

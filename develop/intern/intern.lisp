@@ -72,6 +72,7 @@
 :base
 :before
 :block
+:cache
 :capitalize
 :case
 :class
@@ -2007,6 +2008,7 @@ lisp-system::unbound-value
 (lisp-system::with-input-from-memory :export t)
 (lisp-system::with-output-to-memory :export t)
 (lisp-system::get-output-stream-memory :export t)
+(lisp-system::memory-stream-p :export t)
 (lisp-system::byte-integer :export t)
 (lisp-system::question :export t)
 (lisp-system::extension :export t)

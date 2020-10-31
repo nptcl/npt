@@ -367,3 +367,70 @@
           (with-open-stream (z (make-concatenated-stream x y))
             (stream-external-format z))))))
   lisp-system::utf-8)
+
+
+;;
+;;  close
+;;
+(deftest concatenated-close.1
+  (with-input-from-string (input "Hello")
+    (let ((stream (make-concatenated-stream input)))
+      (values
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (open-stream-p input))))
+  t t nil t nil t)
+
+(deftest concatenated-close.2
+  (with-open-stream (x (make-string-input-stream "Hello"))
+    (with-open-stream (stream (make-concatenated-stream x))
+      (close stream)
+      (values
+        (open-stream-p x)
+        (open-stream-p stream))))
+  t nil)
+
+(deftest concatenated-close.3
+  (let ((x (make-concatenated-stream)))
+    (values
+      (close x)
+      (open-stream-p x)
+      (input-stream-p x)
+      (output-stream-p x)
+      (interactive-stream-p x)
+      (streamp x)
+      (close x)))
+  t nil t nil nil t t)
+
+
+;;
+;;  listen
+;;
+(deftest concatenated-listen.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (listen stream))
+  nil)
+
+(deftest concatenated-listen.2
+  (with-input-from-string (input "Hello")
+    (with-open-stream (stream (make-concatenated-stream input))
+      (listen stream)))
+  t)
+
+(deftest concatenated-listen.3
+  (with-input-from-string (input1 "Hello")
+    (with-open-stream (input2 (make-concatenated-stream))
+      (with-open-stream (stream (make-concatenated-stream input1 input2))
+        (listen stream))))
+  t)
+
+(deftest concatenated-listen.4
+  (with-input-from-string (input1 "Hello")
+    (with-open-stream (input2 (make-concatenated-stream))
+      (with-open-stream (stream (make-concatenated-stream input2 input1))
+        (listen stream))))
+  nil)
+

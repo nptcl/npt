@@ -677,3 +677,98 @@
     (open *file* :direction :output :if-exists nil))
   nil)
 
+
+;;
+;;  Macro WITH-OPEN-FILE
+;;
+(deftest with-open-file.1
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (file io :direction :input)
+      (values
+        (open-stream-p file)
+        (input-stream-p file)
+        (output-stream-p file)
+        (streamp file))))
+  t t nil t)
+
+(deftest with-open-file.2
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (file io :direction :output)
+      (values
+        (open-stream-p file)
+        (input-stream-p file)
+        (output-stream-p file)
+        (streamp file))))
+  t nil t t)
+
+(deftest with-open-file.3
+  (let (stream)
+    (with-open-stream (io (make-memory-io-stream))
+      (with-open-file (file io :direction :input)
+        (setq stream file))
+      (values
+        (open-stream-p stream)
+        (input-stream-p stream)
+        (output-stream-p stream)
+        (streamp stream))))
+  nil t nil t)
+
+(deftest with-open-file.4
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (file io :direction :io)
+      (format file "Hello")
+      (file-position file :start)
+      (values
+        (read-line file))))
+  "Hello")
+
+(deftest with-open-file.5
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (file io :direction :io)
+      ))
+  nil)
+
+(deftest-error with-open-file-error.1
+  (eval '(with-open-file (10 "file.txt"))))
+
+(deftest-error with-open-file-error.2
+  (eval '(with-open-file (var 20))))
+
+(deftest-error with-open-file-error.3
+  (eval '(with-open-file (var))))
+
+(deftest-error with-open-file-error.4
+  (eval '(with-open-file)))
+
+;;  ANSI Common Lisp
+(deftest with-open-file-test.1
+  (with-open-stream (p (make-memory-io-stream))
+    (with-open-file (s p :direction :output :if-exists :supersede)
+      (format s "Here are a couple~%of test data lines~%"))
+    (let (list)
+      (with-open-file (s p)
+        (do ((l (read-line s) (read-line s nil 'eof)))
+          ((eq l 'eof)
+           (push "Reached end of file." list))
+          (push (format nil "*** ~A" l) list)))
+      (nreverse list)))
+  ("*** Here are a couple"
+   "*** of test data lines"
+   "Reached end of file."))
+
+(deftest with-open-file-test.2
+  (with-open-stream (io (make-memory-io-stream))
+    (with-open-file (x io :direction :output)
+      (format x "Hello"))
+    (with-open-file (*standard-input* io)
+      (with-open-file (foo "with-open-file-no-such-file"
+                           :if-does-not-exist nil)
+        (read foo))))
+  hello)
+
+(deftest with-open-file-test.3
+  (with-open-file (foo "with-opne-file-no-such-file"
+                       :direction :output :if-does-not-exist nil)
+    (format foo "Hello"))
+  "Hello")
+

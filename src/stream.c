@@ -9,6 +9,7 @@
 #include "stream_object.h"
 #include "strtype.h"
 #include "symbol.h"
+#include "type_table.h"
 #include "typedef.h"
 
 /*
@@ -79,38 +80,40 @@ _g int print_string_stream_(addr stream, addr pos)
 	return 0;
 }
 
-_g int stream_designer_(Execute ptr, addr pos, addr *ret, int inputp)
+static int stream_designer_(Execute ptr, addr stream, addr *ret, int inputp)
 {
 	addr type;
-	constindex index;
 
 	/* default */
-	if (pos == Unbound) {
-		index = inputp?
-			CONSTANT_SPECIAL_STANDARD_INPUT:
-			CONSTANT_SPECIAL_STANDARD_OUTPUT;
-		GetConstant(index, &pos);
-	}
-
-	/* boolean */
-	if (pos == T)
-		return terminal_io_stream_(ptr, ret);
-	if (pos == Nil)
-		return standard_output_stream_(ptr, ret);
-
-	/* symbol */
-	if (symbolp(pos)) {
-		Return(getspecialcheck_local_(ptr, pos, &pos));
+	if (stream == Unbound || stream == Nil) {
+		if (inputp)
+			return standard_input_stream_(ptr, ret);
+		else
+			return standard_output_stream_(ptr, ret);
 	}
 
 	/* stream */
-	if (streamp(pos))
-		return Result(ret, pos);
+	if (streamp(stream))
+		return Result(ret, stream);
+
+	/* boolean */
+	if (stream == T)
+		return terminal_io_stream_(ptr, ret);
 
 	/* error */
 	*ret = Nil;
-	GetConst(COMMON_STREAM, &type);
-	return call_type_error_(ptr, pos, type);
+	GetTypeTable(&type, StreamDesigner);
+	return call_type_error_(ptr, stream, type);
+}
+
+_g int input_stream_designer_(Execute ptr, addr stream, addr *ret)
+{
+	return stream_designer_(ptr, stream, ret, 1);
+}
+
+_g int output_stream_designer_(Execute ptr, addr stream, addr *ret)
+{
+	return stream_designer_(ptr, stream, ret, 0);
 }
 
 
@@ -157,18 +160,6 @@ _g int debug_io_stream_(Execute ptr, addr *ret)
 _g int query_io_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_QUERY_IO, ret);
-}
-
-_g int output_stream_designer_(Execute ptr, addr stream, addr *ret)
-{
-	if (stream == Unbound)
-		return standard_output_stream_(ptr, ret);
-	if (stream == T)
-		return terminal_io_stream_(ptr, ret);
-	if (stream == Nil)
-		return standard_output_stream_(ptr, ret);
-
-	return Result(ret, stream);
 }
 
 

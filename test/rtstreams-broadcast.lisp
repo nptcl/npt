@@ -350,3 +350,48 @@
             (stream-external-format z))))))
   lisp-system::ascii)
 
+
+;;
+;;  close
+;;
+(deftest broadcast-close.1
+  (with-open-stream (output (make-string-output-stream))
+    (let ((stream (make-broadcast-stream output)))
+      (values
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (open-stream-p output))))
+  t t nil t nil t)
+
+(deftest broadcast-close.2
+  (with-open-stream (x (make-string-output-stream))
+    (with-open-stream (stream (make-broadcast-stream x))
+      (close stream)
+      (values
+        (open-stream-p x)
+        (open-stream-p stream))))
+  t nil)
+
+(deftest broadcast-close.3
+  (let ((x (make-broadcast-stream)))
+    (values
+      (close x)
+      (open-stream-p x)
+      (input-stream-p x)
+      (output-stream-p x)
+      (interactive-stream-p x)
+      (streamp x)
+      (close x)))
+  t nil nil t nil t t)
+
+
+;;
+;;  listen
+;;
+(deftest-error broadcast-listen.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (listen stream)))
+

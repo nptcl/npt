@@ -333,3 +333,57 @@
             (stream-external-format z))))))
   lisp-system::utf-8)
 
+
+;;
+;;  close
+;;
+(deftest two-way-close.1
+  (with-input-from-string (input "Hello")
+    (with-open-stream (output (make-string-output-stream))
+      (let ((stream (make-two-way-stream input output)))
+        (values
+          (open-stream-p stream)
+          (close stream)
+          (open-stream-p stream)
+          (close stream)
+          (open-stream-p stream)
+          (open-stream-p input)
+          (open-stream-p output)))))
+  t t nil t nil t t)
+
+(deftest two-way-close.2
+  (with-open-stream (x (make-string-input-stream "Hello"))
+    (with-open-stream (y (make-string-output-stream))
+      (with-open-stream (stream (make-two-way-stream x y))
+        (close stream)
+        (values
+          (open-stream-p x)
+          (open-stream-p y)
+          (open-stream-p stream)))))
+  t t nil)
+
+(deftest two-way-close.3
+  (with-open-stream (z (make-string-input-stream "Hello"))
+    (with-open-stream (y (make-string-output-stream))
+      (let ((x (make-two-way-stream z y)))
+        (values
+          (close x)
+          (open-stream-p x)
+          (input-stream-p x)
+          (output-stream-p x)
+          (interactive-stream-p x)
+          (streamp x)
+          (close x)))))
+  t nil t t nil t t)
+
+
+;;
+;;  listen
+;;
+(deftest two-way-listen.1
+  (with-input-from-string (input "Hello")
+    (with-open-stream (output (make-string-output-stream))
+      (with-open-stream (stream (make-two-way-stream input output))
+        (listen stream))))
+  t)
+

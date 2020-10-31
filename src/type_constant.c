@@ -461,13 +461,12 @@ static void typetable_pathnamedesigner(void)
 
 static void typetable_streamdesigner(void)
 {
-	/* (or stream symbol) */
-	addr type1, type2, type3, pos;
+	/* (or stream boolean) */
+	addr type1, type2, pos;
 
 	GetTypeTable(&type1, Stream);
-	GetTypeTable(&type2, String);
-	GetTypeTable(&type3, Boolean);
-	type3or_heap(type1, type2, type3, &pos);
+	GetTypeTable(&type2, Boolean);
+	type2or_heap(type1, type2, &pos);
 	SetTypeTable(StreamDesigner, pos);
 }
 
@@ -1712,8 +1711,8 @@ static void typecompiled_read(void)
 {
 	addr args, values, type;
 
-	/* (function (&optional stream t t t) (values t &rest nil)) */
-	GetTypeTable(&args, Stream);
+	/* (function (&optional input-stream-designer t t t) (values t &rest nil)) */
+	GetTypeTable(&args, StreamDesigner);
 	GetTypeTable(&type, T);
 	list_heap(&args, args, type, type, type, NULL);
 	typeargs_full(&args, Nil, args, Nil, Nil);

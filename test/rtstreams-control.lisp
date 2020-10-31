@@ -557,108 +557,74 @@
 
 
 ;;
-;;  listen
+;;  Function CLOSE
+;;
+(deftest close.1
+  (close (make-string-output-stream))
+  t)
+
+(deftest close.2
+  (let ((x (make-string-input-stream "Hello")))
+    (close x)
+    (open-stream-p x))
+  nil)
+
+(deftest close.3
+  (let ((inst (open *file* :direction :output
+                    :if-exists :supersede
+                    :if-does-not-exist :create)))
+    (format inst "Hello")
+    (close inst :abort t)
+    (probe-file *file*))
+  nil)
+
+(deftest close.4
+  (let ((inst (open *file* :direction :output
+                    :if-exists :supersede
+                    :if-does-not-exist :create)))
+    (format inst "Hello")
+    (close inst)
+    (setq inst (open *file* :direction :input))
+    (close inst :abort t)
+    (probe-file *file*))
+  t)
+
+(deftest-error close-error.1
+  (eval '(close nil))
+  type-error)
+
+(deftest-error close-error.2
+  (eval '(close (make-string-output-stream) :hello)))
+
+(deftest-error close-error.3
+  (eval '(close (make-string-output-stream) :hello 10)))
+
+(deftest-error! close-error.4
+  (eval '(close)))
+
+
+;;
+;;  Function LISTEN
 ;;
 (deftest listen.1
-  (listen *standard-input*)
+  (dotimes (i 100 t)
+    (clear-input *standard-input*)
+    (unless (listen *standard-input*)
+      (return nil)))
   nil)
 
 (deftest listen.2
-  (prog2
+  (dotimes (i 100 nil)
     (unread-char #\a *standard-input*)
-    (listen *standard-input*)
-    (read-char *standard-input*))
+    (when (listen *standard-input*)
+      (clear-input *standard-input*)
+      (return t))
+    (clear-input *standard-input*))
   t)
 
 (deftest-error listen.3
   (listen *standard-output*))
 
-(deftest listen-file.1
-  (with-temp-file
-    (with-open-file (input *file*)
-      (listen input)))
-  t)
-
-(deftest-error listen-file.2
-  (with-temp-file
-    (with-overwrite-file (output *file*)
-      (listen output))))
-
-(deftest listen-file.3
-  (with-temp-file
-    (with-open-file (input *file* :direction :io :if-exists :overwrite)
-      (listen input)))
-  t)
-
-(deftest listen-file.4
-  (with-temp-file
-    (with-open-file (input *file* :element-type 'unsigned-byte)
-      (listen input)))
-  t)
-
-(deftest-error listen-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (listen stream)))
-
-(deftest listen-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (listen stream))
-  nil)
-
-(deftest listen-concatenated.2
-  (with-input-from-string (input "Hello")
-    (with-open-stream (stream (make-concatenated-stream input))
-      (listen stream)))
-  t)
-
-(deftest listen-concatenated.3
-  (with-input-from-string (input1 "Hello")
-    (with-open-stream (input2 (make-concatenated-stream))
-      (with-open-stream (stream (make-concatenated-stream input1 input2))
-        (listen stream))))
-  t)
-
-(deftest listen-concatenated.4
-  (with-input-from-string (input1 "Hello")
-    (with-open-stream (input2 (make-concatenated-stream))
-      (with-open-stream (stream (make-concatenated-stream input2 input1))
-        (listen stream))))
-  nil)
-
-(deftest listen-echo.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-echo-stream input output))
-        (listen stream))))
-  t)
-
-(deftest listen-synonym.1
-  (with-input-from-string (input "Hello")
-    (declare (special input))
-    (with-open-stream (stream (make-synonym-stream 'input))
-      (listen stream)))
-  t)
-
-(deftest listen-two-way.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (with-open-stream (stream (make-two-way-stream input output))
-        (listen stream))))
-  t)
-
-(deftest listen-input-string.1
-  (with-input-from-string (stream "Hello")
-    (listen stream))
-  t)
-
-(deftest-error listen-output-string.1
-  (with-output-to-string (stream)
-    (listen stream)))
-
-(deftest-error listen-extend-string.1
-  (with-extend-to-string
-    (stream array)
-    (listen stream)))
 
 
 ;;
@@ -898,172 +864,4 @@
         (write-char #\c stream)
         (clear-output stream))))
   nil nil nil)
-
-
-;;
-;;  close
-;;
-(deftest close-file.1
-  (with-temp-file
-    (let ((stream (open *file*)))
-      (values
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream))))
-  t t nil t nil)
-
-(deftest close-file.2
-  (with-temp-file
-    (let ((stream (open *file*)))
-      (values
-        (open-stream-p stream)
-        (close stream :abort t)
-        (open-stream-p stream)
-        (close stream :abort t)
-        (open-stream-p stream))))
-  t t nil t nil)
-
-(deftest close-broadcast.1
-  (with-open-stream (output (make-string-output-stream))
-    (let ((stream (make-broadcast-stream output)))
-      (values
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (open-stream-p output))))
-  t t nil t nil t)
-
-(deftest close-concatenated.1
-  (with-input-from-string (input "Hello")
-    (let ((stream (make-concatenated-stream input)))
-      (values
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (open-stream-p input))))
-  t t nil t nil t)
-
-(deftest close-echo.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (let ((stream (make-echo-stream input output)))
-        (values
-          (open-stream-p stream)
-          (close stream)
-          (open-stream-p stream)
-          (close stream)
-          (open-stream-p stream)
-          (open-stream-p input)
-          (open-stream-p output)))))
-  t t nil t nil t t)
-
-(deftest close-synonym.1
-  (with-input-from-string (input "Hello")
-    (declare (special input))
-    (let ((stream (make-synonym-stream 'input)))
-      (values
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (close stream)
-        (open-stream-p stream)
-        (open-stream-p input))))
-  t t nil t nil t)
-
-(deftest close-two-way.1
-  (with-input-from-string (input "Hello")
-    (with-open-stream (output (make-string-output-stream))
-      (let ((stream (make-two-way-stream input output)))
-        (values
-          (open-stream-p stream)
-          (close stream)
-          (open-stream-p stream)
-          (close stream)
-          (open-stream-p stream)
-          (open-stream-p input)
-          (open-stream-p output)))))
-  t t nil t nil t t)
-
-(deftest close-input-string.1
-  (let ((stream (make-string-input-stream "Hello")))
-    (values
-      (open-stream-p stream)
-      (close stream)
-      (open-stream-p stream)
-      (close stream)
-      (open-stream-p stream)))
-  t t nil t nil)
-
-(deftest close-input-string.2
-  (let ((stream (make-string-output-stream)))
-    (values
-      (open-stream-p stream)
-      (close stream)
-      (open-stream-p stream)
-      (close stream)
-      (open-stream-p stream)))
-  t t nil t nil)
-
-(deftest close-input-stream-p-file.1
-  (with-temp-file
-    (let ((input (open *file*)))
-      (close input)
-      (input-stream-p input)))
-  t)
-
-(deftest close-input-stream-p-broadcast.1
-  (with-open-stream (stream (make-broadcast-stream))
-    (close stream)
-    (input-stream-p stream))
-  nil)
-
-(deftest close-input-stream-p-concatenated.1
-  (with-open-stream (stream (make-concatenated-stream))
-    (close stream)
-    (input-stream-p stream))
-  t)
-
-(deftest close-output-stream-p.1
-  (with-temp-file
-    (let ((input (open *file* :direction :output
-                       :if-exists :supersede
-                       :if-does-not-exist :create)))
-      (close input)
-      (output-stream-p input)))
-  t)
-
-(deftest close-interactive-stream-p.1
-  (with-temp-file
-    (let ((input (open *file*)))
-      (close input)
-      (interactive-stream-p input)))
-  nil)
-
-(deftest close-open-stream-p.1
-  (with-temp-file
-    (let ((input (open *file*)))
-      (values
-        (open-stream-p input)
-        (progn
-          (close input)
-          (open-stream-p input)))))
-  t nil)
-
-
-;;  file-stream
-;;  broadcast-stream
-;;  concatenated-stream
-;;  echo-stream
-;;  synonym-stream
-;;  two-way-stream
-;;  input-string-stream
-;;  output-string-stream
-;;  extend-string-stream
-;;  prompt-stream
 

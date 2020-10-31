@@ -7,6 +7,7 @@
 #include "integer.h"
 #include "sequence.h"
 #include "sequence_safe.h"
+#include "stream.h"
 #include "stream_error.h"
 #include "stream_memory.h"
 #include "stream_variable.h"
@@ -23,31 +24,24 @@ static int close_memory_stream_p(addr stream, addr *ret)
 	addr pos;
 
 	CheckMemoryStream(stream);
-	GetInfoStream(stream, &pos);
-	if (pos == Nil) {
+	if (open_stream_p(stream)) {
+		GetInfoStream(stream, &pos);
 		if (ret)
-			*ret = Nil;
-		return 1;
+			*ret = pos;
+		return 0;
 	}
-	if (ret)
-		*ret = pos;
 
+	/* close */
+	if (ret)
+		*ret = Nil;
 	return 0;
 }
 
 static int close_memory_stream_error_(addr stream, addr *ret)
 {
-	addr pos;
-
 	CheckMemoryStream(stream);
-	GetInfoStream(stream, &pos);
-	if (pos == Nil) {
-		if (ret)
-			*ret = Nil;
-		return fmte_("The stream is already closed.", pos, NULL);
-	}
-	if (ret)
-		*ret = pos;
+	if (close_memory_stream_p(stream, ret))
+		return fmte_("The stream is already closed.", stream, NULL);
 
 	return 0;
 }
@@ -57,13 +51,14 @@ static int close_memory_stream_error_(addr stream, addr *ret)
  *  MemoryStream
  *****************************************************************************/
 struct stream_MemoryStream {
+	unsigned cache : 1;
 	unsigned unread_index;
 	byte unread[INPUT_MEMORY_UNREAD_SIZE];
 };
 #define PtrMemoryStream(pos) ((struct stream_MemoryStream *)PtrDataStream(pos))
 
 static int open_memory_stream_(addr *ret,
-		enum StreamType type, addr input, size_t cell, size_t array)
+		enum StreamType type, addr input, size_t cell, size_t array, int cache)
 {
 	struct stream_MemoryStream *str;
 	addr pos, file;
@@ -77,6 +72,7 @@ static int open_memory_stream_(addr *ret,
 	stream_heap(&pos, type, sizeoft(struct stream_MemoryStream));
 	str = PtrMemoryStream(pos);
 	str->unread_index = 0;
+	str->cache = (cache != 0);
 
 	/* buffering */
 	buffering_heap(&file, cell, array);
@@ -123,10 +119,6 @@ _g void getsize_memory_stream(addr stream, size_t *ret)
 
 	CheckMemoryStream(stream);
 	GetInfoStream(stream, &page);
-	if (page == Nil) {
-		*ret = 0;
-		return;
-	}
 	getcell_buffering(page, ret);
 }
 
@@ -136,11 +128,75 @@ _g void getarray_memory_stream(addr stream, size_t *ret)
 
 	CheckMemoryStream(stream);
 	GetInfoStream(stream, &page);
-	if (page == Nil) {
-		*ret = 0;
+	getwidth_buffering(page, ret);
+}
+
+_g int getcache_memory_stream(addr stream)
+{
+	struct stream_MemoryStream *str;
+
+	CheckMemoryStream(stream);
+	str = PtrMemoryStream(stream);
+	return str->cache;
+}
+
+_g void gettype_memory_stream(addr stream, addr *ret)
+{
+	if (! streamp(stream)) {
+		*ret = Nil;
 		return;
 	}
-	getwidth_buffering(page, ret);
+
+	switch (getstreamtype(stream)) {
+		case StreamType_MemoryInput:
+			GetConst(KEYWORD_INPUT, ret);
+			break;
+
+		case StreamType_MemoryOutput:
+			GetConst(KEYWORD_OUTPUT, ret);
+			break;
+
+		case StreamType_MemoryIO:
+			GetConst(KEYWORD_IO, ret);
+			break;
+
+		default:
+			*ret = Nil;
+			break;
+	}
+}
+
+_g int settype_memory_stream_(addr stream, addr value)
+{
+	addr check;
+	struct StructStream *str;
+
+	CheckType(stream, LISPTYPE_STREAM);
+	str = PtrStructStream(stream);
+
+	/* input */
+	GetConst(KEYWORD_INPUT, &check);
+	if (value == check) {
+		str->type = StreamType_MemoryInput;
+		return 0;
+	}
+
+	/* output */
+	GetConst(KEYWORD_OUTPUT, &check);
+	if (value == check) {
+		str->type = StreamType_MemoryOutput;
+		return 0;
+	}
+
+	/* io */
+	GetConst(KEYWORD_IO, &check);
+	if (value == check) {
+		str->type = StreamType_MemoryIO;
+		return 0;
+	}
+
+	/* error */
+	return fmte_("Invalid memory-stream type ~S.", value, NULL);
 }
 
 
@@ -150,9 +206,7 @@ _g void getarray_memory_stream(addr stream, size_t *ret)
 static int close_MemoryStream(addr stream, addr *ret)
 {
 	CheckMemoryStream(stream);
-	SetInfoStream(stream, Nil);
 	force_close_stream(stream);
-
 	return Result(ret, T);
 }
 
@@ -164,7 +218,7 @@ static int read_byte_MemoryStream(addr stream, addr *value, int *ret)
 	size_t index;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 
 	/* unread */
 	str = PtrMemoryStream(stream);
@@ -194,7 +248,7 @@ static int unread_byte_MemoryStream(addr stream, byte c)
 
 	CheckMemoryStream(stream);
 	str = PtrMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	position_get_buffering(page, &index);
 
 	/* unread check */
@@ -218,7 +272,7 @@ static int write_byte_MemoryStream(addr stream, addr pos)
 	fixnum v;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	Return(getfixnum_signed_(pos, &v));
 	if (! IsByteSign(v))
 		return fmte_("The argument ~S must be a (unsigned-byte 8) type.", pos, NULL);
@@ -248,7 +302,7 @@ static int file_length_MemoryStream(addr stream, addr *ret)
 	size_t size;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	length_buffering(page, &size);
 	make_index_integer_heap(ret, size);
 
@@ -260,7 +314,7 @@ static int file_position_MemoryStream(addr stream, size_t *value, int *ret)
 	addr page;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	position_get_buffering(page, value);
 
 	return Result(ret, 0);
@@ -271,7 +325,7 @@ static int file_position_start_MemoryStream(addr stream, int *ret)
 	addr page;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	position_start_buffering(page);
 	clear_unread_io_memory_stream(stream);
 
@@ -283,7 +337,7 @@ static int file_position_end_MemoryStream(addr stream, int *ret)
 	addr page;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	position_end_buffering(page);
 	clear_unread_io_memory_stream(stream);
 
@@ -295,7 +349,7 @@ static int file_position_set_MemoryStream(addr stream, size_t value, int *ret)
 	addr page;
 
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, &page));
+	GetInfoStream(stream, &page);
 	position_set_buffering(page, value);
 	clear_unread_io_memory_stream(stream);
 
@@ -305,14 +359,12 @@ static int file_position_set_MemoryStream(addr stream, size_t value, int *ret)
 static int listen_MemoryStream(addr stream, int *ret)
 {
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, NULL));
 	return Result(ret, 1);
 }
 
 static int clear_input_MemoryStream(addr stream)
 {
 	CheckMemoryStream(stream);
-	Return(close_memory_stream_error_(stream, NULL));
 	/* Don't care unread-char */
 	return 0;
 }
@@ -321,13 +373,15 @@ static int clear_input_MemoryStream(addr stream)
 /*****************************************************************************
  *  MemoryInput
  *****************************************************************************/
-_g int open_input_memory_stream_(addr *ret, addr input, size_t cell, size_t array)
+_g int open_input_memory_stream_(addr *ret, addr input,
+		size_t cell, size_t array, int cache)
 {
 	int ignore;
 	addr pos;
 
 	pos = Nil;
-	Return(open_memory_stream_(&pos, StreamType_MemoryInput, input, cell, array));
+	Return(open_memory_stream_(&pos, StreamType_MemoryInput, input,
+			cell, array, cache));
 	Return(file_position_start_MemoryStream(pos, &ignore));
 
 	return Result(ret, pos);
@@ -372,9 +426,11 @@ _g void init_stream_memory_input(void)
 /*****************************************************************************
  *  MemoryOutput
  *****************************************************************************/
-_g int open_output_memory_stream_(addr *ret, size_t cell, size_t array)
+_g int open_output_memory_stream_(addr *ret,
+		size_t cell, size_t array, int cache)
 {
-	return open_memory_stream_(ret, StreamType_MemoryOutput, Nil, cell, array);
+	return open_memory_stream_(ret, StreamType_MemoryOutput, Nil,
+			cell, array, cache);
 }
 
 _g void init_stream_memory_output(void)
@@ -416,9 +472,11 @@ _g void init_stream_memory_output(void)
 /*****************************************************************************
  *  MemoryIO
  *****************************************************************************/
-_g int open_io_memory_stream_(addr *ret, addr input, size_t cell, size_t array)
+_g int open_io_memory_stream_(addr *ret, addr input,
+		size_t cell, size_t array, int cache)
 {
-	return open_memory_stream_(ret, StreamType_MemoryIO, input, cell, array);
+	return open_memory_stream_(ret, StreamType_MemoryIO, input,
+			cell, array, cache);
 }
 
 _g void init_stream_memory_io(void)

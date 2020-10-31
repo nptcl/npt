@@ -870,3 +870,131 @@
       (stream-external-format input)))
   :default)
 
+
+;;
+;;  close
+;;
+(deftest file-close.1
+  (with-temp-file
+    (let ((stream (open *file*)))
+      (values
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream)
+        (close stream)
+        (open-stream-p stream))))
+  t t nil t nil)
+
+(deftest file-close.2
+  (with-temp-file
+    (let ((stream (open *file*)))
+      (values
+        (open-stream-p stream)
+        (close stream :abort t)
+        (open-stream-p stream)
+        (close stream :abort t)
+        (open-stream-p stream))))
+  t t nil t nil)
+
+(deftest file-close.3
+  (with-temp-file
+    (let ((x (open *file* :direction :output
+                   :if-exists :supersede
+                   :if-does-not-exist :create)))
+      (close x)
+      (probe-file *file*)))
+  t)
+
+(deftest file-close.4
+  (let ((x (open *file* :direction :output
+                 :if-exists :supersede
+                 :if-does-not-exist :create)))
+    (close x :abort t)
+    (probe-file *file*))
+  nil)
+
+
+;;  after
+(deftest file-close-after.1
+  (with-temp-file
+    (let ((x (open *file*)))
+      (values
+        (close x)
+        (open-stream-p x)
+        (input-stream-p x)
+        (output-stream-p x)
+        (interactive-stream-p x)
+        (streamp x)
+        (close x))))
+  t nil t nil nil t t)
+
+(deftest file-close-after.2
+  (with-temp-file
+    (let* ((y (pathname *file*))
+           (x (open y)))
+      (close x)
+      (values
+        (pathnamep (pathname x))
+        (pathnamep (truename x))
+        (pathnamep (merge-pathnames x (user-homedir-pathname)))
+        (pathnamep (merge-pathnames #p"Hello.txt" x))
+        (equal (pathname-host x) (pathname-host y))
+        (equal (pathname-device x) (pathname-device y))
+        (equal (pathname-name x) (pathname-name y))
+        (equal (pathname-directory x) (pathname-directory y))
+        (equal (pathname-type x) (pathname-type y))
+        (equal (pathname-version x) (pathname-version y))
+        (equal (namestring x) (namestring y))
+        (equal (file-namestring x) (file-namestring y))
+        (equal (directory-namestring x) (directory-namestring y))
+        (equal (host-namestring x) (host-namestring y))
+        (equal (enough-namestring x) (enough-namestring y))
+        (equal (directory x) (directory y))
+        (probe-file x))))
+  t t t t t t t t t t t t t t t t t)
+
+(deftest file-close-after.3
+  (with-temp-file
+    (let ((x (open *file* :direction :output :if-exists :supersede)))
+      (format x "Hello")
+      (close x)
+      (with-open-file (y x :direction :input)
+        (read-line y))))
+  "Hello" t)
+
+(deftest file-close-after.4
+  (with-open-stream (io (make-memory-io-stream))
+    (let ((x (open io :direction :output :if-exists :supersede)))
+      (format x "Hello")
+      (close x)
+      (with-open-file (y x :direction :input)
+        (read-line y))))
+  "Hello" t)
+
+
+;;
+;;  listen
+;;
+(deftest file-listen.1
+  (with-temp-file
+    (with-open-file (input *file*)
+      (listen input)))
+  t)
+
+(deftest-error file-listen.2
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (listen output))))
+
+(deftest file-listen.3
+  (with-temp-file
+    (with-open-file (input *file* :direction :io :if-exists :overwrite)
+      (listen input)))
+  t)
+
+(deftest file-listen.4
+  (with-temp-file
+    (with-open-file (input *file* :element-type 'unsigned-byte)
+      (listen input)))
+  t)
+

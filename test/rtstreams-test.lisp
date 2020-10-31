@@ -259,6 +259,47 @@
   (eval '(stream-external-format *standard-output* nil)))
 
 
+;;
+;;  Macro WITH-OPEN-STREAM
+;;
+(deftest with-open-stream.1
+  (with-open-stream (x (make-string-input-stream "Hello"))
+    (read-line x))
+  "Hello" t)
+
+(deftest with-open-stream.2
+  (let (stream)
+    (with-open-stream (x (make-string-input-stream "Hello"))
+      (setq stream x))
+    (values
+      (streamp stream)
+      (open-stream-p stream)
+      (input-stream-p stream)))
+  t nil t)
+
+(deftest with-open-stream.3
+  (with-open-stream (x (make-string-input-stream "Hello"))
+    (declare (special x))
+    (read-line (symbol-value 'x)))
+  "Hello" t)
+
+(deftest with-open-stream.4
+  (with-open-stream (s (make-string-input-stream "1 2 3 4"))
+    (+ (read s) (read s) (read s)))
+  6)
+
+(deftest-error with-open-stream-error.1
+  (eval '(with-open-stream (10 (make-string-output-stream)))))
+
+(deftest-error with-open-stream-error.2
+  (eval '(with-open-stream (var))))
+
+(deftest-error with-open-stream-error.3
+  (eval '(with-open-stream (var (make-string-output-stream) "Hello"))))
+
+(deftest-error with-open-stream-error.4
+  (eval '(with-open-stream)))
+
 
 ;;
 ;;
@@ -587,36 +628,6 @@
     (format inst "Hello")
     array)
   "Hello")
-
-
-;;
-;;  open
-;;
-(deftest with-open-file.1
-  (with-delete-temp-file
-    (with-open-file (inst *file* :direction :output)
-      (streamp inst)))
-  t)
-
-(deftest close.1
-  (let ((inst (open *file* :direction :output
-                    :if-exists :supersede
-                    :if-does-not-exist :create)))
-    (format inst "Hello")
-    (close inst :abort t)
-    (probe-file *file*))
-  nil)
-
-(deftest close.2
-  (let ((inst (open *file* :direction :output
-                    :if-exists :supersede
-                    :if-does-not-exist :create)))
-    (format inst "Hello")
-    (close inst)
-    (setq inst (open *file* :direction :input))
-    (close inst :abort t)
-    (probe-file *file*))
-  t)
 
 
 ;;

@@ -250,7 +250,7 @@ static int test_alloctail(void)
 }
 
 #define heap_debug_size  0x10000
-static void gccheck_debug()
+static void gccheck_debug(void)
 {
 	GcCounter = 0;
 	GcCheck1 = GcCheck2 = GcCheck3 = GcCheck4 = (heap_pos + heap_debug_size - 80);
