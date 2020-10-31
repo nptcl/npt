@@ -125,6 +125,15 @@ _g void clear_buffering(addr pos)
 	buffering_clear_root(pos);
 }
 
+_g int end_buffering(addr pos)
+{
+	struct buffering_struct *str;
+
+	CheckType(pos, LISPSYSTEM_BUFFERING);
+	str = struct_buffering(pos);
+	return str->size <= str->index;
+}
+
 _g void getcell_buffering(addr pos, size_t *ret)
 {
 	struct buffering_struct *str;

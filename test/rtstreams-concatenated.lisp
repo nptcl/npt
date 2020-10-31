@@ -434,3 +434,105 @@
         (listen stream))))
   nil)
 
+
+;;
+;;  clear-input
+;;
+(deftest concatenated-clear-input.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (clear-input stream))
+  nil)
+
+(deftest concatenated-clear-input.2
+  (with-open-stream (stream (make-concatenated-stream *standard-input*))
+    (clear-input stream))
+  nil)
+
+
+;;
+;;  finish-output
+;;
+(deftest-error concatenated-finish-output.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (finish-output output)))
+
+
+;;
+;;  force-output
+;;
+(deftest-error concatenated-force-output.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (force-output output)))
+
+
+;;
+;;  clear-output
+;;
+(deftest-error concatenated-clear-output.1
+  (with-open-stream (stream (make-concatenated-stream))
+    (clear-output output)))
+
+
+;;
+;;  Function MAKE-CONCATENATED-STREAM
+;;
+(deftest make-concatenated-stream.1
+  (typep (make-concatenated-stream) 'concatenated-stream)
+  t)
+
+(deftest make-concatenated-stream.2
+  (typep (make-concatenated-stream
+           *standard-input*
+           *terminal-io*) 'concatenated-stream)
+  t)
+
+(deftest-error make-concatenated-stream-error.1
+  (make-concatenated-stream *standard-input* *standard-output*)
+  type-error)
+
+(deftest-error make-concatenated-stream-error.2
+  (eval '(make-concatenated-stream 10))
+  type-error)
+
+;;  ANSI Common Lisp
+(deftest make-concatenated-stream-test.
+  (read (make-concatenated-stream
+          (make-string-input-stream "1")
+          (make-string-input-stream "2")))
+  12)
+
+
+;;
+;;  Function CONCATENATED-STREAM-STREAMS
+;;
+(deftest concatenated-stream-streams.1
+  (concatenated-stream-streams
+    (make-concatenated-stream))
+  nil)
+
+(deftest concatenated-stream-streams.2
+  (mapcar
+    #'input-stream-p
+    (concatenated-stream-streams
+      (make-concatenated-stream
+        *standard-input*
+        *terminal-io*)))
+  (t t))
+
+(deftest-error concatenated-stream-streams-error.1
+  (concatenated-stream-streams
+    (make-string-input-stream "Hello"))
+  type-error)
+
+(deftest-error concatenated-stream-streams-error.2
+  (eval '(concatenated-stream-streams 10))
+  type-error)
+
+(deftest-error! concatenated-stream-streams-error.3
+  (eval '(concatenated-stream-streams)))
+
+(deftest-error! concatenated-stream-streams-error.4
+  (eval '(concatenated-stream-streams
+           (make-concatenated-stream)
+           nil)))
+

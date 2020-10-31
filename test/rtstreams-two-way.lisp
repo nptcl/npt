@@ -387,3 +387,148 @@
         (listen stream))))
   t)
 
+
+;;
+;;  clear-input
+;;
+(deftest two-way-clear-input.1
+  (with-open-stream (stream (make-two-way-stream *standard-input* *standard-output*))
+    (clear-input stream))
+  nil)
+
+
+;;
+;;  finish-output
+;;
+(deftest two-way-finish-output.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (write-char #\a stream)
+          (finish-output stream)))))
+  nil)
+
+
+;;
+;;  force-output
+;;
+(deftest two-way-force-output.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (write-char #\a stream)
+          (force-output stream)))))
+  nil)
+
+
+;;
+;;  clear-output
+;;
+(deftest two-way-clear-output.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-two-way-stream input output))
+          (write-char #\a stream)
+          (clear-output stream)))))
+  nil)
+
+
+;;
+;;  Function MAKE-TWO-WAY-STREAM
+;;
+(deftest make-two-way-stream.1
+  (typep (make-two-way-stream
+           *standard-input*
+           *standard-output*)
+         'two-way-stream)
+  t)
+
+(deftest-error make-two-way-stream-error.1
+  (make-two-way-stream *error-output* *standard-output*)
+  type-error)
+
+(deftest-error make-two-way-stream-error.2
+  (make-two-way-stream *standard-input* *standard-input*)
+  type-error)
+
+(deftest-error make-two-way-stream-error.3
+  (eval '(make-two-way-stream 10 *standard-output*))
+  type-error)
+
+(deftest-error make-two-way-stream-error.4
+  (eval '(make-two-way-stream *standard-input* 20))
+  type-error)
+
+(deftest-error! make-two-way-stream-error.5
+  (eval '(make-two-way-stream *standard-input*)))
+
+(deftest-error! make-two-way-stream-error.6
+  (eval '(make-two-way-stream *standard-input* *standard-output* nil)))
+
+;;  ANSI Common Lisp
+(deftest make-two-way-stream-test.1
+  (let (what-is-read)
+    (values
+      (with-output-to-string (out)
+        (with-input-from-string (in "input...")
+          (let ((two (make-two-way-stream in out)))
+            (format two "output...")
+            (setq what-is-read (read two)))))
+      what-is-read))
+  "output..." input...)
+
+
+;;
+;;  Function TWO-WAY-STREAM-INPUT-STREAM
+;;
+(deftest two-way-stream-input-stream.1
+  (eq *standard-input*
+      (two-way-stream-input-stream
+        (make-two-way-stream *standard-input* *standard-output*)))
+  t)
+
+(deftest-error two-way-stream-input-stream-error.1
+  (eval '(two-way-stream-input-stream (make-string-input-stream "Hello")))
+  type-error)
+
+(deftest-error two-way-stream-input-stream-error.2
+  (eval '(two-way-stream-input-stream 10))
+  type-error)
+
+(deftest-error! two-way-stream-input-stream-error.3
+  (eval '(two-way-stream-input-stream)))
+
+(deftest-error! two-way-stream-input-stream-error.4
+  (eval '(two-way-stream-input-stream
+           (make-two-way-stream *standard-input* *standard-output*)
+           nil)))
+
+
+;;
+;;  Function TWO-WAY-STREAM-OUTPUT-STREAM
+;;
+(deftest two-way-stream-output-stream.1
+  (eq *standard-output*
+      (two-way-stream-output-stream
+        (make-two-way-stream *standard-input* *standard-output*)))
+  t)
+
+(deftest-error two-way-stream-output-stream-error.1
+  (eval '(two-way-stream-output-stream (make-string-output-stream)))
+  type-error)
+
+(deftest-error two-way-stream-output-stream-error.2
+  (eval '(two-way-stream-output-stream 10))
+  type-error)
+
+(deftest-error! two-way-stream-output-stream-error.3
+  (eval '(two-way-stream-output-stream)))
+
+(deftest-error! two-way-stream-output-stream-error.4
+  (eval '(two-way-stream-output-stream
+           (make-two-way-stream *standard-input* *standard-output*)
+           nil)))
+

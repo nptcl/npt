@@ -305,14 +305,16 @@ static int file_position_set_StringInput(addr stream, size_t value, int *ret)
 
 static int listen_StringInput(addr stream, int *ret)
 {
+	struct stream_StringInput *str;
+
 	CheckInputStringStream(stream);
-	return Result(ret, 1);
+	str = PtrStringInputStream(stream);
+	return Result(ret, str->index < str->size);
 }
 
 static int clear_input_StringInput(addr stream)
 {
 	CheckInputStringStream(stream);
-	/* Don't care unread-char */
 	return 0;
 }
 

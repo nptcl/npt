@@ -29,7 +29,7 @@
 
 _g int open_input_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache);
-_g int open_output_memory_stream_(addr *ret,
+_g int open_output_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache);
 _g int open_io_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache);

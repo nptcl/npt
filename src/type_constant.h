@@ -411,6 +411,7 @@ enum TypeTable {
 	TypeCompiled_RemoveFile,
 	TypeCompiled_InfoBit,
 	TypeCompiled_CharEql,
+	TypeCompiled_MakeMemoryOutputStream,
 
 	/* Size */
 	TypeTable_Size

@@ -358,14 +358,19 @@ static int file_position_set_MemoryStream(addr stream, size_t value, int *ret)
 
 static int listen_MemoryStream(addr stream, int *ret)
 {
+	int check;
+	addr page;
+
 	CheckMemoryStream(stream);
-	return Result(ret, 1);
+	GetInfoStream(stream, &page);
+	check = end_buffering(page);
+
+	return Result(ret, ! check);
 }
 
 static int clear_input_MemoryStream(addr stream)
 {
 	CheckMemoryStream(stream);
-	/* Don't care unread-char */
 	return 0;
 }
 
@@ -381,7 +386,7 @@ _g int open_input_memory_stream_(addr *ret, addr input,
 
 	pos = Nil;
 	Return(open_memory_stream_(&pos, StreamType_MemoryInput, input,
-			cell, array, cache));
+				cell, array, cache));
 	Return(file_position_start_MemoryStream(pos, &ignore));
 
 	return Result(ret, pos);
@@ -426,11 +431,11 @@ _g void init_stream_memory_input(void)
 /*****************************************************************************
  *  MemoryOutput
  *****************************************************************************/
-_g int open_output_memory_stream_(addr *ret,
+_g int open_output_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache)
 {
-	return open_memory_stream_(ret, StreamType_MemoryOutput, Nil,
-			cell, array, cache);
+	return open_memory_stream_(ret, StreamType_MemoryOutput,
+			input, cell, array, cache);
 }
 
 _g void init_stream_memory_output(void)
@@ -475,8 +480,8 @@ _g void init_stream_memory_output(void)
 _g int open_io_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache)
 {
-	return open_memory_stream_(ret, StreamType_MemoryIO, input,
-			cell, array, cache);
+	return open_memory_stream_(ret, StreamType_MemoryIO,
+			input, cell, array, cache);
 }
 
 _g void init_stream_memory_io(void)

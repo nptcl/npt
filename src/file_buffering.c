@@ -118,7 +118,7 @@ _g int file_position_set_low_buffering(filestream fm, size_t pos)
 /*
  *  file
  */
-static filestream begin_buffering(addr stream, addr *ret)
+static filestream begin_buffering_filememory(addr stream, addr *ret)
 {
 	addr mem;
 	filestream fm;
@@ -135,7 +135,7 @@ static filestream begin_buffering(addr stream, addr *ret)
 	return fm;
 }
 
-static void end_buffering(addr stream, addr prev)
+static void end_buffering_filememory(addr stream, addr prev)
 {
 	filestream fm;
 
@@ -150,9 +150,9 @@ _g int close_stream_buffering_(addr stream, addr *ret)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = close_filememory(fm);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (check) {
 		*ret = Nil;
@@ -169,9 +169,9 @@ _g int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = readf_filememory(fm, pos, size, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (check < 0)
 		return fmte_("read error", NULL);
@@ -184,9 +184,9 @@ _g int read_byte_buffering_(addr stream, addr *value, int *ret)
 	int check;
 	addr prev;
 
-	(void)begin_buffering(stream, &prev);
+	(void)begin_buffering_filememory(stream, &prev);
 	check = read_byte_file_type(stream, value);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (check < 0)
 		return fmte_("read-byte-file error", NULL);
@@ -200,9 +200,9 @@ _g int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = write_filememory(fm, pos, size, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (check)
 		return fmte_("write error", NULL);
@@ -216,9 +216,9 @@ _g int write_byte_buffering_(addr stream, addr pos)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = write_byte_file_type_(fm, pos);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -229,9 +229,9 @@ _g int read_char_buffering_(addr stream, unicode *c, int *ret)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	escape = read_char_encode_(fm, c, &check);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (escape)
 		return 1;
@@ -247,9 +247,9 @@ _g int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	escape = read_hang_encode_(fm, c, hang, &check);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (escape)
 		return 1;
@@ -265,9 +265,9 @@ _g int write_char_buffering_(addr stream, unicode c)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = write_char_encode_(fm, c);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -278,9 +278,9 @@ _g int file_length_buffering_(addr stream, size_t *value, int *ret)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = file_length_file_type_(fm, value, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -290,9 +290,9 @@ _g int file_position_buffering_(addr stream, size_t *value, int *ret)
 	int check;
 	addr prev;
 
-	(void)begin_buffering(stream, &prev);
+	(void)begin_buffering_filememory(stream, &prev);
 	check = file_position_file_type_(stream, value, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -302,9 +302,9 @@ _g int file_position_start_buffering_(addr stream, int *ret)
 	int check;
 	addr prev;
 
-	(void)begin_buffering(stream, &prev);
+	(void)begin_buffering_filememory(stream, &prev);
 	check = file_position_start_file_type_(stream, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -314,9 +314,9 @@ _g int file_position_end_buffering_(addr stream, int *ret)
 	int check;
 	addr prev;
 
-	(void)begin_buffering(stream, &prev);
+	(void)begin_buffering_filememory(stream, &prev);
 	check = file_position_end_file_type_(stream, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -326,9 +326,9 @@ _g int file_position_set_buffering_(addr stream, size_t value, int *ret)
 	int check;
 	addr prev;
 
-	(void)begin_buffering(stream, &prev);
+	(void)begin_buffering_filememory(stream, &prev);
 	check = file_position_set_file_type_(stream, value, ret);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return check;
 }
@@ -339,9 +339,9 @@ _g int finish_output_buffering_(addr stream)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	check = flush_filememory(fm);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	if (check)
 		return fmte_("flush-filememory error.", NULL);
@@ -354,9 +354,9 @@ _g int exitpoint_buffering_(addr stream)
 	filestream fm;
 	addr prev;
 
-	fm = begin_buffering(stream, &prev);
+	fm = begin_buffering_filememory(stream, &prev);
 	exitpoint_filememory(fm);
-	end_buffering(stream, prev);
+	end_buffering_filememory(stream, prev);
 
 	return 0;
 }

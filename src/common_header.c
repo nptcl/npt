@@ -58,12 +58,10 @@ _g void define_special_operator(constindex index)
 /*
  *  :start, :end
  */
-static int getsize_keyword_start_(addr key, addr rest, addr *reta, size_t *rets)
+static int getsize_keyword_start_(addr pos, addr *reta, size_t *rets)
 {
-	addr pos;
-
-	if (getplist_safe(rest, key, &pos)) {
-		*reta = fixnumh(0);
+	if (pos == Unbound) {
+		fixnum_heap(reta, 0);
 		*rets = 0;
 	}
 	else {
@@ -74,13 +72,10 @@ static int getsize_keyword_start_(addr key, addr rest, addr *reta, size_t *rets)
 	return 0;
 }
 
-static int getsize_keyword_end_(addr key, addr rest, size_t size,
-		addr *reta, size_t *rets)
+static int getsize_keyword_end_(size_t size, addr pos, addr *reta, size_t *rets)
 {
-	addr pos;
-
-	if (getplist_safe(rest, key, &pos) || pos == Nil) {
-		*reta = intsizeh(size);
+	if (pos == Unbound || pos == Nil) {
+		make_index_integer_heap(reta, size);
 		*rets = size;
 	}
 	else {
@@ -91,16 +86,15 @@ static int getsize_keyword_end_(addr key, addr rest, size_t size,
 	return 0;
 }
 
-static int keyword_start_end_const_(constindex cstart, constindex cend,
-		size_t size, addr rest, size_t *pstart, size_t *pend)
+static int keyword_start_end_addr_(size_t size,
+		addr kstart, addr kend,
+		addr astart, addr aend,
+		size_t *pstart, size_t *pend)
 {
-	addr kstart, kend, astart, aend;
 	size_t start, end;
 
-	GetConstant(cstart, &kstart);
-	GetConstant(cend, &kend);
-	Return(getsize_keyword_start_(kstart, rest, &astart, &start));
-	Return(getsize_keyword_end_(kend, rest, size, &aend, &end));
+	Return(getsize_keyword_start_(astart, &astart, &start));
+	Return(getsize_keyword_end_(size, aend, &aend, &end));
 	if (size < start) {
 		return fmte_("The ~S position ~S must be less than "
 				"the sequence length.", kstart, astart, NULL);
@@ -116,6 +110,22 @@ static int keyword_start_end_const_(constindex cstart, constindex cend,
 	*pstart = start;
 	*pend = end;
 	return 0;
+}
+
+static int keyword_start_end_const_(constindex cstart, constindex cend,
+		size_t size, addr rest, size_t *pstart, size_t *pend)
+{
+	addr kstart, kend, astart, aend;
+
+	GetConstant(cstart, &kstart);
+	GetConstant(cend, &kend);
+	if (getplist_safe(rest, kstart, &astart))
+		astart = Unbound;
+	if (getplist_safe(rest, kend, &aend))
+		aend = Unbound;
+
+	return keyword_start_end_addr_(size,
+			kstart, kend, astart, aend, pstart, pend);
 }
 
 _g int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend)
@@ -134,5 +144,16 @@ _g int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend
 {
 	return keyword_start_end_const_(CONSTANT_KEYWORD_START2, CONSTANT_KEYWORD_END2,
 			size, rest, pstart, pend);
+}
+
+_g int keyword_start_end_value_(size_t size,
+		addr astart, addr aend, size_t *pstart, size_t *pend)
+{
+	addr kstart, kend;
+
+	GetConst(KEYWORD_START, &kstart);
+	GetConst(KEYWORD_END, &kend);
+	return keyword_start_end_addr_(size,
+			kstart, kend, astart, aend, pstart, pend);
 }
 

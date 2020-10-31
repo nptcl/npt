@@ -2882,6 +2882,23 @@ static void typecompiled_chareql(void)
 	SetTypeCompiled(CharEql, args);
 }
 
+static void typecompiled_make_memory_output_stream(void)
+{
+	addr args, values, key1, key2, key3, key4, key;
+
+	/* key */
+	KeyTypeTable(&key1, INPUT, Sequence);
+	KeyTypeTable(&key2, SIZE, Plus1Null);
+	KeyTypeTable(&key3, ARRAY, Plus1Null);
+	KeyTypeTable(&key4, CACHE, T);
+	list_heap(&key, key1, key2, key3, key4, NULL);
+	/* type */
+	typeargs_key(&args, key);
+	GetTypeValues(&values, MemoryStream);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(MakeMemoryOutputStream, args);
+}
+
 
 /*
  *  Interface
@@ -3238,5 +3255,6 @@ _g void build_type_constant(void)
 	typecompiled_remove_file();
 	typecompiled_infobit();
 	typecompiled_chareql();
+	typecompiled_make_memory_output_stream();
 }
 

@@ -395,3 +395,139 @@
   (with-open-stream (stream (make-broadcast-stream))
     (listen stream)))
 
+
+;;
+;;  clear-input
+;;
+(deftest-error broadcast-clear-input.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (clear-input stream)))
+
+
+;;
+;;  finish-output
+;;
+(deftest broadcast-finish-output.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (finish-output stream))
+  nil)
+
+(deftest broadcast-finish-output.2
+  (with-temp-file1-file2
+    (with-overwrite-file (output1 *file1*)
+      (with-overwrite-file (output2 *file2*)
+        (with-open-stream (stream (make-broadcast-stream output1 output2))
+          (finish-output stream)))))
+  nil)
+
+
+;;
+;;  force-output
+;;
+(deftest broadcast-force-output.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (force-output stream))
+  nil)
+
+(deftest broadcast-force-output.2
+  (with-temp-file1-file2
+    (with-overwrite-file (output1 *file1*)
+      (with-overwrite-file (output2 *file2*)
+        (with-open-stream (stream (make-broadcast-stream output1 output2))
+          (force-output stream)))))
+  nil)
+
+
+;;
+;;  clear-output
+;;
+(deftest broadcast-clear-output.1
+  (with-open-stream (stream (make-broadcast-stream))
+    (clear-output stream))
+  nil)
+
+(deftest broadcast-clear-output.2
+  (with-temp-file1-file2
+    (with-overwrite-file (output1 *file1*)
+      (with-overwrite-file (output2 *file2*)
+        (with-open-stream (stream (make-broadcast-stream output1 output2))
+          (clear-output stream)))))
+  nil)
+
+
+;;
+;;  Function MAKE-BROADCAST-STREAM
+;;
+(deftest make-broadcast-stream.1
+  (typep (make-broadcast-stream) 'broadcast-stream)
+  t)
+
+(deftest make-broadcast-stream.2
+  (typep (make-broadcast-stream
+           *standard-output*
+           *error-output*) 'broadcast-stream)
+  t)
+
+(deftest-error make-broadcast-stream-error.1
+  (typep (make-broadcast-stream
+           *standard-input*
+           *standard-output*) 'broadcast-stream)
+  type-error)
+
+(deftest-error make-broadcast-stream-error.2
+  (eval '(make-broadcast-stream 10))
+  type-error)
+
+;;  ANSI Common Lisp
+(defvar *make-broadcast-stream-a*)
+(defvar *make-broadcast-stream-b*)
+
+(deftest make-broadcast-stream-test.1
+  (progn
+    (setq *make-broadcast-stream-a* (make-string-output-stream)
+          *make-broadcast-stream-b* (make-string-output-stream))
+    (format (make-broadcast-stream
+              *make-broadcast-stream-a*
+              *make-broadcast-stream-b*)
+            "this will go to both streams")
+    (values
+      (get-output-stream-string *make-broadcast-stream-a*)
+      (get-output-stream-string *make-broadcast-stream-b*)))
+  "this will go to both streams"
+  "this will go to both streams")
+
+
+;;
+;;  Function BROADCAST-STREAM-STREAMS
+;;
+(deftest broadcast-stream-streams.1
+  (broadcast-stream-streams
+    (make-broadcast-stream))
+  nil)
+
+(deftest broadcast-stream-streams.2
+  (mapcar
+    #'output-stream-p
+    (broadcast-stream-streams
+      (make-broadcast-stream
+        *standard-output*
+        *error-output*)))
+  (t t))
+
+(deftest-error broadcast-stream-streams-error.1
+  (broadcast-stream-streams
+    (make-string-output-stream))
+  type-error)
+
+(deftest-error broadcast-stream-streams-error.2
+  (eval '(broadcast-stream-streams 10))
+  type-error)
+
+(deftest-error! broadcast-stream-streams-error.3
+  (eval '(broadcast-stream-streams)))
+
+(deftest-error! broadcast-stream-streams-error.4
+  (eval '(broadcast-stream-streams
+           (make-broadcast-stream)
+           nil)))
+

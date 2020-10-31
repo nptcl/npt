@@ -998,3 +998,134 @@
       (listen input)))
   t)
 
+(deftest file-listen.5
+  (with-temp-file
+    (with-open-file (output *file* :direction :output :if-exists :supersede))
+    (with-open-file (input *file*)
+      (read-char input nil nil)
+      (listen input)))
+  nil)
+
+
+;;
+;;  clear-input
+;;
+(deftest file-clear-input.1
+  (with-temp-file
+    (with-open-file (input *file*)
+      (clear-input input)))
+  nil)
+
+(deftest-error file-clear-input.2
+  (with-temp-file
+    (with-open-file (input *file* :direction :output :if-exists :overwrite)
+      (clear-input input))))
+
+(deftest file-clear-input.3
+  (with-temp-file
+    (with-open-file (input *file* :direction :io :if-exists :overwrite)
+      (clear-input input)))
+  nil)
+
+(deftest file-clear-input.4
+  (with-temp-file
+    (with-open-file (input *file* :element-type 'unsigned-byte)
+      (clear-input input)))
+  nil)
+
+(deftest-error file-clear-input.5
+  (with-temp-file
+    (with-open-file (input *file* :direction :output
+                           :if-exists :overwrite :element-type 'unsigned-byte)
+      (clear-input input))))
+
+(deftest file-clear-input.6
+  (with-temp-file
+    (with-open-file (input *file* :direction :io
+                           :if-exists :overwrite :element-type 'unsigned-byte)
+      (clear-input input)))
+  nil)
+
+(deftest file-clear-input.7
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (format x "Hello"))
+    (with-open-file (x *file*)
+      (values
+        (read-char x)
+        (clear-input x)
+        (read-char x))))
+  #\H nil #\e)
+
+
+;;
+;;  finish-output
+;;
+(deftest file-finish-output.1
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (finish-output x)))
+  nil)
+
+(deftest-error file-finish-output.2
+  (with-temp-file
+    (with-open-file (x *file*)
+      (finish-output x))))
+
+(deftest file-finish-output.3
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (format x "Hello")
+      (finish-output x)
+      (with-open-file (x *file*)
+        (read-line x))))
+  "Hello" t)
+
+
+;;
+;;  force-output
+;;
+(deftest file-force-output.1
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (force-output x)))
+  nil)
+
+(deftest-error file-force-output.2
+  (with-temp-file
+    (with-open-file (x *file*)
+      (force-output x))))
+
+(deftest file-force-output.3
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (format x "Hello")
+      (force-output x)
+      (with-open-file (x *file*)
+        (read-line x))))
+  "Hello" t)
+
+
+;;
+;;  clear-output
+;;
+(deftest file-clear-output.1
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (clear-output x)))
+  nil)
+
+(deftest-error file-clear-output.2
+  (with-temp-file
+    (with-open-file (x *file*)
+      (clear-output x))))
+
+(deftest file-clear-output.3
+  (with-temp-file
+    (with-open-file (x *file* :direction :output :if-exists :supersede)
+      (format x "Hello")
+      (clear-output x)
+      (format x "ABC"))
+    (read-line-1 *file*))
+  "HelloABC")
+

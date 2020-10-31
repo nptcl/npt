@@ -1044,7 +1044,7 @@ static void defun_clear_input(void)
 /* (defun finish-output (&optional output-stream) ...) -> null */
 static int function_finish_output(Execute ptr, addr stream)
 {
-	Return(finish_output_stream_(stream));
+	Return(finish_output_common_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1067,7 +1067,7 @@ static void defun_finish_output(void)
 /* (defun force-output (&optional output-stream) ...) -> null */
 static int function_force_output(Execute ptr, addr stream)
 {
-	Return(force_output_stream_(stream));
+	Return(force_output_common_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1091,7 +1091,7 @@ static void defun_force_output(void)
 /* (defun clear-output (&optional output-stream) ...) -> null */
 static int function_clear_output(Execute ptr, addr stream)
 {
-	Return(clear_output_stream_(stream));
+	Return(clear_output_common_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1603,24 +1603,23 @@ static void defun_concatenated_stream_streams(void)
  *   end     keyword-end
  *   stream  string-stream
  */
-static int function_make_string_input_stream(Execute ptr, addr var, addr rest)
+static int function_make_string_input_stream(Execute ptr, addr var, addr x, addr y)
 {
-	Return(make_string_input_stream_common(var, rest, &var));
+	Return(make_string_input_stream_common(var, x, y, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
 
 static void type_make_string_input_stream(addr *ret)
 {
-	addr args, values, key;
+	addr args, values, type1, type2;
 
 	/* key */
-	KeyTypeTable(&args, START, KeywordStart);
-	KeyTypeTable(&values, END, KeywordEnd);
-	list_heap(&key, args, values, NULL);
+	GetTypeTable(&type1, KeywordStart);
+	GetTypeTable(&type2, KeywordEnd);
 	/* type */
 	GetTypeTable(&args, String);
-	typeargs_var1key(&args, args, key);
+	typeargs_var1opt2(&args, args, type1, type2);
 	GetTypeTable(&values, StringStream);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
@@ -1633,7 +1632,7 @@ static void defun_make_string_input_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_STRING_INPUT_STREAM, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var1dynamic(pos, p_defun_make_string_input_stream);
+	setcompiled_var1opt2(pos, p_defun_make_string_input_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_string_input_stream(&type);
@@ -1852,7 +1851,7 @@ _g void init_common_streams(void)
 	SetPointerCall(defun, var1, echo_stream_output_stream);
 	SetPointerCall(defun, rest, make_concatenated_stream);
 	SetPointerCall(defun, var1, concatenated_stream_streams);
-	SetPointerCall(defun, var1dynamic, make_string_input_stream);
+	SetPointerCall(defun, var1opt2, make_string_input_stream);
 	SetPointerCall(defun, dynamic, make_string_output_stream);
 	SetPointerCall(defun, var1, get_output_stream_string);
 	SetPointerCall(defmacro, macro, with_input_from_string);

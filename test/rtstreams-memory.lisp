@@ -324,3 +324,20 @@
         (read-char stream nil :eof))))
   #\A #\B #\C :eof)
 
+
+;;
+;;  listen
+;;
+(deftest memory-listen.1
+  (with-open-stream (x (make-memory-input-stream #(1 2)))
+    (listen x))
+  t)
+
+(deftest memory-listen.2
+  (with-open-stream (x (make-memory-input-stream #(1 2)))
+    (read-byte x nil nil)
+    (read-byte x nil nil)
+    (read-byte x nil nil)
+    (listen x))
+  nil)
+

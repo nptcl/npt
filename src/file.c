@@ -1151,6 +1151,11 @@ _g int listen_file_(addr stream, int *ret)
 	if (PtrStructStream(stream)->unread_check)
 		return Result(ret, 1);
 	fm = PtrFileMemory(stream);
+
+	/* eof */
+	if (fm->mode ==  filememory_end)
+		return Result(ret, 0);
+
 	return Result(ret, fm->cache);
 }
 

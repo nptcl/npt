@@ -26,6 +26,9 @@
 #define with_open_stream_common _n(with_open_stream_common)
 #define listen_common _n(listen_common)
 #define clear_input_common _n(clear_input_common)
+#define finish_output_common_ _n(finish_output_common_)
+#define force_output_common_ _n(force_output_common_)
+#define clear_output_common_ _n(clear_output_common_)
 #define make_string_input_stream_common _n(make_string_input_stream_common)
 #define make_string_output_stream_common _n(make_string_output_stream_common)
 #define get_output_stream_string_common _n(get_output_stream_string_common)
@@ -60,7 +63,10 @@ _g int close_common(Execute ptr, addr pos, addr rest, addr *ret);
 _g int with_open_stream_common(addr form, addr *ret);
 _g int listen_common(Execute ptr, addr stream, addr *ret);
 _g int clear_input_common(Execute ptr, addr stream);
-_g int make_string_input_stream_common(addr var, addr rest, addr *ret);
+_g int finish_output_common_(Execute ptr, addr stream);
+_g int force_output_common_(Execute ptr, addr stream);
+_g int clear_output_common_(Execute ptr, addr stream);
+_g int make_string_input_stream_common(addr var, addr x, addr y, addr *ret);
 _g int make_string_output_stream_common(Execute ptr, addr rest, addr *ret);
 _g int get_output_stream_string_common(Execute ptr, addr var, addr *ret);
 _g int with_input_from_string_common(addr form, addr *ret);

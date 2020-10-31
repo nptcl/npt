@@ -413,3 +413,121 @@
       (listen stream)))
   t)
 
+
+;;
+;;  clear-input
+;;
+(deftest synonym-clear-input.1
+  (with-open-stream (stream (make-synonym-stream '*standard-input*))
+    (clear-input stream))
+  nil)
+
+
+;;
+;;  finish-output
+;;
+(deftest synonym-finish-output.1
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (declare (special output))
+      (with-open-stream (stream (make-synonym-stream 'output))
+        (write-char #\a stream)
+        (finish-output stream))))
+  nil)
+
+
+;;
+;;  force-output
+;;
+(deftest synonym-force-output.1
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (declare (special output))
+      (with-open-stream (stream (make-synonym-stream 'output))
+        (write-char #\a stream)
+        (force-output stream))))
+  nil)
+
+
+;;
+;;  clear-output
+;;
+(deftest synonym-clear-output.1
+  (with-temp-file
+    (with-overwrite-file (output *file*)
+      (declare (special output))
+      (with-open-stream (stream (make-synonym-stream 'output))
+        (write-char #\a stream)
+        (clear-output stream))))
+  nil)
+
+
+;;
+;;  Function MAKE-SYNONYM-STREAM
+;;
+(deftest make-synonym-stream.1
+  (typep (make-synonym-stream 'hello) 'synonym-stream)
+  t)
+
+(deftest make-synonym-stream.2
+  (with-input-from-string (input "Hello")
+    (declare (special input))
+    (with-open-stream (x (make-synonym-stream 'input))
+      (read-line x)))
+  "Hello" t)
+
+(deftest-error! make-synonym-stream-error.1
+  (eval '(make-synonym-stream 10))
+  type-error)
+
+(deftest-error! make-synonym-stream-error.2
+  (eval '(make-synonym-stream)))
+
+(deftest-error! make-synonym-stream-error.3
+  (eval '(make-synonym-stream 'hello nil)))
+
+;;  ANSI Common Lisp
+(defvar *make-synonym-stream-a*)
+(defvar *make-synonym-stream-b*)
+(defvar *make-synonym-stream-s*)
+(defvar *make-synonym-stream-c*)
+
+(deftest make-synonym-stream-test.1
+  (progn
+    (setq *make-synonym-stream-a* (make-string-input-stream "*make-synonym-stream-a*")
+          *make-synonym-stream-b* (make-string-input-stream "*make-synonym-stream-b*"))
+    (setq *make-synonym-stream-s* (make-synonym-stream '*make-synonym-stream-c*))
+    (setq *make-synonym-stream-c* *make-synonym-stream-a*)
+    (read *make-synonym-stream-s*))
+  *make-synonym-stream-a*)
+
+(deftest make-synonym-stream-test.2
+  (progn
+    (setq *make-synonym-stream-c* *make-synonym-stream-b*)
+    (read *make-synonym-stream-s*))
+  *make-synonym-stream-b*)
+
+
+;;
+;;  Function SYNONYM-STREAM-SYMBOL
+;;
+(deftest synonym-stream-symbol.1
+  (synonym-stream-symbol
+    (make-synonym-stream 'hello))
+  hello)
+
+(deftest-error synonym-stream-symbol-error.1
+  (synonym-stream-symbol
+    (make-string-input-stream "Hello"))
+  type-error)
+
+(deftest-error synonym-stream-symbol-error.2
+  (eval '(synonym-stream-symbol 10))
+  type-error)
+
+(deftest-error! synonym-stream-symbol-error.3
+  (eval '(synonym-stream-symbol)))
+
+(deftest-error! synonym-stream-symbol-error.4
+  (eval '(synonym-stream-symbol (make--synonym-stream 'hello) nil)))
+

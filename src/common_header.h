@@ -19,6 +19,7 @@
 #define keyword_start_end_ _n(keyword_start_end_)
 #define keyword_start1_end1_ _n(keyword_start1_end1_)
 #define keyword_start2_end2_ _n(keyword_start2_end2_)
+#define keyword_start_end_value_ _n(keyword_start_end_value_)
 
 /* helper */
 #ifdef LISP_DEBUG
@@ -41,6 +42,8 @@ _g void define_special_operator(constindex index);
 _g int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend);
 _g int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend);
 _g int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend);
+_g int keyword_start_end_value_(size_t size,
+		addr astart, addr aend, size_t *pstart, size_t *pend);
 
 #endif
 

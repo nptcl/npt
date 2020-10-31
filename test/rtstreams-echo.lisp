@@ -510,3 +510,148 @@
         (listen stream))))
   t)
 
+
+;;
+;;  clear-input
+;;
+(deftest echo-clear-input.1
+  (with-open-stream (stream (make-echo-stream *standard-input* *standard-output*))
+    (clear-input stream))
+  nil)
+
+
+;;
+;;  finish-output
+;;
+(deftest echo-finish-output.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (write-char #\a stream)
+          (finish-output stream)))))
+  nil)
+
+
+;;
+;;  force-output
+;;
+(deftest echo-force-output.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (write-char #\a stream)
+          (force-output stream)))))
+  nil)
+
+
+;;
+;;  clear-output
+;;
+(deftest echo-clear-output.1
+  (with-temp-file1-file2
+    (with-open-file (input *file1*)
+      (with-overwrite-file (output *file2*)
+        (with-open-stream (stream (make-echo-stream input output))
+          (write-char #\a stream)
+          (clear-output stream)))))
+  nil)
+
+
+;;
+;;  Function MAKE-ECHO-STREAM
+;;
+(deftest make-echo-stream.1
+  (typep (make-echo-stream
+           *standard-input*
+           *standard-output*)
+         'echo-stream)
+  t)
+
+(deftest-error make-echo-stream-error.1
+  (make-echo-stream *error-output* *standard-output*)
+  type-error)
+
+(deftest-error make-echo-stream-error.2
+  (make-echo-stream *standard-input* *standard-input*)
+  type-error)
+
+(deftest-error make-echo-stream-error.3
+  (eval '(make-echo-stream 10 *standard-output*))
+  type-error)
+
+(deftest-error make-echo-stream-error.4
+  (eval '(make-echo-stream *standard-input* 20))
+  type-error)
+
+(deftest-error! make-echo-stream-error.5
+  (eval '(make-echo-stream *standard-input*)))
+
+(deftest-error! make-echo-stream-error.6
+  (eval '(make-echo-stream *standard-input* *standard-output* nil)))
+
+;;  ANSI Common Lisp
+(deftest make-echo-stream-test.1
+  (let ((out (make-string-output-stream)))
+    (with-open-stream
+      (s (make-echo-stream
+           (make-string-input-stream "this-is-read-and-echoed")
+           out))
+      (read s)
+      (format s " * this-is-direct-output")
+      (get-output-stream-string out)))
+  "this-is-read-and-echoed * this-is-direct-output")
+
+
+;;
+;;  Function ECHO-STREAM-INPUT-STREAM
+;;
+(deftest echo-stream-input-stream.1
+  (eq *standard-input*
+      (echo-stream-input-stream
+        (make-echo-stream *standard-input* *standard-output*)))
+  t)
+
+(deftest-error echo-stream-input-stream-error.1
+  (eval '(echo-stream-input-stream (make-string-input-stream "Hello")))
+  type-error)
+
+(deftest-error echo-stream-input-stream-error.2
+  (eval '(echo-stream-input-stream 10))
+  type-error)
+
+(deftest-error! echo-stream-input-stream-error.3
+  (eval '(echo-stream-input-stream)))
+
+(deftest-error! echo-stream-input-stream-error.4
+  (eval '(echo-stream-input-stream
+           (make-echo-stream *standard-input* *standard-output*)
+           nil)))
+
+
+;;
+;;  Function ECHO-STREAM-OUTPUT-STREAM
+;;
+(deftest echo-stream-output-stream.1
+  (eq *standard-output*
+      (echo-stream-output-stream
+        (make-echo-stream *standard-input* *standard-output*)))
+  t)
+
+(deftest-error echo-stream-output-stream-error.1
+  (eval '(echo-stream-output-stream (make-string-output-stream)))
+  type-error)
+
+(deftest-error echo-stream-output-stream-error.2
+  (eval '(echo-stream-output-stream 10))
+  type-error)
+
+(deftest-error! echo-stream-output-stream-error.3
+  (eval '(echo-stream-output-stream)))
+
+(deftest-error! echo-stream-output-stream-error.4
+  (eval '(echo-stream-output-stream
+           (make-echo-stream *standard-input* *standard-output*)
+           nil)))
+

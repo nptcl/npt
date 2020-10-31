@@ -2,6 +2,7 @@
 #include "file_buffering.h"
 #include "file_memory.h"
 #include "heap_memory.h"
+#include "stream_memory.h"
 
 #ifdef LISP_ANSI
 #undef FILEMEMORY_RESTRICT
@@ -185,7 +186,7 @@ _g void open_input_redirect_filememory_(filestream fm, addr pos)
 	cleartype(file);
 	init_input_filememory(fm, file);
 	fm->redirect = 1;
-//	fm->cache = 0;
+	fm->cache = getcache_memory_stream(pos);
 }
 
 _g void open_output_redirect_filememory_(filestream fm, addr pos)
@@ -196,7 +197,7 @@ _g void open_output_redirect_filememory_(filestream fm, addr pos)
 	cleartype(file);
 	init_output_filememory(fm, file);
 	fm->redirect = 1;
-//	fm->cache = 0;
+	fm->cache = getcache_memory_stream(pos);
 }
 
 _g void open_io_redirect_filememory_(filestream fm, addr pos)
@@ -207,7 +208,7 @@ _g void open_io_redirect_filememory_(filestream fm, addr pos)
 	cleartype(file);
 	init_io_filememory(fm, file);
 	fm->redirect = 1;
-//	fm->cache = 0;
+	fm->cache = getcache_memory_stream(pos);
 }
 
 _g int close_filememory(filestream fm)
@@ -1448,6 +1449,8 @@ _g int clear_input_filememory(filestream fm)
 				return 0;
 			if (fm->mode != filememory_normal)
 				return 1;
+			if (fm->cache)
+				return 0;
 			/* clear buffer */
 			fm->ungetc = 0;
 			fm->index = fm->size = 0;
@@ -1471,6 +1474,8 @@ _g int clear_output_filememory(filestream fm)
 				return 0;
 			if (fm->mode != filememory_normal)
 				return 1;
+			if (fm->cache)
+				return 0;
 			/* clear buffer */
 			fm->index = 0;
 			fm->size = FILEMEMORY_SIZE;

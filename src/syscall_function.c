@@ -1309,21 +1309,6 @@ static int syscall_make_memory_output_stream(Execute ptr, addr rest)
 	return 0;
 }
 
-static void type_syscall_make_memory_output_stream(addr *ret)
-{
-	addr args, values, key1, key2, key3, key;
-
-	/* key */
-	KeyTypeTable(&key1, SIZE, Plus1Null);
-	KeyTypeTable(&key2, ARRAY, Plus1Null);
-	KeyTypeTable(&key3, CACHE, T);
-	list_heap(&key, key1, key2, key3, NULL);
-	/* type */
-	typeargs_key(&args, key);
-	GetTypeValues(&values, MemoryStream);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defun_make_memory_output_stream(void)
 {
 	addr symbol, pos, type;
@@ -1334,7 +1319,7 @@ static void defun_make_memory_output_stream(void)
 	setcompiled_dynamic(pos, p_defun_syscall_make_memory_output_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_syscall_make_memory_output_stream(&type);
+	GetTypeCompiled(&type, MakeMemoryOutputStream);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1354,22 +1339,6 @@ static int syscall_make_memory_io_stream(Execute ptr, addr rest)
 	return 0;
 }
 
-static void type_syscall_make_memory_io_stream(addr *ret)
-{
-	addr args, values, key1, key2, key3, key4, key;
-
-	/* key */
-	KeyTypeTable(&key1, INPUT, Sequence);
-	KeyTypeTable(&key2, SIZE, Plus1Null);
-	KeyTypeTable(&key3, ARRAY, Plus1Null);
-	KeyTypeTable(&key4, CACHE, T);
-	list_heap(&key, key1, key2, key3, key4, NULL);
-	/* type */
-	typeargs_key(&args, key);
-	GetTypeValues(&values, MemoryStream);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defun_make_memory_io_stream(void)
 {
 	addr symbol, pos, type;
@@ -1380,7 +1349,7 @@ static void defun_make_memory_io_stream(void)
 	setcompiled_dynamic(pos, p_defun_syscall_make_memory_io_stream);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_syscall_make_memory_io_stream(&type);
+	GetTypeCompiled(&type, MakeMemoryOutputStream);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

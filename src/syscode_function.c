@@ -548,15 +548,18 @@ _g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
 _g int make_memory_output_stream_syscode_(addr rest, addr *ret)
 {
 	int cache;
+	addr input;
 	size_t size, array;
 
 	/* &key */
+	if (GetKeyArgs(rest, KEYWORD_INPUT, &input))
+		input = Nil;
 	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_SIZE, &size));
 	Return(getkeyindex_syscode_(rest, CONSTANT_KEYWORD_ARRAY, &array));
 	cache = getkeycache_syscode(rest);
 
 	/* call */
-	Return(open_output_memory_stream_(&rest, size, array, cache));
+	Return(open_output_memory_stream_(&rest, input, size, array, cache));
 	return Result(ret, rest);
 }
 

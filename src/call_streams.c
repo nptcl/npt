@@ -810,14 +810,50 @@ _g int clear_input_common(Execute ptr, addr stream)
 
 
 /*
+ *  finish-output
+ */
+_g int finish_output_common_(Execute ptr, addr stream)
+{
+	if (stream == Unbound) {
+		Return(standard_output_stream_(ptr, &stream));
+	}
+	return finish_output_stream_(stream);
+}
+
+
+/*
+ *  force-output
+ */
+_g int force_output_common_(Execute ptr, addr stream)
+{
+	if (stream == Unbound) {
+		Return(standard_output_stream_(ptr, &stream));
+	}
+	return force_output_stream_(stream);
+}
+
+
+/*
+ *  clear-output
+ */
+_g int clear_output_common_(Execute ptr, addr stream)
+{
+	if (stream == Unbound) {
+		Return(standard_output_stream_(ptr, &stream));
+	}
+	return clear_output_stream_(stream);
+}
+
+
+/*
  *  make-string-input-stream
  */
-_g int make_string_input_stream_common(addr var, addr rest, addr *ret)
+_g int make_string_input_stream_common(addr var, addr x, addr y, addr *ret)
 {
 	size_t start, end;
 
 	string_length(var, &start);
-	Return(keyword_start_end_(start, rest, &start, &end));
+	Return(keyword_start_end_value_(start, x, y, &start, &end));
 	Return(open_input_string_stream2_(ret, var, start, end));
 
 	return 0;
@@ -858,7 +894,9 @@ _g int get_output_stream_string_common(Execute ptr, addr var, addr *ret)
 				"The stream must be a output-string-stream.", NULL);
 	}
 
-	return string_stream_heap_(var, ret);
+	Return(string_stream_heap_(var, ret));
+	clear_output_string_stream(var);
+	return 0;
 }
 
 
@@ -866,7 +904,7 @@ _g int get_output_stream_string_common(Execute ptr, addr var, addr *ret)
  *  with-input-from-string
  */
 static int with_input_from_string_noindex_common_(addr *ret,
-		addr var, addr string, addr args, addr body)
+		addr var, addr string, addr start, addr end, addr body)
 {
 	/* `(let ((,var (make-string-input-stream ,string :start ,start :end ,end)))
 	 *    ,@decl
@@ -885,7 +923,10 @@ static int with_input_from_string_noindex_common_(addr *ret,
 	list_heap(&close, close, var, NULL);
 	cons_heap(&progn, progn, body);
 	list_heap(&unwind, unwind, progn, close, NULL);
-	lista_heap(&make, make, string, args, NULL);
+	if (end == Unbound)
+		list_heap(&make, make, string, start, NULL);
+	else
+		list_heap(&make, make, string, start, end, NULL);
 	list_heap(&make, var, make, NULL);
 	conscar_heap(&make, make);
 	conscar_heap(&let, let);
@@ -901,7 +942,7 @@ static int with_input_from_string_noindex_common_(addr *ret,
 }
 
 static int with_input_from_string_index_common_(addr *ret,
-		addr var, addr string, addr index, addr args, addr body)
+		addr var, addr string, addr index, addr start, addr end, addr body)
 {
 	/* `(let ((,var (make-string-input-stream ,string :start ,start :end ,end)))
 	 *    ,@decl
@@ -910,22 +951,25 @@ static int with_input_from_string_index_common_(addr *ret,
 	 *      (setf ,index (lisp-system::end-input-stream ,var))
 	 *      (close ,var)))
 	 */
-	addr let, make, unwind, progn, setf, end, close, decl, pos;
+	addr let, make, unwind, progn, setf, end_input, close, decl, pos;
 
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_MAKE_STRING_INPUT_STREAM, &make);
 	GetConst(COMMON_UNWIND_PROTECT, &unwind);
 	GetConst(COMMON_PROGN, &progn);
 	GetConst(COMMON_SETF, &setf);
-	GetConst(SYSTEM_END_INPUT_STREAM, &end);
+	GetConst(SYSTEM_END_INPUT_STREAM, &end_input);
 	GetConst(COMMON_CLOSE, &close);
 	Return(declare_body_form_(body, &decl, &body));
 	list_heap(&close, close, var, NULL);
-	list_heap(&end, end, var, NULL);
-	list_heap(&setf, setf, index, end, NULL);
+	list_heap(&end_input, end_input, var, NULL);
+	list_heap(&setf, setf, index, end_input, NULL);
 	cons_heap(&progn, progn, body);
 	list_heap(&unwind, unwind, progn, setf, close, NULL);
-	lista_heap(&make, make, string, args, NULL);
+	if (end == Unbound)
+		list_heap(&make, make, string, start, NULL);
+	else
+		list_heap(&make, make, string, start, end, NULL);
 	list_heap(&make, var, make, NULL);
 	conscar_heap(&make, make);
 	conscar_heap(&let, let);
@@ -940,33 +984,61 @@ static int with_input_from_string_index_common_(addr *ret,
 	return 0;
 }
 
+static int with_input_from_string_key_(addr list, addr *start, addr *end, addr *index)
+{
+	addr key, value, kstart, kend, kindex;
+
+	GetConst(KEYWORD_INDEX, &kindex);
+	GetConst(KEYWORD_START, &kstart);
+	GetConst(KEYWORD_END, &kend);
+	*start = *end = *index = Unbound;
+	while (list != Nil) {
+		Return_getcons(list, &key, &list);
+		Return_getcons(list, &value, &list);
+		if (key == kindex) {
+			if (*index == Unbound)
+				*index = value;
+		}
+		else if (key == kstart) {
+			if (*start == Unbound)
+				*start = value;
+		}
+		else if (key == kend) {
+			if (*end == Unbound)
+				*end = value;
+		}
+		else {
+			return fmte_("Invaild key argument ~S.", key, NULL);
+		}
+	}
+	if (*start == Unbound)
+		fixnum_heap(start, 0);
+
+	return 0;
+}
+
 _g int with_input_from_string_common(addr form, addr *ret)
 {
-	int ignore;
-	addr args, body, key, index, var, string;
+	addr args, body, var, string, start, end, index;
 
 	/* argument */
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &args, &body))
 		goto error;
-	GetCons(form, &args, &body);
-	if (! consp(args))
+	if (! consp_getcons(args, &var, &args))
 		goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &string, &args))
 		goto error;
-	GetCons(args, &string, &args);
 	/* make form */
-	GetConst(KEYWORD_INDEX, &key);
-	if (getplist_safe(args, key, &index)) {
-		Return(with_input_from_string_noindex_common_(ret, var, string, args, body));
+	Return(with_input_from_string_key_(args, &start, &end, &index));
+	if (index == Unbound) {
+		return with_input_from_string_noindex_common_(ret,
+				var, string, start, end, body);
 	}
 	else {
-		Return(remplist_heap_(args, key, &args, &ignore));
-		Return(with_input_from_string_index_common_(ret,
-					var, string, index, args, body));
+		return with_input_from_string_index_common_(ret,
+				var, string, index, start, end, body);
 	}
-	return 0;
 
 error:
 	return fmte_("WITH-INPUT-FROM-STRING form ~S must be a "
@@ -1062,18 +1134,12 @@ _g int with_output_to_string_common(addr form, addr *ret)
 
 	/* argument */
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &args, &body))
 		goto error;
-	GetCons(args, &args, &body);
-	if (! consp(args))
+	if (! consp_getcons(args, &var, &args))
 		goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) {
+	if (! consp_getcons(args, &string, &args))
 		string = Nil;
-	}
-	else {
-		GetCons(args, &string, &args);
-	}
 	if (string == Nil) {
 		Return(with_output_to_string_normal_common_(ret, var, args, body));
 	}

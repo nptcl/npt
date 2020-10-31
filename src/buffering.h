@@ -6,6 +6,7 @@
 #define bufferingp _n(bufferingp)
 #define buffering_heap _n(buffering_heap)
 #define clear_buffering _n(clear_buffering)
+#define end_buffering _n(end_buffering)
 #define getcell_buffering _n(getcell_buffering)
 #define getwidth_buffering _n(getwidth_buffering)
 #define putc_buffering _n(putc_buffering)
@@ -21,6 +22,7 @@
 _g int bufferingp(addr pos);
 _g void buffering_heap(addr *ret, size_t cell, size_t array);
 _g void clear_buffering(addr pos);
+_g int end_buffering(addr pos);
 _g void getcell_buffering(addr pos, size_t *ret);
 _g void getwidth_buffering(addr pos, size_t *ret);
 
