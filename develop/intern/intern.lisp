@@ -72,7 +72,6 @@
 :base
 :before
 :block
-:cache
 :capitalize
 :case
 :class
@@ -106,7 +105,6 @@
 :error
 :escape
 :execute
-:exit                  ;; is not common-lisp.
 :expected-type
 :export
 :external
@@ -226,12 +224,26 @@
 :up
 :upcase
 :use
-:value  ;; lisp-system::exit
 :verbose
 :version
 :wild
 :wild-inferiors
 :writer
+
+
+;;  &key syscall
+:args
+:cache
+:exit
+:if-error-exists
+:if-input-does-not-exist
+:if-output-exists
+:pipe
+:program
+:search
+:value
+:wait
+
 
 ;;  common-lisp
 (* :constant common :name asterisk)
@@ -1445,14 +1457,12 @@ lisp-system::end-loop
 lisp-system::value-loop
 lisp-system::function-loop
 lisp-system::it-loop
-lisp-system::loop-bind
 
 
 ;;
 ;;  structure
 ;;
 lisp-system::structure-gensym
-lisp-system::structure-constructor
 
 
 ;;
@@ -1581,8 +1591,6 @@ lisp-system::doc-type
 lisp-system::object
 (lisp-system::*trace-list* :constant system :name trace-list)
 (lisp-system::*trace-depth* :constant system :name trace-depth)
-lisp-system::trace-add
-lisp-system::trace-del
 (lisp-system::*dribble-file* :constant system :name dribble-file)
 (lisp-system::*dribble-input* :constant system :name dribble-input)
 (lisp-system::*dribble-output* :constant system :name dribble-output)
@@ -1874,6 +1882,12 @@ lisp-system::input
 
 
 ;;
+;;  syscall object
+;;
+lisp-system::process
+
+
+;;
 ;;  syscall
 ;;
 lisp-system::readtable-dot
@@ -1913,36 +1927,66 @@ lisp-system::hexadecimal-dispatch
 lisp-system::backquote
 lisp-system::unbound-value
 
-;; syscall.c
+;;  subtypep-result
+ lisp-system::include
+ lisp-system::exclude
+ lisp-system::invalid
+ lisp-system::false
+
+;; syscall_common.c
+ lisp-system::redirect-restart
+ lisp-system::symbol-macro-expander
+ lisp-system::defconstant
+ lisp-system::in-package
+ lisp-system::setplist
+ lisp-system::remplist
+ lisp-system::make-hash-iterator
+ lisp-system::next-hash-iterator
+ lisp-system::make-package-iterator
+ lisp-system::next-package-iterator
+ lisp-system::defpackage
+ lisp-system::do-symbols
+ lisp-system::do-external-symbols
+ lisp-system::do-all-symbols
+ lisp-system::getdoc-variable
+ lisp-system::setdoc-variable
+ lisp-system::ecase-error
+ lisp-system::etypecase-error
+ lisp-system::define-setf-expander
+ lisp-system::defsetf-short
+ lisp-system::defsetf-long
+ lisp-system::end-input-stream
+ lisp-system::make-extend-output-stream
+ lisp-system::prompt-for
+ lisp-system::print-unreadable-call
+ lisp-system::write-default
+ lisp-system::symbol-deftype
+ lisp-system::delete-deftype
+ lisp-system::ensure-structure
+ lisp-system::structure-constructor
+ lisp-system::loop-bind
+ lisp-system::make-pprint-stream
+ lisp-system::pprint-gensym
+ lisp-system::pprint-exit
+ lisp-system::pprint-pop
+ lisp-system::pprint-check
+ lisp-system::pprint-close
+ lisp-system::pprint-pretty
+ lisp-system::timeinfo
+ lisp-system::trace-add
+ lisp-system::trace-del
+ lisp-system::with-compilation-unit
+ lisp-system::set-slots
+
+;; syscall_function.c
 (lisp-system::hello :export t)
 (lisp-system::infobit :export t)
 (lisp-system::infoprint :export t)
 (lisp-system::gc :export t)
 (lisp-system::savecore :export t)
 (lisp-system::*savecore* :constant system :name savecore-value)
- lisp-system::redirect-restart
- lisp-system::symbol-macro-expander
- lisp-system::defconstant
- lisp-system::in-package
-(lisp-system::setplist :export t)
-(lisp-system::remplist :export t)
-(lisp-system::make-hash-iterator :export t)
-(lisp-system::next-hash-iterator :export t)
-(lisp-system::make-package-iterator :export t)
-(lisp-system::next-package-iterator :export t)
- lisp-system::defpackage
- lisp-system::do-symbols
- lisp-system::do-external-symbols
- lisp-system::do-all-symbols
 (lisp-system::package-export-list :export t)
-(lisp-system::getdoc-variable :export t)
-(lisp-system::setdoc-variable :export t)
 (lisp-system::specialp :export t)
- lisp-system::ecase-error
- lisp-system::etypecase-error
- lisp-system::define-setf-expander
- lisp-system::defsetf-short
- lisp-system::defsetf-long
 (lisp-system::array-general-p :export t)
 (lisp-system::array-specialized-p :export t)
 (lisp-system::simple-sort :export t)
@@ -1951,9 +1995,6 @@ lisp-system::unbound-value
 (lisp-system::merge-sort :export t)
 (lisp-system::exit :export t)
 (lisp-system::quit :export t)
- lisp-system::end-input-stream
- lisp-system::make-extend-output-stream
-(lisp-system::prompt-for :export t)
 (lisp-system::closp :export t)
 (lisp-system::fixnump :export t)
 (lisp-system::bignump :export t)
@@ -1964,38 +2005,18 @@ lisp-system::unbound-value
 (lisp-system::long-float-p :export t)
 (lisp-system::callnamep :export t)
 (lisp-system::large-number :export t)
- lisp-system::print-unreadable-call
- lisp-system::write-default
 (lisp-system::make-character :export t)
 (lisp-system::make-fixnum :export t)
 (lisp-system::make-bignum :export t)
 (lisp-system::make-ratio :export t)
 (lisp-system::make-complex :export t)
 (lisp-system::equal-random-state :export t)
-(lisp-system::symbol-deftype :export t)
-(lisp-system::delete-deftype :export t)
 (lisp-system::subtypep-result :export t)
- lisp-system::include
- lisp-system::exclude
- lisp-system::invalid
- lisp-system::false
- lisp-system::ensure-class
- lisp-system::ensure-structure
- lisp-system::make-pprint-stream
- lisp-system::pprint-gensym
- lisp-system::pprint-exit
- lisp-system::pprint-pop
- lisp-system::pprint-check
- lisp-system::pprint-close
- lisp-system::pprint-pretty
 (lisp-system::eastasian-set :export t)
 (lisp-system::eastasian-get :export t)
 (lisp-system::eastasian-width :export t)
- lisp-system::timeinfo
 (lisp-system::run-program :export t)
 (lisp-system::make-callname :export t)
- lisp-system::with-compilation-unit
- lisp-system::set-slots
 (lisp-system::remove-file :export t)
 (lisp-system::remove-directory :export t)
 (lisp-system::declare-parse :export t)

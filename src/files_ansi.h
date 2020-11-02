@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include "condition.h"
 #include "encode.h"
-#include "pathname_common.h"
-#include "pathname_object.h"
 #include "pathname.h"
+#include "pathname_object.h"
+#include "pathname_wildcard.h"
 #include "stream.h"
 #include "strtype.h"
 

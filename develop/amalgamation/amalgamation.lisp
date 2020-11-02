@@ -449,11 +449,11 @@
     "optimize.h"
     "optimize_common.h"
     "optimize_parse.h"
-    "pathname_common.h"
     "pathname_localp.h"
     "pathname_object.h"
     "pathname_table.h"
     "pathname_translate.h"
+    "pathname_wildcard.h"
     "pathname.h"
     "file_buffering.h"
     "file_memory.h"
@@ -472,7 +472,6 @@
     "heap_memory.h"
     "heap_core.h"
     "heap.h"
-    "input.h"
     "integer.h"
     "load_time_value.h"
     "lambda.h"
@@ -517,6 +516,8 @@
     "print_pretty.h"
     "print_write.h"
     "process.h"
+    "process_arch.h"
+    "process_ed.h"
     "prompt.h"
     "prompt_for.h"
     "question.h"
@@ -828,7 +829,6 @@
     "heap_core.c"
     "heap.c"
     "info.c"
-    "input.c"
     "integer.c"
     ("intern.c" :include ("intern_symbol_64.h" "intern_symbol_32.h"))
     "load_time_value.c"
@@ -869,13 +869,13 @@
     "package_shadow.c"
     "package_use.c"
     ("package.c" :include "intern_count.h")
-    "pathname_common.c"
     "pathname_localp.c"
     "pathname_logical.c"
     "pathname_object.c"
     ("pathname_posix.c" :header t)
     "pathname_table.c"
     "pathname_translate.c"
+    "pathname_wildcard.c"
     "pathname_windows.c"
     "pathname.c"
     "pointer.c"
@@ -885,7 +885,9 @@
     "print_object.c"
     "print_pretty.c"
     "print_write.c"
-    ("process.c" :header t)
+    "process.c"
+    ("process_arch.c" :include ("process_unix.h" "process_windows.h"))
+    "process_ed.c"
     ("prompt.c" :header t)
     "prompt_for.c"
     "question.c"

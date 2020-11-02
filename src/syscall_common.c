@@ -1374,8 +1374,8 @@ static void defun_timeinfo(void)
 }
 
 
-/* (defun ed-function (file) ...) -> null
- *    file  (or null string)
+/* (defvar *ed-function* (lambda (file) ... null))
+ *    file    (or null string)
  */
 static int syscall_ed_function(Execute ptr, addr file)
 {
@@ -1394,7 +1394,7 @@ static void type_syscall_ed_function(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_ed_function(void)
+static void defvar_ed_function(void)
 {
 	addr symbol, pos, type;
 
@@ -1648,7 +1648,7 @@ _g void build_syscall_common(void)
 	defun_pprint_close();
 	defun_pprint_pretty();
 	defun_timeinfo();
-	defun_ed_function();
+	defvar_ed_function();
 	defun_trace_add();
 	defun_trace_del();
 	defvar_compiler_macro();

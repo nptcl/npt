@@ -1114,8 +1114,6 @@ enum pointer_index {
 	p_defun_make_package_input,
 	p_defun_unintern_call,
 	p_defun_unintern_input,
-	/* pathname */
-	p_defun_set_logical_pathname_translations,
 	/* condition */
 	p_defun_handler_warning,
 	p_defun_handler_empty,

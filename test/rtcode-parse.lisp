@@ -528,7 +528,7 @@
     (deftype parse-deftype-args1 (&optional (x (optimize-check parse)))
       x)
     (funcall
-      (lisp-system:symbol-deftype 'parse-deftype-args1)
+      (lisp-system::symbol-deftype 'parse-deftype-args1)
       nil nil))
   1)
 
@@ -537,7 +537,7 @@
     (deftype parse-deftype-args1 (&optional (x (optimize-check parse)))
       x)
     (funcall
-      (lisp-system:symbol-deftype 'parse-deftype-args1)
+      (lisp-system::symbol-deftype 'parse-deftype-args1)
       nil nil))
   0)
 
@@ -546,7 +546,7 @@
     (deftype parse-deftype-body1 ()
       (optimize-check parse))
     (funcall
-      (lisp-system:symbol-deftype 'parse-deftype-body1)
+      (lisp-system::symbol-deftype 'parse-deftype-body1)
       nil nil))
   1)
 
@@ -555,7 +555,7 @@
     (deftype parse-deftype-body2 ()
       (optimize-check parse))
     (funcall
-      (lisp-system:symbol-deftype 'parse-deftype-body2)
+      (lisp-system::symbol-deftype 'parse-deftype-body2)
       nil nil))
   0)
 

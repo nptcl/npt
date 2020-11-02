@@ -17,6 +17,7 @@
 #include "optimize_parse.h"
 #include "parse.h"
 #include "pathname_object.h"
+#include "pathname_wildcard.h"
 #include "pathname.h"
 #include "prompt.h"
 #include "reader.h"

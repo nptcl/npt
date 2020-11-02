@@ -659,7 +659,7 @@ static void defun_large_number(void)
 }
 
 
-/* (defun make-character (integer) ...) -> character */
+/* (defun make-character (character) ...) -> character */
 static int syscall_make_character(Execute ptr, addr var)
 {
 	Return(make_character_syscode(var, &var));
@@ -1014,26 +1014,23 @@ static void defun_eastasian_width(void)
 }
 
 
-/* (defun run-program (program args) ...) -> status */
+/* (defun run-program (program args &rest args) ...) -> t */
 static int syscall_run_program(Execute ptr, addr var, addr args, addr rest)
 {
-	Return(run_program_syscode_(ptr->local, var, args, rest, &var));
+	Return(run_program_syscode_(ptr, var, args, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
 
 static void type_syscall_run_program(addr *ret)
 {
-	addr args, values, key;
+	addr args, values, rest;
 
-	/* key */
-	key = Nil;
-
-	/* type */
 	GetTypeTable(&args, String);
 	GetTypeTable(&values, List);
-	typeargs_var2key(&args, args, values, key);
-	GetTypeValues(&values, Integer);
+	GetTypeTable(&rest, T);
+	typeargs_var2rest(&args, args, values, rest);
+	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -1296,7 +1293,8 @@ static void defun_make_memory_input_stream(void)
 }
 
 
-/* (defun make-memroy-output-stream (&key size array cache) ...) -> stream
+/* (defun make-memroy-output-stream (&key input size array cache) ...) -> stream
+ *   input     sequence
  *   size      (or null (integer 1 *))
  *   array     (or null (integer 1 *))
  *   cache     t  ;; boolean
@@ -1381,7 +1379,7 @@ static void defmacro_with_input_from_memory(void)
 
 
 /* (defmacro with-output-to-memory
- *   ((var &key size array) declaration* form*) ...)
+ *   ((var &key input size array) declaration* form*) ...)
  *   -> result
  */
 static int syscall_with_output_to_memory(Execute ptr, addr form, addr env)
@@ -1439,7 +1437,7 @@ static void defun_get_output_stream_memory(void)
 }
 
 
-/* (defun memory-stream-p (t) ...) -> (or :input :output :io nil) */
+/* (defun memory-stream-p (t) ...) -> (member :input :output :io nil) */
 static int syscall_memory_stream_p(Execute ptr, addr var)
 {
 	memory_stream_p_syscode(var, &var);
@@ -1479,7 +1477,7 @@ static void defun_memory_stream_p(void)
 
 /* (defun (setf memory-stream-p) (result stream) ...) -> result
  *   stream  memory-stream
- *   result  (or :input :output :io)
+ *   result  (member :input :output :io)
  */
 static int syscall_setf_memory_stream_p(Execute ptr, addr value, addr var)
 {

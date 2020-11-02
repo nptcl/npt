@@ -25,7 +25,7 @@
 #include "print.h"
 #include "print_pretty.h"
 #include "print_write.h"
-#include "process.h"
+#include "process_ed.h"
 #include "prompt_for.h"
 #include "sequence.h"
 #include "stream.h"

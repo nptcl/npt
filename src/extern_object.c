@@ -1,4 +1,5 @@
 #include "bignum.h"
+#include "call_filenames.h"
 #include "character.h"
 #include "condition.h"
 #include "extern_develop.h"
@@ -14,7 +15,6 @@
 #include "package.h"
 #include "package_intern.h"
 #include "pathname.h"
-#include "pathname_common.h"
 #include "ratio.h"
 #include "reader.h"
 #include "real.h"
@@ -566,7 +566,7 @@ int lisp0_pathname32_(addr *ret, const void *str)
 int lisp0_namestring_(addr *ret, addr path)
 {
 	hold_value(path, &path);
-	return namestring_pathname_(Execute_Thread, ret, path);
+	return namestring_common_(Execute_Thread, ret, path);
 }
 
 int lisp_pathname_(addr x, addr name)

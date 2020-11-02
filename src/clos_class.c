@@ -1082,7 +1082,7 @@ static int clos_stdclass_metaclass_(LocalRoot local, addr *ret)
 	return Result(ret, stdclass);
 }
 
-static int clos_stdclass_supers_(LocalRoot local,
+_g int clos_stdclass_supers_(LocalRoot local,
 		addr *ret, addr metaclass, addr name, addr slots, addr supers)
 {
 	addr instance;

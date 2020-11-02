@@ -181,8 +181,8 @@ format_parse.c
 format_print.c
 format_radix.c
 format.c
-function.c
 function_constant.c
+function.c
 gc_check.c
 gc_execute.c
 gc.c
@@ -192,7 +192,6 @@ heap_memory.c
 heap.c
 hold.c
 info.c
-input.c
 integer.c
 intern.c
 lambda.c
@@ -205,9 +204,9 @@ loop_parse.c
 loop_symbol.c
 loop_variables.c
 loop.c
-main.c
 main_argv.c
 main_string.c
+main.c
 make_load_form.c
 math_exp.c
 math_gcd.c
@@ -216,8 +215,8 @@ math_power.c
 math_type.c
 md5encode.c
 memory.c
-mop_common.c
 mop_class.c
+mop_common.c
 mop_generic.c
 mop_protocols.c
 mop_reader.c
@@ -233,8 +232,8 @@ optimize_parse.c
 optimize.c
 package_bittype.c
 package_common.c
-package_delete.c
 package_defpackage.c
+package_delete.c
 package_designer.c
 package_export.c
 package_import.c
@@ -249,13 +248,13 @@ parse_function.c
 parse_macro.c
 parse_object.c
 parse.c
-pathname_common.c
 pathname_localp.c
 pathname_logical.c
 pathname_object.c
 pathname_posix.c
 pathname_table.c
 pathname_translate.c
+pathname_wildcard.c
 pathname_windows.c
 pathname.c
 pointer.c
@@ -265,9 +264,11 @@ print_object.c
 print_pretty.c
 print_write.c
 print.c
+process_arch.c
+process_ed.c
 process.c
-prompt.c
 prompt_for.c
+prompt.c
 question.c
 quote.c
 random_float.c
@@ -345,9 +346,9 @@ structure.c
 strvect.c
 sxhash.c
 symbol.c
-syscall.c
 syscall_common.c
 syscall_function.c
+syscall.c
 syscode_common.c
 syscode_function.c
 thread.c

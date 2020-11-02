@@ -37,11 +37,14 @@
 #define copylocal_pathname_array _n(copylocal_pathname_array)
 #define copy_pathname_alloc _n(copy_pathname_alloc)
 #define pathname_equal_ _n(pathname_equal_)
-#define wild_pathname_boolean_ _n(wild_pathname_boolean_)
-#define wildcard_stringp_p_ _n(wildcard_stringp_p_)
-#define wildcard_string_pathname_ _n(wildcard_string_pathname_)
-#define wildcard_eq_pathname_ _n(wildcard_eq_pathname_)
-#define wildcard_pathname_ _n(wildcard_pathname_)
+
+#define make_pathname_heap_ _n(make_pathname_heap_)
+#define pathname_host_ _n(pathname_host_)
+#define pathname_device_ _n(pathname_device_)
+#define pathname_directory_ _n(pathname_directory_)
+#define pathname_name_ _n(pathname_name_)
+#define pathname_type_ _n(pathname_type_)
+#define pathname_version _n(pathname_version)
 
 enum PATHNAME_INDEX {
 	PATHNAME_INDEX_HOST,
@@ -166,11 +169,16 @@ _g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b);
 _g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos);
 #define copy_pathname_heap(x,y) copy_pathname_alloc(NULL, (x), (y))
 _g int pathname_equal_(addr left, addr right, int *ret);
-_g int wild_pathname_boolean_(addr file, addr field, int *ret);
-_g int wildcard_stringp_p_(addr pos, int *ret);
-_g int wildcard_string_pathname_(addr a, addr b, int *ret);
-_g int wildcard_eq_pathname_(addr a, addr b, int *ret);
-_g int wildcard_pathname_(addr a, addr b, int wild, int *ret);
+
+_g int make_pathname_heap_(addr *ret,
+		addr host, addr device, addr directory,
+		addr name, addr type, addr version, addr kcase);
+_g int pathname_host_(addr pos, addr *ret, int localp);
+_g int pathname_device_(addr pos, addr *ret, int localp);
+_g int pathname_directory_(addr pos, addr *ret, int localp);
+_g int pathname_name_(addr pos, addr *ret, int localp);
+_g int pathname_type_(addr pos, addr *ret, int localp);
+_g void pathname_version(addr pos, addr *ret);
 
 #endif
 

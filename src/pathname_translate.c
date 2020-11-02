@@ -11,6 +11,7 @@
 #include "pathname_localp.h"
 #include "pathname_object.h"
 #include "pathname_translate.h"
+#include "pathname_wildcard.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"

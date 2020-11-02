@@ -59,6 +59,7 @@
 #define slotvector_set_location _n(slotvector_set_location)
 #define clos_stdclass_direct_slots_ _n(clos_stdclass_direct_slots_)
 #define clos_stdclass_prototype_ _n(clos_stdclass_prototype_)
+#define clos_stdclass_supers_ _n(clos_stdclass_supers_)
 #define build_clos_class _n(build_clos_class)
 #define clos_subclass_p_debug _n(clos_subclass_p_debug)
 #define clos_subtype_p_debug _n(clos_subtype_p_debug)
@@ -130,6 +131,8 @@ _g int clos_compute_slots_(LocalRoot local, addr clos, addr *ret);
 _g void slotvector_set_location(addr slots);
 _g int clos_stdclass_direct_slots_(addr instance, addr slots);
 _g int clos_stdclass_prototype_(addr clos);
+_g int clos_stdclass_supers_(LocalRoot local,
+		addr *ret, addr metaclass, addr name, addr slots, addr supers);
 
 /* build */
 _g void build_clos_class(LocalRoot local);

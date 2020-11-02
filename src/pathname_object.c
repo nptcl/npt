@@ -1,11 +1,13 @@
-#include "constant.h"
+#include "character_check.h"
+#include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "constant.h"
 #include "copy.h"
-#include "define.h"
-#include "pathname_localp.h"
 #include "pathname_object.h"
-#include "pathname.h"
 #include "strtype.h"
+#include "strvect.h"
+#include "typedef.h"
 
 /*
  *  access
@@ -299,354 +301,362 @@ _g int pathname_equal_(addr a, addr b, int *ret)
 }
 
 
-/*
- *  wild_pathname_boolean
- */
-static int wild_pathname_string_(addr pos, int *ret)
-{
-	unicode c;
-	size_t size, i;
-
-	if (! stringp(pos))
-		return Result(ret, 0);
-	string_length(pos, &size);
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		if (c == '*' || c == '?')
-			return Result(ret, 1);
-	}
-
-	return Result(ret, 0);
-}
-
-_g int wild_pathname_boolean_(addr file, addr field, int *ret)
-{
-	int check;
-	addr value, pos, wild1, wild2, path;
-
-	Check(! pathnamep(file), "type error");
-	GetConst(KEYWORD_WILD, &wild1);
-	GetConst(KEYWORD_WILD_INFERIORS, &wild2);
-
-	/* skip host*/
-	/* skip device */
-
-	/* directory */
-	GetConst(KEYWORD_DIRECTORY, &value);
-	if (field == value || field == Nil) {
-		GetDirectoryPathname(file, &pos);
-		if (pos == wild1)
-			return Result(ret, 1);
-		while (consp(pos)) {
-			GetCons(pos, &path, &pos);
-			if (path == wild1)
-				return Result(ret, 1);
-			if (path == wild2)
-				return Result(ret, 1);
-			Return(wild_pathname_string_(path, &check));
-			if (check)
-				return Result(ret, 1);
-		}
-	}
-
-	/* name */
-	GetConst(KEYWORD_NAME, &value);
-	if (field == value || field == Nil) {
-		GetNamePathname(file, &pos);
-		if (pos == wild1)
-			return Result(ret, 1);
-		Return(wild_pathname_string_(pos, &check));
-		if (check)
-			return Result(ret, 1);
-	}
-
-	/* type */
-	GetConst(KEYWORD_TYPE, &value);
-	if (field == value || field == Nil) {
-		GetTypePathname(file, &pos);
-		if (pos == wild1)
-			return Result(ret, 1);
-		Return(wild_pathname_string_(pos, &check));
-		if (check)
-			return Result(ret, 1);
-	}
-
-	/* version */
-	GetConst(KEYWORD_VERSION, &value);
-	if (field == value || field == Nil) {
-		GetVersionPathname(file, &pos);
-		if (pos == wild1)
-			return Result(ret, 1);
-	}
-
-	return Result(ret, 0);
-}
 
 
-/*
- *  wildcard-pathname-p
- */
-static int wildcard_character_pathname_(
-		addr p1, size_t n1, size_t s1,
-		addr p2, size_t n2, size_t s2,
-		int *ret)
-{
-	int check;
-	unicode c1, c2;
-	size_t i;
 
-	if (n1 == s1 && n2 == s2)
-		return Result(ret, 1);
-	if (n1 == s1 || n2 == s2)
-		return Result(ret, 0);
-	Return(string_getc_(p1, n1, &c1));
-	Return(string_getc_(p2, n2, &c2));
-	/* (a ?) -> next */
-	if (c2 == '?')
-		return wildcard_character_pathname_(p1,n1+1,s1,  p2,n2+1,s2,  ret);
-	/* (a a) -> next, (a b) -> false */
-	if (c2 != '*') {
-		if (c1 != c2)
-			return Result(ret, 0);
-		else
-			return wildcard_character_pathname_(p1,n1+1,s1,  p2,n2+1,s2,  ret);
-	}
-	/* (a *) */
-	n2++;
-	for (i = n1; i <= s1; i++) {
-		Return(wildcard_character_pathname_(p1,i,s1,  p2,n2,s2,  &check));
-		if (check)
-			return Result(ret, 1);
-	}
-	return Result(ret, 0);
-}
-
-static int wildcard_string_p_(addr pos, int *ret)
-{
-	unicode c;
-	size_t size, i;
-
-	string_length(pos, &size);
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		if (c == '*' || c == '?')
-			return Result(ret, 1);
-	}
-
-	return Result(ret, 0);
-}
-
-_g int wildcard_stringp_p_(addr pos, int *ret)
+/* make-pathname */
+static int make_pathname_directory_keyword_p_(addr pos, int *ret)
 {
 	if (! stringp(pos))
 		return Result(ret, 0);
-	else
-		return wildcard_string_p_(pos, ret);
+
+	Return(string_equal_char_(pos, "*", ret));
+	if (*ret)
+		return 0;
+
+	Return(string_equal_char_(pos, "**", ret));
+	if (*ret)
+		return 0;
+
+	return string_equal_char_(pos, "..", ret);
 }
 
-_g int wildcard_string_pathname_(addr a, addr b, int *ret)
+static int make_pathname_directory_(addr *ret, addr list)
 {
-	int check, check1, check2;
-	addr wild;
-	size_t s1, s2;
+	int keywordp, check;
+	addr root, pos, absolute, relative, wild, wildi, up;
 
-	GetConst(KEYWORD_WILD, &wild);
-	if (a == wild && b == wild)
-		return Result(ret, 1);
-	check1 = stringp(a);
-	check2 = stringp(b);
-	if (check1 && b == wild)
-		return Result(ret, 1);
-	if ((! check1) || (! check2))
-		return Result(ret, 0);
-	Return(LispPathnameEqual_(a, b, &check));
-	if (check)
-		return Result(ret, 1);
-	Return(wildcard_string_p_(a, &check));
-	if (check)
-		return Result(ret, 0);
-	string_length(a, &s1);
-	string_length(b, &s2);
-	return wildcard_character_pathname_(a, 0, s1, b, 0, s2, ret);
-}
-
-_g int wildcard_eq_pathname_(addr a, addr b, int *ret)
-{
-	if (a == b)
-		return Result(ret, 1);
-	else
-		return wildcard_string_pathname_(a, b, ret);
-}
-
-static int wildcard_nil_pathname_(addr a, addr b, int wildp, int *ret)
-{
-	addr wild;
-
-	GetConst(KEYWORD_WILD, &wild);
-	if (wildp && a == Nil)
-		a = wild;
-	if (wildp && b == Nil)
-		b = wild;
-
-	return wildcard_eq_pathname_(a, b, ret);
-}
-
-static int wildcard_list_pathname_(addr a, addr b, int *ret)
-{
-	int check;
-	addr a1, b1, pos1, pos2, wild, wilds;
-
-	if (a == Nil && b == Nil)
-		return Result(ret, 1);
-	if (a != Nil && b == Nil)
-		return Result(ret, 0);
-	GetConst(KEYWORD_WILD_INFERIORS, &wilds);
-	if (a == Nil && b != Nil) {
-		while (b != Nil) {
-			Return_getcons(b, &pos2, &b);
-			if (pos2 != wilds)
-				return Result(ret, 0);
-		}
-		return Result(ret, 1);
+	/* :directory "Hello" */
+	GetConst(KEYWORD_ABSOLUTE, &absolute);
+	if (stringp(list)) {
+		list_heap(ret, absolute, list, NULL);
+		return 0;
 	}
-	GetConst(KEYWORD_WILD, &wild);
-	GetConst(KEYWORD_WILD_INFERIORS, &wilds);
-	Return_getcons(a, &pos1, &a1);
-	Return_getcons(b, &pos2, &b1);
-	/* ("str" *) -> next */
-	if (pos2 == wild)
-		return wildcard_list_pathname_(a1, b1, ret);
-	/* ("str" "str") -> next, ("str" "aaa") -> false */
-	if (pos2 != wilds) {
-		Return(wildcard_string_pathname_(pos1, pos2, &check));
-		if (! check)
-			return Result(ret, 0);
-		else
-			return wildcard_list_pathname_(a1, b1, ret);
+
+	/* check */
+	if (! consp(list)) {
+		*ret = Nil;
+		return fmte_(":directory ~S must be a list or string type.", list, NULL);
 	}
-	/* ("str" **) */
-	for (;;) {
-		Return(wildcard_list_pathname_(a, b1, &check));
+	GetConst(KEYWORD_RELATIVE, &relative);
+	GetConst(KEYWORD_WILD, &wild);
+	GetConst(KEYWORD_WILD_INFERIORS, &wildi);
+	GetConst(KEYWORD_UP, &up);
+	Return_getcons(list, &pos, &root);
+	if (pos != absolute && pos != relative) {
+		*ret = Nil;
+		return fmte_("The firest argument of :directory ~S must be ~S or ~S.",
+				pos, absolute, relative, NULL);
+	}
+	for (keywordp = 1; root != Nil; ) {
+		Return_getcons(root, &pos, &root);
+		Return(make_pathname_directory_keyword_p_(pos, &check));
 		if (check)
-			return Result(ret, 1);
-		if (a == Nil)
-			break;
-		Return_getcdr(a, &a);
+			keywordp = 0;
+		if (! stringp(pos) && pos != wild && pos != wildi && pos != up) {
+			*ret = Nil;
+			return fmte_("Invalid :directory argument ~S.", pos, NULL);
+		}
 	}
+	if (keywordp)
+		return Result(ret, list);
 
-	return Result(ret, 0);
+	/* rebuild */
+	GetCons(list, &pos, &list);
+	conscar_heap(&root, pos);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		/* "*" */
+		Return(stringp_equal_char_(pos, "*", &check));
+		if (check) {
+			cons_heap(&root, wild, root);
+			continue;
+		}
+		/* "**" */
+		Return(stringp_equal_char_(pos, "**", &check));
+		if (check) {
+			cons_heap(&root, wildi, root);
+			continue;
+		}
+		/* ".." */
+		Return(stringp_equal_char_(pos, "..", &check));
+		if (check) {
+			cons_heap(&root, up, root);
+			continue;
+		}
+		/* else */
+		cons_heap(&root, pos, root);
+	}
+	nreverse(ret, root);
+
+	return 0;
 }
 
-static int wildcard_directory_p_(addr pos, int *ret)
+enum PathnameType {
+	PathnameType_Unix,
+	PathnameType_Windows,
+	PathnameType_Logical
+};
+static int make_pathname_environment_(addr host, enum PathnameType *ret)
 {
 	addr check;
 
-	GetConst(KEYWORD_WILD, &check);
-	if (pos == check)
-		return Result(ret, 1);
-	GetConst(KEYWORD_WILD_INFERIORS, &check);
-	if (pos == check)
-		return Result(ret, 1);
+	/* unix */
+	GetConst(SYSTEM_UNIX, &check);
+	if (host == check)
+		return Result(ret, PathnameType_Unix);
 
-	return wildcard_stringp_p_(pos, ret);
+	/* windows */
+	GetConst(SYSTEM_WINDOWS, &check);
+	if (host == check)
+		return Result(ret, PathnameType_Windows);
+
+	/* logical */
+	if (stringp(host))
+		return Result(ret, PathnameType_Logical);
+
+	/* error */
+	*ret = PathnameType_Unix;
+	return fmte_("Invalid host value ~S.", host, NULL);
 }
 
-static int wildcard_directory_pathname_(addr a, addr b, int *ret)
+static int make_pathname_upper_p_(addr pos, int *ret)
 {
-	int check, check1, check2;
-	addr car1, car2, cdr1, cdr2;
+	unicode c;
+	size_t size, i;
 
-	cdr1 = a;
-	cdr2 = b;
-	check1 = 0;
-	check2 = 1;
-	for (;;) {
-		if (cdr1 == Nil && cdr2 == Nil)
-			return Result(ret, 1);
-		if (cdr1 == Nil || cdr2 == Nil)
-			break;
-		Return_getcons(cdr1, &car1, &cdr1);
-		Return_getcons(cdr2, &car2, &cdr2);
-		Return(wildcard_directory_p_(car1, &check));
-		if (check)
-			check1 = 1;
-		Return(wildcard_directory_p_(car2, &check));
-		if (check)
-			check2 = 1;
-		Return(LispPathnameEqual_(car1, car2, &check));
-		if (! check)
-			break;
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		if (! isUpperCase(c))
+			return Result(ret, 0);
 	}
-	if (check1 || (! check2)) {
-		return Result(ret, 0);
-	}
-	else {
-		Return_getcdr(a, &a);
-		Return_getcdr(b, &b);
-		return wildcard_list_pathname_(a, b, ret);
-	}
-}
-
-static int wildcard_version_pathname(addr a, addr b)
-{
-	addr wild;
-
-	GetConst(KEYWORD_WILD, &wild);
-	if (a == Nil)
-		a = wild;
-	if (b == Nil)
-		b = wild;
-	if (eql_function(a, b))
-		return 1;
-
-	return b == wild;
-}
-
-_g int wildcard_pathname_(addr a, addr b, int wild, int *ret)
-{
-	int check;
-	addr check1, check2;
-
-	Check(! pathnamep(a), "type left error");
-	Check(! pathnamep(b), "type right error");
-	if (RefLogicalPathname(a) != RefLogicalPathname(b))
-		return Result(ret, 0);
-	/* host */
-	GetHostPathname(a, &check1);
-	GetHostPathname(b, &check2);
-	Return(equalp_function_(check1, check2, &check));
-	if (! check)
-		return Result(ret, 0);
-	/* device */
-	GetDevicePathname(a, &check1);
-	GetDevicePathname(b, &check2);
-	Return(LispPathnameEqual_(check1, check2, &check));
-	if (! check)
-		return Result(ret, 0);
-	/* directory */
-	GetDirectoryPathname(a, &check1);
-	GetDirectoryPathname(b, &check2);
-	Return(wildcard_directory_pathname_(check1, check2, &check));
-	if (! check)
-		return Result(ret, 0);
-	/* name */
-	GetNamePathname(a, &check1);
-	GetNamePathname(b, &check2);
-	Return(wildcard_nil_pathname_(check1, check2, wild, &check));
-	if (! check)
-		return Result(ret, 0);
-	/* type */
-	GetTypePathname(a, &check1);
-	GetTypePathname(b, &check2);
-	Return(wildcard_nil_pathname_(check1, check2, wild, &check));
-	if (! check)
-		return Result(ret, 0);
-	/* version */
-	GetVersionPathname(a, &check1);
-	GetVersionPathname(b, &check2);
-	if (! wildcard_version_pathname(check1, check2))
-		return Result(ret, 0);
 
 	return Result(ret, 1);
+}
+
+static int make_pathname_lower_p_(addr pos, int *ret)
+{
+	unicode c;
+	size_t size, i;
+
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		if (! isUpperCase(c))
+			return Result(ret, 0);
+	}
+
+	return Result(ret, 1);
+}
+
+static int make_pathname_upper_(addr *ret, addr pos)
+{
+	unicode c;
+	addr one;
+	size_t size, i;
+
+	string_length(pos, &size);
+	strvect_heap(&one, size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		Return(strvect_setc_(one, toUpperUnicode(c), c));
+	}
+
+	return Result(ret, one);
+}
+
+static int make_pathname_lower_(addr *ret, addr pos)
+{
+	unicode c;
+	addr one;
+	size_t size, i;
+
+	string_length(pos, &size);
+	strvect_heap(&one, size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		Return(strvect_setc_(one, toUpperUnicode(c), c));
+	}
+
+	return Result(ret, one);
+}
+
+static int make_pathname_string_(addr *ret)
+{
+	int check;
+	addr pos;
+
+	pos = *ret;
+	if (! stringp(pos))
+		return Result(ret, pos);
+
+	Return(make_pathname_upper_p_(pos, &check));
+	if (check)
+		return make_pathname_lower_(ret, pos);
+
+	Return(make_pathname_lower_p_(pos, &check));
+	if (check)
+		return make_pathname_upper_(ret, pos);
+
+	return  Result(ret, pos);
+}
+
+static int make_pathname_check_(addr pos, int *ret)
+{
+	int check;
+
+	if (! stringp(pos))
+		return Result(ret, 0);
+	Return(make_pathname_upper_p_(pos, &check));
+	if (check)
+		return Result(ret, 1);
+
+	return make_pathname_lower_p_(pos, ret);
+}
+
+static int make_pathname_list_p_(addr list, int *ret)
+{
+	int check;
+	addr pos;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		Return(make_pathname_check_(pos, &check));
+		if (check)
+			return Result(ret, 1);
+	}
+
+	return Result(ret, 0);
+}
+
+static int make_pathname_list_(addr *ret, addr list)
+{
+	int check;
+	addr root, pos;
+
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &pos, &list);
+		Return(make_pathname_check_(pos, &check));
+		if (check) {
+			Return(make_pathname_string_(&pos));
+		}
+		cons_heap(&root, pos, root);
+	}
+	nreverse(ret, root);
+
+	return 0;
+}
+
+static int make_pathname_case_(addr *directory, addr *name, addr *type)
+{
+	int check;
+
+	/* directory */
+	Return(make_pathname_list_p_(*directory, &check));
+	if (check) {
+		Return(make_pathname_list_(directory, *directory));
+	}
+	/* name, type */
+	Return(make_pathname_string_(name));
+	Return(make_pathname_string_(type));
+
+	return 0;
+}
+
+_g int make_pathname_heap_(addr *ret,
+		addr host, addr device, addr directory,
+		addr name, addr type, addr version, addr kcase)
+{
+	enum PathnameType ptype;
+	addr check;
+
+	/* format */
+	Return(make_pathname_directory_(&directory, directory));
+
+	/* case */
+	Return(make_pathname_environment_(host, &ptype));
+	GetConst(KEYWORD_COMMON, &check);
+	if (kcase == check &&
+			(ptype == PathnameType_Unix || ptype == PathnameType_Logical)) {
+		Return(make_pathname_case_(&directory, &name, &type));
+	}
+
+	/* pathname */
+	if (ptype == PathnameType_Logical) {
+		GetConst(KEYWORD_UNSPECIFIC, &check);
+		if (version == check)
+			GetConst(KEYWORD_NEWEST, &version);
+		logical_pathname_heap(ret, host, directory, name, type, version);
+	}
+	else {
+		pathname_heap(ret, host, device, directory, name, type);
+	}
+
+	return 0;
+}
+
+
+/*
+ *  pathname accessor
+ */
+_g int pathname_host_(addr pos, addr *ret, int localp)
+{
+	GetHostPathname(pos, &pos);
+	if (! localp) {
+		Return(make_pathname_string_(&pos));
+	}
+
+	return Result(ret, pos);
+}
+
+_g int pathname_device_(addr pos, addr *ret, int localp)
+{
+	GetDevicePathname(pos, &pos);
+	if (! localp) {
+		Return(make_pathname_string_(&pos));
+	}
+
+	return Result(ret, pos);
+}
+
+_g int pathname_directory_(addr pos, addr *ret, int localp)
+{
+	int check;
+
+	GetDirectoryPathname(pos, &pos);
+	if (! localp) {
+		Return(make_pathname_list_p_(pos, &check));
+		if (check) {
+			Return(make_pathname_list_(&pos, pos));
+		}
+	}
+
+	return Result(ret, pos);
+}
+
+_g int pathname_name_(addr pos, addr *ret, int localp)
+{
+	GetNamePathname(pos, &pos);
+	if (! localp) {
+		Return(make_pathname_string_(&pos));
+	}
+
+	return Result(ret, pos);
+}
+
+_g int pathname_type_(addr pos, addr *ret, int localp)
+{
+	GetTypePathname(pos, &pos);
+	if (! localp) {
+		Return(make_pathname_string_(&pos));
+	}
+
+	return Result(ret, pos);
+}
+
+_g void pathname_version(addr pos, addr *ret)
+{
+	GetVersionPathname(pos, ret);
 }
 

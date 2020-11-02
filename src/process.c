@@ -1,280 +1,347 @@
+#include "clos.h"
+#include "clos_class.h"
 #include "condition.h"
 #include "cons.h"
-#include "cons_list.h"
-#include "encode.h"
-#include "hashtable.h"
+#include "pathname.h"
 #include "process.h"
+#include "process_arch.h"
+#include "stream.h"
 #include "strtype.h"
-#include "strvect.h"
 #include "symbol.h"
+#include "typedef.h"
 
-static int find_environment_char_(Execute ptr, const char *key, addr *ret)
+/*
+ *  defclass lisp-system::process
+ */
+static void process_defclass_slot(addr slots, size_t n, constindex index)
+{
+	addr slot, pos;
+
+	slot_heap(&slot);
+	GetConstant(index, &pos);
+	Check(! symbolp(pos), "type error");
+	SetNameSlot(slot, pos);
+	SetSlotVector(slots, n, slot);
+}
+
+static void process_defclass_slots(addr *ret)
+{
+	addr slots;
+
+	slot_vector_heap(&slots, 14);
+	process_defclass_slot(slots, 0, CONSTANT_KEYWORD_PROGRAM);
+	process_defclass_slot(slots, 1, CONSTANT_KEYWORD_ARGS);
+	process_defclass_slot(slots, 2, CONSTANT_KEYWORD_ENVIRONMENT);
+	process_defclass_slot(slots, 3, CONSTANT_KEYWORD_WAIT);
+	process_defclass_slot(slots, 4, CONSTANT_KEYWORD_SEARCH);
+	process_defclass_slot(slots, 5, CONSTANT_KEYWORD_ELEMENT_TYPE);
+	process_defclass_slot(slots, 6, CONSTANT_KEYWORD_EXTERNAL_FORMAT);
+	process_defclass_slot(slots, 7, CONSTANT_KEYWORD_DIRECTORY);
+	process_defclass_slot(slots, 8, CONSTANT_KEYWORD_INPUT);
+	process_defclass_slot(slots, 9, CONSTANT_KEYWORD_OUTPUT);
+	process_defclass_slot(slots, 10, CONSTANT_KEYWORD_ERROR);
+	process_defclass_slot(slots, 11, CONSTANT_KEYWORD_IF_INPUT_DOES_NOT_EXIST);
+	process_defclass_slot(slots, 12, CONSTANT_KEYWORD_IF_OUTPUT_EXISTS);
+	process_defclass_slot(slots, 13, CONSTANT_KEYWORD_IF_ERROR_EXISTS);
+	slotvector_set_location(slots);
+	*ret = slots;
+}
+
+static int process_defclass_class_(LocalRoot local, addr slots)
+{
+	addr name, supers, metaclass, instance;
+
+	/* name */
+	GetConst(SYSTEM_PROCESS, &name);
+	Check(! symbolp(name), "type error");
+	/* supers */
+	GetConst(CLOS_STANDARD_OBJECT, &supers);
+	CheckType(supers, LISPTYPE_CLOS);
+	conscar_heap(&supers, supers);
+	/* metaclass */
+	GetConst(CLOS_STANDARD_CLASS, &metaclass);
+	/* defclass */
+	return clos_stdclass_supers_(local, &instance, metaclass, name, slots, supers);
+}
+
+static int process_defclass_(LocalRoot local)
+{
+	addr pos, slots;
+
+	/* class check */
+	GetConst(SYSTEM_PROCESS, &pos);
+	clos_find_class_nil(pos, &pos);
+	if (pos != Nil)
+		return 0;
+
+	/* defclass */
+	process_defclass_slots(&slots);
+	return process_defclass_class_(local, slots);
+}
+
+
+/*
+ *  make-instance
+ */
+static int process_instance_environment_(addr pos, addr value)
+{
+	addr list, x;
+
+	if (value == Unbound)
+		return 0;
+	if (! listp(value))
+		return fmte_(":ENVIRONMENT argument ~S must be a list type.", value, NULL);
+
+	/* string check */
+	list = value;
+	while (list != Nil) {
+		Return_getcons(list, &x, &list);
+		if (! stringp(x))
+			return fmte_(":ENVIRONMENT value ~S must be a string type.", x, NULL);
+	}
+
+	return ClosSetConst_(pos, KEYWORD_ENVIRONMENT, value);
+}
+
+static int process_instance_wait_(addr pos, addr value)
+{
+	addr check;
+
+	if (value == Unbound)
+		value = T;
+	GetConst(KEYWORD_PIPE, &check);
+	if (value != T && value == check)
+		return fmte_(":WAIT argument ~S must be a T or :PIPE.", value, NULL);
+
+	return ClosSetConst_(pos, KEYWORD_WAIT, value);
+}
+
+static int process_instance_search_(addr pos, addr value)
+{
+	if (value == Unbound)
+		value = Nil;
+	if (value != Nil)
+		value = T;
+
+	return ClosSetConst_(pos, KEYWORD_SEARCH, value);
+}
+
+static int process_instance_element_type_(addr pos, addr value)
+{
+	addr key1, key2;
+
+	GetConst(COMMON_CHARACTER, &key1);
+	GetConst(COMMON_UNSIGNED_BYTE, &key2);
+	if (value == Unbound) {
+		value = key1;
+	}
+	if (value != key1 && value != key2) {
+		return fmte_(":ELEMENT-TYPE argument ~S "
+				"must be a CHARACTER or UNSIGNED-BYTE.", value, NULL);
+	}
+
+	return ClosSetConst_(pos, KEYWORD_ELEMENT_TYPE, value);
+}
+
+static int process_instance_external_format_(addr pos, addr value)
+{
+	if (value == Unbound) {
+		GetConst(KEYWORD_DEFAULT, &value);
+	}
+
+	return ClosSetConst_(pos, KEYWORD_EXTERNAL_FORMAT, value);
+}
+
+static int process_instance_directory_(Execute ptr, addr pos, addr value)
+{
+	if (value == Unbound)
+		return 0;
+
+	Return(physical_pathname_heap_(ptr, value, &value));
+	return ClosSetConst_(pos, KEYWORD_DIRECTORY, value);
+}
+
+static int process_instance_input_(Execute ptr, addr pos, addr value)
+{
+	if (value == Unbound) {
+		value = Nil;
+	}
+	if (value == T) {
+		Return(standard_input_stream_(ptr, &value));
+	}
+	if ((! streamp(value)) && value != Nil)
+		return fmte_(":INPUT argument ~S must be a NIL or T or stream.", value, NULL);
+
+	return ClosSetConst_(pos, KEYWORD_INPUT, value);
+}
+
+static int process_instance_output_(Execute ptr, addr pos, addr value)
+{
+	if (value == Unbound) {
+		value = Nil;
+	}
+	if (value == T) {
+		Return(standard_output_stream_(ptr, &value));
+	}
+	if ((! streamp(value)) && value != Nil)
+		return fmte_(":OUTPUT argument ~S must be a NIL or T or stream.", value, NULL);
+
+	return ClosSetConst_(pos, KEYWORD_OUTPUT, value);
+}
+
+static int process_instance_error_(Execute ptr, addr pos, addr value)
+{
+	if (value == Unbound) {
+		value = Nil;
+	}
+	if (value == T) {
+		Return(error_output_stream_(ptr, &value));
+	}
+	if ((! streamp(value)) && value != Nil)
+		return fmte_(":ERROR argument ~S must be a NIL or T or stream.", value, NULL);
+
+	return ClosSetConst_(pos, KEYWORD_ERROR, value);
+}
+
+static int process_instance_if_input_does_not_exist_(addr pos, addr value)
+{
+	addr key1, key2;
+
+	GetConst(KEYWORD_ERROR, &key1);
+	GetConst(KEYWORD_CREATE, &key2);
+	if (value == Unbound) {
+		value = Nil;
+	}
+	if (value != Nil && value != key1 && value != key2) {
+		return fmte_(":IF-INPUT-DOES-NOT-EXIST argument ~S "
+				"must be a :ERROR or :CREATE or NIL.", value, NULL);
+	}
+
+	return ClosSetConst_(pos, KEYWORD_IF_INPUT_DOES_NOT_EXIST, value);
+}
+
+static int process_instance_if_output_exists_(addr pos, addr value)
+{
+	addr key1, key2, key3;
+
+	GetConst(KEYWORD_ERROR, &key1);
+	GetConst(KEYWORD_SUPERSEDE, &key2);
+	GetConst(KEYWORD_APPEND, &key3);
+	if (value == Unbound) {
+		value = key1;
+	}
+	if (value != Nil && value != key1 && value != key2 && value != key3) {
+		return fmte_(":IF-OUTPUT-EXISTS argument ~S "
+				"must be a :ERROR, :SUPERSEDE, :APPEND or NIL.",
+				value, NULL);
+	}
+
+	return ClosSetConst_(pos, KEYWORD_IF_OUTPUT_EXISTS, value);
+}
+
+static int process_instance_if_error_exists_(addr pos, addr value)
+{
+	addr key1, key2, key3;
+
+	GetConst(KEYWORD_ERROR, &key1);
+	GetConst(KEYWORD_SUPERSEDE, &key2);
+	GetConst(KEYWORD_APPEND, &key3);
+	if (value == Unbound) {
+		value = key1;
+	}
+	if (value != Nil && value != key1 && value != key2 && value != key3) {
+		return fmte_(":IF-ERROR-EXISTS argument ~S "
+				"must be a :ERROR, :SUPERSEDE, :APPEND or NIL.",
+				value, NULL);
+	}
+
+	return ClosSetConst_(pos, KEYWORD_IF_ERROR_EXISTS, value);
+}
+
+static int process_eq_constant(addr key, addr value, addr *ret, constindex index)
+{
+	addr check;
+
+	GetConstant(index, &check);
+	if (key != check)
+		return 0;
+	if (*ret == Unbound)
+		*ret = value;
+
+	return 1;
+}
+#define ProcessEqConst(a,b,c,d) { \
+	if (process_eq_constant((a),(b),(c),CONSTANT_KEYWORD_##d)) { \
+		continue; \
+	} \
+}
+
+static int process_instance_rest_(Execute ptr, addr pos, addr rest)
+{
+	addr key, value;
+	addr env, wait, search, element, external, directory;
+	addr input, output, error, ifinput, ifoutput, iferror;
+
+	env = wait = search = element = external = directory = Unbound;
+	input = output = error = ifinput = ifoutput = iferror = Unbound;
+	while (rest != Nil) {
+		Return_getcons(rest, &key, &rest);
+		Return_getcons(rest, &value, &rest);
+		ProcessEqConst(key, value, &env, ENVIRONMENT);
+		ProcessEqConst(key, value, &wait, WAIT);
+		ProcessEqConst(key, value, &search, SEARCH);
+		ProcessEqConst(key, value, &element, ELEMENT_TYPE);
+		ProcessEqConst(key, value, &external, EXTERNAL_FORMAT);
+		ProcessEqConst(key, value, &directory, DIRECTORY);
+		ProcessEqConst(key, value, &input, INPUT);
+		ProcessEqConst(key, value, &output, OUTPUT);
+		ProcessEqConst(key, value, &error, ERROR);
+		ProcessEqConst(key, value, &ifinput, IF_INPUT_DOES_NOT_EXIST);
+		ProcessEqConst(key, value, &ifoutput, IF_OUTPUT_EXISTS);
+		ProcessEqConst(key, value, &iferror, IF_ERROR_EXISTS);
+		return fmte_("Invalid key argument ~S.", key, NULL);
+	}
+	Return(process_instance_environment_(pos, env));
+	Return(process_instance_wait_(pos, wait));
+	Return(process_instance_search_(pos, search));
+	Return(process_instance_element_type_(pos, element));
+	Return(process_instance_external_format_(pos, external));
+	Return(process_instance_directory_(ptr, pos, directory));
+	Return(process_instance_input_(ptr, pos, input));
+	Return(process_instance_output_(ptr, pos, output));
+	Return(process_instance_error_(ptr, pos, error));
+	Return(process_instance_if_input_does_not_exist_(pos, ifinput));
+	Return(process_instance_if_output_exists_(pos, ifoutput));
+	Return(process_instance_if_error_exists_(pos, iferror));
+
+	return 0;
+}
+
+static int process_instance_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 {
 	addr pos;
 
-	GetConst(SYSTEM_SPECIAL_ENVIRONMENT, &pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos == Unbound)
-		return Result(ret, Unbound);
-	else
-		return find_char_hashtable_(pos, key, ret);
+	/* make-instance */
+	GetConst(SYSTEM_PROCESS, &pos);
+	Return(clos_find_class_(pos, &pos));
+	Return(clos_instance_heap_(pos, &pos));
+	/* setf slot */
+	Return(ClosSetConst_(pos, KEYWORD_PROGRAM, var));
+	Return(ClosSetConst_(pos, KEYWORD_ARGS, args));
+	/* rest */
+	Return(process_instance_rest_(ptr, pos, rest));
+
+	return Result(ret, pos);
 }
 
 
 /*
  *  run-process
  */
-#if defined(LISP_POSIX)
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
-static int run_process_utf8_(LocalRoot local, addr pos, char **ret)
+_g int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 {
-	addr data;
-	char *str;
-
-	Return(UTF8_buffer_clang_(local, &data, pos));
-	if (data == Unbound) {
-		*ret = NULL;
-		return fmte_("Invalid UTF8 format ~S.", pos, NULL);
-	}
-	posbody(data, (addr *)&str);
-
-	return Result(ret, str);
-}
-
-static int run_process_list_utf8_(LocalRoot local, addr var, addr list, char ***ret)
-{
-	char **array;
-	addr pos;
-	size_t size, i;
-
-	Return(length_list_safe_(list, &size));
-	size++;
-	array = (char **)lowlevel_local(local, (size + 1) * sizeoft(char *));
-	Return(run_process_utf8_(local, var, &(array[0])));
-	for (i = 1; i < size; i++) {
-		GetCons(list, &pos, &list);
-		Return(run_process_utf8_(local, pos, &(array[i])));
-	}
-	array[i] = 0;
-
-	return Result(ret, array);
-}
-
-static int run_process_posix_(LocalRoot local, addr var, addr args, addr *ret)
-{
-	int status;
-	char *name;
-	char **list;
-	pid_t pid;
-
-	if (! listp(args))
-		conscar_local(local, &args, args);
-	Return(run_process_utf8_(local, var, &name));
-	Return(run_process_list_utf8_(local, var, args, &list));
-	pid = fork();
-	if (pid == -1)
-		return fmte_("fork error", NULL);
-	if (pid == 0) {
-		/* child process */
-		(void)execvp(name, list);
-		return fmte_("execvp error", NULL);
-	}
-
-	/* wait */
-	waitpid(pid, &status, 0);
-	fixnum_heap(ret, (fixnum)status); /* heap */
-
-	return 0;
-}
-
-_g int run_process_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
-{
-	/* ignore rest */
-	return run_process_posix_(local, var, args, ret);
-}
-
-#elif defined(LISP_WINDOWS)
-static int run_process_delimited_(LocalRoot local, addr *ret, addr x, unicode z)
-{
-	size_t size, a, b;
-	addr y;
-	unicode c;
-
-	string_length(x, &size);
-	strvect_local(local, &y, size + 2);
-	a = b = 0;
-	Return(strvect_setc_(y, b++, z));
-	while (a < size) {
-		Return(string_getc_(x, a++, &c));
-		Return(strvect_setc_(y, b++, c));
-	}
-	Return(strvect_setc_(y, b, z));
-
-	return Result(ret, y);
-}
-
-static int run_process_windows_pathname_(LocalRoot local,
-		addr pos, addr *ret, size_t *rsize)
-{
-	int space;
-	unicode c;
-	size_t size, i;
-
-	/* space check */
-	string_length(pos, &size);
-	space = 0;
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		if (c == ' ')
-			space = 1;
-		if (c == '"') {
-			return fmte_("Don't include character #\\\" "
-					"in Windows pathname ~S.", pos, NULL);
-		}
-	}
-
-	/* encode */
-	if (space) {
-		Return(run_process_delimited_(local, ret, pos, '"'));
-		*rsize = size + 2;
-	}
-	else {
-		*ret = pos;
-		*rsize = size;
-	}
-
-	return 0;
-}
-
-static int run_process_utf16_(LocalRoot local, addr pos, wchar_t **ret)
-{
-	addr data;
-	wchar_t *str;
-
-	Return(UTF16_buffer_clang_(local, &data, pos));
-	if (data == Unbound) {
-		*ret = NULL;
-		return fmte_("Invalid UTF16 format ~S.", pos, NULL);
-	}
-	posbody(data, (addr *)&str);
-
-	return Result(ret, str);
-}
-
-static int run_process_list_utf16_(LocalRoot local, addr var, addr list, wchar_t **ret)
-{
-	int first;
-	addr root, x, y;
-	unicode c;
-	size_t size, value, a, b;
-
-	Return(run_process_windows_pathname_(local, var, &x, &size));
-	conscar_local(local, &root, x);
-	while (list != Nil) {
-		Return_getcons(list, &x, &list);
-		Return(run_process_windows_pathname_(local, x, &x, &value));
-		size += value + 1;
-		cons_local(local, &root, x, root);
-	}
-	nreverse(&root, root);
-
-	strvect_local(local, &y, size);
-	a = 0;
-	for (first = 1; root != Nil; first = 0) {
-		GetCons(root, &x, &root);
-		if (first == 0) {
-			Return(strvect_setc_(y, a++, ' '));
-		}
-		strvect_length(x, &value);
-		for (b = 0; b < value; b++) {
-			strvect_getc(x, b, &c);
-			Return(strvect_setc_(y, a++, c));
-		}
-	}
-
-	return run_process_utf16_(local, y, ret);
-}
-
-static int run_process_windows_(LocalRoot local, addr var, addr args, addr *ret)
-{
-	wchar_t *list;
-	STARTUPINFOW sinfo;
-	PROCESS_INFORMATION pinfo;
-	HANDLE child;
-	DWORD status;
-
-	if (! listp(args))
-		conscar_local(local, &args, args);
-	Return(run_process_list_utf16_(local, var, args, &list));
-	cleartype(sinfo);
-	cleartype(pinfo);
-	if (! CreateProcessW(NULL, list, NULL, NULL,
-				FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-		return fmte_("Cannot run process ~S.", var, NULL);
-	}
-	child = pinfo.hProcess;
-	if (! CloseHandle(pinfo.hThread))
-		return fmte_("CloseHandle error.", NULL);
-
-	/* wait */
-	WaitForSingleObject(child, INFINITE);
-	if (! GetExitCodeProcess(child, &status))
-		return fmte_("GetExitCodeProcess error.", NULL);
-	fixnum_heap(ret, (fixnum)status); /* heap */
-
-	return 0;
-}
-
-_g int run_process_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
-{
-	/* ignore rest */
-	return run_process_windows_(local, var, args, ret);
-}
-
-#else
-_g int run_process_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
-{
-	return fmte_("This implementation does not support RUN-PROGRAM.", NULL);
-}
-#endif
-
-
-/*
- *  ed-process
- */
-static int find_ed_program_(Execute ptr, addr *ret)
-{
-	addr pos;
-
-	/* *ed-program* */
-	GetConst(SYSTEM_ED_PROGRAM, &pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos != Unbound)
-		return Result(ret, pos);
-
-	/* *environment* */
-	return find_environment_char_(ptr, "EDITOR", ret);
-}
-
-#if defined(LISP_POSIX)
-#define LISP_ED_PROCESS_DEFAULT  "vi"
-#elif defined(LISP_WINDOWS)
-#define LISP_ED_PROCESS_DEFAULT  "notepad.exe"
-#else
-#define LISP_ED_PROCESS_DEFAULT  "ed"
-#endif
-
-_g int ed_process_(Execute ptr, addr file)
-{
-	addr call, status;
-
-	Return(find_ed_program_(ptr, &call));
-	if (call == Unbound)
-		strvect_char_heap(&call, LISP_ED_PROCESS_DEFAULT);
-
-	return run_process_(ptr->local, call, file, Nil, &status);
+	Return(process_defclass_(ptr->local));
+	Return(process_instance_(ptr, var, args, rest, &var));
+	return run_process_arch_(ptr, var, ret);
 }
 

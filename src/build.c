@@ -89,7 +89,6 @@ _g void initlisp(void)
 	init_heap();
 	init_localtime();
 	init_package();
-	init_pathname();
 	init_print();
 	init_reader();
 	init_restart();

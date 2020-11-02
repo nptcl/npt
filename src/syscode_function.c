@@ -395,9 +395,9 @@ _g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2)
 
 
 /* run-process */
-_g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
+_g int run_program_syscode_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 {
-	return run_process_(local, var, args, rest, &var);
+	return run_process_(ptr, var, args, rest, &var);
 }
 
 

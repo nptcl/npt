@@ -1,3 +1,4 @@
+#include "call_filenames.h"
 #include "call_environment.h"
 #include "callname.h"
 #include "character.h"
@@ -18,8 +19,7 @@
 #include "package.h"
 #include "package_common.h"
 #include "package_object.h"
-#include "pathname_common.h"
-#include "pathname_object.h"
+#include "pathname_wildcard.h"
 #include "pathname.h"
 #include "print.h"
 #include "print_write.h"
@@ -369,7 +369,7 @@ static int ed_file_common(Execute ptr, addr var)
 				"~ED can't use wild card pathname ~S.", var, NULL);
 	}
 	Return(physical_pathname_local_(ptr, var, &var));
-	Return(namestring_pathname_(ptr, &var, var));
+	Return(namestring_common_(ptr, &var, var));
 	return ed_execute_common(ptr, var);
 }
 

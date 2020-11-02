@@ -7,11 +7,11 @@
 #include "cons_list.h"
 #include "integer.h"
 #include "pathname.h"
-#include "pathname_common.h"
 #include "pathname_localp.h"
 #include "pathname_object.h"
 #include "pathname_table.h"
 #include "pathname_translate.h"
+#include "pathname_wildcard.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
@@ -760,11 +760,6 @@ _g int merge_pathnames_clang_(Execute ptr,
 /*
  *  initialize
  */
-_g void init_pathname(void)
-{
-	init_pathname_common();
-}
-
 _g void build_pathname(void)
 {
 	build_pathname_translate();

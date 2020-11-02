@@ -21,7 +21,6 @@
 #define name_pathname_heap_ _n(name_pathname_heap_)
 #define name_pathname_local_ _n(name_pathname_local_)
 #define merge_pathnames_clang_ _n(merge_pathnames_clang_)
-#define init_pathname _n(init_pathname)
 #define build_pathname _n(build_pathname)
 
 /*  pathname
@@ -61,7 +60,6 @@ _g int merge_pathnames_clang_(Execute ptr,
 		addr pos, addr defpath, addr defver, addr *ret);
 
 /* initialize */
-_g void init_pathname(void);
 _g void build_pathname(void);
 
 #endif

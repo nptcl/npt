@@ -93,7 +93,7 @@ _g int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret);
 _g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret);
 _g int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2);
 _g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2);
-_g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, addr *ret);
+_g int run_program_syscode_(Execute ptr, addr var, addr args, addr rest, addr *ret);
 _g int make_callname_syscode_(addr var, addr *ret);
 _g int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);
