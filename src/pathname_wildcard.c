@@ -149,7 +149,7 @@ _g int wildcard_stringp_p_(addr pos, int *ret)
 		return wildcard_string_p_(pos, ret);
 }
 
-_g int wildcard_string_pathname_(addr a, addr b, int *ret)
+_g int wildcard_string_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
 {
 	int check, check1, check2;
 	addr wild;
@@ -164,7 +164,7 @@ _g int wildcard_string_pathname_(addr a, addr b, int *ret)
 		return Result(ret, 1);
 	if ((! check1) || (! check2))
 		return Result(ret, 0);
-	Return(LispPathnameEqual_(a, b, &check));
+	Return((*equal)(a, b, &check));
 	if (check)
 		return Result(ret, 1);
 	Return(wildcard_string_p_(a, &check));
@@ -175,15 +175,16 @@ _g int wildcard_string_pathname_(addr a, addr b, int *ret)
 	return wildcard_character_pathname_(a, 0, s1, b, 0, s2, ret);
 }
 
-_g int wildcard_eq_pathname_(addr a, addr b, int *ret)
+_g int wildcard_eq_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
 {
 	if (a == b)
 		return Result(ret, 1);
 	else
-		return wildcard_string_pathname_(a, b, ret);
+		return wildcard_string_pathname_(a, b, equal, ret);
 }
 
-static int wildcard_nil_pathname_(addr a, addr b, int wildp, int *ret)
+static int wildcard_nil_pathname_(addr a, addr b, int wildp,
+		lisp_equal_calltype equal, int *ret)
 {
 	addr wild;
 
@@ -193,10 +194,10 @@ static int wildcard_nil_pathname_(addr a, addr b, int wildp, int *ret)
 	if (wildp && b == Nil)
 		b = wild;
 
-	return wildcard_eq_pathname_(a, b, ret);
+	return wildcard_eq_pathname_(a, b, equal, ret);
 }
 
-static int wildcard_list_pathname_(addr a, addr b, int *ret)
+static int wildcard_list_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
 {
 	int check;
 	addr a1, b1, pos1, pos2, wild, wilds;
@@ -220,18 +221,18 @@ static int wildcard_list_pathname_(addr a, addr b, int *ret)
 	Return_getcons(b, &pos2, &b1);
 	/* ("str" *) -> next */
 	if (pos2 == wild)
-		return wildcard_list_pathname_(a1, b1, ret);
+		return wildcard_list_pathname_(a1, b1, equal, ret);
 	/* ("str" "str") -> next, ("str" "aaa") -> false */
 	if (pos2 != wilds) {
-		Return(wildcard_string_pathname_(pos1, pos2, &check));
+		Return(wildcard_string_pathname_(pos1, pos2, equal, &check));
 		if (! check)
 			return Result(ret, 0);
 		else
-			return wildcard_list_pathname_(a1, b1, ret);
+			return wildcard_list_pathname_(a1, b1, equal, ret);
 	}
 	/* ("str" **) */
 	for (;;) {
-		Return(wildcard_list_pathname_(a, b1, &check));
+		Return(wildcard_list_pathname_(a, b1, equal, &check));
 		if (check)
 			return Result(ret, 1);
 		if (a == Nil)
@@ -256,7 +257,8 @@ static int wildcard_directory_p_(addr pos, int *ret)
 	return wildcard_stringp_p_(pos, ret);
 }
 
-static int wildcard_directory_pathname_(addr a, addr b, int *ret)
+static int wildcard_directory_pathname_(addr a, addr b,
+		lisp_equal_calltype equal, int *ret)
 {
 	int check, check1, check2;
 	addr car1, car2, cdr1, cdr2;
@@ -278,7 +280,7 @@ static int wildcard_directory_pathname_(addr a, addr b, int *ret)
 		Return(wildcard_directory_p_(car2, &check));
 		if (check)
 			check2 = 1;
-		Return(LispPathnameEqual_(car1, car2, &check));
+		Return((*equal)(car1, car2, &check));
 		if (! check)
 			break;
 	}
@@ -288,7 +290,7 @@ static int wildcard_directory_pathname_(addr a, addr b, int *ret)
 	else {
 		Return_getcdr(a, &a);
 		Return_getcdr(b, &b);
-		return wildcard_list_pathname_(a, b, ret);
+		return wildcard_list_pathname_(a, b, equal, ret);
 	}
 }
 
@@ -311,41 +313,49 @@ _g int wildcard_pathname_(addr a, addr b, int wild, int *ret)
 {
 	int check;
 	addr check1, check2;
+	lisp_equal_calltype equal;
 
 	Check(! pathnamep(a), "type left error");
 	Check(! pathnamep(b), "type right error");
 	if (RefLogicalPathname(a) != RefLogicalPathname(b))
 		return Result(ret, 0);
+
 	/* host */
 	GetHostPathname(a, &check1);
 	GetHostPathname(b, &check2);
 	Return(equalp_function_(check1, check2, &check));
 	if (! check)
 		return Result(ret, 0);
+	equal = pathname_equal_function(a);
+
 	/* device */
 	GetDevicePathname(a, &check1);
 	GetDevicePathname(b, &check2);
-	Return(LispPathnameEqual_(check1, check2, &check));
+	Return((*equal)(check1, check2, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* directory */
 	GetDirectoryPathname(a, &check1);
 	GetDirectoryPathname(b, &check2);
-	Return(wildcard_directory_pathname_(check1, check2, &check));
+	Return(wildcard_directory_pathname_(check1, check2, equal, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* name */
 	GetNamePathname(a, &check1);
 	GetNamePathname(b, &check2);
-	Return(wildcard_nil_pathname_(check1, check2, wild, &check));
+	Return(wildcard_nil_pathname_(check1, check2, wild, equal, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* type */
 	GetTypePathname(a, &check1);
 	GetTypePathname(b, &check2);
-	Return(wildcard_nil_pathname_(check1, check2, wild, &check));
+	Return(wildcard_nil_pathname_(check1, check2, wild, equal, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* version */
 	GetVersionPathname(a, &check1);
 	GetVersionPathname(b, &check2);

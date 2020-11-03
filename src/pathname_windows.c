@@ -22,75 +22,76 @@ static int parser_make_windows_pathname_(struct fileparse *pa)
 	return 0;
 }
 
-static int parser_windows_pathname_bsbs_p(const unicode *body, size_t size)
+static int parser_windows_bsbs_p_(addr thing, size_t size, int *ret)
 {
 	unicode c;
 
 	if (size < 2)
-		return 0;
-	string_getdirect(body, 0, &c);
+		return Result(ret, 0);
+	Return(string_getc_(thing, 0, &c));
 	if (c != '\\')
-		return 0;
-	string_getdirect(body, 1, &c);
+		return Result(ret, 0);
+	Return(string_getc_(thing, 1, &c));
 
-	return (c == '\\');
+	return Result(ret, (c == '\\'));
 }
 
-static int parser_windows_pathname_bs_p(const unicode *body, size_t size, unicode type)
+static int parser_windows_bs_p_(addr thing, size_t size, unicode x, int *ret)
 {
 	unicode c;
 
 	if (size < 4)
-		return 0;
-	string_getdirect(body, 2, &c);
-	if (c != type)
-		return 0;
-	string_getdirect(body, 3, &c);
+		return Result(ret, 0);
+	Return(string_getc_(thing, 2, &c));
+	if (c != x)
+		return Result(ret, 0);
+	Return(string_getc_(thing, 3, &c));
 
-	return (c == '\\');
+	return Result(ret, (c == '\\'));
 }
 
-static int parser_windows_pathname_unc_p(const unicode *body, size_t size)
+static int parser_windows_unc_p_(addr thing, size_t size, int *ret)
 {
 	unicode c;
 
 	if (size < 2)
-		return 0;
-	string_getdirect(body, 2, &c);
+		return Result(ret, 0);
+	Return(string_getc_(thing, 2, &c));
 
-	return (c != '\\');
+	return Result(ret, (c != '\\'));
 }
 
-static int parser_windows_pathname_drive_p(const unicode *body,
-		size_t size, size_t i, unicode *ret)
+static int parser_windows_drive_p_(addr thing,
+		size_t size, size_t i, unicode *value, int *ret)
 {
 	unicode c, drive;
 
 	if ((size - i) < 2)
-		return 0;
-	string_getdirect(body, i, &drive);
+		return Result(ret, 0);
+	Return(string_getc_(thing, i, &drive));
 	if (! isAlphabetic(drive))
-		return 0;
-	string_getdirect(body, i + 1, &c);
+		return Result(ret, 0);
+	Return(string_getc_(thing, i + 1, &c));
 	if (c != ':')
-		return 0;
-	*ret = drive;
+		return Result(ret, 0);
+	*value = drive;
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int parser_windows_pathname_drive_(struct fileparse *pa, unicode c)
+static int parser_windows_drive_(struct fileparse *pa, unicode c)
 {
 	addr pos;
+
 	strvect_alloc(localp_alloc(pa->local), &pos, 1);
-	Return(strvect_setc_(pos, 0, c));
+	Return(strvect_setc_(pos, 0, toUpperUnicode(c)));
 	pa->device = pos;
 
 	return 0;
 }
 
-static int parser_windows_pathname_device_(struct fileparse *pa,
-		const unicode *body, size_t size, size_t i)
+static int parser_windows_device_(struct fileparse *pa,
+		addr thing, size_t size, size_t i)
 {
 	addr queue;
 
@@ -98,24 +99,23 @@ static int parser_windows_pathname_device_(struct fileparse *pa,
 	GetConst(SYSTEM_DEVICE, &pa->device);
 	/* name */
 	queue = pa->queue;
-	Return(pushrange_pathname_(pa->local, queue, body, i, size));
+	Return(pushrange_pathname_(pa->local, queue, thing, i, size));
 	make_charqueue_fileparse(pa, queue, &pa->name);
 	clear_charqueue(queue);
 
 	return 0;
 }
 
-static int parser_windows_pathname_slash_p(unicode x)
+static int parser_windows_slash_p(unicode x)
 {
 	return x == '/' || x == '\\';
 }
 
 _g int parser_windows_pathname_(struct fileparse *pa)
 {
-	int absolute, relative, universal, question, win32device, logical, dp, check;
+	int absolute, relative, logical, dp, check;
 	unicode c;
 	LocalpRoot local;
-	const unicode *body;
 	addr charqueue, queue, thing, temp;
 	size_t i, di, ni, size;
 	struct fileparse backup;
@@ -130,43 +130,45 @@ _g int parser_windows_pathname_(struct fileparse *pa)
 	pa->queue = charqueue;
 	queue = Nil;
 	size = pa->end;
-	GetStringUnicode(thing, &body);
-	absolute = relative = universal = question = win32device = logical = dp = 0;
+	absolute = relative = logical = dp = 0;
 	di = ni = 0;
 	i = pa->start;
 
 	/* Windows */
-	if (parser_windows_pathname_bsbs_p(body, size)) {
+	Return(parser_windows_bsbs_p_(thing, size, &check));
+	if (check) {
 		logical = 1;
-		if (parser_windows_pathname_bs_p(body, size, '?'))
-			goto quest;
-		if (parser_windows_pathname_bs_p(body, size, '.'))
+		Return(parser_windows_bs_p_(thing, size, '?', &check));
+		if (check)
+			goto question;
+		Return(parser_windows_bs_p_(thing, size, '.', &check));
+		if (check)
 			goto dot;
-		if (parser_windows_pathname_unc_p(body, size))
+		Return(parser_windows_unc_p_(thing, size, &check));
+		if (check)
 			goto universal;
 	}
-start_drive:
-	if (parser_windows_pathname_drive_p(body, size, i, &c))
-		goto drive;
+
+drive1:
+	Return(parser_windows_drive_p_(thing, size, i, &c, &check));
+	if (check)
+		goto drive2;
 	goto start;
 
-quest: /* ignore */
-	question = 1;
+question: /* ignore */
 	i += 4;
-	goto start_drive;
+	goto drive1;
 
 dot:
-	win32device = 1;
-	Return(parser_windows_pathname_device_(pa, body, size, 4));
+	Return(parser_windows_device_(pa, thing, size, 4));
 	goto finish;
 
 universal: /* ignore */
-	universal = 1;
 	i += 1; /* not 2 */
 	GetConst(SYSTEM_UNIVERSAL, &pa->device);
 	goto start;
 
-drive:
+drive2:
 	Return(check_drive_logical_pathname_(local, (int)c, &check));
 	if (check) {
 		/* parser logical */
@@ -174,7 +176,7 @@ drive:
 		return parser_logical_pathname_(pa);
 	}
 	logical = 1;
-	Return(parser_windows_pathname_drive_(pa, c));
+	Return(parser_windows_drive_(pa, c));
 	i += 2;
 	goto start;
 
@@ -182,13 +184,16 @@ drive:
 start:
 	if (size == 0)
 		goto finish;
-	string_getdirect(body, i++, &c);
-	if (parser_windows_pathname_slash_p(c)) {
+	Return(string_getc_(thing, i++, &c));
+	if (parser_windows_slash_p(c)) {
 		absolute = 1;
 		pushconstant_fileparse(pa, &queue, CONSTANT_KEYWORD_ABSOLUTE);
 		goto first;
 	}
-	if (c == '.') { di = ni; dp = 1; }
+	if (c == '.') {
+		di = ni;
+		dp = 1;
+	}
 	Return(push_charqueue_local_(local->local, charqueue, c));
 	ni++;
 	goto next1;
@@ -196,8 +201,8 @@ start:
 first:
 	if (size <= i)
 		goto finish;
-	string_getdirect(body, i++, &c);
-	if (parser_windows_pathname_slash_p(c))
+	Return(string_getc_(thing, i++, &c));
+	if (parser_windows_slash_p(c))
 		goto first;
 	if (c == '.') {
 		di = ni;
@@ -211,9 +216,9 @@ first:
 
 next1:
 	if (size <= i)
-		goto name_finish;
-	string_getdirect(body, i++, &c);
-	if (parser_windows_pathname_slash_p(c))
+		goto finish1;
+	Return(string_getc_(thing, i++, &c));
+	if (parser_windows_slash_p(c))
 		goto next2;
 	if (c == '.') {
 		di = ni;
@@ -243,7 +248,7 @@ next2:
 	ni = di = dp = 0;
 	goto first;
 
-name_finish:
+finish1:
 	make_charqueue_fileparse(pa, charqueue, &pa->name);
 	if (di && dp) {
 		Return(nametype_pathname_(pa, di));

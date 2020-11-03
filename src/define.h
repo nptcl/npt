@@ -182,12 +182,8 @@
 /* Windows */
 #if defined(LISP_WINDOWS) || defined(LISP_ANSI_WINDOWS)
 #define LISP_WINDOWS_OR_ANSI
-#define LISP_PATHNAME_EQUALP
-#define LISP_PATHNAME_UPCASE
 #else
 #undef LISP_WINDOWS_OR_ANSI
-#undef LISP_PATHNAME_EQUALP
-#define LISP_PATHNAME_DOWNCASE
 #endif
 
 #ifdef LISP_WINDOWS_OR_ANSI
@@ -433,15 +429,6 @@
 #define LISP_FLOAT_DOUBLE_FRACTION		DBL_MANT_DIG
 /* long double */
 #define LISP_FLOAT_LONG_FRACTION		LDBL_MANT_DIG
-
-/* pathname */
-#if defined(LISP_PATHNAME_UPCASE)
-#undef LISP_PATHNAME_DOWNCASE
-#elif defined(LISP_PATHNAME_DOWNCASE)
-#undef LISP_PATHNAME_UPCASE
-#else
-#define LISP_PATHNAME_DOWNCASE
-#endif
 
 /* readline editline */
 #ifdef LISP_EDITLINE

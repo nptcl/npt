@@ -9,6 +9,7 @@
 
 /* setjmp */
 typedef void (*lisp_abort_calltype)(void);
+typedef int (*lisp_equal_calltype)(addr, addr, int *);
 
 /* code */
 union CODEVALUE {

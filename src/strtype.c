@@ -1169,6 +1169,96 @@ _g int string_concat_char2_heap_(addr *ret, addr a, const char *str)
 
 
 /*
+ *  case
+ */
+_g int string_upper_p_(addr pos, int *ret)
+{
+	unicode c;
+	size_t size, i;
+
+	Check(! stringp(pos), "type error");
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		if (isLowerCase(c))
+			return Result(ret, 0);
+	}
+
+	return Result(ret, 1);
+}
+
+_g int string_lower_p_(addr pos, int *ret)
+{
+	unicode c;
+	size_t size, i;
+
+	Check(! stringp(pos), "type error");
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		if (isUpperCase(c))
+			return Result(ret, 0);
+	}
+
+	return Result(ret, 1);
+}
+
+_g int string_upper_alloc_(LocalRoot local, addr pos, addr *ret)
+{
+	unicode c;
+	addr dst;
+	size_t size, i;
+
+	string_length(pos, &size);
+	strvect_alloc(local, &dst, size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		Return(strvect_setc_(dst, i, toUpperUnicode(c)));
+	}
+
+	return Result(ret, dst);
+}
+
+_g int string_upper_local_(LocalRoot local, addr pos, addr *ret)
+{
+	CheckLocal(local);
+	return string_upper_alloc_(local, pos, ret);
+}
+
+_g int string_upper_heap_(addr pos, addr *ret)
+{
+	return string_upper_alloc_(NULL, pos, ret);
+}
+
+_g int string_lower_alloc_(LocalRoot local, addr pos, addr *ret)
+{
+	unicode c;
+	addr dst;
+	size_t size, i;
+
+	string_length(pos, &size);
+	strvect_alloc(local, &dst, size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		Return(strvect_setc_(dst, i, toLowerUnicode(c)));
+	}
+
+	return Result(ret, dst);
+}
+
+_g int string_lower_local_(LocalRoot local, addr pos, addr *ret)
+{
+	CheckLocal(local);
+	return string_lower_alloc_(local, pos, ret);
+}
+
+_g int string_lower_heap_(addr pos, addr *ret)
+{
+	return string_lower_alloc_(NULL, pos, ret);
+}
+
+
+/*
  *  debug
  */
 _g int string_equal_char_debug(addr left, const char *right)

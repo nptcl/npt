@@ -79,6 +79,15 @@
 #define string_concat_hyphen_heap_ _n(string_concat_hyphen_heap_)
 #define string_concat_char1_heap_ _n(string_concat_char1_heap_)
 #define string_concat_char2_heap_ _n(string_concat_char2_heap_)
+#define string_upper_p_ _n(string_upper_p_)
+#define string_lower_p_ _n(string_lower_p_)
+#define string_upper_alloc_ _n(string_upper_alloc_)
+#define string_upper_local_ _n(string_upper_local_)
+#define string_upper_heap_ _n(string_upper_heap_)
+#define string_lower_alloc_ _n(string_lower_alloc_)
+#define string_lower_local_ _n(string_lower_local_)
+#define string_lower_heap_ _n(string_lower_heap_)
+
 #define string_equal_char_debug _n(string_equal_char_debug)
 #define string_equalp_char_debug _n(string_equalp_char_debug)
 #define string_equal_debug _n(string_equal_debug)
@@ -179,6 +188,15 @@ _g int string_concat_heap_(addr *ret, addr a, addr b);
 _g int string_concat_hyphen_heap_(addr *ret, addr a, addr b);
 _g int string_concat_char1_heap_(addr *ret, const char *str, addr b);
 _g int string_concat_char2_heap_(addr *ret, addr a, const char *str);
+
+_g int string_upper_p_(addr pos, int *ret);
+_g int string_lower_p_(addr pos, int *ret);
+_g int string_upper_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int string_upper_local_(LocalRoot local, addr pos, addr *ret);
+_g int string_upper_heap_(addr pos, addr *ret);
+_g int string_lower_alloc_(LocalRoot local, addr pos, addr *ret);
+_g int string_lower_local_(LocalRoot local, addr pos, addr *ret);
+_g int string_lower_heap_(addr pos, addr *ret);
 
 /* debug */
 _g int string_equal_char_debug(addr left, const char *right);

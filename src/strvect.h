@@ -136,10 +136,6 @@ _g int strvect_subseq_(addr *ret, addr pos, addr start, addr end);
 _g int strvect_setget_(addr pos1, size_t index1, addr pos2, size_t index2);
 _g int strvect_reverse_(LocalRoot local, addr *ret, addr pos);
 _g int strvect_nreverse_(addr *ret, addr pos);
-
-#define string_getdirect(body, index, value) \
-	(*(value) = ((const unicode *)(body))[index])
-
 _g int strvect_char1_heap_(addr *ret, const char *arg, unicode c);
 _g int strvect_size1_heap_(addr *, const char *, size_t);
 

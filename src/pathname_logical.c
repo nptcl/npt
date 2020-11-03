@@ -14,12 +14,28 @@ static int parser_logical_pathname_wordaster_p(unicode c)
 	return isAlphanumeric(c) || (c == '-') || (c == '*');
 }
 
+static int parser_logical_host_(struct fileparse *pa, addr queue)
+{
+	int check;
+	LocalRoot local;
+	addr pos;
+
+	local = localp_alloc(pa->local);
+	make_charqueue_alloc(local, queue, &pos);
+	Return(string_upper_p_(pos, &check));
+	if (! check) {
+		Return(string_upper_alloc_(local, pos, &pos));
+	}
+	pa->host = pos;
+
+	return 0;
+}
+
 _g int parser_logical_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, dp1, dp2;
 	unicode c;
 	LocalpRoot local;
-	const unicode *body;
 	addr charqueue, queue, thing, temp;
 	size_t i, size;
 
@@ -32,7 +48,6 @@ _g int parser_logical_pathname_(struct fileparse *pa)
 	pa->queue = charqueue;
 	queue = Nil;
 	size = pa->end;
-	GetStringUnicode(thing, &body);
 	absolute = relative = dp1 = dp2 = 0;
 	i = pa->start;
 	GetConst(KEYWORD_NEWEST, &pa->version);
@@ -40,7 +55,7 @@ _g int parser_logical_pathname_(struct fileparse *pa)
 	/* start */
 	if (size == 0)
 		goto finish;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c))
 		goto next1;
 	if (c == ';') {
@@ -53,11 +68,11 @@ _g int parser_logical_pathname_(struct fileparse *pa)
 	goto error;
 
 host:
-	make_charqueue_fileparse(pa, charqueue, &pa->host);
+	Return(parser_logical_host_(pa, charqueue));
 	clear_charqueue(charqueue);
 	if (size <= i)
 		goto finish;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c))
 		goto next2;
 	if (c == ';') {
@@ -73,7 +88,7 @@ next1:
 	Return(push_charqueue_local_(local->local, charqueue, c));
 	if (size <= i)
 		goto finish_name;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c))
 		goto next1;
 	if (c == ';')
@@ -96,7 +111,7 @@ path:
 discard:
 	if (size <= i)
 		goto finish;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c))
 		goto next2;
 	if (c == ';')
@@ -109,7 +124,7 @@ next2:
 	Return(push_charqueue_local_(local->local, charqueue, c));
 	if (size <= i)
 		goto finish_name;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c))
 		goto next2;
 	if (c == ';')
@@ -125,7 +140,7 @@ dot_type1:
 dot_type2:
 	if (size <= i)
 		goto finish_type;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c)) {
 		Return(push_charqueue_local_(local->local, charqueue, c));
 		goto dot_type2;
@@ -141,7 +156,7 @@ dot_version1:
 dot_version2:
 	if (size <= i)
 		goto finish_version;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c)) {
 		Return(push_charqueue_local_(local->local, charqueue, c));
 		goto dot_version2;

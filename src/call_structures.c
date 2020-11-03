@@ -562,9 +562,9 @@ static int defstruct_parse_name(struct defstruct *str, addr name)
 		Return(defstruct_parse_include(str, pos, &check));
 		if (check)
 			continue;
-		Return(defstruct_parse_print_object(str, pos, &check))
-			if (check)
-				continue;
+		Return(defstruct_parse_print_object(str, pos, &check));
+		if (check)
+			continue;
 		Return(defstruct_parse_print_function(str, pos, &check));
 		if (check)
 			continue;

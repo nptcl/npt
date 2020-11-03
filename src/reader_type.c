@@ -163,7 +163,7 @@ static int dispatch_character_(addr pos, unicode a, unicode b, constindex index)
 }
 
 #define DispatchCharacter(a,u,b,c) \
-	Return(dispatch_character_(a,u,b,CONSTANT_SYSTEM_##c##_DISPATCH))
+	/**/ Return(dispatch_character_(a,u,b,CONSTANT_SYSTEM_##c##_DISPATCH))
 
 _g int default_dispatch_readtype_(addr pos, unicode u)
 {

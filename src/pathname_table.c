@@ -159,12 +159,12 @@ _g int make_parse_logical_pathname_(struct fileparse *pa)
 }
 
 _g int pushrange_pathname_(LocalpRoot local,
-		addr queue, const unicode *body, size_t n1, size_t n2)
+		addr queue, addr thing, size_t n1, size_t n2)
 {
 	unicode c;
 
 	for (; n1 < n2; n1++) {
-		string_getdirect(body, n1, &c);
+		Return(string_getc_(thing, n1, &c));
 		Return(push_charqueue_local_(local->local, queue, c));
 	}
 
@@ -184,7 +184,6 @@ _g int nametype_pathname_(struct fileparse *pa, size_t index)
 	 *    "abc." -> ("abc" "")   not nil
 	 */
 	addr pos, queue;
-	const unicode *body;
 	size_t size;
 	LocalpRoot local;
 
@@ -192,16 +191,15 @@ _g int nametype_pathname_(struct fileparse *pa, size_t index)
 	queue = pa->queue;
 	pos = pa->name;
 	string_length(pos, &size);
-	GetStringUnicode(pos, &body);
 	Check(size <= index, "length error");
 
 	/* name */
 	clear_charqueue(queue);
-	Return(pushrange_pathname_(local, queue, body, 0, index));
+	Return(pushrange_pathname_(local, queue, pos, 0, index));
 	make_charqueue_fileparse(pa, queue, &pa->name);
 	/* type */
 	clear_charqueue(queue);
-	Return(pushrange_pathname_(local, queue, body, index + 1, size));
+	Return(pushrange_pathname_(local, queue, pos, index + 1, size));
 	make_charqueue_fileparse(pa, queue, &pa->type);
 
 	return 0;

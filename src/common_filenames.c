@@ -35,7 +35,7 @@ static void defun_pathname(void)
  *     ...) -> pathname
  *   host       (or string symbol)
  *   device     (or string symbol)  ;; (eql :unspecific))
- *   directory  (or cons (member :wild :unspecific))
+ *   directory  (or list string (member :wild :wild-inferiors :unspecific))
  *   name       (or string cons (member nil :wild))
  *   type       (or string (member nil :wild :unspecific)))
  *   version    (or (integer 1 *) (member nil :wild :unspecific :newest))

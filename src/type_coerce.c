@@ -1703,7 +1703,7 @@ static int coerce_av_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	Return(vector_coerce_unsigned64_heap_(&array, size));
 	for (i = 0; i < size; i++) {
-		Return(vector_coerce_unsigned64_(pos, i, &v, &check))
+		Return(vector_coerce_unsigned64_(pos, i, &v, &check));
 		if (check)
 			return coerce_error(ptr, pos, type);
 		Return(array_set_unsigned64_(array, i, v));

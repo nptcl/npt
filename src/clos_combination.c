@@ -697,7 +697,7 @@ _g int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 	Return(clos_long_combination_p_(comb, &check));
 	if (check)
 		return qualifiers_position_long_nil_(ptr, qua, comb, rsize, ret);
-	Return(clos_short_combination_p_(comb, &check))
+	Return(clos_short_combination_p_(comb, &check));
 	if (check)
 		return qualifiers_position_short_nil_(qua, comb, rsize, ret);
 	/* error */

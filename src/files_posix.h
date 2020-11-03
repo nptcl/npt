@@ -477,7 +477,7 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	}
 	/* check */
 	Return(name_pathname_local_(ptr, pos, &pos));
-	Return(UTF8_buffer_clang_(ptr->local, &value, pos))
+	Return(UTF8_buffer_clang_(ptr->local, &value, pos));
 	if (value == Unbound)
 		return fmte_("Cannot decode UTF-8 string ~S.", value, NULL);
 	str = (const char *)posbodyr(value);

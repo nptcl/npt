@@ -37,7 +37,7 @@ _g void pathname_fileparse_alloc(struct fileparse *pa, int logical);
 _g int wild_value_pathname_(addr input, addr *ret);
 _g int make_parse_logical_pathname_(struct fileparse *pa);
 _g int pushrange_pathname_(LocalpRoot local,
-		addr queue, const unicode *body, size_t n1, size_t n2);
+		addr queue, addr thing, size_t n1, size_t n2);
 _g void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret);
 _g int nametype_pathname_(struct fileparse *pa, size_t index);
 _g int pushdirectory_fileparse_(struct fileparse *pa, addr *list, addr name);

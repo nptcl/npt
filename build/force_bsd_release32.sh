@@ -4,7 +4,7 @@ file="build/Makefile.bsd_release32"
 checkerr()
 {
 	if [ $? -ne 0 ]; then
-		echo $*
+		echo "$@"
 		exit 1
 	fi
 }
@@ -18,7 +18,7 @@ checkerr "make clean error";
 make -f ${file} depend
 checkerr "make depend error";
 
-make -f ${file} build ${MAKEOPT} ${@}
+make -f ${file} build ${MAKEOPT} "$@"
 checkerr "make build error";
 
 echo OK

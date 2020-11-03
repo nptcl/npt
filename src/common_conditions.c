@@ -564,8 +564,8 @@ static void defmacro_define_condition(void)
 /*  (defun make-condition (type) &rest args) ...) -> condition */
 static int function_make_condition(Execute ptr, addr args)
 {
-	Return(make_condition_common(ptr, args, &args))
-		setresult_control(ptr, args);
+	Return(make_condition_common(ptr, args, &args));
+	setresult_control(ptr, args);
 	return 0;
 }
 

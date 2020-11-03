@@ -233,7 +233,8 @@ static int translate_string_pathname_(LocalpRoot local,
 }
 
 static int translate_list_pathname_(LocalpRoot local,
-		addr *value, addr a, addr b, int *ret)
+		addr *value, addr a, addr b,
+		lisp_equal_calltype equal, int *ret)
 {
 	int check;
 	addr a1, b1, pos1, pos2, wild, wilds;
@@ -248,7 +249,7 @@ static int translate_list_pathname_(LocalpRoot local,
 	Return_getcons(b, &pos2, &b1);
 	/* ("str" *) -> next */
 	if (pos2 == wild) {
-		Return(translate_list_pathname_(local, value, a1, b1, &check));
+		Return(translate_list_pathname_(local, value, a1, b1, equal, &check));
 		if (check)
 			list_local(local->local, value, *value, pos2, pos1, Nil, NULL);
 		return Result(ret, check);
@@ -256,23 +257,23 @@ static int translate_list_pathname_(LocalpRoot local,
 	/* ("str" "s*r") -> next, ("str" "a*a") -> false */
 	Return(wildcard_stringp_p_(pos2, &check));
 	if (check) {
-		Return(wildcard_string_pathname_(pos1, pos2, &check));
+		Return(wildcard_string_pathname_(pos1, pos2, equal, &check));
 		if (! check)
 			return Result(ret, 0);
 		list_local(local->local, value, *value, pos2, pos1, Nil, NULL);
-		return translate_list_pathname_(local, value, a1, b1, ret);
+		return translate_list_pathname_(local, value, a1, b1, equal, ret);
 	}
 	/* ("str" "str") -> next, ("str" "aaa") -> false */
 	if (pos2 != wilds) {
-		Return(wildcard_eq_pathname_(pos1, pos2, &check));
+		Return(wildcard_eq_pathname_(pos1, pos2, equal, &check));
 		if (! check)
 			return Result(ret, 0);
-		return translate_list_pathname_(local, value, a1, b1, ret);
+		return translate_list_pathname_(local, value, a1, b1, equal, ret);
 	}
 	/* ("str" **) */
 	a1 = a;
 	for (;;) {
-		Return(translate_list_pathname_(local, value, a, b1, &check));
+		Return(translate_list_pathname_(local, value, a, b1, equal, &check));
 		if (check) {
 			list_local(local->local, value, *value, pos2, a1, a, NULL);
 			return Result(ret, 1);
@@ -414,7 +415,8 @@ static int translate_replace_pathname_(LocalpRoot local,
 }
 
 static int translate_directory_pathname_(LocalpRoot local,
-		addr *ret, addr pos, addr from, addr to)
+		addr *ret, addr pos, addr from, addr to,
+		lisp_equal_calltype equal)
 {
 	int check;
 	addr list;
@@ -422,7 +424,7 @@ static int translate_directory_pathname_(LocalpRoot local,
 
 	push_localp(local, &stack);
 	list = Nil;
-	Return(translate_list_pathname_(local, &list, pos, from, &check));
+	Return(translate_list_pathname_(local, &list, pos, from, equal, &check));
 	if (! check)
 		return fmte_("Cannot translate ~S to ~S.", from, pos, NULL);
 	*ret = Nil;
@@ -479,6 +481,7 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	int localp;
 	LocalRoot alloc;
 	addr one, a, b, c;
+	lisp_equal_calltype equal;
 
 	alloc = localp_alloc(local);
 	localp = local->localp;
@@ -489,6 +492,7 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	/* one */
 	make_pathname_alloc(alloc, &one, RefLogicalPathname(to));
 	/* host */
+	equal = pathname_equal_function(pos);
 	copylocal_pathname_array(alloc, to, PATHNAME_INDEX_HOST, one);
 	/* device */
 	copylocal_pathname_array(alloc, to, PATHNAME_INDEX_DEVICE, one);
@@ -496,7 +500,7 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	GetDirectoryPathname(pos, &a);
 	GetDirectoryPathname(from, &b);
 	GetDirectoryPathname(to, &c);
-	Return(translate_directory_pathname_(local, &a, a, b, c));
+	Return(translate_directory_pathname_(local, &a, a, b, c, equal));
 	copylocal_object(alloc, &a, a);
 	SetDirectoryPathname(one, a);
 	/* name */

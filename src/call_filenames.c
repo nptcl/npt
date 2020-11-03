@@ -34,60 +34,6 @@ _g int pathname_common_(Execute ptr, addr var, addr *ret)
 }
 
 /* make-pathname */
-_g int make_pathname_common_(Execute ptr, addr rest, addr *ret)
-{
-	addr host, device, directory, name, type, version, defaults, kcase;
-
-	if (GetKeyArgs(rest, KEYWORD_HOST, &host))
-		host = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_DEVICE, &device))
-		device = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_DIRECTORY, &directory))
-		directory = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_NAME, &name))
-		name = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_TYPE, &type))
-		type = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_VERSION, &version))
-		version = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_DEFAULTS, &defaults))
-		defaults = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_CASE, &kcase))
-		kcase = Unbound;
-
-	/* *default-pathname-defaults* */
-	Return(defaults_pathname_heap_(ptr, &defaults, defaults));
-
-	/* default arguments */
-	if (host == Unbound)
-		GetHostPathname(defaults, &host);
-	if (device == Unbound)
-		GetDevicePathname(defaults, &device);
-	if (directory == Unbound)
-		GetDirectoryPathname(defaults, &directory);
-	if (name == Unbound)
-		GetNamePathname(defaults, &name);
-	if (type == Unbound)
-		GetTypePathname(defaults, &type);
-	if (version == Unbound)
-		GetVersionPathname(defaults, &version);
-	if (kcase == Unbound)
-		GetConst(KEYWORD_LOCAL, &kcase);
-
-	/* make-pathname */
-	return make_pathname_heap_(ret,
-			host, device, directory, name, type, version, kcase);
-}
-
-
-/* pathnamep */
-_g void pathnamep_common(addr var, addr *ret)
-{
-	*ret = pathnamep(var)? T: Nil;
-}
-
-
-/* pathname-host */
 static int pathname_case_local_p_(addr rest, int *ret)
 {
 	addr check;
@@ -105,6 +51,59 @@ static int pathname_case_local_p_(addr rest, int *ret)
 	return fmte_("Invalid :case value ~S.", rest, NULL);
 }
 
+_g int make_pathname_common_(Execute ptr, addr rest, addr *ret)
+{
+	int localp;
+	addr host, device, directory, name, type, version, defaults;
+
+	if (GetKeyArgs(rest, KEYWORD_HOST, &host))
+		host = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_DEVICE, &device))
+		device = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_DIRECTORY, &directory))
+		directory = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_NAME, &name))
+		name = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TYPE, &type))
+		type = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_VERSION, &version))
+		version = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_DEFAULTS, &defaults))
+		defaults = Unbound;
+	Return(pathname_case_local_p_(rest, &localp));
+
+	/* *default-pathname-defaults* */
+	Return(defaults_pathname_heap_(ptr, &defaults, defaults));
+
+	/* default arguments */
+	if (host == Unbound)
+		GetHostPathname(defaults, &host);
+	if (device == Unbound)
+		GetDevicePathname(defaults, &device);
+	if (directory == Unbound)
+		GetDirectoryPathname(defaults, &directory);
+	if (name == Unbound)
+		GetNamePathname(defaults, &name);
+	if (type == Unbound)
+		GetTypePathname(defaults, &type);
+	if (version == Unbound)
+		GetVersionPathname(defaults, &version);
+
+	/* make-pathname */
+	return make_pathname_heap_(ret,
+			host, device, directory, name, type, version,
+			localp);
+}
+
+
+/* pathnamep */
+_g void pathnamep_common(addr var, addr *ret)
+{
+	*ret = pathnamep(var)? T: Nil;
+}
+
+
+/* pathname-host */
 _g int pathname_host_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
@@ -131,11 +130,31 @@ _g int pathname_device_common_(Execute ptr, addr pos, addr rest, addr *ret)
 
 
 /* pathname-directory */
+static int pathname_directory_nil(addr pos, addr *ret)
+{
+	addr check, key;
+
+	/* (:relative) -> nil */
+	GetDirectoryPathname(pos, &pos);
+	if (! consp_getcons(pos, &check, &pos))
+		return 0;
+	if (pos != Nil)
+		return 0;
+	GetConst(KEYWORD_RELATIVE, &key);
+	if (check != key)
+		return 0;
+
+	*ret = Nil;
+	return 1;
+}
+
 _g int pathname_directory_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
 	Return(pathname_designer_heap_(ptr, pos, &pos));
+	if (pathname_directory_nil(pos, &pos))
+		return Result(ret, pos);
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_directory_(pos, &pos, localp));
 
@@ -529,7 +548,9 @@ static void enough_namestring_copy(addr pos, addr cdr, addr *ret)
 }
 
 static int enough_namestring_directory_(LocalRoot local,
-		addr pos, addr a, addr b, addr *value, int *ret)
+		addr pos, addr a, addr b,
+		lisp_equal_calltype equal,
+		addr *value, int *ret)
 {
 	int check;
 	addr car1, car2, cdr1, cdr2, next;
@@ -546,7 +567,7 @@ static int enough_namestring_directory_(LocalRoot local,
 			return Result(ret, 0);
 		Return_getcons(cdr1, &car1, &next);
 		Return_getcons(cdr2, &car2, &cdr2);
-		Return(LispPathnameEqual_(car1, car2, &check));
+		Return((*equal)(car1, car2, &check));
 		if (! check)
 			return Result(ret, 0);
 		cdr1 = next;
@@ -562,27 +583,31 @@ static int enough_namestring_merge_(LocalRoot local,
 {
 	int check, check1, check2;
 	addr pos1, pos2;
+	lisp_equal_calltype equal;
 
 	check1 = RefLogicalPathname(a);
 	check2 = RefLogicalPathname(b);
 	if (check1 != check2)
 		return Result(ret, 0);
+
 	/* host */
 	GetHostPathname(a, &pos1);
 	GetHostPathname(b, &pos2);
 	Return(equalp_function_(pos1, pos2, &check));
 	if (! check)
 		return Result(ret, 0);
+	equal = pathname_equal_function(a);
+
 	/* device */
 	GetDevicePathname(a, &pos1);
 	GetDevicePathname(b, &pos2);
-	Return(LispPathnameEqual_(pos1, pos2, &check));
+	Return((*equal)(pos1, pos2, &check));
 	if (! check)
 		return Result(ret, 0);
 	/* directory */
 	GetDirectoryPathname(a, &pos1);
 	GetDirectoryPathname(b, &pos2);
-	return enough_namestring_directory_(local, a, pos1, pos2, value, ret);
+	return enough_namestring_directory_(local, a, pos1, pos2, equal, value, ret);
 }
 
 _g int enough_namestring_common_(Execute ptr, addr *ret, addr pos, addr defaults)

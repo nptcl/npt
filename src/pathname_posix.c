@@ -291,7 +291,6 @@ _g int parser_unix_pathname_(struct fileparse *pa)
 	int absolute, relative, logical, dp, check;
 	unicode c;
 	LocalpRoot local;
-	const unicode *body;
 	addr charqueue, queue, thing, temp;
 	size_t i, di, ni, size;
 	struct fileparse backup;
@@ -306,7 +305,6 @@ _g int parser_unix_pathname_(struct fileparse *pa)
 	pa->queue = charqueue;
 	queue = Nil;
 	size = pa->end;
-	GetStringUnicode(thing, &body);
 	absolute = relative = logical = dp = 0;
 	di = ni = 0;
 	i = pa->start;
@@ -314,7 +312,7 @@ _g int parser_unix_pathname_(struct fileparse *pa)
 	/* start */
 	if (size == 0)
 		goto finish;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (c == '/') {
 		absolute = 1;
 		pushconstant_fileparse(pa, &queue, CONSTANT_KEYWORD_ABSOLUTE);
@@ -333,7 +331,7 @@ _g int parser_unix_pathname_(struct fileparse *pa)
 first:
 	if (size <= i)
 		goto finish;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (c == '/')
 		goto first;
 	if (c == '.') {
@@ -347,7 +345,7 @@ first:
 next1:
 	if (size <= i)
 		goto name_finish;
-	string_getdirect(body, i++, &c);
+	Return(string_getc_(thing, i++, &c));
 	if (c == '/')
 		goto next2;
 	if (c == '.') {

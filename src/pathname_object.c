@@ -132,16 +132,11 @@ _g void make_pathname_alloc(LocalRoot local, addr *ret, int logical)
 	SetLogicalPathname(*ret, logical);
 }
 
-static void setpathname(LocalRoot local, addr pos, addr host, addr device,
+static void setpathname_alloc(LocalRoot local, addr pos, addr host, addr device,
 		addr directory, addr name, addr type, addr version)
 {
-	addr symbol;
-
 	/* directory */
-	if (directory == Nil) {
-		GetConst(KEYWORD_RELATIVE, &symbol);
-		conscar_alloc(local, &directory, symbol);
-	}
+	getdirectory_pathname_alloc(local, directory, &directory);
 
 	/* set */
 	SetHostPathname(pos, host);
@@ -159,7 +154,7 @@ _g void pathname_alloc(LocalRoot local, addr *ret,
 
 	make_pathname_alloc(local, ret, 0);
 	GetConst(KEYWORD_UNSPECIFIC, &version);
-	setpathname(local, *ret, host, device, directory, name, type, version);
+	setpathname_alloc(local, *ret, host, device, directory, name, type, version);
 }
 _g void pathname_local(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
@@ -180,7 +175,7 @@ _g void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
 
 	GetConst(KEYWORD_UNSPECIFIC, &device);
 	make_pathname_alloc(local, ret, 1);
-	setpathname(local, *ret, host, device, directory, name, type, version);
+	setpathname_alloc(local, *ret, host, device, directory, name, type, version);
 }
 _g void logical_pathname_local(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
@@ -251,46 +246,155 @@ _g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
+enum PathnameType {
+	PathnameType_Unix,
+	PathnameType_Windows,
+	PathnameType_Logical,
+	PathnameType_Error
+};
+static void make_pathname_environment(addr host, enum PathnameType *ret)
+{
+	addr check;
+
+	/* unix */
+	GetConst(SYSTEM_UNIX, &check);
+	if (host == check) {
+		*ret = PathnameType_Unix;
+		return;
+	}
+
+	/* windows */
+	GetConst(SYSTEM_WINDOWS, &check);
+	if (host == check) {
+		*ret = PathnameType_Windows;
+		return;
+	}
+
+	/* logical */
+	if (stringp(host)) {
+		*ret = PathnameType_Logical;
+		return;
+	}
+
+	/* error */
+	*ret = PathnameType_Error;
+}
+
+_g lisp_equal_calltype pathname_equal_function(addr pos)
+{
+	enum PathnameType type;
+
+	Check(! pathnamep(pos), "type left error");
+	GetHostPathname(pos, &pos);
+	make_pathname_environment(pos, &type);
+	switch (type) {
+		case PathnameType_Windows:
+		case PathnameType_Logical:
+			return equalp_function_;
+
+		default:
+			return equal_function_;
+	}
+}
+
+_g void getdirectory_pathname_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	addr check, wild, wild_inferiors;
+
+	/* nil -> (:relative) */
+	if (pos == Nil) {
+		GetConst(KEYWORD_RELATIVE, &check);
+		conscar_alloc(local, ret, check);
+		return;
+	}
+
+	/* "string" -> (:absolute "string") */
+	if (stringp(pos)) {
+		GetConst(KEYWORD_ABSOLUTE, &check);
+		list_alloc(local, ret, check, pos, NULL);
+		return;
+	}
+
+	/* :wild or :wild-inferiors -> (:absolute :wild-inferiors) */
+	GetConst(KEYWORD_WILD, &wild);
+	GetConst(KEYWORD_WILD_INFERIORS, &wild_inferiors);
+	if (pos == wild || pos == wild_inferiors) {
+		GetConst(KEYWORD_ABSOLUTE, &check);
+		list_alloc(local, ret, check, wild_inferiors, NULL);
+		return;
+	}
+
+	/* cons */
+	*ret = pos;
+}
+
+_g void getdirectory_pathname_local(LocalRoot local, addr pos, addr *ret)
+{
+	CheckLocal(local);
+	getdirectory_pathname_alloc(local, pos, ret);
+}
+
+_g void getdirectory_pathname_heap(addr pos, addr *ret)
+{
+	getdirectory_pathname_alloc(NULL, pos, ret);
+}
+
+static int make_pathname_environment_(addr host, enum PathnameType *ret)
+{
+	make_pathname_environment(host, ret);
+	if (*ret == PathnameType_Error)
+		return fmte_("Invalid host value ~S.", host, NULL);
+	return 0;
+}
+
 _g int pathname_equal_(addr a, addr b, int *ret)
 {
 	int check;
 	addr x, y;
+	int (*equal)(addr, addr, int *);
 
 	Check(! pathnamep(a), "type left error");
 	Check(! pathnamep(b), "type right error");
 
 	if (RefLogicalPathname(a) != RefLogicalPathname(b))
 		return Result(ret, 0);
+
 	/* host */
 	GetHostPathname(a, &x);
 	GetHostPathname(b, &y);
 	Return(equalp_function_(x, y, &check));
 	if (! check)
 		return Result(ret, 0);
+	equal = pathname_equal_function(a);
+
 	/* device */
 	GetDevicePathname(a, &x);
 	GetDevicePathname(b, &y);
-	Return(LispPathnameEqual_(x, y, &check));
+	Return((*equal)(x, y, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* directory */
 	GetDirectoryPathname(a, &x);
 	GetDirectoryPathname(b, &y);
-	Return(LispPathnameEqual_(x, y, &check));
+	Return((*equal)(x, y, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* name */
 	GetNamePathname(a, &x);
 	GetNamePathname(b, &y);
-	Return(LispPathnameEqual_(x, y, &check));
+	Return((*equal)(x, y, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* type */
 	GetTypePathname(a, &x);
 	GetTypePathname(b, &y);
-	Return(LispPathnameEqual_(x, y, &check));
+	Return((*equal)(x, y, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* version */
 	GetVersionPathname(a, &x);
 	GetVersionPathname(b, &y);
@@ -299,9 +403,6 @@ _g int pathname_equal_(addr a, addr b, int *ret)
 
 	return Result(ret, 1);
 }
-
-
-
 
 
 /* make-pathname */
@@ -345,7 +446,7 @@ static int make_pathname_directory_(addr *ret, addr list)
 	Return_getcons(list, &pos, &root);
 	if (pos != absolute && pos != relative) {
 		*ret = Nil;
-		return fmte_("The firest argument of :directory ~S must be ~S or ~S.",
+		return fmte_("The first argument of :directory ~S must be ~S or ~S.",
 				pos, absolute, relative, NULL);
 	}
 	for (keywordp = 1; root != Nil; ) {
@@ -392,96 +493,6 @@ static int make_pathname_directory_(addr *ret, addr list)
 	return 0;
 }
 
-enum PathnameType {
-	PathnameType_Unix,
-	PathnameType_Windows,
-	PathnameType_Logical
-};
-static int make_pathname_environment_(addr host, enum PathnameType *ret)
-{
-	addr check;
-
-	/* unix */
-	GetConst(SYSTEM_UNIX, &check);
-	if (host == check)
-		return Result(ret, PathnameType_Unix);
-
-	/* windows */
-	GetConst(SYSTEM_WINDOWS, &check);
-	if (host == check)
-		return Result(ret, PathnameType_Windows);
-
-	/* logical */
-	if (stringp(host))
-		return Result(ret, PathnameType_Logical);
-
-	/* error */
-	*ret = PathnameType_Unix;
-	return fmte_("Invalid host value ~S.", host, NULL);
-}
-
-static int make_pathname_upper_p_(addr pos, int *ret)
-{
-	unicode c;
-	size_t size, i;
-
-	string_length(pos, &size);
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		if (! isUpperCase(c))
-			return Result(ret, 0);
-	}
-
-	return Result(ret, 1);
-}
-
-static int make_pathname_lower_p_(addr pos, int *ret)
-{
-	unicode c;
-	size_t size, i;
-
-	string_length(pos, &size);
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		if (! isUpperCase(c))
-			return Result(ret, 0);
-	}
-
-	return Result(ret, 1);
-}
-
-static int make_pathname_upper_(addr *ret, addr pos)
-{
-	unicode c;
-	addr one;
-	size_t size, i;
-
-	string_length(pos, &size);
-	strvect_heap(&one, size);
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		Return(strvect_setc_(one, toUpperUnicode(c), c));
-	}
-
-	return Result(ret, one);
-}
-
-static int make_pathname_lower_(addr *ret, addr pos)
-{
-	unicode c;
-	addr one;
-	size_t size, i;
-
-	string_length(pos, &size);
-	strvect_heap(&one, size);
-	for (i = 0; i < size; i++) {
-		Return(string_getc_(pos, i, &c));
-		Return(strvect_setc_(one, toUpperUnicode(c), c));
-	}
-
-	return Result(ret, one);
-}
-
 static int make_pathname_string_(addr *ret)
 {
 	int check;
@@ -491,13 +502,13 @@ static int make_pathname_string_(addr *ret)
 	if (! stringp(pos))
 		return Result(ret, pos);
 
-	Return(make_pathname_upper_p_(pos, &check));
+	Return(string_upper_p_(pos, &check));
 	if (check)
-		return make_pathname_lower_(ret, pos);
+		return string_lower_heap_(pos, ret);
 
-	Return(make_pathname_lower_p_(pos, &check));
+	Return(string_lower_p_(pos, &check));
 	if (check)
-		return make_pathname_upper_(ret, pos);
+		return string_upper_heap_(pos, ret);
 
 	return  Result(ret, pos);
 }
@@ -508,11 +519,11 @@ static int make_pathname_check_(addr pos, int *ret)
 
 	if (! stringp(pos))
 		return Result(ret, 0);
-	Return(make_pathname_upper_p_(pos, &check));
+	Return(string_upper_p_(pos, &check));
 	if (check)
 		return Result(ret, 1);
 
-	return make_pathname_lower_p_(pos, ret);
+	return string_lower_p_(pos, ret);
 }
 
 static int make_pathname_list_p_(addr list, int *ret)
@@ -564,30 +575,64 @@ static int make_pathname_case_(addr *directory, addr *name, addr *type)
 	return 0;
 }
 
-_g int make_pathname_heap_(addr *ret,
-		addr host, addr device, addr directory,
-		addr name, addr type, addr version, addr kcase)
+static int pathname_type_lower_p(enum PathnameType ptype, int localp)
+{
+	return localp == 0 && ptype == PathnameType_Unix;
+}
+
+static int pathname_host_lower_p(addr host, int localp)
 {
 	enum PathnameType ptype;
-	addr check;
+
+	if (localp)
+		return 0;
+	Return(make_pathname_environment_(host, &ptype));
+	return ptype == PathnameType_Unix;
+}
+
+static int make_pathname_logical_(addr *ret,
+		addr host, addr device, addr directory,
+		addr name, addr type, addr version)
+{
+	int check;
+	addr unspec;
+
+	/* host */
+	Return(string_upper_p_(host, &check));
+	if (! check) {
+		Return(string_upper_heap_(host, &host));
+	}
+
+	/* version */
+	GetConst(KEYWORD_UNSPECIFIC, &unspec);
+	if (version == unspec)
+		GetConst(KEYWORD_NEWEST, &version);
+
+	/* make */
+	logical_pathname_heap(ret, host, directory, name, type, version);
+	return 0;
+}
+
+_g int make_pathname_heap_(addr *ret,
+		addr host, addr device, addr directory,
+		addr name, addr type, addr version, int localp)
+{
+	enum PathnameType ptype;
 
 	/* format */
+	getdirectory_pathname_heap(directory, &directory);
 	Return(make_pathname_directory_(&directory, directory));
 
 	/* case */
 	Return(make_pathname_environment_(host, &ptype));
-	GetConst(KEYWORD_COMMON, &check);
-	if (kcase == check &&
-			(ptype == PathnameType_Unix || ptype == PathnameType_Logical)) {
+	if (pathname_type_lower_p(ptype, localp)) {
 		Return(make_pathname_case_(&directory, &name, &type));
 	}
 
 	/* pathname */
 	if (ptype == PathnameType_Logical) {
-		GetConst(KEYWORD_UNSPECIFIC, &check);
-		if (version == check)
-			GetConst(KEYWORD_NEWEST, &version);
-		logical_pathname_heap(ret, host, directory, name, type, version);
+		Return(make_pathname_logical_(ret,
+					host, device, directory, name, type, version));
 	}
 	else {
 		pathname_heap(ret, host, device, directory, name, type);
@@ -600,32 +645,26 @@ _g int make_pathname_heap_(addr *ret,
 /*
  *  pathname accessor
  */
-_g int pathname_host_(addr pos, addr *ret, int localp)
+_g int pathname_host_(addr pos, addr *ret, int ignore_localp)
 {
 	GetHostPathname(pos, &pos);
-	if (! localp) {
-		Return(make_pathname_string_(&pos));
-	}
-
 	return Result(ret, pos);
 }
 
-_g int pathname_device_(addr pos, addr *ret, int localp)
+_g int pathname_device_(addr pos, addr *ret, int ignore_localp)
 {
 	GetDevicePathname(pos, &pos);
-	if (! localp) {
-		Return(make_pathname_string_(&pos));
-	}
-
 	return Result(ret, pos);
 }
 
 _g int pathname_directory_(addr pos, addr *ret, int localp)
 {
 	int check;
+	addr host;
 
+	GetHostPathname(pos, &host);
 	GetDirectoryPathname(pos, &pos);
-	if (! localp) {
+	if (pathname_host_lower_p(host, localp)) {
 		Return(make_pathname_list_p_(pos, &check));
 		if (check) {
 			Return(make_pathname_list_(&pos, pos));
@@ -637,8 +676,11 @@ _g int pathname_directory_(addr pos, addr *ret, int localp)
 
 _g int pathname_name_(addr pos, addr *ret, int localp)
 {
+	addr host;
+
+	GetHostPathname(pos, &host);
 	GetNamePathname(pos, &pos);
-	if (! localp) {
+	if (pathname_host_lower_p(host, localp)) {
 		Return(make_pathname_string_(&pos));
 	}
 
@@ -647,8 +689,11 @@ _g int pathname_name_(addr pos, addr *ret, int localp)
 
 _g int pathname_type_(addr pos, addr *ret, int localp)
 {
+	addr host;
+
+	GetHostPathname(pos, &host);
 	GetTypePathname(pos, &pos);
-	if (! localp) {
+	if (pathname_host_lower_p(host, localp)) {
 		Return(make_pathname_string_(&pos));
 	}
 

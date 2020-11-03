@@ -22,6 +22,11 @@
 #define settype_pathname _n(settype_pathname)
 #define getversion_pathname _n(getversion_pathname)
 #define setversion_pathname _n(setversion_pathname)
+#define pathname_equal_function _n(pathname_equal_function)
+#define getdirectory_pathname_alloc _n(getdirectory_pathname_alloc)
+#define getdirectory_pathname_local _n(getdirectory_pathname_local)
+#define getdirectory_pathname_heap _n(getdirectory_pathname_heap)
+
 #define make_pathname_alloc _n(make_pathname_alloc)
 #define pathname_alloc _n(pathname_alloc)
 #define pathname_local _n(pathname_local)
@@ -115,12 +120,6 @@ enum PATHNAME_INDEX {
 #define SetVersionPathname				SetVersionPathname_Low
 #endif
 
-#ifdef LISP_PATHNAME_EQUALP
-#define LispPathnameEqual_ equalp_function_
-#else
-#define LispPathnameEqual_ equal_function_
-#endif
-
 /* access */
 _g void getarray_pathname(addr pos, enum PATHNAME_INDEX index, addr *ret);
 _g void setarray_pathname(addr pos, enum PATHNAME_INDEX index, addr value);
@@ -139,6 +138,10 @@ _g void gettype_pathname(addr pos, addr *ret);
 _g void settype_pathname(addr pos, addr value);
 _g void getversion_pathname(addr pos, addr *ret);
 _g void setversion_pathname(addr pos, addr value);
+_g lisp_equal_calltype pathname_equal_function(addr pos);
+_g void getdirectory_pathname_alloc(LocalRoot local, addr pos, addr *ret);
+_g void getdirectory_pathname_local(LocalRoot local, addr pos, addr *ret);
+_g void getdirectory_pathname_heap(addr pos, addr *ret);
 
 /* pathname object */
 _g void make_pathname_alloc(LocalRoot local, addr *ret, int logical);
@@ -172,7 +175,7 @@ _g int pathname_equal_(addr left, addr right, int *ret);
 
 _g int make_pathname_heap_(addr *ret,
 		addr host, addr device, addr directory,
-		addr name, addr type, addr version, addr kcase);
+		addr name, addr type, addr version, int localp);
 _g int pathname_host_(addr pos, addr *ret, int localp);
 _g int pathname_device_(addr pos, addr *ret, int localp);
 _g int pathname_directory_(addr pos, addr *ret, int localp);

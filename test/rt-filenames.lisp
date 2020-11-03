@@ -3,6 +3,7 @@
 ;;
 (load #p"test/rtfilenames.lisp")
 (load #p"test/rtfilenames-type.lisp")
+(load #p"test/rtfilenames-object.lisp")
 (load #p"test/rtfilenames-test.lisp")
 
 

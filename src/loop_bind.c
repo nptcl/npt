@@ -181,7 +181,7 @@ static int loop_bind_recursive_(Execute ptr, addr pos, addr type, addr value, ad
 			value2 = Nil;
 		}
 		else {
-			Return(loop_bind_recursive_(ptr, pos2, type2, value2, &value2))
+			Return(loop_bind_recursive_(ptr, pos2, type2, value2, &value2));
 		}
 		localhold_push(hold, value2);
 	}
