@@ -6,7 +6,7 @@
 
 #define defaults_pathname_heap_ _n(defaults_pathname_heap_)
 #define parse_pathname_full_heap_ _n(parse_pathname_full_heap_)
-#define parse_pathname_host_heap_ _n(parse_pathname_host_heap_)
+#define parse_pathname_setf_heap_ _n(parse_pathname_setf_heap_)
 #define parse_pathname_char_heap_ _n(parse_pathname_char_heap_)
 #define pathname_designer_alloc_ _n(pathname_designer_alloc_)
 #define pathname_designer_heap_ _n(pathname_designer_heap_)
@@ -38,7 +38,7 @@
 _g int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults);
 _g int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
 		addr defaults, size_t start, size_t end, int junk, addr *ret, size_t *pos);
-_g int parse_pathname_host_heap_(Execute ptr, addr thing, addr host, addr *ret);
+_g int parse_pathname_setf_heap_(Execute ptr, addr thing, addr host, addr *ret);
 
 _g int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret);
 _g int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp);

@@ -26,7 +26,6 @@ _g void table_logical_pathname(addr *ret)
 	GetValueSymbol(symbol, ret);
 }
 
-/* found=1, notfound=0 */
 _g int gethost_logical_pathname_(addr key, addr *ret)
 {
 	addr list;

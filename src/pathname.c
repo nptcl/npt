@@ -84,7 +84,7 @@ _g int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults)
 
 static int parse_pathname_full_alloc_(Execute ptr,
 		addr thing, addr host, addr defaults, size_t start, size_t end, int junk,
-		addr *ret, size_t *pos, int localp)
+		addr *ret, size_t *pos, int localp, int errorp)
 {
 	LocalStack stack;
 	struct fileparse pa;
@@ -98,6 +98,13 @@ static int parse_pathname_full_alloc_(Execute ptr,
 	pa.start = start;
 	pa.end = end;
 	pa.junk = junk? 1: 0;
+	pa.errorp = errorp;
+
+	/* logical-pathname */
+	if (host == Nil && pathname_logical_p(defaults)) {
+		GetHostPathname(defaults, &host);
+		pa.host = host;
+	}
 
 	/* execute */
 	push_localp(pa.local, &stack);
@@ -113,7 +120,7 @@ _g int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
 		addr defaults, size_t start, size_t end, int junk, addr *ret, size_t *pos)
 {
 	return parse_pathname_full_alloc_(ptr,
-			thing, host, defaults, start, end, junk, ret, pos, 0);
+			thing, host, defaults, start, end, junk, ret, pos, 0, 1);
 }
 
 static int parse_pathname_alloc_(Execute ptr, addr thing, addr *ret, int localp)
@@ -121,7 +128,7 @@ static int parse_pathname_alloc_(Execute ptr, addr thing, addr *ret, int localp)
 	size_t end;
 	string_length(thing, &end);
 	return parse_pathname_full_alloc_(ptr,
-			thing, Nil, Nil, 0, end, 0, ret, &end, localp);
+			thing, Nil, Nil, 0, end, 0, ret, &end, localp, 1);
 }
 
 static int parse_pathname_heap_(Execute ptr, addr thing, addr *ret)
@@ -131,11 +138,19 @@ static int parse_pathname_heap_(Execute ptr, addr thing, addr *ret)
 	return parse_pathname_full_heap_(ptr, thing, Nil, Nil, 0, end, 0, ret, &end);
 }
 
-_g int parse_pathname_host_heap_(Execute ptr, addr thing, addr host, addr *ret)
+static int parse_pathname_host_heap_(Execute ptr, addr thing, addr host, addr *ret)
 {
 	size_t end;
 	string_length(thing, &end);
 	return parse_pathname_full_heap_(ptr, thing, host, Nil, 0, end, 0, ret, &end);
+}
+
+_g int parse_pathname_setf_heap_(Execute ptr, addr thing, addr host, addr *ret)
+{
+	size_t end;
+	string_length(thing, &end);
+	return parse_pathname_full_alloc_(ptr,
+			thing, host, Nil, 0, end, 0, ret, &end, 0, 0);
 }
 
 _g int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)

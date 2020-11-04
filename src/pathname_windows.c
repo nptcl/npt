@@ -182,7 +182,7 @@ drive2:
 
 	/* start */
 start:
-	if (size == 0)
+	if (size <= i)
 		goto finish;
 	Return(string_getc_(thing, i++, &c));
 	if (parser_windows_slash_p(c)) {

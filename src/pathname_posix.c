@@ -310,7 +310,7 @@ _g int parser_unix_pathname_(struct fileparse *pa)
 	i = pa->start;
 
 	/* start */
-	if (size == 0)
+	if (size <= i)
 		goto finish;
 	Return(string_getc_(thing, i++, &c));
 	if (c == '/') {

@@ -2,44 +2,297 @@
 ;;  ANSI COMMON LISP: 19. Filenames
 ;;
 
-(deftest logical-pathname-translations.1
-  (logical-pathname-translations "TEST-PATH2")
+;;
+;;  Function PARSE-NAMESTRING
+;;
+(deftest parse-namestring.1
+  (parse-namestring "/usr/local/bin/")
+  #p"/usr/local/bin/" 15)
+
+(deftest parse-namestring.2
+  (multiple-value-bind (check index)
+    (parse-namestring "test:;usr;local;bin;")
+    (and (equalp (pathname-host check) "test")
+         (eql index 20)))
+  t)
+
+(deftest parse-namestring.3
+  (parse-namestring "/usr/local/bin/" nil)
+  #p"/usr/local/bin/" 15)
+
+(deftest parse-namestring.4
+  (parse-namestring "/usr/local/bin/" nil *default-pathname-defaults*)
+  #p"/usr/local/bin/" 15)
+
+(deftest parse-namestring.5
+  (multiple-value-bind (check index)
+    (parse-namestring "test:;usr;local;bin;" nil *default-pathname-defaults*)
+    (and (equal check (parse-namestring "test:;usr;local;bin;"))
+         (eql index 20)))
+  t)
+
+(deftest parse-namestring.6
+  (multiple-value-bind (check index)
+    (parse-namestring
+      "test:;usr;local;bin;" "test" *default-pathname-defaults*)
+    (and (equal check (parse-namestring "test:;usr;local;bin;"))
+         (eql index 20)))
+  t)
+
+(deftest parse-namestring.7
+  (parse-namestring #p"Hello.txt")
+  #p"Hello.txt" 0)
+
+(deftest parse-namestring.8
+  (parse-namestring #p"Hello.txt" nil *default-pathname-defaults*)
+  #p"Hello.txt" 0)
+
+(deftest parse-namestring.9
+  (parse-namestring #p"Hello.txt" nil *default-pathname-defaults* :start 2 :end 3)
+  #p"Hello.txt" 2)
+
+(deftest-error parse-namestring.10
+  (parse-namestring #p"Hello.txt" "test"))
+
+(deftest parse-namestring.11
+  (let ((x (open #p"_parse_namestring.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (multiple-value-prog1 (parse-namestring x)
+      (close x :abort t)))
+  #p"_parse_namestring.txt" 0)
+
+(deftest-error parse-namestring.12
+  (let ((x (open #p"_parse_namestring.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (unwind-protect
+      (parse-namestring x "test")
+      (close x :abort t))))
+
+(deftest-error parse-namestring-logical.1
+  (parse-namestring
+    "test:;usr;local;bin;" "name" *default-pathname-defaults*))
+
+(deftest parse-namestring-logical.2
+  (parse-namestring
+    "test:;usr;local;bin;" "test" *default-pathname-defaults*)
+  #p"test:;usr;local;bin;" 20)
+
+(deftest parse-namestring-logical.3
+  (parse-namestring
+    ";usr;local;bin;" "test" *default-pathname-defaults*)
+  #p"test:;usr;local;bin;" 15)
+
+(deftest parse-namestring-logical.4
+  (parse-namestring ";usr;local;bin;" nil #p"test:")
+  #p"test:;usr;local;bin;" 15)
+
+(deftest-error parse-namestring-start.1
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :start -1))
+
+(deftest parse-namestring-start.2
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :start 0)
+  #p"Hello.txt" 9)
+
+(deftest parse-namestring-start.3
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :start 1)
+  #p"ello.txt" 9)
+
+(deftest parse-namestring-start.4
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :start 8)
+  #p"t" 9)
+
+(deftest parse-namestring-start.5
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :start 9)
+  #p"" 9)
+
+(deftest-error parse-namestring-start.6
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults*
+                    :start 10))
+
+(deftest-error parse-namestring-end.1
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end -1))
+
+(deftest parse-namestring-end.2
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end 0)
+  #p"" 0)
+
+(deftest parse-namestring-end.3
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end 1)
+  #p"H" 1)
+
+(deftest parse-namestring-end.4
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end 8)
+  #p"Hello.tx" 8)
+
+(deftest parse-namestring-end.5
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end 9)
+  #p"Hello.txt" 9)
+
+(deftest parse-namestring-end.6
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end nil)
+  #p"Hello.txt" 9)
+
+(deftest-error parse-namestring-end.7
+  (parse-namestring "Hello.txt" nil *default-pathname-defaults* :end 10))
+
+(deftest parse-namestring-start-end.1
+  (parse-namestring "aa/usr/local/bin/hello.txt"
+                    nil *default-pathname-defaults*
+                    :start 2 :end 17)
+  #p"/usr/local/bin/" 17)
+
+(deftest parse-namestring-start-end.2
+  (parse-namestring "aa/usr/local/bin/hello.txt"
+                    nil *default-pathname-defaults*
+                    :start 4 :end 4)
+  #p"" 4)
+
+(deftest-error parse-namestring-start-end.3
+  (parse-namestring "aa/usr/local/bin/hello.txt"
+                    nil *default-pathname-defaults*
+                    :start 4 :end 3))
+
+(deftest parse-namestring-junk-allowed.1
+  (parse-namestring "Hello.txt"
+                    nil *default-pathname-defaults*
+                    :junk-allowed t)
+  #p"Hello.txt" 9)
+
+(deftest parse-namestring-junk-allowed.2
+  (parse-namestring "hello&&file.txt" "test"
+                    *default-pathname-defaults* :junk-allowed t)
+  nil 5)
+
+(deftest-error parse-namestring-junk-allowed.3
+  (parse-namestring "hello&&file.txt" "test" *default-pathname-defaults*)
+  parse-error)
+
+(deftest-error parse-namestring-error.1
+  (parse-namestring "Hello.txt" "no-such-logical-name")
+  type-error)
+
+(deftest-error parse-namestring-error.2
+  (eval '(parse-namestring 10))
+  type-error)
+
+(deftest-error parse-namestring-error.3
+  (eval '(parse-namestring "Hello.txt" 20))
+  type-error)
+
+(deftest-error parse-namestring-error.4
+  (eval '(parse-namestring "Hello.txt" "test" 30))
+  type-error)
+
+(deftest-error parse-namestring-error.5
+  (eval '(parse-namestring "Hello.txt" "test" :start)))
+
+(deftest-error parse-namestring-error.6
+  (eval '(parse-namestring "Hello.txt" "test" :start :hello)))
+
+(deftest-error parse-namestring-error.7
+  (eval '(parse-namestring "Hello.txt" "test" :hello)))
+
+(deftest-error parse-namestring-error.8
+  (eval '(parse-namestring "Hello.txt" "test" :hello 40)))
+
+(deftest-error! parse-namestring-error.9
+  (eval '(parse-namestring)))
+
+(deftest-error parse-namestring-error.10
+  (with-open-stream (file (lisp-system:make-memory-output-stream))
+    (with-open-file (stream file :direction :output)
+      (parse-namestring stream))))
+
+
+;;
+;;
+;;
+(deftest wild-pathname-p.1
+  (wild-pathname-p (make-pathname :name :wild))
+  t)
+
+(deftest wild-pathname-p.2
+  (wild-pathname-p #p"/usr/*/local/")
+  t)
+
+(deftest wild-pathname-p.3
+  (wild-pathname-p #p"/usr/**/local/")
+  t)
+
+(deftest wild-pathname-p.4
+  (wild-pathname-p #p"/usr/aaa*bbb/local/")
+  t)
+
+(deftest wild-pathname-p.5
+  (wild-pathname-p #p"/usr/local/bin/*.txt")
+  t)
+
+(deftest wild-pathname-p.6
+  (wild-pathname-p #p"/usr/local/bin/hello.*")
+  t)
+
+(deftest wild-pathname-p.7
+  (wild-pathname-p #p"/usr/local/bin/he*llo.txt")
+  t)
+
+(deftest wild-pathname-p.8
+  (wild-pathname-p #p"/usr/local/bin/hello.txt")
   nil)
 
-(setf (logical-pathname-translations "TEST-PATH3")
-      '(("path;*.*.*" "/usr/local/path/")))
-(deftest logical-pathname-translations.2
-  (equal
-    (logical-pathname-translations "TEST-PATH3")
-    (list (list (parse-namestring "test-path3:path;*.*.*")
-                (parse-namestring "/usr/local/path/"))))
+(deftest pathname-match-p.1
+  (pathname-match-p #p"hello.txt" #p"hello.txt")
   t)
 
-(setf (logical-pathname-translations "TEST-PATH4")
-      '(("path;*.*.*" "/usr/local/path/")
-        ("aaa;bbb;*.lisp" "/usr/local/lisp/*.l")))
-(deftest logical-pathname-translations.3
-  (equal
-    (logical-pathname-translations "TEST-PATH4")
-    (list (list (parse-namestring "test-path4:path;*.*.*")
-                (parse-namestring "/usr/local/path/"))
-          (list (parse-namestring "test-path4:aaa;bbb;*.lisp")
-                (parse-namestring "/usr/local/lisp/*.l"))))
+
+;;
+;;
+;;
+(deftest pathname-match-p.2
+  (pathname-match-p #p"hello.txt" #p"*.txt")
   t)
 
-(deftest logical-pathname.1
-  (equal
-    (logical-pathname
-      (parse-namestring "logical-name:*.*.*"))
-    (parse-namestring "logical-name:*.*.*"))
+(deftest pathname-match-p.3
+  (pathname-match-p #p"hello.txt" #p"he*o.txt")
   t)
 
-(deftest logical-pathname.2
-  (equal
-    (logical-pathname "logical-name:*.*.*")
-    (parse-namestring "logical-name:*.*.*"))
+(deftest pathname-match-p.4
+  (pathname-match-p #p"he*o.txt" #p"he*o.txt")
   t)
 
+(deftest pathname-match-p.5
+  (pathname-match-p #p"h*o.txt" #p"he*o.txt")
+  nil)
+
+(deftest pathname-match-p.6
+  (pathname-match-p #p"/usr/local/bin/" #p"/usr/*/bin/")
+  t)
+
+(deftest pathname-match-p.7
+  (pathname-match-p #p"/usr/local/bin/" #p"/usr/lo*/bin/")
+  t)
+
+(deftest pathname-match-p.8
+  (pathname-match-p #p"/usr/local/bin/" #p"/usr/**/bin/")
+  t)
+
+(deftest pathname-match-p.9
+  (pathname-match-p #p"/usr/local/aaa/bbb/ccc/bin/" #p"/usr/**/bin/")
+  t)
+
+
+
+;;
+;;
+;;
+(deftest merge-pathnames.1
+  (merge-pathnames #p"bin/aaa.bin" #p"/usr/local/")
+  #p"/usr/local/bin/aaa.bin")
+
+
+
+;;
+;;
+;;
 (deftest namestring.1
   (namestring #p"/usr/local/bin/aaa.txt")
   #-windows "/usr/local/bin/aaa.txt"
@@ -54,6 +307,10 @@
   (namestring "logical-name:aaa;bbb;")
   "LOGICAL-NAME:aaa;bbb;")
 
+
+;;
+;;
+;;
 (deftest file-namestring.1
   (file-namestring #p"/usr/local/aaa/hello.txt")
   "hello.txt")
@@ -68,6 +325,10 @@
     (parse-namestring "logical-name:;aaa;bbb;hello.txt.100"))
   "hello.txt.100")
 
+
+;;
+;;
+;;
 (deftest directory-namestring.1
   (directory-namestring #p"/usr/local/aaa/hello.txt")
   #-windows "/usr/local/aaa/"
@@ -83,6 +344,10 @@
     (parse-namestring "logical-name:;aaa;bbb;hello.txt"))
   ";aaa;bbb;")
 
+
+;;
+;;
+;;
 (deftest host-namestring.1
   (host-namestring #p"/usr/local/aaa/hello.txt")
   "")
@@ -92,6 +357,10 @@
     (parse-namestring "logical-name:;aaa;bbb;hello.txt"))
   "LOGICAL-NAME")
 
+
+;;
+;;
+;;
 (deftest enough-namestring.1
   (enough-namestring #p"/usr/local/bin/" #p"/usr/local/")
   #-windows "bin/"
@@ -157,242 +426,6 @@
 (deftest enough-namestring.13
   (enough-namestring #p"" #p"/")
   "")
-
-(deftest parse-namestring.1
-  (parse-namestring "/usr/local/bin/")
-  #p"/usr/local/bin/" 15)
-
-(deftest parse-namestring.2
-  (multiple-value-bind (check index)
-    (parse-namestring "logical-name:;usr;local;bin;")
-    (and (equalp (pathname-host check) "logical-name")
-         (eql index 28)))
-  t)
-
-(deftest parse-namestring.3
-  (parse-namestring "/usr/local/bin/" nil *default-pathname-defaults*)
-  #p"/usr/local/bin/" 15)
-
-(deftest parse-namestring.4
-  (multiple-value-bind (check index)
-    (parse-namestring "logical-name:;usr;local;bin;" nil *default-pathname-defaults*)
-    (and (equal check (parse-namestring "logical-name:;usr;local;bin;"))
-         (eql index 28)))
-  t)
-
-(deftest parse-namestring.5
-  (multiple-value-bind (check index)
-    (parse-namestring
-      "logical-name:;usr;local;bin;" "logical-name" *default-pathname-defaults*)
-    (and (equal check (parse-namestring "logical-name:;usr;local;bin;"))
-         (eql index 28)))
-  t)
-
-(deftest-error parse-namestring.6
-  (parse-namestring
-    "logical-name:;usr;local;bin;" "error" *default-pathname-defaults*))
-
-(deftest parse-namestring.7
-  (parse-namestring "aa/usr/local/bin/hello.txt"
-                    nil *default-pathname-defaults*
-                    :start 2 :end 17)
-  #p"/usr/local/bin/" 17)
-
-(deftest wild-pathname-p.1
-  (wild-pathname-p (make-pathname :name :wild))
-  t)
-
-(deftest wild-pathname-p.2
-  (wild-pathname-p #p"/usr/*/local/")
-  t)
-
-(deftest wild-pathname-p.3
-  (wild-pathname-p #p"/usr/**/local/")
-  t)
-
-(deftest wild-pathname-p.4
-  (wild-pathname-p #p"/usr/aaa*bbb/local/")
-  t)
-
-(deftest wild-pathname-p.5
-  (wild-pathname-p #p"/usr/local/bin/*.txt")
-  t)
-
-(deftest wild-pathname-p.6
-  (wild-pathname-p #p"/usr/local/bin/hello.*")
-  t)
-
-(deftest wild-pathname-p.7
-  (wild-pathname-p #p"/usr/local/bin/he*llo.txt")
-  t)
-
-(deftest wild-pathname-p.8
-  (wild-pathname-p #p"/usr/local/bin/hello.txt")
-  nil)
-
-(deftest pathname-match-p.1
-  (pathname-match-p #p"hello.txt" #p"hello.txt")
-  t)
-
-(deftest pathname-match-p.2
-  (pathname-match-p #p"hello.txt" #p"*.txt")
-  t)
-
-(deftest pathname-match-p.3
-  (pathname-match-p #p"hello.txt" #p"he*o.txt")
-  t)
-
-(deftest pathname-match-p.4
-  (pathname-match-p #p"he*o.txt" #p"he*o.txt")
-  t)
-
-(deftest pathname-match-p.5
-  (pathname-match-p #p"h*o.txt" #p"he*o.txt")
-  nil)
-
-(deftest pathname-match-p.6
-  (pathname-match-p #p"/usr/local/bin/" #p"/usr/*/bin/")
-  t)
-
-(deftest pathname-match-p.7
-  (pathname-match-p #p"/usr/local/bin/" #p"/usr/lo*/bin/")
-  t)
-
-(deftest pathname-match-p.8
-  (pathname-match-p #p"/usr/local/bin/" #p"/usr/**/bin/")
-  t)
-
-(deftest pathname-match-p.9
-  (pathname-match-p #p"/usr/local/aaa/bbb/ccc/bin/" #p"/usr/**/bin/")
-  t)
-
-(deftest translate-pathname.1
-  (translate-pathname #p"hello.txt" #p"hello.txt" #p"hello.txt")
-  #p"hello.txt")
-
-(deftest translate-pathname.2
-  (translate-pathname #p"hello.txt" #p"*.txt" #p"*.txt")
-  #p"hello.txt")
-
-(deftest translate-pathname.3
-  (translate-pathname #p"hello.txt" #p"h*o.txt" #p"*.txt")
-  #p"ell.txt")
-
-(deftest translate-pathname.4
-  (translate-pathname #p"hello.txt" #p"h*o.txt" #p"a?c.txt")
-  #p"aellc.txt")
-
-(deftest translate-pathname.5
-  (translate-pathname #p"hello.txt" #p"h*o.txt" #p"a*c*d.txt")
-  #p"aellcd.txt")
-
-(deftest-error translate-pathname.6
-  (translate-pathname #p"hello.txt" #p"h*o.txt" #p"acd.txt"))
-
-(deftest translate-pathname.7
-  (translate-pathname #p"abcdefg.txt" #p"a*cd*g.txt" #p"**.txt")
-  #p"bef.txt")
-
-(deftest translate-pathname.8
-  (translate-pathname #p"abcdefg.txt" #p"a*cd*g.txt" #p"*Z*.txt")
-  #p"bZef.txt")
-
-(deftest translate-pathname.9
-  (translate-pathname
-    #p"/usr/local/hello.txt"
-    #p"/usr/local/hello.txt"
-    #p"/usr/local/hello.txt")
-  #p"/usr/local/hello.txt")
-
-(deftest translate-pathname.10
-  (translate-pathname
-    #p"/usr/local/hello.txt"
-    #p"/usr/*/hello.txt"
-    #p"/usr/*/hello.txt")
-  #p"/usr/local/hello.txt")
-
-(deftest translate-pathname.11
-  (translate-pathname
-    #p"/usr/local/hello.txt"
-    #p"/usr/l*/hello.txt"
-    #p"/usr/*/hello.txt")
-  #p"/usr/ocal/hello.txt")
-
-(deftest translate-pathname.12
-  (translate-pathname
-    #p"/usr/local/hello.txt"
-    #p"/usr/*/hello.txt"
-    #p"/usr/l*/hello.txt")
-  #p"/usr/llocal/hello.txt")
-
-(deftest translate-pathname.13
-  (translate-pathname
-    #p"/usr/local/hello.txt"
-    #p"/usr/l*/hello.txt"
-    #p"/usr/z*/hello.txt")
-  #p"/usr/zocal/hello.txt")
-
-(deftest translate-pathname.14
-  (translate-pathname
-    #p"/usr/local/hello.txt"
-    #p"/**/hello.txt"
-    #p"/usr/*/hello.txt")
-  #p"/usr/usr/local/hello.txt")
-
-(deftest translate-logical-pathname.1
-  (translate-logical-pathname #p"hello.txt")
-  #p"hello.txt")
-
-(deftest translate-logical-pathname.2
-  (progn
-    (setf (logical-pathname-translations "logical-name")
-          '(("*.*.*" "/var/")
-            ("path;to;*.*" "/usr/local/")))
-    (equal
-      (translate-logical-pathname
-        (parse-namestring "logical-name:hello.txt"))
-      (parse-namestring "/var/hello.txt")))
-  t)
-
-(deftest translate-logical-pathname.3
-  (progn
-    (setf (logical-pathname-translations "logical-name")
-          '(("*.*.*" "/var/")
-            ("path;to;*.*" "/usr/local/")))
-    (equal
-      (translate-logical-pathname
-        (parse-namestring "logical-name:path;to;hello.txt"))
-      (parse-namestring "/usr/local/hello.txt")))
-  t)
-
-(deftest merge-pathnames.1
-  (merge-pathnames #p"bin/aaa.bin" #p"/usr/local/")
-  #p"/usr/local/bin/aaa.bin")
-
-(deftest load-logical-pathname-translations.1
-  (load-logical-pathname-translations "no-such-logical-pathname")
-  nil)
-
-(deftest load-logical-pathname-translations.2
-  (let ((lisp-system::*load-logical-pathname-translations*
-          (make-pathname :type "lisp" :defaults #p"test/")))
-    (load-logical-pathname-translations "rtfilenames-logical"))
-  t)
-
-(deftest load-logical-pathname-translations.3
-  (let ((lisp-system::*load-logical-pathname-translations*
-          (make-pathname :type "lisp" :defaults #p"test/")))
-    (load-logical-pathname-translations "rtfilenames-logical")
-    (values
-      (equal
-        (translate-logical-pathname
-          (parse-namestring "rtfilenames-logical:path;to;hello.txt"))
-        (parse-namestring "/ccc/ddd/eee/hello.txt"))
-      (equal
-        (translate-logical-pathname
-          (parse-namestring "rtfilenames-logical:zzz.txt"))
-        (parse-namestring "/aaa/bbb/zzz.txt"))))
-  t t)
 
 
 ;;

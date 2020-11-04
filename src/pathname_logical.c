@@ -53,7 +53,7 @@ _g int parser_logical_pathname_(struct fileparse *pa)
 	GetConst(KEYWORD_NEWEST, &pa->version);
 
 	/* start */
-	if (size == 0)
+	if (size <= i)
 		goto finish;
 	Return(string_getc_(thing, i++, &c));
 	if (parser_logical_pathname_wordaster_p(c))
@@ -181,6 +181,12 @@ finish:
 	return make_parse_logical_pathname_(pa);
 
 error:
-	return fmte_("Invalid logical-pathname ~S.", thing, NULL);
+	if (pa->junk) {
+		pa->result = Nil;
+		pa->endpos = i? i - 1: 0;
+		return 0;
+	}
+
+	return call_parse_error_(NULL);
 }
 

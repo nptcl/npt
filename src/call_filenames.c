@@ -5,6 +5,7 @@
 #include "cons_plist.h"
 #include "constant.h"
 #include "call_filenames.h"
+#include "common_header.h"
 #include "control_object.h"
 #include "copy.h"
 #include "execute.h"
@@ -295,7 +296,7 @@ static int setf_logical_pathname_translations_list_(Execute ptr,
 
 		/* left */
 		if (stringp(left)) {
-			Return(parse_pathname_host_heap_(ptr, left, host, &value));
+			Return(parse_pathname_setf_heap_(ptr, left, host, &value));
 		}
 		Return(pathname_designer_heap_(ptr, value, &value));
 		if (! pathname_logical_p(value)) {
@@ -634,9 +635,11 @@ static int parse_namestring_call_(Execute ptr, addr *ret, addr *position,
 
 	/* defaults */
 	Return(defaults_pathname_heap_(ptr, &defaults, defaults));
+
 	/* stream */
 	if (streamp(thing))
 		GetPathnameStream(thing, &thing);
+
 	/* pathname */
 	if (pathnamep(thing)) {
 		GetHostPathname(thing, &value);
@@ -652,17 +655,17 @@ static int parse_namestring_call_(Execute ptr, addr *ret, addr *position,
 		*position = start;
 		return Result(ret, thing);
 	}
+
 	/* string */
 	if (stringp(thing)) {
-		if (GetIndex_integer(start, &index1))
-			return fmte_("Invalid :start value ~S.", start, NULL);
-		if (end == Nil)
-			string_length(thing, &index2);
-		else if (GetIndex_integer(end, &index2))
-			return fmte_("Invalid :start value ~S.", end, NULL);
+		string_length(thing, &index2);
+		Return(keyword_start_end_value_(index2, start, end, &index1, &index2));
 		Return(parse_pathname_full_heap_(ptr, thing, host, defaults,
 					index1, index2, junk != Nil, &thing, &index1));
-		make_index_integer_alloc(NULL, position, index1);
+		make_index_integer_heap(position, index1);
+		/* junk-allowed */
+		if (thing == Nil)
+			return Result(ret, Nil);
 		/* host check */
 		if (host != Nil) {
 			GetHostPathname(thing, &value);

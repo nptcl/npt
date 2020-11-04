@@ -12,6 +12,7 @@
 #include "reader.h"
 #include "strtype.h"
 #include "strvect.h"
+#include "type_table.h"
 #include "typedef.h"
 
 _g void init_fileparse(struct fileparse *pa, Execute ptr, int localp)
@@ -108,6 +109,22 @@ static int check_version_logical_pathname_(addr pos)
 	return 0;
 }
 
+static int check_parse_logical_pathname_host_(addr host, int errorp)
+{
+	addr check;
+
+	if (! errorp)
+		return 0;
+	Return(gethost_logical_pathname_(host, &check));
+	if (check == Nil) {
+		GetTypeTable(&check, String);
+		return call_type_error_va_(NULL,
+				host, check, "There is no logical hostname ~S.", host, NULL);
+	}
+
+	return 0;
+}
+
 static int check_parse_logical_pathname_(struct fileparse *pa)
 {
 	int check;
@@ -118,6 +135,7 @@ static int check_parse_logical_pathname_(struct fileparse *pa)
 	string_length(pa->host, &size);
 	if (size == 0)
 		return fmte_("Invalid host name ~S.", pa->host, NULL);
+	Return(check_parse_logical_pathname_host_(pa->host, pa->errorp));
 
 	/* directory */
 	for (list = pa->directory; list != Nil; ) {

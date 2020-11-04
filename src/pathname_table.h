@@ -24,6 +24,7 @@
 struct fileparse {
 	unsigned junk : 1;
 	unsigned force_host : 1;
+	unsigned errorp : 1;
 	Execute ptr;
 	LocalpRoot local;
 	addr thing, path, queue, result;
