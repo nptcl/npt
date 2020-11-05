@@ -77,6 +77,11 @@ $ ./npt.exe
 ```
 
 
+# Documentation
+
+https://nptcl.github.io/npt/docs/index.html
+
+
 # License
 [The Unlicense](LICENSE)
 
