@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Compilation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Compilation</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a><br />
+Prev: <a href="A1_Install.html">1. Installation</a><br />
+Next: <a href="A3_Arguments.html">3. Arguments</a></p>
+<h1 id="compile-manually">2.1 Compile manually</h1>
+<p>Compiling all the <code>*.c</code> files in the <code>src</code> directory creates the executable file.<br />
+A simple example is as follows.</p>
+<pre><code>$ cc src/*.c -lm
+$ ./a.out --version
+npt Version 1.0.2
+...
+Lisp mode            ANSI-C
+...</code></pre>
+<p>However, if you compile in this way, the program will be compiled in <code>ANSI-C</code> mode, which is a feature-reduced mode. Because of the reduced functionality, It is not possible to use all the features of Common Lisp.</p>
+<p>To use all the features, you need to specify the environment type at compile time. The available environments are as follows</p>
+<table>
+<thead>
+<tr class="header">
+<th>Environment</th>
+<th>#define</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FreeBSD</td>
+<td><code>LISP_FREEBSD</code></td>
+<td>All available</td>
+</tr>
+<tr class="even">
+<td>Linux</td>
+<td><code>LISP_LINUX</code></td>
+<td>All available</td>
+</tr>
+<tr class="odd">
+<td>Windows</td>
+<td><code>LISP_WINDOWS</code></td>
+<td>All available</td>
+</tr>
+<tr class="even">
+<td>ANSI-C</td>
+<td><code>LISP_ANSI</code> (default)</td>
+<td>Reduced</td>
+</tr>
+</tbody>
+</table>
+<p>When compiling with FreeBSD environment, run the following</p>
+<pre><code>$ cc -DLISP_FREEBSD src/*.c -lm
+$ ./a.out --version
+npt Version 1.0.2
+...
+Lisp mode            FreeBSD
+...</code></pre>
+<h1 id="debug-and-release">2.2 Debug and Release</h1>
+<p>In a normal compilation, npt is created in release mode. If you specify <code>LISP_DEBUG</code>, then the npt is compiled in debug mode.</p>
+<p>For example</p>
+<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD src/*.c -lm
+$ ./a.out --version
+npt Version 1.0.2
+...
+Release mode         debug
+...</code></pre>
+<p>The difference between the debug and release modes is the number of checks.<br />
+In the debug mode, there are codes of checks everywhere and if the checks are violated, the program is forced to stop.</p>
+<p>Release mode, on the other hand, runs faster than debug mode because of its fewer checks.</p>
+<p>You don’t need debug mode to use it as Lisp. If you are going to embed npt into C, it is better to specify <code>LISP_DEBUG</code> at least at the development stage.</p>
+<h1 id="editline-readline">2.3 editline / readline</h1>
+<p><code>editline</code> and <code>readline</code> are modules that are used to receive input from the prompt.<br />
+<code>editline</code> is installed by default on FreeBSD. <code>readline</code> is not included by default, but <code>readline</code> is often used on Linux.</p>
+<p>The values of <code>#define</code> are as follows.</p>
+<table>
+<thead>
+<tr class="header">
+<th>module</th>
+<th>#define</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>editline</td>
+<td><code>LISP_EDITLINE</code></td>
+</tr>
+<tr class="even">
+<td>readline</td>
+<td><code>LISP_READLINE</code></td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>(default)</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>C</code> in the table is simply a reading by the standard C library. This mode does not allow for history or cursor movement.</p>
+<p>Here’s an example of a compilation.</p>
+<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE src/*.c -lm -ledit
+$ ./a.out --version
+npt Version 1.0.2
+...
+Prompt mode          editline
+...</code></pre>
+<h1 id="local-memory-implementation">2.4 Local memory implementation</h1>
+<p>Local memory is a memory stack which is different from the heap area. The memory in the heap region is allocated in bulk at startup, but local memory allows you to specify how to allocate memory.</p>
+<p>Normally, allocating local memory as well as heap is done in one step.<br />
+If you specify <code>LISP_MEMORY_MALLOC</code> at compile time, local memory allocation will be done by <code>malloc</code> each time it is requested.</p>
+<p>Bulk allocation is faster, and <code>LISP_MEMORY_MALLOC</code> seems to be a little slower.<br />
+If <code>LISP_MEMORY_MALLOC</code> is specified, <code>Debug Memory true</code> appears in the <code>--version</code> of the <code>npt</code> command.</p>
+<h1 id="garbage-collector-forced-mode">2.5 Garbage collector forced mode</h1>
+<p>The garbage collector is a function to clean out the memory in the heap area.</p>
+<p><code>npt</code> monitors the usage of the heap area and if it is determined that the memory is being overwhelmed, the garbage collector will be executed at some point.</p>
+<p>If <code>LISP_DEBUG_FORCE_GC</code> is given at compile time, then it will go into garbage collector forced execution mode and the garbage collector will run at all possible times.</p>
+<p>This mode is very slow.<br />
+The significance of this mode is to check if memory corruption occurs while developing in C language.</p>
+<h1 id="windows-ansi-c-mode">2.6 Windows ANSI-C mode</h1>
+<p>If you use ANSI-C mode on Windows, there is a problem that ANSI C language features are not enough to handle Unicode filenames.</p>
+<p>In such a case, use <code>LISP_ANSI_WINDOWS</code> mode instead of <code>LISP_ANSI</code>. This mode uses <code>_wfopen</code> instead of <code>fopen</code> to open files, so it can handle Unicode filenames without problems.</p>
+<h1 id="the-main-function-of-windows">2.7 The main function of Windows</h1>
+<p>On Windows, you can choose whether the startup function is set to <code>main</code> (the standard C language) or <code>WinMain</code> (Win32API). <code>mpt</code> uses the <code>main</code> function usually, but you can change it by defining.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>#define</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>main</code></td>
+<td>LISP_CONSOLE (default)</td>
+</tr>
+<tr class="even">
+<td><code>WinMain</code></td>
+<td>LISP_WINMAIN</td>
+</tr>
+</tbody>
+</table>
+<p>It just switches the startup function and is not different as a function.</p>
+<h1 id="compilation-in-c">2.8 Compilation in C++</h1>
+<p>The npt source code can be compiled with a C++ compiler.<br />
+The compilation is done as follows</p>
+<pre><code>$ c++ -Wno-deprecated src/*.c</code></pre>
+<p>The argument, <code>-Wno-deprecated</code>, is used to suppress the warning when compiling the file <code>*.c</code> with the C++ compiler. Confirmation can be done with <code>*features*</code>.</p>
+<pre><code>$ ./a.out
+*features*
+(:LONG-FLOAT-80 :CPLUSPLUS :MATH-INACCURACY :NPT-64-BIT :NPT :64-BIT
+ :ARCH-64-BIT :NPT-ANSI-C :ANSI-C :COMMON-LISP :ANSI-CL)</code></pre>
+<p>The <code>*features*</code> contains <code>:CPLUSPLUS</code>.<br />
+Although there is almost no difference between C compiler and C++ compiler, some parts of the code using <code>setjmp</code> are changed to <code>try / catch</code>.</p>
+<h1 id="degrade-mode">2.9 Degrade mode</h1>
+<p>Degrade mode is a mode for testing in C. Although this mode is activated by specifying <code>LISP_DEGRADE</code>, it is not possible to compile simply because the source files are not only in <code>src</code>, but also in <code>test</code>.</p>
+<p>Normally, you’ll rarely need this mode. If you want to compile it, consider using the <code>debug</code> specification such as <code>bsd_debug.sh</code>.</p>
+<h1 id="the-maximum-value-of-the-function-number">2.10 The maximum value of the function number</h1>
+<p>The function number is a number to register the function pointer of C language. The number of function pointers that can be registered is 32 by default, but can be changed by specifying <code>LISP_POINTER_EXTEND</code>. The following is an example of how to change the number of function numbers to 128.</p>
+<pre><code>$ cc -DLISP_POINTER_EXTEND=128 src/*.c -lm</code></pre>
+<p>In this example, the range of function numbers is 0-127. For more information on how to use function numbers, please refer to <a href="B4_Registering.html">4. Registering Functions</a>.</p>
+</body>
+</html>

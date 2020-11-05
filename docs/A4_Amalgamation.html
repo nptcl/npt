@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Amalgamation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Amalgamation</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a><br />
+Prev: <a href="A3_Arguments.html">3. Arguments</a><br />
+Next: <a href="A5_Features.html">5. Specific Features</a></p>
+<h1 id="npt-amalgamation">4.1 Npt Amalgamation</h1>
+<p>The npt amalgamation is a collection of npt sources into a few pieces.<br />
+Currently, there are over 600 npt source files, but npt amalgamation combines them into the following three sources.</p>
+<ul>
+<li><code>lisp.c</code></li>
+<li><code>lisp.h</code></li>
+<li><code>shell.c</code></li>
+</ul>
+<p>There is no difference in functionality between regular npt and amalgamation as it is simply combined. It was originally created by imitating <a href="https://www.sqlite.org/amalgamation.html">amalgamation</a> from <a href="https://www.sqlite.org/">sqlite</a>.<br />
+In some cases, it is easier to handle because the number of source files is reduced.</p>
+<p>A drawback exists, the file <code>lisp.c</code> is so large that a C language debugger, for example gdb, would take a long time to load the source.</p>
+<p>According to the sqlite page, some software cannot read the source files if they are too large.</p>
+<p>npt-amalgamation is available at the following github</p>
+<p>https://github.com/nptcl/npt-amalgamation<br />
+https://github.com/nptcl/npt-amalgamation.git</p>
+<p>However, the above page does not always reflect the latest source.<br />
+So, the following is how to make an amalgamation using the source from github/npt.</p>
+<p>First, go to the github/npt directory.</p>
+<pre><code>$ cd github/npt</code></pre>
+<p>Go to the amalgamation directory.</p>
+<pre><code>$ cd develop/amalgamation</code></pre>
+<p>Run the program <code>amalgamation.lisp</code> to create the file.</p>
+<pre><code>$ npt --script amalgamation.lisp</code></pre>
+<p>This <code>lisp</code> file can be executed by any Common Lisp implementation.<br />
+If the <code>npt</code> command is not available, you can use another implementation.<br />
+Here is an example.</p>
+<pre><code>$ sbcl --script amalgamation.lisp
+$ ccl -l amalgamation.lisp
+$ clisp amalgamation.lisp</code></pre>
+<p>The generated files are as follows</p>
+<ul>
+<li><code>lisp.c</code></li>
+<li><code>lisp.h</code></li>
+<li><code>shell.c</code></li>
+</ul>
+<p>Compilation is the same as usual.<br />
+Here’s an example of compiling on FreeBSD</p>
+<pre><code>$ cc -o npt -DLISP_FREEBSD lisp.c shell.c -lm
+$ ./npt --version-script | grep amalgamation
+amalgamation    true
+$</code></pre>
+</body>
+</html>

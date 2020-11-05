@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Using Npt in C</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Using Npt in C</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a><br />
+Next: 2. Hold Variable</p>
+<h1 id="introduction">1.1 Introduction</h1>
+<p>npt was developed with the intention of embedding it in the C language.<br />
+The purpose of this chapter is to show how npt can be developed as a module and to run a simple example.</p>
+<p>Caution.<br />
+The functions for npt modules are still under development and are subject to change.</p>
+<h1 id="creating-an-amalgamation">1.2 Creating an amalgamation</h1>
+<p>The amalgamation source is always needed in development. (Learn more about npt amalgamation, <a href="A4_Amalgamation.html">4. Amalgamation</a>)<br />
+Especially the header file <code>lisp.h</code> is required.<br />
+First, here’s how to make an amalgamation from the npt source.</p>
+<pre><code>$ cd github/npt
+$ cd develop/amalgamation/
+$ npt --script amalgamation.lisp</code></pre>
+<p>The <code>amalgamation.lisp</code> works with all Common Lisp programs.<br />
+If you don’t have the <code>npt</code> command, do one of the following instead.</p>
+<pre><code>$ sbcl --script amalgamation.lisp
+$ ccl -l amalgamation.lisp
+$ clisp amalgamation.lisp</code></pre>
+<p>The file to be created is as follows</p>
+<ul>
+<li><code>lisp.c</code></li>
+<li><code>lisp.h</code></li>
+<li><code>shell.c</code></li>
+</ul>
+<h1 id="choose-how-to-link-your-npt-sources">1.3 Choose how to link your npt sources</h1>
+<p>There are three major types of amalgamation.</p>
+<ol type="1">
+<li>Using amalgamation.</li>
+<li>Use the npt source as it is.</li>
+<li>Create the <code>lisp.a</code> file.</li>
+</ol>
+<p>Regardless of the method, the header file <code>lisp.h</code> is needed for development, so please run the creation of amalgamation.</p>
+<p>The first one, using amalgamation, is to use the source file <code>lisp.c</code>.<br />
+Although this is the easiest way to use amalgamation, it has the disadvantage that it is very slow for the C language debugger because the <code>lisp.c</code> file is too big.</p>
+<p>The second one, using the npt source as-is, as the name suggests, is to copy a set of <code>src/*.c</code> files.<br />
+This can be done by compiling all the files except for <code>main.c</code> in npt.<br />
+The downside is that when npt is upgraded, the npt source needs to be updated.<br />
+It’s fine if the number of npt files only increases, but it can decrease, which makes it more complicated to manage.</p>
+<p>The third <code>lisp.a</code> file is a collection of npt object files, <code>*.o</code>, for development purposes.<br />
+This method is useful and will be used to explain it.</p>
+<p>The following are simple steps to compile these three methods.</p>
+<h1 id="example-sentences-for-compiling">1.4 Example sentences for compiling</h1>
+<p>The example sentence to be executed this time is as follows</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">int</span> main_lisp(<span class="dt">void</span> *ignore)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>{</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    lisp_format8_(NULL, <span class="st">&quot;Hello~%&quot;</span>, NULL);</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>}</span></code></pre></div>
+<p>This statement, when expressed in Common Lisp, is the same as the following</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>(<span class="kw">format</span> <span class="kw">t</span> <span class="st">&quot;Hello~%&quot;</span>)</span></code></pre></div>
+<p>To actually compile the code, you have to include not only this, but also the code to initialize npt.</p>
+<p>Here’s the complete code, save it as <code>main.c</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">/* main.c */</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&quot;lisp.h&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="dt">int</span> main_lisp(<span class="dt">void</span> *ignore)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>{</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    lisp_format8_(NULL, <span class="st">&quot;Hello~%&quot;</span>, NULL);</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>}</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> main_argv(<span class="kw">struct</span> lispargv *args)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>{</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>    <span class="co">/* mode */</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_help)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_help(stdout);</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_version)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_version(args, stdout);</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_degrade)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_degrade(args);</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true"></a>    <span class="co">/* execute */</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true"></a>    args-&gt;call = main_lisp;</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true"></a>    lisp_argv_init(args);</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true"></a>    lisp_argv_run(args);</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true"></a>    <span class="cf">return</span> lisp_code? <span class="dv">1</span>: lisp_result;</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true"></a>}</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span> *argv[], <span class="dt">char</span> *env[])</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true"></a>{</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true"></a>    <span class="dt">int</span> result;</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true"></a>    <span class="kw">struct</span> lispargv *args;</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true"></a>    <span class="co">/* initialize */</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true"></a>    lisp_init();</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true"></a>    args = lispargv_main(argc, argv, env);</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true"></a>    <span class="cf">if</span> (args == NULL) {</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true"></a>        fprintf(stderr, <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true"></a>    }</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true"></a>    <span class="co">/* main_argv */</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true"></a>    args-&gt;mode_core = <span class="dv">0</span>;</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true"></a>    args-&gt;mode_degrade = <span class="dv">0</span>;</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true"></a>    args-&gt;mode_standalone = <span class="dv">1</span>;</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true"></a>    args-&gt;nocore = <span class="dv">1</span>;</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true"></a>    args-&gt;noinit = <span class="dv">1</span>;</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true"></a>    args-&gt;debugger = <span class="dv">1</span>;</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true"></a>    args-&gt;debuggerp = <span class="dv">0</span>;</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true"></a>    args-&gt;quit = <span class="dv">1</span>;</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true"></a>    result = main_argv(args);</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true"></a></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true"></a>    <span class="co">/* free */</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true"></a>    lispargv_free(args);</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true"></a>    lisp_free();</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true"></a>    <span class="cf">return</span> result;</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true"></a>}</span></code></pre></div>
+<h1 id="using-amalgamation">1.5 Using amalgamation</h1>
+<p>First of all, let me explain how to use only amalgamation.<br />
+Put the following file in the same directory as <code>main.c</code> that you created.</p>
+<ul>
+<li><code>lisp.c</code></li>
+<li><code>lisp.h</code></li>
+</ul>
+<p>No need for <code>shell.c</code>.</p>
+<p>Next, you need to compile the program.<br />
+The compilation method varies depending on the environment, so please refer to this page, <a href="A2_Compilation.html">2. Compilation</a>.<br />
+The example shows how to run it on FreeBSD.</p>
+<pre><code>$ cc lisp.c main.c -lm
+$ ./a.out
+Hello
+$</code></pre>
+<h1 id="use-the-npt-source-as-is.">1.6 Use the npt source as is.</h1>
+<p>Create a working directory.</p>
+<pre><code>$ mkdir $HOME/libnpt1</code></pre>
+<p>Copy <code>main.c</code> and <code>lisp.h</code>.</p>
+<pre><code>$ cp -i main.c lisp.h $HOME/libnpt1/</code></pre>
+<p>Next, copy the npt source from github.<br />
+First, go to the npt directory.</p>
+<pre><code>$ cd github/npt</code></pre>
+<p>Copy the source.</p>
+<pre><code>$ cp -i src/*.[ch] $HOME/libnpt1/
+overwrite .../main.c? (y/n [n]) n  ;; Do not overwrite by entering n.
+not overwritten
+$</code></pre>
+<p>Compilation.</p>
+<pre><code>$ cd $HOME/libnpt1
+$ cc *.c -lm
+$ ./a.out
+Hello
+$</code></pre>
+<h1 id="create-a-lisp.a-file">Create a <code>lisp.a</code> file</h1>
+<p>Create a working directory.</p>
+<pre><code>$ mkdir $HOME/libnpt2</code></pre>
+<p>Copy <code>main.c</code> and <code>lisp.h</code>.</p>
+<pre><code>$ cp -i main.c lisp.h $HOME/libnpt2/</code></pre>
+<p>Create a <code>lisp.a</code> file on github npt.<br />
+First, move it.</p>
+<pre><code>$ cd github/npt</code></pre>
+<p>Compile and generate an object file.<br />
+You can run the script <code>bsd_debug.sh</code> to generate the object file, but you should remember the compile option.<br />
+In this case, we are going to do a manual compilation.</p>
+<pre><code>$ cc -c src/*.c</code></pre>
+<p>Create a <code>lisp.a</code> file.</p>
+<pre><code>$ ar -rc lisp.a *.o
+$ ar -d lisp.a main.o</code></pre>
+<p>The generated <code>lisp.a</code> is now copied.</p>
+<pre><code>$ cp -i lisp.a $HOME/libnpt2/</code></pre>
+<p>Compile.</p>
+<pre><code>$ cd $HOME/libnpt2/
+$ cc main.c lisp.a -lm
+$ ./a.out
+Hello
+$</code></pre>
+<h1 id="contents-of-the-main_lisp-function">Contents of the main_lisp function</h1>
+<p>In this example sentence, it was simple because we just executed the <code>format</code>. However, the development can be very complex and confusing because you need to express the equivalent of a Common Lisp statement in C.</p>
+<p>The next chapter explains in more detail how to create them.</p>
+</body>
+</html>

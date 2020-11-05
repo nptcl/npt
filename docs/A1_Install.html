@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Installation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Installation</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a><br />
+Next: <a href="A2_Compilation.html">2. Compilation</a></p>
+<h1 id="how-to-install">1.1 How to install</h1>
+<p>Installation is done by compiling the source code with a C compiler. There are three ways to compile the source code: by script, by autoconf, and by hand. Another page shows how to compile manually. If the method on this page doesn’t work, please see that page, <a href="A2_Compilation.html">2. Compilation</a>.</p>
+<p>First, download the source from github.</p>
+<pre><code>$ git clone https://github.com/nptcl/npt.git
+$ cd npt</code></pre>
+<h1 id="compilation-by-script">1.2 Compilation by Script</h1>
+<p>Compilation scripts for FreeBSD and Linux are available.<br />
+To compile on FreeBSD, execute the following steps</p>
+<pre><code>$ ./bsd_release.sh</code></pre>
+<p>To compile on Linux, install <code>gcc</code>, <code>gmake</code> and <code>readline</code> beforehand.<br />
+Execute the following steps</p>
+<pre><code>$ ./linux_release.sh</code></pre>
+<p>In both cases, the executable file <code>npt</code> is created.</p>
+<h1 id="compilation-by-batch-file">1.3 Compilation by Batch File</h1>
+<p>Compilation batch file for Windows are available. It has been tested to work with Visual Studio 2017.<br />
+In order to compile, the following commands must be available.</p>
+<ul>
+<li><code>CL.EXE</code></li>
+<li><code>LINK.EXE</code></li>
+<li><code>NMAKE.EXE</code></li>
+</ul>
+<p>Execute the following steps</p>
+<pre><code>&gt; windows_release.bat</code></pre>
+<p>The executable file <code>npt</code> is created. In some cases it may not work.<br />
+If this fails, check <a href="A2_Compilation.html">2. Compilation</a> and compile manually.</p>
+<h1 id="compilation-by-autoconf">1.4 Compilation by autoconf</h1>
+<p>To compile with <code>autoconf</code>, run <code>bootstrap.sh</code> to generate file <code>configure</code>.</p>
+<pre><code>$ ./bootstrap.sh</code></pre>
+<p>After the file is generated, run <code>configure</code>.</p>
+<pre><code>$ ./configure</code></pre>
+<p>If you want to set the installation location, specify <code>--prefix</code>.</p>
+<pre><code>$ ./configure --prefix=/usr/local</code></pre>
+<p>Run <code>make</code> to compile.</p>
+<pre><code>$ make
+$ make install</code></pre>
+<p>An executable file named <code>npt</code> is created when <code>make</code> is executed.<br />
+Execute <code>make install</code> and the executable file <code>npt</code> is copied to <code>--prefix</code>.</p>
+<h1 id="installing-the-executable-file">1.5 Installing the Executable File</h1>
+<p>If you have scripted compilation, copy the executable file <code>npt</code> to the location of your choice and the installation is complete. For example</p>
+<pre><code>$ ./bsd_release.sh
+...
+$ cp -i npt /usr/local/bin/.</code></pre>
+<p>In the case of <code>configure</code>, <code>make install</code> copies <code>npt</code> to the location specified by <code>--prefix</code>.</p>
+<p>The installation copies only one file, the executable <code>npt</code>.<br />
+If you want to uninstall, just delete the <code>npt</code> file.</p>
+<h1 id="npt-example">1.6 <code>npt</code> example</h1>
+<p>When <code>npt</code> is launched, the prompt changes to <code>*</code>.</p>
+<pre><code>$ npt
+*</code></pre>
+<p>Enter a Lisp expression and you will get the answer.</p>
+<pre><code>* (+ 10 20 30)
+60
+*</code></pre>
+<p>To exit, press Ctrl+D or execute <code>(exit)</code>.</p>
+<pre><code>* (exit)
+$</code></pre>
+<p>To load a file, specify <code>--load</code> or <code>--script</code> as an argument.</p>
+<pre><code>$ cat &gt; aaa.lisp
+(format t &quot;Hello~%&quot;)
+^D
+$ npt --script aaa.lisp
+Hello
+$ npt --load aaa.lisp
+Hello
+* (quit)
+$</code></pre>
+<p>See <code>--help</code> for details.</p>
+<pre><code>$ npt --help</code></pre>
+</body>
+</html>
