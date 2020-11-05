@@ -12,7 +12,7 @@ The author is mainly working on FreeBSD and Gentoo Linux.
 
 It is distributed on github.
 
-https://github.com/nptcl/npt  
+[https://github.com/nptcl/npt](https://github.com/nptcl/npt)
 
 
 # Documentation

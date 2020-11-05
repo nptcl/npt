@@ -79,7 +79,8 @@ $ ./npt.exe
 
 # Documentation
 
-https://nptcl.github.io/npt/docs/index.html
+[https://nptcl.github.io/npt/docs/md/index.html](https://nptcl.github.io/npt/docs/md/index.html)  
+[https://nptcl.github.io/npt/docs/index.html](https://nptcl.github.io/npt/docs/index.html)
 
 
 # License
