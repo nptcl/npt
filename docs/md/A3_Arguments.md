@@ -254,4 +254,3 @@ If only the `--degrade` argument is given, the test case is executed.
 The argument `--core` and `--standalone` cannot be specified at the same time.
 
 The `--version-script` argument outputs a tabbed representation of the contents of the `--version` argument, which can be easily read by the script.
-

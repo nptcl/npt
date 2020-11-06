@@ -109,7 +109,7 @@ defun quit
 ```
 
 
-## The Function `gc`
+## Function `gc`
 
 Launches the garbage collector.
 
@@ -145,7 +145,7 @@ NIL
 ```
 
 
-## The Function `savecore`
+## Function `savecore`
 
 Quit Lisp and then create the core file.
 
@@ -184,8 +184,8 @@ $ npt --core --corefile hello-core-image.core
 *
 ```
 
-## The Function `exit`
-## The Function `quit`
+## Function `exit`
+## Function `quit`
 
 Exit Lisp.
 
@@ -243,7 +243,7 @@ defun long-float-p
 defun callnamep
 ```
 
-## The Function `specialp`
+## Function `specialp`
 
 Examine whether the global variable is special or not.
 
@@ -273,7 +273,7 @@ NIL
 ```
 
 
-## The Fuction `array-general-p`
+## Fuction `array-general-p`
 
 Checks if the argument is a general array.
 
@@ -304,7 +304,7 @@ T
 ```
 
 
-## The Fuction `array-specialized-p`
+## Fuction `array-specialized-p`
 
 Checks if the argument is a specialized array.
 
@@ -319,7 +319,7 @@ If the input is an `array` object and
 the `element-type` is not `t`, `t` is returned.
 
 
-## The Fuction `closp`
+## Fuction `closp`
 
 Checks if the argument is a `clos` object.
 
@@ -340,7 +340,7 @@ this should normally be the same as the following command.
 ```
 
 
-## The Fuction `fixnump`
+## Fuction `fixnump`
 
 Checks if the argument is a `fixnum` object.
 
@@ -371,7 +371,7 @@ NIL
 ```
 
 
-## The Fuction `bignump`
+## Fuction `bignump`
 
 Checks if the argument is a `bignum` object.
 
@@ -398,7 +398,7 @@ T
 ```
 
 
-## The Fuction `ratiop`
+## Fuction `ratiop`
 
 Checks if the argument is a `ratio` object.
 
@@ -429,7 +429,7 @@ T
 ```
 
 
-## The Fuction `short-float-p`
+## Fuction `short-float-p`
 
 Checks if the argument is a `short-float` object.
 
@@ -443,7 +443,7 @@ Output: boolean
 Currently, there is no way to create a `short-float` object in npt.
 
 
-## The Fuction `single-float-p`
+## Fuction `single-float-p`
 
 Checks if the argument is a `single-float` object.
 
@@ -455,7 +455,7 @@ Output: boolean
 ```
 
 
-## The Fuction `double-float-p`
+## Fuction `double-float-p`
 
 Checks if the argument is a `double-float` object.
 
@@ -467,7 +467,7 @@ Output: boolean
 ```
 
 
-## The Fuction `long-float-p`
+## Fuction `long-float-p`
 
 Checks if the argument is a `long-float` object.
 
@@ -479,7 +479,7 @@ Output: boolean
 ```
 
 
-## The Fuction `callnamep`
+## Fuction `callnamep`
 
 Checks if the argument is a `callname` object.
 
@@ -510,7 +510,7 @@ defun make-callname
 ```
 
 
-## The Fuction `make-character`
+## Fuction `make-character`
 
 Duplicate a `character` object.
 
@@ -543,7 +543,7 @@ T
 ```
 
 
-## The Fuction `make-fixnum`
+## Fuction `make-fixnum`
 
 Duplicate a `fixnum` object.
 
@@ -578,7 +578,7 @@ T
 ```
 
 
-## The Fuction `make-bignum`
+## Fuction `make-bignum`
 
 Create a `bignum` object.
 
@@ -617,7 +617,7 @@ T
 ```
 
 
-## The Fuction `make-ratio`
+## Fuction `make-ratio`
 
 Create a `ratio` object.
 
@@ -654,7 +654,7 @@ T
 ```
 
 
-## The Fuction `make-complex`
+## Fuction `make-complex`
 
 Create a `complex` object.
 
@@ -692,7 +692,7 @@ T
 ```
 
 
-## The Fuction `make-callname`
+## Fuction `make-callname`
 
 Create a `callname` object.
 
@@ -718,7 +718,7 @@ defun type-object
 ```
 
 
-## The Fuction `subtypep-result`
+## Fuction `subtypep-result`
 
 Get the result of `subtypep` with `symbol`.
 
@@ -739,7 +739,7 @@ The return values are as follows.
 - Return `npt-system::invalid` if it cannot be determinant.
 
 
-## The Fuction `parse-type`
+## Fuction `parse-type`
 
 Parsing the type-specifier.
 
@@ -755,7 +755,7 @@ The return value is a type object,
 but we don't use type objects in normal Common Lisp.
 
 
-## The Fuction `type-object`
+## Fuction `type-object`
 
 Creates a Lisp object from a type object.
 
@@ -851,7 +851,7 @@ Because the same object is used internally,
 you can change the type of memory stream at any time.
 
 
-## The Fuction `make-memory-input-stream`
+## Fuction `make-memory-input-stream`
 
 Creates a `memory-stream` for input only.
 
@@ -871,7 +871,7 @@ Output: stream input-memory-stream
 `cache` is for development.
 
 
-## The Fuction `make-memory-output-stream`
+## Fuction `make-memory-output-stream`
 
 Creates a `memory-stream` for output only.
 
@@ -891,7 +891,7 @@ Output: stream output-memory-stream
 `cache` is for development.
 
 
-## The Fuction `make-memory-io-stream`
+## Fuction `make-memory-io-stream`
 
 Create a `memory stream` for input and output.
 
@@ -911,7 +911,7 @@ Output: stream io-memory-stream
 `cache` is for development.
 
 
-## The Macro `with-input-from-memory`
+## Macro `with-input-from-memory`
 
 The `memory-stream` version of the macro `with-input-from-string`.
 
@@ -924,7 +924,7 @@ The `memory-stream` version of the macro `with-input-from-string`.
 Unlike `string-stream`, there is no argument `index`.
 
 
-## The Macro `with-output-to-memory`
+## Macro `with-output-to-memory`
 
 The `memory-stream` version of the macro `with-output-to-string`.
 
@@ -939,7 +939,7 @@ Unlike `string-stream`, the second argument, `array`, is not supported.
 The return value is an array of `(array (unsigned-byte 8))`.
 
 
-## The Fuction `get-output-stream-memory`
+## Fuction `get-output-stream-memory`
 
 Return an array of all data held by `memory-stream`.  
 
@@ -955,7 +955,7 @@ but also accepts input and output.  Unlike `string-stream`, the content is not d
 The return value is an array of `(array (unsigned-byte 8))`.
 
 
-## The Accessor `memory-stream-p`
+## Accessor `memory-stream-p`
 
 Check whether the argument is `memory-stream` or not.
 
@@ -972,7 +972,7 @@ If it is an `output-memory-stream`, `:output` is returned.
 If it is an `io-memory-stream`, `:io` is returned.
 
 
-## The Accessor `(setf memory-stream-p)`
+## Accessor `(setf memory-stream-p)`
 
 Change the type of `memory-stream`.
 
@@ -1022,7 +1022,7 @@ defun quick-sort
 defun merge-sort
 ```
 
-## The Fuction `simple-sort`
+## Fuction `simple-sort`
 
 Sort selection.
 
@@ -1038,7 +1038,7 @@ Output: result sequence
 It is not stable and does an `O(n^2)` sort.
 
 
-## The Fuction `bubble-sort`
+## Fuction `bubble-sort`
 
 Bubble sort.
 
@@ -1054,7 +1054,7 @@ Output: result sequence
 It is stable and does an `O(n^2)` sort.
 
 
-## The Fuction `quick-sort`
+## Fuction `quick-sort`
 
 Quick sort.
 
@@ -1070,7 +1070,7 @@ Output: result sequence
 It is not stable and does an `O(n log n)` sort.
 
 
-## The Fuction `merge-sort`
+## Fuction `merge-sort`
 
 Merge sort.
 
@@ -1102,7 +1102,7 @@ defun eastasian-get
 defun eastasian-width
 ```
 
-## The Fuction `package-export-list`
+## Fuction `package-export-list`
 
 Get the `export` list of the `package`.
 
@@ -1116,7 +1116,7 @@ Output: list
 Get the list of names of symbols which are exported in the package.
 
 
-## The Fuction `large-number`
+## Fuction `large-number`
 
 Get the notation for a comma-separated list of 3-digit numbers in English.
 
@@ -1157,7 +1157,7 @@ The argument `cardinal` is `nil` and it becomes ordinal number.
 ```
 
 
-## The Fuction `equal-random-state`
+## Fuction `equal-random-state`
 
 Check whether `random-state` is equal.
 
@@ -1170,7 +1170,7 @@ Output: boolean
 ```
 
 
-## The Fuction `remove-file`
+## Fuction `remove-file`
 
 Remove the file.
 
@@ -1189,7 +1189,7 @@ If `errorp` is `nil`, the standard function returns `t`
 if the deletion succeeds, and `nil` if it fails.
 
 
-## The Fuction `remove-directory`
+## Fuction `remove-directory`
 
 Remove the directory.
 
@@ -1206,7 +1206,7 @@ If `errorp` is `nil`, `t` is returned when the deletion succeeds,
 and `nil` is returned when the deletion fails.
 
 
-## The Fuction `byte-integer`
+## Fuction `byte-integer`
 
 Considering the endianness of the CPU, concatenate the values of
 `unsigned-byte` and return an integer.
@@ -1226,7 +1226,7 @@ On the other hand, if the CPU is a little endian,
 the return value is `#x0100=256`.
 
 
-## The Fuction `eastasian-set`
+## Fuction `eastasian-set`
 
 Set the number of characters for each of the East Asian Width categories.
 
@@ -1247,7 +1247,7 @@ If `error` is `t`, an error occurs if the category does not exist.
 If `error` is `t`, an error is returned if the category does not exist.
 
 
-## The Fuction `eastasian-get`
+## Fuction `eastasian-get`
 
 Get the number of characters corresponding to the East Asian Width category.
 
@@ -1266,7 +1266,7 @@ The number of characters for each category is returned.
 In case of an error, `NIL` is returned.
 
 
-## The Fuction `eastasian-width`
+## Fuction `eastasian-width`
 
 A length that takes into account the East Asian Width will be returned.
 

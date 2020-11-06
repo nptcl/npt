@@ -3,7 +3,7 @@
 Npt documentation.
 
 Reference: [ANSI Common Lisp npt](index.html)  
-Prev: [1. Installation](A1_Install.html)  
+Prev: [1. Installation](A1_install.html)  
 Next: [3. Arguments](A3_Arguments.html)
 
 
@@ -218,4 +218,3 @@ $ cc -DLISP_POINTER_EXTEND=128 src/*.c -lm
 In this example, the range of function numbers is 0-127.
 For more information on how to use function numbers, please refer to
 [4. Registering Functions](B4_Registering.html).
-

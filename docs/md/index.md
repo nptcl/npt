@@ -30,11 +30,11 @@ It is distributed on github.
   - [3. Escape Function](B3_Escape.html)
   - [4. Registering Functions](B4_Registering.html)
   - [5. LISP ABORT](B5_Abort.html)
-  - Escape Operations
-  - Start Up
+  - [6. Escape Operations](B6_Operations.html)
+  - [7. Start Up](B7_StartUp.html)
 
 - C Function Specification
-  - C Function: Type Function
+  - [C Function: Type Function](C1_Type.html)
   - C Function: Sequense
   - C Function: Object
   - C Function: Stack Frame

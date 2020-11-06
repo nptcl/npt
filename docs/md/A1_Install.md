@@ -157,4 +157,3 @@ See `--help` for details.
 ```
 $ npt --help
 ```
-

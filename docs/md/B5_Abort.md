@@ -4,7 +4,7 @@ Npt documentation.
 
 Reference: [ANSI Common Lisp npt](index.html)  
 Prev: [4. Registering Functions](B4_Registering.html)  
-Next: 6. Escape Operations
+Next: [6. Escape Operations](B6_Operations.html)
 
 
 # 5.1 LISP ABORT

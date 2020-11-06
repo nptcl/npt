@@ -396,4 +396,3 @@ and is used by rules for logical paths.
 * (pathname-version (logical-pathname "test:hello.txt.999"))
 999
 ```
-

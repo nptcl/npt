@@ -83,4 +83,3 @@ $ ./npt --version-script | grep amalgamation
 amalgamation    true
 $
 ```
-
