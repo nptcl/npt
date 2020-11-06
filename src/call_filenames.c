@@ -34,6 +34,7 @@ _g int pathname_common_(Execute ptr, addr var, addr *ret)
 	return pathname_designer_heap_(ptr, var, ret);
 }
 
+
 /* make-pathname */
 static int pathname_case_local_p_(addr rest, int *ret)
 {
@@ -708,6 +709,7 @@ keyargs:
 	return parse_namestring_call_(ptr,
 			ret1, ret2, thing, host, defaults, start, end, junk);
 }
+
 
 /* wild-pathname-p */
 _g int wild_pathname_p_common_(Execute ptr, addr *ret, addr file, addr field)

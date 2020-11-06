@@ -579,7 +579,7 @@ If it is omitted, the size is <code>64</code> bytes if <code>LISP_DEBUG</code> i
 The specified number of buffers is created in the <code>memory-stream</code>.</p>
 <p>The <code>:array</code> is the first number of internal buffer arrays to hold.<br />
 If omitted, it is <code>4</code> if <code>LISP_DEBUG</code> is specified at compile time, otherwise it is <code>8</code>.<br />
-For example, if more than <code>4,096</code> bytes*<code>8</code> of data are required, the number of arrays will be doubled from <code>8</code> arrays to <code>16</code> arrays, then <code>32</code> arrays, then <code>64</code> arrays, then ……, and so on.</p>
+For example, if more than <code>4,096*8</code> bytes of data are required, the number of arrays will be doubled from <code>8</code> arrays to <code>16</code> arrays, then <code>32</code> arrays, then <code>64</code> arrays, then ……, and so on.</p>
 <p>The <code>:cache</code> enables or disables the cache.<br />
 This argument is for debugging in development.<br />
 The cache has no effect on the <code>memory-stream</code>, but when it is passed to the <code>open</code> function, the generated <code>file-stream</code> is selected to use the cache or not.<br />

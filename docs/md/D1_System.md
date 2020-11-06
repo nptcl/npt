@@ -832,7 +832,7 @@ The specified number of buffers is created in the `memory-stream`.
 The `:array` is the first number of internal buffer arrays to hold.  
 If omitted, it is `4` if `LISP_DEBUG` is specified at compile time,
 otherwise it is `8`.  
-For example, if more than `4,096` bytes*`8` of data are required,
+For example, if more than `4,096*8` bytes of data are required,
 the number of arrays will be doubled from `8` arrays to `16` arrays,
 then `32` arrays, then `64` arrays, then ......, and so on.
 

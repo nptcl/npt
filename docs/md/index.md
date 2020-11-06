@@ -26,10 +26,10 @@ It is distributed on github.
 
 - Development
   - [1. Using Npt in C](B1_Using.html)
-  - Hold Variable
-  - Escape Function
-  - Registering Functions
-  - LISP ABORT
+  - [2. Hold Variable](B2_Hold.html)
+  - [3. Escape Function](B3_Escape.html)
+  - [4. Registering Functions](B4_Registering.html)
+  - [5. LISP ABORT](B5_Abort.html)
   - Escape Operations
   - Start Up
 
@@ -47,11 +47,10 @@ It is distributed on github.
   - [Lisp Function: System Function](D1_System.html)
 
 
-This document is a Japanese translation.  
+This document is a translation from Japanese to English.  
 https://nptcl.hatenablog.com/entry/2020/08/21/214057
 
 
 # License
 
 The license of npt is [Unlicense](https://unlicense.org/).  
-

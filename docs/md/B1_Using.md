@@ -3,7 +3,7 @@
 Npt documentation.
 
 Reference: [ANSI Common Lisp npt](index.html)  
-Next: 2. Hold Variable
+Next: [2. Hold Variable](B2_Hold.html)
 
 
 # 1.1 Introduction
@@ -285,4 +285,3 @@ However, the development can be very complex and confusing
 because you need to express the equivalent of a Common Lisp statement in C.
 
 The next chapter explains in more detail how to create them.
-
