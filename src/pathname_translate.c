@@ -238,10 +238,12 @@ static int translate_list_pathname_(LocalpRoot local,
 	int check;
 	addr a1, b1, pos1, pos2, wild, wilds;
 
+
 	if (a == Nil && b == Nil)
 		return Result(ret, 1);
 	if (a == Nil || b == Nil)
 		return Result(ret, 0);
+
 	GetConst(KEYWORD_WILD, &wild);
 	GetConst(KEYWORD_WILD_INFERIORS, &wilds);
 	Return_getcons(a, &pos1, &a1);
@@ -474,6 +476,41 @@ static int translate_version_pathname_(addr *ret, addr pos, addr from, addr to)
 	return Result(ret, unspec);
 }
 
+static void getdirectory_translate_pathname(addr pos, addr *ret)
+{
+	GetDirectoryPathname(pos, &pos);
+	if (pos != Nil) {
+		*ret = pos;
+		return;
+	}
+
+	/* (:relative) */
+	GetConst(KEYWORD_RELATIVE, &pos);
+	conscar_heap(ret, pos);
+}
+
+static int setdirectory_translate_relative_p(addr list)
+{
+	addr x, y;
+
+	/* (:relative) */
+	if (! consp_getcons(list, &x, &list))
+		return 0;
+	GetConst(KEYWORD_RELATIVE, &y);
+	return (x == y) && (list == Nil);
+}
+
+static void setdirectory_translate_pathname(LocalRoot local, addr pos, addr value)
+{
+	if (setdirectory_translate_relative_p(value)) {
+		SetDirectoryPathname(pos, Nil);
+	}
+	else {
+		copylocal_object(local, &value, value);
+		SetDirectoryPathname(pos, value);
+	}
+}
+
 static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 		addr *ret, addr pos, addr from, addr to)
 {
@@ -496,12 +533,11 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	/* device */
 	copylocal_pathname_array(alloc, to, PATHNAME_INDEX_DEVICE, one);
 	/* directory */
-	GetDirectoryPathname(pos, &a);
-	GetDirectoryPathname(from, &b);
-	GetDirectoryPathname(to, &c);
+	getdirectory_translate_pathname(pos, &a);
+	getdirectory_translate_pathname(from, &b);
+	getdirectory_translate_pathname(to, &c);
 	Return(translate_directory_pathname_(local, &a, a, b, c, equal));
-	copylocal_object(alloc, &a, a);
-	SetDirectoryPathname(one, a);
+	setdirectory_translate_pathname(alloc, one, a);
 	/* name */
 	GetNamePathname(pos, &a);
 	GetNamePathname(from, &b);

@@ -123,8 +123,8 @@ In both cases, the return value is non-zero without judgment.</p>
 <p>The following function is used to check if the current stack frame has reached the escape point.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">int</span> lisp_break_control(<span class="dt">void</span>);</span></code></pre></div>
 <p>True (non-zero) is returned if the current escape is in progress and the current stack frame is at the destination point.<br />
-In case of <code>catch</code>/<code>throw</code>, when the function is true, the function switches to non-extraction and the <code>throw</code> is completed.</p>
-<p>The function to switch to non-exit is as follows.</p>
+In case of <code>catch</code>/<code>throw</code>, when the function is true, the function switches to non-escape and the <code>throw</code> is completed.</p>
+<p>The function to switch to non-escape is as follows.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">void</span> lisp_reset_control(<span class="dt">void</span>);</span></code></pre></div>
 <p>The summary of the procedure is as follows.</p>
 <ul>

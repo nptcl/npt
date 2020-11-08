@@ -66,9 +66,9 @@ int lisp_break_control(void);
 True (non-zero) is returned if the current escape is in progress
 and the current stack frame is at the destination point.  
 In case of `catch`/`throw`, when the function is true,
-the function switches to non-extraction and the `throw` is completed.
+the function switches to non-escape and the `throw` is completed.
 
-The function to switch to non-exit is as follows.
+The function to switch to non-escape is as follows.
 
 ```c
 void lisp_reset_control(void);

@@ -82,6 +82,28 @@ _g int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults)
 	return defaults_pathname_alloc_(ptr, ret, defaults, 0);
 }
 
+static void parse_directory_pathname(addr pos)
+{
+	addr list, x, y;
+
+	/* junk */
+	if (pos == Nil)
+		return;
+
+	/* (:relative) -> nil */
+	GetDirectoryPathname(pos, &list);
+	if (! consp(list))
+		return;
+	if (! consp_getcons(list, &x, &list))
+		return;
+	if (list != Nil)
+		return;
+	GetConst(KEYWORD_RELATIVE, &y);
+	if (x != y)
+		return;
+	SetDirectoryPathname(pos, Nil);
+}
+
 static int parse_pathname_full_alloc_(Execute ptr,
 		addr thing, addr host, addr defaults, size_t start, size_t end, int junk,
 		addr *ret, size_t *pos, int localp, int errorp)
@@ -109,6 +131,7 @@ static int parse_pathname_full_alloc_(Execute ptr,
 	/* execute */
 	push_localp(pa.local, &stack);
 	Return(parser_struct_pathname_(&pa));
+	parse_directory_pathname(pa.result);
 	*ret = pa.result;
 	*pos = pa.endpos;
 	rollback_localp(pa.local, stack);
@@ -399,8 +422,16 @@ static int directory_namestring_filename_(LocalpRoot local,
 	GetConst(KEYWORD_WILD_INFERIORS, &wildi);
 	GetConst(KEYWORD_UP, &up);
 
-	/* directory */
+	/* nil */
 	GetDirectoryPathname(pos, &right);
+	if (right == Nil) {
+		if (logicalp) {
+			Return(push_charqueue_local_(alloc, queue, split));
+		}
+		return 0;
+	}
+
+	/* cons */
 	if (! consp(right))
 		return fmte_("Invalid directory ~S.", right, NULL);
 	GetCons(right, &left, &right);
@@ -659,7 +690,7 @@ static int check_merge_directory(addr pos, addr defpath)
 {
 	addr relative;
 
-	if (GetType(pos) == LISPTYPE_CONS && GetType(defpath) == LISPTYPE_CONS) {
+	if (consp(pos) && consp(defpath)) {
 		GetCar(pos, &pos);
 		GetConst(KEYWORD_RELATIVE, &relative);
 		return pos == relative;

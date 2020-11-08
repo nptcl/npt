@@ -815,15 +815,15 @@ static void typetable_pathnamedevice(void)
 static void typetable_pathnamedirectory(void)
 {
 	/* directory  (or list string (member :wild :wild-inferiors :unspecific)) */
-	addr type, cons, string, wild, wild_inferiors, unspec;
+	addr type, list, string, wild, wild_inferiors, unspec;
 
-	GetTypeTable(&cons, Cons);
+	GetTypeTable(&list, List);
 	GetTypeTable(&string, String);
 	GetConst(KEYWORD_WILD, &wild);
 	GetConst(KEYWORD_WILD_INFERIORS, &wild_inferiors);
 	GetConst(KEYWORD_UNSPECIFIC, &unspec);
 	type_member_heap(&type, wild, wild_inferiors, unspec, NULL);
-	type3or_heap(cons, string, type, &type);
+	type3or_heap(list, string, type, &type);
 	SetTypeTable(PathnameDirectory, type);
 }
 

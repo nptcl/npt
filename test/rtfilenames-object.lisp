@@ -99,12 +99,17 @@
 
 (deftest make-pathname.9
   (equal
-    (make-pathname :directory '(:relative)
-                   :name "other-name:aaa;bbb;Hello" :type "txt")
+    (make-pathname :directory nil :name "other-name:aaa;bbb;Hello" :type "txt")
     #p"other-name:aaa;bbb;Hello.txt")
   t)
 
 (deftest make-pathname.10
+  (equal
+    (make-pathname :directory '(:relative) :name "other-name:aaa;bbb;Hello" :type "txt")
+    #p"other-name:aaa;bbb;Hello.txt")
+  nil)
+
+(deftest make-pathname.11
   (make-pathname
     :name "Hello" :type "txt"
     :defaults
@@ -112,17 +117,27 @@
                    :directory '(:absolute "usr")))
   #p"/usr/Hello.txt")
 
-(deftest make-pathname.11
+(deftest make-pathname.12
   (make-pathname)
   #p"")
 
-(deftest make-pathname.12
+(deftest make-pathname-directory.1
   (make-pathname :directory "path" :name "hello" :type "txt")
   #p"/path/hello.txt")
 
-(deftest make-pathname.13
+(deftest make-pathname-directory.2
   (make-pathname :directory :wild :name "hello" :type "txt")
   #p"/**/hello.txt")
+
+(deftest make-pathname-directory.3
+  (pathname-values3
+    (make-pathname :name "hello" :type "txt"))
+  nil "hello" "txt")
+
+(deftest make-pathname-directory.4
+  (pathname-values3
+    (make-pathname :directory '(:relative) :name "hello" :type "txt"))
+  (:relative) "hello" "txt")
 
 (defun make-pathname-test (&rest args)
   (let ((x (apply #'make-pathname args))
@@ -440,6 +455,36 @@
 (deftest pathname-directory.2
   (pathname-directory #p"Hello.txt")
   nil)
+
+(deftest pathname-directory.3
+  (pathname-directory
+    (make-pathname :directory nil))
+  nil)
+
+(deftest pathname-directory.4
+  (pathname-directory
+    (make-pathname :directory '(:relative "hello")))
+  (:relative "hello"))
+
+(deftest pathname-directory.5
+  (pathname-directory
+    (make-pathname :directory '(:absolute "hello")))
+  (:absolute "hello"))
+
+(deftest pathname-directory.6
+  (pathname-directory
+    (make-pathname :directory "hello"))
+  (:absolute "hello"))
+
+(deftest pathname-directory.7
+  (pathname-directory
+    (make-pathname :directory :wild))
+  (:absolute :wild-inferiors))
+
+(deftest pathname-directory.8
+  (pathname-directory
+    (make-pathname :directory :wild-inferiors))
+  (:absolute :wild-inferiors))
 
 (deftest pathname-directory-unix.1
   (pathname-directory

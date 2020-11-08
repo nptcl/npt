@@ -19,16 +19,21 @@
   (let ((lisp-system::*load-logical-pathname-translations*
           (make-pathname :type "lisp" :defaults #p"test/")))
     (load-logical-pathname-translations "rtfilenames-name")
-    (values
-      (equal
-        (translate-logical-pathname
-          (parse-namestring "rtfilenames-name:path;to;hello.txt"))
-        (parse-namestring "/ccc/ddd/eee/hello.txt"))
-      (equal
-        (translate-logical-pathname
-          (parse-namestring "rtfilenames-name:zzz.txt"))
-        (parse-namestring "/aaa/bbb/zzz.txt"))))
-  t t)
+    (equal
+      (translate-logical-pathname
+        (parse-namestring "rtfilenames-name:path;to;hello.txt"))
+      (parse-namestring "/ccc/ddd/eee/hello.txt")))
+  t)
+
+(deftest load-logical-pathname-translations.4
+  (let ((lisp-system::*load-logical-pathname-translations*
+          (make-pathname :type "lisp" :defaults #p"test/")))
+    (load-logical-pathname-translations "rtfilenames-name")
+    (equal
+      (translate-logical-pathname
+        (parse-namestring "rtfilenames-name:zzz.txt"))
+      (parse-namestring "/aaa/bbb/zzz.txt")))
+  t)
 
 
 ;;
@@ -66,14 +71,14 @@
 (deftest logical-pathname.1
   (equal
     (logical-pathname
-      (parse-namestring "logical-name:*.*.*"))
-    (parse-namestring "logical-name:*.*.*"))
+      (parse-namestring "test:*.*.*"))
+    (parse-namestring "test:*.*.*"))
   t)
 
 (deftest logical-pathname.2
   (equal
-    (logical-pathname "logical-name:*.*.*")
-    (parse-namestring "logical-name:*.*.*"))
+    (logical-pathname "test:*.*.*")
+    (parse-namestring "test:*.*.*"))
   t)
 
 
@@ -86,23 +91,23 @@
 
 (deftest translate-logical-pathname.2
   (progn
-    (setf (logical-pathname-translations "logical-name")
-          '(("*.*.*" "/var/")
-            ("path;to;*.*" "/usr/local/")))
+    (setf (logical-pathname-translations "test2")
+          '(("path;to;*.*" "/usr/local/")
+            ("*.*.*" "/var/")))
     (equal
       (translate-logical-pathname
-        (parse-namestring "logical-name:hello.txt"))
+        (parse-namestring "test2:hello.txt"))
       (parse-namestring "/var/hello.txt")))
   t)
 
 (deftest translate-logical-pathname.3
   (progn
-    (setf (logical-pathname-translations "logical-name")
-          '(("*.*.*" "/var/")
-            ("path;to;*.*" "/usr/local/")))
+    (setf (logical-pathname-translations "test2")
+          '(("path;to;*.*" "/usr/local/")
+            ("*.*.*" "/var/")))
     (equal
       (translate-logical-pathname
-        (parse-namestring "logical-name:path;to;hello.txt"))
+        (parse-namestring "test2:path;to;hello.txt"))
       (parse-namestring "/usr/local/hello.txt")))
   t)
 

@@ -126,6 +126,38 @@ _g void setversion_pathname(addr pos, addr value)
 /*
  *  pathname object
  */
+static void directory_pathname_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	addr absolute, wild, wild_inferiors;
+
+	/* "string" -> (:absolute "string") */
+	if (stringp(pos)) {
+		GetConst(KEYWORD_ABSOLUTE, &absolute);
+		list_alloc(local, ret, absolute, pos, NULL);
+		return;
+	}
+
+	/* :wild -> (:absolute :wild-inferiors) */
+	GetConst(KEYWORD_WILD, &wild);
+	if (pos == wild) {
+		GetConst(KEYWORD_ABSOLUTE, &absolute);
+		GetConst(KEYWORD_WILD_INFERIORS, &wild_inferiors);
+		list_alloc(local, ret, absolute, wild_inferiors, NULL);
+		return;
+	}
+
+	/* :wild-inferiors -> (:absolute :wild-inferiors) */
+	GetConst(KEYWORD_WILD_INFERIORS, &wild_inferiors);
+	if (pos == wild_inferiors) {
+		GetConst(KEYWORD_ABSOLUTE, &absolute);
+		list_alloc(local, ret, absolute, wild_inferiors, NULL);
+		return;
+	}
+
+	/* others */
+	*ret = pos;
+}
+
 _g void make_pathname_alloc(LocalRoot local, addr *ret, int logical)
 {
 	alloc_array2(local, ret, LISPTYPE_PATHNAME, PATHNAME_INDEX_SIZE);
@@ -136,9 +168,9 @@ static void setpathname_alloc(LocalRoot local, addr pos, addr host, addr device,
 		addr directory, addr name, addr type, addr version)
 {
 	/* directory */
-	getdirectory_pathname_alloc(local, directory, &directory);
+	directory_pathname_alloc(local, directory, &directory);
 
-	/* set */
+	/* set value */
 	SetHostPathname(pos, host);
 	SetDevicePathname(pos, device);
 	SetDirectoryPathname(pos, directory);
@@ -297,48 +329,6 @@ _g lisp_equal_calltype pathname_equal_function(addr pos)
 	}
 }
 
-_g void getdirectory_pathname_alloc(LocalRoot local, addr pos, addr *ret)
-{
-	addr check, wild, wild_inferiors;
-
-	/* nil -> (:relative) */
-	if (pos == Nil) {
-		GetConst(KEYWORD_RELATIVE, &check);
-		conscar_alloc(local, ret, check);
-		return;
-	}
-
-	/* "string" -> (:absolute "string") */
-	if (stringp(pos)) {
-		GetConst(KEYWORD_ABSOLUTE, &check);
-		list_alloc(local, ret, check, pos, NULL);
-		return;
-	}
-
-	/* :wild or :wild-inferiors -> (:absolute :wild-inferiors) */
-	GetConst(KEYWORD_WILD, &wild);
-	GetConst(KEYWORD_WILD_INFERIORS, &wild_inferiors);
-	if (pos == wild || pos == wild_inferiors) {
-		GetConst(KEYWORD_ABSOLUTE, &check);
-		list_alloc(local, ret, check, wild_inferiors, NULL);
-		return;
-	}
-
-	/* cons */
-	*ret = pos;
-}
-
-_g void getdirectory_pathname_local(LocalRoot local, addr pos, addr *ret)
-{
-	CheckLocal(local);
-	getdirectory_pathname_alloc(local, pos, ret);
-}
-
-_g void getdirectory_pathname_heap(addr pos, addr *ret)
-{
-	getdirectory_pathname_alloc(NULL, pos, ret);
-}
-
 static int make_pathname_environment_(addr host, enum PathnameType *ret)
 {
 	make_pathname_environment(host, ret);
@@ -427,21 +417,20 @@ static int make_pathname_directory_(addr *ret, addr list)
 	int keywordp, check;
 	addr root, pos, absolute, relative, wild, wildi, up;
 
-	/* :directory "Hello" */
 	GetConst(KEYWORD_ABSOLUTE, &absolute);
-	if (stringp(list)) {
-		list_heap(ret, absolute, list, NULL);
-		return 0;
-	}
+	GetConst(KEYWORD_RELATIVE, &relative);
+	GetConst(KEYWORD_WILD, &wild);
+	GetConst(KEYWORD_WILD_INFERIORS, &wildi);
 
-	/* check */
+	/* value */
+	if (list == Nil || list == wild || list == wildi || stringp(list))
+		return Result(ret, list);
+
+	/* cons */
 	if (! consp(list)) {
 		*ret = Nil;
 		return fmte_(":directory ~S must be a list or string type.", list, NULL);
 	}
-	GetConst(KEYWORD_RELATIVE, &relative);
-	GetConst(KEYWORD_WILD, &wild);
-	GetConst(KEYWORD_WILD_INFERIORS, &wildi);
 	GetConst(KEYWORD_UP, &up);
 	Return_getcons(list, &pos, &root);
 	if (pos != absolute && pos != relative) {
@@ -531,8 +520,12 @@ static int make_pathname_list_p_(addr list, int *ret)
 	int check;
 	addr pos;
 
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
+	/* string */
+	if (stringp(list))
+		return make_pathname_check_(list, ret);
+
+	/* others */
+	while (consp_getcons(list, &pos, &list)) {
 		Return(make_pathname_check_(pos, &check));
 		if (check)
 			return Result(ret, 1);
@@ -546,8 +539,19 @@ static int make_pathname_list_(addr *ret, addr list)
 	int check;
 	addr root, pos;
 
+	/* string */
+	if (stringp(list)) {
+		Return(make_pathname_string_(&list));
+		return Result(ret, list);
+	}
+
+	/* atom */
+	if (! consp(list))
+		return Result(ret, list);
+
+	/* cons */
 	for (root = Nil; list != Nil; ) {
-		GetCons(list, &pos, &list);
+		Return_getcons(list, &pos, &list);
 		Return(make_pathname_check_(pos, &check));
 		if (check) {
 			Return(make_pathname_string_(&pos));
@@ -620,7 +624,6 @@ _g int make_pathname_heap_(addr *ret,
 	enum PathnameType ptype;
 
 	/* format */
-	getdirectory_pathname_heap(directory, &directory);
 	Return(make_pathname_directory_(&directory, directory));
 
 	/* case */

@@ -132,31 +132,11 @@ _g int pathname_device_common_(Execute ptr, addr pos, addr rest, addr *ret)
 
 
 /* pathname-directory */
-static int pathname_directory_nil(addr pos, addr *ret)
-{
-	addr check, key;
-
-	/* (:relative) -> nil */
-	GetDirectoryPathname(pos, &pos);
-	if (! consp_getcons(pos, &check, &pos))
-		return 0;
-	if (pos != Nil)
-		return 0;
-	GetConst(KEYWORD_RELATIVE, &key);
-	if (check != key)
-		return 0;
-
-	*ret = Nil;
-	return 1;
-}
-
 _g int pathname_directory_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
 	Return(pathname_designer_heap_(ptr, pos, &pos));
-	if (pathname_directory_nil(pos, &pos))
-		return Result(ret, pos);
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_directory_(pos, &pos, localp));
 
@@ -530,7 +510,7 @@ _g int host_namestring_common_(Execute ptr, addr *ret, addr pos)
 
 
 /* enough-namestring */
-static void enough_namestring_copy(addr pos, addr cdr, addr *ret)
+static void enough_namestring_copy(addr pos, addr cdr, int relp, addr *ret)
 {
 	addr one, value;
 
@@ -541,11 +521,13 @@ static void enough_namestring_copy(addr pos, addr cdr, addr *ret)
 	copylocal_pathname_array(NULL, pos, PATHNAME_INDEX_TYPE, one);
 	copylocal_pathname_array(NULL, pos, PATHNAME_INDEX_VERSION, one);
 	/* directory */
-	GetDirectoryPathname(pos, &pos);
-	GetConst(KEYWORD_RELATIVE, &value);
-	copylocal_object(NULL, &cdr, cdr);
-	cons_heap(&value, value, cdr);
-	SetDirectoryPathname(one, value);
+	if (relp) {
+		GetDirectoryPathname(pos, &pos);
+		GetConst(KEYWORD_RELATIVE, &value);
+		copylocal_object(NULL, &cdr, cdr);
+		cons_heap(&value, value, cdr);
+		SetDirectoryPathname(one, value);
+	}
 	*ret = one;
 }
 
@@ -556,6 +538,22 @@ static int enough_namestring_directory_(LocalRoot local,
 {
 	int check;
 	addr car1, car2, cdr1, cdr2, next;
+
+	/* nil, nil */
+	if (a == Nil && b == Nil)
+		return Result(ret, 0);
+
+	/* a == Nil */
+	if (a == Nil) {
+		strvect_heap(value, 0);
+		return Result(ret, 1);
+	}
+
+	/* b == Nil */
+	if (a == Nil) {
+		enough_namestring_copy(pos, b, 0, value);
+		return Result(ret, 1);
+	}
 
 	/* relative, absolute */
 	Return_getcons(a, &car1, &cdr1);
@@ -576,7 +574,7 @@ static int enough_namestring_directory_(LocalRoot local,
 	}
 
 	/* result */
-	enough_namestring_copy(pos, cdr1, value);
+	enough_namestring_copy(pos, cdr1, 1, value);
 	return Result(ret, 1);
 }
 
@@ -606,6 +604,7 @@ static int enough_namestring_merge_(LocalRoot local,
 	Return((*equal)(pos1, pos2, &check));
 	if (! check)
 		return Result(ret, 0);
+
 	/* directory */
 	GetDirectoryPathname(a, &pos1);
 	GetDirectoryPathname(b, &pos2);

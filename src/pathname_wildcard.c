@@ -263,6 +263,11 @@ static int wildcard_directory_pathname_(addr a, addr b,
 	int check, check1, check2;
 	addr car1, car2, cdr1, cdr2;
 
+	/* right is nil */
+	if (b == Nil)
+		return Result(ret, 1);
+
+	/* compare */
 	cdr1 = a;
 	cdr2 = b;
 	check1 = 0;

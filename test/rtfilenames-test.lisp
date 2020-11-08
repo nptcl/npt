@@ -57,6 +57,70 @@
       (close x :abort t)))
   "Hello.txt")
 
+(deftest namestring.7
+  (namestring (make-pathname :directory nil :name "hello" :type "txt"))
+  "hello.txt")
+
+(deftest namestring.8
+  (namestring (make-pathname :directory '(:relative) :name "hello" :type "txt"))
+  "hello.txt")
+
+(deftest namestring-directory.1
+  (namestring
+    (make-pathname
+      :host 'lisp-system::unix :directory nil
+      :name "hello" :type "txt"))
+  "hello.txt")
+
+(deftest namestring-directory.2
+  (namestring
+    (make-pathname
+      :host 'lisp-system::unix :directory '(:relative)
+      :name "hello" :type "txt"))
+  "hello.txt")
+
+(deftest namestring-directory.3
+  (namestring
+    (make-pathname
+      :host 'lisp-system::windows :directory nil
+      :name "hello" :type "txt"))
+  "hello.txt")
+
+(deftest namestring-directory.4
+  (namestring
+    (make-pathname
+      :host 'lisp-system::windows :directory '(:relative)
+      :name "hello" :type "txt"))
+  "hello.txt")
+
+(deftest namestring-directory.5
+  (namestring
+    (make-pathname
+      :host 'lisp-system::windows :device "C" :directory nil
+      :name "hello" :type "txt"))
+  "C:hello.txt")
+
+(deftest namestring-directory.6
+  (namestring
+    (make-pathname
+      :host 'lisp-system::windows  :device "C" :directory '(:relative)
+      :name "hello" :type "txt"))
+  "C:hello.txt")
+
+(deftest namestring-directory.7
+  (namestring
+    (make-pathname
+      :host "test" :directory nil
+      :name "hello" :type "txt"))
+  "TEST:;hello.txt")
+
+(deftest namestring-directory.8
+  (namestring
+    (make-pathname
+      :host "test" :directory '(:relative)
+      :name "hello" :type "txt"))
+  "TEST:;hello.txt")
+
 (deftest-error namestring-error.1
   (eval '(namestring 10))
   type-error)
@@ -140,7 +204,7 @@
 
 
 ;;
-;;
+;;  Function DIRECTORY-NAMESTRING
 ;;
 (deftest directory-namestring.1
   (directory-namestring #p"/usr/local/aaa/hello.txt")
@@ -194,6 +258,48 @@
       :host 'lisp-system::unix
       :directory '(:absolute "aaa" "AB*CD" "ccc")))
   "/aaa/AB*CD/ccc/")
+
+(deftest directory-namestring-directory.1
+  (directory-namestring
+    (make-pathname
+      :host 'lisp-system::unix :directory nil
+      :name "hello" :type "txt"))
+  "")
+
+(deftest directory-namestring-directory.2
+  (directory-namestring
+    (make-pathname
+      :host 'lisp-system::unix :directory '(:relative)
+      :name "hello" :type "txt"))
+  "")
+
+(deftest directory-namestring-directory.3
+  (directory-namestring
+    (make-pathname
+      :host 'lisp-system::windows :directory nil
+      :name "hello" :type "txt"))
+  "")
+
+(deftest directory-namestring-directory.4
+  (directory-namestring
+    (make-pathname
+      :host 'lisp-system::windows :directory '(:relative)
+      :name "hello" :type "txt"))
+  "")
+
+(deftest directory-namestring-directory.5
+  (directory-namestring
+    (make-pathname
+      :host "test" :directory nil
+      :name "hello" :type "txt"))
+  ";")
+
+(deftest directory-namestring-directory.6
+  (directory-namestring
+    (make-pathname
+      :host "test" :directory '(:relative)
+      :name "hello" :type "txt"))
+  ";")
 
 (deftest-error directory-namestring-error.1
   (eval '(directory-namestring 10))
@@ -269,14 +375,14 @@
 
 (deftest enough-namestring.6
   (enough-namestring
-    (parse-namestring "logical-name:usr;local;bin;")
+    (parse-namestring "test:usr;local;bin;")
     #p"/usr/local/")
-  "LOGICAL-NAME:usr;local;bin;")
+  "TEST:usr;local;bin;")
 
 (deftest enough-namestring.7
   (enough-namestring
     #p"/usr/local/bin/"
-    (parse-namestring "logical-name:usr;local;"))
+    (parse-namestring "test:usr;local;"))
   #-windows "/usr/local/bin/"
   #+windows "\\usr\\local\\bin\\")
 
@@ -306,6 +412,10 @@
 
 (deftest enough-namestring.13
   (enough-namestring #p"" #p"/")
+  "")
+
+(deftest enough-namestring.14
+  (enough-namestring #p"" #p"")
   "")
 
 (deftest-error enough-namestring-error.1
@@ -406,6 +516,11 @@
 (deftest parse-namestring-logical.4
   (parse-namestring ";usr;local;bin;" nil #p"test:")
   #p"test:;usr;local;bin;" 15)
+
+(deftest parse-namestring-logical.5
+  (pathname-directory
+    (parse-namestring "test:;hello.txt"))
+  nil)
 
 (deftest-error parse-namestring-start.1
   (parse-namestring "Hello.txt" nil *default-pathname-defaults* :start -1))
@@ -661,44 +776,117 @@
 
 
 ;;
+;;  Function PATHNAME-MATCH-P
 ;;
-;;
-(deftest pathname-match-p.1
-  (pathname-match-p #p"hello.txt" #p"hello.txt")
-  t)
-
-(deftest pathname-match-p.2
-  (pathname-match-p #p"hello.txt" #p"*.txt")
-  t)
-
-(deftest pathname-match-p.3
-  (pathname-match-p #p"hello.txt" #p"he*o.txt")
-  t)
-
-(deftest pathname-match-p.4
-  (pathname-match-p #p"he*o.txt" #p"he*o.txt")
-  t)
-
-(deftest pathname-match-p.5
-  (pathname-match-p #p"h*o.txt" #p"he*o.txt")
-  nil)
-
-(deftest pathname-match-p.6
+(deftest pathname-match-p-directory.1
   (pathname-match-p #p"/usr/local/bin/" #p"/usr/*/bin/")
   t)
 
-(deftest pathname-match-p.7
+(deftest pathname-match-p-directory.2
   (pathname-match-p #p"/usr/local/bin/" #p"/usr/lo*/bin/")
   t)
 
-(deftest pathname-match-p.8
+(deftest pathname-match-p-directory.3
   (pathname-match-p #p"/usr/local/bin/" #p"/usr/**/bin/")
   t)
 
-(deftest pathname-match-p.9
+(deftest pathname-match-p-directory.4
   (pathname-match-p #p"/usr/local/aaa/bbb/ccc/bin/" #p"/usr/**/bin/")
   t)
 
+(deftest pathname-match-p-directory.5
+  (pathname-match-p #p"path/to/hello.txt" #p"*.*")
+  t)
+
+(deftest pathname-match-p-directory.6
+  (pathname-match-p #p"path/to/hello.txt" #p"./*.*")
+  nil)
+
+(deftest pathname-match-p-name.1
+  (pathname-match-p #p"hello.txt" #p"hello.txt")
+  t)
+
+(deftest pathname-match-p-name.2
+  (pathname-match-p #p"hello.txt" #p"abc.txt")
+  nil)
+
+(deftest pathname-match-p-name.3
+  (pathname-match-p #p"hello.txt" #p"*.txt")
+  t)
+
+(deftest pathname-match-p-name.4
+  (pathname-match-p #p"hello.txt" #p"he*o.txt")
+  t)
+
+(deftest pathname-match-p-name.5
+  (pathname-match-p #p"he*o.txt" #p"he*o.txt")
+  t)
+
+(deftest pathname-match-p-name.6
+  (pathname-match-p #p"h*o.txt" #p"he*o.txt")
+  nil)
+
+(deftest pathname-match-p-type.1
+  (pathname-match-p #p"hello.txt" #p"hello.txt")
+  t)
+
+(deftest pathname-match-p-type.2
+  (pathname-match-p #p"hello.txt" #p"hello.abc")
+  nil)
+
+(deftest pathname-match-p-type.3
+  (pathname-match-p #p"hello.txt" #p"hello.*")
+  t)
+
+(deftest pathname-match-p-type.4
+  (pathname-match-p #p"hello.txt" #p"hello.*t")
+  t)
+
+(deftest pathname-match-p-type.5
+  (pathname-match-p #p"hello.t*t" #p"he*o.t*t")
+  t)
+
+(deftest pathname-match-p-type.6
+  (pathname-match-p #p"hello.t*t" #p"hello.t*")
+  nil)
+
+(deftest pathname-match-p-version.1
+  (pathname-match-p #p"test:hello.txt" #p"test:hello.txt")
+  t)
+
+(deftest pathname-match-p-version.2
+  (pathname-match-p #p"test:hello.txt" #p"test:hello.txt.*")
+  t)
+
+(deftest pathname-match-p-version.3
+  (pathname-match-p #p"test:hello.txt.newest" #p"test:hello.txt.*")
+  t)
+
+(deftest pathname-match-p-version.4
+  (pathname-match-p #p"test:hello.txt.10" #p"test:hello.txt.*")
+  t)
+
+(deftest pathname-match-p-version.5
+  (pathname-match-p #p"test:hello.txt.*" #p"test:hello.txt.*")
+  t)
+
+(deftest pathname-match-p-version.6
+  (pathname-match-p #p"test:hello.txt.10" #p"test:hello.txt")
+  nil)
+
+(deftest-error pathname-match-p-error.1
+  (eval '(pathname-match-p 10))
+  type-error)
+
+(deftest-error pathname-match-p-error.2
+  (eval '(pathname-match-p #p"Hello.txt" 20))
+  type-error)
+
+(deftest-error! pathname-match-p-error.3
+  (eval '(pathname-match-p)))
+
+(deftest-error! pathname-match-p-error.4
+  (eval '(pathname-match-p #p"hello.txt" #p"hello.txt" nil)))
 
 
 ;;
@@ -713,8 +901,8 @@
 ;;  error
 ;;
 (deftest pathname-host-string.1
-  (pathname-host "logical-name:;aaa.txt")
-  "LOGICAL-NAME")
+  (pathname-host "test:;aaa.txt")
+  "TEST")
 
 (deftest pathname-directory-string.1
   (pathname-directory "/usr/local/bin/aaa.txt")
@@ -729,7 +917,7 @@
   "txt")
 
 (deftest pathname-version-string.1
-  (pathname-version "logical-name:;aaa;bbb;name.txt.100")
+  (pathname-version "test:;aaa;bbb;name.txt.100")
   100)
 
 (deftest issues-sharp-8.1

@@ -48,7 +48,7 @@ The file to be created is as follows
 
 # 1.3 Choose how to link your npt sources
 
-There are three major types of amalgamation.
+Three main methods of development exist.
 
 1. Using amalgamation.
 2. Use the npt source as it is.
