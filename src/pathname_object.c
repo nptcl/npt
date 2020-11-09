@@ -386,8 +386,8 @@ _g int pathname_equal_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 
 	/* version */
-	GetVersionPathname(a, &x);
-	GetVersionPathname(b, &y);
+	pathname_version(a, &x);
+	pathname_version(b, &y);
 	if (! eql_function(x, y))
 		return Result(ret, 0);
 
@@ -607,10 +607,10 @@ static int make_pathname_logical_(addr *ret,
 		Return(string_upper_heap_(host, &host));
 	}
 
-	/* version */
+	/* defaults */
 	GetConst(KEYWORD_UNSPECIFIC, &unspec);
 	if (version == unspec)
-		GetConst(KEYWORD_NEWEST, &version);
+		version = Nil;
 
 	/* make */
 	logical_pathname_heap(ret, host, directory, name, type, version);
@@ -705,6 +705,14 @@ _g int pathname_type_(addr pos, addr *ret, int localp)
 
 _g void pathname_version(addr pos, addr *ret)
 {
-	GetVersionPathname(pos, ret);
+	addr version;
+
+	GetVersionPathname(pos, &version);
+	if (RefLogicalPathname(pos) != 0 && version == Nil) {
+		GetConst(KEYWORD_NEWEST, ret);
+	}
+	else {
+		*ret = version;
+	}
 }
 

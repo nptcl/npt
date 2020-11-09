@@ -362,8 +362,8 @@ _g int wildcard_pathname_(addr a, addr b, int wild, int *ret)
 		return Result(ret, 0);
 
 	/* version */
-	GetVersionPathname(a, &check1);
-	GetVersionPathname(b, &check2);
+	pathname_version(a, &check1);
+	pathname_version(b, &check2);
 	if (! wildcard_version_pathname(check1, check2))
 		return Result(ret, 0);
 

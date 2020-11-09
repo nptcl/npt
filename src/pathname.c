@@ -267,8 +267,10 @@ _g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 		GetCons(list, &right, &list);
 		List_bind(right, &left, &value, NULL);
 		Return(wildcard_pathname_(pos, left, 1, &check));
-		if (check)
-			return translate_pathname_alloc_(ptr, ret, pos, left, value, localp);
+		if (check) {
+			Return(translate_pathname_alloc_(ptr, &pos, pos, left, value, localp));
+			return physical_pathname_alloc_(ptr, pos, ret, localp);
+		}
 	}
 	return fmte_("The logical-pathname ~S don't match translate table.", pos, NULL);
 }
@@ -341,11 +343,16 @@ static int logical_namestring_version_(LocalpRoot local, addr queue, addr right)
 	addr wild, newest;
 
 	alloc = local->local;
-	GetConst(KEYWORD_WILD, &wild);
+	/* nil */
+	if (right == Nil)
+		return 0;
+	/* newest */
 	GetConst(KEYWORD_NEWEST, &newest);
 	if (right == newest)
 		return 0;
+	/* others */
 	Return(push_charqueue_local_(alloc, queue, '.'));
+	GetConst(KEYWORD_WILD, &wild);
 	if (right == wild)
 		return pushchar_charqueue_local_(alloc, queue, "*");
 	else if (integerp(right))
@@ -666,6 +673,26 @@ _g int name_pathname_local_(Execute ptr, addr pos, addr *ret)
 	return name_pathname_alloc_(ptr, &buffer, pos, ret);
 }
 
+_g int name_physical_heap_(Execute ptr, addr pos, addr *ret)
+{
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(physical_pathname_local_(ptr, pos, &pos));
+	Return(name_pathname_heap_(ptr, pos, ret));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+_g int name_physical_local_(Execute ptr, addr pos, addr *ret)
+{
+	Return(physical_pathname_local_(ptr, pos, &pos));
+	return name_pathname_local_(ptr, pos, ret);
+}
+
 
 /*
  *  merge-pathnames
@@ -738,32 +765,28 @@ static void merge_pathname_object(addr pos, addr defaults, addr defver, addr *re
 	merge_pathname_array(pos, PATHNAME_INDEX_DEVICE, defaults, &device);
 	merge_pathname_array(pos, PATHNAME_INDEX_NAME, defaults, &name);
 	merge_pathname_array(pos, PATHNAME_INDEX_TYPE, defaults, &type);
+	GetVersionPathname(pos, &version);
+
+	/* If no version is supplied, default-version is used.
+	 * If default-version is nil, the version component will remain unchanged.
+	 */
+	if (version == Nil)
+		version = defver;
 
 	/* If pathname does not specify a name, then the version, if not provided,
 	 * will come from default-pathname, just like the other components.
-	 * if (name == Nil && version == Nil)
-	 *    the version copied from defvar.
 	 */
 	GetNamePathname(pos, &check1);
-	GetVersionPathname(pos, &check2);
-	if (check1 == Nil && check2 == Nil)
-		version = defver;
+	if (check1 == Nil && version == Nil)
+		GetVersionPathname(defaults, &version);
 
 	/* If pathname does specify a name, then the version is not affected
 	 * by default-pathname.
-	 *
-	 * if (name != Nil)
-	 *    the version don't copy from default-pathname.
 	 */
 	if (check1 != Nil)
 		GetVersionPathname(pos, &version);
 
-	/* If this process leaves the version missing, the default-version is used.
-	 *
-	 * Finally,
-	 * if (version == Nil)
-	 *   the version copy from default-pathname.
-	 */
+	/* If this process leaves the version missing, the default-version is used.  */
 	if (version == Nil)
 		version = defver;
 
@@ -794,7 +817,7 @@ _g int merge_pathnames_clang_(Execute ptr,
 
 	/* version */
 	if (defver == Unbound)
-		GetConst(KEYWORD_NEWEST, &defver);
+		defver = Nil;
 
 	/* merge */
 	merge_pathname_object(pos, defaults, defver, ret);

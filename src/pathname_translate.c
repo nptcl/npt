@@ -122,7 +122,7 @@ static int wildcard_push_match_pathname_(
 	}
 	/* (a a) -> next, (a b) -> false */
 	if (c2 != '*') {
-		if (c1 != c2)
+		if (toUpperUnicode(c1) != toUpperUnicode(c2))
 			return Result(ret, 0);
 		return wildcard_push_match_pathname_(local,ptr,  p1,n1+1,s1,  p2,n2+1,s2, ret);
 	}

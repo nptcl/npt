@@ -389,6 +389,24 @@ static int open_common_direction(addr value, enum Stream_Open_Direction *ret)
 	return fmte_("Invalid :direction value ~S.", value, NULL);
 }
 
+static int open_common_newest_p(addr pos)
+{
+	addr version, x, y;
+
+	/* version == :newest */
+	GetVersionPathname(pos, &version);
+	GetConst(KEYWORD_NEWEST, &y);
+	if (version == y)
+		return 1;
+
+	/* logical-pathname.version == Nil */
+	GetHostPathname(pos, &x);
+	if (! stringp(x))
+		return 0;
+
+	return version == Nil;
+}
+
 static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists *ret)
 {
 	addr check;
@@ -399,9 +417,7 @@ static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists 
 		if (streamp(pos))
 			return Result(ret, Stream_Open_IfExists_Supersede);
 		/* pathname */
-		GetVersionPathname(pos, &value);
-		GetConst(KEYWORD_NEWEST, &check);
-		return Result(ret, value == check?
+		return Result(ret, open_common_newest_p(pos)?
 				Stream_Open_IfExists_NewVersion:
 				Stream_Open_IfExists_Error);
 	}
@@ -615,7 +631,7 @@ static int open_pathname_designer_(Execute ptr, addr pos, addr *ret)
 			return Result(ret, value);
 	}
 
-	return physical_pathname_heap_(ptr, pos, ret);
+	return pathname_designer_heap_(ptr, pos, ret);
 }
 
 _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)

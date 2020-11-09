@@ -294,7 +294,7 @@ static int setf_logical_pathname_translations_list_(Execute ptr,
 
 		/* right */
 		Return(pathname_designer_heap_(ptr, right, &value));
-		if (! pathname_pathname_p(value)) {
+		if (! pathnamep(value)) {
 			return fmte_("The right argument ~S "
 					"must be a no-logical-pathname.", right, NULL);
 		}

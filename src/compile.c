@@ -20,25 +20,24 @@
 /*
  *  compile-file-pathname
  */
-static int compile_file_pathname_from_input_(addr input, addr *ret)
+static void compile_file_pathname_from_input(addr input, addr *ret)
 {
-	addr host, device, name, type, directory, version;
+	addr host, device, directory, name, type, version;
 
 	copy_pathname_heap(&input, input);
-	Return(pathname_host_(input, &host, 1));
-	Return(pathname_directory_(input, &directory, 1));
-	Return(pathname_name_(input, &name, 1));
+	GetHostPathname(input, &host);
+	GetDirectoryPathname(input, &directory);
+	GetNamePathname(input, &name);
 	strvect_char_heap(&type, "fasl");
+
 	if (pathname_logical_p(input)) {
-		pathname_version(input, &version);
+		GetVersionPathname(input, &version);
 		logical_pathname_heap(ret, host, directory, name, type, version);
 	}
 	else {
-		Return(pathname_device_(input, &device, 1));
+		GetDevicePathname(input, &device);
 		pathname_heap(ret, host, device, directory, name, type);
 	}
-
-	return 0;
 }
 
 _g int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
@@ -48,7 +47,7 @@ _g int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *re
 	if (GetKeyArgs(rest, KEYWORD_OUTPUT_FILE, &output)) {
 		/* input-file -> output-file */
 		Return(pathname_designer_heap_(ptr, input, &input));
-		Return(compile_file_pathname_from_input_(input, ret));
+		compile_file_pathname_from_input(input, ret);
 	}
 	else {
 		/* translate output-file */

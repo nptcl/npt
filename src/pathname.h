@@ -20,6 +20,8 @@
 #define directory_name_pathname_local_ _n(directory_name_pathname_local_)
 #define name_pathname_heap_ _n(name_pathname_heap_)
 #define name_pathname_local_ _n(name_pathname_local_)
+#define name_physical_heap_ _n(name_physical_heap_)
+#define name_physical_local_ _n(name_physical_local_)
 #define merge_pathnames_clang_ _n(merge_pathnames_clang_)
 #define build_pathname _n(build_pathname)
 
@@ -56,6 +58,8 @@ _g int directory_name_pathname_heap_(LocalRoot local, addr pos, addr *ret);
 _g int directory_name_pathname_local_(LocalRoot local, addr pos, addr *ret);
 _g int name_pathname_heap_(Execute ptr, addr pos, addr *ret);
 _g int name_pathname_local_(Execute ptr, addr pos, addr *ret);
+_g int name_physical_heap_(Execute ptr, addr pos, addr *ret);
+_g int name_physical_local_(Execute ptr, addr pos, addr *ret);
 _g int merge_pathnames_clang_(Execute ptr,
 		addr pos, addr defpath, addr defver, addr *ret);
 

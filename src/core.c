@@ -156,8 +156,7 @@ _g int savecore_execute_(Execute ptr, addr file)
 	if (count_execute() != 1)
 		return fmte_("Any child thread must be destroyed.", NULL);
 	/* (setq system::*savecore* file) */
-	Return(pathname_designer_heap_(ptr, file, &file));
-	Return(name_pathname_heap_(ptr, file, &file));
+	Return(name_physical_heap_(ptr, file, &file));
 	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
 	setspecial_symbol(symbol);
 	SetValueSymbol(symbol, file);

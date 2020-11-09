@@ -34,7 +34,7 @@ static inline int inputstream_(Execute ptr,
 	}
 
 	/* pathname */
-	Return(name_pathname_local_(ptr, file, &name));
+	Return(name_physical_local_(ptr, file, &name));
 	Return(open_input_filememory_(ptr->local, fm, name, &check));
 	if (check)
 		return Result(ret, NULL);
@@ -620,7 +620,7 @@ static inline int outputstream_(Execute ptr,
 	}
 
 	/* pathname */
-	Return(name_pathname_local_(ptr, file, &name));
+	Return(name_physical_local_(ptr, file, &name));
 	Return(open_output_filememory_(ptr->local, fm, name, mode, &check));
 	if (check)
 		return Result(ret, NULL);
@@ -984,7 +984,7 @@ static inline int iostream_(Execute ptr,
 	}
 
 	/* pathname */
-	Return(name_pathname_local_(ptr, file, &name));
+	Return(name_physical_local_(ptr, file, &name));
 	Return(open_io_filememory_(ptr->local, fm, name, mode, &check));
 	if (check)
 		return Result(ret, NULL);
@@ -1454,7 +1454,7 @@ static inline int probestream_(Execute ptr, addr *ret, addr file, enum StreamTyp
 	}
 
 	/* pathname */
-	Return(name_pathname_local_(ptr, file, &name));
+	Return(name_physical_local_(ptr, file, &name));
 	Return(open_input_filememory_(ptr->local, fm, name, &check));
 	if (check)
 		return Result(ret, NULL);

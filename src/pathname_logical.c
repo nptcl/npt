@@ -50,7 +50,7 @@ _g int parser_logical_pathname_(struct fileparse *pa)
 	size = pa->end;
 	absolute = relative = dp1 = dp2 = 0;
 	i = pa->start;
-	GetConst(KEYWORD_NEWEST, &pa->version);
+	pa->version = Nil;
 
 	/* start */
 	if (size <= i)

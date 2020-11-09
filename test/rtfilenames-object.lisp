@@ -914,10 +914,15 @@
 
 (deftest pathname-version-logical.1
   (pathname-version
+    (logical-pathname "test:;aaa;bbb;name.txt"))
+  :newest)
+
+(deftest pathname-version-logical.2
+  (pathname-version
     (logical-pathname "test:;aaa;bbb;name.txt.100"))
   100)
 
-(deftest pathname-version-logical.2
+(deftest pathname-version-logical.3
   (pathname-version
     (logical-pathname "test:;aaa;bbb;name.txt.newest"))
   :newest)
