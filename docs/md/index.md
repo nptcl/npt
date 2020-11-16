@@ -35,7 +35,7 @@ It is distributed on github.
 
 - C Function Specification
   - [C Function: Type Function](C1_Type.html)
-  - C Function: Sequense
+  - [C Function: Sequense](C2_Sequence.html)
   - C Function: Object
   - C Function: Stack Frame
   - C Function: Execute

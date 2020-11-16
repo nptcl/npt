@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>C Function: Sequense</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">C Function: Sequense</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a></p>
+<h1 id="function-specification">Function Specification</h1>
+<p>The following function specifications are described in <code>lisp.h</code>.</p>
+<ul>
+<li><a href="#create-sequence">1. Create Sequence</a></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">void</span> lisp_cons(addr x, addr car, addr cdr);</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="dt">void</span> lisp_vector(addr x, <span class="dt">size_t</span> size);</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="dt">void</span> lisp_list(addr x, ...);</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="dt">void</span> lisp_lista(addr x, ...);</span></code></pre></div>
+<ul>
+<li><a href="#sequence-operation">2. Sequence Operation</a></li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">int</span> lisp_getelt_(addr x, addr pos, <span class="dt">size_t</span> index);</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="dt">int</span> lisp_setelt_(addr pos, <span class="dt">size_t</span> index, addr value);</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="dt">int</span> lisp_length_(addr pos, <span class="dt">size_t</span> *ret);</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="dt">int</span> lisp_reverse_(addr x, addr pos);</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="dt">int</span> lisp_nreverse_(addr x, addr pos);</span></code></pre></div>
+<ul>
+<li><a href="#cons">3. Cons</a></li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">void</span> lisp_car(addr x, addr list);</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="dt">void</span> lisp_cdr(addr x, addr list);</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="dt">void</span> lisp_carcdr(addr x, addr y, addr list);</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_car(addr cons, addr value);</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_cdr(addr cons, addr value);</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_carcdr(addr cons, addr car, addr cdr);</span></code></pre></div>
+<ul>
+<li><a href="#string">4. String</a></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">int</span> lisp_string8_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="dt">int</span> lisp_string16_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="dt">int</span> lisp_string32_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="dt">int</span> lisp_string_getc_(addr pos, <span class="dt">size_t</span> i, unicode *c);</span></code></pre></div>
+<ul>
+<li><a href="#strvect">5. Strvect</a></li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="dt">int</span> lisp_strvect_getc(addr pos, <span class="dt">size_t</span> i, unicode *c);</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="dt">int</span> lisp_strvect_length(addr pos, <span class="dt">size_t</span> *ret);</span></code></pre></div>
+<h1 id="create-sequence"><a id="create-sequence">1. Create Sequence</a></h1>
+<p>Function of the creating sequense.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="dt">void</span> lisp_cons(addr x, addr car, addr cdr);</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="dt">void</span> lisp_vector(addr x, <span class="dt">size_t</span> size);</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="dt">void</span> lisp_list(addr x, ...);</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="dt">void</span> lisp_lista(addr x, ...);</span></code></pre></div>
+<h2 id="function-lisp_cons">Function <code>lisp_cons</code></h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="dt">void</span> lisp_cons(addr x, addr car, addr cdr);</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>Input: car, cdr, Object</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>Output: x, hold variable</span></code></pre></div>
+<p>Create a cons object.<br />
+If <code>car</code> is <code>NULL</code>, <code>NIL</code> is specified.<br />
+If <code>cdr</code> is <code>NULL</code>, <code>NIL</code> is specified.<br />
+If the <code>car</code> is a hold variable, the content is specified.<br />
+If the <code>cdr</code> is a hold variable, the content is specified.</p>
+<h2 id="function-lisp_vector">Function <code>lisp_vector</code></h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="dt">void</span> lisp_vector(addr x, <span class="dt">size_t</span> size);</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>Input: size, Length of the sequence.</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>Output: x, hold variable</span></code></pre></div>
+<p>Create a one-dimensional array object.<br />
+It is a special object of type <code>simple-vector</code>.</p>
+<h2 id="function-lisp_list">Function <code>lisp_list</code></h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="dt">void</span> lisp_list(addr x, ...);</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>Input: Variable arguments</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>Output: x, hold variable</span></code></pre></div>
+<p>Creates a list object with variable arguments as elements.<br />
+The variable argument takes an <code>addr</code> and is terminated by <code>NULL</code>.<br />
+If the argument is a hold variable, use the content.</p>
+<p>Example.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>lisp_fixnum(x, <span class="dv">10</span>);</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>lisp_fixnum(y, <span class="dv">20</span>);</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>lisp_fixnum(z, <span class="dv">30</span>);</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>lisp_list(x, x, y, z, NULL);</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>x -&gt; (<span class="dv">10</span> <span class="dv">20</span> <span class="dv">30</span>)</span></code></pre></div>
+<h2 id="function-lisp_lista">Function <code>lisp_lista</code></h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="dt">void</span> lisp_lista(addr x, ...);</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>Input: Variable arguments</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>Output: x, hold variable</span></code></pre></div>
+<p>Creates a list object with variable arguments as elements.<br />
+This is almost equivalent to <code>list*</code> in Common Lisp, where the final element is the list cdr.<br />
+The variable argument takes an <code>addr</code> and is terminated with NULL.<br />
+Unlike <code>list*</code>, it returns <code>NIL</code> if no element is found.<br />
+If the argument is a hold variable, use the content.</p>
+<p>Example.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>lisp_fixnum(x, <span class="dv">10</span>);</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>lisp_fixnum(y, <span class="dv">20</span>);</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>lisp_fixnum(z, <span class="dv">30</span>);</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>lisp_lista(x, x, y, z, NULL);</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>x -&gt; (<span class="dv">10</span> <span class="dv">20</span> . <span class="dv">30</span>)</span></code></pre></div>
+<h1 id="sequence-operation"><a id="sequence-operation">2. Sequence Operation</a></h1>
+<p>Function of the sequense operation.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="dt">int</span> lisp_getelt_(addr x, addr pos, <span class="dt">size_t</span> index);</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="dt">int</span> lisp_setelt_(addr pos, <span class="dt">size_t</span> index, addr value);</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a><span class="dt">int</span> lisp_length_(addr pos, <span class="dt">size_t</span> *ret);</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="dt">int</span> lisp_reverse_(addr x, addr pos);</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a><span class="dt">int</span> lisp_nreverse_(addr x, addr pos);</span></code></pre></div>
+<h2 id="escape-function-lisp_getelt_">Escape Function <code>lisp_getelt_</code></h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="dt">int</span> lisp_getelt_(addr x, addr pos, <span class="dt">size_t</span> index);</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>Input: pos, sequence</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>Input: index</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>Output: x, hold variable</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>Returns the <code>index</code>-th element of the sequence <code>pos</code>.<br />
+If <code>pos</code> is a hold variable, its contents are used.</p>
+<h2 id="escape-function-lisp_setelt_">Escape Function <code>lisp_setelt_</code></h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="dt">int</span> lisp_setelt_(addr pos, <span class="dt">size_t</span> index, addr value);</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>Input: pos, sequnece</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>Input: index</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>Input: value, hold variable</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>Sets the <code>index</code>-th element of the sequence <code>pos</code> to <code>value</code>.<br />
+If <code>pos</code>, <code>value</code> is a hold variable, the content is used.</p>
+<h2 id="escape-function-lisp_length_">Escape Function <code>lisp_length_</code></h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="dt">int</span> lisp_length_(addr pos, <span class="dt">size_t</span> *ret);</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>Input: pos, sequence</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>Output: ret, number of elements</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>Returns the number of elements in the sequence <code>pos</code>.<br />
+If <code>pos</code> is a hold variable, the content is used.</p>
+<h2 id="escape-function-lisp_reverse_">Escape Function <code>lisp_reverse_</code></h2>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="dt">int</span> lisp_reverse_(addr x, addr pos);</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>Input: pos, sequence</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>Output: x, hold variable</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>The reverse order of the <code>pos</code> is returned.<br />
+If <code>pos</code> is a hold variable, the content is used.<br />
+Because the sequence is newly created, the original sequence is not destroyed.</p>
+<h2 id="escape-function-lisp_nreverse_">Escape Function <code>lisp_nreverse_</code></h2>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="dt">int</span> lisp_nreverse_(addr x, addr pos);</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>Input: pos, sequence</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a>Output: x, hold variable</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>The reverse order of the <code>pos</code> is returned.<br />
+If <code>pos</code> is a hold variable, the content is used.<br />
+Destroy the sequence without creating a new one.</p>
+<h1 id="cons"><a id="cons">3. Cons</a></h1>
+<p>Function of the cons.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="dt">void</span> lisp_car(addr x, addr list);</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="dt">void</span> lisp_cdr(addr x, addr list);</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a><span class="dt">void</span> lisp_carcdr(addr x, addr y, addr list);</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_car(addr cons, addr value);</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_cdr(addr cons, addr value);</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_carcdr(addr cons, addr car, addr cdr);</span></code></pre></div>
+<h2 id="function-lisp_car">Function <code>lisp_car</code></h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="dt">void</span> lisp_car(addr x, addr list);</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>Input: list</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a>Output: x, hold variable</span></code></pre></div>
+<p>Get the car of the <code>list</code>.<br />
+The <code>list</code> can be specified with cons or NIL.</p>
+<h2 id="function-lisp_cdr">Function <code>lisp_cdr</code></h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="dt">void</span> lisp_cdr(addr x, addr list);</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>Input: list</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>Output: x, hold variable</span></code></pre></div>
+<p>Get the cdr of the <code>list</code>.<br />
+The <code>list</code> can be specified with cons or NIL.</p>
+<h2 id="function-lisp_carcdr">Function <code>lisp_carcdr</code></h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="dt">void</span> lisp_carcdr(addr x, addr y, addr list);</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a>Input: list</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>Output: x, y, hold variable</span></code></pre></div>
+<p>Return car of <code>list</code> to <code>x</code> and cdr to <code>y</code>. The <code>list</code> can be specified with cons or NIL.</p>
+<h2 id="function-lisp_setf_car">Function <code>lisp_setf_car</code></h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_car(addr cons, addr value);</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a>Input: cons</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a>Input: value, Object</span></code></pre></div>
+<p>If <code>value</code> is a hold variable, the content is used.<br />
+Set the <code>value</code> to the car part of the <code>cons</code>.</p>
+<h2 id="function-lisp_setf_cdr">Function <code>lisp_setf_cdr</code></h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_cdr(addr cons, addr value);</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>Input: cons</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a>Input: value, Object</span></code></pre></div>
+<p>If <code>value</code> is a hold variable, the content is used.<br />
+Set the <code>value</code> to the cdr part of the <code>cons</code>.</p>
+<h2 id="function-lisp_setf_carcdr">Function <code>lisp_setf_carcdr</code></h2>
+<div class="sourceCode" id="cb25"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="dt">void</span> lisp_setf_carcdr(addr cons, addr car, addr cdr);</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a>Input: cons</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a>Input: car, cdr, Object</span></code></pre></div>
+<p>If <code>car</code>, <code>cdr</code> are hold variables, their contents are used.<br />
+Set the <code>car</code> to the car part of the <code>cons</code>.<br />
+Set the <code>cdr</code> to the cdr part of the <code>cons</code>.</p>
+<h1 id="string"><a id="string">4. String</a></h1>
+<p>Function of the string.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="dt">int</span> lisp_string8_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a><span class="dt">int</span> lisp_string16_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a><span class="dt">int</span> lisp_string32_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a><span class="dt">int</span> lisp_string_getc_(addr pos, <span class="dt">size_t</span> i, unicode *c);</span></code></pre></div>
+<h1 id="escape-function-lisp_string8_">Escape Function <code>lisp_string8_</code></h1>
+<div class="sourceCode" id="cb27"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="dt">int</span> lisp_string8_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a><span class="dt">int</span> lisp_string16_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a><span class="dt">int</span> lisp_string32_(addr x, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a>Input: str, string</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a>Output: x, hold variable</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>Returns a string object.<br />
+It is a special object of type <code>simple-string</code>.<br />
+<code>str</code> specifies a string to be stored in the object.<br />
+The memory format of <code>str</code> is as follows.</p>
+<ul>
+<li>8-bit, 16-bit and 32-bit arrays</li>
+<li>UTF-8, UTF-16 and UTF-32 encoding</li>
+<li>Terminate with zero.</li>
+</ul>
+<h1 id="escape-function-lisp_string16_">Escape Function <code>lisp_string16_</code></h1>
+<p>Explained in <code>lisp_string8_</code>.</p>
+<h1 id="escape-function-lisp_string32_">Escape Function <code>lisp_string32_</code></h1>
+<p>Explained in <code>lisp_string8_</code>.</p>
+<h2 id="escape-function-lisp_string_getc_">Escape Function <code>lisp_string_getc_</code></h2>
+<div class="sourceCode" id="cb28"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a><span class="dt">int</span> lisp_string_getc_(addr pos, <span class="dt">size_t</span> i, unicode *c);</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a>Input: pos, string</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true"></a>Input: i, index</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true"></a>Output: c, character</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true"></a>Return: Non-zero when escaping.</span></code></pre></div>
+<p>Get the value of a character from a <code>strvect</code> object.<br />
+If <code>pos</code> is a hold variable, the content is used.</p>
+<h1 id="strvect"><a id="strvect">4. Strvect</a></h1>
+<p>Function of <code>strvect</code>, which is an object for <code>simple-string</code>.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a><span class="dt">int</span> lisp_strvect_getc(addr pos, <span class="dt">size_t</span> i, unicode *c);</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true"></a><span class="dt">int</span> lisp_strvect_length(addr pos, <span class="dt">size_t</span> *ret);</span></code></pre></div>
+<h2 id="function-lisp_strvect_getc">Function <code>lisp_strvect_getc</code></h2>
+<div class="sourceCode" id="cb30"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true"></a><span class="dt">int</span> lisp_strvect_getc(addr pos, <span class="dt">size_t</span> i, unicode *c);</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true"></a>Input: pos, Object</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true"></a>Input: i, Index</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true"></a>Output: c, Character</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true"></a>Return: Normal: <span class="dv">0</span>, Error: non-zero</span></code></pre></div>
+<p>Get the value of a character from a <code>strvect</code> object.<br />
+This function is for retrieving a character from a string without escaping.</p>
+<p>Unlike <code>lisp_string_getc_</code>, it does not support <code>array</code> objects.<br />
+If it is not a <code>strvect</code> type object, the function exits with the return value <code>-1</code>.<br />
+If <code>i</code> is more than the number of characters, it exits with the return value <code>1</code>.<br />
+If the character is returned to <code>c</code>, the function exits with the return value <code>0</code>.</p>
+<h2 id="function-lisp_strvect_length">Function <code>lisp_strvect_length</code></h2>
+<div class="sourceCode" id="cb31"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a><span class="dt">int</span> lisp_strvect_length(addr pos, <span class="dt">size_t</span> *ret);</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true"></a>Input: pos, Object</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true"></a>Output: ret, Length of a string.</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true"></a>Return: Normal: <span class="dv">0</span>, Error: non-zero</span></code></pre></div>
+<p>Get the length of a string from the <code>strvect</code> object.<br />
+This function gets the length of a string without escaping.</p>
+<p>Unlike <code>lisp_length_</code>, it works only with <code>strvect</code> objects.<br />
+If it is not a <code>strvect</code> type object, the function exits with the return value <code>-1</code>.<br />
+If the length of the string is returned to <code>ret</code>, the function exits with the return value <code>0</code>.</p>
+</body>
+</html>

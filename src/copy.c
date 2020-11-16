@@ -390,6 +390,11 @@ static void copylocal_character(LocalRoot local, addr *ret, addr pos)
 	character_alloc(local, ret, RefCharacter(pos));
 }
 
+static void copylocal_string(LocalRoot local, addr *ret, addr pos)
+{
+	strvect_copy_alloc(local, ret, pos);
+}
+
 static void copylocal_fixnum(LocalRoot local, addr *ret, addr pos)
 {
 	fixnum_alloc(local, ret, RefFixnum(pos));
@@ -537,7 +542,7 @@ static void init_copylocal_call(void)
 	TableCopySoft[LISPTYPE_ARRAY] = copylocal_error;
 	TableCopySoft[LISPTYPE_VECTOR] = copylocal_vector;
 	TableCopySoft[LISPTYPE_CHARACTER] = copylocal_character;
-	TableCopySoft[LISPTYPE_STRING] = copylocal_error;
+	TableCopySoft[LISPTYPE_STRING] = copylocal_string;
 	TableCopySoft[LISPTYPE_HASHTABLE] = copylocal_error;
 	TableCopySoft[LISPTYPE_READTABLE] = copylocal_error;
 	TableCopySoft[LISPTYPE_SYMBOL] = copylocal_error;

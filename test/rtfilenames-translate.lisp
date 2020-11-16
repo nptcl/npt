@@ -74,3 +74,50 @@
     #p"/usr/*/hello.txt")
   #p"/usr/usr/local/hello.txt")
 
+
+#|
+;; The results of the following five forms are all implementation-dependent.
+;; The second item in particular is shown with multiple results just to
+;; emphasize one of many particular variations which commonly occurs.
+(deftest translate-pathname-test.1
+  (pathname-name (translate-pathname "foobar" "foo*" "*baz"))
+  "barbaz")
+
+(pathname-name (translate-pathname "foobar" "foo*" "*"))
+=>  "foobar"
+OR=>  "bar"
+(pathname-name (translate-pathname "foobar" "*"    "foo*")) =>  "foofoobar"
+(pathname-name (translate-pathname "bar"    "*"    "foo*")) =>  "foobar"
+(pathname-name (translate-pathname "foobar" "foo*" "baz*")) =>  "bazbar"
+
+(defun translate-logical-pathname-1 (pathname rules)
+  (let ((rule (assoc pathname rules :test #'pathname-match-p)))
+    (unless rule (error "No translation rule for ~A" pathname))
+    (translate-pathname pathname (first rule) (second rule))))
+(translate-logical-pathname-1 "FOO:CODE;BASIC.LISP"
+                              '(("FOO:DOCUMENTATION;" "MY-UNIX:/doc/foo/")
+                                ("FOO:CODE;"          "MY-UNIX:/lib/foo/")
+                                ("FOO:PATCHES;*;"     "MY-UNIX:/lib/foo/patch/*/")))
+=>  #P"MY-UNIX:/lib/foo/basic.l"
+
+;; This example assumes one particular set of wildcard conventions
+;; Not all file systems will run this example exactly as written
+(defun rename-files (from to)
+  (dolist (file (directory from))
+    (rename-file file (translate-pathname file from to))))
+(rename-files "/usr/me/*.lisp" "/dev/her/*.l")
+;Renames /usr/me/init.lisp to /dev/her/init.l
+(rename-files "/usr/me/pcl*/*" "/sys/pcl/*/")
+;Renames /usr/me/pcl-5-may/low.lisp to /sys/pcl/pcl-5-may/low.lisp
+;In some file systems the result might be /sys/pcl/5-may/low.lisp
+(rename-files "/usr/me/pcl*/*" "/sys/library/*/")
+;Renames /usr/me/pcl-5-may/low.lisp to /sys/library/pcl-5-may/low.lisp
+;In some file systems the result might be /sys/library/5-may/low.lisp
+(rename-files "/usr/me/foo.bar" "/usr/me2/")
+;Renames /usr/me/foo.bar to /usr/me2/foo.bar
+(rename-files "/usr/joe/*-recipes.text" "/usr/jim/cookbook/joe's-*-rec.text")
+;Renames /usr/joe/lamb-recipes.text to /usr/jim/cookbook/joe's-lamb-rec.text
+;Renames /usr/joe/pork-recipes.text to /usr/jim/cookbook/joe's-pork-rec.text
+;Renames /usr/joe/veg-recipes.text to /usr/jim/cookbook/joe's-veg-rec.text
+|#
+
