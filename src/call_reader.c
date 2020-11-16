@@ -20,7 +20,7 @@
 /*
  *  copy-readtable
  */
-_g int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
+int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
 {
 	int check1, check2;
 
@@ -58,7 +58,7 @@ _g int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
 /*
  *  make-dispatch-macro-character
  */
-_g int make_dispatch_macro_character_common(Execute ptr,
+int make_dispatch_macro_character_common(Execute ptr,
 		addr code, addr nonterm, addr readtable)
 {
 	if (nonterm == Unbound) {
@@ -76,7 +76,7 @@ _g int make_dispatch_macro_character_common(Execute ptr,
 /*
  *  read
  */
-_g int read_common(Execute ptr, addr args, addr *ret)
+int read_common(Execute ptr, addr args, addr *ret)
 {
 	int check;
 	addr stream, error, eof, recp;
@@ -136,7 +136,7 @@ _g int read_common(Execute ptr, addr args, addr *ret)
 /*
  *  read-preserving-whitespace
  */
-_g int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
+int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
 {
 	int check;
 	addr stream, error, eof, recp;
@@ -196,7 +196,7 @@ _g int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
 /*
  *  read-delimited-list
  */
-_g int read_delimited_list_common(Execute ptr, addr code, addr stream, addr recp)
+int read_delimited_list_common(Execute ptr, addr code, addr stream, addr recp)
 {
 	unicode c;
 
@@ -248,7 +248,7 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 	return 0;
 }
 
-_g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
+int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 {
 	int eofp, preserve;
 	addr str, eof, pos, key;
@@ -324,7 +324,7 @@ error:
 /*
  *  readtable-case
  */
-_g int readtable_case_common(addr var, addr *ret)
+int readtable_case_common(addr var, addr *ret)
 {
 	constindex index;
 
@@ -357,7 +357,7 @@ _g int readtable_case_common(addr var, addr *ret)
 /*
  *  (setf readtable-case)
  */
-_g int setf_readtable_case_common(addr value, addr var)
+int setf_readtable_case_common(addr value, addr var)
 {
 	addr key;
 
@@ -393,7 +393,7 @@ _g int setf_readtable_case_common(addr value, addr var)
 /*
  *  get-dispatch-macro-character
  */
-_g int get_dispatch_macro_character_common(Execute ptr,
+int get_dispatch_macro_character_common(Execute ptr,
 		addr x, addr y, addr readtable, addr *ret)
 {
 	unicode a, b;
@@ -416,7 +416,7 @@ _g int get_dispatch_macro_character_common(Execute ptr,
 /*
  *  set-dispatch-macro-character
  */
-_g int set_dispatch_macro_character_common(Execute ptr,
+int set_dispatch_macro_character_common(Execute ptr,
 		addr x, addr y, addr call, addr readtable)
 {
 	unicode a, b;
@@ -447,7 +447,7 @@ _g int set_dispatch_macro_character_common(Execute ptr,
 /*
  *  get-macro-character
  */
-_g int get_macro_character_common(Execute ptr,
+int get_macro_character_common(Execute ptr,
 		addr code, addr readtable, addr *ret, addr *sec)
 {
 	int check;
@@ -475,7 +475,7 @@ _g int get_macro_character_common(Execute ptr,
 /*
  *  set-macro-character
  */
-_g int set_macro_character_common(Execute ptr,
+int set_macro_character_common(Execute ptr,
 		addr code, addr call, addr nonterm, addr readtable)
 {
 	unicode c;
@@ -505,7 +505,7 @@ _g int set_macro_character_common(Execute ptr,
 /*
  *  set-syntax-from-char
  */
-_g int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
+int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
 {
 	unicode a, b;
 
@@ -530,7 +530,7 @@ _g int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
 /*
  *  with-standard-io-syntax
  */
-_g int with_standard_io_syntax_common(addr form, addr env, addr *ret)
+int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 {
 	addr args, symbol, value;
 

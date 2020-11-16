@@ -11,61 +11,61 @@
 #include "strvect.h"
 #include "typedef.h"
 
-_g int single_float_check_alloc_(LocalRoot local, addr *ret, single_float value)
+int single_float_check_alloc_(LocalRoot local, addr *ret, single_float value)
 {
 	Return_float_errorcheck0(CONSTANT_COMMON_FLOAT, value);
 	single_float_alloc(local, ret, value);
 	return 0;
 }
 
-_g int single_float_check_local_(LocalRoot local, addr *ret, single_float value)
+int single_float_check_local_(LocalRoot local, addr *ret, single_float value)
 {
 	Check(local == NULL, "local error");
 	return single_float_check_alloc_(local, ret, value);
 }
 
-_g int single_float_check_heap_(addr *ret, single_float value)
+int single_float_check_heap_(addr *ret, single_float value)
 {
 	return single_float_check_alloc_(NULL, ret, value);
 }
 
-_g int double_float_check_alloc_(LocalRoot local, addr *ret, double_float value)
+int double_float_check_alloc_(LocalRoot local, addr *ret, double_float value)
 {
 	Return_float_errorcheck0(CONSTANT_COMMON_FLOAT, value);
 	double_float_alloc(local, ret, value);
 	return 0;
 }
 
-_g int double_float_check_local_(LocalRoot local, addr *ret, double_float value)
+int double_float_check_local_(LocalRoot local, addr *ret, double_float value)
 {
 	Check(local == NULL, "local error");
 	return double_float_check_alloc_(local, ret, value);
 }
 
-_g int double_float_check_heap_(addr *ret, double_float value)
+int double_float_check_heap_(addr *ret, double_float value)
 {
 	return double_float_check_alloc_(NULL, ret, value);
 }
 
-_g int long_float_check_alloc_(LocalRoot local, addr *ret, long_float value)
+int long_float_check_alloc_(LocalRoot local, addr *ret, long_float value)
 {
 	Return_float_errorcheck0(CONSTANT_COMMON_FLOAT, value);
 	long_float_alloc(local, ret, value);
 	return 0;
 }
 
-_g int long_float_check_local_(LocalRoot local, addr *ret, long_float value)
+int long_float_check_local_(LocalRoot local, addr *ret, long_float value)
 {
 	Check(local == NULL, "local error");
 	return long_float_check_alloc_(local, ret, value);
 }
 
-_g int long_float_check_heap_(addr *ret, long_float value)
+int long_float_check_heap_(addr *ret, long_float value)
 {
 	return long_float_check_alloc_(NULL, ret, value);
 }
 
-_g void single_float_throw_heap(addr pos, addr *ret)
+void single_float_throw_heap(addr pos, addr *ret)
 {
 	Check(GetType(pos) != LISPTYPE_SINGLE_FLOAT, "type error");
 	if (GetStatusDynamic(pos))
@@ -74,7 +74,7 @@ _g void single_float_throw_heap(addr pos, addr *ret)
 		*ret = pos;
 }
 
-_g void double_float_throw_heap(addr pos, addr *ret)
+void double_float_throw_heap(addr pos, addr *ret)
 {
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
 	if (GetStatusDynamic(pos))
@@ -83,7 +83,7 @@ _g void double_float_throw_heap(addr pos, addr *ret)
 		*ret = pos;
 }
 
-_g void long_float_throw_heap(addr pos, addr *ret)
+void long_float_throw_heap(addr pos, addr *ret)
 {
 	Check(GetType(pos) != LISPTYPE_LONG_FLOAT, "type error");
 	if (GetStatusDynamic(pos))
@@ -92,7 +92,7 @@ _g void long_float_throw_heap(addr pos, addr *ret)
 		*ret = pos;
 }
 
-_g void single_float_throw_local(LocalRoot local, addr pos, addr *ret)
+void single_float_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(GetType(pos) != LISPTYPE_SINGLE_FLOAT, "type error");
@@ -102,7 +102,7 @@ _g void single_float_throw_local(LocalRoot local, addr pos, addr *ret)
 		single_float_local(local, ret, RefSingleFloat(pos));
 }
 
-_g void double_float_throw_local(LocalRoot local, addr pos, addr *ret)
+void double_float_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
@@ -112,7 +112,7 @@ _g void double_float_throw_local(LocalRoot local, addr pos, addr *ret)
 		double_float_local(local, ret, RefDoubleFloat(pos));
 }
 
-_g void long_float_throw_local(LocalRoot local, addr pos, addr *ret)
+void long_float_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(GetType(pos) != LISPTYPE_LONG_FLOAT, "type error");
@@ -122,7 +122,7 @@ _g void long_float_throw_local(LocalRoot local, addr pos, addr *ret)
 		long_float_local(local, ret, RefLongFloat(pos));
 }
 
-_g void single_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
+void single_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (local)
 		single_float_throw_local(local, pos, ret);
@@ -130,7 +130,7 @@ _g void single_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 		single_float_throw_heap(pos, ret);
 }
 
-_g void double_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
+void double_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (local)
 		double_float_throw_local(local, pos, ret);
@@ -138,7 +138,7 @@ _g void double_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 		double_float_throw_heap(pos, ret);
 }
 
-_g void long_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
+void long_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (local)
 		long_float_throw_local(local, pos, ret);
@@ -146,18 +146,18 @@ _g void long_float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 		long_float_throw_heap(pos, ret);
 }
 
-_g int float_throw_heap_(addr pos, addr *ret)
+int float_throw_heap_(addr pos, addr *ret)
 {
 	return float_throw_alloc_(NULL, pos, ret);
 }
 
-_g int float_throw_local_(LocalRoot local, addr pos, addr *ret)
+int float_throw_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return float_throw_alloc_(local, pos, ret);
 }
 
-_g int float_throw_alloc_(LocalRoot local, addr pos, addr *ret)
+int float_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -202,7 +202,7 @@ static void long_float_copy_alloc(LocalRoot local, addr pos, addr *ret)
 	long_float_alloc(local, ret, RefLongFloat(pos));
 }
 
-_g void float_copy_alloc(LocalRoot local, addr pos, addr *ret)
+void float_copy_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -228,13 +228,13 @@ _g void float_copy_alloc(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-_g void float_copy_local(LocalRoot local, addr pos, addr *ret)
+void float_copy_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	float_copy_alloc(local, pos, ret);
 }
 
-_g void float_copy_heap(addr pos, addr *ret)
+void float_copy_heap(addr pos, addr *ret)
 {
 	float_copy_alloc(NULL, pos, ret);
 }
@@ -243,7 +243,7 @@ _g void float_copy_heap(addr pos, addr *ret)
 /*
  *  strtof
  */
-_g fltclasstype fltclassify(int check, int sign)
+fltclasstype fltclassify(int check, int sign)
 {
 	if (check == FP_INFINITE) {
 		if (sign)
@@ -258,7 +258,7 @@ _g fltclasstype fltclassify(int check, int sign)
 	return fltclass_normal;
 }
 
-_g int float_fltclass_(constindex index, fltclasstype type, ...)
+int float_fltclass_(constindex index, fltclasstype type, ...)
 {
 	va_list args;
 	addr list;
@@ -361,7 +361,7 @@ static long_float strtold_c(const char *str)
 	return value;
 }
 
-_g int check_strtof_(const char *str, addr pos, single_float *ret)
+int check_strtof_(const char *str, addr pos, single_float *ret)
 {
 	fltclasstype type;
 	single_float value;
@@ -378,7 +378,7 @@ _g int check_strtof_(const char *str, addr pos, single_float *ret)
 	return Result(ret, value);
 }
 
-_g int check_strtod_(const char *str, addr pos, double_float *ret)
+int check_strtod_(const char *str, addr pos, double_float *ret)
 {
 	fltclasstype type;
 	double_float value;
@@ -395,7 +395,7 @@ _g int check_strtod_(const char *str, addr pos, double_float *ret)
 	return Result(ret, value);
 }
 
-_g int check_strtold_(const char *str, addr pos, long_float *ret)
+int check_strtold_(const char *str, addr pos, long_float *ret)
 {
 	fltclasstype type;
 	long_float value;
@@ -412,7 +412,7 @@ _g int check_strtold_(const char *str, addr pos, long_float *ret)
 	return Result(ret, value);
 }
 
-_g int check_strtof_reverse_(const char *str, addr pos, single_float *ret)
+int check_strtof_reverse_(const char *str, addr pos, single_float *ret)
 {
 	fltclasstype type;
 	single_float value;
@@ -429,7 +429,7 @@ _g int check_strtof_reverse_(const char *str, addr pos, single_float *ret)
 	return Result(ret, value);
 }
 
-_g int check_strtod_reverse_(const char *str, addr pos, double_float *ret)
+int check_strtod_reverse_(const char *str, addr pos, double_float *ret)
 {
 	fltclasstype type;
 	double_float value;
@@ -446,7 +446,7 @@ _g int check_strtod_reverse_(const char *str, addr pos, double_float *ret)
 	return Result(ret, value);
 }
 
-_g int check_strtold_reverse_(const char *str, addr pos, long_float *ret)
+int check_strtold_reverse_(const char *str, addr pos, long_float *ret)
 {
 	fltclasstype type;
 	long_float value;
@@ -467,7 +467,7 @@ _g int check_strtold_reverse_(const char *str, addr pos, long_float *ret)
 /*
  *  abs
  */
-_g void abs_floats_alloc(LocalRoot local, addr left, addr *ret)
+void abs_floats_alloc(LocalRoot local, addr left, addr *ret)
 {
 	single_float value;
 
@@ -478,7 +478,7 @@ _g void abs_floats_alloc(LocalRoot local, addr left, addr *ret)
 		single_float_alloc(local, ret, fabsf(value));
 }
 
-_g void abs_floatd_alloc(LocalRoot local, addr left, addr *ret)
+void abs_floatd_alloc(LocalRoot local, addr left, addr *ret)
 {
 	double_float value;
 
@@ -489,7 +489,7 @@ _g void abs_floatd_alloc(LocalRoot local, addr left, addr *ret)
 		double_float_alloc(local, ret, fabs(value));
 }
 
-_g void abs_floatl_alloc(LocalRoot local, addr left, addr *ret)
+void abs_floatl_alloc(LocalRoot local, addr left, addr *ret)
 {
 	long_float value;
 
@@ -500,35 +500,35 @@ _g void abs_floatl_alloc(LocalRoot local, addr left, addr *ret)
 		long_float_alloc(local, ret, fabsl(value));
 }
 
-_g void abs_floats_local(LocalRoot local, addr left, addr *ret)
+void abs_floats_local(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	abs_floats_alloc(local, left, ret);
 }
 
-_g void abs_floatd_local(LocalRoot local, addr left, addr *ret)
+void abs_floatd_local(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	abs_floatd_alloc(local, left, ret);
 }
 
-_g void abs_floatl_local(LocalRoot local, addr left, addr *ret)
+void abs_floatl_local(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	abs_floatl_alloc(local, left, ret);
 }
 
-_g void abs_floats_heap(addr left, addr *ret)
+void abs_floats_heap(addr left, addr *ret)
 {
 	abs_floats_alloc(NULL, left, ret);
 }
 
-_g void abs_floatd_heap(addr left, addr *ret)
+void abs_floatd_heap(addr left, addr *ret)
 {
 	abs_floatd_alloc(NULL, left, ret);
 }
 
-_g void abs_floatl_heap(addr left, addr *ret)
+void abs_floatl_heap(addr left, addr *ret)
 {
 	abs_floatl_alloc(NULL, left, ret);
 }
@@ -537,17 +537,17 @@ _g void abs_floatl_heap(addr left, addr *ret)
 /*
  *  cast
  */
-_g int cast_sd_float_(single_float v, double_float *ret)
+int cast_sd_float_(single_float v, double_float *ret)
 {
 	return Result(ret, (double_float)v);
 }
 
-_g int cast_sl_float_(single_float v, long_float *ret)
+int cast_sl_float_(single_float v, long_float *ret)
 {
 	return Result(ret, (long_float)v);
 }
 
-_g int cast_ds_float_(double_float v, single_float *ret)
+int cast_ds_float_(double_float v, single_float *ret)
 {
 	fltclasstype type;
 	single_float value;
@@ -564,12 +564,12 @@ _g int cast_ds_float_(double_float v, single_float *ret)
 	return Result(ret, value);
 }
 
-_g int cast_dl_float_(double_float v, long_float *ret)
+int cast_dl_float_(double_float v, long_float *ret)
 {
 	return Result(ret, (long_float)v);
 }
 
-_g int cast_ls_float_(long_float v, single_float *ret)
+int cast_ls_float_(long_float v, single_float *ret)
 {
 	fltclasstype type;
 	single_float value;
@@ -586,7 +586,7 @@ _g int cast_ls_float_(long_float v, single_float *ret)
 	return Result(ret, value);
 }
 
-_g int cast_ld_float_(long_float v, double_float *ret)
+int cast_ld_float_(long_float v, double_float *ret)
 {
 	fltclasstype type;
 	double_float value;
@@ -603,19 +603,19 @@ _g int cast_ld_float_(long_float v, double_float *ret)
 	return Result(ret, value);
 }
 
-_g int cast_sd_value_(addr pos, double_float *ret)
+int cast_sd_value_(addr pos, double_float *ret)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	return Result(ret, (double_float)RefSingleFloat(pos));
 }
 
-_g int cast_sl_value_(addr pos, long_float *ret)
+int cast_sl_value_(addr pos, long_float *ret)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	return Result(ret, (long_float)RefSingleFloat(pos));
 }
 
-_g int cast_ds_value_(addr pos, single_float *ret)
+int cast_ds_value_(addr pos, single_float *ret)
 {
 	single_float v;
 
@@ -626,13 +626,13 @@ _g int cast_ds_value_(addr pos, single_float *ret)
 	return Result(ret, v);
 }
 
-_g int cast_dl_value_(addr pos, long_float *ret)
+int cast_dl_value_(addr pos, long_float *ret)
 {
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	return Result(ret, (long_float)RefDoubleFloat(pos));
 }
 
-_g int cast_ls_value_(addr pos, single_float *ret)
+int cast_ls_value_(addr pos, single_float *ret)
 {
 	single_float v;
 
@@ -643,7 +643,7 @@ _g int cast_ls_value_(addr pos, single_float *ret)
 	return Result(ret, v);
 }
 
-_g int cast_ld_value_(addr pos, double_float *ret)
+int cast_ld_value_(addr pos, double_float *ret)
 {
 	double_float v;
 
@@ -654,21 +654,21 @@ _g int cast_ld_value_(addr pos, double_float *ret)
 	return Result(ret, v);
 }
 
-_g int cast_ss_value_(addr pos, single_float *ret)
+int cast_ss_value_(addr pos, single_float *ret)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	GetSingleFloat(pos, ret);
 	return 0;
 }
 
-_g int cast_dd_value_(addr pos, double_float *ret)
+int cast_dd_value_(addr pos, double_float *ret)
 {
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	GetDoubleFloat(pos, ret);
 	return 0;
 }
 
-_g int cast_ll_value_(addr pos, long_float *ret)
+int cast_ll_value_(addr pos, long_float *ret)
 {
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	GetLongFloat(pos, ret);
@@ -730,7 +730,7 @@ static int sqrt_long_float_alloc_(LocalRoot local, addr left, addr *ret)
 	}
 }
 
-_g int sqrt_float_alloc_(LocalRoot local, addr left, addr *ret)
+int sqrt_float_alloc_(LocalRoot local, addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -748,13 +748,13 @@ _g int sqrt_float_alloc_(LocalRoot local, addr left, addr *ret)
 	}
 }
 
-_g int sqrt_float_local_(LocalRoot local, addr left, addr *ret)
+int sqrt_float_local_(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return sqrt_float_alloc_(local, left, ret);
 }
 
-_g int sqrt_float_heap_(LocalRoot local, addr left, addr *ret)
+int sqrt_float_heap_(LocalRoot local, addr left, addr *ret)
 {
 	return sqrt_float_alloc_(NULL, left, ret);
 }

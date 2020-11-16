@@ -25,16 +25,16 @@
 
 #define create_chmod_644 (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 
-_g int init_file(void)
+int init_file(void)
 {
 	return 0;
 }
 
-_g void free_file(void)
+void free_file(void)
 {
 }
 
-_g int consolep_file(void)
+int consolep_file(void)
 {
 	return isatty(STDIN_FILENO) &&
 		isatty(STDOUT_FILENO) &&

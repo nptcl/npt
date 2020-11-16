@@ -7,7 +7,7 @@
 
 #define run_process_ _n(run_process_)
 
-_g int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret);
+int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret);
 
 #endif
 

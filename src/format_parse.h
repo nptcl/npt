@@ -17,16 +17,16 @@
 #define format_string_heap_ _n(format_string_heap_)
 #define init_format_parse _n(init_format_parse)
 
-_g int format_abort_(addr format, size_t position, const char *str, va_list args);
-_g int formatp(addr pos);
-_g void *format_pointer(addr pos);
-_g size_t format_bytesize(size_t count);
-_g int format_parse_local_(LocalRoot local, addr *ret, addr format);
-_g int format_parse_heap_(LocalRoot local, addr *ret, addr format);
-_g int format_string_alloc_(LocalRoot local, addr *ret, addr format);
-_g int format_string_local_(LocalRoot local, addr *ret, addr format);
-_g int format_string_heap_(addr *ret, addr format);
-_g void init_format_parse(void);
+int format_abort_(addr format, size_t position, const char *str, va_list args);
+int formatp(addr pos);
+void *format_pointer(addr pos);
+size_t format_bytesize(size_t count);
+int format_parse_local_(LocalRoot local, addr *ret, addr format);
+int format_parse_heap_(LocalRoot local, addr *ret, addr format);
+int format_string_alloc_(LocalRoot local, addr *ret, addr format);
+int format_string_local_(LocalRoot local, addr *ret, addr format);
+int format_string_heap_(addr *ret, addr format);
+void init_format_parse(void);
 
 #endif
 

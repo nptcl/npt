@@ -89,41 +89,41 @@ struct argument_struct {
 #endif
 
 /* parse */
-_g int lambda_macro_(LocalRoot local, addr *ret, addr cons, addr instance);
-_g int lambda_deftype_(LocalRoot local, addr *ret, addr cons, addr instance);
-_g int lambda_generic_function_(LocalRoot local, addr *ret, addr cons);
-_g int lambda_specialized_(LocalRoot local, addr *ret, addr cons);
-_g int lambda_ordinary_(LocalRoot local, addr *ret, addr cons);
-_g void atleast_argument_count(addr cons, size_t *ret);
-_g int lambda_defsetf_(LocalRoot local, addr *ret, addr cons);
-_g void getenvironment_macro_lambda(addr pos, addr *ret);
-_g int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args);
+int lambda_macro_(LocalRoot local, addr *ret, addr cons, addr instance);
+int lambda_deftype_(LocalRoot local, addr *ret, addr cons, addr instance);
+int lambda_generic_function_(LocalRoot local, addr *ret, addr cons);
+int lambda_specialized_(LocalRoot local, addr *ret, addr cons);
+int lambda_ordinary_(LocalRoot local, addr *ret, addr cons);
+void atleast_argument_count(addr cons, size_t *ret);
+int lambda_defsetf_(LocalRoot local, addr *ret, addr cons);
+void getenvironment_macro_lambda(addr pos, addr *ret);
+int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args);
 
 /* argument */
-_g int argumentp(addr pos);
-_g void getargument(addr pos, size_t index, addr *ret);
-_g void setargument(addr pos, size_t index, addr value);
-_g struct argument_struct *argumentstruct(addr pos);
-_g void argument_alloc(LocalRoot local, addr *ret);
-_g void argument_local(LocalRoot local, addr *ret);
-_g void argument_heap(addr *ret);
-_g int argument_ordinary_heap_(LocalRoot local, addr *ret, addr list);
-_g int argument_generic_heap_(LocalRoot local, addr *ret, addr list);
-_g int argument_method_heap_(LocalRoot local, addr *ret, addr list);
-_g int argument_combination_heap_(LocalRoot local, addr *ret, addr list);
-_g int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g);
+int argumentp(addr pos);
+void getargument(addr pos, size_t index, addr *ret);
+void setargument(addr pos, size_t index, addr value);
+struct argument_struct *argumentstruct(addr pos);
+void argument_alloc(LocalRoot local, addr *ret);
+void argument_local(LocalRoot local, addr *ret);
+void argument_heap(addr *ret);
+int argument_ordinary_heap_(LocalRoot local, addr *ret, addr list);
+int argument_generic_heap_(LocalRoot local, addr *ret, addr list);
+int argument_method_heap_(LocalRoot local, addr *ret, addr list);
+int argument_combination_heap_(LocalRoot local, addr *ret, addr list);
+int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g);
 
 /* expand */
-_g int argument_ordinary_lambda_heap_(addr *ret, addr pos);
-_g int argument_generic_lambda_heap_(addr *ret, addr pos);
-_g int argument_method_lambda_heap_(addr *ret, addr pos);
-_g int argument_method_keywords_heap_(addr pos, addr *ret, int *allow);
-_g void argument_method_to_generic(addr pos, addr *ret);
-_g int argument_boa_lambda_heap_(addr *ret, addr pos);
-_g int argument_boa_variables_heap_(addr *ret, addr pos);
+int argument_ordinary_lambda_heap_(addr *ret, addr pos);
+int argument_generic_lambda_heap_(addr *ret, addr pos);
+int argument_method_lambda_heap_(addr *ret, addr pos);
+int argument_method_keywords_heap_(addr pos, addr *ret, int *allow);
+void argument_method_to_generic(addr pos, addr *ret);
+int argument_boa_lambda_heap_(addr *ret, addr pos);
+int argument_boa_variables_heap_(addr *ret, addr pos);
 
 /* :allow-other-keys */
-_g int find_keyword_allow_other_keys(addr list);
+int find_keyword_allow_other_keys(addr list);
 
 #endif
 

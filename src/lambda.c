@@ -512,7 +512,7 @@ finish:
 	return 0;
 }
 
-_g int lambda_macro_(LocalRoot local, addr *ret, addr cons, addr instance)
+int lambda_macro_(LocalRoot local, addr *ret, addr cons, addr instance)
 {
 	return lambda_macro_call_(local, ret, cons, instance, Nil);
 }
@@ -521,7 +521,7 @@ _g int lambda_macro_(LocalRoot local, addr *ret, addr cons, addr instance)
 /*
  *  lambda-ordinary
  */
-_g int lambda_deftype_(LocalRoot local, addr *ret, addr cons, addr instance)
+int lambda_deftype_(LocalRoot local, addr *ret, addr cons, addr instance)
 {
 	addr aster;
 	GetConst(COMMON_ASTERISK, &aster);
@@ -584,7 +584,7 @@ static int push_varcons_generic_function_(LocalRoot local,
 	GetCar(cons, &one); \
 }
 
-_g int lambda_generic_function_(LocalRoot local, addr *ret, addr cons)
+int lambda_generic_function_(LocalRoot local, addr *ret, addr cons)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, one, symbol;
 
@@ -662,7 +662,7 @@ finish:
 	return 0;
 }
 
-_g void atleast_argument_count(addr cons, size_t *ret)
+void atleast_argument_count(addr cons, size_t *ret)
 {
 	GetCar(cons, &cons);
 	*ret = length_list_unsafe(cons);
@@ -735,7 +735,7 @@ static int specialized_var_(addr cons, addr *var, addr *spec)
 	return 0;
 }
 
-_g int lambda_specialized_(LocalRoot local, addr *ret, addr cons)
+int lambda_specialized_(LocalRoot local, addr *ret, addr cons)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, aux, one;
 	addr symbol, init, sup;
@@ -953,7 +953,7 @@ finish:
 	return 0;
 }
 
-_g int lambda_ordinary_(LocalRoot local, addr *ret, addr cons)
+int lambda_ordinary_(LocalRoot local, addr *ret, addr cons)
 {
 	return lambda_ordinary_g_(local, ret, cons, Nil);
 }
@@ -1021,7 +1021,7 @@ static int push_varcons_defsetf_(LocalRoot local, addr instance, addr var)
 	env = one; \
 }
 
-_g int lambda_defsetf_(LocalRoot local, addr *ret, addr cons)
+int lambda_defsetf_(LocalRoot local, addr *ret, addr cons)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, one;
 	addr env, symbol, init, sup;
@@ -1159,7 +1159,7 @@ finish:
 /*
  *  control
  */
-_g void getenvironment_macro_lambda(addr pos, addr *ret)
+void getenvironment_macro_lambda(addr pos, addr *ret)
 {
 	addr var, opt, rest, key, allow, aux, whole;
 	List_bind(pos, &var, &opt, &rest, &key, &allow, &aux, &whole, ret, NULL);
@@ -1223,7 +1223,7 @@ static void varsymbol_macro_lambda_heap(addr *ret, addr args)
 	*ret = root;
 }
 
-_g int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args)
+int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args)
 {
 	addr root;
 
@@ -1239,30 +1239,30 @@ _g int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args)
 /*
  *  argument
  */
-_g int argumentp(addr pos)
+int argumentp(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_ARGUMENT;
 }
 
-_g void getargument(addr pos, size_t index, addr *ret)
+void getargument(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_ARGUMENT);
 	GetArgument_Low(pos, index, ret);
 }
 
-_g void setargument(addr pos, size_t index, addr value)
+void setargument(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPSYSTEM_ARGUMENT);
 	SetArgument_Low(pos, index, value);
 }
 
-_g struct argument_struct *argumentstruct(addr pos)
+struct argument_struct *argumentstruct(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_ARGUMENT);
 	return ArgumentStruct_Low(pos);
 }
 
-_g void argument_alloc(LocalRoot local, addr *ret)
+void argument_alloc(LocalRoot local, addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -1274,13 +1274,13 @@ _g void argument_alloc(LocalRoot local, addr *ret)
 	*ret = pos;
 }
 
-_g void argument_local(LocalRoot local, addr *ret)
+void argument_local(LocalRoot local, addr *ret)
 {
 	CheckLocal(local);
 	argument_alloc(local, ret);
 }
 
-_g void argument_heap(addr *ret)
+void argument_heap(addr *ret)
 {
 	argument_alloc(NULL, ret);
 }
@@ -1328,12 +1328,12 @@ static int argument_ordinary_heap_g_(LocalRoot local, addr *ret, addr list, addr
 	return Result(ret, pos);
 }
 
-_g int argument_ordinary_heap_(LocalRoot local, addr *ret, addr list)
+int argument_ordinary_heap_(LocalRoot local, addr *ret, addr list)
 {
 	return argument_ordinary_heap_g_(local, ret, list, Nil);
 }
 
-_g int argument_generic_heap_(LocalRoot local, addr *ret, addr list)
+int argument_generic_heap_(LocalRoot local, addr *ret, addr list)
 {
 	addr pos, var, opt, rest, key, allow;
 	struct argument_struct *str;
@@ -1376,7 +1376,7 @@ _g int argument_generic_heap_(LocalRoot local, addr *ret, addr list)
 	return Result(ret, pos);
 }
 
-_g int argument_method_heap_(LocalRoot local, addr *ret, addr list)
+int argument_method_heap_(LocalRoot local, addr *ret, addr list)
 {
 	addr pos, var, opt, rest, key, allow, aux;
 	struct argument_struct *str;
@@ -1422,7 +1422,7 @@ _g int argument_method_heap_(LocalRoot local, addr *ret, addr list)
 	return Result(ret, pos);
 }
 
-_g int argument_combination_heap_(LocalRoot local, addr *ret, addr list)
+int argument_combination_heap_(LocalRoot local, addr *ret, addr list)
 {
 	addr whole, a, b, check;
 	struct argument_struct *str;
@@ -1450,7 +1450,7 @@ ordinary:
 	return Result(ret, list);
 }
 
-_g int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g)
+int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g)
 {
 	struct argument_struct *str;
 
@@ -1464,7 +1464,7 @@ _g int argument_boa_heap_(LocalRoot local, addr *ret, addr list, addr g)
 /*
  *  expand
  */
-_g int argument_generic_lambda_heap_(addr *ret, addr pos)
+int argument_generic_lambda_heap_(addr *ret, addr pos)
 {
 	addr root, list, var, a, b;
 	struct argument_struct *str;
@@ -1610,19 +1610,19 @@ static int argument_expand_heap_(addr *ret, addr pos)
 	return 0;
 }
 
-_g int argument_ordinary_lambda_heap_(addr *ret, addr pos)
+int argument_ordinary_lambda_heap_(addr *ret, addr pos)
 {
 	Check(ArgumentStruct(pos)->type != ArgumentType_ordinary, "type error");
 	return argument_expand_heap_(ret, pos);
 }
 
-_g int argument_method_lambda_heap_(addr *ret, addr pos)
+int argument_method_lambda_heap_(addr *ret, addr pos)
 {
 	Check(ArgumentStruct(pos)->type != ArgumentType_method, "type error");
 	return argument_expand_heap_(ret, pos);
 }
 
-_g int argument_method_keywords_heap_(addr pos, addr *ret, int *allow)
+int argument_method_keywords_heap_(addr pos, addr *ret, int *allow)
 {
 	addr root, list, key;
 	struct argument_struct *str;
@@ -1644,7 +1644,7 @@ _g int argument_method_keywords_heap_(addr pos, addr *ret, int *allow)
 	return 0;
 }
 
-_g void argument_method_to_generic(addr method, addr *ret)
+void argument_method_to_generic(addr method, addr *ret)
 {
 	addr pos, list, root, var;
 	struct argument_struct *str1, *str2;
@@ -1699,13 +1699,13 @@ _g void argument_method_to_generic(addr method, addr *ret)
 	*ret = pos;
 }
 
-_g int argument_boa_lambda_heap_(addr *ret, addr pos)
+int argument_boa_lambda_heap_(addr *ret, addr pos)
 {
 	Check(ArgumentStruct(pos)->type != ArgumentType_boa, "type error");
 	return argument_expand_heap_(ret, pos);
 }
 
-_g int argument_boa_variables_heap_(addr *ret, addr pos)
+int argument_boa_variables_heap_(addr *ret, addr pos)
 {
 	addr root, list, var, a, b, c, d;
 	struct argument_struct *str;
@@ -1769,7 +1769,7 @@ _g int argument_boa_variables_heap_(addr *ret, addr pos)
 /*
  *  :allow-other-keys
  */
-_g int find_keyword_allow_other_keys(addr list)
+int find_keyword_allow_other_keys(addr list)
 {
 	addr pos;
 	GetConst(KEYWORD_ALLOW_OTHER_KEYS, &pos);

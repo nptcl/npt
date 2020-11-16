@@ -54,7 +54,7 @@ static int function_handler_warning(Execute ptr, addr condition)
 	return force_output_stream_(stream);
 }
 
-_g int handler_warning_(Execute ptr)
+int handler_warning_(Execute ptr)
 {
 	addr pos, call;
 
@@ -76,7 +76,7 @@ static int function_handler_empty(Execute ptr, addr condition)
 	return 0;
 }
 
-_g int handler_savecore_(Execute ptr)
+int handler_savecore_(Execute ptr)
 {
 	addr pos, call;
 
@@ -92,7 +92,7 @@ _g int handler_savecore_(Execute ptr)
  *    ...
  *    ((system::exit #'function-handler-empty)))
  */
-_g int handler_exit_(Execute ptr)
+int handler_exit_(Execute ptr)
 {
 	addr pos, call;
 
@@ -359,7 +359,7 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 	return pop_control_(ptr, control);
 }
 
-_g int invoke_debugger(Execute ptr, addr condition)
+int invoke_debugger(Execute ptr, addr condition)
 {
 	addr symbol, prior, call, control;
 
@@ -380,7 +380,7 @@ _g int invoke_debugger(Execute ptr, addr condition)
 	return invoke_standard_debugger(ptr, condition);
 }
 
-_g void set_enable_debugger(Execute ptr, int value)
+void set_enable_debugger(Execute ptr, int value)
 {
 	addr pos;
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
@@ -391,7 +391,7 @@ _g void set_enable_debugger(Execute ptr, int value)
 /*
  *  initialize
  */
-_g void build_condition_debugger(Execute ptr)
+void build_condition_debugger(Execute ptr)
 {
 	addr symbol;
 
@@ -401,7 +401,7 @@ _g void build_condition_debugger(Execute ptr)
 	set_enable_debugger(ptr, 1);
 }
 
-_g void init_condition_debugger(void)
+void init_condition_debugger(void)
 {
 	SetPointerCall(defun, var1, handler_warning);
 	SetPointerCall(defun, var1, handler_empty);

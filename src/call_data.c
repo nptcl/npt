@@ -26,7 +26,7 @@
 /*
  *  apply
  */
-_g int apply_common_(Execute ptr, addr call, addr arg, addr args)
+int apply_common_(Execute ptr, addr call, addr arg, addr args)
 {
 	Return(lista_safe_local_(ptr->local, &args, arg, args));
 	return apply_control(ptr, call, args);
@@ -36,7 +36,7 @@ _g int apply_common_(Execute ptr, addr call, addr arg, addr args)
 /*
  *  defun
  */
-_g int defun_common(Execute ptr, addr form, addr env, addr *ret)
+int defun_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr right, eval, name, args, decl, doc;
 	LocalHold hold;
@@ -83,7 +83,7 @@ _g int defun_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  fdefinition
  */
-_g int fdefinition_common(Execute ptr, addr name, addr *ret)
+int fdefinition_common(Execute ptr, addr name, addr *ret)
 {
 	Return(parse_callname_error_(&name, name));
 	return callname_global_restart(ptr, name, ret);
@@ -93,7 +93,7 @@ _g int fdefinition_common(Execute ptr, addr name, addr *ret)
 /*
  *  (setf fdefinition)
  */
-_g int setf_fdefinition_common(addr value, addr name)
+int setf_fdefinition_common(addr value, addr name)
 {
 	Return(parse_callname_error_(&name, name));
 	Return(remtype_global_callname_(name));
@@ -105,7 +105,7 @@ _g int setf_fdefinition_common(addr value, addr name)
 /*
  *  fboundp
  */
-_g int fboundp_common_(addr name, int *ret)
+int fboundp_common_(addr name, int *ret)
 {
 	addr check;
 	CallNameType type;
@@ -133,7 +133,7 @@ _g int fboundp_common_(addr name, int *ret)
 /*
  *  fmakunbound
  */
-_g int fmakunbound_common(addr name)
+int fmakunbound_common(addr name)
 {
 	addr check;
 	CallNameType type;
@@ -167,7 +167,7 @@ static int function_closure_p(addr var)
 	return var != Nil;
 }
 
-_g void function_lambda_expression_common(addr var, addr *ret1, addr *ret2, addr *ret3)
+void function_lambda_expression_common(addr var, addr *ret1, addr *ret2, addr *ret3)
 {
 	addr pos1, pos2, pos3;
 
@@ -189,7 +189,7 @@ _g void function_lambda_expression_common(addr var, addr *ret1, addr *ret2, addr
 /*
  *  lambda-list-keywords
  */
-_g void lambda_list_keywords_common(addr *ret)
+void lambda_list_keywords_common(addr *ret)
 {
 	static const constindex lambda_list_keywords[] = {
 		CONSTANT_AMPERSAND_WHOLE,
@@ -221,7 +221,7 @@ _g void lambda_list_keywords_common(addr *ret)
 /*
  *  defconstant
  */
-_g int defconstant_common(addr form, addr env, addr *ret)
+int defconstant_common(addr form, addr env, addr *ret)
 {
 	/* (lisp-system::defconstant symbol value doc) */
 	addr args, symbol, value, doc, quote;
@@ -294,7 +294,7 @@ static void expand_defparameter(addr symbol, addr value, addr doc, addr *ret)
 	*ret = progn;
 }
 
-_g int defparameter_common(addr form, addr env, addr *ret)
+int defparameter_common(addr form, addr env, addr *ret)
 {
 	/* (lisp-system::defparameter symbol value doc) */
 	addr args, symbol, value, doc;
@@ -386,7 +386,7 @@ static void expand_defvar(addr symbol, addr value, addr doc, addr *ret)
 	*ret = progn;
 }
 
-_g int defvar_common(addr form, addr env, addr *ret)
+int defvar_common(addr form, addr env, addr *ret)
 {
 	addr args, symbol, value, doc;
 
@@ -436,7 +436,7 @@ static int check_destructuring_bind(addr pos)
 	return 0;
 }
 
-_g int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
+int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, lambda, expr, decl, eval;
 	LocalHold hold;
@@ -507,7 +507,7 @@ static int psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 	return 0;
 }
 
-_g int psetq_common(Execute ptr, addr form, addr env, addr *ret)
+int psetq_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	return psetq_common_constant(ptr, form, env, ret,
 			CONSTANT_COMMON_SETQ,
@@ -518,7 +518,7 @@ _g int psetq_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  psetf
  */
-_g int psetf_common(Execute ptr, addr form, addr env, addr *ret)
+int psetf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	return psetq_common_constant(ptr, form, env, ret,
 			CONSTANT_COMMON_SETF,
@@ -529,7 +529,7 @@ _g int psetf_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  return
  */
-_g int return_common(addr form, addr env, addr *ret)
+int return_common(addr form, addr env, addr *ret)
 {
 	addr args, value, return_from;
 
@@ -556,7 +556,7 @@ error:
 /*
  *  complement
  */
-_g void complement_common(addr var, addr *ret)
+void complement_common(addr var, addr *ret)
 {
 	addr pos;
 
@@ -570,7 +570,7 @@ _g void complement_common(addr var, addr *ret)
 /*
  *  constantly
  */
-_g void constantly_common(addr var, addr *ret)
+void constantly_common(addr var, addr *ret)
 {
 	addr pos;
 
@@ -584,7 +584,7 @@ _g void constantly_common(addr var, addr *ret)
 /*
  *  every
  */
-_g int every_common(Execute ptr, addr call, addr rest, addr *ret)
+int every_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
@@ -664,7 +664,7 @@ result_false:
 /*
  *  notevery
  */
-_g int notevery_common(Execute ptr, addr call, addr rest, addr *ret)
+int notevery_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	/* (notevery predicate sequence*) ==  (not (every predicate sequence*)) */
 	if (every_common(ptr, call, rest, &rest))
@@ -677,7 +677,7 @@ _g int notevery_common(Execute ptr, addr call, addr rest, addr *ret)
 /*
  *  some
  */
-_g int some_common(Execute ptr, addr call, addr rest, addr *ret)
+int some_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
@@ -761,7 +761,7 @@ result_false:
 /*
  *  notany
  */
-_g int notany_common(Execute ptr, addr call, addr rest, addr *ret)
+int notany_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	/* (notany predicate sequence*) ==  (not (some predicate sequence*)) */
 	if (some_common(ptr, call, rest, &rest))
@@ -774,7 +774,7 @@ _g int notany_common(Execute ptr, addr call, addr rest, addr *ret)
 /*
  *  and
  */
-_g int and_common(addr form, addr env, addr *ret)
+int and_common(addr form, addr env, addr *ret)
 {
 	addr expr, when, andv;
 
@@ -804,7 +804,7 @@ _g int and_common(addr form, addr env, addr *ret)
 /*
  *  cond
  */
-_g int cond_common(addr form, addr env, addr *ret)
+int cond_common(addr form, addr env, addr *ret)
 {
 	addr expr, tail, ifsym, progn, cond;
 
@@ -838,7 +838,7 @@ _g int cond_common(addr form, addr env, addr *ret)
 /*
  *  or
  */
-_g int or_common(Execute ptr, addr form, addr env, addr *ret)
+int or_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr gensym, let, ifsym, orv, expr;
 
@@ -877,7 +877,7 @@ _g int or_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  when
  */
-_g int when_common(addr form, addr env, addr *ret)
+int when_common(addr form, addr env, addr *ret)
 {
 	addr args, expr, ifsym, cons;
 
@@ -898,7 +898,7 @@ _g int when_common(addr form, addr env, addr *ret)
 /*
  *  unless
  */
-_g int unless_common(addr form, addr env, addr *ret)
+int unless_common(addr form, addr env, addr *ret)
 {
 	addr args, notv, expr, ifsym, cons;
 
@@ -921,7 +921,7 @@ _g int unless_common(addr form, addr env, addr *ret)
 /*
  *  case
  */
-_g int case_common(Execute ptr, addr form, addr env, addr *ret)
+int case_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	int lastp;
 	addr key, args, list, test, body, g, root;
@@ -991,7 +991,7 @@ _g int case_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  ecase
  */
-_g int ecase_common(Execute ptr, addr form, addr env, addr *ret)
+int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr key, args, list, test, body, g, root;
 	addr let, cond, eql, member, quote, error, type, a;
@@ -1241,7 +1241,7 @@ static int function_ccase_expand(Execute ptr,
 	return 0;
 }
 
-_g int ccase_common(Execute ptr, addr form, addr env, addr *ret)
+int ccase_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, x;
 	LocalHold hold;
@@ -1265,7 +1265,7 @@ error:
 /*
  *  typecase
  */
-_g int typecase_common(Execute ptr, addr form, addr env, addr *ret)
+int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	int lastp;
 	addr key, args, list, test, body, g, root;
@@ -1333,7 +1333,7 @@ _g int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  etypecase
  */
-_g int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
+int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr key, args, list, test, body, g, root;
 	addr let, cond, typep, quote, error, type;
@@ -1528,7 +1528,7 @@ static int function_ctypecase_expand(Execute ptr,
 	return 0;
 }
 
-_g int ctypecase_common(Execute ptr, addr form, addr env, addr *ret)
+int ctypecase_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, x;
 	LocalHold hold;
@@ -1552,7 +1552,7 @@ error:
 /*
  *  multiple-value-bind
  */
-_g int multiple_value_bind_common(Execute ptr, addr form, addr env, addr *ret)
+int multiple_value_bind_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr list, pos, vars, expr, doc, decl;
 	LocalHold hold;
@@ -1588,7 +1588,7 @@ error:
 /*
  *  multiple-value-list
  */
-_g int multiple_value_list_common(addr form, addr env, addr *ret)
+int multiple_value_list_common(addr form, addr env, addr *ret)
 {
 	addr args, expr, symbol, func, list;
 
@@ -1616,7 +1616,7 @@ error:
 /*
  *  multiple-value-setq
  */
-_g int multiple_value_setq_common(addr form, addr env, addr *ret)
+int multiple_value_setq_common(addr form, addr env, addr *ret)
 {
 	addr args, vars, expr, values, setf;
 
@@ -1646,7 +1646,7 @@ error:
 /*
  *  nth-value
  */
-_g int nth_value_common(addr form, addr env, addr *ret)
+int nth_value_common(addr form, addr env, addr *ret)
 {
 	addr args, nth, expr, nth_value;
 
@@ -1712,7 +1712,7 @@ static int function_prog_constant(addr form, addr *ret,
 	return 0;
 }
 
-_g int prog_common(addr form, addr env, addr *ret)
+int prog_common(addr form, addr env, addr *ret)
 {
 	return function_prog_constant(form, ret,
 			CONSTANT_COMMON_PROG,
@@ -1723,7 +1723,7 @@ _g int prog_common(addr form, addr env, addr *ret)
 /*
  *  prog*
  */
-_g int proga_common(addr form, addr env, addr *ret)
+int proga_common(addr form, addr env, addr *ret)
 {
 	return function_prog_constant(form, ret,
 			CONSTANT_COMMON_PROGA,
@@ -1734,7 +1734,7 @@ _g int proga_common(addr form, addr env, addr *ret)
 /*
  *  prog1
  */
-_g int prog1_common(Execute ptr, addr form, addr env, addr *ret)
+int prog1_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr expr, g, let, root;
 
@@ -1767,7 +1767,7 @@ _g int prog1_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  prog2
  */
-_g int prog2_common(addr form, addr env, addr *ret)
+int prog2_common(addr form, addr env, addr *ret)
 {
 	addr expr, progn, prog1;
 
@@ -1896,7 +1896,7 @@ static int define_modify_macro_expand_(LocalRoot local, addr *ret,
 	return 0;
 }
 
-_g int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *ret)
+int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, call, doc;
 
@@ -1983,7 +1983,7 @@ static void defsetf_long_common(addr access,
 	list_heap(ret, define, access, rest, defsetf, NULL);
 }
 
-_g int defsetf_common(addr form, addr env, addr *ret)
+int defsetf_common(addr form, addr env, addr *ret)
 {
 	addr args, arg1, arg2, arg3;
 
@@ -2027,7 +2027,7 @@ error:
 /*
  *  define-setf-expander
  */
-_g int define_setf_expander_common(addr form, addr env, addr *ret)
+int define_setf_expander_common(addr form, addr env, addr *ret)
 {
 	/* `(system::define-setf-expander
 	 *     ',access
@@ -2147,7 +2147,7 @@ static int setf_expr_common(Execute ptr, addr *ret, addr key, addr value, addr e
 		return setf_multiple_common(ret, value, a, b, g, w, r);
 }
 
-_g int setf_common(Execute ptr, addr form, addr env, addr *ret)
+int setf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr key, value, root, progn;
 	LocalHold hold;
@@ -2218,7 +2218,7 @@ static void shiftf_mvbind_common(addr *ret, addr g, addr r, addr body)
 	lista_heap(ret, mvbind, g, r, declare, body, NULL);
 }
 
-_g int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
+int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, root, pos, let, declare, prog1;
 	addr a, b, g, w, r, r0, alist, glist, wlist, rlist;
@@ -2306,7 +2306,7 @@ error:
 /*
  *  rotatef
  */
-_g int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
+int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, root, pos, let, declare;
 	addr a, b, g, w, r, r0, alist, glist, wlist, rlist;

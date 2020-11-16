@@ -24,12 +24,12 @@ int lisp_code = 0;
 int lisp_result = 0;
 FILE *lisp_stderr = NULL;
 
-_g FILE *lisperror_stream(void)
+FILE *lisperror_stream(void)
 {
 	return (lisp_stderr == NULL)? stderr: lisp_stderr;
 }
 
-_g int lisperror_noeol(const char *fmt, ...)
+int lisperror_noeol(const char *fmt, ...)
 {
 	int check;
 	FILE *file;
@@ -44,7 +44,7 @@ _g int lisperror_noeol(const char *fmt, ...)
 	return check;
 }
 
-_g int lisperror_va(const char *fmt, va_list args)
+int lisperror_va(const char *fmt, va_list args)
 {
 	int check;
 	FILE *file;
@@ -57,7 +57,7 @@ _g int lisperror_va(const char *fmt, va_list args)
 	return check;
 }
 
-_g int lisperror(const char *fmt, ...)
+int lisperror(const char *fmt, ...)
 {
 	int check;
 	va_list args;

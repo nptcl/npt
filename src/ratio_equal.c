@@ -11,7 +11,7 @@
 #include "real_equal.h"
 #include "typedef.h"
 
-_g int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom)
+int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom)
 {
 	addr pos1, pos2;
 
@@ -22,14 +22,14 @@ _g int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom)
 		&& equal_value_nosign_bignum(pos2, denom);
 }
 
-_g int equal_value_ratio(addr pos, int sign, bigtype numer, bigtype denom)
+int equal_value_ratio(addr pos, int sign, bigtype numer, bigtype denom)
 {
 	CheckType(pos, LISPTYPE_RATIO);
 	return (RefSignRatio(pos) == sign)
 		&& equal_value_nosign_ratio(pos, numer, denom);
 }
 
-_g int equal_fr_real(addr left, addr right)
+int equal_fr_real(addr left, addr right)
 {
 	int sign;
 	addr pos;
@@ -50,7 +50,7 @@ _g int equal_fr_real(addr left, addr right)
 	return RefSignRatio(right) == sign;
 }
 
-_g int equal_br_real(addr left, addr right)
+int equal_br_real(addr left, addr right)
 {
 	addr pos;
 
@@ -68,7 +68,7 @@ _g int equal_br_real(addr left, addr right)
 	return RefSignBignum(left) == RefSignRatio(right);
 }
 
-_g int equal_rr_real(addr left, addr right)
+int equal_rr_real(addr left, addr right)
 {
 	addr pos1, pos2;
 
@@ -222,7 +222,7 @@ static int equal_ratio_type_(addr left, addr right, int *ret)
 	}
 }
 
-_g int equal_rs_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -237,7 +237,7 @@ _g int equal_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 	return Result(ret, check);
 }
 
-_g int equal_rd_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -252,7 +252,7 @@ _g int equal_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 	return Result(ret, check);
 }
 
-_g int equal_rl_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -309,7 +309,7 @@ static int compare_bigtype_ratio_nosign(LocalRoot local, bigtype left, addr righ
 	return result;
 }
 
-_g int compare_fr_real(LocalRoot local, addr left, addr right)
+int compare_fr_real(LocalRoot local, addr left, addr right)
 {
 	int sign1, sign2, result;
 	bigtype value;
@@ -337,7 +337,7 @@ _g int compare_fr_real(LocalRoot local, addr left, addr right)
 	return IsPlus(sign1)? result: -result;
 }
 
-_g int compare_rf_real(LocalRoot local, addr left, addr right)
+int compare_rf_real(LocalRoot local, addr left, addr right)
 {
 	return -compare_fr_real(local, right, left);
 }
@@ -361,7 +361,7 @@ static int compare_bigdata_ratio_nosign(LocalRoot local, addr left, addr right)
 	return result;
 }
 
-_g int compare_br_real(LocalRoot local, addr left, addr right)
+int compare_br_real(LocalRoot local, addr left, addr right)
 {
 	int sign1, sign2, result, check;
 
@@ -389,7 +389,7 @@ _g int compare_br_real(LocalRoot local, addr left, addr right)
 	return IsPlus(sign1)? result: -result;
 }
 
-_g int compare_rb_real(LocalRoot local, addr left, addr right)
+int compare_rb_real(LocalRoot local, addr left, addr right)
 {
 	return -compare_br_real(local, right, left);
 }
@@ -417,7 +417,7 @@ static int compare_ratio_local(LocalRoot local, addr left, addr right)
 	return result;
 }
 
-_g int compare_rr_real(LocalRoot local, addr left, addr right)
+int compare_rr_real(LocalRoot local, addr left, addr right)
 {
 	int check1, check2, sign1, sign2;
 	addr denom1, denom2;
@@ -461,7 +461,7 @@ _g int compare_rr_real(LocalRoot local, addr left, addr right)
 	return IsPlus(sign1)? check1: -check1;
 }
 
-_g int compare_rs_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -474,7 +474,7 @@ _g int compare_rs_real_(LocalRoot local, addr left, addr right, int *ret)
 	return Result(ret, check);
 }
 
-_g int compare_rd_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -487,7 +487,7 @@ _g int compare_rd_real_(LocalRoot local, addr left, addr right, int *ret)
 	return Result(ret, check);
 }
 
-_g int compare_rl_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	LocalStack stack;
@@ -500,21 +500,21 @@ _g int compare_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 	return Result(ret, check);
 }
 
-_g int compare_sr_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_sr_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rs_real_(local, right, left, &check));
 	return Result(ret, -check);
 }
 
-_g int compare_dr_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_dr_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rd_real_(local, right, left, &check));
 	return Result(ret, -check);
 }
 
-_g int compare_lr_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_lr_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rl_real_(local, right, left, &check));

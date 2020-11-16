@@ -8,7 +8,7 @@
 #include "real_common.h"
 #include "typedef.h"
 
-_g int floatp(addr pos)
+int floatp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);
 	return type == LISPTYPE_SINGLE_FLOAT
@@ -17,7 +17,7 @@ _g int floatp(addr pos)
 		|| type == LISPTYPE_SHORT_FLOAT;
 }
 
-_g int realp(addr pos)
+int realp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);
 	return type == LISPTYPE_FIXNUM
@@ -29,7 +29,7 @@ _g int realp(addr pos)
 		|| type == LISPTYPE_SHORT_FLOAT;
 }
 
-_g int real_result_local_(LocalRoot local, addr pos, addr *ret)
+int real_result_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (floatp(pos))
@@ -38,7 +38,7 @@ _g int real_result_local_(LocalRoot local, addr pos, addr *ret)
 		return rational_result_local_(local, pos, ret);
 }
 
-_g int real_result_heap_(LocalRoot local, addr pos, addr *ret)
+int real_result_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (floatp(pos))
@@ -47,7 +47,7 @@ _g int real_result_heap_(LocalRoot local, addr pos, addr *ret)
 		return rational_result_heap_(local, pos, ret);
 }
 
-_g int real_throw_alloc_(LocalRoot local, addr pos, addr *ret)
+int real_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -82,18 +82,18 @@ _g int real_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 	return 0;
 }
 
-_g int real_throw_local_(LocalRoot local, addr pos, addr *ret)
+int real_throw_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return real_throw_alloc_(local, pos, ret);
 }
 
-_g int real_throw_heap_(addr pos, addr *ret)
+int real_throw_heap_(addr pos, addr *ret)
 {
 	return real_throw_alloc_(NULL, pos, ret);
 }
 
-_g int real_copy_alloc_(LocalRoot local, addr pos, addr *ret)
+int real_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	if (floatp(pos)) {
 		float_copy_alloc(local, pos, ret);
@@ -104,18 +104,18 @@ _g int real_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-_g int real_copy_local_(LocalRoot local, addr pos, addr *ret)
+int real_copy_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return real_copy_alloc_(local, pos, ret);
 }
 
-_g int real_copy_heap_(addr pos, addr *ret)
+int real_copy_heap_(addr pos, addr *ret)
 {
 	return real_copy_alloc_(NULL, pos, ret);
 }
 
-_g int cast_double_float_unsafe_(addr value, double_float *ret)
+int cast_double_float_unsafe_(addr value, double_float *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -152,7 +152,7 @@ _g int cast_double_float_unsafe_(addr value, double_float *ret)
 /*
  *  build_real
  */
-_g void build_real(void)
+void build_real(void)
 {
 	build_real_common();
 }

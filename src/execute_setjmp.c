@@ -18,7 +18,7 @@ static void abort_shutdown(void)
 	exit(1); /* or abort(); */
 }
 
-_g void abort_execute(void)
+void abort_execute(void)
 {
 	/* handler */
 	if (Lisp_abort_handler) {
@@ -33,7 +33,7 @@ _g void abort_execute(void)
 	abort_shutdown();
 }
 
-_g lisp_abort_calltype set_abort_handler(lisp_abort_calltype call)
+lisp_abort_calltype set_abort_handler(lisp_abort_calltype call)
 {
 	lisp_abort_calltype ret;
 
@@ -46,7 +46,7 @@ static void abort_setjmp_handler(void)
 {
 	Lisp_abort_throw();
 }
-_g lisp_abort_calltype set_abort_setjmp_handler(void)
+lisp_abort_calltype set_abort_setjmp_handler(void)
 {
 	return set_abort_handler(abort_setjmp_handler);
 }
@@ -59,7 +59,7 @@ static void degrade_setjmp_handler(void)
 {
 	Lisp_degrade_throw();
 }
-_g lisp_abort_calltype set_degrade_setjmp_handler(void)
+lisp_abort_calltype set_degrade_setjmp_handler(void)
 {
 	return set_abort_handler(degrade_setjmp_handler);
 }

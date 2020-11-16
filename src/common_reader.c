@@ -675,7 +675,7 @@ static void defvar_readtable(void)
 /*
  *  function
  */
-_g void init_common_reader(void)
+void init_common_reader(void)
 {
 	SetPointerCall(defun, opt2, copy_readtable);
 	SetPointerCall(defun, var1opt2, make_dispatch_macro_character);
@@ -694,7 +694,7 @@ _g void init_common_reader(void)
 	SetPointerCall(defmacro, macro, with_standard_io_syntax);
 }
 
-_g void build_common_reader(void)
+void build_common_reader(void)
 {
 	defun_copy_readtable();
 	defun_make_dispatch_macro_character();

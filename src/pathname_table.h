@@ -33,23 +33,23 @@ struct fileparse {
 	struct localp_struct local_buffer;
 };
 
-_g void init_fileparse(struct fileparse *pa, Execute ptr, int localp);
-_g void pathname_fileparse_alloc(struct fileparse *pa, int logical);
-_g int wild_value_pathname_(addr input, addr *ret);
-_g int make_parse_logical_pathname_(struct fileparse *pa);
-_g int pushrange_pathname_(LocalpRoot local,
+void init_fileparse(struct fileparse *pa, Execute ptr, int localp);
+void pathname_fileparse_alloc(struct fileparse *pa, int logical);
+int wild_value_pathname_(addr input, addr *ret);
+int make_parse_logical_pathname_(struct fileparse *pa);
+int pushrange_pathname_(LocalpRoot local,
 		addr queue, addr thing, size_t n1, size_t n2);
-_g void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret);
-_g int nametype_pathname_(struct fileparse *pa, size_t index);
-_g int pushdirectory_fileparse_(struct fileparse *pa, addr *list, addr name);
-_g void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex index);
+void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret);
+int nametype_pathname_(struct fileparse *pa, size_t index);
+int pushdirectory_fileparse_(struct fileparse *pa, addr *list, addr name);
+void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex index);
 
-_g int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret);
-_g int check_drive_logical_pathname_(LocalpRoot local, int drive, int *ret);
+int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret);
+int check_drive_logical_pathname_(LocalpRoot local, int drive, int *ret);
 
-_g int parser_logical_pathname_(struct fileparse *pa);
-_g int parser_unix_pathname_(struct fileparse *pa);
-_g int parser_windows_pathname_(struct fileparse *pa);
+int parser_logical_pathname_(struct fileparse *pa);
+int parser_unix_pathname_(struct fileparse *pa);
+int parser_windows_pathname_(struct fileparse *pa);
 
 #endif
 

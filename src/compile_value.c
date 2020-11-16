@@ -30,14 +30,14 @@
 /*
  *  nil
  */
-_g int faslwrite_value_nil(Execute ptr, addr stream, addr pos)
+int faslwrite_value_nil(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_NIL);
 	Return(faslwrite_type_(stream, FaslCode_nil));
 	return 0;
 }
 
-_g int faslread_value_nil(Execute ptr, addr stream, addr *ret)
+int faslread_value_nil(Execute ptr, addr stream, addr *ret)
 {
 	return Result(ret, Nil);
 }
@@ -46,14 +46,14 @@ _g int faslread_value_nil(Execute ptr, addr stream, addr *ret)
 /*
  *  t
  */
-_g int faslwrite_value_t(Execute ptr, addr stream, addr pos)
+int faslwrite_value_t(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_T);
 	Return(faslwrite_type_(stream, FaslCode_t));
 	return 0;
 }
 
-_g int faslread_value_t(Execute ptr, addr stream, addr *ret)
+int faslread_value_t(Execute ptr, addr stream, addr *ret)
 {
 	return Result(ret, T);
 }
@@ -62,7 +62,7 @@ _g int faslread_value_t(Execute ptr, addr stream, addr *ret)
 /*
  *  cons
  */
-_g int faslwrite_value_cons(Execute ptr, addr stream, addr pos)
+int faslwrite_value_cons(Execute ptr, addr stream, addr pos)
 {
 	addr car, cdr;
 
@@ -75,7 +75,7 @@ _g int faslwrite_value_cons(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_cons(Execute ptr, addr stream, addr *ret)
+int faslread_value_cons(Execute ptr, addr stream, addr *ret)
 {
 	addr car, cdr;
 
@@ -140,7 +140,7 @@ static int faslwrite_value_vector8(Execute ptr, addr stream, addr pos)
 }
 #endif
 
-_g int faslwrite_value_vector(Execute ptr, addr stream, addr pos)
+int faslwrite_value_vector(Execute ptr, addr stream, addr pos)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_ARRAY2:
@@ -159,7 +159,7 @@ _g int faslwrite_value_vector(Execute ptr, addr stream, addr pos)
 	}
 }
 
-_g int faslread_value_vector2(Execute ptr, addr stream, addr *ret)
+int faslread_value_vector2(Execute ptr, addr stream, addr *ret)
 {
 	addr pos, value;
 	size_t size, i;
@@ -174,7 +174,7 @@ _g int faslread_value_vector2(Execute ptr, addr stream, addr *ret)
 	return Result(ret, pos);
 }
 
-_g int faslread_value_vector4(Execute ptr, addr stream, addr *ret)
+int faslread_value_vector4(Execute ptr, addr stream, addr *ret)
 {
 	addr pos, value;
 	size_t size, i;
@@ -190,7 +190,7 @@ _g int faslread_value_vector4(Execute ptr, addr stream, addr *ret)
 }
 
 #ifdef LISP_ARCH_64BIT
-_g int faslread_value_vector8(Execute ptr, addr stream, addr *ret)
+int faslread_value_vector8(Execute ptr, addr stream, addr *ret)
 {
 	addr pos, value;
 	size_t size, i;
@@ -210,7 +210,7 @@ _g int faslread_value_vector8(Execute ptr, addr stream, addr *ret)
 /*
  *  character
  */
-_g int faslwrite_value_character(Execute ptr, addr stream, addr pos)
+int faslwrite_value_character(Execute ptr, addr stream, addr pos)
 {
 	unicode value;
 
@@ -222,7 +222,7 @@ _g int faslwrite_value_character(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_character(Execute ptr, addr stream, addr *ret)
+int faslread_value_character(Execute ptr, addr stream, addr *ret)
 {
 	unicode value;
 
@@ -236,7 +236,7 @@ _g int faslread_value_character(Execute ptr, addr stream, addr *ret)
 /*
  *  string
  */
-_g int faslwrite_value_string(Execute ptr, addr stream, addr pos)
+int faslwrite_value_string(Execute ptr, addr stream, addr pos)
 {
 	const unicode *data;
 	size_t size;
@@ -267,7 +267,7 @@ static int faslread_string_code_local_(LocalRoot local, addr stream, addr *ret)
 	return Result(ret, pos);
 }
 
-_g int faslread_value_string(Execute ptr, addr stream, addr *ret)
+int faslread_value_string(Execute ptr, addr stream, addr *ret)
 {
 	addr pos;
 	unicode *data;
@@ -286,7 +286,7 @@ _g int faslread_value_string(Execute ptr, addr stream, addr *ret)
 /*
  *  hashtable
  */
-_g int faslwrite_value_hashtable(Execute ptr, addr stream, addr pos)
+int faslwrite_value_hashtable(Execute ptr, addr stream, addr pos)
 {
 	addr loop, key, value;
 	struct StructHashtable *str;
@@ -308,7 +308,7 @@ _g int faslwrite_value_hashtable(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_hashtable(Execute ptr, addr stream, addr *ret)
+int faslread_value_hashtable(Execute ptr, addr stream, addr *ret)
 {
 	addr pos, key, value, cons;
 	struct StructHashtable data, *str;
@@ -370,7 +370,7 @@ static int faslwrite_value_gensym(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_gensym(Execute ptr, addr stream, addr *ret)
+int faslread_value_gensym(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr index, name, symbol, table, cons, pos;
@@ -400,7 +400,7 @@ _g int faslread_value_gensym(Execute ptr, addr stream, addr *ret)
 /*
  *  symbol
  */
-_g int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
+int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 
@@ -421,7 +421,7 @@ _g int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_symbol(Execute ptr, addr stream, addr *ret)
+int faslread_value_symbol(Execute ptr, addr stream, addr *ret)
 {
 	addr package, name;
 
@@ -437,7 +437,7 @@ _g int faslread_value_symbol(Execute ptr, addr stream, addr *ret)
 /*
  *  fixnum
  */
-_g int faslwrite_value_fixnum(Execute ptr, addr stream, addr pos)
+int faslwrite_value_fixnum(Execute ptr, addr stream, addr pos)
 {
 	fixnum value;
 
@@ -449,7 +449,7 @@ _g int faslwrite_value_fixnum(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_fixnum(Execute ptr, addr stream, addr *ret)
+int faslread_value_fixnum(Execute ptr, addr stream, addr *ret)
 {
 	fixnum value;
 
@@ -463,7 +463,7 @@ _g int faslread_value_fixnum(Execute ptr, addr stream, addr *ret)
 /*
  *  bignum
  */
-_g int faslwrite_value_bignum(Execute ptr, addr stream, addr pos)
+int faslwrite_value_bignum(Execute ptr, addr stream, addr pos)
 {
 	int sign;
 	fixed *data;
@@ -484,7 +484,7 @@ _g int faslwrite_value_bignum(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_bignum(Execute ptr, addr stream, addr *ret)
+int faslread_value_bignum(Execute ptr, addr stream, addr *ret)
 {
 	byte sign;
 	addr pos;
@@ -508,7 +508,7 @@ _g int faslread_value_bignum(Execute ptr, addr stream, addr *ret)
 /*
  *  ratio
  */
-_g int faslwrite_value_ratio(Execute ptr, addr stream, addr pos)
+int faslwrite_value_ratio(Execute ptr, addr stream, addr pos)
 {
 	int sign;
 	addr numer, denom;
@@ -528,7 +528,7 @@ _g int faslwrite_value_ratio(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_ratio(Execute ptr, addr stream, addr *ret)
+int faslread_value_ratio(Execute ptr, addr stream, addr *ret)
 {
 	byte sign;
 	addr numer, denom;
@@ -551,7 +551,7 @@ _g int faslread_value_ratio(Execute ptr, addr stream, addr *ret)
 /*
  *  single-float
  */
-_g int faslwrite_value_single_float(Execute ptr, addr stream, addr pos)
+int faslwrite_value_single_float(Execute ptr, addr stream, addr pos)
 {
 	single_float value;
 
@@ -563,7 +563,7 @@ _g int faslwrite_value_single_float(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_single_float(Execute ptr, addr stream, addr *ret)
+int faslread_value_single_float(Execute ptr, addr stream, addr *ret)
 {
 	single_float value;
 
@@ -577,7 +577,7 @@ _g int faslread_value_single_float(Execute ptr, addr stream, addr *ret)
 /*
  *  double-float
  */
-_g int faslwrite_value_double_float(Execute ptr, addr stream, addr pos)
+int faslwrite_value_double_float(Execute ptr, addr stream, addr pos)
 {
 	double_float value;
 
@@ -589,7 +589,7 @@ _g int faslwrite_value_double_float(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_double_float(Execute ptr, addr stream, addr *ret)
+int faslread_value_double_float(Execute ptr, addr stream, addr *ret)
 {
 	double_float value;
 
@@ -603,7 +603,7 @@ _g int faslread_value_double_float(Execute ptr, addr stream, addr *ret)
 /*
  *  long-float
  */
-_g int faslwrite_value_long_float(Execute ptr, addr stream, addr pos)
+int faslwrite_value_long_float(Execute ptr, addr stream, addr pos)
 {
 	long_float value;
 
@@ -615,7 +615,7 @@ _g int faslwrite_value_long_float(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_long_float(Execute ptr, addr stream, addr *ret)
+int faslread_value_long_float(Execute ptr, addr stream, addr *ret)
 {
 	long_float value;
 
@@ -629,7 +629,7 @@ _g int faslread_value_long_float(Execute ptr, addr stream, addr *ret)
 /*
  *  complex
  */
-_g int faslwrite_value_complex(Execute ptr, addr stream, addr pos)
+int faslwrite_value_complex(Execute ptr, addr stream, addr pos)
 {
 	enum ComplexType type;
 	addr value;
@@ -649,7 +649,7 @@ _g int faslwrite_value_complex(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_complex(Execute ptr, addr stream, addr *ret)
+int faslread_value_complex(Execute ptr, addr stream, addr *ret)
 {
 	byte type;
 	addr real, imag, pos;
@@ -669,7 +669,7 @@ _g int faslread_value_complex(Execute ptr, addr stream, addr *ret)
 /*
  *  callname
  */
-_g int faslwrite_value_callname(Execute ptr, addr stream, addr pos)
+int faslwrite_value_callname(Execute ptr, addr stream, addr pos)
 {
 	CallNameType type;
 	addr value;
@@ -682,7 +682,7 @@ _g int faslwrite_value_callname(Execute ptr, addr stream, addr pos)
 	return faslwrite_value(ptr, stream, value);
 }
 
-_g int faslread_value_callname(Execute ptr, addr stream, addr *ret)
+int faslread_value_callname(Execute ptr, addr stream, addr *ret)
 {
 	byte type;
 	addr value;
@@ -698,7 +698,7 @@ _g int faslread_value_callname(Execute ptr, addr stream, addr *ret)
 /*
  *  index
  */
-_g int faslwrite_value_index(Execute ptr, addr stream, addr pos)
+int faslwrite_value_index(Execute ptr, addr stream, addr pos)
 {
 	size_t value;
 
@@ -710,7 +710,7 @@ _g int faslwrite_value_index(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_index(Execute ptr, addr stream, addr *ret)
+int faslread_value_index(Execute ptr, addr stream, addr *ret)
 {
 	size_t value;
 
@@ -724,7 +724,7 @@ _g int faslread_value_index(Execute ptr, addr stream, addr *ret)
 /*
  *  package
  */
-_g int faslwrite_value_package(Execute ptr, addr stream, addr pos)
+int faslwrite_value_package(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	Return(faslwrite_type_(stream, FaslCode_package));
@@ -732,7 +732,7 @@ _g int faslwrite_value_package(Execute ptr, addr stream, addr pos)
 	return faslwrite_value_string(ptr, stream, pos);
 }
 
-_g int faslread_value_package(Execute ptr, addr stream, addr *ret)
+int faslread_value_package(Execute ptr, addr stream, addr *ret)
 {
 	addr pos;
 	LocalRoot local;
@@ -751,7 +751,7 @@ _g int faslread_value_package(Execute ptr, addr stream, addr *ret)
 /*
  *  random-state
  */
-_g int faslwrite_value_random_state(Execute ptr, addr stream, addr pos)
+int faslwrite_value_random_state(Execute ptr, addr stream, addr pos)
 {
 	struct random_state *str;
 
@@ -763,7 +763,7 @@ _g int faslwrite_value_random_state(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_random_state(Execute ptr, addr stream, addr *ret)
+int faslread_value_random_state(Execute ptr, addr stream, addr *ret)
 {
 	addr pos;
 	struct random_state *str;
@@ -779,7 +779,7 @@ _g int faslread_value_random_state(Execute ptr, addr stream, addr *ret)
 /*
  *  pathname
  */
-_g int faslwrite_value_pathname(Execute ptr, addr stream, addr pos)
+int faslwrite_value_pathname(Execute ptr, addr stream, addr pos)
 {
 	int type;
 	addr value;
@@ -806,7 +806,7 @@ _g int faslwrite_value_pathname(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_pathname(Execute ptr, addr stream, addr *ret)
+int faslread_value_pathname(Execute ptr, addr stream, addr *ret)
 {
 	byte type;
 	addr pos, value;
@@ -835,7 +835,7 @@ _g int faslread_value_pathname(Execute ptr, addr stream, addr *ret)
 /*
  *  bitvector
  */
-_g int faslwrite_value_bitvector(Execute ptr, addr stream, addr pos)
+int faslwrite_value_bitvector(Execute ptr, addr stream, addr pos)
 {
 	struct bitmemory_struct *str;
 
@@ -848,7 +848,7 @@ _g int faslwrite_value_bitvector(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslread_value_bitvector(Execute ptr, addr stream, addr *ret)
+int faslread_value_bitvector(Execute ptr, addr stream, addr *ret)
 {
 	addr pos;
 	struct bitmemory_struct *str, value;
@@ -866,7 +866,7 @@ _g int faslread_value_bitvector(Execute ptr, addr stream, addr *ret)
 /*
  *  load-time-value
  */
-_g int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
+int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
 {
 	addr index;
 
@@ -880,7 +880,7 @@ _g int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
 	return faslwrite_value(ptr, stream, pos);
 }
 
-_g int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret)
+int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret)
 {
 	addr pos, value;
 

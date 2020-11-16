@@ -85,7 +85,7 @@ static int intern_symbol_package_(addr package, struct symbol_header *str, addr 
 	return 0;
 }
 
-_g int intern_symbol_header_(void)
+int intern_symbol_header_(void)
 {
 	addr symbol, p_common, p_keyword, p_system, p_code, p_clos, p_rt, package;
 	struct symbol_header *table;

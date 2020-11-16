@@ -26,7 +26,7 @@ static int function_constantly_values(Execute ptr, addr list)
 	return 0;
 }
 
-_g void build_function(void)
+void build_function(void)
 {
 	addr pos;
 
@@ -44,7 +44,7 @@ _g void build_function(void)
 	SetConst(FUNCTION_VALUES, pos);
 }
 
-_g void init_function(void)
+void init_function(void)
 {
 	SetPointerCall(defun, dynamic, constantly_nil);
 	SetPointerCall(defun, dynamic, constantly_t);

@@ -70,25 +70,25 @@ static int alive_pretty_stream_(addr stream)
 	return 0;
 }
 
-_g void setlistp_pretty_stream(addr stream, int value)
+void setlistp_pretty_stream(addr stream, int value)
 {
 	CheckPrettyStream(stream);
 	PtrPrettyStream(stream)->list = value;
 }
 
-_g int listp_pretty_stream(addr stream)
+int listp_pretty_stream(addr stream)
 {
 	return pretty_stream_p(stream)
 		&& PtrPrettyStream(stream)->list != 0;
 }
 
-_g void setdiscard_pretty_stream(addr stream, int value)
+void setdiscard_pretty_stream(addr stream, int value)
 {
 	CheckPrettyStream(stream);
 	PtrPrettyStream(stream)->discard = value;
 }
 
-_g int discard_pretty_stream(addr stream)
+int discard_pretty_stream(addr stream)
 {
 	return pretty_stream_p(stream)
 		&& PtrPrettyStream(stream)->discard != 0;
@@ -101,13 +101,13 @@ static int getinfo_pretty_stream_(addr stream, addr *ret)
 	return 0;
 }
 
-_g int length_pretty_stream_(addr stream, size_t *ret)
+int length_pretty_stream_(addr stream, size_t *ret)
 {
 	Return(alive_pretty_stream_(stream));
 	return Result(ret, PtrPrettyStream(stream)->length);
 }
 
-_g int first_pretty_stream_(addr stream, int *ret)
+int first_pretty_stream_(addr stream, int *ret)
 {
 	size_t check;
 	Return(length_pretty_stream_(stream, &check));
@@ -121,28 +121,28 @@ static int getstream_pretty_stream_(addr stream, addr *ret)
 	return 0;
 }
 
-_g int gensym_pretty_stream_(addr stream, addr *ret)
+int gensym_pretty_stream_(addr stream, addr *ret)
 {
 	Return(getinfo_pretty_stream_(stream, &stream));
 	GetArrayA2(stream, StreamPretty_Gensym, ret);
 	return 0;
 }
 
-_g int root_pretty_stream_(addr stream, addr *ret)
+int root_pretty_stream_(addr stream, addr *ret)
 {
 	Return(getinfo_pretty_stream_(stream, &stream));
 	GetArrayA2(stream, StreamPretty_Root, ret);
 	return 0;
 }
 
-_g int setroot_pretty_stream_(addr stream, addr value)
+int setroot_pretty_stream_(addr stream, addr value)
 {
 	Return(getinfo_pretty_stream_(stream, &stream));
 	SetArrayA2(stream, StreamPretty_Root, value);
 	return 0;
 }
 
-_g int object_pretty_stream_(addr stream, addr *ret)
+int object_pretty_stream_(addr stream, addr *ret)
 {
 	Return(getinfo_pretty_stream_(stream, &stream));
 	GetArrayA2(stream, StreamPretty_Object, ret);
@@ -166,43 +166,43 @@ static void nocheck_info_pretty_stream(addr stream, addr *ret)
 	GetInfoStream(stream, ret);
 }
 
-_g void prefix_pretty_stream(addr stream, addr *ret)
+void prefix_pretty_stream(addr stream, addr *ret)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Prefix, ret);
 }
 
-_g void perline_pretty_stream(addr stream, addr *ret)
+void perline_pretty_stream(addr stream, addr *ret)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_PerLine, ret);
 }
 
-_g void suffix_pretty_stream(addr stream, addr *ret)
+void suffix_pretty_stream(addr stream, addr *ret)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Suffix, ret);
 }
 
-_g void stream_pretty_stream(addr stream, addr *ret)
+void stream_pretty_stream(addr stream, addr *ret)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Stream, ret);
 }
 
-_g void result_pretty_stream(addr stream, addr *ret)
+void result_pretty_stream(addr stream, addr *ret)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Stack, ret);
 }
 
-_g void sharp_pretty_stream(addr stream, addr *ret)
+void sharp_pretty_stream(addr stream, addr *ret)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Sharp, ret);
 }
 
-_g void setsharp_pretty_stream(addr stream, addr value)
+void setsharp_pretty_stream(addr stream, addr value)
 {
 	nocheck_info_pretty_stream(stream, &stream);
 	SetArrayA2(stream, StreamPretty_Sharp, value);
@@ -278,7 +278,7 @@ static int make_info_pretty_stream_(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int open_pretty_stream_(Execute ptr, addr *ret,
+int open_pretty_stream_(Execute ptr, addr *ret,
 		addr stream, addr root, addr prefix, addr perline, addr suffix)
 {
 	addr pos, info;
@@ -329,7 +329,7 @@ static int nreverse_unsafe_pretty_stream_(addr stream)
 	return 0;
 }
 
-_g void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
+void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
 {
 	size_t depth;
 
@@ -337,7 +337,7 @@ _g void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
 	setdepth_print_write(ptr, depth + inc);
 }
 
-_g int close_pretty_stream_(Execute ptr, addr stream)
+int close_pretty_stream_(Execute ptr, addr stream)
 {
 	addr pos;
 
@@ -366,13 +366,13 @@ _g int close_pretty_stream_(Execute ptr, addr stream)
 	return 0;
 }
 
-_g int push_pretty_stream_(addr stream, addr pos)
+int push_pretty_stream_(addr stream, addr pos)
 {
 	Return(flush_pretty_stream_(stream));
 	return push_unsafe_pretty_stream_(stream, pos);
 }
 
-_g int pop_pretty_stream_(addr stream, addr *value, int *ret)
+int pop_pretty_stream_(addr stream, addr *value, int *ret)
 {
 	addr info, list;
 
@@ -406,7 +406,7 @@ static int character_pretty_stream_(addr stream, unicode u)
 	return 0;
 }
 
-_g int push_pretty_stream_p(addr stream)
+int push_pretty_stream_p(addr stream)
 {
 	return output_string_stream_p(stream)?
 		get_pretty_output_string_stream(stream):
@@ -463,7 +463,7 @@ static int call_pretty_stream_call_(Execute ptr, addr stream, addr call)
 	return callclang_funcall(ptr, &pos, call, NULL);
 }
 
-_g int call_pretty_stream(Execute ptr, addr stream, addr call)
+int call_pretty_stream(Execute ptr, addr stream, addr call)
 {
 	int check;
 	addr control;
@@ -647,7 +647,7 @@ static int termsize_Pretty(addr stream, size_t *value, int *ret)
 	return termsize_stream_(stream, value, ret);
 }
 
-_g void init_stream_pretty(void)
+void init_stream_pretty(void)
 {
 	DefineStreamSet(Pretty, close);
 	DefineStream___(Pretty, read_byte);

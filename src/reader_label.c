@@ -97,19 +97,19 @@ static void queue_readlabel(Execute ptr, addr queue, addr pos)
 	}
 }
 
-_g void dotqueue_readlabel(Execute ptr, addr queue, addr pos)
+void dotqueue_readlabel(Execute ptr, addr queue, addr pos)
 {
 	dotqueue(queue, pos);
 	queue_readlabel(ptr, queue, pos);
 }
 
-_g void pushqueue_readlabel(Execute ptr, addr queue, addr pos)
+void pushqueue_readlabel(Execute ptr, addr queue, addr pos)
 {
 	pushqueue_heap(queue, pos);
 	queue_readlabel(ptr, queue, pos);
 }
 
-_g int find_readlabel(addr key, addr list, addr *ret)
+int find_readlabel(addr key, addr list, addr *ret)
 {
 	addr label, check;
 
@@ -126,7 +126,7 @@ _g int find_readlabel(addr key, addr list, addr *ret)
 	return 0;
 }
 
-_g int pushlabel_readinfo_(Execute ptr, addr value, addr *ret)
+int pushlabel_readinfo_(Execute ptr, addr value, addr *ret)
 {
 	addr cons, label, next;
 
@@ -205,7 +205,7 @@ static void replace_readlabel(Execute ptr, addr replace, addr left, addr right)
 	}
 }
 
-_g int closelabel_readlabel_(Execute ptr, addr label, addr pos)
+int closelabel_readlabel_(Execute ptr, addr label, addr pos)
 {
 	addr gensym, list, replace;
 
@@ -247,7 +247,7 @@ static int vector_find_readlabel(addr key, addr vector)
 	return 0;
 }
 
-_g void vector_readlabel(Execute ptr, addr pos)
+void vector_readlabel(Execute ptr, addr pos)
 {
 	addr list, label, value;
 
@@ -282,7 +282,7 @@ static int array_find_readlabel_(addr key, addr array, int *ret)
 	return Result(ret, 0);
 }
 
-_g int array_readlabel_(Execute ptr, addr pos)
+int array_readlabel_(Execute ptr, addr pos)
 {
 	int check;
 	addr list, label, value;

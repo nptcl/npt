@@ -45,7 +45,7 @@ static void get_prompt_info(Execute ptr, addr *ret)
 	Check(*ret == Unbound, "unbound error");
 }
 
-_g void push_prompt_info(Execute ptr)
+void push_prompt_info(Execute ptr)
 {
 	addr symbol, value;
 
@@ -54,14 +54,14 @@ _g void push_prompt_info(Execute ptr)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g size_t getindex_prompt(Execute ptr)
+size_t getindex_prompt(Execute ptr)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	return PtrPromptInfo(pos)->index;
 }
 
-_g size_t getindex_prompt_safe(Execute ptr)
+size_t getindex_prompt_safe(Execute ptr)
 {
 	addr pos;
 	struct prompt_info *str;
@@ -72,35 +72,35 @@ _g size_t getindex_prompt_safe(Execute ptr)
 	return (pos == Unbound)? 0: str->index;
 }
 
-_g void setindex_prompt(Execute ptr, size_t index)
+void setindex_prompt(Execute ptr, size_t index)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	PtrPromptInfo(pos)->index = index;
 }
 
-_g int getbreak_prompt(Execute ptr)
+int getbreak_prompt(Execute ptr)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	return PtrPromptInfo(pos)->break_p;
 }
 
-_g void setbreak_prompt(Execute ptr, int value)
+void setbreak_prompt(Execute ptr, int value)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	PtrPromptInfo(pos)->break_p = (value != 0);
 }
 
-_g int getshow_prompt(Execute ptr)
+int getshow_prompt(Execute ptr)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	return PtrPromptInfo(pos)->show_p;
 }
 
-_g int getshow_prompt_safe(Execute ptr)
+int getshow_prompt_safe(Execute ptr)
 {
 	addr pos;
 	struct prompt_info *str;
@@ -114,14 +114,14 @@ _g int getshow_prompt_safe(Execute ptr)
 	return str->show_p;
 }
 
-_g void setshow_prompt(Execute ptr, int value)
+void setshow_prompt(Execute ptr, int value)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	PtrPromptInfo(pos)->show_p = (value != 0);
 }
 
-_g void endshow_prompt_safe(Execute ptr)
+void endshow_prompt_safe(Execute ptr)
 {
 	addr pos;
 	struct prompt_info *str;
@@ -136,7 +136,7 @@ _g void endshow_prompt_safe(Execute ptr)
 
 
 #ifdef LISP_PROMPT_DEFAULT
-_g int show_prompt_(Execute ptr, addr io)
+int show_prompt_(Execute ptr, addr io)
 {
 	char buffer[64];
 	addr pos;
@@ -158,7 +158,7 @@ _g int show_prompt_(Execute ptr, addr io)
 	return finish_output_stream_(io);
 }
 
-_g int input_prompt(addr *ret, addr *prompt, const char *message)
+int input_prompt(addr *ret, addr *prompt, const char *message)
 {
 	return fmte_("input-prompt is not supported.", NULL);
 }
@@ -194,7 +194,7 @@ _g int input_prompt(addr *ret, addr *prompt, const char *message)
 #define HISTORY_SIZE	100
 static size_t ReadLine_Size = 0;
 
-_g int show_prompt_(Execute ptr, addr io)
+int show_prompt_(Execute ptr, addr io)
 {
 	addr pos;
 	struct prompt_info *str;
@@ -249,7 +249,7 @@ static char *make_prompt(addr *prompt, const char *message)
 	return ret;
 }
 
-_g int input_prompt(addr *ret, addr *prompt, const char *message)
+int input_prompt(addr *ret, addr *prompt, const char *message)
 {
 	addr pos;
 	char *str;

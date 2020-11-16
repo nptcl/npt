@@ -164,7 +164,7 @@ static void end_readbom_buffering(addr stream, addr prev)
 	}
 }
 
-_g int readbom8_encode(addr stream)
+int readbom8_encode(addr stream)
 {
 	int check;
 	filestream fm;
@@ -177,7 +177,7 @@ _g int readbom8_encode(addr stream)
 	return check;
 }
 
-_g int readbom16_encode(addr stream)
+int readbom16_encode(addr stream)
 {
 	int check;
 	filestream fm;
@@ -190,7 +190,7 @@ _g int readbom16_encode(addr stream)
 	return check;
 }
 
-_g int readbom32_encode(addr stream)
+int readbom32_encode(addr stream)
 {
 	int check;
 	filestream fm;
@@ -203,7 +203,7 @@ _g int readbom32_encode(addr stream)
 	return check;
 }
 
-_g int writebom_encode_(addr stream)
+int writebom_encode_(addr stream)
 {
 	return write_char_stream_(stream, 0xFEFF);
 }
@@ -344,7 +344,7 @@ static void init_encode_read_char(void)
 	read_char_call[EncodeType_windows] = read_char_windows_;
 }
 
-_g int read_char_encode_(filestream fm, unicode *c, int *ret)
+int read_char_encode_(filestream fm, unicode *c, int *ret)
 {
 	return (read_char_call[(int)fm->encode.type])(fm, c, ret);
 }
@@ -544,7 +544,7 @@ static void init_encode_read_hang(void)
 	read_hang_call[EncodeType_windows] = read_hang_windows_;
 }
 
-_g int read_hang_encode_(filestream fm, unicode *c, int *hang, int *ret)
+int read_hang_encode_(filestream fm, unicode *c, int *hang, int *ret)
 {
 	return (read_hang_call[(int)fm->encode.type])(fm, c, hang, ret);
 }
@@ -753,7 +753,7 @@ static void init_encode_write_char(void)
 	write_char_call[EncodeType_windows] = write_char_windows_;
 }
 
-_g int write_char_encode_(filestream fm, unicode u)
+int write_char_encode_(filestream fm, unicode u)
 {
 	return (write_char_call[(int)fm->encode.type])(fm, u);
 }
@@ -906,7 +906,7 @@ static int length_char_operator(filestream fm, unicode c)
 	return (length_char_call[(int)fm->encode.type])(fm, c);
 }
 
-_g int length_char_encode(filestream fm, unicode c)
+int length_char_encode(filestream fm, unicode c)
 {
 	int check;
 
@@ -917,7 +917,7 @@ _g int length_char_encode(filestream fm, unicode c)
 		return check;
 }
 
-_g int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret)
+int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret)
 {
 	int check;
 	unicode c;
@@ -940,7 +940,7 @@ _g int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret)
 /*
  *  unicode buffer
  */
-_g int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
+int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
 {
 	int check;
 	unicode c;
@@ -978,7 +978,7 @@ static int UTF8_length_(addr pos, size_t *rsize, int *ret)
 	return Result(ret, 0);
 }
 
-_g int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
+int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
 {
 	int check;
 	unicode c;
@@ -1053,7 +1053,7 @@ static int UTF16_make_(byte16 *dst, addr pos, int *ret)
 	return Result(ret, 0);
 }
 
-_g int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string)
+int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string)
 {
 	int check;
 	addr pos, body;
@@ -1071,7 +1071,7 @@ _g int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string)
 	return Result(ret, pos);
 }
 
-_g int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string)
+int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string)
 {
 	int check;
 	addr pos, body;
@@ -1093,12 +1093,12 @@ _g int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string)
 /*
  *  unicode string
  */
-_g int UTF8_null_strlen(const byte *src, size_t *ret)
+int UTF8_null_strlen(const byte *src, size_t *ret)
 {
 	return read_utf8_buffer(NULL, src, 0, ret);
 }
 
-_g int UTF8_size_strlen(const byte *src, size_t size, size_t *ret)
+int UTF8_size_strlen(const byte *src, size_t size, size_t *ret)
 {
 	if (size == 0) {
 		*ret = 0;
@@ -1108,12 +1108,12 @@ _g int UTF8_size_strlen(const byte *src, size_t size, size_t *ret)
 	return read_utf8_buffer(NULL, src, size, ret);
 }
 
-_g int UTF8_null_makeunicode(unicode *dst, const byte *src)
+int UTF8_null_makeunicode(unicode *dst, const byte *src)
 {
 	return read_utf8_buffer(dst, src, 0, NULL);
 }
 
-_g int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size)
+int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size)
 {
 	if (size == 0)
 		return 0;
@@ -1121,7 +1121,7 @@ _g int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size)
 	return read_utf8_buffer(dst, src, size, NULL);
 }
 
-_g int UTF16_null_strlen(const byte16 *src, size_t *ret)
+int UTF16_null_strlen(const byte16 *src, size_t *ret)
 {
 	size_t count;
 	byte16 c;
@@ -1143,7 +1143,7 @@ _g int UTF16_null_strlen(const byte16 *src, size_t *ret)
 	return 0;
 }
 
-_g int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret)
+int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret)
 {
 	size_t count, i;
 	byte16 c;
@@ -1170,7 +1170,7 @@ _g int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret)
 	return 0;
 }
 
-_g int UTF16_null_makeunicode(unicode *dst, const byte16 *src)
+int UTF16_null_makeunicode(unicode *dst, const byte16 *src)
 {
 	byte16 a, b;
 
@@ -1194,7 +1194,7 @@ _g int UTF16_null_makeunicode(unicode *dst, const byte16 *src)
 	return 0;
 }
 
-_g int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
+int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
 {
 	size_t i;
 	byte16 a, b;
@@ -1220,7 +1220,7 @@ _g int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
 	return 0;
 }
 
-_g int UTF32_null_strlen(const unicode *src, size_t *ret)
+int UTF32_null_strlen(const unicode *src, size_t *ret)
 {
 	unicode c;
 	size_t i;
@@ -1239,7 +1239,7 @@ _g int UTF32_null_strlen(const unicode *src, size_t *ret)
 	return 0;
 }
 
-_g int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret)
+int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret)
 {
 	unicode c;
 	size_t i;
@@ -1256,7 +1256,7 @@ _g int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret)
 	return 0;
 }
 
-_g int UTF32_null_makeunicode(unicode *dst, const unicode *src)
+int UTF32_null_makeunicode(unicode *dst, const unicode *src)
 {
 	unicode c;
 	size_t i;
@@ -1275,7 +1275,7 @@ _g int UTF32_null_makeunicode(unicode *dst, const unicode *src)
 	return 0;
 }
 
-_g int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size)
+int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size)
 {
 	unicode c;
 	size_t i;
@@ -1294,7 +1294,7 @@ _g int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size)
 	return 0;
 }
 
-_g int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
+int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
 {
 	byte data[8];
 	size_t i, ret;
@@ -1310,7 +1310,7 @@ _g int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
 	return 0;
 }
 
-_g int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
+int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
 {
 	byte16 data[4];
 	size_t i, ret;
@@ -1330,7 +1330,7 @@ _g int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
 /*
  *  initialize
  */
-_g void init_encode(void)
+void init_encode(void)
 {
 	init_encode_read_char();
 	init_encode_read_hang();

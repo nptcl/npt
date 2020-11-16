@@ -9,11 +9,11 @@
 #define scope_eval_when _n(scope_eval_when)
 #define init_scope_function _n(init_scope_function)
 
-_g int scope_progn(Execute ptr, addr *ret, addr eval);
-_g int scope_locally(Execute ptr, addr *ret, addr eval);
-_g int scope_eval_when(Execute ptr, addr *ret, addr eval);
+int scope_progn(Execute ptr, addr *ret, addr eval);
+int scope_locally(Execute ptr, addr *ret, addr eval);
+int scope_eval_when(Execute ptr, addr *ret, addr eval);
 
-_g void init_scope_function(void);
+void init_scope_function(void);
 
 #endif
 

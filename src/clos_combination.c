@@ -65,83 +65,83 @@ static int stdset_longcomb_constant_(addr pos, addr value,
 #define StdSetLongCombination_(p,r,a,b) \
 	stdset_longcomb_constant_((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_longcomb_name_(addr pos, addr *ret)
+int stdget_longcomb_name_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, name, NAME);
 }
-_g int stdset_longcomb_name_(addr pos, addr value)
+int stdset_longcomb_name_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, name, NAME);
 }
 
-_g int stdget_longcomb_document_(addr pos, addr *ret)
+int stdget_longcomb_document_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g int stdset_longcomb_document_(addr pos, addr value)
+int stdset_longcomb_document_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g int stdget_longcomb_lambda_list_(addr pos, addr *ret)
+int stdget_longcomb_lambda_list_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g int stdset_longcomb_lambda_list_(addr pos, addr value)
+int stdset_longcomb_lambda_list_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-_g int stdget_longcomb_binding_(addr pos, addr *ret)
+int stdget_longcomb_binding_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, binding, BINDING);
 }
-_g int stdset_longcomb_binding_(addr pos, addr value)
+int stdset_longcomb_binding_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, binding, BINDING);
 }
 
-_g int stdget_longcomb_qualifiers_(addr pos, addr *ret)
+int stdget_longcomb_qualifiers_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
-_g int stdset_longcomb_qualifiers_(addr pos, addr value)
+int stdset_longcomb_qualifiers_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, qualifiers, QUALIFIERS);
 }
 
-_g int stdget_longcomb_arguments_(addr pos, addr *ret)
+int stdget_longcomb_arguments_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, arguments, ARGUMENTS);
 }
-_g int stdset_longcomb_arguments_(addr pos, addr value)
+int stdset_longcomb_arguments_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, arguments, ARGUMENTS);
 }
 
-_g int stdget_longcomb_generic_(addr pos, addr *ret)
+int stdget_longcomb_generic_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, generic, GENERIC);
 }
-_g int stdset_longcomb_generic_(addr pos, addr value)
+int stdset_longcomb_generic_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, generic, GENERIC);
 }
 
-_g int stdget_longcomb_form_(addr pos, addr *ret)
+int stdget_longcomb_form_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, form, FORM);
 }
-_g int stdset_longcomb_form_(addr pos, addr value)
+int stdset_longcomb_form_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, form, FORM);
 }
 
-_g int stdget_longcomb_function_(addr pos, addr *ret)
+int stdget_longcomb_function_(addr pos, addr *ret)
 {
 	return StdGetLongCombination_(pos, ret, function, FUNCTION);
 }
-_g int stdset_longcomb_function_(addr pos, addr value)
+int stdset_longcomb_function_(addr pos, addr value)
 {
 	return StdSetLongCombination_(pos, value, function, FUNCTION);
 }
@@ -195,47 +195,47 @@ static int stdset_shortcomb_constant_(addr pos, addr value,
 #define StdSetShortCombination_(p,r,a,b) \
 	stdset_shortcomb_constant_((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_shortcomb_name_(addr pos, addr *ret)
+int stdget_shortcomb_name_(addr pos, addr *ret)
 {
 	return StdGetShortCombination_(pos, ret, name, NAME);
 }
-_g int stdset_shortcomb_name_(addr pos, addr value)
+int stdset_shortcomb_name_(addr pos, addr value)
 {
 	return StdSetShortCombination_(pos, value, name, NAME);
 }
 
-_g int stdget_shortcomb_document_(addr pos, addr *ret)
+int stdget_shortcomb_document_(addr pos, addr *ret)
 {
 	return StdGetShortCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g int stdset_shortcomb_document_(addr pos, addr value)
+int stdset_shortcomb_document_(addr pos, addr value)
 {
 	return StdSetShortCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g int stdget_shortcomb_identity_(addr pos, addr *ret)
+int stdget_shortcomb_identity_(addr pos, addr *ret)
 {
 	return StdGetShortCombination_(pos, ret, identity, IDENTITY);
 }
-_g int stdset_shortcomb_identity_(addr pos, addr value)
+int stdset_shortcomb_identity_(addr pos, addr value)
 {
 	return StdSetShortCombination_(pos, value, identity, IDENTITY);
 }
 
-_g int stdget_shortcomb_operator_(addr pos, addr *ret)
+int stdget_shortcomb_operator_(addr pos, addr *ret)
 {
 	return StdGetShortCombination_(pos, ret, operator, OPERATOR);
 }
-_g int stdset_shortcomb_operator_(addr pos, addr value)
+int stdset_shortcomb_operator_(addr pos, addr value)
 {
 	return StdSetShortCombination_(pos, value, operator, OPERATOR);
 }
 
-_g int stdget_shortcomb_order_(addr pos, addr *ret)
+int stdget_shortcomb_order_(addr pos, addr *ret)
 {
 	return StdGetShortCombination_(pos, ret, order, ORDER);
 }
-_g int stdset_shortcomb_order_(addr pos, addr value)
+int stdset_shortcomb_order_(addr pos, addr value)
 {
 	return StdSetShortCombination_(pos, value, order, ORDER);
 }
@@ -289,65 +289,65 @@ static int stdset_longdef_constant_(addr pos, addr value,
 #define StdSetLongDefineCombination_(p,r,a,b) \
 	stdset_longdef_constant_((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_longdef_name_(addr pos, addr *ret)
+int stdget_longdef_name_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, name, NAME);
 }
-_g int stdset_longdef_name_(addr pos, addr value)
+int stdset_longdef_name_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, name, NAME);
 }
 
-_g int stdget_longdef_document_(addr pos, addr *ret)
+int stdget_longdef_document_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g int stdset_longdef_document_(addr pos, addr value)
+int stdset_longdef_document_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g int stdget_longdef_lambda_list_(addr pos, addr *ret)
+int stdget_longdef_lambda_list_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g int stdset_longdef_lambda_list_(addr pos, addr value)
+int stdset_longdef_lambda_list_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-_g int stdget_longdef_qualifiers_(addr pos, addr *ret)
+int stdget_longdef_qualifiers_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
-_g int stdset_longdef_qualifiers_(addr pos, addr value)
+int stdset_longdef_qualifiers_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, qualifiers, QUALIFIERS);
 }
 
-_g int stdget_longdef_arguments_(addr pos, addr *ret)
+int stdget_longdef_arguments_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, arguments, ARGUMENTS);
 }
-_g int stdset_longdef_arguments_(addr pos, addr value)
+int stdset_longdef_arguments_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, arguments, ARGUMENTS);
 }
 
-_g int stdget_longdef_generic_(addr pos, addr *ret)
+int stdget_longdef_generic_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, generic, GENERIC);
 }
-_g int stdset_longdef_generic_(addr pos, addr value)
+int stdset_longdef_generic_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, generic, GENERIC);
 }
 
-_g int stdget_longdef_form_(addr pos, addr *ret)
+int stdget_longdef_form_(addr pos, addr *ret)
 {
 	return StdGetLongDefineCombination_(pos, ret, form, FORM);
 }
-_g int stdset_longdef_form_(addr pos, addr value)
+int stdset_longdef_form_(addr pos, addr value)
 {
 	return StdSetLongDefineCombination_(pos, value, form, FORM);
 }
@@ -401,38 +401,38 @@ static int stdset_shortdef_constant_(addr pos, addr value,
 #define StdSetShortDefineCombination_(p,r,a,b) \
 	stdset_shortdef_constant_((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_shortdef_name_(addr pos, addr *ret)
+int stdget_shortdef_name_(addr pos, addr *ret)
 {
 	return StdGetShortDefineCombination_(pos, ret, name, NAME);
 }
-_g int stdset_shortdef_name_(addr pos, addr value)
+int stdset_shortdef_name_(addr pos, addr value)
 {
 	return StdSetShortDefineCombination_(pos, value, name, NAME);
 }
 
-_g int stdget_shortdef_document_(addr pos, addr *ret)
+int stdget_shortdef_document_(addr pos, addr *ret)
 {
 	return StdGetShortDefineCombination_(pos, ret, document, DOCUMENTATION);
 }
-_g int stdset_shortdef_document_(addr pos, addr value)
+int stdset_shortdef_document_(addr pos, addr value)
 {
 	return StdSetShortDefineCombination_(pos, value, document, DOCUMENTATION);
 }
 
-_g int stdget_shortdef_identity_(addr pos, addr *ret)
+int stdget_shortdef_identity_(addr pos, addr *ret)
 {
 	return StdGetShortDefineCombination_(pos, ret, identity, IDENTITY);
 }
-_g int stdset_shortdef_identity_(addr pos, addr value)
+int stdset_shortdef_identity_(addr pos, addr value)
 {
 	return StdSetShortDefineCombination_(pos, value, identity, IDENTITY);
 }
 
-_g int stdget_shortdef_operator_(addr pos, addr *ret)
+int stdget_shortdef_operator_(addr pos, addr *ret)
 {
 	return StdGetShortDefineCombination_(pos, ret, operator, OPERATOR);
 }
-_g int stdset_shortdef_operator_(addr pos, addr value)
+int stdset_shortdef_operator_(addr pos, addr value)
 {
 	return StdSetShortDefineCombination_(pos, value, operator, OPERATOR);
 }
@@ -565,7 +565,7 @@ static int check_qualifiers_equal_standard(addr qua)
 	return 0;
 }
 
-_g int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
+int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
 {
 	int check;
 
@@ -586,7 +586,7 @@ _g int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
 /*****************************************************************************
  *  qualifiers-position
  *****************************************************************************/
-_g int method_combination_qualifiers_count_(addr comb, size_t *ret)
+int method_combination_qualifiers_count_(addr comb, size_t *ret)
 {
 	int check;
 
@@ -686,7 +686,7 @@ static int qualifiers_position_short_nil_(addr qua, addr comb, size_t *value, in
 	return Result(ret, 1);
 }
 
-_g int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
+int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 		size_t *rsize, int *ret)
 {
 	int check;
@@ -706,7 +706,7 @@ _g int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 	return fmte_("Invalid method-combination type ~S.", comb, NULL);
 }
 
-_g int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret)
+int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret)
 {
 	int check;
 
@@ -769,7 +769,7 @@ static int build_clos_combination_call_(void)
 	return 0;
 }
 
-_g void build_clos_combination(void)
+void build_clos_combination(void)
 {
 	Error(build_clos_combination_call_());
 }
@@ -866,7 +866,7 @@ static int clos_method_combination_short_(addr comb, addr list, addr *ret)
 	return Result(ret, pos);
 }
 
-_g int clos_find_method_combination_(addr gen, addr list, addr *ret)
+int clos_find_method_combination_(addr gen, addr list, addr *ret)
 {
 	int check;
 	addr pos, tail;
@@ -899,7 +899,7 @@ _g int clos_find_method_combination_(addr gen, addr list, addr *ret)
 /*
  *  ensure-define-combination
  */
-_g int ensure_define_combination_short_common_(
+int ensure_define_combination_short_common_(
 		addr name, addr doc, addr ident, addr oper)
 {
 	addr pos;
@@ -917,7 +917,7 @@ _g int ensure_define_combination_short_common_(
 	return 0;
 }
 
-_g int ensure_define_combination_long_common_(addr name, addr lambda, addr spec,
+int ensure_define_combination_long_common_(addr name, addr lambda, addr spec,
 		addr args, addr gen, addr doc, addr form, addr decl)
 {
 	addr pos;
@@ -1122,7 +1122,7 @@ static int comb_longmacro_form_(addr *ret,
 	return 0;
 }
 
-_g int comb_longmacro_(addr *ret,
+int comb_longmacro_(addr *ret,
 		addr lambda, addr spec, addr args, addr gens, addr decl, addr form)
 {
 	addr gen, inst, array;
@@ -1315,7 +1315,7 @@ static int comb_longform_push_(Execute ptr, addr gen, addr comb, addr data, addr
 	return Result(ret, pos);
 }
 
-_g int comb_longform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+int comb_longform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
 	addr pos, args;
 
@@ -1405,7 +1405,7 @@ static int comb_shortform_make_(addr *ret, addr comb, addr data)
 	return comb_shortform_around_(ret, comb, around, form);
 }
 
-_g int comb_shortform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+int comb_shortform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
 	addr pos, args;
 

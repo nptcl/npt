@@ -6,7 +6,7 @@
 #include "integer.h"
 #include "typedef.h"
 
-_g int rationalp(addr pos)
+int rationalp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);
 	return type == LISPTYPE_FIXNUM
@@ -17,7 +17,7 @@ _g int rationalp(addr pos)
 /*
  *  throw
  */
-_g int rational_result_local_(LocalRoot local, addr pos, addr *ret)
+int rational_result_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (rationalp(pos)) {
@@ -29,7 +29,7 @@ _g int rational_result_local_(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-_g int rational_result_heap_(LocalRoot local, addr pos, addr *ret)
+int rational_result_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (rationalp(pos)) {
@@ -41,7 +41,7 @@ _g int rational_result_heap_(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-_g int rational_throw_alloc_(LocalRoot local, addr pos, addr *ret)
+int rational_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -64,18 +64,18 @@ _g int rational_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 	return 0;
 }
 
-_g int rational_throw_local_(LocalRoot local, addr pos, addr *ret)
+int rational_throw_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return rational_throw_alloc_(local, pos, ret);
 }
 
-_g int rational_throw_heap_(addr pos, addr *ret)
+int rational_throw_heap_(addr pos, addr *ret)
 {
 	return rational_throw_alloc_(NULL, pos, ret);
 }
 
-_g int rational_copy_alloc_(LocalRoot local, addr pos, addr *ret)
+int rational_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	if (ratiop(pos)) {
 		ratio_copy_alloc(local, ret, pos);
@@ -86,13 +86,13 @@ _g int rational_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-_g int rational_copy_local_(LocalRoot local, addr pos, addr *ret)
+int rational_copy_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return rational_copy_alloc_(local, pos, ret);
 }
 
-_g int rational_copy_heap_(addr pos, addr *ret)
+int rational_copy_heap_(addr pos, addr *ret)
 {
 	return rational_copy_alloc_(NULL, pos, ret);
 }
@@ -101,7 +101,7 @@ _g int rational_copy_heap_(addr pos, addr *ret)
 /*
  *  float
  */
-_g int single_float_rational_(addr pos, single_float *ret)
+int single_float_rational_(addr pos, single_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -119,7 +119,7 @@ _g int single_float_rational_(addr pos, single_float *ret)
 	}
 }
 
-_g int double_float_rational_(addr pos, double_float *ret)
+int double_float_rational_(addr pos, double_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -137,7 +137,7 @@ _g int double_float_rational_(addr pos, double_float *ret)
 	}
 }
 
-_g int long_float_rational_(addr pos, long_float *ret)
+int long_float_rational_(addr pos, long_float *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -159,7 +159,7 @@ _g int long_float_rational_(addr pos, long_float *ret)
 /*
  *  numerator
  */
-_g int numerator_common_(addr pos, addr *ret)
+int numerator_common_(addr pos, addr *ret)
 {
 	int sign;
 
@@ -189,7 +189,7 @@ _g int numerator_common_(addr pos, addr *ret)
 /*
  *  denominator
  */
-_g int denominator_common_(addr pos, addr *ret)
+int denominator_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:

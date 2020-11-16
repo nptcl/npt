@@ -38,7 +38,7 @@ static struct load_store_struct *load_store_alloc(void)
 	return ptr;
 }
 
-_g int load_store_init(void)
+int load_store_init(void)
 {
 	struct load_store_struct *ptr;
 
@@ -53,7 +53,7 @@ _g int load_store_init(void)
 	return 0;
 }
 
-_g int load_store_push(addr pos)
+int load_store_push(addr pos)
 {
 	struct load_store_struct *ptr, *root;
 
@@ -76,7 +76,7 @@ _g int load_store_push(addr pos)
 	return 0;
 }
 
-_g void load_store_error(void)
+void load_store_error(void)
 {
 	struct load_store_struct *x, *y;
 
@@ -99,7 +99,7 @@ static void load_store_addr(addr pos)
 	}
 }
 
-_g void load_store_exec(void)
+void load_store_exec(void)
 {
 	addr *data;
 	struct load_store_struct *x, *y;

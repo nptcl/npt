@@ -67,26 +67,26 @@ typedef struct fmtprint_struct *fmtprint;
 /*
  *  function
  */
-_g int fmtprint_abort_(fmtprint print, size_t index, const char *str, ...);
-_g int fmtprop_abort_(fmtprint print,
+int fmtprint_abort_(fmtprint print, size_t index, const char *str, ...);
+int fmtprop_abort_(fmtprint print,
 		struct format_operator *fmt, const char *str, ...);
 
-_g struct format_operator *fmtprint_operator(fmtprint print);
-_g void fmtprint_make(fmtprint print, Execute ptr, addr stream, addr format);
-_g void fmtprint_copy(fmtprint print, fmtprint src);
-_g int fmtprint_make_string_(fmtprint print, addr *ret, addr *backup);
-_g int fmtprint_stream_(fmtprint print, addr *ret);
-_g int fmtprint_stream_output_(fmtprint print);
+struct format_operator *fmtprint_operator(fmtprint print);
+void fmtprint_make(fmtprint print, Execute ptr, addr stream, addr format);
+void fmtprint_copy(fmtprint print, fmtprint src);
+int fmtprint_make_string_(fmtprint print, addr *ret, addr *backup);
+int fmtprint_stream_(fmtprint print, addr *ret);
+int fmtprint_stream_output_(fmtprint print);
 
-_g int fmtprint_putc_(fmtprint print, unicode u);
-_g int fmtprint_putc_times_(fmtprint print, unicode c, size_t size);
-_g int fmtprint_string_(fmtprint print, addr string);
-_g int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret);
-_g int fmtprint_peek_(fmtprint print, struct format_operator *str, addr *ret);
-_g int fmtprint_forward_(fmtprint print, struct format_operator *str, size_t n);
-_g int fmtprint_absolute_(fmtprint print, struct format_operator *str, size_t n);
-_g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n);
-_g int fmtprint_clear_(fmtprint print);
+int fmtprint_putc_(fmtprint print, unicode u);
+int fmtprint_putc_times_(fmtprint print, unicode c, size_t size);
+int fmtprint_string_(fmtprint print, addr string);
+int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret);
+int fmtprint_peek_(fmtprint print, struct format_operator *str, addr *ret);
+int fmtprint_forward_(fmtprint print, struct format_operator *str, size_t n);
+int fmtprint_absolute_(fmtprint print, struct format_operator *str, size_t n);
+int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n);
+int fmtprint_clear_(fmtprint print);
 
 #endif
 

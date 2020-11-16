@@ -4,7 +4,7 @@
 #include "real_equal.h"
 
 /* (integetr * *) */
-_g int range_asterisk_p(addr type)
+int range_asterisk_p(addr type)
 {
 	addr check;
 
@@ -17,7 +17,7 @@ _g int range_asterisk_p(addr type)
 }
 
 /* (integer 10 *) */
-_g int range_left_p(addr type)
+int range_left_p(addr type)
 {
 	addr check;
 
@@ -30,7 +30,7 @@ _g int range_left_p(addr type)
 }
 
 /* (integer 10 ?) */
-_g int range_left_any_p(addr type)
+int range_left_any_p(addr type)
 {
 	addr check;
 	GetArrayType(type, 0, &check);
@@ -38,7 +38,7 @@ _g int range_left_any_p(addr type)
 }
 
 /* (integer * 10) */
-_g int range_right_p(addr type)
+int range_right_p(addr type)
 {
 	addr check;
 
@@ -51,7 +51,7 @@ _g int range_right_p(addr type)
 }
 
 /* (integer ? 10) */
-_g int range_any_right_p(addr type)
+int range_any_right_p(addr type)
 {
 	addr check;
 	GetArrayType(type, 2, &check);
@@ -59,7 +59,7 @@ _g int range_any_right_p(addr type)
 }
 
 /* (integer 10 20) */
-_g int range_between_p(addr type)
+int range_between_p(addr type)
 {
 	addr check;
 
@@ -71,13 +71,13 @@ _g int range_between_p(addr type)
 	return ! type_asterisk_p(check);
 }
 
-_g void range_left_value(addr value, addr *left1, addr *left2)
+void range_left_value(addr value, addr *left1, addr *left2)
 {
 	GetArrayType(value, 0, left1);
 	GetArrayType(value, 1, left2);
 }
 
-_g void range_right_value(addr value, addr *right1, addr *right2)
+void range_right_value(addr value, addr *right1, addr *right2)
 {
 	GetArrayType(value, 2, right1);
 	GetArrayType(value, 3, right2);
@@ -89,7 +89,7 @@ _g void range_right_value(addr value, addr *right1, addr *right2)
  * ( 10  *) ((10) *) -> t
  * ((10) *) ((10) *) -> nil
  */
-_g int range_left_left_less_(addr left, addr right, int *ret)
+int range_left_left_less_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -107,7 +107,7 @@ _g int range_left_left_less_(addr left, addr right, int *ret)
  * ( 10  *) ((10) *) -> t
  * ((10) *) ((10) *) -> t
  */
-_g int range_left_left_less_equal_(addr left, addr right, int *ret)
+int range_left_left_less_equal_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -119,14 +119,14 @@ _g int range_left_left_less_equal_(addr left, addr right, int *ret)
 		return less_equal_real_(Local_Thread, left, right, ret);
 }
 
-_g int range_left_left_greater_(addr left, addr right, int *ret)
+int range_left_left_greater_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_left_left_less_equal_(left, right, &check));
 	return Result(ret, ! check);
 }
 
-_g int range_left_left_greater_equal_(addr left, addr right, int *ret)
+int range_left_left_greater_equal_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_left_left_less_(left, right, &check));
@@ -139,7 +139,7 @@ _g int range_left_left_greater_equal_(addr left, addr right, int *ret)
  * ( 10  *) (* (10)) -> nil
  * ((10) *) (* (10)) -> nil
  */
-_g int range_left_right_less_(addr left, addr right, int *ret)
+int range_left_right_less_(addr left, addr right, int *ret)
 {
 	/* range_left_value(left, &left1, &left); */
 	GetArrayType(left, 1, &left);
@@ -154,7 +154,7 @@ _g int range_left_right_less_(addr left, addr right, int *ret)
  * ( 10  *) (* (10)) -> nil
  * ((10) *) (* (10)) -> nil
  */
-_g int range_left_right_less_equal_(addr left, addr right, int *ret)
+int range_left_right_less_equal_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -166,14 +166,14 @@ _g int range_left_right_less_equal_(addr left, addr right, int *ret)
 		return less_real_(Local_Thread, left, right, ret);
 }
 
-_g int range_left_right_greater_(addr left, addr right, int *ret)
+int range_left_right_greater_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_left_right_less_equal_(left, right, &check));
 	return Result(ret, ! check);
 }
 
-_g int range_left_right_greater_equal_(addr left, addr right, int *ret)
+int range_left_right_greater_equal_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_left_right_less_(left, right, &check));
@@ -186,7 +186,7 @@ _g int range_left_right_greater_equal_(addr left, addr right, int *ret)
  * (*  10 ) ((10) *) -> t
  * (* (10)) ((10) *) -> t
  */
-_g int range_right_left_less_(addr left, addr right, int *ret)
+int range_right_left_less_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -204,7 +204,7 @@ _g int range_right_left_less_(addr left, addr right, int *ret)
  * (*  10 ) ((10) *) -> t
  * (* (10)) ((10) *) -> t
  */
-_g int range_right_left_less_equal_(addr left, addr right, int *ret)
+int range_right_left_less_equal_(addr left, addr right, int *ret)
 {
 	/* range_right_value(left, &left1, &left); */
 	GetArrayType(left, 3, &left);
@@ -213,14 +213,14 @@ _g int range_right_left_less_equal_(addr left, addr right, int *ret)
 	return less_equal_real_(Local_Thread, left, right, ret);
 }
 
-_g int range_right_left_greater_(addr left, addr right, int *ret)
+int range_right_left_greater_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_right_left_less_equal_(left, right, &check));
 	return Result(ret, ! check);
 }
 
-_g int range_right_left_greater_equal_(addr left, addr right, int *ret)
+int range_right_left_greater_equal_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_right_left_less_(left, right, &check));
@@ -233,7 +233,7 @@ _g int range_right_left_greater_equal_(addr left, addr right, int *ret)
  * (*  10 ) (* (10)) -> nil
  * (* (10)) (* (10)) -> nil
  */
-_g int range_right_right_less_(addr left, addr right, int *ret)
+int range_right_right_less_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -251,7 +251,7 @@ _g int range_right_right_less_(addr left, addr right, int *ret)
  * (*  10 ) (* (10)) -> nil
  * (* (10)) (* (10)) -> t
  */
-_g int range_right_right_less_equal_(addr left, addr right, int *ret)
+int range_right_right_less_equal_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -263,14 +263,14 @@ _g int range_right_right_less_equal_(addr left, addr right, int *ret)
 		return less_equal_real_(Local_Thread, left, right, ret);
 }
 
-_g int range_right_right_greater_(addr left, addr right, int *ret)
+int range_right_right_greater_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_right_right_less_equal_(left, right, &check));
 	return Result(ret, ! check);
 }
 
-_g int range_right_right_greater_equal_(addr left, addr right, int *ret)
+int range_right_right_greater_equal_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(range_right_right_less_(left, right, &check));
@@ -291,7 +291,7 @@ _g int range_right_right_greater_equal_(addr left, addr right, int *ret)
 	return (*call2)(c, d, ret);
 }
 
-_g int range_between_left_(addr left, addr right, int *ret)
+int range_between_left_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_left_left_less_equal_, left, right,
@@ -299,7 +299,7 @@ _g int range_between_left_(addr left, addr right, int *ret)
 }
 
 /* (20 *) (10 30) -> t */
-_g int range_left_between_(addr left, addr right, int *ret)
+int range_left_between_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_left_left_less_equal_, right, left,
@@ -307,7 +307,7 @@ _g int range_left_between_(addr left, addr right, int *ret)
 }
 
 /* (10 30) (* 20) -> t */
-_g int range_between_right_(addr left, addr right, int *ret)
+int range_between_right_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_left_right_less_equal_, left, right,
@@ -315,7 +315,7 @@ _g int range_between_right_(addr left, addr right, int *ret)
 }
 
 /* (* 20) (10 30) -> t */
-_g int range_right_between_(addr left, addr right, int *ret)
+int range_right_between_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_left_right_less_equal_, right, left,
@@ -323,7 +323,7 @@ _g int range_right_between_(addr left, addr right, int *ret)
 }
 
 /* (10 30) (11 12) -> t */
-_g int range_between_in_(addr left, addr right, int *ret)
+int range_between_in_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_between_left_, left, right,
@@ -331,7 +331,7 @@ _g int range_between_in_(addr left, addr right, int *ret)
 }
 
 /* (11 12) (10 30) -> t */
-_g int range_in_between_(addr left, addr right, int *ret)
+int range_in_between_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_left_between_, left, right,
@@ -344,7 +344,7 @@ _g int range_in_between_(addr left, addr right, int *ret)
  * (?  10 ) ((10) ?) -> t
  * (? (10)) ((10) ?) -> nil
  */
-_g int range_connect_right_left_(addr left, addr right, int *ret)
+int range_connect_right_left_(addr left, addr right, int *ret)
 {
 	addr left1, right1;
 
@@ -357,7 +357,7 @@ _g int range_connect_right_left_(addr left, addr right, int *ret)
 }
 
 /* (10 20) (20 *) */
-_g int range_connect_between_left_(addr left, addr right, int *ret)
+int range_connect_between_left_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_left_left_less_equal_, left, right,
@@ -365,7 +365,7 @@ _g int range_connect_between_left_(addr left, addr right, int *ret)
 }
 
 /* (10 20) (* 10) */
-_g int range_connect_between_right_(addr left, addr right, int *ret)
+int range_connect_between_right_(addr left, addr right, int *ret)
 {
 	return range_and2_call_(
 			range_right_right_less_equal_, right, left,

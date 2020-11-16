@@ -336,7 +336,7 @@ static int list_use_package_(addr package, addr args)
 	return 0;
 }
 
-_g int use_package_(addr package, addr pos)
+int use_package_(addr package, addr pos)
 {
 	addr type;
 
@@ -423,7 +423,7 @@ static int list_unuse_package_(addr package, addr args)
 	return 0;
 }
 
-_g int unuse_package_(addr package, addr pos)
+int unuse_package_(addr package, addr pos)
 {
 	addr type;
 

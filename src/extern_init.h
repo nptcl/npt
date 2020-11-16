@@ -13,10 +13,10 @@
 #define DefaultLocalSize  (256UL * 1024UL * 1024UL);
 #endif
 
-_g FILE *lisperror_stream(void);
-_g int lisperror_noeol(const char *fmt, ...);
-_g int lisperror_va(const char *fmt, va_list args);
-_g int lisperror(const char *fmt, ...);
+FILE *lisperror_stream(void);
+int lisperror_noeol(const char *fmt, ...);
+int lisperror_va(const char *fmt, va_list args);
+int lisperror(const char *fmt, ...);
 
 #endif
 

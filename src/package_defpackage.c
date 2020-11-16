@@ -687,7 +687,7 @@ static int defpackage_execute_update_(Execute ptr,
 	return defpackage_update_(ptr, pos, rest);
 }
 
-_g int defpackage_execute(Execute ptr, addr var, addr rest, addr *ret)
+int defpackage_execute(Execute ptr, addr var, addr rest, addr *ret)
 {
 	int sizep;
 	addr doc, pos;
@@ -1207,7 +1207,7 @@ static int defpackage_expand_common(addr name, addr form, addr *ret)
 	return 0;
 }
 
-_g int defpackage_common(addr form, addr env, addr *ret)
+int defpackage_common(addr form, addr env, addr *ret)
 {
 	int check;
 	addr name, type;

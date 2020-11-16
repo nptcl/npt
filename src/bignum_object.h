@@ -163,34 +163,34 @@ struct bignuminfo {
 #define fixnum_result_local fixnum_throw_local
 #define fixnum_result_heap fixnum_throw_heap
 
-_g int bignump(addr pos);
-_g struct bignuminfo *struct_bignum(addr pos);
-_g size_t refalloc_bignum(addr pos);
-_g void setsize_bignum(addr pos, size_t value);
-_g void getsize_bignum(addr pos, size_t *ret);
-_g size_t refsize_bignum(addr pos);
-_g void setroot_bignum(addr pos, addr value);
-_g void getroot_bignum(addr pos, addr *ret);
-_g void setsign_bignum(addr pos, int sign);
-_g void getsign_bignum(addr pos, int *ret);
-_g int refsign_bignum(addr pos);
+int bignump(addr pos);
+struct bignuminfo *struct_bignum(addr pos);
+size_t refalloc_bignum(addr pos);
+void setsize_bignum(addr pos, size_t value);
+void getsize_bignum(addr pos, size_t *ret);
+size_t refsize_bignum(addr pos);
+void setroot_bignum(addr pos, addr value);
+void getroot_bignum(addr pos, addr *ret);
+void setsign_bignum(addr pos, int sign);
+void getsign_bignum(addr pos, int *ret);
+int refsign_bignum(addr pos);
 
-_g void alloc_bignum(LocalRoot local, addr *ret, size_t alloc);
-_g void alloc_plus_bignum(LocalRoot local, addr *ret, size_t a, size_t b);
-_g void realloc_bignum(LocalRoot local, addr pos, size_t alloc, int force);
+void alloc_bignum(LocalRoot local, addr *ret, size_t alloc);
+void alloc_plus_bignum(LocalRoot local, addr *ret, size_t a, size_t b);
+void realloc_bignum(LocalRoot local, addr pos, size_t alloc, int force);
 
-_g void bignum_alloc(LocalRoot local, addr *ret, int sign, size_t size);
-_g void bignum_cons_alloc(LocalRoot local, addr *ret, int sign, addr cons);
-_g void bignum_copy_nosign_alloc(LocalRoot local, addr *ret, addr right);
-_g void bignum_copy_alloc(LocalRoot local, addr *ret, addr right);
-_g void bignum_value_alloc(LocalRoot local, addr *ret, int sign, fixed value);
-_g void bignum_value2_alloc(LocalRoot local, addr *ret, int sign, fixed high, fixed low);
-_g void bignum_zero_alloc(LocalRoot local, addr *ret);
-_g void bignum_fixnum_alloc(LocalRoot local, addr *ret, addr value);
-_g void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value);
-_g int bignum_counter_alloc_(LocalRoot local, addr *ret, addr index);
-_g void bignum_result_alloc(LocalRoot local, addr pos, addr *ret);
-_g int bignum_integer_alloc_(LocalRoot local, addr *ret, addr pos);
+void bignum_alloc(LocalRoot local, addr *ret, int sign, size_t size);
+void bignum_cons_alloc(LocalRoot local, addr *ret, int sign, addr cons);
+void bignum_copy_nosign_alloc(LocalRoot local, addr *ret, addr right);
+void bignum_copy_alloc(LocalRoot local, addr *ret, addr right);
+void bignum_value_alloc(LocalRoot local, addr *ret, int sign, fixed value);
+void bignum_value2_alloc(LocalRoot local, addr *ret, int sign, fixed high, fixed low);
+void bignum_zero_alloc(LocalRoot local, addr *ret);
+void bignum_fixnum_alloc(LocalRoot local, addr *ret, addr value);
+void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value);
+int bignum_counter_alloc_(LocalRoot local, addr *ret, addr index);
+void bignum_result_alloc(LocalRoot local, addr pos, addr *ret);
+int bignum_integer_alloc_(LocalRoot local, addr *ret, addr pos);
 #define bignum_heap(r,a,b) bignum_alloc(NULL,(r),(a),(b))
 #define bignum_cons_heap(r,a,b) bignum_cons_alloc(NULL,(r),(a),(b))
 #define bignum_copy_nosign_heap(r,a) bignum_copy_nosign_alloc(NULL,(r),(a))
@@ -204,42 +204,42 @@ _g int bignum_integer_alloc_(LocalRoot local, addr *ret, addr pos);
 #define bignum_result_heap(p,r) bignum_result_alloc(NULL,(p),(r))
 #define bignum_integer_heap_(p,r) bignum_integer_alloc_(NULL,(p),(r))
 
-_g void bignum_debug(LocalRoot local, addr *ret, int sign, size_t size);
-_g void bignum_cons_debug(LocalRoot local, addr *ret, int sign, addr cons);
-_g void bignum_copy_nosign_debug(LocalRoot local, addr *ret, addr right);
-_g void bignum_copy_debug(LocalRoot local, addr *ret, addr right);
-_g void bignum_value_debug(LocalRoot local, addr *ret, int sign, fixed value);
-_g void bignum_value2_debug(LocalRoot local, addr *ret, int sign, fixed high, fixed low);
-_g void bignum_zero_debug(LocalRoot local, addr *ret);
-_g void bignum_fixnum_debug(LocalRoot local, addr *ret, addr value);
-_g void bignum_fixnum_value_debug(LocalRoot local, addr *ret, fixnum value);
-_g int bignum_counter_debug_(LocalRoot local, addr *ret, addr index);
-_g void bignum_result_debug(LocalRoot local, addr pos, addr *ret);
-_g int bignum_integer_debug_(LocalRoot local, addr *ret, addr pos);
+void bignum_debug(LocalRoot local, addr *ret, int sign, size_t size);
+void bignum_cons_debug(LocalRoot local, addr *ret, int sign, addr cons);
+void bignum_copy_nosign_debug(LocalRoot local, addr *ret, addr right);
+void bignum_copy_debug(LocalRoot local, addr *ret, addr right);
+void bignum_value_debug(LocalRoot local, addr *ret, int sign, fixed value);
+void bignum_value2_debug(LocalRoot local, addr *ret, int sign, fixed high, fixed low);
+void bignum_zero_debug(LocalRoot local, addr *ret);
+void bignum_fixnum_debug(LocalRoot local, addr *ret, addr value);
+void bignum_fixnum_value_debug(LocalRoot local, addr *ret, fixnum value);
+int bignum_counter_debug_(LocalRoot local, addr *ret, addr index);
+void bignum_result_debug(LocalRoot local, addr pos, addr *ret);
+int bignum_integer_debug_(LocalRoot local, addr *ret, addr pos);
 
-_g void getfixed_bignum(addr pos, size_t index, fixed *value);
-_g fixed reffixed_bignum(addr pos, size_t index);
-_g void setfixed_bignum(addr pos, size_t index, fixed value);
-_g void diet_bignum(LocalRoot local, addr pos);
-_g void sizepress_bignum(addr left);
-_g void copy_bignum(LocalRoot local, addr left, addr right, int force);
-_g void copy_noexpand_bignum(addr left, addr right);
-_g void setvalue_bignum(addr left, int sign, bigtype value);
-_g void setzero_bignum(addr left);
-_g int getbit_bignum(addr pos, size_t index);
-_g void incf_bignum(addr pos, bigtype value);
-_g void decf_bignum(addr pos, bigtype value);
+void getfixed_bignum(addr pos, size_t index, fixed *value);
+fixed reffixed_bignum(addr pos, size_t index);
+void setfixed_bignum(addr pos, size_t index, fixed value);
+void diet_bignum(LocalRoot local, addr pos);
+void sizepress_bignum(addr left);
+void copy_bignum(LocalRoot local, addr left, addr right, int force);
+void copy_noexpand_bignum(addr left, addr right);
+void setvalue_bignum(addr left, int sign, bigtype value);
+void setzero_bignum(addr left);
+int getbit_bignum(addr pos, size_t index);
+void incf_bignum(addr pos, bigtype value);
+void decf_bignum(addr pos, bigtype value);
 
-_g void bignum_throw_heap(addr pos, addr *ret);
-_g void bignum_throw_local(LocalRoot local, addr pos, addr *ret);
-_g void bignum_throw_alloc(LocalRoot local, addr pos, addr *ret);
-_g void fixnum_throw_heap(addr pos, addr *ret);
-_g void fixnum_throw_local(LocalRoot local, addr pos, addr *ret);
-_g void fixnum_throw_alloc(LocalRoot local, addr pos, addr *ret);
+void bignum_throw_heap(addr pos, addr *ret);
+void bignum_throw_local(LocalRoot local, addr pos, addr *ret);
+void bignum_throw_alloc(LocalRoot local, addr pos, addr *ret);
+void fixnum_throw_heap(addr pos, addr *ret);
+void fixnum_throw_local(LocalRoot local, addr pos, addr *ret);
+void fixnum_throw_alloc(LocalRoot local, addr pos, addr *ret);
 
-_g void castfixed(fixnum value, int *sign, fixed *result);
-_g void castfixed_fixnum(addr pos, int *sign, fixed *result);
-_g int castfixed_integer(addr value, int *sign, fixed *result);
+void castfixed(fixnum value, int *sign, fixed *result);
+void castfixed_fixnum(addr pos, int *sign, fixed *result);
+int castfixed_integer(addr value, int *sign, fixed *result);
 #define castbigtype castfixed
 #define castbigtype_integer castfixed_integer
 

@@ -19,7 +19,7 @@ typedef int (*type_value_call)(addr *, addr);
 static type_value_call TypeValueTable[LISPTYPE_SIZE];
 
 /* nil */
-_g void type_value_nil(addr *ret)
+void type_value_nil(addr *ret)
 {
 	GetTypeTable(ret, Null);
 }
@@ -31,7 +31,7 @@ static int type_value_nil_(addr *ret, addr value)
 }
 
 /* t */
-_g void type_value_t(addr *ret)
+void type_value_t(addr *ret)
 {
 	GetTypeTable(ret, Boolean);
 }
@@ -43,7 +43,7 @@ static int type_value_t_(addr *ret, addr value)
 }
 
 /* type */
-_g void type_value_type(addr *ret)
+void type_value_type(addr *ret)
 {
 	GetTypeTable(ret, Type);
 }
@@ -55,7 +55,7 @@ static int type_value_type_(addr *ret, addr value)
 }
 
 /* clos */
-_g int type_value_clos_(addr *ret, addr value)
+int type_value_clos_(addr *ret, addr value)
 {
 	Return(clos_class_of_(value, &value));
 	type_clos_heap(value, ret);
@@ -153,7 +153,7 @@ static void type_value_array_multiple(addr *ret, addr value)
 	type2_heap(decl, type, array, ret);
 }
 
-_g int type_value_array_(addr *ret, addr value)
+int type_value_array_(addr *ret, addr value)
 {
 	size_t size;
 
@@ -176,7 +176,7 @@ _g int type_value_array_(addr *ret, addr value)
 }
 
 /* vector */
-_g void type_value_vector(addr *ret, addr value)
+void type_value_vector(addr *ret, addr value)
 {
 	addr arg;
 	size_t size;
@@ -194,7 +194,7 @@ static int type_value_vector_(addr *ret, addr value)
 }
 
 /* character */
-_g void type_value_character(addr *ret, addr value)
+void type_value_character(addr *ret, addr value)
 {
 	enum CHARACTER_TYPE type;
 
@@ -283,7 +283,7 @@ static void type_realvalue(enum LISPDECL type, addr value, addr *ret)
 	type4_heap(type, Nil, value, Nil, value, ret);
 }
 
-_g void type_value_integer(addr *ret, addr value)
+void type_value_integer(addr *ret, addr value)
 {
 	Check(! integerp(value), "type error");
 	type_realvalue(LISPDECL_INTEGER, value, ret);
@@ -296,7 +296,7 @@ static int type_value_integer_(addr *ret, addr value)
 }
 
 /* rational */
-_g void type_value_rational(addr *ret, addr value)
+void type_value_rational(addr *ret, addr value)
 {
 	Check(! rationalp(value), "type error");
 	type_realvalue(LISPDECL_RATIONAL, value, ret);
@@ -332,7 +332,7 @@ static int type_value_long_(addr *ret, addr value)
 	return 0;
 }
 
-_g void type_value_float(addr *ret, addr value)
+void type_value_float(addr *ret, addr value)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -354,7 +354,7 @@ _g void type_value_float(addr *ret, addr value)
 }
 
 /* complex */
-_g int type_value_complex_(addr *ret, addr value)
+int type_value_complex_(addr *ret, addr value)
 {
 	addr real, imag, type;
 
@@ -391,7 +391,7 @@ static int type_value_package_(addr *ret, addr value)
 }
 
 /* random-state */
-_g void type_value_random_state(addr *ret, addr value)
+void type_value_random_state(addr *ret, addr value)
 {
 	GetTypeTable(ret, RandomState);
 }
@@ -403,7 +403,7 @@ static int type_value_random_state_(addr *ret, addr value)
 }
 
 /* pathname */
-_g void type_value_pathname(addr *ret, addr value)
+void type_value_pathname(addr *ret, addr value)
 {
 	Check(! pathnamep(value), "type error");
 	if (pathname_pathname_p(value))
@@ -419,7 +419,7 @@ static int type_value_pathname_(addr *ret, addr value)
 }
 
 /* environment */
-_g void type_value_environment(addr *ret, addr value)
+void type_value_environment(addr *ret, addr value)
 {
 	GetTypeTable(ret, Environment);
 }
@@ -496,7 +496,7 @@ static int type_value_eval_(addr *ret, addr value)
 }
 
 /* bit-vector */
-_g void type_value_bitvector(addr *ret, addr value)
+void type_value_bitvector(addr *ret, addr value)
 {
 	addr arg;
 	size_t size;
@@ -544,7 +544,7 @@ static int type_value_error_(addr *ret, addr value)
 	return fmte_("Invalid type-value.", NULL);
 }
 
-_g int type_value_(addr *ret, addr value)
+int type_value_(addr *ret, addr value)
 {
 	type_value_call call;
 
@@ -555,7 +555,7 @@ _g int type_value_(addr *ret, addr value)
 		return (*call)(ret, value);
 }
 
-_g void init_type_value(void)
+void init_type_value(void)
 {
 	TypeValueTable[LISPTYPE_NIL] = type_value_nil_;
 	TypeValueTable[LISPTYPE_T] = type_value_t_;

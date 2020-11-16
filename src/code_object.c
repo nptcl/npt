@@ -33,7 +33,7 @@ static void alloc_code_system_heap(addr *ret, size_t size)
 	*ret = pos;
 }
 
-_g void code_heap(addr *ret, addr codeA4)
+void code_heap(addr *ret, addr codeA4)
 {
 	addr pos, call;
 	struct code_struct *ptr;
@@ -52,7 +52,7 @@ _g void code_heap(addr *ret, addr codeA4)
 	*ret = pos;
 }
 
-_g void function_empty_heap(addr *ret, addr name)
+void function_empty_heap(addr *ret, addr name)
 {
 	addr pos;
 
@@ -61,7 +61,7 @@ _g void function_empty_heap(addr *ret, addr name)
 	function_heap(ret, name, pos);
 }
 
-_g void getarray_code(addr pos, addr *ret)
+void getarray_code(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	GetArrayCode(pos, Code_Array, ret);
@@ -129,7 +129,7 @@ static void update_struct_code(struct code_value *ptr, addr list)
 	ptr->value = value;
 }
 
-_g void update_code(addr code)
+void update_code(addr code)
 {
 	addr array, call, list;
 	struct code_struct *str;

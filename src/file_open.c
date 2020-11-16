@@ -42,7 +42,7 @@ static inline int inputstream_(Execute ptr,
 	return Result(ret, pos);
 }
 
-_g int open_input_binary_stream_(Execute ptr, addr *ret, addr file)
+int open_input_binary_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -58,7 +58,7 @@ _g int open_input_binary_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_unsigned16_stream_(Execute ptr, addr *ret, addr file)
+int open_input_unsigned16_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -74,7 +74,7 @@ _g int open_input_unsigned16_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_unsigned32_stream_(Execute ptr, addr *ret, addr file)
+int open_input_unsigned32_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -90,7 +90,7 @@ _g int open_input_unsigned32_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_signed8_stream_(Execute ptr, addr *ret, addr file)
+int open_input_signed8_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -106,7 +106,7 @@ _g int open_input_signed8_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_signed16_stream_(Execute ptr, addr *ret, addr file)
+int open_input_signed16_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -122,7 +122,7 @@ _g int open_input_signed16_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_signed32_stream_(Execute ptr, addr *ret, addr file)
+int open_input_signed32_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -139,7 +139,7 @@ _g int open_input_signed32_stream_(Execute ptr, addr *ret, addr file)
 }
 
 #ifdef LISP_64BIT
-_g int open_input_unsigned64_stream_(Execute ptr, addr *ret, addr file)
+int open_input_unsigned64_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -155,7 +155,7 @@ _g int open_input_unsigned64_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_signed64_stream_(Execute ptr, addr *ret, addr file)
+int open_input_signed64_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -172,7 +172,7 @@ _g int open_input_signed64_stream_(Execute ptr, addr *ret, addr file)
 }
 #endif
 
-_g int open_input_ascii_stream_(Execute ptr, addr *ret, addr file)
+int open_input_ascii_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 
@@ -208,7 +208,7 @@ static void open_input_close_filememory(addr file)
 	fm->pos = prev;
 }
 
-_g int open_input_utf8_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf8_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -230,7 +230,7 @@ _g int open_input_utf8_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf8bom_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf8bom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -252,7 +252,7 @@ _g int open_input_utf8bom_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf16_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf16_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -277,7 +277,7 @@ _g int open_input_utf16_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf16le_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf16le_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -299,7 +299,7 @@ _g int open_input_utf16le_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf16be_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf16be_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -321,7 +321,7 @@ _g int open_input_utf16be_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf16lebom_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf16lebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -343,7 +343,7 @@ _g int open_input_utf16lebom_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf16bebom_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf16bebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -365,7 +365,7 @@ _g int open_input_utf16bebom_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf32_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf32_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -390,7 +390,7 @@ _g int open_input_utf32_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf32le_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf32le_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -412,7 +412,7 @@ _g int open_input_utf32le_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf32be_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf32be_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -434,7 +434,7 @@ _g int open_input_utf32be_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf32lebom_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf32lebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -456,7 +456,7 @@ _g int open_input_utf32lebom_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_utf32bebom_stream_(Execute ptr, addr *ret, addr file)
+int open_input_utf32bebom_stream_(Execute ptr, addr *ret, addr file)
 {
 	int check;
 	filestream fm;
@@ -478,7 +478,7 @@ _g int open_input_utf32bebom_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-_g int open_input_stream_external_(Execute ptr, addr *ret, addr file, addr format)
+int open_input_stream_external_(Execute ptr, addr *ret, addr file, addr format)
 {
 	addr check;
 
@@ -551,7 +551,7 @@ _g int open_input_stream_external_(Execute ptr, addr *ret, addr file, addr forma
 	return fmte_("Invalid *external-format* value ~S.", format, NULL);
 }
 
-_g int open_input_stream_(Execute ptr, addr *ret, addr file)
+int open_input_stream_(Execute ptr, addr *ret, addr file)
 {
 	addr format;
 
@@ -561,7 +561,7 @@ _g int open_input_stream_(Execute ptr, addr *ret, addr file)
 	return open_input_stream_external_(ptr, ret, file, format);
 }
 
-_g int open_input_stream_error_(Execute ptr, addr *ret, addr file)
+int open_input_stream_error_(Execute ptr, addr *ret, addr file)
 {
 	addr pos;
 
@@ -628,7 +628,7 @@ static inline int outputstream_(Execute ptr,
 	return Result(ret, pos);
 }
 
-_g int open_output_binary_stream_(Execute ptr, addr *ret,
+int open_output_binary_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -645,7 +645,7 @@ _g int open_output_binary_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_unsigned16_stream_(Execute ptr, addr *ret,
+int open_output_unsigned16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -662,7 +662,7 @@ _g int open_output_unsigned16_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_unsigned32_stream_(Execute ptr, addr *ret,
+int open_output_unsigned32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -679,7 +679,7 @@ _g int open_output_unsigned32_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_signed8_stream_(Execute ptr, addr *ret,
+int open_output_signed8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -696,7 +696,7 @@ _g int open_output_signed8_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_signed16_stream_(Execute ptr, addr *ret,
+int open_output_signed16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -713,7 +713,7 @@ _g int open_output_signed16_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_signed32_stream_(Execute ptr, addr *ret,
+int open_output_signed32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -731,7 +731,7 @@ _g int open_output_signed32_stream_(Execute ptr, addr *ret,
 }
 
 #ifdef LISP_64BIT
-_g int open_output_unsigned64_stream_(Execute ptr, addr *ret,
+int open_output_unsigned64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -748,7 +748,7 @@ _g int open_output_unsigned64_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_signed64_stream_(Execute ptr, addr *ret,
+int open_output_signed64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -766,7 +766,7 @@ _g int open_output_signed64_stream_(Execute ptr, addr *ret,
 }
 #endif
 
-_g int open_output_ascii_stream_(Execute ptr, addr *ret,
+int open_output_ascii_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -783,7 +783,7 @@ _g int open_output_ascii_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_utf8_stream_(Execute ptr, addr *ret,
+int open_output_utf8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
 	filestream fm;
@@ -803,7 +803,7 @@ _g int open_output_utf8_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_utf16le_stream_(Execute ptr, addr *ret,
+int open_output_utf16le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
 	filestream fm;
@@ -823,7 +823,7 @@ _g int open_output_utf16le_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_utf16be_stream_(Execute ptr, addr *ret,
+int open_output_utf16be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
 	filestream fm;
@@ -843,7 +843,7 @@ _g int open_output_utf16be_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_utf32le_stream_(Execute ptr, addr *ret,
+int open_output_utf32le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
 	filestream fm;
@@ -863,7 +863,7 @@ _g int open_output_utf32le_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_utf32be_stream_(Execute ptr, addr *ret,
+int open_output_utf32be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode, int bomp)
 {
 	filestream fm;
@@ -883,7 +883,7 @@ _g int open_output_utf32be_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_output_stream_(Execute ptr, addr *ret,
+int open_output_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	addr check, value;
@@ -992,7 +992,7 @@ static inline int iostream_(Execute ptr,
 	return Result(ret, pos);
 }
 
-_g int open_io_binary_stream_(Execute ptr, addr *ret,
+int open_io_binary_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1009,7 +1009,7 @@ _g int open_io_binary_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_unsigned16_stream_(Execute ptr, addr *ret,
+int open_io_unsigned16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1026,7 +1026,7 @@ _g int open_io_unsigned16_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_unsigned32_stream_(Execute ptr, addr *ret,
+int open_io_unsigned32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1043,7 +1043,7 @@ _g int open_io_unsigned32_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_signed8_stream_(Execute ptr, addr *ret,
+int open_io_signed8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1060,7 +1060,7 @@ _g int open_io_signed8_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_signed16_stream_(Execute ptr, addr *ret,
+int open_io_signed16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1077,7 +1077,7 @@ _g int open_io_signed16_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_signed32_stream_(Execute ptr, addr *ret,
+int open_io_signed32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1095,7 +1095,7 @@ _g int open_io_signed32_stream_(Execute ptr, addr *ret,
 }
 
 #ifdef LISP_64BIT
-_g int open_io_unsigned64_stream_(Execute ptr, addr *ret,
+int open_io_unsigned64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1112,7 +1112,7 @@ _g int open_io_unsigned64_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_signed64_stream_(Execute ptr, addr *ret,
+int open_io_signed64_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1130,7 +1130,7 @@ _g int open_io_signed64_stream_(Execute ptr, addr *ret,
 }
 #endif
 
-_g int open_io_ascii_stream_(Execute ptr, addr *ret,
+int open_io_ascii_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1147,7 +1147,7 @@ _g int open_io_ascii_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf8_stream_(Execute ptr, addr *ret,
+int open_io_utf8_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1164,7 +1164,7 @@ _g int open_io_utf8_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf8bom_stream_(Execute ptr, addr *ret,
+int open_io_utf8bom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1182,7 +1182,7 @@ _g int open_io_utf8bom_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf16_stream_(Execute ptr, addr *ret,
+int open_io_utf16_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1199,7 +1199,7 @@ _g int open_io_utf16_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf16le_stream_(Execute ptr, addr *ret,
+int open_io_utf16le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1216,7 +1216,7 @@ _g int open_io_utf16le_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf16be_stream_(Execute ptr, addr *ret,
+int open_io_utf16be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1233,7 +1233,7 @@ _g int open_io_utf16be_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf16lebom_stream_(Execute ptr, addr *ret,
+int open_io_utf16lebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1251,7 +1251,7 @@ _g int open_io_utf16lebom_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf16bebom_stream_(Execute ptr, addr *ret,
+int open_io_utf16bebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1269,7 +1269,7 @@ _g int open_io_utf16bebom_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf32_stream_(Execute ptr, addr *ret,
+int open_io_utf32_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1286,7 +1286,7 @@ _g int open_io_utf32_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf32le_stream_(Execute ptr, addr *ret,
+int open_io_utf32le_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1303,7 +1303,7 @@ _g int open_io_utf32le_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf32be_stream_(Execute ptr, addr *ret,
+int open_io_utf32be_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1320,7 +1320,7 @@ _g int open_io_utf32be_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf32lebom_stream_(Execute ptr, addr *ret,
+int open_io_utf32lebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1338,7 +1338,7 @@ _g int open_io_utf32lebom_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_utf32bebom_stream_(Execute ptr, addr *ret,
+int open_io_utf32bebom_stream_(Execute ptr, addr *ret,
 		addr file, enum FileOutput mode)
 {
 	filestream fm;
@@ -1356,7 +1356,7 @@ _g int open_io_utf32bebom_stream_(Execute ptr, addr *ret,
 	return Result(ret, file);
 }
 
-_g int open_io_stream_(Execute ptr, addr *ret, addr file, enum FileOutput mode)
+int open_io_stream_(Execute ptr, addr *ret, addr file, enum FileOutput mode)
 {
 	addr check, value;
 
@@ -1464,7 +1464,7 @@ static inline int probestream_(Execute ptr, addr *ret, addr file, enum StreamTyp
 	return Result(ret, pos);
 }
 
-_g int open_probe_stream_(Execute ptr, addr *ret, addr file)
+int open_probe_stream_(Execute ptr, addr *ret, addr file)
 {
 	filestream fm;
 

@@ -133,7 +133,7 @@ static int step_prompt_query_(Execute ptr, addr value, int *ret)
 /*
  *  code
  */
-_g int execute_step_code(Execute ptr, addr expr, addr value)
+int execute_step_code(Execute ptr, addr expr, addr value)
 {
 	int stepin;
 	addr symbol, check, control;

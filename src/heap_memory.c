@@ -86,7 +86,7 @@ static addr allocfront_search(addr pos, size_t *ret)
 	return pos;
 }
 
-_g void makespace_heap(addr pos, size_t size)
+void makespace_heap(addr pos, size_t size)
 {
 	Check(size < 2, "size error");
 	if (size < (8UL + IdxSize)) {
@@ -243,7 +243,7 @@ static addr allocfront(size_t size)
  *  allocate tail
  */
 #define alloctail_size		(sizeoft(struct heap_addr))
-_g struct heap_addr *alloctail(void)
+struct heap_addr *alloctail(void)
 {
 	addr check;
 
@@ -278,7 +278,7 @@ static void allocheap_object(size_t size, addr *ret)
 	*ret = pos;
 }
 
-_g void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2)
+void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2)
 {
 	addr pos;
 
@@ -331,7 +331,7 @@ static void frontheap(void *ptr, size_t size)
 	GcCounter = 0;
 }
 
-_g int alloc_heap(size_t size)
+int alloc_heap(size_t size)
 {
 	void *ptr;
 
@@ -364,7 +364,7 @@ _g int alloc_heap(size_t size)
 	return 0;
 }
 
-_g void free_heap(void)
+void free_heap(void)
 {
 	if (heap_alloc) {
 		free(heap_alloc);
@@ -395,27 +395,27 @@ _g void free_heap(void)
 /*
  *  gc
  */
-_g int valid_heap(const void *pos)
+int valid_heap(const void *pos)
 {
 	return (heap_root <= (addr)pos) && ((addr)pos <= heap_front);
 }
 
-_g size_t get_heap_object(void)
+size_t get_heap_object(void)
 {
 	return heap_object;
 }
 
-_g size_t get_heap_count(void)
+size_t get_heap_count(void)
 {
 	return heap_count;
 }
 
-_g size_t get_heap_gc_count(void)
+size_t get_heap_gc_count(void)
 {
 	return heap_gc_count;
 }
 
-_g size_t get_heap_size(void)
+size_t get_heap_size(void)
 {
 	return Size;
 }

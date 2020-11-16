@@ -111,7 +111,7 @@ static int parser_windows_slash_p(unicode x)
 	return x == '/' || x == '\\';
 }
 
-_g int parser_windows_pathname_(struct fileparse *pa)
+int parser_windows_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, logical, dp, check;
 	unicode c;

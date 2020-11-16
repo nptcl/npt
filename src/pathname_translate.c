@@ -19,21 +19,21 @@
 /*
  *  logical-pathname table
  */
-_g void table_logical_pathname(addr *ret)
+void table_logical_pathname(addr *ret)
 {
 	addr symbol;
 	GetConst(SYSTEM_LOGICAL_PATHNAME, &symbol);
 	GetValueSymbol(symbol, ret);
 }
 
-_g int gethost_logical_pathname_(addr key, addr *ret)
+int gethost_logical_pathname_(addr key, addr *ret)
 {
 	addr list;
 	table_logical_pathname(&list);
 	return findnil_hashtable_(list, key, ret);
 }
 
-_g int sethost_logical_pathname_(addr key, addr value)
+int sethost_logical_pathname_(addr key, addr value)
 {
 	addr list;
 
@@ -563,7 +563,7 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	return Result(ret, one);
 }
 
-_g int translate_pathname_alloc_(Execute ptr,
+int translate_pathname_alloc_(Execute ptr,
 		addr *ret, addr pos, addr from, addr to, int localp)
 {
 	struct localp_struct buffer;
@@ -573,7 +573,7 @@ _g int translate_pathname_alloc_(Execute ptr,
 	return translate_pathname_localp_(ptr, &buffer, ret, pos, from, to);
 }
 
-_g int translate_pathname_heap_(Execute ptr, addr *ret, addr pos, addr from, addr to)
+int translate_pathname_heap_(Execute ptr, addr *ret, addr pos, addr from, addr to)
 {
 	return translate_pathname_alloc_(ptr, ret, pos, from, to, 0);
 }
@@ -582,7 +582,7 @@ _g int translate_pathname_heap_(Execute ptr, addr *ret, addr pos, addr from, add
 /*
  *  build
  */
-_g void build_pathname_translate(void)
+void build_pathname_translate(void)
 {
 	addr value, symbol;
 

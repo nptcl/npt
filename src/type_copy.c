@@ -330,7 +330,7 @@ static void typecopy_array(LocalRoot local, addr *ret, addr type)
 	*ret = pos;
 }
 
-_g void init_type_copy(void)
+void init_type_copy(void)
 {
 	int i;
 
@@ -424,7 +424,7 @@ _g void init_type_copy(void)
 /*
  *  type-copy
  */
-_g void type_copy_alloc(LocalRoot local, addr *ret, addr type)
+void type_copy_alloc(LocalRoot local, addr *ret, addr type)
 {
 	call_type_copy call;
 	addr pos;
@@ -436,12 +436,12 @@ _g void type_copy_alloc(LocalRoot local, addr *ret, addr type)
 	type_setnotobject(pos, type);
 	*ret = pos;
 }
-_g void type_copy_local(LocalRoot local, addr *ret, addr type)
+void type_copy_local(LocalRoot local, addr *ret, addr type)
 {
 	Check(local == NULL, "local error");
 	type_copy_alloc(local, ret, type);
 }
-_g void type_copy_heap(addr *ret, addr type)
+void type_copy_heap(addr *ret, addr type)
 {
 	type_copy_alloc(NULL, ret, type);
 }
@@ -450,14 +450,14 @@ _g void type_copy_heap(addr *ret, addr type)
 /*
  *  type-throw
  */
-_g void type_throw_alloc(LocalRoot local, addr pos, addr *ret)
+void type_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (local)
 		type_throw_local(local, pos, ret);
 	else
 		type_throw_heap(pos, ret);
 }
-_g void type_throw_local(LocalRoot local, addr pos, addr *ret)
+void type_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	CheckLocal(local);
 	if (GetStatusDynamic(pos))
@@ -465,7 +465,7 @@ _g void type_throw_local(LocalRoot local, addr pos, addr *ret)
 	else
 		type_copy_local(local, ret, pos);
 }
-_g void type_throw_heap(addr pos, addr *ret)
+void type_throw_heap(addr pos, addr *ret)
 {
 	if (GetStatusDynamic(pos))
 		type_copy_heap(ret, pos);

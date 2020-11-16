@@ -31,13 +31,13 @@ enum PackageIterator {
 #define GetPackageIterator GetArraySS
 #define SetPackageIterator SetArraySS
 
-_g int package_iterator_alloc_(LocalRoot local, addr *ret,
+int package_iterator_alloc_(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited);
-_g int package_iterator_local_(LocalRoot local, addr *ret,
+int package_iterator_local_(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited);
-_g int package_iterator_heap_(addr *ret,
+int package_iterator_heap_(addr *ret,
 		addr list, int internal, int external, int inherited);
-_g int next_package_iterator_(addr pos, addr *rets, addr *retp, enum PACKAGE_TYPE *ret);
+int next_package_iterator_(addr pos, addr *rets, addr *retp, enum PACKAGE_TYPE *ret);
 
 #endif
 

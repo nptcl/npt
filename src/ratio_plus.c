@@ -8,7 +8,7 @@
 #include "ratio_plus.h"
 #include "typedef.h"
 
-_g void sign_reverse_ratio_inplace(addr pos)
+void sign_reverse_ratio_inplace(addr pos)
 {
 	int sign;
 
@@ -18,7 +18,7 @@ _g void sign_reverse_ratio_inplace(addr pos)
 	SetSignRatio(pos, sign);
 }
 
-_g void sign_reverse_ratio_local(LocalRoot local, addr pos, addr *ret)
+void sign_reverse_ratio_local(LocalRoot local, addr pos, addr *ret)
 {
 	int sign;
 	addr numer, denom;
@@ -34,7 +34,7 @@ _g void sign_reverse_ratio_local(LocalRoot local, addr pos, addr *ret)
 	make_ratio_local(local, ret, SignNot(sign), numer, denom);
 }
 
-_g void sign_reverse_ratio_common(addr pos, addr *ret)
+void sign_reverse_ratio_common(addr pos, addr *ret)
 {
 	int sign;
 	addr numer, denom;
@@ -303,7 +303,7 @@ static void plus_rv_common(LocalRoot local,
 		minus_rv_data_common(local, sign1, left, right, ret);
 }
 
-_g void plus_rv_ratio_local(LocalRoot local, addr left, fixnum right, addr *ret)
+void plus_rv_ratio_local(LocalRoot local, addr left, fixnum right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -320,7 +320,7 @@ _g void plus_rv_ratio_local(LocalRoot local, addr left, fixnum right, addr *ret)
 	}
 }
 
-_g void plus_rv_real_local(LocalRoot local, addr left, fixnum right, addr *ret)
+void plus_rv_real_local(LocalRoot local, addr left, fixnum right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -337,7 +337,7 @@ _g void plus_rv_real_local(LocalRoot local, addr left, fixnum right, addr *ret)
 	}
 }
 
-_g void plus_rv_real_common(LocalRoot local, addr left, fixnum right, addr *ret)
+void plus_rv_real_common(LocalRoot local, addr left, fixnum right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -354,7 +354,7 @@ _g void plus_rv_real_common(LocalRoot local, addr left, fixnum right, addr *ret)
 	}
 }
 
-_g void plus_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -372,7 +372,7 @@ _g void plus_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g void plus_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -390,7 +390,7 @@ _g void plus_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g void plus_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -456,19 +456,19 @@ static void minus_rv_common(LocalRoot local,
 		plus_rv_data_common(local, sign1, left, right, ret);
 }
 
-_g void sigrev_fixnum_ratio_local(LocalRoot local, addr pos, addr *ret)
+void sigrev_fixnum_ratio_local(LocalRoot local, addr pos, addr *ret)
 {
 	cast_fixnum_ratio_local(local, pos, ret);
 	sign_reverse_ratio_inplace(*ret);
 }
 
-_g void sigrev_bignum_ratio_local(LocalRoot local, addr pos, addr *ret)
+void sigrev_bignum_ratio_local(LocalRoot local, addr pos, addr *ret)
 {
 	cast_bignum_ratio_local(local, pos, ret);
 	sign_reverse_ratio_inplace(*ret);
 }
 
-_g void minus_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -490,7 +490,7 @@ _g void minus_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	minus_rv_ratio(local, left, sign, value, ret, 0);
 }
 
-_g void minus_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -512,7 +512,7 @@ _g void minus_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	minus_rv_local(local, left, sign, value, ret, 0);
 }
 
-_g void minus_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -534,7 +534,7 @@ _g void minus_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	minus_rv_common(local, left, sign, value, ret, 0);
 }
 
-_g void minus_fr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_fr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -557,7 +557,7 @@ _g void minus_fr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	minus_rv_ratio(local, right, sign, value, ret, 1);
 }
 
-_g void minus_fr_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_fr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -580,7 +580,7 @@ _g void minus_fr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	minus_rv_local(local, right, sign, value, ret, 1);
 }
 
-_g void minus_fr_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_fr_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -819,7 +819,7 @@ finish:
 	rollback_local(local, stack);
 }
 
-_g void plus_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -846,7 +846,7 @@ _g void plus_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 		minus_rb_ratio(local, sign1, left, right, ret, 0);
 }
 
-_g void plus_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -873,7 +873,7 @@ _g void plus_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 		minus_rb_local(local, sign1, left, right, ret, 0);
 }
 
-_g void plus_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -900,7 +900,7 @@ _g void plus_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 		minus_rb_common(local, sign1, left, right, ret, 0);
 }
 
-_g void minus_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -927,7 +927,7 @@ _g void minus_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rb_ratio(local, sign1, left, right, ret);
 }
 
-_g void minus_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -954,7 +954,7 @@ _g void minus_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rb_local(local, sign1, left, right, ret);
 }
 
-_g void minus_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -981,7 +981,7 @@ _g void minus_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rb_common(local, sign1, left, right, ret);
 }
 
-_g void minus_br_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_br_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1008,7 +1008,7 @@ _g void minus_br_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rb_ratio(local, sign1, right, left, ret);
 }
 
-_g void minus_br_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_br_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1035,7 +1035,7 @@ _g void minus_br_real_local(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rb_local(local, sign1, right, left, ret);
 }
 
-_g void minus_br_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_br_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1211,7 +1211,7 @@ static void minus_rr_data_common(LocalRoot local,
 	rollback_local(local, stack);
 }
 
-_g void plus_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1238,7 +1238,7 @@ _g void plus_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 		minus_rr_data_ratio(local, sign1, left, right, ret);
 }
 
-_g void plus_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1265,7 +1265,7 @@ _g void plus_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 		minus_rr_data_local(local, sign1, left, right, ret);
 }
 
-_g void plus_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void plus_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1292,7 +1292,7 @@ _g void plus_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
 		minus_rr_data_common(local, sign1, left, right, ret);
 }
 
-_g void minus_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1319,7 +1319,7 @@ _g void minus_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rr_data_ratio(local, sign1, left, right, ret);
 }
 
-_g void minus_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 
@@ -1346,7 +1346,7 @@ _g void minus_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 		plus_rr_data_local(local, sign1, left, right, ret);
 }
 
-_g void minus_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, check1, check2;
 

@@ -9,10 +9,10 @@
 #define faslread_value _n(faslread_value)
 #define init_compile_read _n(init_compile_read)
 
-_g int faslread_header_(addr input, int *ret);
-_g int faslread_footer_(addr input, int *ret);
-_g int faslread_value(Execute ptr, addr stream, addr *ret);
-_g void init_compile_read(void);
+int faslread_header_(addr input, int *ret);
+int faslread_footer_(addr input, int *ret);
+int faslread_value(Execute ptr, addr stream, addr *ret);
+void init_compile_read(void);
 
 #endif
 

@@ -74,7 +74,7 @@ static int faslreadtype_object(Execute ptr, addr stream, addr pos, size_t size)
 /*
  *  interface
  */
-_g int faslwrite_value_type(Execute ptr, addr stream, addr pos)
+int faslwrite_value_type(Execute ptr, addr stream, addr pos)
 {
 	size_t size;
 
@@ -93,7 +93,7 @@ _g int faslwrite_value_type(Execute ptr, addr stream, addr pos)
 	}
 }
 
-_g int faslread_value_type(Execute ptr, addr stream, addr *ret)
+int faslread_value_type(Execute ptr, addr stream, addr *ret)
 {
 	byte decl;
 	addr pos;

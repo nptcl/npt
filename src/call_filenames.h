@@ -33,32 +33,32 @@
 #define translate_logical_pathname_common_ _n(translate_logical_pathname_common_)
 #define merge_pathnames_common_ _n(merge_pathnames_common_)
 
-_g int pathname_common_(Execute ptr, addr var, addr *ret);
-_g int make_pathname_common_(Execute ptr, addr rest, addr *ret);
-_g void pathnamep_common(addr var, addr *ret);
-_g int pathname_host_common_(Execute ptr, addr pos, addr rest, addr *ret);
-_g int pathname_device_common_(Execute ptr, addr pos, addr rest, addr *ret);
-_g int pathname_directory_common_(Execute ptr, addr pos, addr rest, addr *ret);
-_g int pathname_name_common_(Execute ptr, addr pos, addr rest, addr *ret);
-_g int pathname_type_common_(Execute ptr, addr pos, addr rest, addr *ret);
-_g int pathname_version_common_(Execute ptr, addr pos, addr *ret);
-_g int load_logical_pathname_translations_common_(Execute ptr, addr host, addr *ret);
-_g int logical_pathname_translations_common_(addr host, addr *ret);
-_g int setf_logical_pathname_translations_common_(Execute ptr, addr host, addr list);
-_g int logical_pathname_common_(Execute ptr, addr *ret, addr pos);
-_g void default_pathname_defaults_common(void);
-_g int namestring_common_(Execute ptr, addr *ret, addr pos);
-_g int file_namestring_common_(Execute ptr, addr *ret, addr pos);
-_g int directory_namestring_common_(Execute ptr, addr *ret, addr pos);
-_g int host_namestring_common_(Execute ptr, addr *ret, addr pos);
-_g int enough_namestring_common_(Execute ptr, addr *ret, addr pos, addr defaults);
-_g int parse_namestring_common_(Execute ptr,
+int pathname_common_(Execute ptr, addr var, addr *ret);
+int make_pathname_common_(Execute ptr, addr rest, addr *ret);
+void pathnamep_common(addr var, addr *ret);
+int pathname_host_common_(Execute ptr, addr pos, addr rest, addr *ret);
+int pathname_device_common_(Execute ptr, addr pos, addr rest, addr *ret);
+int pathname_directory_common_(Execute ptr, addr pos, addr rest, addr *ret);
+int pathname_name_common_(Execute ptr, addr pos, addr rest, addr *ret);
+int pathname_type_common_(Execute ptr, addr pos, addr rest, addr *ret);
+int pathname_version_common_(Execute ptr, addr pos, addr *ret);
+int load_logical_pathname_translations_common_(Execute ptr, addr host, addr *ret);
+int logical_pathname_translations_common_(addr host, addr *ret);
+int setf_logical_pathname_translations_common_(Execute ptr, addr host, addr list);
+int logical_pathname_common_(Execute ptr, addr *ret, addr pos);
+void default_pathname_defaults_common(void);
+int namestring_common_(Execute ptr, addr *ret, addr pos);
+int file_namestring_common_(Execute ptr, addr *ret, addr pos);
+int directory_namestring_common_(Execute ptr, addr *ret, addr pos);
+int host_namestring_common_(Execute ptr, addr *ret, addr pos);
+int enough_namestring_common_(Execute ptr, addr *ret, addr pos, addr defaults);
+int parse_namestring_common_(Execute ptr,
 		addr thing, addr rest, addr *ret1, addr *ret2);
-_g int wild_pathname_p_common_(Execute ptr, addr *ret, addr file, addr field);
-_g int pathname_match_p_common_(Execute ptr, addr *ret, addr a, addr b);
-_g int translate_pathname_common_(Execute ptr, addr *ret, addr pos, addr from, addr to);
-_g int translate_logical_pathname_common_(Execute ptr, addr *ret, addr pos);
-_g int merge_pathnames_common_(Execute ptr,
+int wild_pathname_p_common_(Execute ptr, addr *ret, addr file, addr field);
+int pathname_match_p_common_(Execute ptr, addr *ret, addr a, addr b);
+int translate_pathname_common_(Execute ptr, addr *ret, addr pos, addr from, addr to);
+int translate_logical_pathname_common_(Execute ptr, addr *ret, addr pos);
+int merge_pathnames_common_(Execute ptr,
 		addr *ret, addr pos, addr defaults, addr version);
 
 #endif

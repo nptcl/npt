@@ -195,7 +195,7 @@ static void all_unintern_package(addr pos)
  *  return 0:  delete package.
  *  return 1:  package name is nil.
  */
-_g int delete_package_(addr pos, int *ret)
+int delete_package_(addr pos, int *ret)
 {
 	int check;
 	addr name, right, table;

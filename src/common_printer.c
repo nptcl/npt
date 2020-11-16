@@ -1014,7 +1014,7 @@ static void defun_format(void)
 /*
  *  function
  */
-_g void init_common_printer(void)
+void init_common_printer(void)
 {
 	SetPointerCall(defun, opt1, copy_pprint_dispatch);
 	SetPointerCall(defmacro, macro, formatter);
@@ -1040,7 +1040,7 @@ _g void init_common_printer(void)
 	SetPointerCall(defun, var2dynamic, format);
 }
 
-_g void build_common_printer(void)
+void build_common_printer(void)
 {
 	defun_copy_pprint_dispatch();
 	defmacro_formatter();

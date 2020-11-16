@@ -51,7 +51,7 @@ static void free_execute_local(void)
 	lispd_destroy_threadlocal(ThreadLocal_Index);
 	lispd_destroy_threadlocal(ThreadLocal_Local);
 }
-_g void set_execute_local(struct execute *ptr)
+void set_execute_local(struct execute *ptr)
 {
 	lispd_set_threadlocal(ThreadLocal_Execute, (void *)ptr);
 	lispd_set_threadlocal(ThreadLocal_Index, (void *)&ptr->index);
@@ -168,7 +168,7 @@ static int init_mainthread(struct execute **ptr, size_t size)
 	return 0;
 }
 
-_g int init_execute(size_t size)
+int init_execute(size_t size)
 {
 	struct execute **ptr;
 
@@ -219,7 +219,7 @@ error1:
 	return 1;
 }
 
-_g void free_execute(void)
+void free_execute(void)
 {
 	size_t i;
 	struct execute *bit;
@@ -326,14 +326,14 @@ finish:
 	return 0;
 }
 
-_g void setstate_execute(struct execute *ptr, enum ThreadState value)
+void setstate_execute(struct execute *ptr, enum ThreadState value)
 {
 	lispd_lock_mutexlite(&ExecuteMutex);
 	ptr->state = value;
 	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
-_g int make_execute(execfunction proc, struct execute **ret, size_t size)
+int make_execute(execfunction proc, struct execute **ret, size_t size)
 {
 	struct execute *ptr;
 
@@ -359,7 +359,7 @@ _g int make_execute(execfunction proc, struct execute **ret, size_t size)
 	return 0;
 }
 
-_g int join_execute(struct execute *ptr)
+int join_execute(struct execute *ptr)
 {
 	int result;
 
@@ -400,7 +400,7 @@ error:
 	return 1;
 }
 
-_g size_t count_execute(void)
+size_t count_execute(void)
 {
 	size_t i, count;
 
@@ -413,12 +413,12 @@ _g size_t count_execute(void)
 	return count;
 }
 
-_g int joinindex_execute(size_t index)
+int joinindex_execute(size_t index)
 {
 	return join_execute(ExecuteArray[index]);
 }
 
-_g struct execute *getexecute(size_t index)
+struct execute *getexecute(size_t index)
 {
 	struct execute *result;
 
@@ -434,13 +434,13 @@ _g struct execute *getexecute(size_t index)
 	return result;
 }
 
-_g int equal_control_restart(Execute ptr, addr control)
+int equal_control_restart(Execute ptr, addr control)
 {
 	return ptr->throw_value == throw_restart_case
 		&& ptr->throw_control == control;
 }
 
-_g int equal_control_catch(Execute ptr, addr symbol)
+int equal_control_catch(Execute ptr, addr symbol)
 {
 	return ptr->throw_value == throw_catch
 		&& ptr->throw_handler == symbol;
@@ -450,7 +450,7 @@ _g int equal_control_catch(Execute ptr, addr symbol)
 /*
  *  gc sync
  */
-_g void gcstate_execute(enum GcMode mode)
+void gcstate_execute(enum GcMode mode)
 {
 	lisp_gcsync = mode;
 }
@@ -467,7 +467,7 @@ static int gcstart_execute_check(struct execute *ptr)
 	return 0;
 }
 
-_g void gcstart_execute(struct execute *ptr)
+void gcstart_execute(struct execute *ptr)
 {
 	lispd_lock_mutexlite(&ExecuteMutex);
 	ptr->state = ThreadState_GcWait;
@@ -477,7 +477,7 @@ _g void gcstart_execute(struct execute *ptr)
 	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
-_g void gcwait_execute(struct execute *ptr)
+void gcwait_execute(struct execute *ptr)
 {
 	lispd_lock_mutexlite(&ExecuteMutex);
 	while (ptr->state != ThreadState_Run)
@@ -485,7 +485,7 @@ _g void gcwait_execute(struct execute *ptr)
 	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
-_g void gcend_execute(void)
+void gcend_execute(void)
 {
 	size_t i;
 	struct execute *ptr;
@@ -500,7 +500,7 @@ _g void gcend_execute(void)
 	lispd_unlock_mutexlite(&ExecuteMutex);
 }
 
-_g void foreach_execute(void (*call)(struct execute *))
+void foreach_execute(void (*call)(struct execute *))
 {
 	size_t i;
 	struct execute *ptr;
@@ -512,7 +512,7 @@ _g void foreach_execute(void (*call)(struct execute *))
 	}
 }
 
-_g int foreach_check_execute(int (*call)(struct execute *))
+int foreach_check_execute(int (*call)(struct execute *))
 {
 	size_t i;
 	struct execute *ptr;

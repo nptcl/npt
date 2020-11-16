@@ -1540,7 +1540,7 @@ static void defun_bit_not(void)
 /*
  *  function
  */
-_g void init_common_arrays(void)
+void init_common_arrays(void)
 {
 	SetPointerCall(defun, var1dynamic, make_array);
 	SetPointerCall(defun, var2dynamic, adjust_array);
@@ -1589,7 +1589,7 @@ _g void init_common_arrays(void)
 	SetPointerCall(defun, var1opt1, bit_not);
 }
 
-_g void build_common_arrays(void)
+void build_common_arrays(void)
 {
 	defun_make_array();
 	defun_adjust_array();

@@ -44,19 +44,19 @@ struct random_state {
 };
 
 /* random */
-_g uint32_t random_number_32bit(struct random_state *state);
-_g uint64_t random_number_64bit(struct random_state *state);
+uint32_t random_number_32bit(struct random_state *state);
+uint64_t random_number_64bit(struct random_state *state);
 /* 0 ... value */
-_g uint32_t random_equal_32bit(struct random_state *state, uint32_t value);
-_g uint64_t random_equal_64bit(struct random_state *state, uint64_t value);
+uint32_t random_equal_32bit(struct random_state *state, uint32_t value);
+uint64_t random_equal_64bit(struct random_state *state, uint64_t value);
 /* 0 ... value-1 */
-_g uint32_t random_less_32bit(struct random_state *state, uint32_t value);
-_g uint64_t random_less_64bit(struct random_state *state, uint64_t value);
+uint32_t random_less_32bit(struct random_state *state, uint32_t value);
+uint64_t random_less_64bit(struct random_state *state, uint64_t value);
 /* seed */
-_g void random_seed_buffer(struct random_state *state, const void *ptr, size_t size);
-_g void random_seed_string(struct random_state *state, const char *word);
+void random_seed_buffer(struct random_state *state, const void *ptr, size_t size);
+void random_seed_string(struct random_state *state, const char *word);
 /* check */
-_g int random_state_equal(struct random_state *a, struct random_state *b);
+int random_state_equal(struct random_state *a, struct random_state *b);
 
 #endif
 

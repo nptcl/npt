@@ -28,30 +28,30 @@
 #define element_type_io_stream _n(element_type_io_stream)
 #define external_format_default_stream _n(external_format_default_stream)
 
-_g int close_default_stream(addr stream, addr *ret);
-_g int read_char_default_stream(addr stream, unicode *c, int *ret);
-_g int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret);
-_g int unread_char_default_stream(addr stream, unicode c);
-_g int write_char_default_stream(addr stream, unicode c);
-_g int getleft_default_stream(addr stream, size_t *ret);
-_g int setleft_default_stream(addr stream, size_t value);
-_g void charleft_default_stream(addr stream, unicode c);
-_g int file_length_default_stream(addr stream, addr *ret);
-_g int file_position_default_stream(addr stream, size_t *value, int *ret);
-_g int file_position_start_default_stream(addr stream, int *ret);
-_g int file_position_end_default_stream(addr stream, int *ret);
-_g int file_position_set_default_stream(addr stream, size_t value, int *ret);
-_g int finish_output_default_stream(addr stream);
-_g int force_output_default_stream(addr stream);
-_g int clear_output_default_stream(addr stream);
-_g int exitpoint_default_stream(addr stream);
-_g int termsize_default_stream(addr stream, size_t *value, int *ret);
+int close_default_stream(addr stream, addr *ret);
+int read_char_default_stream(addr stream, unicode *c, int *ret);
+int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret);
+int unread_char_default_stream(addr stream, unicode c);
+int write_char_default_stream(addr stream, unicode c);
+int getleft_default_stream(addr stream, size_t *ret);
+int setleft_default_stream(addr stream, size_t value);
+void charleft_default_stream(addr stream, unicode c);
+int file_length_default_stream(addr stream, addr *ret);
+int file_position_default_stream(addr stream, size_t *value, int *ret);
+int file_position_start_default_stream(addr stream, int *ret);
+int file_position_end_default_stream(addr stream, int *ret);
+int file_position_set_default_stream(addr stream, size_t value, int *ret);
+int finish_output_default_stream(addr stream);
+int force_output_default_stream(addr stream);
+int clear_output_default_stream(addr stream);
+int exitpoint_default_stream(addr stream);
+int termsize_default_stream(addr stream, size_t *value, int *ret);
 
-_g int checkp_true_stream(addr stream, int *ret);
-_g int checkp_false_stream(addr stream, int *ret);
-_g int element_type_character_stream(addr stream, addr *ret);
-_g int element_type_io_stream(addr stream, addr *ret);
-_g int external_format_default_stream(addr stream, addr *ret);
+int checkp_true_stream(addr stream, int *ret);
+int checkp_false_stream(addr stream, int *ret);
+int element_type_character_stream(addr stream, addr *ret);
+int element_type_io_stream(addr stream, addr *ret);
+int external_format_default_stream(addr stream, addr *ret);
 
 #endif
 

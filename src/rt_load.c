@@ -192,7 +192,7 @@ static int loadrt_lisp(const char *name)
 }
 
 #include "load.h"
-_g int test_loadrt(void)
+int test_loadrt(void)
 {
 	DegradeTitle;
 #ifdef LISP_DEBUG_FORCE_GC
@@ -201,7 +201,7 @@ _g int test_loadrt(void)
 	return loadrt_files();
 }
 #else
-_g int test_loadrt(void)
+int test_loadrt(void)
 {
 	return 1;
 }

@@ -34,7 +34,7 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 	return 0;
 }
 
-_g int eval_compile_load(Execute ptr, addr stream)
+int eval_compile_load(Execute ptr, addr stream)
 {
 	int check;
 

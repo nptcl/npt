@@ -34,25 +34,25 @@ enum pprint_tabular {
 	pprint_tabular_section_relative
 };
 
-_g int pprint_throw(Execute ptr, addr stream);
-_g int pprint_exit_common(Execute ptr, addr stream);
-_g int pprint_pop_common(Execute ptr, addr stream, addr *ret);
-_g int check_pretty_stream(Execute ptr, addr stream);
-_g int expand_pprint_logical_block_common_(addr *ret, addr stream, addr pos,
+int pprint_throw(Execute ptr, addr stream);
+int pprint_exit_common(Execute ptr, addr stream);
+int pprint_pop_common(Execute ptr, addr stream, addr *ret);
+int check_pretty_stream(Execute ptr, addr stream);
+int expand_pprint_logical_block_common_(addr *ret, addr stream, addr pos,
 		addr prefix, addr per, addr suffix, addr decl, addr body);
-_g int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream);
-_g int pprint_newline_print_(Execute ptr, enum pprint_newline kind, addr stream);
-_g int pprint_newline_terpri_(addr stream);
-_g int pprint_tab_print_(Execute ptr,
+int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream);
+int pprint_newline_print_(Execute ptr, enum pprint_newline kind, addr stream);
+int pprint_newline_terpri_(addr stream);
+int pprint_tab_print_(Execute ptr,
 		addr stream, enum pprint_tabular kind, fixnum column, fixnum colinc);
-_g int pprint_tab_section_(Execute ptr, addr stream, fixnum column, fixnum colinc);
-_g int pprint_tab_section_relative_(Execute ptr,
+int pprint_tab_section_(Execute ptr, addr stream, fixnum column, fixnum colinc);
+int pprint_tab_section_relative_(Execute ptr,
 		addr stream, fixnum column, fixnum colinc);
-_g int pprint_tab_absolute_force_(addr stream,
+int pprint_tab_absolute_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now);
-_g int pprint_tab_relative_force_(addr stream,
+int pprint_tab_relative_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now);
-_g int pprint_output_(Execute ptr, addr stream, addr pos);
+int pprint_output_(Execute ptr, addr stream, addr pos);
 
 #endif
 

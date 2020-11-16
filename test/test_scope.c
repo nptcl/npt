@@ -89,7 +89,7 @@ static int test_StructEvalScope(void)
 {
 	EvalParse ptype;
 	addr pos, type, value, check;
-	struct eval_scope *str;
+	struct scope_struct *str;
 
 	readstring_debug(&type, "integer");
 	test_parse_type(&type, type);

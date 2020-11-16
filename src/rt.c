@@ -773,7 +773,7 @@ static void defun_equalrt(void)
 /*
  *  build
  */
-_g void init_rt(void)
+void init_rt(void)
 {
 	SetPointerCall(defun, var3, push_entries);
 	SetPointerCall(defun, empty, rem_all_tests);
@@ -784,7 +784,7 @@ _g void init_rt(void)
 	SetPointerCall(defun, var2, equalrt);
 }
 
-_g void build_rt(void)
+void build_rt(void)
 {
 	defpackage_rt();
 	defvar_entries();

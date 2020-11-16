@@ -7,9 +7,9 @@
 #define cache_equal_function_ _n(cache_equal_function_)
 #define cache_equal_debug _n(cache_equal_debug)
 
-_g int hashindex_cache_(addr key, size_t size, size_t *ret);
-_g int cache_equal_function_(addr left, addr right, int *ret);
-_g int cache_equal_debug(addr left, addr right);
+int hashindex_cache_(addr key, size_t size, size_t *ret);
+int cache_equal_function_(addr left, addr right, int *ret);
+int cache_equal_debug(addr left, addr right);
 
 #endif
 

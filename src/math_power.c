@@ -114,7 +114,7 @@ static int expt_ratio_common_(LocalRoot local, addr *ret, addr base, addr power)
 	size_t size;
 
 	CheckLocalType(local, base, LISPTYPE_RATIO);
-    Return(getindex_sign_integer_(power, &inverse, &size, &check));
+	Return(getindex_sign_integer_(power, &inverse, &size, &check));
 	if (check) {
 		*ret = Nil;
 		return fmte_("Too large expt power ~A.", power, NULL);
@@ -300,7 +300,7 @@ static int expt_rational_common_(LocalRoot local, addr *ret, addr base, addr pow
 	}
 }
 
-_g int expt_common_(LocalRoot local, addr *ret, addr base, addr power)
+int expt_common_(LocalRoot local, addr *ret, addr base, addr power)
 {
 	enum MathType type;
 	struct mathcomplex2_struct str;

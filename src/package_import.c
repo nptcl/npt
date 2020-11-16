@@ -130,7 +130,7 @@ static int exist_import_package(addr symbol, addr bit, addr *ret)
 	}
 }
 
-_g int import_bitpackage_(addr package, addr symbol, addr *value, int *ret)
+int import_bitpackage_(addr package, addr symbol, addr *value, int *ret)
 {
 	addr table, name, bit, check;
 
@@ -224,7 +224,7 @@ static int symbol_import_package_(addr package, addr pos)
 	return list_import_package_(package, pos);
 }
 
-_g int import_package_(addr package, addr pos)
+int import_package_(addr package, addr pos)
 {
 	addr type;
 

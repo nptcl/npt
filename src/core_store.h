@@ -9,10 +9,10 @@
 #define load_store_error _n(load_store_error)
 #define load_store_exec _n(load_store_exec)
 
-_g int load_store_init(void);
-_g int load_store_push(addr pos);
-_g void load_store_error(void);
-_g void load_store_exec(void);
+int load_store_init(void);
+int load_store_push(addr pos);
+void load_store_error(void);
+void load_store_exec(void);
 
 #endif
 

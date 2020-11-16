@@ -329,7 +329,7 @@ decode_default:
 	return decode_universal_default_(local, u, time, offset);
 }
 
-_g int decode_universal_time_common_(LocalRoot local,
+int decode_universal_time_common_(LocalRoot local,
 		struct universal_time_struct *u, addr pos, addr zone)
 {
 	if (zone == Nil)
@@ -382,7 +382,7 @@ static int encode_universal_day_(size_t day, size_t month, size_t year, size_t *
 	size_t size;
 
 	Return(encode_universal_month_(day, month - 1, year, &size));
-		size += (day - 1) + encode_universal_year(year);
+	size += (day - 1) + encode_universal_year(year);
 
 	return Result(ret, size);
 }
@@ -537,7 +537,7 @@ static int encode_universal_time_year_(size_t year, addr year_error, size_t *ret
 	return Result(ret, 100*a + year);
 }
 
-_g int encode_universal_time_common_(LocalRoot local, addr *ret,
+int encode_universal_time_common_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour,
 		addr day, addr month, addr year, addr zone)
 {
@@ -562,7 +562,7 @@ _g int encode_universal_time_common_(LocalRoot local, addr *ret,
 /*
  *  get-universal-time
  */
-_g int get_universal_time_common_(LocalRoot local, addr *ret)
+int get_universal_time_common_(LocalRoot local, addr *ret)
 {
 	addr left, right;
 
@@ -577,7 +577,7 @@ _g int get_universal_time_common_(LocalRoot local, addr *ret)
 /*
  *  get-decoded-time
  */
-_g int get_decoded_time_common_(LocalRoot local, struct universal_time_struct *u)
+int get_decoded_time_common_(LocalRoot local, struct universal_time_struct *u)
 {
 	addr pos;
 	Return(get_universal_time_common_(local, &pos));
@@ -591,11 +591,11 @@ _g int get_decoded_time_common_(LocalRoot local, struct universal_time_struct *u
 #if defined(LISP_WINDOWS)
 #include <windows.h>
 
-_g void get_internal_time_units_per_second(fixnum *ret)
+void get_internal_time_units_per_second(fixnum *ret)
 {
 	*ret = LISP_SLEEP_INTERVAL;
 }
-_g int get_internal_real_time_common_(LocalRoot local, addr *ret)
+int get_internal_real_time_common_(LocalRoot local, addr *ret)
 {
 #ifdef LISP_64BIT
 	integer_fixed_heap(ret, signplus_bignum, (fixed)GetTickCount64());
@@ -615,7 +615,7 @@ _g int get_internal_real_time_common_(LocalRoot local, addr *ret)
 #elif defined(LISP_POSIX)
 #include <sys/time.h>
 
-_g void get_internal_time_units_per_second(fixnum *ret)
+void get_internal_time_units_per_second(fixnum *ret)
 {
 	struct timeval tv;
 
@@ -624,7 +624,7 @@ _g void get_internal_time_units_per_second(fixnum *ret)
 	else
 		*ret = 1;
 }
-_g int get_internal_real_time_common_(LocalRoot local, addr *ret)
+int get_internal_real_time_common_(LocalRoot local, addr *ret)
 {
 	struct timeval tv;
 	addr high, low, value;
@@ -644,18 +644,18 @@ _g int get_internal_real_time_common_(LocalRoot local, addr *ret)
 }
 
 #else
-_g void get_internal_time_units_per_second(fixnum *ret)
+void get_internal_time_units_per_second(fixnum *ret)
 {
 	*ret = 1;
 }
-_g int get_internal_real_time_common_(LocalRoot local, addr *ret)
+int get_internal_real_time_common_(LocalRoot local, addr *ret)
 {
 	make_index_integer_heap(ret, (size_t)time(NULL));
 	return 0;
 }
 #endif
 
-_g void get_internal_run_time_common(addr *ret)
+void get_internal_run_time_common(addr *ret)
 {
 	size_t value;
 	value = ControlCounter;
@@ -1154,7 +1154,7 @@ static int sleep_value_common_(LocalRoot local, addr var, addr *ret)
 }
 #endif
 
-_g int sleep_common_(Execute ptr, addr var)
+int sleep_common_(Execute ptr, addr var)
 {
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
 	Return(sleep_value_common_(ptr->local, var, &var));
@@ -1168,7 +1168,7 @@ _g int sleep_common_(Execute ptr, addr var)
 /*
  *  initialize
  */
-_g void init_environemnt_time(void)
+void init_environemnt_time(void)
 {
 	SetPointerType(empty, sleep_close_object);
 }

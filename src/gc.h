@@ -7,8 +7,8 @@
 #define gcexec _n(gcexec)
 #define gcsync _n(gcsync)
 
-_g void gcexec(enum GcMode mode);
-_g void gcsync(Execute ptr, enum GcMode mode);
+void gcexec(enum GcMode mode);
+void gcsync(Execute ptr, enum GcMode mode);
 
 #endif
 

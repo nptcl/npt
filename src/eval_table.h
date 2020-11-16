@@ -217,137 +217,137 @@ struct tablecall {
 /*
  *  tablevalue
  */
-_g void make_tablevalue(addr *ret, addr symbol);
-_g void copy_tablevalue(addr *ret, addr arg);
+void make_tablevalue(addr *ret, addr symbol);
+void copy_tablevalue(addr *ret, addr arg);
 
-_g void getname_tablevalue(addr pos, addr *ret);
-_g void setname_tablevalue(addr pos, addr value);
-_g void gettype_tablevalue(addr pos, addr *ret);
-_g void settype_tablevalue(addr pos, addr value);
-_g int getspecialp_tablevalue(addr pos);
-_g void setspecialp_tablevalue(addr pos, int value);
-_g int getdynamic_tablevalue(addr pos);
-_g void setdynamic_tablevalue(addr pos, int value);
-_g enum IgnoreType getignore_tablevalue(addr pos);
-_g void setignore_tablevalue(addr pos, enum IgnoreType value);
-_g int getreference_tablevalue(addr pos);
-_g void setreference_tablevalue(addr pos, int value);
-_g int getcheck_tablevalue(addr pos);
-_g void setcheck_tablevalue(addr pos, int value);
-_g size_t getlexical_tablevalue(addr pos);
-_g void setlexical_tablevalue(addr pos, size_t value);
-_g size_t getlet_tablevalue(addr pos);
-_g void setlet_tablevalue(addr pos, size_t value);
-_g int getclosurep_tablevalue(addr pos);
-_g void setclosurep_tablevalue(addr pos, int value);
-_g int getbasep_tablevalue(addr pos);
-_g void setbasep_tablevalue(addr pos, int value);
-_g int getglobalp_tablevalue(addr pos);
-_g void setglobalp_tablevalue(addr pos, int value);
-_g size_t getclosure_tablevalue(addr pos);
-_g void setclosure_tablevalue(addr pos, size_t value);
-_g void getvalue_tablevalue(Execute ptr, addr pos, addr *ret);
-_g void setvalue_tablevalue(Execute ptr, addr pos, addr value);
+void getname_tablevalue(addr pos, addr *ret);
+void setname_tablevalue(addr pos, addr value);
+void gettype_tablevalue(addr pos, addr *ret);
+void settype_tablevalue(addr pos, addr value);
+int getspecialp_tablevalue(addr pos);
+void setspecialp_tablevalue(addr pos, int value);
+int getdynamic_tablevalue(addr pos);
+void setdynamic_tablevalue(addr pos, int value);
+enum IgnoreType getignore_tablevalue(addr pos);
+void setignore_tablevalue(addr pos, enum IgnoreType value);
+int getreference_tablevalue(addr pos);
+void setreference_tablevalue(addr pos, int value);
+int getcheck_tablevalue(addr pos);
+void setcheck_tablevalue(addr pos, int value);
+size_t getlexical_tablevalue(addr pos);
+void setlexical_tablevalue(addr pos, size_t value);
+size_t getlet_tablevalue(addr pos);
+void setlet_tablevalue(addr pos, size_t value);
+int getclosurep_tablevalue(addr pos);
+void setclosurep_tablevalue(addr pos, int value);
+int getbasep_tablevalue(addr pos);
+void setbasep_tablevalue(addr pos, int value);
+int getglobalp_tablevalue(addr pos);
+void setglobalp_tablevalue(addr pos, int value);
+size_t getclosure_tablevalue(addr pos);
+void setclosure_tablevalue(addr pos, size_t value);
+void getvalue_tablevalue(Execute ptr, addr pos, addr *ret);
+void setvalue_tablevalue(Execute ptr, addr pos, addr value);
 
 
 /*
  *  tablefunction
  */
-_g void make_tablefunction(addr *ret, addr call);
-_g void copy_tablefunction(addr *ret, addr arg);
+void make_tablefunction(addr *ret, addr call);
+void copy_tablefunction(addr *ret, addr arg);
 
-_g void getname_tablefunction(addr pos, addr *ret);
-_g void setname_tablefunction(addr pos, addr value);
-_g void gettype_tablefunction(addr pos, addr *ret);
-_g void settype_tablefunction(addr pos, addr value);
-_g int getglobalp_tablefunction(addr pos);
-_g void setglobalp_tablefunction(addr pos, int value);
-_g int getdynamic_tablefunction(addr pos);
-_g void setdynamic_tablefunction(addr pos, int value);
-_g int getreference_tablefunction(addr pos);
-_g void setreference_tablefunction(addr pos, int value);
-_g int getcheck_tablefunction(addr pos);
-_g void setcheck_tablefunction(addr pos, int value);
-_g enum IgnoreType getignore_tablefunction(addr pos);
-_g void setignore_tablefunction(addr pos, enum IgnoreType value);
-_g enum InlineType getinline_tablefunction(addr pos);
-_g void setinline_tablefunction(addr pos, enum InlineType value);
-_g size_t getlexical_tablefunction(addr pos);
-_g void setlexical_tablefunction(addr pos, size_t value);
-_g int getclosurep_tablefunction(addr pos);
-_g void setclosurep_tablefunction(addr pos, int value);
-_g size_t getclosure_tablefunction(addr pos);
-_g void setclosure_tablefunction(addr pos, size_t value);
-_g void getvalue_tablefunction(Execute ptr, addr pos, addr *ret);
-_g void setvalue_tablefunction(Execute ptr, addr pos, addr value);
+void getname_tablefunction(addr pos, addr *ret);
+void setname_tablefunction(addr pos, addr value);
+void gettype_tablefunction(addr pos, addr *ret);
+void settype_tablefunction(addr pos, addr value);
+int getglobalp_tablefunction(addr pos);
+void setglobalp_tablefunction(addr pos, int value);
+int getdynamic_tablefunction(addr pos);
+void setdynamic_tablefunction(addr pos, int value);
+int getreference_tablefunction(addr pos);
+void setreference_tablefunction(addr pos, int value);
+int getcheck_tablefunction(addr pos);
+void setcheck_tablefunction(addr pos, int value);
+enum IgnoreType getignore_tablefunction(addr pos);
+void setignore_tablefunction(addr pos, enum IgnoreType value);
+enum InlineType getinline_tablefunction(addr pos);
+void setinline_tablefunction(addr pos, enum InlineType value);
+size_t getlexical_tablefunction(addr pos);
+void setlexical_tablefunction(addr pos, size_t value);
+int getclosurep_tablefunction(addr pos);
+void setclosurep_tablefunction(addr pos, int value);
+size_t getclosure_tablefunction(addr pos);
+void setclosure_tablefunction(addr pos, size_t value);
+void getvalue_tablefunction(Execute ptr, addr pos, addr *ret);
+void setvalue_tablefunction(Execute ptr, addr pos, addr value);
 
 
 /*
  *  tabletagbody
  */
-_g void make_tabletagbody(addr *ret, addr tag);
-_g void copy_tabletagbody(addr *ret, addr arg);
+void make_tabletagbody(addr *ret, addr tag);
+void copy_tabletagbody(addr *ret, addr arg);
 
-_g void getname_tabletagbody(addr pos, addr *ret);
-_g void setname_tabletagbody(addr pos, addr value);
-_g int getreference_tabletagbody(addr pos);
-_g void setreference_tabletagbody(addr pos, int value);
-_g int equal_tabletagbody(addr left, addr right);
-_g size_t getlexical_tabletagbody(addr pos);
-_g void setlexical_tabletagbody(addr pos, size_t value);
-_g int getclosurep_tabletagbody(addr pos);
-_g void setclosurep_tabletagbody(addr pos, int value);
-_g size_t getclosure_tabletagbody(addr pos);
-_g void setclosure_tabletagbody(addr pos, size_t value);
-_g size_t getjump_tabletagbody(addr pos);
-_g void setjump_tabletagbody(addr pos, size_t value);
+void getname_tabletagbody(addr pos, addr *ret);
+void setname_tabletagbody(addr pos, addr value);
+int getreference_tabletagbody(addr pos);
+void setreference_tabletagbody(addr pos, int value);
+int equal_tabletagbody(addr left, addr right);
+size_t getlexical_tabletagbody(addr pos);
+void setlexical_tabletagbody(addr pos, size_t value);
+int getclosurep_tabletagbody(addr pos);
+void setclosurep_tabletagbody(addr pos, int value);
+size_t getclosure_tabletagbody(addr pos);
+void setclosure_tabletagbody(addr pos, size_t value);
+size_t getjump_tabletagbody(addr pos);
+void setjump_tabletagbody(addr pos, size_t value);
 
 
 /*
  *  tableblock
  */
-_g void make_tableblock(addr *ret, addr tag);
-_g void copy_tableblock(addr *ret, addr arg);
+void make_tableblock(addr *ret, addr tag);
+void copy_tableblock(addr *ret, addr arg);
 
-_g void getname_tableblock(addr pos, addr *ret);
-_g void setname_tableblock(addr pos, addr value);
-_g int getreference_tableblock(addr pos);
-_g void setreference_tableblock(addr pos, int value);
-_g int equal_tableblock(addr left, addr right);
-_g size_t getlexical_tableblock(addr pos);
-_g void setlexical_tableblock(addr pos, size_t value);
-_g int getclosurep_tableblock(addr pos);
-_g void setclosurep_tableblock(addr pos, int value);
-_g size_t getclosure_tableblock(addr pos);
-_g void setclosure_tableblock(addr pos, size_t value);
+void getname_tableblock(addr pos, addr *ret);
+void setname_tableblock(addr pos, addr value);
+int getreference_tableblock(addr pos);
+void setreference_tableblock(addr pos, int value);
+int equal_tableblock(addr left, addr right);
+size_t getlexical_tableblock(addr pos);
+void setlexical_tableblock(addr pos, size_t value);
+int getclosurep_tableblock(addr pos);
+void setclosurep_tableblock(addr pos, int value);
+size_t getclosure_tableblock(addr pos);
+void setclosure_tableblock(addr pos, size_t value);
 
 
 /*
  *  evaltable
  */
-_g void evaltable_value_heap(addr *ret, addr pos);
-_g void evaltable_function_heap(addr *ret, addr pos);
-_g void evaltable_tagbody_heap(addr *ret, addr pos);
-_g void evaltable_block_heap(addr *ret, addr pos);
-_g enum EvalTable gettype_evaltable(addr pos);
-_g void get_evaltable(addr pos, addr *ret);
-_g int getvalue_evaltable(addr list, addr pos, addr *ret);
-_g int getfunction_evaltable(addr list, addr pos, addr *ret);
-_g int gettagbody_evaltable(addr list, addr pos, addr *ret);
-_g int getblock_evaltable(addr list, addr pos, addr *ret);
-_g int getclosurep_evaltable(addr table);
+void evaltable_value_heap(addr *ret, addr pos);
+void evaltable_function_heap(addr *ret, addr pos);
+void evaltable_tagbody_heap(addr *ret, addr pos);
+void evaltable_block_heap(addr *ret, addr pos);
+enum EvalTable gettype_evaltable(addr pos);
+void get_evaltable(addr pos, addr *ret);
+int getvalue_evaltable(addr list, addr pos, addr *ret);
+int getfunction_evaltable(addr list, addr pos, addr *ret);
+int gettagbody_evaltable(addr list, addr pos, addr *ret);
+int getblock_evaltable(addr list, addr pos, addr *ret);
+int getclosurep_evaltable(addr table);
 
 
 /*
  *  tablecall
  */
-_g void make_tablecall(addr *ret);
-_g int getcheck_tablecall(addr pos);
-_g void setcheck_tablecall(addr pos, int value);
-_g void getvalue_tablecall(addr pos, addr *ret);
-_g void setvalue_tablecall(addr pos, addr value);
-_g void gettype_tablecall(addr pos, addr *ret);
-_g void settype_tablecall(addr pos, addr value);
+void make_tablecall(addr *ret);
+int getcheck_tablecall(addr pos);
+void setcheck_tablecall(addr pos, int value);
+void getvalue_tablecall(addr pos, addr *ret);
+void setvalue_tablecall(addr pos, addr value);
+void gettype_tablecall(addr pos, addr *ret);
+void settype_tablecall(addr pos, addr value);
 
 #endif
 

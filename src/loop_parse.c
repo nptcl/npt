@@ -1214,7 +1214,7 @@ static int loop_parse_main_clause_(addr *root, addr *list)
 /*
  *  main
  */
-_g int loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list)
+int loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list)
 {
 	Return(loop_parse_named_clause_(named, list));
 	Return(loop_parse_variable_clause_(ptr, vars, list));

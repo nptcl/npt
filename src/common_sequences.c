@@ -1412,7 +1412,7 @@ static void defun_delete_duplicates(void)
 /*
  *  function
  */
-_g void init_common_sequences(void)
+void init_common_sequences(void)
 {
 	SetPointerCall(defun, var1, copy_seq);
 	SetPointerCall(defun, var2, elt);
@@ -1459,7 +1459,7 @@ _g void init_common_sequences(void)
 	SetPointerCall(defun, var1dynamic, delete_duplicates);
 }
 
-_g void build_common_sequences(void)
+void build_common_sequences(void)
 {
 	defun_copy_seq();
 	defun_elt();

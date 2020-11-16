@@ -776,14 +776,14 @@ static void reader_dispatch_constant(void)
 	SetStatusReadOnly(symbol);
 }
 
-_g void build_reader_dispatch(void)
+void build_reader_dispatch(void)
 {
 	reader_dispatch_function();
 	reader_dispatch_sharp();
 	reader_dispatch_constant();
 }
 
-_g void init_reader_dispatch(void)
+void init_reader_dispatch(void)
 {
 	SetPointerCall(defun, var2, reader_double_quote);
 	SetPointerCall(defun, var2, reader_single_quote);

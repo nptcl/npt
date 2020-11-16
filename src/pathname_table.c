@@ -15,7 +15,7 @@
 #include "type_table.h"
 #include "typedef.h"
 
-_g void init_fileparse(struct fileparse *pa, Execute ptr, int localp)
+void init_fileparse(struct fileparse *pa, Execute ptr, int localp)
 {
 	clearpoint(pa);
 	pa->thing = pa->path = pa->queue = pa->result =
@@ -27,7 +27,7 @@ _g void init_fileparse(struct fileparse *pa, Execute ptr, int localp)
 	pa->local = &pa->local_buffer;
 }
 
-_g void pathname_fileparse_alloc(struct fileparse *pa, int logical)
+void pathname_fileparse_alloc(struct fileparse *pa, int logical)
 {
 	LocalRoot local;
 
@@ -42,7 +42,7 @@ _g void pathname_fileparse_alloc(struct fileparse *pa, int logical)
 	}
 }
 
-_g int wild_value_pathname_(addr input, addr *ret)
+int wild_value_pathname_(addr input, addr *ret)
 {
 	int check;
 
@@ -162,7 +162,7 @@ static int check_parse_logical_pathname_(struct fileparse *pa)
 	return 0;
 }
 
-_g int make_parse_logical_pathname_(struct fileparse *pa)
+int make_parse_logical_pathname_(struct fileparse *pa)
 {
 	GetConst(KEYWORD_UNSPECIFIC, &pa->device);
 	Return(wild_value_pathname_(pa->name, &pa->name));
@@ -176,7 +176,7 @@ _g int make_parse_logical_pathname_(struct fileparse *pa)
 	return 0;
 }
 
-_g int pushrange_pathname_(LocalpRoot local,
+int pushrange_pathname_(LocalpRoot local,
 		addr queue, addr thing, size_t n1, size_t n2)
 {
 	unicode c;
@@ -189,12 +189,12 @@ _g int pushrange_pathname_(LocalpRoot local,
 	return 0;
 }
 
-_g void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret)
+void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret)
 {
 	make_charqueue_alloc(localp_alloc(pa->local), queue, ret);
 }
 
-_g int nametype_pathname_(struct fileparse *pa, size_t index)
+int nametype_pathname_(struct fileparse *pa, size_t index)
 {
 	/*
 	 *  index -> 1..size-1
@@ -223,7 +223,7 @@ _g int nametype_pathname_(struct fileparse *pa, size_t index)
 	return 0;
 }
 
-_g int pushdirectory_fileparse_(struct fileparse *pa, addr *list, addr name)
+int pushdirectory_fileparse_(struct fileparse *pa, addr *list, addr name)
 {
 	/*
 	 *  ".." -> :UP
@@ -255,14 +255,14 @@ next:
 	return 0;
 }
 
-_g void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex index)
+void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex index)
 {
 	addr value;
 	GetConstant(index, &value);
 	cons_alloc(localp_alloc(pa->local), list, value, *list);
 }
 
-_g int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret)
+int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret)
 {
 	addr key;
 	make_charqueue_local(local->local, queue, &key);
@@ -270,7 +270,7 @@ _g int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret)
 	return Result(ret, key != Nil);
 }
 
-_g int check_drive_logical_pathname_(LocalpRoot local, int drive, int *ret)
+int check_drive_logical_pathname_(LocalpRoot local, int drive, int *ret)
 {
 	addr key;
 	strvect_local(local->local, &key, 1);

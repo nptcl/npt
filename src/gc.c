@@ -15,7 +15,7 @@ static void gcexec_default(void)
 		gcexec_partial();
 }
 
-_g void gcexec(enum GcMode mode)
+void gcexec(enum GcMode mode)
 {
 	switch (mode) {
 		case GcMode_Default:
@@ -37,7 +37,7 @@ _g void gcexec(enum GcMode mode)
 	heap_gc_count++;
 }
 
-_g void gcsync(Execute ptr, enum GcMode mode)
+void gcsync(Execute ptr, enum GcMode mode)
 {
 	clear_values_execute(ptr);
 	gcstart_execute(ptr);

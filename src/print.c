@@ -41,18 +41,18 @@ static void pushbool_print(Execute ptr, constindex index, int value)
 }
 
 /* print-array */
-_g int array_print_(Execute ptr, int *ret)
+int array_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ARRAY);
 }
 
-_g void push_array_print(Execute ptr, int value)
+void push_array_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_ARRAY, value);
 }
 
 /* print-base */
-_g int base_print_(Execute ptr, unsigned *ret)
+int base_print_(Execute ptr, unsigned *ret)
 {
 	addr pos;
 	fixnum value;
@@ -68,7 +68,7 @@ _g int base_print_(Execute ptr, unsigned *ret)
 	return Result(ret, (unsigned)value);
 }
 
-_g void push_base_print(Execute ptr, unsigned base)
+void push_base_print(Execute ptr, unsigned base)
 {
 	addr pos, value;
 
@@ -79,18 +79,18 @@ _g void push_base_print(Execute ptr, unsigned base)
 }
 
 /* print-radix */
-_g int radix_print_(Execute ptr, int *ret)
+int radix_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_RADIX);
 }
 
-_g void push_radix_print(Execute ptr, int value)
+void push_radix_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_RADIX, value);
 }
 
 /* print-case */
-_g int case_print_(Execute ptr, enum PrintCase *ret)
+int case_print_(Execute ptr, enum PrintCase *ret)
 {
 	addr pos, value;
 
@@ -115,7 +115,7 @@ _g int case_print_(Execute ptr, enum PrintCase *ret)
 	return fmte_("type error", NULL);
 }
 
-_g int push_case_print_(Execute ptr, enum PrintCase pcase)
+int push_case_print_(Execute ptr, enum PrintCase pcase)
 {
 	addr pos, value;
 
@@ -141,56 +141,56 @@ _g int push_case_print_(Execute ptr, enum PrintCase pcase)
 }
 
 /* print-circle */
-_g int circle_print_(Execute ptr, int *ret)
+int circle_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_CIRCLE);
 }
 
-_g void push_circle_print(Execute ptr, int value)
+void push_circle_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_CIRCLE, value);
 }
 
 /* print-escape */
-_g int escape_print_(Execute ptr, int *ret)
+int escape_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ESCAPE);
 }
 
-_g void push_escape_print(Execute ptr, int value)
+void push_escape_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_ESCAPE, value);
 }
 
 /* print-gensym */
-_g int gensym_print_(Execute ptr, int *ret)
+int gensym_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_GENSYM);
 }
 
-_g void push_gensym_print(Execute ptr, int value)
+void push_gensym_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_GENSYM, value);
 }
 
 /* print-readably */
-_g int readably_print_(Execute ptr, int *ret)
+int readably_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_READABLY);
 }
 
-_g void push_readably_print(Execute ptr, int value)
+void push_readably_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_READABLY, value);
 }
 
 /* print-pretty */
-_g int pretty_print_(Execute ptr, int *ret)
+int pretty_print_(Execute ptr, int *ret)
 {
 	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_PRETTY);
 }
 
-_g void push_pretty_print(Execute ptr, int value)
+void push_pretty_print(Execute ptr, int value)
 {
 	pushbool_print(ptr, CONSTANT_SPECIAL_PRINT_PRETTY, value);
 }
@@ -232,71 +232,71 @@ static void push_nil_print(Execute ptr, constindex index)
 	pushspecial_control(ptr, pos, Nil);
 }
 
-_g int level_print_(Execute ptr, size_t *value, int *ret)
+int level_print_(Execute ptr, size_t *value, int *ret)
 {
 	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LEVEL);
 }
 
-_g int push_level_print_(Execute ptr, size_t value)
+int push_level_print_(Execute ptr, size_t value)
 {
 	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_LEVEL, value);
 }
 
-_g void push_level_nil_print(Execute ptr)
+void push_level_nil_print(Execute ptr)
 {
 	push_nil_print(ptr, CONSTANT_SPECIAL_PRINT_LEVEL);
 }
 
 /* print-length */
-_g int length_print_(Execute ptr, size_t *value, int *ret)
+int length_print_(Execute ptr, size_t *value, int *ret)
 {
 	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LENGTH);
 }
 
-_g int push_length_print_(Execute ptr, size_t value)
+int push_length_print_(Execute ptr, size_t value)
 {
 	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_LENGTH, value);
 }
 
-_g void push_length_nil_print(Execute ptr)
+void push_length_nil_print(Execute ptr)
 {
 	push_nil_print(ptr, CONSTANT_SPECIAL_PRINT_LENGTH);
 }
 
 /* print-lines */
-_g int lines_print_(Execute ptr, size_t *value, int *ret)
+int lines_print_(Execute ptr, size_t *value, int *ret)
 {
 	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LINES);
 }
 
-_g int push_lines_print_(Execute ptr, size_t value)
+int push_lines_print_(Execute ptr, size_t value)
 {
 	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_LINES, value);
 }
 
-_g void push_lines_nil_print(Execute ptr)
+void push_lines_nil_print(Execute ptr)
 {
 	push_nil_print(ptr, CONSTANT_SPECIAL_PRINT_LINES);
 }
 
 /* print-miser-width */
-_g int miser_width_print_(Execute ptr, size_t *value, int *ret)
+int miser_width_print_(Execute ptr, size_t *value, int *ret)
 {
 	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_MISER_WIDTH);
 }
 
-_g int push_miser_width_print_(Execute ptr, size_t value)
+int push_miser_width_print_(Execute ptr, size_t value)
 {
 	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_MISER_WIDTH, value);
 }
 
-_g void push_miser_width_nil_print(Execute ptr)
+void push_miser_width_nil_print(Execute ptr)
 {
 	push_nil_print(ptr, CONSTANT_SPECIAL_PRINT_MISER_WIDTH);
 }
 
 /* print-right-margin */
-_g int right_margin_print_(Execute ptr, addr stream, size_t *ret)
+int right_margin_print_(Execute ptr, addr stream, size_t *ret)
 {
 	int check;
 	addr pos;
@@ -317,25 +317,25 @@ _g int right_margin_print_(Execute ptr, addr stream, size_t *ret)
 	return 0;
 }
 
-_g int push_right_margin_print_(Execute ptr, size_t value)
+int push_right_margin_print_(Execute ptr, size_t value)
 {
 	return push_integer_print_(ptr, CONSTANT_SPECIAL_PRINT_RIGHT_MARGIN, value);
 }
 
-_g void push_right_margin_nil_print(Execute ptr)
+void push_right_margin_nil_print(Execute ptr)
 {
 	push_nil_print(ptr, CONSTANT_SPECIAL_PRINT_RIGHT_MARGIN);
 }
 
 /* print-dispatch */
-_g int pprint_dispatch_print_(Execute ptr, addr *ret)
+int pprint_dispatch_print_(Execute ptr, addr *ret)
 {
 	addr pos;
 	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &pos);
 	return getspecialcheck_local_(ptr, pos, ret);
 }
 
-_g void push_pprint_dispatch(Execute ptr, addr value)
+void push_pprint_dispatch(Execute ptr, addr value)
 {
 	addr pos;
 	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &pos);
@@ -391,13 +391,13 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 	return write_char_stream_(stream, '>');
 }
 
-_g int print_unreadable_object_(Execute ptr, addr stream, addr pos,
+int print_unreadable_object_(Execute ptr, addr stream, addr pos,
 		int type, int identity, calltype_print call)
 {
 	return print_unreadable_call_(ptr, stream, pos, type, identity, call, NULL);
 }
 
-_g int print_unreadable_common_(Execute ptr, addr stream, addr pos,
+int print_unreadable_common_(Execute ptr, addr stream, addr pos,
 		int type, int identity, addr body)
 {
 	return print_unreadable_call_(ptr, stream, pos, type, identity, NULL, body);
@@ -407,13 +407,13 @@ _g int print_unreadable_common_(Execute ptr, addr stream, addr pos,
 /*
  *  initialize
  */
-_g void build_print(Execute ptr)
+void build_print(Execute ptr)
 {
 	Error(build_print_object_(ptr));
 	Error(build_print_dispatch_());
 }
 
-_g void init_print(void)
+void init_print(void)
 {
 	init_print_function();
 	init_print_object();

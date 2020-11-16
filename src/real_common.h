@@ -20,22 +20,22 @@
 #define float_common_ _n(float_common_)
 
 /* constant */
-_g void double_float_least_positive(addr *ret);
-_g void double_float_least_positive_normalized(addr *ret);
-_g void long_float_least_positive(addr *ret);
-_g void long_float_least_positive_normalized(addr *ret);
-_g void double_float_least_negative(addr *ret);
-_g void double_float_least_negative_normalized(addr *ret);
-_g void long_float_least_negative(addr *ret);
-_g void long_float_least_negative_normalized(addr *ret);
-_g void double_float_epsilon(addr *ret);
-_g void double_float_negative_epsilon(addr *ret);
-_g void long_float_epsilon(addr *ret);
-_g void long_float_negative_epsilon(addr *ret);
-_g void build_real_common(void);
+void double_float_least_positive(addr *ret);
+void double_float_least_positive_normalized(addr *ret);
+void long_float_least_positive(addr *ret);
+void long_float_least_positive_normalized(addr *ret);
+void double_float_least_negative(addr *ret);
+void double_float_least_negative_normalized(addr *ret);
+void long_float_least_negative(addr *ret);
+void long_float_least_negative_normalized(addr *ret);
+void double_float_epsilon(addr *ret);
+void double_float_negative_epsilon(addr *ret);
+void long_float_epsilon(addr *ret);
+void long_float_negative_epsilon(addr *ret);
+void build_real_common(void);
 
 /* common-lisp */
-_g int float_common_(addr *ret, addr var, addr type);
+int float_common_(addr *ret, addr var, addr type);
 
 #endif
 

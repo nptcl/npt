@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 #define init_extern _n(init_extern)
-_g void init_extern(void);
+void init_extern(void);
 
 #endif
 

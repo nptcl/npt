@@ -35,42 +35,42 @@
 #define with_input_from_string_common _n(with_input_from_string_common)
 #define with_output_to_string_common _n(with_output_to_string_common)
 
-_g int read_byte_common_(Execute ptr,
+int read_byte_common_(Execute ptr,
 		addr stream, addr errorp, addr value, addr *ret);
-_g int write_byte_common(Execute ptr, addr value, addr stream);
-_g int peek_char_common(Execute ptr, addr type, addr stream,
+int write_byte_common(Execute ptr, addr value, addr stream);
+int peek_char_common(Execute ptr, addr type, addr stream,
 		addr errorp, addr value, addr recp, addr *ret);
-_g int read_char_common(Execute ptr,
+int read_char_common(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp, addr *ret);
-_g int read_char_no_hang_common(Execute ptr,
+int read_char_no_hang_common(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp, addr *ret);
-_g int terpri_common(Execute ptr, addr stream);
-_g int fresh_line_common(Execute ptr, addr stream, addr *ret);
-_g int unread_char_common(Execute ptr, addr pos, addr stream);
-_g int write_char_common(Execute ptr, addr pos, addr stream);
-_g int read_line_common(Execute ptr,
+int terpri_common(Execute ptr, addr stream);
+int fresh_line_common(Execute ptr, addr stream, addr *ret);
+int unread_char_common(Execute ptr, addr pos, addr stream);
+int write_char_common(Execute ptr, addr pos, addr stream);
+int read_line_common(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp,
 		addr *ret, addr *sec);
-_g int write_string_common(Execute ptr, addr string, addr rest);
-_g int write_line_common(Execute ptr, addr string, addr rest);
-_g int read_sequence_common(addr var, addr stream, addr rest, addr *ret);
-_g int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest);
-_g int file_position_common(Execute ptr, addr stream, addr pos, addr *ret);
-_g int file_string_length_common(addr stream, addr pos, addr *ret);
-_g int open_common(Execute ptr, addr pos, addr rest, addr *ret);
-_g int with_open_file_common(addr form, addr *ret);
-_g int close_common(Execute ptr, addr pos, addr rest, addr *ret);
-_g int with_open_stream_common(addr form, addr *ret);
-_g int listen_common(Execute ptr, addr stream, addr *ret);
-_g int clear_input_common(Execute ptr, addr stream);
-_g int finish_output_common_(Execute ptr, addr stream);
-_g int force_output_common_(Execute ptr, addr stream);
-_g int clear_output_common_(Execute ptr, addr stream);
-_g int make_string_input_stream_common(addr var, addr x, addr y, addr *ret);
-_g int make_string_output_stream_common(Execute ptr, addr rest, addr *ret);
-_g int get_output_stream_string_common(Execute ptr, addr var, addr *ret);
-_g int with_input_from_string_common(addr form, addr *ret);
-_g int with_output_to_string_common(addr form, addr *ret);
+int write_string_common(Execute ptr, addr string, addr rest);
+int write_line_common(Execute ptr, addr string, addr rest);
+int read_sequence_common(addr var, addr stream, addr rest, addr *ret);
+int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest);
+int file_position_common(Execute ptr, addr stream, addr pos, addr *ret);
+int file_string_length_common(addr stream, addr pos, addr *ret);
+int open_common(Execute ptr, addr pos, addr rest, addr *ret);
+int with_open_file_common(addr form, addr *ret);
+int close_common(Execute ptr, addr pos, addr rest, addr *ret);
+int with_open_stream_common(addr form, addr *ret);
+int listen_common(Execute ptr, addr stream, addr *ret);
+int clear_input_common(Execute ptr, addr stream);
+int finish_output_common_(Execute ptr, addr stream);
+int force_output_common_(Execute ptr, addr stream);
+int clear_output_common_(Execute ptr, addr stream);
+int make_string_input_stream_common(addr var, addr x, addr y, addr *ret);
+int make_string_output_stream_common(Execute ptr, addr rest, addr *ret);
+int get_output_stream_string_common(Execute ptr, addr var, addr *ret);
+int with_input_from_string_common(addr form, addr *ret);
+int with_output_to_string_common(addr form, addr *ret);
 
 #endif
 

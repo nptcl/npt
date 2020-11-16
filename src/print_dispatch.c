@@ -16,65 +16,65 @@
 /*
  *  access
  */
-_g void getlistprintdispatch(addr pos, addr *ret)
+void getlistprintdispatch(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PRINT_DISPATCH);
 	GetListPrintDispatch_Low(pos, ret);
 }
 
-_g void setlistprintdispatch(addr pos, addr value)
+void setlistprintdispatch(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PRINT_DISPATCH);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetListPrintDispatch_Low(pos, value);
 }
 
-_g void gettypeprinttable(addr pos, addr *ret)
+void gettypeprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetTypePrintTable_Low(pos, ret);
 }
 
-_g void settypeprinttable(addr pos, addr value)
+void settypeprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTypePrintTable_Low(pos, value);
 }
 
-_g void getspecifierprinttable(addr pos, addr *ret)
+void getspecifierprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetSpecifierPrintTable_Low(pos, ret);
 }
 
-_g void setspecifierprinttable(addr pos, addr value)
+void setspecifierprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetSpecifierPrintTable_Low(pos, value);
 }
 
-_g void getfunctionprinttable(addr pos, addr *ret)
+void getfunctionprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetFunctionPrintTable_Low(pos, ret);
 }
 
-_g void setfunctionprinttable(addr pos, addr value)
+void setfunctionprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunctionPrintTable_Low(pos, value);
 }
 
-_g void getpriorityprinttable(addr pos, addr *ret)
+void getpriorityprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetPriorityPrintTable_Low(pos, ret);
 }
 
-_g void setpriorityprinttable(addr pos, addr value)
+void setpriorityprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -85,12 +85,12 @@ _g void setpriorityprinttable(addr pos, addr value)
 /*
  *  object
  */
-_g int print_dispatch_p(addr pos)
+int print_dispatch_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_PRINT_DISPATCH;
 }
 
-_g void pprint_dispatch_heap(addr *ret)
+void pprint_dispatch_heap(addr *ret)
 {
 	heap_array2(ret, LISPTYPE_PRINT_DISPATCH, PrintDispatch_size);
 }
@@ -168,7 +168,7 @@ static int find_print_dispatch(Execute ptr, addr var, addr list, addr *ret)
 	return Result(ret, value);
 }
 
-_g int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret)
+int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret)
 {
 	Return(find_print_dispatch(ptr, var, table, &var));
 	if (var != Nil)
@@ -242,7 +242,7 @@ static void set_print_dispatch(addr spec, addr type,
 /*
  *  common
  */
-_g int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret)
+int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret)
 {
 	if (var == Unbound || var == Nil) {
 		Return(pprint_dispatch_print_(ptr, &var));
@@ -251,7 +251,7 @@ _g int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret)
 	return 0;
 }
 
-_g int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y)
+int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y)
 {
 	if (table == Unbound) {
 		Return(pprint_dispatch_print_(ptr, &table));
@@ -271,7 +271,7 @@ _g int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr 
 	return 0;
 }
 
-_g int set_pprint_dispatch_print_(LocalRoot local,
+int set_pprint_dispatch_print_(LocalRoot local,
 		addr spec, addr type, addr call, addr priority, addr table)
 {
 	CheckType(type, LISPTYPE_TYPE);
@@ -503,7 +503,7 @@ static int build_print_dispatch_let_(LocalRoot local, addr dispatch)
 	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-_g int build_print_dispatch_(void)
+int build_print_dispatch_(void)
 {
 	LocalRoot local;
 	addr dispatch;

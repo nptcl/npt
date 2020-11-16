@@ -389,7 +389,7 @@ static void optimize_common_symbol(addr scope, addr *ret)
 	GetCallName(call, ret);
 }
 
-_g int optimize_common(LocalRoot local, addr code, addr scope)
+int optimize_common(LocalRoot local, addr code, addr scope)
 {
 	addr symbol, check;
 
@@ -477,7 +477,7 @@ static int optimize_check_code2(
 	return 1;
 }
 
-_g int optimize_check_code(LocalRoot local, addr code, addr scope)
+int optimize_check_code(LocalRoot local, addr code, addr scope)
 {
 	addr args, pos;
 
@@ -501,7 +501,7 @@ _g int optimize_check_code(LocalRoot local, addr code, addr scope)
 	CodeValueArray[p_##x] = (byte)CodeValueType_##y; \
 }
 
-_g void init_optimize_common(void)
+void init_optimize_common(void)
 {
 	initcode(optcode_result_type_code,  Addr);
 	initcode(optcode_car0_set_code,     Null);
@@ -515,7 +515,7 @@ _g void init_optimize_common(void)
 	initcode(optcode_cons_code,         Null);
 }
 
-_g void build_optimize_common(void)
+void build_optimize_common(void)
 {
 	defcode(OPTCODE_RESULT_TYPE,  optcode_result_type_code);
 	defcode(OPTCODE_CAR0_SET,     optcode_car0_set_code);

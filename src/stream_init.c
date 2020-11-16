@@ -78,7 +78,7 @@ static int finalize_close_stream(Execute ptr)
 	return close_stream_(stream, NULL);
 }
 
-_g void push_close_stream(Execute ptr, addr stream)
+void push_close_stream(Execute ptr, addr stream)
 {
 	setprotect_control(ptr, p_finalize_close_stream, stream);
 }
@@ -88,7 +88,7 @@ static void init_stream_function(void)
 	SetPointerType(empty, finalize_close_stream);
 }
 
-_g void init_stream(void)
+void init_stream(void)
 {
 	init_stream_binary_input();
 	init_stream_binary_output();
@@ -264,7 +264,7 @@ static void defvar_end_of_line(void)
 	SetValueSymbol(symbol, value);
 }
 
-_g void build_stream(void)
+void build_stream(void)
 {
 	defvar_external_format();
 	defvar_system_standard_input();

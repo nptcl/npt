@@ -6,7 +6,7 @@
 
 #define eval_compile_load _n(eval_compile_load)
 
-_g int eval_compile_load(Execute ptr, addr stream);
+int eval_compile_load(Execute ptr, addr stream);
 
 #endif
 

@@ -918,7 +918,7 @@ static void code_lambda_function(LocalRoot local, addr code, addr scope)
 static int code_make_lambda_cache_p(addr scope)
 {
 	OptimizeType value;
-	struct eval_scope *str;
+	struct scope_struct *str;
 	addr pos;
 
 	/* closure */
@@ -2369,7 +2369,7 @@ static void code_make_call(LocalRoot local, addr code, addr scope)
 typedef void (*code_make_calltype)(LocalRoot, addr, addr);
 static code_make_calltype CodeMakeTable[EVAL_PARSE_SIZE];
 
-_g void code_make_execute(LocalRoot local, addr code, addr scope)
+void code_make_execute(LocalRoot local, addr code, addr scope)
 {
 	EvalParse type;
 	code_make_calltype call;
@@ -2382,7 +2382,7 @@ _g void code_make_execute(LocalRoot local, addr code, addr scope)
 	(*call)(local, code, scope);
 }
 
-_g void code_make(LocalRoot local, addr *ret, addr scope)
+void code_make(LocalRoot local, addr *ret, addr scope)
 {
 	addr code;
 	LocalStack stack;
@@ -2394,7 +2394,7 @@ _g void code_make(LocalRoot local, addr *ret, addr scope)
 	rollback_local(local, stack);
 }
 
-_g void init_code_make(void)
+void init_code_make(void)
 {
 	CodeMakeTable[EVAL_PARSE_NIL] = code_make_nil;
 	CodeMakeTable[EVAL_PARSE_T] = code_make_t;

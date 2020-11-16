@@ -110,7 +110,7 @@ static void eval_loop_shift(Execute ptr, addr list)
 	setspecial_local(ptr, sym3, pos3);
 }
 
-_g int eval_loop_output(Execute ptr, addr stream)
+int eval_loop_output(Execute ptr, addr stream)
 {
 	addr list, pos;
 
@@ -228,7 +228,7 @@ static int eval_loop_restart(Execute ptr, addr stream,
 	return pop_control_(ptr, control);
 }
 
-_g int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call)
+int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call)
 {
 	int exit;
 	size_t index;
@@ -254,7 +254,7 @@ static int eval_main_execute(Execute ptr, addr stream, addr pos, int *exit, int 
 	return 0;
 }
 
-_g int eval_main_loop_(Execute ptr)
+int eval_main_loop_(Execute ptr)
 {
 	addr stream;
 	Return(terminal_io_stream_(ptr, &stream));
@@ -274,7 +274,7 @@ static int evalcall_string_result_(Execute ptr, addr eval)
 	return eval_stream_partial(ptr, stream);
 }
 
-_g int eval_main_string_(Execute ptr, addr eval)
+int eval_main_string_(Execute ptr, addr eval)
 {
 	addr control, restart;
 
@@ -301,7 +301,7 @@ static int eval_main_load_execute(Execute ptr, void *voidp)
 	return eval_load(ptr, str->ret, str->file, Nil, Nil, str->exists, Unbound);
 }
 
-_g int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
+int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 {
 	int check;
 	addr control, restart;
@@ -320,7 +320,7 @@ _g int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 /*
  *  initialize
  */
-_g void init_eval_main(void)
+void init_eval_main(void)
 {
 	SetPointerCall(defun, var1, eval_loop_abort_report);
 	SetPointerCall(defun, var1, eval_loop_abort_test);

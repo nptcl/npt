@@ -14,7 +14,7 @@
 /*
  *  output
  */
-_g int decimal_charqueue_fixnum_local_(LocalRoot local, addr pos, addr queue)
+int decimal_charqueue_fixnum_local_(LocalRoot local, addr pos, addr queue)
 {
 	char buffer[256];
 
@@ -23,7 +23,7 @@ _g int decimal_charqueue_fixnum_local_(LocalRoot local, addr pos, addr queue)
 	return pushchar_charqueue_local_(local, queue, buffer);
 }
 
-_g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
+int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
 {
 	addr stream, value;
 
@@ -45,7 +45,7 @@ _g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
 	return pushstring_charqueue_local_(local, queue, value);
 }
 
-_g int decimal_charqueue_integer_local_(LocalRoot local, addr pos, addr queue)
+int decimal_charqueue_integer_local_(LocalRoot local, addr pos, addr queue)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -65,7 +65,7 @@ _g int decimal_charqueue_integer_local_(LocalRoot local, addr pos, addr queue)
  */
 /* base=2, 64bit -> 1+64+1 -> 66+padding -> 72? */
 #define FIXNUM_BUFFER_SIZE  128
-_g int output_nosign_index_(addr stream, size_t n, unsigned base, int upperp)
+int output_nosign_index_(addr stream, size_t n, unsigned base, int upperp)
 {
 	size_t m;
 	char buffer[FIXNUM_BUFFER_SIZE], *ptr, chara;
@@ -88,7 +88,7 @@ _g int output_nosign_index_(addr stream, size_t n, unsigned base, int upperp)
 	return print_ascii_stream_(stream, ptr + 1);
 }
 
-_g int output_nosign_fixnum_(addr stream, fixnum value, unsigned base, int upperp)
+int output_nosign_fixnum_(addr stream, fixnum value, unsigned base, int upperp)
 {
 	int sign;
 	bigtype m, n;
@@ -167,7 +167,7 @@ static int charqueue_nreverse_output_(addr pos, addr stream)
 	return 0;
 }
 
-_g int output_nosign_bignum_(LocalRoot local,
+int output_nosign_bignum_(LocalRoot local,
 		addr stream, addr pos, unsigned base, int upperp)
 {
 	unicode u;
@@ -206,7 +206,7 @@ _g int output_nosign_bignum_(LocalRoot local,
 }
 
 #define FIXNUM_BUFFER_DOUBLE_SIZE  (FIXNUM_BUFFER_SIZE * 2)
-_g int output_nosign_comma_fixnum_(LocalRoot local,
+int output_nosign_comma_fixnum_(LocalRoot local,
 		addr stream, fixnum value, unsigned base, int upperp,
 		size_t range, unicode comma)
 {
@@ -241,7 +241,7 @@ _g int output_nosign_comma_fixnum_(LocalRoot local,
 	return print_unicode_stream_(stream, ptr + 1);
 }
 
-_g int output_nosign_comma_bignum_(LocalRoot local,
+int output_nosign_comma_bignum_(LocalRoot local,
 		addr stream, addr pos, unsigned base, int upperp,
 		size_t range, unicode comma)
 {

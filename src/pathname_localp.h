@@ -15,9 +15,9 @@ struct localp_struct {
 
 typedef struct localp_struct *LocalpRoot;
 
-_g void push_localp(LocalpRoot local, LocalStack *ret);
-_g void rollback_localp(LocalpRoot local, LocalStack stack);
-_g LocalRoot localp_alloc(LocalpRoot local);
+void push_localp(LocalpRoot local, LocalStack *ret);
+void rollback_localp(LocalpRoot local, LocalStack stack);
+LocalRoot localp_alloc(LocalpRoot local);
 
 #endif
 

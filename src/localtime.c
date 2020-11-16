@@ -7,15 +7,15 @@
  *****************************************************************************/
 #include <windows.h>
 
-_g void init_localtime(void)
+void init_localtime(void)
 {
 	_tzset();
 }
-_g int gmtime_arch(struct tm *ret, const time_t *time)
+int gmtime_arch(struct tm *ret, const time_t *time)
 {
 	return gmtime_s(ret, time) != 0;
 }
-_g int localtime_arch(struct tm *ret, const time_t *time)
+int localtime_arch(struct tm *ret, const time_t *time)
 {
 	return localtime_s(ret, time) != 0;
 }
@@ -26,15 +26,15 @@ _g int localtime_arch(struct tm *ret, const time_t *time)
  *****************************************************************************/
 #define _BSD_SOURCE 1
 #include <time.h>
-_g void init_localtime(void)
+void init_localtime(void)
 {
 	tzset();
 }
-_g int gmtime_arch(struct tm *ret, const time_t *time)
+int gmtime_arch(struct tm *ret, const time_t *time)
 {
 	return gmtime_r(time, ret) == NULL;
 }
-_g int localtime_arch(struct tm *ret, const time_t *time)
+int localtime_arch(struct tm *ret, const time_t *time)
 {
 	return localtime_r(time, ret) == NULL;
 }
@@ -45,15 +45,15 @@ _g int localtime_arch(struct tm *ret, const time_t *time)
  *****************************************************************************/
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <time.h>
-_g void init_localtime(void)
+void init_localtime(void)
 {
 	tzset();
 }
-_g int gmtime_arch(struct tm *ret, const time_t *time)
+int gmtime_arch(struct tm *ret, const time_t *time)
 {
 	return gmtime_s(time, ret) == NULL;
 }
-_g int localtime_arch(struct tm *ret, const time_t *time)
+int localtime_arch(struct tm *ret, const time_t *time)
 {
 	return localtime_s(time, ret) == NULL;
 }
@@ -63,11 +63,11 @@ _g int localtime_arch(struct tm *ret, const time_t *time)
  *  C99
  *****************************************************************************/
 #include <time.h>
-_g void init_localtime(void)
+void init_localtime(void)
 {
 	/* Don't execute tzset() */
 }
-_g int gmtime_arch(struct tm *ret, const time_t *time)
+int gmtime_arch(struct tm *ret, const time_t *time)
 {
 	struct tm *check;
 
@@ -78,7 +78,7 @@ _g int gmtime_arch(struct tm *ret, const time_t *time)
 
 	return 0;
 }
-_g int localtime_arch(struct tm *ret, const time_t *time)
+int localtime_arch(struct tm *ret, const time_t *time)
 {
 	struct tm *check;
 
@@ -96,7 +96,7 @@ _g int localtime_arch(struct tm *ret, const time_t *time)
  *  localtime
  */
 #ifdef LISP_WINDOWS
-_g int nowtime_string(char *ptr, size_t size)
+int nowtime_string(char *ptr, size_t size)
 {
 	SYSTEMTIME st;
 
@@ -107,7 +107,7 @@ _g int nowtime_string(char *ptr, size_t size)
 	return 0;
 }
 #else
-_g int nowtime_string(char *ptr, size_t size)
+int nowtime_string(char *ptr, size_t size)
 {
 	time_t now;
 	struct tm str;

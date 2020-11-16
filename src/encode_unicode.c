@@ -214,7 +214,7 @@ static enum read_unicode_result getc_utf8_normal(
 		return read_unicode_result_error;
 }
 
-_g int read_utf8_normal(filestream fm, unicode *ret)
+int read_utf8_normal(filestream fm, unicode *ret)
 {
 	struct read_unicode_struct str;
 
@@ -246,7 +246,7 @@ static enum read_unicode_result getc_utf8_nonblock(
 		return read_unicode_result_error;
 }
 
-_g int read_utf8_nonblock(filestream fm, unicode *ret, int *hang)
+int read_utf8_nonblock(filestream fm, unicode *ret, int *hang)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -284,7 +284,7 @@ static enum read_unicode_result getc_utf8_buffer(
 	}
 }
 
-_g int read_utf8_buffer(unicode *dst, const byte *src, size_t size, size_t *ret)
+int read_utf8_buffer(unicode *dst, const byte *src, size_t size, size_t *ret)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -405,7 +405,7 @@ rollback:
 
 
 /* read_utf16_normal */
-_g int read_utf16_normal(filestream fm, unicode *ret, int be)
+int read_utf16_normal(filestream fm, unicode *ret, int be)
 {
 	struct read_unicode_struct str;
 
@@ -420,7 +420,7 @@ _g int read_utf16_normal(filestream fm, unicode *ret, int be)
 
 
 /* read_utf16_nonblock */
-_g int read_utf16_nonblock(filestream fm, unicode *ret, int *hang, int be)
+int read_utf16_nonblock(filestream fm, unicode *ret, int *hang, int be)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -519,7 +519,7 @@ rollback:
 
 
 /* read_utf32_normal */
-_g int read_utf32_normal(filestream fm, unicode *ret, int be)
+int read_utf32_normal(filestream fm, unicode *ret, int be)
 {
 	struct read_unicode_struct str;
 
@@ -534,7 +534,7 @@ _g int read_utf32_normal(filestream fm, unicode *ret, int be)
 
 
 /* read_utf32_nonblock */
-_g int read_utf32_nonblock(filestream fm, unicode *ret, int *hang, int be)
+int read_utf32_nonblock(filestream fm, unicode *ret, int *hang, int be)
 {
 	int check;
 	struct read_unicode_struct str;
@@ -556,7 +556,7 @@ _g int read_utf32_nonblock(filestream fm, unicode *ret, int *hang, int be)
 /*
  *  encode-utf8
  */
-_g int encode_utf8(unicode u, byte *dst, size_t *ret)
+int encode_utf8(unicode u, byte *dst, size_t *ret)
 {
 	size_t w;
 
@@ -637,7 +637,7 @@ normal:
 /*
  *  encode-utf16
  */
-_g int encode_utf16a(unicode u, byte16 *surrogate, byte16 *code)
+int encode_utf16a(unicode u, byte16 *surrogate, byte16 *code)
 {
 	/* 1 byte, 2 byte */
 	if (u < 0xD800) {
@@ -667,7 +667,7 @@ _g int encode_utf16a(unicode u, byte16 *surrogate, byte16 *code)
 	return 1;
 }
 
-_g int encode_utf16b(unicode u, byte16 *dst, size_t *ret)
+int encode_utf16b(unicode u, byte16 *dst, size_t *ret)
 {
 	byte16 surrogate, code;
 
@@ -686,7 +686,7 @@ _g int encode_utf16b(unicode u, byte16 *dst, size_t *ret)
 	return 0;
 }
 
-_g int encode_utf16(unicode u, int big_endian_p, byte *dst, size_t *ret)
+int encode_utf16(unicode u, int big_endian_p, byte *dst, size_t *ret)
 {
 	byte16 high, code;
 	unsigned i;
@@ -719,7 +719,7 @@ _g int encode_utf16(unicode u, int big_endian_p, byte *dst, size_t *ret)
 /*
  *  encode-utf32
  */
-_g int encode_utf32check(unicode u)
+int encode_utf32check(unicode u)
 {
 	if (UTF16range(u))
 		return 1;
@@ -730,7 +730,7 @@ _g int encode_utf32check(unicode u)
 	return 0;
 }
 
-_g int encode_utf32(unicode u, int big_endian_p, byte *dst, size_t *ret)
+int encode_utf32(unicode u, int big_endian_p, byte *dst, size_t *ret)
 {
 	unsigned i;
 

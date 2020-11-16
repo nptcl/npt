@@ -535,7 +535,7 @@ static int type_object_complex(addr *ret, addr pos)
 	return 0;
 }
 
-_g int type_object_(addr *ret, addr pos)
+int type_object_(addr *ret, addr pos)
 {
 	type_object_call call;
 	addr result, notp;
@@ -555,7 +555,7 @@ _g int type_object_(addr *ret, addr pos)
 	return 0;
 }
 
-_g void init_type_object(void)
+void init_type_object(void)
 {
 	int i;
 

@@ -17,14 +17,14 @@
 /*
  *  let
  */
-_g void scope_init_let(struct let_struct *str)
+void scope_init_let(struct let_struct *str)
 {
 	clearpoint(str);
 	str->stack = str->args = str->decl = str->doc
 		= str->cons = str->free = str->the = str->allocate = Nil;
 }
 
-_g int check_scope_variable_(addr symbol)
+int check_scope_variable_(addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	if (keywordp(symbol))
@@ -278,7 +278,7 @@ final:
 	return 0;
 }
 
-_g int type_and_array(LocalRoot local, addr cons, addr *ret)
+int type_and_array(LocalRoot local, addr cons, addr *ret)
 {
 	addr array, type, pos;
 	size_t size;
@@ -340,7 +340,7 @@ static int update_tablevalue_(Execute ptr, addr stack, addr pos)
 
 	return 0;
 }
-_g int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
+int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
 {
 	enum IgnoreType ignore;
 	int specialp, dynamic;
@@ -365,7 +365,7 @@ _g int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
 	return Result(ret, pos);
 }
 
-_g int checktype_p(addr left, addr right, int *check)
+int checktype_p(addr left, addr right, int *check)
 {
 	SubtypepResult value;
 
@@ -401,7 +401,7 @@ static int checktype_warning_(Execute ptr, addr name, addr type, addr expected)
 			name, expected, type, NULL);
 }
 
-_g int checktype_value_(Execute ptr, addr value, addr init)
+int checktype_value_(Execute ptr, addr value, addr init)
 {
 	int check;
 	addr type, name;
@@ -433,7 +433,7 @@ static int let_applytable_(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-_g int ignore_checkvalue_(addr stack)
+int ignore_checkvalue_(addr stack)
 {
 	enum IgnoreType ignore;
 	int reference, special;
@@ -498,14 +498,14 @@ static int let_execute(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-_g void localhold_let_struct(LocalRoot local, struct let_struct *str)
+void localhold_let_struct(LocalRoot local, struct let_struct *str)
 {
 	gchold_pushva_force_local(local,
 			str->stack, str->args, str->decl,
 			str->doc, str->cons, str->free, str->the, str->allocate, NULL);
 }
 
-_g int scope_let_call(Execute ptr, struct let_struct *str)
+int scope_let_call(Execute ptr, struct let_struct *str)
 {
 	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
@@ -518,7 +518,7 @@ _g int scope_let_call(Execute ptr, struct let_struct *str)
 /*
  *  let*
  */
-_g int ifdeclvalue_(Execute ptr, addr stack, addr var, addr decl, addr *ret)
+int ifdeclvalue_(Execute ptr, addr stack, addr var, addr decl, addr *ret)
 {
 	addr pos, aster;
 
@@ -581,7 +581,7 @@ static int leta_execute(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-_g int scope_leta_call(Execute ptr, struct let_struct *str)
+int scope_leta_call(Execute ptr, struct let_struct *str)
 {
 	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);

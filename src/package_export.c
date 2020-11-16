@@ -401,7 +401,7 @@ static int list_export_package_(addr package, addr args)
 	return 0;
 }
 
-_g int export_package_(addr package, addr pos)
+int export_package_(addr package, addr pos)
 {
 	addr type;
 
@@ -552,7 +552,7 @@ error:
 	return fmte_("UNEXPORT can't unexport the ~S package.", pos, NULL);
 }
 
-_g int unexport_package_(addr package, addr pos)
+int unexport_package_(addr package, addr pos)
 {
 	addr type;
 

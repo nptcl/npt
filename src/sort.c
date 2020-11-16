@@ -10,7 +10,7 @@
 /*
  *  unsafe
  */
-_g int simplesort_cons_unsafe_(addr *ret,
+int simplesort_cons_unsafe_(addr *ret,
 		addr cons, int (*call_)(addr left, addr right, int *ret))
 {
 	int check;
@@ -36,7 +36,7 @@ _g int simplesort_cons_unsafe_(addr *ret,
 	return 0;
 }
 
-_g int simplesort_info_cons_unsafe_(addr *ret, addr cons, addr info,
+int simplesort_info_cons_unsafe_(addr *ret, addr cons, addr info,
 		int (*call_)(addr info, addr left, addr right, int *ret))
 {
 	int check;
@@ -159,7 +159,7 @@ static int simple_sort_vector_sequence_(struct sort_struct *str,
 	return 0;
 }
 
-_g int simple_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
+int simple_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
 {
 	int listp;
 	struct sort_struct str;
@@ -253,7 +253,7 @@ static int bubble_sort_vector_sequence_(struct sort_struct *str,
 	return 0;
 }
 
-_g int bubble_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
+int bubble_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
 {
 	int listp;
 	struct sort_struct str;
@@ -371,7 +371,7 @@ static int quick_sort_vector_sequence_(struct sort_struct *str,
 	return 0;
 }
 
-_g int quick_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
+int quick_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
 {
 	int listp;
 	struct sort_struct str;
@@ -624,7 +624,7 @@ static int merge_sort_vector_sequence_(struct sort_struct *str,
 	return 0;
 }
 
-_g int merge_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
+int merge_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
 {
 	int listp;
 	struct sort_struct str;

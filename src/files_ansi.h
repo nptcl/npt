@@ -10,7 +10,7 @@
 #include "stream.h"
 #include "strtype.h"
 
-_g int directory_files_(Execute ptr, addr *ret, addr pos)
+int directory_files_(Execute ptr, addr *ret, addr pos)
 {
 	return fmte_("DIRECTORY function is not supported in ANSI-C mode.", NULL);
 }
@@ -57,7 +57,7 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int probe_file_files_(Execute ptr, addr *ret, addr pos)
+int probe_file_files_(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -70,19 +70,19 @@ _g int probe_file_files_(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int ensure_directories_exist_files_(Execute ptr,
+int ensure_directories_exist_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
 	return fmte_("ENSUER-DIRECTORIES-EXIST function is "
 			"not supported in ANSI-C mode.", NULL);
 }
 
-_g int file_author_files_(Execute ptr, addr *ret, addr pos)
+int file_author_files_(Execute ptr, addr *ret, addr pos)
 {
 	return fmte_("FILE-AUTHOR function is not supported in ANSI-C mode.", NULL);
 }
 
-_g int file_write_date_files_(Execute ptr, addr *ret, addr pos)
+int file_write_date_files_(Execute ptr, addr *ret, addr pos)
 {
 	return fmte_("FILE-WRITE-DATE function is not supported in ANSI-C mode.", NULL);
 }
@@ -139,7 +139,7 @@ static int rename_file_run_files(Execute ptr,
 	return 0;
 }
 
-_g int rename_file_files_(Execute ptr,
+int rename_file_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr file, addr to)
 {
 	LocalRoot local;
@@ -153,24 +153,24 @@ _g int rename_file_files_(Execute ptr,
 	return 0;
 }
 
-_g int delete_file_files_(Execute ptr, addr pos)
+int delete_file_files_(Execute ptr, addr pos)
 {
 	return fmte_("DELETE-FILE function is not supported in ANSI-C mode.", NULL);
 }
 
-_g int remove_file_common_(Execute ptr, addr pos, int errorp, int *ret)
+int remove_file_common_(Execute ptr, addr pos, int errorp, int *ret)
 {
 	*ret = 0;
 	return fmte_("REMOVE-FILE function is not supported in ANSI-C mode.", NULL);
 }
 
-_g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
+int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 {
 	*ret = 0;
 	return fmte_("REMOVE-DIRECTORY function is not supported in ANSI-C mode.", NULL);
 }
 
-_g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
+int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 {
 	if (! errorp)
 		return Result(ret, Nil);

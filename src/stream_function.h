@@ -35,37 +35,37 @@
 #define exitpoint_stream_ _n(exitpoint_stream_)
 #define termsize_stream_ _n(termsize_stream_)
 
-_g int close_stream_(addr stream, addr *ret);
-_g int read_byte_stream_(addr stream, addr *pos, int *ret);
-_g int unread_byte_stream_(addr stream, byte c);
-_g int write_byte_stream_(addr stream, addr pos);
-_g int read_char_stream_(addr stream, unicode *c, int *ret);
-_g int read_hang_stream_(addr stream, unicode *c, int *hang, int *ret);
-_g int unread_char_stream_(addr stream, unicode c);
-_g int write_char_stream_(addr stream, unicode c);
-_g int getleft_stream_(addr stream, size_t *ret);
-_g int setleft_stream_(addr stream, size_t value);
-_g int inputp_stream_(addr stream, int *ret);
-_g int outputp_stream_(addr stream, int *ret);
-_g int interactivep_stream_(addr stream, int *ret);
-_g int characterp_stream_(addr stream, int *ret);
-_g int binaryp_stream_(addr stream, int *ret);
-_g int element_type_stream_(addr stream, addr *ret);
-_g int external_format_stream_(addr stream, addr *ret);
-_g int file_length_stream_(addr stream, addr *ret);
-_g int file_position_stream_(addr stream, size_t *value, int *ret);
-_g int file_position_start_stream_(addr stream, int *ret);
-_g int file_position_end_stream_(addr stream, int *ret);
-_g int file_position_set_stream_(addr stream, size_t value, int *ret);
-_g int file_charlen_stream_(addr stream, unicode u, size_t *value, int *ret);
-_g int file_strlen_stream_(addr stream, addr pos, size_t *value, int *ret);
-_g int listen_stream_(addr stream, int *ret);
-_g int clear_input_stream_(addr stream);
-_g int finish_output_stream_(addr stream);
-_g int force_output_stream_(addr stream);
-_g int clear_output_stream_(addr stream);
-_g int exitpoint_stream_(addr stream);
-_g int termsize_stream_(addr stream, size_t *value, int *ret);
+int close_stream_(addr stream, addr *ret);
+int read_byte_stream_(addr stream, addr *pos, int *ret);
+int unread_byte_stream_(addr stream, byte c);
+int write_byte_stream_(addr stream, addr pos);
+int read_char_stream_(addr stream, unicode *c, int *ret);
+int read_hang_stream_(addr stream, unicode *c, int *hang, int *ret);
+int unread_char_stream_(addr stream, unicode c);
+int write_char_stream_(addr stream, unicode c);
+int getleft_stream_(addr stream, size_t *ret);
+int setleft_stream_(addr stream, size_t value);
+int inputp_stream_(addr stream, int *ret);
+int outputp_stream_(addr stream, int *ret);
+int interactivep_stream_(addr stream, int *ret);
+int characterp_stream_(addr stream, int *ret);
+int binaryp_stream_(addr stream, int *ret);
+int element_type_stream_(addr stream, addr *ret);
+int external_format_stream_(addr stream, addr *ret);
+int file_length_stream_(addr stream, addr *ret);
+int file_position_stream_(addr stream, size_t *value, int *ret);
+int file_position_start_stream_(addr stream, int *ret);
+int file_position_end_stream_(addr stream, int *ret);
+int file_position_set_stream_(addr stream, size_t value, int *ret);
+int file_charlen_stream_(addr stream, unicode u, size_t *value, int *ret);
+int file_strlen_stream_(addr stream, addr pos, size_t *value, int *ret);
+int listen_stream_(addr stream, int *ret);
+int clear_input_stream_(addr stream);
+int finish_output_stream_(addr stream);
+int force_output_stream_(addr stream);
+int clear_output_stream_(addr stream);
+int exitpoint_stream_(addr stream);
+int termsize_stream_(addr stream, size_t *value, int *ret);
 
 #endif
 

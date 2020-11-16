@@ -12,110 +12,110 @@
 /*
  *  access
  */
-_g void getarray_pathname(addr pos, enum PATHNAME_INDEX index, addr *ret)
+void getarray_pathname(addr pos, enum PATHNAME_INDEX index, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetArrayPathname_Low(pos, index, ret);
 }
 
-_g void setarray_pathname(addr pos, enum PATHNAME_INDEX index, addr value)
+void setarray_pathname(addr pos, enum PATHNAME_INDEX index, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArrayPathname_Low(pos, index, value);
 }
 
-_g int reflogical_pathname(addr pos)
+int reflogical_pathname(addr pos)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	return RefLogicalPathname_Low(pos);
 }
 
-_g void getlogical_pathname(addr pos, int *ret)
+void getlogical_pathname(addr pos, int *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetLogicalPathname_Low(pos, ret);
 }
 
-_g void setlogical_pathname(addr pos, int value)
+void setlogical_pathname(addr pos, int value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetLogicalPathname_Low(pos, value);
 }
 
-_g void gethost_pathname(addr pos, addr *ret)
+void gethost_pathname(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetHostPathname_Low(pos, ret);
 }
 
-_g void sethost_pathname(addr pos, addr value)
+void sethost_pathname(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetHostPathname_Low(pos, value);
 }
 
-_g void getdevice_pathname(addr pos, addr *ret)
+void getdevice_pathname(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetDevicePathname_Low(pos, ret);
 }
 
-_g void setdevice_pathname(addr pos, addr value)
+void setdevice_pathname(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDevicePathname_Low(pos, value);
 }
 
-_g void getdirectory_pathname(addr pos, addr *ret)
+void getdirectory_pathname(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetDirectoryPathname_Low(pos, ret);
 }
 
-_g void setdirectory_pathname(addr pos, addr value)
+void setdirectory_pathname(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDirectoryPathname_Low(pos, value);
 }
 
-_g void getname_pathname(addr pos, addr *ret)
+void getname_pathname(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetNamePathname_Low(pos, ret);
 }
 
-_g void setname_pathname(addr pos, addr value)
+void setname_pathname(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetNamePathname_Low(pos, value);
 }
 
-_g void gettype_pathname(addr pos, addr *ret)
+void gettype_pathname(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetTypePathname_Low(pos, ret);
 }
 
-_g void settype_pathname(addr pos, addr value)
+void settype_pathname(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTypePathname_Low(pos, value);
 }
 
-_g void getversion_pathname(addr pos, addr *ret)
+void getversion_pathname(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	GetVersionPathname_Low(pos, ret);
 }
 
-_g void setversion_pathname(addr pos, addr value)
+void setversion_pathname(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PATHNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -158,7 +158,7 @@ static void directory_pathname_alloc(LocalRoot local, addr pos, addr *ret)
 	*ret = pos;
 }
 
-_g void make_pathname_alloc(LocalRoot local, addr *ret, int logical)
+void make_pathname_alloc(LocalRoot local, addr *ret, int logical)
 {
 	alloc_array2(local, ret, LISPTYPE_PATHNAME, PATHNAME_INDEX_SIZE);
 	SetLogicalPathname(*ret, logical);
@@ -179,7 +179,7 @@ static void setpathname_alloc(LocalRoot local, addr pos, addr host, addr device,
 	SetVersionPathname(pos, version);
 }
 
-_g void pathname_alloc(LocalRoot local, addr *ret,
+void pathname_alloc(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
 {
 	addr version;
@@ -188,19 +188,19 @@ _g void pathname_alloc(LocalRoot local, addr *ret,
 	GetConst(KEYWORD_UNSPECIFIC, &version);
 	setpathname_alloc(local, *ret, host, device, directory, name, type, version);
 }
-_g void pathname_local(LocalRoot local, addr *ret,
+void pathname_local(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
 {
 	Check(local == NULL, "local error");
 	pathname_alloc(local, ret, host, device, directory, name, type);
 }
-_g void pathname_heap(addr *ret,
+void pathname_heap(addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
 {
 	pathname_alloc(NULL, ret, host, device, directory, name, type);
 }
 
-_g void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
+void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
 {
 	addr device;
@@ -209,34 +209,34 @@ _g void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
 	make_pathname_alloc(local, ret, 1);
 	setpathname_alloc(local, *ret, host, device, directory, name, type, version);
 }
-_g void logical_pathname_local(LocalRoot local, addr *ret, addr host,
+void logical_pathname_local(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
 {
 	Check(local == NULL, "local error");
 	logical_pathname_alloc(local, ret, host, directory, name, type, version);
 }
-_g void logical_pathname_heap(addr *ret, addr host,
+void logical_pathname_heap(addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
 {
 	logical_pathname_alloc(NULL, ret, host, directory, name, type, version);
 }
 
-_g int pathnamep(addr pos)
+int pathnamep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_PATHNAME;
 }
 
-_g int pathname_pathname_p(addr pos)
+int pathname_pathname_p(addr pos)
 {
 	return pathnamep(pos) && RefLogicalPathname(pos) == 0;
 }
 
-_g int pathname_logical_p(addr pos)
+int pathname_logical_p(addr pos)
 {
 	return pathnamep(pos) && RefLogicalPathname(pos) != 0;
 }
 
-_g int pathname_file_p(addr pos)
+int pathname_file_p(addr pos)
 {
 	addr check;
 
@@ -246,7 +246,7 @@ _g int pathname_file_p(addr pos)
 	return check != Nil;
 }
 
-_g int pathname_directory_p(addr pos)
+int pathname_directory_p(addr pos)
 {
 	addr name, type;
 
@@ -258,7 +258,7 @@ _g int pathname_directory_p(addr pos)
 	return name == Nil && type == Nil;
 }
 
-_g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
+void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
 {
 	addr value;
 
@@ -267,7 +267,7 @@ _g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
 	SetArrayPathname(b, (enum PATHNAME_INDEX)i, value);
 }
 
-_g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
+void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	int i;
 	addr one;
@@ -312,7 +312,7 @@ static void make_pathname_environment(addr host, enum PathnameType *ret)
 	*ret = PathnameType_Error;
 }
 
-_g lisp_equal_calltype pathname_equal_function(addr pos)
+lisp_equal_calltype pathname_equal_function(addr pos)
 {
 	enum PathnameType type;
 
@@ -337,7 +337,7 @@ static int make_pathname_environment_(addr host, enum PathnameType *ret)
 	return 0;
 }
 
-_g int pathname_equal_(addr a, addr b, int *ret)
+int pathname_equal_(addr a, addr b, int *ret)
 {
 	int check;
 	addr x, y;
@@ -617,7 +617,7 @@ static int make_pathname_logical_(addr *ret,
 	return 0;
 }
 
-_g int make_pathname_heap_(addr *ret,
+int make_pathname_heap_(addr *ret,
 		addr host, addr device, addr directory,
 		addr name, addr type, addr version, int localp)
 {
@@ -648,19 +648,19 @@ _g int make_pathname_heap_(addr *ret,
 /*
  *  pathname accessor
  */
-_g int pathname_host_(addr pos, addr *ret, int ignore_localp)
+int pathname_host_(addr pos, addr *ret, int ignore_localp)
 {
 	GetHostPathname(pos, &pos);
 	return Result(ret, pos);
 }
 
-_g int pathname_device_(addr pos, addr *ret, int ignore_localp)
+int pathname_device_(addr pos, addr *ret, int ignore_localp)
 {
 	GetDevicePathname(pos, &pos);
 	return Result(ret, pos);
 }
 
-_g int pathname_directory_(addr pos, addr *ret, int localp)
+int pathname_directory_(addr pos, addr *ret, int localp)
 {
 	int check;
 	addr host;
@@ -677,7 +677,7 @@ _g int pathname_directory_(addr pos, addr *ret, int localp)
 	return Result(ret, pos);
 }
 
-_g int pathname_name_(addr pos, addr *ret, int localp)
+int pathname_name_(addr pos, addr *ret, int localp)
 {
 	addr host;
 
@@ -690,7 +690,7 @@ _g int pathname_name_(addr pos, addr *ret, int localp)
 	return Result(ret, pos);
 }
 
-_g int pathname_type_(addr pos, addr *ret, int localp)
+int pathname_type_(addr pos, addr *ret, int localp)
 {
 	addr host;
 
@@ -703,7 +703,7 @@ _g int pathname_type_(addr pos, addr *ret, int localp)
 	return Result(ret, pos);
 }
 
-_g void pathname_version(addr pos, addr *ret)
+void pathname_version(addr pos, addr *ret)
 {
 	addr version;
 

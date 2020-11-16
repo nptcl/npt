@@ -3,7 +3,7 @@
 /*
  *  initialize
  */
-_g void init_extern(void)
+void init_extern(void)
 {
 }
 

@@ -42,42 +42,42 @@
 	((((((a)>>6UL)&0x0FUL)+1UL)<<16UL) | (((a)&0x3FUL)<<10UL) | ((b)&0x03FFUL))
 
 /* Byte Order Mark */
-_g int readbom8_encode(addr stream);
-_g int readbom16_encode(addr stream); /* 1:le, 2:be */
-_g int readbom32_encode(addr stream); /* 1:le, 2:be */
-_g int writebom_encode_(addr stream);
+int readbom8_encode(addr stream);
+int readbom16_encode(addr stream); /* 1:le, 2:be */
+int readbom32_encode(addr stream); /* 1:le, 2:be */
+int writebom_encode_(addr stream);
 
-_g int read_char_encode_(filestream fm, unicode *c, int *ret);
-_g int read_hang_encode_(filestream fm, unicode *c, int *hang, int *ret);
-_g int write_char_encode_(filestream fm, unicode c);
-_g int length_char_encode(filestream fm, unicode c);
-_g int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret);
+int read_char_encode_(filestream fm, unicode *c, int *ret);
+int read_hang_encode_(filestream fm, unicode *c, int *hang, int *ret);
+int write_char_encode_(filestream fm, unicode c);
+int length_char_encode(filestream fm, unicode c);
+int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret);
 
 /* unicode buffer */
-_g int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string);
-_g int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string);
+int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string);
+int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string);
 
 /* unicode string */
-_g int UTF8_null_strlen(const byte *src, size_t *ret);
-_g int UTF8_size_strlen(const byte *src, size_t size, size_t *ret);
-_g int UTF8_null_makeunicode(unicode *dst, const byte *src);
-_g int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size);
-_g int UTF16_null_strlen(const byte16 *src, size_t *ret);
-_g int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret);
-_g int UTF16_null_makeunicode(unicode *dst, const byte16 *src);
-_g int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size);
-_g int UTF32_null_strlen(const unicode *src, size_t *ret);
-_g int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret);
-_g int UTF32_null_makeunicode(unicode *dst, const unicode *src);
-_g int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size);
+int UTF8_null_strlen(const byte *src, size_t *ret);
+int UTF8_size_strlen(const byte *src, size_t size, size_t *ret);
+int UTF8_null_makeunicode(unicode *dst, const byte *src);
+int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size);
+int UTF16_null_strlen(const byte16 *src, size_t *ret);
+int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret);
+int UTF16_null_makeunicode(unicode *dst, const byte16 *src);
+int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size);
+int UTF32_null_strlen(const unicode *src, size_t *ret);
+int UTF32_size_strlen(const unicode *src, size_t size, size_t *ret);
+int UTF32_null_makeunicode(unicode *dst, const unicode *src);
+int UTF32_size_makeunicode(unicode *dst, const unicode *src, size_t size);
 
-_g int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret);
-_g int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret);
-_g int UTF32_make_utf8(byte *dst, const unicode *src, size_t size);
-_g int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size);
+int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret);
+int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret);
+int UTF32_make_utf8(byte *dst, const unicode *src, size_t size);
+int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size);
 
 /* initialize */
-_g void init_encode(void);
+void init_encode(void);
 
 #endif
 

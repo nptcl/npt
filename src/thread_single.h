@@ -4,13 +4,13 @@
 /*
  *  mutexlite
  */
-_g int lispd_make_mutexlite(mutexlite *mutex)
+int lispd_make_mutexlite(mutexlite *mutex)
 {
 	*mutex = 0;
 	return 0;
 }
 
-_g void lispd_destroy_mutexlite(mutexlite *mutex)
+void lispd_destroy_mutexlite(mutexlite *mutex)
 {
 	if (*mutex) {
 		Debug("lispd_destroy_mutexlite error.");
@@ -18,7 +18,7 @@ _g void lispd_destroy_mutexlite(mutexlite *mutex)
 	}
 }
 
-_g void lispd_lock_mutexlite(mutexlite *mutex)
+void lispd_lock_mutexlite(mutexlite *mutex)
 {
 	if (*mutex) {
 		Debug("lispd_lock_mutexlite error.");
@@ -27,7 +27,7 @@ _g void lispd_lock_mutexlite(mutexlite *mutex)
 	*mutex = 1;
 }
 
-_g int lispd_trylock_mutexlite(mutexlite *mutex)
+int lispd_trylock_mutexlite(mutexlite *mutex)
 {
 	if (*mutex) {
 		Debug("lispd_trylock_mutexlite error.");
@@ -37,7 +37,7 @@ _g int lispd_trylock_mutexlite(mutexlite *mutex)
 	return 0;
 }
 
-_g void lispd_unlock_mutexlite(mutexlite *mutex)
+void lispd_unlock_mutexlite(mutexlite *mutex)
 {
 	if (*mutex == 0) {
 		Debug("lispd_unlock_mutexlite error.");
@@ -50,13 +50,13 @@ _g void lispd_unlock_mutexlite(mutexlite *mutex)
 /*
  *  rwlocklite
  */
-_g int lispd_make_rwlocklite(rwlocklite *lock)
+int lispd_make_rwlocklite(rwlocklite *lock)
 {
 	*lock = 0;
 	return 0;
 }
 
-_g void lispd_destroy_rwlocklite(rwlocklite *lock)
+void lispd_destroy_rwlocklite(rwlocklite *lock)
 {
 	if (*lock) {
 		Debug("lispd_destroy_rwlocklite error.");
@@ -64,7 +64,7 @@ _g void lispd_destroy_rwlocklite(rwlocklite *lock)
 	}
 }
 
-_g void lispd_rdlock_rwlocklite(rwlocklite *lock)
+void lispd_rdlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock == 2) {
 		Debug("lispd_rdlock_rwlocklite error.");
@@ -73,7 +73,7 @@ _g void lispd_rdlock_rwlocklite(rwlocklite *lock)
 	*lock = 1;
 }
 
-_g void lispd_wrlock_rwlocklite(rwlocklite *lock)
+void lispd_wrlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock) {
 		Debug("lispd_wrlock_rwlocklite error.");
@@ -82,7 +82,7 @@ _g void lispd_wrlock_rwlocklite(rwlocklite *lock)
 	*lock = 2;
 }
 
-_g int lispd_tryrdlock_rwlocklite(rwlocklite *lock)
+int lispd_tryrdlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock == 2) {
 		Debug("lispd_tryrdlock_rwlocklite error.");
@@ -92,7 +92,7 @@ _g int lispd_tryrdlock_rwlocklite(rwlocklite *lock)
 	return 0;
 }
 
-_g int lispd_trywrlock_rwlocklite(rwlocklite *lock)
+int lispd_trywrlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock) {
 		Debug("lispd_trywrlock_rwlocklite error.");
@@ -102,7 +102,7 @@ _g int lispd_trywrlock_rwlocklite(rwlocklite *lock)
 	return 0;
 }
 
-_g void lispd_unrdlock_rwlocklite(rwlocklite *lock)
+void lispd_unrdlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock != 1) {
 		Debug("lispd_unrdlock_rwlocklite error.");
@@ -110,7 +110,7 @@ _g void lispd_unrdlock_rwlocklite(rwlocklite *lock)
 	}
 }
 
-_g void lispd_unwrlock_rwlocklite(rwlocklite *lock)
+void lispd_unwrlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock != 2) {
 		Debug("lispd_unwrlock_rwlocklite error.");
@@ -122,7 +122,7 @@ _g void lispd_unwrlock_rwlocklite(rwlocklite *lock)
 /*
  *  threadlocal
  */
-_g void lispd_make_threadlocal(threadlocal *key)
+void lispd_make_threadlocal(threadlocal *key)
 {
 	struct threadlocal_single *ptr;
 	ptr = malloctype(struct threadlocal_single);
@@ -130,7 +130,7 @@ _g void lispd_make_threadlocal(threadlocal *key)
 	*key = ptr;
 }
 
-_g void lispd_destroy_threadlocal(threadlocal key)
+void lispd_destroy_threadlocal(threadlocal key)
 {
 	if (key == NULL) {
 		Debug("lispd_destroy_threadlocal error");
@@ -139,7 +139,7 @@ _g void lispd_destroy_threadlocal(threadlocal key)
 	free(key);
 }
 
-_g const void *lispd_get_threadlocal(threadlocal key)
+const void *lispd_get_threadlocal(threadlocal key)
 {
 	if (key == NULL) {
 		Debug("lispd_get_threadlocal error");
@@ -148,7 +148,7 @@ _g const void *lispd_get_threadlocal(threadlocal key)
 	return key->value;
 }
 
-_g void lispd_set_threadlocal(threadlocal key, const void *value)
+void lispd_set_threadlocal(threadlocal key, const void *value)
 {
 	if (key == NULL) {
 		Debug("lispd_set_threadlocal error");
@@ -161,16 +161,16 @@ _g void lispd_set_threadlocal(threadlocal key, const void *value)
 /*
  *  binary semaphore
  */
-_g void lispd_make_binsem(binsem *x)
+void lispd_make_binsem(binsem *x)
 {
 	*x = 0;
 }
 
-_g void lispd_destroy_binsem(binsem *x)
+void lispd_destroy_binsem(binsem *x)
 {
 }
 
-_g void lispd_lock_binsem(binsem *x)
+void lispd_lock_binsem(binsem *x)
 {
 	if (*x) {
 		Debug("lispd_lock_binsem error.");
@@ -179,7 +179,7 @@ _g void lispd_lock_binsem(binsem *x)
 	*x = 1;
 }
 
-_g int lispd_trylock_binsem(binsem *x)
+int lispd_trylock_binsem(binsem *x)
 {
 	if (*x) {
 		Debug("lispd_trylock_binsem error.");
@@ -189,7 +189,7 @@ _g int lispd_trylock_binsem(binsem *x)
 	return 0;
 }
 
-_g void lispd_unlock_binsem(binsem *x)
+void lispd_unlock_binsem(binsem *x)
 {
 	if (*x == 0) {
 		Debug("lispd_unlock_mutexlite error.");
@@ -202,24 +202,24 @@ _g void lispd_unlock_binsem(binsem *x)
 /*
  *  condition variable
  */
-_g void lispd_make_condlite(condlite *x)
+void lispd_make_condlite(condlite *x)
 {
 	*x = 0;
 }
 
-_g void lispd_destroy_condlite(condlite *x)
+void lispd_destroy_condlite(condlite *x)
 {
 }
 
-_g void lispd_wait_condlite(condlite *x, mutexlite *m)
+void lispd_wait_condlite(condlite *x, mutexlite *m)
 {
 }
 
-_g void lispd_signal_condlite(condlite *x)
+void lispd_signal_condlite(condlite *x)
 {
 }
 
-_g void lispd_broadcast_condlite(condlite *x)
+void lispd_broadcast_condlite(condlite *x)
 {
 }
 

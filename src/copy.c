@@ -230,7 +230,7 @@ static void copyhard_pathname(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-_g void copyhard_object(LocalRoot local, addr *ret, addr pos)
+void copyhard_object(LocalRoot local, addr *ret, addr pos)
 {
 	int index;
 
@@ -475,7 +475,7 @@ static void copylocal_pathname(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-_g int copylocal_object(LocalRoot local, addr *ret, addr pos)
+int copylocal_object(LocalRoot local, addr *ret, addr pos)
 {
 	int index;
 
@@ -492,7 +492,7 @@ _g int copylocal_object(LocalRoot local, addr *ret, addr pos)
 	}
 }
 
-_g void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args)
+void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args)
 {
 	addr left, right, next;
 
@@ -516,12 +516,12 @@ _g void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args)
 	}
 }
 
-_g int copyheap(addr *ret, addr pos)
+int copyheap(addr *ret, addr pos)
 {
 	return copylocal_object(NULL, ret, pos);
 }
 
-_g addr copyheapr(addr pos)
+addr copyheapr(addr pos)
 {
 	copyheap(&pos, pos);
 	return pos;
@@ -572,7 +572,7 @@ static void init_copylocal_call(void)
 /*
  *  build
  */
-_g void init_copy(void)
+void init_copy(void)
 {
 	init_copyhard_call();
 	init_copylocal_call();

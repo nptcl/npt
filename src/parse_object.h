@@ -50,21 +50,21 @@ struct parse_struct {
 #define SetEvalParseType(x,v)		SetEvalParseType_Low(x,v)
 #endif
 
-_g struct parse_struct *structevalparse(addr pos);
-_g addr refevalparse(addr pos, size_t index);
-_g void getevalparse(addr pos, size_t index, addr *ret);
-_g void setevalparse(addr pos, size_t index, addr value);
-_g EvalParse refevalparsetype(addr pos);
-_g void getevalparsetype(addr pos, EvalParse *ret);
-_g void setevalparsetype(addr pos, EvalParse value);
+struct parse_struct *structevalparse(addr pos);
+addr refevalparse(addr pos, size_t index);
+void getevalparse(addr pos, size_t index, addr *ret);
+void setevalparse(addr pos, size_t index, addr value);
+EvalParse refevalparsetype(addr pos);
+void getevalparsetype(addr pos, EvalParse *ret);
+void setevalparsetype(addr pos, EvalParse value);
 
-_g void eval_parse_alloc(LocalRoot local, addr *ret, EvalParse type, byte array);
-_g void eval_parse_local(LocalRoot local, addr *ret, EvalParse type, byte array);
-_g void eval_parse_heap(addr *ret, EvalParse type, byte array);
+void eval_parse_alloc(LocalRoot local, addr *ret, EvalParse type, byte array);
+void eval_parse_local(LocalRoot local, addr *ret, EvalParse type, byte array);
+void eval_parse_heap(addr *ret, EvalParse type, byte array);
 
-_g void eval_single_parse_alloc(LocalRoot local, addr *ret, EvalParse type, addr value);
-_g void eval_single_parse_local(LocalRoot local, addr *ret, EvalParse type, addr value);
-_g void eval_single_parse_heap(addr *ret, EvalParse type, addr value);
+void eval_single_parse_alloc(LocalRoot local, addr *ret, EvalParse type, addr value);
+void eval_single_parse_local(LocalRoot local, addr *ret, EvalParse type, addr value);
+void eval_single_parse_heap(addr *ret, EvalParse type, addr value);
 
 #endif
 

@@ -2,8 +2,8 @@
 #include "constant.h"
 #include "pointer.h"
 
-_g enum FaslCode CompileWrite[p_size_code];
-_g constindex CompileRead[FaslCode_size];
+enum FaslCode CompileWrite[p_size_code];
+constindex CompileRead[FaslCode_size];
 
 #define defwrite(x) (CompileWrite[p_##x##_code] = FaslCode_##x)
 #define defread(x,y) (CompileRead[FaslCode_##x] = CONSTANT_CODE_##y)
@@ -296,18 +296,18 @@ static void init_compile_typedef_read(void)
 #undef defwrite
 #undef defread
 
-_g enum FaslCode get_compile_write(pointer id)
+enum FaslCode get_compile_write(pointer id)
 {
 	Check(p_size_code <= id, "p_size_code error");
 	return CompileWrite[id];
 }
 
-_g constindex get_compile_read(enum FaslCode id)
+constindex get_compile_read(enum FaslCode id)
 {
 	return CompileRead[id];
 }
 
-_g void init_compile_typedef(void)
+void init_compile_typedef(void)
 {
 	init_compile_typedef_write();
 	init_compile_typedef_read();

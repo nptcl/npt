@@ -493,7 +493,7 @@ static int append_usepackage_package_(addr pos, addr list)
 	return 0;
 }
 
-_g int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret)
+int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret)
 {
 	int check;
 	addr pos, shadow;
@@ -533,7 +533,7 @@ _g int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret)
 /*
  *  initialize
  */
-_g void init_package_make(void)
+void init_package_make(void)
 {
 	SetPointerCall(defun, empty, make_package_input);
 }

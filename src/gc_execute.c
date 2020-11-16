@@ -270,7 +270,7 @@ static void moveheappos(void)
 /*
  *  full
  */
-_g void gcexec_full(void)
+void gcexec_full(void)
 {
 #ifdef LISP_DEBUG
 	checkallobject_debug();
@@ -289,7 +289,7 @@ _g void gcexec_full(void)
 /*
  *  partial
  */
-_g void gcexec_partial(void)
+void gcexec_partial(void)
 {
 	gcexec_full();
 	return;

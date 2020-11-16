@@ -158,7 +158,7 @@ static int make_hash_table_rehash_threshold_common(addr rest, double_float *ret)
 	return 0;
 }
 
-_g int make_hash_table_common(addr rest, addr *ret)
+int make_hash_table_common(addr rest, addr *ret)
 {
 	enum HASHTABLE_TEST test;
 	int floatp;
@@ -182,7 +182,7 @@ _g int make_hash_table_common(addr rest, addr *ret)
 /*
  *  hash-table-count
  */
-_g void hash_table_count_common(addr var, addr *ret)
+void hash_table_count_common(addr var, addr *ret)
 {
 	size_t size;
 	getcount_hashtable(var, &size);
@@ -193,7 +193,7 @@ _g void hash_table_count_common(addr var, addr *ret)
 /*
  *  hash-table-rehash-size
  */
-_g int hash_table_rehash_size_common(addr var, addr *ret)
+int hash_table_rehash_size_common(addr var, addr *ret)
 {
 	double_float valuef;
 	size_t valuei;
@@ -214,7 +214,7 @@ _g int hash_table_rehash_size_common(addr var, addr *ret)
 /*
  *  hash-table-rehash-threshold
  */
-_g void hash_table_rehash_threshold_common(addr var, addr *ret)
+void hash_table_rehash_threshold_common(addr var, addr *ret)
 {
 	double_float value;
 	getrehash_threshold_hashtable(var, &value);
@@ -225,7 +225,7 @@ _g void hash_table_rehash_threshold_common(addr var, addr *ret)
 /*
  *  hash-table-size
  */
-_g void hash_table_size_common(addr var, addr *ret)
+void hash_table_size_common(addr var, addr *ret)
 {
 	size_t size;
 	getsize_hashtable(var, &size);
@@ -236,7 +236,7 @@ _g void hash_table_size_common(addr var, addr *ret)
 /*
  *  hash-table-test
  */
-_g void hash_table_test_common(addr var, addr *ret)
+void hash_table_test_common(addr var, addr *ret)
 {
 	enum HASHTABLE_TEST test;
 
@@ -268,7 +268,7 @@ _g void hash_table_test_common(addr var, addr *ret)
 /*
  *  gethash
  */
-_g int gethash_common_(addr key, addr table, addr value, addr *ret, addr *check)
+int gethash_common_(addr key, addr table, addr value, addr *ret, addr *check)
 {
 	addr pos;
 
@@ -287,7 +287,7 @@ _g int gethash_common_(addr key, addr table, addr value, addr *ret, addr *check)
 /*
  *  (setf gethash)
  */
-_g int setf_gethash_common_(LocalRoot local, addr value, addr key, addr table)
+int setf_gethash_common_(LocalRoot local, addr value, addr key, addr table)
 {
 	Return(intern_hashheap_(table, key, &table));
 	SetCdr(table, value);
@@ -298,7 +298,7 @@ _g int setf_gethash_common_(LocalRoot local, addr value, addr key, addr table)
 /*
  *  remhash
  */
-_g int remhash_common_(addr key, addr table, addr *ret)
+int remhash_common_(addr key, addr table, addr *ret)
 {
 	int check;
 	Return(delete_hashtable_(table, key, &check));
@@ -318,7 +318,7 @@ static int maphash_execute_common(Execute ptr, addr call, addr key, addr value)
 	return pop_control_(ptr, control);
 }
 
-_g int maphash_common(Execute ptr, addr call, addr table)
+int maphash_common(Execute ptr, addr call, addr table)
 {
 	addr cons, key, value;
 	size_t i, size;
@@ -381,7 +381,7 @@ static int with_hash_table_iterator_expand_common_(Execute ptr,
 	return 0;
 }
 
-_g int with_hash_table_iterator_common(Execute ptr, addr form, addr env, addr *ret)
+int with_hash_table_iterator_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, table, check;
 
@@ -410,7 +410,7 @@ error:
 /*
  *  sxhash
  */
-_g int sxhash_common_(addr var, addr *ret)
+int sxhash_common_(addr var, addr *ret)
 {
 	fixnum value;
 

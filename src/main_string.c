@@ -96,7 +96,7 @@ static int unitloop(size_t *value, int loop)
 	return 0;
 }
 
-_g int getsize_stringu(lispstringu str, size_t *ret)
+int getsize_stringu(lispstringu str, size_t *ret)
 {
 	int check;
 	const unicode *next;
@@ -159,7 +159,7 @@ static lispstringu make_stringu(size_t size)
 	return ptr;
 }
 
-_g lispstringu char_stringu(const char *str)
+lispstringu char_stringu(const char *str)
 {
 	lispstringu ptr;
 	unicode *a;
@@ -177,7 +177,7 @@ _g lispstringu char_stringu(const char *str)
 	return ptr;
 }
 
-_g lispstringu copy_stringu(lispstringu ptr)
+lispstringu copy_stringu(lispstringu ptr)
 {
 	lispstringu copy;
 
@@ -189,7 +189,7 @@ _g lispstringu copy_stringu(lispstringu ptr)
 	return copy;
 }
 
-_g lispstringu concatchar_stringu(lispstringu a, const char *b)
+lispstringu concatchar_stringu(lispstringu a, const char *b)
 {
 	unicode *pa;
 	const byte *pb;
@@ -214,7 +214,7 @@ _g lispstringu concatchar_stringu(lispstringu a, const char *b)
 	return copy;
 }
 
-_g void output_stringu(lispstringu ptr, FILE *file)
+void output_stringu(lispstringu ptr, FILE *file)
 {
 	unicode *data, u;
 	size_t i, size;
@@ -227,7 +227,7 @@ _g void output_stringu(lispstringu ptr, FILE *file)
 	}
 }
 
-_g void free_stringu(lispstringu ptr)
+void free_stringu(lispstringu ptr)
 {
 	if (ptr) {
 		free(ptr->ptr);
@@ -236,12 +236,12 @@ _g void free_stringu(lispstringu ptr)
 	}
 }
 
-_g int equal_stringu(lispstringu a, lispstringu b)
+int equal_stringu(lispstringu a, lispstringu b)
 {
 	return (a->size == b->size) && (memcmp(a->ptr, b->ptr, a->size) == 0);
 }
 
-_g int equalchar_stringu(lispstringu a, const char *b)
+int equalchar_stringu(lispstringu a, const char *b)
 {
 	const unicode *c;
 	const byte *d;
@@ -344,16 +344,16 @@ static lisparrayu arrayu_argv_call(int argc, const void *const *argv,
 
 	return ptr;
 }
-_g lisparrayu arrayu_argv_utf8(int argc, const byte *const *argv)
+lisparrayu arrayu_argv_utf8(int argc, const byte *const *argv)
 {
 	return arrayu_argv_call(argc, (const void *const *)argv, stringu_utf8);
 }
-_g lisparrayu arrayu_argv_utf16(int argc, const byte16 *const *argv)
+lisparrayu arrayu_argv_utf16(int argc, const byte16 *const *argv)
 {
 	return arrayu_argv_call(argc, (const void *const *)argv, stringu_utf16);
 }
 
-_g void free_arrayu(lisparrayu ptr)
+void free_arrayu(lisparrayu ptr)
 {
 	lispstringu *v;
 	size_t size, i;
@@ -394,7 +394,7 @@ static lisptableu make_tableu(size_t size)
 	return ptr;
 }
 
-_g void free_tableu(lisptableu ptr)
+void free_tableu(lisptableu ptr)
 {
 	struct lispkeyvalueu *table;
 	size_t size, i;
@@ -474,7 +474,7 @@ result:
 	return 0;
 }
 
-_g lisptableu tableu_env_main(const byte *const *env)
+lisptableu tableu_env_main(const byte *const *env)
 {
 	int i, size;
 	lisparrayu a;
@@ -549,7 +549,7 @@ error:
 	return NULL;
 }
 
-_g lisptableu tableu_env_windows(const byte16 *env)
+lisptableu tableu_env_windows(const byte16 *env)
 {
 	int i, size;
 	const byte16 *p;
@@ -590,7 +590,7 @@ error:
 	return NULL;
 }
 
-_g lispstringu findchar_tableu(lisptableu env, const char *key)
+lispstringu findchar_tableu(lisptableu env, const char *key)
 {
 	struct lispkeyvalueu *ptr;
 	size_t size, i;

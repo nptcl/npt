@@ -217,7 +217,7 @@ static int get_unsigned8_bitvector(addr pos, size_t index, byte *ret)
 	return 0;
 }
 
-_g int get_unsigned8_sequence(addr pos, size_t index, byte *ret)
+int get_unsigned8_sequence(addr pos, size_t index, byte *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:

@@ -22,23 +22,23 @@
 #define macroexpand1 _n(macroexpand1)
 #define macroexpand _n(macroexpand)
 
-_g void environment_symbol(addr *ret);
-_g void init_parse_environment(Execute ptr);
-_g int snapshot_envstack_(Execute ptr, addr *ret);
-_g int rollback_envstack_(Execute ptr, addr pos);
-_g int defmacro_envstack_(Execute ptr, addr name, addr lambda);
-_g int macrolet_envstack_(Execute ptr, addr name, addr lambda);
-_g int define_symbol_macro_envstack_(Execute ptr, addr name, addr form);
-_g int symbol_macrolet_envstack_(Execute ptr, addr name, addr form);
-_g int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret);
-_g int environment_heap_(Execute ptr, addr *ret);
-_g void copy_environment(addr *ret, addr pos);
-_g void close_environment(addr pos);
-_g int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret);
-_g int find_environment_(addr symbol, addr env, addr *ret);
-_g int call_macroexpand_hook(Execute ptr, addr *ret, addr call, addr cons, addr env);
-_g int macroexpand1(Execute ptr, addr *ret, addr form, addr env, int *result);
-_g int macroexpand(Execute ptr, addr *ret, addr form, addr env, int *result);
+void environment_symbol(addr *ret);
+void init_parse_environment(Execute ptr);
+int snapshot_envstack_(Execute ptr, addr *ret);
+int rollback_envstack_(Execute ptr, addr pos);
+int defmacro_envstack_(Execute ptr, addr name, addr lambda);
+int macrolet_envstack_(Execute ptr, addr name, addr lambda);
+int define_symbol_macro_envstack_(Execute ptr, addr name, addr form);
+int symbol_macrolet_envstack_(Execute ptr, addr name, addr form);
+int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret);
+int environment_heap_(Execute ptr, addr *ret);
+void copy_environment(addr *ret, addr pos);
+void close_environment(addr pos);
+int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret);
+int find_environment_(addr symbol, addr env, addr *ret);
+int call_macroexpand_hook(Execute ptr, addr *ret, addr call, addr cons, addr env);
+int macroexpand1(Execute ptr, addr *ret, addr form, addr env, int *result);
+int macroexpand(Execute ptr, addr *ret, addr form, addr env, int *result);
 
 #endif
 

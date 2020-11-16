@@ -117,7 +117,7 @@ static int pprint_logical_block_fill(Execute ptr)
 	return pprint_logical_block_type(ptr, p_pprint_logical_block_fill_form);
 }
 
-_g int pprint_fill_print(Execute ptr, addr stream, addr list, int colon)
+int pprint_fill_print(Execute ptr, addr stream, addr list, int colon)
 {
 	/* (defun pprint-fill (*standard-output* list &optional (colon t) atsign)
 	 *   (declare (ignore atsign))
@@ -146,7 +146,7 @@ static int pprint_logical_block_linear(Execute ptr)
 	return pprint_logical_block_type(ptr, p_pprint_logical_block_linear_form);
 }
 
-_g int pprint_linear_print(Execute ptr, addr stream, addr list, int colon)
+int pprint_linear_print(Execute ptr, addr stream, addr list, int colon)
 {
 	/* (defun pprint-linear (*standard-output* list &optional (colon t) atsign)
 	 *   (declare (ignore atsign))
@@ -212,7 +212,7 @@ static int pprint_logical_block_tabular(Execute ptr)
 	return pop_control_(ptr, control);
 }
 
-_g int pprint_tabular_print(Execute ptr,
+int pprint_tabular_print(Execute ptr,
 		addr stream, addr list, int colon, fixnum tabsize)
 {
 	/* (defun pprint-tabular
@@ -632,7 +632,7 @@ static int pprint_dispatch_let(Execute ptr, addr stream, addr list)
 /*
  *  initialize
  */
-_g void init_print_function(void)
+void init_print_function(void)
 {
 	SetPointerType(empty, pprint_logical_block_close);
 	/* pprint-fill */

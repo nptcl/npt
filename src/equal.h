@@ -15,18 +15,18 @@
 #define equalp_debug _n(equalp_debug)
 #define equalrt_debug _n(equalrt_debug)
 
-_g int atom_function(addr pos);
-_g int eq_function(addr left, addr right);
-_g int eq_function_(addr left, addr right, int *ret);
-_g int eql_function(addr left, addr right);
-_g int eql_function_(addr left, addr right, int *ret);
-_g int equal_function_(addr left, addr right, int *ret);
-_g int equalp_function_(addr left, addr right, int *ret);
-_g int equalrt_function_(addr left, addr right, int *ret);
+int atom_function(addr pos);
+int eq_function(addr left, addr right);
+int eq_function_(addr left, addr right, int *ret);
+int eql_function(addr left, addr right);
+int eql_function_(addr left, addr right, int *ret);
+int equal_function_(addr left, addr right, int *ret);
+int equalp_function_(addr left, addr right, int *ret);
+int equalrt_function_(addr left, addr right, int *ret);
 
-_g int equal_debug(addr left, addr right);
-_g int equalp_debug(addr left, addr right);
-_g int equalrt_debug(addr left, addr right);
+int equal_debug(addr left, addr right);
+int equalp_debug(addr left, addr right);
+int equalrt_debug(addr left, addr right);
 
 #endif
 

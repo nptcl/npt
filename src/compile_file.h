@@ -11,13 +11,13 @@
 #define compile_file_common _n(compile_file_common)
 #define init_compile_file _n(init_compile_file)
 
-_g void set_eval_compile_mode(Execute ptr, addr value);
-_g int eval_compile_p(Execute ptr);
-_g int eval_compile_file(Execute ptr, addr pos);
-_g int handler_compile_(Execute ptr);
-_g int compile_file_common(Execute ptr, addr file, addr rest,
+void set_eval_compile_mode(Execute ptr, addr value);
+int eval_compile_p(Execute ptr);
+int eval_compile_file(Execute ptr, addr pos);
+int handler_compile_(Execute ptr);
+int compile_file_common(Execute ptr, addr file, addr rest,
 		addr *ret1, addr *ret2, addr *ret3);
-_g void init_compile_file(void);
+void init_compile_file(void);
 
 #endif
 

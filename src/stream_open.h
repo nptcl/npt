@@ -62,9 +62,9 @@ enum Stream_Open_External {
 	Stream_Open_External_Utf32BeBom
 };
 
-_g int upgrade_open_element_type_stream_(addr var, addr *ret);
-_g int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret);
-_g int open_stream_(Execute ptr, addr *ret, addr pos,
+int upgrade_open_element_type_stream_(addr var, addr *ret);
+int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret);
+int open_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_Element element,
 		enum Stream_Open_IfExists exist,

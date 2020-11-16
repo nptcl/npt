@@ -883,18 +883,18 @@ static void copy_eval_progv(LocalRoot local, addr *ret, addr eval)
 /*
  *  interface
  */
-_g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval)
+void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval)
 {
 	copy_eval_parse(local, ret, eval);
 }
 
-_g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval)
+void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval)
 {
 	Check(local == NULL, "local error");
 	copy_eval_parse_alloc(local, ret, eval);
 }
 
-_g void copy_eval_parse_heap(addr *ret, addr eval)
+void copy_eval_parse_heap(addr *ret, addr eval)
 {
 	copy_eval_parse_alloc(NULL, ret, eval);
 }
@@ -906,7 +906,7 @@ _g void copy_eval_parse_heap(addr *ret, addr eval)
 typedef void (*copy_eval_calltype)(LocalRoot, addr *, addr);
 static copy_eval_calltype EvalCopyTable[EVAL_PARSE_SIZE];
 
-_g void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
+void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 {
 	EvalParse type;
 	copy_eval_calltype call;
@@ -927,7 +927,7 @@ error:
 	Abort("parse-error.");
 }
 
-_g void init_eval_copy(void)
+void init_eval_copy(void)
 {
 	EvalCopyTable[EVAL_PARSE_NIL] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_T] = copy_eval_single;

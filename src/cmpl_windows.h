@@ -17,21 +17,21 @@
 #include "typedef.h"
 
 /* exp(z) = exp(x) * (cos(y) + i*sin(y)) */
-_g void cexp_f(single_float real, single_float imag, single_float *re, single_float *im)
+void cexp_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	single_float e = expf(real);
 	*re = e * cosf(imag);
 	*im = e * sinf(imag);
 }
 
-_g void cexp_d(double_float real, double_float imag, double_float *re, double_float *im)
+void cexp_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	double_float e = exp(real);
 	*re = e * cos(imag);
 	*im = e * sin(imag);
 }
 
-_g void cexp_l(long_float real, long_float imag, long_float *re, long_float *im)
+void cexp_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	long_float e = expl(real);
 	*re = e * cosl(imag);
@@ -39,64 +39,64 @@ _g void cexp_l(long_float real, long_float imag, long_float *re, long_float *im)
 }
 
 /* log(z) = log|z| + i*phase(z) */
-_g void clog_f(single_float real, single_float imag, single_float *re, single_float *im)
+void clog_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	*re = logf(sqrtf(real*real + imag*imag));
 	*im = atan2f(imag, real);
 }
 
-_g void clog_d(double_float real, double_float imag, double_float *re, double_float *im)
+void clog_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	*re = log(sqrt(real*real + imag*imag));
 	*im = atan2(imag, real);
 }
 
-_g void clog_l(long_float real, long_float imag, long_float *re, long_float *im)
+void clog_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	*re = logl(sqrtl(real*real + imag*imag));
 	*im = atan2l(imag, real);
 }
 
 /* sin(z) = sin(x)*cosh(y) + i*cos(x)*sinh(y) */
-_g void csin_f(single_float real, single_float imag, single_float *re, single_float *im)
+void csin_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	*re = sinf(real) * coshf(imag);
 	*im = cosf(real) * sinhf(imag);
 }
 
-_g void csin_d(double_float real, double_float imag, double_float *re, double_float *im)
+void csin_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	*re = sin(real) * cosh(imag);
 	*im = cos(real) * sinh(imag);
 }
 
-_g void csin_l(long_float real, long_float imag, long_float *re, long_float *im)
+void csin_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	*re = sinl(real) * coshl(imag);
 	*im = cosl(real) * sinhl(imag);
 }
 
 /* cos(z) = cos(x)*cosh(y) - i*sin(x)*sinh(y) */
-_g void ccos_f(single_float real, single_float imag, single_float *re, single_float *im)
+void ccos_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	*re =  cosf(real) * coshf(imag);
 	*im = -sinf(real) * sinhf(imag);
 }
 
-_g void ccos_d(double_float real, double_float imag, double_float *re, double_float *im)
+void ccos_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	*re =  cos(real) * cosh(imag);
 	*im = -sin(real) * sinh(imag);
 }
 
-_g void ccos_l(long_float real, long_float imag, long_float *re, long_float *im)
+void ccos_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	*re =  cosl(real) * coshl(imag);
 	*im = -sinl(real) * sinhl(imag);
 }
 
 /* tan(z) = (sin(2*x) + i*sinh(2*y)) / (cos(2*x) + cosh(2*y)) */
-_g void ctan_f(single_float real, single_float imag, single_float *re, single_float *im)
+void ctan_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	single_float x2, y2, denom;
 
@@ -107,7 +107,7 @@ _g void ctan_f(single_float real, single_float imag, single_float *re, single_fl
 	*im = sinhf(y2) / denom;
 }
 
-_g void ctan_d(double_float real, double_float imag, double_float *re, double_float *im)
+void ctan_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	double_float x2, y2, denom;
 
@@ -118,7 +118,7 @@ _g void ctan_d(double_float real, double_float imag, double_float *re, double_fl
 	*im = sinh(y2) / denom;
 }
 
-_g void ctan_l(long_float real, long_float imag, long_float *re, long_float *im)
+void ctan_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	long_float x2, y2, denom;
 
@@ -130,45 +130,45 @@ _g void ctan_l(long_float real, long_float imag, long_float *re, long_float *im)
 }
 
 /* sinh(z) = sinh(x)*cos(y) + i*cosh(x)*sin(y) */
-_g void csinh_f(single_float real, single_float imag, single_float *re, single_float *im)
+void csinh_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	*re = sinhf(real) * cosf(imag);
 	*im = coshf(real) * sinf(imag);
 }
 
-_g void csinh_d(double_float real, double_float imag, double_float *re, double_float *im)
+void csinh_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	*re = sinh(real) * cos(imag);
 	*im = cosh(real) * sin(imag);
 }
 
-_g void csinh_l(long_float real, long_float imag, long_float *re, long_float *im)
+void csinh_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	*re = sinhl(real) * cosl(imag);
 	*im = coshl(real) * sinl(imag);
 }
 
 /* cosh(z) = cosh(x)*cos(y) i*sinh(x)*sin(y) */
-_g void ccosh_f(single_float real, single_float imag, single_float *re, single_float *im)
+void ccosh_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	*re = coshf(real) * cosf(imag);
 	*im = sinhf(real) * sinf(imag);
 }
 
-_g void ccosh_d(double_float real, double_float imag, double_float *re, double_float *im)
+void ccosh_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	*re = cosh(real) * cos(imag);
 	*im = sinh(real) * sin(imag);
 }
 
-_g void ccosh_l(long_float real, long_float imag, long_float *re, long_float *im)
+void ccosh_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	*re = coshl(real) * cosl(imag);
 	*im = sinhl(real) * sinl(imag);
 }
 
 /* tan(z) = (sinh(2*x) + i*sin(2*y)) / (cosh(2*x) + cos(2*y)) */
-_g void ctanh_f(single_float real, single_float imag, single_float *re, single_float *im)
+void ctanh_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	single_float x2, y2, denom;
 
@@ -179,7 +179,7 @@ _g void ctanh_f(single_float real, single_float imag, single_float *re, single_f
 	*im = sinf(y2) / denom;
 }
 
-_g void ctanh_d(double_float real, double_float imag, double_float *re, double_float *im)
+void ctanh_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	double_float x2, y2, denom;
 
@@ -190,7 +190,7 @@ _g void ctanh_d(double_float real, double_float imag, double_float *re, double_f
 	*im = sin(y2) / denom;
 }
 
-_g void ctanh_l(long_float real, long_float imag, long_float *re, long_float *im)
+void ctanh_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	long_float x2, y2, denom;
 
@@ -202,7 +202,7 @@ _g void ctanh_l(long_float real, long_float imag, long_float *re, long_float *im
 }
 
 /* asin(z) = -i*log(i*z + sqrt(1-z*z)) */
-_g void casin_f(single_float a, single_float b, single_float *re, single_float *im)
+void casin_f(single_float a, single_float b, single_float *re, single_float *im)
 {
 	single_float c, d;
 
@@ -212,7 +212,7 @@ _g void casin_f(single_float a, single_float b, single_float *re, single_float *
 	*im = -c;
 }
 
-_g void casin_d(double_float a, double_float b, double_float *re, double_float *im)
+void casin_d(double_float a, double_float b, double_float *re, double_float *im)
 {
 	double_float c, d;
 
@@ -222,7 +222,7 @@ _g void casin_d(double_float a, double_float b, double_float *re, double_float *
 	*im = -c;
 }
 
-_g void casin_l(long_float a, long_float b, long_float *re, long_float *im)
+void casin_l(long_float a, long_float b, long_float *re, long_float *im)
 {
 	long_float c, d;
 
@@ -233,7 +233,7 @@ _g void casin_l(long_float a, long_float b, long_float *re, long_float *im)
 }
 
 /* acos(z) = -i*log(z + i*sqrt(1-z*z)) */
-_g void cacos_f(single_float a, single_float b, single_float *re, single_float *im)
+void cacos_f(single_float a, single_float b, single_float *re, single_float *im)
 {
 	single_float c, d;
 
@@ -243,7 +243,7 @@ _g void cacos_f(single_float a, single_float b, single_float *re, single_float *
 	*im = -c;
 }
 
-_g void cacos_d(double_float a, double_float b, double_float *re, double_float *im)
+void cacos_d(double_float a, double_float b, double_float *re, double_float *im)
 {
 	double_float c, d;
 
@@ -253,7 +253,7 @@ _g void cacos_d(double_float a, double_float b, double_float *re, double_float *
 	*im = -c;
 }
 
-_g void cacos_l(long_float a, long_float b, long_float *re, long_float *im)
+void cacos_l(long_float a, long_float b, long_float *re, long_float *im)
 {
 	long_float c, d;
 
@@ -264,7 +264,7 @@ _g void cacos_l(long_float a, long_float b, long_float *re, long_float *im)
 }
 
 /* atan(z) = (log(1+i*z) - log(1-i*z))/(2*i) */
-_g void catan_f(single_float a, single_float b, single_float *re, single_float *im)
+void catan_f(single_float a, single_float b, single_float *re, single_float *im)
 {
 	single_float p1, p2, m1, m2;
 
@@ -274,7 +274,7 @@ _g void catan_f(single_float a, single_float b, single_float *re, single_float *
 	*im = -0.5f * (p1 - m1);
 }
 
-_g void catan_d(double_float a, double_float b, double_float *re, double_float *im)
+void catan_d(double_float a, double_float b, double_float *re, double_float *im)
 {
 	double_float p1, p2, m1, m2;
 
@@ -284,7 +284,7 @@ _g void catan_d(double_float a, double_float b, double_float *re, double_float *
 	*im = -0.5 * (p1 - m1);
 }
 
-_g void catan_l(long_float a, long_float b, long_float *re, long_float *im)
+void catan_l(long_float a, long_float b, long_float *re, long_float *im)
 {
 	long_float p1, p2, m1, m2;
 
@@ -295,21 +295,21 @@ _g void catan_l(long_float a, long_float b, long_float *re, long_float *im)
 }
 
 /* asinh(z) = -i*asin(i*z) */
-_g void casinh_f(single_float a, single_float b, single_float *re, single_float *im)
+void casinh_f(single_float a, single_float b, single_float *re, single_float *im)
 {
 	casin_f(-b, a, &a, &b);
 	*re = b;
 	*im = -a;
 }
 
-_g void casinh_d(double_float a, double_float b, double_float *re, double_float *im)
+void casinh_d(double_float a, double_float b, double_float *re, double_float *im)
 {
 	casin_d(-b, a, &a, &b);
 	*re = b;
 	*im = -a;
 }
 
-_g void casinh_l(long_float a, long_float b, long_float *re, long_float *im)
+void casinh_l(long_float a, long_float b, long_float *re, long_float *im)
 {
 	casin_l(-b, a, &a, &b);
 	*re = b;
@@ -317,7 +317,7 @@ _g void casinh_l(long_float a, long_float b, long_float *re, long_float *im)
 }
 
 /* acosh(z) = 2*log(sqrt((z+1)/2) + sqrt((z-1)/2)) */
-_g void cacosh_f(single_float a, single_float b, single_float *re, single_float *im)
+void cacosh_f(single_float a, single_float b, single_float *re, single_float *im)
 {
 	single_float p1, p2, m1, m2;
 
@@ -328,7 +328,7 @@ _g void cacosh_f(single_float a, single_float b, single_float *re, single_float 
 	*im = 2.0f*b;
 }
 
-_g void cacosh_d(double_float a, double_float b, double_float *re, double_float *im)
+void cacosh_d(double_float a, double_float b, double_float *re, double_float *im)
 {
 	double_float p1, p2, m1, m2;
 
@@ -339,7 +339,7 @@ _g void cacosh_d(double_float a, double_float b, double_float *re, double_float 
 	*im = 2.0*b;
 }
 
-_g void cacosh_l(long_float a, long_float b, long_float *re, long_float *im)
+void cacosh_l(long_float a, long_float b, long_float *re, long_float *im)
 {
 	long_float p1, p2, m1, m2;
 
@@ -351,38 +351,38 @@ _g void cacosh_l(long_float a, long_float b, long_float *re, long_float *im)
 }
 
 /* atanh(z) = atan(iz)/i */
-_g void catanh_f(single_float a, single_float b, single_float *re, single_float *im)
+void catanh_f(single_float a, single_float b, single_float *re, single_float *im)
 {
 	catan_f(-b, a, &a, &b);
 	*re = b;
 	*im = -a;
 }
 
-_g void catanh_d(double_float a, double_float b, double_float *re, double_float *im)
+void catanh_d(double_float a, double_float b, double_float *re, double_float *im)
 {
 	catan_d(-b, a, &a, &b);
 	*re = b;
 	*im = -a;
 }
 
-_g void catanh_l(long_float a, long_float b, long_float *re, long_float *im)
+void catanh_l(long_float a, long_float b, long_float *re, long_float *im)
 {
 	catan_l(-b, a, &a, &b);
 	*re = b;
 	*im = -a;
 }
 
-_g void cabs_f(single_float real, single_float imag, single_float *ret)
+void cabs_f(single_float real, single_float imag, single_float *ret)
 {
 	*ret = sqrtf(real*real + imag*imag);
 }
 
-_g void cabs_d(double_float real, double_float imag, double_float *ret)
+void cabs_d(double_float real, double_float imag, double_float *ret)
 {
 	*ret = sqrt(real*real + imag*imag);
 }
 
-_g void cabs_l(long_float real, long_float imag, long_float *ret)
+void cabs_l(long_float real, long_float imag, long_float *ret)
 {
 	*ret = sqrtl(real*real + imag*imag);
 }

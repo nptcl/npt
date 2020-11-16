@@ -38,42 +38,42 @@
 #define init_reader_function _n(init_reader_function)
 
 /* reader */
-_g int double_quote_reader(LocalRoot local, addr stream, addr *ret);
-_g int single_quote_reader(Execute ptr, addr stream, addr *ret);
-_g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive);
-_g int parensis_open_reader(Execute ptr, addr stream);
-_g int parensis_close_reader(void);
-_g int semicolon_reader_(addr stream);
-_g int backquote_reader(Execute ptr, addr stream, addr *ret);
-_g int comma_reader(Execute ptr, addr stream, addr *ret);
-_g int sharp_reader(Execute ptr, addr stream, addr code);
+int double_quote_reader(LocalRoot local, addr stream, addr *ret);
+int single_quote_reader(Execute ptr, addr stream, addr *ret);
+int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive);
+int parensis_open_reader(Execute ptr, addr stream);
+int parensis_close_reader(void);
+int semicolon_reader_(addr stream);
+int backquote_reader(Execute ptr, addr stream, addr *ret);
+int comma_reader(Execute ptr, addr stream, addr *ret);
+int sharp_reader(Execute ptr, addr stream, addr code);
 
 /* dispatch */
-_g int error_dispatch(addr code);
-_g int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret);
-_g int sharp_dispatch(Execute ptr, addr y, addr *ret);
-_g int single_quote_dispatch(Execute ptr, addr stream, addr *ret);
-_g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret);
-_g int parensis_close_dispatch(void);
-_g int asterisk_dispatch_(Execute ptr, addr stream, addr x, addr y, addr *ret);
-_g int colon_dispatch(Execute ptr, addr stream, addr *ret);
-_g int less_dispatch(void);
-_g int backslash_dispatch(Execute ptr, addr stream, addr *ret);
-_g int or_dispatch_(addr stream);
-_g int plus_dispatch(Execute ptr, addr stream);
-_g int minus_dispatch(Execute ptr, addr stream);
-_g int dot_dispatch(Execute ptr, addr stream, addr *ret);
-_g int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret);
-_g int binary_dispatch(Execute ptr, addr stream, addr *ret);
-_g int octal_dispatch(Execute ptr, addr stream, addr *ret);
-_g int hexadecimal_dispatch(Execute ptr, addr stream, addr *ret);
-_g int complex_dispatch(Execute ptr, addr stream, addr *ret);
-_g int array_dispatch(Execute ptr, addr stream, addr y, addr *ret);
-_g int pathname_dispatch(Execute ptr, addr stream, addr *ret);
-_g int structure_dispatch(Execute ptr, addr stream, addr *ret);
+int error_dispatch(addr code);
+int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret);
+int sharp_dispatch(Execute ptr, addr y, addr *ret);
+int single_quote_dispatch(Execute ptr, addr stream, addr *ret);
+int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret);
+int parensis_close_dispatch(void);
+int asterisk_dispatch_(Execute ptr, addr stream, addr x, addr y, addr *ret);
+int colon_dispatch(Execute ptr, addr stream, addr *ret);
+int less_dispatch(void);
+int backslash_dispatch(Execute ptr, addr stream, addr *ret);
+int or_dispatch_(addr stream);
+int plus_dispatch(Execute ptr, addr stream);
+int minus_dispatch(Execute ptr, addr stream);
+int dot_dispatch(Execute ptr, addr stream, addr *ret);
+int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret);
+int binary_dispatch(Execute ptr, addr stream, addr *ret);
+int octal_dispatch(Execute ptr, addr stream, addr *ret);
+int hexadecimal_dispatch(Execute ptr, addr stream, addr *ret);
+int complex_dispatch(Execute ptr, addr stream, addr *ret);
+int array_dispatch(Execute ptr, addr stream, addr y, addr *ret);
+int pathname_dispatch(Execute ptr, addr stream, addr *ret);
+int structure_dispatch(Execute ptr, addr stream, addr *ret);
 
 /* initialize */
-_g void init_reader_function(void);
+void init_reader_function(void);
 
 #endif
 

@@ -24,7 +24,7 @@ static int arraymemory_get_memory_(addr pos, size_t index,
 	return 0;
 }
 
-_g int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *ret)
+int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *ret)
 {
 	struct array_struct *str;
 
@@ -52,7 +52,7 @@ _g int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *r
 	return 0;
 }
 
-_g int arraymemory_get_safe(addr pos, size_t index, addr *retp, size_t *rets, int *ret)
+int arraymemory_get_safe(addr pos, size_t index, addr *retp, size_t *rets, int *ret)
 {
 	struct array_struct *str;
 
@@ -350,7 +350,7 @@ static int arraymemory_set_(addr pos, addr mem, size_t index, addr value)
 /*
  *  array-get/set
  */
-_g int array_get_t_(addr pos, size_t index, addr *ret)
+int array_get_t_(addr pos, size_t index, addr *ret)
 {
 	int check;
 
@@ -367,7 +367,7 @@ _g int array_get_t_(addr pos, size_t index, addr *ret)
 	return 0;
 }
 
-_g int array_get_bit_(addr pos, size_t index, int *ret)
+int array_get_bit_(addr pos, size_t index, int *ret)
 {
 	int ignore;
 
@@ -384,7 +384,7 @@ static void arraymemory_getunicode(addr pos, size_t index, unicode *ret)
 	*ret = ((unicode *)arrayspec_ptr(pos))[index];
 }
 
-_g int array_get_unicode_(addr pos, size_t index, unicode *ret)
+int array_get_unicode_(addr pos, size_t index, unicode *ret)
 {
 	int check;
 
@@ -403,7 +403,7 @@ _g int array_get_unicode_(addr pos, size_t index, unicode *ret)
 	return 0;
 }
 
-_g int array_get_(LocalRoot local, addr pos, size_t index, addr *ret)
+int array_get_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	struct array_value str;
 
@@ -413,7 +413,7 @@ _g int array_get_(LocalRoot local, addr pos, size_t index, addr *ret)
 	return 0;
 }
 
-_g int array_set_bit_(addr pos, size_t index, int value)
+int array_set_bit_(addr pos, size_t index, int value)
 {
 	int ignore;
 
@@ -427,7 +427,7 @@ _g int array_set_bit_(addr pos, size_t index, int value)
 	return bitmemory_setint_(pos, index, value);
 }
 
-_g int array_set_character_(addr pos, size_t index, unicode value)
+int array_set_character_(addr pos, size_t index, unicode value)
 {
 	int check;
 
@@ -446,7 +446,7 @@ _g int array_set_character_(addr pos, size_t index, unicode value)
 	return 0;
 }
 
-_g int array_set_signed8_(addr pos, size_t index, int8_t value)
+int array_set_signed8_(addr pos, size_t index, int8_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -462,7 +462,7 @@ _g int array_set_signed8_(addr pos, size_t index, int8_t value)
 	return 0;
 }
 
-_g int array_set_signed16_(addr pos, size_t index, int16_t value)
+int array_set_signed16_(addr pos, size_t index, int16_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -478,7 +478,7 @@ _g int array_set_signed16_(addr pos, size_t index, int16_t value)
 	return 0;
 }
 
-_g int array_set_signed32_(addr pos, size_t index, int32_t value)
+int array_set_signed32_(addr pos, size_t index, int32_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -494,7 +494,7 @@ _g int array_set_signed32_(addr pos, size_t index, int32_t value)
 	return 0;
 }
 
-_g int array_set_unsigned8_(addr pos, size_t index, uint8_t value)
+int array_set_unsigned8_(addr pos, size_t index, uint8_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -510,7 +510,7 @@ _g int array_set_unsigned8_(addr pos, size_t index, uint8_t value)
 	return 0;
 }
 
-_g int array_set_unsigned16_(addr pos, size_t index, uint16_t value)
+int array_set_unsigned16_(addr pos, size_t index, uint16_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -526,7 +526,7 @@ _g int array_set_unsigned16_(addr pos, size_t index, uint16_t value)
 	return 0;
 }
 
-_g int array_set_unsigned32_(addr pos, size_t index, uint32_t value)
+int array_set_unsigned32_(addr pos, size_t index, uint32_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -543,7 +543,7 @@ _g int array_set_unsigned32_(addr pos, size_t index, uint32_t value)
 }
 
 #ifdef LISP_64BIT
-_g int array_set_signed64_(addr pos, size_t index, int64_t value)
+int array_set_signed64_(addr pos, size_t index, int64_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -559,7 +559,7 @@ _g int array_set_signed64_(addr pos, size_t index, int64_t value)
 	return 0;
 }
 
-_g int array_set_unsigned64_(addr pos, size_t index, uint64_t value)
+int array_set_unsigned64_(addr pos, size_t index, uint64_t value)
 {
 	int ignore;
 	struct array_struct *str;
@@ -576,7 +576,7 @@ _g int array_set_unsigned64_(addr pos, size_t index, uint64_t value)
 }
 #endif
 
-_g int array_set_single_(addr pos, size_t index, single_float value)
+int array_set_single_(addr pos, size_t index, single_float value)
 {
 	int ignore;
 
@@ -590,7 +590,7 @@ _g int array_set_single_(addr pos, size_t index, single_float value)
 	return 0;
 }
 
-_g int array_set_double_(addr pos, size_t index, double_float value)
+int array_set_double_(addr pos, size_t index, double_float value)
 {
 	int ignore;
 
@@ -604,7 +604,7 @@ _g int array_set_double_(addr pos, size_t index, double_float value)
 	return 0;
 }
 
-_g int array_set_long_(addr pos, size_t index, long_float value)
+int array_set_long_(addr pos, size_t index, long_float value)
 {
 	int ignore;
 
@@ -618,7 +618,7 @@ _g int array_set_long_(addr pos, size_t index, long_float value)
 	return 0;
 }
 
-_g int array_set_(addr pos, size_t index, addr value)
+int array_set_(addr pos, size_t index, addr value)
 {
 	int check;
 	addr mem;
@@ -636,7 +636,7 @@ _g int array_set_(addr pos, size_t index, addr value)
 /*
  *  setget
  */
-_g int array_setget_(addr p1, size_t s1, addr p2, size_t s2)
+int array_setget_(addr p1, size_t s1, addr p2, size_t s2)
 {
 	struct array_value value;
 	struct array_struct *str1, *str2;
@@ -675,7 +675,7 @@ static int array1arefindex_(addr pos, addr args, struct array_struct *str, size_
 	return Result(ret, index);
 }
 
-_g int array_arefindex_(addr pos, addr args, size_t *ret)
+int array_arefindex_(addr pos, addr args, size_t *ret)
 {
 	struct array_struct *str;
 	const size_t *data;
@@ -710,21 +710,21 @@ _g int array_arefindex_(addr pos, addr args, size_t *ret)
 	return Result(ret, index);
 }
 
-_g int array_aref_(LocalRoot local, addr pos, addr args, addr *ret)
+int array_aref_(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	size_t index;
 	Return(array_arefindex_(pos, args, &index));
 	return array_get_(local, pos, index, ret);
 }
 
-_g int array_setf_aref_(addr pos, addr args, addr value)
+int array_setf_aref_(addr pos, addr args, addr value)
 {
 	size_t index;
 	Return(array_arefindex_(pos, args, &index));
 	return array_set_(pos, index, value);
 }
 
-_g int array_aref_bit_(LocalRoot local, addr pos, addr args, addr *ret)
+int array_aref_bit_(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	int value;
 	size_t index;
@@ -736,7 +736,7 @@ _g int array_aref_bit_(LocalRoot local, addr pos, addr args, addr *ret)
 	return 0;
 }
 
-_g int array_setf_aref_bit_(addr pos, addr args, addr value)
+int array_setf_aref_bit_(addr pos, addr args, addr value)
 {
 	int check;
 	size_t index;
@@ -751,7 +751,7 @@ _g int array_setf_aref_bit_(addr pos, addr args, addr value)
 /*
  *  check
  */
-_g int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size)
+int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size)
 {
 	if (a->type != type)
 		return 0;
@@ -761,7 +761,7 @@ _g int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned s
 		return 1;
 }
 
-_g int array_equal_dimension(addr a, addr b)
+int array_equal_dimension(addr a, addr b)
 {
 	struct array_struct *str1, *str2;
 	size_t size, i;
@@ -788,14 +788,14 @@ _g int array_equal_dimension(addr a, addr b)
 	return 1;
 }
 
-_g int array_get_element_type_(addr pos, addr *ret)
+int array_get_element_type_(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &pos);
 	return type_object_(ret, pos);
 }
 
-_g int array_get_vector_length_(addr pos, int fill, size_t *ret)
+int array_get_vector_length_(addr pos, int fill, size_t *ret)
 {
 	struct array_struct *str;
 
@@ -808,7 +808,7 @@ _g int array_get_vector_length_(addr pos, int fill, size_t *ret)
 	return 0;
 }
 
-_g void array_get_rowlength(addr pos, size_t *ret)
+void array_get_rowlength(addr pos, size_t *ret)
 {
 	struct array_struct *str;
 

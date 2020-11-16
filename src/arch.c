@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 /* Posix read */
-_g int read_posix(int file, void *pos, size_t size, size_t *ret)
+int read_posix(int file, void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 
@@ -30,7 +30,7 @@ _g int read_posix(int file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-_g int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
+int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
 {
 	ssize_t check;
 	size_t count, rsize, diff;
@@ -64,7 +64,7 @@ _g int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
 
 #ifdef LISP_WINDOWS
 /* Windows ReadFile */
-_g int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
+int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
 {
 	BOOL check;
 	DWORD dsize;
@@ -84,7 +84,7 @@ _g int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-_g int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
+int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;
@@ -119,7 +119,7 @@ _g int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
 #endif
 
 /* ANSI-C fread */
-_g int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
+int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
 {
 	size_t check;
 
@@ -137,7 +137,7 @@ _g int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-_g int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
+int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;
@@ -173,7 +173,7 @@ _g int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
 /*
  *  safe
  */
-_g int multisafe_size(size_t left, size_t right, size_t *result)
+int multisafe_size(size_t left, size_t right, size_t *result)
 {
 	size_t temp;
 
@@ -191,7 +191,7 @@ _g int multisafe_size(size_t left, size_t right, size_t *result)
 	return 0;
 }
 
-_g int plussafe_size(size_t a, size_t b, size_t *result)
+int plussafe_size(size_t a, size_t b, size_t *result)
 {
 	if (a > SIZE_MAX - b)
 		return 1;

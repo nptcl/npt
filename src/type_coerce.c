@@ -2536,7 +2536,7 @@ static int coerce_array(Execute ptr, addr pos, addr type, addr *ret)
 typedef int (*coerce_call)(Execute ptr, addr pos, addr type, addr *ret);
 static coerce_call CoerceTable[LISPDECL_SIZE];
 
-_g void init_type_coerce(void)
+void init_type_coerce(void)
 {
 	cleartype(CoerceTable);
 	/* number */
@@ -2646,7 +2646,7 @@ static int coerce_execute_(Execute ptr, addr pos, addr type, addr *ret)
 	}
 }
 
-_g int coerce_common(Execute ptr, addr pos, addr type, addr *ret)
+int coerce_common(Execute ptr, addr pos, addr type, addr *ret)
 {
 	LocalHold hold;
 

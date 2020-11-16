@@ -1617,7 +1617,7 @@ static void defun_extension(void)
 /*
  *  function
  */
-_g void init_syscall_function(void)
+void init_syscall_function(void)
 {
 	SetPointerSysCall(defun, empty, hello);
 	SetPointerSysCall(defun, dynamic, infobit);
@@ -1674,7 +1674,7 @@ _g void init_syscall_function(void)
 	SetPointerSysCall(defun, var1, extension);
 }
 
-_g void build_syscall_function(void)
+void build_syscall_function(void)
 {
 	defun_hello();
 	defun_infobit();

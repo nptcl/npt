@@ -6,7 +6,7 @@
 
 #define question_values_ _n(question_values_)
 
-_g int question_values_(Execute ptr, addr pos, addr args);
+int question_values_(Execute ptr, addr pos, addr args);
 
 #endif
 

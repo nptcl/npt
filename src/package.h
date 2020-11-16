@@ -28,31 +28,31 @@
 
 #define PackageTable(x) (*(x) = LispRoot(PACKAGE))
 
-_g void build_package(void);
-_g int getpackage_(Execute ptr, addr *ret);
+void build_package(void);
+int getpackage_(Execute ptr, addr *ret);
 
-_g int append_nicknames_package_(addr pos, addr right);
-_g int delete_renameone_package_(addr table, addr name);
-_g int rename_package_(addr pos, addr name, addr right, addr *ret);
+int append_nicknames_package_(addr pos, addr right);
+int delete_renameone_package_(addr table, addr name);
+int rename_package_(addr pos, addr name, addr right, addr *ret);
 
-_g int find_symbol_package_(addr package, addr name,
+int find_symbol_package_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int find_package_(addr name, addr *ret);
-_g int find_char_package_(const char *name, addr *ret);
-_g int package_size_heap_(addr *ret, addr name, size_t size);
-_g int package_heap_(addr *ret, addr name);
-_g int find_allsymbols_package_(addr name, addr *ret);
-_g int list_all_packages_(addr *ret);
-_g int in_package_(Execute ptr, addr package, addr *ret);
+int find_package_(addr name, addr *ret);
+int find_char_package_(const char *name, addr *ret);
+int package_size_heap_(addr *ret, addr name, size_t size);
+int package_heap_(addr *ret, addr name);
+int find_allsymbols_package_(addr name, addr *ret);
+int list_all_packages_(addr *ret);
+int in_package_(Execute ptr, addr package, addr *ret);
 
-_g int externalp_package_(addr symbol, addr package, int *ret);
-_g int exportp_package_(addr symbol, addr package, int *ret);
-_g int exportp_name_package_(addr package, addr name, addr *value, int *ret);
-_g int checksymbol_package_(addr symbol, addr package, int *ret);
-_g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret);
+int externalp_package_(addr symbol, addr package, int *ret);
+int exportp_package_(addr symbol, addr package, int *ret);
+int exportp_name_package_(addr package, addr name, addr *value, int *ret);
+int checksymbol_package_(addr symbol, addr package, int *ret);
+void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret);
 
 /* initialize */
-_g void init_package(void);
+void init_package(void);
 
 #endif
 

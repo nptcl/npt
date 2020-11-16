@@ -12,25 +12,25 @@
 /*
  *  access
  */
-_g void *ptr_readtype(addr pos)
+void *ptr_readtype(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_READTYPE);
 	return PtrReadType_Low(pos);
 }
 
-_g struct readtype_struct *struct_readtype(addr pos)
+struct readtype_struct *struct_readtype(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_READTYPE);
 	return ReadTypeStruct_Low(pos);
 }
 
-_g void get_readtype(addr pos, addr *ret)
+void get_readtype(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_READTYPE);
 	GetReadType_Low(pos, ret);
 }
 
-_g void set_readtype(addr pos, addr value)
+void set_readtype(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_READTYPE);
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -41,13 +41,13 @@ _g void set_readtype(addr pos, addr value)
 /*
  *  readtype
  */
-_g int dispatch_readtype(addr pos)
+int dispatch_readtype(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_READTYPE);
 	return ReadTypeStruct(pos)->dispatch;
 }
 
-_g void make_readtype(addr *ret,
+void make_readtype(addr *ret,
 		enum ReadTable_Type type, unicode code, unsigned dispatch)
 {
 	addr pos;
@@ -61,7 +61,7 @@ _g void make_readtype(addr *ret,
 	*ret = pos;
 }
 
-_g void copy_readtype(addr *ret, addr copy)
+void copy_readtype(addr *ret, addr copy)
 {
 	addr pos;
 	struct readtype_struct *str;
@@ -127,7 +127,7 @@ static const char *const Default_Constituent =
 "\x08"  /* Backspace */
 "\x7F"; /* Delete (Rubout) */
 
-_g void default_array_readtype(addr array)
+void default_array_readtype(addr array)
 {
 	const char *str;
 
@@ -165,7 +165,7 @@ static int dispatch_character_(addr pos, unicode a, unicode b, constindex index)
 #define DispatchCharacter(a,u,b,c) \
 	/**/ Return(dispatch_character_(a,u,b,CONSTANT_SYSTEM_##c##_DISPATCH))
 
-_g int default_dispatch_readtype_(addr pos, unicode u)
+int default_dispatch_readtype_(addr pos, unicode u)
 {
 	DispatchCharacter(pos, u, 0x08, ERROR); /* backspace */
 	DispatchCharacter(pos, u, 0x09, ERROR); /* htab */
@@ -198,12 +198,12 @@ _g int default_dispatch_readtype_(addr pos, unicode u)
 	return 0;
 }
 
-_g void array_readtype_heap(addr *ret)
+void array_readtype_heap(addr *ret)
 {
 	vector2_heap(ret, 0x80);
 }
 
-_g void dispatch_readtype_heap(addr *ret)
+void dispatch_readtype_heap(addr *ret)
 {
 	addr pos;
 	hashtable_heap(&pos);
@@ -211,7 +211,7 @@ _g void dispatch_readtype_heap(addr *ret)
 	*ret = pos;
 }
 
-_g void make_array_readtype(addr *ret)
+void make_array_readtype(addr *ret)
 {
 	addr pos;
 	array_readtype_heap(&pos);
@@ -219,7 +219,7 @@ _g void make_array_readtype(addr *ret)
 	*ret = pos;
 }
 
-_g void make_table_readtype(addr *ret)
+void make_table_readtype(addr *ret)
 {
 	addr pos;
 	hashtable_heap(&pos);
@@ -227,7 +227,7 @@ _g void make_table_readtype(addr *ret)
 	*ret = pos;
 }
 
-_g int make_dispatch_readtype_(addr *ret)
+int make_dispatch_readtype_(addr *ret)
 {
 	addr pos;
 	dispatch_readtype_heap(&pos);
@@ -235,13 +235,13 @@ _g int make_dispatch_readtype_(addr *ret)
 	return Result(ret, pos);
 }
 
-_g int readtype_whitespace(unicode u)
+int readtype_whitespace(unicode u)
 {
 	if (0x80 <= u) return 0;
 	return strchr(Default_WhiteSpace, (int)u) != NULL;
 }
 
-_g int readtype_constituent(unicode u)
+int readtype_constituent(unicode u)
 {
 	if (0x80 <= u) return 0;
 	return strchr(Default_Constituent, (int)u) != NULL;
@@ -254,7 +254,7 @@ _g int readtype_constituent(unicode u)
 		return 1; \
 	} \
 }
-_g int readtype_termmacro(unicode u, addr *ret)
+int readtype_termmacro(unicode u, addr *ret)
 {
 	addr pos;
 
@@ -269,7 +269,7 @@ _g int readtype_termmacro(unicode u, addr *ret)
 	return 0;
 }
 
-_g int readtype_sharpmacro(unicode u, addr *ret)
+int readtype_sharpmacro(unicode u, addr *ret)
 {
 	addr pos;
 
@@ -312,7 +312,7 @@ static int delete_dispatch_macro_(addr pos, unicode u)
 	return 0;
 }
 
-_g int delete_readtype_(addr pos, unicode c)
+int delete_readtype_(addr pos, unicode c)
 {
 	int check;
 	addr value;

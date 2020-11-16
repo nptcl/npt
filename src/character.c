@@ -11,7 +11,7 @@
 /*
  *  character
  */
-_g void make_character_heap(addr *ret, unicode value)
+void make_character_heap(addr *ret, unicode value)
 {
 	addr pos;
 	heap_body2(&pos, LISPTYPE_CHARACTER, sizeoft(unicode));
@@ -19,7 +19,7 @@ _g void make_character_heap(addr *ret, unicode value)
 	*ret = pos;
 }
 
-_g void character_alloc(LocalRoot local, addr *ret, unicode value)
+void character_alloc(LocalRoot local, addr *ret, unicode value)
 {
 	if (local)
 		character_local(local, ret, value);
@@ -27,7 +27,7 @@ _g void character_alloc(LocalRoot local, addr *ret, unicode value)
 		character_heap(ret, value);
 }
 
-_g void character_local(LocalRoot local, addr *ret, unicode value)
+void character_local(LocalRoot local, addr *ret, unicode value)
 {
 	addr pos;
 
@@ -38,7 +38,7 @@ _g void character_local(LocalRoot local, addr *ret, unicode value)
 }
 
 #define character_cache_p(v) ((v) < LISP_CHARACTER_CACHE)
-_g void character_heap(addr *ret, unicode value)
+void character_heap(addr *ret, unicode value)
 {
 	addr cache, pos;
 
@@ -65,14 +65,14 @@ _g void character_heap(addr *ret, unicode value)
 	*ret = pos;
 }
 
-_g addr characterh(unicode value) /* for debug */
+addr characterh(unicode value) /* for debug */
 {
 	addr pos;
 	character_heap(&pos, value);
 	return pos;
 }
 
-_g int character_unicode_heap(addr *ret, unicode c)
+int character_unicode_heap(addr *ret, unicode c)
 {
 	addr pos;
 
@@ -85,25 +85,25 @@ _g int character_unicode_heap(addr *ret, unicode c)
 	return 0;
 }
 
-_g const unicode *ptrcharacter(addr pos)
+const unicode *ptrcharacter(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	return PtrCharacter_Low(pos);
 }
 
-_g unicode refcharacter(addr pos)
+unicode refcharacter(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	return RefCharacter_Low(pos);
 }
 
-_g void getcharacter(addr pos, unicode *value)
+void getcharacter(addr pos, unicode *value)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	GetCharacter_Low(pos, value);
 }
 
-_g enum CHARACTER_TYPE character_type(unicode c)
+enum CHARACTER_TYPE character_type(unicode c)
 {
 	if (isStandardType(c))
 		return CHARACTER_TYPE_STANDARD;
@@ -115,7 +115,7 @@ _g enum CHARACTER_TYPE character_type(unicode c)
 	return CHARACTER_TYPE_INVALID;
 }
 
-_g enum CHARACTER_TYPE ref_character_type(addr pos)
+enum CHARACTER_TYPE ref_character_type(addr pos)
 {
 	unicode c;
 
@@ -124,7 +124,7 @@ _g enum CHARACTER_TYPE ref_character_type(addr pos)
 	return character_type(c);
 }
 
-_g void get_character_type(addr pos, enum CHARACTER_TYPE *ret)
+void get_character_type(addr pos, enum CHARACTER_TYPE *ret)
 {
 	unicode c;
 
@@ -133,12 +133,12 @@ _g void get_character_type(addr pos, enum CHARACTER_TYPE *ret)
 	*ret = character_type(c);
 }
 
-_g int isvalidunicode(unicode c)
+int isvalidunicode(unicode c)
 {
 	return character_type(c) != CHARACTER_TYPE_INVALID;
 }
 
-_g void setcharacter_unsafe(addr pos, unicode value)
+void setcharacter_unsafe(addr pos, unicode value)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -146,27 +146,27 @@ _g void setcharacter_unsafe(addr pos, unicode value)
 	SetCharacter_Low(pos, value);
 }
 
-_g int standard_char_p(addr pos)
+int standard_char_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER && isstandardtype(RefCharacter(pos));
 }
 
-_g int base_char_p(addr pos)
+int base_char_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER && isbasetype(RefCharacter(pos));
 }
 
-_g int extended_char_p(addr pos)
+int extended_char_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER && isextendedtype(RefCharacter(pos));
 }
 
-_g int characterp(addr pos)
+int characterp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER;
 }
 
-_g int unicode_equalp(unicode left, unicode right)
+int unicode_equalp(unicode left, unicode right)
 {
 	return toUpperUnicode(left) == toUpperUnicode(right);
 }
@@ -177,14 +177,14 @@ _g int unicode_equalp(unicode left, unicode right)
 	return 0; \
 }
 
-_g int unicode_comparep(unicode left, unicode right)
+int unicode_comparep(unicode left, unicode right)
 {
 	left = toUpperUnicode(left);
 	right = toUpperUnicode(right);
 	ReturnCompare(left, right);
 }
 
-_g int character_equal(addr left, addr right)
+int character_equal(addr left, addr right)
 {
 	unicode a, b;
 
@@ -196,7 +196,7 @@ _g int character_equal(addr left, addr right)
 	return a == b;
 }
 
-_g int character_equalp(addr left, addr right)
+int character_equalp(addr left, addr right)
 {
 	unicode a, b;
 
@@ -208,7 +208,7 @@ _g int character_equalp(addr left, addr right)
 	return toUpperUnicode(a) == toUpperUnicode(b);
 }
 
-_g int character_equal_char(addr left, const char *right)
+int character_equal_char(addr left, const char *right)
 {
 	unicode a, b;
 
@@ -220,7 +220,7 @@ _g int character_equal_char(addr left, const char *right)
 	return a == b;
 }
 
-_g int character_equalp_char(addr left, const char *right)
+int character_equalp_char(addr left, const char *right)
 {
 	unicode a, b;
 
@@ -234,7 +234,7 @@ _g int character_equalp_char(addr left, const char *right)
 	return a == b;
 }
 
-_g int character_compare(addr left, addr right)
+int character_compare(addr left, addr right)
 {
 	unicode a, b;
 
@@ -245,7 +245,7 @@ _g int character_compare(addr left, addr right)
 	ReturnCompare(a, b);
 }
 
-_g int character_comparep(addr left, addr right)
+int character_comparep(addr left, addr right)
 {
 	unicode a, b;
 
@@ -258,7 +258,7 @@ _g int character_comparep(addr left, addr right)
 	ReturnCompare(a, b);
 }
 
-_g int character_unicode_equal(addr left, unicode right)
+int character_unicode_equal(addr left, unicode right)
 {
 	unicode c;
 
@@ -268,7 +268,7 @@ _g int character_unicode_equal(addr left, unicode right)
 	return c == right;
 }
 
-_g int character_unicode_equalp(addr left, unicode right)
+int character_unicode_equalp(addr left, unicode right)
 {
 	unicode c;
 
@@ -278,7 +278,7 @@ _g int character_unicode_equalp(addr left, unicode right)
 	return toUpperUnicode(c) == toUpperUnicode(right);
 }
 
-_g int character_unicode_compare(addr left, unicode right)
+int character_unicode_compare(addr left, unicode right)
 {
 	unicode c;
 
@@ -287,7 +287,7 @@ _g int character_unicode_compare(addr left, unicode right)
 	ReturnCompare(c, right);
 }
 
-_g int character_unicode_comparep(addr left, unicode right)
+int character_unicode_comparep(addr left, unicode right)
 {
 	unicode c;
 
@@ -300,13 +300,13 @@ _g int character_unicode_comparep(addr left, unicode right)
 
 
 /* equal */
-_g int character_equal_unicode(addr left, unicode right)
+int character_equal_unicode(addr left, unicode right)
 {
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
 	return RefCharacter(left) == right;
 }
 
-_g int character_equalp_unicode(addr left, unicode right)
+int character_equalp_unicode(addr left, unicode right)
 {
 	unicode c;
 
@@ -318,7 +318,7 @@ _g int character_equalp_unicode(addr left, unicode right)
 
 /* character2 */
 #define PtrCharacter2(x) ((unicode *)PtrBodyB2(x))
-_g void character2_heap(addr *ret, unicode a, unicode b)
+void character2_heap(addr *ret, unicode a, unicode b)
 {
 	addr pos;
 	unicode *ptr;
@@ -330,44 +330,44 @@ _g void character2_heap(addr *ret, unicode a, unicode b)
 	*ret = pos;
 }
 
-_g unicode refcharacter2a(addr pos)
+unicode refcharacter2a(addr pos)
 {
 	return PtrCharacter2(pos)[0];
 }
 
-_g unicode refcharacter2b(addr pos)
+unicode refcharacter2b(addr pos)
 {
 	return PtrCharacter2(pos)[1];
 }
 
-_g void getcharacter2a(addr pos, unicode *ret)
+void getcharacter2a(addr pos, unicode *ret)
 {
 	*ret = PtrCharacter2(pos)[0];
 }
 
-_g void getcharacter2b(addr pos, unicode *ret)
+void getcharacter2b(addr pos, unicode *ret)
 {
 	*ret = PtrCharacter2(pos)[1];
 }
 
-_g void setcharacter2a(addr pos, unicode value)
+void setcharacter2a(addr pos, unicode value)
 {
 	PtrCharacter2(pos)[0] = value;
 }
 
-_g void setcharacter2b(addr pos, unicode value)
+void setcharacter2b(addr pos, unicode value)
 {
 	PtrCharacter2(pos)[1] = value;
 }
 
 
-_g int character2_equal_unicode(addr left, unicode a, unicode b)
+int character2_equal_unicode(addr left, unicode a, unicode b)
 {
 	CheckType(left, LISPSYSTEM_CHARACTER2);
 	return refcharacter2a(left) == a && refcharacter2b(left) == b;
 }
 
-_g int character2_equalp_unicode(addr left, unicode a, unicode b)
+int character2_equalp_unicode(addr left, unicode a, unicode b)
 {
 	unicode c, d;
 
@@ -394,7 +394,7 @@ static void build_character_cache(void)
 	SetConst(CHARACTER_CACHE, pos);
 }
 
-_g void build_character(void)
+void build_character(void)
 {
 	build_character_cache();
 	build_character_name();

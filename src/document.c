@@ -1256,7 +1256,7 @@ static int defun_setf_documentation_(Execute ptr)
 /*
  *  build
  */
-_g void init_documentation(void)
+void init_documentation(void)
 {
 	SetPointerType(var4, method_documentation_function_t);
 	SetPointerType(var4, method_documentation_list_function);
@@ -1291,7 +1291,7 @@ _g void init_documentation(void)
 	SetPointerType(var5, method_setf_documentation_symbol_variable);
 }
 
-_g void build_documentation(Execute ptr)
+void build_documentation(Execute ptr)
 {
 	Error(defun_documentation_(ptr));
 	Error(defun_setf_documentation_(ptr));

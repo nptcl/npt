@@ -4,7 +4,7 @@
 #include "eval_stack.h"
 #include "typedef.h"
 
-_g void init_eval(void)
+void init_eval(void)
 {
 	init_eval_copy();
 	init_eval_main();

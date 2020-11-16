@@ -45,7 +45,7 @@ static const uint32_t CalcT[64 + 1] = {
 	a += b; \
 }
 
-_g void clear_md5encode(struct md5encode *ptr)
+void clear_md5encode(struct md5encode *ptr)
 {
 	ptr->a = InitialWordA;
 	ptr->b = InitialWordB;
@@ -143,7 +143,7 @@ static void calcblock(struct md5encode *ptr)
 	ptr->d += d;
 }
 
-_g void read_md5encode(struct md5encode *ptr, const void *from, size_t len)
+void read_md5encode(struct md5encode *ptr, const void *from, size_t len)
 {
 	int pos, j, k;
 	size_t i;
@@ -209,7 +209,7 @@ static void calcfinal(struct md5encode *ptr)
 	calcblock(ptr);
 }
 
-_g void calc_md5encode(struct md5encode *ptr, void *result)
+void calc_md5encode(struct md5encode *ptr, void *result)
 {
 	uint8_t *byte;
 
@@ -225,7 +225,7 @@ _g void calc_md5encode(struct md5encode *ptr, void *result)
 	wordtobyte(ptr->d, byte + 12);
 }
 
-_g void sequence_md5encode(const void *from, size_t len, void *result)
+void sequence_md5encode(const void *from, size_t len, void *result)
 {
 	struct md5encode md5;
 
@@ -234,7 +234,7 @@ _g void sequence_md5encode(const void *from, size_t len, void *result)
 	calc_md5encode(&md5, result);
 }
 
-_g void string_md5encode(const char *from, void *result)
+void string_md5encode(const char *from, void *result)
 {
 	sequence_md5encode(from, strlen(from), result);
 }

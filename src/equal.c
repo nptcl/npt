@@ -21,20 +21,20 @@
 #include "strvect.h"
 #include "structure.h"
 
-_g int atom_function(addr pos)
+int atom_function(addr pos)
 {
 	Check(pos == Unbound, "Unbound-variable");
 	return GetType(pos) != LISPTYPE_CONS;
 }
 
-_g int eq_function(addr a, addr b)
+int eq_function(addr a, addr b)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
 	return a == b;
 }
 
-_g int eq_function_(addr a, addr b, int *ret)
+int eq_function_(addr a, addr b, int *ret)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -96,7 +96,7 @@ static int eql_function_ratio(addr a, enum LISPTYPE type2, addr b)
 	}
 }
 
-_g int eql_function(addr a, addr b)
+int eql_function(addr a, addr b)
 {
 	enum LISPTYPE type1, type2;
 
@@ -147,7 +147,7 @@ _g int eql_function(addr a, addr b)
 	}
 }
 
-_g int eql_function_(addr left, addr right, int *ret)
+int eql_function_(addr left, addr right, int *ret)
 {
 	return Result(ret, eql_function(left, right));
 }
@@ -212,7 +212,7 @@ static int equal_function_pathname_(addr a, addr b, int *ret)
 	return pathname_equal_(a, b, ret);
 }
 
-_g int equal_function_(addr a, addr b, int *ret)
+int equal_function_(addr a, addr b, int *ret)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -555,7 +555,7 @@ static int equalp_function_structure_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 }
 
-_g int equalp_function_(addr a, addr b, int *ret)
+int equalp_function_(addr a, addr b, int *ret)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -856,7 +856,7 @@ static int equalrt_function_structure_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 }
 
-_g int equalrt_function_(addr a, addr b, int *ret)
+int equalrt_function_(addr a, addr b, int *ret)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -903,7 +903,7 @@ _g int equalrt_function_(addr a, addr b, int *ret)
 /*
  *  for debug
  */
-_g int equal_debug(addr left, addr right)
+int equal_debug(addr left, addr right)
 {
 	int check;
 	check = 0;
@@ -911,7 +911,7 @@ _g int equal_debug(addr left, addr right)
 	return check;
 }
 
-_g int equalp_debug(addr left, addr right)
+int equalp_debug(addr left, addr right)
 {
 	int check;
 	check = 0;
@@ -919,7 +919,7 @@ _g int equalp_debug(addr left, addr right)
 	return check;
 }
 
-_g int equalrt_debug(addr left, addr right)
+int equalrt_debug(addr left, addr right)
 {
 	int check;
 	check = 0;

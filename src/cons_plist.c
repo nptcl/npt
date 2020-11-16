@@ -6,7 +6,7 @@
 #include "function.h"
 
 /* 0:find-value, 1:not-found(Nil) */
-_g int getplist(addr plist, addr key, addr *ret)
+int getplist(addr plist, addr key, addr *ret)
 {
 	addr check;
 
@@ -25,7 +25,7 @@ _g int getplist(addr plist, addr key, addr *ret)
 	return 1;
 }
 
-_g int getplist_safe(addr plist, addr key, addr *ret)
+int getplist_safe(addr plist, addr key, addr *ret)
 {
 	addr check;
 
@@ -48,7 +48,7 @@ _g int getplist_safe(addr plist, addr key, addr *ret)
 }
 
 /* 0:find-and-set, 1:make-new-cons */
-_g int setplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+int setplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr check, cons;
 
@@ -66,18 +66,18 @@ _g int setplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *r
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-_g int setplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+int setplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_alloc(local, plist, key, value, ret);
 }
-_g int setplist_heap(addr plist, addr key, addr value, addr *ret)
+int setplist_heap(addr plist, addr key, addr value, addr *ret)
 {
 	return setplist_alloc(NULL, plist, key, value, ret);
 }
 
 /* 0:find-and-set, 1:make-new-cons */
-_g int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr check, cons;
 
@@ -99,17 +99,17 @@ _g int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, ad
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-_g int setplist_local_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+int setplist_local_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_alloc_safe(local, plist, key, value, ret);
 }
-_g int setplist_heap_safe(addr plist, addr key, addr value, addr *ret)
+int setplist_heap_safe(addr plist, addr key, addr value, addr *ret)
 {
 	return setplist_alloc_safe(NULL, plist, key, value, ret);
 }
 
-_g int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr cons, check;
 
@@ -131,17 +131,17 @@ _g int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, add
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-_g int pushnewplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+int pushnewplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnewplist_alloc(local, plist, key, value, ret);
 }
-_g int pushnewplist_heap(addr plist, addr key, addr value, addr *ret)
+int pushnewplist_heap(addr plist, addr key, addr value, addr *ret)
 {
 	return pushnewplist_alloc(NULL, plist, key, value, ret);
 }
 
-_g int remplist_safe_(addr plist, addr key, addr *value, enum RemPlist *ret)
+int remplist_safe_(addr plist, addr key, addr *value, enum RemPlist *ret)
 {
 	addr root, check;
 
@@ -175,7 +175,7 @@ _g int remplist_safe_(addr plist, addr key, addr *value, enum RemPlist *ret)
 	return Result(ret, RemPlist_NotFound);
 }
 
-_g enum RemPlist remplist_check(addr plist, addr key, addr *ret)
+enum RemPlist remplist_check(addr plist, addr key, addr *ret)
 {
 	addr root, check;
 
@@ -213,7 +213,7 @@ _g enum RemPlist remplist_check(addr plist, addr key, addr *ret)
 	return RemPlist_NotFound;
 }
 
-_g int remplist(addr plist, addr key, addr *ret)
+int remplist(addr plist, addr key, addr *ret)
 {
 	return remplist_check(plist, key, ret) == RemPlist_Update;
 }
@@ -240,27 +240,27 @@ static int remplist_alloc_(LocalRoot local, addr list, addr key, addr *value, in
 	return Result(ret, deletep);
 }
 
-_g int remplist_local_(LocalRoot local, addr list, addr key, addr *value, int *ret)
+int remplist_local_(LocalRoot local, addr list, addr key, addr *value, int *ret)
 {
 	CheckLocal(local);
 	return remplist_alloc_(local, list, key, value, ret);
 }
 
-_g int remplist_heap_(addr list, addr key, addr *value, int *ret)
+int remplist_heap_(addr list, addr key, addr *value, int *ret)
 {
 	return remplist_alloc_(NULL, list, key, value, ret);
 }
 
 
 /* 0:find-value, 1:not-found(Nil) */
-_g int getplist_constant(addr plist, constindex index, addr *ret)
+int getplist_constant(addr plist, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	Check(key == Unbound, "unbound error");
 	return getplist(plist, key, ret);
 }
-_g int getplist_constant_safe(addr plist, constindex index, addr *ret)
+int getplist_constant_safe(addr plist, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
@@ -269,33 +269,33 @@ _g int getplist_constant_safe(addr plist, constindex index, addr *ret)
 }
 
 /* 0:find-and-set, 1:make-new-cons */
-_g int setplist_constant_alloc(LocalRoot local, addr plist,
+int setplist_constant_alloc(LocalRoot local, addr plist,
 		constindex index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return setplist_alloc(local, plist, key, value, ret);
 }
-_g int setplist_constant_local(LocalRoot local, addr plist,
+int setplist_constant_local(LocalRoot local, addr plist,
 		constindex index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_constant_alloc(local, plist, index, value, ret);
 }
-_g int setplist_constant_heap(addr plist,
+int setplist_constant_heap(addr plist,
 		constindex index, addr value, addr *ret)
 {
 	return setplist_constant_alloc(NULL, plist, index, value, ret);
 }
 
-_g int remplist_constant(addr plist, constindex index, addr *ret)
+int remplist_constant(addr plist, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return remplist(plist, key, ret);
 }
 
-_g int getpplist(addr plist, addr key1, addr key2, addr *ret)
+int getpplist(addr plist, addr key1, addr key2, addr *ret)
 {
 	(void)getplist(plist, key1, &plist);
 	return getplist(plist, key2, ret);
@@ -336,18 +336,18 @@ static int setpplist_equal_alloc(LocalRoot local,
 	cons_alloc(local, ret, key1, plist);
 	return 1;
 }
-_g int setpplist_alloc(LocalRoot local,
+int setpplist_alloc(LocalRoot local,
 		addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	return setpplist_equal_alloc(local, plist, key1, key2, value, ret, eq_function);
 }
-_g int setpplist_local(LocalRoot local,
+int setpplist_local(LocalRoot local,
 		addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setpplist_alloc(local, plist, key1, key2, value, ret);
 }
-_g int setpplist_heap(addr plist, addr key1, addr key2, addr value, addr *ret)
+int setpplist_heap(addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	return setpplist_alloc(NULL, plist, key1, key2, value, ret);
 }
@@ -366,7 +366,7 @@ static int equal_callname_plist(addr x, addr y)
 		&& equal_callname(x, y);
 }
 
-_g int getplist_callname(addr plist, addr callname, addr *ret)
+int getplist_callname(addr plist, addr callname, addr *ret)
 {
 	addr check;
 
@@ -385,7 +385,7 @@ _g int getplist_callname(addr plist, addr callname, addr *ret)
 	return 1;
 }
 
-_g int setplist_callname_alloc(LocalRoot local,
+int setplist_callname_alloc(LocalRoot local,
 		addr plist, addr callname, addr value, addr *ret)
 {
 	addr check, cons;
@@ -405,18 +405,18 @@ _g int setplist_callname_alloc(LocalRoot local,
 	return 1;
 }
 
-_g int setplist_callname_local(LocalRoot local,
+int setplist_callname_local(LocalRoot local,
 		addr plist, addr callname, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_callname_alloc(local, plist, callname, value, ret);
 }
-_g int setplist_callname_heap(addr plist, addr callname, addr value, addr *ret)
+int setplist_callname_heap(addr plist, addr callname, addr value, addr *ret)
 {
 	return setplist_callname_alloc(NULL, plist, callname, value, ret);
 }
 
-_g int pushnewplist_callname_alloc(LocalRoot local,
+int pushnewplist_callname_alloc(LocalRoot local,
 		addr plist, addr key, addr callname, addr *ret)
 {
 	addr cons, check;
@@ -439,37 +439,37 @@ _g int pushnewplist_callname_alloc(LocalRoot local,
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-_g int pushnewplist_callname_local(LocalRoot local,
+int pushnewplist_callname_local(LocalRoot local,
 		addr plist, addr key, addr callname, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnewplist_callname_alloc(local, plist, key, callname, ret);
 }
-_g int pushnewplist_callname_heap(addr plist,
+int pushnewplist_callname_heap(addr plist,
 		addr key, addr callname, addr *ret)
 {
 	return pushnewplist_callname_alloc(NULL, plist, key, callname, ret);
 }
 
-_g int getpplist_callname(addr plist, addr key, addr callname, addr *ret)
+int getpplist_callname(addr plist, addr key, addr callname, addr *ret)
 {
 	(void)getplist(plist, key, &plist);
 	return getplist_callname(plist, callname, ret);
 }
 
-_g int setpplist_callname_alloc(LocalRoot local,
+int setpplist_callname_alloc(LocalRoot local,
 		addr plist, addr key, addr callname, addr value, addr *ret)
 {
 	return setpplist_equal_alloc(local, plist, key, callname, value, ret,
 			equal_callname_plist);
 }
-_g int setpplist_callname_local(LocalRoot local,
+int setpplist_callname_local(LocalRoot local,
 		addr plist, addr key, addr callname, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setpplist_callname_alloc(local, plist, key, callname, value, ret);
 }
-_g int setpplist_callname_heap(addr plist,
+int setpplist_callname_heap(addr plist,
 		addr key, addr callname, addr value, addr *ret)
 {
 	return setpplist_callname_alloc(NULL, plist, key, callname, value, ret);

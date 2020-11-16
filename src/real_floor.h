@@ -12,13 +12,13 @@
 #define ffloor_common_ _n(ffloor_common_)
 #define mod_rational_common_ _n(mod_rational_common_)
 
-_g int floor1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
-_g int floor2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-_g int floor_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
-_g int ffloor1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
-_g int ffloor2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-_g int ffloor_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
-_g int mod_rational_common_(LocalRoot local, addr left, addr right, addr *ret);
+int floor1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
+int floor2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+int floor_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
+int ffloor1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
+int ffloor2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+int ffloor_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
+int mod_rational_common_(LocalRoot local, addr left, addr right, addr *ret);
 
 #endif
 

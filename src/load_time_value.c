@@ -17,18 +17,18 @@
 /*
  *  load-time-value
  */
-_g void load_time_value_heap(addr *ret)
+void load_time_value_heap(addr *ret)
 {
 	heap_array2(ret, LISPTYPE_LOAD_TIME_VALUE, 1);
 }
 
-_g void get_load_time_value_heap(addr pos, addr *ret)
+void get_load_time_value_heap(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	GetArrayA2(pos, 0, ret);
 }
 
-_g void set_load_time_value_heap(addr pos, addr value)
+void set_load_time_value_heap(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	SetArrayA2(pos, 0, value);
@@ -50,7 +50,7 @@ static int get_load_time_value_symbol_(Execute ptr, addr *ret)
 	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
-_g void set_load_time_value_symbol(Execute ptr, addr value)
+void set_load_time_value_symbol(Execute ptr, addr value)
 {
 	addr symbol;
 	load_time_value_symbol(&symbol);
@@ -61,14 +61,14 @@ _g void set_load_time_value_symbol(Execute ptr, addr value)
 /*
  *  parse
  */
-_g void init_parse_load_time_value(Execute ptr)
+void init_parse_load_time_value(Execute ptr)
 {
 	addr symbol;
 	load_time_value_symbol(&symbol);
 	pushspecial_control(ptr, symbol, Nil);
 }
 
-_g int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos)
+int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos)
 {
 	addr eval;
 
@@ -83,7 +83,7 @@ _g int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos)
 	return Result(ret, eval);
 }
 
-_g int parse_load_time_value(Execute ptr, addr *ret, addr form)
+int parse_load_time_value(Execute ptr, addr *ret, addr form)
 {
 	addr args, eval, expr, readonly;
 
@@ -160,7 +160,7 @@ static void copy_eval_load_time_value_expr(LocalRoot local, addr *ret, addr eval
 	*ret = eval;
 }
 
-_g void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
+void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
 	addr check;
@@ -178,7 +178,7 @@ _g void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
 /*
  *  scope
  */
-_g void init_scope_load_time_value(Execute ptr)
+void init_scope_load_time_value(Execute ptr)
 {
 	addr symbol;
 	load_time_value_symbol(&symbol);
@@ -253,7 +253,7 @@ static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
 	return Result(ret, eval);
 }
 
-_g int scope_load_time_value(Execute ptr, addr *ret, addr eval)
+int scope_load_time_value(Execute ptr, addr *ret, addr eval)
 {
 	addr check;
 
@@ -269,7 +269,7 @@ _g int scope_load_time_value(Execute ptr, addr *ret, addr eval)
 /*
  *  execute
  */
-_g void execute_load_time_value_bind(Execute ptr, addr pos)
+void execute_load_time_value_bind(Execute ptr, addr pos)
 {
 	addr value;
 
@@ -278,14 +278,14 @@ _g void execute_load_time_value_bind(Execute ptr, addr pos)
 	set_load_time_value_heap(pos, value);
 }
 
-_g void execute_load_time_value_init(Execute ptr, addr pos)
+void execute_load_time_value_init(Execute ptr, addr pos)
 {
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	get_load_time_value_heap(pos, &pos);
 	pushargs_control(ptr, pos);
 }
 
-_g void execute_load_time_value_get(Execute ptr, addr pos, addr *ret)
+void execute_load_time_value_get(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	get_load_time_value_heap(pos, ret);

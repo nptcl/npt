@@ -568,7 +568,7 @@ static int load_data(filestream fm)
 
 
 /* save/load info */
-_g int save_heap(filestream fm)
+int save_heap(filestream fm)
 {
 	if (save_data(fm)) {
 		Debug("save_data error.");
@@ -581,7 +581,7 @@ _g int save_heap(filestream fm)
 
 	return 0;
 }
-_g int load_heap(filestream fm)
+int load_heap(filestream fm)
 {
 	if (load_store_init()) {
 		Debug("load_store_init error.");
@@ -606,7 +606,7 @@ _g int load_heap(filestream fm)
 /*
  *  initialize
  */
-_g void init_heap_core(void)
+void init_heap_core(void)
 {
 	/* save-object */
 	Heap_SaveObject[LISPSIZE_ARRAY2] = save_object_array2;

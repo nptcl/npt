@@ -8,10 +8,10 @@
 #define get_concatenated_stream _n(get_concatenated_stream)
 #define init_stream_concatenated _n(init_stream_concatenated)
 
-_g int open_concatenated_stream_(addr *stream, addr list);
-_g void push_concatenated_stream(addr stream, addr input);
-_g void get_concatenated_stream(addr stream, addr *ret);
-_g void init_stream_concatenated(void);
+int open_concatenated_stream_(addr *stream, addr list);
+void push_concatenated_stream(addr stream, addr input);
+void get_concatenated_stream(addr stream, addr *ret);
+void init_stream_concatenated(void);
 
 #endif
 

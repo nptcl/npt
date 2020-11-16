@@ -20,7 +20,7 @@
 /*
  *  arguments
  */
-_g void setargs_nil_control(Execute ptr)
+void setargs_nil_control(Execute ptr)
 {
 	addr root;
 
@@ -30,7 +30,7 @@ _g void setargs_nil_control(Execute ptr)
 	SetControl(root, Control_ConsTail, Nil);
 }
 
-_g void setargs_va_control(Execute ptr, ...)
+void setargs_va_control(Execute ptr, ...)
 {
 	addr pos;
 	va_list args;
@@ -56,13 +56,13 @@ static void pushargs_list_control(Execute ptr, addr list)
 	}
 }
 
-_g void setargs_list_control(Execute ptr, addr list)
+void setargs_list_control(Execute ptr, addr list)
 {
 	setargs_nil_control(ptr);
 	pushargs_list_control(ptr, list);
 }
 
-_g void pushargs_control(Execute ptr, addr value)
+void pushargs_control(Execute ptr, addr value)
 {
 	addr root, cons, next;
 
@@ -81,7 +81,7 @@ _g void pushargs_control(Execute ptr, addr value)
 	}
 }
 
-_g int popargs_control_(Execute ptr, addr *ret)
+int popargs_control_(Execute ptr, addr *ret)
 {
 	addr control, list;
 
@@ -98,7 +98,7 @@ _g int popargs_control_(Execute ptr, addr *ret)
 	return 0;
 }
 
-_g void getargs_control(Execute ptr, size_t index, addr *ret)
+void getargs_control(Execute ptr, size_t index, addr *ret)
 {
 	addr root;
 
@@ -107,7 +107,7 @@ _g void getargs_control(Execute ptr, size_t index, addr *ret)
 	getnth_unbound_unsafe(root, index, ret);
 }
 
-_g void getargs_tail_control(Execute ptr, addr *ret)
+void getargs_tail_control(Execute ptr, addr *ret)
 {
 	addr cons;
 
@@ -115,7 +115,7 @@ _g void getargs_tail_control(Execute ptr, addr *ret)
 	GetCar(cons, ret);
 }
 
-_g void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret)
+void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret)
 {
 	addr root;
 
@@ -124,7 +124,7 @@ _g void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret)
 	getnthcdr_unsafe(root, index, ret);
 }
 
-_g void getargs_list_control_heap(Execute ptr, size_t index, addr *ret)
+void getargs_list_control_heap(Execute ptr, size_t index, addr *ret)
 {
 	addr cons;
 
@@ -132,7 +132,7 @@ _g void getargs_list_control_heap(Execute ptr, size_t index, addr *ret)
 	copy_list_heap_unsafe(ret, cons);
 }
 
-_g void pushargs_allvalues(Execute ptr)
+void pushargs_allvalues(Execute ptr)
 {
 	int check;
 	addr *values, pos, list;
@@ -160,7 +160,7 @@ _g void pushargs_allvalues(Execute ptr)
 /*
  *  flow control
  */
-_g int goto_control_(Execute ptr, size_t point)
+int goto_control_(Execute ptr, size_t point)
 {
 	struct control_struct *str;
 
@@ -170,7 +170,7 @@ _g int goto_control_(Execute ptr, size_t point)
 	return 0;
 }
 
-_g int go_control_(Execute ptr, addr pos)
+int go_control_(Execute ptr, addr pos)
 {
 	struct taginfo_struct *str;
 
@@ -191,7 +191,7 @@ _g int go_control_(Execute ptr, addr pos)
 	return 1;
 }
 
-_g int return_from_control_(Execute ptr, addr pos)
+int return_from_control_(Execute ptr, addr pos)
 {
 	struct taginfo_struct *str;
 
@@ -211,7 +211,7 @@ _g int return_from_control_(Execute ptr, addr pos)
 	return 1;
 }
 
-_g void catch_control(Execute ptr, addr name)
+void catch_control(Execute ptr, addr name)
 {
 	setcatch_control(ptr->local, ptr->control, name);
 }
@@ -234,7 +234,7 @@ static int throw_find_control(Execute ptr, addr *ret, addr name)
 	return 0;
 }
 
-_g int throw_control_(Execute ptr, addr name)
+int throw_control_(Execute ptr, addr name)
 {
 	addr next;
 
@@ -253,7 +253,7 @@ _g int throw_control_(Execute ptr, addr name)
 /*
  *  handler
  */
-_g int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
+int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
 {
 	int check;
 	addr pos;
@@ -272,7 +272,7 @@ _g int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
 	return 0;
 }
 
-_g void reverse_handler_control(Execute ptr)
+void reverse_handler_control(Execute ptr)
 {
 	addr control, list;
 
@@ -282,7 +282,7 @@ _g void reverse_handler_control(Execute ptr)
 	sethandler_control(ptr->local, control, list);
 }
 
-_g void pushbind_restart_control(Execute ptr, addr list, int escape)
+void pushbind_restart_control(Execute ptr, addr list, int escape)
 {
 	addr name, form, inter, report, test, pos;
 
@@ -299,7 +299,7 @@ _g void pushbind_restart_control(Execute ptr, addr list, int escape)
 	pushrestart_control(ptr, pos);
 }
 
-_g void reverse_restart_control(Execute ptr)
+void reverse_restart_control(Execute ptr)
 {
 	addr control, list;
 
@@ -313,7 +313,7 @@ _g void reverse_restart_control(Execute ptr)
 /*
  *  find-condition
  */
-_g int find_condition_control_(Execute ptr, addr instance, int *ret)
+int find_condition_control_(Execute ptr, addr instance, int *ret)
 {
 	int check;
 	addr control, list, pos;
@@ -368,7 +368,7 @@ static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 	return check;
 }
 
-_g int invoke_handler_control_(Execute ptr, addr instance)
+int invoke_handler_control_(Execute ptr, addr instance)
 {
 	int check;
 	addr next, list, pos;
@@ -423,7 +423,7 @@ static int rollback_restart_control_(addr control, addr restart, addr *ret)
 	return fmte_("The restart ~S is invalid.", restart, NULL);
 }
 
-_g int invoke_restart_control_(Execute ptr, addr restart, addr args)
+int invoke_restart_control_(Execute ptr, addr restart, addr args)
 {
 	int escape;
 	addr call, next;
@@ -451,7 +451,7 @@ _g int invoke_restart_control_(Execute ptr, addr restart, addr args)
 	return 0;
 }
 
-_g int invoke_restart_interactively_control_(Execute ptr, addr restart)
+int invoke_restart_interactively_control_(Execute ptr, addr restart)
 {
 	addr args;
 
@@ -528,7 +528,7 @@ static int find_restart_stack_(Execute ptr,
 	return Result(ret, 0);
 }
 
-_g int find_restart_control_(Execute ptr,
+int find_restart_control_(Execute ptr,
 		addr name, addr condition, addr *value, int *ret)
 {
 	int check;
@@ -569,7 +569,7 @@ _g int find_restart_control_(Execute ptr,
 	return find_restart_stack_(ptr, name, condition, value, ret);
 }
 
-_g int find_restart_control_error_(Execute ptr, addr name, addr condition, addr *ret)
+int find_restart_control_error_(Execute ptr, addr name, addr condition, addr *ret)
 {
 	int check;
 
@@ -580,7 +580,7 @@ _g int find_restart_control_error_(Execute ptr, addr name, addr condition, addr 
 	return 0;
 }
 
-_g int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
+int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
 {
 	int check;
 	addr control, root, list, restart;
@@ -660,7 +660,7 @@ static int restart_call_control(struct restart_call *str,
 }
 
 /* restart */
-_g int restart_control(Execute ptr, int (*call)(Execute, void *), void *voidp)
+int restart_control(Execute ptr, int (*call)(Execute, void *), void *voidp)
 {
 	return restart0_control(ptr, NULL, call, voidp);
 }
@@ -671,7 +671,7 @@ static int restart0_control_adaptor(struct restart_call *str)
 	return (str->u.call_0)(str->ptr, str->voidp);
 }
 
-_g int restart0_control(Execute ptr, addr restart,
+int restart0_control(Execute ptr, addr restart,
 		int (*call)(Execute, void *), void *voidp)
 {
 	struct restart_call str;
@@ -689,7 +689,7 @@ static int restart1_control_adaptor(struct restart_call *str)
 	return (str->u.call_1)(str->ptr, str->args[0]);
 }
 
-_g int restart1_control(Execute ptr, addr restart,
+int restart1_control(Execute ptr, addr restart,
 		int (*call)(Execute, addr), addr v1)
 {
 	struct restart_call str;
@@ -707,7 +707,7 @@ static int restart1r_control_adaptor(struct restart_call *str)
 	return (str->u.call_1r)(str->ptr, str->args[0], str->ret);
 }
 
-_g int restart1r_control(Execute ptr, addr restart,
+int restart1r_control(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr *), addr v1, addr *ret)
 {
 	struct restart_call str;
@@ -726,7 +726,7 @@ static int restart2_control_adaptor(struct restart_call *str)
 	return (str->u.call_2)(str->ptr, str->args[0], str->args[1]);
 }
 
-_g int restart2_control(Execute ptr, addr restart,
+int restart2_control(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr), addr v1, addr v2)
 {
 	struct restart_call str;
@@ -743,7 +743,7 @@ _g int restart2_control(Execute ptr, addr restart,
 /*
  *  code
  */
-_g void set_taginfo_control(Execute ptr, addr list)
+void set_taginfo_control(Execute ptr, addr list)
 {
 	addr control, pos, name, jump, lexical;
 	size_t index;
@@ -760,7 +760,7 @@ _g void set_taginfo_control(Execute ptr, addr list)
 	}
 }
 
-_g void set_blockinfo_control(Execute ptr, addr pos)
+void set_blockinfo_control(Execute ptr, addr pos)
 {
 	addr name, lexical;
 	size_t index;
@@ -772,7 +772,7 @@ _g void set_blockinfo_control(Execute ptr, addr pos)
 	pushtaginfo_control(ptr, pos);
 }
 
-_g void set_protect_control(Execute ptr, addr pos)
+void set_protect_control(Execute ptr, addr pos)
 {
 	setprotect_value_control(ptr->control, pos);
 }
@@ -781,7 +781,7 @@ _g void set_protect_control(Execute ptr, addr pos)
 /*
  *  catch / throw
  */
-_g int catch_clang(Execute ptr, pointer call, addr tag, addr value)
+int catch_clang(Execute ptr, pointer call, addr tag, addr value)
 {
 	addr pos, control;
 

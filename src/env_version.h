@@ -16,16 +16,16 @@
 #define software_version_common _n(software_version_common)
 #define user_homedir_pathname_common _n(user_homedir_pathname_common)
 
-_g void implementation_type_common(addr *ret);
-_g void implementation_version_common(addr *ret);
-_g int short_site_name_common(addr *ret);
-_g int long_site_name_common(addr *ret);
-_g int machine_instance_common(addr *ret);
-_g int machine_type_common(addr *ret);
-_g int machine_version_common(addr *ret);
-_g int software_type_common(addr *ret);
-_g int software_version_common(addr *ret);
-_g int user_homedir_pathname_common(Execute ptr, addr *ret);
+void implementation_type_common(addr *ret);
+void implementation_version_common(addr *ret);
+int short_site_name_common(addr *ret);
+int long_site_name_common(addr *ret);
+int machine_instance_common(addr *ret);
+int machine_type_common(addr *ret);
+int machine_version_common(addr *ret);
+int software_type_common(addr *ret);
+int software_version_common(addr *ret);
+int user_homedir_pathname_common(Execute ptr, addr *ret);
 
 #endif
 

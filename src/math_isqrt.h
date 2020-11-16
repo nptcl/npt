@@ -6,7 +6,7 @@
 #include "typedef.h"
 
 #define isqrt_number_common_ _n(isqrt_number_common_)
-_g int isqrt_number_common_(LocalRoot local, addr var, addr *ret);
+int isqrt_number_common_(LocalRoot local, addr var, addr *ret);
 
 #endif
 

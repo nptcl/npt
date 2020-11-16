@@ -26,7 +26,7 @@
 /*
  *  integer (fixnum, bignum)
  */
-_g int getchar_digit(unsigned v, int upperp, unicode *ret)
+int getchar_digit(unsigned v, int upperp, unicode *ret)
 {
 	if (IntegerBaseMax < v)
 		return 1;
@@ -38,7 +38,7 @@ _g int getchar_digit(unsigned v, int upperp, unicode *ret)
 	return 0;
 }
 
-_g int getvalue_digit(unsigned base, unicode c, unsigned *ret)
+int getvalue_digit(unsigned base, unicode c, unsigned *ret)
 {
 	unsigned value;
 
@@ -62,7 +62,7 @@ _g int getvalue_digit(unsigned base, unicode c, unsigned *ret)
 	return 0;
 }
 
-_g unicode checkchar_digit(unsigned v, int upperp)
+unicode checkchar_digit(unsigned v, int upperp)
 {
 	unicode value;
 
@@ -74,7 +74,7 @@ _g unicode checkchar_digit(unsigned v, int upperp)
 	return value;
 }
 
-_g unsigned checkvalue_digit(unsigned base, unicode c)
+unsigned checkvalue_digit(unsigned base, unicode c)
 {
 	unsigned value;
 
@@ -86,7 +86,7 @@ _g unsigned checkvalue_digit(unsigned base, unicode c)
 	return value;
 }
 
-_g void maketoken_integer(LocalRoot local, addr queue, unsigned base, addr *ret)
+void maketoken_integer(LocalRoot local, addr queue, unsigned base, addr *ret)
 {
 	int sign;
 	size_t i, m, size, max;
@@ -385,7 +385,7 @@ final:
 	return makefloat_(ptr, sign, fract, (int)v, type, ret);
 }
 
-_g int maketoken_float_(Execute ptr, addr queue, addr *ret)
+int maketoken_float_(Execute ptr, addr queue, addr *ret)
 {
 	const unicode *body;
 	size_t size;
@@ -403,7 +403,7 @@ _g int maketoken_float_(Execute ptr, addr queue, addr *ret)
 /*
  *  ratio: [-+]?\\d+/\\d+
  */
-_g void maketoken_ratio(LocalRoot local, addr queue, unsigned base, addr *ret)
+void maketoken_ratio(LocalRoot local, addr queue, unsigned base, addr *ret)
 {
 	int sign;
 	size_t i, m, size, max;

@@ -28,22 +28,22 @@ struct lambda_struct {
 	EvalParse eval;
 };
 
-_g void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp);
+void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp);
 
-_g int scope_function_call(Execute ptr, addr *ret, addr eval);
-_g void lambda_lexical_heap(addr stack, addr *ret);
-_g void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str);
-_g int scope_lambda_call(Execute ptr, addr *ret, addr eval);
-_g int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret);
-_g int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret);
-_g int scope_deftype_call(Execute ptr, struct lambda_struct *str, addr *ret);
-_g int scope_define_compiler_macro_call(Execute ptr,
+int scope_function_call(Execute ptr, addr *ret, addr eval);
+void lambda_lexical_heap(addr stack, addr *ret);
+void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str);
+int scope_lambda_call(Execute ptr, addr *ret, addr eval);
+int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret);
+int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret);
+int scope_deftype_call(Execute ptr, struct lambda_struct *str, addr *ret);
+int scope_define_compiler_macro_call(Execute ptr,
 		struct lambda_struct *str, addr *ret);
-_g int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args);
+int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args);
 
-_g int scope_flet_call(Execute ptr, struct let_struct *str);
-_g int scope_labels_call(Execute ptr, struct let_struct *str);
-_g int scope_call_call(Execute ptr, addr first, addr args, addr *ret);
+int scope_flet_call(Execute ptr, struct let_struct *str);
+int scope_labels_call(Execute ptr, struct let_struct *str);
+int scope_call_call(Execute ptr, addr first, addr args, addr *ret);
 
 #endif
 

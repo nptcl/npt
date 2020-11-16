@@ -52,33 +52,33 @@ enum PACKAGE_TYPE {
 #define GetPackage      GetArrayA2
 #define SetPackage      SetArrayA2
 
-_g int packagep(addr pos);
+int packagep(addr pos);
 
-_g int getname_package_(addr pos, addr *ret);
-_g int getnickname_package_(addr pos, addr *ret);
-_g int getuselist_package_(addr pos, addr *ret);
-_g int getusedbylist_package_(addr pos, addr *ret);
-_g int getshadow_package_(addr pos, addr *ret);
-_g void getdocument_package(addr pos, addr *ret);
-_g void setdocument_package(addr pos, addr value);
+int getname_package_(addr pos, addr *ret);
+int getnickname_package_(addr pos, addr *ret);
+int getuselist_package_(addr pos, addr *ret);
+int getusedbylist_package_(addr pos, addr *ret);
+int getshadow_package_(addr pos, addr *ret);
+void getdocument_package(addr pos, addr *ret);
+void setdocument_package(addr pos, addr value);
 
-_g void getname_package_unsafe(addr pos, addr *ret);
-_g void getnickname_package_unsafe(addr pos, addr *ret);
-_g void getuselist_package_unsafe(addr pos, addr *ret);
-_g void getusedbylist_package_unsafe(addr pos, addr *ret);
-_g void getshadow_package_unsafe(addr pos, addr *ret);
-_g void getexport_package_unsafe(addr pos, addr *ret);
+void getname_package_unsafe(addr pos, addr *ret);
+void getnickname_package_unsafe(addr pos, addr *ret);
+void getuselist_package_unsafe(addr pos, addr *ret);
+void getusedbylist_package_unsafe(addr pos, addr *ret);
+void getshadow_package_unsafe(addr pos, addr *ret);
+void getexport_package_unsafe(addr pos, addr *ret);
 
 /* package list */
-_g void push_list_nicknames_package(addr package, addr pos);
-_g void push_list_use_package(addr package, addr pos);
-_g void push_list_used_package(addr package, addr pos);
-_g int push_list_export_package_(addr package, addr name);
-_g int push_list_shadow_package_(addr package, addr symbol);
-_g void delete_list_use_package(addr package, addr pos);
-_g void delete_list_used_package(addr package, addr pos);
-_g int delete_list_export_package_(addr package, addr name);
-_g int delete_list_shadow_package_(addr package, addr symbol);
+void push_list_nicknames_package(addr package, addr pos);
+void push_list_use_package(addr package, addr pos);
+void push_list_used_package(addr package, addr pos);
+int push_list_export_package_(addr package, addr name);
+int push_list_shadow_package_(addr package, addr symbol);
+void delete_list_use_package(addr package, addr pos);
+void delete_list_used_package(addr package, addr pos);
+int delete_list_export_package_(addr package, addr name);
+int delete_list_shadow_package_(addr package, addr symbol);
 
 #endif
 

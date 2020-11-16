@@ -606,145 +606,145 @@ enum LISPSTATUS {
 /*
  *  type
  */
-_g enum LISPTYPE gettype(addr pos);
+enum LISPTYPE gettype(addr pos);
 
 
 /*
  *  size class
  */
-_g size_t getobjectlength(addr pos);
-_g size_t getmemorylength(addr pos);
-_g int valid_header(addr pos);
+size_t getobjectlength(addr pos);
+size_t getmemorylength(addr pos);
+int valid_header(addr pos);
 
 
 /*
  *  Memory Access
  */
-_g void lenarrayA2(addr pos, size_t *ret);
-_g void lenarraySS(addr pos, size_t *ret);
-_g void lenarrayA4(addr pos, size_t *ret);
-_g void lenarrayAB(addr pos, size_t *ret);
-_g void lenarray(addr pos, size_t *ret);
+void lenarrayA2(addr pos, size_t *ret);
+void lenarraySS(addr pos, size_t *ret);
+void lenarrayA4(addr pos, size_t *ret);
+void lenarrayAB(addr pos, size_t *ret);
+void lenarray(addr pos, size_t *ret);
 #ifdef LISP_ARCH_64BIT
-_g void lenarrayA8(addr pos, size_t *ret);
+void lenarrayA8(addr pos, size_t *ret);
 #endif
 
-_g size_t lenarrayA2r(addr pos);
-_g size_t lenarraySSr(addr pos);
-_g size_t lenarrayA4r(addr pos);
-_g size_t lenarrayABr(addr pos);
-_g size_t lenarrayr(addr pos);
+size_t lenarrayA2r(addr pos);
+size_t lenarraySSr(addr pos);
+size_t lenarrayA4r(addr pos);
+size_t lenarrayABr(addr pos);
+size_t lenarrayr(addr pos);
 #ifdef LISP_ARCH_64BIT
-_g size_t lenarrayA8r(addr pos);
+size_t lenarrayA8r(addr pos);
 #endif
 
-_g void lenbodyB2(addr pos, size_t *ret);
-_g void lenbodySS(addr pos, size_t *ret);
-_g void lenbodyB4(addr pos, size_t *ret);
-_g void lenbodyAB(addr pos, size_t *ret);
-_g void lenbody(addr pos, size_t *ret);
+void lenbodyB2(addr pos, size_t *ret);
+void lenbodySS(addr pos, size_t *ret);
+void lenbodyB4(addr pos, size_t *ret);
+void lenbodyAB(addr pos, size_t *ret);
+void lenbody(addr pos, size_t *ret);
 #ifdef LISP_ARCH_64BIT
-_g void lenbodyB8(addr pos, size_t *ret);
+void lenbodyB8(addr pos, size_t *ret);
 #endif
 
-_g size_t lenbodyB2r(addr pos);
-_g size_t lenbodySSr(addr pos);
-_g size_t lenbodyB4r(addr pos);
-_g size_t lenbodyABr(addr pos);
-_g size_t lenbodyr(addr pos);
+size_t lenbodyB2r(addr pos);
+size_t lenbodySSr(addr pos);
+size_t lenbodyB4r(addr pos);
+size_t lenbodyABr(addr pos);
+size_t lenbodyr(addr pos);
 #ifdef LISP_ARCH_64BIT
-_g size_t lenbodyB8r(addr pos);
+size_t lenbodyB8r(addr pos);
 #endif
 
-_g void posbodySSa(addr pos, size_t array, addr *ret);
-_g void posbodyABa(addr pos, size_t array, addr *ret);
-_g void posbodyB2(addr pos, addr *ret);
-_g void posbodySS(addr pos, addr *ret);
-_g void posbodyB4(addr pos, addr *ret);
-_g void posbodyAB(addr pos, addr *ret);
-_g void posbody(addr pos, addr *ret);
+void posbodySSa(addr pos, size_t array, addr *ret);
+void posbodyABa(addr pos, size_t array, addr *ret);
+void posbodyB2(addr pos, addr *ret);
+void posbodySS(addr pos, addr *ret);
+void posbodyB4(addr pos, addr *ret);
+void posbodyAB(addr pos, addr *ret);
+void posbody(addr pos, addr *ret);
 #ifdef LISP_ARCH_64BIT
-_g void posbodyB8(addr pos, addr *ret);
+void posbodyB8(addr pos, addr *ret);
 #endif
 
-_g addr posbodySSar(addr pos, size_t array);
-_g addr posbodyABar(addr pos, size_t array);
-_g addr posbodyB2r(addr pos);
-_g addr posbodySSr(addr pos);
-_g addr posbodyB4r(addr pos);
-_g addr posbodyABr(addr pos);
-_g addr posbodyr(addr pos);
+addr posbodySSar(addr pos, size_t array);
+addr posbodyABar(addr pos, size_t array);
+addr posbodyB2r(addr pos);
+addr posbodySSr(addr pos);
+addr posbodyB4r(addr pos);
+addr posbodyABr(addr pos);
+addr posbodyr(addr pos);
 #ifdef LISP_ARCH_64BIT
-_g addr posbodyB8r(addr pos);
+addr posbodyB8r(addr pos);
 #endif
 
-_g void posbodylenSSa(addr pos, size_t array, addr *body, size_t *len);
-_g void posbodylenABa(addr pos, size_t array, addr *body, size_t *len);
-_g void posbodylenB2(addr pos, addr *body, size_t *len);
-_g void posbodylenSS(addr pos, addr *body, size_t *len);
-_g void posbodylenB4(addr pos, addr *body, size_t *len);
-_g void posbodylenAB(addr pos, addr *body, size_t *len);
-_g void posbodylen(addr pos, addr *body, size_t *len);
+void posbodylenSSa(addr pos, size_t array, addr *body, size_t *len);
+void posbodylenABa(addr pos, size_t array, addr *body, size_t *len);
+void posbodylenB2(addr pos, addr *body, size_t *len);
+void posbodylenSS(addr pos, addr *body, size_t *len);
+void posbodylenB4(addr pos, addr *body, size_t *len);
+void posbodylenAB(addr pos, addr *body, size_t *len);
+void posbodylen(addr pos, addr *body, size_t *len);
 #ifdef LISP_ARCH_64BIT
-_g void posbodylenB8(addr pos, addr *body, size_t *len);
+void posbodylenB8(addr pos, addr *body, size_t *len);
 #endif
 
-_g void getarrayA2(addr pos, size_t index, addr *ret);
-_g void getarraySS(addr pos, size_t index, addr *ret);
-_g void getarrayA4(addr pos, size_t index, addr *ret);
-_g void getarrayAB(addr pos, size_t index, addr *ret);
-_g void getarray(addr pos, size_t index, addr *ret);
+void getarrayA2(addr pos, size_t index, addr *ret);
+void getarraySS(addr pos, size_t index, addr *ret);
+void getarrayA4(addr pos, size_t index, addr *ret);
+void getarrayAB(addr pos, size_t index, addr *ret);
+void getarray(addr pos, size_t index, addr *ret);
 #ifdef LISP_ARCH_64BIT
-_g void getarrayA8(addr pos, size_t index, addr *ret);
+void getarrayA8(addr pos, size_t index, addr *ret);
 #endif
 
-_g addr refarrayA2(addr pos, size_t index);
-_g addr refarraySS(addr pos, size_t index);
-_g addr refarrayA4(addr pos, size_t index);
-_g addr refarrayAB(addr pos, size_t index);
-_g addr refarray(addr pos, size_t index);
+addr refarrayA2(addr pos, size_t index);
+addr refarraySS(addr pos, size_t index);
+addr refarrayA4(addr pos, size_t index);
+addr refarrayAB(addr pos, size_t index);
+addr refarray(addr pos, size_t index);
 #ifdef LISP_ARCH_64BIT
-_g addr refarrayA8(addr pos, size_t index);
+addr refarrayA8(addr pos, size_t index);
 #endif
 
-_g int checkdynamic(addr pos, addr value);
+int checkdynamic(addr pos, addr value);
 #define CheckDynamic(p,v) { \
 	Check(checkdynamic((p), (v)), "dynamic error"); \
 }
-_g void setarray_chain(addr *ptr, addr value);
-_g void setarrayA2(addr pos, size_t index, addr ret);
-_g void setarraySS(addr pos, size_t index, addr ret);
-_g void setarrayA4(addr pos, size_t index, addr ret);
-_g void setarrayAB(addr pos, size_t index, addr ret);
-_g void setarray(addr pos, size_t index, addr ret);
+void setarray_chain(addr *ptr, addr value);
+void setarrayA2(addr pos, size_t index, addr ret);
+void setarraySS(addr pos, size_t index, addr ret);
+void setarrayA4(addr pos, size_t index, addr ret);
+void setarrayAB(addr pos, size_t index, addr ret);
+void setarray(addr pos, size_t index, addr ret);
 #ifdef LISP_ARCH_64BIT
-_g void setarrayA8(addr pos, size_t index, addr ret);
+void setarrayA8(addr pos, size_t index, addr ret);
 #endif
 
-_g void setarrayA2_force(addr pos, size_t index, addr ret);
-_g void setarraySS_force(addr pos, size_t index, addr ret);
-_g void setarrayA4_force(addr pos, size_t index, addr ret);
-_g void setarrayAB_force(addr pos, size_t index, addr ret);
+void setarrayA2_force(addr pos, size_t index, addr ret);
+void setarraySS_force(addr pos, size_t index, addr ret);
+void setarrayA4_force(addr pos, size_t index, addr ret);
+void setarrayAB_force(addr pos, size_t index, addr ret);
 #ifdef LISP_ARCH_64BIT
-_g void setarrayA8_force(addr pos, size_t index, addr ret);
+void setarrayA8_force(addr pos, size_t index, addr ret);
 #endif
 
 
 /*
  *  Object
  */
-_g void nilarray2(addr pos, size_t size);
-_g void nilarray4(addr pos, size_t size);
+void nilarray2(addr pos, size_t size);
+void nilarray4(addr pos, size_t size);
 #ifdef LISP_ARCH_64BIT
-_g void nilarray8(addr pos, size_t size);
+void nilarray8(addr pos, size_t size);
 #endif
-_g void unboundarray2(addr pos, size_t size);
-_g void unboundarray4(addr pos, size_t size);
+void unboundarray2(addr pos, size_t size);
+void unboundarray4(addr pos, size_t size);
 #ifdef LISP_ARCH_64BIT
-_g void unboundarray8(addr pos, size_t size);
+void unboundarray8(addr pos, size_t size);
 #endif
 
-_g size_t size_split(size_t size);
+size_t size_split(size_t size);
 
 #endif
 

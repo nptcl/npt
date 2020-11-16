@@ -1,7 +1,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-_g int getwidth_console(size_t *ret)
+int getwidth_console(size_t *ret)
 {
 	struct winsize ws;
 

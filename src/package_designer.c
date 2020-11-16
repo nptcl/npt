@@ -17,12 +17,12 @@
 /*
  *  check
  */
-_g int package_designer_p(addr pos)
+int package_designer_p(addr pos)
 {
 	return packagep(pos) || string_designer_p(pos);
 }
 
-_g int package_designer_equal_(addr left, addr right, int *ret)
+int package_designer_equal_(addr left, addr right, int *ret)
 {
 	if (packagep(left))
 		GetPackage(left, PACKAGE_INDEX_NAME, &left);
@@ -107,7 +107,7 @@ escape:
 	return pop_control_(ptr, control);
 }
 
-_g int package_designer_(addr pos, addr *ret)
+int package_designer_(addr pos, addr *ret)
 {
 	addr x;
 
@@ -121,7 +121,7 @@ _g int package_designer_(addr pos, addr *ret)
 	return Result(ret, x);
 }
 
-_g void init_package_designer(void)
+void init_package_designer(void)
 {
 	SetPointerCall(defun, empty, package_designer_interactive);
 }

@@ -15,7 +15,7 @@
 /*
  *  nth
  */
-_g void getnth_abort(addr cons, size_t index, addr *ret)
+void getnth_abort(addr cons, size_t index, addr *ret)
 {
 	for (; index; index--) {
 		if (cons == Nil)
@@ -29,7 +29,7 @@ _g void getnth_abort(addr cons, size_t index, addr *ret)
 	GetCar(cons, ret);
 }
 
-_g int getnth_(addr cons, size_t index, addr *ret)
+int getnth_(addr cons, size_t index, addr *ret)
 {
 	for (; index; index--) {
 		if (cons == Nil)
@@ -39,7 +39,7 @@ _g int getnth_(addr cons, size_t index, addr *ret)
 	return getcar_(cons, ret);
 }
 
-_g int getnth_large(addr cons, addr index, addr *ret)
+int getnth_large(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -61,7 +61,7 @@ finish:
 	return 0;
 }
 
-_g void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
+void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
 {
 	for (;;) {
 		if (cons == Nil) {
@@ -75,7 +75,7 @@ _g void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
 	GetCar(cons, ret);
 }
 
-_g void getnth_unsafe(addr cons, size_t index, addr *ret)
+void getnth_unsafe(addr cons, size_t index, addr *ret)
 {
 	for (; index; index--) {
 		if (cons == Nil)
@@ -85,7 +85,7 @@ _g void getnth_unsafe(addr cons, size_t index, addr *ret)
 	GetCar(cons, ret);
 }
 
-_g int getnthcdr_(addr cons, size_t index, addr *ret)
+int getnthcdr_(addr cons, size_t index, addr *ret)
 {
 	for (; index; index--) {
 		if (cons == Nil)
@@ -95,7 +95,7 @@ _g int getnthcdr_(addr cons, size_t index, addr *ret)
 	return Result(ret, cons);
 }
 
-_g int getnthcdr_large(addr cons, addr index, addr *ret)
+int getnthcdr_large(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -117,7 +117,7 @@ finish:
 	return 0;
 }
 
-_g void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
+void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
 {
 	while (index--) {
 		if (cons == Nil) {
@@ -129,7 +129,7 @@ _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
 	*ret = cons;
 }
 
-_g int setnth_(addr cons, size_t index, addr value)
+int setnth_(addr cons, size_t index, addr value)
 {
 	addr cdr;
 
@@ -140,7 +140,7 @@ _g int setnth_(addr cons, size_t index, addr value)
 	return 0;
 }
 
-_g void setnth_unsafe(addr cons, size_t index, addr value)
+void setnth_unsafe(addr cons, size_t index, addr value)
 {
 	addr cdr;
 
@@ -153,7 +153,7 @@ _g void setnth_unsafe(addr cons, size_t index, addr value)
 /*
  *  length
  */
-_g size_t length_list_unsafe(addr list)
+size_t length_list_unsafe(addr list)
 {
 	size_t size;
 
@@ -164,7 +164,7 @@ _g size_t length_list_unsafe(addr list)
 	return size;
 }
 
-_g int length_list_safe_(addr list, size_t *ret)
+int length_list_safe_(addr list, size_t *ret)
 {
 	size_t size;
 
@@ -179,7 +179,7 @@ _g int length_list_safe_(addr list, size_t *ret)
 	return Result(ret, size);
 }
 
-_g int length_list_p(addr list, size_t *ret)
+int length_list_p(addr list, size_t *ret)
 {
 	size_t i;
 
@@ -199,7 +199,7 @@ _g int length_list_p(addr list, size_t *ret)
 /*
  *  list
  */
-_g int nconc2_safe_(addr left, addr right, addr *ret)
+int nconc2_safe_(addr left, addr right, addr *ret)
 {
 	addr check;
 
@@ -221,7 +221,7 @@ _g int nconc2_safe_(addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g void nconc2_unsafe(addr left, addr right, addr *ret)
+void nconc2_unsafe(addr left, addr right, addr *ret)
 {
 	addr check;
 
@@ -243,7 +243,7 @@ _g void nconc2_unsafe(addr left, addr right, addr *ret)
 	}
 }
 
-_g int append2_safe_(addr left, addr right, addr *ret)
+int append2_safe_(addr left, addr right, addr *ret)
 {
 	addr root, pos;
 
@@ -261,7 +261,7 @@ _g int append2_safe_(addr left, addr right, addr *ret)
 	return nreconc_safe_(ret, root, right);
 }
 
-_g void append2_alloc_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
+void append2_alloc_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
 {
 	addr stack, left;
 
@@ -291,18 +291,18 @@ _g void append2_alloc_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
 	*ret = stack;
 }
 
-_g void append2_heap_unsafe(addr list1, addr list2, addr *ret)
+void append2_heap_unsafe(addr list1, addr list2, addr *ret)
 {
 	append2_alloc_unsafe(NULL, list1, list2, ret);
 }
 
-_g void append2_local_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
+void append2_local_unsafe(LocalRoot local, addr list1, addr list2, addr *ret)
 {
 	Check(local == NULL, "local error");
 	append2_alloc_unsafe(local, list1, list2, ret);
 }
 
-_g void butandlast_safe(addr *but, addr *last, addr list, size_t index)
+void butandlast_safe(addr *but, addr *last, addr list, size_t index)
 {
 	addr root, pos;
 	size_t size;
@@ -322,7 +322,7 @@ _g void butandlast_safe(addr *but, addr *last, addr list, size_t index)
 	*last = list;
 }
 
-_g int setlastcdr_safe_(addr list, addr cdr)
+int setlastcdr_safe_(addr list, addr cdr)
 {
 	addr check;
 
@@ -342,7 +342,7 @@ _g int setlastcdr_safe_(addr list, addr cdr)
 /*
  *  find
  */
-_g int find_list_eq_unsafe(addr key, addr cons)
+int find_list_eq_unsafe(addr key, addr cons)
 {
 	addr check;
 
@@ -355,7 +355,7 @@ _g int find_list_eq_unsafe(addr key, addr cons)
 	return 0;
 }
 
-_g int find_list_eq_safe_(addr key, addr cons, int *ret)
+int find_list_eq_safe_(addr key, addr cons, int *ret)
 {
 	addr check;
 
@@ -368,7 +368,7 @@ _g int find_list_eq_safe_(addr key, addr cons, int *ret)
 	return Result(ret, 0);
 }
 
-_g int find_list_eql_unsafe(addr key, addr cons)
+int find_list_eql_unsafe(addr key, addr cons)
 {
 	addr check;
 
@@ -381,7 +381,7 @@ _g int find_list_eql_unsafe(addr key, addr cons)
 	return 0;
 }
 
-_g int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
+int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
 {
 	addr check;
 	size_t i;
@@ -401,7 +401,7 @@ _g int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
 /*
  *  pushnew
  */
-_g int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret)
+int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret)
 {
 	if (! find_list_eq_unsafe(value, list)) {
 		cons_alloc(local, ret, value, list);
@@ -411,13 +411,13 @@ _g int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret)
 	return 0;
 }
 
-_g int pushnew_local(LocalRoot local, addr list, addr value, addr *ret)
+int pushnew_local(LocalRoot local, addr list, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnew_alloc(local, list, value, ret);
 }
 
-_g int pushnew_heap(addr list, addr value, addr *ret)
+int pushnew_heap(addr list, addr value, addr *ret)
 {
 	return pushnew_alloc(NULL, list, value, ret);
 }
@@ -437,7 +437,7 @@ static int find_list_equal_unsafe_(addr key, addr list, int *ret)
 	return Result(ret, 0);
 }
 
-_g int pushnew_equal_heap_(addr list, addr value, addr *ret)
+int pushnew_equal_heap_(addr list, addr value, addr *ret)
 {
 	int check;
 
@@ -452,7 +452,7 @@ _g int pushnew_equal_heap_(addr list, addr value, addr *ret)
 /*
  *  nreverse
  */
-_g void nreconc_unsafe(addr *ret, addr cons, addr tail)
+void nreconc_unsafe(addr *ret, addr cons, addr tail)
 {
 	addr next;
 
@@ -474,7 +474,7 @@ _g void nreconc_unsafe(addr *ret, addr cons, addr tail)
 	*ret = cons;
 }
 
-_g int nreconc_safe_(addr *ret, addr cons, addr tail)
+int nreconc_safe_(addr *ret, addr cons, addr tail)
 {
 	addr next;
 
@@ -495,7 +495,7 @@ _g int nreconc_safe_(addr *ret, addr cons, addr tail)
 	return Result(ret, cons);
 }
 
-_g void nreverse_list_unsafe(addr *ret, addr cons)
+void nreverse_list_unsafe(addr *ret, addr cons)
 {
 	addr tail, next;
 
@@ -515,7 +515,7 @@ _g void nreverse_list_unsafe(addr *ret, addr cons)
 	*ret = cons;
 }
 
-_g int nreverse_list_safe_(addr *ret, addr cons)
+int nreverse_list_safe_(addr *ret, addr cons)
 {
 	addr tail, next;
 
@@ -538,18 +538,18 @@ _g int nreverse_list_safe_(addr *ret, addr cons)
 /*
  *  reverse
  */
-_g void reverse_list_heap_unsafe(addr *ret, addr cons)
+void reverse_list_heap_unsafe(addr *ret, addr cons)
 {
 	reverse_list_alloc_unsafe(NULL, ret, cons);
 }
 
-_g void reverse_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
+void reverse_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	reverse_list_alloc_unsafe(local, ret, cons);
 }
 
-_g void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
+void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, left;
 
@@ -560,7 +560,7 @@ _g void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 	*ret = root;
 }
 
-_g int reverse_list_heap_safe_(addr *ret, addr cons)
+int reverse_list_heap_safe_(addr *ret, addr cons)
 {
 	addr root, left;
 
@@ -576,7 +576,7 @@ _g int reverse_list_heap_safe_(addr *ret, addr cons)
 /*
  *  callname
  */
-_g int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *ret)
+int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *ret)
 {
 	if (! find_list_callname_unsafe(callname, list)) {
 		cons_alloc(local, ret, callname, list);
@@ -586,12 +586,12 @@ _g int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, add
 	return 0;
 }
 
-_g int pushnewlist_callname_heap(addr list, addr callname, addr *ret)
+int pushnewlist_callname_heap(addr list, addr callname, addr *ret)
 {
 	return pushnewlist_callname_alloc(NULL, list, callname, ret);
 }
 
-_g int find_list_callname_unsafe(addr callname, addr list)
+int find_list_callname_unsafe(addr callname, addr list)
 {
 	addr check;
 
@@ -608,7 +608,7 @@ _g int find_list_callname_unsafe(addr callname, addr list)
 /*
  *  copy-list
  */
-_g void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
+void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, left;
 
@@ -618,17 +618,17 @@ _g void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 	}
 	nreverse(ret, root);
 }
-_g void copy_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
+void copy_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	copy_list_alloc_unsafe(local, ret, cons);
 }
-_g void copy_list_heap_unsafe(addr *ret, addr cons)
+void copy_list_heap_unsafe(addr *ret, addr cons)
 {
 	copy_list_alloc_unsafe(NULL, ret, cons);
 }
 
-_g void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
+void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, last, pos;
 
@@ -645,12 +645,12 @@ _g void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
 	}
 	nreconc(ret, root, last);
 }
-_g void copy_list_local_safe(LocalRoot local, addr *ret, addr cons)
+void copy_list_local_safe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	copy_list_alloc_safe(local, ret, cons);
 }
-_g void copy_list_heap_safe(addr *ret, addr cons)
+void copy_list_heap_safe(addr *ret, addr cons)
 {
 	copy_list_alloc_safe(NULL, ret, cons);
 }
@@ -659,7 +659,7 @@ _g void copy_list_heap_safe(addr *ret, addr cons)
 /*
  *  delete / remove
  */
-_g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
+int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 {
 	int update;
 	addr check, cons1, cons2;
@@ -685,7 +685,7 @@ _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 	return update;
 }
 
-_g int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret)
+int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret)
 {
 	int check, update;
 	addr value, cons1, cons2;
@@ -712,7 +712,7 @@ _g int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret)
 	return Result(ret, update);
 }
 
-_g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret)
+int delete1_list_eq_unsafe(addr key, addr cons, addr *ret)
 {
 	addr check, cons1, cons2;
 
@@ -736,7 +736,7 @@ _g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret)
 	return 0;
 }
 
-_g void remove_list_eq_unsafe_alloc(LocalRoot local,
+void remove_list_eq_unsafe_alloc(LocalRoot local,
 		addr key, addr cons, addr *ret)
 {
 	addr result, check;
@@ -749,12 +749,12 @@ _g void remove_list_eq_unsafe_alloc(LocalRoot local,
 	nreverse(ret, result);
 }
 
-_g void remove_list_eq_unsafe_heap(addr key, addr cons, addr *ret)
+void remove_list_eq_unsafe_heap(addr key, addr cons, addr *ret)
 {
 	remove_list_eq_unsafe_alloc(NULL, key, cons, ret);
 }
 
-_g void remove_list_eq_unsafe_local(LocalRoot local,
+void remove_list_eq_unsafe_local(LocalRoot local,
 		addr key, addr cons, addr *ret)
 {
 	Check(local == NULL, "local error");

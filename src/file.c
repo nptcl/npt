@@ -46,46 +46,46 @@ static void encode_standard_stream(addr pos)
 	encode->error = 0;
 }
 
-_g void make_standard_input(addr *stream)
+void make_standard_input(addr *stream)
 {
 	standard_constant_stream(stream,
 			StreamType_BincharInput, standard_input_filememory);
 	encode_standard_stream(*stream);
 }
 
-_g void make_standard_output(addr *stream)
+void make_standard_output(addr *stream)
 {
 	standard_constant_stream(stream,
 			StreamType_BincharOutput, standard_output_filememory);
 	encode_standard_stream(*stream);
 }
 
-_g void make_standard_error(addr *stream)
+void make_standard_error(addr *stream)
 {
 	standard_constant_stream(stream,
 			StreamType_BincharOutput, standard_error_filememory);
 	encode_standard_stream(*stream);
 }
 
-_g void update_standard_input(addr stream)
+void update_standard_input(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	update_standard_input_filememory(PtrFileMemory(stream));
 }
 
-_g void update_standard_output(addr stream)
+void update_standard_output(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	update_standard_output_filememory(PtrFileMemory(stream));
 }
 
-_g void update_standard_error(addr stream)
+void update_standard_error(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	update_standard_error_filememory(PtrFileMemory(stream));
 }
 
-_g int script_header(addr stream)
+int script_header(addr stream)
 {
 	int check;
 	byte a, b;
@@ -127,7 +127,7 @@ _g int script_header(addr stream)
 /*
  *  stream function
  */
-_g void force_close_stream_file(addr stream)
+void force_close_stream_file(addr stream)
 {
 	filestream fm;
 
@@ -155,7 +155,7 @@ static int close_stream_abort_(addr stream)
 	return delete_file_files_(ptr, check);
 }
 
-_g int close_stream_file_(addr stream, addr *ret)
+int close_stream_file_(addr stream, addr *ret)
 {
 	int outputp;
 	filestream fm;
@@ -182,7 +182,7 @@ _g int close_stream_file_(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-_g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
+int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	int check;
 	filestream fm;
@@ -329,7 +329,7 @@ static int read_byte_file_s64(filestream fm, addr *ret)
 }
 #endif
 
-_g int read_byte_file_type(addr stream, addr *ret)
+int read_byte_file_type(addr stream, addr *ret)
 {
 	filestream fm;
 
@@ -367,7 +367,7 @@ _g int read_byte_file_type(addr stream, addr *ret)
 	}
 }
 
-_g int read_byte_file_(addr stream, addr *value, int *ret)
+int read_byte_file_(addr stream, addr *value, int *ret)
 {
 	int check;
 	filestream fm;
@@ -384,7 +384,7 @@ _g int read_byte_file_(addr stream, addr *value, int *ret)
 	return Result(ret, check);
 }
 
-_g int unread_byte_file_(addr stream, byte c)
+int unread_byte_file_(addr stream, byte c)
 {
 	filestream fm;
 
@@ -396,7 +396,7 @@ _g int unread_byte_file_(addr stream, byte c)
 	return 0;
 }
 
-_g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret)
+int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	int check;
 	filestream fm;
@@ -642,7 +642,7 @@ error:
 }
 #endif
 
-_g int write_byte_file_type_(filestream fm, addr pos)
+int write_byte_file_type_(filestream fm, addr pos)
 {
 	switch (fm->encode.type) {
 		case EncodeType_binary:
@@ -676,7 +676,7 @@ _g int write_byte_file_type_(filestream fm, addr pos)
 	}
 }
 
-_g int write_byte_file_(addr stream, addr pos)
+int write_byte_file_(addr stream, addr pos)
 {
 	filestream fm;
 
@@ -692,7 +692,7 @@ _g int write_byte_file_(addr stream, addr pos)
 /*
  *  character
  */
-_g int read_char_file_(addr stream, unicode *c, int *ret)
+int read_char_file_(addr stream, unicode *c, int *ret)
 {
 	int check;
 	filestream fm;
@@ -709,7 +709,7 @@ _g int read_char_file_(addr stream, unicode *c, int *ret)
 	return Result(ret, check? 1: 0);
 }
 
-_g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
+int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
 {
 	int check;
 	filestream fm;
@@ -726,7 +726,7 @@ _g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
 	return Result(ret, check? 1: 0);
 }
 
-_g int write_char_file_(addr stream, unicode c)
+int write_char_file_(addr stream, unicode c)
 {
 	filestream fm;
 
@@ -756,7 +756,7 @@ static void element_type_signed_byte(fixnum v, addr *ret)
 	list_heap(ret, type, value, NULL);
 }
 
-_g int element_type_file_(addr stream, addr *ret)
+int element_type_file_(addr stream, addr *ret)
 {
 	filestream fm;
 
@@ -803,7 +803,7 @@ _g int element_type_file_(addr stream, addr *ret)
 	return 0;
 }
 
-_g int external_format_file_(addr stream, addr *ret)
+int external_format_file_(addr stream, addr *ret)
 {
 	enum EncodeBom bom;
 	filestream fm;
@@ -922,7 +922,7 @@ static size_t file_length_multiple(filestream fm, size_t size)
 	}
 }
 
-_g int file_length_file_type_(filestream fm, size_t *value, int *ret)
+int file_length_file_type_(filestream fm, size_t *value, int *ret)
 {
 	int check;
 	size_t size;
@@ -937,7 +937,7 @@ _g int file_length_file_type_(filestream fm, size_t *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int file_length_file_(addr stream, size_t *value, int *ret)
+int file_length_file_(addr stream, size_t *value, int *ret)
 {
 	filestream fm;
 
@@ -972,7 +972,7 @@ static int file_position_file_unread_(addr stream, size_t *ret)
 	return Result(ret, (size_t)check);
 }
 
-_g int file_position_file_type_(addr stream, size_t *value, int *ret)
+int file_position_file_type_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	filestream fm;
@@ -1001,7 +1001,7 @@ _g int file_position_file_type_(addr stream, size_t *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int file_position_file_(addr stream, size_t *value, int *ret)
+int file_position_file_(addr stream, size_t *value, int *ret)
 {
 	filestream fm;
 
@@ -1013,7 +1013,7 @@ _g int file_position_file_(addr stream, size_t *value, int *ret)
 	return file_position_file_type_(stream, value, ret);
 }
 
-_g int file_position_start_file_type_(addr stream, int *ret)
+int file_position_start_file_type_(addr stream, int *ret)
 {
 	int check;
 	filestream fm;
@@ -1036,7 +1036,7 @@ _g int file_position_start_file_type_(addr stream, int *ret)
 	return Result(ret, check);
 }
 
-_g int file_position_start_file_(addr stream, int *ret)
+int file_position_start_file_(addr stream, int *ret)
 {
 	filestream fm;
 
@@ -1048,7 +1048,7 @@ _g int file_position_start_file_(addr stream, int *ret)
 	return file_position_start_file_type_(stream, ret);
 }
 
-_g int file_position_end_file_type_(addr stream, int *ret)
+int file_position_end_file_type_(addr stream, int *ret)
 {
 	int check;
 	filestream fm;
@@ -1071,7 +1071,7 @@ _g int file_position_end_file_type_(addr stream, int *ret)
 	return Result(ret, check);
 }
 
-_g int file_position_end_file_(addr stream, int *ret)
+int file_position_end_file_(addr stream, int *ret)
 {
 	filestream fm;
 
@@ -1083,7 +1083,7 @@ _g int file_position_end_file_(addr stream, int *ret)
 	return file_position_end_file_type_(stream, ret);
 }
 
-_g int file_position_set_file_type_(addr stream, size_t value, int *ret)
+int file_position_set_file_type_(addr stream, size_t value, int *ret)
 {
 	int check;
 	filestream fm;
@@ -1107,7 +1107,7 @@ _g int file_position_set_file_type_(addr stream, size_t value, int *ret)
 	return Result(ret, check);
 }
 
-_g int file_position_set_file_(addr stream, size_t value, int *ret)
+int file_position_set_file_(addr stream, size_t value, int *ret)
 {
 	filestream fm;
 
@@ -1119,7 +1119,7 @@ _g int file_position_set_file_(addr stream, size_t value, int *ret)
 	return file_position_set_file_type_(stream, value, ret);
 }
 
-_g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret)
+int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret)
 {
 	int check;
 	filestream fm;
@@ -1134,7 +1134,7 @@ _g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
+int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 {
 	filestream fm;
 
@@ -1143,7 +1143,7 @@ _g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 	return length_string_encode_(fm, pos, value, ret);
 }
 
-_g int listen_file_(addr stream, int *ret)
+int listen_file_(addr stream, int *ret)
 {
 	filestream fm;
 
@@ -1159,7 +1159,7 @@ _g int listen_file_(addr stream, int *ret)
 	return Result(ret, fm->cache);
 }
 
-_g int clear_input_file_(addr stream)
+int clear_input_file_(addr stream)
 {
 	filestream fm;
 
@@ -1172,7 +1172,7 @@ _g int clear_input_file_(addr stream)
 	return 0;
 }
 
-_g int finish_output_file_(addr stream)
+int finish_output_file_(addr stream)
 {
 	filestream fm;
 
@@ -1187,12 +1187,12 @@ _g int finish_output_file_(addr stream)
 	return 0;
 }
 
-_g int force_output_file_(addr stream)
+int force_output_file_(addr stream)
 {
 	return finish_output_file_(stream);
 }
 
-_g int clear_output_file_(addr stream)
+int clear_output_file_(addr stream)
 {
 	filestream fm;
 
@@ -1204,7 +1204,7 @@ _g int clear_output_file_(addr stream)
 	return 0;
 }
 
-_g int exitpoint_file_(addr stream)
+int exitpoint_file_(addr stream)
 {
 	filestream fm;
 
@@ -1217,7 +1217,7 @@ _g int exitpoint_file_(addr stream)
 	return 0;
 }
 
-_g int termsize_file_(addr stream, size_t *value, int *ret)
+int termsize_file_(addr stream, size_t *value, int *ret)
 {
 	*ret = getwidth_console(value);
 	return 0;
@@ -1227,7 +1227,7 @@ _g int termsize_file_(addr stream, size_t *value, int *ret)
 /*
  *  core
  */
-_g int save_stream_file(addr pos)
+int save_stream_file(addr pos)
 {
 	filestream fm;
 	struct StructStream *ptr;
@@ -1242,7 +1242,7 @@ _g int save_stream_file(addr pos)
 	return 0;
 }
 
-_g int save_stream_system(addr pos)
+int save_stream_system(addr pos)
 {
 	if (PtrFileMemory(pos)->system == filememory_stream)
 		return save_stream_file(pos);

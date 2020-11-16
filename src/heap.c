@@ -6,19 +6,19 @@
 /*
  *  allocate
  */
-_g void heap_cons(addr *ret)
+void heap_cons(addr *ret)
 {
 	heap_array2_memory(ret, LISPTYPE_CONS, 2);
 	heap_cons_count++;
 }
 
-_g void heap_symbol(addr *ret)
+void heap_symbol(addr *ret)
 {
 	heap_array2_memory(ret, LISPTYPE_SYMBOL, SYMBOL_INDEX_SIZE);
 	heap_symbol_count++;
 }
 
-_g void heap_array2_memory(addr *ret, enum LISPTYPE type, byte16 array)
+void heap_array2_memory(addr *ret, enum LISPTYPE type, byte16 array)
 {
 	addr pos;
 	size_t size;
@@ -32,7 +32,7 @@ _g void heap_array2_memory(addr *ret, enum LISPTYPE type, byte16 array)
 	*ret = pos;
 }
 
-_g void heap_array4_memory(addr *ret, enum LISPTYPE type, byte32 array)
+void heap_array4_memory(addr *ret, enum LISPTYPE type, byte32 array)
 {
 	addr pos;
 	size_t size;
@@ -47,7 +47,7 @@ _g void heap_array4_memory(addr *ret, enum LISPTYPE type, byte32 array)
 }
 
 #ifdef LISP_ARCH_64BIT
-_g void heap_array8(addr *ret, enum LISPTYPE type, size_t array)
+void heap_array8(addr *ret, enum LISPTYPE type, size_t array)
 {
 	addr pos;
 	size_t size;
@@ -61,7 +61,7 @@ _g void heap_array8(addr *ret, enum LISPTYPE type, size_t array)
 }
 #endif
 
-_g void heap_body2_memory(addr *ret, enum LISPTYPE type, byte16 body)
+void heap_body2_memory(addr *ret, enum LISPTYPE type, byte16 body)
 {
 	addr pos;
 	size_t size;
@@ -74,7 +74,7 @@ _g void heap_body2_memory(addr *ret, enum LISPTYPE type, byte16 body)
 	*ret = pos;
 }
 
-_g void heap_body4_memory(addr *ret, enum LISPTYPE type, byte32 body)
+void heap_body4_memory(addr *ret, enum LISPTYPE type, byte32 body)
 {
 	addr pos;
 	size_t size;
@@ -88,7 +88,7 @@ _g void heap_body4_memory(addr *ret, enum LISPTYPE type, byte32 body)
 }
 
 #ifdef LISP_ARCH_64BIT
-_g void heap_body8(addr *ret, enum LISPTYPE type, size_t body)
+void heap_body8(addr *ret, enum LISPTYPE type, size_t body)
 {
 	addr pos;
 	size_t size;
@@ -101,7 +101,7 @@ _g void heap_body8(addr *ret, enum LISPTYPE type, size_t body)
 }
 #endif
 
-_g void heap_smallsize_memory(addr *ret, enum LISPTYPE type, byte array, byte body)
+void heap_smallsize_memory(addr *ret, enum LISPTYPE type, byte array, byte body)
 {
 	addr pos;
 	size_t size;
@@ -116,7 +116,7 @@ _g void heap_smallsize_memory(addr *ret, enum LISPTYPE type, byte array, byte bo
 	*ret = pos;
 }
 
-_g void heap_arraybody_memory(addr *ret, enum LISPTYPE type, byte16 array, byte16 body)
+void heap_arraybody_memory(addr *ret, enum LISPTYPE type, byte16 array, byte16 body)
 {
 	addr pos;
 	size_t size;
@@ -131,7 +131,7 @@ _g void heap_arraybody_memory(addr *ret, enum LISPTYPE type, byte16 array, byte1
 	*ret = pos;
 }
 
-_g void heap_array(addr *ret, enum LISPTYPE type, size_t array)
+void heap_array(addr *ret, enum LISPTYPE type, size_t array)
 {
 #ifdef LISP_ARCH_64BIT
 	if (MemoryLengthA2(array) <= 0xFFFFUL)
@@ -148,7 +148,7 @@ _g void heap_array(addr *ret, enum LISPTYPE type, size_t array)
 #endif
 }
 
-_g void heap_body(addr *ret, enum LISPTYPE type, size_t body)
+void heap_body(addr *ret, enum LISPTYPE type, size_t body)
 {
 #ifdef LISP_ARCH_64BIT
 	if (MemoryLengthB2(body) <= 0xFFFFUL)
@@ -166,33 +166,33 @@ _g void heap_body(addr *ret, enum LISPTYPE type, size_t body)
 }
 
 #ifdef LISP_DEBUG
-_g void heap_array2_debug(addr *root, enum LISPTYPE type, size_t array)
+void heap_array2_debug(addr *root, enum LISPTYPE type, size_t array)
 {
 	Check(0xFFFFUL < array, "size error");
 	heap_array2_memory(root, type, (byte16)array);
 }
-_g void heap_array4_debug(addr *root, enum LISPTYPE type, size_t array)
+void heap_array4_debug(addr *root, enum LISPTYPE type, size_t array)
 {
 	Check(0xFFFFFFFFUL < array, "size error");
 	heap_array4_memory(root, type, (byte32)array);
 }
-_g void heap_body2_debug(addr *root, enum LISPTYPE type, size_t body)
+void heap_body2_debug(addr *root, enum LISPTYPE type, size_t body)
 {
 	Check(0xFFFFUL < body, "size error");
 	heap_body2_memory(root, type, (byte16)body);
 }
-_g void heap_body4_debug(addr *root, enum LISPTYPE type, size_t body)
+void heap_body4_debug(addr *root, enum LISPTYPE type, size_t body)
 {
 	Check(0xFFFFFFFFUL < body, "size error");
 	heap_body4_memory(root, type, (byte32)body);
 }
-_g void heap_smallsize_debug(addr *root, enum LISPTYPE type, size_t array, size_t body)
+void heap_smallsize_debug(addr *root, enum LISPTYPE type, size_t array, size_t body)
 {
 	Check(0xFFUL < array, "array size error");
 	Check(0xFFUL < body, "body size error");
 	heap_smallsize_memory(root, type, (byte)array, (byte)body);
 }
-_g void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t body)
+void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t body)
 {
 	Check(0xFFFFUL < array, "array size error");
 	Check(0xFFFFUL < body, "body size error");
@@ -204,7 +204,7 @@ _g void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_
 /*
  *  initialize
  */
-_g void init_heap(void)
+void init_heap(void)
 {
 	init_heap_core();
 }

@@ -57,7 +57,7 @@ static void charbit_push(addr pos, unicode c)
 	SetCharBitSize(pos, index + 1);
 }
 
-_g addr charqueue_allocr(LocalRoot local, size_t max)
+addr charqueue_allocr(LocalRoot local, size_t max)
 {
 	addr pos, root;
 	struct charqueue_struct *str;
@@ -77,36 +77,36 @@ _g addr charqueue_allocr(LocalRoot local, size_t max)
 
 	return pos;
 }
-_g addr charqueue_heapr(size_t max)
+addr charqueue_heapr(size_t max)
 {
 	return charqueue_allocr(NULL, max);
 }
-_g addr charqueue_localr(LocalRoot local, size_t max)
+addr charqueue_localr(LocalRoot local, size_t max)
 {
 	Check(local == NULL, "local error");
 	return charqueue_allocr(local, max);
 }
-_g void charqueue_alloc(LocalRoot local, addr *ret, size_t max)
+void charqueue_alloc(LocalRoot local, addr *ret, size_t max)
 {
 	*ret = charqueue_allocr(local, max);
 }
-_g void charqueue_heap(addr *ret, size_t max)
+void charqueue_heap(addr *ret, size_t max)
 {
 	*ret = charqueue_allocr(NULL, max);
 }
-_g void charqueue_local(LocalRoot local, addr *ret, size_t max)
+void charqueue_local(LocalRoot local, addr *ret, size_t max)
 {
 	Check(local == NULL, "local error");
 	*ret = charqueue_allocr(local, max);
 }
 
-_g void getsize_charqueue(addr pos, size_t *ret)
+void getsize_charqueue(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPSYSTEM_CHARQUEUE, "type error");
 	GetCharQueueSize(pos, ret);
 }
 
-_g void getchar_charqueue(addr pos, size_t index, unicode *ret)
+void getchar_charqueue(addr pos, size_t index, unicode *ret)
 {
 	addr root;
 	size_t size, quot, rem;
@@ -128,7 +128,7 @@ _g void getchar_charqueue(addr pos, size_t index, unicode *ret)
 	GetCharBitChar(root, rem, ret);
 }
 
-_g int push_charqueue_alloc_(LocalRoot local, addr pos, unicode c)
+int push_charqueue_alloc_(LocalRoot local, addr pos, unicode c)
 {
 	addr tail, next;
 	size_t size, max;
@@ -164,17 +164,17 @@ _g int push_charqueue_alloc_(LocalRoot local, addr pos, unicode c)
 
 	return 0;
 }
-_g int push_charqueue_local_(LocalRoot local, addr pos, unicode c)
+int push_charqueue_local_(LocalRoot local, addr pos, unicode c)
 {
 	Check(local == NULL, "local error");
 	return push_charqueue_alloc_(local, pos, c);
 }
-_g int push_charqueue_heap_(addr pos, unicode c)
+int push_charqueue_heap_(addr pos, unicode c)
 {
 	return push_charqueue_alloc_(NULL, pos, c);
 }
 
-_g void make_charqueue_alloc(LocalRoot local, addr pos, addr *ret)
+void make_charqueue_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	int readonly;
 	addr string, next;
@@ -203,17 +203,17 @@ _g void make_charqueue_alloc(LocalRoot local, addr pos, addr *ret)
 
 	*ret = string;
 }
-_g void make_charqueue_local(LocalRoot local, addr pos, addr *ret)
+void make_charqueue_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	make_charqueue_alloc(local, pos, ret);
 }
-_g void make_charqueue_heap(addr pos, addr *ret)
+void make_charqueue_heap(addr pos, addr *ret)
 {
 	make_charqueue_alloc(NULL, pos, ret);
 }
 
-_g void clear_charqueue(addr pos)
+void clear_charqueue(addr pos)
 {
 	addr root;
 
@@ -224,7 +224,7 @@ _g void clear_charqueue(addr pos)
 	SetCharBitSize(root, 0);
 }
 
-_g void free_charqueue(addr pos)
+void free_charqueue(addr pos)
 {
 	addr root;
 
@@ -237,7 +237,7 @@ _g void free_charqueue(addr pos)
 	SetCharBitNext(root, Nil);
 }
 
-_g int position_charqueue(addr pos, size_t size)
+int position_charqueue(addr pos, size_t size)
 {
 	size_t check, max, now;
 	addr root;
@@ -264,7 +264,7 @@ _g int position_charqueue(addr pos, size_t size)
 	return 0;
 }
 
-_g int pushstring_charqueue_alloc_(LocalRoot local, addr pos, addr push)
+int pushstring_charqueue_alloc_(LocalRoot local, addr pos, addr push)
 {
 	unicode c;
 	size_t i, size;
@@ -279,17 +279,17 @@ _g int pushstring_charqueue_alloc_(LocalRoot local, addr pos, addr push)
 
 	return 0;
 }
-_g int pushstring_charqueue_local_(LocalRoot local, addr pos, addr push)
+int pushstring_charqueue_local_(LocalRoot local, addr pos, addr push)
 {
 	Check(local == NULL, "local error");
 	return pushstring_charqueue_alloc_(local, pos, push);
 }
-_g int pushstring_charqueue_heap_(addr pos, addr push)
+int pushstring_charqueue_heap_(addr pos, addr push)
 {
 	return pushstring_charqueue_alloc_(NULL, pos, push);
 }
 
-_g int pushchar_charqueue_alloc_(LocalRoot local, addr pos, const char *str)
+int pushchar_charqueue_alloc_(LocalRoot local, addr pos, const char *str)
 {
 	const byte *ptr;
 	unicode u;
@@ -306,12 +306,12 @@ _g int pushchar_charqueue_alloc_(LocalRoot local, addr pos, const char *str)
 
 	return 0;
 }
-_g int pushchar_charqueue_local_(LocalRoot local, addr pos, const char *str)
+int pushchar_charqueue_local_(LocalRoot local, addr pos, const char *str)
 {
 	Check(local == NULL, "local error");
 	return pushchar_charqueue_alloc_(local, pos, str);
 }
-_g int pushchar_charqueue_heap_(addr pos, const char *str)
+int pushchar_charqueue_heap_(addr pos, const char *str)
 {
 	return pushchar_charqueue_alloc_(NULL, pos, str);
 }

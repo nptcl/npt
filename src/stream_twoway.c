@@ -10,7 +10,7 @@
 	Check(! twoway_stream_p(stream), "type error"); \
 }
 
-_g void open_twoway_stream(addr *stream, addr input, addr output)
+void open_twoway_stream(addr *stream, addr input, addr output)
 {
 	addr pos;
 
@@ -23,25 +23,25 @@ _g void open_twoway_stream(addr *stream, addr input, addr output)
 	*stream = pos;
 }
 
-_g void get_twoway_input_stream(addr stream, addr *ret)
+void get_twoway_input_stream(addr stream, addr *ret)
 {
 	CheckTwoWayStream(stream);
 	GetInputStream(stream, ret);
 }
 
-_g void set_twoway_input_stream(addr stream, addr input)
+void set_twoway_input_stream(addr stream, addr input)
 {
 	CheckTwoWayStream(stream);
 	SetInputStream(stream, input);
 }
 
-_g void get_twoway_output_stream(addr stream, addr *ret)
+void get_twoway_output_stream(addr stream, addr *ret)
 {
 	CheckTwoWayStream(stream);
 	GetOutputStream(stream, ret);
 }
 
-_g void set_twoway_output_stream(addr stream, addr output)
+void set_twoway_output_stream(addr stream, addr output)
 {
 	CheckTwoWayStream(stream);
 	SetOutputStream(stream, output);
@@ -218,7 +218,7 @@ static int termsize_TwoWay(addr stream, size_t *value, int *ret)
 	return termsize_stream_(stream, value, ret);
 }
 
-_g void init_stream_twoway(void)
+void init_stream_twoway(void)
 {
 	DefineStreamDef(TwoWay, close);
 	DefineStreamSet(TwoWay, read_byte);

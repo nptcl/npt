@@ -21,7 +21,7 @@ static void alloc_tablevalue(LocalRoot local, addr *ret)
 			sizeoft(struct tablevalue));
 }
 
-_g void make_tablevalue(addr *ret, addr symbol)
+void make_tablevalue(addr *ret, addr symbol)
 {
 	addr pos;
 	struct tablevalue *ptr;
@@ -33,7 +33,7 @@ _g void make_tablevalue(addr *ret, addr symbol)
 	*ret = pos;
 }
 
-_g void copy_tablevalue(addr *ret, addr pos)
+void copy_tablevalue(addr *ret, addr pos)
 {
 	addr one, value;
 	size_t i, size;
@@ -52,156 +52,156 @@ _g void copy_tablevalue(addr *ret, addr pos)
 	*ret = one;
 }
 
-_g void getname_tablevalue(addr pos, addr *ret)
+void getname_tablevalue(addr pos, addr *ret)
 {
 	CheckTableValue(pos);
 	GetEval(pos, TABLEVALUE_INDEX_NAME, ret);
 }
-_g void setname_tablevalue(addr pos, addr value)
+void setname_tablevalue(addr pos, addr value)
 {
 	CheckTableValue(pos);
 	SetEval(pos, TABLEVALUE_INDEX_NAME, value);
 }
 
-_g void gettype_tablevalue(addr pos, addr *ret)
+void gettype_tablevalue(addr pos, addr *ret)
 {
 	CheckTableValue(pos);
 	GetEval(pos, TABLEVALUE_INDEX_TYPE, ret);
 }
-_g void settype_tablevalue(addr pos, addr value)
+void settype_tablevalue(addr pos, addr value)
 {
 	CheckTableValue(pos);
 	SetEval(pos, TABLEVALUE_INDEX_TYPE, value);
 }
 
-_g int getspecialp_tablevalue(addr pos)
+int getspecialp_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->specialp;
 }
-_g void setspecialp_tablevalue(addr pos, int value)
+void setspecialp_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->specialp = (value != 0);
 }
 
-_g int getdynamic_tablevalue(addr pos)
+int getdynamic_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->dynamic;
 }
-_g void setdynamic_tablevalue(addr pos, int value)
+void setdynamic_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->dynamic = (value != 0);
 }
 
-_g enum IgnoreType getignore_tablevalue(addr pos)
+enum IgnoreType getignore_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->ignore;
 }
-_g void setignore_tablevalue(addr pos, enum IgnoreType value)
+void setignore_tablevalue(addr pos, enum IgnoreType value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->ignore = value;
 }
 
-_g int getreference_tablevalue(addr pos)
+int getreference_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->reference;
 }
-_g void setreference_tablevalue(addr pos, int value)
+void setreference_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->reference = (value != 0);
 }
 
-_g int getcheck_tablevalue(addr pos)
+int getcheck_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->check;
 }
-_g void setcheck_tablevalue(addr pos, int value)
+void setcheck_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->check = (value != 0);
 }
 
-_g size_t getlexical_tablevalue(addr pos)
+size_t getlexical_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->lexical;
 }
-_g void setlexical_tablevalue(addr pos, size_t value)
+void setlexical_tablevalue(addr pos, size_t value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->lexical = value;
 }
 
-_g size_t getlet_tablevalue(addr pos)
+size_t getlet_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->let;
 }
-_g void setlet_tablevalue(addr pos, size_t value)
+void setlet_tablevalue(addr pos, size_t value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->let = value;
 }
 
-_g int getclosurep_tablevalue(addr pos)
+int getclosurep_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->closurep;
 }
-_g void setclosurep_tablevalue(addr pos, int value)
+void setclosurep_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->closurep = (value != 0);
 }
 
-_g int getbasep_tablevalue(addr pos)
+int getbasep_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->basep;
 }
-_g void setbasep_tablevalue(addr pos, int value)
+void setbasep_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->basep = (value != 0);
 }
 
-_g int getglobalp_tablevalue(addr pos)
+int getglobalp_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->globalp;
 }
-_g void setglobalp_tablevalue(addr pos, int value)
+void setglobalp_tablevalue(addr pos, int value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->globalp = (value != 0);
 }
 
-_g size_t getclosure_tablevalue(addr pos)
+size_t getclosure_tablevalue(addr pos)
 {
 	CheckTableValue(pos);
 	return StructTableValue(pos)->closure;
 }
-_g void setclosure_tablevalue(addr pos, size_t value)
+void setclosure_tablevalue(addr pos, size_t value)
 {
 	CheckTableValue(pos);
 	StructTableValue(pos)->closure = value;
 }
 
-_g void getvalue_tablevalue(Execute ptr, addr pos, addr *ret)
+void getvalue_tablevalue(Execute ptr, addr pos, addr *ret)
 {
 	size_t index = getlexical_tablevalue(pos);
 	get_lexical_control(ptr, index, ret);
 }
 
-_g void setvalue_tablevalue(Execute ptr, addr pos, addr value)
+void setvalue_tablevalue(Execute ptr, addr pos, addr value)
 {
 	size_t index = getlexical_tablevalue(pos);
 	set_lexical_control(ptr, index, value);
@@ -218,7 +218,7 @@ static void alloc_tablefunction(LocalRoot local, addr *ret)
 			sizeoft(struct tablefunction));
 }
 
-_g void make_tablefunction(addr *ret, addr call)
+void make_tablefunction(addr *ret, addr call)
 {
 	addr pos;
 	struct tablefunction *ptr;
@@ -230,7 +230,7 @@ _g void make_tablefunction(addr *ret, addr call)
 	*ret = pos;
 }
 
-_g void copy_tablefunction(addr *ret, addr pos)
+void copy_tablefunction(addr *ret, addr pos)
 {
 	addr one, value;
 	size_t i, size;
@@ -249,137 +249,137 @@ _g void copy_tablefunction(addr *ret, addr pos)
 	*ret = one;
 }
 
-_g void getname_tablefunction(addr pos, addr *ret)
+void getname_tablefunction(addr pos, addr *ret)
 {
 	CheckTableFunction(pos);
 	GetEval(pos, TABLEFUNCTION_INDEX_NAME, ret);
 }
-_g void setname_tablefunction(addr pos, addr value)
+void setname_tablefunction(addr pos, addr value)
 {
 	CheckTableFunction(pos);
 	SetEval(pos, TABLEFUNCTION_INDEX_NAME, value);
 }
 
-_g void gettype_tablefunction(addr pos, addr *ret)
+void gettype_tablefunction(addr pos, addr *ret)
 {
 	CheckTableFunction(pos);
 	GetEval(pos, TABLEFUNCTION_INDEX_TYPE, ret);
 }
-_g void settype_tablefunction(addr pos, addr value)
+void settype_tablefunction(addr pos, addr value)
 {
 	CheckTableFunction(pos);
 	SetEval(pos, TABLEFUNCTION_INDEX_TYPE, value);
 }
 
-_g int getglobalp_tablefunction(addr pos)
+int getglobalp_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->globalp;
 }
-_g void setglobalp_tablefunction(addr pos, int value)
+void setglobalp_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->globalp = (value != 0);
 }
 
-_g int getdynamic_tablefunction(addr pos)
+int getdynamic_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->dynamic;
 }
-_g void setdynamic_tablefunction(addr pos, int value)
+void setdynamic_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->dynamic = (value != 0);
 }
 
-_g int getreference_tablefunction(addr pos)
+int getreference_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->reference;
 }
-_g void setreference_tablefunction(addr pos, int value)
+void setreference_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->reference = (value != 0);
 }
 
-_g int getcheck_tablefunction(addr pos)
+int getcheck_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->check;
 }
-_g void setcheck_tablefunction(addr pos, int value)
+void setcheck_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->check = (value != 0);
 }
 
-_g enum IgnoreType getignore_tablefunction(addr pos)
+enum IgnoreType getignore_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->ignore;
 }
-_g void setignore_tablefunction(addr pos, enum IgnoreType value)
+void setignore_tablefunction(addr pos, enum IgnoreType value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->ignore = value;
 }
 
-_g enum InlineType getinline_tablefunction(addr pos)
+enum InlineType getinline_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->Inline;
 }
-_g void setinline_tablefunction(addr pos, enum InlineType value)
+void setinline_tablefunction(addr pos, enum InlineType value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->Inline = value;
 }
 
-_g size_t getlexical_tablefunction(addr pos)
+size_t getlexical_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->lexical;
 }
 
-_g void setlexical_tablefunction(addr pos, size_t value)
+void setlexical_tablefunction(addr pos, size_t value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->lexical = value;
 }
 
-_g int getclosurep_tablefunction(addr pos)
+int getclosurep_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->closurep;
 }
 
-_g void setclosurep_tablefunction(addr pos, int value)
+void setclosurep_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->closurep = (value != 0);
 }
 
-_g size_t getclosure_tablefunction(addr pos)
+size_t getclosure_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
 	return StructTableFunction(pos)->closure;
 }
 
-_g void setclosure_tablefunction(addr pos, size_t value)
+void setclosure_tablefunction(addr pos, size_t value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->closure = value;
 }
 
-_g void getvalue_tablefunction(Execute ptr, addr pos, addr *ret)
+void getvalue_tablefunction(Execute ptr, addr pos, addr *ret)
 {
 	size_t index = getlexical_tablefunction(pos);
 	getlow_lexical_control(ptr, index, ret);
 }
 
-_g void setvalue_tablefunction(Execute ptr, addr pos, addr value)
+void setvalue_tablefunction(Execute ptr, addr pos, addr value)
 {
 	size_t index = getlexical_tablefunction(pos);
 	setlow_lexical_control(ptr, index, value);
@@ -396,7 +396,7 @@ static void alloc_tabletagbody(LocalRoot local, addr *ret)
 			sizeoft(struct tabletagbody));
 }
 
-_g void make_tabletagbody(addr *ret, addr tag)
+void make_tabletagbody(addr *ret, addr tag)
 {
 	addr pos;
 	struct tabletagbody *ptr;
@@ -409,7 +409,7 @@ _g void make_tabletagbody(addr *ret, addr tag)
 	*ret = pos;
 }
 
-_g void copy_tabletagbody(addr *ret, addr pos)
+void copy_tabletagbody(addr *ret, addr pos)
 {
 	addr one, value;
 	size_t i, size;
@@ -428,30 +428,30 @@ _g void copy_tabletagbody(addr *ret, addr pos)
 	*ret = one;
 }
 
-_g void getname_tabletagbody(addr pos, addr *ret)
+void getname_tabletagbody(addr pos, addr *ret)
 {
 	CheckTableTagBody(pos);
 	GetEval(pos, TABLETAGBODY_INDEX_NAME, ret);
 }
-_g void setname_tabletagbody(addr pos, addr value)
+void setname_tabletagbody(addr pos, addr value)
 {
 	CheckTableTagBody(pos);
 	Check(! tagbody_tag_p(value), "tag error");
 	SetEval(pos, TABLETAGBODY_INDEX_NAME, value);
 }
 
-_g int getreference_tabletagbody(addr pos)
+int getreference_tabletagbody(addr pos)
 {
 	CheckTableTagBody(pos);
 	return StructTableTagBody(pos)->reference;
 }
-_g void setreference_tabletagbody(addr pos, int value)
+void setreference_tabletagbody(addr pos, int value)
 {
 	CheckTableTagBody(pos);
 	StructTableTagBody(pos)->reference = (value != 0);
 }
 
-_g int equal_tabletagbody(addr left, addr right)
+int equal_tabletagbody(addr left, addr right)
 {
 	CheckTableTagBody(left);
 	CheckTableTagBody(right);
@@ -460,49 +460,49 @@ _g int equal_tabletagbody(addr left, addr right)
 	return eql_function(left, right);
 }
 
-_g size_t getlexical_tabletagbody(addr pos)
+size_t getlexical_tabletagbody(addr pos)
 {
 	CheckTableTagBody(pos);
 	return StructTableTagBody(pos)->lexical;
 }
 
-_g void setlexical_tabletagbody(addr pos, size_t value)
+void setlexical_tabletagbody(addr pos, size_t value)
 {
 	CheckTableTagBody(pos);
 	StructTableTagBody(pos)->lexical = value;
 }
 
-_g int getclosurep_tabletagbody(addr pos)
+int getclosurep_tabletagbody(addr pos)
 {
 	CheckTableTagBody(pos);
 	return StructTableTagBody(pos)->closurep;
 }
 
-_g void setclosurep_tabletagbody(addr pos, int value)
+void setclosurep_tabletagbody(addr pos, int value)
 {
 	CheckTableTagBody(pos);
 	StructTableTagBody(pos)->closurep = (value != 0);
 }
 
-_g size_t getclosure_tabletagbody(addr pos)
+size_t getclosure_tabletagbody(addr pos)
 {
 	CheckTableTagBody(pos);
 	return StructTableTagBody(pos)->closure;
 }
 
-_g void setclosure_tabletagbody(addr pos, size_t value)
+void setclosure_tabletagbody(addr pos, size_t value)
 {
 	CheckTableTagBody(pos);
 	StructTableTagBody(pos)->closure = value;
 }
 
-_g size_t getjump_tabletagbody(addr pos)
+size_t getjump_tabletagbody(addr pos)
 {
 	CheckTableTagBody(pos);
 	return StructTableTagBody(pos)->jump;
 }
 
-_g void setjump_tabletagbody(addr pos, size_t value)
+void setjump_tabletagbody(addr pos, size_t value)
 {
 	CheckTableTagBody(pos);
 	StructTableTagBody(pos)->jump = value;
@@ -519,7 +519,7 @@ static void alloc_tableblock(LocalRoot local, addr *ret)
 			sizeoft(struct tableblock));
 }
 
-_g void make_tableblock(addr *ret, addr tag)
+void make_tableblock(addr *ret, addr tag)
 {
 	addr pos;
 	struct tableblock *ptr;
@@ -532,7 +532,7 @@ _g void make_tableblock(addr *ret, addr tag)
 	*ret = pos;
 }
 
-_g void copy_tableblock(addr *ret, addr pos)
+void copy_tableblock(addr *ret, addr pos)
 {
 	addr one, value;
 	size_t i, size;
@@ -551,30 +551,30 @@ _g void copy_tableblock(addr *ret, addr pos)
 	*ret = one;
 }
 
-_g void getname_tableblock(addr pos, addr *ret)
+void getname_tableblock(addr pos, addr *ret)
 {
 	CheckTableBlock(pos);
 	GetEval(pos, TABLEBLOCK_INDEX_NAME, ret);
 }
-_g void setname_tableblock(addr pos, addr value)
+void setname_tableblock(addr pos, addr value)
 {
 	CheckTableBlock(pos);
 	Check(! symbolp(value), "tag error");
 	SetEval(pos, TABLEBLOCK_INDEX_NAME, value);
 }
 
-_g int getreference_tableblock(addr pos)
+int getreference_tableblock(addr pos)
 {
 	CheckTableBlock(pos);
 	return StructTableBlock(pos)->reference;
 }
-_g void setreference_tableblock(addr pos, int value)
+void setreference_tableblock(addr pos, int value)
 {
 	CheckTableBlock(pos);
 	StructTableBlock(pos)->reference = (value != 0);
 }
 
-_g int equal_tableblock(addr left, addr right)
+int equal_tableblock(addr left, addr right)
 {
 	CheckTableBlock(left);
 	CheckTableBlock(right);
@@ -583,37 +583,37 @@ _g int equal_tableblock(addr left, addr right)
 	return left == right;
 }
 
-_g size_t getlexical_tableblock(addr pos)
+size_t getlexical_tableblock(addr pos)
 {
 	CheckTableBlock(pos);
 	return StructTableBlock(pos)->lexical;
 }
 
-_g void setlexical_tableblock(addr pos, size_t value)
+void setlexical_tableblock(addr pos, size_t value)
 {
 	CheckTableBlock(pos);
 	StructTableBlock(pos)->lexical = value;
 }
 
-_g int getclosurep_tableblock(addr pos)
+int getclosurep_tableblock(addr pos)
 {
 	CheckTableBlock(pos);
 	return StructTableBlock(pos)->closurep;
 }
 
-_g void setclosurep_tableblock(addr pos, int value)
+void setclosurep_tableblock(addr pos, int value)
 {
 	CheckTableBlock(pos);
 	StructTableBlock(pos)->closurep = (value != 0);
 }
 
-_g size_t getclosure_tableblock(addr pos)
+size_t getclosure_tableblock(addr pos)
 {
 	CheckTableBlock(pos);
 	return StructTableBlock(pos)->closure;
 }
 
-_g void setclosure_tableblock(addr pos, size_t value)
+void setclosure_tableblock(addr pos, size_t value)
 {
 	CheckTableBlock(pos);
 	StructTableBlock(pos)->closure = value;
@@ -634,40 +634,40 @@ static void evaltable_heap(addr *ret, enum EvalTable type, addr value)
 	str->type = type;
 	*ret = pos;
 }
-_g void evaltable_value_heap(addr *ret, addr pos)
+void evaltable_value_heap(addr *ret, addr pos)
 {
 	CheckTableValue(pos);
 	evaltable_heap(ret, EvalTable_Value, pos);
 }
-_g void evaltable_function_heap(addr *ret, addr pos)
+void evaltable_function_heap(addr *ret, addr pos)
 {
 	CheckTableFunction(pos);
 	evaltable_heap(ret, EvalTable_Function, pos);
 }
-_g void evaltable_tagbody_heap(addr *ret, addr pos)
+void evaltable_tagbody_heap(addr *ret, addr pos)
 {
 	CheckTableTagBody(pos);
 	evaltable_heap(ret, EvalTable_TagBody, pos);
 }
-_g void evaltable_block_heap(addr *ret, addr pos)
+void evaltable_block_heap(addr *ret, addr pos)
 {
 	CheckTableBlock(pos);
 	evaltable_heap(ret, EvalTable_Block, pos);
 }
 
-_g enum EvalTable gettype_evaltable(addr pos)
+enum EvalTable gettype_evaltable(addr pos)
 {
 	CheckTableTable(pos);
 	return StructEvalTable(pos)->type;
 }
 
-_g void get_evaltable(addr pos, addr *ret)
+void get_evaltable(addr pos, addr *ret)
 {
 	CheckTableTable(pos);
 	GetEval(pos, 0, ret);
 }
 
-_g int getvalue_evaltable(addr list, addr pos, addr *ret)
+int getvalue_evaltable(addr list, addr pos, addr *ret)
 {
 	addr var, check;
 
@@ -688,7 +688,7 @@ _g int getvalue_evaltable(addr list, addr pos, addr *ret)
 	return 0;
 }
 
-_g int getfunction_evaltable(addr list, addr pos, addr *ret)
+int getfunction_evaltable(addr list, addr pos, addr *ret)
 {
 	addr var, check;
 
@@ -709,7 +709,7 @@ _g int getfunction_evaltable(addr list, addr pos, addr *ret)
 	return 0;
 }
 
-_g int gettagbody_evaltable(addr list, addr pos, addr *ret)
+int gettagbody_evaltable(addr list, addr pos, addr *ret)
 {
 	addr var, check;
 
@@ -730,7 +730,7 @@ _g int gettagbody_evaltable(addr list, addr pos, addr *ret)
 	return 0;
 }
 
-_g int getblock_evaltable(addr list, addr pos, addr *ret)
+int getblock_evaltable(addr list, addr pos, addr *ret)
 {
 	addr var, check;
 
@@ -751,7 +751,7 @@ _g int getblock_evaltable(addr list, addr pos, addr *ret)
 	return 0;
 }
 
-_g int getclosurep_evaltable(addr table)
+int getclosurep_evaltable(addr table)
 {
 	addr pos;
 
@@ -787,7 +787,7 @@ static void alloc_tablecall(LocalRoot local, addr *ret)
 			sizeoft(struct tablecall));
 }
 
-_g void make_tablecall(addr *ret)
+void make_tablecall(addr *ret)
 {
 	addr pos;
 	struct tablecall *ptr;
@@ -798,34 +798,34 @@ _g void make_tablecall(addr *ret)
 	*ret = pos;
 }
 
-_g int getcheck_tablecall(addr pos)
+int getcheck_tablecall(addr pos)
 {
 	CheckTableCall(pos);
 	return StructTableCall(pos)->check;
 }
-_g void setcheck_tablecall(addr pos, int value)
+void setcheck_tablecall(addr pos, int value)
 {
 	CheckTableCall(pos);
 	StructTableCall(pos)->check = (value != 0);
 }
 
-_g void getvalue_tablecall(addr pos, addr *ret)
+void getvalue_tablecall(addr pos, addr *ret)
 {
 	CheckTableCall(pos);
 	GetEval(pos, TABLECALL_INDEX_VALUE, ret);
 }
-_g void setvalue_tablecall(addr pos, addr value)
+void setvalue_tablecall(addr pos, addr value)
 {
 	CheckTableCall(pos);
 	SetEval(pos, TABLECALL_INDEX_VALUE, value);
 }
 
-_g void gettype_tablecall(addr pos, addr *ret)
+void gettype_tablecall(addr pos, addr *ret)
 {
 	CheckTableCall(pos);
 	GetEval(pos, TABLECALL_INDEX_TYPE, ret);
 }
-_g void settype_tablecall(addr pos, addr value)
+void settype_tablecall(addr pos, addr value)
 {
 	CheckTableCall(pos);
 	SetEval(pos, TABLECALL_INDEX_TYPE, value);

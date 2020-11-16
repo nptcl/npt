@@ -1732,7 +1732,7 @@ static int defgeneric_accessor_method_slot_definition_(Execute ptr)
 /***********************************************************************
  *  function
  ***********************************************************************/
-_g void init_mop_reader(void)
+void init_mop_reader(void)
 {
 	/* Classes */
 	SetPointerType(var3, method_class_name);
@@ -1772,7 +1772,7 @@ _g void init_mop_reader(void)
 	SetPointerType(var3, method_accessor_method_slot_definition);
 }
 
-_g int build_mop_reader_(Execute ptr)
+int build_mop_reader_(Execute ptr)
 {
 	/* Classes */
 	Return(defgeneric_class_name_(ptr));

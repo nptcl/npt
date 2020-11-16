@@ -792,7 +792,7 @@ static void defun_name_char(void)
 /*
  *  function
  */
-_g void init_common_characters(void)
+void init_common_characters(void)
 {
 	SetPointerCall(defun, dynamic, char_eql);
 	SetPointerCall(defun, dynamic, char_less);
@@ -826,7 +826,7 @@ _g void init_common_characters(void)
 	SetPointerCall(defun, var1, name_char);
 }
 
-_g void build_common_characters(void)
+void build_common_characters(void)
 {
 	defconstant_char_code_limit();
 	defun_char_eql();

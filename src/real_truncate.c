@@ -45,7 +45,7 @@ static int truncate1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	return 0;
 }
 
-_g int truncate1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
+int truncate1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -115,7 +115,7 @@ static int ftruncate1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	return 0;
 }
 
-_g int ftruncate1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
+int ftruncate1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -826,7 +826,7 @@ static int truncate_long_common_(LocalRoot local,
 	}
 }
 
-_g int truncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+int truncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1501,7 +1501,7 @@ static int ftruncate_long_common_(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-_g int ftruncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+int ftruncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1529,7 +1529,7 @@ _g int ftruncate2_common_(LocalRoot local, addr *quot, addr *rem, addr left, add
 	}
 }
 
-_g int truncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+int truncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
 {
 	if (div == Unbound)
 		return truncate1_common_(local, ret1, ret2, var);
@@ -1537,7 +1537,7 @@ _g int truncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *r
 		return truncate2_common_(local, ret1, ret2, var, div);
 }
 
-_g int ftruncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+int ftruncate_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
 {
 	if (div == Unbound)
 		return ftruncate1_common_(local, ret1, ret2, var);
@@ -1673,7 +1673,7 @@ static int rem_ratio_common_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int rem_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
+int rem_rational_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:

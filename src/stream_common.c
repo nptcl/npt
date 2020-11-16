@@ -60,7 +60,7 @@ static int read_binary_from_byte_(addr stream, byte *pos, size_t size, size_t *r
 	return Result(ret, x);
 }
 
-_g int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
+int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	if (get_binary_stream(stream, &stream))
@@ -81,7 +81,7 @@ static int write_binary_from_byte_(addr stream,
 	return Result(ret, x);
 }
 
-_g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret)
+int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	if (get_binary_stream(stream, &stream))
@@ -94,7 +94,7 @@ _g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *r
 /*
  *  terpri
  */
-_g int terpri_stream_(addr stream)
+int terpri_stream_(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return write_char_stream_(stream, '\n');
@@ -104,7 +104,7 @@ _g int terpri_stream_(addr stream)
 /*
  *  fresh-line
  */
-_g int fresh_line_stream_(addr stream, int *ret)
+int fresh_line_stream_(addr stream, int *ret)
 {
 	size_t size;
 
@@ -203,7 +203,7 @@ static int peek_char_character_(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int peek_char_stream_(Execute ptr, addr *ret,
+int peek_char_stream_(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp)
 {
 	Return(input_stream_designer_(ptr, stream, &stream));
@@ -410,7 +410,7 @@ static int read_line_stream_loop_(Execute ptr, addr *ret, int *miss,
 	return Result(miss, 1);
 }
 
-_g int read_line_stream_(Execute ptr, addr *ret, int *miss,
+int read_line_stream_(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp)
 {
 	LocalRoot local;
@@ -429,7 +429,7 @@ _g int read_line_stream_(Execute ptr, addr *ret, int *miss,
 /*
  *  write-string
  */
-_g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
+int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 {
 	unicode c;
 	addr stream;
@@ -496,7 +496,7 @@ static int read_sequence_binary_(addr *ret,
 	return Result(ret, value);
 }
 
-_g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end)
+int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end)
 {
 	int check;
 
@@ -556,7 +556,7 @@ static int write_sequence_binary_(LocalRoot local,
 	return 0;
 }
 
-_g int write_sequence_stream(LocalRoot local,
+int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	int check;

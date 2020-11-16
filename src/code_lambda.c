@@ -20,7 +20,7 @@
 /*
  *  lambda object
  */
-_g int pop_code(Execute ptr, CodeValue x)
+int pop_code(Execute ptr, CodeValue x)
 {
 	Return(popargs_control_(ptr, &x.pos));
 	if (x.pos == Unbound)
@@ -30,7 +30,7 @@ _g int pop_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int pop_unbound_code(Execute ptr, CodeValue x)
+int pop_unbound_code(Execute ptr, CodeValue x)
 {
 	Return(popargs_control_(ptr, &x.pos));
 	setresult_control(ptr, x.pos);
@@ -38,7 +38,7 @@ _g int pop_unbound_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int getf_code(Execute ptr, CodeValue x)
+int getf_code(Execute ptr, CodeValue x)
 {
 	addr list, key, value;
 
@@ -59,7 +59,7 @@ _g int getf_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int rest_code(Execute ptr, CodeValue x)
+int rest_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -70,7 +70,7 @@ _g int rest_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int allow_other_keys_code(Execute ptr, CodeValue x)
+int allow_other_keys_code(Execute ptr, CodeValue x)
 {
 	addr list, key1, key2, keys;
 
@@ -102,7 +102,7 @@ _g int allow_other_keys_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int rest_null_code(Execute ptr, CodeValue x)
+int rest_null_code(Execute ptr, CodeValue x)
 {
 	GetArgsControl(ptr, &x.pos);
 	if (x.pos != Nil)
@@ -111,7 +111,7 @@ _g int rest_null_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int whole_code(Execute ptr, CodeValue x)
+int whole_code(Execute ptr, CodeValue x)
 {
 	addr list;
 
@@ -123,7 +123,7 @@ _g int whole_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_code(Execute ptr, CodeValue x)
+int lambda_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	function_heap(&pos, Nil, x.pos);
@@ -131,7 +131,7 @@ _g int lambda_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_name_code(Execute ptr, CodeValue x)
+int lambda_name_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
@@ -139,7 +139,7 @@ _g int lambda_name_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_type_code(Execute ptr, CodeValue x)
+int lambda_type_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
@@ -147,7 +147,7 @@ _g int lambda_type_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_doc_code(Execute ptr, CodeValue x)
+int lambda_doc_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
@@ -155,7 +155,7 @@ _g int lambda_doc_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_form_code(Execute ptr, CodeValue x)
+int lambda_form_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
@@ -163,7 +163,7 @@ _g int lambda_form_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_defun_code(Execute ptr, CodeValue x)
+int lambda_defun_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
@@ -213,7 +213,7 @@ static void getclosure_list_code(Execute ptr, addr pos, addr list, addr *ret)
 	}
 }
 
-_g int lambda_closure_code(Execute ptr, CodeValue x)
+int lambda_closure_code(Execute ptr, CodeValue x)
 {
 	addr list, pos, root, value;
 
@@ -231,7 +231,7 @@ _g int lambda_closure_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_lexical_code(Execute ptr, CodeValue x)
+int lambda_lexical_code(Execute ptr, CodeValue x)
 {
 	addr list, pos, data;
 	size_t value;
@@ -262,7 +262,7 @@ _g int lambda_lexical_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lambda_cache_code(Execute ptr, CodeValue x)
+int lambda_cache_code(Execute ptr, CodeValue x)
 {
 	addr jump, pos;
 	size_t index;
@@ -278,7 +278,7 @@ _g int lambda_cache_code(Execute ptr, CodeValue x)
 	return goto_control_(ptr, index);
 }
 
-_g int lambda_cache_set_code(Execute ptr, CodeValue x)
+int lambda_cache_set_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -294,7 +294,7 @@ _g int lambda_cache_set_code(Execute ptr, CodeValue x)
 /*
  *  macro object
  */
-_g int macro_code(Execute ptr, CodeValue x)
+int macro_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	macro_heap(&pos, Nil, x.pos);
@@ -302,13 +302,13 @@ _g int macro_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int macro_special_code(Execute ptr, CodeValue x)
+int macro_special_code(Execute ptr, CodeValue x)
 {
 	pushspecial_control(ptr, x.pos, Unbound);
 	return 0;
 }
 
-_g int macro_env_code(Execute ptr, CodeValue x)
+int macro_env_code(Execute ptr, CodeValue x)
 {
 	addr list;
 
@@ -321,7 +321,7 @@ _g int macro_env_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int macro_whole_code(Execute ptr, CodeValue x)
+int macro_whole_code(Execute ptr, CodeValue x)
 {
 	addr list;
 
@@ -338,7 +338,7 @@ _g int macro_whole_code(Execute ptr, CodeValue x)
 /*
  *  multiple-value-bind
  */
-_g int bind1_type_code(Execute ptr, CodeValue x)
+int bind1_type_code(Execute ptr, CodeValue x)
 {
 	addr value, index, type;
 	size_t i;
@@ -353,7 +353,7 @@ _g int bind1_type_code(Execute ptr, CodeValue x)
 	return call_typep_error_(ptr, value, type);
 }
 
-_g int bind1_special_code(Execute ptr, CodeValue x)
+int bind1_special_code(Execute ptr, CodeValue x)
 {
 	addr value, index, symbol;
 	size_t i;
@@ -369,7 +369,7 @@ _g int bind1_special_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int bind1_lexical_code(Execute ptr, CodeValue x)
+int bind1_lexical_code(Execute ptr, CodeValue x)
 {
 	addr value, index, lexical;
 	size_t i;
@@ -386,7 +386,7 @@ _g int bind1_lexical_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int bind2_type_code(Execute ptr, CodeValue x)
+int bind2_type_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -397,7 +397,7 @@ _g int bind2_type_code(Execute ptr, CodeValue x)
 	return call_typep_error_(ptr, value, x.pos);
 }
 
-_g int bind2_special_code(Execute ptr, CodeValue x)
+int bind2_special_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -409,7 +409,7 @@ _g int bind2_special_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int bind2_lexical_code(Execute ptr, CodeValue x)
+int bind2_lexical_code(Execute ptr, CodeValue x)
 {
 	addr value;
 

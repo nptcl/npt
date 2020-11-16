@@ -9,9 +9,9 @@
 #define require_common _n(require_common)
 #define build_require _n(build_require)
 
-_g int provide_common_(Execute ptr, addr var);
-_g int require_common(Execute ptr, addr var, addr opt);
-_g void build_require(void);
+int provide_common_(Execute ptr, addr var);
+int require_common(Execute ptr, addr var, addr opt);
+void build_require(void);
 
 #endif
 

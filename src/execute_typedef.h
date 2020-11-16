@@ -88,9 +88,9 @@ struct execute_throw {
 /*
  *  threadlocal
  */
-__extern threadlocal ThreadLocal_Execute;
-__extern threadlocal ThreadLocal_Index;
-__extern threadlocal ThreadLocal_Local;
+extern threadlocal ThreadLocal_Execute;
+extern threadlocal ThreadLocal_Index;
+extern threadlocal ThreadLocal_Local;
 
 #endif
 

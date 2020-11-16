@@ -7,8 +7,8 @@
 #define make_package_ _n(make_package_)
 #define init_package_make _n(init_package_make)
 
-_g int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret);
-_g void init_package_make(void);
+int make_package_(Execute ptr, addr name, addr names, addr use, addr *ret);
+void init_package_make(void);
 
 #endif
 

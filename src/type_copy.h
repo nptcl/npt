@@ -12,15 +12,15 @@
 #define type_throw_heap _n(type_throw_heap)
 #define init_type_copy _n(init_type_copy)
 
-_g void type_copy_alloc(LocalRoot local, addr *ret, addr type);
-_g void type_copy_local(LocalRoot local, addr *ret, addr type);
-_g void type_copy_heap(addr *ret, addr type);
+void type_copy_alloc(LocalRoot local, addr *ret, addr type);
+void type_copy_local(LocalRoot local, addr *ret, addr type);
+void type_copy_heap(addr *ret, addr type);
 
-_g void type_throw_alloc(LocalRoot local, addr pos, addr *ret);
-_g void type_throw_local(LocalRoot local, addr pos, addr *ret);
-_g void type_throw_heap(addr pos, addr *ret);
+void type_throw_alloc(LocalRoot local, addr pos, addr *ret);
+void type_throw_local(LocalRoot local, addr pos, addr *ret);
+void type_throw_heap(addr pos, addr *ret);
 
-_g void init_type_copy(void);
+void init_type_copy(void);
 
 #endif
 

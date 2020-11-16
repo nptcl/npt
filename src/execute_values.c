@@ -7,7 +7,7 @@
 #include "object.h"
 #include "thread.h"
 
-_g void clear_values_execute(Execute ptr)
+void clear_values_execute(Execute ptr)
 {
 	addr values;
 	size_t size;
@@ -22,13 +22,13 @@ _g void clear_values_execute(Execute ptr)
 	SetExecuteValuesList(values, Unbound);
 }
 
-_g void setresult_control(Execute ptr, addr value)
+void setresult_control(Execute ptr, addr value)
 {
 	SetExecuteValues(ptr->values_vector, 0, value);
 	ptr->sizer = 1;
 }
 
-_g void setbool_control(Execute ptr, int value)
+void setbool_control(Execute ptr, int value)
 {
 	SetExecuteValues(ptr->values_vector, 0, value? T: Nil);
 	ptr->sizer = 1;
@@ -60,7 +60,7 @@ static void nreverse_values_control(addr values, size_t sizer)
 	}
 }
 
-_g void setvalues_control(Execute ptr, ...)
+void setvalues_control(Execute ptr, ...)
 {
 	addr values, pos;
 	va_list args;
@@ -90,12 +90,12 @@ _g void setvalues_control(Execute ptr, ...)
 	nreverse_values_control(values, i);
 }
 
-_g void setvalues_nil_control(Execute ptr)
+void setvalues_nil_control(Execute ptr)
 {
 	ptr->sizer = 0;
 }
 
-_g void setvalues_list_control(Execute ptr, addr list)
+void setvalues_list_control(Execute ptr, addr list)
 {
 	addr values, pos;
 	size_t i;
@@ -119,12 +119,12 @@ _g void setvalues_list_control(Execute ptr, addr list)
 	nreverse_values_control(values, i);
 }
 
-_g void getresult_control(Execute ptr, addr *ret)
+void getresult_control(Execute ptr, addr *ret)
 {
 	*ret = ptr->sizer? ptr->values_reader[0]: Nil;
 }
 
-_g void getvalues_control(Execute ptr, size_t index, addr *ret)
+void getvalues_control(Execute ptr, size_t index, addr *ret)
 {
 	addr list;
 
@@ -177,22 +177,22 @@ static void getvalues_list_control(Execute ptr, LocalRoot local, addr *ret)
 	}
 }
 
-_g void getvalues_list_control_local(Execute ptr, addr *ret)
+void getvalues_list_control_local(Execute ptr, addr *ret)
 {
 	getvalues_list_control(ptr, ptr->local, ret);
 }
 
-_g void getvalues_list_control_heap(Execute ptr, addr *ret)
+void getvalues_list_control_heap(Execute ptr, addr *ret)
 {
 	getvalues_list_control(ptr, NULL, ret);
 }
 
-_g size_t lengthvalues_control(Execute ptr)
+size_t lengthvalues_control(Execute ptr)
 {
 	return ptr->sizer;
 }
 
-_g void getvalues_root_control(Execute ptr, addr *ret)
+void getvalues_root_control(Execute ptr, addr *ret)
 {
 	addr list;
 
@@ -204,7 +204,7 @@ _g void getvalues_root_control(Execute ptr, addr *ret)
 	GetCar(list, ret);
 }
 
-_g void getvalues_pop_control(Execute ptr, addr *ret)
+void getvalues_pop_control(Execute ptr, addr *ret)
 {
 	addr list;
 

@@ -18,20 +18,20 @@
 #define getvalues_root_control _n(getvalues_root_control)
 #define getvalues_pop_control _n(getvalues_pop_control)
 
-_g void clear_values_execute(Execute ptr);
-_g void setresult_control(Execute ptr, addr value);
-_g void setbool_control(Execute ptr, int value);
-_g void setvalues_control(Execute ptr, ...);
-_g void setvalues_nil_control(Execute ptr);
-_g void setvalues_list_control(Execute ptr, addr list);
-_g void getresult_control(Execute ptr, addr *ret);
-_g void getvalues_control(Execute ptr, size_t index, addr *ret);
-_g void getvalues_list_control_local(Execute ptr, addr *ret);
-_g void getvalues_list_control_heap(Execute ptr, addr *ret);
-_g size_t lengthvalues_control(Execute ptr);
+void clear_values_execute(Execute ptr);
+void setresult_control(Execute ptr, addr value);
+void setbool_control(Execute ptr, int value);
+void setvalues_control(Execute ptr, ...);
+void setvalues_nil_control(Execute ptr);
+void setvalues_list_control(Execute ptr, addr list);
+void getresult_control(Execute ptr, addr *ret);
+void getvalues_control(Execute ptr, size_t index, addr *ret);
+void getvalues_list_control_local(Execute ptr, addr *ret);
+void getvalues_list_control_heap(Execute ptr, addr *ret);
+size_t lengthvalues_control(Execute ptr);
 
-_g void getvalues_root_control(Execute ptr, addr *ret);
-_g void getvalues_pop_control(Execute ptr, addr *ret);
+void getvalues_root_control(Execute ptr, addr *ret);
+void getvalues_pop_control(Execute ptr, addr *ret);
 
 #endif
 

@@ -17,7 +17,7 @@
 /*
  *  prompt-for
  */
-_g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
+int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 {
 	int result;
 	addr stream, spec, value;
@@ -111,7 +111,7 @@ static int yes_or_no_p_check_(Execute ptr, addr io, addr pos,
 		return yes_or_no_p_check2_(ptr, io, pos, retry, ret);
 }
 
-_g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
+int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 {
 	int miss, check;
 	addr control, stream, pos;

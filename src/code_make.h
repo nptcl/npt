@@ -8,9 +8,9 @@
 #define code_make _n(code_make)
 #define init_code_make _n(init_code_make)
 
-_g void code_make_execute(LocalRoot local, addr code, addr scope);
-_g void code_make(LocalRoot local, addr *ret, addr scope);
-_g void init_code_make(void);
+void code_make_execute(LocalRoot local, addr code, addr scope);
+void code_make(LocalRoot local, addr *ret, addr scope);
+void init_code_make(void);
 
 #endif
 

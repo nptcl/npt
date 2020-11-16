@@ -32,12 +32,12 @@ struct eastasian_struct {
 #define eastasian_symbol _n(eastasian_symbol)
 #define eastasian_width _n(eastasian_width)
 #define init_eastasian _n(init_eastasian)
-__extern unsigned EastAsianSymbol[EastAsian_Size];
-__extern const enum EastAsianType EastAsianAscii[0x80];
-__extern const struct eastasian_struct EastAsianTable[EastAsianTable_Size];
-_g enum EastAsianType eastasian_symbol(unicode c);
-_g unsigned eastasian_width(unicode c);
-_g void init_eastasian(void);
+extern unsigned EastAsianSymbol[EastAsian_Size];
+extern const enum EastAsianType EastAsianAscii[0x80];
+extern const struct eastasian_struct EastAsianTable[EastAsianTable_Size];
+enum EastAsianType eastasian_symbol(unicode c);
+unsigned eastasian_width(unicode c);
+void init_eastasian(void);
 
 #endif
 

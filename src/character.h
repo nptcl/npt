@@ -66,55 +66,55 @@
 #endif
 
 /* character */
-_g void make_character_heap(addr *ret, unicode value);
-_g void character_alloc(LocalRoot root, addr *ret, unicode value);
-_g void character_local(LocalRoot root, addr *ret, unicode value);
-_g void character_heap(addr *ret, unicode value);
-_g addr characterh(unicode value); /* for debug */
-_g int character_unicode_heap(addr *ret, unicode c);
+void make_character_heap(addr *ret, unicode value);
+void character_alloc(LocalRoot root, addr *ret, unicode value);
+void character_local(LocalRoot root, addr *ret, unicode value);
+void character_heap(addr *ret, unicode value);
+addr characterh(unicode value); /* for debug */
+int character_unicode_heap(addr *ret, unicode c);
 
-_g const unicode *ptrcharacter(addr pos);
-_g unicode refcharacter(addr pos);
-_g void getcharacter(addr pos, unicode *value);
-_g void setcharacter_unsafe(addr pos, unicode value);
-_g enum CHARACTER_TYPE character_type(unicode c);
-_g enum CHARACTER_TYPE ref_character_type(addr pos);
-_g void get_character_type(addr pos, enum CHARACTER_TYPE *ret);
-_g int isvalidunicode(unicode c);
-_g int standard_char_p(addr pos);
-_g int base_char_p(addr pos);
-_g int extended_char_p(addr pos);
-_g int characterp(addr pos);
+const unicode *ptrcharacter(addr pos);
+unicode refcharacter(addr pos);
+void getcharacter(addr pos, unicode *value);
+void setcharacter_unsafe(addr pos, unicode value);
+enum CHARACTER_TYPE character_type(unicode c);
+enum CHARACTER_TYPE ref_character_type(addr pos);
+void get_character_type(addr pos, enum CHARACTER_TYPE *ret);
+int isvalidunicode(unicode c);
+int standard_char_p(addr pos);
+int base_char_p(addr pos);
+int extended_char_p(addr pos);
+int characterp(addr pos);
 
-_g int unicode_equalp(unicode left, unicode right);
-_g int unicode_comparep(unicode left, unicode right);
-_g int character_equal(addr left, addr right);
-_g int character_equalp(addr left, addr right);
-_g int character_equal_char(addr left, const char *right);
-_g int character_equalp_char(addr left, const char *right);
-_g int character_compare(addr left, addr right);
-_g int character_comparep(addr left, addr right);
-_g int character_unicode_equal(addr left, unicode right);
-_g int character_unicode_equalp(addr left, unicode right);
-_g int character_unicode_compare(addr left, unicode right);
-_g int character_unicode_comparep(addr left, unicode right);
+int unicode_equalp(unicode left, unicode right);
+int unicode_comparep(unicode left, unicode right);
+int character_equal(addr left, addr right);
+int character_equalp(addr left, addr right);
+int character_equal_char(addr left, const char *right);
+int character_equalp_char(addr left, const char *right);
+int character_compare(addr left, addr right);
+int character_comparep(addr left, addr right);
+int character_unicode_equal(addr left, unicode right);
+int character_unicode_equalp(addr left, unicode right);
+int character_unicode_compare(addr left, unicode right);
+int character_unicode_comparep(addr left, unicode right);
 
-_g int character_equal_unicode(addr left, unicode right);
-_g int character_equalp_unicode(addr left, unicode right);
+int character_equal_unicode(addr left, unicode right);
+int character_equalp_unicode(addr left, unicode right);
 
 /* character2 */
-_g void character2_heap(addr *ret, unicode a, unicode b);
-_g unicode refcharacter2a(addr pos);
-_g unicode refcharacter2b(addr pos);
-_g void getcharacter2a(addr pos, unicode *ret);
-_g void getcharacter2b(addr pos, unicode *ret);
-_g void setcharacter2a(addr pos, unicode value);
-_g void setcharacter2b(addr pos, unicode value);
+void character2_heap(addr *ret, unicode a, unicode b);
+unicode refcharacter2a(addr pos);
+unicode refcharacter2b(addr pos);
+void getcharacter2a(addr pos, unicode *ret);
+void getcharacter2b(addr pos, unicode *ret);
+void setcharacter2a(addr pos, unicode value);
+void setcharacter2b(addr pos, unicode value);
 
-_g int character2_equal_unicode(addr left, unicode a, unicode b);
-_g int character2_equalp_unicode(addr left, unicode a, unicode b);
+int character2_equal_unicode(addr left, unicode a, unicode b);
+int character2_equalp_unicode(addr left, unicode a, unicode b);
 
-_g void build_character(void);
+void build_character(void);
 
 #endif
 

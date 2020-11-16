@@ -32,32 +32,32 @@
 #define finish_output_buffering_ _n(finish_output_buffering_)
 #define exitpoint_buffering_ _n(exitpoint_buffering_)
 
-_g int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret);
-_g int write_low_buffering(filestream fm, const byte *pos, size_t size, size_t *ret);
-_g int close_low_buffering(filestream fm);
-_g int flush_low_buffering(filestream fm);
-_g int read_ready_low_buffering(filestream fm);
-_g int file_length_low_buffering(filestream fm, size_t *ret);
-_g int file_position_low_buffering(filestream fm, size_t *ret);
-_g int file_position_start_low_buffering(filestream fm);
-_g int file_position_end_low_buffering(filestream fm);
-_g int file_position_set_low_buffering(filestream fm, size_t pos);
+int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret);
+int write_low_buffering(filestream fm, const byte *pos, size_t size, size_t *ret);
+int close_low_buffering(filestream fm);
+int flush_low_buffering(filestream fm);
+int read_ready_low_buffering(filestream fm);
+int file_length_low_buffering(filestream fm, size_t *ret);
+int file_position_low_buffering(filestream fm, size_t *ret);
+int file_position_start_low_buffering(filestream fm);
+int file_position_end_low_buffering(filestream fm);
+int file_position_set_low_buffering(filestream fm, size_t pos);
 
-_g int close_stream_buffering_(addr stream, addr *ret);
-_g int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret);
-_g int read_byte_buffering_(addr stream, addr *value, int *ret);
-_g int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t *ret);
-_g int write_byte_buffering_(addr stream, addr pos);
-_g int read_char_buffering_(addr stream, unicode *c, int *ret);
-_g int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret);
-_g int write_char_buffering_(addr stream, unicode c);
-_g int file_length_buffering_(addr file, size_t *value, int *ret);
-_g int file_position_buffering_(addr file, size_t *value, int *ret);
-_g int file_position_start_buffering_(addr stream, int *ret);
-_g int file_position_end_buffering_(addr stream, int *ret);
-_g int file_position_set_buffering_(addr stream, size_t value, int *ret);
-_g int finish_output_buffering_(addr stream);
-_g int exitpoint_buffering_(addr stream);
+int close_stream_buffering_(addr stream, addr *ret);
+int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret);
+int read_byte_buffering_(addr stream, addr *value, int *ret);
+int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t *ret);
+int write_byte_buffering_(addr stream, addr pos);
+int read_char_buffering_(addr stream, unicode *c, int *ret);
+int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret);
+int write_char_buffering_(addr stream, unicode c);
+int file_length_buffering_(addr file, size_t *value, int *ret);
+int file_position_buffering_(addr file, size_t *value, int *ret);
+int file_position_start_buffering_(addr stream, int *ret);
+int file_position_end_buffering_(addr stream, int *ret);
+int file_position_set_buffering_(addr stream, size_t value, int *ret);
+int finish_output_buffering_(addr stream);
+int exitpoint_buffering_(addr stream);
 
 #endif
 

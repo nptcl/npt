@@ -54,34 +54,34 @@ struct charqueue_struct {
 #define SetCharQueueMax(x,y)	(StructCharQueue(x)->max = (y))
 #define IncCharQueueSize(x)		(StructCharQueue(x)->size++)
 
-_g addr charqueue_heapr(size_t size);
-_g addr charqueue_localr(LocalRoot local, size_t size);
-_g addr charqueue_allocr(LocalRoot local, size_t size);
-_g void charqueue_heap(addr *ret, size_t size);
-_g void charqueue_local(LocalRoot local, addr *ret, size_t size);
-_g void charqueue_alloc(LocalRoot local, addr *ret, size_t size);
+addr charqueue_heapr(size_t size);
+addr charqueue_localr(LocalRoot local, size_t size);
+addr charqueue_allocr(LocalRoot local, size_t size);
+void charqueue_heap(addr *ret, size_t size);
+void charqueue_local(LocalRoot local, addr *ret, size_t size);
+void charqueue_alloc(LocalRoot local, addr *ret, size_t size);
 
-_g void getsize_charqueue(addr pos, size_t *ret);
-_g void getchar_charqueue(addr pos, size_t index, unicode *ret);
+void getsize_charqueue(addr pos, size_t *ret);
+void getchar_charqueue(addr pos, size_t index, unicode *ret);
 
-_g int push_charqueue_alloc_(LocalRoot local, addr pos, unicode c);
-_g int push_charqueue_local_(LocalRoot local, addr pos, unicode c);
-_g int push_charqueue_heap_(addr pos, unicode c);
+int push_charqueue_alloc_(LocalRoot local, addr pos, unicode c);
+int push_charqueue_local_(LocalRoot local, addr pos, unicode c);
+int push_charqueue_heap_(addr pos, unicode c);
 
-_g void make_charqueue_alloc(LocalRoot local, addr pos, addr *ret);
-_g void make_charqueue_local(LocalRoot local, addr pos, addr *ret);
-_g void make_charqueue_heap(addr pos, addr *ret);
+void make_charqueue_alloc(LocalRoot local, addr pos, addr *ret);
+void make_charqueue_local(LocalRoot local, addr pos, addr *ret);
+void make_charqueue_heap(addr pos, addr *ret);
 
-_g void clear_charqueue(addr pos);
-_g void free_charqueue(addr pos);
-_g int position_charqueue(addr pos, size_t size);
+void clear_charqueue(addr pos);
+void free_charqueue(addr pos);
+int position_charqueue(addr pos, size_t size);
 
-_g int pushstring_charqueue_alloc_(LocalRoot local, addr pos, addr push);
-_g int pushstring_charqueue_local_(LocalRoot local, addr pos, addr push);
-_g int pushstring_charqueue_heap_(addr pos, addr push);
-_g int pushchar_charqueue_alloc_(LocalRoot local, addr pos, const char *str);
-_g int pushchar_charqueue_local_(LocalRoot local, addr pos, const char *str);
-_g int pushchar_charqueue_heap_(addr pos, const char *str);
+int pushstring_charqueue_alloc_(LocalRoot local, addr pos, addr push);
+int pushstring_charqueue_local_(LocalRoot local, addr pos, addr push);
+int pushstring_charqueue_heap_(addr pos, addr push);
+int pushchar_charqueue_alloc_(LocalRoot local, addr pos, const char *str);
+int pushchar_charqueue_local_(LocalRoot local, addr pos, const char *str);
+int pushchar_charqueue_heap_(addr pos, const char *str);
 
 #endif
 

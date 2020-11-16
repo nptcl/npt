@@ -33,7 +33,7 @@ static int faslwrite_byte16_(addr stream, uint16_t v)
 	return faslwrite_buffer_(stream, &v, sizeoft(v));
 }
 
-_g int faslwrite_header_(addr stream)
+int faslwrite_header_(addr stream)
 {
 	char buffer[32];
 
@@ -59,7 +59,7 @@ _g int faslwrite_header_(addr stream)
 	return 0;
 }
 
-_g int faslwrite_footer_(addr stream)
+int faslwrite_footer_(addr stream)
 {
 	char buffer[8];
 
@@ -157,7 +157,7 @@ static int faslwrite_value_code(Execute ptr, addr stream, addr pos)
 typedef int (*faslwrite_callvalue)(Execute, addr, addr);
 static faslwrite_callvalue FaslWrite_Value[LISPTYPE_COMPILE];
 
-_g int faslwrite_value(Execute ptr, addr stream, addr pos)
+int faslwrite_value(Execute ptr, addr stream, addr pos)
 {
 	enum LISPTYPE type;
 	faslwrite_callvalue call;
@@ -180,7 +180,7 @@ _g int faslwrite_value(Execute ptr, addr stream, addr pos)
 /*
  *  initialize
  */
-_g void init_compile_write(void)
+void init_compile_write(void)
 {
 	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil;
 	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t;

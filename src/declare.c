@@ -79,21 +79,21 @@ static void eval_declare_alloc_optimize(LocalRoot local, addr *ret, OptimizeType
 		SetEvalDeclareOptimize(pos, i, value);
 	*ret = pos;
 }
-_g void eval_declare_alloc(LocalRoot local, addr *ret)
+void eval_declare_alloc(LocalRoot local, addr *ret)
 {
 	eval_declare_alloc_optimize(local, ret, -1);
 }
-_g void eval_declare_local(LocalRoot local, addr *ret)
+void eval_declare_local(LocalRoot local, addr *ret)
 {
 	Check(local == NULL, "local error");
 	eval_declare_alloc(local, ret);
 }
-_g void eval_declare_heap(addr *ret)
+void eval_declare_heap(addr *ret)
 {
 	eval_declare_alloc(NULL, ret);
 }
 
-_g int empty_declare(addr pos)
+int empty_declare(addr pos)
 {
 	int i;
 	addr check;
@@ -116,12 +116,12 @@ _g int empty_declare(addr pos)
 
 	return 1;
 }
-_g int empty_nil_declare(addr pos)
+int empty_nil_declare(addr pos)
 {
 	return pos == Nil || (eval_declare_p(pos) && empty_declare(pos));
 }
 
-_g void apply_array_declare(OptimizeType *array, addr pos)
+void apply_array_declare(OptimizeType *array, addr pos)
 {
 	int i;
 	OptimizeType value;
@@ -136,32 +136,32 @@ _g void apply_array_declare(OptimizeType *array, addr pos)
 	}
 }
 
-_g addr refevaldeclare(addr pos, size_t index)
+addr refevaldeclare(addr pos, size_t index)
 {
 	Check(! eval_declare_p(pos), "type error");
 	return RefEvalDeclare_Low(pos, index);
 }
-_g void getevaldeclare(addr pos, size_t index, addr *ret)
+void getevaldeclare(addr pos, size_t index, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare_Low(pos, index, ret);
 }
-_g void setevaldeclare(addr pos, size_t index, addr value)
+void setevaldeclare(addr pos, size_t index, addr value)
 {
 	Check(! eval_declare_p(pos), "type error");
 	SetEvalDeclare_Low(pos, index, value);
 }
-_g OptimizeType refevaldeclareoptimize(addr pos, size_t index)
+OptimizeType refevaldeclareoptimize(addr pos, size_t index)
 {
 	Check(! eval_declare_p(pos), "type error");
 	return RefEvalDeclareOptimize_Low(pos, index);
 }
-_g void getevaldeclareoptimize(addr pos, size_t index, OptimizeType *ret)
+void getevaldeclareoptimize(addr pos, size_t index, OptimizeType *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclareOptimize_Low(pos, index, ret);
 }
-_g void setevaldeclareoptimize(addr pos, size_t index, OptimizeType value)
+void setevaldeclareoptimize(addr pos, size_t index, OptimizeType value)
 {
 	Check(! eval_declare_p(pos), "type error");
 	SetEvalDeclareOptimize_Low(pos, index, value);
@@ -354,33 +354,33 @@ static int check_declaration_declare(addr pos, addr symbol)
 	return check_constant_declare(pos, symbol, EVAL_DECLARE_DECLARATION);
 }
 
-_g OptimizeType get_optimize_declare(addr pos, enum EVAL_OPTIMIZE index)
+OptimizeType get_optimize_declare(addr pos, enum EVAL_OPTIMIZE index)
 {
 	Check(! eval_declare_p(pos), "type error");
 	return RefEvalDeclareOptimize(pos, index);
 }
 
-_g OptimizeType get_optimize_compilation_declare(addr pos)
+OptimizeType get_optimize_compilation_declare(addr pos)
 {
 	return get_optimize_declare(pos, EVAL_OPTIMIZE_COMPILATION);
 }
 
-_g OptimizeType get_optimize_debug_declare(addr pos)
+OptimizeType get_optimize_debug_declare(addr pos)
 {
 	return get_optimize_declare(pos, EVAL_OPTIMIZE_DEBUG);
 }
 
-_g OptimizeType get_optimize_safety_declare(addr pos)
+OptimizeType get_optimize_safety_declare(addr pos)
 {
 	return get_optimize_declare(pos, EVAL_OPTIMIZE_SAFETY);
 }
 
-_g OptimizeType get_optimize_space_declare(addr pos)
+OptimizeType get_optimize_space_declare(addr pos)
 {
 	return get_optimize_declare(pos, EVAL_OPTIMIZE_SPACE);
 }
 
-_g OptimizeType get_optimize_speed_declare(addr pos)
+OptimizeType get_optimize_speed_declare(addr pos)
 {
 	return get_optimize_declare(pos, EVAL_OPTIMIZE_SPEED);
 }
@@ -389,61 +389,61 @@ _g OptimizeType get_optimize_speed_declare(addr pos)
 /*
  *  getall
  */
-_g void getall_declaration_declare(addr pos, addr *ret)
+void getall_declaration_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_DECLARATION, ret);
 }
 
-_g void getall_inline_declare(addr pos, addr *ret)
+void getall_inline_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_INLINE, ret);
 }
 
-_g void getall_special_declare(addr pos, addr *ret)
+void getall_special_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, ret);
 }
 
-_g void getall_type_value_declare(addr pos, addr *ret)
+void getall_type_value_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_TYPE_VALUE, ret);
 }
 
-_g void getall_type_function_declare(addr pos, addr *ret)
+void getall_type_function_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_TYPE_FUNCTION, ret);
 }
 
-_g const OptimizeType *getall_optimize_declare(addr pos)
+const OptimizeType *getall_optimize_declare(addr pos)
 {
 	Check(! eval_declare_p(pos), "type error");
 	return PtrEvalDeclare_Low(pos);
 }
 
-_g void getall_dynamic_value_declare(addr pos, addr *ret)
+void getall_dynamic_value_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_VALUE, ret);
 }
 
-_g void getall_dynamic_function_declare(addr pos, addr *ret)
+void getall_dynamic_function_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, ret);
 }
 
-_g void getall_ignore_value_declare(addr pos, addr *ret)
+void getall_ignore_value_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_IGNORE_VALUE, ret);
 }
 
-_g void getall_ignore_function_declare(addr pos, addr *ret)
+void getall_ignore_function_declare(addr pos, addr *ret)
 {
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_IGNORE_FUNCTION, ret);
@@ -453,33 +453,33 @@ _g void getall_ignore_function_declare(addr pos, addr *ret)
 /*
  *  build_declare
  */
-_g void getroot_declare(addr *ret)
+void getroot_declare(addr *ret)
 {
 	*ret = LispRoot(DECLARE);
 	Check(! eval_declare_p(*ret), "type error");
 }
 
-_g void setroot_declare(addr pos)
+void setroot_declare(addr pos)
 {
 	Check(! eval_declare_p(pos), "type error");
 	SetLispRoot(DECLARE, pos);
 }
 
-_g void build_declare(void)
+void build_declare(void)
 {
 	addr pos;
 	eval_declare_alloc_optimize(NULL, &pos, 1);
 	setroot_declare(pos);
 }
 
-_g void push_declaration_declaim(addr symbol)
+void push_declaration_declaim(addr symbol)
 {
 	addr eval;
 	getroot_declare(&eval);
 	push_declaration_declare_heap(eval, symbol);
 }
 
-_g void copy_optimize_declare(OptimizeType *array)
+void copy_optimize_declare(OptimizeType *array)
 {
 	int i;
 	addr pos;
@@ -498,23 +498,23 @@ static void apply_optimize_declaim(enum EVAL_OPTIMIZE index, OptimizeType value)
 	getroot_declare(&pos);
 	SetEvalDeclareOptimize(pos, index, value);
 }
-_g void apply_compilation_speed_declaim(OptimizeType value)
+void apply_compilation_speed_declaim(OptimizeType value)
 {
 	apply_optimize_declaim(EVAL_OPTIMIZE_COMPILATION, value);
 }
-_g void apply_debug_declaim(OptimizeType value)
+void apply_debug_declaim(OptimizeType value)
 {
 	apply_optimize_declaim(EVAL_OPTIMIZE_DEBUG, value);
 }
-_g void apply_safety_declaim(OptimizeType value)
+void apply_safety_declaim(OptimizeType value)
 {
 	apply_optimize_declaim(EVAL_OPTIMIZE_SAFETY, value);
 }
-_g void apply_space_declaim(OptimizeType value)
+void apply_space_declaim(OptimizeType value)
 {
 	apply_optimize_declaim(EVAL_OPTIMIZE_SPACE, value);
 }
-_g void apply_speed_declaim(OptimizeType value)
+void apply_speed_declaim(OptimizeType value)
 {
 	apply_optimize_declaim(EVAL_OPTIMIZE_SPEED, value);
 }
@@ -953,17 +953,17 @@ static int parse_declare_form_(Execute ptr, addr env, addr decl, addr *ret,
 	return Result(ret, eval);
 }
 
-_g int parse_declaim_heap_(Execute ptr, addr env, addr decl, addr *ret)
+int parse_declaim_heap_(Execute ptr, addr env, addr decl, addr *ret)
 {
 	return parse_declare_form_(ptr, env, decl, ret, push_declaim_);
 }
 
-_g int parse_declare_heap_(Execute ptr, addr env, addr decl, addr *ret)
+int parse_declare_heap_(Execute ptr, addr env, addr decl, addr *ret)
 {
 	return parse_declare_form_(ptr, env, decl, ret, push_declare_);
 }
 
-_g int parse_optimize_heap_(addr decl, addr *value, int *ret)
+int parse_optimize_heap_(addr decl, addr *value, int *ret)
 {
 	addr eval, pos, car, tail, optimize;
 
@@ -1007,7 +1007,7 @@ static int declare_split_(addr cons, addr *retdecl, addr *retbody)
 	return 0;
 }
 
-_g int declare_body_form_(addr list, addr *retdecl, addr *retbody)
+int declare_body_form_(addr list, addr *retdecl, addr *retbody)
 {
 	addr declare, decl, car, cdr;
 
@@ -1027,7 +1027,7 @@ _g int declare_body_form_(addr list, addr *retdecl, addr *retbody)
 	return 0;
 }
 
-_g int declare_body_(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody)
+int declare_body_(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody)
 {
 	addr decl;
 
@@ -1038,7 +1038,7 @@ _g int declare_body_(Execute ptr, addr env, addr cons, addr *retdecl, addr *retb
 	return 0;
 }
 
-_g int declare_body_documentation_(Execute ptr, addr env,
+int declare_body_documentation_(Execute ptr, addr env,
 		addr cons, addr *rdoc, addr *rdecl, addr *rbody)
 {
 	addr car, cdr;
@@ -1089,7 +1089,7 @@ _g int declare_body_documentation_(Execute ptr, addr env,
 	return 0;
 }
 
-_g int split_decl_body_doc_(addr list, addr *rdoc, addr *rdecl, addr *rbody)
+int split_decl_body_doc_(addr list, addr *rdoc, addr *rdecl, addr *rbody)
 {
 	addr car, cdr;
 
@@ -1240,7 +1240,7 @@ static void copy_declare_plist_f(LocalRoot local,
 	SetEvalDeclare(eval, type, root);
 }
 
-_g void copy_eval_declare_alloc(LocalRoot local, addr *ret, addr pos)
+void copy_eval_declare_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	int i;
 	addr eval;
@@ -1263,13 +1263,13 @@ _g void copy_eval_declare_alloc(LocalRoot local, addr *ret, addr pos)
 	*ret = eval;
 }
 
-_g void copy_eval_declare_local(LocalRoot local, addr *ret, addr pos)
+void copy_eval_declare_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	copy_eval_declare_alloc(local, ret, pos);
 }
 
-_g void copy_eval_declare_heap(addr *ret, addr pos)
+void copy_eval_declare_heap(addr *ret, addr pos)
 {
 	copy_eval_declare_alloc(NULL, ret, pos);
 }
@@ -1285,23 +1285,23 @@ static void set_index_optimize_declare(addr pos,
 	Check(! (0 <= value && value <= 3), "range error");
 	SetEvalDeclareOptimize(pos, index, value);
 }
-_g void set_optimize_compilation_declare(addr pos, OptimizeType value)
+void set_optimize_compilation_declare(addr pos, OptimizeType value)
 {
 	set_index_optimize_declare(pos, value, EVAL_OPTIMIZE_COMPILATION);
 }
-_g void set_optimize_debug_declare(addr pos, OptimizeType value)
+void set_optimize_debug_declare(addr pos, OptimizeType value)
 {
 	set_index_optimize_declare(pos, value, EVAL_OPTIMIZE_DEBUG);
 }
-_g void set_optimize_safety_declare(addr pos, OptimizeType value)
+void set_optimize_safety_declare(addr pos, OptimizeType value)
 {
 	set_index_optimize_declare(pos, value, EVAL_OPTIMIZE_SAFETY);
 }
-_g void set_optimize_space_declare(addr pos, OptimizeType value)
+void set_optimize_space_declare(addr pos, OptimizeType value)
 {
 	set_index_optimize_declare(pos, value, EVAL_OPTIMIZE_SPACE);
 }
-_g void set_optimize_speed_declare(addr pos, OptimizeType value)
+void set_optimize_speed_declare(addr pos, OptimizeType value)
 {
 	set_index_optimize_declare(pos, value, EVAL_OPTIMIZE_SPEED);
 }
@@ -1439,7 +1439,7 @@ static void apply_declaration_proclaim(addr pos)
 	}
 }
 
-_g int proclaim_common(Execute ptr, addr var)
+int proclaim_common(Execute ptr, addr var)
 {
 	Return(parse_proclaim_heap_(ptr, Nil, var, &var));
 	Return(apply_type_value_proclaim_(var));

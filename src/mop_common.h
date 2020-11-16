@@ -16,18 +16,18 @@
 #define init_metaobject_protocol _n(init_metaobject_protocol)
 #define build_metaobject_protocol _n(build_metaobject_protocol)
 
-_g void init_mop_reader(void);
-_g void init_mop_class(void);
-_g void init_mop_generic(void);
-_g void init_mop_protocols(void);
+void init_mop_reader(void);
+void init_mop_class(void);
+void init_mop_generic(void);
+void init_mop_protocols(void);
 
-_g int build_mop_class_(Execute ptr);
-_g int build_mop_reader_(Execute ptr);
-_g int build_mop_generic_(Execute ptr);
-_g int build_mop_protocols_(Execute ptr);
+int build_mop_class_(Execute ptr);
+int build_mop_reader_(Execute ptr);
+int build_mop_generic_(Execute ptr);
+int build_mop_protocols_(Execute ptr);
 
-_g void init_metaobject_protocol(void);
-_g void build_metaobject_protocol(void);
+void init_metaobject_protocol(void);
+void build_metaobject_protocol(void);
 
 #endif
 

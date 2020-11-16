@@ -412,7 +412,7 @@ static void info_start(const char *fmt, ...)
 	va_end(args);
 }
 
-_g void info(const char *fmt, ...)
+void info(const char *fmt, ...)
 {
 	va_list args;
 
@@ -424,7 +424,7 @@ _g void info(const char *fmt, ...)
 	}
 }
 
-_g void info_noeol(const char *fmt, ...)
+void info_noeol(const char *fmt, ...)
 {
 	va_list args;
 
@@ -436,7 +436,7 @@ _g void info_noeol(const char *fmt, ...)
 	}
 }
 
-_g void infoerror(const char *first, int line, const char *func, const char *fmt, ...)
+void infoerror(const char *first, int line, const char *func, const char *fmt, ...)
 {
 	va_list args;
 
@@ -460,7 +460,7 @@ static void infotime(void)
 	info("  %s", buffer);
 }
 
-_g void infosystem(void)
+void infosystem(void)
 {
 	info("*** SYSTEM-INFORMATION BEGIN ***");
 	infotime();
@@ -555,7 +555,7 @@ static void infobit_info(addr pos)
 	}
 }
 
-_g void infobit(addr pos)
+void infobit(addr pos)
 {
 	info("*** LISPBIT BEGIN ***");
 	if (infobit_system(pos)) {
@@ -566,27 +566,27 @@ _g void infobit(addr pos)
 	info("*** LISPBIT END ***");
 }
 
-_g void infoprint(addr pos)
+void infoprint(addr pos)
 {
 	InfoDepth = INFO_DEPTH;
 	infoprint_stream(pos, 0);
 	info_eol();
 }
 
-_g void infoprint_depth(addr pos, int depth)
+void infoprint_depth(addr pos, int depth)
 {
 	InfoDepth = depth;
 	infoprint_stream(pos, 0);
 	info_eol();
 }
 
-_g void infoprint_noeol(addr pos)
+void infoprint_noeol(addr pos)
 {
 	InfoDepth = INFO_DEPTH;
 	infoprint_stream(pos, 0);
 }
 
-_g void infoprint_once(addr pos, const char *name)
+void infoprint_once(addr pos, const char *name)
 {
 	FILE *backup, *file;
 

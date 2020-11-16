@@ -26,29 +26,29 @@
 #define init_stream_string_input _n(init_stream_string_input)
 #define init_stream_string_output _n(init_stream_string_output)
 
-_g int open_input_string_stream_(addr *stream, addr string);
-_g int open_input_string_stream1_(addr *stream, addr string, size_t start);
-_g int open_input_string_stream2_(addr *stream, addr string, size_t start, size_t end);
-_g void open_input_char_stream(addr *stream, const char *str);
-_g void null_input_string_stream(addr *stream);
-_g void getindex_input_stream(addr stream, size_t *ret);
-_g void setvalue_input_string_stream(addr stream, addr value);
-_g void clear_input_string_stream(addr stream);
-_g void close_input_string_stream(addr stream);
+int open_input_string_stream_(addr *stream, addr string);
+int open_input_string_stream1_(addr *stream, addr string, size_t start);
+int open_input_string_stream2_(addr *stream, addr string, size_t start, size_t end);
+void open_input_char_stream(addr *stream, const char *str);
+void null_input_string_stream(addr *stream);
+void getindex_input_stream(addr stream, size_t *ret);
+void setvalue_input_string_stream(addr stream, addr value);
+void clear_input_string_stream(addr stream);
+void close_input_string_stream(addr stream);
 
-_g void open_output_string_stream(addr *stream, size_t size);
-_g int copy_termsize_string_stream_(addr stream, addr src);
-_g int string_stream_alloc_(LocalRoot local, addr stream, addr *string);
-_g int string_stream_local_(LocalRoot local, addr stream, addr *string);
-_g int string_stream_heap_(addr stream, addr *string);
-_g void clear_output_string_stream(addr stream);
-_g void set_pretty_output_string_stream(addr stream);
-_g int get_pretty_output_string_stream(addr stream);
-_g void open_extend_output_stream(addr *stream, addr array);
-_g void close_output_string_stream(addr stream);
+void open_output_string_stream(addr *stream, size_t size);
+int copy_termsize_string_stream_(addr stream, addr src);
+int string_stream_alloc_(LocalRoot local, addr stream, addr *string);
+int string_stream_local_(LocalRoot local, addr stream, addr *string);
+int string_stream_heap_(addr stream, addr *string);
+void clear_output_string_stream(addr stream);
+void set_pretty_output_string_stream(addr stream);
+int get_pretty_output_string_stream(addr stream);
+void open_extend_output_stream(addr *stream, addr array);
+void close_output_string_stream(addr stream);
 
-_g void init_stream_string_input(void);
-_g void init_stream_string_output(void);
+void init_stream_string_input(void);
+void init_stream_string_output(void);
 
 #endif
 

@@ -551,12 +551,12 @@ error:
 			"(~S name (superclasses) (slots) ...) form.", first, form, first, NULL);
 }
 
-_g int defclass_common(Execute ptr, addr form, addr env, addr *ret)
+int defclass_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	return defclass_define_condition(ptr, form, env, ret, 1);
 }
 
-_g int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
+int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	return defclass_define_condition(ptr, form, env, ret, 0);
 }
@@ -566,7 +566,7 @@ _g int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
  *  find-class
  *    TODO: environment
  */
-_g int find_class_common_(addr pos, int errorp, addr env, addr *ret)
+int find_class_common_(addr pos, int errorp, addr env, addr *ret)
 {
 	Check(! symbolp(pos), "type error");
 	if (errorp) {
@@ -584,7 +584,7 @@ _g int find_class_common_(addr pos, int errorp, addr env, addr *ret)
  *  (setf find-class)
  *    TODO: environment
  */
-_g void setf_find_class_common(addr pos, addr name, addr env)
+void setf_find_class_common(addr pos, addr name, addr env)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(! symbolp(name), "type error");
@@ -631,7 +631,7 @@ error:
 			"a symbol or (var name) form.", args, NULL);
 }
 
-_g int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
+int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,#:g ,expr))
 	 *    (symbol-macrolet ((,var1 (,name1 ,#:g))
@@ -707,7 +707,7 @@ error:
 			"a symbol or (var name) form.", args, NULL);
 }
 
-_g int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
+int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,#:g ,expr))
 	 *    (symbol-macrolet ((,var1 (slot-value ,#:g ',name1))
@@ -932,7 +932,7 @@ static void defgeneric_push_quote(addr *ret, addr key, addr value, addr root)
 	defgeneric_push_value(ret, key, value, root);
 }
 
-_g int defgeneric_common(addr form, addr env, addr *ret)
+int defgeneric_common(addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, order, decl, doc, comb, gen, method, code, key;
 
@@ -946,7 +946,7 @@ _g int defgeneric_common(addr form, addr env, addr *ret)
 		return fmte_("Invalid function name ~S.", name, NULL);
 	order = decl = doc = comb = gen = method = code = Nil;
 	Return(defgeneric_parse_options(name, args,
-			&order, &decl, &doc, &comb, &gen, &method, &code));
+				&order, &decl, &doc, &comb, &gen, &method, &code));
 	/* expand */
 	args = Nil;
 	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &key);
@@ -1113,7 +1113,7 @@ static int defmethod_parse_function_(Execute ptr,
 	return 0;
 }
 
-_g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
+int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, qua, spec, lambda, list, quote;
 	addr key1, key2, key3, key4, key5;
@@ -1381,7 +1381,7 @@ error:
 	return fmte_("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
-_g int define_method_combination_common(
+int define_method_combination_common(
 		LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr list, name, check;
@@ -1425,7 +1425,7 @@ static void make_load_form_saving_slots_list(addr var, addr *ret)
 	nreverse(ret, list);
 }
 
-_g int make_load_form_saving_slots_common(Execute ptr,
+int make_load_form_saving_slots_common(Execute ptr,
 		addr var, addr list, addr env, addr *ret1, addr *ret2)
 {
 	/* (allocate-instance
@@ -1473,7 +1473,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	return 0;
 }
 
-_g int set_slots_syscall(addr var, addr slots, addr values)
+int set_slots_syscall(addr var, addr slots, addr values)
 {
 	addr x, y, unbound;
 

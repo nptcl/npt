@@ -24,34 +24,34 @@
 #define interncommonr_debug _n(interncommonr_debug)
 #define init_package_intern _n(init_package_intern)
 
-_g int intern_package_table_(addr package, addr name,
+int intern_package_table_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int intern_package_(addr package, addr name,
+int intern_package_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int intern_char_package_(addr package, const char *name,
+int intern_char_package_(addr package, const char *name,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int unintern_package_(addr package, addr symbol, int *ret);
-_g int setkeyword_package_(addr pos);
+int unintern_package_(addr package, addr symbol, int *ret);
+int setkeyword_package_(addr pos);
 
-_g int intern_default_package_(Execute ptr, addr name,
+int intern_default_package_(Execute ptr, addr name,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int internchar_(const char *pname, const char *sname,
+int internchar_(const char *pname, const char *sname,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int internchar_default_(Execute ptr, const char *name,
+int internchar_default_(Execute ptr, const char *name,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int internchar_null_(Execute ptr, const char *pname, const char *sname,
+int internchar_null_(Execute ptr, const char *pname, const char *sname,
 		addr *value, enum PACKAGE_TYPE *ret);
-_g int internchar_keyword_(const char *name, addr *value, enum PACKAGE_TYPE *ret);
-_g int interncommon_(const char *name, addr *value, enum PACKAGE_TYPE *ret);
+int internchar_keyword_(const char *name, addr *value, enum PACKAGE_TYPE *ret);
+int interncommon_(const char *name, addr *value, enum PACKAGE_TYPE *ret);
 
-_g void internchar_debug(const char *pname, const char *sname, addr *value);
-_g void internchar_keyword_debug(const char *name, addr *value);
-_g void interncommon_debug(const char *name, addr *value);
-_g addr interncharr_debug(const char *pname, const char *sname);
-_g addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname);
-_g addr interncommonr_debug(const char *name);
+void internchar_debug(const char *pname, const char *sname, addr *value);
+void internchar_keyword_debug(const char *name, addr *value);
+void interncommon_debug(const char *name, addr *value);
+addr interncharr_debug(const char *pname, const char *sname);
+addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname);
+addr interncommonr_debug(const char *name);
 
-_g void init_package_intern(void);
+void init_package_intern(void);
 
 #endif
 

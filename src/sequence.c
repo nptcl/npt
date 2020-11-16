@@ -15,7 +15,7 @@
 #include "strvect.h"
 #include "type.h"
 
-_g int sequencep(addr pos)
+int sequencep(addr pos)
 {
 	enum LISPTYPE check;
 
@@ -30,7 +30,7 @@ _g int sequencep(addr pos)
 		check == LISPTYPE_BITVECTOR;
 }
 
-_g int listp_sequence_(addr pos, int *ret)
+int listp_sequence_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -49,7 +49,7 @@ _g int listp_sequence_(addr pos, int *ret)
 	}
 }
 
-_g int vectorp_sequence_(addr pos, int *ret)
+int vectorp_sequence_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -70,7 +70,7 @@ _g int vectorp_sequence_(addr pos, int *ret)
 	}
 }
 
-_g int vectorp_sequence_debug(addr pos)
+int vectorp_sequence_debug(addr pos)
 {
 	int check;
 	check = 0;
@@ -103,7 +103,7 @@ static int vector_error_sequence_(addr type, addr arg, size_t size)
 	return 0;
 }
 
-_g int vector_check_sequence_(addr type, size_t size)
+int vector_check_sequence_(addr type, size_t size)
 {
 	addr arg;
 
@@ -111,7 +111,7 @@ _g int vector_check_sequence_(addr type, size_t size)
 	return vector_error_sequence_(type, arg, size);
 }
 
-_g int simple_vector_check_sequence_(addr type, size_t size)
+int simple_vector_check_sequence_(addr type, size_t size)
 {
 	addr arg;
 
@@ -119,7 +119,7 @@ _g int simple_vector_check_sequence_(addr type, size_t size)
 	return vector_error_sequence_(type, arg, size);
 }
 
-_g int array_check_sequence_(addr type, size_t size)
+int array_check_sequence_(addr type, size_t size)
 {
 	addr arg;
 	size_t check;
@@ -168,7 +168,7 @@ _g int array_check_sequence_(addr type, size_t size)
 /*
  *  make-vector-from-list
  */
-_g int make_vector_from_list_(addr *ret, addr cons)
+int make_vector_from_list_(addr *ret, addr cons)
 {
 	addr pos, array;
 	size_t i, size;
@@ -193,7 +193,7 @@ _g int make_vector_from_list_(addr *ret, addr cons)
 	return Result(ret, array);
 }
 
-_g int make_vector4_from_list_(addr *ret, addr cons)
+int make_vector4_from_list_(addr *ret, addr cons)
 {
 	addr pos, array;
 	size_t i, size;
@@ -222,7 +222,7 @@ _g int make_vector4_from_list_(addr *ret, addr cons)
 /*
  *  start-end
  */
-_g int list_start_end_sequence_(addr *list, addr *prev,
+int list_start_end_sequence_(addr *list, addr *prev,
 		addr start, addr end, size_t *ret1, size_t *ret2)
 {
 	addr temp;
@@ -319,7 +319,7 @@ static int size_start_end_sequence_call_(addr start, addr end,
 	return Result(ret, 0);
 }
 
-_g int size_start_end_sequence_(addr start, addr end,
+int size_start_end_sequence_(addr start, addr end,
 		size_t size, size_t *ret1, size_t *ret2, int *ret)
 {
 	int ignore;
@@ -334,7 +334,7 @@ _g int size_start_end_sequence_(addr start, addr end,
 /*
  *  common
  */
-_g int length_sequence_(addr pos, int fill, size_t *ret)
+int length_sequence_(addr pos, int fill, size_t *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -423,7 +423,7 @@ static int getelt_bitvector_(addr pos, size_t index, int *ret)
 	return bitmemory_getint_(pos, index, ret);
 }
 
-_g int getelt_inplace_sequence_(addr pos, size_t index, struct array_value *str)
+int getelt_inplace_sequence_(addr pos, size_t index, struct array_value *str)
 {
 	int bit;
 
@@ -636,7 +636,7 @@ static int setelt_string_sequence_(addr pos,
 	return fmte_("The element of sequence  ~S must be a character type.", pos, NULL);
 }
 
-_g int setelt_inplace_sequence_(LocalRoot local,
+int setelt_inplace_sequence_(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str)
 {
 	addr value;
@@ -706,7 +706,7 @@ static int getelt_bitvector_alloc_(LocalRoot local, addr pos, size_t index, addr
 	return bitmemory_get_(local, pos, index, ret);
 }
 
-_g int getelt_sequence_(LocalRoot local, addr pos, size_t index, addr *ret)
+int getelt_sequence_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -744,7 +744,7 @@ static int setelt_array_(addr pos, size_t index, addr value)
 	return array_set_(pos, index, value);
 }
 
-_g int setelt_sequence_(addr pos, size_t index, addr value)
+int setelt_sequence_(addr pos, size_t index, addr value)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -772,7 +772,7 @@ _g int setelt_sequence_(addr pos, size_t index, addr value)
 /*
  *  reverse / nreverse
  */
-_g int reverse_sequence_heap_(addr *ret, addr pos)
+int reverse_sequence_heap_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -800,7 +800,7 @@ _g int reverse_sequence_heap_(addr *ret, addr pos)
 	}
 }
 
-_g int nreverse_sequence_(addr *ret, addr pos)
+int nreverse_sequence_(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:

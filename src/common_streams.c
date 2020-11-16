@@ -1802,7 +1802,7 @@ static void defun_stream_error_stream(void)
 /*
  *  function
  */
-_g void init_common_streams(void)
+void init_common_streams(void)
 {
 	SetPointerCall(defun, var1, input_stream_p);
 	SetPointerCall(defun, var1, output_stream_p);
@@ -1859,7 +1859,7 @@ _g void init_common_streams(void)
 	SetPointerCall(defun, var1, stream_error_stream);
 }
 
-_g void build_common_streams(void)
+void build_common_streams(void)
 {
 	defun_input_stream_p();
 	defun_output_stream_p();

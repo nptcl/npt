@@ -147,7 +147,7 @@ static int load_root(filestream fm)
 /*
  *  make-core
  */
-_g int savecore_execute_(Execute ptr, addr file)
+int savecore_execute_(Execute ptr, addr file)
 {
 	addr symbol;
 
@@ -198,7 +198,7 @@ static void open_corefile(Execute ptr, filestream fm)
 	rollback_local(local, stack);
 }
 
-_g int save_core(Execute ptr)
+int save_core(Execute ptr)
 {
 	struct filememory fm;
 
@@ -235,7 +235,7 @@ error:
 	return 1;
 }
 
-_g int load_core(const unicode *name, size_t size)
+int load_core(const unicode *name, size_t size)
 {
 	struct filememory fm;
 

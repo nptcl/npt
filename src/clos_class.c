@@ -58,128 +58,128 @@ static int stdset_class_constant_(addr pos, addr value,
 #define StdSetClass_(p,r,a,b) \
 	stdset_class_constant_((p), (r), Clos_class_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_class_name_(addr pos, addr *ret)
+int stdget_class_name_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, name, NAME);
 }
-_g int stdset_class_name_(addr pos, addr value)
+int stdset_class_name_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, name, NAME);
 }
 
-_g int stdget_class_direct_slots_(addr pos, addr *ret)
+int stdget_class_direct_slots_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, direct_slots, DIRECT_SLOTS);
 }
-_g int stdset_class_direct_slots_(addr pos, addr value)
+int stdset_class_direct_slots_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, direct_slots, DIRECT_SLOTS);
 }
 
-_g int stdget_class_direct_subclasses_(addr pos, addr *ret)
+int stdget_class_direct_subclasses_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, direct_subclasses, DIRECT_SUBCLASSES);
 }
-_g int stdset_class_direct_subclasses_(addr pos, addr value)
+int stdset_class_direct_subclasses_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, direct_subclasses, DIRECT_SUBCLASSES);
 }
 
-_g int stdget_class_direct_superclasses_(addr pos, addr *ret)
+int stdget_class_direct_superclasses_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, direct_superclasses, DIRECT_SUPERCLASSES);
 }
-_g int stdset_class_direct_superclasses_(addr pos, addr value)
+int stdset_class_direct_superclasses_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, direct_superclasses, DIRECT_SUPERCLASSES);
 }
 
-_g int stdget_class_precedence_list_(addr pos, addr *ret)
+int stdget_class_precedence_list_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, precedence_list, CLASS_PRECEDENCE_LIST);
 }
-_g int stdset_class_precedence_list_(addr pos, addr value)
+int stdset_class_precedence_list_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, precedence_list, CLASS_PRECEDENCE_LIST);
 }
 
-_g int stdget_class_slots_(addr pos, addr *ret)
+int stdget_class_slots_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, slots, EFFECTIVE_SLOTS);
 }
-_g int stdset_class_slots_(addr pos, addr value)
+int stdset_class_slots_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, slots, EFFECTIVE_SLOTS);
 }
 
-_g int stdget_class_finalized_p_(addr pos, addr *ret)
+int stdget_class_finalized_p_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, finalized_p, FINALIZED_P);
 }
-_g int stdset_class_finalized_p_(addr pos, addr value)
+int stdset_class_finalized_p_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, finalized_p, FINALIZED_P);
 }
 
-_g int stdget_class_prototype_(addr pos, addr *ret)
+int stdget_class_prototype_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, prototype, PROTOTYPE);
 }
-_g int stdset_class_prototype_(addr pos, addr value)
+int stdset_class_prototype_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, prototype, PROTOTYPE);
 }
 
-_g int stdget_class_direct_methods_(addr pos, addr *ret)
+int stdget_class_direct_methods_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, direct_methods, DIRECT_METHODS);
 }
-_g int stdset_class_direct_methods_(addr pos, addr value)
+int stdset_class_direct_methods_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, direct_methods, DIRECT_METHODS);
 }
 
-_g int stdget_class_default_initargs_(addr pos, addr *ret)
+int stdget_class_default_initargs_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, default_initargs, DEFAULT_INITARGS);
 }
-_g int stdset_class_default_initargs_(addr pos, addr value)
+int stdset_class_default_initargs_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, default_initargs, DEFAULT_INITARGS);
 }
 
-_g int stdget_class_direct_default_initargs_(addr pos, addr *ret)
+int stdget_class_direct_default_initargs_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, direct_default_initargs, DIRECT_DEFAULT_INITARGS);
 }
-_g int stdset_class_direct_default_initargs_(addr pos, addr value)
+int stdset_class_direct_default_initargs_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, direct_default_initargs, DIRECT_DEFAULT_INITARGS);
 }
 
-_g int stdget_class_version_(addr pos, addr *ret)
+int stdget_class_version_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, version, VERSION);
 }
-_g int stdset_class_version_(addr pos, addr value)
+int stdset_class_version_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, version, VERSION);
 }
 
-_g int stdget_class_document_(addr pos, addr *ret)
+int stdget_class_document_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, document, DOCUMENTATION);
 }
-_g int stdset_class_document_(addr pos, addr value)
+int stdset_class_document_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, document, DOCUMENTATION);
 }
 
-_g int stdget_class_redefined_class_(addr pos, addr *ret)
+int stdget_class_redefined_class_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, redefined_class, REDEFINED_CLASS);
 }
-_g int stdset_class_redefined_class_(addr pos, addr value)
+int stdset_class_redefined_class_(addr pos, addr value)
 {
 	return StdSetClass_(pos, value, redefined_class, REDEFINED_CLASS);
 }
@@ -188,7 +188,7 @@ _g int stdset_class_redefined_class_(addr pos, addr value)
 /*
  *  check
  */
-_g int clos_subclass_p_(addr clos, addr super, int *ret)
+int clos_subclass_p_(addr clos, addr super, int *ret)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	CheckType(super, LISPTYPE_CLOS);
@@ -197,7 +197,7 @@ _g int clos_subclass_p_(addr clos, addr super, int *ret)
 	return Result(ret, find_list_eq_unsafe(super, clos));
 }
 
-_g int clos_subtype_p_(addr clos, addr super, int *ret)
+int clos_subtype_p_(addr clos, addr super, int *ret)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	CheckType(super, LISPTYPE_CLOS);
@@ -217,12 +217,12 @@ static int clos_constant_p_(addr clos, constindex index, int *ret)
 	return clos_subtype_p_(clos, super, ret);
 }
 
-_g int clos_class_p_(addr clos, int *ret)
+int clos_class_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_CLASS, ret);
 }
 
-_g int clos_funcallable_p_(addr clos, int *ret)
+int clos_funcallable_p_(addr clos, int *ret)
 {
 	addr super;
 
@@ -234,52 +234,52 @@ _g int clos_funcallable_p_(addr clos, int *ret)
 	return clos_subtype_p_(clos, super, ret);
 }
 
-_g int clos_generic_p_(addr clos, int *ret)
+int clos_generic_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_GENERIC_FUNCTION, ret);
 }
 
-_g int clos_method_p_(addr clos, int *ret)
+int clos_method_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_METHOD, ret);
 }
 
-_g int clos_define_combination_p_(addr clos, int *ret)
+int clos_define_combination_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_DEFINE_METHOD_COMBINATION, ret);
 }
 
-_g int clos_define_long_combination_p_(addr clos, int *ret)
+int clos_define_long_combination_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION, ret);
 }
 
-_g int clos_define_short_combination_p_(addr clos, int *ret)
+int clos_define_short_combination_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION, ret);
 }
 
-_g int clos_combination_p_(addr clos, int *ret)
+int clos_combination_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_METHOD_COMBINATION, ret);
 }
 
-_g int clos_long_combination_p_(addr clos, int *ret)
+int clos_long_combination_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_LONG_METHOD_COMBINATION, ret);
 }
 
-_g int clos_short_combination_p_(addr clos, int *ret)
+int clos_short_combination_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_SHORT_METHOD_COMBINATION, ret);
 }
 
-_g int clos_specializer_p_(addr clos, int *ret)
+int clos_specializer_p_(addr clos, int *ret)
 {
 	return clos_constant_p_(clos, CONSTANT_CLOS_EQL_SPECIALIZER, ret);
 }
 
-_g int clos_referenced_p_(addr clos, int *ret)
+int clos_referenced_p_(addr clos, int *ret)
 {
 	addr super;
 
@@ -290,7 +290,7 @@ _g int clos_referenced_p_(addr clos, int *ret)
 	return Result(ret, clos == super);
 }
 
-_g int clos_built_p_(addr clos, int *ret)
+int clos_built_p_(addr clos, int *ret)
 {
 	addr super;
 
@@ -300,7 +300,7 @@ _g int clos_built_p_(addr clos, int *ret)
 	return clos_subtype_p_(clos, super, ret);
 }
 
-_g int funcallp_(addr pos, int *ret)
+int funcallp_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FUNCTION:
@@ -321,7 +321,7 @@ _g int funcallp_(addr pos, int *ret)
 /*
  *  make-instance
  */
-_g int clos_find_slotname(addr slots, size_t size, addr name)
+int clos_find_slotname(addr slots, size_t size, addr name)
 {
 	addr check;
 	size_t i;
@@ -385,7 +385,7 @@ static int clos_instance_unsafe_(LocalRoot local, addr clos, addr slots, addr *r
 
 	return Result(ret, instance);
 }
-_g int clos_instance_alloc_(LocalRoot local, addr clos, addr *ret)
+int clos_instance_alloc_(LocalRoot local, addr clos, addr *ret)
 {
 	addr pos;
 
@@ -400,12 +400,12 @@ _g int clos_instance_alloc_(LocalRoot local, addr clos, addr *ret)
 	Return(stdget_class_slots_(clos, &pos));
 	return clos_instance_unsafe_(local, clos, pos, ret);
 }
-_g int clos_instance_local_(LocalRoot local, addr clos, addr *ret)
+int clos_instance_local_(LocalRoot local, addr clos, addr *ret)
 {
 	CheckLocal(local);
 	return clos_instance_alloc_(local, clos, ret);
 }
-_g int clos_instance_heap_(addr clos, addr *ret)
+int clos_instance_heap_(addr clos, addr *ret)
 {
 	return clos_instance_alloc_(NULL, clos, ret);
 }
@@ -600,7 +600,7 @@ static int clos_precedence_result_(
 	return 0;
 }
 
-_g int clos_precedence_list_redefine_(
+int clos_precedence_list_redefine_(
 		LocalRoot local, addr pos, addr *ret, addr x, addr list)
 {
 	LocalStack stack;
@@ -614,7 +614,7 @@ _g int clos_precedence_list_redefine_(
 	return 0;
 }
 
-_g int clos_precedence_list_(LocalRoot local, addr pos, addr *ret)
+int clos_precedence_list_(LocalRoot local, addr pos, addr *ret)
 {
 	return clos_precedence_list_redefine_(local, pos, ret, Unbound, Nil);
 }
@@ -701,7 +701,7 @@ static int clos_slots_gather_(LocalRoot local, addr clos, addr *ret)
 	return Result(ret, slots);
 }
 
-_g int clos_compute_slots_(LocalRoot local, addr clos, addr *ret)
+int clos_compute_slots_(LocalRoot local, addr clos, addr *ret)
 {
 	LocalStack stack;
 
@@ -827,7 +827,7 @@ static void slot_make_version(addr pos, constindex n1, constindex n2, size_t n3)
 #define SlotMakeVersion(x,y,z) \
 	slot_make_version((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, Clos_##z)
 
-_g void slotvector_set_location(addr slots)
+void slotvector_set_location(addr slots)
 {
 	addr pos;
 	size_t size, i;
@@ -862,7 +862,7 @@ static void clos_stdclass_slots(addr *ret)
 	*ret = slots;
 }
 
-_g int clos_stdclass_direct_slots_(addr instance, addr slots)
+int clos_stdclass_direct_slots_(addr instance, addr slots)
 {
 #ifdef LISP_DEBUG
 	addr check;
@@ -976,7 +976,7 @@ static void clos_stdclass_prototype_initialize(addr pos, addr slots)
 	}
 }
 
-_g int clos_stdclass_prototype_(addr clos)
+int clos_stdclass_prototype_(addr clos)
 {
 	addr pos, slots, value;
 
@@ -1082,7 +1082,7 @@ static int clos_stdclass_metaclass_(LocalRoot local, addr *ret)
 	return Result(ret, stdclass);
 }
 
-_g int clos_stdclass_supers_(LocalRoot local,
+int clos_stdclass_supers_(LocalRoot local,
 		addr *ret, addr metaclass, addr name, addr slots, addr supers)
 {
 	addr instance;
@@ -1926,7 +1926,7 @@ static int build_clos_class_call_(LocalRoot local)
 	return 0;
 }
 
-_g void build_clos_class(LocalRoot local)
+void build_clos_class(LocalRoot local)
 {
 	Error(build_clos_class_call_(local));
 }
@@ -1935,7 +1935,7 @@ _g void build_clos_class(LocalRoot local)
 /*
  *  debug
  */
-_g int clos_subclass_p_debug(addr clos, addr super)
+int clos_subclass_p_debug(addr clos, addr super)
 {
 	int check;
 	check = 0;
@@ -1943,7 +1943,7 @@ _g int clos_subclass_p_debug(addr clos, addr super)
 	return check;
 }
 
-_g int clos_subtype_p_debug(addr clos, addr super)
+int clos_subtype_p_debug(addr clos, addr super)
 {
 	int check;
 	check = 0;
@@ -1951,7 +1951,7 @@ _g int clos_subtype_p_debug(addr clos, addr super)
 	return check;
 }
 
-_g int clos_generic_p_debug(addr clos)
+int clos_generic_p_debug(addr clos)
 {
 	int check;
 	check = 0;
@@ -1959,7 +1959,7 @@ _g int clos_generic_p_debug(addr clos)
 	return check;
 }
 
-_g int clos_method_p_debug(addr clos)
+int clos_method_p_debug(addr clos)
 {
 	int check;
 	check = 0;
@@ -1967,7 +1967,7 @@ _g int clos_method_p_debug(addr clos)
 	return check;
 }
 
-_g int clos_define_combination_p_debug(addr clos)
+int clos_define_combination_p_debug(addr clos)
 {
 	int check;
 	check = 0;

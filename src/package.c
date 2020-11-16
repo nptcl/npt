@@ -53,7 +53,7 @@ static int find_package_local_(addr pos, addr *ret)
 	return 0;
 }
 
-_g int find_package_(addr pos, addr *ret)
+int find_package_(addr pos, addr *ret)
 {
 	addr type;
 
@@ -88,7 +88,7 @@ error:
 	return call_type_error_(NULL, pos, type);
 }
 
-_g int find_char_package_(const char *name, addr *ret)
+int find_char_package_(const char *name, addr *ret)
 {
 	addr pos;
 	PackageTable(&pos);
@@ -106,7 +106,7 @@ static int append_root_package_(addr name, addr package)
 	return 0;
 }
 
-_g int package_size_heap_(addr *ret, addr name, size_t size)
+int package_size_heap_(addr *ret, addr name, size_t size)
 {
 	addr pos, table;
 
@@ -134,7 +134,7 @@ _g int package_size_heap_(addr *ret, addr name, size_t size)
 	return Result(ret, pos);
 }
 
-_g int package_heap_(addr *ret, addr name)
+int package_heap_(addr *ret, addr name)
 {
 	return package_size_heap_(ret, name, 0);
 }
@@ -306,12 +306,12 @@ static int build_package_value_(void)
 	return 0;
 }
 
-_g void build_package(void)
+void build_package(void)
 {
 	Error(build_package_value_());
 }
 
-_g int getpackage_(Execute ptr, addr *ret)
+int getpackage_(Execute ptr, addr *ret)
 {
 	addr pos, type;
 
@@ -329,7 +329,7 @@ _g int getpackage_(Execute ptr, addr *ret)
 /*
  *  make_package
  */
-_g int append_nicknames_package_(addr pos, addr right)
+int append_nicknames_package_(addr pos, addr right)
 {
 	addr table, left, cons, check;
 
@@ -411,7 +411,7 @@ static int check_rename_package_(addr pos, addr name, addr right)
 	return 0;
 }
 
-_g int delete_renameone_package_(addr table, addr name)
+int delete_renameone_package_(addr table, addr name)
 {
 	int check;
 	Return(string_designer_heap_(&name, name, NULL));
@@ -477,7 +477,7 @@ static int intern_allnames_package_(addr pos, addr name, addr right)
 	return 0;
 }
 
-_g int rename_package_(addr pos, addr name, addr right, addr *ret)
+int rename_package_(addr pos, addr name, addr right, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
 	/* check conflict */
@@ -494,7 +494,7 @@ _g int rename_package_(addr pos, addr name, addr right, addr *ret)
 /*
  *  find-symbol
  */
-_g int find_symbol_package_(addr package, addr name,
+int find_symbol_package_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	Check(! stringp(name), "type error");
@@ -532,7 +532,7 @@ static int push_basesymbol_package_(addr key, addr left, addr name, addr *cons)
 	return 0;
 }
 
-_g int find_allsymbols_package_(addr name, addr *ret)
+int find_allsymbols_package_(addr name, addr *ret)
 {
 	addr array, left, right, key, cons;
 	size_t i, size;
@@ -571,7 +571,7 @@ static int pushbase_package_(addr key, addr package, addr *cons)
 	return 0;
 }
 
-_g int list_all_packages_(addr *ret)
+int list_all_packages_(addr *ret)
 {
 	addr array, left, right, key, cons;
 	size_t i, size;
@@ -596,7 +596,7 @@ _g int list_all_packages_(addr *ret)
 /*
  *  in-package
  */
-_g int in_package_(Execute ptr, addr package, addr *ret)
+int in_package_(Execute ptr, addr package, addr *ret)
 {
 	addr symbol;
 
@@ -613,7 +613,7 @@ _g int in_package_(Execute ptr, addr package, addr *ret)
 /*
  *  for C language
  */
-_g int externalp_package_(addr symbol, addr package, int *ret)
+int externalp_package_(addr symbol, addr package, int *ret)
 {
 	addr name, left, right;
 
@@ -632,7 +632,7 @@ _g int externalp_package_(addr symbol, addr package, int *ret)
 	return Result(ret, left != symbol);
 }
 
-_g int exportp_package_(addr symbol, addr package, int *ret)
+int exportp_package_(addr symbol, addr package, int *ret)
 {
 	addr name, left, right;
 
@@ -651,7 +651,7 @@ _g int exportp_package_(addr symbol, addr package, int *ret)
 	return Result(ret, (left == symbol) && (int)StructBitType(right)->expt);
 }
 
-_g int exportp_name_package_(addr package, addr name, addr *value, int *ret)
+int exportp_name_package_(addr package, addr name, addr *value, int *ret)
 {
 	addr right;
 
@@ -671,7 +671,7 @@ _g int exportp_name_package_(addr package, addr name, addr *value, int *ret)
 	return Result(ret, (int)StructBitType(right)->expt);
 }
 
-_g int checksymbol_package_(addr symbol, addr package, int *ret)
+int checksymbol_package_(addr symbol, addr package, int *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr check, name;
@@ -682,7 +682,7 @@ _g int checksymbol_package_(addr symbol, addr package, int *ret)
 	return Result(ret, type != PACKAGE_TYPE_NIL && check == symbol);
 }
 
-_g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
+void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
 {
 	switch (type) {
 		case PACKAGE_TYPE_INTERNAL:
@@ -707,7 +707,7 @@ _g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
 /*
  *  initialize
  */
-_g void init_package(void)
+void init_package(void)
 {
 	init_package_designer();
 	init_package_intern();

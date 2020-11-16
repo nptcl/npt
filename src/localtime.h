@@ -26,10 +26,10 @@
 #include <time.h>
 #endif
 
-_g void init_localtime(void);
-_g int gmtime_arch(struct tm *ret, const time_t *time);
-_g int localtime_arch(struct tm *ret, const time_t *time);
-_g int nowtime_string(char *ptr, size_t size);
+void init_localtime(void);
+int gmtime_arch(struct tm *ret, const time_t *time);
+int localtime_arch(struct tm *ret, const time_t *time);
+int nowtime_string(char *ptr, size_t size);
 
 #endif
 

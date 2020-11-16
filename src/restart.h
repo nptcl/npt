@@ -27,30 +27,30 @@
 #define getredirect_restart _n(getredirect_restart)
 #define init_restart _n(init_restart)
 
-_g int restartp(addr pos);
-_g void restart_heap(addr *ret, addr name);
-_g void getname_restart(addr pos, addr *ret);
-_g void setname_restart(addr pos, addr value);
-_g void getfunction_restart(addr pos, addr *ret);
-_g void setfunction_restart(addr pos, addr value);
-_g void getinteractive_restart(addr pos, addr *ret);
-_g void setinteractive_restart(addr pos, addr value);
-_g void getreport_restart(addr pos, addr *ret);
-_g void setreport_restart(addr pos, addr value);
-_g void gettest_restart(addr pos, addr *ret);
-_g void settest_restart(addr pos, addr value);
-_g void getcondition_restart(addr pos, addr *ret);
-_g void setcondition_restart(addr pos, addr value);
-_g void getreference_restart(addr pos, addr *ret);
-_g void setreference_restart(addr pos, addr value);
-_g void setescape_restart(addr pos, int value);
-_g int getescape_restart(addr pos);
-_g void setenable_restart(addr pos, int value);
-_g int getenable_restart(addr pos);
-_g void setredirect_restart(addr pos, int value);
-_g int getredirect_restart(addr pos);
+int restartp(addr pos);
+void restart_heap(addr *ret, addr name);
+void getname_restart(addr pos, addr *ret);
+void setname_restart(addr pos, addr value);
+void getfunction_restart(addr pos, addr *ret);
+void setfunction_restart(addr pos, addr value);
+void getinteractive_restart(addr pos, addr *ret);
+void setinteractive_restart(addr pos, addr value);
+void getreport_restart(addr pos, addr *ret);
+void setreport_restart(addr pos, addr value);
+void gettest_restart(addr pos, addr *ret);
+void settest_restart(addr pos, addr value);
+void getcondition_restart(addr pos, addr *ret);
+void setcondition_restart(addr pos, addr value);
+void getreference_restart(addr pos, addr *ret);
+void setreference_restart(addr pos, addr value);
+void setescape_restart(addr pos, int value);
+int getescape_restart(addr pos);
+void setenable_restart(addr pos, int value);
+int getenable_restart(addr pos);
+void setredirect_restart(addr pos, int value);
+int getredirect_restart(addr pos);
 
-_g void init_restart(void);
+void init_restart(void);
 
 #endif
 

@@ -981,7 +981,7 @@ static int real_extract_(LocalRoot local, addr *ret, addr type)
 	return 0;
 }
 
-_g int real_extract_local_(LocalRoot local, addr *ret, addr type)
+int real_extract_local_(LocalRoot local, addr *ret, addr type)
 {
 	CheckLocal(local);
 	CheckType(type, LISPTYPE_TYPE);
@@ -996,7 +996,7 @@ _g int real_extract_local_(LocalRoot local, addr *ret, addr type)
 	return 0;
 }
 
-_g int real_extract_heap_(LocalRoot local, addr *ret, addr type)
+int real_extract_heap_(LocalRoot local, addr *ret, addr type)
 {
 	LocalStack stack;
 
@@ -1009,18 +1009,18 @@ _g int real_extract_heap_(LocalRoot local, addr *ret, addr type)
 	return 0;
 }
 
-_g int type_subtypep_p(addr type)
+int type_subtypep_p(addr type)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	return RefLispDecl(type) == LISPDECL_SUBTYPEP;
 }
 
-_g int type_optimized_or_subtypep(addr type)
+int type_optimized_or_subtypep(addr type)
 {
 	return type_optimized_p(type) || type_subtypep_p(type);
 }
 
-_g void get_type_subtypep(addr *ret, addr type)
+void get_type_subtypep(addr *ret, addr type)
 {
 	if (type_subtypep_p(type)) {
 		GetArrayType(type, 0, ret);

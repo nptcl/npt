@@ -841,7 +841,7 @@ static void build_clos_objects(void)
 	defun_unbound_slot_instance();
 }
 
-_g void init_common_objects(void)
+void init_common_objects(void)
 {
 	/* metaobject protocol */
 	init_metaobject_protocol();
@@ -849,7 +849,7 @@ _g void init_common_objects(void)
 	init_clos_objects();
 }
 
-_g void build_common_objects(void)
+void build_common_objects(void)
 {
 	/* metaobject protocol */
 	build_metaobject_protocol();

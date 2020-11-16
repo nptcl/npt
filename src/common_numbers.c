@@ -3624,7 +3624,7 @@ static void defconstant_long_float_negative_epsilon(void)
 /*
  *  function
  */
-_g void init_common_numbers(void)
+void init_common_numbers(void)
 {
 	SetPointerCall(defun, var1dynamic, number_equal);
 	SetPointerCall(defun, var1dynamic, number_not_equal);
@@ -3738,7 +3738,7 @@ _g void init_common_numbers(void)
 	SetPointerCall(defun, var1, arithmetic_error_operation);
 }
 
-_g void build_common_numbers(void)
+void build_common_numbers(void)
 {
 	defun_number_equal();
 	defun_number_not_equal();

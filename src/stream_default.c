@@ -14,12 +14,12 @@
 /*
  *  default call
  */
-_g int close_default_stream(addr stream, addr *ret)
+int close_default_stream(addr stream, addr *ret)
 {
 	return Result(ret, T);
 }
 
-_g int read_char_default_stream(addr stream, unicode *c, int *ret)
+int read_char_default_stream(addr stream, unicode *c, int *ret)
 {
 	struct StructStream *ptr;
 
@@ -32,7 +32,7 @@ _g int read_char_default_stream(addr stream, unicode *c, int *ret)
 	return Result(ret, 0);
 }
 
-_g int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret)
+int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret)
 {
 	struct StructStream *ptr;
 
@@ -46,7 +46,7 @@ _g int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret)
 	return Result(ret, 0);
 }
 
-_g int unread_char_default_stream(addr stream, unicode c)
+int unread_char_default_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 
@@ -59,26 +59,26 @@ _g int unread_char_default_stream(addr stream, unicode c)
 	return 0;
 }
 
-_g int write_char_default_stream(addr stream, unicode c)
+int write_char_default_stream(addr stream, unicode c)
 {
 	Return(write_char_file_(stream, c));
 	charleft_default_stream(stream, c);
 	return 0;
 }
 
-_g int getleft_default_stream(addr stream, size_t *ret)
+int getleft_default_stream(addr stream, size_t *ret)
 {
 	*ret = PtrStructStream(stream)->terpri;
 	return 0;
 }
 
-_g int setleft_default_stream(addr stream, size_t value)
+int setleft_default_stream(addr stream, size_t value)
 {
 	PtrStructStream(stream)->terpri = value;
 	return 0;
 }
 
-_g void charleft_default_stream(addr stream, unicode c)
+void charleft_default_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 
@@ -89,7 +89,7 @@ _g void charleft_default_stream(addr stream, unicode c)
 		ptr->terpri += eastasian_width(c);
 }
 
-_g int file_length_default_stream(addr stream, addr *ret)
+int file_length_default_stream(addr stream, addr *ret)
 {
 	int check;
 	addr pos;
@@ -105,54 +105,54 @@ _g int file_length_default_stream(addr stream, addr *ret)
 	}
 }
 
-_g int file_position_default_stream(addr stream, size_t *value, int *ret)
+int file_position_default_stream(addr stream, size_t *value, int *ret)
 {
 	*value = 0;
 	return Result(ret, 1);
 }
 
-_g int file_position_start_default_stream(addr stream, int *ret)
+int file_position_start_default_stream(addr stream, int *ret)
 {
 	return Result(ret, 1);
 }
 
-_g int file_position_end_default_stream(addr stream, int *ret)
+int file_position_end_default_stream(addr stream, int *ret)
 {
 	return Result(ret, 1);
 }
 
-_g int file_position_set_default_stream(addr stream, size_t value, int *ret)
+int file_position_set_default_stream(addr stream, size_t value, int *ret)
 {
 	return Result(ret, 1);
 }
 
-_g int finish_output_default_stream(addr stream)
+int finish_output_default_stream(addr stream)
 {
 	return exitpoint_stream_(stream);
 }
 
-_g int force_output_default_stream(addr stream)
+int force_output_default_stream(addr stream)
 {
 	return exitpoint_stream_(stream);
 }
 
-_g int clear_output_default_stream(addr stream)
+int clear_output_default_stream(addr stream)
 {
 	return 0;
 }
 
-_g int exitpoint_default_stream(addr stream)
+int exitpoint_default_stream(addr stream)
 {
 	return 0;
 }
 
-_g int termsize_default_stream(addr stream, size_t *value, int *ret)
+int termsize_default_stream(addr stream, size_t *value, int *ret)
 {
 	*value = 0;
 	return Result(ret, 1);
 }
 
-_g int checkp_true_stream(addr stream, int *ret)
+int checkp_true_stream(addr stream, int *ret)
 {
 	return Result(ret, 1);
 }
@@ -161,18 +161,18 @@ _g int checkp_true_stream(addr stream, int *ret)
 /*
  *  default value
  */
-_g int checkp_false_stream(addr stream, int *ret)
+int checkp_false_stream(addr stream, int *ret)
 {
 	return Result(ret, 0);
 }
 
-_g int element_type_character_stream(addr stream, addr *ret)
+int element_type_character_stream(addr stream, addr *ret)
 {
 	GetConst(COMMON_CHARACTER, ret);
 	return 0;
 }
 
-_g int element_type_io_stream(addr stream, addr *ret)
+int element_type_io_stream(addr stream, addr *ret)
 {
 	int check;
 	addr input, output;
@@ -192,7 +192,7 @@ _g int element_type_io_stream(addr stream, addr *ret)
 	}
 }
 
-_g int external_format_default_stream(addr stream, addr *ret)
+int external_format_default_stream(addr stream, addr *ret)
 {
 	GetConst(KEYWORD_DEFAULT, ret);
 	return 0;

@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 #define heap_check _n(heap_check)
-_g void heap_check(void);
+void heap_check(void);
 
 #endif
 

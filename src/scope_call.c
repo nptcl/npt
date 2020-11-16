@@ -232,7 +232,7 @@ static int make_scope_keyword_(Execute ptr, addr symbol, addr *ret)
 	return scope_symbol_heap_(ptr, ret, type, symbol);
 }
 
-_g int scope_symbol_call(Execute ptr, addr *ret, addr eval)
+int scope_symbol_call(Execute ptr, addr *ret, addr eval)
 {
 	int check;
 	addr form;
@@ -252,7 +252,7 @@ _g int scope_symbol_call(Execute ptr, addr *ret, addr eval)
 /*
  *  setq
  */
-_g int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
+int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 {
 	int ignore;
 	addr root, var, form;
@@ -301,7 +301,7 @@ static void push_symbol_macrolet(addr stack, addr symbol, addr form, addr env)
 	}
 }
 
-_g int scope_define_symbol_macro_call_(Execute ptr,
+int scope_define_symbol_macro_call_(Execute ptr,
 		addr symbol, addr form, addr body, addr *ret)
 {
 	addr stack, eval;
@@ -321,7 +321,7 @@ _g int scope_define_symbol_macro_call_(Execute ptr,
 /*
  *  symbol-macrolet
  */
-_g void apply_symbol_macrolet(addr stack, addr args)
+void apply_symbol_macrolet(addr stack, addr args)
 {
 	addr list, symbol, form, env;
 
@@ -345,7 +345,7 @@ static int symbol_macrolet_execute(Execute ptr,
 	return freestack_eval_(ptr, stack);
 }
 
-_g int scope_symbol_macrolet_call(Execute ptr,
+int scope_symbol_macrolet_call(Execute ptr,
 		addr args, addr decl, addr cons, addr *ret)
 {
 	addr eval, free;
@@ -363,7 +363,7 @@ _g int scope_symbol_macrolet_call(Execute ptr,
 /*
  *  values
  */
-_g int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype)
+int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype)
 {
 	addr root, var, rest, eval, type;
 	LocalHold hold;
@@ -418,7 +418,7 @@ static int scope_the_check_(Execute ptr, addr eval, addr right, addr *ret)
 	return Result(ret, check? T: Nil);
 }
 
-_g int scope_the_call(Execute ptr, addr type, addr form, addr *ret)
+int scope_the_call(Execute ptr, addr type, addr form, addr *ret)
 {
 	addr eval, check;
 
@@ -446,7 +446,7 @@ static int locally_execute(Execute ptr,
 	return freestack_eval_(ptr, stack);
 }
 
-_g int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret)
+int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret)
 {
 	addr eval, type, free;
 
@@ -560,7 +560,7 @@ static void tagbody_call_remove(addr stack, addr list, addr *ret)
 	nreverse(ret, root);
 }
 
-_g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rbody)
+int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rbody)
 {
 	addr stack;
 
@@ -623,7 +623,7 @@ static int go_tabletagbody(addr stack, addr tag, addr *ret)
 	return 1;
 }
 
-_g int scope_go_call_(Execute ptr, addr *ret, addr tag)
+int scope_go_call_(Execute ptr, addr *ret, addr tag)
 {
 	addr stack, table;
 
@@ -675,7 +675,7 @@ static void block_call_remove(addr stack, addr pos, addr *ret)
 		*ret = Nil;
 }
 
-_g int scope_block_call(Execute ptr, addr name, addr cons,
+int scope_block_call(Execute ptr, addr name, addr cons,
 		addr *rname, addr *rcons, addr *rtype)
 {
 	addr stack;
@@ -739,7 +739,7 @@ static int name_tableblock(addr stack, addr tag, addr *ret)
 	return 1;
 }
 
-_g int scope_return_from_call(Execute ptr,
+int scope_return_from_call(Execute ptr,
 		addr name, addr form, addr *rname, addr *rexpr)
 {
 	addr stack;
@@ -753,7 +753,7 @@ _g int scope_return_from_call(Execute ptr,
 
 
 /* multiple-value-bind */
-_g void scope_init_mvbind(struct mvbind_struct *str)
+void scope_init_mvbind(struct mvbind_struct *str)
 {
 	clearpoint(str);
 	str->stack = str->args = str->decl = str->doc
@@ -795,7 +795,7 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 	return 0;
 }
 
-_g int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str)
+int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str)
 {
 	LocalHold hold;
 
@@ -819,7 +819,7 @@ static int scope_multiple_value_call_type(addr expr, addr *ret)
 	return 0;
 }
 
-_g int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret)
+int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret)
 {
 	addr eval, type;
 	LocalHold hold;

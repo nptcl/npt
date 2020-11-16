@@ -1559,7 +1559,7 @@ static void defun_set_slots(void)
 /*
  *  function
  */
-_g void init_syscall_common(void)
+void init_syscall_common(void)
 {
 	SetPointerSysCall(defun, var2, redirect_restart);
 	SetPointerSysCall(defmacro, macro, symbol_macro_expander);
@@ -1607,7 +1607,7 @@ _g void init_syscall_common(void)
 	SetPointerSysCall(defun, var3, set_slots);
 }
 
-_g void build_syscall_common(void)
+void build_syscall_common(void)
 {
 	defun_redirect_restart();
 	defun_symbol_macro_expander();

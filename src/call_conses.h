@@ -62,67 +62,67 @@
 #define union_common _n(union_common)
 #define nunion_common _n(nunion_common)
 
-_g int sublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret);
-_g int nsublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret);
-_g int subst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret);
-_g int nsubst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret);
-_g int subst_if_common(Execute ptr,
+int sublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret);
+int nsublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret);
+int subst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret);
+int nsubst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret);
+int subst_if_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret);
-_g int nsubst_if_common(Execute ptr,
+int nsubst_if_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret);
-_g int subst_if_not_common(Execute ptr,
+int subst_if_not_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret);
-_g int nsubst_if_not_common(Execute ptr,
+int nsubst_if_not_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret);
-_g int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret);
-_g int list_length_common(addr list, addr *ret);
-_g int make_list_common(addr var, addr rest, addr *ret);
-_g int push_common(Execute ptr, addr form, addr env, addr *ret);
-_g int pop_common(Execute ptr, addr form, addr env, addr *ret);
-_g int nth_common(addr index, addr list, addr *ret);
-_g int setf_nth_common(addr value, addr index, addr list);
-_g int nthcdr_common(addr index, addr list, addr *ret);
-_g int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
-_g int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g int mapc_common(Execute ptr, addr call, addr rest, addr *ret);
-_g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret);
-_g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret);
-_g int mapl_common(Execute ptr, addr call, addr rest, addr *ret);
-_g int maplist_common(Execute ptr, addr call, addr rest, addr *ret);
-_g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret);
-_g int nconc_common(addr args, addr *ret);
-_g int append_common(addr args, addr *ret);
-_g int revappend_common(addr list, addr tail, addr *ret);
-_g int nreconc_common(addr list, addr tail, addr *ret);
-_g int butlast_common(addr list, addr index, addr *ret);
-_g int nbutlast_common(addr list, addr index, addr *ret);
-_g int last_common(addr list, addr index, addr *ret);
-_g void ldiff_common(addr list, addr object, addr *ret);
-_g void tailp_common(addr object, addr list, int *ret);
-_g int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
-_g int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g int copy_alist_common(addr list, addr *ret);
-_g int pairlis_common(addr keys, addr data, addr list, addr *ret);
-_g int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
-_g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g int get_properties_common(addr plist, addr indicator,
+int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret);
+int list_length_common(addr list, addr *ret);
+int make_list_common(addr var, addr rest, addr *ret);
+int push_common(Execute ptr, addr form, addr env, addr *ret);
+int pop_common(Execute ptr, addr form, addr env, addr *ret);
+int nth_common(addr index, addr list, addr *ret);
+int setf_nth_common(addr value, addr index, addr list);
+int nthcdr_common(addr index, addr list, addr *ret);
+int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
+int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
+int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
+int mapc_common(Execute ptr, addr call, addr rest, addr *ret);
+int mapcar_common(Execute ptr, addr call, addr rest, addr *ret);
+int mapcan_common(Execute ptr, addr call, addr rest, addr *ret);
+int mapl_common(Execute ptr, addr call, addr rest, addr *ret);
+int maplist_common(Execute ptr, addr call, addr rest, addr *ret);
+int mapcon_common(Execute ptr, addr call, addr rest, addr *ret);
+int nconc_common(addr args, addr *ret);
+int append_common(addr args, addr *ret);
+int revappend_common(addr list, addr tail, addr *ret);
+int nreconc_common(addr list, addr tail, addr *ret);
+int butlast_common(addr list, addr index, addr *ret);
+int nbutlast_common(addr list, addr index, addr *ret);
+int last_common(addr list, addr index, addr *ret);
+void ldiff_common(addr list, addr object, addr *ret);
+void tailp_common(addr object, addr list, int *ret);
+int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
+int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
+int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
+int copy_alist_common(addr list, addr *ret);
+int pairlis_common(addr keys, addr data, addr list, addr *ret);
+int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
+int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
+int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
+int get_properties_common(addr plist, addr indicator,
 		addr *rkey, addr *rvalue, addr *rlist);
-_g int getf_common(addr list, addr key, addr value, addr *ret);
-_g int remf_common(Execute ptr, addr form, addr env, addr *ret);
-_g int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
-_g int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
-_g int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
-_g int pushnew_common(Execute ptr, addr form, addr env, addr *ret);
-_g int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
-_g int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
-_g int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
-_g int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
-_g int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
-_g int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
-_g int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
+int getf_common(addr list, addr key, addr value, addr *ret);
+int remf_common(Execute ptr, addr form, addr env, addr *ret);
+int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
+int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
+int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
+int pushnew_common(Execute ptr, addr form, addr env, addr *ret);
+int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
+int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
+int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
+int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret);
+int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
+int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
+int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);
 
 #endif
 

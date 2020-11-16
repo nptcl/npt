@@ -11,34 +11,34 @@
 /*
  *  access
  */
-_g addr refcallname(addr pos)
+addr refcallname(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	return RefCallName_Low(pos);
 }
-_g void getcallname(addr pos, addr *value)
+void getcallname(addr pos, addr *value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	GetCallName_Low(pos, value);
 }
-_g void setcallname(addr pos, addr value)
+void setcallname(addr pos, addr value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetCallName_Low(pos, value);
 }
 
-_g CallNameType refcallnametype(addr pos)
+CallNameType refcallnametype(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	return RefCallNameType_Low(pos);
 }
-_g void getcallnametype(addr pos, CallNameType *value)
+void getcallnametype(addr pos, CallNameType *value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	GetCallNameType_Low(pos, value);
 }
-_g void setcallnametype(addr pos, CallNameType value)
+void setcallnametype(addr pos, CallNameType value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -49,12 +49,12 @@ _g void setcallnametype(addr pos, CallNameType value)
 /*
  *  allocate
  */
-_g void make_callname_alloc(LocalRoot local, addr *ret)
+void make_callname_alloc(LocalRoot local, addr *ret)
 {
 	alloc_array2(local, ret, LISPTYPE_CALLNAME, 1);
 }
 
-_g void callname_alloc(LocalRoot local, addr *ret, addr name, CallNameType type)
+void callname_alloc(LocalRoot local, addr *ret, addr name, CallNameType type)
 {
 	addr pos;
 
@@ -64,27 +64,27 @@ _g void callname_alloc(LocalRoot local, addr *ret, addr name, CallNameType type)
 	SetCallNameType_Low(pos, type);
 	*ret = pos;
 }
-_g void callname_local(LocalRoot local, addr *ret, addr name, CallNameType type)
+void callname_local(LocalRoot local, addr *ret, addr name, CallNameType type)
 {
 	Check(local == NULL, "local error");
 	callname_alloc(local, ret, name, type);
 }
-_g void callname_heap(addr *ret, addr name, CallNameType type)
+void callname_heap(addr *ret, addr name, CallNameType type)
 {
 	callname_alloc(NULL, ret, name, type);
 }
 
-_g void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
+void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	callname_alloc(local, ret, symbol, CALLNAME_SETF);
 }
-_g void setf_callname_local(LocalRoot local, addr *ret, addr symbol)
+void setf_callname_local(LocalRoot local, addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	callname_local(local, ret, symbol, CALLNAME_SETF);
 }
-_g void setf_callname_heap(addr *ret, addr symbol)
+void setf_callname_heap(addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	callname_heap(ret, symbol, CALLNAME_SETF);
@@ -94,17 +94,17 @@ _g void setf_callname_heap(addr *ret, addr symbol)
 /*
  *  copy
  */
-_g void copy_callname_alloc(LocalRoot local, addr *ret, addr pos)
+void copy_callname_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	callname_alloc(local, ret, RefCallName_Low(pos), RefCallNameType_Low(pos));
 }
-_g void copy_callname_local(LocalRoot local, addr *ret, addr pos)
+void copy_callname_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	copy_callname_alloc(local, ret, pos);
 }
-_g void copy_callname_heap(addr *ret, addr pos)
+void copy_callname_heap(addr *ret, addr pos)
 {
 	copy_callname_alloc(NULL, ret, pos);
 }
@@ -113,7 +113,7 @@ _g void copy_callname_heap(addr *ret, addr pos)
 /*
  *  parse
  */
-_g CallNameType parse_callname(addr name, addr *ret)
+CallNameType parse_callname(addr name, addr *ret)
 {
 	CallNameType type;
 	addr setf, cons;
@@ -152,7 +152,7 @@ error:
 	return CALLNAME_ERROR;
 }
 
-_g int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
+int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
 {
 	CallNameType type;
 
@@ -163,21 +163,21 @@ _g int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
 
 	return 0;
 }
-_g int parse_callname_local(LocalRoot local, addr *ret, addr name)
+int parse_callname_local(LocalRoot local, addr *ret, addr name)
 {
 	Check(local == NULL, "local error");
 	return parse_callname_alloc(local, ret, name);
 }
-_g int parse_callname_heap(addr *ret, addr name)
+int parse_callname_heap(addr *ret, addr name)
 {
 	return parse_callname_alloc(NULL, ret, name);
 }
-_g void parse_callname_abort(LocalRoot local, addr *ret, addr name)
+void parse_callname_abort(LocalRoot local, addr *ret, addr name)
 {
 	if (parse_callname_alloc(local, ret, name))
 		Abort("Invalid function name.");
 }
-_g int parse_callname_error_(addr *ret, addr name)
+int parse_callname_error_(addr *ret, addr name)
 {
 	if (parse_callname_heap(ret, name))
 		return fmte_("Invalid function name ~S.", name, NULL);
@@ -188,38 +188,38 @@ _g int parse_callname_error_(addr *ret, addr name)
 /*
  *  boolean
  */
-_g int callnamep(addr pos)
+int callnamep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CALLNAME;
 }
 
-_g int symbolp_callname(addr call)
+int symbolp_callname(addr call)
 {
 	CheckType(call, LISPTYPE_CALLNAME);
 	return RefCallNameType(call) == CALLNAME_SYMBOL;
 }
 
-_g int setfp_callname(addr call)
+int setfp_callname(addr call)
 {
 	CheckType(call, LISPTYPE_CALLNAME);
 	return RefCallNameType(call) == CALLNAME_SETF;
 }
 
-_g int constantp_callname(addr pos)
+int constantp_callname(addr pos)
 {
 	CheckType(pos, LISPTYPE_CALLNAME);
 	GetCallName(pos, &pos);
 	return GetStatusReadOnly(pos);
 }
 
-_g int function_name_p(addr name)
+int function_name_p(addr name)
 {
 	if (GetType(name) == LISPTYPE_CALLNAME)
 		return 1;
 	return parse_callname(name, &name) != CALLNAME_ERROR;
 }
 
-_g int equal_callname(addr left, addr right)
+int equal_callname(addr left, addr right)
 {
 	Check(GetType(left) != LISPTYPE_CALLNAME, "type left error");
 	Check(GetType(right) != LISPTYPE_CALLNAME, "type right error");
@@ -231,7 +231,7 @@ _g int equal_callname(addr left, addr right)
 /*
  *  function
  */
-_g void getglobal_callname(addr pos, addr *ret)
+void getglobal_callname(addr pos, addr *ret)
 {
 	CallNameType type;
 
@@ -254,7 +254,7 @@ _g void getglobal_callname(addr pos, addr *ret)
 	}
 }
 
-_g int getglobalcheck_callname_(addr pos, addr *ret)
+int getglobalcheck_callname_(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CALLNAME);
 	getglobal_callname(pos, ret);
@@ -266,7 +266,7 @@ _g int getglobalcheck_callname_(addr pos, addr *ret)
 	return 0;
 }
 
-_g int setglobal_callname_(addr pos, addr value)
+int setglobal_callname_(addr pos, addr value)
 {
 	CallNameType type;
 
@@ -287,7 +287,7 @@ _g int setglobal_callname_(addr pos, addr value)
 	}
 }
 
-_g int remtype_global_callname_(addr pos)
+int remtype_global_callname_(addr pos)
 {
 	CallNameType type;
 
@@ -322,7 +322,7 @@ static CallNameType callnametype(addr pos, addr *value)
 	}
 }
 
-_g void getglobal_parse_callname(addr pos, addr *value)
+void getglobal_parse_callname(addr pos, addr *value)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -342,7 +342,7 @@ _g void getglobal_parse_callname(addr pos, addr *value)
 	}
 }
 
-_g int getglobalcheck_parse_callname_(addr pos, addr *ret)
+int getglobalcheck_parse_callname_(addr pos, addr *ret)
 {
 	getglobal_parse_callname(pos, ret);
 	if (*ret == Unbound) {
@@ -353,7 +353,7 @@ _g int getglobalcheck_parse_callname_(addr pos, addr *ret)
 	return 0;
 }
 
-_g int setglobal_parse_callname_(addr pos, addr value)
+int setglobal_parse_callname_(addr pos, addr value)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -374,7 +374,7 @@ _g int setglobal_parse_callname_(addr pos, addr value)
 /*
  *  name
  */
-_g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
+void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	CallNameType type;
 	addr setf;
@@ -399,13 +399,13 @@ _g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-_g void name_callname_local(LocalRoot local, addr pos, addr *ret)
+void name_callname_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	name_callname_alloc(local, pos, ret);
 }
 
-_g void name_callname_heap(addr pos, addr *ret)
+void name_callname_heap(addr pos, addr *ret)
 {
 	name_callname_alloc(NULL, pos, ret);
 }

@@ -13,14 +13,14 @@
 #define init_environment_code _n(init_environment_code)
 #define build_environment_code _n(build_environment_code)
 
-_g int disassemble_common(Execute ptr, addr pos);
-_g int trace_common_(addr form, addr env, addr *ret);
-_g int untrace_common_(addr form, addr env, addr *ret);
-_g int trace_add_common_(Execute ptr, addr list, addr *ret);
-_g int trace_del_common_(Execute ptr, addr list, addr *ret);
+int disassemble_common(Execute ptr, addr pos);
+int trace_common_(addr form, addr env, addr *ret);
+int untrace_common_(addr form, addr env, addr *ret);
+int trace_add_common_(Execute ptr, addr list, addr *ret);
+int trace_del_common_(Execute ptr, addr list, addr *ret);
 
-_g void init_environment_code(void);
-_g void build_environment_code(void);
+void init_environment_code(void);
+void build_environment_code(void);
 
 #endif
 

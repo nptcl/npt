@@ -45,7 +45,7 @@ static int ceiling1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	return 0;
 }
 
-_g int ceiling1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
+int ceiling1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -115,7 +115,7 @@ static int fceiling1_long_(LocalRoot local, addr *quot, addr *rem, addr left)
 	return 0;
 }
 
-_g int fceiling1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
+int fceiling1_common_(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -826,7 +826,7 @@ static int ceiling_long_common_(LocalRoot local,
 	}
 }
 
-_g int ceiling2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+int ceiling2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1502,7 +1502,7 @@ static int fceiling_long_common_(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-_g int fceiling2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+int fceiling2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1530,7 +1530,7 @@ _g int fceiling2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr
 	}
 }
 
-_g int ceiling_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+int ceiling_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
 {
 	if (div == Unbound)
 		return ceiling1_common_(local, ret1, ret2, var);
@@ -1538,7 +1538,7 @@ _g int ceiling_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *re
 		return ceiling2_common_(local, ret1, ret2, var, div);
 }
 
-_g int fceiling_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+int fceiling_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
 {
 	if (div == Unbound)
 		return fceiling1_common_(local, ret1, ret2, var);

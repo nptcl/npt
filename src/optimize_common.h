@@ -10,11 +10,11 @@
 #define init_optimize_common _n(init_optimize_common)
 #define build_optimize_common _n(build_optimize_common)
 
-_g int optimize_common(LocalRoot local, addr code, addr scope);
-_g int optimize_check_code(LocalRoot local, addr code, addr scope);
+int optimize_common(LocalRoot local, addr code, addr scope);
+int optimize_check_code(LocalRoot local, addr code, addr scope);
 
-_g void init_optimize_common(void);
-_g void build_optimize_common(void);
+void init_optimize_common(void);
+void build_optimize_common(void);
 
 #endif
 

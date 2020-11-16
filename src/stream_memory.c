@@ -92,7 +92,7 @@ static void clear_unread_io_memory_stream(addr stream)
 	str->unread_index = 0;
 }
 
-_g int memory_stream_heap_(addr stream, addr *ret)
+int memory_stream_heap_(addr stream, addr *ret)
 {
 	addr page;
 
@@ -101,7 +101,7 @@ _g int memory_stream_heap_(addr stream, addr *ret)
 	return make_vector_buffering_heap_(page, ret);
 }
 
-_g int clear_memory_stream_(addr stream)
+int clear_memory_stream_(addr stream)
 {
 	addr page;
 
@@ -113,7 +113,7 @@ _g int clear_memory_stream_(addr stream)
 	return 0;
 }
 
-_g void getsize_memory_stream(addr stream, size_t *ret)
+void getsize_memory_stream(addr stream, size_t *ret)
 {
 	addr page;
 
@@ -122,7 +122,7 @@ _g void getsize_memory_stream(addr stream, size_t *ret)
 	getcell_buffering(page, ret);
 }
 
-_g void getarray_memory_stream(addr stream, size_t *ret)
+void getarray_memory_stream(addr stream, size_t *ret)
 {
 	addr page;
 
@@ -131,7 +131,7 @@ _g void getarray_memory_stream(addr stream, size_t *ret)
 	getwidth_buffering(page, ret);
 }
 
-_g int getcache_memory_stream(addr stream)
+int getcache_memory_stream(addr stream)
 {
 	struct stream_MemoryStream *str;
 
@@ -140,7 +140,7 @@ _g int getcache_memory_stream(addr stream)
 	return str->cache;
 }
 
-_g void gettype_memory_stream(addr stream, addr *ret)
+void gettype_memory_stream(addr stream, addr *ret)
 {
 	if (! streamp(stream)) {
 		*ret = Nil;
@@ -166,7 +166,7 @@ _g void gettype_memory_stream(addr stream, addr *ret)
 	}
 }
 
-_g int settype_memory_stream_(addr stream, addr value)
+int settype_memory_stream_(addr stream, addr value)
 {
 	addr check;
 	struct StructStream *str;
@@ -378,7 +378,7 @@ static int clear_input_MemoryStream(addr stream)
 /*****************************************************************************
  *  MemoryInput
  *****************************************************************************/
-_g int open_input_memory_stream_(addr *ret, addr input,
+int open_input_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache)
 {
 	int ignore;
@@ -392,7 +392,7 @@ _g int open_input_memory_stream_(addr *ret, addr input,
 	return Result(ret, pos);
 }
 
-_g void init_stream_memory_input(void)
+void init_stream_memory_input(void)
 {
 	DefineStreamLet(MemoryInput, close, MemoryStream);
 	DefineStreamLet(MemoryInput, read_byte, MemoryStream);
@@ -431,14 +431,14 @@ _g void init_stream_memory_input(void)
 /*****************************************************************************
  *  MemoryOutput
  *****************************************************************************/
-_g int open_output_memory_stream_(addr *ret, addr input,
+int open_output_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache)
 {
 	return open_memory_stream_(ret, StreamType_MemoryOutput,
 			input, cell, array, cache);
 }
 
-_g void init_stream_memory_output(void)
+void init_stream_memory_output(void)
 {
 	DefineStreamLet(MemoryOutput, close, MemoryStream);
 	DefineStream___(MemoryOutput, read_byte);
@@ -477,14 +477,14 @@ _g void init_stream_memory_output(void)
 /*****************************************************************************
  *  MemoryIO
  *****************************************************************************/
-_g int open_io_memory_stream_(addr *ret, addr input,
+int open_io_memory_stream_(addr *ret, addr input,
 		size_t cell, size_t array, int cache)
 {
 	return open_memory_stream_(ret, StreamType_MemoryIO,
 			input, cell, array, cache);
 }
 
-_g void init_stream_memory_io(void)
+void init_stream_memory_io(void)
 {
 	DefineStreamLet(MemoryIO, close, MemoryStream);
 	DefineStreamLet(MemoryIO, read_byte, MemoryStream);
@@ -559,7 +559,7 @@ static int read_byte_read_memory(addr stream, byte *value, int *ret)
 	return 0;
 }
 
-_g int read_byte_memory_stream(addr stream, byte *value, int *ret)
+int read_byte_memory_stream(addr stream, byte *value, int *ret)
 {
 	if (input_memory_stream_p(stream))
 		return read_byte_read_memory(stream, value, ret);
@@ -583,7 +583,7 @@ static int write_byte_write_memory(addr stream, byte value)
 	return putc_buffering(page, value);
 }
 
-_g int write_byte_memory_stream(addr stream, byte value)
+int write_byte_memory_stream(addr stream, byte value)
 {
 	if (output_memory_stream_p(stream))
 		return write_byte_write_memory(stream, value);
@@ -595,7 +595,7 @@ _g int write_byte_memory_stream(addr stream, byte value)
 
 
 /* file-length */
-_g int file_length_memory_stream(addr stream, size_t *ret)
+int file_length_memory_stream(addr stream, size_t *ret)
 {
 	addr page;
 
@@ -610,7 +610,7 @@ _g int file_length_memory_stream(addr stream, size_t *ret)
 
 
 /* file-position */
-_g int file_position_memory_stream(addr stream, size_t *ret)
+int file_position_memory_stream(addr stream, size_t *ret)
 {
 	addr page;
 
@@ -625,7 +625,7 @@ _g int file_position_memory_stream(addr stream, size_t *ret)
 
 
 /* file-position-start */
-_g int file_position_start_memory_stream(addr stream)
+int file_position_start_memory_stream(addr stream)
 {
 	addr page;
 
@@ -641,7 +641,7 @@ _g int file_position_start_memory_stream(addr stream)
 
 
 /* file-position-end */
-_g int file_position_end_memory_stream(addr stream)
+int file_position_end_memory_stream(addr stream)
 {
 	addr page;
 
@@ -657,7 +657,7 @@ _g int file_position_end_memory_stream(addr stream)
 
 
 /* file-position-set */
-_g int file_position_set_memory_stream(addr stream, size_t value)
+int file_position_set_memory_stream(addr stream, size_t value)
 {
 	addr page;
 

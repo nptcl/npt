@@ -31,7 +31,7 @@
 #include "type_table.h"
 #include "type_typep.h"
 
-_g void localhold_destruct(LocalHold hold, struct defstruct *str)
+void localhold_destruct(LocalHold hold, struct defstruct *str)
 {
 	localhold_pushva_force(hold, str->instance, str->env, str->doc, str->slots,
 			str->name, str->conc_name, str->copier, str->predicate,
@@ -44,7 +44,7 @@ _g void localhold_destruct(LocalHold hold, struct defstruct *str)
 /*
  *  defstruct-struct
  */
-_g void defstruct_clean(struct defstruct *str)
+void defstruct_clean(struct defstruct *str)
 {
 	clearpoint(str);
 	str->conc_name = Unbound;
@@ -208,92 +208,92 @@ static int stdset_structure_constant_(addr pos, addr value,
 #define StdSetStructure_(p,r,a,b) \
 	stdset_structure_constant_((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_structure_name_(addr pos, addr *ret)
+int stdget_structure_name_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, name, NAME);
 }
-_g int stdset_structure_name_(addr pos, addr value)
+int stdset_structure_name_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, name, NAME);
 }
 
-_g int stdget_structure_slots_(addr pos, addr *ret)
+int stdget_structure_slots_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, slots, SLOTS);
 }
-_g int stdset_structure_slots_(addr pos, addr value)
+int stdset_structure_slots_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, slots, SLOTS);
 }
 
-_g int stdget_structure_documentation_(addr pos, addr *ret)
+int stdget_structure_documentation_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, documentation, DOCUMENTATION);
 }
-_g int stdset_structure_documentation_(addr pos, addr value)
+int stdset_structure_documentation_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, documentation, DOCUMENTATION);
 }
 
-_g int stdget_structure_include_(addr pos, addr *ret)
+int stdget_structure_include_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, include, INCLUDE);
 }
-_g int stdset_structure_include_(addr pos, addr value)
+int stdset_structure_include_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, include, INCLUDE);
 }
 
-_g int stdget_structure_precedence_list_(addr pos, addr *ret)
+int stdget_structure_precedence_list_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, precedence_list, CLASS_PRECEDENCE_LIST);
 }
-_g int stdset_structure_precedence_list_(addr pos, addr value)
+int stdset_structure_precedence_list_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, precedence_list, CLASS_PRECEDENCE_LIST);
 }
 
-_g int stdget_structure_type_(addr pos, addr *ret)
+int stdget_structure_type_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, type, TYPE);
 }
-_g int stdset_structure_type_(addr pos, addr value)
+int stdset_structure_type_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, type, TYPE);
 }
 
-_g int stdget_structure_vector_(addr pos, addr *ret)
+int stdget_structure_vector_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, vector, VECTOR);
 }
-_g int stdset_structure_vector_(addr pos, addr value)
+int stdset_structure_vector_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, vector, VECTOR);
 }
 
-_g int stdget_structure_named_(addr pos, addr *ret)
+int stdget_structure_named_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, named, NAMED);
 }
-_g int stdset_structure_named_(addr pos, addr value)
+int stdset_structure_named_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, named, NAMED);
 }
 
-_g int stdget_structure_named_index_(addr pos, addr *ret)
+int stdget_structure_named_index_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, named_index, NAMED_INDEX);
 }
-_g int stdset_structure_named_index_(addr pos, addr value)
+int stdset_structure_named_index_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, named_index, NAMED_INDEX);
 }
 
-_g int stdget_structure_value_(addr pos, addr *ret)
+int stdget_structure_value_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, value, VALUE);
 }
-_g int stdset_structure_value_(addr pos, addr value)
+int stdset_structure_value_(addr pos, addr value)
 {
 	return StdSetStructure_(pos, value, value, VALUE);
 }
@@ -302,7 +302,7 @@ _g int stdset_structure_value_(addr pos, addr value)
 /*
  *  control
  */
-_g int structure_class_p_(addr pos, int *ret)
+int structure_class_p_(addr pos, int *ret)
 {
 	addr check;
 
@@ -313,7 +313,7 @@ _g int structure_class_p_(addr pos, int *ret)
 	return clos_subclass_p_(pos, check, ret);
 }
 
-_g int structure_class_p_debug(addr pos)
+int structure_class_p_debug(addr pos)
 {
 	int check;
 	check = 0;
@@ -321,7 +321,7 @@ _g int structure_class_p_debug(addr pos)
 	return check;
 }
 
-_g int structure_instance_p_(addr pos, int *ret)
+int structure_instance_p_(addr pos, int *ret)
 {
 	addr right;
 
@@ -332,7 +332,7 @@ _g int structure_instance_p_(addr pos, int *ret)
 	return clos_subclass_p_(pos, right, ret);
 }
 
-_g int structure_instance_p_debug(addr pos)
+int structure_instance_p_debug(addr pos)
 {
 	int check;
 	check = 0;
@@ -370,12 +370,12 @@ static int equalcall_structure_(addr a, addr b, int *ret,
 	return Result(ret, 1);
 }
 
-_g int equalp_structure_(addr a, addr b, int *ret)
+int equalp_structure_(addr a, addr b, int *ret)
 {
 	return equalcall_structure_(a, b, ret, equalp_function_);
 }
 
-_g int equalrt_structure_(addr a, addr b, int *ret)
+int equalrt_structure_(addr a, addr b, int *ret)
 {
 	return equalcall_structure_(a, b, ret, equalrt_function_);
 }
@@ -2358,7 +2358,7 @@ static int structure_print_(struct defstruct *str)
 /*
  *  ensure-structure
  */
-_g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
+int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 {
 	struct defstruct str;
 	LocalHold hold;
@@ -2515,7 +2515,7 @@ static int make_structure_common_(Execute ptr, addr *ret,
 	return fmte_("Invalid type value ~S.", type, NULL);
 }
 
-_g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *ret)
+int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *ret)
 {
 	int check;
 	addr instance;
@@ -2530,7 +2530,7 @@ _g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *r
 	return make_structure_common_(ptr, ret, instance, rest, 0);
 }
 
-_g int make_instance_structure(Execute ptr, addr rest, addr *ret)
+int make_instance_structure(Execute ptr, addr rest, addr *ret)
 {
 	addr instance;
 	Return_getcons(rest, &instance, &rest);
@@ -2541,7 +2541,7 @@ _g int make_instance_structure(Execute ptr, addr rest, addr *ret)
 /*
  *  copy-structure
  */
-_g void copy_structure_common(addr inst, addr *ret)
+void copy_structure_common(addr inst, addr *ret)
 {
 	addr class_of, slots, clos, src, dst, pos;
 	size_t size, i;
@@ -2569,7 +2569,7 @@ _g void copy_structure_common(addr inst, addr *ret)
 /*
  *  initialize
  */
-_g void init_structure(void)
+void init_structure(void)
 {
 	SetPointerCall(defun, var1, structure_reader_list);
 	SetPointerCall(defun, var1, structure_reader_vector);

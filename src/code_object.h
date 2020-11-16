@@ -39,10 +39,10 @@ struct code_struct {
 #define GetArgumentCall		GetArrayA4
 #define SetArgumentCall		SetArrayA4
 
-_g void code_heap(addr *ret, addr codeA4);
-_g void function_empty_heap(addr *ret, addr name);
-_g void getarray_code(addr pos, addr *ret);
-_g void update_code(addr code);
+void code_heap(addr *ret, addr codeA4);
+void function_empty_heap(addr *ret, addr name);
+void getarray_code(addr pos, addr *ret);
+void update_code(addr code);
 
 #endif
 

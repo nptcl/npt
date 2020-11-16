@@ -7,8 +7,8 @@
 #define faslwrite_value_type _n(faslwrite_value_type)
 #define faslread_value_type _n(faslread_value_type)
 
-_g int faslwrite_value_type(Execute ptr, addr stream, addr pos);
-_g int faslread_value_type(Execute ptr, addr stream, addr *ret);
+int faslwrite_value_type(Execute ptr, addr stream, addr pos);
+int faslread_value_type(Execute ptr, addr stream, addr *ret);
 
 #endif
 

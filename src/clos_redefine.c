@@ -350,7 +350,7 @@ static int clos_redefine_finalize_(Execute ptr, addr clos, addr name, addr rest)
 	return 0;
 }
 
-_g int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
+int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
 {
 	int check;
 	addr metaclass, pos;
@@ -472,7 +472,7 @@ static int clos_redefined_class_(Execute ptr, addr pos, addr clos)
 	return callclang_funcall(ptr, &call, call, pos, add, del, prop, NULL);
 }
 
-_g int clos_version_diff_p_(addr pos, int *ret)
+int clos_version_diff_p_(addr pos, int *ret)
 {
 	addr clos, check;
 	fixnum a, b;
@@ -485,7 +485,7 @@ _g int clos_version_diff_p_(addr pos, int *ret)
 	return Result(ret, a != b);
 }
 
-_g int clos_version_check_(Execute ptr, addr pos, addr clos)
+int clos_version_check_(Execute ptr, addr pos, addr clos)
 {
 	addr check;
 	fixnum a, b;
@@ -505,7 +505,7 @@ _g int clos_version_check_(Execute ptr, addr pos, addr clos)
 /*
  *  update-instance-for-redefined-class
  */
-_g int clos_redefine_method_(Execute ptr,
+int clos_redefine_method_(Execute ptr,
 		addr pos, addr add, addr del, addr prop, addr rest)
 {
 	addr call;
@@ -520,7 +520,7 @@ _g int clos_redefine_method_(Execute ptr,
 /*
  *  change-class
  */
-_g int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
+int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 {
 	addr copy, call;
 
@@ -542,7 +542,7 @@ _g int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 /*
  *  update-instance-for-different-class
  */
-_g int clos_change_method_(Execute ptr, addr prev, addr inst, addr rest)
+int clos_change_method_(Execute ptr, addr prev, addr inst, addr rest)
 {
 	addr call;
 

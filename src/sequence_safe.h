@@ -5,7 +5,7 @@
 
 #define get_unsigned8_sequence _n(get_unsigned8_sequence)
 
-_g int get_unsigned8_sequence(addr pos, size_t index, byte *ret);
+int get_unsigned8_sequence(addr pos, size_t index, byte *ret);
 
 #endif
 

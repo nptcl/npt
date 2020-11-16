@@ -874,7 +874,7 @@ static int defstruct_make_(struct defstruct *str, addr *ret)
 	return 0;
 }
 
-_g int defstruct_common(Execute ptr, addr form, addr env, addr *ret)
+int defstruct_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	struct defstruct str;
 	LocalHold hold;

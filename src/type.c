@@ -21,7 +21,7 @@
 /*
  *  allocate
  */
-_g addr type_allocr(LocalRoot local, enum LISPDECL type, size_t size)
+addr type_allocr(LocalRoot local, enum LISPDECL type, size_t size)
 {
 	addr pos;
 
@@ -32,29 +32,29 @@ _g addr type_allocr(LocalRoot local, enum LISPDECL type, size_t size)
 	return pos;
 }
 
-_g addr type_localr(LocalRoot local, enum LISPDECL type, size_t size)
+addr type_localr(LocalRoot local, enum LISPDECL type, size_t size)
 {
 	CheckLocal(local);
 	return type_allocr(local, type, size);
 }
 
-_g addr type_heapr(enum LISPDECL type, size_t size)
+addr type_heapr(enum LISPDECL type, size_t size)
 {
 	return type_allocr(NULL, type, size);
 }
 
-_g void type_alloc(LocalRoot local, addr *ret, enum LISPDECL type, size_t size)
+void type_alloc(LocalRoot local, addr *ret, enum LISPDECL type, size_t size)
 {
 	*ret = type_allocr(local, type, size);
 }
 
-_g void type_local(LocalRoot local, addr *ret, enum LISPDECL type, size_t size)
+void type_local(LocalRoot local, addr *ret, enum LISPDECL type, size_t size)
 {
 	CheckLocal(local);
 	*ret = type_allocr(local, type, size);
 }
 
-_g void type_heap(addr *ret, enum LISPDECL type, size_t size)
+void type_heap(addr *ret, enum LISPDECL type, size_t size)
 {
 	*ret = type_allocr(NULL, type, size);
 }
@@ -63,44 +63,44 @@ _g void type_heap(addr *ret, enum LISPDECL type, size_t size)
 /*
  *  accessor
  */
-_g enum LISPDECL type_lispdecl(addr pos)
+enum LISPDECL type_lispdecl(addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	return LispDecl_Low(pos);
 }
 
-_g enum LISPDECL type_reflispdecl(addr pos)
+enum LISPDECL type_reflispdecl(addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	return RefLispDecl_Low(pos);
 }
 
-_g void type_getlispdecl(addr pos, enum LISPDECL *ret)
+void type_getlispdecl(addr pos, enum LISPDECL *ret)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	GetLispDecl_Low(pos, ret);
 }
 
-_g void type_setlispdecl(addr pos, enum LISPDECL value)
+void type_setlispdecl(addr pos, enum LISPDECL value)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetLispDecl_Low(pos, value);
 }
 
-_g int type_refnotdecl(addr pos)
+int type_refnotdecl(addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	return RefNotDecl_Low(pos);
 }
 
-_g void type_getnotdecl(addr pos, int *ret)
+void type_getnotdecl(addr pos, int *ret)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	GetNotDecl_Low(pos, ret);
 }
 
-_g void type_setnotdecl(addr pos, int value)
+void type_setnotdecl(addr pos, int value)
 {
 	byte user;
 
@@ -113,42 +113,42 @@ _g void type_setnotdecl(addr pos, int value)
 		SetUser(pos, 0x7F & user);
 }
 
-_g void type_revnotdecl(addr pos)
+void type_revnotdecl(addr pos)
 {
 	type_setnotdecl(pos, RefNotDecl(pos) == 0);
 }
 
-_g void type_setnotobject(addr pos, addr value)
+void type_setnotobject(addr pos, addr value)
 {
 	SetNotDecl(pos, RefNotDecl(value));
 }
 
-_g addr type_refarraytype(addr pos, size_t index)
+addr type_refarraytype(addr pos, size_t index)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	return RefArrayType_Low(pos, index);
 }
 
-_g void type_getarraytype(addr pos, size_t index, addr *ret)
+void type_getarraytype(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	GetArrayType_Low(pos, index, ret);
 }
 
-_g void type_setarraytype(addr pos, size_t index, addr value)
+void type_setarraytype(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArrayType_Low(pos, index, value);
 }
 
-_g void type_lenarraytype(addr pos, size_t *ret)
+void type_lenarraytype(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	LenArrayType_Low(pos, ret);
 }
 
-_g void type_getvalues1(addr type, addr *ret)
+void type_getvalues1(addr type, addr *ret)
 {
 	addr check;
 
@@ -179,7 +179,7 @@ _g void type_getvalues1(addr type, addr *ret)
 /*
  *  init
  */
-_g void init_type(void)
+void init_type(void)
 {
 	init_type_coerce();
 	init_type_copy();
@@ -192,7 +192,7 @@ _g void init_type(void)
 	init_type_value();
 }
 
-_g void build_type(void)
+void build_type(void)
 {
 	build_type_table();
 	build_type_constant();
@@ -216,7 +216,7 @@ static int decl_astert_p(enum LISPDECL type)
 		|| type == LISPDECL_T;
 }
 
-_g int decl_character_p(enum LISPDECL type)
+int decl_character_p(enum LISPDECL type)
 {
 	return type == LISPDECL_CHARACTER
 		|| type == LISPDECL_BASE_CHAR
@@ -224,7 +224,7 @@ _g int decl_character_p(enum LISPDECL type)
 		|| type == LISPDECL_EXTENDED_CHAR;
 }
 
-_g int decl_float_p(enum LISPDECL type)
+int decl_float_p(enum LISPDECL type)
 {
 	return type == LISPDECL_FLOAT
 		|| type == LISPDECL_SINGLE_FLOAT
@@ -233,7 +233,7 @@ _g int decl_float_p(enum LISPDECL type)
 		|| type == LISPDECL_SHORT_FLOAT;
 }
 
-_g int decl_range_p(enum LISPDECL type)
+int decl_range_p(enum LISPDECL type)
 {
 	return type == LISPDECL_INTEGER
 		|| type == LISPDECL_RATIONAL
@@ -241,7 +241,7 @@ _g int decl_range_p(enum LISPDECL type)
 		|| decl_float_p(type);
 }
 
-_g int decl_subtypep_real(enum LISPDECL left, enum LISPDECL right)
+int decl_subtypep_real(enum LISPDECL left, enum LISPDECL right)
 {
 	switch (right) {
 		case LISPDECL_INTEGER:
@@ -273,17 +273,17 @@ _g int decl_subtypep_real(enum LISPDECL left, enum LISPDECL right)
 	return 0;
 }
 
-_g int type_function_p(addr pos)
+int type_function_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_TYPE && decl_function_p(LispDecl(pos));
 }
 
-_g int type_astert_p(addr pos)
+int type_astert_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_TYPE && decl_astert_p(LispDecl(pos));
 }
 
-_g int type_function_aster_p(addr pos)
+int type_function_aster_p(addr pos)
 {
 	enum LISPDECL type;
 	addr args, values;
@@ -298,18 +298,18 @@ _g int type_function_aster_p(addr pos)
 	return type_asterisk_p(args) && type_asterisk_p(values);
 }
 
-_g int type_asterisk_p(addr pos)
+int type_asterisk_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_TYPE && LispDecl(pos) == LISPDECL_ASTERISK;
 }
 
-_g int type_range_p(addr pos)
+int type_range_p(addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	return decl_range_p(LispDecl(pos));
 }
 
-_g int type_string_p(addr pos)
+int type_string_p(addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	switch (LispDecl(pos)) {
@@ -344,34 +344,34 @@ static void type_copy_unsafe(LocalRoot local, addr *ret, addr left, byte value)
 	*ret = right;
 }
 
-_g void type_copy_unsafe_alloc(LocalRoot local, addr *ret, addr left)
+void type_copy_unsafe_alloc(LocalRoot local, addr *ret, addr left)
 {
 	type_copy_unsafe(local, ret, left, GetUser(left));
 }
 
-_g void type_copy_unsafe_local(LocalRoot local, addr *ret, addr left)
+void type_copy_unsafe_local(LocalRoot local, addr *ret, addr left)
 {
 	CheckLocal(local);
 	type_copy_unsafe_alloc(local, ret, left);
 }
 
-_g void type_copy_unsafe_heap(addr *ret, addr left)
+void type_copy_unsafe_heap(addr *ret, addr left)
 {
 	type_copy_unsafe_alloc(NULL, ret, left);
 }
 
-_g void type_copydecl_unsafe_alloc(LocalRoot local, addr *ret, addr left)
+void type_copydecl_unsafe_alloc(LocalRoot local, addr *ret, addr left)
 {
 	type_copy_unsafe(local, ret, left, RefLispDecl(left));
 }
 
-_g void type_copydecl_unsafe_local(LocalRoot local, addr *ret, addr left)
+void type_copydecl_unsafe_local(LocalRoot local, addr *ret, addr left)
 {
 	CheckLocal(local);
 	type_copydecl_unsafe_alloc(local, ret, left);
 }
 
-_g void type_copydecl_unsafe_heap(addr *ret, addr left)
+void type_copydecl_unsafe_heap(addr *ret, addr left)
 {
 	type_copydecl_unsafe_alloc(NULL, ret, left);
 }
@@ -380,14 +380,14 @@ _g void type_copydecl_unsafe_heap(addr *ret, addr left)
 /*
  *  object
  */
-_g void type0_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
+void type0_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr pos;
 	type_alloc(local, &pos, type, 0);
 	*ret = pos;
 }
 
-_g void type1_alloc(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
+void type1_alloc(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
 {
 	addr pos;
 	type_alloc(local, &pos, type, 1);
@@ -395,7 +395,7 @@ _g void type1_alloc(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
 	*ret = pos;
 }
 
-_g void type2_alloc(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
+void type2_alloc(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
 {
 	addr pos;
 	type_alloc(local, &pos, type, 2);
@@ -404,7 +404,7 @@ _g void type2_alloc(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *r
 	*ret = pos;
 }
 
-_g void type3_alloc(LocalRoot local, enum LISPDECL type,
+void type3_alloc(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr *ret)
 {
 	addr pos;
@@ -415,7 +415,7 @@ _g void type3_alloc(LocalRoot local, enum LISPDECL type,
 	*ret = pos;
 }
 
-_g void type4_alloc(LocalRoot local, enum LISPDECL type,
+void type4_alloc(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr d, addr *ret)
 {
 	addr pos;
@@ -427,148 +427,148 @@ _g void type4_alloc(LocalRoot local, enum LISPDECL type,
 	*ret = pos;
 }
 
-_g void type0_local(LocalRoot local, enum LISPDECL type, addr *ret)
+void type0_local(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	CheckLocal(local);
 	type0_alloc(local, type, ret);
 }
 
-_g void type1_local(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
+void type1_local(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
 {
 	CheckLocal(local);
 	type1_alloc(local, type, a, ret);
 }
 
-_g void type2_local(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
+void type2_local(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
 {
 	CheckLocal(local);
 	type2_alloc(local, type, a, b, ret);
 }
 
-_g void type3_local(LocalRoot local, enum LISPDECL type,
+void type3_local(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr *ret)
 {
 	CheckLocal(local);
 	type3_alloc(local, type, a, b, c, ret);
 }
 
-_g void type4_local(LocalRoot local, enum LISPDECL type,
+void type4_local(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr d, addr *ret)
 {
 	CheckLocal(local);
 	type4_alloc(local, type, a, b, c, d, ret);
 }
 
-_g void type0_heap(enum LISPDECL type, addr *ret)
+void type0_heap(enum LISPDECL type, addr *ret)
 {
 	type0_alloc(NULL, type, ret);
 }
 
-_g void type1_heap(enum LISPDECL type, addr a, addr *ret)
+void type1_heap(enum LISPDECL type, addr a, addr *ret)
 {
 	type1_alloc(NULL, type, a, ret);
 }
 
-_g void type2_heap(enum LISPDECL type, addr a, addr b, addr *ret)
+void type2_heap(enum LISPDECL type, addr a, addr b, addr *ret)
 {
 	type2_alloc(NULL, type, a, b, ret);
 }
 
-_g void type3_heap(enum LISPDECL type, addr a, addr b, addr c, addr *ret)
+void type3_heap(enum LISPDECL type, addr a, addr b, addr c, addr *ret)
 {
 	type3_alloc(NULL, type, a, b, c, ret);
 }
 
-_g void type4_heap(enum LISPDECL type, addr a, addr b, addr c, addr d, addr *ret)
+void type4_heap(enum LISPDECL type, addr a, addr b, addr c, addr d, addr *ret)
 {
 	type4_alloc(NULL, type, a, b, c, d, ret);
 }
 
-_g void type0not_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
+void type0not_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	type0_alloc(local, type, ret);
 	SetNotDecl(*ret, 1);
 }
 
-_g void type1not_alloc(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
+void type1not_alloc(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
 {
 	type1_alloc(local, type, a, ret);
 	SetNotDecl(*ret, 1);
 }
 
-_g void type2not_alloc(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
+void type2not_alloc(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
 {
 	type2_alloc(local, type, a, b, ret);
 	SetNotDecl(*ret, 1);
 }
 
-_g void type3not_alloc(LocalRoot local, enum LISPDECL type,
+void type3not_alloc(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr *ret)
 {
 	type3_alloc(local, type, a, b, c, ret);
 	SetNotDecl(*ret, 1);
 }
 
-_g void type4not_alloc(LocalRoot local, enum LISPDECL type,
+void type4not_alloc(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr d, addr *ret)
 {
 	type4_alloc(local, type, a, b, c, d, ret);
 	SetNotDecl(*ret, 1);
 }
 
-_g void type0not_local(LocalRoot local, enum LISPDECL type, addr *ret)
+void type0not_local(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	CheckLocal(local);
 	type0not_alloc(local, type, ret);
 }
 
-_g void type1not_local(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
+void type1not_local(LocalRoot local, enum LISPDECL type, addr a, addr *ret)
 {
 	CheckLocal(local);
 	type1not_alloc(local, type, a, ret);
 }
 
-_g void type2not_local(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
+void type2not_local(LocalRoot local, enum LISPDECL type, addr a, addr b, addr *ret)
 {
 	CheckLocal(local);
 	type2not_alloc(local, type, a, b, ret);
 }
 
-_g void type3not_local(LocalRoot local, enum LISPDECL type,
+void type3not_local(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr *ret)
 {
 	CheckLocal(local);
 	type3not_alloc(local, type, a, b, c, ret);
 }
 
-_g void type4not_local(LocalRoot local, enum LISPDECL type,
+void type4not_local(LocalRoot local, enum LISPDECL type,
 		addr a, addr b, addr c, addr d, addr *ret)
 {
 	CheckLocal(local);
 	type4not_alloc(local, type, a, b, c, d, ret);
 }
 
-_g void type0not_heap(enum LISPDECL type, addr *ret)
+void type0not_heap(enum LISPDECL type, addr *ret)
 {
 	type0not_alloc(NULL, type, ret);
 }
 
-_g void type1not_heap(enum LISPDECL type, addr a, addr *ret)
+void type1not_heap(enum LISPDECL type, addr a, addr *ret)
 {
 	type1not_alloc(NULL, type, a, ret);
 }
 
-_g void type2not_heap(enum LISPDECL type, addr a, addr b, addr *ret)
+void type2not_heap(enum LISPDECL type, addr a, addr b, addr *ret)
 {
 	type2not_alloc(NULL, type, a, b, ret);
 }
 
-_g void type3not_heap(enum LISPDECL type, addr a, addr b, addr c, addr *ret)
+void type3not_heap(enum LISPDECL type, addr a, addr b, addr c, addr *ret)
 {
 	type3not_alloc(NULL, type, a, b, c, ret);
 }
 
-_g void type4not_heap(enum LISPDECL type, addr a, addr b, addr c, addr d, addr *ret)
+void type4not_heap(enum LISPDECL type, addr a, addr b, addr c, addr d, addr *ret)
 {
 	type4not_alloc(NULL, type, a, b, c, d, ret);
 }
@@ -579,7 +579,7 @@ static void type_aster_local(LocalRoot local, addr *ret)
 	type0_local(local, LISPDECL_ASTERISK, ret);
 }
 
-_g void type1aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
+void type1aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr a1;
 
@@ -588,7 +588,7 @@ _g void type1aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 	type1_local(local, type, a1, ret);
 }
 
-_g void type2aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
+void type2aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr a1, a2;
 
@@ -598,7 +598,7 @@ _g void type2aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 	type2_local(local, type, a1, a2, ret);
 }
 
-_g void type3aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
+void type3aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr a1, a2, a3;
 
@@ -609,7 +609,7 @@ _g void type3aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 	type3_local(local, type, a1, a2, a3, ret);
 }
 
-_g void type4aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
+void type4aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr a1, a2, a3, a4;
 
@@ -625,17 +625,17 @@ _g void type4aster_localall(LocalRoot local, enum LISPDECL type, addr *ret)
 /*
  *  etc
  */
-_g void type_eql_alloc(LocalRoot local, addr pos, addr *ret)
+void type_eql_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	type1_alloc(local, LISPDECL_EQL, pos, ret);
 }
 
-_g void type_eql_local(LocalRoot local, addr pos, addr *ret)
+void type_eql_local(LocalRoot local, addr pos, addr *ret)
 {
 	type1_local(local, LISPDECL_EQL, pos, ret);
 }
 
-_g void type_eql_heap(addr pos, addr *ret)
+void type_eql_heap(addr pos, addr *ret)
 {
 	type1_heap(LISPDECL_EQL, pos, ret);
 }
@@ -663,7 +663,7 @@ static void vector4_va_heap(addr *ret, va_list args)
 	*ret = array;
 }
 
-_g void type_member_heap(addr *ret, ...)
+void type_member_heap(addr *ret, ...)
 {
 	addr array;
 	va_list args;
@@ -674,18 +674,18 @@ _g void type_member_heap(addr *ret, ...)
 	type1_heap(LISPDECL_MEMBER, array, ret);
 }
 
-_g void type_satisfies_heap(addr call, addr *ret)
+void type_satisfies_heap(addr call, addr *ret)
 {
 	Check((! symbolp(call)) && (! functionp(call)), "type error");
 	type1_heap(LISPDECL_SATISFIES, call, ret);
 }
 
-_g void type_values_heap(addr v1, addr v2, addr v3, addr v4, addr *ret)
+void type_values_heap(addr v1, addr v2, addr v3, addr v4, addr *ret)
 {
 	type4_heap(LISPDECL_VALUES, v1, v2, v3, v4, ret);
 }
 
-_g void type_signed_alloc(LocalRoot local, fixnum value, addr *ret)
+void type_signed_alloc(LocalRoot local, fixnum value, addr *ret)
 {
 	addr pos;
 
@@ -694,18 +694,18 @@ _g void type_signed_alloc(LocalRoot local, fixnum value, addr *ret)
 	type1_alloc(local, LISPDECL_SIGNED_BYTE, pos, ret);
 }
 
-_g void type_signed_local(LocalRoot local, fixnum value, addr *ret)
+void type_signed_local(LocalRoot local, fixnum value, addr *ret)
 {
 	CheckLocal(local);
 	type_signed_alloc(local, value, ret);
 }
 
-_g void type_signed_heap(fixnum value, addr *ret)
+void type_signed_heap(fixnum value, addr *ret)
 {
 	type_signed_alloc(NULL, value, ret);
 }
 
-_g void type_unsigned_alloc(LocalRoot local, fixnum value, addr *ret)
+void type_unsigned_alloc(LocalRoot local, fixnum value, addr *ret)
 {
 	addr pos;
 
@@ -714,13 +714,13 @@ _g void type_unsigned_alloc(LocalRoot local, fixnum value, addr *ret)
 	type1_alloc(local, LISPDECL_UNSIGNED_BYTE, pos, ret);
 }
 
-_g void type_unsigned_local(LocalRoot local, fixnum value, addr *ret)
+void type_unsigned_local(LocalRoot local, fixnum value, addr *ret)
 {
 	CheckLocal(local);
 	type_unsigned_alloc(local, value, ret);
 }
 
-_g void type_unsigned_heap(fixnum value, addr *ret)
+void type_unsigned_heap(fixnum value, addr *ret)
 {
 	type_unsigned_alloc(NULL, value, ret);
 }
@@ -737,17 +737,17 @@ _g void type_unsigned_heap(fixnum value, addr *ret)
  *  (declare (type function a b)) -> ok
  *  (declare (type (function) a b)) -> ok
  */
-_g void type_function_heap(addr args, addr values, addr *ret)
+void type_function_heap(addr args, addr values, addr *ret)
 {
 	type3_heap(LISPDECL_FUNCTION, args, values, Nil, ret);
 }
 
-_g void type_compiled_heap(addr args, addr values, addr *ret)
+void type_compiled_heap(addr args, addr values, addr *ret)
 {
 	type3_heap(LISPDECL_COMPILED_FUNCTION, args, values, Nil, ret);
 }
 
-_g void type_clos_heap(addr clos, addr *ret)
+void type_clos_heap(addr clos, addr *ret)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	type1_heap(LISPDECL_CLOS, clos, ret);

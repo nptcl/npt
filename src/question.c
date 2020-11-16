@@ -75,7 +75,7 @@ static int question_memory_stream_(Execute ptr, addr pos, addr args)
 /*
  *  question
  */
-_g int question_values_(Execute ptr, addr pos, addr args)
+int question_values_(Execute ptr, addr pos, addr args)
 {
 	if (memory_stream_p(pos))
 		return question_memory_stream_(ptr, pos, args);

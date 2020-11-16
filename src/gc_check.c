@@ -105,7 +105,7 @@ static int heap_check_space(void)
 	return 0;
 }
 
-_g void heap_check(void)
+void heap_check(void)
 {
 	info("HEAP-CHECK: start.");
 	info("HEAP-CHECK: check-reference.");

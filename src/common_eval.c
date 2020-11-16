@@ -549,7 +549,7 @@ static void defun_constantp(void)
 /*
  *  function
  */
-_g void init_common_eval(void)
+void init_common_eval(void)
 {
 	SetPointerCall(defmacro,  macro,     lambda);
 	SetPointerCall(defun,     var1opt1,  compile);
@@ -569,7 +569,7 @@ _g void init_common_eval(void)
 	SetPointerCall(defun,     var1opt1,  constantp);
 }
 
-_g void build_common_eval(void)
+void build_common_eval(void)
 {
 	defmacro_lambda();
 	defun_compile();

@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <locale.h>
 
-_g const char *setlocale_c(int category)
+const char *setlocale_c(int category)
 {
 	const char *ptr;
 
@@ -15,7 +15,7 @@ _g const char *setlocale_c(int category)
 	return NULL;
 }
 
-_g int vsnprintc(char *buffer, size_t size, const char *fmt, va_list args)
+int vsnprintc(char *buffer, size_t size, const char *fmt, va_list args)
 {
 	int result;
 	const char *check;
@@ -35,7 +35,7 @@ _g int vsnprintc(char *buffer, size_t size, const char *fmt, va_list args)
 	return result;
 }
 
-_g int snprintc(char *buffer, size_t size, const char *fmt, ...)
+int snprintc(char *buffer, size_t size, const char *fmt, ...)
 {
 	int result;
 	va_list args;
@@ -47,7 +47,7 @@ _g int snprintc(char *buffer, size_t size, const char *fmt, ...)
 	return result;
 }
 
-_g int sscanc(const char *buffer, const char *fmt, ...)
+int sscanc(const char *buffer, const char *fmt, ...)
 {
 	int result;
 	const char *check;

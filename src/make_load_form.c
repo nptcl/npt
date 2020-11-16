@@ -26,7 +26,7 @@ static void make_load_form_symbol(Execute ptr, addr *ret)
 	GetConst(SYSTEM_SPECIAL_MAKE_LOAD_FORM, ret);
 }
 
-_g void init_parse_make_load_form(Execute ptr)
+void init_parse_make_load_form(Execute ptr)
 {
 	addr symbol, value;
 
@@ -240,7 +240,7 @@ static int parse_make_load_form(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int parse_clos(Execute ptr, addr *ret, addr pos)
+int parse_clos(Execute ptr, addr *ret, addr pos)
 {
 	addr value;
 
@@ -265,7 +265,7 @@ static void compile_make_load_form_symbol(Execute ptr, addr *ret)
 	GetConst(SYSTEM_COMPILE_MAKE_LOAD_FORM, ret);
 }
 
-_g void init_write_make_load_form(Execute ptr)
+void init_write_make_load_form(Execute ptr)
 {
 	addr symbol, index, table, cons;
 
@@ -278,7 +278,7 @@ _g void init_write_make_load_form(Execute ptr)
 	pushspecial_control(ptr, symbol, cons);
 }
 
-_g void init_read_make_load_form(Execute ptr)
+void init_read_make_load_form(Execute ptr)
 {
 	addr symbol, table;
 
@@ -289,7 +289,7 @@ _g void init_read_make_load_form(Execute ptr)
 	pushspecial_control(ptr, symbol, table);
 }
 
-_g int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
+int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
 {
 	int check;
 	addr symbol, special, index, table, cons, value;
@@ -316,7 +316,7 @@ _g int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
 	return Result(ret, index);
 }
 
-_g int get_read_make_load_form_(Execute ptr, addr key, addr *ret)
+int get_read_make_load_form_(Execute ptr, addr key, addr *ret)
 {
 	int check;
 	addr table, cons, value;

@@ -15,7 +15,7 @@ static void execute_values_alloc(LocalRoot local, addr *ret, size_t size)
 	local_array4(local, ret, LISPSYSTEM_VALUES, size);
 }
 
-_g void init_execute_values(struct execute *bit)
+void init_execute_values(struct execute *bit)
 {
 	int i;
 	addr vector, *values;
@@ -29,7 +29,7 @@ _g void init_execute_values(struct execute *bit)
 	bit->sizer = 0;
 }
 
-_g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize)
+void save_values_control(struct execute *ptr, addr *ret, size_t *rsize)
 {
 	addr pos, *reader;
 	size_t i, size;
@@ -46,7 +46,7 @@ _g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize)
 	*rsize = size;
 }
 
-_g void restore_values_control(struct execute *ptr, addr pos, size_t size)
+void restore_values_control(struct execute *ptr, addr pos, size_t size)
 {
 	addr vector, *reader;
 	size_t i;
@@ -65,7 +65,7 @@ _g void restore_values_control(struct execute *ptr, addr pos, size_t size)
 /*
  *  throw
  */
-_g void normal_throw_control(struct execute *ptr)
+void normal_throw_control(struct execute *ptr)
 {
 	ptr->throw_value = throw_normal;
 	ptr->throw_handler = NULL;
@@ -74,7 +74,7 @@ _g void normal_throw_control(struct execute *ptr)
 	ptr->throw_point_p = 0;
 }
 
-_g void save_throw_control(struct execute *ptr, struct execute_throw *save)
+void save_throw_control(struct execute *ptr, struct execute_throw *save)
 {
 	save->throw_point_p = ptr->throw_point_p;
 	save->throw_value = ptr->throw_value;
@@ -83,7 +83,7 @@ _g void save_throw_control(struct execute *ptr, struct execute_throw *save)
 	save->throw_control = ptr->throw_control;
 }
 
-_g void restore_throw_control(struct execute *ptr, const struct execute_throw *save)
+void restore_throw_control(struct execute *ptr, const struct execute_throw *save)
 {
 	ptr->throw_point_p = save->throw_point_p;
 	ptr->throw_value = save->throw_value;
@@ -101,7 +101,7 @@ static void execute_object_alloc(LocalRoot local, addr *ret, size_t size)
 	local_smallsize(local, ret, LISPSYSTEM_EXECUTE, 1, size);
 }
 
-_g void save_execute_control(struct execute *ptr, addr *ret)
+void save_execute_control(struct execute *ptr, addr *ret)
 {
 	addr pos, values;
 	struct execute_throw *str;
@@ -123,7 +123,7 @@ _g void save_execute_control(struct execute *ptr, addr *ret)
 	*ret = pos;
 }
 
-_g void restore_execute_control(struct execute *ptr, addr pos)
+void restore_execute_control(struct execute *ptr, addr pos)
 {
 	addr values;
 	struct execute_throw *str;
@@ -149,7 +149,7 @@ static void execute_lexical_alloc(LocalRoot local, addr *ret, size_t size)
 	local_array4(local, ret, LISPSYSTEM_LEXICAL, size);
 }
 
-_g void lexical_control(struct execute *ptr, size_t size)
+void lexical_control(struct execute *ptr, size_t size)
 {
 	addr pos;
 
@@ -164,7 +164,7 @@ _g void lexical_control(struct execute *ptr, size_t size)
 	}
 }
 
-_g void getlow_lexical_debug(struct execute *ptr, size_t index, addr *ret)
+void getlow_lexical_debug(struct execute *ptr, size_t index, addr *ret)
 {
 	addr pos;
 
@@ -176,7 +176,7 @@ _g void getlow_lexical_debug(struct execute *ptr, size_t index, addr *ret)
 	*ret = pos;
 }
 
-_g void setlow_lexical_debug(struct execute *ptr, size_t index, addr value)
+void setlow_lexical_debug(struct execute *ptr, size_t index, addr value)
 {
 	addr pos;
 
@@ -186,14 +186,14 @@ _g void setlow_lexical_debug(struct execute *ptr, size_t index, addr value)
 	SetExecuteLexical(pos, index, value);
 }
 
-_g void get_lexical_control(struct execute *ptr, size_t index, addr *ret)
+void get_lexical_control(struct execute *ptr, size_t index, addr *ret)
 {
 	addr pos;
 	getlow_lexical_control(ptr, index, &pos);
 	getvalue_reference(pos, ret);
 }
 
-_g void set_lexical_control(struct execute *ptr, size_t index, addr value)
+void set_lexical_control(struct execute *ptr, size_t index, addr value)
 {
 	addr pos;
 
@@ -204,7 +204,7 @@ _g void set_lexical_control(struct execute *ptr, size_t index, addr value)
 		setlow_lexical_control(ptr, index, value);
 }
 
-_g void reference_lexical_control(struct execute *ptr, size_t index)
+void reference_lexical_control(struct execute *ptr, size_t index)
 {
 	addr pos;
 
@@ -224,7 +224,7 @@ struct closure_struct {
 };
 #define ClosureStruct(x) ((struct closure_struct *)PtrBodySS(x))
 
-_g void closure_heap(addr *ret, addr value, size_t lexical)
+void closure_heap(addr *ret, addr value, size_t lexical)
 {
 	addr pos;
 	struct closure_struct *str;
@@ -237,13 +237,13 @@ _g void closure_heap(addr *ret, addr value, size_t lexical)
 	*ret = pos;
 }
 
-_g void get_closure(addr pos, addr *ret)
+void get_closure(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_CLOSURE);
 	GetArraySS(pos, 0, ret);
 }
 
-_g size_t lexical_closure(addr pos)
+size_t lexical_closure(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_CLOSURE);
 	return ClosureStruct(pos)->lexical;
@@ -253,26 +253,26 @@ _g size_t lexical_closure(addr pos)
 /*
  *  reference
  */
-_g void reference_heap(addr *ret, addr value)
+void reference_heap(addr *ret, addr value)
 {
 	Check(GetType(value) == LISPSYSTEM_REFERENCE, "type error");
 	heap_array2(ret, LISPSYSTEM_REFERENCE, 1);
 	SetArrayA2(*ret, 0, value);
 }
 
-_g void get_reference(addr pos, addr *ret)
+void get_reference(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_REFERENCE);
 	GetArrayA2(pos, 0, ret);
 }
 
-_g void set_reference(addr pos, addr value)
+void set_reference(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_REFERENCE);
 	SetArrayA2(pos, 0, value);
 }
 
-_g void getvalue_reference(addr pos, addr *ret)
+void getvalue_reference(addr pos, addr *ret)
 {
 	if (GetType(pos) == LISPSYSTEM_REFERENCE) {
 		GetArrayA2(pos, 0, ret);

@@ -4,7 +4,7 @@
 #include "integer.h"
 #include "object.h"
 
-_g void bytespec_alloc(LocalRoot local, addr *ret, size_t size, size_t posi)
+void bytespec_alloc(LocalRoot local, addr *ret, size_t size, size_t posi)
 {
 	addr pos;
 	struct bytespec_struct *ptr;
@@ -16,13 +16,13 @@ _g void bytespec_alloc(LocalRoot local, addr *ret, size_t size, size_t posi)
 	*ret = pos;
 }
 
-_g void bytespec_local(LocalRoot local, addr *ret, size_t size, size_t posi)
+void bytespec_local(LocalRoot local, addr *ret, size_t size, size_t posi)
 {
 	CheckLocal(local);
 	bytespec_alloc(local, ret, size, posi);
 }
 
-_g void bytespec_heap(addr *ret, size_t size, size_t posi)
+void bytespec_heap(addr *ret, size_t size, size_t posi)
 {
 	bytespec_alloc(NULL, ret, size, posi);
 }
@@ -31,7 +31,7 @@ _g void bytespec_heap(addr *ret, size_t size, size_t posi)
 /*
  *  byte
  */
-_g int byte_common_(addr size, addr posi, addr *ret)
+int byte_common_(addr size, addr posi, addr *ret)
 {
 	size_t ssize, spos;
 
@@ -44,7 +44,7 @@ _g int byte_common_(addr size, addr posi, addr *ret)
 	return 0;
 }
 
-_g void byte_size_common(addr pos, addr *ret)
+void byte_size_common(addr pos, addr *ret)
 {
 	struct bytespec_struct *ptr;
 
@@ -53,7 +53,7 @@ _g void byte_size_common(addr pos, addr *ret)
 	make_index_integer_heap(ret, ptr->size);
 }
 
-_g void byte_position_common(addr pos, addr *ret)
+void byte_position_common(addr pos, addr *ret)
 {
 	struct bytespec_struct *ptr;
 
@@ -66,7 +66,7 @@ _g void byte_position_common(addr pos, addr *ret)
 /*
  *  bytespec-mask
  */
-_g void bytespec_mask_init(struct bytespec_mask *ptr, addr pos)
+void bytespec_mask_init(struct bytespec_mask *ptr, addr pos)
 {
 	struct bytespec_struct *spec;
 	size_t size, posi;
@@ -99,7 +99,7 @@ static bigtype bytespec_mask_end(size_t pos)
 	return ~(bytespec_mask_start(pos));
 }
 
-_g bigtype bytespec_mask_get(struct bytespec_mask *ptr)
+bigtype bytespec_mask_get(struct bytespec_mask *ptr)
 {
 	bigtype v1, v2;
 	size_t index, start, end, size, pos;
@@ -129,7 +129,7 @@ _g bigtype bytespec_mask_get(struct bytespec_mask *ptr)
 	return v1 & v2;
 }
 
-_g size_t bytespec_mask_getsize(struct bytespec_mask *ptr)
+size_t bytespec_mask_getsize(struct bytespec_mask *ptr)
 {
 	size_t bit = ptr->position + ptr->size;
 	size_t size = bit / BIGNUM_FULLBIT;

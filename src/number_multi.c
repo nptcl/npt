@@ -245,7 +245,7 @@ static int multi_complex_number_heap_(LocalRoot local,
 	}
 }
 
-_g int multi_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
+int multi_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -279,7 +279,7 @@ _g int multi_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  inverse
  */
-_g int inverse_number_heap_(LocalRoot local, addr left, addr *ret)
+int inverse_number_heap_(LocalRoot local, addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -534,7 +534,7 @@ static int div_complex_number_heap_(LocalRoot local,
 	}
 }
 
-_g int div_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
+int div_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:

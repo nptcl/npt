@@ -816,7 +816,7 @@ static void defun_make_string(void)
 /*
  *  function
  */
-_g void init_common_strings(void)
+void init_common_strings(void)
 {
 	SetPointerCall(defun, var1, stringp);
 	SetPointerCall(defun, var1, simple_string_p);
@@ -847,7 +847,7 @@ _g void init_common_strings(void)
 	SetPointerCall(defun, var1dynamic, make_string);
 }
 
-_g void build_common_strings(void)
+void build_common_strings(void)
 {
 	defun_stringp();
 	defun_simple_string_p();

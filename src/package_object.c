@@ -8,7 +8,7 @@
 #include "symbol.h"
 #include "typedef.h"
 
-_g int packagep(addr pos)
+int packagep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_PACKAGE;
 }
@@ -17,85 +17,85 @@ _g int packagep(addr pos)
 /*
  *  package function
  */
-_g int getname_package_(addr pos, addr *ret)
+int getname_package_(addr pos, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_NAME, ret);
 	return 0;
 }
 
-_g int getnickname_package_(addr pos, addr *ret)
+int getnickname_package_(addr pos, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, ret);
 	return 0;
 }
 
-_g int getuselist_package_(addr pos, addr *ret)
+int getuselist_package_(addr pos, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_USE, ret);
 	return 0;
 }
 
-_g int getusedbylist_package_(addr pos, addr *ret)
+int getusedbylist_package_(addr pos, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_USED, ret);
 	return 0;
 }
 
-_g int getshadow_package_(addr pos, addr *ret)
+int getshadow_package_(addr pos, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_SHADOW, ret);
 	return 0;
 }
 
-_g void getdocument_package(addr pos, addr *ret)
+void getdocument_package(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_DOCUMENT, ret);
 }
 
-_g void setdocument_package(addr pos, addr value)
+void setdocument_package(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	SetPackage(pos, PACKAGE_INDEX_DOCUMENT, value);
 }
 
 
-_g void getname_package_unsafe(addr pos, addr *ret)
+void getname_package_unsafe(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_NAME, ret);
 }
 
-_g void getnickname_package_unsafe(addr pos, addr *ret)
+void getnickname_package_unsafe(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, ret);
 }
 
-_g void getuselist_package_unsafe(addr pos, addr *ret)
+void getuselist_package_unsafe(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_USE, ret);
 }
 
-_g void getusedbylist_package_unsafe(addr pos, addr *ret)
+void getusedbylist_package_unsafe(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_USED, ret);
 }
 
-_g void getshadow_package_unsafe(addr pos, addr *ret)
+void getshadow_package_unsafe(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_SHADOW, ret);
 }
 
-_g void getexport_package_unsafe(addr pos, addr *ret)
+void getexport_package_unsafe(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, ret);
@@ -120,17 +120,17 @@ static void push_list_eq_package(addr package, addr pos, enum PACKAGE_INDEX inde
 	SetPackage(package, index, list);
 }
 
-_g void push_list_nicknames_package(addr package, addr pos)
+void push_list_nicknames_package(addr package, addr pos)
 {
 	push_list_eq_package(package, pos, PACKAGE_INDEX_NICKNAME);
 }
 
-_g void push_list_use_package(addr package, addr pos)
+void push_list_use_package(addr package, addr pos)
 {
 	push_list_eq_package(package, pos, PACKAGE_INDEX_USE);
 }
 
-_g void push_list_used_package(addr package, addr pos)
+void push_list_used_package(addr package, addr pos)
 {
 	push_list_eq_package(package, pos, PACKAGE_INDEX_USED);
 }
@@ -154,7 +154,7 @@ static int find_list_string_package_(addr name, addr list, int *ret)
 }
 #endif
 
-_g int push_list_export_package_(addr package, addr name)
+int push_list_export_package_(addr package, addr name)
 {
 #ifdef LISP_DEBUG
 	int check;
@@ -197,7 +197,7 @@ static int find_list_shadow_package_(addr symbol, addr list, int *ret)
 }
 #endif
 
-_g int push_list_shadow_package_(addr package, addr symbol)
+int push_list_shadow_package_(addr package, addr symbol)
 {
 #ifdef LISP_DEBUG
 	int check;
@@ -257,12 +257,12 @@ static void delete_list_eq_package(addr package, enum PACKAGE_INDEX index, addr 
 }
 #endif
 
-_g void delete_list_use_package(addr package, addr pos)
+void delete_list_use_package(addr package, addr pos)
 {
 	delete_list_eq_package(package, PACKAGE_INDEX_USE, pos);
 }
 
-_g void delete_list_used_package(addr package, addr pos)
+void delete_list_used_package(addr package, addr pos)
 {
 	delete_list_eq_package(package, PACKAGE_INDEX_USED, pos);
 }
@@ -299,7 +299,7 @@ static int delete1_list_string_package_(addr name, addr list, addr *value, int *
 }
 
 #ifdef LISP_DEBUG
-_g int delete_list_export_package_(addr package, addr name)
+int delete_list_export_package_(addr package, addr name)
 {
 	int check;
 	addr list;
@@ -327,7 +327,7 @@ _g int delete_list_export_package_(addr package, addr name)
 	return 0;
 }
 #else
-_g int delete_list_export_package_(addr package, addr name)
+int delete_list_export_package_(addr package, addr name)
 {
 	int ignore;
 	addr list;
@@ -377,7 +377,7 @@ static int delete1_list_shadow_package_(addr symbol, addr list, addr *value, int
 }
 
 #ifdef LISP_DEBUG
-_g int delete_list_shadow_package_(addr package, addr symbol)
+int delete_list_shadow_package_(addr package, addr symbol)
 {
 	int check;
 	addr list;
@@ -405,7 +405,7 @@ _g int delete_list_shadow_package_(addr package, addr symbol)
 	return 0;
 }
 #else
-_g int delete_list_shadow_package_(addr package, addr symbol)
+int delete_list_shadow_package_(addr package, addr symbol)
 {
 	int ignore;
 	addr list;

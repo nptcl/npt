@@ -872,7 +872,7 @@ toofew:
 	return fmte_("Too few call argument ~S.", check, NULL);
 }
 
-_g int call_compiled_function(Execute ptr, addr compiled)
+int call_compiled_function(Execute ptr, addr compiled)
 {
 	struct callbind_struct *str;
 	callbind_control call;
@@ -886,7 +886,7 @@ _g int call_compiled_function(Execute ptr, addr compiled)
 	return (*call)(ptr, compiled, str);
 }
 
-_g void init_callbind_control(void)
+void init_callbind_control(void)
 {
 	CallBindTable[CallBind_code] = call_callbind_code;
 	CallBindTable[CallBind_macro] = call_callbind_macro;

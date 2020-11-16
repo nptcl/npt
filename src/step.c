@@ -14,7 +14,7 @@
 /*
  *  step macro
  */
-_g int step_common(Execute ptr, addr form, addr env, addr *ret)
+int step_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, eval, let, special, step;
 
@@ -49,7 +49,7 @@ static void parse_step_symbol(Execute ptr, addr *ret)
 	GetConst(SYSTEM_STEP_PARSE, ret);
 }
 
-_g void init_parse_step(Execute ptr)
+void init_parse_step(Execute ptr)
 {
 	addr symbol;
 	parse_step_symbol(ptr, &symbol);
@@ -64,7 +64,7 @@ static int parse_step_p_(Execute ptr, int *ret)
 	return Result(ret, value != Nil);
 }
 
-_g int parse_step(Execute ptr, addr *ret, addr form)
+int parse_step(Execute ptr, addr *ret, addr form)
 {
 	addr args, expr, symbol, value;
 
@@ -85,7 +85,7 @@ error:
 	return fmte_("The form ~S must be (eval).", form, NULL);
 }
 
-_g int parse_step_object_(Execute ptr, addr *ret, addr value, addr expr)
+int parse_step_object_(Execute ptr, addr *ret, addr value, addr expr)
 {
 	int check;
 	addr eval;
@@ -105,7 +105,7 @@ _g int parse_step_object_(Execute ptr, addr *ret, addr value, addr expr)
 /*
  *  copy-eval
  */
-_g void copy_eval_step(LocalRoot local, addr *ret, addr eval)
+void copy_eval_step(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
 	addr expr, value;
@@ -127,7 +127,7 @@ _g void copy_eval_step(LocalRoot local, addr *ret, addr eval)
 /*
  *  scope
  */
-_g int scope_step(Execute ptr, addr *ret, addr eval)
+int scope_step(Execute ptr, addr *ret, addr eval)
 {
 	addr expr, value, type;
 	LocalHold hold;

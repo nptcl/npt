@@ -338,7 +338,7 @@ static int process_instance_(Execute ptr, addr var, addr args, addr rest, addr *
 /*
  *  run-process
  */
-_g int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret)
+int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 {
 	Return(process_defclass_(ptr->local));
 	Return(process_instance_(ptr, var, args, rest, &var));

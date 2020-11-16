@@ -2938,7 +2938,7 @@ static void defun_nunion(void)
 /*
  *  function
  */
-_g void init_common_conses(void)
+void init_common_conses(void)
 {
 	SetPointerCall(defun, var1, car);
 	SetPointerCall(defun, var1, cdr);
@@ -3086,7 +3086,7 @@ _g void init_common_conses(void)
 	SetPointerCall(defun, var2dynamic, nunion);
 }
 
-_g void build_common_conses(void)
+void build_common_conses(void)
 {
 	defun_cons();
 	defun_consp();

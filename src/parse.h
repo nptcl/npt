@@ -11,11 +11,11 @@
 #define parse_compile_toplevel_ _n(parse_compile_toplevel_)
 #define eval_parse _n(eval_parse)
 
-_g int check_variable_(addr symbol);
-_g int check_function_variable_(addr symbol);
-_g int tagbody_tag_p(addr pos);
-_g int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret);
-_g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel);
+int check_variable_(addr symbol);
+int check_function_variable_(addr symbol);
+int tagbody_tag_p(addr pos);
+int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret);
+int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel);
 
 #endif
 

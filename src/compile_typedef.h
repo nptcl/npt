@@ -196,8 +196,8 @@ enum FaslCode {
 	FaslCode_end = 0xFF
 };
 
-__extern enum FaslCode CompileWrite[p_size_code];
-__extern constindex CompileRead[FaslCode_size];
+extern enum FaslCode CompileWrite[p_size_code];
+extern constindex CompileRead[FaslCode_size];
 
 #ifdef LISP_DEBUG
 #define GetCompileWrite(x)	get_compile_write(x)
@@ -207,9 +207,9 @@ __extern constindex CompileRead[FaslCode_size];
 #define GetCompileRead(x)	CompileRead[x]
 #endif
 
-_g enum FaslCode get_compile_write(pointer id);
-_g constindex get_compile_read(enum FaslCode id);
-_g void init_compile_typedef(void);
+enum FaslCode get_compile_write(pointer id);
+constindex get_compile_read(enum FaslCode id);
+void init_compile_typedef(void);
 
 #endif
 

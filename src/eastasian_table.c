@@ -12,8 +12,8 @@
  */
 #include "eastasian_unicode.h"
 
-_g unsigned EastAsianSymbol[EastAsian_Size];
-_g const struct eastasian_struct EastAsianTable[EastAsianTable_Size] = {
+unsigned EastAsianSymbol[EastAsian_Size];
+const struct eastasian_struct EastAsianTable[EastAsianTable_Size] = {
     {  0x000000,  0x00001F,  EastAsian_N   },
     {  0x000020,  0x00007E,  EastAsian_NA  },
     {  0x00007F,  0x0000A0,  EastAsian_N   },
@@ -1153,7 +1153,7 @@ _g const struct eastasian_struct EastAsianTable[EastAsianTable_Size] = {
     {  0x100000,  0x10FFFD,  EastAsian_A   }
 };
 
-_g const enum EastAsianType EastAsianAscii[0x80] = {
+const enum EastAsianType EastAsianAscii[0x80] = {
     EastAsian_N, EastAsian_N, EastAsian_N, EastAsian_N,
     EastAsian_N, EastAsian_N, EastAsian_N, EastAsian_N,
     EastAsian_N, EastAsian_N, EastAsian_N, EastAsian_N,

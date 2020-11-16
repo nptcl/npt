@@ -16,7 +16,7 @@
 #include "step.h"
 #include "symbol.h"
 
-_g int check_variable_(addr symbol)
+int check_variable_(addr symbol)
 {
 	if (! symbolp(symbol))
 		return fmte_("The variable ~S must be a symbol.", symbol, NULL);
@@ -26,7 +26,7 @@ _g int check_variable_(addr symbol)
 	return 0;
 }
 
-_g int check_function_variable_(addr symbol)
+int check_function_variable_(addr symbol)
 {
 	addr check;
 
@@ -48,7 +48,7 @@ _g int check_function_variable_(addr symbol)
 	return 0;
 }
 
-_g int tagbody_tag_p(addr pos)
+int tagbody_tag_p(addr pos)
 {
 	/*
 	 * Common Lisp the Language, 2nd Edition
@@ -86,7 +86,7 @@ static int parse_compile_toplevel_symbol(addr pos)
 	return 0;
 }
 
-_g int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret)
+int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret)
 {
 	addr compile, load, exec, toplevel, mode, eval;
 
@@ -163,7 +163,7 @@ static int eval_parse_call_(
 	return Result(ret, pos);
 }
 
-_g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
+int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
 {
 	addr control;
 	LocalHold hold;

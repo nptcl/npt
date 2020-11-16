@@ -10,7 +10,7 @@
 /*
  *  plus/minus value
  */
-_g int plus_float_sv_alloc_(LocalRoot local, addr left, single_float right, addr *ret)
+int plus_float_sv_alloc_(LocalRoot local, addr left, single_float right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -29,7 +29,7 @@ _g int plus_float_sv_alloc_(LocalRoot local, addr left, single_float right, addr
 	return 0;
 }
 
-_g int plus_float_dv_alloc_(LocalRoot local, addr left, double_float right, addr *ret)
+int plus_float_dv_alloc_(LocalRoot local, addr left, double_float right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -48,7 +48,7 @@ _g int plus_float_dv_alloc_(LocalRoot local, addr left, double_float right, addr
 	return 0;
 }
 
-_g int plus_float_lv_alloc_(LocalRoot local, addr left, long_float right, addr *ret)
+int plus_float_lv_alloc_(LocalRoot local, addr left, long_float right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -67,40 +67,40 @@ _g int plus_float_lv_alloc_(LocalRoot local, addr left, long_float right, addr *
 	return 0;
 }
 
-_g int plus_float_sv_local_(LocalRoot local, addr left, single_float right, addr *ret)
+int plus_float_sv_local_(LocalRoot local, addr left, single_float right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_sv_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_dv_local_(LocalRoot local, addr left, double_float right, addr *ret)
+int plus_float_dv_local_(LocalRoot local, addr left, double_float right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_dv_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_lv_local_(LocalRoot local, addr left, long_float right, addr *ret)
+int plus_float_lv_local_(LocalRoot local, addr left, long_float right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_lv_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_sv_heap_(addr left, single_float right, addr *ret)
+int plus_float_sv_heap_(addr left, single_float right, addr *ret)
 {
 	return plus_float_sv_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_dv_heap_(addr left, double_float right, addr *ret)
+int plus_float_dv_heap_(addr left, double_float right, addr *ret)
 {
 	return plus_float_dv_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_lv_heap_(addr left, long_float right, addr *ret)
+int plus_float_lv_heap_(addr left, long_float right, addr *ret)
 {
 	return plus_float_lv_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_sv_alloc_(LocalRoot local, addr left, single_float right, addr *ret)
+int minus_float_sv_alloc_(LocalRoot local, addr left, single_float right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -119,7 +119,7 @@ _g int minus_float_sv_alloc_(LocalRoot local, addr left, single_float right, add
 	return 0;
 }
 
-_g int minus_float_dv_alloc_(LocalRoot local, addr left, double_float right, addr *ret)
+int minus_float_dv_alloc_(LocalRoot local, addr left, double_float right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -138,7 +138,7 @@ _g int minus_float_dv_alloc_(LocalRoot local, addr left, double_float right, add
 	return 0;
 }
 
-_g int minus_float_lv_alloc_(LocalRoot local, addr left, long_float right, addr *ret)
+int minus_float_lv_alloc_(LocalRoot local, addr left, long_float right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -157,40 +157,40 @@ _g int minus_float_lv_alloc_(LocalRoot local, addr left, long_float right, addr 
 	return 0;
 }
 
-_g int minus_float_sv_local_(LocalRoot local, addr left, single_float right, addr *ret)
+int minus_float_sv_local_(LocalRoot local, addr left, single_float right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_sv_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_dv_local_(LocalRoot local, addr left, double_float right, addr *ret)
+int minus_float_dv_local_(LocalRoot local, addr left, double_float right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_dv_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_lv_local_(LocalRoot local, addr left, long_float right, addr *ret)
+int minus_float_lv_local_(LocalRoot local, addr left, long_float right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_lv_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_sv_heap_(addr left, single_float right, addr *ret)
+int minus_float_sv_heap_(addr left, single_float right, addr *ret)
 {
 	return minus_float_sv_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_dv_heap_(addr left, double_float right, addr *ret)
+int minus_float_dv_heap_(addr left, double_float right, addr *ret)
 {
 	return minus_float_dv_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_lv_heap_(addr left, long_float right, addr *ret)
+int minus_float_lv_heap_(addr left, long_float right, addr *ret)
 {
 	return minus_float_lv_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_vs_alloc_(LocalRoot local, single_float left, addr right, addr *ret)
+int minus_float_vs_alloc_(LocalRoot local, single_float left, addr right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -209,7 +209,7 @@ _g int minus_float_vs_alloc_(LocalRoot local, single_float left, addr right, add
 	return 0;
 }
 
-_g int minus_float_vd_alloc_(LocalRoot local, double_float left, addr right, addr *ret)
+int minus_float_vd_alloc_(LocalRoot local, double_float left, addr right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -228,7 +228,7 @@ _g int minus_float_vd_alloc_(LocalRoot local, double_float left, addr right, add
 	return 0;
 }
 
-_g int minus_float_vl_alloc_(LocalRoot local, long_float left, addr right, addr *ret)
+int minus_float_vl_alloc_(LocalRoot local, long_float left, addr right, addr *ret)
 {
 	fltclasstype type;
 	addr temp;
@@ -247,83 +247,83 @@ _g int minus_float_vl_alloc_(LocalRoot local, long_float left, addr right, addr 
 	return 0;
 }
 
-_g int minus_float_vs_local_(LocalRoot local, single_float left, addr right, addr *ret)
+int minus_float_vs_local_(LocalRoot local, single_float left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_vs_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_vd_local_(LocalRoot local, double_float left, addr right, addr *ret)
+int minus_float_vd_local_(LocalRoot local, double_float left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_vd_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_vl_local_(LocalRoot local, long_float left, addr right, addr *ret)
+int minus_float_vl_local_(LocalRoot local, long_float left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_vl_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_vs_heap_(single_float left, addr right, addr *ret)
+int minus_float_vs_heap_(single_float left, addr right, addr *ret)
 {
 	return minus_float_vs_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_vd_heap_(double_float left, addr right, addr *ret)
+int minus_float_vd_heap_(double_float left, addr right, addr *ret)
 {
 	return minus_float_vd_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_vl_heap_(long_float left, addr right, addr *ret)
+int minus_float_vl_heap_(long_float left, addr right, addr *ret)
 {
 	return minus_float_vl_alloc_(NULL, left, right, ret);
 }
 
-_g void sign_reverse_floats_alloc(LocalRoot local, addr value, addr *ret)
+void sign_reverse_floats_alloc(LocalRoot local, addr value, addr *ret)
 {
 	single_float_alloc(local, ret, -RefSingleFloat(value));
 }
 
-_g void sign_reverse_floatd_alloc(LocalRoot local, addr value, addr *ret)
+void sign_reverse_floatd_alloc(LocalRoot local, addr value, addr *ret)
 {
 	double_float_alloc(local, ret, -RefDoubleFloat(value));
 }
 
-_g void sign_reverse_floatl_alloc(LocalRoot local, addr value, addr *ret)
+void sign_reverse_floatl_alloc(LocalRoot local, addr value, addr *ret)
 {
 	long_float_alloc(local, ret, -RefLongFloat(value));
 }
 
-_g void sign_reverse_floats_local(LocalRoot local, addr value, addr *ret)
+void sign_reverse_floats_local(LocalRoot local, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	sign_reverse_floats_alloc(local, value, ret);
 }
 
-_g void sign_reverse_floatd_local(LocalRoot local, addr value, addr *ret)
+void sign_reverse_floatd_local(LocalRoot local, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	sign_reverse_floatd_alloc(local, value, ret);
 }
 
-_g void sign_reverse_floatl_local(LocalRoot local, addr value, addr *ret)
+void sign_reverse_floatl_local(LocalRoot local, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	sign_reverse_floatl_alloc(local, value, ret);
 }
 
-_g void sign_reverse_floats_heap(addr value, addr *ret)
+void sign_reverse_floats_heap(addr value, addr *ret)
 {
 	sign_reverse_floats_alloc(NULL, value, ret);
 }
 
-_g void sign_reverse_floatd_heap(addr value, addr *ret)
+void sign_reverse_floatd_heap(addr value, addr *ret)
 {
 	sign_reverse_floatd_alloc(NULL, value, ret);
 }
 
-_g void sign_reverse_floatl_heap(addr value, addr *ret)
+void sign_reverse_floatl_heap(addr value, addr *ret)
 {
 	sign_reverse_floatl_alloc(NULL, value, ret);
 }
@@ -332,7 +332,7 @@ _g void sign_reverse_floatl_heap(addr value, addr *ret)
 /*
  *  plus fixnum
  */
-_g int plus_float_fs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_fs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -348,7 +348,7 @@ _g int plus_float_fs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_fd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_fd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -364,7 +364,7 @@ _g int plus_float_fd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_fl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_fl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -380,40 +380,40 @@ _g int plus_float_fl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_fs_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_fs_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_fs_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_fd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_fd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_fd_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_fl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_fl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_fl_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_fs_heap_(addr left, addr right, addr *ret)
+int plus_float_fs_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_fs_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_fd_heap_(addr left, addr right, addr *ret)
+int plus_float_fd_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_fd_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_fl_heap_(addr left, addr right, addr *ret)
+int plus_float_fl_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_fl_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_bs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_bs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -429,7 +429,7 @@ _g int plus_float_bs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_bd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_bd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -445,7 +445,7 @@ _g int plus_float_bd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_bl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_bl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -461,40 +461,40 @@ _g int plus_float_bl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_bs_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_bs_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_bs_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_bd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_bd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_bd_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_bl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_bl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_bl_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_bs_heap_(addr left, addr right, addr *ret)
+int plus_float_bs_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_bs_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_bd_heap_(addr left, addr right, addr *ret)
+int plus_float_bd_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_bd_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_bl_heap_(addr left, addr right, addr *ret)
+int plus_float_bl_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_bl_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_rs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_rs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -510,7 +510,7 @@ _g int plus_float_rs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_rd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_rd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -526,7 +526,7 @@ _g int plus_float_rd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_rl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_rl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -542,40 +542,40 @@ _g int plus_float_rl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int plus_float_rs_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_rs_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_rs_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_rd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_rd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_rd_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_rl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_rl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_rl_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_rs_heap_(addr left, addr right, addr *ret)
+int plus_float_rs_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_rs_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_rd_heap_(addr left, addr right, addr *ret)
+int plus_float_rd_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_rd_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_rl_heap_(addr left, addr right, addr *ret)
+int plus_float_rl_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_rl_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_ss_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ss_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -588,7 +588,7 @@ _g int plus_float_ss_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_sd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_sd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -601,7 +601,7 @@ _g int plus_float_sd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_sl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_sl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -614,7 +614,7 @@ _g int plus_float_sl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_ds_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ds_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -627,7 +627,7 @@ _g int plus_float_ds_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_dd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_dd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -640,7 +640,7 @@ _g int plus_float_dd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_dl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_dl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -653,7 +653,7 @@ _g int plus_float_dl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_ls_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ls_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -666,7 +666,7 @@ _g int plus_float_ls_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_ld_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ld_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -679,7 +679,7 @@ _g int plus_float_ld_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_ll_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ll_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -692,101 +692,101 @@ _g int plus_float_ll_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int plus_float_ss_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ss_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_ss_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_sd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_sd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_sd_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_sl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_sl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_sl_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_ds_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ds_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_ds_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_dd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_dd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_dd_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_dl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_dl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_dl_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_ls_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ls_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_ls_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_ld_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ld_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_ld_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_ll_local_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_float_ll_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return plus_float_ll_alloc_(local, left, right, ret);
 }
 
-_g int plus_float_ss_heap_(addr left, addr right, addr *ret)
+int plus_float_ss_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_ss_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_sd_heap_(addr left, addr right, addr *ret)
+int plus_float_sd_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_sd_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_sl_heap_(addr left, addr right, addr *ret)
+int plus_float_sl_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_sl_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_ds_heap_(addr left, addr right, addr *ret)
+int plus_float_ds_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_ds_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_dd_heap_(addr left, addr right, addr *ret)
+int plus_float_dd_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_dd_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_dl_heap_(addr left, addr right, addr *ret)
+int plus_float_dl_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_dl_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_ls_heap_(addr left, addr right, addr *ret)
+int plus_float_ls_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_ls_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_ld_heap_(addr left, addr right, addr *ret)
+int plus_float_ld_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_ld_alloc_(NULL, left, right, ret);
 }
 
-_g int plus_float_ll_heap_(addr left, addr right, addr *ret)
+int plus_float_ll_heap_(addr left, addr right, addr *ret)
 {
 	return plus_float_ll_alloc_(NULL, left, right, ret);
 }
@@ -795,7 +795,7 @@ _g int plus_float_ll_heap_(addr left, addr right, addr *ret)
 /*
  *  minus
  */
-_g int minus_float_fs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_fs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -811,7 +811,7 @@ _g int minus_float_fs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_fd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_fd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -827,7 +827,7 @@ _g int minus_float_fd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_fl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_fl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -843,40 +843,40 @@ _g int minus_float_fl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_fs_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_fs_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_fs_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_fd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_fd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_fd_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_fl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_fl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_fl_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_fs_heap_(addr left, addr right, addr *ret)
+int minus_float_fs_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_fs_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_fd_heap_(addr left, addr right, addr *ret)
+int minus_float_fd_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_fd_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_fl_heap_(addr left, addr right, addr *ret)
+int minus_float_fl_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_fl_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_sf_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sf_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -892,7 +892,7 @@ _g int minus_float_sf_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_df_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_df_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -908,7 +908,7 @@ _g int minus_float_df_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_lf_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_lf_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value;
 
@@ -924,40 +924,40 @@ _g int minus_float_lf_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_sf_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sf_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_sf_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_df_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_df_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_df_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_lf_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_lf_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_lf_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_sf_heap_(addr left, addr right, addr *ret)
+int minus_float_sf_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_sf_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_df_heap_(addr left, addr right, addr *ret)
+int minus_float_df_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_df_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_lf_heap_(addr left, addr right, addr *ret)
+int minus_float_lf_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_lf_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_bs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_bs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -973,7 +973,7 @@ _g int minus_float_bs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_bd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_bd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -989,7 +989,7 @@ _g int minus_float_bd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_bl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_bl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1005,40 +1005,40 @@ _g int minus_float_bl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_bs_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_bs_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_bs_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_bd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_bd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_bd_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_bl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_bl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_bl_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_bs_heap_(addr left, addr right, addr *ret)
+int minus_float_bs_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_bs_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_bd_heap_(addr left, addr right, addr *ret)
+int minus_float_bd_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_bd_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_bl_heap_(addr left, addr right, addr *ret)
+int minus_float_bl_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_bl_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_sb_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sb_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -1048,7 +1048,7 @@ _g int minus_float_sb_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return minus_float_sv_alloc_(local, left, value, ret);
 }
 
-_g int minus_float_db_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_db_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1058,7 +1058,7 @@ _g int minus_float_db_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return minus_float_dv_alloc_(local, left, value, ret);
 }
 
-_g int minus_float_lb_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_lb_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1068,40 +1068,40 @@ _g int minus_float_lb_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return minus_float_lv_alloc_(local, left, value, ret);
 }
 
-_g int minus_float_sb_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sb_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_sb_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_db_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_db_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_db_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_lb_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_lb_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_lb_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_sb_heap_(addr left, addr right, addr *ret)
+int minus_float_sb_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_sb_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_db_heap_(addr left, addr right, addr *ret)
+int minus_float_db_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_db_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_lb_heap_(addr left, addr right, addr *ret)
+int minus_float_lb_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_lb_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_rs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_rs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -1117,7 +1117,7 @@ _g int minus_float_rs_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_rd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_rd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1133,7 +1133,7 @@ _g int minus_float_rd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_rl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_rl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1149,40 +1149,40 @@ _g int minus_float_rl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-_g int minus_float_rs_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_rs_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_rs_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_rd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_rd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_rd_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_rl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_rl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_rl_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_rs_heap_(addr left, addr right, addr *ret)
+int minus_float_rs_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_rs_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_rd_heap_(addr left, addr right, addr *ret)
+int minus_float_rd_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_rd_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_rl_heap_(addr left, addr right, addr *ret)
+int minus_float_rl_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_rl_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_sr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -1192,7 +1192,7 @@ _g int minus_float_sr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return minus_float_sv_alloc_(local, left, value, ret);
 }
 
-_g int minus_float_dr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_dr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1202,7 +1202,7 @@ _g int minus_float_dr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return minus_float_dv_alloc_(local, left, value, ret);
 }
 
-_g int minus_float_lr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_lr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1212,40 +1212,40 @@ _g int minus_float_lr_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return minus_float_lv_alloc_(local, left, value, ret);
 }
 
-_g int minus_float_sr_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sr_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_sr_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_dr_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_dr_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_dr_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_lr_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_lr_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_lr_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_sr_heap_(addr left, addr right, addr *ret)
+int minus_float_sr_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_sr_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_dr_heap_(addr left, addr right, addr *ret)
+int minus_float_dr_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_dr_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_lr_heap_(addr left, addr right, addr *ret)
+int minus_float_lr_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_lr_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_ss_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ss_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float value;
 
@@ -1258,7 +1258,7 @@ _g int minus_float_ss_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_sd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1271,7 +1271,7 @@ _g int minus_float_sd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_sl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1284,7 +1284,7 @@ _g int minus_float_sl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_ds_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ds_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1297,7 +1297,7 @@ _g int minus_float_ds_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_dd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_dd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1310,7 +1310,7 @@ _g int minus_float_dd_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_dl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_dl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1323,7 +1323,7 @@ _g int minus_float_dl_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_ls_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ls_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1336,7 +1336,7 @@ _g int minus_float_ls_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_ld_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ld_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	double_float value;
 
@@ -1349,7 +1349,7 @@ _g int minus_float_ld_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_ll_alloc_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ll_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	long_float value;
 
@@ -1362,101 +1362,101 @@ _g int minus_float_ll_alloc_(LocalRoot local, addr left, addr right, addr *ret)
 	return 0;
 }
 
-_g int minus_float_ss_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ss_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_ss_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_sd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_sd_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_sl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_sl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_sl_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_ds_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ds_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_ds_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_dd_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_dd_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_dd_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_dl_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_dl_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_dl_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_ls_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ls_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_ls_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_ld_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ld_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_ld_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_ll_local_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_float_ll_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return minus_float_ll_alloc_(local, left, right, ret);
 }
 
-_g int minus_float_ss_heap_(addr left, addr right, addr *ret)
+int minus_float_ss_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_ss_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_sd_heap_(addr left, addr right, addr *ret)
+int minus_float_sd_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_sd_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_sl_heap_(addr left, addr right, addr *ret)
+int minus_float_sl_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_sl_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_ds_heap_(addr left, addr right, addr *ret)
+int minus_float_ds_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_ds_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_dd_heap_(addr left, addr right, addr *ret)
+int minus_float_dd_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_dd_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_dl_heap_(addr left, addr right, addr *ret)
+int minus_float_dl_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_dl_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_ls_heap_(addr left, addr right, addr *ret)
+int minus_float_ls_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_ls_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_ld_heap_(addr left, addr right, addr *ret)
+int minus_float_ld_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_ld_alloc_(NULL, left, right, ret);
 }
 
-_g int minus_float_ll_heap_(addr left, addr right, addr *ret)
+int minus_float_ll_heap_(addr left, addr right, addr *ret)
 {
 	return minus_float_ll_alloc_(NULL, left, right, ret);
 }

@@ -10,10 +10,10 @@
 #define init_environment_describe _n(init_environment_describe)
 #define build_environment_describe _n(build_environment_describe)
 
-_g int describe_common(Execute ptr, addr object, addr stream);
-_g int inspect_common(Execute ptr, addr object);
-_g void init_environment_describe(void);
-_g void build_environment_describe(Execute ptr);
+int describe_common(Execute ptr, addr object, addr stream);
+int inspect_common(Execute ptr, addr object);
+void init_environment_describe(void);
+void build_environment_describe(Execute ptr);
 
 #endif
 

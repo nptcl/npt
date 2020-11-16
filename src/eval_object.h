@@ -70,33 +70,33 @@ enum EVAL_TYPE {
 #define PtrEvalBody(x,y)	PtrBodySSa(x,y)
 #define PtrEvalBodyAny(x)	PtrBodySS(x)
 
-_g void eval_heap(addr *ret,
+void eval_heap(addr *ret,
 		enum EVAL_TYPE type, byte array, byte body);
-_g void eval_local(LocalRoot local, addr *ret,
+void eval_local(LocalRoot local, addr *ret,
 		enum EVAL_TYPE type, byte array, byte body);
-_g void eval_alloc(LocalRoot local, addr *ret,
+void eval_alloc(LocalRoot local, addr *ret,
 		enum EVAL_TYPE type, byte array, byte body);
 
-_g addr refeval(addr pos, size_t index);
-_g void geteval(addr pos, size_t index, addr *ret);
-_g void seteval(addr pos, size_t index, addr value);
-_g enum EVAL_TYPE refevaltype(addr pos);
-_g void getevaltype(addr pos, enum EVAL_TYPE *ret);
-_g void setevaltype(addr pos, enum EVAL_TYPE value);
+addr refeval(addr pos, size_t index);
+void geteval(addr pos, size_t index, addr *ret);
+void seteval(addr pos, size_t index, addr value);
+enum EVAL_TYPE refevaltype(addr pos);
+void getevaltype(addr pos, enum EVAL_TYPE *ret);
+void setevaltype(addr pos, enum EVAL_TYPE value);
 
-_g int eval_p(addr pos);
-_g int eval_declare_p(addr pos);
-_g int eval_declare_nil_p(addr pos);
-_g int eval_parse_p(addr pos);
-_g int eval_scope_p(addr pos);
-_g int eval_stack_p(addr pos);
-_g int eval_table_p(addr pos);
-_g int eval_tablevalue_p(addr pos);
-_g int eval_tablefunction_p(addr pos);
-_g int eval_tabletagbody_p(addr pos);
-_g int eval_tableblock_p(addr pos);
-_g int eval_tablecall_p(addr pos);
-_g int eval_code_p(addr pos);
+int eval_p(addr pos);
+int eval_declare_p(addr pos);
+int eval_declare_nil_p(addr pos);
+int eval_parse_p(addr pos);
+int eval_scope_p(addr pos);
+int eval_stack_p(addr pos);
+int eval_table_p(addr pos);
+int eval_tablevalue_p(addr pos);
+int eval_tablefunction_p(addr pos);
+int eval_tabletagbody_p(addr pos);
+int eval_tableblock_p(addr pos);
+int eval_tablecall_p(addr pos);
+int eval_code_p(addr pos);
 
 #endif
 

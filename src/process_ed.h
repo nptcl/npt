@@ -14,7 +14,7 @@
 #endif
 
 #define ed_process_ _n(ed_process_)
-_g int ed_process_(Execute ptr, addr file);
+int ed_process_(Execute ptr, addr file);
 
 #endif
 

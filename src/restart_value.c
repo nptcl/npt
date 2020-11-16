@@ -200,7 +200,7 @@ static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret
 	return Result(ret, value);
 }
 
-_g int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
+int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
 {
 	static const pointer call = p_restart_symbol_store_special;
 	addr value;
@@ -295,7 +295,7 @@ static int function_restart_call(Execute ptr, addr name, addr *ret)
 	return Result(ret, name);
 }
 
-_g int callname_global_restart(Execute ptr, addr name, addr *ret)
+int callname_global_restart(Execute ptr, addr name, addr *ret)
 {
 	addr value;
 
@@ -308,7 +308,7 @@ _g int callname_global_restart(Execute ptr, addr name, addr *ret)
 	return function_restart_call(ptr, name, ret);
 }
 
-_g int function_global_restart(Execute ptr, addr name, addr *ret)
+int function_global_restart(Execute ptr, addr name, addr *ret)
 {
 	addr value;
 
@@ -322,7 +322,7 @@ _g int function_global_restart(Execute ptr, addr name, addr *ret)
 	return function_restart_call(ptr, name, ret);
 }
 
-_g int setf_global_restart(Execute ptr, addr name, addr *ret)
+int setf_global_restart(Execute ptr, addr name, addr *ret)
 {
 	addr value;
 
@@ -340,7 +340,7 @@ _g int setf_global_restart(Execute ptr, addr name, addr *ret)
 /*
  *  initialize
  */
-_g void init_restart_value(void)
+void init_restart_value(void)
 {
 	SetPointerType(var1, restart_symbol_use_function);
 	SetPointerType(empty, restart_symbol_use_interactive);

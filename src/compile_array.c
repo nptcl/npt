@@ -287,7 +287,7 @@ static int faslwrite_value_array_normal(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int faslwrite_value_array(Execute ptr, addr stream, addr pos)
+int faslwrite_value_array(Execute ptr, addr stream, addr pos)
 {
 	struct array_struct *str;
 
@@ -304,7 +304,7 @@ _g int faslwrite_value_array(Execute ptr, addr stream, addr pos)
 /*
  *  array-read
  */
-_g int faslread_value_array(Execute ptr, addr stream, addr *ret)
+int faslread_value_array(Execute ptr, addr stream, addr *ret)
 {
 	addr pos;
 	struct array_struct *str;

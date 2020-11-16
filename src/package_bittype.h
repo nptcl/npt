@@ -42,15 +42,15 @@ struct bittype_struct {
 #define SetBitTypeInherit(x,y) (StructBitType(x)->inherit = (y))
 #define SetBitTypeShadow(x,y) (StructBitType(x)->shadow = (y))
 
-_g void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package);
-_g void internbitpackage(addr *ret, addr symbol);
-_g void importbitpackage(addr *ret, addr symbol);
-_g void inheritedbitpackage(addr *ret, addr symbol);
-_g void shadowintern_bitpackage(addr bit, addr name, addr package);
-_g void shadowimport_bitpackage(addr bit, addr symbol);
-_g int intern_bitpackage_(addr package, addr name, addr *value, int *ret);
-_g int find_bitpackage_(addr package, addr name, addr *ret);
-_g int find_char_bitpackage_(addr package, const char *name, addr *ret);
+void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package);
+void internbitpackage(addr *ret, addr symbol);
+void importbitpackage(addr *ret, addr symbol);
+void inheritedbitpackage(addr *ret, addr symbol);
+void shadowintern_bitpackage(addr bit, addr name, addr package);
+void shadowimport_bitpackage(addr bit, addr symbol);
+int intern_bitpackage_(addr package, addr name, addr *value, int *ret);
+int find_bitpackage_(addr package, addr name, addr *ret);
+int find_char_bitpackage_(addr package, const char *name, addr *ret);
 
 #endif
 

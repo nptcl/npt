@@ -14,7 +14,7 @@
 /*
  *  build_constant
  */
-_g void build_constant(void)
+void build_constant(void)
 {
 	addr array;
 	size_t i;
@@ -29,7 +29,7 @@ _g void build_constant(void)
 /*
  *  interface
  */
-_g int specialconstant_(constindex index, const char *package, const char *name)
+int specialconstant_(constindex index, const char *package, const char *name)
 {
 	addr symbol;
 
@@ -40,7 +40,7 @@ _g int specialconstant_(constindex index, const char *package, const char *name)
 	return 0;
 }
 
-_g void gensymconstant(constindex index, const char *name)
+void gensymconstant(constindex index, const char *name)
 {
 	addr string, symbol;
 
@@ -50,7 +50,7 @@ _g void gensymconstant(constindex index, const char *name)
 	SetConstant(index, symbol);
 }
 
-_g int keywordconstant_(constindex index, const char *name)
+int keywordconstant_(constindex index, const char *name)
 {
 	addr symbol;
 
@@ -60,7 +60,7 @@ _g int keywordconstant_(constindex index, const char *name)
 	return 0;
 }
 
-_g int commonconstant_(constindex index, const char *name)
+int commonconstant_(constindex index, const char *name)
 {
 	addr symbol;
 
@@ -92,7 +92,7 @@ static void copy_symbolchar(char *dst, const char *src, size_t size)
 	dst[i] = 0;
 }
 
-_g int symbolchar_common_(constindex index, const char *name)
+int symbolchar_common_(constindex index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
@@ -104,7 +104,7 @@ _g int symbolchar_common_(constindex index, const char *name)
 	return 0;
 }
 
-_g int symbolchar_keyword_(constindex index, const char *name)
+int symbolchar_keyword_(constindex index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
@@ -116,14 +116,14 @@ _g int symbolchar_keyword_(constindex index, const char *name)
 	return 0;
 }
 
-_g void quotelist_heap(addr *ret, addr name)
+void quotelist_heap(addr *ret, addr name)
 {
 	addr quote;
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(ret, quote, name, NULL);
 }
 
-_g void pushconst_heap(addr *ret, constindex index)
+void pushconst_heap(addr *ret, constindex index)
 {
 	addr pos;
 	GetConstant(index, &pos);

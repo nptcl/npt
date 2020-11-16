@@ -114,7 +114,7 @@ static int disassemble_function(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-_g int disassemble_common(Execute ptr, addr var)
+int disassemble_common(Execute ptr, addr var)
 {
 	addr stream, check;
 
@@ -136,7 +136,7 @@ _g int disassemble_common(Execute ptr, addr var)
 /*
  *  trace
  */
-_g int trace_common_(addr form, addr env, addr *ret)
+int trace_common_(addr form, addr env, addr *ret)
 {
 	addr pos, value, list, add, quote;
 
@@ -175,7 +175,7 @@ _g int trace_common_(addr form, addr env, addr *ret)
 /*
  *  untrace
  */
-_g int untrace_common_(addr form, addr env, addr *ret)
+int untrace_common_(addr form, addr env, addr *ret)
 {
 	addr pos, value, list, del, quote;
 
@@ -310,7 +310,7 @@ static int trace_add_push_(Execute ptr, addr name)
 	return 0;
 }
 
-_g int trace_add_common_(Execute ptr, addr list, addr *ret)
+int trace_add_common_(Execute ptr, addr list, addr *ret)
 {
 	int check;
 	addr root, name, pos;
@@ -382,7 +382,7 @@ static int trace_del_remove_(Execute ptr, addr name)
 	return 0;
 }
 
-_g int trace_del_common_(Execute ptr, addr list, addr *ret)
+int trace_del_common_(Execute ptr, addr list, addr *ret)
 {
 	int check;
 	addr root, name, pos;
@@ -412,12 +412,12 @@ _g int trace_del_common_(Execute ptr, addr list, addr *ret)
 /*
  *  initialize
  */
-_g void init_environment_code(void)
+void init_environment_code(void)
 {
 	SetPointerType(rest, defun_trace_function);
 }
 
-_g void build_environment_code(void)
+void build_environment_code(void)
 {
 	addr symbol;
 	GetConst(SYSTEM_TRACE_LIST, &symbol);

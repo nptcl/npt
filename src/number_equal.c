@@ -8,7 +8,7 @@
 #include "ratio_equal.h"
 #include "typedef.h"
 
-_g int zerop_numberp(addr pos, int *ret)
+int zerop_numberp(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -46,7 +46,7 @@ _g int zerop_numberp(addr pos, int *ret)
 	return 0;
 }
 
-_g int zerop_number_(addr pos, int *ret)
+int zerop_number_(addr pos, int *ret)
 {
 	if (zerop_numberp(pos, ret))
 		return TypeError_(pos, NUMBER);
@@ -307,7 +307,7 @@ static int equal_complex_number_(LocalRoot local, addr left, addr right, int *re
 	}
 }
 
-_g int equal_number_(LocalRoot local, addr left, addr right, int *ret)
+int equal_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -337,7 +337,7 @@ _g int equal_number_(LocalRoot local, addr left, addr right, int *ret)
 	}
 }
 
-_g int not_equal_number_(LocalRoot local, addr left, addr right, int *ret)
+int not_equal_number_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(equal_number_(local, left, right, &check));

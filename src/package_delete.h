@@ -4,8 +4,7 @@
 #include "typedef.h"
 
 #define delete_package_ _n(delete_package_)
-
-_g int delete_package_(addr pos, int *ret);
+int delete_package_(addr pos, int *ret);
 
 #endif
 

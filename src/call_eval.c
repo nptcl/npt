@@ -18,7 +18,7 @@
 /*
  *  lambda
  */
-_g void lambda_common(addr form, addr *ret)
+void lambda_common(addr form, addr *ret)
 {
 	addr symbol;
 	GetConst(COMMON_FUNCTION, &symbol);
@@ -29,7 +29,7 @@ _g void lambda_common(addr form, addr *ret)
 /*
  *  eval
  */
-_g int eval_common(Execute ptr, addr var)
+int eval_common(Execute ptr, addr var)
 {
 	return eval_execute_partial(ptr, var);
 }
@@ -64,7 +64,7 @@ static int compiler_macro_function_setf(addr var, addr env, addr *ret)
 	return 0;
 }
 
-_g int compiler_macro_function_common(addr var, addr env, addr *ret)
+int compiler_macro_function_common(addr var, addr env, addr *ret)
 {
 	Return(parse_callname_error_(&var, var));
 	if (symbolp_callname(var))
@@ -101,7 +101,7 @@ static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
 	return set_setf_compiler_macro_symbol_(var, value);
 }
 
-_g int setf_compiler_macro_function_common(addr value, addr var, addr env)
+int setf_compiler_macro_function_common(addr value, addr var, addr env)
 {
 	if (! callnamep(var)) {
 		Return(parse_callname_error_(&var, var));
@@ -116,7 +116,7 @@ _g int setf_compiler_macro_function_common(addr value, addr var, addr env)
 /*
  *  define-compiler-macro
  */
-_g int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
+int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr right, eval, name, args, decl, doc;
 
@@ -155,7 +155,7 @@ _g int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 }
 
-_g int set_define_compiler_macro(addr callname, addr value)
+int set_define_compiler_macro(addr callname, addr value)
 {
 	return setf_compiler_macro_function_common(value, callname, Unbound);
 }
@@ -268,7 +268,7 @@ static int compile_common_call_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-_g int compile_common(Execute ptr, addr var, addr opt,
+int compile_common(Execute ptr, addr var, addr opt,
 		addr *ret1, addr *ret2, addr *ret3)
 {
 	addr control;
@@ -287,7 +287,7 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 /*
  *  defmacro
  */
-_g int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
+int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr eval, name, args, decl, doc;
 
@@ -328,7 +328,7 @@ _g int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  macro-function
  */
-_g int macro_function_common_(addr symbol, addr env, addr *ret)
+int macro_function_common_(addr symbol, addr env, addr *ret)
 {
 	if (env == Unbound)
 		env = Nil;
@@ -340,7 +340,7 @@ _g int macro_function_common_(addr symbol, addr env, addr *ret)
 /*
  *  macroexpand
  */
-_g int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
+int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 {
 	int check;
 
@@ -363,7 +363,7 @@ _g int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec
 /*
  *  macroexpand_1
  */
-_g int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
+int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 {
 	int check;
 
@@ -386,7 +386,7 @@ _g int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *s
 /*
  *  define-symbol-macro
  */
-_g int define_symbol_macro_common(addr form, addr env, addr *ret)
+int define_symbol_macro_common(addr form, addr env, addr *ret)
 {
 	addr cons, symbol, expansion;
 
@@ -414,7 +414,7 @@ error:
 /*
  *  declaim
  */
-_g int declaim_common(Execute ptr, addr form, addr env, addr *ret)
+int declaim_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr symbol;
 
@@ -464,7 +464,7 @@ static int eval_constantp(Execute ptr, addr var, addr env, int *ret)
 	return 0;
 }
 
-_g int constantp_common(Execute ptr, addr var, addr opt, addr *ret)
+int constantp_common(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 

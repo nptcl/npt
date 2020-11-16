@@ -10,11 +10,11 @@
 #define do_all_symbols_package_ _n(do_all_symbols_package_)
 #define all_symbols_package_ _n(all_symbols_package_)
 
-_g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret);
-_g int do_symbols_package(Execute ptr, addr call, addr package);
-_g int do_external_symbols_package(Execute ptr, addr call, addr package);
-_g int do_all_symbols_package_(Execute ptr, addr call);
-_g int all_symbols_package_(addr package, addr *ret);
+int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret);
+int do_symbols_package(Execute ptr, addr call, addr package);
+int do_external_symbols_package(Execute ptr, addr call, addr package);
+int do_all_symbols_package_(Execute ptr, addr call);
+int all_symbols_package_(addr package, addr *ret);
 
 #endif
 

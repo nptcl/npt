@@ -458,7 +458,7 @@ static void defun_require(void)
 /*
  *  function
  */
-_g void init_common_system(void)
+void init_common_system(void)
 {
 	SetPointerCall(defun, var1dynamic, compile_file);
 	SetPointerCall(defun, var1dynamic, compile_file_pathname);
@@ -468,7 +468,7 @@ _g void init_common_system(void)
 	SetPointerCall(defun, var1opt1, require);
 }
 
-_g void build_common_system(void)
+void build_common_system(void)
 {
 	defun_compile_file();
 	defun_compile_file_pathname();

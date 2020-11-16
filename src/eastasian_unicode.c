@@ -33,7 +33,7 @@ static enum EastAsianType eastasian_search(unicode x, size_t ai, size_t bi)
 		return eastasian_search(x, ci, bi - 1UL);
 }
 
-_g enum EastAsianType eastasian_symbol(unicode x)
+enum EastAsianType eastasian_symbol(unicode x)
 {
 	if (x < 0x80)
 		return EastAsianAscii[x];
@@ -41,12 +41,12 @@ _g enum EastAsianType eastasian_symbol(unicode x)
 		return eastasian_search(x, 0, EastAsianTable_Size - 1UL);
 }
 
-_g unsigned eastasian_width(unicode x)
+unsigned eastasian_width(unicode x)
 {
 	return EastAsianSymbol[eastasian_symbol(x)];
 }
 
-_g void init_eastasian(void)
+void init_eastasian(void)
 {
 	EastAsianSymbol[EastAsian_error] = 0;
 	EastAsianSymbol[EastAsian_N] = 1;

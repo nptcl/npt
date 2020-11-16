@@ -126,11 +126,11 @@
 #define init_clos _n(init_clos)
 #define build_clos _n(build_clos)
 
-__extern addr Clos_standard_class;
-__extern addr Clos_standard_generic;
-__extern addr Clos_standard_method;
-__extern addr Clos_standard_combination;
-__extern addr Clos_standard_specializer;
+extern addr Clos_standard_class;
+extern addr Clos_standard_generic;
+extern addr Clos_standard_method;
+extern addr Clos_standard_combination;
+extern addr Clos_standard_specializer;
 
 struct slot_struct {
 	size_t location, access;
@@ -307,144 +307,144 @@ struct clos_struct {
 #endif
 
 /* access */
-_g struct slot_struct *struct_slot(addr pos);
-_g void getname_slot(addr pos, addr *ret);
-_g void setname_slot(addr pos, addr value);
-_g void gettype_slot(addr pos, addr *ret);
-_g void settype_slot(addr pos, addr value);
-_g void getargs_slot(addr pos, addr *ret);
-_g void setargs_slot(addr pos, addr value);
-_g void getform_slot(addr pos, addr *ret);
-_g void setform_slot(addr pos, addr value);
-_g void getfunction_slot(addr pos, addr *ret);
-_g void setfunction_slot(addr pos, addr value);
-_g void getreaders_slot(addr pos, addr *ret);
-_g void setreaders_slot(addr pos, addr value);
-_g void getwriters_slot(addr pos, addr *ret);
-_g void setwriters_slot(addr pos, addr value);
-_g void getdocument_slot(addr pos, addr *ret);
-_g void setdocument_slot(addr pos, addr value);
-_g void getclass_slot(addr pos, addr *ret);
-_g void setclass_slot(addr pos, addr value);
-_g void getreadonly_slot(addr pos, addr *ret);
-_g void setreadonly_slot(addr pos, addr value);
-_g void getallocation_slot(addr pos, int *ret);
-_g void setallocation_slot(addr pos, int value);
-_g void getlocation_slot(addr pos, size_t *ret);
-_g void setlocation_slot(addr pos, size_t value);
-_g void getaccess_slot(addr pos, size_t *ret);
-_g void setaccess_slot(addr pos, size_t value);
+struct slot_struct *struct_slot(addr pos);
+void getname_slot(addr pos, addr *ret);
+void setname_slot(addr pos, addr value);
+void gettype_slot(addr pos, addr *ret);
+void settype_slot(addr pos, addr value);
+void getargs_slot(addr pos, addr *ret);
+void setargs_slot(addr pos, addr value);
+void getform_slot(addr pos, addr *ret);
+void setform_slot(addr pos, addr value);
+void getfunction_slot(addr pos, addr *ret);
+void setfunction_slot(addr pos, addr value);
+void getreaders_slot(addr pos, addr *ret);
+void setreaders_slot(addr pos, addr value);
+void getwriters_slot(addr pos, addr *ret);
+void setwriters_slot(addr pos, addr value);
+void getdocument_slot(addr pos, addr *ret);
+void setdocument_slot(addr pos, addr value);
+void getclass_slot(addr pos, addr *ret);
+void setclass_slot(addr pos, addr value);
+void getreadonly_slot(addr pos, addr *ret);
+void setreadonly_slot(addr pos, addr value);
+void getallocation_slot(addr pos, int *ret);
+void setallocation_slot(addr pos, int value);
+void getlocation_slot(addr pos, size_t *ret);
+void setlocation_slot(addr pos, size_t value);
+void getaccess_slot(addr pos, size_t *ret);
+void setaccess_slot(addr pos, size_t value);
 
-_g struct clos_struct *struct_clos(addr pos);
-_g void getclassof_clos(addr pos, addr *ret);
-_g void setclassof_clos(addr pos, addr value);
-_g void getslot_clos(addr pos, addr *ret);
-_g void setslot_clos(addr pos, addr value);
-_g void getvalue_clos(addr pos, addr *ret);
-_g void setvalue_clos(addr pos, addr value);
-_g void getfuncall_clos(addr pos, int *ret);
-_g void setfuncall_clos(addr pos, int value);
-_g void getversion_clos(addr pos, fixnum *ret);
-_g void setversion_clos(addr pos, fixnum value);
+struct clos_struct *struct_clos(addr pos);
+void getclassof_clos(addr pos, addr *ret);
+void setclassof_clos(addr pos, addr value);
+void getslot_clos(addr pos, addr *ret);
+void setslot_clos(addr pos, addr value);
+void getvalue_clos(addr pos, addr *ret);
+void setvalue_clos(addr pos, addr value);
+void getfuncall_clos(addr pos, int *ret);
+void setfuncall_clos(addr pos, int value);
+void getversion_clos(addr pos, fixnum *ret);
+void setversion_clos(addr pos, fixnum value);
 
-_g void getslotvector(addr pos, size_t index, addr *ret);
-_g void setslotvector(addr pos, size_t index, addr value);
-_g void lenslotvector(addr pos, size_t *ret);
-_g void getclosvalue(addr pos, size_t index, addr *ret);
-_g void setclosvalue(addr pos, size_t index, addr value);
-_g void lenclosvalue(addr pos, size_t *ret);
+void getslotvector(addr pos, size_t index, addr *ret);
+void setslotvector(addr pos, size_t index, addr value);
+void lenslotvector(addr pos, size_t *ret);
+void getclosvalue(addr pos, size_t index, addr *ret);
+void setclosvalue(addr pos, size_t index, addr value);
+void lenclosvalue(addr pos, size_t *ret);
 
-_g void clos_standard_ignore(int value);
-_g int clos_standard_class_p_debug(addr pos);
-_g int clos_standard_generic_p_debug(addr pos);
-_g int clos_standard_method_p_debug(addr pos);
-_g int clos_standard_combination_p_debug(addr pos);
-_g int clos_standard_specializer_p_debug(addr pos);
+void clos_standard_ignore(int value);
+int clos_standard_class_p_debug(addr pos);
+int clos_standard_generic_p_debug(addr pos);
+int clos_standard_method_p_debug(addr pos);
+int clos_standard_combination_p_debug(addr pos);
+int clos_standard_specializer_p_debug(addr pos);
 
 /* allocate */
-_g void slot_alloc(LocalRoot local, addr *ret);
-_g void slot_local(LocalRoot local, addr *ret);
-_g void slot_heap(addr *ret);
-_g void slot_copy_alloc(LocalRoot local, addr *ret, addr slot);
-_g void slot_copy_local(LocalRoot local, addr *ret, addr slot);
-_g void slot_copy_heap(addr *ret, addr slot);
+void slot_alloc(LocalRoot local, addr *ret);
+void slot_local(LocalRoot local, addr *ret);
+void slot_heap(addr *ret);
+void slot_copy_alloc(LocalRoot local, addr *ret, addr slot);
+void slot_copy_local(LocalRoot local, addr *ret, addr slot);
+void slot_copy_heap(addr *ret, addr slot);
 
-_g void slot_vector_alloc(LocalRoot local, addr *ret, size_t size);
-_g void slot_vector_local(LocalRoot local, addr *ret, size_t size);
-_g void slot_vector_heap(addr *ret, size_t size);
-_g void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos);
-_g void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos);
-_g void slot_vector_copy_heap(addr *ret, addr pos);
-_g void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos);
-_g void slot_vector_clear(addr pos);
+void slot_vector_alloc(LocalRoot local, addr *ret, size_t size);
+void slot_vector_local(LocalRoot local, addr *ret, size_t size);
+void slot_vector_heap(addr *ret, size_t size);
+void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos);
+void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos);
+void slot_vector_copy_heap(addr *ret, addr pos);
+void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos);
+void slot_vector_clear(addr pos);
 
-_g void clos_value_heap(addr *ret, size_t size);
-_g void clos_alloc(LocalRoot local, addr *ret, addr slots);
-_g void clos_local(LocalRoot local, addr *ret, addr slots);
-_g void clos_heap(addr *ret, addr slots);
+void clos_value_heap(addr *ret, size_t size);
+void clos_alloc(LocalRoot local, addr *ret, addr slots);
+void clos_local(LocalRoot local, addr *ret, addr slots);
+void clos_heap(addr *ret, addr slots);
 
-_g void clos_destroy(addr pos);
-_g void clos_swap(addr a, addr b);
+void clos_destroy(addr pos);
+void clos_swap(addr a, addr b);
 
 /* control */
-_g int closp(addr pos);
-_g int slotp(addr pos);
-_g int clos_value_p(addr pos);
-_g int slot_vector_p(addr pos);
-_g int clos_funcall_p(addr pos);
-_g int slot_class_p(addr pos);
-_g int slot_instance_p(addr pos);
-_g void clos_set_funcall(addr pos);
-_g void slot_set_class(addr pos);
-_g void slot_set_instance(addr pos);
-_g int slot_set_allocation_(addr pos, addr value);
+int closp(addr pos);
+int slotp(addr pos);
+int clos_value_p(addr pos);
+int slot_vector_p(addr pos);
+int clos_funcall_p(addr pos);
+int slot_class_p(addr pos);
+int slot_instance_p(addr pos);
+void clos_set_funcall(addr pos);
+void slot_set_class(addr pos);
+void slot_set_instance(addr pos);
+int slot_set_allocation_(addr pos, addr value);
 
-_g int clos_errorp(addr pos, size_t index, constindex name);
-_g int clos_getp(addr pos, addr key, addr *ret);
-_g int clos_setp(addr pos, addr key, addr value);
-_g int clos_checkp_(addr pos, addr key, addr *value, int *ret);
-_g int clos_get_(addr pos, addr key, addr *ret);
-_g int clos_set_(addr pos, addr key, addr value);
-_g int clos_check_(addr pos, addr key, addr *ret);
-_g void clos_getelt(addr pos, size_t index, addr *ret);
-_g void clos_setelt(addr pos, size_t index, addr value);
-_g int clos_checkelt_(addr pos, size_t index, addr *ret);
+int clos_errorp(addr pos, size_t index, constindex name);
+int clos_getp(addr pos, addr key, addr *ret);
+int clos_setp(addr pos, addr key, addr value);
+int clos_checkp_(addr pos, addr key, addr *value, int *ret);
+int clos_get_(addr pos, addr key, addr *ret);
+int clos_set_(addr pos, addr key, addr value);
+int clos_check_(addr pos, addr key, addr *ret);
+void clos_getelt(addr pos, size_t index, addr *ret);
+void clos_setelt(addr pos, size_t index, addr value);
+int clos_checkelt_(addr pos, size_t index, addr *ret);
 
-_g int clos_getconst_(addr pos, constindex index, addr *ret);
-_g int clos_setconst_(addr pos, constindex index, addr value);
-_g int clos_checkconst_(addr pos, constindex index, addr *ret);
+int clos_getconst_(addr pos, constindex index, addr *ret);
+int clos_setconst_(addr pos, constindex index, addr value);
+int clos_checkconst_(addr pos, constindex index, addr *ret);
 #define ClosGetConst_(p,n,r) clos_getconst_((p),CONSTANT_##n,(r))
 #define ClosSetConst_(p,n,v) clos_setconst_((p),CONSTANT_##n,(v))
 #define ClosCheckConst_(p,n,r) clos_checkconst_((p),CONSTANT_##n,(r))
 
 /* check */
-_g int clos_slot_exists_p(addr pos, addr name);
-_g int clos_slot_boundp_nil(addr pos, addr name);
-_g int clos_slot_boundp_(addr pos, addr name, int *ret);
-_g int clos_slot_makunbound_nil_(addr pos, addr name, int *ret);
-_g int clos_slot_makunbound_(addr pos, addr name);
+int clos_slot_exists_p(addr pos, addr name);
+int clos_slot_boundp_nil(addr pos, addr name);
+int clos_slot_boundp_(addr pos, addr name, int *ret);
+int clos_slot_makunbound_nil_(addr pos, addr name, int *ret);
+int clos_slot_makunbound_(addr pos, addr name);
 
 /* talbe */
-_g void clos_find_class_nil(addr name, addr *ret);
-_g int clos_find_class_(addr name, addr *ret);
-_g void clos_define_class(addr name, addr value);
+void clos_find_class_nil(addr name, addr *ret);
+int clos_find_class_(addr name, addr *ret);
+void clos_define_class(addr name, addr value);
 
-_g void clos_find_generic_nil(addr name, addr *ret);
-_g int clos_find_generic_(addr name, addr *ret);
-_g int clos_define_generic_(addr name, addr value);
+void clos_find_generic_nil(addr name, addr *ret);
+int clos_find_generic_(addr name, addr *ret);
+int clos_define_generic_(addr name, addr value);
 
-_g void clos_find_combination_nil(addr name, addr *ret);
-_g int clos_find_combination_(addr name, addr *ret);
-_g void clos_define_combination(addr name, addr value);
+void clos_find_combination_nil(addr name, addr *ret);
+int clos_find_combination_(addr name, addr *ret);
+void clos_define_combination(addr name, addr value);
 
-_g int clos_find_specializer_nil_(addr name, addr *ret);
-_g int clos_find_specializer_(addr name, addr *ret);
-_g int clos_define_specializer_(addr name, addr value);
-_g void clos_forget_all_specializer_unsafe(void);
+int clos_find_specializer_nil_(addr name, addr *ret);
+int clos_find_specializer_(addr name, addr *ret);
+int clos_define_specializer_(addr name, addr value);
+void clos_forget_all_specializer_unsafe(void);
 
 /* build */
-_g void init_clos(void);
-_g void build_clos(Execute ptr);
+void init_clos(void);
+void build_clos(Execute ptr);
 
 #endif
 

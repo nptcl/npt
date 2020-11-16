@@ -6,26 +6,26 @@
 #include "type_deftype.h"
 #include "symbol.h"
 
-_g void getdeftype(addr symbol, addr *ret)
+void getdeftype(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	getdeftype_symbol(symbol, ret);
 }
 
-_g int setdeftype_(addr symbol, addr pos)
+int setdeftype_(addr symbol, addr pos)
 {
 	CheckSymbol(symbol);
 	return setdeftype_symbol_(symbol, pos);
 }
 
-_g int symbol_deftypep(addr symbol)
+int symbol_deftypep(addr symbol)
 {
 	CheckSymbol(symbol);
 	getdeftype(symbol, &symbol);
 	return symbol != Nil;
 }
 
-_g int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
+int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
 {
 	addr call;
 
@@ -39,7 +39,7 @@ _g int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
 	return callclang_funcall(ptr, ret, call, list, env, NULL);
 }
 
-_g int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
+int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
 {
 	addr call;
 
@@ -58,7 +58,7 @@ _g int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
 /*
  *  deftype
  */
-_g int deftype_common(Execute ptr, addr form, addr env, addr *ret)
+int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr right, eval, name, args, decl, doc;
 

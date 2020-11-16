@@ -56,16 +56,16 @@
 }
 
 /* cons */
-_g int consp_getcons(addr cons, addr *car, addr *cdr);
-_g int consp_getcar(addr cons, addr *car);
-_g int consp_getcdr(addr cons, addr *cdr);
+int consp_getcons(addr cons, addr *car, addr *cdr);
+int consp_getcar(addr cons, addr *car);
+int consp_getcdr(addr cons, addr *cdr);
 
-_g int getcons_(addr list, addr *car, addr *cdr);
-_g int getcar_(addr list, addr *car);
-_g int getcdr_(addr list, addr *cdr);
-_g int setcons_(addr cons, addr car, addr cdr);
-_g int setcar_(addr cons, addr car);
-_g int setcdr_(addr cons, addr cdr);
+int getcons_(addr list, addr *car, addr *cdr);
+int getcar_(addr list, addr *car);
+int getcdr_(addr list, addr *cdr);
+int setcons_(addr cons, addr car, addr cdr);
+int setcar_(addr cons, addr car);
+int setcdr_(addr cons, addr cdr);
 #define Return_getcons(x,y,z) Return(getcons_((x),(y),(z)))
 #define Return_getcar(x,y) Return(getcar_((x),(y)))
 #define Return_getcdr(x,y) Return(getcdr_((x),(y)))
@@ -74,33 +74,33 @@ _g int setcdr_(addr cons, addr cdr);
 #define Return_setcdr(x,y) Return(setcdr_((x),(y)))
 
 /* list */
-_g void list_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
-_g void list_heap(addr *ret, ...);
-_g void list_local(LocalRoot local, addr *ret, ...);
-_g void list_alloc(LocalRoot local, addr *ret, ...);
-_g void pushva_heap(addr *list, ...);
+void list_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
+void list_heap(addr *ret, ...);
+void list_local(LocalRoot local, addr *ret, ...);
+void list_alloc(LocalRoot local, addr *ret, ...);
+void pushva_heap(addr *list, ...);
 
 /* list* */
-_g int lista_safe_alloc_(LocalRoot local, addr *ret, addr first, addr cons);
-_g int lista_safe_local_(LocalRoot local, addr *ret, addr first, addr cons);
-_g int lista_safe_heap_(addr *ret, addr first, addr cons);
-_g void lista_stdarg_noerror(LocalRoot local, addr *ret, va_list args);
-_g int lista_stdarg_safe_(LocalRoot local, addr *ret, va_list args);
-_g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
-_g void lista_alloc(LocalRoot local, addr *ret, ...);
-_g void lista_local(LocalRoot local, addr *ret, ...);
-_g void lista_heap(addr *ret, ...);
+int lista_safe_alloc_(LocalRoot local, addr *ret, addr first, addr cons);
+int lista_safe_local_(LocalRoot local, addr *ret, addr first, addr cons);
+int lista_safe_heap_(addr *ret, addr first, addr cons);
+void lista_stdarg_noerror(LocalRoot local, addr *ret, va_list args);
+int lista_stdarg_safe_(LocalRoot local, addr *ret, va_list args);
+void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
+void lista_alloc(LocalRoot local, addr *ret, ...);
+void lista_local(LocalRoot local, addr *ret, ...);
+void lista_heap(addr *ret, ...);
 
 /* bind */
-_g void List_bind(addr list, ...);
-_g int list_bind_(addr list, ...);
-_g void Lista_bind(addr list, ...);
-_g int lista_bind_(addr list, ...);
+void List_bind(addr list, ...);
+int list_bind_(addr list, ...);
+void Lista_bind(addr list, ...);
+int lista_bind_(addr list, ...);
 
 /* copy-tree */
-_g void copy_tree_alloc(LocalRoot local, addr *ret, addr list);
-_g void copy_tree_local(LocalRoot local, addr *ret, addr list);
-_g void copy_tree_heap(addr *ret, addr list);
+void copy_tree_alloc(LocalRoot local, addr *ret, addr list);
+void copy_tree_local(LocalRoot local, addr *ret, addr list);
+void copy_tree_heap(addr *ret, addr list);
 
 #endif
 

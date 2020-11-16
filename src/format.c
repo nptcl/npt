@@ -58,12 +58,12 @@
  * <>		Justification, Logical Block
  * ^		Escape Upward
  */
-_g int format_stream_lisp(Execute ptr, addr stream, addr format, addr args)
+int format_stream_lisp(Execute ptr, addr stream, addr format, addr args)
 {
 	return format_execute(ptr, stream, format, args, &args);
 }
 
-_g int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
+int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
 {
 	addr stream;
 
@@ -91,7 +91,7 @@ static int format_array_lisp(Execute ptr, addr array, addr format, addr args, ad
 	return result;
 }
 
-_g int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
+int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 {
 	if (stream == Nil)
 		return format_string_lisp(ptr, format, args, ret);
@@ -129,7 +129,7 @@ static int format_stdarg(Execute ptr,
 	return 0;
 }
 
-_g int format_stream(Execute ptr, addr stream, const char *str, ...)
+int format_stream(Execute ptr, addr stream, const char *str, ...)
 {
 	int check;
 	va_list args;
@@ -141,7 +141,7 @@ _g int format_stream(Execute ptr, addr stream, const char *str, ...)
 	return check;
 }
 
-_g int format_string(Execute ptr, addr *ret, const char *str, ...)
+int format_string(Execute ptr, addr *ret, const char *str, ...)
 {
 	int check;
 	va_list args;
@@ -153,7 +153,7 @@ _g int format_string(Execute ptr, addr *ret, const char *str, ...)
 	return check;
 }
 
-_g int format_stdout(Execute ptr, const char *str, ...)
+int format_stdout(Execute ptr, const char *str, ...)
 {
 	int check;
 	va_list args;
@@ -165,7 +165,7 @@ _g int format_stdout(Execute ptr, const char *str, ...)
 	return check;
 }
 
-_g void format(const char *str, ...)
+void formatf(const char *str, ...)
 {
 	int check;
 	va_list args;
@@ -182,7 +182,7 @@ _g void format(const char *str, ...)
 /*
  *  initialize
  */
-_g void init_format(void)
+void init_format(void)
 {
 	init_format_parse();
 	init_format_function();

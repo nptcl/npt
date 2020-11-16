@@ -291,7 +291,7 @@ static int array_bitcalc_bb_(addr *ret,
 	return 0;
 }
 
-_g int array_bitcalc_(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
+int array_bitcalc_(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
 	int check1, check2;
 
@@ -380,7 +380,7 @@ static int array_bitnot_bitmemory_(addr *ret, addr pos, addr opt)
 	return 0;
 }
 
-_g int array_bitnot_(addr *ret, addr pos, addr opt)
+int array_bitnot_(addr *ret, addr pos, addr opt)
 {
 	int check;
 
@@ -395,7 +395,7 @@ _g int array_bitnot_(addr *ret, addr pos, addr opt)
 /*
  *  array_fill
  */
-_g int array_fill_(addr pos, addr item, addr start, addr end)
+int array_fill_(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 	struct array_struct *str;
@@ -495,7 +495,7 @@ static int array_subseq_type_(addr *ret, addr pos, size_t index1, size_t index2)
 	}
 }
 
-_g int array_subseq_(addr *ret, addr pos, addr start, addr end)
+int array_subseq_(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 	struct array_struct *str;
@@ -611,7 +611,7 @@ static int array_reverse_size_(addr *ret, addr pos)
 	return Result(ret, one);
 }
 
-_g int array_reverse_(addr *ret, addr pos)
+int array_reverse_(addr *ret, addr pos)
 {
 	struct array_struct *str;
 
@@ -636,7 +636,7 @@ _g int array_reverse_(addr *ret, addr pos)
 /*
  *  array_nreverse
  */
-_g int array_nreverse_(addr *ret, addr pos)
+int array_nreverse_(addr *ret, addr pos)
 {
 	size_t size, x, y;
 	struct array_value a, b;

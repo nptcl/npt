@@ -11,7 +11,7 @@
 /*
  *  file-memory
  */
-_g int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret)
+int read_low_buffering(filestream fm, byte *pos, size_t size, size_t *ret)
 {
 	byte c;
 	int check;
@@ -41,7 +41,7 @@ error:
 	return -1;
 }
 
-_g int write_low_buffering(filestream fm, const byte *pos, size_t size, size_t *ret)
+int write_low_buffering(filestream fm, const byte *pos, size_t size, size_t *ret)
 {
 	addr stream;
 	size_t i;
@@ -64,22 +64,22 @@ error:
 	return 1;
 }
 
-_g int close_low_buffering(filestream fm)
+int close_low_buffering(filestream fm)
 {
 	return 0;
 }
 
-_g int flush_low_buffering(filestream fm)
+int flush_low_buffering(filestream fm)
 {
 	return 0;
 }
 
-_g int read_ready_low_buffering(filestream fm)
+int read_ready_low_buffering(filestream fm)
 {
 	return 1; /* ready */
 }
 
-_g int file_length_low_buffering(filestream fm, size_t *ret)
+int file_length_low_buffering(filestream fm, size_t *ret)
 {
 	if (file_length_memory_stream(fm->pos, ret)) {
 		*ret = 0;
@@ -89,7 +89,7 @@ _g int file_length_low_buffering(filestream fm, size_t *ret)
 	return 0;
 }
 
-_g int file_position_low_buffering(filestream fm, size_t *ret)
+int file_position_low_buffering(filestream fm, size_t *ret)
 {
 	if (file_position_memory_stream(fm->pos, ret)) {
 		*ret = 0;
@@ -99,17 +99,17 @@ _g int file_position_low_buffering(filestream fm, size_t *ret)
 	return 0;
 }
 
-_g int file_position_start_low_buffering(filestream fm)
+int file_position_start_low_buffering(filestream fm)
 {
 	return file_position_start_memory_stream(fm->pos);
 }
 
-_g int file_position_end_low_buffering(filestream fm)
+int file_position_end_low_buffering(filestream fm)
 {
 	return file_position_end_memory_stream(fm->pos);
 }
 
-_g int file_position_set_low_buffering(filestream fm, size_t pos)
+int file_position_set_low_buffering(filestream fm, size_t pos)
 {
 	return file_position_set_memory_stream(fm->pos, pos);
 }
@@ -144,7 +144,7 @@ static void end_buffering_filememory(addr stream, addr prev)
 	fm->pos = prev;
 }
 
-_g int close_stream_buffering_(addr stream, addr *ret)
+int close_stream_buffering_(addr stream, addr *ret)
 {
 	int check;
 	filestream fm;
@@ -163,7 +163,7 @@ _g int close_stream_buffering_(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-_g int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret)
+int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	int check;
 	filestream fm;
@@ -179,7 +179,7 @@ _g int read_binary_buffering_(addr stream, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-_g int read_byte_buffering_(addr stream, addr *value, int *ret)
+int read_byte_buffering_(addr stream, addr *value, int *ret)
 {
 	int check;
 	addr prev;
@@ -194,7 +194,7 @@ _g int read_byte_buffering_(addr stream, addr *value, int *ret)
 	return Result(ret, check);
 }
 
-_g int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t *ret)
+int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	int check;
 	filestream fm;
@@ -210,7 +210,7 @@ _g int write_binary_buffering_(addr stream, const void *pos, size_t size, size_t
 	return 0;
 }
 
-_g int write_byte_buffering_(addr stream, addr pos)
+int write_byte_buffering_(addr stream, addr pos)
 {
 	int check;
 	filestream fm;
@@ -223,7 +223,7 @@ _g int write_byte_buffering_(addr stream, addr pos)
 	return check;
 }
 
-_g int read_char_buffering_(addr stream, unicode *c, int *ret)
+int read_char_buffering_(addr stream, unicode *c, int *ret)
 {
 	int check, escape;
 	filestream fm;
@@ -241,7 +241,7 @@ _g int read_char_buffering_(addr stream, unicode *c, int *ret)
 	return Result(ret, check? 1: 0);
 }
 
-_g int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret)
+int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret)
 {
 	int check, escape;
 	filestream fm;
@@ -259,7 +259,7 @@ _g int read_hang_buffering_(addr stream, unicode *c, int *hang, int *ret)
 	return Result(ret, check? 1: 0);
 }
 
-_g int write_char_buffering_(addr stream, unicode c)
+int write_char_buffering_(addr stream, unicode c)
 {
 	int check;
 	filestream fm;
@@ -272,7 +272,7 @@ _g int write_char_buffering_(addr stream, unicode c)
 	return check;
 }
 
-_g int file_length_buffering_(addr stream, size_t *value, int *ret)
+int file_length_buffering_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	filestream fm;
@@ -285,7 +285,7 @@ _g int file_length_buffering_(addr stream, size_t *value, int *ret)
 	return check;
 }
 
-_g int file_position_buffering_(addr stream, size_t *value, int *ret)
+int file_position_buffering_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	addr prev;
@@ -297,7 +297,7 @@ _g int file_position_buffering_(addr stream, size_t *value, int *ret)
 	return check;
 }
 
-_g int file_position_start_buffering_(addr stream, int *ret)
+int file_position_start_buffering_(addr stream, int *ret)
 {
 	int check;
 	addr prev;
@@ -309,7 +309,7 @@ _g int file_position_start_buffering_(addr stream, int *ret)
 	return check;
 }
 
-_g int file_position_end_buffering_(addr stream, int *ret)
+int file_position_end_buffering_(addr stream, int *ret)
 {
 	int check;
 	addr prev;
@@ -321,7 +321,7 @@ _g int file_position_end_buffering_(addr stream, int *ret)
 	return check;
 }
 
-_g int file_position_set_buffering_(addr stream, size_t value, int *ret)
+int file_position_set_buffering_(addr stream, size_t value, int *ret)
 {
 	int check;
 	addr prev;
@@ -333,7 +333,7 @@ _g int file_position_set_buffering_(addr stream, size_t value, int *ret)
 	return check;
 }
 
-_g int finish_output_buffering_(addr stream)
+int finish_output_buffering_(addr stream)
 {
 	int check;
 	filestream fm;
@@ -349,7 +349,7 @@ _g int finish_output_buffering_(addr stream)
 	return check;
 }
 
-_g int exitpoint_buffering_(addr stream)
+int exitpoint_buffering_(addr stream)
 {
 	filestream fm;
 	addr prev;

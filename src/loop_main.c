@@ -4,7 +4,7 @@
 #include "loop_main.h"
 #include "symbol.h"
 
-_g void make_loop_main(struct loop_main *str, addr form, addr init, addr named)
+void make_loop_main(struct loop_main *str, addr form, addr init, addr named)
 {
 	str->form = form;
 	str->init = init;
@@ -537,7 +537,7 @@ static int loop_push_main_repeat_(struct loop_main *str, addr list)
 	return 0;
 }
 
-_g int loop_push_main_(struct loop_main *str, addr list)
+int loop_push_main_(struct loop_main *str, addr list)
 {
 	addr car, cdr;
 	addr do_p, return_p, collect_p, append_p, nconc_p;
@@ -643,7 +643,7 @@ _g int loop_push_main_(struct loop_main *str, addr list)
 	return 0;
 }
 
-_g int loop_let_main_(addr *form, addr list)
+int loop_let_main_(addr *form, addr list)
 {
 	addr car, cdr;
 	addr do_p, return_p, collect_p, append_p, nconc_p;

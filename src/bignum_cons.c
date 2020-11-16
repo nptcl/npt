@@ -23,7 +23,7 @@ static void bigbuffer_local(LocalRoot local, addr *ret, bigtype value)
 	*ret = pos;
 }
 
-_g void bigcons_local(LocalRoot local, addr *ret)
+void bigcons_local(LocalRoot local, addr *ret)
 {
 	addr cons, pos;
 
@@ -35,7 +35,7 @@ _g void bigcons_local(LocalRoot local, addr *ret)
 	*ret = pos;
 }
 
-_g void clear_bigcons(addr cons)
+void clear_bigcons(addr cons)
 {
 	addr child, next;
 	struct bigbuffer *ptr;
@@ -136,7 +136,7 @@ static void multi_bigcons(LocalRoot local, addr cons, bigtype value)
 	carrynext(local, cons, prev, len, carry);
 }
 
-_g void push_bigcons(LocalRoot local, addr cons, unsigned base, unsigned digit)
+void push_bigcons(LocalRoot local, addr cons, unsigned base, unsigned digit)
 {
 	addr root;
 	size_t count;
@@ -183,7 +183,7 @@ static int getnumber(unsigned base, int c, unsigned *ret)
 	return 0;
 }
 
-_g int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *value)
+int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *value)
 {
 	int c;
 	unsigned ret;
@@ -205,7 +205,7 @@ _g int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *va
 	return 0;
 }
 
-_g int bigcons_char_local_(LocalRoot local, addr *ret, unsigned base, const char *value)
+int bigcons_char_local_(LocalRoot local, addr *ret, unsigned base, const char *value)
 {
 	bigcons_local(local, ret);
 	return setchar_bigcons_(local, *ret, base, value);
@@ -231,13 +231,13 @@ static void setchar_bigcons_unsafe(LocalRoot local,
 	}
 }
 
-_g void bigcons_char_unsafe(LocalRoot local, addr *ret, unsigned base, const char *value)
+void bigcons_char_unsafe(LocalRoot local, addr *ret, unsigned base, const char *value)
 {
 	bigcons_local(local, ret);
 	setchar_bigcons_unsafe(local, *ret, base, value);
 }
 
-_g int bigcons_empty_p(addr pos)
+int bigcons_empty_p(addr pos)
 {
 	return GetUser(pos) == 0;
 }

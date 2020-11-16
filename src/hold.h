@@ -38,24 +38,24 @@ struct localhold {
 };
 typedef struct localhold *LocalHold;
 
-_g void setgchold(addr pos, size_t index, addr value);
-_g void gchold_local(LocalRoot local, addr *ret, size_t size);
-_g void gchold_push_local(LocalRoot local, addr pos);
-_g void gchold_push_force_local(LocalRoot local, addr pos);
-_g void gchold_pushva_local(LocalRoot local, ...);
-_g void gchold_pushva_force_local(LocalRoot local, ...);
-_g void gchold_push_special(Execute ptr, addr pos);
-_g void gchold_pushva_special(Execute ptr, ...);
+void setgchold(addr pos, size_t index, addr value);
+void gchold_local(LocalRoot local, addr *ret, size_t size);
+void gchold_push_local(LocalRoot local, addr pos);
+void gchold_push_force_local(LocalRoot local, addr pos);
+void gchold_pushva_local(LocalRoot local, ...);
+void gchold_pushva_force_local(LocalRoot local, ...);
+void gchold_push_special(Execute ptr, addr pos);
+void gchold_pushva_special(Execute ptr, ...);
 
-_g LocalHold localhold_local(LocalRoot local);
-_g LocalHold localhold_local_push(LocalRoot local, addr pos);
-_g LocalHold localhold_array(LocalRoot local, size_t size);
-_g void localhold_push(LocalHold local, addr pos);
-_g void localhold_pushva(LocalHold local, ...);
-_g void localhold_pushva_force(LocalHold local, ...);
-_g void localhold_end(LocalHold hold);
-_g void localhold_set(LocalHold hold, size_t index, addr value);
-_g void localhold_set_force(LocalHold hold, size_t index, addr value);
+LocalHold localhold_local(LocalRoot local);
+LocalHold localhold_local_push(LocalRoot local, addr pos);
+LocalHold localhold_array(LocalRoot local, size_t size);
+void localhold_push(LocalHold local, addr pos);
+void localhold_pushva(LocalHold local, ...);
+void localhold_pushva_force(LocalHold local, ...);
+void localhold_end(LocalHold hold);
+void localhold_set(LocalHold hold, size_t index, addr value);
+void localhold_set_force(LocalHold hold, size_t index, addr value);
 
 #define LocalHold_local(ptr) localhold_local((ptr)->local)
 #define LocalHold_local_push(ptr, pos) localhold_local_push((ptr)->local, (pos))
@@ -65,14 +65,14 @@ _g void localhold_set_force(LocalHold hold, size_t index, addr value);
 /*
  *  hold object
  */
-_g void Hold_local(addr *ret, addr value);
-_g void hold_local(LocalRoot local, addr *ret, addr value);
-_g int holdp(addr pos);
-_g void hold_set(addr pos, addr value);
-_g void hold_set_null(addr pos, addr value);
-_g void hold_get(addr pos, addr *ret);
-_g void hold_value(addr pos, addr *ret);
-_g addr holdv(addr pos);
+void Hold_local(addr *ret, addr value);
+void hold_local(LocalRoot local, addr *ret, addr value);
+int holdp(addr pos);
+void hold_set(addr pos, addr value);
+void hold_set_null(addr pos, addr value);
+void hold_get(addr pos, addr *ret);
+void hold_value(addr pos, addr *ret);
+addr holdv(addr pos);
 
 #endif
 

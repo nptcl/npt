@@ -165,7 +165,7 @@ static int call_range_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
 	return 0;
 }
 
-_g int exp_common_(addr pos, addr *ret)
+int exp_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -178,7 +178,7 @@ _g int exp_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int sin_common_(addr pos, addr *ret)
+int sin_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -191,7 +191,7 @@ _g int sin_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int cos_common_(addr pos, addr *ret)
+int cos_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -204,7 +204,7 @@ _g int cos_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int tan_common_(addr pos, addr *ret)
+int tan_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -217,7 +217,7 @@ _g int tan_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int sinh_common_(addr pos, addr *ret)
+int sinh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -230,7 +230,7 @@ _g int sinh_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int cosh_common_(addr pos, addr *ret)
+int cosh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -243,7 +243,7 @@ _g int cosh_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int tanh_common_(addr pos, addr *ret)
+int tanh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -260,7 +260,7 @@ static int asinf_range(single_float v)  { return -1.0f <= v && v <= 1.0f; }
 static int asind_range(double_float v)  { return -1.0  <= v && v <= 1.0;  }
 static int asinl_range(long_float v)    { return -1.0L <= v && v <= 1.0L; }
 
-_g int asin_common_(addr pos, addr *ret)
+int asin_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -276,7 +276,7 @@ _g int asin_common_(addr pos, addr *ret)
 	return call_range_common_(&str, pos, ret);
 }
 
-_g int acos_common_(addr pos, addr *ret)
+int acos_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -292,7 +292,7 @@ _g int acos_common_(addr pos, addr *ret)
 	return call_range_common_(&str, pos, ret);
 }
 
-_g int atan_common_(addr pos, addr *ret)
+int atan_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -305,7 +305,7 @@ _g int atan_common_(addr pos, addr *ret)
 	return call_common_(&str, pos, ret);
 }
 
-_g int asinh_common_(addr pos, addr *ret)
+int asinh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -322,7 +322,7 @@ static int acoshf_range(single_float v)  { return 1.0f <= v; }
 static int acoshd_range(double_float v)  { return 1.0  <= v; }
 static int acoshl_range(long_float v)    { return 1.0L <= v; }
 
-_g int acosh_common_(addr pos, addr *ret)
+int acosh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -338,7 +338,7 @@ _g int acosh_common_(addr pos, addr *ret)
 	return call_range_common_(&str, pos, ret);
 }
 
-_g int atanh_common_(addr pos, addr *ret)
+int atanh_common_(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -376,7 +376,7 @@ static inline void cis_l(long_float x, long_float *Re, long_float *Im)
 	*Im = sinl(x);
 }
 
-_g int cis_common_(addr pos, addr *ret)
+int cis_common_(addr pos, addr *ret)
 {
 	enum MathType type;
 	single_float single1, single2;
@@ -410,7 +410,7 @@ _g int cis_common_(addr pos, addr *ret)
 /*
  *  tan2
  */
-_g int atan2_common_(addr left, addr right, addr *ret)
+int atan2_common_(addr left, addr right, addr *ret)
 {
 	enum MathType type;
 	struct mathreal2_struct str;
@@ -434,7 +434,7 @@ _g int atan2_common_(addr left, addr right, addr *ret)
 	}
 }
 
-_g int atan_optional_common_(addr var, addr opt, addr *ret)
+int atan_optional_common_(addr var, addr opt, addr *ret)
 {
 	if (opt == Unbound)
 		return atan_common_(var, ret);
@@ -477,7 +477,7 @@ static int log_natural_complex_(addr value, addr *ret)
 	}
 }
 
-_g int log_natural_common_(addr value, addr *ret)
+int log_natural_common_(addr value, addr *ret)
 {
 	enum MathType type;
 	struct mathreal2_struct str;
@@ -510,7 +510,7 @@ _g int log_natural_common_(addr value, addr *ret)
 	}
 }
 
-_g int log_base_common_(addr value, addr base, addr *ret)
+int log_base_common_(addr value, addr base, addr *ret)
 {
 	enum MathType type;
 	single_float reals, imags;
@@ -541,7 +541,7 @@ _g int log_base_common_(addr value, addr base, addr *ret)
 	}
 }
 
-_g int log_common_(addr value, addr base, addr *ret)
+int log_common_(addr value, addr base, addr *ret)
 {
 	if (base == Unbound)
 		return log_natural_common_(value, ret);
@@ -586,7 +586,7 @@ static int phase_complex_common_(addr pos, addr *ret)
 	return 0;
 }
 
-_g int phase_common_(addr pos, addr *ret)
+int phase_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_COMPLEX:

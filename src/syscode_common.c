@@ -40,7 +40,7 @@
 #include "typedef.h"
 
 /* redirect-restart */
-_g int redirect_restart_syscode(Execute ptr, addr condition, addr list)
+int redirect_restart_syscode(Execute ptr, addr condition, addr list)
 {
 	addr pos;
 
@@ -58,7 +58,7 @@ _g int redirect_restart_syscode(Execute ptr, addr condition, addr list)
 
 
 /* defconstant */
-_g int defconstant_syscode(addr symbol, addr value, addr doc)
+int defconstant_syscode(addr symbol, addr value, addr doc)
 {
 	addr check;
 
@@ -78,21 +78,21 @@ _g int defconstant_syscode(addr symbol, addr value, addr doc)
 
 
 /* in-package */
-_g int in_package_syscode_(Execute ptr, addr name, addr *ret)
+int in_package_syscode_(Execute ptr, addr name, addr *ret)
 {
 	return in_package_(ptr, name, ret);
 }
 
 
 /* setplist */
-_g void setplist_syscode(addr key, addr value, addr list, addr *ret)
+void setplist_syscode(addr key, addr value, addr list, addr *ret)
 {
 	setplist_heap_safe(list, key, value, ret);
 }
 
 
 /* remplist */
-_g int remplist_syscode_(addr key, addr list, addr *ret1, addr *ret2)
+int remplist_syscode_(addr key, addr list, addr *ret1, addr *ret2)
 {
 	enum RemPlist check;
 
@@ -104,14 +104,14 @@ _g int remplist_syscode_(addr key, addr list, addr *ret1, addr *ret2)
 
 
 /* make-hash-iterator */
-_g void make_hash_iterator_syscode(addr pos, addr *ret)
+void make_hash_iterator_syscode(addr pos, addr *ret)
 {
 	hash_iterator_heap(ret, pos);
 }
 
 
 /* next-hash-iterator */
-_g void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3)
+void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3)
 {
 	int check;
 	addr key, value;
@@ -129,14 +129,14 @@ _g void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3)
 
 
 /* make-package-iterator */
-_g int make_package_iterator_syscode_(addr pos, addr a, addr b, addr c, addr *ret)
+int make_package_iterator_syscode_(addr pos, addr a, addr b, addr c, addr *ret)
 {
 	return package_iterator_heap_(ret, pos, (a != Nil), (b != Nil), (c != Nil));
 }
 
 
 /* next-package-iterator */
-_g int next_package_iterator_syscode_(Execute ptr, addr pos,
+int next_package_iterator_syscode_(Execute ptr, addr pos,
 		addr *ret1, addr *ret2, addr *ret3, addr *ret4)
 {
 	enum PACKAGE_TYPE check;
@@ -159,49 +159,49 @@ _g int next_package_iterator_syscode_(Execute ptr, addr pos,
 
 
 /* defpackage */
-_g int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret)
+int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret)
 {
 	return defpackage_execute(ptr, var, rest, ret);
 }
 
 
 /* do-symbols */
-_g int do_symbols_syscode(Execute ptr, addr call, addr package)
+int do_symbols_syscode(Execute ptr, addr call, addr package)
 {
 	return do_symbols_package(ptr, call, package);
 }
 
 
 /* do-external-symbols */
-_g int do_external_symbols_syscode(Execute ptr, addr call, addr package)
+int do_external_symbols_syscode(Execute ptr, addr call, addr package)
 {
 	return do_external_symbols_package(ptr, call, package);
 }
 
 
 /* do-all-symbols */
-_g int do_all_symbols_syscode_(Execute ptr, addr call)
+int do_all_symbols_syscode_(Execute ptr, addr call)
 {
 	return do_all_symbols_package_(ptr, call);
 }
 
 
 /* getdoc-variable */
-_g void getdoc_variable_syscode(addr var, addr *ret)
+void getdoc_variable_syscode(addr var, addr *ret)
 {
 	getdocument_variable_symbol(var, ret);
 }
 
 
 /* setdoc-variable */
-_g void setdoc_variable_syscode(addr var, addr value)
+void setdoc_variable_syscode(addr var, addr value)
 {
 	setdocument_variable_symbol(var, value);
 }
 
 
 /* ecase-error */
-_g int ecase_error_syscode_(Execute ptr, addr value, addr list)
+int ecase_error_syscode_(Execute ptr, addr value, addr list)
 {
 	Return(make_vector4_from_list_(&list, list));
 	type1_heap(LISPDECL_MEMBER, list, &list);
@@ -210,7 +210,7 @@ _g int ecase_error_syscode_(Execute ptr, addr value, addr list)
 
 
 /* etypecase-error */
-_g int etypecase_error_syscode_(Execute ptr, addr value, addr list)
+int etypecase_error_syscode_(Execute ptr, addr value, addr list)
 {
 	Return(make_vector4_from_list_(&list, list));
 	type1_heap(LISPDECL_OR, list, &list);
@@ -219,14 +219,14 @@ _g int etypecase_error_syscode_(Execute ptr, addr value, addr list)
 
 
 /* define-setf-expander */
-_g int define_setf_expander_syscode_(addr symbol, addr call)
+int define_setf_expander_syscode_(addr symbol, addr call)
 {
 	return setsetfmacro_symbol_(symbol, call);
 }
 
 
 /* defsetf-short */
-_g int defsetf_short_syscode(Execute ptr,
+int defsetf_short_syscode(Execute ptr,
 		addr access, addr update, addr args, addr env,
 		addr *r1, addr *r2, addr *r3, addr *r4, addr *r5)
 {
@@ -425,7 +425,7 @@ static int defsetf_write_(Execute ptr, addr *ret, addr c, addr d, addr body)
 	return 0;
 }
 
-_g int defsetf_long_syscode(Execute ptr, addr rest,
+int defsetf_long_syscode(Execute ptr, addr rest,
 		addr *r1, addr *r2, addr *r3, addr *r4, addr *r5)
 {
 	addr access, lambda, store, body, args, env;
@@ -461,7 +461,7 @@ _g int defsetf_long_syscode(Execute ptr, addr rest,
 
 
 /* end-input-stream */
-_g void end_input_stream_syscode(addr var, addr *ret)
+void end_input_stream_syscode(addr var, addr *ret)
 {
 	size_t size;
 	getindex_input_stream(var, &size);
@@ -470,7 +470,7 @@ _g void end_input_stream_syscode(addr var, addr *ret)
 
 
 /* make-extend-output-stream */
-_g void make_extend_output_stream_syscode(addr var, addr rest, addr *ret)
+void make_extend_output_stream_syscode(addr var, addr rest, addr *ret)
 {
 	/* ignore rest */
 	open_extend_output_stream(ret, var);
@@ -478,7 +478,7 @@ _g void make_extend_output_stream_syscode(addr var, addr rest, addr *ret)
 
 
 /* prompt-for */
-_g int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
+int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 {
 	addr format;
 	LocalHold hold;
@@ -501,7 +501,7 @@ _g int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 
 
 /* print-unreadable-call */
-_g int print_unreadable_call_syscode(Execute ptr,
+int print_unreadable_call_syscode(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body)
 {
 	int check1, check2;
@@ -525,7 +525,7 @@ static int write_default_syscode_call_(Execute ptr, addr stream, addr var, addr 
 	return Result(ret, var);
 }
 
-_g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
+int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 {
 	addr control;
 
@@ -537,14 +537,14 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 
 
 /* symbol-deftype */
-_g void symbol_deftype_syscode(addr var, addr *ret)
+void symbol_deftype_syscode(addr var, addr *ret)
 {
 	getdeftype_symbol(var, ret);
 }
 
 
 /* delete-deftype */
-_g void delete_deftype_syscode(addr var, addr *ret)
+void delete_deftype_syscode(addr var, addr *ret)
 {
 	addr check;
 
@@ -560,28 +560,28 @@ _g void delete_deftype_syscode(addr var, addr *ret)
 
 
 /* ensure-structure */
-_g int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest)
+int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest)
 {
 	return ensure_structure_common_(ptr, name, slots, rest);
 }
 
 
 /* structure-constructor */
-_g int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *ret)
+int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *ret)
 {
 	return structure_constructor_common(ptr, symbol, rest, ret);
 }
 
 
 /* loop-bind */
-_g int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret)
+int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret)
 {
 	return loop_bind_common(ptr, a, b, c, ret);
 }
 
 
 /* make-pprint-stream */
-_g int make_pprint_stream_syscode_(Execute ptr, addr *ret,
+int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 		addr stream, addr object, addr prefix, addr perline, addr suffix)
 {
 	return open_pretty_stream_(ptr, ret, stream, object, prefix, perline, suffix);
@@ -589,7 +589,7 @@ _g int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 
 
 /* pprint-gensym */
-_g int pprint_gensym_syscode(addr stream, addr *ret)
+int pprint_gensym_syscode(addr stream, addr *ret)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return gensym_pretty_stream_(stream, ret);
@@ -597,7 +597,7 @@ _g int pprint_gensym_syscode(addr stream, addr *ret)
 
 
 /* pprint-exit */
-_g int pprint_exit_syscode(Execute ptr, addr stream)
+int pprint_exit_syscode(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return pprint_exit_common(ptr, stream);
@@ -605,7 +605,7 @@ _g int pprint_exit_syscode(Execute ptr, addr stream)
 
 
 /* pprint-pop */
-_g int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
+int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return pprint_pop_common(ptr, stream, ret);
@@ -613,7 +613,7 @@ _g int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
 
 
 /* pprint-check */
-_g int pprint_check_syscode(Execute ptr, addr stream)
+int pprint_check_syscode(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return check_pretty_stream(ptr, stream);
@@ -621,7 +621,7 @@ _g int pprint_check_syscode(Execute ptr, addr stream)
 
 
 /* pprint-close */
-_g int pprint_close_syscode(Execute ptr, addr stream)
+int pprint_close_syscode(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return close_pretty_stream_(ptr, stream);
@@ -629,7 +629,7 @@ _g int pprint_close_syscode(Execute ptr, addr stream)
 
 
 /* pprint-pretty */
-_g int pprint_pretty_syscode(Execute ptr, addr stream, addr call)
+int pprint_pretty_syscode(Execute ptr, addr stream, addr call)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return call_pretty_stream(ptr, stream, call);
@@ -637,7 +637,7 @@ _g int pprint_pretty_syscode(Execute ptr, addr stream, addr call)
 
 
 /* timeinfo */
-_g int timeinfo_syscode_(LocalRoot local,
+int timeinfo_syscode_(LocalRoot local,
 		addr *rreal, addr *rrun, addr *rsize, addr *rcount)
 {
 	Return(get_internal_real_time_common_(local, rreal));
@@ -650,28 +650,28 @@ _g int timeinfo_syscode_(LocalRoot local,
 
 
 /* ed-function */
-_g int ed_function_syscode_(Execute ptr, addr file)
+int ed_function_syscode_(Execute ptr, addr file)
 {
 	return ed_process_(ptr, file);
 }
 
 
 /* trace-add */
-_g int trace_add_syscode_(Execute ptr, addr var, addr *ret)
+int trace_add_syscode_(Execute ptr, addr var, addr *ret)
 {
 	return trace_add_common_(ptr, var, ret);
 }
 
 
 /* trace-del */
-_g int trace_del_syscode_(Execute ptr, addr var, addr *ret)
+int trace_del_syscode_(Execute ptr, addr var, addr *ret)
 {
 	return trace_del_common_(ptr, var, ret);
 }
 
 
 /* set-slots */
-_g int set_slots_syscode(addr var, addr slots, addr values)
+int set_slots_syscode(addr var, addr slots, addr values)
 {
 	return set_slots_syscall(var, slots, values);
 }

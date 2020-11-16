@@ -1031,7 +1031,7 @@ typedef int (*call_typelist)(Execute, addr *, enum LISPDECL, addr, addr, addr);
 static call_typelist TypeParseList[LISPDECL_SIZE];
 #define DefListInit(a, b) (TypeParseList[LISPDECL_##a] = typelist_##b)
 
-_g void init_type_parse(void)
+void init_type_parse(void)
 {
 	/* Compound-type */
 	DefListInit(AND,                 array4      );
@@ -1092,7 +1092,7 @@ static void define_type_parse_object(enum LISPDECL type, constindex name)
 }
 #define DefListType(a) define_type_parse_object(LISPDECL_##a, CONSTANT_COMMON_##a)
 
-_g void build_type_parse(void)
+void build_type_parse(void)
 {
 	/* Compound-type */
 	DefListType(AND                 );
@@ -1202,7 +1202,7 @@ static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 	}
 }
 
-_g int parse_type(Execute ptr, addr *ret, addr pos, addr env)
+int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 {
 	LocalHold hold;
 
@@ -1217,7 +1217,7 @@ _g int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 	return 0;
 }
 
-_g int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
+int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
 {
 	Return(parse_type(ptr, &pos, pos, env));
 	type_copy_unsafe_heap(&pos, pos);
@@ -1225,7 +1225,7 @@ _g int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
 	return Result(ret, pos);
 }
 
-_g int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
+int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
 {
 	addr aster;
 
@@ -1236,7 +1236,7 @@ _g int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
 	return parse_type(ptr, ret, pos, env);
 }
 
-_g void parse_type_unsafe(addr *ret, addr pos)
+void parse_type_unsafe(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil)) {
 		Abort("parse-type error.");
@@ -1244,7 +1244,7 @@ _g void parse_type_unsafe(addr *ret, addr pos)
 }
 
 /* debug */
-_g int parse_type_values(Execute ptr, addr *ret, addr type, addr env)
+int parse_type_values(Execute ptr, addr *ret, addr type, addr env)
 {
 	LocalHold hold;
 

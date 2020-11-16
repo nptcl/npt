@@ -8,8 +8,8 @@
 #define call_compiled_function _n(call_compiled_function)
 #define init_callbind_control _n(init_callbind_control)
 
-_g int call_compiled_function(Execute ptr, addr compiled);
-_g void init_callbind_control(void);
+int call_compiled_function(Execute ptr, addr compiled);
+void init_callbind_control(void);
 
 #endif
 

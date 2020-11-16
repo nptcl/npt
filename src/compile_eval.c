@@ -270,7 +270,7 @@ static int compile_eval_call_(Execute ptr, addr pos)
 	return 0;
 }
 
-_g int compile_eval(Execute ptr, addr pos)
+int compile_eval(Execute ptr, addr pos)
 {
 	addr control;
 

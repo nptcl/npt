@@ -37,7 +37,7 @@
 #include "typedef.h"
 
 /* hello */
-_g int hello_syscode(Execute ptr)
+int hello_syscode(Execute ptr)
 {
 	addr stream;
 
@@ -51,7 +51,7 @@ _g int hello_syscode(Execute ptr)
 
 
 /* infobit */
-_g void infobit_syscode(addr rest, addr *ret)
+void infobit_syscode(addr rest, addr *ret)
 {
 	addr x, y;
 
@@ -64,7 +64,7 @@ _g void infobit_syscode(addr rest, addr *ret)
 
 
 /* infoprint */
-_g void infoprint_syscode(addr rest, addr *ret)
+void infoprint_syscode(addr rest, addr *ret)
 {
 	addr x, y;
 
@@ -77,7 +77,7 @@ _g void infoprint_syscode(addr rest, addr *ret)
 
 
 /* gc */
-_g void gc_syscode(addr rest)
+void gc_syscode(addr rest)
 {
 	enum GcMode mode;
 
@@ -89,7 +89,7 @@ _g void gc_syscode(addr rest)
 
 
 /* savecore */
-_g int savecore_syscode(Execute ptr, addr file)
+int savecore_syscode(Execute ptr, addr file)
 {
 	Return(pathname_designer_local_(ptr, file, &file));
 	return savecore_execute_(ptr, file);
@@ -97,7 +97,7 @@ _g int savecore_syscode(Execute ptr, addr file)
 
 
 /* package-export-list */
-_g int package_export_list_syscode_(addr var, addr *ret)
+int package_export_list_syscode_(addr var, addr *ret)
 {
 	Return(package_designer_(var, &var));
 	getexport_package_unsafe(var, ret);
@@ -106,28 +106,28 @@ _g int package_export_list_syscode_(addr var, addr *ret)
 
 
 /* specialp */
-_g void specialp_syscode(addr var, addr *ret)
+void specialp_syscode(addr var, addr *ret)
 {
 	*ret = specialp_symbol(var)? T: Nil;
 }
 
 
 /* array-general-p */
-_g void array_general_p_syscode(addr var, addr *ret)
+void array_general_p_syscode(addr var, addr *ret)
 {
 	*ret = array_general_p(var)? T: Nil;
 }
 
 
 /* array-specialized-p */
-_g void array_specialized_p_syscode(addr var, addr *ret)
+void array_specialized_p_syscode(addr var, addr *ret)
 {
 	*ret = array_specialized_p(var)? T: Nil;
 }
 
 
 /* simple-sort */
-_g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
@@ -136,7 +136,7 @@ _g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 
 
 /* bubble-sort */
-_g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
@@ -145,7 +145,7 @@ _g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 
 
 /* quick-sort */
-_g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
@@ -154,7 +154,7 @@ _g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 
 
 /* merge-sort */
-_g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
@@ -163,7 +163,7 @@ _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 
 
 /* exit */
-_g int exit_syscode_(Execute ptr, addr code)
+int exit_syscode_(Execute ptr, addr code)
 {
 	fixnum value;
 
@@ -182,70 +182,70 @@ _g int exit_syscode_(Execute ptr, addr code)
 
 
 /* closp */
-_g void closp_syscode(addr var, addr *ret)
+void closp_syscode(addr var, addr *ret)
 {
 	*ret = closp(var)? T: Nil;
 }
 
 
 /* fixnump */
-_g void fixnump_syscode(addr var, addr *ret)
+void fixnump_syscode(addr var, addr *ret)
 {
 	*ret = fixnump(var)? T: Nil;
 }
 
 
 /* bignump */
-_g void bignump_syscode(addr var, addr *ret)
+void bignump_syscode(addr var, addr *ret)
 {
 	*ret = bignump(var)? T: Nil;
 }
 
 
 /* ratiop */
-_g void ratiop_syscode(addr var, addr *ret)
+void ratiop_syscode(addr var, addr *ret)
 {
 	*ret = ratiop(var)? T: Nil;
 }
 
 
 /* short-float-p */
-_g void short_float_p_syscode(addr var, addr *ret)
+void short_float_p_syscode(addr var, addr *ret)
 {
 	*ret = (GetType(var) == LISPTYPE_SHORT_FLOAT)? T: Nil;
 }
 
 
 /* single-float-p */
-_g void single_float_p_syscode(addr var, addr *ret)
+void single_float_p_syscode(addr var, addr *ret)
 {
 	*ret = single_float_p(var)? T: Nil;
 }
 
 
 /* double-float-p */
-_g void double_float_p_syscode(addr var, addr *ret)
+void double_float_p_syscode(addr var, addr *ret)
 {
 	*ret = double_float_p(var)? T: Nil;
 }
 
 
 /* long-float-p */
-_g void long_float_p_syscode(addr var, addr *ret)
+void long_float_p_syscode(addr var, addr *ret)
 {
 	*ret = long_float_p(var)? T: Nil;
 }
 
 
 /* callnamep */
-_g void callnamep_syscall(addr var, addr *ret)
+void callnamep_syscall(addr var, addr *ret)
 {
 	*ret = callnamep(var)? T: Nil;
 }
 
 
 /* large-number */
-_g int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret)
+int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret)
 {
 	if (opt == Unbound)
 		opt = T;
@@ -254,7 +254,7 @@ _g int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret)
 
 
 /* make-character */
-_g int make_character_syscode(addr var, addr *ret)
+int make_character_syscode(addr var, addr *ret)
 {
 	unicode c;
 
@@ -274,7 +274,7 @@ _g int make_character_syscode(addr var, addr *ret)
 
 
 /* make-fixnum */
-_g int make_fixnum_syscode(addr var, addr *ret)
+int make_fixnum_syscode(addr var, addr *ret)
 {
 	fixnum value;
 
@@ -294,7 +294,7 @@ _g int make_fixnum_syscode(addr var, addr *ret)
 
 
 /* make-bignum */
-_g int make_bignum_syscode(addr var, addr *ret)
+int make_bignum_syscode(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_FIXNUM:
@@ -334,7 +334,7 @@ static int make_ratio_force_(addr *ret, addr var)
 	return 0;
 }
 
-_g int make_ratio_syscode(addr numer, addr denom, addr *ret)
+int make_ratio_syscode(addr numer, addr denom, addr *ret)
 {
 	int sign1, sign2;
 
@@ -353,63 +353,63 @@ _g int make_ratio_syscode(addr numer, addr denom, addr *ret)
 
 
 /* make-complex */
-_g int make_complex_code_(addr real, addr imag, addr *ret)
+int make_complex_code_(addr real, addr imag, addr *ret)
 {
 	return complex_force_heap_(ret, real, imag, ComplexType_error);
 }
 
 
 /* equal-random-state */
-_g void equal_random_state_syscode(addr left, addr right, addr *ret)
+void equal_random_state_syscode(addr left, addr right, addr *ret)
 {
 	*ret = equal_random_state_addr(left, right)? T: Nil;
 }
 
 
 /* subtypep-result */
-_g int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret)
+int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret)
 {
 	return subtypep_result_syscall(ptr, left, right, ret);
 }
 
 
 /* eastasian-set */
-_g int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret)
+int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret)
 {
 	return eastasian_set_syscall_(var, value, errorp, ret);
 }
 
 
 /* eastasian-get */
-_g int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2)
+int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2)
 {
 	return eastasian_get_syscall_(var, ret1, ret2);
 }
 
 
 /* eastasian-width */
-_g int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2)
+int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2)
 {
 	return eastasian_width_syscall_(pos, ret1, ret2);
 }
 
 
 /* run-process */
-_g int run_program_syscode_(Execute ptr, addr var, addr args, addr rest, addr *ret)
+int run_program_syscode_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 {
 	return run_process_(ptr, var, args, rest, &var);
 }
 
 
 /* make-callname */
-_g int make_callname_syscode_(addr var, addr *ret)
+int make_callname_syscode_(addr var, addr *ret)
 {
 	return parse_callname_error_(ret, var);
 }
 
 
 /* remove-file */
-_g int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
+int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 	Return(remove_file_common_(ptr, var, (opt != Nil), &check));
@@ -418,7 +418,7 @@ _g int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
 
 
 /* remove-directory */
-_g int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
+int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 	Return(remove_directory_common_(ptr, var, (opt != Nil), &check));
@@ -458,7 +458,7 @@ static int declare_parse_value_(addr symbol, OptimizeType *ret)
 	return fmte_("Invalid declare-parse argument ~S.", symbol, NULL);
 }
 
-_g int declare_parse_syscode(addr form, addr *ret)
+int declare_parse_syscode(addr form, addr *ret)
 {
 	OptimizeType value;
 	addr symbol, check;
@@ -478,20 +478,20 @@ error:
 
 
 /* parse-type */
-_g int parse_type_syscode(Execute ptr, addr var, addr *ret)
+int parse_type_syscode(Execute ptr, addr var, addr *ret)
 {
 	return parse_type(ptr, ret, var, Nil);
 }
 
 
 /* type-object */
-_g int type_object_syscode(addr var, addr *ret)
+int type_object_syscode(addr var, addr *ret)
 {
 	return type_object_(ret, var);
 }
 
 /* upgraded-open-element-type */
-_g int upgraded_open_element_type_syscode_(addr var, addr *ret)
+int upgraded_open_element_type_syscode_(addr var, addr *ret)
 {
 	return upgrade_open_element_type_stream_(var, ret);
 }
@@ -528,7 +528,7 @@ static int getkeycache_syscode(addr list)
 	return (list == Nil)? 0: 1;
 }
 
-_g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
+int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
 {
 	int cache;
 	size_t size, array;
@@ -545,7 +545,7 @@ _g int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret)
 
 
 /* make-memory-output-stream */
-_g int make_memory_output_stream_syscode_(addr rest, addr *ret)
+int make_memory_output_stream_syscode_(addr rest, addr *ret)
 {
 	int cache;
 	addr input;
@@ -565,7 +565,7 @@ _g int make_memory_output_stream_syscode_(addr rest, addr *ret)
 
 
 /* make-memory-io-stream */
-_g int make_memory_io_stream_syscode_(addr rest, addr *ret)
+int make_memory_io_stream_syscode_(addr rest, addr *ret)
 {
 	int cache;
 	addr input;
@@ -585,7 +585,7 @@ _g int make_memory_io_stream_syscode_(addr rest, addr *ret)
 
 
 /* with-input-from-memory */
-_g int with_input_from_memory_syscode_(Execute ptr, addr form, addr *ret)
+int with_input_from_memory_syscode_(Execute ptr, addr form, addr *ret)
 {
 	addr args, body, var, vector;
 	addr let, make, unwind, progn, close, decl, pos;
@@ -634,7 +634,7 @@ error:
 
 
 /* with-output-to-memory */
-_g int with_output_to_memory_syscode_(Execute ptr, addr form, addr *ret)
+int with_output_to_memory_syscode_(Execute ptr, addr form, addr *ret)
 {
 	addr args, var, body;
 	addr let, make, unwind, progn, get, close, decl, pos;
@@ -690,21 +690,21 @@ error:
 
 
 /* get-output-stream-memory */
-_g int get_output_stream_memory_syscode_(addr var, addr *ret)
+int get_output_stream_memory_syscode_(addr var, addr *ret)
 {
 	return memory_stream_heap_(var, ret);
 }
 
 
 /* memory-stream-p */
-_g void memory_stream_p_syscode(addr var, addr *ret)
+void memory_stream_p_syscode(addr var, addr *ret)
 {
 	gettype_memory_stream(var, ret);
 }
 
 
 /* (setf memory-stream-p) */
-_g int setf_memory_stream_p_syscode_(addr var, addr value)
+int setf_memory_stream_p_syscode_(addr var, addr value)
 {
 	return settype_memory_stream_(var, value);
 }
@@ -735,7 +735,7 @@ static int byte_integer_endian_(addr list, int littlep, addr *ret)
 	return Result(ret, x);
 }
 
-_g int byte_integer_syscode_(addr list, addr *ret)
+int byte_integer_syscode_(addr list, addr *ret)
 {
 	union byte_integer_union {
 		uint16_t u16;
@@ -748,7 +748,7 @@ _g int byte_integer_syscode_(addr list, addr *ret)
 
 
 /* question */
-_g int question_syscode_(Execute ptr, addr var, addr args)
+int question_syscode_(Execute ptr, addr var, addr args)
 {
 	return question_values_(ptr, var, args);
 }
@@ -758,7 +758,7 @@ _g int question_syscode_(Execute ptr, addr var, addr args)
 #ifdef LISP_EXTENSION
 #include "ext_eval.h"
 #endif
-_g int extension_syscode(Execute ptr, addr var)
+int extension_syscode(Execute ptr, addr var)
 {
 #ifdef LISP_EXTENSION
 	return lisps_eval_(ptr, var);

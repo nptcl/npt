@@ -118,7 +118,7 @@ static int sxhash_binary_equal_(const void *pos, size_t size, fixnum *ret)
 	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g int sxhash_char_equal_(const char *pos, fixnum *ret)
+int sxhash_char_equal_(const char *pos, fixnum *ret)
 {
 	return sxhash_binary_equal_((const void *)pos, strlen(pos), ret);
 }
@@ -148,7 +148,7 @@ static int sxhash_binary_equalp_(const void *pos, size_t size, fixnum *ret)
 	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g int sxhash_char_equalp_(const char *pos, fixnum *ret)
+int sxhash_char_equalp_(const char *pos, fixnum *ret)
 {
 	return sxhash_binary_equalp_((const void *)pos, strlen(pos), ret);
 }
@@ -337,46 +337,46 @@ static int sxhash_call_(addr pos, int depth, fixnum *ret, calltype_sxhash call)
 	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g int sxhash_equal_depth_(addr pos, int depth, fixnum *ret)
+int sxhash_equal_depth_(addr pos, int depth, fixnum *ret)
 {
 	return sxhash_call_(pos, depth, ret, sxfixed_equal_);
 }
 
-_g int sxhash_equal_(addr pos, fixnum *ret)
+int sxhash_equal_(addr pos, fixnum *ret)
 {
 	return sxhash_call_(pos, -1, ret, sxfixed_equal_);
 }
 
-_g int sxhash_equalp_depth_(addr pos, int depth, fixnum *ret)
+int sxhash_equalp_depth_(addr pos, int depth, fixnum *ret)
 {
 	return sxhash_call_(pos, depth, ret, sxfixed_equalp_);
 }
 
-_g int sxhash_equalp_(addr pos, fixnum *ret)
+int sxhash_equalp_(addr pos, fixnum *ret)
 {
 	return sxhash_call_(pos, -1, ret, sxfixed_equalp_);
 }
 
-_g int sxhash_eq_(addr pos, fixnum *ret)
+int sxhash_eq_(addr pos, fixnum *ret)
 {
 	return sxhash_call_(pos, -1, ret, sxfixed_eq_);
 }
 
-_g int sxhash_unicode_equalp_(unicode pos, fixnum *ret)
+int sxhash_unicode_equalp_(unicode pos, fixnum *ret)
 {
 	fixed value;
 	value = (fixed)toUpperUnicode(pos);
 	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g int sxhash_unicode_equal_(unicode pos, fixnum *ret)
+int sxhash_unicode_equal_(unicode pos, fixnum *ret)
 {
 	fixnum value;
 	value = (fixed)pos;
 	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g int sxhash_character2_equal_(unicode a, unicode b, fixnum *ret)
+int sxhash_character2_equal_(unicode a, unicode b, fixnum *ret)
 {
 	fixed c, d;
 
@@ -386,7 +386,7 @@ _g int sxhash_character2_equal_(unicode a, unicode b, fixnum *ret)
 	return Result(ret, FIXNUM_BODY(c + d));
 }
 
-_g int sxhash_character2_equalp_(unicode a, unicode b, fixnum *ret)
+int sxhash_character2_equalp_(unicode a, unicode b, fixnum *ret)
 {
 	fixed c, d;
 
@@ -475,7 +475,7 @@ static void SetSxhashEqualp(enum LISPTYPE type, calltype_sxhash call)
 	SxhashTableEqualp[(size_t)type] = call;
 }
 
-_g void init_sxhash(void)
+void init_sxhash(void)
 {
 	int i;
 

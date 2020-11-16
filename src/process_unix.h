@@ -74,7 +74,7 @@ static int run_process_posix_(Execute ptr, addr var, addr args, addr *ret)
 	return 0;
 }
 
-_g int run_process_arch_(Execute ptr, addr instance, addr *ret)
+int run_process_arch_(Execute ptr, addr instance, addr *ret)
 {
 	addr var, args;
 

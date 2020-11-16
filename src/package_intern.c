@@ -28,7 +28,7 @@
 /****************************************************************************
  *  Function INTERN
  ****************************************************************************/
-_g int intern_package_table_(addr package, addr name,
+int intern_package_table_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	int check;
@@ -54,7 +54,7 @@ _g int intern_package_table_(addr package, addr name,
 	return 0;
 }
 
-_g int intern_package_(addr package, addr name,
+int intern_package_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	Check(package == NULL, "null error");
@@ -65,7 +65,7 @@ _g int intern_package_(addr package, addr name,
 	return intern_package_table_(package, name, value, ret);
 }
 
-_g int intern_char_package_(addr package, const char *name,
+int intern_char_package_(addr package, const char *name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr symbol;
@@ -512,7 +512,7 @@ static int symbol_unintern_package_(addr package, addr symbol)
 	return 0;
 }
 
-_g int unintern_package_(addr package, addr symbol, int *ret)
+int unintern_package_(addr package, addr symbol, int *ret)
 {
 	int check, value;
 
@@ -536,7 +536,7 @@ _g int unintern_package_(addr package, addr symbol, int *ret)
 /****************************************************************************
  *  Interface
  ****************************************************************************/
-_g int setkeyword_package_(addr pos)
+int setkeyword_package_(addr pos)
 {
 	addr check, package;
 
@@ -551,7 +551,7 @@ _g int setkeyword_package_(addr pos)
 	return 0;
 }
 
-_g int intern_default_package_(Execute ptr, addr name,
+int intern_default_package_(Execute ptr, addr name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr package;
@@ -559,7 +559,7 @@ _g int intern_default_package_(Execute ptr, addr name,
 	return intern_package_(package, name, value, ret);
 }
 
-_g int internchar_(const char *pname, const char *sname,
+int internchar_(const char *pname, const char *sname,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr package, name;
@@ -577,7 +577,7 @@ _g int internchar_(const char *pname, const char *sname,
 	return intern_char_package_(package, sname, value, ret);
 }
 
-_g int internchar_default_(Execute ptr, const char *name,
+int internchar_default_(Execute ptr, const char *name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr package;
@@ -585,7 +585,7 @@ _g int internchar_default_(Execute ptr, const char *name,
 	return intern_char_package_(package, name, value, ret);
 }
 
-_g int internchar_null_(Execute ptr, const char *pname, const char *sname,
+int internchar_null_(Execute ptr, const char *pname, const char *sname,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	if (pname)
@@ -594,7 +594,7 @@ _g int internchar_null_(Execute ptr, const char *pname, const char *sname,
 		return internchar_default_(ptr, sname, value, ret);
 }
 
-_g int internchar_keyword_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
+int internchar_keyword_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr pos;
@@ -610,7 +610,7 @@ _g int internchar_keyword_(const char *name, addr *value, enum PACKAGE_TYPE *ret
 		return 0;
 }
 
-_g int interncommon_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
+int interncommon_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr package, pos;
@@ -630,22 +630,22 @@ _g int interncommon_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
 /****************************************************************************
  *  Debug
  ****************************************************************************/
-_g void internchar_debug(const char *pname, const char *sname, addr *value)
+void internchar_debug(const char *pname, const char *sname, addr *value)
 {
 	Error(internchar_(pname, sname, value, NULL));
 }
 
-_g void internchar_keyword_debug(const char *name, addr *value)
+void internchar_keyword_debug(const char *name, addr *value)
 {
 	Error(internchar_keyword_(name, value, NULL));
 }
 
-_g void interncommon_debug(const char *name, addr *value)
+void interncommon_debug(const char *name, addr *value)
 {
 	Error(interncommon_(name, value, NULL));
 }
 
-_g addr interncharr_debug(const char *pname, const char *sname)
+addr interncharr_debug(const char *pname, const char *sname)
 {
 	addr pos;
 	pos = NULL;
@@ -653,7 +653,7 @@ _g addr interncharr_debug(const char *pname, const char *sname)
 	return pos;
 }
 
-_g addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname)
+addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname)
 {
 	addr pos;
 	pos = NULL;
@@ -661,7 +661,7 @@ _g addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname
 	return pos;
 }
 
-_g addr interncommonr_debug(const char *name)
+addr interncommonr_debug(const char *name)
 {
 	addr pos;
 	pos = NULL;
@@ -673,7 +673,7 @@ _g addr interncommonr_debug(const char *name)
 /*
  *  initialize
  */
-_g void init_package_intern(void)
+void init_package_intern(void)
 {
 	SetPointerCall(defun, var1opt1, unintern_call);
 	SetPointerCall(defun, empty, unintern_input);

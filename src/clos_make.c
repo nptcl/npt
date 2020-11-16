@@ -23,7 +23,7 @@
 /*
  *  ensure-class
  */
-_g int clos_ensure_class_supers_(addr args, addr *ret, int *referp)
+int clos_ensure_class_supers_(addr args, addr *ret, int *referp)
 {
 	int check;
 	addr list, pos;
@@ -103,7 +103,7 @@ static int clos_ensure_class_parse_slots_(addr list, addr *ret)
 	return Result(ret, slot);
 }
 
-_g int clos_ensure_class_slots_(addr args, addr *ret)
+int clos_ensure_class_slots_(addr args, addr *ret)
 {
 	addr slots, pos;
 	size_t size, i;
@@ -124,7 +124,7 @@ _g int clos_ensure_class_slots_(addr args, addr *ret)
 	return Result(ret, slots);
 }
 
-_g int clos_ensure_class_direct_default_initargs_(LocalRoot local,
+int clos_ensure_class_direct_default_initargs_(LocalRoot local,
 		addr pos, addr args, addr *ret)
 {
 	addr check, list, key, a, b;
@@ -525,7 +525,7 @@ static int clos_ensure_class_subclasses_(addr pos)
 	return 0;
 }
 
-_g int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp)
+int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp)
 {
 	addr value;
 
@@ -569,7 +569,7 @@ static int clos_ensure_class_set_(
 	return 0;
 }
 
-_g int clos_finalize_(Execute ptr, addr pos, int *ret);
+int clos_finalize_(Execute ptr, addr pos, int *ret);
 static int clos_finalize_forward_(Execute ptr, addr pos, addr *value, int *ret)
 {
 	int check;
@@ -618,7 +618,7 @@ static int clos_finalize_forward_p_(Execute ptr, addr clos, int *refp, int *ret)
 	return Result(ret, 0);
 }
 
-_g int clos_finalize_(Execute ptr, addr pos, int *ret)
+int clos_finalize_(Execute ptr, addr pos, int *ret)
 {
 	int refp, check;
 	addr list, value;
@@ -673,7 +673,7 @@ static int clos_ensure_class_object_(Execute ptr, addr name, addr args, addr *re
 	return callclang_applya(ptr, ret, pos, metaclass, args, NULL);
 }
 
-_g int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret)
+int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret)
 {
 	addr pos;
 
@@ -691,7 +691,7 @@ _g int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret)
 /*
  *  allocate-initialize
  */
-_g int allocate_instance_stdclass_(Execute ptr, addr clos, addr *ret)
+int allocate_instance_stdclass_(Execute ptr, addr clos, addr *ret)
 {
 	int check;
 	addr instance, slots, slot, name;
@@ -754,13 +754,13 @@ static int initialize_instance_(Execute ptr, addr pos, addr type, addr rest, add
 	return callclang_applya(ptr, ret, call, pos, type, rest, NULL);
 }
 
-_g int initialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret)
+int initialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	/* (apply #'shared-initialize instance T initargs) */
 	return initialize_instance_(ptr, pos, T, rest, ret);
 }
 
-_g int reinitialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret)
+int reinitialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	/* (apply #'shared-initialize instance () initargs) */
 	return initialize_instance_(ptr, pos, Nil, rest, ret);
@@ -830,7 +830,7 @@ static int shared_initialize_stdobject_p_(addr key, addr name, int *ret)
 	return Result(ret, ! check);
 }
 
-_g int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest)
+int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest)
 {
 	int check;
 	addr slots, slot, key;
@@ -932,7 +932,7 @@ static int make_instance_check_(Execute ptr, addr clos, addr rest)
 	return 0;
 }
 
-_g int make_instance_stdclass_(Execute ptr, addr rest, addr *ret)
+int make_instance_stdclass_(Execute ptr, addr rest, addr *ret)
 {
 	int check;
 	addr clos, call, instance;
@@ -969,7 +969,7 @@ _g int make_instance_stdclass_(Execute ptr, addr rest, addr *ret)
 /*
  *  slot-missing
  */
-_g int clos_slot_missing_(Execute ptr,
+int clos_slot_missing_(Execute ptr,
 		addr clos, addr pos, addr name, addr operation, addr value)
 {
 	addr call;
@@ -979,7 +979,7 @@ _g int clos_slot_missing_(Execute ptr,
 	return funcall_control(ptr, call, clos, pos, name, operation, value, NULL);
 }
 
-_g int clos_slot_unbound_(Execute ptr, addr clos, addr pos, addr name)
+int clos_slot_unbound_(Execute ptr, addr clos, addr pos, addr name)
 {
 	addr call;
 
@@ -1002,7 +1002,7 @@ static int slot_boundp_call_(Execute ptr, addr pos, addr key, int *ret)
 	return Result(ret, (pos != Nil));
 }
 
-_g int slot_boundp_using_class_common_(Execute ptr,
+int slot_boundp_using_class_common_(Execute ptr,
 		addr clos, addr pos, addr key, int *ret)
 {
 	addr slots, slot, check;
@@ -1047,7 +1047,7 @@ static int slot_makunbound_call_(Execute ptr, addr pos, addr key)
 	return callclang_funcall(ptr, &pos, call, pos, key, NULL);
 }
 
-_g int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key)
+int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key)
 {
 	addr slots, slot, check;
 	size_t size, i;
@@ -1123,7 +1123,7 @@ static int slot_value_using_class_getp_(Execute ptr,
 	return clos_slot_missing_(ptr, clos, pos, key, check, Unbound);
 }
 
-_g int slot_value_using_class_common_(Execute ptr,
+int slot_value_using_class_common_(Execute ptr,
 		addr clos, addr pos, addr key, addr *ret)
 {
 	Return(slot_value_using_class_getp_(ptr, clos, pos, key, ret));
@@ -1146,7 +1146,7 @@ static int setf_slot_value_call_(Execute ptr, addr pos, addr key, addr value)
 	return callclang_funcall(ptr, &value, call, value, pos, key, NULL);
 }
 
-_g int setf_slot_value_using_class_common_(Execute ptr,
+int setf_slot_value_using_class_common_(Execute ptr,
 		addr clos, addr pos, addr key, addr value)
 {
 	addr slots, slot, check;
@@ -1182,7 +1182,7 @@ _g int setf_slot_value_using_class_common_(Execute ptr,
 /*
  *  initialize
  */
-_g void init_clos_make(void)
+void init_clos_make(void)
 {
 	SetPointerCall(defun, var3, clos_ensure_reader);
 	SetPointerCall(defun, var4, clos_ensure_writer_instance);

@@ -18,15 +18,15 @@
 #define infoerror _n(infoerror)
 #define infosystem _n(infosystem)
 
-_g void info(const char *, ...);
-_g void info_noeol(const char *, ...);
-_g void infobit(addr pos);
-_g void infoprint(addr pos);
-_g void infoprint_depth(addr pos, int depth);
-_g void infoprint_noeol(addr pos);
-_g void infoprint_once(addr pos, const char *name);
-_g void infoerror(const char *, int, const char *, const char *, ...);
-_g void infosystem(void);
+void info(const char *, ...);
+void info_noeol(const char *, ...);
+void infobit(addr pos);
+void infoprint(addr pos);
+void infoprint_depth(addr pos, int depth);
+void infoprint_noeol(addr pos);
+void infoprint_once(addr pos, const char *name);
+void infoerror(const char *, int, const char *, const char *, ...);
+void infosystem(void);
 
 #endif
 

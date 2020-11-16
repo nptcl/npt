@@ -4,7 +4,7 @@
 #include "common.h"
 #include "typedef.h"
 
-_g void init_common(void)
+void init_common(void)
 {
 	/* 3. Evaluation and Compilation */
 	init_common_eval();
@@ -54,7 +54,7 @@ _g void init_common(void)
 	init_common_environment();
 }
 
-_g void build_common(void)
+void build_common(void)
 {
 	/* 3. Evaluation and Compilation */
 	build_common_eval();

@@ -84,7 +84,7 @@ static int gcd_loop_number_(LocalRoot local, addr left, addr first, addr args)
 	return 0;
 }
 
-_g int gcd_number_(LocalRoot local, addr args, addr *ret)
+int gcd_number_(LocalRoot local, addr args, addr *ret)
 {
 	int check;
 	addr left, right, pos, first_left, first_right;
@@ -181,7 +181,7 @@ static int lcm_loop_number_(LocalRoot local, addr left, addr args, addr *ret)
 	return Result(ret, left);
 }
 
-_g int lcm_number_(LocalRoot local, addr args, addr *ret)
+int lcm_number_(LocalRoot local, addr args, addr *ret)
 {
 	int check;
 	addr left;

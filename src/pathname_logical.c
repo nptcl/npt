@@ -31,7 +31,7 @@ static int parser_logical_host_(struct fileparse *pa, addr queue)
 	return 0;
 }
 
-_g int parser_logical_pathname_(struct fileparse *pa)
+int parser_logical_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, dp1, dp2;
 	unicode c;

@@ -17,320 +17,320 @@ static int Clos_standard_ignore = 0;
 /*
  *  access
  */
-_g struct slot_struct *struct_slot(addr pos)
+struct slot_struct *struct_slot(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	return SlotStruct_Low(pos);
 }
 
-_g void getname_slot(addr pos, addr *ret)
+void getname_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetNameSlot_Low(pos, ret);
 }
 
-_g void setname_slot(addr pos, addr value)
+void setname_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetNameSlot_Low(pos, value);
 }
 
-_g void gettype_slot(addr pos, addr *ret)
+void gettype_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetTypeSlot_Low(pos, ret);
 }
 
-_g void settype_slot(addr pos, addr value)
+void settype_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTypeSlot_Low(pos, value);
 }
 
-_g void getargs_slot(addr pos, addr *ret)
+void getargs_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetArgsSlot_Low(pos, ret);
 }
 
-_g void setargs_slot(addr pos, addr value)
+void setargs_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArgsSlot_Low(pos, value);
 }
 
-_g void getform_slot(addr pos, addr *ret)
+void getform_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetFormSlot_Low(pos, ret);
 }
 
-_g void setform_slot(addr pos, addr value)
+void setform_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFormSlot_Low(pos, value);
 }
 
-_g void getfunction_slot(addr pos, addr *ret)
+void getfunction_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetFunctionSlot_Low(pos, ret);
 }
 
-_g void setfunction_slot(addr pos, addr value)
+void setfunction_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunctionSlot_Low(pos, value);
 }
 
-_g void getreaders_slot(addr pos, addr *ret)
+void getreaders_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetReadersSlot_Low(pos, ret);
 }
 
-_g void setreaders_slot(addr pos, addr value)
+void setreaders_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetReadersSlot_Low(pos, value);
 }
 
-_g void getwriters_slot(addr pos, addr *ret)
+void getwriters_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetWritersSlot_Low(pos, ret);
 }
 
-_g void setwriters_slot(addr pos, addr value)
+void setwriters_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetWritersSlot_Low(pos, value);
 }
 
-_g void getdocument_slot(addr pos, addr *ret)
+void getdocument_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetDocumentSlot_Low(pos, ret);
 }
 
-_g void setdocument_slot(addr pos, addr value)
+void setdocument_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDocumentSlot_Low(pos, value);
 }
 
-_g void getclass_slot(addr pos, addr *ret)
+void getclass_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetClassSlot_Low(pos, ret);
 }
 
-_g void setclass_slot(addr pos, addr value)
+void setclass_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClassSlot_Low(pos, value);
 }
 
-_g void getreadonly_slot(addr pos, addr *ret)
+void getreadonly_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetReadOnlySlot_Low(pos, ret);
 }
 
-_g void setreadonly_slot(addr pos, addr value)
+void setreadonly_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetReadOnlySlot_Low(pos, value);
 }
 
-_g void getallocation_slot(addr pos, int *ret)
+void getallocation_slot(addr pos, int *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetAllocationSlot_Low(pos, ret);
 }
 
-_g void setallocation_slot(addr pos, int value)
+void setallocation_slot(addr pos, int value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetAllocationSlot_Low(pos, value);
 }
 
-_g void getlocation_slot(addr pos, size_t *ret)
+void getlocation_slot(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetLocationSlot_Low(pos, ret);
 }
 
-_g void setlocation_slot(addr pos, size_t value)
+void setlocation_slot(addr pos, size_t value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetLocationSlot_Low(pos, value);
 }
 
-_g void getaccess_slot(addr pos, size_t *ret)
+void getaccess_slot(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetAccessSlot_Low(pos, ret);
 }
 
-_g void setaccess_slot(addr pos, size_t value)
+void setaccess_slot(addr pos, size_t value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetAccessSlot_Low(pos, value);
 }
 
-_g struct clos_struct *struct_clos(addr pos)
+struct clos_struct *struct_clos(addr pos)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	return ClosStruct_Low(pos);
 }
 
-_g void getclassof_clos(addr pos, addr *ret)
+void getclassof_clos(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	GetClassOfClos_Low(pos, ret);
 }
 
-_g void setclassof_clos(addr pos, addr value)
+void setclassof_clos(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClassOfClos_Low(pos, value);
 }
 
-_g void getslot_clos(addr pos, addr *ret)
+void getslot_clos(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	GetSlotClos_Low(pos, ret);
 }
 
-_g void setslot_clos(addr pos, addr value)
+void setslot_clos(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetSlotClos_Low(pos, value);
 }
 
-_g void getvalue_clos(addr pos, addr *ret)
+void getvalue_clos(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	GetValueClos_Low(pos, ret);
 }
 
-_g void setvalue_clos(addr pos, addr value)
+void setvalue_clos(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetValueClos_Low(pos, value);
 }
 
-_g void getfuncall_clos(addr pos, int *ret)
+void getfuncall_clos(addr pos, int *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	GetFuncallClos_Low(pos, ret);
 }
 
-_g void setfuncall_clos(addr pos, int value)
+void setfuncall_clos(addr pos, int value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFuncallClos_Low(pos, value);
 }
 
-_g void getversion_clos(addr pos, fixnum *ret)
+void getversion_clos(addr pos, fixnum *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	GetVersionClos_Low(pos, ret);
 }
 
-_g void setversion_clos(addr pos, fixnum value)
+void setversion_clos(addr pos, fixnum value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetVersionClos_Low(pos, value);
 }
 
-_g void getslotvector(addr pos, size_t index, addr *ret)
+void getslotvector(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT_VECTOR);
 	GetSlotVector_Low(pos, index, ret);
 }
 
-_g void setslotvector(addr pos, size_t index, addr value)
+void setslotvector(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT_VECTOR);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetSlotVector_Low(pos, index, value);
 }
 
-_g void lenslotvector(addr pos, size_t *ret)
+void lenslotvector(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT_VECTOR);
 	LenSlotVector_Low(pos, ret);
 }
 
-_g void getclosvalue(addr pos, size_t index, addr *ret)
+void getclosvalue(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
 	GetClosValue_Low(pos, index, ret);
 }
 
-_g void setclosvalue(addr pos, size_t index, addr value)
+void setclosvalue(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClosValue_Low(pos, index, value);
 }
 
-_g void lenclosvalue(addr pos, size_t *ret)
+void lenclosvalue(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
 	LenClosValue_Low(pos, ret);
 }
 
-_g void clos_standard_ignore(int value)
+void clos_standard_ignore(int value)
 {
 	Clos_standard_ignore = value;
 }
 
-_g int clos_standard_class_p_debug(addr pos)
+int clos_standard_class_p_debug(addr pos)
 {
 	return (! Clos_standard_ignore)
 		&& clos_standard_class_p_Low(pos);
 }
 
-_g int clos_standard_generic_p_debug(addr pos)
+int clos_standard_generic_p_debug(addr pos)
 {
 	return (! Clos_standard_ignore)
 		&& clos_standard_generic_p_Low(pos);
 }
 
-_g int clos_standard_method_p_debug(addr pos)
+int clos_standard_method_p_debug(addr pos)
 {
 	return (! Clos_standard_ignore)
 		&& clos_standard_method_p_Low(pos);
 }
 
-_g int clos_standard_combination_p_debug(addr pos)
+int clos_standard_combination_p_debug(addr pos)
 {
 	return (! Clos_standard_ignore)
 		&& clos_standard_combination_p_Low(pos);
 }
 
-_g int clos_standard_specializer_p_debug(addr pos)
+int clos_standard_specializer_p_debug(addr pos)
 {
 	return (! Clos_standard_ignore)
 		&& clos_standard_specializer_p_Low(pos);
@@ -346,7 +346,7 @@ static inline void slot_unsafe(LocalRoot local, addr *ret)
 	alloc_smallsize(local, ret,
 			LISPSYSTEM_SLOT, SLOT_INDEX_SIZE, sizeoft(struct slot_struct));
 }
-_g void slot_alloc(LocalRoot local, addr *ret)
+void slot_alloc(LocalRoot local, addr *ret)
 {
 	addr pos;
 
@@ -358,17 +358,17 @@ _g void slot_alloc(LocalRoot local, addr *ret)
 	SetFormSlot_Low(pos, Unbound);
 	*ret = pos;
 }
-_g void slot_local(LocalRoot local, addr *ret)
+void slot_local(LocalRoot local, addr *ret)
 {
 	CheckLocal(local);
 	slot_alloc(local, ret);
 }
-_g void slot_heap(addr *ret)
+void slot_heap(addr *ret)
 {
 	slot_alloc(NULL, ret);
 }
 
-_g void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
+void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
 {
 	int check;
 	addr pos, value;
@@ -395,32 +395,32 @@ _g void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
 	/* result */
 	*ret = pos;
 }
-_g void slot_copy_local(LocalRoot local, addr *ret, addr slot)
+void slot_copy_local(LocalRoot local, addr *ret, addr slot)
 {
 	CheckLocal(local);
 	slot_copy_alloc(local, ret, slot);
 }
-_g void slot_copy_heap(addr *ret, addr slot)
+void slot_copy_heap(addr *ret, addr slot)
 {
 	slot_copy_alloc(NULL, ret, slot);
 }
 
 /* slot-vector */
-_g void slot_vector_alloc(LocalRoot local, addr *ret, size_t size)
+void slot_vector_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	alloc_array4(local, ret, LISPSYSTEM_SLOT_VECTOR, size);
 }
-_g void slot_vector_local(LocalRoot local, addr *ret, size_t size)
+void slot_vector_local(LocalRoot local, addr *ret, size_t size)
 {
 	CheckLocal(local);
 	slot_vector_alloc(local, ret, size);
 }
-_g void slot_vector_heap(addr *ret, size_t size)
+void slot_vector_heap(addr *ret, size_t size)
 {
 	slot_vector_alloc(NULL, ret, size);
 }
 
-_g void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos)
+void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	addr vector, value;
 	size_t size, i;
@@ -435,17 +435,17 @@ _g void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos)
 	}
 	*ret = vector;
 }
-_g void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos)
+void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos)
 {
 	CheckLocal(local);
 	slot_vector_copy_alloc(local, ret, pos);
 }
-_g void slot_vector_copy_heap(addr *ret, addr pos)
+void slot_vector_copy_heap(addr *ret, addr pos)
 {
 	slot_vector_copy_alloc(NULL, ret, pos);
 }
 
-_g void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos)
+void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT_VECTOR);
 	if (local || (! GetStatusDynamic(pos))) {
@@ -457,7 +457,7 @@ _g void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos)
 	slot_vector_copy_alloc(local, ret, pos);
 }
 
-_g void slot_vector_clear(addr pos)
+void slot_vector_clear(addr pos)
 {
 	addr slot;
 	size_t size, i;
@@ -482,7 +482,7 @@ static inline void clos_value_unsafe(LocalRoot local, addr *ret, size_t size)
 	}
 }
 
-_g void clos_value_heap(addr *ret, size_t size)
+void clos_value_heap(addr *ret, size_t size)
 {
 	clos_value_unsafe(NULL, ret, size);
 }
@@ -493,7 +493,7 @@ static inline void clos_unsafe(LocalRoot local, addr *ret)
 			LISPTYPE_CLOS, CLOS_INDEX_SIZE, sizeoft(struct clos_struct));
 }
 
-_g void clos_alloc(LocalRoot local, addr *ret, addr slots)
+void clos_alloc(LocalRoot local, addr *ret, addr slots)
 {
 	addr pos, value;
 	size_t size;
@@ -515,17 +515,17 @@ _g void clos_alloc(LocalRoot local, addr *ret, addr slots)
 	/* result */
 	*ret = pos;
 }
-_g void clos_local(LocalRoot local, addr *ret, addr slots)
+void clos_local(LocalRoot local, addr *ret, addr slots)
 {
 	CheckLocal(local);
 	clos_alloc(local, ret, slots);
 }
-_g void clos_heap(addr *ret, addr slots)
+void clos_heap(addr *ret, addr slots)
 {
 	clos_alloc(NULL, ret, slots);
 }
 
-_g void clos_destroy(addr pos)
+void clos_destroy(addr pos)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	SetClassOfClos_Low(pos, Nil);
@@ -535,7 +535,7 @@ _g void clos_destroy(addr pos)
 	SetVersionClos_Low(pos, 0);
 }
 
-_g void clos_swap(addr a, addr b)
+void clos_swap(addr a, addr b)
 {
 	int i1, i2;
 	fixnum f1, f2;
@@ -574,27 +574,27 @@ _g void clos_swap(addr a, addr b)
 /*
  *  control
  */
-_g int closp(addr pos)
+int closp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CLOS;
 }
 
-_g int slotp(addr pos)
+int slotp(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_SLOT;
 }
 
-_g int slot_vector_p(addr pos)
+int slot_vector_p(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_SLOT_VECTOR;
 }
 
-_g int clos_value_p(addr pos)
+int clos_value_p(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_CLOS_VALUE;
 }
 
-_g int clos_funcall_p(addr pos)
+int clos_funcall_p(addr pos)
 {
 	int check;
 
@@ -604,7 +604,7 @@ _g int clos_funcall_p(addr pos)
 	return check;
 }
 
-_g int slot_class_p(addr pos)
+int slot_class_p(addr pos)
 {
 	int check;
 
@@ -614,7 +614,7 @@ _g int slot_class_p(addr pos)
 	return check != 0;
 }
 
-_g int slot_instance_p(addr pos)
+int slot_instance_p(addr pos)
 {
 	int check;
 
@@ -624,25 +624,25 @@ _g int slot_instance_p(addr pos)
 	return check == 0;
 }
 
-_g void clos_set_funcall(addr pos)
+void clos_set_funcall(addr pos)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	SetFuncallClos_Low(pos, 1);
 }
 
-_g void slot_set_class(addr pos)
+void slot_set_class(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	SetAllocationSlot_Low(pos, 1);
 }
 
-_g void slot_set_instance(addr pos)
+void slot_set_instance(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	SetAllocationSlot_Low(pos, 0);
 }
 
-_g int slot_set_allocation_(addr pos, addr value)
+int slot_set_allocation_(addr pos, addr value)
 {
 	addr check;
 
@@ -666,7 +666,7 @@ _g int slot_set_allocation_(addr pos, addr value)
 	return fmte_("Invalid :allocation value ~S.", value, NULL);
 }
 
-_g int clos_errorp(addr pos, size_t index, constindex name)
+int clos_errorp(addr pos, size_t index, constindex name)
 {
 	addr key, slot, vector, check;
 	size_t size, i;
@@ -688,7 +688,7 @@ _g int clos_errorp(addr pos, size_t index, constindex name)
 	return 1;
 }
 
-_g int clos_getp(addr pos, addr key, addr *ret)
+int clos_getp(addr pos, addr key, addr *ret)
 {
 	addr slot, vector, check;
 	size_t size, i;
@@ -711,7 +711,7 @@ _g int clos_getp(addr pos, addr key, addr *ret)
 	return 0;
 }
 
-_g int clos_setp(addr pos, addr key, addr value)
+int clos_setp(addr pos, addr key, addr value)
 {
 	addr slot, vector, check;
 	size_t size, i;
@@ -734,7 +734,7 @@ _g int clos_setp(addr pos, addr key, addr value)
 	return 0;
 }
 
-_g int clos_checkp_(addr pos, addr key, addr *value, int *ret)
+int clos_checkp_(addr pos, addr key, addr *value, int *ret)
 {
 	addr check;
 
@@ -749,7 +749,7 @@ _g int clos_checkp_(addr pos, addr key, addr *value, int *ret)
 	return Result(ret, 1);
 }
 
-_g int clos_get_(addr pos, addr key, addr *ret)
+int clos_get_(addr pos, addr key, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_getp(pos, key, ret)) {
@@ -760,7 +760,7 @@ _g int clos_get_(addr pos, addr key, addr *ret)
 	return 0;
 }
 
-_g int clos_set_(addr pos, addr key, addr value)
+int clos_set_(addr pos, addr key, addr value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_setp(pos, key, value))
@@ -769,7 +769,7 @@ _g int clos_set_(addr pos, addr key, addr value)
 	return 0;
 }
 
-_g int clos_check_(addr pos, addr key, addr *ret)
+int clos_check_(addr pos, addr key, addr *ret)
 {
 	int check;
 
@@ -783,7 +783,7 @@ _g int clos_check_(addr pos, addr key, addr *ret)
 	return 0;
 }
 
-_g void clos_getelt(addr pos, size_t index, addr *ret)
+void clos_getelt(addr pos, size_t index, addr *ret)
 {
 	addr vector;
 #ifdef LISP_DEBUG
@@ -799,7 +799,7 @@ _g void clos_getelt(addr pos, size_t index, addr *ret)
 	GetClosValue(vector, index, ret);
 }
 
-_g void clos_setelt(addr pos, size_t index, addr value)
+void clos_setelt(addr pos, size_t index, addr value)
 {
 	addr vector;
 #ifdef LISP_DEBUG
@@ -815,7 +815,7 @@ _g void clos_setelt(addr pos, size_t index, addr value)
 	SetClosValue(vector, index, value);
 }
 
-_g int clos_checkelt_(addr pos, size_t index, addr *ret)
+int clos_checkelt_(addr pos, size_t index, addr *ret)
 {
 	addr check;
 
@@ -830,21 +830,21 @@ _g int clos_checkelt_(addr pos, size_t index, addr *ret)
 	}
 }
 
-_g int clos_getconst_(addr pos, constindex index, addr *ret)
+int clos_getconst_(addr pos, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return clos_get_(pos, key, ret);
 }
 
-_g int clos_setconst_(addr pos, constindex index, addr value)
+int clos_setconst_(addr pos, constindex index, addr value)
 {
 	addr key;
 	GetConstant(index, &key);
 	return clos_set_(pos, key, value);
 }
 
-_g int clos_checkconst_(addr pos, constindex index, addr *ret)
+int clos_checkconst_(addr pos, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
@@ -855,13 +855,13 @@ _g int clos_checkconst_(addr pos, constindex index, addr *ret)
 /*
  *  check
  */
-_g int clos_slot_exists_p(addr pos, addr name)
+int clos_slot_exists_p(addr pos, addr name)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	return clos_getp(pos, name, &name);
 }
 
-_g int clos_slot_boundp_nil(addr pos, addr name)
+int clos_slot_boundp_nil(addr pos, addr name)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (clos_getp(pos, name, &name))
@@ -870,7 +870,7 @@ _g int clos_slot_boundp_nil(addr pos, addr name)
 		return -1; /* error no slot. */
 }
 
-_g int clos_slot_boundp_(addr pos, addr name, int *ret)
+int clos_slot_boundp_(addr pos, addr name, int *ret)
 {
 	int check;
 
@@ -884,7 +884,7 @@ _g int clos_slot_boundp_(addr pos, addr name, int *ret)
 	return Result(ret, check);
 }
 
-_g int clos_slot_makunbound_nil_(addr pos, addr name, int *ret)
+int clos_slot_makunbound_nil_(addr pos, addr name, int *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (clos_slot_exists_p(pos, name)) {
@@ -895,7 +895,7 @@ _g int clos_slot_makunbound_nil_(addr pos, addr name, int *ret)
 	return Result(ret, 1);
 }
 
-_g int clos_slot_makunbound_(addr pos, addr name)
+int clos_slot_makunbound_(addr pos, addr name)
 {
 	int check;
 
@@ -912,13 +912,13 @@ _g int clos_slot_makunbound_(addr pos, addr name)
  *  table
  */
 /* clos */
-_g void clos_find_class_nil(addr name, addr *ret)
+void clos_find_class_nil(addr name, addr *ret)
 {
 	Check(! symbolp(name), "type name error");
 	getclass_symbol(name, ret);
 }
 
-_g int clos_find_class_(addr name, addr *ret)
+int clos_find_class_(addr name, addr *ret)
 {
 	Check(! symbolp(name), "type name error");
 	clos_find_class_nil(name, ret);
@@ -928,7 +928,7 @@ _g int clos_find_class_(addr name, addr *ret)
 	return 0;
 }
 
-_g void clos_define_class(addr name, addr value)
+void clos_define_class(addr name, addr value)
 {
 	Check(! symbolp(name), "type name error");
 	CheckType(value, LISPTYPE_CLOS);
@@ -936,7 +936,7 @@ _g void clos_define_class(addr name, addr value)
 }
 
 /* generic */
-_g void clos_find_generic_nil(addr name, addr *ret)
+void clos_find_generic_nil(addr name, addr *ret)
 {
 	Check(! function_name_p(name), "type error");
 
@@ -947,7 +947,7 @@ _g void clos_find_generic_nil(addr name, addr *ret)
 		*ret = name;
 }
 
-_g int clos_find_generic_(addr name, addr *ret)
+int clos_find_generic_(addr name, addr *ret)
 {
 	clos_find_generic_nil(name, ret);
 	if (*ret == Nil)
@@ -956,20 +956,20 @@ _g int clos_find_generic_(addr name, addr *ret)
 	return 0;
 }
 
-_g int clos_define_generic_(addr name, addr value)
+int clos_define_generic_(addr name, addr value)
 {
 	Check(! function_name_p(name), "type name error");
 	return setglobal_parse_callname_(name, value);
 }
 
 /* method-combination */
-_g void clos_find_combination_nil(addr name, addr *ret)
+void clos_find_combination_nil(addr name, addr *ret)
 {
 	Check(! symbolp(name), "type name error");
 	getcombination_symbol(name, ret);
 }
 
-_g int clos_find_combination_(addr name, addr *ret)
+int clos_find_combination_(addr name, addr *ret)
 {
 	clos_find_combination_nil(name, ret);
 	if (*ret == Nil)
@@ -978,7 +978,7 @@ _g int clos_find_combination_(addr name, addr *ret)
 	return 0;
 }
 
-_g void clos_define_combination(addr name, addr value)
+void clos_define_combination(addr name, addr value)
 {
 	Check(! symbolp(name), "type name error");
 	setcombination_symbol(name, value);
@@ -990,14 +990,14 @@ static void clos_table_specializer(addr *ret)
 	*ret = LispRoot(SPECIALIZER);
 }
 
-_g int clos_find_specializer_nil_(addr name, addr *ret)
+int clos_find_specializer_nil_(addr name, addr *ret)
 {
 	addr table;
 	clos_table_specializer(&table);
 	return findnil_hashtable_(table, name, ret);
 }
 
-_g int clos_find_specializer_(addr name, addr *ret)
+int clos_find_specializer_(addr name, addr *ret)
 {
 	Return(clos_find_specializer_nil_(name, ret));
 	if (*ret == Nil)
@@ -1006,7 +1006,7 @@ _g int clos_find_specializer_(addr name, addr *ret)
 	return 0;
 }
 
-_g int clos_define_specializer_(addr name, addr value)
+int clos_define_specializer_(addr name, addr value)
 {
 	addr table;
 
@@ -1017,7 +1017,7 @@ _g int clos_define_specializer_(addr name, addr value)
 	return 0;
 }
 
-_g void clos_forget_all_specializer_unsafe(void)
+void clos_forget_all_specializer_unsafe(void)
 {
 	addr table;
 	clos_table_specializer(&table);
@@ -1028,7 +1028,7 @@ _g void clos_forget_all_specializer_unsafe(void)
 /*
  *  build
  */
-_g void init_clos(void)
+void init_clos(void)
 {
 	init_clos_generic();
 	init_clos_make();
@@ -1045,7 +1045,7 @@ static void build_clos_table(Execute ptr)
 	SetLispRoot(SPECIALIZER, pos);
 }
 
-_g void build_clos(Execute ptr)
+void build_clos(Execute ptr)
 {
 	/* Variable */
 	Clos_standard_class = 0;

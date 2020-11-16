@@ -3889,7 +3889,7 @@ static int optparse_all_(OptimizeInfo *str, int *ret)
 	return optparse_run_(str, ret, optparse_all_run_);
 }
 
-_g int optimize_parse_(LocalRoot local, addr pos, addr *value, int *ret)
+int optimize_parse_(LocalRoot local, addr pos, addr *value, int *ret)
 {
 	int check;
 	LocalStack stack;

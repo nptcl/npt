@@ -98,101 +98,101 @@ static int stdset_generic_constant_(addr pos, addr value,
 #define StdSetGeneric_(p,r,a,b) \
 	stdset_generic_constant_((p), (r), Clos_generic_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_generic_name_(addr pos, addr *ret)
+int stdget_generic_name_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, name, NAME);
 }
-_g int stdset_generic_name_(addr pos, addr value)
+int stdset_generic_name_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, name, NAME);
 }
 
-_g int stdget_generic_lambda_list_(addr pos, addr *ret)
+int stdget_generic_lambda_list_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g int stdset_generic_lambda_list_(addr pos, addr value)
+int stdset_generic_lambda_list_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-_g int stdget_generic_methods_(addr pos, addr *ret)
+int stdget_generic_methods_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, methods, METHODS);
 }
-_g int stdset_generic_methods_(addr pos, addr value)
+int stdset_generic_methods_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, methods, METHODS);
 }
 
-_g int stdget_generic_method_class_(addr pos, addr *ret)
+int stdget_generic_method_class_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, method_class, METHOD_CLASS);
 }
-_g int stdset_generic_method_class_(addr pos, addr value)
+int stdset_generic_method_class_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, method_class, METHOD_CLASS);
 }
 
-_g int stdget_generic_argument_precedence_order_(addr pos, addr *ret)
+int stdget_generic_argument_precedence_order_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, argument_precedence_order, ARGUMENT_PRECEDENCE_ORDER);
 }
-_g int stdset_generic_argument_precedence_order_(addr pos, addr value)
+int stdset_generic_argument_precedence_order_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, argument_precedence_order, ARGUMENT_PRECEDENCE_ORDER);
 }
 
-_g int stdget_generic_declarations_(addr pos, addr *ret)
+int stdget_generic_declarations_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, declarations, DECLARATIONS);
 }
-_g int stdset_generic_declarations_(addr pos, addr value)
+int stdset_generic_declarations_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, declarations, DECLARATIONS);
 }
 
-_g int stdget_generic_method_combination_(addr pos, addr *ret)
+int stdget_generic_method_combination_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, method_combination, METHOD_COMBINATION);
 }
-_g int stdset_generic_method_combination_(addr pos, addr value)
+int stdset_generic_method_combination_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, method_combination, METHOD_COMBINATION);
 }
 
-_g int stdget_generic_eqlcheck_(addr pos, addr *ret)
+int stdget_generic_eqlcheck_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, eqlcheck, EQLCHECK);
 }
-_g int stdset_generic_eqlcheck_(addr pos, addr value)
+int stdset_generic_eqlcheck_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, eqlcheck, EQLCHECK);
 }
 
-_g int stdget_generic_cache_(addr pos, addr *ret)
+int stdget_generic_cache_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, cache, CACHE);
 }
-_g int stdset_generic_cache_(addr pos, addr value)
+int stdset_generic_cache_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, cache, CACHE);
 }
 
-_g int stdget_generic_call_(addr pos, addr *ret)
+int stdget_generic_call_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, call, CALL);
 }
-_g int stdset_generic_call_(addr pos, addr value)
+int stdset_generic_call_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, call, CALL);
 }
 
-_g int stdget_generic_precedence_index_(addr pos, addr *ret)
+int stdget_generic_precedence_index_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, precedence_index, PRECEDENCE_INDEX);
 }
-_g int stdset_generic_precedence_index_(addr pos, addr value)
+int stdset_generic_precedence_index_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, precedence_index, PRECEDENCE_INDEX);
 }
@@ -217,14 +217,14 @@ static int stdboundp_generic_constant_(addr pos, int *ret,
 	}
 }
 
-_g int stdboundp_generic_argument_precedence_order_(addr pos, int *ret)
+int stdboundp_generic_argument_precedence_order_(addr pos, int *ret)
 {
 	return stdboundp_generic_constant_(pos, ret,
 			Clos_generic_argument_precedence_order,
 			CONSTANT_CLOSKEY_ARGUMENT_PRECEDENCE_ORDER);
 }
 
-_g int stdboundp_generic_eqlcheck_(addr pos, int *ret)
+int stdboundp_generic_eqlcheck_(addr pos, int *ret)
 {
 	return stdboundp_generic_constant_(pos, ret,
 			Clos_generic_eqlcheck,
@@ -280,20 +280,20 @@ static int stdset_specializer_constant_(addr pos, addr value,
 #define StdSetSpecializer_(p,r,a,b) \
 	stdset_specializer_constant_((p), (r), Clos_specializer_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_specializer_object_(addr pos, addr *ret)
+int stdget_specializer_object_(addr pos, addr *ret)
 {
 	return StdGetSpecializer_(pos, ret, object, OBJECT);
 }
-_g int stdset_specializer_object_(addr pos, addr value)
+int stdset_specializer_object_(addr pos, addr value)
 {
 	return StdSetSpecializer_(pos, value, object, OBJECT);
 }
 
-_g int stdget_specializer_type_(addr pos, addr *ret)
+int stdget_specializer_type_(addr pos, addr *ret)
 {
 	return StdGetSpecializer_(pos, ret, type, TYPE);
 }
-_g int stdset_specializer_type_(addr pos, addr value)
+int stdset_specializer_type_(addr pos, addr value)
 {
 	return StdSetSpecializer_(pos, value, type, TYPE);
 }
@@ -522,7 +522,7 @@ static int comb_lambda_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 /*****************************************************************************
  *  generic-finalize
  *****************************************************************************/
-_g int generic_eql_specializer_(addr left, addr right, int check, int *ret)
+int generic_eql_specializer_(addr left, addr right, int check, int *ret)
 {
 	int check1, check2;
 
@@ -828,7 +828,7 @@ static int generic_make_generic_call_(addr gen, addr *ret)
 	return Result(ret, call);
 }
 
-_g int generic_finalize_(addr gen)
+int generic_finalize_(addr gen)
 {
 	addr pos;
 
@@ -853,7 +853,7 @@ static int funcallable_p_(addr pos, int *ret)
 	return clos_subtype_p_(pos, clos, ret);
 }
 
-_g int closrun_execute_(Execute ptr, addr clos, addr args)
+int closrun_execute_(Execute ptr, addr clos, addr args)
 {
 	int check;
 	addr pos;
@@ -891,7 +891,7 @@ static int generic_instance_methods_(addr *ret, addr comb)
 	return 0;
 }
 
-_g int generic_common_instance_(addr *ret, addr name, addr args)
+int generic_common_instance_(addr *ret, addr name, addr args)
 {
 	addr pos, methods, method, cache;
 
@@ -922,7 +922,7 @@ _g int generic_common_instance_(addr *ret, addr name, addr args)
 	return Result(ret, pos);
 }
 
-_g int generic_common_order_(addr gen, addr order, addr list)
+int generic_common_order_(addr gen, addr order, addr list)
 {
 #ifdef LISP_DEBUG
 	addr var, x, y, root;
@@ -964,7 +964,7 @@ _g int generic_common_order_(addr gen, addr order, addr list)
 /*****************************************************************************
  *  ensure-generic-function
  *****************************************************************************/
-_g int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret)
+int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret)
 {
 	int check;
 	addr call, value, clos, ensure;
@@ -1013,7 +1013,7 @@ result:
 /*
  *  generic-empty
  */
-_g int generic_empty_(addr name, addr lambda, addr *ret)
+int generic_empty_(addr name, addr lambda, addr *ret)
 {
 	addr pos, method, methods, cache;
 
@@ -1077,7 +1077,7 @@ static int generic_precedence_order_index_(addr lambda, addr order, addr *ret)
 	return 0;
 }
 
-_g int generic_add_(struct generic_argument *str, addr *ret)
+int generic_add_(struct generic_argument *str, addr *ret)
 {
 	addr pos, comb, methods, cache, order;
 
@@ -1116,7 +1116,7 @@ _g int generic_add_(struct generic_argument *str, addr *ret)
 /*
  *  generic-change
  */
-_g int generic_change_(struct generic_argument *str, addr *ret)
+int generic_change_(struct generic_argument *str, addr *ret)
 {
 	return fmte_("TODO", NULL);
 }
@@ -1125,7 +1125,7 @@ _g int generic_change_(struct generic_argument *str, addr *ret)
 /*
  *  common
  */
-_g int generic_compute_applicable_methods_(LocalRoot local,
+int generic_compute_applicable_methods_(LocalRoot local,
 		addr gen, addr args, addr *ret)
 {
 	addr data, root, list, pos;
@@ -1177,7 +1177,7 @@ static int generic_find_method_equal_(addr method, addr spec, int *ret)
 	return Result(ret, 1);
 }
 
-_g int generic_find_method_(Execute ptr,
+int generic_find_method_(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret)
 {
 	int check;
@@ -1217,7 +1217,7 @@ _g int generic_find_method_(Execute ptr,
 /*
  *  initialize
  */
-_g void init_clos_generic(void)
+void init_clos_generic(void)
 {
 	SetPointerCall(defun, any, standard_lambda);
 	ClosGenericTable[gen_comb_standard_call] = comb_standard_call_;

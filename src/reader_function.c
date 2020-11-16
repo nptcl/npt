@@ -38,7 +38,7 @@
 /*
  *  reader "
  */
-_g int double_quote_reader(LocalRoot local, addr stream, addr *ret)
+int double_quote_reader(LocalRoot local, addr stream, addr *ret)
 {
 	int escape, check;
 	unicode c;
@@ -93,7 +93,7 @@ static int quote_macro_reader(Execute ptr, constindex index, addr stream, addr *
 	return 0;
 }
 
-_g int single_quote_reader(Execute ptr, addr stream, addr *ret)
+int single_quote_reader(Execute ptr, addr stream, addr *ret)
 {
 	Return(quote_macro_reader(ptr, CONSTANT_COMMON_QUOTE, stream, ret));
 	if (stream == Unbound)
@@ -203,7 +203,7 @@ static int read_delimited_list_call_(Execute ptr, addr stream, unicode limit, in
 	return read_delimited_execute(ptr, stream, limit);
 }
 
-_g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recp)
+int read_delimited_list(Execute ptr, addr stream, unicode limit, int recp)
 {
 	addr control;
 
@@ -212,7 +212,7 @@ _g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recp)
 	return pop_control_(ptr, control);
 }
 
-_g int parensis_open_reader(Execute ptr, addr stream)
+int parensis_open_reader(Execute ptr, addr stream)
 {
 	return read_delimited_list(ptr, stream, ')', 1);
 }
@@ -221,7 +221,7 @@ _g int parensis_open_reader(Execute ptr, addr stream)
 /*
  *  reader )
  */
-_g int parensis_close_reader(void)
+int parensis_close_reader(void)
 {
 	return fmte_("unmatch close parenthiesis ).", NULL);
 }
@@ -230,7 +230,7 @@ _g int parensis_close_reader(void)
 /*
  *  reader ;
  */
-_g int semicolon_reader_(addr stream)
+int semicolon_reader_(addr stream)
 {
 	int check;
 	unicode c;
@@ -276,7 +276,7 @@ static int backquote_read_reader(Execute ptr, addr stream, int *result, addr *re
 	return 0;
 }
 
-_g int backquote_reader(Execute ptr, addr stream, addr *ret)
+int backquote_reader(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr pos;
@@ -320,7 +320,7 @@ static int comma_read_reader(Execute ptr, addr stream, int *result, addr *ret)
 	return 0;
 }
 
-_g int comma_reader(Execute ptr, addr stream, addr *ret)
+int comma_reader(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr pos;
@@ -401,7 +401,7 @@ static int sharp_parameter_reader_(LocalRoot local, addr stream, addr *ret, unic
 	return 0;
 }
 
-_g int sharp_reader(Execute ptr, addr stream, addr code)
+int sharp_reader(Execute ptr, addr stream, addr code)
 {
 	addr arg, pos, code2;
 	unicode x, y;
@@ -432,7 +432,7 @@ _g int sharp_reader(Execute ptr, addr stream, addr code)
  *  dispatch # whitespace
  */
 /* (defun error-dispatch (stream code arg) ...) -> * */
-_g int error_dispatch(addr code)
+int error_dispatch(addr code)
 {
 	return fmte_("don't allow ~S dispatch character.", code, NULL);
 }
@@ -489,7 +489,7 @@ static int equal_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
 	return 0;
 }
 
-_g int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
+int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
 {
 	int check;
 	addr pos, label;
@@ -507,7 +507,7 @@ _g int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
 /*
  *  dispatch #n#
  */
-_g int sharp_dispatch(Execute ptr, addr y, addr *ret)
+int sharp_dispatch(Execute ptr, addr y, addr *ret)
 {
 	addr pos;
 
@@ -525,7 +525,7 @@ _g int sharp_dispatch(Execute ptr, addr y, addr *ret)
 /*
  *  dispatch #'
  */
-_g int single_quote_dispatch(Execute ptr, addr stream, addr *ret)
+int single_quote_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	Return(quote_macro_reader(ptr, CONSTANT_COMMON_FUNCTION, stream, ret));
 	if (stream == Unbound)
@@ -568,7 +568,7 @@ static void parensis_open_limit_dispatch(addr cons, size_t size, addr *ret)
 	*ret = vector;
 }
 
-_g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
+int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 {
 	enum ReadTable_Type type;
 	int check;
@@ -637,7 +637,7 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 /*
  *  dispatch #)
  */
-_g int parensis_close_dispatch(void)
+int parensis_close_dispatch(void)
 {
 	return fmte_("unmatch close parenthiesis ).", NULL);
 }
@@ -717,7 +717,7 @@ static int asterisk_size_dispatch_(Execute ptr, addr stream, size_t size, addr *
 	return Result(ret, pos);
 }
 
-_g int asterisk_dispatch_(Execute ptr, addr stream, addr x, addr y, addr *ret)
+int asterisk_dispatch_(Execute ptr, addr stream, addr x, addr y, addr *ret)
 {
 	size_t size;
 
@@ -769,7 +769,7 @@ static int colon_dispatch_call_(Execute ptr, addr stream, addr *ret)
 	return colon_object_dispatch_(ptr, stream, ret);
 }
 
-_g int colon_dispatch(Execute ptr, addr stream, addr *ret)
+int colon_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	addr control;
 
@@ -782,7 +782,7 @@ _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #<
  */
-_g int less_dispatch(void)
+int less_dispatch(void)
 {
 	return fmte_("Cannot read #< dispatch character.", NULL);
 }
@@ -791,7 +791,7 @@ _g int less_dispatch(void)
 /*
  *  dispatch #\
  */
-_g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
+int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr table, pos;
@@ -819,7 +819,7 @@ _g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #|
  */
-_g int or_dispatch_(addr stream)
+int or_dispatch_(addr stream)
 {
 	int check;
 	unicode u;
@@ -973,7 +973,7 @@ static int feature_ignore_dispatch(Execute ptr, addr stream, int *result)
 	return pop_control_(ptr, control);
 }
 
-_g int plus_dispatch(Execute ptr, addr stream)
+int plus_dispatch(Execute ptr, addr stream)
 {
 	int check;
 	addr feature, form, list;
@@ -1011,7 +1011,7 @@ _g int plus_dispatch(Execute ptr, addr stream)
 /*
  *  dispatch #-
  */
-_g int minus_dispatch(Execute ptr, addr stream)
+int minus_dispatch(Execute ptr, addr stream)
 {
 	int check;
 	addr feature, form, list;
@@ -1049,7 +1049,7 @@ _g int minus_dispatch(Execute ptr, addr stream)
 /*
  *  dispatch #.
  */
-_g int dot_dispatch(Execute ptr, addr stream, addr *ret)
+int dot_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr eval;
@@ -1124,7 +1124,7 @@ static int radix_read_dispatch(Execute ptr, addr stream, fixnum base, addr *ret)
 	return Result(ret, pos);
 }
 
-_g int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret)
+int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 {
 	int check;
 	fixnum value;
@@ -1143,7 +1143,7 @@ _g int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 /*
  *  dispatch #B
  */
-_g int binary_dispatch(Execute ptr, addr stream, addr *ret)
+int binary_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	return radix_read_dispatch(ptr, stream, 2, ret);
 }
@@ -1152,7 +1152,7 @@ _g int binary_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #O
  */
-_g int octal_dispatch(Execute ptr, addr stream, addr *ret)
+int octal_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	return radix_read_dispatch(ptr, stream, 8, ret);
 }
@@ -1161,7 +1161,7 @@ _g int octal_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #X
  */
-_g int hexadecimal_dispatch(Execute ptr, addr stream, addr *ret)
+int hexadecimal_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	return radix_read_dispatch(ptr, stream, 16, ret);
 }
@@ -1170,7 +1170,7 @@ _g int hexadecimal_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #C
  */
-_g int complex_dispatch(Execute ptr, addr stream, addr *ret)
+int complex_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr form, pos, real, imag;
@@ -1205,7 +1205,7 @@ error:
 /*
  *  dispatch #A
  */
-_g int array_dispatch(Execute ptr, addr stream, addr y, addr *ret)
+int array_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 {
 	int check, ignore;
 	addr form;
@@ -1228,7 +1228,7 @@ _g int array_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 /*
  *  dispatch #P
  */
-_g int pathname_dispatch(Execute ptr, addr stream, addr *ret)
+int pathname_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr pos;
@@ -1248,7 +1248,7 @@ _g int pathname_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #S
  */
-_g int structure_dispatch(Execute ptr, addr stream, addr *ret)
+int structure_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr pos, rest;
@@ -1277,7 +1277,7 @@ error:
 /*****************************************************************************
  *  initialize
  *****************************************************************************/
-_g void init_reader_function(void)
+void init_reader_function(void)
 {
 	SetPointerType(empty, equal_finalize_dispatch);
 }

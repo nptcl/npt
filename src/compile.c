@@ -40,7 +40,7 @@ static void compile_file_pathname_from_input(addr input, addr *ret)
 	}
 }
 
-_g int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
+int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
 {
 	addr output;
 
@@ -62,7 +62,7 @@ _g int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *re
 /*
  *  with-compilation-unit
  */
-_g int with_compilation_unit_common_(addr form, addr *ret)
+int with_compilation_unit_common_(addr form, addr *ret)
 {
 	/* (defmacro with-compilation-unit
 	 *     ((&rest args &key &allow-other-keys) &body body)
@@ -183,7 +183,7 @@ static int with_compilation_unit_special_(Execute ptr, addr call)
 	return pop_control_(ptr, control);
 }
 
-_g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
+int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
 {
 	addr control;
 
@@ -200,7 +200,7 @@ _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr cal
 /*
  *  initialize
  */
-_g void init_compile(void)
+void init_compile(void)
 {
 	SetPointerCall(defun, var1, handler_delay_warning);
 	SetPointerCall(defun, empty, finalize_delay_warning);

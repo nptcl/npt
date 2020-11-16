@@ -20,13 +20,13 @@
 /*
  *  upgraded-open-element-type
  */
-_g int upgrade_open_element_type_stream_(addr var, addr *ret)
+int upgrade_open_element_type_stream_(addr var, addr *ret)
 {
 	*ret = Nil;
 	return 0;
 }
 
-_g int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret)
+int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret)
 {
 	int result;
 	addr check, type;
@@ -686,7 +686,7 @@ static int open_direct_probe_stream_(Execute ptr, addr *ret, addr pos,
 	return Result(ret, stream);
 }
 
-_g int open_stream_(Execute ptr, addr *ret, addr pos,
+int open_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfExists if1,

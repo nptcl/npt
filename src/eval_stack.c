@@ -23,7 +23,7 @@
 /*
  *  memory
  */
-_g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
+void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 {
 	int i;
 	addr pos;
@@ -51,12 +51,12 @@ _g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 		str->optimize[i] = -1;
 	*ret = pos;
 }
-_g void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
+void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 {
 	Check(local == NULL, "local error");
 	eval_stack_alloc(local, ret, type);
 }
-_g void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type)
+void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type)
 {
 	/* for global stack */
 	eval_stack_alloc(NULL, ret, type);
@@ -66,62 +66,62 @@ _g void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type)
 /*
  *  eval-stack
  */
-_g struct eval_stack *structevalstack(addr pos)
+struct eval_stack *structevalstack(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack_Low(pos);
 }
-_g enum EVAL_STACK_MODE refevalstacktype(addr pos)
+enum EVAL_STACK_MODE refevalstacktype(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return RefEvalStackType_Low(pos);
 }
-_g void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret)
+void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackType_Low(pos, ret);
 }
-_g void setevalstacktype(addr pos, enum EVAL_STACK_MODE value)
+void setevalstacktype(addr pos, enum EVAL_STACK_MODE value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackType_Low(pos, value);
 }
-_g void getevalstacknext(addr pos, addr *ret)
+void getevalstacknext(addr pos, addr *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackNext_Low(pos, ret);
 }
-_g void setevalstacknext(addr pos, addr value)
+void setevalstacknext(addr pos, addr value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackNext_Low(pos, value);
 }
-_g void getevalstacktable(addr pos, addr *ret)
+void getevalstacktable(addr pos, addr *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackTable_Low(pos, ret);
 }
-_g void setevalstacktable(addr pos, addr value)
+void setevalstacktable(addr pos, addr value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackTable_Low(pos, value);
 }
-_g void getevalstackscope(addr pos, addr *ret)
+void getevalstackscope(addr pos, addr *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackScope_Low(pos, ret);
 }
-_g void setevalstackscope(addr pos, addr value)
+void setevalstackscope(addr pos, addr value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackScope_Low(pos, value);
 }
-_g void getevalstacklexical(addr pos, addr *ret)
+void getevalstacklexical(addr pos, addr *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackLexical_Low(pos, ret);
 }
-_g void setevalstacklexical(addr pos, addr value)
+void setevalstacklexical(addr pos, addr value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackLexical_Low(pos, value);
@@ -131,7 +131,7 @@ _g void setevalstacklexical(addr pos, addr value)
 /*
  *  eval-stack
  */
-_g int eval_stack_lambda_lexical_p(addr stack)
+int eval_stack_lambda_lexical_p(addr stack)
 {
 	enum EVAL_STACK_MODE type;
 	GetEvalStackType(stack, &type);
@@ -147,20 +147,20 @@ static void getglobal_symbol(addr *ret)
 	GetConst(SYSTEM_EVAL_SCOPE_GLOBAL, ret);
 }
 
-_g int getstack_eval_(Execute ptr, addr *ret)
+int getstack_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	getstack_symbol(&symbol);
 	return getspecialcheck_local_(ptr, symbol, ret);
 }
-_g int getglobal_eval_(Execute ptr, addr *ret)
+int getglobal_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	getglobal_symbol(&symbol);
 	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
-_g int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret)
+int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret)
 {
 	addr stack, symbol, next;
 
@@ -195,7 +195,7 @@ static int closestack_unsafe_(Execute ptr)
 	return 0;
 }
 
-_g int freestack_eval_(Execute ptr, addr scope)
+int freestack_eval_(Execute ptr, addr scope)
 {
 	addr symbol, pos;
 
@@ -221,7 +221,7 @@ _g int freestack_eval_(Execute ptr, addr scope)
 	return 0;
 }
 
-_g int begin_eval_stack_(Execute ptr)
+int begin_eval_stack_(Execute ptr)
 {
 	addr symbol, stack;
 
@@ -248,30 +248,30 @@ static int function_free_eval_stack(Execute ptr)
 	return 0;
 }
 
-_g void free_eval_stack(Execute ptr)
+void free_eval_stack(Execute ptr)
 {
 	setprotect_control(ptr, p_defun_free_eval_stack, Nil);
 }
 
-_g int globalp_stack_eval(addr pos)
+int globalp_stack_eval(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack(pos)->globalp;
 }
 
-_g size_t increment_stack_eval(addr pos)
+size_t increment_stack_eval(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return (StructEvalStack(pos)->lexical)++;
 }
 
-_g size_t getlexical_stack_eval(addr pos)
+size_t getlexical_stack_eval(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack(pos)->lexical;
 }
 
-_g void getlexical_index_heap(addr stack, addr *ret)
+void getlexical_index_heap(addr stack, addr *ret)
 {
 	size_t size;
 
@@ -282,7 +282,7 @@ _g void getlexical_index_heap(addr stack, addr *ret)
 		index_heap(ret, size);
 }
 
-_g void init_eval_stack(void)
+void init_eval_stack(void)
 {
 	SetPointerCall(defun, empty, free_eval_stack);
 }
@@ -414,7 +414,7 @@ static void apply_declare_switch(LocalRoot local,
 	}
 }
 
-_g int apply_declaim_stack_(Execute ptr, addr declare)
+int apply_declaim_stack_(Execute ptr, addr declare)
 {
 	addr stack;
 
@@ -430,7 +430,7 @@ _g int apply_declaim_stack_(Execute ptr, addr declare)
 /*
  *  declare
  */
-_g void apply_declare_stack(LocalRoot local, addr stack, addr declare)
+void apply_declare_stack(LocalRoot local, addr stack, addr declare)
 {
 	if (declare == Nil)
 		return;
@@ -465,7 +465,7 @@ static void apply_plistsymbol_stack(LocalRoot local,
 	}
 }
 
-_g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare)
+void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare)
 {
 	addr pos;
 
@@ -522,7 +522,7 @@ static void apply_plistcall_stack(LocalRoot local,
 	}
 }
 
-_g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare)
+void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare)
 {
 	addr pos;
 
@@ -552,7 +552,7 @@ _g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, add
 /*
  *  table scope
  */
-_g int getvalue_scope_evalstack(addr stack, addr pos, addr *ret)
+int getvalue_scope_evalstack(addr stack, addr pos, addr *ret)
 {
 	Check(! eval_stack_p(stack), "type error");
 	Check(! symbolp(pos), "name error");
@@ -560,7 +560,7 @@ _g int getvalue_scope_evalstack(addr stack, addr pos, addr *ret)
 	return getvalue_evaltable(stack, pos, ret);
 }
 
-_g void setvalue_scope_evalstack(addr stack, addr pos)
+void setvalue_scope_evalstack(addr stack, addr pos)
 {
 	addr list;
 #ifdef LISP_DEBUG
@@ -579,7 +579,7 @@ _g void setvalue_scope_evalstack(addr stack, addr pos)
 	SetEvalStackScope(stack, list);
 }
 
-_g int getfunction_scope_evalstack(addr stack, addr pos, addr *ret)
+int getfunction_scope_evalstack(addr stack, addr pos, addr *ret)
 {
 	Check(! eval_stack_p(stack), "type error");
 	Check(! callnamep(pos), "name error");
@@ -587,7 +587,7 @@ _g int getfunction_scope_evalstack(addr stack, addr pos, addr *ret)
 	return getfunction_evaltable(stack, pos, ret);
 }
 
-_g void setfunction_scope_evalstack(addr stack, addr pos)
+void setfunction_scope_evalstack(addr stack, addr pos)
 {
 	addr list;
 #ifdef LISP_DEBUG
@@ -606,7 +606,7 @@ _g void setfunction_scope_evalstack(addr stack, addr pos)
 	SetEvalStackScope(stack, list);
 }
 
-_g int gettagbody_scope_evalstack(addr stack, addr pos, addr *ret)
+int gettagbody_scope_evalstack(addr stack, addr pos, addr *ret)
 {
 	Check(! eval_stack_p(stack), "type error");
 	Check(! tagbody_tag_p(pos), "name error");
@@ -614,7 +614,7 @@ _g int gettagbody_scope_evalstack(addr stack, addr pos, addr *ret)
 	return gettagbody_evaltable(stack, pos, ret);
 }
 
-_g void settagbody_scope_evalstack(addr stack, addr pos)
+void settagbody_scope_evalstack(addr stack, addr pos)
 {
 	addr list;
 #ifdef LISP_DEBUG
@@ -633,7 +633,7 @@ _g void settagbody_scope_evalstack(addr stack, addr pos)
 	SetEvalStackScope(stack, list);
 }
 
-_g int getblock_scope_evalstack(addr stack, addr pos, addr *ret)
+int getblock_scope_evalstack(addr stack, addr pos, addr *ret)
 {
 	Check(! eval_stack_p(stack), "type error");
 	Check(! symbolp(pos), "name error");
@@ -641,7 +641,7 @@ _g int getblock_scope_evalstack(addr stack, addr pos, addr *ret)
 	return getblock_evaltable(stack, pos, ret);
 }
 
-_g void setblock_scope_evalstack(addr stack, addr pos)
+void setblock_scope_evalstack(addr stack, addr pos)
 {
 	addr list;
 #ifdef LISP_DEBUG
@@ -664,7 +664,7 @@ _g void setblock_scope_evalstack(addr stack, addr pos)
 /*
  *  table lexical
  */
-_g void setvalue_lexical_evalstack(addr stack, addr pos)
+void setvalue_lexical_evalstack(addr stack, addr pos)
 {
 	addr list;
 
@@ -676,7 +676,7 @@ _g void setvalue_lexical_evalstack(addr stack, addr pos)
 	SetEvalStackLexical(stack, list);
 }
 
-_g void setfunction_lexical_evalstack(addr stack, addr pos)
+void setfunction_lexical_evalstack(addr stack, addr pos)
 {
 	addr list;
 
@@ -688,7 +688,7 @@ _g void setfunction_lexical_evalstack(addr stack, addr pos)
 	SetEvalStackLexical(stack, list);
 }
 
-_g void settagbody_lexical_evalstack(addr stack, addr pos)
+void settagbody_lexical_evalstack(addr stack, addr pos)
 {
 	addr list;
 
@@ -700,7 +700,7 @@ _g void settagbody_lexical_evalstack(addr stack, addr pos)
 	SetEvalStackLexical(stack, list);
 }
 
-_g void setblock_lexical_evalstack(addr stack, addr pos)
+void setblock_lexical_evalstack(addr stack, addr pos)
 {
 	addr list;
 

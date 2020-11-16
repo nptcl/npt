@@ -12,7 +12,7 @@
 /*
  *  make-symbol
  */
-_g void make_symbol_common(addr var, addr *ret)
+void make_symbol_common(addr var, addr *ret)
 {
 	addr pos;
 
@@ -45,7 +45,7 @@ static void copy_symbol_type_common(addr var, addr symbol)
 		settype_setf_symbol(symbol, type);
 }
 
-_g int copy_symbol_common_(addr var, addr opt, addr *ret)
+int copy_symbol_common_(addr var, addr opt, addr *ret)
 {
 	addr symbol, pos;
 
@@ -82,7 +82,7 @@ _g int copy_symbol_common_(addr var, addr opt, addr *ret)
 /*
  *  gensym
  */
-_g int gensym_common(Execute ptr, addr opt, addr *ret)
+int gensym_common(Execute ptr, addr opt, addr *ret)
 {
 	if (opt == Unbound)
 		return make_gensym_(ptr, ret);
@@ -98,7 +98,7 @@ _g int gensym_common(Execute ptr, addr opt, addr *ret)
 /*
  *  gentemp
  */
-_g int gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret)
+int gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret)
 {
 	if (opt1 == Unbound)
 		opt1 = NULL;
@@ -111,7 +111,7 @@ _g int gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret)
 /*
  *  (setf symbol-function)
  */
-_g int setf_symbol_function_common(addr value, addr symbol)
+int setf_symbol_function_common(addr value, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
 		return fmte_("The symbol ~S is readonly.", symbol, NULL);
@@ -125,7 +125,7 @@ _g int setf_symbol_function_common(addr value, addr symbol)
 /*
  *  (setf symbol-value)
  */
-_g int setf_symbol_value_common(Execute ptr, addr value, addr symbol)
+int setf_symbol_value_common(Execute ptr, addr value, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
 		return fmte_("The symbol ~S is readonly.", symbol, NULL);
@@ -138,7 +138,7 @@ _g int setf_symbol_value_common(Execute ptr, addr value, addr symbol)
 /*
  *  (setf symbol-plist)
  */
-_g int setf_symbol_plist_common(addr value, addr symbol)
+int setf_symbol_plist_common(addr value, addr symbol)
 {
 	SetPlistSymbol(symbol, value);
 	return 0;
@@ -148,7 +148,7 @@ _g int setf_symbol_plist_common(addr value, addr symbol)
 /*
  *  get
  */
-_g int get_common(addr var1, addr var2, addr opt, addr *ret)
+int get_common(addr var1, addr var2, addr opt, addr *ret)
 {
 	int check;
 
@@ -164,7 +164,7 @@ _g int get_common(addr var1, addr var2, addr opt, addr *ret)
 /*
  *  (setf get)
  */
-_g int setf_get_common(addr value, addr symbol, addr key)
+int setf_get_common(addr value, addr symbol, addr key)
 {
 	addr list;
 
@@ -180,7 +180,7 @@ _g int setf_get_common(addr value, addr symbol, addr key)
 /*
  *  remprop
  */
-_g int remprop_common(addr symbol, addr key, addr *ret)
+int remprop_common(addr symbol, addr key, addr *ret)
 {
 	enum RemPlist value;
 	addr list;
@@ -206,7 +206,7 @@ _g int remprop_common(addr symbol, addr key, addr *ret)
 /*
  *  makunbound
  */
-_g int makunbound_common(Execute ptr, addr symbol)
+int makunbound_common(Execute ptr, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
 		return fmte_("The symbol ~S is readonly.", symbol, NULL);
@@ -218,7 +218,7 @@ _g int makunbound_common(Execute ptr, addr symbol)
 /*
  *  set
  */
-_g int set_common(Execute ptr, addr symbol, addr value)
+int set_common(Execute ptr, addr symbol, addr value)
 {
 	if (GetStatusReadOnly(symbol))
 		return fmte_("The symbol ~S is readonly.", symbol, NULL);

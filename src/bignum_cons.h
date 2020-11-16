@@ -36,13 +36,13 @@ struct bigcons_struct {
 	size_t size;
 };
 
-_g void bigcons_local(LocalRoot local, addr *ret);
-_g void clear_bigcons(addr pos);
-_g void push_bigcons(LocalRoot local, addr pos, unsigned base, unsigned number);
-_g int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *value);
-_g int bigcons_char_local_(LocalRoot local, addr *ret, unsigned base, const char *value);
-_g void bigcons_char_unsafe(LocalRoot local, addr *ret, unsigned base, const char *value);
-_g int bigcons_empty_p(addr pos);
+void bigcons_local(LocalRoot local, addr *ret);
+void clear_bigcons(addr pos);
+void push_bigcons(LocalRoot local, addr pos, unsigned base, unsigned number);
+int setchar_bigcons_(LocalRoot local, addr pos, unsigned base, const char *value);
+int bigcons_char_local_(LocalRoot local, addr *ret, unsigned base, const char *value);
+void bigcons_char_unsafe(LocalRoot local, addr *ret, unsigned base, const char *value);
+int bigcons_empty_p(addr pos);
 
 #endif
 

@@ -33,7 +33,7 @@ static inline int multisafe_fixnum(fixnum c1, fixnum c2, fixnum *ret)
 	return 0;
 }
 
-_g void multi_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	fixnum value1, value2, value;
@@ -128,18 +128,18 @@ static void multi_ff_real_alloc(LocalRoot local, addr left, addr right, addr *re
 	multicarry_fixnum(local, value1, value2, ret);
 }
 
-_g void multi_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	multi_ff_real_alloc(local, left, right, ret);
 }
 
-_g void multi_ff_real_common(addr left, addr right, addr *ret)
+void multi_ff_real_common(addr left, addr right, addr *ret)
 {
 	multi_ff_real_alloc(NULL, left, right, ret);
 }
 
-_g void multi_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
 	addr pos, root;
@@ -193,7 +193,7 @@ _g void multi_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	*ret = pos;
 }
 
-_g void multi_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
 	addr pos, root;
@@ -247,7 +247,7 @@ _g void multi_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	bignum_result_local(local, pos, ret);
 }
 
-_g void multi_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
 	addr pos, root;
@@ -304,7 +304,7 @@ _g void multi_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	rollback_local(local, stack);
 }
 
-_g void multi_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	int sign1, sign2;
@@ -360,7 +360,7 @@ _g void multi_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	*ret = root;
 }
 
-_g void multi_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	int sign1, sign2;
@@ -416,7 +416,7 @@ _g void multi_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	bignum_result_local(local, root, ret);
 }
 
-_g void multi_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	int sign1, sign2;
@@ -475,7 +475,7 @@ _g void multi_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	rollback_local(local, stack);
 }
 
-_g void multi_bb_nosign_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bb_nosign_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	size_t size1, size2;
@@ -521,7 +521,7 @@ _g void multi_bb_nosign_bignum_local(LocalRoot local, addr left, addr right, add
 	*ret = root;
 }
 
-_g void multi_bb_nosign_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bb_nosign_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	size_t size1, size2;
@@ -567,7 +567,7 @@ _g void multi_bb_nosign_real_local(LocalRoot local, addr left, addr right, addr 
 	bignum_result_local(local, root, ret);
 }
 
-_g void multi_bb_nosign_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void multi_bb_nosign_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	size_t size1, size2;

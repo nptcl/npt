@@ -51,7 +51,7 @@ struct readinfo_struct {
 #define GetReadInfo_Low			GetArraySS
 #define SetReadInfo_Low			SetArraySS
 #define ReadInfoStruct_Low(x)	\
-		((struct readinfo_struct *)PtrBodySSa((x), ReadInfo_Size))
+	((struct readinfo_struct *)PtrBodySSa((x), ReadInfo_Size))
 
 #ifdef LISP_DEBUG
 #define GetReadInfo				get_readinfo
@@ -63,25 +63,25 @@ struct readinfo_struct {
 #define ReadInfoStruct			ReadInfoStruct_Low
 #endif
 
-_g void get_readinfo(addr pos, size_t index, addr *ret);
-_g void set_readinfo(addr pos, size_t index, addr value);
-_g struct readinfo_struct *struct_readinfo(addr pos);
+void get_readinfo(addr pos, size_t index, addr *ret);
+void set_readinfo(addr pos, size_t index, addr value);
+struct readinfo_struct *struct_readinfo(addr pos);
 
-_g void getreadinfo(Execute ptr, addr *ret);
-_g struct readinfo_struct *getreadinfo_struct(Execute ptr);
-_g void pushreadinfo(Execute ptr, addr *ret);
-_g int pushreadinfo_recursive_(Execute ptr, addr *ret);
-_g void getpackage_readinfo(Execute ptr, addr *ret);
-_g void setpackage_readinfo(Execute ptr, addr value);
-_g void getqueue_readinfo(Execute ptr, addr *ret);
-_g unsigned getpreserving_readinfo(Execute ptr);
-_g unsigned getescape_readinfo(Execute ptr);
-_g void setescape_readinfo(Execute ptr, unsigned value);
-_g unsigned getdot_readinfo(Execute ptr);
-_g unsigned getreplace_readinfo(Execute ptr, addr *label);
-_g enum ReadInfo_State getstate_readinfo(Execute ptr);
-_g void setstate_readinfo(Execute ptr, enum ReadInfo_State value);
-_g void clear_readinfo(Execute ptr);
+void getreadinfo(Execute ptr, addr *ret);
+struct readinfo_struct *getreadinfo_struct(Execute ptr);
+void pushreadinfo(Execute ptr, addr *ret);
+int pushreadinfo_recursive_(Execute ptr, addr *ret);
+void getpackage_readinfo(Execute ptr, addr *ret);
+void setpackage_readinfo(Execute ptr, addr value);
+void getqueue_readinfo(Execute ptr, addr *ret);
+unsigned getpreserving_readinfo(Execute ptr);
+unsigned getescape_readinfo(Execute ptr);
+void setescape_readinfo(Execute ptr, unsigned value);
+unsigned getdot_readinfo(Execute ptr);
+unsigned getreplace_readinfo(Execute ptr, addr *label);
+enum ReadInfo_State getstate_readinfo(Execute ptr);
+void setstate_readinfo(Execute ptr, enum ReadInfo_State value);
+void clear_readinfo(Execute ptr);
 
 #endif
 

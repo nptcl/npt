@@ -35,7 +35,7 @@ static int specialp_stack_tablevalue(addr stack, addr symbol, int *ret)
 	return 0;
 }
 
-_g int specialp_tablevalue_(Execute ptr, addr stack, addr symbol, int *ret)
+int specialp_tablevalue_(Execute ptr, addr stack, addr symbol, int *ret)
 {
 	int result;
 	addr global_stack;
@@ -65,7 +65,7 @@ _g int specialp_tablevalue_(Execute ptr, addr stack, addr symbol, int *ret)
 	return Result(ret, 0);
 }
 
-_g int find_tablevalue(addr stack, addr symbol, addr *ret)
+int find_tablevalue(addr stack, addr symbol, addr *ret)
 {
 	addr value;
 
@@ -74,7 +74,7 @@ _g int find_tablevalue(addr stack, addr symbol, addr *ret)
 	return getvalue_scope_evalstack(stack, symbol, ret);
 }
 
-_g int find_tablefunction(addr stack, addr call, addr *ret)
+int find_tablefunction(addr stack, addr call, addr *ret)
 {
 	addr value;
 
@@ -131,7 +131,7 @@ static int globalp_stack_tablefunction(addr stack, addr call)
 	return 0;
 }
 
-_g int globalp_tablefunction_(Execute ptr, addr stack, addr call, int *ret)
+int globalp_tablefunction_(Execute ptr, addr stack, addr call, int *ret)
 {
 	addr value, global_stack;
 
@@ -206,7 +206,7 @@ static int check_declare_stack_(Execute ptr, addr stack, addr decl, addr *ret)
 	return 0;
 }
 
-_g int apply_declare_(Execute ptr, addr stack, addr decl, addr *ret)
+int apply_declare_(Execute ptr, addr stack, addr decl, addr *ret)
 {
 	if (decl == Nil)
 		return Result(ret, Nil);

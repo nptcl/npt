@@ -24,7 +24,7 @@ static int wild_pathname_string_(addr pos, int *ret)
 	return Result(ret, 0);
 }
 
-_g int wild_pathname_boolean_(addr file, addr field, int *ret)
+int wild_pathname_boolean_(addr file, addr field, int *ret)
 {
 	int check;
 	addr value, pos, wild1, wild2, path;
@@ -141,7 +141,7 @@ static int wildcard_string_p_(addr pos, int *ret)
 	return Result(ret, 0);
 }
 
-_g int wildcard_stringp_p_(addr pos, int *ret)
+int wildcard_stringp_p_(addr pos, int *ret)
 {
 	if (! stringp(pos))
 		return Result(ret, 0);
@@ -149,7 +149,7 @@ _g int wildcard_stringp_p_(addr pos, int *ret)
 		return wildcard_string_p_(pos, ret);
 }
 
-_g int wildcard_string_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
+int wildcard_string_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
 {
 	int check, check1, check2;
 	addr wild;
@@ -175,7 +175,7 @@ _g int wildcard_string_pathname_(addr a, addr b, lisp_equal_calltype equal, int 
 	return wildcard_character_pathname_(a, 0, s1, b, 0, s2, ret);
 }
 
-_g int wildcard_eq_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
+int wildcard_eq_pathname_(addr a, addr b, lisp_equal_calltype equal, int *ret)
 {
 	if (a == b)
 		return Result(ret, 1);
@@ -314,7 +314,7 @@ static int wildcard_version_pathname(addr a, addr b)
 	return b == wild;
 }
 
-_g int wildcard_pathname_(addr a, addr b, int wild, int *ret)
+int wildcard_pathname_(addr a, addr b, int wild, int *ret)
 {
 	int check;
 	addr check1, check2;

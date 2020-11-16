@@ -222,7 +222,7 @@ static int assert_list_common(Execute ptr, addr env,
 	return 0;
 }
 
-_g int assert_common(Execute ptr, addr form, addr env, addr *ret)
+int assert_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, test, list;
 
@@ -281,7 +281,7 @@ static int error_datum_common(Execute ptr, addr datum, addr rest, addr *ret)
 	return Result(ret, datum);
 }
 
-_g int error_common(Execute ptr, addr datum, addr rest)
+int error_common(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-error */
@@ -323,7 +323,7 @@ static int cerror_restart_common(Execute ptr, addr restart, addr datum)
 	return pop_control_(ptr, control);
 }
 
-_g int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
+int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
 {
 	int check;
 	LocalHold hold;
@@ -485,7 +485,7 @@ static int check_type_expand_common(Execute ptr, addr env, addr *ret,
 	return 0;
 }
 
-_g int check_type_common(Execute ptr, addr form, addr env, addr *ret)
+int check_type_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, type, string;
 
@@ -516,7 +516,7 @@ error:
 /*
  *  invalid-method-error
  */
-_g int invalid_method_error_common(Execute ptr, addr method, addr format, addr args)
+int invalid_method_error_common(Execute ptr, addr method, addr format, addr args)
 {
 	addr control, arguments, pos;
 
@@ -530,7 +530,7 @@ _g int invalid_method_error_common(Execute ptr, addr method, addr format, addr a
 /*
  *  method-combination-error
  */
-_g int method_combination_error_common(Execute ptr, addr format, addr args)
+int method_combination_error_common(Execute ptr, addr format, addr args)
 {
 	addr control, arguments, pos;
 
@@ -544,7 +544,7 @@ _g int method_combination_error_common(Execute ptr, addr format, addr args)
 /*
  *  signal
  */
-_g int signal_common(Execute ptr, addr datum, addr rest)
+int signal_common(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-condition */
@@ -560,7 +560,7 @@ _g int signal_common(Execute ptr, addr datum, addr rest)
 /*
  *  warn
  */
-_g int warn_common(Execute ptr, addr datum, addr rest)
+int warn_common(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-warning */
@@ -619,7 +619,7 @@ static void break_make_common(addr *ret)
 	*ret = inst;
 }
 
-_g int break_common(Execute ptr, addr format, addr args)
+int break_common(Execute ptr, addr format, addr args)
 {
 	/* (defun break (&optional (format-control "Break") &rest args)
 	 *   (with-simple-restart (continue "Return from BREAK.")
@@ -677,7 +677,7 @@ static int handler_bind_clauses_common(addr form, addr *ret)
 	return 0;
 }
 
-_g int handler_bind_common(addr form, addr env, addr *ret)
+int handler_bind_common(addr form, addr env, addr *ret)
 {
 	addr symbol, body;
 
@@ -809,7 +809,7 @@ static void handler_case_body(addr noerror, addr expr, addr *ret)
 	list_heap(ret, pos, noerror, expr, NULL);
 }
 
-_g int handler_case_common(Execute ptr, addr right, addr env, addr *ret)
+int handler_case_common(Execute ptr, addr right, addr env, addr *ret)
 {
 	addr symbol, expr, noerror;
 
@@ -832,7 +832,7 @@ _g int handler_case_common(Execute ptr, addr right, addr env, addr *ret)
 /*
  *  ignore-errors
  */
-_g int ignore_errors_common(Execute ptr, addr form, addr env, addr *ret)
+int ignore_errors_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(handler-case (progn ,@form)
 	 *    (error (g) (values nil g)))
@@ -858,7 +858,7 @@ _g int ignore_errors_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  make-condition
  */
-_g int make_condition_common(Execute ptr, addr args, addr *ret)
+int make_condition_common(Execute ptr, addr args, addr *ret)
 {
 	addr call;
 
@@ -871,7 +871,7 @@ _g int make_condition_common(Execute ptr, addr args, addr *ret)
 /*
  *  compute-restarts
  */
-_g int compute_restarts_common_(Execute ptr, addr pos, addr *ret)
+int compute_restarts_common_(Execute ptr, addr pos, addr *ret)
 {
 	if (pos == Unbound)
 		pos = Nil;
@@ -882,7 +882,7 @@ _g int compute_restarts_common_(Execute ptr, addr pos, addr *ret)
 /*
  *  find-restart
  */
-_g int find_restart_common_(Execute ptr, addr var, addr opt, addr *ret)
+int find_restart_common_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 
@@ -1021,7 +1021,7 @@ static int restart_bind_clauses_common(addr right, addr *ret)
 	return 0;
 }
 
-_g int restart_bind_common(addr right, addr env, addr *ret)
+int restart_bind_common(addr right, addr env, addr *ret)
 {
 	addr symbol, body;
 
@@ -1149,7 +1149,7 @@ static int restart_case_clauses(addr right, addr *ret)
 	return 0;
 }
 
-_g int restart_case_common(addr right, addr env, addr *ret)
+int restart_case_common(addr right, addr env, addr *ret)
 {
 	addr symbol, expr;
 
@@ -1171,7 +1171,7 @@ _g int restart_case_common(addr right, addr env, addr *ret)
 /*
  *  with-condition-restarts
  */
-_g int with_condition_restarts_common(addr right, addr env, addr *ret)
+int with_condition_restarts_common(addr right, addr env, addr *ret)
 {
 	addr condition, cons, symbol;
 
@@ -1201,7 +1201,7 @@ _g int with_condition_restarts_common(addr right, addr env, addr *ret)
 /*
  *  with-simple-restart
  */
-_g int with_simple_restart_common(addr form, addr env, addr *ret)
+int with_simple_restart_common(addr form, addr env, addr *ret)
 {
 	/* (defmacro with-simple-restart ((name &rest args) &body body)
 	 *   `(restart-case
@@ -1250,7 +1250,7 @@ error:
 /*
  *  abort
  */
-_g int abort_common(Execute ptr, addr opt)
+int abort_common(Execute ptr, addr opt)
 {
 	addr pos;
 
@@ -1266,7 +1266,7 @@ _g int abort_common(Execute ptr, addr opt)
 /*
  *  continue
  */
-_g int continue_common(Execute ptr, addr opt)
+int continue_common(Execute ptr, addr opt)
 {
 	int check;
 	addr pos;
@@ -1286,7 +1286,7 @@ _g int continue_common(Execute ptr, addr opt)
 /*
  *  muffle-warning
  */
-_g int muffle_warning_common(Execute ptr, addr opt)
+int muffle_warning_common(Execute ptr, addr opt)
 {
 	int check;
 	addr pos;
@@ -1305,7 +1305,7 @@ _g int muffle_warning_common(Execute ptr, addr opt)
 /*
  *  store-value
  */
-_g int store_value_common(Execute ptr, addr var, addr opt)
+int store_value_common(Execute ptr, addr var, addr opt)
 {
 	int check;
 	addr pos;
@@ -1326,7 +1326,7 @@ _g int store_value_common(Execute ptr, addr var, addr opt)
 /*
  *  use-value
  */
-_g int use_value_common(Execute ptr, addr var, addr opt)
+int use_value_common(Execute ptr, addr var, addr opt)
 {
 	int check;
 	addr pos;

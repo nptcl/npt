@@ -859,7 +859,7 @@ static void defun_merge_pathnames(void)
 /*
  *  function
  */
-_g void init_common_filenames(void)
+void init_common_filenames(void)
 {
 	SetPointerCall(defun, var1, pathname);
 	SetPointerCall(defun, dynamic, make_pathname);
@@ -887,7 +887,7 @@ _g void init_common_filenames(void)
 	SetPointerCall(defun, var1opt2, merge_pathnames);
 }
 
-_g void build_common_filenames(void)
+void build_common_filenames(void)
 {
 	defun_pathname();
 	defun_make_pathname();

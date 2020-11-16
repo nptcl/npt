@@ -31,31 +31,31 @@
 #define update_standard_stream _n(update_standard_stream)
 #define save_stream _n(save_stream)
 
-_g int open_stream_p(addr stream);
-_g int copyleft_stream_(addr stream, addr src);
-_g int pageout_stream_(addr stream);
-_g int print_ascii_stream_(addr stream, const char *data);
-_g int print_unicode_stream_(addr stream, const unicode *data);
-_g int print_string_stream_(addr stream, addr pos);
-_g int input_stream_designer_(Execute ptr, addr stream, addr *ret);
-_g int output_stream_designer_(Execute ptr, addr stream, addr *ret);
+int open_stream_p(addr stream);
+int copyleft_stream_(addr stream, addr src);
+int pageout_stream_(addr stream);
+int print_ascii_stream_(addr stream, const char *data);
+int print_unicode_stream_(addr stream, const unicode *data);
+int print_string_stream_(addr stream, addr pos);
+int input_stream_designer_(Execute ptr, addr stream, addr *ret);
+int output_stream_designer_(Execute ptr, addr stream, addr *ret);
 
 /* special variable */
-_g int standard_input_stream_(Execute ptr, addr *ret);
-_g int standard_output_stream_(Execute ptr, addr *ret);
-_g int error_output_stream_(Execute ptr, addr *ret);
-_g int trace_output_stream_(Execute ptr, addr *ret);
-_g int terminal_io_stream_(Execute ptr, addr *ret);
-_g int debug_io_stream_(Execute ptr, addr *ret);
-_g int query_io_stream_(Execute ptr, addr *ret);
+int standard_input_stream_(Execute ptr, addr *ret);
+int standard_output_stream_(Execute ptr, addr *ret);
+int error_output_stream_(Execute ptr, addr *ret);
+int trace_output_stream_(Execute ptr, addr *ret);
+int terminal_io_stream_(Execute ptr, addr *ret);
+int debug_io_stream_(Execute ptr, addr *ret);
+int query_io_stream_(Execute ptr, addr *ret);
 
 /* wrapper */
-_g int read_unsigned8_stream_(addr stream, byte *value, int *ret);
-_g int write_unsigned8_stream_(addr stream, byte value);
+int read_unsigned8_stream_(addr stream, byte *value, int *ret);
+int write_unsigned8_stream_(addr stream, byte value);
 
 /* core */
-_g void update_standard_stream(void);
-_g int save_stream(addr pos);
+void update_standard_stream(void);
+int save_stream(addr pos);
 
 #endif
 

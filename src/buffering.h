@@ -19,22 +19,22 @@
 #define make_vector_buffering_heap_ _n(make_vector_buffering_heap_)
 #define read_buffering_ _n(read_buffering_)
 
-_g int bufferingp(addr pos);
-_g void buffering_heap(addr *ret, size_t cell, size_t array);
-_g void clear_buffering(addr pos);
-_g int end_buffering(addr pos);
-_g void getcell_buffering(addr pos, size_t *ret);
-_g void getwidth_buffering(addr pos, size_t *ret);
+int bufferingp(addr pos);
+void buffering_heap(addr *ret, size_t cell, size_t array);
+void clear_buffering(addr pos);
+int end_buffering(addr pos);
+void getcell_buffering(addr pos, size_t *ret);
+void getwidth_buffering(addr pos, size_t *ret);
 
-_g int putc_buffering(addr pos, byte c);
-_g int getc_buffering(addr pos, byte *ret);
-_g void position_get_buffering(addr pos, size_t *ret);
-_g void position_set_buffering(addr pos, size_t value);
-_g void position_start_buffering(addr pos);
-_g void position_end_buffering(addr pos);
-_g void length_buffering(addr pos, size_t *ret);
-_g int make_vector_buffering_heap_(addr pos, addr *ret);
-_g int read_buffering_(addr pos, addr vector);
+int putc_buffering(addr pos, byte c);
+int getc_buffering(addr pos, byte *ret);
+void position_get_buffering(addr pos, size_t *ret);
+void position_set_buffering(addr pos, size_t value);
+void position_start_buffering(addr pos);
+void position_end_buffering(addr pos);
+void length_buffering(addr pos, size_t *ret);
+int make_vector_buffering_heap_(addr pos, addr *ret);
+int read_buffering_(addr pos, addr vector);
 
 #endif
 

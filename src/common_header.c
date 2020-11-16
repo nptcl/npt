@@ -6,7 +6,7 @@
 /*
  *  clang function
  */
-_g void defconstant_symbol(addr symbol, addr value)
+void defconstant_symbol(addr symbol, addr value)
 {
 	setspecial_symbol(symbol);
 	SetValueSymbol(symbol, value);
@@ -25,19 +25,19 @@ static void check_function_macro(addr symbol)
 		Abort("COMMON-LISP macro-function error.");
 }
 
-_g void setfunction_common(addr symbol, addr value)
+void setfunction_common(addr symbol, addr value)
 {
 	check_function_macro(symbol);
 	SetFunctionSymbol(symbol, value);
 }
 
-_g void setmacro_common(addr symbol, addr value)
+void setmacro_common(addr symbol, addr value)
 {
 	check_function_macro(symbol);
 	setmacro_symbol(symbol, value);
 }
 
-_g void setsetfmacro_common(addr symbol, addr value)
+void setsetfmacro_common(addr symbol, addr value)
 {
 	addr check;
 
@@ -47,7 +47,7 @@ _g void setsetfmacro_common(addr symbol, addr value)
 	setsetfmacro_symbol(symbol, value);
 }
 
-_g void define_special_operator(constindex index)
+void define_special_operator(constindex index)
 {
 	addr symbol;
 	GetConstant(index, &symbol);
@@ -128,25 +128,25 @@ static int keyword_start_end_const_(constindex cstart, constindex cend,
 			kstart, kend, astart, aend, pstart, pend);
 }
 
-_g int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend)
+int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	return keyword_start_end_const_(CONSTANT_KEYWORD_START, CONSTANT_KEYWORD_END,
 			size, rest, pstart, pend);
 }
 
-_g int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend)
+int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	return keyword_start_end_const_(CONSTANT_KEYWORD_START1, CONSTANT_KEYWORD_END1,
 			size, rest, pstart, pend);
 }
 
-_g int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend)
+int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	return keyword_start_end_const_(CONSTANT_KEYWORD_START2, CONSTANT_KEYWORD_END2,
 			size, rest, pstart, pend);
 }
 
-_g int keyword_start_end_value_(size_t size,
+int keyword_start_end_value_(size_t size,
 		addr astart, addr aend, size_t *pstart, size_t *pend)
 {
 	addr kstart, kend;

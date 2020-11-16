@@ -11,12 +11,12 @@
 	CodeValueArray[p_##x] = (byte)CodeValueType_##y; \
 }
 
-_g byte CodeValueArray[p_size_code];
+byte CodeValueArray[p_size_code];
 
 /*
  *  initialize
  */
-_g void defcode_constant(constindex index, pointer p)
+void defcode_constant(constindex index, pointer p)
 {
 	addr symbol, pos;
 
@@ -29,7 +29,7 @@ _g void defcode_constant(constindex index, pointer p)
 	SetFunctionSymbol(symbol, pos);
 }
 
-_g void init_code_init(void)
+void init_code_init(void)
 {
 	cleartype(CodeValueArray);
 
@@ -183,7 +183,7 @@ _g void init_code_init(void)
 /*
  *  build
  */
-_g void build_code_init(void)
+void build_code_init(void)
 {
 	/* system */
 	defcode(NOP, nop_code);

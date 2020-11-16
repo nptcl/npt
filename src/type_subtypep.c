@@ -1932,7 +1932,7 @@ static int subtypep_right_(addr left, addr right, SubtypepResult *ret)
 /*
  *  subtypep_clang
  */
-_g void init_type_subtypep(void)
+void init_type_subtypep(void)
 {
 	int i;
 
@@ -2042,7 +2042,7 @@ static int real_extract_subtypep_(LocalRoot local, addr *ret, addr type)
 	return 0;
 }
 
-_g int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
+int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
 {
 	SubtypepResult result;
 	LocalRoot local;
@@ -2086,14 +2086,14 @@ static int subtypep_execute_(addr left, addr right, int aster, int *ret, int *va
 	return Result(ret, 0);
 }
 
-_g int subtypep_asterisk_clang_(addr left, addr right, int *ret, int *validp)
+int subtypep_asterisk_clang_(addr left, addr right, int *ret, int *validp)
 {
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
 	return subtypep_execute_(left, right, 1, ret, validp);
 }
 
-_g int subtypep_clang_(addr left, addr right, int *ret, int *validp)
+int subtypep_clang_(addr left, addr right, int *ret, int *validp)
 {
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
@@ -2156,7 +2156,7 @@ static int subtypep_clos_p_(addr x, addr y, addr *r1, addr *r2, int *ret)
 	return Result(ret, 1);
 }
 
-_g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
+int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
 {
 	int result, invalid;
 	LocalHold hold;
@@ -2178,7 +2178,7 @@ _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2
 	return 0;
 }
 
-_g int subtypep_result_syscall(Execute ptr, addr left, addr right, addr *ret)
+int subtypep_result_syscall(Execute ptr, addr left, addr right, addr *ret)
 {
 	SubtypepResult value;
 

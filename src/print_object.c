@@ -113,7 +113,7 @@ static int method_print_object_structure_object(Execute ptr,
 	return 0;
 }
 
-_g int print_structure(Execute ptr, addr stream, addr pos)
+int print_structure(Execute ptr, addr stream, addr pos)
 {
 	return write_structure(ptr, stream, pos);
 }
@@ -156,7 +156,7 @@ static int defmethod_print_object_(Execute ptr, addr name, addr gen,
 /*
  *  defgeneric
  */
-_g void init_print_object(void)
+void init_print_object(void)
 {
 	SetPointerType(var4, method_print_object_t);
 	SetPointerType(var4, method_print_object_class);
@@ -176,7 +176,7 @@ static int build_print_object_method_(Execute ptr, addr name, addr gen)
 	return 0;
 }
 
-_g int build_print_object_(Execute ptr)
+int build_print_object_(Execute ptr)
 {
 	addr symbol, name, gen;
 

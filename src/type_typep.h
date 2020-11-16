@@ -9,10 +9,10 @@
 #define typep_asterisk_clang_ _n(typep_asterisk_clang_)
 #define init_type_typep _n(init_type_typep)
 
-_g int typep_table_(Execute ptr, addr value, addr type, int *ret);
-_g int typep_clang_(Execute ptr, addr value, addr type, int *ret);
-_g int typep_asterisk_clang_(Execute ptr, addr value, addr type, int *ret);
-_g void init_type_typep(void);
+int typep_table_(Execute ptr, addr value, addr type, int *ret);
+int typep_clang_(Execute ptr, addr value, addr type, int *ret);
+int typep_asterisk_clang_(Execute ptr, addr value, addr type, int *ret);
+void init_type_typep(void);
 
 #endif
 

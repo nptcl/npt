@@ -19,52 +19,52 @@
 /*
  *  access
  */
-_g void getarray_readtable(addr pos, addr *ret)
+void getarray_readtable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	GetArrayReadtable_Low(pos, ret);
 }
 
-_g void setarray_readtable(addr pos, addr value)
+void setarray_readtable(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArrayReadtable_Low(pos, value);
 }
 
-_g void gettable_readtable(addr pos, addr *ret)
+void gettable_readtable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	GetTableReadtable_Low(pos, ret);
 }
 
-_g void settable_readtable(addr pos, addr value)
+void settable_readtable(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTableReadtable_Low(pos, value);
 }
 
-_g void getdispatch_readtable(addr pos, addr *ret)
+void getdispatch_readtable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	GetDispatchReadtable_Low(pos, ret);
 }
 
-_g void setdispatch_readtable(addr pos, addr value)
+void setdispatch_readtable(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDispatchReadtable_Low(pos, value);
 }
 
-_g void *ptr_readtable(addr pos)
+void *ptr_readtable(addr pos)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	return PtrReadtable_Low(pos);
 }
 
-_g enum ReadTable_Case *ptrcase_readtable(addr pos)
+enum ReadTable_Case *ptrcase_readtable(addr pos)
 {
 	CheckType(pos, LISPTYPE_READTABLE);
 	return (enum ReadTable_Case *)PtrCaseReadtable_Low(pos);
@@ -74,7 +74,7 @@ _g enum ReadTable_Case *ptrcase_readtable(addr pos)
 /*
  *  object
  */
-_g int readtable_heap_(addr *ret)
+int readtable_heap_(addr *ret)
 {
 	addr pos, one;
 
@@ -165,7 +165,7 @@ static int copy_dispatch_readtable_(addr from, addr to)
 	return 0;
 }
 
-_g int copy_readtable_(addr from, addr to)
+int copy_readtable_(addr from, addr to)
 {
 	addr a, b;
 
@@ -187,7 +187,7 @@ _g int copy_readtable_(addr from, addr to)
 	return copy_dispatch_readtable_(a, b);
 }
 
-_g int copy_readtable_heap_(addr from, addr *ret)
+int copy_readtable_heap_(addr from, addr *ret)
 {
 	addr to, a, b;
 
@@ -214,7 +214,7 @@ _g int copy_readtable_heap_(addr from, addr *ret)
 	return Result(ret, to);
 }
 
-_g int copy_default_readtable_(addr pos)
+int copy_default_readtable_(addr pos)
 {
 	int i;
 	addr one;
@@ -253,7 +253,7 @@ static int setreadtype_readtable_(addr pos, unicode code, addr type)
 	return 0;
 }
 
-_g int make_dispatch_macro_character_(addr pos, addr character, int nonterm)
+int make_dispatch_macro_character_(addr pos, addr character, int nonterm)
 {
 	unicode code;
 	addr type, call;
@@ -317,7 +317,7 @@ static void get_default_dispatch_sharp(addr code, addr *ret)
 	*ret = Nil;
 }
 
-_g int get_default_dispatch_macro_(addr code1, addr code2, addr *ret)
+int get_default_dispatch_macro_(addr code1, addr code2, addr *ret)
 {
 	unicode u;
 
@@ -351,7 +351,7 @@ static int readtype_unicode_readtable_(addr hash, unicode c, addr *ret)
 	return Result(ret, value);
 }
 
-_g int readtype_readtable_(addr pos, unicode c, addr *ret)
+int readtype_readtable_(addr pos, unicode c, addr *ret)
 {
 	if (c < 0x80) {
 		GetArrayReadtable(pos, &pos);
@@ -396,7 +396,7 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 	return 0;
 }
 
-_g int macro_character_execute(Execute ptr, int *result, addr *ret,
+int macro_character_execute(Execute ptr, int *result, addr *ret,
 		unicode c, addr stream, addr table)
 {
 	addr call, code;
@@ -421,7 +421,7 @@ error:
 	return fmte_("Character ~S don't have a macro code.", code, NULL);
 }
 
-_g int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret)
+int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret)
 {
 	addr check;
 
@@ -442,7 +442,7 @@ error:
 	return fmte_("The character ~S is not dispatch macro.", check, NULL);
 }
 
-_g int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2)
+int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2)
 {
 	int check;
 	addr value, key;
@@ -469,7 +469,7 @@ error:
 	return fmte_("The character ~S is not dispatch macro.", value, NULL);
 }
 
-_g int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call)
+int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call)
 {
 	addr check, cons;
 
@@ -515,7 +515,7 @@ error:
 		return; \
 	} \
 }
-_g void get_default_macro_character(unicode u, addr *ret, int *nonterm)
+void get_default_macro_character(unicode u, addr *ret, int *nonterm)
 {
 	addr pos;
 
@@ -531,7 +531,7 @@ _g void get_default_macro_character(unicode u, addr *ret, int *nonterm)
 	*nonterm = 0;
 }
 
-_g int get_macro_character_(addr pos, unicode u, addr *ret, int *nonterm)
+int get_macro_character_(addr pos, unicode u, addr *ret, int *nonterm)
 {
 	addr type;
 	struct readtype_struct *str;
@@ -561,7 +561,7 @@ _g int get_macro_character_(addr pos, unicode u, addr *ret, int *nonterm)
 	return 0;
 }
 
-_g int set_macro_character_(addr pos, unicode u, int nonterm, addr call)
+int set_macro_character_(addr pos, unicode u, int nonterm, addr call)
 {
 	addr type;
 	enum ReadTable_Type value;
@@ -596,7 +596,7 @@ static int setdispatch_default_(addr pos, unicode u, addr call)
 	return default_dispatch_readtype_(one, u);
 }
 
-_g int set_syntax_from_default_(unicode u1, unicode u2, addr to)
+int set_syntax_from_default_(unicode u1, unicode u2, addr to)
 {
 	addr pos;
 
@@ -645,7 +645,7 @@ static int copy_dispatch_macro_(unicode u1, unicode u2, addr to, addr from)
 	return 0;
 }
 
-_g int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from)
+int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from)
 {
 	addr one, type, call;
 	struct readtype_struct *str;
@@ -670,7 +670,7 @@ _g int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from)
 	return 0;
 }
 
-_g int float_readtable_(Execute ptr, enum ReadTable_float *ret)
+int float_readtable_(Execute ptr, enum ReadTable_float *ret)
 {
 	addr pos, check;
 
@@ -693,26 +693,26 @@ _g int float_readtable_(Execute ptr, enum ReadTable_float *ret)
 	return fmte_("Invalid *read-default-float-format* value ~S.", pos, NULL);
 }
 
-_g int readcase_readtable_(Execute ptr, enum ReadTable_Case *ret)
+int readcase_readtable_(Execute ptr, enum ReadTable_Case *ret)
 {
 	addr pos;
 	Return(getreadtable_(ptr, &pos));
 	return Result(ret, getcase_readtable(pos));
 }
 
-_g enum ReadTable_Case getcase_readtable(addr pos)
+enum ReadTable_Case getcase_readtable(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_READTABLE, "type error");
 	return *PtrCaseReadtable(pos);
 }
 
-_g void setcase_readtable(addr pos, enum ReadTable_Case mode)
+void setcase_readtable(addr pos, enum ReadTable_Case mode)
 {
 	Check(GetType(pos) != LISPTYPE_READTABLE, "type error");
 	*PtrCaseReadtable(pos) = mode;
 }
 
-_g int getreadtable_(Execute ptr, addr *ret)
+int getreadtable_(Execute ptr, addr *ret)
 {
 	addr pos;
 

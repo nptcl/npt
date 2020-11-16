@@ -8,22 +8,22 @@
 /*
  *  check
  */
-_g int zerop_or_plusp_bignum(addr pos)
+int zerop_or_plusp_bignum(addr pos)
 {
 	return zerop_bignum(pos) || (IsPlus(RefSignBignum(pos)));
 }
 
-_g int plusp_bignum(addr pos)
+int plusp_bignum(addr pos)
 {
 	return (! zerop_bignum(pos)) && (IsPlus(RefSignBignum(pos)));
 }
 
-_g int minusp_bignum(addr pos)
+int minusp_bignum(addr pos)
 {
 	return (! zerop_bignum(pos)) && (IsMinus(RefSignBignum(pos)));
 }
 
-_g int zerop_bignum(addr pos)
+int zerop_bignum(addr pos)
 {
 	addr root;
 
@@ -33,14 +33,14 @@ _g int zerop_bignum(addr pos)
 	return RefSizeBignum(pos) == 1 && PtrDataBignum(root)[0] == 0;
 }
 
-_g int evenp_bignum(addr pos)
+int evenp_bignum(addr pos)
 {
 	fixed value;
 	getfixed_bignum(pos, 0, &value);
 	return (value & 1) == 0;
 }
 
-_g int oddp_bignum(addr pos)
+int oddp_bignum(addr pos)
 {
 	fixed value;
 	getfixed_bignum(pos, 0, &value);
@@ -51,7 +51,7 @@ _g int oddp_bignum(addr pos)
 /*
  *  equal
  */
-_g int equal_fb_real(addr left, addr right)
+int equal_fb_real(addr left, addr right)
 {
 	int sign1, sign2;
 	bigtype check1, check2;
@@ -73,7 +73,7 @@ _g int equal_fb_real(addr left, addr right)
 	return sign1 == sign2 && check1 == check2;
 }
 
-_g int equal_bb_real(addr left, addr right)
+int equal_bb_real(addr left, addr right)
 {
 	addr root;
 	size_t size1, size2;
@@ -101,7 +101,7 @@ _g int equal_bb_real(addr left, addr right)
 	return bigcmp(PtrDataBignum(left), PtrDataBignum(right), size1) == 0;
 }
 
-_g int equal_nosign_bignum(addr left, addr right)
+int equal_nosign_bignum(addr left, addr right)
 {
 	size_t size1, size2;
 
@@ -116,7 +116,7 @@ _g int equal_nosign_bignum(addr left, addr right)
 	return bigcmp(PtrDataBignum(left), PtrDataBignum(right), size1) == 0;
 }
 
-_g int equal_value_nosign_bignum(addr left, bigtype value)
+int equal_value_nosign_bignum(addr left, bigtype value)
 {
 	if (RefSizeBignum(left) != 1)
 		return 0;
@@ -124,7 +124,7 @@ _g int equal_value_nosign_bignum(addr left, bigtype value)
 	return PtrDataBignum(left)[0] == value;
 }
 
-_g int equal_value_bignum(addr left, int sign1, bigtype value1)
+int equal_value_bignum(addr left, int sign1, bigtype value1)
 {
 	int sign2;
 	addr root;
@@ -143,7 +143,7 @@ _g int equal_value_bignum(addr left, int sign1, bigtype value1)
 	return value1 == value2;
 }
 
-_g int equal_value2_nosign_bignum(addr left, bigtype high, bigtype low)
+int equal_value2_nosign_bignum(addr left, bigtype high, bigtype low)
 {
 	addr root;
 	bigtype *data;
@@ -157,7 +157,7 @@ _g int equal_value2_nosign_bignum(addr left, bigtype high, bigtype low)
 	return data[0] == low && data[1] == high;
 }
 
-_g int equal_value2_bignum(addr left, int sign1, bigtype high, bigtype low)
+int equal_value2_bignum(addr left, int sign1, bigtype high, bigtype low)
 {
 	int sign2;
 	addr root;
@@ -201,7 +201,7 @@ static int compare_bigtype(int sign1, bigtype check1, int sign2, bigtype check2)
 	return 0;
 }
 
-_g int compare_value_bignum(fixnum left, addr right)
+int compare_value_bignum(fixnum left, addr right)
 {
 	int sign1, sign2;
 	bigtype check1, check2;
@@ -218,12 +218,12 @@ _g int compare_value_bignum(fixnum left, addr right)
 	return compare_bigtype(sign1, check1, sign2, check2);
 }
 
-_g int compare_bignum_value(addr value, fixnum right)
+int compare_bignum_value(addr value, fixnum right)
 {
 	return -compare_value_bignum(right, value);
 }
 
-_g int compare_fb_real(addr left, addr right)
+int compare_fb_real(addr left, addr right)
 {
 	int sign1, sign2;
 	bigtype check1, check2;
@@ -241,12 +241,12 @@ _g int compare_fb_real(addr left, addr right)
 	return compare_bigtype(sign1, check1, sign2, check2);
 }
 
-_g int compare_bf_real(addr left, addr right)
+int compare_bf_real(addr left, addr right)
 {
 	return -(compare_fb_real(right, left));
 }
 
-_g int compare_bb_real(addr left, addr right)
+int compare_bb_real(addr left, addr right)
 {
 	int sign1, sign2;
 
@@ -270,7 +270,7 @@ _g int compare_bb_real(addr left, addr right)
 	return IsPlus(sign1)? sign2: -sign2;
 }
 
-_g int compare_bs_real_(addr left, addr right, int *ret)
+int compare_bs_real_(addr left, addr right, int *ret)
 {
 	float value1, value2;
 
@@ -286,7 +286,7 @@ _g int compare_bs_real_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int compare_bd_real_(addr left, addr right, int *ret)
+int compare_bd_real_(addr left, addr right, int *ret)
 {
 	double_float value1, value2;
 
@@ -302,7 +302,7 @@ _g int compare_bd_real_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int compare_bl_real_(addr left, addr right, int *ret)
+int compare_bl_real_(addr left, addr right, int *ret)
 {
 	long_float value1, value2;
 
@@ -318,21 +318,21 @@ _g int compare_bl_real_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int compare_sb_real_(addr left, addr right, int *ret)
+int compare_sb_real_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_bs_real_(right, left, &check));
 	return Result(ret, -check);
 }
 
-_g int compare_db_real_(addr left, addr right, int *ret)
+int compare_db_real_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_bd_real_(right, left, &check));
 	return Result(ret, -check);
 }
 
-_g int compare_lb_real_(addr left, addr right, int *ret)
+int compare_lb_real_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_bl_real_(right, left, &check));
@@ -340,7 +340,7 @@ _g int compare_lb_real_(addr left, addr right, int *ret)
 }
 
 /* compare byte */
-_g int fixnum_unsigned_byte_p(addr value, size_t size)
+int fixnum_unsigned_byte_p(addr value, size_t size)
 {
 	fixnum check;
 
@@ -354,7 +354,7 @@ _g int fixnum_unsigned_byte_p(addr value, size_t size)
 	return ((bigtype)check) < (1ULL << ((bigtype)size));
 }
 
-_g int bignum_unsigned_byte_p(addr value, size_t size)
+int bignum_unsigned_byte_p(addr value, size_t size)
 {
 	addr root;
 	bigtype *data, left, right;
@@ -380,7 +380,7 @@ _g int bignum_unsigned_byte_p(addr value, size_t size)
 	return left < right;
 }
 
-_g int fixnum_signed_byte_p(addr value, size_t size)
+int fixnum_signed_byte_p(addr value, size_t size)
 {
 	fixnum check;
 
@@ -395,7 +395,7 @@ _g int fixnum_signed_byte_p(addr value, size_t size)
 		return ((bigtype)-check) <= size;
 }
 
-_g int bignum_signed_byte_p(addr value, size_t size)
+int bignum_signed_byte_p(addr value, size_t size)
 {
 	addr root;
 	bigtype *data, left, right;

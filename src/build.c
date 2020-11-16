@@ -66,7 +66,7 @@
 /*
  *  Initialize
  */
-_g void initlisp(void)
+void initlisp(void)
 {
 	clear_pointer();
 	init_boole();
@@ -116,7 +116,7 @@ static void clearlisp_force(void)
 	Lisp_abort_handler = NULL;
 }
 
-_g int alloclisp(size_t heap, size_t stack)
+int alloclisp(size_t heap, size_t stack)
 {
 	if (lisp_initialize) {
 		Debug("lisp object already allocated.");
@@ -182,7 +182,7 @@ error_file:
 	return 1;
 }
 
-_g void freelisp(void)
+void freelisp(void)
 {
 	if (lisp_initialize) {
 		free_random_state();
@@ -199,13 +199,13 @@ _g void freelisp(void)
 /*
  *  buildlisp
  */
-_g void setlisproot(enum LISPINDEX index, addr value)
+void setlisproot(enum LISPINDEX index, addr value)
 {
 	SetChain(value, 0xFF);
 	lisp_root[index] = value;
 }
 
-_g void build_lisproot(Execute ptr)
+void build_lisproot(Execute ptr)
 {
 	size_t i;
 
@@ -326,7 +326,7 @@ static void set_pretty_printing(void)
 	SetValueSymbol(symbol, T);
 }
 
-_g void buildlisp(Execute ptr)
+void buildlisp(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -363,7 +363,7 @@ _g void buildlisp(Execute ptr)
 /*
  *  core
  */
-_g int save_lisp(filestream fm)
+int save_lisp(filestream fm)
 {
 	int i;
 
@@ -384,7 +384,7 @@ _g int save_lisp(filestream fm)
 	return 0;
 }
 
-_g int load_lisp(filestream fm)
+int load_lisp(filestream fm)
 {
 	int i;
 

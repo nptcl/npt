@@ -142,7 +142,7 @@ static void print_write_heap(addr *ret)
 	*ret = pos;
 }
 
-_g void push_write_object(Execute ptr)
+void push_write_object(Execute ptr)
 {
 	addr symbol, pos;
 
@@ -165,14 +165,14 @@ static void print_write_object(Execute ptr, addr *ret)
 	*ret = pos;
 }
 
-_g void getdepth_print_write(Execute ptr, size_t *ret)
+void getdepth_print_write(Execute ptr, size_t *ret)
 {
 	addr pos;
 	print_write_object(ptr, &pos);
 	*ret = ptr_print_write(pos)->depth;
 }
 
-_g void setdepth_print_write(Execute ptr, size_t value)
+void setdepth_print_write(Execute ptr, size_t value)
 {
 	addr pos;
 	print_write_object(ptr, &pos);
@@ -226,7 +226,7 @@ static int find_print_write_(Execute ptr, addr key, addr *value, int *ret)
 	return Result(ret, ptr_print_check(*value)->index == 0);
 }
 
-_g void write_check_all_clear(Execute ptr)
+void write_check_all_clear(Execute ptr)
 {
 	addr pos, key, value;
 
@@ -310,7 +310,7 @@ static int WriteCheckCall_cons_(Execute ptr, addr pos)
 	return 0;
 }
 
-_g int pprint_pop_circle_(Execute ptr, addr stream, addr pos, int *ret)
+int pprint_pop_circle_(Execute ptr, addr stream, addr pos, int *ret)
 {
 	int check;
 	addr x;
@@ -358,7 +358,7 @@ static int WriteCircle_find_(Execute ptr, addr stream, addr pos, int *ret)
 	}
 }
 
-_g int pprint_check_circle_(Execute ptr, addr pos, addr *value, int *ret)
+int pprint_check_circle_(Execute ptr, addr pos, addr *value, int *ret)
 {
 	int check;
 	addr x, stream;
@@ -2315,7 +2315,7 @@ static int WriteCall_bytespec_(Execute ptr, addr stream, addr pos)
 /*
  *  table
  */
-_g int write_check_call_(Execute ptr, addr pos)
+int write_check_call_(Execute ptr, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_CONS:
@@ -2355,7 +2355,7 @@ static int write_print_call_(Execute ptr, addr stream, addr pos)
 /*
  *  write print
  */
-_g int write_default_print_(Execute ptr, addr stream, addr pos)
+int write_default_print_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 
@@ -2385,7 +2385,7 @@ static int write_pretty_print_(Execute ptr, addr stream, addr pos)
 		return callclang_funcall(ptr, &dispatch, dispatch, stream, pos, NULL);
 }
 
-_g int write_print(Execute ptr, addr stream, addr pos)
+int write_print(Execute ptr, addr stream, addr pos)
 {
 	int check;
 
@@ -2397,7 +2397,7 @@ _g int write_print(Execute ptr, addr stream, addr pos)
 		return write_default_print_(ptr, stream, pos);
 }
 
-_g int princ_print(Execute ptr, addr stream, addr pos)
+int princ_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
@@ -2408,7 +2408,7 @@ _g int princ_print(Execute ptr, addr stream, addr pos)
 	return pop_control_(ptr, control);
 }
 
-_g int prin1_print(Execute ptr, addr stream, addr pos)
+int prin1_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
@@ -2418,7 +2418,7 @@ _g int prin1_print(Execute ptr, addr stream, addr pos)
 	return pop_control_(ptr, control);
 }
 
-_g int print_print(Execute ptr, addr stream, addr pos)
+int print_print(Execute ptr, addr stream, addr pos)
 {
 	Return(terpri_stream_(stream));
 	Return(prin1_print(ptr, stream, pos));
@@ -2433,7 +2433,7 @@ static int pprint_print_call_(Execute ptr, addr stream, addr pos)
 	return write_print(ptr, stream, pos);
 }
 
-_g int pprint_print(Execute ptr, addr stream, addr pos)
+int pprint_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
@@ -2454,7 +2454,7 @@ static int write_string_heap_call_(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int write_string_heap(Execute ptr, addr *ret, addr pos)
+int write_string_heap(Execute ptr, addr *ret, addr pos)
 {
 	addr control;
 
@@ -2475,7 +2475,7 @@ static int write_string_local_call_(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int write_string_local(Execute ptr, addr *ret, addr pos)
+int write_string_local(Execute ptr, addr *ret, addr pos)
 {
 	addr control;
 
@@ -2484,7 +2484,7 @@ _g int write_string_local(Execute ptr, addr *ret, addr pos)
 	return pop_control_(ptr, control);
 }
 
-_g int princ_string_heap(Execute ptr, addr *ret, addr pos)
+int princ_string_heap(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
@@ -2496,7 +2496,7 @@ _g int princ_string_heap(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int princ_string_local(Execute ptr, addr *ret, addr pos)
+int princ_string_local(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
@@ -2508,7 +2508,7 @@ _g int princ_string_local(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int prin1_string_heap(Execute ptr, addr *ret, addr pos)
+int prin1_string_heap(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
@@ -2520,7 +2520,7 @@ _g int prin1_string_heap(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-_g int prin1_string_local(Execute ptr, addr *ret, addr pos)
+int prin1_string_local(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
@@ -2536,7 +2536,7 @@ _g int prin1_string_local(Execute ptr, addr *ret, addr pos)
 /*
  *  initialize
  */
-_g void init_print_write(void)
+void init_print_write(void)
 {
 	int i;
 

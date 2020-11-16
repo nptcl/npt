@@ -25,17 +25,17 @@
 /*
  *  system
  */
-_g int nop_code(Execute ptr, CodeValue x)
+int nop_code(Execute ptr, CodeValue x)
 {
 	return 0;
 }
 
-_g int execute_control_set_code(Execute ptr, CodeValue x)
+int execute_control_set_code(Execute ptr, CodeValue x)
 {
 	return runcode_control_(ptr, x.pos);
 }
 
-_g int execute_control_push_code(Execute ptr, CodeValue x)
+int execute_control_push_code(Execute ptr, CodeValue x)
 {
 	Return(runcode_control_(ptr, x.pos));
 	getresult_control(ptr, &x.pos);
@@ -43,7 +43,7 @@ _g int execute_control_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int execute_control_save_code(Execute ptr, CodeValue x)
+int execute_control_save_code(Execute ptr, CodeValue x)
 {
 	addr control, values;
 	size_t size;
@@ -59,50 +59,50 @@ _g int execute_control_save_code(Execute ptr, CodeValue x)
 /*
  *  object
  */
-_g int set_code(Execute ptr, CodeValue x)
+int set_code(Execute ptr, CodeValue x)
 {
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int push_code(Execute ptr, CodeValue x)
+int push_code(Execute ptr, CodeValue x)
 {
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
-_g int push_result_code(Execute ptr, CodeValue x)
+int push_result_code(Execute ptr, CodeValue x)
 {
 	getresult_control(ptr, &x.pos);
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
-_g int push_values_code(Execute ptr, CodeValue x)
+int push_values_code(Execute ptr, CodeValue x)
 {
 	pushargs_allvalues(ptr);
 	return 0;
 }
 
-_g int nil_set_code(Execute ptr, CodeValue x)
+int nil_set_code(Execute ptr, CodeValue x)
 {
 	setresult_control(ptr, Nil);
 	return 0;
 }
 
-_g int nil_push_code(Execute ptr, CodeValue x)
+int nil_push_code(Execute ptr, CodeValue x)
 {
 	pushargs_control(ptr, Nil);
 	return 0;
 }
 
-_g int t_set_code(Execute ptr, CodeValue x)
+int t_set_code(Execute ptr, CodeValue x)
 {
 	setresult_control(ptr, T);
 	return 0;
 }
 
-_g int t_push_code(Execute ptr, CodeValue x)
+int t_push_code(Execute ptr, CodeValue x)
 {
 	pushargs_control(ptr, T);
 	return 0;
@@ -112,7 +112,7 @@ _g int t_push_code(Execute ptr, CodeValue x)
 /*
  *  symbol
  */
-_g int lexical_code(Execute ptr, CodeValue x)
+int lexical_code(Execute ptr, CodeValue x)
 {
 	addr list, pos;
 	size_t index;
@@ -133,7 +133,7 @@ _g int lexical_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lexical_set_code(Execute ptr, CodeValue x)
+int lexical_set_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -143,7 +143,7 @@ _g int lexical_set_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lexical_push_code(Execute ptr, CodeValue x)
+int lexical_push_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -153,7 +153,7 @@ _g int lexical_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int lexical_rem_code(Execute ptr, CodeValue x)
+int lexical_rem_code(Execute ptr, CodeValue x)
 {
 #ifdef LISP_DEBUG
 	get_lexical_control(ptr, x.index, &x.pos);
@@ -161,21 +161,21 @@ _g int lexical_rem_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int special_set_code(Execute ptr, CodeValue x)
+int special_set_code(Execute ptr, CodeValue x)
 {
 	Return(symbol_special_restart(ptr, x.pos, &x.pos));
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int special_push_code(Execute ptr, CodeValue x)
+int special_push_code(Execute ptr, CodeValue x)
 {
 	Return(symbol_special_restart(ptr, x.pos, &x.pos));
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
-_g int special_rem_code(Execute ptr, CodeValue x)
+int special_rem_code(Execute ptr, CodeValue x)
 {
 	return symbol_special_restart(ptr, x.pos, &x.pos);
 }
@@ -184,12 +184,12 @@ _g int special_rem_code(Execute ptr, CodeValue x)
 /*
  *  declaim
  */
-_g int declaim_special_code(Execute ptr, CodeValue x)
+int declaim_special_code(Execute ptr, CodeValue x)
 {
 	return setspecial_symbol_(x.pos);
 }
 
-_g int declaim_type_value_code(Execute ptr, CodeValue x)
+int declaim_type_value_code(Execute ptr, CodeValue x)
 {
 	addr symbol, type;
 
@@ -197,7 +197,7 @@ _g int declaim_type_value_code(Execute ptr, CodeValue x)
 	return settype_value_symbol_(symbol, type);
 }
 
-_g int declaim_type_function_code(Execute ptr, CodeValue x)
+int declaim_type_function_code(Execute ptr, CodeValue x)
 {
 	addr key, symbol, type;
 
@@ -209,7 +209,7 @@ _g int declaim_type_function_code(Execute ptr, CodeValue x)
 		return settype_setf_symbol_(symbol, type);
 }
 
-_g int declaim_inline_code(Execute ptr, CodeValue x)
+int declaim_inline_code(Execute ptr, CodeValue x)
 {
 	addr symbol;
 
@@ -222,7 +222,7 @@ _g int declaim_inline_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int declaim_notinline_code(Execute ptr, CodeValue x)
+int declaim_notinline_code(Execute ptr, CodeValue x)
 {
 	addr symbol;
 
@@ -235,37 +235,37 @@ _g int declaim_notinline_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int declaim_compilation_code(Execute ptr, CodeValue x)
+int declaim_compilation_code(Execute ptr, CodeValue x)
 {
 	apply_compilation_speed_declaim((OptimizeType)x.value);
 	return 0;
 }
 
-_g int declaim_debug_code(Execute ptr, CodeValue x)
+int declaim_debug_code(Execute ptr, CodeValue x)
 {
 	apply_debug_declaim((OptimizeType)x.value);
 	return 0;
 }
 
-_g int declaim_safety_code(Execute ptr, CodeValue x)
+int declaim_safety_code(Execute ptr, CodeValue x)
 {
 	apply_safety_declaim((OptimizeType)x.value);
 	return 0;
 }
 
-_g int declaim_space_code(Execute ptr, CodeValue x)
+int declaim_space_code(Execute ptr, CodeValue x)
 {
 	apply_space_declaim((OptimizeType)x.value);
 	return 0;
 }
 
-_g int declaim_speed_code(Execute ptr, CodeValue x)
+int declaim_speed_code(Execute ptr, CodeValue x)
 {
 	apply_speed_declaim((OptimizeType)x.value);
 	return 0;
 }
 
-_g int declaim_declaration_code(Execute ptr, CodeValue x)
+int declaim_declaration_code(Execute ptr, CodeValue x)
 {
 	push_declaration_declaim(x.pos);
 	return 0;
@@ -275,7 +275,7 @@ _g int declaim_declaration_code(Execute ptr, CodeValue x)
 /*
  *  let
  */
-_g int type_result_code(Execute ptr, CodeValue x)
+int type_result_code(Execute ptr, CodeValue x)
 {
 	/* the-set-code */
 	addr value;
@@ -283,7 +283,7 @@ _g int type_result_code(Execute ptr, CodeValue x)
 	return call_typep_error_(ptr, value, x.pos);
 }
 
-_g int type_lexical_code(Execute ptr, CodeValue x)
+int type_lexical_code(Execute ptr, CodeValue x)
 {
 	addr pos, type;
 	size_t index;
@@ -295,7 +295,7 @@ _g int type_lexical_code(Execute ptr, CodeValue x)
 	return call_typep_error_(ptr, pos, type);
 }
 
-_g int type_special_code(Execute ptr, CodeValue x)
+int type_special_code(Execute ptr, CodeValue x)
 {
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
@@ -303,7 +303,7 @@ _g int type_special_code(Execute ptr, CodeValue x)
 	return call_typep_unbound_error_(ptr, pos, type);
 }
 
-_g int type_global_code(Execute ptr, CodeValue x)
+int type_global_code(Execute ptr, CodeValue x)
 {
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
@@ -311,7 +311,7 @@ _g int type_global_code(Execute ptr, CodeValue x)
 	return call_typep_unbound_error_(ptr, pos, type);
 }
 
-_g int type_function_code(Execute ptr, CodeValue x)
+int type_function_code(Execute ptr, CodeValue x)
 {
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
@@ -319,7 +319,7 @@ _g int type_function_code(Execute ptr, CodeValue x)
 	return call_typep_unbound_error_(ptr, pos, type);
 }
 
-_g int type_setf_code(Execute ptr, CodeValue x)
+int type_setf_code(Execute ptr, CodeValue x)
 {
 	addr pos, type;
 	List_bind(x.pos, &pos, &type, NULL);
@@ -327,7 +327,7 @@ _g int type_setf_code(Execute ptr, CodeValue x)
 	return call_typep_unbound_error_(ptr, pos, type);
 }
 
-_g int let_lexical_code(Execute ptr, CodeValue x)
+int let_lexical_code(Execute ptr, CodeValue x)
 {
 	addr src, dst, value;
 	size_t srci, dsti;
@@ -342,7 +342,7 @@ _g int let_lexical_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int let_special_code(Execute ptr, CodeValue x)
+int let_special_code(Execute ptr, CodeValue x)
 {
 	addr src, dst, value;
 	size_t index;
@@ -356,7 +356,7 @@ _g int let_special_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int leta_special_code(Execute ptr, CodeValue x)
+int leta_special_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getresult_control(ptr, &value);
@@ -374,7 +374,7 @@ _g int leta_special_code(Execute ptr, CodeValue x)
 	} \
 }
 
-_g int setq_lexical_code(Execute ptr, CodeValue x)
+int setq_lexical_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -384,7 +384,7 @@ _g int setq_lexical_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int setq_special_code(Execute ptr, CodeValue x)
+int setq_special_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -395,7 +395,7 @@ _g int setq_special_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int setq_global_code(Execute ptr, CodeValue x)
+int setq_global_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -410,28 +410,28 @@ _g int setq_global_code(Execute ptr, CodeValue x)
 /*
  *  function
  */
-_g int function_set_code(Execute ptr, CodeValue x)
+int function_set_code(Execute ptr, CodeValue x)
 {
 	Return(function_global_restart(ptr, x.pos, &x.pos));
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int function_push_code(Execute ptr, CodeValue x)
+int function_push_code(Execute ptr, CodeValue x)
 {
 	Return(function_global_restart(ptr, x.pos, &x.pos));
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
-_g int setf_set_code(Execute ptr, CodeValue x)
+int setf_set_code(Execute ptr, CodeValue x)
 {
 	Return(setf_global_restart(ptr, x.pos, &x.pos));
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int setf_push_code(Execute ptr, CodeValue x)
+int setf_push_code(Execute ptr, CodeValue x)
 {
 	Return(setf_global_restart(ptr, x.pos, &x.pos));
 	pushargs_control(ptr, x.pos);
@@ -442,7 +442,7 @@ _g int setf_push_code(Execute ptr, CodeValue x)
 /*
  *  define
  */
-_g int defmacro_code(Execute ptr, CodeValue x)
+int defmacro_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -453,7 +453,7 @@ _g int defmacro_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int deftype_code(Execute ptr, CodeValue x)
+int deftype_code(Execute ptr, CodeValue x)
 {
 	addr pos, symbol, doc;
 
@@ -466,7 +466,7 @@ _g int deftype_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int define_compiler_macro_code(Execute ptr, CodeValue x)
+int define_compiler_macro_code(Execute ptr, CodeValue x)
 {
 	addr pos, name, doc;
 
@@ -480,7 +480,7 @@ _g int define_compiler_macro_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int define_symbol_macro_code(Execute ptr, CodeValue x)
+int define_symbol_macro_code(Execute ptr, CodeValue x)
 {
 	addr symbol, eval, form;
 
@@ -492,7 +492,7 @@ _g int define_symbol_macro_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int defun_code(Execute ptr, CodeValue x)
+int defun_code(Execute ptr, CodeValue x)
 {
 	addr pos, call, symbol;
 
@@ -518,20 +518,20 @@ _g int defun_code(Execute ptr, CodeValue x)
 /*
  *  call
  */
-_g int call_result_code(Execute ptr, CodeValue x)
+int call_result_code(Execute ptr, CodeValue x)
 {
 	getresult_control(ptr, &x.pos);
 	return execute_control(ptr, x.pos);
 }
 
-_g int call_type_code(Execute ptr, CodeValue x)
+int call_type_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getargs_tail_control(ptr, &value);
 	return call_typep_error_(ptr, value, x.pos);
 }
 
-_g int call_key_code(Execute ptr, CodeValue x)
+int call_key_code(Execute ptr, CodeValue x)
 {
 	addr list, key, value, pos, type;
 
@@ -550,7 +550,7 @@ _g int call_key_code(Execute ptr, CodeValue x)
 	return fmte_("Invalid argument key ~S.", key, NULL);
 }
 
-_g int call_function_code(Execute ptr, CodeValue x)
+int call_function_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -562,7 +562,7 @@ _g int call_function_code(Execute ptr, CodeValue x)
 	return execute_control(ptr, value);
 }
 
-_g int call_setf_code(Execute ptr, CodeValue x)
+int call_setf_code(Execute ptr, CodeValue x)
 {
 	addr value;
 
@@ -574,7 +574,7 @@ _g int call_setf_code(Execute ptr, CodeValue x)
 	return execute_control(ptr, value);
 }
 
-_g int call_lexical_code(Execute ptr, CodeValue x)
+int call_lexical_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getlow_lexical_control(ptr, x.index, &value);
@@ -585,13 +585,13 @@ _g int call_lexical_code(Execute ptr, CodeValue x)
 /*
  *  values
  */
-_g int values_nil_code(Execute ptr, CodeValue x)
+int values_nil_code(Execute ptr, CodeValue x)
 {
 	setvalues_nil_control(ptr);
 	return 0;
 }
 
-_g int values_set_code(Execute ptr, CodeValue x)
+int values_set_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -601,14 +601,14 @@ _g int values_set_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int the_set_code(Execute ptr, CodeValue x)
+int the_set_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getresult_control(ptr, &value);
 	return call_typep_error_(ptr, value, x.pos);
 }
 
-_g int the_push_code(Execute ptr, CodeValue x)
+int the_push_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getargs_control(ptr, 0, &value);
@@ -619,7 +619,7 @@ _g int the_push_code(Execute ptr, CodeValue x)
 /*
  *  control
  */
-_g int if_unbound_code(Execute ptr, CodeValue x)
+int if_unbound_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -630,7 +630,7 @@ _g int if_unbound_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int if_nil_code(Execute ptr, CodeValue x)
+int if_nil_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -641,7 +641,7 @@ _g int if_nil_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int if_t_code(Execute ptr, CodeValue x)
+int if_t_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -652,51 +652,51 @@ _g int if_t_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int goto_code(Execute ptr, CodeValue x)
+int goto_code(Execute ptr, CodeValue x)
 {
 	return goto_control_(ptr, x.index);
 }
 
-_g int go_code(Execute ptr, CodeValue x)
+int go_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	get_lexical_control(ptr, x.index, &pos);
 	return go_control_(ptr, pos);
 }
 
-_g int return_from_code(Execute ptr, CodeValue x)
+int return_from_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	get_lexical_control(ptr, x.index, &pos);
 	return return_from_control_(ptr, pos);
 }
 
-_g int catch_code(Execute ptr, CodeValue x)
+int catch_code(Execute ptr, CodeValue x)
 {
 	getresult_control(ptr, &x.pos);
 	catch_control(ptr, x.pos);
 	return 0;
 }
 
-_g int throw_operator_code(Execute ptr, CodeValue x)
+int throw_operator_code(Execute ptr, CodeValue x)
 {
 	getargs_control(ptr, 0, &x.pos);
 	return throw_control_(ptr, x.pos);
 }
 
-_g int taginfo_code(Execute ptr, CodeValue x)
+int taginfo_code(Execute ptr, CodeValue x)
 {
 	set_taginfo_control(ptr, x.pos);
 	return 0;
 }
 
-_g int blockinfo_code(Execute ptr, CodeValue x)
+int blockinfo_code(Execute ptr, CodeValue x)
 {
 	set_blockinfo_control(ptr, x.pos);
 	return 0;
 }
 
-_g int unwind_protect_code(Execute ptr, CodeValue x)
+int unwind_protect_code(Execute ptr, CodeValue x)
 {
 	set_protect_control(ptr, x.pos);
 	return 0;
@@ -721,12 +721,12 @@ static int push_handler_code_(Execute ptr, int escape)
 	return 0;
 }
 
-_g int handler_bind_code(Execute ptr, CodeValue x)
+int handler_bind_code(Execute ptr, CodeValue x)
 {
 	return push_handler_code_(ptr, 0);
 }
 
-_g int handler_case_code(Execute ptr, CodeValue x)
+int handler_case_code(Execute ptr, CodeValue x)
 {
 	return push_handler_code_(ptr, 1);
 }
@@ -743,13 +743,13 @@ static void push_restart_code(Execute ptr, int escape)
 	reverse_restart_control(ptr);
 }
 
-_g int restart_bind_code(Execute ptr, CodeValue x)
+int restart_bind_code(Execute ptr, CodeValue x)
 {
 	push_restart_code(ptr, 0);
 	return 0;
 }
 
-_g int restart_case_code(Execute ptr, CodeValue x)
+int restart_case_code(Execute ptr, CodeValue x)
 {
 	push_restart_code(ptr, 1);
 	return 0;
@@ -759,13 +759,13 @@ _g int restart_case_code(Execute ptr, CodeValue x)
 /*
  *  eval
  */
-_g int funcall_code(Execute ptr, CodeValue x)
+int funcall_code(Execute ptr, CodeValue x)
 {
 	getargs_list_control_unsafe(ptr, 0, &x.pos);
 	return call_control(ptr, x.pos);
 }
 
-_g int nth_value_code(Execute ptr, CodeValue x)
+int nth_value_code(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
@@ -788,7 +788,7 @@ _g int nth_value_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int progv_code(Execute ptr, CodeValue x)
+int progv_code(Execute ptr, CodeValue x)
 {
 	addr symbols, values, symbol, value;
 
@@ -819,26 +819,26 @@ _g int progv_code(Execute ptr, CodeValue x)
 /*
  *  load-time-value
  */
-_g int load_time_value_bind_code(Execute ptr, CodeValue x)
+int load_time_value_bind_code(Execute ptr, CodeValue x)
 {
 	execute_load_time_value_bind(ptr, x.pos);
 	return 0;
 }
 
-_g int load_time_value_init_code(Execute ptr, CodeValue x)
+int load_time_value_init_code(Execute ptr, CodeValue x)
 {
 	execute_load_time_value_init(ptr, x.pos);
 	return 0;
 }
 
-_g int load_time_value_set_code(Execute ptr, CodeValue x)
+int load_time_value_set_code(Execute ptr, CodeValue x)
 {
 	execute_load_time_value_get(ptr, x.pos, &x.pos);
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int load_time_value_push_code(Execute ptr, CodeValue x)
+int load_time_value_push_code(Execute ptr, CodeValue x)
 {
 	execute_load_time_value_get(ptr, x.pos, &x.pos);
 	pushargs_control(ptr, x.pos);
@@ -849,7 +849,7 @@ _g int load_time_value_push_code(Execute ptr, CodeValue x)
 /*
  *  step
  */
-_g int step_code(Execute ptr, CodeValue x)
+int step_code(Execute ptr, CodeValue x)
 {
 	addr expr, value;
 	List_bind(x.pos, &expr, &value, NULL);

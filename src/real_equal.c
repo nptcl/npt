@@ -10,7 +10,7 @@
 #include "real_equal.h"
 #include "typedef.h"
 
-_g int plusp_realp(addr pos, int *ret)
+int plusp_realp(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -45,7 +45,7 @@ _g int plusp_realp(addr pos, int *ret)
 	return 0;
 }
 
-_g int plusp_real_(addr pos, int *ret)
+int plusp_real_(addr pos, int *ret)
 {
 	if (plusp_realp(pos, ret))
 		return TypeError_(pos, REAL);
@@ -53,7 +53,7 @@ _g int plusp_real_(addr pos, int *ret)
 	return 0;
 }
 
-_g int minusp_realp(addr pos, int *ret)
+int minusp_realp(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -88,7 +88,7 @@ _g int minusp_realp(addr pos, int *ret)
 	return 0;
 }
 
-_g int minusp_real_(addr pos, int *ret)
+int minusp_real_(addr pos, int *ret)
 {
 	if (minusp_realp(pos, ret))
 		return TypeError_(pos, REAL);
@@ -96,7 +96,7 @@ _g int minusp_real_(addr pos, int *ret)
 	return 0;
 }
 
-_g int zerop_real_(addr pos, int *ret)
+int zerop_real_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -131,7 +131,7 @@ _g int zerop_real_(addr pos, int *ret)
 	return 0;
 }
 
-_g int equal_fixnum_real_(addr left, addr right, int *ret)
+int equal_fixnum_real_(addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -166,7 +166,7 @@ _g int equal_fixnum_real_(addr left, addr right, int *ret)
 	return 0;
 }
 
-_g int equal_bignum_real_(addr left, addr right, int *ret)
+int equal_bignum_real_(addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -198,7 +198,7 @@ _g int equal_bignum_real_(addr left, addr right, int *ret)
 	return 0;
 }
 
-_g int equal_ratio_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_ratio_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -230,7 +230,7 @@ _g int equal_ratio_real_(LocalRoot local, addr left, addr right, int *ret)
 	return 0;
 }
 
-_g int equal_single_float_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_single_float_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -263,7 +263,7 @@ _g int equal_single_float_real_(LocalRoot local, addr left, addr right, int *ret
 	return 0;
 }
 
-_g int equal_double_float_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_double_float_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -296,7 +296,7 @@ _g int equal_double_float_real_(LocalRoot local, addr left, addr right, int *ret
 	return 0;
 }
 
-_g int equal_long_float_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_long_float_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -329,7 +329,7 @@ _g int equal_long_float_real_(LocalRoot local, addr left, addr right, int *ret)
 	return 0;
 }
 
-_g int equal_real_(LocalRoot local, addr left, addr right, int *ret)
+int equal_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -356,7 +356,7 @@ _g int equal_real_(LocalRoot local, addr left, addr right, int *ret)
 	}
 }
 
-_g int not_equal_real_(LocalRoot local, addr left, addr right, int *ret)
+int not_equal_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(equal_real_(local, left, right, &check));
@@ -430,7 +430,7 @@ static int compare_bignum_real_(LocalRoot local, addr left, addr right, int *ret
 	return 0;
 }
 
-_g int compare_ratio_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_ratio_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
@@ -561,7 +561,7 @@ static int compare_long_float_real_(LocalRoot local, addr left, addr right, int 
 	return 0;
 }
 
-_g int compare_real_(LocalRoot local, addr left, addr right, int *ret)
+int compare_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -588,28 +588,28 @@ _g int compare_real_(LocalRoot local, addr left, addr right, int *ret)
 	}
 }
 
-_g int less_real_(LocalRoot local, addr left, addr right, int *ret)
+int less_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_real_(local, left, right, &check));
 	return Result(ret, check < 0);
 }
 
-_g int less_equal_real_(LocalRoot local, addr left, addr right, int *ret)
+int less_equal_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_real_(local, left, right, &check));
 	return Result(ret, check <= 0);
 }
 
-_g int greater_real_(LocalRoot local, addr left, addr right, int *ret)
+int greater_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_real_(local, left, right, &check));
 	return Result(ret, check > 0);
 }
 
-_g int greater_equal_real_(LocalRoot local, addr left, addr right, int *ret)
+int greater_equal_real_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_real_(local, left, right, &check));
@@ -620,7 +620,7 @@ _g int greater_equal_real_(LocalRoot local, addr left, addr right, int *ret)
 /*
  *  debug
  */
-_g int plusp_real_debug(addr pos)
+int plusp_real_debug(addr pos)
 {
 	int check;
 
@@ -631,7 +631,7 @@ _g int plusp_real_debug(addr pos)
 	return check;
 }
 
-_g int minusp_real_debug(addr pos)
+int minusp_real_debug(addr pos)
 {
 	int check;
 
@@ -642,7 +642,7 @@ _g int minusp_real_debug(addr pos)
 	return check;
 }
 
-_g int zerop_real_debug(addr pos)
+int zerop_real_debug(addr pos)
 {
 	int check;
 
@@ -653,7 +653,7 @@ _g int zerop_real_debug(addr pos)
 	return check;
 }
 
-_g int equal_fixnum_real_debug(addr left, addr right)
+int equal_fixnum_real_debug(addr left, addr right)
 {
 	int check;
 
@@ -665,7 +665,7 @@ _g int equal_fixnum_real_debug(addr left, addr right)
 	return check;
 }
 
-_g int equal_bignum_real_debug(addr left, addr right)
+int equal_bignum_real_debug(addr left, addr right)
 {
 	int check;
 
@@ -677,7 +677,7 @@ _g int equal_bignum_real_debug(addr left, addr right)
 	return check;
 }
 
-_g int equal_ratio_real_debug(LocalRoot local, addr left, addr right)
+int equal_ratio_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -689,7 +689,7 @@ _g int equal_ratio_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int equal_single_float_real_debug(LocalRoot local, addr left, addr right)
+int equal_single_float_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -701,7 +701,7 @@ _g int equal_single_float_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int equal_double_float_real_debug(LocalRoot local, addr left, addr right)
+int equal_double_float_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -713,7 +713,7 @@ _g int equal_double_float_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int equal_long_float_real_debug(LocalRoot local, addr left, addr right)
+int equal_long_float_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -725,7 +725,7 @@ _g int equal_long_float_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int equal_real_debug(LocalRoot local, addr left, addr right)
+int equal_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -737,7 +737,7 @@ _g int equal_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int less_real_debug(LocalRoot local, addr left, addr right)
+int less_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -749,7 +749,7 @@ _g int less_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int less_equal_real_debug(LocalRoot local, addr left, addr right)
+int less_equal_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -761,7 +761,7 @@ _g int less_equal_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int greater_real_debug(LocalRoot local, addr left, addr right)
+int greater_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 
@@ -773,7 +773,7 @@ _g int greater_real_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int greater_equal_real_debug(LocalRoot local, addr left, addr right)
+int greater_equal_real_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 

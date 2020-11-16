@@ -8,10 +8,10 @@
 #define faslwrite_value _n(faslwrite_value)
 #define init_compile_write _n(init_compile_write)
 
-_g int faslwrite_header_(addr stream);
-_g int faslwrite_footer_(addr stream);
-_g int faslwrite_value(Execute ptr, addr stream, addr pos);
-_g void init_compile_write(void);
+int faslwrite_header_(addr stream);
+int faslwrite_footer_(addr stream);
+int faslwrite_value(Execute ptr, addr stream, addr pos);
+void init_compile_write(void);
 
 #endif
 

@@ -6,7 +6,7 @@
 /*
  *  sequence write
  */
-_g void build_sequence_write_list(struct sequence_write *ptr)
+void build_sequence_write_list(struct sequence_write *ptr)
 {
 	ptr->listp = 1;
 	ptr->reverse = 0;
@@ -15,7 +15,7 @@ _g void build_sequence_write_list(struct sequence_write *ptr)
 	ptr->size = 0;
 }
 
-_g void build_sequence_write_result(struct sequence_write *ptr, addr pos)
+void build_sequence_write_result(struct sequence_write *ptr, addr pos)
 {
 	ptr->listp = 0;
 	ptr->reverse = 0;
@@ -24,7 +24,7 @@ _g void build_sequence_write_result(struct sequence_write *ptr, addr pos)
 	ptr->size = 0;
 }
 
-_g int build_sequence_write_(struct sequence_write *ptr, addr pos)
+int build_sequence_write_(struct sequence_write *ptr, addr pos)
 {
 	int check;
 	size_t size;
@@ -51,7 +51,7 @@ static addr nreverse_sequence_write(struct sequence_write *ptr)
 	return ptr->pos;
 }
 
-_g addr result_sequence_write(struct sequence_write *ptr)
+addr result_sequence_write(struct sequence_write *ptr)
 {
 	if (ptr->listp)
 		return nreverse_sequence_write(ptr);
@@ -59,7 +59,7 @@ _g addr result_sequence_write(struct sequence_write *ptr)
 		return ptr->pos;
 }
 
-_g int push_sequence_write_(struct sequence_write *ptr, addr pos)
+int push_sequence_write_(struct sequence_write *ptr, addr pos)
 {
 	size_t index;
 	if (ptr->listp) {
@@ -81,7 +81,7 @@ _g int push_sequence_write_(struct sequence_write *ptr, addr pos)
 	return 0;
 }
 
-_g int before_sequence_write_(struct sequence_write *ptr, struct sequence_range *range)
+int before_sequence_write_(struct sequence_write *ptr, struct sequence_range *range)
 {
 	addr pos, value;
 	size_t size, i;
@@ -104,7 +104,7 @@ _g int before_sequence_write_(struct sequence_write *ptr, struct sequence_range 
 	return 0;
 }
 
-_g int after_sequence_write_(struct sequence_write *ptr, struct sequence_range *range)
+int after_sequence_write_(struct sequence_write *ptr, struct sequence_range *range)
 {
 	addr pos, value;
 	size_t size, i;
@@ -128,7 +128,7 @@ _g int after_sequence_write_(struct sequence_write *ptr, struct sequence_range *
 	return 0;
 }
 
-_g void reverse_sequence_write(struct sequence_write *ptr, size_t size)
+void reverse_sequence_write(struct sequence_write *ptr, size_t size)
 {
 	Check(ptr->listp, "type error");
 	if (size <= 1)

@@ -118,64 +118,64 @@ enum PATHNAME_INDEX {
 #endif
 
 /* access */
-_g void getarray_pathname(addr pos, enum PATHNAME_INDEX index, addr *ret);
-_g void setarray_pathname(addr pos, enum PATHNAME_INDEX index, addr value);
-_g int reflogical_pathname(addr pos);
-_g void getlogical_pathname(addr pos, int *ret);
-_g void setlogical_pathname(addr pos, int value);
-_g void gethost_pathname(addr pos, addr *ret);
-_g void sethost_pathname(addr pos, addr value);
-_g void getdevice_pathname(addr pos, addr *ret);
-_g void setdevice_pathname(addr pos, addr value);
-_g void getdirectory_pathname(addr pos, addr *ret);
-_g void setdirectory_pathname(addr pos, addr value);
-_g void getname_pathname(addr pos, addr *ret);
-_g void setname_pathname(addr pos, addr value);
-_g void gettype_pathname(addr pos, addr *ret);
-_g void settype_pathname(addr pos, addr value);
-_g void getversion_pathname(addr pos, addr *ret);
-_g void setversion_pathname(addr pos, addr value);
-_g lisp_equal_calltype pathname_equal_function(addr pos);
+void getarray_pathname(addr pos, enum PATHNAME_INDEX index, addr *ret);
+void setarray_pathname(addr pos, enum PATHNAME_INDEX index, addr value);
+int reflogical_pathname(addr pos);
+void getlogical_pathname(addr pos, int *ret);
+void setlogical_pathname(addr pos, int value);
+void gethost_pathname(addr pos, addr *ret);
+void sethost_pathname(addr pos, addr value);
+void getdevice_pathname(addr pos, addr *ret);
+void setdevice_pathname(addr pos, addr value);
+void getdirectory_pathname(addr pos, addr *ret);
+void setdirectory_pathname(addr pos, addr value);
+void getname_pathname(addr pos, addr *ret);
+void setname_pathname(addr pos, addr value);
+void gettype_pathname(addr pos, addr *ret);
+void settype_pathname(addr pos, addr value);
+void getversion_pathname(addr pos, addr *ret);
+void setversion_pathname(addr pos, addr value);
+lisp_equal_calltype pathname_equal_function(addr pos);
 
 /* pathname object */
-_g void make_pathname_alloc(LocalRoot local, addr *ret, int logical);
+void make_pathname_alloc(LocalRoot local, addr *ret, int logical);
 
 /* pathname */
-_g void pathname_alloc(LocalRoot local, addr *ret,
+void pathname_alloc(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type);
-_g void pathname_local(LocalRoot local, addr *ret,
+void pathname_local(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type);
-_g void pathname_heap(addr *ret,
+void pathname_heap(addr *ret,
 		addr host, addr device, addr directory, addr name, addr type);
 
 /* logical-pathname */
-_g void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
+void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version);
-_g void logical_pathname_local(LocalRoot local, addr *ret, addr host,
+void logical_pathname_local(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version);
-_g void logical_pathname_heap(addr *ret, addr host,
+void logical_pathname_heap(addr *ret, addr host,
 		addr directory, addr name, addr type, addr version);
 
 /* check */
-_g int pathnamep(addr pos);
-_g int pathname_pathname_p(addr pos);
-_g int pathname_logical_p(addr pos);
-_g int pathname_file_p(addr pos);
-_g int pathname_directory_p(addr pos);
-_g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b);
-_g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos);
+int pathnamep(addr pos);
+int pathname_pathname_p(addr pos);
+int pathname_logical_p(addr pos);
+int pathname_file_p(addr pos);
+int pathname_directory_p(addr pos);
+void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b);
+void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos);
 #define copy_pathname_heap(x,y) copy_pathname_alloc(NULL, (x), (y))
-_g int pathname_equal_(addr left, addr right, int *ret);
+int pathname_equal_(addr left, addr right, int *ret);
 
-_g int make_pathname_heap_(addr *ret,
+int make_pathname_heap_(addr *ret,
 		addr host, addr device, addr directory,
 		addr name, addr type, addr version, int localp);
-_g int pathname_host_(addr pos, addr *ret, int localp);
-_g int pathname_device_(addr pos, addr *ret, int localp);
-_g int pathname_directory_(addr pos, addr *ret, int localp);
-_g int pathname_name_(addr pos, addr *ret, int localp);
-_g int pathname_type_(addr pos, addr *ret, int localp);
-_g void pathname_version(addr pos, addr *ret);
+int pathname_host_(addr pos, addr *ret, int localp);
+int pathname_device_(addr pos, addr *ret, int localp);
+int pathname_directory_(addr pos, addr *ret, int localp);
+int pathname_name_(addr pos, addr *ret, int localp);
+int pathname_type_(addr pos, addr *ret, int localp);
+void pathname_version(addr pos, addr *ret);
 
 #endif
 

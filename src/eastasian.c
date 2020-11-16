@@ -10,7 +10,7 @@
 /*
  *  length
  */
-_g int eastasian_length_(addr pos, size_t *ret, int *rerrp)
+int eastasian_length_(addr pos, size_t *ret, int *rerrp)
 {
 	int errorp;
 	unicode c;
@@ -89,7 +89,7 @@ static int eastasian_type_(addr pos, enum EastAsianType *ret)
 	return Result(ret, EastAsian_error);
 }
 
-_g int eastasian_set_syscall_(addr pos, addr value, addr errorp, addr *ret)
+int eastasian_set_syscall_(addr pos, addr value, addr errorp, addr *ret)
 {
 	enum EastAsianType type;
 	size_t size;
@@ -149,7 +149,7 @@ static void eastasian_system_symbol(enum EastAsianType type, addr *ret)
 		GetConstant(index, ret);
 }
 
-_g int eastasian_get_syscall_(addr pos, addr *retsize, addr *retsymbol)
+int eastasian_get_syscall_(addr pos, addr *retsize, addr *retsymbol)
 {
 	enum EastAsianType type;
 
@@ -216,7 +216,7 @@ static int eastasian_width_string_(addr pos, addr *ret, addr *retbool)
 	return 0;
 }
 
-_g int eastasian_width_syscall_(addr pos, addr *ret, addr *retbool)
+int eastasian_width_syscall_(addr pos, addr *ret, addr *retbool)
 {
 	if (characterp(pos)) {
 		eastasian_width_character(pos, ret, retbool);

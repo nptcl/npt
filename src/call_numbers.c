@@ -22,7 +22,7 @@
 /*
  *  =
  */
-_g int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -41,7 +41,7 @@ _g int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  /=
  */
-_g int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right, list;
@@ -63,7 +63,7 @@ _g int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  <
  */
-_g int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -82,7 +82,7 @@ _g int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  >
  */
-_g int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -101,7 +101,7 @@ _g int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  <=
  */
-_g int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -120,7 +120,7 @@ _g int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  >=
  */
-_g int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -139,7 +139,7 @@ _g int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *r
 /*
  *  max
  */
-_g int max_common(LocalRoot local, addr left, addr rest, addr *ret)
+int max_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	int check;
 	addr right;
@@ -158,7 +158,7 @@ _g int max_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  min
  */
-_g int min_common(LocalRoot local, addr left, addr rest, addr *ret)
+int min_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	int check;
 	addr right;
@@ -177,7 +177,7 @@ _g int min_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  +
  */
-_g int plus_common(LocalRoot local, addr rest, addr *ret)
+int plus_common(LocalRoot local, addr rest, addr *ret)
 {
 	addr left, right;
 
@@ -201,7 +201,7 @@ _g int plus_common(LocalRoot local, addr rest, addr *ret)
 /*
  *  -
  */
-_g int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
+int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
@@ -223,7 +223,7 @@ _g int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  *
  */
-_g int asterisk_common(LocalRoot local, addr rest, addr *ret)
+int asterisk_common(LocalRoot local, addr rest, addr *ret)
 {
 	addr left, right;
 
@@ -247,7 +247,7 @@ _g int asterisk_common(LocalRoot local, addr rest, addr *ret)
 /*
  *  /
  */
-_g int slash_common(LocalRoot local, addr left, addr rest, addr *ret)
+int slash_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
@@ -318,7 +318,7 @@ static int incf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 	return 0;
 }
 
-_g int incf_common(Execute ptr, addr form, addr env, addr *ret)
+int incf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, value;
 
@@ -393,7 +393,7 @@ static int decf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 	return 0;
 }
 
-_g int decf_common(Execute ptr, addr form, addr env, addr *ret)
+int decf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, value;
 
@@ -419,7 +419,7 @@ error:
 /*
  *  random
  */
-_g int random_common(Execute ptr, addr limit, addr state, addr *ret)
+int random_common(Execute ptr, addr limit, addr state, addr *ret)
 {
 	if (state == Unbound) {
 		/* symbol-value *random-state* */
@@ -433,7 +433,7 @@ _g int random_common(Execute ptr, addr limit, addr state, addr *ret)
 /*
  *  conjugate
  */
-_g int conjugate_common(addr var, addr *ret)
+int conjugate_common(addr var, addr *ret)
 {
 	addr real, imag;
 
@@ -456,7 +456,7 @@ _g int conjugate_common(addr var, addr *ret)
 /*
  *  realpart
  */
-_g int realpart_common_(addr var, addr *ret)
+int realpart_common_(addr var, addr *ret)
 {
 	if (complexp(var)) {
 		GetRealComplex(var, &var);
@@ -469,7 +469,7 @@ _g int realpart_common_(addr var, addr *ret)
 /*
  *  imagpart
  */
-_g int imagpart_common_(addr var, addr *ret)
+int imagpart_common_(addr var, addr *ret)
 {
 	if (complexp(var)) {
 		GetImagComplex(var, &var);
@@ -485,7 +485,7 @@ _g int imagpart_common_(addr var, addr *ret)
 /*
  *  parse-integer
  */
-_g int parse_integer_common(LocalRoot local,
+int parse_integer_common(LocalRoot local,
 		addr var, addr rest, addr *ret1, addr *ret2)
 {
 	addr radix, junk;

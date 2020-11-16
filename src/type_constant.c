@@ -2905,7 +2905,7 @@ static void typecompiled_make_memory_output_stream(void)
 /*
  *  Interface
  */
-_g void build_type_constant(void)
+void build_type_constant(void)
 {
 	/* Atomic-Type */
 	typetable_Type();

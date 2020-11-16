@@ -17,19 +17,19 @@
 #define show_prompt_ _n(show_prompt_)
 #define input_prompt _n(input_prompt)
 
-_g void push_prompt_info(Execute ptr);
-_g size_t getindex_prompt(Execute ptr);
-_g size_t getindex_prompt_safe(Execute ptr);
-_g void setindex_prompt(Execute ptr, size_t value);
-_g int getbreak_prompt(Execute ptr);
-_g void setbreak_prompt(Execute ptr, int value);
-_g int getshow_prompt(Execute ptr);
-_g int getshow_prompt_safe(Execute ptr);
-_g void setshow_prompt(Execute ptr, int value);
-_g void endshow_prompt_safe(Execute ptr);
+void push_prompt_info(Execute ptr);
+size_t getindex_prompt(Execute ptr);
+size_t getindex_prompt_safe(Execute ptr);
+void setindex_prompt(Execute ptr, size_t value);
+int getbreak_prompt(Execute ptr);
+void setbreak_prompt(Execute ptr, int value);
+int getshow_prompt(Execute ptr);
+int getshow_prompt_safe(Execute ptr);
+void setshow_prompt(Execute ptr, int value);
+void endshow_prompt_safe(Execute ptr);
 
-_g int show_prompt_(Execute ptr, addr io);
-_g int input_prompt(addr *ret, addr *prompt, const char *message);
+int show_prompt_(Execute ptr, addr io);
+int input_prompt(addr *ret, addr *prompt, const char *message);
 
 #endif
 

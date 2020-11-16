@@ -25,25 +25,25 @@ struct mvbind_struct {
 	addr stack, args, decl, doc, cons, free, the, expr, allocate;
 };
 
-_g int scope_symbol_call(Execute ptr, addr *ret, addr eval);
-_g int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type);
-_g int scope_define_symbol_macro_call_(Execute ptr,
+int scope_symbol_call(Execute ptr, addr *ret, addr eval);
+int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type);
+int scope_define_symbol_macro_call_(Execute ptr,
 		addr symbol, addr form, addr body, addr *ret);
-_g void apply_symbol_macrolet(addr stack, addr args);
-_g int scope_symbol_macrolet_call(Execute ptr,
+void apply_symbol_macrolet(addr stack, addr args);
+int scope_symbol_macrolet_call(Execute ptr,
 		addr args, addr decl, addr cons, addr *ret);
-_g int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype);
-_g int scope_the_call(Execute ptr, addr type, addr form, addr *ret);
-_g int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret);
-_g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rbody);
-_g int scope_go_call_(Execute ptr, addr *ret, addr tag);
-_g int scope_block_call(Execute ptr, addr name, addr cons,
+int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype);
+int scope_the_call(Execute ptr, addr type, addr form, addr *ret);
+int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret);
+int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rbody);
+int scope_go_call_(Execute ptr, addr *ret, addr tag);
+int scope_block_call(Execute ptr, addr name, addr cons,
 		addr *rname, addr *rcons, addr *rtype);
-_g int scope_return_from_call(Execute ptr,
+int scope_return_from_call(Execute ptr,
 		addr name, addr form, addr *rname, addr *rexpr);
-_g void scope_init_mvbind(struct mvbind_struct *str);
-_g int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str);
-_g int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret);
+void scope_init_mvbind(struct mvbind_struct *str);
+int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str);
+int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret);
 
 #endif
 

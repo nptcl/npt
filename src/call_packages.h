@@ -22,23 +22,23 @@
 #define do_all_symbols_common _n(do_all_symbols_common)
 #define intern_common_ _n(intern_common_)
 
-_g int export_common_(Execute ptr, addr symbols, addr pg);
-_g int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *state);
-_g int import_common_(Execute ptr, addr symbols, addr pg);
-_g int rename_package_common_(Execute ptr, addr pg, addr name, addr names, addr *ret);
-_g int shadow_common_(Execute ptr, addr symbols, addr pg);
-_g int shadowing_import_common_(Execute ptr, addr symbols, addr pg);
-_g int make_package_common_(Execute ptr, addr name, addr rest, addr *ret);
-_g int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret);
-_g int unexport_common_(Execute ptr, addr symbols, addr pg);
-_g int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret);
-_g int in_package_common(Execute ptr, addr form, addr env, addr *ret);
-_g int unuse_package_common_(Execute ptr, addr unuse, addr pg);
-_g int use_package_common_(Execute ptr, addr use, addr pg);
-_g int do_symbols_common(addr form, addr env, addr *ret);
-_g int do_external_symbols_common(addr form, addr env, addr *ret);
-_g int do_all_symbols_common(addr form, addr env, addr *ret);
-_g int intern_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sec);
+int export_common_(Execute ptr, addr symbols, addr pg);
+int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *state);
+int import_common_(Execute ptr, addr symbols, addr pg);
+int rename_package_common_(Execute ptr, addr pg, addr name, addr names, addr *ret);
+int shadow_common_(Execute ptr, addr symbols, addr pg);
+int shadowing_import_common_(Execute ptr, addr symbols, addr pg);
+int make_package_common_(Execute ptr, addr name, addr rest, addr *ret);
+int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret);
+int unexport_common_(Execute ptr, addr symbols, addr pg);
+int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret);
+int in_package_common(Execute ptr, addr form, addr env, addr *ret);
+int unuse_package_common_(Execute ptr, addr unuse, addr pg);
+int use_package_common_(Execute ptr, addr use, addr pg);
+int do_symbols_common(addr form, addr env, addr *ret);
+int do_external_symbols_common(addr form, addr env, addr *ret);
+int do_all_symbols_common(addr form, addr env, addr *ret);
+int intern_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sec);
 
 #endif
 

@@ -119,7 +119,7 @@ static void defmacro_loop(void)
 /*
  *  function
  */
-_g void init_common_iteration(void)
+void init_common_iteration(void)
 {
 	SetPointerCall(defmacro,  macro,  do);
 	SetPointerCall(defmacro,  macro,  doa);
@@ -128,7 +128,7 @@ _g void init_common_iteration(void)
 	SetPointerCall(defmacro,  macro,  loop);
 }
 
-_g void build_common_iteration(void)
+void build_common_iteration(void)
 {
 	defmacro_do();
 	defmacro_doa();

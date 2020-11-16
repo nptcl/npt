@@ -8,11 +8,11 @@
 #define clos_intern_specializer_ _n(clos_intern_specializer_)
 
 /* class-of */
-_g void init_clos_type(void);
-_g int clos_class_of_(addr object, addr *ret);
+void init_clos_type(void);
+int clos_class_of_(addr object, addr *ret);
 
 /* specializer */
-_g int clos_intern_specializer_(addr object, addr *ret);
+int clos_intern_specializer_(addr object, addr *ret);
 
 #endif
 

@@ -15,25 +15,25 @@
 /*
  *  stream
  */
-_g int open_stream_p(addr stream)
+int open_stream_p(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrStructStream(stream)->closed == 0;
 }
 
-_g int copyleft_stream_(addr stream, addr src)
+int copyleft_stream_(addr stream, addr src)
 {
 	size_t size;
 	Return(getleft_stream_(src, &size));
 	return setleft_stream_(stream, size);
 }
 
-_g int pageout_stream_(addr stream)
+int pageout_stream_(addr stream)
 {
 	return write_char_stream_(stream, '\f');
 }
 
-_g int print_ascii_stream_(addr stream, const char *data)
+int print_ascii_stream_(addr stream, const char *data)
 {
 	unicode c;
 
@@ -49,7 +49,7 @@ _g int print_ascii_stream_(addr stream, const char *data)
 	return 0;
 }
 
-_g int print_unicode_stream_(addr stream, const unicode *data)
+int print_unicode_stream_(addr stream, const unicode *data)
 {
 	unicode c;
 
@@ -65,7 +65,7 @@ _g int print_unicode_stream_(addr stream, const unicode *data)
 	return 0;
 }
 
-_g int print_string_stream_(addr stream, addr pos)
+int print_string_stream_(addr stream, addr pos)
 {
 	unicode c;
 	size_t size, i;
@@ -106,12 +106,12 @@ static int stream_designer_(Execute ptr, addr stream, addr *ret, int inputp)
 	return call_type_error_(ptr, stream, type);
 }
 
-_g int input_stream_designer_(Execute ptr, addr stream, addr *ret)
+int input_stream_designer_(Execute ptr, addr stream, addr *ret)
 {
 	return stream_designer_(ptr, stream, ret, 1);
 }
 
-_g int output_stream_designer_(Execute ptr, addr stream, addr *ret)
+int output_stream_designer_(Execute ptr, addr stream, addr *ret)
 {
 	return stream_designer_(ptr, stream, ret, 0);
 }
@@ -127,37 +127,37 @@ static int specialvalue_(Execute ptr, constindex index, addr *ret)
 	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
-_g int standard_input_stream_(Execute ptr, addr *ret)
+int standard_input_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_STANDARD_INPUT, ret);
 }
 
-_g int standard_output_stream_(Execute ptr, addr *ret)
+int standard_output_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_STANDARD_OUTPUT, ret);
 }
 
-_g int error_output_stream_(Execute ptr, addr *ret)
+int error_output_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_ERROR_OUTPUT, ret);
 }
 
-_g int trace_output_stream_(Execute ptr, addr *ret)
+int trace_output_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_TRACE_OUTPUT, ret);
 }
 
-_g int terminal_io_stream_(Execute ptr, addr *ret)
+int terminal_io_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_TERMINAL_IO, ret);
 }
 
-_g int debug_io_stream_(Execute ptr, addr *ret)
+int debug_io_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_DEBUG_IO, ret);
 }
 
-_g int query_io_stream_(Execute ptr, addr *ret)
+int query_io_stream_(Execute ptr, addr *ret)
 {
 	return specialvalue_(ptr, CONSTANT_SPECIAL_QUERY_IO, ret);
 }
@@ -166,7 +166,7 @@ _g int query_io_stream_(Execute ptr, addr *ret)
 /*
  *  wrapper
  */
-_g int read_unsigned8_stream_(addr stream, byte *value, int *ret)
+int read_unsigned8_stream_(addr stream, byte *value, int *ret)
 {
 	int check;
 	addr pos, type;
@@ -185,7 +185,7 @@ _g int read_unsigned8_stream_(addr stream, byte *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int write_unsigned8_stream_(addr stream, byte value)
+int write_unsigned8_stream_(addr stream, byte value)
 {
 	addr pos;
 
@@ -198,7 +198,7 @@ _g int write_unsigned8_stream_(addr stream, byte value)
 /*
  *  core
  */
-_g void update_standard_stream(void)
+void update_standard_stream(void)
 {
 	addr pos;
 
@@ -213,7 +213,7 @@ _g void update_standard_stream(void)
 	update_standard_error(pos);
 }
 
-_g int save_stream(addr pos)
+int save_stream(addr pos)
 {
 	switch (PtrStructStream(pos)->type) {
 		case StreamType_BinaryInput:

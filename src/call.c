@@ -3,7 +3,7 @@
 #include "call_printer.h"
 #include "typedef.h"
 
-_g void init_call(void)
+void init_call(void)
 {
 	init_call_printer();
 }

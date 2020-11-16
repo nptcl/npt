@@ -15,7 +15,7 @@ static void fmtfloat_degrade_clear(void)
 	fmtfloat_degrade_buffer[0] = 0;
 }
 
-_g int fmtfloat_write_char_(addr stream, unicode c)
+int fmtfloat_write_char_(addr stream, unicode c)
 {
 	if (stream == NULL) {
 		if (FMTFLOAT_DEGRADE_SIZE <= fmtfloat_degrade_index) {
@@ -31,7 +31,7 @@ _g int fmtfloat_write_char_(addr stream, unicode c)
 	}
 }
 
-_g int fmtfloat_print_ascii_(addr stream, const char *ptr)
+int fmtfloat_print_ascii_(addr stream, const char *ptr)
 {
 	int c;
 

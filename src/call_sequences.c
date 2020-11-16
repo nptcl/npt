@@ -27,7 +27,7 @@
 /*
  *  copy-seq
  */
-_g int copy_seq_common(addr var, addr *ret)
+int copy_seq_common(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
@@ -108,7 +108,7 @@ static int vector_fill_sequence_(addr pos, addr item, addr start, addr end)
 	return 0;
 }
 
-_g int fill_common(addr var, addr item, addr start, addr end)
+int fill_common(addr var, addr item, addr start, addr end)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
@@ -327,7 +327,7 @@ static int sequence_make_sequence(Execute ptr,
 			"Invalid type-specifier ~S.", type, NULL);
 }
 
-_g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr rest)
+int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr rest)
 {
 	addr check, element;
 	size_t index;
@@ -392,7 +392,7 @@ static int vector_subseq_sequence_(addr *ret, addr vector, addr start, addr end)
 	return Result(ret, root);
 }
 
-_g int subseq_common(addr var, addr start, addr end, addr *ret)
+int subseq_common(addr var, addr start, addr end, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
@@ -417,7 +417,7 @@ _g int subseq_common(addr var, addr start, addr end, addr *ret)
 	}
 }
 
-_g int setf_subseq_common_(addr root, addr pos, addr start, addr end)
+int setf_subseq_common_(addr root, addr pos, addr start, addr end)
 {
 	int ignore;
 	struct array_value value;
@@ -857,7 +857,7 @@ static int execute_map_sequence(Execute ptr, addr *ret,
 			"Invalid type-specifier ~S.", type, NULL);
 }
 
-_g int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
+int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
 {
 	addr check;
 	LocalHold hold;
@@ -931,7 +931,7 @@ static int execute_map_into_sequence(Execute ptr, addr var, addr call, addr rest
 	return 0;
 }
 
-_g int map_into_common(Execute ptr, addr var, addr call, addr rest)
+int map_into_common(Execute ptr, addr var, addr call, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -1109,7 +1109,7 @@ static int reverse_reduce_sequence(struct reduce_struct *str, addr *ret)
 	return 0;
 }
 
-_g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	int listp;
 	unsigned fromp;
@@ -1262,7 +1262,7 @@ static int reverse_count_sequence(struct count_struct *str, addr *ret)
 	return 0;
 }
 
-_g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	int listp;
 	unsigned fromp;
@@ -1368,12 +1368,12 @@ static int argument_count_sequence(Execute ptr, addr *ret,
 	return value_count_sequence(&str, ret);
 }
 
-_g int count_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int count_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_count_sequence(ptr, ret, call, Nil, pos, rest);
 }
 
-_g int count_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int count_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_count_sequence(ptr, ret, Nil, call, pos, rest);
 }
@@ -1790,7 +1790,7 @@ static int execute_merge_sequence(Execute ptr, addr *ret,
 			"Invalid type-specifier ~S.", type, NULL);
 }
 
-_g int merge_common(Execute ptr, addr *ret,
+int merge_common(Execute ptr, addr *ret,
 		addr type, addr pos1, addr pos2, addr call, addr key)
 {
 	addr check;
@@ -1862,7 +1862,7 @@ static int reverse_find_sequence(struct count_struct *str, addr *ret)
 	return 0;
 }
 
-_g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	int listp;
 	unsigned fromp;
@@ -1968,12 +1968,12 @@ static int argument_find_sequence(Execute ptr, addr *ret,
 	return value_find_sequence(&str, ret);
 }
 
-_g int find_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int find_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_find_sequence(ptr, ret, call, Nil, pos, rest);
 }
 
-_g int find_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int find_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_find_sequence(ptr, ret, Nil, call, pos, rest);
 }
@@ -2044,7 +2044,7 @@ static int reverse_position_sequence(struct count_struct *str, addr *ret)
 	return 0;
 }
 
-_g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	int listp, check;
 	unsigned fromp;
@@ -2176,12 +2176,12 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int position_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int position_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_position_sequence(ptr, ret, call, Nil, pos, rest);
 }
 
-_g int position_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int position_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_position_sequence(ptr, ret, Nil, call, pos, rest);
 }
@@ -2492,7 +2492,7 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int search_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
+int search_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2682,7 +2682,7 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int mismatch_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
+int mismatch_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2762,7 +2762,7 @@ static int eq_replace_sequence_(LocalRoot local,
 		return list_replace_sequence_(local, range1, range2);
 }
 
-_g int replace_common_(Execute ptr, addr pos1, addr pos2, addr rest)
+int replace_common_(Execute ptr, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	addr start1, start2, end1, end2;
@@ -3037,7 +3037,7 @@ static int setcount_sequence(struct count_struct *str, addr count)
 	return 0;
 }
 
-_g int substitute_common(Execute ptr,
+int substitute_common(Execute ptr,
 		addr *ret, addr item1, addr item2, addr pos, addr rest)
 {
 	int listp;
@@ -3168,13 +3168,13 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int substitute_if_common(Execute ptr,
+int substitute_if_common(Execute ptr,
 		addr *ret, addr item, addr call, addr pos, addr rest)
 {
 	return argument_substitute_sequence(ptr, ret, item, call, Nil, pos, rest);
 }
 
-_g int substitute_if_not_common(Execute ptr,
+int substitute_if_not_common(Execute ptr,
 		addr *ret, addr item, addr call, addr pos, addr rest)
 {
 	return argument_substitute_sequence(ptr, ret, item, Nil, call, pos, rest);
@@ -3280,7 +3280,7 @@ static int normal_nsubstitute_sequence(struct count_struct *str)
 	return 0;
 }
 
-_g int nsubstitute_common(Execute ptr,
+int nsubstitute_common(Execute ptr,
 		addr item1, addr item2, addr pos, addr rest)
 {
 	int listp;
@@ -3397,13 +3397,13 @@ static int argument_nsubstitute_sequence(Execute ptr,
 	return normal_nsubstitute_sequence(&str);
 }
 
-_g int nsubstitute_if_common(Execute ptr,
+int nsubstitute_if_common(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
 	return argument_nsubstitute_sequence(ptr, item, call, Nil, pos, rest);
 }
 
-_g int nsubstitute_if_not_common(Execute ptr,
+int nsubstitute_if_not_common(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
 	return argument_nsubstitute_sequence(ptr, item, Nil, call, pos, rest);
@@ -3608,7 +3608,7 @@ static int type_concatenate_sequence(Execute ptr, addr *ret, addr type, addr res
 			"Invalid type-specifier ~S.", type, NULL);
 }
 
-_g int concatenate_common(Execute ptr, addr *ret, addr type, addr rest)
+int concatenate_common(Execute ptr, addr *ret, addr type, addr rest)
 {
 	addr check;
 
@@ -4051,17 +4051,17 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int remove_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+int remove_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	return argument_remove_sequence(ptr, ret, item, pos, rest, 0);
 }
 
-_g int remove_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int remove_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_remove_if_sequence(ptr, ret, call, Nil, pos, rest, 0);
 }
 
-_g int remove_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int remove_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_remove_if_sequence(ptr, ret, Nil, call, pos, rest, 0);
 }
@@ -4070,17 +4070,17 @@ _g int remove_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr re
 /*
  *  delete
  */
-_g int delete_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+int delete_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	return argument_remove_sequence(ptr, ret, item, pos, rest, 1);
 }
 
-_g int delete_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int delete_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_remove_if_sequence(ptr, ret, call, Nil, pos, rest, 1);
 }
 
-_g int delete_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+int delete_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return argument_remove_if_sequence(ptr, ret, Nil, call, pos, rest, 1);
 }
@@ -4450,12 +4450,12 @@ static int argument_remove_duplicates(Execute ptr,
 	return 0;
 }
 
-_g int remove_duplicates_common(Execute ptr, addr *ret, addr pos, addr rest)
+int remove_duplicates_common(Execute ptr, addr *ret, addr pos, addr rest)
 {
 	return argument_remove_duplicates(ptr, ret, pos, rest, 0);
 }
 
-_g int delete_duplicates_common(Execute ptr, addr *ret, addr pos, addr rest)
+int delete_duplicates_common(Execute ptr, addr *ret, addr pos, addr rest)
 {
 	return argument_remove_duplicates(ptr, ret, pos, rest, 1);
 }

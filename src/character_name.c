@@ -11,20 +11,20 @@
 /*
  *  character table
  */
-_g int findtable_unicode_name_(addr *ret, unicode c)
+int findtable_unicode_name_(addr *ret, unicode c)
 {
 	addr table;
 	table = LispRoot(CHAR_NAME);
 	return findnil_unicode_hashtable_(table, c, ret);
 }
 
-_g int findtable_char_name_(addr *ret, addr pos)
+int findtable_char_name_(addr *ret, addr pos)
 {
 	CheckType(pos, LISPTYPE_CHARACTER);
 	return findtable_unicode_name_(ret, RefCharacter(pos));
 }
 
-_g int findtable_name_char_(addr *ret, addr name)
+int findtable_name_char_(addr *ret, addr name)
 {
 	addr table;
 
@@ -70,7 +70,7 @@ static int unicode_code_(addr name, size_t size, unicode *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int find_name_char_(addr *ret, addr name)
+int find_name_char_(addr *ret, addr name)
 {
 	int check;
 	unicode c;
@@ -138,7 +138,7 @@ static int defnametable_group_(addr getname, addr getchar)
 	return 0;
 }
 
-_g void build_character_name(void)
+void build_character_name(void)
 {
 	addr getname, getchar;
 

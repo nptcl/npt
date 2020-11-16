@@ -6,8 +6,8 @@
 #define init_syscall_common _n(init_syscall_common)
 #define build_syscall_common _n(build_syscall_common)
 
-_g void init_syscall_common(void);
-_g void build_syscall_common(void);
+void init_syscall_common(void);
+void build_syscall_common(void);
 
 #endif
 

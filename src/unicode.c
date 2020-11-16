@@ -8,7 +8,7 @@
 /*
  *  UTF-8
  */
-_g int string8_size_alloc_(LocalRoot local, addr *ret, const char *name, size_t size)
+int string8_size_alloc_(LocalRoot local, addr *ret, const char *name, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -22,17 +22,17 @@ _g int string8_size_alloc_(LocalRoot local, addr *ret, const char *name, size_t 
 		return fmte_("UTF8 encoding error (make).", NULL);
 	return Result(ret,  pos);
 }
-_g int string8_size_local_(LocalRoot local, addr *ret, const char *name, size_t size)
+int string8_size_local_(LocalRoot local, addr *ret, const char *name, size_t size)
 {
 	CheckLocal(local);
 	return string8_size_alloc_(local, ret, name, size);
 }
-_g int string8_size_heap_(addr *ret, const char *name, size_t size)
+int string8_size_heap_(addr *ret, const char *name, size_t size)
 {
 	return string8_size_alloc_(NULL, ret, name, size);
 }
 
-_g int string8_null_alloc_(LocalRoot local, addr *ret, const char *name)
+int string8_null_alloc_(LocalRoot local, addr *ret, const char *name)
 {
 	addr pos;
 	unicode *destroy;
@@ -46,12 +46,12 @@ _g int string8_null_alloc_(LocalRoot local, addr *ret, const char *name)
 		return fmte_("UTF8 encoding error (make).", NULL);
 	return Result(ret, pos);
 }
-_g int string8_null_local_(LocalRoot local, addr *ret, const char *name)
+int string8_null_local_(LocalRoot local, addr *ret, const char *name)
 {
 	CheckLocal(local);
 	return string8_null_alloc_(local, ret, name);
 }
-_g int string8_null_heap_(addr *ret, const char *name)
+int string8_null_heap_(addr *ret, const char *name)
 {
 	return string8_null_alloc_(NULL, ret, name);
 }
@@ -60,7 +60,7 @@ _g int string8_null_heap_(addr *ret, const char *name)
 /*
  *  UTF-16
  */
-_g int string16_size_alloc_(LocalRoot local, addr *ret, const byte16 *name, size_t size)
+int string16_size_alloc_(LocalRoot local, addr *ret, const byte16 *name, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -74,17 +74,17 @@ _g int string16_size_alloc_(LocalRoot local, addr *ret, const byte16 *name, size
 		return fmte_("UTF16 encoding error (make).", NULL);
 	return Result(ret, pos);
 }
-_g int string16_size_local_(LocalRoot local, addr *ret, const byte16 *name, size_t size)
+int string16_size_local_(LocalRoot local, addr *ret, const byte16 *name, size_t size)
 {
 	CheckLocal(local);
 	return string16_size_alloc_(local, ret, name, size);
 }
-_g int string16_size_heap_(addr *ret, const byte16 *name, size_t size)
+int string16_size_heap_(addr *ret, const byte16 *name, size_t size)
 {
 	return string16_size_alloc_(NULL, ret, name, size);
 }
 
-_g int string16_null_alloc_(LocalRoot local, addr *ret, const byte16 *name)
+int string16_null_alloc_(LocalRoot local, addr *ret, const byte16 *name)
 {
 	addr pos;
 	unicode *destroy;
@@ -98,12 +98,12 @@ _g int string16_null_alloc_(LocalRoot local, addr *ret, const byte16 *name)
 		return fmte_("UTF16 encoding error (make).", NULL);
 	return Result(ret, pos);
 }
-_g int string16_null_local_(LocalRoot local, addr *ret, const byte16 *name)
+int string16_null_local_(LocalRoot local, addr *ret, const byte16 *name)
 {
 	CheckLocal(local);
 	return string16_null_alloc_(local, ret, name);
 }
-_g int string16_null_heap_(addr *ret, const byte16 *name)
+int string16_null_heap_(addr *ret, const byte16 *name)
 {
 	return string16_null_alloc_(NULL, ret, name);
 }
@@ -112,7 +112,7 @@ _g int string16_null_heap_(addr *ret, const byte16 *name)
 /*
  *  UTF-32
  */
-_g int string32_size_alloc_(LocalRoot local, addr *ret, const unicode *name, size_t size)
+int string32_size_alloc_(LocalRoot local, addr *ret, const unicode *name, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -127,18 +127,18 @@ _g int string32_size_alloc_(LocalRoot local, addr *ret, const unicode *name, siz
 	return Result(ret, pos);
 }
 
-_g int string32_size_local_(LocalRoot local, addr *ret, const unicode *name, size_t size)
+int string32_size_local_(LocalRoot local, addr *ret, const unicode *name, size_t size)
 {
 	CheckLocal(local);
 	return string32_size_alloc_(local, ret, name, size);
 }
 
-_g int string32_size_heap_(addr *ret, const unicode *name, size_t size)
+int string32_size_heap_(addr *ret, const unicode *name, size_t size)
 {
 	return string32_size_alloc_(NULL, ret, name, size);
 }
 
-_g int string32_null_alloc_(LocalRoot local, addr *ret, const unicode *name)
+int string32_null_alloc_(LocalRoot local, addr *ret, const unicode *name)
 {
 	addr pos;
 	unicode *destroy;
@@ -153,13 +153,13 @@ _g int string32_null_alloc_(LocalRoot local, addr *ret, const unicode *name)
 	return Result(ret, pos);
 }
 
-_g int string32_null_local_(LocalRoot local, addr *ret, const unicode *name)
+int string32_null_local_(LocalRoot local, addr *ret, const unicode *name)
 {
 	CheckLocal(local);
 	return string32_null_alloc_(local, ret, name);
 }
 
-_g int string32_null_heap_(addr *ret, const unicode *name)
+int string32_null_heap_(addr *ret, const unicode *name)
 {
 	return string32_null_alloc_(NULL, ret, name);
 }

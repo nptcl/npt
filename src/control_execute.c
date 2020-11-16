@@ -26,7 +26,7 @@
 #ifdef LISP_DEBUG_TRACE
 #include <sys/time.h>
 struct timeval prevtime = {0, 0};
-_g void output_timestamp(void)
+void output_timestamp(void)
 {
 	struct timeval now, diff;
 	gettimeofday(&now, NULL);
@@ -174,7 +174,7 @@ loop:
 	goto loop;
 }
 
-_g int runcode_control_(Execute ptr, addr code)
+int runcode_control_(Execute ptr, addr code)
 {
 	addr control;
 	struct code_struct *str;
@@ -227,7 +227,7 @@ static int execute_no_control_(Execute ptr, addr call)
 	return runcode_control_(ptr, value);
 }
 
-_g int execute_control(Execute ptr, addr call)
+int execute_control(Execute ptr, addr call)
 {
 	addr control;
 
@@ -424,7 +424,7 @@ static int apply_no_control_(Execute ptr, addr call, addr list)
 	return runcode_control_(ptr, value);
 }
 
-_g int apply_control(Execute ptr, addr call, addr list)
+int apply_control(Execute ptr, addr call, addr list)
 {
 	addr control;
 
@@ -433,7 +433,7 @@ _g int apply_control(Execute ptr, addr call, addr list)
 	return pop_control_(ptr, control);
 }
 
-_g int applya_control(Execute ptr, addr call, ...)
+int applya_control(Execute ptr, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -446,7 +446,7 @@ _g int applya_control(Execute ptr, addr call, ...)
 	return pop_control_(ptr, control);
 }
 
-_g int funcall_control(Execute ptr, addr call, ...)
+int funcall_control(Execute ptr, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -459,7 +459,7 @@ _g int funcall_control(Execute ptr, addr call, ...)
 	return pop_control_(ptr, control);
 }
 
-_g int call_control(Execute ptr, addr args)
+int call_control(Execute ptr, addr args)
 {
 	addr call;
 
@@ -498,7 +498,7 @@ static int callclang_apply_no_control_(Execute ptr, addr call, addr list)
 	return apply_no_control_(ptr, call, list);
 }
 
-_g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
+int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
 {
 	addr control;
 
@@ -510,7 +510,7 @@ _g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
 	return 0;
 }
 
-_g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
+int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -527,7 +527,7 @@ _g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 	return 0;
 }
 
-_g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
+int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 {
 	addr control, list;
 	va_list va;

@@ -19,7 +19,7 @@ struct chartable {
 };
 static struct chartable Reader_CharTable[0x80];
 
-_g void init_reader_token(void)
+void init_reader_token(void)
 {
 	static const char *const str1 =
 		"!\"#$%&'(),;<=>?[\\]^_`{|}~.+-*/@"
@@ -109,7 +109,7 @@ static int checktable_force(unicode c)
 	} \
 }
 
-_g enum TokenType tokentype(unsigned base, addr queue)
+enum TokenType tokentype(unsigned base, addr queue)
 {
 	unicode c;
 	size_t i;
@@ -342,7 +342,7 @@ force:
 /*
  *  maketoken
  */
-_g int getreadbase_(Execute ptr, unsigned *ret)
+int getreadbase_(Execute ptr, unsigned *ret)
 {
 	addr one;
 	fixnum value;
@@ -511,7 +511,7 @@ static int maketoken_gensym_(Execute ptr, addr *ret)
 	}
 }
 
-_g int read_suppress_p_(Execute ptr, int *ret)
+int read_suppress_p_(Execute ptr, int *ret)
 {
 	addr pos;
 
@@ -521,7 +521,7 @@ _g int read_suppress_p_(Execute ptr, int *ret)
 	return Result(ret, pos != Nil);
 }
 
-_g int maketoken_(Execute ptr, addr *ret)
+int maketoken_(Execute ptr, addr *ret)
 {
 	int check;
 

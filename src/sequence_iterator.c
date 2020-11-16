@@ -6,7 +6,7 @@
 /*
  *  sequence-iterator
  */
-_g int make_sequence_iterator_local_(LocalRoot local,
+int make_sequence_iterator_local_(LocalRoot local,
 		addr pos, int fill, struct sequence_iterator **ret)
 {
 	struct sequence_iterator *ptr;
@@ -29,7 +29,7 @@ _g int make_sequence_iterator_local_(LocalRoot local,
 	return Result(ret, ptr);
 }
 
-_g int end_sequence_iterator(struct sequence_iterator *ptr)
+int end_sequence_iterator(struct sequence_iterator *ptr)
 {
 	if (ptr->listp)
 		return ptr->pos == Nil;
@@ -37,7 +37,7 @@ _g int end_sequence_iterator(struct sequence_iterator *ptr)
 		return ptr->size <= ptr->index;
 }
 
-_g int length_sequence_iterator_(struct sequence_iterator *ptr, size_t *ret)
+int length_sequence_iterator_(struct sequence_iterator *ptr, size_t *ret)
 {
 	if (ptr->listp)
 		return length_list_safe_(ptr->root, ret);
@@ -45,7 +45,7 @@ _g int length_sequence_iterator_(struct sequence_iterator *ptr, size_t *ret)
 		return Result(ret, ptr->size);
 }
 
-_g int object_sequence_iterator_(struct sequence_iterator *iter, addr *value, int *ret)
+int object_sequence_iterator_(struct sequence_iterator *iter, addr *value, int *ret)
 {
 	if (iter->listp) {
 		if (iter->pos == Nil)
@@ -78,7 +78,7 @@ static int next_sequence_iterator_(struct sequence_iterator *iter, addr *value, 
 	return Result(ret, 1);
 }
 
-_g int set_sequence_iterator_(struct sequence_iterator *iter, addr value, int *ret)
+int set_sequence_iterator_(struct sequence_iterator *iter, addr value, int *ret)
 {
 	if (iter->listp) {
 		Return_setcar(iter->pos, value);
@@ -97,7 +97,7 @@ _g int set_sequence_iterator_(struct sequence_iterator *iter, addr value, int *r
 /*
  *  sequence-group
  */
-_g int make_sequence_group_local_(
+int make_sequence_group_local_(
 		LocalRoot local, addr rest, int fill, struct sequence_group **ret)
 {
 	struct sequence_group *ptr;
@@ -123,7 +123,7 @@ _g int make_sequence_group_local_(
 	return Result(ret, ptr);
 }
 
-_g void list_sequence_group_local(LocalRoot local,
+void list_sequence_group_local(LocalRoot local,
 		addr *ret, struct sequence_group *group)
 {
 	addr root;
@@ -138,7 +138,7 @@ _g void list_sequence_group_local(LocalRoot local,
 		*ret = root;
 }
 
-_g int set_sequence_group_(struct sequence_group *group, addr list, int *ret)
+int set_sequence_group_(struct sequence_group *group, addr list, int *ret)
 {
 	int check;
 	struct sequence_iterator **data;
@@ -159,7 +159,7 @@ _g int set_sequence_group_(struct sequence_group *group, addr list, int *ret)
 	return Result(ret, 1);
 }
 
-_g void clear_sequence_group(struct sequence_group *group)
+void clear_sequence_group(struct sequence_group *group)
 {
 	struct sequence_iterator **data, *ptr;
 	size_t size, i;
@@ -191,7 +191,7 @@ static int next_sequence_group_(struct sequence_group *group, int *ret)
 	return Result(ret, 1);
 }
 
-_g int count_sequence_group_(struct sequence_group *group, size_t *ret)
+int count_sequence_group_(struct sequence_group *group, size_t *ret)
 {
 	int check;
 	size_t size;

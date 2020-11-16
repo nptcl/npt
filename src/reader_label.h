@@ -12,13 +12,13 @@
 #define vector_readlabel _n(vector_readlabel)
 #define array_readlabel_ _n(array_readlabel_)
 
-_g void dotqueue_readlabel(Execute ptr, addr queue, addr pos);
-_g void pushqueue_readlabel(Execute ptr, addr queue, addr pos);
-_g int find_readlabel(addr key, addr list, addr *ret);
-_g int pushlabel_readinfo_(Execute ptr, addr value, addr *ret);
-_g int closelabel_readlabel_(Execute ptr, addr label, addr pos);
-_g void vector_readlabel(Execute ptr, addr pos);
-_g int array_readlabel_(Execute ptr, addr pos);
+void dotqueue_readlabel(Execute ptr, addr queue, addr pos);
+void pushqueue_readlabel(Execute ptr, addr queue, addr pos);
+int find_readlabel(addr key, addr list, addr *ret);
+int pushlabel_readinfo_(Execute ptr, addr value, addr *ret);
+int closelabel_readlabel_(Execute ptr, addr label, addr pos);
+void vector_readlabel(Execute ptr, addr pos);
+int array_readlabel_(Execute ptr, addr pos);
 
 #endif
 

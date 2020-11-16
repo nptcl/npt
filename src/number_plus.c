@@ -10,7 +10,7 @@
 /*
  *  1+, 1-
  */
-_g int oneplus_number_common_(LocalRoot local, addr value, addr *ret)
+int oneplus_number_common_(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -45,7 +45,7 @@ _g int oneplus_number_common_(LocalRoot local, addr value, addr *ret)
 	return 0;
 }
 
-_g int oneminus_number_common_(LocalRoot local, addr value, addr *ret)
+int oneminus_number_common_(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -80,7 +80,7 @@ _g int oneminus_number_common_(LocalRoot local, addr value, addr *ret)
 	return 0;
 }
 
-_g int sign_reverse_number_common_(addr left, addr *ret)
+int sign_reverse_number_common_(addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -355,7 +355,7 @@ static int plus_complex_number_heap_(LocalRoot local,
 	}
 }
 
-_g int plus_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
+int plus_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -625,7 +625,7 @@ static int minus_complex_number_heap_(LocalRoot local,
 	}
 }
 
-_g int minus_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
+int minus_number_heap_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:

@@ -64,12 +64,12 @@ struct fmtdecimal_struct {
 
 typedef struct fmtdecimal_struct *fmtdecimal;
 
-_g int fmtdecimal_zerop(fmtdecimal str);
-_g int fmtdecimal_round(fmtdecimal str, unsigned i);
-_g int fmtdecimal_single_float(fmtdecimal str, single_float value, int round);
-_g int fmtdecimal_double_float(fmtdecimal str, double_float value, int round);
-_g int fmtdecimal_long_float(fmtdecimal str, long_float value, int round);
-_g void fmtdecimal_dump(FILE *file, fmtdecimal str);
+int fmtdecimal_zerop(fmtdecimal str);
+int fmtdecimal_round(fmtdecimal str, unsigned i);
+int fmtdecimal_single_float(fmtdecimal str, single_float value, int round);
+int fmtdecimal_double_float(fmtdecimal str, double_float value, int round);
+int fmtdecimal_long_float(fmtdecimal str, long_float value, int round);
+void fmtdecimal_dump(FILE *file, fmtdecimal str);
 
 
 /*****************************************************************************
@@ -97,20 +97,20 @@ struct fmtfloat_struct {
 
 typedef struct fmtfloat_struct *fmtfloat;
 
-_g int fmtfloat_fixed_(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g int fmtfloat_exponent_(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g int fmtfloat_general_(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g int fmtfloat_monetary_(addr stream, fmtfloat fmt, fmtdecimal dec);
+int fmtfloat_fixed_(addr stream, fmtfloat fmt, fmtdecimal dec);
+int fmtfloat_exponent_(addr stream, fmtfloat fmt, fmtdecimal dec);
+int fmtfloat_general_(addr stream, fmtfloat fmt, fmtdecimal dec);
+int fmtfloat_monetary_(addr stream, fmtfloat fmt, fmtdecimal dec);
 
 
 /*****************************************************************************
  *  princ / prin1
  *****************************************************************************/
-_g int fmtfloat_princ_single_float_(addr stream,
+int fmtfloat_princ_single_float_(addr stream,
 		single_float value, int markerp, unicode marker, int *ret);
-_g int fmtfloat_princ_double_float_(addr stream,
+int fmtfloat_princ_double_float_(addr stream,
 		double_float value, int markerp, unicode marker, int *ret);
-_g int fmtfloat_princ_long_float_(addr stream,
+int fmtfloat_princ_long_float_(addr stream,
 		long_float value, int markerp, unicode marker, int *ret);
 
 /* debug */
@@ -119,19 +119,19 @@ _g int fmtfloat_princ_long_float_(addr stream,
 #define fmtfloat_exponent_float_ _n(fmtfloat_exponent_float_)
 #define fmtfloat_exponent_double_ _n(fmtfloat_exponent_double_)
 
-_g int fmtfloat_fixed_float_(addr stream, single_float value,
+int fmtfloat_fixed_float_(addr stream, single_float value,
 		int sign,
 		fixnum w, fixnum d, fixnum k,
 		unicode overflow, unicode pad);
-_g int fmtfloat_fixed_double_(addr stream, double_float value,
+int fmtfloat_fixed_double_(addr stream, double_float value,
 		int sign,
 		fixnum w, fixnum d, fixnum k,
 		unicode overflow, unicode pad);
-_g int fmtfloat_exponent_float_(addr stream, single_float value,
+int fmtfloat_exponent_float_(addr stream, single_float value,
 		int sign, fixnum w,
 		fixnum d, fixnum e, fixnum k,
 		unicode overflow, unicode pad, unicode exponent);
-_g int fmtfloat_exponent_double_(addr stream, double_float value,
+int fmtfloat_exponent_double_(addr stream, double_float value,
 		int sign, fixnum w,
 		fixnum d, fixnum e, fixnum k,
 		unicode overflow, unicode pad, unicode exponent);

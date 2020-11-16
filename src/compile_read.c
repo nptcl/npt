@@ -38,7 +38,7 @@ error:
 	return Result(ret, 1);
 }
 
-_g int faslread_header_(addr input, int *ret)
+int faslread_header_(addr input, int *ret)
 {
 	int check;
 	byte buffer[64];
@@ -94,7 +94,7 @@ error:
 	return Result(ret, 1);
 }
 
-_g int faslread_footer_(addr input, int *ret)
+int faslread_footer_(addr input, int *ret)
 {
 	byte buffer[8];
 
@@ -186,7 +186,7 @@ static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 typedef int (*faslread_calltype)(Execute, addr, addr *);
 static faslread_calltype FaslRead_Table[FaslCode_value];
 
-_g int faslread_value(Execute ptr, addr stream, addr *ret)
+int faslread_value(Execute ptr, addr stream, addr *ret)
 {
 	enum FaslCode type;
 	faslread_calltype call;
@@ -202,7 +202,7 @@ _g int faslread_value(Execute ptr, addr stream, addr *ret)
 /*
  *  initialize
  */
-_g void init_compile_read(void)
+void init_compile_read(void)
 {
 	FaslRead_Table[FaslCode_error] = faslread_error;
 	FaslRead_Table[FaslCode_unbound] = faslread_unbound;

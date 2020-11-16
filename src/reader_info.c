@@ -7,20 +7,20 @@
 #include "symbol.h"
 #include "typedef.h"
 
-_g void get_readinfo(addr pos, size_t index, addr *ret)
+void get_readinfo(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_READINFO);
 	GetReadInfo_Low(pos, index, ret);
 }
 
-_g void set_readinfo(addr pos, size_t index, addr value)
+void set_readinfo(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPSYSTEM_READINFO);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetReadInfo_Low(pos, index, value);
 }
 
-_g struct readinfo_struct *struct_readinfo(addr pos)
+struct readinfo_struct *struct_readinfo(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_READINFO);
 	return ReadInfoStruct_Low(pos);
@@ -55,7 +55,7 @@ static void readinfo_symbol(addr *ret)
 	GetConst(SYSTEM_READINFO_SPECIAL, ret);
 }
 
-_g void getreadinfo(Execute ptr, addr *ret)
+void getreadinfo(Execute ptr, addr *ret)
 {
 	addr symbol;
 
@@ -65,14 +65,14 @@ _g void getreadinfo(Execute ptr, addr *ret)
 	CheckType(*ret, LISPSYSTEM_READINFO);
 }
 
-_g struct readinfo_struct *getreadinfo_struct(Execute ptr)
+struct readinfo_struct *getreadinfo_struct(Execute ptr)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	return ReadInfoStruct(pos);
 }
 
-_g void pushreadinfo(Execute ptr, addr *ret)
+void pushreadinfo(Execute ptr, addr *ret)
 {
 	addr symbol, info;
 
@@ -82,7 +82,7 @@ _g void pushreadinfo(Execute ptr, addr *ret)
 	*ret = info;
 }
 
-_g int pushreadinfo_recursive_(Execute ptr, addr *ret)
+int pushreadinfo_recursive_(Execute ptr, addr *ret)
 {
 	unsigned preserving, replace;
 	addr symbol, info, label;
@@ -112,42 +112,42 @@ _g int pushreadinfo_recursive_(Execute ptr, addr *ret)
 	return Result(ret, info);
 }
 
-_g void getpackage_readinfo(Execute ptr, addr *ret)
+void getpackage_readinfo(Execute ptr, addr *ret)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	GetReadInfo(pos, ReadInfo_Package, ret);
 }
 
-_g void setpackage_readinfo(Execute ptr, addr value)
+void setpackage_readinfo(Execute ptr, addr value)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	SetReadInfo(pos, ReadInfo_Package, value);
 }
 
-_g void getqueue_readinfo(Execute ptr, addr *ret)
+void getqueue_readinfo(Execute ptr, addr *ret)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	GetReadInfo(pos, ReadInfo_Queue, ret);
 }
 
-_g unsigned getpreserving_readinfo(Execute ptr)
+unsigned getpreserving_readinfo(Execute ptr)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	return ReadInfoStruct(pos)->preserving;
 }
 
-_g unsigned getescape_readinfo(Execute ptr)
+unsigned getescape_readinfo(Execute ptr)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	return ReadInfoStruct(pos)->escape;
 }
 
-_g void setescape_readinfo(Execute ptr, unsigned value)
+void setescape_readinfo(Execute ptr, unsigned value)
 {
 	addr pos;
 
@@ -156,14 +156,14 @@ _g void setescape_readinfo(Execute ptr, unsigned value)
 	ReadInfoStruct(pos)->escape = value;
 }
 
-_g unsigned getdot_readinfo(Execute ptr)
+unsigned getdot_readinfo(Execute ptr)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	return ReadInfoStruct(pos)->dot;
 }
 
-_g unsigned getreplace_readinfo(Execute ptr, addr *label)
+unsigned getreplace_readinfo(Execute ptr, addr *label)
 {
 	unsigned ret;
 	addr pos;
@@ -178,21 +178,21 @@ _g unsigned getreplace_readinfo(Execute ptr, addr *label)
 	return ret;
 }
 
-_g enum ReadInfo_State getstate_readinfo(Execute ptr)
+enum ReadInfo_State getstate_readinfo(Execute ptr)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	return ReadInfoStruct(pos)->state;
 }
 
-_g void setstate_readinfo(Execute ptr, enum ReadInfo_State value)
+void setstate_readinfo(Execute ptr, enum ReadInfo_State value)
 {
 	addr pos;
 	getreadinfo(ptr, &pos);
 	ReadInfoStruct(pos)->state = value;
 }
 
-_g void clear_readinfo(Execute ptr)
+void clear_readinfo(Execute ptr)
 {
 	addr pos, value;
 	struct readinfo_struct *str;

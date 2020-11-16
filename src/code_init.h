@@ -17,13 +17,13 @@ enum CodeValueType {
 	CodeValueType_Character,
 	CodeValueType_Null
 };
-__extern byte CodeValueArray[p_size_code];
+extern byte CodeValueArray[p_size_code];
 
 #define GetCodeValueArray(x,y) (*(y) = (enum CodeValueType)CodeValueArray[x])
 
-_g void init_code_init(void);
-_g void build_code_init(void);
-_g void defcode_constant(constindex index, pointer p);
+void init_code_init(void);
+void build_code_init(void);
+void defcode_constant(constindex index, pointer p);
 
 #endif
 

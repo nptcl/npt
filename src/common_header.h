@@ -23,9 +23,9 @@
 
 /* helper */
 #ifdef LISP_DEBUG
-_g void setfunction_common(addr symbol, addr value);
-_g void setmacro_common(addr symbol, addr value);
-_g void setsetfmacro_common(addr symbol, addr value);
+void setfunction_common(addr symbol, addr value);
+void setmacro_common(addr symbol, addr value);
+void setsetfmacro_common(addr symbol, addr value);
 #define SetFunctionCommon	setfunction_common
 #define SetMacroCommon		setmacro_common
 #define SetSetfMacroCommon	setsetfmacro_common
@@ -35,14 +35,14 @@ _g void setsetfmacro_common(addr symbol, addr value);
 #define SetSetfMacroCommon	setsetfmacro_symbol
 #endif
 
-_g void defconstant_symbol(addr symbol, addr value);
-_g void define_special_operator(constindex index);
+void defconstant_symbol(addr symbol, addr value);
+void define_special_operator(constindex index);
 #define DefineSpecialOperator(x) define_special_operator(CONSTANT_##x)
 
-_g int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend);
-_g int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend);
-_g int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend);
-_g int keyword_start_end_value_(size_t size,
+int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend);
+int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend);
+int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend);
+int keyword_start_end_value_(size_t size,
 		addr astart, addr aend, size_t *pstart, size_t *pend);
 
 #endif

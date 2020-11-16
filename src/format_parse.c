@@ -21,7 +21,7 @@
 /*
  *  fmtinput
  */
-_g int format_abort_(addr format, size_t position, const char *str, va_list args)
+int format_abort_(addr format, size_t position, const char *str, va_list args)
 {
 	size_t i, size;
 	addr pos, list, stream;
@@ -2658,7 +2658,7 @@ static int format_write_list_(struct fmtchar *list, byte *ptr, size_t *ret)
 /*
  *  format object
  */
-_g int formatp(addr pos)
+int formatp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FORMAT;
 }
@@ -2668,13 +2668,13 @@ static void format_alloc(LocalRoot local, addr *ret, size_t size)
 	alloc_body4(local, ret, LISPTYPE_FORMAT, size);
 }
 
-_g void *format_pointer(addr pos)
+void *format_pointer(addr pos)
 {
 	CheckType(pos, LISPTYPE_FORMAT);
 	return (void *)PtrBodyB4(pos);
 }
 
-_g size_t format_bytesize(size_t count)
+size_t format_bytesize(size_t count)
 {
 	return FormatByteSize(count);
 }
@@ -2700,14 +2700,14 @@ static int format_parse_(LocalRoot local, addr *ret, addr format, int localp)
 	return Result(ret, pos);
 }
 
-_g int format_parse_local_(LocalRoot local, addr *ret, addr format)
+int format_parse_local_(LocalRoot local, addr *ret, addr format)
 {
 	CheckLocal(local);
 	CheckType(format, LISPTYPE_STRING);
 	return format_parse_(local, ret, format, 1);
 }
 
-_g int format_parse_heap_(LocalRoot local, addr *ret, addr format)
+int format_parse_heap_(LocalRoot local, addr *ret, addr format)
 {
 	LocalStack stack;
 
@@ -2720,7 +2720,7 @@ _g int format_parse_heap_(LocalRoot local, addr *ret, addr format)
 	return 0;
 }
 
-_g int format_string_alloc_(LocalRoot local, addr *ret, addr format)
+int format_string_alloc_(LocalRoot local, addr *ret, addr format)
 {
 	byte *body;
 	struct format_argument *arg;
@@ -2751,13 +2751,13 @@ _g int format_string_alloc_(LocalRoot local, addr *ret, addr format)
 	return Result(ret, pos);
 }
 
-_g int format_string_local_(LocalRoot local, addr *ret, addr format)
+int format_string_local_(LocalRoot local, addr *ret, addr format)
 {
 	CheckLocal(local);
 	return format_string_alloc_(local, ret, format);
 }
 
-_g int format_string_heap_(addr *ret, addr format)
+int format_string_heap_(addr *ret, addr format)
 {
 	return format_string_alloc_(NULL, ret, format);
 }
@@ -2770,7 +2770,7 @@ _g int format_string_heap_(addr *ret, addr format)
 #define SetFormatWrite(x,y) (FormatWrite[FormatType_##x] = format_write_##y)
 #define SetFormatCharacter(x,y) (FormatCharacter[(int)(x)] = (y))
 
-_g void init_format_parse(void)
+void init_format_parse(void)
 {
 	cleartype(FormatCharacter);
 	SetFormatCharacter(0, FormatType_Output);

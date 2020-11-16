@@ -57,28 +57,28 @@ struct readtype_struct {
 #define SetReadType				SetReadType_Low
 #endif
 
-_g void *ptr_readtype(addr pos);
-_g struct readtype_struct *struct_readtype(addr pos);
-_g void get_readtype(addr pos, addr *ret);
-_g void set_readtype(addr pos, addr value);
+void *ptr_readtype(addr pos);
+struct readtype_struct *struct_readtype(addr pos);
+void get_readtype(addr pos, addr *ret);
+void set_readtype(addr pos, addr value);
 
-_g int dispatch_readtype(addr pos);
-_g void make_readtype(addr *ret,
+int dispatch_readtype(addr pos);
+void make_readtype(addr *ret,
 		enum ReadTable_Type type, unicode code, unsigned dispatch);
-_g void copy_readtype(addr *ret, addr copy);
-_g void default_array_readtype(addr array);
-_g int default_dispatch_readtype_(addr pos, unicode u);
-_g void array_readtype_heap(addr *ret);
-_g void dispatch_readtype_heap(addr *ret);
-_g void make_array_readtype(addr *ret);
-_g void make_table_readtype(addr *ret);
-_g int make_dispatch_readtype_(addr *ret);
+void copy_readtype(addr *ret, addr copy);
+void default_array_readtype(addr array);
+int default_dispatch_readtype_(addr pos, unicode u);
+void array_readtype_heap(addr *ret);
+void dispatch_readtype_heap(addr *ret);
+void make_array_readtype(addr *ret);
+void make_table_readtype(addr *ret);
+int make_dispatch_readtype_(addr *ret);
 
-_g int readtype_whitespace(unicode u);
-_g int readtype_constituent(unicode u);
-_g int readtype_termmacro(unicode u, addr *ret);
-_g int readtype_sharpmacro(unicode u, addr *ret);
-_g int delete_readtype_(addr pos, unicode c);
+int readtype_whitespace(unicode u);
+int readtype_constituent(unicode u);
+int readtype_termmacro(unicode u, addr *ret);
+int readtype_sharpmacro(unicode u, addr *ret);
+int delete_readtype_(addr pos, unicode c);
 
 #endif
 

@@ -17,14 +17,14 @@ static void getroot_typetable(addr *ret)
 	CheckType(*ret, LISPTYPE_VECTOR);
 }
 
-_g addr reftypetable(enum TypeTable index)
+addr reftypetable(enum TypeTable index)
 {
 	addr pos;
 	gettypetable(index, &pos);
 	return pos;
 }
 
-_g void gettypetable(enum TypeTable index, addr *ret)
+void gettypetable(enum TypeTable index, addr *ret)
 {
 	addr table;
 
@@ -33,7 +33,7 @@ _g void gettypetable(enum TypeTable index, addr *ret)
 	Check(*ret == Nil, "type error");
 }
 
-_g void settypetable(enum TypeTable index, addr pos)
+void settypetable(enum TypeTable index, addr pos)
 {
 	addr table;
 
@@ -42,7 +42,7 @@ _g void settypetable(enum TypeTable index, addr pos)
 	SetStatusReadOnly(pos);
 }
 
-_g void keytypetable(constindex name, enum TypeTable type, addr *ret)
+void keytypetable(constindex name, enum TypeTable type, addr *ret)
 {
 	addr value1, value2;
 
@@ -51,7 +51,7 @@ _g void keytypetable(constindex name, enum TypeTable type, addr *ret)
 	cons_heap(ret, value1, value2);
 }
 
-_g void build_type_table(void)
+void build_type_table(void)
 {
 	addr pos;
 	vector4_heap(&pos, TypeTable_Size);
@@ -62,12 +62,12 @@ _g void build_type_table(void)
 /*
  *  arguments
  */
-_g void typeargs_empty(addr *ret)
+void typeargs_empty(addr *ret)
 {
 	vector2_heap(ret, 4);
 }
 
-_g void typeargs_full(addr *ret, addr var, addr opt, addr rest, addr key)
+void typeargs_full(addr *ret, addr var, addr opt, addr rest, addr key)
 {
 	addr pos;
 
@@ -79,186 +79,186 @@ _g void typeargs_full(addr *ret, addr var, addr opt, addr rest, addr key)
 	*ret = pos;
 }
 
-_g void typeargs_var1(addr *ret, addr v1)
+void typeargs_var1(addr *ret, addr v1)
 {
 	conscar_heap(&v1, v1);
 	typeargs_full(ret, v1, Nil, Nil, Nil);
 }
 
-_g void typeargs_var2(addr *ret, addr v1, addr v2)
+void typeargs_var2(addr *ret, addr v1, addr v2)
 {
 	list_heap(&v1, v1, v2, NULL);
 	typeargs_full(ret, v1, Nil, Nil, Nil);
 }
 
-_g void typeargs_var3(addr *ret, addr v1, addr v2, addr v3)
+void typeargs_var3(addr *ret, addr v1, addr v2, addr v3)
 {
 	list_heap(&v1, v1, v2, v3, NULL);
 	typeargs_full(ret, v1, Nil, Nil, Nil);
 }
 
-_g void typeargs_var4(addr *ret, addr v1, addr v2, addr v3, addr v4)
+void typeargs_var4(addr *ret, addr v1, addr v2, addr v3, addr v4)
 {
 	list_heap(&v1, v1, v2, v3, v4, NULL);
 	typeargs_full(ret, v1, Nil, Nil, Nil);
 }
 
-_g void typeargs_var5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5)
+void typeargs_var5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5)
 {
 	list_heap(&v1, v1, v2, v3, v4, v5, NULL);
 	typeargs_full(ret, v1, Nil, Nil, Nil);
 }
 
-_g void typeargs_var1key(addr *ret, addr v1, addr key)
+void typeargs_var1key(addr *ret, addr v1, addr key)
 {
 	conscar_heap(&v1, v1);
 	typeargs_full(ret, v1, Nil, Nil, key);
 }
 
-_g void typeargs_var2key(addr *ret, addr v1, addr v2, addr key)
+void typeargs_var2key(addr *ret, addr v1, addr v2, addr key)
 {
 	list_heap(&v1, v1, v2, NULL);
 	typeargs_full(ret, v1, Nil, Nil, key);
 }
 
-_g void typeargs_var3key(addr *ret, addr v1, addr v2, addr var3, addr key)
+void typeargs_var3key(addr *ret, addr v1, addr v2, addr var3, addr key)
 {
 	list_heap(&v1, v1, v2, var3, NULL);
 	typeargs_full(ret, v1, Nil, Nil, key);
 }
 
-_g void typeargs_var4key(addr *ret, addr v1, addr v2, addr v3, addr v4, addr key)
+void typeargs_var4key(addr *ret, addr v1, addr v2, addr v3, addr v4, addr key)
 {
 	list_heap(&v1, v1, v2, v3, v4, NULL);
 	typeargs_full(ret, v1, Nil, Nil, key);
 }
 
-_g void typeargs_opt1(addr *ret, addr v1)
+void typeargs_opt1(addr *ret, addr v1)
 {
 	conscar_heap(&v1, v1);
 	typeargs_full(ret, Nil, v1, Nil, Nil);
 }
 
-_g void typeargs_opt2(addr *ret, addr v1, addr v2)
+void typeargs_opt2(addr *ret, addr v1, addr v2)
 {
 	list_heap(&v1, v1, v2, NULL);
 	typeargs_full(ret, Nil, v1, Nil, Nil);
 }
 
-_g void typeargs_opt3(addr *ret, addr v1, addr v2, addr v3)
+void typeargs_opt3(addr *ret, addr v1, addr v2, addr v3)
 {
 	list_heap(&v1, v1, v2, v3, NULL);
 	typeargs_full(ret, Nil, v1, Nil, Nil);
 }
-_g void typeargs_opt4(addr *ret, addr v1, addr v2, addr v3, addr v4)
+void typeargs_opt4(addr *ret, addr v1, addr v2, addr v3, addr v4)
 {
 	list_heap(&v1, v1, v2, v3, v4, NULL);
 	typeargs_full(ret, Nil, v1, Nil, Nil);
 }
 
-_g void typeargs_opt5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5)
+void typeargs_opt5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5)
 {
 	list_heap(&v1, v1, v2, v3, v4, v5, NULL);
 	typeargs_full(ret, Nil, v1, Nil, Nil);
 }
 
-_g void typeargs_var1opt1(addr *ret, addr var1, addr opt1)
+void typeargs_var1opt1(addr *ret, addr var1, addr opt1)
 {
 	conscar_heap(&var1, var1);
 	conscar_heap(&opt1, opt1);
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
-_g void typeargs_var1opt2(addr *ret, addr var1, addr opt1, addr opt2)
+void typeargs_var1opt2(addr *ret, addr var1, addr opt1, addr opt2)
 {
 	conscar_heap(&var1, var1);
 	list_heap(&opt1, opt1, opt2, NULL);
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
-_g void typeargs_var1opt2key(addr *ret, addr var1, addr opt1, addr opt2, addr key)
+void typeargs_var1opt2key(addr *ret, addr var1, addr opt1, addr opt2, addr key)
 {
 	conscar_heap(&var1, var1);
 	list_heap(&opt1, opt1, opt2, NULL);
 	typeargs_full(ret, var1, opt1, Nil, key);
 }
 
-_g void typeargs_var2opt1(addr *ret, addr var1, addr var2, addr opt1)
+void typeargs_var2opt1(addr *ret, addr var1, addr var2, addr opt1)
 {
 	list_heap(&var1, var1, var2, NULL);
 	conscar_heap(&opt1, opt1);
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
-_g void typeargs_var2opt2(addr *ret, addr var1, addr var2, addr opt1, addr opt2)
+void typeargs_var2opt2(addr *ret, addr var1, addr var2, addr opt1, addr opt2)
 {
 	list_heap(&var1, var1, var2, NULL);
 	list_heap(&opt1, opt1, opt2, NULL);
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
-_g void typeargs_var2opt3(addr *ret, addr v1, addr v2, addr o1, addr o2, addr o3)
+void typeargs_var2opt3(addr *ret, addr v1, addr v2, addr o1, addr o2, addr o3)
 {
 	list_heap(&v1, v1, v2, NULL);
 	list_heap(&o1, o1, o2, o3, NULL);
 	typeargs_full(ret, v1, o1, Nil, Nil);
 }
 
-_g void typeargs_var3opt1(addr *ret, addr var1, addr var2, addr var3, addr opt1)
+void typeargs_var3opt1(addr *ret, addr var1, addr var2, addr var3, addr opt1)
 {
 	list_heap(&var1, var1, var2, var3, NULL);
 	conscar_heap(&opt1, opt1);
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
-_g void typeargs_var4opt1(addr *ret, addr v1, addr v2, addr v3, addr v4, addr opt1)
+void typeargs_var4opt1(addr *ret, addr v1, addr v2, addr v3, addr v4, addr opt1)
 {
 	list_heap(&v1, v1, v2, v3, v4, NULL);
 	conscar_heap(&opt1, opt1);
 	typeargs_full(ret, v1, opt1, Nil, Nil);
 }
 
-_g void typeargs_var1rest(addr *ret, addr v1, addr rest)
+void typeargs_var1rest(addr *ret, addr v1, addr rest)
 {
 	conscar_heap(&v1, v1);
 	typeargs_full(ret, v1, Nil, rest, Nil);
 }
 
-_g void typeargs_var2rest(addr *ret, addr v1, addr v2, addr rest)
+void typeargs_var2rest(addr *ret, addr v1, addr v2, addr rest)
 {
 	list_heap(&v1, v1, v2, NULL);
 	typeargs_full(ret, v1, Nil, rest, Nil);
 }
 
-_g void typeargs_var3rest(addr *ret, addr v1, addr v2, addr v3, addr rest)
+void typeargs_var3rest(addr *ret, addr v1, addr v2, addr v3, addr rest)
 {
 	list_heap(&v1, v1, v2, v3, NULL);
 	typeargs_full(ret, v1, Nil, rest, Nil);
 }
 
-_g void typeargs_var4rest(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest)
+void typeargs_var4rest(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest)
 {
 	list_heap(&v1, v1, v2, v3, v4, NULL);
 	typeargs_full(ret, v1, Nil, rest, Nil);
 }
 
-_g void typeargs_opt1rest(addr *ret, addr opt1, addr rest)
+void typeargs_opt1rest(addr *ret, addr opt1, addr rest)
 {
 	conscar_heap(&opt1, opt1);
 	typeargs_full(ret, Nil, opt1, rest, Nil);
 }
 
-_g void typeargs_rest(addr *ret, addr rest)
+void typeargs_rest(addr *ret, addr rest)
 {
 	typeargs_full(ret, Nil, Nil, rest, Nil);
 }
 
-_g void typeargs_key(addr *ret, addr key)
+void typeargs_key(addr *ret, addr key)
 {
 	typeargs_full(ret, Nil, Nil, Nil, key);
 }
 
-_g void typeargs_method(addr pos)
+void typeargs_method(addr pos)
 {
 	addr var, method1, method2;
 
@@ -269,7 +269,7 @@ _g void typeargs_method(addr pos)
 	SetArrayA2(pos, 0, var); /* var */
 }
 
-_g void typeargs_methodkey(addr pos)
+void typeargs_methodkey(addr pos)
 {
 	addr rest;
 
@@ -285,7 +285,7 @@ _g void typeargs_methodkey(addr pos)
 /*
  *  values
  */
-_g void typevalues_result(addr *ret, addr v1)
+void typevalues_result(addr *ret, addr v1)
 {
 	/* (values v1 &rest nil) */
 	addr pos;
@@ -296,7 +296,7 @@ _g void typevalues_result(addr *ret, addr v1)
 	SetStatusReadOnly(*ret);
 }
 
-_g void typevalues_values2(addr *ret, addr v1, addr v2)
+void typevalues_values2(addr *ret, addr v1, addr v2)
 {
 	/* (values v1 v2 &rest nil) */
 	addr pos;
@@ -307,7 +307,7 @@ _g void typevalues_values2(addr *ret, addr v1, addr v2)
 	SetStatusReadOnly(*ret);
 }
 
-_g void typevalues_values3(addr *ret, addr v1, addr v2, addr v3)
+void typevalues_values3(addr *ret, addr v1, addr v2, addr v3)
 {
 	/* (values v1 v2 v3 &rest nil) */
 	addr pos;
@@ -318,7 +318,7 @@ _g void typevalues_values3(addr *ret, addr v1, addr v2, addr v3)
 	SetStatusReadOnly(*ret);
 }
 
-_g void typevalues_values4(addr *ret, addr v1, addr v2, addr v3, addr v4)
+void typevalues_values4(addr *ret, addr v1, addr v2, addr v3, addr v4)
 {
 	/* (values v1 v2 v3 v4 &rest nil) */
 	addr pos;
@@ -329,7 +329,7 @@ _g void typevalues_values4(addr *ret, addr v1, addr v2, addr v3, addr v4)
 	SetStatusReadOnly(*ret);
 }
 
-_g void typevalues_values5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5)
+void typevalues_values5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5)
 {
 	/* (values v1 v2 v3 v4 v5 &rest nil) */
 	addr pos;
@@ -340,7 +340,7 @@ _g void typevalues_values5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v
 	SetStatusReadOnly(*ret);
 }
 
-_g void typevalues_values_va(addr *ret, ...)
+void typevalues_values_va(addr *ret, ...)
 {
 	/* (values ... &rest nil) */
 	addr args, type;
@@ -356,7 +356,7 @@ _g void typevalues_values_va(addr *ret, ...)
 	SetStatusReadOnly(*ret);
 }
 
-_g void typevalues_rest(addr *ret, addr type)
+void typevalues_rest(addr *ret, addr type)
 {
 	/* (values &rest type) */
 
@@ -365,7 +365,7 @@ _g void typevalues_rest(addr *ret, addr type)
 }
 
 /* type asterisk */
-_g void type1aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
+void type1aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr aster;
 
@@ -374,7 +374,7 @@ _g void type1aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 	type1_alloc(local, type, aster, ret);
 }
 
-_g void type2aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
+void type2aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr aster;
 
@@ -383,7 +383,7 @@ _g void type2aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 	type2_alloc(local, type, aster, aster, ret);
 }
 
-_g void type3aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
+void type3aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr aster;
 
@@ -392,7 +392,7 @@ _g void type3aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 	type3_alloc(local, type, aster, aster, aster, ret);
 }
 
-_g void type4aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
+void type4aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	addr aster;
 
@@ -401,46 +401,46 @@ _g void type4aster_alloc(LocalRoot local, enum LISPDECL type, addr *ret)
 	type4_alloc(local, type, aster, aster, aster, aster, ret);
 }
 
-_g void type1aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
+void type1aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	CheckLocal(local);
 	type1aster_alloc(local, type, ret);
 }
 
-_g void type2aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
+void type2aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	CheckLocal(local);
 	type2aster_alloc(local, type, ret);
 }
 
-_g void type3aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
+void type3aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	CheckLocal(local);
 	type3aster_alloc(local, type, ret);
 }
 
-_g void type4aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
+void type4aster_local(LocalRoot local, enum LISPDECL type, addr *ret)
 {
 	CheckLocal(local);
 	type4aster_alloc(local, type, ret);
 }
 
-_g void type1aster_heap(enum LISPDECL type, addr *ret)
+void type1aster_heap(enum LISPDECL type, addr *ret)
 {
 	type1aster_alloc(NULL, type, ret);
 }
 
-_g void type2aster_heap(enum LISPDECL type, addr *ret)
+void type2aster_heap(enum LISPDECL type, addr *ret)
 {
 	type2aster_alloc(NULL, type, ret);
 }
 
-_g void type3aster_heap(enum LISPDECL type, addr *ret)
+void type3aster_heap(enum LISPDECL type, addr *ret)
 {
 	type3aster_alloc(NULL, type, ret);
 }
 
-_g void type4aster_heap(enum LISPDECL type, addr *ret)
+void type4aster_heap(enum LISPDECL type, addr *ret)
 {
 	type4aster_alloc(NULL, type, ret);
 }
@@ -449,7 +449,7 @@ _g void type4aster_heap(enum LISPDECL type, addr *ret)
 /*
  *  and/or
  */
-_g void type2and_alloc(LocalRoot local, addr a, addr b, addr *ret)
+void type2and_alloc(LocalRoot local, addr a, addr b, addr *ret)
 {
 	enum LISPDECL decl;
 	addr array;
@@ -481,7 +481,7 @@ _g void type2and_alloc(LocalRoot local, addr a, addr b, addr *ret)
 	type1_alloc(local, LISPDECL_AND, array, ret);
 }
 
-_g void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret)
+void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret)
 {
 	enum LISPDECL decl;
 	addr array;
@@ -513,7 +513,7 @@ _g void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret)
 	type1_alloc(local, LISPDECL_OR, array, ret);
 }
 
-_g void type3and_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
+void type3and_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
 {
 	addr array;
 
@@ -524,7 +524,7 @@ _g void type3and_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
 	type1_alloc(local, LISPDECL_AND, array, ret);
 }
 
-_g void type3or_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
+void type3or_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
 {
 	addr array;
 
@@ -535,7 +535,7 @@ _g void type3or_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
 	type1_alloc(local, LISPDECL_OR, array, ret);
 }
 
-_g void type4or_alloc(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret)
+void type4or_alloc(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret)
 {
 	addr array;
 
@@ -547,57 +547,57 @@ _g void type4or_alloc(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret
 	type1_alloc(local, LISPDECL_OR, array, ret);
 }
 
-_g void type2and_local(LocalRoot local, addr a, addr b, addr *ret)
+void type2and_local(LocalRoot local, addr a, addr b, addr *ret)
 {
 	CheckLocal(local);
 	type2and_alloc(local, a, b, ret);
 }
 
-_g void type2or_local(LocalRoot local, addr a, addr b, addr *ret)
+void type2or_local(LocalRoot local, addr a, addr b, addr *ret)
 {
 	CheckLocal(local);
 	type2or_alloc(local, a, b, ret);
 }
 
-_g void type3and_local(LocalRoot local, addr a, addr b, addr c, addr *ret)
+void type3and_local(LocalRoot local, addr a, addr b, addr c, addr *ret)
 {
 	CheckLocal(local);
 	type3and_alloc(local, a, b, c, ret);
 }
 
-_g void type3or_local(LocalRoot local, addr a, addr b, addr c, addr *ret)
+void type3or_local(LocalRoot local, addr a, addr b, addr c, addr *ret)
 {
 	CheckLocal(local);
 	type3or_alloc(local, a, b, c, ret);
 }
 
-_g void type4or_local(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret)
+void type4or_local(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret)
 {
 	CheckLocal(local);
 	type4or_alloc(local, a, b, c, d, ret);
 }
 
-_g void type2and_heap(addr a, addr b, addr *ret)
+void type2and_heap(addr a, addr b, addr *ret)
 {
 	type2and_alloc(NULL, a, b, ret);
 }
 
-_g void type2or_heap(addr a, addr b, addr *ret)
+void type2or_heap(addr a, addr b, addr *ret)
 {
 	type2or_alloc(NULL, a, b, ret);
 }
 
-_g void type3and_heap(addr a, addr b, addr c, addr *ret)
+void type3and_heap(addr a, addr b, addr c, addr *ret)
 {
 	type3and_alloc(NULL, a, b, c, ret);
 }
 
-_g void type3or_heap(addr a, addr b, addr c, addr *ret)
+void type3or_heap(addr a, addr b, addr c, addr *ret)
 {
 	type3or_alloc(NULL, a, b, c, ret);
 }
 
-_g void type4or_heap(addr a, addr b, addr c, addr d, addr *ret)
+void type4or_heap(addr a, addr b, addr c, addr d, addr *ret)
 {
 	type4or_alloc(NULL, a, b, c, d, ret);
 }
@@ -606,12 +606,12 @@ _g void type4or_heap(addr a, addr b, addr c, addr d, addr *ret)
 /*
  *  range
  */
-_g void type1real_heap(enum LISPDECL type, addr value, addr *ret)
+void type1real_heap(enum LISPDECL type, addr value, addr *ret)
 {
 	type4_heap(type, Nil, value, Nil, value, ret);
 }
 
-_g void type4integer_heap(addr a, fixnum b, addr c, fixnum d, addr *ret)
+void type4integer_heap(addr a, fixnum b, addr c, fixnum d, addr *ret)
 {
 	addr x, y;
 
@@ -622,7 +622,7 @@ _g void type4integer_heap(addr a, fixnum b, addr c, fixnum d, addr *ret)
 	type4_heap(LISPDECL_INTEGER, a, x, c, y, ret);
 }
 
-_g void type2integer_ab_heap(addr a, fixnum b, addr *ret)
+void type2integer_ab_heap(addr a, fixnum b, addr *ret)
 {
 	addr x, aster;
 
@@ -632,7 +632,7 @@ _g void type2integer_ab_heap(addr a, fixnum b, addr *ret)
 	type4_heap(LISPDECL_INTEGER, a, x, aster, aster, ret);
 }
 
-_g void type2integer_cd_heap(addr c, fixnum d, addr *ret)
+void type2integer_cd_heap(addr c, fixnum d, addr *ret)
 {
 	addr y, aster;
 
@@ -674,32 +674,32 @@ static void type2declf_cd_heap(enum LISPDECL type, addr c, float d, addr *ret)
 	type4_heap(type, aster, aster, c, y, ret);
 }
 
-_g void type4float_heap(addr a, float b, addr c, float d, addr *ret)
+void type4float_heap(addr a, float b, addr c, float d, addr *ret)
 {
 	type4declf_heap(LISPDECL_FLOAT, a, b, c, d, ret);
 }
 
-_g void type2float_ab_heap(addr a, float b, addr *ret)
+void type2float_ab_heap(addr a, float b, addr *ret)
 {
 	type2declf_ab_heap(LISPDECL_FLOAT, a, b, ret);
 }
 
-_g void type2float_cd_heap(addr c, float d, addr *ret)
+void type2float_cd_heap(addr c, float d, addr *ret)
 {
 	type2declf_cd_heap(LISPDECL_FLOAT, c, d, ret);
 }
 
-_g void type4realf_heap(addr a, float b, addr c, float d, addr *ret)
+void type4realf_heap(addr a, float b, addr c, float d, addr *ret)
 {
 	type4declf_heap(LISPDECL_REAL, a, b, c, d, ret);
 }
 
-_g void type2realf_ab_heap(addr a, float b, addr *ret)
+void type2realf_ab_heap(addr a, float b, addr *ret)
 {
 	type2declf_ab_heap(LISPDECL_REAL, a, b, ret);
 }
 
-_g void type2realf_cd_heap(addr c, float d, addr *ret)
+void type2realf_cd_heap(addr c, float d, addr *ret)
 {
 	type2declf_cd_heap(LISPDECL_REAL, c, d, ret);
 }
@@ -708,7 +708,7 @@ _g void type2realf_cd_heap(addr c, float d, addr *ret)
 /*
  *  vector
  */
-_g void type_vector1_heap(size_t size, addr *ret)
+void type_vector1_heap(size_t size, addr *ret)
 {
 	addr first, second;
 

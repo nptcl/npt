@@ -120,7 +120,7 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	return Result(ret, list);
 }
 
-_g int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
+int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
 {
 	addr list, root, x, y;
 	LocalHold hold;
@@ -153,7 +153,7 @@ _g int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
 /*
  *  apropos
  */
-_g int apropos_common(Execute ptr, addr var, addr package)
+int apropos_common(Execute ptr, addr var, addr package)
 {
 	addr stream, list, name;
 
@@ -196,7 +196,7 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 /*
  *  time
  */
-_g int time_common(addr form, addr env, addr *ret)
+int time_common(addr form, addr env, addr *ret)
 {
 	/* (multiple-value-bind (real1 run1 space1 count1) (lisp-system::timeinfo)
 	 *   (let ((list (multiple-value-list expr)))
@@ -320,7 +320,7 @@ static int room_maximal_common(Execute ptr, addr stream)
 	return room_output_common(ptr, stream);
 }
 
-_g int room_common(Execute ptr, addr var)
+int room_common(Execute ptr, addr var)
 {
 	addr stream, check;
 
@@ -443,7 +443,7 @@ static int ed_function_common(Execute ptr, addr symbol)
 	return 0;
 }
 
-_g int ed_common(Execute ptr, addr var)
+int ed_common(Execute ptr, addr var)
 {
 	if (var == Unbound)
 		var = Nil;
@@ -612,7 +612,7 @@ static int dribble_close(Execute ptr)
 	return 0;
 }
 
-_g int dribble_common(Execute ptr, addr file)
+int dribble_common(Execute ptr, addr file)
 {
 	if (file != Nil)
 		return dribble_open(ptr, file);

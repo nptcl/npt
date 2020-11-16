@@ -8,9 +8,9 @@
 #define load_heap _n(load_heap)
 #define init_heap_core _n(init_heap_core)
 
-_g int save_heap(filestream fm);
-_g int load_heap(filestream fm);
-_g void init_heap_core(void);
+int save_heap(filestream fm);
+int load_heap(filestream fm);
+void init_heap_core(void);
 
 #endif
 

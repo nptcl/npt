@@ -5,7 +5,7 @@
 #include "stream_variable.h"
 #include "stream.h"
 
-_g void init_stream_binary_input(void)
+void init_stream_binary_input(void)
 {
 	DefineStreamLet(BinaryInput, close, stream_file_);
 	DefineStreamLet(BinaryInput, read_byte, file_);
@@ -40,7 +40,7 @@ _g void init_stream_binary_input(void)
 	DefineStream___(BinaryInput, termsize);
 }
 
-_g void init_stream_binary_output(void)
+void init_stream_binary_output(void)
 {
 	DefineStreamLet(BinaryOutput, close, stream_file_);
 	DefineStream___(BinaryOutput, read_byte);
@@ -75,7 +75,7 @@ _g void init_stream_binary_output(void)
 	DefineStreamDef(BinaryOutput, termsize);
 }
 
-_g void init_stream_binary_io(void)
+void init_stream_binary_io(void)
 {
 	DefineStreamLet(BinaryIO, close, stream_file_);
 	DefineStreamLet(BinaryIO, read_byte, file_);
@@ -110,7 +110,7 @@ _g void init_stream_binary_io(void)
 	DefineStreamDef(BinaryIO, termsize);
 }
 
-_g void init_stream_character_input(void)
+void init_stream_character_input(void)
 {
 	DefineStreamLet(CharacterInput, close, stream_file_);
 	DefineStream___(CharacterInput, read_byte);
@@ -145,7 +145,7 @@ _g void init_stream_character_input(void)
 	DefineStream___(CharacterInput, termsize);
 }
 
-_g void init_stream_character_output(void)
+void init_stream_character_output(void)
 {
 	DefineStreamLet(CharacterOutput, close, stream_file_);
 	DefineStream___(CharacterOutput, read_byte);
@@ -180,7 +180,7 @@ _g void init_stream_character_output(void)
 	DefineStreamDef(CharacterOutput, termsize);
 }
 
-_g void init_stream_character_io(void)
+void init_stream_character_io(void)
 {
 	DefineStreamLet(CharacterIO, close, stream_file_);
 	DefineStream___(CharacterIO, read_byte);
@@ -215,7 +215,7 @@ _g void init_stream_character_io(void)
 	DefineStreamDef(CharacterIO, termsize);
 }
 
-_g void init_stream_binchar_input(void)
+void init_stream_binchar_input(void)
 {
 	DefineStreamLet(BincharInput, close, stream_file_);
 	DefineStreamLet(BincharInput, read_byte, file_);
@@ -250,7 +250,7 @@ _g void init_stream_binchar_input(void)
 	DefineStream___(BincharInput, termsize);
 }
 
-_g void init_stream_binchar_output(void)
+void init_stream_binchar_output(void)
 {
 	DefineStreamLet(BincharOutput, close, stream_file_);
 	DefineStream___(BincharOutput, read_byte);
@@ -285,7 +285,7 @@ _g void init_stream_binchar_output(void)
 	DefineStreamLet(BincharOutput, termsize, file_);
 }
 
-_g void init_stream_binchar_io(void)
+void init_stream_binchar_io(void)
 {
 	DefineStreamLet(BincharIO, close, stream_file_);
 	DefineStreamLet(BincharIO, read_byte, file_);
@@ -320,7 +320,7 @@ _g void init_stream_binchar_io(void)
 	DefineStreamLet(BincharIO, termsize, file_);
 }
 
-_g void init_stream_probe(void)
+void init_stream_probe(void)
 {
 	DefineStreamLet(Probe, close, stream_file_);
 	DefineStream___(Probe, read_byte);

@@ -409,7 +409,7 @@ static int scope_function_callname(Execute ptr, addr *ret, addr call)
 	return make_eval_scope_(ptr, ret, EVAL_PARSE_FUNCTION, type, value);
 }
 
-_g int scope_function_call(Execute ptr, addr *ret, addr eval)
+int scope_function_call(Execute ptr, addr *ret, addr eval)
 {
 	GetEvalParse(eval, 0, &eval);
 	if (functionp(eval))
@@ -424,7 +424,7 @@ _g int scope_function_call(Execute ptr, addr *ret, addr eval)
 /*
  *  lambda
  */
-_g void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp)
+void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp)
 {
 	clearpoint(str);
 	str->stack = str->call = str->table = str->lexical =
@@ -745,7 +745,7 @@ static int lambda_closure_(Execute ptr, struct lambda_struct *str)
 	return 0;
 }
 
-_g void lambda_lexical_heap(addr stack, addr *ret)
+void lambda_lexical_heap(addr stack, addr *ret)
 {
 	addr index, list, root, pos;
 
@@ -810,7 +810,7 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	return Result(ret, eval);
 }
 
-_g void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
+void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
 {
 	gchold_pushva_force_local(local,
 			str->stack, str->call, str->table, str->lexical,
@@ -830,7 +830,7 @@ static int lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
 	return 0;
 }
 
-_g int scope_lambda_call(Execute ptr, addr *ret, addr eval)
+int scope_lambda_call(Execute ptr, addr *ret, addr eval)
 {
 	struct lambda_struct str;
 
@@ -886,7 +886,7 @@ static int defun_the_(addr eval, struct lambda_struct *str)
 	return 0;
 }
 
-_g int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret)
+int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret)
 {
 	addr eval;
 
@@ -1051,7 +1051,7 @@ static void macro_lambda_the(addr eval)
 	SetEvalScopeThe(eval, type);
 }
 
-_g int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret)
+int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret)
 {
 	addr eval;
 
@@ -1064,7 +1064,7 @@ _g int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret
 /*
  *  deftype
  */
-_g int scope_deftype_call(Execute ptr, struct lambda_struct *str, addr *ret)
+int scope_deftype_call(Execute ptr, struct lambda_struct *str, addr *ret)
 {
 	addr eval;
 
@@ -1077,7 +1077,7 @@ _g int scope_deftype_call(Execute ptr, struct lambda_struct *str, addr *ret)
 /*
  *  define-compiler-macro
  */
-_g int scope_define_compiler_macro_call(Execute ptr,
+int scope_define_compiler_macro_call(Execute ptr,
 		struct lambda_struct *str, addr *ret)
 {
 	addr eval;
@@ -1102,7 +1102,7 @@ static int scope_bind_lambda(Execute ptr, struct lambda_struct *str, addr *ret)
 	return 0;
 }
 
-_g int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args)
+int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args)
 {
 	addr lambda, eval;
 	struct lambda_struct str;
@@ -1244,7 +1244,7 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-_g int scope_flet_call(Execute ptr, struct let_struct *str)
+int scope_flet_call(Execute ptr, struct let_struct *str)
 {
 	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
@@ -1323,7 +1323,7 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-_g int scope_labels_call(Execute ptr, struct let_struct *str)
+int scope_labels_call(Execute ptr, struct let_struct *str)
 {
 	Return(newstack_nil_(ptr, &(str->stack)));
 	localhold_let_struct(ptr->local, str);
@@ -1656,7 +1656,7 @@ static void call_result(addr *ret, addr first)
 	CheckType(*ret, LISPTYPE_TYPE);
 }
 
-_g int scope_call_call(Execute ptr, addr first, addr args, addr *ret)
+int scope_call_call(Execute ptr, addr first, addr args, addr *ret)
 {
 	addr eval, type;
 	LocalHold hold;

@@ -17,7 +17,7 @@
 /*
  *  format execute
  */
-_g int fmtprint_abort_(fmtprint print, size_t index, const char *str, ...)
+int fmtprint_abort_(fmtprint print, size_t index, const char *str, ...)
 {
 	va_list args;
 
@@ -28,7 +28,7 @@ _g int fmtprint_abort_(fmtprint print, size_t index, const char *str, ...)
 	return 0;
 }
 
-_g int fmtprop_abort_(fmtprint print,
+int fmtprop_abort_(fmtprint print,
 		struct format_operator *fmt, const char *str, ...)
 {
 	va_list args;
@@ -40,7 +40,7 @@ _g int fmtprop_abort_(fmtprint print,
 	return 0;
 }
 
-_g void fmtprint_make(fmtprint print, Execute ptr, addr stream, addr format)
+void fmtprint_make(fmtprint print, Execute ptr, addr stream, addr format)
 {
 	clearpoint(print);
 	print->loop = 1;
@@ -52,13 +52,13 @@ _g void fmtprint_make(fmtprint print, Execute ptr, addr stream, addr format)
 	print->format = format;
 }
 
-_g void fmtprint_copy(fmtprint print, fmtprint src)
+void fmtprint_copy(fmtprint print, fmtprint src)
 {
 	fmtprint_make(print, src->ptr, src->stream, src->format);
 	print->string = src->string;
 }
 
-_g int fmtprint_make_string_(fmtprint print, addr *ret, addr *backup)
+int fmtprint_make_string_(fmtprint print, addr *ret, addr *backup)
 {
 	addr backup_stream, src, stream;
 
@@ -77,7 +77,7 @@ _g int fmtprint_make_string_(fmtprint print, addr *ret, addr *backup)
 	return 0;
 }
 
-_g int fmtprint_stream_(fmtprint print, addr *ret)
+int fmtprint_stream_(fmtprint print, addr *ret)
 {
 	addr stream;
 
@@ -88,7 +88,7 @@ _g int fmtprint_stream_(fmtprint print, addr *ret)
 	return Result(ret, stream);
 }
 
-_g int fmtprint_stream_output_(fmtprint print)
+int fmtprint_stream_output_(fmtprint print)
 {
 	addr pos, stream;
 
@@ -99,7 +99,7 @@ _g int fmtprint_stream_output_(fmtprint print)
 	return fmtprint_string_(print, pos);
 }
 
-_g struct format_operator *fmtprint_operator(fmtprint print)
+struct format_operator *fmtprint_operator(fmtprint print)
 {
 	return (struct format_operator *)
 		(print->now + (byte *)format_pointer(print->format));
@@ -133,7 +133,7 @@ output:
 	return write_char_stream_(stream, u);
 }
 
-_g int fmtprint_putc_(fmtprint print, unicode u)
+int fmtprint_putc_(fmtprint print, unicode u)
 {
 	switch (print->conversion) {
 		case fmtcase_upcase:
@@ -169,7 +169,7 @@ _g int fmtprint_putc_(fmtprint print, unicode u)
 	return fmtprint_char_(print, u);
 }
 
-_g int fmtprint_putc_times_(fmtprint print, unicode c, size_t size)
+int fmtprint_putc_times_(fmtprint print, unicode c, size_t size)
 {
 	for (; size; size--) {
 		Return(fmtprint_putc_(print, c));
@@ -178,7 +178,7 @@ _g int fmtprint_putc_times_(fmtprint print, unicode c, size_t size)
 	return 0;
 }
 
-_g int fmtprint_string_(fmtprint print, addr string)
+int fmtprint_string_(fmtprint print, addr string)
 {
 	unicode u;
 	size_t size, i;
@@ -235,7 +235,7 @@ static int fmtprint_pop2_(fmtprint print, struct format_operator *str, addr *ret
 	return pprint_pop_common(print->ptr, stream, ret);
 }
 
-_g int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret)
+int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret)
 {
 	addr pos;
 
@@ -252,7 +252,7 @@ _g int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret)
 /*
  *  peek
  */
-_g int fmtprint_peek_(fmtprint print, struct format_operator *str, addr *ret)
+int fmtprint_peek_(fmtprint print, struct format_operator *str, addr *ret)
 {
 	struct fmtstack *ptr;
 
@@ -293,7 +293,7 @@ static int fmtprint_forward2_(fmtprint print, struct format_operator *str, size_
 	return 0;
 }
 
-_g int fmtprint_forward_(fmtprint print, struct format_operator *str, size_t n)
+int fmtprint_forward_(fmtprint print, struct format_operator *str, size_t n)
 {
 	if (n == 0)
 		return 0;
@@ -336,7 +336,7 @@ static int fmtprint_rollback2_(fmtprint print, struct format_operator *str, size
 	return setroot_pretty_stream_(stream, print->rest->front);
 }
 
-_g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n)
+int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n)
 {
 	if (n == 0)
 		return 0;
@@ -352,7 +352,7 @@ _g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n)
 /*
  *  absolute
  */
-_g int fmtprint_absolute_(fmtprint print, struct format_operator *str, size_t n)
+int fmtprint_absolute_(fmtprint print, struct format_operator *str, size_t n)
 {
 	size_t now;
 
@@ -386,7 +386,7 @@ static int fmtprint_clear2_(fmtprint print)
 	return setroot_pretty_stream_(stream, Nil);
 }
 
-_g int fmtprint_clear_(fmtprint print)
+int fmtprint_clear_(fmtprint print)
 {
 	fmtprint_clear1(print);
 	if (print->pretty) {

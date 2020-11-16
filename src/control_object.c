@@ -14,25 +14,25 @@
 /*
  *  control
  */
-_g void *ptrbodycontrol_debug(addr pos)
+void *ptrbodycontrol_debug(addr pos)
 {
 	CheckType(pos, LISPTYPE_CONTROL);
 	return PtrBodyControl_Low(pos);
 }
 
-_g struct control_struct *structcontrol_debug(addr pos)
+struct control_struct *structcontrol_debug(addr pos)
 {
 	CheckType(pos, LISPTYPE_CONTROL);
 	return StructControl_Low(pos);
 }
 
-_g void getcontrol_debug(addr pos, size_t index, addr *ret)
+void getcontrol_debug(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CONTROL);
 	GetControl_Low(pos, index, ret);
 }
 
-_g void setcontrol_debug(addr pos, size_t index, addr value)
+void setcontrol_debug(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPTYPE_CONTROL);
 	SetControl_Low(pos, index, value);
@@ -70,7 +70,7 @@ static void getvalue_special(addr pos, addr *ret)
 /*
  *  taginfo
  */
-_g void taginfo_heap(addr *ret, addr control, addr tag, size_t point)
+void taginfo_heap(addr *ret, addr control, addr tag, size_t point)
 {
 	addr pos;
 	struct taginfo_struct *str;
@@ -92,25 +92,25 @@ static void close_taginfo(addr pos)
 	StructTagInfo(pos)->open = 0;
 }
 
-_g void *ptrtaginfo_debug(addr pos)
+void *ptrtaginfo_debug(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_TAGINFO);
 	return PtrTagInfo_Low(pos);
 }
 
-_g struct taginfo_struct *structtaginfo_debug(addr pos)
+struct taginfo_struct *structtaginfo_debug(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_TAGINFO);
 	return StructTagInfo_Low(pos);
 }
 
-_g void getnametaginfo_debug(addr pos, addr *ret)
+void getnametaginfo_debug(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_TAGINFO);
 	GetNameTagInfo_Low(pos, ret);
 }
 
-_g void setnametaginfo_debug(addr pos, addr value)
+void setnametaginfo_debug(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_TAGINFO);
 	SetNameTagInfo_Low(pos, value);
@@ -120,7 +120,7 @@ _g void setnametaginfo_debug(addr pos, addr value)
 /*
  *  handler
  */
-_g void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc)
+void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc)
 {
 	addr pos;
 
@@ -132,31 +132,31 @@ _g void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc)
 	*ret = pos;
 }
 
-_g void getnamehandler_debug(addr pos, addr *ret)
+void getnamehandler_debug(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_HANDLER);
 	GetNameHandler_Low(pos, ret);
 }
 
-_g void setnamehandler_debug(addr pos, addr value)
+void setnamehandler_debug(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_HANDLER);
 	SetNameHandler_Low(pos, value);
 }
 
-_g void getcallhandler_debug(addr pos, addr *ret)
+void getcallhandler_debug(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_HANDLER);
 	GetCallHandler_Low(pos, ret);
 }
 
-_g void setcallhandler_debug(addr pos, addr value)
+void setcallhandler_debug(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_HANDLER);
 	SetCallHandler_Low(pos, value);
 }
 
-_g int getescape_handler(addr pos)
+int getescape_handler(addr pos)
 {
 	byte c;
 
@@ -165,7 +165,7 @@ _g int getescape_handler(addr pos)
 	return (int)GetBitByte(c, 0);
 }
 
-_g void setescape_handler(addr pos, int value)
+void setescape_handler(addr pos, int value)
 {
 	byte c;
 
@@ -175,7 +175,7 @@ _g void setescape_handler(addr pos, int value)
 	SetUser(pos, c);
 }
 
-_g int getdisable_handler(addr pos)
+int getdisable_handler(addr pos)
 {
 	byte c;
 
@@ -184,7 +184,7 @@ _g int getdisable_handler(addr pos)
 	return (int)GetBitByte(c, 1);
 }
 
-_g void setdisable_handler(addr pos, int value)
+void setdisable_handler(addr pos, int value)
 {
 	byte c;
 
@@ -194,7 +194,7 @@ _g void setdisable_handler(addr pos, int value)
 	SetUser(pos, c);
 }
 
-_g int checkhandler_control_(addr pos, addr instance, int *ret)
+int checkhandler_control_(addr pos, addr instance, int *ret)
 {
 	addr clos;
 
@@ -216,7 +216,7 @@ _g int checkhandler_control_(addr pos, addr instance, int *ret)
 /*
  *  push control
  */
-_g void push_control(Execute ptr, addr *ret)
+void push_control(Execute ptr, addr *ret)
 {
 	addr pos;
 	LocalRoot local;
@@ -243,7 +243,7 @@ _g void push_control(Execute ptr, addr *ret)
 	*ret = ptr->control = pos;
 }
 
-_g void push_args_control(Execute ptr, addr *ret)
+void push_args_control(Execute ptr, addr *ret)
 {
 	addr prev, next, pos;
 
@@ -342,7 +342,7 @@ static void close_close_control(Execute ptr, addr control)
 	}
 }
 
-_g int pop_control_(Execute ptr, addr control)
+int pop_control_(Execute ptr, addr control)
 {
 	addr *lexical_reader, lexical_vector;
 	LocalStack stack;
@@ -368,7 +368,7 @@ _g int pop_control_(Execute ptr, addr control)
 	return ptr->throw_value != throw_normal;
 }
 
-_g int free_control_degrade_(Execute ptr, addr control)
+int free_control_degrade_(Execute ptr, addr control)
 {
 	addr root;
 
@@ -394,7 +394,7 @@ _g int free_control_degrade_(Execute ptr, addr control)
 /*
  *  data
  */
-_g int stack_check_control(Execute ptr)
+int stack_check_control(Execute ptr)
 {
 	LocalStack stack1, stack2;
 	stack1 = StructControl(ptr->control)->stack;
@@ -411,7 +411,7 @@ static void pushclose_control(Execute ptr, addr pos)
 	SetControl(ptr->control, Control_Close, list);
 }
 
-_g void pushspecial_control(Execute ptr, addr pos, addr value)
+void pushspecial_control(Execute ptr, addr pos, addr value)
 {
 	addr x;
 
@@ -422,7 +422,7 @@ _g void pushspecial_control(Execute ptr, addr pos, addr value)
 	setspecial_unsafe(ptr, pos, value);
 }
 
-_g void pushtaginfo_control(Execute ptr, addr pos)
+void pushtaginfo_control(Execute ptr, addr pos)
 {
 	CheckType(pos, LISPSYSTEM_TAGINFO);
 	pushclose_control(ptr, pos);
@@ -443,20 +443,20 @@ static void pushtable_control(Execute ptr, constindex index, addr pos)
 		SetControl(control, Control_Table, table);
 }
 
-_g void pushhandler_control(Execute ptr, addr pos)
+void pushhandler_control(Execute ptr, addr pos)
 {
 	CheckType(pos, LISPSYSTEM_HANDLER);
 	pushtable_control(ptr, CONSTANT_SYSTEM_HANDLER, pos);
 }
 
-_g void pushrestart_control(Execute ptr, addr pos)
+void pushrestart_control(Execute ptr, addr pos)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	pushclose_control(ptr, pos);
 	pushtable_control(ptr, CONSTANT_SYSTEM_RESTART, pos);
 }
 
-_g int existspecial_control(Execute ptr, addr pos)
+int existspecial_control(Execute ptr, addr pos)
 {
 	addr list, check;
 
@@ -477,12 +477,12 @@ _g int existspecial_control(Execute ptr, addr pos)
 /*
  *  access
  */
-_g void getdata_control(Execute ptr, addr *ret)
+void getdata_control(Execute ptr, addr *ret)
 {
 	GetControl(ptr->control, Control_Data, ret);
 }
 
-_g void setdata_control(Execute ptr, addr value)
+void setdata_control(Execute ptr, addr value)
 {
 	SetControl(ptr->control, Control_Data, value);
 }
@@ -507,47 +507,47 @@ static void settable_control(LocalRoot local, addr control, constindex index, ad
 		SetControl(control, Control_Table, table);
 }
 
-_g int getcatch_control(addr pos, addr *ret)
+int getcatch_control(addr pos, addr *ret)
 {
 	return gettable_control(pos, CONSTANT_COMMON_CATCH, ret);
 }
 
-_g int getcondition_control(addr pos, addr *ret)
+int getcondition_control(addr pos, addr *ret)
 {
 	return gettable_control(pos, CONSTANT_COMMON_CONDITION, ret);
 }
 
-_g int gethandler_control(addr pos, addr *ret)
+int gethandler_control(addr pos, addr *ret)
 {
 	return gettable_control(pos, CONSTANT_SYSTEM_HANDLER, ret);
 }
 
-_g int getrestart_control(addr pos, addr *ret)
+int getrestart_control(addr pos, addr *ret)
 {
 	return gettable_control(pos, CONSTANT_SYSTEM_RESTART, ret);
 }
 
-_g void setcatch_control(LocalRoot local, addr pos, addr value)
+void setcatch_control(LocalRoot local, addr pos, addr value)
 {
 	settable_control(local, pos, CONSTANT_COMMON_CATCH, value);
 }
 
-_g void sethandler_control(LocalRoot local, addr pos, addr value)
+void sethandler_control(LocalRoot local, addr pos, addr value)
 {
 	settable_control(local, pos, CONSTANT_SYSTEM_HANDLER, value);
 }
 
-_g void setrestart_control(LocalRoot local, addr pos, addr value)
+void setrestart_control(LocalRoot local, addr pos, addr value)
 {
 	settable_control(local, pos, CONSTANT_SYSTEM_RESTART, value);
 }
 
-_g void setprotect_value_control(addr pos, addr value)
+void setprotect_value_control(addr pos, addr value)
 {
 	SetControl(pos, Control_Protect, value);
 }
 
-_g void setprotect_control(Execute ptr, pointer id, addr value)
+void setprotect_control(Execute ptr, pointer id, addr value)
 {
 	addr pos;
 
@@ -557,7 +557,7 @@ _g void setprotect_control(Execute ptr, pointer id, addr value)
 	setprotect_value_control(ptr->control, pos);
 }
 
-_g void setprotect_control_local(Execute ptr, pointer id, addr value)
+void setprotect_control_local(Execute ptr, pointer id, addr value)
 {
 	addr pos;
 

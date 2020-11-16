@@ -25,7 +25,7 @@ static int setf_atom(addr pos)
  *
  *  (define-setf-expander values (&rest form &environment env) ...)
  */
-_g int function_setf_values(Execute ptr, addr form, addr env)
+int function_setf_values(Execute ptr, addr form, addr env)
 {
 	addr args, a, b, g, w, r, v, car, cdr, values;
 	addr a1, b1, g1, w1, r1;
@@ -89,7 +89,7 @@ _g int function_setf_values(Execute ptr, addr form, addr env)
  *      g1)
  *    (getf r g2 g4)
  */
-_g int function_setf_getf(Execute ptr, addr form, addr env)
+int function_setf_getf(Execute ptr, addr form, addr env)
 {
 	addr args, place, indicator, value;
 	addr a, b, g, w, r, g1, g2, g3, g4;
@@ -158,7 +158,7 @@ error:
  *    (apply (function (setf call)) g g1 g2 g3)
  *    (apply (function call) g1 g2 g3)
  */
-_g int function_setf_apply(Execute ptr, addr form, addr env)
+int function_setf_apply(Execute ptr, addr form, addr env)
 {
 	addr args, call, pos, list, a, b, g, w, r;
 	addr apply, funct, setf;
@@ -336,7 +336,7 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 	return 0;
 }
 
-_g int get_setf_expansion(Execute ptr, addr form, addr env,
+int get_setf_expansion(Execute ptr, addr form, addr env,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
 	int result;

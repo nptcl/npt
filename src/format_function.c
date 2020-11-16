@@ -3475,7 +3475,7 @@ static int format_execute_type(Execute ptr,
 	return fmte_("Invalid control-string ~S.", format, NULL);
 }
 
-_g int format_execute(Execute ptr, addr stream, addr format, addr args, addr *ret)
+int format_execute(Execute ptr, addr stream, addr format, addr args, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -3496,7 +3496,7 @@ _g int format_execute(Execute ptr, addr stream, addr format, addr args, addr *re
  *  initialize
  */
 #define SetFormatCallTable(x) (FormatCallTable[FormatType_##x] = format_call_##x)
-_g void init_format_function(void)
+void init_format_function(void)
 {
 	cleartype(FormatCallTable);
 	SetFormatCallTable(Error);

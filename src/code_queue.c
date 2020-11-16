@@ -95,7 +95,7 @@ static void alloc_code_queue(LocalRoot local, addr *ret)
 			sizeoft(struct code_queue));
 }
 
-_g void code_queue_local(LocalRoot local, addr *ret)
+void code_queue_local(LocalRoot local, addr *ret)
 {
 	addr pos, stack;
 	struct code_queue *ptr;
@@ -113,23 +113,23 @@ _g void code_queue_local(LocalRoot local, addr *ret)
 	*ret = pos;
 }
 
-_g enum CodeQueue_Mode code_queue_mode(addr code)
+enum CodeQueue_Mode code_queue_mode(addr code)
 {
 	CheckTypeCodeQueue(code);
 	return StructCodeQueue(code)->mode;
 }
 
-_g int code_queue_setp(addr code)
+int code_queue_setp(addr code)
 {
 	return code_queue_mode(code) == CodeQueue_ModeSet;
 }
 
-_g int code_queue_pushp(addr code)
+int code_queue_pushp(addr code)
 {
 	return code_queue_mode(code) == CodeQueue_ModePush;
 }
 
-_g int code_queue_remp(addr code)
+int code_queue_remp(addr code)
 {
 	return code_queue_mode(code) == CodeQueue_ModeRemove;
 }
@@ -140,7 +140,7 @@ static void code_queue_save(addr code, modeswitch *mode)
 	mode->mode = code_queue_mode(code);
 }
 
-_g void code_queue_rollback(addr code, modeswitch *mode)
+void code_queue_rollback(addr code, modeswitch *mode)
 {
 	CheckTypeCodeQueue(code);
 	StructCodeQueue(code)->mode = mode->mode;
@@ -152,15 +152,15 @@ static void code_queue_savevalue(addr code, modeswitch *mode, enum CodeQueue_Mod
 	StructCodeQueue(code)->mode = value;
 }
 
-_g void code_queue_setmode(addr code, modeswitch *mode)
+void code_queue_setmode(addr code, modeswitch *mode)
 {
 	code_queue_savevalue(code, mode, CodeQueue_ModeSet);
 }
-_g void code_queue_pushmode(addr code, modeswitch *mode)
+void code_queue_pushmode(addr code, modeswitch *mode)
 {
 	code_queue_savevalue(code, mode, CodeQueue_ModePush);
 }
-_g void code_queue_remmode(addr code, modeswitch *mode)
+void code_queue_remmode(addr code, modeswitch *mode)
 {
 	code_queue_savevalue(code, mode, CodeQueue_ModeRemove);
 }
@@ -176,13 +176,13 @@ static void code_queue_add(LocalRoot local, addr code, addr value)
 	push_code_stack(local, stack, value);
 }
 
-_g void code_queue_add2(LocalRoot local, addr code, addr left, addr right)
+void code_queue_add2(LocalRoot local, addr code, addr left, addr right)
 {
 	cons_heap(&right, left, right);
 	code_queue_add(local, code, right);
 }
 
-_g void code_queue_push(LocalRoot local, addr code, addr pos, ...)
+void code_queue_push(LocalRoot local, addr code, addr pos, ...)
 {
 	addr list;
 	va_list args;
@@ -194,7 +194,7 @@ _g void code_queue_push(LocalRoot local, addr code, addr pos, ...)
 	code_queue_add(local, code, list);
 }
 
-_g void code_queue_list(LocalRoot local, addr code, constindex index, ...)
+void code_queue_list(LocalRoot local, addr code, constindex index, ...)
 {
 	addr pos, list;
 	va_list args;
@@ -207,7 +207,7 @@ _g void code_queue_list(LocalRoot local, addr code, constindex index, ...)
 	code_queue_add(local, code, list);
 }
 
-_g void code_queue_single(LocalRoot local, addr code, constindex index)
+void code_queue_single(LocalRoot local, addr code, constindex index)
 {
 	addr pos;
 
@@ -216,14 +216,14 @@ _g void code_queue_single(LocalRoot local, addr code, constindex index)
 	code_queue_add(local, code, pos);
 }
 
-_g void code_queue_cons(LocalRoot local, addr code, constindex index, addr right)
+void code_queue_cons(LocalRoot local, addr code, constindex index, addr right)
 {
 	addr pos;
 	GetConstant(index, &pos);
 	code_queue_add2(local, code, pos, right);
 }
 
-_g void code_queue_double(LocalRoot local,
+void code_queue_double(LocalRoot local,
 		addr code, constindex index, addr left, addr right)
 {
 	addr first;
@@ -231,7 +231,7 @@ _g void code_queue_double(LocalRoot local,
 	code_queue_push(local, code, first, left, right, NULL);
 }
 
-_g void code_queue_ifpush(LocalRoot local, addr code)
+void code_queue_ifpush(LocalRoot local, addr code)
 {
 	if (code_queue_pushp(code))
 		CodeQueue_single(local, code, PUSH_RESULT);
@@ -261,12 +261,12 @@ static struct code_stack *code_queue_push_struct(LocalRoot local, addr code)
 	return StructCodeStack(one);
 }
 
-_g void code_queue_push_simple(LocalRoot local, addr code)
+void code_queue_push_simple(LocalRoot local, addr code)
 {
 	(void)code_queue_push_struct(local, code);
 }
 
-_g void code_queue_push_new(LocalRoot local, addr code)
+void code_queue_push_new(LocalRoot local, addr code)
 {
 	struct code_stack *str;
 
@@ -274,7 +274,7 @@ _g void code_queue_push_new(LocalRoot local, addr code)
 	str->p_control = 1;
 }
 
-_g void code_queue_push_args(LocalRoot local, addr code)
+void code_queue_push_args(LocalRoot local, addr code)
 {
 	struct code_stack *str;
 
@@ -508,7 +508,7 @@ static void code_queue_pop_code(LocalRoot local, addr stack, addr *ret)
 	*ret = pos;
 }
 
-_g void code_queue_pop(LocalRoot local, addr code, addr *ret)
+void code_queue_pop(LocalRoot local, addr code, addr *ret)
 {
 	addr pos, left, right;
 	struct code_queue *ptr;
@@ -532,7 +532,7 @@ _g void code_queue_pop(LocalRoot local, addr code, addr *ret)
 /*
  *  code
  */
-_g void code_make_execute_set(LocalRoot local, addr code, addr scope)
+void code_make_execute_set(LocalRoot local, addr code, addr scope)
 {
 	modeswitch mode;
 
@@ -540,7 +540,7 @@ _g void code_make_execute_set(LocalRoot local, addr code, addr scope)
 	code_make_execute(local, code, scope);
 	code_queue_rollback(code, &mode);
 }
-_g void code_make_execute_push(LocalRoot local, addr code, addr scope)
+void code_make_execute_push(LocalRoot local, addr code, addr scope)
 {
 	modeswitch mode;
 
@@ -548,7 +548,7 @@ _g void code_make_execute_push(LocalRoot local, addr code, addr scope)
 	code_make_execute(local, code, scope);
 	code_queue_rollback(code, &mode);
 }
-_g void code_make_execute_rem(LocalRoot local, addr code, addr scope)
+void code_make_execute_rem(LocalRoot local, addr code, addr scope)
 {
 	modeswitch mode;
 
@@ -557,7 +557,7 @@ _g void code_make_execute_rem(LocalRoot local, addr code, addr scope)
 	code_queue_rollback(code, &mode);
 }
 
-_g void code_make_execute_control(LocalRoot local, addr code, addr pos)
+void code_make_execute_control(LocalRoot local, addr code, addr pos)
 {
 	if (code_queue_pushp(code))
 		CodeQueue_cons(local, code, EXECUTE_CONTROL_PUSH, pos);
@@ -565,7 +565,7 @@ _g void code_make_execute_control(LocalRoot local, addr code, addr pos)
 		CodeQueue_cons(local, code, EXECUTE_CONTROL_SET, pos);
 }
 
-_g void code_make_single(LocalRoot local, addr code,
+void code_make_single(LocalRoot local, addr code,
 		constindex set, constindex push)
 {
 	CheckTypeCodeQueue(code);
@@ -584,7 +584,7 @@ _g void code_make_single(LocalRoot local, addr code,
 	}
 }
 
-_g void code_make_object(LocalRoot local, addr code, addr value)
+void code_make_object(LocalRoot local, addr code, addr value)
 {
 	CheckTypeCodeQueue(code);
 	switch (code_queue_mode(code)) {
@@ -606,38 +606,39 @@ _g void code_make_object(LocalRoot local, addr code, addr value)
 /*
  *  label
  */
-_g void code_queue_make_label(LocalRoot local, addr code, addr *ret)
+void code_queue_make_label(LocalRoot local, addr code, addr *ret)
 {
 	struct code_queue *str = StructCodeQueue(code);
 	index_heap(ret, str->label++);
 }
 
-_g void code_queue_push_label(LocalRoot local, addr code, addr label)
+void code_queue_push_label(LocalRoot local, addr code, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
 	code_queue_add(local, code, label);
 }
 
-_g void code_queue_if_unbound(LocalRoot local, addr code, addr label)
+void code_queue_if_unbound(LocalRoot local, addr code, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
 	CodeQueue_cons(local, code, IF_UNBOUND, label);
 }
 
-_g void code_queue_if_nil(LocalRoot local, addr code, addr label)
+void code_queue_if_nil(LocalRoot local, addr code, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
 	CodeQueue_cons(local, code, IF_NIL, label);
 }
 
-_g void code_queue_if_t(LocalRoot local, addr code, addr label)
+void code_queue_if_t(LocalRoot local, addr code, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
 	CodeQueue_cons(local, code, IF_T, label);
 }
 
-_g void code_queue_goto(LocalRoot local, addr code, addr label)
+void code_queue_goto(LocalRoot local, addr code, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
 	CodeQueue_cons(local, code, GOTO, label);
 }
+

@@ -38,7 +38,7 @@ static int formatter_call_common(Execute ptr, addr stream, addr args)
 	return 0;
 }
 
-_g int formatter_common(LocalRoot local, addr var, addr env, addr *ret)
+int formatter_common(LocalRoot local, addr var, addr env, addr *ret)
 {
 	addr pos, type;
 
@@ -68,7 +68,7 @@ error:
 /*
  *  pprint-fill
  */
-_g int pprint_fill_common(Execute ptr, addr stream, addr list, addr colon)
+int pprint_fill_common(Execute ptr, addr stream, addr list, addr colon)
 {
 	if (colon == Unbound)
 		colon = T;
@@ -80,7 +80,7 @@ _g int pprint_fill_common(Execute ptr, addr stream, addr list, addr colon)
 /*
  *  pprint-linear
  */
-_g int pprint_linear_common(Execute ptr, addr stream, addr list, addr colon)
+int pprint_linear_common(Execute ptr, addr stream, addr list, addr colon)
 {
 	if (colon == Unbound)
 		colon = T;
@@ -92,7 +92,7 @@ _g int pprint_linear_common(Execute ptr, addr stream, addr list, addr colon)
 /*
  *  pprint-tabular
  */
-_g int pprint_tabular_common(Execute ptr,
+int pprint_tabular_common(Execute ptr,
 		addr stream, addr list, addr colon, addr tabsize)
 {
 	fixnum size;
@@ -114,7 +114,7 @@ _g int pprint_tabular_common(Execute ptr,
 /*
  *  pprint-indent
  */
-_g int pprint_indent_common(Execute ptr, addr rel, addr n, addr stream)
+int pprint_indent_common(Execute ptr, addr rel, addr n, addr stream)
 {
 	int block_p;
 	addr block, current;
@@ -144,7 +144,7 @@ _g int pprint_indent_common(Execute ptr, addr rel, addr n, addr stream)
 /*
  *  pprint-logical-block
  */
-_g int pprint_logical_block_common(addr form, addr env, addr *ret)
+int pprint_logical_block_common(addr form, addr env, addr *ret)
 {
 	addr args, list, stream, pos, decl;
 	addr key, key1, key2, key3, value, value1, value2, value3;
@@ -224,7 +224,7 @@ static int pprint_newline_symbol_common(addr kind, enum pprint_newline *ret)
 			"(member :linear :fill :miser :mandatory)", kind, NULL);
 }
 
-_g int pprint_newline_common(Execute ptr, addr kind, addr stream)
+int pprint_newline_common(Execute ptr, addr kind, addr stream)
 {
 	enum pprint_newline value;
 
@@ -261,7 +261,7 @@ static int pprint_tab_symbol_common(addr kind, enum pprint_tabular *ret)
 			"(member :line :section :line-relative :section-relative)", kind, NULL);
 }
 
-_g int pprint_tab_common(Execute ptr, addr kind, addr column, addr colinc, addr stream)
+int pprint_tab_common(Execute ptr, addr kind, addr column, addr colinc, addr stream)
 {
 	enum pprint_tabular value;
 	fixnum a, b;
@@ -294,7 +294,7 @@ static void print_unreadable_object_expand_common(addr *ret,
 	list_heap(ret, call, stream, pos, type, identity, body, NULL);
 }
 
-_g int print_unreadable_object_common(addr form, addr env, addr *ret)
+int print_unreadable_object_common(addr form, addr env, addr *ret)
 {
 	addr args, list, stream, pos;
 	addr key, key1, key2, value, value1, value2;
@@ -340,7 +340,7 @@ error:
 /*
  *  set-pprint-dispatch
  */
-_g int set_pprint_dispatch_common(Execute ptr,
+int set_pprint_dispatch_common(Execute ptr,
 		addr spec, addr call, addr priority, addr table)
 {
 	addr type;
@@ -440,7 +440,7 @@ static int write_common_call_(Execute ptr, addr stream, addr var)
 	return exitpoint_stream_(stream);
 }
 
-_g int write_common(Execute ptr, addr var, addr args)
+int write_common(Execute ptr, addr var, addr args)
 {
 	addr stream, control;
 
@@ -459,7 +459,7 @@ _g int write_common(Execute ptr, addr var, addr args)
 /*
  *  prin1
  */
-_g int prin1_common(Execute ptr, addr var, addr stream)
+int prin1_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(prin1_print(ptr, stream, var));
@@ -470,7 +470,7 @@ _g int prin1_common(Execute ptr, addr var, addr stream)
 /*
  *  princ
  */
-_g int princ_common(Execute ptr, addr var, addr stream)
+int princ_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(princ_print(ptr, stream, var));
@@ -481,7 +481,7 @@ _g int princ_common(Execute ptr, addr var, addr stream)
 /*
  *  print
  */
-_g int print_common(Execute ptr, addr var, addr stream)
+int print_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(print_print(ptr, stream, var));
@@ -492,7 +492,7 @@ _g int print_common(Execute ptr, addr var, addr stream)
 /*
  *  pprint
  */
-_g int pprint_common(Execute ptr, addr var, addr stream)
+int pprint_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
 	Return(pprint_print(ptr, stream, var));
@@ -512,7 +512,7 @@ static int write_to_string_common_call_(Execute ptr, addr stream, addr var, addr
 	return 0;
 }
 
-_g int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
+int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
 {
 	addr stream, control;
 
@@ -527,7 +527,7 @@ _g int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
 /*
  *  prin1-to-string
  */
-_g int prin1_to_string_common(Execute ptr, addr var, addr *ret)
+int prin1_to_string_common(Execute ptr, addr var, addr *ret)
 {
 	addr stream;
 
@@ -543,7 +543,7 @@ _g int prin1_to_string_common(Execute ptr, addr var, addr *ret)
 /*
  *  princ-to-string
  */
-_g int princ_to_string_common(Execute ptr, addr var, addr *ret)
+int princ_to_string_common(Execute ptr, addr var, addr *ret)
 {
 	addr stream;
 
@@ -559,7 +559,7 @@ _g int princ_to_string_common(Execute ptr, addr var, addr *ret)
 /*
  *  initialize
  */
-_g void init_call_printer(void)
+void init_call_printer(void)
 {
 	SetPointerType(var1dynamic, formatter_call_common);
 }

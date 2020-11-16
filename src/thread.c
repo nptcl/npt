@@ -39,12 +39,12 @@
 /*
  *  tools
  */
-_g void lispd_threaderror(void)
+void lispd_threaderror(void)
 {
 	Abort("thread error");
 }
 
-_g void lispd_wrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
+void lispd_wrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 {
 	if (lock1 == lock2) {
 		lispd_wrlock_rwlocklite(lock1);
@@ -64,7 +64,7 @@ trylock2:
 	goto trylock1;
 }
 
-_g void lispd_unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
+void lispd_unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 {
 	if (lock1 == lock2) {
 		lispd_unwrlock_rwlocklite(lock1);
@@ -76,7 +76,7 @@ _g void lispd_unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 }
 
 #define SwapVariable(a,b,temp) { temp = a; a = b; b = temp; }
-_g void lispd_wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
+void lispd_wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 {
 	int check1, check2;
 	rwlocklite *temp;
@@ -133,7 +133,7 @@ trylock3: /* m3->m1->m2 */
 	}
 }
 
-_g void lispd_unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
+void lispd_unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 {
 	int check1, check2;
 

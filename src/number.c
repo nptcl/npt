@@ -12,7 +12,7 @@
 #include "real.h"
 #include "typedef.h"
 
-_g int numberp(addr pos)
+int numberp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);
 	return type == LISPTYPE_FIXNUM
@@ -25,7 +25,7 @@ _g int numberp(addr pos)
 		|| type == LISPTYPE_SHORT_FLOAT;
 }
 
-_g int number_result_local_(LocalRoot local, addr pos, addr *ret)
+int number_result_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (complexp(pos))
@@ -34,7 +34,7 @@ _g int number_result_local_(LocalRoot local, addr pos, addr *ret)
 		return rational_result_local_(local, pos, ret);
 }
 
-_g int number_result_heap_(LocalRoot local, addr pos, addr *ret)
+int number_result_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (complexp(pos))
@@ -43,7 +43,7 @@ _g int number_result_heap_(LocalRoot local, addr pos, addr *ret)
 		return rational_result_heap_(local, pos, ret);
 }
 
-_g int number_throw_alloc_(LocalRoot local, addr pos, addr *ret)
+int number_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -81,18 +81,18 @@ _g int number_throw_alloc_(LocalRoot local, addr pos, addr *ret)
 	return 0;
 }
 
-_g int number_throw_local_(LocalRoot local, addr pos, addr *ret)
+int number_throw_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return number_throw_alloc_(local, pos, ret);
 }
 
-_g int number_throw_heap_(addr pos, addr *ret)
+int number_throw_heap_(addr pos, addr *ret)
 {
 	return number_throw_alloc_(NULL, pos, ret);
 }
 
-_g int number_copy_alloc_(LocalRoot local, addr pos, addr *ret)
+int number_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	if (complexp(pos))
 		return complex_copy_alloc_(local, pos, ret);
@@ -100,13 +100,13 @@ _g int number_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 		return real_copy_alloc_(local, pos, ret);
 }
 
-_g int number_copy_local_(LocalRoot local, addr pos, addr *ret)
+int number_copy_local_(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return number_copy_alloc_(local, pos, ret);
 }
 
-_g int number_copy_heap_(addr pos, addr *ret)
+int number_copy_heap_(addr pos, addr *ret)
 {
 	return number_copy_alloc_(NULL, pos, ret);
 }
@@ -115,7 +115,7 @@ _g int number_copy_heap_(addr pos, addr *ret)
 /*
  *  abs
  */
-_g int abs_number_common_(addr left, addr *ret)
+int abs_number_common_(addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -222,7 +222,7 @@ static void signum_ratio_common(addr pos, addr *ret)
 		fixnum_heap(ret, minusp_ratio(pos)? -1: 1);
 }
 
-_g int signum_number_common_(addr pos, addr *ret)
+int signum_number_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -309,7 +309,7 @@ static int sqrt_long_common_(struct mathreal2_struct *ptr, addr *ret)
 	}
 }
 
-_g int sqrt_number_common_(addr pos, addr *ret)
+int sqrt_number_common_(addr pos, addr *ret)
 {
 	enum MathType type;
 	struct mathreal2_struct str;

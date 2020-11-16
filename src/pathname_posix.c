@@ -286,7 +286,7 @@ static int parser_make_unix_pathname_(struct fileparse *pa)
 	return 0;
 }
 
-_g int parser_unix_pathname_(struct fileparse *pa)
+int parser_unix_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, logical, dp, check;
 	unicode c;

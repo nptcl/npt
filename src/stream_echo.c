@@ -10,7 +10,7 @@
 	Check(! echo_stream_p(stream), "type error"); \
 }
 
-_g void open_echo_stream(addr *stream, addr input, addr output)
+void open_echo_stream(addr *stream, addr input, addr output)
 {
 	addr pos;
 
@@ -23,25 +23,25 @@ _g void open_echo_stream(addr *stream, addr input, addr output)
 	*stream = pos;
 }
 
-_g void get_echo_input_stream(addr stream, addr *ret)
+void get_echo_input_stream(addr stream, addr *ret)
 {
 	CheckEchoStream(stream);
 	GetInputStream(stream, ret);
 }
 
-_g void set_echo_input_stream(addr stream, addr input)
+void set_echo_input_stream(addr stream, addr input)
 {
 	CheckEchoStream(stream);
 	SetInputStream(stream, input);
 }
 
-_g void get_echo_output_stream(addr stream, addr *ret)
+void get_echo_output_stream(addr stream, addr *ret)
 {
 	CheckEchoStream(stream);
 	GetOutputStream(stream, ret);
 }
 
-_g void set_echo_output_stream(addr stream, addr output)
+void set_echo_output_stream(addr stream, addr output)
 {
 	CheckEchoStream(stream);
 	SetOutputStream(stream, output);
@@ -243,7 +243,7 @@ static int termsize_Echo(addr stream, size_t *value, int *ret)
 	return termsize_stream_(stream, value, ret);
 }
 
-_g void init_stream_echo(void)
+void init_stream_echo(void)
 {
 	DefineStreamDef(Echo, close);
 	DefineStreamSet(Echo, read_byte);

@@ -63,7 +63,7 @@ static int list_shadow_package_(addr package, addr args)
 	return 0;
 }
 
-_g int shadow_package_(addr package, addr pos)
+int shadow_package_(addr package, addr pos)
 {
 	addr type;
 
@@ -201,7 +201,7 @@ static int list_shadowing_import_package_(addr package, addr args)
 	return 0;
 }
 
-_g int shadowing_import_package_(addr package, addr pos)
+int shadowing_import_package_(addr package, addr pos)
 {
 	addr type;
 

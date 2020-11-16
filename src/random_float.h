@@ -13,12 +13,12 @@
 #define long_random_64bit _n(long_random_64bit)
 
 /* float (0 <= return < 1.0) */
-_g float float_random_32bit(struct random_state *state);
-_g float float_random_64bit(struct random_state *state);
-_g double double_random_32bit(struct random_state *state);
-_g double double_random_64bit(struct random_state *state);
-_g long double long_random_32bit(struct random_state *state);
-_g long double long_random_64bit(struct random_state *state);
+float float_random_32bit(struct random_state *state);
+float float_random_64bit(struct random_state *state);
+double double_random_32bit(struct random_state *state);
+double double_random_64bit(struct random_state *state);
+long double long_random_32bit(struct random_state *state);
+long double long_random_64bit(struct random_state *state);
 
 #endif
 

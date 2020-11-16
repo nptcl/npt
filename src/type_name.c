@@ -113,7 +113,7 @@ normal:
 	return Result(ret, 0);
 }
 
-_g int type_name_p_(addr pos, addr *value, int *ret)
+int type_name_p_(addr pos, addr *value, int *ret)
 {
 	enum LISPTYPE type;
 	constindex index;
@@ -146,7 +146,7 @@ _g int type_name_p_(addr pos, addr *value, int *ret)
 	}
 }
 
-_g int type_name_(addr pos, addr *value)
+int type_name_(addr pos, addr *value)
 {
 	int check;
 
@@ -159,7 +159,7 @@ _g int type_name_(addr pos, addr *value)
 	return 0;
 }
 
-_g void init_type_name(void)
+void init_type_name(void)
 {
 	int i;
 

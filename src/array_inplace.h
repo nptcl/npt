@@ -10,9 +10,9 @@
 #define arrayinplace_get_safe _n(arrayinplace_get_safe)
 #define arrayinplace_set_ _n(arrayinplace_set_)
 
-_g int arrayinplace_get_(addr pos, size_t index, struct array_value *str);
-_g int arrayinplace_get_safe(addr pos, size_t index, struct array_value *str);
-_g int arrayinplace_set_(addr pos, size_t index, const struct array_value *str);
+int arrayinplace_get_(addr pos, size_t index, struct array_value *str);
+int arrayinplace_get_safe(addr pos, size_t index, struct array_value *str);
+int arrayinplace_set_(addr pos, size_t index, const struct array_value *str);
 
 #endif
 

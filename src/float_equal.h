@@ -48,19 +48,19 @@
 #define minusp_double_float(a) (RefDoubleFloat(a) < 0.0)
 #define minusp_long_float(a) (RefLongFloat(a) < 0.0L)
 
-_g int zerop_single_float(addr pos);
-_g int zerop_double_float(addr pos);
-_g int zerop_long_float(addr pos);
+int zerop_single_float(addr pos);
+int zerop_double_float(addr pos);
+int zerop_long_float(addr pos);
 
-_g int equal_fs_real(addr left, addr right);
-_g int equal_fd_real(addr left, addr right);
-_g int equal_fl_real(addr left, addr right);
+int equal_fs_real(addr left, addr right);
+int equal_fd_real(addr left, addr right);
+int equal_fl_real(addr left, addr right);
 #define equal_sf_real(a,b) equal_fs_real((b),(a))
 #define equal_df_real(a,b) equal_fd_real((b),(a))
 #define equal_lf_real(a,b) equal_fl_real((b),(a))
-_g int equal_bs_real_(addr left, addr right, int *ret);
-_g int equal_bd_real_(addr left, addr right, int *ret);
-_g int equal_bl_real_(addr left, addr right, int *ret);
+int equal_bs_real_(addr left, addr right, int *ret);
+int equal_bd_real_(addr left, addr right, int *ret);
+int equal_bl_real_(addr left, addr right, int *ret);
 #define equal_sb_real_(a,b,r) equal_bs_real_((b),(a),(r))
 #define equal_db_real_(a,b,r) equal_bd_real_((b),(a),(r))
 #define equal_lb_real_(a,b,r) equal_bl_real_((b),(a),(r))
@@ -74,22 +74,22 @@ _g int equal_bl_real_(addr left, addr right, int *ret);
 #define equal_ls_real(a,b) (RefLongFloat(a) == RefSingleFloat(b))
 #define equal_ld_real(a,b) (RefLongFloat(a) == RefDoubleFloat(b))
 
-_g int compare_fs_real(addr left, addr right);
-_g int compare_fd_real(addr left, addr right);
-_g int compare_fl_real(addr left, addr right);
-_g int compare_sf_real(addr left, addr right);
-_g int compare_df_real(addr left, addr right);
-_g int compare_lf_real(addr left, addr right);
-_g int compare_ss_real(addr left, addr right);
-_g int compare_sd_real(addr left, addr right);
-_g int compare_sl_real(addr left, addr right);
-_g int compare_ds_real(addr left, addr right);
-_g int compare_dd_real(addr left, addr right);
-_g int compare_dl_real(addr left, addr right);
-_g int compare_ls_real(addr left, addr right);
-_g int compare_ld_real(addr left, addr right);
-_g int compare_ll_real(addr left, addr right);
-_g int compare_float(addr left, addr right);
+int compare_fs_real(addr left, addr right);
+int compare_fd_real(addr left, addr right);
+int compare_fl_real(addr left, addr right);
+int compare_sf_real(addr left, addr right);
+int compare_df_real(addr left, addr right);
+int compare_lf_real(addr left, addr right);
+int compare_ss_real(addr left, addr right);
+int compare_sd_real(addr left, addr right);
+int compare_sl_real(addr left, addr right);
+int compare_ds_real(addr left, addr right);
+int compare_dd_real(addr left, addr right);
+int compare_dl_real(addr left, addr right);
+int compare_ls_real(addr left, addr right);
+int compare_ld_real(addr left, addr right);
+int compare_ll_real(addr left, addr right);
+int compare_float(addr left, addr right);
 #define less_float(a,b) (compare_float((a), (b)) < 0)
 #define less_equal_float(a,b) (compare_float((a), (b)) <= 0)
 #define greater_float(a,b) (compare_float((a), (b)) > 0)
@@ -106,19 +106,19 @@ _g int compare_float(addr left, addr right);
 #define less_equal_ll_real(a,b) (compare_ll_real((a), (b)) <= 0)
 #define greater_ll_real(a,b) (compare_ll_real((a), (b)) > 0)
 #define greater_equal_ll_real(a,b) (compare_ll_real((a), (b)) >= 0)
-_g int less_float_clang(addr left, addr right);
-_g int less_equal_float_clang(addr left, addr right);
+int less_float_clang(addr left, addr right);
+int less_equal_float_clang(addr left, addr right);
 
-_g int less_ss_clang(addr left, addr right);
-_g int less_dd_clang(addr left, addr right);
-_g int less_ll_clang(addr left, addr right);
-_g int less_equal_ss_clang(addr left, addr right);
-_g int less_equal_dd_clang(addr left, addr right);
-_g int less_equal_ll_clang(addr left, addr right);
+int less_ss_clang(addr left, addr right);
+int less_dd_clang(addr left, addr right);
+int less_ll_clang(addr left, addr right);
+int less_equal_ss_clang(addr left, addr right);
+int less_equal_dd_clang(addr left, addr right);
+int less_equal_ll_clang(addr left, addr right);
 
-_g int compare_float_(addr left, addr right, int *ret);
-_g int less_float_clang_(addr left, addr right, int *ret);
-_g int less_equal_float_clang_(addr left, addr right, int *ret);
+int compare_float_(addr left, addr right, int *ret);
+int less_float_clang_(addr left, addr right, int *ret);
+int less_equal_float_clang_(addr left, addr right, int *ret);
 
 #endif
 

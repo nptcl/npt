@@ -7,8 +7,8 @@
 #define gcexec_full _n(gcexec_full)
 #define gcexec_partial _n(gcexec_partial)
 
-_g void gcexec_full(void);
-_g void gcexec_partial(void);
+void gcexec_full(void);
+void gcexec_partial(void);
 
 #endif
 

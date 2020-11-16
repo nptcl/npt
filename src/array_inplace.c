@@ -141,7 +141,7 @@ static int arrayinplace_get_object_safe(
 	}
 }
 
-_g int arrayinplace_get_(addr pos, size_t index, struct array_value *str)
+int arrayinplace_get_(addr pos, size_t index, struct array_value *str)
 {
 	int check;
 	addr mem;
@@ -153,7 +153,7 @@ _g int arrayinplace_get_(addr pos, size_t index, struct array_value *str)
 		return arrayinplace_get_object_(pos, mem, index, str);
 }
 
-_g int arrayinplace_get_safe(addr pos, size_t index, struct array_value *str)
+int arrayinplace_get_safe(addr pos, size_t index, struct array_value *str)
 {
 	int check;
 	addr mem;
@@ -242,7 +242,7 @@ static int arrayinplace_set_object_(
 	}
 }
 
-_g int arrayinplace_set_(addr pos, size_t index, const struct array_value *str)
+int arrayinplace_set_(addr pos, size_t index, const struct array_value *str)
 {
 	int check;
 	addr mem;

@@ -978,7 +978,7 @@ static void defun_user_homedir_pathname(void)
 /*
  *  function
  */
-_g void init_common_environment(void)
+void init_common_environment(void)
 {
 	SetPointerCall(defun, var1opt1, decode_universal_time);
 	SetPointerCall(defun, dynamic, encode_universal_time);
@@ -1011,7 +1011,7 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, opt1, user_homedir_pathname);
 }
 
-_g void build_common_environment(void)
+void build_common_environment(void)
 {
 	defun_decode_universal_time();
 	defun_encode_universal_time();

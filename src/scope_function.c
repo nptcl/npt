@@ -220,7 +220,7 @@ static int scope_environment(Execute ptr, addr *ret, addr eval)
 
 
 /* progn */
-_g int scope_progn(Execute ptr, addr *ret, addr eval)
+int scope_progn(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -524,7 +524,7 @@ static int scope_the(Execute ptr, addr *ret, addr eval)
 
 
 /* locally */
-_g int scope_locally(Execute ptr, addr *ret, addr eval)
+int scope_locally(Execute ptr, addr *ret, addr eval)
 {
 	addr decl, cons;
 
@@ -705,7 +705,7 @@ static int scope_throw(Execute ptr, addr *ret, addr eval)
 
 
 /* eval-when */
-_g int scope_eval_when(Execute ptr, addr *ret, addr eval)
+int scope_eval_when(Execute ptr, addr *ret, addr eval)
 {
 	addr progn, type, compile, load, exec, toplevel, mode;
 
@@ -843,7 +843,7 @@ static int scope_progv(Execute ptr, addr *ret, addr eval)
 /*
  *  initialize
  */
-_g void init_scope_function(void)
+void init_scope_function(void)
 {
 	EvalScopeTable[EVAL_PARSE_NIL] = scope_nil;
 	EvalScopeTable[EVAL_PARSE_T] = scope_t;

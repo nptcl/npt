@@ -10,8 +10,8 @@
  *     input: type
  *    output: (or symbol cons)
  */
-_g int type_object_(addr *ret, addr value);
-_g void init_type_object(void);
+int type_object_(addr *ret, addr value);
+void init_type_object(void);
 
 #endif
 

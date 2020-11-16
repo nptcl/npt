@@ -189,7 +189,7 @@ static void random_long_common(struct random_state *state, addr pos, addr *ret)
 /*
  *  common
  */
-_g int random_number_common(LocalRoot local, addr pos, addr state, addr *ret)
+int random_number_common(LocalRoot local, addr pos, addr state, addr *ret)
 {
 	struct random_state *ptr;
 

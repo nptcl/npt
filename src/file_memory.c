@@ -76,7 +76,7 @@ static inline void init_io_filememory(filestream fm, file_type file)
 }
 
 /* low level open */
-_g int input_unicode_filememory(filestream fm, const unicode *name, size_t size)
+int input_unicode_filememory(filestream fm, const unicode *name, size_t size)
 {
 	file_type file;
 
@@ -87,23 +87,23 @@ _g int input_unicode_filememory(filestream fm, const unicode *name, size_t size)
 	return 0;
 }
 
-_g void update_standard_input_filememory(filestream fm)
+void update_standard_input_filememory(filestream fm)
 {
 	standard_input_arch(&(fm->file));
 }
 
-_g void update_standard_output_filememory(filestream fm)
+void update_standard_output_filememory(filestream fm)
 {
 	standard_output_arch(&(fm->file));
 }
 
-_g void update_standard_error_filememory(filestream fm)
+void update_standard_error_filememory(filestream fm)
 {
 	standard_error_arch(&(fm->file));
 }
 
 /* normal function */
-_g void standard_input_filememory(filestream fm)
+void standard_input_filememory(filestream fm)
 {
 	file_type file;
 
@@ -113,7 +113,7 @@ _g void standard_input_filememory(filestream fm)
 	fm->cache = 0;
 }
 
-_g void standard_output_filememory(filestream fm)
+void standard_output_filememory(filestream fm)
 {
 	file_type file;
 
@@ -123,7 +123,7 @@ _g void standard_output_filememory(filestream fm)
 	fm->cache = 0;
 }
 
-_g void standard_error_filememory(filestream fm)
+void standard_error_filememory(filestream fm)
 {
 	file_type file;
 
@@ -133,7 +133,7 @@ _g void standard_error_filememory(filestream fm)
 	fm->cache = 0;
 }
 
-_g int open_input_filememory_(LocalRoot local,
+int open_input_filememory_(LocalRoot local,
 		filestream fm, addr name, int *ret)
 {
 	int check;
@@ -148,7 +148,7 @@ _g int open_input_filememory_(LocalRoot local,
 	return Result(ret, 0);
 }
 
-_g int open_output_filememory_(LocalRoot local,
+int open_output_filememory_(LocalRoot local,
 		filestream fm, addr name, enum FileOutput mode, int *ret)
 {
 	int check;
@@ -163,7 +163,7 @@ _g int open_output_filememory_(LocalRoot local,
 	return Result(ret, 0);
 }
 
-_g int open_io_filememory_(LocalRoot local,
+int open_io_filememory_(LocalRoot local,
 		filestream fm, addr name, enum FileOutput mode, int *ret)
 {
 	int check;
@@ -178,7 +178,7 @@ _g int open_io_filememory_(LocalRoot local,
 	return Result(ret, 0);
 }
 
-_g void open_input_redirect_filememory_(filestream fm, addr pos)
+void open_input_redirect_filememory_(filestream fm, addr pos)
 {
 	file_type file;
 
@@ -189,7 +189,7 @@ _g void open_input_redirect_filememory_(filestream fm, addr pos)
 	fm->cache = getcache_memory_stream(pos);
 }
 
-_g void open_output_redirect_filememory_(filestream fm, addr pos)
+void open_output_redirect_filememory_(filestream fm, addr pos)
 {
 	file_type file;
 
@@ -200,7 +200,7 @@ _g void open_output_redirect_filememory_(filestream fm, addr pos)
 	fm->cache = getcache_memory_stream(pos);
 }
 
-_g void open_io_redirect_filememory_(filestream fm, addr pos)
+void open_io_redirect_filememory_(filestream fm, addr pos)
 {
 	file_type file;
 
@@ -211,7 +211,7 @@ _g void open_io_redirect_filememory_(filestream fm, addr pos)
 	fm->cache = getcache_memory_stream(pos);
 }
 
-_g int close_filememory(filestream fm)
+int close_filememory(filestream fm)
 {
 	if (fm->mode == filememory_close) {
 		Debug("file already closed.");
@@ -396,7 +396,7 @@ static int flush_end_filememory(filestream fm)
 	return 0;
 }
 
-_g int flush_filememory(filestream fm)
+int flush_filememory(filestream fm)
 {
 	if (fm->mode == filememory_end)
 		return flush_end_filememory(fm);
@@ -640,7 +640,7 @@ static inline int fm_read_normal(filestream fm, byte *pos, size_t size, size_t *
 		return fm_readbuffer(fm, pos, size, ret);
 }
 
-_g int read_filememory(filestream fm, void *dst, size_t size, size_t *ret)
+int read_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 {
 	int check;
 
@@ -700,7 +700,7 @@ static inline int fm_read_normal_force(filestream fm,
 	return 0;
 }
 
-_g int readf_filememory(filestream fm, void *dst, size_t size, size_t *ret)
+int readf_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 {
 	int check;
 
@@ -868,7 +868,7 @@ static inline int read_nonblock(filestream fm, byte *pos, size_t size, size_t *r
 		return fm_readbuffer_nonblock(fm, pos, size, ret);
 }
 
-_g int read_nonblock_filememory(filestream fm, void *dst, size_t size, size_t *ret)
+int read_nonblock_filememory(filestream fm, void *dst, size_t size, size_t *ret)
 {
 	int check;
 
@@ -939,7 +939,7 @@ static inline int getc_normal(filestream fm, byte *pos)
 		return fm_readbuffer_small(fm, pos, 1, &dummy);
 }
 
-_g int getc_filememory(filestream fm, byte *pos)
+int getc_filememory(filestream fm, byte *pos)
 {
 	int check;
 
@@ -1000,7 +1000,7 @@ static int getc_nonblock(filestream fm, byte *pos, size_t *ret)
 		return fm_readbuffer_nonblock_small(fm, pos, 1, ret);
 }
 
-_g int getc_nonblock_filememory(filestream fm, byte *pos, size_t *ret)
+int getc_nonblock_filememory(filestream fm, byte *pos, size_t *ret)
 {
 	int check;
 
@@ -1035,7 +1035,7 @@ _g int getc_nonblock_filememory(filestream fm, byte *pos, size_t *ret)
 	return 0;
 }
 
-_g int ungetc_filememory(filestream fm, byte c)
+int ungetc_filememory(filestream fm, byte c)
 {
 	if (fm->direct == filememory_output) {
 		Debug("direction error");
@@ -1125,7 +1125,7 @@ static int write_normal(filestream fm, const byte *pos, size_t size, size_t *ret
 	return 0;
 }
 
-_g int write_filememory(filestream fm, const void *dst, size_t size, size_t *ret)
+int write_filememory(filestream fm, const void *dst, size_t size, size_t *ret)
 {
 	int check;
 
@@ -1165,7 +1165,7 @@ _g int write_filememory(filestream fm, const void *dst, size_t size, size_t *ret
 }
 
 /* read type */
-_g int read_s16_filememory(filestream fm, int16_t *ret)
+int read_s16_filememory(filestream fm, int16_t *ret)
 {
 	int check;
 	union read_s16_union {
@@ -1184,7 +1184,7 @@ _g int read_s16_filememory(filestream fm, int16_t *ret)
 	return 0;
 }
 
-_g int read_s32_filememory(filestream fm, int32_t *ret)
+int read_s32_filememory(filestream fm, int32_t *ret)
 {
 	int check;
 	union read_s32_union {
@@ -1204,7 +1204,7 @@ _g int read_s32_filememory(filestream fm, int32_t *ret)
 }
 
 #ifdef LISP_ARCH_64BIT
-_g int read_s64_filememory(filestream fm, int64_t *ret)
+int read_s64_filememory(filestream fm, int64_t *ret)
 {
 	int check;
 	union read_s64_union {
@@ -1224,7 +1224,7 @@ _g int read_s64_filememory(filestream fm, int64_t *ret)
 }
 #endif
 
-_g int read_u16_filememory(filestream fm, uint16_t *ret)
+int read_u16_filememory(filestream fm, uint16_t *ret)
 {
 	int check;
 	union read_u16_union {
@@ -1243,7 +1243,7 @@ _g int read_u16_filememory(filestream fm, uint16_t *ret)
 	return 0;
 }
 
-_g int read_u32_filememory(filestream fm, uint32_t *ret)
+int read_u32_filememory(filestream fm, uint32_t *ret)
 {
 	int check;
 	union read_u32_union {
@@ -1263,7 +1263,7 @@ _g int read_u32_filememory(filestream fm, uint32_t *ret)
 }
 
 #ifdef LISP_ARCH_64BIT
-_g int read_u64_filememory(filestream fm, uint64_t *ret)
+int read_u64_filememory(filestream fm, uint64_t *ret)
 {
 	int check;
 	union read_u64_union {
@@ -1298,35 +1298,35 @@ static int write_type_filememory(filestream fm, const void *p, size_t n)
 	return 0;
 }
 
-_g int write_s16_filememory(filestream fm, int16_t c)
+int write_s16_filememory(filestream fm, int16_t c)
 {
 	return write_type_filememory(fm, (const void *)&c, 2);
 }
 
-_g int write_s32_filememory(filestream fm, int32_t c)
+int write_s32_filememory(filestream fm, int32_t c)
 {
 	return write_type_filememory(fm, (const void *)&c, 4);
 }
 
 #ifdef LISP_ARCH_64BIT
-_g int write_s64_filememory(filestream fm, int64_t c)
+int write_s64_filememory(filestream fm, int64_t c)
 {
 	return write_type_filememory(fm, (const void *)&c, 8);
 }
 #endif
 
-_g int write_u16_filememory(filestream fm, uint16_t c)
+int write_u16_filememory(filestream fm, uint16_t c)
 {
 	return write_type_filememory(fm, (const void *)&c, 2);
 }
 
-_g int write_u32_filememory(filestream fm, uint32_t c)
+int write_u32_filememory(filestream fm, uint32_t c)
 {
 	return write_type_filememory(fm, (const void *)&c, 4);
 }
 
 #ifdef LISP_ARCH_64BIT
-_g int write_u64_filememory(filestream fm, uint64_t c)
+int write_u64_filememory(filestream fm, uint64_t c)
 {
 	return write_type_filememory(fm, (const void *)&c, 8);
 }
@@ -1355,7 +1355,7 @@ static int fm_putcnormal(filestream fm, byte c)
 	return 0;
 }
 
-_g int putc_filememory(filestream fm, byte c)
+int putc_filememory(filestream fm, byte c)
 {
 	int check;
 
@@ -1390,13 +1390,13 @@ _g int putc_filememory(filestream fm, byte c)
 	return 0;
 }
 
-_g void exitpoint_filememory(filestream fm)
+void exitpoint_filememory(filestream fm)
 {
 	if (fm->cache == 0)
 		(void)flush_filememory(fm);
 }
 
-_g int end_filememory(filestream fm)
+int end_filememory(filestream fm)
 {
 	if (fm->mode == filememory_end)
 		return 1;
@@ -1408,12 +1408,12 @@ _g int end_filememory(filestream fm)
 	return 0;
 }
 
-_g int error_filememory(filestream fm)
+int error_filememory(filestream fm)
 {
 	return fm->mode == filememory_error;
 }
 
-_g int listen_filememory(filestream fm)
+int listen_filememory(filestream fm)
 {
 	int check;
 
@@ -1437,7 +1437,7 @@ _g int listen_filememory(filestream fm)
 	return 1;  /* ready */
 }
 
-_g int clear_input_filememory(filestream fm)
+int clear_input_filememory(filestream fm)
 {
 	switch (fm->direct) {
 		case filememory_io:
@@ -1462,7 +1462,7 @@ _g int clear_input_filememory(filestream fm)
 	}
 }
 
-_g int clear_output_filememory(filestream fm)
+int clear_output_filememory(filestream fm)
 {
 	switch (fm->direct) {
 		case filememory_io:
@@ -1487,7 +1487,7 @@ _g int clear_output_filememory(filestream fm)
 	}
 }
 
-_g int file_length_filememory(filestream fm, size_t *ret)
+int file_length_filememory(filestream fm, size_t *ret)
 {
 	if (fm->mode == filememory_normal || fm->mode == filememory_end)
 		return file_length_low(fm, ret);
@@ -1501,7 +1501,7 @@ static int file_position_input(filestream fm)
 		(fm->direct == filememory_io && fm->readio);
 }
 
-_g int file_position_filememory(filestream fm, size_t *ret)
+int file_position_filememory(filestream fm, size_t *ret)
 {
 	int check;
 	size_t size, unread;
@@ -1528,7 +1528,7 @@ _g int file_position_filememory(filestream fm, size_t *ret)
 	return 0;
 }
 
-_g int file_position_start_filememory(filestream fm)
+int file_position_start_filememory(filestream fm)
 {
 	int check;
 
@@ -1545,7 +1545,7 @@ _g int file_position_start_filememory(filestream fm)
 	return 1;
 }
 
-_g int file_position_end_filememory(filestream fm)
+int file_position_end_filememory(filestream fm)
 {
 	int check;
 	size_t size;
@@ -1566,7 +1566,7 @@ _g int file_position_end_filememory(filestream fm)
 	return 1;
 }
 
-_g int file_position_set_filememory(filestream fm, size_t pos)
+int file_position_set_filememory(filestream fm, size_t pos)
 {
 	int check;
 
@@ -1587,18 +1587,18 @@ _g int file_position_set_filememory(filestream fm, size_t pos)
 /*
  *  core
  */
-_g int readcheck_filememory(filestream fm, void *dst, size_t size)
+int readcheck_filememory(filestream fm, void *dst, size_t size)
 {
 	size_t check;
 	return readf_filememory(fm, dst, size, &check) || size != check;
 }
-_g int writecheck_filememory(filestream fm, const void *dst, size_t size)
+int writecheck_filememory(filestream fm, const void *dst, size_t size)
 {
 	size_t check;
 	return write_filememory(fm, dst, size, &check) || size != check;
 }
 
-_g int readptr_filememory(filestream fm, void **ret)
+int readptr_filememory(filestream fm, void **ret)
 {
 	uintptr_t ptr;
 
@@ -1613,7 +1613,7 @@ _g int readptr_filememory(filestream fm, void **ret)
 
 	return 0;
 }
-_g int writeptr_filememory(filestream fm, const void *pos)
+int writeptr_filememory(filestream fm, const void *pos)
 {
 	uintptr_t ptr;
 
@@ -1630,11 +1630,11 @@ _g int writeptr_filememory(filestream fm, const void *pos)
 	return writecheck_filememory(fm, &ptr, sizeoft(uintptr_t));
 }
 
-_g int readaddr_filememory(filestream fm, addr *ret)
+int readaddr_filememory(filestream fm, addr *ret)
 {
 	return readptr_filememory(fm, (void **)ret);
 }
-_g int writeaddr_filememory(filestream fm, addr pos)
+int writeaddr_filememory(filestream fm, addr pos)
 {
 	uintptr_t ptr;
 
@@ -1655,12 +1655,13 @@ _g int writeaddr_filememory(filestream fm, addr pos)
 	return writecheck_filememory(fm, &ptr, sizeoft(uintptr_t));
 }
 
-_g int readsize_filememory(filestream fm, size_t *ret)
+int readsize_filememory(filestream fm, size_t *ret)
 {
 	return readcheck_filememory(fm, ret, sizeoft(size_t));
 }
 
-_g int writesize_filememory(filestream fm, size_t pos)
+int writesize_filememory(filestream fm, size_t pos)
 {
 	return writecheck_filememory(fm, &pos, sizeoft(size_t));
 }
+

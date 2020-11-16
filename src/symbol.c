@@ -22,7 +22,7 @@
 static int InitObject = 0;
 static rwlocklite MutexSymbol;
 
-_g int init_symbol(void)
+int init_symbol(void)
 {
 	if (InitObject) {
 		Debug("InitObject error.");
@@ -37,7 +37,7 @@ _g int init_symbol(void)
 	return 0;
 }
 
-_g void free_symbol(void)
+void free_symbol(void)
 {
 	if (InitObject) {
 		lispd_destroy_rwlocklite(&MutexSymbol);
@@ -45,7 +45,7 @@ _g void free_symbol(void)
 	}
 }
 
-_g void build_symbol(void)
+void build_symbol(void)
 {
 	addr symbol, value;
 
@@ -58,7 +58,7 @@ _g void build_symbol(void)
 /*
  *  symbol
  */
-_g void symbol_heap(addr *ret)
+void symbol_heap(addr *ret)
 {
 	int i;
 	addr pos, make;
@@ -79,12 +79,12 @@ _g void symbol_heap(addr *ret)
 	*ret = pos;
 }
 
-_g int symbolp(addr pos)
+int symbolp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_SYMBOL || pos == Nil || pos == T;
 }
 
-_g int keywordp(addr pos)
+int keywordp(addr pos)
 {
 	addr keyword;
 
@@ -107,12 +107,12 @@ static int setcheck_symbol_(addr symbol, size_t index, addr value)
 }
 
 /* name */
-_g void getname_symbol(addr symbol, addr *ret)
+void getname_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetNameSymbol_Low(symbol, ret);
 }
-_g void setname_symbol(addr symbol, addr value)
+void setname_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	Check(GetStatusReadOnly(symbol), "readonly error");
@@ -120,46 +120,46 @@ _g void setname_symbol(addr symbol, addr value)
 }
 
 /* value */
-_g void getvalue_symbol(addr symbol, addr *ret)
+void getvalue_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetValueSymbol_Low(symbol, ret);
 }
-_g void setvalue_symbol(addr symbol, addr value)
+void setvalue_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	Check(GetStatusReadOnly(symbol), "readonly error");
 	SetValueSymbol_Low(symbol, value);
 }
-_g int setvalue_symbol_(addr symbol, addr value)
+int setvalue_symbol_(addr symbol, addr value)
 {
 	return setcheck_symbol_(symbol, SYMBOL_INDEX_VALUE, value);
 }
 
 /* function */
-_g void getfunction_symbol(addr symbol, addr *ret)
+void getfunction_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetFunctionSymbol_Low(symbol, ret);
 }
-_g void setfunction_symbol(addr symbol, addr value)
+void setfunction_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	Check(GetStatusReadOnly(symbol), "readonly error");
 	SetFunctionSymbol_Low(symbol, value);
 }
-_g int setfunction_symbol_(addr symbol, addr value)
+int setfunction_symbol_(addr symbol, addr value)
 {
 	return setcheck_symbol_(symbol, SYMBOL_INDEX_FUNCTION, value);
 }
 
 /* package */
-_g void getpackage_symbol(addr symbol, addr *ret)
+void getpackage_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetPackageSymbol_Low(symbol, ret);
 }
-_g void setpackage_symbol(addr symbol, addr value)
+void setpackage_symbol(addr symbol, addr value)
 {
 	Check(value != Nil && GetType(value) != LISPTYPE_PACKAGE, "type error");
 	/* no-readonly-check */
@@ -167,12 +167,12 @@ _g void setpackage_symbol(addr symbol, addr value)
 }
 
 /* plist */
-_g void getplist_symbol(addr symbol, addr *ret)
+void getplist_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetPlistSymbol_Low(symbol, ret);
 }
-_g void setplist_symbol(addr symbol, addr value)
+void setplist_symbol(addr symbol, addr value)
 {
 	Check(! listp(value), "type error");
 	/* no-readonly-check */
@@ -258,186 +258,186 @@ static void reminfo_nocheck_constant(addr symbol, constindex index)
 }
 
 /* type value */
-_g void gettype_value_symbol(addr symbol, addr *ret)
+void gettype_value_symbol(addr symbol, addr *ret)
 {
 	getinfo_constant(symbol, CONSTANT_SYSTEM_VALUE, ret);
 }
-_g void settype_value_symbol(addr symbol, addr value)
+void settype_value_symbol(addr symbol, addr value)
 {
 	Check(GetType(value) != LISPTYPE_TYPE, "type right error");
 	setinfo_constant(symbol, CONSTANT_SYSTEM_VALUE, value);
 }
-_g int settype_value_symbol_(addr symbol, addr value)
+int settype_value_symbol_(addr symbol, addr value)
 {
 	Check(GetType(value) != LISPTYPE_TYPE, "type right error");
 	return setinfo_constant_(symbol, CONSTANT_SYSTEM_VALUE, value);
 }
-_g void remtype_value_symbol(addr symbol)
+void remtype_value_symbol(addr symbol)
 {
 	reminfo_constant(symbol, CONSTANT_SYSTEM_VALUE);
 }
 
 /* type function */
-_g void gettype_function_symbol(addr symbol, addr *ret)
+void gettype_function_symbol(addr symbol, addr *ret)
 {
 	getinfo_constant(symbol, CONSTANT_SYSTEM_FUNCTION, ret);
 }
-_g void settype_function_symbol(addr symbol, addr value)
+void settype_function_symbol(addr symbol, addr value)
 {
 	Check(GetType(value) != LISPTYPE_TYPE, "type right error");
 	setinfo_constant(symbol, CONSTANT_SYSTEM_FUNCTION, value);
 }
-_g int settype_function_symbol_(addr symbol, addr value)
+int settype_function_symbol_(addr symbol, addr value)
 {
 	Check(GetType(value) != LISPTYPE_TYPE, "type right error");
 	return setinfo_constant_(symbol, CONSTANT_SYSTEM_FUNCTION, value);
 }
-_g int remtype_function_symbol_(addr symbol)
+int remtype_function_symbol_(addr symbol)
 {
 	return reminfo_constant_(symbol, CONSTANT_SYSTEM_FUNCTION);
 }
 
 /* type setf */
-_g void gettype_setf_symbol(addr symbol, addr *ret)
+void gettype_setf_symbol(addr symbol, addr *ret)
 {
 	getinfo_constant(symbol, CONSTANT_SYSTEM_SETF, ret);
 }
-_g void settype_setf_symbol(addr symbol, addr value)
+void settype_setf_symbol(addr symbol, addr value)
 {
 	Check(GetType(value) != LISPTYPE_TYPE, "type right error");
 	setinfo_constant(symbol, CONSTANT_SYSTEM_SETF, value);
 }
-_g int settype_setf_symbol_(addr symbol, addr value)
+int settype_setf_symbol_(addr symbol, addr value)
 {
 	Check(GetType(value) != LISPTYPE_TYPE, "type right error");
 	return setinfo_constant_(symbol, CONSTANT_SYSTEM_SETF, value);
 }
-_g int remtype_setf_symbol_(addr symbol)
+int remtype_setf_symbol_(addr symbol)
 {
 	return reminfo_constant_(symbol, CONSTANT_SYSTEM_SETF);
 }
 
 /* inline */
-_g int inlinep_function_symbol(addr symbol)
+int inlinep_function_symbol(addr symbol)
 {
 	addr check;
 	getinfo_constant(symbol, CONSTANT_SYSTEM_INLINE_FUNCTION, &symbol);
 	GetConst(COMMON_INLINE, &check);
 	return symbol == check;
 }
-_g void setinline_function_symbol(addr symbol)
+void setinline_function_symbol(addr symbol)
 {
 	addr value;
 	GetConst(COMMON_INLINE, &value);
 	setinfo_nocheck_constant(symbol, CONSTANT_SYSTEM_INLINE_FUNCTION, value);
 }
-_g int notinlinep_function_symbol(addr symbol)
+int notinlinep_function_symbol(addr symbol)
 {
 	addr check;
 	getinfo_constant(symbol, CONSTANT_SYSTEM_INLINE_FUNCTION, &symbol);
 	GetConst(COMMON_NOTINLINE, &check);
 	return symbol == check;
 }
-_g void setnotinline_function_symbol(addr symbol)
+void setnotinline_function_symbol(addr symbol)
 {
 	addr value;
 	GetConst(COMMON_NOTINLINE, &value);
 	setinfo_nocheck_constant(symbol, CONSTANT_SYSTEM_INLINE_FUNCTION, value);
 }
-_g void reminline_function_symbol(addr symbol)
+void reminline_function_symbol(addr symbol)
 {
 	reminfo_nocheck_constant(symbol, CONSTANT_SYSTEM_INLINE_FUNCTION);
 }
 
-_g int inlinep_setf_symbol(addr symbol)
+int inlinep_setf_symbol(addr symbol)
 {
 	addr check;
 	getinfo_constant(symbol, CONSTANT_SYSTEM_INLINE_SETF, &symbol);
 	GetConst(COMMON_INLINE, &check);
 	return symbol == check;
 }
-_g void setinline_setf_symbol(addr symbol)
+void setinline_setf_symbol(addr symbol)
 {
 	addr value;
 	GetConst(COMMON_INLINE, &value);
 	setinfo_nocheck_constant(symbol, CONSTANT_SYSTEM_INLINE_SETF, value);
 }
-_g int notinlinep_setf_symbol(addr symbol)
+int notinlinep_setf_symbol(addr symbol)
 {
 	addr check;
 	getinfo_constant(symbol, CONSTANT_SYSTEM_INLINE_SETF, &symbol);
 	GetConst(COMMON_NOTINLINE, &check);
 	return symbol == check;
 }
-_g void setnotinline_setf_symbol(addr symbol)
+void setnotinline_setf_symbol(addr symbol)
 {
 	addr value;
 	GetConst(COMMON_NOTINLINE, &value);
 	setinfo_nocheck_constant(symbol, CONSTANT_SYSTEM_INLINE_SETF, value);
 }
-_g void reminline_setf_symbol(addr symbol)
+void reminline_setf_symbol(addr symbol)
 {
 	reminfo_nocheck_constant(symbol, CONSTANT_SYSTEM_INLINE_SETF);
 }
 
 /* setf */
-_g void getsetf_symbol(addr symbol, addr *ret)
+void getsetf_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	*ret = getplist_constant(symbol, CONSTANT_COMMON_SETF, &symbol)? Unbound: symbol;
 }
-_g void setsetf_symbol(addr symbol, addr value)
+void setsetf_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_COMMON_SETF, value);
 }
-_g int setsetf_symbol_(addr symbol, addr value)
+int setsetf_symbol_(addr symbol, addr value)
 {
 	return setinfo_constant_(symbol, CONSTANT_COMMON_SETF, value);
 }
-_g void remsetf_symbol(addr symbol)
+void remsetf_symbol(addr symbol)
 {
 	reminfo_constant(symbol, CONSTANT_COMMON_SETF);
 }
 
 /* setf-macro */
-_g void getsetfmacro_symbol(addr symbol, addr *ret)
+void getsetfmacro_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	*ret = getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER,
 			&symbol)? Unbound: symbol;
 }
-_g void setsetfmacro_symbol(addr symbol, addr value)
+void setsetfmacro_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER, value);
 }
-_g int setsetfmacro_symbol_(addr symbol, addr value)
+int setsetfmacro_symbol_(addr symbol, addr value)
 {
 	return setinfo_constant_(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER, value);
 }
-_g void remsetfmacro_symbol(addr symbol)
+void remsetfmacro_symbol(addr symbol)
 {
 	reminfo_constant(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER);
 }
 
 /* macro */
-_g void getmacro_symbol(addr symbol, addr *ret)
+void getmacro_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	*ret = getplist_constant(symbol, CONSTANT_COMMON_DEFMACRO, &symbol)?
 		Unbound: symbol;
 }
-_g void setmacro_symbol(addr symbol, addr value)
+void setmacro_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_COMMON_DEFMACRO, value);
 }
-_g int setmacro_symbol_(addr symbol, addr value)
+int setmacro_symbol_(addr symbol, addr value)
 {
 	return setinfo_constant_(symbol, CONSTANT_COMMON_DEFMACRO, value);
 }
-_g void remmacro_symbol(addr symbol)
+void remmacro_symbol(addr symbol)
 {
 	reminfo_constant(symbol, CONSTANT_COMMON_DEFMACRO);
 }
@@ -450,48 +450,48 @@ static addr refsymbol_macro_symbol(addr symbol)
 	return getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, &symbol)?
 		Unbound: symbol;
 }
-_g void evalsymbol_macro_symbol(addr symbol, addr *ret)
+void evalsymbol_macro_symbol(addr symbol, addr *ret)
 {
 	*ret = refsymbol_macro_symbol(symbol);
 	if (*ret != Unbound)
 		GetCar(*ret, ret);
 }
-_g void formsymbol_macro_symbol(addr symbol, addr *ret)
+void formsymbol_macro_symbol(addr symbol, addr *ret)
 {
 	*ret = refsymbol_macro_symbol(symbol);
 	if (*ret != Unbound)
 		GetCdr(*ret, ret);
 }
-_g int setsymbol_macro_symbol_(addr symbol, addr eval, addr form)
+int setsymbol_macro_symbol_(addr symbol, addr eval, addr form)
 {
 	cons_heap(&eval, eval, form);
 	return setinfo_constant_(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, eval);
 }
-_g void remsymbol_macro_symbol(addr symbol)
+void remsymbol_macro_symbol(addr symbol)
 {
 	reminfo_constant(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO);
 }
 
 /* compiler-macro-function */
-_g void get_compiler_macro_symbol(addr symbol, addr *value)
+void get_compiler_macro_symbol(addr symbol, addr *value)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_SYSTEM_COMPILER_MACRO_FUNCTION, value);
 }
 
-_g int set_compiler_macro_symbol_(addr symbol, addr value)
+int set_compiler_macro_symbol_(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	return setinfo_constant_(symbol, CONSTANT_SYSTEM_COMPILER_MACRO_FUNCTION, value);
 }
 
-_g void get_setf_compiler_macro_symbol(addr symbol, addr *value)
+void get_setf_compiler_macro_symbol(addr symbol, addr *value)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_SYSTEM_SETF_COMPILER_MACRO_FUNCTION, value);
 }
 
-_g int set_setf_compiler_macro_symbol_(addr symbol, addr value)
+int set_setf_compiler_macro_symbol_(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	return setinfo_constant_(symbol,
@@ -499,7 +499,7 @@ _g int set_setf_compiler_macro_symbol_(addr symbol, addr value)
 }
 
 /* scope */
-_g void getscope_symbol(addr symbol, addr *value)
+void getscope_symbol(addr symbol, addr *value)
 {
 	getinfo_constant(symbol, CONSTANT_COMMON_SPECIAL, value);
 }
@@ -507,27 +507,27 @@ static void setscope_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_COMMON_SPECIAL, value);
 }
-_g void setspecial_symbol(addr symbol)
+void setspecial_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	setscope_symbol(symbol, T);
 }
-_g int setspecial_symbol_(addr symbol)
+int setspecial_symbol_(addr symbol)
 {
 	return setinfo_constant_(symbol, CONSTANT_COMMON_SPECIAL, T);
 }
-_g void setlexical_symbol(addr symbol)
+void setlexical_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	setscope_symbol(symbol, Nil);
 }
-_g int specialp_symbol(addr symbol)
+int specialp_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	getscope_symbol(symbol, &symbol);
 	return symbol != Nil;
 }
-_g int lexicalp_symbol(addr symbol)
+int lexicalp_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	getscope_symbol(symbol, &symbol);
@@ -535,12 +535,12 @@ _g int lexicalp_symbol(addr symbol)
 }
 
 /* special-operator */
-_g void set_special_operator(addr symbol)
+void set_special_operator(addr symbol)
 {
 	CheckSymbol(symbol);
 	setinfo_constant(symbol, CONSTANT_COMMON_SPECIAL_OPERATOR_P, T);
 }
-_g int get_special_operator(addr symbol)
+int get_special_operator(addr symbol)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_COMMON_SPECIAL_OPERATOR_P, &symbol);
@@ -548,93 +548,93 @@ _g int get_special_operator(addr symbol)
 }
 
 /* document */
-_g void getdocument_variable_symbol(addr symbol, addr *ret)
+void getdocument_variable_symbol(addr symbol, addr *ret)
 {
 	getinfo_constant(symbol, CONSTANT_COMMON_VARIABLE, ret);
 }
-_g void setdocument_variable_symbol(addr symbol, addr value)
+void setdocument_variable_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_COMMON_VARIABLE, value);
 }
-_g void getdocument_type_symbol(addr symbol, addr *ret)
+void getdocument_type_symbol(addr symbol, addr *ret)
 {
 	getinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_DOCUMENTATION, ret);
 }
-_g void setdocument_type_symbol(addr symbol, addr value)
+void setdocument_type_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_DOCUMENTATION, value);
 }
 
 /* deftype */
-_g void getdeftype_symbol(addr symbol, addr *ret)
+void getdeftype_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_SYSTEM_DEFTYPE, ret);
 }
-_g int setdeftype_symbol_(addr symbol, addr value)
+int setdeftype_symbol_(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	Check(value != Nil && GetType(value) != LISPTYPE_FUNCTION, "type error");
 	return setinfo_constant_(symbol, CONSTANT_SYSTEM_DEFTYPE, value);
 }
-_g void remdeftype_symbol(addr symbol)
+void remdeftype_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	reminfo_constant(symbol, CONSTANT_SYSTEM_DEFTYPE);
 }
 
 /* type-symbol */
-_g void getsymboltype_symbol(addr symbol, addr *ret)
+void getsymboltype_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_SYMBOL, ret);
 }
 
-_g void setsymboltype_symbol(addr symbol, addr value)
+void setsymboltype_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	setinfo_nocheck_constant(symbol, CONSTANT_SYSTEM_TYPE_SYMBOL, value);
 }
 
-_g void getlisttype_symbol(addr symbol, addr *ret)
+void getlisttype_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_LIST, ret);
 }
 
-_g void setlisttype_symbol(addr symbol, addr value)
+void setlisttype_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	setinfo_nocheck_constant(symbol, CONSTANT_SYSTEM_TYPE_LIST, value);
 }
 
 /* clos */
-_g void getclass_symbol(addr symbol, addr *ret)
+void getclass_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_COMMON_CLASS, ret);
 }
 
-_g void setclass_symbol(addr symbol, addr value)
+void setclass_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	Check(GetType(value) != LISPTYPE_CLOS, "type error");
 	setinfo_nocheck_constant(symbol, CONSTANT_COMMON_CLASS, value);
 }
 
-_g void remclass_symbol(addr symbol)
+void remclass_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	reminfo_nocheck_constant(symbol, CONSTANT_COMMON_CLASS);
 }
 
-_g void getcombination_symbol(addr symbol, addr *ret)
+void getcombination_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_COMMON_METHOD_COMBINATION, ret);
 }
 
-_g void setcombination_symbol(addr symbol, addr value)
+void setcombination_symbol(addr symbol, addr value)
 {
 	CheckSymbol(symbol);
 	Check(GetType(value) != LISPTYPE_CLOS, "type error");
@@ -708,21 +708,21 @@ static void symstack(size_t index, addr symbol, addr *ret)
 	lispd_unwrlock_rwlocklite(&MutexSymbol);
 }
 
-_g void getspecial_unsafe(Execute ptr, addr pos, addr *ret)
+void getspecial_unsafe(Execute ptr, addr pos, addr *ret)
 {
 	CheckSymbol(pos);
 	symstack(ptr->index, pos, &pos);
 	GetArrayA4(pos, ptr->index, ret);
 }
 
-_g void setspecial_unsafe(Execute ptr, addr pos, addr value)
+void setspecial_unsafe(Execute ptr, addr pos, addr value)
 {
 	CheckSymbol(pos);
 	symstack(ptr->index, pos, &pos);
 	SetArrayA4_force(pos, ptr->index, value);
 }
 
-_g void getspecial_local(Execute ptr, addr pos, addr *ret)
+void getspecial_local(Execute ptr, addr pos, addr *ret)
 {
 	CheckSymbol(pos);
 	if (GetStatusReadOnly(pos)) {
@@ -735,7 +735,7 @@ _g void getspecial_local(Execute ptr, addr pos, addr *ret)
 	}
 }
 
-_g int getspecialcheck_local_(Execute ptr, addr pos, addr *ret)
+int getspecialcheck_local_(Execute ptr, addr pos, addr *ret)
 {
 	getspecial_local(ptr, pos, ret);
 	if (*ret == Unbound)
@@ -744,7 +744,7 @@ _g int getspecialcheck_local_(Execute ptr, addr pos, addr *ret)
 	return 0;
 }
 
-_g void setspecial_local(Execute ptr, addr pos, addr value)
+void setspecial_local(Execute ptr, addr pos, addr value)
 {
 	addr check;
 
@@ -758,7 +758,7 @@ _g void setspecial_local(Execute ptr, addr pos, addr value)
 	}
 }
 
-_g int getfunction_global_(addr pos, addr *ret)
+int getfunction_global_(addr pos, addr *ret)
 {
 	GetFunctionSymbol(pos, ret);
 	if (*ret == Unbound)
@@ -767,7 +767,7 @@ _g int getfunction_global_(addr pos, addr *ret)
 	return 0;
 }
 
-_g int getsetf_global_(addr pos, addr *ret)
+int getsetf_global_(addr pos, addr *ret)
 {
 	addr setf;
 
@@ -785,7 +785,7 @@ _g int getsetf_global_(addr pos, addr *ret)
 /*
  *  gensym
  */
-_g int gensymp(addr pos)
+int gensymp(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_SYMBOL)
 		return 0;
@@ -793,7 +793,7 @@ _g int gensymp(addr pos)
 	return pos == Nil;
 }
 
-_g void make_symbolchar(addr *ret, const char *str)
+void make_symbolchar(addr *ret, const char *str)
 {
 	addr pos, name;
 
@@ -846,27 +846,27 @@ static int make_gensym_argument_(Execute ptr,
 
 	return 0;
 }
-_g int make_gensym_(Execute ptr, addr *ret)
+int make_gensym_(Execute ptr, addr *ret)
 {
 	return make_gensym_argument_(ptr, "G", NULL, NULL, ret);
 }
-_g int make_gensym_prefix_(Execute ptr, addr prefix, addr *ret)
+int make_gensym_prefix_(Execute ptr, addr prefix, addr *ret)
 {
 	Check(! stringp(prefix), "type error");
 	return make_gensym_argument_(ptr, NULL, prefix, NULL, ret);
 }
-_g int make_gensym_integer_(Execute ptr, addr value, addr *ret)
+int make_gensym_integer_(Execute ptr, addr value, addr *ret)
 {
 	Check(! integerp(value), "type error");
 	return make_gensym_argument_(ptr, "G", NULL, value, ret);
 }
-_g int make_gensym_char_(Execute ptr, const char *str, addr value, addr *ret)
+int make_gensym_char_(Execute ptr, const char *str, addr value, addr *ret)
 {
 	Check(! integerp(value), "type error");
 	return make_gensym_argument_(ptr, str, NULL, value, ret);
 }
 
-_g void setcounter_gensym(Execute ptr, fixnum value)
+void setcounter_gensym(Execute ptr, fixnum value)
 {
 	addr pos, symbol;
 

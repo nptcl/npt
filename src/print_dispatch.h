@@ -71,26 +71,26 @@ enum PrintDispatch_Index {
 #endif
 
 /* access */
-_g void getlistprintdispatch(addr pos, addr *ret);
-_g void setlistprintdispatch(addr pos, addr value);
-_g void gettypeprinttable(addr pos, addr *ret);
-_g void settypeprinttable(addr pos, addr value);
-_g void getspecifierprinttable(addr pos, addr *ret);
-_g void setspecifierprinttable(addr pos, addr value);
-_g void getfunctionprinttable(addr pos, addr *ret);
-_g void setfunctionprinttable(addr pos, addr value);
-_g void getpriorityprinttable(addr pos, addr *ret);
-_g void setpriorityprinttable(addr pos, addr value);
+void getlistprintdispatch(addr pos, addr *ret);
+void setlistprintdispatch(addr pos, addr value);
+void gettypeprinttable(addr pos, addr *ret);
+void settypeprinttable(addr pos, addr value);
+void getspecifierprinttable(addr pos, addr *ret);
+void setspecifierprinttable(addr pos, addr value);
+void getfunctionprinttable(addr pos, addr *ret);
+void setfunctionprinttable(addr pos, addr value);
+void getpriorityprinttable(addr pos, addr *ret);
+void setpriorityprinttable(addr pos, addr value);
 
 /* function */
-_g int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret);
-_g int print_dispatch_p(addr pos);
-_g void pprint_dispatch_heap(addr *ret);
-_g int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret);
-_g int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y);
-_g int set_pprint_dispatch_print_(LocalRoot local,
+int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret);
+int print_dispatch_p(addr pos);
+void pprint_dispatch_heap(addr *ret);
+int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret);
+int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y);
+int set_pprint_dispatch_print_(LocalRoot local,
 		addr spec, addr type, addr call, addr priority, addr table);
-_g int build_print_dispatch_(void);
+int build_print_dispatch_(void);
 
 #endif
 

@@ -136,45 +136,45 @@ struct StructStream {
 #define SetOutputStream(s,v)		SetOutputStream_Low(s,v)
 #endif
 
-_g void *ptrbody_stream(addr stream);
-_g struct StructStream *ptrstruct_stream(addr stream);
-_g void *ptrdata_stream(addr stream);
-_g void gettype_stream(addr stream, enum StreamType *ret);
-_g size_t getindex_stream(addr stream);
-_g void getpathname_stream(addr stream, addr *ret);
-_g void setpathname_stream(addr stream, addr value);
-_g void getinfo_stream(addr stream, addr *ret);
-_g void setinfo_stream(addr stream, addr value);
-_g void getinput_stream(addr stream, addr *ret);
-_g void setinput_stream(addr stream, addr value);
-_g void getoutput_stream(addr stream, addr *ret);
-_g void setoutput_stream(addr stream, addr value);
+void *ptrbody_stream(addr stream);
+struct StructStream *ptrstruct_stream(addr stream);
+void *ptrdata_stream(addr stream);
+void gettype_stream(addr stream, enum StreamType *ret);
+size_t getindex_stream(addr stream);
+void getpathname_stream(addr stream, addr *ret);
+void setpathname_stream(addr stream, addr value);
+void getinfo_stream(addr stream, addr *ret);
+void setinfo_stream(addr stream, addr value);
+void getinput_stream(addr stream, addr *ret);
+void setinput_stream(addr stream, addr value);
+void getoutput_stream(addr stream, addr *ret);
+void setoutput_stream(addr stream, addr value);
 
-_g void stream_heap(addr *ret, enum StreamType type, size_t size);
-_g enum StreamType getstreamtype(addr stream);
-_g int streamp(addr stream);
-_g int file_stream_p(addr stream);
-_g int broadcast_stream_p(addr stream);
-_g int concatenated_stream_p(addr stream);
-_g int echo_stream_p(addr stream);
-_g int synonym_stream_p(addr stream);
-_g int twoway_stream_p(addr stream);
-_g int input_string_stream_p(addr stream);
-_g int output_string_stream_p(addr stream);
-_g int string_stream_p(addr stream);
-_g int prompt_stream_p(addr stream);
-_g int pretty_stream_p(addr stream);
-_g int input_memory_stream_p(addr stream);
-_g int output_memory_stream_p(addr stream);
-_g int io_memory_stream_p(addr stream);
-_g int read_memory_stream_p(addr stream);
-_g int write_memory_stream_p(addr stream);
-_g int memory_stream_p(addr stream);
-_g int extend_stream_p(addr stream);
-_g int extend_type_stream_p(addr stream, int type);
+void stream_heap(addr *ret, enum StreamType type, size_t size);
+enum StreamType getstreamtype(addr stream);
+int streamp(addr stream);
+int file_stream_p(addr stream);
+int broadcast_stream_p(addr stream);
+int concatenated_stream_p(addr stream);
+int echo_stream_p(addr stream);
+int synonym_stream_p(addr stream);
+int twoway_stream_p(addr stream);
+int input_string_stream_p(addr stream);
+int output_string_stream_p(addr stream);
+int string_stream_p(addr stream);
+int prompt_stream_p(addr stream);
+int pretty_stream_p(addr stream);
+int input_memory_stream_p(addr stream);
+int output_memory_stream_p(addr stream);
+int io_memory_stream_p(addr stream);
+int read_memory_stream_p(addr stream);
+int write_memory_stream_p(addr stream);
+int memory_stream_p(addr stream);
+int extend_stream_p(addr stream);
+int extend_type_stream_p(addr stream, int type);
 
-_g void force_open_stream(addr stream);
-_g void force_close_stream(addr stream);
+void force_open_stream(addr stream);
+void force_close_stream(addr stream);
 
 #endif
 

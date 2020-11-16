@@ -20,12 +20,12 @@
  * #define LISP_PROMPT_EDITLINE    Use editline  (for BSD)
  */
 #ifdef LISP_PROMPT_DEFAULT
-_g void open_prompt_stream(addr *stream)
+void open_prompt_stream(addr *stream)
 {
 	Error(standard_input_stream_(Execute_Thread, stream));
 }
 #else
-_g void open_prompt_stream(addr *stream)
+void open_prompt_stream(addr *stream)
 {
 	addr pos, value;
 
@@ -196,7 +196,7 @@ static int clear_input_Prompt(addr stream)
 	return 0;
 }
 
-_g void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode)
+void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode)
 {
 	addr value, symbol;
 
@@ -218,7 +218,7 @@ _g void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g void init_stream_prompt(void)
+void init_stream_prompt(void)
 {
 	DefineStreamSet(Prompt, close);
 	DefineStream___(Prompt, read_byte);

@@ -2,7 +2,7 @@
 #include "build.h"
 #include "pointer.h"
 
-_g void clear_pointer(void)
+void clear_pointer(void)
 {
 #ifdef LISP_DEBUG
 	int p;

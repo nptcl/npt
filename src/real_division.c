@@ -58,7 +58,7 @@ static int division_by_zero_l_(constindex index, long_float a, long_float b)
 /*
  *  floor
  */
-_g int float_floor_s_(single_float a, single_float b, single_float *q, single_float *r)
+int float_floor_s_(single_float a, single_float b, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -94,7 +94,7 @@ floor2:
 	return 0;
 }
 
-_g int float_floor_d_(double_float a, double_float b, double_float *q, double_float *r)
+int float_floor_d_(double_float a, double_float b, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -130,7 +130,7 @@ floor2:
 	return 0;
 }
 
-_g int float_floor_l_(long_float a, long_float b, long_float *q, long_float *r)
+int float_floor_l_(long_float a, long_float b, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -166,7 +166,7 @@ floor2:
 	return 0;
 }
 
-_g int float_floor1_s_(single_float a, single_float *q, single_float *r)
+int float_floor1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -190,7 +190,7 @@ _g int float_floor1_s_(single_float a, single_float *q, single_float *r)
 	return 0;
 }
 
-_g int float_floor1_d_(double_float a, double_float *q, double_float *r)
+int float_floor1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -214,7 +214,7 @@ _g int float_floor1_d_(double_float a, double_float *q, double_float *r)
 	return 0;
 }
 
-_g int float_floor1_l_(long_float a, long_float *q, long_float *r)
+int float_floor1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -242,7 +242,7 @@ _g int float_floor1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  ceiling
  */
-_g int float_ceiling_s_(single_float a, single_float b, single_float *q, single_float *r)
+int float_ceiling_s_(single_float a, single_float b, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -279,7 +279,7 @@ ceiling2:
 	return 0;
 }
 
-_g int float_ceiling_d_(double_float a, double_float b, double_float *q, double_float *r)
+int float_ceiling_d_(double_float a, double_float b, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -316,7 +316,7 @@ ceiling2:
 	return 0;
 }
 
-_g int float_ceiling_l_(long_float a, long_float b, long_float *q, long_float *r)
+int float_ceiling_l_(long_float a, long_float b, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -353,7 +353,7 @@ ceiling2:
 	return 0;
 }
 
-_g int float_ceiling1_s_(single_float a, single_float *q, single_float *r)
+int float_ceiling1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -377,7 +377,7 @@ _g int float_ceiling1_s_(single_float a, single_float *q, single_float *r)
 	return 0;
 }
 
-_g int float_ceiling1_d_(double_float a, double_float *q, double_float *r)
+int float_ceiling1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -401,7 +401,7 @@ _g int float_ceiling1_d_(double_float a, double_float *q, double_float *r)
 	return 0;
 }
 
-_g int float_ceiling1_l_(long_float a, long_float *q, long_float *r)
+int float_ceiling1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -429,7 +429,7 @@ _g int float_ceiling1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  truncate
  */
-_g int float_truncate_s_(single_float a, single_float b,
+int float_truncate_s_(single_float a, single_float b,
 		single_float *q, single_float *r)
 {
 	single_float m;
@@ -466,7 +466,7 @@ ceiling:
 	return 0;
 }
 
-_g int float_truncate_d_(double_float a, double_float b,
+int float_truncate_d_(double_float a, double_float b,
 		double_float *q, double_float *r)
 {
 	double_float m;
@@ -503,7 +503,7 @@ ceiling:
 	return 0;
 }
 
-_g int float_truncate_l_(long_float a, long_float b,
+int float_truncate_l_(long_float a, long_float b,
 		long_float *q, long_float *r)
 {
 	long_float m;
@@ -540,7 +540,7 @@ ceiling:
 	return 0;
 }
 
-_g int float_truncate1_s_(single_float a, single_float *q, single_float *r)
+int float_truncate1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float m;
 
@@ -560,7 +560,7 @@ _g int float_truncate1_s_(single_float a, single_float *q, single_float *r)
 	return 0;
 }
 
-_g int float_truncate1_d_(double_float a, double_float *q, double_float *r)
+int float_truncate1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float m;
 
@@ -580,7 +580,7 @@ _g int float_truncate1_d_(double_float a, double_float *q, double_float *r)
 	return 0;
 }
 
-_g int float_truncate1_l_(long_float a, long_float *q, long_float *r)
+int float_truncate1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float m;
 
@@ -609,7 +609,7 @@ static int float_round_even_s(single_float f)
 	return fmodf(f, 2.0f) == 0.0f;
 }
 
-_g int float_round_s_(single_float a, single_float b, single_float *q, single_float *r)
+int float_round_s_(single_float a, single_float b, single_float *q, single_float *r)
 {
 	single_float i, f;
 
@@ -645,7 +645,7 @@ static int float_round_even_d(double_float f)
 	return fmod(f, 2.0) == 0.0;
 }
 
-_g int float_round_d_(double_float a, double_float b, double_float *q, double_float *r)
+int float_round_d_(double_float a, double_float b, double_float *q, double_float *r)
 {
 	double_float i, f;
 
@@ -681,7 +681,7 @@ static int float_round_even_l(long_float f)
 	return fmodl(f, 2.0L) == 0.0L;
 }
 
-_g int float_round_l_(long_float a, long_float b, long_float *q, long_float *r)
+int float_round_l_(long_float a, long_float b, long_float *q, long_float *r)
 {
 	long_float i, f;
 
@@ -712,7 +712,7 @@ _g int float_round_l_(long_float a, long_float b, long_float *q, long_float *r)
 	}
 }
 
-_g int float_round1_s_(single_float a, single_float *q, single_float *r)
+int float_round1_s_(single_float a, single_float *q, single_float *r)
 {
 	single_float i, f;
 
@@ -739,7 +739,7 @@ _g int float_round1_s_(single_float a, single_float *q, single_float *r)
 	}
 }
 
-_g int float_round1_d_(double_float a, double_float *q, double_float *r)
+int float_round1_d_(double_float a, double_float *q, double_float *r)
 {
 	double_float i, f;
 
@@ -766,7 +766,7 @@ _g int float_round1_d_(double_float a, double_float *q, double_float *r)
 	}
 }
 
-_g int float_round1_l_(long_float a, long_float *q, long_float *r)
+int float_round1_l_(long_float a, long_float *q, long_float *r)
 {
 	long_float i, f;
 
@@ -797,7 +797,7 @@ _g int float_round1_l_(long_float a, long_float *q, long_float *r)
 /*
  *  fixnum
  */
-_g int float_floor_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+int float_floor_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	fixnum q, r;
 
@@ -831,7 +831,7 @@ floor2:
 	return 0;
 }
 
-_g int float_ceiling_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+int float_ceiling_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	fixnum q, r;
 
@@ -865,7 +865,7 @@ ceiling2:
 	return 0;
 }
 
-_g int float_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+int float_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	if (b == 0) {
 		*quot = *rem = 0;
@@ -878,7 +878,7 @@ _g int float_truncate_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 	return 0;
 }
 
-_g int float_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
+int float_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 {
 	fixnum q, r, b2;
 
@@ -973,7 +973,7 @@ _g int float_round_f_(fixnum a, fixnum b, fixnum *quot, fixnum *rem)
 	}
 }
 
-_g int float_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
@@ -988,7 +988,7 @@ _g int float_floor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
@@ -1003,7 +1003,7 @@ _g int float_ceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
@@ -1018,7 +1018,7 @@ _g int float_truncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
@@ -1033,7 +1033,7 @@ _g int float_round_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
@@ -1048,7 +1048,7 @@ _g int float_ffloor_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
@@ -1063,7 +1063,7 @@ _g int float_fceiling_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
@@ -1078,7 +1078,7 @@ _g int float_ftruncate_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_fround_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
+int float_fround_fixnum_(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		single_float_heap(quot, -((single_float)FIXNUM_UMIN));
@@ -1198,7 +1198,7 @@ static void float_floor_bb(struct divrem_struct *ptr)
 	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
-_g int float_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1222,7 +1222,7 @@ _g int float_floor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	return 0;
 }
 
-_g int float_ffloor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ffloor_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1260,7 +1260,7 @@ static void float_ceiling_bb(struct divrem_struct *ptr)
 	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
-_g int float_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1284,7 +1284,7 @@ _g int float_ceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	return 0;
 }
 
-_g int float_fceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fceiling_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1314,7 +1314,7 @@ static void float_truncate_bb(struct divrem_struct *ptr)
 	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
-_g int float_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1338,7 +1338,7 @@ _g int float_truncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	return 0;
 }
 
-_g int float_ftruncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ftruncate_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1417,7 +1417,7 @@ static void float_round_bb(struct divrem_struct *ptr)
 		fixnum_heap(&(ptr->rem), 0);
 }
 
-_g int float_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1441,7 +1441,7 @@ _g int float_round_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	return 0;
 }
 
-_g int float_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fround_bignum_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -1534,7 +1534,7 @@ static void float_floor1_r(struct divrem_struct *ptr)
 		float_ceiling1_nosign(ptr, SignMinus, SignPlus);
 }
 
-_g int float_floor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_floor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1564,7 +1564,7 @@ static void float_ceiling1_r(struct divrem_struct *ptr)
 		float_floor1_nosign(ptr, SignMinus, SignMinus);
 }
 
-_g int float_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1583,7 +1583,7 @@ _g int float_ceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	return 0;
 }
 
-_g int float_truncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_truncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	int sign;
 	struct divrem_struct str;
@@ -1648,7 +1648,7 @@ static void float_round1_r(struct divrem_struct *ptr)
 	}
 }
 
-_g int float_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1667,7 +1667,7 @@ _g int float_round1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	return 0;
 }
 
-_g int float_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1686,7 +1686,7 @@ _g int float_ffloor1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	return 0;
 }
 
-_g int float_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1705,7 +1705,7 @@ _g int float_fceiling1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	return 0;
 }
 
-_g int float_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	int sign;
 	struct divrem_struct str;
@@ -1725,7 +1725,7 @@ _g int float_ftruncate1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 	return 0;
 }
 
-_g int float_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
+int float_fround1_ratio_(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	struct divrem_struct str;
 
@@ -1814,7 +1814,7 @@ static void float_floor_br(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	*quot = q;
 }
 
-_g int float_floor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_floor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1872,7 +1872,7 @@ static void float_ceiling_br(LocalRoot local, addr *quot, addr *rem, addr a, add
 	*quot = q;
 }
 
-_g int float_ceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1915,7 +1915,7 @@ static void float_truncate_br(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	*quot = q;
 }
 
-_g int float_truncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_truncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -1979,7 +1979,7 @@ static void float_round_br(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 		float_ceiling_br(local, quot, rem, a, b);
 }
 
-_g int float_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2004,7 +2004,7 @@ _g int float_round_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	return 0;
 }
 
-_g int float_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2029,7 +2029,7 @@ _g int float_ffloor_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	return 0;
 }
 
-_g int float_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2054,7 +2054,7 @@ _g int float_fceiling_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, 
 	return 0;
 }
 
-_g int float_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2079,7 +2079,7 @@ _g int float_ftruncate_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a,
 	return 0;
 }
 
-_g int float_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fround_br_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2174,7 +2174,7 @@ static void float_floor_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	*quot = q;
 }
 
-_g int float_floor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_floor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2231,7 +2231,7 @@ static void float_ceiling_rb(LocalRoot local, addr *quot, addr *rem, addr a, add
 	*quot = q;
 }
 
-_g int float_ceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2273,7 +2273,7 @@ static void float_truncate_rb(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	*quot = q;
 }
 
-_g int float_truncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_truncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2336,7 +2336,7 @@ static void float_round_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 		float_ceiling_rb(local, quot, rem, a, b);
 }
 
-_g int float_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2360,7 +2360,7 @@ _g int float_round_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	return 0;
 }
 
-_g int float_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2384,7 +2384,7 @@ _g int float_ffloor_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	return 0;
 }
 
-_g int float_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2408,7 +2408,7 @@ _g int float_fceiling_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, 
 	return 0;
 }
 
-_g int float_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2432,7 +2432,7 @@ _g int float_ftruncate_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a,
 	return 0;
 }
 
-_g int float_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fround_rb_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2532,7 +2532,7 @@ static void float_floor_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 	*quot = q;
 }
 
-_g int float_floor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_floor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2589,7 +2589,7 @@ static void float_ceiling_rr(LocalRoot local, addr *quot, addr *rem, addr a, add
 	*quot = q;
 }
 
-_g int float_ceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2631,7 +2631,7 @@ static void float_truncate_rr(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	*quot = q;
 }
 
-_g int float_truncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_truncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2726,7 +2726,7 @@ static void float_round_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 		float_ceiling_rr(local, quot, rem, a, b);
 }
 
-_g int float_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2750,7 +2750,7 @@ _g int float_round_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, add
 	return 0;
 }
 
-_g int float_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2774,7 +2774,7 @@ _g int float_ffloor_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 	return 0;
 }
 
-_g int float_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2798,7 +2798,7 @@ _g int float_fceiling_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, 
 	return 0;
 }
 
-_g int float_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2822,7 +2822,7 @@ _g int float_ftruncate_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a,
 	return 0;
 }
 
-_g int float_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+int float_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2850,7 +2850,7 @@ _g int float_fround_rr_ratio_(LocalRoot local, addr *quot, addr *rem, addr a, ad
 /*
  *  mod -> floor
  */
-_g int float_mod_fixnum_(addr *ret, fixnum a, fixnum b)
+int float_mod_fixnum_(addr *ret, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		fixnum_heap(ret, 0);
@@ -2863,7 +2863,7 @@ _g int float_mod_fixnum_(addr *ret, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b)
+int float_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -2886,7 +2886,7 @@ _g int float_mod_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int float_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+int float_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2909,7 +2909,7 @@ _g int float_mod_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int float_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+int float_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2932,7 +2932,7 @@ _g int float_mod_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int float_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+int float_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -2955,7 +2955,7 @@ _g int float_mod_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret)
+int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
 	enum MathType type;
 	single_float vs, igs;
@@ -2992,7 +2992,7 @@ _g int mod_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  rem -> truncate
  */
-_g int float_rem_fixnum_(addr *ret, fixnum a, fixnum b)
+int float_rem_fixnum_(addr *ret, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
 		fixnum_heap(ret, 0);
@@ -3005,7 +3005,7 @@ _g int float_rem_fixnum_(addr *ret, fixnum a, fixnum b)
 	return 0;
 }
 
-_g int float_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b)
+int float_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	struct divrem_struct str;
 
@@ -3028,7 +3028,7 @@ _g int float_rem_bignum_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int float_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+int float_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -3051,7 +3051,7 @@ _g int float_rem_br_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int float_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+int float_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -3074,7 +3074,7 @@ _g int float_rem_rb_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int float_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
+int float_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 {
 	LocalStack stack;
 
@@ -3097,7 +3097,7 @@ _g int float_rem_rr_ratio_(LocalRoot local, addr *ret, addr a, addr b)
 	return 0;
 }
 
-_g int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret)
+int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 {
 	enum MathType type;
 	single_float vs, igs;
@@ -3134,7 +3134,7 @@ _g int rem_number_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  integer-heap
  */
-_g void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
+void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
 {
 	addr pos;
 	LocalStack stack;
@@ -3145,7 +3145,7 @@ _g void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
 	rollback_local(local, stack);
 }
 
-_g void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
+void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
 {
 	addr pos;
 	LocalStack stack;
@@ -3156,7 +3156,7 @@ _g void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
 	rollback_local(local, stack);
 }
 
-_g void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
+void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
 {
 	addr pos;
 	LocalStack stack;

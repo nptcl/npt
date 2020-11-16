@@ -20,7 +20,7 @@
 #include "stream_init.h"
 #include "symbol.h"
 
-_g void set_eval_compile_mode(Execute ptr, addr value)
+void set_eval_compile_mode(Execute ptr, addr value)
 {
 	addr pos;
 
@@ -28,7 +28,7 @@ _g void set_eval_compile_mode(Execute ptr, addr value)
 	pushspecial_control(ptr, pos, value);
 }
 
-_g int eval_compile_p(Execute ptr)
+int eval_compile_p(Execute ptr)
 {
 	addr pos;
 
@@ -37,7 +37,7 @@ _g int eval_compile_p(Execute ptr)
 	return (pos != Nil) && (pos != Unbound);
 }
 
-_g int eval_compile_file(Execute ptr, addr pos)
+int eval_compile_file(Execute ptr, addr pos)
 {
 	addr stream;
 
@@ -183,7 +183,7 @@ static int function_handler_compile(Execute ptr, addr condition)
 	return 0;
 }
 
-_g int handler_compile_(Execute ptr)
+int handler_compile_(Execute ptr)
 {
 	addr pos, call;
 
@@ -226,7 +226,7 @@ static int compile_file_common_call_(Execute ptr,
 	return 0;
 }
 
-_g int compile_file_common(Execute ptr, addr input, addr rest,
+int compile_file_common(Execute ptr, addr input, addr rest,
 		addr *ret1, addr *ret2, addr *ret3)
 {
 	addr control, output;
@@ -249,7 +249,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 /*
  *  initialize
  */
-_g void init_compile_file(void)
+void init_compile_file(void)
 {
 	SetPointerCall(defun, var1, handler_compile);
 }

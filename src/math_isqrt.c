@@ -124,7 +124,7 @@ static int isqrt_bignum_(LocalRoot local, addr var, addr *ret)
 	return 0;
 }
 
-_g int isqrt_number_common_(LocalRoot local, addr var, addr *ret)
+int isqrt_number_common_(LocalRoot local, addr var, addr *ret)
 {
 	int check;
 	LocalStack stack;

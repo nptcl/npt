@@ -34,7 +34,7 @@ static void array_set_type_value(addr pos, enum ARRAY_TYPE type, unsigned size)
 	str->bytesize = size;
 }
 
-_g void array_set_type(addr pos)
+void array_set_type(addr pos)
 {
 	struct array_struct *str;
 	addr type;
@@ -44,7 +44,7 @@ _g void array_set_type(addr pos)
 	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 }
 
-_g void array_set_element_size(addr pos)
+void array_set_element_size(addr pos)
 {
 	struct array_struct *str;
 
@@ -167,7 +167,7 @@ static int array_set_dimension2_(addr pos, addr value, size_t *ret)
 	return array_getsize_(pos, ret);
 }
 
-_g int array_set_dimension_(addr pos, addr value)
+int array_set_dimension_(addr pos, addr value)
 {
 	struct array_struct *str;
 	size_t size;
@@ -201,14 +201,14 @@ static void array_allocate_t(LocalRoot local, addr pos, struct array_struct *str
 	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
 }
 
-_g void array_allocate_bit(LocalRoot local, addr pos, struct array_struct *str)
+void array_allocate_bit(LocalRoot local, addr pos, struct array_struct *str)
 {
 	addr array;
 	bitmemory_unsafe(local, &array, str->size);
 	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
 }
 
-_g int array_allocate_size_(LocalRoot local, addr pos, struct array_struct *str)
+int array_allocate_size_(LocalRoot local, addr pos, struct array_struct *str)
 {
 	addr array;
 	size_t size;
@@ -221,7 +221,7 @@ _g int array_allocate_size_(LocalRoot local, addr pos, struct array_struct *str)
 	return 0;
 }
 
-_g int array_allocate_(LocalRoot local, addr pos, struct array_struct *str)
+int array_allocate_(LocalRoot local, addr pos, struct array_struct *str)
 {
 	switch (str->type) {
 		case ARRAY_TYPE_EMPTY:
@@ -388,7 +388,7 @@ static int array_set_displaced_value_(
 	return 0;
 }
 
-_g int array_set_displaced_(addr pos, addr displaced, addr offset)
+int array_set_displaced_(addr pos, addr displaced, addr offset)
 {
 	struct array_struct *str;
 	size_t size;
@@ -427,14 +427,14 @@ _g int array_set_displaced_(addr pos, addr displaced, addr offset)
 	return array_set_displaced_value_(pos, size, displaced, offset);
 }
 
-_g void array_set_simple(addr pos)
+void array_set_simple(addr pos)
 {
 	struct array_struct *str;
 	str = ArrayInfoStruct(pos);
 	str->simple = ! (str->adjustable || str->fillpointer || str->displaced);
 }
 
-_g int array_make_memory_(addr pos, addr adjust, addr fill, addr displaced, addr offset)
+int array_make_memory_(addr pos, addr adjust, addr fill, addr displaced, addr offset)
 {
 	struct array_struct *str;
 
@@ -1051,7 +1051,7 @@ static void array_make_initial_clear(addr pos)
 	}
 }
 
-_g int array_make_initial_(addr pos, addr initial, addr contents)
+int array_make_initial_(addr pos, addr initial, addr contents)
 {
 	struct array_struct *str;
 
@@ -1088,7 +1088,7 @@ static int array_set_type_upgraded_(addr pos, addr type)
 	return 0;
 }
 
-_g int array_make_array_(addr *ret, addr dimension,
+int array_make_array_(addr *ret, addr dimension,
 		addr type, addr initial, addr contents,
 		addr adjustable, addr fillpointer, addr displaced, addr offset)
 {
@@ -1146,7 +1146,7 @@ static int array_contents_size_(addr pos, addr rankarg, addr contents)
 	return 0;
 }
 
-_g int array_contents_heap_(addr *ret, addr rank, addr contents)
+int array_contents_heap_(addr *ret, addr rank, addr contents)
 {
 	addr pos;
 
@@ -1179,7 +1179,7 @@ static int array_check_fillpointer_(addr pos, struct array_struct *str)
 	return 0;
 }
 
-_g int array_character_alloc_(LocalRoot local, addr pos)
+int array_character_alloc_(LocalRoot local, addr pos)
 {
 	struct array_struct *str;
 
@@ -1191,7 +1191,7 @@ _g int array_character_alloc_(LocalRoot local, addr pos)
 	return array_allocate_(local, pos, str);
 }
 
-_g int array_build_(addr pos)
+int array_build_(addr pos)
 {
 	struct array_struct *str;
 

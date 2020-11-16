@@ -14,7 +14,7 @@
 /*
  *  string check
  */
-_g int array_stringp(addr pos)
+int array_stringp(addr pos)
 {
 	struct array_struct *str;
 	Check(GetType(pos) != LISPTYPE_ARRAY, "type error");
@@ -22,22 +22,22 @@ _g int array_stringp(addr pos)
 	return str->dimension == 1 && str->type == ARRAY_TYPE_CHARACTER;
 }
 
-_g int strarrayp(addr pos)
+int strarrayp(addr pos)
 {
 	return arrayp(pos) && array_stringp(pos);
 }
 
-_g int stringp(addr pos)
+int stringp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_STRING || strarrayp(pos);
 }
 
-_g int string_designer_p(addr pos)
+int string_designer_p(addr pos)
 {
 	return stringp(pos) || symbolp(pos) || characterp(pos);
 }
 
-_g int string_base_p_(addr pos, int *ret)
+int string_base_p_(addr pos, int *ret)
 {
 	if (strvectp(pos))
 		return strvect_base_p_(pos, ret);
@@ -48,7 +48,7 @@ _g int string_base_p_(addr pos, int *ret)
 	return Result(ret, 0);
 }
 
-_g int string_simple_p(addr pos)
+int string_simple_p(addr pos)
 {
 	if (strvectp(pos))
 		return strvect_simple_p(pos);
@@ -59,7 +59,7 @@ _g int string_simple_p(addr pos)
 	return 0;
 }
 
-_g int string_character_type_(addr pos, enum CHARACTER_TYPE *ret)
+int string_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 {
 	if (strvectp(pos))
 		return strvect_character_type_(pos, ret);
@@ -71,7 +71,7 @@ _g int string_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 	return fmte_("Invalid string object ~S.", pos, NULL);
 }
 
-_g int strarray_base_p_(addr pos, int *ret)
+int strarray_base_p_(addr pos, int *ret)
 {
 	enum CHARACTER_TYPE type;
 
@@ -91,12 +91,12 @@ _g int strarray_base_p_(addr pos, int *ret)
 	}
 }
 
-_g int strarray_simple_p(addr pos)
+int strarray_simple_p(addr pos)
 {
 	return strarrayp(pos) && array_simple_p(pos);
 }
 
-_g int strarray_character_type_(addr pos, enum CHARACTER_TYPE *ret)
+int strarray_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 {
 	enum CHARACTER_TYPE type;
 	unicode c;
@@ -118,7 +118,7 @@ _g int strarray_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 /*
  *  strarray
  */
-_g int strarray_alloc_(LocalRoot local, addr *ret, size_t len)
+int strarray_alloc_(LocalRoot local, addr *ret, size_t len)
 {
 	addr pos;
 
@@ -127,7 +127,7 @@ _g int strarray_alloc_(LocalRoot local, addr *ret, size_t len)
 	return Result(ret, pos);
 }
 
-_g int strarray_local_(LocalRoot local, addr *ret, size_t len)
+int strarray_local_(LocalRoot local, addr *ret, size_t len)
 {
 	addr pos;
 
@@ -137,7 +137,7 @@ _g int strarray_local_(LocalRoot local, addr *ret, size_t len)
 	return Result(ret, pos);
 }
 
-_g int strarray_heap_(addr *ret, size_t len)
+int strarray_heap_(addr *ret, size_t len)
 {
 	addr pos;
 
@@ -146,7 +146,7 @@ _g int strarray_heap_(addr *ret, size_t len)
 	return Result(ret, pos);
 }
 
-_g int strarray_char_alloc_(LocalRoot local, addr *ret, const char *arg)
+int strarray_char_alloc_(LocalRoot local, addr *ret, const char *arg)
 {
 	addr pos;
 	size_t size, i;
@@ -158,17 +158,17 @@ _g int strarray_char_alloc_(LocalRoot local, addr *ret, const char *arg)
 	}
 	return Result(ret, pos);
 }
-_g int strarray_char_local_(LocalRoot local, addr *ret, const char *arg)
+int strarray_char_local_(LocalRoot local, addr *ret, const char *arg)
 {
 	Check(local == NULL, "local error");
 	return strarray_char_alloc_(local, ret, arg);
 }
-_g int strarray_char_heap_(addr *ret, const char *arg)
+int strarray_char_heap_(addr *ret, const char *arg)
 {
 	return strarray_char_alloc_(NULL, ret, arg);
 }
 
-_g int strarray_size1_alloc_(LocalRoot local, addr *ret, const char *arg, size_t size)
+int strarray_size1_alloc_(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	addr pos;
 	size_t i;
@@ -179,17 +179,17 @@ _g int strarray_size1_alloc_(LocalRoot local, addr *ret, const char *arg, size_t
 	}
 	return Result(ret, pos);
 }
-_g int strarray_size1_local_(LocalRoot local, addr *ret, const char *arg, size_t size)
+int strarray_size1_local_(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strarray_size1_alloc_(local, ret, arg, size);
 }
-_g int strarray_size1_heap_(addr *ret, const char *arg, size_t size)
+int strarray_size1_heap_(addr *ret, const char *arg, size_t size)
 {
 	return strarray_size1_alloc_(NULL, ret, arg, size);
 }
 
-_g int strarray_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+int strarray_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	addr pos;
 	size_t i;
@@ -200,35 +200,35 @@ _g int strarray_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, siz
 	}
 	return Result(ret, pos);
 }
-_g int strarray_sizeu_local_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+int strarray_sizeu_local_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strarray_sizeu_alloc_(local, ret, arg, size);
 }
-_g int strarray_sizeu_heap_(addr *ret, const unicode *arg, size_t size)
+int strarray_sizeu_heap_(addr *ret, const unicode *arg, size_t size)
 {
 	return strarray_sizeu_alloc_(NULL, ret, arg, size);
 }
 
-_g void strarray_length(addr pos, size_t *ret)
+void strarray_length(addr pos, size_t *ret)
 {
 	Check(! array_stringp(pos), "string type error");
 	*ret = ArrayInfoStruct(pos)->front;
 }
 
-_g void strarray_length_buffer(addr pos, size_t *ret)
+void strarray_length_buffer(addr pos, size_t *ret)
 {
 	Check(! array_stringp(pos), "string type error");
 	*ret = ArrayInfoStruct(pos)->size;
 }
 
-_g int strarray_getc_(addr pos, size_t index, unicode *u)
+int strarray_getc_(addr pos, size_t index, unicode *u)
 {
 	Check(! array_stringp(pos), "string type error");
 	return array_get_unicode_(pos, index, u);
 }
 
-_g int strarray_setc_(addr pos, size_t index, unicode u)
+int strarray_setc_(addr pos, size_t index, unicode u)
 {
 	Check(! array_stringp(pos), "string type error");
 	if (character_type(u) == CHARACTER_TYPE_INVALID)
@@ -236,7 +236,7 @@ _g int strarray_setc_(addr pos, size_t index, unicode u)
 	return array_set_character_(pos, index, u);
 }
 
-_g int strarray_equal_binary_(addr left, const unicode *right, size_t size, int *ret)
+int strarray_equal_binary_(addr left, const unicode *right, size_t size, int *ret)
 {
 	unicode a, b;
 	size_t check, i;
@@ -255,7 +255,7 @@ _g int strarray_equal_binary_(addr left, const unicode *right, size_t size, int 
 	return Result(ret, 1);
 }
 
-_g int strarray_equalp_binary_(addr left, const unicode *right, size_t size, int *ret)
+int strarray_equalp_binary_(addr left, const unicode *right, size_t size, int *ret)
 {
 	unicode a, b;
 	size_t check, i;
@@ -276,7 +276,7 @@ _g int strarray_equalp_binary_(addr left, const unicode *right, size_t size, int
 	return Result(ret, 1);
 }
 
-_g int strarray_equal_char_(addr left, const char *right, int *ret)
+int strarray_equal_char_(addr left, const char *right, int *ret)
 {
 	const byte *body;
 	unicode a, b;
@@ -297,7 +297,7 @@ _g int strarray_equal_char_(addr left, const char *right, int *ret)
 	return Result(ret, 1);
 }
 
-_g int strarray_equalp_char_(addr left, const char *right, int *ret)
+int strarray_equalp_char_(addr left, const char *right, int *ret)
 {
 	const byte *body;
 	unicode a, b;
@@ -320,7 +320,7 @@ _g int strarray_equalp_char_(addr left, const char *right, int *ret)
 	return Result(ret, 1);
 }
 
-_g int strarray_equal_(addr left, addr right, int *ret)
+int strarray_equal_(addr left, addr right, int *ret)
 {
 	unicode a, b;
 	size_t size, check, i;
@@ -340,7 +340,7 @@ _g int strarray_equal_(addr left, addr right, int *ret)
 	return Result(ret, 1);
 }
 
-_g int strarray_equalp_(addr left, addr right, int *ret)
+int strarray_equalp_(addr left, addr right, int *ret)
 {
 	unicode a, b;
 	size_t size, check, i;
@@ -362,7 +362,7 @@ _g int strarray_equalp_(addr left, addr right, int *ret)
 	return Result(ret, 1);
 }
 
-_g int strarray_character_equal_(addr left, addr right, int *ret)
+int strarray_character_equal_(addr left, addr right, int *ret)
 {
 	unicode a, b;
 	size_t size;
@@ -377,7 +377,7 @@ _g int strarray_character_equal_(addr left, addr right, int *ret)
 	return Result(ret, a == b);
 }
 
-_g int strarray_character_equalp_(addr left, addr right, int *ret)
+int strarray_character_equalp_(addr left, addr right, int *ret)
 {
 	unicode a, b;
 	size_t size;
@@ -394,7 +394,7 @@ _g int strarray_character_equalp_(addr left, addr right, int *ret)
 	return Result(ret, a == b);
 }
 
-_g int strarray_compare_binary_(addr left,
+int strarray_compare_binary_(addr left,
 		const unicode *right, size_t size2, int *ret)
 {
 	unicode a, b;
@@ -418,7 +418,7 @@ _g int strarray_compare_binary_(addr left,
 	return Result(ret, 0);
 }
 
-_g int strarray_comparep_binary_(addr left,
+int strarray_comparep_binary_(addr left,
 		const unicode *right, size_t size2, int *ret)
 {
 	unicode a, b;
@@ -444,7 +444,7 @@ _g int strarray_comparep_binary_(addr left,
 	return Result(ret, 0);
 }
 
-_g int strarray_compare_char_(addr left, const char *right, int *ret)
+int strarray_compare_char_(addr left, const char *right, int *ret)
 {
 	const byte *body;
 	unicode a, b;
@@ -470,7 +470,7 @@ _g int strarray_compare_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int strarray_comparep_char_(addr left, const char *right, int *ret)
+int strarray_comparep_char_(addr left, const char *right, int *ret)
 {
 	const byte *body;
 	unicode a, b;
@@ -498,7 +498,7 @@ _g int strarray_comparep_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int strarray_compare_(addr left, addr right, int *ret)
+int strarray_compare_(addr left, addr right, int *ret)
 {
 	unicode a, b;
 	size_t size1, size2, i;
@@ -522,7 +522,7 @@ _g int strarray_compare_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int strarray_comparep_(addr left, addr right, int *ret)
+int strarray_comparep_(addr left, addr right, int *ret)
 {
 	unicode a, b;
 	size_t size1, size2, i;
@@ -567,7 +567,7 @@ static int copy_strvect_strarray_(addr vector, addr array, size_t size)
 	return 0;
 }
 
-_g int string_alloc_(LocalRoot local, addr *ret, addr pos)
+int string_alloc_(LocalRoot local, addr *ret, addr pos)
 {
 	const unicode *body;
 	addr vector;
@@ -588,18 +588,18 @@ _g int string_alloc_(LocalRoot local, addr *ret, addr pos)
 	*ret = 0;
 	return fmte_("type error.", NULL);
 }
-_g int string_local_(LocalRoot local, addr *ret, addr pos)
+int string_local_(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	return string_alloc_(local, ret, pos);
 }
 
-_g int string_heap_(addr *ret, addr pos)
+int string_heap_(addr *ret, addr pos)
 {
 	return string_alloc_(NULL, ret, pos);
 }
 
-_g int strvect_value_heap_(addr *ret, addr pos)
+int strvect_value_heap_(addr *ret, addr pos)
 {
 	addr dst;
 	unicode c;
@@ -617,7 +617,7 @@ _g int strvect_value_heap_(addr *ret, addr pos)
 	return Result(ret, dst);
 }
 
-_g void string_length(addr pos, size_t *ret)
+void string_length(addr pos, size_t *ret)
 {
 	if (strvect_string_p(pos)) {
 		strvect_length(pos, ret);
@@ -631,7 +631,7 @@ _g void string_length(addr pos, size_t *ret)
 	Abort("type error.");
 }
 
-_g int string_getc_(addr pos, size_t index, unicode *u)
+int string_getc_(addr pos, size_t index, unicode *u)
 {
 	if (strvect_string_p(pos)) {
 		strvect_getc(pos, index, u);
@@ -643,7 +643,7 @@ _g int string_getc_(addr pos, size_t index, unicode *u)
 	return fmte_("Argument ~S must be a string type.", pos, NULL);
 }
 
-_g int string_setc_(addr pos, size_t index, unicode u)
+int string_setc_(addr pos, size_t index, unicode u)
 {
 	if (strvect_string_p(pos))
 		return strvect_setc_(pos, index, u);
@@ -653,7 +653,7 @@ _g int string_setc_(addr pos, size_t index, unicode u)
 	return fmte_("Argument ~S must be a string type.", pos, NULL);
 }
 
-_g int string_equal_binary_(addr left, const unicode *right, size_t len, int *ret)
+int string_equal_binary_(addr left, const unicode *right, size_t len, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_equal_binary(left, right, len));
@@ -663,7 +663,7 @@ _g int string_equal_binary_(addr left, const unicode *right, size_t len, int *re
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_equalp_binary_(addr left, const unicode *right, size_t len, int *ret)
+int string_equalp_binary_(addr left, const unicode *right, size_t len, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_equalp_binary(left, right, len));
@@ -673,7 +673,7 @@ _g int string_equalp_binary_(addr left, const unicode *right, size_t len, int *r
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_equal_char_(addr left, const char *right, int *ret)
+int string_equal_char_(addr left, const char *right, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_equal_char(left, right));
@@ -683,7 +683,7 @@ _g int string_equal_char_(addr left, const char *right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_equalp_char_(addr left, const char *right, int *ret)
+int string_equalp_char_(addr left, const char *right, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_equalp_char(left, right));
@@ -693,7 +693,7 @@ _g int string_equalp_char_(addr left, const char *right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int stringp_equal_char_(addr left, const char *right, int *ret)
+int stringp_equal_char_(addr left, const char *right, int *ret)
 {
 	if (! stringp(left))
 		return Result(ret, 0);
@@ -701,7 +701,7 @@ _g int stringp_equal_char_(addr left, const char *right, int *ret)
 		return string_equal_char_(left, right, ret);
 }
 
-_g int stringp_equalp_char_(addr left, const char *right, int *ret)
+int stringp_equalp_char_(addr left, const char *right, int *ret)
 {
 	if (! stringp(left))
 		return Result(ret, 0);
@@ -709,7 +709,7 @@ _g int stringp_equalp_char_(addr left, const char *right, int *ret)
 		return string_equalp_char_(left, right, ret);
 }
 
-_g int string_equalp_char_va_(addr pos, int *ret, ...)
+int string_equalp_char_va_(addr pos, int *ret, ...)
 {
 	int check, value;
 	va_list args;
@@ -744,7 +744,7 @@ static int strarray_strvect_equal_(addr left, addr right, int *ret)
 	return strarray_equal_binary_(left, body, size, ret);
 }
 
-_g int string_equal_(addr left, addr right, int *ret)
+int string_equal_(addr left, addr right, int *ret)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -778,7 +778,7 @@ static int strarray_strvect_equalp_(addr left, addr right, int *ret)
 	return strarray_equalp_binary_(left, body, size, ret);
 }
 
-_g int string_equalp_(addr left, addr right, int *ret)
+int string_equalp_(addr left, addr right, int *ret)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -800,7 +800,7 @@ _g int string_equalp_(addr left, addr right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_character_equal_(addr left, addr right, int *ret)
+int string_character_equal_(addr left, addr right, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_character_equal(left, right));
@@ -810,7 +810,7 @@ _g int string_character_equal_(addr left, addr right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_character_equalp_(addr left, addr right, int *ret)
+int string_character_equalp_(addr left, addr right, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_character_equalp(left, right));
@@ -820,7 +820,7 @@ _g int string_character_equalp_(addr left, addr right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_compare_binary_(addr left, const unicode *right, size_t size2, int *ret)
+int string_compare_binary_(addr left, const unicode *right, size_t size2, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_compare_binary(left, right, size2));
@@ -830,7 +830,7 @@ _g int string_compare_binary_(addr left, const unicode *right, size_t size2, int
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_comparep_binary_(addr left, const unicode *right, size_t size2, int *ret)
+int string_comparep_binary_(addr left, const unicode *right, size_t size2, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_comparep_binary(left, right, size2));
@@ -840,7 +840,7 @@ _g int string_comparep_binary_(addr left, const unicode *right, size_t size2, in
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_compare_char_(addr left, const char *right, int *ret)
+int string_compare_char_(addr left, const char *right, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_compare_char(left, right));
@@ -850,7 +850,7 @@ _g int string_compare_char_(addr left, const char *right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_comparep_char_(addr left, const char *right, int *ret)
+int string_comparep_char_(addr left, const char *right, int *ret)
 {
 	if (strvect_string_p(left))
 		return Result(ret, strvect_comparep_char(left, right));
@@ -898,7 +898,7 @@ static int strvect_strarray_comparep_(addr left, addr right, int *ret)
 	return Result(ret, -check);
 }
 
-_g int string_compare_(addr left, addr right, int *ret)
+int string_compare_(addr left, addr right, int *ret)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -920,7 +920,7 @@ _g int string_compare_(addr left, addr right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_comparep_(addr left, addr right, int *ret)
+int string_comparep_(addr left, addr right, int *ret)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -942,7 +942,7 @@ _g int string_comparep_(addr left, addr right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-_g int string_designer_equal_(addr left, addr right, int *ret)
+int string_designer_equal_(addr left, addr right, int *ret)
 {
 	int check1, check2, check3, check4;
 
@@ -966,7 +966,7 @@ _g int string_designer_equal_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int string_designer_equal_char_(addr left, const char *right, int *ret)
+int string_designer_equal_char_(addr left, const char *right, int *ret)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -978,7 +978,7 @@ _g int string_designer_equal_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int string_designer_equalp_(addr left, addr right, int *ret)
+int string_designer_equalp_(addr left, addr right, int *ret)
 {
 	int check1, check2, check3, check4;
 
@@ -1002,7 +1002,7 @@ _g int string_designer_equalp_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int string_designer_equalp_char_(addr left, const char *right, int *ret)
+int string_designer_equalp_char_(addr left, const char *right, int *ret)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -1014,7 +1014,7 @@ _g int string_designer_equalp_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
-_g int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
+int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 {
 	addr type;
 
@@ -1046,18 +1046,18 @@ _g int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 			"The object ~S is not string-designer.", pos, NULL);
 }
 
-_g int string_designer_local_(LocalRoot local, addr *value, addr pos, int *ret)
+int string_designer_local_(LocalRoot local, addr *value, addr pos, int *ret)
 {
 	Check(local == NULL, "local error");
 	return string_designer_alloc_(local, value, pos, ret);
 }
 
-_g int string_designer_heap_(addr *value, addr pos, int *ret)
+int string_designer_heap_(addr *value, addr pos, int *ret)
 {
 	return string_designer_alloc_(NULL, value, pos, ret);
 }
 
-_g int string_designer_string(addr *value, addr pos)
+int string_designer_string(addr *value, addr pos)
 {
 	if (stringp(pos)) {
 		*value = pos;
@@ -1075,7 +1075,7 @@ _g int string_designer_string(addr *value, addr pos)
 /*
  *  concatenate
  */
-_g int string_concat_heap_(addr *ret, addr a, addr b)
+int string_concat_heap_(addr *ret, addr a, addr b)
 {
 	unicode u;
 	addr c;
@@ -1098,7 +1098,7 @@ _g int string_concat_heap_(addr *ret, addr a, addr b)
 	return Result(ret, c);
 }
 
-_g int string_concat_hyphen_heap_(addr *ret, addr a, addr b)
+int string_concat_hyphen_heap_(addr *ret, addr a, addr b)
 {
 	unicode u;
 	addr c;
@@ -1122,7 +1122,7 @@ _g int string_concat_hyphen_heap_(addr *ret, addr a, addr b)
 	return Result(ret, c);
 }
 
-_g int string_concat_char1_heap_(addr *ret, const char *str, addr b)
+int string_concat_char1_heap_(addr *ret, const char *str, addr b)
 {
 	const byte *a;
 	addr c;
@@ -1144,7 +1144,7 @@ _g int string_concat_char1_heap_(addr *ret, const char *str, addr b)
 	return Result(ret, c);
 }
 
-_g int string_concat_char2_heap_(addr *ret, addr a, const char *str)
+int string_concat_char2_heap_(addr *ret, addr a, const char *str)
 {
 	const byte *b;
 	addr c;
@@ -1171,7 +1171,7 @@ _g int string_concat_char2_heap_(addr *ret, addr a, const char *str)
 /*
  *  case
  */
-_g int string_upper_p_(addr pos, int *ret)
+int string_upper_p_(addr pos, int *ret)
 {
 	unicode c;
 	size_t size, i;
@@ -1187,7 +1187,7 @@ _g int string_upper_p_(addr pos, int *ret)
 	return Result(ret, 1);
 }
 
-_g int string_lower_p_(addr pos, int *ret)
+int string_lower_p_(addr pos, int *ret)
 {
 	unicode c;
 	size_t size, i;
@@ -1203,7 +1203,7 @@ _g int string_lower_p_(addr pos, int *ret)
 	return Result(ret, 1);
 }
 
-_g int string_upper_alloc_(LocalRoot local, addr pos, addr *ret)
+int string_upper_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	unicode c;
 	addr dst;
@@ -1219,18 +1219,18 @@ _g int string_upper_alloc_(LocalRoot local, addr pos, addr *ret)
 	return Result(ret, dst);
 }
 
-_g int string_upper_local_(LocalRoot local, addr pos, addr *ret)
+int string_upper_local_(LocalRoot local, addr pos, addr *ret)
 {
 	CheckLocal(local);
 	return string_upper_alloc_(local, pos, ret);
 }
 
-_g int string_upper_heap_(addr pos, addr *ret)
+int string_upper_heap_(addr pos, addr *ret)
 {
 	return string_upper_alloc_(NULL, pos, ret);
 }
 
-_g int string_lower_alloc_(LocalRoot local, addr pos, addr *ret)
+int string_lower_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	unicode c;
 	addr dst;
@@ -1246,13 +1246,13 @@ _g int string_lower_alloc_(LocalRoot local, addr pos, addr *ret)
 	return Result(ret, dst);
 }
 
-_g int string_lower_local_(LocalRoot local, addr pos, addr *ret)
+int string_lower_local_(LocalRoot local, addr pos, addr *ret)
 {
 	CheckLocal(local);
 	return string_lower_alloc_(local, pos, ret);
 }
 
-_g int string_lower_heap_(addr pos, addr *ret)
+int string_lower_heap_(addr pos, addr *ret)
 {
 	return string_lower_alloc_(NULL, pos, ret);
 }
@@ -1261,7 +1261,7 @@ _g int string_lower_heap_(addr pos, addr *ret)
 /*
  *  debug
  */
-_g int string_equal_char_debug(addr left, const char *right)
+int string_equal_char_debug(addr left, const char *right)
 {
 	int check;
 	check = 0;
@@ -1269,7 +1269,7 @@ _g int string_equal_char_debug(addr left, const char *right)
 	return check;
 }
 
-_g int string_equalp_char_debug(addr left, const char *right)
+int string_equalp_char_debug(addr left, const char *right)
 {
 	int check;
 	check = 0;
@@ -1277,7 +1277,7 @@ _g int string_equalp_char_debug(addr left, const char *right)
 	return check;
 }
 
-_g int string_equal_debug(addr left, addr right)
+int string_equal_debug(addr left, addr right)
 {
 	int check;
 	check = 0;

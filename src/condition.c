@@ -16,7 +16,7 @@
 /*
  *  condition for clang
  */
-_g int conditionp_(addr pos, int *ret)
+int conditionp_(addr pos, int *ret)
 {
 	addr super;
 
@@ -26,14 +26,14 @@ _g int conditionp_(addr pos, int *ret)
 	return clos_subclass_p_(pos, super, ret);
 }
 
-_g int conditionp_debug(addr pos)
+int conditionp_debug(addr pos)
 {
 	int check = 0;
 	Error(conditionp_(pos, &check));
 	return check;
 }
 
-_g int condition_instance_p_(addr pos, int *ret)
+int condition_instance_p_(addr pos, int *ret)
 {
 	addr super;
 
@@ -43,7 +43,7 @@ _g int condition_instance_p_(addr pos, int *ret)
 	return clos_subtype_p_(pos, super, ret);
 }
 
-_g int signal_function_(Execute ptr, addr condition)
+int signal_function_(Execute ptr, addr condition)
 {
 	int check;
 	addr signals, type;
@@ -61,7 +61,7 @@ _g int signal_function_(Execute ptr, addr condition)
 		return invoke_handler_control_(ptr, condition);
 }
 
-_g int error_function_(Execute ptr, addr condition)
+int error_function_(Execute ptr, addr condition)
 {
 	if (ptr == NULL)
 		ptr = Execute_Thread;
@@ -71,7 +71,7 @@ _g int error_function_(Execute ptr, addr condition)
 	return 0;
 }
 
-_g int callclang_error_(const char *str, ...)
+int callclang_error_(const char *str, ...)
 {
 	addr format, args;
 	va_list va;
@@ -98,7 +98,7 @@ static void warning_restart_make(addr *ret)
 	*ret = inst;
 }
 
-_g int warning_restart_case_(Execute ptr, addr instance)
+int warning_restart_case_(Execute ptr, addr instance)
 {
 	addr control, restart;
 
@@ -110,7 +110,7 @@ _g int warning_restart_case_(Execute ptr, addr instance)
 	return pop_control_(ptr, control);
 }
 
-_g int callclang_warning_(const char *str, ...)
+int callclang_warning_(const char *str, ...)
 {
 	addr format, args, instance;
 	va_list va;
@@ -127,12 +127,12 @@ _g int callclang_warning_(const char *str, ...)
 /*
  *  initialize
  */
-_g void build_condition(Execute ptr)
+void build_condition(Execute ptr)
 {
 	build_condition_debugger(ptr);
 }
 
-_g void init_condition(void)
+void init_condition(void)
 {
 	init_condition_debugger();
 }

@@ -1036,7 +1036,7 @@ static int typep_range_nolocal_(addr value, addr type, int *ret,
 	GetArrayType(type, 0, &mode);
 	GetArrayType(type, 1, &pos);
 	Return(less_mode_nolocal_(mode, pos, value, &check,
-			call_less_, call_less_equal_));
+				call_less_, call_less_equal_));
 	if (! check)
 		return Result(ret, 0);
 
@@ -1255,7 +1255,7 @@ static int typep_eval_(Execute ptr, addr value, addr type, int *ret)
 /*
  *  typep-clang
  */
-_g int typep_table_(Execute ptr, addr value, addr type, int *ret)
+int typep_table_(Execute ptr, addr value, addr type, int *ret)
 {
 	call_type_typep call;
 
@@ -1265,7 +1265,7 @@ _g int typep_table_(Execute ptr, addr value, addr type, int *ret)
 	return (*call)(ptr, value, type, ret);
 }
 
-_g void init_type_typep(void)
+void init_type_typep(void)
 {
 	int i;
 
@@ -1370,13 +1370,13 @@ static int typep_call_(Execute ptr, addr value, addr type, int asterisk, int *re
 	return 0;
 }
 
-_g int typep_clang_(Execute ptr, addr value, addr type, int *ret)
+int typep_clang_(Execute ptr, addr value, addr type, int *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	return typep_call_(ptr, value, type, 0, ret);
 }
 
-_g int typep_asterisk_clang_(Execute ptr, addr value, addr type, int *ret)
+int typep_asterisk_clang_(Execute ptr, addr value, addr type, int *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	return typep_call_(ptr, value, type, 1, ret);

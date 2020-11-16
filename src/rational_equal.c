@@ -9,7 +9,7 @@
 /*
  *  rational
  */
-_g int plusp_rational_(addr pos, int *ret)
+int plusp_rational_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -27,7 +27,7 @@ _g int plusp_rational_(addr pos, int *ret)
 	}
 }
 
-_g int minusp_rational_(addr pos, int *ret)
+int minusp_rational_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -45,7 +45,7 @@ _g int minusp_rational_(addr pos, int *ret)
 	}
 }
 
-_g int zerop_rational_(addr pos, int *ret)
+int zerop_rational_(addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -120,7 +120,7 @@ static inline int equal_ratio_rational_(addr left, addr right, int *ret)
 	}
 }
 
-_g int equal_rational_(addr left, addr right, int *ret)
+int equal_rational_(addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -138,7 +138,7 @@ _g int equal_rational_(addr left, addr right, int *ret)
 	}
 }
 
-_g int not_equal_rational_(addr left, addr right, int *ret)
+int not_equal_rational_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(equal_rational_(left, right, &check));
@@ -205,7 +205,7 @@ static inline int compare_ratio_rational_(LocalRoot local,
 	}
 }
 
-_g int compare_rational_(LocalRoot local, addr left, addr right, int *ret)
+int compare_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -223,35 +223,35 @@ _g int compare_rational_(LocalRoot local, addr left, addr right, int *ret)
 	}
 }
 
-_g int less_rational_(LocalRoot local, addr left, addr right, int *ret)
+int less_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rational_(local, left, right, &check));
 	return Result(ret, check < 0);
 }
 
-_g int less_equal_rational_(LocalRoot local, addr left, addr right, int *ret)
+int less_equal_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rational_(local, left, right, &check));
 	return Result(ret, check <= 0);
 }
 
-_g int greater_rational_(LocalRoot local, addr left, addr right, int *ret)
+int greater_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rational_(local, left, right, &check));
 	return Result(ret, check > 0);
 }
 
-_g int greater_equal_rational_(LocalRoot local, addr left, addr right, int *ret)
+int greater_equal_rational_(LocalRoot local, addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_rational_(local, left, right, &check));
 	return Result(ret, check >= 0);
 }
 
-_g int less_rational_debug(LocalRoot local, addr left, addr right)
+int less_rational_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 	check = 0;
@@ -259,7 +259,7 @@ _g int less_rational_debug(LocalRoot local, addr left, addr right)
 	return check;
 }
 
-_g int less_equal_rational_debug(LocalRoot local, addr left, addr right)
+int less_equal_rational_debug(LocalRoot local, addr left, addr right)
 {
 	int check;
 	check = 0;

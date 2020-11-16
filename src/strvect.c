@@ -117,7 +117,7 @@ static int memu1_comparep(const unicode *p1, const byte *p2, size_t s1, size_t s
 /*
  *  strvect
  */
-_g void strvect_alloc(LocalRoot local, addr *ret, size_t len)
+void strvect_alloc(LocalRoot local, addr *ret, size_t len)
 {
 	addr pos;
 
@@ -125,7 +125,7 @@ _g void strvect_alloc(LocalRoot local, addr *ret, size_t len)
 	SetStringSize(pos, len);
 	*ret = pos;
 }
-_g void strvect_local(LocalRoot local, addr *ret, size_t len)
+void strvect_local(LocalRoot local, addr *ret, size_t len)
 {
 	addr pos;
 
@@ -134,7 +134,7 @@ _g void strvect_local(LocalRoot local, addr *ret, size_t len)
 	SetStringSize(pos, len);
 	*ret = pos;
 }
-_g void strvect_heap(addr *ret, size_t len)
+void strvect_heap(addr *ret, size_t len)
 {
 	addr pos;
 
@@ -143,7 +143,7 @@ _g void strvect_heap(addr *ret, size_t len)
 	*ret = pos;
 }
 
-_g void strvect_copy_alloc(LocalRoot local, addr *ret, addr value)
+void strvect_copy_alloc(LocalRoot local, addr *ret, addr value)
 {
 	addr pos;
 	unicode *dst;
@@ -162,50 +162,50 @@ _g void strvect_copy_alloc(LocalRoot local, addr *ret, addr value)
 	/* result */
 	*ret = pos;
 }
-_g void strvect_copy_local(LocalRoot local, addr *ret, addr value)
+void strvect_copy_local(LocalRoot local, addr *ret, addr value)
 {
 	CheckLocal(local);
 	strvect_copy_alloc(local, ret, value);
 }
-_g void strvect_copy_heap(addr *ret, addr value)
+void strvect_copy_heap(addr *ret, addr value)
 {
 	strvect_copy_alloc(NULL, ret, value);
 }
 
-_g int strvect_character_alloc_(LocalRoot local, addr *ret, addr pos)
+int strvect_character_alloc_(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	GetCharacter(pos, &c);
 	return strvect_sizeu_alloc_(local, ret, &c, 1);
 }
-_g int strvect_character_local_(LocalRoot local, addr *ret, addr pos)
+int strvect_character_local_(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	Check(local == NULL, "local error");
 	GetCharacter(pos, &c);
 	return strvect_sizeu_local_(local, ret, &c, 1);
 }
-_g int strvect_character_heap_(addr *ret, addr pos)
+int strvect_character_heap_(addr *ret, addr pos)
 {
 	unicode c;
 	GetCharacter(pos, &c);
 	return strvect_sizeu_heap_(ret, &c, 1);
 }
 
-_g void strvect_length(addr pos, size_t *ret)
+void strvect_length(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPTYPE_STRING, "type left error");
 	GetStringSize(pos, ret);
 }
 
-_g void strvect_posbodylen(addr pos, const unicode **body, size_t *len)
+void strvect_posbodylen(addr pos, const unicode **body, size_t *len)
 {
 	Check(GetType(pos) != LISPTYPE_STRING, "type error");
 	GetStringSize(pos, len);
 	GetStringUnicode(pos, body);
 }
 
-_g enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u)
+enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u)
 {
 	if (type == CHARACTER_TYPE_EMPTY) {
 		return character_type(u);
@@ -226,7 +226,7 @@ _g enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode 
 	return CHARACTER_TYPE_INVALID;
 }
 
-_g int strvect_character_type_(addr pos, enum CHARACTER_TYPE *ret)
+int strvect_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 {
 	enum CHARACTER_TYPE type;
 	const unicode *body;
@@ -243,12 +243,12 @@ _g int strvect_character_type_(addr pos, enum CHARACTER_TYPE *ret)
 	return Result(ret, type);
 }
 
-_g int strvectp(addr pos)
+int strvectp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_STRING;
 }
 
-_g int strvect_base_p_(addr pos, int *ret)
+int strvect_base_p_(addr pos, int *ret)
 {
 	enum CHARACTER_TYPE type;
 
@@ -266,13 +266,13 @@ _g int strvect_base_p_(addr pos, int *ret)
 	}
 }
 
-_g int strvect_simple_p(addr pos)
+int strvect_simple_p(addr pos)
 {
 	CheckType(pos, LISPTYPE_STRING);
 	return 0;
 }
 
-_g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
+void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
 {
 	addr pos;
 	unicode *destroy;
@@ -285,24 +285,24 @@ _g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
 		destroy[i] = (unicode)arg[i];
 	*ret = pos;
 }
-_g void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
+void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
 {
 	Check(local == NULL, "local error");
 	strvect_char_alloc(local, ret, arg);
 }
-_g void strvect_char_heap(addr *ret, const char *arg)
+void strvect_char_heap(addr *ret, const char *arg)
 {
 	strvect_char_alloc(NULL, ret, arg);
 }
 
-_g addr stringh(const char *arg) /* for debug */
+addr stringh(const char *arg) /* for debug */
 {
 	addr pos;
 	strvect_char_heap(&pos, arg);
 	return pos;
 }
 
-_g int strvect_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+int strvect_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -312,12 +312,12 @@ _g int strvect_sizeu_alloc_(LocalRoot local, addr *ret, const unicode *arg, size
 	memcpy(destroy, arg, sizeoft(unicode) * size);
 	return Result(ret, pos);
 }
-_g int strvect_sizeu_local_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+int strvect_sizeu_local_(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strvect_sizeu_alloc_(local, ret, arg, size);
 }
-_g int strvect_sizeu_heap_(addr *ret, const unicode *arg, size_t size)
+int strvect_sizeu_heap_(addr *ret, const unicode *arg, size_t size)
 {
 	return strvect_sizeu_alloc_(NULL, ret, arg, size);
 }
@@ -326,7 +326,7 @@ _g int strvect_sizeu_heap_(addr *ret, const unicode *arg, size_t size)
 /*
  *  strvect_equal
  */
-_g int strvect_equal_binary(addr left, const unicode *right, size_t size2)
+int strvect_equal_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -337,7 +337,7 @@ _g int strvect_equal_binary(addr left, const unicode *right, size_t size2)
 	return memu_equal(body, right, size1, size2);
 }
 
-_g int strvect_equalp_binary(addr left, const unicode *right, size_t size2)
+int strvect_equalp_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -348,7 +348,7 @@ _g int strvect_equalp_binary(addr left, const unicode *right, size_t size2)
 	return memu_equalp(body, right, size1, size2);
 }
 
-_g int strvect_equal_char(addr left, const char *body2)
+int strvect_equal_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -360,7 +360,7 @@ _g int strvect_equal_char(addr left, const char *body2)
 	return memu1_equal(body1, (const byte *)body2, size1, size2);
 }
 
-_g int strvect_equalp_char(addr left, const char *body2)
+int strvect_equalp_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -372,7 +372,7 @@ _g int strvect_equalp_char(addr left, const char *body2)
 	return memu1_equalp(body1, (const byte *)body2, size1, size2);
 }
 
-_g int strvect_equal(addr left, addr right)
+int strvect_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -384,7 +384,7 @@ _g int strvect_equal(addr left, addr right)
 	return strvect_equal_binary(left, body, size);
 }
 
-_g int strvect_equalp(addr left, addr right)
+int strvect_equalp(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -396,7 +396,7 @@ _g int strvect_equalp(addr left, addr right)
 	return strvect_equalp_binary(left, body, size);
 }
 
-_g int strvect_character_equal(addr left, addr right)
+int strvect_character_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -408,7 +408,7 @@ _g int strvect_character_equal(addr left, addr right)
 	return size == 1 && body[0] == RefCharacter(right);
 }
 
-_g int strvect_character_equalp(addr left, addr right)
+int strvect_character_equalp(addr left, addr right)
 {
 	const unicode *body;
 	unicode a, b;
@@ -429,7 +429,7 @@ _g int strvect_character_equalp(addr left, addr right)
 /*
  *  strvect_compare
  */
-_g int strvect_compare_binary(addr left, const unicode *right, size_t size2)
+int strvect_compare_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -440,7 +440,7 @@ _g int strvect_compare_binary(addr left, const unicode *right, size_t size2)
 	return memu_compare(body, right, size1, size2);
 }
 
-_g int strvect_comparep_binary(addr left, const unicode *right, size_t size2)
+int strvect_comparep_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -451,7 +451,7 @@ _g int strvect_comparep_binary(addr left, const unicode *right, size_t size2)
 	return memu_comparep(body, right, size1, size2);
 }
 
-_g int strvect_compare_char(addr left, const char *body2)
+int strvect_compare_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -463,7 +463,7 @@ _g int strvect_compare_char(addr left, const char *body2)
 	return memu1_compare(body1, (const byte *)body2, size1, size2);
 }
 
-_g int strvect_comparep_char(addr left, const char *body2)
+int strvect_comparep_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -475,7 +475,7 @@ _g int strvect_comparep_char(addr left, const char *body2)
 	return memu1_comparep(body1, (const byte *)body2, size1, size2);
 }
 
-_g int strvect_compare(addr left, addr right)
+int strvect_compare(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -487,7 +487,7 @@ _g int strvect_compare(addr left, addr right)
 	return strvect_compare_binary(left, body, size);
 }
 
-_g int strvect_comparep(addr left, addr right)
+int strvect_comparep(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -499,7 +499,7 @@ _g int strvect_comparep(addr left, addr right)
 	return strvect_comparep_binary(left, body, size);
 }
 
-_g int strvect_designer_equal_char(addr left, const char *right)
+int strvect_designer_equal_char(addr left, const char *right)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -511,7 +511,7 @@ _g int strvect_designer_equal_char(addr left, const char *right)
 	return 0;
 }
 
-_g int strvect_designer_equalp_char(addr left, const char *right)
+int strvect_designer_equalp_char(addr left, const char *right)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -527,7 +527,7 @@ _g int strvect_designer_equalp_char(addr left, const char *right)
 /*
  *  getc/setc
  */
-_g void strvect_getc(addr pos, size_t index, unicode *c)
+void strvect_getc(addr pos, size_t index, unicode *c)
 {
 	const unicode *body;
 #ifdef LISP_DEBUG
@@ -543,7 +543,7 @@ _g void strvect_getc(addr pos, size_t index, unicode *c)
 	*c =  body[index];
 }
 
-_g void strvect_setc_unsafe(addr pos, size_t index, unicode c)
+void strvect_setc_unsafe(addr pos, size_t index, unicode c)
 {
 	unicode *destroy;
 #ifdef LISP_DEBUG
@@ -559,7 +559,7 @@ _g void strvect_setc_unsafe(addr pos, size_t index, unicode c)
 	destroy[index] = c;
 }
 
-_g int strvect_setc_(addr pos, size_t index, unicode c)
+int strvect_setc_(addr pos, size_t index, unicode c)
 {
 	unicode *destroy;
 #ifdef LISP_DEBUG
@@ -580,7 +580,7 @@ _g int strvect_setc_(addr pos, size_t index, unicode c)
 	return 0;
 }
 
-_g int strvect_setall_(addr pos, unicode c)
+int strvect_setall_(addr pos, unicode c)
 {
 	unicode *destroy;
 	size_t size, i;
@@ -597,7 +597,7 @@ _g int strvect_setall_(addr pos, unicode c)
 	return 0;
 }
 
-_g int strvect_get_(LocalRoot local, addr pos, size_t index, addr *ret)
+int strvect_get_(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	unicode c;
 	size_t size;
@@ -614,7 +614,7 @@ _g int strvect_get_(LocalRoot local, addr pos, size_t index, addr *ret)
 	return 0;
 }
 
-_g int strvect_aref_(LocalRoot local, addr pos, addr args, addr *ret)
+int strvect_aref_(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	addr arg;
 	size_t index;
@@ -637,7 +637,7 @@ _g int strvect_aref_(LocalRoot local, addr pos, addr args, addr *ret)
 	return strvect_get_(local, pos, index, ret);
 }
 
-_g int strvect_set_(addr pos, size_t index, addr value)
+int strvect_set_(addr pos, size_t index, addr value)
 {
 	size_t size;
 
@@ -651,7 +651,7 @@ _g int strvect_set_(addr pos, size_t index, addr value)
 	return strvect_setc_(pos, index, RefCharacter(value));
 }
 
-_g int strvect_setf_aref_(addr pos, addr args, addr value)
+int strvect_setf_aref_(addr pos, addr args, addr value)
 {
 	addr arg;
 	size_t index;
@@ -670,7 +670,7 @@ _g int strvect_setf_aref_(addr pos, addr args, addr value)
 	return strvect_set_(pos, index, value);
 }
 
-_g int strvect_fill_(addr pos, addr item, addr start, addr end)
+int strvect_fill_(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 	unicode c;
@@ -689,7 +689,7 @@ _g int strvect_fill_(addr pos, addr item, addr start, addr end)
 	return 0;
 }
 
-_g int strvect_subseq_alloc_(LocalRoot local, addr *ret, addr pos, size_t x, size_t y)
+int strvect_subseq_alloc_(LocalRoot local, addr *ret, addr pos, size_t x, size_t y)
 {
 	unicode *data1;
 	const unicode *data2;
@@ -706,12 +706,12 @@ _g int strvect_subseq_alloc_(LocalRoot local, addr *ret, addr pos, size_t x, siz
 	return Result(ret, root);
 }
 
-_g int strvect_subseq_index_(addr *ret, addr pos, size_t index1, size_t index2)
+int strvect_subseq_index_(addr *ret, addr pos, size_t index1, size_t index2)
 {
 	return strvect_subseq_alloc_(NULL, ret, pos, index1, index2);
 }
 
-_g int strvect_subseq_(addr *ret, addr pos, addr start, addr end)
+int strvect_subseq_(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 
@@ -720,7 +720,7 @@ _g int strvect_subseq_(addr *ret, addr pos, addr start, addr end)
 	return strvect_subseq_index_(ret, pos, index1, index2);
 }
 
-_g int strvect_setget_(addr pos1, size_t index1, addr pos2, size_t index2)
+int strvect_setget_(addr pos1, size_t index1, addr pos2, size_t index2)
 {
 	unicode value;
 
@@ -728,7 +728,7 @@ _g int strvect_setget_(addr pos1, size_t index1, addr pos2, size_t index2)
 	return strvect_setc_(pos1, index1, value);
 }
 
-_g int strvect_reverse_(LocalRoot local, addr *ret, addr pos)
+int strvect_reverse_(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	addr one;
@@ -745,7 +745,7 @@ _g int strvect_reverse_(LocalRoot local, addr *ret, addr pos)
 	return Result(ret, one);
 }
 
-_g int strvect_nreverse_(addr *ret, addr pos)
+int strvect_nreverse_(addr *ret, addr pos)
 {
 	unicode a, b;
 	size_t size, x, y;
@@ -771,7 +771,7 @@ _g int strvect_nreverse_(addr *ret, addr pos)
 /*
  *  make
  */
-_g int strvect_char1_heap_(addr *ret, const char *arg, unicode c)
+int strvect_char1_heap_(addr *ret, const char *arg, unicode c)
 {
 	addr pos;
 	unicode *destroy;
@@ -786,7 +786,7 @@ _g int strvect_char1_heap_(addr *ret, const char *arg, unicode c)
 	return Result(ret, pos);
 }
 
-_g int strvect_size1_heap_(addr *ret, const char *arg, size_t size)
+int strvect_size1_heap_(addr *ret, const char *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;

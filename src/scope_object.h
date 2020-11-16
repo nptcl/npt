@@ -54,12 +54,12 @@ enum EvalLambda_Index {
 	EvalLambda_Size
 };
 
-struct eval_scope {
+struct scope_struct {
 	EvalParse type;
 	OptimizeType optimize[EVAL_OPTIMIZE_SIZE];
 };
 
-#define StructEvalScope_Low(x)			((struct eval_scope *)PtrEvalBodyAny(x))
+#define StructEvalScope_Low(x)			((struct scope_struct *)PtrEvalBodyAny(x))
 #define RefEvalScopeType_Low(x)			(StructEvalScope(x)->type)
 #define GetEvalScopeType_Low(x,v)		(*(v) = RefEvalScopeType_Low(x))
 #define SetEvalScopeType_Low(x,v)		(RefEvalScopeType_Low(x) = (v))
@@ -103,36 +103,36 @@ struct eval_scope {
 #define SetEvalScopeIndex(p,i,v)	SetEvalScopeIndex_Low(p,i,v)
 #endif
 
-_g int eval_scope_heap_(Execute ptr, addr *ret, size_t size);
-_g int eval_scope_size_(Execute ptr, addr *ret, size_t size,
+int eval_scope_heap_(Execute ptr, addr *ret, size_t size);
+int eval_scope_size_(Execute ptr, addr *ret, size_t size,
 		EvalParse parse, addr type, addr value);
-_g int make_eval_scope_(Execute ptr,
+int make_eval_scope_(Execute ptr,
 		addr *ret, EvalParse parse, addr type, addr value);
 
-_g struct eval_scope *structevalscope(addr pos);
-_g EvalParse refevalscopetype(addr pos);
-_g void getevalscopetype(addr pos, EvalParse *ret);
-_g void setevalscopetype(addr pos, EvalParse value);
-_g addr refevalscopethe(addr pos);
-_g void getevalscopethe(addr pos, addr *ret);
-_g void setevalscopethe(addr pos, addr value);
-_g addr refevalscopevalue(addr pos);
-_g void getevalscopevalue(addr pos, addr *ret);
-_g void setevalscopevalue(addr pos, addr value);
-_g addr refevalscopeindex(addr pos, size_t size);
-_g void getevalscopeindex(addr pos, size_t size, addr *ret);
-_g void setevalscopeindex(addr pos, size_t size, addr value);
+struct scope_struct *structevalscope(addr pos);
+EvalParse refevalscopetype(addr pos);
+void getevalscopetype(addr pos, EvalParse *ret);
+void setevalscopetype(addr pos, EvalParse value);
+addr refevalscopethe(addr pos);
+void getevalscopethe(addr pos, addr *ret);
+void setevalscopethe(addr pos, addr value);
+addr refevalscopevalue(addr pos);
+void getevalscopevalue(addr pos, addr *ret);
+void setevalscopevalue(addr pos, addr value);
+addr refevalscopeindex(addr pos, size_t size);
+void getevalscopeindex(addr pos, size_t size, addr *ret);
+void setevalscopeindex(addr pos, size_t size, addr value);
 
 /* table */
 typedef int (*eval_scope_calltype)(Execute, addr *, addr);
-__extern eval_scope_calltype EvalScopeTable[EVAL_PARSE_SIZE];
+extern eval_scope_calltype EvalScopeTable[EVAL_PARSE_SIZE];
 
-_g int scope_eval(Execute ptr, addr *ret, addr eval);
-_g int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons);
-_g int localhold_scope_eval(LocalHold hold, Execute ptr, addr *ret, addr eval);
-_g int localhold_scope_allcons(LocalHold hold,
+int scope_eval(Execute ptr, addr *ret, addr eval);
+int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons);
+int localhold_scope_eval(LocalHold hold, Execute ptr, addr *ret, addr eval);
+int localhold_scope_allcons(LocalHold hold,
 		Execute ptr, addr *retcons, addr *rettype, addr cons);
-_g int scope_eval_lexical(Execute ptr, addr *ret, addr eval);
+int scope_eval_lexical(Execute ptr, addr *ret, addr eval);
 
 #endif
 

@@ -14,7 +14,7 @@
 /*
  *  expt
  */
-_g void expt_f(single_float a, single_float b, single_float c, single_float d,
+void expt_f(single_float a, single_float b, single_float c, single_float d,
 		single_float *re, single_float *im)
 {
 	single_float x, y;
@@ -35,7 +35,7 @@ _g void expt_f(single_float a, single_float b, single_float c, single_float d,
 	}
 }
 
-_g void expt_d(double_float a, double_float b, double_float c, double_float d,
+void expt_d(double_float a, double_float b, double_float c, double_float d,
 		double_float *re, double_float *im)
 {
 	double_float x, y;
@@ -56,7 +56,7 @@ _g void expt_d(double_float a, double_float b, double_float c, double_float d,
 	}
 }
 
-_g void expt_l(long_float a, long_float b, long_float c, long_float d,
+void expt_l(long_float a, long_float b, long_float c, long_float d,
 		long_float *re, long_float *im)
 {
 	long_float x, y;
@@ -81,7 +81,7 @@ _g void expt_l(long_float a, long_float b, long_float c, long_float d,
 /*
  *  clogb
  */
-_g int clogb_f_(single_float a, single_float b, single_float c, single_float d,
+int clogb_f_(single_float a, single_float b, single_float c, single_float d,
 		single_float *re, single_float *im)
 {
 	addr real, imag;
@@ -109,7 +109,7 @@ _g int clogb_f_(single_float a, single_float b, single_float c, single_float d,
 	return 0;
 }
 
-_g int clogb_d_(double_float a, double_float b, double_float c, double_float d,
+int clogb_d_(double_float a, double_float b, double_float c, double_float d,
 		double_float *re, double_float *im)
 {
 	addr real, imag;
@@ -137,7 +137,7 @@ _g int clogb_d_(double_float a, double_float b, double_float c, double_float d,
 	return 0;
 }
 
-_g int clogb_l_(long_float a, long_float b, long_float c, long_float d,
+int clogb_l_(long_float a, long_float b, long_float c, long_float d,
 		long_float *re, long_float *im)
 {
 	addr real, imag;
@@ -169,17 +169,17 @@ _g int clogb_l_(long_float a, long_float b, long_float c, long_float d,
 /*
  *  csqrt
  */
-_g void csqrt_f(single_float real, single_float imag, single_float *re, single_float *im)
+void csqrt_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	expt_f(real, imag, 0.5f, 0.0f, re, im);
 }
 
-_g void csqrt_d(double_float real, double_float imag, double_float *re, double_float *im)
+void csqrt_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	expt_d(real, imag, 0.5, 0.0, re, im);
 }
 
-_g void csqrt_l(long_float real, long_float imag, long_float *re, long_float *im)
+void csqrt_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	expt_l(real, imag, 0.5L, 0.0L, re, im);
 }

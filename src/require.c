@@ -13,7 +13,7 @@
 /*
  *  provide
  */
-_g int provide_common_(Execute ptr, addr var)
+int provide_common_(Execute ptr, addr var)
 {
 	addr symbol, list;
 
@@ -77,7 +77,7 @@ static int require_list_common(Execute ptr, addr var, addr list, int *ret)
 	return 0;
 }
 
-_g int require_common(Execute ptr, addr var, addr opt)
+int require_common(Execute ptr, addr var, addr opt)
 {
 	int check, push;
 
@@ -104,7 +104,7 @@ _g int require_common(Execute ptr, addr var, addr opt)
 /*
  *  build
  */
-_g void build_require(void)
+void build_require(void)
 {
 	addr symbol;
 	GetConst(SYSTEM_MODULE_PROVIDER_FUNCTIONS, &symbol);

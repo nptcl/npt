@@ -118,55 +118,55 @@ struct eval_stack {
 #define newstack_lexical_(p,r) newstack_eval_((p), EVAL_STACK_MODE_LEXICAL,(r))
 #define newstack_lambda_(p,r) newstack_eval_((p), EVAL_STACK_MODE_LAMBDA,(r))
 
-_g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
-_g void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
-_g void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type);
+void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
+void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
+void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type);
 
-_g struct eval_stack *structevalstack(addr pos);
-_g enum EVAL_STACK_MODE refevalstacktype(addr pos);
-_g void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret);
-_g void setevalstacktype(addr pos, enum EVAL_STACK_MODE value);
-_g void getevalstacknext(addr pos, addr *ret);
-_g void setevalstacknext(addr pos, addr value);
-_g void getevalstacktable(addr pos, addr *ret);
-_g void setevalstacktable(addr pos, addr value);
-_g void getevalstackscope(addr pos, addr *ret);
-_g void setevalstackscope(addr pos, addr value);
-_g void getevalstacklexical(addr pos, addr *ret);
-_g void setevalstacklexical(addr pos, addr value);
+struct eval_stack *structevalstack(addr pos);
+enum EVAL_STACK_MODE refevalstacktype(addr pos);
+void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret);
+void setevalstacktype(addr pos, enum EVAL_STACK_MODE value);
+void getevalstacknext(addr pos, addr *ret);
+void setevalstacknext(addr pos, addr value);
+void getevalstacktable(addr pos, addr *ret);
+void setevalstacktable(addr pos, addr value);
+void getevalstackscope(addr pos, addr *ret);
+void setevalstackscope(addr pos, addr value);
+void getevalstacklexical(addr pos, addr *ret);
+void setevalstacklexical(addr pos, addr value);
 
-_g int eval_stack_lambda_lexical_p(addr stack);
-_g int getstack_eval_(Execute ptr, addr *ret);
-_g int getglobal_eval_(Execute ptr, addr *ret);
-_g int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret);
-_g int freestack_eval_(Execute ptr, addr scope);
-_g int begin_eval_stack_(Execute ptr);
-_g void free_eval_stack(Execute ptr);
-_g void init_eval_stack(void);
-_g int globalp_stack_eval(addr pos);
-_g size_t increment_stack_eval(addr pos);
-_g size_t getlexical_stack_eval(addr pos);
-_g void getlexical_index_heap(addr stack, addr *ret);
+int eval_stack_lambda_lexical_p(addr stack);
+int getstack_eval_(Execute ptr, addr *ret);
+int getglobal_eval_(Execute ptr, addr *ret);
+int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret);
+int freestack_eval_(Execute ptr, addr scope);
+int begin_eval_stack_(Execute ptr);
+void free_eval_stack(Execute ptr);
+void init_eval_stack(void);
+int globalp_stack_eval(addr pos);
+size_t increment_stack_eval(addr pos);
+size_t getlexical_stack_eval(addr pos);
+void getlexical_index_heap(addr stack, addr *ret);
 
-_g int apply_declaim_stack_(Execute ptr, addr declare);
-_g void apply_declare_stack(LocalRoot local, addr stack, addr declare);
-_g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
-_g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);
+int apply_declaim_stack_(Execute ptr, addr declare);
+void apply_declare_stack(LocalRoot local, addr stack, addr declare);
+void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
+void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);
 
 /* table */
-_g int getvalue_scope_evalstack(addr stack, addr pos, addr *ret);
-_g void setvalue_scope_evalstack(addr stack, addr pos);
-_g int getfunction_scope_evalstack(addr stack, addr pos, addr *ret);
-_g void setfunction_scope_evalstack(addr stack, addr pos);
-_g int gettagbody_scope_evalstack(addr stack, addr pos, addr *ret);
-_g void settagbody_scope_evalstack(addr stack, addr pos);
-_g int getblock_scope_evalstack(addr stack, addr pos, addr *ret);
-_g void setblock_scope_evalstack(addr stack, addr pos);
+int getvalue_scope_evalstack(addr stack, addr pos, addr *ret);
+void setvalue_scope_evalstack(addr stack, addr pos);
+int getfunction_scope_evalstack(addr stack, addr pos, addr *ret);
+void setfunction_scope_evalstack(addr stack, addr pos);
+int gettagbody_scope_evalstack(addr stack, addr pos, addr *ret);
+void settagbody_scope_evalstack(addr stack, addr pos);
+int getblock_scope_evalstack(addr stack, addr pos, addr *ret);
+void setblock_scope_evalstack(addr stack, addr pos);
 
-_g void setvalue_lexical_evalstack(addr stack, addr pos);
-_g void setfunction_lexical_evalstack(addr stack, addr pos);
-_g void settagbody_lexical_evalstack(addr stack, addr pos);
-_g void setblock_lexical_evalstack(addr stack, addr pos);
+void setvalue_lexical_evalstack(addr stack, addr pos);
+void setfunction_lexical_evalstack(addr stack, addr pos);
+void settagbody_lexical_evalstack(addr stack, addr pos);
+void setblock_lexical_evalstack(addr stack, addr pos);
 
 #endif
 

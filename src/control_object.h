@@ -51,9 +51,9 @@
 #define setprotect_control_local _n(setprotect_control_local)
 
 #ifdef LISP_DEBUG_FORCE_GC
-__extern size_t GcCounterForce;
+extern size_t GcCounterForce;
 #endif
-__extern size_t ControlCounter;
+extern size_t ControlCounter;
 
 /*
  *  control
@@ -95,10 +95,10 @@ struct control_struct {
 #define SetControl						SetControl_Low
 #endif
 
-_g void *ptrbodycontrol_debug(addr pos);
-_g struct control_struct *structcontrol_debug(addr pos);
-_g void getcontrol_debug(addr pos, size_t index, addr *ret);
-_g void setcontrol_debug(addr pos, size_t index, addr value);
+void *ptrbodycontrol_debug(addr pos);
+struct control_struct *structcontrol_debug(addr pos);
+void getcontrol_debug(addr pos, size_t index, addr *ret);
+void setcontrol_debug(addr pos, size_t index, addr value);
 
 
 /*
@@ -142,11 +142,11 @@ struct taginfo_struct {
 #define SetNameTagInfo				SetNameTagInfo_Low
 #endif
 
-_g void taginfo_heap(addr *ret, addr control, addr tag, size_t point);
-_g void *ptrtaginfo_debug(addr pos);
-_g struct taginfo_struct *structtaginfo_debug(addr pos);
-_g void getnametaginfo_debug(addr pos, addr *ret);
-_g void setnametaginfo_debug(addr pos, addr value);
+void taginfo_heap(addr *ret, addr control, addr tag, size_t point);
+void *ptrtaginfo_debug(addr pos);
+struct taginfo_struct *structtaginfo_debug(addr pos);
+void getnametaginfo_debug(addr pos, addr *ret);
+void setnametaginfo_debug(addr pos, addr value);
 
 
 /*
@@ -175,51 +175,51 @@ enum Handler_Index {
 #define SetCallHandler				SetCallHandler_Low
 #endif
 
-_g void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc);
-_g void getnamehandler_debug(addr pos, addr *ret);
-_g void setnamehandler_debug(addr pos, addr value);
-_g void getcallhandler_debug(addr pos, addr *ret);
-_g void setcallhandler_debug(addr pos, addr value);
+void handler_local(LocalRoot local, addr *ret, addr name, addr call, int esc);
+void getnamehandler_debug(addr pos, addr *ret);
+void setnamehandler_debug(addr pos, addr value);
+void getcallhandler_debug(addr pos, addr *ret);
+void setcallhandler_debug(addr pos, addr value);
 
-_g int getescape_handler(addr pos);
-_g void setescape_handler(addr pos, int value);
-_g int getdisable_handler(addr pos);
-_g void setdisable_handler(addr pos, int value);
-_g int checkhandler_control_(addr pos, addr instance, int *ret);
+int getescape_handler(addr pos);
+void setescape_handler(addr pos, int value);
+int getdisable_handler(addr pos);
+void setdisable_handler(addr pos, int value);
+int checkhandler_control_(addr pos, addr instance, int *ret);
 
 
 /*
  *  function
  */
 /* push control */
-_g void push_control(Execute ptr, addr *ret);
-_g void push_args_control(Execute ptr, addr *ret);
-_g int pop_control_(Execute ptr, addr control);
-_g int free_control_degrade_(Execute ptr, addr control);
+void push_control(Execute ptr, addr *ret);
+void push_args_control(Execute ptr, addr *ret);
+int pop_control_(Execute ptr, addr control);
+int free_control_degrade_(Execute ptr, addr control);
 
 /* data */
-_g int stack_check_control(Execute ptr);
-_g void pushspecial_control(Execute ptr, addr pos, addr value);
-_g void pushtaginfo_control(Execute ptr, addr pos);
-_g void pushhandler_control(Execute ptr, addr pos);
-_g void pushrestart_control(Execute ptr, addr pos);
-_g int existspecial_control(Execute ptr, addr pos);
+int stack_check_control(Execute ptr);
+void pushspecial_control(Execute ptr, addr pos, addr value);
+void pushtaginfo_control(Execute ptr, addr pos);
+void pushhandler_control(Execute ptr, addr pos);
+void pushrestart_control(Execute ptr, addr pos);
+int existspecial_control(Execute ptr, addr pos);
 
 /* access */
-_g void getdata_control(Execute ptr, addr *ret);
-_g void setdata_control(Execute ptr, addr value);
+void getdata_control(Execute ptr, addr *ret);
+void setdata_control(Execute ptr, addr value);
 
-_g int getcatch_control(addr pos, addr *ret);
-_g int getcondition_control(addr pos, addr *ret);
-_g int gethandler_control(addr pos, addr *ret);
-_g int getrestart_control(addr pos, addr *ret);
+int getcatch_control(addr pos, addr *ret);
+int getcondition_control(addr pos, addr *ret);
+int gethandler_control(addr pos, addr *ret);
+int getrestart_control(addr pos, addr *ret);
 
-_g void setcatch_control(LocalRoot local, addr pos, addr value);
-_g void sethandler_control(LocalRoot local, addr pos, addr value);
-_g void setrestart_control(LocalRoot local, addr pos, addr value);
-_g void setprotect_value_control(addr pos, addr value);
-_g void setprotect_control(Execute ptr, pointer id, addr value);
-_g void setprotect_control_local(Execute ptr, pointer id, addr value);
+void setcatch_control(LocalRoot local, addr pos, addr value);
+void sethandler_control(LocalRoot local, addr pos, addr value);
+void setrestart_control(LocalRoot local, addr pos, addr value);
+void setprotect_value_control(addr pos, addr value);
+void setprotect_control(Execute ptr, pointer id, addr value);
+void setprotect_control_local(Execute ptr, pointer id, addr value);
 
 #endif
 

@@ -397,7 +397,7 @@ static int parse_ordinary_cons_(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-_g int parse_ordinary_(Execute ptr, addr *ret, addr args)
+int parse_ordinary_(Execute ptr, addr *ret, addr args)
 {
 	Return(lambda_ordinary_(ptr->local, &args, args));
 	return parse_ordinary_cons_(ptr, ret, args);
@@ -1955,21 +1955,21 @@ static int parse_switch_(Execute ptr, addr *ret, addr pos)
 /*
  *  parse-execute
  */
-_g int localhold_parse_execute_(LocalHold hold, Execute ptr, addr *ret, addr pos)
+int localhold_parse_execute_(LocalHold hold, Execute ptr, addr *ret, addr pos)
 {
 	Return(parse_execute_(ptr, ret, pos));
 	localhold_push(hold, *ret);
 	return 0;
 }
 
-_g int localhold_parse_allcons_(LocalHold hold, Execute ptr, addr *ret, addr cons)
+int localhold_parse_allcons_(LocalHold hold, Execute ptr, addr *ret, addr cons)
 {
 	Return(parse_allcons_(ptr, ret, cons));
 	localhold_push(hold, *ret);
 	return 0;
 }
 
-_g int parse_allcons_(Execute ptr, addr *ret, addr cons)
+int parse_allcons_(Execute ptr, addr *ret, addr cons)
 {
 	addr toplevel;
 
@@ -1986,7 +1986,7 @@ _g int parse_allcons_(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-_g int parse_execute_(Execute ptr, addr *ret, addr pos)
+int parse_execute_(Execute ptr, addr *ret, addr pos)
 {
 	addr toplevel;
 
@@ -2007,7 +2007,7 @@ _g int parse_execute_(Execute ptr, addr *ret, addr pos)
 /*
  *  toplevel
  */
-_g int parse_allcons_toplevel_(Execute ptr, addr *ret, addr cons)
+int parse_allcons_toplevel_(Execute ptr, addr *ret, addr cons)
 {
 	addr root, pos;
 	LocalHold hold;
@@ -2025,7 +2025,7 @@ _g int parse_allcons_toplevel_(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-_g int parse_execute_toplevel_(Execute ptr, addr *ret, addr pos)
+int parse_execute_toplevel_(Execute ptr, addr *ret, addr pos)
 {
 	addr expr;
 	LocalHold hold;

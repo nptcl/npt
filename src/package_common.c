@@ -26,7 +26,7 @@
 /*
  *  gentemp
  */
-_g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
+int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 {
 	enum PACKAGE_TYPE type;
 	int keyword;
@@ -110,12 +110,12 @@ static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
 	return 0;
 }
 
-_g int do_symbols_package(Execute ptr, addr call, addr package)
+int do_symbols_package(Execute ptr, addr call, addr package)
 {
 	return syscall_do_symbols_check(ptr, call, package);
 }
 
-_g int do_external_symbols_package(Execute ptr, addr call, addr package)
+int do_external_symbols_package(Execute ptr, addr call, addr package)
 {
 	addr table, list, bit;
 	size_t size, i;
@@ -139,7 +139,7 @@ _g int do_external_symbols_package(Execute ptr, addr call, addr package)
 	return 0;
 }
 
-_g int do_all_symbols_package_(Execute ptr, addr call)
+int do_all_symbols_package_(Execute ptr, addr call)
 {
 	int check;
 	addr array, left, right, key, value;
@@ -164,7 +164,7 @@ _g int do_all_symbols_package_(Execute ptr, addr call)
 	return 0;
 }
 
-_g int all_symbols_package_(addr package, addr *ret)
+int all_symbols_package_(addr package, addr *ret)
 {
 	addr table, list, bit, root;
 	size_t size, i;

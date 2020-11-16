@@ -78,7 +78,7 @@ static void setroot_buffering(addr pos, addr value)
 	SetRootBuffering_Low(pos, value);
 }
 
-_g int bufferingp(addr pos)
+int bufferingp(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_BUFFERING;
 }
@@ -93,7 +93,7 @@ static void buffering_clear_root(addr pos)
 	setroot_buffering(pos, root);
 }
 
-_g void buffering_heap(addr *ret, size_t cell, size_t width)
+void buffering_heap(addr *ret, size_t cell, size_t width)
 {
 	addr pos;
 	struct buffering_struct *str;
@@ -113,7 +113,7 @@ _g void buffering_heap(addr *ret, size_t cell, size_t width)
 	*ret = pos;
 }
 
-_g void clear_buffering(addr pos)
+void clear_buffering(addr pos)
 {
 	struct buffering_struct *str;
 
@@ -125,7 +125,7 @@ _g void clear_buffering(addr pos)
 	buffering_clear_root(pos);
 }
 
-_g int end_buffering(addr pos)
+int end_buffering(addr pos)
 {
 	struct buffering_struct *str;
 
@@ -134,7 +134,7 @@ _g int end_buffering(addr pos)
 	return str->size <= str->index;
 }
 
-_g void getcell_buffering(addr pos, size_t *ret)
+void getcell_buffering(addr pos, size_t *ret)
 {
 	struct buffering_struct *str;
 
@@ -143,7 +143,7 @@ _g void getcell_buffering(addr pos, size_t *ret)
 	*ret = str->cell;
 }
 
-_g void getwidth_buffering(addr pos, size_t *ret)
+void getwidth_buffering(addr pos, size_t *ret)
 {
 	struct buffering_struct *str;
 
@@ -193,7 +193,7 @@ static void new_buffering(addr root, size_t n, size_t cell, addr *ret)
 	*ret = pos;
 }
 
-_g int putc_buffering(addr pos, byte c)
+int putc_buffering(addr pos, byte c)
 {
 	struct buffering_struct *str;
 	addr root, page;
@@ -244,7 +244,7 @@ static int get_buffering(addr pos, size_t index, byte *ret)
 	return 0;
 }
 
-_g int getc_buffering(addr pos, byte *ret)
+int getc_buffering(addr pos, byte *ret)
 {
 	struct buffering_struct *str;
 
@@ -260,7 +260,7 @@ _g int getc_buffering(addr pos, byte *ret)
 	return 0;
 }
 
-_g void position_get_buffering(addr pos, size_t *ret)
+void position_get_buffering(addr pos, size_t *ret)
 {
 	struct buffering_struct *str;
 
@@ -269,7 +269,7 @@ _g void position_get_buffering(addr pos, size_t *ret)
 	*ret = str->index;
 }
 
-_g void position_set_buffering(addr pos, size_t value)
+void position_set_buffering(addr pos, size_t value)
 {
 	struct buffering_struct *str;
 
@@ -278,7 +278,7 @@ _g void position_set_buffering(addr pos, size_t value)
 	str->index = value;
 }
 
-_g void position_start_buffering(addr pos)
+void position_start_buffering(addr pos)
 {
 	struct buffering_struct *str;
 
@@ -287,7 +287,7 @@ _g void position_start_buffering(addr pos)
 	str->index = 0;
 }
 
-_g void position_end_buffering(addr pos)
+void position_end_buffering(addr pos)
 {
 	struct buffering_struct *str;
 
@@ -296,7 +296,7 @@ _g void position_end_buffering(addr pos)
 	str->index = str->size;
 }
 
-_g void length_buffering(addr pos, size_t *ret)
+void length_buffering(addr pos, size_t *ret)
 {
 	struct buffering_struct *str;
 
@@ -323,7 +323,7 @@ static int make_array_buffering_(addr *ret, size_t size)
 	return Result(ret, pos);
 }
 
-_g int make_vector_buffering_heap_(addr pos, addr *ret)
+int make_vector_buffering_heap_(addr pos, addr *ret)
 {
 	byte c;
 	struct buffering_struct *str;
@@ -344,7 +344,7 @@ _g int make_vector_buffering_heap_(addr pos, addr *ret)
 	return Result(ret, array);
 }
 
-_g int read_buffering_(addr pos, addr vector)
+int read_buffering_(addr pos, addr vector)
 {
 	byte c;
 	addr value;

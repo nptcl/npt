@@ -102,7 +102,7 @@ static inline void plus_vv_real_alloc(LocalRoot local, fixnum v1, fixnum v2, add
 	}
 }
 
-_g void plus_fv_bignum_local(LocalRoot local, addr left, fixnum value2, addr *ret)
+void plus_fv_bignum_local(LocalRoot local, addr left, fixnum value2, addr *ret)
 {
 	fixnum value1;
 
@@ -147,18 +147,18 @@ static void plus_fv_real_alloc(LocalRoot local, addr left, fixnum value2, addr *
 	plus_vv_real_alloc(local, value1, value2, ret);
 }
 
-_g void plus_fv_real_local(LocalRoot local, addr left, fixnum value2, addr *ret)
+void plus_fv_real_local(LocalRoot local, addr left, fixnum value2, addr *ret)
 {
 	Check(local == NULL, "local error");
 	plus_fv_real_alloc(local, left, value2, ret);
 }
 
-_g void plus_fv_real_common(addr left, fixnum value2, addr *ret)
+void plus_fv_real_common(addr left, fixnum value2, addr *ret)
 {
 	plus_fv_real_alloc(NULL, left, value2, ret);
 }
 
-_g void plus_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value1, value2;
 
@@ -207,13 +207,13 @@ static void plus_ff_real_alloc(LocalRoot local, addr left, addr right, addr *ret
 	plus_vv_real_alloc(local, value1, value2, ret);
 }
 
-_g void plus_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	plus_ff_real_alloc(local, left, right, ret);
 }
 
-_g void plus_ff_real_common(addr left, addr right, addr *ret)
+void plus_ff_real_common(addr left, addr right, addr *ret)
 {
 	plus_ff_real_alloc(NULL, left, right, ret);
 }
@@ -252,7 +252,7 @@ static inline void plusfixnum_real_common(LocalRoot local,
 	rollback_local(local, stack);
 }
 
-_g void plus_bv_bignum_local(LocalRoot local, addr left, fixnum right, addr *ret)
+void plus_bv_bignum_local(LocalRoot local, addr left, fixnum right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type error");
@@ -272,7 +272,7 @@ _g void plus_bv_bignum_local(LocalRoot local, addr left, fixnum right, addr *ret
 	plusfixnum_bignum_local(local, left, right, ret);
 }
 
-_g void plus_bv_real_local(LocalRoot local, addr left, fixnum right, addr *ret)
+void plus_bv_real_local(LocalRoot local, addr left, fixnum right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type error");
@@ -292,7 +292,7 @@ _g void plus_bv_real_local(LocalRoot local, addr left, fixnum right, addr *ret)
 	plusfixnum_real_local(local, left, right, ret);
 }
 
-_g void plus_bv_real_common(LocalRoot local, addr left, fixnum right, addr *ret)
+void plus_bv_real_common(LocalRoot local, addr left, fixnum right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type error");
@@ -312,7 +312,7 @@ _g void plus_bv_real_common(LocalRoot local, addr left, fixnum right, addr *ret)
 	plusfixnum_real_common(local, left, right, ret);
 }
 
-_g void plus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 
@@ -336,7 +336,7 @@ _g void plus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	plusfixnum_bignum_local(local, left, check, ret);
 }
 
-_g void plus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 
@@ -360,7 +360,7 @@ _g void plus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	plusfixnum_real_local(local, left, check, ret);
 }
 
-_g void plus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void plus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 
@@ -384,7 +384,7 @@ _g void plus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	plusfixnum_real_common(local, left, check, ret);
 }
 
-_g void plus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, compare;
 
@@ -425,7 +425,7 @@ _g void plus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	*ret = left;
 }
 
-_g void plus_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void plus_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, compare;
 
@@ -467,7 +467,7 @@ finish:
 	bignum_result_local(local, left, ret);
 }
 
-_g void plus_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void plus_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, compare;
 	LocalStack stack;
@@ -517,7 +517,7 @@ finish:
 /*****************************************************************************
   minus
  *****************************************************************************/
-_g void sigrev_bignum_inplace(addr pos)
+void sigrev_bignum_inplace(addr pos)
 {
 	int sign;
 
@@ -527,7 +527,7 @@ _g void sigrev_bignum_inplace(addr pos)
 	SetSignBignum(pos, sign);
 }
 
-_g void sigrev_fixnum_bignum_local(LocalRoot local, addr left, addr *ret)
+void sigrev_fixnum_bignum_local(LocalRoot local, addr left, addr *ret)
 {
 	int sign;
 	bigtype value;
@@ -538,7 +538,7 @@ _g void sigrev_fixnum_bignum_local(LocalRoot local, addr left, addr *ret)
 	bignum_value_local(local, ret, SignNot(sign), value);
 }
 
-_g void sigrev_fixnum_integer_alloc(LocalRoot local, addr left, addr *ret)
+void sigrev_fixnum_integer_alloc(LocalRoot local, addr left, addr *ret)
 {
 	fixnum value;
 
@@ -552,18 +552,18 @@ _g void sigrev_fixnum_integer_alloc(LocalRoot local, addr left, addr *ret)
 	}
 }
 
-_g void sigrev_fixnum_integer_local(LocalRoot local, addr left, addr *ret)
+void sigrev_fixnum_integer_local(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	sigrev_fixnum_integer_alloc(local, left, ret);
 }
 
-_g void sigrev_fixnum_integer_common(addr left, addr *ret)
+void sigrev_fixnum_integer_common(addr left, addr *ret)
 {
 	sigrev_fixnum_integer_alloc(NULL, left, ret);
 }
 
-_g void sigrev_bignum_bignum_local(LocalRoot local, addr left, addr *ret)
+void sigrev_bignum_bignum_local(LocalRoot local, addr left, addr *ret)
 {
 	int sign;
 
@@ -606,13 +606,13 @@ static void inline sigrev_bignum_integer_alloc(LocalRoot local, addr left, addr 
 	}
 }
 
-_g void sigrev_bignum_integer_local(LocalRoot local, addr left, addr *ret)
+void sigrev_bignum_integer_local(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	sigrev_bignum_integer_alloc(local, left, ret);
 }
 
-_g void sigrev_bignum_integer_common(addr left, addr *ret)
+void sigrev_bignum_integer_common(addr left, addr *ret)
 {
 	sigrev_bignum_integer_alloc(NULL, left, ret);
 }
@@ -654,7 +654,7 @@ static inline void minus_vv_real_alloc(LocalRoot local,
 	}
 }
 
-_g void minus_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum value1, value2;
 
@@ -703,13 +703,13 @@ static void minus_ff_real_alloc(LocalRoot local, addr left, addr right, addr *re
 	minus_vv_real_alloc(local, value1, value2, ret);
 }
 
-_g void minus_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(local == NULL, "local error");
 	minus_ff_real_alloc(local, left, right, ret);
 }
 
-_g void minus_ff_real_common(addr left, addr right, addr *ret)
+void minus_ff_real_common(addr left, addr right, addr *ret)
 {
 	minus_ff_real_alloc(NULL, left, right, ret);
 }
@@ -730,7 +730,7 @@ static inline void minusfixnum_local(LocalRoot local,
 	}
 }
 
-_g void minus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	fixnum check;
@@ -757,7 +757,7 @@ _g void minus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	minusfixnum_local(local, left, check, ret);
 }
 
-_g void minus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 
@@ -782,7 +782,7 @@ _g void minus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	bignum_result_local(local, left, ret);
 }
 
-_g void minus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 	LocalStack stack;
@@ -810,7 +810,7 @@ _g void minus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	rollback_local(local, stack);
 }
 
-_g void minus_fb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_fb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 
@@ -837,7 +837,7 @@ _g void minus_fb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	*ret = right;
 }
 
-_g void minus_fb_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_fb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 
@@ -864,7 +864,7 @@ _g void minus_fb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	bignum_result_local(local, right, ret);
 }
 
-_g void minus_fb_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_fb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	fixnum check;
 	LocalStack stack;
@@ -894,7 +894,7 @@ _g void minus_fb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	rollback_local(local, stack);
 }
 
-_g void minus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, compare;
 
@@ -935,7 +935,7 @@ _g void minus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	*ret = left;
 }
 
-_g void minus_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
+void minus_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, compare;
 
@@ -977,7 +977,7 @@ finish:
 	bignum_result_local(local, left, ret);
 }
 
-_g void minus_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
+void minus_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2, compare;
 	LocalStack stack;

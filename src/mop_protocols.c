@@ -97,12 +97,12 @@ static int defgeneric_make_method_lambda_(Execute ptr)
 /***********************************************************************
  *  function
  ***********************************************************************/
-_g void init_mop_protocols(void)
+void init_mop_protocols(void)
 {
 	SetPointerType(var6, method_make_method_lambda_std);
 }
 
-_g int build_mop_protocols_(Execute ptr)
+int build_mop_protocols_(Execute ptr)
 {
 	Return(defgeneric_make_method_lambda_(ptr));
 

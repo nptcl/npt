@@ -21,11 +21,11 @@ enum TokenType {
 	TokenType_error
 };
 
-_g void init_reader_token(void);
-_g enum TokenType tokentype(unsigned base, addr queue);
-_g int getreadbase_(Execute ptr, unsigned *ret);
-_g int read_suppress_p_(Execute ptr, int *ret);
-_g int maketoken_(Execute ptr, addr *ret);
+void init_reader_token(void);
+enum TokenType tokentype(unsigned base, addr queue);
+int getreadbase_(Execute ptr, unsigned *ret);
+int read_suppress_p_(Execute ptr, int *ret);
+int maketoken_(Execute ptr, addr *ret);
 
 #endif
 

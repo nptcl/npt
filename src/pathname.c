@@ -77,7 +77,7 @@ static int defaults_pathname_alloc_(Execute ptr, addr *ret, addr defaults, int l
 	return pathname_designer_alloc_(ptr, defaults, ret, localp);
 }
 
-_g int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults)
+int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults)
 {
 	return defaults_pathname_alloc_(ptr, ret, defaults, 0);
 }
@@ -139,7 +139,7 @@ static int parse_pathname_full_alloc_(Execute ptr,
 	return 0;
 }
 
-_g int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
+int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
 		addr defaults, size_t start, size_t end, int junk, addr *ret, size_t *pos)
 {
 	return parse_pathname_full_alloc_(ptr,
@@ -168,7 +168,7 @@ static int parse_pathname_host_heap_(Execute ptr, addr thing, addr host, addr *r
 	return parse_pathname_full_heap_(ptr, thing, host, Nil, 0, end, 0, ret, &end);
 }
 
-_g int parse_pathname_setf_heap_(Execute ptr, addr thing, addr host, addr *ret)
+int parse_pathname_setf_heap_(Execute ptr, addr thing, addr host, addr *ret)
 {
 	size_t end;
 	string_length(thing, &end);
@@ -176,7 +176,7 @@ _g int parse_pathname_setf_heap_(Execute ptr, addr thing, addr host, addr *ret)
 			thing, host, Nil, 0, end, 0, ret, &end, 0, 0);
 }
 
-_g int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)
+int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)
 {
 	addr thing;
 	LocalRoot local;
@@ -191,7 +191,7 @@ _g int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)
 	return 0;
 }
 
-_g int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
+int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
 	addr value, type;
 	LocalRoot local;
@@ -230,12 +230,12 @@ _g int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	return TypeError_(pos, PATHNAME);
 }
 
-_g int pathname_designer_heap_(Execute ptr, addr pos, addr *ret)
+int pathname_designer_heap_(Execute ptr, addr pos, addr *ret)
 {
 	return pathname_designer_alloc_(ptr, pos, ret, 0);
 }
 
-_g int pathname_designer_local_(Execute ptr, addr pos, addr *ret)
+int pathname_designer_local_(Execute ptr, addr pos, addr *ret)
 {
 	return pathname_designer_alloc_(ptr, pos, ret, 1);
 }
@@ -244,7 +244,7 @@ _g int pathname_designer_local_(Execute ptr, addr pos, addr *ret)
 /*
  *  physical-pathname
  */
-_g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
+int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
 	int check;
 	LocalRoot local;
@@ -275,12 +275,12 @@ _g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	return fmte_("The logical-pathname ~S don't match translate table.", pos, NULL);
 }
 
-_g int physical_pathname_heap_(Execute ptr, addr pos, addr *ret)
+int physical_pathname_heap_(Execute ptr, addr pos, addr *ret)
 {
 	return physical_pathname_alloc_(ptr, pos, ret, 0);
 }
 
-_g int physical_pathname_local_(Execute ptr, addr pos, addr *ret)
+int physical_pathname_local_(Execute ptr, addr pos, addr *ret)
 {
 	return physical_pathname_alloc_(ptr, pos, ret, 1);
 }
@@ -392,7 +392,7 @@ static int file_name_pathname_alloc_(LocalpRoot local, addr pos, addr *ret)
 	return 0;
 }
 
-_g int file_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
+int file_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -402,7 +402,7 @@ _g int file_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
 	return file_name_pathname_alloc_(&buffer, pos, ret);
 }
 
-_g int file_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
+int file_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -522,7 +522,7 @@ static int directory_name_pathname_alloc_(LocalpRoot local, addr pos, addr *ret)
 	return 0;
 }
 
-_g int directory_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
+int directory_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -532,7 +532,7 @@ _g int directory_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
 	return directory_name_pathname_alloc_(&buffer, pos, ret);
 }
 
-_g int directory_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
+int directory_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -655,7 +655,7 @@ static int name_pathname_alloc_(Execute ptr, LocalpRoot local, addr pos, addr *r
 	return 0;
 }
 
-_g int name_pathname_heap_(Execute ptr, addr pos, addr *ret)
+int name_pathname_heap_(Execute ptr, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -664,7 +664,7 @@ _g int name_pathname_heap_(Execute ptr, addr pos, addr *ret)
 	return name_pathname_alloc_(ptr, &buffer, pos, ret);
 }
 
-_g int name_pathname_local_(Execute ptr, addr pos, addr *ret)
+int name_pathname_local_(Execute ptr, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -673,7 +673,7 @@ _g int name_pathname_local_(Execute ptr, addr pos, addr *ret)
 	return name_pathname_alloc_(ptr, &buffer, pos, ret);
 }
 
-_g int name_physical_heap_(Execute ptr, addr pos, addr *ret)
+int name_physical_heap_(Execute ptr, addr pos, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -687,7 +687,7 @@ _g int name_physical_heap_(Execute ptr, addr pos, addr *ret)
 	return 0;
 }
 
-_g int name_physical_local_(Execute ptr, addr pos, addr *ret)
+int name_physical_local_(Execute ptr, addr pos, addr *ret)
 {
 	Return(physical_pathname_local_(ptr, pos, &pos));
 	return name_pathname_local_(ptr, pos, ret);
@@ -802,7 +802,7 @@ static void merge_pathname_object(addr pos, addr defaults, addr defver, addr *re
 		pathname_heap(ret, host, device, directory, name, type);
 }
 
-_g int merge_pathnames_clang_(Execute ptr,
+int merge_pathnames_clang_(Execute ptr,
 		addr pos, addr defaults, addr defver, addr *ret)
 {
 	addr host;
@@ -829,7 +829,7 @@ _g int merge_pathnames_clang_(Execute ptr,
 /*
  *  initialize
  */
-_g void build_pathname(void)
+void build_pathname(void)
 {
 	build_pathname_translate();
 }

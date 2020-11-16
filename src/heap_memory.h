@@ -35,34 +35,34 @@ struct heap_addr {
 };
 
 /* variable */
-__extern void *heap_alloc;
-__extern addr heap_root;
-__extern addr heap_front;
-__extern addr heap_pos;
-__extern addr heap_tail;
-__extern addr heap_range;
-__extern size_t heap_object;
-__extern size_t heap_count;
-__extern size_t heap_gc_count;
-__extern size_t heap_gc_partial;
-__extern size_t heap_gc_full;
-__extern size_t heap_cons_count;
-__extern size_t heap_symbol_count;
+extern void *heap_alloc;
+extern addr heap_root;
+extern addr heap_front;
+extern addr heap_pos;
+extern addr heap_tail;
+extern addr heap_range;
+extern size_t heap_object;
+extern size_t heap_count;
+extern size_t heap_gc_count;
+extern size_t heap_gc_partial;
+extern size_t heap_gc_full;
+extern size_t heap_cons_count;
+extern size_t heap_symbol_count;
 
-_g struct heap_addr *alloctail(void);
-_g void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2);
+struct heap_addr *alloctail(void);
+void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2);
 
 /* function */
-_g int alloc_heap(size_t);
-_g void free_heap(void);
+int alloc_heap(size_t);
+void free_heap(void);
 
 /* gc */
-_g void makespace_heap(addr pos, size_t size);
-_g int valid_heap(const void *);
-_g size_t get_heap_object(void);
-_g size_t get_heap_count(void);
-_g size_t get_heap_gc_count(void);
-_g size_t get_heap_size(void);
+void makespace_heap(addr pos, size_t size);
+int valid_heap(const void *);
+size_t get_heap_object(void);
+size_t get_heap_count(void);
+size_t get_heap_gc_count(void);
+size_t get_heap_size(void);
 
 #endif
 

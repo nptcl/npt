@@ -94,38 +94,38 @@ enum READTABLE_INDEX {
 #define PtrCaseReadtable				PtrCaseReadtable_Low
 #endif
 
-_g void getarray_readtable(addr pos, addr *ret);
-_g void setarray_readtable(addr pos, addr value);
-_g void gettable_readtable(addr pos, addr *ret);
-_g void settable_readtable(addr pos, addr value);
-_g void getdispatch_readtable(addr pos, addr *ret);
-_g void setdispatch_readtable(addr pos, addr value);
-_g void *ptr_readtable(addr pos);
-_g enum ReadTable_Case *ptrcase_readtable(addr pos);
+void getarray_readtable(addr pos, addr *ret);
+void setarray_readtable(addr pos, addr value);
+void gettable_readtable(addr pos, addr *ret);
+void settable_readtable(addr pos, addr value);
+void getdispatch_readtable(addr pos, addr *ret);
+void setdispatch_readtable(addr pos, addr value);
+void *ptr_readtable(addr pos);
+enum ReadTable_Case *ptrcase_readtable(addr pos);
 
-_g int readtable_heap_(addr *ret);
-_g int copy_readtable_(addr from, addr to);
-_g int copy_readtable_heap_(addr from, addr *ret);
-_g int copy_default_readtable_(addr pos);
-_g int make_dispatch_macro_character_(addr pos, addr character, int nonterm);
-_g int get_default_dispatch_macro_(addr code1, addr code2, addr *ret);
-_g int macro_character_execute(Execute ptr, int *result, addr *ret,
+int readtable_heap_(addr *ret);
+int copy_readtable_(addr from, addr to);
+int copy_readtable_heap_(addr from, addr *ret);
+int copy_default_readtable_(addr pos);
+int make_dispatch_macro_character_(addr pos, addr character, int nonterm);
+int get_default_dispatch_macro_(addr code1, addr code2, addr *ret);
+int macro_character_execute(Execute ptr, int *result, addr *ret,
 		unicode c, addr stream, addr table);
-_g int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret);
-_g int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2);
-_g int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call);
-_g void get_default_macro_character(unicode u, addr *ret, int *nonterm);
-_g int readtype_readtable_(addr pos, unicode c, addr *ret);
-_g int get_macro_character_(addr pos, unicode u, addr *ret, int *nonterm);
-_g int set_macro_character_(addr pos, unicode u, int nonterm, addr call);
-_g int set_syntax_from_default_(unicode u1, unicode u2, addr to);
-_g int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from);
+int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret);
+int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2);
+int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call);
+void get_default_macro_character(unicode u, addr *ret, int *nonterm);
+int readtype_readtable_(addr pos, unicode c, addr *ret);
+int get_macro_character_(addr pos, unicode u, addr *ret, int *nonterm);
+int set_macro_character_(addr pos, unicode u, int nonterm, addr call);
+int set_syntax_from_default_(unicode u1, unicode u2, addr to);
+int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from);
 
-_g int float_readtable_(Execute ptr, enum ReadTable_float *ret);
-_g int readcase_readtable_(Execute ptr, enum ReadTable_Case *ret);
-_g enum ReadTable_Case getcase_readtable(addr pos);
-_g void setcase_readtable(addr pos, enum ReadTable_Case mode);
-_g int getreadtable_(Execute ptr, addr *ret);
+int float_readtable_(Execute ptr, enum ReadTable_float *ret);
+int readcase_readtable_(Execute ptr, enum ReadTable_Case *ret);
+enum ReadTable_Case getcase_readtable(addr pos);
+void setcase_readtable(addr pos, enum ReadTable_Case mode);
+int getreadtable_(Execute ptr, addr *ret);
 
 #endif
 

@@ -7,7 +7,7 @@
 
 #define getwidth_console _n(getwidth_console)
 
-_g int getwidth_console(size_t *ret);
+int getwidth_console(size_t *ret);
 
 #endif
 

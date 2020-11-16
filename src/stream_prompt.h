@@ -15,9 +15,9 @@ enum PromptStreamMode {
 	PromptStreamMode_Step
 };
 
-_g void open_prompt_stream(addr *stream);
-_g void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode);
-_g void init_stream_prompt(void);
+void open_prompt_stream(addr *stream);
+void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode);
+void init_stream_prompt(void);
 
 #endif
 

@@ -109,7 +109,7 @@ static int defmethod_describe_object_(Execute ptr, addr name, addr gen,
 /*
  *  describe
  */
-_g int describe_common(Execute ptr, addr object, addr stream)
+int describe_common(Execute ptr, addr object, addr stream)
 {
 	addr call;
 
@@ -188,7 +188,7 @@ static int eval_loop_inspect_(Execute ptr, addr io, addr pos, int *exit, int *ex
 	return 0;
 }
 
-_g int inspect_common(Execute ptr, addr object)
+int inspect_common(Execute ptr, addr object)
 {
 	addr io, symbol;
 
@@ -208,7 +208,7 @@ _g int inspect_common(Execute ptr, addr object)
 /*
  *  defgeneric
  */
-_g void init_environment_describe(void)
+void init_environment_describe(void)
 {
 	SetPointerType(var4, method_describe_object_t);
 	SetPointerType(var4, method_describe_object_class);
@@ -243,7 +243,7 @@ static int build_environment_describe_call_(Execute ptr)
 	return common_method_finalize_(gen);
 }
 
-_g void build_environment_describe(Execute ptr)
+void build_environment_describe(Execute ptr)
 {
 	Error(build_environment_describe_call_(ptr));
 }

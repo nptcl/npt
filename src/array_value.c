@@ -13,7 +13,7 @@
 /*
  *  arrayvalue
  */
-_g int arrayvalue_get_character_(struct array_value *str, addr x)
+int arrayvalue_get_character_(struct array_value *str, addr x)
 {
 	if (! characterp(x))
 		return fmte_("~S must be character type.", x, NULL);
@@ -23,7 +23,7 @@ _g int arrayvalue_get_character_(struct array_value *str, addr x)
 	return 0;
 }
 
-_g int arrayvalue_get_bit_(struct array_value *str, addr x)
+int arrayvalue_get_bit_(struct array_value *str, addr x)
 {
 	int check;
 
@@ -37,7 +37,7 @@ _g int arrayvalue_get_bit_(struct array_value *str, addr x)
 	return 0;
 }
 
-_g int arrayvalue_get_signed8_(struct array_value *str, addr x)
+int arrayvalue_get_signed8_(struct array_value *str, addr x)
 {
 	fixnum init;
 
@@ -57,7 +57,7 @@ error:
 	return fmte_("Overflow ~S in (signed-byte 8).", x, NULL);
 }
 
-_g int arrayvalue_get_signed16_(struct array_value *str, addr x)
+int arrayvalue_get_signed16_(struct array_value *str, addr x)
 {
 	fixnum init;
 
@@ -78,7 +78,7 @@ error:
 }
 
 #ifdef LISP_64BIT
-_g int arrayvalue_get_signed32_(struct array_value *str, addr x)
+int arrayvalue_get_signed32_(struct array_value *str, addr x)
 {
 	fixnum init;
 
@@ -98,7 +98,7 @@ error:
 	return fmte_("Overflow ~S in (signed-byte 32).", x, NULL);
 }
 
-_g int arrayvalue_get_signed64_(struct array_value *str, addr x)
+int arrayvalue_get_signed64_(struct array_value *str, addr x)
 {
 	fixnum init;
 
@@ -114,7 +114,7 @@ _g int arrayvalue_get_signed64_(struct array_value *str, addr x)
 	return 0;
 }
 #else
-_g int arrayvalue_get_signed32_(struct array_value *str, addr x)
+int arrayvalue_get_signed32_(struct array_value *str, addr x)
 {
 	fixnum init;
 
@@ -131,7 +131,7 @@ _g int arrayvalue_get_signed32_(struct array_value *str, addr x)
 }
 #endif
 
-_g int arrayvalue_get_signed_(struct array_value *str, addr x, unsigned size)
+int arrayvalue_get_signed_(struct array_value *str, addr x, unsigned size)
 {
 	switch (size) {
 		case 8:
@@ -152,7 +152,7 @@ _g int arrayvalue_get_signed_(struct array_value *str, addr x, unsigned size)
 	}
 }
 
-_g int arrayvalue_get_unsigned8_(struct array_value *str, addr x)
+int arrayvalue_get_unsigned8_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
@@ -176,7 +176,7 @@ error:
 	return fmte_("Overflow ~S in (unsigned-byte 8).", x, NULL);
 }
 
-_g int arrayvalue_get_unsigned16_(struct array_value *str, addr x)
+int arrayvalue_get_unsigned16_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
@@ -201,7 +201,7 @@ error:
 }
 
 #ifdef LISP_64BIT
-_g int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
+int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
@@ -225,7 +225,7 @@ error:
 	return fmte_("Overflow ~S in (unsigned-byte 32).", x, NULL);
 }
 
-_g int arrayvalue_get_unsigned64_(struct array_value *str, addr x)
+int arrayvalue_get_unsigned64_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
@@ -257,7 +257,7 @@ _g int arrayvalue_get_unsigned64_(struct array_value *str, addr x)
 	return TypeError_(x, INTEGER);
 }
 #else
-_g int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
+int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
@@ -290,7 +290,7 @@ _g int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
 }
 #endif
 
-_g int arrayvalue_get_unsigned_(struct array_value *str, addr x, unsigned size)
+int arrayvalue_get_unsigned_(struct array_value *str, addr x, unsigned size)
 {
 	switch (size) {
 		case 8:
@@ -311,7 +311,7 @@ _g int arrayvalue_get_unsigned_(struct array_value *str, addr x, unsigned size)
 	}
 }
 
-_g int arrayvalue_get_single_(struct array_value *str, addr x)
+int arrayvalue_get_single_(struct array_value *str, addr x)
 {
 	if (! single_float_p(x))
 		return fmte_("~S must be single-float type.", x, NULL);
@@ -321,7 +321,7 @@ _g int arrayvalue_get_single_(struct array_value *str, addr x)
 	return 0;
 }
 
-_g int arrayvalue_get_double_(struct array_value *str, addr x)
+int arrayvalue_get_double_(struct array_value *str, addr x)
 {
 	if (! double_float_p(x))
 		return fmte_("~S must be double-float type.", x, NULL);
@@ -331,7 +331,7 @@ _g int arrayvalue_get_double_(struct array_value *str, addr x)
 	return 0;
 }
 
-_g int arrayvalue_get_long_(struct array_value *str, addr x)
+int arrayvalue_get_long_(struct array_value *str, addr x)
 {
 	if (! long_float_p(x))
 		return fmte_("~S must be long-float type.", x, NULL);
@@ -405,7 +405,7 @@ static int arrayvalue_make_unsigned_(LocalRoot local,
 	return 0;
 }
 
-_g int arrayvalue_alloc_(LocalRoot local, addr *ret, const struct array_value *str)
+int arrayvalue_alloc_(LocalRoot local, addr *ret, const struct array_value *str)
 {
 	switch (str->type) {
 		case ARRAY_TYPE_T:
@@ -445,13 +445,13 @@ _g int arrayvalue_alloc_(LocalRoot local, addr *ret, const struct array_value *s
 	return 0;
 }
 
-_g int arrayvalue_local_(LocalRoot local, addr *ret, const struct array_value *str)
+int arrayvalue_local_(LocalRoot local, addr *ret, const struct array_value *str)
 {
 	Check(local == NULL, "local error");
 	return arrayvalue_alloc_(local, ret, str);
 }
 
-_g int arrayvalue_heap_(addr *ret, const struct array_value *str)
+int arrayvalue_heap_(addr *ret, const struct array_value *str)
 {
 	return arrayvalue_alloc_(NULL, ret, str);
 }

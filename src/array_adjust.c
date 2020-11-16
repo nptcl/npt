@@ -667,7 +667,7 @@ static int array_adjust_bitvector_(addr *ret, addr array, addr dimension,
 	return Result(ret, pos);
 }
 
-_g int array_adjust_array_(addr *ret, addr array, addr dimension,
+int array_adjust_array_(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fill, addr displaced, addr offset)
 {

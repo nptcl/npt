@@ -22,26 +22,26 @@
 #define load_lisp _n(load_lisp)
 
 /* variable */
-__extern int      lisp_initialize;
-__extern addr     lisp_root[LISPINDEX_SIZE];
-__extern addr     lisp_nil_object;
-__extern addr     lisp_t_object;
-__extern int      lisp_info_enable;
-__extern enum GcMode lisp_gcsync;
+extern int      lisp_initialize;
+extern addr     lisp_root[LISPINDEX_SIZE];
+extern addr     lisp_nil_object;
+extern addr     lisp_t_object;
+extern int      lisp_info_enable;
+extern enum GcMode lisp_gcsync;
 
 /* function */
-_g void initlisp(void);
-_g int alloclisp(size_t heap, size_t stack);
-_g void freelisp(void);
-_g int degradelisp(void);
+void initlisp(void);
+int alloclisp(size_t heap, size_t stack);
+void freelisp(void);
+int degradelisp(void);
 
-_g void setlisproot(enum LISPINDEX index, addr value);
-_g void build_lisproot(Execute ptr);
-_g void buildlisp(Execute ptr);
+void setlisproot(enum LISPINDEX index, addr value);
+void build_lisproot(Execute ptr);
+void buildlisp(Execute ptr);
 
 /* core */
-_g int save_lisp(filestream fm);
-_g int load_lisp(filestream fm);
+int save_lisp(filestream fm);
+int load_lisp(filestream fm);
 
 #endif
 

@@ -43,30 +43,30 @@
 
 
 /* function */
-_g int init_execute(size_t);
-_g void free_execute(void);
-_g void set_execute_local(struct execute *ptr);
-_g int make_execute(execfunction, struct execute **, size_t);
-_g void setstate_execute(struct execute *, enum ThreadState);
-_g int join_execute(struct execute *);
-_g size_t count_execute(void);
+int init_execute(size_t);
+void free_execute(void);
+void set_execute_local(struct execute *ptr);
+int make_execute(execfunction, struct execute **, size_t);
+void setstate_execute(struct execute *, enum ThreadState);
+int join_execute(struct execute *);
+size_t count_execute(void);
 
-_g int joinindex_execute(size_t);
-_g int create_thread(execfunction, struct execute *);
-_g int join_thread(threadhandle *);
+int joinindex_execute(size_t);
+int create_thread(execfunction, struct execute *);
+int join_thread(threadhandle *);
 
-_g struct execute *getexecute(size_t index);
-_g int equal_control_restart(Execute ptr, addr control);
-_g int equal_control_catch(Execute ptr, addr symbol);
+struct execute *getexecute(size_t index);
+int equal_control_restart(Execute ptr, addr control);
+int equal_control_catch(Execute ptr, addr symbol);
 
 
 /* gc sync */
-_g void gcstate_execute(enum GcMode mode);
-_g void gcstart_execute(struct execute *ptr);
-_g void gcwait_execute(struct execute *ptr);
-_g void gcend_execute(void);
-_g void foreach_execute(void (*call)(struct execute *));
-_g int foreach_check_execute(int (*call)(struct execute *));
+void gcstate_execute(enum GcMode mode);
+void gcstart_execute(struct execute *ptr);
+void gcwait_execute(struct execute *ptr);
+void gcend_execute(void);
+void foreach_execute(void (*call)(struct execute *));
+int foreach_check_execute(int (*call)(struct execute *));
 
 #endif
 

@@ -10,11 +10,11 @@
 #define type_optimized_or_subtypep _n(type_optimized_or_subtypep)
 #define get_type_subtypep _n(get_type_subtypep)
 
-_g int real_extract_local_(LocalRoot local, addr *ret, addr type);
-_g int real_extract_heap_(LocalRoot local, addr *ret, addr type);
-_g int type_subtypep_p(addr type);
-_g int type_optimized_or_subtypep(addr type);
-_g void get_type_subtypep(addr *ret, addr type);
+int real_extract_local_(LocalRoot local, addr *ret, addr type);
+int real_extract_heap_(LocalRoot local, addr *ret, addr type);
+int type_subtypep_p(addr type);
+int type_optimized_or_subtypep(addr type);
+void get_type_subtypep(addr *ret, addr type);
 
 #endif
 

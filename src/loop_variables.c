@@ -38,12 +38,12 @@ static void loop_filter_index(addr *form, addr *list, constindex index)
 	nreverse(form, root);
 }
 
-_g void loop_filter_initially(addr *form, addr *list)
+void loop_filter_initially(addr *form, addr *list)
 {
 	loop_filter_index(form, list, CONSTANT_SYSTEM_LOOP_INITIALLY);
 }
 
-_g void loop_filter_finally(addr *form, addr *list)
+void loop_filter_finally(addr *form, addr *list)
 {
 	loop_filter_index(form, list, CONSTANT_SYSTEM_LOOP_FINALLY);
 }
@@ -70,7 +70,7 @@ static int loop_filter_with_default_(Execute ptr, addr list, addr *ret)
 	return 0;
 }
 
-_g int loop_filter_with_(Execute ptr, addr *form, addr *list)
+int loop_filter_with_(Execute ptr, addr *form, addr *list)
 {
 	addr root, x, y, z;
 	LocalHold hold;
@@ -265,7 +265,7 @@ static int loop_with_multiple_(Execute ptr, addr *form, addr list)
 		return loop_with_gensym_(ptr, form, list);
 }
 
-_g int loop_variables_with_(Execute ptr, addr *form, addr list)
+int loop_variables_with_(Execute ptr, addr *form, addr list)
 {
 	addr pos;
 
@@ -939,7 +939,7 @@ static int loop_variables_for_as_list_(addr *form, addr list)
 	return fmte_("Invalid variables-clause ~S.", a, NULL);
 }
 
-_g int loop_push_for_as_(Execute ptr, addr *expr1, addr *expr2, addr list)
+int loop_push_for_as_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr pos, check, next;
 
@@ -961,7 +961,7 @@ error:
 	return fmte_("Invalid loop for-as form ~S.", next, NULL);
 }
 
-_g int loop_variables_for_as_(addr *form, addr list)
+int loop_variables_for_as_(addr *form, addr list)
 {
 	addr pos, check, next;
 

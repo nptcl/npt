@@ -132,39 +132,39 @@
 /*****************************************************************************
   declaration
  *****************************************************************************/
-_g void plusnumber_bigdata(bigtype *result, bigtype *carry);
-_g void multicarry_bigdata(bigtype *result, bigtype value, bigtype *carry);
-_g int equal_bigdata(addr left, addr right);
-_g int compare_bigdata(addr left, addr right);
+void plusnumber_bigdata(bigtype *result, bigtype *carry);
+void multicarry_bigdata(bigtype *result, bigtype value, bigtype *carry);
+int equal_bigdata(addr left, addr right);
+int compare_bigdata(addr left, addr right);
 
-_g void setplusvalue_bigdata(addr set, addr left, int sign, fixed right);
-_g void setminusvalue_bigdata(addr set, addr left, int sign, fixed right);
-_g void plusvalue_bigdata_alloc(LocalRoot local,
+void setplusvalue_bigdata(addr set, addr left, int sign, fixed right);
+void setminusvalue_bigdata(addr set, addr left, int sign, fixed right);
+void plusvalue_bigdata_alloc(LocalRoot local,
 		addr left, int sign, fixed right, addr *ret);
-_g void minusvalue_bigdata_alloc(LocalRoot local,
+void minusvalue_bigdata_alloc(LocalRoot local,
 		addr left, int sign, fixed right, addr *ret);
-_g void plus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
-_g void letplus_noexpand_bigdata(addr left, addr right);
-_g void minus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
-_g int minuscheck_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
-_g int letminus_noexpand_bigdata(addr left, addr right);
-_g void multicarry_fixnum(LocalRoot local, fixnum left, fixnum right, addr *ret);
-_g void multicarry_bignum(LocalRoot local, fixnum left, fixnum right, addr *ret);
-_g void setmultivalue_bigdata(addr pos, addr left, bigtype right);
-_g void setmulti_bigdata(addr pos, addr left, addr right);
-_g void multi_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
+void plus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
+void letplus_noexpand_bigdata(addr left, addr right);
+void minus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
+int minuscheck_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
+int letminus_noexpand_bigdata(addr left, addr right);
+void multicarry_fixnum(LocalRoot local, fixnum left, fixnum right, addr *ret);
+void multicarry_bignum(LocalRoot local, fixnum left, fixnum right, addr *ret);
+void setmultivalue_bigdata(addr pos, addr left, bigtype right);
+void setmulti_bigdata(addr pos, addr left, addr right);
+void multi_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
 
-_g void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right);
-_g void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right);
-_g void divrem_bigdata_local(LocalRoot local,
+void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right);
+void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right);
+void divrem_bigdata_local(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right);
 
-_g void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value);
-_g void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left);
-_g void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
-_g void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
+void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value);
+void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left);
+void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
+void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
 
-_g bigtype letdiv_half_bigdata(addr left, bigtype right);
+bigtype letdiv_half_bigdata(addr left, bigtype right);
 
 #endif
 

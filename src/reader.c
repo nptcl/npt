@@ -167,7 +167,7 @@ static int pushchar_readtable_(Execute ptr, addr pos, unicode c, int escape)
 /*
  *  readtable
  */
-_g int readtable_typetable_(addr pos, unicode c, enum ReadTable_Type *ret)
+int readtable_typetable_(addr pos, unicode c, enum ReadTable_Type *ret)
 {
 	Return(readtype_readtable_(pos, c, &pos));
 	if (pos == Nil)
@@ -176,7 +176,7 @@ _g int readtable_typetable_(addr pos, unicode c, enum ReadTable_Type *ret)
 		return Result(ret, ReadTypeStruct(pos)->type);
 }
 
-_g int readtable_result_(Execute ptr,
+int readtable_result_(Execute ptr,
 		addr *token, addr stream, addr table, enum ReadTable_Result *ret)
 {
 	enum ReadTable_Type type;
@@ -310,7 +310,7 @@ eof:
 	return Result(ret, ReadTable_Result_eof);
 }
 
-_g int readtable_novalue(Execute ptr, int *ret, addr *token, addr stream, addr table)
+int readtable_novalue(Execute ptr, int *ret, addr *token, addr stream, addr table)
 {
 	enum ReadTable_Result value;
 	int check;
@@ -379,7 +379,7 @@ static int readtable_front(Execute ptr,
 /*
  *  read
  */
-_g int read_call(Execute ptr, addr stream, int *result, addr *ret)
+int read_call(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr table;
 	Return(getreadtable_(ptr, &table));
@@ -399,7 +399,7 @@ static int read_stream_call_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-_g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
+int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -427,7 +427,7 @@ static int read_preserving_call_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-_g int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
+int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -454,7 +454,7 @@ static int read_recursive_call_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-_g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
+int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -468,7 +468,7 @@ _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 	return 0;
 }
 
-_g int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
+int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
 {
 	addr stream;
 	LocalHold hold;
@@ -482,7 +482,7 @@ _g int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
 	return 0;
 }
 
-_g int readstring_debug(addr *ret, const char *code)
+int readstring_debug(addr *ret, const char *code)
 {
 	int result;
 	addr stream;
@@ -495,7 +495,7 @@ _g int readstring_debug(addr *ret, const char *code)
 	return result;
 }
 
-_g addr readr_debug(const char *code)
+addr readr_debug(const char *code)
 {
 	addr pos;
 	if (readstring_debug(&pos, code))
@@ -519,13 +519,13 @@ static int build_reader_special_(void)
 	return 0;
 }
 
-_g void build_reader(void)
+void build_reader(void)
 {
 	build_reader_dispatch();
 	Error(build_reader_special_());
 }
 
-_g void init_reader(void)
+void init_reader(void)
 {
 	init_reader_dispatch();
 	init_reader_function();

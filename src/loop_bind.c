@@ -95,7 +95,7 @@ static int loop_bind_initial_recursive_(Execute ptr, addr var, addr type, addr *
 	return 0;
 }
 
-_g int loop_bind_initial_list_(Execute ptr, addr var, addr type, addr *ret)
+int loop_bind_initial_list_(Execute ptr, addr var, addr type, addr *ret)
 {
 	LocalHold hold;
 
@@ -202,7 +202,7 @@ static int loop_bind_recursive_(Execute ptr, addr pos, addr type, addr value, ad
 	return 0;
 }
 
-_g int loop_bind_common(Execute ptr, addr pos, addr type, addr value, addr *ret)
+int loop_bind_common(Execute ptr, addr pos, addr type, addr value, addr *ret)
 {
 	LocalHold hold;
 

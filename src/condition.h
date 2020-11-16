@@ -17,19 +17,19 @@
 #define build_condition _n(build_condition)
 #define init_condition _n(init_condition)
 
-_g int conditionp_(addr pos, int *ret);
-_g int conditionp_debug(addr pos);
-_g int condition_instance_p_(addr pos, int *ret);
-_g int signal_function_(Execute ptr, addr condition);
-_g int error_function_(Execute ptr, addr condition);
-_g int warning_restart_case_(Execute ptr, addr instance);
-_g int callclang_error_(const char *str, ...);
-_g int callclang_warning_(const char *str, ...);
+int conditionp_(addr pos, int *ret);
+int conditionp_debug(addr pos);
+int condition_instance_p_(addr pos, int *ret);
+int signal_function_(Execute ptr, addr condition);
+int error_function_(Execute ptr, addr condition);
+int warning_restart_case_(Execute ptr, addr instance);
+int callclang_error_(const char *str, ...);
+int callclang_warning_(const char *str, ...);
 #define fmte_ callclang_error_
 #define fmtw_ callclang_warning_
 
-_g void build_condition(Execute ptr);
-_g void init_condition(void);
+void build_condition(Execute ptr);
+void init_condition(void);
 
 #endif
 

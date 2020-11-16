@@ -266,21 +266,21 @@
   (format t "#define eastasian_symbol _n(eastasian_symbol)~%")
   (format t "#define eastasian_width _n(eastasian_width)~%")
   (format t "#define init_eastasian _n(init_eastasian)~%")
-  (format t "__extern unsigned EastAsianSymbol[EastAsian_Size];~%")
-  (format t "__extern const enum EastAsianType EastAsianAscii[0x80];~%")
-  (format t "__extern const struct eastasian_struct ")
+  (format t "extern unsigned EastAsianSymbol[EastAsian_Size];~%")
+  (format t "extern const enum EastAsianType EastAsianAscii[0x80];~%")
+  (format t "extern const struct eastasian_struct ")
   (format t "EastAsianTable[EastAsianTable_Size];~%")
-  (format t "_g enum EastAsianType eastasian_symbol(unicode c);~%")
-  (format t "_g unsigned eastasian_width(unicode c);~%")
-  (format t "_g void init_eastasian(void);~2%"))
+  (format t "enum EastAsianType eastasian_symbol(unicode c);~%")
+  (format t "unsigned eastasian_width(unicode c);~%")
+  (format t "void init_eastasian(void);~2%"))
 
 (defun write-source-list ()
   (mapbind (x y z) *width-table*
     (format nil "~4T{  0x~6,'0X,  0x~6,'0X,  EastAsian_~A~43T}" x y z)))
 
 (defun write-source-table ()
-  (format t "_g unsigned EastAsianSymbol[EastAsian_Size];~%")
-  (format t "_g const struct eastasian_struct EastAsianTable[EastAsianTable_Size] = ")
+  (format t "unsigned EastAsianSymbol[EastAsian_Size];~%")
+  (format t "const struct eastasian_struct EastAsianTable[EastAsianTable_Size] = ")
   (format t "{~%~{~A~^,~%~}~%};~%" (write-source-list)))
 
 (defun write-source-group ()
@@ -288,7 +288,7 @@
     (format nil "~{EastAsian_~A~^, ~}" x)))
 
 (defun write-source-ascii ()
-  (format t "_g const enum EastAsianType EastAsianAscii[0x80] = ")
+  (format t "const enum EastAsianType EastAsianAscii[0x80] = ")
   (format t "{~%~{~4T~A~^,~%~}~%};~%" (write-source-group)))
 
 

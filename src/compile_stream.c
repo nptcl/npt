@@ -9,7 +9,7 @@
 /*
  *  write
  */
-_g int faslwrite_buffer_(addr stream, const void *ptr, size_t size)
+int faslwrite_buffer_(addr stream, const void *ptr, size_t size)
 {
 	size_t check;
 
@@ -20,12 +20,12 @@ _g int faslwrite_buffer_(addr stream, const void *ptr, size_t size)
 	return 0;
 }
 
-_g int faslwrite_type_(addr stream, enum FaslCode code)
+int faslwrite_type_(addr stream, enum FaslCode code)
 {
 	return write_unsigned8_stream_(stream, (byte)code);
 }
 
-_g int faslwrite_byte_(addr stream, byte value)
+int faslwrite_byte_(addr stream, byte value)
 {
 	return write_unsigned8_stream_(stream, value);
 }
@@ -34,14 +34,14 @@ _g int faslwrite_byte_(addr stream, byte value)
 /*
  *  read
  */
-_g int faslread_buffer_check_(addr stream, void *ptr, size_t size, int *ret)
+int faslread_buffer_check_(addr stream, void *ptr, size_t size, int *ret)
 {
 	size_t check;
 	Return(read_binary_stream_(stream, ptr, size, &check));
 	return Result(ret, (size != check));
 }
 
-_g int faslread_buffer_(addr stream, void *ptr, size_t size)
+int faslread_buffer_(addr stream, void *ptr, size_t size)
 {
 	int check;
 
@@ -52,7 +52,7 @@ _g int faslread_buffer_(addr stream, void *ptr, size_t size)
 	return 0;
 }
 
-_g int faslread_type_(addr stream, enum FaslCode *ret)
+int faslread_type_(addr stream, enum FaslCode *ret)
 {
 	int check;
 	byte c;
@@ -66,7 +66,7 @@ _g int faslread_type_(addr stream, enum FaslCode *ret)
 	return Result(ret, (enum FaslCode)c);
 }
 
-_g int faslread_type_check_(addr stream, enum FaslCode value)
+int faslread_type_check_(addr stream, enum FaslCode value)
 {
 	enum FaslCode check;
 
@@ -77,7 +77,7 @@ _g int faslread_type_check_(addr stream, enum FaslCode value)
 	return 0;
 }
 
-_g int faslread_byte_(addr stream, byte *ret)
+int faslread_byte_(addr stream, byte *ret)
 {
 	int check;
 

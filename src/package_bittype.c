@@ -29,13 +29,13 @@ static void make_bitpackage(addr *ret, addr name, addr package)
 	*ret = bit;
 }
 
-_g void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package)
+void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package)
 {
 	make_bitpackage(ret, name, package);
 	GetBitTypeSymbol(*ret, symbol);
 }
 
-_g void internbitpackage(addr *ret, addr symbol)
+void internbitpackage(addr *ret, addr symbol)
 {
 	addr bit;
 
@@ -44,7 +44,7 @@ _g void internbitpackage(addr *ret, addr symbol)
 	*ret = bit;
 }
 
-_g void importbitpackage(addr *ret, addr symbol)
+void importbitpackage(addr *ret, addr symbol)
 {
 	addr bit;
 
@@ -53,7 +53,7 @@ _g void importbitpackage(addr *ret, addr symbol)
 	*ret = bit;
 }
 
-_g void inheritedbitpackage(addr *ret, addr symbol)
+void inheritedbitpackage(addr *ret, addr symbol)
 {
 	addr bit;
 
@@ -62,7 +62,7 @@ _g void inheritedbitpackage(addr *ret, addr symbol)
 	*ret = bit;
 }
 
-_g void shadowintern_bitpackage(addr bit, addr name, addr package)
+void shadowintern_bitpackage(addr bit, addr name, addr package)
 {
 	addr symbol;
 	struct bittype_struct *str;
@@ -77,7 +77,7 @@ _g void shadowintern_bitpackage(addr bit, addr name, addr package)
 	str->inherit = 0;
 }
 
-_g void shadowimport_bitpackage(addr bit, addr symbol)
+void shadowimport_bitpackage(addr bit, addr symbol)
 {
 	struct bittype_struct *str;
 
@@ -89,7 +89,7 @@ _g void shadowimport_bitpackage(addr bit, addr symbol)
 	str->inherit = 0;
 }
 
-_g int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
+int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
 {
 	addr table, cons, bit;
 
@@ -106,13 +106,13 @@ _g int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
 	return Result(ret, 0); /* exist */
 }
 
-_g int find_bitpackage_(addr package, addr name, addr *ret)
+int find_bitpackage_(addr package, addr name, addr *ret)
 {
 	GetPackage(package, PACKAGE_INDEX_TABLE, &package);
 	return findnil_hashtable_(package, name, ret);
 }
 
-_g int find_char_bitpackage_(addr package, const char *name, addr *ret)
+int find_char_bitpackage_(addr package, const char *name, addr *ret)
 {
 	GetPackage(package, PACKAGE_INDEX_TABLE, &package);
 	return findnil_char_hashtable_(package, name, ret);

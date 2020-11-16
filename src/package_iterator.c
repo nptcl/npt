@@ -7,7 +7,7 @@
 #include "package_object.h"
 #include "typedef.h"
 
-_g int package_iterator_alloc_(LocalRoot local, addr *ret,
+int package_iterator_alloc_(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	addr pos, package, table;
@@ -53,14 +53,14 @@ _g int package_iterator_alloc_(LocalRoot local, addr *ret,
 	return Result(ret, pos);
 }
 
-_g int package_iterator_local_(LocalRoot local, addr *ret,
+int package_iterator_local_(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	Check(local == NULL, "local error");
 	return package_iterator_alloc_(local, ret, list, internal, external, inherited);
 }
 
-_g int package_iterator_heap_(addr *ret,
+int package_iterator_heap_(addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	return package_iterator_alloc_(NULL, ret, list, internal, external, inherited);
@@ -110,7 +110,7 @@ static int forward_package_iterator_(addr pos)
 	return 0;
 }
 
-_g int next_package_iterator_(addr pos, addr *rets, addr *retp, enum PACKAGE_TYPE *ret)
+int next_package_iterator_(addr pos, addr *rets, addr *retp, enum PACKAGE_TYPE *ret)
 {
 	enum PACKAGE_TYPE type;
 	struct StructPackageIterator *str;

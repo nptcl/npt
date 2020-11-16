@@ -20,21 +20,21 @@
 #define declaim_common _n(declaim_common)
 #define constantp_common _n(constantp_common)
 
-_g void lambda_common(addr form, addr *ret);
-_g int eval_common(Execute ptr, addr var);
-_g int compiler_macro_function_common(addr var, addr env, addr *ret);
-_g int setf_compiler_macro_function_common(addr value, addr var, addr env);
-_g int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret);
-_g int set_define_compiler_macro(addr callname, addr value);
-_g int compile_common(Execute ptr, addr var, addr opt,
+void lambda_common(addr form, addr *ret);
+int eval_common(Execute ptr, addr var);
+int compiler_macro_function_common(addr var, addr env, addr *ret);
+int setf_compiler_macro_function_common(addr value, addr var, addr env);
+int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret);
+int set_define_compiler_macro(addr callname, addr value);
+int compile_common(Execute ptr, addr var, addr opt,
 		addr *ret1, addr *ret2, addr *ret3);
-_g int defmacro_common(Execute ptr, addr right, addr env, addr *ret);
-_g int macro_function_common_(addr symbol, addr env, addr *ret);
-_g int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec);
-_g int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec);
-_g int define_symbol_macro_common(addr form, addr env, addr *ret);
-_g int declaim_common(Execute ptr, addr form, addr env, addr *ret);
-_g int constantp_common(Execute ptr, addr var, addr opt, addr *ret);
+int defmacro_common(Execute ptr, addr right, addr env, addr *ret);
+int macro_function_common_(addr symbol, addr env, addr *ret);
+int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec);
+int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec);
+int define_symbol_macro_common(addr form, addr env, addr *ret);
+int declaim_common(Execute ptr, addr form, addr env, addr *ret);
+int constantp_common(Execute ptr, addr var, addr opt, addr *ret);
 
 #endif
 

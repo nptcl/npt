@@ -10,7 +10,7 @@
 
 #define SizePointer (p_size + LISP_POINTER_EXTEND)
 
-__extern struct callbind_struct pointer_table[SizePointer];
+extern struct callbind_struct pointer_table[SizePointer];
 
 #define ExecPointer(x, y) (pointer_table[x].call.y)
 
@@ -111,7 +111,7 @@ __extern struct callbind_struct pointer_table[SizePointer];
 #define SetPointer_extend_var3(p, x)     SetPointer(p, extend_var3, x)
 #define GetPointer_extend_var3(p, x)     GetPointer(p, extend_var3, x)
 
-_g void clear_pointer(void);
+void clear_pointer(void);
 
 #endif
 

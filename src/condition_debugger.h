@@ -12,14 +12,14 @@
 #define build_condition_debugger _n(build_condition_debugger)
 #define init_condition_debugger _n(init_condition_debugger)
 
-_g int handler_warning_(Execute ptr);
-_g int handler_savecore_(Execute ptr);
-_g int handler_exit_(Execute ptr);
-_g int invoke_debugger(Execute ptr, addr condition);
-_g void set_enable_debugger(Execute ptr, int value);
+int handler_warning_(Execute ptr);
+int handler_savecore_(Execute ptr);
+int handler_exit_(Execute ptr);
+int invoke_debugger(Execute ptr, addr condition);
+void set_enable_debugger(Execute ptr, int value);
 
-_g void build_condition_debugger(Execute ptr);
-_g void init_condition_debugger(void);
+void build_condition_debugger(Execute ptr);
+void init_condition_debugger(void);
 
 #endif
 

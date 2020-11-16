@@ -166,7 +166,7 @@ error_var:
 			"(symbol &optional initial udpate).", name, cdr, NULL);
 }
 
-_g int do_common(addr form, addr env, addr *ret)
+int do_common(addr form, addr env, addr *ret)
 {
 	return do_constant_common(form, ret,
 			CONSTANT_COMMON_DO,
@@ -174,7 +174,7 @@ _g int do_common(addr form, addr env, addr *ret)
 			CONSTANT_COMMON_PSETQ);
 }
 
-_g int doa_common(addr form, addr env, addr *ret)
+int doa_common(addr form, addr env, addr *ret)
 {
 	return do_constant_common(form, ret,
 			CONSTANT_COMMON_DOA,
@@ -207,7 +207,7 @@ static void dotimes_expand_common(addr *ret,
 	lista_heap(ret, dosym, var, form, body, NULL);
 }
 
-_g int dotimes_common(addr form, addr env, addr *ret)
+int dotimes_common(addr form, addr env, addr *ret)
 {
 	addr args, var, count, result, check;
 
@@ -287,7 +287,7 @@ static int dolist_expand_common(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int dolist_common(Execute ptr, addr form, addr env, addr *ret)
+int dolist_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, var, list, result, decl, check;
 

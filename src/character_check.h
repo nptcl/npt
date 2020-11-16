@@ -41,23 +41,23 @@
 #define isExtendedType(x)	(0x80000000UL <= (x))
 
 /* character check */
-_g int isbasechar(unicode x);
-_g int isuppercase(unicode x);
-_g int islowercase(unicode x);
-_g int isdigitcase(unicode x);
-_g int isalphabetic(unicode x);
-_g int isalphanumeric(unicode x);
-_g int isgraphunicode(unicode x);
-_g int isspaceunicode(unicode x);
-_g unicode toupperunicode(unicode x);
-_g unicode tolowerunicode(unicode x);
+int isbasechar(unicode x);
+int isuppercase(unicode x);
+int islowercase(unicode x);
+int isdigitcase(unicode x);
+int isalphabetic(unicode x);
+int isalphanumeric(unicode x);
+int isgraphunicode(unicode x);
+int isspaceunicode(unicode x);
+unicode toupperunicode(unicode x);
+unicode tolowerunicode(unicode x);
 
 /* character type */
-_g int issurrogatepair(unicode x);
-_g int isbaserange(unicode x);
-_g int isstandardtype(unicode x);
-_g int isbasetype(unicode x);
-_g int isextendedtype(unicode x);
+int issurrogatepair(unicode x);
+int isbaserange(unicode x);
+int isstandardtype(unicode x);
+int isbasetype(unicode x);
+int isextendedtype(unicode x);
 
 #endif
 

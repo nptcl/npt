@@ -21,7 +21,7 @@
 /*
  *  export
  */
-_g int export_common_(Execute ptr, addr symbols, addr pg)
+int export_common_(Execute ptr, addr symbols, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -34,7 +34,7 @@ _g int export_common_(Execute ptr, addr symbols, addr pg)
 /*
  *  find-package
  */
-_g int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *state)
+int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *state)
 {
 	enum PACKAGE_TYPE type;
 
@@ -58,7 +58,7 @@ _g int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sta
 /*
  *  import
  */
-_g int import_common_(Execute ptr, addr symbols, addr pg)
+int import_common_(Execute ptr, addr symbols, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -70,7 +70,7 @@ _g int import_common_(Execute ptr, addr symbols, addr pg)
 /*
  *  rename-package
  */
-_g int rename_package_common_(Execute ptr, addr pg, addr name, addr names, addr *ret)
+int rename_package_common_(Execute ptr, addr pg, addr name, addr names, addr *ret)
 {
 	if (names == Unbound)
 		names = Nil;
@@ -82,7 +82,7 @@ _g int rename_package_common_(Execute ptr, addr pg, addr name, addr names, addr 
 /*
  *  shadow
  */
-_g int shadow_common_(Execute ptr, addr symbols, addr pg)
+int shadow_common_(Execute ptr, addr symbols, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -95,7 +95,7 @@ _g int shadow_common_(Execute ptr, addr symbols, addr pg)
 /*
  *  shadowing-import
  */
-_g int shadowing_import_common_(Execute ptr, addr symbols, addr pg)
+int shadowing_import_common_(Execute ptr, addr symbols, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -108,7 +108,7 @@ _g int shadowing_import_common_(Execute ptr, addr symbols, addr pg)
 /*
  *  make-package
  */
-_g int make_package_common_(Execute ptr, addr name, addr rest, addr *ret)
+int make_package_common_(Execute ptr, addr name, addr rest, addr *ret)
 {
 	addr nicknames, use;
 
@@ -212,7 +212,7 @@ static int with_package_iterator_check_common(addr rest,
 	return 0;
 }
 
-_g int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret)
+int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	int inter, exter, inherit;
 	addr args, name, list, check;
@@ -243,7 +243,7 @@ error:
 /*
  *  unexport
  */
-_g int unexport_common_(Execute ptr, addr symbols, addr pg)
+int unexport_common_(Execute ptr, addr symbols, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -256,7 +256,7 @@ _g int unexport_common_(Execute ptr, addr symbols, addr pg)
 /*
  *  unintern
  */
-_g int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret)
+int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret)
 {
 	int check;
 
@@ -271,7 +271,7 @@ _g int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret)
 /*
  *  in-package
  */
-_g int in_package_common(Execute ptr, addr form, addr env, addr *ret)
+int in_package_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, symbol, quote;
 
@@ -305,7 +305,7 @@ error:
 /*
  *  unuse-package
  */
-_g int unuse_package_common_(Execute ptr, addr unuse, addr pg)
+int unuse_package_common_(Execute ptr, addr unuse, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -318,7 +318,7 @@ _g int unuse_package_common_(Execute ptr, addr unuse, addr pg)
 /*
  *  use-package
  */
-_g int use_package_common_(Execute ptr, addr use, addr pg)
+int use_package_common_(Execute ptr, addr use, addr pg)
 {
 	if (pg == Unbound) {
 		Return(getpackage_(ptr, &pg));
@@ -385,7 +385,7 @@ error:
 			"((var &optional package result) &rest body) form.", check, form, NULL);
 }
 
-_g int do_symbols_common(addr form, addr env, addr *ret)
+int do_symbols_common(addr form, addr env, addr *ret)
 {
 	return do_symbols_const_common(form, ret, CONSTANT_SYSTEM_DO_SYMBOLS);
 }
@@ -394,7 +394,7 @@ _g int do_symbols_common(addr form, addr env, addr *ret)
 /*
  *  do-external-symbols
  */
-_g int do_external_symbols_common(addr form, addr env, addr *ret)
+int do_external_symbols_common(addr form, addr env, addr *ret)
 {
 	return do_symbols_const_common(form, ret, CONSTANT_SYSTEM_DO_EXTERNAL_SYMBOLS);
 }
@@ -403,7 +403,7 @@ _g int do_external_symbols_common(addr form, addr env, addr *ret)
 /*
  *  do-all-symbols
  */
-_g int do_all_symbols_common(addr form, addr env, addr *ret)
+int do_all_symbols_common(addr form, addr env, addr *ret)
 {
 	/* `(block nil
 	 *    (system::do-all-symbols
@@ -455,7 +455,7 @@ error:
 /*
  *  intern
  */
-_g int intern_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sec)
+int intern_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sec)
 {
 	enum PACKAGE_TYPE type;
 

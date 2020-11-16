@@ -14,17 +14,17 @@
 #define read_sequence_stream _n(read_sequence_stream)
 #define write_sequence_stream _n(write_sequence_stream)
 
-_g int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret);
-_g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret);
-_g int terpri_stream_(addr stream);
-_g int fresh_line_stream_(addr stream, int *ret);
-_g int peek_char_stream_(Execute ptr, addr *ret,
+int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret);
+int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret);
+int terpri_stream_(addr stream);
+int fresh_line_stream_(addr stream, int *ret);
+int peek_char_stream_(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp);
-_g int read_line_stream_(Execute ptr, addr *ret, int *miss,
+int read_line_stream_(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp);
-_g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret);
-_g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end);
-_g int write_sequence_stream(LocalRoot local,
+int write_string_stream(Execute ptr, addr string, addr rest, addr *ret);
+int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end);
+int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end);
 
 #endif

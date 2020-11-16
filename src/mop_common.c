@@ -2,7 +2,7 @@
 #include "mop_common.h"
 #include "typedef.h"
 
-_g void init_metaobject_protocol(void)
+void init_metaobject_protocol(void)
 {
 	init_mop_class();
 	init_mop_reader();
@@ -10,7 +10,7 @@ _g void init_metaobject_protocol(void)
 	init_mop_protocols();
 }
 
-_g void build_metaobject_protocol(void)
+void build_metaobject_protocol(void)
 {
 	Execute ptr;
 

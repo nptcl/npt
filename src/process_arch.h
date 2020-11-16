@@ -7,7 +7,7 @@
 
 #define run_process_arch_ _n(run_process_arch_)
 
-_g int run_process_arch_(Execute ptr, addr instance, addr *ret);
+int run_process_arch_(Execute ptr, addr instance, addr *ret);
 
 #endif
 

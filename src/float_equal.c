@@ -7,19 +7,19 @@
 /*
  *  boolean
  */
-_g int zerop_single_float(addr pos)
+int zerop_single_float(addr pos)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	return RefSingleFloat(pos) == 0.0f;
 }
 
-_g int zerop_double_float(addr pos)
+int zerop_double_float(addr pos)
 {
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	return RefDoubleFloat(pos) == 0.0;
 }
 
-_g int zerop_long_float(addr pos)
+int zerop_long_float(addr pos)
 {
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	return RefLongFloat(pos) == 0.0L;
@@ -29,28 +29,28 @@ _g int zerop_long_float(addr pos)
 /*
  *  equal
  */
-_g int equal_fs_real(addr left, addr right)
+int equal_fs_real(addr left, addr right)
 {
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	return single_float_fixnum(left) == RefSingleFloat(right);
 }
 
-_g int equal_fd_real(addr left, addr right)
+int equal_fd_real(addr left, addr right)
 {
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	return double_float_fixnum(left) == RefDoubleFloat(right);
 }
 
-_g int equal_fl_real(addr left, addr right)
+int equal_fl_real(addr left, addr right)
 {
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	return long_float_fixnum(left) == RefLongFloat(right);
 }
 
-_g int equal_bs_real_(addr left, addr right, int *ret)
+int equal_bs_real_(addr left, addr right, int *ret)
 {
 	single_float x, y;
 
@@ -62,7 +62,7 @@ _g int equal_bs_real_(addr left, addr right, int *ret)
 	return Result(ret, x == y);
 }
 
-_g int equal_bd_real_(addr left, addr right, int *ret)
+int equal_bd_real_(addr left, addr right, int *ret)
 {
 	double_float x, y;
 
@@ -74,7 +74,7 @@ _g int equal_bd_real_(addr left, addr right, int *ret)
 	return Result(ret, x == y);
 }
 
-_g int equal_bl_real_(addr left, addr right, int *ret)
+int equal_bl_real_(addr left, addr right, int *ret)
 {
 	long_float x, y;
 
@@ -90,7 +90,7 @@ _g int equal_bl_real_(addr left, addr right, int *ret)
 /*
  *  compare
  */
-_g int compare_fs_real(addr left, addr right)
+int compare_fs_real(addr left, addr right)
 {
 	single_float value1, value2;
 
@@ -106,7 +106,7 @@ _g int compare_fs_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_fd_real(addr left, addr right)
+int compare_fd_real(addr left, addr right)
 {
 	double_float value1, value2;
 
@@ -122,7 +122,7 @@ _g int compare_fd_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_fl_real(addr left, addr right)
+int compare_fl_real(addr left, addr right)
 {
 	long_float value1, value2;
 
@@ -138,22 +138,22 @@ _g int compare_fl_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_sf_real(addr left, addr right)
+int compare_sf_real(addr left, addr right)
 {
 	return -compare_fs_real(right, left);
 }
 
-_g int compare_df_real(addr left, addr right)
+int compare_df_real(addr left, addr right)
 {
 	return -compare_fd_real(right, left);
 }
 
-_g int compare_lf_real(addr left, addr right)
+int compare_lf_real(addr left, addr right)
 {
 	return -compare_fl_real(right, left);
 }
 
-_g int compare_ss_real(addr left, addr right)
+int compare_ss_real(addr left, addr right)
 {
 	single_float value1, value2;
 	GetSingleFloat(left, &value1);
@@ -166,7 +166,7 @@ _g int compare_ss_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_sd_real(addr left, addr right)
+int compare_sd_real(addr left, addr right)
 {
 	single_float value1;
 	double_float value2;
@@ -180,7 +180,7 @@ _g int compare_sd_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_sl_real(addr left, addr right)
+int compare_sl_real(addr left, addr right)
 {
 	single_float value1;
 	long_float value2;
@@ -194,7 +194,7 @@ _g int compare_sl_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_ds_real(addr left, addr right)
+int compare_ds_real(addr left, addr right)
 {
 	double_float value1;
 	single_float value2;
@@ -208,7 +208,7 @@ _g int compare_ds_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_dd_real(addr left, addr right)
+int compare_dd_real(addr left, addr right)
 {
 	double_float value1, value2;
 	GetDoubleFloat(left, &value1);
@@ -221,7 +221,7 @@ _g int compare_dd_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_dl_real(addr left, addr right)
+int compare_dl_real(addr left, addr right)
 {
 	double_float value1;
 	long_float value2;
@@ -235,7 +235,7 @@ _g int compare_dl_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_ls_real(addr left, addr right)
+int compare_ls_real(addr left, addr right)
 {
 	long_float value1;
 	single_float value2;
@@ -249,7 +249,7 @@ _g int compare_ls_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_ld_real(addr left, addr right)
+int compare_ld_real(addr left, addr right)
 {
 	long_float value1;
 	double_float value2;
@@ -263,7 +263,7 @@ _g int compare_ld_real(addr left, addr right)
 	return 0;
 }
 
-_g int compare_ll_real(addr left, addr right)
+int compare_ll_real(addr left, addr right)
 {
 	long_float value1, value2;
 	GetLongFloat(left, &value1);
@@ -333,7 +333,7 @@ static int compare_long_float(addr left, addr right)
 	return 0;
 }
 
-_g int compare_float(addr left, addr right)
+int compare_float(addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -352,42 +352,42 @@ _g int compare_float(addr left, addr right)
 	return 0;
 }
 
-_g int less_float_clang(addr left, addr right)
+int less_float_clang(addr left, addr right)
 {
 	return less_float(left, right);
 }
 
-_g int less_equal_float_clang(addr left, addr right)
+int less_equal_float_clang(addr left, addr right)
 {
 	return less_equal_float(left, right);
 }
 
-_g int less_ss_clang(addr left, addr right)
+int less_ss_clang(addr left, addr right)
 {
 	return less_ss_real(left, right);
 }
 
-_g int less_dd_clang(addr left, addr right)
+int less_dd_clang(addr left, addr right)
 {
 	return less_dd_real(left, right);
 }
 
-_g int less_ll_clang(addr left, addr right)
+int less_ll_clang(addr left, addr right)
 {
 	return less_ll_real(left, right);
 }
 
-_g int less_equal_ss_clang(addr left, addr right)
+int less_equal_ss_clang(addr left, addr right)
 {
 	return less_equal_ss_real(left, right);
 }
 
-_g int less_equal_dd_clang(addr left, addr right)
+int less_equal_dd_clang(addr left, addr right)
 {
 	return less_equal_dd_real(left, right);
 }
 
-_g int less_equal_ll_clang(addr left, addr right)
+int less_equal_ll_clang(addr left, addr right)
 {
 	return less_equal_ll_real(left, right);
 }
@@ -450,7 +450,7 @@ static int compare_long_float_(addr left, addr right, int *ret)
 	}
 }
 
-_g int compare_float_(addr left, addr right, int *ret)
+int compare_float_(addr left, addr right, int *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -468,14 +468,14 @@ _g int compare_float_(addr left, addr right, int *ret)
 	}
 }
 
-_g int less_float_clang_(addr left, addr right, int *ret)
+int less_float_clang_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_float_(left, right, &check));
 	return Result(ret, check < 0);
 }
 
-_g int less_equal_float_clang_(addr left, addr right, int *ret)
+int less_equal_float_clang_(addr left, addr right, int *ret)
 {
 	int check;
 	Return(compare_float_(left, right, &check));

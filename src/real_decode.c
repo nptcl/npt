@@ -58,7 +58,7 @@ static void decode_long_float(addr pos, addr *ret, addr *rexp, addr *rsign)
 	long_float_heap(rsign, signbit(v)? -1.0L: 1.0L);
 }
 
-_g int decode_float_common_(addr pos, addr *ret, addr *rexp, addr *rsign)
+int decode_float_common_(addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -85,7 +85,7 @@ _g int decode_float_common_(addr pos, addr *ret, addr *rexp, addr *rsign)
 /*
  *  scale-float
  */
-_g int scale_float_common_(addr pos, addr scale, addr *ret)
+int scale_float_common_(addr pos, addr scale, addr *ret)
 {
 	fixnum fixnum_value;
 	long n;
@@ -134,7 +134,7 @@ _g int scale_float_common_(addr pos, addr scale, addr *ret)
 /*
  *  float-radix
  */
-_g void float_radix_common(addr pos, addr *ret)
+void float_radix_common(addr pos, addr *ret)
 {
 	fixnum_heap(ret, FLT_RADIX);
 }
@@ -310,7 +310,7 @@ static int float_sign2_common_(addr pos, addr opt, addr *ret)
 	}
 }
 
-_g int float_sign_common_(addr pos, addr opt, addr *ret)
+int float_sign_common_(addr pos, addr opt, addr *ret)
 {
 	if (opt == Unbound)
 		return float_sign1_common_(pos, ret);
@@ -322,7 +322,7 @@ _g int float_sign_common_(addr pos, addr opt, addr *ret)
 /*
  *  float-digits
  */
-_g int float_digits_common_(addr pos, addr *ret)
+int float_digits_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -433,7 +433,7 @@ static int float_precision_float(addr pos, int *ret)
 	}
 }
 
-_g int float_precision_common_(Execute ptr, addr pos, addr *ret)
+int float_precision_common_(Execute ptr, addr pos, addr *ret)
 {
 	int size, check;
 
@@ -601,7 +601,7 @@ static int integer_decode_float_long_(Execute ptr,
 	return 0;
 }
 
-_g int integer_decode_float_common_(Execute ptr,
+int integer_decode_float_common_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	switch (GetType(pos)) {
@@ -719,7 +719,7 @@ static int rational_long_common_(Execute ptr, addr pos, addr *ret)
 	return 0;
 }
 
-_g int rational_common_(Execute ptr, addr pos, addr *ret)
+int rational_common_(Execute ptr, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -922,7 +922,7 @@ static int rationalize_float_(Execute ptr, addr x, addr *ret)
 	}
 }
 
-_g int rationalize_common_(Execute ptr, addr pos, addr *ret)
+int rationalize_common_(Execute ptr, addr pos, addr *ret)
 {
 	if (rationalp(pos))
 		return rational_throw_heap_(pos, ret);

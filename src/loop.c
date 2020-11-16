@@ -186,7 +186,7 @@ static void loop_simple_common(addr *ret, addr form)
 	lista_heap(ret, x, Nil, y, form, NULL);
 }
 
-_g int loop_common(Execute ptr, addr *ret, addr list)
+int loop_common(Execute ptr, addr *ret, addr list)
 {
 	addr named, vars, body;
 	LocalHold hold;

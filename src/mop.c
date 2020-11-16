@@ -10,7 +10,7 @@
 #include "symbol.h"
 #include "type_table.h"
 
-_g int mop_export_symbol_(addr symbol)
+int mop_export_symbol_(addr symbol)
 {
 	addr package;
 
@@ -35,28 +35,28 @@ static void mop_argument_generic_var(addr *ret, unsigned n)
 	*ret = pos;
 }
 
-_g void mop_argument_generic_var1(addr *ret)
+void mop_argument_generic_var1(addr *ret)
 {
 	mop_argument_generic_var(ret, 1);
 }
-_g void mop_argument_generic_var2(addr *ret)
+void mop_argument_generic_var2(addr *ret)
 {
 	mop_argument_generic_var(ret, 2);
 }
-_g void mop_argument_generic_var3(addr *ret)
+void mop_argument_generic_var3(addr *ret)
 {
 	mop_argument_generic_var(ret, 3);
 }
-_g void mop_argument_generic_var4(addr *ret)
+void mop_argument_generic_var4(addr *ret)
 {
 	mop_argument_generic_var(ret, 4);
 }
-_g void mop_argument_generic_var5(addr *ret)
+void mop_argument_generic_var5(addr *ret)
 {
 	mop_argument_generic_var(ret, 5);
 }
 
-_g void mop_argument_generic_var1opt1(addr *ret)
+void mop_argument_generic_var1opt1(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -69,7 +69,7 @@ _g void mop_argument_generic_var1opt1(addr *ret)
 	*ret = pos;
 }
 
-_g void mop_argument_generic_var3opt1(addr *ret)
+void mop_argument_generic_var3opt1(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -82,7 +82,7 @@ _g void mop_argument_generic_var3opt1(addr *ret)
 	*ret = pos;
 }
 
-_g void mop_argument_generic_var1rest(addr *ret)
+void mop_argument_generic_var1rest(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -95,7 +95,7 @@ _g void mop_argument_generic_var1rest(addr *ret)
 	*ret = pos;
 }
 
-_g void mop_argument_generic_var2rest(addr *ret)
+void mop_argument_generic_var2rest(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -123,29 +123,29 @@ static void mop_argument_generic_varnrest1key0(addr *ret, unsigned var)
 	*ret = pos;
 }
 
-_g void mop_argument_generic_var1rest1key0(addr *ret)
+void mop_argument_generic_var1rest1key0(addr *ret)
 {
 	mop_argument_generic_varnrest1key0(ret, 1);
 }
 
-_g void mop_argument_generic_var2rest1key0(addr *ret)
+void mop_argument_generic_var2rest1key0(addr *ret)
 {
 	mop_argument_generic_varnrest1key0(ret, 2);
 }
 
-_g void mop_argument_generic_var4rest1key0(addr *ret)
+void mop_argument_generic_var4rest1key0(addr *ret)
 {
 	mop_argument_generic_varnrest1key0(ret, 4);
 }
 
-_g void mop_argument_method_var(addr *ret, constindex index)
+void mop_argument_method_var(addr *ret, constindex index)
 {
 	addr pos;
 	GetConstant(index, &pos);
 	list_heap(ret, Nil, pos, NULL);
 }
 
-_g void mop_argument_method_var1(addr *ret, constindex var1)
+void mop_argument_method_var1(addr *ret, constindex var1)
 {
 	addr pos, list;
 	struct argument_struct *str;
@@ -163,7 +163,7 @@ _g void mop_argument_method_var1(addr *ret, constindex var1)
 	*ret = pos;
 }
 
-_g void mop_argument_method_var1opt1(addr *ret, constindex var1, constindex opt1)
+void mop_argument_method_var1opt1(addr *ret, constindex var1, constindex opt1)
 {
 	addr pos, list;
 	struct argument_struct *str;
@@ -186,7 +186,7 @@ _g void mop_argument_method_var1opt1(addr *ret, constindex var1, constindex opt1
 	*ret = pos;
 }
 
-_g void mop_argument_method_var1rest(addr *ret, constindex var1)
+void mop_argument_method_var1rest(addr *ret, constindex var1)
 {
 	addr pos;
 	mop_argument_method_var1(&pos, var1);
@@ -194,7 +194,7 @@ _g void mop_argument_method_var1rest(addr *ret, constindex var1)
 	*ret = pos;
 }
 
-_g void mop_argument_method_var2(addr *ret, constindex var1, constindex var2)
+void mop_argument_method_var2(addr *ret, constindex var1, constindex var2)
 {
 	addr pos, list, arg1, arg2;
 	struct argument_struct *str;
@@ -213,7 +213,7 @@ _g void mop_argument_method_var2(addr *ret, constindex var1, constindex var2)
 	*ret = pos;
 }
 
-_g void mop_argument_method_var2rest(addr *ret, constindex var1, constindex var2)
+void mop_argument_method_var2rest(addr *ret, constindex var1, constindex var2)
 {
 	addr pos;
 	mop_argument_method_var2(&pos, var1, var2);
@@ -221,7 +221,7 @@ _g void mop_argument_method_var2rest(addr *ret, constindex var1, constindex var2
 	*ret = pos;
 }
 
-_g void mop_argument_method_print_object(addr *ret, addr clos)
+void mop_argument_method_print_object(addr *ret, addr clos)
 {
 	addr pos, pos1, pos2;
 	struct argument_struct *str;

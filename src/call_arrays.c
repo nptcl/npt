@@ -16,7 +16,7 @@
 /*
  *  make-array
  */
-_g int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
+int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 {
 	addr type, ielem, icont, adj, fill, dto, off;
 
@@ -42,7 +42,7 @@ _g int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 /*
  *  adjust-array
  */
-_g int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
+int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
 {
 	addr type, ielem, icont, fill, dto, off;
 
@@ -69,7 +69,7 @@ _g int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret
 /*
  *  adjustable-array-p
  */
-_g int adjustable_array_p_common(addr var, int *ret)
+int adjustable_array_p_common(addr var, int *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -90,7 +90,7 @@ _g int adjustable_array_p_common(addr var, int *ret)
 /*
  *  aref
  */
-_g int aref_common(addr var, addr rest, addr *ret)
+int aref_common(addr var, addr rest, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -115,7 +115,7 @@ _g int aref_common(addr var, addr rest, addr *ret)
 /*
  *  setf-aref
  */
-_g int setf_aref_common(addr value, addr var, addr rest)
+int setf_aref_common(addr value, addr var, addr rest)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -168,7 +168,7 @@ static int array_array_dimension_common(addr array, addr axis, addr *ret)
 	return 0;
 }
 
-_g int array_dimension_common(addr var, addr axis, addr *ret)
+int array_dimension_common(addr var, addr axis, addr *ret)
 {
 	size_t size;
 
@@ -218,7 +218,7 @@ static void array_array_dimensions_common(addr array, addr *ret)
 	*ret = root;
 }
 
-_g int array_dimensions_common(addr var, addr *ret)
+int array_dimensions_common(addr var, addr *ret)
 {
 	size_t size;
 
@@ -254,7 +254,7 @@ _g int array_dimensions_common(addr var, addr *ret)
 /*
  *  array-element-type
  */
-_g int array_element_type_common(addr var, addr *ret)
+int array_element_type_common(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -284,7 +284,7 @@ _g int array_element_type_common(addr var, addr *ret)
 /*
  *  array-has-fill-pointer-p
  */
-_g int array_has_fill_pointer_p_common(addr var, int *ret)
+int array_has_fill_pointer_p_common(addr var, int *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -321,7 +321,7 @@ static void array_array_displacement_common(addr array, addr *displaced, addr *o
 	}
 }
 
-_g int array_displacement_common(addr pos, addr *ret, addr *offset)
+int array_displacement_common(addr pos, addr *ret, addr *offset)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
@@ -385,7 +385,7 @@ static int array_array_in_bounds_p_common(addr array, addr rest, int *ret)
 	return Result(ret, value);
 }
 
-_g int array_in_bounds_p_common(addr array, addr rest, int *ret)
+int array_in_bounds_p_common(addr array, addr rest, int *ret)
 {
 	size_t size;
 
@@ -416,7 +416,7 @@ _g int array_in_bounds_p_common(addr array, addr rest, int *ret)
 /*
  *  array-rank
  */
-_g int array_rank_common(addr pos, addr *ret)
+int array_rank_common(addr pos, addr *ret)
 {
 	size_t size;
 
@@ -454,7 +454,7 @@ static int array_array_row_major_index_common_(addr array, addr rest, addr *ret)
 	return 0;
 }
 
-_g int array_row_major_index_common(addr array, addr rest, addr *ret)
+int array_row_major_index_common(addr array, addr rest, addr *ret)
 {
 	size_t size;
 
@@ -484,7 +484,7 @@ _g int array_row_major_index_common(addr array, addr rest, addr *ret)
 /*
  *  array-total-size
  */
-_g int array_total_size_common(addr array, addr *ret)
+int array_total_size_common(addr array, addr *ret)
 {
 	size_t size;
 
@@ -517,7 +517,7 @@ _g int array_total_size_common(addr array, addr *ret)
 /*
  *  arrayp
  */
-_g int arrayp_common(addr var)
+int arrayp_common(addr var)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -535,7 +535,7 @@ _g int arrayp_common(addr var)
 /*
  *  fill-pointer
  */
-_g int fill_pointer_common(Execute ptr, addr array, addr *ret)
+int fill_pointer_common(Execute ptr, addr array, addr *ret)
 {
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
@@ -555,7 +555,7 @@ _g int fill_pointer_common(Execute ptr, addr array, addr *ret)
 	}
 }
 
-_g int setf_fill_pointer_common(Execute ptr, addr value, addr array)
+int setf_fill_pointer_common(Execute ptr, addr value, addr array)
 {
 	int check;
 
@@ -580,7 +580,7 @@ _g int setf_fill_pointer_common(Execute ptr, addr value, addr array)
 /*
  *  row-major-aref
  */
-_g int row_major_aref_common(addr array, addr index, addr *ret)
+int row_major_aref_common(addr array, addr index, addr *ret)
 {
 	size_t size;
 
@@ -605,7 +605,7 @@ _g int row_major_aref_common(addr array, addr index, addr *ret)
 	}
 }
 
-_g int setf_row_major_aref_common(addr value, addr array, addr index)
+int setf_row_major_aref_common(addr value, addr array, addr index)
 {
 	size_t size;
 
@@ -633,7 +633,7 @@ _g int setf_row_major_aref_common(addr value, addr array, addr index)
 /*
  *  simple-vector-p
  */
-_g int simple_vector_p_common(addr var)
+int simple_vector_p_common(addr var)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -651,7 +651,7 @@ _g int simple_vector_p_common(addr var)
 /*
  *  svref
  */
-_g int svref_common(addr pos, addr index, addr *ret)
+int svref_common(addr pos, addr index, addr *ret)
 {
 	size_t size;
 
@@ -670,7 +670,7 @@ _g int svref_common(addr pos, addr index, addr *ret)
 	}
 }
 
-_g int setf_svref_common(addr value, addr pos, addr index)
+int setf_svref_common(addr value, addr pos, addr index)
 {
 	size_t size;
 
@@ -692,7 +692,7 @@ _g int setf_svref_common(addr value, addr pos, addr index)
 /*
  *  vectorp
  */
-_g int vectorp_common(addr var)
+int vectorp_common(addr var)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -712,7 +712,7 @@ _g int vectorp_common(addr var)
 /*
  *  bit
  */
-_g int bit_common(addr pos, addr rest, addr *ret)
+int bit_common(addr pos, addr rest, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
@@ -727,7 +727,7 @@ _g int bit_common(addr pos, addr rest, addr *ret)
 	}
 }
 
-_g int setf_bit_common(addr value, addr pos, addr rest)
+int setf_bit_common(addr value, addr pos, addr rest)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
@@ -745,7 +745,7 @@ _g int setf_bit_common(addr value, addr pos, addr rest)
 /*
  *  bit-vector-p
  */
-_g int bit_vector_p_common(addr var)
+int bit_vector_p_common(addr var)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -763,7 +763,7 @@ _g int bit_vector_p_common(addr var)
 /*
  *  simple-bit-vector-p
  */
-_g int simple_bit_vector_p_common(addr var)
+int simple_bit_vector_p_common(addr var)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:

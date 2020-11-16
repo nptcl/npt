@@ -13,12 +13,12 @@
 #define array_reverse_ _n(array_reverse_)
 #define array_nreverse_ _n(array_nreverse_)
 
-_g int array_bitcalc_(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call);
-_g int array_bitnot_(addr *ret, addr pos, addr opt);
-_g int array_fill_(addr pos, addr item, addr start, addr end);
-_g int array_subseq_(addr *ret, addr pos, addr start, addr end);
-_g int array_reverse_(addr *ret, addr pos);
-_g int array_nreverse_(addr *ret, addr pos);
+int array_bitcalc_(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call);
+int array_bitnot_(addr *ret, addr pos, addr opt);
+int array_fill_(addr pos, addr item, addr start, addr end);
+int array_subseq_(addr *ret, addr pos, addr start, addr end);
+int array_reverse_(addr *ret, addr pos);
+int array_nreverse_(addr *ret, addr pos);
 
 #endif
 

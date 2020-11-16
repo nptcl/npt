@@ -34,7 +34,7 @@ static int find_ed_program_(Execute ptr, addr *ret)
 	return find_environment_char_(ptr, "EDITOR", ret);
 }
 
-_g int ed_process_(Execute ptr, addr file)
+int ed_process_(Execute ptr, addr file)
 {
 	addr call, status, rest;
 

@@ -31,20 +31,20 @@
 #define GetExecuteValues			GetArrayA4
 #define SetExecuteValuesList(x,y)	SetExecuteValues((x),EXECUTE_VALUES,(y))
 #define GetExecuteValuesList(x,y)	GetExecuteValues((x),EXECUTE_VALUES,(y))
-_g void init_execute_values(struct execute *bit);
-_g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize);
-_g void restore_values_control(struct execute *ptr, addr pos, size_t size);
+void init_execute_values(struct execute *bit);
+void save_values_control(struct execute *ptr, addr *ret, size_t *rsize);
+void restore_values_control(struct execute *ptr, addr pos, size_t size);
 
 
 /* throw */
-_g void normal_throw_control(struct execute *ptr);
-_g void save_throw_control(struct execute *ptr, struct execute_throw *save);
-_g void restore_throw_control(struct execute *ptr, const struct execute_throw *save);
+void normal_throw_control(struct execute *ptr);
+void save_throw_control(struct execute *ptr, struct execute_throw *save);
+void restore_throw_control(struct execute *ptr, const struct execute_throw *save);
 
 
 /* save */
-_g void save_execute_control(struct execute *ptr, addr *ret);
-_g void restore_execute_control(struct execute *ptr, addr pos);
+void save_execute_control(struct execute *ptr, addr *ret);
+void restore_execute_control(struct execute *ptr, addr pos);
 
 
 /* lexical */
@@ -57,25 +57,25 @@ _g void restore_execute_control(struct execute *ptr, addr pos);
 #define setlow_lexical_control(p,i,v) SetExecuteLexical((p)->lexical_vector,(i),(v))
 #endif
 
-_g void lexical_control(struct execute *ptr, size_t size);
-_g void getlow_lexical_debug(struct execute *ptr, size_t index, addr *ret);
-_g void setlow_lexical_debug(struct execute *ptr, size_t index, addr value);
-_g void get_lexical_control(struct execute *ptr, size_t index, addr *ret);
-_g void set_lexical_control(struct execute *ptr, size_t index, addr value);
-_g void reference_lexical_control(struct execute *ptr, size_t index);
+void lexical_control(struct execute *ptr, size_t size);
+void getlow_lexical_debug(struct execute *ptr, size_t index, addr *ret);
+void setlow_lexical_debug(struct execute *ptr, size_t index, addr value);
+void get_lexical_control(struct execute *ptr, size_t index, addr *ret);
+void set_lexical_control(struct execute *ptr, size_t index, addr value);
+void reference_lexical_control(struct execute *ptr, size_t index);
 
 
 /* closure */
-_g void closure_heap(addr *ret, addr value, size_t lexical);
-_g void get_closure(addr pos, addr *ret);
-_g size_t lexical_closure(addr pos);
+void closure_heap(addr *ret, addr value, size_t lexical);
+void get_closure(addr pos, addr *ret);
+size_t lexical_closure(addr pos);
 
 
 /* reference */
-_g void reference_heap(addr *ret, addr value);
-_g void get_reference(addr pos, addr *ret);
-_g void set_reference(addr pos, addr value);
-_g void getvalue_reference(addr pos, addr *ret);
+void reference_heap(addr *ret, addr value);
+void get_reference(addr pos, addr *ret);
+void set_reference(addr pos, addr value);
+void getvalue_reference(addr pos, addr *ret);
 
 #endif
 

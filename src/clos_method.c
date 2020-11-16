@@ -63,47 +63,47 @@ static int stdset_method_constant_(addr pos, addr value,
 #define StdSetMethod_(p,r,a,b) \
 	stdset_method_constant_((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 
-_g int stdget_method_function_(addr pos, addr *ret)
+int stdget_method_function_(addr pos, addr *ret)
 {
 	return StdGetMethod_(pos, ret, function, FUNCTION);
 }
-_g int stdset_method_function_(addr pos, addr value)
+int stdset_method_function_(addr pos, addr value)
 {
 	return StdSetMethod_(pos, value, function, FUNCTION);
 }
 
-_g int stdget_method_generic_function_(addr pos, addr *ret)
+int stdget_method_generic_function_(addr pos, addr *ret)
 {
 	return StdGetMethod_(pos, ret, generic_function, GENERIC_FUNCTION);
 }
-_g int stdset_method_generic_function_(addr pos, addr value)
+int stdset_method_generic_function_(addr pos, addr value)
 {
 	return StdSetMethod_(pos, value, generic_function, GENERIC_FUNCTION);
 }
 
-_g int stdget_method_lambda_list_(addr pos, addr *ret)
+int stdget_method_lambda_list_(addr pos, addr *ret)
 {
 	return StdGetMethod_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-_g int stdset_method_lambda_list_(addr pos, addr value)
+int stdset_method_lambda_list_(addr pos, addr value)
 {
 	return StdSetMethod_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-_g int stdget_method_qualifiers_(addr pos, addr *ret)
+int stdget_method_qualifiers_(addr pos, addr *ret)
 {
 	return StdGetMethod_(pos, ret, qualifiers, QUALIFIERS);
 }
-_g int stdset_method_qualifiers_(addr pos, addr value)
+int stdset_method_qualifiers_(addr pos, addr value)
 {
 	return StdSetMethod_(pos, value, qualifiers, QUALIFIERS);
 }
 
-_g int stdget_method_specializers_(addr pos, addr *ret)
+int stdget_method_specializers_(addr pos, addr *ret)
 {
 	return StdGetMethod_(pos, ret, specializers, SPECIALIZERS);
 }
-_g int stdset_method_specializers_(addr pos, addr value)
+int stdset_method_specializers_(addr pos, addr value)
 {
 	return StdSetMethod_(pos, value, specializers, SPECIALIZERS);
 }
@@ -135,7 +135,7 @@ static int method_instance_heap_(addr *ret, addr clos,
 	return method_instance_alloc_(NULL, ret, clos, lambda, qua, spec, call);
 }
 
-_g int method_instance_call_(LocalRoot local, addr *ret, addr clos, addr call)
+int method_instance_call_(LocalRoot local, addr *ret, addr clos, addr call)
 {
 	return method_instance_alloc_(local, ret, clos, Nil, Nil, Nil, call);
 }
@@ -172,7 +172,7 @@ static int method_specializer_list_(addr *ret, addr list)
 	return 0;
 }
 
-_g int method_instance_lambda_(LocalRoot local, addr *ret, addr clos, addr lambda)
+int method_instance_lambda_(LocalRoot local, addr *ret, addr clos, addr lambda)
 {
 	addr spec;
 
@@ -514,7 +514,7 @@ static int method_find_method_nil_(Execute ptr,
 	return Result(ret, Nil);
 }
 
-_g int method_find_method_(Execute ptr, addr gen, addr qua, addr spec, addr *ret)
+int method_find_method_(Execute ptr, addr gen, addr qua, addr spec, addr *ret)
 {
 	Return(method_find_method_nil_(ptr, gen, qua, spec, ret));
 	if (*ret == Nil)
@@ -544,7 +544,7 @@ static int method_remove_method_execute_(Execute ptr, addr gen, addr method, int
 	return Result(ret, 1);
 }
 
-_g int method_remove_method_(Execute ptr, addr gen, addr method)
+int method_remove_method_(Execute ptr, addr gen, addr method)
 {
 	int check;
 
@@ -581,7 +581,7 @@ static int method_add_check_(Execute ptr, addr gen, addr method)
 	return 0;
 }
 
-_g int method_add_method_(Execute ptr, addr gen, addr method)
+int method_add_method_(Execute ptr, addr gen, addr method)
 {
 	addr check_method;
 
@@ -623,12 +623,12 @@ static int method_add_(Execute ptr, addr gen, addr method)
 	return generic_finalize_(gen);
 }
 #ifdef LISP_DEBUG
-_g int common_method_add_(Execute ptr, addr gen, addr method)
+int common_method_add_(Execute ptr, addr gen, addr method)
 {
 	return method_add_(ptr, gen, method);
 }
 #else
-_g int common_method_add_(Execute ptr, addr gen, addr method)
+int common_method_add_(Execute ptr, addr gen, addr method)
 {
 	Check(! clos_generic_p_debug(gen), "generic error");
 	Check(! clos_method_p_debug(method), "method error");
@@ -646,7 +646,7 @@ static int defmethod_make_generic_function_(addr name, addr lambda, addr *ret)
 	return generic_empty_(name, lambda, ret);
 }
 
-_g int ensure_method_common_(Execute ptr, addr *ret,
+int ensure_method_common_(Execute ptr, addr *ret,
 		addr name, addr lambda, addr qua, addr spec, addr call)
 {
 	int check;
@@ -687,7 +687,7 @@ static int common_method_set_finalize_(addr gen)
 	return generic_finalize_(gen);
 }
 
-_g int common_method_finalize_(addr gen)
+int common_method_finalize_(addr gen)
 {
 #ifdef LISP_DEBUG
 	addr pos;
@@ -706,14 +706,14 @@ _g int common_method_finalize_(addr gen)
 /*
  *  document
  */
-_g int methodget_document_(addr clos, addr *ret)
+int methodget_document_(addr clos, addr *ret)
 {
 	Return(stdget_method_function_(clos, &clos));
 	getdocumentation_function(clos, ret);
 	return 0;
 }
 
-_g int methodset_document_(addr clos, addr value)
+int methodset_document_(addr clos, addr value)
 {
 	Return(stdget_method_function_(clos, &clos));
 	setdocumentation_function(clos, value);
@@ -724,7 +724,7 @@ _g int methodset_document_(addr clos, addr value)
 /*
  *  common
  */
-_g void method_make_method_lambda(addr list, addr env, addr *ret)
+void method_make_method_lambda(addr list, addr env, addr *ret)
 {
 	/* `(lambda (,method ,next &rest ,args)
 	 *    (flet ((next-method-p ()

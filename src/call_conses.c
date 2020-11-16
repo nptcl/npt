@@ -213,7 +213,7 @@ static int argument_sublis_cons(Execute ptr,
 	return 0;
 }
 
-_g int sublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
+int sublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
 {
 	struct sublis_struct str;
 
@@ -261,7 +261,7 @@ static int recursive_nsublis_cons(struct sublis_struct *str, addr tree, addr *re
 	return Result(ret, tree);
 }
 
-_g int nsublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
+int nsublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
 {
 	struct sublis_struct str;
 
@@ -438,7 +438,7 @@ static int recursive_subst_cons(struct subst_struct *str, addr tree, addr *ret)
 	return 0;
 }
 
-_g int subst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
+int subst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 
@@ -486,7 +486,7 @@ static int recursive_nsubst_cons(struct subst_struct *str, addr tree, addr *ret)
 	return Result(ret, tree);
 }
 
-_g int nsubst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
+int nsubst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 
@@ -626,7 +626,7 @@ static int recursive_subst_if_cons(struct subst_struct *str, addr tree, addr *re
 	return 0;
 }
 
-_g int subst_if_common(Execute ptr,
+int subst_if_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
@@ -673,7 +673,7 @@ static int recursive_nsubst_if_cons(struct subst_struct *str, addr tree, addr *r
 	return Result(ret, tree);
 }
 
-_g int nsubst_if_common(Execute ptr,
+int nsubst_if_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
@@ -685,7 +685,7 @@ _g int nsubst_if_common(Execute ptr,
 /*
  *  subst-if-not
  */
-_g int subst_if_not_common(Execute ptr,
+int subst_if_not_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
@@ -697,7 +697,7 @@ _g int subst_if_not_common(Execute ptr,
 /*
  *  nsubst-if-not
  */
-_g int nsubst_if_not_common(Execute ptr,
+int nsubst_if_not_common(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
@@ -803,7 +803,7 @@ static int recursive_tree_equal_cons(struct tree_equal_struct *str,
 	return recursive_tree_equal_cons(str, result, cdr1, cdr2);
 }
 
-_g int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret)
+int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret)
 {
 	struct tree_equal_struct str;
 
@@ -848,7 +848,7 @@ static int index_list_length_cons(addr list, size_t *rsize, int *ret)
 	return Result(ret, 0);
 }
 
-_g int list_length_common(addr list, addr *ret)
+int list_length_common(addr list, addr *ret)
 {
 	int check;
 	size_t size;
@@ -864,7 +864,7 @@ _g int list_length_common(addr list, addr *ret)
 /*
  *  make-list
  */
-_g int make_list_common(addr var, addr rest, addr *ret)
+int make_list_common(addr var, addr rest, addr *ret)
 {
 	addr element, list;
 	size_t size;
@@ -1005,7 +1005,7 @@ static int expansion_push_cons(Execute ptr, addr *ret, addr item, addr place, ad
 		return multiple_push_cons(ptr, ret, item, a, b, g, w, r);
 }
 
-_g int push_common(Execute ptr, addr form, addr env, addr *ret)
+int push_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, item, place;
 
@@ -1167,7 +1167,7 @@ static int expansion_pop_cons(Execute ptr, addr *ret, addr place, addr env)
 		return multiple_pop_cons(ptr, ret, a, b, g, w, r);
 }
 
-_g int pop_common(Execute ptr, addr form, addr env, addr *ret)
+int pop_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place;
 
@@ -1187,7 +1187,7 @@ error:
 /*
  *  nth
  */
-_g int nth_common(addr index, addr list, addr *ret)
+int nth_common(addr index, addr list, addr *ret)
 {
 	size_t size;
 
@@ -1201,7 +1201,7 @@ _g int nth_common(addr index, addr list, addr *ret)
 /*
  *  (setf nth)
  */
-_g int setf_nth_common(addr value, addr index, addr list)
+int setf_nth_common(addr value, addr index, addr list)
 {
 	size_t size;
 
@@ -1214,7 +1214,7 @@ _g int setf_nth_common(addr value, addr index, addr list)
 /*
  *  nthcdr
  */
-_g int nthcdr_common(addr index, addr list, addr *ret)
+int nthcdr_common(addr index, addr list, addr *ret)
 {
 	size_t size;
 
@@ -1247,7 +1247,7 @@ static int test_member_cons(Execute ptr, addr *ret,
 	return Result(ret, Nil);
 }
 
-_g int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -1278,7 +1278,7 @@ _g int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  member-if
  */
-_g int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, next;
@@ -1302,7 +1302,7 @@ _g int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  member-if-not
  */
-_g int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, next;
@@ -1326,7 +1326,7 @@ _g int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 /*
  *  mapc
  */
-_g int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr result, pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
@@ -1380,7 +1380,7 @@ finish:
 /*
  *  mapcar
  */
-_g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr result, pos, car, cdr, args, next, temp1, temp2, hold;
 	LocalRoot local;
@@ -1441,7 +1441,7 @@ finish:
 /*
  *  mapcan
  */
-_g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr result, pos, car, cdr, args, next, temp1, temp2, head, hold;
 	LocalRoot local;
@@ -1510,7 +1510,7 @@ finish:
 /*
  *  mapl
  */
-_g int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
 	addr result, pos, cdr, args, next, temp1, temp2;
@@ -1568,7 +1568,7 @@ finish:
 /*
  *  maplist
  */
-_g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
+int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
 	addr result, pos, cdr, args, next, temp1, temp2, hold;
@@ -1633,7 +1633,7 @@ finish:
 /*
  *  mapcon
  */
-_g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
 	addr result, pos, cdr, args, next, temp1, temp2, head, hold;
@@ -1735,7 +1735,7 @@ static int concat_nconc_cons(addr list, addr args)
 	return 0;
 }
 
-_g int nconc_common(addr args, addr *ret)
+int nconc_common(addr args, addr *ret)
 {
 	addr pos;
 
@@ -1800,7 +1800,7 @@ static int concat_append_cons(addr last, addr args, addr *ret)
 	return 0;
 }
 
-_g int append_common(addr args, addr *ret)
+int append_common(addr args, addr *ret)
 {
 	addr pos;
 
@@ -1829,7 +1829,7 @@ _g int append_common(addr args, addr *ret)
 /*
  *  revappend
  */
-_g int revappend_common(addr list, addr tail, addr *ret)
+int revappend_common(addr list, addr tail, addr *ret)
 {
 	addr pos;
 
@@ -1845,7 +1845,7 @@ _g int revappend_common(addr list, addr tail, addr *ret)
 /*
  *  nreconc
  */
-_g int nreconc_common(addr list, addr tail, addr *ret)
+int nreconc_common(addr list, addr tail, addr *ret)
 {
 	addr next;
 
@@ -1904,7 +1904,7 @@ static int large_butlast_cons_(addr list, addr index, addr *ret)
 	return Result(ret, Nil);
 }
 
-_g int butlast_common(addr list, addr index, addr *ret)
+int butlast_common(addr list, addr index, addr *ret)
 {
 	size_t size;
 
@@ -1952,7 +1952,7 @@ static int large_nbutlast_cons_(addr list, addr index, addr *ret)
 	return Result(ret, Nil);
 }
 
-_g int nbutlast_common(addr list, addr index, addr *ret)
+int nbutlast_common(addr list, addr index, addr *ret)
 {
 	size_t size;
 
@@ -2000,7 +2000,7 @@ static int large_last_cons_(addr list, addr index, addr *ret)
 	return Result(ret, list);
 }
 
-_g int last_common(addr list, addr index, addr *ret)
+int last_common(addr list, addr index, addr *ret)
 {
 	size_t size;
 
@@ -2016,7 +2016,7 @@ _g int last_common(addr list, addr index, addr *ret)
 /*
  *  ldiff
  */
-_g void ldiff_common(addr list, addr object, addr *ret)
+void ldiff_common(addr list, addr object, addr *ret)
 {
 	addr root, pos;
 
@@ -2039,7 +2039,7 @@ _g void ldiff_common(addr list, addr object, addr *ret)
 /*
  *  tailp
  */
-_g void tailp_common(addr object, addr list, int *ret)
+void tailp_common(addr object, addr list, int *ret)
 {
 	int check;
 
@@ -2082,7 +2082,7 @@ static int test_assoc_cons(Execute ptr, addr *ret,
 	return Result(ret, Nil);
 }
 
-_g int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2113,7 +2113,7 @@ _g int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  assoc-if
  */
-_g int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2139,7 +2139,7 @@ _g int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  assoc-if-not
  */
-_g int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2165,7 +2165,7 @@ _g int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *r
 /*
  *  copy-alist
  */
-_g int copy_alist_common(addr list, addr *ret)
+int copy_alist_common(addr list, addr *ret)
 {
 	addr root, cons, car, cdr;
 
@@ -2186,7 +2186,7 @@ _g int copy_alist_common(addr list, addr *ret)
 /*
  *  pairlis
  */
-_g int pairlis_common(addr keys, addr data, addr list, addr *ret)
+int pairlis_common(addr keys, addr data, addr list, addr *ret)
 {
 	int check1, check2;
 	addr car, cdr;
@@ -2234,7 +2234,7 @@ static int test_rassoc_cons(Execute ptr, addr *ret,
 	return Result(ret, Nil);
 }
 
-_g int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2265,7 +2265,7 @@ _g int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  rassoc-if
  */
-_g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2291,7 +2291,7 @@ _g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  rssoc-if-not
  */
-_g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2317,7 +2317,7 @@ _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 /*
  *  get-properties
  */
-_g int get_properties_common(addr plist, addr indicator,
+int get_properties_common(addr plist, addr indicator,
 		addr *rkey, addr *rvalue, addr *rlist)
 {
 	addr key, value, next, list, check;
@@ -2350,7 +2350,7 @@ find:
 /*
  *  getf
  */
-_g int getf_common(addr list, addr key, addr value, addr *ret)
+int getf_common(addr list, addr key, addr value, addr *ret)
 {
 	addr x, y;
 
@@ -2421,7 +2421,7 @@ static int expansion_remf_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int remf_common(Execute ptr, addr form, addr env, addr *ret)
+int remf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, indicator;
 
@@ -2482,7 +2482,7 @@ static int test_intersection_cons(Execute ptr, addr *ret,
 	return Result(ret, list);
 }
 
-_g int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2567,7 +2567,7 @@ finish:
 	return Result(ret, list);
 }
 
-_g int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2625,7 +2625,7 @@ static int test_adjoin_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2777,7 +2777,7 @@ static int expansion_pushnew_cons(Execute ptr, addr *ret,
 		return multiple_pushnew_cons(ptr, ret, item, rest, a, b, g, w, r);
 }
 
-_g int pushnew_common(Execute ptr, addr form, addr env, addr *ret)
+int pushnew_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, item, place;
 
@@ -2818,7 +2818,7 @@ static int test_set_difference_cons(Execute ptr, addr *ret,
 	return Result(ret, list);
 }
 
-_g int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2904,7 +2904,7 @@ finish:
 }
 
 
-_g int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2971,7 +2971,7 @@ static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
 	return Result(ret, result);
 }
 
-_g int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3103,7 +3103,7 @@ static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
 	return Result(ret, list1);
 }
 
-_g int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3159,7 +3159,7 @@ static int test_subsetp_cons(Execute ptr, addr *ret,
 	return Result(ret, result);
 }
 
-_g int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3254,7 +3254,7 @@ static int test_nunion_cons(Execute ptr, addr *ret,
 	return Result(ret, list1);
 }
 
-_g int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3308,7 +3308,7 @@ static int test_union_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-_g int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 
 {
 	int check1, check2;

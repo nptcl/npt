@@ -42,7 +42,7 @@ static void make_input_string(addr *ret, addr string, size_t start, size_t end)
 	*ret = pos;
 }
 
-_g int open_input_string_stream_(addr *ret, addr string)
+int open_input_string_stream_(addr *ret, addr string)
 {
 	size_t size;
 
@@ -54,7 +54,7 @@ _g int open_input_string_stream_(addr *ret, addr string)
 	return 0;
 }
 
-_g int open_input_string_stream1_(addr *ret, addr string, size_t start)
+int open_input_string_stream1_(addr *ret, addr string, size_t start)
 {
 	addr pos1, pos2;
 	size_t size;
@@ -73,7 +73,7 @@ _g int open_input_string_stream1_(addr *ret, addr string, size_t start)
 	return 0;
 }
 
-_g int open_input_string_stream2_(addr *ret, addr string, size_t start, size_t end)
+int open_input_string_stream2_(addr *ret, addr string, size_t start, size_t end)
 {
 	addr pos1, pos2;
 	size_t size;
@@ -104,7 +104,7 @@ _g int open_input_string_stream2_(addr *ret, addr string, size_t start, size_t e
 	return 0;
 }
 
-_g void open_input_char_stream(addr *stream, const char *str)
+void open_input_char_stream(addr *stream, const char *str)
 {
 	addr pos;
 	size_t size;
@@ -114,7 +114,7 @@ _g void open_input_char_stream(addr *stream, const char *str)
 	make_input_string(stream, pos, 0, size);
 }
 
-_g void null_input_string_stream(addr *stream)
+void null_input_string_stream(addr *stream)
 {
 	addr pos;
 	struct StructStream *str;
@@ -128,12 +128,12 @@ _g void null_input_string_stream(addr *stream)
 	*stream = pos;
 }
 
-_g void close_input_string_stream(addr stream)
+void close_input_string_stream(addr stream)
 {
 	force_close_stream(stream);
 }
 
-_g void getindex_input_stream(addr stream, size_t *ret)
+void getindex_input_stream(addr stream, size_t *ret)
 {
 	struct stream_StringInput *input;
 
@@ -198,7 +198,7 @@ static int read_hang_StringInput(addr stream, unicode *c, int *hang, int *ret)
 	return Result(ret, check);
 }
 
-_g void setvalue_input_string_stream(addr stream, addr value)
+void setvalue_input_string_stream(addr stream, addr value)
 {
 	struct StructStream *str;
 	struct stream_StringInput *input;
@@ -220,7 +220,7 @@ _g void setvalue_input_string_stream(addr stream, addr value)
 	str->terpri = 0;
 }
 
-_g void clear_input_string_stream(addr stream)
+void clear_input_string_stream(addr stream)
 {
 	struct StructStream *str;
 	struct stream_StringInput *input;
@@ -318,7 +318,7 @@ static int clear_input_StringInput(addr stream)
 	return 0;
 }
 
-_g void init_stream_string_input(void)
+void init_stream_string_input(void)
 {
 	DefineStreamDef(StringInput, close);
 	DefineStream___(StringInput, read_byte);
@@ -375,7 +375,7 @@ static int extend_string_p(addr stream)
 	return output->extend_p;
 }
 
-_g void open_output_string_stream(addr *stream, size_t size)
+void open_output_string_stream(addr *stream, size_t size)
 {
 	addr pos, queue;
 	struct stream_StringOutput *str;
@@ -392,7 +392,7 @@ _g void open_output_string_stream(addr *stream, size_t size)
 	*stream = pos;
 }
 
-_g int copy_termsize_string_stream_(addr stream, addr src)
+int copy_termsize_string_stream_(addr stream, addr src)
 {
 	int check;
 	struct stream_StringOutput *str;
@@ -413,7 +413,7 @@ _g int copy_termsize_string_stream_(addr stream, addr src)
 	return 0;
 }
 
-_g int string_stream_alloc_(LocalRoot local, addr stream, addr *string)
+int string_stream_alloc_(LocalRoot local, addr stream, addr *string)
 {
 	addr queue;
 
@@ -432,18 +432,18 @@ _g int string_stream_alloc_(LocalRoot local, addr stream, addr *string)
 	return 0;
 }
 
-_g int string_stream_local_(LocalRoot local, addr stream, addr *string)
+int string_stream_local_(LocalRoot local, addr stream, addr *string)
 {
 	Check(local == NULL, "local error");
 	return string_stream_alloc_(local, stream, string);
 }
 
-_g int string_stream_heap_(addr stream, addr *string)
+int string_stream_heap_(addr stream, addr *string)
 {
 	return string_stream_alloc_(NULL, stream, string);
 }
 
-_g void clear_output_string_stream(addr stream)
+void clear_output_string_stream(addr stream)
 {
 	addr queue;
 
@@ -453,19 +453,19 @@ _g void clear_output_string_stream(addr stream)
 	clear_charqueue(queue);
 }
 
-_g void set_pretty_output_string_stream(addr stream)
+void set_pretty_output_string_stream(addr stream)
 {
 	CheckOutputStringStream(stream);
 	PtrStringOutputStream(stream)->pretty = 1;
 }
 
-_g int get_pretty_output_string_stream(addr stream)
+int get_pretty_output_string_stream(addr stream)
 {
 	CheckOutputStringStream(stream);
 	return PtrStringOutputStream(stream)->pretty != 0;
 }
 
-_g void open_extend_output_stream(addr *stream, addr array)
+void open_extend_output_stream(addr *stream, addr array)
 {
 	addr pos;
 	struct stream_StringOutput *str;
@@ -481,7 +481,7 @@ _g void open_extend_output_stream(addr *stream, addr array)
 	*stream = pos;
 }
 
-_g void close_output_string_stream(addr stream)
+void close_output_string_stream(addr stream)
 {
 	CheckOutputStringStream(stream);
 	SetInfoStream(stream, Nil);
@@ -629,7 +629,7 @@ static int termsize_StringOutput(addr stream, size_t *value, int *ret)
 	return Result(ret, str->width_p);
 }
 
-_g void init_stream_string_output(void)
+void init_stream_string_output(void)
 {
 	DefineStreamSet(StringOutput, close);
 	DefineStream___(StringOutput, read_byte);

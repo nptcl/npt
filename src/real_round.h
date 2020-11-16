@@ -11,12 +11,12 @@
 #define fround2_common_ _n(fround2_common_)
 #define fround_common_ _n(fround_common_)
 
-_g int round1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
-_g int round2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-_g int round_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
-_g int fround1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
-_g int fround2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-_g int fround_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
+int round1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
+int round2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+int round_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
+int fround1_common_(LocalRoot local, addr *quot, addr *rem, addr left);
+int fround2_common_(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+int fround_common_(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2);
 
 #endif
 

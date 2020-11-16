@@ -10,7 +10,7 @@
 /*
  *  save/load
  */
-_g void save_sequence_range(struct sequence_range *ptr)
+void save_sequence_range(struct sequence_range *ptr)
 {
 	ptr->save_pos = ptr->pos;
 	ptr->save_list = ptr->list;
@@ -20,7 +20,7 @@ _g void save_sequence_range(struct sequence_range *ptr)
 	ptr->save_index = ptr->index;
 }
 
-_g void load_sequence_range(struct sequence_range *ptr)
+void load_sequence_range(struct sequence_range *ptr)
 {
 	ptr->pos = ptr->save_pos;
 	ptr->list = ptr->save_list;
@@ -34,7 +34,7 @@ _g void load_sequence_range(struct sequence_range *ptr)
 /*
  *  build
  */
-_g int build_sequence_range_(struct sequence_range *ptr,
+int build_sequence_range_(struct sequence_range *ptr,
 		addr pos, addr start, addr end)
 {
 	int listp;
@@ -113,7 +113,7 @@ static struct sequence_range *sequence_range_local(LocalRoot local)
 			sizeoft(struct sequence_range));
 }
 
-_g int make_sequence_range_(LocalRoot local,
+int make_sequence_range_(LocalRoot local,
 		addr pos, addr start, addr end, struct sequence_range **ret)
 {
 	struct sequence_range *ptr;
@@ -152,7 +152,7 @@ static int start_end_sequence_range_(
 	return Result(ret, size);
 }
 
-_g int build_sequence_range_endp_(struct sequence_range *ptr,
+int build_sequence_range_endp_(struct sequence_range *ptr,
 		addr list, addr start, addr end)
 {
 	Return(build_sequence_range_(ptr, list, start, end));
@@ -165,7 +165,7 @@ _g int build_sequence_range_endp_(struct sequence_range *ptr,
 	return 0;
 }
 
-_g int make_sequence_range_endp_(LocalRoot local,
+int make_sequence_range_endp_(LocalRoot local,
 		addr list, addr start, addr end, struct sequence_range **ret)
 {
 	struct sequence_range *ptr;
@@ -176,7 +176,7 @@ _g int make_sequence_range_endp_(LocalRoot local,
 	return Result(ret, ptr);
 }
 
-_g int build_sequence_range_vector2_(LocalRoot local,
+int build_sequence_range_vector2_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end,
 		addr *root, addr *tail)
 {
@@ -205,13 +205,13 @@ _g int build_sequence_range_vector2_(LocalRoot local,
 	return build_sequence_range_(ptr, pos, fixnumh(0), Nil);
 }
 
-_g int build_sequence_range_vector_(LocalRoot local,
+int build_sequence_range_vector_(LocalRoot local,
 		struct sequence_range *ptr, addr list, addr start, addr end)
 {
 	return build_sequence_range_vector2_(local, ptr, list, start, end, NULL, NULL);
 }
 
-_g int make_sequence_range_vector_(LocalRoot local,
+int make_sequence_range_vector_(LocalRoot local,
 		addr list, addr start, addr end, struct sequence_range **ret)
 {
 	struct sequence_range *ptr;
@@ -222,7 +222,7 @@ _g int make_sequence_range_vector_(LocalRoot local,
 	return Result(ret, ptr);
 }
 
-_g int make_sequence_range_mismatch_(LocalRoot local,
+int make_sequence_range_mismatch_(LocalRoot local,
 		addr list, addr start, addr end, struct sequence_range **ret)
 {
 	struct sequence_range *ptr;
@@ -263,7 +263,7 @@ error:
 /*
  *  access
  */
-_g int get_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
+int get_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	/* list */
 	if (ptr->listp)
@@ -277,7 +277,7 @@ _g int get_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 	return Result(ret, 0);
 }
 
-_g int getnext_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
+int getnext_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	int check;
 
@@ -299,13 +299,13 @@ _g int getnext_sequence_range_(struct sequence_range *ptr, addr *value, int *ret
 	}
 }
 
-_g int next_sequence_range_(struct sequence_range *ptr, int *ret)
+int next_sequence_range_(struct sequence_range *ptr, int *ret)
 {
 	addr temp;
 	return getnext_sequence_range_(ptr, &temp, ret);
 }
 
-_g int endp_sequence_range(struct sequence_range *ptr)
+int endp_sequence_range(struct sequence_range *ptr)
 {
 	if (ptr->endp)
 		return ptr->end <= ptr->index;
@@ -313,7 +313,7 @@ _g int endp_sequence_range(struct sequence_range *ptr)
 		return ptr->list == Nil;
 }
 
-_g int set_sequence_range_(struct sequence_range *ptr, addr value)
+int set_sequence_range_(struct sequence_range *ptr, addr value)
 {
 	Check(endp_sequence_range(ptr), "endp error");
 	if (ptr->listp) {
@@ -325,7 +325,7 @@ _g int set_sequence_range_(struct sequence_range *ptr, addr value)
 	}
 }
 
-_g int getinplace_sequence_range_(struct sequence_range *ptr, struct array_value *ret)
+int getinplace_sequence_range_(struct sequence_range *ptr, struct array_value *ret)
 {
 	Check(endp_sequence_range(ptr), "endp error");
 	if (ptr->listp) {
@@ -338,7 +338,7 @@ _g int getinplace_sequence_range_(struct sequence_range *ptr, struct array_value
 	}
 }
 
-_g int setinplace_sequence_range_(LocalRoot local,
+int setinplace_sequence_range_(LocalRoot local,
 		struct sequence_range *ptr, const struct array_value *str)
 {
 	addr value;
@@ -358,19 +358,19 @@ _g int setinplace_sequence_range_(LocalRoot local,
 /*
  *  reverse
  */
-_g void reverse_sequence_range(struct sequence_range *ptr)
+void reverse_sequence_range(struct sequence_range *ptr)
 {
 	Check(ptr->listp, "type error");
 	ptr->index = ptr->end;
 }
 
-_g int endp_reverse_sequence_range(struct sequence_range *ptr)
+int endp_reverse_sequence_range(struct sequence_range *ptr)
 {
 	Check(ptr->listp, "type error");
 	return ptr->index <= ptr->start;
 }
 
-_g int next_reverse_sequence_range_(struct sequence_range *ptr, int *ret)
+int next_reverse_sequence_range_(struct sequence_range *ptr, int *ret)
 {
 	Check(ptr->listp, "type error");
 	if (endp_reverse_sequence_range(ptr))
@@ -380,7 +380,7 @@ _g int next_reverse_sequence_range_(struct sequence_range *ptr, int *ret)
 	return Result(ret, 0);
 }
 
-_g int get_reverse_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
+int get_reverse_sequence_range_(struct sequence_range *ptr, addr *value, int *ret)
 {
 	Check(ptr->listp, "type error");
 	if (endp_reverse_sequence_range(ptr))
@@ -390,7 +390,7 @@ _g int get_reverse_sequence_range_(struct sequence_range *ptr, addr *value, int 
 	return Result(ret, 0);
 }
 
-_g int getnext_reverse_sequence_range_(
+int getnext_reverse_sequence_range_(
 		struct sequence_range *ptr, addr *value, int *ret)
 {
 	Check(ptr->listp, "type error");
@@ -402,7 +402,7 @@ _g int getnext_reverse_sequence_range_(
 	return Result(ret, 0);
 }
 
-_g int set_reverse_sequence_range_(struct sequence_range *ptr, addr value)
+int set_reverse_sequence_range_(struct sequence_range *ptr, addr value)
 {
 	Check(endp_reverse_sequence_range(ptr), "endp error");
 	Check(ptr->listp, "type error");
@@ -413,7 +413,7 @@ _g int set_reverse_sequence_range_(struct sequence_range *ptr, addr value)
 /*
  *  remove
  */
-_g int remove_sequence_range_(struct sequence_range *ptr)
+int remove_sequence_range_(struct sequence_range *ptr)
 {
 	Check(! ptr->listp, "type error");
 	Check(ptr->list == Nil, "list error");
