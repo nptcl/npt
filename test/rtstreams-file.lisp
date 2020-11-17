@@ -902,7 +902,7 @@
                    :if-exists :supersede
                    :if-does-not-exist :create)))
       (close x)
-      (probe-file *file*)))
+      (probe-file-boolean *file*)))
   t)
 
 (deftest file-close.4
@@ -910,7 +910,7 @@
                  :if-exists :supersede
                  :if-does-not-exist :create)))
     (close x :abort t)
-    (probe-file *file*))
+    (probe-file-boolean *file*))
   nil)
 
 
@@ -950,7 +950,7 @@
         (equal (host-namestring x) (host-namestring y))
         (equal (enough-namestring x) (enough-namestring y))
         (equal (directory x) (directory y))
-        (probe-file x))))
+        (probe-file-boolean x))))
   t t t t t t t t t t t t t t t t t)
 
 (deftest file-close-after.3

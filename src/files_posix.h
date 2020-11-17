@@ -458,30 +458,29 @@ static int probe_file_boolean(const char *file)
 static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
 	int check;
-	addr value;
+	addr value, name;
 	const char *str;
 
-	/* filename */
-	if (stringp(pos)) {
-		Return(physical_pathname_local_(ptr, pos, &pos));
-	}
-	else {
-		Return(physical_pathname_heap_(ptr, pos, &pos));
-	}
 	/* wildcard */
+	Return(pathname_designer_heap_(ptr, pos, &pos));
 	Return(wild_pathname_boolean_(pos, Nil, &check));
 	if (check) {
-		GetConst(COMMON_PATHNAME, &value);
-		return call_type_error_va_(ptr, pos, value,
+		return call_simple_file_error_va_(ptr, pos,
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
 	}
+
+	/* filename */
+	Return(truename_files_(ptr, pos, &pos, 0));
+	if (pos == Nil)
+		return Result(ret, Nil);
+
 	/* check */
-	Return(name_pathname_local_(ptr, pos, &pos));
-	Return(UTF8_buffer_clang_(ptr->local, &value, pos));
+	Return(name_pathname_local_(ptr, pos, &name));
+	Return(UTF8_buffer_clang_(ptr->local, &value, name));
 	if (value == Unbound)
-		return fmte_("Cannot decode UTF-8 string ~S.", value, NULL);
+		return fmte_("Cannot decode UTF-8 string ~S.", name, NULL);
 	str = (const char *)posbodyr(value);
-	*ret = probe_file_boolean(str)? T: Nil;
+	*ret = probe_file_boolean(str)? pos: Nil;
 
 	return 0;
 }
@@ -599,7 +598,6 @@ int ensure_directories_exist_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
 	int check;
-	addr value;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -608,8 +606,7 @@ int ensure_directories_exist_files_(Execute ptr,
 	/* wildcard */
 	Return(ensure_directires_exist_wild_files_(pos, &check));
 	if (check) {
-		GetConst(COMMON_PATHNAME, &value);
-		return call_type_error_va_(ptr, pos, value,
+		return call_simple_file_error_va_(ptr, pos,
 				"Cannot ENSURE-DIRECTIRIS-EXIST the wildcard pathname ~S.",
 				pos, NULL);
 	}
@@ -647,8 +644,7 @@ static int file_author_run_files(Execute ptr, addr *ret, addr pos)
 	/* wildcard */
 	Return(wild_pathname_boolean_(pos, Nil, &check));
 	if (check) {
-		GetConst(COMMON_PATHNAME, &value);
-		return call_type_error_va_(ptr, pos, value,
+		return call_simple_file_error_va_(ptr, pos,
 				"Cannot file-author the wildcard pathname ~S.", pos, NULL);
 	}
 	/* file-author */
@@ -705,8 +701,7 @@ static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	/* wildcard */
 	Return(wild_pathname_boolean_(pos, Nil, &check));
 	if (check) {
-		GetConst(COMMON_PATHNAME, &value);
-		return call_type_error_va_(ptr, pos, value,
+		return call_simple_file_error_va_(ptr, pos,
 				"Cannot file-write-date the wildcard pathname ~S.", pos, NULL);
 	}
 

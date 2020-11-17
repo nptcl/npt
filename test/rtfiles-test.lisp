@@ -79,7 +79,7 @@
 
 
 ;;
-;;  directory
+;;  Function DIRECTORY
 ;;
 (deftest directory.1
   (null
@@ -235,31 +235,160 @@
    "test/rt-files/ppp"
    "test/rt-files/qqq"))
 
+(deftest directory.9
+  (directory #p"/no/such/path/name/*.*")
+  nil)
+
 (deftest directory-close.1
   (delete-testfile)
   t)
 
+(deftest-error directory-error.1
+  (eval '(directory 10))
+  type-error)
+
+(deftest-error! directory-error.2
+  (eval '(directory #p"." nil)))
+
+(deftest-error! directory-error.3
+  (eval '(directory)))
+
+
+;;
+;;  Function PROBE-FILE
+;;
 (deftest probe-file.1
-  (probe-file #p"test/rt-files.lisp")
-  t)
+  (car (pathname-directory
+         (probe-file #p"test/rt-files.lisp")))
+  :absolute)
 
 (deftest probe-file.2
   (probe-file #p"test/no-such-file")
   nil)
 
 (deftest probe-file.3
-  (probe-file #p"./")
-  t)
+  (car (pathname-directory
+         (probe-file #p"./")))
+  :absolute)
 
+(deftest probe-file.4
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (unwind-protect
+      (car (pathname-directory (probe-file x)))
+      (close x :abort t)))
+  :absolute)
+
+(deftest probe-file.5
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (close x :abort t)
+    (probe-file x))
+  nil)
+
+(deftest probe-file.6
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (close x)
+    (prog1 (car (pathname-directory (probe-file x)))
+      (delete-file x)))
+  :absolute)
+
+(deftest-error probe-file-error.1
+  (probe-file #p"./*.*")
+  file-error)
+
+(deftest-error probe-file-error.2
+  (eval '(probe-file 10))
+  type-error)
+
+(deftest-error! probe-file-error.3
+  (eval '(probe-file)))
+
+(deftest-error! probe-file-error.4
+  (eval '(probe-file #p"./" nil)))
+
+
+;;
+;;
+;;
 (deftest truename.1
   (car (pathname-directory
          (truename #p"test/rt-files.lisp")))
   :absolute)
 
-#+unix
+#-windows
 (deftest-error truename.2
+  (truename #p"no-such-directory/no-such-file")
+  file-error)
+
+#+windows
+(deftest truename.2
+  (car (pathname-directory
+         (truename #p"no-such-directory/no-such-file")))
+  :absolute)
+
+(deftest truename.3
+  (car (pathname-directory
+         (truename #p"./")))
+  :absolute)
+
+(deftest truename.4
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (unwind-protect
+      (car (pathname-directory (truename x)))
+      (close x :abort t)))
+  :absolute)
+
+#-windows
+(deftest-error truename.5
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (close x :abort t)
+    (truename x))
+  file-error)
+
+#+windows
+(deftest truename.5
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (close x :abort t)
+    (car (pathname-directory
+           (truename x))))
+  :absolute)
+
+(deftest truename.6
+  (let ((x (open #p"_debug_probe.txt" :direction :output
+                 :if-exists :supersede :if-does-not-exist :create)))
+    (close x)
+    (prog1 (car (pathname-directory (truename x)))
+      (delete-file x)))
+  :absolute)
+
+#+unix
+(deftest-error truename.7
   (truename #p"no-such/file-name-truename-error.txt"))
 
+(deftest-error truename-error.1
+  (truename #p"./*.*")
+  file-error)
+
+(deftest-error truename-error.2
+  (eval '(truename 10))
+  type-error)
+
+(deftest-error! truename-error.3
+  (eval '(truename)))
+
+(deftest-error! truename-error.4
+  (eval '(truename #p"./" nil)))
+
+
+
+;;
+;;
+;;
 (deftest file-author.1
   (stringp
     (file-author #p"test/rt-files.lisp"))
@@ -279,6 +408,9 @@
 (defun probe-delete-file (file)
   (if (probe-file file)
     (delete-file file)))
+
+(defun probe-file-boolean (file)
+  (not (not (probe-file file))))
 
 (defun write-string-file (file value)
   (with-open-file (output file :direction :output
@@ -306,9 +438,9 @@
     (multiple-value-bind (a b c)
       (rename-file *rename-file1* *rename-file2*)
       (values
-        (probe-file a)
-        (probe-file b)
-        (probe-file c)
+        (probe-file-boolean a)
+        (probe-file-boolean b)
+        (probe-file-boolean c)
         (car (pathname-directory b))
         (car (pathname-directory c)))))
   t nil t :absolute :absolute)
@@ -325,12 +457,6 @@
     (write-string-file *rename-file1* "aaa")
     (values
       (delete-file *rename-file1*)
-      (probe-file *rename-file1*)))
+      (probe-file-boolean *rename-file1*)))
   t nil)
-
-(deftest file-error-pathname.1
-  (handler-case
-    (error (make-condition 'file-error :pathname #p"hello.txt"))
-    (file-error (c) (file-error-pathname c)))
-  #p"hello.txt")
 

@@ -575,7 +575,7 @@
                     :if-does-not-exist :create)))
     (format inst "Hello")
     (close inst :abort t)
-    (probe-file *file*))
+    (probe-file-boolean *file*))
   nil)
 
 (deftest close.4
@@ -586,7 +586,7 @@
     (close inst)
     (setq inst (open *file* :direction :input))
     (close inst :abort t)
-    (probe-file *file*))
+    (probe-file-boolean *file*))
   t)
 
 (deftest-error close-error.1

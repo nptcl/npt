@@ -11,6 +11,9 @@
     (dolist (x args)
       (write-line (string x) output))))
 
+(defun probe-file-boolean (file)
+  (not (not (probe-file file))))
+
 (defvar *compile-value* nil)
 
 (deftest compile-file.1
@@ -18,14 +21,14 @@
     (write-compile-lisp
       "(setq *compile-value* :hello)")
     (compile-file +compile-lisp+)
-    (probe-file +compile-fasl+))
+    (probe-file-boolean +compile-fasl+))
   t)
 
 (deftest compile-file.2
   (let ((*compile-value* nil))
     (write-compile-lisp
       "(setq *compile-value* :hello)")
-    (probe-file
+    (probe-file-boolean
       (compile-file +compile-lisp+)))
   t)
 

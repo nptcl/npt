@@ -29,8 +29,16 @@ static int probe_file_boolean(const char *file)
 static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
 	int check;
-	addr value;
+	addr value, name;
 	const char *str;
+
+	/* wildcard */
+	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(wild_pathname_boolean_(pos, Nil, &check));
+	if (check) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
+	}
 
 	/* filename */
 	if (stringp(pos)) {
@@ -39,20 +47,14 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	else {
 		Return(physical_pathname_heap_(ptr, pos, &pos));
 	}
-	/* wildcard */
-	Return(wild_pathname_boolean_(pos, Nil, &check));
-	if (check) {
-		GetConst(COMMON_PATHNAME, &value);
-		return call_type_error_va_(ptr, pos, value,
-				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
-	}
+
 	/* check */
-	Return(name_pathname_local_(ptr, pos, &pos));
-	Return(UTF8_buffer_clang_(ptr->local, &value, pos));
+	Return(name_pathname_local_(ptr, pos, &name));
+	Return(UTF8_buffer_clang_(ptr->local, &value, name));
 	if (value == Unbound)
-		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
+		return fmte_("Cannot decode UTF-8 string ~S.", name, NULL);
 	str = (const char *)posbodyr(value);
-	*ret = probe_file_boolean(str)? T: Nil;
+	*ret = probe_file_boolean(str)? pos: Nil;
 
 	return 0;
 }

@@ -43,7 +43,7 @@
     (delete-temp-file)
     (with-open-stream (x (open *file* :direction :output :if-exists :error))
       (streamp x))
-    (probe-file *file*))
+    (probe-file-boolean *file*))
   t)
 
 (deftest-error open-output-if-exists-error.2

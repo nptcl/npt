@@ -54,9 +54,14 @@ struct wildcard_position {
 	size_t a, b;
 };
 
-struct wildcard_struct {
+struct translate_struct {
+	unsigned ignore_case_p : 1;
 	struct wildcard_position *root, *tail;
+	addr pos, var, from, to, ret;
+	size_t s1, n1, s2, n2;
 };
+
+typedef struct translate_struct *TranslateInfo;
 
 static struct wildcard_position *make_wildcard_position(LocalpRoot local,
 		size_t a, size_t b)
@@ -72,117 +77,174 @@ static struct wildcard_position *make_wildcard_position(LocalpRoot local,
 	return ptr;
 }
 
-static struct wildcard_struct *make_wildcard_struct(LocalpRoot local)
+
+/*
+ *  name, type
+ */
+static int translate_name_match_(LocalpRoot local, TranslateInfo ptr, int *ret);
+
+#define TranslateCompareCharacter(p, x, y) \
+	((p)->ignore_case_p? \
+	 (toUpperUnicode(x) == toUpperUnicode(y)): \
+	 ((x) == (y)))
+
+static void translate_name_match_push(LocalpRoot local,
+		struct translate_struct *ptr, size_t a, size_t b)
 {
-	struct wildcard_struct *ptr;
+	struct wildcard_position *str;
 
-	ptr = (struct wildcard_struct *)lowlevel_local(local->local,
-			sizeoft(struct wildcard_struct));
-	ptr->root = ptr->tail = NULL;
-
-	return ptr;
-}
-
-static void wildcard_struct_push(LocalpRoot local,
-		struct wildcard_struct *ptr, size_t a, size_t b)
-{
-	struct wildcard_position *pos;
-
-	pos = make_wildcard_position(local, a, b);
+	str = make_wildcard_position(local, a, b);
 	if (ptr->root == NULL) {
-		ptr->root = ptr->tail = pos;
+		ptr->root = ptr->tail = str;
 	}
 	else {
-		pos->next = ptr->tail;
-		ptr->tail = pos;
+		str->next = ptr->tail;
+		ptr->tail = str;
 	}
 }
 
-static int wildcard_push_match_pathname_(
-		LocalpRoot local, struct wildcard_struct *ptr,
-		addr p1, size_t n1, size_t s1, addr p2, size_t n2, size_t s2,
-		int *ret)
+static int translate_name_match_diff_(TranslateInfo ptr, int *ret)
 {
-	int x;
-	unicode c1, c2;
-	size_t i;
+	unicode c;
+	addr p2;
+	size_t i, n2, s2;
 
-	if (n1 == s1 && n2 == s2)
-		return Result(ret, 1);
-	if (n1 == s1 || n2 == s2)
-		return Result(ret, 0);
-	Return(string_getc_(p1, n1, &c1));
-	Return(string_getc_(p2, n2, &c2));
-	/* (a ?) -> next */
-	if (c2 == '?') {
-		Return(wildcard_push_match_pathname_(local,ptr, p1,n1+1,s1,  p2,n2+1,s2, &x));
-		if (x)
-			wildcard_struct_push(local, ptr, n1, n1+1);
-		return Result(ret, x);
-	}
-	/* (a a) -> next, (a b) -> false */
-	if (c2 != '*') {
-		if (toUpperUnicode(c1) != toUpperUnicode(c2))
+	p2 = ptr->from;
+	n2 = ptr->n2;
+	s2 = ptr->s2;
+	for (i = n2; i < s2; i++) {
+		Return(string_getc_(p2, n2, &c));
+		if (c != '*')
 			return Result(ret, 0);
-		return wildcard_push_match_pathname_(local,ptr,  p1,n1+1,s1,  p2,n2+1,s2, ret);
 	}
-	/* (a *) */
-	n2++;
+
+	return Result(ret, 1);
+}
+
+static int translate_name_match1_(LocalpRoot local, TranslateInfo ptr, int *ret)
+{
+	int check;
+	struct translate_struct str;
+	size_t n1;
+
+	n1 = ptr->n1;
+	str = *ptr;
+	str.n1++;
+	str.n2++;
+	Return(translate_name_match_(local, &str, &check));
+	ptr->root = str.root;
+	ptr->tail = str.tail;
+	if (check)
+		translate_name_match_push(local, ptr, n1, n1+1UL);
+
+	return Result(ret, check);
+}
+
+static int translate_name_match2_(LocalpRoot local,
+		TranslateInfo ptr, unicode x, int *ret)
+{
+	unicode y;
+	struct translate_struct str;
+
+	Return(string_getc_(ptr->var, ptr->n1, &y));
+	if (! TranslateCompareCharacter(ptr, x, y))
+		return Result(ret, 0);
+
+	str = *ptr;
+	str.n1++;
+	str.n2++;
+	Return(translate_name_match_(local, &str, ret));
+	ptr->root = str.root;
+	ptr->tail = str.tail;
+
+	return 0;
+}
+
+static int translate_name_match3_(LocalpRoot local, TranslateInfo ptr, int *ret)
+{
+	int check;
+	size_t n1, s1, i;
+	struct translate_struct str;
+
+	n1 = ptr->n1;
+	s1 = ptr->s1;
+	str = *ptr;
+	str.n2++;
 	for (i = n1; i <= s1; i++) {
-		Return(wildcard_push_match_pathname_(local,ptr, p1,i,s1,  p2,n2,s2, &x));
-		if (x) {
-			wildcard_struct_push(local, ptr, n1, i);
+		str.n1 = i;
+		Return(translate_name_match_(local, &str, &check));
+		ptr->root = str.root;
+		ptr->tail = str.tail;
+		if (check) {
+			translate_name_match_push(local, ptr, n1, i);
 			return Result(ret, 1);
 		}
 	}
+
 	return Result(ret, 0);
 }
 
-static int wildcard_push_string_pathname_(LocalpRoot local,
-		struct wildcard_struct *ptr, addr a, addr b, int *ret)
+static int translate_name_match_(LocalpRoot local, TranslateInfo ptr, int *ret)
 {
-	size_t s1, s2;
+	unicode x;
 
-	if (! stringp(a))
+	/* match */
+	if (ptr->n1 == ptr->s1 && ptr->n2 == ptr->s2)
+		return Result(ret, 1);
+
+	/* unmatch */
+	if (ptr->n2 == ptr->s2)
 		return Result(ret, 0);
-	if (! stringp(b))
-		return Result(ret, 0);
-	string_length(a, &s1);
-	string_length(b, &s2);
-	return wildcard_push_match_pathname_(local, ptr, a, 0, s1, b, 0, s2, ret);
+
+	/* check */
+	if (ptr->n1 == ptr->s1)
+		return translate_name_match_diff_(ptr, ret);
+
+	/* (a ?) -> next */
+	Return(string_getc_(ptr->from, ptr->n2, &x));
+	if (x == '?')
+		return translate_name_match1_(local, ptr, ret);
+
+	/* (a a) -> next, (a b) -> false */
+	if (x != '*')
+		return translate_name_match2_(local, ptr, x, ret);
+
+	/* (a *) */
+	return translate_name_match3_(local, ptr, ret);
 }
 
-static int push_charqueue_wildcard_(LocalpRoot local,
-		addr queue, addr pos, struct wildcard_position *ptr)
+static int translate_name_push_wild_(LocalpRoot local,
+		addr queue, addr var, struct wildcard_position *ptr)
 {
 	unicode c;
 	size_t i;
 
 	for (i = ptr->a; i < ptr->b; i++) {
-		Return(string_getc_(pos, i, &c));
+		Return(string_getc_(var, i, &c));
 		Return(push_charqueue_local_(local->local, queue, c));
 	}
 
 	return 0;
 }
 
-static int wildcard_replace_pathname_(LocalpRoot local,
-		struct wildcard_struct *ptr, addr *ret, addr pos, addr to)
+static int translate_name_wild_(LocalpRoot local, TranslateInfo ptr)
 {
 	unicode c;
-	struct wildcard_position *child;
-	addr queue;
+	struct wildcard_position *str;
+	addr var, to, queue;
 	size_t size, i;
 
+	var = ptr->var;
+	to = ptr->to;
 	charqueue_local(local->local, &queue, 0);
 	string_length(to, &size);
-	child = ptr->tail;
+	str = ptr->tail;
 	for (i = 0; i < size; i++) {
 		Return(string_getc_(to, i, &c));
 		if (c == '*' || c == '?') {
-			if (child) {
-				Return(push_charqueue_wildcard_(local, queue, pos, child));
-				child = child->next;
+			if (str) {
+				Return(translate_name_push_wild_(local, queue, var, str));
+				str = str->next;
 			}
 		}
 		else {
@@ -191,52 +253,91 @@ static int wildcard_replace_pathname_(LocalpRoot local,
 	}
 
 	/* position check */
-	if (child) {
+	if (str) {
 		clear_charqueue(queue);
-		Return(push_charqueue_wildcard_(local, queue, pos, child));
-		make_charqueue_alloc(localp_alloc(local), queue, &pos);
-		return fmte_("Cannot extract ~S pattern.", pos, NULL);
+		Return(translate_name_push_wild_(local, queue, var, str));
+		make_charqueue_alloc(localp_alloc(local), queue, &var);
+		return fmte_("Cannot extract ~S pattern.", var, NULL);
 	}
 
 	/* result */
-	make_charqueue_alloc(localp_alloc(local), queue, ret);
+	make_charqueue_alloc(localp_alloc(local), queue, &ptr->ret);
 
 	return 0;
 }
 
-static int translate_string_pathname_(LocalpRoot local,
-		addr *ret, addr pos, addr from, addr to)
+static void translate_name_type(LocalRoot local, addr *var, addr *from, addr *to)
+{
+	addr wild;
+
+	GetConst(KEYWORD_WILD, &wild);
+	/* var */
+	if (*var == Nil) {
+		strvect_local(local, var, 0);
+	}
+	/* from */
+	if (*from == Nil ||*from == wild) {
+		strvect_char_local(local, from, "*");
+	}
+	/* to */
+	if (*to == Nil || *to == wild) {
+		strvect_char_local(local, to, "*");
+	}
+}
+
+static void translate_name_struct(TranslateInfo ptr,
+		addr pos, addr var, addr from, addr to)
+{
+	Check(! stringp(var), "type error");
+	Check(! stringp(from), "type error");
+	Check(! stringp(to), "type error");
+
+	clearpoint(ptr);
+	ptr->ignore_case_p = pathname_ignore_case_p(pos);
+	ptr->pos = pos;
+	ptr->var = var;
+	ptr->from = from;
+	ptr->to = to;
+	string_length(var, &ptr->s1);
+	string_length(from, &ptr->s2);
+}
+
+static int translate_name_(LocalpRoot local, addr *ret,
+		addr pos, addr var, addr from, addr to)
 {
 	int check;
-	struct wildcard_struct *ptr;
-	addr wild;
 	LocalStack stack;
+	struct translate_struct str;
+
+	push_localp(local, &stack);
+	translate_name_type(local->local, &var, &from, &to);
+	translate_name_struct(&str, pos, var, from, to);
 
 	/* wildcard */
-	GetConst(KEYWORD_WILD, &wild);
-	push_localp(local, &stack);
-	if (from == wild)
-		strvect_char_local(local->local, &from, "*");
-	if (to == wild)
-		strvect_char_local(local->local, &to, "*");
-	ptr = make_wildcard_struct(local);
-	Return(wildcard_push_string_pathname_(local, ptr, pos, from, &check));
+	Return(translate_name_match_(local, &str, &check));
 	if (! check)
-		return fmte_("The string ~S doesn't match ~S.", pos, from, NULL);
+		return fmte_("The string ~S doesn't match ~S.", var, from, NULL);
 
 	/* replace */
-	Return(wildcard_replace_pathname_(local, ptr, ret, pos, to));
+	Return(translate_name_wild_(local, &str));
+
+	/* result */
+	*ret = str.ret;
 	rollback_localp(local, stack);
 
 	return 0;
 }
 
-static int translate_list_pathname_(LocalpRoot local,
+
+/*
+ *  directory
+ */
+static int translate_directory_list_(LocalpRoot local,
 		addr *value, addr a, addr b,
 		lisp_equal_calltype equal, int *ret)
 {
 	int check;
-	addr a1, b1, pos1, pos2, wild, wilds;
+	addr a1, b1, var1, var2, wild, wilds;
 
 
 	if (a == Nil && b == Nil)
@@ -246,37 +347,37 @@ static int translate_list_pathname_(LocalpRoot local,
 
 	GetConst(KEYWORD_WILD, &wild);
 	GetConst(KEYWORD_WILD_INFERIORS, &wilds);
-	Return_getcons(a, &pos1, &a1);
-	Return_getcons(b, &pos2, &b1);
+	Return_getcons(a, &var1, &a1);
+	Return_getcons(b, &var2, &b1);
 	/* ("str" *) -> next */
-	if (pos2 == wild) {
-		Return(translate_list_pathname_(local, value, a1, b1, equal, &check));
+	if (var2 == wild) {
+		Return(translate_directory_list_(local, value, a1, b1, equal, &check));
 		if (check)
-			list_local(local->local, value, *value, pos2, pos1, Nil, NULL);
+			list_local(local->local, value, *value, var2, var1, Nil, NULL);
 		return Result(ret, check);
 	}
 	/* ("str" "s*r") -> next, ("str" "a*a") -> false */
-	Return(wildcard_stringp_p_(pos2, &check));
+	Return(wildcard_stringp_p_(var2, &check));
 	if (check) {
-		Return(wildcard_string_pathname_(pos1, pos2, equal, &check));
+		Return(wildcard_string_pathname_(var1, var2, equal, &check));
 		if (! check)
 			return Result(ret, 0);
-		list_local(local->local, value, *value, pos2, pos1, Nil, NULL);
-		return translate_list_pathname_(local, value, a1, b1, equal, ret);
+		list_local(local->local, value, *value, var2, var1, Nil, NULL);
+		return translate_directory_list_(local, value, a1, b1, equal, ret);
 	}
 	/* ("str" "str") -> next, ("str" "aaa") -> false */
-	if (pos2 != wilds) {
-		Return(wildcard_eq_pathname_(pos1, pos2, equal, &check));
+	if (var2 != wilds) {
+		Return(wildcard_eq_pathname_(var1, var2, equal, &check));
 		if (! check)
 			return Result(ret, 0);
-		return translate_list_pathname_(local, value, a1, b1, equal, ret);
+		return translate_directory_list_(local, value, a1, b1, equal, ret);
 	}
 	/* ("str" **) */
 	a1 = a;
 	for (;;) {
-		Return(translate_list_pathname_(local, value, a, b1, equal, &check));
+		Return(translate_directory_list_(local, value, a, b1, equal, &check));
 		if (check) {
-			list_local(local->local, value, *value, pos2, a1, a, NULL);
+			list_local(local->local, value, *value, var2, a1, a, NULL);
 			return Result(ret, 1);
 		}
 		if (a == Nil)
@@ -287,136 +388,137 @@ static int translate_list_pathname_(LocalpRoot local,
 	return Result(ret, 0);
 }
 
-static void replace_wild_wilds_pathname(LocalpRoot local, addr *root, addr a, addr b)
+static void translate_directory_wild_wild_(LocalpRoot local, addr *root, addr a, addr b)
 {
-	addr pos;
+	addr var;
 	LocalRoot alloc;
 
 	alloc = localp_alloc(local);
 	while (a != b) {
-		GetCons(a, &pos, &a);
-		cons_alloc(alloc, root, pos, *root);
+		GetCons(a, &var, &a);
+		cons_alloc(alloc, root, var, *root);
 	}
 }
 
-static int replace_wild_string_pathname_(LocalpRoot local,
-		addr *root, addr pos, addr from)
+static int translate_directory_wild_string_(LocalpRoot local,
+		addr *root, addr pos, addr var, addr from)
 {
 	addr to;
 
 	strvect_char_local(local->local, &to, "*");
-	Return(translate_string_pathname_(local, &pos, pos, from, to));
-	cons_alloc(localp_alloc(local), root, pos, *root);
+	Return(translate_name_(local, &var, pos, var, from, to));
+	cons_alloc(localp_alloc(local), root, var, *root);
 
 	return 0;
 }
 
-static int replace_wild_pathname_(LocalpRoot local, addr *root, addr *list)
+static int translate_directory_wild_(LocalpRoot local, addr *root, addr *list, addr pos)
 {
 	int check;
-	addr wild1, wild2, next, pos, a, b;
+	addr wild1, wild2, next, var, a, b;
 
 	if (*list == Nil)
 		return fmte_("Don't match wildcard FROM and TO.", NULL);
 	GetConst(KEYWORD_WILD, &wild1);
 	GetConst(KEYWORD_WILD_INFERIORS, &wild2);
-	List_bind(*list, &next, &pos, &a, &b, NULL);
-	if (pos == wild1) {
+	List_bind(*list, &next, &var, &a, &b, NULL);
+	if (var == wild1) {
 		cons_alloc(localp_alloc(local), root, a, *root);
 		goto final;
 	}
-	if (pos == wild2) {
-		replace_wild_wilds_pathname(local, root, a, b);
+	if (var == wild2) {
+		translate_directory_wild_wild_(local, root, a, b);
 		goto final;
 	}
-	Return(wildcard_stringp_p_(pos, &check));
+	Return(wildcard_stringp_p_(var, &check));
 	if (check) {
-		Return(replace_wild_string_pathname_(local, root, a, pos));
+		Return(translate_directory_wild_string_(local, root, pos, a, var));
 		goto final;
 	}
-	cons_alloc(localp_alloc(local), root, pos, *root);
+	cons_alloc(localp_alloc(local), root, var, *root);
 	goto final;
 
 final:
 	return Result(list, next);
 }
 
-static int replace_string_wild_pathname_(LocalpRoot local,
-		addr *root, addr pos, addr to)
+static int translate_directory_string_wild_(LocalpRoot local,
+		addr *root, addr pos, addr var, addr to)
 {
 	addr from;
 
 	strvect_char_local(local->local, &from, "*");
-	Return(translate_string_pathname_(local, &pos, pos, from, to));
-	cons_alloc(localp_alloc(local), root, pos, *root);
+	Return(translate_name_(local, &var, pos, var, from, to));
+	cons_alloc(localp_alloc(local), root, var, *root);
 
 	return 0;
 }
 
-static int replace_string_string_pathname_(LocalpRoot local,
-		addr *root, addr pos, addr from, addr to)
+static int translate_directory_string_string_(LocalpRoot local,
+		addr *root, addr pos, addr var, addr from, addr to)
 {
-	Return(translate_string_pathname_(local, &pos, pos, from, to));
-	cons_alloc(localp_alloc(local), root, pos, *root);
+	Return(translate_name_(local, &var, pos, var, from, to));
+	cons_alloc(localp_alloc(local), root, var, *root);
 	return 0;
 }
 
-static int replace_string_pathname_(LocalpRoot local, addr *root, addr *list, addr to)
+static int translate_directory_string_(LocalpRoot local,
+		addr *root, addr *list, addr pos, addr to)
 {
 	int check;
-	addr wild1, wild2, next, pos, a, b;
+	addr wild1, wild2, next, var, a, b;
 
 	if (*list == Nil)
 		return fmte_("Don't match wildcard FROM and TO.", NULL);
 	GetConst(KEYWORD_WILD, &wild1);
 	GetConst(KEYWORD_WILD_INFERIORS, &wild2);
-	List_bind(*list, &next, &pos, &a, &b, NULL);
-	if (pos == wild1 || pos == wild2) {
-		Return(replace_string_wild_pathname_(local, root, a, to));
+	List_bind(*list, &next, &var, &a, &b, NULL);
+	if (var == wild1 || var == wild2) {
+		Return(translate_directory_string_wild_(local, root, pos, a, to));
 		goto final;
 	}
-	Return(wildcard_stringp_p_(pos, &check));
+	Return(wildcard_stringp_p_(var, &check));
 	if (check) {
-		Return(replace_string_string_pathname_(local, root, a, pos, to));
+		Return(translate_directory_string_string_(local, root, pos, a, var, to));
 		goto final;
 	}
-	cons_alloc(localp_alloc(local), root, pos, *root);
+	cons_alloc(localp_alloc(local), root, var, *root);
 	goto final;
 
 final:
 	return Result(list, next);
 }
 
-static int translate_replace_pathname_(LocalpRoot local,
-		addr *root, addr *list, addr to)
+static int translate_directory_replace_(LocalpRoot local,
+		addr *root, addr *list, addr pos, addr to)
 {
 	int check;
 	LocalRoot alloc;
-	addr pos, wild1, wild2;
+	addr var, wild1, wild2;
 
 	GetConst(KEYWORD_WILD, &wild1);
 	GetConst(KEYWORD_WILD_INFERIORS, &wild2);
 	alloc = localp_alloc(local);
 	while (to != Nil) {
-		Return_getcons(to, &pos, &to);
-		if (pos == wild1 || pos == wild2) {
-			Return(replace_wild_pathname_(local, root, list));
+		Return_getcons(to, &var, &to);
+		if (var == wild1 || var == wild2) {
+			Return(translate_directory_wild_(local, root, list, pos));
 			continue;
 		}
-		Return(wildcard_stringp_p_(pos, &check));
+		Return(wildcard_stringp_p_(var, &check));
 		if (check) {
-			Return(replace_string_pathname_(local, root, list, pos));
+			Return(translate_directory_string_(local, root, list, pos, var));
 			continue;
 		}
-		cons_alloc(alloc, root, pos, *root);
+		cons_alloc(alloc, root, var, *root);
 	}
 	nreverse(root, *root);
 
 	return 0;
 }
 
-static int translate_directory_pathname_(LocalpRoot local,
-		addr *ret, addr pos, addr from, addr to,
+static int translate_directory_(LocalpRoot local, addr *ret,
+		addr pos, addr var, addr from, addr to,
 		lisp_equal_calltype equal)
 {
 	int check;
@@ -425,30 +527,21 @@ static int translate_directory_pathname_(LocalpRoot local,
 
 	push_localp(local, &stack);
 	list = Nil;
-	Return(translate_list_pathname_(local, &list, pos, from, equal, &check));
+	Return(translate_directory_list_(local, &list, var, from, equal, &check));
 	if (! check)
-		return fmte_("Cannot translate ~S to ~S.", from, pos, NULL);
+		return fmte_("Cannot translate ~S to ~S.", from, var, NULL);
 	*ret = Nil;
-	Return(translate_replace_pathname_(local, ret, &list, to));
+	Return(translate_directory_replace_(local, ret, &list, pos, to));
 	rollback_localp(local, stack);
 
 	return 0;
 }
 
-static int translate_nil_pathname_(LocalpRoot local,
-		addr *ret, addr pos, addr from, addr to)
-{
-	addr wild;
 
-	GetConst(KEYWORD_WILD, &wild);
-	if (from == Nil)
-		from = wild;
-	if (to == Nil)
-		to = wild;
-	return translate_string_pathname_(local, ret, pos, from, to);
-}
-
-static int translate_version_pathname_(addr *ret, addr pos, addr from, addr to)
+/*
+ *  version
+ */
+static int translate_version_(addr *ret, addr var, addr from, addr to)
 {
 	addr wild, unspec;
 
@@ -465,31 +558,37 @@ static int translate_version_pathname_(addr *ret, addr pos, addr from, addr to)
 	/* value */
 	if (from == wild) {
 		if (to == wild)
-			return Result(ret, pos);
+			return Result(ret, var);
 		return fmte_(":VERSION from-wildcard is *, but to-wildcard ~S "
 				"is not *.", to, NULL);
 	}
-	if (! eql_function(pos, to))
-		return fmte_(":VERSION source ~S don't match to-wildcard ~S.", pos, to, NULL);
+	if (! eql_function(var, to))
+		return fmte_(":VERSION source ~S don't match to-wildcard ~S.", var, to, NULL);
 
 	/* :unspecific */
 	return Result(ret, unspec);
 }
 
-static void getdirectory_translate_pathname(addr pos, addr *ret)
+
+/*
+ *  translate pathname
+ */
+static void translate_getdirectory(addr pos, addr *ret)
 {
-	GetDirectoryPathname(pos, &pos);
-	if (pos != Nil) {
-		*ret = pos;
+	addr list;
+
+	GetDirectoryPathname(pos, &list);
+	if (list != Nil) {
+		*ret = list;
 		return;
 	}
 
 	/* (:relative) */
-	GetConst(KEYWORD_RELATIVE, &pos);
-	conscar_heap(ret, pos);
+	GetConst(KEYWORD_RELATIVE, &list);
+	conscar_heap(ret, list);
 }
 
-static int setdirectory_translate_relative_p(addr list)
+static int translate_setdirectory_p(addr list)
 {
 	addr x, y;
 
@@ -500,9 +599,9 @@ static int setdirectory_translate_relative_p(addr list)
 	return (x == y) && (list == Nil);
 }
 
-static void setdirectory_translate_pathname(LocalRoot local, addr pos, addr value)
+static void translate_setdirectory(LocalRoot local, addr pos, addr value)
 {
-	if (setdirectory_translate_relative_p(value)) {
+	if (translate_setdirectory_p(value)) {
 		SetDirectoryPathname(pos, Nil);
 	}
 	else {
@@ -533,30 +632,30 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	/* device */
 	copylocal_pathname_array(alloc, to, PATHNAME_INDEX_DEVICE, one);
 	/* directory */
-	getdirectory_translate_pathname(pos, &a);
-	getdirectory_translate_pathname(from, &b);
-	getdirectory_translate_pathname(to, &c);
-	Return(translate_directory_pathname_(local, &a, a, b, c, equal));
-	setdirectory_translate_pathname(alloc, one, a);
+	translate_getdirectory(pos, &a);
+	translate_getdirectory(from, &b);
+	translate_getdirectory(to, &c);
+	Return(translate_directory_(local, &a, pos, a, b, c, equal));
+	translate_setdirectory(alloc, one, a);
 	/* name */
 	GetNamePathname(pos, &a);
 	GetNamePathname(from, &b);
 	GetNamePathname(to, &c);
-	Return(translate_nil_pathname_(local, &a, a, b, c));
+	Return(translate_name_(local, &a, pos, a, b, c));
 	copylocal_object(alloc, &a, a);
 	SetNamePathname(one, a);
 	/* type */
 	GetTypePathname(pos, &a);
 	GetTypePathname(from, &b);
 	GetTypePathname(to, &c);
-	Return(translate_nil_pathname_(local, &a, a, b, c));
+	Return(translate_name_(local, &a, pos, a, b, c));
 	copylocal_object(alloc, &a, a);
 	SetTypePathname(one, a);
 	/* version */
 	GetVersionPathname(pos, &a);
 	GetVersionPathname(from, &b);
 	GetVersionPathname(to, &c);
-	Return(translate_version_pathname_(&a, a, b, c));
+	Return(translate_version_(&a, a, b, c));
 	copylocal_object(alloc, &a, a);
 	SetVersionPathname(one, a);
 	/* result */

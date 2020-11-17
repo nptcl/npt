@@ -312,7 +312,7 @@ static void make_pathname_environment(addr host, enum PathnameType *ret)
 	*ret = PathnameType_Error;
 }
 
-lisp_equal_calltype pathname_equal_function(addr pos)
+int pathname_ignore_case_p(addr pos)
 {
 	enum PathnameType type;
 
@@ -322,11 +322,19 @@ lisp_equal_calltype pathname_equal_function(addr pos)
 	switch (type) {
 		case PathnameType_Windows:
 		case PathnameType_Logical:
-			return equalp_function_;
+			return 1;
 
 		default:
-			return equal_function_;
+			return 0;
 	}
+}
+
+lisp_equal_calltype pathname_equal_function(addr pos)
+{
+	Check(! pathnamep(pos), "type left error");
+	return pathname_ignore_case_p(pos)?
+		equalp_function_:
+		equal_function_;
 }
 
 static int make_pathname_environment_(addr host, enum PathnameType *ret)

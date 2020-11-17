@@ -276,6 +276,7 @@
 (defparameter *lispc-header*
   '("version.h"
     "define.h"
+    "define_compile.h"
     "define_setjmp.h"
     "typedef_basic.h"
     "typedef_integer.h"
@@ -1031,8 +1032,6 @@
 (defun header-comment ()
   (header-common)
   (pragma-push)
-  (terpri)
-  (format t "#define _n(x) lispd_##x~%")
   (terpri)
   (header-cplusplus)
   (terpri)

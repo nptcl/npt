@@ -240,7 +240,7 @@ int load_logical_pathname_translations_common_(Execute ptr, addr host, addr *ret
 	/* load */
 	Return(probe_file_files_(ptr, &pos, file));
 	/* host file is not exist */
-	if (pos != T)
+	if (pos == Nil)
 		return Result(ret, Nil);
 	/* read file */
 	Return(load_logical_pathname_file_(ptr, file, &pos));

@@ -145,8 +145,8 @@
   nil)
 
 (deftest keywordp.10
-  (keywordp '&optional)nil
-  )
+  (keywordp '&optional)
+  nil)
 
 (deftest keywordp.11
   (keywordp '#:hello-gensym)

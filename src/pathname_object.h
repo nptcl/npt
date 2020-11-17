@@ -22,6 +22,7 @@
 #define settype_pathname _n(settype_pathname)
 #define getversion_pathname _n(getversion_pathname)
 #define setversion_pathname _n(setversion_pathname)
+#define pathname_ignore_case_p _n(pathname_ignore_case_p)
 #define pathname_equal_function _n(pathname_equal_function)
 
 #define make_pathname_alloc _n(make_pathname_alloc)
@@ -135,6 +136,7 @@ void gettype_pathname(addr pos, addr *ret);
 void settype_pathname(addr pos, addr value);
 void getversion_pathname(addr pos, addr *ret);
 void setversion_pathname(addr pos, addr value);
+int pathname_ignore_case_p(addr pos);
 lisp_equal_calltype pathname_equal_function(addr pos);
 
 /* pathname object */

@@ -105,3 +105,6 @@
   (with-open-file (x file)
     (values (read-line x))))
 
+(defun probe-file-boolean (file)
+  (not (not (probe-file file))))
+

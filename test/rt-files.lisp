@@ -1,10 +1,9 @@
 ;;
 ;;  ANSI COMMON LISP: 20. Files
 ;;
-#+ansi-c
-(load #p"test/rtfiles-ansi.lisp")
-#-ansi-c
-(load #p"test/rtfiles-test.lisp")
+(load #p"test/rtfiles-type.lisp")
+#+ansi-c (load #p"test/rtfiles-ansi.lisp")
+#-ansi-c (load #p"test/rtfiles-test.lisp")
 
 
 ;;

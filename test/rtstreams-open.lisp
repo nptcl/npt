@@ -32,7 +32,7 @@
 
 (deftest open.3
   (with-temp-file
-    (unless (probe-file *file*)
+    (unless (probe-file-boolean *file*)
       (with-open-file (stream *file* :direction :output :if-does-not-exist :create)
         (write-char #\A stream)))
     (let ((x (open *file*)))
@@ -201,7 +201,7 @@
     (with-open-stream (x (open *file* :direction :input :if-does-not-exist :create))
       (streamp x))
     (prog1
-      (probe-file *file*)
+      (probe-file-boolean *file*)
       (delete-temp-file)))
   t)
 
@@ -630,7 +630,7 @@
     (with-open-stream (x (open *file* :direction :probe :if-does-not-exist :create))
       (streamp x))
     (prog1
-      (probe-file *file*)
+      (probe-file-boolean *file*)
       (delete-temp-file)))
   t)
 
@@ -661,7 +661,7 @@
     (delete-temp-file)
     (with-open-stream (x (open *file* :if-does-not-exist :create))
       (streamp x))
-    (probe-file *file*))
+    (probe-file-boolean *file*))
   t)
 
 (deftest open-test.3
