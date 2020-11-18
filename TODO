@@ -21,7 +21,7 @@ Making test case now.
     17  Sequences                             42        42      100%
     18  Hash Tables                           14        14      100%
     19  Filenames                             26        26      100%
-    20  Files                                 10         5       50%
+    20  Files                                 10        10      100%
     21  Streams                               70        70      100%
     22  Printer                               41         0        0%
     23  Reader                                21         0        0%
@@ -29,4 +29,4 @@ Making test case now.
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       436       44%
+     -  All                                  996       441       44%

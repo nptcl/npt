@@ -51,8 +51,10 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	/* check */
 	Return(name_pathname_local_(ptr, pos, &name));
 	Return(UTF8_buffer_clang_(ptr->local, &value, name));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-8 string ~S.", name, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot decode UTF-8 string ~S.", name, NULL);
+	}
 	str = (const char *)posbodyr(value);
 	*ret = probe_file_boolean(str)? pos: Nil;
 
@@ -102,22 +104,30 @@ static int rename_file_run_files(Execute ptr,
 	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
 	Return(wild_pathname_boolean_(from, Nil, &check));
-	if (check)
-		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
+	if (check) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot rename wildcard pathname from ~S", from, NULL);
+	}
 	Return(wild_pathname_boolean_(to, Nil, &check));
-	if (check)
-		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
+	if (check) {
+		return call_simple_file_error_va_(ptr, to,
+				"Cannot rename wildcard pathname to ~S", to, NULL);
+	}
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, from, &value));
 	Return(UTF8_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-8 string ~S.", from, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, from,
+				"Cannot decode UTF-8 string ~S.", from, NULL);
+	}
 	str1 = (const char *)posbodyr(value);
 	Return(name_pathname_local_(ptr, to, &value));
 	Return(UTF8_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-8 string ~S.", to, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, to,
+				"Cannot decode UTF-8 string ~S.", to, NULL);
+	}
 	str2 = (const char *)posbodyr(value);
 	/* check */
 	if (probe_file_boolean(str2)) {

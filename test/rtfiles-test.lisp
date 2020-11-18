@@ -310,7 +310,109 @@
 
 
 ;;
+;;  Function ENSURE-DIRECTORIES-EXIST
 ;;
+(deftest ensure-directories-exist.1
+  (let ((path #p"test/ensure-directories-exists-1/"))
+    (lisp-system:remove-directory path nil)
+    (multiple-value-bind (x y) (ensure-directories-exist path)
+      (values (pathnamep x) y)))
+  t t)
+
+(deftest ensure-directories-exist.2
+  (let ((path #p"test/ensure-directories-exists-2/"))
+    (lisp-system:remove-directory path nil)
+    (ensure-directories-exist path)
+    (multiple-value-bind (x y) (ensure-directories-exist path)
+      (values (pathnamep x) y)))
+  t nil)
+
+(deftest ensure-directories-exist.3
+  (let ((path #p"test/ensure-directories-exists-3/hello.txt"))
+    (multiple-value-bind (x y) (ensure-directories-exist path)
+      (values (pathnamep x) y)))
+  t t)
+
+(deftest ensure-directories-exist.4
+  (probe-file #p"test/ensure-directories-exists-3/hello.txt")
+  nil)
+
+(deftest ensure-directories-exist.5
+  (let ((path #p"test/ensure-directories-exists-5/"))
+    (lisp-system:remove-directory path nil)
+    (equalp
+      (with-output-to-string (*standard-output*)
+        (ensure-directories-exist path :verbose t))
+      ""))
+  nil)
+
+(deftest ensure-directories-exist.6
+  (let ((path #p"test/ensure-directories-exists-6/"))
+    (lisp-system:remove-directory path nil)
+    (ensure-directories-exist path)
+    (equalp
+      (with-output-to-string (*standard-output*)
+        (ensure-directories-exist path :verbose t))
+      ""))
+  t)
+
+(deftest ensure-directories-exist.7
+  (let ((path #p"test/ensure-directories-exists-7/"))
+    (lisp-system:remove-directory path nil)
+    (equalp
+      (with-output-to-string (*standard-output*)
+        (ensure-directories-exist path))
+      ""))
+  t)
+
+(deftest ensure-directories-exist.8
+  (progn
+    (lisp-system:remove-directory
+      #p"test/ensure-directories-exists-8/" nil)
+    (multiple-value-bind (x y)
+      (ensure-directories-exist #p"test/ensure-directories-exists-8/*.*")
+      (values (pathnamep x) y)))
+  t t)
+
+(deftest-error ensure-directories-exist.9
+  (ensure-directories-exist #p"test/*/ensure-directories-exist-9/")
+  file-error)
+
+(deftest ensure-directories-exist-delete.1
+  (flet ((path (x) (lisp-system:remove-directory x nil)))
+    (path #p"test/ensure-directories-exists-1/")
+    (path #p"test/ensure-directories-exists-2/")
+    (path #p"test/ensure-directories-exists-3/")
+    (path #p"test/ensure-directories-exists-4/")
+    (path #p"test/ensure-directories-exists-5/")
+    (path #p"test/ensure-directories-exists-6/")
+    (path #p"test/ensure-directories-exists-7/")
+    (path #p"test/ensure-directories-exists-8/")
+    (path #p"test/ensure-directories-exists-9/")
+    (values)))
+
+(deftest-error ensure-directories-exist-error.1
+  (eval '(ensure-directories-exist 10))
+  type-error)
+
+(deftest-error ensure-directories-exist-error.2
+  (eval '(ensure-directories-exist
+           #p"test/ensure-directories-exists-error" :hello)))
+
+(deftest-error ensure-directories-exist-error.3
+  (eval '(ensure-directories-exist
+           #p"test/ensure-directories-exists-error" :hello 10)))
+
+(deftest-error ensure-directories-exist-error.4
+  (eval '(ensure-directories-exist
+           #p"test/ensure-directories-exists-error" :verbose)))
+
+(deftest-error! ensure-directories-exist-error.5
+  (eval '(ensure-directories-exist)))
+
+
+;;
+;;  Function TRUENAME
 ;;
 (deftest truename.1
   (car (pathname-directory
@@ -385,23 +487,85 @@
   (eval '(truename #p"./" nil)))
 
 
-
 ;;
-;;
+;;  Function FILE-AUTHOR
 ;;
 (deftest file-author.1
   (stringp
     (file-author #p"test/rt-files.lisp"))
   t)
 
+(deftest file-author.2
+  (let ((stream (open #p"test/file-author.txt" :direction :output
+                      :if-exists :supersede :if-does-not-exist :create)))
+    (unwind-protect
+      (stringp (file-author stream))
+      (close stream :abort t)))
+  t)
+
+#-windows
+(deftest-error file-author.3
+  (file-author #p"test/no-such-file")
+  file-error)
+
+#+windows
+(deftest file-author.3
+  (file-author #p"test/no-such-file")
+  nil)
+
+(deftest-error file-author.4
+  (file-author #p"test/*.*")
+  file-error)
+
+(deftest-error file-author-error.1
+  (eval '(file-author 10))
+  type-error)
+
+(deftest-error! file-author-error.2
+  (eval '(file-author)))
+
+(deftest-error! file-author-error.3
+  (eval '(file-author #p"test/rt-files.lisp" nil)))
+
+
+;;
+;;  Function FILE-WRITE-DATE
+;;
 (deftest file-write-date.1
   (integerp
     (file-write-date #p"test/rt-files.lisp"))
   t)
 
-(deftest-error file-write-date.2
-  (file-write-date #p"test/no-such-file"))
+(deftest file-write-date.2
+  (let ((stream (open #p"test/file-write-date.txt" :direction :output
+                      :if-exists :supersede :if-does-not-exist :create)))
+    (unwind-protect
+      (integerp (file-write-date stream))
+      (close stream :abort t)))
+  t)
 
+(deftest-error file-write-date.3
+  (file-write-date #p"test/no-such-file")
+  file-error)
+
+(deftest-error file-write-date.4
+  (file-write-date #p"test/*.*")
+  file-error)
+
+(deftest-error file-write-date-error.1
+  (eval '(file-write-date 10))
+  type-error)
+
+(deftest-error! file-write-date-error.2
+  (eval '(file-write-date)))
+
+(deftest-error! file-write-date-error.3
+  (eval '(file-write-date #p"test/rt-files.lisp" nil)))
+
+
+;;
+;;  Function RENAME-FILE
+;;
 (defvar *rename-file1* #p"_debug1.txt")
 (defvar *rename-file2* #p"_debug2.txt")
 
@@ -422,13 +586,15 @@
   (progn
     (probe-delete-file *rename-file1*)
     (probe-delete-file *rename-file2*)
-    (rename-file *rename-file1* *rename-file2*)))
+    (rename-file *rename-file1* *rename-file2*))
+  file-error)
 
 (deftest-error rename-file.2
   (progn
     (write-string-file *rename-file1* "aaa")
     (write-string-file *rename-file2* "bbb")
-    (rename-file *rename-file1* *rename-file2*)))
+    (rename-file *rename-file1* *rename-file2*))
+  file-error)
 
 (deftest rename-file.3
   (progn
@@ -445,11 +611,38 @@
         (car (pathname-directory c)))))
   t nil t :absolute :absolute)
 
+(deftest-error rename-file.4
+  (rename-file #p"_debug3.*" *rename-file2*)
+  file-error)
+
+(deftest-error rename-file.5
+  (rename-file *rename-file1* #p"_debug3.*")
+  file-error)
+
+(deftest-error rename-file-error.1
+  (eval '(rename-file 10 *rename-file2*))
+  type-error)
+
+(deftest-error rename-file-error.2
+  (eval '(rename-file *rename-file1* 20))
+  type-error)
+
+(deftest-error! rename-file-error.3
+  (eval '(rename-file *rename-file1*)))
+
+(deftest-error! rename-file-error.4
+  (eval '(rename-file *rename-file1* *rename-file2* nil)))
+
+
+;;
+;;  Function DELETE-FILE
+;;
 (deftest-error delete-file.1
   (progn
     (probe-delete-file *rename-file1*)
     (probe-delete-file *rename-file2*)
-    (delete-file *rename-file1*)))
+    (delete-file *rename-file1*))
+  file-error)
 
 (deftest delete-file.2
   (progn
@@ -459,4 +652,18 @@
       (delete-file *rename-file1*)
       (probe-file-boolean *rename-file1*)))
   t nil)
+
+(deftest-error delete-file.3
+  (delete-file #p"_debug.*")
+  file-error)
+
+(deftest-error delete-file-error.1
+  (eval '(delete-file 10))
+  type-error)
+
+(deftest-error! delete-file-error.2
+  (eval '(delete-file)))
+
+(deftest-error! delete-file-error.3
+  (eval '(delete-file *rename-file1* nil)))
 

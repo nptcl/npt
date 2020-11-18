@@ -109,7 +109,8 @@ static int opendir_files(LocalRoot local,
 	Return(UTF16_buffer_clang_(local, &name, pos));
 	if (name == Unbound) {
 		*ret = NULL;
-		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
+		return call_simple_file_error_va_(NULL, pos,
+				"Cannot convert ~S to UTF-16 string.", pos, NULL);
 	}
 	clang = (const WCHAR *)posbodyr(name);
 	hFind = FindFirstFileW(clang, data);
@@ -139,7 +140,8 @@ static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 	Return(UTF16_buffer_clang_(local, &pos, pos));
 	if (pos == Unbound) {
 		*ret = 0;
-		return fmte_("Cannot convert ~S to UTF-16 string.", file, NULL);
+		return call_simple_file_error_va_(ptr, file,
+				"Cannot convert ~S to UTF-16 string.", file, NULL);
 	}
 	body = (const WCHAR *)posbodyr(pos);
 	check = PathIsDirectoryW(body);
@@ -221,8 +223,9 @@ static int files_directory_files(struct directory_struct *str, addr base)
 	while (FindNextFileW(hFind, &data)) {
 		Return(files_push_directory_files(str, base, data.cFileName));
 	}
-	if (FindClose(hFind) == 0)
-		return fmte_("FindClose error.", NULL);
+	if (FindClose(hFind) == 0) {
+		return call_simple_file_error_va_(NULL, base, "FindClose error.", NULL);
+	}
 
 	return 0;
 }
@@ -255,8 +258,10 @@ static int wild_check_directory_files(struct directory_struct *str, addr name, i
 	Return(make_list_directory_pathname_(str, &pos, pos));
 	Return(directory_name_pathname_local_(local, pos, &pos));
 	Return(UTF16_buffer_clang_(local, &value, pos));
-	if (value == Unbound)
-		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(NULL, pos,
+				"Cannot convert ~S to UTF-16 string.", pos, NULL);
+	}
 	ptr = (const WCHAR *)posbodyr(value);
 	check = PathIsDirectoryW(ptr);
 	rollback_local(local, stack);
@@ -313,8 +318,9 @@ static int wild_file_directory_files(struct directory_struct *str, addr base)
 	while (FindNextFileW(hFind, &data)) {
 		Return(wild_push_directory_files(str, data.cFileName));
 	}
-	if (FindClose(hFind) == 0)
-		return fmte_("FindClose error.", NULL);
+	if (FindClose(hFind) == 0) {
+		return call_simple_file_error_va_(NULL, base, "FindClose error.", NULL);
+	}
 
 	return 0;
 }
@@ -396,8 +402,9 @@ static int inferiors_find_directory_files(struct directory_struct *str, addr bas
 	while (FindNextFileW(hFind, &data)) {
 		Return(inferiors_push_directory_files(str, data.cFileName));
 	}
-	if (FindClose(hFind) == 0)
-		return fmte_("FindClose error.", NULL);
+	if (FindClose(hFind) == 0) {
+		return call_simple_file_error_va_(NULL, base, "FindClose error.", NULL);
+	}
 
 	return 0;
 }
@@ -480,8 +487,10 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	/* check */
 	Return(name_pathname_local_(ptr, pos, &name));
 	Return(UTF16_buffer_clang_(ptr->local, &value, name));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", name, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot decode UTF-16 string ~S.", pos, NULL);
+	}
 	str = (const WCHAR *)posbodyr(value);
 	*ret = probe_file_boolean(str)? pos: Nil;
 
@@ -551,10 +560,14 @@ static int ensure_directories_exist_run_files(Execute ptr,
 	addr list, value, root, temp, result;
 
 	GetDirectoryPathname(pos, &list);
-	if (! consp_getcons(list, &value, &list))
-		return fmte_("Invalid pathname directory ~S.", pos, NULL);
-	if (! consp(list))
-		return fmte_("Invalid pathname directory ~S.", pos, NULL);
+	if (! consp_getcons(list, &value, &list)) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Invalid pathname directory ~S.", pos, NULL);
+	}
+	if (! consp(list)) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Invalid pathname directory ~S.", pos, NULL);
+	}
 	result = Nil;
 	local = ptr->local;
 	conscar_local(local, &root, value);
@@ -567,19 +580,25 @@ static int ensure_directories_exist_run_files(Execute ptr,
 		/* directory check */
 		Return(directory_name_pathname_local_(local, temp, &temp));
 		Return(UTF16_buffer_clang_(local, &value, temp));
-		if (value == Unbound)
-			return fmte_("Cannot decode UTF-16 string ~S.", temp, NULL);
+		if (value == Unbound) {
+			return call_simple_file_error_va_(ptr, temp,
+					"Cannot decode UTF-16 string ~S.", temp, NULL);
+		}
 		str = (const WCHAR *)posbodyr(value);
 		/* already exist */
 		if (PathFileExistsW(str)) {
-			if (! PathIsDirectoryW(str))
-				return fmte_("Cannot make directory ~S.", pos, NULL);
+			if (! PathIsDirectoryW(str)) {
+				return call_simple_file_error_va_(ptr, pos,
+						"Cannot make directory ~S.", pos, NULL);
+			}
 			rollback_local(local, stack);
 			continue;
 		}
 		/* CreateDirectory */
-		if (CreateDirectoryW(str, NULL) == 0)
-			return fmte_("Cannot make directory ~S.", pos, NULL);
+		if (CreateDirectoryW(str, NULL) == 0) {
+			return call_simple_file_error_va_(ptr, pos,
+					"Cannot make directory ~S.", pos, NULL);
+		}
 		result = T;
 		/* verbose */
 		if (verbose) {
@@ -652,8 +671,10 @@ int file_author_files_(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, pos, &value));
 	Return(UTF16_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot decode UTF-16 string ~S.", pos, NULL);
+	}
 	str = (WCHAR *)posbodyr(value);
 
 	/* GetFileSecurity */
@@ -668,10 +689,12 @@ int file_author_files_(Execute ptr, addr *ret, addr pos)
 	/* GetSecurityDescriptorOwner */
 	result = 0;
 	result = GetSecurityDescriptorOwner(psd, &owner, &result);
-	if (result == 0)
-		return fmte_("GetSecurityDescriptorOwner error.", NULL);
+	if (result == 0) {
+		return call_simple_file_error_va_(ptr, pos,
+				"GetSecurityDescriptorOwner error.", NULL);
+	}
 
-	/* LookupAccountSid */
+	/* iookupAccountSid */
 	use = SidTypeUnknown;
 	size1 = size2 = 1;
 	name = domain = NULL;
@@ -682,7 +705,7 @@ int file_author_files_(Execute ptr, addr *ret, addr pos)
 	if (result == FALSE) {
 		if (GetLastError() == ERROR_NONE_MAPPED)
 			goto finish_nil;
-		return fmte_("LookupAccountSid error.", NULL);
+		return call_simple_file_error_va_(ptr, pos, "LookupAccountSid error.", NULL);
 	}
 
 	/* result */
@@ -749,19 +772,25 @@ static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, pos, &value));
 	Return(UTF16_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot decode UTF-16 string ~S.", pos, NULL);
+	}
 	str = (const WCHAR *)posbodyr(value);
 
 	/* FindFirstFile */
 	hFind = FindFirstFileW(str, &data);
-	if (hFind == INVALID_HANDLE_VALUE)
-		return fmte_("Cannot find file ~S.", pos, NULL);
+	if (hFind == INVALID_HANDLE_VALUE) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot find file ~S.", pos, NULL);
+	}
 	FindClose(hFind);
 
 	/* result */
-	if (file_write_date_base_files(ret, &data.ftLastWriteTime))
-		return fmte_("The file ~S timestamp must be after 1900 year.", pos, NULL);
+	if (file_write_date_base_files(ret, &data.ftLastWriteTime)) {
+		return call_simple_file_error_va_(ptr, pos,
+				"The file ~S timestamp must be after 1900 year.", pos, NULL);
+	}
 
 	return 0;
 }
@@ -796,22 +825,30 @@ static int rename_file_run_files(Execute ptr,
 	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
 	Return(wild_pathname_boolean_(from, Nil, &check));
-	if (check)
-		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
+	if (check) {
+		return call_simple_file_error_va_(ptr, from,
+				"Cannot rename wildcard pathname from ~S", from, NULL);
+	}
 	Return(wild_pathname_boolean_(to, Nil, &check));
-	if (check)
-		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
+	if (check) {
+		return call_simple_file_error_va_(ptr, to,
+				"Cannot rename wildcard pathname to ~S", to, NULL);
+	}
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, from, &value));
 	Return(UTF16_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", from, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, from,
+				"Cannot decode UTF-16 string ~S.", from, NULL);
+	}
 	str1 = (const WCHAR *)posbodyr(value);
 	Return(name_pathname_local_(ptr, to, &value));
 	Return(UTF16_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", to, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, to,
+				"Cannot decode UTF-16 string ~S.", to, NULL);
+	}
 	str2 = (const WCHAR *)posbodyr(value);
 	/* check */
 	if (probe_file_boolean(str2)) {
@@ -901,19 +938,25 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 
 	Return(physical_pathname_heap_(ptr, pos, &file));
 	Return(wild_pathname_boolean_(file, Nil, &check));
-	if (check)
-		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
+	if (check) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot delete wildcard pathname ~S", pos, NULL);
+	}
 	if (! pathname_file_p(file)) {
-		if (errorp)
-			return fmte_("The argument ~S is not a file.", pos, NULL);
+		if (errorp) {
+			return call_simple_file_error_va_(ptr, pos,
+					"The argument ~S is not a file.", pos, NULL);
+		}
 		return Result(ret, 0);
 	}
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, file, &value));
 	Return(UTF16_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", file, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, file,
+				"Cannot decode UTF-16 string ~S.", file, NULL);
+	}
 	str = (const WCHAR *)posbodyr(value);
 	/* delete */
 	if (DeleteFileAsyncW(str) == 0) {
@@ -968,19 +1011,25 @@ int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 
 	Return(physical_pathname_heap_(ptr, pos, &file));
 	Return(wild_pathname_boolean_(file, Nil, &check));
-	if (check)
-		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
+	if (check) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot delete wildcard pathname ~S", pos, NULL);
+	}
 	if (! pathname_directory_p(file)) {
-		if (errorp)
-			return fmte_("The argument ~S is not a directory.", pos, NULL);
+		if (errorp) {
+			return call_simple_file_error_va_(ptr, pos,
+					"The argument ~S is not a directory.", pos, NULL);
+		}
 		return Result(ret, 0);
 	}
 	/* filename */
 	local = ptr->local;
 	Return(name_pathname_local_(ptr, file, &value));
 	Return(UTF16_buffer_clang_(local, &value, value));
-	if (value == Unbound)
-		return fmte_("Cannot decode UTF-16 string ~S.", file, NULL);
+	if (value == Unbound) {
+		return call_simple_file_error_va_(ptr, file,
+				"Cannot decode UTF-16 string ~S.", file, NULL);
+	}
 	str = (const WCHAR *)posbodyr(value);
 	/* delete */
 	if (RemoveDirectoryW(str) == 0) {
