@@ -23,6 +23,7 @@ This section describes the following.
 - [5.9 Operation of EastAsianWidth](#eastasian)
 - [5.10 Loading `load-logical-pathname-translations`](#load)
 - [5.11 Using the `pathname`](#pathname)
+- [5.12 Initial value of `random-state`](#random-state)
 
 
 # <a id="command-arguments">5.2 Command Arguments</a>
@@ -396,3 +397,64 @@ and is used by rules for logical paths.
 * (pathname-version (logical-pathname "test:hello.txt.999"))
 999
 ```
+
+
+## <a id="random-state">5.12 Initial value of `random-state`</a>
+
+The `random-state` is an object used to generate a random number.  
+npt uses a random number generator called xorshift,
+which holds a 128-bit internal state in the `random-state`.
+
+The initial value can be set to as random as possible
+by passing the argument `t` to the function `make-random-state`.  
+For example
+
+```lisp
+* (make-random-state t)
+#<RANDOM-STATE #x85A5B416389D9716A81B4F43F76E922A>
+* (make-random-state t)
+#<RANDOM-STATE #xE51C94EB01856FEAC5B1EC8C90E3107E>
+```
+
+Determining the initial value of a random number is not easy,
+so basically the operating system sets the initial value.  
+This chapter describes how to get the initial value of a random number.
+
+
+### FreeBSD / Linux
+
+If the compilation mode is FreeBSD or Linux,
+get the initial value of the random number from the file `/dev/urandom`.
+
+Note that the device to be read is not `/dev/random`.  
+On FreeBSD, there is no difference between the two,
+but on Linux, `/dev/random` is more secure.  
+npt has chosen to use `/dev/urandom` for convenience rather than safety.
+
+Takes 256 bytes of data from `/dev/urandom` and sends it to MD5 hash
+and set the internal state of MD5 to the internal state of xorshift as it is.  
+
+If reading `/dev/urandom` fails, it is an error.
+
+
+### Windows
+
+If the compilation mode is on Windows,
+get the initial value from the function `SystemFunction036`,
+commonly known as the `RtlGenRandom` function of `Advapi32.dll`.
+
+Takes 256 bytes of data from `RtlGenRandom` and sends it to MD5 hash
+and set the internal state of MD5 to the internal state of xorshift as it is.  
+
+If reading `RtlGenRandom` fails, it is an error.
+
+
+### ANSI-C
+
+Attempt to read the file `/dev/urandom`.  
+If the value is obtained, it is used as the initial value.  
+If the value can't be obtained, it is given up and
+the time and so on are used as the initial value of the random number.
+
+Unlike FreeBSD, Linux, and Windows, it continues without error
+even if the device could not be loaded for the initial value.

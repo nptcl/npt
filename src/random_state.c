@@ -187,7 +187,7 @@ static int read_windows_random(struct md5encode *md5)
 
 	result = rtlgenrandom((PVOID)buffer, RTLGENRANDOM_SIZE);
 	if (result == FALSE) {
-		Debug("RltGenRandom error");
+		Debug("RtlGenRandom error");
 		return 1;
 	}
 	readmd5(md5, buffer, RTLGENRANDOM_SIZE);

@@ -101,6 +101,7 @@ Prev: <a href="A4_Amalgamation.html">4. Amalgamation</a></p>
 <li><a href="#eastasian">5.9 Operation of EastAsianWidth</a></li>
 <li><a href="#load">5.10 Loading <code>load-logical-pathname-translations</code></a></li>
 <li><a href="#pathname">5.11 Using the <code>pathname</code></a></li>
+<li><a href="#random-state">5.12 Initial value of <code>random-state</code></a></li>
 </ul>
 <h1 id="command-arguments"><a id="command-arguments">5.2 Command Arguments</a></h1>
 <p>The arguments of the npt command are stored in the following variable.</p>
@@ -315,5 +316,32 @@ On Windows, it is set to the type of the file or the drive letter.</p>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a>:NEWEST</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a><span class="op">*</span> (<span class="kw">pathname-version</span> (<span class="kw">logical-pathname</span> <span class="st">&quot;test:hello.txt.999&quot;</span>))</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a><span class="dv">999</span></span></code></pre></div>
+<h2 id="initial-value-of-random-state"><a id="random-state">5.12 Initial value of <code>random-state</code></a></h2>
+<p>The <code>random-state</code> is an object used to generate a random number.<br />
+npt uses a random number generator called xorshift, which holds a 128-bit internal state in the <code>random-state</code>.</p>
+<p>The initial value can be set to as random as possible by passing the argument <code>t</code> to the function <code>make-random-state</code>.<br />
+For example</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="op">*</span> (<span class="kw">make-random-state</span> <span class="kw">t</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a>#&lt;RANDOM-STATE <span class="ch">#x</span>85A5B416389D9716A81B4F43F76E922A&gt;</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a><span class="op">*</span> (<span class="kw">make-random-state</span> <span class="kw">t</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a>#&lt;RANDOM-STATE <span class="ch">#x</span>E51C94EB01856FEAC5B1EC8C90E3107E&gt;</span></code></pre></div>
+<p>Determining the initial value of a random number is not easy, so basically the operating system sets the initial value.<br />
+This chapter describes how to get the initial value of a random number.</p>
+<h3 id="freebsd-linux">FreeBSD / Linux</h3>
+<p>If the compilation mode is FreeBSD or Linux, get the initial value of the random number from the file <code>/dev/urandom</code>.</p>
+<p>Note that the device to be read is not <code>/dev/random</code>.<br />
+On FreeBSD, there is no difference between the two, but on Linux, <code>/dev/random</code> is more secure.<br />
+npt has chosen to use <code>/dev/urandom</code> for convenience rather than safety.</p>
+<p>Takes 256 bytes of data from <code>/dev/urandom</code> and sends it to MD5 hash and set the internal state of MD5 to the internal state of xorshift as it is.</p>
+<p>If reading <code>/dev/urandom</code> fails, it is an error.</p>
+<h3 id="windows">Windows</h3>
+<p>If the compilation mode is on Windows, get the initial value from the function <code>SystemFunction036</code>, commonly known as the <code>RtlGenRandom</code> function of <code>Advapi32.dll</code>.</p>
+<p>Takes 256 bytes of data from <code>RtlGenRandom</code> and sends it to MD5 hash and set the internal state of MD5 to the internal state of xorshift as it is.</p>
+<p>If reading <code>RtlGenRandom</code> fails, it is an error.</p>
+<h3 id="ansi-c">ANSI-C</h3>
+<p>Attempt to read the file <code>/dev/urandom</code>.<br />
+If the value is obtained, it is used as the initial value.<br />
+If the value can’t be obtained, it is given up and the time and so on are used as the initial value of the random number.</p>
+<p>Unlike FreeBSD, Linux, and Windows, it continues without error even if the device could not be loaded for the initial value.</p>
 </body>
 </html>
