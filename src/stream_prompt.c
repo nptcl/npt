@@ -2,6 +2,7 @@
 #include "control_object.h"
 #include "file.h"
 #include "prompt.h"
+#include "prompt_arch.h"
 #include "stream.h"
 #include "stream_error.h"
 #include "stream_function.h"
@@ -15,11 +16,11 @@
 }
 
 /*
- * #define LISP_PROMPT_DEFAULT     Use *query-io*
+ * #define LISP_PROMPT_DISABLE     Use *query-io*
  * #define LISP_PROMPT_READLINE    Use readline  (for Linux)
  * #define LISP_PROMPT_EDITLINE    Use editline  (for BSD)
  */
-#ifdef LISP_PROMPT_DEFAULT
+#ifdef LISP_PROMPT_DISABLE
 void open_prompt_stream(addr *stream)
 {
 	Error(standard_input_stream_(Execute_Thread, stream));

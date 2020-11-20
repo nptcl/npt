@@ -520,6 +520,7 @@
     "process_arch.h"
     "process_ed.h"
     "prompt.h"
+    "prompt_arch.h"
     "prompt_for.h"
     "question.h"
     "quote.h"
@@ -587,6 +588,8 @@
     "syscall_function.h"
     "syscode_common.h"
     "syscode_function.h"
+    "term.h"
+    "term_arch.h"
     "token.h"
     "type.h"
     "type_coerce.h"
@@ -889,7 +892,8 @@
     "process.c"
     ("process_arch.c" :include ("process_unix.h" "process_windows.h"))
     "process_ed.c"
-    ("prompt.c" :header t)
+    "prompt.c"
+    ("prompt_arch.c" :include ("prompt_disable.h" "prompt_module.h" "prompt_xterm.h"))
     "prompt_for.c"
     "question.c"
     "quote.c"
@@ -966,6 +970,8 @@
     "syscall_function.c"
     "syscode_common.c"
     "syscode_function.c"
+    "term.c"
+    ("term_arch.c" :include ("term_ansic.h" "term_termios.h"))
     ("thread.c" :include
      ("thread_single.h" "thread_disable.h" "thread_posix.h" "thread_windows.h"))
     "token.c"

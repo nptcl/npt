@@ -1183,13 +1183,17 @@ enum pointer_index {
 	/* restart */
 	p_restart_symbol_use_function,
 	p_restart_symbol_use_interactive,
-	p_restart_symbol_use_report,
 	p_restart_symbol_use_test,
-	p_restart_symbol_store_global,
 	p_restart_symbol_store_special,
 	p_restart_symbol_store_interactive,
-	p_restart_symbol_store_report,
 	p_restart_function_use_function,
+	p_restart_function_use_interactive,
+	p_restart_function_store_function,
+	p_restart_function_store_interactive,
+	p_restart_fdefinition_use_function,
+	p_restart_fdefinition_use_interactive,
+	p_restart_fdefinition_store_function,
+	p_restart_fdefinition_store_interactive,
 	/* stream */
 	p_finalize_close_stream,
 	/* syscall common */

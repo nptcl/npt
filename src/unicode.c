@@ -56,6 +56,22 @@ int string8_null_heap_(addr *ret, const char *name)
 	return string8_null_alloc_(NULL, ret, name);
 }
 
+int string8_null_char1_heap_(addr *ret, const char *name, unicode c)
+{
+	addr pos;
+	unicode *destroy;
+	size_t size;
+
+	if (UTF8_null_strlen((const byte *)name, &size))
+		return fmte_("UTF8 encoding error (length).", NULL);
+	strvect_alloc(NULL, &pos, size + 1UL);
+	GetStringUnicode(pos, (const unicode **)&destroy);
+	if (UTF8_null_makeunicode(destroy, (const byte *)name))
+		return fmte_("UTF8 encoding error (make).", NULL);
+	destroy[size] = c;
+	return Result(ret, pos);
+}
+
 
 /*
  *  UTF-16

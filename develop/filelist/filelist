@@ -267,6 +267,7 @@ print.c
 process_arch.c
 process_ed.c
 process.c
+prompt_arch.c
 prompt_for.c
 prompt.c
 question.c
@@ -351,6 +352,8 @@ syscall_function.c
 syscall.c
 syscode_common.c
 syscode_function.c
+term.c
+term_arch.c
 thread.c
 token.c
 type_coerce.c

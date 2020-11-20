@@ -273,6 +273,7 @@ int setglobal_callname_(addr pos, addr value)
 	CheckType(pos, LISPTYPE_CALLNAME);
 	GetCallNameType(pos, &type);
 	GetCallName(pos, &pos);
+	Return(alldelete_function_(pos));
 	switch (type) {
 		case CALLNAME_SYMBOL:
 			return setfunction_symbol_(pos, value);

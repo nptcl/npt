@@ -2,8 +2,10 @@
 #define __PROMPT_HEADER__
 
 #include "execute.h"
+#include "memory.h"
 #include "typedef.h"
 
+#define get_prompt_info _n(get_prompt_info)
 #define push_prompt_info _n(push_prompt_info)
 #define getindex_prompt _n(getindex_prompt)
 #define getindex_prompt_safe _n(getindex_prompt_safe)
@@ -14,9 +16,16 @@
 #define getshow_prompt_safe _n(getshow_prompt_safe)
 #define setshow_prompt _n(setshow_prompt)
 #define endshow_prompt_safe _n(endshow_prompt_safe)
-#define show_prompt_ _n(show_prompt_)
-#define input_prompt _n(input_prompt)
 
+struct prompt_info {
+	unsigned break_p : 1;
+	unsigned show_p : 1;
+	size_t index;
+};
+
+#define PtrPromptInfo(x) ((struct prompt_info *)PtrBodyB2(x))
+
+void get_prompt_info(Execute ptr, addr *ret);
 void push_prompt_info(Execute ptr);
 size_t getindex_prompt(Execute ptr);
 size_t getindex_prompt_safe(Execute ptr);
@@ -27,9 +36,6 @@ int getshow_prompt(Execute ptr);
 int getshow_prompt_safe(Execute ptr);
 void setshow_prompt(Execute ptr, int value);
 void endshow_prompt_safe(Execute ptr);
-
-int show_prompt_(Execute ptr, addr io);
-int input_prompt(addr *ret, addr *prompt, const char *message);
 
 #endif
 

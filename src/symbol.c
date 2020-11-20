@@ -781,6 +781,21 @@ int getsetf_global_(addr pos, addr *ret)
 	return 0;
 }
 
+int alldelete_function_(addr pos)
+{
+	Check(! symbolp(pos), "type error");
+	if (GetStatusReadOnly(pos))
+		return fmte_("Cannot set the constant variable ~S.", pos, NULL);
+	SetFunctionSymbol(pos, Unbound);
+	remsetf_symbol(pos);
+	remsetfmacro_symbol(pos);
+	remmacro_symbol(pos);
+	Return(remtype_function_symbol_(pos));
+	Return(remtype_setf_symbol_(pos));
+
+	return 0;
+}
+
 
 /*
  *  gensym

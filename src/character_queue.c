@@ -57,7 +57,7 @@ static void charbit_push(addr pos, unicode c)
 	SetCharBitSize(pos, index + 1);
 }
 
-addr charqueue_allocr(LocalRoot local, size_t max)
+void charqueue_alloc(LocalRoot local, addr *ret, size_t max)
 {
 	addr pos, root;
 	struct charqueue_struct *str;
@@ -74,30 +74,16 @@ addr charqueue_allocr(LocalRoot local, size_t max)
 
 	SetCharQueueRoot(pos, root);
 	SetCharQueueTail(pos, root);
-
-	return pos;
-}
-addr charqueue_heapr(size_t max)
-{
-	return charqueue_allocr(NULL, max);
-}
-addr charqueue_localr(LocalRoot local, size_t max)
-{
-	Check(local == NULL, "local error");
-	return charqueue_allocr(local, max);
-}
-void charqueue_alloc(LocalRoot local, addr *ret, size_t max)
-{
-	*ret = charqueue_allocr(local, max);
-}
-void charqueue_heap(addr *ret, size_t max)
-{
-	*ret = charqueue_allocr(NULL, max);
+	*ret = pos;
 }
 void charqueue_local(LocalRoot local, addr *ret, size_t max)
 {
 	Check(local == NULL, "local error");
-	*ret = charqueue_allocr(local, max);
+	charqueue_alloc(local, ret, max);
+}
+void charqueue_heap(addr *ret, size_t max)
+{
+	charqueue_alloc(NULL, ret, max);
 }
 
 void getsize_charqueue(addr pos, size_t *ret)

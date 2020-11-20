@@ -4,6 +4,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval_execute.h"
+#include "execute_object.h"
 #include "function.h"
 #include "hold.h"
 #include "pointer.h"
@@ -23,11 +24,11 @@ static int restart_symbol_use_function(Execute ptr, addr value)
 	return 0;
 }
 
-static int restart_symbol_use_interactive(Execute ptr)
+static int restart_symbol_use_interactive_char_(Execute ptr, const char *str)
 {
 	addr prompt, eval;
 
-	strvect_char_heap(&prompt, "Use new value: ");
+	strvect_char_heap(&prompt, str);
 	Return(prompt_for_stream(ptr, T, prompt, &eval));
 	Return(eval_object(ptr, eval, &eval));
 	list_heap(&eval, eval, NULL);
@@ -36,9 +37,9 @@ static int restart_symbol_use_interactive(Execute ptr)
 	return 0;
 }
 
-static int restart_symbol_use_report(Execute ptr, addr stream)
+static int restart_symbol_use_interactive(Execute ptr)
 {
-	return print_ascii_stream_(stream, "Use specific value.");
+	return restart_symbol_use_interactive_char_(ptr, "Use new value: ");
 }
 
 static int restart_symbol_use_test(Execute ptr, addr pos)
@@ -47,44 +48,32 @@ static int restart_symbol_use_test(Execute ptr, addr pos)
 	return 0;
 }
 
-static void symbol_use_restart(Execute ptr)
+static void symbol_use_restart(addr *ret)
 {
-	addr pos, value;
+	addr restart, value;
 
 	/* restart */
-	GetConst(COMMON_USE_VALUE, &pos);
-	restart_heap(&pos, pos);
+	GetConst(COMMON_USE_VALUE, &restart);
+	restart_heap(&restart, restart);
 	/* function */
 	compiled_heap(&value, Nil);
 	setcompiled_var1(value, p_restart_symbol_use_function);
-	setfunction_restart(pos, value);
+	setfunction_restart(restart, value);
 	/* interactive */
 	compiled_heap(&value, Nil);
 	setcompiled_empty(value, p_restart_symbol_use_interactive);
-	setinteractive_restart(pos, value);
+	setinteractive_restart(restart, value);
 	/* report */
-	compiled_heap(&value, Nil);
-	setcompiled_var1(value, p_restart_symbol_use_report);
-	setreport_restart(pos, value);
+	strvect_char_heap(&value, "Use specific value.");
+	setreport_restart(restart, value);
 	/* test */
 	compiled_heap(&value, Nil);
 	setcompiled_var1(value, p_restart_symbol_use_test);
-	settest_restart(pos, value);
+	settest_restart(restart, value);
 	/* escape */
-	setescape_restart(pos, 1);  /* restart-case */
+	setescape_restart(restart, 1);  /* restart-case */
 	/* result */
-	pushrestart_control(ptr, pos);
-}
-
-static int restart_symbol_store_global(Execute ptr, addr value)
-{
-	addr symbol;
-
-	getdata_control(ptr, &symbol);
-	Return(setvalue_symbol_(symbol, value));
-	setresult_control(ptr, value);
-
-	return 0;
+	*ret = restart;
 }
 
 static int restart_symbol_store_special(Execute ptr, addr value)
@@ -100,109 +89,75 @@ static int restart_symbol_store_special(Execute ptr, addr value)
 
 static int restart_symbol_store_interactive(Execute ptr)
 {
-	addr prompt, eval;
-
-	strvect_char_heap(&prompt, "Store new value: ");
-	Return(prompt_for_stream(ptr, T, prompt, &eval));
-	Return(eval_object(ptr, eval, &eval));
-	list_heap(&eval, eval, NULL);
-	setresult_control(ptr, eval);
-
-	return 0;
+	return restart_symbol_use_interactive_char_(ptr, "Store new value: ");
 }
 
-static int restart_symbol_store_report(Execute ptr, addr stream)
+static void symbol_store_restart(addr *ret, addr symbol)
 {
-	return print_ascii_stream_(stream, "Store specific value.");
-}
-
-static void symbol_store_restart(Execute ptr, addr symbol, pointer call)
-{
-	addr pos, value;
+	addr restart, value;
 
 	/* restart */
-	GetConst(COMMON_STORE_VALUE, &pos);
-	restart_heap(&pos, pos);
+	GetConst(COMMON_STORE_VALUE, &restart);
+	restart_heap(&restart, restart);
 	/* function */
 	compiled_heap(&value, Nil);
 	SetDataFunction(value, symbol);
-	setcompiled_var1(value, call);
-	setfunction_restart(pos, value);
+	setcompiled_var1(value, p_restart_symbol_store_special);
+	setfunction_restart(restart, value);
 	/* interactive */
 	compiled_heap(&value, Nil);
 	setcompiled_empty(value, p_restart_symbol_store_interactive);
-	setinteractive_restart(pos, value);
+	setinteractive_restart(restart, value);
 	/* report */
-	compiled_heap(&value, Nil);
-	setcompiled_var1(value, p_restart_symbol_store_report);
-	setreport_restart(pos, value);
+	strvect_char_heap(&value, "Store specific value.");
+	setreport_restart(restart, value);
 	/* test */
 	compiled_heap(&value, Nil);
 	setcompiled_var1(value, p_restart_symbol_use_test);
-	settest_restart(pos, value);
+	settest_restart(restart, value);
 	/* escape */
-	setescape_restart(pos, 1);  /* restart-case */
+	setescape_restart(restart, 1);  /* restart-case */
 	/* result */
-	pushrestart_control(ptr, pos);
+	*ret = restart;
 }
 
-struct symbol_restart_struct {
-	addr symbol;
-	pointer call;
-};
-
-static int symbol_restart_code(Execute ptr, void *voidp)
+static int symbol_restart_call_(Execute ptr, addr symbol, addr *ret)
 {
-	struct symbol_restart_struct *str;
+	addr control, restart1, restart2;
 
-	str = (struct symbol_restart_struct *)voidp;
-	symbol_store_restart(ptr, str->symbol, str->call);
-	symbol_use_restart(ptr);
-	return call_unbound_variable_(ptr, str->symbol);
-}
-
-static int symbol_restart_control(Execute ptr, addr symbol, pointer call)
-{
-	addr control;
-	struct symbol_restart_struct str;
+	symbol_use_restart(&restart1);
+	symbol_store_restart(&restart2, symbol);
 
 	push_control(ptr, &control);
-	str.symbol = symbol;
-	str.call = call;
-	(void)restart_control(ptr, symbol_restart_code, (void *)&str);
-	return pop_control_(ptr, control);
-}
+	pushrestart_control(ptr, restart2);
+	pushrestart_control(ptr, restart1);
+	(void)call_unbound_variable_(ptr, symbol);
 
-static int symbol_restart_call_call_(Execute ptr, LocalHold hold,
-		addr symbol, pointer call, addr *ret)
-{
-	addr value;
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
 
-	Return(symbol_restart_control(ptr, symbol, call));
-	getresult_control(ptr, &value);
-	localhold_set(hold, 0, value);
+	/* use-value */
+	if (ptr->throw_handler == restart1) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
 
-	return Result(ret, value);
-}
+	/* store-value */
+	if (ptr->throw_handler == restart2) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
 
-static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret)
-{
-	addr control, value;
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	push_control(ptr, &control);
-	value = Nil;
-	(void)symbol_restart_call_call_(ptr, hold, symbol, call, &value);
+escape:
 	Return(pop_control_(ptr, control));
-	localhold_end(hold);
-
-	return Result(ret, value);
+	getresult_control(ptr, ret);
+	return 0;
 }
 
 int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
 {
-	static const pointer call = p_restart_symbol_store_special;
 	addr value;
 
 	getspecial_local(ptr, symbol, &value);
@@ -210,7 +165,7 @@ int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
 		return Result(ret, value);
 
 	/* restart */
-	return symbol_restart_call(ptr, symbol, call, ret);
+	return symbol_restart_call_(ptr, symbol, ret);
 }
 
 
@@ -226,6 +181,31 @@ static int restart_function_use_function(Execute ptr, addr value)
 	return 0;
 }
 
+static int restart_function_use_interactive_char_(Execute ptr, const char *str)
+{
+	addr prompt, eval;
+
+	strvect_char_heap(&prompt, "Use new function: ");
+	for (;;) {
+		Return(prompt_for_stream(ptr, T, prompt, &eval));
+		Return(eval_object(ptr, eval, &eval));
+		if (functionp(eval))
+			break;
+		/* error */
+		strvect_char_heap(&prompt, "Please answer FUNCTION type: ");
+	}
+
+	list_heap(&eval, eval, NULL);
+	setresult_control(ptr, eval);
+
+	return 0;
+}
+
+static int restart_function_use_interactive(Execute ptr)
+{
+	return restart_function_use_interactive_char_(ptr, "Use new function: ");
+}
+
 static void function_use_restart(addr *ret)
 {
 	addr pos, value;
@@ -239,11 +219,10 @@ static void function_use_restart(addr *ret)
 	setfunction_restart(pos, value);
 	/* interactive */
 	compiled_heap(&value, Nil);
-	setcompiled_empty(value, p_restart_symbol_use_interactive);
+	setcompiled_empty(value, p_restart_function_use_interactive);
 	setinteractive_restart(pos, value);
 	/* report */
-	compiled_heap(&value, Nil);
-	setcompiled_var1(value, p_restart_symbol_use_report);
+	strvect_char_heap(&value, "Use specific function.");
 	setreport_restart(pos, value);
 	/* test */
 	compiled_heap(&value, Nil);
@@ -255,44 +234,88 @@ static void function_use_restart(addr *ret)
 	*ret = pos;
 }
 
-static int function_restart_code(Execute ptr, addr name)
+static int restart_function_store_function(Execute ptr, addr value)
 {
-	name_callname_heap(name, &name);
-	return call_undefined_function_(ptr, name);
+	addr name;
+
+	if (! functionp(value))
+		return TypeError_(value, FUNCTION);
+
+	getdata_control(ptr, &name);
+	Return(setglobal_callname_(name, value));
+	setresult_control(ptr, value);
+
+	return 0;
 }
 
-static int function_restart_control(Execute ptr, addr name)
+static int restart_function_store_interactive(Execute ptr)
 {
-	addr restart, control;
-
-	push_control(ptr, &control);
-	function_use_restart(&restart);
-	(void)restart1_control(ptr, restart, function_restart_code, name);
-	return pop_control_(ptr, control);
+	return restart_function_use_interactive_char_(ptr, "Store new function: ");
 }
 
-static int function_restart_call_call_(Execute ptr, LocalHold hold,
-		addr name, addr *ret)
+static void function_store_restart(addr *ret, addr name)
 {
-	Return(function_restart_control(ptr, name));
-	getresult_control(ptr, &name);
-	localhold_set(hold, 0, name);
+	addr restart, value;
 
-	return Result(ret, name);
+	/* restart */
+	GetConst(COMMON_STORE_VALUE, &restart);
+	restart_heap(&restart, restart);
+	/* function */
+	compiled_heap(&value, Nil);
+	SetDataFunction(value, name);
+	setcompiled_var1(value, p_restart_function_store_function);
+	setfunction_restart(restart, value);
+	/* interactive */
+	compiled_heap(&value, Nil);
+	setcompiled_empty(value, p_restart_function_store_interactive);
+	setinteractive_restart(restart, value);
+	/* report */
+	strvect_char_heap(&value, "Store specific function.");
+	setreport_restart(restart, value);
+	/* test */
+	compiled_heap(&value, Nil);
+	setcompiled_var1(value, p_restart_symbol_use_test);
+	settest_restart(restart, value);
+	/* escape */
+	setescape_restart(restart, 1);  /* restart-case */
+	/* result */
+	*ret = restart;
 }
 
 static int function_restart_call(Execute ptr, addr name, addr *ret)
 {
-	addr control;
-	LocalHold hold;
+	addr control, restart1, restart2;
 
-	hold = LocalHold_array(ptr, 1);
+	function_use_restart(&restart1);
+	function_store_restart(&restart2, name);
+
 	push_control(ptr, &control);
-	(void)function_restart_call_call_(ptr, hold, name, &name);
-	Return(pop_control_(ptr, control));
-	localhold_end(hold);
+	pushrestart_control(ptr, restart2);
+	pushrestart_control(ptr, restart1);
+	name_callname_heap(name, &name);
+	(void)call_undefined_function_(ptr, name);
 
-	return Result(ret, name);
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
+
+	/* use-value */
+	if (ptr->throw_handler == restart1) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
+
+	/* store-value */
+	if (ptr->throw_handler == restart2) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
+
+escape:
+	Return(pop_control_(ptr, control));
+	getresult_control(ptr, ret);
+	return 0;
 }
 
 int callname_global_restart(Execute ptr, addr name, addr *ret)
@@ -338,18 +361,240 @@ int setf_global_restart(Execute ptr, addr name, addr *ret)
 
 
 /*
+ *  fdefinition
+ */
+static int restart_fdefinition_use_function(Execute ptr, addr value)
+{
+	if (! functionp(value))
+		return TypeError_(value, FUNCTION);
+	setresult_control(ptr, value);
+
+	return 0;
+}
+
+static int restart_fdefinition_use_interactive_p_(addr pos, addr *ret)
+{
+	addr value;
+
+	if (functionp(pos))
+		return Result(ret, pos);
+
+	/* parse callname */
+	if (parse_callname_heap(&pos, pos))
+		return Result(ret, Nil); /* parse error */
+
+	/* function */
+	getglobal_callname(pos, &value);
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* setf */
+	if (setfp_callname(pos))
+		return Result(ret, Nil); /* error */
+
+	/* macro */
+	GetCallName(pos, &value);
+	getmacro_symbol(value, &value);
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* undefined-function */
+	name_callname_heap(pos, &pos);
+	return call_undefined_function_(NULL, pos);
+}
+
+static int restart_fdefinition_use_interactive_char_(Execute ptr, const char *str)
+{
+	addr prompt, eval;
+
+	strvect_char_heap(&prompt, "Use new function: ");
+	for (;;) {
+		Return(prompt_for_stream(ptr, T, prompt, &eval));
+		Return(eval_object(ptr, eval, &eval));
+		Return(restart_fdefinition_use_interactive_p_(eval, &eval));
+		if (eval != Nil)
+			break;
+		/* error */
+		strvect_char_heap(&prompt, "Please answer FUNCTION-NAME type: ");
+	}
+
+	list_heap(&eval, eval, NULL);
+	setresult_control(ptr, eval);
+
+	return 0;
+}
+
+static int restart_fdefinition_use_interactive(Execute ptr)
+{
+	return restart_fdefinition_use_interactive_char_(ptr, "Use new function: ");
+}
+
+static void fdefinition_use_restart(addr *ret)
+{
+	addr pos, value;
+
+	/* restart */
+	GetConst(COMMON_USE_VALUE, &pos);
+	restart_heap(&pos, pos);
+	/* function */
+	compiled_heap(&value, Nil);
+	setcompiled_var1(value, p_restart_fdefinition_use_function);
+	setfunction_restart(pos, value);
+	/* interactive */
+	compiled_heap(&value, Nil);
+	setcompiled_empty(value, p_restart_fdefinition_use_interactive);
+	setinteractive_restart(pos, value);
+	/* report */
+	strvect_char_heap(&value, "Use specific function.");
+	setreport_restart(pos, value);
+	/* test */
+	compiled_heap(&value, Nil);
+	setcompiled_var1(value, p_restart_symbol_use_test);
+	settest_restart(pos, value);
+	/* escape */
+	setescape_restart(pos, 1);  /* restart-case */
+	/* result */
+	*ret = pos;
+}
+
+static int restart_fdefinition_store_function(Execute ptr, addr value)
+{
+	addr name;
+
+	if (! functionp(value))
+		return TypeError_(value, FUNCTION);
+
+	getdata_control(ptr, &name);
+	if (setfp_callname(name) || funcall_function_p(value)) {
+		/* normal function */
+		Return(setglobal_callname_(name, value));
+	}
+	else {
+		/* macro-function */
+		GetCallName(name, &name);
+		Return(alldelete_function_(name));
+		Return(setmacro_symbol_(name, value));
+	}
+	setresult_control(ptr, value);
+
+	return 0;
+}
+
+static int restart_fdefinition_store_interactive(Execute ptr)
+{
+	return restart_fdefinition_use_interactive_char_(ptr, "Store new function: ");
+}
+
+static void fdefinition_store_restart(addr *ret, addr name)
+{
+	addr restart, value;
+
+	/* restart */
+	GetConst(COMMON_STORE_VALUE, &restart);
+	restart_heap(&restart, restart);
+	/* function */
+	compiled_heap(&value, Nil);
+	SetDataFunction(value, name);
+	setcompiled_var1(value, p_restart_fdefinition_store_function);
+	setfunction_restart(restart, value);
+	/* interactive */
+	compiled_heap(&value, Nil);
+	setcompiled_empty(value, p_restart_fdefinition_store_interactive);
+	setinteractive_restart(restart, value);
+	/* report */
+	strvect_char_heap(&value, "Store specific function.");
+	setreport_restart(restart, value);
+	/* test */
+	compiled_heap(&value, Nil);
+	setcompiled_var1(value, p_restart_symbol_use_test);
+	settest_restart(restart, value);
+	/* escape */
+	setescape_restart(restart, 1);  /* restart-case */
+	/* result */
+	*ret = restart;
+}
+
+static int fdefinition_restart_call_(Execute ptr, addr name, addr *ret)
+{
+	addr control, restart1, restart2;
+
+	fdefinition_use_restart(&restart1);
+	fdefinition_store_restart(&restart2, name);
+
+	push_control(ptr, &control);
+	pushrestart_control(ptr, restart2);
+	pushrestart_control(ptr, restart1);
+	name_callname_heap(name, &name);
+	(void)call_undefined_function_(ptr, name);
+
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
+
+	/* use-value */
+	if (ptr->throw_handler == restart1) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
+
+	/* store-value */
+	if (ptr->throw_handler == restart2) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
+
+escape:
+	Return(pop_control_(ptr, control));
+	getresult_control(ptr, ret);
+	return 0;
+}
+
+int fdefinition_restart_(Execute ptr, addr name, addr *ret)
+{
+	CallNameType type;
+	addr symbol, value;
+
+	Check(! callnamep(name), "type error");
+	GetCallNameType(name, &type);
+	GetCallName(name, &symbol);
+
+	/* setf */
+	if (type == CALLNAME_SETF)
+		return setf_global_restart(ptr, symbol, ret);
+
+	/* function */
+	GetFunctionSymbol(symbol, &value);
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* macro */
+	getmacro_symbol(symbol, &value);
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* error, restart */
+	return fdefinition_restart_call_(ptr, name, ret);
+}
+
+
+/*
  *  initialize
  */
 void init_restart_value(void)
 {
 	SetPointerType(var1, restart_symbol_use_function);
 	SetPointerType(empty, restart_symbol_use_interactive);
-	SetPointerType(var1, restart_symbol_use_report);
 	SetPointerType(var1, restart_symbol_use_test);
-	SetPointerType(var1, restart_symbol_store_global);
 	SetPointerType(var1, restart_symbol_store_special);
 	SetPointerType(empty, restart_symbol_store_interactive);
-	SetPointerType(var1, restart_symbol_store_report);
 	SetPointerType(var1, restart_function_use_function);
+	SetPointerType(empty, restart_function_use_interactive);
+	SetPointerType(var1, restart_function_store_function);
+	SetPointerType(empty, restart_function_store_interactive);
+	SetPointerType(var1, restart_fdefinition_use_function);
+	SetPointerType(empty, restart_fdefinition_use_interactive);
+	SetPointerType(var1, restart_fdefinition_store_function);
+	SetPointerType(empty, restart_fdefinition_store_interactive);
 }
 

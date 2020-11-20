@@ -48,7 +48,7 @@ struct FileEncode {
 /*
  *  Mode
  */
-#if defined LISP_ANSI
+#if defined LISP_ANSIC
 #include <stdio.h>
 typedef FILE *file_type;
 #elif defined LISP_POSIX
@@ -57,7 +57,7 @@ typedef int file_type;
 #include <windows.h>
 typedef HANDLE file_type;
 #else
-/* default -> LISP_ANSI */
+/* default -> LISP_ANSIC */
 #include <stdio.h>
 typedef FILE *file_type;
 #endif

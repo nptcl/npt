@@ -1874,6 +1874,8 @@ lisp-system::prompt-normal
 lisp-system::prompt-inspect
 lisp-system::prompt-step
 
+(lisp-system::*term-queue* :constant system :name term-queue)
+
 
 ;;
 ;;  restart name

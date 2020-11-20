@@ -4,7 +4,7 @@
 #include "heap_memory.h"
 #include "stream_memory.h"
 
-#ifdef LISP_ANSI
+#ifdef LISP_ANSIC
 #undef FILEMEMORY_RESTRICT
 #include "file_ansi.h"
 #endif

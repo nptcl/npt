@@ -95,6 +95,7 @@
 #define setspecial_local _n(setspecial_local)
 #define getfunction_global_ _n(getfunction_global_)
 #define getsetf_global_ _n(getsetf_global_)
+#define alldelete_function_ _n(alldelete_function_)
 #define gensymp _n(gensymp)
 #define make_symbolchar _n(make_symbolchar)
 #define make_gensym_ _n(make_gensym_)
@@ -253,6 +254,7 @@ void setspecial_local(Execute ptr, addr pos, addr value);
 
 int getfunction_global_(addr pos, addr *ret);
 int getsetf_global_(addr pos, addr *ret);
+int alldelete_function_(addr pos);
 
 /* gensym */
 int gensymp(addr pos);

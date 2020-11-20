@@ -267,12 +267,12 @@ static void defun_subseq(void)
 }
 
 
-/* (defun subseq (sequence sequence start &optional end) ...) -> sequence */
+/* (defun (setf subseq) (sequence sequence start &optional end) ...) -> sequence */
 static int function_setf_subseq(Execute ptr,
 		addr pos, addr root, addr start, addr end)
 {
 	Return(setf_subseq_common_(root, pos, start, end));
-	setresult_control(ptr, root);
+	setresult_control(ptr, pos);
 	return 0;
 }
 

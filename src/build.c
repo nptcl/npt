@@ -53,6 +53,7 @@
 #include "sxhash.h"
 #include "symbol.h"
 #include "syscall.h"
+#include "term.h"
 #include "type.h"
 #include "type_table.h"
 
@@ -239,7 +240,7 @@ static void set_features(void)
 
 	push_features("ANSI-CL");
 	push_features("COMMON-LISP");
-#ifdef LISP_ANSI
+#ifdef LISP_ANSIC
 	push_features("ANSI-C");
 	push_features(LISPNAME "-ANSI-C");
 #endif
@@ -341,6 +342,7 @@ void buildlisp(Execute ptr)
 	build_condition(ptr);
 	build_type();
 	build_syscall();
+	build_term();
 	build_common();
 	build_print(ptr);
 	build_environment(ptr);

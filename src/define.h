@@ -111,7 +111,7 @@
 /*
  *  Select architecture
  */
-#if defined(LISP_ANSI)
+#if defined(LISP_ANSIC)
 /* ANSI C */
 #define LISP_MODE "ANSI-C"
 #undef LISP_FREEBSD
@@ -119,7 +119,7 @@
 #undef LISP_POSIX
 #undef LISP_WINDOWS
 #ifdef LISP_THREAD
-#error Arch error, LISP_ANSI do not allow LISP_THREAD.
+#error Arch error, LISP_ANSIC do not allow LISP_THREAD.
 #endif
 #define LISP_THREAD_REMOVE
 
@@ -127,7 +127,7 @@
 /* FreeBSD */
 #define LISP_MODE "FreeBSD"
 #define LISP_POSIX
-#undef LISP_ANSI
+#undef LISP_ANSIC
 #undef LISP_LINUX
 #undef LISP_WINDOWS
 #undef LISP_ANSI_WINDOWS
@@ -139,7 +139,7 @@
 /* Linux */
 #define LISP_MODE "Linux"
 #define LISP_POSIX
-#undef LISP_ANSI
+#undef LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_WINDOWS
 #undef LISP_ANSI_WINDOWS
@@ -150,7 +150,7 @@
 #elif defined(LISP_WINDOWS)
 /* Windows */
 #define LISP_MODE "Windows"
-#undef LISP_ANSI
+#undef LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_LINUX
 #undef LISP_POSIX
@@ -162,7 +162,7 @@
 #else
 /* ANSI C [default] */
 #define LISP_MODE "ANSI-C"
-#define LISP_ANSI
+#define LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_LINUX
 #undef LISP_POSIX
@@ -174,7 +174,7 @@
 #define LISP_THREAD_REMOVE
 #endif
 
-#if defined(LISP_ANSI) && defined(LISP_ANSI_WINDOWS)
+#if defined(LISP_ANSIC) && defined(LISP_ANSI_WINDOWS)
 #define LISP_MODE "ANSI-C [Windows]"
 #endif
 
@@ -431,6 +431,12 @@
 #define LISP_FLOAT_LONG_FRACTION		LDBL_MANT_DIG
 
 /* readline editline */
+#ifdef LISP_XTERM
+#ifndef LISP_PROMPT_XTERM
+#define LISP_PROMPT_XTERM
+#endif
+#endif
+
 #ifdef LISP_EDITLINE
 #ifndef LISP_PROMPT_EDITLINE
 #define LISP_PROMPT_EDITLINE
@@ -443,21 +449,34 @@
 #endif
 #endif
 
-#if defined(LISP_PROMPT_DEFAULT)
-#define LISP_PROMPT_STRING "lisp"
+#if defined(LISP_PROMPT_XTERM)
+#define LISP_PROMPT_STRING "xterm"
+#undef LISP_PROMPT_DISABLE
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
+
+#elif defined(LISP_PROMPT_DISABLE)
+#define LISP_PROMPT_STRING "lisp"
+#undef LISP_PROMPT_XTERM
+#undef LISP_PROMPT_READLINE
+#undef LISP_PROMPT_EDITLINE
+
 #elif defined(LISP_PROMPT_READLINE)
 #define LISP_PROMPT_STRING "readline"
-#undef LISP_PROMPT_DEFAULT
+#undef LISP_PROMPT_DISABLE
+#undef LISP_PROMPT_XTERM
 #undef LISP_PROMPT_EDITLINE
+
 #elif defined(LISP_PROMPT_EDITLINE)
 #define LISP_PROMPT_STRING "editline"
-#undef LISP_PROMPT_DEFAULT
+#undef LISP_PROMPT_DISABLE
+#undef LISP_PROMPT_XTERM
 #undef LISP_PROMPT_READLINE
+
 #else
-#define LISP_PROMPT_DEFAULT
+#define LISP_PROMPT_DISABLE
 #define LISP_PROMPT_STRING "lisp"
+#undef LISP_PROMPT_XTERM
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 #endif

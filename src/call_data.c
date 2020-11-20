@@ -22,6 +22,7 @@
 #include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"
+#include "type_table.h"
 
 /*
  *  apply
@@ -86,19 +87,48 @@ int defun_common(Execute ptr, addr form, addr env, addr *ret)
 int fdefinition_common(Execute ptr, addr name, addr *ret)
 {
 	Return(parse_callname_error_(&name, name));
-	return callname_global_restart(ptr, name, ret);
+	return fdefinition_restart_(ptr, name, ret);
 }
 
 
 /*
  *  (setf fdefinition)
  */
+static int setf_setf_fdefinition_common(addr value, addr symbol)
+{
+	addr type;
+
+	if (macro_function_p(value)) {
+		GetTypeTable(&type, Function);
+		return call_type_error_va_(NULL, value, type,
+				"The function ~S must be a funcallable function"
+				" rather than a macro function.", value, NULL);
+	}
+
+	Return(alldelete_function_(symbol));
+	return setsetf_symbol_(symbol, value);
+}
+
+static int funcall_setf_fdefinition_common(addr value, addr symbol)
+{
+	Return(alldelete_function_(symbol));
+	if (macro_function_p(value))
+		return setmacro_symbol_(symbol, value);
+	else
+		return setfunction_symbol_(symbol, value);
+}
+
 int setf_fdefinition_common(addr value, addr name)
 {
+	CallNameType type;
+
 	Return(parse_callname_error_(&name, name));
-	Return(remtype_global_callname_(name));
-	Return(setglobal_callname_(name, value));
-	return 0;
+	GetCallNameType(name, &type);
+	GetCallName(name, &name);
+	if (type == CALLNAME_SETF)
+		return setf_setf_fdefinition_common(value, name);
+	else
+		return funcall_setf_fdefinition_common(value, name);
 }
 
 
@@ -2066,8 +2096,7 @@ static int setf_single_common(addr *ret, addr value,
 	 *        (g2 a2)
 	 *        (g value))
 	 *   (declare (ignorable g1 g2))
-	 *     writer
-	 *     g)
+	 *     writer)
 	 */
 	addr list1, list2, args, a, b, leta, declare, ignorable;
 
@@ -2091,7 +2120,7 @@ static int setf_single_common(addr *ret, addr value,
 	list_heap(&declare, declare, ignorable, NULL);
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
-	list_heap(ret, leta, args, declare, writer, store, NULL);
+	list_heap(ret, leta, args, declare, writer, NULL);
 
 	return 0;
 }
@@ -2106,7 +2135,7 @@ static int setf_multiple_common(addr *ret, addr value,
 	 *     writer
 	 *     (values g1 ...)))
 	 */
-	addr list1, list2, args, a, b, leta, declare, ignorable, bind, values;
+	addr list1, list2, args, a, b, leta, declare, ignorable, bind;
 
 	list1 = var1;
 	list2 = var2;
@@ -2123,12 +2152,9 @@ static int setf_multiple_common(addr *ret, addr value,
 	cons_heap(&ignorable, ignorable, var1);
 	GetConst(COMMON_DECLARE, &declare);
 	list_heap(&declare, declare, ignorable, NULL);
-	/* values */
-	GetConst(COMMON_VALUES, &values);
-	cons_heap(&values, values, store);
 	/* multiple-value-bind */
 	GetConst(COMMON_MULTIPLE_VALUE_BIND, &bind);
-	list_heap(&bind, bind, store, value, writer, values, NULL);
+	list_heap(&bind, bind, store, value, writer, NULL);
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
 	list_heap(ret, leta, args, declare, bind, NULL);
