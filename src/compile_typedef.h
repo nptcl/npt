@@ -164,6 +164,9 @@ enum FaslCode {
 	FaslCode_macro_env,
 	FaslCode_macro_whole,
 
+	FaslCode_labels_make,
+	FaslCode_labels_lambda,
+
 	FaslCode_bind1_type,
 	FaslCode_bind1_special,
 	FaslCode_bind1_lexical,

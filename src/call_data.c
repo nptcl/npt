@@ -154,9 +154,13 @@ int fboundp_common_(addr name, int *ret)
 		return Result(ret, 0);
 
 	/* macro check */
-	GetCallName(name, &check);
-	getmacro_symbol(check, &check);
-	return Result(ret, check != Unbound);
+	GetCallName(name, &name);
+	getmacro_symbol(name, &check);
+	if (check != Unbound)
+		return Result(ret, 1);
+
+	/* special operator */
+	return Result(ret, get_special_operator(name));
 }
 
 

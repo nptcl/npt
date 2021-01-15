@@ -25,6 +25,8 @@
 #define macro_special_code _n(macro_special_code)
 #define macro_env_code _n(macro_env_code)
 #define macro_whole_code _n(macro_whole_code)
+#define labels_make_code _n(labels_make_code)
+#define labels_lambda_code _n(labels_lambda_code)
 #define bind1_type_code _n(bind1_type_code)
 #define bind1_special_code _n(bind1_special_code)
 #define bind1_lexical_code _n(bind1_lexical_code)
@@ -53,6 +55,8 @@ int macro_code(Execute ptr, CodeValue x);
 int macro_special_code(Execute ptr, CodeValue x);
 int macro_env_code(Execute ptr, CodeValue x);
 int macro_whole_code(Execute ptr, CodeValue x);
+int labels_make_code(Execute ptr, CodeValue x);
+int labels_lambda_code(Execute ptr, CodeValue x);
 int bind1_type_code(Execute ptr, CodeValue x);
 int bind1_special_code(Execute ptr, CodeValue x);
 int bind1_lexical_code(Execute ptr, CodeValue x);

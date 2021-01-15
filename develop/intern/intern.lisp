@@ -1722,6 +1722,9 @@ lisp-code::macro-special
 lisp-code::macro-env
 lisp-code::macro-whole
 
+lisp-code::labels-make
+lisp-code::labels-lambda
+
 lisp-code::bind1-type
 lisp-code::bind1-special
 lisp-code::bind1-lexical

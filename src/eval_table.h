@@ -37,7 +37,7 @@
 #define getvalue_tablevalue _n(getvalue_tablevalue)
 #define setvalue_tablevalue _n(setvalue_tablevalue)
 #define make_tablefunction _n(make_tablefunction)
-#define copy_tablefunction _n(copy_tablefunction)
+#define make_redirect_tablefunction _n(make_redirect_tablefunction)
 #define getname_tablefunction _n(getname_tablefunction)
 #define setname_tablefunction _n(setname_tablefunction)
 #define gettype_tablefunction _n(gettype_tablefunction)
@@ -60,8 +60,6 @@
 #define setclosurep_tablefunction _n(setclosurep_tablefunction)
 #define getclosure_tablefunction _n(getclosure_tablefunction)
 #define setclosure_tablefunction _n(setclosure_tablefunction)
-#define getvalue_tablefunction _n(getvalue_tablefunction)
-#define setvalue_tablefunction _n(setvalue_tablefunction)
 #define make_tabletagbody _n(make_tabletagbody)
 #define copy_tabletagbody _n(copy_tabletagbody)
 #define getname_tabletagbody _n(getname_tabletagbody)
@@ -137,6 +135,7 @@ enum TABLEVALUE_INDEX {
 enum TABLEFUNCTION_INDEX {
 	TABLEFUNCTION_INDEX_NAME,
 	TABLEFUNCTION_INDEX_TYPE,
+	TABLEFUNCTION_INDEX_REDIRECT,
 	TABLEFUNCTION_INDEX_SIZE
 };
 enum TABLETAGBODY_INDEX {
@@ -254,7 +253,7 @@ void setvalue_tablevalue(Execute ptr, addr pos, addr value);
  *  tablefunction
  */
 void make_tablefunction(addr *ret, addr call);
-void copy_tablefunction(addr *ret, addr arg);
+void make_redirect_tablefunction(addr *ret, addr arg);
 
 void getname_tablefunction(addr pos, addr *ret);
 void setname_tablefunction(addr pos, addr value);
@@ -278,8 +277,6 @@ int getclosurep_tablefunction(addr pos);
 void setclosurep_tablefunction(addr pos, int value);
 size_t getclosure_tablefunction(addr pos);
 void setclosure_tablefunction(addr pos, size_t value);
-void getvalue_tablefunction(Execute ptr, addr pos, addr *ret);
-void setvalue_tablefunction(Execute ptr, addr pos, addr value);
 
 
 /*

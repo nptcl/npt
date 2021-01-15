@@ -70,7 +70,7 @@ static int test_function_alloc(void)
 	test(! GetStatusDynamic(pos), "function_alloc.8");
 
 	/* for develop */
-	function_heap_for_develop(&pos, Nil);
+	function_empty_heap(&pos, Nil);
 	test(GetType(pos) == LISPTYPE_FUNCTION, "function_alloc.9");
 
 	RETURN;
@@ -165,7 +165,7 @@ static int test_function_accessor(void)
 {
 	addr pos, value, check;
 
-	function_heap_for_develop(&pos, Nil);
+	function_empty_heap(&pos, Nil);
 	test(structfunction(pos) == StructFunction_Low(pos), "function_accessor.1");
 	fixnum_heap(&value, 10);
 	SetCodeFunction_Low(pos, value);
@@ -202,7 +202,7 @@ static int test_getplist_function(void)
 {
 	addr pos, list, key, value;
 
-	function_heap_for_develop(&pos, Nil);
+	function_empty_heap(&pos, Nil);
 	GetConstant(CONSTANT_SYSTEM_VALUE, &key);
 	fixnum_heap(&value, 10);
 	list_heap(&list, key, value, NULL);
@@ -218,7 +218,7 @@ static int test_functionp(void)
 {
 	addr pos;
 
-	function_heap_for_develop(&pos, Nil);
+	function_empty_heap(&pos, Nil);
 	test(functionp(pos), "functionp.1");
 	fixnum_heap(&pos, 10);
 	test(! functionp(pos), "functionp.2");

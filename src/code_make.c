@@ -1369,9 +1369,69 @@ static void code_make_flet(LocalRoot local, addr code, addr scope)
 
 
 /* labels */
+static void code_lambda_labels(LocalRoot local, addr code, addr index, addr scope)
+{
+	addr pos;
+	modeswitch mode;
+
+	code_queue_setmode(code, &mode);
+
+	/* code_lambda_function */
+	code_queue_push_simple(local, code);
+	code_lambda_lexical(local, code, scope);
+	code_lambda_args(local, code, scope);
+	code_lambda_body(local, code, scope);
+	code_queue_pop(local, code, &pos);
+	CodeQueue_double(local, code, LABELS_LAMBDA, index, pos);
+	code_lambda_info(local, code, scope);
+	code_queue_ifpush(local, code);
+
+	code_queue_rollback(code, &mode);
+}
+
+static void code_make_labels_args(LocalRoot local, addr code, addr args)
+{
+	addr pos, scope, index;
+
+	while (args != Nil) {
+		GetCons(args, &pos, &args);
+		GetCons(pos, &pos, &scope);
+
+		/* labels arguments */
+		index_heap(&index, getlexical_tablefunction(pos));
+		code_lambda_labels(local, code, index, scope);
+		/* type check */
+		code_make_type_function(local, code, pos);
+	}
+}
+
+static void code_make_labels_lexical(LocalRoot local, addr code, addr args)
+{
+	addr pos, list, index;
+
+	list = Nil;
+	while (args != Nil) {
+		GetCons(args, &pos, &args);
+		GetCar(pos, &pos);
+
+		index_heap(&index, getlexical_tablefunction(pos));
+		cons_heap(&list, index, list);
+	}
+	CodeQueue_cons(local, code, LABELS_MAKE, list);
+}
+
 static void code_make_labels(LocalRoot local, addr code, addr scope)
 {
-	code_make_flet(local, code, scope);
+	addr args, body, free;
+
+	GetEvalScopeIndex(scope, 0, &args);
+	GetEvalScopeIndex(scope, 2, &body);
+	GetEvalScopeIndex(scope, 3, &free);
+
+	code_make_free(local, code, free);
+	code_make_labels_lexical(local, code, args);
+	code_make_labels_args(local, code, args);
+	code_allcons(local, code, body);
 }
 
 

@@ -334,6 +334,36 @@ int macro_whole_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+int labels_make_code(Execute ptr, CodeValue x)
+{
+	addr list, pos;
+	size_t index;
+
+	list = x.pos;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetIndex(pos, &index);
+		function_empty_heap(&pos, Nil);
+		set_lexical_control(ptr, index, pos);
+	}
+
+	return 0;
+}
+
+int labels_lambda_code(Execute ptr, CodeValue x)
+{
+	addr pos, code;
+	size_t index;
+
+	List_bind(x.pos, &pos, &code, NULL);
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
+	SetCodeFunction(pos, code);
+	setresult_control(ptr, pos);
+
+	return 0;
+}
+
 
 /*
  *  multiple-value-bind

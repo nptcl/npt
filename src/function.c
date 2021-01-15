@@ -46,7 +46,7 @@ void function_heap(addr *ret, addr name, addr code)
 	alloc_function(NULL, ret, name, code, 0, 0);
 }
 
-void function_heap_for_develop(addr *ret, addr name)
+void function_empty_heap(addr *ret, addr name)
 {
 	alloc_function(NULL, ret, name, Nil, 0, 0);
 }

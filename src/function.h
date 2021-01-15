@@ -10,7 +10,7 @@
 #define function_alloc _n(function_alloc)
 #define function_local _n(function_local)
 #define function_heap _n(function_heap)
-#define function_heap_for_develop _n(function_heap_for_develop)
+#define function_empty_heap _n(function_empty_heap)
 #define macro_alloc _n(macro_alloc)
 #define macro_local _n(macro_local)
 #define macro_heap _n(macro_heap)
@@ -140,7 +140,7 @@ struct function_struct {
 void function_alloc(LocalRoot local, addr *ret, addr name, addr code);
 void function_local(LocalRoot local, addr *ret, addr name, addr code);
 void function_heap(addr *ret, addr name, addr code);
-void function_heap_for_develop(addr *ret, addr name);
+void function_empty_heap(addr *ret, addr name);
 void macro_alloc(LocalRoot local, addr *ret, addr name, addr code);
 void macro_local(LocalRoot local, addr *ret, addr name, addr code);
 void macro_heap(addr *ret, addr name, addr code);

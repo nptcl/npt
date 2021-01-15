@@ -161,6 +161,10 @@ void init_code_init(void)
 	initcode(macro_env_code, Null);
 	initcode(macro_whole_code, Null);
 
+	/* labels */
+	initcode(labels_make_code, Addr);
+	initcode(labels_lambda_code, Addr);
+
 	/* multiple-value-bind */
 	initcode(bind1_type_code, Addr);
 	initcode(bind1_special_code, Addr);
@@ -312,6 +316,10 @@ void build_code_init(void)
 	defcode(MACRO_SPECIAL, macro_special_code);
 	defcode(MACRO_ENV, macro_env_code);
 	defcode(MACRO_WHOLE, macro_whole_code);
+
+	/* labels */
+	defcode(LABELS_MAKE, labels_make_code);
+	defcode(LABELS_LAMBDA, labels_lambda_code);
 
 	/* multiple-value-bind */
 	defcode(BIND1_TYPE, bind1_type_code);

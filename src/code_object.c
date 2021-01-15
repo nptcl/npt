@@ -52,15 +52,6 @@ void code_heap(addr *ret, addr codeA4)
 	*ret = pos;
 }
 
-void function_empty_heap(addr *ret, addr name)
-{
-	addr pos;
-
-	vector4_heap(&pos, 0);
-	code_heap(&pos, pos);
-	function_heap(ret, name, pos);
-}
-
 void getarray_code(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CODE);

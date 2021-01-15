@@ -211,9 +211,9 @@ void setvalue_tablevalue(Execute ptr, addr pos, addr value)
 /*
  *  tablefunction
  */
-static void alloc_tablefunction(LocalRoot local, addr *ret)
+static void heap_tablefunction(addr *ret)
 {
-	eval_alloc(local, ret, EVAL_TYPE_TABLEFUNCTION,
+	eval_heap(ret, EVAL_TYPE_TABLEFUNCTION,
 			TABLEFUNCTION_INDEX_SIZE,
 			sizeoft(struct tablefunction));
 }
@@ -223,20 +223,20 @@ void make_tablefunction(addr *ret, addr call)
 	addr pos;
 	struct tablefunction *ptr;
 
-	alloc_tablefunction(NULL, &pos);
+	heap_tablefunction(&pos);
 	ptr = StructTableFunction(pos);
 	clearpoint(ptr);
 	SetEval(pos, TABLEFUNCTION_INDEX_NAME, call);
 	*ret = pos;
 }
 
-void copy_tablefunction(addr *ret, addr pos)
+static void copy_tablefunction(addr *ret, addr pos)
 {
 	addr one, value;
 	size_t i, size;
 
 	CheckTableFunction(pos);
-	alloc_tablefunction(NULL, &one);
+	heap_tablefunction(&one);
 
 	LenBodyEval(one, &size);
 	memcpy(PtrBody_function(one), PtrBody_function(pos), size);
@@ -249,91 +249,168 @@ void copy_tablefunction(addr *ret, addr pos)
 	*ret = one;
 }
 
+void make_redirect_tablefunction(addr *ret, addr value)
+{
+	addr pos;
+
+	copy_tablefunction(&pos, value);
+	SetEval(pos, TABLEFUNCTION_INDEX_REDIRECT, value);
+	*ret = pos;
+}
+
+static int redirect_tablefunction(addr pos, addr *ret)
+{
+	CheckTableFunction(pos);
+	GetEval(pos, TABLEFUNCTION_INDEX_REDIRECT, &pos);
+	if (pos == Nil)
+		return 0;
+	*ret = pos;
+	return 1;
+}
+
 void getname_tablefunction(addr pos, addr *ret)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		getname_tablefunction(pos, ret);
+		return;
+	}
 	GetEval(pos, TABLEFUNCTION_INDEX_NAME, ret);
 }
 void setname_tablefunction(addr pos, addr value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setname_tablefunction(pos, value);
+		return;
+	}
 	SetEval(pos, TABLEFUNCTION_INDEX_NAME, value);
 }
 
 void gettype_tablefunction(addr pos, addr *ret)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		gettype_tablefunction(pos, ret);
+		return;
+	}
 	GetEval(pos, TABLEFUNCTION_INDEX_TYPE, ret);
 }
 void settype_tablefunction(addr pos, addr value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		settype_tablefunction(pos, value);
+		return;
+	}
 	SetEval(pos, TABLEFUNCTION_INDEX_TYPE, value);
 }
 
 int getglobalp_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos))
+		return getglobalp_tablefunction(pos);
+
 	return StructTableFunction(pos)->globalp;
 }
 void setglobalp_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setglobalp_tablefunction(pos, value);
+		return;
+	}
 	StructTableFunction(pos)->globalp = (value != 0);
 }
 
 int getdynamic_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos))
+		return getdynamic_tablefunction(pos);
+
 	return StructTableFunction(pos)->dynamic;
 }
 void setdynamic_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setdynamic_tablefunction(pos, value);
+		return;
+	}
 	StructTableFunction(pos)->dynamic = (value != 0);
 }
 
 int getreference_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos))
+		return getreference_tablefunction(pos);
+
 	return StructTableFunction(pos)->reference;
 }
 void setreference_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setreference_tablefunction(pos, value);
+		return;
+	}
 	StructTableFunction(pos)->reference = (value != 0);
 }
 
 int getcheck_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos))
+		return getcheck_tablefunction(pos);
+
 	return StructTableFunction(pos)->check;
 }
 void setcheck_tablefunction(addr pos, int value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setcheck_tablefunction(pos, value);
+		return;
+	}
 	StructTableFunction(pos)->check = (value != 0);
 }
 
 enum IgnoreType getignore_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos))
+		return getignore_tablefunction(pos);
+
 	return StructTableFunction(pos)->ignore;
 }
 void setignore_tablefunction(addr pos, enum IgnoreType value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setignore_tablefunction(pos, value);
+		return;
+	}
 	StructTableFunction(pos)->ignore = value;
 }
 
 enum InlineType getinline_tablefunction(addr pos)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos))
+		return getinline_tablefunction(pos);
+
 	return StructTableFunction(pos)->Inline;
 }
 void setinline_tablefunction(addr pos, enum InlineType value)
 {
 	CheckTableFunction(pos);
+	if (redirect_tablefunction(pos, &pos)) {
+		setinline_tablefunction(pos, value);
+		return;
+	}
 	StructTableFunction(pos)->Inline = value;
 }
 
@@ -371,18 +448,6 @@ void setclosure_tablefunction(addr pos, size_t value)
 {
 	CheckTableFunction(pos);
 	StructTableFunction(pos)->closure = value;
-}
-
-void getvalue_tablefunction(Execute ptr, addr pos, addr *ret)
-{
-	size_t index = getlexical_tablefunction(pos);
-	getlow_lexical_control(ptr, index, ret);
-}
-
-void setvalue_tablefunction(Execute ptr, addr pos, addr value)
-{
-	size_t index = getlexical_tablefunction(pos);
-	setlow_lexical_control(ptr, index, value);
 }
 
 

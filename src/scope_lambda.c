@@ -343,7 +343,7 @@ static void push_closure_function(addr stack, addr call, addr value, addr *ret)
 	/* source table */
 	lexical = getlexical_tablefunction(value);
 	/* destination table */
-	copy_tablefunction(&pos, value);
+	make_redirect_tablefunction(&pos, value);
 	setclosurep_tablefunction(pos, 1);
 	setclosure_tablefunction(pos, lexical);
 	setlexical_tablefunction(pos, increment_stack_eval(stack));
@@ -404,7 +404,6 @@ static int scope_function_callname(Execute ptr, addr *ret, addr call)
 
 	Return(getstack_eval_(ptr, &stack));
 	Return(callname_tablefunction_(ptr, stack, call, &value, &ignore));
-	copy_tablefunction(&value, value);
 	gettype_tablefunction(value, &type);
 	return make_eval_scope_(ptr, ret, EVAL_PARSE_FUNCTION, type, value);
 }
@@ -1204,7 +1203,7 @@ static int ignore_checkfunction_(addr stack)
 {
 	enum IgnoreType ignore;
 	int reference;
-	addr list, pos, call, symbol, value;
+	addr list, pos, call, value;
 
 	GetEvalStackScope(stack, &list);
 	while (list != Nil) {
@@ -1216,13 +1215,14 @@ static int ignore_checkfunction_(addr stack)
 		/* check ignore */
 		ignore = getignore_tablefunction(value);
 		reference = getreference_tablefunction(value);
-		GetCallName(call, &symbol);
 
 		if (ignore == IgnoreType_None && (! reference)) {
-			Return(fmtw_("Unused variable ~S.", symbol, NULL));
+			name_callname_heap(call, &call);
+			Return(fmtw_("Unused function ~S.", call, NULL));
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
-			Return(fmtw_("Ignore variable ~S used.", symbol, NULL));
+			name_callname_heap(call, &call);
+			Return(fmtw_("Ignore function ~S used.", call, NULL));
 		}
 	}
 
@@ -1257,36 +1257,49 @@ int scope_flet_call(Execute ptr, struct let_struct *str)
 /*
  *  labels
  */
-static int ifdeclcall_(Execute ptr, addr stack, addr call, addr decl, addr *ret)
+static void labels_table_push(Execute ptr, addr stack, addr list)
 {
-	addr pos;
+	addr call, args, decl, pos;
 
+	Lista_bind(list, &call, &args, &decl, &pos, NULL);
 	make_tablefunction_stack(ptr, &pos, stack, call);
 	apply_declare_function_stack(ptr->local, stack, call, decl);
-	return push_tablefunction_global_(ptr, stack, call, ret);
+}
+
+static void labels_table(Execute ptr, struct let_struct *str)
+{
+	addr args, stack, eval;
+
+	args = str->args;
+	stack = str->stack;
+	while (args != Nil) {
+		GetCons(args, &eval, &args);
+		labels_table_push(ptr, stack, eval);
+	}
 }
 
 static int labels_call(Execute ptr, addr list, addr *ret)
 {
+	addr eval;
 	struct lambda_struct str;
 
 	scope_init_lambda(&str, EVAL_PARSE_EMPTY, 0);
 	List_bind(list, &str.call, &str.args, &str.decl, &str.doc, &str.cons, NULL);
-	return lambda_object(ptr, &str, ret);
+	Return(lambda_object(ptr, &str, &eval));
+	return Result(ret, eval);
 }
 
 static int labels_init(Execute ptr, struct let_struct *str)
 {
-	addr stack, args, decl, root, call, eval;
+	addr stack, args, root, call, eval;
 
 	stack = str->stack;
 	args = str->args;
-	decl = str->decl;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &eval, &args);
 		Return(labels_call(ptr, eval, &eval));
 		GetEvalScopeIndex(eval, EvalLambda_Call, &call);
-		Return(ifdeclcall_(ptr, stack, call, decl, &call));
+		Return(push_tablefunction_global_(ptr, stack, call, &call));
 		cons_heap(&call, call, eval);
 		cons_heap(&root, call, root);
 	}
@@ -1314,8 +1327,9 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 	addr stack;
 
 	stack = str->stack;
-	Return(labels_init(ptr, str));
 	Return(apply_declare_(ptr, stack, str->decl, &str->free));
+	labels_table(ptr, str);
+	Return(labels_init(ptr, str));
 	Return(labels_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	Return(ignore_checkfunction_(stack));

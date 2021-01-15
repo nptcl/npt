@@ -129,6 +129,9 @@ enum pointer_index {
 	p_macro_env_code,
 	p_macro_whole_code,
 
+	p_labels_make_code,
+	p_labels_lambda_code,
+
 	p_bind1_type_code,
 	p_bind1_special_code,
 	p_bind1_lexical_code,

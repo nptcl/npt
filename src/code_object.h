@@ -6,7 +6,6 @@
 #include "typedef.h"
 
 #define code_heap _n(code_heap)
-#define function_empty_heap _n(function_empty_heap)
 #define getarray_code _n(getarray_code)
 #define update_code _n(update_code)
 
@@ -40,7 +39,6 @@ struct code_struct {
 #define SetArgumentCall		SetArrayA4
 
 void code_heap(addr *ret, addr codeA4);
-void function_empty_heap(addr *ret, addr name);
 void getarray_code(addr pos, addr *ret);
 void update_code(addr code);
 

@@ -125,6 +125,9 @@ static void init_compile_typedef_write(void)
 	defwrite(macro_env);
 	defwrite(macro_whole);
 
+	defwrite(labels_make);
+	defwrite(labels_lambda);
+
 	defwrite(bind1_type);
 	defwrite(bind1_special);
 	defwrite(bind1_lexical);
@@ -267,6 +270,9 @@ static void init_compile_typedef_read(void)
 	defread(macro_special, MACRO_SPECIAL);
 	defread(macro_env, MACRO_ENV);
 	defread(macro_whole, MACRO_WHOLE);
+
+	defread(labels_make, LABELS_MAKE);
+	defread(labels_lambda, LABELS_LAMBDA);
 
 	defread(bind1_type, BIND1_TYPE);
 	defread(bind1_special, BIND1_SPECIAL);
