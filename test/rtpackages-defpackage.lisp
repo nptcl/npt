@@ -423,6 +423,40 @@
   (eval '(defpackage defpackage-error-1 (:hello 10 20 30)))
   program-error)
 
+(deftest defpackage-error.4
+  (progn
+    (defpackage defpackage-shadow-error-1
+      (:use :cl)
+      (:shadow #:debug)
+      (:export #:debug))
+    (defpackage defpackage-shadow-error-2
+      (:use :cl defpackage-shadow-error-1)
+      (:shadowing-import-from defpackage-shadow-error-1 #:debug))
+    (values
+      (packagep (find-package 'defpackage-shadow-error-1))
+      (packagep (find-package 'defpackage-shadow-error-2))
+      (package-name
+        (symbol-package
+          (find-symbol "DEBUG" 'defpackage-shadow-error-1)))
+      (package-name
+        (symbol-package
+          (find-symbol "DEBUG" 'defpackage-shadow-error-2)))))
+  t t
+  "DEFPACKAGE-SHADOW-ERROR-1"
+  "DEFPACKAGE-SHADOW-ERROR-1")
+
+(deftest defpackage-error.5
+  (progn
+    (defpackage defpackage-use-error-1
+      (:use :cl)
+      (:export #:char-code))
+    (defpackage defpackage-use-error-2
+      (:use :cl defpackage-use-error-1))
+    (values
+      (packagep (find-package 'defpackage-use-error-1))
+      (packagep (find-package 'defpackage-use-error-2))))
+  t t)
+
 
 ;;  test
 (deftest defpackage-test.1

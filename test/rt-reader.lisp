@@ -344,6 +344,15 @@
 
 
 ;;
+;;  error
+;;
+(deftest reader-quote-error.1
+  (progn
+    (read-from-string "`(block `(lambda 10))")
+    (values)))
+
+
+;;
 ;;  do-tests
 ;;
 (do-tests :test t)

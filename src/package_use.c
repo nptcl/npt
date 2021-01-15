@@ -189,18 +189,14 @@ static int check_name_use_package_(addr package, addr hash1, addr hash2, addr na
 
 	/* package */
 	Return(find_symbol_package_(package, name, &pos, &type));
-	if (type == PACKAGE_TYPE_NIL)
-		goto error;
+	if (type == PACKAGE_TYPE_NIL) {
+		GetBitTypeSymbol(bit1, &bit1);
+		GetBitTypeSymbol(bit2, &bit2);
+		if (bit1 != bit2)
+			return shadow_use_package_(package, name);
+	}
 
-	/* symbol check */
-	GetBitTypeSymbol(bit1, &bit1);
-	GetBitTypeSymbol(bit2, &bit2);
-	if (pos == bit1 && pos == bit2)
-		return 0;
-
-	/* error */
-error:
-	return shadow_use_package_(package, name);
+	return 0;
 }
 
 static int check_export_use_package_(addr package, addr hash1, addr pos)

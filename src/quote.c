@@ -180,12 +180,6 @@ static int bq_bracket_(addr pos, addr *ret)
 		return 0;
 	}
 
-	/* `(... [quote]) */
-	if (quotep(pos)) {
-		getvalue_quote(pos, &pos);
-		return fmte_("quote error, ~S", pos, NULL);
-	}
-
 	/* others */
 	Return(bq_process_(pos, &pos));
 	conscar_heap(&pos, pos);
