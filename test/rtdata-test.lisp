@@ -203,7 +203,7 @@
 
 
 ;;
-;;
+;;  Macro DEFCONSTANT
 ;;
 (deftest defconstant.1
   (progn
@@ -244,6 +244,57 @@
     (lisp-system::getdoc-variable 'defconstant-7))
   "HELLO")
 
+(deftest defconstant.8
+  (progn
+    (defconstant defconstant-8 333 "ABC")
+    (documentation 'defconstant-8 'variable))
+  "ABC")
+
+(deftest-error defconstant.9
+  (progn
+    (defconstant defconstant-9 333)
+    (setq defconstant-9 444)))
+
+(deftest-error defconstant-error.1
+  (eval '(defconstant aaa)))
+
+(deftest-error defconstant-error.2
+  (eval '(defconstant 10 20)))
+
+(deftest-error defconstant-error.3
+  (eval '(defconstant aaa 20 nil)))
+
+(deftest-error defconstant-error.4
+  (eval '(defconstant aaa 20 "Hello" nil)))
+
+;;  ANSI Common Lisp
+(deftest defconstant-test.1
+  (progn
+    (setf (symbol-value 'defconstant-test-1) 10)
+    (setf (documentation 'defconstant-test-1 'variable) "DOCUMENT-TEST")
+    (lisp-system::getdoc-variable 'defconstant-test-1))
+  "DOCUMENT-TEST")
+
+(deftest defconstant-test.2
+  (defconstant defconstant-test-2 'never-changing "for a test")
+  defconstant-test-2)
+
+(deftest defconstant-test.3
+  (eval 'defconstant-test-2)
+  never-changing)
+
+(deftest defconstant-test.4
+  (documentation 'defconstant-test-2 'variable)
+  "for a test")
+
+(deftest defconstant-test.5
+  (constantp 'defconstant-test-2)
+  t)
+
+
+;;
+;;  Macro DEFPARAMETER
+;;
 (deftest defparameter.1
   (defparameter defparameter-1 100)
   defparameter-1)
@@ -286,6 +337,35 @@
     (lisp-system::specialp 'defparameter-7))
   t)
 
+(deftest defparameter.8
+  (progn
+    (defparameter defparameter-8 333 "ABC")
+    (documentation 'defparameter-8 'variable))
+  "ABC")
+
+(deftest defparameter.9
+  (progn
+    (defparameter defparameter-9 333)
+    (setq defparameter-9 444)
+    defparameter-9)
+  444)
+
+(deftest-error defparameter-error.1
+  (eval '(defparameter aaa)))
+
+(deftest-error defparameter-error.2
+  (eval '(defparameter 10 20)))
+
+(deftest-error defparameter-error.3
+  (eval '(defparameter aaa 20 nil)))
+
+(deftest-error defparameter-error.4
+  (eval '(defparameter aaa 20 "Hello" nil)))
+
+
+;;
+;;  Macro DEFVAR
+;;
 (deftest defvar.1
   (defvar defvar-1)
   defvar-1)
@@ -340,1701 +420,88 @@
     (lisp-system::getdoc-variable 'defvar-10))
   "ZZZ")
 
-(deftest destructuring-bind.1
-  (destructuring-bind () nil
-    10)
-  10)
-
-(deftest destructuring-bind.2
-  (destructuring-bind (a) '(10)
-    a)
-  10)
-
-(deftest destructuring-bind.3
-  (destructuring-bind (a b) '(10 20)
-    (values a b))
-  10 20)
-
-(deftest destructuring-bind.4
-  (destructuring-bind (a &optional b) '(10 20)
-    (values a b))
-  10 20)
-
-(deftest destructuring-bind.5
-  (destructuring-bind (a &optional b) '(10)
-    (values a b))
-  10 nil)
-
-(deftest destructuring-bind.6
-  (destructuring-bind (a &optional b (c 20)) '(10)
-    (values a b c))
-  10 nil 20)
-
-(deftest destructuring-bind.7
-  (destructuring-bind (a &rest b) '(10)
-    (values a b))
-  10 nil)
-
-(deftest destructuring-bind.8
-  (destructuring-bind (a &rest b) '(10 20 30)
-    (values a b))
-  10 (20 30))
-
-(deftest destructuring-bind.9
-  (destructuring-bind (a &key hello) '(10 :hello 20)
-    (values a hello))
-  10 20)
-
-(deftest destructuring-bind.10
-  (destructuring-bind (a &key hello) '(10)
-    (values a hello))
-  10 nil)
-
-(deftest-error destructuring-bind.11
-  (destructuring-bind (a &key hello zzz) '(10 :aaa 20)
-    (declare (ignore zzz))
-    (values a hello)))
-
-(deftest destructuring-bind.12
-  (destructuring-bind (a &key hello zzz &allow-other-keys) '(10 :aaa 20)
-    (declare (ignore zzz))
-    (values a hello))
-  10 nil)
-
-(deftest destructuring-bind.13
-  (destructuring-bind (a &aux z) '(10)
-    (values a z))
-  10 nil)
-
-(deftest destructuring-bind.14
-  (destructuring-bind (a &aux (z 20)) '(10)
-    (values a z))
-  10 20)
-
-(deftest destructuring-bind.15
-  (destructuring-bind (a (b) . c) '(10 (20) 30 40)
-    (values a b c))
-  10 20 (30 40))
-
-(deftest destructuring-bind.16
-  (destructuring-bind (&whole w a (&whole z b) . c) '(10 (20) 30 40)
-    (values a b c w z))
-  10 20 (30 40) (10 (20) 30 40) (20))
-
-(deftest destructuring-bind.17
-  (let ((a 111) (b 222))
-    (declare (ignorable a b))
-    (destructuring-bind (a b) '(10 20)
-      (destructuring-bind (c d) '(30 40)
-        (values a b c d))))
-  10 20 30 40)
-
-(deftest let.1
-  (let ())
-  nil)
-
-(deftest let.2
-  (let () 10)
-  10)
-
-(deftest let.3
-  (let (a)
-    a)
-  nil)
-
-(deftest let.4
-  (let ((a 10))
-    a)
-  10)
-
-(deftest let.5
-  (let ((a 10))
-    (let ((a (1+ a))
-          (b a))
-      (values a b)))
-  11 10)
-
-(deftest let.6
-  (let ()
-    10 20 30)
-  30)
-
-(deftest let*.1
-  (let* ())
-  nil)
-
-(deftest let*.2
-  (let* () 10)
-  10)
-
-(deftest let*.3
-  (let* (a)
-    a)
-  nil)
-
-(deftest let*.4
-  (let* ((a 10))
-    a)
-  10)
-
-(deftest let*.5
-  (let* ((a 10))
-    (let* ((a (1+ a))
-           (b a))
-      (values a b)))
-  11 11)
-
-(deftest let*.6
-  (let* ()
-    10 20 30)
-  30)
-
-(deftest progv.1
-  (progv nil nil)
-  nil)
-
-(deftest progv.2
+(deftest defvar.11
   (progn
-    100
-    (progv nil nil))
-  nil)
-
-(deftest progv.3
-  (let ((a 100))
-    (declare (special a) (ignorable a))
-    (progv '(a) nil
-      (boundp 'a)))
-  nil)
-
-(deftest progv.4
-  (let ((a 100))
-    (declare (special a) (ignorable a))
-    (progv '(a) '(200)
-      a))
-  200)
-
-(deftest progv.5
-  (let ((a 100))
-    (declare (special a) (ignorable a))
-    (progv '(a) '(200 300)
-      a))
-  200)
-
-(deftest progv.6
-  (let ((a 100))
-    (declare (special a) (ignorable a))
-    (progv '(a) '(200)
-      (symbol-value 'a)))
-  200)
-
-(deftest progv.7
-  (let (a)
-    (declare (special a) (ignorable a))
-    (progv '(a b) '(200)
-      (values
-        (symbol-value 'a)
-        (boundp 'b))))
-  200 nil)
-
-(deftest progv.8
-  (let (a)
-    (declare (special a) (ignorable a))
-    (progv '(a b) '(200 300)
-      (values
-        a
-        (symbol-value 'b))))
-  200 300)
-
-(deftest setq.1
-  (setq)
-  nil)
-
-(deftest setq.2
-  (let (a)
-    (setq a 10))
-  10)
-
-(deftest setq.3
-  (let (a)
-    (setq a 10)
-    a)
-  10)
-
-(deftest setq.4
-  (let (a b)
-    (setq a 10 b 20))
-  20)
-
-(deftest setq.5
-  (let (a b)
-    (setq a 10 b 20)
-    (values a b))
-  10 20)
-
-(deftest setq.6
-  (let ((a 10))
-    (setq a (1+ a) b a)
-    (values a b))
-  11 11)
-
-(deftest setq.7
-  (let ((a 10))
-    (declare (special a))
-    (setq a 20)
-    a)
-  20)
-
-(deftest setq.8
-  (let ((x (list 10 20 30)))
-    (symbol-macrolet
-      ((y (car x)) (z (cadr x)))
-      (setq y (1+ z) z (1+ y))
-      (list x y z)))
-  ((21 22 30) 21 22))
-
-(deftest psetq.1
-  (psetq)
-  nil)
-
-(deftest psetq.2
-  (let (a)
-    (psetq a 10))
-  10)
-
-(deftest psetq.3
-  (let (a)
-    (psetq a 10)
-    a)
-  10)
-
-(deftest psetq.4
-  (let ((a 10) b)
-    (psetq a 20 b a)
-    (values a b))
-  20 10)
-
-(deftest psetq.5
-  (let ((a (list 10 20 30)))
-    (symbol-macrolet
-      ((b (car a)))
-      (psetq b 999)
-      a))
-  (999 20 30))
-
-(deftest psetq.6
-  (let ((x (list 10 20 30)))
-    (symbol-macrolet
-      ((y (car x)) (z (cadr x)))
-      (psetq y (1+ z) z (1+ y))
-      (list x y z)))
-  ((21 11 30) 21 11))
-
-(deftest psetq.7
-  (let ((a 1) (b 2))
-    (psetq a b  b a)
-    (values a b))
-  2 1)
-
-(deftest block.1
-  (block nil)
-  nil)
-
-(deftest block.2
-  (block hello 10)
-  10)
-
-(deftest block.3
-  (block aaa
-    (return-from aaa 10)
-    20)
-  10)
-
-(deftest block.4
-  (block aaa
-    (block bbb
-      (return-from aaa 10)
-      20)
-    30)
-  10)
-
-(deftest block.5
-  (block aaa
-    (block bbb
-      (return-from bbb 10)
-      20)
-    30)
-  30)
-
-(deftest block.6
-  (block nil
-    (block aaa
-      (return 100)
-      200)
-    300)
-  100)
-
-(deftest block.7
-  (block nil
-    (block aaa
-      (return)
-      200)
-    300)
-  nil)
-
-(deftest block.8
-  (block aaa
-    (block aaa
-      (return-from aaa 10)
-      20)
-    30)
-  30)
-
-(deftest block.9
-  (let (a)
-    (block aaa
-      (setq a (block aaa
-                (return-from aaa 10)
-                20))
-      30)
-    a)
-  10)
-
-(deftest block.10
-  (let (call)
-    (block aaa
-      (setq call (lambda () (return-from aaa 10)))
-      (funcall call)))
-  10)
-
-(deftest block.11
-  (let (call)
-    (block aaa
-      (setq call (lambda () (return-from aaa 10)))
-      (funcall call)
-      20))
-  10)
-
-(deftest block.12
-  (let (a call)
-    (block aaa
-      (setq a (block aaa
-                (setq call (lambda () (return-from aaa 10)))
-                (funcall call)))
-      20))
-  20)
-
-(deftest block.13
-  (let (a call)
-    (block aaa
-      (setq a (block aaa
-                (setq call (lambda () (return-from aaa 10)))
-                (funcall call)))
-      20)
-    a)
-  10)
-
-(deftest block.14
-  (block aaa
-    (let ()
-      (block bbb
-        (return-from aaa 10))))
-  10)
-
-(deftest block.15
-  (block aaa
-    (block bbb
-      (block ccc
-        (block ddd
-          (block eee
-            (return-from aaa 10)
-            111)))))
-  10)
-
-(deftest-error block.16
-  (let (call)
-    (block aaa
-      (setq call (lambda () (return-from aaa 10))))
-    (funcall call)))
-
-(deftest-error block.17
-  (let (call)
-    (block aaa
-      (block aaa
-        (setq call (lambda () (return-from aaa 10))))
-      (funcall call))))
-
-(deftest block.18
-  (block nil
-    (tagbody
-      (return-from nil 100)))
-  100)
-
-(deftest catch.1
-  (catch nil)
-  nil)
-
-(deftest catch.2
-  (catch 'hello 10)
-  10)
-
-(deftest catch.3
-  (catch 'hello
-    (throw 'hello 10)
-    20)
-  10)
-
-(deftest catch.4
-  (catch 'aaa
-    (catch 'bbb
-      (throw 'aaa 10)
-      20)
-    30)
-  10)
-
-(deftest catch.5
-  (catch 'aaa
-    (catch 'bbb
-      (throw 'bbb 10)
-      20)
-    30)
-  30)
-
-(deftest tagbody.1
-  (tagbody)
-  nil)
-
-(deftest tagbody.2
-  (tagbody 10)
-  nil)
-
-(deftest tagbody.3
-  (let (a)
-    (tagbody
-      10
-      20
-      (go 30)
-      (setq a 100)
-      30)
-    a)
-  nil)
-
-(deftest tagbody.4
-  (let (a)
-    (tagbody
-      10
-      (tagbody
-        20
-        (go 30)
-        (setq a 111)
-        30
-        (setq a 222))
-      (go 40)
-      30
-      (setq a 333)
-      40)
-    a)
-  222)
-
-(deftest tagbody.5
-  (let ((a 0))
-    (tagbody
-      (go 10)
-      20
-      (setq a (+ a 22))
-      (go 30)
-      10
-      (setq a (+ a 10))
-      (go 20)
-      30)
-    a)
-  32)
-
-(deftest tagbody.6
-  (let (a call)
-    (tagbody
-      (setq call (lambda () (go 10)))
-      (funcall call)
-      (setq a 10)
-      (go 20)
-      10
-      (setq a 20)
-      20)
-    a)
-  20)
-
-(deftest-error tagbody.7
-  (let (call)
-    (tagbody
-      10
-      (tagbody
-        10
-        (setq call (lambda () (go 10))))
-      (funcall call))))
-
-(deftest tagbody.8
-  (let (a)
-    (tagbody
-      (tagbody
-        (tagbody
-          (tagbody
-            (go 10))))
-      10
-      (setq a 999))
-    a)
-  999)
-
-(deftest unwind-protect.1
-  (unwind-protect nil)
-  nil)
-
-(deftest unwind-protect.2
-  (unwind-protect 100)
-  100)
-
-(deftest unwind-protect.3
-  (let (a b)
-    (unwind-protect
-      100
-      (setq a 200)
-      (setq b 300)))
-  100)
-
-(deftest unwind-protect.4
-  (let (a b)
-    (unwind-protect
-      100
-      (setq a 200)
-      (setq b 300))
-    (values a b))
-  200 300)
-
-(deftest unwind-protect.5
-  (unwind-protect
-    (block aaa
-      (block bbb
-        (block ccc
-          (return-from aaa 100))))
-    (block aaa
-      (block bbb
-        (block ccc
-          (return-from aaa 200)))))
-  100)
-
-(deftest unwind-protect.6
-  (let (a)
-    (handler-case
-      (unwind-protect
-        (error "Hello")
-        (setq a 100))
-      (error () :hello)))
-  :hello)
-
-(deftest unwind-protect.7
-  (let (a)
-    (handler-case
-      (unwind-protect
-        (error "Hello")
-        (setq a 100))
-      (error () :hello))
-    a)
-  100)
-
-(deftest unwind-protect.8
-  (let (a)
-    (catch 'hello
-      (let ()
-        (unwind-protect
-          (let ()
-            (let ()
-              (throw 'hello 10)))
-          (setq a 20)))))
-  10)
-
-(deftest unwind-protect.9
-  (let (a)
-    (catch 'hello
-      (let ()
-        (unwind-protect
-          (let ()
-            (let ()
-              (throw 'hello 10)))
-          (setq a 20))))
-    a)
-  20)
-
-(deftest not.1
-  (not nil)
-  t)
-
-(deftest not.2
-  (not t)
-  nil)
-
-(deftest not.3
-  (not 10)
-  nil)
-
-(deftest eq.1
-  (eq 'hello 'hello)
-  t)
-
-(deftest eq.2
-  (eq (list nil) (list nil))
-  nil)
-
-(deftest eq.3
-  (eq nil nil)
-  t)
-
-(deftest eql.1
-  (eql 10 10)
-  t)
-
-(deftest eql.2
-  (eql nil nil)
-  t)
-
-(deftest eql.3
-  (eql (list nil) (list nil))
-  nil)
-
-(deftest eql.4
-  (eql #\a #\a)
-  t)
-
-(deftest eql.5
-  (eql #\a #\A)
-  nil)
-
-(deftest equal.1
-  (equal nil nil)
-  t)
-
-(deftest equal.2
-  (equal 10 10)
-  t)
-
-(deftest equal.3
-  (equal (list nil) (list nil))
-  t)
-
-(deftest equal.4
-  (equal (list t) (list nil))
-  nil)
-
-(deftest equalp.1
-  (equalp nil nil)
-  t)
-
-(deftest equalp.2
-  (equalp (list #\a) (list #\a))
-  t)
-
-(deftest equalp.3
-  (equalp (list #\A) (list #\a))
-  t)
-
-(deftest equalp.4
-  (equalp (list #\z) (list #\a))
-  nil)
-
-(deftest identity.1
-  (identity 10)
-  10)
-
-(deftest identity.2
-  (identity nil)
-  nil)
-
-(deftest complement.1
-  (functionp
-    (complement #'identity))
-  t)
-
-(deftest complement.2
-  (funcall
-    (complement #'functionp)
-    10)
-  t)
-
-(deftest complement.3
-  (funcall
-    (complement #'functionp)
-    #'complement)
-  nil)
-
-(deftest constantly.1
-  (functionp
-    (constantly nil))
-  t)
-
-(deftest constantly.2
-  (funcall (constantly 10))
-  10)
-
-(deftest constantly.3
-  (funcall (constantly 20) t)
-  20)
-
-(deftest constantly.4
-  (funcall (constantly nil) 10 20 30 40)
-  nil)
-
-(deftest every.1
-  (every #'= nil)
-  t)
-
-(deftest every.2
-  (every #'= '(10))
-  t)
-
-(deftest every.3
-  (every #'= '(10 20 30))
-  t)
-
-(deftest every.4
-  (every #'= '(10) '(10))
-  t)
-
-(deftest every.5
-  (every #'= '(10) '(20))
-  nil)
-
-(deftest every.6
-  (every #'= '(10) '(10 20))
-  t)
-
-(deftest every.7
-  (every #'= '(10 20) '(10))
-  t)
-
-(deftest every.8
-  (every #'= '(10 20) '(10 20))
-  t)
-
-(deftest every.9
-  (every #'= '(10 20) '(10 30))
-  nil)
-
-(deftest every.10
-  (every #'= '(10 20 30 40 50) '(10 20))
-  t)
-
-(deftest every.11
-  (every #'= '(11 20 30 40 50) '(10 20))
-  nil)
-
-(deftest every.12
-  (every #'= #(10 20 30 40) nil)
-  t)
-
-(deftest every.13
-  (every #'= #() '(10 20 30 40))
-  t)
-
-(deftest every.14
-  (every #'= #(10 20) #(10 20 30) #(10 20 40 50))
-  t)
-
-(deftest every.15
-  (every #'= #(10 20) #(10 20 30) #(10 21 40 50))
-  nil)
-
-(deftest every.16
-  (every #'/= #(1 2 3) #(2 3 4) '(3 4 5))
-  t)
-
-(deftest every.17
-  (every #'/= #(1 2 3) #(2 4 4) '(3 4 5))
-  nil)
-
-(deftest some.1
-  (some #'= nil)
-  nil)
-
-(deftest some.2
-  (some #'= '(10))
-  t)
-
-(deftest some.3
-  (some #'evenp '(11))
-  nil)
-
-(defun some-equal (&rest args)
-  (if (apply #'= args)
-    (list-length args)))
-
-(deftest some.4
-  (some #'some-equal '(11 12 13))
+    (defvar defvar-11 333 "ABC")
+    (documentation 'defvar-11 'variable))
+  "ABC")
+
+(deftest defvar.12
+  (progn
+    (defvar defvar-12 333)
+    (setq defvar-12 444)
+    defvar-12)
+  444)
+
+(deftest-error defvar-error.1
+  (eval '(defvar)))
+
+(deftest-error defvar-error.2
+  (eval '(defvar 10 20)))
+
+(deftest-error defvar-error.3
+  (eval '(defvar aaa 20 nil)))
+
+(deftest-error defvar-error.4
+  (eval '(defvar aaa 20 "Hello" nil)))
+
+;;  ANSI Common Lisp
+(deftest defvar-test.1
+  (defparameter *defvar-test-1* 1)
+  *defvar-test-1*)
+
+(deftest defvar-test.2
+  (eval '*defvar-test-1*)
   1)
 
-(deftest some.5
-  (some #'some-equal '(11 12 13) '(12 13 14))
+(deftest defvar-test.3
+  (constantp '*defvar-test-1*)
   nil)
 
-(deftest some.6
-  (some #'some-equal '(11 12 14) '(12 13 14))
+(deftest defvar-test.4
+  (setq *defvar-test-1* 2)
   2)
 
-(deftest some.7
-  (some #'some-equal '(11 12 14) '(11 13 15))
-  2)
+(deftest defvar-test.5
+  (defparameter *defvar-test-1* 3)
+  *defvar-test-1*)
 
-(deftest some.8
-  (some #'some-equal #())
-  nil)
-
-(deftest some.9
-  (some #'some-equal #(11 12 13))
-  1)
-
-(deftest some.10
-  (some #'some-equal #(11 12 13) '(12 13 14))
-  nil)
-
-(deftest some.11
-  (some #'some-equal '(11 12 13) #(12 12 14))
-  2)
-
-(deftest some.12
-  (some #'some-equal #(11 12 13) #(12 12 14) #(11 12 22))
+(deftest defvar-test.6
+  (eval '*defvar-test-1*)
   3)
 
-(deftest notany.1
-  (notany #'> '(1 2 3 4) '(5 6 7 8) '(9 10 11 12))
-  t)
+(deftest defvar-test.7
+  (defvar *defvar-test-2* 1)
+  *defvar-test-2*)
 
-(deftest notevery.1
-  (notevery #'< '(1 2 3 4) '(5 6 7 8) '(9 10 11 12))
+(deftest defvar-test.8
+  (eval '*defvar-test-2*)
+  1)
+
+(deftest defvar-test.9
+  (constantp '*defvar-test-2*)
   nil)
 
-(deftest and.1
-  (and)
-  t)
-
-(deftest and.2
-  (and 10)
-  10)
-
-(deftest and.3
-  (and 10 20 30)
-  30)
-
-(deftest and.4
-  (and nil 20 30)
-  nil)
-
-(deftest and.5
-  (and 10 nil 30)
-  nil)
-
-(deftest and.6
-  (and 10 20 nil)
-  nil)
-
-(deftest cond.1
-  (cond)
-  nil)
-
-(deftest cond.2
-  (cond (10 20))
-  20)
-
-(deftest cond.3
-  (cond (nil 20))
-  nil)
-
-(deftest cond.4
-  (cond (nil 10) (20 30) (t 40))
-  30)
-
-(deftest cond.5
-  (cond (nil 10) (nil 30) (t 40))
-  40)
-
-(deftest cond.6
-  (cond ((functionp 10) 20) ((functionp #'car) 30))
-  30)
-
-(deftest if.1
-  (if 10 20)
-  20)
-
-(deftest if.2
-  (if t 10 20)
-  10)
-
-(deftest if.3
-  (if nil 10)
-  nil)
-
-(deftest if.4
-  (if nil 10 20)
-  20)
-
-(deftest or.1
-  (or)
-  nil)
-
-(deftest or.2
-  (or 10)
-  10)
-
-(deftest or.3
-  (or nil)
-  nil)
-
-(deftest or.4
-  (or 10 20 30)
-  10)
-
-(deftest or.5
-  (or nil 20 30)
-  20)
-
-(deftest or.6
-  (or nil nil 30)
-  30)
-
-(deftest or.7
-  (or nil nil nil)
-  nil)
-
-(deftest or.8
-  (or nil nil (values 10 20 30))
-  10 20 30)
-
-(deftest when.1
-  (when 10 20 30)
-  30)
-
-(deftest when.2
-  (when nil 20 30)
-  nil)
-
-(deftest unless.1
-  (unless 10 20 30)
-  nil)
-
-(deftest unless.2
-  (unless nil 20 30)
-  30)
-
-(deftest case.1
-  (case 10)
-  nil)
-
-(deftest case.2
-  (case 10
-    (10 111) (20 222) (30 333))
-  111)
-
-(deftest case.3
-  (case 20
-    (10 111) (20 222) (30 333))
-  222)
-
-(deftest case.4
-  (case :hello
-    (10 111) (20 222) (30 333))
-  nil)
-
-(deftest case.5
-  (case 30
-    (10 111) ((1 2 3) 222) (30 333))
-  333)
-
-(deftest case.6
-  (case 3
-    (10 111) ((1 2 3) 222) (30 333))
-  222)
-
-(deftest case.7
-  (case 9
-    (10 111) ((1 2 3) 222) (30 333) (t 999))
-  999)
-
-(deftest case.8
-  (case 9
-    (10 111) ((1 2 3) 222) (30 333) (otherwise 999))
-  999)
-
-(deftest case.9
-  (case 3
-    (10 111) ((1 2 3) 222) (30 333) (otherwise 999))
-  222)
-
-(deftest ecase.1
-  (ecase 10
-    (10 :aaa))
-  :aaa)
-
-(deftest ecase.2
-  (ecase 2
-    (10 :aaa)
-    ((1 2 3) :bbb)
-    (30 :ccc))
-  :bbb)
-
-(deftest ecase.3
-  (ecase 30
-    (10 :aaa)
-    ((1 2 3) :bbb)
-    (30 :ccc))
-  :ccc)
-
-(deftest-error ecase.4
-  (ecase 30
-    (10 :aaa))
-  type-error)
-
-(deftest typecase.1
-  (typecase 10)
-  nil)
-
-(deftest typecase.2
-  (typecase 10
-    (integer :aaa))
-  :aaa)
-
-(deftest typecase.3
-  (typecase 10
-    (integer :aaa)
-    (string :bbb))
-  :aaa)
-
-(deftest typecase.4
-  (typecase "Hello"
-    (integer :aaa)
-    (string :bbb))
-  :bbb)
-
-(deftest typecase.5
-  (typecase #\a
-    (integer :aaa)
-    (string :bbb))
-  nil)
-
-(deftest typecase.6
-  (typecase #\a
-    (integer :aaa)
-    (string :bbb)
-    (otherwise :ccc))
-  :ccc)
-
-(deftest typecase.7
-  (typecase #\a
-    (integer :aaa)
-    (string :bbb)
-    (t :ccc))
-  :ccc)
-
-(deftest typecase.8
-  (typecase "Hello"
-    (integer :aaa)
-    (string :bbb)
-    (otherwise :ccc))
-  :bbb)
-
-(deftest etypecase.1
-  (etypecase 10
-    (integer :aaa))
-  :aaa)
-
-(deftest etypecase.2
-  (etypecase 10
-    (integer :aaa)
-    (string :bbb))
-  :aaa)
-
-(deftest etypecase.3
-  (etypecase "Hello"
-    (integer :aaa)
-    (string :bbb))
-  :bbb)
-
-(deftest-error etypecase.4
-  (etypecase :hello
-    (integer :aaa)
-    (string :bbb))
-  type-error)
-
-(deftest multiple-value-bind.1
-  (multiple-value-bind nil nil 10)
-  10)
-
-(deftest multiple-value-bind.2
-  (multiple-value-bind (a) nil a 10)
-  10)
-
-(deftest multiple-value-bind.3
-  (multiple-value-bind (a) nil a)
-  nil)
-
-(deftest multiple-value-bind.4
-  (multiple-value-bind (a) 10 a)
-  10)
-
-(deftest multiple-value-bind.5
-  (multiple-value-bind (a) (values 10 20) a)
-  10)
-
-(deftest multiple-value-bind.6
-  (multiple-value-bind (a b) (values 10 20) b a)
-  10)
-
-(deftest multiple-value-bind.7
-  (multiple-value-bind (a b) (values 10 20) a b)
-  20)
-
-(deftest multiple-value-bind.8
-  (multiple-value-bind (a b c) (values 10 20) a b c)
-  nil)
-
-(deftest multiple-value-call.1
-  (multiple-value-call #'list)
-  nil)
-
-(deftest multiple-value-call.2
-  (multiple-value-call #'list 10)
-  (10))
-
-(deftest multiple-value-call.3
-  (multiple-value-call #'list 10 20 30)
-  (10 20 30))
-
-(deftest multiple-value-call.4
-  (multiple-value-call #'list 10 (values 20 30 40) 50)
-  (10 20 30 40 50))
-
-(deftest multiple-value-call.5
-  (multiple-value-call #'list 10 (values) 50)
-  (10 50))
-
-(deftest multiple-value-list.1
-  (multiple-value-list (values))
-  nil)
-
-(deftest multiple-value-list.2
-  (multiple-value-list 10)
-  (10))
-
-(deftest multiple-value-list.3
-  (multiple-value-list (values 10 20 30))
-  (10 20 30))
-
-(deftest multiple-value-prog1.1
-  (multiple-value-prog1 nil)
-  nil)
-
-(deftest multiple-value-prog1.2
-  (multiple-value-prog1 nil 10 20 30)
-  nil)
-
-(deftest multiple-value-prog1.3
-  (multiple-value-prog1 (values 10 20))
-  10 20)
-
-(deftest multiple-value-prog1.4
-  (multiple-value-prog1 (values 10 20) 30 40 50)
-  10 20)
-
-(deftest multiple-value-prog1.5
-  (let (a b c)
-    (multiple-value-prog1
-      (setq a 10)
-      (setq b 20)
-      (setq c 30)))
-  10)
-
-(deftest multiple-value-prog1.6
-  (let (a b c)
-    (multiple-value-prog1
-      (setq a 10)
-      (setq b 20)
-      (setq c 30))
-    (values a b c))
-  10 20 30)
-
-(deftest multiple-value-setq.1
-  (let (a)
-    (multiple-value-setq (a) 10))
-  10)
-
-(deftest multiple-value-setq.2
-  (let (a)
-    (multiple-value-setq (a) 10)
-    a)
-  10)
-
-(deftest multiple-value-setq.3
-  (let ((a 10) (b 20) (c 30))
-    (multiple-value-setq (a b c) 40)
-    (values a b c))
-  40 nil nil)
-
-(deftest multiple-value-setq.4
-  (let (a b c)
-    (multiple-value-setq (a b c) (values 10 20 30 40 50)))
-  10)
-
-(deftest multiple-value-setq.5
-  (let (a b c)
-    (multiple-value-setq (a b c) (values 10 20 30 40 50))
-    (values a b c))
-  10 20 30)
-
-(deftest values.1
-  (values 10)
-  10)
-
-(deftest values.2
-  (values (values 10 20))
-  10)
-
-(deftest values.3
-  (values 10 20 30)
-  10 20 30)
-
-(deftest values.4
-  (values (values 10 20) (values 30 40))
-  10 30)
-
-(deftest values.5
-  (values))
-
-(deftest values.6
-  (funcall #'values))
-
-(deftest values.7
-  (funcall #'values 10 20 30)
-  10 20 30)
-
-(deftest values.8
-  (values))
-
-(deftest setf-values.1
-  (let (a b)
-    (setf (values a b) (values 10 20 30 40)))
-  10 20)
-
-(deftest setf-values.2
-  (let (a b)
-    (setf (values a b) (values 10 20 30 40))
-    (values a b))
-  10 20)
-
-(deftest setf-values.3
-  (let ((a 999) (b 888))
-    (setf (values a b) (values 10))
-    (values a b))
-  10 nil)
-
-(deftest values-list.1
-  (values-list nil))
-
-(deftest values-list.2
-  (values-list '(10 20 30))
-  10 20 30)
-
-(deftest nth-value.1
-  (nth-value 0 10)
-  10)
-
-(deftest nth-value.2
-  (nth-value 1 (values 10 20 30 40))
-  20)
-
-(deftest nth-value.3
-  (nth-value 3 (values 10 20 30 40))
-  40)
-
-(deftest nth-value.4
-  (nth-value 3 (values 10 20 30 40))
-  40)
-
-(deftest nth-value.5
-  (nth-value 4 (values 10 20 30 40))
-  nil)
-
-(deftest nth-value.6
-  (nth-value 10 (values))
-  nil)
-
-(deftest prog.1
-  (prog ())
-  nil)
-
-(deftest prog.2
-  (prog () 10)
-  nil)
-
-(deftest prog.3
-  (prog (a) 10 (progn a))
-  nil)
-
-(deftest prog.4
-  (prog (a)
-    (setq a 10)
-    (return a))
-  10)
-
-(deftest prog.5
-  (let ((a 10))
-    (prog ((a (1+ a))
-           (b a))
-      (return (values a b))))
-  11 10)
-
-(deftest prog.6
-  (prog (a)
-    (go 10)
-    (setq a 999)
-    10
-    (return a))
-  nil)
-
-(deftest prog.7
-  (prog (a)
-    (declare (ignore a))
-    10)
-  nil)
-
-(deftest prog*.1
-  (prog* ())
-  nil)
-
-(deftest prog*.2
-  (prog* () 10)
-  nil)
-
-(deftest prog*.3
-  (prog* (a) 10 (progn a))
-  nil)
-
-(deftest prog*.4
-  (prog* (a)
-    (setq a 10)
-    (return a))
-  10)
-
-(deftest prog*.5
-  (let ((a 10))
-    (prog* ((a (1+ a))
-            (b a))
-      (return (values a b))))
-  11 11)
-
-(deftest prog*.6
-  (prog* (a)
-    (go 10)
-    (setq a 999)
-    10
-    (return a))
-  nil)
-
-(deftest prog1.1
-  (prog1 10)
-  10)
-
-(deftest prog1.2
-  (prog1 10 20)
-  10)
-
-(deftest prog1.3
-  (prog1 10 20 30)
-  10)
-
-(deftest prog2.1
-  (prog2 10 20)
-  20)
-
-(deftest prog2.2
-  (prog2 10 20 30 40)
-  20)
-
-(deftest progn.1
-  (progn)
-  nil)
-
-(deftest progn.2
-  (progn 10)
-  10)
-
-(deftest progn.3
-  (progn 10 20 (progn 30))
-  30)
-
-(deftest define-modify-macro.1
+(deftest defvar-test.10
+  (setq *defvar-test-2* 2)
+  2)
+
+(deftest defvar-test.11
+  (defvar *defvar-test-2* 3)
+  *defvar-test-2*)
+
+(deftest defvar-test.12
+  (eval '*defvar-test-2*)
+  2)
+
+(deftest defvar-test.13
   (progn
-    (define-modify-macro test-modify-1 (&rest args) append)
-    (let ((x (list 10 20 30)))
-      (test-modify-1 x '(a b c))))
-  (10 20 30 a b c))
-
-(deftest define-modify-macro.2
-  (progn
-    (define-modify-macro test-modify-2 (&rest args) append)
-    (let ((x (list 10 20 30)))
-      (test-modify-2 x '(a b c))
-      x))
-  (10 20 30 a b c))
-
-(deftest get-setf-expansion.1
-  (list-length
-    (multiple-value-list
-      (get-setf-expansion 'x)))
-  5)
-
-(deftest get-setf-expansion.2
-  (list-length
-    (multiple-value-list
-      (get-setf-expansion '(car x))))
-  5)
-
-(deftest define-setf-expander.1
-  (define-setf-expander
-    setf-expander-1 (x)
-    x (values nil nil nil nil nil))
-  setf-expander-1)
-
-(deftest define-setf-expander.2
-  (progn
-    (define-setf-expander
-      setf-expander-2 (x)
-      (values nil nil nil nil x))
-    (get-setf-expansion '(setf-expander-2 10)))
-  nil nil nil nil 10)
-
-(deftest define-setf-expander.3
-  (progn
-    (define-setf-expander
-      setf-expander-3 (&environment env x y z)
-      (values (null env) x y z nil))
-    (get-setf-expansion '(setf-expander-3 10 20 30)))
-  t 10 20 30 nil)
-
-(deftest defsetf-short.1
-  (defsetf defsetf-short-1 set)
-  defsetf-short-1)
-
-(defsetf defsetf-short-2 set)
-(deftest defsetf-short.2
-  (let (x)
-    (declare (special x) (ignorable x))
-    (list-length
-      (multiple-value-list
-        (get-setf-expansion '(defsetf-short-2 x)))))
-  5)
-
-(defsetf defsetf-short-3 set)
-(deftest defsetf-short.3
-  (let (x)
-    (declare (special x) (ignorable x))
-    (setf (defsetf-short-3 'x) 10))
-  10)
-
-(defsetf defsetf-short-4 set)
-(deftest defsetf-short.4
-  (let (x)
-    (declare (special x) (ignorable x))
-    (setf (defsetf-short-4 'x) 10)
-    x)
-  10)
-
-(deftest defsetf-long.1
-  (defsetf defsetf-long-1 (x) (g) `(set ,x ,g))
-  defsetf-long-1)
-
-(defsetf defsetf-long-2 (x) (g) `(set ,x ,g))
-(deftest defsetf-long.2
-  (let (a)
-    (declare (special a) (ignorable a))
-    (setf (defsetf-long-2 'a) 10))
-  10)
-
-(defsetf defsetf-long-3 (x) (g) `(set ,x ,g))
-(deftest defsetf-long.3
-  (let (a)
-    (declare (special a) (ignorable a))
-    (setf (defsetf-long-3 'a) 10)
-    a)
-  10)
-
-(deftest setf.1
-  (setf)
-  nil)
-
-(deftest setf.2
-  (let (x)
-    (setf x 10))
-  10)
-
-(deftest setf.3
-  (let (x)
-    (setf x 10)
-    x)
-  10)
-
-(deftest setf.4
-  (let (x y)
-    (values (setf x 10 y 20) x y))
-  20 10 20)
-
-(deftest setf.5
-  (let (x y)
-    (values (setf x 10 y x) x y))
-  10 10 10)
-
-(deftest setf.6
-  (let ((x '(10 . 20)))
-    (values (setf (car x) 30) x))
-  30 (30 . 20))
-
-(deftest setf.7
-  (let (x y z)
-    (setf (values x y z) (values 10 20 30 40 50)))
-  10 20 30)
-
-(deftest setf.8
-  (let (x y z)
-    (setf (values x y z) (values 10 20 30 40 50))
-    (values x y z))
-  10 20 30)
-
-(deftest psetf.1
-  (psetf)
-  nil)
-
-(deftest psetf.2
-  (let (x)
-    (psetf x 10))
-  10)
-
-(deftest psetf.3
-  (let (x)
-    (psetf x 10)
-    x)
-  10)
-
-(deftest psetf.4
-  (let (x y)
-    (values (psetf x 10 y 20) x y))
-  20 10 20)
-
-(deftest psetf.5
-  (let ((x '(10 . 20)))
-    (values (psetf (car x) 30) x))
-  30 (30 . 20))
-
-(deftest psetf.6
-  (let ((x 10)
-        (y 20))
-    (psetf x 30 y x)
-    (values x y))
-  30 10)
-
-(deftest shiftf.1
-  (let ((a 10))
-    (declare (special a))
-    (shiftf a 20))
-  10)
-
-(deftest shiftf.2
-  (let ((a 10))
-    (declare (special a))
-    (shiftf a 20)
-    a)
-  20)
-
-(deftest shiftf.3
-  (let ((a 10) (b '(20 . 30)))
-    (declare (special a b))
-    (values
-      (shiftf a (car b) 40)
-      a b))
-  10 20 (40 . 30))
-
-(deftest shiftf.4
-  (let ((a 10) (b 20) (c 30) d)
-    (shiftf (values a b) (values c d) (values 777 888 999))
-    (values a b c d))
-  30 nil 777 888)
-
-(deftest shiftf.5
-  (let ((a 10) (b 20) (c 30) d)
-    (shiftf (values a b) (values c d) (values 777 888 999)))
-  10 20)
-
-(deftest rotatef.1
-  (rotatef)
-  nil)
-
-(deftest rotatef.2
-  (let ((x 10))
-    (rotatef x))
-  nil)
-
-(deftest rotatef.3
-  (let ((x 10))
-    (rotatef x)
-    x)
-  10)
-
-(deftest rotatef.4
-  (let ((a 10) (b 20) (c 30))
-    (values
-      (rotatef a b c)
-      a b c))
-  nil 20 30 10)
-
-(deftest rotatef.5
-  (let ((a 10) (b 20) (c 30) (d 40) (e 50) (f 60))
-    (rotatef (values a b) (values c d) (values e f))
-    (values a b c d e f))
-  30 40 50 60 10 20)
-
-(deftest ccase.1
-  (let ((x 'hello))
-    (values
-      (handler-bind
-        ((type-error
-           (lambda (c)
-             (store-value 999 c))))
-        (ccase x (10 :aaa) (20 :bbb) (999 :ccc)))
-      x))
-  :ccc 999)
-
-(deftest ccase.2
-  (let ((x '(a b c d)))
-    (values
-      (handler-bind
-        ((type-error
-           (lambda (c)
-             (store-value 999 c))))
-        (ccase (car x) (10 :aaa) (20 :bbb) (999 :ccc)))
-      x))
-  :ccc (999 b c d))
-
-(deftest ctypecase.1
-  (let ((x 'hello))
-    (values
-      (handler-bind
-        ((type-error
-           (lambda (c)
-             (store-value 999 c))))
-        (ctypecase x (string :aaa) (integer :bbb) (float :ccc)))
-      x))
-  :bbb 999)
-
-(deftest ctypecase.2
-  (let ((x '(a b c d)))
-    (values
-      (handler-bind
-        ((type-error
-           (lambda (c)
-             (store-value 999 c))))
-        (ctypecase (car x) (string :aaa) (integer :bbb) (float :ccc)))
-      x))
-  :bbb (999 b c d))
+    (defun defvar-test-3 ()
+      (let ((*defvar-test-1* 'defvar-test-1)
+            (*defvar-test-2* 'defvar-test-2))
+        (defvar-test-4)))
+    (defun defvar-test-4 ()
+      (list *defvar-test-1* *defvar-test-2*))
+    (defvar-test-3))
+  (defvar-test-1 defvar-test-2))
 

@@ -1131,13 +1131,17 @@ int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args)
  */
 static int flet_call(Execute ptr, addr list, addr *call, addr *ret)
 {
+	addr pos;
 	struct lambda_struct str;
 
 	scope_init_lambda(&str, EVAL_PARSE_EMPTY, 0);
 	List_bind(list, &str.call, &str.args, &str.decl, &str.doc, &str.cons, NULL);
 	*call = str.call;
 	str.call = Nil;
-	return lambda_object(ptr, &str, ret);
+	Return(lambda_object(ptr, &str, &pos));
+	SetEvalScopeIndex(pos, EvalLambda_Call, *call);
+
+	return Result(ret, pos);
 }
 
 static int flet_init(Execute ptr, struct let_struct *str)

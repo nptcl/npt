@@ -440,6 +440,8 @@ int defvar_common(addr form, addr env, addr *ret)
 	}
 	if (! consp_getcons(args, &doc, &args))
 		goto error;
+	if (! stringp(doc))
+		return fmte_("The defvar argument ~S must be a string.", doc, NULL);
 	if (args != Nil)
 		goto error;
 expand:
@@ -532,9 +534,11 @@ static int psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 		list_heap(&cons, setq, var, gensym, NULL);
 		cons_heap(&root, cons, root);
 	}
+	/* nil */
+	cons_heap(&root, Nil, root);
+	/* let form */
 	nreverse(&args, args);
 	nreverse(&root, root);
-	/* let form */
 	GetConst(COMMON_LET, &let);
 	lista_heap(ret, let, args, root, NULL);
 

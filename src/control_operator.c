@@ -239,8 +239,10 @@ int throw_control_(Execute ptr, addr name)
 	addr next;
 
 	/* find name */
-	if (! throw_find_control(ptr, &next, name))
-		return fmte_("Cannot find catch name ~S.", name, NULL);
+	if (! throw_find_control(ptr, &next, name)) {
+		return call_simple_control_error_va_(ptr,
+				"Cannot find catch name ~S.", name, NULL);
+	}
 	/* rollback */
 	ptr->throw_value = throw_catch;
 	ptr->throw_handler = name;

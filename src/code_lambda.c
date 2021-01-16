@@ -46,7 +46,7 @@ int getf_code(Execute ptr, CodeValue x)
 	while (GetType(list) == LISPTYPE_CONS) {
 		GetCons(list, &key, &list);
 		if (GetType(list) != LISPTYPE_CONS)
-			break;
+			return fmte_("Invalid property list ~S.", list, NULL);
 		GetCons(list, &value, &list);
 		if (key == x.pos) {
 			setresult_control(ptr, value);

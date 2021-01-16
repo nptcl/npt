@@ -1672,6 +1672,12 @@ static int build_clos_class_condition_(LocalRoot local)
 			CONDITION_SIMPLE_PACKAGE_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_PACKAGE_ERROR);
+	/* lisp-system::simple-control-error (simple-error control-error) */
+	ClosMakeClass2_(local, metaclass,
+			SYSTEM_SIMPLE_CONTROL_ERROR,
+			CONDITION_SIMPLE_CONTROL_ERROR,
+			CONDITION_SIMPLE_ERROR,
+			CONDITION_CONTROL_ERROR);
 	/* lisp-system::delay-warning (warning) */
 	ClosMakeClass1_(local, metaclass,
 			SYSTEM_DELAY_WARNING,

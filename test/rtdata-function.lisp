@@ -932,7 +932,7 @@
 
 
 ;;
-;;
+;;  Special Operator FUNCTION
 ;;
 (deftest function.1
   (functionp
@@ -951,6 +951,52 @@
       (setf car)))
   t)
 
+(deftest-error function.4
+  (function no-such-function-name)
+  undefined-function)
+
+(deftest-error function.5
+  (function (setf no-such-function-name))
+  undefined-function)
+
+(deftest function.6
+  (flet ((name () :hello))
+    (funcall (function name)))
+  :hello)
+
+(deftest function.7
+  (labels ((name () :hello))
+    (funcall (function name)))
+  :hello)
+
+(deftest function.8
+  (functionp
+    (eval
+      (read-from-string "#'car")))
+  t)
+
+(deftest-error function-error.1
+  (eval '(function 100)))
+
+(deftest-error function-error.2
+  (eval '(function)))
+
+(deftest-error function-error.3
+  (eval '(function car car)))
+
+;;  ANSI Common Lisp
+(defun function-adder (x) (function (lambda (y) (+ x y))))
+
+(deftest function-test.1
+  (let (add3)
+    (setq add3 (function-adder 3))
+    (funcall add3 5))
+  8)
+
+
+;;
+;;  Function FUNCTION-LAMBDA-EXPRESSION
+;;
 (deftest function-lambda-expression.1
   (function-lambda-expression #'car)
   nil nil car)
@@ -970,4 +1016,65 @@
     (defun (setf function-lambda-expression-test-4) (v) v)
     (function-lambda-expression #'(setf function-lambda-expression-test-4)))
   nil nil (setf function-lambda-expression-test-4))
+
+(deftest function-lambda-expression.5
+  (let ((x 10))
+    (function-lambda-expression
+      (lambda () (+ x 20))))
+  (lambda () (+ x 20)) t nil)
+
+(deftest function-lambda-expression.6
+  (handler-bind ((warning #'muffle-warning))
+    (function-lambda-expression
+      (compile nil '(lambda () :hello))))
+  (lambda () :hello) nil nil)
+
+(deftest function-lambda-expression.7
+  (function-lambda-expression
+    (flet ((name () 10)) #'name))
+  nil nil name)
+
+(deftest function-lambda-expression.8
+  (function-lambda-expression
+    (labels ((name () 10)) #'name))
+  nil nil name)
+
+(deftest-error! function-lambda-expression-error.1
+  (eval '(function-lambda-expression)))
+
+(deftest-error function-lambda-expression-error.2
+  (eval '(function-lambda-expression 10))
+  type-error)
+
+(deftest-error! function-lambda-expression-error.3
+  (eval '(function-lambda-expression #'car nil)))
+
+;;  ANSI Common Lisp
+(deftest function-lambda-expression-test.1
+  (function-lambda-expression #'(lambda (x) x))
+  (lambda (x) x) nil nil)
+
+(deftest function-lambda-expression-test.2
+  (function-lambda-expression
+    (funcall #'(lambda () #'(lambda (x) x))))
+  (lambda (x) x) nil nil)
+
+(deftest function-lambda-expression-test.3
+  (function-lambda-expression
+    (funcall #'(lambda (x) #'(lambda () x)) nil))
+  (lambda () x) t nil)
+
+(deftest function-lambda-expression-test.4
+  (flet ((foo (x) x))
+    (setf (symbol-function 'function-lambda-expression-test-1) #'foo)
+    (function-lambda-expression #'function-lambda-expression-test-1))
+  nil nil foo)
+
+(defun function-lambda-expression-test-2 ()
+  (flet ((bar (x) x))
+    #'bar))
+
+(deftest function-lambda-expression-test.5
+  (function-lambda-expression (function-lambda-expression-test-2))
+  nil nil bar)
 

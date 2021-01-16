@@ -1415,6 +1415,7 @@ lisp-system::memory-stream
 lisp-system::simple-file-error
 lisp-system::simple-program-error
 lisp-system::simple-package-error
+lisp-system::simple-control-error
 
 
 ;;
