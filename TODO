@@ -1,4 +1,4 @@
-Making test case now.
+Making testcase now.
 
      -  Chapter                            Count    Finish   Percent
 ----------------------------------------------------------------------
@@ -6,7 +6,7 @@ Making test case now.
      2  Syntax                                 0         0      100%
      3  Evaluation and Compilation            33         0        0%
      4  Types and Classes                     32         0        0%
-     5  Data and Control Flow                 84        39       46%
+     5  Data and Control Flow                 84        57       68%
      6  Iteration                              6         0        0%
      7  Objects                               42         0        0%
      8  Structures                             2         0        0%
@@ -29,4 +29,4 @@ Making test case now.
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       480       48%
+     -  All                                  996       498       50%

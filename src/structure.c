@@ -347,12 +347,21 @@ static int equalcall_structure_(addr a, addr b, int *ret,
 	addr c, d;
 	size_t x, y;
 
-	Return(structure_instance_p_(a, &check));
+	/* class-of */
+	if (! closp(a))
+		return Result(ret, 0);
+	if (! closp(b))
+		return Result(ret, 0);
+	Return(clos_class_of_(a, &c));
+	Return(clos_class_of_(b, &d));
+	if (c != d)
+		return Result(ret, 0);
+	GetConst(CLOS_STRUCTURE_OBJECT, &d);
+	Return(clos_subclass_p_(c, d, &check));
 	if (! check)
 		return Result(ret, 0);
-	Return(structure_instance_p_(b, &check));
-	if (! check)
-		return Result(ret, 0);
+
+	/* slots */
 	GetValueClos(a, &a);
 	GetValueClos(b, &b);
 	LenClosValue(a, &x);

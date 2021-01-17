@@ -6,6 +6,7 @@
 (load #p"test/rtdata-test.lisp")
 (load #p"test/rtdata-bind.lisp")
 (load #p"test/rtdata-expr.lisp")
+(load #p"test/rtdata-equal.lisp")
 (load #p"test/rtdata-value.lisp")
 
 

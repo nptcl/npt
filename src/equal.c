@@ -1,5 +1,6 @@
 #include "array.h"
 #include "array_access.h"
+#include "array_inplace.h"
 #include "array_make.h"
 #include "bignum_equal.h"
 #include "bit.h"
@@ -21,6 +22,42 @@
 #include "strvect.h"
 #include "structure.h"
 
+static int array_get_unicode_check_(addr pos, size_t index, unicode *value, int *ret)
+{
+	addr x;
+	struct array_value str;
+
+	/* access */
+	Return(arrayinplace_get_(pos, index, &str));
+
+	/* character */
+	if (str.type == ARRAY_TYPE_CHARACTER) {
+		*value = str.value.character;
+		return Result(ret, 1);
+	}
+
+	/* others */
+	if (str.type != ARRAY_TYPE_T) {
+		*value = 0;
+		return Result(ret, 0);
+	}
+
+	/* object */
+	x = str.value.object;
+	if (! characterp(x)) {
+		*value = 0;
+		return Result(ret, 0);
+	}
+
+	/* character */
+	GetCharacter(x, value);
+	return Result(ret, 1);
+}
+
+
+/*
+ *  eq
+ */
 int atom_function(addr pos)
 {
 	Check(pos == Unbound, "Unbound-variable");
@@ -342,6 +379,7 @@ static int equalp_function_av_(addr a, addr b, int *ret)
 
 static int equalp_function_as_(addr a, addr b, int *ret)
 {
+	int check;
 	unicode c, d;
 	size_t size, i;
 
@@ -357,9 +395,9 @@ static int equalp_function_as_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 	/* body */
 	for (i = 0; i < size; i++) {
-		if (array_type(a) != ARRAY_TYPE_CHARACTER)
+		Return(array_get_unicode_check_(a, i, &c, &check));
+		if (! check)
 			return Result(ret, 0);
-		Return(array_get_unicode_(a, i, &c));
 		strvect_getc(b, i, &d);
 		if (toUpperUnicode(c) != toUpperUnicode(d))
 			return Result(ret, 0);
@@ -370,7 +408,8 @@ static int equalp_function_as_(addr a, addr b, int *ret)
 
 static int equalp_function_ab_(addr a, addr b, int *ret)
 {
-	int c, d;
+	int check;
+	addr c, d;
 	size_t size, i;
 
 	/* string */
@@ -385,11 +424,10 @@ static int equalp_function_ab_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 	/* body */
 	for (i = 0; i < size; i++) {
-		if (array_type(a) != ARRAY_TYPE_BIT)
-			return Result(ret, 0);
-		Return(array_get_bit_(a, i, &c));
-		Return(bitmemory_getint_(b, i, &d));
-		if (c != d)
+		Return(array_get_(NULL, a, i, &c));
+		Return(bitmemory_get_(NULL, b, i, &d));
+		Return(equalp_function_(c, d, &check));
+		if (! check)
 			return Result(ret, 0);
 	}
 
@@ -693,6 +731,7 @@ static int equalrt_function_av_(addr a, addr b, int *ret)
 
 static int equalrt_function_as_(addr a, addr b, int *ret)
 {
+	int check;
 	unicode c, d;
 	size_t size, i;
 
@@ -708,7 +747,8 @@ static int equalrt_function_as_(addr a, addr b, int *ret)
 		return Result(ret, 0);
 	/* body */
 	for (i = 0; i < size; i++) {
-		if (array_type(a) != ARRAY_TYPE_CHARACTER)
+		Return(array_get_unicode_check_(a, i, &c, &check));
+		if (! check)
 			return Result(ret, 0);
 		Return(array_get_unicode_(a, i, &c));
 		strvect_getc(b, i, &d);

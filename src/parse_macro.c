@@ -253,6 +253,8 @@ int find_environment_(addr symbol, addr env, addr *ret)
 {
 	addr list;
 
+	if (! symbolp(symbol))
+		return Result(ret, Unbound);
 	if (env != Nil) {
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))

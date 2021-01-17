@@ -634,7 +634,9 @@ int every_common(Execute ptr, addr call, addr rest, addr *ret)
 
 	/* first */
 	if (rest == Nil)
-		goto result_true;
+		return fmte_("Too few arguments.", NULL);
+
+	/* second */
 	args = next = Nil;
 	size = 0;
 	while (rest != Nil) {
@@ -727,7 +729,9 @@ int some_common(Execute ptr, addr call, addr rest, addr *ret)
 
 	/* first */
 	if (rest == Nil)
-		goto result_false;
+		return fmte_("Too few arguments.", NULL);
+
+	/* second */
 	args = next = Nil;
 	size = 0;
 	while (rest != Nil) {
@@ -853,21 +857,32 @@ int cond_common(addr form, addr env, addr *ret)
 		return Result(ret, Nil);
 
 	/* (cond clause ...) */
-	/* (cond (expr . tail) . form)
-	 *   `(if ,expr (progn ,@tail) (cond ,@form))
-	 */
 	if (! consp(form))
 		return fmte_("The cond form ~S must be a cons.", form, NULL);
 	GetCons(form, &expr, &form);
 	if (! consp(expr))
 		return fmte_("The cond clause ~S must be a cons.", expr, NULL);
 	GetCons(expr, &expr, &tail);
-	GetConst(COMMON_IF, &ifsym);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_COND, &cond);
-	cons_heap(&form, cond, form);
-	cons_heap(&tail, progn, tail);
-	list_heap(ret, ifsym, expr, tail, form, NULL);
+	if (tail == Nil) {
+		/* (cond (expr) . form)
+		 *   `(or ,expr (cond ,$form)))
+		 */
+		GetConst(COMMON_OR, &ifsym);
+		GetConst(COMMON_COND, &cond);
+		cons_heap(&form, cond, form);
+		list_heap(ret, ifsym, expr, form, NULL);
+	}
+	else {
+		/* (cond (expr . tail) . form)
+		 *   `(if ,expr (progn ,@tail) (cond ,@form))
+		 */
+		GetConst(COMMON_IF, &ifsym);
+		GetConst(COMMON_PROGN, &progn);
+		GetConst(COMMON_COND, &cond);
+		cons_heap(&form, cond, form);
+		cons_heap(&tail, progn, tail);
+		list_heap(ret, ifsym, expr, tail, form, NULL);
+	}
 
 	return 0;
 }
