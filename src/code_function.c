@@ -1,5 +1,6 @@
 #include "call_eval.h"
 #include "callname.h"
+#include "clos_class.h"
 #include "code_function.h"
 #include "code_lambda.h"
 #include "condition.h"
@@ -761,8 +762,17 @@ int restart_case_code(Execute ptr, CodeValue x)
  */
 int funcall_code(Execute ptr, CodeValue x)
 {
-	getargs_list_control_unsafe(ptr, 0, &x.pos);
-	return call_control(ptr, x.pos);
+	int check;
+	addr pos, list;
+
+	/* multiple-value-call only used. */
+	getargs_list_control_unsafe(ptr, 0, &pos);
+	GetCons(pos, &pos, &list);
+	Return(funcallp_(pos, &check));
+	if (! check)
+		return TypeError_(pos, FUNCTION);
+
+	return apply_control(ptr, pos, list);
 }
 
 int nth_value_code(Execute ptr, CodeValue x)

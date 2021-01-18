@@ -1012,13 +1012,15 @@ int case_common(Execute ptr, addr form, addr env, addr *ret)
 		if (! consp(test))
 			return fmte_("CASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
+		if (body == Nil)
+			consnil_heap(&body);
 		if (test == T || test == otherwise) {
 			cons_heap(&list, T, body);
 			lastp = 1;
 		}
 		else {
 			list_heap(&list, quote, test, NULL);
-			list_heap(&list, consp(test)? member: eql, g, list, NULL);
+			list_heap(&list, listp(test)? member: eql, g, list, NULL);
 			cons_heap(&list, list, body);
 		}
 		cons_heap(&root, list, root);
@@ -1074,8 +1076,10 @@ int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 		if (! consp(test))
 			return fmte_("ECASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
+		if (body == Nil)
+			consnil_heap(&body);
 		list_heap(&list, quote, test, NULL);
-		if (consp(test)) {
+		if (listp(test)) {
 			list_heap(&list, member, g, list, NULL);
 			while (test != Nil) {
 				Return_getcons(test, &a, &test);
@@ -1089,6 +1093,7 @@ int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 		cons_heap(&list, list, body);
 		cons_heap(&root, list, root);
 	}
+
 	/* error */
 	nreverse(&type, type);
 	list_heap(&type, quote, type, NULL);
@@ -1140,7 +1145,7 @@ static int function_ccase_string(Execute ptr,
 	for (first = 1; args != Nil; ) {
 		Return_getcons(args, &pos, &args);
 		Return_getcar(pos, &pos);
-		if (consp(pos)) {
+		if (listp(pos)) {
 			while (pos != Nil) {
 				Return_getcons(pos, &x, &pos);
 				Return(function_ccase_comma(ptr, stream, x, &first));
@@ -1164,6 +1169,78 @@ static int function_ccase_string(Execute ptr,
 	return 0;
 }
 
+static int function_ccase_cond_(addr g, addr str3, addr type, addr args, addr *ret)
+{
+	/*  (cond ((eql g 'test1) . body1)
+	 *        ((member g 'test2) . body2)
+	 *        ...
+	 *        (t (error
+	 *             (make-condition 'simple-type-error
+	 *               :datum g
+	 *               :expected-type '(member ...)
+	 *               :format-control "The g of xx, ~A, is not xx"
+	 *               :format-arguments (list g)))))
+	 */
+	addr invoke, make, simple, datum, expect, control, arguments, quote, list;
+	addr root, test, body, member, eql, a, cond;
+
+	GetConst(COMMON_ERROR, &invoke);
+	GetConst(COMMON_MAKE_CONDITION, &make);
+	GetConst(COMMON_SIMPLE_TYPE_ERROR, &simple);
+	GetConst(KEYWORD_DATUM, &datum);
+	GetConst(KEYWORD_EXPECTED_TYPE, &expect);
+	GetConst(KEYWORD_FORMAT_CONTROL, &control);
+	GetConst(KEYWORD_FORMAT_ARGUMENTS, &arguments);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_LIST, &list);
+	GetConst(COMMON_MEMBER, &member);
+	GetConst(COMMON_EQL, &eql);
+	GetConst(COMMON_COND, &cond);
+
+	/* (error ...) */
+	list_heap(&list, list, g, NULL);
+	list_heap(&type, quote, type, NULL);
+	list_heap(&simple, quote, simple, NULL);
+	list_heap(&make, make, simple,
+			datum, g, expect, type, control, str3, arguments, list, NULL);
+	list_heap(&invoke, invoke, make, NULL);
+
+	/* cond */
+	type = Nil;
+	for (root = Nil; args != Nil; ) {
+		if (! consp(args))
+			return fmte_("CCASE clauses ~S must be list type.", args, NULL);
+		GetCons(args, &test, &args);
+		if (! consp(test))
+			return fmte_("CCASE clauses ~S must be list type.", test, NULL);
+		GetCons(test, &test, &body);
+		if (body == Nil)
+			consnil_heap(&body);
+		list_heap(&list, quote, test, NULL);
+		if (listp(test)) {
+			list_heap(&list, member, g, list, NULL);
+			while (test != Nil) {
+				Return_getcons(test, &a, &test);
+				cons_heap(&type, a, type);
+			}
+		}
+		else {
+			list_heap(&list, eql, g, list, NULL);
+			cons_heap(&type, test, type);
+		}
+		cons_heap(&list, list, body);
+		cons_heap(&root, list, root);
+	}
+
+	/* error */
+	list_heap(&invoke, T, invoke, NULL);
+	cons_heap(&root, invoke, root);
+	nreverse(&root, root);
+	cons_heap(ret, cond, root);
+
+	return 0;
+}
+
 static int function_ccase_expand(Execute ptr,
 		addr env, addr *ret, addr place, addr args)
 {
@@ -1181,20 +1258,11 @@ static int function_ccase_expand(Execute ptr,
 	 *            :interactive-function
 	 *              (lambda ()
 	 *                (list (eval (prompt-for t "Input xx> "))))))
-	 *         (return-from result
-	 *           (case value
-	 *             (...)
-	 *             (t (error
-	 *                  (make-condition 'simple-type-error
-	 *                    :datum value
-	 *                    :expected-type '(member ...)
-	 *                    :format-control "The value of xx, ~A, is not xx"
-	 *                    :format-arguments (list value))))))))))
+	 *         (return-from result ...)))))
 	 */
 	addr a, b, g, r, w, v, s, str1, str2, str3;
 	addr leta, declare, ignorable, tagbody, loop, restart, store, lambda, setq;
-	addr value, go, report, inter, princ, list, eval, prompt, case_;
-	addr quote, invoke, make, simple, datum, expect, control, arguments;
+	addr value, go, report, inter, princ, list, eval, prompt, cond, quote;
 	addr x, y, root, type, block, retfrom, result;
 	LocalHold hold;
 
@@ -1232,34 +1300,12 @@ static int function_ccase_expand(Execute ptr,
 	GetConst(COMMON_LIST, &list);
 	GetConst(COMMON_EVAL, &eval);
 	GetConst(SYSTEM_PROMPT_FOR, &prompt);
-	GetConst(COMMON_CASE, &case_);
 	GetConst(COMMON_QUOTE, &quote);
-	GetConst(COMMON_ERROR, &invoke);
-	GetConst(COMMON_MAKE_CONDITION, &make);
-	GetConst(COMMON_SIMPLE_TYPE_ERROR, &simple);
-	GetConst(KEYWORD_DATUM, &datum);
-	GetConst(KEYWORD_EXPECTED_TYPE, &expect);
-	GetConst(KEYWORD_FORMAT_CONTROL, &control);
-	GetConst(KEYWORD_FORMAT_ARGUMENTS, &arguments);
 	GetConst(COMMON_BLOCK, &block);
 	GetConst(COMMON_RETURN_FROM, &retfrom);
 	/* expand */
-	list_heap(&x, list, value, NULL);
-	list_heap(&type, quote, type, NULL);
-	list_heap(&simple, quote, simple, NULL);
-	list_heap(&make, make, simple,
-			datum, value, expect, type, control, str3, arguments, x, NULL);
-	list_heap(&invoke, invoke, make, NULL);
-	list_heap(&invoke, T, invoke, NULL);
-	conscar_heap(&case_, case_);
-	cons_heap(&case_, value, case_);
-	while (args != Nil) {
-		Return_getcons(args, &x, &args);
-		cons_heap(&case_, x, case_);
-	}
-	cons_heap(&case_, invoke, case_);
-	nreverse(&case_, case_);
-	list_heap(&case_, retfrom, result, case_, NULL);
+	Return(function_ccase_cond_(value, str3, type, args, &cond));
+	list_heap(&cond, retfrom, result, cond, NULL);
 	list_heap(&prompt, prompt, T, str2, NULL);
 	list_heap(&eval, eval, prompt, NULL);
 	list_heap(&list, list, eval, NULL);
@@ -1273,7 +1319,7 @@ static int function_ccase_expand(Execute ptr,
 	list_heap(&lambda, lambda, v, setq, w, go, NULL);
 	list_heap(&store, store, lambda, report, y, inter, x, NULL);
 	list_heap(&store, store, NULL);
-	list_heap(&restart, restart, store, case_, NULL);
+	list_heap(&restart, restart, store, cond, NULL);
 	list_heap(&tagbody, tagbody, loop, restart, NULL);
 	list_heap(&tagbody, block, result, tagbody, NULL);
 	/* let* */
@@ -1354,6 +1400,8 @@ int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 		if (! consp(test))
 			return fmte_("TYPECASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
+		if (body == Nil)
+			consnil_heap(&body);
 		if (test == T || test == otherwise) {
 			cons_heap(&list, T, body);
 			lastp = 1;
@@ -1414,6 +1462,8 @@ int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 		if (! consp(test))
 			return fmte_("ETYPECASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
+		if (body == Nil)
+			consnil_heap(&body);
 		list_heap(&list, quote, test, NULL);
 		list_heap(&list, typep, g, list, NULL);
 		cons_heap(&type, test, type);
@@ -1456,6 +1506,60 @@ static int function_ctypecase_string(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
+static int function_ctypecase_cond_(addr g, addr type, addr args, addr *ret)
+{
+	/*  (cond ((typep g 'type1) . body1)
+	 *        ...
+	 *        (t (error
+	 *             (make-condition 'type-error
+	 *               :datum g
+	 *               :expected-type 'type))))
+	 */
+	addr invoke, make, type_error, datum, expect, quote, typep, cond;
+	addr root, test, body, list;
+
+	GetConst(COMMON_ERROR, &invoke);
+	GetConst(COMMON_MAKE_CONDITION, &make);
+	GetConst(COMMON_TYPE_ERROR, &type_error);
+	GetConst(KEYWORD_DATUM, &datum);
+	GetConst(KEYWORD_EXPECTED_TYPE, &expect);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_TYPEP, &typep);
+	GetConst(COMMON_COND, &cond);
+
+	/* (error ...) */
+	list_heap(&type, quote, type, NULL);
+	list_heap(&type_error, quote, type_error, NULL);
+	list_heap(&make, make, type_error, datum, g, expect, type, NULL);
+	list_heap(&invoke, invoke, make, NULL);
+
+	/* cond */
+	type = Nil;
+	for (root = Nil; args != Nil; ) {
+		if (! consp(args))
+			return fmte_("CTYPECASE clauses ~S must be list type.", args, NULL);
+		GetCons(args, &test, &args);
+		if (! consp(test))
+			return fmte_("CTYPECASE clauses ~S must be list type.", test, NULL);
+		GetCons(test, &test, &body);
+		if (body == Nil)
+			consnil_heap(&body);
+		list_heap(&list, quote, test, NULL);
+		list_heap(&list, typep, g, list, NULL);
+		cons_heap(&type, test, type);
+		cons_heap(&list, list, body);
+		cons_heap(&root, list, root);
+	}
+
+	/* error */
+	list_heap(&invoke, T, invoke, NULL);
+	cons_heap(&root, invoke, root);
+	nreverse(&root, root);
+	cons_heap(ret, cond, root);
+
+	return 0;
+}
+
 static int function_ctypecase_expand(Execute ptr,
 		addr env, addr *ret, addr place, addr args)
 {
@@ -1473,18 +1577,11 @@ static int function_ctypecase_expand(Execute ptr,
 	 *            :interactive-function
 	 *              (lambda ()
 	 *                (list (eval (prompt-for t "Input xx> "))))))
-	 *         (return-from result
-	 *           (typecase value
-	 *             (...)
-	 *             (t (error
-	 *                  (make-condition 'type-error
-	 *                    :datum value
-	 *                    :expected-type '(or ...))))))))))
+	 *         (return-from result ...)))))
 	 */
 	addr a, b, g, r, w, v, s, str1, str2;
 	addr leta, declare, ignorable, tagbody, loop, restart, store, lambda, setq;
-	addr value, go, report, inter, princ, list, eval, prompt, case_;
-	addr quote, invoke, make, simple, datum, expect;
+	addr value, go, report, inter, princ, list, eval, prompt, cond;
 	addr x, y, root, type, block, retfrom, result;
 	LocalHold hold;
 
@@ -1522,31 +1619,12 @@ static int function_ctypecase_expand(Execute ptr,
 	GetConst(COMMON_LIST, &list);
 	GetConst(COMMON_EVAL, &eval);
 	GetConst(SYSTEM_PROMPT_FOR, &prompt);
-	GetConst(COMMON_TYPECASE, &case_);
-	GetConst(COMMON_QUOTE, &quote);
-	GetConst(COMMON_ERROR, &invoke);
-	GetConst(COMMON_MAKE_CONDITION, &make);
-	GetConst(COMMON_TYPE_ERROR, &simple);
-	GetConst(KEYWORD_DATUM, &datum);
-	GetConst(KEYWORD_EXPECTED_TYPE, &expect);
 	GetConst(COMMON_BLOCK, &block);
 	GetConst(COMMON_RETURN_FROM, &retfrom);
+
 	/* expand */
-	list_heap(&x, list, value, NULL);
-	list_heap(&type, quote, type, NULL);
-	list_heap(&simple, quote, simple, NULL);
-	list_heap(&make, make, simple, datum, value, expect, type, NULL);
-	list_heap(&invoke, invoke, make, NULL);
-	list_heap(&invoke, T, invoke, NULL);
-	conscar_heap(&case_, case_);
-	cons_heap(&case_, value, case_);
-	while (args != Nil) {
-		Return_getcons(args, &x, &args);
-		cons_heap(&case_, x, case_);
-	}
-	cons_heap(&case_, invoke, case_);
-	nreverse(&case_, case_);
-	list_heap(&case_, retfrom, result, case_, NULL);
+	Return(function_ctypecase_cond_(value, type, args, &cond));
+	list_heap(&cond, retfrom, result, cond, NULL);
 	list_heap(&prompt, prompt, T, str2, NULL);
 	list_heap(&eval, eval, prompt, NULL);
 	list_heap(&list, list, eval, NULL);
@@ -1560,7 +1638,7 @@ static int function_ctypecase_expand(Execute ptr,
 	list_heap(&lambda, lambda, v, setq, w, go, NULL);
 	list_heap(&store, store, lambda, report, y, inter, x, NULL);
 	list_heap(&store, store, NULL);
-	list_heap(&restart, restart, store, case_, NULL);
+	list_heap(&restart, restart, store, cond, NULL);
 	list_heap(&tagbody, tagbody, loop, restart, NULL);
 	list_heap(&tagbody, block, result, tagbody, NULL);
 	/* let* */
@@ -1846,66 +1924,40 @@ error:
 /*
  *  define-modify-macro
  */
-static int define_modify_macro_find(addr key, addr lambda, addr *ret)
-{
-	addr args, check;
-
-	for (args = lambda; args != Nil; ) {
-		if (! consp(args))
-			goto error;
-		GetCons(args, &check, &args);
-		if (check == key) {
-			if (! consp(args))
-				goto error;
-			GetCar(args, ret);
-			return 1;
-		}
-	}
-
-error:
-	return 0;
-}
-
 static int define_modify_macro_expand_(LocalRoot local, addr *ret,
 		addr name, addr args, addr call, addr doc)
 {
-	addr place, env, whole, key;
+	addr place, env, key, declare, ignore, append;
 	addr defmacro, mvbind, expansion, quote, let, mapcar, function;
-	addr list, lista, cddr, cons, values, declare, ignorable;
-	addr a, b, g, w, r, qmvbind, list1, list2, list3;
+	addr list, lista, vars, x, cons, values;
+	addr a, b, g, w, r, qmvbind, list1, list2, list3, rest;
 
-	/* place */
-	make_symbolchar(&place, "PLACE");
-	cons_heap(&args, place, args);
-	/* &environment */
+	/* define-modify-macro lambda list */
+	Return(define_modify_macro_heap_(local, &list1, &rest, args));
 	GetConst(AMPERSAND_ENVIRONMENT, &key);
-	if (! define_modify_macro_find(key, args, &env)) {
-		make_symbolchar(&env, "ENV");
-		lista_heap(&args, key, env, args, NULL);
-	}
-	/* &whole */
-	GetConst(AMPERSAND_WHOLE, &key);
-	if (! define_modify_macro_find(key, args, &whole)) {
-		make_symbolchar(&whole, "WHOLE");
-		lista_heap(&args, key, whole, args, NULL);
-	}
+	make_symbolchar(&env, "ENV");
+	make_symbolchar(&place, "PLACE");
+	lista_heap(&args, key, env, place, args, NULL);
 
 	/* expand
 	 *
-	 *  (defmacro name (&whole whole &environment env var &rest args)
-	 *    (declare (ignorable ...))
-	 *    (multiple-value-bind (a b g w r) (get-setf-expansion var env)
+	 * `(defmacro name (&environment env place ,args)
+	 *    ,doc
+	 *    (multiple-value-bind (a b g w r) (get-setf-expansion ',place env)
 	 *      `(let ,(mapcar #'list a b)
-	 *        (multiple-value-bind ,g (call ,r ,@(cddr whole))
-	 *          ,w
-	 *          (values ,@g)))))
+	 *         (declare (ignorable ,@a ,@b))
+	 *         (multiple-value-bind ,g (call ,r ,v1 ,v2 ,v3 ... ,@rest)
+	 *           ,w
+	 *           (values ,@g)))))
 	 *
-	 *  (defmacro name (&whole whole &environment env var &rest args)
-	 *    (declare (ignorable ...))
-	 *    (multiple-value-bind (a b g w r) (get-setf-expansion var env)
+	 *  (defmacro name (&environment env place args...)
+	 *    doc
+	 *    (multiple-value-bind (a b g w r) (get-setf-expansion (quote place) env)
 	 *      (list (quote let) (mapcar (function list) a b)
 	 *        (list (quote multiple-value-bind) g
-	 *          (list* (quote call) r (cddr whole)) w
+	 *          (list (quote declare) (append (list (quote ignorable)) a))
+	 *          (list* (quote call) r v1 v2 v3 ... rest)
+	 *          w
 	 *          (cons (quote values) g)))))
 	 */
 	GetConst(COMMON_DEFMACRO, &defmacro);
@@ -1917,34 +1969,61 @@ static int define_modify_macro_expand_(LocalRoot local, addr *ret,
 	GetConst(COMMON_FUNCTION, &function);
 	GetConst(COMMON_LIST, &list);
 	GetConst(COMMON_LISTA, &lista);
-	GetConst(COMMON_CDDR, &cddr);
 	GetConst(COMMON_CONS, &cons);
 	GetConst(COMMON_VALUES, &values);
 	GetConst(COMMON_DECLARE, &declare);
-	GetConst(COMMON_IGNORABLE, &ignorable);
+	GetConst(COMMON_IGNORABLE, &ignore);
+	GetConst(COMMON_APPEND, &append);
 	make_symbolchar(&a, "A");
 	make_symbolchar(&b, "B");
 	make_symbolchar(&g, "G");
 	make_symbolchar(&w, "W");
 	make_symbolchar(&r, "R");
-	Return(allsymbol_macro_lambda_heap_(local, &list1, args));
-	cons_heap(&ignorable, ignorable, list1);
-	list_heap(&declare, declare, ignorable, NULL);
 	list_heap(&values, quote, values, NULL);
 	list_heap(&cons, cons, values, g, NULL);
-	list_heap(&cddr, cddr, whole, NULL);
 	list_heap(&call, quote, call, NULL);
-	list_heap(&lista, lista, call, r, cddr, NULL);
+
+	if (rest == Nil) {
+		/* (list 'call r v1 v2 o1 o2) */
+		conscar_heap(&vars, list);
+		cons_heap(&vars, call, vars);
+		cons_heap(&vars, r, vars);
+		while (list1 != Nil) {
+			GetCons(list1, &x, &list1);
+			cons_heap(&vars, x, vars);
+		}
+		nreverse(&vars, vars);
+	}
+	else {
+		/* (list* 'call r v1 v2 o1 o2 rest) */
+		conscar_heap(&vars, lista);
+		cons_heap(&vars, call, vars);
+		cons_heap(&vars, r, vars);
+		while (list1 != Nil) {
+			GetCons(list1, &x, &list1);
+			cons_heap(&vars, x, vars);
+		}
+		cons_heap(&vars, rest, vars);
+		nreverse(&vars, vars);
+	}
+
 	list_heap(&qmvbind, quote, mvbind, NULL);
-	list_heap(&list2, list, qmvbind, g, lista, w, cons, NULL);
+	list_heap(&list2, list, qmvbind, g, vars, w, cons, NULL);
 	list_heap(&function, function, list, NULL);
 	list_heap(&mapcar, mapcar, function, a, b, NULL);
 	list_heap(&let, quote, let, NULL);
 	list_heap(&list1, list, let, mapcar, list2, NULL);
 	list_heap(&expansion, expansion, place, env, NULL);
 	list_heap(&list3, a, b, g, w, r, NULL);
-	list_heap(&mvbind, mvbind, list3, expansion, list1, NULL);
-	list_heap(ret, defmacro, name, args, declare, mvbind, NULL);
+
+	list_heap(&declare, quote, declare, NULL);
+	list_heap(&ignore, quote, ignore, NULL);
+	list_heap(&ignore, list, ignore, NULL);
+	list_heap(&append, append, ignore, a, NULL);
+	list_heap(&declare, list, declare, append, NULL);
+
+	list_heap(&mvbind, mvbind, list3, expansion, declare, list1, NULL);
+	list_heap(ret, defmacro, name, args, doc, mvbind, NULL);
 
 	return 0;
 }
@@ -1953,6 +2032,7 @@ int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, call, doc;
 
+	CheckLocal(local);
 	Return_getcdr(form, &form);
 	if (! consp_getcons(form, &name, &args))
 		goto error;

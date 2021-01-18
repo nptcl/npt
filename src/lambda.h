@@ -12,7 +12,7 @@
 #define atleast_argument_count _n(atleast_argument_count)
 #define lambda_defsetf_ _n(lambda_defsetf_)
 #define getenvironment_macro_lambda _n(getenvironment_macro_lambda)
-#define allsymbol_macro_lambda_heap_ _n(allsymbol_macro_lambda_heap_)
+#define define_modify_macro_heap_ _n(define_modify_macro_heap_)
 #define argumentp _n(argumentp)
 #define getargument _n(getargument)
 #define setargument _n(setargument)
@@ -97,7 +97,7 @@ int lambda_ordinary_(LocalRoot local, addr *ret, addr cons);
 void atleast_argument_count(addr cons, size_t *ret);
 int lambda_defsetf_(LocalRoot local, addr *ret, addr cons);
 void getenvironment_macro_lambda(addr pos, addr *ret);
-int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args);
+int define_modify_macro_heap_(LocalRoot local, addr *ret, addr *rest, addr list);
 
 /* argument */
 int argumentp(addr pos);

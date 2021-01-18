@@ -390,10 +390,26 @@ static int setf_documentation_list_compiled_function_(Execute ptr, addr name, ad
 /*
  *  (symbol (eql 'function))
  */
+static int getfunction_global_document_(addr pos, addr *ret)
+{
+	/* function */
+	GetFunctionSymbol(pos, ret);
+	if (*ret != Unbound)
+		return 0;
+
+	/* macro-function */
+	getmacro_symbol(pos, ret);
+	if (*ret != Unbound)
+		return 0;
+
+	/* error */
+	return call_undefined_function_(NULL, pos);
+}
+
 static int method_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	Return(getfunction_global_(object, &object));
+	Return(getfunction_global_document_(object, &object));
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
 
@@ -447,7 +463,7 @@ static int setf_documentation_symbol_function_(Execute ptr, addr name, addr gen)
 static int method_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	Return(getfunction_global_(object, &object));
+	Return(getfunction_global_document_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
@@ -995,7 +1011,7 @@ static int method_documentation_symbol_type(Execute ptr,
 	clos_find_class_nil(object, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
-		Return(getfunction_global_(pos, &pos));
+		Return(getfunction_global_document_(pos, &pos));
 		return funcall_control(ptr, pos, clos, doc_type, NULL);
 	}
 

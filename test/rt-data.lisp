@@ -8,6 +8,9 @@
 (load #p"test/rtdata-expr.lisp")
 (load #p"test/rtdata-equal.lisp")
 (load #p"test/rtdata-value.lisp")
+(load #p"test/rtdata-case.lisp")
+(load #p"test/rtdata-multiple.lisp")
+(load #p"test/rtdata-setf.lisp")
 
 
 ;;

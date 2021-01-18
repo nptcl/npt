@@ -1155,82 +1155,47 @@ finish:
 	return 0;
 }
 
-
-/*
- *  control
- */
 void getenvironment_macro_lambda(addr pos, addr *ret)
 {
 	addr var, opt, rest, key, allow, aux, whole;
 	List_bind(pos, &var, &opt, &rest, &key, &allow, &aux, &whole, ret, NULL);
 }
 
-static void varsymbol_macro_lambda_heap(addr *ret, addr args)
+int define_modify_macro_heap_(LocalRoot local, addr *ret, addr *rest, addr list)
 {
-	addr root, pos, cons;
-	addr var, opt, rest, key, allow, aux, whole, env;
+	addr pos, root, x;
+	struct argument_struct *str;
 
-	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	root = *ret;
+	Return(argument_ordinary_heap_(local, &pos, list));
+	str = ArgumentStruct(pos);
+	if (str->keyp) {
+		return fmte_("Don't use &key arguments "
+				"in define-modify-macro lambda list ~S.", list, NULL);
+	}
+	if (str->aux) {
+		return fmte_("Don't use &aux arguments "
+				"in define-modify-macro lambda list ~S.", list, NULL);
+	}
 
 	/* var */
-	while (var != Nil) {
-		GetCons(var, &pos, &var);
-		if (consp(pos))
-			varsymbol_macro_lambda_heap(&root, pos);
-		else
-			cons_heap(&root, pos, root);
-	}
-	/* opt */
-	while (opt != Nil) {
-		GetCons(opt, &cons, &opt);
-		GetCons(cons, &pos, &cons); /* var */
-		cons_heap(&root, pos, root);
-		GetCdr(cons, &cons); /* init */
-		GetCar(cons, &pos); /* svar */
-		if (pos != Nil)
-			cons_heap(&root, pos, root);
-	}
-	/* rest */
-	if (rest != Nil) {
-		GetCar(rest, &pos);
-		cons_heap(&root, pos, root);
-	}
-	/* key */
-	while (key != Nil) {
-		GetCons(key, &cons, &key);
-		GetCons(cons, &pos, &cons); /* var */
-		cons_heap(&root, pos, root);
-		GetCdr(cons, &cons); /* name */
-		GetCdr(cons, &cons); /* init */
-		GetCar(cons, &pos); /* svar */
-		if (pos != Nil)
-			cons_heap(&root, pos, root);
-	}
-	/* aux */
-	while (opt != Nil) {
-		GetCons(opt, &cons, &opt);
-		GetCar(cons, &pos); /* var */
-		cons_heap(&root, pos, root);
-	}
-	/* whole */
-	if (whole != Nil)
-		cons_heap(&root, whole, root);
-	/* environment */
-	if (env != Nil)
-		cons_heap(&root, env, root);
-	/* result */
-	*ret = root;
-}
-
-int allsymbol_macro_lambda_heap_(LocalRoot local, addr *ret, addr args)
-{
-	addr root;
-
-	Return(lambda_macro_(local, &args, args, Nil));
 	root = Nil;
-	varsymbol_macro_lambda_heap(&root, args);
+	GetArgument(pos, ArgumentIndex_var, &list);
+	while (list != Nil) {
+		GetCons(list, &x, &list);
+		cons_heap(&root, x, root);
+	}
+
+	/* opt */
+	GetArgument(pos, ArgumentIndex_opt, &list);
+	while (list != Nil) {
+		GetCons(list, &x, &list);
+		GetCar(x, &x);
+		cons_heap(&root, x, root);
+	}
 	nreverse(ret, root);
+
+	/* rest */
+	GetArgument(pos, ArgumentIndex_rest, rest);
 
 	return 0;
 }

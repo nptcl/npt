@@ -505,3 +505,279 @@
     (defvar-test-3))
   (defvar-test-1 defvar-test-2))
 
+
+;;
+;;  Macro PROG
+;;
+(deftest prog.1
+  (prog ())
+  nil)
+
+(deftest prog.2
+  (prog () 10)
+  nil)
+
+(deftest prog.3
+  (prog (a) 10 (progn a))
+  nil)
+
+(deftest prog.4
+  (prog (a)
+    (return a))
+  nil)
+
+(deftest prog.5
+  (prog (a)
+    (setq a 10)
+    (return a))
+  10)
+
+(deftest prog.6
+  (let ((a 10))
+    (prog ((a (1+ a))
+           (b a))
+      (return (values a b))))
+  11 10)
+
+(deftest prog.7
+  (prog (a)
+    (go 10)
+    (setq a 999)
+    10
+    (return a))
+  nil)
+
+(deftest prog.8
+  (prog (a)
+    (declare (ignore a))
+    10)
+  nil)
+
+(deftest-error prog-error.1
+  (eval '(prog)))
+
+(deftest-error prog-error.2
+  (eval '(prog 10)))
+
+
+;;
+;;  Macro PROG*
+;;
+(deftest prog*.1
+  (prog* ())
+  nil)
+
+(deftest prog*.2
+  (prog* () 10)
+  nil)
+
+(deftest prog*.3
+  (prog* (a) 10 (progn a))
+  nil)
+
+(deftest prog*.4
+  (prog* (a)
+    (return a))
+  nil)
+
+(deftest prog*.5
+  (prog* (a)
+    (setq a 10)
+    (return a))
+  10)
+
+(deftest prog*.6
+  (let ((a 10))
+    (prog* ((a (1+ a))
+            (b a))
+      (return (values a b))))
+  11 11)
+
+(deftest prog*.7
+  (prog* (a)
+    (go 10)
+    (setq a 999)
+    10
+    (return a))
+  nil)
+
+(deftest-error prog*-error.1
+  (eval '(prog*)))
+
+(deftest-error prog*-error.2
+  (eval '(prog* 10)))
+
+;;  ANSI Common Lisp
+(deftest prog-test.1
+  (let ((a 1))
+    (declare (ignorable a))
+    (prog ((a 2) (b a))
+      (return (if (= a b) '= '/=))))
+  /=)
+
+(deftest prog-test.2
+  (let ((a 1))
+    (declare (ignorable a))
+    (prog* ((a 2) (b a)) (return (if (= a b) '= '/=))))
+  =)
+
+(deftest prog-test.3
+  (prog () 'no-return-value)
+  nil)
+
+
+;;
+;;  Macro PROG1
+;;
+(deftest prog1.1
+  (prog1 10)
+  10)
+
+(deftest prog1.2
+  (prog1 10 20)
+  10)
+
+(deftest prog1.3
+  (prog1 10 20 30)
+  10)
+
+(deftest prog1.4
+  (prog1 (values 10 20 30)
+    (values 40 50 60))
+  10)
+
+(deftest-error prog1.5
+  (eval '(prog1)))
+
+
+;;
+;;  Macro PROG2
+;;
+(deftest prog2.1
+  (prog2 10 20)
+  20)
+
+(deftest prog2.2
+  (prog2 10 20 30 40)
+  20)
+
+(deftest prog2.3
+  (prog2 (values 10 20 30)
+         (values 40 50 60)
+         (values 70 80 90))
+  40)
+
+(deftest-error prog2.4
+  (eval '(prog2 10)))
+
+;; ANSI Common Lisp
+(setq prog1-test-temp 1)
+
+(deftest prog1-test.1
+  (let (list)
+    (values
+      (prog1 prog1-test-temp
+        (push prog1-test-temp list)
+        (incf prog1-test-temp)
+        (push prog1-test-temp list))
+      (nreverse list)))
+  1 (1 2))
+
+(deftest prog1-test.2
+  (prog1 prog1-test-temp
+    (setq prog1-test-temp nil))
+  2)
+
+(deftest prog1-test.3
+  prog1-test-temp
+  nil)
+
+(deftest prog1-test.4
+  (prog1 (values 1 2 3) 4)
+  1)
+
+(deftest prog1-test.5
+  (progn
+    (setq prog1-test-temp (list 'a 'b 'c))
+    (prog1 (car prog1-test-temp) (setf (car prog1-test-temp) 'alpha)))
+  a)
+
+(deftest prog1-test.6
+  prog1-test-temp
+  (alpha b c))
+
+(deftest prog1-test.7
+  (flet ((swap-symbol-values
+           (x y) (setf (symbol-value x)
+                       (prog1 (symbol-value y)
+                         (setf (symbol-value y) (symbol-value x))))))
+    (let ((*prog1-test-foo* 1) (*prog1-test-bar* 2))
+      (declare (special *prog1-test-foo* *prog1-test-bar*))
+      (swap-symbol-values '*prog1-test-foo* '*prog1-test-bar*)
+      (values *prog1-test-foo* *prog1-test-bar*)))
+  2 1)
+
+(deftest prog1-test.8
+  (progn
+    (setq prog1-test-temp 1)
+    (prog2 (incf prog1-test-temp)
+           (incf prog1-test-temp)
+           (incf prog1-test-temp)))
+  3)
+
+(deftest prog1-test.9
+  prog1-test-temp
+  4)
+
+(deftest prog1-test.10
+  (prog2 1 (values 2 3 4) 5)
+  2)
+
+
+;;
+;;  Special Operator PROGN
+;;
+(deftest progn.1
+  (progn)
+  nil)
+
+(deftest progn.2
+  (progn 10)
+  10)
+
+(deftest progn.3
+  (progn 10 20 (progn 30))
+  30)
+
+(deftest progn.4
+  (progn
+    (values 10 20 30)
+    (values 40 50 60))
+  40 50 60)
+
+(deftest progn.5
+  (progn
+    (values)))
+
+;;  ANSI Common Lisp
+(deftest progn-test.1
+  (progn)
+  nil)
+
+(deftest progn-test.2
+  (progn 1 2 3)
+  3)
+
+(deftest progn-test.3
+  (progn (values 1 2 3))
+  1 2 3)
+
+(deftest progn-test.4
+  (let ((a 1))
+    (values
+      (if a
+        (progn (setq a nil) 'here)
+        (progn (setq a t) 'there))
+      a))
+  here nil)
+
