@@ -376,8 +376,8 @@
 
 (deftest psetq.8
   (progn
-    (defclass setq-test-class () (a))
-    (let ((inst (make-instance 'setq-test-class)))
+    (defclass psetq-test-class () (a))
+    (let ((inst (make-instance 'psetq-test-class)))
       (with-slots (a) inst
         (psetq a 100))
       (slot-value inst 'a)))

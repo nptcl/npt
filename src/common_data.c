@@ -1587,7 +1587,7 @@ static void defmacro_define_modify_macro(void)
 /* (defmacro defsetf (access &rest args) -> access */
 static int function_defsetf(Execute ptr, addr form, addr env)
 {
-	Return(defsetf_common(form, env, &form));
+	Return(defsetf_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1646,7 +1646,7 @@ static void type_get_setf_expansion(addr *ret)
 	addr args, values, type, list, env;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&env, Environment);
+	GetTypeTable(&env, EnvironmentNull);
 	GetTypeTable(&list, T);
 	typeargs_var1opt1(&args, type, env);
 	typevalues_values5(&values, list, list, list, type, type);

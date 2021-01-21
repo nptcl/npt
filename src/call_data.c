@@ -2063,60 +2063,382 @@ error:
 
 
 /*
- *  defsetf
+ *  defsetf-short
  */
-static void defsetf_short_common(addr access, addr update, addr doc, addr *ret)
+static int defsetf_short_common_(Execute ptr, addr name, addr call, addr doc, addr *ret)
 {
-	/* `(define-setf-expander ,access (&environment env &rest args)
-	 *   (system::defsetf-short ',access ',update, args env))
+	/*  (defmacro defsetf-short (name call &optional doc)
+	 *    (let ((args (gensym))
+	 *          (a (make-symbol "A"))
+	 *          (g (make-symbol "G")))
+	 *      `(define-setf-expander ,name (&rest ,args)
+	 *         ,doc
+	 *         (let ((,a (mapcar (lambda (,a)
+	 *                             (declare (ignore ,a))
+	 *                             (gensym))
+	 *                     ,args)))
+	 *           (values
+	 *             ,a
+	 *             ,args
+	 *             (list ',g)
+	 *             (append (list ',call) ,a (list ',g))
+	 *             (append (list ',name) ,a))))))
 	 */
-	addr define, defsetf, rest, args, envi, env, quote, value;
+	addr args, a, g, w, r, x;
+	addr define, rest, let, mapcar, lambda, declare, ignore;
+	addr gensym, values, append, list, quote;
+
+	Return(make_gensym_(ptr, &args));
+	make_symbolchar(&a, "A");
+	make_symbolchar(&g, "G");
 
 	GetConst(COMMON_DEFINE_SETF_EXPANDER, &define);
-	GetConst(SYSTEM_DEFSETF_SHORT, &defsetf);
 	GetConst(AMPERSAND_REST, &rest);
-	GetConst(AMPERSAND_ENVIRONMENT, &envi);
+	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_MAPCAR, &mapcar);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORE, &ignore);
+	GetConst(COMMON_GENSYM, &gensym);
+	GetConst(COMMON_VALUES, &values);
+	GetConst(COMMON_APPEND, &append);
+	GetConst(COMMON_LIST, &list);
 	GetConst(COMMON_QUOTE, &quote);
-	make_symbolchar(&args, "ARGS");
-	make_symbolchar(&env, "ENV");
 
-	list_heap(&update, quote, update, NULL);
-	list_heap(&value, quote, access, NULL);
-	list_heap(&defsetf, defsetf, value, update, args, env, NULL);
-	list_heap(&rest, envi, env, rest, args, NULL);
-	if (doc == Nil)
-		list_heap(&define, define, access, rest, defsetf, NULL);
-	else
-		list_heap(&define, define, access, rest, doc, defsetf, NULL);
-	*ret = define;
+	list_heap(&g, quote, g, NULL);
+	list_heap(&g, list, g, NULL);
+	list_heap(&w, quote, call, NULL);
+	list_heap(&w, list, w, NULL);
+	list_heap(&w, append, w, a, g, NULL);
+	list_heap(&r, quote, name, NULL);
+	list_heap(&r, list, r, NULL);
+	list_heap(&r, append, r, a, NULL);
+	list_heap(&values, values, a, args, g, w, r, NULL);
+	list_heap(&ignore, ignore, a, NULL);
+	list_heap(&declare, declare, ignore, NULL);
+	list_heap(&x, a, NULL);
+	list_heap(&gensym, gensym, NULL);
+	list_heap(&lambda, lambda, x, declare, gensym, NULL);
+	list_heap(&mapcar, mapcar, lambda, args, NULL);
+	list_heap(&a, a, mapcar, NULL);
+	list_heap(&a, a, NULL);
+	list_heap(&let, let, a, values, NULL);
+	list_heap(&rest, rest, args, NULL);
+	list_heap(ret, define, name, rest, doc, let, NULL);
+
+	return 0;
 }
 
-static void defsetf_long_common(addr access,
-		addr lambda, addr store, addr body, addr *ret)
+
+/*
+ *  defsetf-long
+ */
+static int defsetf_long_var_(Execute ptr, addr list, addr *args, addr *a, addr *b)
 {
-	/* `(define-setf-expander ,access (&environment env &rest args)
-	 *   (system::defsetf-long ,access ,lambda ,store ,body args env))
-	 */
-	addr define, defsetf, rest, args, envi, env, quote, value;
+	addr x, g;
 
-	GetConst(COMMON_DEFINE_SETF_EXPANDER, &define);
-	GetConst(SYSTEM_DEFSETF_LONG, &defsetf);
-	GetConst(AMPERSAND_REST, &rest);
-	GetConst(AMPERSAND_ENVIRONMENT, &envi);
+	while (list != Nil) {
+		GetCons(list, &x, &list);
+		Return(make_gensym_(ptr, &g));
+		cons_heap(args, g, *args);
+		cons_heap(a, x, *a);
+		cons_heap(b, g, *b);
+	}
+
+	return 0;
+}
+
+static int defsetf_long_opt_(Execute ptr, addr list, addr *args, addr *a, addr *b)
+{
+	addr x, g, h, var, init, sup;
+
+	if (list == Nil)
+		return 0;
+	GetConst(AMPERSAND_OPTIONAL, &x);
+	cons_heap(args, x, *args);
+
+	while (list != Nil) {
+		GetCons(list, &x, &list);
+		List_bind(x, &var, &init, &sup, NULL);
+
+		/* (var init sup) */
+		if (sup != Nil) {
+			Return(make_gensym_(ptr, &g));
+			Return(make_gensym_(ptr, &h));
+			list_heap(&x, g, init, h, NULL);
+			cons_heap(args, x, *args);
+			cons_heap(a, var, *a);
+			cons_heap(b, g, *b);
+			cons_heap(a, sup, *a);
+			cons_heap(b, h, *b);
+			continue;
+		}
+
+		/* (var init) */
+		if (init != Nil) {
+			Return(make_gensym_(ptr, &g));
+			list_heap(&x, g, init, NULL);
+			cons_heap(args, x, *args);
+			cons_heap(a, var, *a);
+			cons_heap(b, g, *b);
+			continue;
+		}
+
+		/* var */
+		Return(make_gensym_(ptr, &g));
+		cons_heap(args, g, *args);
+		cons_heap(a, var, *a);
+		cons_heap(b, g, *b);
+	}
+
+	return 0;
+}
+
+static int defsetf_long_rest_(Execute ptr, addr rest, addr *args, addr *a, addr *b)
+{
+	addr x, g;
+
+	if (rest == Nil)
+		return 0;
+	GetConst(AMPERSAND_REST, &x);
+	cons_heap(args, x, *args);
+
+	Return(make_gensym_(ptr, &g));
+	cons_heap(args, g, *args);
+	cons_heap(a, rest, *a);
+	cons_heap(b, g, *b);
+
+	return 0;
+}
+
+static int defsetf_long_key_(Execute ptr, addr list, addr *args, addr *a, addr *b)
+{
+	addr x, g, h, var, name, init, sup;
+
+	if (list == Nil)
+		return 0;
+	GetConst(AMPERSAND_KEY, &x);
+	cons_heap(args, x, *args);
+
+	while (list != Nil) {
+		GetCons(list, &x, &list);
+		List_bind(x, &var, &name, &init, &sup, NULL);
+
+		/* (var init sup) */
+		if (sup != Nil) {
+			Return(make_gensym_(ptr, &g));
+			Return(make_gensym_(ptr, &h));
+			list_heap(&name, name, g, NULL);
+			list_heap(&x, name, init, h, NULL);
+			cons_heap(args, x, *args);
+			cons_heap(a, var, *a);
+			cons_heap(b, g, *b);
+			cons_heap(a, sup, *a);
+			cons_heap(b, h, *b);
+			continue;
+		}
+
+		/* (var init) */
+		if (init != Nil) {
+			Return(make_gensym_(ptr, &g));
+			list_heap(&name, name, g, NULL);
+			list_heap(&x, name, init, NULL);
+			cons_heap(args, x, *args);
+			cons_heap(a, var, *a);
+			cons_heap(b, g, *b);
+			continue;
+		}
+
+		/* var */
+		Return(make_gensym_(ptr, &g));
+		list_heap(&name, name, g, NULL);
+		cons_heap(args, name, *args);
+		cons_heap(a, var, *a);
+		cons_heap(b, g, *b);
+	}
+
+	return 0;
+}
+
+static int defsetf_long_lambda_(Execute ptr,
+		addr lambda, addr *rargs, addr *ra, addr *rb, addr *renv)
+{
+	addr var, opt, rest, key, allow;
+	addr args, a, b;
+
+	Return(lambda_defsetf_(ptr->local, &lambda, lambda));
+	List_bind(lambda, &var, &opt, &rest, &key, &allow, renv, NULL);
+	args = a = b = Nil;
+
+	Return(defsetf_long_var_(ptr, var, &args, &a, &b));
+	Return(defsetf_long_opt_(ptr, opt, &args, &a, &b));
+	Return(defsetf_long_rest_(ptr, rest, &args, &a, &b));
+	Return(defsetf_long_key_(ptr, key, &args, &a, &b));
+
+	nreverse(rargs, args);
+	nreverse(ra, a);
+	nreverse(rb, b);
+
+	return 0;
+}
+
+static int defsetf_long_store_(Execute ptr, addr store, addr *ret)
+{
+	addr list, g;
+
+	list = Nil;
+	while (store != Nil) {
+		GetCdr(store, &store);
+		Return(make_gensym_(ptr, &g));
+		cons_heap(&list, g, list);
+	}
+	nreverse(ret, list);
+
+	return 0;
+}
+
+static void defsetf_long_values_g(addr v3, addr *ret)
+{
+	addr quote;
+
 	GetConst(COMMON_QUOTE, &quote);
-	make_symbolchar(&args, "ARGS");
-	make_symbolchar(&env, "ENV");
+	list_heap(ret, quote, v3, NULL);
+}
 
+static void defsetf_long_values_r(addr name, addr a, addr v3, addr *ret)
+{
+	/* r: (list* ',name 'g3 'g4 a) */
+	addr lista, quote, root, x;
+
+	GetConst(COMMON_LISTA, &lista);
+	GetConst(COMMON_QUOTE, &quote);
+
+	conscar_heap(&root, lista);
+	list_heap(&x, quote, name, NULL);
+	cons_heap(&root, x, root);
+	while (v3 != Nil) {
+		GetCons(v3, &x, &v3);
+		list_heap(&x, quote, x, NULL);
+		cons_heap(&root, x, root);
+	}
+	cons_heap(&root, a, root);
+	nreverse(ret, root);
+}
+
+static void defsetf_long_values_w(addr v1, addr v2, addr v3, addr store,
+		addr args, addr decl, addr body, addr a, addr *ret)
+{
+	addr declare, lambda, let, quote, list, cons;
+	addr root, x, y;
+
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_LIST, &list);
+	GetConst(COMMON_CONS, &cons);
+
+	/* lambda-list */
+	root = Nil;
+	while (v1 != Nil) {
+		GetCons(v1, &x, &v1);
+		GetCons(v2, &y, &v2);
+		list_heap(&y, quote, y, NULL);
+		list_heap(&x, x, y, NULL);
+		cons_heap(&root, x, root);
+	}
+
+	/* store */
+	while (store != Nil) {
+		GetCons(store, &x, &store);
+		GetCons(v3, &y, &v3);
+		list_heap(&y, quote, y, NULL);
+		list_heap(&x, x, y, NULL);
+		cons_heap(&root, x, root);
+	}
+	nreverse(&root, root);
+
+	/* lambda */
 	list_heap(&lambda, quote, lambda, NULL);
-	list_heap(&store, quote, store, NULL);
-	list_heap(&body, quote, body, NULL);
-	list_heap(&value, quote, access, NULL);
-	list_heap(&defsetf, defsetf, value, lambda, store, body, args, env, NULL);
-	list_heap(&rest, envi, env, rest, args, NULL);
-	list_heap(ret, define, access, rest, defsetf, NULL);
+	list_heap(&args, quote, args, NULL);
+	lista_heap(&lambda, list, lambda, args, body, NULL);
+	list_heap(&body, cons, lambda, a, NULL);
+
+	/* let */
+	cons_heap(&declare, declare, decl);
+	list_heap(ret, let, root, declare, body, NULL);
 }
 
-int defsetf_common(addr form, addr env, addr *ret)
+static int defsetf_long_common_(Execute ptr, addr name,
+		addr args, addr store, addr body, addr *ret)
+{
+	/* `(define-setf-expander ,name (&rest ,b &environment env)
+	 *    ,doc
+	 *    (let ((,a (mapcar (lambda (,a)
+	 *                        (declare (ignore ,a))
+	 *                        (gensym))
+	 *                      ,b)))
+	 *      (values ,a
+	 *              ,b
+	 *              '(g3 g4 ...)
+	 *              (let ((v1 'g1)
+	 *                    (v2 'g2)
+	 *                    ...
+	 *                    (store1 'g3)
+	 *                    (store2 'g4)
+	 *                    ...)
+	 *                (declare ,@decl)
+	 *                `((lambda ,[args]
+	 *                    ,@body)
+	 *                  ,@a))
+	 *              (list* ',name 'g3 'g4 a))))
+	 */
+	addr define, let, mapcar, lambda, declare, ignore, gensym, values;
+	addr arest, aenv, doc, decl, a, b, g, w, r, x;
+	addr v1, v2, v3, env;
+
+	GetConst(COMMON_DEFINE_SETF_EXPANDER, &define);
+	GetConst(AMPERSAND_REST, &arest);
+	GetConst(AMPERSAND_ENVIRONMENT, &aenv);
+	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_MAPCAR, &mapcar);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORE, &ignore);
+	GetConst(COMMON_GENSYM, &gensym);
+	GetConst(COMMON_VALUES, &values);
+
+	Return(make_gensym_(ptr, &a));
+	Return(make_gensym_(ptr, &b));
+	Return(split_decl_body_doc_(body, &doc, &decl, &body));
+
+	/* values */
+	Return(defsetf_long_lambda_(ptr, args, &args, &v1, &v2, &env));
+	Return(defsetf_long_store_(ptr, store, &v3));
+	defsetf_long_values_g(v3, &g);
+	defsetf_long_values_w(v1, v2, v3, store, args, decl, body, a, &w);
+	defsetf_long_values_r(name, a, v3, &r);
+	list_heap(&values, values, a, b, g, w, r, NULL);
+	/* let */
+	list_heap(&gensym, gensym, NULL);
+	list_heap(&ignore, ignore, a, NULL);
+	list_heap(&declare, declare, ignore, NULL);
+	list_heap(&x, a, NULL);
+	list_heap(&x, lambda, x, declare, gensym, NULL);
+	list_heap(&x, mapcar, x, b, NULL);
+	list_heap(&x, a, x, NULL);
+	list_heap(&x, x, NULL);
+	list_heap(&let, let, x, values, NULL);
+	if (env == Nil)
+		list_heap(&x, arest, b, NULL);
+	else
+		list_heap(&x, arest, b, aenv, env, NULL);
+	list_heap(ret, define, name, x, doc, let, NULL);
+
+	return 0;
+}
+
+int defsetf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, arg1, arg2, arg3;
 
@@ -2132,11 +2454,11 @@ int defsetf_common(addr form, addr env, addr *ret)
 		GetCons(args, &arg3, &args);
 		if (! listp(arg3))
 			return fmte_("defsetf argument ~S must be a list type.", arg3, NULL);
-		defsetf_long_common(arg1, arg2, arg3, args, ret);
+		Return(defsetf_long_common_(ptr, arg1, arg2, arg3, args, ret));
 	}
 	else if (args == Nil) {
 		/* short form */
-		defsetf_short_common(arg1, arg2, Nil, ret);
+		Return(defsetf_short_common_(ptr, arg1, arg2, Nil, ret));
 	}
 	else {
 		/* short form, documentation */
@@ -2147,7 +2469,7 @@ int defsetf_common(addr form, addr env, addr *ret)
 			return fmte_("Invalid defsetf short form ~S.", form, NULL);
 		if (! stringp(arg3))
 			return fmte_("defsetf documentation ~S must be a string type.", arg3, NULL);
-		defsetf_short_common(arg1, arg2, arg3, ret);
+		Return(defsetf_short_common_(ptr, arg1, arg2, arg3, ret));
 	}
 	return 0;
 

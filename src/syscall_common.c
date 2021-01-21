@@ -658,74 +658,6 @@ static void defun_define_setf_expander(void)
 }
 
 
-/* (defun defsetf-short (access update args) ...) -> (values ...) */
-static int syscall_defsetf_short(Execute ptr,
-		addr access, addr update, addr args, addr env)
-{
-	addr a, b, g, w, r;
-
-	Return(defsetf_short_syscode(ptr, access, update, args, env, &a, &b, &g, &w, &r));
-	setvalues_control(ptr, a, b, g, w, r, NULL);
-
-	return 0;
-}
-
-static void type_defsetf_short(addr *ret)
-{
-	addr args, values, type;
-
-	GetTypeTable(&args, Symbol);
-	GetTypeTable(&values, List);
-	GetTypeTable(&type, EnvironmentNull);
-	typeargs_var3opt1(&args, args, args, values, type);
-	GetTypeTable(&values, T);
-	typevalues_values5(&values, values, values, values, values, values);
-	type_compiled_heap(args, values, ret);
-}
-
-static void defun_defsetf_short(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_DEFSETF_SHORT, &symbol);
-	compiled_system(&pos, symbol);
-	setcompiled_var3opt1(pos, p_defun_syscall_defsetf_short);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	type_defsetf_short(&type);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
-/* (defun defsetf-long (access lambda store body args env) ...) */
-static int syscall_defsetf_long(Execute ptr, addr rest)
-{
-	addr a, b, g, w, r;
-
-	Return(defsetf_long_syscode(ptr, rest, &a, &b, &g, &w, &r));
-	setvalues_control(ptr, a, b, g, w, r, NULL);
-
-	return 0;
-}
-
-static void defun_defsetf_long(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_DEFSETF_LONG, &symbol);
-	compiled_system(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_syscall_defsetf_long);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	GetTypeTable(&type, Asterisk);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
 /* (defun end-input-stream (string-stream) -> index */
 static int syscall_end_input_stream(Execute ptr, addr var)
 {
@@ -1580,8 +1512,6 @@ void init_syscall_common(void)
 	SetPointerSysCall(defun, var2, ecase_error);
 	SetPointerSysCall(defun, var2, etypecase_error);
 	SetPointerSysCall(defun, var2, define_setf_expander);
-	SetPointerSysCall(defun, var3opt1, defsetf_short);
-	SetPointerSysCall(defun, dynamic, defsetf_long);
 	SetPointerSysCall(defun, var1, end_input_stream);
 	SetPointerSysCall(defun, var1dynamic, make_extend_output_stream);
 	SetPointerSysCall(defun, var1dynamic, prompt_for);
@@ -1628,8 +1558,6 @@ void build_syscall_common(void)
 	defun_ecase_error();
 	defun_etypecase_error();
 	defun_define_setf_expander();
-	defun_defsetf_short();
-	defun_defsetf_long();
 	defun_end_input_stream();
 	defun_make_extend_output_stream();
 	defun_prompt_for();

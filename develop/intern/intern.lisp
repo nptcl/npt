@@ -1959,8 +1959,6 @@ lisp-system::unbound-value
  lisp-system::ecase-error
  lisp-system::etypecase-error
  lisp-system::define-setf-expander
- lisp-system::defsetf-short
- lisp-system::defsetf-long
  lisp-system::end-input-stream
  lisp-system::make-extend-output-stream
  lisp-system::prompt-for

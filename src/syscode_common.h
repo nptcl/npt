@@ -23,8 +23,6 @@
 #define ecase_error_syscode_ _n(ecase_error_syscode_)
 #define etypecase_error_syscode_ _n(etypecase_error_syscode_)
 #define define_setf_expander_syscode_ _n(define_setf_expander_syscode_)
-#define defsetf_short_syscode _n(defsetf_short_syscode)
-#define defsetf_long_syscode _n(defsetf_long_syscode)
 #define end_input_stream_syscode _n(end_input_stream_syscode)
 #define make_extend_output_stream_syscode _n(make_extend_output_stream_syscode)
 #define prompt_for_syscode _n(prompt_for_syscode)
@@ -67,11 +65,6 @@ void setdoc_variable_syscode(addr var, addr value);
 int ecase_error_syscode_(Execute ptr, addr value, addr list);
 int etypecase_error_syscode_(Execute ptr, addr value, addr list);
 int define_setf_expander_syscode_(addr symbol, addr call);
-int defsetf_short_syscode(Execute ptr,
-		addr access, addr update, addr args, addr env,
-		addr *r1, addr *r2, addr *r3, addr *r4, addr *r5);
-int defsetf_long_syscode(Execute ptr, addr rest,
-		addr *r1, addr *r2, addr *r3, addr *r4, addr *r5);
 void end_input_stream_syscode(addr var, addr *ret);
 void make_extend_output_stream_syscode(addr var, addr rest, addr *ret);
 int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret);

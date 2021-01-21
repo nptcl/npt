@@ -1219,8 +1219,6 @@ enum pointer_index {
 	p_defun_syscall_ecase_error,
 	p_defun_syscall_etypecase_error,
 	p_defun_syscall_define_setf_expander,
-	p_defun_syscall_defsetf_short,
-	p_defun_syscall_defsetf_long,
 	p_defun_syscall_end_input_stream,
 	p_defun_syscall_make_extend_output_stream,
 	p_defun_syscall_prompt_for,

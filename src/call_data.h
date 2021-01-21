@@ -92,7 +92,7 @@ int proga_common(addr form, addr env, addr *ret);
 int prog1_common(Execute ptr, addr form, addr env, addr *ret);
 int prog2_common(addr form, addr env, addr *ret);
 int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *ret);
-int defsetf_common(addr form, addr env, addr *ret);
+int defsetf_common(Execute ptr, addr form, addr env, addr *ret);
 int define_setf_expander_common(addr form, addr env, addr *ret);
 int setf_common(Execute ptr, addr form, addr env, addr *ret);
 int shiftf_common(Execute ptr, addr form, addr env, addr *ret);
