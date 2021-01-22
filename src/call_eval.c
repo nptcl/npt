@@ -164,6 +164,12 @@ int set_define_compiler_macro(addr callname, addr value)
 /*
  *  compile
  */
+static int compile_warning_implementation(void)
+{
+	return 0;
+	/* return fmtw_("This implementation cannot compile a function.", NULL); */
+}
+
 static int compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 {
 	addr call, check;
@@ -177,7 +183,7 @@ static int compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 		if (check == Unbound)
 			goto unbound;
 	}
-	Return(fmtw_("This implementation cannot compile a function.", NULL));
+	Return(compile_warning_implementation());
 	return Result(ret, var);
 
 unbound:
@@ -199,11 +205,11 @@ static int compile_lambda_p(addr opt)
 static int compile_lambda(Execute ptr, addr opt, addr *ret)
 {
 	if (functionp(opt)) {
-		Return(fmtw_("This implementation cannot compile a function.", NULL));
+		Return(compile_warning_implementation());
 		return Result(ret, opt);
 	}
 	if (compile_lambda_p(opt)) {
-		Return(fmtw_("This implementation cannot compile a function.", NULL));
+		Return(compile_warning_implementation());
 		Return(eval_object(ptr, opt, &opt));
 		return Result(ret, opt);
 	}
@@ -219,12 +225,12 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 
 	Return(parse_callname_error_(&call, var));
 	if (functionp(opt)) {
-		Return(fmtw_("This implementation cannot compile a function.", NULL));
+		Return(compile_warning_implementation());
 		Return(setglobal_callname_(call, opt));
 		return Result(ret, var);
 	}
 	if (compile_lambda_p(opt)) {
-		Return(fmtw_("This implementation cannot compile a function.", NULL));
+		Return(compile_warning_implementation());
 		hold = LocalHold_local(ptr);
 		localhold_pushva_force(hold, call, opt, NULL);
 		Return(eval_object(ptr, opt, &opt));
@@ -271,12 +277,13 @@ static int compile_common_call_(Execute ptr, LocalHold hold,
 int compile_common(Execute ptr, addr var, addr opt,
 		addr *ret1, addr *ret2, addr *ret3)
 {
-	addr control;
+	addr control, check;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
 	push_control(ptr, &control);
-	(void)compile_common_call_(ptr, hold, var, opt, ret1, ret2, ret3);
+	(void)compile_common_call_(ptr, hold, var, opt, ret1, ret2, &check);
+	*ret3 = ((*ret2 != Nil) && (check == Nil))? T: Nil;
 	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 

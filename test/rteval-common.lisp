@@ -3,13 +3,17 @@
 ;;
 
 ;;
-;;  eval
+;;  Function EVAL
 ;;
 (deftest eval.1
+  (eval nil)
+  nil)
+
+(deftest eval.2
   (eval '(+ 1 2))
   3)
 
-(deftest eval.2
+(deftest eval.3
   (progn
     (setq test-eval-value 10)
     (let ((test-eval-value 1000))
@@ -17,28 +21,96 @@
       (eval '(1+ test-eval-value))))
   11)
 
-(deftest eval.3
+(deftest eval.4
+  (eval (list 'cdr (car '((quote (a . b)) c))))
+  b)
+
+(deftest eval.5
+  (eval '(values 10 20 30))
+  10 20 30)
+
+(deftest-error! eval-error.1
+  (eval '(eval)))
+
+(deftest-error! eval-error.2
+  (eval '(eval nil nil)))
+
+(deftest-error eval-error.3
+  (eval '(eval unbound-variable-error-test))
+  unbound-variable)
+
+;;  ANSI Common Lisp
+(deftest eval-test.1
+  (setq eval-test-form '(1+ a) a 999)
+  999)
+
+(deftest eval-test.2
+  (eval eval-test-form)
+  1000)
+
+(deftest eval-test.3
+  (eval 'eval-test-form)
+  (1+ a))
+
+(deftest eval-test.4
+  (let ((a '(this would break if eval used local value)))
+    (declare (ignorable a))
+    (eval eval-test-form))
+  1000)
+
+(deftest eval-test.5
   (eval (list 'cdr (car '((quote (a . b)) c))))
   b)
 
 
 ;;
-;;  eval-when
+;;  Special Operator EVAL-WHEN
 ;;
 (deftest eval-when.1
+  (eval-when (:execute))
+  nil)
+
+(deftest eval-when.2
   (eval-when (:execute)
     10)
   10)
 
-(deftest eval-when.2
+(deftest eval-when.3
   (eval-when (eval)
     10)
   10)
 
-(deftest eval-when.3
+(deftest eval-when.4
   (eval-when ()
     10)
   nil)
+
+(deftest eval-when.5
+  (let (list)
+    (eval-when (:execute)
+      (push 'a list)
+      (push 'b list)
+      (nreverse list)))
+  (a b))
+
+(deftest eval-when.6
+  (eval-when (:compile-toplevel :load-toplevel :execute)
+    (values 10 20 30))
+  10 20 30)
+
+(deftest eval-when.7
+  (eval-when (compile load eval)
+    (values 10 20 30))
+  10 20 30)
+
+(deftest-error! eval-when-error.1
+  (eval '(eval-when)))
+
+(deftest-error eval-when-error.2
+  (eval '(eval-when 10)))
+
+(deftest-error eval-when-error.3
+  (eval '(eval-when (hello) nil)))
 
 
 ;;

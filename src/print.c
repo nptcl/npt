@@ -400,6 +400,12 @@ int print_unreadable_object_(Execute ptr, addr stream, addr pos,
 int print_unreadable_common_(Execute ptr, addr stream, addr pos,
 		int type, int identity, addr body)
 {
+	int check;
+
+	Return(readably_print_(ptr, &check));
+	if (check)
+		return call_print_not_readable_(ptr, pos);
+
 	return print_unreadable_call_(ptr, stream, pos, type, identity, NULL, body);
 }
 

@@ -256,6 +256,10 @@ int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y)
 	if (table == Unbound) {
 		Return(pprint_dispatch_print_(ptr, &table));
 	}
+	if (table == Nil) {
+		GetConst(SYSTEM_EMPTY_PRINT_DISPATCH, &table);
+		GetValueSymbol(table, &table);
+	}
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
 	Return(find_print_dispatch(ptr, var, table, &var));
 	if (var != Nil) {
@@ -275,9 +279,9 @@ int set_pprint_dispatch_print_(LocalRoot local,
 		addr spec, addr type, addr call, addr priority, addr table)
 {
 	CheckType(type, LISPTYPE_TYPE);
-	Check(! functionp(call), "type error: function");
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
 
+	Check(call != Nil && (! functionp(call)), "type error: function");
 	Return(delete_print_dispatch_(local, spec, priority, table));
 	if (call != Nil) {
 		if (priority == Unbound)

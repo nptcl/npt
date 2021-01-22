@@ -365,8 +365,10 @@ int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
 
 	/* standard-class only */
 	check = clos_standard_class_p(metaclass);
-	if (! check)
-		return fmte_("This implementation can only redefine a STANDARD-CLASS.", NULL);
+	if (! check) {
+		return fmte_("This implementation can only redefine a STANDARD-CLASS. "
+				"(~S, ~S)", clos, name, NULL);
+	}
 
 	/* make-instance */
 	return clos_redefine_finalize_(ptr, clos, name, rest);

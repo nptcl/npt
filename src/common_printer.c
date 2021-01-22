@@ -383,7 +383,7 @@ static void defmacro_print_unreadable_object(void)
 
 /* (defun set-pprint-dispatch (type function &optional priority table) ...) -> null
  *   type      type-specifier
- *   function  function-designer
+ *   function  (or function-designer null)
  *   priority  real  ;; default 0
  *   table     print-dispatch  ;; default *print-pprint-dispatch*
  */
@@ -401,6 +401,8 @@ static void type_set_pprint_dispatch(addr *ret)
 
 	GetTypeTable(&args, TypeSpec);
 	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&type, Null);
+	type2or_heap(values, type, &values);
 	GetTypeTable(&type, Real);
 	GetTypeTable(&dispatch, PrintDispatch);
 	typeargs_var2opt2(&args, args, values, type, dispatch);
@@ -970,9 +972,9 @@ static void defun_print_not_readable_object(void)
 }
 
 
-/* (defun format (destination control-string &rest args) -> restul
+/* (defun format (destination control-string &rest args) -> result
  *   destination     (or null (eql t) stream string)
- *   control-string  string
+ *   control-string  (or string function)
  *   args            (&rest t)
  *   result          (or null string)
  */
@@ -985,11 +987,13 @@ static int function_format(Execute ptr, addr var, addr format, addr args)
 
 static void type_format(addr *ret)
 {
-	addr args, values, type;
+	addr args, values, type, call;
 
 	GetTypeTable(&args, Format);
 	GetTypeTable(&values, T);
 	GetTypeTable(&type, String);
+	GetTypeTable(&call, Function);
+	type2or_heap(type, call, &type);
 	typeargs_var2rest(&args, args, type, values);
 	GetTypeValues(&values, StringNull);
 	type_compiled_heap(args, values, ret);

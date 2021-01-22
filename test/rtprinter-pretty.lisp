@@ -3,7 +3,7 @@
 ;;
 
 ;;
-;;  pprint-logical-block
+;;  Macro PPRINT-LOGICAL-BLOCK
 ;;
 (deftest pprint-logical-block.1
   (pprint-logical-block (nil nil))
@@ -99,9 +99,18 @@
         (princ "DDD"))))
   "AAABBBCCCDDD")
 
+(deftest-error pprint-logical-block-error.1
+  (eval '(pprint-logical-block (nil) nil)))
+
+(deftest-error pprint-logical-block-error.2
+  (eval '(pprint-logical-block (nil nil :hello 10) nil)))
+
+(deftest-error pprint-logical-block-error.3
+  (eval '(pprint-logical-block)))
+
 
 ;;
-;;  pprint-pop
+;;  Local Macro PPRINT-POP
 ;;
 (deftest pprint-pop.1
   (let ((result 'default))
@@ -200,6 +209,14 @@
       (pprint-pop)))
   ". BBB")
 
+(deftest-error pprint-pop-error.1
+  (eval '(pprint-logical-block (nil '(aaa bbb))
+           (pprint-pop nil))))
+
+
+;;
+;;  Local Macro PPRINT-EXIT-IF-LIST-EXHAUSTED
+;;
 (deftest pprint-exit-if-list-exhausted.1
   (with-output-to-string (stream)
     (pprint-logical-block (stream nil)
@@ -228,9 +245,17 @@
         (setq call (lambda () (pprint-exit-if-list-exhausted))))
       (funcall call))))
 
+(deftest pprint-exit-if-list-exhausted.5
+  (let ((value t))
+    (with-output-to-string (stream)
+      (pprint-logical-block (stream '(a b c))
+        (setq value (pprint-exit-if-list-exhausted))))
+    value)
+  nil)
+
 
 ;;
-;;  pprint-newline
+;;  Function PPRINT-NEWLINE
 ;;
 (deftest pprint-newline.1
   (with-output-to-string (stream)
@@ -244,10 +269,18 @@
   (pprint-newline :linear)
   nil)
 
+(deftest-error! pprint-newline-error.1
+  (eval '(pprint-newline)))
 
-;;
+(deftest-error! pprint-newline-error.2
+  (eval '(pprint-newline :linear *standard-output* nil)))
+
+(deftest-error! pprint-newline-error.3
+  (eval '(pprint-newline :hello))
+  type-error)
+
+
 ;;  :linear
-;;
 (deftest pprint-newline-linear.1
   (pprint-logical-block-output
     (100 nil)
@@ -287,9 +320,7 @@
            "DDD" #\newline))
 
 
-;;
 ;;  miser
-;;
 (deftest pprint-newline-miser.1
   (pprint-logical-block-output
     (100 nil)
@@ -356,9 +387,7 @@
            "CCCDDD"))
 
 
-;;
 ;;  fill
-;;
 (deftest pprint-newline-fill.1
   (pprint-logical-block-output
     (100 nil)
@@ -398,9 +427,7 @@
   #.(mkstr "AAA" #\newline "BBBCCCDDD" #\newline "EEE"))
 
 
-;;
 ;;  mandatory
-;;
 (deftest pprint-newline-mandatory.1
   (pprint-logical-block-output
     (100 nil)
@@ -449,9 +476,7 @@
            "EEE" #\newline "FFF" #\newline))
 
 
-;;
 ;;  terpri
-;;
 (deftest pprint-newline-terpri.1
   (pprint-logical-block-output
     (100 nil)
@@ -501,7 +526,7 @@
 
 
 ;;
-;;  indent
+;;  Function PPRINT-INDENT
 ;;
 (deftest pprint-indent.1
   (with-output-to-string (*standard-output*)
@@ -644,9 +669,44 @@
     (pprint-indent :block 10))
   "")
 
+(deftest pprint-indent.12
+  (with-output-to-string (stream)
+    (princ "AAA" stream)
+    (let ((*print-pretty* t)
+          (*print-right-margin* 100)
+          (*print-miser-width* nil))
+      (pprint-logical-block (stream nil :per-line-prefix ";;;")
+        (princ "BBB" stream)
+        (pprint-indent :block 5 stream)
+        (pprint-newline :mandatory stream)
+        (princ "CCC" stream))))
+  #.(mkstr "AAA;;;BBB" #\newline
+           "   ;;;     CCC"))
+
+(deftest pprint-indent.13
+  (with-open-stream (stream (make-string-output-stream))
+    (let ((*print-pretty* t)
+          (*print-right-margin* 100)
+          (*print-miser-width* nil)
+          value)
+      (pprint-logical-block (stream nil :per-line-prefix ";;;")
+        (setq value (pprint-indent :block 5 stream)))
+      value))
+  nil)
+
+(deftest-error! pprint-indent-error.1
+  (eval '(pprint-indent :block)))
+
+(deftest-error! pprint-indent-error.2
+  (eval '(pprint-indent :block 10 *standard-output* nil)))
+
+(deftest-error pprint-indent-error.3
+  (eval '(pprint-indent :hello 10))
+  type-error)
+
 
 ;;
-;;  tab
+;;  Function PPRINT-TAB
 ;;
 (defun pprint-tab-test (type x y z)
   (let ((*print-pretty* t)
@@ -815,6 +875,25 @@
    "ZZAAAAA               BBB"
    "ZZAAAAA               BBB"
    "ZZAAAAA               BBB"))
+
+(deftest pprint-tab.9
+  (let ((*print-pretty* t)
+        (*print-miser-width* nil)
+        (*print-right-margin* 100))
+    (with-open-stream (stream (make-string-output-stream))
+      (pprint-logical-block (stream nil)
+        (pprint-tab :line 10 5 stream))))
+  nil)
+
+(deftest-error! pprint-tab-error.1
+  (eval '(pprint-tab :line 10)))
+
+(deftest-error! pprint-tab-error.2
+  (eval '(pprint-tab :line 10 5 *standard-otput* nil)))
+
+(deftest-error pprint-tab-error.3
+  (eval '(pprint-tab :hello 10 5))
+  type-error)
 
 
 ;;

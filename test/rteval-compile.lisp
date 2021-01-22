@@ -3,6 +3,140 @@
 ;;
 
 ;;
+;;  Function COMPILE
+;;
+(defun compile-test-1 () :hello)
+
+(deftest compile.1
+  (compile 'compile-test-1)
+  compile-test-1 nil nil)
+
+(defun (setf compile-test-2) () :hello)
+
+(deftest compile.2
+  (compile '(setf compile-test-2))
+  (setf compile-test-2) nil nil)
+
+(deftest compile.3
+  (multiple-value-bind (x y z) (compile nil (lambda () :hello))
+    (values (functionp x) y z))
+  t nil nil)
+
+(deftest compile.4
+  (funcall
+    (compile nil (lambda () :hello)))
+  :hello)
+
+(deftest compile.5
+  (multiple-value-bind (x y z) (compile nil '(lambda () :abcde))
+    (values (functionp x) y z))
+  t nil nil)
+
+(deftest compile.6
+  (funcall
+    (compile nil '(lambda () :abcde)))
+  :abcde)
+
+(defmacro compile-test-7 () :hello)
+
+(deftest compile.7
+  (compile 'compile-test-7)
+  compile-test-7 nil nil)
+
+(defun compile-test-8 ()
+  :test-8a)
+
+(deftest compile.8
+  (compile 'compile-test-8 (lambda () :test-8b))
+  compile-test-8 nil nil)
+
+(deftest compile.9
+  (compile-test-8)
+  :test-8b)
+
+(defun (setf compile-test-10) ()
+  :test-10a)
+
+(deftest compile.10
+  (compile '(setf compile-test-10) (lambda () :test-10b))
+  (setf compile-test-10) nil nil)
+
+(deftest compile.11
+  (funcall #'(setf compile-test-10))
+  :test-10b)
+
+(defun compile-test-12 ()
+  :test-12a)
+
+(deftest compile.12
+  (compile 'compile-test-12 '(lambda () :test-12b))
+  compile-test-12 nil nil)
+
+(deftest compile.13
+  (compile-test-12)
+  :test-12b)
+
+(defmacro compile-test-14 ()
+  (warn "Hello")
+  :hello)
+
+(deftest compile.14
+  (handler-bind ((warning #'muffle-warning))
+    (multiple-value-bind (x y z) (compile nil '(lambda () (compile-test-14)))
+      (values (functionp x) y z)))
+  t t t)
+
+(defmacro compile-test-15 ()
+  (warn (make-condition 'style-warning))
+  :hello)
+
+(deftest compile.15
+  (handler-bind ((warning #'muffle-warning))
+    (multiple-value-bind (x y z) (compile nil '(lambda () (compile-test-15)))
+      (values (functionp x) y z)))
+  t t nil)
+
+(deftest-error! compile-error.1
+  (eval '(compile)))
+
+(deftest-error! compile-error.2
+  (eval '(compile nil '(lambda () :hello) nil)))
+
+(deftest-error compile-error.3
+  (eval '(compile 'no-such-function-name)))
+
+(deftest-error compile-error.4
+  (eval '(compile 10))
+  type-error)
+
+(deftest-error compile-error.5
+  (eval '(compile nil '(hello))))
+
+;;  ANSI Common Lisp
+(defun compile-test-foo () "bar")
+
+(deftest compile-test.1
+  (compiled-function-p #'compile-test-foo)
+  nil)
+
+(deftest compile-test.2
+  (values
+    (compile 'compile-test-foo))
+  compile-test-foo)
+
+(deftest compile-test.3
+  (compiled-function-p #'compile-test-foo)
+  nil)  ;; t
+
+(deftest compile-test.4
+  (progn
+    (setf (symbol-function 'compile-test-foo)
+          (compile nil '(lambda () "replaced")))
+    (compile-test-foo))
+  "replaced")
+
+
+;;
 ;;  define-compiler-macro
 ;;
 (deftest define-compiler-macro.1
@@ -55,84 +189,6 @@
   (functionp
     (compiler-macro-function '(setf define-compiler-macro7)))
   t)
-
-
-;;
-;;  compile
-;;
-(defun compile-test1 () :hello)
-
-(deftest compile.1
-  (handler-bind ((warning #'muffle-warning))
-    (compile 'compile-test1))
-  compile-test1 t nil)
-
-(defun (setf compile-test2) () :hello)
-
-(deftest compile.2
-  (handler-bind ((warning #'muffle-warning))
-    (compile '(setf compile-test2)))
-  (setf compile-test2) t nil)
-
-(deftest compile.3
-  (handler-bind ((warning #'muffle-warning))
-    (multiple-value-bind (x y z) (compile nil (lambda () :hello))
-      (values (functionp x) y z)))
-  t t nil)
-
-(deftest compile.4
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil (lambda () :hello))))
-  :hello)
-
-(deftest compile.5
-  (handler-bind ((warning #'muffle-warning))
-    (multiple-value-bind (x y z) (compile nil '(lambda () :abcde))
-      (values (functionp x) y z)))
-  t t nil)
-
-(deftest compile.6
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil '(lambda () :abcde))))
-  :abcde)
-
-(defun compile-test7 ()
-  :test7)
-
-(deftest compile.7
-  (handler-bind ((warning #'muffle-warning))
-    (compile 'compile-test7 (lambda () :test7a)))
-  compile-test7 t nil)
-
-(deftest compile.8
-  (compile-test7)
-  :test7a)
-
-(defun (setf compile-test9) ()
-  :test9)
-
-(deftest compile.9
-  (handler-bind ((warning #'muffle-warning))
-    (compile '(setf compile-test9) (lambda () :test9a)))
-  (setf compile-test9) t nil)
-
-(deftest compile.10
-  (funcall #'(setf compile-test9))
-  :test9a)
-
-(defun compile-test11 ()
-  :test11)
-
-(deftest compile.11
-  (handler-bind ((warning #'muffle-warning))
-    (compile 'compile-test11 '(lambda () :test11a)))
-  compile-test11 t nil)
-
-(deftest compile.12
-  (compile-test11)
-  :test11a)
 
 
 ;;

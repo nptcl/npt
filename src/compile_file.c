@@ -229,7 +229,7 @@ static int compile_file_common_call_(Execute ptr,
 int compile_file_common(Execute ptr, addr input, addr rest,
 		addr *ret1, addr *ret2, addr *ret3)
 {
-	addr control, output;
+	addr control, output, check;
 	LocalHold hold;
 
 	/* pathname-designer */
@@ -238,7 +238,8 @@ int compile_file_common(Execute ptr, addr input, addr rest,
 	/* push control */
 	hold = LocalHold_array(ptr, 1);
 	push_control(ptr, &control);
-	(void)compile_file_common_call_(ptr, hold, input, output, rest, ret1, ret2, ret3);
+	(void)compile_file_common_call_(ptr, hold, input, output, rest, ret1, ret2, &check);
+	*ret3 = ((*ret2 != Nil) && (check == Nil))? T: Nil;
 	Return(pop_control_(ptr, control));
 	localhold_end(hold);
 

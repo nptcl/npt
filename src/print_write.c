@@ -534,7 +534,7 @@ static int WriteCheckCall_vector_(Execute ptr, addr pos)
 	return 0;
 }
 
-static int WriteCircleCall_vector_(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_vector_default_(Execute ptr, addr stream, addr pos)
 {
 	int lenp, levelp, check;
 	addr x;
@@ -577,7 +577,18 @@ static int WriteCircleCall_vector_(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static int WriteCall_vector_(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_vector_(Execute ptr, addr stream, addr pos)
+{
+	int check;
+
+	Return(array_print_(ptr, &check));
+	if (check)
+		return WriteCircleCall_vector_default_(ptr, stream, pos);
+
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
+}
+
+static int WriteCall_vector_default_(Execute ptr, addr stream, addr pos)
 {
 	int lenp, levelp;
 	addr x;
@@ -613,6 +624,17 @@ static int WriteCall_vector_(Execute ptr, addr stream, addr pos)
 	setdepth_print_write(ptr, depth);
 
 	return 0;
+}
+
+static int WriteCall_vector_(Execute ptr, addr stream, addr pos)
+{
+	int check;
+
+	Return(array_print_(ptr, &check));
+	if (check)
+		return WriteCall_vector_default_(ptr, stream, pos);
+
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
 }
 
 
@@ -866,7 +888,7 @@ static int WriteCall_array_call_(struct write_array_struct *str)
 	return 0;
 }
 
-static int WriteCircleCall_array_(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_array_default_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 	const size_t *data;
@@ -906,7 +928,18 @@ static int WriteCircleCall_array_(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static int WriteCall_array_(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_array_(Execute ptr, addr stream, addr pos)
+{
+	int check;
+
+	Return(array_print_(ptr, &check));
+	if (check)
+		return WriteCircleCall_array_default_(ptr, stream, pos);
+
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
+}
+
+static int WriteCall_array_default_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 	const size_t *data;
@@ -939,6 +972,17 @@ static int WriteCall_array_(Execute ptr, addr stream, addr pos)
 	setdepth_print_write(ptr, depth);
 
 	return 0;
+}
+
+static int WriteCall_array_(Execute ptr, addr stream, addr pos)
+{
+	int check;
+
+	Return(array_print_(ptr, &check));
+	if (check)
+		return WriteCall_array_default_(ptr, stream, pos);
+
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
 }
 
 
@@ -2277,7 +2321,7 @@ static int WriteCall_restart_(Execute ptr, addr stream, addr pos)
 /*
  *  bitvector
  */
-static int WriteCall_bitvector_(Execute ptr, addr stream, addr pos)
+static int WriteCall_bitvector_default_(Execute ptr, addr stream, addr pos)
 {
 	int value;
 	size_t size, i;
@@ -2290,6 +2334,17 @@ static int WriteCall_bitvector_(Execute ptr, addr stream, addr pos)
 	}
 
 	return 0;
+}
+
+static int WriteCall_bitvector_(Execute ptr, addr stream, addr pos)
+{
+	int check;
+
+	Return(array_print_(ptr, &check));
+	if (check)
+		return WriteCall_bitvector_default_(ptr, stream, pos);
+
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
 }
 
 

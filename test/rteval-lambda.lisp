@@ -364,6 +364,17 @@
   (funcall (lambda () "Hello"))
   "Hello")
 
+(deftest lambda-documentation.2
+  (documentation
+    (lambda () "Hello" 10)
+    'function)
+  "Hello")
+
+(deftest lambda-documentation.3
+  (funcall
+    (lambda () "Hello" 10))
+  10)
+
 (deftest lambda-declare.1
   (funcall (lambda (x)
              (declare (type integer x))
@@ -377,4 +388,24 @@
              x)
            "Hello")
   type-error)
+
+(deftest lambda-call.1
+  ((lambda () :hello))
+  :hello)
+
+(deftest lambda-call.2
+  ((lambda (x y z) (+ x y z)) 10 20 30)
+  60)
+
+
+;;
+;;  Macro LAMBDA
+;;
+(deftest lambda-macro.1
+  (macroexpand '(lambda () 10 20 30))
+  (function (lambda () 10 20 30)) t)
+
+(deftest lambda-macro.2
+  (funcall (lambda (x) (+ x 3)) 4)
+  7)
 

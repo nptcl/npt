@@ -496,7 +496,7 @@ int instance_package_error_(addr *ret, addr package)
 int call_package_error_(Execute ptr, addr package)
 {
 	addr instance;
-	Return(instance_reader_error_(&instance, package));
+	Return(instance_package_error_(&instance, package));
 	return error_function_(ptr, instance);
 }
 
@@ -530,7 +530,7 @@ int instance_print_not_readable_(addr *ret, addr object)
 int call_print_not_readable_(Execute ptr, addr object)
 {
 	addr instance;
-	Return(instance_reader_error_(&instance, object));
+	Return(instance_print_not_readable_(&instance, object));
 	return error_function_(ptr, instance);
 }
 
