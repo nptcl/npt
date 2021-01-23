@@ -112,3 +112,7 @@
       (push i a)))
   (c b a))
 
+'(deftest dolist.7
+   (dolist (*print-case* '(:upcase :downcase :capitalize))
+     :test))
+

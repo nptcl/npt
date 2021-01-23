@@ -23,10 +23,10 @@ Making testcase now.
     19  Filenames                             26        26      100%
     20  Files                                 10        10      100%
     21  Streams                               70        70      100%
-    22  Printer                               41        26       63%
+    22  Printer                               41        41      100%
     23  Reader                                21         0        0%
     24  System Construction                   16         0        0%
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       555       56%
+     -  All                                  996       570       57%

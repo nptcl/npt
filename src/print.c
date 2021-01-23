@@ -33,6 +33,23 @@ static int getbool_print_(Execute ptr, int *ret, constindex index)
 	return Result(ret, pos != Nil);
 }
 
+static int readably_true_print_(Execute ptr, int *ret, constindex index)
+{
+	addr pos;
+
+	/* variable */
+	GetConstant(index, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	if (pos != Nil)
+		return Result(ret, 1);
+
+	/* *print-readably* */
+	GetConst(SPECIAL_PRINT_READABLY, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+
+	return Result(ret, pos != Nil);
+}
+
 static void pushbool_print(Execute ptr, constindex index, int value)
 {
 	addr symbol;
@@ -43,7 +60,7 @@ static void pushbool_print(Execute ptr, constindex index, int value)
 /* print-array */
 int array_print_(Execute ptr, int *ret)
 {
-	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ARRAY);
+	return readably_true_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ARRAY);
 }
 
 void push_array_print(Execute ptr, int value)
@@ -154,7 +171,7 @@ void push_circle_print(Execute ptr, int value)
 /* print-escape */
 int escape_print_(Execute ptr, int *ret)
 {
-	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ESCAPE);
+	return readably_true_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_ESCAPE);
 }
 
 void push_escape_print(Execute ptr, int value)
@@ -165,7 +182,7 @@ void push_escape_print(Execute ptr, int value)
 /* print-gensym */
 int gensym_print_(Execute ptr, int *ret)
 {
-	return getbool_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_GENSYM);
+	return readably_true_print_(ptr, ret, CONSTANT_SPECIAL_PRINT_GENSYM);
 }
 
 void push_gensym_print(Execute ptr, int value)
@@ -214,6 +231,22 @@ static int getindex_print_(Execute ptr, size_t *value, int *ret, constindex inde
 	}
 }
 
+static int readably_index_print_(Execute ptr, size_t *value, int *ret, constindex index)
+{
+	addr pos;
+
+	/* *print-readably* */
+	GetConst(SPECIAL_PRINT_READABLY, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	if (pos != Nil) {
+		*value = 0;
+		return Result(ret, 0);
+	}
+
+	/* index */
+	return getindex_print_(ptr, value, ret, index);
+}
+
 static int push_integer_print_(Execute ptr, constindex index, size_t value)
 {
 	addr symbol, pos;
@@ -234,7 +267,7 @@ static void push_nil_print(Execute ptr, constindex index)
 
 int level_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LEVEL);
+	return readably_index_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LEVEL);
 }
 
 int push_level_print_(Execute ptr, size_t value)
@@ -250,7 +283,7 @@ void push_level_nil_print(Execute ptr)
 /* print-length */
 int length_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LENGTH);
+	return readably_index_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LENGTH);
 }
 
 int push_length_print_(Execute ptr, size_t value)
@@ -266,7 +299,7 @@ void push_length_nil_print(Execute ptr)
 /* print-lines */
 int lines_print_(Execute ptr, size_t *value, int *ret)
 {
-	return getindex_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LINES);
+	return readably_index_print_(ptr, value, ret, CONSTANT_SPECIAL_PRINT_LINES);
 }
 
 int push_lines_print_(Execute ptr, size_t value)

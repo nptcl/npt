@@ -84,7 +84,7 @@
 
 
 ;;
-;;  format
+;;  Function FORMAT
 ;;
 (deftest format.1
   (with-output-to-string (*standard-output*)
@@ -105,4 +105,15 @@
   (with-output-to-string (stream)
     (format stream "Hello: ~A" 10))
   "Hello: 10")
+
+(deftest format.5
+  (format nil (formatter "Hello: ~A") 10 20 30)
+  "Hello: 10")
+
+(deftest-error! format-error.1
+  (eval '(format t)))
+
+(deftest-error format-error.2
+  (eval '(format 10 "Hello"))
+  type-error)
 
