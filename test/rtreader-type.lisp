@@ -58,3 +58,19 @@
 (deftest-error! readtablep-error.2
   (eval '(readtablep nil nil)))
 
+
+;;
+;;  Condition Type READER-ERROR
+;;
+(deftest reader-error.1
+  (lisp-system:closp
+    (find-class 'reader-error))
+  t)
+
+(deftest reader-error.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'reader-error)))
+  (reader-error parse-error stream-error
+                error serious-condition condition standard-object t))
+

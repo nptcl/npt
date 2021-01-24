@@ -417,7 +417,7 @@ static void type_set_dispatch_macro_character(addr *ret)
 	addr args, values, type1, type2;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&type1, FunctionNull);
+	GetTypeTable(&type1, FunctionDesigner);
 	GetTypeTable(&type2, ReadtableDesigner);
 	typeargs_var3opt1(&args, args, args, type1, type2);
 	GetTypeValues(&values, EqlT);

@@ -14,6 +14,7 @@ enum TokenType {
 	TokenType_symbol = 0,
 	TokenType_potential,
 	TokenType_integer,
+	TokenType_decimal,
 	TokenType_float,
 	TokenType_ratio,
 	TokenType_dot,

@@ -3,6 +3,122 @@
 ;;
 
 ;;
+;;  Variable *READ-BASE*
+;;
+(deftest read-base.1
+  *read-base*
+  10)
+
+(deftest read-base.2
+  (let ((*read-base* 8))
+    (values
+      (read-from-string "123")))
+  83)
+
+(deftest read-base.3
+  (let ((*read-base* 8))
+    (values
+      (read-from-string "#x123")))
+  291)
+
+(deftest read-base.4
+  (let ((*read-base* 8))
+    (values
+      (read-from-string "123.")))
+  123)
+
+(deftest read-base.5
+  (let ((*read-base* 8))
+    (values
+      (read-from-string "999.")))
+  999)
+
+(deftest read-base.6
+  (let (list)
+    (dotimes (i 6)
+      (let ((*read-base* (+ 10. i)))
+        (let ((object (read-from-string "(\\DAD DAD |BEE| BEE 123. 123)")))
+          (push (list *read-base* object) list))))
+    (nreverse list))
+  ((10 (dad dad bee bee 123 123))
+   (11 (dad dad bee bee 123 146))
+   (12 (dad dad bee bee 123 171))
+   (13 (dad dad bee bee 123 198))
+   (14 (dad 2701 bee bee 123 227))
+   (15 (dad 3088 bee 2699 123 258))))
+
+(deftest-error read-base-error.1
+  (eval '(setq *read-base* 1))
+  type-error)
+
+(deftest-error read-base-error.2
+  (eval '(setq *read-base* 37))
+  type-error)
+
+
+;;
+;;  Variable *READ-DEFAULT-FLOAT-FORMAT*
+;;
+(deftest read-default-float-format.1
+  *read-default-float-format*
+  single-float)
+
+(deftest read-default-float-format.2
+  (let ((*read-default-float-format* 'short-float))
+    (values
+      (read-from-string "12.3")))
+  12.3f0)
+
+(deftest read-default-float-format.3
+  (let ((*read-default-float-format* 'single-float))
+    (values
+      (read-from-string "12.3")))
+  12.3f0)
+
+(deftest read-default-float-format.4
+  (let ((*read-default-float-format* 'double-float))
+    (values
+      (read-from-string "12.3")))
+  12.3d0)
+
+(deftest read-default-float-format.5
+  (let ((*read-default-float-format* 'long-float))
+    (values
+      (read-from-string "12.3")))
+  12.3L0)
+
+(deftest read-default-float-format.6
+  (let ((*read-default-float-format* 'double-float))
+    (values
+      (read-from-string "(1.0 1.0e0 1.0s0 1.0f0 1.0d0 1.0L0)")))
+  (1.0d0 1.0d0 1.0 1.0 1.0d0 1.0L0))
+
+(deftest-error read-default-float-format.7
+  (eval '(setq *read-default-float-format* :hello))
+  type-error)
+
+
+;;
+;;  Variable *READ-EVAL*
+;;
+(deftest read-eval.1
+  *read-eval*
+  t)
+
+(deftest read-eval.2
+  (let ((*read-eval* t))
+    (values
+      (read-from-string "#.(+ 1 2 3)")))
+  6)
+
+(deftest-error read-eval.3
+  (let ((*read-eval* nil))
+    (values
+      (read-from-string "#.(+ 1 2 3)")))
+  reader-error)
+
+
+;;
 ;;  Variable *READ-SUPPRESS*
 ;;
 (deftest read-suppress.1
@@ -309,4 +425,29 @@
 (deftest read-suppress-pathname.3
   (read-hello "(100 #-Hello #pHello)")
   (100))
+
+(deftest read-suppress-test.1
+  *read-suppress*
+  nil)
+
+(deftest read-suppress-test.2
+  (let ((*read-suppress* t))
+    (mapcar #'read-from-string
+            '("#(foo bar baz)" "#P(:type :lisp)" "#c1.2"
+              "#.(PRINT 'FOO)" "#3AHELLO" "#S(INTEGER)"
+              "#*ABC" "#\\GARBAGE" "#RALPHA" "#3R444")))
+  (nil nil nil nil nil nil nil nil nil nil))
+
+
+;;
+;;  Variable *READTABLE*
+;;
+(deftest readtable.1
+  (readtablep
+    *readtable*)
+  t)
+
+(deftest-error readtable.2
+  (eval '(setq *readtable* 100))
+  type-error)
 

@@ -11,6 +11,7 @@
 #include "reader.h"
 #include "reader_function.h"
 #include "reader_table.h"
+#include "restart_value.h"
 #include "stream.h"
 #include "stream_function.h"
 #include "stream_string.h"
@@ -410,14 +411,11 @@ int set_dispatch_macro_character_common(Execute ptr,
 	}
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
-	if (call == Nil)
-		return rem_dispatch_macro_character_(readtable, a, b);
-	else {
-		if (symbolp(call)) {
-			Return(getspecialcheck_local_(ptr, call, &call));
-		}
-		return set_dispatch_macro_character_(readtable, a, b, call);
+	if (symbolp(call)) {
+		Return(function_global_restart(ptr, call, &call));
 	}
+
+	return set_dispatch_macro_character_(readtable, a, b, call);
 }
 
 
@@ -472,7 +470,7 @@ int set_macro_character_common(Execute ptr,
 
 	GetCharacter(code, &c);
 	if (symbolp(call)) {
-		Return(getspecialcheck_local_(ptr, call, &call));
+		Return(function_global_restart(ptr, call, &call));
 	}
 
 	return set_macro_character_(readtable, c, nonterm != Nil, call);
@@ -509,12 +507,14 @@ int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
  */
 int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 {
-	addr args, symbol, value;
+	addr args, symbol, value, find, copy, quote;
 
 	args = Nil;
-	/* (*package* [common-lisp-user]) */
+	/* (*package* (find-package :common-lisp-user)) */
 	GetConst(SPECIAL_PACKAGE, &symbol);
-	GetConst(PACKAGE_COMMON_LISP_USER, &value);
+	GetConst(COMMON_FIND_PACKAGE, &find);
+	GetConst(KEYWORD_COMMON_LISP_USER, &value);
+	list_heap(&value, find, value, NULL);
 	list_heap(&value, symbol, value, NULL);
 	cons_heap(&args, value, args);
 
@@ -570,9 +570,13 @@ int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 	list_heap(&value, symbol, Nil, NULL);
 	cons_heap(&args, value, args);
 
-	/* (*print-pprint-dispatch* [standard-pprint]) */
-	GetConst(SPECIAL_PRINT_MISER_WIDTH, &symbol);
-	pprint_dispatch_heap(&value);
+	/* (*print-pprint-dispatch*
+	 *   (copy-pprint-dispatch system::*default-print-dispatch*))
+	 */
+	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &symbol);
+	GetConst(COMMON_COPY_PPRINT_DISPATCH, &copy);
+	GetConst(SYSTEM_DEFAULT_PRINT_DISPATCH, &value);
+	list_heap(&value, copy, value, NULL);
 	list_heap(&value, symbol, value, NULL);
 	cons_heap(&args, value, args);
 
@@ -586,9 +590,9 @@ int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 	list_heap(&value, symbol, Nil, NULL);
 	cons_heap(&args, value, args);
 
-	/* (*print-readably* nil) */
+	/* (*print-readably* t) */
 	GetConst(SPECIAL_PRINT_READABLY, &symbol);
-	list_heap(&value, symbol, Nil, NULL);
+	list_heap(&value, symbol, T, NULL);
 	cons_heap(&args, value, args);
 
 	/* (*print-right-margin* nil) */
@@ -604,7 +608,9 @@ int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 
 	/* (*read-default-float-format* 'single-float) */
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
+	GetConst(COMMON_QUOTE, &quote);
 	GetConst(COMMON_SINGLE_FLOAT, &value);
+	list_heap(&value, quote, value, NULL);
 	list_heap(&value, symbol, value, NULL);
 	cons_heap(&args, value, args);
 
@@ -618,9 +624,10 @@ int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 	list_heap(&value, symbol, Nil, NULL);
 	cons_heap(&args, value, args);
 
-	/* (*readtable* [standard-readtable]) */
+	/* (*readtable* (copy-readtable nil)) */
 	GetConst(SPECIAL_READTABLE, &symbol);
-	Return(readtable_heap_(&value));
+	GetConst(COMMON_COPY_READTABLE, &value);
+	list_heap(&value, value, Nil, NULL);
 	list_heap(&value, symbol, value, NULL);
 	cons_heap(&args, value, args);
 

@@ -77,6 +77,7 @@
 :class
 :circle
 :common
+:common-lisp-user
 :compile-toplevel
 :conc-name
 :constructor
@@ -1416,6 +1417,7 @@ lisp-system::simple-file-error
 lisp-system::simple-program-error
 lisp-system::simple-package-error
 lisp-system::simple-control-error
+lisp-system::simple-reader-error
 
 
 ;;

@@ -94,17 +94,23 @@ static int checktable_force(unicode c)
 
 /* for debug */
 /* #define OUTPUTSTATE(x, c)  printf("[%s:%c]\n", x, c) */
-#define OUTPUTSTATE(x, c)  /*donothing*/
+#define OUTPUTSTATE(x, c)  /*do nothing*/
 
 #define ReadtableNext() { \
 	getchar_charqueue(queue, i++, &c); \
-	if (c && !checktable_char(c)) goto error; \
-	if (!pot) pot = checktable_base(base, c); \
+	if (c && !checktable_char(c)) { \
+		goto error; \
+	} \
+	if (!pot) { \
+		pot = checktable_base(base, c); \
+	} \
 }
 
 #define checkbasegoto(base, digit, c, label) { \
 	if (checktable_base(base, c)) { \
-		if (digit) digit = checktable_isdigit(c); \
+		if (digit) { \
+			digit = checktable_isdigit(c); \
+		} \
 		goto label; \
 	} \
 }
@@ -187,7 +193,7 @@ digit3:
 	ReadtableNext();
 	OUTPUTSTATE("digit3", c);
 	if (c == 0)
-		goto token_digit;
+		goto token_decimal;
 	if (checktable_isdigit(c))
 		goto float4;
 	if (checktable_exponent(c))
@@ -230,6 +236,8 @@ float3:
 		goto exponent1;
 	if (checktable_isdigit(c))
 		goto float4;
+	if (c == 0)
+		goto token_decimal;
 	goto symbol;
 
 float4:
@@ -365,6 +373,10 @@ potential_marker_symbol:
 token_digit:
 	OUTPUTSTATE("token_digit", '-');
 	return TokenType_integer;
+
+token_decimal:
+	OUTPUTSTATE("token_decimal", '-');
+	return TokenType_decimal;
 
 token_ratio:
 	OUTPUTSTATE("token_ratio", '-');
@@ -510,6 +522,10 @@ static int maketoken_normal_(Execute ptr, addr *ret)
 			make_charqueue_heap(queue, &name);
 			/* intern *package* - symbol */
 			Return(intern_default_package_(ptr, name, ret, NULL));
+			break;
+
+		case TokenType_decimal:
+			maketoken_integer(ptr->local, queue, 10, ret);
 			break;
 
 		case TokenType_integer:

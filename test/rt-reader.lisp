@@ -3,6 +3,7 @@
 ;;
 (load #p"test/rtreader-type.lisp")
 (load #p"test/rtreader-test.lisp")
+(load #p"test/rtreader-macro.lisp")
 (load #p"test/rtreader-variable.lisp")
 
 

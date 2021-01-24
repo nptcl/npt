@@ -912,3 +912,35 @@ int call_simple_control_error_va_(Execute ptr, const char *fmt, ...)
 	return call_simple_control_error_(ptr, control, args);
 }
 
+
+/* simple_reader_error */
+int instance_simple_reader_error_(addr *ret, addr control, addr args)
+{
+	addr instance;
+
+	GetConst(CONDITION_SIMPLE_READER_ERROR, &instance);
+	Return(clos_instance_heap_(instance, &instance));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_FORMAT_CONTROL, control));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args));
+	return Result(ret, instance);
+}
+
+int call_simple_reader_error_(Execute ptr, addr control, addr args)
+{
+	addr instance;
+	Return(instance_simple_reader_error_(&instance, control, args));
+	return error_function_(ptr, instance);
+}
+
+int call_simple_reader_error_va_(Execute ptr, const char *fmt, ...)
+{
+	addr control, args;
+	va_list va;
+
+	strvect_char_heap(&control, fmt);
+	va_start(va, fmt);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	return call_simple_reader_error_(ptr, control, args);
+}
+

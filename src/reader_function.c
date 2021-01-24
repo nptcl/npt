@@ -1057,8 +1057,10 @@ int dot_dispatch(Execute ptr, addr stream, addr *ret)
 
 	GetConst(SPECIAL_READ_EVAL, &eval);
 	Return(getspecialcheck_local_(ptr, eval, &eval));
-	if (eval == Nil)
-		return fmte_("The dispatch #. don't read when *read-eval* is nil.", NULL);
+	if (eval == Nil) {
+		return call_simple_reader_error_va_(ptr,
+				"The dispatch #. don't read when *read-eval* is nil.", NULL);
+	}
 	Return(read_recursive(ptr, stream, &check, &eval));
 	if (check)
 		return fmte_("After dispatch #. must be a object.", NULL);
