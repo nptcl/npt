@@ -383,8 +383,13 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 		int type, int identity, calltype_print call, addr body)
 {
 	char buffer[32];
-	int first;
+	int first, check;
 	addr value;
+
+	/* print-not-readable */
+	Return(readably_print_(ptr, &check));
+	if (check)
+		return call_print_not_readable_(ptr, pos);
 
 	/* begin */
 	first = 1;
@@ -433,12 +438,6 @@ int print_unreadable_object_(Execute ptr, addr stream, addr pos,
 int print_unreadable_common_(Execute ptr, addr stream, addr pos,
 		int type, int identity, addr body)
 {
-	int check;
-
-	Return(readably_print_(ptr, &check));
-	if (check)
-		return call_print_not_readable_(ptr, pos);
-
 	return print_unreadable_call_(ptr, stream, pos, type, identity, NULL, body);
 }
 

@@ -64,7 +64,7 @@ int make_dispatch_macro_character_common(Execute ptr,
 	if (nonterm == Unbound) {
 		nonterm = Nil;
 	}
-	if (readtable == Nil) {
+	if (readtable == Unbound) {
 		GetConst(SPECIAL_READTABLE, &readtable);
 		Return(getspecialcheck_local_(ptr, readtable, &readtable));
 	}
@@ -76,58 +76,46 @@ int make_dispatch_macro_character_common(Execute ptr,
 /*
  *  read
  */
-int read_common(Execute ptr, addr args, addr *ret)
+int read_common_(Execute ptr, addr stream, addr errorp, addr eof, addr recp, addr *ret)
 {
 	int check;
-	addr stream, error, eof, recp;
+	addr pos;
 
 	/* stream */
-	if (consp(args)) {
-		GetCons(args, &stream, &args);
-		Return(input_stream_designer_(ptr, stream, &stream));
-	}
-	else {
+	if (stream == Unbound) {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
 		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
+	Return(input_stream_designer_(ptr, stream, &stream));
+
 	/* errorp */
-	if (consp(args)) {
-		GetCons(args, &error, &args);
-	}
-	else {
-		error = T;
-	}
-	/* eof */
-	if (consp(args)) {
-		GetCons(args, &eof, &args);
-	}
-	else
+	if (errorp == Unbound)
+		errorp = T;
+	if (eof == Unbound)
 		eof = Nil;
-	/* recp */
-	if (consp(args)) {
-		GetCons(args, &recp, &args);
-	}
-	else
+
+	/* recursive-p */
+	if (recp == Unbound)
 		recp = Nil;
 
 	/* read */
 	if (recp == Nil) {
-		Return(read_stream(ptr, stream, &check, &args));
+		Return(read_stream(ptr, stream, &check, &pos));
 		if (check) {
-			if (error != Nil)
+			if (errorp != Nil)
 				return call_end_of_file_(ptr, stream);
-			args = eof;
+			pos = eof;
 		}
 	}
 	else {
-		Return(read_recursive(ptr, stream, &check, &args));
+		Return(read_recursive(ptr, stream, &check, &pos));
 		if (check) {
-			if (error != Nil)
+			if (errorp != Nil)
 				return fmte_("End-of-file occured by recursive-p read.", NULL);
-			args = eof;
+			pos = eof;
 		}
 	}
-	*ret = args;
+	*ret = pos;
 
 	return 0;
 }
@@ -136,58 +124,47 @@ int read_common(Execute ptr, addr args, addr *ret)
 /*
  *  read-preserving-whitespace
  */
-int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
+int read_preserving_whitespace_common_(Execute ptr,
+		addr stream, addr errorp, addr eof, addr recp, addr *ret)
 {
 	int check;
-	addr stream, error, eof, recp;
+	addr pos;
 
 	/* stream */
-	if (consp(args)) {
-		GetCons(args, &stream, &args);
-		Return(input_stream_designer_(ptr, stream, &stream));
-	}
-	else {
+	if (stream == Unbound) {
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
 		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
+	Return(input_stream_designer_(ptr, stream, &stream));
+
 	/* errorp */
-	if (consp(args)) {
-		GetCons(args, &error, &args);
-	}
-	else {
-		error = T;
-	}
-	/* eof */
-	if (consp(args)) {
-		GetCons(args, &eof, &args);
-	}
-	else
+	if (errorp == Unbound)
+		errorp = T;
+	if (eof == Unbound)
 		eof = Nil;
-	/* recp */
-	if (consp(args)) {
-		GetCons(args, &recp, &args);
-	}
-	else
+
+	/* recursive-p */
+	if (recp == Unbound)
 		recp = Nil;
 
 	/* read */
 	if (recp == Nil) {
-		Return(read_preserving(ptr, stream, &check, &args));
+		Return(read_preserving(ptr, stream, &check, &pos));
 		if (check) {
-			if (error != Nil)
+			if (errorp != Nil)
 				return call_end_of_file_(ptr, stream);
-			args = eof;
+			pos = eof;
 		}
 	}
 	else {
-		Return(read_recursive(ptr, stream, &check, &args));
+		Return(read_recursive(ptr, stream, &check, &pos));
 		if (check) {
-			if (error != Nil)
+			if (errorp != Nil)
 				return fmte_("End-of-file occured by recursive-p read.", NULL);
-			args = eof;
+			pos = eof;
 		}
 	}
-	*ret = args;
+	*ret = pos;
 
 	return 0;
 }
@@ -288,7 +265,7 @@ int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 	}
 	/* key end */
 	GetConst(KEYWORD_END, &key);
-	if (getplist_safe(args, key, &pos)) {
+	if (getplist_safe(args, key, &pos) || pos == Nil) {
 		string_length(str, &end);
 	}
 	else {
@@ -296,7 +273,7 @@ int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 			return fmte_("Too large end value ~S.", pos, NULL);
 	}
 	/* key preserving-whitespace */
-	GetConst(KEYWORD_PRESERVING_WHITESPACE, &key);
+	GetConst(KEYWORD_PRESERVE_WHITESPACE, &key);
 	if (getplist_safe(args, key, &pos))
 		preserve = 0;
 	else

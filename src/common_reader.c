@@ -98,10 +98,10 @@ static void defun_make_dispatch_macro_character(void)
  *   eof     t
  *   recp    t  (boolean)
  */
-static int function_read(Execute ptr, addr args)
+static int function_read(Execute ptr, addr var, addr errorp, addr eof, addr recp)
 {
-	Return(read_common(ptr, args, &args));
-	setresult_control(ptr, args);
+	Return(read_common_(ptr, var, errorp, eof, recp, &var));
+	setresult_control(ptr, var);
 	return 0;
 }
 
@@ -112,7 +112,7 @@ static void defun_read(void)
 	/* function */
 	GetConst(COMMON_READ, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_read);
+	setcompiled_opt4(pos, p_defun_read);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Read);
@@ -127,10 +127,11 @@ static void defun_read(void)
  *   eof     t
  *   recp    t  (boolean)
  */
-static int function_read_preserving_whitespace(Execute ptr, addr args)
+static int function_read_preserving_whitespace(Execute ptr,
+		addr var, addr errorp, addr eof, addr recp)
 {
-	Return(read_preserving_whitespace_common(ptr, args, &args));
-	setresult_control(ptr, args);
+	Return(read_preserving_whitespace_common_(ptr, var, errorp, eof, recp, &var));
+	setresult_control(ptr, var);
 	return 0;
 }
 
@@ -141,7 +142,7 @@ static void defun_read_preserving_whitespace(void)
 	/* function */
 	GetConst(COMMON_READ_PRESERVING_WHITESPACE, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_read_preserving_whitespace);
+	setcompiled_opt4(pos, p_defun_read_preserving_whitespace);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Read);
@@ -192,16 +193,16 @@ static void defun_read_delimited_list(void)
 /* (defun read-from-string
  *    (string
  *     &optional eof-error-p eof-value
- *     &key start end preserving-whitespace) ...)
+ *     &key start end preserve-whitespace) ...)
  *    -> (values object position)
- *   string                 string
- *   eof-error-p            t  ;; boolean, default t
- *   eof-value              t  ;; default nil
- *   start                  (integer 0 *)  ;; default 0
- *   end                    (or (integer 0 *) null)  ;; default nil
- *   preserving-whitespace  t  ;; boolean, default nil
- *   object                 t
- *   position               (integer 0 *)
+ *   string               string
+ *   eof-error-p          t  ;; boolean, default t
+ *   eof-value            t  ;; default nil
+ *   start                (integer 0 *)  ;; default 0
+ *   end                  (or (integer 0 *) null)  ;; default nil
+ *   preserve-whitespace  t  ;; boolean, default nil
+ *   object               t
+ *   position             (integer 0 *)
  */
 static int function_read_from_string(Execute ptr, addr args)
 {
@@ -216,7 +217,7 @@ static void type_read_from_string(addr *ret)
 	/* (function (string &optional t t
 	 *    &key (start keyword-start)
 	 *         (end keyword-end)
-	 *         (preserving-whitespace t))
+	 *         (preserve-whitespace t))
 	 *    (values t index &rest nil))
 	 */
 	addr str, type, type1, type2, size, var, opt, key, start, end, pre;
@@ -231,7 +232,7 @@ static void type_read_from_string(addr *ret)
 	list_heap(&opt, type, type, NULL);
 	GetConst(KEYWORD_START, &start);
 	GetConst(KEYWORD_END, &end);
-	GetConst(KEYWORD_PRESERVING_WHITESPACE, &pre);
+	GetConst(KEYWORD_PRESERVE_WHITESPACE, &pre);
 	cons_heap(&start, start, type1);
 	cons_heap(&end, end, type2);
 	cons_heap(&pre, pre, type);
@@ -274,6 +275,7 @@ static void type_readtable_case(addr *ret)
 
 	GetTypeTable(&args, Readtable);
 	GetTypeTable(&values, CaseSensitivity);
+	typeargs_var1(&args, args);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
 }
@@ -679,8 +681,8 @@ void init_common_reader(void)
 {
 	SetPointerCall(defun, opt2, copy_readtable);
 	SetPointerCall(defun, var1opt2, make_dispatch_macro_character);
-	SetPointerCall(defun, dynamic, read);
-	SetPointerCall(defun, dynamic, read_preserving_whitespace);
+	SetPointerCall(defun, opt4, read);
+	SetPointerCall(defun, opt4, read_preserving_whitespace);
 	SetPointerCall(defun, var1opt2, read_delimited_list);
 	SetPointerCall(defun, dynamic, read_from_string);
 	SetPointerCall(defun, var1, readtable_case);

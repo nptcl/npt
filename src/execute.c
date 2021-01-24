@@ -309,7 +309,8 @@ static int findstate(struct execute **ptr)
 	lispd_lock_mutexlite(&ExecuteMutex);
 
 	/* find state=ThreadState_Empty */
-	if (findempty(ptr)) goto finish;
+	if (findempty(ptr))
+		goto finish;
 
 	/* extend memory */
 	if (extendmemory()) {

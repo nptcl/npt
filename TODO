@@ -24,9 +24,9 @@ Making testcase now.
     20  Files                                 10        10      100%
     21  Streams                               70        70      100%
     22  Printer                               41        41      100%
-    23  Reader                                21         0        0%
+    23  Reader                                21         9       43%
     24  System Construction                   16         0        0%
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       570       57%
+     -  All                                  996       579       58%

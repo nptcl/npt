@@ -23,16 +23,19 @@ static int strsize_stringu(const unicode *str, const unicode **endp, size_t *ret
 	/* trim space */
 	for (;;) {
 		c = *str;
-		if (! isSpaceUnicode(c)) break;
+		if (! isSpaceUnicode(c))
+			break;
 		str++;
 	}
-	if (! isDigitCase(c)) return 1;
+	if (! isDigitCase(c))
+		return 1;
 
 	/* parse-integer */
 	value = 0;
 	for (;;) {
 		c = *str;
-		if (! isDigitCase(c)) break;
+		if (! isDigitCase(c))
+			break;
 		if (value) {
 			if ((SIZE_MAX / 10) < value) {
 				*ret = SIZE_MAX;
@@ -66,10 +69,12 @@ static int getunit_stringu(const unicode *str, int *type)
 	if (c == 'K' || c == 'M' || c == 'G' || c == 'T' || c == 'P' || c == 'E') {
 		for (;;) {
 			check = *str;
-			if (! isSpaceUnicode(check)) break;
+			if (! isSpaceUnicode(check))
+				break;
 			str++;
 		}
-		if (check != 0) return 1;
+		if (check != 0)
+			return 1;
 	}
 	else {
 		return 1;
@@ -120,13 +125,38 @@ int getsize_stringu(lispstringu str, size_t *ret)
 		return 1;
 	}
 	switch (check) {
-		case 'K': if (unitloop(&size, 1)) goto error; break;
-		case 'M': if (unitloop(&size, 2)) goto error; break;
-		case 'G': if (unitloop(&size, 3)) goto error; break;
-		case 'T': if (unitloop(&size, 4)) goto error; break;
-		case 'P': if (unitloop(&size, 5)) goto error; break;
-		case 'E': if (unitloop(&size, 6)) goto error; break;
-		default: break;
+		case 'K':
+			if (unitloop(&size, 1))
+				goto error;
+			break;
+
+		case 'M':
+			if (unitloop(&size, 2))
+				goto error;
+			break;
+
+		case 'G':
+			if (unitloop(&size, 3))
+				goto error;
+			break;
+
+		case 'T':
+			if (unitloop(&size, 4))
+				goto error;
+			break;
+
+		case 'P':
+			if (unitloop(&size, 5))
+				goto error;
+			break;
+
+		case 'E':
+			if (unitloop(&size, 6))
+				goto error;
+			break;
+
+		default:
+			break;
 	}
 	*ret = size;
 	return 0;
@@ -248,11 +278,13 @@ int equalchar_stringu(lispstringu a, const char *b)
 	size_t i, size;
 
 	size = strlen(b) + 1UL;
-	if (a->size != size) return 0;
+	if (a->size != size)
+		return 0;
 	c = a->ptr;
 	d = (const byte *)b;
 	for (i = 0; i < size; i++) {
-		if (c[i] != (unicode)d[i]) return 0;
+		if (c[i] != (unicode)d[i])
+			return 0;
 	}
 
 	return 1;

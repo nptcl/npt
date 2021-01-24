@@ -185,7 +185,7 @@
 :predicate
 :prefix
 :preserve
-:preserving-whitespace
+:preserve-whitespace
 :pretty
 :print
 :print-function

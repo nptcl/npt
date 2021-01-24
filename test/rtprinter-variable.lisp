@@ -757,3 +757,36 @@
            "\"BBB\"" #\newline
            "\"CCC\" .."))
 
+;;  ANSI Common Lisp
+(deftest print-readably-test.1
+  (with-default-print
+    (let ((x (list "a" '\a (make-symbol "G") '((a (b (c))) d e f g)))
+          (*print-escape* nil)
+          (*print-gensym* nil)
+          (*print-level* 3)
+          (*print-length* 4)
+          list)
+      (push (write-to-string x) list)
+      (let ((*print-readably* t))
+        (push (write-to-string x) list)
+        (push :done list))
+      (nreverse list)))
+  ("(a a G ((A #) D E F ...))"
+   "(\"a\" |a| #:G ((A (B (C))) D E F G))"
+   :done))
+
+(deftest print-readably-test.2
+  (with-default-print
+    (let ((*print-readably* nil))
+      (stringp
+        (write-to-string
+          (make-hash-table)))))
+  t)
+
+(deftest-error print-readably-test.3
+  (with-default-print
+    (let ((*print-readably* t))
+      (with-output-to-string (*standard-output*)
+        (print (make-hash-table)))))
+  print-not-readable)
+

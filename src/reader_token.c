@@ -124,27 +124,36 @@ enum TokenType tokentype(unsigned base, addr queue)
 	ReadtableNext();
 	first = checktable_firstpotential(base, c);
 	OUTPUTSTATE("first", c);
-	if (c == 0) goto error;
-	if (checktable_sign(c)) goto digit1;
+	if (c == 0)
+		goto error;
+	if (checktable_sign(c))
+		goto digit1;
 	checkbasegoto(base, digit, c, digit2);
-	if (checktable_isdigit(c)) goto float1;
-	if (c == '.') goto dot1;
+	if (checktable_isdigit(c))
+		goto float1;
+	if (c == '.')
+		goto dot1;
 	goto symbol;
 
 	/* dot check */
 dot1:
 	ReadtableNext();
 	OUTPUTSTATE("dot1", c);
-	if (c == 0) goto token_dot;
-	if (checktable_isdigit(c)) goto float6;
-	if (c == '.') goto dot2;
+	if (c == 0)
+		goto token_dot;
+	if (checktable_isdigit(c))
+		goto float6;
+	if (c == '.')
+		goto dot2;
 	goto symbol;
 
 dot2:
 	ReadtableNext();
 	OUTPUTSTATE("dot2", c);
-	if (c == '.') goto dot2;
-	if (c == 0) goto error;
+	if (c == '.')
+		goto dot2;
+	if (c == 0)
+		goto error;
 	goto symbol;
 
 	/* integer */
@@ -152,155 +161,204 @@ digit1:
 	ReadtableNext();
 	OUTPUTSTATE("digit1", c);
 	checkbasegoto(base, digit, c, digit2);
-	if (checktable_isdigit(c)) goto float1;
-	if (c == '.') goto float5;
+	if (checktable_isdigit(c))
+		goto float1;
+	if (c == '.')
+		goto float5;
 	goto symbol_sign;
 
 digit2:
 	ReadtableNext();
 	OUTPUTSTATE("digit2", c);
-	if (c == 0) goto token_digit;
-	if (c == '.') goto digit3;
-	if (c == '/') goto ratio1;
+	if (c == 0)
+		goto token_digit;
+	if (c == '.')
+		goto digit3;
+	if (c == '/')
+		goto ratio1;
 	checkbasegoto(base, digit, c, digit2);
-	if (checktable_isdigit(c)) goto float1;
-	if (checktable_exponent(c)) goto exponent1;
+	if (checktable_isdigit(c))
+		goto float1;
+	if (checktable_exponent(c))
+		goto exponent1;
 	goto symbol;
 
 digit3:
 	ReadtableNext();
 	OUTPUTSTATE("digit3", c);
-	if (c == 0) goto token_digit;
-	if (checktable_isdigit(c)) goto float4;
-	if (checktable_exponent(c)) goto exponent3;
+	if (c == 0)
+		goto token_digit;
+	if (checktable_isdigit(c))
+		goto float4;
+	if (checktable_exponent(c))
+		goto exponent3;
 	goto symbol;
 
 	/* ratio */
 ratio1:
 	ReadtableNext();
 	OUTPUTSTATE("ratio1", c);
-	if (checktable_base(base, c)) goto ratio2;
+	if (checktable_base(base, c))
+		goto ratio2;
 	goto symbol;
 
 ratio2:
 	ReadtableNext();
 	OUTPUTSTATE("ratio2", c);
-	if (c == 0) goto token_ratio;
-	if (checktable_base(base, c)) goto ratio2;
+	if (c == 0)
+		goto token_ratio;
+	if (checktable_base(base, c))
+		goto ratio2;
 	goto symbol;
 
 	/* float */
 float1:
 	ReadtableNext();
 	OUTPUTSTATE("float1", c);
-	if (checktable_isdigit(c)) goto float1;
-	if (checktable_exponent(c)) goto exponent1;
-	if (c == '.') goto float3;
+	if (checktable_isdigit(c))
+		goto float1;
+	if (checktable_exponent(c))
+		goto exponent1;
+	if (c == '.')
+		goto float3;
 	goto symbol;
 
 float3:
 	ReadtableNext();
 	OUTPUTSTATE("float3", c);
-	if (checktable_exponent(c)) goto exponent1;
-	if (checktable_isdigit(c)) goto float4;
+	if (checktable_exponent(c))
+		goto exponent1;
+	if (checktable_isdigit(c))
+		goto float4;
 	goto symbol;
 
 float4:
 	ReadtableNext();
 	OUTPUTSTATE("float4", c);
-	if (c == 0) goto check_float;
-	if (checktable_exponent(c)) goto exponent1;
-	if (checktable_isdigit(c)) goto float4;
+	if (c == 0)
+		goto check_float;
+	if (checktable_exponent(c))
+		goto exponent1;
+	if (checktable_isdigit(c))
+		goto float4;
 	goto symbol;
 
 float5:
 	ReadtableNext();
 	OUTPUTSTATE("float5", c);
-	if (checktable_isdigit(c)) goto float6;
+	if (checktable_isdigit(c))
+		goto float6;
 	goto symbol;
 
 float6:
 	ReadtableNext();
 	OUTPUTSTATE("float6", c);
-	if (c == 0) goto check_float;
-	if (checktable_isdigit(c)) goto float6;
-	if (checktable_exponent(c)) goto exponent1;
+	if (c == 0)
+		goto check_float;
+	if (checktable_isdigit(c))
+		goto float6;
+	if (checktable_exponent(c))
+		goto exponent1;
 	goto symbol;
 
 check_float:
-	if (digit) goto token_float;
+	if (digit)
+		goto token_float;
 	goto token_potential;
 
 	/* exponent */
 exponent1:
 	ReadtableNext();
 	OUTPUTSTATE("exponent1", c);
-	if (checktable_sign(c)) goto exponent2;
-	if (checktable_isdigit(c)) goto exponent3;
+	if (checktable_sign(c))
+		goto exponent2;
+	if (checktable_isdigit(c))
+		goto exponent3;
 	goto symbol_exponent;
 
 exponent2:
 	ReadtableNext();
 	OUTPUTSTATE("exponent2", c);
-	if (checktable_isdigit(c)) goto exponent3;
+	if (checktable_isdigit(c))
+		goto exponent3;
 	goto symbol_sign;
 
 exponent3:
 	ReadtableNext();
 	OUTPUTSTATE("exponent3", c);
-	if (c == 0) goto check_float;
-	if (checktable_isdigit(c)) goto exponent3;
+	if (c == 0)
+		goto check_float;
+	if (checktable_isdigit(c))
+		goto exponent3;
 	goto symbol;
 
 	/* symbol */
 symbol:
 	OUTPUTSTATE("symbol", c);
-	if (first == 0) goto token_symbol;
+	if (first == 0)
+		goto token_symbol;
 	goto potential_symbol;
 
 potential:
 	ReadtableNext();
 	OUTPUTSTATE("potential", c);
 potential_symbol:
-	if (c == 0) goto token_potential;
-	if (checktable_sign(c)) goto potential_sign;
-	if (checktable_base(base, c)) goto potential;
-	if (checktable_isalpha(c)) goto potential_marker;
-	if (checktable_potential(base, c)) goto potential;
+	if (c == 0)
+		goto token_potential;
+	if (checktable_sign(c))
+		goto potential_sign;
+	if (checktable_base(base, c))
+		goto potential;
+	if (checktable_isalpha(c))
+		goto potential_marker;
+	if (checktable_potential(base, c))
+		goto potential;
 	goto token_symbol;
 
 	/* symbol-sign */
 symbol_sign:
 	OUTPUTSTATE("symbol_sign", c);
-	if (first == 0) goto token_symbol;
+	if (first == 0)
+		goto token_symbol;
 	goto potential_sign_symbol;
 
 potential_sign:
 	ReadtableNext();
 	OUTPUTSTATE("potential", c);
 potential_sign_symbol:
-	if (c == 0) goto token_symbol;
-	if (checktable_sign(c)) goto potential_sign;
-	if (checktable_base(base, c)) goto potential;
-	if (checktable_isalpha(c)) goto potential_marker;
-	if (checktable_potential(base, c)) goto potential;
+	if (c == 0)
+		goto token_symbol;
+	if (checktable_sign(c))
+		goto potential_sign;
+	if (checktable_base(base, c))
+		goto potential;
+	if (checktable_isalpha(c))
+		goto potential_marker;
+	if (checktable_potential(base, c))
+		goto potential;
 	goto token_symbol;
 
 	/* symbol-marker */
 symbol_exponent:
 	OUTPUTSTATE("symbol_exponent", c);
-	if (first == 0) goto token_symbol;
+	if (first == 0)
+		goto token_symbol;
 	goto potential_marker_symbol;
 
 potential_marker:
 	ReadtableNext();
 	OUTPUTSTATE("potential_marker", c);
 potential_marker_symbol:
-	if (c == 0) goto token_potential;
-	if (checktable_base(base, c)) goto potential;
-	if (checktable_isalpha(c)) goto token_symbol;
-	if (checktable_sign(c)) goto potential_sign;
-	if (checktable_potential(base, c)) goto potential;
+	if (c == 0)
+		goto token_potential;
+	if (checktable_base(base, c))
+		goto potential;
+	if (checktable_isalpha(c))
+		goto token_symbol;
+	if (checktable_sign(c))
+		goto potential_sign;
+	if (checktable_potential(base, c))
+		goto potential;
 	goto token_symbol;
 
 	/* token */
@@ -329,7 +387,8 @@ token_potential:
 	return pot? TokenType_potential: TokenType_symbol;
 
 error:
-	if (checktable_force(c)) goto force;
+	if (checktable_force(c))
+		goto force;
 	OUTPUTSTATE("error", '-');
 	return TokenType_error;
 

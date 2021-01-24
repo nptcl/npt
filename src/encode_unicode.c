@@ -78,12 +78,18 @@ static int read_utf8_call(struct read_unicode_struct *ptr,
 	else
 		goto file_error;
 
-	if (0x00 <= c && c <= 0x7F) goto sequence1;
-	if (0xC2 <= c && c <= 0xDF) goto sequence2;
-	if (0xE0 <= c && c <= 0xEF) goto sequence3;
-	if (0xF0 <= c && c <= 0xF7) goto sequence4;
-	if (0xF8 <= c && c <= 0xFB) goto sequence5;
-	if (0xFC <= c && c <= 0xFD) goto sequence6;
+	if (0x00 <= c && c <= 0x7F)
+		goto sequence1;
+	if (0xC2 <= c && c <= 0xDF)
+		goto sequence2;
+	if (0xE0 <= c && c <= 0xEF)
+		goto sequence3;
+	if (0xF0 <= c && c <= 0xF7)
+		goto sequence4;
+	if (0xF8 <= c && c <= 0xFB)
+		goto sequence5;
+	if (0xFC <= c && c <= 0xFD)
+		goto sequence6;
 	goto unicode_error;
 
 sequence1:
@@ -93,37 +99,48 @@ sequence1:
 sequence2:
 	value = (0x1F & c) << 6;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= 0x3F & c;
-	if (value < 0x80) goto range_error;
+	if (value < 0x80)
+		goto range_error;
 	goto normal;
 
 sequence3:
 	value = (0x0F & c) << 12;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 6;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= 0x3F & c;
-	if (value < 0x0800) goto range_error;
-	if (UTF16range(value)) goto surrogate_error;
+	if (value < 0x0800)
+		goto range_error;
+	if (UTF16range(value))
+		goto surrogate_error;
 	goto normal;
 
 sequence4:
 	value = (0x07 & c) << 18;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 12;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 6;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= 0x3F & c;
-	if (value < 0x010000) goto range_error;
+	if (value < 0x010000)
+		goto range_error;
 #ifdef LISP_UTF8_SEQ5CHECK
-	if (UnicodeCount <= value) goto range_error;
+	if (UnicodeCount <= value)
+		goto range_error;
 #endif
 	goto normal;
 
@@ -133,18 +150,23 @@ sequence5:
 #else
 	value = (0x03 & c) << 24;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 18;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 12;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 6;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= 0x3F & c;
-	if (value < 0x00200000 || 0x03FFFFFF < value) goto range_error;
+	if (value < 0x00200000 || 0x03FFFFFF < value)
+		goto range_error;
 	goto normal;
 #endif
 
@@ -154,21 +176,27 @@ sequence6:
 #else
 	value = (0x01 & c) << 30;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 24;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 18;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 12;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= (0x3F & c) << 6;
 	read_utf8_macro();
-	if (c < 0x80 || 0xBF < c) goto unicode_error;
+	if (c < 0x80 || 0xBF < c)
+		goto unicode_error;
 	value |= 0x3F & c;
-	if (value < 0x04000000 || 0x7FFFFFFF < value) goto range_error;
+	if (value < 0x04000000 || 0x7FFFFFFF < value)
+		goto range_error;
 	goto normal;
 #endif
 
