@@ -102,6 +102,9 @@ static int compile_file_execute_(Execute ptr,
 
 	/* compile */
 	Return(compile_file_output(ptr, input, output, rest));
+	GetPathnameStream(output, &pos);
+	if (memory_stream_p(pos))
+		return Result(ret, Nil);
 	Return(truename_files_(ptr, output, ret, 0));
 
 	return 0;
@@ -124,7 +127,7 @@ static int compile_file_output_stream_(Execute ptr,
 {
 	addr control;
 
-	if (streamp(output))
+	if (streamp(output) && (! memory_stream_p(output)))
 		return compile_file_execute_(ptr, input, output, rest, ret);
 
 	/* open input */
@@ -150,7 +153,7 @@ static int compile_file_input_stream_(Execute ptr,
 {
 	addr control;
 
-	if (streamp(input))
+	if (streamp(input) && (! memory_stream_p(input)))
 		return compile_file_output_stream_(ptr, input, output, rest, ret);
 
 	/* open input */

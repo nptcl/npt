@@ -137,147 +137,168 @@
 
 
 ;;
-;;  define-compiler-macro
+;;  Accessor COMPILER-MACRO-FUNCTION
 ;;
-(deftest define-compiler-macro.1
-  (define-compiler-macro define-compiler-macro1 () :hello)
-  define-compiler-macro1)
-
-(deftest define-compiler-macro.2
-  (define-compiler-macro (setf define-compiler-macro2) (a) (+ a 10))
-  (setf define-compiler-macro2))
-
-
-;;
-;;  compiler-macro-function
-;;
+(define-compiler-macro compiler-macro-function-1 () :hello)
 (deftest compiler-macro-function.1
   (functionp
-    (compiler-macro-function 'define-compiler-macro1))
+    (compiler-macro-function 'compiler-macro-function-1))
   t)
 
 (deftest compiler-macro-function.2
   (compiler-macro-function 'define-compiler-macro-error)
   nil)
 
+(define-compiler-macro (setf compiler-macro-function-2) (a) (+ a 10))
 (deftest compiler-macro-function.3
   (functionp
-    (compiler-macro-function '(setf define-compiler-macro2)))
+    (compiler-macro-function '(setf compiler-macro-function-2)))
   t)
 
 (deftest compiler-macro-function.4
   (compiler-macro-function '(setf define-compiler-macro-error))
   nil)
 
-(deftest compiler-macro-function.5
-  (functionp
-    (setf (compiler-macro-function 'define-compiler-macro5) (lambda () :aaabbb)))
-  t)
+(deftest-error! compiler-macro-function-error.1
+  (eval '(compiler-macro-function)))
 
-(deftest compiler-macro-function.6
-  (functionp
-    (compiler-macro-function 'define-compiler-macro5))
-  t)
+(deftest-error! compiler-macro-function-error.2
+  (eval '(compiler-macro-function 'compiler-macro-function-1 nil)))
 
-(deftest compiler-macro-function.7
+(deftest-error compiler-macro-function-error.3
+  (eval '(compiler-macro-function 100))
+  type-error)
+
+
+;;
+;;  Accessor (SETF COMPILER-MACRO-FUNCTION)
+;;
+(deftest compiler-macro-function-setf.1
   (functionp
-    (setf (compiler-macro-function '(setf define-compiler-macro7))
+    (setf (compiler-macro-function 'define-compiler-macro-setf-1)
           (lambda () :aaabbb)))
   t)
 
-(deftest compiler-macro-function.8
+(deftest compiler-macro-function-setf.2
   (functionp
-    (compiler-macro-function '(setf define-compiler-macro7)))
+    (compiler-macro-function 'define-compiler-macro-setf-1))
   t)
 
+(deftest compiler-macro-function-setf.3
+  (functionp
+    (setf (compiler-macro-function '(setf define-compiler-macro-setf-2))
+          (lambda () :aaabbb)))
+  t)
+
+(deftest compiler-macro-function-setf.4
+  (functionp
+    (compiler-macro-function '(setf define-compiler-macro-setf-2)))
+  t)
+
+(deftest compiler-macro-function-setf.5
+  (setf (compiler-macro-function 'define-compiler-macro-setf-1) nil)
+  nil)
+
+(deftest compiler-macro-function-setf.6
+  (compiler-macro-function 'define-compiler-macro-setf-1)
+  nil)
+
+(deftest compiler-macro-function-setf.7
+  (setf (compiler-macro-function '(setf define-compiler-macro-setf-2)) nil)
+  nil)
+
+(deftest compiler-macro-function-setf.8
+  (compiler-macro-function '(setf define-compiler-macro-setf-2))
+  nil)
+
+(deftest-error! compiler-macro-function-setf-error.1
+  (eval '(setf (compiler-macro-function) nil)))
+
+(deftest-error! compiler-macro-function-setf-error.2
+  (eval '(setf (compiler-macro-function 'error-name nil nil) nil)))
+
+(deftest-error compiler-macro-function-setf-error.3
+  (eval '(setf (compiler-macro-function 'define-compiler-macro-setf-1) 10))
+  type-error)
+
 
 ;;
-;;  compiler-macroexpand
+;;  Macro DEFINE-COMPILER-MACRO
 ;;
-(define-compiler-macro compiler-macro1 (x)
+(deftest define-compiler-macro.1
+  (define-compiler-macro define-compiler-macro-1 () :hello)
+  define-compiler-macro-1)
+
+(deftest define-compiler-macro.2
+  (define-compiler-macro (setf define-compiler-macro-2) (a) (+ a 10))
+  (setf define-compiler-macro-2))
+
+(define-compiler-macro compiler-macro-1 (x)
   (+ x 100))
 
-(defun compiler-macro1 (x)
+(defun compiler-macro-1 (x)
   (+ x 200))
 
 (deftest compiler-macro.1
-  (eval '(compiler-macro1 300))
+  (eval '(compiler-macro-1 300))
   500)
 
 (deftest compiler-macro.2
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil '(lambda () (compiler-macro1 300)))))
+  (funcall
+    (compile nil '(lambda () (compiler-macro-1 300))))
   400)
 
-(defun compiler-macro3 (&rest args)
+(defvar *compiler-macro-test-1*)
+(deftest compiler-macro.3
+  (let ((input (lisp-system:make-memory-io-stream))
+        (output (lisp-system:make-memory-io-stream)))
+    (with-open-file (stream input :direction :output)
+      (princ "(setq *compiler-macro-test-1* (compiler-macro-1 500))" stream))
+    (with-open-file (stream input :direction :input)
+      (compile-file stream :output-file output))
+    (file-position output :start)
+    (load output :type 'fasl)
+    *compiler-macro-test-1*)
+  600)
+
+(defun compiler-macro-2 (&rest args)
   (apply #'+ args))
 
-(define-compiler-macro compiler-macro3 (&whole whole &rest args)
+(define-compiler-macro compiler-macro-2 (&whole whole &rest args)
   (case (length args)
     (0 ''hello)
     (1 (car args))
     (t whole)))
 
-(deftest compiler-macro.3
-  (eval '(compiler-macro3 1 2 3))
-  6)
-
 (deftest compiler-macro.4
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil '(lambda () (compiler-macro3)))))
-  hello)
+  (eval '(compiler-macro-2 1 2 3))
+  6)
 
 (deftest compiler-macro.5
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil '(lambda () (compiler-macro3 999)))))
-  999)
+  (funcall
+    (compile nil '(lambda () (compiler-macro-2))))
+  hello)
 
 (deftest compiler-macro.6
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil '(lambda () (compiler-macro3 1 2 3)))))
+  (funcall
+    (compile nil '(lambda () (compiler-macro-2 999))))
+  999)
+
+(deftest compiler-macro.7
+  (funcall
+    (compile nil '(lambda () (compiler-macro-2 1 2 3))))
   6)
 
-
-;;
-;;  macroexpand-hook
-;;
-(defmacro macroexpand-hook1 (x)
-  (format nil "<<<~A>>>" x))
-
-(deftest macroexpand-hook.1
-  (let ((*macroexpand-hook*
-          (lambda (call x e)
-            (if (and (consp x) (eq (car x) 'macroexpand-hook1))
-              :hello
-              (funcall call x e)))))
-    (macroexpand '(macroexpand-hook1 10)))
-  :hello t)
-
-(deftest macroexpand-hook.2
-  (macroexpand '(macroexpand-hook1 10))
-  "<<<10>>>" t)
-
-(define-compiler-macro macroexpand-hook3 (x)
-  (format nil "+++~A+++" x))
-
-(deftest macroexpand-hook.3
-  (let ((*macroexpand-hook*
-          (lambda (call x e)
-            (if (and (consp x) (eq (car x) 'macroexpand-hook3))
-              :hello
-              (funcall call x e)))))
-    (handler-bind ((warning #'muffle-warning))
-      (funcall
-        (compile nil '(lambda () (macroexpand-hook3 20))))))
-  :hello)
-
-(deftest macroexpand-hook.4
-  (handler-bind ((warning #'muffle-warning))
-    (funcall
-      (compile nil '(lambda () (macroexpand-hook3 20)))))
-  "+++20+++")
+(defvar *compiler-macro-test-2*)
+(deftest compiler-macro.8
+  (let ((input (lisp-system:make-memory-io-stream))
+        (output (lisp-system:make-memory-io-stream)))
+    (with-open-file (stream input :direction :output)
+      (princ "(setq *compiler-macro-test-2* (compiler-macro-2))" stream))
+    (with-open-file (stream input :direction :input)
+      (compile-file stream :output-file output))
+    (file-position output :start)
+    (load output :type 'fasl)
+    *compiler-macro-test-2*)
+  hello)
 

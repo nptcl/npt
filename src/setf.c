@@ -343,7 +343,7 @@ int get_setf_expansion(Execute ptr, addr form, addr env,
 	addr pos, symbol, args, check;
 
 	/* macroexpand */
-	Return(macroexpand(ptr, &pos, form, env, &result));
+	Return(macroexpand_(ptr, &pos, form, env, &result));
 	if (result)
 		form = pos;
 

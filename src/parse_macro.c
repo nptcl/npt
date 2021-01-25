@@ -8,17 +8,20 @@
 #include "symbol.h"
 
 /*
- *  environment
+ *  environment object
  */
 void environment_symbol(addr *ret)
 {
 	GetConst(SYSTEM_EVAL_PARSE_ENVIRONMENT, ret);
 }
 
-static void envroot_heap(addr *ret)
+void init_parse_environment(Execute ptr)
 {
-	/* global, local */
-	heap_array2(ret, LISPSYSTEM_ENVROOT, 2);
+	addr symbol, pos;
+
+	environment_symbol(&symbol);
+	heap_array2(&pos, LISPSYSTEM_ENVROOT, 2); /* global, root */
+	pushspecial_control(ptr, symbol, pos);
 }
 
 static void envstack_heap(addr *ret, addr next, addr call, addr lambda, addr callp)
@@ -32,15 +35,6 @@ static void envstack_heap(addr *ret, addr next, addr call, addr lambda, addr cal
 	SetArrayA2(pos, 2, lambda);
 	SetArrayA2(pos, 3, callp);
 	*ret = pos;
-}
-
-void init_parse_environment(Execute ptr)
-{
-	addr symbol, pos;
-
-	environment_symbol(&symbol);
-	envroot_heap(&pos);
-	pushspecial_control(ptr, symbol, pos);
 }
 
 int snapshot_envstack_(Execute ptr, addr *ret)
@@ -185,7 +179,7 @@ static int closep_environment(addr pos)
 
 
 /*
- *  macro
+ *  macroexpand
  */
 static int findstack_environment(addr symbol, addr root, addr callp, addr *ret)
 {
@@ -270,7 +264,7 @@ int find_environment_(addr symbol, addr env, addr *ret)
 	return 0;
 }
 
-int call_macroexpand_hook(Execute ptr, addr *ret, addr call, addr cons, addr env)
+int call_macroexpand_hook_(Execute ptr, addr *ret, addr call, addr cons, addr env)
 {
 	addr hook;
 
@@ -279,7 +273,7 @@ int call_macroexpand_hook(Execute ptr, addr *ret, addr call, addr cons, addr env
 	return callclang_funcall(ptr, ret, hook, call, cons, env, NULL);
 }
 
-static int macroexpand1_symbol(Execute ptr,
+static int macroexpand1_symbol_(Execute ptr,
 		addr *value, addr symbol, addr env, int *ret)
 {
 	addr call, pos;
@@ -289,11 +283,11 @@ static int macroexpand1_symbol(Execute ptr,
 		return Result(ret, 0);
 	GetConst(SYSTEM_SYMBOL_MACRO_EXPANDER, &call);
 	GetFunctionSymbol(call, &call);
-	Return(call_macroexpand_hook(ptr, value, call, pos, env));
+	Return(call_macroexpand_hook_(ptr, value, call, pos, env));
 	return Result(ret, 1);
 }
 
-static int macroexpand1_function(Execute ptr,
+static int macroexpand1_function_(Execute ptr,
 		addr *value, addr form, addr env, int *ret)
 {
 	addr call;
@@ -302,34 +296,36 @@ static int macroexpand1_function(Execute ptr,
 	Return(find_environment_(call, env, &call));
 	if (call == Unbound)
 		return Result(ret, 0);
-	Return(call_macroexpand_hook(ptr, value, call, form, env));
+	Return(call_macroexpand_hook_(ptr, value, call, form, env));
 	return Result(ret, 1);
 }
 
-int macroexpand1(Execute ptr, addr *ret, addr form, addr env, int *result)
+int macroexpand1_(Execute ptr, addr *ret, addr form, addr env, int *result)
 {
 	if (symbolp(form))
-		return macroexpand1_symbol(ptr, ret, form, env, result);
+		return macroexpand1_symbol_(ptr, ret, form, env, result);
 	if (consp(form))
-		return macroexpand1_function(ptr, ret, form, env, result);
+		return macroexpand1_function_(ptr, ret, form, env, result);
+	*ret = form;
 	*result = 0;
 	return 0;
 }
 
-int macroexpand(Execute ptr, addr *ret, addr form, addr env, int *result)
+int macroexpand_(Execute ptr, addr *ret, addr form, addr env, int *result)
 {
 	int check, value;
-	addr pos;
+	addr pos, fail;
 
 	check = 0;
+	fail = form;
 	for (;;) {
-		Return(macroexpand1(ptr, &pos, form, env, &value));
+		Return(macroexpand1_(ptr, &pos, form, env, &value));
 		if (value == 0)
 			break;
 		check = 1;
 		form = pos;
 	}
-	*ret = check? pos: Nil;
+	*ret = check? pos: fail;
 	*result = check;
 
 	return 0;

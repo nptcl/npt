@@ -224,8 +224,8 @@ static int read_byte_MemoryStream(addr stream, addr *value, int *ret)
 	str = PtrMemoryStream(stream);
 	position_get_buffering(page, &index);
 	if (str->unread_index) {
-		fixnum_heap(value, (fixnum)str->unread[str->unread_index]);
 		str->unread_index--;
+		fixnum_heap(value, (fixnum)str->unread[str->unread_index]);
 		position_set_buffering(page, index + 1UL);
 		return Result(ret, 0);
 	}
@@ -541,8 +541,8 @@ static int read_byte_read_memory(addr stream, byte *value, int *ret)
 	str = PtrMemoryStream(stream);
 	position_get_buffering(page, &index);
 	if (str->unread_index) {
-		*value = str->unread[str->unread_index];
 		str->unread_index--;
+		*value = str->unread[str->unread_index];
 		position_set_buffering(page, index + 1UL);
 		*ret = 0;
 		return 0;

@@ -176,7 +176,7 @@ static void defun_compiler_macro_function(void)
 
 /* (defun (setf compiler-macro-function) (value name &optional env) ...)
  *     -> function
- *   values    function
+ *   values    (or function null)
  *   name      function-name
  *   env       environment
  *   function  (or function null)
@@ -193,7 +193,7 @@ static void type_setf_compiler_macro_function(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&type, Function);
+	GetTypeTable(&type, FunctionNull);
 	GetTypeTable(&args, FunctionName);
 	GetTypeTable(&values, Environment);
 	typeargs_var2opt1(&args, type, args, values);

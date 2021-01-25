@@ -62,8 +62,10 @@
 #define remsymbol_macro_symbol _n(remsymbol_macro_symbol)
 #define get_compiler_macro_symbol _n(get_compiler_macro_symbol)
 #define set_compiler_macro_symbol_ _n(set_compiler_macro_symbol_)
+#define rem_compiler_macro_symbol_ _n(rem_compiler_macro_symbol_)
 #define get_setf_compiler_macro_symbol _n(get_setf_compiler_macro_symbol)
 #define set_setf_compiler_macro_symbol_ _n(set_setf_compiler_macro_symbol_)
+#define rem_setf_compiler_macro_symbol_ _n(rem_setf_compiler_macro_symbol_)
 #define getscope_symbol _n(getscope_symbol)
 #define setspecial_symbol _n(setspecial_symbol)
 #define setspecial_symbol_ _n(setspecial_symbol_)
@@ -212,8 +214,10 @@ void remsymbol_macro_symbol(addr symbol);
 
 void get_compiler_macro_symbol(addr symbol, addr *ret);
 int set_compiler_macro_symbol_(addr symbol, addr value);
+int rem_compiler_macro_symbol_(addr symbol);
 void get_setf_compiler_macro_symbol(addr symbol, addr *ret);
 int set_setf_compiler_macro_symbol_(addr symbol, addr value);
+int rem_setf_compiler_macro_symbol_(addr symbol);
 
 void getscope_symbol(addr symbol, addr *ret);
 void setspecial_symbol(addr symbol);

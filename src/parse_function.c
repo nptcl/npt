@@ -1631,7 +1631,7 @@ static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons)
 	/* macroexpand */
 	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
-	Return(call_macroexpand_hook(ptr, &value, call, cons, env));
+	Return(call_macroexpand_hook_(ptr, &value, call, cons, env));
 	close_environment(env);
 	localhold_end(hold);
 
@@ -1826,7 +1826,7 @@ static int parse_cons_expander_(Execute ptr, addr *ret, addr call, addr cons)
 
 	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
-	Return(call_macroexpand_hook(ptr, &pos, call, cons, env));
+	Return(call_macroexpand_hook_(ptr, &pos, call, cons, env));
 	close_environment(env);
 	localhold_end(hold);
 

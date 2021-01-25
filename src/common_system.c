@@ -11,6 +11,7 @@
 #include "eval_execute.h"
 #include "file.h"
 #include "require.h"
+#include "strtype.h"
 #include "type_parse.h"
 
 /* (defun compile-file
@@ -154,8 +155,41 @@ static void function_load_external(Execute ptr, addr rest, addr *ret)
 	}
 }
 
+enum LoadType {
+	LoadType_unbound,
+	LoadType_lisp,
+	LoadType_fasl
+};
+
+static int function_load_type_(Execute ptr, addr rest, enum LoadType *ret)
+{
+	int check;
+	addr pos;
+
+	if (GetKeyArgs(rest, KEYWORD_TYPE, &pos))
+		goto unbound;
+	if (! symbolp(pos))
+		goto unbound;
+	GetNameSymbol(pos, &pos);
+
+	/* lisp */
+	Return(string_equalp_char_(pos, "LISP", &check));
+	if (check)
+		return Result(ret, LoadType_lisp);
+
+	/* fasl */
+	Return(string_equalp_char_(pos, "FASL", &check));
+	if (check)
+		return Result(ret, LoadType_fasl);
+
+	/* unbound */
+unbound:
+	return Result(ret, LoadType_unbound);
+}
+
 static int function_load(Execute ptr, addr filespec, addr rest)
 {
+	enum LoadType type;
 	int exist, check;
 	addr verbose, print, external;
 
@@ -163,7 +197,23 @@ static int function_load(Execute ptr, addr filespec, addr rest)
 	function_load_print(ptr, rest, &print);
 	function_load_exist(ptr, rest, &exist);
 	function_load_external(ptr, rest, &external);
-	Return(eval_load(ptr, &check, filespec, verbose, print, exist, external));
+	Return(function_load_type_(ptr, rest, &type));
+	switch (type) {
+		case LoadType_lisp:
+			Return(eval_load_force_lisp_(ptr,
+						&check, filespec, verbose, print, exist, external));
+			break;
+
+		case LoadType_fasl:
+			Return(eval_load_force_fasl_(ptr,
+						&check, filespec, verbose, print, exist, external));
+			break;
+
+		case LoadType_unbound:
+		default:
+			Return(eval_load(ptr, &check, filespec, verbose, print, exist, external));
+			break;
+	}
 	setbool_control(ptr, check);
 
 	return 0;
@@ -171,7 +221,7 @@ static int function_load(Execute ptr, addr filespec, addr rest)
 
 static void type_load(addr *ret)
 {
-	addr args, values, type, key1, key2, key3, key4, key;
+	addr args, values, type, key1, key2, key3, key4, key5, key;
 
 	/* args */
 	GetTypeTable(&args, Stream);
@@ -179,14 +229,16 @@ static void type_load(addr *ret)
 	type2or_heap(args, type, &args);
 	GetTypeTable(&type, T);
 	GetConst(KEYWORD_VERBOSE, &key1);
-	cons_heap(&key1, key1, type);
 	GetConst(KEYWORD_PRINT, &key2);
-	cons_heap(&key2, key2, type);
 	GetConst(KEYWORD_IF_DOES_NOT_EXIST, &key3);
-	cons_heap(&key3, key3, type);
 	GetConst(KEYWORD_EXTERNAL_FORMAT, &key4);
+	GetConst(KEYWORD_TYPE, &key5);
+	cons_heap(&key1, key1, type);
+	cons_heap(&key2, key2, type);
+	cons_heap(&key3, key3, type);
 	cons_heap(&key4, key4, type);
-	list_heap(&key, key1, key2, key3, key4, NULL);
+	cons_heap(&key4, key5, type);
+	list_heap(&key, key1, key2, key3, key4, key5, NULL);
 	typeargs_var1key(&args, args, key);
 	/* values */
 	GetTypeValues(&values, Boolean);

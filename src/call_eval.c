@@ -88,7 +88,10 @@ static int setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 		}
 	}
 	GetCallName(var, &var);
-	return set_compiler_macro_symbol_(var, value);
+	if (value == Nil)
+		return rem_compiler_macro_symbol_(var);
+	else
+		return set_compiler_macro_symbol_(var, value);
 }
 
 static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
@@ -98,7 +101,10 @@ static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
 				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
 	}
 	GetCallName(var, &var);
-	return set_setf_compiler_macro_symbol_(var, value);
+	if (value == Nil)
+		return rem_setf_compiler_macro_symbol_(var);
+	else
+		return set_setf_compiler_macro_symbol_(var, value);
 }
 
 int setf_compiler_macro_function_common(addr value, addr var, addr env)
@@ -353,15 +359,8 @@ int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 
 	if (env == Unbound)
 		env = Nil;
-	Return(macroexpand(ptr, &form, form, env, &check));
-	if (check) {
-		*ret = form;
-		*sec = T;
-	}
-	else {
-		*ret = Nil;
-		*sec = Nil;
-	}
+	Return(macroexpand_(ptr, ret, form, env, &check));
+	*sec = check? T: Nil;
 
 	return 0;
 }
@@ -376,15 +375,8 @@ int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 
 	if (env == Unbound)
 		env = Nil;
-	Return(macroexpand1(ptr, &form, form, env, &check));
-	if (check) {
-		*ret = form;
-		*sec = T;
-	}
-	else {
-		*ret = Nil;
-		*sec = Nil;
-	}
+	Return(macroexpand1_(ptr, ret, form, env, &check));
+	*sec = check? T: Nil;
 
 	return 0;
 }
@@ -463,7 +455,7 @@ static int eval_constantp(Execute ptr, addr var, addr env, int *ret)
 	int check;
 	addr pos;
 
-	Return(macroexpand(ptr, &pos, var, env, &check));
+	Return(macroexpand_(ptr, &pos, var, env, &check));
 	if (check)
 		var = pos;
 	*ret = eval_constantp_stable(var);

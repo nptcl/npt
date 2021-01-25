@@ -485,6 +485,15 @@ int set_compiler_macro_symbol_(addr symbol, addr value)
 	return setinfo_constant_(symbol, CONSTANT_SYSTEM_COMPILER_MACRO_FUNCTION, value);
 }
 
+int rem_compiler_macro_symbol_(addr symbol)
+{
+	if (GetStatusReadOnly(symbol))
+		return fmte_("Cannot set the constant variable ~S.", symbol, NULL);
+	reminfo_constant(symbol, CONSTANT_SYSTEM_COMPILER_MACRO_FUNCTION);
+
+	return 0;
+}
+
 void get_setf_compiler_macro_symbol(addr symbol, addr *value)
 {
 	CheckSymbol(symbol);
@@ -497,6 +506,16 @@ int set_setf_compiler_macro_symbol_(addr symbol, addr value)
 	return setinfo_constant_(symbol,
 			CONSTANT_SYSTEM_SETF_COMPILER_MACRO_FUNCTION, value);
 }
+
+int rem_setf_compiler_macro_symbol_(addr symbol)
+{
+	if (GetStatusReadOnly(symbol))
+		return fmte_("Cannot set the constant variable ~S.", symbol, NULL);
+	reminfo_constant(symbol, CONSTANT_SYSTEM_SETF_COMPILER_MACRO_FUNCTION);
+
+	return 0;
+}
+
 
 /* scope */
 void getscope_symbol(addr symbol, addr *value)

@@ -550,7 +550,11 @@ static int eval_load_check(
 	GetConstant(file_pathname, &symbol);
 	if (streamp(file)) {
 		GetPathnameStream(file, &value);
-		if (value != Nil) {
+		if (memory_stream_p(value)) {
+			value = Nil;
+			pushspecial_control(ptr, symbol, value);
+		}
+		else if (value != Nil) {
 			Return(physical_pathname_heap_(ptr, file, &value));
 			pushspecial_control(ptr, symbol, value);
 		}
@@ -621,6 +625,46 @@ int eval_load(Execute ptr, int *ret,
 	push_prompt_info(ptr);
 	set_eval_compile_mode(ptr, Nil);
 	(void)eval_load_file(ptr, ret, file, verbose, print, exist, external);
+	return pop_control_(ptr, control);
+}
+
+static int eval_load_file_switch_(Execute ptr, int *ret,
+		addr file, addr verbose, addr print, int exist,
+		addr external, int faslp)
+{
+	Return(eval_load_check(ptr, file, verbose, print, external,
+				CONSTANT_SPECIAL_LOAD_PATHNAME,
+				CONSTANT_SPECIAL_LOAD_TRUENAME,
+				CONSTANT_SPECIAL_LOAD_VERBOSE,
+				CONSTANT_SPECIAL_LOAD_PRINT,
+				&file));
+	if (faslp)
+		return eval_load_fasl_(ptr, ret, file, exist);
+	else
+		return eval_load_lisp_(ptr, ret, file, exist);
+}
+
+int eval_load_force_lisp_(Execute ptr, int *ret,
+		addr file, addr verbose, addr print, int exist, addr external)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	push_prompt_info(ptr);
+	set_eval_compile_mode(ptr, Nil);
+	(void)eval_load_file_switch_(ptr, ret, file, verbose, print, exist, external, 0);
+	return pop_control_(ptr, control);
+}
+
+int eval_load_force_fasl_(Execute ptr, int *ret,
+		addr file, addr verbose, addr print, int exist, addr external)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	push_prompt_info(ptr);
+	set_eval_compile_mode(ptr, Nil);
+	(void)eval_load_file_switch_(ptr, ret, file, verbose, print, exist, external, 1);
 	return pop_control_(ptr, control);
 }
 

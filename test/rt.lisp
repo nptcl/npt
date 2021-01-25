@@ -74,6 +74,8 @@
 (loadrt #p"rt-code.lisp")
 ;; Compile
 (loadrt #p"rt-compile.lisp")
+;; SysCall
+(loadrt #p"rt-syscall.lisp")
 ;; Lexical Binding
 (loadrt #p"rt-binding.lisp")
 ;; finish

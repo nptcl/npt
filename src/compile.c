@@ -14,6 +14,7 @@
 #include "function.h"
 #include "pathname_object.h"
 #include "pathname.h"
+#include "stream_object.h"
 #include "strvect.h"
 #include "symbol.h"
 
@@ -51,6 +52,8 @@ int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
 	}
 	else {
 		/* translate output-file */
+		if (memory_stream_p(output))
+			return Result(ret, output);
 		Return(physical_pathname_heap_(ptr, output, &output));
 		Return(merge_pathnames_clang_(ptr, output, Nil, Nil, ret));
 	}

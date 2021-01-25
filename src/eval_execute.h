@@ -31,6 +31,8 @@
 #define eval_stream_toplevel _n(eval_stream_toplevel)
 #define eval_object _n(eval_object)
 #define eval_load _n(eval_load)
+#define eval_load_force_lisp_ _n(eval_load_force_lisp_)
+#define eval_load_force_fasl_ _n(eval_load_force_fasl_)
 #define compile_load _n(compile_load)
 
 int gettoplevel_eval_(Execute ptr, addr *ret);
@@ -65,6 +67,10 @@ int eval_stream_partial(Execute ptr, addr stream);
 int eval_stream_toplevel(Execute ptr, addr stream);
 int eval_object(Execute ptr, addr eval, addr *ret);
 int eval_load(Execute ptr, int *result,
+		addr file, addr verbose, addr print, int exist, addr external);
+int eval_load_force_lisp_(Execute ptr, int *result,
+		addr file, addr verbose, addr print, int exist, addr external);
+int eval_load_force_fasl_(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist, addr external);
 int compile_load(Execute ptr, addr file, addr verbose, addr print, addr external);
 

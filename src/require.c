@@ -7,6 +7,7 @@
 #include "control_operator.h"
 #include "eval_execute.h"
 #include "require.h"
+#include "restart_value.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -34,6 +35,9 @@ int provide_common_(Execute ptr, addr var)
  */
 static int require_function_common_call_(Execute ptr, addr call, addr var, int *ret)
 {
+	if (symbolp(call)) {
+		Return(function_global_restart(ptr, call, &call));
+	}
 	Return(funcall_control(ptr, call, var, NULL));
 	getresult_control(ptr, &var);
 	return Result(ret, (var == Nil)? 0: 1);

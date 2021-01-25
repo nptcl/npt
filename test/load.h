@@ -56,6 +56,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-code.lisp");
 	/* Compile */
 	loadrt_file("rt-compile.lisp");
+	/* SysCall */
+	loadrt_file("rt-syscall.lisp");
 	/* Lexical Binding */
 	loadrt_file("rt-binding.lisp");
 #if 0

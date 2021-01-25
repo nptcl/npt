@@ -114,7 +114,7 @@ static int test_call_macroexpand_hook(void)
 	setcompiled_var3(call, p_debug1);
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);
 	pushspecial_control(ptr, hook, call);
-	call_macroexpand_hook(ptr, &call, T, fixnumh(10), Nil);
+	call_macroexpand_hook_(ptr, &call, T, fixnumh(10), Nil);
 	test(RefFixnum(call) == 11, "call_macroexpand_hook1");
 
 	pop_control_(ptr, control);
