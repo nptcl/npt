@@ -82,7 +82,7 @@ static int parse_progn_(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-/* let / let* */
+/* let */
 static int parse_letone_(addr one, addr *rets, addr *retv)
 {
 	addr symbol, value;
@@ -127,7 +127,7 @@ static int parse_letone_(addr one, addr *rets, addr *retv)
 	return 0;
 }
 
-static int parse_letarg_(Execute ptr, addr *ret, addr args)
+static int parse_let_arg_(Execute ptr, addr *ret, addr args)
 {
 	addr cons, one, symbol, value;
 	LocalHold hold;
@@ -145,32 +145,91 @@ static int parse_letarg_(Execute ptr, addr *ret, addr args)
 	localhold_end(hold);
 	nreverse(ret, cons);
 
+	/* macro */
+	args = *ret;
+	while (args != Nil) {
+		GetCons(args, &one, &args);
+		GetCar(one, &symbol);
+		Return(lexical_envstack_(ptr, symbol));
+	}
+
 	return 0;
 }
 
-static int parse_let_(Execute ptr, addr *ret, EvalParse type, addr cons)
+static int parse_let_(Execute ptr, addr *ret, addr cons)
 {
-	addr args, decl, eval;
+	addr rollback, args, decl, eval;
 	LocalHold hold;
 
 	/* args, decl, body */
-	if (! consp(cons)) {
-		if (type == EVAL_PARSE_LET)
-			return fmte_("let form must be a (let args . body).", NULL);
-		else
-			return fmte_("let* form must be a (let* args . body).", NULL);
-	}
+	if (! consp(cons))
+		return fmte_("let form must be a (let args . body).", NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	Return_getcons(cons, &args, &cons);
-	Return(parse_letarg_(ptr, &args, args));
+	Return(parse_let_arg_(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(parse_declare_body_(ptr, cons, &decl, &cons));
 	localhold_pushva(hold, decl, cons, NULL);
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* eval */
-	eval_parse_heap(&eval, type, 3);
+	eval_parse_heap(&eval, EVAL_PARSE_LET, 3);
+	SetEvalParse(eval, 0, args);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, cons);
+	return Result(ret, eval);
+}
+
+/* let* */
+static int parse_leta_arg_(Execute ptr, addr *ret, addr args)
+{
+	addr cons, one, symbol, value;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	for (cons = Nil; args != Nil; ) {
+		Return_getcons(args, &one, &args);
+		Return(parse_letone_(one, &symbol, &value));
+		Return(check_variable_(symbol));
+		Return(parse_self_(ptr, value));
+		cons_heap(&one, symbol, value);
+		cons_heap(&cons, one, cons);
+		localhold_set(hold, 0, cons);
+		/* macro */
+		Return(lexical_envstack_(ptr, symbol));
+	}
+	localhold_end(hold);
+	nreverse(ret, cons);
+
+	return 0;
+}
+
+static int parse_leta_(Execute ptr, addr *ret, addr cons)
+{
+	addr rollback, args, decl, eval;
+	LocalHold hold;
+
+	/* args, decl, body */
+	if (! consp(cons))
+		return fmte_("let* form must be a (let* args . body).", NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
+	hold = LocalHold_local(ptr);
+	Return_getcons(cons, &args, &cons);
+	Return(parse_leta_arg_(ptr, &args, args));
+	localhold_push(hold, args);
+	Return(parse_declare_body_(ptr, cons, &decl, &cons));
+	localhold_pushva(hold, decl, cons, NULL);
+	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
+	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
+
+	/* eval */
+	eval_parse_heap(&eval, EVAL_PARSE_LETA, 3);
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, cons);
@@ -181,11 +240,12 @@ static int parse_let_(Execute ptr, addr *ret, EvalParse type, addr cons)
 static int parse_setq_symbol_p_(Execute ptr, addr list, int *ret)
 {
 	int check;
-	addr symbol;
+	addr symbol, value;
 
 	while (list != Nil) {
 		Return_getcons(list, &symbol, &list);
-		Return(symbol_macrolet_envstack_p_(ptr, symbol, NULL, &check));
+		Return(check_variable_(symbol));
+		Return(symbol_macrolet_envstack_p_(ptr, symbol, &value, &check));
 		if (check)
 			return Result(ret, 1);
 		Return_getcons(list, &symbol, &list);
@@ -268,21 +328,27 @@ static int parse_setq_(Execute ptr, addr *ret, addr cons)
 }
 
 /* defun */
-static inline int check_variable_notnil_(addr *ret)
+static int check_variable_env_(Execute ptr, addr x)
 {
-	if (*ret != Nil)
-		return check_variable_(*ret);
-	else
-		return 0;
+	Return(check_variable_(x));
+	Return(lexical_envstack_(ptr, x));
+	return 0;
 }
 
-static int parse_var_(addr *ret, addr cons)
+static inline int check_variable_notnil_(Execute ptr, addr x)
+{
+	if (x != Nil)
+		return check_variable_env_(ptr, x);
+	return 0;
+}
+
+static int parse_var_(Execute ptr, addr *ret, addr cons)
 {
 	addr root, var;
 
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &var, &cons);
-		Return(check_variable_(var));
+		Return(check_variable_env_(ptr, var));
 		cons_heap(&root, var, root);
 	}
 	nreverse(ret, root);
@@ -302,9 +368,9 @@ static int parse_optional_(Execute ptr, addr *ret, addr cons)
 		GetCons(pos, &var, &pos);
 		GetCons(pos, &init, &pos);
 		GetCar(pos, &pos);
-		Return(check_variable_(var));
+		Return(check_variable_env_(ptr, var));
 		Return(parse_self_(ptr, init));
-		Return(check_variable_notnil_(&pos));
+		Return(check_variable_notnil_(ptr, pos));
 		/* push */
 		list_heap(&pos, var, init, pos, NULL);
 		cons_heap(&root, pos, root);
@@ -331,9 +397,9 @@ static int parse_key_(Execute ptr, addr *ret, addr cons)
 		GetCons(pos, &name, &pos);
 		GetCons(pos, &init, &pos);
 		GetCar(pos, &pos);
-		Return(check_variable_(var));
+		Return(check_variable_env_(ptr, var));
 		Return(parse_self_(ptr, init));
-		Return(check_variable_notnil_(&pos));
+		Return(check_variable_notnil_(ptr, pos));
 		/* push */
 		list_heap(&pos, var, name, init, pos, NULL);
 		cons_heap(&root, pos, root);
@@ -356,7 +422,7 @@ static int parse_aux_(Execute ptr, addr *ret, addr cons)
 		/* (var init) */
 		GetCons(pos, &var, &pos);
 		GetCar(pos, &pos);
-		Return(check_variable_(var));
+		Return(check_variable_env_(ptr, var));
 		Return(parse_self_(ptr, pos));
 		/* push */
 		list_heap(&pos, var, pos, NULL);
@@ -377,13 +443,13 @@ static int parse_ordinary_cons_(Execute ptr, addr *ret, addr args)
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, NULL);
 	hold = LocalHold_local(ptr);
 	/* var */
-	Return(parse_var_(&var, var));
+	Return(parse_var_(ptr, &var, var));
 	localhold_push(hold, var);
 	/* opt */
 	Return(parse_optional_(ptr, &opt, opt));
 	localhold_push(hold, opt);
 	/* rest */
-	Return(check_variable_notnil_(&rest));
+	Return(check_variable_notnil_(ptr, rest));
 	/* key */
 	Return(parse_key_(ptr, &key, key));
 	localhold_push(hold, key);
@@ -457,7 +523,7 @@ static int parse_macro_var_(Execute ptr, addr *ret, addr cons)
 			Return(parse_macro_lambda_list_(ptr, &var, var));
 		}
 		else {
-			Return(check_variable_(var));
+			Return(check_variable_env_(ptr, var));
 		}
 		cons_heap(&root, var, root);
 		localhold_set(hold, 0, root);
@@ -468,14 +534,14 @@ static int parse_macro_var_(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-static inline int parse_macro_rest_(addr *ret)
+static inline int parse_macro_rest_(Execute ptr, addr *ret)
 {
 	addr pos;
 
 	if (*ret != Nil) {
 		/* (var . &rest) (var . &body) (var . nil) */
 		GetCar(*ret, &pos);
-		Return(check_variable_(pos));
+		Return(check_variable_env_(ptr, pos));
 		SetCar(*ret, pos);
 	}
 
@@ -496,7 +562,7 @@ static int parse_macro_lambda_list_(Execute ptr, addr *ret, addr args)
 	Return(parse_optional_(ptr, &opt, opt));
 	localhold_push(hold, opt);
 	/* rest */
-	Return(parse_macro_rest_(&rest));
+	Return(parse_macro_rest_(ptr, &rest));
 	/* key */
 	Return(parse_key_(ptr, &key, key));
 	localhold_push(hold, key);
@@ -504,8 +570,8 @@ static int parse_macro_lambda_list_(Execute ptr, addr *ret, addr args)
 	Return(parse_aux_(ptr, &aux, aux));
 	localhold_push(hold, aux);
 	/* others */
-	Return(check_variable_notnil_(&whole));
-	Return(check_variable_notnil_(&env));
+	Return(check_variable_notnil_(ptr, whole));
+	Return(check_variable_notnil_(ptr, env));
 	/* result */
 	localhold_end(hold);
 	list_heap(ret, var, opt, rest, key, allow, aux, whole, env, NULL);
@@ -525,16 +591,19 @@ static int make_macro_function_(Execute ptr, addr *ret, addr *reval,
 	SetEvalParse(eval, 3, cons);
 	if (reval)
 		*reval = eval;
+
 	return eval_result_macro(ptr, eval, ret);
 }
 
 static int parse_defmacro_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, name, args, decl, doc, body, lambda, macro;
+	addr rollback, eval, name, args, decl, doc, body, lambda, macro;
 	LocalHold hold;
 
 	/* (eval::defmacro name args decl doc body) */
 	List_bind(cons, &name, &args, &decl, &doc, &body, NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	Return(parse_macro_lambda_list_(ptr, &args, args));
 	localhold_push(hold, args);
@@ -544,6 +613,7 @@ static int parse_defmacro_(Execute ptr, addr *ret, addr cons)
 	localhold_push(hold, macro);
 	Return(defmacro_envstack_(ptr, name, lambda));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* defmacro */
 	eval_parse_heap(&eval, EVAL_PARSE_DEFMACRO, 2);
@@ -556,7 +626,7 @@ static int parse_defmacro_(Execute ptr, addr *ret, addr cons)
 /* macro-lambda */
 static int parse_macro_lambda_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, args, decl, doc;
+	addr rollback, eval, args, decl, doc;
 	LocalHold hold;
 
 	/* (macro-lambda args . body) */
@@ -564,6 +634,8 @@ static int parse_macro_lambda_(Execute ptr, addr *ret, addr cons)
 		return fmte_("MACRO-LAMBDA argument ~S "
 				"must be (lambda-list . form).", cons, NULL);
 	}
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	GetCons(cons, &args, &cons);
 	Return(lambda_macro_(ptr->local, &args, args, Nil));
@@ -574,6 +646,7 @@ static int parse_macro_lambda_(Execute ptr, addr *ret, addr cons)
 	localhold_pushva(hold, doc, decl, cons, NULL);
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* macro-lambda */
 	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 4);
@@ -588,11 +661,13 @@ static int parse_macro_lambda_(Execute ptr, addr *ret, addr cons)
 /* deftype */
 static int parse_deftype_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, name, args, decl, doc, body;
+	addr rollback, eval, name, args, decl, doc, body;
 	LocalHold hold;
 
 	/* (eval::deftype name args decl doc body) */
 	List_bind(cons, &name, &args, &decl, &doc, &body, NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	Return(parse_macro_lambda_list_(ptr, &args, args));
 	localhold_push(hold, args);
@@ -600,6 +675,7 @@ static int parse_deftype_(Execute ptr, addr *ret, addr cons)
 	localhold_push(hold, body);
 	Return(localhold_parse_allcons_(hold, ptr, &body, body));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* deftype */
 	eval_parse_heap(&eval, EVAL_PARSE_DEFTYPE, 5);
@@ -614,11 +690,13 @@ static int parse_deftype_(Execute ptr, addr *ret, addr cons)
 /* define-compiler-macro */
 static int parse_define_compiler_macro_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, name, args, decl, doc, body;
+	addr rollback, eval, name, args, decl, doc, body;
 	LocalHold hold;
 
 	/* (eval::define-compiler-macro name args decl doc body) */
 	List_bind(cons, &name, &args, &decl, &doc, &body, NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	Return(parse_macro_lambda_list_(ptr, &args, args));
 	localhold_push(hold, args);
@@ -626,6 +704,7 @@ static int parse_define_compiler_macro_(Execute ptr, addr *ret, addr cons)
 	localhold_push(hold, body);
 	Return(localhold_parse_allcons_(hold, ptr, &body, body));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* define-compiler-macro */
 	eval_parse_heap(&eval, EVAL_PARSE_DEFINE_COMPILER_MACRO, 5);
@@ -641,17 +720,20 @@ static int parse_define_compiler_macro_(Execute ptr, addr *ret, addr cons)
 /* destructuring-bind */
 static int parse_destructuring_bind_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, lambda, args, expr, decl, body;
+	addr rollback, eval, lambda, args, expr, decl, body;
 	LocalHold hold;
 
 	/* (eval::destructuring-bind args expr decl body) */
 	List_bind(cons, &args, &expr, &decl, &body, NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	Return(parse_macro_lambda_list_(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(localhold_parse_allcons_(hold, ptr, &body, body));
 	Return(localhold_parse_self_(hold, ptr, expr));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* lambda */
 	eval_parse_heap(&lambda, EVAL_PARSE_MACRO_LAMBDA, 4);
@@ -668,18 +750,21 @@ static int parse_destructuring_bind_(Execute ptr, addr *ret, addr cons)
 }
 
 /* define-symbol-macro */
-static int check_define_symbol_macro_(addr symbol)
+static int check_define_symbol_macro_(Execute ptr, addr symbol)
 {
 	addr value;
 
 	if (specialp_symbol(symbol)) {
-		return fmte_("define-symbol-macro cannot bind "
-				"the special symbol ~S.", symbol, NULL);
+		return call_simple_program_error_va_(ptr,
+				"define-symbol-macro cannot bind the special symbol ~S.",
+				symbol, NULL);
 	}
+
 	GetValueSymbol(symbol, &value);
 	if (value != Unbound) {
-		return fmte_("define-symbol-macro cannot bind "
-				"the bounded symbol ~S.", symbol, NULL);
+		return call_simple_program_error_va_(ptr,
+				"define-symbol-macro cannot bind the bounded symbol ~S.",
+				symbol, NULL);
 	}
 
 	return 0;
@@ -703,7 +788,7 @@ static int parse_define_symbol_macro_(Execute ptr, addr *ret, addr cons)
 		goto error;
 	localhold_push(hold, form);
 	/* form */
-	Return(check_define_symbol_macro_(symbol));
+	Return(check_define_symbol_macro_(ptr, symbol));
 	Return(define_symbol_macro_envstack_(ptr, symbol, form)); /* before parse */
 	Return(parse_execute_(ptr, &body, form));
 	localhold_push(hold, body);
@@ -759,23 +844,35 @@ error:
 			"must be a (symbol expansion) form.", cons, NULL);
 }
 
-static int check_symbol_macrolet_(addr args, addr decl)
+static int check_symbol_macrolet_(Execute ptr, addr args, addr decl)
 {
-	addr symbol;
+	addr list, pos;
+
+	/* declaim special */
+	list = args;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCar(pos, &pos);
+		if (specialp_symbol(pos))
+			goto error;
+	}
 
 	/* If symbols in the argument are special, error */
 	if (eval_declare_p(decl)) {
 		getall_special_declare(decl, &decl);
-		while (args != Nil) {
-			GetCar(args, &symbol);
-			if (find_list_eq_unsafe(symbol, decl)) {
-				return fmte_("The symbol ~S "
-						"cannot declare the special.", symbol, NULL);
-			}
+		list = args;
+		while (list != Nil) {
+			GetCons(list, &pos, &list);
+			GetCar(pos, &pos);
+			if (find_list_eq_unsafe(pos, decl))
+				goto error;
 		}
 	}
-
 	return 0;
+
+error:
+	return call_simple_program_error_va_(ptr,
+			"The symbol ~S cannot declare the special.", pos, NULL);
 }
 
 static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
@@ -797,7 +894,7 @@ static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
 	/* decl */
 	Return(parse_declare_body_(ptr, cons, &decl, &cons));
 	localhold_pushva(hold, decl, cons, NULL);
-	Return(check_symbol_macrolet_(args, decl));
+	Return(check_symbol_macrolet_(ptr, args, decl));
 	/* body */
 	Return(parse_allcons_toplevel_(ptr, &cons, cons));
 	localhold_end(hold);
@@ -815,7 +912,7 @@ static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
 /* macrolet */
 static int parse_macrolet_one_(Execute ptr, addr cons)
 {
-	addr name, args, doc, decl;
+	addr rollback, name, args, doc, decl;
 	LocalHold hold;
 
 	/* parse */
@@ -826,7 +923,9 @@ static int parse_macrolet_one_(Execute ptr, addr cons)
 	Return(check_function_variable_(name));
 	if (! consp_getcons(cons, &args, &cons))
 		goto error;
+
 	/* make macro-function */
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	Return(lambda_macro_(ptr->local, &args, args, Nil));
 	Return(parse_macro_lambda_list_(ptr, &args, args));
@@ -837,9 +936,12 @@ static int parse_macrolet_one_(Execute ptr, addr cons)
 	localhold_push(hold, cons);
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	Return(make_macro_function_(ptr, &cons, NULL, args, decl, doc, cons));
-	localhold_push(hold, cons);
-	Return(macrolet_envstack_(ptr, name, cons));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
+
+	/* add environment */
+	Return(macrolet_envstack_(ptr, name, cons));
+
 	return 0;
 
 error:
@@ -903,12 +1005,14 @@ static int parse_quote_(addr *ret, addr cons)
 /* function */
 static int parse_lambda_(Execute ptr, addr *ret, addr form)
 {
-	addr cons, eval, args, doc, decl;
+	addr rollback, cons, eval, args, doc, decl;
 	LocalHold hold;
 
 	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &args, &cons))
 		return fmte_("function lambda must be (lambda (...) body) form.", NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
 	/* args */
 	Return(parse_ordinary_(ptr, &args, args));
@@ -919,6 +1023,7 @@ static int parse_lambda_(Execute ptr, addr *ret, addr form)
 	/* cons */
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* eval */
 	eval_parse_heap(&eval, EVAL_PARSE_LAMBDA, 5);
@@ -1204,7 +1309,7 @@ error:
 	return fmte_("throw form must be (throw tag result).", NULL);
 }
 
-/* flet / labels */
+/* flet */
 static int parse_flet_one_(Execute ptr, addr *ret, addr cons)
 {
 	addr name, call, args, doc, decl;
@@ -1239,6 +1344,71 @@ static int parse_flet_args_(Execute ptr, addr *ret, addr args)
 	addr root, pos;
 	LocalHold hold;
 
+	/* flet */
+	hold = LocalHold_array(ptr, 1);
+	for (root = Nil; args != Nil; ) {
+		Return_getcons(args, &pos, &args);
+		Return(parse_flet_one_(ptr, &pos, pos));
+		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
+	}
+	localhold_end(hold);
+	nreverse(ret, root);
+
+	/* macro */
+	args = *ret;
+	while (args != Nil) {
+		GetCons(args, &pos, &args);
+		GetCar(pos, &pos); /* call */
+		Return(function_envstack_(ptr, pos));
+	}
+
+	return 0;
+}
+
+static int parse_flet_(Execute ptr, addr *ret, addr cons)
+{
+	addr rollback, eval, args, decl;
+	LocalHold hold;
+
+	if (! consp_getcons(cons, &args, &cons))
+		return fmte_("flet form must be (flet args . body).", NULL);
+
+	Return(snapshot_envstack_(ptr, &rollback));
+	hold = LocalHold_local(ptr);
+	Return(parse_flet_args_(ptr, &args, args));
+	localhold_push(hold, args);
+	Return(parse_declare_body_(ptr, cons, &decl, &cons));
+	localhold_pushva(hold, decl, cons, NULL);
+	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
+	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
+
+	/* eval */
+	eval_parse_heap(&eval, EVAL_PARSE_FLET, 3);
+	SetEvalParse(eval, 0, args);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, cons);
+
+	return Result(ret, eval);
+}
+
+/* labels */
+static int parse_labels_args_(Execute ptr, addr *ret, addr args)
+{
+	addr root, pos;
+	LocalHold hold;
+
+	/* macro */
+	root = args;
+	while (root != Nil) {
+		GetCons(root, &pos, &root);
+		Return_getcar(pos, &pos); /* call */
+		Return(parse_callname_error_(&pos, pos));
+		Return(function_envstack_(ptr, pos));
+	}
+
+	/* labels */
 	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; args != Nil; ) {
 		Return_getcons(args, &pos, &args);
@@ -1252,28 +1422,26 @@ static int parse_flet_args_(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int parse_flet_labels_(Execute ptr, addr *ret, EvalParse type, addr cons)
+static int parse_labels_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, args, decl;
+	addr rollback, eval, args, decl;
 	LocalHold hold;
 
-	if (! consp_getcons(cons, &args, &cons)) {
-		if (type == EVAL_PARSE_FLET)
-			return fmte_("flet form must be (flet args . body).", NULL);
-		else
-			return fmte_("labels form must be (labels args . body).", NULL);
-	}
+	if (! consp_getcons(cons, &args, &cons))
+		return fmte_("labels form must be (labels args . body).", NULL);
 
+	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
-	Return(parse_flet_args_(ptr, &args, args));
+	Return(parse_labels_args_(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(parse_declare_body_(ptr, cons, &decl, &cons));
 	localhold_pushva(hold, decl, cons, NULL);
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	localhold_end(hold);
+	Return(rollback_envstack_(ptr, rollback));
 
 	/* eval */
-	eval_parse_heap(&eval, type, 3);
+	eval_parse_heap(&eval, EVAL_PARSE_LABELS, 3);
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, cons);
@@ -1659,14 +1827,14 @@ static int parse_cons_check_constant(addr call, constindex index)
 
 static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 {
-	addr call, args;
+	addr call, check, args;
 
 	GetCons(cons, &call, &args);
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_LET)) {
-		return parse_let_(ptr, ret, EVAL_PARSE_LET, args);
+		return parse_let_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_LETA)) {
-		return parse_let_(ptr, ret, EVAL_PARSE_LETA, args);
+		return parse_leta_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_SETQ)) {
 		return parse_setq_(ptr, ret, args);
@@ -1702,10 +1870,10 @@ static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 		return parse_throw_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_FLET)) {
-		return parse_flet_labels_(ptr, ret, EVAL_PARSE_FLET, args);
+		return parse_flet_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_LABELS)) {
-		return parse_flet_labels_(ptr, ret, EVAL_PARSE_LABELS, args);
+		return parse_labels_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_THE)) {
 		return parse_the_(ptr, ret, args);
@@ -1758,8 +1926,9 @@ static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_STEP)) {
 		return parse_step(ptr, ret, args);
 	}
-	if (parse_cons_check_macro(ptr, call, &call)) {
-		return parse_macro_(ptr, ret, call, cons);
+	Return(parse_cons_check_macro_(ptr, call, &check));
+	if (check != Unbound) {
+		return parse_macro_(ptr, ret, check, cons);
 	}
 
 	return parse_call_(ptr, ret, call, args);

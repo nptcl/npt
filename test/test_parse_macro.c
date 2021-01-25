@@ -23,6 +23,7 @@
 /*
  *  macro
  */
+#if 0
 static int test_findstack_environment(void)
 {
 	Execute ptr;
@@ -43,18 +44,22 @@ static int test_findstack_environment(void)
 	getspecialcheck_local_(ptr, stack, &stack);
 	GetArrayA2(stack, 0, &stack); /* root */
 	check = NULL;
-	test(findstack_environment(readr_debug("aaa"), stack, T, &check), "findstack_environment1");
+	test(findstack_environment(readr_debug("aaa"),
+				stack, EnvStackType_macro, &check), "findstack_environment1");
 	test(check == v1, "findstack_environment2");
 	check = NULL;
-	test(findstack_environment(readr_debug("bbb"), stack, T, &check), "findstack_environment3");
+	test(findstack_environment(readr_debug("bbb"),
+				stack, EnvStackType_macro, &check), "findstack_environment3");
 	test(check == v2, "findstack_environment4");
 	check = NULL;
-	test(! findstack_environment(readr_debug("ccc"), stack, T, &check), "findstack_environment5");
+	test(! findstack_environment(readr_debug("ccc"),
+				stack, EnvStackType_macro, &check), "findstack_environment5");
 
 	pop_control_(ptr, control);
 
 	RETURN;
 }
+#endif
 
 static int test_check_macro_function(void)
 {
@@ -79,13 +84,17 @@ static int test_check_macro_function(void)
 	setmacro_symbol(sym3, v3);
 	remmacro_symbol(sym4);
 
-	test(parse_cons_check_macro(ptr, sym1, &check), "parse_cons_check_macro1");
+	parse_cons_check_macro_(ptr, sym1, &check);
+	test(check != Unbound, "parse_cons_check_macro1");
 	test(check == v1, "parse_cons_check_macro2");
-	test(parse_cons_check_macro(ptr, sym2, &check), "parse_cons_check_macro3");
+	parse_cons_check_macro_(ptr, sym2, &check);
+	test(check != Unbound, "parse_cons_check_macro3");
 	test(check == v2, "parse_cons_check_macro4");
-	test(parse_cons_check_macro(ptr, sym3, &check), "parse_cons_check_macro5");
+	parse_cons_check_macro_(ptr, sym3, &check);
+	test(check != Unbound, "parse_cons_check_macro5");
 	test(check == v3, "parse_cons_check_macro6");
-	test(! parse_cons_check_macro(ptr, sym4, &check), "parse_cons_check_macro7");
+	parse_cons_check_macro_(ptr, sym4, &check);
+	test(check == Unbound, "parse_cons_check_macro7");
 
 	remmacro_symbol(sym3);
 
@@ -128,7 +137,7 @@ static int test_call_macroexpand_hook(void)
  */
 static int testcase_parse_macro(void)
 {
-	TestBreak(test_findstack_environment);
+	/* TestBreak(test_findstack_environment); */
 	TestBreak(test_check_macro_function);
 	TestBreak(test_call_macroexpand_hook);
 

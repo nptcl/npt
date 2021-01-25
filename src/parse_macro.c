@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "condition.h"
 #include "constant.h"
 #include "control_execute.h"
@@ -8,7 +9,7 @@
 #include "symbol.h"
 
 /*
- *  environment object
+ *  environment root
  */
 void environment_symbol(addr *ret)
 {
@@ -24,16 +25,118 @@ void init_parse_environment(Execute ptr)
 	pushspecial_control(ptr, symbol, pos);
 }
 
-static void envstack_heap(addr *ret, addr next, addr call, addr lambda, addr callp)
+static int getobject_envroot_(Execute ptr, addr *ret)
+{
+	addr pos;
+	environment_symbol(&pos);
+	return getspecialcheck_local_(ptr, pos, ret);
+}
+
+static void getglobal_envroot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_ENVROOT);
+	GetArrayA2(pos, 0, ret);
+}
+static void setglobal_envroot(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_ENVROOT);
+	SetArrayA2(pos, 0, value);
+}
+
+static void getlocal_envroot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_ENVROOT);
+	GetArrayA2(pos, 1, ret);
+}
+static void setlocal_envroot(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_ENVROOT);
+	SetArrayA2(pos, 1, value);
+}
+
+
+/*
+ *  environment stack
+ */
+enum EnvStack_Index {
+	EnvStack_next,
+	EnvStack_call,
+	EnvStack_lambda,
+	EnvStack_size
+};
+
+enum EnvStackType {
+	EnvStackType_macro,     /* macrolet */
+	EnvStackType_symbol,    /* symbol-macro */
+	EnvStackType_function,  /* function */
+	EnvStackType_variable,  /* variable */
+};
+
+struct envstack_struct {
+	enum EnvStackType type;
+};
+
+static void setnext_envstack(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	SetArraySS(pos, EnvStack_next, value);
+}
+static void getnext_envstack(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	GetArraySS(pos, EnvStack_next, ret);
+}
+
+static void setcall_envstack(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	SetArraySS(pos, EnvStack_call, value);
+}
+static void getcall_envstack(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	GetArraySS(pos, EnvStack_call, ret);
+}
+
+static void setlambda_envstack(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	SetArraySS(pos, EnvStack_lambda, value);
+}
+static void getlambda_envstack(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	GetArraySS(pos, EnvStack_lambda, ret);
+}
+
+static void settype_envstack(addr pos, enum EnvStackType value)
+{
+	struct envstack_struct *ptr;
+
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	ptr = (struct envstack_struct *)PtrBodySS(pos);
+	ptr->type = value;
+}
+static void gettype_envstack(addr pos, enum EnvStackType *ret)
+{
+	struct envstack_struct *ptr;
+
+	CheckType(pos, LISPSYSTEM_ENVSTACK);
+	ptr = (struct envstack_struct *)PtrBodySS(pos);
+	*ret = ptr->type;
+}
+
+static void envstack_heap(addr *ret,
+		addr next, addr call, addr lambda, enum EnvStackType type)
 {
 	addr pos;
 
-	/* next, call, lambda, macro/symbol */
-	heap_array2(&pos, LISPSYSTEM_ENVSTACK, 4);
-	SetArrayA2(pos, 0, next);
-	SetArrayA2(pos, 1, call);
-	SetArrayA2(pos, 2, lambda);
-	SetArrayA2(pos, 3, callp);
+	heap_smallsize(&pos, LISPSYSTEM_ENVSTACK,
+			EnvStack_size, sizeoft(struct envstack_struct));
+	setnext_envstack(pos, next);
+	setcall_envstack(pos, call);
+	setlambda_envstack(pos, lambda);
+	settype_envstack(pos, type);
 	*ret = pos;
 }
 
@@ -41,22 +144,34 @@ int snapshot_envstack_(Execute ptr, addr *ret)
 {
 	addr root;
 
-	environment_symbol(&root);
-	Return(getspecialcheck_local_(ptr, root, &root));
-	GetArrayA2(root, 1, ret); /* local */
+	Return(getobject_envroot_(ptr, &root));
+	getlocal_envroot(root, ret); /* local */
 
 	return 0;
 }
 
-static int push_envstack_(Execute ptr, int index, addr name, addr lambda, addr callp)
+static int push_global_envstack_(Execute ptr,
+		addr name, addr lambda, enum EnvStackType type)
 {
 	addr root, pos, next;
 
-	environment_symbol(&root);
-	Return(getspecialcheck_local_(ptr, root, &root));
-	GetArrayA2(root, index, &next);
-	envstack_heap(&pos, next, name, lambda, callp);
-	SetArrayA2(root, index, pos);
+	Return(getobject_envroot_(ptr, &root));
+	getglobal_envroot(root, &next);
+	envstack_heap(&pos, next, name, lambda, type);
+	setglobal_envroot(root, pos);
+
+	return 0;
+}
+
+static int push_local_envstack_(Execute ptr,
+		addr name, addr lambda, enum EnvStackType type)
+{
+	addr root, pos, next;
+
+	Return(getobject_envroot_(ptr, &root));
+	getlocal_envroot(root, &next);
+	envstack_heap(&pos, next, name, lambda, type);
+	setlocal_envroot(root, pos);
 
 	return 0;
 }
@@ -65,95 +180,222 @@ int rollback_envstack_(Execute ptr, addr pos)
 {
 	addr root, local, next;
 
-	environment_symbol(&root);
-	Return(getspecialcheck_local_(ptr, root, &root));
+	Return(getobject_envroot_(ptr, &root));
 	for (;;) {
-		GetArrayA2(root, 1, &local); /* local */
+		getlocal_envroot(root, &local); /* local */
 		if (local == pos)
 			break;
 		if (local == Nil)
 			return fmte_("environment stack error.", NULL);
-		GetArrayA2(local, 0, &next); /* next */
-		SetArrayA2(local, 0, Nil); /* next */
-		SetArrayA2(root, 1, next); /* local */
+		getnext_envstack(local, &next);
+		setnext_envstack(local, Nil);
+		setlocal_envroot(root, next); /* local */
 	}
 
 	return 0;
+}
+
+int defvar_envstack_(Execute ptr, addr name)
+{
+	/* global, defvar */
+	return push_global_envstack_(ptr, name, Nil, EnvStackType_variable);
+}
+
+int lexical_envstack_(Execute ptr, addr name)
+{
+	/* local, let */
+	return push_local_envstack_(ptr, name, Nil, EnvStackType_variable);
+}
+
+int defun_envstack_(Execute ptr, addr name)
+{
+	/* global, defun */
+	CheckType(name, LISPTYPE_CALLNAME);
+	return push_global_envstack_(ptr, name, Nil, EnvStackType_function);
+}
+
+int function_envstack_(Execute ptr, addr name)
+{
+	/* local, flet/labels */
+	CheckType(name, LISPTYPE_CALLNAME);
+	return push_local_envstack_(ptr, name, Nil, EnvStackType_function);
 }
 
 int defmacro_envstack_(Execute ptr, addr name, addr lambda)
 {
-	return push_envstack_(ptr, 0, name, lambda, T); /* global, macrolet */
+	/* global, macrolet */
+	return push_global_envstack_(ptr, name, lambda, EnvStackType_macro);
 }
 
 int macrolet_envstack_(Execute ptr, addr name, addr lambda)
 {
-	return push_envstack_(ptr, 1, name, lambda, T); /* local, macrolet */
+	/* local, macrolet */
+	return push_local_envstack_(ptr, name, lambda, EnvStackType_macro);
 }
 
 int define_symbol_macro_envstack_(Execute ptr, addr name, addr form)
 {
-	return push_envstack_(ptr, 0, name, form, Nil); /* global, define-symbol-macro */
+	/* global, define-symbol-macro */
+	return push_global_envstack_(ptr, name, form, EnvStackType_symbol);
 }
 
 int symbol_macrolet_envstack_(Execute ptr, addr name, addr form)
 {
-	return push_envstack_(ptr, 1, name, form, Nil); /* local, symbol-macrolet */
+	/* local, symbol-macrolet */
+	return push_local_envstack_(ptr, name, form, EnvStackType_symbol);
 }
 
-static int symbol_macrolet_envroot_p(addr name, addr root, int index, addr *ret)
+static int find_macro_environment_p(addr name, addr check)
 {
-	addr next, check, callp;
+	Check(! symbolp(name), "type error");
+	CheckType(check, LISPTYPE_CALLNAME);
+	if (! symbolp_callname(check))
+		return 0;
+	GetCallName(check, &check);
 
-	GetArrayA2(root, index, &next);
-	while (next != Nil) {
-		GetArrayA2(next, 3, &callp);
-		if (callp == Nil) {
-			/* symbol macro */
-			GetArrayA2(next, 1, &check);
-			if (name == check) {
-				if (ret)
-					GetArrayA2(next, 2, ret);
+	return name == check;
+}
+
+static int find_macro_environment(addr name, addr pos, addr *ret)
+{
+	enum EnvStackType type;
+	addr check;
+
+	while (pos != Nil) {
+		gettype_envstack(pos, &type);
+		if (type == EnvStackType_function) {
+			/* shadow function */
+			getcall_envstack(pos, &check);
+			if (find_macro_environment_p(name, check)) {
+				*ret = Unbound;
 				return 1;
 			}
 		}
-		GetArrayA2(next, 0, &next);
+		if (type == EnvStackType_macro) {
+			/* macro */
+			getcall_envstack(pos, &check);
+			if (name == check) {
+				getlambda_envstack(pos, ret);
+				return 1;
+			}
+		}
+		getnext_envstack(pos, &pos);
 	}
 
 	return 0;
 }
 
-int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret)
+static int find_symbol_environment(addr name, addr pos, addr *ret)
 {
-	addr root;
+	enum EnvStackType type;
+	addr check;
 
-	environment_symbol(&root);
-	Return(getspecialcheck_local_(ptr, root, &root));
-	if (symbol_macrolet_envroot_p(name, root, 0, value))
-		return Result(ret, 1);
-	if (symbol_macrolet_envroot_p(name, root, 1, value))
-		return Result(ret, 1);
+	while (pos != Nil) {
+		gettype_envstack(pos, &type);
+		if (type == EnvStackType_variable) {
+			/* shadow symbol-macro */
+			getcall_envstack(pos, &check);
+			if (name == check) {
+				*ret = Unbound;
+				return 1;
+			}
+		}
+		if (type == EnvStackType_symbol) {
+			/* symbol-macro */
+			getcall_envstack(pos, &check);
+			if (name == check) {
+				getlambda_envstack(pos, ret);
+				return 1;
+			}
+		}
+		getnext_envstack(pos, &pos);
+	}
+
+	return 0;
+}
+
+static int get_symbol_macrolet_envstack_(Execute ptr, addr name, addr *value, int *ret)
+{
+	addr root, pos;
+
+	Return(getobject_envroot_(ptr, &root));
+	/* local */
+	getlocal_envroot(root, &pos);
+	if (find_symbol_environment(name, pos, value))
+		return Result(ret, *value != Unbound);
+	/* global */
+	getglobal_envroot(root, &pos);
+	if (find_symbol_environment(name, pos, value))
+		return Result(ret, *value != Unbound);
 
 	return Result(ret, 0);
 }
 
+int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret)
+{
+	int check;
+	addr pos;
+
+	/* environment */
+	Return(get_symbol_macrolet_envstack_(ptr, name, &pos, &check));
+	if (check)
+		return Result(ret, 1);
+
+	/* global symbol */
+	formsymbol_macro_symbol(name, &pos);
+	if (pos == Unbound)
+		return Result(ret, 0);
+	*value = pos;
+	return Result(ret, 1);
+}
+
+static void getglobal_environment(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	GetArrayA2(pos, 0, ret);
+}
+static void setglobal_environment(addr pos, addr value)
+{
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	SetArrayA2(pos, 0, value);
+}
+
+static void getlocal_environment(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	GetArrayA2(pos, 1, ret);
+}
+static void setlocal_environment(addr pos, addr value)
+{
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	SetArrayA2(pos, 1, value);
+}
+
+static void getcheck_environment(addr pos, int *ret)
+{
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	*ret = GetUser(pos)? 1: 0;
+}
+static void setcheck_environment(addr pos, int value)
+{
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	SetUser(pos, value? 1: 0);
+}
+
 int environment_heap_(Execute ptr, addr *ret)
 {
-	addr pos, env, local;
+	addr pos, global, local;
 
 	/* envstack */
-	environment_symbol(&pos);
-	Return(getspecialcheck_local_(ptr, pos, &pos));
-	GetArrayA2(pos, 0, &env);
-	GetArrayA2(pos, 1, &local);
+	Return(getobject_envroot_(ptr, &pos));
+	getglobal_envroot(pos, &global);
+	getlocal_envroot(pos, &local);
 
 	/* environment */
 	heap_array2(&pos, LISPTYPE_ENVIRONMENT, 2);
-	/*copy_list_heap_unsafe(&env, env);*/
-	/*copy_list_heap_unsafe(&local, local);*/
-	SetArrayA2(pos, 0, env);
-	SetArrayA2(pos, 1, local);
-	SetUser(pos, 1); /* dynamic-extent check */
+	setglobal_environment(pos, global);
+	setlocal_environment(pos, local);
+	setcheck_environment(pos, 1); /* dynamic-extent check */
 
 	return Result(ret, pos);
 }
@@ -165,61 +407,41 @@ void copy_environment(addr *ret, addr pos)
 
 void close_environment(addr pos)
 {
-	Check(GetType(pos) != LISPTYPE_ENVIRONMENT, "type error");
-	SetArrayA2(pos, 0, Nil);
-	SetArrayA2(pos, 1, Nil);
-	SetUser(pos, 0);
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	setglobal_environment(pos, Nil);
+	setlocal_environment(pos, Nil);
+	setcheck_environment(pos, 0);
 }
 
 static int closep_environment(addr pos)
 {
-	Check(GetType(pos) != LISPTYPE_ENVIRONMENT, "type error");
-	return GetUser(pos) == 0;
+	int check;
+
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	getcheck_environment(pos, &check);
+	return check == 0;
 }
 
 
 /*
  *  macroexpand
  */
-static int findstack_environment(addr symbol, addr root, addr callp, addr *ret)
+int parse_cons_check_macro_(Execute ptr, addr symbol, addr *ret)
 {
-	addr pos;
-
-	while (root != Nil) {
-		GetArrayA2(root, 3, &pos);
-		if (pos == callp) {
-			GetArrayA2(root, 1, &pos); /* call */
-			if (pos == symbol) {
-				GetArrayA2(root, 2, ret); /* lambda */
-				return 1;
-			}
-		}
-		GetArrayA2(root, 0, &root);
-	}
-
-	return 0;
-}
-
-int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret)
-{
-	addr root, list, call;
+	addr root, list;
 
 	if (! symbolp(symbol))
+		return Result(ret, Unbound);
+	Return(getobject_envroot_(ptr, &root));
+	/* local */
+	getlocal_envroot(root, &list);
+	if (find_macro_environment(symbol, list, ret))
 		return 0;
-	environment_symbol(&root);
-	getspecial_local(ptr, root, &root);
-	Check(root == Unbound, "unbound error");
-	GetArrayA2(root, 1, &list); /* local */
-	if (findstack_environment(symbol, list, T, ret))
-		return 1;
-	GetArrayA2(root, 0, &list); /* global */
-	if (findstack_environment(symbol, list, T, ret))
-		return 1;
-	getmacro_symbol(symbol, &call);
-	if (call != Unbound) {
-		*ret = call;
-		return 1;
-	}
+	/* global */
+	getglobal_envroot(root, &list);
+	if (find_macro_environment(symbol, list, ret))
+		return 0;
+	getmacro_symbol(symbol, ret);
 
 	return 0;
 }
@@ -232,14 +454,17 @@ static int macroexpand1_symbol_find_(addr symbol, addr env, addr *ret)
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))
 			return fmte_("The environment object ~S is already closed.", env, NULL);
-		GetArrayA2(env, 1, &list); /* local */
-		if (findstack_environment(symbol, list, Nil, ret))
+		/* local */
+		getlocal_environment(env, &list);
+		if (find_symbol_environment(symbol, list, ret))
 			return 0;
-		GetArrayA2(env, 0, &list); /* global */
-		if (findstack_environment(symbol, list, Nil, ret))
+		/* global */
+		getglobal_environment(env, &list);
+		if (find_symbol_environment(symbol, list, ret))
 			return 0;
 	}
 	formsymbol_macro_symbol(symbol, ret);
+
 	return 0;
 }
 
@@ -253,14 +478,17 @@ int find_environment_(addr symbol, addr env, addr *ret)
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))
 			return fmte_("The environment object ~S is already closed.", env, NULL);
-		GetArrayA2(env, 1, &list); /* local */
-		if (findstack_environment(symbol, list, T, ret))
+		/* local */
+		getlocal_environment(env, &list);
+		if (find_macro_environment(symbol, list, ret))
 			return 0;
-		GetArrayA2(env, 0, &list); /* global */
-		if (findstack_environment(symbol, list, T, ret))
+		/* global */
+		getglobal_environment(env, &list);
+		if (find_macro_environment(symbol, list, ret))
 			return 0;
 	}
 	getmacro_symbol(symbol, ret);
+
 	return 0;
 }
 

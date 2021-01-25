@@ -43,6 +43,7 @@ static void test_eval_copy_ordinary(addr *ret, addr pos)
 	push_compile_toplevel_eval(ptr, Nil);
 	push_load_toplevel_eval(ptr, T);
 	push_execute_eval(ptr, T);
+	init_parse_environment(ptr);
 	init_parse_step(ptr);
 
 	parse_ordinary_(ptr, ret, pos);
