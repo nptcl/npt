@@ -17,15 +17,22 @@
  */
 static int specialp_stack_tablevalue(addr stack, addr symbol, int *ret)
 {
-	addr key, table, value;
+	addr key, value;
 
-	GetEvalStackTable(stack, &table);
-	/* special declaration */
-	GetConst(SYSTEM_TYPE_SCOPE, &key);
-	if (getplist(table, key, &value) == 0 && find_list_eq_unsafe(symbol, value)) {
+	/* special */
+	GetConst(SYSTEM_TYPE_SPECIAL, &key);
+	if (find_plistlist_evalstack(stack, key, symbol)) {
 		*ret = 1;
 		return 1;
 	}
+
+	/* lexical */
+	GetConst(SYSTEM_TYPE_LEXICAL, &key);
+	if (find_plistlist_evalstack(stack, key, symbol)) {
+		*ret = 0;
+		return 1;
+	}
+
 	/* table value */
 	if (getvalue_scope_evalstack(stack, symbol, &value)) {
 		*ret = getspecialp_tablevalue(value);

@@ -122,31 +122,52 @@ static int make_tablevalue_stack(Execute ptr,
 	return 1;
 }
 
+static int make_tablevalue_special_stack(Execute ptr,
+		addr *ret, addr stack, addr symbol)
+{
+	addr pos, aster;
+
+	CheckType(symbol, LISPTYPE_SYMBOL);
+	if (find_global_special_evalstack(stack, symbol, ret))
+		return 0;
+	make_tablevalue(&pos, symbol);
+	GetTypeTable(&aster, Asterisk);
+	settype_tablevalue(pos, aster);
+	push_global_special_evalstack(stack, pos);
+	*ret = pos;
+
+	return 1;
+}
+
 static void let_maketable(Execute ptr, struct let_struct *str)
 {
-	addr stack, args, list, var;
+	addr stack, args, decl, list, var, eval;
+	LocalRoot local;
 
+	local = ptr->local;
 	stack = str->stack;
+	decl = str->decl;
 	args = str->args;
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		GetCar(list, &var);
-		make_tablevalue_stack(ptr, &var, stack, var, 1);
-		SetCar(list, var);
+		make_tablevalue_stack(ptr, &eval, stack, var, 1);
+		apply_declare_let_stack(local, stack, var, decl);
+		SetCar(list, eval);
 	}
 }
 
 static int dynamic_stack_tablevalue(addr stack, addr symbol, int *ret)
 {
-	addr key, table, value;
+	addr key, value;
 
-	GetEvalStackTable(stack, &table);
 	/* dynamic-extent declaration */
 	GetConst(SYSTEM_DYNAMIC_VALUE, &key);
-	if (getplist(table, key, &value) == 0 && find_list_eq_unsafe(symbol, value)) {
+	if (find_plistlist_evalstack(stack, key, symbol)) {
 		*ret = 1;
 		return 1;
 	}
+
 	/* table value */
 	if (getvalue_scope_evalstack(stack, symbol, &value)) {
 		*ret = getdynamic_tablevalue(value);
@@ -340,6 +361,7 @@ static int update_tablevalue_(Execute ptr, addr stack, addr pos)
 
 	return 0;
 }
+
 int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
 {
 	enum IgnoreType ignore;
@@ -365,7 +387,27 @@ int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
 	return Result(ret, pos);
 }
 
-int checktype_p(addr left, addr right, int *check)
+int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *ret)
+{
+	addr pos, type;
+
+	/* scope */
+	Return(type_tablevalue_(ptr, NULL, stack, symbol, 1, &type));
+	if (type_and_array(NULL, type, &type))
+		GetTypeTable(&type, Asterisk);
+	Check(type == Nil, "type error");
+
+	/* make table */
+	make_tablevalue_special_stack(ptr, &pos, stack, symbol);
+	setspecialp_tablevalue(pos, 1);
+	setdynamic_tablevalue(pos, 0);
+	setignore_tablevalue(pos, IgnoreType_None);
+	settype_tablevalue(pos, type);
+
+	return Result(ret, pos);
+}
+
+int checktype_p_(addr left, addr right, int *check, int *err)
 {
 	SubtypepResult value;
 
@@ -376,19 +418,19 @@ int checktype_p(addr left, addr right, int *check)
 		case SUBTYPEP_INCLUDE:
 			/* type check can skip. */
 			*check = 0;
-			return 0;
+			return Result(err, 0);
 
 		case SUBTYPEP_EXCLUDE:
 			/* error, output to warning mesasge. */
 			*check = 1;
-			return 1;
+			return Result(err, 1);
 
 		case SUBTYPEP_FALSE:
 		case SUBTYPEP_INVALID:
 		default:
 			/* type check must execute. */
 			*check = 1;
-			return 0;
+			return Result(err, 0);
 	}
 }
 
@@ -403,12 +445,13 @@ static int checktype_warning_(Execute ptr, addr name, addr type, addr expected)
 
 int checktype_value_(Execute ptr, addr value, addr init)
 {
-	int check;
+	int check, errp;
 	addr type, name;
 
 	gettype_tablevalue(value, &type);
 	GetEvalScopeThe(init, &init);
-	if (checktype_p(init, type, &check)) {
+	Return(checktype_p_(init, type, &check, &errp));
+	if (errp) {
 		getname_tablevalue(value, &name);
 		Return(checktype_warning_(ptr, name, type, init));
 	}

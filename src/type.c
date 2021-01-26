@@ -175,7 +175,6 @@ void type_getvalues1(addr type, addr *ret)
 }
 
 
-
 /*
  *  init
  */
@@ -678,6 +677,11 @@ void type_satisfies_heap(addr call, addr *ret)
 {
 	Check((! symbolp(call)) && (! functionp(call)), "type error");
 	type1_heap(LISPDECL_SATISFIES, call, ret);
+}
+
+void type_values_local(LocalRoot local, addr v1, addr v2, addr v3, addr v4, addr *ret)
+{
+	type4_local(local, LISPDECL_VALUES, v1, v2, v3, v4, ret);
 }
 
 void type_values_heap(addr v1, addr v2, addr v3, addr v4, addr *ret)

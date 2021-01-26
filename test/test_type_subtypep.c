@@ -2101,22 +2101,22 @@ static int test_subtypep_values_type(void)
 	subtypep_values_type_(left, right, &value);
 	test(! value, "subtypep_values_type1");
 
-	extractchar(&left, "(values integer)");
+	extractchar(&left, "(values integer &rest nil)");
 	extractchar(&right, "real");
 	subtypep_values_type_(left, right, &value);
 	test(value, "subtypep_values_type2");
 
-	extractchar(&left, "(values real)");
+	extractchar(&left, "(values real &rest nil)");
 	extractchar(&right, "integer");
 	subtypep_values_type_(left, right, &value);
 	test(! value, "subtypep_values_type3");
 
-	extractchar(&left, "(values fixnum string)");
+	extractchar(&left, "(values fixnum string &rest nil)");
 	extractchar(&right, "real");
 	subtypep_values_type_(left, right, &value);
-	test(value, "subtypep_values_type4");
+	test(! value, "subtypep_values_type4");
 
-	extractchar(&left, "(values real string)");
+	extractchar(&left, "(values real string &rest nil)");
 	extractchar(&right, "integer");
 	subtypep_values_type_(left, right, &value);
 	test(! value, "subtypep_values_type5");
@@ -2154,7 +2154,7 @@ static int test_subtypep_type_values(void)
 	extractchar(&left, "integer");
 	extractchar(&right, "(values real string)");
 	subtypep_type_values_(left, right, &value);
-	test(value, "subtypep_type_values5");
+	test(! value, "subtypep_type_values5");
 
 	RETURN;
 }
@@ -2179,7 +2179,7 @@ static int test_subtypep_values_call(void)
 	extractchar(&left, "integer");
 	extractchar(&right, "(values real fixnum)");
 	subtypep_values_call_(left, right, &value);
-	test(value, "subtypep_values_call3");
+	test(! value, "subtypep_values_call3");
 
 	RETURN;
 }

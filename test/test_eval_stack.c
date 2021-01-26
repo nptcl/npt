@@ -485,7 +485,7 @@ static int test_apply_declaim_stack(void)
 	test(value == constant, "apply_declaim_stack");
 
 	/* special */
-	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
+	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
 	test(check == 0, "apply_declaim_stack");
 	test(length_list_unsafe(list) == 3, "apply_declaim_stack");
 	readstring_debug(&key, "aa");
@@ -553,7 +553,7 @@ static int test_apply_declare_stack(void)
 	GetEvalStackTable(stack, &table);
 
 	/* special */
-	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
+	check = getplist_constant(table, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
 	test(check == 0, "apply_declare_stack1");
 	test(length_list_unsafe(list) == 3, "apply_declare_stack2");
 	readstring_debug(&key, "aa");
@@ -614,7 +614,7 @@ static int test_apply_declare_stack(void)
 	RETURN;
 }
 
-static int test_apply_pushsymbol_stack(void)
+static int test_apply_declare_symbol_stack(void)
 {
 	int check;
 	addr control, stack, symbol, cons, list, var;
@@ -629,22 +629,22 @@ static int test_apply_pushsymbol_stack(void)
 	newstack_nil_(ptr, &stack);
 	readstring_debug(&cons, "(aa bb cc)");
 	readstring_debug(&symbol, "bb");
-	apply_pushsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
+	apply_declare_symbol_stack(local, stack, symbol, cons);
 	GetEvalStackTable(stack, &list);
-	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
-	test(check == 0, "apply_pushsymbol_stack");
-	test(length_list_unsafe(list) == 1, "apply_pushsymbol_stack");
+	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
+	test(check == 0, "apply_declare_symbol_stack.1");
+	test(length_list_unsafe(list) == 1, "apply_declare_symbol_stack.2");
 	GetCar(list, &list);
-	test(list == symbol, "apply_pushsymbol_stack");
+	test(list == symbol, "apply_declare_symbol_stack.3");
 
 	readstring_debug(&var, "hello");
-	apply_pushsymbol_stack(local, stack, var, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
+	apply_declare_symbol_stack(local, stack, var, cons);
 	GetEvalStackTable(stack, &list);
-	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
-	test(check == 0, "apply_pushsymbol_stack");
-	test(length_list_unsafe(list) == 1, "apply_pushsymbol_stack");
+	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
+	test(check == 0, "apply_declare_symbol_stack.4");
+	test(length_list_unsafe(list) == 1, "apply_declare_symbol_stack.5");
 	GetCar(list, &list);
-	test(list == symbol, "apply_pushsymbol_stack");
+	test(list == symbol, "apply_declare_symbol_stack.6");
 
 	free_eval_stack(ptr);
 	pop_control_(ptr, control);
@@ -667,9 +667,9 @@ static int test_apply_plistsymbol_stack(void)
 	newstack_nil_(ptr, &stack);
 	readstring_debug(&cons, "(aa bb cc dd)");
 	readstring_debug(&symbol, "cc");
-	apply_plistsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
+	apply_plistsymbol_stack(local, stack, symbol, cons, CONSTANT_SYSTEM_TYPE_SPECIAL);
 	GetEvalStackTable(stack, &list);
-	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
+	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
 	test(check == 0, "apply_plistsymbol_stack");
 	test(length_list_unsafe(list) == 2, "apply_plistsymbol_stack");
 	test(getplist(list, symbol, &list) == 0, "apply_plistsymbol_stack");
@@ -677,9 +677,9 @@ static int test_apply_plistsymbol_stack(void)
 	test(list == symbol, "apply_plistsymbol_stack");
 
 	readstring_debug(&var, "hello");
-	apply_plistsymbol_stack(local, stack, var, cons, CONSTANT_SYSTEM_TYPE_SCOPE);
+	apply_plistsymbol_stack(local, stack, var, cons, CONSTANT_SYSTEM_TYPE_SPECIAL);
 	GetEvalStackTable(stack, &list);
-	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &list);
+	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
 	test(check == 0, "apply_plistsymbol_stack");
 	test(length_list_unsafe(list) == 2, "apply_plistsymbol_stack");
 	readstring_debug(&symbol, "cc");
@@ -712,7 +712,7 @@ static int test_apply_declare_value_stack(void)
 	readstring_debug(&symbol, "zz");
 	apply_declare_value_stack(local, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);
-	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &pos);
+	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &pos);
 	test(pos == Nil, "apply_declare_value_stack1");
 	getplist_constant(list, CONSTANT_SYSTEM_TYPE_VALUE, &pos);
 	test(pos == Nil, "apply_declare_value_stack2");
@@ -724,7 +724,7 @@ static int test_apply_declare_value_stack(void)
 	readstring_debug(&symbol, "aa");
 	apply_declare_value_stack(local, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);
-	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SCOPE, &pos);
+	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &pos);
 	test(length_list_unsafe(pos) == 1, "apply_declare_value_stack5");
 	test(find_list_eq_unsafe(symbol, pos), "apply_declare_value_stack6");
 	getplist_constant(list, CONSTANT_SYSTEM_TYPE_VALUE, &pos);
@@ -773,7 +773,7 @@ static int testcase_eval_stack(void)
 	TestBreak(test_apply_declaim_stack);
 	/* declare */
 	TestBreak(test_apply_declare_stack);
-	TestBreak(test_apply_pushsymbol_stack);
+	TestBreak(test_apply_declare_symbol_stack);
 	TestBreak(test_apply_plistsymbol_stack);
 	TestBreak(test_apply_declare_value_stack);
 

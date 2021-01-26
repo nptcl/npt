@@ -1,3 +1,4 @@
+#include "code_values.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -63,6 +64,44 @@ static void push_closure_value(addr stack, addr symbol, addr value, addr *ret)
 	*ret = pos;
 }
 
+static int symbol_global_special_tablevalue_(Execute ptr, addr symbol, addr *value)
+{
+	addr stack, pos;
+
+	Return(getglobal_eval_(ptr, &stack));
+	if (find_tablevalue(stack, symbol, &pos)) {
+		if (getspecialp_tablevalue(pos))
+			return Result(value, pos);
+	}
+
+	/* heap object */
+	Return(push_tablevalue_special_global_(ptr, stack, symbol, value));
+	Check(! getspecialp_tablevalue(*value), "special error");
+
+	return 0;
+}
+
+static int symbol_special_tablevalue_(Execute ptr,
+		addr stack, addr symbol, addr *value)
+{
+	addr next;
+
+	/* global */
+	if (stack == Nil) {
+		return symbol_global_special_tablevalue_(ptr, symbol, value);
+	}
+
+	/* local */
+	if (getvalue_scope_evalstack(stack, symbol, value)) {
+		if (getspecialp_tablevalue(*value))
+			return 0;
+	}
+
+	/* next */
+	GetEvalStackNext(stack, &next);
+	return symbol_special_tablevalue_(ptr, next, symbol, value);
+}
+
 static int symbol_tablevalue_(Execute ptr,
 		addr stack, addr symbol, int basep, addr *value, int *ret)
 {
@@ -80,6 +119,12 @@ static int symbol_tablevalue_(Execute ptr,
 			setbasep_tablevalue(*value, 1);
 		setreference_tablevalue(*value, 1);
 		return Result(ret, getspecialp_tablevalue(*value));
+	}
+
+	/* declare special */
+	if (find_special_evalstack(stack, symbol)) {
+		symbol_special_tablevalue_(ptr, stack, symbol, value);
+		return Result(ret, 1);
 	}
 
 	/* basep */
@@ -384,8 +429,8 @@ int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype)
 	nreverse(rargs, root);
 	nreverse(&var, var);
 
-	/* (values ... &rest nil) */
-	GetTypeTable(&rest, Nil);
+	/* (values ... &rest null) */
+	GetTypeTable(&rest, Null);
 	type_values_heap(var, Nil, rest, Nil, rtype);
 
 	return 0;
@@ -407,11 +452,12 @@ static int scope_the_check_warning_(Execute ptr, addr type, addr expected)
 
 static int scope_the_check_(Execute ptr, addr eval, addr right, addr *ret)
 {
-	int check;
+	int check, errp;
 	addr left;
 
 	GetEvalScopeThe(eval, &left);
-	if (checktype_p(left, right, &check)) {
+	Return(checktype_p_(left, right, &check, &errp));
+	if (errp) {
 		Return(scope_the_check_warning_(ptr, left, right));
 	}
 

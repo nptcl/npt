@@ -176,6 +176,7 @@ enum pointer_index {
 	p_defmacro_define_symbol_macro,
 	p_defun_proclaim,
 	p_defmacro_declaim,
+	p_defmacro_setf_the,
 	p_defun_special_operator_p,
 	p_defun_constantp,
 	/* common-types */

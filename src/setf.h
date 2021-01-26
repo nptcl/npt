@@ -3,12 +3,14 @@
 
 #include "typedef.h"
 
+#define function_setf_the _n(function_setf_the)
 #define function_setf_values _n(function_setf_values)
 #define function_setf_getf _n(function_setf_getf)
 #define function_setf_apply _n(function_setf_apply)
 #define get_setf_expansion _n(get_setf_expansion)
 
 /* common-lisp setf-expansion */
+int function_setf_the(Execute ptr, addr args, addr env);
 int function_setf_values(Execute ptr, addr args, addr env);
 int function_setf_getf(Execute ptr, addr args, addr env);
 int function_setf_apply(Execute ptr, addr args, addr env);

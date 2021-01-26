@@ -21,6 +21,48 @@ static int setf_atom(addr pos)
 
 
 /*
+ *  setf-the
+ *
+ *  (define-setf-expander the (type expr &environment env)
+ *    (multiple-value-bind (a b g w r) (get-setf-expansion expr env)
+ *      (values a b g
+ *        `(multiple-value-bind ,g (the ,type (values ,@g)) ,w)
+ *        `(the ,type ,r))))
+ */
+int function_setf_the(Execute ptr, addr form, addr env)
+{
+	addr args, type, expr, a, b, g, w, r;
+	addr mvbind, the, values;
+
+	Return_getcdr(form, &args);
+	a = b = g = w = r = Nil;
+
+	if (! consp_getcons(args, &type, &args))
+		goto error;
+	if (! consp_getcons(args, &expr, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+
+	GetConst(COMMON_MULTIPLE_VALUE_BIND, &mvbind);
+	GetConst(COMMON_THE, &the);
+	GetConst(COMMON_VALUES, &values);
+	Return(get_setf_expansion(ptr, expr, env, &a, &b, &g, &w, &r));
+	/* read */
+	list_heap(&r, the, type, r, NULL);
+	/* write */
+	cons_heap(&values, values, g);
+	list_heap(&the, the, type, values, NULL);
+	list_heap(&w, mvbind, g, the, w, NULL);
+	setvalues_control(ptr, a, b, g, w, r, NULL);
+	return 0;
+
+error:
+	return fmte_("The form ~S must be a (the type expr) form.", form, NULL);
+}
+
+
+/*
  *  setf-values
  *
  *  (define-setf-expander values (&rest form &environment env) ...)

@@ -3,6 +3,7 @@
 #include "clos_class.h"
 #include "code_function.h"
 #include "code_lambda.h"
+#include "code_values.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -604,16 +605,18 @@ int values_set_code(Execute ptr, CodeValue x)
 
 int the_set_code(Execute ptr, CodeValue x)
 {
-	addr value;
-	getresult_control(ptr, &value);
-	return call_typep_error_(ptr, value, x.pos);
+	return values_typep_error_(ptr, x.pos);
 }
 
 int the_push_code(Execute ptr, CodeValue x)
 {
 	addr value;
-	getargs_control(ptr, 0, &value);
-	return call_typep_error_(ptr, value, x.pos);
+
+	Return(the_set_code(ptr, x));
+	getresult_control(ptr, &value);
+	pushargs_control(ptr, value);
+
+	return 0;
 }
 
 

@@ -400,7 +400,7 @@ static int test_scope_declaim(void)
 
 	getglobal_eval(ptr, &pos);
 	GetEvalStackTable(pos, &check);
-	getplist_constant(check, CONSTANT_SYSTEM_TYPE_SCOPE, &check);
+	getplist_constant(check, CONSTANT_SYSTEM_TYPE_SPECIAL, &check);
 	readstring_debug(&pos, "aa");
 	test(find_list_eq_unsafe(pos, check), "scope_declaim5");
 
@@ -1358,7 +1358,7 @@ static int test_checktype_p(void)
 	test_parse_type(&form, form);
 	readstring_debug(&symbol, "real");
 	test_parse_type(&symbol, symbol);
-	warning = checktype_p(form, symbol, &check);
+	checktype_p_(form, symbol, &check, &warning);
 	test(! check, "checktype_p1");
 	test(! warning, "checktype_p2");
 
@@ -1366,7 +1366,7 @@ static int test_checktype_p(void)
 	test_parse_type(&form, form);
 	readstring_debug(&symbol, "integer");
 	test_parse_type(&symbol, symbol);
-	warning = checktype_p(form, symbol, &check);
+	checktype_p_(form, symbol, &check, &warning);
 	test(check, "checktype_p3");
 	test(! warning, "checktype_p4");
 
@@ -1374,7 +1374,7 @@ static int test_checktype_p(void)
 	test_parse_type(&form, form);
 	readstring_debug(&symbol, "integer");
 	test_parse_type(&symbol, symbol);
-	warning = checktype_p(form, symbol, &check);
+	checktype_p_(form, symbol, &check, &warning);
 	test(check, "checktype_p5");
 	test(warning, "checktype_p6");
 

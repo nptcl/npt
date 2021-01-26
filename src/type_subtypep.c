@@ -1263,20 +1263,31 @@ static int subtypep_values_values_(addr left, addr right, int *ret)
 	return Result(ret, 1);
 }
 
+static void subtypep_values_local(addr pos, addr *ret)
+{
+	LocalRoot local;
+	addr rest;
+
+	local = Local_Thread;
+	conscar_local(local, &pos, pos);
+	GetTypeTable(&rest, Null);
+	type_values_local(local, pos, Nil, rest, Nil, ret);
+}
+
 static int subtypep_values_type_(addr left, addr right, int *ret)
 {
 	Check(RefLispDecl(left) != LISPDECL_VALUES, "decl left error");
 	Check(RefNotDecl(left), "left not error");
-	type_getvalues1(left, &left);
-	return subtypep_boolean_(left, right, ret);
+	subtypep_values_local(right, &right);
+	return subtypep_values_values_(left, right, ret);
 }
 
 static int subtypep_type_values_(addr left, addr right, int *ret)
 {
 	Check(RefLispDecl(right) != LISPDECL_VALUES, "decl right error");
 	Check(RefNotDecl(right), "right not error");
-	type_getvalues1(right, &right);
-	return subtypep_boolean_(left, right, ret);
+	subtypep_values_local(left, &left);
+	return subtypep_values_values_(left, right, ret);
 }
 
 static int subtypep_values_call_(addr left, addr right, int *ret)
@@ -1298,12 +1309,16 @@ static int subtypep_values_call_(addr left, addr right, int *ret)
 static int subtypep_values_(addr left, addr right, SubtypepResult *ret)
 {
 	int value;
+	LocalRoot local;
+	LocalStack stack;
 
-	/*
-	 *  typespec values cannot recognize subtypep-exclude.
+	/*  typespec values cannot recognize subtypep-exclude.
 	 *  result is include or false.
 	 */
+	local = Local_Thread;
+	push_local(local, &stack);
 	Return(subtypep_values_call_(left, right, &value));
+	rollback_local(local, stack);
 	return Result(ret, value? SUBTYPEP_INCLUDE: SUBTYPEP_FALSE);
 }
 

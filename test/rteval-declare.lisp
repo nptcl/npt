@@ -137,21 +137,161 @@
   100)
 
 ;;  ANSI Common Lisp
-(defun locally-sample-function (y)
+(defun locally-sample-function-1 (y)
   (declare (special y))
   (let ((y t))
     (list y
           (locally (declare (special y))
                    y))))
 
-'(deftest locally-test.1
-   (locally-sample-function nil)
-   (t nil))
+(deftest locally-test.1
+  (locally-sample-function-1 nil)
+  (t nil))
+
+(defun locally-sample-function-2 (y)
+  (declare (special y))
+  (let ((y t))
+    (list y
+          y
+          (locally (declare (special y))
+                   (list y y)))))
+
+(deftest locally-test.2
+  (locally-sample-function-2 nil)
+  (t t (nil nil)))
 
 
 ;;
 ;;  Special Operator THE
 ;;
+(deftest the.1
+  (the integer 10)
+  10)
+
+(deftest-error the.2
+  (eval '(the integer "Hello"))
+  type-error)
+
+(deftest the.3
+  (the (values) :hello)
+  :hello)
+
+(deftest the.4
+  (the (values integer integer) (values 10 20 30))
+  10 20 30)
+
+(deftest-error the.5
+  (eval '(the (values integer integer) (values 10 #\a 30)))
+  type-error)
+
+(deftest-error the.6
+  (eval '(the (values integer integer) (values 10)))
+  type-error)
+
+(deftest-error the.7
+  (eval '(the (values integer integer) 10))
+  type-error)
+
+(deftest the.8
+  (the (values integer (or null integer)) (values 10))
+  10)
+
+(deftest the.9
+  (the (values integer (or null integer)) 10)
+  10)
+
+(deftest-error the-push.1
+  (eval '(values
+           (eval '(the (values integer integer) (values 10 #\a 30)))
+           40))
+  type-error)
+
+(deftest the-push.2
+  (values
+    (eval '(the (values integer integer) (values 10 20 30)))
+    40)
+  10 40)
+
+(deftest-error the-push.3
+  (eval '(values
+           (eval '(the (values integer integer) (values 10)))
+           40))
+  type-error)
+
+(deftest-error the-push.4
+  (eval '(values
+           (eval '(the (values integer integer) 10))
+           40))
+  type-error)
+
+(deftest the-push.5
+  (values
+    (the (values integer (or null integer)) (values 10))
+    40)
+  10 40)
+
+(deftest the-push.6
+  (values
+    (the (values integer (or null integer)) 10)
+    40)
+  10 40)
+
+(deftest-error the-error.1
+  (eval '(the integer)))
+
+(deftest-error the-error.2
+  (eval '(the integer 10 20)))
+
+(deftest-error the-error.3
+  (eval '(the 10 20)))
+
+;;  ANSI Common Lisp
+(deftest the-test.1
+  (null (symbol-package
+          (the symbol (car (list (gensym))))))
+  t)
+
+(deftest the-test.2
+  (the fixnum (+ 5 7))
+  12)
+
+(deftest the-test.3
+  (the (values) (truncate 3.2 2))
+  1 1.2)
+
+(deftest the-test.4
+  (the integer (truncate 3.2 2))
+  1 1.2)
+
+(deftest the-test.5
+  (the (values integer) (truncate 3.2 2))
+  1 1.2)
+
+(deftest the-test.6
+  (the (values integer float) (truncate 3.2 2))
+  1 1.2)
+
+(deftest the-test.7
+  (the (values integer float symbol) (truncate 3.2 2))
+  1 1.2)
+
+(deftest the-test.8
+  (the (values integer float symbol t null list)
+       (truncate 3.2 2))
+  1 1.2)
+
+(deftest the-test.9
+  (let ((i 100))
+    (declare (fixnum i))
+    (the fixnum (1+ i)))
+  101)
+
+(deftest the-test.10
+  (let* ((x (list 'a 'b 'c))
+         (y 5))
+    (setf (the fixnum (car x)) y)
+    x)
+  (5 b c))
 
 
 ;;  Symbol DECLARE

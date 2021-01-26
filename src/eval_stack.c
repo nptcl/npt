@@ -375,12 +375,12 @@ static void apply_declare_switch(LocalRoot local,
 {
 	addr pos;
 
+	/* special */
+	getall_special_declare(declare, &pos);
+	apply_pushnew_stack(local, stack, pos, CONSTANT_SYSTEM_TYPE_SPECIAL);
 	/* inline, notinline */
 	getall_inline_declare(declare, &pos);
 	apply_plist_callname_stack(local, stack, pos, CONSTANT_SYSTEM_INLINE);
-	/* special */
-	getall_special_declare(declare, &pos);
-	apply_pushnew_stack(local, stack, pos, CONSTANT_SYSTEM_TYPE_SCOPE);
 	/* type */
 	getall_type_value_declare(declare, &pos);
 	apply_plist_stack(local, stack, pos, CONSTANT_SYSTEM_TYPE_VALUE);
@@ -438,13 +438,28 @@ void apply_declare_stack(LocalRoot local, addr stack, addr declare)
 }
 
 /* for let* arguments */
-static void apply_pushsymbol_stack(LocalRoot local,
-		addr stack, addr symbol, addr cons, constindex index)
+static void apply_declare_symbol_stack(LocalRoot local,
+		addr stack, addr symbol, addr list)
+{
+	constindex index;
+	addr key, table;
+
+	index = find_list_eq_unsafe(symbol, list)?
+		CONSTANT_SYSTEM_TYPE_SPECIAL:
+		CONSTANT_SYSTEM_TYPE_LEXICAL;
+	GetConstant(index, &key);
+	GetEvalStackTable(stack, &table);
+	if (pushnewplist_alloc(local, table, key, symbol, &table))
+		SetEvalStackTable(stack, table);
+}
+
+static void apply_declare_dynamic_stack(LocalRoot local,
+		addr stack, addr symbol, addr list)
 {
 	addr key, table;
 
-	if (find_list_eq_unsafe(symbol, cons)) {
-		GetConstant(index, &key);
+	if (find_list_eq_unsafe(symbol, list)) {
+		GetConst(SYSTEM_DYNAMIC_VALUE , &key);
 		GetEvalStackTable(stack, &table);
 		if (pushnewplist_alloc(local, table, key, symbol, &table))
 			SetEvalStackTable(stack, table);
@@ -452,43 +467,49 @@ static void apply_pushsymbol_stack(LocalRoot local,
 }
 
 static void apply_plistsymbol_stack(LocalRoot local,
-		addr stack, addr symbol, addr cons, constindex index)
+		addr stack, addr symbol, addr list, constindex index)
 {
 	addr key, table;
 
-	if (getplist(cons, symbol, &cons) == 0) {
-		copylocal_object(local, &cons, cons);
+	if (getplist(list, symbol, &list) == 0) {
+		copylocal_object(local, &list, list);
 		GetConstant(index, &key);
 		GetEvalStackTable(stack, &table);
-		if (setpplist_alloc(local, table, key, symbol, cons, &table))
+		if (setpplist_alloc(local, table, key, symbol, list, &table))
 			SetEvalStackTable(stack, table);
 	}
 }
 
 void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare)
 {
-	addr pos;
+	addr list;
 
+	/* special */
+	getall_special_declare(declare, &list);
+	apply_declare_symbol_stack(local, stack, symbol, list);
+	/* inline, notinline */
 	if (declare == Nil)
 		return;
-	/* inline, notinline */
-	/* special */
-	getall_special_declare(declare, &pos);
-	apply_pushsymbol_stack(local, stack, symbol, pos, CONSTANT_SYSTEM_TYPE_SCOPE);
 	/* type */
-	getall_type_value_declare(declare, &pos);
-	apply_plistsymbol_stack(local, stack, symbol, pos, CONSTANT_SYSTEM_TYPE_VALUE);
+	getall_type_value_declare(declare, &list);
+	apply_plistsymbol_stack(local, stack, symbol, list, CONSTANT_SYSTEM_TYPE_VALUE);
 	/* ftype */
 	/* optimize */
 	/* dynamic-extent value */
-	getall_dynamic_value_declare(declare, &pos);
-	apply_pushsymbol_stack(local, stack, symbol, pos, CONSTANT_SYSTEM_DYNAMIC_VALUE);
+	getall_dynamic_value_declare(declare, &list);
+	apply_declare_dynamic_stack(local, stack, symbol, list);
 	/* dynamic-extent function */
 	/* ignore, ignorable value */
-	getall_ignore_value_declare(declare, &pos);
-	apply_plistsymbol_stack(local, stack, symbol, pos, CONSTANT_SYSTEM_IGNORE_VALUE);
+	getall_ignore_value_declare(declare, &list);
+	apply_plistsymbol_stack(local, stack, symbol, list, CONSTANT_SYSTEM_IGNORE_VALUE);
 	/* ignore, ignorable function */
 	/* declaration is proclamation only. */
+}
+
+void apply_declare_let_stack(LocalRoot local, addr stack, addr symbol, addr declare)
+{
+	getall_special_declare(declare, &declare);
+	apply_declare_symbol_stack(local, stack, symbol, declare);
 }
 
 /* for labels arguments */
@@ -524,27 +545,27 @@ static void apply_plistcall_stack(LocalRoot local,
 
 void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare)
 {
-	addr pos;
+	addr list;
 
 	if (declare == Nil)
 		return;
 	/* inline, notinline */
-	getall_inline_declare(declare, &pos);
-	apply_plistcall_stack(local, stack, call, pos, CONSTANT_SYSTEM_INLINE);
+	getall_inline_declare(declare, &list);
+	apply_plistcall_stack(local, stack, call, list, CONSTANT_SYSTEM_INLINE);
 	/* special */
 	/* type */
 	/* ftype */
-	getall_type_function_declare(declare, &pos);
-	apply_plistcall_stack(local, stack, call, pos, CONSTANT_SYSTEM_TYPE_FUNCTION);
+	getall_type_function_declare(declare, &list);
+	apply_plistcall_stack(local, stack, call, list, CONSTANT_SYSTEM_TYPE_FUNCTION);
 	/* optimize */
 	/* dynamic-extent value */
 	/* dynamic-extent function */
-	getall_dynamic_function_declare(declare, &pos);
-	apply_pushcall_stack(local, stack, call, pos, CONSTANT_SYSTEM_DYNAMIC_FUNCTION);
+	getall_dynamic_function_declare(declare, &list);
+	apply_pushcall_stack(local, stack, call, list, CONSTANT_SYSTEM_DYNAMIC_FUNCTION);
 	/* ignore, ignorable value */
 	/* ignore, ignorable function */
-	getall_ignore_function_declare(declare, &pos);
-	apply_plistcall_stack(local, stack, call, pos, CONSTANT_SYSTEM_IGNORE_FUNCTION);
+	getall_ignore_function_declare(declare, &list);
+	apply_plistcall_stack(local, stack, call, list, CONSTANT_SYSTEM_IGNORE_FUNCTION);
 	/* declaration is proclamation only. */
 }
 
@@ -710,5 +731,63 @@ void setblock_lexical_evalstack(addr stack, addr pos)
 	GetEvalStackLexical(stack, &list);
 	cons_heap(&list, pos, list);
 	SetEvalStackLexical(stack, list);
+}
+
+int find_plistlist_evalstack(addr stack, addr key, addr symbol)
+{
+	Check(! eval_stack_p(stack), "type error");
+
+	GetEvalStackTable(stack, &stack);
+	return getplist(stack, key, &stack) == 0
+		&& find_list_eq_unsafe(symbol, stack);
+}
+
+int find_special_evalstack(addr stack, addr symbol)
+{
+	addr key;
+
+	Check(! eval_stack_p(stack), "type error");
+	Check(! symbolp(symbol), "type error");
+	GetConst(SYSTEM_TYPE_SPECIAL, &key);
+	return find_plistlist_evalstack(stack, key, symbol);
+}
+
+int find_global_special_evalstack(addr stack, addr symbol, addr *ret)
+{
+	addr list, key, x, y;
+
+	Check(! eval_stack_p(stack), "type error");
+	Check(! symbolp(symbol), "type error");
+
+	GetConst(COMMON_SPECIAL, &key);
+	GetEvalStackTable(stack, &list);
+	if (getplist(list, key, ret))
+		goto not_found;
+
+	while (list != Nil) {
+		GetCons(list, &x, &list);
+		getname_tablevalue(x, &y);
+		if (y == symbol) {
+			*ret = x;
+			return 1;
+		}
+	}
+
+not_found:
+	*ret = Nil;
+	return 0;
+}
+
+void push_global_special_evalstack(addr stack, addr value)
+{
+	addr list, key;
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableValue(value);
+
+	GetConst(COMMON_SPECIAL, &key);
+	GetEvalStackTable(stack, &list);
+	if (setplist_heap(list, key, value, &list))
+		SetEvalStackTable(stack, list);
 }
 

@@ -4,6 +4,7 @@
 #include "call_eval.h"
 #include "common_header.h"
 #include "declare.h"
+#include "setf.h"
 
 /* (defmacro lambda (&whole right &rest args)  ...) */
 static int function_lambda(Execute ptr, addr form, addr env)
@@ -485,6 +486,21 @@ static void defspecial_the(void)
 }
 
 
+/* (define-setf-expander the (type expr &environment env) ...) */
+static void define_setf_expander_the(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_THE, &symbol);
+	compiled_macro_system(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_setf_the);
+	SetSetfMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /* (defun special-operator-p (symbol) ...) -> boolean */
 static int function_special_operator_p(Execute ptr, addr var)
 {
@@ -565,6 +581,7 @@ void init_common_eval(void)
 	SetPointerCall(defmacro,  macro,     define_symbol_macro);
 	SetPointerCall(defun,     var1,      proclaim);
 	SetPointerCall(defmacro,  macro,     declaim);
+	SetPointerCall(defmacro,  macro,     setf_the);
 	SetPointerCall(defun,     var1,      special_operator_p);
 	SetPointerCall(defun,     var1opt1,  constantp);
 }
@@ -591,6 +608,7 @@ void build_common_eval(void)
 	defmacro_declaim();
 	defspecial_locally();
 	defspecial_the();
+	define_setf_expander_the();
 	defun_special_operator_p();
 	defun_constantp();
 }

@@ -81,6 +81,7 @@
 #define type_eql_heap _n(type_eql_heap)
 #define type_member_heap _n(type_member_heap)
 #define type_satisfies_heap _n(type_satisfies_heap)
+#define type_values_local _n(type_values_local)
 #define type_values_heap _n(type_values_heap)
 #define type_signed_alloc _n(type_signed_alloc)
 #define type_signed_local _n(type_signed_local)
@@ -228,6 +229,7 @@ void type_eql_local(LocalRoot local, addr pos, addr *ret);
 void type_eql_heap(addr pos, addr *ret);
 void type_member_heap(addr *ret, ...);
 void type_satisfies_heap(addr call, addr *ret);
+void type_values_local(LocalRoot local, addr v1, addr v2, addr v3, addr v4, addr *ret);
 void type_values_heap(addr v1, addr v2, addr v3, addr v4, addr *ret);
 
 void type_signed_alloc(LocalRoot local, fixnum value, addr *ret);

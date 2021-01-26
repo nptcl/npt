@@ -403,6 +403,11 @@ void getall_inline_declare(addr pos, addr *ret)
 
 void getall_special_declare(addr pos, addr *ret)
 {
+	if (pos == Nil) {
+		*ret = Nil;
+		return;
+	}
+
 	Check(! eval_declare_p(pos), "type error");
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, ret);
 }

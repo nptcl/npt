@@ -13,6 +13,8 @@
 #include "strvect.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_number.h"
+#include "type_optimize.h"
 
 /* nil */
 static void code_make_nil(LocalRoot local, addr code, addr ignore)
@@ -1506,8 +1508,11 @@ static void code_make_the(LocalRoot local, addr code, addr scope)
 	}
 
 	GetEvalScopeThe(scope, &type);
+	get_type_optimized(&type, type);
+	get_type_subtypep(&type, type);
+
 	if (code_queue_pushp(code)) {
-		code_make_execute_push(local, code, form);
+		code_make_execute_set(local, code, form);
 		CodeQueue_cons(local, code, THE_PUSH, type);
 	}
 	else {

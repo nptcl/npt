@@ -73,6 +73,7 @@ code_lambda.c
 code_make.c
 code_object.c
 code_queue.c
+code_values.c
 code.c
 common_arrays.c
 common_characters.c

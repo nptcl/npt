@@ -35,6 +35,7 @@
 #define apply_declaim_stack_ _n(apply_declaim_stack_)
 #define apply_declare_stack _n(apply_declare_stack)
 #define apply_declare_value_stack _n(apply_declare_value_stack)
+#define apply_declare_let_stack _n(apply_declare_let_stack)
 #define apply_declare_function_stack _n(apply_declare_function_stack)
 #define getvalue_scope_evalstack _n(getvalue_scope_evalstack)
 #define setvalue_scope_evalstack _n(setvalue_scope_evalstack)
@@ -48,6 +49,10 @@
 #define setfunction_lexical_evalstack _n(setfunction_lexical_evalstack)
 #define settagbody_lexical_evalstack _n(settagbody_lexical_evalstack)
 #define setblock_lexical_evalstack _n(setblock_lexical_evalstack)
+#define find_plistlist_evalstack _n(find_plistlist_evalstack)
+#define find_special_evalstack _n(find_special_evalstack)
+#define find_global_special_evalstack _n(find_global_special_evalstack)
+#define push_global_special_evalstack _n(push_global_special_evalstack)
 
 enum EVAL_STACK {
 	EVAL_STACK_NEXT,
@@ -151,6 +156,7 @@ void getlexical_index_heap(addr stack, addr *ret);
 int apply_declaim_stack_(Execute ptr, addr declare);
 void apply_declare_stack(LocalRoot local, addr stack, addr declare);
 void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
+void apply_declare_let_stack(LocalRoot local, addr stack, addr symbol, addr declare);
 void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);
 
 /* table */
@@ -167,6 +173,12 @@ void setvalue_lexical_evalstack(addr stack, addr pos);
 void setfunction_lexical_evalstack(addr stack, addr pos);
 void settagbody_lexical_evalstack(addr stack, addr pos);
 void setblock_lexical_evalstack(addr stack, addr pos);
+
+int find_plistlist_evalstack(addr stack, addr key, addr symbol);
+int find_special_evalstack(addr stack, addr symbol);
+
+int find_global_special_evalstack(addr stack, addr symbol, addr *ret);
+void push_global_special_evalstack(addr stack, addr value);
 
 #endif
 

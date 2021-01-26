@@ -1176,11 +1176,11 @@ static void flet_maketable(Execute ptr, struct let_struct *str)
 
 static int checktype_function_(addr table, addr eval)
 {
-	int check;
+	int check, errp;
 
 	gettype_tablefunction(table, &table);
 	GetEvalScopeThe(eval, &eval);
-	(void)checktype_p(eval, table, &check);
+	Return(checktype_p_(eval, table, &check, &errp));
 	if (check)
 		return fmte_("Invalid function type.", NULL);
 
@@ -1381,7 +1381,7 @@ static int check_tablecall_warning_(Execute ptr, addr name, addr type, addr expe
 
 static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 {
-	int check;
+	int check, errp;
 	addr table, type, name;
 
 	/* tablecall */
@@ -1392,7 +1392,8 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 	setvalue_tablecall(table, eval);
 	/* checktype */
 	GetEvalScopeThe(eval, &type);
-	if (checktype_p(type, right, &check)) {
+	Return(checktype_p_(type, right, &check, &errp));
+	if (errp) {
 		GetEvalScopeValue(eval, &name);
 		Return(check_tablecall_warning_(ptr, name, type, right));
 	}

@@ -1336,7 +1336,8 @@ lisp-system::ignore-value
 lisp-system::ignore-function
 
 lisp-system::type
-lisp-system::type-scope
+lisp-system::type-special
+lisp-system::type-lexical
 lisp-system::type-value
 lisp-system::type-function
 lisp-system::type-setf
