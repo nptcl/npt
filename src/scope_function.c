@@ -4,6 +4,7 @@
 #include "parse.h"
 #include "parse_object.h"
 #include "scope_call.h"
+#include "scope_check.h"
 #include "scope_function.h"
 #include "scope_lambda.h"
 #include "scope_object.h"
@@ -495,7 +496,7 @@ static int scope_call(Execute ptr, addr *ret, addr eval)
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &first);
 	GetEvalParse(eval, 1, &args);
-	return scope_call_call(ptr, first, args, ret);
+	return scope_call_call_(ptr, first, args, ret);
 }
 
 

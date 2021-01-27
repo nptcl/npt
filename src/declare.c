@@ -345,7 +345,8 @@ static void push_declaration_declare_heap(addr pos, addr symbol)
 static int check_constant_declare(addr pos, addr symbol, enum EVAL_DECLARE declare)
 {
 	Check(! eval_declare_p(pos), "type error");
-	CheckSymbol(symbol);
+	if (! symbolp(symbol))
+		return 0;
 	GetEvalDeclare(pos, declare, &pos);
 	return find_list_eq_unsafe(symbol, pos);
 }
@@ -811,11 +812,7 @@ static int decl_otherwise_(Execute ptr, addr env, addr eval, addr type, addr con
 		return 0;
 	}
 
-	if (! type_symbol_p(type)) {
-		/* Not implementation */
-		return fmtw_("Declaration ~S is not implemented.", type, NULL);
-	}
-
+	/* (type ...) */
 	Return(parse_type(ptr, &type, type, env));
 	while (cons != Nil) {
 		Return_getcons(cons, &symbol, &cons);
@@ -949,8 +946,6 @@ static int parse_declare_form_(Execute ptr, addr env, addr decl, addr *ret,
 	while (decl != Nil) {
 		Return_getcons(decl, &car, &decl);
 		Return_getcons(car, &car, &tail);
-		if (! symbolp(car))
-			return TypeError_(car, SYMBOL);
 		Return((*call_)(ptr, env, eval, car, tail));
 	}
 	localhold_end(hold);
@@ -1323,8 +1318,6 @@ static int parse_proclaim_heap_(Execute ptr, addr env, addr car, addr *ret)
 	eval_declare_heap(&eval);
 	hold = LocalHold_local_push(ptr, eval);
 	Return_getcons(car, &car, &tail);
-	if (! symbolp(car))
-		return TypeError_(car, SYMBOL);
 	Return(push_declaim_(ptr, env, eval, car, tail));
 	localhold_end(hold);
 

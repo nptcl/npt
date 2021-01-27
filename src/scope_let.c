@@ -495,10 +495,12 @@ int ignore_checkvalue_(addr stack)
 		special = getspecialp_tablevalue(value);
 
 		if (ignore == IgnoreType_None && (! reference) && (! special)) {
-			Return(fmtw_("Unused variable ~S.", name, NULL));
+			Return(call_simple_style_warning_va_(NULL,
+						"Unused variable ~S.", name, NULL));
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
-			Return(fmtw_("Ignore variable ~S used.", name, NULL));
+			Return(call_simple_style_warning_va_(NULL,
+						"Ignore variable ~S used.", name, NULL));
 		}
 	}
 

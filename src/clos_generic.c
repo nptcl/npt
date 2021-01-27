@@ -1006,7 +1006,9 @@ result:
 	/* (apply #'ensure-generic-function-using-class ...) */
 	GetConst(CLOSNAME_ENSURE_GENERIC_FUNCTION_USING_CLASS, &ensure);
 	Return(getfunction_global_(ensure, &ensure));
-	return applya_control(ptr, ensure, clos, name, rest, NULL);
+	Return(applya_control(ptr, ensure, clos, name, rest, NULL));
+	getresult_control(ptr, ret);
+	return 0;
 }
 
 

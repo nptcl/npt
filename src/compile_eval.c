@@ -115,7 +115,7 @@ static int compile_eval_implicit(Execute ptr, addr args, addr decl, addr list)
 
 	/* symbol-macrolet */
 	if (args != Nil)
-		apply_symbol_macrolet(stack, args);
+		apply_symbol_macrolet(ptr->local, stack, args);
 
 	/* locally */
 	eval_parse_heap(&pos, EVAL_PARSE_LOCALLY, 3);

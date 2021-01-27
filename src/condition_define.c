@@ -944,3 +944,35 @@ int call_simple_reader_error_va_(Execute ptr, const char *fmt, ...)
 	return call_simple_reader_error_(ptr, control, args);
 }
 
+
+/* simple_style_warning */
+int instance_simple_style_warning_(addr *ret, addr control, addr args)
+{
+	addr instance;
+
+	GetConst(CONDITION_SIMPLE_STYLE_WARNING, &instance);
+	Return(clos_instance_heap_(instance, &instance));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_FORMAT_CONTROL, control));
+	Return(clos_setconst_(instance, CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args));
+	return Result(ret, instance);
+}
+
+int call_simple_style_warning_(Execute ptr, addr control, addr args)
+{
+	addr instance;
+	Return(instance_simple_style_warning_(&instance, control, args));
+	return warning_restart_case_(ptr, instance);
+}
+
+int call_simple_style_warning_va_(Execute ptr, const char *fmt, ...)
+{
+	addr control, args;
+	va_list va;
+
+	strvect_char_heap(&control, fmt);
+	va_start(va, fmt);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	return call_simple_style_warning_(ptr, control, args);
+}
+

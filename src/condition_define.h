@@ -152,6 +152,10 @@
 #define call_simple_reader_error_ _n(call_simple_reader_error_)
 #define call_simple_reader_error_va_ _n(call_simple_reader_error_va_)
 
+#define instance_simple_style_warning_ _n(instance_simple_style_warning_)
+#define call_simple_style_warning_ _n(call_simple_style_warning_)
+#define call_simple_style_warning_va_ _n(call_simple_style_warning_va_)
+
 /* serious_condition */
 int instance_serious_condition_(addr *ret);
 int call_serious_condition_(Execute ptr);
@@ -338,6 +342,11 @@ int call_simple_package_error_va_(Execute ptr, const char *fmt, ...);
 int instance_simple_reader_error_(addr *ret, addr control, addr args);
 int call_simple_reader_error_(Execute ptr, addr control, addr args);
 int call_simple_reader_error_va_(Execute ptr, const char *fmt, ...);
+
+/* simple_style_warning */
+int instance_simple_style_warning_(addr *ret, addr control, addr args);
+int call_simple_style_warning_(Execute ptr, addr control, addr args);
+int call_simple_style_warning_va_(Execute ptr, const char *fmt, ...);
 
 #endif
 

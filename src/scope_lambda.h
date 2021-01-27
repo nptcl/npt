@@ -18,7 +18,6 @@
 #define scope_bind_call _n(scope_bind_call)
 #define scope_flet_call _n(scope_flet_call)
 #define scope_labels_call _n(scope_labels_call)
-#define scope_call_call _n(scope_call_call)
 
 struct lambda_struct {
 	addr stack, call, table, lexical;
@@ -43,7 +42,6 @@ int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args);
 
 int scope_flet_call(Execute ptr, struct let_struct *str);
 int scope_labels_call(Execute ptr, struct let_struct *str);
-int scope_call_call(Execute ptr, addr first, addr args, addr *ret);
 
 #endif
 

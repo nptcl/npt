@@ -1684,6 +1684,12 @@ static int build_clos_class_condition_(LocalRoot local)
 			CONDITION_SIMPLE_READER_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_READER_ERROR);
+	/* lisp-system::simple-style-warning (simple-warning style-warning) */
+	ClosMakeClass2_(local, metaclass,
+			SYSTEM_SIMPLE_STYLE_WARNING,
+			CONDITION_SIMPLE_STYLE_WARNING,
+			CONDITION_SIMPLE_WARNING,
+			CONDITION_STYLE_WARNING);
 	/* lisp-system::delay-warning (warning) */
 	ClosMakeClass1_(local, metaclass,
 			SYSTEM_DELAY_WARNING,

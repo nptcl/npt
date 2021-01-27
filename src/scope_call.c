@@ -24,7 +24,9 @@
  */
 static int warning_global_lexical_(addr symbol)
 {
-	/* return fmtw_("Undefined variable ~S.", symbol, NULL); */
+	/*  return call_simple_style_warning_va_(NULL,
+	 *      "Undefined variable ~S.", symbol, NULL);
+	 */
 	return 0;
 }
 
@@ -332,7 +334,8 @@ int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 /*
  *  define-symbol-macro
  */
-static void push_symbol_macrolet(addr stack, addr symbol, addr form, addr env)
+static void push_symbol_macrolet(LocalRoot local,
+		addr stack, addr symbol, addr form, addr env)
 {
 	addr key, table, temp;
 
@@ -340,8 +343,8 @@ static void push_symbol_macrolet(addr stack, addr symbol, addr form, addr env)
 	GetEvalStackTable(stack, &table);
 	if (getpplist(table, key, symbol, &temp)) {
 		/* not found */
-		cons_heap(&form, form, env);
-		if (setpplist_heap(table, key, symbol, form, &table))
+		cons_alloc(local, &form, form, env);
+		if (setpplist_alloc(local, table, key, symbol, form, &table))
 			SetEvalStackTable(stack, table);
 	}
 }
@@ -352,7 +355,7 @@ int scope_define_symbol_macro_call_(Execute ptr,
 	addr stack, eval;
 
 	Return(getglobal_eval_(ptr, &stack));
-	push_symbol_macrolet(stack, symbol, form, Nil); /* null env */
+	push_symbol_macrolet(NULL, stack, symbol, form, Nil); /* null env */
 	GetTypeTable(&eval, Symbol);
 	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_DEFINE_SYMBOL_MACRO, eval, Nil));
 	SetEvalScopeIndex(eval, 0, symbol);
@@ -366,14 +369,15 @@ int scope_define_symbol_macro_call_(Execute ptr,
 /*
  *  symbol-macrolet
  */
-void apply_symbol_macrolet(addr stack, addr args)
+void apply_symbol_macrolet(LocalRoot local, addr stack, addr args)
 {
 	addr list, symbol, form, env;
 
+	CheckLocal(local);
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &symbol, &form, &env, NULL);
-		push_symbol_macrolet(stack, symbol, form, env);
+		push_symbol_macrolet(local, stack, symbol, form, env);
 	}
 }
 
@@ -384,7 +388,7 @@ static int symbol_macrolet_execute(Execute ptr,
 
 	Return(newstack_nil_(ptr, &stack));
 	Return(apply_declare_(ptr, stack, decl, free));
-	apply_symbol_macrolet(stack, args);
+	apply_symbol_macrolet(ptr->local, stack, args);
 	Return(scope_allcons(ptr, ret, type, cons));
 
 	return freestack_eval_(ptr, stack);

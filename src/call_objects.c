@@ -600,23 +600,19 @@ static int with_accessors_arguments(addr args, addr g, addr *ret)
 	addr root, var, name, temp;
 
 	for (root = Nil; args != Nil; ) {
-		Return_getcons(args, &var, &args);
+		if (! consp_getcons(args, &var, &args))
+			goto error;
 		/* parse */
-		if (symbolp(var)) {
-			name = var;
-		}
-		else {
-			if (! consp_getcons(var, &var, &temp))
-				goto error;
-			if (! consp_getcons(temp, &name, &temp))
-				goto error;
-			if (temp != Nil)
-				goto error;
-			if (! symbolp(var))
-				return fmte_("WITH-ACCESSORS argument ~S must be a symbol.", var, NULL);
-			if (! symbolp(name))
-				return fmte_("WITH-ACCESSORS argument ~S must be a symbol.", name, NULL);
-		}
+		if (! consp_getcons(var, &var, &temp))
+			goto error;
+		if (! consp_getcons(temp, &name, &temp))
+			goto error;
+		if (temp != Nil)
+			goto error;
+		if (! symbolp(var))
+			return fmte_("WITH-ACCESSORS argument ~S must be a symbol.", var, NULL);
+		if (! symbolp(name))
+			return fmte_("WITH-ACCESSORS argument ~S must be a symbol.", name, NULL);
 		/* expand */
 		list_heap(&name, name, g, NULL);
 		list_heap(&var, var, name, NULL);
@@ -627,18 +623,19 @@ static int with_accessors_arguments(addr args, addr g, addr *ret)
 
 error:
 	*ret = Nil;
-	return fmte_("WITH-ACCESSORS arguments ~S must be "
-			"a symbol or (var name) form.", args, NULL);
+	return fmte_("WITH-ACCESSORS arguments ~S "
+			"must be a (var name) form.", args, NULL);
 }
 
 int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 {
-	/* `(let ((,#:g ,expr))
-	 *    (symbol-macrolet ((,var1 (,name1 ,#:g))
-	 *                      (,varN (,nameN ,#:g)))
+	/* `(let ((,g ,expr))
+	 *    (declare (ignorable g))
+	 *    (symbol-macrolet ((,var1 (,name1 ,g))
+	 *                      (,varN (,nameN ,g)))
 	 *      ,@args))
 	 */
-	addr args, var, expr, g, let, symm;
+	addr args, var, expr, g, let, declare, ignorable, symm;
 
 	/* arguments */
 	Return_getcdr(form, &args);
@@ -649,13 +646,17 @@ int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* expand */
 	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
 	Return(make_gensym_(ptr, &g));
 	Return(with_accessors_arguments(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
-	list_heap(&g, g, expr, NULL);
-	list_heap(&g, g, NULL);
-	list_heap(ret, let, g, symm, NULL);
+	list_heap(&expr, g, expr, NULL);
+	list_heap(&expr, expr, NULL);
+	list_heap(&ignorable, ignorable, g, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	list_heap(ret, let, expr, declare, symm, NULL);
 	return 0;
 
 error:
@@ -709,12 +710,13 @@ error:
 
 int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 {
-	/* `(let ((,#:g ,expr))
-	 *    (symbol-macrolet ((,var1 (slot-value ,#:g ',name1))
-	 *                      (,varN (slot-value ,#:g ',nameN)))
+	/* `(let ((,g ,expr))
+	 *    (declare (ignorable g))
+	 *    (symbol-macrolet ((,var1 (slot-value ,g ',name1))
+	 *                      (,varN (slot-value ,g ',nameN)))
 	 *      ,@args))
 	 */
-	addr args, var, expr, g, let, symm;
+	addr args, var, expr, g, let, declare, ignorable, symm;
 
 	/* arguments */
 	Return_getcdr(form, &args);
@@ -725,13 +727,17 @@ int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* expand */
 	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
 	Return(make_gensym_(ptr, &g));
 	Return(with_slots_arguments(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
-	list_heap(&g, g, expr, NULL);
-	list_heap(&g, g, NULL);
-	list_heap(ret, let, g, symm, NULL);
+	list_heap(&expr, g, expr, NULL);
+	list_heap(&expr, expr, NULL);
+	list_heap(&ignorable, ignorable, g, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	list_heap(ret, let, expr, declare, symm, NULL);
 	return 0;
 
 error:
@@ -771,20 +777,13 @@ static int defgeneric_parse_order(addr list, addr *ret)
 static int defgeneric_parse_declare(addr list, addr *ret)
 {
 	int check;
-	addr pos, decl;
+	addr decl;
 
-	if (! consp_getcons(list, &pos, &decl))
-		goto error;
-	if (decl != Nil)
-		goto error;
-	Return(parse_optimize_heap_(pos, &decl, &check));
+	Return(parse_optimize_heap_(list, &decl, &check));
 	if (check)
-		return fmte_(":DECLARE accept only OPTIMIZE but ~S.", pos, NULL);
-	return Result(ret, decl);
+		return fmte_(":DECLARE accept only OPTIMIZE but ~S.", list, NULL);
 
-error:
-	*ret = Nil;
-	return fmte_("Invalid :DECLARE form ~S.", list, NULL);
+	return Result(ret, decl);
 }
 
 static int defgeneric_parse_document(addr list, addr *ret)
@@ -869,7 +868,7 @@ static int defgeneric_parse_options(addr name, addr args,
 			continue;
 		}
 		/* :declare */
-		GetConst(KEYWORD_DECLARE, &check);
+		GetConst(COMMON_DECLARE, &check);
 		if (type == check) {
 			Return(defgeneric_parse_declare(tail, &decl));
 			continue;

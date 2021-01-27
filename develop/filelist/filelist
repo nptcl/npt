@@ -309,6 +309,7 @@ restart.c
 rt_load.c
 rt.c
 scope_call.c
+scope_check.c
 scope_declare.c
 scope_function.c
 scope_lambda.c
