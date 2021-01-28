@@ -254,7 +254,7 @@
   (pathname-match-p #p"test:hello.txt.10" #p"test:hello.txt")
   nil)
 
-(deftest-error pathname-match-p-error.1
+(deftest-error! pathname-match-p-error.1
   (eval '(pathname-match-p 10))
   type-error)
 

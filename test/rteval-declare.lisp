@@ -819,31 +819,339 @@
 ;;
 ;;  Declaration FTYPE
 ;;
-'(deftest declaration-ftype.1
-   (labels ((aaa () :hello))
-     (declare (ftype (function ()) aaa))
-     (aaa))
-   :hello)
+(deftest declaration-ftype.1
+  (locally
+    (declare (ftype function))
+    nil)
+  nil)
 
-'(deftest declaration-ftype.2
-   (labels ((aaa () :hello))
-     (declare (ftype (or (function (integer))
-                         (function (string) integer)
-                         (function ()))
-                     aaa))
-     (aaa))
-   :hello)
+(deftest declaration-ftype.2
+  (labels ((aaa () :hello))
+    (declare (ftype (function ()) aaa))
+    (aaa))
+  :hello)
 
-'(deftest-error declaration-ftype.3
-   (eval '(labels ((aaa () :hello))
-            (declare (ftype function (function aaa)))
-            (aaa))))
+(deftest declaration-ftype.3
+  (labels ((aaa () :hello))
+    (declare (ftype (or (function (integer))
+                        (function (string) integer)
+                        (function ()))
+                    aaa))
+    (aaa))
+  :hello)
+
+(deftest-error declaration-ftype.4
+  (eval '(labels ((aaa () :hello))
+           (declare (ftype function (function aaa)))
+           (aaa))))
+
+(deftest-error declaration-ftype.5
+  (eval '(labels ((aaa (x) x :hello))
+           (declare (ftype (function (integer)) aaa))
+           (aaa "Hello"))))
+
+(deftest-error declaration-ftype-error.1
+  (eval '(locally
+           (declare (ftype)))))
+
+(deftest declaration-ftype-test.1
+  (locally
+    (declare (ftype (function (integer list) t) ith)
+             (ftype (function (number) float) sine cosine))
+    :hello)
+  :hello)
 
 
+;;
 ;;  Declaration INLINE
+;;
+(deftest declaration-inline.1
+  (locally
+    (declare (inline)))
+  nil)
+
+(deftest declaration-inline.2
+  (flet ((x ()) (y ()))
+    (declare (inline x y))
+    (x) (y))
+  nil)
+
+(deftest-error declaration-inline-error.1
+  (eval '(flet ((aaa () :hello))
+           (declare (inline (function aaa)))
+           (aaa))))
+
+(deftest-error declaration-inline-error.2
+  (eval '(locally (declare (inline 10)))))
+
+
+;;
 ;;  Declaration NOTINLINE
+;;
+(deftest declaration-notinline.1
+  (locally
+    (declare (notinline)))
+  nil)
+
+(deftest declaration-notinline.2
+  (flet ((x ()) (y ()))
+    (declare (notinline x y))
+    (x) (y))
+  nil)
+
+(deftest-error declaration-notinline-error.1
+  (eval '(flet ((aaa () :hello))
+           (declare (notinline (function aaa)))
+           (aaa))))
+
+(deftest-error declaration-notinline-error.2
+  (eval '(locally (declare (notinline 10)))))
+
+
+;;
 ;;  Declaration DECLARATION
+;;
+(deftest declaration-declaration.1
+  (progn
+    (declaim (declaration))
+    (values)))
+
+(deftest declaration-declaration.2
+  (progn
+    (declaim (declaration declaration-test-1 declaration-test-2))
+    (values)))
+
+(deftest declaration-declaration.3
+  (progn
+    (declaim (declaration declaration-test-3))
+    (declaim (declaration declaration-test-3))
+    (declaim (declaration declaration-test-3))
+    (values)))
+
+(deftest declaration-declaration.4
+  (progn
+    (eval '(declaim (declaration declaration-test-4)))
+    (eval '(declaim (declaration-test-4 "Hello")))
+    (values)))
+
+(deftest-error declaration-declaration-error.1
+  (eval '(declaim (declaration 100))))
+
+;;  ANSI Common Lisp
+(deftest declaration-declaration-test.1
+  (progn
+    (eval '(declaim (declaration declaration-test-author
+                                 declaration-target-language
+                                 declaration-target-machine)))
+    (eval '(declaim (declaration-target-language ada)))
+    (eval '(declaim (declaration-target-machine IBM-650)))
+    (eval '(defun declaration-test-strangep (x)
+             (declare (declaration-test-author "Harry Tweeker"))
+             (member x '(strange weird odd peculiar))))
+    (values)))
+
+
+;;
 ;;  Declaration OPTIMIZE
+;;
+(deftest declaration-optimize.1
+  (locally
+    (declare (optimize)))
+  nil)
+
+(deftest declaration-optimize.2
+  (locally
+    (declare (optimize compilation-speed))
+    10)
+  10)
+
+(deftest declaration-optimize.3
+  (locally
+    (declare (optimize compilation-speed debug safety space speed))
+    nil)
+  nil)
+
+(deftest declaration-optimize.4
+  (locally
+    (declare (optimize (compilation-speed 0)
+                       (debug 1)
+                       (safety 2)
+                       (space 3)
+                       (speed 0)))
+    nil)
+  nil)
+
+(deftest declaration-optimize-error.5
+  (handler-case
+    (eval '(locally
+             (declare (optimize no-such-optimization-quality))))
+    (warning () :ok))
+  :ok)
+
+(deftest declaration-optimize-error.6
+  (handler-case
+    (eval '(locally
+             (declare (optimize (no-such-optimization-quality 3)))))
+    (warning () :ok))
+  :ok)
+
+(deftest-error declaration-optimize-error.1
+  (eval '(locally
+           (declare (optimize (compilation-speed -1))))))
+
+(deftest-error declaration-optimize-error.2
+  (eval '(locally
+           (declare (optimize (compilation-speed 4))))))
+
+;;  ANSI Common Lisp
+(deftest declaration-optimize-test.
+  (defun declaration-test-often-used-subroutine (x y)
+    (declare (optimize (safety 2)))
+    (error-check x y)
+    (hairy-setup x)
+    (do ((i 0 (+ i 1))
+         (z x (cdr z)))
+      ((null z))
+      ;; This inner loop really needs to burn.
+      (declare (optimize speed))
+      (declare (fixnum i))))
+  declaration-test-often-used-subroutine)
+
+
+;;
 ;;  Declaration SPECIAL
+;;
+(deftest declaration-special.1
+  (locally
+    (declare (special)))
+  nil)
+
+(deftest declaration-special.2
+  (locally
+    (declare (special x y z)))
+  nil)
+
+(deftest declaration-special.3
+  (locally
+    (declare (special hello-symbol))
+    (setq hello-symbol 10)
+    (symbol-value 'hello-symbol))
+  10)
+
+(deftest declaration-special.4
+  (let (hello-symbol)
+    (declare (special hello-symbol))
+    (setq hello-symbol 10)
+    (symbol-value 'hello-symbol))
+  10)
+
+(deftest-error declaration-special-error.1
+  (eval '(locally (declare (special 10)))))
+
+;;  ANSI Common Lisp
+(defun declaration-special-declare-eg (y)
+  (declare (special y))
+  (let ((y t))
+    (list y
+          (locally (declare (special y)) y))))
+
+(deftest declaration-special-test.1
+  (declaration-special-declare-eg nil)
+  (t nil))
+
+(declaim (special declaration-test-x))
+(setf (symbol-value 'declaration-test-x) 6)
+(defvar *declaration-test-2*)
+
+(defun declaration-test-foo (declaration-test-x)
+  (push declaration-test-x *declaration-test-2*)
+  (let ((declaration-test-x (1+ declaration-test-x)))
+    (declare (special declaration-test-x))
+    (declaration-test-bar))
+  (1+ declaration-test-x))
+
+(defun declaration-test-bar ()
+  (push (locally (declare (special declaration-test-x))
+                 declaration-test-x)
+        *declaration-test-2*))
+
+(deftest declaration-special-test.2
+  (let (*declaration-test-2*)
+    (values
+      (declaration-test-foo 10)
+      (nreverse *declaration-test-2*)))
+  11 (10 11))
+
+(setf (symbol-value 'declaration-test-x) 6)
+(defun declaration-test-bar2 (declaration-test-x y)
+  (let ((old-x declaration-test-x)
+        (declaration-test-x y))
+    (declare (special declaration-test-x))
+    (list old-x declaration-test-x)))
+
+(deftest declaration-special-test.3
+  (declaration-test-bar2 'first 'second)
+  (first second))
+
+(declaim (special declaration-test-prosp))
+(setq declaration-test-prosp 1 declaration-test-reg 1)
+
+(deftest declaration-special-test.4
+  (let ((declaration-test-prosp 2) (declaration-test-reg 2))
+    (set 'declaration-test-prosp 3)
+    (set 'declaration-test-reg 3)
+    (list declaration-test-prosp declaration-test-reg))
+  (3 2))
+
+(deftest declaration-special-test.5
+  (list declaration-test-prosp declaration-test-reg)
+  (1 3))
+
+(deftest declaration-special-test.6
+  (progn
+    (declaim (special declaration-test-x))
+    (defun declaration-special-example (declaration-test-x y)
+      (declare (special y))
+      (let ((y 3) (declaration-test-x (* declaration-test-x 2)))
+        (print (+ y (locally (declare (special y)) y)))
+        (let ((y 4)) (declare (special y)) (foo declaration-test-x)))))
+  declaration-special-example)
+
+
+;;
 ;;  Declaration OTHERS
+;;
+(deftest declaration-others.1
+  (let ((x 10))
+    (declare (integer x))
+    x)
+  10)
+
+(deftest declaration-others.2
+  (let ((x 10))
+    (declare ((integer 0 100) x))
+    x)
+  10)
+
+(deftest declaration-others.3
+  (progn
+    (eval '(declaim (declaration declaration-others-1)))
+    (eval '(declaim (declaration-others-1 "Hello")))
+    (values)))
+
+(deftest declaration-others.4
+  (progn
+    (proclaim '(declaration declaration-others-2))
+    (proclaim '(declaration-others-2 "Hello"))
+    (values)))
+
+(deftest-error declaration-others-error.1
+  (eval '(declaim '(no-such-declare-name))))
+
+(deftest-error declaration-others-error.2
+  (proclaim '(no-such-declare-name)))
+
+(deftest-error declaration-others-error.3
+  (eval '(locally
+           (declare (no-such-declare-name)))))
 

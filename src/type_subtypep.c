@@ -15,6 +15,7 @@
 #include "symbol.h"
 #include "type.h"
 #include "type_copy.h"
+#include "type_function.h"
 #include "type_number.h"
 #include "type_object.h"
 #include "type_parse.h"
@@ -686,204 +687,6 @@ static int subtypep_table_(addr left, addr right, SubtypepResult *ret)
 /*
  *  function
  */
-struct ordinary_args {
-	addr var, opt, rest, key;
-	size_t size, size_var, size_opt, size_key, pos_rest;
-};
-typedef struct ordinary_args ordargs;
-
-static void make_function_ordinary(ordargs *ptr, addr pos)
-{
-	int check1, check2;
-
-	clearpoint(ptr);
-	GetArrayA2(pos, 0, &(ptr->var));
-	GetArrayA2(pos, 1, &(ptr->opt));
-	GetArrayA2(pos, 2, &(ptr->rest));
-	GetArrayA2(pos, 3, &(ptr->key));
-	ptr->size_var = length_list_unsafe(ptr->var);
-	ptr->size_opt = length_list_unsafe(ptr->opt);
-	ptr->size_key = (ptr->key == T)? 0: length_list_unsafe(ptr->key);
-	ptr->pos_rest = ptr->size = ptr->size_var + ptr->size_opt;
-	check1 = (ptr->rest != Nil);
-	check2 = (ptr->key != Nil);
-	if (check2) /* (rest key) or (key) */
-		ptr->size += 2;
-	else if (check1) /* (rest) */
-		ptr->size++;
-}
-
-struct ordinary_type {
-	addr type;
-	unsigned nil : 1;
-	unsigned var : 1;
-	unsigned rest : 1;
-	unsigned key : 1;
-	unsigned value : 1;
-};
-typedef struct ordinary_type ordtype;
-
-static int gettype_ordinary_(const ordargs *ptr, size_t index, ordtype *ret)
-{
-	int check1, check2;
-
-	memset(ret, 0, sizeoft(ordtype));
-	ret->type = Nil;
-	/* var */
-	if (index < ptr->size_var) {
-		Return(getnth_(ptr->var, index, &(ret->type)));
-		ret->var = 1;
-		return 0;
-	}
-	index -= ptr->size_var;
-	/* opt */
-	if (index < ptr->size_opt) {
-		Return(getnth_(ptr->opt, index, &(ret->type)));
-		ret->var = 1;
-		return 0;
-	}
-	index -= ptr->size_opt;
-	/* rest */
-	check1 = (ptr->rest == Nil);
-	check2 = (ptr->key == Nil);
-	if (check1 && check2) {
-		ret->nil = 1;
-		return 0;
-	}
-	if (! check1) {
-		ret->type = ptr->rest;
-		ret->var = 1;
-		ret->rest = 1;
-	}
-	/* key */
-	if (! check2) {
-		if ((index % 2) == 0) {
-			ret->key = 1;
-			ret->value = 0;
-		}
-		else {
-			ret->key = 0;
-			ret->value = 1;
-		}
-	}
-
-	return 0;
-}
-
-static int ordargs_simple_p(const ordargs *ptr)
-{
-	return ptr->rest == Nil && ptr->key == Nil;
-}
-
-static void ordinary_keytype(LocalRoot local, addr *ret, const ordargs *ptr)
-{
-	addr cons, array, pos;
-	size_t size, i;
-
-	/* &allow-other-keys */
-	if (ptr->key == T) {
-		GetTypeTable(ret, Symbol);
-		return;
-	}
-
-	/* (eql key) */
-	cons = ptr->key;
-	if (singlep(cons)) {
-		GetCar(cons, &pos);
-		GetCar(pos, &pos);
-		type_eql_local(local, pos, ret);
-		return;
-	}
-
-	/* (or (eql key1) (eql key2) ...) */
-	size = length_list_unsafe(cons);
-	vector4_alloc(local, &array, size);
-	for (i = 0; i < size; i++) {
-		GetCons(cons, &pos, &cons);
-		GetCar(pos, &pos);
-		type_eql_local(local, pos, &pos);
-		SetArrayA4(array, i, pos);
-	}
-	type1_local(local, LISPDECL_OR, array, ret);
-}
-
-static void ordinary_valuetype(LocalRoot local, addr *ret, const ordargs *ptr)
-{
-	addr cons, array, pos;
-	size_t size, i;
-
-	/* &allow-other-keys */
-	if (ptr->key == T) {
-		GetTypeTable(ret, T);
-		return;
-	}
-
-	/* type */
-	cons = ptr->key;
-	if (singlep(cons)) {
-		GetCar(cons, &pos);
-		GetCdr(pos, ret);
-		return;
-	}
-
-	/* (or type1 type2 ...) */
-	size = length_list_unsafe(cons);
-	vector4_alloc(local, &array, size);
-	for (i = 0; i < size; i++) {
-		GetCons(cons, &pos, &cons);
-		GetCdr(pos, &pos);
-		SetArrayA4(array, i, pos);
-	}
-	type1_local(local, LISPDECL_OR, array, ret);
-}
-
-static void make_ordinary_type(LocalRoot local, addr *ret,
-		const ordargs *ptr, const ordtype *type)
-{
-	addr pos;
-
-	/* var        -> type */
-	/* rest       -> type */
-	/* key        -> (and key1 key2 ...) */
-	/* rest + key -> (or rest (and key1 key2 ...)) */
-	/* &allow-other-keys -> (symbol t) */
-	Check(type->nil, "nil error");
-
-	/* var only */
-	if (type->var && (! type->rest)) {
-		*ret = type->type;
-		return;
-	}
-
-	/* rest only */
-	if (type->rest && (! type->key) && (! type->value)) {
-		*ret = type->type;
-		return;
-	}
-
-	/* key */
-	if (type->key) {
-		ordinary_keytype(local, &pos, ptr);
-		if (type->rest)
-			type2and_local(local, type->type, pos, &pos);
-		*ret = pos;
-		return;
-	}
-
-	/* value */
-	if (type->value) {
-		ordinary_valuetype(local, &pos, ptr);
-		if (type->rest)
-			type2and_local(local, type->type, pos, &pos);
-		*ret = pos;
-		return;
-	}
-
-	/* error */
-	*ret = 0;
-	Abort("type error");
-}
-
 static int ordinary_subtypep_(
 		const ordargs *ptr1, const ordtype *type1,
 		const ordargs *ptr2, const ordtype *type2,
@@ -896,8 +699,8 @@ static int ordinary_subtypep_(
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	make_ordinary_type(local, &left, ptr1, type1);
-	make_ordinary_type(local, &right, ptr2, type2);
+	merge_ordargs(local, &left, ptr1, type1);
+	merge_ordargs(local, &right, ptr2, type2);
 	Return(subtypep_result_(left, right, 1, &value));
 	rollback_local(local, stack);
 
@@ -912,8 +715,8 @@ static int ordinary_size_(const ordargs *ptr1, const ordargs *ptr2,
 	ordtype type1, type2;
 
 	for (i = 0; i < size; i++) {
-		Return(gettype_ordinary_(ptr1, i, &type1));
-		Return(gettype_ordinary_(ptr2, i, &type2));
+		Return(gettype_ordargs_(ptr1, i, &type1));
+		Return(gettype_ordargs_(ptr2, i, &type2));
 		if (type1.nil)
 			break;
 		if (type2.nil)
@@ -960,13 +763,13 @@ static int subtypep_function_ordinary_(addr left, addr right, int *ret)
 		return Result(ret, 0);
 
 	/* list */
-	make_function_ordinary(&ptr1, left);
-	make_function_ordinary(&ptr2, right);
+	make_ordargs(&ptr1, left);
+	make_ordargs(&ptr2, right);
 	if (ptr1.size_var < ptr2.size_var)
 		return Result(ret, 0);
 
-	check1 = ordargs_simple_p(&ptr1);
-	check2 = ordargs_simple_p(&ptr2);
+	check1 = simple_p_ordargs(&ptr1);
+	check2 = simple_p_ordargs(&ptr2);
 	if (check1 && check2)
 		return ordinary_simple_(&ptr1, &ptr2, ret);
 	if (check1)

@@ -1429,7 +1429,8 @@ static void typevalues_decode_universal_time(void)
 static void typevalues_empty(void)
 {
 	addr values;
-	typevalues_rest(&values, Nil);
+	GetTypeTable(&values, Nil);
+	typevalues_rest(&values, values);
 	SetTypeValues(Empty, values);
 }
 

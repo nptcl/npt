@@ -1378,23 +1378,24 @@ static int test_decl_dynamic_extent(void)
 
 static int test_check_optimize_symbol(void)
 {
+	int ignore;
 	enum EVAL_OPTIMIZE check;
 	addr value;
 
 	readstring_debug(&value, "compilation-speed");
-	check_optimize_symbol_(value, &check);
+	check_optimize_symbol_(value, &check, &ignore);
 	test(check == EVAL_OPTIMIZE_COMPILATION, "check_optimize_symbol1");
 	readstring_debug(&value, "debug");
-	check_optimize_symbol_(value, &check);
+	check_optimize_symbol_(value, &check, &ignore);
 	test(check == EVAL_OPTIMIZE_DEBUG, "check_optimize_symbol2");
 	readstring_debug(&value, "speed");
-	check_optimize_symbol_(value, &check);
+	check_optimize_symbol_(value, &check, &ignore);
 	test(check == EVAL_OPTIMIZE_SPEED, "check_optimize_symbol3");
 	readstring_debug(&value, "safety");
-	check_optimize_symbol_(value, &check);
+	check_optimize_symbol_(value, &check, &ignore);
 	test(check == EVAL_OPTIMIZE_SAFETY, "check_optimize_symbol4");
 	readstring_debug(&value, "space");
-	check_optimize_symbol_(value, &check);
+	check_optimize_symbol_(value, &check, &ignore);
 	test(check == EVAL_OPTIMIZE_SPACE, "check_optimize_symbol5");
 
 	RETURN;

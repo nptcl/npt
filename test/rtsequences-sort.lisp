@@ -117,7 +117,7 @@
   (sort #(3 4 8 5 1 2 9 8 7) #'>)
   #(9 8 8 7 5 4 3 2 1))
 
-(deftest-error sort-error.1
+(deftest-error! sort-error.1
   (eval '(sort 10)))
 
 (deftest-error! sort-error.2
@@ -175,7 +175,7 @@
     #'< :key #'car)
   ((1 5) (1 4) (3 6) (3 8) (8 4) (9 2)))
 
-(deftest-error stable-sort-error.1
+(deftest-error! stable-sort-error.1
   (eval '(stable-sort 10)))
 
 (deftest-error! stable-sort-error.2

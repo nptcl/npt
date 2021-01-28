@@ -362,6 +362,7 @@ type_coerce.c
 type_constant.c
 type_copy.c
 type_deftype.c
+type_function.c
 type_name.c
 type_number.c
 type_object.c

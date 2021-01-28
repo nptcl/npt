@@ -105,7 +105,7 @@
   20 t)
 
 (deftest-error make-hash-table-size.4
-  (make-hash-table :size -1))
+  (eval '(make-hash-table :size -1)))
 
 (deftest make-hash-table-rehash-size.1
   (hash-table-p
@@ -129,7 +129,7 @@
   (make-hash-table :rehash-size 1.0))
 
 (deftest-error make-hash-table-rehash-size.6
-  (make-hash-table :rehash-size -2.0))
+  (eval '(make-hash-table :rehash-size -2.0)))
 
 (deftest make-hash-table-rehash-size.7
   (hash-table-p
@@ -155,7 +155,7 @@
   t)
 
 (deftest-error make-hash-table-rehash-threshold.4
-  (make-hash-table :rehash-threshold -0.1))
+  (eval '(make-hash-table :rehash-threshold -0.1)))
 
 (deftest-error make-hash-table-rehash-threshold.5
   (make-hash-table :rehash-threshold 1.1))

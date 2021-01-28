@@ -237,7 +237,7 @@ static void type_load(addr *ret)
 	cons_heap(&key2, key2, type);
 	cons_heap(&key3, key3, type);
 	cons_heap(&key4, key4, type);
-	cons_heap(&key4, key5, type);
+	cons_heap(&key5, key5, type);
 	list_heap(&key, key1, key2, key3, key4, key5, NULL);
 	typeargs_var1key(&args, args, key);
 	/* values */

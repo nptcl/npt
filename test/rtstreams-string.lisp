@@ -821,7 +821,8 @@
   (make-string-output-stream :element-type 'symbol))
 
 (deftest-error make-string-output-stream-error.4
-  (make-string-output-stream :element-type 30))
+  (eval '(make-string-output-stream :element-type 30))
+  type-error)
 
 ;;  ANSI Common Lisp
 (deftest make-string-output-stream-test.1

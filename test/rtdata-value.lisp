@@ -282,7 +282,7 @@
 (deftest-error! every-error.1
   (eval '(every #'=)))
 
-(deftest-error every-error.2
+(deftest-error! every-error.2
   (eval '(every 10))
   type-error)
 
@@ -353,7 +353,7 @@
 (deftest-error! some-error.1
   (eval '(some #'=)))
 
-(deftest-error some-error.2
+(deftest-error! some-error.2
   (eval '(some 10))
   type-error)
 
@@ -372,7 +372,7 @@
 (deftest-error! notany-error.1
   (eval '(notany #'=)))
 
-(deftest-error notany-error.2
+(deftest-error! notany-error.2
   (eval '(notany 10))
   type-error)
 
@@ -391,7 +391,7 @@
 (deftest-error! notevery-error.1
   (eval '(notevery #'=)))
 
-(deftest-error notevery-error.2
+(deftest-error! notevery-error.2
   (eval '(notevery 10))
   type-error)
 

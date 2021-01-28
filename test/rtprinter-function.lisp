@@ -98,7 +98,7 @@
 (deftest-error! pprint-fill-error.2
   (eval '(with-output-to-string (stream) (pprint-fill stream 10 nil nil nil))))
 
-(deftest-error pprint-fill-error.3
+(deftest-error! pprint-fill-error.3
   (eval '(pprint-fill 10))
   type-error)
 
@@ -185,7 +185,7 @@
 (deftest-error! pprint-linear-error.2
   (eval '(with-output-to-string (stream) (pprint-linear stream 10 nil nil nil))))
 
-(deftest-error pprint-linear-error.3
+(deftest-error! pprint-linear-error.3
   (eval '(pprint-linear 10))
   type-error)
 
@@ -258,7 +258,7 @@
 (deftest-error! pprint-tabular-error.2
   (eval '(with-output-to-string (stream) (pprint-tabular stream 10 nil nil nil nil))))
 
-(deftest-error pprint-tabular-error.3
+(deftest-error! pprint-tabular-error.3
   (eval '(pprint-tabular 10))
   type-error)
 

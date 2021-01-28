@@ -331,7 +331,7 @@ static void code_make_free_function(LocalRoot local, addr code, addr pos, addr t
 
 	if (type_astert_p(type) || type_function_aster_p(type))
 		return;
-	if (! getglobalp_tablevalue(pos)) {
+	if (! getglobalp_tablefunction(pos)) {
 		/* lexical */
 		index_heap(&pos, getlexical_tablefunction(pos));
 		CodeQueue_double(local, code, TYPE_LEXICAL, pos, type);

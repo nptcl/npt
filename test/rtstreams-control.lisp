@@ -84,9 +84,9 @@
       (read-sequence array input :start 11))))
 
 (deftest-error read-sequence-start.6
-  (let ((array (make-array 10 :initial-element 'a)))
-    (with-input-from-string (input "abc")
-      (read-sequence array input :start -1)))
+  (eval '(let ((array (make-array 10 :initial-element 'a)))
+           (with-input-from-string (input "abc")
+             (read-sequence array input :start -1))))
   type-error)
 
 (deftest read-sequence-start.7
@@ -136,9 +136,9 @@
   0 #(a a a a a a))
 
 (deftest-error read-sequence-end.6
-  (let ((array (make-array 6 :initial-element 'a)))
-    (with-input-from-string (input "abcdefghi")
-      (read-sequence array input :end -1)))
+  (eval '(let ((array (make-array 6 :initial-element 'a)))
+           (with-input-from-string (input "abcdefghi")
+             (read-sequence array input :end -1))))
   type-error)
 
 ;;  start-end
@@ -234,8 +234,9 @@
 
 ;;  start
 (deftest-error write-sequence-start.1
-  (with-output-to-string (stream)
-    (write-sequence "abcdef" stream :start -1)))
+  (eval '(with-output-to-string (stream)
+           (write-sequence "abcdef" stream :start -1)))
+  type-error)
 
 (deftest write-sequence-start.2
   (with-output-to-string (stream)
@@ -261,8 +262,9 @@
 
 ;;  end
 (deftest-error write-sequence-end.1
-  (with-output-to-string (stream)
-    (write-sequence "abcdef" stream :end -1)))
+  (eval '(with-output-to-string (stream)
+           (write-sequence "abcdef" stream :end -1)))
+  type-error)
 
 (deftest write-sequence-end.2
   (with-output-to-string (stream)

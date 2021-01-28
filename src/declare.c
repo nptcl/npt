@@ -555,11 +555,12 @@ static int decl_type_(Execute ptr, addr env, addr eval, addr cons)
 	return 0;
 }
 
-static int decl_ftype_(Execute ptr, addr env, addr eval, addr cons)
+static int decl_ftype_(Execute ptr, addr env, addr eval, addr form)
 {
-	addr type, symbol;
+	addr cons, type, symbol;
 
-	Return_getcons(cons, &type, &cons);
+	if (! consp_getcons(form, &type, &cons))
+		return fmte_("Invalid ftype form, ~S.", form, NULL);
 	Return(parse_type(ptr, &type, type, env));
 	while (cons != Nil) {
 		Return_getcons(cons, &symbol, &cons);
@@ -702,10 +703,11 @@ static int decl_dynamic_extent_(addr eval, addr cons)
 	return 0;
 }
 
-static int check_optimize_symbol_(addr symbol, enum EVAL_OPTIMIZE *ret)
+static int check_optimize_symbol_(addr symbol, enum EVAL_OPTIMIZE *ret, int *ignore)
 {
 	addr check;
 
+	*ignore = 0;
 	GetConst(COMMON_SAFETY, &check);
 	if (check == symbol)
 		return Result(ret, EVAL_OPTIMIZE_SAFETY);
@@ -726,15 +728,19 @@ static int check_optimize_symbol_(addr symbol, enum EVAL_OPTIMIZE *ret)
 	if (check == symbol)
 		return Result(ret, EVAL_OPTIMIZE_DEBUG);
 
+	*ignore = 1;
 	*ret = EVAL_OPTIMIZE_SIZE;
-	return fmte_("Invalid optimize symbol ~S.", symbol, NULL);
+	return fmtw_("Invalid optimize symbol ~S.", symbol, NULL);
 }
 
 static int decl_optimize_symbol_(addr eval, addr symbol)
 {
+	int ignore;
 	enum EVAL_OPTIMIZE index;
 
-	Return(check_optimize_symbol_(symbol, &index));
+	Return(check_optimize_symbol_(symbol, &index, &ignore));
+	if (ignore)
+		return 0;
 	SetEvalDeclareOptimize(eval, (int)index, 3);
 
 	return 0;
@@ -742,6 +748,7 @@ static int decl_optimize_symbol_(addr eval, addr symbol)
 
 static int decl_optimize_cons_(addr eval, addr cons)
 {
+	int ignore;
 	enum EVAL_OPTIMIZE index;
 	addr symbol, value;
 	fixnum check;
@@ -749,7 +756,9 @@ static int decl_optimize_cons_(addr eval, addr cons)
 	Return_getcons(cons, &symbol, &cons);
 	if (GetType(symbol) != LISPTYPE_SYMBOL)
 		return fmte_("The optimize type ~S must be a symbol.", symbol, NULL);
-	Return(check_optimize_symbol_(symbol, &index));
+	Return(check_optimize_symbol_(symbol, &index, &ignore));
+	if (ignore)
+		return 0;
 
 	/* (speed) -> (speed 3) */
 	if (cons == Nil) {
@@ -1429,7 +1438,7 @@ static void apply_declaration_proclaim(addr pos)
 {
 	addr symbol;
 
-	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &pos);
+	GetEvalDeclare(pos, EVAL_DECLARE_DECLARATION, &pos);
 	while (pos != Nil) {
 		GetCons(pos, &symbol, &pos);
 		CheckSymbol(symbol);
