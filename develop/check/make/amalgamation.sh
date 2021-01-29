@@ -70,7 +70,7 @@ checkerr "amalgamation error"
 [ -r lisp.h ]
 checkerr "make error"
 
-mv -n lisp*.c lisp.h shell.c ../../.
+mv -n lisp*.c lisp*.h shell.c ../../.
 checkerr "mv error"
 
 cd ../../.

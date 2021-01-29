@@ -1,6 +1,6 @@
 (defpackage amalgamation
   (:use cl)
-  (:export #:main))
+  (:export #:main #:main-header))
 (in-package amalgamation)
 
 (defvar *name*)
@@ -304,6 +304,9 @@
 ;;  grouping
 ;;
 (defvar *upper-grouping* nil)
+(defvar *output-header* t)
+(defvar *output-source* t)
+(defvar *output-header-call* nil)
 (defvar *size-grouping*)
 (defvar *include-grouping*)
 (defvar *standard-grouping*)
@@ -397,21 +400,26 @@
   (terpri s)
   (header-standard-output s *standard-grouping*)
   (terpri s)
-  (header-include-output s *include-grouping*)
-  (header-include-output s list)
+  (when *output-header-call*
+    (funcall *output-header-call* s))
+  (when *output-header*
+    (header-include-output s *include-grouping*))
+  (when *output-source*
+    (header-include-output s list))
   (footer-pragma-output s)
   (fresh-line s))
 
-(defun output-source-name (index)
-  (if *upper-grouping*
-    (format nil "lisp_file_~2,,,'0@A.c" index)
-    "lisp.c"))
+(defun output-grouping-name (name list)
+  (format t "Output: ~A~%" name)
+  (with-overwrite-file (s name)
+    (source-output s name list)))
 
-(defun output-grouping (index list)
-  (let ((name (output-source-name index)))
-    (format t "Output: ~A~%" name)
-    (with-overwrite-file (s name)
-      (source-output s name list))))
+(defun output-grouping-index (index list)
+  (output-grouping-name
+    (if *upper-grouping*
+      (format nil "lisp_file_~2,,,'0@A.c" index)
+      "lisp.c")
+    list))
 
 
 ;;
@@ -453,7 +461,7 @@
     (when (size-grouping-p force)
       (setq *include-grouping* (nreverse *include-grouping*))
       (setq *standard-grouping* (sort *standard-grouping* #'string<))
-      (output-grouping index list)
+      (output-grouping-index index list)
       t)))
 
 (defun grouping (filelist)
@@ -477,12 +485,64 @@
 ;;
 ;;  source + header
 ;;
-(defun output-lisp-c-plus ()
-  ;(let ((list (read-filelist))
-  ;      (*table* (make-fileinfo-table)))
-  ;  (read-table list)
-  ;  (grouping-plus list)))
-  )
+(defun grouping-file-header (list)
+  (let ((file "lisp_file.h")
+        (*size-grouping* 0)
+        (*include-grouping* nil)
+        (*standard-grouping* nil)
+        (*check-grouping* nil)
+        (*output-header* t)
+        (*output-source* nil))
+    (dolist (x list)
+      (include-grouping x))
+    (setq *include-grouping* (nreverse *include-grouping*))
+    (setq *standard-grouping* (sort *standard-grouping* #'string<))
+    (output-grouping-name file list)))
+
+(defun output-lisp-file-header ()
+  (let ((list (read-filelist))
+        (*table* (make-fileinfo-table)))
+    (read-table list)
+    (grouping-file-header list)))
+
+(defun output-header-call-source-only ()
+  (setq *output-header-call*
+        (lambda (s)
+          (format s "#include \"lisp_file.h\"~%")
+          (terpri s))))
+
+(defun size-grouping-source-only (index list &optional force)
+  (let ((*size-grouping* 0)
+        (*include-grouping* nil)
+        (*standard-grouping* nil)
+        (*check-grouping* nil)
+        (*output-header* nil)
+        (*output-source* t)
+        (*output-header-call*))
+    (output-header-call-source-only)
+    (dolist (x list)
+      (source-grouping x))
+    (when (size-grouping-p force)
+      (setq *standard-grouping* (sort *standard-grouping* #'string<))
+      (output-grouping-index index list)
+      t)))
+
+(defun grouping-source-only (filelist)
+  (let ((index 1) list)
+    (dolist (x filelist)
+      (push x list)
+      (setq list (sort list #'string<))
+      (when (size-grouping-source-only index list)
+        (setq list nil)
+        (incf index)))
+    (when list
+      (size-grouping-source-only index list t))))
+
+(defun output-lisp-file-c ()
+  (let ((list (read-filelist))
+        (*table* (make-fileinfo-table)))
+    (read-table list)
+    (grouping-source-only list)))
 
 
 ;;
@@ -555,9 +615,10 @@
   (output-lisp-h)
   (output-shell-c))
 
-(defun main-plus-header (*upper-grouping*)
+(defun main-header (*upper-grouping*)
   (set-implementation-name)
-  (output-lisp-c-plus)
+  (output-lisp-file-header)
+  (output-lisp-file-c)
   (output-lisp-h)
   (output-shell-c))
 
@@ -572,5 +633,5 @@
 
 ;;
 ;;  upper 30kLine + lisp_file.h
-;(main-plus-header 30000)
+;(main-header 30000)
 

@@ -23,6 +23,9 @@ checkerr "test_amalgamation single error."
 ./test_amalgamation.sh multiple "$1"
 checkerr "test_amalgamation multiple error."
 
+./test_amalgamation.sh header "$1"
+checkerr "test_amalgamation multiple error."
+
 ./test_script.sh "$1"
 checkerr "test_script error."
 
