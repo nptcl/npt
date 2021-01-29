@@ -1,6 +1,7 @@
 #ifndef __BIGNUM_OBJECT_HEADER__
 #define __BIGNUM_OBJECT_HEADER__
 
+#include "bignum_data.h"
 #include "define.h"
 #include "local.h"
 #include "typedef.h"

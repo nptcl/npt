@@ -23,14 +23,17 @@ compile_amalgamation()
 		args="${args} -DLISP_64BIT -DLISP_FREEBSD"
 		args="${args} -DLISP_PROMPT_EDITLINE -lm -ledit"
 	fi
-	cc ${args} -o npt lisp.c shell.c
+	cc ${args} -o npt lisp*.c shell.c
 	checkerr "cc error"
 }
 
 
-name="$1"
+type="$1"
+name="$2"
+[ -n "$type" ]
+checkerr "argument type error"
 [ -n "$name" ]
-checkerr "argument error"
+checkerr "argument name error"
 
 ##  initialize
 cd $(dirname $0)
@@ -61,13 +64,13 @@ checkerr "mv error"
 cd release/develop/amalgamation/
 checkerr "cd error"
 
-${lisp} amalgamation.lisp
+${lisp} amalgamation-${type}.lisp
 checkerr "amalgamation error"
 
-[ -r lisp.c ]
+[ -r lisp.h ]
 checkerr "make error"
 
-mv -n lisp.c lisp.h shell.c ../../.
+mv -n lisp*.c lisp.h shell.c ../../.
 checkerr "mv error"
 
 cd ../../.

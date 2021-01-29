@@ -68,6 +68,8 @@
 (loadrt #p"rt-reader.lisp")
 ;; 24. System Construction
 (loadrt #p"rt-system.lisp")
+;; 25. Environment
+(loadrt #p"rt-environment.lisp")
 ;; Error
 (loadrt #p"rt-error.lisp")
 ;; Code

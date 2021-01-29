@@ -8,7 +8,11 @@ checkerr()
 	fi
 }
 
-case "$1" in
+type="$1"
+[ -n "${type}" ]
+checkerr "type error"
+
+case "$2" in
 bsd)     name="bsd";;
 freebsd) name="bsd";;
 linux)   name="linux";;
@@ -30,7 +34,7 @@ checkerr "cp error: ${release}"
 
 [ -n "${name}" ]
 checkerr "argument error"
-./make/amalgamation.sh ${name} 2>&1
+./make/amalgamation.sh ${type} ${name} 2>&1
 checkerr "amalgamation.sh error"
 
 ./make/check.sh amalgamation

@@ -17,8 +17,11 @@ rm -f result.txt
 checkerr "rm result.txt error";
 
 {
-./test_amalgamation.sh "$1"
-checkerr "test_amalgamation error."
+./test_amalgamation.sh single "$1"
+checkerr "test_amalgamation single error."
+
+./test_amalgamation.sh multiple "$1"
+checkerr "test_amalgamation multiple error."
 
 ./test_script.sh "$1"
 checkerr "test_script error."

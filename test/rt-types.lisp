@@ -5,6 +5,7 @@
 (import 'lisp-system::array-general-p)
 (import 'lisp-system::array-specialized-p)
 
+(load #p"test/rttypes-type.lisp")
 (load #p"test/rttypes-test.lisp")
 (load #p"test/rttypes-array.lisp")
 (load #p"test/rttypes-coerce.lisp")
