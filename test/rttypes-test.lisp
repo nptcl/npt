@@ -191,3 +191,11 @@
   (subtypep-result '(or integer symbol) '(or real symbol))
   include)
 
+
+;;
+;;  Error
+;;
+'(deftest error-subtypep.1
+   (subtypep 'real '(not integer))
+   nil t)
+

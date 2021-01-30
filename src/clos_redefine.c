@@ -355,6 +355,12 @@ int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
 	int check;
 	addr metaclass, pos;
 
+	/* readonly check */
+	if (GetStatusReadOnly(clos)) {
+		return call_type_error_va_(ptr, clos, Nil,
+				"Cannot redefine the object ~S that is a constant.", clos, NULL);
+	}
+
 	/* metaclass check */
 	Return(clos_class_of_(clos, &metaclass));
 	if (! GetKeyArgs(rest, KEYWORD_METACLASS, &pos)) {
@@ -524,7 +530,14 @@ int clos_redefine_method_(Execute ptr,
  */
 int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 {
-	addr copy, call;
+	addr copy, type, call;
+
+	/* readonly check */
+	GetConst(CLOS_BUILT_IN_CLASS, &type);
+	if (clos == type) {
+		return call_type_error_va_(ptr, clos, Nil,
+				"Cannot change the object ~S to the built-in-class.", pos, NULL);
+	}
 
 	/* copy */
 	Return(allocate_instance_stdclass_(ptr, clos, &copy));

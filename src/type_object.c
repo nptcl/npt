@@ -50,7 +50,7 @@ static int type_object_clos(addr *ret, addr pos)
 {
 	GetArrayType(pos, 0, &pos);
 	if (type_asterisk_p(pos)) {
-		GetConst(COMMON_CLASS, ret);
+		GetConst(COMMON_STANDARD_OBJECT, ret);
 	}
 	else {
 		Return(clos_class_of_(pos, &pos));

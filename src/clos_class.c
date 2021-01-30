@@ -1078,6 +1078,8 @@ static int clos_stdclass_metaclass_(LocalRoot local, addr *ret)
 	SetConst(CLOS_STANDARD_OBJECT, stdobject);
 	SetConst(CLOS_STANDARD_CLASS, stdclass);
 	SetConst(CLOS_BUILT_IN_CLASS, builtin);
+	/* constant */
+	SetStatusReadOnly(builtin);
 	/* result */
 	return Result(ret, stdclass);
 }

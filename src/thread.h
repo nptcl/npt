@@ -249,7 +249,7 @@ int lispd_get_semposix(semposix *sem);
  */
 #ifdef LISP_THREAD_WINDOWS
 #include <windows.h>
-#include <Synchapi.h>
+#include <synchapi.h>
 
 /* mutex */
 int lispd_make_mutexlite(mutexlite *);

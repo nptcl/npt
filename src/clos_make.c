@@ -525,12 +525,35 @@ static int clos_ensure_class_subclasses_(addr pos)
 	return 0;
 }
 
+static int clos_built_in_class_check_(addr pos, addr list)
+{
+	int check;
+	addr super, tclass, built;
+
+	GetConst(CLOS_T, &tclass);
+	GetConst(CLOS_BUILT_IN_CLASS, &built);
+	while (list != Nil) {
+		GetCons(list, &super, &list);
+		if (super == tclass)
+			continue;
+		Return(clos_subtype_p_(super, built, &check));
+		if (check) {
+			Return(stdget_class_name_(pos, &pos));
+			return call_type_error_va_(NULL, pos, Nil,
+					"Invalid superclass ~S in ~S.", super, pos, NULL);
+		}
+	}
+
+	return 0;
+}
+
 int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp)
 {
 	addr value;
 
 	/* class-precedence-list */
 	Return(clos_precedence_list_(local, pos, &value));
+	Return(clos_built_in_class_check_(pos, value));
 	Return(stdset_class_precedence_list_(pos, value));
 	/* effective-slots */
 	Return(clos_compute_slots_(local, pos, &value));
@@ -935,10 +958,18 @@ static int make_instance_check_(Execute ptr, addr clos, addr rest)
 int make_instance_stdclass_(Execute ptr, addr rest, addr *ret)
 {
 	int check;
-	addr clos, call, instance;
+	addr clos, type, call, instance;
+
+	/* built-in-class */
+	GetCons(rest, &clos, &rest);
+	GetConst(CLOS_BUILT_IN_CLASS, &type);
+	if (clos == type) {
+		GetConst(CLOS_STANDARD_CLASS, &type);
+		return call_type_error_va_(ptr, clos, type,
+				"Cannot make an instance of the built-in-class.", NULL);
+	}
 
 	/* finalize */
-	GetCons(rest, &clos, &rest);
 	Return(clos_finalize_(ptr, clos, &check));
 	if (check) {
 		*ret = Nil;

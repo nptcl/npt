@@ -590,7 +590,7 @@ int read_suppress_p_(Execute ptr, int *ret)
 {
 	addr pos;
 
-	/* *read-suppress */
+	/* *read-suppress* */
 	GetConst(SPECIAL_READ_SUPPRESS, &pos);
 	Return(getspecialcheck_local_(ptr, pos, &pos));
 	return Result(ret, pos != Nil);
@@ -600,7 +600,7 @@ int maketoken_(Execute ptr, addr *ret)
 {
 	int check;
 
-	/* *read-suppress */
+	/* *read-suppress* */
 	Return(read_suppress_p_(ptr, &check));
 	if (check)
 		return Result(ret, Nil);

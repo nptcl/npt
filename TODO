@@ -5,7 +5,7 @@ Making testcase now.
      1  Introduction                           0         0      100%
      2  Syntax                                 0         0      100%
      3  Evaluation and Compilation            33        33      100%
-     4  Types and Classes                     32         2        6%
+     4  Types and Classes                     32        27       84%
      5  Data and Control Flow                 84        84      100%
      6  Iteration                              6         0        0%
      7  Objects                               42         0        0%
@@ -29,4 +29,4 @@ Making testcase now.
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       622       62%
+     -  All                                  996       647       65%

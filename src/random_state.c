@@ -116,8 +116,8 @@ static void random_seed_os(struct md5encode *md5)
 }
 
 #elif defined LISP_WINDOWS
-#include <Windows.h>
-#include <Ntsecapi.h>
+#include <windows.h>
+#include <ntsecapi.h>
 #include "c99.h"
 
 #define GETHOSTNAME_SIZE 256
