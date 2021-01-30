@@ -58,6 +58,10 @@ static int loadrt_files(void)
 	loadrt_file("rt-compile.lisp");
 	/* SysCall */
 	loadrt_file("rt-syscall.lisp");
+	/* division */
+	loadrt_file("rt-division.lisp");
+	/* subtypep */
+	loadrt_file("rt-subtypep.lisp");
 	/* Lexical Binding */
 	loadrt_file("rt-binding.lisp");
 #if 0

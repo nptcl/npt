@@ -8,8 +8,8 @@
 (load #p"test/rttypes-type.lisp")
 (load #p"test/rttypes-specifier.lisp")
 (load #p"test/rttypes-test.lisp")
-(load #p"test/rttypes-array.lisp")
 (load #p"test/rttypes-coerce.lisp")
+(load #p"test/rttypes-array.lisp")
 
 
 ;;

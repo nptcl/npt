@@ -367,9 +367,9 @@ void equal_random_state_syscode(addr left, addr right, addr *ret)
 
 
 /* subtypep-result */
-int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret)
+int subtypep_result_syscode_(Execute ptr, addr x, addr y, addr env, addr *ret)
 {
-	return subtypep_result_syscall(ptr, left, right, ret);
+	return subtypep_result_syscall_(ptr, x, y, env, ret);
 }
 
 

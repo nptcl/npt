@@ -78,6 +78,10 @@
 (loadrt #p"rt-compile.lisp")
 ;; SysCall
 (loadrt #p"rt-syscall.lisp")
+;; division
+(loadrt #p"rt-division.lisp")
+;; subtypep
+(loadrt #p"rt-subtypep.lisp")
 ;; Lexical Binding
 (loadrt #p"rt-binding.lisp")
 ;; finish

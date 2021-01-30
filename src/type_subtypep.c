@@ -1974,35 +1974,68 @@ static int subtypep_clos_p_(addr x, addr y, addr *r1, addr *r2, int *ret)
 	return Result(ret, 1);
 }
 
+static int parse_type_built_in_(Execute ptr, addr *ret, addr pos, addr env)
+{
+	addr x, y;
+
+	if (closp(pos)) {
+		GetClassOfClos(pos, &x);
+		GetConst(CLOS_BUILT_IN_CLASS, &y);
+		if (x == y) {
+			Return(stdget_class_name_(pos, &pos));
+		}
+	}
+
+	return parse_type(ptr, ret, pos, env);
+}
+
+static int subtypep_arguments_(Execute ptr, LocalHold hold,
+		addr x, addr y, addr env, addr *rx, addr *ry)
+{
+	int check;
+
+	localhold_pushva_force(hold, x, y, env, NULL);
+	Return(subtypep_clos_p_(x, y, &x, &y, &check));
+	if (! check) {
+		Return(parse_type_built_in_(ptr, &x, x, env));
+		localhold_push(hold, x);
+		Return(parse_type_built_in_(ptr, &y, y, env));
+		localhold_push(hold, y);
+	}
+	*rx = x;
+	*ry = y;
+
+	return 0;
+}
+
 int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
 {
 	int result, invalid;
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
-	localhold_pushva_force(hold, x, y, env, NULL);
-	Return(subtypep_clos_p_(x, y, &x, &y, &result));
-	if (! result) {
-		Return(parse_type(ptr, &x, x, env));
-		localhold_push(hold, x);
-		Return(parse_type(ptr, &y, y, env));
-		localhold_push(hold, y);
-	}
+	Return(subtypep_arguments_(ptr, hold, x, y, env, &x, &y));
 	Return(subtypep_clang_(x, y, &result, &invalid));
+	localhold_end(hold);
+
+	/* subtypep */
 	*v1 = result? T: Nil;
 	*v2 = invalid? T: Nil;
-	localhold_end(hold);
 
 	return 0;
 }
 
-int subtypep_result_syscall(Execute ptr, addr left, addr right, addr *ret)
+int subtypep_result_syscall_(Execute ptr, addr x, addr y, addr env, addr *ret)
 {
 	SubtypepResult value;
+	LocalHold hold;
 
-	Return(parse_type(ptr, &left, left, Nil));
-	Return(parse_type(ptr, &right, right, Nil));
-	Return(subtypep_result_(left, right, 1, &value));
+	hold = LocalHold_local(ptr);
+	Return(subtypep_arguments_(ptr, hold, x, y, env, &x, &y));
+	Return(subtypep_result_(x, y, 1, &value));
+	localhold_end(hold);
+
+	/* subtypep! */
 	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			GetConst(SYSTEM_INCLUDE, ret);

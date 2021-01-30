@@ -2541,6 +2541,7 @@ void init_type_coerce(void)
 	cleartype(CoerceTable);
 	/* number */
 	CoerceTable[LISPDECL_FLOAT] = coerce_float;
+	CoerceTable[LISPDECL_SHORT_FLOAT] = coerce_single; /* single */
 	CoerceTable[LISPDECL_SINGLE_FLOAT] = coerce_single;
 	CoerceTable[LISPDECL_DOUBLE_FLOAT] = coerce_double;
 	CoerceTable[LISPDECL_LONG_FLOAT] = coerce_long;

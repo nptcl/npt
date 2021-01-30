@@ -5,11 +5,7 @@
 #include "common_header.h"
 #include "type_coerce.h"
 #include "type_deftype.h"
-#include "type_object.h"
-#include "type_parse.h"
 #include "type_subtypep.h"
-#include "type_typep.h"
-#include "type_value.h"
 
 /* (defun coerce (object type) ...) -> result
  *   object  t
@@ -124,10 +120,8 @@ static void defun_subtypep(void)
 /* (defun type-of (object) ...) -> type-spec */
 static int function_type_of(Execute ptr, addr pos)
 {
-	Return(type_value_(&pos, pos));
-	Return(type_object_(&pos, pos));
+	Return(type_of_common_(pos, &pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -162,14 +156,8 @@ static void defun_type_of(void)
  */
 static int function_typep(Execute ptr, addr x, addr y, addr env)
 {
-	int check;
-
-	if (env == Unbound)
-		env = Nil;
-	Return(parse_type(ptr, &y, y, env));
-	Return(typep_clang_(ptr, x, y, &check));
-	setbool_control(ptr, check);
-
+	Return(typep_common_(ptr, x, y, env, &x));
+	setresult_control(ptr, x);
 	return 0;
 }
 

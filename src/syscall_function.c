@@ -863,20 +863,24 @@ static void defun_equal_random_state(void)
 }
 
 
-/* (defun subtypep-result (left right) ...) -> keyword */
-static int syscall_subtypep_result(Execute ptr, addr left, addr right)
+/* (defun subtypep! (x y &optional env) ...) -> symbol */
+static int syscall_subtypep_result(Execute ptr, addr x, addr y, addr env)
 {
-	Return(subtypep_result_syscode(ptr, left, right, &left));
-	setresult_control(ptr, left);
+	if (env == Unbound)
+		env = Nil;
+	Return(subtypep_result_syscode_(ptr, x, y, env, &x));
+	setresult_control(ptr, x);
+
 	return 0;
 }
 
 static void type_syscall_subtypep_result(addr *ret)
 {
-	addr args, values;
+	addr args, values, env;
 
 	GetTypeTable(&args, TypeSpec);
-	typeargs_var2(&args, args, args);
+	GetTypeTable(&env, EnvironmentNull);
+	typeargs_var2opt1(&args, args, args, env);
 	GetTypeValues(&values, Symbol);
 	type_compiled_heap(args, values, ret);
 }
@@ -886,13 +890,17 @@ static void defun_subtypep_result(void)
 	addr symbol, pos, type;
 
 	/* function */
-	GetConst(SYSTEM_SUBTYPEP_RESULT, &symbol);
+	GetConst(SYSTEM_SUBTYPEP_EX, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var2(pos, p_defun_syscall_subtypep_result);
+	setcompiled_var2opt1(pos, p_defun_syscall_subtypep_result);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_syscall_subtypep_result(&type);
 	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+	/* subtypep-result */
+	GetConst(SYSTEM_SUBTYPEP_RESULT, &symbol);
+	SetFunctionSymbol(symbol, pos);
 	settype_function_symbol(symbol, type);
 }
 
@@ -1649,7 +1657,7 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var2, make_ratio);
 	SetPointerSysCall(defun, var2, make_complex);
 	SetPointerSysCall(defun, var2, equal_random_state);
-	SetPointerSysCall(defun, var2, subtypep_result);
+	SetPointerSysCall(defun, var2opt1, subtypep_result);
 	SetPointerSysCall(defun, var3, eastasian_set);
 	SetPointerSysCall(defun, var1, eastasian_get);
 	SetPointerSysCall(defun, var1, eastasian_width);

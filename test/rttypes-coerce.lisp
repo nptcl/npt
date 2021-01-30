@@ -2,6 +2,86 @@
 ;;  ANSI COMMON LISP: 4. Types and Classes
 ;;
 
+;;
+;;  Function COERCE
+;;
+(deftest coerce.1
+  (coerce 10 'integer)
+  10)
+
+(deftest coerce-test-sequence.1
+  (coerce '(10 20 30) 'sequence)
+  (10 20 30))
+
+(deftest coerce-test-sequence.2
+  (coerce #(10 20 30) 'sequence)
+  #(10 20 30))
+
+(deftest coerce-test-sequence.3
+  (coerce "Hello" 'sequence)
+  "Hello")
+
+(deftest coerce-test-character.1
+  (coerce #\A 'character)
+  #\A)
+
+(deftest coerce-test-character.2
+  (coerce 'a 'character)
+  #\A)
+
+(deftest coerce-test-character.3
+  (coerce "z" 'character)
+  #\z)
+
+(deftest-error coerce-test-character.4
+  (coerce "12" 'character)
+  type-error)
+
+(deftest coerce-test-complex.1
+  (coerce 12.5 'complex)
+  #c(12.5 0.0))
+
+(deftest coerce-test-complex.2
+  (coerce 12.5 '(complex double-float))
+  #c(12.50d0 0.00d0))
+
+(deftest coerce-test-complex.3
+  (coerce 3 'complex)
+  3)
+
+(deftest coerce-test-float.1
+  (coerce 3 'double-float)
+  3.0d0)
+
+(deftest coerce-test-float.2
+  (coerce 3.0d0 'long-float)
+  3.0L0)
+
+(deftest coerce-test-function.1
+  (eq #'car
+      (coerce #'car 'function))
+  t)
+
+(deftest coerce-test-function.2
+  (eq #'car
+      (coerce 'car 'function))
+  t)
+
+(deftest-error coerce-test-function.3
+  (coerce 'dotimes 'function)
+  undefined-function)
+
+(deftest-error! coerce-error.1
+  (eval '(coerce 10)))
+
+(deftest-error! coerce-error.2
+  (eval '(coerce 10 'integer nil)))
+
+(deftest-error coerce-error.3
+  (eval '(coerce 10 20))
+  type-error)
+
+
 ;;  coerce
 (deftest-error coerce-nil.1
   (coerce 12.3f0 'nil)
@@ -638,30 +718,107 @@
       result))
   long-float t #(12.0L0 0.25L0 300.0L0))
 
+;;  ANSI Common Lisp
+(deftest coerce-test.1
+  (coerce '(a b c) 'vector)
+  #(a b c))
+
+(deftest coerce-test.2
+  (coerce 'a 'character)
+  #\A)
+
+(deftest coerce-test.3
+  (coerce 4.56 'complex)
+  #c(4.56 0.0))
+
+(deftest coerce-test.4
+  (coerce 4.5s0 'complex)
+  #c(4.5s0 0.0s0))
+
+(deftest coerce-test.5
+  (coerce 7/2 'complex)
+  7/2)
+
+(deftest coerce-test.6
+  (coerce 0 'short-float)
+  0.0s0)
+
+(deftest coerce-test.7
+  (coerce 3.5L0 'float)
+  3.5L0)
+
+(deftest coerce-test.8
+  (coerce 7/2 'float)
+  3.5)
+
+(deftest coerce-test.9
+  (coerce (cons 1 2) t)
+  (1 . 2))
+
+(deftest-error coerce-test.10
+  (coerce '(a b c) '(vector * 4))
+  type-error)
+
+(deftest-error coerce-test.11
+  (coerce #(a b c) '(vector * 4))
+  type-error)
+
+(deftest-error coerce-test.12
+  (coerce '(a b c) '(vector * 2))
+  type-error)
+
+(deftest-error coerce-test.13
+  (coerce #(a b c) '(vector * 2))
+  type-error)
+
+(deftest-error coerce-test.14
+  (coerce "foo" '(string 2))
+  type-error)
+
+(deftest-error coerce-test.15
+  (coerce #(#\a #\b #\c) '(string 2))
+  type-error)
+
+(deftest-error coerce-test.16
+  (coerce '(0 1) '(simple-bit-vector 3))
+  type-error)
+
+(deftest-error coerce-test.17
+  (coerce 10 'nil)
+  type-error)
+
+(deftest-error coerce-test.18
+  (coerce #(1 2 3) '(array (4)))
+  type-error)
+
+(deftest-error coerce-test.19
+  (coerce 0.25 'ratio)
+  type-error)
+
 
 ;;
-;;  error
+;;  bugfix
 ;;
-(deftest coerce-error.1
+(deftest coerce-bugfix.1
   (coerce '(10 20 30) 'vector)
   #(10 20 30))
 
-(deftest coerce-error.2
+(deftest coerce-bugfix.2
   (coerce #(10 20 30) 'list)
   (10 20 30))
 
-(deftest coerce-error.3
+(deftest coerce-bugfix.3
   (coerce #*11001 'vector)
   #(1 1 0 0 1))
 
-(deftest-error coerce-not.1
+(deftest-error coerce-bugfix-not.1
   (coerce 12.3f0 '(not float)))
 
-(deftest coerce-not.2
+(deftest coerce-bugfix-not.2
   (coerce 'car '(not function))
   car)
 
-(deftest coerce-not.3
+(deftest coerce-bugfix-not.3
   (let* ((array #(10 20 30 40 50))
          (result (coerce array '(not (array (signed-byte 8))))))
     (values

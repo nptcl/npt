@@ -525,6 +525,7 @@ int lambda_deftype_(LocalRoot local, addr *ret, addr cons, addr instance)
 {
 	addr aster;
 	GetConst(COMMON_ASTERISK, &aster);
+	quotelist_heap(&aster, aster);
 	return lambda_macro_call_(local, ret, cons, instance, aster);
 }
 

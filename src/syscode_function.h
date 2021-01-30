@@ -35,7 +35,7 @@
 #define make_ratio_syscode _n(make_ratio_syscode)
 #define make_complex_code_ _n(make_complex_code_)
 #define equal_random_state_syscode _n(equal_random_state_syscode)
-#define subtypep_result_syscode _n(subtypep_result_syscode)
+#define subtypep_result_syscode_ _n(subtypep_result_syscode_)
 #define eastasian_set_syscode_ _n(eastasian_set_syscode_)
 #define eastasian_get_syscode_ _n(eastasian_get_syscode_)
 #define eastasian_width_syscode_ _n(eastasian_width_syscode_)
@@ -89,7 +89,7 @@ int make_bignum_syscode(addr var, addr *ret);
 int make_ratio_syscode(addr numer, addr denom, addr *ret);
 int make_complex_code_(addr real, addr imag, addr *ret);
 void equal_random_state_syscode(addr left, addr right, addr *ret);
-int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret);
+int subtypep_result_syscode_(Execute ptr, addr x, addr y, addr env, addr *ret);
 int eastasian_set_syscode_(addr var, addr value, addr errorp, addr *ret);
 int eastasian_get_syscode_(addr var, addr *ret1, addr *ret2);
 int eastasian_width_syscode_(addr pos, addr *ret1, addr *ret2);
