@@ -258,18 +258,25 @@ int make_character_syscode(addr var, addr *ret)
 {
 	unicode c;
 
-	switch (GetType(var)) {
-		case LISPTYPE_CHARACTER:
-			GetCharacter(var, &c);
+	if (integerp(var)) {
+		Return(getunicode_integer_(var, &c));
+		if (isExtendedType(c)) {
+			Return(make_extended_char_heap_(ret, c));
+		}
+		else {
 			make_character_heap(ret, c);
-			break;
-
-		default:
-			*ret = Nil;
-			return TypeError_(var, CHARACTER);
+		}
+		return 0;
 	}
 
-	return 0;
+	if (characterp(var)) {
+		GetCharacter(var, &c);
+		make_character_heap(ret, c);
+		return 0;
+	}
+
+	*ret = Nil;
+	return TypeError_(var, CHARACTER);
 }
 
 
@@ -369,7 +376,7 @@ void equal_random_state_syscode(addr left, addr right, addr *ret)
 /* subtypep-result */
 int subtypep_result_syscode_(Execute ptr, addr x, addr y, addr env, addr *ret)
 {
-	return subtypep_result_syscall_(ptr, x, y, env, ret);
+	return subtypep_syscall_(ptr, x, y, env, ret);
 }
 
 

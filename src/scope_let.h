@@ -26,7 +26,7 @@ int check_scope_variable_(addr symbol);
 int type_and_array(LocalRoot local, addr cons, addr *ret);
 int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret);
 int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *ret);
-int checktype_p_(addr left, addr right, int *check, int *err);
+int checktype_p_(Execute ptr, addr left, addr right, int *check, int *err);
 int checktype_value_(Execute ptr, addr value, addr init);
 int ignore_checkvalue_(addr stack);
 void localhold_let_struct(LocalRoot local, struct let_struct *str);

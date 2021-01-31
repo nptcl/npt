@@ -881,14 +881,14 @@ int make_string_input_stream_common(addr var, addr x, addr y, addr *ret)
  */
 int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
 {
-	int result;
+	int check;
 	addr type, pos;
 
 	if (! GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
 		GetTypeTable(&type, Character);
 		Return(parse_type(ptr, &pos, pos, Nil));
-		Return(subtypep_clang_(pos, type, &result, NULL));
-		if (! result)
+		Return(subtypep_check_(ptr, pos, type, Nil, &check, NULL));
+		if (! check)
 			return fmte_(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);
 	}
 	open_output_string_stream(ret, 0);

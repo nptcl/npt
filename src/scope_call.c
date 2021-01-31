@@ -460,7 +460,7 @@ static int scope_the_check_(Execute ptr, addr eval, addr right, addr *ret)
 	addr left;
 
 	GetEvalScopeThe(eval, &left);
-	Return(checktype_p_(left, right, &check, &errp));
+	Return(checktype_p_(ptr, left, right, &check, &errp));
 	if (errp) {
 		Return(scope_the_check_warning_(ptr, left, right));
 	}

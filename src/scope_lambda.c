@@ -1174,13 +1174,13 @@ static void flet_maketable(Execute ptr, struct let_struct *str)
 	}
 }
 
-static int checktype_function_(addr table, addr eval)
+static int checktype_function_(Execute ptr, addr table, addr eval)
 {
 	int check, errp;
 
 	gettype_tablefunction(table, &table);
 	GetEvalScopeThe(eval, &eval);
-	Return(checktype_p_(eval, table, &check, &errp));
+	Return(checktype_p_(ptr, eval, table, &check, &errp));
 	if (check)
 		return fmte_("Invalid function type.", NULL);
 
@@ -1197,7 +1197,7 @@ static int flet_applytable_(Execute ptr, struct let_struct *str)
 		GetCons(args, &call, &args);
 		GetCons(call, &call, &eval);
 		Return(update_tablefunction_(ptr, stack, call));
-		Return(checktype_function_(call, eval));
+		Return(checktype_function_(ptr, call, eval));
 	}
 
 	return 0;
@@ -1322,7 +1322,7 @@ static int labels_checktype_(Execute ptr, struct let_struct *str)
 	while (args != Nil) {
 		GetCons(args, &call, &args);
 		GetCons(call, &call, &eval);
-		Return(checktype_function_(call, eval));
+		Return(checktype_function_(ptr, call, eval));
 	}
 
 	return 0;

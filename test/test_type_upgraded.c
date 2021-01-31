@@ -552,22 +552,24 @@ static int test_upgraded_array_character_local(void)
 static int test_upgraded_complex_type(void)
 {
 	addr x;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	x = readr_debug("(integer 10 20)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_type_(x, &x);
+	upgraded_complex_type_(ptr, Nil, x, &x);
 	test(LispDecl(x) == LISPDECL_INTEGER, "upgraded_complex_type1");
 	GetArrayType(x, 0, &x);
 	test(type_asterisk_p(x), "upgraded_complex_type2");
 
 	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_type_(x, &x);
+	upgraded_complex_type_(ptr, Nil, x, &x);
 	test(LispDecl(x) == LISPDECL_RATIONAL, "upgraded_complex_type3");
 
 	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_type_(x, &x);
+	upgraded_complex_type_(ptr, Nil, x, &x);
 	test(LispDecl(x) == LISPDECL_LONG_FLOAT, "upgraded_complex_type4");
 
 	RETURN;
@@ -576,22 +578,24 @@ static int test_upgraded_complex_type(void)
 static int test_upgraded_complex_const(void)
 {
 	addr x, y;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	x = readr_debug("(integer 10 20)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_const_(x, &x);
+	upgraded_complex_const_(ptr, Nil, x, &x);
 	y = readr_debug("integer");
 	test(equal_debug(x, y), "upgraded_complex_const1");
 
 	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_const_(x, &x);
+	upgraded_complex_const_(ptr, Nil, x, &x);
 	y = readr_debug("rational");
 	test(equal_debug(x, y), "upgraded_complex_const2");
 
 	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_const_(x, &x);
+	upgraded_complex_const_(ptr, Nil, x, &x);
 	y = readr_debug("long-float");
 	test(equal_debug(x, y), "upgraded_complex_const3");
 

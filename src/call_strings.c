@@ -836,7 +836,7 @@ int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 	if (getplist_safe(rest, symbol, &type) == 0) {
 		GetTypeTable(&symbol, Character);
 		Return(parse_type(ptr, &type, type, Nil));
-		Return(subtypep_clang_(type, symbol, &check, NULL));
+		Return(subtypep_check_(ptr, type, symbol, Nil, &check, NULL));
 		if (! check) {
 			return fmte_(":element-type ~S "
 					"must be a subtype of character.", type, NULL);

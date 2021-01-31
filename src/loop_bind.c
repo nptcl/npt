@@ -28,7 +28,7 @@ static int loop_subtypep_(Execute ptr, addr a, addr b, int *ret)
 		localhold_push(hold, b);
 	}
 	localhold_end(hold);
-	Return(subtypep_clang_(a, b, ret, NULL));
+	Return(subtypep_check_(ptr, a, b, Nil, ret, NULL));
 
 	return 0;
 }

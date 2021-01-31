@@ -2287,7 +2287,7 @@ static int test_subtypep_right(void)
 
 
 /*
- *  subtypep_clang
+ *  subtypep_check_
  */
 static int test_subtypep_call(void)
 {
@@ -2324,95 +2324,50 @@ static int test_subtypep_call(void)
 	RETURN;
 }
 
-static int test_subtypep_execute(void)
+static int test_subtypep_check_(void)
 {
 	int result, invalid;
 	addr left, right;
+	Execute ptr;
 
-	aatype(result);
-	aatype(invalid);
-
-	parse_type_string(&left, "cons");
-	parse_type_string(&right, "*");
-	subtypep_execute_(left, right, 1, &result, &invalid);
-	test(result && invalid, "subtypep_execute1");
-
-	parse_type_string(&left, "real");
-	parse_type_string(&right, "integer");
-	subtypep_execute_(left, right, 0, &result, &invalid);
-	test((! result) && invalid, "subtypep_execute2");
-
-	parse_type_string(&left, "real");
-	parse_type_string(&right, "symbol");
-	subtypep_execute_(left, right, 0, &result, &invalid);
-	test((! result) && invalid, "subtypep_execute3");
-
-	parse_type_string(&left, "real");
-	parse_type_string(&right, "(satisfies hello)");
-	subtypep_execute_(left, right, 0, &result, &invalid);
-	test((! result) && (! invalid), "subtypep_execute4");
-
-	RETURN;
-}
-
-static int test_subtypep_asterisk_clang(void)
-{
-	int result, invalid;
-	addr left, right;
-
-	aatype(result);
-	aatype(invalid);
-
-	parse_type_string(&left, "cons");
-	parse_type_string(&right, "*");
-	subtypep_asterisk_clang_(left, right, &result, &invalid);
-	test(result && invalid, "subtypep_asterisk_clang1");
-
-	RETURN;
-}
-
-static int test_subtypep_clang(void)
-{
-	int result, invalid;
-	addr left, right;
-
+	ptr = Execute_Thread;
 	aatype(result);
 	aatype(invalid);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_clang_(left, right, &result, &invalid);
-	test(result && invalid, "subtypep_clang1");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test(result && invalid, "subtypep_check_1");
 
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "real");
-	subtypep_clang_(left, right, &result, &invalid);
-	test((! result) && invalid, "subtypep_clang2");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test((! result) && invalid, "subtypep_check_2");
 
 	parse_type_string(&left, "character");
 	parse_type_string(&right, "base-char");
-	subtypep_clang_(left, right, &result, &invalid);
-	test((! result) && invalid, "subtypep_clang3");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test((! result) && invalid, "subtypep_check_3");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(satisfies hello)");
-	subtypep_clang_(left, right, &result, &invalid);
-	test((! result) && (! invalid), "subtypep_clang4");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test((! result) && (! invalid), "subtypep_check_4");
 
 	parse_type_string(&left, "character");
 	parse_type_string(&right, "extended-char");
-	subtypep_clang_(left, right, &result, &invalid);
-	test((! result) && invalid, "subtypep_clang5");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test((! result) && invalid, "subtypep_check_5");
 
 	parse_type_string(&left, "extended-char");
 	parse_type_string(&right, "character");
-	subtypep_clang_(left, right, &result, &invalid);
-	test(result && invalid, "subtypep_clang6");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test(result && invalid, "subtypep_check_6");
 
 	parse_type_string(&left, "(integer 20 50)");
 	parse_type_string(&right, "(or (integer 10 40) (integer 30 60))");
-	subtypep_clang_(left, right, &result, &invalid);
-	test(result && invalid, "subtypep_clang7");
+	subtypep_check_(ptr, left, right, Nil, &result, &invalid);
+	test(result && invalid, "subtypep_check_7");
 
 	RETURN;
 }
@@ -2511,11 +2466,9 @@ static int testcase_type_subtypep(void)
 	TestBreak(test_subtypep_satisfies_right);
 	TestBreak(test_subtypep_nil_right);
 	TestBreak(test_subtypep_right);
-	/* subtypep_clang */
+	/* subtypep_check_ */
 	TestBreak(test_subtypep_call);
-	TestBreak(test_subtypep_execute);
-	TestBreak(test_subtypep_asterisk_clang);
-	TestBreak(test_subtypep_clang);
+	TestBreak(test_subtypep_check_);
 
 	return 0;
 }

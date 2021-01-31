@@ -11,6 +11,7 @@
 #define character_heap _n(character_heap)
 #define characterh _n(characterh)
 #define character_unicode_heap _n(character_unicode_heap)
+#define make_extended_char_heap_ _n(make_extended_char_heap_)
 #define ptrcharacter _n(ptrcharacter)
 #define refcharacter _n(refcharacter)
 #define getcharacter _n(getcharacter)
@@ -72,6 +73,7 @@ void character_local(LocalRoot root, addr *ret, unicode value);
 void character_heap(addr *ret, unicode value);
 addr characterh(unicode value); /* for debug */
 int character_unicode_heap(addr *ret, unicode c);
+int make_extended_char_heap_(addr *ret, unicode c);
 
 const unicode *ptrcharacter(addr pos);
 unicode refcharacter(addr pos);

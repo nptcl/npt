@@ -575,7 +575,7 @@ static int structure_include_(struct defstruct *str)
 		}
 		x = str->type_vector;
 		Return(stdget_structure_vector_(instance, &y));
-		Return(subtypep_clang_(x, y, &check, NULL));
+		Return(subtypep_check_(str->ptr, x, y, Nil, &check, NULL));
 		if (! check) {
 			Return(type_object_(&x, x));
 			Return(type_object_(&y, y));
@@ -664,7 +664,7 @@ static int structure_include_arguments_(struct defstruct *str)
 			SetTypeSlot(a, y);
 		}
 		else {
-			Return(subtypep_clang_(x, y, &result, NULL));
+			Return(subtypep_check_(str->ptr, x, y, Nil, &result, NULL));
 			if (! result) {
 				Return(type_object_(&x, x));
 				Return(type_object_(&y, y));

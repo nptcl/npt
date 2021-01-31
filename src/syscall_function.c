@@ -659,7 +659,9 @@ static void defun_large_number(void)
 }
 
 
-/* (defun make-character (character) ...) -> character */
+/* (defun make-character (x) ...) -> character
+ *   x:  (or character integer)
+ */
 static int syscall_make_character(Execute ptr, addr var)
 {
 	Return(make_character_syscode(var, &var));
@@ -672,6 +674,8 @@ static void type_make_character(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, Character);
+	GetTypeTable(&values, Integer);
+	type2or_heap(args, values, &args);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, Character);
 	type_compiled_heap(args, values, ret);

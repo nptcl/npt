@@ -58,64 +58,64 @@ int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret)
 
 	/* Unicode */
 	GetTypeTable(&type, Character);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Character);
 
 	/* bit */
 	GetTypeTable(&type, Bit);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Unsigned8);
 
 	/* (unsigned-byte 8) */
 	GetTypeTable(&type, Unsigned8);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Unsigned8);
 
 	/* (unsigned-byte 16) */
 	GetTypeTable(&type, Unsigned16);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Unsigned16);
 
 	/* (unsigned-byte 32) */
 	GetTypeTable(&type, Unsigned32);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Unsigned32);
 
 #ifdef LISP_ARCH_64BIT
 	/* (unsigned-byte 64) 64-bit only */
 	GetTypeTable(&type, Unsigned64);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Unsigned64);
 #endif
 
 	/* (signed-byte 8) */
 	GetTypeTable(&type, Signed8);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Signed8);
 
 	/* (signed-byte 16) */
 	GetTypeTable(&type, Signed16);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Signed16);
 
 	/* (signed-byte 32) */
 	GetTypeTable(&type, Signed32);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Signed32);
 
 #ifdef LISP_ARCH_64BIT
 	/* (signed-byte 64) 64-bit only */
 	GetTypeTable(&type, Signed64);
-	Return(subtypep_clang_(check, type, &result, NULL));
+	Return(subtypep_check_(ptr, check, type, Nil, &result, NULL));
 	if (result)
 		return Result(ret, Stream_Open_Element_Signed64);
 #endif

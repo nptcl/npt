@@ -636,7 +636,7 @@ static int typep_readtable_(Execute ptr, addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_function_check_(addr value, addr right, int *ret)
+static int typep_function_check_(Execute ptr, addr value, addr right, int *ret)
 {
 	addr left;
 
@@ -647,7 +647,7 @@ static int typep_function_check_(addr value, addr right, int *ret)
 		else
 			GetTypeTable(&left, Function);
 	}
-	return subtypep_clang_(left, right, ret, NULL);
+	return subtypep_check_(ptr, left, right, Nil, ret, NULL);
 }
 
 static int typep_function_(Execute ptr, addr value, addr type, int *ret)
@@ -662,7 +662,7 @@ static int typep_function_(Execute ptr, addr value, addr type, int *ret)
 	if (! functionp(value))
 		return Result(ret, 0);
 
-	return typep_function_check_(value, type, ret);
+	return typep_function_check_(ptr, value, type, ret);
 }
 
 static int typep_compiled_function_(Execute ptr, addr value, addr type, int *ret)
@@ -677,7 +677,7 @@ static int typep_compiled_function_(Execute ptr, addr value, addr type, int *ret
 	if (! compiled_function_p(value))
 		return Result(ret, 0);
 
-	return typep_function_check_(value, type, ret);
+	return typep_function_check_(ptr, value, type, ret);
 }
 
 static int typep_pathname_(Execute ptr, addr value, addr type, int *ret)

@@ -85,6 +85,22 @@ int character_unicode_heap(addr *ret, unicode c)
 	return 0;
 }
 
+int make_extended_char_heap_(addr *ret, unicode c)
+{
+	addr pos;
+
+	if (! isExtendedType(c)) {
+		*ret = Nil;
+		make_index_integer_heap(&pos, (size_t)c);
+		return fmte_("Invalid extended-char code ~X.", pos, NULL);
+	}
+
+	/* heap */
+	heap_body2(&pos, LISPTYPE_CHARACTER, sizeoft(unicode));
+	SetCharacter_Low(pos, c);
+	return Result(ret, pos);
+}
+
 const unicode *ptrcharacter(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");

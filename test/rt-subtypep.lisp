@@ -12,8 +12,9 @@
 (import 'lisp-system::invalid)
 (import 'lisp-system::false)
 
-(load #p"test/rtsubtypep-typep.lisp")
-(load #p"test/rtsubtypep-test.lisp")
+(load #p"test/rtsubtypep-typep1.lisp")
+(load #p"test/rtsubtypep-typep2.lisp")
+(load #p"test/rtsubtypep-subtypep.lisp")
 
 
 ;;

@@ -2,6 +2,7 @@
 #include "execute.h"
 #include "type_object.h"
 #include "type_parse.h"
+#include "type_subtypep.h"
 #include "type_typep.h"
 #include "type_value.h"
 #include "typedef.h"
@@ -25,6 +26,21 @@ int typep_common_(Execute ptr, addr x, addr y, addr env, addr *ret)
 	Return(parse_type(ptr, &y, y, env));
 	Return(typep_clang_(ptr, x, y, &check));
 	*ret = check? T: Nil;
+
+	return 0;
+}
+
+
+/* subtypep */
+int subtypep_common_(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
+{
+	int check, validp;
+
+	if (env == Unbound)
+		env = Nil;
+	Return(subtypep_check_(ptr, x, y, env, &check, &validp));
+	*v1 = check? T: Nil;
+	*v2 = validp? T: Nil;
 
 	return 0;
 }

@@ -555,7 +555,7 @@ static void typetable_output_stream(void)
 
 static void typetable_typespec(void)
 {
-	/* (or [type] symbol (cons * *)) */
+	/* (or type symbol cons clos) */
 	addr type1, type2, type3, type4, pos;
 
 	GetTypeTable(&type1, Type);
@@ -568,7 +568,7 @@ static void typetable_typespec(void)
 
 static void typetable_typesymbol(void)
 {
-	/* (or symbol (cons * *)) */
+	/* (or symbol cons) */
 	addr type1, type2, pos;
 
 	GetTypeTable(&type1, Symbol);
@@ -1545,7 +1545,7 @@ static void typecompiled_stringmismatch(void)
 
 static void typecompiled_rplaca(void)
 {
-	/* (function (cons *) (values cons &rest nil)) */
+	/* (function cons (values cons &rest nil)) */
 	addr args, values, type;
 
 	GetTypeTable(&args, Cons);

@@ -60,7 +60,7 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 	setvalue_tablecall(table, eval);
 	/* checktype */
 	GetEvalScopeThe(eval, &type);
-	Return(checktype_p_(type, right, &check, &errp));
+	Return(checktype_p_(ptr, type, right, &check, &errp));
 	if (errp) {
 		GetEvalScopeValue(eval, &name);
 		Return(check_tablecall_warning_(ptr, name, type, right));

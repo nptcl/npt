@@ -42,7 +42,7 @@ void upgraded_array_character_local(LocalRoot local, addr *ret);
  *  upgraded-complex-part-type
  */
 /* type -> upgraded -> type */
-int upgraded_complex_type_(addr type, addr *ret);
+int upgraded_complex_type_(Execute ptr, addr env, addr type, addr *ret);
 /* object -> upgraded -> object */
 int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret);
 /* build */

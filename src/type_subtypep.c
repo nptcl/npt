@@ -28,6 +28,7 @@
 typedef int (*call_type_subtypep)(addr left, addr right, SubtypepResult *ret);
 static call_type_subtypep TypeSubtypep[LISPDECL_SIZE];
 static int subtypep_call_(addr left, addr right, int aster, SubtypepResult *ret);
+static int subtypep_static_(addr left, addr right, int aster, SubtypepResult *ret);
 
 #define ReturnInvalid(ret) Result(ret, SUBTYPEP_INVALID)
 #define ReturnInclude(ret) Result(ret, SUBTYPEP_INCLUDE)
@@ -112,7 +113,7 @@ static int subtypep_asterisk_or_t_(addr left, addr right, SubtypepResult *ret)
 	else if (asterisk_or_t(left))
 		return ReturnFalse(ret);
 	else
-		return subtypep_result_(left, right, 0, ret);
+		return subtypep_static_(left, right, 0, ret);
 }
 
 static int subtypep_null_(addr left, addr right, SubtypepResult *ret)
@@ -701,7 +702,7 @@ static int ordinary_subtypep_(
 	push_local(local, &stack);
 	merge_ordargs(local, &left, ptr1, type1);
 	merge_ordargs(local, &right, ptr2, type2);
-	Return(subtypep_result_(left, right, 1, &value));
+	Return(subtypep_static_(left, right, 1, &value));
 	rollback_local(local, stack);
 
 	return Result(ret, value == SUBTYPEP_INCLUDE);
@@ -796,7 +797,7 @@ static int subtypep_function_check_(addr left, addr right, SubtypepResult *ret)
 	/* values */
 	GetArrayType(left, 1, &left);
 	GetArrayType(right, 1, &right);
-	Return(subtypep_result_(left, right, 1, &value));
+	Return(subtypep_static_(left, right, 1, &value));
 	SwitchInclude(ret, value);
 
 	return ReturnInclude(ret);
@@ -1033,7 +1034,7 @@ static int gettype_values_(addr pos, size_t index, addr *ret)
 static int subtypep_boolean_(addr left, addr right, int *ret)
 {
 	SubtypepResult value;
-	Return(subtypep_result_(left, right, 1, &value));
+	Return(subtypep_static_(left, right, 1, &value));
 	return Result(ret, value == SUBTYPEP_INCLUDE);
 }
 
@@ -1860,7 +1861,7 @@ static int real_extract_subtypep_(LocalRoot local, addr *ret, addr type)
 	return 0;
 }
 
-int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
+static int subtypep_static_(addr left, addr right, int aster, SubtypepResult *ret)
 {
 	SubtypepResult result;
 	LocalRoot local;
@@ -1878,11 +1879,35 @@ int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
 	return Result(ret, result);
 }
 
-static int subtypep_execute_(addr left, addr right, int aster, int *ret, int *validp)
+
+/*
+ *  interface
+ */
+int subtypep_value_(Execute ptr, addr x, addr y, addr env, int as, SubtypepResult *ret)
+{
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 3);
+	localhold_set(hold, 0, x);
+	localhold_set(hold, 1, y);
+	localhold_set(hold, 2, env);
+
+	Return(parse_type(ptr, &x, x, env));
+	localhold_set(hold, 0, x);
+	Return(parse_type(ptr, &y, y, env));
+	localhold_set(hold, 1, y);
+
+	Return(subtypep_static_(x, y, as, ret));
+	localhold_end(hold);
+
+	return 0;
+}
+
+int subtypep_check_(Execute ptr, addr x, addr y, addr env, int *ret, int *validp)
 {
 	SubtypepResult value;
 
-	Return(subtypep_result_(left, right, aster, &value));
+	Return(subtypep_value_(ptr, x, y, env, 1, &value));
 	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			if (validp)
@@ -1904,138 +1929,11 @@ static int subtypep_execute_(addr left, addr right, int aster, int *ret, int *va
 	return Result(ret, 0);
 }
 
-int subtypep_asterisk_clang_(addr left, addr right, int *ret, int *validp)
-{
-	CheckType(left, LISPTYPE_TYPE);
-	CheckType(right, LISPTYPE_TYPE);
-	return subtypep_execute_(left, right, 1, ret, validp);
-}
-
-int subtypep_clang_(addr left, addr right, int *ret, int *validp)
-{
-	CheckType(left, LISPTYPE_TYPE);
-	CheckType(right, LISPTYPE_TYPE);
-	return subtypep_execute_(left, right, 0, ret, validp);
-}
-
-
-/*
- *  common
- */
-static int subtypep_symbol_clos_p(addr x, addr *r)
-{
-	if (! symbolp(x))
-		return 0;
-	clos_find_class_nil(x, &x);
-	if (x == Nil)
-		return 0;
-	*r = x;
-	return 1;
-}
-
-static int subtypep_clos_p_(addr x, addr y, addr *r1, addr *r2, int *ret)
-{
-	int a, b;
-
-	/* clos */
-	a = closp(x);
-	b = closp(y);
-	if (a && b) {
-		type_clos_heap(x, r1);
-		type_clos_heap(y, r2);
-		return Result(ret, 1);
-	}
-	if (a) {
-		if (! subtypep_symbol_clos_p(y, &y))
-			return Result(ret, 0);
-		type_clos_heap(x, r1);
-		type_clos_heap(y, r2);
-		return Result(ret, 1);
-	}
-	if (b) {
-		if (! subtypep_symbol_clos_p(x, &x))
-			return Result(ret, 0);
-		type_clos_heap(x, r1);
-		type_clos_heap(y, r2);
-		return Result(ret, 1);
-	}
-
-	if (! subtypep_symbol_clos_p(x, &x))
-		return Result(ret, 0);
-	if (! subtypep_symbol_clos_p(y, &y))
-		return Result(ret, 0);
-
-	Return(clos_built_p_(x, &a));
-	Return(clos_built_p_(x, &b));
-	if (a && b)
-		return Result(ret, 0);
-	type_clos_heap(x, r1);
-	type_clos_heap(y, r2);
-	return Result(ret, 1);
-}
-
-static int parse_type_built_in_(Execute ptr, addr *ret, addr pos, addr env)
-{
-	addr x, y;
-
-	if (closp(pos)) {
-		GetClassOfClos(pos, &x);
-		GetConst(CLOS_BUILT_IN_CLASS, &y);
-		if (x == y) {
-			Return(stdget_class_name_(pos, &pos));
-		}
-	}
-
-	return parse_type(ptr, ret, pos, env);
-}
-
-static int subtypep_arguments_(Execute ptr, LocalHold hold,
-		addr x, addr y, addr env, addr *rx, addr *ry)
-{
-	int check;
-
-	localhold_pushva_force(hold, x, y, env, NULL);
-	Return(subtypep_clos_p_(x, y, &x, &y, &check));
-	if (! check) {
-		Return(parse_type_built_in_(ptr, &x, x, env));
-		localhold_push(hold, x);
-		Return(parse_type_built_in_(ptr, &y, y, env));
-		localhold_push(hold, y);
-	}
-	*rx = x;
-	*ry = y;
-
-	return 0;
-}
-
-int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
-{
-	int result, invalid;
-	LocalHold hold;
-
-	hold = LocalHold_local(ptr);
-	Return(subtypep_arguments_(ptr, hold, x, y, env, &x, &y));
-	Return(subtypep_clang_(x, y, &result, &invalid));
-	localhold_end(hold);
-
-	/* subtypep */
-	*v1 = result? T: Nil;
-	*v2 = invalid? T: Nil;
-
-	return 0;
-}
-
-int subtypep_result_syscall_(Execute ptr, addr x, addr y, addr env, addr *ret)
+int subtypep_syscall_(Execute ptr, addr x, addr y, addr env, addr *ret)
 {
 	SubtypepResult value;
-	LocalHold hold;
 
-	hold = LocalHold_local(ptr);
-	Return(subtypep_arguments_(ptr, hold, x, y, env, &x, &y));
-	Return(subtypep_result_(x, y, 1, &value));
-	localhold_end(hold);
-
-	/* subtypep! */
+	Return(subtypep_value_(ptr, x, y, env, 1, &value));
 	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			GetConst(SYSTEM_INCLUDE, ret);

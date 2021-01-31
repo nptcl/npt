@@ -438,7 +438,7 @@ void upgraded_array_character_local(LocalRoot local, addr *ret)
 /*
  *  upgraded-complex-part-type
  */
-int upgraded_complex_type_(addr type, addr *ret)
+int upgraded_complex_type_(Execute ptr, addr env, addr type, addr *ret)
 {
 	int value;
 	addr right;
@@ -446,37 +446,37 @@ int upgraded_complex_type_(addr type, addr *ret)
 	CheckType(type, LISPTYPE_TYPE);
 	/* integer */
 	GetTypeTable(&right, Integer);
-	Return(subtypep_clang_(type, right, &value, NULL));
+	Return(subtypep_check_(ptr, type, right, env, &value, NULL));
 	if (value)
 		return Result(ret, right);
 
 	/* rational */
 	GetTypeTable(&right, Rational);
-	Return(subtypep_clang_(type, right, &value, NULL));
+	Return(subtypep_check_(ptr, type, right, env, &value, NULL));
 	if (value)
 		return Result(ret, right);
 
 	/* single-float */
 	GetTypeTable(&right, SingleFloat);
-	Return(subtypep_clang_(type, right, &value, NULL));
+	Return(subtypep_check_(ptr, type, right, env, &value, NULL));
 	if (value)
 		return Result(ret, right);
 
 	/* double-float */
 	GetTypeTable(&right, DoubleFloat);
-	Return(subtypep_clang_(type, right, &value, NULL));
+	Return(subtypep_check_(ptr, type, right, env, &value, NULL));
 	if (value)
 		return Result(ret, right);
 
 	/* long-float */
 	GetTypeTable(&right, LongFloat);
-	Return(subtypep_clang_(type, right, &value, NULL));
+	Return(subtypep_check_(ptr, type, right, env, &value, NULL));
 	if (value)
 		return Result(ret, right);
 
 	/* Real */
 	GetTypeTable(&right, Real);
-	Return(subtypep_clang_(type, right, &value, NULL));
+	Return(subtypep_check_(ptr, type, right, env, &value, NULL));
 	if (value) {
 		GetTypeTable(ret, SingleFloat); /* single-float */
 		return 0;
@@ -488,7 +488,7 @@ int upgraded_complex_type_(addr type, addr *ret)
 	return fmte_("COMPLEX type ~S must be a subtype of a real.", type, NULL);
 }
 
-static int upgraded_complex_const_(addr pos, addr *ret)
+static int upgraded_complex_const_(Execute ptr, addr env, addr pos, addr *ret)
 {
 	int value;
 	addr right;
@@ -496,7 +496,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_TYPE);
 	/* integer */
 	GetTypeTable(&right, Integer);
-	Return(subtypep_clang_(pos, right, &value, NULL));
+	Return(subtypep_check_(ptr, pos, right, env, &value, NULL));
 	if (value) {
 		GetConst(COMMON_INTEGER, ret);
 		return 0;
@@ -504,7 +504,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 
 	/* rational */
 	GetTypeTable(&right, Rational);
-	Return(subtypep_clang_(pos, right, &value, NULL));
+	Return(subtypep_check_(ptr, pos, right, env, &value, NULL));
 	if (value) {
 		GetConst(COMMON_RATIONAL, ret);
 		return 0;
@@ -512,7 +512,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 
 	/* single-float */
 	GetTypeTable(&right, SingleFloat);
-	Return(subtypep_clang_(pos, right, &value, NULL));
+	Return(subtypep_check_(ptr, pos, right, env, &value, NULL));
 	if (value) {
 		GetConst(COMMON_SINGLE_FLOAT, ret);
 		return 0;
@@ -520,7 +520,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 
 	/* double-float */
 	GetTypeTable(&right, DoubleFloat);
-	Return(subtypep_clang_(pos, right, &value, NULL));
+	Return(subtypep_check_(ptr, pos, right, env, &value, NULL));
 	if (value) {
 		GetConst(COMMON_DOUBLE_FLOAT, ret);
 		return 0;
@@ -528,7 +528,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 
 	/* long-float */
 	GetTypeTable(&right, LongFloat);
-	Return(subtypep_clang_(pos, right, &value, NULL));
+	Return(subtypep_check_(ptr, pos, right, env, &value, NULL));
 	if (value) {
 		GetConst(COMMON_LONG_FLOAT, ret);
 		return 0;
@@ -536,7 +536,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 
 	/* short-float */
 	GetTypeTable(&right, Real);
-	Return(subtypep_clang_(pos, right, &value, NULL));
+	Return(subtypep_check_(ptr, pos, right, env, &value, NULL));
 	if (value) {
 		GetConst(COMMON_SINGLE_FLOAT, ret); /* single-float */
 		return 0;
@@ -551,7 +551,7 @@ static int upgraded_complex_const_(addr pos, addr *ret)
 int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret)
 {
 	Return(parse_type(ptr, &pos, pos, env));
-	Return(upgraded_complex_const_(pos, ret));
+	Return(upgraded_complex_const_(ptr, env, pos, ret));
 	CheckType(*ret, LISPTYPE_SYMBOL);
 	return 0;
 }

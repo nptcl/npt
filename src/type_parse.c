@@ -1,3 +1,5 @@
+#include "clos.h"
+#include "clos_class.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -1015,7 +1017,7 @@ static int typelist_complex(Execute ptr, addr *ret,
 	if (first == aster)
 		goto asterisk;
 	Return(parse_type(ptr, &first, first, env));
-	Return(upgraded_complex_type_(first, &first));
+	Return(upgraded_complex_type_(ptr, env, first, &first));
 	type1_heap(type, first, ret);
 	return 0;
 
@@ -1182,6 +1184,45 @@ static int parse_type_symbol(Execute ptr, addr *ret, addr pos, addr env)
 		return parse_type(ptr, ret, check, env);
 }
 
+static int parse_type_type(Execute ptr, addr *ret, addr pos, addr env)
+{
+	addr x, y, z;
+
+	/* type */
+	type_throw_heap(pos, &pos);
+	if (RefLispDecl(pos) != LISPDECL_CLOS)
+		return Result(ret, pos);
+
+	/* clos */
+	GetArrayType(pos, 0, &x);
+	if (type_asterisk_p(x))
+		return Result(ret, pos);
+	GetClassOfClos(x, &y);
+	GetConst(CLOS_BUILT_IN_CLASS, &z);
+	if (y != z)
+		return Result(ret, pos);
+
+	/* built-in-class */
+	Return(stdget_class_name_(x, &x));
+	return parse_type(ptr, ret, x, env);
+}
+
+static int parse_type_clos(Execute ptr, addr *ret, addr pos, addr env)
+{
+	addr x, y;
+
+	GetClassOfClos(pos, &x);
+	GetConst(CLOS_BUILT_IN_CLASS, &y);
+	if (x != y) {
+		type_clos_heap(pos, ret);
+		return 0;
+	}
+
+	/* built-in-class */
+	Return(stdget_class_name_(pos, &x));
+	return parse_type(ptr, ret, x, env);
+}
+
 static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 {
 	switch (GetType(pos)) {
@@ -1194,8 +1235,10 @@ static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 			return parse_type_list(ptr, ret, pos, env);
 
 		case LISPTYPE_TYPE:
-			type_throw_heap(pos, ret);
-			return 0;
+			return parse_type_type(ptr, ret, pos, env);
+
+		case LISPTYPE_CLOS:
+			return parse_type_clos(ptr, ret, pos, env);
 
 		default:
 			return Result(ret, NULL);

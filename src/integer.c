@@ -827,6 +827,25 @@ error:
 	return 1;
 }
 
+int getunicode_integer_(addr pos, unicode *ret)
+{
+	size_t value;
+
+	if (GetIndex_integer(pos, &value)) {
+		*ret = 0;
+		goto error;
+	}
+
+#ifdef LISP_64BIT
+	if (0xFFFFFFFFULL < value)
+		goto error;
+#endif
+	return Result(ret, (unicode)value);
+
+error:
+	return fmte_("Invalid value ~A.", pos, NULL);
+}
+
 
 /*
  *  standard type

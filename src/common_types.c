@@ -5,7 +5,6 @@
 #include "common_header.h"
 #include "type_coerce.h"
 #include "type_deftype.h"
-#include "type_subtypep.h"
 
 /* (defun coerce (object type) ...) -> result
  *   object  t
@@ -81,11 +80,8 @@ static void defmacro_deftype(void)
  */
 static int function_subtypep(Execute ptr, addr x, addr y, addr env)
 {
-	if (env == Unbound)
-		env = Nil;
-	Return(subtypep_common(ptr, x, y, env, &x, &y));
+	Return(subtypep_common_(ptr, x, y, env, &x, &y));
 	setvalues_control(ptr, x, y, NULL);
-
 	return 0;
 }
 

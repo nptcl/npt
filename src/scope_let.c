@@ -407,13 +407,13 @@ int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *
 	return Result(ret, pos);
 }
 
-int checktype_p_(addr left, addr right, int *check, int *err)
+int checktype_p_(Execute ptr, addr left, addr right, int *check, int *err)
 {
 	SubtypepResult value;
 
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
-	Return(subtypep_result_(left, right, 1, &value));
+	Return(subtypep_value_(ptr, left, right, Nil, 1, &value));
 	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			/* type check can skip. */
@@ -450,7 +450,7 @@ int checktype_value_(Execute ptr, addr value, addr init)
 
 	gettype_tablevalue(value, &type);
 	GetEvalScopeThe(init, &init);
-	Return(checktype_p_(init, type, &check, &errp));
+	Return(checktype_p_(ptr, init, type, &check, &errp));
 	if (errp) {
 		getname_tablevalue(value, &name);
 		Return(checktype_warning_(ptr, name, type, init));
