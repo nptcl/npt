@@ -6,7 +6,6 @@
 (unintern 'exclude)
 (unintern 'invalid)
 (unintern 'false)
-(import 'lisp-system::subtypep!)
 (import 'lisp-system::include)
 (import 'lisp-system::exclude)
 (import 'lisp-system::invalid)
@@ -16,7 +15,10 @@
 (load #p"test/rtsubtypep-typep2.lisp")
 (load #p"test/rtsubtypep-typep3.lisp")
 (load #p"test/rtsubtypep-typep4.lisp")
-(load #p"test/rtsubtypep-subtypep.lisp")
+
+(load #p"test/rtsubtypep-subtypep1.lisp")
+(load #p"test/rtsubtypep-subtypep2.lisp")
+(load #p"test/rtsubtypep-subtypep3.lisp")
 
 
 ;;

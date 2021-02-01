@@ -2021,6 +2021,7 @@ lisp-system::unbound-value
 (lisp-system::equal-random-state :export t)
 (lisp-system::subtypep-result :export t)
 (lisp-system::subtypep! :export t :constant system :name subtypep-ex)
+(lisp-system::subtypep-table :export t)
 (lisp-system::eastasian-set :export t)
 (lisp-system::eastasian-get :export t)
 (lisp-system::eastasian-width :export t)

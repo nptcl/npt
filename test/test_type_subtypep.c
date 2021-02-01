@@ -32,11 +32,13 @@ static void parse_type_string(addr *ret, const char *code)
 static SubtypepResult subtable_test(addr left, addr right)
 {
 	SubtypepResult value;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* real_extract(&left, left); */
 	/* real_extract(&right, right); */
 	aatype(value);
-	subtypep_table_(left, right, &value);
+	subtypep_array_(ptr, left, right, &value);
 
 	return value;
 }
@@ -67,82 +69,55 @@ static int strtable_invalid(const char *left, const char *right)
 
 
 /*
- *  subtypep-table
+ *  cons
  */
-static int test_subtypep_clos(void)
-{
-	test(strtable_true("STANDARD-CLASS", "CLASS"), "subtypep_clos1");
-	test(strtable_false("CLASS", "STANDARD-CLASS"), "subtypep_clos2");
-	test(strtable_exclude("INTEGER", "STANDARD-CLASS"), "subtypep_clos3");
-
-	RETURN;
-}
-
-static int test_subtypep_nil(void)
-{
-	test(strtable_exclude("nil", "nil"), "subtypep_nil1");
-	RETURN;
-}
-
-static int test_subtypep_t(void)
-{
-	test(strtable_true("nil", "t"), "subtypep_t1");
-	RETURN;
-}
-
-static int test_subtypep_null(void)
-{
-	test(strtable_true("null", "null"), "subtypep_null1");
-	test(strtable_false("cons", "null"), "subtypep_null2");
-	test(strtable_exclude("integer", "null"), "subtypep_null3");
-	RETURN;
-}
-
-static int test_asterisk_or_t(void)
+static int test_subtypep_call_cons_p(void)
 {
 	addr pos;
 
 	GetTypeTable(&pos, Asterisk);
-	test(asterisk_or_t(pos), "asterisk_or_t1");
+	test(subtypep_call_cons_p(pos), "subtypep_call_cons_p1");
 	GetTypeTable(&pos, T);
-	test(asterisk_or_t(pos), "asterisk_or_t2");
+	test(subtypep_call_cons_p(pos), "subtypep_call_cons_p2");
 	GetTypeTable(&pos, Null);
-	test(! asterisk_or_t(pos), "asterisk_or_t3");
+	test(! subtypep_call_cons_p(pos), "subtypep_call_cons_p3");
 
 	RETURN;
 }
 
-static int test_subtypep_asterisk_or_t(void)
+static int test_subtypep_call_cons_t_(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "NIL");
 	parse_type_string(&right, "*");
-	subtypep_asterisk_or_t_(left, right, &value);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_asterisk_or_t1");
+	subtypep_call_cons_t_(ptr, left, right, &value);
+	test(value == SUBTYPEP_INCLUDE, "subtypep_call_cons_t_1");
 
 	parse_type_string(&left, "T");
 	parse_type_string(&right, "*");
-	subtypep_asterisk_or_t_(left, right, &value);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_asterisk_or_t2");
+	subtypep_call_cons_t_(ptr, left, right, &value);
+	test(value == SUBTYPEP_INCLUDE, "subtypep_call_cons_t_2");
 
 	parse_type_string(&left, "T");
 	parse_type_string(&right, "CONS");
-	subtypep_asterisk_or_t_(left, right, &value);
-	test(value == SUBTYPEP_FALSE, "subtypep_asterisk_or_t3");
+	subtypep_call_cons_t_(ptr, left, right, &value);
+	test(value == SUBTYPEP_FALSE, "subtypep_call_cons_t_3");
 
 	parse_type_string(&left, "INTEGER");
 	parse_type_string(&right, "CONS");
-	subtypep_asterisk_or_t_(left, right, &value);
-	test(value == SUBTYPEP_EXCLUDE, "subtypep_asterisk_or_t4");
+	subtypep_call_cons_t_(ptr, left, right, &value);
+	test(value == SUBTYPEP_EXCLUDE, "subtypep_call_cons_t_4");
 
 	RETURN;
 }
 
-static int test_subtypep_cons(void)
+static int test_subtypep_call_cons(void)
 {
 	test(strtable_exclude("integer", "symbol"),
 			"subtypep_cons1");
@@ -166,96 +141,21 @@ static int test_subtypep_cons(void)
 	RETURN;
 }
 
-static int test_subtypep_hash_table(void)
-{
-	test(strtable_true("hash-table", "hash-table"), "subtypep_hash_table1");
-	test(strtable_exclude("cons", "hash-table"), "subtypep_hash_table2");
-	RETURN;
-}
 
-static int test_subtypep_symbol(void)
-{
-	test(strtable_true("symbol", "symbol"), "subtypep_symbol1");
-	test(strtable_true("keyword", "symbol"), "subtypep_symbol2");
-	test(strtable_exclude("integer", "symbol"), "subtypep_symbol3");
-	RETURN;
-}
-
-static int test_subtypep_keyword(void)
-{
-	test(strtable_true("keyword", "keyword"), "subtypep_keyword1");
-	test(strtable_false("symbol", "keyword"), "subtypep_keyword2");
-	test(strtable_exclude("cons", "keyword"), "subtypep_keyword3");
-	RETURN;
-}
-
-static int test_subtypep_package(void)
-{
-	test(strtable_true("package", "package"), "subtypep_package1");
-	test(strtable_exclude("cons", "package"), "subtypep_package2");
-	RETURN;
-}
-
-static int test_subtypep_random_state(void)
-{
-	test(strtable_true("random-state", "random-state"), "subtypep_random_state1");
-	test(strtable_exclude("cons", "random-state"), "subtypep_random_state2");
-	RETURN;
-}
-
-static int test_subtypep_readtable(void)
-{
-	test(strtable_true("readtable", "readtable"), "subtypep_readtable1");
-	test(strtable_exclude("cons", "readtable"), "subtypep_readtable2");
-	RETURN;
-}
-
-static int test_subtypep_pathname(void)
-{
-	test(strtable_true("pathname", "pathname"), "subtypep_pathname1");
-	test(strtable_true("logical-pathname", "pathname"), "subtypep_pathname2");
-	test(strtable_exclude("cons", "pathname"), "subtypep_pathname3");
-
-	RETURN;
-}
-
-static int test_subtypep_logical_pathname(void)
-{
-	test(strtable_true("logical-pathname", "logical-pathname"),
-			"subtypep_logical_pathname1");
-	test(strtable_false("pathname", "logical-pathname"),
-			"subtypep_logical_pathname2");
-	test(strtable_exclude("cons", "logical-pathname"),
-			"subtypep_logical-pathname3");
-
-	RETURN;
-}
-
-static int test_subtypep_sequence(void)
-{
-	test(strtable_true("sequence", "sequence"), "subtypep_sequence1");
-	test(strtable_false("array", "sequence"), "subtypep_sequence2");
-	test(strtable_false("simple-array", "sequence"), "subtypep_sequence3");
-	test(strtable_true("cons", "sequence"), "subtypep_sequence4");
-	test(strtable_exclude("symbol", "sequence"), "subtypep_sequence5");
-	test(strtable_true("(array * (4))", "sequence"), "subtypep_sequence6");
-	test(strtable_false("(array * (4 4))", "sequence"), "subtypep_sequence7");
-	test(strtable_false("(simple-array * 0)", "sequence"), "subtypep_sequence8");
-	test(strtable_true("(simple-array * 1)", "sequence"), "subtypep_sequence9");
-	test(strtable_false("(simple-array * 2)", "sequence"), "subtypep_sequence10");
-
-	RETURN;
-}
-
+/*
+ *  vector
+ */
 static SubtypepResult subtypep_value(const char *str1, const char *str2, int asterisk)
 {
 	int ignore;
 	SubtypepResult value;
 	addr left, right;
 	LocalRoot local;
+	Execute ptr;
 
+	ptr = Execute_Thread;
+	local = ptr->local;
 	aatype(value);
-	local = Local_Thread;
 	parse_type_string(&left, str1);
 	parse_type_string(&right, str2);
 	type_optimize_heap_(local, left, &left, &ignore);
@@ -263,66 +163,8 @@ static SubtypepResult subtypep_value(const char *str1, const char *str2, int ast
 	get_type_optimized(&left, left);
 	get_type_optimized(&right, right);
 
-	subtypep_call_(left, right, asterisk, &value);
+	subtypep_call_(ptr, left, right, asterisk, &value);
 	return value;
-}
-
-#define AA_dimension_true(a,b,c) { \
-	test(subtypep_value((b), (c), 1) == SUBTYPEP_INCLUDE, "array_array_dimension" a); \
-}
-#define AA_dimension_false(a,b,c) { \
-	test(subtypep_value((b), (c), 1) == SUBTYPEP_FALSE, "array_array_dimension" a); \
-}
-static int test_array_array_dimension(void)
-{
-	AA_dimension_true("1", "(array * *)", "(array * *)");
-	AA_dimension_false("2", "(array * *)", "(array * (*))");
-	AA_dimension_false("3", "(array * (10 20))", "(array * 1)");
-	AA_dimension_true("4", "(array * (10))", "(array * 1)");
-	AA_dimension_true("5", "(array * (10))", "(array * (*))");
-	AA_dimension_true("6", "(array * 4)", "(array * 4)");
-	AA_dimension_true("7", "(array * (* * * *))", "(array * 4)");
-	AA_dimension_false("8", "(array * 4)", "(array * 3)");
-	AA_dimension_false("9", "(array * 3)", "(array * 4)");
-	AA_dimension_false("10", "(array * (3))", "(array * (3 4))");
-	AA_dimension_false("11", "(array * (3 5))", "(array * (3 4))");
-	AA_dimension_true("12", "(array * (3 4))", "(array * (3 4))");
-	AA_dimension_true("13", "(array * (3 4))", "(array * (3 *))");
-	AA_dimension_false("14", "(array * (* 4))", "(array * (3 *))");
-	AA_dimension_false("15", "(array * (* 4))", "(array * (* 3))");
-	AA_dimension_true("16", "(array * (* 4 6))", "(array * (* * 6))");
-
-	RETURN;
-}
-
-#define ArrayArray_true(a,b,c) { \
-	test(subtypep_value((b), (c), 1) == SUBTYPEP_INCLUDE, "subtypep_array_array" a); \
-}
-#define ArrayArray_false(a,b,c) { \
-	test(subtypep_value((b), (c), 1) == SUBTYPEP_FALSE, "subtypep_array_array" a); \
-}
-static int test_subtypep_array_array(void)
-{
-	ArrayArray_true("1", "(array integer)", "array");
-	ArrayArray_true("2", "(array integer)", "(array *)");
-	ArrayArray_true("3", "(array *)", "(array *)");
-	ArrayArray_false("4", "(array *)", "(array integer)");
-	ArrayArray_true("5", "(array integer)", "(array integer)");
-	ArrayArray_false("6", "(array character)", "(array integer)");
-	ArrayArray_false("7", "(array integer)", "(array character)");
-	ArrayArray_true("8", "(array integer 2)", "(array integer 2)");
-	ArrayArray_false("9", "(array integer 2)", "(array integer 3)");
-	ArrayArray_true("10", "(simple-array integer)", "array");
-	ArrayArray_true("11", "(simple-array integer)", "(array *)");
-	ArrayArray_true("12", "(simple-array *)", "(array *)");
-	ArrayArray_false("13", "(simple-array *)", "(array integer)");
-	ArrayArray_true("14", "(simple-array integer)", "(array integer)");
-	ArrayArray_false("15", "(simple-array character)", "(array integer)");
-	ArrayArray_false("16", "(simple-array integer)", "(array character)");
-	ArrayArray_true("17", "(simple-array integer 2)", "(array integer 2)");
-	ArrayArray_false("18", "(simple-array integer 2)", "(array integer 3)");
-
-	RETURN;
 }
 
 #define VectorArray_true(a,b,c) { \
@@ -454,552 +296,10 @@ static int test_subtypep_bit_vector_array(void)
 	RETURN;
 }
 
-static int test_subtypep_character(void)
-{
-	test(strtable_true("character", "character"), "subtypep_character1");
-	test(strtable_true("base-char", "character"), "subtypep_character2");
-	test(strtable_true("standard-char", "character"), "subtypep_character3");
-	test(strtable_exclude("integer", "character"), "subtypep_character4");
 
-	RETURN;
-}
-
-static int test_subtypep_base_char(void)
-{
-	test(strtable_true("base-char", "base-char"), "subtypep_base_char1");
-	test(strtable_true("standard-char", "base-char"), "subtypep_base_char2");
-	test(strtable_false("character", "base-char"), "subtypep_base_char3");
-	test(strtable_exclude("cons", "base-char"), "subtypep_base_char4");
-
-	RETURN;
-}
-
-static int test_subtypep_standard_char(void)
-{
-	test(strtable_true("standard-char", "standard-char"), "subtypep_standard_char1");
-	test(strtable_false("base-char", "standard-char"), "subtypep_standard_char2");
-	test(strtable_false("character", "standard-char"), "subtypep_standard_char3");
-	test(strtable_exclude("symbol", "standard-char"), "subtypep_standard_char4");
-
-	RETURN;
-}
-
-static int test_subtypep_real_less(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer * 30)");
-	subtypep_real_less_(left, right, &check);
-	test(check, "subtypep_real_less1");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer * 20)");
-	subtypep_real_less_(left, right, &check);
-	test(check, "subtypep_real_less2");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer * 19)");
-	subtypep_real_less_(left, right, &check);
-	test(! check, "subtypep_real_less3");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer * 5)");
-	subtypep_real_less_(left, right, &check);
-	test(! check, "subtypep_real_less4");
-
-	parse_type_string(&left, "(integer * 20)");
-	parse_type_string(&right, "(integer * 30)");
-	subtypep_real_less_(left, right, &check);
-	test(check, "subtypep_real_less5");
-
-	parse_type_string(&left, "(integer * 20)");
-	parse_type_string(&right, "(integer * 20)");
-	subtypep_real_less_(left, right, &check);
-	test(check, "subtypep_real_less6");
-
-	parse_type_string(&left, "(integer * 20)");
-	parse_type_string(&right, "(integer * 19)");
-	subtypep_real_less_(left, right, &check);
-	test(! check, "subtypep_real_less7");
-
-	parse_type_string(&left, "(integer * 20)");
-	parse_type_string(&right, "(integer * 5)");
-	subtypep_real_less_(left, right, &check);
-	test(! check, "subtypep_real_less8");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer * 5)");
-	subtypep_real_less_(left, right, &check);
-	test(! check, "subtypep_real_less9");
-
-	parse_type_string(&left, "(integer 10 (20))");
-	parse_type_string(&right, "(integer * 20)");
-	subtypep_real_less_(left, right, &check);
-	test(check, "subtypep_real_less10");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer * (20))");
-	subtypep_real_less_(left, right, &check);
-	test(! check, "subtypep_real_less11");
-
-	parse_type_string(&left, "(integer 10 (20))");
-	parse_type_string(&right, "(integer * (20))");
-	subtypep_real_less_(left, right, &check);
-	test(check, "subtypep_real_less12");
-
-	RETURN;
-}
-
-static int test_subtypep_real_greater(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 5 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(check, "subtypep_real_greater1");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 10 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(check, "subtypep_real_greater2");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 11 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(! check, "subtypep_real_greater3");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 30 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(! check, "subtypep_real_greater4");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer 5 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(check, "subtypep_real_greater5");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer 10 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(check, "subtypep_real_greater6");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer 11 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(! check, "subtypep_real_greater7");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer 30 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(! check, "subtypep_real_greater8");
-
-	parse_type_string(&left, "(integer * 10)");
-	parse_type_string(&right, "(integer 30 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(! check, "subtypep_real_greater9");
-
-	parse_type_string(&left, "(integer (10) 20)");
-	parse_type_string(&right, "(integer 10 *)");
-	subtypep_real_greater_(left, right, &check);
-	test(check, "subtypep_real_greater10");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer (10) *)");
-	subtypep_real_greater_(left, right, &check);
-	test(! check, "subtypep_real_greater11");
-
-	parse_type_string(&left, "(integer (10) 20)");
-	parse_type_string(&right, "(integer (10) *)");
-	subtypep_real_greater_(left, right, &check);
-	test(check, "subtypep_real_greater12");
-
-	RETURN;
-}
-
-static int test_subtypep_real_range(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer 15 16)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_real_range_(left, right, &check);
-	test(check, "subtypep_real_range1");
-
-	parse_type_string(&left, "(integer 10 16)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_real_range_(left, right, &check);
-	test(check, "subtypep_real_range2");
-
-	parse_type_string(&left, "(integer 15 20)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_real_range_(left, right, &check);
-	test(check, "subtypep_real_range3");
-
-	parse_type_string(&left, "(integer 15 30)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_real_range_(left, right, &check);
-	test(! check, "subtypep_real_range4");
-
-	parse_type_string(&left, "(integer 100 200)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_real_range_(left, right, &check);
-	test(! check, "subtypep_real_range5");
-
-	RETURN;
-}
-
-static int test_subtypep_realcheck(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "integer");
-	subtypep_realcheck_(left, right, &check);
-	test(check, "subtypep_realcheck1");
-
-	parse_type_string(&left, "integer");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_realcheck_(left, right, &check);
-	test(! check, "subtypep_realcheck2");
-
-	parse_type_string(&left, "(integer 15 15)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_realcheck_(left, right, &check);
-	test(check, "subtypep_realcheck3");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer * 30)");
-	subtypep_realcheck_(left, right, &check);
-	test(check, "subtypep_realcheck4");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 5 *)");
-	subtypep_realcheck_(left, right, &check);
-	test(check, "subtypep_realcheck5");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 0 100)");
-	subtypep_realcheck_(left, right, &check);
-	test(check, "subtypep_realcheck6");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 200 300)");
-	subtypep_realcheck_(left, right, &check);
-	test(! check, "subtypep_realcheck7");
-
-	RETURN;
-}
-
-static int test_realexclude_left(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer * 10)");
-	parse_type_string(&right, "(integer 20 *)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_left1");
-
-	parse_type_string(&left, "(integer * 30)");
-	parse_type_string(&right, "(integer 20 *)");
-	subtypep_realexlucde_(left, right, &check);
-	test(! check, "realexclude_left2");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 30 40)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_left3");
-
-	parse_type_string(&left, "(integer * 20)");
-	parse_type_string(&right, "(integer 20 *)");
-	subtypep_realexlucde_(left, right, &check);
-	test(! check, "realexclude_left4");
-
-	parse_type_string(&left, "(integer * (20))");
-	parse_type_string(&right, "(integer 20 *)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_left5");
-
-	parse_type_string(&left, "(integer * 20)");
-	parse_type_string(&right, "(integer (20) *)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_left6");
-
-	parse_type_string(&left, "(integer * (20))");
-	parse_type_string(&right, "(integer (20) *)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_left7");
-
-	RETURN;
-}
-
-static int test_realexclude_right(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer 20 *)");
-	parse_type_string(&right, "(integer * 10)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_right1");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer * 20)");
-	subtypep_realexlucde_(left, right, &check);
-	test(! check, "realexclude_right2");
-
-	parse_type_string(&left, "(integer 30 40)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_right3");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer * 10)");
-	subtypep_realexlucde_(left, right, &check);
-	test(! check, "realexclude_right4");
-
-	parse_type_string(&left, "(integer (10) *)");
-	parse_type_string(&right, "(integer * 10)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_right5");
-
-	parse_type_string(&left, "(integer 10 *)");
-	parse_type_string(&right, "(integer * (10))");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_right6");
-
-	parse_type_string(&left, "(integer (10) *)");
-	parse_type_string(&right, "(integer * (10))");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "realexclude_right7");
-
-	RETURN;
-}
-
-static int test_subtypep_realexclude(void)
-{
-	int check;
-	addr left, right;
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 30 40)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "subtypep_realexclude1");
-
-	parse_type_string(&left, "(integer 30 40)");
-	parse_type_string(&right, "(integer 10 20)");
-	subtypep_realexlucde_(left, right, &check);
-	test(check, "subtypep_realexclude2");
-
-	parse_type_string(&left, "(integer 10 30)");
-	parse_type_string(&right, "(integer 20 40)");
-	subtypep_realexlucde_(left, right, &check);
-	test(! check, "subtypep_realexclude3");
-
-	parse_type_string(&left, "(integer 20 40)");
-	parse_type_string(&right, "(integer 10 30)");
-	subtypep_realexlucde_(left, right, &check);
-	test(! check, "subtypep_realexclude4");
-
-	RETURN;
-}
-
-static int test_subtypep_realparameter(void)
-{
-	SubtypepResult value;
-	addr left, right;
-
-	aatype(value);
-
-	parse_type_string(&left, "integer");
-	parse_type_string(&right, "integer");
-	subtypep_realparameter_(left, right, &value);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_realparameter1");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 30 *)");
-	subtypep_realparameter_(left, right, &value);
-	test(value == SUBTYPEP_EXCLUDE, "subtypep_realparameter2");
-
-	parse_type_string(&left, "(integer 10 20)");
-	parse_type_string(&right, "(integer 15 *)");
-	subtypep_realparameter_(left, right, &value);
-	test(value == SUBTYPEP_FALSE, "subtypep_realparameter3");
-
-	RETURN;
-}
-
-static int test_subtypep_integer(void)
-{
-	test(strtable_true("integer", "integer"), "subtypep_integer1");
-	test(strtable_false("rational", "integer"), "subtypep_integer2");
-	test(strtable_false("real", "integer"), "subtypep_integer3");
-	test(strtable_false("number", "integer"), "subtypep_integer4");
-	test(strtable_exclude("cons", "integer"), "subtypep_integer5");
-	test(strtable_true("(integer 10 10)", "(integer 0 100)"), "subtypep_integer6");
-
-	RETURN;
-}
-
-static int test_subtypep_rational(void)
-{
-	test(strtable_false("real", "rational"), "subtypep_rational1");
-	test(strtable_false("number", "rational"), "subtypep_rational2");
-	test(strtable_true("ratio", "rational"), "subtypep_rational3");
-	test(strtable_false("ratio", "(rational 10 *)"), "subtypep_rational4");
-	test(strtable_true("rational", "rational"), "subtypep_rational5");
-	test(strtable_true("integer", "rational"), "subtypep_rational6");
-	test(strtable_exclude("symbol", "rational"), "subtypep_rational7");
-	test(strtable_true("(integer 10 20)", "(rational 5 100)"),
-			"subtypep_rational8");
-	test(strtable_false("(integer 10 20)", "(rational 15 100)"),
-			"subtypep_rational9");
-	test(strtable_exclude("(integer 10 20)", "(rational 50 100)"),
-			"subtypep_rational10");
-
-	RETURN;
-}
-
-static int test_subtypep_real(void)
-{
-	test(strtable_true("real", "real"), "subtypep_real1");
-	test(strtable_false("number", "real"), "subtypep_real2");
-	test(strtable_true("ratio", "real"), "subtypep_real3");
-	test(strtable_false("ratio", "(real 10 20)"), "subtypep_real4");
-	test(strtable_true("float", "real"), "subtypep_real5");
-	test(strtable_exclude("symbol", "real"), "subtypep_real6");
-
-	RETURN;
-}
-
-static int test_subtypep_number(void)
-{
-	test(strtable_true("number", "number"), "subtypep_number1");
-	test(strtable_true("complex", "number"), "subtypep_number2");
-	test(strtable_true("ratio", "number"), "subtypep_number3");
-	test(strtable_true("float", "number"), "subtypep_number4");
-	test(strtable_exclude("symbol", "number"), "subtypep_number5");
-
-	RETURN;
-}
-
-static int test_subtypep_float(void)
-{
-	SubtypepResult value;
-	addr left, right, pos1, pos2;
-
-	aatype(value);
-
-	test(strtable_false("number", "float"), "subtypep_float1");
-	test(strtable_false("real", "float"), "subtypep_float2");
-	test(strtable_true("float", "float"), "subtypep_float3");
-	test(strtable_true("short-float", "float"), "subtypep_float4");
-	test(strtable_exclude("symbol", "float"), "subtypep_float5");
-
-	interncommon_debug("DOUBLE-FLOAT", &left);
-	double_float_heap(&pos1, 10.0);
-	double_float_heap(&pos2, 20.0);
-	list_heap(&left, left, pos1, pos2, NULL);
-	test_parse_type(&left, left);
-	interncommon_debug("FLOAT", &right);
-	double_float_heap(&pos1, 15.0);
-	list_heap(&right, right, pos1, NULL);
-	test_parse_type(&right, right);
-	subtypep_table_(left, right, &value);
-	test(value == SUBTYPEP_FALSE, "subtypep_float6");
-
-	RETURN;
-}
-
-static int test_subtypep_float_type(void)
-{
-	SubtypepResult value;
-	addr left, right, pos1, pos2;
-
-	aatype(value);
-
-	parse_type_string(&left, "number");
-	parse_type_string(&right, "single-float");
-	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
-	test(value == SUBTYPEP_FALSE, "subtypep_float_type1");
-
-	parse_type_string(&left, "real");
-	parse_type_string(&right, "single-float");
-	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
-	test(value == SUBTYPEP_FALSE, "subtypep_float_type2");
-
-	parse_type_string(&left, "float");
-	parse_type_string(&right, "single-float");
-	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
-	test(value == SUBTYPEP_FALSE, "subtypep_float_type3");
-
-	parse_type_string(&left, "single-float");
-	parse_type_string(&right, "single-float");
-	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_float_type4");
-
-	parse_type_string(&left, "cons");
-	parse_type_string(&right, "single-float");
-	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
-	test(value == SUBTYPEP_EXCLUDE, "subtypep_float_type5");
-
-	interncommon_debug("SINGLE-FLOAT", &left);
-	single_float_heap(&pos1, 10.0);
-	single_float_heap(&pos2, 20.0);
-	list_heap(&left, left, pos1, pos2, NULL);
-	test_parse_type(&left, left);
-	interncommon_debug("SINGLE-FLOAT", &right);
-	single_float_heap(&pos1, 5.0);
-	list_heap(&right, right, pos1, NULL);
-	test_parse_type(&right, right);
-	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_float_type6");
-
-	RETURN;
-}
-
-static int test_subtypep_short_float(void)
-{
-	test(strtable_true("short-float", "short-float"), "subtypep_short_float1");
-	RETURN;
-}
-
-static int test_subtypep_single_float(void)
-{
-	test(strtable_true("single-float", "single-float"), "subtypep_single_float1");
-	RETURN;
-}
-
-static int test_subtypep_double_float(void)
-{
-	test(strtable_true("double-float", "double-float"), "subtypep_double_float1");
-	RETURN;
-}
-
-static int test_subtypep_long_float(void)
-{
-	test(strtable_true("long-float", "long-float"), "subtypep_long_float1");
-	RETURN;
-}
-
-static int test_subtypep_ratio(void)
-{
-	test(strtable_false("number", "ratio"), "subtypep_ratio1");
-	test(strtable_false("real", "ratio"), "subtypep_ratio2");
-	test(strtable_false("rational", "ratio"), "subtypep_ratio3");
-	test(strtable_true("ratio", "ratio"), "subtypep_ratio4");
-	test(strtable_exclude("integer", "ratio"), "subtypep_ratio5");
-	test(strtable_exclude("symbol", "ratio"), "subtypep_ratio6");
-
-	RETURN;
-}
-
+/*
+ *  call complex
+ */
 static int test_subtypep_complex(void)
 {
 	test(strtable_false("number", "complex"), "subtypep_complex1");
@@ -1025,7 +325,9 @@ static int test_ordinary_subtypep(void)
 	addr pos;
 	ordargs str1, str2;
 	ordtype type1, type2;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_args(&pos, "(function (atom integer))");
@@ -1034,12 +336,12 @@ static int test_ordinary_subtypep(void)
 	make_ordargs(&str2, pos);
 	gettype_ordargs_(&str1, 1, &type1);
 	gettype_ordargs_(&str2, 0, &type2);
-	ordinary_subtypep_(&str1, &type1, &str2, &type2, &value);
+	ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
 	test(value, "ordinary_subtypep1");
 
 	gettype_ordargs_(&str1, 0, &type1);
 	gettype_ordargs_(&str2, 1, &type2);
-	ordinary_subtypep_(&str1, &type1, &str2, &type2, &value);
+	ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
 	test(! value, "ordinary_subtypep2");
 
 	RETURN;
@@ -1074,29 +376,31 @@ static int test_ordinary_size(void)
 {
 	int value;
 	ordargs args1, args2;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real))");
-	ordinary_size_(&args1, &args2, 1, &value);
+	ordinary_size_(ptr, &args1, &args2, 1, &value);
 	test(value, "ordinary_size1");
-	ordinary_size_(&args1, &args2, 2, &value);
+	ordinary_size_(ptr, &args1, &args2, 2, &value);
 	test(value, "ordinary_size2");
 
 	argschar(&args1, "(function (integer integer))");
 	argschar(&args2, "(function (real))");
-	ordinary_size_(&args1, &args2, 2, &value);
+	ordinary_size_(ptr, &args1, &args2, 2, &value);
 	test(! value, "ordinary_size3");
 
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real real))");
-	ordinary_size_(&args1, &args2, 2, &value);
+	ordinary_size_(ptr, &args1, &args2, 2, &value);
 	test(value, "ordinary_size4");
 
 	argschar(&args1, "(function (integer string))");
 	argschar(&args2, "(function (real real))");
-	ordinary_size_(&args1, &args2, 2, &value);
+	ordinary_size_(ptr, &args1, &args2, 2, &value);
 	test(! value, "ordinary_size5");
 
 	RETURN;
@@ -1112,47 +416,49 @@ static int test_ordinary_simple(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple1");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "ordinary_simple2");
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t &optional real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple3");
 
 	extractargs(&left, "(function (integer &optional integer))");
 	extractargs(&right, "(function (t real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "ordinary_simple4");
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t &optional real real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple5");
 
 	extractargs(&left, "(function (integer integer &optional integer))");
 	extractargs(&right, "(function (t &optional real real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple6");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t &optional real real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple7");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t t &optional real real))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "ordinary_simple8");
 
 	RETURN;
@@ -1162,32 +468,34 @@ static int test_ordinary_simple_left(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple_left1");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "ordinary_simple_left2");
 
 	extractargs(&left, "(function (integer integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple_left3");
 
 	extractargs(&left, "(function (integer integer integer fixnum fixnum))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_simple_left4");
 
 	extractargs(&left, "(function (integer integer integer fixnum string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "ordinary_simple_left5");
 
 	RETURN;
@@ -1197,17 +505,19 @@ static int test_ordinary_check(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "ordinary_check1");
 
 	extractargs(&left, "(function (integer integer &rest string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "ordinary_check2");
 
 	RETURN;
@@ -1217,25 +527,27 @@ static int test_subtypep_function_ordinary(void)
 {
 	int value;
 	addr left, right, aster;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	GetTypeTable(&aster, Asterisk);
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(value, "subtypep_function_ordinary1");
 
-	subtypep_function_ordinary_(aster, aster, &value);
+	subtypep_function_ordinary_(ptr, aster, aster, &value);
 	test(value, "subtypep_function_ordinary2");
-	subtypep_function_ordinary_(left, aster, &value);
+	subtypep_function_ordinary_(ptr, left, aster, &value);
 	test(value, "subtypep_function_ordinary3");
-	subtypep_function_ordinary_(aster, right, &value);
+	subtypep_function_ordinary_(ptr, aster, right, &value);
 	test(! value, "subtypep_function_ordinary4");
 
 	extractargs(&left, "(function (integer integer &rest string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
-	subtypep_function_ordinary_(left, right, &value);
+	subtypep_function_ordinary_(ptr, left, right, &value);
 	test(! value, "subtypep_function_ordinary5");
 
 	RETURN;
@@ -1245,32 +557,34 @@ static int test_subtypep_function_check(void)
 {
 	SubtypepResult result;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(result);
 
 	extractchar(&left, "(function (fixnum) cons)");
 	extractchar(&right, "(function (integer) list)");
-	subtypep_function_check_(left, right, &result);
+	subtypep_function_check_(ptr, left, right, &result);
 	test(result == SUBTYPEP_INCLUDE, "subtypep_function_check1");
 
 	extractchar(&left, "(function * cons)");
 	extractchar(&right, "(function (integer) list)");
-	subtypep_function_check_(left, right, &result);
+	subtypep_function_check_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_function_check2");
 
 	extractchar(&left, "(function * string)");
 	extractchar(&right, "(function * list)");
-	subtypep_function_check_(left, right, &result);
+	subtypep_function_check_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_function_check3");
 
 	extractchar(&left, "(function * real)");
 	extractchar(&right, "(function * integer)");
-	subtypep_function_check_(left, right, &result);
+	subtypep_function_check_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_function_check4");
 
 	extractchar(&left, "(function * *)");
 	extractchar(&right, "(function * *)");
-	subtypep_function_check_(left, right, &result);
+	subtypep_function_check_(ptr, left, right, &result);
 	test(result == SUBTYPEP_INCLUDE, "subtypep_function_check5");
 
 	RETURN;
@@ -1280,27 +594,29 @@ static int test_subtypep_function(void)
 {
 	SubtypepResult result;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(result);
 
 	extractchar(&left, "(function (fixnum) cons)");
 	extractchar(&right, "(function (integer) list)");
-	subtypep_function_(left, right, &result);
+	subtypep_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_INCLUDE, "subtypep_function1");
 
 	extractchar(&left, "(compiled-function (fixnum) cons)");
 	extractchar(&right, "(function (integer) list)");
-	subtypep_function_(left, right, &result);
+	subtypep_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_INCLUDE, "subtypep_function2");
 
 	extractchar(&left, "(compiled-function (string) cons)");
 	extractchar(&right, "(function (integer) list)");
-	subtypep_function_(left, right, &result);
+	subtypep_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_function3");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(function (integer) list)");
-	subtypep_function_(left, right, &result);
+	subtypep_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_EXCLUDE, "subtypep_function4");
 
 	RETURN;
@@ -1310,27 +626,29 @@ static int test_subtypep_compiled_function(void)
 {
 	SubtypepResult result;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(result);
 
 	extractchar(&left, "(compiled-function (fixnum) cons)");
 	extractchar(&right, "(compiled-function (integer) list)");
-	subtypep_compiled_function_(left, right, &result);
+	subtypep_compiled_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_INCLUDE, "subtypep_compiled_function1");
 
 	extractchar(&left, "(function (fixnum) cons)");
 	extractchar(&right, "(compiled-function (integer) list)");
-	subtypep_compiled_function_(left, right, &result);
+	subtypep_compiled_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_compiled_function2");
 
 	extractchar(&left, "(compiled-function (string) cons)");
 	extractchar(&right, "(compiled-function (integer) list)");
-	subtypep_compiled_function_(left, right, &result);
+	subtypep_compiled_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_compiled_function3");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(compiled-function (integer) list)");
-	subtypep_compiled_function_(left, right, &result);
+	subtypep_compiled_function_(ptr, left, right, &result);
 	test(result == SUBTYPEP_EXCLUDE, "subtypep_compiled_function4");
 
 	RETURN;
@@ -1352,37 +670,39 @@ static int test_subtypep_lisptype_normal(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_normal_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_lisptype_normal1");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "symbol");
-	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_normal_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_lisptype_normal2");
 
 	parse_type_string(&left, "real");
 	parse_type_string(&right, "integer");
-	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_normal_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype_normal3");
 
 	parse_type_string(&left, "integer");
 	parse_type_string_not(&right, "real");
-	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_normal_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_lisptype_normal4");
 
 	parse_type_string(&left, "integer");
 	parse_type_string_not(&right, "symbol");
-	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_normal_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_lisptype_normal5");
 
 	parse_type_string(&left, "real");
 	parse_type_string_not(&right, "integer");
-	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_normal_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype_normal6");
 
 	RETURN;
@@ -1392,37 +712,39 @@ static int test_subtypep_lisptype_not(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string_not(&left, "real");
 	parse_type_string(&right, "integer");
-	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_not_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_lisptype_not1");
 
 	parse_type_string_not(&left, "real");
 	parse_type_string_not(&right, "integer");
-	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_not_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_lisptype_not2");
 
 	parse_type_string_not(&left, "real");
 	parse_type_string(&right, "symbol");
-	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_not_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype_not3");
 
 	parse_type_string_not(&left, "real");
 	parse_type_string_not(&right, "symbol");
-	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_not_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype_not4");
 
 	parse_type_string_not(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_not_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype_not5");
 
 	parse_type_string_not(&left, "integer");
 	parse_type_string_not(&right, "real");
-	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_not_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype_not6");
 
 	RETURN;
@@ -1432,27 +754,29 @@ static int test_subtypep_lisptype(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_lisptype_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_lisptype1");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "symbol");
-	subtypep_lisptype_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_lisptype2");
 
 	parse_type_string(&left, "integer");
 	parse_type_string_not(&right, "symbol");
-	subtypep_lisptype_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_lisptype3");
 
 	parse_type_string_not(&left, "integer");
 	parse_type_string(&right, "symbol");
-	subtypep_lisptype_(left, right, &value, subtypep_table_);
+	subtypep_lisptype_(ptr, left, right, &value, subtypep_array_);
 	test(value == SUBTYPEP_FALSE, "subtypep_lisptype4");
 
 	RETURN;
@@ -1498,17 +822,19 @@ static int test_subtypep_eql_type(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	test_eql_character(&left, 'a', 0);
 	parse_type_string(&right, "character");
-	subtypep_eql_type_(left, right, &value);
+	subtypep_eql_type_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql_type1");
 
 	test_eql_character(&left, 'a', 0);
 	parse_type_string(&right, "symbol");
-	subtypep_eql_type_(left, right, &value);
+	subtypep_eql_type_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_eql_type2");
 
 	RETURN;
@@ -1518,17 +844,19 @@ static int test_subtypep_type_eql(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "character");
 	test_eql_character(&right, 'a', 0);
-	subtypep_type_eql_(left, right, &value);
+	subtypep_type_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_type_eql1");
 
 	parse_type_string(&left, "symbol");
 	test_eql_character(&right, 'a', 0);
-	subtypep_type_eql_(left, right, &value);
+	subtypep_type_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_type_eql2");
 
 	RETURN;
@@ -1538,22 +866,24 @@ static int test_subtypep_eql_call(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'a', 0);
-	subtypep_eql_call_(left, right, &value);
+	subtypep_eql_call_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql_call1");
 
 	test_eql_character(&left, 'a', 0);
 	parse_type_string(&right, "character");
-	subtypep_eql_call_(left, right, &value);
+	subtypep_eql_call_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql_call2");
 
 	parse_type_string(&left, "character");
 	test_eql_character(&right, 'a', 0);
-	subtypep_eql_call_(left, right, &value);
+	subtypep_eql_call_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_eql_call3");
 
 	RETURN;
@@ -1563,47 +893,49 @@ static int test_subtypep_eql(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'a', 0);
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql1");
 
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'b', 0);
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_eql2");
 
 	test_eql_character(&left, 'a', 1);
 	parse_type_string(&right, "character");
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_eql3");
 
 	test_eql_character(&left, 'a', 0);
 	parse_type_string_not(&right, "character");
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_eql4");
 
 	test_eql_character(&left, 'a', 1);
 	parse_type_string_not(&right, "character");
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_eql5");
 
 	test_eql_character(&left, 'a', 0);
 	parse_type_string_not(&right, "cons");
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql6");
 
 	parse_type_string(&left, "cons");
 	test_eql_character(&right, 'a', 1);
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql7");
 
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'b', 1);
-	subtypep_eql_(left, right, &value);
+	subtypep_eql_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_eql8");
 
 	RETURN;
@@ -1664,27 +996,29 @@ static int test_subtypep_boolean(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractchar(&left, "integer");
 	extractchar(&right, "real");
-	subtypep_boolean_(left, right, &value);
+	subtypep_boolean_(ptr, left, right, &value);
 	test(value, "subtypep_boolean1");
 
 	extractchar(&left, "real");
 	extractchar(&right, "integer");
-	subtypep_boolean_(left, right, &value);
+	subtypep_boolean_(ptr, left, right, &value);
 	test(! value, "subtypep_boolean2");
 
 	extractchar(&left, "real");
 	extractchar(&right, "string");
-	subtypep_boolean_(left, right, &value);
+	subtypep_boolean_(ptr, left, right, &value);
 	test(! value, "subtypep_boolean3");
 
 	extractchar(&left, "real");
 	extractchar(&right, "*");
-	subtypep_boolean_(left, right, &value);
+	subtypep_boolean_(ptr, left, right, &value);
 	test(value, "subtypep_boolean4");
 
 	RETURN;
@@ -1694,52 +1028,54 @@ static int test_subtypep_values_values(void)
 {
 	int result;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(result);
 
 	extractchar(&left, "(values)");
 	extractchar(&right, "(values)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(result, "subtypep_values_values1");
 
 	extractchar(&left, "(values integer)");
 	extractchar(&right, "(values)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(result, "subtypep_values_values2");
 
 	extractchar(&left, "(values)");
 	extractchar(&right, "(values integer)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(! result, "subtypep_values_values3");
 
 	extractchar(&left, "(values string)");
 	extractchar(&right, "(values integer)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(! result, "subtypep_values_values4");
 
 	extractchar(&left, "(values integer)");
 	extractchar(&right, "(values integer)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(result, "subtypep_values_values5");
 
 	extractchar(&left, "(values integer &rest string)");
 	extractchar(&right, "(values integer)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(result, "subtypep_values_values6");
 
 	extractchar(&left, "(values integer)");
 	extractchar(&right, "(values integer &rest string)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(! result, "subtypep_values_values7");
 
 	extractchar(&left, "(values real fixnum)");
 	extractchar(&right, "(values real &optional integer)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(result, "subtypep_values_values8");
 
 	extractchar(&left, "(values real &optional fixnum)");
 	extractchar(&right, "(values real integer)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(result, "subtypep_values_values9");
 
 	/*
@@ -1748,12 +1084,12 @@ static int test_subtypep_values_values(void)
 	 */
 	extractchar(&left, "(values &optional integer)");
 	extractchar(&right, "(values &rest real)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(! result, "subtypep_values_values10");
 
 	extractchar(&left, "(values &optional integer)");
 	extractchar(&right, "(values &rest string)");
-	subtypep_values_values_(left, right, &result);
+	subtypep_values_values_(ptr, left, right, &result);
 	test(! result, "subtypep_values_values11");
 
 	RETURN;
@@ -1763,32 +1099,34 @@ static int test_subtypep_values_type(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractchar(&left, "(values)");
 	extractchar(&right, "integer");
-	subtypep_values_type_(left, right, &value);
+	subtypep_values_type_(ptr, left, right, &value);
 	test(! value, "subtypep_values_type1");
 
 	extractchar(&left, "(values integer &rest nil)");
 	extractchar(&right, "real");
-	subtypep_values_type_(left, right, &value);
+	subtypep_values_type_(ptr, left, right, &value);
 	test(value, "subtypep_values_type2");
 
 	extractchar(&left, "(values real &rest nil)");
 	extractchar(&right, "integer");
-	subtypep_values_type_(left, right, &value);
+	subtypep_values_type_(ptr, left, right, &value);
 	test(! value, "subtypep_values_type3");
 
 	extractchar(&left, "(values fixnum string &rest nil)");
 	extractchar(&right, "real");
-	subtypep_values_type_(left, right, &value);
+	subtypep_values_type_(ptr, left, right, &value);
 	test(! value, "subtypep_values_type4");
 
 	extractchar(&left, "(values real string &rest nil)");
 	extractchar(&right, "integer");
-	subtypep_values_type_(left, right, &value);
+	subtypep_values_type_(ptr, left, right, &value);
 	test(! value, "subtypep_values_type5");
 
 	RETURN;
@@ -1798,32 +1136,34 @@ static int test_subtypep_type_values(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(values)");
-	subtypep_type_values_(left, right, &value);
+	subtypep_type_values_(ptr, left, right, &value);
 	test(value, "subtypep_type_values1");
 
 	extractchar(&left, "real");
 	extractchar(&right, "(values integer)");
-	subtypep_type_values_(left, right, &value);
+	subtypep_type_values_(ptr, left, right, &value);
 	test(! value, "subtypep_type_values2");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(values real)");
-	subtypep_type_values_(left, right, &value);
+	subtypep_type_values_(ptr, left, right, &value);
 	test(value, "subtypep_type_values3");
 
 	extractchar(&left, "real");
 	extractchar(&right, "(values fixnum string)");
-	subtypep_type_values_(left, right, &value);
+	subtypep_type_values_(ptr, left, right, &value);
 	test(! value, "subtypep_type_values4");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(values real string)");
-	subtypep_type_values_(left, right, &value);
+	subtypep_type_values_(ptr, left, right, &value);
 	test(! value, "subtypep_type_values5");
 
 	RETURN;
@@ -1833,22 +1173,24 @@ static int test_subtypep_values_call(void)
 {
 	int value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	extractchar(&left, "(values integer fixnum)");
 	extractchar(&right, "(values real integer)");
-	subtypep_values_call_(left, right, &value);
+	subtypep_values_call_(ptr, left, right, &value);
 	test(value, "subtypep_values_call1");
 
 	extractchar(&left, "(values integer fixnum)");
 	extractchar(&right, "string");
-	subtypep_values_call_(left, right, &value);
+	subtypep_values_call_(ptr, left, right, &value);
 	test(! value, "subtypep_values_call2");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(values real fixnum)");
-	subtypep_values_call_(left, right, &value);
+	subtypep_values_call_(ptr, left, right, &value);
 	test(! value, "subtypep_values_call3");
 
 	RETURN;
@@ -1858,17 +1200,19 @@ static int test_subtypep_values(void)
 {
 	SubtypepResult result;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(result);
 
 	extractchar(&left, "(values integer fixnum)");
 	extractchar(&right, "(values real integer)");
-	subtypep_values_(left, right, &result);
+	subtypep_values_(ptr, left, right, &result);
 	test(result == SUBTYPEP_INCLUDE, "subtypep_values1");
 
 	extractchar(&left, "(values integer fixnum)");
 	extractchar(&right, "string");
-	subtypep_values_(left, right, &result);
+	subtypep_values_(ptr, left, right, &result);
 	test(result == SUBTYPEP_FALSE, "subtypep_values2");
 
 	RETURN;
@@ -1882,32 +1226,34 @@ static int test_subtypep_leftright(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "cons");
-	subtypep_leftright_(left, right, &value);
+	subtypep_leftright_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_leftright1");
 
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "symbol");
-	subtypep_leftright_(left, right, &value);
+	subtypep_leftright_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_leftright2");
 
 	parse_type_string_not(&left, "cons");
 	parse_type_string(&right, "symbol");
-	subtypep_leftright_(left, right, &value);
+	subtypep_leftright_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_leftright3");
 
 	parse_type_string(&left, "cons");
 	parse_type_string_not(&right, "symbol");
-	subtypep_leftright_(left, right, &value);
+	subtypep_leftright_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_leftright4");
 
 	parse_type_string_not(&left, "cons");
 	parse_type_string_not(&right, "symbol");
-	subtypep_leftright_(left, right, &value);
+	subtypep_leftright_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_leftright5");
 
 	RETURN;
@@ -1917,37 +1263,39 @@ static int test_subtypep_and_left(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "(and integer)");
 	parse_type_string(&right, "real");
-	subtypep_and_left_(left, right, &value);
+	subtypep_and_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_left1");
 
 	parse_type_string(&left, "(and integer real)");
 	parse_type_string(&right, "real");
-	subtypep_and_left_(left, right, &value);
+	subtypep_and_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_left2");
 
 	parse_type_string(&left, "(and real integer)");
 	parse_type_string(&right, "integer");
-	subtypep_and_left_(left, right, &value);
+	subtypep_and_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_left3");
 
 	parse_type_string(&left, "(and (satisfies hello) integer)");
 	parse_type_string(&right, "integer");
-	subtypep_and_left_(left, right, &value);
+	subtypep_and_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_left4");
 
 	parse_type_string(&left, "(and real rational)");
 	parse_type_string(&right, "integer");
-	subtypep_and_left_(left, right, &value);
+	subtypep_and_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_and_left5");
 
 	parse_type_string(&left, "(and real symbol)");
 	parse_type_string(&right, "integer");
-	subtypep_and_left_(left, right, &value);
+	subtypep_and_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_left6");
 
 	RETURN;
@@ -1957,32 +1305,34 @@ static int test_subtypep_or_left(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "(or integer)");
 	parse_type_string(&right, "real");
-	subtypep_or_left_(left, right, &value);
+	subtypep_or_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_or_left1");
 
 	parse_type_string(&left, "(or (satisfies hello) integer)");
 	parse_type_string(&right, "integer");
-	subtypep_or_left_(left, right, &value);
+	subtypep_or_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INVALID, "subtypep_or_left2");
 
 	parse_type_string(&left, "(or rational float)");
 	parse_type_string(&right, "real");
-	subtypep_or_left_(left, right, &value);
+	subtypep_or_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_or_left3");
 
 	parse_type_string(&left, "(or symbol cons)");
 	parse_type_string(&right, "real");
-	subtypep_or_left_(left, right, &value);
+	subtypep_or_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_or_left4");
 
 	parse_type_string(&left, "(or symbol integer)");
 	parse_type_string(&right, "real");
-	subtypep_or_left_(left, right, &value);
+	subtypep_or_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_or_left5");
 
 	RETURN;
@@ -2012,37 +1362,39 @@ static int test_subtypep_left(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "(and integer)");
 	parse_type_string(&right, "real");
-	subtypep_left_(left, right, &value);
+	subtypep_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_left1");
 
 	parse_type_string(&left, "(or integer rational)");
 	parse_type_string(&right, "real");
-	subtypep_left_(left, right, &value);
+	subtypep_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_left2");
 
 	parse_type_string(&left, "(satisfies hello)");
 	parse_type_string(&right, "real");
-	subtypep_left_(left, right, &value);
+	subtypep_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INVALID, "subtypep_left3");
 
 	parse_type_string(&left, "nil");
 	parse_type_string(&right, "real");
-	subtypep_left_(left, right, &value);
+	subtypep_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_left4");
 
 	parse_type_string(&left, "t");
 	parse_type_string(&right, "real");
-	subtypep_left_(left, right, &value);
+	subtypep_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_left5");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_left_(left, right, &value);
+	subtypep_left_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_left6");
 
 	RETURN;
@@ -2052,42 +1404,44 @@ static int test_subtypep_andargs_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(and real)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_andargs_right1");
 
 	parse_type_string(&left, "rational");
 	parse_type_string(&right, "(and real number)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_andargs_right2");
 
 	parse_type_string(&left, "rational");
 	parse_type_string(&right, "(and integer number)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_andargs_right3");
 
 	parse_type_string(&left, "rational");
 	parse_type_string(&right, "(and symbol cons)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_andargs_right4");
 
 	parse_type_string(&left, "rational");
 	parse_type_string(&right, "(and integer cons)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_andargs_right5");
 
 	parse_type_string(&left, "rational");
 	parse_type_string(&right, "(and real cons)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_andargs_right6");
 
 	parse_type_string(&left, "rational");
 	parse_type_string(&right, "(and)");
-	subtypep_andargs_right_(left, right, &value);
+	subtypep_andargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_andargs_right7");
 
 	RETURN;
@@ -2097,37 +1451,39 @@ static int test_subtypep_orargs_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or real)");
-	subtypep_orargs_right_(left, right, &value);
+	subtypep_orargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_orargs_right1");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or)");
-	subtypep_orargs_right_(left, right, &value);
+	subtypep_orargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_orargs_right2");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or integer cons)");
-	subtypep_orargs_right_(left, right, &value);
+	subtypep_orargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_orargs_right3");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or cons real)");
-	subtypep_orargs_right_(left, right, &value);
+	subtypep_orargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_orargs_right4");
 
 	parse_type_string(&left, "symbol");
 	parse_type_string(&right, "(or cons real)");
-	subtypep_orargs_right_(left, right, &value);
+	subtypep_orargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_orargs_right5");
 
 	parse_type_string(&left, "number");
 	parse_type_string(&right, "(or cons real)");
-	subtypep_orargs_right_(left, right, &value);
+	subtypep_orargs_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_orargs_right6");
 
 	RETURN;
@@ -2137,27 +1493,29 @@ static int test_subtypep_and_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(and integer real)");
-	subtypep_and_right_(left, right, &value);
+	subtypep_and_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_right1");
 
 	parse_type_string(&left, "(or integer real)");
 	parse_type_string(&right, "(and real number)");
-	subtypep_and_right_(left, right, &value);
+	subtypep_and_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_and_right2");
 
 	parse_type_string(&left, "(or integer real symbol)");
 	parse_type_string(&right, "(and real number)");
-	subtypep_and_right_(left, right, &value);
+	subtypep_and_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_and_right3");
 
 	parse_type_string(&left, "(or integer real symbol)");
 	parse_type_string(&right, "(and cons)");
-	subtypep_and_right_(left, right, &value);
+	subtypep_and_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_and_right4");
 
 	RETURN;
@@ -2167,27 +1525,29 @@ static int test_subtypep_or_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or real symbol)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_or_right1");
 
 	parse_type_string(&left, "(or integer symbol)");
 	parse_type_string(&right, "(or real symbol)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_or_right2");
 
 	parse_type_string(&left, "(and integer real)");
 	parse_type_string(&right, "(or integer symbol)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_or_right3");
 
 	parse_type_string(&left, "(or integer cons)");
 	parse_type_string(&right, "(or real symbol)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_or_right4");
 
 	RETURN;
@@ -2234,52 +1594,54 @@ static int test_subtypep_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(and real number)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_right1");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or real symbol)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_right2");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(satisfies hello)");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INVALID, "subtypep_right3");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "nil");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_right4");
 
 	parse_type_string(&left, "nil");
 	parse_type_string(&right, "nil");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_right5");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "t");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_right6");
 
 	parse_type_string(&left, "t");
 	parse_type_string(&right, "t");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_right7");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_right8");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "symbol");
-	subtypep_right_(left, right, &value);
+	subtypep_right_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_right9");
 
 	RETURN;
@@ -2293,32 +1655,34 @@ static int test_subtypep_call(void)
 {
 	SubtypepResult value;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	aatype(value);
 
 	parse_type_string(&left, "*");
 	parse_type_string(&right, "*");
-	subtypep_call_(left, right, 1, &value);
+	subtypep_call_(ptr, left, right, 1, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_call1");
 
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "*");
-	subtypep_call_(left, right, 1, &value);
+	subtypep_call_(ptr, left, right, 1, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_call2");
 
 	parse_type_string(&left, "*");
 	parse_type_string(&right, "cons");
-	subtypep_call_(left, right, 1, &value);
+	subtypep_call_(ptr, left, right, 1, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_call3");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
-	subtypep_call_(left, right, 1, &value);
+	subtypep_call_(ptr, left, right, 1, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_call4");
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "symbol");
-	subtypep_call_(left, right, 0, &value);
+	subtypep_call_(ptr, left, right, 0, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_call5");
 
 	RETURN;
@@ -2379,50 +1743,13 @@ static int test_subtypep_check_(void)
 static int testcase_type_subtypep(void)
 {
 	/* subtypep-table */
-	TestBreak(test_subtypep_clos);
-	TestBreak(test_subtypep_nil);
-	TestBreak(test_subtypep_t);
-	TestBreak(test_subtypep_null);
-	TestBreak(test_asterisk_or_t);
-	TestBreak(test_subtypep_asterisk_or_t);
-	TestBreak(test_subtypep_cons);
-	TestBreak(test_subtypep_hash_table);
-	TestBreak(test_subtypep_symbol);
-	TestBreak(test_subtypep_keyword);
-	TestBreak(test_subtypep_package);
-	TestBreak(test_subtypep_random_state);
-	TestBreak(test_subtypep_readtable);
-	TestBreak(test_subtypep_pathname);
-	TestBreak(test_subtypep_logical_pathname);
-	TestBreak(test_subtypep_sequence);
-	TestBreak(test_array_array_dimension);
-	TestBreak(test_subtypep_array_array);
+	TestBreak(test_subtypep_call_cons_p);
+	TestBreak(test_subtypep_call_cons_t_);
+	TestBreak(test_subtypep_call_cons);
 	TestBreak(test_subtypep_vector_array);
 	TestBreak(test_subtypep_simple_vector_array);
 	TestBreak(test_subtypep_string_array);
 	TestBreak(test_subtypep_bit_vector_array);
-	TestBreak(test_subtypep_character);
-	TestBreak(test_subtypep_base_char);
-	TestBreak(test_subtypep_standard_char);
-	TestBreak(test_subtypep_real_less);
-	TestBreak(test_subtypep_real_greater);
-	TestBreak(test_subtypep_real_range);
-	TestBreak(test_subtypep_realcheck);
-	TestBreak(test_realexclude_left);
-	TestBreak(test_realexclude_right);
-	TestBreak(test_subtypep_realexclude);
-	TestBreak(test_subtypep_realparameter);
-	TestBreak(test_subtypep_integer);
-	TestBreak(test_subtypep_rational);
-	TestBreak(test_subtypep_real);
-	TestBreak(test_subtypep_number);
-	TestBreak(test_subtypep_float);
-	TestBreak(test_subtypep_float_type);
-	TestBreak(test_subtypep_short_float);
-	TestBreak(test_subtypep_single_float);
-	TestBreak(test_subtypep_double_float);
-	TestBreak(test_subtypep_long_float);
-	TestBreak(test_subtypep_ratio);
 	TestBreak(test_subtypep_complex);
 	/* function */
 	TestBreak(test_ordinary_subtypep);

@@ -38,7 +38,7 @@ int subtypep_common_(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
 
 	if (env == Unbound)
 		env = Nil;
-	Return(subtypep_check_(ptr, x, y, env, &check, &validp));
+	Return(subtypep_check_common_(ptr, x, y, env, &check, &validp));
 	*v1 = check? T: Nil;
 	*v2 = validp? T: Nil;
 

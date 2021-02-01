@@ -359,6 +359,7 @@ term_arch.c
 thread.c
 token.c
 type_coerce.c
+type_compare.c
 type_constant.c
 type_copy.c
 type_deftype.c

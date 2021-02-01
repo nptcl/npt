@@ -1,6 +1,10 @@
 ;;
-;;  typep / subtypep
+;;  subtypep
 ;;
+(deftest subtypep3-initialize
+  (progn
+    (setf (fdefinition 'subtypep!) #'lisp-system::subtypep!)
+    (values)))
 
 (deftest subtypep-and-right.1
   (subtypep! 'fixnum '(and real rational integer))

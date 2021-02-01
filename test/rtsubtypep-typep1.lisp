@@ -1,5 +1,5 @@
 ;;
-;;  typep / subtypep
+;;  typep
 ;;
 
 ;;

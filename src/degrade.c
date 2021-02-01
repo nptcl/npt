@@ -84,6 +84,7 @@ int test_type_optimize(void);
 int test_type_parse(void);
 int test_type_range(void);
 int test_type_function(void);
+int test_type_compare(void);
 int test_type_subtypep(void);
 int test_type_symbol(void);
 int test_type_table(void);
@@ -198,6 +199,7 @@ void degrade_execute(void)
 	DegradeCheck(test_type_range);
 	DegradeCheck(test_type_number);
 	DegradeCheck(test_type_function);
+	DegradeCheck(test_type_compare);
 	DegradeCheck(test_type_subtypep);
 	DegradeCheck(test_type_upgraded);
 	DegradeCheck(test_equal);
