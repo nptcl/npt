@@ -650,6 +650,431 @@
 
 
 ;;
-;;  signed-byte
+;;  sequence
 ;;
+(deftest typep-sequence.1
+  (typep nil 'sequence)
+  t)
+
+(deftest typep-sequence.2
+  (typep (list 10 20 30) 'sequence)
+  t)
+
+(deftest typep-sequence.3
+  (typep #(a b c) 'sequence)
+  t)
+
+(deftest typep-sequence.4
+  (typep "Hello" 'sequence)
+  t)
+
+(deftest typep-sequence.5
+  (typep (make-array 5 :element-type 'character) 'sequence)
+  t)
+
+(deftest typep-sequence.6
+  (typep #*10111 'sequence)
+  t)
+
+(deftest typep-sequence.7
+  (typep (make-array '(3 4) :element-type 'bit) 'sequence)
+  nil)
+
+(deftest typep-sequence.8
+  (typep (make-array 5 :element-type '(signed-byte 8)) 'sequence)
+  t)
+
+
+;;
+;;  array
+;;
+(deftest typep-array.1
+  (typep 10 'array)
+  nil)
+
+(deftest typep-array.2
+  (typep #1a(1 2 3) 'array)
+  t)
+
+(deftest typep-array.3
+  (typep #1a(1 2 3) '(array))
+  t)
+
+(deftest typep-array.4
+  (typep #1a(1 2 3) '(array *))
+  t)
+
+(deftest typep-array.5
+  (typep #1a(1 2 3) '(array * *))
+  t)
+
+;;  object array
+(deftest typep-array-array.1
+  (typep #1a(1 2 3) '(array t))
+  t)
+
+(deftest typep-array-array.2
+  (typep #1a(1 2 3) '(array character))
+  nil)
+
+(deftest typep-array-array.3
+  (typep #1a(1 2 3) '(array t 1))
+  t)
+
+(deftest typep-array-array.4
+  (typep #1a(1 2 3) '(array t 3))
+  nil)
+
+(deftest typep-array-array.5
+  (typep #1a(1 2 3) '(array t (3)))
+  t)
+
+(deftest typep-array-array.6
+  (typep #1a(1 2 3) '(array t (4)))
+  nil)
+
+(deftest typep-array-array.7
+  (typep (make-array '(2 3) :element-type 'character :adjustable t)
+         '(array character (2 3)))
+  t)
+
+(deftest typep-array-array.8
+  (typep (make-array '(2 3) :element-type 'bit) '(array bit (2 3)))
+  t)
+
+(deftest typep-array-array.9
+  (typep (make-array '(2 3) :element-type 'bit) '(array bit (2 *)))
+  t)
+
+(deftest typep-array-array.10
+  (typep (make-array 10 :fill-pointer 5) '(array * (10)))
+  t)
+
+(deftest typep-array-array.11
+  (typep #0a() '(array * ()))
+  t)
+
+(deftest typep-array-array.12
+  (typep #0a() '(array * (4)))
+  nil)
+
+;;  object vector
+(deftest typep-array-vector.1
+  (typep #(1 2 3) '(array t))
+  t)
+
+(deftest typep-array-vector.2
+  (typep #(1 2 3) '(array *))
+  t)
+
+(deftest typep-array-vector.3
+  (typep #(1 2 3) '(array character))
+  nil)
+
+(deftest typep-array-vector.4
+  (typep #(1 2 3) '(array t *))
+  t)
+
+(deftest typep-array-vector.5
+  (typep #(1 2 3) '(array t 1))
+  t)
+
+(deftest typep-array-vector.6
+  (typep #(1 2 3) '(array t 3))
+  nil)
+
+(deftest typep-array-vector.7
+  (typep #(1 2 3) '(array t (3)))
+  t)
+
+(deftest typep-array-vector.8
+  (typep #(1 2 3) '(array t (*)))
+  t)
+
+(deftest typep-array-vector.9
+  (typep #(1 2 3) '(array t (4)))
+  nil)
+
+(deftest typep-array-vector.10
+  (typep #(1 2 3) '(array t (3 3 3)))
+  nil)
+
+;;  object string
+(deftest typep-array-string.1
+  (typep "ABC" '(array character))
+  t)
+
+(deftest typep-array-string.2
+  (typep "ABC" '(array *))
+  t)
+
+(deftest typep-array-string.3
+  (typep "ABC" '(array t))
+  nil)
+
+(deftest typep-array-string.4
+  (typep "ABC" '(array character *))
+  t)
+
+(deftest typep-array-string.5
+  (typep "ABC" '(array character 1))
+  t)
+
+(deftest typep-array-string.6
+  (typep "ABC" '(array character 3))
+  nil)
+
+(deftest typep-array-string.7
+  (typep "ABC" '(array character (3)))
+  t)
+
+(deftest typep-array-string.8
+  (typep "ABC" '(array character (*)))
+  t)
+
+(deftest typep-array-string.9
+  (typep "ABC" '(array character (4)))
+  nil)
+
+(deftest typep-array-string.10
+  (typep "ABC" '(array character (3 3 3)))
+  nil)
+
+;;  object bit-vector
+(deftest typep-array-bit-vector.1
+  (typep #*110 '(array bit))
+  t)
+
+(deftest typep-array-bit-vector.2
+  (typep #*110 '(array *))
+  t)
+
+(deftest typep-array-bit-vector.3
+  (typep #*110 '(array t))
+  nil)
+
+(deftest typep-array-bit-vector.4
+  (typep #*110 '(array bit *))
+  t)
+
+(deftest typep-array-bit-vector.5
+  (typep #*110 '(array bit 1))
+  t)
+
+(deftest typep-array-bit-vector.6
+  (typep #*110 '(array bit 3))
+  nil)
+
+(deftest typep-array-bit-vector.7
+  (typep #*110 '(array bit (3)))
+  t)
+
+(deftest typep-array-bit-vector.8
+  (typep #*110 '(array bit (*)))
+  t)
+
+(deftest typep-array-bit-vector.9
+  (typep #*110 '(array bit (4)))
+  nil)
+
+(deftest typep-array-bit-vector.10
+  (typep #*110 '(array bit (3 3 3)))
+  nil)
+
+
+;;
+;;  simple-array
+;;
+(deftest typep-simple-array.1
+  (typep 10 'simple-array)
+  nil)
+
+(deftest typep-simple-array.2
+  (typep #1a(1 2 3) 'simple-array)
+  t)
+
+(deftest typep-simple-array.3
+  (typep #1a(1 2 3) '(simple-array))
+  t)
+
+(deftest typep-simple-array.4
+  (typep #1a(1 2 3) '(simple-array *))
+  t)
+
+(deftest typep-simple-array.5
+  (typep #1a(1 2 3) '(simple-array * *))
+  t)
+
+;;  object array
+(deftest typep-simple-array-array.1
+  (typep #1a(1 2 3) '(simple-array t))
+  t)
+
+(deftest typep-simple-array-array.2
+  (typep #1a(1 2 3) '(simple-array character))
+  nil)
+
+(deftest typep-simple-array-array.3
+  (typep #1a(1 2 3) '(simple-array t 1))
+  t)
+
+(deftest typep-simple-array-array.4
+  (typep #1a(1 2 3) '(simple-array t 3))
+  nil)
+
+(deftest typep-simple-array-array.5
+  (typep #1a(1 2 3) '(simple-array t (3)))
+  t)
+
+(deftest typep-simple-array-array.6
+  (typep #1a(1 2 3) '(simple-array t (4)))
+  nil)
+
+(deftest typep-simple-array-array.7
+  (typep (make-array '(2 3) :element-type 'character :adjustable t)
+         '(simple-array character (2 3)))
+  nil)
+
+(deftest typep-simple-array-array.8
+  (typep (make-array '(2 3) :element-type 'bit) '(simple-array bit (2 3)))
+  t)
+
+(deftest typep-simple-array-array.9
+  (typep (make-array '(2 3) :element-type 'bit) '(simple-array bit (2 *)))
+  t)
+
+(deftest typep-simple-array-array.10
+  (typep (make-array 10 :fill-pointer 5) '(simple-array * (10)))
+  nil)
+
+(deftest typep-simple-array-array.11
+  (typep #0a() '(simple-array * ()))
+  t)
+
+(deftest typep-simple-array-array.12
+  (typep #0a() '(simple-array * (4)))
+  nil)
+
+;;  object vector
+(deftest typep-simple-array-vector.1
+  (typep #(1 2 3) '(simple-array t))
+  t)
+
+(deftest typep-simple-array-vector.2
+  (typep #(1 2 3) '(simple-array *))
+  t)
+
+(deftest typep-simple-array-vector.3
+  (typep #(1 2 3) '(simple-array character))
+  nil)
+
+(deftest typep-simple-array-vector.4
+  (typep #(1 2 3) '(simple-array t *))
+  t)
+
+(deftest typep-simple-array-vector.5
+  (typep #(1 2 3) '(simple-array t 1))
+  t)
+
+(deftest typep-simple-array-vector.6
+  (typep #(1 2 3) '(simple-array t 3))
+  nil)
+
+(deftest typep-simple-array-vector.7
+  (typep #(1 2 3) '(simple-array t (3)))
+  t)
+
+(deftest typep-simple-array-vector.8
+  (typep #(1 2 3) '(simple-array t (*)))
+  t)
+
+(deftest typep-simple-array-vector.9
+  (typep #(1 2 3) '(simple-array t (4)))
+  nil)
+
+(deftest typep-simple-array-vector.10
+  (typep #(1 2 3) '(simple-array t (3 3 3)))
+  nil)
+
+;;  object string
+(deftest typep-simple-array-string.1
+  (typep "ABC" '(simple-array character))
+  t)
+
+(deftest typep-simple-array-string.2
+  (typep "ABC" '(simple-array *))
+  t)
+
+(deftest typep-simple-array-string.3
+  (typep "ABC" '(simple-array t))
+  nil)
+
+(deftest typep-simple-array-string.4
+  (typep "ABC" '(simple-array character *))
+  t)
+
+(deftest typep-simple-array-string.5
+  (typep "ABC" '(simple-array character 1))
+  t)
+
+(deftest typep-simple-array-string.6
+  (typep "ABC" '(simple-array character 3))
+  nil)
+
+(deftest typep-simple-array-string.7
+  (typep "ABC" '(simple-array character (3)))
+  t)
+
+(deftest typep-simple-array-string.8
+  (typep "ABC" '(simple-array character (*)))
+  t)
+
+(deftest typep-simple-array-string.9
+  (typep "ABC" '(simple-array character (4)))
+  nil)
+
+(deftest typep-simple-array-string.10
+  (typep "ABC" '(simple-array character (3 3 3)))
+  nil)
+
+;;  object bit-vector
+(deftest typep-simple-array-bit-vector.1
+  (typep #*110 '(simple-array bit))
+  t)
+
+(deftest typep-simple-array-bit-vector.2
+  (typep #*110 '(simple-array *))
+  t)
+
+(deftest typep-simple-array-bit-vector.3
+  (typep #*110 '(simple-array t))
+  nil)
+
+(deftest typep-simple-array-bit-vector.4
+  (typep #*110 '(simple-array bit *))
+  t)
+
+(deftest typep-simple-array-bit-vector.5
+  (typep #*110 '(simple-array bit 1))
+  t)
+
+(deftest typep-simple-array-bit-vector.6
+  (typep #*110 '(simple-array bit 3))
+  nil)
+
+(deftest typep-simple-array-bit-vector.7
+  (typep #*110 '(simple-array bit (3)))
+  t)
+
+(deftest typep-simple-array-bit-vector.8
+  (typep #*110 '(simple-array bit (*)))
+  t)
+
+(deftest typep-simple-array-bit-vector.9
+  (typep #*110 '(simple-array bit (4)))
+  nil)
+
+(deftest typep-simple-array-bit-vector.10
+  (typep #*110 '(simple-array bit (3 3 3)))
+  nil)
 

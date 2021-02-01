@@ -286,3 +286,195 @@
   (typep 10 'extended-char)
   nil)
 
+
+;;
+;;  signed-byte
+;;
+(deftest typep-signed-byte.1
+  (typep 10 '(signed-byte 8))
+  t)
+
+(deftest typep-signed-byte.2
+  (typep #\a '(signed-byte 8))
+  nil)
+
+(deftest typep-signed-byte.3
+  (typep #x-81 '(signed-byte 8))
+  nil)
+
+(deftest typep-signed-byte.4
+  (typep #x-80 '(signed-byte 8))
+  t)
+
+(deftest typep-signed-byte.5
+  (typep #x7F '(signed-byte 8))
+  t)
+
+(deftest typep-signed-byte.6
+  (typep #x80 '(signed-byte 8))
+  nil)
+
+(deftest typep-signed-byte.7
+  (typep #x-80000000000000000000000000000001 '(signed-byte 128))
+  nil)
+
+(deftest typep-signed-byte.8
+  (typep #x-80000000000000000000000000000000 '(signed-byte 128))
+  t)
+
+(deftest typep-signed-byte.9
+  (typep #x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF '(signed-byte 128))
+  t)
+
+(deftest typep-signed-byte.10
+  (typep #x80000000000000000000000000000000 '(signed-byte 128))
+  nil)
+
+(deftest typep-signed-byte.11
+  (typep 10 '(signed-byte *))
+  t)
+
+(deftest typep-signed-byte.12
+  (typep -10 '(signed-byte *))
+  t)
+
+(deftest typep-signed-byte.13
+  (typep #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF '(signed-byte *))
+  t)
+
+
+;;
+;;  signed-byte
+;;
+(deftest typep-unsigned-byte.1
+  (typep 10 '(unsigned-byte 8))
+  t)
+
+(deftest typep-unsigned-byte.2
+  (typep #\a '(unsigned-byte 8))
+  nil)
+
+(deftest typep-unsigned-byte.3
+  (typep -1 '(unsigned-byte 8))
+  nil)
+
+(deftest typep-unsigned-byte.4
+  (typep 0 '(unsigned-byte 8))
+  t)
+
+(deftest typep-unsigned-byte.5
+  (typep #xFF '(unsigned-byte 8))
+  t)
+
+(deftest typep-unsigned-byte.6
+  (typep #x0100 '(unsigned-byte 8))
+  nil)
+
+(deftest typep-unsigned-byte.7
+  (typep 0 '(unsigned-byte 128))
+  t)
+
+(deftest typep-unsigned-byte.8
+  (typep #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF '(unsigned-byte 128))
+  t)
+
+(deftest typep-unsigned-byte.9
+  (typep 10 '(unsigned-byte *))
+  t)
+
+(deftest typep-unsigned-byte.10
+  (typep -10 '(unsigned-byte *))
+  nil)
+
+(deftest typep-unsigned-byte.11
+  (typep #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF '(unsigned-byte *))
+  t)
+
+(deftest typep-unsigned-byte.12
+  (typep #x-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF '(unsigned-byte *))
+  nil)
+
+
+;;
+;;  bit
+;;
+(deftest typep-bit.1
+  (typep 0 'bit)
+  t)
+
+(deftest typep-bit.2
+  (typep 1 'bit)
+  t)
+
+(deftest typep-bit.3
+  (typep -1 'bit)
+  nil)
+
+(deftest typep-bit.4
+  (typep "Hello" 'bit)
+  nil)
+
+
+;;
+;;  fixnum
+;;
+(deftest typep-fixnum.1
+  (typep 0 'fixnum)
+  t)
+
+(deftest typep-fixnum.2
+  (typep most-negative-fixnum 'fixnum)
+  t)
+
+(deftest typep-fixnum.3
+  (typep (1- most-negative-fixnum) 'fixnum)
+  nil)
+
+(deftest typep-fixnum.4
+  (typep most-positive-fixnum 'fixnum)
+  t)
+
+(deftest typep-fixnum.5
+  (typep (1+ most-positive-fixnum) 'fixnum)
+  nil)
+
+(deftest typep-fixnum.6
+  (typep #\A 'fixnum)
+  nil)
+
+(deftest typep-fixnum.7
+  (typep 4/5 'fixnum)
+  nil)
+
+
+;;
+;;  bignum
+;;
+(deftest typep-bignum.1
+  (typep 0 'bignum)
+  nil)
+
+(deftest typep-bignum.2
+  (typep most-negative-fixnum 'bignum)
+  nil)
+
+(deftest typep-bignum.3
+  (typep (1- most-negative-fixnum) 'bignum)
+  t)
+
+(deftest typep-bignum.4
+  (typep most-positive-fixnum 'bignum)
+  nil)
+
+(deftest typep-bignum.5
+  (typep (1+ most-positive-fixnum) 'bignum)
+  t)
+
+(deftest typep-bignum.6
+  (typep #\A 'bignum)
+  nil)
+
+(deftest typep-bignum.7
+  (typep 4/5 'bignum)
+  nil)
+

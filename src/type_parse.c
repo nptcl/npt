@@ -1184,7 +1184,7 @@ static int parse_type_symbol(Execute ptr, addr *ret, addr pos, addr env)
 		return parse_type(ptr, ret, check, env);
 }
 
-static int parse_type_type(Execute ptr, addr *ret, addr pos, addr env)
+static int parse_type_type(Execute ptr, addr *ret, addr pos)
 {
 	addr x, y, z;
 
@@ -1204,10 +1204,10 @@ static int parse_type_type(Execute ptr, addr *ret, addr pos, addr env)
 
 	/* built-in-class */
 	Return(stdget_class_name_(x, &x));
-	return parse_type(ptr, ret, x, env);
+	return parse_type(ptr, ret, x, Nil);  /* don't use env */
 }
 
-static int parse_type_clos(Execute ptr, addr *ret, addr pos, addr env)
+static int parse_type_clos(Execute ptr, addr *ret, addr pos)
 {
 	addr x, y;
 
@@ -1220,7 +1220,7 @@ static int parse_type_clos(Execute ptr, addr *ret, addr pos, addr env)
 
 	/* built-in-class */
 	Return(stdget_class_name_(pos, &x));
-	return parse_type(ptr, ret, x, env);
+	return parse_type(ptr, ret, x, Nil);  /* don't use env */
 }
 
 static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
@@ -1235,10 +1235,10 @@ static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 			return parse_type_list(ptr, ret, pos, env);
 
 		case LISPTYPE_TYPE:
-			return parse_type_type(ptr, ret, pos, env);
+			return parse_type_type(ptr, ret, pos);
 
 		case LISPTYPE_CLOS:
-			return parse_type_clos(ptr, ret, pos, env);
+			return parse_type_clos(ptr, ret, pos);
 
 		default:
 			return Result(ret, NULL);

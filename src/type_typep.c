@@ -655,7 +655,7 @@ static int typep_function_(Execute ptr, addr value, addr type, int *ret)
 	addr check;
 
 	GetArrayType(type, 2, &check);
-	if (type == Nil) {
+	if (check == Nil) {
 		*ret = 0;
 		return fmte_("The cons type (FUNCTION ? ?) don't accept.", NULL);
 	}
@@ -670,7 +670,7 @@ static int typep_compiled_function_(Execute ptr, addr value, addr type, int *ret
 	addr check;
 
 	GetArrayType(type, 2, &check);
-	if (type == Nil) {
+	if (check == Nil) {
 		*ret = 0;
 		return fmte_("The cons type (COMPILED-FUNCTION ? ?) don't accept.", NULL);
 	}
@@ -701,43 +701,44 @@ static int typep_sequence_(Execute ptr, addr value, addr type, int *ret)
 static int equal_array_dimension(addr value, addr right)
 {
 	addr left, check;
-	size_t i, size, *psize;
+	size_t i, rank, index, *psize;
+	struct array_struct *str;
 
-	/* size check */
+	/* rank check */
 	GetArrayInfo(value, ARRAY_INDEX_DIMENSION, &left);
-	size = ArrayInfoStruct(value)->dimension;
+	str = ArrayInfoStruct(value);
+	rank = ArrayInfoStruct(value)->dimension;
 	LenArrayA4(right, &i);
-	if (size != i)
+	if (rank != i)
 		return 0;
 
-	/* fixnum */
-	if (GetType(left) == LISPTYPE_FIXNUM) {
-		if (size != 1)
-			return 0;
+	/* no-dimension */
+	if (rank == 0) {
+		return 0;
+	}
+
+	/* sequence */
+	if (rank == 1) {
 		GetArrayA4(right, 0, &check);
-		return type_asterisk_p(check) || equal_ff_real(check, left);
+		if (type_asterisk_p(check))
+			return 1;
+		if (GetIndex_integer(check, &index))
+			return 0;
+		return str->size == index;
 	}
 
-	/* system */
-	if (GetType(left) == LISPSYSTEM_ARRAY_DIMENSION) {
-		psize = arraysize_ptr(left);
-		for (i = 0; i < size; i++) {
-			GetArrayA4(right, i, &check);
-			if (type_asterisk_p(check))
-				continue;
-			if (psize[i] != (size_t)RefFixnum(check))
-				return 0;
-		}
-		return 1;
+	/* multi-dimension */
+	CheckType(left, LISPSYSTEM_ARRAY_DIMENSION);
+	psize = arraysize_ptr(left);
+	for (i = 0; i < rank; i++) {
+		GetArrayA4(right, i, &check);
+		if (type_asterisk_p(check))
+			continue;
+		if (GetIndex_integer(check, &index))
+			return 0;
+		if (psize[i] != index)
+			return 0;
 	}
-
-	/* nil */
-	if (left == Nil) {
-		return 1;
-	}
-
-	/* error */
-	Abort("type error");
 	return 1;
 }
 
@@ -1097,7 +1098,7 @@ static int typep_integer_(Execute ptr, addr value, addr type, int *ret)
 
 static int typep_rational_(Execute ptr, addr value, addr type, int *ret)
 {
-	return typep_range_local_(Local_Thread, value, type, ret,
+	return typep_range_local_(ptr->local, value, type, ret,
 			rationalp,
 			less_rational_,
 			less_equal_rational_);
@@ -1105,7 +1106,7 @@ static int typep_rational_(Execute ptr, addr value, addr type, int *ret)
 
 static int typep_real_(Execute ptr, addr value, addr type, int *ret)
 {
-	return typep_range_local_(Local_Thread, value, type, ret,
+	return typep_range_local_(ptr->local, value, type, ret,
 			realp,
 			less_real_,
 			less_equal_real_);

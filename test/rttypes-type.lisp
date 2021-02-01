@@ -91,22 +91,6 @@
   (typep (lambda () :hello) 'function)
   t)
 
-(deftest function-type.6
-  (typep (lambda () :hello) '(function ()))
-  t)
-
-(deftest function-type.7
-  (typep (lambda () :hello) '(function (integer)))
-  nil)
-
-(deftest function-type.8
-  (typep (lambda () :hello) '(function * symbol))
-  t)
-
-(deftest function-type.9
-  (typep (lambda () :hello) '(function * integer))
-  nil)
-
 
 ;;
 ;;  Type COMPILED-FUNCTION
