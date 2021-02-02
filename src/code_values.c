@@ -3,9 +3,9 @@
 #include "cons_list.h"
 #include "execute_values.h"
 #include "scope_let.h"
-#include "type_number.h"
-#include "type_optimize.h"
-#include "type_subtypep.h"
+#include "subtypep.h"
+#include "subtypep_number.h"
+#include "subtypep_optimize.h"
 #include "type_table.h"
 #include "typedef.h"
 

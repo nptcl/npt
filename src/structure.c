@@ -25,9 +25,9 @@
 #include "sequence.h"
 #include "strtype.h"
 #include "structure.h"
+#include "subtypep.h"
 #include "symbol.h"
 #include "type_object.h"
-#include "type_subtypep.h"
 #include "type_table.h"
 #include "type_typep.h"
 

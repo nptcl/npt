@@ -1938,10 +1938,16 @@ lisp-system::backquote
 lisp-system::unbound-value
 
 ;;  subtypep-result
- lisp-system::include
- lisp-system::exclude
- lisp-system::invalid
- lisp-system::false
+lisp-system::include
+lisp-system::exclude
+lisp-system::invalid
+lisp-system::false
+
+lisp-system::subtypep-atomic
+lisp-system::subtypep-atomic-not
+lisp-system::subtypep-compound
+lisp-system::subtypep-force-number
+lisp-system::subtypep-normal
 
 ;; syscall_common.c
  lisp-system::redirect-restart
@@ -2019,9 +2025,8 @@ lisp-system::unbound-value
 (lisp-system::make-ratio :export t)
 (lisp-system::make-complex :export t)
 (lisp-system::equal-random-state :export t)
-(lisp-system::subtypep-result :export t)
-(lisp-system::subtypep! :export t :constant system :name subtypep-ex)
-(lisp-system::subtypep-table :export t)
+(lisp-system::*subtypep!* :constant system :name subtypep-value)
+(lisp-system::subtypep! :export t :constant system :name subtypep-extend)
 (lisp-system::eastasian-set :export t)
 (lisp-system::eastasian-get :export t)
 (lisp-system::eastasian-width :export t)

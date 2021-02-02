@@ -1,7 +1,8 @@
 #include "clos_class.h"
+#include "condition.h"
+#include "subtypep_atomic.h"
+#include "subtypep_range.h"
 #include "type.h"
-#include "type_compare.h"
-#include "type_range.h"
 #include "type_upgraded.h"
 #include "typedef.h"
 
@@ -35,6 +36,16 @@ int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 
 	Return(clos_subclass_p_(x, y, &check));
 	return ReturnBool(ret, check);
+}
+
+
+/*
+ *  asterisk
+ */
+int subtypep_call_asterisk_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+{
+	*ret = SUBTYPEP_INVALID;
+	return fmte_("Invalid type-specifier * (asterisk).", NULL);
 }
 
 
@@ -698,5 +709,48 @@ int subtypep_call_ratio_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		default:
 			return ReturnExclude(ret);
 	}
+}
+
+
+/*
+ *  stream
+ */
+int subtypep_call_stream_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+{
+	switch (RefLispDecl(x)) {
+		case LISPDECL_STREAM:
+		case LISPDECL_BROADCAST_STREAM:
+		case LISPDECL_CONCATENATED_STREAM:
+		case LISPDECL_ECHO_STREAM:
+		case LISPDECL_FILE_STREAM:
+		case LISPDECL_STRING_STREAM:
+		case LISPDECL_SYNONYM_STREAM:
+		case LISPDECL_TWO_WAY_STREAM:
+		case LISPDECL_PROMPT_STREAM:
+		case LISPDECL_PRETTY_STREAM:
+		case LISPDECL_MEMORY_STREAM:
+			return ReturnInclude(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
+}
+
+
+/*
+ *  stream object
+ */
+int subtypep_call_stream_type_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+{
+	enum LISPDECL type1, type2;
+
+	GetLispDecl(x, &type1);
+	GetLispDecl(y, &type2);
+	if (type1 == type2)
+		return ReturnInclude(ret);
+	if (type1 == LISPDECL_STREAM)
+		return ReturnFalse(ret);
+
+	return ReturnExclude(ret);
 }
 

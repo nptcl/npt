@@ -11,7 +11,7 @@
 #include "parse_object.h"
 #include "strtype.h"
 #include "strvect.h"
-#include "type_optimize.h"
+#include "subtypep_optimize.h"
 
 static int checkparse_all_(OptimizeInfo *str, int *ret);
 static int optparse_all_(OptimizeInfo *str, int *ret);

@@ -1,4 +1,4 @@
-#include "type_optimize.c"
+#include "subtypep_optimize.c"
 #include "bignum_cons.h"
 #include "bignum_data.h"
 #include "bignum_equal.h"
@@ -1876,7 +1876,7 @@ static int test_extract_function(void)
 /*
  *  main
  */
-static int testcase_type_optimize(void)
+static int testcase_subtypep_optimize(void)
 {
 	/* type-extract */
 	TestBreak(test_optimize_optimized);
@@ -1934,7 +1934,7 @@ static int testcase_type_optimize(void)
 	return 0;
 }
 
-static void testinit_type_optimize(Execute ptr)
+static void testinit_subtypep_optimize(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -1951,9 +1951,9 @@ static void testinit_type_optimize(Execute ptr)
 	build_reader();
 }
 
-int test_type_optimize(void)
+int test_subtypep_optimize(void)
 {
 	DegradeTitle;
-	return DegradeCode(type_optimize);
+	return DegradeCode(subtypep_optimize);
 }
 

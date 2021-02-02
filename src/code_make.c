@@ -11,10 +11,10 @@
 #include "optimize_common.h"
 #include "scope_object.h"
 #include "strvect.h"
+#include "subtypep_number.h"
+#include "subtypep_optimize.h"
 #include "symbol.h"
 #include "type.h"
-#include "type_number.h"
-#include "type_optimize.h"
 
 /* nil */
 static void code_make_nil(LocalRoot local, addr code, addr ignore)

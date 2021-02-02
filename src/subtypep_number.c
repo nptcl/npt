@@ -4,12 +4,12 @@
 #include "copy.h"
 #include "format.h"
 #include "sequence.h"
+#include "subtypep_number.h"
+#include "subtypep_range.h"
+#include "subtypep_optimize.h"
 #include "type.h"
 #include "type_copy.h"
-#include "type_number.h"
-#include "type_optimize.h"
 #include "type_parse.h"
-#include "type_range.h"
 #include "type_table.h"
 
 /*

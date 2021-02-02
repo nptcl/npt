@@ -50,6 +50,7 @@
 #include "scope.h"
 #include "stream_init.h"
 #include "structure.h"
+#include "subtypep.h"
 #include "sxhash.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -95,6 +96,7 @@ void initlisp(void)
 	init_restart();
 	init_rt();
 	init_scope();
+	init_subtypep();
 	init_stream();
 	init_structure();
 	init_sxhash();

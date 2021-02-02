@@ -9,9 +9,9 @@
 #include "object.h"
 #include "real_equal.h"
 #include "sequence.h"
+#include "subtypep_optimize.h"
 #include "type.h"
 #include "type_copy.h"
-#include "type_optimize.h"
 #include "type_parse.h"
 #include "type_upgraded.h"
 
@@ -1687,5 +1687,15 @@ void get_type_optimized(addr *ret, addr type)
 	else {
 		*ret = type;
 	}
+}
+
+int type_optimize_throw_heap_(LocalRoot local, addr type, addr *ret)
+{
+	int check;
+
+	Return(type_optimize_heap_(local, type, &type, &check));
+	get_type_optimized(ret, type);
+
+	return 0;
 }
 

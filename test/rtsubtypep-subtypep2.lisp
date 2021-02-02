@@ -1,10 +1,11 @@
 ;;
-;;  subtypep
+;;  subtypep range
 ;;
 (deftest subtypep2-initialize
   (progn
-    (setf (fdefinition 'subtypep!) #'lisp-system::subtypep-table)
-    (values)))
+    (setq *subtypep!* 'subtypep-atomic)
+    (subtypep! nil nil nil t))
+  subtypep-atomic)
 
 
 ;;

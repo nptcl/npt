@@ -23,12 +23,12 @@
 #include "sequence.h"
 #include "stream.h"
 #include "strtype.h"
+#include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_parse.h"
 #include "type_table.h"
 #include "type_typep.h"
-#include "type_subtypep.h"
 #include "type_upgraded.h"
 
 static int typep_call_(Execute ptr, addr value, addr type, int asterisk, int *ret);

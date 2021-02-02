@@ -19,8 +19,8 @@
 #include "stream_open.h"
 #include "stream_string.h"
 #include "strtype.h"
+#include "subtypep.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 
 /*
  *  read-byte

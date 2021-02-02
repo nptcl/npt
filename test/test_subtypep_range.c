@@ -1,4 +1,4 @@
-#include "type_range.c"
+#include "subtypep_range.c"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -546,7 +546,7 @@ static int test_range_connect_between_right(void)
 /*
  *  main
  */
-static int testcase_type_range(void)
+static int testcase_subtypep_range(void)
 {
 	TestBreak(test_range_asterisk_p);
 	TestBreak(test_range_left_p);
@@ -586,7 +586,7 @@ static int testcase_type_range(void)
 	return 0;
 }
 
-static void testinit_type_range(Execute ptr)
+static void testinit_subtypep_range(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -603,9 +603,9 @@ static void testinit_type_range(Execute ptr)
 	build_reader();
 }
 
-int test_type_range(void)
+int test_subtypep_range(void)
 {
 	DegradeTitle;
-	return DegradeCode(type_range);
+	return DegradeCode(subtypep_range);
 }
 

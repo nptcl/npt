@@ -12,9 +12,9 @@
 #include "stream_object.h"
 #include "stream_open.h"
 #include "strtype.h"
+#include "subtypep.h"
 #include "type_parse.h"
 #include "type_table.h"
-#include "type_subtypep.h"
 #include "typedef.h"
 
 /*

@@ -14,10 +14,10 @@
 #include "object.h"
 #include "parse.h"
 #include "sequence.h"
+#include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 #include "type_value.h"
 
 /*

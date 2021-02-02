@@ -1,10 +1,11 @@
 ;;
-;;  subtypep
+;;  subtypep atomic
 ;;
 (deftest subtypep1-initialize
   (progn
-    (setf (fdefinition 'subtypep!) #'lisp-system::subtypep-table)
-    (values)))
+    (setq *subtypep!* 'subtypep-atomic)
+    (subtypep! nil nil nil t))
+  subtypep-atomic)
 
 
 ;;
@@ -545,7 +546,9 @@
   exclude)
 
 
+;;
 ;;  rational
+;;
 (deftest subtypep-rational.1
   (subtypep! 'rational 'rational)
   include)
@@ -603,7 +606,9 @@
   false)
 
 
+;;
 ;;  real
+;;
 (deftest subtypep-real.1
   (subtypep! 'real 'real)
   include)
@@ -661,7 +666,9 @@
   exclude)
 
 
+;;
 ;;  float
+;;
 (deftest subtypep-float.1
   (subtypep! 'float 'float)
   include)
@@ -711,7 +718,9 @@
   exclude)
 
 
+;;
 ;;  single-float
+;;
 (deftest subtypep-single-float.1
   (subtypep! 'single-float 'single-float)
   include)
@@ -749,7 +758,9 @@
   exclude)
 
 
+;;
 ;;  double-float
+;;
 (deftest subtypep-double-float.1
   (subtypep! 'double-float 'double-float)
   include)
@@ -787,7 +798,9 @@
   exclude)
 
 
+;;
 ;;  long-float
+;;
 (deftest subtypep-long-float.1
   (subtypep! 'long-float 'long-float)
   include)
@@ -825,7 +838,9 @@
   exclude)
 
 
+;;
 ;;  number
+;;
 (deftest subtypep-number.1
   (subtypep! 'number 'number)
   include)
@@ -879,7 +894,9 @@
   exclude)
 
 
+;;
 ;;  ratio
+;;
 (deftest subtypep-ratio.1
   (subtypep! 'ratio 'ratio)
   include)
@@ -898,5 +915,161 @@
 
 (deftest subtypep-ratio.5
   (subtypep! 'integer 'ratio)
+  exclude)
+
+
+;;
+;;  stream
+;;
+(deftest subtypep-stream.1
+  (subtypep! 'stream 'stream)
+  include)
+
+(deftest subtypep-stream.2
+  (subtypep! 'broadcast-stream 'stream)
+  include)
+
+(deftest subtypep-stream.3
+  (subtypep! 'concatenated-stream 'stream)
+  include)
+
+(deftest subtypep-stream.4
+  (subtypep! 'echo-stream 'stream)
+  include)
+
+(deftest subtypep-stream.5
+  (subtypep! 'file-stream 'stream)
+  include)
+
+(deftest subtypep-stream.6
+  (subtypep! 'string-stream 'stream)
+  include)
+
+(deftest subtypep-stream.7
+  (subtypep! 'synonym-stream 'stream)
+  include)
+
+(deftest subtypep-stream.8
+  (subtypep! 'two-way-stream 'stream)
+  include)
+
+(deftest subtypep-stream.9
+  (subtypep! 'cons 'stream)
+  exclude)
+
+
+;;
+;;  broadcast-stream
+;;
+(deftest subtypep-broadcast-stream.1
+  (subtypep! 'broadcast-stream 'broadcast-stream)
+  include)
+
+(deftest subtypep-broadcast-stream.2
+  (subtypep! 'stream 'broadcast-stream)
+  false)
+
+(deftest subtypep-broadcast-stream.3
+  (subtypep! 'integer 'broadcast-stream)
+  exclude)
+
+
+;;
+;;  concatenated-stream
+;;
+(deftest subtypep-concatenated-stream.1
+  (subtypep! 'concatenated-stream 'concatenated-stream)
+  include)
+
+(deftest subtypep-concatenated-stream.2
+  (subtypep! 'stream 'concatenated-stream)
+  false)
+
+(deftest subtypep-concatenated-stream.3
+  (subtypep! 'integer 'concatenated-stream)
+  exclude)
+
+
+;;
+;;  echo-stream
+;;
+(deftest subtypep-echo-stream.1
+  (subtypep! 'echo-stream 'echo-stream)
+  include)
+
+(deftest subtypep-echo-stream.2
+  (subtypep! 'stream 'echo-stream)
+  false)
+
+(deftest subtypep-echo-stream.3
+  (subtypep! 'integer 'echo-stream)
+  exclude)
+
+
+;;
+;;  file-stream
+;;
+(deftest subtypep-file-stream.1
+  (subtypep! 'file-stream 'file-stream)
+  include)
+
+(deftest subtypep-file-stream.2
+  (subtypep! 'stream 'file-stream)
+  false)
+
+(deftest subtypep-file-stream.3
+  (subtypep! 'integer 'file-stream)
+  exclude)
+
+
+;;
+;;  string-stream
+;;
+(deftest subtypep-string-stream.1
+  (subtypep! 'string-stream 'string-stream)
+  include)
+
+(deftest subtypep-string-stream.2
+  (subtypep! 'stream 'string-stream)
+  false)
+
+(deftest subtypep-string-stream.3
+  (subtypep! 'integer 'string-stream)
+  exclude)
+
+
+;;
+;;  synonym-stream
+;;
+(deftest subtypep-synonym-stream.1
+  (subtypep! 'synonym-stream 'synonym-stream)
+  include)
+
+(deftest subtypep-synonym-stream.2
+  (subtypep! 'stream 'synonym-stream)
+  false)
+
+(deftest subtypep-synonym-stream.3
+  (subtypep! 'integer 'synonym-stream)
+  exclude)
+
+
+;;
+;;  two-way-stream
+;;
+(deftest subtypep-two-way-stream.1
+  (subtypep! 'two-way-stream 'two-way-stream)
+  include)
+
+(deftest subtypep-two-way-stream.2
+  (subtypep! 'stream 'two-way-stream)
+  false)
+
+(deftest subtypep-two-way-stream.3
+  (subtypep! 'broadcast-stream 'two-way-stream)
+  exclude)
+
+(deftest subtypep-two-way-stream.4
+  (subtypep! 'integer 'two-way-stream)
   exclude)
 

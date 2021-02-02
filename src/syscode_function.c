@@ -29,11 +29,11 @@
 #include "stream_common.h"
 #include "stream_memory.h"
 #include "stream_open.h"
+#include "subtypep.h"
 #include "symbol.h"
 #include "syscode_function.h"
 #include "type_object.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 #include "typedef.h"
 
 /* hello */
@@ -373,21 +373,15 @@ void equal_random_state_syscode(addr left, addr right, addr *ret)
 }
 
 
-/* subtypep-result */
-int subtypep_result_syscode_(Execute ptr, addr x, addr y, addr env, addr *ret)
+/* subtypep-extend */
+int subtypep_extend_syscode_(Execute ptr,
+		addr x, addr y, addr env, addr check, addr *ret)
 {
 	if (env == Unbound)
 		env = Nil;
-	return subtypep_syscall_(ptr, x, y, env, ret);
-}
-
-
-/* subtypep-table */
-int subtypep_table_syscode_(Execute ptr, addr x, addr y, addr env, addr *ret)
-{
-	if (env == Unbound)
-		env = Nil;
-	return subtypep_table_(ptr, x, y, env, ret);
+	if (check == Unbound)
+		check = Nil;
+	return subtypep_extend_(ptr, x, y, env, check, ret);
 }
 
 

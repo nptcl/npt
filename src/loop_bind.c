@@ -4,9 +4,9 @@
 #include "loop_bind.h"
 #include "object.h"
 #include "symbol.h"
+#include "subtypep.h"
 #include "type_object.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 #include "type_table.h"
 #include "type_typep.h"
 

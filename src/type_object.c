@@ -6,10 +6,10 @@
 #include "constant.h"
 #include "copy.h"
 #include "sequence.h"
+#include "subtypep_number.h"
+#include "subtypep_optimize.h"
 #include "type.h"
-#include "type_number.h"
 #include "type_object.h"
-#include "type_optimize.h"
 #include "type_symbol.h"
 
 typedef int (*type_object_call)(addr *, addr);

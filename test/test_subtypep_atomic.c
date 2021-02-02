@@ -1,4 +1,4 @@
-#include "type_compare.c"
+#include "subtypep_atomic.c"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -10,10 +10,11 @@
 #include "package_intern.h"
 #include "stream.h"
 #include "strtype.h"
+#include "subtypep.h"
+#include "subtypep_table.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 
 static void test_parse_type(addr *ret, addr pos)
 {
@@ -32,7 +33,7 @@ static SubtypepResult subtable_test(addr left, addr right)
 {
 	SubtypepResult value;
 	aatype(value);
-	subtypep_array_(Execute_Thread, left, right, &value);
+	subtypep_table_(Execute_Thread, left, right, &value);
 	return value;
 }
 static SubtypepResult strtable_test(const char *str1, const char *str2)
@@ -701,7 +702,7 @@ static int test_subtypep_float(void)
 	double_float_heap(&pos1, 15.0);
 	list_heap(&right, right, pos1, NULL);
 	test_parse_type(&right, right);
-	subtypep_array_(ptr, left, right, &value);
+	subtypep_table_(ptr, left, right, &value);
 	test(value == SUBTYPEP_FALSE, "subtypep_float6");
 
 	RETURN;
@@ -794,7 +795,7 @@ static int test_subtypep_ratio(void)
 /*
  *  main
  */
-static int testcase_type_compare(void)
+static int testcase_subtypep_atomic(void)
 {
 	/* subtypep-table */
 	TestBreak(test_subtypep_call_clos);
@@ -838,7 +839,7 @@ static int testcase_type_compare(void)
 	return 0;
 }
 
-static void testinit_type_compare(Execute ptr)
+static void testinit_subtypep_atomic(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -855,9 +856,9 @@ static void testinit_type_compare(Execute ptr)
 	build_reader();
 }
 
-int test_type_compare(void)
+int test_subtypep_atomic(void)
 {
 	DegradeTitle;
-	return DegradeCode(type_compare);
+	return DegradeCode(subtypep_atomic);
 }
 

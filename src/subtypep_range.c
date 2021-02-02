@@ -1,6 +1,6 @@
+#include "subtypep_range.h"
 #include "type.h"
 #include "type_parse.h"
-#include "type_range.h"
 #include "real_equal.h"
 
 /* (integetr * *) */

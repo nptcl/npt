@@ -8,11 +8,11 @@
 #include "scope_declare.h"
 #include "scope_let.h"
 #include "scope_object.h"
+#include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_table.h"
 #include "type_object.h"
-#include "type_subtypep.h"
 
 /*
  *  let
@@ -413,7 +413,7 @@ int checktype_p_(Execute ptr, addr left, addr right, int *check, int *err)
 
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
-	Return(subtypep_value_(ptr, left, right, Nil, 1, &value));
+	Return(subtypep_scope_(ptr, left, right, Nil, &value));
 	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			/* type check can skip. */

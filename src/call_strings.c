@@ -10,7 +10,7 @@
 #include "memory.h"
 #include "strtype.h"
 #include "strvect.h"
-#include "type_subtypep.h"
+#include "subtypep.h"
 #include "type_parse.h"
 #include "type_typep.h"
 

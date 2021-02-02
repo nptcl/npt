@@ -14,9 +14,9 @@
 #include "scope_call.h"
 #include "scope_declare.h"
 #include "scope_object.h"
+#include "subtypep.h"
 #include "symbol.h"
 #include "type_object.h"
-#include "type_subtypep.h"
 #include "type_table.h"
 
 /*

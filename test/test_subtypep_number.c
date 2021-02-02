@@ -1,4 +1,4 @@
-#include "type_number.c"
+#include "subtypep_number.c"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -1883,7 +1883,7 @@ static int test_real_extract(void)
 /*
  *  main
  */
-static int testcase_type_number(void)
+static int testcase_subtypep_number(void)
 {
 	/* real_filter */
 	TestBreak(test_type_range_left);
@@ -1948,7 +1948,7 @@ static int testcase_type_number(void)
 	return 0;
 }
 
-static void testinit_type_number(Execute ptr)
+static void testinit_subtypep_number(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -1965,9 +1965,9 @@ static void testinit_type_number(Execute ptr)
 	build_reader();
 }
 
-int test_type_number(void)
+int test_subtypep_number(void)
 {
 	DegradeTitle;
-	return DegradeCode(type_number);
+	return DegradeCode(subtypep_number);
 }
 

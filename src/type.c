@@ -11,7 +11,6 @@
 #include "type_name.h"
 #include "type_object.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 #include "type_symbol.h"
 #include "type_table.h"
 #include "type_typep.h"
@@ -185,7 +184,6 @@ void init_type(void)
 	init_type_name();
 	init_type_object();
 	init_type_parse();
-	init_type_subtypep();
 	init_type_symbol();
 	init_type_typep();
 	init_type_value();

@@ -1,5 +1,5 @@
-#ifndef __TYPE_NUMBER_HEADER__
-#define __TYPE_NUMBER_HEADER__
+#ifndef __SUBTYPEP_NUMBER_HEADER__
+#define __SUBTYPEP_NUMBER_HEADER__
 
 #include "define.h"
 #include "type.h"

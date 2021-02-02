@@ -1,10 +1,10 @@
 #include "condition.h"
 #include "cons_list.h"
 #include "local.h"
+#include "subtypep_number.h"
+#include "subtypep_optimize.h"
 #include "type_copy.h"
 #include "type_function.h"
-#include "type_number.h"
-#include "type_optimize.h"
 #include "type_table.h"
 
 void make_ordargs(ordargs *ptr, addr pos)

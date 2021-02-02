@@ -3,11 +3,11 @@
 #include "condition.h"
 #include "constant.h"
 #include "cons.h"
+#include "subtypep.h"
+#include "subtypep_optimize.h"
 #include "type.h"
 #include "type_object.h"
-#include "type_optimize.h"
 #include "type_parse.h"
-#include "type_subtypep.h"
 #include "type_table.h"
 #include "type_upgraded.h"
 

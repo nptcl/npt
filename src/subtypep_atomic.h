@@ -1,37 +1,13 @@
-#ifndef __TYPE_COMPARE_HEADER__
-#define __TYPE_COMPARE_HEADER__
+#ifndef __SUBTYPEP_ATOMIC_HEADER__
+#define __SUBTYPEP_ATOMIC_HEADER__
 
 #include "execute.h"
+#include "subtypep_typedef.h"
 #include "typedef.h"
 
-enum SUBTYPEP_RESULT {
-	SUBTYPEP_INCLUDE,
-	SUBTYPEP_EXCLUDE,
-	SUBTYPEP_FALSE,
-	SUBTYPEP_INVALID,
-	SUBTYPEP_SIZE
-};
-
-typedef enum SUBTYPEP_RESULT SubtypepResult;
-typedef int (*call_type_subtypep)(Execute, addr, addr, SubtypepResult *);
-
-#define ReturnInvalid(ret) Result(ret, SUBTYPEP_INVALID)
-#define ReturnInclude(ret) Result(ret, SUBTYPEP_INCLUDE)
-#define ReturnFalse(ret) Result(ret, SUBTYPEP_FALSE)
-#define ReturnExclude(ret) Result(ret, SUBTYPEP_EXCLUDE)
-#define ReturnBool(ret, p) Result(ret, (p)? SUBTYPEP_INCLUDE: SUBTYPEP_FALSE)
-#define ReturnSwitchInclude(ret, v) { \
-	switch (v) { \
-		case SUBTYPEP_INVALID: return ReturnInvalid(ret); \
-		case SUBTYPEP_INCLUDE: break; \
-		default: return ReturnFalse(ret); \
-	} \
-}
-
-
-/* function */
 #define subtypep_call_type_ _n(subtypep_call_type_)
 #define subtypep_call_clos_ _n(subtypep_call_clos_)
+#define subtypep_call_asterisk_ _n(subtypep_call_asterisk_)
 #define subtypep_call_nil_ _n(subtypep_call_nil_)
 #define subtypep_call_t_ _n(subtypep_call_t_)
 #define subtypep_call_null_ _n(subtypep_call_null_)
@@ -56,9 +32,12 @@ typedef int (*call_type_subtypep)(Execute, addr, addr, SubtypepResult *);
 #define subtypep_call_double_float_ _n(subtypep_call_double_float_)
 #define subtypep_call_long_float_ _n(subtypep_call_long_float_)
 #define subtypep_call_ratio_ _n(subtypep_call_ratio_)
+#define subtypep_call_stream_ _n(subtypep_call_stream_)
+#define subtypep_call_stream_type_ _n(subtypep_call_stream_type_)
 
 int subtypep_call_type_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret);
+int subtypep_call_asterisk_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_nil_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_t_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_null_(Execute ptr, addr x, addr y, SubtypepResult *ret);
@@ -83,6 +62,8 @@ int subtypep_call_single_float_(Execute ptr, addr x, addr y, SubtypepResult *ret
 int subtypep_call_double_float_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_long_float_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_ratio_(Execute ptr, addr x, addr y, SubtypepResult *ret);
+int subtypep_call_stream_(Execute ptr, addr x, addr y, SubtypepResult *ret);
+int subtypep_call_stream_type_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 
 #endif
 

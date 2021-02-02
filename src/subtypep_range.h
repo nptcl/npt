@@ -1,5 +1,5 @@
-#ifndef __TYPE_RANGE_HEADER__
-#define __TYPE_RANGE_HEADER__
+#ifndef __SUBTYPEP_RANGE_HEADER__
+#define __SUBTYPEP_RANGE_HEADER__
 
 #include "typedef.h"
 

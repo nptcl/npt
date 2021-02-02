@@ -12,9 +12,9 @@
 #include "random_state.h"
 #include "reader.h"
 #include "stream.h"
+#include "subtypep_optimize.h"
 #include "symbol.h"
 #include "syscall.h"
-#include "type_optimize.h"
 #include "type_parse.h"
 #include "type_table.h"
 
