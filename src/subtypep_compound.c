@@ -154,6 +154,19 @@ static size_t getsize_values(addr pos)
 	return size;
 }
 
+static int subtypep_values_var_size(addr x, addr y)
+{
+	addr check;
+	size_t size1, size2;
+
+	GetArrayType(x, 0, &check);
+	size1 = length_list_unsafe(check);
+	GetArrayType(y, 0, &check);
+	size2 = length_list_unsafe(check);
+
+	return size1 < size2;
+}
+
 static int gettype_values_(addr pos, size_t index, addr *ret)
 {
 	addr check;
@@ -195,6 +208,10 @@ static int subtypep_values_values_(Execute ptr, addr x, addr y, int *ret)
 	Check(RefLispDecl(y) != LISPDECL_VALUES, "decl right error");
 	Check(RefNotDecl(x), "left not error");
 	Check(RefNotDecl(y), "right not error");
+
+	/* var */
+	if (subtypep_values_var_size(x, y))
+		return Result(ret, 0);
 
 	/* size */
 	size1 = getsize_values(x);
@@ -361,7 +378,7 @@ static int subtypep_nil_right_(addr x, SubtypepResult *ret)
 		return ReturnExclude(ret);
 }
 
-static int subtypep_right_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	Check(GetType(y) != LISPTYPE_TYPE, "type right error");
 	switch (RefLispDecl(y)) {
@@ -397,46 +414,5 @@ static int subtypep_right_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		default:
 			return subtypep_left_(ptr, x, y, ret);
 	}
-}
-
-
-/*
- *  subtypep_clang
- */
-int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
-{
-	return subtypep_right_(ptr, x, y, ret);
-}
-
-static int real_extract_subtypep_(LocalRoot local, addr *ret, addr type)
-{
-	type_copy_local(local, &type, type);
-	Return(real_extract_local_(local, &type, type));
-	get_type_subtypep(ret, type);
-
-	return 0;
-}
-
-int subtypep_force_(Execute ptr, addr x, addr y, SubtypepResult *ret)
-{
-	SubtypepResult result;
-	LocalRoot local;
-	LocalStack stack;
-
-	CheckType(x, LISPTYPE_TYPE);
-	CheckType(y, LISPTYPE_TYPE);
-	local = Local_Thread;
-	push_local(local, &stack);
-	Return(real_extract_subtypep_(local, &x, x));
-	Return(real_extract_subtypep_(local, &y, y));
-	Return(subtypep_compound_(ptr, x, y, &result));
-	rollback_local(local, stack);
-
-	return Result(ret, result);
-}
-
-int subtypep_normal_(Execute ptr, addr x, addr y, SubtypepResult *ret)
-{
-	return subtypep_force_(ptr, x, y, ret);
 }
 

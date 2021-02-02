@@ -85,7 +85,7 @@
 
 (deftest subtypep-or-left.5
   (subtypep! '(or (satisfies hello) number) 'real)
-  false)
+  invalid)
 
 (deftest subtypep-or-or.1
   (subtypep! '(or integer symbol) '(or real symbol))
@@ -95,13 +95,7 @@
 ;;
 ;;  Error
 ;;
-'(deftest error-subtypep.1
-   (subtypep 'real '(not integer))
-   nil t)
-
-'(deftest error-subtypep.2
-   (subtypep
-     '(complex (or (integer 0 0) (integer 1 1)))
-     'complex)
-   t t)
+(deftest error-subtypep.1
+  (subtypep 'real '(not integer))
+  nil t)
 

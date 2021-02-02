@@ -74,20 +74,6 @@ static int strtable_invalid(const char *left, const char *right)
 /*
  *  cons
  */
-static int test_subtypep_call_cons_p(void)
-{
-	addr pos;
-
-	GetTypeTable(&pos, Asterisk);
-	test(subtypep_call_cons_p(pos), "subtypep_call_cons_p1");
-	GetTypeTable(&pos, T);
-	test(subtypep_call_cons_p(pos), "subtypep_call_cons_p2");
-	GetTypeTable(&pos, Null);
-	test(! subtypep_call_cons_p(pos), "subtypep_call_cons_p3");
-
-	RETURN;
-}
-
 static int test_subtypep_call_cons_t_(void)
 {
 	SubtypepResult value;
@@ -325,7 +311,7 @@ static void parse_args(addr *ret, const char *str)
 	GetArrayType(pos, 0, ret);
 }
 
-static int test_ordinary_subtypep(void)
+static int test_subtypep_ordinary_subtypep(void)
 {
 	int value;
 	addr pos;
@@ -342,13 +328,13 @@ static int test_ordinary_subtypep(void)
 	make_ordargs(&str2, pos);
 	gettype_ordargs_(&str1, 1, &type1);
 	gettype_ordargs_(&str2, 0, &type2);
-	ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
-	test(value, "ordinary_subtypep1");
+	subtypep_ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
+	test(value, "subtypep_ordinary_subtypep1");
 
 	gettype_ordargs_(&str1, 0, &type1);
 	gettype_ordargs_(&str2, 1, &type2);
-	ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
-	test(! value, "ordinary_subtypep2");
+	subtypep_ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
+	test(! value, "subtypep_ordinary_subtypep2");
 
 	RETURN;
 }
@@ -381,7 +367,7 @@ static void argschar(ordargs *ret, const char *str)
 	make_ordargs(ret, pos);
 }
 
-static int test_ordinary_size(void)
+static int test_subtypep_ordinary_size(void)
 {
 	int value;
 	ordargs args1, args2;
@@ -392,25 +378,25 @@ static int test_ordinary_size(void)
 
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real))");
-	ordinary_size_(ptr, &args1, &args2, 1, &value);
-	test(value, "ordinary_size1");
-	ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(value, "ordinary_size2");
+	subtypep_ordinary_size_(ptr, &args1, &args2, 1, &value);
+	test(value, "subtypep_ordinary_size1");
+	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
+	test(value, "subtypep_ordinary_size2");
 
 	argschar(&args1, "(function (integer integer))");
 	argschar(&args2, "(function (real))");
-	ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(! value, "ordinary_size3");
+	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
+	test(! value, "subtypep_ordinary_size3");
 
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real real))");
-	ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(value, "ordinary_size4");
+	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
+	test(value, "subtypep_ordinary_size4");
 
 	argschar(&args1, "(function (integer string))");
 	argschar(&args2, "(function (real real))");
-	ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(! value, "ordinary_size5");
+	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
+	test(! value, "subtypep_ordinary_size5");
 
 	RETURN;
 }
@@ -421,7 +407,7 @@ static void extractargs(addr *ret, const char *str)
 	GetArrayType(*ret, 0, ret);
 }
 
-static int test_ordinary_simple(void)
+static int test_subtypep_ordinary_simple(void)
 {
 	int value;
 	addr left, right;
@@ -433,47 +419,47 @@ static int test_ordinary_simple(void)
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple1");
+	test(value, "subtypep_ordinary_simple1");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "ordinary_simple2");
+	test(! value, "subtypep_ordinary_simple2");
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t &optional real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple3");
+	test(value, "subtypep_ordinary_simple3");
 
 	extractargs(&left, "(function (integer &optional integer))");
 	extractargs(&right, "(function (t real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "ordinary_simple4");
+	test(! value, "subtypep_ordinary_simple4");
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple5");
+	test(value, "subtypep_ordinary_simple5");
 
 	extractargs(&left, "(function (integer integer &optional integer))");
 	extractargs(&right, "(function (t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple6");
+	test(value, "subtypep_ordinary_simple6");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple7");
+	test(value, "subtypep_ordinary_simple7");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "ordinary_simple8");
+	test(! value, "subtypep_ordinary_simple8");
 
 	RETURN;
 }
 
-static int test_ordinary_simple_left(void)
+static int test_subtypep_ordinary_simple_left(void)
 {
 	int value;
 	addr left, right;
@@ -485,32 +471,32 @@ static int test_ordinary_simple_left(void)
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple_left1");
+	test(value, "subtypep_ordinary_simple_left1");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "ordinary_simple_left2");
+	test(! value, "subtypep_ordinary_simple_left2");
 
 	extractargs(&left, "(function (integer integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple_left3");
+	test(value, "subtypep_ordinary_simple_left3");
 
 	extractargs(&left, "(function (integer integer integer fixnum fixnum))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_simple_left4");
+	test(value, "subtypep_ordinary_simple_left4");
 
 	extractargs(&left, "(function (integer integer integer fixnum string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "ordinary_simple_left5");
+	test(! value, "subtypep_ordinary_simple_left5");
 
 	RETURN;
 }
 
-static int test_ordinary_check(void)
+static int test_subtypep_ordinary_check(void)
 {
 	int value;
 	addr left, right;
@@ -522,12 +508,12 @@ static int test_ordinary_check(void)
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "ordinary_check1");
+	test(value, "subtypep_ordinary_check1");
 
 	extractargs(&left, "(function (integer integer &rest string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "ordinary_check2");
+	test(! value, "subtypep_ordinary_check2");
 
 	RETURN;
 }
@@ -670,7 +656,6 @@ static int test_subtypep_call_compiled_function(void)
 static int testcase_subtypep_table(void)
 {
 	/* subtypep-table */
-	TestBreak(test_subtypep_call_cons_p);
 	TestBreak(test_subtypep_call_cons_t_);
 	TestBreak(test_subtypep_call_cons);
 	TestBreak(test_subtypep_vector_array);
@@ -679,11 +664,11 @@ static int testcase_subtypep_table(void)
 	TestBreak(test_subtypep_bit_vector_array);
 	TestBreak(test_subtypep_complex);
 	/* function */
-	TestBreak(test_ordinary_subtypep);
-	TestBreak(test_ordinary_size);
-	TestBreak(test_ordinary_simple);
-	TestBreak(test_ordinary_simple_left);
-	TestBreak(test_ordinary_check);
+	TestBreak(test_subtypep_ordinary_subtypep);
+	TestBreak(test_subtypep_ordinary_size);
+	TestBreak(test_subtypep_ordinary_simple);
+	TestBreak(test_subtypep_ordinary_simple_left);
+	TestBreak(test_subtypep_ordinary_check);
 	TestBreak(test_subtypep_function_ordinary);
 	TestBreak(test_subtypep_function_check);
 	TestBreak(test_subtypep_call_function);

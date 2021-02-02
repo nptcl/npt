@@ -12,7 +12,7 @@
 int subtypep_call_type_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	if (RefLispDecl(x) != LISPDECL_TYPE)
-		return Result(ret, SUBTYPEP_EXCLUDE);
+		return ReturnExclude(ret);
 	else
 		return ReturnBool(ret, RefLispDecl(x) == RefLispDecl(y));
 }

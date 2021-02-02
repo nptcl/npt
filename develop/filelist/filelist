@@ -349,6 +349,7 @@ structure.c
 strvect.c
 subtypep_andor.c
 subtypep_atomic.c
+subtypep_check.c
 subtypep_compound.c
 subtypep_number.c
 subtypep_optimize.c

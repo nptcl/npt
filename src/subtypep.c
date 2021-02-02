@@ -1,7 +1,9 @@
 #include "condition.h"
 #include "hold.h"
 #include "subtypep.h"
+#include "subtypep_check.h"
 #include "subtypep_compound.h"
+#include "subtypep_number.h"
 #include "subtypep_optimize.h"
 #include "subtypep_table.h"
 #include "subtypep_typedef.h"
@@ -61,9 +63,9 @@ static void subtypep_result_values(SubtypepResult value, int *ret, int *validp)
 
 
 /*
- *  extend
+ *  subtypep-atomic
  */
-static int subtypep_parse_normal_(Execute ptr, LocalHold hold,
+static int subtypep_parse_throw_(Execute ptr, LocalHold hold,
 		addr x, addr y, addr env, addr *rx, addr *ry)
 {
 	localhold_set(hold, 0, x);
@@ -78,6 +80,23 @@ static int subtypep_parse_normal_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
+static int subtypep_extend_atomic_(Execute ptr,
+		addr x, addr y, addr env, SubtypepResult *ret)
+{
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 3);
+	Return(subtypep_parse_throw_(ptr, hold, x, y, env, &x, &y));
+	Return(subtypep_table_(ptr, x, y, ret));
+	localhold_end(hold);
+
+	return 0;
+}
+
+
+/*
+ *  subtypep-atomic-not
+ */
 static int subtypep_parse_optimize_(Execute ptr, LocalHold hold,
 		addr x, addr y, addr env, addr *rx, addr *ry)
 {
@@ -99,19 +118,6 @@ static int subtypep_parse_optimize_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-static int subtypep_extend_atomic_(Execute ptr,
-		addr x, addr y, addr env, SubtypepResult *ret)
-{
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 3);
-	Return(subtypep_parse_normal_(ptr, hold, x, y, env, &x, &y));
-	Return(subtypep_table_(ptr, x, y, ret));
-	localhold_end(hold);
-
-	return 0;
-}
-
 static int subtypep_extend_atomic_not_(Execute ptr,
 		addr x, addr y, addr env, SubtypepResult *ret)
 {
@@ -125,6 +131,10 @@ static int subtypep_extend_atomic_not_(Execute ptr,
 	return 0;
 }
 
+
+/*
+ *  subtypep-compound
+ */
 static int subtypep_extend_compound_(Execute ptr,
 		addr x, addr y, addr env, SubtypepResult *ret)
 {
@@ -138,15 +148,76 @@ static int subtypep_extend_compound_(Execute ptr,
 	return 0;
 }
 
-static int subtypep_extend_force_(Execute ptr,
+
+/*
+ *  subtypep-force-number
+ */
+static int subtypep_parse_force_number_(Execute ptr, LocalHold hold,
+		addr x, addr y, addr env, addr *rx, addr *ry)
+{
+	LocalRoot local;
+
+	localhold_set(hold, 0, x);
+	localhold_set(hold, 1, y);
+	localhold_set(hold, 2, env);
+
+	Return(parse_type(ptr, &x, x, env));
+	localhold_set(hold, 0, x);
+	Return(parse_type(ptr, &y, y, env));
+	localhold_set(hold, 1, y);
+
+	local = ptr->local;
+	Return(type_subtypep_throw_heap_(local, x, rx));
+	Return(type_subtypep_throw_heap_(local, y, ry));
+
+	return 0;
+}
+
+static int subtypep_extend_force_number_(Execute ptr,
 		addr x, addr y, addr env, SubtypepResult *ret)
 {
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 3);
-	Return(subtypep_parse_normal_(ptr, hold, x, y, env, &x, &y));
-	Return(subtypep_force_(ptr, x, y, ret));
+	Return(subtypep_parse_force_number_(ptr, hold, x, y, env, &x, &y));
+	Return(subtypep_compound_(ptr, x, y, ret));
 	localhold_end(hold);
+
+	return 0;
+}
+
+
+/*
+ *  subtypep-normal
+ */
+static int subtypep_parse_normal_type_(Execute ptr, addr x, addr env, addr *ret)
+{
+	LocalRoot local;
+
+	local = ptr->local;
+	Return(parse_type(ptr, &x, x, env));
+	if (subtypep_number_p(x)) {
+		Return(type_subtypep_throw_heap_(local, x, &x));
+	}
+	else {
+		Return(type_optimize_throw_heap_(local, x, &x));
+	}
+
+	return Result(ret, x);
+}
+
+static int subtypep_parse_normal_(Execute ptr, LocalHold hold,
+		addr x, addr y, addr env, addr *rx, addr *ry)
+{
+
+	localhold_set(hold, 0, x);
+	localhold_set(hold, 1, y);
+	localhold_set(hold, 2, env);
+
+	Return(subtypep_parse_normal_type_(ptr, x, env, rx));
+	localhold_set(hold, 0, x);
+	Return(subtypep_parse_normal_type_(ptr, y, env, ry));
+	localhold_set(hold, 1, y);
 
 	return 0;
 }
@@ -158,7 +229,7 @@ static int subtypep_extend_normal_(Execute ptr,
 
 	hold = LocalHold_array(ptr, 3);
 	Return(subtypep_parse_normal_(ptr, hold, x, y, env, &x, &y));
-	Return(subtypep_normal_(ptr, x, y, ret));
+	Return(subtypep_compound_(ptr, x, y, ret));
 	localhold_end(hold);
 
 	return 0;
@@ -166,7 +237,7 @@ static int subtypep_extend_normal_(Execute ptr,
 
 
 /*
- *  system::subtypep!
+ *  system:subtypep!
  */
 static void subtypep_extend_type_(Execute ptr, enum SubtypepExtend *ret)
 {
@@ -174,6 +245,14 @@ static void subtypep_extend_type_(Execute ptr, enum SubtypepExtend *ret)
 
 	GetConst(SYSTEM_SUBTYPEP_VALUE, &pos);
 	getspecial_local(ptr, pos, &pos);
+
+	if (pos == Nil || pos == Unbound)
+		goto normal;
+
+	/* normal */
+	GetConst(SYSTEM_SUBTYPEP_NORMAL, &check);
+	if (pos == check)
+		goto normal;
 
 	/* atomic */
 	GetConst(SYSTEM_SUBTYPEP_ATOMIC, &check);
@@ -204,6 +283,7 @@ static void subtypep_extend_type_(Execute ptr, enum SubtypepExtend *ret)
 	}
 
 	/* else */
+normal:
 	*ret = SubtypepExtend_Normal;
 }
 
@@ -237,6 +317,9 @@ static int subtypep_extend_switch_(Execute ptr, addr x, addr y, addr env,
 		enum SubtypepExtend type, SubtypepResult *ret)
 {
 	switch (type) {
+		case SubtypepExtend_Normal:
+			return subtypep_extend_normal_(ptr, x, y, env, ret);
+
 		case SubtypepExtend_Atomic:
 			return subtypep_extend_atomic_(ptr, x, y, env, ret);
 
@@ -247,9 +330,8 @@ static int subtypep_extend_switch_(Execute ptr, addr x, addr y, addr env,
 			return subtypep_extend_compound_(ptr, x, y, env, ret);
 
 		case SubtypepExtend_ForceNumber:
-			return subtypep_extend_force_(ptr, x, y, env, ret);
+			return subtypep_extend_force_number_(ptr, x, y, env, ret);
 
-		case SubtypepExtend_Normal:
 		default:
 			return subtypep_extend_normal_(ptr, x, y, env, ret);
 	}
@@ -282,21 +364,13 @@ int subtypep_scope_(Execute ptr, addr x, addr y, addr env, SubtypepResult *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 3);
-	localhold_set(hold, 0, x);
-	localhold_set(hold, 1, y);
-	localhold_set(hold, 2, env);
-
-	Return(parse_type(ptr, &x, x, env));
-	localhold_set(hold, 0, x);
-	Return(parse_type(ptr, &y, y, env));
-	localhold_set(hold, 1, y);
-
+	Return(subtypep_parse_normal_(ptr, hold, x, y, env, &x, &y));
 	if (type_asterisk_p(y))
 		return Result(ret, SUBTYPEP_INCLUDE);
 	if (type_asterisk_p(x))
 		return Result(ret, SUBTYPEP_FALSE);
 
-	Return(subtypep_extend_normal_(ptr, x, y, env, ret));
+	Return(subtypep_compound_(ptr, x, y, ret));
 	localhold_end(hold);
 
 	return 0;

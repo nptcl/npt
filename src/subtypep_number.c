@@ -1030,3 +1030,10 @@ void get_type_subtypep(addr *ret, addr type)
 	}
 }
 
+int type_subtypep_throw_heap_(LocalRoot local, addr type, addr *ret)
+{
+	Return(real_extract_heap_(local, &type, type));
+	get_type_subtypep(ret, type);
+	return 0;
+}
+
