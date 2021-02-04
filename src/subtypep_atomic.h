@@ -5,6 +5,7 @@
 #include "subtypep_typedef.h"
 #include "typedef.h"
 
+#define subtypep_call_invalid_ _n(subtypep_call_invalid_)
 #define subtypep_call_type_ _n(subtypep_call_type_)
 #define subtypep_call_clos_ _n(subtypep_call_clos_)
 #define subtypep_call_asterisk_ _n(subtypep_call_asterisk_)
@@ -16,7 +17,6 @@
 #define subtypep_call_keyword_ _n(subtypep_call_keyword_)
 #define subtypep_call_pathname_ _n(subtypep_call_pathname_)
 #define subtypep_call_logical_pathname_ _n(subtypep_call_logical_pathname_)
-#define subtypep_call_sequence_ _n(subtypep_call_sequence_)
 #define subtypep_call_array_ _n(subtypep_call_array_)
 #define subtypep_call_simple_array_ _n(subtypep_call_simple_array_)
 #define subtypep_call_character_ _n(subtypep_call_character_)
@@ -35,6 +35,7 @@
 #define subtypep_call_stream_ _n(subtypep_call_stream_)
 #define subtypep_call_stream_type_ _n(subtypep_call_stream_type_)
 
+int subtypep_call_invalid_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_type_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_asterisk_(Execute ptr, addr x, addr y, SubtypepResult *ret);
@@ -46,7 +47,6 @@ int subtypep_call_symbol_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_keyword_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_pathname_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_logical_pathname_(Execute ptr, addr x, addr y, SubtypepResult *ret);
-int subtypep_call_sequence_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_array_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_simple_array_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_character_(Execute ptr, addr x, addr y, SubtypepResult *ret);

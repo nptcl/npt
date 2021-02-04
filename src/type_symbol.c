@@ -22,6 +22,7 @@ static void define_symbol_type(constindex name, enum TypeTable type)
 
 void build_type_symbol(void)
 {
+	DefSymbolType(SYSTEM_INVALID,              Invalid             );
 	DefSymbolType(SYSTEM_TYPE,                 Type                );
 	DefSymbolType(COMMON_ASTERISK,             Asterisk            );
 
@@ -109,6 +110,7 @@ static void define_type_symbol(enum LISPDECL type, constindex name)
 void init_type_symbol(void)
 {
 	DefTypeSymbol(EMPTY,                EMPTY                       );
+	DefTypeSymbol(INVALID,              SYSTEM_INVALID              );
 	DefTypeSymbol(OPTIMIZED,            EMPTY                       );
 	DefTypeSymbol(SUBTYPEP,             EMPTY                       );
 	DefTypeSymbol(TYPE,                 SYSTEM_TYPE                 );

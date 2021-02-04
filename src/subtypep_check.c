@@ -106,22 +106,6 @@ static int subtypep_number_begin_not(addr pos)
 	return subtypep_number_begin(pos);
 }
 
-static int subtypep_number_begin_and(addr pos)
-{
-	addr value;
-	size_t size, i;
-
-	GetArrayType(pos, 0, &pos);
-	LenArrayA4(pos, &size);
-	for (i = 0; i < size; i++) {
-		GetArrayA4(pos, i, &value);
-		if (subtypep_number_begin(value))
-			return 1;
-	}
-
-	return 0;
-}
-
 static int subtypep_number_begin_or(addr pos)
 {
 	int count;
@@ -153,8 +137,6 @@ static int subtypep_number_begin(addr pos)
 			return subtypep_number_begin_not(pos);
 
 		case LISPDECL_AND:
-			return subtypep_number_begin_and(pos);
-
 		case LISPDECL_OR:
 			return subtypep_number_begin_or(pos);
 

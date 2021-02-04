@@ -9,6 +9,11 @@
 /*
  *  type
  */
+int subtypep_call_invalid_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+{
+	return ReturnInvalid(ret);
+}
+
 int subtypep_call_type_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	if (RefLispDecl(x) != LISPDECL_TYPE)
@@ -79,7 +84,6 @@ int subtypep_call_null_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		case LISPDECL_NULL:
 			return ReturnInclude(ret);
 
-		case LISPDECL_CONS:
 		case LISPDECL_SEQUENCE:
 			return ReturnFalse(ret);
 
@@ -163,48 +167,6 @@ int subtypep_call_logical_pathname_(Execute ptr, addr x, addr y, SubtypepResult 
 
 		case LISPDECL_PATHNAME:
 			return ReturnFalse(ret);
-
-		default:
-			return ReturnExclude(ret);
-	}
-}
-
-
-/*
- *  sequence
- */
-static int subtypep_call_sequence_array(addr x)
-{
-	enum LISPTYPE type;
-	size_t size;
-
-	GetArrayType(x, 1, &x);
-	if (type_asterisk_p(x)) {
-		return 0;
-	}
-	type = GetType(x);
-	if (type == LISPTYPE_FIXNUM) {
-		return RefFixnum(x) == 1;
-	}
-	if (type == LISPTYPE_VECTOR) {
-		LenArrayA4(x, &size);
-		return size == 1;
-	}
-
-	return 0;
-}
-
-int subtypep_call_sequence_(Execute ptr, addr x, addr y, SubtypepResult *ret)
-{
-	switch (RefLispDecl(x)) {
-		case LISPDECL_SEQUENCE:
-		case LISPDECL_NULL:
-		case LISPDECL_CONS:
-			return ReturnInclude(ret);
-
-		case LISPDECL_ARRAY:
-		case LISPDECL_SIMPLE_ARRAY:
-			return ReturnBool(ret, subtypep_call_sequence_array(x));
 
 		default:
 			return ReturnExclude(ret);

@@ -850,3 +850,11 @@
   (subtypep! '(real 10 20) '(real (21) 30))
   exclude)
 
+
+;;
+;;  Error
+;;
+(deftest subtypep-range-error.1
+  (subtypep 'real '(not integer))
+  nil t)
+

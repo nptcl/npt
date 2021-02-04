@@ -9,6 +9,14 @@
 
 
 ;;
+;;  invalid
+;;
+(deftest subtypep-invalid.1
+  (subtypep! 'integer 'invalid)
+  invalid)
+
+
+;;
 ;;  clos
 ;;
 (deftest subtypep-clos.1
@@ -79,17 +87,13 @@
 
 (deftest subtypep-null.2
   (subtypep! 'cons 'null)
-  false)
+  exclude)
 
 (deftest subtypep-null.3
-  (subtypep! 'sequence 'null)
-  false)
-
-(deftest subtypep-null.4
   (subtypep! 'integer 'null)
   exclude)
 
-(deftest subtypep-null.5
+(deftest subtypep-null.4
   (subtypep! 'nil 'null)
   exclude)
 
@@ -138,12 +142,12 @@
   exclude)
 
 (deftest subtypep-keyword.3
-  (subtypep! 'symbol 'keyword)
-  false)
-
-(deftest subtypep-keyword.4
   (subtypep! 'integer 'keyword)
   exclude)
+
+(deftest subtypep-keyword.4
+  (subtypep! 'keyword 'symbol)
+  include)
 
 
 ;;
@@ -215,62 +219,6 @@
 
 
 ;;
-;;  sequence
-;;
-(deftest subtypep-sequence.1
-  (subtypep! 'sequence 'sequence)
-  include)
-
-(deftest subtypep-sequence.2
-  (subtypep! 'null 'sequence)
-  include)
-
-(deftest subtypep-sequence.3
-  (subtypep! 'cons 'sequence)
-  include)
-
-(deftest subtypep-sequence.4
-  (subtypep! 'array 'sequence)
-  false)
-
-(deftest subtypep-sequence.5
-  (subtypep! '(array t 1) 'sequence)
-  include)
-
-(deftest subtypep-sequence.6
-  (subtypep! '(array t 4) 'sequence)
-  false)
-
-(deftest subtypep-sequence.7
-  (subtypep! '(array t (4)) 'sequence)
-  include)
-
-(deftest subtypep-sequence.8
-  (subtypep! '(array t (4 5 6)) 'sequence)
-  false)
-
-(deftest subtypep-sequence.9
-  (subtypep! '(simple-array bit 1) 'sequence)
-  include)
-
-(deftest subtypep-sequence.10
-  (subtypep! '(simple-array bit 4) 'sequence)
-  false)
-
-(deftest subtypep-sequence.11
-  (subtypep! '(simple-array bit (4)) 'sequence)
-  include)
-
-(deftest subtypep-sequence.12
-  (subtypep! '(simple-array bit (4 5 6)) 'sequence)
-  false)
-
-(deftest subtypep-sequence.13
-  (subtypep! 'complex 'sequence)
-  exclude)
-
-
-;;
 ;;  array
 ;;
 (deftest subtypep-array.1
@@ -280,10 +228,6 @@
 (deftest subtypep-array.2
   (subtypep! 'simple-array 'array)
   include)
-
-(deftest subtypep-array.3
-  (subtypep! 'sequence 'array)
-  false)
 
 (deftest subtypep-array-element-type.1
   (subtypep! '(array bit) '(array *))
@@ -363,10 +307,6 @@
 
 (deftest subtypep-simple-array.2
   (subtypep! 'array 'simple-array)
-  false)
-
-(deftest subtypep-simple-array.3
-  (subtypep! 'sequence 'simple-array)
   false)
 
 (deftest subtypep-simple-array-element-type.1

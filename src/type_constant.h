@@ -21,6 +21,7 @@ enum TypeTable {
 #endif
 
 	/* Atomic-Type */
+	TypeTable_Invalid,
 	TypeTable_Type,
 	TypeTable_Clos,
 	TypeTable_Asterisk,

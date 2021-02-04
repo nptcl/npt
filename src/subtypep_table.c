@@ -53,9 +53,6 @@ static int subtypep_call_cons_value_(Execute ptr, addr x, addr y, SubtypepResult
 static int subtypep_call_cons_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	switch (RefLispDecl(x)) {
-		case LISPDECL_SEQUENCE:
-			return ReturnFalse(ret);
-
 		case LISPDECL_CONS:
 			return subtypep_call_cons_value_(ptr, x, y, ret);
 
@@ -282,6 +279,7 @@ void init_subtypep_table(void)
 	for (i = 0; i < LISPDECL_SIZE; i++)
 		TypeSubtypep[i] = subtypep_call_error_;
 
+	TypeSubtypep[LISPDECL_INVALID] = subtypep_call_invalid_;
 	TypeSubtypep[LISPDECL_TYPE] = subtypep_call_type_;
 	TypeSubtypep[LISPDECL_CLOS] = subtypep_call_clos_;
 	TypeSubtypep[LISPDECL_ASTERISK] = subtypep_call_asterisk_;
@@ -299,7 +297,6 @@ void init_subtypep_table(void)
 	TypeSubtypep[LISPDECL_COMPILED_FUNCTION] = subtypep_call_compiled_function_;
 	TypeSubtypep[LISPDECL_PATHNAME] = subtypep_call_pathname_;
 	TypeSubtypep[LISPDECL_LOGICAL_PATHNAME] = subtypep_call_logical_pathname_;
-	TypeSubtypep[LISPDECL_SEQUENCE] = subtypep_call_sequence_;
 	TypeSubtypep[LISPDECL_ARRAY] = subtypep_call_array_;
 	TypeSubtypep[LISPDECL_SIMPLE_ARRAY] = subtypep_call_simple_array_;
 	TypeSubtypep[LISPDECL_CHARACTER] = subtypep_call_character_;

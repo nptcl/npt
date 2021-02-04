@@ -91,7 +91,7 @@ static int test_subtypep_call_t(void)
 static int test_subtypep_call_null(void)
 {
 	test(strtable_true("null", "null"), "subtypep_call_null.1");
-	test(strtable_false("cons", "null"), "subtypep_call_null.2");
+	test(strtable_exclude("cons", "null"), "subtypep_call_null.2");
 	test(strtable_exclude("integer", "null"), "subtypep_call_null.3");
 	RETURN;
 }
@@ -157,22 +157,6 @@ static int test_subtypep_call_logical_pathname(void)
 			"subtypep_call_logical_pathname.2");
 	test(strtable_exclude("cons", "logical-pathname"),
 			"subtypep_call_logical-pathname.3");
-
-	RETURN;
-}
-
-static int test_subtypep_call_sequence(void)
-{
-	test(strtable_true("sequence", "sequence"), "subtypep_call_sequence.1");
-	test(strtable_false("array", "sequence"), "subtypep_call_sequence.2");
-	test(strtable_false("simple-array", "sequence"), "subtypep_call_sequence.3");
-	test(strtable_true("cons", "sequence"), "subtypep_call_sequence.4");
-	test(strtable_exclude("symbol", "sequence"), "subtypep_call_sequence.5");
-	test(strtable_true("(array * (4))", "sequence"), "subtypep_call_sequence.6");
-	test(strtable_false("(array * (4 4))", "sequence"), "subtypep_call_sequence.7");
-	test(strtable_false("(simple-array * 0)", "sequence"), "subtypep_call_sequence.8");
-	test(strtable_true("(simple-array * 1)", "sequence"), "subtypep_call_sequence.9");
-	test(strtable_false("(simple-array * 2)", "sequence"), "subtypep_call_sequence.10");
 
 	RETURN;
 }
@@ -810,7 +794,6 @@ static int testcase_subtypep_atomic(void)
 	TestBreak(test_subtypep_call_readtable);
 	TestBreak(test_subtypep_call_pathname);
 	TestBreak(test_subtypep_call_logical_pathname);
-	TestBreak(test_subtypep_call_sequence);
 	TestBreak(test_subtypep_call_array_array_dimension);
 	TestBreak(test_subtypep_call_array_array);
 	TestBreak(test_subtypep_call_character);

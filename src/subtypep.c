@@ -239,78 +239,69 @@ static int subtypep_extend_normal_(Execute ptr,
 /*
  *  system:subtypep!
  */
-static void subtypep_extend_type_(Execute ptr, enum SubtypepExtend *ret)
+static int subtypep_extend_value_(addr pos, enum SubtypepExtend *ret)
 {
-	addr pos, check;
-
-	GetConst(SYSTEM_SUBTYPEP_VALUE, &pos);
-	getspecial_local(ptr, pos, &pos);
+	addr check;
 
 	if (pos == Nil || pos == Unbound)
-		goto normal;
+		return Result(ret, SubtypepExtend_Normal);
 
 	/* normal */
 	GetConst(SYSTEM_SUBTYPEP_NORMAL, &check);
 	if (pos == check)
-		goto normal;
+		return Result(ret, SubtypepExtend_Normal);
 
 	/* atomic */
 	GetConst(SYSTEM_SUBTYPEP_ATOMIC, &check);
-	if (pos == check) {
-		*ret = SubtypepExtend_Atomic;
-		return;
-	}
+	if (pos == check)
+		return Result(ret, SubtypepExtend_Atomic);
 
 	/* atomic-not */
 	GetConst(SYSTEM_SUBTYPEP_ATOMIC_NOT, &check);
-	if (pos == check) {
-		*ret = SubtypepExtend_AtomicNot;
-		return;
-	}
+	if (pos == check)
+		return Result(ret, SubtypepExtend_AtomicNot);
 
 	/* compound */
 	GetConst(SYSTEM_SUBTYPEP_COMPOUND, &check);
-	if (pos == check) {
-		*ret = SubtypepExtend_Compound;
-		return;
-	}
+	if (pos == check)
+		return Result(ret, SubtypepExtend_Compound);
 
 	/* force-number */
 	GetConst(SYSTEM_SUBTYPEP_FORCE_NUMBER, &check);
-	if (pos == check) {
-		*ret = SubtypepExtend_ForceNumber;
-		return;
-	}
+	if (pos == check)
+		return Result(ret, SubtypepExtend_ForceNumber);
 
-	/* else */
-normal:
 	*ret = SubtypepExtend_Normal;
+	return fmte_("Invalid subtypep! type ~S.", pos, NULL);
 }
 
-static void subtypep_extend_check(enum SubtypepExtend type, addr *ret)
+static int subtypep_extend_output_(Execute ptr, addr *ret)
 {
-	switch (type) {
-		case SubtypepExtend_Atomic:
-			GetConst(SYSTEM_SUBTYPEP_ATOMIC, ret);
-			break;
+	enum SubtypepExtend value;
+	addr pos;
 
-		case SubtypepExtend_AtomicNot:
-			GetConst(SYSTEM_SUBTYPEP_ATOMIC_NOT, ret);
-			break;
+	/* *subtypep!* */
+	GetConst(SYSTEM_SUBTYPEP_VALUE, &pos);
+	getspecial_local(ptr, pos, &pos);
 
-		case SubtypepExtend_Compound:
-			GetConst(SYSTEM_SUBTYPEP_COMPOUND, ret);
-			break;
-
-		case SubtypepExtend_ForceNumber:
-			GetConst(SYSTEM_SUBTYPEP_FORCE_NUMBER, ret);
-			break;
-
-		case SubtypepExtend_Normal:
-		default:
-			GetConst(SYSTEM_SUBTYPEP_NORMAL, ret);
-			break;
+	/* normal */
+	Return(subtypep_extend_value_(pos, &value));
+	if (value == SubtypepExtend_Normal) {
+		GetConst(SYSTEM_SUBTYPEP_NORMAL, &pos);
 	}
+
+	return Result(ret, pos);
+}
+
+static int subtypep_extend_type_(Execute ptr, addr pos, enum SubtypepExtend *ret)
+{
+	if (pos != Nil)
+		return subtypep_extend_value_(pos, ret);
+
+	/* *subtypep!* */
+	GetConst(SYSTEM_SUBTYPEP_VALUE, &pos);
+	getspecial_local(ptr, pos, &pos);
+	return subtypep_extend_value_(pos, ret);
 }
 
 static int subtypep_extend_switch_(Execute ptr, addr x, addr y, addr env,
@@ -342,14 +333,12 @@ int subtypep_extend_(Execute ptr, addr x, addr y, addr env, addr check, addr *re
 	enum SubtypepExtend type;
 	SubtypepResult value;
 
-	/* check */
-	subtypep_extend_type_(ptr, &type);
-	if (check != Nil) {
-		subtypep_extend_check(type, ret);
-		return 0;
-	}
+	/* output */
+	if (check == T)
+		return subtypep_extend_output_(ptr, ret);
 
 	/* subtypep */
+	Return(subtypep_extend_type_(ptr, check, &type));
 	Return(subtypep_extend_switch_(ptr, x, y, env, type, &value));
 	subtypep_result_keyword(value, ret);
 	return 0;

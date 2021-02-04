@@ -356,6 +356,9 @@ static int subtypep_left_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		case LISPDECL_CLOS:
 			return subtypep_clos_left_(ptr, x, y, ret);
 
+		case LISPDECL_INVALID:
+			return ReturnInvalid(ret);
+
 		default:
 			return subtypep_atomic_not_(ptr, x, y, ret);
 	}
@@ -410,6 +413,9 @@ int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 
 		case LISPDECL_T:
 			return ReturnInclude(ret);
+
+		case LISPDECL_INVALID:
+			return ReturnInvalid(ret);
 
 		default:
 			return subtypep_left_(ptr, x, y, ret);

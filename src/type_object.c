@@ -563,6 +563,7 @@ void init_type_object(void)
 
 	/* object */
 	TypeObjectTable[LISPDECL_EMPTY] = type_object_error;
+	TypeObjectTable[LISPDECL_INVALID] = type_object_name;
 	TypeObjectTable[LISPDECL_OPTIMIZED] = type_object_optimized;
 	TypeObjectTable[LISPDECL_SUBTYPEP] = type_object_subtypep;
 	TypeObjectTable[LISPDECL_TYPE] = type_object_type;

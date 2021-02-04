@@ -247,6 +247,36 @@ static int extract_vector(LocalRoot local,
 	return 0;
 }
 
+/* sequence -> (or null cons (array * 1)) */
+static int check_sequence_(addr right, int *ret)
+{
+	*ret = (RefLispDecl(right) == LISPDECL_SEQUENCE);
+	return 0;
+}
+
+static int optimize_sequence_(LocalRoot local, addr right, addr *value, int *ret)
+{
+	addr pos, array, type;
+
+	Return_check_optimize(check_sequence_, right, ret);
+	vector4_local(local, &array, 3);
+	/* null */
+	type0_local(local, LISPDECL_NULL, &pos);
+	SetArrayA4(array, 0, pos);
+	/* cons */
+	type2aster_localall(local, LISPDECL_CONS, &pos);
+	SetArrayA4(array, 1, pos);
+	/* (array * 1) */
+	type0_local(local, LISPDECL_ASTERISK, &type);
+	fixnum_local(local, &pos, 1);
+	type2_local(local, LISPDECL_ARRAY, type, pos, &pos);
+	SetArrayA4(array, 2, pos);
+	/* result */
+	type1_local(local, LISPDECL_OR, array, value);
+
+	return Result(ret, 1);
+}
+
 /* (vector type size) -> (array type (size)) */
 static int check_vector_(addr right, int *ret)
 {
@@ -1546,6 +1576,7 @@ static int check_optimize_(addr type, int *ret)
 	Return_or_optimize(check_atom_, type, ret);
 	Return_or_optimize(check_list_, type, ret);
 	Return_or_optimize(check_boolean_, type, ret);
+	Return_or_optimize(check_sequence_, type, ret);
 	Return_or_optimize(check_vector_, type, ret);
 	Return_or_optimize(check_simple_vector_, type, ret);
 	Return_or_optimize(check_bit_vector_, type, ret);
@@ -1602,6 +1633,7 @@ static int type_optimize_(LocalRoot local, addr type, addr *value, int *ret)
 		extractcallnot(local, optimize_atom_, type, update);
 		extractcallnot(local, optimize_list_, type, update);
 		extractcallnot(local, optimize_boolean_, type, update);
+		extractcallnot(local, optimize_sequence_, type, update);
 		extractcallnot(local, optimize_vector_, type, update);
 		extractcallnot(local, optimize_simple_vector_, type, update);
 		extractcallnot(local, optimize_bit_vector_, type, update);
@@ -1639,7 +1671,8 @@ static int type_optimize_(LocalRoot local, addr type, addr *value, int *ret)
 		extractcallnot(local, optimize_function_, type, update);
 		extractcallnot(local, optimize_cons, type, update);
 		if (update == 0)
-			break;                                                               }
+			break;
+	}
 	*value = type;
 
 	return Result(ret, loop);

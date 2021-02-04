@@ -93,42 +93,38 @@
   include)
 
 (deftest subtypep-cons.2
-  (subtypep! 'sequence 'cons)
-  false)
-
-(deftest subtypep-cons.3
   (subtypep! 'null 'cons)
   exclude)
 
-(deftest subtypep-cons.4
+(deftest subtypep-cons.3
   (subtypep! '(cons integer cons) '(cons * *))
   include)
 
-(deftest subtypep-cons.5
+(deftest subtypep-cons.4
   (subtypep! '(cons integer cons) '(cons real *))
   include)
 
-(deftest subtypep-cons.6
+(deftest subtypep-cons.5
   (subtypep! '(cons integer cons) '(cons * cons))
   include)
 
-(deftest subtypep-cons.7
+(deftest subtypep-cons.6
   (subtypep! '(cons integer cons) '(cons character cons))
   false)
 
-(deftest subtypep-cons.8
+(deftest subtypep-cons.7
   (subtypep! '(cons integer real) '(cons t integer))
   false)
 
-(deftest subtypep-cons.9
+(deftest subtypep-cons.8
   (subtypep! '(cons integer real) '(cons t t))
   include)
 
-(deftest subtypep-cons.10
+(deftest subtypep-cons.9
   (subtypep! '(cons * real) '(cons real t))
   false)
 
-(deftest subtypep-cons.11
+(deftest subtypep-cons.10
   (subtypep! '(cons integer *) '(cons t real))
   false)
 
@@ -552,4 +548,24 @@
 (deftest subtypep-satisfies.4
   (subtypep! '(satisfies hello) t)
   include)
+
+
+;;
+;;  invalid
+;;
+(deftest subtypep-compound-invalid.1
+  (subtypep! 'integer 'invalid)
+  invalid)
+
+(deftest subtypep-compound-invalid.2
+  (subtypep! 'invalid 'cons)
+  invalid)
+
+(deftest subtypep-compound-invalid.3
+  (subtypep! 'integer '(not invalid))
+  invalid)
+
+(deftest subtypep-compound-invalid.4
+  (subtypep! '(not invalid) 'cons)
+  invalid)
 

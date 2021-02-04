@@ -26,6 +26,7 @@
 (load #p"test/rtsubtypep-subtypep2.lisp")
 (load #p"test/rtsubtypep-subtypep3.lisp")
 (load #p"test/rtsubtypep-subtypep4.lisp")
+(load #p"test/rtsubtypep-subtypep5.lisp")
 
 
 ;;

@@ -53,6 +53,7 @@ static void typetable_type4(enum LISPDECL type, enum TypeTable table)
 #define DefTypeTable(n,a,b) \
 	static void typetable_##b(void) { TypeTable##n(a,b); }
 
+DefTypeTable(0,  INVALID,              Invalid              );
 DefTypeTable(0,  TYPE,                 Type                 );
 DefTypeTable(0,  ASTERISK,             Asterisk             );
 DefTypeTable(0,  ATOM,                 Atom                 );
@@ -2909,6 +2910,7 @@ static void typecompiled_make_memory_output_stream(void)
 void build_type_constant(void)
 {
 	/* Atomic-Type */
+	typetable_Invalid();
 	typetable_Type();
 	typetable_Asterisk();
 	typetable_Atom();

@@ -337,6 +337,7 @@ void init_type_copy(void)
 	for (i = 0; i < LISPDECL_SIZE; i++)
 		TypeCopyTable[i] = type_copy_error;
 
+	TypeCopyTable[LISPDECL_INVALID] = typecopy_empty;
 	TypeCopyTable[LISPDECL_TYPE] = typecopy_empty;
 	TypeCopyTable[LISPDECL_CLOS] = typecopy_clos;
 	TypeCopyTable[LISPDECL_ASTERISK] = typecopy_allobject;
