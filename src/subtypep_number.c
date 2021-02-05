@@ -1,50 +1,271 @@
+#include "bignum.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "copy.h"
+#include "float_object.h"
 #include "format.h"
 #include "sequence.h"
 #include "subtypep_number.h"
 #include "subtypep_range.h"
 #include "subtypep_optimize.h"
+#include "ratio.h"
+#include "real_truncate.h"
 #include "type.h"
 #include "type_copy.h"
 #include "type_parse.h"
 #include "type_table.h"
 
 /*
+ *  coerce
+ */
+static int real_extract_integer_local_(LocalRoot local, addr pos, addr *ret)
+{
+	addr rem;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+			return Result(ret, pos);
+
+		case LISPTYPE_RATIO:
+		case LISPTYPE_SINGLE_FLOAT:
+		case LISPTYPE_DOUBLE_FLOAT:
+		case LISPTYPE_LONG_FLOAT:
+			return truncate1_common_(local, ret, &rem, pos);
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type ~S.", pos, NULL);
+	}
+}
+
+static int real_extract_rational_local_(LocalRoot local, addr pos, addr *ret)
+{
+	addr rem;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+		case LISPTYPE_RATIO:
+			return Result(ret, pos);
+
+		case LISPTYPE_SINGLE_FLOAT:
+		case LISPTYPE_DOUBLE_FLOAT:
+		case LISPTYPE_LONG_FLOAT:
+			return truncate1_common_(local, ret, &rem, pos);
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type ~S.", pos, NULL);
+	}
+}
+
+static int real_extract_single_local_(LocalRoot local, addr pos, addr *ret)
+{
+	single_float value;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			single_float_fixnum_local(local, ret, pos);
+			return 0;
+
+		case LISPTYPE_BIGNUM:
+			return single_float_bignum_local_(local, ret, pos);
+
+		case LISPTYPE_RATIO:
+			return single_float_ratio_local_(local, ret, pos);
+
+		case LISPTYPE_SINGLE_FLOAT:
+			return Result(ret, pos);
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			Return(cast_ds_value_(pos, &value));
+			single_float_local(local, ret, value);
+			return 0;
+
+		case LISPTYPE_LONG_FLOAT:
+			Return(cast_ls_value_(pos, &value));
+			single_float_local(local, ret, value);
+			return 0;
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type ~S.", pos, NULL);
+	}
+}
+
+static int real_extract_double_local_(LocalRoot local, addr pos, addr *ret)
+{
+	double_float value;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			double_float_fixnum_local(local, ret, pos);
+			return 0;
+
+		case LISPTYPE_BIGNUM:
+			return double_float_bignum_local_(local, ret, pos);
+
+		case LISPTYPE_RATIO:
+			return double_float_ratio_local_(local, ret, pos);
+
+		case LISPTYPE_SINGLE_FLOAT:
+			Return(cast_sd_value_(pos, &value));
+			double_float_local(local, ret, value);
+			return 0;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return Result(ret, pos);
+
+		case LISPTYPE_LONG_FLOAT:
+			Return(cast_ld_value_(pos, &value));
+			double_float_local(local, ret, value);
+			return 0;
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type ~S.", pos, NULL);
+	}
+}
+
+static int real_extract_long_local_(LocalRoot local, addr pos, addr *ret)
+{
+	long_float value;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			long_float_fixnum_local(local, ret, pos);
+			return 0;
+
+		case LISPTYPE_BIGNUM:
+			return long_float_bignum_local_(local, ret, pos);
+
+		case LISPTYPE_RATIO:
+			return long_float_ratio_local_(local, ret, pos);
+
+		case LISPTYPE_SINGLE_FLOAT:
+			Return(cast_sl_value_(pos, &value));
+			long_float_local(local, ret, value);
+			return 0;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			Return(cast_dl_value_(pos, &value));
+			long_float_local(local, ret, value);
+			return 0;
+
+		case LISPTYPE_LONG_FLOAT:
+			return Result(ret, pos);
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type ~S.", pos, NULL);
+	}
+}
+
+static int real_extract_float_local_(LocalRoot local, addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			single_float_fixnum_local(local, ret, pos);
+			return 0;
+
+		case LISPTYPE_BIGNUM:
+			return single_float_bignum_local_(local, ret, pos);
+
+		case LISPTYPE_RATIO:
+			return single_float_ratio_local_(local, ret, pos);
+
+		case LISPTYPE_SINGLE_FLOAT:
+		case LISPTYPE_DOUBLE_FLOAT:
+		case LISPTYPE_LONG_FLOAT:
+			return Result(ret, pos);
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type ~S.", pos, NULL);
+	}
+}
+
+static int real_extract_lispdecl_local_(LocalRoot local,
+		enum LISPDECL type, addr pos, addr *ret)
+{
+	if (type_asterisk_p(pos))
+		return Result(ret, pos);
+
+	switch (type) {
+		case LISPDECL_INTEGER:
+			return real_extract_integer_local_(local, pos, ret);
+
+		case LISPDECL_RATIONAL:
+			return real_extract_rational_local_(local, pos, ret);
+
+		case LISPDECL_SHORT_FLOAT:
+		case LISPDECL_SINGLE_FLOAT:
+			return real_extract_single_local_(local, pos, ret);
+
+		case LISPDECL_DOUBLE_FLOAT:
+			return real_extract_double_local_(local, pos, ret);
+
+		case LISPDECL_LONG_FLOAT:
+			return real_extract_long_local_(local, pos, ret);
+
+		case LISPDECL_FLOAT:
+			return real_extract_float_local_(local, pos, ret);
+
+		case LISPDECL_REAL:
+			return Result(ret, pos);
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid real type.", NULL);
+	}
+}
+
+
+/*
  *  real_filter
  */
-static void type_range_left(LocalRoot local,
+static int type_range_left_(LocalRoot local,
 		addr *ret, enum LISPDECL type, addr left1, addr left2)
 {
 	addr aster;
+
 	GetTypeTable(&aster, Asterisk);
+	Return(real_extract_lispdecl_local_(local, type, left2, &left2));
 	type4_local(local, type, left1, left2, aster, aster, ret);
+
+	return 0;
 }
 
-static void type_range_right(LocalRoot local,
+static int type_range_right_(LocalRoot local,
 		addr *ret, enum LISPDECL type, addr right1, addr right2)
 {
 	addr aster;
+
 	GetTypeTable(&aster, Asterisk);
+	Return(real_extract_lispdecl_local_(local, type, right2, &right2));
 	type4_local(local, type, aster, aster, right1, right2, ret);
+
+	return 0;
 }
 
-static void type_range_not(LocalRoot local, addr *ret, enum LISPDECL type,
+static int type_range_not_(LocalRoot local, addr *ret, enum LISPDECL type,
 		addr left1, addr left2, addr right1, addr right2)
 {
 	addr pos;
 
 	vector4_local(local, &pos, 2);
-	type_range_left(local, &right1, type, (right1 == Nil)? T: Nil, right2);
-	type_range_right(local, &left1, type, (left1 == Nil)? T: Nil, left2);
+	Return(type_range_left_(local, &right1, type, (right1 == Nil)? T: Nil, right2));
+	Return(type_range_right_(local, &left1, type, (left1 == Nil)? T: Nil, left2));
 	SetArrayA4(pos, 0, right1);
 	SetArrayA4(pos, 1, left1);
 	type1_local(local, LISPDECL_OR, pos, ret);
+
+	return 0;
 }
 
-static void real_filter_not_range(LocalRoot local,
+static int real_filter_not_range_(LocalRoot local,
 		addr *ret, addr type, enum LISPDECL decl)
 {
 	int aster1, aster2;
@@ -54,43 +275,35 @@ static void real_filter_not_range(LocalRoot local,
 	GetArrayType(type, 2, &right1);
 	aster1 = type_asterisk_p(left1);
 	aster2 = type_asterisk_p(right1);
-	if (aster1 && aster2) {
-		*ret = Nil;
-		return;
-	}
+	if (aster1 && aster2)
+		return Result(ret, Nil);
 
 	GetArrayType(type, 3, &right2);
-	if (aster1) {
-		type_range_left(local, ret, decl, (right1 == Nil)? T: Nil, right2);
-		return;
-	}
+	if (aster1)
+		return type_range_left_(local, ret, decl, (right1 == Nil)? T: Nil, right2);
 
 	GetArrayType(type, 1, &left2);
-	if (aster2) {
-		type_range_right(local, ret, decl, (left1 == Nil)? T: Nil, left2);
-		return;
-	}
+	if (aster2)
+		return type_range_right_(local, ret, decl, (left1 == Nil)? T: Nil, left2);
 
-	type_range_not(local, ret, decl, left1, left2, right1, right2);
+	return type_range_not_(local, ret, decl, left1, left2, right1, right2);
 }
 
-static void real_filter_not(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int real_filter_not_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	enum LISPDECL right;
 
 	GetLispDecl(type, &right);
-	if (right == LISPDECL_NUMBER) {
-		*ret = Nil;
-		return;
-	}
-	if (decl_subtypep_real(decl, right)) {
-		real_filter_not_range(local, ret, type, decl);
-		return;
-	}
+	if (right == LISPDECL_NUMBER)
+		return Result(ret, Nil);
+	if (decl_subtypep_real(decl, right))
+		return real_filter_not_range_(local, ret, type, decl);
 	type4aster_local(local, decl, ret);
+
+	return 0;
 }
 
-static void real_filter_normal(LocalRoot local,
+static int real_filter_normal_(LocalRoot local,
 		addr *ret, addr type, enum LISPDECL decl)
 {
 	enum LISPDECL right;
@@ -99,25 +312,28 @@ static void real_filter_normal(LocalRoot local,
 	GetLispDecl(type, &right);
 	if (right == LISPDECL_NUMBER) {
 		type4aster_local(local, decl, ret);
-		return;
+		return 0;
 	}
 	if (decl_subtypep_real(decl, right)) {
 		GetArrayType(type, 0, &left1);
 		GetArrayType(type, 1, &left2);
 		GetArrayType(type, 2, &right1);
 		GetArrayType(type, 3, &right2);
+		Return(real_extract_lispdecl_local_(local, decl, left2, &left2));
+		Return(real_extract_lispdecl_local_(local, decl, right2, &right2));
 		type4_local(local, decl, left1, left2, right1, right2, ret);
-		return;
+		return 0;
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-static void real_filter_type(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int real_filter_type_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	if (RefNotDecl(type))
-		real_filter_not(local, ret, type, decl);
+		return real_filter_not_(local, ret, type, decl);
 	else
-		real_filter_normal(local, ret, type, decl);
+		return real_filter_normal_(local, ret, type, decl);
 }
 
 static void vector4_andor(LocalRoot local,
@@ -138,8 +354,8 @@ static void vector4_andor(LocalRoot local,
 	type1_local(local, decl, dst, ret);
 }
 
-static void real_filter(LocalRoot local, addr *ret, addr type, enum LISPDECL decl);
-static void real_filter_and(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int real_filter_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl);
+static int real_filter_and_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	addr temp, pos;
 	size_t i, size, count;
@@ -150,19 +366,18 @@ static void real_filter_and(LocalRoot local, addr *ret, addr type, enum LISPDECL
 	vector4_local(local, &temp, size);
 	for (count = i = 0; i < size; i++) {
 		GetArrayA4(type, i, &pos);
-		real_filter(local, &pos, pos, decl);
-		if (pos == Nil) {
-			*ret = Nil;
-			return;
-		}
+		Return(real_filter_(local, &pos, pos, decl));
+		if (pos == Nil)
+			return Result(ret, Nil);
 		SetArrayA4(temp, count++, pos);
 	}
 
 	/* make type-or */
 	vector4_andor(local, ret, temp, count, LISPDECL_AND);
+	return 0;
 }
 
-static void real_filter_or(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int real_filter_or_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	addr temp, pos;
 	size_t i, size, count;
@@ -173,7 +388,7 @@ static void real_filter_or(LocalRoot local, addr *ret, addr type, enum LISPDECL 
 	vector4_local(local, &temp, size);
 	for (count = i = 0; i < size; i++) {
 		GetArrayA4(type, i, &pos);
-		real_filter(local, &pos, pos, decl);
+		Return(real_filter_(local, &pos, pos, decl));
 		if (pos != Nil) {
 			SetArrayA4(temp, count++, pos);
 		}
@@ -181,22 +396,20 @@ static void real_filter_or(LocalRoot local, addr *ret, addr type, enum LISPDECL 
 
 	/* make type-or */
 	vector4_andor(local, ret, temp, count, LISPDECL_OR);
+	return 0;
 }
 
-static void real_filter(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
+static int real_filter_(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
 {
 	switch (RefLispDecl(type)) {
 		case LISPDECL_AND:
-			real_filter_and(local, ret, type, decl);
-			break;
+			return real_filter_and_(local, ret, type, decl);
 
 		case LISPDECL_OR:
-			real_filter_or(local, ret, type, decl);
-			break;
+			return real_filter_or_(local, ret, type, decl);
 
 		default:
-			real_filter_type(local, ret, type, decl);
-			break;
+			return real_filter_type_(local, ret, type, decl);
 	}
 }
 
@@ -212,29 +425,35 @@ static void merge_range_cons(LocalRoot local, addr *ret, addr type, enum LISPDEC
 }
 
 /* merge-range-and */
-static void make_range_left_right(LocalRoot local, addr *ret, addr left, addr right)
+static int make_range_left_right_(LocalRoot local, addr *ret, addr left, addr right)
 {
+	enum LISPDECL decl;
 	addr left1, left2, right1, right2;
 
 	range_left_value(left, &left1, &left2);
 	range_right_value(right, &right1, &right2);
-	type4_local(local, RefLispDecl(left), left1, left2, right1, right2, ret);
+	GetLispDecl(left, &decl);
+	Return(real_extract_lispdecl_local_(local, decl, left2, &left2));
+	Return(real_extract_lispdecl_local_(local, decl, right2, &right2));
+	type4_local(local, decl, left1, left2, right1, right2, ret);
+
+	return 0;
 }
 
-static void make_range_left_aster(LocalRoot local, addr *ret, addr left)
+static int make_range_left_aster_(LocalRoot local, addr *ret, addr left)
 {
 	addr left1, left2;
 
 	range_left_value(left, &left1, &left2);
-	type_range_left(local, ret, RefLispDecl(left), left1, left2);
+	return type_range_left_(local, ret, RefLispDecl(left), left1, left2);
 }
 
-static void make_range_aster_right(LocalRoot local, addr *ret, addr right)
+static int make_range_aster_right_(LocalRoot local, addr *ret, addr right)
 {
 	addr right1, right2;
 
 	range_right_value(right, &right1, &right2);
-	type_range_right(local, ret, RefLispDecl(right), right1, right2);
+	return type_range_right_(local, ret, RefLispDecl(right), right1, right2);
 }
 
 /* (10 *) (20 *) */
@@ -251,13 +470,10 @@ static int range_and_right_left_(LocalRoot local, addr *ret, addr left, addr rig
 	int check;
 
 	Return(range_right_left_greater_equal_(left, right, &check));
-	if (check) {
-		make_range_left_right(local, ret, right, left);
-		return 0;
-	}
-	else {
-		return Result(ret, Nil);
-	}
+	if (check)
+		return make_range_left_right_(local, ret, right, left);
+
+	return Result(ret, Nil);
 }
 
 /* (10 20) (15 *) */
@@ -266,14 +482,12 @@ static int range_and_between_left_(LocalRoot local, addr *ret, addr left, addr r
 	int check;
 
 	Return(range_left_left_less_equal_(right, left, &check));
-	if (check) {
+	if (check)
 		return Result(ret, left);
-	}
+
 	Return(range_left_right_less_equal_(right, left, &check));
-	if (check) {
-		make_range_left_right(local, ret, right, left);
-		return 0;
-	}
+	if (check)
+		return make_range_left_right_(local, ret, right, left);
 
 	return Result(ret, Nil);
 }
@@ -299,13 +513,10 @@ static int range_and_left_right_(LocalRoot local, addr *ret, addr left, addr rig
 	int check;
 
 	Return(range_left_right_less_equal_(left, right, &check));
-	if (check) {
-		make_range_left_right(local, ret, left, right);
-		return 0;
-	}
-	else {
-		return Result(ret, Nil);
-	}
+	if (check)
+		return make_range_left_right_(local, ret, left, right);
+
+	return Result(ret, Nil);
 }
 
 /* (* 10) (* 20) */
@@ -324,11 +535,10 @@ static int range_and_between_right_(LocalRoot local, addr *ret, addr left, addr 
 	Return(range_right_right_less_equal_(left, right, &check));
 	if (check)
 		return Result(ret, left);
+
 	Return(range_left_right_less_equal_(left, right, &check));
-	if (check) {
-		make_range_left_right(local, ret, left, right);
-		return 0;
-	}
+	if (check)
+		return make_range_left_right_(local, ret, left, right);
 
 	return Result(ret, Nil);
 }
@@ -360,15 +570,11 @@ static int range_and_between_between_(LocalRoot local, addr *ret, addr left, add
 	if (check)
 		return Result(ret, left);
 	Return(range_between_left_(left, right, &check));
-	if (check) {
-		make_range_left_right(local, ret, right, left);
-		return 0;
-	}
+	if (check)
+		return make_range_left_right_(local, ret, right, left);
 	Return(range_between_right_(left, right, &check));
-	if (check) {
-		make_range_left_right(local, ret, left, right);
-		return 0;
-	}
+	if (check)
+		return make_range_left_right_(local, ret, left, right);
 
 	return Result(ret, Nil);
 }
@@ -657,7 +863,7 @@ static int range_or_range_left_(
 		return Result(ret, 0);
 
 	/* true */
-	make_range_left_aster(local, value, left);
+	Return(make_range_left_aster_(local, value, left));
 	return Result(ret, 1);
 }
 
@@ -676,7 +882,7 @@ static int range_or_range_right_(
 		return Result(ret, 0);
 
 	/* true */
-	make_range_aster_right(local, value, left);
+	Return(make_range_aster_right_(local, value, left));
 	return Result(ret, 1);
 }
 
@@ -717,7 +923,7 @@ static int range_or_range_range_left_(
 		return Result(ret, 0);
 
 	/* true */
-	make_range_left_right(local, value, left, right);
+	Return(make_range_left_right_(local, value, left, right));
 	return Result(ret, 1);
 }
 
@@ -739,7 +945,7 @@ static int range_or_range_range_right_(
 		return Result(ret, 0);
 
 	/* true */
-	make_range_left_right(local, value, right, left);
+	Return(make_range_left_right_(local, value, right, left));
 	return Result(ret, 1);
 }
 
@@ -875,7 +1081,7 @@ static int merge_range_(LocalRoot local, addr *ret, addr type, enum LISPDECL dec
 {
 	int ignore;
 
-	real_filter(local, &type, type, decl);
+	Return(real_filter_(local, &type, type, decl));
 	if (type != Nil) {
 		Return(type_optimize_local_(local, type, &type, &ignore));
 		get_type_optimized(&type, type);
@@ -918,7 +1124,7 @@ static int real_filter_range_list_(LocalRoot local, addr type,
 			size++;
 		}
 	}
-	nreverse(value, cons);
+	*value = cons;
 
 	return Result(ret, size);
 }
@@ -960,6 +1166,7 @@ static int make_real_filter_(LocalRoot local, addr *ret, addr type)
 		return Result(ret, type);
 	real_reject(local, &type, type);
 	cons_local(local, &pos, type, pos);
+	nreverse(&pos, pos);
 	copy_cons_to_vector4_local(local, &pos, pos, size + 1UL);
 	type1_local(local, LISPDECL_OR, pos, ret);
 

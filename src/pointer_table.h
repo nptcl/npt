@@ -1275,6 +1275,7 @@ enum pointer_index {
 	p_defun_syscall_make_complex,
 	p_defun_syscall_equal_random_state,
 	p_defun_syscall_subtypep_extend,
+	p_defun_syscall_subtypep_number,
 	p_defun_syscall_eastasian_set,
 	p_defun_syscall_eastasian_get,
 	p_defun_syscall_eastasian_width,

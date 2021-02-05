@@ -139,3 +139,63 @@
   (subtypep! '(or integer symbol) '(or real symbol))
   include)
 
+
+;;
+;;  number
+;;
+(deftest subtypep-number-integer.1
+  (subtypep-number t)
+  t)
+
+(deftest subtypep-number-integer.2
+  (subtypep-number 'integer)
+  (or integer
+      (and (not real)
+           integer)))
+
+(deftest subtypep-number-integer.3
+  (subtypep-number '(or (integer 10 40) (integer 30 60)))
+  (or (integer 10 60)
+      (and (not real)
+           (or (integer 10 40) (integer 30 60)))))
+
+(deftest subtypep-number-integer.4
+  (subtypep! '(integer 20 50)
+             '(or (integer 10 40) (integer 30 60)))
+  include)
+
+(deftest subtypep-number-integer.5
+  (subtypep! '(integer 20 50)
+             '(or (integer 10 40) (integer 30 60))
+             nil 'subtypep-compound)
+  false)
+
+(deftest subtypep-number-rational.1
+  (subtypep-number '(rational 10 20))
+  (or (integer 10 20)
+      (rational 10 20)
+      (and (not real)
+           (rational 10 20))))
+
+(deftest subtypep-number-rational.2
+  (subtypep-number '(or (integer 10 40)
+                        (rational 30 60)))
+  (or (integer 10 60)
+      (rational 30 60)
+      (and (not real)
+           (or (integer 10 40)
+               (rational 30 60)))))
+
+(deftest subtypep-number-real.1
+  (subtypep-number '(or (real 10 40)
+                        (single-float 20.0f0 50.0f0)))
+  (or (integer 10 40)
+      (rational 10 40)
+      (short-float 10.0s0 40.0s0)
+      (single-float 10.0f0 50.0f0)
+      (double-float 10.0d0 40.0d0)
+      (long-float 10.0L0 40.0L0)
+      (and (not real)
+           (or (real 10 40)
+               (single-float 20.0f0 50.0f0)))))
+

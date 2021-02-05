@@ -903,6 +903,41 @@ static void defun_subtypep_extend(void)
 }
 
 
+/* (defun subtypep-number (x) ...) -> type-specifier */
+static int syscall_subtypep_number(Execute ptr, addr x)
+{
+	Return(subtypep_number_syscode_(ptr, x, &x));
+	setresult_control(ptr, x);
+	return 0;
+}
+
+static void type_syscall_subtypep_number(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, TypeSpec);
+	typeargs_var1(&args, args);
+	GetTypeTable(&values, TypeSpec);
+	typevalues_result(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_subtypep_number(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_SUBTYPEP_NUMBER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_subtypep_number);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_subtypep_number(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun eastasian-set (string-designer intplus &optional error) ...) -> boolean) */
 static int syscall_eastasian_set(Execute ptr, addr var, addr value, addr errorp)
 {
@@ -1622,6 +1657,7 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var2, make_complex);
 	SetPointerSysCall(defun, var2, equal_random_state);
 	SetPointerSysCall(defun, var2opt2, subtypep_extend);
+	SetPointerSysCall(defun, var1, subtypep_number);
 	SetPointerSysCall(defun, var3, eastasian_set);
 	SetPointerSysCall(defun, var1, eastasian_get);
 	SetPointerSysCall(defun, var1, eastasian_width);
@@ -1679,6 +1715,7 @@ void build_syscall_function(void)
 	defun_make_complex();
 	defun_equal_random_state();
 	defun_subtypep_extend();
+	defun_subtypep_number();
 	defun_eastasian_set();
 	defun_eastasian_get();
 	defun_eastasian_width();

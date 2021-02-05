@@ -13,6 +13,7 @@
 (import 'lisp-system::subtypep-compound)
 (import 'lisp-system::subtypep-force-number)
 (import 'lisp-system::subtypep-normal)
+(import 'lisp-system::subtypep-number)
 (import 'lisp-system::include)
 (import 'lisp-system::exclude)
 (import 'lisp-system::invalid)

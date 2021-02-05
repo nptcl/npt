@@ -35,7 +35,7 @@ static int test_type_range_left(void)
 
 	check = 0;
 
-	type_range_left(local, &pos, LISPDECL_INTEGER, T, fixnumh(10));
+	type_range_left_(local, &pos, LISPDECL_INTEGER, T, fixnumh(10));
 	test(range_left_p(pos), "type_range_left1");
 	range_left_value(pos, &check, &pos);
 	test(check == T, "type_range_left2");
@@ -51,7 +51,7 @@ static int test_type_range_right(void)
 
 	check = 0;
 
-	type_range_right(local, &pos, LISPDECL_INTEGER, T, fixnumh(10));
+	type_range_right_(local, &pos, LISPDECL_INTEGER, T, fixnumh(10));
 	test(range_right_p(pos), "type_range_right1");
 	range_right_value(pos, &check, &pos);
 	test(check == T, "type_range_right2");
@@ -65,7 +65,7 @@ static int test_type_range_not(void)
 	addr pos, left, right;
 	LocalRoot local = Local_Thread;
 
-	type_range_not(local, &pos, LISPDECL_INTEGER,
+	type_range_not_(local, &pos, LISPDECL_INTEGER,
 			Nil, fixnumh(10),
 			T, fixnumh(20));
 	test(RefLispDecl(pos) == LISPDECL_OR, "type_range_not1");
@@ -133,21 +133,21 @@ static int test_real_filter_not_range(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range_(local, &pos1, pos1, LISPDECL_REAL);
 	test(pos1 == Nil, "real_filter_not_range1");
 
 	parse_type_string(&pos1, "(integer 10 *)");
 	parse_type_string(&pos2, "(real * (10))");
-	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range_(local, &pos1, pos1, LISPDECL_REAL);
 	test(equal_real(pos1, pos2), "real_filter_not_range2");
 
 	parse_type_string(&pos1, "(integer * (20))");
 	parse_type_string(&pos2, "(real 20 *)");
-	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range_(local, &pos1, pos1, LISPDECL_REAL);
 	test(equal_real(pos1, pos2), "real_filter_not_range3");
 
 	parse_type_string(&pos1, "(integer 10 (20))");
-	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range_(local, &pos1, pos1, LISPDECL_REAL);
 	test(RefLispDecl(pos1) == LISPDECL_OR, "real_filter_not_range4");
 
 	RETURN;
@@ -159,30 +159,30 @@ static int test_real_filter_not(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_not(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_not_(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_not1");
 
 	parse_type_string(&pos1, "integer");
-	real_filter_not(local, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_not_(local, &pos1, pos1, LISPDECL_RATIONAL);
 	parse_type_string(&pos2, "rational");
 	test(equal_real(pos1, pos2), "real_filter_not2");
 
 	parse_type_string(&pos1, "real");
-	real_filter_not(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_not_(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_not3");
 
 	parse_type_string(&pos1, "(integer 10)");
-	real_filter_not(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_not_(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "(integer * (10))");
 	test(equal_real(pos1, pos2), "real_filter_not4");
 
 	parse_type_string(&pos1, "(integer 10)");
-	real_filter_not(local, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_not_(local, &pos1, pos1, LISPDECL_RATIONAL);
 	parse_type_string(&pos2, "rational");
 	test(equal_real(pos1, pos2), "real_filter_not5");
 
 	parse_type_string(&pos1, "(real 10)");
-	real_filter_not(local, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_not_(local, &pos1, pos1, LISPDECL_RATIONAL);
 	parse_type_string(&pos2, "(rational * (10))");
 	test(equal_real(pos1, pos2), "real_filter_not6");
 
@@ -195,21 +195,21 @@ static int test_real_filter_normal(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_normal(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_normal_(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_normal1");
 
 	parse_type_string(&pos1, "integer");
-	real_filter_normal(local, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_normal_(local, &pos1, pos1, LISPDECL_RATIONAL);
 	test(pos1 == Nil, "real_filter_normal2");
 
 	parse_type_string(&pos1, "real");
-	real_filter_normal(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_normal_(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_normal3");
 
 	parse_type_string(&pos1, "(real 10 20)");
-	real_filter_normal(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_normal_(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "(integer 10 20)");
 	test(equal_real(pos1, pos2), "real_filter_normal4");
 
@@ -222,35 +222,35 @@ static int test_real_filter_type(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type_(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_type1");
 
 	parse_type_string(&pos1, "integer");
 	type_copy_local(local, &pos1, pos1);
 	SetNotDecl(pos1, 1);
-	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type_(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_type2");
 
 	parse_type_string(&pos1, "real");
-	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type_(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_type3");
 
 	parse_type_string(&pos1, "real");
 	type_copy_local(local, &pos1, pos1);
 	SetNotDecl(pos1, 1);
-	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type_(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_type4");
 
 	parse_type_string(&pos1, "integer");
-	real_filter_type(local, &pos1, pos1, LISPDECL_REAL);
+	real_filter_type_(local, &pos1, pos1, LISPDECL_REAL);
 	test(pos1 == Nil, "real_filter_type5");
 
 	parse_type_string(&pos1, "integer");
 	type_copy_local(local, &pos1, pos1);
 	SetNotDecl(pos1, 1);
-	real_filter_type(local, &pos1, pos1, LISPDECL_REAL);
+	real_filter_type_(local, &pos1, pos1, LISPDECL_REAL);
 	parse_type_string(&pos2, "real");
 	test(equal_real(pos1, pos2), "real_filter_type6");
 
@@ -265,11 +265,11 @@ static int test_real_filter_and(void)
 	check = 0;
 
 	parse_type_string(&pos, "(and real rational real)");
-	real_filter_and(local, &pos, pos, LISPDECL_REAL);
+	real_filter_and_(local, &pos, pos, LISPDECL_REAL);
 	test(pos == Nil, "real_filter_and1");
 
 	parse_type_string(&pos, "(and real rational)");
-	real_filter_and(local, &pos, pos, LISPDECL_INTEGER);
+	real_filter_and_(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter_and2");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_and3");
@@ -289,7 +289,7 @@ static int test_real_filter_or(void)
 	check = 0;
 
 	parse_type_string(&pos, "(or real rational)");
-	real_filter_or(local, &pos, pos, LISPDECL_INTEGER);
+	real_filter_or_(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter_or1");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_or2");
@@ -299,7 +299,7 @@ static int test_real_filter_or(void)
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter_or4");
 
 	parse_type_string(&pos, "(or real rational real)");
-	real_filter_or(local, &pos, pos, LISPDECL_REAL);
+	real_filter_or_(local, &pos, pos, LISPDECL_REAL);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter_or5");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_or6");
@@ -309,7 +309,7 @@ static int test_real_filter_or(void)
 	test(RefLispDecl(check) == LISPDECL_REAL, "real_filter_or8");
 
 	parse_type_string(&pos, "(or real rational)");
-	real_filter_or(local, &pos, pos, LISPDECL_INTEGER);
+	real_filter_or_(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter_or9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_or10");
@@ -329,16 +329,16 @@ static int test_real_filter(void)
 	check = 0;
 
 	parse_type_string(&pos, "real");
-	real_filter(local, &pos, pos, LISPDECL_INTEGER);
+	real_filter_(local, &pos, pos, LISPDECL_INTEGER);
 	parse_type_string(&check, "integer");
 	test(equal_real(pos, check), "real_filter1");
 
 	parse_type_string(&pos, "integer");
-	real_filter(local, &pos, pos, LISPDECL_REAL);
+	real_filter_(local, &pos, pos, LISPDECL_REAL);
 	test(pos == Nil, "real_filter2");
 
 	parse_type_string(&pos, "(and real)");
-	real_filter(local, &pos, pos, LISPDECL_INTEGER);
+	real_filter_(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 1, "real_filter4");
@@ -346,7 +346,7 @@ static int test_real_filter(void)
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter5");
 
 	parse_type_string(&pos, "(or real)");
-	real_filter(local, &pos, pos, LISPDECL_INTEGER);
+	real_filter_(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter5");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 1, "real_filter6");
@@ -385,7 +385,7 @@ static int test_make_range_left_right(void)
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(real (30) (40))");
-	make_range_left_right(local, &left, left, right);
+	make_range_left_right_(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 (40))");
 	test(equal_real(left, right), "make_range_left_right1");
 
@@ -398,7 +398,7 @@ static int test_make_range_left_aster(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 20)");
-	make_range_left_aster(local, &left, left);
+	make_range_left_aster_(local, &left, left);
 	parse_type_string(&right, "(integer 10 *)");
 	test(equal_real(left, right), "make_range_left_aster1");
 
@@ -411,7 +411,7 @@ static int test_make_range_aster_right(void)
 	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer (10) (20))");
-	make_range_aster_right(local, &left, left);
+	make_range_aster_right_(local, &left, left);
 	parse_type_string(&right, "(integer * (20))");
 	test(equal_real(left, right), "make_range_aster_right1");
 
@@ -1858,11 +1858,11 @@ static int test_make_real_filter(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "make_real_filter2");
 	GetArrayType(pos, 0, &pos);
 	GetArrayA4(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_AND, "make_real_filter3");
-	GetArrayA4(pos, 1, &check);
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "make_real_filter4");
-	GetArrayA4(pos, 2, &check);
+	GetArrayA4(pos, 1, &check);
 	test(RefLispDecl(check) == LISPDECL_RATIONAL, "make_real_filter5");
+	GetArrayA4(pos, 2, &check);
+	test(RefLispDecl(check) == LISPDECL_AND, "make_real_filter3");
 
 	RETURN;
 }

@@ -30,6 +30,7 @@
 #include "stream_memory.h"
 #include "stream_open.h"
 #include "subtypep.h"
+#include "subtypep_number.h"
 #include "symbol.h"
 #include "syscode_function.h"
 #include "type_object.h"
@@ -382,6 +383,18 @@ int subtypep_extend_syscode_(Execute ptr,
 	if (check == Unbound)
 		check = Nil;
 	return subtypep_extend_(ptr, x, y, env, check, ret);
+}
+
+
+/* subtypep-number */
+int subtypep_number_syscode_(Execute ptr, addr x, addr *ret)
+{
+	Return(parse_type(ptr, &x, x, Nil));
+	Return(type_subtypep_throw_heap_(ptr->local, x, &x));
+	get_type_subtypep(&x, x);
+	Return(type_object_(&x, x));
+
+	return Result(ret, x);
 }
 
 

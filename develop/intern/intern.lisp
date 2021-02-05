@@ -2027,6 +2027,7 @@ lisp-system::subtypep-normal
 (lisp-system::equal-random-state :export t)
 (lisp-system::*subtypep!* :constant system :name subtypep-value)
 (lisp-system::subtypep! :export t :constant system :name subtypep-extend)
+(lisp-system::subtypep-number :export t)
 (lisp-system::eastasian-set :export t)
 (lisp-system::eastasian-get :export t)
 (lisp-system::eastasian-width :export t)
