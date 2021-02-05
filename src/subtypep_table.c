@@ -34,20 +34,35 @@ static int subtypep_call_cons_t_(Execute ptr, addr x, addr y, SubtypepResult *re
 
 static int subtypep_call_cons_value_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
-	SubtypepResult value;
+	SubtypepResult value1, value2;
 	addr car1, car2, cdr1, cdr2;
 
 	GetArrayType(x, 0, &car1);
-	GetArrayType(x, 1, &cdr1);
 	GetArrayType(y, 0, &car2);
+	GetArrayType(x, 1, &cdr1);
 	GetArrayType(y, 1, &cdr2);
 
-	Return(subtypep_call_cons_t_(ptr, car1, car2, &value));
-	ReturnSwitchInclude(ret, value);
-	Return(subtypep_call_cons_t_(ptr, cdr1, cdr2, &value));
-	ReturnSwitchInclude(ret, value);
+	/* subtypep */
+	Return(subtypep_call_cons_t_(ptr, car1, car2, &value1));
+	ReturnSecondThrow(ret, value1);
+	Return(subtypep_call_cons_t_(ptr, cdr1, cdr2, &value2));
+	ReturnSecondThrow(ret, value2);
 
-	return ReturnInclude(ret);
+	/* include */
+	if (value1 == SUBTYPEP_INCLUDE && value2 == SUBTYPEP_INCLUDE)
+		return ReturnInclude(ret);
+
+	/* reverse */
+	if (value1 == SUBTYPEP_INCLUDE) {
+		Return(subtypep_call_cons_t_(ptr, car2, car1, &value1));
+		return ReturnSecondValue(ret, value1);
+	}
+	if (value2 == SUBTYPEP_INCLUDE) {
+		Return(subtypep_call_cons_t_(ptr, cdr2, cdr1, &value2));
+		return ReturnSecondValue(ret, value2);
+	}
+
+	return ReturnFalse(ret);
 }
 
 static int subtypep_call_cons_(Execute ptr, addr x, addr y, SubtypepResult *ret)
@@ -78,7 +93,7 @@ static int subtypep_complex_value_(addr x, addr y, SubtypepResult *ret)
 	check1 = (RefLispDecl(x) == RefLispDecl(y));
 	check2 = (RefNotDecl(x) == RefNotDecl(y));
 
-	return ReturnBool(ret, check1 && check2);
+	return ReturnIncludeExclude(ret, check1 && check2);
 }
 
 static int subtypep_call_complex_(Execute ptr, addr x, addr y, SubtypepResult *ret)
@@ -102,7 +117,7 @@ static int subtypep_call_complex_(Execute ptr, addr x, addr y, SubtypepResult *r
 static int subtypep_ordinary_subtypep_(Execute ptr,
 		const ordargs *ptr1, const ordtype *type1,
 		const ordargs *ptr2, const ordtype *type2,
-		int *ret)
+		SubtypepResult *ret)
 {
 	SubtypepResult value;
 	addr x, y;
@@ -116,14 +131,14 @@ static int subtypep_ordinary_subtypep_(Execute ptr,
 	Return(subtypep_compound_(ptr, x, y, &value));
 	rollback_local(local, stack);
 
-	return Result(ret, value == SUBTYPEP_INCLUDE);
+	return Result(ret, value);
 }
 
 static int subtypep_ordinary_size_(Execute ptr,
 		const ordargs *ptr1, const ordargs *ptr2,
-		size_t size, int *ret)
+		size_t size, SubtypepResult *ret)
 {
-	int check;
+	SubtypepResult value;
 	size_t i;
 	ordtype type1, type2;
 
@@ -133,33 +148,33 @@ static int subtypep_ordinary_size_(Execute ptr,
 		if (type1.nil)
 			break;
 		if (type2.nil)
-			return Result(ret, 0);
-		Return(subtypep_ordinary_subtypep_(ptr, ptr1, &type1, ptr2, &type2, &check));
-		if (! check)
-			return Result(ret, 0);
+			return ReturnExclude(ret);
+		Return(subtypep_ordinary_subtypep_(ptr, ptr1, &type1, ptr2, &type2, &value));
+		if (value != SUBTYPEP_INCLUDE)
+			return Result(ret, value);
 	}
 
-	return Result(ret, 1);
+	return ReturnInclude(ret);
 }
 
 static int subtypep_ordinary_simple_(Execute ptr,
-		const ordargs *ptr1, const ordargs *ptr2, int *ret)
+		const ordargs *ptr1, const ordargs *ptr2, SubtypepResult *ret)
 {
 	if (ptr1->size > ptr2->size)
-		return Result(ret, 0);
+		return ReturnExclude(ret);
 	/* short size */
 	return subtypep_ordinary_size_(ptr, ptr1, ptr2, ptr1->size, ret);
 }
 
 static int subtypep_ordinary_simple_left_(Execute ptr,
-		const ordargs *ptr1, const ordargs *ptr2, int *ret)
+		const ordargs *ptr1, const ordargs *ptr2, SubtypepResult *ret)
 {
 	/* short size */
 	return subtypep_ordinary_size_(ptr, ptr1, ptr2, ptr1->size, ret);
 }
 
 static int subtypep_ordinary_check_(Execute ptr,
-		const ordargs *ptr1, const ordargs *ptr2, int *ret)
+		const ordargs *ptr1, const ordargs *ptr2, SubtypepResult *ret)
 {
 	/* long size */
 	return subtypep_ordinary_size_(ptr, ptr1, ptr2,
@@ -167,22 +182,22 @@ static int subtypep_ordinary_check_(Execute ptr,
 			ret);
 }
 
-static int subtypep_function_ordinary_(Execute ptr, addr x, addr y, int *ret)
+static int subtypep_function_ordinary_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	int check1, check2;
 	ordargs ptr1, ptr2;
 
 	/* asterisk */
 	if (type_asterisk_p(y))
-		return Result(ret, 1);
+		return ReturnInclude(ret);
 	if (type_asterisk_p(x))
-		return Result(ret, 0);
+		return ReturnFalse(ret);
 
 	/* list */
 	make_ordargs(&ptr1, x);
 	make_ordargs(&ptr2, y);
 	if (ptr1.size_var < ptr2.size_var)
-		return Result(ret, 0);
+		return ReturnExclude(ret);
 
 	check1 = simple_p_ordargs(&ptr1);
 	check2 = simple_p_ordargs(&ptr2);
@@ -191,7 +206,7 @@ static int subtypep_function_ordinary_(Execute ptr, addr x, addr y, int *ret)
 	if (check1)
 		return subtypep_ordinary_simple_left_(ptr, &ptr1, &ptr2, ret);
 	if (check2)
-		return Result(ret, 0);
+		return ReturnExclude(ret);
 	else
 		return subtypep_ordinary_check_(ptr, &ptr1, &ptr2, ret);
 }
@@ -210,24 +225,35 @@ static int subtypep_function_values_(Execute ptr, addr x, addr y, SubtypepResult
 
 static int subtypep_function_check_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
-	int check;
-	SubtypepResult value;
-	addr check1, check2;
+	SubtypepResult value1, value2;
+	addr arg1, arg2, the1, the2;
 
-	/* lambda-list */
-	GetArrayType(x, 0, &check1);
-	GetArrayType(y, 0, &check2);
-	Return(subtypep_function_ordinary_(ptr, check1, check2, &check));
-	if (! check)
-		return ReturnFalse(ret);
+	GetArrayType(x, 0, &arg1);
+	GetArrayType(y, 0, &arg2);
+	GetArrayType(x, 1, &the1);
+	GetArrayType(y, 1, &the2);
 
-	/* values */
-	GetArrayType(x, 1, &check1);
-	GetArrayType(y, 1, &check2);
-	Return(subtypep_function_values_(ptr, check1, check2, &value));
-	ReturnSwitchInclude(ret, value);
+	/* subtypep */
+	Return(subtypep_function_ordinary_(ptr, arg1, arg2, &value1));
+	ReturnSecondThrow(ret, value1);
+	Return(subtypep_function_values_(ptr, the1, the2, &value2));
+	ReturnSecondThrow(ret, value2);
 
-	return ReturnInclude(ret);
+	/* include */
+	if (value1 == SUBTYPEP_INCLUDE && value2 == SUBTYPEP_INCLUDE)
+		return ReturnInclude(ret);
+
+	/* reverse */
+	if (value1 == SUBTYPEP_INCLUDE) {
+		Return(subtypep_function_ordinary_(ptr, arg2, arg1, &value1));
+		return ReturnSecondValue(ret, value1);
+	}
+	if (value2 == SUBTYPEP_INCLUDE) {
+		Return(subtypep_function_values_(ptr, the2, the1, &value2));
+		return ReturnSecondValue(ret, value2);
+	}
+
+	return ReturnFalse(ret);
 }
 
 static int subtypep_call_function_(Execute ptr, addr x, addr y, SubtypepResult *ret)
@@ -242,12 +268,20 @@ static int subtypep_call_function_(Execute ptr, addr x, addr y, SubtypepResult *
 	}
 }
 
+static int subtypep_call_compiled_function_function_(
+		Execute ptr, addr x, addr y, SubtypepResult *ret)
+{
+	SubtypepResult check;
+	Return(subtypep_function_check_(ptr, y, x, &check));
+	return ReturnReverse(ret, check);
+}
+
 static int subtypep_call_compiled_function_(
 		Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	switch (RefLispDecl(x)) {
 		case LISPDECL_FUNCTION:
-			return ReturnFalse(ret);
+			return subtypep_call_compiled_function_function_(ptr, x, y, ret);
 
 		case LISPDECL_COMPILED_FUNCTION:
 			return subtypep_function_check_(ptr, x, y, ret);
@@ -280,7 +314,7 @@ void init_subtypep_table(void)
 		TypeSubtypep[i] = subtypep_call_error_;
 
 	TypeSubtypep[LISPDECL_INVALID] = subtypep_call_invalid_;
-	TypeSubtypep[LISPDECL_TYPE] = subtypep_call_type_;
+	TypeSubtypep[LISPDECL_TYPE] = subtypep_call_error_;
 	TypeSubtypep[LISPDECL_CLOS] = subtypep_call_clos_;
 	TypeSubtypep[LISPDECL_ASTERISK] = subtypep_call_asterisk_;
 	TypeSubtypep[LISPDECL_NIL] = subtypep_call_nil_;

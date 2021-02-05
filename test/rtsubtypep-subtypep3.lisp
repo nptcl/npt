@@ -110,23 +110,67 @@
 
 (deftest subtypep-cons.6
   (subtypep! '(cons integer cons) '(cons character cons))
-  false)
+  exclude)
 
 (deftest subtypep-cons.7
-  (subtypep! '(cons integer real) '(cons t integer))
-  false)
+  (subtypep! '(cons character cons) '(cons integer cons))
+  exclude)
 
 (deftest subtypep-cons.8
-  (subtypep! '(cons integer real) '(cons t t))
+  (subtypep! '(cons integer cons) '(cons real cons))
   include)
 
 (deftest subtypep-cons.9
-  (subtypep! '(cons * real) '(cons real t))
+  (subtypep! '(cons real cons) '(cons integer cons))
   false)
 
 (deftest subtypep-cons.10
-  (subtypep! '(cons integer *) '(cons t real))
+  (subtypep! '(cons cons integer) '(cons cons real))
+  include)
+
+(deftest subtypep-cons.11
+  (subtypep! '(cons cons real) '(cons cons integer))
   false)
+
+(deftest subtypep-cons.12
+  (subtypep! '(cons rational integer) '(cons number real))
+  include)
+
+(deftest subtypep-cons.13
+  (subtypep! '(cons number real) '(cons rational integer))
+  false)
+
+(deftest subtypep-cons.14
+  (subtypep! '(cons integer real) '(cons t integer))
+  exclude)
+
+(deftest subtypep-cons.15
+  (subtypep! '(cons t integer) '(cons integer real))
+  exclude)
+
+(deftest subtypep-cons.16
+  (subtypep! '(cons integer real) '(cons t t))
+  include)
+
+(deftest subtypep-cons.17
+  (subtypep! '(cons * real) '(cons real t))
+  exclude)
+
+(deftest subtypep-cons.18
+  (subtypep! '(cons * real) '(cons real integer))
+  false)
+
+(deftest subtypep-cons.19
+  (subtypep! '(cons real integer) '(cons * real))
+  include)
+
+(deftest subtypep-cons.20
+  (subtypep! '(cons integer *) '(cons t real))
+  exclude)
+
+(deftest subtypep-cons.21
+  (subtypep! '(cons t real) '(cons integer *))
+  exclude)
 
 
 ;;
@@ -153,7 +197,7 @@
 
 (deftest subtypep-complex.6
   (subtypep! '(complex integer) '(complex single-float))
-  false)
+  exclude)
 
 (deftest subtypep-complex.7
   (subtypep! '(complex *) '(complex single-float))
@@ -195,11 +239,11 @@
 
 (deftest subtypep-function-var.2
   (subtypep! '(function (real real) *) '(function (real) *))
-  false)
+  exclude)
 
 (deftest subtypep-function-var.3
   (subtypep! '(function (real) *) '(function (real real) *))
-  false)
+  exclude)
 
 (deftest subtypep-function-var.4
   (subtypep! '(function (real integer) *) '(function (real real) *))
@@ -207,6 +251,10 @@
 
 (deftest subtypep-function-var.5
   (subtypep! '(function (real cons) *) '(function (real real) *))
+  exclude)
+
+(deftest subtypep-function-var.6
+  (subtypep! '(function (real real) *) '(function (integer real) *))
   false)
 
 ;;  &optional
@@ -218,7 +266,7 @@
 (deftest subtypep-function-opt.2
   (subtypep! '(function (real &optional integer))
              '(function (real &optional cons)))
-  false)
+  exclude)
 
 (deftest subtypep-function-opt.3
   (subtypep! '(function (real integer))
@@ -228,21 +276,31 @@
 (deftest subtypep-function-opt.4
   (subtypep! '(function (real integer))
              '(function (real &optional cons)))
-  false)
+  exclude)
 
 (deftest subtypep-function-opt.5
   (subtypep! '(function (real &optional integer))
              '(function (real real)))
-  false)
+  exclude)
 
 (deftest subtypep-function-opt.6
   (subtypep! '(function (&optional integer))
              '(function (real real)))
-  false)
+  exclude)
 
 (deftest subtypep-function-opt.7
   (subtypep! '(function (real integer))
              '(function (&optional t)))
+  exclude)
+
+(deftest subtypep-function-opt.8
+  (subtypep! '(function (real &optional real))
+             '(function (integer &optional rational)))
+  false)
+
+(deftest subtypep-function-opt.9
+  (subtypep! '(function (&optional real))
+             '(function (&optional integer)))
   false)
 
 ;;  &rest
@@ -254,7 +312,7 @@
 (deftest subtypep-function-rest.2
   (subtypep! '(function (integer &rest cons))
              '(function (real &rest rational)))
-  false)
+  exclude)
 
 (deftest subtypep-function-rest.3
   (subtypep! '(function (integer &optional ratio))
@@ -264,6 +322,11 @@
 (deftest subtypep-function-rest.4
   (subtypep! '(function (&rest number))
              '(function (integer &optional integer)))
+  exclude)
+
+(deftest subtypep-function-rest.5
+  (subtypep! '(function (&rest number))
+             '(function (&rest integer)))
   false)
 
 ;;  &key
@@ -275,12 +338,12 @@
 (deftest subtypep-function-key.2
   (subtypep! '(function (integer &key (hello real)))
              '(function (real &key (hello cons))))
-  false)
+  exclude)
 
 (deftest subtypep-function-key.3
   (subtypep! '(function (integer &key (aaa real)))
              '(function (real &key (hello t))))
-  false)
+  exclude)
 
 (deftest subtypep-function-key.4
   (subtypep! '(function (integer &key (aaa real)))
@@ -295,7 +358,7 @@
 (deftest subtypep-function-key.6
   (subtypep! '(function (&rest t))
              '(function (real &key (hello t) (aaa number))))
-  false)
+  exclude)
 
 (deftest subtypep-function-key.7
   (subtypep! '(function (real &key (aaa symbol)))
@@ -318,7 +381,7 @@
 
 (deftest subtypep-function-values.3
   (subtypep! '(function * real) '(function * cons))
-  false)
+  exclude)
 
 (deftest subtypep-function-values.4
   (subtypep! '(function * real) '(function * (values)))
@@ -434,7 +497,8 @@
                         (values t &optional ratio &rest symbol))
              '(function (real &optional t &rest function &key (hello t) (aaa integer))
                         (values t &optional rational &rest t)))
-  false)
+  exclude)
+
 
 ;;
 ;;  compiled-function
@@ -449,8 +513,8 @@
   include)
 
 (deftest subtypep-compiled-function.3
-  (subtypep! '(compiled-function (integer) cons)
-             '(compiled-function (real) (values symbol)))
+  (subtypep! '(compiled-function (real) number)
+             '(compiled-function (real) (values rational)))
   false)
 
 (deftest subtypep-compiled-function.4

@@ -858,3 +858,51 @@
   (subtypep 'real '(not integer))
   nil t)
 
+
+;;
+;;  boundary-error
+;;
+(deftest subtypep-boundary-error.1
+  (subtypep '(integer 10 20) '(integer 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.2
+  (subtypep '(integer 10 (20)) '(integer 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.3
+  (subtypep '(integer 10 (21)) '(integer 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.4
+  (subtypep '(rational 10 20) '(rational 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.5
+  (subtypep '(rational 10 (20)) '(rational 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.6
+  (subtypep '(rational 10 (21)) '(rational 10 20))
+  nil t)
+
+(deftest subtypep-boundary-error.7
+  (subtypep '(real 10 (21)) '(real 10 20))
+  nil t)
+
+(deftest subtypep-boundary-error.8
+  (subtypep '(integer (10) 20) '(integer 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.9
+  (subtypep '(integer (9) 20) '(integer 10 20))
+  t t)
+
+(deftest subtypep-boundary-error.10
+  (subtypep '(rational (9) 20) '(integer 10 20))
+  nil t)
+
+(deftest subtypep-boundary-error.11
+  (subtypep '(real (9) 20) '(integer 10 20))
+  nil t)
+

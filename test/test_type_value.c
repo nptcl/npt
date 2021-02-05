@@ -68,18 +68,6 @@ static int test_type_value_t_call(void)
 	RETURN;
 }
 
-static int test_type_value_type(void)
-{
-	addr x;
-
-	GetTypeTable(&x, Atom);
-	type_value_(&x, x);
-	test(GetType(x) == LISPTYPE_TYPE, "type_value_type1");
-	test(LispDecl(x) == LISPDECL_TYPE, "type_value_type2");
-
-	RETURN;
-}
-
 static int test_type_value_clos(void)
 {
 	addr x, y;
@@ -632,7 +620,6 @@ static int testcase_type_value(void)
 	TestBreak(test_type_value_t);
 	TestBreak(test_type_value_nil_call);
 	TestBreak(test_type_value_t_call);
-	TestBreak(test_type_value_type);
 	TestBreak(test_type_value_clos);
 	TestBreak(test_type_value_cons);
 	TestBreak(test_type_value_strarray);

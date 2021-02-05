@@ -52,9 +52,8 @@ static int defstruct_parse_slot(struct defstruct *str, addr pos,
 		GetCons(list, &value, &list);
 		/* :type */
 		if (key == key1) {
-			if (type == gensym) {
-				Return(parse_type(str->ptr, &type, value, str->env));
-			}
+			if (type == gensym)
+				type = value;
 			continue;
 		}
 		/* :read-only */
@@ -528,7 +527,7 @@ error:
 static int defstruct_parse_name(struct defstruct *str, addr name)
 {
 	int check;
-	addr list, pos;
+	addr list, pos, error_check;
 	LocalHold hold;
 
 	if (symbolp(name)) {
@@ -589,7 +588,7 @@ static int defstruct_parse_name(struct defstruct *str, addr name)
 
 	/* parse-type */
 	if (str->type_vector_p) {
-		Return(parse_type(str->ptr, &(str->type_vector), str->type_vector, str->env));
+		Return(parse_type(str->ptr, &error_check, str->type_vector, str->env));
 	}
 	localhold_end(hold);
 

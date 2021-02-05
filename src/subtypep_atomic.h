@@ -5,8 +5,8 @@
 #include "subtypep_typedef.h"
 #include "typedef.h"
 
+#define ReturnReverse _n(ReturnReverse)
 #define subtypep_call_invalid_ _n(subtypep_call_invalid_)
-#define subtypep_call_type_ _n(subtypep_call_type_)
 #define subtypep_call_clos_ _n(subtypep_call_clos_)
 #define subtypep_call_asterisk_ _n(subtypep_call_asterisk_)
 #define subtypep_call_nil_ _n(subtypep_call_nil_)
@@ -35,8 +35,8 @@
 #define subtypep_call_stream_ _n(subtypep_call_stream_)
 #define subtypep_call_stream_type_ _n(subtypep_call_stream_type_)
 
+int ReturnReverse(SubtypepResult *ret, SubtypepResult check);
 int subtypep_call_invalid_(Execute ptr, addr x, addr y, SubtypepResult *ret);
-int subtypep_call_type_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_asterisk_(Execute ptr, addr x, addr y, SubtypepResult *ret);
 int subtypep_call_nil_(Execute ptr, addr x, addr y, SubtypepResult *ret);

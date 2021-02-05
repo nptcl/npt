@@ -470,61 +470,31 @@ static int check_signed_byte_(addr right, int *ret)
 	*ret = (RefLispDecl(right) == LISPDECL_SIGNED_BYTE);
 	return 0;
 }
-static int optimize_signed_byte_(LocalRoot local, addr right, addr *value, int *ret)
+static int optimize_signed_byte_(LocalRoot local, addr type, addr *value, int *ret)
 {
-	addr left;
-	fixnum num;
-	fixed fixedvalue;
-	size_t size;
+	addr x, y;
 
-	Return_check_optimize(check_signed_byte_, right, ret);
+	Return_check_optimize(check_signed_byte_, type, ret);
 
-	GetArrayType(right, 0, &right);
-	if (type_asterisk_p(right)) {
+	/* asterisk */
+	GetArrayType(type, 0, &y);
+	if (type_asterisk_p(y)) {
 		/* (signed-byte *) */
 		type4aster_localall(local, LISPDECL_INTEGER, value);
 		return Result(ret, 1);
 	}
 
-	/*
-	 *  size  : -(2^{size-1}) --- +(2^{size-1} - 1)
-	 *  size=8: -(2^7)        --- +(2^7 - 1)
-	 *       -> -128 --- 127
+	/*  (let ((v (ash 1 (1- value))))
+	 *    `(integer ,(- v) ,(1- v)))
 	 */
-	if (GetType(right) == LISPTYPE_FIXNUM) {
-		GetFixnum(right, &num);
-		if (num == BIGNUM_FULLBIT) {
-			GetConst(FIXNUM_MIN, &left);
-			GetConst(FIXNUM_MAX, &right);
-			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, value);
-			return Result(ret, 1);
-		}
-		if (num < BIGNUM_FULLBIT) {
-			num = 1LL << (num - 1LL);
-			fixnum_local(local, &left, -num);
-			fixnum_local(local, &right, num - 1LL);
-			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, value);
-			return Result(ret, 1);
-		}
-		size = (size_t)num;
-	}
-	else {
-		Check(GetType(right) != LISPTYPE_BIGNUM, "type error");
-		if (1 < RefSizeBignum(right)) {
-			/* Abort("Too large signed-byte value."); */
-			return Result(ret, 0);
-		}
-		getfixed_bignum(right, 0, &fixedvalue);
-		size = (size_t)fixedvalue;
-	}
-
-	/* bignum */
-	power2_bigdata_alloc(local, &left, size - 1UL);
-	size = RefAllocBignum(left);
-	alloc_bignum(local, &right, size);
-	setminusvalue_bigdata(right, left, SignPlus, 1);
-	SetSignBignum(left, SignMinus);
-	type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, value);
+	fixnum_heap(&x, 1);
+	Return(oneminus_integer_common_(local, y, &y));
+	Return(ash_integer_common_(local, x, y, &y));
+	Return(sign_reverse_integer_common_(y, &x));
+	Return(oneminus_integer_common_(local, y, &y));
+	Return(integer_result_local_(local, x, &x));
+	Return(integer_result_local_(local, y, &y));
+	type4_local(local, LISPDECL_INTEGER, Nil, x, Nil, y, value);
 
 	return Result(ret, 1);
 }
@@ -536,60 +506,30 @@ static int check_unsigned_byte_(addr right, int *ret)
 	*ret = (RefLispDecl(right) == LISPDECL_UNSIGNED_BYTE);
 	return 0;
 }
-static int optimize_unsigned_byte_(LocalRoot local, addr right, addr *value, int *ret)
+static int optimize_unsigned_byte_(LocalRoot local, addr type, addr *value, int *ret)
 {
-	addr left;
-	fixnum num;
-	fixed fixedvalue;
-	size_t size;
+	addr x, y;
 
-	Return_check_optimize(check_unsigned_byte_, right, ret);
+	Return_check_optimize(check_unsigned_byte_, type, ret);
 
-	GetArrayType(right, 0, &right);
-	if (type_asterisk_p(right)) {
+	/* asterisk */
+	GetArrayType(type, 0, &y);
+	if (type_asterisk_p(y)) {
 		/* (unsigned-byte *) */
-		fixnum_local(local, &left, 0);
-		type4_local(local, LISPDECL_INTEGER, Nil, left, right, right, value);
+		fixnum_local(local, &x, 0);
+		type4_local(local, LISPDECL_INTEGER, Nil, x, y, y, value);
 		return Result(ret, 1);
 	}
 
-	/*
-	 *  size  : 0 --- +(2^{size} - 1)
-	 *  size=8: 0 --- +(2^8 - 1)
-	 *       -> 0 --- 255
+	/*  (let ((v (ash 1 value)))
+	 *    `(integer 0 (,v)))
 	 */
-	if (GetType(right) == LISPTYPE_FIXNUM) {
-		GetFixnum(right, &num);
-		if (num == BIGNUM_FULLBIT - 1L) {
-			fixnum_local(local, &left, 0);
-			GetConst(FIXNUM_MAX, &right);
-			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, value);
-			return Result(ret, 1);
-		}
-		if (num < BIGNUM_FULLBIT - 1L) {
-			num = 1LL << num;
-			fixnum_local(local, &left, 0);
-			fixnum_local(local, &right, num - 1L);
-			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, value);
-			return Result(ret, 1);
-		}
-		size = (size_t)num;
-	}
-	else {
-		Check(GetType(right) != LISPTYPE_BIGNUM, "type error");
-		if (1 < RefSizeBignum(right)) {
-			/* Abort("Too large unsigned-byte value."); */
-			return Result(ret, 0);
-		}
-		getfixed_bignum(right, 0, &fixedvalue);
-		size = (size_t)fixedvalue;
-	}
-
-	/* bignum */
-	power2_bigdata_alloc(local, &right, size);
-	setminusvalue_bigdata(right, right, SignPlus, 1);
-	fixnum_local(local, &left, 0);
-	type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, value);
+	fixnum_heap(&x, 1);
+	Return(ash_integer_common_(local, x, y, &y));
+	Return(oneminus_integer_common_(local, y, &y));
+	Return(integer_result_local_(local, y, &y));
+	fixnum_heap(&x, 0);
+	type4_local(local, LISPDECL_INTEGER, Nil, x, Nil, y, value);
 
 	return Result(ret, 1);
 }
@@ -655,6 +595,79 @@ static int optimize_bignum_(LocalRoot local, addr right, addr *value, int *ret)
 	SetArrayA4(array, 1, pos);
 	/* bignum */
 	type1_local(local, LISPDECL_AND, array, value);
+
+	return Result(ret, 1);
+}
+
+/* (integer (10) (20)) -> (integer 9 19) */
+static int check_integer_p(addr pos)
+{
+	return (! type_asterisk_p(pos)) && (pos != Nil);
+}
+
+static int check_integer_(addr type, int *ret)
+{
+	addr pos;
+
+	if (RefLispDecl(type) != LISPDECL_INTEGER)
+		return Result(ret, 0);
+
+	/* left */
+	GetArrayType(type, 0, &pos);
+	if (check_integer_p(pos))
+		return Result(ret, 1);
+
+	/* right */
+	GetArrayType(type, 2, &pos);
+	if (check_integer_p(pos))
+		return Result(ret, 1);
+
+	/* else */
+	return Result(ret, 0);
+}
+
+static int optimize_integer_less_p(addr x, addr y, int *ret)
+{
+	if (integerp(x) && integerp(y))
+		return less_integer_(y, x, ret);
+
+	return Result(ret, 0);
+}
+
+static int optimize_integer_(LocalRoot local, addr type, addr *value, int *ret)
+{
+	int check;
+	addr a1, a2, v1, v2, pos;
+
+	Return_check_optimize(check_integer_, type, ret);
+	GetArrayType(type, 0, &a1);
+	GetArrayType(type, 1, &v1);
+	GetArrayType(type, 2, &a2);
+	GetArrayType(type, 3, &v2);
+
+	/* left */
+	GetArrayType(type, 0, &pos);
+	if (check_integer_p(pos)) {
+		Return(oneplus_integer_common_(local, v1, &v1));
+		Return(integer_result_local_(local, v1, &v1));
+		a1 = Nil;
+	}
+
+	/* right */
+	GetArrayType(type, 2, &pos);
+	if (check_integer_p(pos)) {
+		Return(oneminus_integer_common_(local, v2, &v2));
+		Return(integer_result_local_(local, v2, &v2));
+		a2 = Nil;
+	}
+
+	/* result */
+	Return(optimize_integer_less_p(v1, v2, &check));
+	if (check)
+		type0_local(local, LISPDECL_NIL, value);
+	else
+		type4_local(local, LISPDECL_INTEGER, a1, v1, a2, v2, value);
+	type_setnotobject(*value, type);
 
 	return Result(ret, 1);
 }
@@ -1591,6 +1604,7 @@ static int check_optimize_(addr type, int *ret)
 	Return_or_optimize(check_bit_, type, ret);
 	Return_or_optimize(check_fixnum_, type, ret);
 	Return_or_optimize(check_bignum_, type, ret);
+	Return_or_optimize(check_integer_, type, ret);
 	Return_or_optimize(check_eql_, type, ret);
 	Return_or_optimize(check_eql_range_, type, ret);
 	Return_or_optimize(check_member1_, type, ret);
@@ -1648,6 +1662,7 @@ static int type_optimize_(LocalRoot local, addr type, addr *value, int *ret)
 		extractcallnot(local, optimize_bit_, type, update);
 		extractcallnot(local, optimize_fixnum_, type, update);
 		extractcallnot(local, optimize_bignum_, type, update);
+		extractcallnot(local, optimize_integer_, type, update);
 		extractcallnot(local, optimize_eql_, type, update);
 		extractcallnot(local, optimize_eql_range_, type, update);
 		extractcallnot(local, optimize_member1_, type, update);

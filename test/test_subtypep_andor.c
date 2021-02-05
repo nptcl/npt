@@ -20,6 +20,7 @@
 #include "type_parse.h"
 #include "type_table.h"
 
+#if 0
 static void test_parse_type(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil)) {
@@ -268,6 +269,7 @@ static int test_subtypep_or_right(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -275,12 +277,14 @@ static int test_subtypep_or_right(void)
  */
 static int testcase_subtypep_andor(void)
 {
+#if 0
 	TestBreak(test_subtypep_and_left);
 	TestBreak(test_subtypep_or_left);
 	TestBreak(test_subtypep_andargs_right);
 	TestBreak(test_subtypep_orargs_right);
 	TestBreak(test_subtypep_and_right);
 	TestBreak(test_subtypep_or_right);
+#endif
 
 	return 0;
 }

@@ -54,7 +54,6 @@ static void typetable_type4(enum LISPDECL type, enum TypeTable table)
 	static void typetable_##b(void) { TypeTable##n(a,b); }
 
 DefTypeTable(0,  INVALID,              Invalid              );
-DefTypeTable(0,  TYPE,                 Type                 );
 DefTypeTable(0,  ASTERISK,             Asterisk             );
 DefTypeTable(0,  ATOM,                 Atom                 );
 DefTypeTable(0,  LIST,                 List                 );
@@ -556,14 +555,13 @@ static void typetable_output_stream(void)
 
 static void typetable_typespec(void)
 {
-	/* (or type symbol cons clos) */
-	addr type1, type2, type3, type4, pos;
+	/* (or symbol cons clos) */
+	addr type1, type2, type3, pos;
 
-	GetTypeTable(&type1, Type);
-	GetTypeTable(&type2, Symbol);
-	GetTypeTable(&type3, Cons);
-	GetTypeTable(&type4, Clos);
-	type4or_heap(type1, type2, type3, type4, &pos);
+	GetTypeTable(&type1, Symbol);
+	GetTypeTable(&type2, Cons);
+	GetTypeTable(&type3, Clos);
+	type3or_heap(type1, type2, type3, &pos);
 	SetTypeTable(TypeSpec, pos);
 }
 
@@ -2911,7 +2909,6 @@ void build_type_constant(void)
 {
 	/* Atomic-Type */
 	typetable_Invalid();
-	typetable_Type();
 	typetable_Asterisk();
 	typetable_Atom();
 	typetable_List();

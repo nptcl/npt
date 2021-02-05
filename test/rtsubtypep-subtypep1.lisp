@@ -238,10 +238,14 @@
   false)
 
 (deftest subtypep-array-element-type.3
-  (subtypep! '(array t) '(array bit))
-  false)
+  (subtypep! '(array bit) '(array *))
+  include)
 
 (deftest subtypep-array-element-type.4
+  (subtypep! '(array t) '(array bit))
+  exclude)
+
+(deftest subtypep-array-element-type.5
   (subtypep! '(simple-array t) '(array integer))  ;; upgraded integer -> t
   include)
 
@@ -259,11 +263,11 @@
 
 (deftest subtypep-array-dimension-fixnum.4
   (subtypep! '(array * 3) '(array * 4))
-  false)
+  exclude)
 
 (deftest subtypep-array-dimension-fixnum.5
   (subtypep! '(array * (1 2 3)) '(array * 4))
-  false)
+  exclude)
 
 (deftest subtypep-array-dimension-fixnum.6
   (subtypep! '(array * (1 2 3 4)) '(array * 4))
@@ -275,15 +279,15 @@
 
 (deftest subtypep-array-dimension-vector.2
   (subtypep! '(array * (2 3)) '(array * (2 3 4)))
-  false)
+  exclude)
 
 (deftest subtypep-array-dimension-vector.3
   (subtypep! '(array * (2 3 4 5)) '(array * (2 3 4)))
-  false)
+  exclude)
 
 (deftest subtypep-array-dimension-vector.4
   (subtypep! '(array * (2 8 4)) '(array * (2 3 4)))
-  false)
+  exclude)
 
 (deftest subtypep-array-dimension-vector.5
   (subtypep! '(array * (2 * 4)) '(array * (2 3 4)))
@@ -297,6 +301,14 @@
   (subtypep! '(array * (2 * 4)) '(array * (2 * *)))
   include)
 
+(deftest subtypep-array-error.1
+  (subtypep! '(array t (*)) '(array t (10)))
+  false)
+
+'(deftest subtypep-array-error.2
+   (subtypep! '(array t (*)) '(not (array t (10))))
+   false)
+
 
 ;;
 ;;  simple-array
@@ -309,6 +321,18 @@
   (subtypep! 'array 'simple-array)
   false)
 
+(deftest subtypep-simple-array.3
+  (subtypep! '(array t) '(simple-array bit))
+  exclude)
+
+(deftest subtypep-simple-array.4
+  (subtypep! '(array *) '(simple-array t))
+  false)
+
+(deftest subtypep-simple-array.5
+  (subtypep! '(array t) '(simple-array *))
+  false)
+
 (deftest subtypep-simple-array-element-type.1
   (subtypep! '(simple-array bit) '(simple-array *))
   include)
@@ -318,10 +342,14 @@
   false)
 
 (deftest subtypep-simple-array-element-type.3
-  (subtypep! '(simple-array t) '(simple-array bit))
-  false)
+  (subtypep! '(simple-array bit) '(simple-array *))
+  include)
 
 (deftest subtypep-simple-array-element-type.4
+  (subtypep! '(simple-array t) '(simple-array bit))
+  exclude)
+
+(deftest subtypep-simple-array-element-type.5
   (subtypep! '(simple-array t) '(simple-array integer))  ;; upgraded integer -> t
   include)
 
@@ -339,11 +367,11 @@
 
 (deftest subtypep-simple-array-dimension-fixnum.4
   (subtypep! '(simple-array * 3) '(simple-array * 4))
-  false)
+  exclude)
 
 (deftest subtypep-simple-array-dimension-fixnum.5
   (subtypep! '(simple-array * (1 2 3)) '(simple-array * 4))
-  false)
+  exclude)
 
 (deftest subtypep-simple-array-dimension-fixnum.6
   (subtypep! '(simple-array * (1 2 3 4)) '(simple-array * 4))
@@ -355,15 +383,15 @@
 
 (deftest subtypep-simple-array-dimension-vector.2
   (subtypep! '(simple-array * (2 3)) '(simple-array * (2 3 4)))
-  false)
+  exclude)
 
 (deftest subtypep-simple-array-dimension-vector.3
   (subtypep! '(simple-array * (2 3 4 5)) '(simple-array * (2 3 4)))
-  false)
+  exclude)
 
 (deftest subtypep-simple-array-dimension-vector.4
   (subtypep! '(simple-array * (2 8 4)) '(simple-array * (2 3 4)))
-  false)
+  exclude)
 
 (deftest subtypep-simple-array-dimension-vector.5
   (subtypep! '(simple-array * (2 * 4)) '(simple-array * (2 3 4)))
@@ -374,7 +402,7 @@
   include)
 
 (deftest subtypep-simple-array-dimension-vector.7
-  (subtypep! '(simple-array * (2 * 4)) '(simple-array * (2 * *)))
+  (subtypep! '(simple-array * (2 * 4)) '(array * (2 * *)))
   include)
 
 

@@ -280,9 +280,6 @@ static int subtypep_values_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 	LocalRoot local;
 	LocalStack stack;
 
-	/*  typespec values cannot recognize subtypep-exclude.
-	 *  result is include or false.
-	 */
 	local = Local_Thread;
 	push_local(local, &stack);
 	Return(subtypep_values_call_(ptr, x, y, &value));
@@ -324,22 +321,8 @@ static int subtypep_left_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	Check(GetType(x) != LISPTYPE_TYPE, "type left error");
 	switch (RefLispDecl(x)) {
-		case LISPDECL_AND:
-			return subtypep_andargs_left_(ptr, x, y, ret);
-
-		case LISPDECL_OR:
-			return subtypep_orargs_left_(ptr, x, y, ret);
-
 		case LISPDECL_EQL:
 			return subtypep_eql_(ptr, x, y, ret);
-
-		case LISPDECL_MEMBER:
-			*ret = SUBTYPEP_INVALID;
-			return fmte_("The member type illegal in this context.", NULL);
-
-		case LISPDECL_NOT:
-			*ret = SUBTYPEP_INVALID;
-			return fmte_("The not type illegal in this context.", NULL);
 
 		case LISPDECL_VALUES:
 			return subtypep_values_(ptr, x, y, ret);
@@ -358,6 +341,13 @@ static int subtypep_left_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 
 		case LISPDECL_INVALID:
 			return ReturnInvalid(ret);
+
+		case LISPDECL_AND:
+		case LISPDECL_OR:
+		case LISPDECL_MEMBER:
+		case LISPDECL_NOT:
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("The type illegal in this context.", NULL);
 
 		default:
 			return subtypep_atomic_not_(ptr, x, y, ret);
@@ -381,26 +371,12 @@ static int subtypep_nil_right_(addr x, SubtypepResult *ret)
 		return ReturnExclude(ret);
 }
 
-int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+static int subtypep_right_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	Check(GetType(y) != LISPTYPE_TYPE, "type right error");
 	switch (RefLispDecl(y)) {
-		case LISPDECL_AND:
-			return subtypep_and_right_switch_(ptr, x, y, ret);
-
-		case LISPDECL_OR:
-			return subtypep_or_right_switch_(ptr, x, y, ret);
-
 		case LISPDECL_EQL:
 			return subtypep_eql_(ptr, x, y, ret);
-
-		case LISPDECL_MEMBER:
-			*ret = SUBTYPEP_INVALID;
-			return fmte_("The member type illegal in this context.", NULL);
-
-		case LISPDECL_NOT:
-			*ret = SUBTYPEP_INVALID;
-			return fmte_("The not type illegal in this context.", NULL);
 
 		case LISPDECL_VALUES:
 			return subtypep_values_(ptr, x, y, ret);
@@ -417,8 +393,48 @@ int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		case LISPDECL_INVALID:
 			return ReturnInvalid(ret);
 
+		case LISPDECL_AND:
+		case LISPDECL_OR:
+		case LISPDECL_MEMBER:
+		case LISPDECL_NOT:
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("The type illegal in this context.", NULL);
+
 		default:
 			return subtypep_left_(ptr, x, y, ret);
 	}
+}
+
+int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
+{
+	enum LISPDECL type1, type2;
+	int and1, and2, or1, or2;
+
+	GetLispDecl(x, &type1);
+	GetLispDecl(y, &type2);
+	and1 = (type1 == LISPDECL_AND);
+	and2 = (type2 == LISPDECL_AND);
+	or1 = (type1 == LISPDECL_OR);
+	or2 = (type2 == LISPDECL_OR);
+
+	if (and1 && and2)
+		return subtypep_and_and_(ptr, x, y, ret);
+	if (and1 && or2)
+		return subtypep_and_or_(ptr, x, y, ret);
+	if (or1 && and2)
+		return subtypep_or_and_(ptr, x, y, ret);
+	if (or1 && or2)
+		return subtypep_or_or_(ptr, x, y, ret);
+
+	if (and1)
+		return subtypep_and_type_(ptr, x, y, ret);
+	if (or1)
+		return subtypep_or_type_(ptr, x, y, ret);
+	if (and2)
+		return subtypep_type_and_(ptr, x, y, ret);
+	if (or2)
+		return subtypep_type_or_(ptr, x, y, ret);
+
+	return subtypep_right_(ptr, x, y, ret);
 }
 

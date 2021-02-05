@@ -27,14 +27,18 @@ typedef int (*call_type_subtypep)(Execute, addr, addr, SubtypepResult *);
 #define ReturnInclude(ret) Result(ret, SUBTYPEP_INCLUDE)
 #define ReturnFalse(ret) Result(ret, SUBTYPEP_FALSE)
 #define ReturnExclude(ret) Result(ret, SUBTYPEP_EXCLUDE)
-#define ReturnBool(ret, p) Result(ret, (p)? SUBTYPEP_INCLUDE: SUBTYPEP_FALSE)
-#define ReturnSwitchInclude(ret, v) { \
+#define ReturnIncludeExclude(ret, p) \
+	Result(ret, (p)? SUBTYPEP_INCLUDE: SUBTYPEP_EXCLUDE)
+
+#define ReturnSecondThrow(ret, v) { \
 	switch (v) { \
+		case SUBTYPEP_EXCLUDE: return ReturnExclude(ret); \
 		case SUBTYPEP_INVALID: return ReturnInvalid(ret); \
-		case SUBTYPEP_INCLUDE: break; \
-		default: return ReturnFalse(ret); \
+		default: break; \
 	} \
 }
+#define ReturnSecondValue(ret, v) \
+	Result(ret, ((v) == SUBTYPEP_INCLUDE)? SUBTYPEP_FALSE: SUBTYPEP_EXCLUDE)
 
 #endif
 

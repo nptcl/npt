@@ -492,15 +492,12 @@ error:
 /* parse-type */
 int parse_type_syscode(Execute ptr, addr var, addr *ret)
 {
-	return parse_type(ptr, ret, var, Nil);
+	Return(parse_type(ptr, &var, var, Nil));
+	Return(type_object_(&var, var));
+
+	return Result(ret, var);
 }
 
-
-/* type-object */
-int type_object_syscode(addr var, addr *ret)
-{
-	return type_object_(ret, var);
-}
 
 /* upgraded-open-element-type */
 int upgraded_open_element_type_syscode_(addr var, addr *ret)

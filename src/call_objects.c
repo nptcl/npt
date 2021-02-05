@@ -178,7 +178,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		if (DefClassEqConst(key, TYPE)) {
 			if (type != Nil)
 				return fmte_(":TYPE is already exist.", NULL);
-			Return(parse_type(ptr, &type, value, env));
+			type = value;
 			localhold_set(hold, 4, type);
 			continue;
 		}

@@ -42,18 +42,6 @@ static int type_value_t_(addr *ret, addr value)
 	return 0;
 }
 
-/* type */
-void type_value_type(addr *ret)
-{
-	GetTypeTable(ret, Type);
-}
-
-static int type_value_type_(addr *ret, addr value)
-{
-	GetTypeTable(ret, Type);
-	return 0;
-}
-
 /* clos */
 int type_value_clos_(addr *ret, addr value)
 {
@@ -559,7 +547,6 @@ void init_type_value(void)
 {
 	TypeValueTable[LISPTYPE_NIL] = type_value_nil_;
 	TypeValueTable[LISPTYPE_T] = type_value_t_;
-	TypeValueTable[LISPTYPE_TYPE] = type_value_type_;
 	TypeValueTable[LISPTYPE_CLOS] = type_value_clos_;
 	TypeValueTable[LISPTYPE_CONS] = type_value_cons_;
 	TypeValueTable[LISPTYPE_ARRAY] = type_value_array_;

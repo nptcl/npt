@@ -965,7 +965,7 @@ static int type_byte_integer_check(addr *ret, addr pos)
 
 error:
 	*ret = Nil;
-	return fmte_("The imension value ~S must be a positive integer.", pos, NULL);
+	return fmte_("The value ~S must be a positive integer.", pos, NULL);
 }
 
 static int typelist_byte(Execute ptr, addr *ret,

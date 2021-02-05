@@ -931,7 +931,6 @@ void init_eval_copy(void)
 {
 	EvalCopyTable[EVAL_PARSE_NIL] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_T] = copy_eval_single;
-	EvalCopyTable[EVAL_PARSE_TYPE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_CLOS] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_INTEGER] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_RATIONAL] = copy_eval_single;

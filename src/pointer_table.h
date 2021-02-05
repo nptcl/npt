@@ -1284,7 +1284,6 @@ enum pointer_index {
 	p_defun_syscall_remove_directory,
 	p_defmacro_syscall_declare_parse,
 	p_defun_syscall_parse_type,
-	p_defun_syscall_type_object,
 	p_defun_syscall_upgraded_open_element_type,
 	p_defun_syscall_make_memory_input_stream,
 	p_defun_syscall_make_memory_output_stream,

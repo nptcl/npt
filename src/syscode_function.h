@@ -45,7 +45,6 @@
 #define remove_directory_syscode _n(remove_directory_syscode)
 #define declare_parse_syscode _n(declare_parse_syscode)
 #define parse_type_syscode _n(parse_type_syscode)
-#define type_object_syscode _n(type_object_syscode)
 #define upgraded_open_element_type_syscode_ _n(upgraded_open_element_type_syscode_)
 #define make_memory_input_stream_syscode_ _n(make_memory_input_stream_syscode_)
 #define make_memory_output_stream_syscode_ _n(make_memory_output_stream_syscode_)
@@ -100,7 +99,6 @@ int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret);
 int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);
 int declare_parse_syscode(addr form, addr *ret);
 int parse_type_syscode(Execute ptr, addr var, addr *ret);
-int type_object_syscode(addr var, addr *ret);
 int upgraded_open_element_type_syscode_(addr var, addr *ret);
 int make_memory_input_stream_syscode_(addr var, addr rest, addr *ret);
 int make_memory_output_stream_syscode_(addr rest, addr *ret);

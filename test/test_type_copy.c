@@ -159,18 +159,6 @@ static int test_typecopy_alltype(void)
 /*
  *  object
  */
-static int test_typecopy_type(void)
-{
-	addr left, right;
-
-	GetTypeTable(&left, Type);
-	type_copy_heap(&right, left);
-	test(testlispdecl(left, LISPDECL_TYPE), "typecopy_type1");
-	test(left != right, "typecopy_type2");
-
-	RETURN;
-}
-
 static int test_typecopy_clos(void)
 {
 	addr left, right, clos;
@@ -743,7 +731,6 @@ static int testcase_type_copy(void)
 	TestBreak(test_typecopy_allobject);
 	TestBreak(test_typecopy_alltype);
 	/* object */
-	TestBreak(test_typecopy_type);
 	TestBreak(test_typecopy_clos);
 	TestBreak(test_typecopy_asterisk);
 	TestBreak(test_typecopy_optimized);

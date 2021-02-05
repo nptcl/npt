@@ -30,18 +30,6 @@ static int scope_t(Execute ptr, addr *ret, addr eval)
 }
 
 
-/* type */
-static int scope_type(Execute ptr, addr *ret, addr eval)
-{
-	addr type;
-
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &eval);
-	type_value_type(&type);
-	return make_eval_scope_(ptr, ret, EVAL_PARSE_TYPE, type, eval);
-}
-
-
 /* clos */
 static int scope_clos(Execute ptr, addr *ret, addr eval)
 {
@@ -848,7 +836,6 @@ void init_scope_function(void)
 {
 	EvalScopeTable[EVAL_PARSE_NIL] = scope_nil;
 	EvalScopeTable[EVAL_PARSE_T] = scope_t;
-	EvalScopeTable[EVAL_PARSE_TYPE] = scope_type;
 	EvalScopeTable[EVAL_PARSE_CLOS] = scope_clos;
 	EvalScopeTable[EVAL_PARSE_INTEGER] = scope_integer;
 	EvalScopeTable[EVAL_PARSE_RATIONAL] = scope_rational;

@@ -44,14 +44,14 @@ static int loop_bind_initial_(Execute ptr, addr type, addr *ret)
 		Return(parse_type(ptr, &type, type, Nil));
 	}
 	/* float */
-	GetTypeTable(&right, Float);
+	GetConst(COMMON_FLOAT, &right);
 	Return(loop_subtypep_(ptr, type, right, &check));
 	if (check) {
 		single_float_heap(ret, 0.0f);
 		return 0;
 	}
 	/* integer */
-	GetTypeTable(&right, Number);
+	GetConst(COMMON_NUMBER, &right);
 	Return(loop_subtypep_(ptr, type, right, &check));
 	if (check) {
 		fixnum_heap(ret, 0);
@@ -211,7 +211,7 @@ int loop_bind_common(Execute ptr, addr pos, addr type, addr value, addr *ret)
 	if (! listp(pos))
 		return fmte_("LIST-BIND argument ~S must be a list type.", pos, NULL);
 	if (type == Unbound)
-		GetTypeTable(&pos, T);
+		pos = T;
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, pos, type, value, NULL);

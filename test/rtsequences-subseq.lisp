@@ -308,8 +308,9 @@
   (subseq #1a(a b 10 20 #\c) 5 5)
   #())
 
-(deftest-error subseq-general.99
-  (subseq #2a((a b) (c d) (e f) (g h)) 0))
+(deftest-error subseq-general.9
+  (eval '(subseq #2a((a b) (c d) (e f) (g h)) 0))
+  type-error)
 
 
 ;; general array

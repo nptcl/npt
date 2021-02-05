@@ -5,7 +5,6 @@
 
 #define type_value_nil _n(type_value_nil)
 #define type_value_t _n(type_value_t)
-#define type_value_type _n(type_value_type)
 #define type_value_clos_ _n(type_value_clos_)
 #define type_value_array_ _n(type_value_array_)
 #define type_value_vector _n(type_value_vector)
@@ -27,7 +26,6 @@
  */
 void type_value_nil(addr *ret);
 void type_value_t(addr *ret);
-void type_value_type(addr *ret);
 int type_value_clos_(addr *ret, addr value);
 int type_value_array_(addr *ret, addr value);
 void type_value_vector(addr *ret, addr value);

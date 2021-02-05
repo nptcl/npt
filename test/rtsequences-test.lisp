@@ -116,7 +116,8 @@
        3))
 
 (deftest-error elt.11
-  (elt #2a((a b c) (d e f)) 0))
+  (eval '(elt #2a((a b c) (d e f)) 0))
+  type-error)
 
 (deftest-error elt-error.1
   (eval '(elt 10 20))

@@ -24,11 +24,11 @@
   type-error)
 
 (deftest-error svref.4
-  (svref "Hello" 0)
+  (eval '(svref "Hello" 0))
   type-error)
 
 (deftest-error svref.5
-  (svref #*1000010100 0)
+  (eval '(svref #*1000010100 0))
   type-error)
 
 (deftest-error svref.6

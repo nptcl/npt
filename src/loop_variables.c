@@ -131,7 +131,7 @@ static void loop_with_single_bind(addr *form, addr var, addr type, addr value)
 		 *    ,form)
 		 */
 		if (type == Unbound)
-			GetTypeTable(&type, T);
+			type = T;
 		GetConst(COMMON_DESTRUCTURING_BIND, &dbind);
 		GetConst(SYSTEM_LOOP_BIND, &bind);
 		quotelist_heap(&qvar, var);
@@ -442,7 +442,7 @@ static int loop_destructuring_bind_(Execute ptr,
 	Return(loop_destructuring_bind_tree_(ptr, var, &gtree, &glist));
 	nreverse(&glist, glist);
 	if (type == Unbound)
-		GetTypeTable(&type, T);
+		type = T;
 	quotelist_heap(&var, var);
 	quotelist_heap(&type, type);
 	list_heap(&lbind, lbind, var, type, value, NULL);

@@ -893,8 +893,6 @@ static int merge_range_(LocalRoot local, addr *ret, addr type, enum LISPDECL dec
 static const enum LISPDECL RealFilterDecls[] = {
 	LISPDECL_INTEGER,
 	LISPDECL_RATIONAL,
-	LISPDECL_REAL,
-	LISPDECL_FLOAT,
 	LISPDECL_SHORT_FLOAT,
 	LISPDECL_SINGLE_FLOAT,
 	LISPDECL_DOUBLE_FLOAT,

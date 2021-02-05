@@ -2036,7 +2036,6 @@ lisp-system::subtypep-normal
 (lisp-system::remove-directory :export t)
 (lisp-system::declare-parse :export t)
 (lisp-system::parse-type :export t)
-(lisp-system::type-object :export t)
 (lisp-system::upgraded-open-element-type :export t)
 (lisp-system::make-memory-input-stream :export t)
 (lisp-system::make-memory-output-stream :export t)

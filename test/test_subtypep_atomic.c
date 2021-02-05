@@ -169,23 +169,27 @@ static int test_subtypep_call_logical_pathname(void)
 	test(strtable_test((b), (c)) == SUBTYPEP_FALSE, \
 			"subtypep_call_array_array_dimension." a); \
 }
+#define ArrayArrayDimension_exclude(a,b,c) { \
+	test(strtable_test((b), (c)) == SUBTYPEP_EXCLUDE, \
+			"subtypep_call_array_array_dimension." a); \
+}
 static int test_subtypep_call_array_array_dimension(void)
 {
 	ArrayArrayDimension_true("1", "(array * *)", "(array * *)");
 	ArrayArrayDimension_false("2", "(array * *)", "(array * (*))");
-	ArrayArrayDimension_false("3", "(array * (10 20))", "(array * 1)");
+	ArrayArrayDimension_exclude("3", "(array * (10 20))", "(array * 1)");
 	ArrayArrayDimension_true("4", "(array * (10))", "(array * 1)");
 	ArrayArrayDimension_true("5", "(array * (10))", "(array * (*))");
 	ArrayArrayDimension_true("6", "(array * 4)", "(array * 4)");
 	ArrayArrayDimension_true("7", "(array * (* * * *))", "(array * 4)");
-	ArrayArrayDimension_false("8", "(array * 4)", "(array * 3)");
-	ArrayArrayDimension_false("9", "(array * 3)", "(array * 4)");
-	ArrayArrayDimension_false("10", "(array * (3))", "(array * (3 4))");
-	ArrayArrayDimension_false("11", "(array * (3 5))", "(array * (3 4))");
+	ArrayArrayDimension_exclude("8", "(array * 4)", "(array * 3)");
+	ArrayArrayDimension_exclude("9", "(array * 3)", "(array * 4)");
+	ArrayArrayDimension_exclude("10", "(array * (3))", "(array * (3 4))");
+	ArrayArrayDimension_exclude("11", "(array * (3 5))", "(array * (3 4))");
 	ArrayArrayDimension_true("12", "(array * (3 4))", "(array * (3 4))");
 	ArrayArrayDimension_true("13", "(array * (3 4))", "(array * (3 *))");
 	ArrayArrayDimension_false("14", "(array * (* 4))", "(array * (3 *))");
-	ArrayArrayDimension_false("15", "(array * (* 4))", "(array * (* 3))");
+	ArrayArrayDimension_exclude("15", "(array * (* 4))", "(array * (* 3))");
 	ArrayArrayDimension_true("16", "(array * (* 4 6))", "(array * (* * 6))");
 
 	RETURN;
@@ -199,6 +203,10 @@ static int test_subtypep_call_array_array_dimension(void)
 	test(strtable_test((b), (c)) == SUBTYPEP_FALSE, \
 			"subtypep_call_array_array." a); \
 }
+#define ArrayArray_exclude(a,b,c) { \
+	test(strtable_test((b), (c)) == SUBTYPEP_EXCLUDE, \
+			"subtypep_call_array_array." a); \
+}
 static int test_subtypep_call_array_array(void)
 {
 	ArrayArray_true("1", "(array integer)", "array");
@@ -206,19 +214,19 @@ static int test_subtypep_call_array_array(void)
 	ArrayArray_true("3", "(array *)", "(array *)");
 	ArrayArray_false("4", "(array *)", "(array integer)");
 	ArrayArray_true("5", "(array integer)", "(array integer)");
-	ArrayArray_false("6", "(array character)", "(array integer)");
-	ArrayArray_false("7", "(array integer)", "(array character)");
+	ArrayArray_exclude("6", "(array character)", "(array integer)");
+	ArrayArray_exclude("7", "(array integer)", "(array character)");
 	ArrayArray_true("8", "(array integer 2)", "(array integer 2)");
-	ArrayArray_false("9", "(array integer 2)", "(array integer 3)");
+	ArrayArray_exclude("9", "(array integer 2)", "(array integer 3)");
 	ArrayArray_true("10", "(simple-array integer)", "array");
 	ArrayArray_true("11", "(simple-array integer)", "(array *)");
 	ArrayArray_true("12", "(simple-array *)", "(array *)");
 	ArrayArray_false("13", "(simple-array *)", "(array integer)");
 	ArrayArray_true("14", "(simple-array integer)", "(array integer)");
-	ArrayArray_false("15", "(simple-array character)", "(array integer)");
-	ArrayArray_false("16", "(simple-array integer)", "(array character)");
+	ArrayArray_exclude("15", "(simple-array character)", "(array integer)");
+	ArrayArray_exclude("16", "(simple-array integer)", "(array character)");
 	ArrayArray_true("17", "(simple-array integer 2)", "(array integer 2)");
-	ArrayArray_false("18", "(simple-array integer 2)", "(array integer 3)");
+	ArrayArray_exclude("18", "(simple-array integer 2)", "(array integer 3)");
 
 	RETURN;
 }

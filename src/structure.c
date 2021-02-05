@@ -28,6 +28,7 @@
 #include "subtypep.h"
 #include "symbol.h"
 #include "type_object.h"
+#include "type_parse.h"
 #include "type_table.h"
 #include "type_typep.h"
 
@@ -412,9 +413,9 @@ static int structure_getarray_direct_(Execute ptr,
 	addr value;
 
 	Return(getelt_sequence_(NULL, vector, i, &value));
+	Return(parse_type(ptr, &type, type, Nil));
 	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
-		Return(type_object_(&type, type));
 		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
 	}
 
@@ -434,9 +435,9 @@ static int structure_setarray_direct_(Execute ptr,
 {
 	int check;
 
+	Return(parse_type(ptr, &type, type, Nil));
 	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
-		Return(type_object_(&type, type));
 		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
 	}
 
@@ -577,8 +578,6 @@ static int structure_include_(struct defstruct *str)
 		Return(stdget_structure_vector_(instance, &y));
 		Return(subtypep_check_(str->ptr, x, y, Nil, &check, NULL));
 		if (! check) {
-			Return(type_object_(&x, x));
-			Return(type_object_(&y, y));
 			return fmte_(":TYPE ~A is not in the include ~A type.", x, y, NULL);
 		}
 	}
@@ -666,8 +665,6 @@ static int structure_include_arguments_(struct defstruct *str)
 		else {
 			Return(subtypep_check_(str->ptr, x, y, Nil, &result, NULL));
 			if (! result) {
-				Return(type_object_(&x, x));
-				Return(type_object_(&y, y));
 				return fmte_("The slot ~S type ~A is not "
 						"in the include ~A type.", name, x, y, NULL);
 			}

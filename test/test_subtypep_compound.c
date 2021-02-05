@@ -683,16 +683,6 @@ static int test_subtypep_left(void)
 	ptr = Execute_Thread;
 	aatype(value);
 
-	parse_type_string(&left, "(and integer)");
-	parse_type_string(&right, "real");
-	subtypep_left_(ptr, left, right, &value);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_left1");
-
-	parse_type_string(&left, "(or integer rational)");
-	parse_type_string(&right, "real");
-	subtypep_left_(ptr, left, right, &value);
-	test(value == SUBTYPEP_INCLUDE, "subtypep_left2");
-
 	parse_type_string(&left, "(satisfies hello)");
 	parse_type_string(&right, "real");
 	subtypep_left_(ptr, left, right, &value);
@@ -847,6 +837,16 @@ static int test_subtypep_compound_call(void)
 	parse_type_string(&right, "symbol");
 	subtypep_compound_(ptr, left, right, &value);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_compound_call.5");
+
+	parse_type_string(&left, "(and integer)");
+	parse_type_string(&right, "real");
+	subtypep_compound_(ptr, left, right, &value);
+	test(value == SUBTYPEP_INCLUDE, "subtypep_left1");
+
+	parse_type_string(&left, "(or integer rational)");
+	parse_type_string(&right, "real");
+	subtypep_compound_(ptr, left, right, &value);
+	test(value == SUBTYPEP_INCLUDE, "subtypep_left2");
 
 	RETURN;
 }

@@ -1174,7 +1174,7 @@ static void type_syscall_parse_type(addr *ret)
 
 	GetTypeTable(&args, T);
 	typeargs_var1(&args, args);
-	GetTypeTable(&values, Type);
+	GetTypeTable(&values, TypeSpec);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
 }
@@ -1190,40 +1190,6 @@ static void defun_parse_type(void)
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_syscall_parse_type(&type);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
-/* (defun type-object (type) ...) -> (or cons symbol) */
-static int syscall_type_object(Execute ptr, addr var)
-{
-	Return(type_object_syscode(var, &var));
-	setresult_control(ptr, var);
-	return 0;
-}
-
-static void type_syscall_type_object(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, Type);
-	typeargs_var1(&args, args);
-	GetTypeValues(&values, TypeSymbol);
-	type_compiled_heap(args, values, ret);
-}
-
-static void defun_type_object(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_TYPE_OBJECT, &symbol);
-	compiled_system(&pos, symbol);
-	setcompiled_var1(pos, p_defun_syscall_type_object);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	type_syscall_type_object(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1665,7 +1631,6 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var1opt1, remove_directory);
 	SetPointerSysCall(defmacro, macro, declare_parse);
 	SetPointerSysCall(defun, var1, parse_type);
-	SetPointerSysCall(defun, var1, type_object);
 	SetPointerSysCall(defun, var1, upgraded_open_element_type);
 	SetPointerSysCall(defun, var1dynamic, make_memory_input_stream);
 	SetPointerSysCall(defun, dynamic, make_memory_output_stream);
@@ -1723,7 +1688,6 @@ void build_syscall_function(void)
 	defun_remove_directory();
 	defmacro_declare_parse();
 	defun_parse_type();
-	defun_type_object();
 	defun_upgraded_open_element_type();
 	defun_make_memory_input_stream();
 	defun_make_memory_output_stream();

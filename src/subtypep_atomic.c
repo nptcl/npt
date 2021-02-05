@@ -1,10 +1,23 @@
 #include "clos_class.h"
 #include "condition.h"
+#include "integer.h"
 #include "subtypep_atomic.h"
 #include "subtypep_range.h"
 #include "type.h"
 #include "type_upgraded.h"
 #include "typedef.h"
+
+int ReturnReverse(SubtypepResult *ret, SubtypepResult check)
+{
+	switch (check) {
+		case SUBTYPEP_INCLUDE:
+			return ReturnFalse(ret);
+
+		default:
+			return Result(ret, check);
+	}
+}
+
 
 /*
  *  type
@@ -12,14 +25,6 @@
 int subtypep_call_invalid_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	return ReturnInvalid(ret);
-}
-
-int subtypep_call_type_(Execute ptr, addr x, addr y, SubtypepResult *ret)
-{
-	if (RefLispDecl(x) != LISPDECL_TYPE)
-		return ReturnExclude(ret);
-	else
-		return ReturnBool(ret, RefLispDecl(x) == RefLispDecl(y));
 }
 
 
@@ -40,7 +45,10 @@ int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		return ReturnFalse(ret);
 
 	Return(clos_subclass_p_(x, y, &check));
-	return ReturnBool(ret, check);
+	if (check)
+		return ReturnInclude(ret);
+
+	return ReturnFalse(ret);
 }
 
 
@@ -83,9 +91,6 @@ int subtypep_call_null_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 	switch (RefLispDecl(x)) {
 		case LISPDECL_NULL:
 			return ReturnInclude(ret);
-
-		case LISPDECL_SEQUENCE:
-			return ReturnFalse(ret);
 
 		default:
 			return ReturnExclude(ret);
@@ -177,51 +182,102 @@ int subtypep_call_logical_pathname_(Execute ptr, addr x, addr y, SubtypepResult 
 /*
  *  array
  */
-static int subtypep_call_array_array_integer_(addr x, addr y, SubtypepResult *ret)
+static int subtypep_call_aa_integer_integer_(addr x, addr y, SubtypepResult *ret)
 {
-	size_t size;
+	size_t size1, size2;
 
-	switch (GetType(x)) {
-		case LISPTYPE_FIXNUM:
-			return ReturnBool(ret, fixnumequal(x, y));
+	Return(getindex_integer_(x, &size1));
+	Return(getindex_integer_(y, &size2));
 
-		case LISPTYPE_VECTOR:
-			Check(GetStatusSize(x) != LISPSIZE_ARRAY4, "size left error");
-			LenArrayA4(x, &size);
-			return ReturnBool(ret, ((fixnum)size) == RefFixnum(y));
-
-		default:
-			return ReturnFalse(ret);
-	}
+	return ReturnIncludeExclude(ret, (size1 == size2));
 }
 
-static int subtypep_call_array_array_vector_(addr x, addr y, SubtypepResult *ret)
+static int subtypep_call_aa_vector_integer_(addr x, addr y, SubtypepResult *ret)
+{
+	size_t size1, size2;
+
+	LenArrayA4(x, &size1);
+	Return(getindex_integer_(y, &size2));
+
+	return ReturnIncludeExclude(ret, (size1 == size2));
+}
+
+static int subtypep_call_aa_integer_vector_(addr x, addr y, SubtypepResult *ret)
+{
+	addr check;
+	size_t size1, size2, i;
+
+	Return(getindex_integer_(x, &size1));
+	LenArrayA4(y, &size2);
+	if (size1 != size2)
+		return ReturnExclude(ret);
+
+	for (i = 0; i < size1; i++) {
+		GetArrayA4(y, i, &check);
+		if (! type_asterisk_p(check))
+			return ReturnFalse(ret);
+	}
+
+	return ReturnInclude(ret);
+}
+
+static int subtypep_call_aa_vector_vector_(addr x, addr y, SubtypepResult *ret)
 {
 	addr check1, check2;
-	size_t i, size;
+	size_t size1, size2, i, dim1, dim2;
 
-	if (GetType(x) != LISPTYPE_VECTOR)
-		return ReturnFalse(ret);
-	Check(GetStatusSize(y) != LISPSIZE_ARRAY4, "size right error");
-	Check(GetStatusSize(x) != LISPSIZE_ARRAY4, "size left error");
-	LenArrayA4(y, &i);
-	LenArrayA4(x, &size);
-	if (size != i)
-		return ReturnFalse(ret);
-	for (i = 0; i < size; i++) {
+	LenArrayA4(x, &size1);
+	LenArrayA4(y, &size2);
+	if (size1 != size2)
+		return ReturnExclude(ret);
+
+	for (i = 0; i < size1; i++) {
+		/* asterisk */
 		GetArrayA4(y, i, &check2);
 		if (type_asterisk_p(check2))
 			continue;
 		GetArrayA4(x, i, &check1);
 		if (type_asterisk_p(check1))
 			return ReturnFalse(ret);
-		Check(GetType(check2) != LISPTYPE_FIXNUM, "fixnum right error");
-		Check(GetType(check1) != LISPTYPE_FIXNUM, "fixnum left error");
-		if (! fixnumequal(check1, check2))
-			return ReturnFalse(ret);
+
+		/* dimension */
+		Return(getindex_integer_(check1, &dim1));
+		Return(getindex_integer_(check2, &dim2));
+		if (dim1 != dim2)
+			return ReturnExclude(ret);
 	}
 
 	return ReturnInclude(ret);
+}
+
+static int subtypep_call_aa_integer_(addr x, addr y, SubtypepResult *ret)
+{
+	switch (GetType(x)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+			return subtypep_call_aa_integer_integer_(x, y, ret);
+
+		case LISPTYPE_VECTOR:
+			return subtypep_call_aa_vector_integer_(x, y, ret);
+
+		default:
+			return ReturnInvalid(ret);
+	}
+}
+
+static int subtypep_call_aa_vector_(addr x, addr y, SubtypepResult *ret)
+{
+	switch (GetType(x)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+			return subtypep_call_aa_integer_vector_(x, y, ret);
+
+		case LISPTYPE_VECTOR:
+			return subtypep_call_aa_vector_vector_(x, y, ret);
+
+		default:
+			return ReturnInvalid(ret);
+	}
 }
 
 static int subtypep_call_array_array_dimension_(addr x, addr y, SubtypepResult *ret)
@@ -230,37 +286,64 @@ static int subtypep_call_array_array_dimension_(addr x, addr y, SubtypepResult *
 		return ReturnInclude(ret);
 	if (type_asterisk_p(x))
 		return ReturnFalse(ret);
-	if (GetType(y) == LISPTYPE_FIXNUM)
-		return subtypep_call_array_array_integer_(x, y, ret);
-	if (GetType(y) == LISPTYPE_VECTOR)
-		return subtypep_call_array_array_vector_(x, y, ret);
-	Abort("type error");
-	return ReturnInvalid(ret);
+
+	switch (GetType(y)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+			return subtypep_call_aa_integer_(x, y, ret);
+
+		case LISPTYPE_VECTOR:
+			return subtypep_call_aa_vector_(x, y, ret);
+
+		default:
+			return ReturnInvalid(ret);
+	}
 }
 
-static int subtypep_call_array_array_equal(addr x, addr y)
+static int subtypep_call_array_array_equal_(addr x, addr y, SubtypepResult *ret)
 {
 	if (type_asterisk_p(y))
-		return 1;
+		return ReturnInclude(ret);
 	if (type_asterisk_p(x))
-		return 0;
-	return upgraded_array0_equal(x, y);
+		return ReturnFalse(ret);
+
+	if (upgraded_array0_equal(x, y))
+		return ReturnInclude(ret);
+
+	return ReturnExclude(ret);
 }
 
 static int subtypep_call_array_array_(addr x, addr y, SubtypepResult *ret)
 {
-	addr check1, check2;
+	SubtypepResult value1, value2;
+	addr type1, type2, dim1, dim2;
 
-	/* type */
-	GetArrayType(x, 0, &check1);
-	GetArrayType(y, 0, &check2);
-	if (! subtypep_call_array_array_equal(check1, check2))
-		return ReturnFalse(ret);
+	GetArrayType(x, 0, &type1);
+	GetArrayType(y, 0, &type2);
+	GetArrayType(x, 1, &dim1);
+	GetArrayType(y, 1, &dim2);
 
-	/* dimension */
-	GetArrayType(x, 1, &x);
-	GetArrayType(y, 1, &y);
-	return subtypep_call_array_array_dimension_(x, y, ret);
+	/* subtypep */
+	Return(subtypep_call_array_array_equal_(type1, type2, &value1));
+	ReturnSecondThrow(ret, value1);
+	Return(subtypep_call_array_array_dimension_(dim1, dim2, &value2));
+	ReturnSecondThrow(ret, value2);
+
+	/* include */
+	if (value1 == SUBTYPEP_INCLUDE && value2 == SUBTYPEP_INCLUDE)
+		return ReturnInclude(ret);
+
+	/* reverse */
+	if (value1 == SUBTYPEP_INCLUDE) {
+		Return(subtypep_call_array_array_equal_(type2, type1, &value1));
+		return ReturnSecondValue(ret, value1);
+	}
+	if (value2 == SUBTYPEP_INCLUDE) {
+		Return(subtypep_call_array_array_dimension_(dim2, dim1, &value2));
+		return ReturnSecondValue(ret, value2);
+	}
+
+	return ReturnFalse(ret);
 }
 
 int subtypep_call_array_(Execute ptr, addr x, addr y, SubtypepResult *ret)
@@ -269,9 +352,6 @@ int subtypep_call_array_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		case LISPDECL_ARRAY:
 		case LISPDECL_SIMPLE_ARRAY:
 			return subtypep_call_array_array_(x, y, ret);
-
-		case LISPDECL_SEQUENCE:
-			return ReturnFalse(ret);
 
 		default:
 			return ReturnExclude(ret);
@@ -282,6 +362,13 @@ int subtypep_call_array_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 /*
  *  simple-array
  */
+static int subtypep_call_simple_array_array_(addr x, addr y, SubtypepResult *ret)
+{
+	SubtypepResult check;
+	Return(subtypep_call_array_array_(y, x, &check));
+	return ReturnReverse(ret, check);
+}
+
 int subtypep_call_simple_array_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	switch (RefLispDecl(x)) {
@@ -289,8 +376,7 @@ int subtypep_call_simple_array_(Execute ptr, addr x, addr y, SubtypepResult *ret
 			return subtypep_call_array_array_(x, y, ret);
 
 		case LISPDECL_ARRAY:
-		case LISPDECL_SEQUENCE:
-			return ReturnFalse(ret);
+			return subtypep_call_simple_array_array_(x, y, ret);
 
 		default:
 			return ReturnExclude(ret);
@@ -448,13 +534,9 @@ static int subtypep_realparameter_(addr x, addr y, SubtypepResult *ret)
 
 static int subtypep_realexclude_(addr x, addr y, SubtypepResult *ret)
 {
-	int check;
-
-	Return(subtypep_realexlucde_(x, y, &check));
-	if (check)
-		return ReturnExclude(ret);
-	else
-		return ReturnFalse(ret);
+	SubtypepResult check;
+	Return(subtypep_realparameter_(y, x, &check));
+	return ReturnReverse(ret, check);
 }
 
 
@@ -483,6 +565,14 @@ int subtypep_call_integer_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 /*
  *  rational
  */
+static int subtypep_call_rational_ratio_(addr y, SubtypepResult *ret)
+{
+	if (range_asterisk_p(y))
+		return ReturnInclude(ret);
+	else
+		return ReturnFalse(ret);
+}
+
 int subtypep_call_rational_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
 	switch (RefLispDecl(x)) {
@@ -490,7 +580,7 @@ int subtypep_call_rational_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 			return ReturnFalse(ret);
 
 		case LISPDECL_RATIO:
-			return ReturnBool(ret, range_asterisk_p(y));
+			return subtypep_call_rational_ratio_(y, ret);
 
 		case LISPDECL_REAL:
 			return subtypep_realexclude_(x, y, ret);
@@ -518,7 +608,7 @@ int subtypep_call_real_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 			return ReturnFalse(ret);
 
 		case LISPDECL_RATIO:
-			return ReturnBool(ret, range_asterisk_p(y));
+			return subtypep_call_rational_ratio_(y, ret);
 
 		case LISPDECL_INTEGER:
 		case LISPDECL_RATIONAL:

@@ -2463,7 +2463,6 @@ void init_code_make(void)
 {
 	CodeMakeTable[EVAL_PARSE_NIL] = code_make_nil;
 	CodeMakeTable[EVAL_PARSE_T] = code_make_t;
-	CodeMakeTable[EVAL_PARSE_TYPE] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_CLOS] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_INTEGER] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_RATIONAL] = code_make_value;

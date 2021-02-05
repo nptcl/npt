@@ -112,9 +112,9 @@ static int test_subtypep_call_cons(void)
 			"subtypep_cons1");
 	test(strtable_true("(cons * *)", "(cons * *)"),
 			"subtypep_cons2");
-	test(strtable_false("(cons symbol *)", "(cons cons *)"),
+	test(strtable_exclude("(cons symbol *)", "(cons cons *)"),
 			"subtypep_cons3");
-	test(strtable_false("(cons integer symbol)", "(cons integer cons)"),
+	test(strtable_exclude("(cons integer symbol)", "(cons integer cons)"),
 			"subtypep_cons4");
 	test(strtable_true("(cons integer symbol)", "(cons integer symbol)"),
 			"subtypep_cons5");
@@ -162,6 +162,9 @@ static SubtypepResult subtypep_value(const char *str1, const char *str2)
 #define VectorArray_false(a,b,c) { \
 	test(subtypep_value((b), (c)) == SUBTYPEP_FALSE, "subtypep_vector_array" a); \
 }
+#define VectorArray_exclude(a,b,c) { \
+	test(subtypep_value((b), (c)) == SUBTYPEP_EXCLUDE, "subtypep_vector_array" a); \
+}
 static int test_subtypep_vector_array(void)
 {
 	VectorArray_true("1", "vector", "array");
@@ -171,16 +174,17 @@ static int test_subtypep_vector_array(void)
 	VectorArray_true("5", "(vector integer *)", "(array number *)");
 	VectorArray_true("6", "(vector real *)", "(array t *)");
 	VectorArray_true("7", "(vector real 10)", "(array t *)");
-	VectorArray_false("8", "(vector real *)", "(array t 10)");
-	VectorArray_true("9a", "(array * (10))", "(array * (*))");
-	VectorArray_true("9b", "(vector real 10)", "(array t (*))");
-	VectorArray_true("10", "(vector real 10)", "(array t 1)");
-	VectorArray_true("11", "(vector real 10)", "(array t (10))");
-	VectorArray_false("12", "(vector real 10)", "(array t (10 *))");
-	VectorArray_false("13", "(vector real 10)", "(array t 2)");
-	VectorArray_false("14", "(vector real *)", "(array t 2)");
-	VectorArray_false("15", "(vector real *)", "(array t (10 20))");
-	VectorArray_false("16", "(vector real *)", "(array t (* *))");
+	VectorArray_exclude("8", "(vector real *)", "(array t 10)");
+	VectorArray_true("9", "(array * (10))", "(array * (*))");
+	VectorArray_true("10", "(vector real 10)", "(array t (*))");
+	VectorArray_true("11", "(vector real 10)", "(array t 1)");
+	VectorArray_true("12", "(vector real 10)", "(array t (10))");
+	VectorArray_exclude("13", "(vector real 10)", "(array t (10 *))");
+	VectorArray_exclude("14", "(vector real 10)", "(array t 2)");
+	VectorArray_exclude("15", "(vector real *)", "(array t 2)");
+	VectorArray_exclude("16", "(vector real *)", "(array t (10 20))");
+	VectorArray_exclude("17", "(vector real *)", "(array t (* *))");
+	VectorArray_false("18", "(vector t *)", "(array t (10))");
 
 	RETURN;
 }
@@ -191,6 +195,10 @@ static int test_subtypep_vector_array(void)
 }
 #define SimpleVectorArray_false(a,b,c) { \
 	test(subtypep_value((b), (c)) == SUBTYPEP_FALSE, \
+			"subtypep_simple_vector_array" a); \
+}
+#define SimpleVectorArray_exclude(a,b,c) { \
+	test(subtypep_value((b), (c)) == SUBTYPEP_EXCLUDE, \
 			"subtypep_simple_vector_array" a); \
 }
 static int test_subtypep_simple_vector_array(void)
@@ -207,10 +215,10 @@ static int test_subtypep_simple_vector_array(void)
 	SimpleVectorArray_true("10", "(simple-vector 10)", "(array t 1)");
 	SimpleVectorArray_true("11", "(simple-vector 10)", "(array t (*))");
 	SimpleVectorArray_true("12", "(simple-vector 10)", "(array t (10))");
-	SimpleVectorArray_false("13", "(simple-vector 10)", "(array t (11))");
-	SimpleVectorArray_false("14", "(simple-vector 10)", "(array t (10 11))");
-	SimpleVectorArray_false("15", "(simple-vector 10)", "(array t 2)");
-	SimpleVectorArray_false("16", "(simple-vector *)", "(array t 2)");
+	SimpleVectorArray_exclude("13", "(simple-vector 10)", "(array t (11))");
+	SimpleVectorArray_exclude("14", "(simple-vector 10)", "(array t (10 11))");
+	SimpleVectorArray_exclude("15", "(simple-vector 10)", "(array t 2)");
+	SimpleVectorArray_exclude("16", "(simple-vector *)", "(array t 2)");
 	SimpleVectorArray_false("17", "(simple-vector *)", "(array t (10))");
 
 	test(subtypep_value("array", "simple-array") == SUBTYPEP_FALSE,
@@ -227,6 +235,9 @@ static int test_subtypep_simple_vector_array(void)
 #define StringArray_false(a,b,c) { \
 	test(subtypep_value((b), (c)) == SUBTYPEP_FALSE, "subtypep_string_array" a); \
 }
+#define StringArray_exclude(a,b,c) { \
+	test(subtypep_value((b), (c)) == SUBTYPEP_EXCLUDE, "subtypep_string_array" a); \
+}
 static int test_subtypep_string_array(void)
 {
 	StringArray_true("1", "string", "array");
@@ -234,17 +245,17 @@ static int test_subtypep_string_array(void)
 	StringArray_true("3", "string", "(array)");
 	StringArray_true("4", "(string)", "(array)");
 	StringArray_true("5", "(string *)", "(array)");
-	StringArray_false("6", "(string)", "(array integer)");
+	StringArray_exclude("6", "(string)", "(array integer)");
 	StringArray_true("7", "(string)", "(array character)");
 	StringArray_true("8", "(string)", "(array *)");
 	StringArray_true("9", "(string 10)", "(array character *)");
 	StringArray_true("10", "(string 10)", "(array character 1)");
 	StringArray_true("11", "(string 10)", "(array character (*))");
 	StringArray_true("12", "(string 10)", "(array character (10))");
-	StringArray_false("13", "(string 10)", "(array character (11))");
-	StringArray_false("14", "(string 10)", "(array character (10 11))");
-	StringArray_false("15", "(string 10)", "(array character 2)");
-	StringArray_false("16", "(string *)", "(array character 2)");
+	StringArray_exclude("13", "(string 10)", "(array character (11))");
+	StringArray_exclude("14", "(string 10)", "(array character (10 11))");
+	StringArray_exclude("15", "(string 10)", "(array character 2)");
+	StringArray_exclude("16", "(string *)", "(array character 2)");
 	StringArray_false("17", "(string *)", "(array character (10))");
 	StringArray_true("18", "base-string", "array");
 	StringArray_true("19", "simple-string", "array");
@@ -261,6 +272,10 @@ static int test_subtypep_string_array(void)
 	test(subtypep_value((b), (c)) == SUBTYPEP_FALSE, \
 			"subtypep_bit_vector_array" a); \
 }
+#define BitVectorArray_exclude(a,b,c) { \
+	test(subtypep_value((b), (c)) == SUBTYPEP_EXCLUDE, \
+			"subtypep_bit_vector_array" a); \
+}
 static int test_subtypep_bit_vector_array(void)
 {
 	BitVectorArray_true("1", "bit-vector", "array");
@@ -275,10 +290,10 @@ static int test_subtypep_bit_vector_array(void)
 	BitVectorArray_true("10", "(bit-vector 10)", "(array bit 1)");
 	BitVectorArray_true("11", "(bit-vector 10)", "(array bit (*))");
 	BitVectorArray_true("12", "(bit-vector 10)", "(array bit (10))");
-	BitVectorArray_false("13", "(bit-vector 10)", "(array bit (11))");
-	BitVectorArray_false("14", "(bit-vector 10)", "(array bit (10 11))");
-	BitVectorArray_false("15", "(bit-vector 10)", "(array bit 2)");
-	BitVectorArray_false("16", "(bit-vector *)", "(array bit 2)");
+	BitVectorArray_exclude("13", "(bit-vector 10)", "(array bit (11))");
+	BitVectorArray_exclude("14", "(bit-vector 10)", "(array bit (10 11))");
+	BitVectorArray_exclude("15", "(bit-vector 10)", "(array bit 2)");
+	BitVectorArray_exclude("16", "(bit-vector *)", "(array bit 2)");
 	BitVectorArray_false("17", "(bit-vector *)", "(array bit (10))");
 	BitVectorArray_true("18", "bit-vector", "(array (integer 0 1))");
 
@@ -313,7 +328,7 @@ static void parse_args(addr *ret, const char *str)
 
 static int test_subtypep_ordinary_subtypep(void)
 {
-	int value;
+	SubtypepResult value;
 	addr pos;
 	ordargs str1, str2;
 	ordtype type1, type2;
@@ -329,12 +344,12 @@ static int test_subtypep_ordinary_subtypep(void)
 	gettype_ordargs_(&str1, 1, &type1);
 	gettype_ordargs_(&str2, 0, &type2);
 	subtypep_ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
-	test(value, "subtypep_ordinary_subtypep1");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_subtypep1");
 
 	gettype_ordargs_(&str1, 0, &type1);
 	gettype_ordargs_(&str2, 1, &type2);
 	subtypep_ordinary_subtypep_(ptr, &str1, &type1, &str2, &type2, &value);
-	test(! value, "subtypep_ordinary_subtypep2");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_subtypep2");
 
 	RETURN;
 }
@@ -369,7 +384,7 @@ static void argschar(ordargs *ret, const char *str)
 
 static int test_subtypep_ordinary_size(void)
 {
-	int value;
+	SubtypepResult value;
 	ordargs args1, args2;
 	Execute ptr;
 
@@ -379,24 +394,24 @@ static int test_subtypep_ordinary_size(void)
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real))");
 	subtypep_ordinary_size_(ptr, &args1, &args2, 1, &value);
-	test(value, "subtypep_ordinary_size1");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_size1");
 	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(value, "subtypep_ordinary_size2");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_size2");
 
 	argschar(&args1, "(function (integer integer))");
 	argschar(&args2, "(function (real))");
 	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(! value, "subtypep_ordinary_size3");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_size3");
 
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real real))");
 	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(value, "subtypep_ordinary_size4");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_size4");
 
 	argschar(&args1, "(function (integer string))");
 	argschar(&args2, "(function (real real))");
 	subtypep_ordinary_size_(ptr, &args1, &args2, 2, &value);
-	test(! value, "subtypep_ordinary_size5");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_size5");
 
 	RETURN;
 }
@@ -409,7 +424,7 @@ static void extractargs(addr *ret, const char *str)
 
 static int test_subtypep_ordinary_simple(void)
 {
-	int value;
+	SubtypepResult value;
 	addr left, right;
 	Execute ptr;
 
@@ -419,49 +434,49 @@ static int test_subtypep_ordinary_simple(void)
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple1");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple1");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_ordinary_simple2");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_simple2");
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t &optional real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple3");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple3");
 
 	extractargs(&left, "(function (integer &optional integer))");
 	extractargs(&right, "(function (t real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_ordinary_simple4");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_simple4");
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple5");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple5");
 
 	extractargs(&left, "(function (integer integer &optional integer))");
 	extractargs(&right, "(function (t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple6");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple6");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple7");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple7");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t t &optional real real))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_ordinary_simple8");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_simple8");
 
 	RETURN;
 }
 
 static int test_subtypep_ordinary_simple_left(void)
 {
-	int value;
+	SubtypepResult value;
 	addr left, right;
 	Execute ptr;
 
@@ -471,34 +486,34 @@ static int test_subtypep_ordinary_simple_left(void)
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple_left1");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple_left1");
 
 	extractargs(&left, "(function (integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_ordinary_simple_left2");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_simple_left2");
 
 	extractargs(&left, "(function (integer integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple_left3");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple_left3");
 
 	extractargs(&left, "(function (integer integer integer fixnum fixnum))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_simple_left4");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_simple_left4");
 
 	extractargs(&left, "(function (integer integer integer fixnum string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_ordinary_simple_left5");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_simple_left5");
 
 	RETURN;
 }
 
 static int test_subtypep_ordinary_check(void)
 {
-	int value;
+	SubtypepResult value;
 	addr left, right;
 	Execute ptr;
 
@@ -508,19 +523,19 @@ static int test_subtypep_ordinary_check(void)
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_ordinary_check1");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_ordinary_check1");
 
 	extractargs(&left, "(function (integer integer &rest string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_ordinary_check2");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_ordinary_check2");
 
 	RETURN;
 }
 
 static int test_subtypep_function_ordinary(void)
 {
-	int value;
+	SubtypepResult value;
 	addr left, right, aster;
 	Execute ptr;
 
@@ -531,19 +546,19 @@ static int test_subtypep_function_ordinary(void)
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(value, "subtypep_function_ordinary1");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_function_ordinary1");
 
 	subtypep_function_ordinary_(ptr, aster, aster, &value);
-	test(value, "subtypep_function_ordinary2");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_function_ordinary2");
 	subtypep_function_ordinary_(ptr, left, aster, &value);
-	test(value, "subtypep_function_ordinary3");
+	test(value == SUBTYPEP_INCLUDE, "subtypep_function_ordinary3");
 	subtypep_function_ordinary_(ptr, aster, right, &value);
-	test(! value, "subtypep_function_ordinary4");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_function_ordinary4");
 
 	extractargs(&left, "(function (integer integer &rest string))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(ptr, left, right, &value);
-	test(! value, "subtypep_function_ordinary5");
+	test(value != SUBTYPEP_INCLUDE, "subtypep_function_ordinary5");
 
 	RETURN;
 }
@@ -565,12 +580,12 @@ static int test_subtypep_function_check(void)
 	extractchar(&left, "(function * cons)");
 	extractchar(&right, "(function (integer) list)");
 	subtypep_function_check_(ptr, left, right, &result);
-	test(result == SUBTYPEP_FALSE, "subtypep_function_check2");
+	test(result == SUBTYPEP_EXCLUDE, "subtypep_function_check2");
 
 	extractchar(&left, "(function * string)");
 	extractchar(&right, "(function * list)");
 	subtypep_function_check_(ptr, left, right, &result);
-	test(result == SUBTYPEP_FALSE, "subtypep_function_check3");
+	test(result == SUBTYPEP_EXCLUDE, "subtypep_function_check3");
 
 	extractchar(&left, "(function * real)");
 	extractchar(&right, "(function * integer)");
@@ -607,7 +622,7 @@ static int test_subtypep_call_function(void)
 	extractchar(&left, "(compiled-function (string) cons)");
 	extractchar(&right, "(function (integer) list)");
 	subtypep_call_function_(ptr, left, right, &result);
-	test(result == SUBTYPEP_FALSE, "subtypep_call_function.3");
+	test(result == SUBTYPEP_EXCLUDE, "subtypep_call_function.3");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(function (integer) list)");
@@ -639,7 +654,7 @@ static int test_subtypep_call_compiled_function(void)
 	extractchar(&left, "(compiled-function (string) cons)");
 	extractchar(&right, "(compiled-function (integer) list)");
 	subtypep_call_compiled_function_(ptr, left, right, &result);
-	test(result == SUBTYPEP_FALSE, "subtypep_call_compiled_function.3");
+	test(result == SUBTYPEP_EXCLUDE, "subtypep_call_compiled_function.3");
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(compiled-function (integer) list)");
