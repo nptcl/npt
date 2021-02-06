@@ -5,12 +5,17 @@
 (import 'lisp-clos::referenced-class)
 (use-package 'lisp-clos)
 
-(load #p"test/rtobjects-reader.lisp")
+(load #p"test/rtobjects-slot.lisp")
+(load #p"test/rtobjects-instance.lisp")
 (load #p"test/rtobjects-class.lisp")
-(load #p"test/rtobjects-redefine.lisp")
 (load #p"test/rtobjects-generic.lisp")
+(load #p"test/rtobjects-method.lisp")
 (load #p"test/rtobjects-combination.lisp")
-(load #p"test/rtobjects-protocols.lisp")
+(load #p"test/rtobjects-redefine.lisp")
+
+(load #p"test/rtmop-readers.lisp")
+(load #p"test/rtmop-protocols.lisp")
+(load #p"test/rtmop-misc.lisp")
 
 
 ;;

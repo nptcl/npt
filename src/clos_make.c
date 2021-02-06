@@ -1000,23 +1000,23 @@ int make_instance_stdclass_(Execute ptr, addr rest, addr *ret)
 /*
  *  slot-missing
  */
-int clos_slot_missing_(Execute ptr,
+static int clos_slot_missing_(Execute ptr, addr *ret,
 		addr clos, addr pos, addr name, addr operation, addr value)
 {
 	addr call;
 
 	GetConst(COMMON_SLOT_MISSING, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, clos, pos, name, operation, value, NULL);
+	return callclang_funcall(ptr, ret, call, clos, pos, name, operation, value, NULL);
 }
 
-int clos_slot_unbound_(Execute ptr, addr clos, addr pos, addr name)
+static int clos_slot_unbound_(Execute ptr, addr *ret, addr clos, addr pos, addr name)
 {
 	addr call;
 
 	GetConst(COMMON_SLOT_UNBOUND, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, clos, pos, name, NULL);
+	return callclang_funcall(ptr, ret, call, clos, pos, name, NULL);
 }
 
 
@@ -1062,7 +1062,8 @@ int slot_boundp_using_class_common_(Execute ptr,
 
 	/* slot-missing */
 	GetConst(COMMON_SLOT_BOUNDP, &check);
-	return clos_slot_missing_(ptr, clos, pos, key, check, Unbound);
+	Return(clos_slot_missing_(ptr, &pos, clos, pos, key, check, Unbound));
+	return Result(ret, (pos != Nil));
 }
 
 
@@ -1106,7 +1107,7 @@ int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key)
 
 	/* slot-missing */
 	GetConst(COMMON_SLOT_MAKUNBOUND, &check);
-	return clos_slot_missing_(ptr, clos, pos, key, check, Unbound);
+	return clos_slot_missing_(ptr, &pos, clos, pos, key, check, Unbound);
 }
 
 
@@ -1151,7 +1152,7 @@ static int slot_value_using_class_getp_(Execute ptr,
 
 	/* slot-missing */
 	GetConst(COMMON_SLOT_VALUE, &check);
-	return clos_slot_missing_(ptr, clos, pos, key, check, Unbound);
+	return clos_slot_missing_(ptr, ret, clos, pos, key, check, Unbound);
 }
 
 int slot_value_using_class_common_(Execute ptr,
@@ -1159,7 +1160,7 @@ int slot_value_using_class_common_(Execute ptr,
 {
 	Return(slot_value_using_class_getp_(ptr, clos, pos, key, ret));
 	if (*ret == Unbound)
-		return clos_slot_unbound_(ptr, clos, pos, key);
+		return clos_slot_unbound_(ptr, ret, clos, pos, key);
 
 	return 0;
 }
@@ -1206,7 +1207,7 @@ int setf_slot_value_using_class_common_(Execute ptr,
 
 	/* slot-missing */
 	GetConst(COMMON_SETF, &check);
-	return clos_slot_missing_(ptr, clos, pos, key, check, value);
+	return clos_slot_missing_(ptr, &pos, clos, pos, key, check, value);
 }
 
 

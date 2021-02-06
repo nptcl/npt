@@ -2725,13 +2725,13 @@ static void typecompiled_upgraded_type(void)
 
 static void typecompiled_slot_boundp(void)
 {
-	/* (function (clos symbol) (values boolean &rest nil)) */
+	/* (function (clos symbol) (values t &rest nil)) */
 	addr args, values;
 
 	GetTypeTable(&args, Clos);
 	GetTypeTable(&values, Symbol);
 	typeargs_var2(&args, args, values);
-	GetTypeValues(&values, Boolean);
+	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(SlotBoundp, args);
 }

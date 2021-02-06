@@ -1488,6 +1488,40 @@ static void defun_set_slots(void)
 }
 
 
+/* (defun intern-eql-specializer (instance slots values) ...) -> t */
+static int syscall_intern_eql_specializer(Execute ptr, addr var)
+{
+	Return(intern_eql_specializer_syscode(var, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_syscall_intern_eql_specializer(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_intern_eql_specializer(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_INTERN_EQL_SPECIALIZER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_intern_eql_specializer);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_intern_eql_specializer(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -1535,6 +1569,7 @@ void init_syscall_common(void)
 	SetPointerSysCall(defun, var1, trace_del);
 	SetPointerSysCall(defun, var3, with_compilation_unit);
 	SetPointerSysCall(defun, var3, set_slots);
+	SetPointerSysCall(defun, var1, intern_eql_specializer);
 }
 
 void build_syscall_common(void)
@@ -1582,5 +1617,6 @@ void build_syscall_common(void)
 	defvar_compiler_macro();
 	defun_with_compilation_unit();
 	defun_set_slots();
+	defun_intern_eql_specializer();
 }
 

@@ -986,7 +986,7 @@ static int method_slot_unbound(Execute ptr, addr method, addr next, addr rest)
 {
 	addr clos, obj, name;
 	Return(list_bind_(rest, &clos, &obj, &name, NULL));
-	return fmte_("The slot ~S is unbound in the ~S.", name, obj, NULL);
+	return call_unbound_slot_(ptr, obj, name);
 }
 
 static void method_type_slot_unbound(addr *ret)
@@ -1195,7 +1195,19 @@ static int defgeneric_update_instance_for_redefined_class_mop_(Execute ptr)
 /***********************************************************************
  *  slot-boundp-using-class
  ***********************************************************************/
-static int method_slot_boundp_using_class(Execute ptr,
+static int method_slot_boundp_using_class_standard(Execute ptr,
+		addr method, addr next, addr clos, addr pos, addr name)
+{
+	int check;
+
+	Return(clos_version_check_(ptr, pos, clos));
+	Return(slot_boundp_using_class_common_(ptr, clos, pos, name, &check));
+	setbool_control(ptr, check);
+
+	return 0;
+}
+
+static int method_slot_boundp_using_class_structure(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
 	int check;
@@ -1227,13 +1239,13 @@ static void method_argument_slot_boundp_using_class(addr *ret, constindex index)
 }
 
 static int defmethod_slot_boundp_using_class_(Execute ptr,
-		addr name, addr gen, constindex index)
+		addr name, addr gen, constindex index, pointer id)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_system(&call, name);
-	setcompiled_var5(call, p_method_slot_boundp_using_class);
+	setcompiled_var5(call, id);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
@@ -1254,9 +1266,11 @@ static int defgeneric_slot_boundp_using_class_mop_(Execute ptr)
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(defmethod_slot_boundp_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STANDARD_CLASS));
+				CONSTANT_CLOS_STANDARD_CLASS,
+				p_method_slot_boundp_using_class_standard));
 	Return(defmethod_slot_boundp_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STRUCTURE_CLASS));
+				CONSTANT_CLOS_STRUCTURE_CLASS,
+				p_method_slot_boundp_using_class_structure));
 	return common_method_finalize_(gen);
 }
 
@@ -1264,7 +1278,15 @@ static int defgeneric_slot_boundp_using_class_mop_(Execute ptr)
 /***********************************************************************
  *  slot-exists-p-using-class
  ***********************************************************************/
-static int method_slot_exists_p_using_class(Execute ptr,
+static int method_slot_exists_p_using_class_standard(Execute ptr,
+		addr method, addr next, addr clos, addr pos, addr name)
+{
+	Return(clos_version_check_(ptr, pos, clos));
+	setbool_control(ptr, clos_slot_exists_p(pos, name));
+	return 0;
+}
+
+static int method_slot_exists_p_using_class_structure(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
 	setbool_control(ptr, clos_slot_exists_p(pos, name));
@@ -1272,13 +1294,13 @@ static int method_slot_exists_p_using_class(Execute ptr,
 }
 
 static int defmethod_slot_exists_p_using_class_(Execute ptr,
-		addr name, addr gen, constindex index)
+		addr name, addr gen, constindex index, pointer id)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_system(&call, name);
-	setcompiled_var5(call, p_method_slot_exists_p_using_class);
+	setcompiled_var5(call, id);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
@@ -1299,9 +1321,11 @@ static int defgeneric_slot_exists_p_using_class_mop_(Execute ptr)
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(defmethod_slot_exists_p_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STANDARD_CLASS));
+				CONSTANT_CLOS_STANDARD_CLASS,
+				p_method_slot_exists_p_using_class_standard));
 	Return(defmethod_slot_exists_p_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STRUCTURE_CLASS));
+				CONSTANT_CLOS_STRUCTURE_CLASS,
+				p_method_slot_exists_p_using_class_structure));
 	return common_method_finalize_(gen);
 }
 
@@ -1309,7 +1333,16 @@ static int defgeneric_slot_exists_p_using_class_mop_(Execute ptr)
 /***********************************************************************
  *  slot-makunbound-using-class
  ***********************************************************************/
-static int method_slot_makunbound_using_class(Execute ptr,
+static int method_slot_makunbound_using_class_standard(Execute ptr,
+		addr method, addr next, addr clos, addr pos, addr name)
+{
+	Return(clos_version_check_(ptr, pos, clos));
+	Return(slot_makunbound_using_class_(ptr, clos, pos, name));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static int method_slot_makunbound_using_class_structure(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
 	Return(slot_makunbound_using_class_(ptr, clos, pos, name));
@@ -1318,13 +1351,13 @@ static int method_slot_makunbound_using_class(Execute ptr,
 }
 
 static int defmethod_slot_makunbound_using_class_(Execute ptr,
-		addr name, addr gen, constindex index)
+		addr name, addr gen, constindex index, pointer id)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_system(&call, name);
-	setcompiled_var5(call, p_method_slot_makunbound_using_class);
+	setcompiled_var5(call, id);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
@@ -1345,9 +1378,11 @@ static int defgeneric_slot_makunbound_using_class_mop_(Execute ptr)
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(defmethod_slot_makunbound_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STANDARD_CLASS));
+				CONSTANT_CLOS_STANDARD_CLASS,
+				p_method_slot_makunbound_using_class_standard));
 	Return(defmethod_slot_makunbound_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STRUCTURE_CLASS));
+				CONSTANT_CLOS_STRUCTURE_CLASS,
+				p_method_slot_makunbound_using_class_structure));
 	return common_method_finalize_(gen);
 }
 
@@ -1355,22 +1390,33 @@ static int defgeneric_slot_makunbound_using_class_mop_(Execute ptr)
 /***********************************************************************
  *  slot-value-using-class
  ***********************************************************************/
-static int method_slot_value_using_class(Execute ptr,
+static int method_slot_value_using_class_standard(Execute ptr,
+		addr method, addr next, addr clos, addr pos, addr name)
+{
+	Return(clos_version_check_(ptr, pos, clos));
+	Return(slot_value_using_class_common_(ptr, clos, pos, name, &pos));
+	setresult_control(ptr, pos);
+
+	return 0;
+}
+
+static int method_slot_value_using_class_structure(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
 	Return(slot_value_using_class_common_(ptr, clos, pos, name, &pos));
 	setresult_control(ptr, pos);
+
 	return 0;
 }
 
 static int defmethod_slot_value_using_class_(Execute ptr,
-		addr name, addr gen, constindex index)
+		addr name, addr gen, constindex index, pointer id)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_system(&call, name);
-	setcompiled_var5(call, p_method_slot_value_using_class);
+	setcompiled_var5(call, id);
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
@@ -1391,9 +1437,11 @@ static int defgeneric_slot_value_using_class_mop_(Execute ptr)
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(defmethod_slot_value_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STANDARD_CLASS));
+				CONSTANT_CLOS_STANDARD_CLASS,
+				p_method_slot_value_using_class_standard));
 	Return(defmethod_slot_value_using_class_(ptr, name, gen,
-				CONSTANT_CLOS_STRUCTURE_CLASS));
+				CONSTANT_CLOS_STRUCTURE_CLASS,
+				p_method_slot_value_using_class_structure));
 	return common_method_finalize_(gen);
 }
 
@@ -1401,7 +1449,20 @@ static int defgeneric_slot_value_using_class_mop_(Execute ptr)
 /***********************************************************************
  *  (setf slot-value-using-class)
  ***********************************************************************/
-static int method_setf_slot_value_using_class(Execute ptr,
+static int method_setf_slot_value_using_class_standard(Execute ptr,
+		addr method, addr next, addr rest)
+{
+	addr value, clos, pos, name;
+
+	Return(list_bind_(rest, &value, &clos, &pos, &name, NULL));
+	Return(clos_version_check_(ptr, pos, clos));
+	Return(setf_slot_value_using_class_common_(ptr, clos, pos, name, value));
+	setresult_control(ptr, value);
+
+	return 0;
+}
+
+static int method_setf_slot_value_using_class_structure(Execute ptr,
 		addr method, addr next, addr rest)
 {
 	addr value, clos, pos, name;
@@ -1425,9 +1486,9 @@ static void method_type_setf_slot_value_using_class(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void method_argument_setf_slot_value_using_class(addr *ret)
+static void method_argument_setf_slot_value_using_class(addr *ret, constindex index)
 {
-	addr pos, list, type1, type2;
+	addr pos, list, type1, type2, type3;
 	struct argument_struct *str;
 
 	/* object */
@@ -1436,25 +1497,27 @@ static void method_argument_setf_slot_value_using_class(addr *ret)
 	str->type = ArgumentType_method;
 	/* var */
 	str->var = 4;
-	ArgumentMethod_var(&type1, T);
-	ArgumentMethod_var(&type2, SYMBOL);
-	list_heap(&list, type1, type1, type1, type2, NULL);
+	mop_argument_method_var(&type1, index);
+	ArgumentMethod_var(&type2, T);
+	ArgumentMethod_var(&type3, SYMBOL);
+	list_heap(&list, type2, type1, type2, type3, NULL);
 	SetArgument(pos, ArgumentIndex_var, list);
 	/* result */
 	*ret = pos;
 }
 
-static int defmethod_setf_slot_value_using_class_(Execute ptr, addr name, addr gen)
+static int defmethod_setf_slot_value_using_class_(Execute ptr,
+		addr name, addr gen, constindex index, pointer id)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_system(&call, name);
-	setcompiled_var2dynamic(call, p_method_setf_slot_value_using_class);
+	setcompiled_var2dynamic(call, id);
 	method_type_setf_slot_value_using_class(&type);
 	settype_function(call, type);
 	/* method */
-	method_argument_setf_slot_value_using_class(&pos);
+	method_argument_setf_slot_value_using_class(&pos, index);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
@@ -1470,7 +1533,12 @@ static int defgeneric_setf_slot_value_using_class_mop_(Execute ptr)
 	Return(generic_common_instance_(&gen, name, gen));
 	setsetf_symbol(symbol, gen);
 	/* method */
-	Return(defmethod_setf_slot_value_using_class_(ptr, name, gen));
+	Return(defmethod_setf_slot_value_using_class_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS,
+				p_method_setf_slot_value_using_class_standard));
+	Return(defmethod_setf_slot_value_using_class_(ptr, name, gen,
+				CONSTANT_CLOS_STRUCTURE_CLASS,
+				p_method_setf_slot_value_using_class_structure));
 	return common_method_finalize_(gen);
 }
 
@@ -1635,11 +1703,16 @@ void init_mop_class(void)
 	SetPointerType(var2dynamic, method_slot_unbound);
 	SetPointerType(var4dynamic, method_update_instance_for_different_class);
 	SetPointerType(var2dynamic, method_update_instance_for_redefined_class);
-	SetPointerType(var5, method_slot_boundp_using_class);
-	SetPointerType(var5, method_slot_exists_p_using_class);
-	SetPointerType(var5, method_slot_makunbound_using_class);
-	SetPointerType(var5, method_slot_value_using_class);
-	SetPointerType(var2dynamic, method_setf_slot_value_using_class);
+	SetPointerType(var5, method_slot_boundp_using_class_standard);
+	SetPointerType(var5, method_slot_boundp_using_class_structure);
+	SetPointerType(var5, method_slot_exists_p_using_class_standard);
+	SetPointerType(var5, method_slot_exists_p_using_class_structure);
+	SetPointerType(var5, method_slot_makunbound_using_class_standard);
+	SetPointerType(var5, method_slot_makunbound_using_class_structure);
+	SetPointerType(var5, method_slot_value_using_class_standard);
+	SetPointerType(var5, method_slot_value_using_class_structure);
+	SetPointerType(var2dynamic, method_setf_slot_value_using_class_standard);
+	SetPointerType(var2dynamic, method_setf_slot_value_using_class_structure);
 	SetPointerType(var4dynamic, method_change_class_stdclass);
 	SetPointerType(var4dynamic, method_change_class_symbol);
 }

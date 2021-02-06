@@ -3,6 +3,10 @@
 ;;
 (import 'lisp-clos::method-combination-instance)
 
+;;  Macro DEFINE-METHOD-COMBINATION
+;;  Local Macro CALL-METHOD, MAKE-METHOD
+
+
 ;;
 ;;  define-method-combination long
 ;;

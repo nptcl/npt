@@ -16,8 +16,6 @@
 #define reinitialize_instance_stdobject_ _n(reinitialize_instance_stdobject_)
 #define shared_initialize_stdobject_ _n(shared_initialize_stdobject_)
 #define make_instance_stdclass_ _n(make_instance_stdclass_)
-#define clos_slot_missing_ _n(clos_slot_missing_)
-#define clos_slot_unbound_ _n(clos_slot_unbound_)
 #define slot_boundp_using_class_common_ _n(slot_boundp_using_class_common_)
 #define slot_makunbound_using_class_ _n(slot_makunbound_using_class_)
 #define slot_value_using_class_common_ _n(slot_value_using_class_common_)
@@ -37,9 +35,6 @@ int initialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret);
 int reinitialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret);
 int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest);
 int make_instance_stdclass_(Execute ptr, addr rest, addr *ret);
-int clos_slot_missing_(Execute ptr,
-		addr clos, addr pos, addr name, addr operation, addr value);
-int clos_slot_unbound_(Execute ptr, addr clos, addr pos, addr name);
 int slot_boundp_using_class_common_(Execute ptr,
 		addr clos, addr pos, addr name, int *ret);
 int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key);

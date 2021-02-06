@@ -1,5 +1,5 @@
 ;;
-;;  ANSI COMMON LISP: 7. Objects
+;;  Metaobject Protocol
 ;;
 
 ;;

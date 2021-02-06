@@ -2,6 +2,11 @@
 ;;  ANSI COMMON LISP: 7. Objects
 ;;
 
+;;  Macro DEFGENERIC
+;;  Function ENSURE-GENERIC-FUNCTION
+;;  Standard Generic Function FUNCTION-KEYWORDS
+
+
 ;;
 ;;  defgeneric
 ;;

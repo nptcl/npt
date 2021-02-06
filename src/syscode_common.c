@@ -1,5 +1,6 @@
 #include "call_eval.h"
 #include "call_objects.h"
+#include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -439,5 +440,12 @@ int trace_del_syscode_(Execute ptr, addr var, addr *ret)
 int set_slots_syscode(addr var, addr slots, addr values)
 {
 	return set_slots_syscall(var, slots, values);
+}
+
+
+/* intern-eql-specializer */
+int intern_eql_specializer_syscode(addr var, addr *ret)
+{
+	return clos_intern_specializer_(var, ret);
 }
 

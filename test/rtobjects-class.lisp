@@ -2,6 +2,19 @@
 ;;  ANSI COMMON LISP: 7. Objects
 ;;
 
+;;  Macro DEFCLASS
+;;  Function CLASS-OF
+;;  Accessor FIND-CLASS
+;;  Standard Generic Function CHANGE-CLASS
+;;  Standard Generic Function MAKE-INSTANCES-OBSOLETE
+;;  Standard Generic Function UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
+;;  Standard Generic Function UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+;;  Standard Generic Function MAKE-LOAD-FORM
+;;  Function MAKE-LOAD-FORM-SAVING-SLOTS
+;;  Standard Generic Function CLASS-NAME
+;;  Standard Generic Function (SETF CLASS-NAME)
+
+
 ;;
 ;;  find-class
 ;;
@@ -66,102 +79,6 @@
     (referenced-class 'no-such-class)
     'lisp-clos::name)
   no-such-class)
-
-
-;;
-;;  slot-boundp
-;;
-(defclass boundp1 ()
-  (aaa (bbb :initform nil)))
-
-(deftest slot-boundp.1
-  (let ((inst (make-instance 'boundp1)))
-    (values
-      (slot-boundp inst 'aaa)
-      (slot-boundp inst 'bbb)))
-  nil t)
-
-(deftest-error slot-boundp.2
-  (let ((inst (make-instance 'boundp1)))
-    (slot-boundp inst 'hello)))
-
-(deftest slot-boundp.3
-  (slot-boundp
-    (find-class 'standard-class)
-    'lisp-clos::name)
-  t)
-
-
-;;
-;;  slot-exists-p
-;;
-(deftest slot-exists-p.1
-  (let ((inst (make-instance 'boundp1)))
-    (values
-      (slot-exists-p inst 'aaa)
-      (slot-exists-p inst 'bbb)
-      (slot-exists-p inst 'hello)))
-  t t nil)
-
-(deftest slot-exists-p.2
-  (let ((inst (make-instance 'standard-class)))
-    (values
-      (slot-exists-p inst 'lisp-clos::name)
-      (slot-exists-p inst 'hello)))
-  t nil)
-
-
-;;
-;;  slot-makunbound
-;;
-(deftest slot-makunbound.1
-  (let ((inst (make-instance 'boundp1)))
-    (slot-makunbound inst 'aaa)
-    (slot-makunbound inst 'bbb)
-    (values
-      (slot-boundp inst 'aaa)
-      (slot-boundp inst 'bbb)))
-  nil nil)
-
-(deftest-error slot-makunbound.2
-  (let ((inst (make-instance 'boundp1)))
-    (slot-makunbound inst 'hello)))
-
-
-;;
-;;  slot-value
-;;
-(defclass slot-value1 ()
-  ((aaa)
-   (bbb :initform "Hello")))
-
-(deftest slot-value.1
-  (let ((inst (make-instance 'slot-value1)))
-    (slot-value inst 'bbb))
-  "Hello")
-
-(deftest-error slot-value.2
-  (let ((inst (make-instance 'slot-value1)))
-    (slot-value inst 'aaa)))
-
-
-;;
-;;  (setf slot-value)
-;;
-(deftest setf-slot-value.1
-  (let ((inst (make-instance 'slot-value1)))
-    (values
-      (setf (slot-value inst 'bbb) "zzz")
-      (slot-value inst 'bbb)))
-  "zzz" "zzz")
-
-(deftest setf-slot-value.2
-  (let ((inst (make-instance 'slot-value1)))
-    (values
-      (setf (slot-value inst 'aaa) "1234")
-      (slot-value inst 'aaa)
-      (slot-boundp inst 'aaa)))
-  "1234" "1234" t)
 
 
 ;;

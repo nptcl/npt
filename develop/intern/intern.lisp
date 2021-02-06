@@ -1786,16 +1786,15 @@ lisp-clos::standard-slot-definition
 (lisp-clos::function-keywords :constant common)
 
 lisp-clos::referenced-class
-lisp-clos::ensure-class
-lisp-clos::ensure-class-using-class
-lisp-clos::ensure-generic-function-using-class
-lisp-clos::ensure-method
-lisp-clos::slot-boundp-using-class
-lisp-clos::slot-exists-p-using-class
-lisp-clos::slot-makunbound-using-class
-lisp-clos::slot-value-using-class
+(lisp-clos::ensure-class :export t)
+(lisp-clos::ensure-class-using-class :export t)
+(lisp-clos::ensure-generic-function-using-class :export t)
+(lisp-clos::ensure-method :export t)
+(lisp-clos::slot-boundp-using-class :export t)
+(lisp-clos::slot-exists-p-using-class :export t)
+(lisp-clos::slot-makunbound-using-class :export t)
+(lisp-clos::slot-value-using-class :export t)
 
-lisp-clos::intern-eql-specializer
 lisp-clos::flet-method-p
 lisp-clos::flet-next-method
 
@@ -1991,6 +1990,7 @@ lisp-system::subtypep-normal
  lisp-system::trace-del
  lisp-system::with-compilation-unit
  lisp-system::set-slots
+ lisp-system::intern-eql-specializer
 
 ;; syscall_function.c
 (lisp-system::hello :export t)

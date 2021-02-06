@@ -1026,7 +1026,7 @@ static int defmethod_parse_specializers(addr pos, addr *ret)
 			Return_getcdr(type, &type);
 			Return_getcar(type, &type);
 			/* (intern-eql-specializer (quote value)) */
-			GetConst(CLOSNAME_INTERN_EQL_SPECIALIZER, &var);
+			GetConst(SYSTEM_INTERN_EQL_SPECIALIZER, &var);
 		}
 		else {
 			/* (find-class (quote value)) */

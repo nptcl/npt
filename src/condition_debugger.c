@@ -118,6 +118,16 @@ static int output_undefined_function_(Execute ptr, addr stream, addr condition)
 	return format_stream(ptr, stream, "Undefined function ~S.~%", condition, NULL);
 }
 
+static int output_unbound_slot_(Execute ptr, addr stream, addr condition)
+{
+	addr instance, name;
+
+	Return(unbound_slot_instance_(condition, &instance));
+	Return(cell_error_name_(condition, &name));
+	return format_stream(ptr, stream,
+			"The slot ~S is unbound in the ~S.~%", name, instance, NULL);
+}
+
 static int output_simple_error_(Execute ptr, addr stream, addr condition)
 {
 	addr control, arguments;
@@ -171,6 +181,9 @@ static int output_debugger(Execute ptr, addr stream, addr pos)
 	Return(ConditionCheck_(UNDEFINED_FUNCTION, pos, &check));
 	if (check)
 		return output_undefined_function_(ptr, stream, pos);
+	Return(ConditionCheck_(UNBOUND_SLOT, pos, &check));
+	if (check)
+		return output_unbound_slot_(ptr, stream, pos);
 	Return(ConditionCheck_(SIMPLE_CONDITION, pos, &check));
 	if (check)
 		return output_simple_error_(ptr, stream, pos);
