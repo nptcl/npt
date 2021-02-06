@@ -565,6 +565,7 @@
   (subtypep! 'cons '(simple-base-string *))
   exclude)
 
+
 ;;
 ;;  signed-byte
 ;;    -> (integer (lower) upper)

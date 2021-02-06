@@ -243,45 +243,72 @@ error:
 static int dolist_expand_common(Execute ptr, addr *ret,
 		addr var, addr list, addr result, addr decl, addr body)
 {
-	/*  (let ((g (gensym)))
-	 *    `(do (,var (,g ,value (cdr ,g)))
-	 *      ((null ,g) ,result)
-	 *      ,@decl
-	 *      (setq ,var (car ,g))
-	 *      ,@body)))
+	/* `(prog* ((,g ,list)
+	 *          (,var (car ,g)))
+	 *    ,@declare
+	 *    (unless ,g
+	 *      (go #:finish))
+	 *    #:loop
+	 *    ,@body
+	 *    (setq ,g (cdr ,g))
+	 *    (unless ,g
+	 *      (go #:finish))
+	 *    (setq ,var (car ,g))
+	 *    (go #:loop)
+	 *    #:finish
+	 *    (return ,result))
 	 */
-	addr let, dosym, car, cdr, null, setq, g, root;
+	addr proga, car, cdr, unless, go, setq, retsym;
+	addr g, loop, finish, x, setq1, setq2, root;
 
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_DO, &dosym);
+	GetConst(COMMON_PROGA, &proga);
 	GetConst(COMMON_CAR, &car);
 	GetConst(COMMON_CDR, &cdr);
-	GetConst(COMMON_NULL, &null);
+	GetConst(COMMON_UNLESS, &unless);
+	GetConst(COMMON_GO, &go);
 	GetConst(COMMON_SETQ, &setq);
+	GetConst(COMMON_RETURN, &retsym);
 	Return(make_gensym_(ptr, &g));
-	/* (setq ...) */
-	list_heap(&car, car, g, NULL);
-	list_heap(&setq, setq, var, car, NULL);
-	/* ((null ...) ...) */
-	list_heap(&null, null, g, NULL);
-	list_heap(&null, null, result, NULL);
+	make_symbolchar(&loop, "LOOP");
+	make_symbolchar(&finish, "FINISH");
+
+	/* result */
+	list_heap(&retsym, retsym, result, NULL);
+	/* (unless ...) */
+	list_heap(&x, go, finish, NULL);
+	list_heap(&unless, unless, g, x, NULL);
+	/* (go loop) */
+	list_heap(&go, go, loop, NULL);
 	/* (,var ...) */
+	list_heap(&car, car, g, NULL);
+	list_heap(&var, var, car, NULL);
+	/* (setq ,g ...) */
 	list_heap(&cdr, cdr, g, NULL);
-	list_heap(&g, g, list, cdr, NULL);
-	list_heap(&var, var, g, NULL);
-	/* (do ...) */
-	conscar_heap(&root, dosym);
-	cons_heap(&root, var, root);
-	cons_heap(&root, null, root);
+	list_heap(&setq1, setq, g, cdr, NULL);
+	/* (setq ,var ...) */
+	lista_heap(&setq2, setq, var, NULL);
+	/* ((,g ...) ...) */
+	list_heap(&g, g, list, NULL);
+	list_heap(&g, g, var, NULL);
+	/* (prog* ...) */
+	conscar_heap(&root, proga);
+	cons_heap(&root, g, root);
 	while (decl != Nil) {
 		Return_getcons(decl, &g, &decl);
 		cons_heap(&root, g, root);
 	}
-	cons_heap(&root, setq, root);
+	cons_heap(&root, unless, root);
+	cons_heap(&root, loop, root);
 	while (body != Nil) {
 		Return_getcons(body, &g, &body);
 		cons_heap(&root, g, root);
 	}
+	cons_heap(&root, setq1, root);
+	cons_heap(&root, unless, root);
+	cons_heap(&root, setq2, root);
+	cons_heap(&root, go, root);
+	cons_heap(&root, finish, root);
+	cons_heap(&root, retsym, root);
 	nreverse(ret, root);
 
 	return 0;
