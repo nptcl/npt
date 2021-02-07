@@ -248,6 +248,30 @@ void typeargs_opt1rest(addr *ret, addr opt1, addr rest)
 	typeargs_full(ret, Nil, opt1, rest, Nil);
 }
 
+void typeargs_var1rest_allow(addr *ret, addr v1, addr rest)
+{
+	conscar_heap(&v1, v1);
+	typeargs_full(ret, v1, Nil, rest, T);
+}
+
+void typeargs_var2rest_allow(addr *ret, addr v1, addr v2, addr rest)
+{
+	list_heap(&v1, v1, v2, NULL);
+	typeargs_full(ret, v1, Nil, rest, T);
+}
+
+void typeargs_var3rest_allow(addr *ret, addr v1, addr v2, addr v3, addr rest)
+{
+	list_heap(&v1, v1, v2, v3, NULL);
+	typeargs_full(ret, v1, Nil, rest, T);
+}
+
+void typeargs_var4rest_allow(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest)
+{
+	list_heap(&v1, v1, v2, v3, v4, NULL);
+	typeargs_full(ret, v1, Nil, rest, T);
+}
+
 void typeargs_rest(addr *ret, addr rest)
 {
 	typeargs_full(ret, Nil, Nil, rest, Nil);

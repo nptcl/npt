@@ -11,7 +11,7 @@
 #define clos_ensure_class_init_ _n(clos_ensure_class_init_)
 #define clos_finalize_ _n(clos_finalize_)
 #define clos_ensure_class_ _n(clos_ensure_class_)
-#define allocate_instance_stdclass_ _n(allocate_instance_stdclass_)
+#define allocate_instance_standard_ _n(allocate_instance_standard_)
 #define initialize_instance_stdobject_ _n(initialize_instance_stdobject_)
 #define reinitialize_instance_stdobject_ _n(reinitialize_instance_stdobject_)
 #define shared_initialize_stdobject_ _n(shared_initialize_stdobject_)
@@ -30,7 +30,7 @@ int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp);
 
 int clos_finalize_(Execute ptr, addr pos, int *ret);
 int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret);
-int allocate_instance_stdclass_(Execute ptr, addr clos, addr *ret);
+int allocate_instance_standard_(Execute ptr, addr clos, addr *ret);
 int initialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret);
 int reinitialize_instance_stdobject_(Execute ptr, addr pos, addr rest, addr *ret);
 int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest);

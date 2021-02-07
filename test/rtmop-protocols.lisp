@@ -5,36 +5,40 @@
 ;;
 ;;  Generic Function SLOT-VALUE-USING-CLASS
 ;;
-(defclass slot-value-using-class-1 ()
-  ((aaa :initform 100)))
-
-(defmethod slot-value-using-class
-  ((class standard-class) (inst slot-value-using-class-1) name)
-  (declare (ignore class inst name))
-  (+ (call-next-method) 20))
-
 (deftest slot-value-using-class.1
+  (progn
+    (defclass slot-value-using-class-1 ()
+      ((aaa :initform 100)))
+    (defmethod slot-value-using-class
+      ((class standard-class) (inst slot-value-using-class-1) name)
+      (declare (ignore class inst name))
+      (+ (call-next-method) 20))
+    (values)))
+
+(deftest slot-value-using-class.2
   (let ((inst (make-instance 'slot-value-using-class-1)))
     (slot-value inst 'aaa))
   120)
 
 ;;  slot-missing
-(defclass slot-value-using-class-2 ()
-  ((aaa :initform 100)
-   bbb))
+(deftest slot-value-using-class.3
+  (progn
+    (defclass slot-value-using-class-2 ()
+      ((aaa :initform 100)
+       bbb))
+    (defmethod slot-value-using-class
+      ((class standard-class) (inst slot-value-using-class-2) name)
+      (declare (ignore class inst name))
+      111)
+    (values)))
 
-(defmethod slot-value-using-class
-  ((class standard-class) (inst slot-value-using-class-2) name)
-  (declare (ignore class inst name))
-  111)
-
-(deftest slot-value-using-class.2
+(deftest slot-value-using-class.4
   (let ((inst (make-instance 'slot-value-using-class-2)))
     (slot-value inst 'ccc))
   111)
 
 ;;  slot-unbound
-(deftest slot-value-using-class.3
+(deftest slot-value-using-class.5
   (let ((inst (make-instance 'slot-value-using-class-2)))
     (slot-value inst 'bbb))
   111)
@@ -43,21 +47,25 @@
 ;;
 ;;  Generic Function (SETF SLOT-VALUE-USING-CLASS)
 ;;
-(defclass setf-slot-value-using-class-1 ()
-  ((aaa :initform 100)))
-
-(defvar *setf-slot-value-using-class-1-instance*
-  (make-instance 'setf-slot-value-using-class-1))
-
-(defvar *setf-slot-value-using-class-1-check*)
-
-(defmethod (setf slot-value-using-class)
-  (value (class standard-class) (inst setf-slot-value-using-class-1) name)
-  (declare (ignore value class inst name))
-  (setq *setf-slot-value-using-class-1-check* t)
-  nil)
-
 (deftest setf-slot-value-using-class.1
+  (progn
+    (defclass setf-slot-value-using-class-1 ()
+      ((aaa :initform 100)))
+
+    (defvar *setf-slot-value-using-class-1-instance*
+      (make-instance 'setf-slot-value-using-class-1))
+
+    (defvar *setf-slot-value-using-class-1-check*)
+
+    (defmethod (setf slot-value-using-class)
+      (value (class standard-class) (inst setf-slot-value-using-class-1) name)
+      (declare (ignore value class inst name))
+      (setq *setf-slot-value-using-class-1-check* t)
+      nil)
+
+    (values)))
+
+(deftest setf-slot-value-using-class.2
   (let ((inst *setf-slot-value-using-class-1-instance*)
         (*setf-slot-value-using-class-1-check*))
     (values
@@ -70,20 +78,22 @@
 ;;
 ;;  Generic Function SLOT-BOUNDP-USING-CLASS
 ;;
-(defclass slot-boundp-using-class-1 () (aaa))
-
-(defmethod slot-boundp-using-class
-  ((class standard-class) (inst slot-boundp-using-class-1) name)
-  (declare (ignore class inst name))
-  100)
-
 (deftest slot-boundp-using-class.1
+  (progn
+    (defclass slot-boundp-using-class-1 () (aaa))
+    (defmethod slot-boundp-using-class
+      ((class standard-class) (inst slot-boundp-using-class-1) name)
+      (declare (ignore class inst name))
+      100)
+    (values)))
+
+(deftest slot-boundp-using-class.2
   (let ((inst (make-instance 'slot-boundp-using-class-1)))
     (slot-boundp inst 'aaa))
   100)
 
 ;;  slot-missing
-(deftest slot-boundp-using-class.2
+(deftest slot-boundp-using-class.3
   (let ((inst (make-instance 'slot-boundp-using-class-1)))
     (slot-boundp inst 'bbb))
   100)
@@ -92,14 +102,16 @@
 ;;
 ;;  Generic Function SLOT-EXISTS-P-USING-CLASS
 ;;
-(defclass slot-exists-p-using-class-1 () (aaa))
-
-(defmethod slot-exists-p-using-class
-  ((class standard-class) (inst slot-exists-p-using-class-1) name)
-  (declare (ignore class inst name))
-  222)
-
 (deftest slot-exists-p-using-class.1
+  (progn
+    (defclass slot-exists-p-using-class-1 () (aaa))
+    (defmethod slot-exists-p-using-class
+      ((class standard-class) (inst slot-exists-p-using-class-1) name)
+      (declare (ignore class inst name))
+      222)
+    (values)))
+
+(deftest slot-exists-p-using-class.2
   (let ((inst (make-instance 'slot-exists-p-using-class-1)))
     (slot-exists-p inst 'aaa))
   222)
@@ -108,30 +120,34 @@
 ;;
 ;;  Generic Function SLOT-MAKUNBOUND-USING-CLASS
 ;;
-(defclass slot-makunbound-using-class-1 ()
-  ((aaa :initform 100)))
-
-(defmethod slot-makunbound-using-class
-  ((class standard-class) (inst slot-makunbound-using-class-1) name)
-  (declare (ignore class inst name))
-  333)
-
 (deftest slot-makunbound-using-class.1
+  (progn
+    (defclass slot-makunbound-using-class-1 ()
+      ((aaa :initform 100)))
+    (defmethod slot-makunbound-using-class
+      ((class standard-class) (inst slot-makunbound-using-class-1) name)
+      (declare (ignore class inst name))
+      333)
+    (values)))
+
+(deftest slot-makunbound-using-class.2
   (let ((inst (make-instance 'slot-makunbound-using-class-1)))
     (slot-makunbound inst 'aaa))
   333)
 
 ;;  slot-missing
-(defclass slot-makunbound-using-class-2 ()
-  ((aaa :initform 100)
-   bbb))
+(deftest slot-makunbound-using-class.3
+  (progn
+    (defclass slot-makunbound-using-class-2 ()
+      ((aaa :initform 100)
+       bbb))
+    (defmethod slot-makunbound-using-class
+      ((class standard-class) (inst slot-makunbound-using-class-2) name)
+      (declare (ignore class inst name))
+      444)
+    (values)))
 
-(defmethod slot-makunbound-using-class
-  ((class standard-class) (inst slot-makunbound-using-class-2) name)
-  (declare (ignore class inst name))
-  444)
-
-(deftest slot-makunbound-using-class.2
+(deftest slot-makunbound-using-class.4
   (let ((inst (make-instance 'slot-makunbound-using-class-2)))
     (slot-makunbound inst 'ccc))
   444)

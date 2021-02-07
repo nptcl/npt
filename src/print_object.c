@@ -14,6 +14,7 @@
 #include "stream.h"
 #include "stream_function.h"
 #include "structure.h"
+#include "structure_object.h"
 #include "symbol.h"
 #include "type_table.h"
 

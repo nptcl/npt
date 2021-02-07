@@ -8,6 +8,7 @@
 #include "lambda.h"
 #include "package_intern.h"
 #include "structure.h"
+#include "structure_object.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "type_parse.h"

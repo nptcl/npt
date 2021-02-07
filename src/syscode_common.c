@@ -34,6 +34,7 @@
 #include "stream_string.h"
 #include "strtype.h"
 #include "structure.h"
+#include "structure_define.h"
 #include "strvect.h"
 #include "symbol.h"
 #include "syscode_common.h"

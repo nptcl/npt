@@ -714,7 +714,7 @@ int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret)
 /*
  *  allocate-initialize
  */
-int allocate_instance_stdclass_(Execute ptr, addr clos, addr *ret)
+int allocate_instance_standard_(Execute ptr, addr clos, addr *ret)
 {
 	int check;
 	addr instance, slots, slot, name;

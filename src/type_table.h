@@ -41,6 +41,10 @@
 #define typeargs_var3rest _n(typeargs_var3rest)
 #define typeargs_var4rest _n(typeargs_var4rest)
 #define typeargs_opt1rest _n(typeargs_opt1rest)
+#define typeargs_var1rest_allow _n(typeargs_var1rest_allow)
+#define typeargs_var2rest_allow _n(typeargs_var2rest_allow)
+#define typeargs_var3rest_allow _n(typeargs_var3rest_allow)
+#define typeargs_var4rest_allow _n(typeargs_var4rest_allow)
 #define typeargs_rest _n(typeargs_rest)
 #define typeargs_key _n(typeargs_key)
 #define typeargs_method _n(typeargs_method)
@@ -138,6 +142,10 @@ void typeargs_var2rest(addr *ret, addr v1, addr v2, addr rest);
 void typeargs_var3rest(addr *ret, addr v1, addr v2, addr v3, addr rest);
 void typeargs_var4rest(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest);
 void typeargs_opt1rest(addr *ret, addr opt1, addr rest);
+void typeargs_var1rest_allow(addr *ret, addr v1, addr rest);
+void typeargs_var2rest_allow(addr *ret, addr v1, addr v2, addr rest);
+void typeargs_var3rest_allow(addr *ret, addr v1, addr v2, addr v3, addr rest);
+void typeargs_var4rest_allow(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest);
 void typeargs_rest(addr *ret, addr rest);
 void typeargs_key(addr *ret, addr key);
 void typeargs_method(addr type);

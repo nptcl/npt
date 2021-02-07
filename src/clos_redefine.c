@@ -540,7 +540,7 @@ int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 	}
 
 	/* copy */
-	Return(allocate_instance_stdclass_(ptr, clos, &copy));
+	Return(allocate_instance_standard_(ptr, clos, &copy));
 	clos_swap(copy, pos);
 
 	/* call update-instance-for-different-class */

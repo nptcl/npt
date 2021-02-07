@@ -159,7 +159,7 @@ static void method_type_ensure_class_using_class(addr *ret)
 
 	GetTypeTable(&args, T);
 	GetTypeTable(&values, Symbol);
-	typeargs_var2rest(&args, args, values, args);
+	typeargs_var2rest_allow(&args, args, values, args);
 	typeargs_method(args);
 	GetTypeValues(&values, Class);
 	type_compiled_heap(args, values, ret);
@@ -277,10 +277,18 @@ static int defgeneric_ensure_class_using_class_mop_(Execute ptr)
 /* (defmethod allocate-instance
  *     ((class standard-class) &rest args &key)) -> instance
  */
-static int method_allocate_instance_stdclass(Execute ptr,
+static int method_allocate_instance_standard(Execute ptr,
 		addr method, addr next, addr clos, addr rest)
 {
-	Return(allocate_instance_stdclass_(ptr, clos, &clos));
+	Return(allocate_instance_standard_(ptr, clos, &clos));
+	setresult_control(ptr, clos);
+	return 0;
+}
+
+static int method_allocate_instance_structure(Execute ptr,
+		addr method, addr next, addr clos, addr rest)
+{
+	Return(allocate_instance_structure_(ptr, clos, &clos));
 	setresult_control(ptr, clos);
 	return 0;
 }
@@ -290,7 +298,7 @@ static void method_type_allocate_instance(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	typeargs_var1rest(&args, args, args);
+	typeargs_var1rest_allow(&args, args, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
@@ -317,13 +325,13 @@ static void argument_method_allocate_instance(addr *ret, constindex type)
 }
 
 static int defmethod_allocate_instance_(Execute ptr,
-		addr name, addr gen, constindex index)
+		addr name, addr gen, constindex index, pointer id)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_system(&call, name);
-	setcompiled_var3dynamic(call, p_method_allocate_instance_stdclass);
+	setcompiled_var3dynamic(call, id);
 	method_type_allocate_instance(&type);
 	settype_function(call, type);
 	/* method */
@@ -345,8 +353,12 @@ static int defgeneric_allocate_instance_mop_(Execute ptr)
 	Return(generic_common_instance_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	Return(defmethod_allocate_instance_(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS));
-	Return(defmethod_allocate_instance_(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS));
+	Return(defmethod_allocate_instance_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS,
+				p_method_allocate_instance_standard));
+	Return(defmethod_allocate_instance_(ptr, name, gen,
+				CONSTANT_CLOS_STRUCTURE_CLASS,
+				p_method_allocate_instance_structure));
 	return common_method_finalize_(gen);
 }
 
@@ -461,10 +473,13 @@ static int method_shared_initialize_stdobject(Execute ptr,
 
 static void method_type_shared_initialize(addr *ret)
 {
-	addr args, values;
+	addr args, values, type;
 
 	GetTypeTable(&args, T);
-	typeargs_var2rest(&args, args, args, args);
+	GetTypeTable(&values, List);
+	GetTypeTable(&type, EqlT);
+	type2or_heap(values, type, &type);
+	typeargs_var2rest_allow(&args, args, type, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
@@ -1068,7 +1083,7 @@ static void method_type_update_instance_for_different_class(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	typeargs_var2rest(&args, args, args, args);
+	typeargs_var2rest_allow(&args, args, args, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
@@ -1133,7 +1148,7 @@ static void method_type_update_instance_for_redefined_class(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	typeargs_var2rest(&args, args, args, args);
+	typeargs_var4rest_allow(&args, args, args, args, args, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
@@ -1560,7 +1575,7 @@ static void method_type_change_class_stdclass(addr *ret)
 
 	GetTypeTable(&args, StandardObject);
 	GetTypeTable(&values, StandardClass);
-	typeargs_var2rest(&args, args, values, args);
+	typeargs_var2rest_allow(&args, args, values, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
@@ -1620,7 +1635,7 @@ static void method_type_change_class_symbol(addr *ret)
 
 	GetTypeTable(&args, T);
 	GetTypeTable(&values, Symbol);
-	typeargs_var2rest(&args, args, values, args);
+	typeargs_var2rest_allow(&args, args, values, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
@@ -1688,7 +1703,8 @@ void init_mop_class(void)
 	SetPointerCall(defun, var1dynamic, ensure_class);
 	SetPointerType(var4dynamic, method_ensure_class_using_class_null);
 	SetPointerType(var4dynamic, method_ensure_class_using_class_class);
-	SetPointerType(var3dynamic, method_allocate_instance_stdclass);
+	SetPointerType(var3dynamic, method_allocate_instance_standard);
+	SetPointerType(var3dynamic, method_allocate_instance_structure);
 	SetPointerType(var3dynamic, method_initialize_instance_stdobject);
 	SetPointerType(var3dynamic, method_reinitialize_instance_stdobject);
 	SetPointerType(var4dynamic, method_shared_initialize_stdobject);

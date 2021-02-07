@@ -17,6 +17,7 @@
 #include "mop.h"
 #include "package_object.h"
 #include "structure.h"
+#include "structure_object.h"
 #include "symbol.h"
 #include "type_deftype.h"
 #include "type_table.h"

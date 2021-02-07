@@ -764,7 +764,7 @@ static void code_lambda_args(LocalRoot local, addr code, addr scope)
 	ordinary_bind_opt(local, code, opt);
 	ordinary_bind_rest(local, code, rest);
 	if (rest == Nil && key == Nil)
-		CodeQueue_single(local, code, REST_NULL);
+		CodeQueue_cons(local, code, REST_NULL, allow);
 	ordinary_bind_key(local, code, key);
 	ordinary_bind_allow(local, code, rest, key, allow);
 	ordinary_bind_aux(local, code, aux);
@@ -1163,7 +1163,7 @@ static void code_macro_bind_list(LocalRoot local, addr code, addr args)
 	code_macro_bind_var(local, code, var);
 	code_macro_bind_opt(local, code, opt);
 	if (rest == Nil && key == Nil)
-		CodeQueue_single(local, code, REST_NULL);
+		CodeQueue_cons(local, code, REST_NULL, allow);
 	code_macro_bind_rest(local, code, rest);
 	code_macro_bind_key(local, code, key);
 	ordinary_bind_allow(local, code, rest, key, allow);

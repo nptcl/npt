@@ -102,10 +102,33 @@ int allow_other_keys_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+static int rest_keys_code(Execute ptr)
+{
+	addr list, x;
+
+	GetArgsControl(ptr, &list);
+	while (list != Nil) {
+		Return_getcons(list, &x, &list);
+		if (! symbolp(x))
+			return fmte_("The key name ~S must be a symbol type.", x, NULL);
+		if (! consp_getcdr(list, &list))
+			return fmte_("There is no value in the ~S &key argument.", x, NULL);
+		Return_getcons(list, &x, &list);
+	}
+
+	return 0;
+}
+
 int rest_null_code(Execute ptr, CodeValue x)
 {
-	GetArgsControl(ptr, &x.pos);
+	addr list;
+
 	if (x.pos != Nil)
+		return rest_keys_code(ptr);
+
+	/* rest-null */
+	GetArgsControl(ptr, &list);
+	if (list != Nil)
 		return fmte_("Too many arguments.", NULL);
 
 	return 0;
