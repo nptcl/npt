@@ -570,6 +570,34 @@ void clos_swap(addr a, addr b)
 	SetVersionClos_Low(b, f1);
 }
 
+void clos_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	int y;
+	fixnum z;
+	addr value, x;
+
+	CheckType(pos, LISPTYPE_CLOS);
+	clos_unsafe(local, &value);
+
+	/* class-of */
+	GetClassOfClos_Low(pos, &x);
+	SetClassOfClos_Low(value, x);
+	/* slot */
+	GetSlotClos_Low(pos, &x);
+	SetSlotClos_Low(value, x);
+	/* value */
+	GetValueClos_Low(pos, &x);
+	SetValueClos_Low(value, x);
+	/* funcall */
+	GetFuncallClos_Low(pos, &y);
+	SetFuncallClos_Low(value, y);
+	/* version */
+	GetVersionClos_Low(pos, &z);
+	SetVersionClos_Low(value, z);
+	/* result */
+	*ret = value;
+}
+
 
 /*
  *  control
@@ -931,8 +959,11 @@ int clos_find_class_(addr name, addr *ret)
 void clos_define_class(addr name, addr value)
 {
 	Check(! symbolp(name), "type name error");
-	CheckType(value, LISPTYPE_CLOS);
-	setclass_symbol(name, value);
+	Check((! closp(value)) && (value != Nil), "type value error");
+	if (value == Nil)
+		remclass_symbol(name);
+	else
+		setclass_symbol(name, value);
 }
 
 /* generic */

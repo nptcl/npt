@@ -16,9 +16,9 @@
 }
 
 /*
- * #define LISP_PROMPT_DISABLE     Use *query-io*
- * #define LISP_PROMPT_READLINE    Use readline  (for Linux)
- * #define LISP_PROMPT_EDITLINE    Use editline  (for BSD)
+ * #define LISP_DISABLE     Use *query-io*
+ * #define LISP_READLINE    Use readline  (for Linux)
+ * #define LISP_EDITLINE    Use editline  (for BSD)
  */
 #ifdef LISP_PROMPT_DISABLE
 void open_prompt_stream(addr *stream)

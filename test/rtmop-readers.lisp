@@ -3,7 +3,7 @@
 ;;
 
 ;;
-;;  class-name
+;;  Standard Generic Function CLASS-NAME
 ;;
 (deftest class-name.1
   (class-name
@@ -15,18 +15,36 @@
     (find-class 'string))
   string)
 
-(defclass class-name1 () ())
+(deftest-error! class-name-error.1
+  (eval '(class-name)))
+
+(deftest-error! class-name-error.2
+  (eval '(class-name (find-class 'standard-class) nil)))
+
+
+;;
+;;  Standard Generic Function (SETF CLASS-NAME)
+;;
+(defclass class-name-1 () ())
 
 (deftest setf-class-name.1
   (progn
     (setf (class-name
-            (find-class 'class-name1))
-          'class-name2)
+            (find-class 'class-name-1))
+          'class-name-2)
     (values
-      (closp (find-class 'class-name1 nil))
-      (closp (find-class 'class-name2 nil))
-      (class-name (find-class 'class-name1))))
-  t nil class-name2)
+      (closp (find-class 'class-name-1 nil))
+      (closp (find-class 'class-name-2 nil))
+      (class-name (find-class 'class-name-1))))
+  t nil class-name-2)
+
+(deftest-error! setf-class-name-error.1
+  (eval '(setf (class-name))))
+
+(deftest-error! setf-class-name-error.2
+  (eval '(setf (class-name
+                 (find-class 'class-name-1)
+                 nil))))
 
 
 ;;

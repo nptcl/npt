@@ -148,8 +148,10 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 				return fmte_(":ALLOCATION ~S "
 						"must be a :instance or :class.", value, NULL);
 			}
-			if (allocation != Nil)
-				return fmte_(":ALLOCATION is already exist.", NULL);
+			if (allocation != Nil) {
+				return call_simple_program_error_va_(NULL,
+						":ALLOCATION is already exist.", NULL);
+			}
 			allocation = value;
 			continue;
 		}
@@ -165,8 +167,10 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 		/* :initform */
 		if (DefClassEqConst(key, INITFORM)) {
-			if (initfunction != Nil)
-				return fmte_(":INITFORM is already exist.", NULL);
+			if (initfunction != Nil) {
+				return call_simple_program_error_va_(NULL,
+						":INITFORM is already exist.", NULL);
+			}
 			initform = value;
 			GetConst(COMMON_LAMBDA, &pos);
 			list_heap(&initfunction, pos, Nil, value, NULL);
@@ -176,8 +180,10 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 		/* :type */
 		if (DefClassEqConst(key, TYPE)) {
-			if (type != Nil)
-				return fmte_(":TYPE is already exist.", NULL);
+			if (type != Nil) {
+				return call_simple_program_error_va_(NULL,
+						":TYPE is already exist.", NULL);
+			}
 			type = value;
 			localhold_set(hold, 4, type);
 			continue;
@@ -185,21 +191,19 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 		/* :document */
 		if (DefClassEqConst(key, DOCUMENTATION)) {
-			if (doc != Nil)
-				return fmte_(":DOCUMENTATION is already exist.", NULL);
-			if (! symbolp(value))
-				return fmte_(":DOCUMENTATION ~S must be a symbol.", value, NULL);
+			if (doc != Nil) {
+				return call_simple_program_error_va_(NULL,
+						":DOCUMENTATION is already exist.", NULL);
+			}
+			if (! stringp(value))
+				return fmte_(":DOCUMENTATION ~S must be a string.", value, NULL);
 			doc = value;
 			continue;
 		}
 
-		/* otherwise */
-		GetConst(COMMON_QUOTE, &pos);
-		list_heap(&key, pos, key, NULL);
-		list_heap(&value, pos, value, NULL);
-		cons_heap(&others, key, others);
-		cons_heap(&others, value, others);
-		localhold_set(hold, 5, others);
+		/* error */
+		return call_simple_program_error_va_(NULL,
+				"Invalid slot option ~S.", key, NULL);
 	}
 	localhold_end(hold);
 
@@ -432,13 +436,9 @@ static int defclass_parse_options(addr list, int defclass, addr *ret, addr *repo
 			continue;
 		}
 
-		/* otherwise */
-		if (! singlep(value))
-			return fmte_("Invalid option ~S.", value, NULL);
-		GetCar(value, &value);
-		/* key value */
-		cons_heap(&root, key, root);
-		cons_heap(&root, value, root);
+		/* error */
+		return call_simple_program_error_va_(NULL,
+				"Invalid class option ~S.", key, NULL);
 	}
 
 	/* result */
@@ -564,9 +564,8 @@ int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
 
 /*
  *  find-class
- *    TODO: environment
  */
-int find_class_common_(addr pos, int errorp, addr env, addr *ret)
+int find_class_common_(addr pos, int errorp, addr env_ignore, addr *ret)
 {
 	Check(! symbolp(pos), "type error");
 	if (errorp) {
@@ -582,11 +581,10 @@ int find_class_common_(addr pos, int errorp, addr env, addr *ret)
 
 /*
  *  (setf find-class)
- *    TODO: environment
  */
-void setf_find_class_common(addr pos, addr name, addr env)
+void setf_find_class_common(addr pos, addr name, addr env_ignore)
 {
-	CheckType(pos, LISPTYPE_CLOS);
+	Check((! closp(pos)) && (pos != Nil), "type error");
 	Check(! symbolp(name), "type error");
 	clos_define_class(name, pos);
 }

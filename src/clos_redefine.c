@@ -13,6 +13,7 @@
 #include "control_execute.h"
 #include "function.h"
 #include "heap.h"
+#include "hold.h"
 #include "integer.h"
 #include "local.h"
 #include "symbol.h"
@@ -170,7 +171,6 @@ static int clos_redefine_delete_readers_(Execute ptr, addr clos, addr list)
 		Return_getcons(list, &name, &list);
 		Return(parse_callname_error_(&name, name));
 		getglobal_parse_callname(name, &gen);
-		Check(gen == Unbound, "unbound error");
 		if (gen != Unbound) {
 			Return(clos_redefine_delete_reader_(ptr, clos, gen));
 		}
@@ -201,7 +201,6 @@ static int clos_redefine_delete_writers_(Execute ptr, addr clos, addr list)
 		Return_getcons(list, &name, &list);
 		Return(parse_callname_error_(&name, name));
 		getglobal_parse_callname(name, &gen);
-		Check(gen == Unbound, "unbound error");
 		if (gen != Unbound) {
 			Return(clos_redefine_delete_writer_(ptr, clos, gen));
 		}
@@ -513,10 +512,51 @@ int clos_version_check_(Execute ptr, addr pos, addr clos)
 /*
  *  update-instance-for-redefined-class
  */
+static int clos_redefine_method_find(addr pos, addr key)
+{
+	addr list, check;
+	size_t size, i;
+
+	GetSlotClos(pos, &pos);
+	LenSlotVector(pos, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(pos, i, &list);
+		GetArgsSlot(list, &list);
+		while (list != Nil) {
+			GetCons(list, &check, &list);
+			if (check == key)
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
+static int clos_redefine_method_initargs_(Execute ptr, addr pos, addr rest)
+{
+	addr key;
+
+	while (rest != Nil) {
+		if (! consp_getcons(rest, &key, &rest))
+			goto error;
+		if (! consp_getcdr(rest, &rest))
+			goto error;
+		if (! clos_redefine_method_find(pos, key))
+			return fmte_("There is no name ~S in the initargs.", key, NULL);
+	}
+	return 0;
+
+error:
+	return fmte_("Invalid &key arguments, ~S.", rest, NULL);
+}
+
 int clos_redefine_method_(Execute ptr,
 		addr pos, addr add, addr del, addr prop, addr rest)
 {
 	addr call;
+
+	/* initargs */
+	Return(clos_redefine_method_initargs_(ptr, pos, rest));
 
 	/* (shared-initialize ...) */
 	GetConst(COMMON_SHARED_INITIALIZE, &call);
@@ -528,9 +568,53 @@ int clos_redefine_method_(Execute ptr,
 /*
  *  change-class
  */
+static int clos_change_class_find(addr copy, addr name, addr *ret)
+{
+	addr slots, array, value;
+	size_t size, i;
+
+	GetValueClos(copy, &array);
+	GetSlotClos(copy, &slots);
+	LenSlotVector(slots, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &value);
+		GetNameSlot(value, &value);
+		if (name == value) {
+			GetClosValue(array, i, ret);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static int clos_change_class_update_(Execute ptr, addr copy, addr pos, addr rest)
+{
+	addr call, slots, array, value;
+	size_t size, i;
+
+	/* new slots */
+	GetValueClos(pos, &array);
+	GetSlotClos(pos, &slots);
+	LenSlotVector(slots, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &value);
+		GetNameSlot(value, &value);
+		if (clos_change_class_find(copy, value, &value)) {
+			SetClosValue(array, i, value);
+		}
+	}
+
+	/* update-instance-for-different-class */
+	GetConst(COMMON_UPDATE_INSTANCE_FOR_DIFFERENT_CLASS, &call);
+	Return(getfunction_global_(call, &call));
+	return callclang_applya(ptr, &call, call, copy, pos, rest, NULL);
+}
+
 int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 {
-	addr copy, type, call;
+	addr copy, type, rollback;
+	LocalHold hold;
 
 	/* readonly check */
 	GetConst(CLOS_BUILT_IN_CLASS, &type);
@@ -540,16 +624,22 @@ int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 	}
 
 	/* copy */
+	hold = LocalHold_array(ptr, 1);
+	clos_copy_alloc(ptr->local, pos, &rollback);
 	Return(allocate_instance_standard_(ptr, clos, &copy));
 	clos_swap(copy, pos);
+	localhold_set(hold, 0, copy);
 
-	/* call update-instance-for-different-class */
-	GetConst(COMMON_UPDATE_INSTANCE_FOR_DIFFERENT_CLASS, &call);
-	Return(getfunction_global_(call, &call));
-	Return(callclang_applya(ptr, &call, call, copy, pos, rest, NULL));
+	/* update */
+	if (clos_change_class_update_(ptr, copy, pos, rest)) {
+		clos_swap(pos, rollback);
+		return 1;
+	}
 
 	/* destroy copy instance */
 	clos_destroy(copy);
+	localhold_end(hold);
+
 	return 0;
 }
 
@@ -557,13 +647,40 @@ int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 /*
  *  update-instance-for-different-class
  */
-int clos_change_method_(Execute ptr, addr prev, addr inst, addr rest)
+static void clos_change_method_slots(Execute ptr, addr copy, addr pos, addr *ret)
 {
-	addr call;
+	addr slots, check, ignore, list;
+	size_t size, i;
+
+	/* new slots */
+	GetSlotClos(pos, &slots);
+	LenSlotVector(slots, &size);
+	list = Nil;
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &check);
+		GetNameSlot(check, &check);
+		if (! clos_change_class_find(copy, check, &ignore))
+			cons_heap(&list, check, list);
+	}
+	nreverse(ret, list);
+}
+
+int clos_change_method_(Execute ptr, addr copy, addr pos, addr rest)
+{
+	addr list, call;
+	LocalHold hold;
+
+	/* slots */
+	Return(clos_redefine_method_initargs_(ptr, pos, rest));
+	clos_change_method_slots(ptr, copy, pos, &list);
 
 	/* (shared-initialize ...) */
+	hold = LocalHold_local_push(ptr, list);
 	GetConst(COMMON_SHARED_INITIALIZE, &call);
 	Return(getfunction_global_(call, &call));
-	return applya_control(ptr, call, inst, T, rest, NULL);
+	Return(applya_control(ptr, call, pos, list, rest, NULL));
+	localhold_end(hold);
+
+	return 0;
 }
 

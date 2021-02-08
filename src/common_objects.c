@@ -585,7 +585,12 @@ static void defun_find_class(void)
 }
 
 
-/* (defun (setf find-class) (class symbol &optional errorp env) ...) -> class */
+/* (defun (setf find-class) (class symbol &optional errorp env) ...) -> class
+ *   class   (or null class)
+ *   symbol  symbol
+ *   errorp  t
+ *   env     (or null environment)
+ */
 static int function_setf_find_class(Execute ptr,
 		addr clos, addr name, addr errorp, addr env)
 {
@@ -600,14 +605,16 @@ static int function_setf_find_class(Execute ptr,
 
 static void type_setf_find_class(addr *ret)
 {
-	addr args, values, type1, type2;
+	addr args, values, type1, type2, class_null;
 
-	GetTypeTable(&args, Class);
+	GetTypeTable(&type1, Class);
+	GetTypeTable(&type2, Null);
+	type2or_heap(type1, type2, &class_null);
 	GetTypeTable(&values, Symbol);
 	GetTypeTable(&type1, T);
 	GetTypeTable(&type2, EnvironmentNull);
-	typeargs_var2opt2(&args, args, values, type1, type2);
-	GetTypeValues(&values, T);
+	typeargs_var2opt2(&args, class_null, values, type1, type2);
+	typevalues_result(&values, class_null);
 	type_compiled_heap(args, values, ret);
 }
 

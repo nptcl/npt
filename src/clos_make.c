@@ -103,6 +103,23 @@ static int clos_ensure_class_parse_slots_(addr list, addr *ret)
 	return Result(ret, slot);
 }
 
+static int clos_ensure_class_slots_error_(addr slots, size_t size, addr pos)
+{
+	addr x, y;
+	size_t i;
+
+	GetNameSlot(pos, &x);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &y);
+		GetNameSlot(y, &y);
+		if (x == y)
+			return call_simple_program_error_va_(NULL,
+					"The slot name ~S already exists.", x, NULL);
+	}
+
+	return 0;
+}
+
 int clos_ensure_class_slots_(addr args, addr *ret)
 {
 	addr slots, pos;
@@ -118,6 +135,7 @@ int clos_ensure_class_slots_(addr args, addr *ret)
 	for (i = 0; args != Nil; i++) {
 		GetCons(args, &pos, &args);
 		Return(clos_ensure_class_parse_slots_(pos, &pos));
+		Return(clos_ensure_class_slots_error_(slots, i, pos));
 		SetSlotVector(slots, i, pos);
 	}
 
@@ -143,7 +161,8 @@ int clos_ensure_class_direct_default_initargs_(LocalRoot local,
 		/* check duplicate */
 		if (find_list_eq_unsafe(key, check)) {
 			*ret = Nil;
-			return fmte_(":INITARG ~S is already exist.", key, NULL);
+			return call_simple_program_error_va_(NULL,
+					":INITARG ~S is already exist.", key, NULL);
 		}
 		cons_local(local, &check, key, check);
 	}

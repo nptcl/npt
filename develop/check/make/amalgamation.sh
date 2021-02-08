@@ -17,11 +17,11 @@ compile_amalgamation()
 	if [ $1 = "linux" ]; then
 		args="-g -Wall -m64 -fstack-protector"
 		args="${args} -DLISP_64BIT -DLISP_LINUX"
-		args="${args} -DLISP_PROMPT_READLINE -lm -lreadline"
+		args="${args} -DLISP_READLINE -lm -lreadline"
 	else
 		args="-g -Wall -std=c99 -m64 -fstack-protector"
 		args="${args} -DLISP_64BIT -DLISP_FREEBSD"
-		args="${args} -DLISP_PROMPT_EDITLINE -lm -ledit"
+		args="${args} -DLISP_EDITLINE -lm -ledit"
 	fi
 	cc ${args} -o npt lisp*.c shell.c
 	checkerr "cc error"

@@ -7,6 +7,7 @@
 
 (load #p"test/rtobjects-slot.lisp")
 (load #p"test/rtobjects-instance.lisp")
+(load #p"test/rtobjects-defclass.lisp")
 (load #p"test/rtobjects-class.lisp")
 (load #p"test/rtobjects-generic.lisp")
 (load #p"test/rtobjects-method.lisp")

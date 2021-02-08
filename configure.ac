@@ -122,11 +122,11 @@ AS_IF([test x$with_readline = xyes -a x$with_editline = xyes],
 
 ## readline
 AS_IF([test x$lisp_readline = xyes],
-  AC_DEFINE([LISP_PROMPT_READLINE], [1], [use readline]))
+  AC_DEFINE([LISP_READLINE], [1], [use readline]))
 
 ## editline
 AS_IF([test x$lisp_editline = xyes],
-  AC_DEFINE([LISP_PROMPT_EDITLINE], [1], [use editline]))
+  AC_DEFINE([LISP_EDITLINE], [1], [use editline]))
 
 ## debug
 AS_IF([test x$enable_debug = xyes],

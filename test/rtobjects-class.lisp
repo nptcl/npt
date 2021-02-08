@@ -2,87 +2,8 @@
 ;;  ANSI COMMON LISP: 7. Objects
 ;;
 
-;;  Macro DEFCLASS
+;;
 ;;  Function CLASS-OF
-;;  Accessor FIND-CLASS
-;;  Standard Generic Function CHANGE-CLASS
-;;  Standard Generic Function MAKE-INSTANCES-OBSOLETE
-;;  Standard Generic Function UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
-;;  Standard Generic Function UPDATE-INSTANCE-FOR-REDEFINED-CLASS
-;;  Standard Generic Function MAKE-LOAD-FORM
-;;  Function MAKE-LOAD-FORM-SAVING-SLOTS
-;;  Standard Generic Function CLASS-NAME
-;;  Standard Generic Function (SETF CLASS-NAME)
-
-
-;;
-;;  find-class
-;;
-(deftest find-class.1
-  (closp
-    (find-class 'standard-class))
-  t)
-
-(deftest find-class.2
-  (closp
-    (find-class 'standard-class nil))
-  t)
-
-(deftest-error find-class.3
-  (find-class 'no-such-class-name))
-
-(deftest find-class.4
-  (find-class 'no-such-class-name nil)
-  nil)
-
-(defclass setf-find1 () ())
-(defclass setf-find2 () ())
-
-(deftest setf-find-class.1
-  (let ((inst (find-class 'setf-find2)))
-    (setf (find-class 'setf-find1) inst)
-    (class-name
-      (find-class 'setf-find1)))
-  setf-find2)
-
-(defclass setf-find3 () ())
-(deftest setf-find-class.2
-  (let ((inst (find-class 'setf-find3)))
-    (setf (find-class 'setf-find1 :hello-hello) inst)
-    (class-name
-      (find-class 'setf-find1)))
-  setf-find3)
-
-
-;;
-;;  referenced-class
-;;
-(deftest referenced-class.1
-  (null
-    (referenced-class 'no-such-class))
-  nil)
-
-(deftest referenced-class.2
-  (typep
-    (referenced-class 'number)
-    'built-in-class)
-  t)
-
-(deftest referenced-class.3
-  (typep
-    (referenced-class 'no-such-class)
-    'lisp-clos::forward-referenced-class)
-  t)
-
-(deftest referenced-class.4
-  (slot-value
-    (referenced-class 'no-such-class)
-    'lisp-clos::name)
-  no-such-class)
-
-
-;;
-;;  class-of
 ;;
 (deftest class-of.1
   (subtypep
@@ -102,740 +23,491 @@
       (find-class 'class)))
   standard-class)
 
-(defclass class-of1 () ())
-(defclass class-of2 (class-of1) ())
 (deftest class-of.4
-  (let ((inst (make-instance 'class-of2)))
+  (progn
+    (defclass class-of-1 () ())
+    (defclass class-of-2 (class-of-1) ())
+    (values)))
+
+(deftest class-of.5
+  (let ((inst (make-instance 'class-of-2)))
     (class-name
       (class-of inst)))
-  class-of2)
+  class-of-2)
+
+(deftest class-of.6
+  (class-name
+    (class-of
+      (find-class 'class-of-2)))
+  standard-class)
+
+(deftest-error! class-of-error.1
+  (eval '(class-of)))
+
+(deftest-error! class-of-error.2
+  (eval '(class-of 10 20)))
+
+;;  ANSI Common Lisp
+(deftest class-of-test.1
+  (class-name
+    (class-of 'fred))
+  symbol)
+
+(deftest class-of-test.2
+  (class-name
+    (class-of 2/3))
+  ratio)
+
+(deftest class-of-test.3
+  (progn
+    (defclass class-of-test-book () ())
+    (class-name
+      (class-of
+        (make-instance 'class-of-test-book))))
+  class-of-test-book)
+
+(deftest class-of-test.4
+  (progn
+    (defclass class-of-test-novel (class-of-test-book) ())
+    (class-name
+      (class-of
+        (make-instance 'class-of-test-novel))))
+  class-of-test-novel)
+
+(deftest class-of-test.5
+  (progn
+    (defstruct class-of-test-kons kar kdr)
+    (class-name
+      (class-of
+        (make-class-of-test-kons :kar 3 :kdr 4))))
+  class-of-test-kons)
 
 
 ;;
-;;  defclass
+;;  Accessor FIND-CLASS
 ;;
-(deftest defclass.1
+(deftest find-class.1
   (closp
-    (defclass defclass1 () ()))
+    (find-class 'standard-class))
   t)
 
-(deftest defclass.2
+(deftest find-class.2
   (closp
-    (find-class 'defclass1 nil))
+    (find-class 'standard-class nil))
   t)
 
-(deftest defclass.3
-  (class-name
-    (find-class 'defclass1))
-  defclass1)
+(deftest find-class.3
+  (closp
+    (find-class 'standard-class nil nil))
+  t)
 
-(deftest defclass.4
-  (values
-    (subtypep 'defclass1 t)
-    (subtypep 'defclass1 'standard-object)
-    (subtypep 'defclass1 'standard-class))
-  t t nil)
+(deftest-error find-class.4
+  (find-class 'no-such-class-name))
 
-(defclass defclass2 () ())
-(defclass defclass3 (defclass2) ())
-
-(deftest defclass.5
-  (values
-    (subtypep 'defclass2 'defclass3)
-    (subtypep 'defclass3 'defclass2)
-    (subtypep 'defclass3 'standard-object)
-    (subtypep 'defclass3 t))
-  nil t t t)
-
-(deftest defclass.6
-  (class-name
-    (find-class 'defclass3))
-  defclass3)
-
-(defclass defclass4 () (hello))
-
-(deftest defclass.7
-  (let ((inst (make-instance 'defclass4)))
-    (slot-boundp inst 'hello))
+(deftest find-class.5
+  (find-class 'no-such-class-name nil)
   nil)
 
-(deftest defclass.8
-  (let ((inst (make-instance 'defclass4)))
-    (setf (slot-value inst 'hello) 100)
-    (slot-boundp inst 'hello))
-  t)
+(deftest-error! find-class-error.1
+  (eval '(find-class)))
+
+(deftest-error! find-class-error.2
+  (eval '(find-class 'standard-class nil nil nil)))
+
+(deftest-error! find-class-error.3
+  (eval '(find-class 10))
+  type-error)
 
 
-;;  initarg
-(defclass initarg1 ()
-  ((aaa :initarg :bbb)
-   (ccc :initarg :ddd)))
+;;
+;;  Accessor (SETF FIND-CLASS)
+;;
+(deftest setf-find-class.1
+  (progn
+    (defclass setf-find-class-1 () ())
+    (defclass setf-find-class-2 () ())
+    (defclass setf-find-class-3 () ())
+    (values)))
 
-(defclass initarg2 (initarg1)
-  ((eee :initarg :fff)))
+(deftest setf-find-class.2
+  (let ((inst (find-class 'setf-find-class-2)))
+    (setf (find-class 'setf-find-class-1) inst)
+    (class-name
+      (find-class 'setf-find-class-1)))
+  setf-find-class-2)
 
-(deftest defclass-initarg.1
-  (let ((inst (make-instance 'initarg2)))
+(deftest setf-find-class.3
+  (let ((inst (find-class 'setf-find-class-3)))
+    (setf (find-class 'setf-find-class-1 :hello-hello) inst)
+    (class-name
+      (find-class 'setf-find-class-1)))
+  setf-find-class-3)
+
+(deftest setf-find-class.4
+  (progn
+    (defclass setf-find-class-4 () ())
     (values
-      (slot-exists-p inst 'aaa)
-      (slot-exists-p inst 'ccc)
-      (slot-exists-p inst 'eee)))
-  t t t)
-
-(deftest defclass-initarg.2
-  (let ((inst (make-instance 'initarg2 :bbb 10 :ddd 20 :fff 30)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'ccc)
-      (slot-value inst 'eee)))
-  10 20 30)
-
-(defclass initarg3 (initarg1)
-  ((eee :initarg :bbb)))
-
-(deftest defclass-initarg.3
-  (let ((inst (make-instance 'initarg3 :bbb 10 :ddd 20)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'ccc)
-      (slot-value inst 'eee)))
-  10 20 10)
-
-
-;;  initform
-(let ((value 0))
-  (defun initform-call (&optional x)
-    (if x
-      (setq value x)
-      (prog1 value
-        (incf value)))))
-
-(defclass initform1 ()
-  ((aaa :initarg :bbb :initform 100)
-   (ccc :initarg :ddd :initform (initform-call))))
-
-(deftest defclass-initform.1
-  (let ((inst1 (make-instance 'initform1))
-        (inst2 (make-instance 'initform1)))
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'ccc)
-      (slot-value inst2 'aaa)
-      (slot-value inst2 'ccc)))
-  100 0 100 1)
-
-(deftest defclass-initform.2
-  (let ((inst1 (make-instance 'initform1 :bbb 11 :ddd 22))
-        (inst2 (make-instance 'initform1 :bbb 33)))
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'ccc)
-      (slot-value inst2 'aaa)
-      (slot-value inst2 'ccc)
-      (initform-call)))
-  11 22 33 2 3)
-
-(defclass initform2 (initform1)
-  ((aaa :initarg :bbb :initform 200)
-   (eee :initarg :fff :initform 333)))
-
-(deftest defclass-initform.3
-  (let ((inst1 (make-instance 'initform2))
-        (inst2 (make-instance 'initform2)))
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'ccc)
-      (slot-value inst1 'eee)
-      (slot-value inst2 'aaa)
-      (slot-value inst2 'ccc)
-      (slot-value inst2 'eee)))
-  200 4 333 200 5 333)
-
-(deftest defclass-initform.4
-  (let ((inst1 (make-instance 'initform2 :bbb 11 :ddd 22))
-        (inst2 (make-instance 'initform2 :fff 33)))
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'ccc)
-      (slot-value inst1 'eee)
-      (slot-value inst2 'aaa)
-      (slot-value inst2 'ccc)
-      (slot-value inst2 'eee)
-      (initform-call)))
-  11 22 333 200 6 33 7)
-
-
-;;  :class instance
-(defclass instclass1 ()
-  ((aaa :initarg :aaa :allocation :class)
-   (bbb :initarg :bbb :allocation :instance)
-   (ccc :initarg :ccc :allocation :class)
-   (ddd :initarg :bbb :allocation :instance)))
-
-(deftest defclass-class.1
-  (let ((inst1 (make-instance 'instclass1))
-        (inst2 (make-instance 'instclass1)))
-    (setf (slot-value inst1 'aaa) 10)
-    (setf (slot-value inst1 'bbb) 20)
-    (setf (slot-value inst2 'aaa) 30)
-    (setf (slot-value inst2 'bbb) 40)
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'bbb)
-      (slot-value inst2 'aaa)
-      (slot-value inst2 'bbb)))
-  30 20 30 40)
-
-(defclass instclass1a ()
-  ((aaa :initarg :aaa :allocation :class)
-   (bbb :initarg :bbb :allocation :instance)
-   (ccc :initarg :ccc :allocation :class)
-   (ddd :initarg :bbb :allocation :instance)))
-
-(deftest defclass-class.2
-  (let ((inst1 (make-instance 'instclass1a))
-        (inst2 (make-instance 'instclass1a)))
-    (values
-      ;; init-boundp
-      (slot-boundp inst1 'aaa)
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst2 'aaa)
-      (slot-boundp inst2 'bbb)
-      ;; set-boundp
-      (progn
-        (setf (slot-value inst1 'aaa) 10)
-        (setf (slot-value inst1 'bbb) 20)
-        (slot-boundp inst1 'aaa))
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst2 'aaa)
-      (slot-boundp inst2 'bbb)
-      ;; exists
-      (slot-exists-p inst1 'aaa)
-      (slot-exists-p inst1 'bbb)
-      (slot-exists-p inst1 'zzz)
-      ;; makunbuond
-      (progn
-        (setf (slot-value inst2 'aaa) 30)
-        (setf (slot-value inst2 'bbb) 40)
-        (slot-makunbound inst1 'aaa)
-        (slot-makunbound inst1 'bbb)
-        (slot-boundp inst1 'aaa))
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst2 'aaa)
-      (slot-boundp inst2 'bbb)))
-  nil nil nil nil
-  t t t nil
-  t t nil
-  nil nil nil t)
-
-(defclass instclass1b ()
-  ((aaa :initarg :aaa :allocation :class)
-   (bbb :initarg :bbb :allocation :instance)
-   (ccc :initarg :ccc :allocation :class)
-   (ddd :initarg :bbb :allocation :instance)))
-
-(deftest defclass-class.3
-  (let ((inst1 (make-instance 'instclass1b))
-        (inst2 (make-instance 'instclass1b)))
-    (values
-      ;; init-bondp
-      (slot-boundp inst1 'aaa)
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst2 'aaa)
-      (slot-boundp inst2 'bbb)
-      ;; set-boundp
-      (progn
-        (setf (slot-value inst2 'aaa) 30)
-        (setf (slot-value inst2 'bbb) 40)
-        (slot-boundp inst1 'aaa))
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst2 'aaa)
-      (slot-boundp inst2 'bbb)
-      ;; exists
-      (slot-exists-p inst2 'aaa)
-      (slot-exists-p inst2 'bbb)
-      (slot-exists-p inst2 'zzz)
-      ;; makunbound
-      (progn
-        (setf (slot-value inst1 'aaa) 10)
-        (setf (slot-value inst1 'bbb) 20)
-        (slot-makunbound inst2 'aaa)
-        (slot-makunbound inst2 'bbb)
-        (slot-boundp inst1 'aaa))
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst2 'aaa)
-      (slot-boundp inst2 'bbb)))
-  nil nil nil nil
-  t nil t t
-  t t nil
-  nil t nil nil)
-
-(defclass instclass2 (instclass1)
-  ((ccc :initarg :ccc :allocation :class)
-   (ddd :initarg :ddd :allocation :instance)
-   (eee :initarg :eee :allocation :class)
-   (fff :initarg :fff :allocation :instance)))
-
-(deftest defclass-class.4
-  (let ((inst1 (make-instance 'instclass1))
-        (inst2 (make-instance 'instclass2)))
-    (setf (slot-value inst1 'aaa) 10)
-    (setf (slot-value inst1 'bbb) 20)
-    (setf (slot-value inst1 'ccc) 30)
-    (setf (slot-value inst1 'ddd) 40)
-    (setf (slot-value inst2 'ccc) 50)
-    (setf (slot-value inst2 'ddd) 60)
-    (setf (slot-value inst2 'eee) 70)
-    (setf (slot-value inst2 'fff) 80)
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'bbb)
-      (slot-value inst1 'ccc)
-      (slot-value inst1 'ddd)
-      (slot-value inst2 'ccc)
-      (slot-value inst2 'ddd)
-      (slot-value inst2 'eee)
-      (slot-value inst2 'fff)
-      ;; bound
-      (progn
-        (slot-makunbound inst1 'ccc)
-        (slot-makunbound inst1 'ddd)
-        (slot-boundp inst1 'ccc))
-      (slot-boundp inst1 'ddd)
-      (slot-boundp inst2 'ccc)
-      (slot-boundp inst2 'ddd)
-      (progn
-        (setf (slot-value inst1 'ccc) 30)
-        (setf (slot-value inst1 'ddd) 40)
-        (slot-makunbound inst2 'ccc)
-        (slot-makunbound inst2 'ddd)
-        (slot-boundp inst1 'ccc))
-      (slot-boundp inst1 'ddd)
-      (slot-boundp inst2 'ccc)
-      (slot-boundp inst2 'ddd)
-      (slot-exists-p inst1 'ccc)
-      (slot-exists-p inst1 'eee)
-      (slot-exists-p inst2 'ccc)
-      (slot-exists-p inst2 'eee)))
-  10 20 30 40 50 60 70 80
-  nil nil t t
-  t t nil nil
-  t nil t t)
-
-(defclass instclass3 (instclass1)
-  ((eee :initarg :eee :allocation :class)
-   (fff :initarg :fff :allocation :instance)))
-
-(deftest defclass-class.5
-  (let ((inst1 (make-instance 'instclass1))
-        (inst2 (make-instance 'instclass3)))
-    (setf (slot-value inst1 'aaa) 10)
-    (setf (slot-value inst1 'bbb) 20)
-    (setf (slot-value inst1 'ccc) 30)
-    (setf (slot-value inst1 'ddd) 40)
-    (setf (slot-value inst2 'ccc) 50)
-    (setf (slot-value inst2 'ddd) 60)
-    (setf (slot-value inst2 'eee) 70)
-    (setf (slot-value inst2 'fff) 80)
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'bbb)
-      (slot-value inst1 'ccc)
-      (slot-value inst1 'ddd)
-      (slot-value inst2 'ccc)
-      (slot-value inst2 'ddd)
-      (slot-value inst2 'eee)
-      (slot-value inst2 'fff)
-      ;; bound
-      (progn
-        (slot-makunbound inst1 'ccc)
-        (slot-makunbound inst1 'ddd)
-        (slot-boundp inst1 'ccc))
-      (slot-boundp inst1 'ddd)
-      (slot-boundp inst2 'ccc)
-      (slot-boundp inst2 'ddd)
-      (progn
-        (setf (slot-value inst1 'ccc) 30)
-        (setf (slot-value inst1 'ddd) 40)
-        (slot-makunbound inst2 'ccc)
-        (slot-makunbound inst2 'ddd)
-        (slot-boundp inst1 'ccc))
-      (slot-boundp inst1 'ddd)
-      (slot-boundp inst2 'ccc)
-      (slot-boundp inst2 'ddd)
-      (slot-exists-p inst1 'ccc)
-      (slot-exists-p inst1 'eee)
-      (slot-exists-p inst2 'ccc)
-      (slot-exists-p inst2 'eee)))
-  10 20 50 40 50 60 70 80
-  nil nil nil t
-  nil t nil nil
-  t nil t t)
-
-;; initargs
-(defclass initargs1 ()
-  ((aaa :initarg :aaa :allocation :class)
-   (bbb :initarg :bbb :allocation :class)
-   (ccc :initarg :ccc)))
-
-(defclass initargs2 (initargs1)
-  ((bbb :initarg :ddd :allocation :class)
-   (eee :initarg :eee)))
-
-(deftest defclass-initargs.1
-  (let ((inst1 (make-instance 'initargs1))
-        (inst2 (make-instance 'initargs2)))
-    (values
-      (slot-boundp inst1 'aaa)
-      (slot-boundp inst1 'bbb)
-      (slot-boundp inst1 'ccc)
-      (slot-boundp inst2 'bbb)
-      (slot-boundp inst2 'eee)))
-  nil nil nil nil nil)
-
-(deftest defclass-initargs.2
-  (let ((inst (make-instance 'initargs1 :aaa 10 :bbb 20 :ccc 30)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)
-      (slot-value inst 'ccc)))
-  10 20 30)
-
-(deftest defclass-initargs.3
-  (let ((inst1 (make-instance 'initargs1 :aaa 10 :bbb 20 :ccc 30))
-        (inst2 (make-instance 'initargs2 :aaa 40 :bbb 50 :ccc 60 :ddd 70 :eee 80)))
-    (values
-      (slot-value inst1 'aaa)
-      (slot-value inst1 'bbb)
-      (slot-value inst1 'ccc)
-      (slot-value inst2 'aaa)
-      (slot-value inst2 'bbb)
-      (slot-value inst2 'ccc)
-      (slot-value inst2 'eee)))
-  40 20 30 40 50 60 80)
-
-(deftest defclass-initargs.4
-  (let ((inst (make-instance 'initargs1 :aaa 10 :bbb 20 :aaa 30)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)))
-  10 20)
-
-
-;;  initform
-(defclass initform5 ()
-  ((aaa :initarg :aaa :initform 100)))
-
-(deftest defclass-initform-init.1
-  (let ((inst (make-instance 'initform5)))
-    (slot-value inst 'aaa))
-  100)
-
-(deftest defclass-initform-init.2
-  (let ((inst (make-instance 'initform5 :aaa 200)))
-    (slot-value inst 'aaa))
-  200)
-
-(defclass initform6 (initform5)
-  ((bbb :initarg :bbb :initform 200)))
-
-(deftest defclass-initform-init.3
-  (let ((inst (make-instance 'initform6)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)))
-  100 200)
-
-(deftest defclass-initform-init.4
-  (let ((inst (make-instance 'initform6 :bbb 333 :aaa 444)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)))
-  444 333)
-
-(defclass initform7 ()
-  ((aaa :initarg :aaa :initform 10 :allocation :class)
-   (bbb :initarg :bbb :initform 20 :allocation :class)))
-
-(deftest defclass-initform-init.5
-  (let ((inst (make-instance 'initform7)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)
-      (progn
-        (setf (slot-value inst 'bbb) 999)
-        (slot-value (make-instance 'initform7) 'bbb))))
-  10 20 999)
-
-(deftest defclass-initform-init.6
-  (let ((inst (make-instance 'initform7 :aaa 44 :bbb 55)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)
-      (progn
-        (setf (slot-value inst 'bbb) 999)
-        (slot-value (make-instance 'initform7) 'bbb))))
-  44 55 999)
-
-(defclass initform8 (initform7)
-  ((bbb :initarg :bbb :initform 30 :allocation :class)
-   (ccc :initarg :ccc :initform 40 :allocation :class)))
-
-(deftest defclass-initform-init.7
-  (let ((inst (make-instance 'initform8 :aaa 11 :bbb 22 :ccc 33)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'bbb)
-      (slot-value inst 'ccc)))
-  11 22 33)
-
-
-;;  default-initargs
-(defclass defargs1 ()
-  ((aaa :initarg :bbb)
-   (ccc :initarg :ddd))
-  (:default-initargs :bbb 10 :ddd 20))
-
-(deftest defclass-default-initargs.1
-  (let ((inst (make-instance 'defargs1)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'ccc)))
-  10 20)
-
-(defclass defargs2 ()
-  ((aaa :initarg :bbb :initform 88)
-   (ccc :initarg :ddd :initform 99))
-  (:default-initargs :bbb 10))
-
-(deftest defclass-default-initargs.2
-  (let ((inst (make-instance 'defargs2)))
-    (values
-      (slot-value inst 'aaa)
-      (slot-value inst 'ccc)))
-  10 99)
-
-(defclass defargs3 ()
-  ((aaa :initarg :bbb))
-  (:default-initargs :zzz 100))
-
-(deftest-error defclass-default-initargs.3
-  (make-instance 'defargs3))
-
-
-;;  :class default-initargs
-(defclass defargs4 ()
-  ((aaa :initarg :bbb :allocation :class))
-  (:default-initargs :bbb 100))
-
-(deftest defclass-default-initargs.4
-  (let ((inst (make-instance 'defargs4)))
-    (slot-value inst 'aaa))
-  100)
-
-;;  :class default-initargs shadow
-(defclass defargs5 (defargs4)
-  ((aaa :initarg :bbb :allocation :class))
-  (:default-initargs :bbb 200))
-
-(deftest defclass-default-initargs.5
-  (let ((inst (make-instance 'defargs5)))
-    (slot-value inst 'aaa))
-  200)
-
-
-;;  forward-referenced-class
-(defclass forward1 (forward2)
-  (aaa bbb))
-
-(deftest forward-referenced-class.1
-  (let ((inst (find-class 'forward1)))
-    (values
-      (closp inst)
-      (class-finalized-p inst)
       (class-name
-        (class-of
-          (car (class-direct-superclasses inst))))))
+        (find-class 'setf-find-class-4))
+      (setf (find-class 'setf-find-class-4) nil)
+      (find-class 'setf-find-class-4 nil)))
+  setf-find-class-4 nil nil)
 
-  t nil lisp-clos::forward-referenced-class)
+(deftest-error setf-find-class.5
+  (find-class 'setf-find-class-4))
 
-(deftest-error forward-referenced-class.2
-  (make-instance 'forward1))
+(deftest-error! setf-find-class-error.1
+  (eval '(setf (find-class) (find-class 'class))))
 
-(defclass forward3 (forward4)
-  (aaa bbb))
+(deftest-error! setf-find-class-error.2
+  (eval '(setf (find-class 'hello nil nil nil) (find-class 'class))))
 
-(defclass forward4 ()
-  (ccc))
-
-(deftest forward-referenced-class.3
-  (let ((inst (make-instance 'forward3)))
-    (values
-      (slot-exists-p inst 'aaa)
-      (slot-exists-p inst 'bbb)
-      (slot-exists-p inst 'ccc)))
-  t t t)
+(deftest-error! setf-find-class-error.3
+  (eval '(setf (find-class 10) (find-class 'class)))
+  type-error)
 
 
-;;  documentation
-(defclass document1 () ()
-  (:documentation "Hello"))
+;;
+;;  Standard Generic Function CHANGE-CLASS
+;;
+(defclass change-class-1 () (aaa bbb ccc))
+(defclass change-class-2 () (ccc ddd))
 
-(deftest defclass-documentation.1
-  (closp
-    (make-instance 'document1))
+(deftest change-class.1
+  (let ((x (make-instance 'change-class-1)))
+    (typep
+      (change-class x 'change-class-2)
+      'change-class-2))
   t)
 
-(defclass metaclass1 (standard-class) ())
-(defclass metaclass2 () ()
-  (:metaclass metaclass1))
+(deftest change-class.2
+  (let ((x (make-instance 'change-class-1)))
+    (eq x (change-class x 'change-class-2)))
+  t)
 
-(deftest defclass-metaclass.1
-  t t)
-
-
-;;  readers
-(defclass readers1 ()
-  ((aaa :reader readers1-aaa)))
-
-(deftest readers.1
-  (let ((inst (make-instance 'readers1)))
-    (setf (slot-value inst 'aaa) 100)
-    (readers1-aaa inst))
-  100)
-
-(defclass readers2 ()
-  ((bbb :reader readers1-aaa)))
-
-(deftest readers.2
-  (let ((a (make-instance 'readers1))
-        (b (make-instance 'readers2)))
-    (setf (slot-value a 'aaa) 200)
-    (setf (slot-value b 'bbb) 300)
+(deftest change-class.3
+  (let ((x (make-instance 'change-class-1)))
+    (change-class x 'change-class-2)
     (values
-      (readers1-aaa a)
-      (readers1-aaa b)))
-  200 300)
+      (slot-exists-p x 'aaa)
+      (slot-exists-p x 'bbb)
+      (slot-exists-p x 'ccc)
+      (slot-exists-p x 'ddd)))
+  nil nil t t)
 
-(defclass readers3 (readers1)
-  ((ccc :reader readers3-ccc)
-   (ddd :reader readers3-ddd
-        :reader readers3-eee)))
-
-(deftest readers.3
-  (let ((inst (make-instance 'readers3)))
-    (setf (slot-value inst 'aaa) 111)
-    (setf (slot-value inst 'ccc) 222)
-    (setf (slot-value inst 'ddd) 333)
+(deftest change-class.4
+  (let ((x (make-instance 'change-class-1)))
+    (setf (slot-value x 'bbb) 10)
+    (setf (slot-value x 'ccc) 20)
+    (change-class x 'change-class-2)
     (values
-      (readers1-aaa inst)
-      (readers3-ccc inst)
-      (readers3-ddd inst)
-      (readers3-eee inst)))
-  111 222 333 333)
+      (slot-value x 'ccc)
+      (slot-boundp x 'ddd)))
+  20 nil)
 
-(defclass readers4 ()
-  ((aaa :allocation :class :reader readers4-aaa)))
+(deftest change-class.5
+  (progn
+    (defclass change-class-3 () (aaa bbb ccc))
+    (defclass change-class-4 () (ccc ddd))
+    (defmethod update-instance-for-different-class :before
+      ((prev change-class-3) (inst change-class-4) &rest args &key &allow-other-keys)
+      (declare (ignore args))
+      (setf (slot-value inst 'ccc) (slot-value prev 'bbb))
+      (setf (slot-value inst 'ddd) (slot-value prev 'aaa)))
+    (values)))
 
-(defclass readers5 (readers4)
-  ((bbb :allocation :class :reader readers5-bbb)
-   (ccc :allocation :class :reader readers5-ccc)))
-
-(deftest readers.4
-  (let ((inst (make-instance 'readers5))
-        (other (make-instance 'readers5)))
-    (setf (slot-value inst 'aaa) 11)
-    (setf (slot-value inst 'bbb) 22)
-    (setf (slot-value inst 'ccc) 33)
+(deftest change-class.6
+  (let ((x (make-instance 'change-class-3)))
+    (setf (slot-value x 'aaa) 10)
+    (setf (slot-value x 'bbb) 20)
+    (change-class x 'change-class-4)
     (values
-      (readers4-aaa inst)
-      (readers5-bbb inst)
-      (readers5-ccc inst)
-      (readers4-aaa other)
-      (readers5-bbb other)
-      (readers5-ccc other)))
-  11 22 33 11 22 33)
+      (slot-value x 'ccc)
+      (slot-value x 'ddd)))
+  20 10)
 
-;;  writers
-(defclass writers1 ()
-  ((aaa :writer writers1-aaa)))
+(deftest change-class.7
+  (progn
+    (defclass change-class-5 ()
+      ((aaa :initarg :aaa :initform 10)
+       (bbb :initarg :bbb :initform 20)
+       (ccc :initarg :ccc :initform 30)))
+    (defclass change-class-6 ()
+      ((ccc :initarg :ccc :initform 40)
+       (ddd :initarg :ddd :initform 50)))
+    (values)))
 
-(deftest writers.1
-  (let ((inst (make-instance 'writers1)))
+(deftest change-class.8
+  (let ((x (make-instance 'change-class-5)))
+    (change-class x 'change-class-6)
     (values
-      (writers1-aaa 100 inst)
-      (slot-value inst 'aaa)))
-  100 100)
+      (slot-value x 'ccc)
+      (slot-value x 'ddd)))
+  30 50)
 
-(defclass writers2 ()
-  ((bbb :writer writers1-aaa)))
-
-(deftest writers.2
-  (let ((a (make-instance 'writers1))
-        (b (make-instance 'writers2)))
+(deftest change-class.9
+  (let ((x (make-instance 'change-class-5)))
+    (slot-makunbound x 'ccc)
+    (change-class x 'change-class-6)
     (values
-      (writers1-aaa 200 a)
-      (writers1-aaa 300 b)
-      (slot-value a 'aaa)
-      (slot-value b 'bbb)))
-  200 300 200 300)
+      (slot-boundp x 'ccc)
+      (slot-value x 'ddd)))
+  nil 50)
 
-(defclass writers3 (writers1)
-  ((ccc :writer writers3-ccc)
-   (ddd :writer writers3-ddd
-        :writer writers3-eee)))
-
-(deftest writers.3
-  (let ((inst (make-instance 'writers3)))
+(deftest change-class.10
+  (let ((x (make-instance 'change-class-5)))
+    (change-class x 'change-class-6 :ccc 111 :ddd 222)
     (values
-      (writers1-aaa 111 inst)
-      (writers3-ccc 222 inst)
-      (writers3-ddd 333 inst)
-      (writers3-eee 444 inst)
-      (slot-value inst 'aaa)
-      (slot-value inst 'ccc)
-      (slot-value inst 'ddd)))
-  111 222 333 444 111 222 444)
+      (slot-value x 'ccc)
+      (slot-value x 'ddd)))
+  111 222)
 
-;;  accessors
-(defclass accessors1 ()
-  ((aaa :accessor accessors1-aaa)))
+(deftest-error change-class.11
+  (let ((x (make-instance 'change-class-5)))
+    (change-class x 'change-class-6 :aaa 333)))
 
-(deftest accessors.1
-  (let ((inst (make-instance 'accessors1)))
+(deftest change-class.12
+  (progn
+    (defclass change-class-7 () (aaa bbb ccc))
+    (defclass change-class-8 () (ccc ddd))
+    (defmethod update-instance-for-different-class :before
+      ((prev change-class-7) (inst change-class-8) &rest args &key &allow-other-keys)
+      (declare (ignore args))
+      (setf (slot-value inst 'ccc) (slot-value prev 'bbb))
+      (setf (slot-value inst 'ddd) (slot-value prev 'aaa))
+      (error "Hello"))
+    (values)))
+
+(deftest change-class.13
+  (let ((x (make-instance 'change-class-7)))
+    (setf (slot-value x 'aaa) 10)
+    (setf (slot-value x 'bbb) 20)
+    (handler-case
+      (change-class x 'change-class-8)
+      (error ()))
     (values
-      (setf (accessors1-aaa inst) 100)
-      (accessors1-aaa inst)))
-  100 100)
+      (class-name (class-of x))
+      (slot-value x 'aaa)
+      (slot-value x 'bbb)))
+  change-class-7 10 20)
 
-(defclass accessors2 ()
-  ((bbb :accessor accessors1-aaa)))
+(deftest-error! change-class-error.1
+  (eval '(let ((x (make-instance 'change-class-1)))
+           (change-class x))))
 
-(deftest accessors.2
-  (let ((a (make-instance 'accessors1))
-        (b (make-instance 'accessors2)))
-    (values
-      (setf (accessors1-aaa a) 200)
-      (setf (accessors1-aaa b) 300)
-      (accessors1-aaa a)
-      (accessors1-aaa b)))
-  200 300 200 300)
+(deftest-error change-class-error.2
+  (eval '(let ((x (make-instance 'change-class-1)))
+           (change-class x 'change-class-2 :hello))))
 
-(defclass accessors3 (accessors1)
-  ((ccc :accessor accessors3-ccc)
-   (ddd :accessor accessors3-ddd
-        :accessor accessors3-eee)))
+(deftest-error change-class-error.3
+  (eval '(change-class 10 'change-class-2)))
 
-(deftest accessors.3
-  (let ((inst (make-instance 'accessors3)))
-    (values
-      (setf (accessors1-aaa inst) 111)
-      (setf (accessors3-ccc inst) 222)
-      (setf (accessors3-ddd inst) 333)
-      (setf (accessors3-eee inst) 444)
-      (accessors1-aaa inst)
-      (accessors3-ccc inst)
-      (accessors3-ddd inst)
-      (accessors3-eee inst)))
-  111 222 333 444 111 222 444 444)
+;;  ANSI Common Lisp
+(deftest change-class-test.1
+  (progn
+    (defclass change-class-test-position () ())
+    (defclass change-class-test-x-y-position (change-class-test-position)
+      ((x :initform 0 :initarg :x)
+       (y :initform 0 :initarg :y)))
+    (defclass change-class-test-rho-theta-position (change-class-test-position)
+      ((rho :initform 0)
+       (theta :initform 0)))
+    (defmethod update-instance-for-different-class :before
+      ((old change-class-test-x-y-position)
+       (new change-class-test-rho-theta-position)
+       &key)
+      (let ((x (slot-value old 'x))
+            (y (slot-value old 'y)))
+        (setf (slot-value new 'rho) (sqrt (+ (* x x) (* y y)))
+              (slot-value new 'theta) (atan y x))))
+    (values)))
+
+(deftest change-class-test.2
+  (let ((p1 (make-instance 'change-class-test-x-y-position :x 2 :y 0)))
+    (change-class p1 'change-class-test-rho-theta-position)
+    (values)))
+
+
+;;
+;;  Standard Generic Function MAKE-INSTANCES-OBSOLETE
+;;
+(deftest make-instances-obsolete.1
+  (progn
+    (defclass make-instances-obsolete-1 () (aaa))
+    (values)))
+
+(deftest make-instances-obsolete.2
+  (class-name
+    (make-instances-obsolete 'make-instances-obsolete-1))
+  make-instances-obsolete-1)
+
+(deftest make-instances-obsolete.3
+  (class-name
+    (make-instances-obsolete
+      (find-class 'make-instances-obsolete-1)))
+  make-instances-obsolete-1)
+
+(deftest-error! make-instances-obsolete-error.1
+  (eval '(make-instances-obsolete)))
+
+(deftest-error! make-instances-obsolete-error.2
+  (eval '(make-instances-obsolete 'make-instances-obsolete-1 nil)))
+
+(deftest-error make-instances-obsolete-error.3
+  (eval '(make-instances-obsolete 100)))
+
+
+;;
+;;  Standard Generic Function UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
+;;
+(deftest update-instance-for-different-class.1
+  (progn
+    (defclass update-instance-for-different-class-1 () (aaa bbb ccc))
+    (defclass update-instance-for-different-class-2 () (ccc ddd))
+    (values)))
+
+(deftest update-instance-for-different-class.2
+  (progn
+    (defmethod update-instance-for-different-class
+      ((prev update-instance-for-different-class-1)
+       (inst update-instance-for-different-class-2)
+       &rest args &key &allow-other-keys)
+      (declare (ignore args))
+      (unless (slot-exists-p prev 'aaa) (error "error"))
+      (unless (slot-exists-p prev 'bbb) (error "error"))
+      (unless (slot-exists-p prev 'ccc) (error "error"))
+      (when (slot-exists-p prev 'ddd) (error "error"))
+      (when (slot-exists-p inst 'aaa) (error "error"))
+      (when (slot-exists-p inst 'bbb) (error "error"))
+      (unless (slot-exists-p inst 'ccc) (error "error"))
+      (unless (slot-exists-p inst 'ddd) (error "error")))
+    (change-class
+      (make-instance 'update-instance-for-different-class-1)
+      'update-instance-for-different-class-2)
+    (values)))
+
+
+;;
+;;  Standard Generic Function UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+;;
+(deftest update-instance-for-redefined-class.1
+  (progn
+    (defclass update-instance-for-redefined-class-1 () (aaa bbb ccc))
+    (defmethod update-instance-for-redefined-class :before
+      ((inst update-instance-for-redefined-class-1)
+       add del prop &rest args &key &allow-other-keys)
+      (declare (ignore inst prop args))
+      (unless (equal '(ddd eee fff) (sort add #'string< :key #'string))
+        (error "add error"))
+      (unless (equal '(aaa bbb) (sort del #'string< :key #'string))
+        (error "del error")))
+    (let ((x (make-instance 'update-instance-for-redefined-class-1)))
+      (defclass update-instance-for-redefined-class-1 () (ccc ddd eee fff))
+      (values (slot-exists-p x 'fff))))
+  t)
+
+(deftest update-instance-for-redefined-class.2
+  (progn
+    (defclass update-instance-for-redefined-class-2 () (aaa bbb ccc))
+    (defmethod update-instance-for-redefined-class :before
+      ((inst update-instance-for-redefined-class-2)
+       add del prop &rest args &key &allow-other-keys)
+      (declare (ignore inst add del args))
+      (when prop
+        (error "prop error")))
+    (let ((x (make-instance 'update-instance-for-redefined-class-2)))
+      (defclass update-instance-for-redefined-class-2 () (ccc ddd eee fff))
+      (values (slot-exists-p x 'fff))))
+  t)
+
+(deftest update-instance-for-redefined-class.3
+  (progn
+    (defclass update-instance-for-redefined-class-3 () (aaa bbb ccc))
+    (defmethod update-instance-for-redefined-class :before
+      ((inst update-instance-for-redefined-class-3)
+       add del prop &rest args &key &allow-other-keys)
+      (declare (ignore inst add del args))
+      (unless (eql (getf prop 'aaa) 10)
+        (error "aaa error"))
+      (unless (eql (getf prop 'bbb) 20)
+        (error "bbb error"))
+      (unless (eql (getf prop 'ccc) 30)
+        (error "ccc error")))
+    (let ((x (make-instance 'update-instance-for-redefined-class-3)))
+      (setf (slot-value x 'aaa) 10)
+      (setf (slot-value x 'bbb) 20)
+      (setf (slot-value x 'ccc) 30)
+      (defclass update-instance-for-redefined-class-3 () (ccc ddd eee fff))
+      (values (slot-exists-p x 'fff))))
+  t)
+
+;;  ANSI Common Lisp
+(deftest update-instance-for-redefined-class-test.1
+  (progn
+    (defclass redefined-test-position () ())
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.2
+  (progn
+    (defclass redefined-test-x-y-position (redefined-test-position)
+      ((x :initform 0 :accessor redefined-test-position-x)
+       (y :initform 0 :accessor redefined-test-position-y)))
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.3
+  (progn
+    (defmethod update-instance-for-redefined-class :before
+      ((pos redefined-test-x-y-position) added deleted plist &key)
+      (declare (ignore added deleted))
+      (let ((x (getf plist 'x))
+            (y (getf plist 'y)))
+        (setf (redefined-test-position-rho pos) (sqrt (+ (* x x) (* y y)))
+              (redefined-test-position-theta pos) (atan y x))))
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.4
+  (progn
+    (defclass redefined-test-x-y-position (redefined-test-position)
+      ((rho :initform 0 :accessor redefined-test-position-rho)
+       (theta :initform 0 :accessor redefined-test-position-theta)))
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.5
+  (progn
+    (defmethod redefined-test-position-x ((pos redefined-test-x-y-position))
+      (with-slots (rho theta) pos (* rho (cos theta))))
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.6
+  (progn
+    (defmethod (setf redefined-test-position-x)
+      (new-x (pos redefined-test-x-y-position))
+      (with-slots (rho theta) pos
+        (let ((y (redefined-test-position-y pos)))
+          (setq rho (sqrt (+ (* new-x new-x) (* y y)))
+                theta (atan y new-x))
+          new-x)))
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.7
+  (progn
+    (defmethod redefined-test-position-y
+      ((pos redefined-test-x-y-position))
+      (with-slots (rho theta) pos (* rho (sin theta))))
+    (values)))
+
+(deftest update-instance-for-redefined-class-test.8
+  (progn
+    (defmethod (setf redefined-test-position-y)
+      (new-y (pos redefined-test-x-y-position))
+      (with-slots (rho theta) pos
+        (let ((x (redefined-test-position-x pos)))
+          (setq rho (sqrt (+ (* x x) (* new-y new-y)))
+                theta (atan new-y x))
+          new-y)))
+    (values)))
+
+
+;;  Standard Generic Function MAKE-LOAD-FORM
+;;  Function MAKE-LOAD-FORM-SAVING-SLOTS
 

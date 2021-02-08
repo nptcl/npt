@@ -1571,11 +1571,12 @@ static int method_change_class_stdclass(Execute ptr,
 
 static void method_type_change_class_stdclass(addr *ret)
 {
-	addr args, values;
+	addr args, values, rest;
 
 	GetTypeTable(&args, StandardObject);
 	GetTypeTable(&values, StandardClass);
-	typeargs_var2rest_allow(&args, args, values, args);
+	GetTypeTable(&rest, T);
+	typeargs_var2rest_allow(&args, args, values, rest);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);

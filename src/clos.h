@@ -81,6 +81,7 @@
 #define clos_heap _n(clos_heap)
 #define clos_destroy _n(clos_destroy)
 #define clos_swap _n(clos_swap)
+#define clos_copy_alloc _n(clos_copy_alloc)
 #define closp _n(closp)
 #define slotp _n(slotp)
 #define clos_value_p _n(clos_value_p)
@@ -385,6 +386,7 @@ void clos_heap(addr *ret, addr slots);
 
 void clos_destroy(addr pos);
 void clos_swap(addr a, addr b);
+void clos_copy_alloc(LocalRoot local, addr pos, addr *ret);
 
 /* control */
 int closp(addr pos);

@@ -116,7 +116,7 @@ In the debug mode, there are codes of checks everywhere and if the checks are vi
 </table>
 <p>The <code>C</code> in the table is simply a reading by the standard C library. This mode does not allow for history or cursor movement.</p>
 <p>Here’s an example of a compilation.</p>
-<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE src/*.c -lm -ledit
+<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_EDITLINE src/*.c -lm -ledit
 $ ./a.out --version
 npt Version 1.0.2
 ...

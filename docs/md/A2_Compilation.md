@@ -98,7 +98,7 @@ This mode does not allow for history or cursor movement.
 Here's an example of a compilation.
 
 ```
-$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE src/*.c -lm -ledit
+$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_EDITLINE src/*.c -lm -ledit
 $ ./a.out --version
 npt Version 1.0.2
 ...
