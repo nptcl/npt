@@ -161,6 +161,15 @@ int stdset_generic_method_combination_(addr pos, addr value)
 	return StdSetGeneric_(pos, value, method_combination, METHOD_COMBINATION);
 }
 
+int stdget_generic_documentation_(addr pos, addr *ret)
+{
+	return StdGetGeneric_(pos, ret, documentation, DOCUMENTATION);
+}
+int stdset_generic_documentation_(addr pos, addr value)
+{
+	return StdSetGeneric_(pos, value, documentation, DOCUMENTATION);
+}
+
 int stdget_generic_eqlcheck_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, eqlcheck, EQLCHECK);
@@ -1105,6 +1114,7 @@ int generic_add_(struct generic_argument *str, addr *ret)
 	Return(stdset_generic_argument_precedence_order_(pos, str->order));
 	Return(stdset_generic_declarations_(pos, str->declare));
 	Return(stdset_generic_method_combination_(pos, comb));
+	Return(stdset_generic_documentation_(pos, str->doc));
 	Return(stdset_generic_cache_(pos, cache));
 	Return(stdset_generic_precedence_index_(pos, order));
 
@@ -1213,6 +1223,32 @@ int generic_find_method_(Execute ptr,
 	}
 
 	return Result(ret, Nil);
+}
+
+
+/*
+ *  documentation
+ */
+int get_documentation_function_object_(addr pos, addr *ret)
+{
+	if (functionp(pos)) {
+		getdocumentation_function(pos, ret);
+		return 0;
+	}
+
+	/* generic-function */
+	return stdget_generic_documentation_(pos, ret);
+}
+
+int set_documentation_function_object_(addr pos, addr value)
+{
+	if (functionp(pos)) {
+		setdocumentation_function(pos, value);
+		return 0;
+	}
+
+	/* generic-function */
+	return stdset_generic_documentation_(pos, value);
 }
 
 

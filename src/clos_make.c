@@ -544,11 +544,12 @@ static int clos_ensure_class_subclasses_(addr pos)
 	return 0;
 }
 
-static int clos_built_in_class_check_(addr pos, addr list)
+static int clos_built_in_class_check_(addr pos)
 {
 	int check;
-	addr super, tclass, built;
+	addr list, super, tclass, built;
 
+	Return(stdget_class_direct_superclasses_(pos, &list));
 	GetConst(CLOS_T, &tclass);
 	GetConst(CLOS_BUILT_IN_CLASS, &built);
 	while (list != Nil) {
@@ -571,8 +572,8 @@ int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp)
 	addr value;
 
 	/* class-precedence-list */
+	Return(clos_built_in_class_check_(pos));
 	Return(clos_precedence_list_(local, pos, &value));
-	Return(clos_built_in_class_check_(pos, value));
 	Return(stdset_class_precedence_list_(pos, value));
 	/* effective-slots */
 	Return(clos_compute_slots_(local, pos, &value));

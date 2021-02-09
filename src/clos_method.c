@@ -709,15 +709,13 @@ int common_method_finalize_(addr gen)
 int methodget_document_(addr clos, addr *ret)
 {
 	Return(stdget_method_function_(clos, &clos));
-	getdocumentation_function(clos, ret);
-	return 0;
+	return get_documentation_function_object_(clos, ret);
 }
 
 int methodset_document_(addr clos, addr value)
 {
 	Return(stdget_method_function_(clos, &clos));
-	setdocumentation_function(clos, value);
-	return 0;
+	return set_documentation_function_object_(clos, value);
 }
 
 

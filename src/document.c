@@ -194,7 +194,7 @@ static int mop_argument_method_setf_documentation_(addr *ret,
 static int method_documentation_function_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	getdocumentation_function(object, &object);
+	Return(get_documentation_function_object_(object, &object));
 	setresult_control(ptr, object);
 	return 0;
 }
@@ -202,7 +202,7 @@ static int method_documentation_function_t(Execute ptr,
 static int method_setf_documentation_function_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	setdocumentation_function(object, value);
+	Return(set_documentation_function_object_(object, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -280,7 +280,7 @@ static int method_documentation_list_function(Execute ptr,
 {
 	Return(parse_callname_error_(&object, object));
 	Return(getglobalcheck_callname_(object, &object));
-	getdocumentation_function(object, &object);
+	Return(get_documentation_function_object_(object, &object));
 	setresult_control(ptr, object);
 
 	return 0;
@@ -291,7 +291,7 @@ static int method_setf_documentation_list_function(Execute ptr,
 {
 	Return(parse_callname_error_(&object, object));
 	Return(getglobalcheck_callname_(object, &object));
-	setdocumentation_function(object, value);
+	Return(set_documentation_function_object_(object, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -338,7 +338,7 @@ static int method_documentation_list_compiled_function(Execute ptr,
 	Return(getglobalcheck_callname_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
-	getdocumentation_function(object, &object);
+	Return(get_documentation_function_object_(object, &object));
 	setresult_control(ptr, object);
 
 	return 0;
@@ -351,7 +351,7 @@ static int method_setf_documentation_list_compiled_function(Execute ptr,
 	Return(getglobalcheck_callname_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
-	setdocumentation_function(object, value);
+	Return(set_documentation_function_object_(object, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -411,7 +411,7 @@ static int method_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	Return(getfunction_global_document_(object, &object));
-	getdocumentation_function(object, &object);
+	Return(get_documentation_function_object_(object, &object));
 	setresult_control(ptr, object);
 
 	return 0;
@@ -421,7 +421,7 @@ static int method_setf_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	Return(getfunction_global_(object, &object));
-	setdocumentation_function(object, value);
+	Return(set_documentation_function_object_(object, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -467,7 +467,7 @@ static int method_documentation_symbol_compiled_function(Execute ptr,
 	Return(getfunction_global_document_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
-	getdocumentation_function(object, &object);
+	Return(get_documentation_function_object_(object, &object));
 	setresult_control(ptr, object);
 
 	return 0;
@@ -479,7 +479,7 @@ static int method_setf_documentation_symbol_compiled_function(Execute ptr,
 	Return(getfunction_global_(object, &object));
 	if (! compiled_function_p(object))
 		return TypeError_(object, COMPILED_FUNCTION);
-	setdocumentation_function(object, value);
+	Return(set_documentation_function_object_(object, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -533,7 +533,7 @@ static int method_documentation_symbol_setf(Execute ptr,
 		Return(getsetf_global_(object, &pos));
 	}
 	/* get documentation */
-	getdocumentation_function(pos, &pos);
+	Return(get_documentation_function_object_(pos, &pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -551,7 +551,7 @@ static int method_setf_documentation_symbol_setf(Execute ptr,
 		Return(getsetf_global_(object, &pos));
 	}
 	/* set documentation */
-	setdocumentation_function(pos, value);
+	Return(set_documentation_function_object_(pos, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -1020,7 +1020,7 @@ static int method_documentation_symbol_type(Execute ptr,
 	getdeftype(object, &pos);
 	if (object == Nil)
 		return fmte_("The symbol ~S don't have a deftype function.", object, NULL);
-	getdocumentation_function(pos, &pos);
+	Return(get_documentation_function_object_(pos, &pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -1043,7 +1043,7 @@ static int method_setf_documentation_symbol_type(Execute ptr,
 	getdeftype(object, &pos);
 	if (pos == Nil)
 		return fmte_("The symbol ~S don't have a deftype function.", object, NULL);
-	setdocumentation_function(pos, value);
+	Return(set_documentation_function_object_(pos, value));
 	setresult_control(ptr, value);
 
 	return 0;

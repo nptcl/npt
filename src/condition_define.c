@@ -836,6 +836,15 @@ int call_simple_program_error_(Execute ptr, addr control, addr args)
 	return error_function_(ptr, instance);
 }
 
+int call_simple_program_error_stdarg_(Execute ptr, const char *fmt, va_list va)
+{
+	addr control, args;
+
+	strvect_char_heap(&control, fmt);
+	copylocal_list_stdarg(NULL, &args, va);
+	return call_simple_program_error_(ptr, control, args);
+}
+
 int call_simple_program_error_va_(Execute ptr, const char *fmt, ...)
 {
 	addr control, args;

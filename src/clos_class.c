@@ -1231,6 +1231,7 @@ static void clos_stdgeneric_slots(addr *ret)
 	SlotMakeName(slots, ARGUMENT_PRECEDENCE_ORDER, generic_argument_precedence_order);
 	SlotMakeForm(slots, DECLARATIONS, generic_declarations);
 	SlotMakeForm(slots, METHOD_COMBINATION, generic_method_combination);
+	SlotMakeForm(slots, DOCUMENTATION, generic_documentation);
 	SlotMakeName(slots, EQLCHECK, generic_eqlcheck);
 	SlotMakeName(slots, CACHE, generic_cache);
 	SlotMakeName(slots, CALL, generic_call);

@@ -1,6 +1,7 @@
 #ifndef __CONDITION_DEFINE_HEADER__
 #define __CONDITION_DEFINE_HEADER__
 
+#include <stdarg.h>
 #include "constant.h"
 #include "typedef.h"
 #include "type_constant.h"
@@ -138,6 +139,7 @@
 
 #define instance_simple_program_error_ _n(instance_simple_program_error_)
 #define call_simple_program_error_ _n(call_simple_program_error_)
+#define call_simple_program_error_stdarg_ _n(call_simple_program_error_stdarg_)
 #define call_simple_program_error_va_ _n(call_simple_program_error_va_)
 
 #define instance_simple_package_error_ _n(instance_simple_package_error_)
@@ -326,6 +328,7 @@ int call_simple_file_error_va_(Execute ptr, addr pathname, const char *fmt, ...)
 /* simple_program_error */
 int instance_simple_program_error_(addr *ret, addr control, addr args);
 int call_simple_program_error_(Execute ptr, addr control, addr args);
+int call_simple_program_error_stdarg_(Execute ptr, const char *fmt, va_list va);
 int call_simple_program_error_va_(Execute ptr, const char *fmt, ...);
 
 /* simple_control_error */

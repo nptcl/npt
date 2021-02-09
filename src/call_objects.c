@@ -801,6 +801,22 @@ error:
 	return fmte_(":DOCUMENTATION ~S must be a (string) form.", list, NULL);
 }
 
+static int defgeneric_parse_method_combination(addr list, addr *ret)
+{
+	addr pos, check;
+
+	if (! consp_getcons(list, &check, &pos))
+		goto error;
+	if (! symbolp(check))
+		goto error;
+	return Result(ret, list);
+
+error:
+	*ret = Nil;
+	return fmte_(":METHOD-COMBINATION ~S must be a "
+			"(symbol arguments*) form.", list, NULL);
+}
+
 static int defgeneric_parse_generic(addr list, addr *ret)
 {
 	addr name, find, quote;
@@ -880,10 +896,10 @@ static int defgeneric_parse_options(addr name, addr args,
 		/* :method-combination */
 		GetConst(KEYWORD_METHOD_COMBINATION, &check);
 		if (type == check) {
-			comb = tail;
+			Return(defgeneric_parse_method_combination(tail, &comb));
 			continue;
 		}
-		/* :generic-function-class*/
+		/* :generic-function-class */
 		GetConst(KEYWORD_GENERIC_FUNCTION_CLASS, &check);
 		if (type == check) {
 			Return(defgeneric_parse_generic(tail, &gen));
@@ -929,6 +945,36 @@ static void defgeneric_push_quote(addr *ret, addr key, addr value, addr root)
 	defgeneric_push_value(ret, key, value, root);
 }
 
+static int defgeneric_check_function_(addr name)
+{
+	addr check;
+
+	/* name error */
+	if (! function_name_p(name))
+		return fmte_("Invalid function name ~S.", name, NULL);
+
+	/* setf */
+	if (consp(name))
+		return 0;
+
+	/* macro */
+	getmacro_symbol(name, &check);
+	if (check != Unbound) {
+		return call_simple_program_error_va_(NULL,
+				"Cannot make the generic-function because "
+				"~S is a macro-function.", name, NULL);
+	}
+
+	/* special-operator */
+	if (get_special_operator(name)) {
+		return call_simple_program_error_va_(NULL,
+				"Cannot make the generic-function because "
+				"~S is a special operator.", name, NULL);
+	}
+
+	return 0;
+}
+
 int defgeneric_common(addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, order, decl, doc, comb, gen, method, code, key;
@@ -939,11 +985,11 @@ int defgeneric_common(addr form, addr env, addr *ret)
 	if (! consp_getcons(args, &lambda, &args))
 		goto error;
 	/* options */
-	if (! function_name_p(name))
-		return fmte_("Invalid function name ~S.", name, NULL);
 	order = decl = doc = comb = gen = method = code = Nil;
 	Return(defgeneric_parse_options(name, args,
 				&order, &decl, &doc, &comb, &gen, &method, &code));
+	/* check */
+	Return(defgeneric_check_function_(name));
 	/* expand */
 	args = Nil;
 	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &key);
@@ -1434,6 +1480,12 @@ int make_load_form_saving_slots_common(Execute ptr,
 	 */
 	addr alloc, find, call, name;
 	addr set, root, values, x, y;
+
+	/* type check */
+	if (! closp(var)) {
+		*ret1 = *ret2 = Nil;
+		return fmte_("The object ~S must be a clos-object.", var, NULL);
+	}
 
 	/* first */
 	GetConst(COMMON_ALLOCATE_INSTANCE, &alloc);

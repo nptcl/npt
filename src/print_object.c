@@ -121,6 +121,38 @@ int print_structure(Execute ptr, addr stream, addr pos)
 
 
 /*
+ *  generic_function
+ */
+static int method_print_object_generic_function(Execute ptr,
+		addr method, addr next, addr pos, addr stream)
+{
+	addr class_of, call, name;
+
+	Return(clos_class_of_(pos, &class_of));
+	Return(stdget_class_name_(class_of, &class_of));
+	Return(stdget_generic_name_(pos, &call));
+	/* #<CLASS-OF CLASS-NAME> */
+	Return(print_ascii_stream_(stream, "#<"));
+	Return(princ_print(ptr, stream, class_of));
+	Return(write_char_stream_(stream, ' '));
+	GetCallName(call, &name);
+	if (setfp_callname(call)) {
+		Return(print_ascii_stream_(stream, "(SETF "));
+		Return(prin1_print(ptr, stream, name));
+		Return(write_char_stream_(stream, ')'));
+	}
+	else {
+		Return(princ_print(ptr, stream, name));
+	}
+	Return(write_char_stream_(stream, '>'));
+	/* result */
+	setresult_control(ptr, pos);
+
+	return 0;
+}
+
+
+/*
  *  defmethod
  */
 static void method_type_print_object(addr *ret)
@@ -162,6 +194,7 @@ void init_print_object(void)
 	SetPointerType(var4, method_print_object_t);
 	SetPointerType(var4, method_print_object_class);
 	SetPointerType(var4, method_print_object_structure_object);
+	SetPointerType(var4, method_print_object_generic_function);
 }
 
 #define DefMethod_PrintObject(ptr, name, gen, p, c) { \
@@ -173,6 +206,7 @@ static int build_print_object_method_(Execute ptr, addr name, addr gen)
 	DefMethod_PrintObject(ptr, name, gen, t, T);
 	DefMethod_PrintObject(ptr, name, gen, class, CLASS);
 	DefMethod_PrintObject(ptr, name, gen, structure_object, STRUCTURE_OBJECT);
+	DefMethod_PrintObject(ptr, name, gen, generic_function, GENERIC_FUNCTION);
 
 	return 0;
 }

@@ -177,17 +177,25 @@ static int parse_make_load_lambda_body_(addr pos, addr g, addr value, addr *ret)
 
 static int parse_make_load_lambda_(Execute ptr, addr pos, addr init, addr *ret)
 {
-	addr g, lambda;
+	addr g, lambda, declare, ignorable;
 
 	if (init == Nil)
 		return Result(ret, Nil);
 
-	/* (lambda (g) [replace pos -> g]) */
+	/* (lambda (g)
+	 *   (declare (ignorable g))
+	 *   [replace pos -> g])
+	 */
 	Return(make_gensym_(ptr, &g));
 	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+
 	Return(parse_make_load_lambda_body_(pos, g, init, &init));
+	list_heap(&ignorable, ignorable, g, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
 	list_heap(&g, g, NULL);
-	list_heap(ret, lambda, g, init, NULL);
+	list_heap(ret, lambda, g, declare, init, NULL);
 
 	return 0;
 }

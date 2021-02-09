@@ -18,6 +18,8 @@
 #define stdset_generic_declarations_ _n(stdset_generic_declarations_)
 #define stdget_generic_method_combination_ _n(stdget_generic_method_combination_)
 #define stdset_generic_method_combination_ _n(stdset_generic_method_combination_)
+#define stdget_generic_documentation_ _n(stdget_generic_documentation_)
+#define stdset_generic_documentation_ _n(stdset_generic_documentation_)
 #define stdget_generic_eqlcheck_ _n(stdget_generic_eqlcheck_)
 #define stdset_generic_eqlcheck_ _n(stdset_generic_eqlcheck_)
 #define stdget_generic_cache_ _n(stdget_generic_cache_)
@@ -43,6 +45,8 @@
 #define generic_change_ _n(generic_change_)
 #define generic_compute_applicable_methods_ _n(generic_compute_applicable_methods_)
 #define generic_find_method_ _n(generic_find_method_)
+#define get_documentation_function_object_ _n(get_documentation_function_object_)
+#define set_documentation_function_object_ _n(set_documentation_function_object_)
 #define init_clos_generic _n(init_clos_generic)
 
 struct generic_argument {
@@ -65,6 +69,8 @@ int stdget_generic_declarations_(addr pos, addr *ret);
 int stdset_generic_declarations_(addr pos, addr value);
 int stdget_generic_method_combination_(addr pos, addr *ret);
 int stdset_generic_method_combination_(addr pos, addr value);
+int stdget_generic_documentation_(addr pos, addr *ret);
+int stdset_generic_documentation_(addr pos, addr value);
 int stdget_generic_eqlcheck_(addr pos, addr *ret);
 int stdset_generic_eqlcheck_(addr pos, addr value);
 int stdget_generic_cache_(addr pos, addr *ret);
@@ -99,6 +105,10 @@ int generic_compute_applicable_methods_(LocalRoot local,
 		addr gen, addr args, addr *ret);
 int generic_find_method_(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret);
+
+/* documentation */
+int get_documentation_function_object_(addr pos, addr *ret);
+int set_documentation_function_object_(addr pos, addr value);
 
 /* initialize */
 void init_clos_generic(void);

@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "build.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -9,6 +10,21 @@
 #include "package_intern.h"
 #include "sequence.h"
 #include "symbol.h"
+
+/*
+ *  error
+ */
+static int lambda_list_fmte_(const char *fmt, ...)
+{
+	va_list va;
+
+	va_start(va, fmt);
+	Return(call_simple_program_error_stdarg_(NULL, fmt, va));
+	va_end(va);
+
+	return 0;
+}
+
 
 /*
  *  parse
@@ -62,14 +78,22 @@ static int member_ampersand(addr pos, enum AMPERSAND_ARGUMENT ampersand)
 
 static int variable_check_(addr var, enum AMPERSAND_ARGUMENT ampersand)
 {
-	if (var == Nil || var == T)
-		return fmte_("The symbol ~S must not be a constant symbol.", var, NULL);
-	if (! symbolp(var))
-		return fmte_("The variable ~S is not a symbol.", var, NULL);
-	if (GetStatusReadOnly(var))
-		return fmte_("The symbol ~S must not be a constant symbol.", var, NULL);
-	if (member_ampersand(var, ampersand))
-		return fmte_("The symbol ~S don't use in the lambda-list.", var, NULL);
+	if (var == Nil || var == T) {
+		return lambda_list_fmte_("The symbol ~S "
+				"must not be a constant symbol.", var, NULL);
+	}
+	if (! symbolp(var)) {
+		return lambda_list_fmte_("The variable ~S "
+				"is not a symbol.", var, NULL);
+	}
+	if (GetStatusReadOnly(var)) {
+		return lambda_list_fmte_("The symbol ~S "
+				"must not be a constant symbol.", var, NULL);
+	}
+	if (member_ampersand(var, ampersand)) {
+		return lambda_list_fmte_("The symbol ~S "
+				"don't use in the lambda-list.", var, NULL);
+	}
 
 	return 0;
 }
@@ -93,7 +117,7 @@ static int push_varcons_(LocalRoot local,
 	Return(variable_check_(var, ampersand));
 	varcons_data(instance, &data);
 	if (find_list_eq_unsafe(var, data))
-		return fmte_("The variable ~S is already used.", var, NULL);
+		return lambda_list_fmte_("The variable ~S is already used.", var, NULL);
 	pushqueue_local(local, instance, var);
 
 	return 0;
@@ -105,7 +129,7 @@ static int push_namecons_(LocalRoot local, addr instance, addr name)
 
 	varcons_data(instance, &data);
 	if (find_list_eq_unsafe(name, data))
-		return fmte_("The key name ~S is already used.", name, NULL);
+		return lambda_list_fmte_("The key name ~S is already used.", name, NULL);
 	pushqueue_local(local, instance, name);
 
 	return 0;
@@ -116,7 +140,7 @@ static int make_keyword_from_symbol_(addr symbol, addr *ret)
 	addr keyword, package;
 
 	if (! symbolp(symbol))
-		return fmte_("The variable ~S must be a symbol.", symbol, NULL);
+		return lambda_list_fmte_("The variable ~S must be a symbol.", symbol, NULL);
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	GetPackageSymbol(symbol, &package);
 	if (package == keyword)
@@ -150,7 +174,7 @@ static int key_name_values_(addr pos, addr *symbol, addr *name)
 		/* swap (name, symbol) -> (symbol, name). */
 		if (list2_check(pos, name, symbol)) {
 			*symbol = *name = NULL;
-			return fmte_("The variable ~S "
+			return lambda_list_fmte_("The variable ~S "
 					"must be a symbol or (name symbol) list.", pos, NULL);
 		}
 		return 0;
@@ -183,24 +207,29 @@ static int push_varcons_macro_(LocalRoot local, addr instance, addr key)
 	if (! consp(cons)) { \
 		addr __symbol; \
 		GetConst(AMPERSAND_##name, &__symbol); \
-		return fmte_("After ~A parameter don't allow a dot list.", __symbol, NULL); \
+		return lambda_list_fmte_("After ~A " \
+				"parameter don't allow a dot list.", __symbol, NULL); \
 	} \
 	GetCar(cons, &one); \
 }
 
 #define environment_expander(local, instance, envcheck, env, one, cons) { \
 	if (! envcheck) { \
-		return fmte_("&environment don't accept at no top-level argument.", NULL); \
+		return lambda_list_fmte_("&environment don't accept " \
+				"at no top-level argument.", NULL); \
 	} \
 	if (env != Nil) { \
-		return fmte_("&environment must be at once in arguments.", NULL); \
+		return lambda_list_fmte_("&environment must be " \
+				"at once in arguments.", NULL); \
 	} \
 	GetCdr(cons, &cons); \
 	if (cons == Nil) { \
-		return fmte_("&environment parameter must be a one argument.", NULL); \
+		return lambda_list_fmte_("&environment parameter " \
+				"must be a one argument.", NULL); \
 	} \
 	if (! consp(cons)) { \
-		return fmte_("After &environment don't allow a dot list.", NULL); \
+		return lambda_list_fmte_("After &environment " \
+				"don't allow a dot list.", NULL); \
 	} \
 	GetCar(cons, &one); \
 	Return(push_varcons_macro_(local, instance, one)); \
@@ -224,23 +253,23 @@ static int ordinary_opt_default_(addr cons, addr init,
 	if (cons == Nil)
 		goto final;
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	/* (var init) */
 	GetCons(cons, &init, &cons);
 	if (cons == Nil)
 		goto final;
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	/* (var init sup) */
 	GetCons(cons, &sup, &cons);
 	if (sup == Nil) {
-		return fmte_("The supplied variable ~S "
+		return lambda_list_fmte_("The supplied variable ~S "
 				"must not be a constant symbol.", sup, NULL);
 	}
 	if (cons == Nil)
 		goto final;
 	/* (var init sup . error) */
-	return fmte_("Too many argument ~S.", base, NULL);
+	return lambda_list_fmte_("Too many argument ~S.", base, NULL);
 
 final:
 	*retvar = var;
@@ -285,13 +314,13 @@ static int ordinary_aux_(addr cons, addr *retvar, addr *retinit)
 	if (cons == Nil)
 		goto final;
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	/* (var init) */
 	GetCons(cons, &init, &cons);
 	if (cons == Nil)
 		goto final;
 	/* (var init . error) */
-	return fmte_("Too many argument ~S.", base, NULL);
+	return lambda_list_fmte_("Too many argument ~S.", base, NULL);
 
 final:
 	*retvar = var;
@@ -324,10 +353,13 @@ static int lambda_macro_call_(LocalRoot local,
 
 whole_argument:
 	GetCdr(cons, &cons);
-	if (cons == Nil)
-		return fmte_("&whole parameter must be a one argument.", NULL);
-	if (! consp(cons))
-		return fmte_("After &whole parameter don't allow a dot list.", NULL);
+	if (cons == Nil) {
+		return lambda_list_fmte_("&whole parameter must be a one argument.", NULL);
+	}
+	if (! consp(cons)) {
+		return lambda_list_fmte_("After &whole parameter "
+				"don't allow a dot list.", NULL);
+	}
 	GetCar(cons, &one);
 	Return(push_varcons_macro_(local, instance, one));
 	whole = one;
@@ -376,7 +408,7 @@ optional_environment:
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 optional_argument:
 	nextcons_finish_rest(one, cons);
@@ -412,14 +444,14 @@ rest_environment:
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
-		return fmte_("&rest parameter must be a one argument.", NULL);
+		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
 	if (! consp(cons))
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &temp);
 	Return(push_varcons_macro_(local, instance, temp));
 	cons_heap(&rest, temp, one);
@@ -431,7 +463,8 @@ rest_argument:
 		goto aux_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto key_environment;
-	return fmte_("After &rest/&body ~S must be a null or &key arguments.", one, NULL);
+	return lambda_list_fmte_("After &rest/&body ~S "
+			"must be a null or &key arguments.", one, NULL);
 
 key_environment:
 	environment_expander(local, instance, envcheck, env, one, cons);
@@ -440,7 +473,7 @@ key_environment:
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 key_argument:
 	key_p = T;
@@ -470,14 +503,14 @@ allow_argument:
 		goto aux_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto aux_environment;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 aux_environment:
 	environment_expander(local, instance, envcheck, env, one, cons);
 	nextcons_finish_error(one, cons, KEY);
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 aux_argument:
 	nextcons_finish_error(one, cons, AUX);
@@ -494,7 +527,7 @@ aux_loop:
 finish_environment:
 	environment_expander(local, instance, envcheck, env, one, cons);
 	nextcons_finish_error(one, cons, AUX);
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 finish_rest:
 	Return(push_varcons_macro_(local, instance, cons));
@@ -557,7 +590,8 @@ static int generic_function_key_cons_(addr cons, addr *symbol, addr *name)
 		goto final;
 	}
 	/* (var . error) */
-	return fmte_("&key parameter ~S must be at many one arguments.", cons, NULL);
+	return lambda_list_fmte_("&key parameter ~S "
+			"must be at many one arguments.", cons, NULL);
 
 final:
 	return key_name_values_(var, symbol, name);
@@ -580,7 +614,7 @@ static int push_varcons_generic_function_(LocalRoot local,
 	GetCdr(cons, &cons); \
 	if (cons == Nil) goto finish; \
 	if (GetType(cons) != LISPTYPE_CONS) { \
-		return fmte_("Dot list don't allow in this lambda-list.", NULL); \
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL); \
 	} \
 	GetCar(cons, &one); \
 }
@@ -595,7 +629,7 @@ int lambda_generic_function_(LocalRoot local, addr *ret, addr cons)
 	if (cons == Nil)
 		goto finish;
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &one);
 
 var_argument:
@@ -627,15 +661,16 @@ optional_loop:
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
-		return fmte_("&rest parameter must be a one argument.", NULL);
+		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &rest);
 	Return(push_varcons_generic_function_(local, instance, rest));
 	nextcons_finish(one, cons);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
-	return fmte_("After &rest ~S must be a null or &key arguments.", cons, NULL);
+	return lambda_list_fmte_("After &rest ~S "
+			"must be a null or &key arguments.", cons, NULL);
 
 key_argument:
 	key_p = T;
@@ -653,7 +688,7 @@ key_loop:
 allow_argument:
 	allow = T;
 	nextcons_finish(one, cons);
-	return fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
+	return lambda_list_fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 finish:
 	nreverse(&var, var);
@@ -687,14 +722,17 @@ static int specialized_var_cons_(addr cons, addr *retvar, addr *retspec)
 	GetCons(cons, &var, &cons);
 	if (cons == Nil)
 		goto final;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in the argument ~S.", cons, NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("The dot list don't allow "
+				"in the argument ~S.", cons, NULL);
+	}
 	/* (var specializer) */
 	GetCons(cons, &spec, &cons);
 	if (cons == Nil)
 		goto final;
 	/* (var specializer . error) */
-	return fmte_("The variable parameter must be at many two arguments.", NULL);
+	return lambda_list_fmte_("The variable parameter "
+			"must be at many two arguments.", NULL);
 
 final:
 	*retvar = var;
@@ -730,8 +768,10 @@ static int check_specializer_form(addr spec)
 static int specialized_var_(addr cons, addr *var, addr *spec)
 {
 	Return(specialized_var_cons_(cons, var, spec));
-	if (! check_specializer_form(*spec))
-		return fmte_("The parameter ~S don't allow a specializer form.", *spec, NULL);
+	if (! check_specializer_form(*spec)) {
+		return lambda_list_fmte_("The parameter ~S "
+				"don't allow a specializer form.", *spec, NULL);
+	}
 
 	return 0;
 }
@@ -747,7 +787,7 @@ int lambda_specialized_(LocalRoot local, addr *ret, addr cons)
 	if (cons == Nil)
 		goto finish;
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &one);
 
 var_argument:
@@ -788,9 +828,9 @@ optional_loop:
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
-		return fmte_("&rest parameter must be a one argument.", NULL);
+		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &rest);
 	Return(push_varcons_ordinary_(local, instance, rest));
 	nextcons_finish(one, cons);
@@ -798,7 +838,8 @@ rest_argument:
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("After &rest ~S must be a null or &key arguments.", cons, NULL);
+	return lambda_list_fmte_("After &rest ~S "
+			"must be a null or &key arguments.", cons, NULL);
 
 key_argument:
 	key_p = T;
@@ -823,7 +864,7 @@ allow_argument:
 	nextcons_finish(one, cons);
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
+	return lambda_list_fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 aux_argument:
 	nextcons_finish(one, cons);
@@ -859,7 +900,7 @@ static int lambda_ordinary_g_(LocalRoot local, addr *ret, addr cons, addr g)
 	if (cons == Nil)
 		goto finish;
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &one);
 
 var_argument:
@@ -898,9 +939,9 @@ optional_loop:
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
-		return fmte_("&rest parameter must be a one argument.", NULL);
+		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
 	if (GetType(cons) != LISPTYPE_CONS)
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &rest);
 	Return(push_varcons_ordinary_(local, instance, rest));
 	nextcons_finish(one, cons);
@@ -908,7 +949,8 @@ rest_argument:
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("After &rest ~S must be a null or &key arguments.", cons, NULL);
+	return lambda_list_fmte_("After &rest ~S "
+			"must be a null or &key arguments.", cons, NULL);
 
 key_argument:
 	key_p = T;
@@ -933,7 +975,7 @@ allow_argument:
 	nextcons_finish(one, cons);
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
-	return fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
+	return lambda_list_fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 aux_argument:
 	nextcons_finish(one, cons);
@@ -965,12 +1007,17 @@ int lambda_ordinary_(LocalRoot local, addr *ret, addr cons)
  */
 static int variable_check_defsetf_(addr var)
 {
-	if (var == Nil || var == T)
-		return fmte_("The symbol ~S must not be a constant symbol.", var, NULL);
-	if (! symbolp(var))
-		return fmte_("The variable ~S is not a symbol.", var, NULL);
-	if (GetStatusReadOnly(var))
-		return fmte_("The symbol ~S must not be a constant symbol.", var, NULL);
+	if (var == Nil || var == T) {
+		return lambda_list_fmte_("The symbol ~S "
+				"must not be a constant symbol.", var, NULL);
+	}
+	if (! symbolp(var)) {
+		return lambda_list_fmte_("The variable ~S is not a symbol.", var, NULL);
+	}
+	if (GetStatusReadOnly(var)) {
+		return lambda_list_fmte_("The symbol ~S "
+				"must not be a constant symbol.", var, NULL);
+	}
 	if (constant_eq(CONSTANT_AMPERSAND_OPTIONAL, var))
 		return 0;
 	if (constant_eq(CONSTANT_AMPERSAND_REST, var))
@@ -990,7 +1037,7 @@ static int variable_check_defsetf_(addr var)
 	return 0;
 
 error:
-	return fmte_("The symbol ~S don't use in defsetf.", var, NULL);
+	return lambda_list_fmte_("The symbol ~S don't use in defsetf.", var, NULL);
 }
 
 static int push_varcons_defsetf_(LocalRoot local, addr instance, addr var)
@@ -1000,7 +1047,7 @@ static int push_varcons_defsetf_(LocalRoot local, addr instance, addr var)
 	Return(variable_check_defsetf_(var));
 	varcons_data(instance, &data);
 	if (find_list_eq_unsafe(var, data))
-		return fmte_("The variable ~S is already used.", var, NULL);
+		return lambda_list_fmte_("The variable ~S is already used.", var, NULL);
 	pushqueue_local(local, instance, var);
 
 	return 0;
@@ -1008,14 +1055,14 @@ static int push_varcons_defsetf_(LocalRoot local, addr instance, addr var)
 
 #define environment_expander_defsetf(local, instance, env, one, cons) { \
 	if (env != Nil) { \
-		return fmte_("&environment must be at once in arguments.", NULL); \
+		return lambda_list_fmte_("&environment must be at once in arguments.", NULL); \
 	} \
 	GetCdr(cons, &cons); \
 	if (cons == Nil) { \
-		return fmte_("&environment parameter must be a one argument.", NULL); \
+		return lambda_list_fmte_("&environment parameter must be a one argument.", NULL); \
 	} \
 	if (! consp(cons)) { \
-		return fmte_("After &environment don't allow a dot list.", NULL); \
+		return lambda_list_fmte_("After &environment don't allow a dot list.", NULL); \
 	} \
 	GetCar(cons, &one); \
 	Return(push_varcons_defsetf_(local, instance, one)); \
@@ -1033,7 +1080,7 @@ int lambda_defsetf_(LocalRoot local, addr *ret, addr cons)
 	if (cons == Nil)
 		goto finish;
 	if (! consp(cons))
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &one);
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto var_environment;
@@ -1066,7 +1113,7 @@ optional_environment:
 		goto rest_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 optional_argument:
 	nextcons_finish(one, cons);
@@ -1094,14 +1141,14 @@ rest_environment:
 		goto rest_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
-		return fmte_("&rest parameter must be a one argument.", NULL);
+		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
 	if (! consp(cons))
-		return fmte_("Dot list don't allow in this lambda-list.", NULL);
+		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
 	GetCar(cons, &rest);
 	Return(push_varcons_defsetf_(local, instance, rest));
 	nextcons_finish(one, cons);
@@ -1109,14 +1156,15 @@ rest_argument:
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto key_environment;
-	return fmte_("After &rest/&body ~S must be a null or &key arguments.", one, NULL);
+	return lambda_list_fmte_("After &rest/&body ~S "
+			"must be a null or &key arguments.", one, NULL);
 
 key_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
 	nextcons_finish(one, cons);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 key_argument:
 	key_p = T;
@@ -1141,12 +1189,12 @@ allow_argument:
 	nextcons_finish(one, cons);
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto finish_environment;
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 finish_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
 	nextcons_finish(one, cons);
-	return fmte_("Invalid ~A argument.", one, NULL);
+	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 finish:
 	nreverse(&var, var);
@@ -1170,11 +1218,11 @@ int define_modify_macro_heap_(LocalRoot local, addr *ret, addr *rest, addr list)
 	Return(argument_ordinary_heap_(local, &pos, list));
 	str = ArgumentStruct(pos);
 	if (str->keyp) {
-		return fmte_("Don't use &key arguments "
+		return lambda_list_fmte_("Don't use &key arguments "
 				"in define-modify-macro lambda list ~S.", list, NULL);
 	}
 	if (str->aux) {
-		return fmte_("Don't use &aux arguments "
+		return lambda_list_fmte_("Don't use &aux arguments "
 				"in define-modify-macro lambda list ~S.", list, NULL);
 	}
 
@@ -1401,7 +1449,7 @@ int argument_combination_heap_(LocalRoot local, addr *ret, addr list)
 	if (a != check)
 		goto ordinary;
 	if (! consp(b))
-		return fmte_("There is no variable after &whole.", NULL);
+		return lambda_list_fmte_("There is no variable after &whole.", NULL);
 	GetCons(b, &whole, &list);
 	Return(variable_check_(whole, AMPERSAND_ORDINARY));
 

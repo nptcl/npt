@@ -508,6 +508,221 @@
     (values)))
 
 
+;;
 ;;  Standard Generic Function MAKE-LOAD-FORM
+;;
+(deftest-error make-load-form.1
+  (progn
+    (defclass make-load-form-1 () (aaa bbb ccc))
+    (make-load-form
+      (make-instance 'make-load-form-1))))
+
+(deftest make-load-form.2
+  (progn
+    (defmethod make-load-form ((inst make-load-form-1) &optional env)
+      (declare (ignore inst env))
+      (values :hello :second))
+    (make-load-form
+      (make-instance 'make-load-form-1)))
+  :hello :second)
+
+(deftest-error make-load-form.3
+  (progn
+    (defstruct make-load-form-2 aaa bbb ccc)
+    (make-load-form
+      (make-instance 'make-load-form-2))))
+
+(deftest make-load-form.4
+  (progn
+    (defmethod make-load-form ((inst make-load-form-2) &optional env)
+      (declare (ignore inst env))
+      (values :hello :second))
+    (make-load-form
+      (make-instance 'make-load-form-2)))
+  :hello :second)
+
+(deftest make-load-form.5
+  (progn
+    (defclass make-load-form-3 () (aaa bbb ccc))
+    (defmethod make-load-form ((inst make-load-form-3) &optional env)
+      (make-load-form-saving-slots inst :environment env))
+    (multiple-value-bind (x y) (make-load-form
+                                 (make-instance 'make-load-form-3))
+      (values (consp x) (consp y))))
+  t t)
+
+(defvar *make-load-form-result*)
+(deftest make-load-form.6
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (makunbound '*make-load-form-result*)
+      (with-open-file (stream input :direction :output)
+        (princ
+          "(setq *make-load-form-result* #.(make-instance 'make-load-form-1))"
+          stream))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (file-position output :start)
+      (load output :type :fasl)
+      (eq *make-load-form-result* :hello)))
+  t)
+
+(deftest make-load-form.7
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (makunbound '*make-load-form-result*)
+      (with-open-file (stream input :direction :output)
+        (princ
+          "(setq *make-load-form-result* #.(make-instance 'make-load-form-3))"
+          stream))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (file-position output :start)
+      (load output :type :fasl)
+      (typep *make-load-form-result* 'make-load-form-3)))
+  t)
+
+(deftest make-load-form.8
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (makunbound '*make-load-form-result*)
+      (defstruct make-load-form-4 aaa bbb ccc)
+      (defmethod make-load-form ((inst make-load-form-4) &optional env)
+        (make-load-form-saving-slots inst :environment env))
+      (with-open-file (stream input :direction :output)
+        (princ
+          "(setq *make-load-form-result* #.(make-make-load-form-4))"
+          stream))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (file-position output :start)
+      (load output :type :fasl)
+      (typep *make-load-form-result* 'make-load-form-4)))
+  t)
+
+(deftest make-load-form.9
+  (equal (make-load-form (find-class 'make-load-form-1))
+         '(find-class (quote make-load-form-1)))
+  t)
+
+(deftest make-load-form.10
+  (equal (make-load-form (find-class 'program-error))
+         '(find-class (quote program-error)))
+  t)
+
+;;  ANSI Common Lisp
+(deftest make-load-form-test.1
+  (progn
+    (defclass make-load-form-test-obj ()
+      ((x :initarg :x :reader obj-x)
+       (y :initarg :y :reader obj-y)
+       (dist :accessor make-load-form-test-obj-dist)))
+    (values)))
+
+(deftest make-load-form-test.2
+  (progn
+    (defmethod shared-initialize :after
+      ((self make-load-form-test-obj) slot-names &rest keys)
+      (declare (ignore slot-names keys))
+      (unless (slot-boundp self 'dist)
+        (setf (make-load-form-test-obj-dist self)
+              (sqrt (+ (expt (obj-x self) 2) (expt (obj-y self) 2))))))
+    (values)))
+
+(deftest make-load-form-test.3
+  (progn
+    (defmethod make-load-form
+      ((self make-load-form-test-obj) &optional environment)
+      (declare (ignore environment))
+      `(make-instance ',(class-name (class-of self))
+                      :x ',(obj-x self) :y ',(obj-y self)))
+    (values)))
+
+(deftest make-load-form-test.4
+  (let ((obj1 (make-instance 'make-load-form-test-obj :x 3.0 :y 4.0)))
+    (values
+      (make-load-form-test-obj-dist obj1)
+      (make-load-form obj1)))
+  5.0
+  (make-instance 'make-load-form-test-obj :x '3.0 :y '4.0))
+
+
+;;
 ;;  Function MAKE-LOAD-FORM-SAVING-SLOTS
+;;
+(deftest make-load-form-saving-slots.1
+  (progn
+    (defclass make-load-form-saving-slots-1 () (aaa bbb ccc))
+    (multiple-value-bind (x y)
+      (make-load-form-saving-slots
+        (make-instance 'make-load-form-saving-slots-1))
+      (values (consp x) (consp y))))
+  t t)
+
+(deftest make-load-form-saving-slots.2
+  (progn
+    (defclass make-load-form-saving-slots-1 () (aaa bbb ccc))
+    (multiple-value-bind (x y)
+      (make-load-form-saving-slots
+        (make-instance 'make-load-form-saving-slots-1)
+        :slot-names '(aaa))
+      (values (consp x) (consp y))))
+  t t)
+
+(defvar *make-load-form-saving-slots-result*)
+(deftest make-load-form-saving-slots.3
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (makunbound '*make-load-form-saving-slots-result*)
+      (defclass make-load-form-saving-slots-2 ()
+        ((aaa :initform 10)
+         (bbb :initform 20)
+         (ccc :initform 30)))
+      (defmethod make-load-form ((inst make-load-form-saving-slots-2) &optional env)
+        (make-load-form-saving-slots inst :environment env))
+      (with-open-file (stream input :direction :output)
+        (princ "(setq *make-load-form-saving-slots-result*" stream)
+        (princ "   #.(make-instance 'make-load-form-saving-slots-2))" stream))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (file-position output :start)
+      (load output :type :fasl)
+      (values
+        (slot-value *make-load-form-saving-slots-result* 'aaa)
+        (slot-value *make-load-form-saving-slots-result* 'bbb)
+        (slot-value *make-load-form-saving-slots-result* 'ccc))))
+  10 20 30)
+
+(deftest make-load-form-saving-slots.4
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (makunbound '*make-load-form-saving-slots-result*)
+      (defclass make-load-form-saving-slots-3 ()
+        ((aaa :initform 10)
+         (bbb :initform 20)
+         (ccc :initform 30)))
+      (defmethod make-load-form ((inst make-load-form-saving-slots-3) &optional env)
+        (make-load-form-saving-slots
+          inst :slot-names '(bbb ccc) :environment env))
+      (with-open-file (stream input :direction :output)
+        (princ "(setq *make-load-form-saving-slots-result*" stream)
+        (princ "   #.(make-instance 'make-load-form-saving-slots-3))" stream))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (file-position output :start)
+      (load output :type :fasl)
+      (values
+        (slot-boundp *make-load-form-saving-slots-result* 'aaa)
+        (slot-value *make-load-form-saving-slots-result* 'bbb)
+        (slot-value *make-load-form-saving-slots-result* 'ccc))))
+  nil 20 30)
+
+(deftest-error! make-load-form-saving-slots-error.1
+  (eval '(make-load-form-saving-slots)))
+
+(deftest-error make-load-form-saving-slots-error.2
+  (eval '(make-load-form-saving-slots 10)))
+
+(deftest-error make-load-form-saving-slots-error.3
+  (eval '(make-load-form-saving-slots (find-class 'class) :hello)))
 

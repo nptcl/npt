@@ -982,6 +982,7 @@ enum pointer_index {
 	p_method_print_object_t,
 	p_method_print_object_class,
 	p_method_print_object_structure_object,
+	p_method_print_object_generic_function,
 	p_formatter_call_common,
 	/* common-reader */
 	p_defun_copy_readtable,

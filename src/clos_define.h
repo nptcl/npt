@@ -50,6 +50,7 @@ enum Clos_generic_Index {
 	Clos_generic_argument_precedence_order,
 	Clos_generic_declarations,
 	Clos_generic_method_combination,
+	Clos_generic_documentation,
 	Clos_generic_eqlcheck,
 	Clos_generic_cache,
 	Clos_generic_call,

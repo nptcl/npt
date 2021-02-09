@@ -1,4 +1,5 @@
 #include "callname.h"
+#include "clos_generic.h"
 #include "code_lambda.h"
 #include "condition.h"
 #include "cons.h"
@@ -174,8 +175,7 @@ int lambda_doc_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
-	setdocumentation_function(pos, x.pos);
-	return 0;
+	return set_documentation_function_object_(pos, x.pos);
 }
 
 int lambda_form_code(Execute ptr, CodeValue x)
