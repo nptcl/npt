@@ -14,6 +14,7 @@
 #define type_value_bitvector _n(type_value_bitvector)
 #define type_value_float _n(type_value_float)
 #define type_value_complex_ _n(type_value_complex_)
+#define type_value_package _n(type_value_package)
 #define type_value_random_state _n(type_value_random_state)
 #define type_value_pathname _n(type_value_pathname)
 #define type_value_environment _n(type_value_environment)
@@ -36,6 +37,7 @@ void type_value_rational(addr *ret, addr value);
 void type_value_bitvector(addr *ret, addr value);
 void type_value_float(addr *ret, addr value);
 int type_value_complex_(addr *ret, addr value);
+void type_value_package(addr *ret, addr value);
 void type_value_random_state(addr *ret, addr value);
 void type_value_pathname(addr *ret, addr value);
 void type_value_environment(addr *ret, addr value);

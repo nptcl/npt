@@ -66,3 +66,29 @@
         do (return b))
   10)
 
+(deftest loop-error.2
+  (loop for i from 0 to 5
+        append (list 8 9)
+        collect i)
+  (8 9 0 8 9 1 8 9 2 8 9 3 8 9 4 8 9 5))
+
+(deftest loop-error.3
+  (loop for i from 0 to 5
+        nconc (list 8 9)
+        collect i)
+  (8 9 0 8 9 1 8 9 2 8 9 3 8 9 4 8 9 5))
+
+(deftest loop-error.4
+  (loop for i from 0 to 5
+        append (list 8 9) into x
+        collect i into x
+        finally (return x))
+  (8 9 0 8 9 1 8 9 2 8 9 3 8 9 4 8 9 5))
+
+(deftest loop-error.5
+  (loop for i from 0 to 5
+        nconc (list 8 9) into x
+        collect i into x
+        finally (return x))
+  (8 9 0 8 9 1 8 9 2 8 9 3 8 9 4 8 9 5))
+

@@ -2475,6 +2475,7 @@ void init_code_make(void)
 	CodeMakeTable[EVAL_PARSE_SYMBOL] = code_make_symbol;
 	CodeMakeTable[EVAL_PARSE_FLOAT] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_DECLAIM] = code_make_declaim;
+	CodeMakeTable[EVAL_PARSE_PACKAGE] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_RANDOM_STATE] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_PATHNAME] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_ENVIRONMENT] = code_make_value;

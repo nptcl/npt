@@ -2083,6 +2083,10 @@ static int parse_switch_(Execute ptr, addr *ret, addr pos)
 			eval_single_parse_heap(ret, EVAL_PARSE_FUNCTION, pos);
 			break;
 
+		case LISPTYPE_PACKAGE:
+			eval_single_parse_heap(ret, EVAL_PARSE_PACKAGE, pos);
+			break;
+
 		case LISPTYPE_RANDOM_STATE:
 			eval_single_parse_heap(ret, EVAL_PARSE_RANDOM_STATE, pos);
 			break;

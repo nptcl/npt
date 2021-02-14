@@ -172,6 +172,18 @@ static int scope_declaim(Execute ptr, addr *ret, addr eval)
 }
 
 
+/* package */
+static int scope_package(Execute ptr, addr *ret, addr eval)
+{
+	addr type;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	type_value_package(&type, eval);
+	return make_eval_scope_(ptr, ret, EVAL_PARSE_PACKAGE, type, eval);
+}
+
+
 /* random-state */
 static int scope_random_state(Execute ptr, addr *ret, addr eval)
 {
@@ -848,6 +860,7 @@ void init_scope_function(void)
 	EvalScopeTable[EVAL_PARSE_SYMBOL] = scope_symbol;
 	EvalScopeTable[EVAL_PARSE_FLOAT] = scope_float;
 	EvalScopeTable[EVAL_PARSE_DECLAIM] = scope_declaim;
+	EvalScopeTable[EVAL_PARSE_PACKAGE] = scope_package;
 	EvalScopeTable[EVAL_PARSE_RANDOM_STATE] = scope_random_state;
 	EvalScopeTable[EVAL_PARSE_PATHNAME] = scope_pathname;
 	EvalScopeTable[EVAL_PARSE_ENVIRONMENT] = scope_environment;

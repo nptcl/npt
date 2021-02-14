@@ -372,9 +372,14 @@ static int type_value_function_(addr *ret, addr value)
 }
 
 /* package */
-static int type_value_package_(addr *ret, addr value)
+void type_value_package(addr *ret, addr value)
 {
 	GetTypeTable(ret, Package);
+}
+
+static int type_value_package_(addr *ret, addr value)
+{
+	type_value_package(ret, value);
 	return 0;
 }
 

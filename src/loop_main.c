@@ -210,33 +210,39 @@ static int loop_main_collect_(Execute ptr, addr list)
  */
 static int loop_main_append_nointo_(Execute ptr, addr form)
 {
-	addr setq, function_loop, lambda, apply, function_symbol, append, nreverse;
-	addr push, value_loop, g, x, y;
+	addr setq, function_loop, function_symbol, nreverse;
+	addr do_symbol, car, cdr, null, push;
+	addr value_loop, g, x, y, z;
 
-	/* `(setq function-loop
-	 *    (lambda (g)
-	 *      (apply (function append) (nreverse g))))
-	 */
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(SYSTEM_FUNCTION_LOOP, &function_loop);
-	GetConst(COMMON_LAMBDA, &lambda);
-	GetConst(COMMON_APPLY, &apply);
 	GetConst(COMMON_FUNCTION, &function_symbol);
-	GetConst(COMMON_APPEND, &append);
 	GetConst(COMMON_NREVERSE, &nreverse);
+	GetConst(COMMON_DO, &do_symbol);
+	GetConst(COMMON_CAR, &car);
+	GetConst(COMMON_CDR, &cdr);
+	GetConst(COMMON_NULL, &null);
 	GetConst(COMMON_PUSH, &push);
 	GetConst(SYSTEM_VALUE_LOOP, &value_loop);
-	make_symbolchar(&g, "X");
 
-	list_heap(&x, function_symbol, append, NULL);
-	list_heap(&y, nreverse, g, NULL);
-	list_heap(&x, apply, x, y, NULL);
-	list_heap(&g, g, NULL);
-	list_heap(&x, lambda, g, x, NULL);
+	/* `(setq function-loop (function nreverse)) */
+	list_heap(&x, function_symbol, nreverse, NULL);
 	list_heap(&x, setq, function_loop, x, NULL);
 	Return(push_init_loop_(ptr, x));
-	/* `(push ,form value-loop) */
-	list_heap(&x, push, form, value_loop, NULL);
+
+	/* `(do ((x ,form (cdr x)))
+	 *    ((null x))
+	 *    (push (car x) value-loop))
+	 */
+	make_symbolchar(&g, "X");
+	list_heap(&x, cdr, g, NULL);
+	list_heap(&x, g, form, x, NULL);
+	list_heap(&x, x, NULL);
+	list_heap(&y, null, g, NULL);
+	list_heap(&y, y, NULL);
+	list_heap(&z, car, g, NULL);
+	list_heap(&z, push, z, value_loop, NULL);
+	list_heap(&x, do_symbol, x, y, z, NULL);
 	return push_form_loop_(ptr, x);
 }
 
@@ -271,33 +277,23 @@ static int loop_main_append_(Execute ptr, addr list)
  */
 static int loop_main_nconc_nointo_(Execute ptr, addr form)
 {
-	addr setq, function_loop, lambda, apply, function_symbol, nconc, nreverse;
-	addr push, value_loop, g, x, y;
+	addr setq, function_loop, function_symbol, nreverse, nreconc, value_loop, x;
 
-	/* `(setq function-loop
-	 *    (lambda (g)
-	 *      (apply (function nconc) (nreverse g))))
-	 */
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(SYSTEM_FUNCTION_LOOP, &function_loop);
-	GetConst(COMMON_LAMBDA, &lambda);
-	GetConst(COMMON_APPLY, &apply);
 	GetConst(COMMON_FUNCTION, &function_symbol);
-	GetConst(COMMON_NCONC, &nconc);
 	GetConst(COMMON_NREVERSE, &nreverse);
-	GetConst(COMMON_PUSH, &push);
+	GetConst(COMMON_NRECONC, &nreconc);
 	GetConst(SYSTEM_VALUE_LOOP, &value_loop);
-	make_symbolchar(&g, "X");
 
-	list_heap(&x, function_symbol, nconc, NULL);
-	list_heap(&y, nreverse, g, NULL);
-	list_heap(&x, apply, x, y, NULL);
-	list_heap(&g, g, NULL);
-	list_heap(&x, lambda, g, x, NULL);
+	/* `(setq function-loop (function nreverse)) */
+	list_heap(&x, function_symbol, nreverse, NULL);
 	list_heap(&x, setq, function_loop, x, NULL);
 	Return(push_init_loop_(ptr, x));
-	/* `(push ,form value-loop) */
-	list_heap(&x, push, form, value_loop, NULL);
+
+	/* `(setq value-loop (nreconc ,form value-loop)) */
+	list_heap(&x, nreconc, form, value_loop, NULL);
+	list_heap(&x, setq, value_loop, x, NULL);
 	return push_form_loop_(ptr, x);
 }
 

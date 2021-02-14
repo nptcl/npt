@@ -943,6 +943,7 @@ void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_SYMBOL] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_FLOAT] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_FUNCTION] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_PACKAGE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_RANDOM_STATE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_PATHNAME] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_ENVIRONMENT] = copy_eval_single;

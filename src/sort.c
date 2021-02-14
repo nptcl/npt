@@ -1,10 +1,15 @@
+#include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control_execute.h"
 #include "sequence.h"
 #include "sort.h"
 
-#define LISP_MERGE_SORT_LIMIT 16
+#ifdef LISP_DEBUG
+#define LISP_SORT_LIMIT 2
+#else
+#define LISP_SORT_LIMIT 16
+#endif
 
 
 /*
@@ -282,14 +287,46 @@ int bubble_sort_sequence_(Execute ptr, addr pos, addr call, addr key)
 /*
  *  quick-sort
  */
+static int quick_sort_list_length_sequence_(addr p1, addr p2, addr *ret, size_t *rsize)
+{
+	addr x, y, z;
+	size_t i, next;
+
+	next = 1;
+	x = y = z = p1;
+	for (i = 0; p1 != p2; i++) {
+		Return_getcdr(p1, &x);
+		if (next <= i) {
+			z = y; y = p1;
+			next <<= 1ULL;
+			if (next < i)
+				goto error;
+		}
+		p1 = x;
+	}
+	*ret = z;
+	*rsize = i;
+	return 0;
+
+error:
+	*ret = Nil;
+	*rsize = 0;
+	return fmte_("Too long list.", NULL);
+}
+
 static int quick_sort_list_sequence_(struct sort_struct *str, addr p1, addr p2)
 {
 	int check;
-	addr a2, a3, a4, b1, b2, b3, b4, c1, c5;
+	addr a2, a3, a4, b1, b2, b3, b4, c1, c5, cons;
+	size_t s0;
 
 	/* initialize */
-	if (p1 == p2)
-		return 0;
+	Return(quick_sort_list_length_sequence_(p1, p2, &cons, &s0));
+	if (s0 < LISP_SORT_LIMIT)
+		return simple_sort_list_sequence_(str, p1, p2);
+	swap_list_sort_sequence(p1, cons);
+
+	/* sort */
 	Return_getcons(p1, &a2, &a3);
 	if (a3 == p2)
 		return 0;
@@ -331,12 +368,17 @@ static int quick_sort_vector_sequence_(struct sort_struct *str,
 {
 	int check;
 	addr a2, a4, b2, b4;
-	size_t a3, b1, c1, c5;
+	size_t a3, b1, c1, c5, s0;
 
-	/* initialize */
+	/* simple-sort */
 	Check(p2 < p1, "index error");
-	if ((p2 - p1) <= 1)
-		return 0;
+	s0 = (p2 - p1);
+	if (s0 < LISP_SORT_LIMIT)
+		return simple_sort_vector_sequence_(str, pos, p1, p2);
+
+	/* sort */
+	s0 = p1 + (s0 / 2);
+	Return(swap_vector_sort_sequence_(pos, p1, s0));
 	Return(getelt_sequence_(NULL, pos, p1, &a2));
 	Return(key_sort_sequence_(str, &a4, a2));
 	c1 = a3 = p1 + 1;
@@ -482,7 +524,7 @@ static int merge_sort_list_sequence_(struct sort_struct *str,
 	LocalStack stack;
 
 	/* bubble-sort */
-	if (s0 < LISP_MERGE_SORT_LIMIT)
+	if (s0 < LISP_SORT_LIMIT)
 		return bubble_sort_list_sequence_(str, a, c);
 
 	/* index */
@@ -595,7 +637,7 @@ static int merge_sort_vector_sequence_(struct sort_struct *str,
 	/* bubble-sort */
 	Check(c < a, "index error");
 	s0 = c - a;
-	if (s0 < LISP_MERGE_SORT_LIMIT)
+	if (s0 < LISP_SORT_LIMIT)
 		return bubble_sort_vector_sequence_(str, pos, a, c);
 
 	/* index */

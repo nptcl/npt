@@ -250,6 +250,7 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 {
 	switch (type) {
 		case EVAL_PARSE_EMPTY:					return "empty";
+		/* constant */
 		case EVAL_PARSE_NIL:					return "nil";
 		case EVAL_PARSE_T:						return "t";
 		case EVAL_PARSE_CLOS:					return "clos";
@@ -265,8 +266,11 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 		case EVAL_PARSE_FLOAT:					return "float";
 		case EVAL_PARSE_DECLAIM:				return "declaim";
 		case EVAL_PARSE_PATHNAME:				return "pathname";
+		case EVAL_PARSE_PACKAGE:				return "package";
+		case EVAL_PARSE_RANDOM_STATE:			return "random-state";
 		case EVAL_PARSE_ENVIRONMENT:			return "environment";
 		case EVAL_PARSE_LEXICAL:				return "lexical";
+		/* cons */
 		case EVAL_PARSE_PROGN:					return "progn";
 		case EVAL_PARSE_LET:					return "let";
 		case EVAL_PARSE_LETA:					return "let*";
@@ -304,6 +308,7 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 		case EVAL_PARSE_NTH_VALUE:				return "nth-value";
 		case EVAL_PARSE_PROGV:					return "progv";
 		case EVAL_PARSE_LOAD_TIME_VALUE:		return "load-time-value";
+		case EVAL_PARSE_STEP:					return "step";
 		default:								return "invalid";
 	}
 }

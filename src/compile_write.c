@@ -170,8 +170,11 @@ int faslwrite_value(Execute ptr, addr stream, addr pos)
 	type = GetType(pos);
 	Check(LISPTYPE_COMPILE <= type, "type error");
 	call = FaslWrite_Value[type];
-	if (call == NULL)
+	if (call == NULL) {
+		infobit(pos);
+		infoprint(pos);
 		return fmte_("Cannot compile the value ~S.", pos, NULL);
+	}
 
 	return (*call)(ptr, stream, pos);
 }

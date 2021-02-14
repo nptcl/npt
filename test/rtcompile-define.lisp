@@ -395,3 +395,12 @@
     *result*)
   t)
 
+
+;;
+;;  define-compiler-macro
+;;
+'(deftest compile-define-compiler-macro.1
+   (expr-compile
+     (define-symbol-macro *cl-package* (find-package "COMMON-LISP")))
+   *cl-package*)
+
