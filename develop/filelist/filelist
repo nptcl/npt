@@ -202,6 +202,7 @@ localtime.c
 loop_bind.c
 loop_main.c
 loop_parse.c
+loop_special.c
 loop_symbol.c
 loop_variables.c
 loop.c

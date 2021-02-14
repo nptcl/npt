@@ -20,36 +20,9 @@
 #include "reader.h"
 #include "stream.h"
 
-enum QuoteType {
-	QuoteType_Back,
-	QuoteType_Comma,
-	QuoteType_AtSign,
-	QuoteType_Dot,
-	QuoteExecute_Quote,
-	QuoteExecute_Append,
-	QuoteExecute_Nconc,
-	QuoteExecute_List,
-	QuoteExecute_Lista,
-	QuoteExecute_Clobberable,
-	QuoteType_Size
-};
-
-enum QuoteIndex {
-	QuoteIndex_Value,
-	QuoteIndex_Print,
-	QuoteIndex_Size
-};
-
-#define RefQuote			RefArrayA2
-#define GetQuote			GetArrayA2
-#define SetQuote			SetArrayA2
-#define RefQuoteType(x)		((enum QuoteType)GetUser(x))
-#define GetQuoteType(x,v)	(*(v) = (enum QuoteType)GetUser(x))
-#define SetQuoteType(x,v)	SetUser((x), (byte)(v))
-
 static int bq_simplify_p = 1;
 
-static void quote2_heap(addr *ret, enum QuoteType type, addr value, addr print)
+void quote2_heap(addr *ret, enum QuoteType type, addr value, addr print)
 {
 	addr pos;
 

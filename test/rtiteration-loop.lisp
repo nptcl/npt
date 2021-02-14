@@ -56,3 +56,13 @@
         do (return-from hello 100))
   100)
 
+
+;;
+;;  error
+;;
+(deftest loop-error.1
+  (loop for a in '(10)
+        for b = a
+        do (return b))
+  10)
+

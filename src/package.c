@@ -169,7 +169,7 @@ static int intern_common_constant_(addr package, const char *str, addr symbol)
 	SetStatusValue(symbol, LISPSTATUS_READONLY, 0);
 	SetPackageSymbol(symbol, package);
 	SetStatusValue(symbol, LISPSTATUS_READONLY, 1);
-	return export_package_(package, symbol);
+	return symbol_export_package_(package, symbol);
 }
 
 static int intern_common_default_(void)

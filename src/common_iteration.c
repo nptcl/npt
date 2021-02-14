@@ -95,10 +95,8 @@ static void defmacro_dolist(void)
 /* (defmacro loop (&rest args) ...) */
 static int function_loop(Execute ptr, addr form, addr env)
 {
-	Return_getcdr(form, &form);
-	Return(loop_common(ptr, &form, form));
+	Return(loop_common_(ptr, &form, form));
 	setresult_control(ptr, form);
-
 	return 0;
 }
 

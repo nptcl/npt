@@ -597,6 +597,7 @@ static int subtypep_reduce_or_all_(Execute ptr, addr pos, addr *value, int *ret)
 	return subtypep_reduce_vector_all_(ptr, pos, value, ret, LISPDECL_OR);
 }
 
+
 /* (or) -> nil */
 static int subtypep_reduce_or1_p_(Execute ptr, addr pos, int *ret)
 {

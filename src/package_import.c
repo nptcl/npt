@@ -230,11 +230,11 @@ int import_package_(addr package, addr pos)
 
 	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 			return symbol_import_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_import_package_(package, pos);
 

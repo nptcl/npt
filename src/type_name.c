@@ -153,7 +153,7 @@ int type_name_(addr pos, addr *value)
 	Return(type_name_p_(pos, value, &check));
 	if (check) {
 		*value = Nil;
-		return fmte_("Invalid value, ~A.", pos, NULL);
+		return fmte_("The type ~S don't have a name.", pos, NULL);
 	}
 
 	return 0;

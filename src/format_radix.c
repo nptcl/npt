@@ -591,7 +591,7 @@ static int roma_10_(addr stream, unsigned value, int subp)
 		case 7: ptr = "VII"; break;
 		case 8: ptr = "VIII"; break;
 		case 9: ptr = subp? "VIIII": "IX"; break;
-		default: return fmte_("Invalid value.", NULL);
+		default: return fmte_("Invalid radix value.", NULL);
 	}
 	return print_ascii_stream_(stream, ptr);
 }
@@ -610,7 +610,7 @@ static int roma_100_(addr stream, unsigned value, int subp)
 		case 7: ptr = "LXX"; break;
 		case 8: ptr = "LXXX"; break;
 		case 9: ptr = subp? "LXXXX": "XC"; break;
-		default: return fmte_("Invalid value.", NULL);
+		default: return fmte_("Invalid radix value.", NULL);
 	}
 	return print_ascii_stream_(stream, ptr);
 }
@@ -629,7 +629,7 @@ static int roma_1000_(addr stream, unsigned value, int subp)
 		case 7: ptr = "DCC"; break;
 		case 8: ptr = "DCCC"; break;
 		case 9: ptr = subp? "DCCCC": "CM"; break;
-		default: return fmte_("Invalid value.", NULL);
+		default: return fmte_("Invalid radix value.", NULL);
 	}
 	return print_ascii_stream_(stream, ptr);
 }
@@ -642,7 +642,7 @@ static int roma_4000_(addr stream, unsigned value, int subp)
 		case 1: ptr = "M"; break;
 		case 2: ptr = "MM"; break;
 		case 3: ptr = "MMM"; break;
-		default: return fmte_("Invalid value.", NULL);
+		default: return fmte_("Invalid radix value.", NULL);
 	}
 	return print_ascii_stream_(stream, ptr);
 }

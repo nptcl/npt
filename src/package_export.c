@@ -282,7 +282,7 @@ static int check_export_package_(addr package, addr symbol)
 
 	/* conflict check */
 	Return(test_conflict_export_package_(package, symbol, &pos, &sym));
-	if (pos != Nil)
+	if (pos != Nil && symbol != sym)
 		return restart_conflict_export_package_(package, symbol, pos, sym);
 
 	return 0;
@@ -361,7 +361,7 @@ static int execute_export_package_(addr package, addr symbol)
 	return 0;
 }
 
-static int symbol_export_package_(addr package, addr symbol)
+int symbol_export_package_(addr package, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	Return(check_export_package_(package, symbol));
@@ -407,11 +407,11 @@ int export_package_(addr package, addr pos)
 
 	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 			return symbol_export_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_export_package_(package, pos);
 
@@ -558,11 +558,11 @@ int unexport_package_(addr package, addr pos)
 
 	Return(package_designer_unexport_package_(package, &package));
 	switch (GetType(pos)) {
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 			return symbol_unexport_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_unexport_package_(package, pos);
 

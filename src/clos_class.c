@@ -58,6 +58,24 @@ static int stdset_class_constant_(addr pos, addr value,
 #define StdSetClass_(p,r,a,b) \
 	stdset_class_constant_((p), (r), Clos_class_##a, CONSTANT_CLOSNAME_##b)
 
+void stdget_class_name_check(addr pos, addr *ret)
+{
+	addr key;
+
+	if (GetType(pos) != LISPTYPE_CLOS)
+		goto unbound;
+	GetConstant(CONSTANT_CLOSNAME_NAME, &key);
+	if (! clos_getp(pos, key, &pos))
+		goto unbound;
+	if (pos == Unbound)
+		goto unbound;
+	*ret = pos;
+	return;
+
+unbound:
+	*ret = Unbound;
+}
+
 int stdget_class_name_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, name, NAME);

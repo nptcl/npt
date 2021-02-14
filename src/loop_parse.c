@@ -2,6 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "loop_parse.h"
+#include "loop_special.h"
 #include "loop_symbol.h"
 #include "object.h"
 #include "strtype.h"
@@ -10,7 +11,7 @@
 /*
  *  clause
  */
-static int loop_parse_named_clause_(addr *ret, addr *list)
+static int loop_parse_named_clause_(Execute ptr, addr *ret, addr *list)
 {
 	int check;
 	addr pos, args;
@@ -30,6 +31,7 @@ static int loop_parse_named_clause_(addr *ret, addr *list)
 		return fmte_("NAMED argument ~S must be a symbol type.", pos, NULL);
 
 	/* result */
+	setnamed_loop(ptr, pos);
 	*ret = pos;
 	*list = args;
 	return 0;
@@ -1214,9 +1216,9 @@ static int loop_parse_main_clause_(addr *root, addr *list)
 /*
  *  main
  */
-int loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list)
+int loop_parse_common_(Execute ptr, addr *named, addr *vars, addr *main, addr *list)
 {
-	Return(loop_parse_named_clause_(named, list));
+	Return(loop_parse_named_clause_(ptr, named, list));
 	Return(loop_parse_variable_clause_(ptr, vars, list));
 	Return(loop_parse_main_clause_(main, list));
 	nreverse(vars, *vars);

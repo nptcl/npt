@@ -1,7 +1,6 @@
 #ifndef __LOOP_BIND_HEADER__
 #define __LOOP_BIND_HEADER__
 
-#include "define.h"
 #include "execute.h"
 #include "typedef.h"
 

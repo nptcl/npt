@@ -150,7 +150,7 @@ static int output_type_error_(Execute ptr, addr stream, addr instance)
 		Return(type_object_(&expected, expected));
 	}
 	return format_stream(ptr, stream,
-			"Value ~S must be a ~S type.~%", datum, expected, NULL);
+			"The value ~S must be a ~S type.~%", datum, expected, NULL);
 }
 
 static int output_condition_(Execute ptr, addr stream, addr condition)

@@ -106,7 +106,7 @@ int intern_symbol_header_(void)
 			case COMMON:
 				package = p_common;
 				Return(intern_symbol_package_(package, table, &symbol));
-				Return(export_package_(package, symbol));
+				Return(symbol_export_package_(package, symbol));
 				break;
 
 			case KEYWORD:

@@ -234,6 +234,7 @@ void init_compile_read(void)
 	FaslRead_Table[FaslCode_package] = faslread_value_package;
 	FaslRead_Table[FaslCode_random_state] = faslread_value_random_state;
 	FaslRead_Table[FaslCode_pathname] = faslread_value_pathname;
+	FaslRead_Table[FaslCode_quote] = faslread_value_quote;
 	FaslRead_Table[FaslCode_bitvector] = faslread_value_bitvector;
 	FaslRead_Table[FaslCode_load_time_value] = faslread_value_load_time_value;
 }

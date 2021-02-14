@@ -21,11 +21,31 @@
 /*
  *  t
  */
+static int method_print_clos_name_(Execute ptr, addr stream, addr pos)
+{
+	if (pos == Unbound)
+		goto unbound;
+	if (! closp(pos))
+		goto unbound;
+	stdget_class_name_check(pos, &pos);
+	if (pos == Unbound)
+		goto unbound;
+	return princ_print(ptr, stream, pos);
+unbound:
+	return print_ascii_stream_(stream, "Unbound");
+}
+
+static int method_print_clos_class_of_(Execute ptr, addr stream, addr pos)
+{
+	CheckType(pos, LISPTYPE_CLOS);
+	GetClassOfClos(pos, &pos);
+	return method_print_clos_name_(ptr, stream, pos);
+}
+
 static int method_print_object_t_body(Execute ptr, addr stream, addr pos)
 {
-	Return(clos_class_of_(pos, &pos));
-	Return(stdget_class_name_(pos, &pos));
-	return princ_print(ptr, stream, pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	return method_print_clos_class_of_(ptr, stream, pos);
 }
 
 static int method_print_object_t(Execute ptr,
@@ -44,16 +64,11 @@ static int method_print_object_t(Execute ptr,
 static int method_print_object_class(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	addr class_of, name;
-
-	Return(clos_class_of_(pos, &class_of));
-	Return(stdget_class_name_(class_of, &class_of));
-	Return(stdget_class_name_(pos, &name));
 	/* #<CLASS-OF CLASS-NAME> */
 	Return(print_ascii_stream_(stream, "#<"));
-	Return(princ_print(ptr, stream, class_of));
+	Return(method_print_clos_class_of_(ptr, stream, pos));
 	Return(write_char_stream_(stream, ' '));
-	Return(princ_print(ptr, stream, name));
+	Return(method_print_clos_name_(ptr, stream, pos));
 	Return(write_char_stream_(stream, '>'));
 	/* result */
 	setresult_control(ptr, pos);

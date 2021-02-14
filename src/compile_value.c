@@ -20,6 +20,7 @@
 #include "package_intern.h"
 #include "package_object.h"
 #include "pathname_object.h"
+#include "quote.h"
 #include "random_state.h"
 #include "ratio.h"
 #include "stream.h"
@@ -829,6 +830,43 @@ int faslread_value_pathname(Execute ptr, addr stream, addr *ret)
 	SetVersionPathname(pos, value);
 
 	return Result(ret, pos);
+}
+
+
+/*
+ *  quote
+ */
+int faslwrite_value_quote(Execute ptr, addr stream, addr pos)
+{
+	enum QuoteType type;
+	addr value;
+
+	CheckType(pos, LISPTYPE_QUOTE);
+	Return(faslwrite_type_(stream, FaslCode_quote));
+	/* type */
+	GetQuoteType(pos, &type);
+	Return(faslwrite_byte_(stream, (byte)type));
+	/* value */
+	GetQuote(pos, QuoteIndex_Value, &value);
+	Return(faslwrite_value(ptr, stream, value));
+	/* print */
+	GetQuote(pos, QuoteIndex_Print, &value);
+	Return(faslwrite_value(ptr, stream, value));
+
+	return 0;
+}
+
+int faslread_value_quote(Execute ptr, addr stream, addr *ret)
+{
+	byte type;
+	addr value, print;
+
+	Return(faslread_byte_(stream, &type));
+	Return(faslread_value(ptr, stream, &value));
+	Return(faslread_value(ptr, stream, &print));
+	quote2_heap(ret, (enum QuoteType)type, value, print);
+
+	return 0;
 }
 
 

@@ -44,6 +44,7 @@ enum FaslCode {
 	FaslCode_package,
 	FaslCode_random_state,
 	FaslCode_pathname,
+	FaslCode_quote,
 	FaslCode_bitvector,
 	FaslCode_load_time_value,
 

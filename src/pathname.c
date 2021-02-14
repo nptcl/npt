@@ -193,7 +193,7 @@ int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)
 
 int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
-	addr value, type;
+	addr value;
 	LocalRoot local;
 
 	/* pathname */
@@ -206,11 +206,7 @@ int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	/* stream */
 	if (streamp(pos)) {
 		GetPathnameStream(pos, &value);
-		if (! pathnamep(value)) {
-			GetConst(COMMON_PATHNAME, &type);
-			return call_type_error_va_(ptr, pos, type,
-					"The stream ~S does not have a pathname object.", pos, NULL);
-		}
+		Return(pathname_designer_alloc_(ptr, value, &value, localp));
 		copylocal_object(local, ret, value);
 		return 0;
 	}
@@ -218,11 +214,7 @@ int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	/* string */
 	if (stringp(pos)) {
 		Return(parse_pathname_alloc_(ptr, pos, &value, localp));
-		if (! pathnamep(value)) {
-			GetConst(COMMON_PATHNAME, &type);
-			return call_type_error_va_(ptr, pos, type,
-					"The string ~S is not pathname format.", pos, NULL);
-		}
+		Return(pathname_designer_alloc_(ptr, value, &value, localp));
 		return Result(ret, value);
 	}
 

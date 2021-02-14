@@ -339,7 +339,6 @@ int use_package_(addr package, addr pos)
 	Return(package_designer_use_package_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_CHARACTER:
 		case LISPTYPE_SYMBOL:
@@ -347,6 +346,7 @@ int use_package_(addr package, addr pos)
 		case LISPTYPE_ARRAY:
 			return package_use_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_use_package_(package, pos);
 
@@ -426,7 +426,6 @@ int unuse_package_(addr package, addr pos)
 	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_CHARACTER:
 		case LISPTYPE_SYMBOL:
@@ -434,6 +433,7 @@ int unuse_package_(addr package, addr pos)
 		case LISPTYPE_ARRAY:
 			return execute_unuse_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_unuse_package_(package, pos);
 

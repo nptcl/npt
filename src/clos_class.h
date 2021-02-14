@@ -5,6 +5,7 @@
 #include "local.h"
 #include "typedef.h"
 
+#define stdget_class_name_check _n(stdget_class_name_check)
 #define stdget_class_name_ _n(stdget_class_name_)
 #define stdset_class_name_ _n(stdset_class_name_)
 #define stdget_class_direct_slots_ _n(stdget_class_direct_slots_)
@@ -68,6 +69,7 @@
 #define clos_define_combination_p_debug _n(clos_define_combination_p_debug)
 
 /* access */
+void stdget_class_name_check(addr pos, addr *ret);
 int stdget_class_name_(addr pos, addr *ret);
 int stdset_class_name_(addr pos, addr value);
 int stdget_class_direct_slots_(addr pos, addr *ret);

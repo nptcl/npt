@@ -164,5 +164,76 @@ int loop_symbol_into_p_(addr pos, int *ret);
 int loop_symbol_form_main_p_(addr pos, int *ret);
 int loop_symbol_form_p_(addr pos, int *ret);
 
+/* eq */
+#define loop_symbol_initially_p _n(loop_symbol_initially_p)
+#define loop_symbol_finally_p _n(loop_symbol_finally_p)
+#define loop_symbol_with_p _n(loop_symbol_with_p)
+#define loop_symbol_for_as_p _n(loop_symbol_for_as_p)
+
+#define loop_symbol_do_p _n(loop_symbol_do_p)
+#define loop_symbol_return_p _n(loop_symbol_return_p)
+#define loop_symbol_collect_p _n(loop_symbol_collect_p)
+#define loop_symbol_append_p _n(loop_symbol_append_p)
+#define loop_symbol_nconc_p _n(loop_symbol_nconc_p)
+#define loop_symbol_count_p _n(loop_symbol_count_p)
+#define loop_symbol_sum_p _n(loop_symbol_sum_p)
+#define loop_symbol_maximize_p _n(loop_symbol_maximize_p)
+#define loop_symbol_minimize_p _n(loop_symbol_minimize_p)
+#define loop_symbol_if_p _n(loop_symbol_if_p)
+#define loop_symbol_unless_p _n(loop_symbol_unless_p)
+#define loop_symbol_while_p _n(loop_symbol_while_p)
+#define loop_symbol_until_p _n(loop_symbol_until_p)
+#define loop_symbol_always_p _n(loop_symbol_always_p)
+#define loop_symbol_never_p _n(loop_symbol_never_p)
+#define loop_symbol_thereis_p _n(loop_symbol_thereis_p)
+#define loop_symbol_repeat_p _n(loop_symbol_repeat_p)
+
+#define loop_symbol_for_as_arithmetic_up_p _n(loop_symbol_for_as_arithmetic_up_p)
+#define loop_symbol_for_as_arithmetic_downto_p _n(loop_symbol_for_as_arithmetic_downto_p)
+#define loop_symbol_for_as_arithmetic_downfrom_p _n(loop_symbol_for_as_arithmetic_downfrom_p)
+#define loop_symbol_for_as_in_list_p _n(loop_symbol_for_as_in_list_p)
+#define loop_symbol_for_as_on_list_p _n(loop_symbol_for_as_on_list_p)
+#define loop_symbol_for_as_equals_then_p _n(loop_symbol_for_as_equals_then_p)
+#define loop_symbol_for_as_across_p _n(loop_symbol_for_as_across_p)
+#define loop_symbol_for_as_hash_p _n(loop_symbol_for_as_hash_p)
+#define loop_symbol_for_as_package_symbol_p _n(loop_symbol_for_as_package_symbol_p)
+#define loop_symbol_for_as_package_present_p _n(loop_symbol_for_as_package_present_p)
+#define loop_symbol_for_as_package_external_p _n(loop_symbol_for_as_package_external_p)
+
+int loop_symbol_initially_p(addr pos);
+int loop_symbol_finally_p(addr pos);
+int loop_symbol_with_p(addr pos);
+int loop_symbol_for_as_p(addr pos);
+
+int loop_symbol_do_p(addr pos);
+int loop_symbol_return_p(addr pos);
+int loop_symbol_collect_p(addr pos);
+int loop_symbol_append_p(addr pos);
+int loop_symbol_nconc_p(addr pos);
+int loop_symbol_count_p(addr pos);
+int loop_symbol_sum_p(addr pos);
+int loop_symbol_maximize_p(addr pos);
+int loop_symbol_minimize_p(addr pos);
+int loop_symbol_if_p(addr pos);
+int loop_symbol_unless_p(addr pos);
+int loop_symbol_while_p(addr pos);
+int loop_symbol_until_p(addr pos);
+int loop_symbol_always_p(addr pos);
+int loop_symbol_never_p(addr pos);
+int loop_symbol_thereis_p(addr pos);
+int loop_symbol_repeat_p(addr pos);
+
+int loop_symbol_for_as_arithmetic_up_p(addr pos);
+int loop_symbol_for_as_arithmetic_downto_p(addr pos);
+int loop_symbol_for_as_arithmetic_downfrom_p(addr pos);
+int loop_symbol_for_as_in_list_p(addr pos);
+int loop_symbol_for_as_on_list_p(addr pos);
+int loop_symbol_for_as_equals_then_p(addr pos);
+int loop_symbol_for_as_across_p(addr pos);
+int loop_symbol_for_as_hash_p(addr pos);
+int loop_symbol_for_as_package_symbol_p(addr pos);
+int loop_symbol_for_as_package_present_p(addr pos);
+int loop_symbol_for_as_package_external_p(addr pos);
+
 #endif
 

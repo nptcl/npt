@@ -843,7 +843,7 @@ int getunicode_integer_(addr pos, unicode *ret)
 	return Result(ret, (unicode)value);
 
 error:
-	return fmte_("Invalid value ~A.", pos, NULL);
+	return fmte_("Invalid character code ~A.", pos, NULL);
 }
 
 

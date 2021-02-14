@@ -433,6 +433,7 @@ compilation-speed
 compile
 compiled-function
 compiled-function-p
+compiler-macro
 compiler-macro-function
 complement
 complex
@@ -1457,6 +1458,14 @@ lisp-system::loop-repeat
 lisp-system::loop-always
 lisp-system::loop-never
 lisp-system::loop-thereis
+
+(lisp-system::*loop-named* :name loop-named :constant system)
+(lisp-system::*loop-vars* :name loop-vars :constant system)
+(lisp-system::*loop-init* :name loop-init :constant system)
+(lisp-system::*loop-final* :name loop-final :constant system)
+(lisp-system::*loop-form* :name loop-form :constant system)
+(lisp-system::*loop-let* :name loop-let :constant system)
+
 lisp-system::next-loop
 lisp-system::end-loop
 lisp-system::value-loop

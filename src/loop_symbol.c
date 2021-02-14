@@ -1,3 +1,4 @@
+#include "constant.h"
 #include "loop_symbol.h"
 #include "object.h"
 #include "strtype.h"
@@ -615,5 +616,176 @@ int loop_symbol_form_p_(addr pos, int *ret)
 		return 0;
 
 	return loop_symbol_and_p_(pos, ret);
+}
+
+
+/*
+ *  eq
+ */
+static int loop_symbol_type_p(addr pos, constindex index)
+{
+	addr check;
+	GetConstant(index, &check);
+	return pos == check;
+}
+
+int loop_symbol_initially_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_INITIALLY);
+}
+
+int loop_symbol_finally_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FINALLY);
+}
+
+int loop_symbol_with_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_WITH);
+}
+
+int loop_symbol_for_as_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS);
+}
+
+int loop_symbol_do_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_DO);
+}
+
+int loop_symbol_return_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_RETURN);
+}
+
+int loop_symbol_collect_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_COLLECT);
+}
+
+int loop_symbol_append_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_APPEND);
+}
+
+int loop_symbol_nconc_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_NCONC);
+}
+
+int loop_symbol_count_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_COUNT);
+}
+
+int loop_symbol_sum_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_SUM);
+}
+
+int loop_symbol_maximize_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_MAXIMIZE);
+}
+
+int loop_symbol_minimize_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_MINIMIZE);
+}
+
+int loop_symbol_if_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_IF);
+}
+
+int loop_symbol_unless_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_UNLESS);
+}
+
+int loop_symbol_while_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_WHILE);
+}
+
+int loop_symbol_until_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_UNTIL);
+}
+
+int loop_symbol_always_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_ALWAYS);
+}
+
+int loop_symbol_never_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_NEVER);
+}
+
+int loop_symbol_thereis_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_THEREIS);
+}
+
+int loop_symbol_repeat_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_REPEAT);
+}
+
+int loop_symbol_for_as_arithmetic_up_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_ARITHMETIC_UP);
+}
+
+int loop_symbol_for_as_arithmetic_downto_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNTO);
+}
+
+int loop_symbol_for_as_arithmetic_downfrom_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNFROM);
+}
+
+int loop_symbol_for_as_in_list_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_IN_LIST);
+}
+
+int loop_symbol_for_as_on_list_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_ON_LIST);
+}
+
+int loop_symbol_for_as_equals_then_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_EQUALS_THEN);
+}
+
+int loop_symbol_for_as_across_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_ACROSS);
+}
+
+int loop_symbol_for_as_hash_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_HASH);
+}
+
+int loop_symbol_for_as_package_symbol_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_PACKAGE_SYMBOL);
+}
+
+int loop_symbol_for_as_package_present_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_PACKAGE_PRESENT);
+}
+
+int loop_symbol_for_as_package_external_p(addr pos)
+{
+	return loop_symbol_type_p(pos, CONSTANT_SYSTEM_LOOP_FOR_AS_PACKAGE_EXTERNAL);
 }
 

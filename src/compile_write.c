@@ -171,7 +171,7 @@ int faslwrite_value(Execute ptr, addr stream, addr pos)
 	Check(LISPTYPE_COMPILE <= type, "type error");
 	call = FaslWrite_Value[type];
 	if (call == NULL)
-		return fmte_("Invalid value ~S.", pos, NULL);
+		return fmte_("Cannot compile the value ~S.", pos, NULL);
 
 	return (*call)(ptr, stream, pos);
 }
@@ -205,6 +205,7 @@ void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_PACKAGE] = faslwrite_value_package;
 	FaslWrite_Value[LISPTYPE_RANDOM_STATE] = faslwrite_value_random_state;
 	FaslWrite_Value[LISPTYPE_PATHNAME] = faslwrite_value_pathname;
+	FaslWrite_Value[LISPTYPE_QUOTE] = faslwrite_value_quote;
 	FaslWrite_Value[LISPTYPE_BITVECTOR] = faslwrite_value_bitvector;
 	FaslWrite_Value[LISPTYPE_LOAD_TIME_VALUE] = faslwrite_value_load_time_value;
 }

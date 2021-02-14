@@ -96,6 +96,7 @@ static void defun_ensure_generic_function(void)
 	type_ensure_generic_function(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+	ImportMopPackage(ENSURE_GENERIC_FUNCTION);
 }
 
 

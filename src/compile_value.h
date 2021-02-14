@@ -25,6 +25,7 @@
 #define faslwrite_value_package _n(faslwrite_value_package)
 #define faslwrite_value_random_state _n(faslwrite_value_random_state)
 #define faslwrite_value_pathname _n(faslwrite_value_pathname)
+#define faslwrite_value_quote _n(faslwrite_value_quote)
 #define faslwrite_value_bitvector _n(faslwrite_value_bitvector)
 #define faslwrite_value_load_time_value _n(faslwrite_value_load_time_value)
 #define faslread_value_nil _n(faslread_value_nil)
@@ -50,6 +51,7 @@
 #define faslread_value_package _n(faslread_value_package)
 #define faslread_value_random_state _n(faslread_value_random_state)
 #define faslread_value_pathname _n(faslread_value_pathname)
+#define faslread_value_quote _n(faslread_value_quote)
 #define faslread_value_bitvector _n(faslread_value_bitvector)
 #define faslread_value_load_time_value _n(faslread_value_load_time_value)
 
@@ -73,6 +75,7 @@ int faslwrite_value_index(Execute ptr, addr stream, addr pos);
 int faslwrite_value_package(Execute ptr, addr stream, addr pos);
 int faslwrite_value_random_state(Execute ptr, addr stream, addr pos);
 int faslwrite_value_pathname(Execute ptr, addr stream, addr pos);
+int faslwrite_value_quote(Execute ptr, addr stream, addr pos);
 int faslwrite_value_bitvector(Execute ptr, addr stream, addr pos);
 int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos);
 
@@ -101,6 +104,7 @@ int faslread_value_index(Execute ptr, addr stream, addr *ret);
 int faslread_value_package(Execute ptr, addr stream, addr *ret);
 int faslread_value_random_state(Execute ptr, addr stream, addr *ret);
 int faslread_value_pathname(Execute ptr, addr stream, addr *ret);
+int faslread_value_quote(Execute ptr, addr stream, addr *ret);
 int faslread_value_bitvector(Execute ptr, addr stream, addr *ret);
 int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret);
 

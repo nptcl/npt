@@ -479,18 +479,19 @@ static int build_print_dispatch_defun_(LocalRoot local, addr dispatch)
 	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-static int build_print_dispatch_let_(LocalRoot local, addr dispatch)
+static int build_print_dispatch_let_type_(LocalRoot local,
+		addr dispatch, constindex index)
 {
 	/* (system::set-pprint-dispatch
 	 *   '(cons (eql let))
 	 *   type #<FUNCTION> 0 dispatch)
 	 */
-	addr spec, type, call, priority;
+	addr spec, type, call, priority, symbol;
 	addr type1, type2, let;
 
 	/* spec */
 	GetConst(COMMON_EQL, &type1);
-	GetConst(COMMON_LET, &let);
+	GetConstant(index, &let);
 	list_heap(&type2, type1, let, NULL);
 	GetConst(COMMON_CONS, &type1);
 	list_heap(&spec, type1, type2, NULL);
@@ -499,12 +500,34 @@ static int build_print_dispatch_let_(LocalRoot local, addr dispatch)
 	GetTypeTable(&type2, Asterisk);
 	type2_heap(LISPDECL_CONS, type1, type2, &type);
 	/* function */
-	make_print_dispatch_function(&call,
-			CONSTANT_SYSTEM_DISPATCH_LET,
-			p_pprint_dispatch_let);
+	GetConst(SYSTEM_DISPATCH_LET, &symbol);
+	GetFunctionSymbol(symbol, &call);
+	if (call == Unbound) {
+		make_print_dispatch_function(&call,
+				CONSTANT_SYSTEM_DISPATCH_LET,
+				p_pprint_dispatch_let);
+	}
 	/* set */
 	fixnum_heap(&priority, 0);
 	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
+}
+
+static int build_print_dispatch_let_(LocalRoot local, addr x)
+{
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_LET));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_LETA));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_FLET));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_LABELS));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_MACROLET));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_SYMBOL_MACROLET));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_BLOCK));
+	Return(build_print_dispatch_let_type_(local, x, CONSTANT_COMMON_TAGBODY));
+	Return(build_print_dispatch_let_type_(local, x,
+				CONSTANT_COMMON_DESTRUCTURING_BIND));
+	Return(build_print_dispatch_let_type_(local, x,
+				CONSTANT_COMMON_MULTIPLE_VALUE_BIND));
+
+	return 0;
 }
 
 int build_print_dispatch_(void)

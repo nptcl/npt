@@ -69,7 +69,6 @@ int shadow_package_(addr package, addr pos)
 
 	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_CHARACTER:
 		case LISPTYPE_SYMBOL:
@@ -77,6 +76,7 @@ int shadow_package_(addr package, addr pos)
 		case LISPTYPE_ARRAY:
 			return symbol_shadow_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_shadow_package_(package, pos);
 
@@ -207,11 +207,11 @@ int shadowing_import_package_(addr package, addr pos)
 
 	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
-		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 			return symbol_shadowing_import_package_(package, pos);
 
+		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
 			return list_shadowing_import_package_(package, pos);
 
