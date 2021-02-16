@@ -408,32 +408,6 @@ static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
 }
 
 
-/* define-symbol-macro */
-static int scope_define_symbol_macro(Execute ptr, addr *ret, addr eval)
-{
-	addr symbol, form, body;
-
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &symbol);
-	GetEvalParse(eval, 1, &form);
-	GetEvalParse(eval, 2, &body);
-	return scope_define_symbol_macro_call_(ptr, symbol, form, body, ret);
-}
-
-
-/* symbol-macrolet */
-static int scope_symbol_macrolet(Execute ptr, addr *ret, addr eval)
-{
-	addr args, decl, cons;
-
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &args);
-	GetEvalParse(eval, 1, &decl);
-	GetEvalParse(eval, 2, &cons);
-	return scope_symbol_macrolet_call(ptr, args, decl, cons, ret);
-}
-
-
 /* quote */
 static int scope_quote(Execute ptr, addr *ret, addr eval)
 {
@@ -874,8 +848,6 @@ void init_scope_function(void)
 	EvalScopeTable[EVAL_PARSE_DEFTYPE] = scope_deftype;
 	EvalScopeTable[EVAL_PARSE_DEFINE_COMPILER_MACRO] = scope_define_compiler_macro;
 	EvalScopeTable[EVAL_PARSE_DESTRUCTURING_BIND] = scope_destructuring_bind;
-	EvalScopeTable[EVAL_PARSE_DEFINE_SYMBOL_MACRO] = scope_define_symbol_macro;
-	EvalScopeTable[EVAL_PARSE_SYMBOL_MACROLET] = scope_symbol_macrolet;
 	EvalScopeTable[EVAL_PARSE_QUOTE] = scope_quote;
 	EvalScopeTable[EVAL_PARSE_FUNCTION] = scope_function;
 	EvalScopeTable[EVAL_PARSE_LAMBDA] = scope_lambda;

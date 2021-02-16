@@ -1069,7 +1069,7 @@ int dot_dispatch(Execute ptr, addr stream, addr *ret)
 		return Result(ret, Nil);
 
 	hold = LocalHold_local_push(ptr, eval);
-	Return(eval_object(ptr, eval, &eval));
+	Return(eval_result_partial_form_(ptr, eval, &eval));
 	localhold_end(hold);
 
 	return Result(ret, eval);

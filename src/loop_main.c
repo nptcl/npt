@@ -211,17 +211,13 @@ static int loop_main_collect_(Execute ptr, addr list)
 static int loop_main_append_nointo_(Execute ptr, addr form)
 {
 	addr setq, function_loop, function_symbol, nreverse;
-	addr do_symbol, car, cdr, null, push;
-	addr value_loop, g, x, y, z;
+	addr dolist, push, value_loop, g, x, y;
 
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(SYSTEM_FUNCTION_LOOP, &function_loop);
 	GetConst(COMMON_FUNCTION, &function_symbol);
 	GetConst(COMMON_NREVERSE, &nreverse);
-	GetConst(COMMON_DO, &do_symbol);
-	GetConst(COMMON_CAR, &car);
-	GetConst(COMMON_CDR, &cdr);
-	GetConst(COMMON_NULL, &null);
+	GetConst(COMMON_DOLIST, &dolist);
 	GetConst(COMMON_PUSH, &push);
 	GetConst(SYSTEM_VALUE_LOOP, &value_loop);
 
@@ -230,19 +226,13 @@ static int loop_main_append_nointo_(Execute ptr, addr form)
 	list_heap(&x, setq, function_loop, x, NULL);
 	Return(push_init_loop_(ptr, x));
 
-	/* `(do ((x ,form (cdr x)))
-	 *    ((null x))
-	 *    (push (car x) value-loop))
+	/* `(dolist (x ,form)
+	 *    (push x value-loop))
 	 */
 	make_symbolchar(&g, "X");
-	list_heap(&x, cdr, g, NULL);
-	list_heap(&x, g, form, x, NULL);
-	list_heap(&x, x, NULL);
-	list_heap(&y, null, g, NULL);
-	list_heap(&y, y, NULL);
-	list_heap(&z, car, g, NULL);
-	list_heap(&z, push, z, value_loop, NULL);
-	list_heap(&x, do_symbol, x, y, z, NULL);
+	list_heap(&x, g, form, NULL);
+	list_heap(&y, push, g, value_loop, NULL);
+	list_heap(&x, dolist, x, y, NULL);
 	return push_form_loop_(ptr, x);
 }
 

@@ -68,7 +68,6 @@ enum pointer_index {
 	p_defmacro_code,
 	p_deftype_code,
 	p_define_compiler_macro_code,
-	p_define_symbol_macro_code,
 	p_defun_code,
 
 	p_call_code,
@@ -1209,6 +1208,7 @@ enum pointer_index {
 	p_finalize_close_stream,
 	/* syscall common */
 	p_defun_syscall_redirect_restart,
+	p_defun_syscall_define_symbol_macro,
 	p_defmacro_syscall_symbol_macro_expander,
 	p_defun_syscall_defconstant,
 	p_defun_syscall_in_package,

@@ -56,8 +56,7 @@
 #define setmacro_symbol _n(setmacro_symbol)
 #define setmacro_symbol_ _n(setmacro_symbol_)
 #define remmacro_symbol _n(remmacro_symbol)
-#define evalsymbol_macro_symbol _n(evalsymbol_macro_symbol)
-#define formsymbol_macro_symbol _n(formsymbol_macro_symbol)
+#define getsymbol_macro_symbol _n(getsymbol_macro_symbol)
 #define setsymbol_macro_symbol_ _n(setsymbol_macro_symbol_)
 #define remsymbol_macro_symbol _n(remsymbol_macro_symbol)
 #define get_compiler_macro_symbol _n(get_compiler_macro_symbol)
@@ -207,9 +206,8 @@ void setmacro_symbol(addr symbol, addr value);
 int setmacro_symbol_(addr symbol, addr value);
 void remmacro_symbol(addr symbol);
 
-void evalsymbol_macro_symbol(addr symbol, addr *ret);
-void formsymbol_macro_symbol(addr symbol, addr *ret);
-int setsymbol_macro_symbol_(addr symbol, addr eval, addr form);
+void getsymbol_macro_symbol(addr symbol, addr *ret);
+int setsymbol_macro_symbol_(addr symbol, addr value);
 void remsymbol_macro_symbol(addr symbol);
 
 void get_compiler_macro_symbol(addr symbol, addr *ret);

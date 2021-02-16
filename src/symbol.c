@@ -443,29 +443,16 @@ void remmacro_symbol(addr symbol)
 }
 
 /* symbol-macro */
-static addr refsymbol_macro_symbol(addr symbol)
+void getsymbol_macro_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
-	return getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, &symbol)?
+	*ret = getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, &symbol)?
 		Unbound: symbol;
 }
-void evalsymbol_macro_symbol(addr symbol, addr *ret)
+int setsymbol_macro_symbol_(addr symbol, addr value)
 {
-	*ret = refsymbol_macro_symbol(symbol);
-	if (*ret != Unbound)
-		GetCar(*ret, ret);
-}
-void formsymbol_macro_symbol(addr symbol, addr *ret)
-{
-	*ret = refsymbol_macro_symbol(symbol);
-	if (*ret != Unbound)
-		GetCdr(*ret, ret);
-}
-int setsymbol_macro_symbol_(addr symbol, addr eval, addr form)
-{
-	cons_heap(&eval, eval, form);
-	return setinfo_constant_(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, eval);
+	return setinfo_constant_(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, value);
 }
 void remsymbol_macro_symbol(addr symbol)
 {

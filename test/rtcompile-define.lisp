@@ -140,6 +140,18 @@
     *result*)
   100)
 
+(deftest compile-defvar.3
+  (progn
+    (test-file-compile
+      (defvar *compile-defvar-3* 100)
+      (let ((*compile-defvar-3* 200))
+        (setq *result* (list *compile-defvar-3*
+                             (symbol-value '*compile-defvar-3*)))))
+    (setq *result* nil)
+    (test-file-load)
+    *result*)
+  (200 200))
+
 
 ;;
 ;;  defparameter
@@ -163,6 +175,18 @@
     (test-file-load)
     *result*)
   100)
+
+(deftest compile-defparameter.3
+  (progn
+    (test-file-compile
+      (defparameter *compile-defparameter-3* 100)
+      (let ((*compile-defparameter-3* 200))
+        (setq *result* (list *compile-defparameter-3*
+                             (symbol-value '*compile-defparameter-3*)))))
+    (setq *result* nil)
+    (test-file-load)
+    *result*)
+  (200 200))
 
 
 ;;
@@ -211,6 +235,34 @@
     (test-file-load)
     *result*)
   400)
+
+
+;;
+;;  declaim
+;;
+(deftest compile-declaim.1
+  (progn
+    (test-file-compile
+      (declaim (special *compile-declaim-1*))
+      (setq *compile-declaim-1* 100)
+      (setq *result* (symbol-value '*compile-declaim-1*)))
+    (setq *result* nil)
+    (test-file-load)
+    *result*)
+  100)
+
+(deftest compile-declaim.2
+  (progn
+    (test-file-compile
+      (declaim (special *compile-declaim-2*))
+      (setq *compile-declaim-2* 100)
+      (let ((*compile-declaim-2* 200))
+        (setq *result* (list *compile-declaim-2*
+                             (symbol-value '*compile-declaim-2*)))))
+    (setq *result* nil)
+    (test-file-load)
+    *result*)
+  (200 200))
 
 
 ;;
@@ -399,8 +451,8 @@
 ;;
 ;;  define-compiler-macro
 ;;
-'(deftest compile-define-compiler-macro.1
-   (expr-compile
-     (define-symbol-macro *cl-package* (find-package "COMMON-LISP")))
-   *cl-package*)
+(deftest compile-define-compiler-macro.1
+  (expr-compile
+    (define-symbol-macro *cl-package* (find-package "COMMON-LISP")))
+  *cl-package*)
 

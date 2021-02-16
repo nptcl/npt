@@ -106,7 +106,6 @@ enum FaslCode {
 	FaslCode_defmacro,
 	FaslCode_deftype,
 	FaslCode_define_compiler_macro,
-	FaslCode_define_symbol_macro,
 	FaslCode_defun,
 
 	FaslCode_call_result,

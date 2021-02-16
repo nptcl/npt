@@ -4,12 +4,12 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define eval_scope _n(eval_scope)
-#define eval_scope_compile _n(eval_scope_compile)
+#define begin_scope_ _n(begin_scope_)
+#define eval_scope_ _n(eval_scope_)
 #define init_scope _n(init_scope)
 
-int eval_scope(Execute ptr, addr *ret, addr eval);
-int eval_scope_compile(Execute ptr, addr *ret, addr eval);
+int begin_scope_(Execute ptr);
+int eval_scope_(Execute ptr, addr *ret, addr eval);
 void init_scope(void);
 
 #endif

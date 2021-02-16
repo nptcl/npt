@@ -216,7 +216,7 @@ static int compile_lambda(Execute ptr, addr opt, addr *ret)
 	}
 	if (compile_lambda_p(opt)) {
 		Return(compile_warning_implementation());
-		Return(eval_object(ptr, opt, &opt));
+		Return(eval_result_partial_form_(ptr, opt, &opt));
 		return Result(ret, opt);
 	}
 
@@ -239,7 +239,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 		Return(compile_warning_implementation());
 		hold = LocalHold_local(ptr);
 		localhold_pushva_force(hold, call, opt, NULL);
-		Return(eval_object(ptr, opt, &opt));
+		Return(eval_result_partial_form_(ptr, opt, &opt));
 		localhold_end(hold);
 		Return(setglobal_callname_(call, opt));
 		return Result(ret, var);
@@ -249,7 +249,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 	return fmte_("The second argument ~S must be a lambda expression.", opt, NULL);
 }
 
-static int compile_execute(Execute ptr, addr var, addr opt, addr *ret)
+static int compile_common_execute_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	if (opt == Unbound)
 		return compile_variable(ptr, var, opt, ret);
@@ -268,7 +268,7 @@ static int compile_common_call_(Execute ptr, LocalHold hold,
 		addr var, addr opt, addr *ret1, addr *ret2, addr *ret3)
 {
 	Return(handler_compile_(ptr));
-	Return(compile_execute(ptr, var, opt, ret1));
+	Return(compile_common_execute_(ptr, var, opt, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &var);
@@ -387,7 +387,7 @@ int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
  */
 int define_symbol_macro_common(addr form, addr env, addr *ret)
 {
-	addr cons, symbol, expansion;
+	addr cons, symbol, expansion, quote;
 
 	Return_getcdr(form, &cons);
 	if (! consp_getcons(cons, &symbol, &cons))
@@ -398,8 +398,11 @@ int define_symbol_macro_common(addr form, addr env, addr *ret)
 		goto error;
 	if (! symbolp(symbol))
 		return fmte_("The argument ~S must be a symbol.", NULL);
-	/* (lisp-system::define-symbol-macro symbol expansion) */
+	/* (lisp-system::define-symbol-macro (quote symbol) (quote expansion)) */
 	GetConst(SYSTEM_DEFINE_SYMBOL_MACRO, &form);
+	GetConst(COMMON_QUOTE, &quote);
+	list_heap(&symbol, quote, symbol, NULL);
+	list_heap(&expansion, quote, expansion, NULL);
 	list_heap(ret, form, symbol, expansion, NULL);
 	return 0;
 

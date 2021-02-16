@@ -10,7 +10,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "degrade.h"
-#include "eval_execute.h"
+#include "eval_load.h"
 #include "package.h"
 #include "parse.h"
 #include "pathname.h"

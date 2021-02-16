@@ -7,7 +7,7 @@
 #include "constant.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval_execute.h"
+#include "eval_load.h"
 #include "file_open.h"
 #include "files.h"
 #include "function.h"
@@ -69,7 +69,7 @@ static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
 
 	/* write */
 	Return(faslwrite_header_(output));
-	Return(compile_load(ptr, input, verbose, print, external));
+	Return(compile_load_(ptr, input, verbose, print, external));
 	Return(faslwrite_footer_(output));
 	Return(finish_output_stream_(output));
 

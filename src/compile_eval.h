@@ -4,9 +4,11 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define compile_eval _n(compile_eval)
+#define begin_compile_eval_ _n(begin_compile_eval_)
+#define compile_execute_ _n(compile_execute_)
 
-int compile_eval(Execute ptr, addr pos);
+int begin_compile_eval_(Execute ptr);
+int compile_execute_(Execute ptr, addr pos);
 
 #endif
 

@@ -322,11 +322,11 @@ static int get_symbol_macrolet_envstack_(Execute ptr, addr name, addr *value, in
 	/* local */
 	getlocal_envroot(root, &pos);
 	if (find_symbol_environment(name, pos, value))
-		return Result(ret, *value != Unbound);
+		return Result(ret, 1);
 	/* global */
 	getglobal_envroot(root, &pos);
 	if (find_symbol_environment(name, pos, value))
-		return Result(ret, *value != Unbound);
+		return Result(ret, 1);
 
 	return Result(ret, 0);
 }
@@ -338,11 +338,15 @@ int symbol_macrolet_envstack_p_(Execute ptr, addr name, addr *value, int *ret)
 
 	/* environment */
 	Return(get_symbol_macrolet_envstack_(ptr, name, &pos, &check));
-	if (check)
+	if (check) {
+		if (pos == Unbound)
+			return Result(ret, 0);
+		*value = pos;
 		return Result(ret, 1);
+	}
 
 	/* global symbol */
-	formsymbol_macro_symbol(name, &pos);
+	getsymbol_macro_symbol(name, &pos);
 	if (pos == Unbound)
 		return Result(ret, 0);
 	*value = pos;
@@ -463,7 +467,7 @@ static int macroexpand1_symbol_find_(addr symbol, addr env, addr *ret)
 		if (find_symbol_environment(symbol, list, ret))
 			return 0;
 	}
-	formsymbol_macro_symbol(symbol, ret);
+	getsymbol_macro_symbol(symbol, ret);
 
 	return 0;
 }

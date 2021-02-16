@@ -8,7 +8,8 @@
 #include "condition.h"
 #include "control_object.h"
 #include "constant.h"
-#include "eval_execute.h"
+#include "eval_load.h"
+#include "eval_value.h"
 #include "function.h"
 #include "degrade.h"
 #include "ratio.h"
@@ -27,7 +28,14 @@
 
 static void test_eval_copy_parse(addr *ret, addr pos)
 {
-	eval_parse(Execute_Thread, ret, pos, Nil);
+	addr control;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	push_control(ptr, &control);
+	begin_parse(ptr, Nil);
+	eval_parse_(ptr, ret, pos);
+	pop_control_(ptr, control);
 }
 
 static void test_eval_copy_ordinary(addr *ret, addr pos)

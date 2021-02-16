@@ -126,3 +126,14 @@
     *handler-call*)
   (4 3 2 1))
 
+
+;;
+;;  define-symbol-macro
+;;
+(define-symbol-macro define-symbol-macro-error-1 (define-symbol-macro-error-2))
+
+(deftest define-symbol-macro-error.1
+  (macrolet ((define-symbol-macro-error-2 () :hello))
+    define-symbol-macro-error-1)
+  :hello)
+

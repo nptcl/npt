@@ -185,93 +185,6 @@ static int make_scope_symbol_(Execute ptr, addr symbol, addr *ret)
 	return Result(ret, pos);
 }
 
-static int symbol_macrolet_global_p_(Execute ptr, addr symbol, addr *value, int *ret)
-{
-	addr stack, table, key;
-
-	/* global stack */
-	Return(getglobal_eval_(ptr, &stack));
-	GetEvalStackTable(stack, &table);
-
-	/* global special */
-	if (getvalue_scope_evalstack(stack, symbol, &key)) {
-		if (getspecialp_tablevalue(key)) {
-			return Result(ret, 0); /* special variable */
-		}
-	}
-
-	/* symbol special */
-	if (specialp_symbol(symbol)) {
-		return Result(ret, 0);
-	}
-
-	/* define-symbol-macro */
-	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
-	if (getpplist(table, key, symbol, value) == 0) {
-		return Result(ret, 1); /* define-symbol-macro */
-	}
-
-	/* symbol info */
-	evalsymbol_macro_symbol(symbol, &table);
-	if (table != Unbound) {
-		*value = table;
-		return Result(ret, 1);
-	}
-
-	return Result(ret, 0);
-}
-
-static int symbol_macrolet_p_(Execute ptr, addr symbol, addr *value, int *ret)
-{
-	addr stack, table, key;
-
-	Check(! symbolp(symbol), "type error");
-
-	/* local */
-	Return(getstack_eval_(ptr, &stack));
-	while (stack != Nil) {
-		/* local variable */
-		if (getvalue_scope_evalstack(stack, symbol, &key)) {
-			return Result(ret, 0); /* shadow */
-		}
-
-		/* symbol-macrolet */
-		GetConst(SYSTEM_SYMBOL_MACROLET, &key);
-		GetEvalStackTable(stack, &table);
-		if (getpplist(table, key, symbol, value) == 0) {
-			return Result(ret, 1); /* symbol-macrolet */
-		}
-
-		/* next */
-		GetEvalStackNext(stack, &stack);
-	}
-
-	/* global */
-	return symbol_macrolet_global_p_(ptr, symbol, value, ret);
-}
-
-static int scope_symbol_replace(Execute ptr, addr *ret, addr form)
-{
-	addr hook, call, env;
-
-	/* hook */
-	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);
-	Return(getspecialcheck_local_(ptr, hook, &hook));
-	/* symbol-macro-expander */
-	GetConst(SYSTEM_SYMBOL_MACRO_EXPANDER, &call);
-	GetFunctionSymbol(call, &call);
-	/* call */
-	if (consp(form)) {
-		GetCons(form, &form, &env);
-	}
-	else {
-		env = Nil;
-	}
-	Return(callclang_funcall(ptr, &form, hook, call, form, env, NULL));
-
-	return scope_eval(ptr, ret, form);
-}
-
 static int make_scope_keyword_(Execute ptr, addr symbol, addr *ret)
 {
 	addr type;
@@ -281,18 +194,10 @@ static int make_scope_keyword_(Execute ptr, addr symbol, addr *ret)
 
 int scope_symbol_call(Execute ptr, addr *ret, addr eval)
 {
-	int check;
-	addr form;
-
 	if (keywordp(eval))
 		return make_scope_keyword_(ptr, eval, ret);
-
-	Return(symbol_macrolet_p_(ptr, eval, &form, &check));
-	if (check)
-		return scope_symbol_replace(ptr, ret, form);
-
-	/* else */
-	return make_scope_symbol_(ptr, eval, ret);
+	else
+		return make_scope_symbol_(ptr, eval, ret);
 }
 
 
@@ -328,84 +233,6 @@ int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 	nreverse(ret, root);
 
 	return 0;
-}
-
-
-/*
- *  define-symbol-macro
- */
-static void push_symbol_macrolet(LocalRoot local,
-		addr stack, addr symbol, addr form, addr env)
-{
-	addr key, table, temp;
-
-	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
-	GetEvalStackTable(stack, &table);
-	if (getpplist(table, key, symbol, &temp)) {
-		/* not found */
-		cons_alloc(local, &form, form, env);
-		if (setpplist_alloc(local, table, key, symbol, form, &table))
-			SetEvalStackTable(stack, table);
-	}
-}
-
-int scope_define_symbol_macro_call_(Execute ptr,
-		addr symbol, addr form, addr body, addr *ret)
-{
-	addr stack, eval;
-
-	Return(getglobal_eval_(ptr, &stack));
-	push_symbol_macrolet(NULL, stack, symbol, form, Nil); /* null env */
-	GetTypeTable(&eval, Symbol);
-	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_DEFINE_SYMBOL_MACRO, eval, Nil));
-	SetEvalScopeIndex(eval, 0, symbol);
-	SetEvalScopeIndex(eval, 1, form);
-	SetEvalScopeIndex(eval, 2, body);
-
-	return Result(ret, eval);
-}
-
-
-/*
- *  symbol-macrolet
- */
-void apply_symbol_macrolet(LocalRoot local, addr stack, addr args)
-{
-	addr list, symbol, form, env;
-
-	CheckLocal(local);
-	while (args != Nil) {
-		GetCons(args, &list, &args);
-		List_bind(list, &symbol, &form, &env, NULL);
-		push_symbol_macrolet(local, stack, symbol, form, env);
-	}
-}
-
-static int symbol_macrolet_execute(Execute ptr,
-		addr args, addr decl, addr cons, addr *ret, addr *type, addr *free)
-{
-	addr stack;
-
-	Return(newstack_nil_(ptr, &stack));
-	Return(apply_declare_(ptr, stack, decl, free));
-	apply_symbol_macrolet(ptr->local, stack, args);
-	Return(scope_allcons(ptr, ret, type, cons));
-
-	return freestack_eval_(ptr, stack);
-}
-
-int scope_symbol_macrolet_call(Execute ptr,
-		addr args, addr decl, addr cons, addr *ret)
-{
-	addr eval, free;
-
-	/* symbol-macrolet -> locally */
-	Return(symbol_macrolet_execute(ptr, args, decl, cons, &cons, &eval, &free));
-	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOCALLY, eval, Nil));
-	SetEvalScopeIndex(eval, 0, decl);
-	SetEvalScopeIndex(eval, 1, cons);
-	SetEvalScopeIndex(eval, 2, free);
-	return Result(ret, eval);
 }
 
 

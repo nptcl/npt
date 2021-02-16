@@ -9,7 +9,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval_execute.h"
+#include "eval_load.h"
 #include "format.h"
 #include "function.h"
 #include "heap.h"
@@ -438,7 +438,7 @@ static int ed_function_common(Execute ptr, addr symbol)
 	ed_function_name(ptr, &file);
 	Return(ed_function_write_(ptr, file, lambda));
 	Return(ed_file_common(ptr, file));
-	Return(eval_load(ptr, &result, file, Unbound, Unbound, 1, Unbound));
+	Return(eval_load_(ptr, &result, file, Unbound, Unbound, 1, Unbound));
 
 	return 0;
 }

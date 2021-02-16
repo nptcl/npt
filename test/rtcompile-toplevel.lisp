@@ -5,7 +5,6 @@
 (defvar *compile-eval-when1* nil)
 (defvar *compile-eval-when2* nil)
 
-
 ;;
 ;;  operator
 ;;

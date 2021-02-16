@@ -42,8 +42,9 @@
 ;;
 ;;  asterisk
 ;;
-(deftest-error subtypep-asterisk.1
-  (subtypep 'integer '*))
+(deftest subtypep-asterisk.1
+  (subtypep 'integer '*)
+  t t)
 
 
 ;;

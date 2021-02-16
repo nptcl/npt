@@ -1319,8 +1319,6 @@ lisp-system::deftype
 lisp-system::define-compiler-macro
 lisp-system::macro-lambda
 lisp-system::destructuring-bind
-lisp-system::define-symbol-macro
-lisp-system::symbol-macrolet
 lisp-system::special
 lisp-system::lexical
 lisp-system::local
@@ -1676,7 +1674,6 @@ lisp-code::setf-push
 lisp-code::defmacro
 lisp-code::deftype
 lisp-code::define-compiler-macro
-lisp-code::define-symbol-macro
 lisp-code::defun
 
 lisp-code::call-result
@@ -1959,6 +1956,7 @@ lisp-system::subtypep-normal
 
 ;; syscall_common.c
  lisp-system::redirect-restart
+ lisp-system::define-symbol-macro
  lisp-system::symbol-macro-expander
  lisp-system::defconstant
  lisp-system::in-package

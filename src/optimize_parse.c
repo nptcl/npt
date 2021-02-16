@@ -1876,160 +1876,6 @@ static int optparse_destructuring_bind_(OptimizeInfo *str, int *ret)
 
 
 /*
- *  define-symbol-macro
- */
-static int checkparse_define_symbol_macro_(OptimizeInfo *str, int *ret)
-{
-	addr pos;
-
-	pos = str->pos;
-	if (! optimize_evaltype(pos, EVAL_PARSE_DEFINE_SYMBOL_MACRO))
-		return Result(ret, 0);
-	GetEvalParse(pos, 1, &pos); /* body */
-	return checkparse_inplace_(str, pos, ret);
-}
-
-static int optparse_define_symbol_macro_(OptimizeInfo *str, int *ret)
-{
-	int check;
-	addr pos, symbol, body, form;
-
-	Return_check_optparse(checkparse_define_symbol_macro_, str, ret);
-	pos = str->pos;
-	GetEvalParse(pos, 0, &symbol);
-	GetEvalParse(pos, 1, &body);
-	GetEvalParse(pos, 2, &form);
-
-	Return(optparse_inplace_(str, body, &body, &check));
-	if (! check)
-		return Result(ret, 0);
-	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFINE_SYMBOL_MACRO, 3);
-	SetEvalParse(pos, 0, symbol);
-	SetEvalParse(pos, 1, body);
-	SetEvalParse(pos, 2, form);
-	str->pos = pos;
-
-	return Result(ret, 1);
-}
-
-
-/*
- *  symbol-macrolet
- */
-/* args */
-static int checkparse_symbol_macrolet_args_(OptimizeInfo *str, int *ret)
-{
-	int check;
-	addr pos, x, symbol, expr, env;
-
-	pos = str->pos;
-	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL_MACROLET))
-		return Result(ret, 0);
-	GetEvalParse(pos, 0, &pos); /* args */
-	while (pos != Nil) {
-		GetCons(pos, &x, &pos);
-		List_bind(x, &symbol, &expr, &env, NULL);
-		Return(checkparse_inplace_(str, expr, &check));
-		if (check)
-			return Result(ret, 1);
-	}
-
-	return Result(ret, 0);
-}
-
-static int optparse_symbol_macrolet_args_(OptimizeInfo *str, int *ret)
-{
-	int update, check;
-	addr pos, args, decl, body, root, symbol, expr, env;
-	LocalRoot local;
-
-	Return_check_optparse(checkparse_symbol_macrolet_args_, str, ret);
-	pos = str->pos;
-	GetEvalParse(pos, 0, &args);
-	GetEvalParse(pos, 1, &decl);
-	GetEvalParse(pos, 2, &body);
-
-	local = str->local;
-	update = 0;
-	for (root = Nil; args != Nil; ) {
-		GetCons(args, &pos, &args);
-		List_bind(pos, &symbol, &expr, &env, NULL);
-		Return(optparse_inplace_(str, expr, &expr, &check));
-		update |= check;
-		list_local(local, &pos, symbol, expr, env, NULL);
-		cons_local(local, &root, pos, root);
-	}
-	if (! update)
-		return Result(ret, 0);
-	nreverse(&args, root);
-
-	eval_parse_local(str->local, &pos, EVAL_PARSE_SYMBOL_MACROLET, 3);
-	SetEvalParse(pos, 0, args);
-	SetEvalParse(pos, 1, decl);
-	SetEvalParse(pos, 2, body);
-	str->pos = pos;
-
-	return Result(ret, 1);
-}
-
-static int checkparse_symbol_macrolet_body_(OptimizeInfo *str, int *ret)
-{
-	addr pos, decl, body;
-
-	pos = str->pos;
-	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL_MACROLET))
-		return Result(ret, 0);
-	GetEvalParse(pos, 1, &decl); /* decl */
-	GetEvalParse(pos, 2, &body); /* body */
-	return checkparse_implicit_declare_(str, decl, body, ret);
-}
-
-static int optparse_symbol_macrolet_body_(OptimizeInfo *str, int *ret)
-{
-	int check;
-	addr pos, args, decl, body;
-
-	Return_check_optparse(checkparse_symbol_macrolet_body_, str, ret);
-	pos = str->pos;
-	GetEvalParse(pos, 0, &args);
-	GetEvalParse(pos, 1, &decl);
-	GetEvalParse(pos, 2, &body);
-
-	Return(optparse_implicit_declare_(str, decl, body, &body, &check));
-	if (! check)
-		return Result(ret, 0);
-	eval_parse_local(str->local, &pos, EVAL_PARSE_SYMBOL_MACROLET, 3);
-	SetEvalParse(pos, 0, args);
-	SetEvalParse(pos, 1, decl);
-	SetEvalParse(pos, 2, body);
-	str->pos = pos;
-
-	return Result(ret, 1);
-}
-
-/* optparse-symbol-macrolet */
-static int checkparse_symbol_macrolet_(OptimizeInfo *str, int *ret)
-{
-	Return_or_optparse(checkparse_symbol_macrolet_args_, str, ret);
-	Return_or_optparse(checkparse_symbol_macrolet_body_, str, ret);
-
-	return Result(ret, 0);
-}
-
-static int optparse_symbol_macrolet_run_(OptimizeInfo *str)
-{
-	Return(optimize_extract_(str, optparse_symbol_macrolet_args_));
-	Return(optimize_extract_(str, optparse_symbol_macrolet_body_));
-
-	return 0;
-}
-static int optparse_symbol_macrolet_(OptimizeInfo *str, int *ret)
-{
-	return optparse_run_(str, ret, optparse_symbol_macrolet_run_);
-}
-
-
-/*
  *  lambda
  */
 /* args */
@@ -3834,8 +3680,6 @@ static int checkparse_all_(OptimizeInfo *str, int *ret)
 	Return_or_optparse(checkparse_deftype_, str, ret);
 	Return_or_optparse(checkparse_define_compiler_macro_, str, ret);
 	Return_or_optparse(checkparse_destructuring_bind_, str, ret);
-	Return_or_optparse(checkparse_define_symbol_macro_, str, ret);
-	Return_or_optparse(checkparse_symbol_macrolet_, str, ret);
 	Return_or_optparse(checkparse_lambda_, str, ret);
 	Return_or_optparse(checkparse_if_, str, ret);
 	Return_or_optparse(checkparse_unwind_protect_, str, ret);
@@ -3865,8 +3709,6 @@ static int optparse_all_run_(OptimizeInfo *str)
 	Return(optimize_extract_(str, optparse_deftype_));
 	Return(optimize_extract_(str, optparse_define_compiler_macro_));
 	Return(optimize_extract_(str, optparse_destructuring_bind_));
-	Return(optimize_extract_(str, optparse_define_symbol_macro_));
-	Return(optimize_extract_(str, optparse_symbol_macrolet_));
 	Return(optimize_extract_(str, optparse_lambda_));
 	Return(optimize_extract_(str, optparse_if_));
 	Return(optimize_extract_(str, optparse_unwind_protect_));

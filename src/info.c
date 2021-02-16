@@ -281,8 +281,6 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 		case EVAL_PARSE_DEFTYPE:				return "deftype";
 		case EVAL_PARSE_DEFINE_COMPILER_MACRO:	return "define-compiler-macro";
 		case EVAL_PARSE_DESTRUCTURING_BIND:		return "destructuring-bind";
-		case EVAL_PARSE_DEFINE_SYMBOL_MACRO:	return "define-symbol-macro";
-		case EVAL_PARSE_SYMBOL_MACROLET:		return "symbol-macrolet";
 		case EVAL_PARSE_QUOTE:					return "quote";
 		case EVAL_PARSE_FUNCTION:				return "function";
 		case EVAL_PARSE_LAMBDA:					return "lambda";

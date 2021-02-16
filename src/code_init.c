@@ -97,7 +97,6 @@ void init_code_init(void)
 	initcode(defmacro_code, Addr);
 	initcode(deftype_code, Addr);
 	initcode(define_compiler_macro_code, Addr);
-	initcode(define_symbol_macro_code, Addr);
 	initcode(defun_code, Null);
 
 	/* call */
@@ -253,7 +252,6 @@ void build_code_init(void)
 	defcode(DEFMACRO, defmacro_code);
 	defcode(DEFTYPE, deftype_code);
 	defcode(DEFINE_COMPILER_MACRO, define_compiler_macro_code);
-	defcode(DEFINE_SYMBOL_MACRO, define_symbol_macro_code);
 	defcode(DEFUN, defun_code);
 
 	/* call */

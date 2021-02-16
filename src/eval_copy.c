@@ -379,65 +379,6 @@ static void copy_eval_destructuring_bind(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-/* define-symbol-macro */
-static void copy_eval_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
-{
-	EvalParse type;
-	addr symbol, form, body;
-
-	GetEvalParseType(eval, &type);
-	Check(type != EVAL_PARSE_DEFINE_SYMBOL_MACRO, "parse error");
-	GetEvalParse(eval, 0, &symbol);
-	GetEvalParse(eval, 1, &form);
-	GetEvalParse(eval, 2, &body);
-
-	copy_eval_parse(local, &form, form);
-
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, symbol);
-	SetEvalParse(eval, 1, form);
-	SetEvalParse(eval, 2, body);
-	*ret = eval;
-}
-
-/* symbol-macrolet */
-static void copy_eval_symbol_macrolet_args(LocalRoot local, addr *ret, addr args)
-{
-	addr root, list, symbol, form, env;
-
-	for (root = Nil; args != Nil; ) {
-		GetCons(args, &list, &args);
-		List_bind(list, &symbol, &form, &env, NULL);
-		copy_eval_parse(local, &form, form);
-		copy_environment(&env, env);
-		list_alloc(local, &symbol, symbol, form, env, NULL);
-		cons_alloc(local, &root, symbol, root);
-	}
-	nreverse(ret, root);
-}
-
-static void copy_eval_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
-{
-	EvalParse type;
-	addr args, decl, cons;
-
-	GetEvalParseType(eval, &type);
-	Check(type != EVAL_PARSE_SYMBOL_MACROLET, "parse error");
-	GetEvalParse(eval, 0, &args);
-	GetEvalParse(eval, 1, &decl);
-	GetEvalParse(eval, 2, &cons);
-
-	copy_eval_symbol_macrolet_args(local, &args, args);
-	copy_eval_declaim_nil(local, &decl, decl);
-	copy_eval_allcons(local, &cons, cons);
-
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, cons);
-	*ret = eval;
-}
-
 /* lambda */
 static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 {
@@ -960,8 +901,6 @@ void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_DEFTYPE] = copy_eval_deftype;
 	EvalCopyTable[EVAL_PARSE_DEFINE_COMPILER_MACRO] = copy_eval_define_compiler_macro;
 	EvalCopyTable[EVAL_PARSE_DESTRUCTURING_BIND] = copy_eval_destructuring_bind;
-	EvalCopyTable[EVAL_PARSE_DEFINE_SYMBOL_MACRO] = copy_eval_define_symbol_macro;
-	EvalCopyTable[EVAL_PARSE_SYMBOL_MACROLET] = copy_eval_symbol_macrolet;
 	EvalCopyTable[EVAL_PARSE_LAMBDA] = copy_eval_lambda;
 	EvalCopyTable[EVAL_PARSE_IF] = copy_eval_if;
 	EvalCopyTable[EVAL_PARSE_UNWIND_PROTECT] = copy_eval_unwind_protect;

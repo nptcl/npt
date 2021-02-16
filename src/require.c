@@ -5,7 +5,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval_execute.h"
+#include "eval_load.h"
 #include "require.h"
 #include "restart_value.h"
 #include "strtype.h"
@@ -74,7 +74,7 @@ static int require_list_common(Execute ptr, addr var, addr list, int *ret)
 
 	while (list != Nil) {
 		Return_getcons(list, &x, &list);
-		Return(eval_load(ptr, &check, x, Unbound, Unbound, 1, Unbound));
+		Return(eval_load_(ptr, &check, x, Unbound, Unbound, 1, Unbound));
 	}
 
 	*ret = 1;

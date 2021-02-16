@@ -483,18 +483,6 @@ int define_compiler_macro_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-int define_symbol_macro_code(Execute ptr, CodeValue x)
-{
-	addr symbol, eval, form;
-
-	List_bind(x.pos, &symbol, &eval, &form, NULL);
-	Check(! symbolp(symbol), "type error");
-	Return(setsymbol_macro_symbol_(symbol, eval, form));
-	setresult_control(ptr, symbol);
-
-	return 0;
-}
-
 int defun_code(Execute ptr, CodeValue x)
 {
 	addr pos, call, symbol;

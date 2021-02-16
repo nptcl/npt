@@ -144,10 +144,12 @@ environment.c
 equal.c
 eval_copy.c
 eval_execute.c
+eval_load.c
 eval_main.c
 eval_object.c
 eval_stack.c
 eval_table.c
+eval_value.c
 eval.c
 execute_object.c
 execute_setjmp.c

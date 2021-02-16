@@ -8,7 +8,7 @@
 #include "cons.h"
 #include "cons_plist.h"
 #include "control.h"
-#include "eval_execute.h"
+#include "eval_load.h"
 #include "file.h"
 #include "require.h"
 #include "strtype.h"
@@ -211,7 +211,7 @@ static int function_load(Execute ptr, addr filespec, addr rest)
 
 		case LoadType_unbound:
 		default:
-			Return(eval_load(ptr, &check, filespec, verbose, print, exist, external));
+			Return(eval_load_(ptr, &check, filespec, verbose, print, exist, external));
 			break;
 	}
 	setbool_control(ptr, check);

@@ -53,7 +53,6 @@
 #define defmacro_code _n(defmacro_code)
 #define deftype_code _n(deftype_code)
 #define define_compiler_macro_code _n(define_compiler_macro_code)
-#define define_symbol_macro_code _n(define_symbol_macro_code)
 #define defun_code _n(defun_code)
 #define call_result_code _n(call_result_code)
 #define call_type_code _n(call_type_code)
@@ -145,7 +144,6 @@ int setf_push_code(Execute ptr, CodeValue x);
 int defmacro_code(Execute ptr, CodeValue x);
 int deftype_code(Execute ptr, CodeValue x);
 int define_compiler_macro_code(Execute ptr, CodeValue x);
-int define_symbol_macro_code(Execute ptr, CodeValue x);
 int defun_code(Execute ptr, CodeValue x);
 
 int call_result_code(Execute ptr, CodeValue x);

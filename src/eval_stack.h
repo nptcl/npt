@@ -34,8 +34,8 @@
 #define getlexical_index_heap _n(getlexical_index_heap)
 #define apply_declaim_stack_ _n(apply_declaim_stack_)
 #define apply_declare_stack _n(apply_declare_stack)
-#define apply_declare_value_stack _n(apply_declare_value_stack)
-#define apply_declare_let_stack _n(apply_declare_let_stack)
+#define apply_declare_value_stack_ _n(apply_declare_value_stack_)
+#define apply_declare_let_stack_ _n(apply_declare_let_stack_)
 #define apply_declare_function_stack _n(apply_declare_function_stack)
 #define getvalue_scope_evalstack _n(getvalue_scope_evalstack)
 #define setvalue_scope_evalstack _n(setvalue_scope_evalstack)
@@ -155,8 +155,8 @@ void getlexical_index_heap(addr stack, addr *ret);
 
 int apply_declaim_stack_(Execute ptr, addr declare);
 void apply_declare_stack(LocalRoot local, addr stack, addr declare);
-void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
-void apply_declare_let_stack(LocalRoot local, addr stack, addr symbol, addr declare);
+int apply_declare_value_stack_(Execute ptr, addr stack, addr symbol, addr declare);
+int apply_declare_let_stack_(Execute ptr, addr stack, addr symbol, addr declare);
 void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);
 
 /* table */

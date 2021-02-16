@@ -57,8 +57,7 @@ int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret)
  */
 int subtypep_call_asterisk_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 {
-	*ret = SUBTYPEP_INVALID;
-	return fmte_("Invalid type-specifier * (asterisk).", NULL);
+	return subtypep_call_t_(ptr, x, y, ret);
 }
 
 

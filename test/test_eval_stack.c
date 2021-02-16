@@ -619,17 +619,15 @@ static int test_apply_declare_symbol_stack(void)
 	int check;
 	addr control, stack, symbol, cons, list, var;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
 	newstack_nil_(ptr, &stack);
 	readstring_debug(&cons, "(aa bb cc)");
 	readstring_debug(&symbol, "bb");
-	apply_declare_symbol_stack(local, stack, symbol, cons);
+	apply_declare_symbol_stack_(ptr, stack, symbol, cons);
 	GetEvalStackTable(stack, &list);
 	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
 	test(check == 0, "apply_declare_symbol_stack.1");
@@ -638,7 +636,7 @@ static int test_apply_declare_symbol_stack(void)
 	test(list == symbol, "apply_declare_symbol_stack.3");
 
 	readstring_debug(&var, "hello");
-	apply_declare_symbol_stack(local, stack, var, cons);
+	apply_declare_symbol_stack_(ptr, stack, var, cons);
 	GetEvalStackTable(stack, &list);
 	check = getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &list);
 	test(check == 0, "apply_declare_symbol_stack.4");
@@ -697,10 +695,8 @@ static int test_apply_declare_value_stack(void)
 {
 	addr control, decl, stack, symbol, pos, list, value, constant;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_control(ptr, &control);
 	begin_eval_stack_(ptr);
 
@@ -710,7 +706,7 @@ static int test_apply_declare_value_stack(void)
 	parse_declare_heap_(Execute_Thread, Nil, decl, &decl);
 	newstack_nil_(ptr, &stack);
 	readstring_debug(&symbol, "zz");
-	apply_declare_value_stack(local, stack, symbol, decl);
+	apply_declare_value_stack_(ptr, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);
 	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &pos);
 	test(pos == Nil, "apply_declare_value_stack1");
@@ -722,7 +718,7 @@ static int test_apply_declare_value_stack(void)
 	test(pos == Nil, "apply_declare_value_stack4");
 
 	readstring_debug(&symbol, "aa");
-	apply_declare_value_stack(local, stack, symbol, decl);
+	apply_declare_value_stack_(ptr, stack, symbol, decl);
 	GetEvalStackTable(stack, &list);
 	getplist_constant(list, CONSTANT_SYSTEM_TYPE_SPECIAL, &pos);
 	test(length_list_unsafe(pos) == 1, "apply_declare_value_stack5");

@@ -7,9 +7,6 @@
 
 #define scope_symbol_call _n(scope_symbol_call)
 #define scope_setq_call _n(scope_setq_call)
-#define scope_define_symbol_macro_call_ _n(scope_define_symbol_macro_call_)
-#define apply_symbol_macrolet _n(apply_symbol_macrolet)
-#define scope_symbol_macrolet_call _n(scope_symbol_macrolet_call)
 #define scope_values_call _n(scope_values_call)
 #define scope_the_call _n(scope_the_call)
 #define scope_locally_call _n(scope_locally_call)
@@ -27,11 +24,6 @@ struct mvbind_struct {
 
 int scope_symbol_call(Execute ptr, addr *ret, addr eval);
 int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type);
-int scope_define_symbol_macro_call_(Execute ptr,
-		addr symbol, addr form, addr body, addr *ret);
-void apply_symbol_macrolet(LocalRoot local, addr stack, addr args);
-int scope_symbol_macrolet_call(Execute ptr,
-		addr args, addr decl, addr cons, addr *ret);
 int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype);
 int scope_the_call(Execute ptr, addr type, addr form, addr *ret);
 int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret);

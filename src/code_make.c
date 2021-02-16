@@ -1313,21 +1313,6 @@ static void code_make_destructuring_bind(LocalRoot local, addr code, addr scope)
 }
 
 
-/* define-symbol-macro */
-static void code_make_define_symbol_macro(LocalRoot local, addr code, addr scope)
-{
-	addr symbol, lambda, body;
-
-	GetEvalScopeIndex(scope, 0, &symbol);
-	GetEvalScopeIndex(scope, 1, &lambda);
-	GetEvalScopeIndex(scope, 2, &body);
-	code_queue_list(local, code,
-			CONSTANT_CODE_DEFINE_SYMBOL_MACRO,
-			symbol, lambda, body, NULL);
-	code_queue_ifpush(local, code);
-}
-
-
 /* flet */
 static void code_make_type_function(LocalRoot local, addr code, addr pos)
 {
@@ -2490,7 +2475,6 @@ void init_code_make(void)
 	CodeMakeTable[EVAL_PARSE_DEFTYPE] = code_make_deftype;
 	CodeMakeTable[EVAL_PARSE_DEFINE_COMPILER_MACRO] = code_make_define_compiler_macro;
 	CodeMakeTable[EVAL_PARSE_DESTRUCTURING_BIND] = code_make_destructuring_bind;
-	CodeMakeTable[EVAL_PARSE_DEFINE_SYMBOL_MACRO] = code_make_define_symbol_macro;
 	CodeMakeTable[EVAL_PARSE_QUOTE] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_FUNCTION] = code_make_function;
 	CodeMakeTable[EVAL_PARSE_LAMBDA] = code_make_lambda;

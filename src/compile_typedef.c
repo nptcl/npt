@@ -66,7 +66,6 @@ static void init_compile_typedef_write(void)
 	defwrite(defmacro);
 	defwrite(deftype);
 	defwrite(define_compiler_macro);
-	defwrite(define_symbol_macro);
 	defwrite(defun);
 
 	defwrite(call_result);
@@ -212,7 +211,6 @@ static void init_compile_typedef_read(void)
 	defread(defmacro, DEFMACRO);
 	defread(deftype, DEFTYPE);
 	defread(define_compiler_macro, DEFINE_COMPILER_MACRO);
-	defread(define_symbol_macro, DEFINE_SYMBOL_MACRO);
 	defread(defun, DEFUN);
 
 	defread(call_result, CALL_RESULT);

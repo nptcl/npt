@@ -3,6 +3,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval_execute.h"
+#include "eval_load.h"
 #include "eval_main.h"
 #include "execute.h"
 #include "format.h"
@@ -298,7 +299,7 @@ static int eval_main_load_execute(Execute ptr, void *voidp)
 {
 	struct eval_main_load_struct *str;
 	str = (struct eval_main_load_struct *)voidp;
-	return eval_load(ptr, str->ret, str->file, Nil, Nil, str->exists, Unbound);
+	return eval_load_(ptr, str->ret, str->file, Nil, Nil, str->exists, Unbound);
 }
 
 int eval_main_load_(Execute ptr, addr file, int exists, int *ret)

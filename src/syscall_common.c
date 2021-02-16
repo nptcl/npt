@@ -46,6 +46,41 @@ static void defun_redirect_restart(void)
 }
 
 
+/* (defun define-symbol-macro (symbol form) ...) -> symbol */
+static int syscall_define_symbol_macro(Execute ptr, addr symbol, addr form)
+{
+	Return(setsymbol_macro_symbol_(symbol, form));
+	setresult_control(ptr, symbol);
+	return 0;
+}
+
+static void type_syscall_define_symbol_macro(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, Symbol);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_define_symbol_macro(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_DEFINE_SYMBOL_MACRO, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2(pos, p_defun_syscall_define_symbol_macro);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_define_symbol_macro(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun symbol-macro-expander (&rest form) form) */
 static int syscall_symbol_macro_expander(Execute ptr, addr form, addr env)
 {
@@ -1528,6 +1563,7 @@ static void defun_intern_eql_specializer(void)
 void init_syscall_common(void)
 {
 	SetPointerSysCall(defun, var2, redirect_restart);
+	SetPointerSysCall(defun, var2, define_symbol_macro);
 	SetPointerSysCall(defmacro, macro, symbol_macro_expander);
 	SetPointerSysCall(defun, var3, defconstant);
 	SetPointerSysCall(defun, var1, in_package);
@@ -1575,6 +1611,7 @@ void init_syscall_common(void)
 void build_syscall_common(void)
 {
 	defun_redirect_restart();
+	defun_define_symbol_macro();
 	defun_symbol_macro_expander();
 	defun_defconstant();
 	defun_in_package();

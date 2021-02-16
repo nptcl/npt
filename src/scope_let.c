@@ -139,12 +139,10 @@ static int make_tablevalue_special_stack(Execute ptr,
 	return 1;
 }
 
-static void let_maketable(Execute ptr, struct let_struct *str)
+static int let_maketable_(Execute ptr, struct let_struct *str)
 {
 	addr stack, args, decl, list, var, eval;
-	LocalRoot local;
 
-	local = ptr->local;
 	stack = str->stack;
 	decl = str->decl;
 	args = str->args;
@@ -152,9 +150,11 @@ static void let_maketable(Execute ptr, struct let_struct *str)
 		GetCons(args, &list, &args);
 		GetCar(list, &var);
 		make_tablevalue_stack(ptr, &eval, stack, var, 1);
-		apply_declare_let_stack(local, stack, var, decl);
+		Return(apply_declare_let_stack_(ptr, stack, var, decl));
 		SetCar(list, eval);
 	}
+
+	return 0;
 }
 
 static int dynamic_stack_tablevalue(addr stack, addr symbol, int *ret)
@@ -533,7 +533,7 @@ static int let_execute(Execute ptr, struct let_struct *str)
 
 	stack = str->stack;
 	Return(let_init(ptr, str));
-	let_maketable(ptr, str);
+	Return(let_maketable_(ptr, str));
 	Return(apply_declare_(ptr, stack, str->decl, &str->free));
 	Return(let_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
@@ -572,7 +572,7 @@ int ifdeclvalue_(Execute ptr, addr stack, addr var, addr decl, addr *ret)
 	make_tablevalue_stack(ptr, &pos, stack, var, 0);
 	GetTypeTable(&aster, Asterisk);
 	settype_tablevalue(pos, aster);
-	apply_declare_value_stack(ptr->local, stack, var, decl);
+	Return(apply_declare_value_stack_(ptr, stack, var, decl));
 	return push_tablevalue_global_(ptr, stack, var, ret);
 }
 

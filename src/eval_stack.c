@@ -438,19 +438,43 @@ void apply_declare_stack(LocalRoot local, addr stack, addr declare)
 }
 
 /* for let* arguments */
-static void apply_declare_symbol_stack(LocalRoot local,
-		addr stack, addr symbol, addr list)
+static int apply_declare_global_p_(Execute ptr, addr symbol, addr list, int *ret)
 {
+	if (find_list_eq_unsafe(symbol, list))
+		return Result(ret, 1); /* special */
+
+	/* global */
+	Return(getglobal_eval_(ptr, &list));
+	GetEvalStackTable(list, &list);
+	if (! GetPlistConst(list, SYSTEM_TYPE_SPECIAL, &list)) {
+		if (find_list_eq_unsafe(symbol, list))
+			return Result(ret, 1); /* special */
+	}
+
+	/* symbol */
+	if (specialp_symbol(symbol))
+		return Result(ret, 1); /* special */
+
+	/* lexical */
+	return Result(ret, 0); /* lexical */
+}
+
+static int apply_declare_symbol_stack_(Execute ptr, addr stack, addr symbol, addr list)
+{
+	int check;
 	constindex index;
 	addr key, table;
 
-	index = find_list_eq_unsafe(symbol, list)?
+	Return(apply_declare_global_p_(ptr, symbol, list, &check));
+	index = check?
 		CONSTANT_SYSTEM_TYPE_SPECIAL:
 		CONSTANT_SYSTEM_TYPE_LEXICAL;
 	GetConstant(index, &key);
 	GetEvalStackTable(stack, &table);
-	if (pushnewplist_alloc(local, table, key, symbol, &table))
+	if (pushnewplist_alloc(ptr->local, table, key, symbol, &table))
 		SetEvalStackTable(stack, table);
+
+	return 0;
 }
 
 static void apply_declare_dynamic_stack(LocalRoot local,
@@ -480,16 +504,18 @@ static void apply_plistsymbol_stack(LocalRoot local,
 	}
 }
 
-void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare)
+int apply_declare_value_stack_(Execute ptr, addr stack, addr symbol, addr declare)
 {
 	addr list;
+	LocalRoot local;
 
+	local = ptr->local;
 	/* special */
 	getall_special_declare(declare, &list);
-	apply_declare_symbol_stack(local, stack, symbol, list);
+	Return(apply_declare_symbol_stack_(ptr, stack, symbol, list));
 	/* inline, notinline */
 	if (declare == Nil)
-		return;
+		return 0;
 	/* type */
 	getall_type_value_declare(declare, &list);
 	apply_plistsymbol_stack(local, stack, symbol, list, CONSTANT_SYSTEM_TYPE_VALUE);
@@ -504,12 +530,14 @@ void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr de
 	apply_plistsymbol_stack(local, stack, symbol, list, CONSTANT_SYSTEM_IGNORE_VALUE);
 	/* ignore, ignorable function */
 	/* declaration is proclamation only. */
+
+	return 0;
 }
 
-void apply_declare_let_stack(LocalRoot local, addr stack, addr symbol, addr declare)
+int apply_declare_let_stack_(Execute ptr, addr stack, addr symbol, addr declare)
 {
 	getall_special_declare(declare, &declare);
-	apply_declare_symbol_stack(local, stack, symbol, declare);
+	return apply_declare_symbol_stack_(ptr, stack, symbol, declare);
 }
 
 /* for labels arguments */
