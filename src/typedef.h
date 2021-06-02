@@ -6,6 +6,7 @@
 #include "typedef_value.h"
 #include "typedef_integer.h"
 #include <stddef.h>
+#include <stdarg.h>
 
 /* setjmp */
 typedef void (*lisp_abort_calltype)(void);

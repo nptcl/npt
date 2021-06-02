@@ -303,6 +303,7 @@ static int test_bq_attach_append(void)
 {
 	addr pos, left, right;
 
+	pos = NULL;
 	bq_attach_append_(readr_debug("10"), Nil, &pos);
 	test(RefFixnum(pos) == 10, "bq_attach_append1");
 
@@ -369,6 +370,9 @@ static int test_bq_notany_splicing_frob(void)
 {
 	int check;
 	addr pos, a;
+
+	check = 0;
+	pos = NULL;
 
 	quote_heap(&pos, QuoteExecute_List, Nil);
 	bq_notany_splicing_frob_(pos, &check);

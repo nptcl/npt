@@ -654,3 +654,12 @@
       (stream-external-format file)))
   lisp-system::utf-32le-bom)
 
+
+;;
+;;  delete-file
+(deftest delete-encode-file.1
+  (progn
+    (when (probe-file *encode-file*)
+      (delete-file *encode-file*))
+    (values)))
+

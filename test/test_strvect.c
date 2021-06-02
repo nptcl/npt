@@ -33,6 +33,8 @@ static int test_memu_equal(void)
 {
 	unicode left[10], right[10];
 
+	aatype(left);
+	aatype(right);
 	test(! memu_equal(left, right, 4, 5), "memu_equal.1");
 	left[0] = right[0] = 10;
 	left[1] = right[1] = 20;
@@ -48,6 +50,8 @@ static int test_memu_compare(void)
 {
 	unicode left[10], right[10];
 
+	aatype(left);
+	aatype(right);
 	test(memu_compare(left, right, 4, 5) < 0, "memu_compare.1");
 	test(memu_compare(left, right, 5, 4) > 0, "memu_compare.2");
 	left[0] = right[0] = 10;
@@ -64,6 +68,8 @@ static int test_memu_equalp(void)
 {
 	unicode left[10], right[10];
 
+	aatype(left);
+	aatype(right);
 	test(! memu_equalp(left, right, 4, 5), "memu_equalp.1");
 	left[0] = 'A'; right[0] = 'A';
 	left[1] = 'b'; right[1] = 'B';
@@ -79,6 +85,8 @@ static int test_memu_comparep(void)
 {
 	unicode left[10], right[10];
 
+	aatype(left);
+	aatype(right);
 	test(memu_comparep(left, right, 4, 5) < 0, "memu_comparep.1");
 	test(memu_comparep(left, right, 5, 4) > 0, "memu_comparep.2");
 	left[0] = 'A'; right[0] = 'A';
@@ -96,6 +104,8 @@ static int test_memu1_equal(void)
 	unicode left[10];
 	byte right[10];
 
+	aatype(left);
+	aatype(right);
 	test(! memu1_equal(left, right, 4, 5), "memu1_equal.1");
 	left[0] = right[0] = 10;
 	left[1] = right[1] = 20;
@@ -112,6 +122,8 @@ static int test_memu1_compare(void)
 	unicode left[10];
 	byte right[10];
 
+	aatype(left);
+	aatype(right);
 	test(memu1_compare(left, right, 4, 5) < 0, "memu1_compare.1");
 	test(memu1_compare(left, right, 5, 4) > 0, "memu1_compare.2");
 	left[0] = right[0] = 10;
@@ -129,6 +141,8 @@ static int test_memu1_equalp(void)
 	unicode left[10];
 	byte right[10];
 
+	aatype(left);
+	aatype(right);
 	test(! memu1_equalp(left, right, 4, 5), "memu1_equalp.1");
 	left[0] = 'A'; right[0] = 'A';
 	left[1] = 'b'; right[1] = 'B';
@@ -145,6 +159,8 @@ static int test_memu1_comparep(void)
 	unicode left[10];
 	byte right[10];
 
+	aatype(left);
+	aatype(right);
 	test(memu1_comparep(left, right, 4, 5) < 0, "memu1_comparep.1");
 	test(memu1_comparep(left, right, 5, 4) > 0, "memu1_comparep.2");
 	left[0] = 'A'; right[0] = 'A';

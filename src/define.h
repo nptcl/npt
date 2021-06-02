@@ -520,6 +520,13 @@
 #define LISP_COMPLEX_C99
 #endif
 
+/* complex-long */
+#ifndef LISP_COMPLEX_LONG
+#ifndef LISP_FREEBSD
+#define LISP_COMPLEX_LONG
+#endif
+#endif
+
 /* windows */
 #ifdef _MSC_VER
 #pragma warning(disable:4996)

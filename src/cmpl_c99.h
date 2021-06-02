@@ -1,12 +1,17 @@
 #include <complex.h>
 #include <math.h>
+#include "define.h"
 #include "typedef.h"
 
 typedef float complex single_complex;
 typedef double complex double_complex;
 typedef long double complex long_complex;
 
-#ifdef __clang__
+#ifdef LISP_COMPLEX_LONG
+#define clogf_define clogf
+#define clogd_define clog
+#define clogl_define clogl
+#else
 #define cexpl cexp
 #define csinl csin
 #define ccosl ccos
@@ -33,10 +38,6 @@ static long_complex clogl_define(long_complex z)
 {
 	return logl(cabsl(z)) + I * cargl(z);
 }
-#else
-#define clogf_define clogf
-#define clogd_define clog
-#define clogl_define clogl
 #endif
 
 void cexp_f(single_float real, single_float imag, single_float *re, single_float *im)
