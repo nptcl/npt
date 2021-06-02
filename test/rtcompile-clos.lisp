@@ -125,3 +125,35 @@
       (compile-structure-3-ccc x)))
   10 20 30)
 
+
+;;
+;;  quote
+;;
+(defstruct compile-quote-clos-1 aaa bbb ccc)
+(defmethod make-load-form ((x compile-quote-clos-1) &optional env)
+  (make-load-form-saving-slots x :environment env))
+
+(deftest compile-quote-clos.1
+  (compile-quote-clos-1-aaa
+    (expr-compile
+      #,(make-compile-quote-clos-1 :aaa 10)))
+  10)
+
+(deftest compile-quote-clos.2
+  (compile-quote-clos-1-aaa
+    (expr-compile
+      '#,(make-compile-quote-clos-1 :aaa 10)))
+  10)
+
+(deftest-error compile-quote-clos.3
+  (compile-quote-clos-1-aaa
+    (expr-compile
+      '(#,(make-compile-quote-clos-1 :aaa 10))))
+  type-error)
+
+(deftest-error compile-quote-clos.4
+  (compile-quote-clos-1-aaa
+    (expr-compile
+      `(#,(make-compile-quote-clos-1 :aaa 10))))
+  type-error)
+

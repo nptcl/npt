@@ -33,8 +33,16 @@ static void test_eval_copy_parse(addr *ret, addr pos)
 
 	ptr = Execute_Thread;
 	push_control(ptr, &control);
-	begin_parse(ptr, Nil);
-	eval_parse_(ptr, ret, pos);
+
+	push_toplevel_eval(ptr, Nil);
+	push_compile_time_eval(ptr, Nil);
+	push_compile_toplevel_eval(ptr, Nil);
+	push_load_toplevel_eval(ptr, T);
+	push_execute_eval(ptr, T);
+	init_parse_environment(ptr);
+	init_parse_step(ptr);
+
+	parse_execute_(ptr, ret, pos);
 	pop_control_(ptr, control);
 }
 

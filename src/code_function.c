@@ -19,9 +19,11 @@
 #include "execute_values.h"
 #include "function.h"
 #include "integer.h"
-#include "load_time_value.h"
+#include "load_code.h"
+#include "load_object.h"
 #include "restart_value.h"
 #include "step_prompt.h"
+#include "strtype.h"
 #include "symbol.h"
 #include "type_deftype.h"
 
@@ -821,29 +823,44 @@ int progv_code(Execute ptr, CodeValue x)
 /*
  *  load-time-value
  */
-int load_time_value_bind_code(Execute ptr, CodeValue x)
+int load_alloc_code(Execute ptr, CodeValue x)
 {
-	execute_load_time_value_bind(ptr, x.pos);
+	execute_load_alloc(ptr, x.index);
 	return 0;
 }
 
-int load_time_value_init_code(Execute ptr, CodeValue x)
+int load_gensym_code(Execute ptr, CodeValue x)
 {
-	execute_load_time_value_init(ptr, x.pos);
+	addr pos, index;
+	size_t value;
+
+	List_bind(x.pos, &pos, &index, NULL);
+	GetIndex(index, &value);
+	return execute_load_gensym_(ptr, pos, value);
+}
+
+int load_set_code(Execute ptr, CodeValue x)
+{
+	return execute_load_set_(ptr, x.index);
+}
+
+int reference_set_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+
+	Return(result_load_time_value_(ptr, x.pos, &pos));
+	setresult_control(ptr, pos);
+
 	return 0;
 }
 
-int load_time_value_set_code(Execute ptr, CodeValue x)
+int reference_push_code(Execute ptr, CodeValue x)
 {
-	execute_load_time_value_get(ptr, x.pos, &x.pos);
-	setresult_control(ptr, x.pos);
-	return 0;
-}
+	addr pos;
 
-int load_time_value_push_code(Execute ptr, CodeValue x)
-{
-	execute_load_time_value_get(ptr, x.pos, &x.pos);
-	pushargs_control(ptr, x.pos);
+	Return(result_load_time_value_(ptr, x.pos, &pos));
+	pushargs_control(ptr, pos);
+
 	return 0;
 }
 

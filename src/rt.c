@@ -419,7 +419,7 @@ static int do_test_equal_(Execute ptr, addr expr, addr values, addr *rvalues, in
 	addr result, pos1, pos2;
 
 	/* (eval expr) */
-	Return(eval_execute_partial(ptr, expr));
+	Return(eval_execute_partial_(ptr, expr));
 	getvalues_list_control_local(ptr, &result);
 	*rvalues = result;
 

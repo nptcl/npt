@@ -1370,9 +1370,17 @@ lisp-system::standard
 (lisp-system::*trace* :name trace :constant system)
 (lisp-system::*environment* :name special-environment :constant system)
 (lisp-system::*arguments* :name special-arguments :constant system)
-(lisp-system::*load-time-value* :name special-load-time-value :constant system)
-(lisp-system::*make-load-form* :name special-make-load-form :constant system)
-(lisp-system::*compile-make-load-form* :name compile-make-load-form :constant system)
+
+(lisp-system::*load-size* :name load-size :constant system)
+(lisp-system::*load-array* :name load-array :constant system)
+(lisp-system::*load-table* :name load-table :constant system)
+(lisp-system::*load-gensym* :name load-gensym :constant system)
+(lisp-system::*load-depend* :name load-depend :constant system)
+(lisp-system::*load-push* :name load-push :constant system)
+
+(lisp-system::*depend-loop* :name depend-loop :constant system)
+(lisp-system::*depend-pass* :name depend-pass :constant system)
+(lisp-system::*depend-error* :name depend-error :constant system)
 
 lisp-system::compiled-macro-function
 lisp-system::control
@@ -1588,8 +1596,6 @@ lisp-system::delay-warning
   :constant system :name module-provider-functions)
 (lisp-system::*compile-output* :constant system :name compile-output)
 (lisp-system::*compile-code* :constant system :name compile-code)
-(lisp-system::*compile-gensym* :constant system :name compile-gensym)
-(lisp-system::*compile-gensym-index* :constant system :name compile-gensym-index)
 
 
 ;;
@@ -1743,10 +1749,11 @@ lisp-code::bind2-type
 lisp-code::bind2-special
 lisp-code::bind2-lexical
 
-lisp-code::load-time-value-bind
-lisp-code::load-time-value-init
-lisp-code::load-time-value-set
-lisp-code::load-time-value-push
+lisp-code::load-alloc
+lisp-code::load-gensym
+lisp-code::load-set
+lisp-code::reference-set
+lisp-code::reference-push
 
 lisp-code::step
 

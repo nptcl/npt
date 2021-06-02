@@ -1,92 +1,134 @@
+#include "compile_eval.h"
+#include "compile_file.h"
 #include "condition.h"
 #include "cons.h"
-#include "cons_list.h"
 #include "constant.h"
 #include "control_object.h"
-#include "control_operator.h"
-#include "eval_object.h"
-#include "eval_copy.h"
-#include "heap.h"
-#include "hold.h"
+#include "eval_execute.h"
+#include "hashtable.h"
+#include "integer.h"
+#include "load_depend.h"
+#include "load_gensym.h"
 #include "load_time_value.h"
 #include "parse_function.h"
 #include "parse_object.h"
 #include "scope_object.h"
 #include "symbol.h"
+#include "typedef.h"
 
 /*
- *  load-time-value
+ *  *load-table*
  */
-void load_time_value_heap(addr *ret)
+static void load_table_symbol(addr *ret)
 {
-	heap_array2(ret, LISPTYPE_LOAD_TIME_VALUE, 1);
+	GetConst(SYSTEM_LOAD_TABLE, ret);
 }
 
-void get_load_time_value_heap(addr pos, addr *ret)
+int intern_load_table_(Execute ptr, addr pos, addr value)
 {
-	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
-	GetArrayA2(pos, 0, ret);
+	addr symbol, table;
+
+	load_table_symbol(&symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &table));
+	Return(intern_hashheap_(table, pos, &pos));
+	SetCdr(pos, value);
+
+	return 0;
 }
 
-void set_load_time_value_heap(addr pos, addr value)
+int get_load_table_(Execute ptr, addr pos, addr *ret)
 {
-	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
-	SetArrayA2(pos, 0, value);
+	addr symbol, table;
+
+	load_table_symbol(&symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &table));
+	return findnil_hashtable_(table, pos, ret);
+}
+
+int get_index_load_table_(Execute ptr, addr pos, size_t *ret)
+{
+	Return(get_load_table_(ptr, pos, &pos));
+	Check(pos == Nil, "nil error");
+	GetIndex(pos, ret);
+
+	return 0;
 }
 
 
 /*
- *  *load-time-value*
+ *  *load-size*
  */
-static void load_time_value_symbol(addr *ret)
+static void load_size_symbol(addr *ret)
 {
-	GetConst(SYSTEM_SPECIAL_LOAD_TIME_VALUE, ret);
+	GetConst(SYSTEM_LOAD_SIZE, ret);
 }
 
-static int get_load_time_value_symbol_(Execute ptr, addr *ret)
+int incf_load_size_(Execute ptr, addr *ret)
 {
-	addr symbol;
-	load_time_value_symbol(&symbol);
-	return getspecialcheck_local_(ptr, symbol, ret);
-}
+	addr symbol, pos, value;
+	size_t size;
 
-void set_load_time_value_symbol(Execute ptr, addr value)
-{
-	addr symbol;
-	load_time_value_symbol(&symbol);
+	load_size_symbol(&symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &pos));
+	Return(oneplus_integer_common_(ptr->local, pos, &value));
 	setspecial_local(ptr, symbol, value);
+	Return(getindex_integer_(pos, &size));
+	index_heap(&pos, size);
+
+	return Result(ret, pos);
+}
+
+int get_load_size_(Execute ptr, addr *ret)
+{
+	addr pos;
+	size_t size;
+
+	load_size_symbol(&pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	Return(getindex_integer_(pos, &size));
+	index_heap(&pos, size);
+
+	return Result(ret, pos);
 }
 
 
 /*
  *  parse
  */
-void init_parse_load_time_value(Execute ptr)
-{
-	addr symbol;
-	load_time_value_symbol(&symbol);
-	pushspecial_control(ptr, symbol, Nil);
-}
-
-int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos)
+static int parse_load_time_value_make_(Execute ptr, addr *ret,
+		addr value, addr readonly, addr index, addr type)
 {
 	addr eval;
 
-	Return(get_load_time_value_symbol_(ptr, &eval));
-	if (eval == Nil)
-		return Result(ret, pos);
+	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 4);
+	SetEvalParse(eval, 0, value);
+	SetEvalParse(eval, 1, (readonly != Nil)? T: Nil);
+	SetEvalParse(eval, 2, index);
+	SetEvalParse(eval, 3, type);
 
-	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 2);
-	SetEvalParse(eval, 0, T);
-	SetEvalParse(eval, 1, pos);
 	return Result(ret, eval);
 }
 
-int parse_load_time_value(Execute ptr, addr *ret, addr form)
+static int parse_load_time_value_compile_(Execute ptr,
+		addr *ret, addr value, addr readonly)
 {
-	addr args, eval, expr, readonly;
+	addr index, type;
+	Return(compile_partial_(ptr, value, &index, &type));
+	return parse_load_time_value_make_(ptr, ret, value, readonly, index, type);
+}
 
+static int parse_load_time_value_eval_(Execute ptr,
+		addr *ret, addr expr, addr readonly)
+{
+	Return(eval_result_partial_(ptr, expr, &expr));
+	return parse_execute_(ptr, ret, expr);
+}
+
+int parse_load_time_value_(Execute ptr, addr *ret, addr form)
+{
+	addr args, expr, readonly;
+
+	/* parse */
 	if (! consp_getcons(form, &expr, &args))
 		goto error;
 	if (args == Nil)
@@ -96,18 +138,14 @@ int parse_load_time_value(Execute ptr, addr *ret, addr form)
 	if (args != Nil)
 		goto error;
 
-	set_load_time_value_symbol(ptr, T);
-	Return(parse_self_(ptr, expr));
-
-	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 4);
-	SetEvalParse(eval, 0, Nil);
-	SetEvalParse(eval, 1, expr);
-	SetEvalParse(eval, 2, (readonly != Nil)? T: Nil);
-	SetEvalParse(eval, 3, Nil); /* init */
-	return Result(ret, eval);
+	/* mode */
+	if (eval_compile_p(ptr))
+		return parse_load_time_value_compile_(ptr, ret, expr, readonly);
+	else
+		return parse_load_time_value_eval_(ptr, ret, expr, readonly);
 
 error:
+	*ret = Nil;
 	return fmte_("The form ~S must be "
 			"(load-time-value expr &optional read-only-p)).", form, NULL);
 }
@@ -116,178 +154,99 @@ error:
 /*
  *  copy
  */
-static void copy_eval_load_time_value_body(LocalRoot local, addr *ret, addr eval)
-{
-	EvalParse type;
-	addr check, expr;
-
-	GetEvalParseType(eval, &type);
-	Check(type != EVAL_PARSE_LOAD_TIME_VALUE, "parse error");
-	GetEvalParse(eval, 0, &check); /* T */
-	GetEvalParse(eval, 1, &expr);
-	Check(check == Nil, "check error");
-
-	copy_eval_parse(local, &expr, expr);
-
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, check); /* T */
-	SetEvalParse(eval, 1, expr);
-	*ret = eval;
-}
-
-static void copy_eval_load_time_value_expr(LocalRoot local, addr *ret, addr eval)
-{
-	EvalParse type;
-	addr check, expr, readonly, init;
-
-	GetEvalParseType(eval, &type);
-	Check(type != EVAL_PARSE_LOAD_TIME_VALUE, "parse error");
-	GetEvalParse(eval, 0, &check); /* Nil */
-	GetEvalParse(eval, 1, &expr);
-	GetEvalParse(eval, 2, &readonly);
-	GetEvalParse(eval, 3, &init);
-	Check(check != Nil, "check error");
-
-	copy_eval_parse(local, &expr, expr);
-	if (init != Nil)
-		copy_eval_parse(local, &init, init);
-
-	eval_parse_alloc(local, &eval, type, 4);
-	SetEvalParse(eval, 0, check); /* Nil */
-	SetEvalParse(eval, 1, expr);
-	SetEvalParse(eval, 2, readonly);
-	SetEvalParse(eval, 3, init);
-	*ret = eval;
-}
-
 void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr check;
+	addr value, readonly, index, the;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LOAD_TIME_VALUE, "parse error");
-	GetEvalParse(eval, 0, &check);
-	if (check != Nil)
-		copy_eval_load_time_value_body(local, ret, eval);
-	else
-		copy_eval_load_time_value_expr(local, ret, eval);
+	GetEvalParse(eval, 0, &value);
+	GetEvalParse(eval, 1, &readonly);
+	GetEvalParse(eval, 2, &index);
+	GetEvalParse(eval, 3, &the);
+
+	eval_parse_alloc(local, &eval, type, 4);
+	SetEvalParse(eval, 0, value);
+	SetEvalParse(eval, 1, readonly);
+	SetEvalParse(eval, 2, index);
+	SetEvalParse(eval, 3, the);
+	*ret = eval;
 }
 
 
 /*
  *  scope
  */
-void init_scope_load_time_value(Execute ptr)
+int scope_load_time_value_(Execute ptr, addr *ret, addr eval)
 {
-	addr symbol;
-	load_time_value_symbol(&symbol);
-	pushspecial_control(ptr, symbol, Nil);
-}
+	addr value, readonly, index, type;
 
-static int scope_load_time_value_list_(Execute ptr, addr *ret)
-{
-	addr list;
+	if (! eval_compile_p(ptr)) {
+		*ret = Nil;
+		return fmte_("Invalid scope object: load-time-value.", NULL);
+	}
 
-	Return(get_load_time_value_symbol_(ptr, &list));
-	set_load_time_value_symbol(ptr, Nil);
-	nreverse(ret, list);
-
-	return 0;
-}
-
-static int scope_load_time_value_body(Execute ptr, addr *ret, addr eval)
-{
-	addr check, expr, list, type;
-
-	GetEvalParse(eval, 0, &check); /* T */
-	GetEvalParse(eval, 1, &expr);
-
-	Return(scope_eval(ptr, &expr, expr));
-	Return(scope_load_time_value_list_(ptr, &list));
-	GetEvalScopeThe(expr, &type);
+	/* parse */
+	GetEvalParse(eval, 0, &value);
+	GetEvalParse(eval, 1, &readonly);
+	GetEvalParse(eval, 2, &index);
+	GetEvalParse(eval, 3, &type);
 
 	/* eval */
 	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil));
-	SetEvalScopeIndex(eval, 0, check); /* T */
-	SetEvalScopeIndex(eval, 1, expr);
-	SetEvalScopeIndex(eval, 2, list);
-	return Result(ret, eval);
-}
-
-static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
-{
-	addr check, expr, readonly, init, type, value;
-	LocalHold hold;
-
-	GetEvalParse(eval, 0, &check); /* Nil */
-	GetEvalParse(eval, 1, &expr);
-	GetEvalParse(eval, 2, &readonly);
-	GetEvalParse(eval, 3, &init);
-	Check(check != Nil, "check error");
-
-	hold = LocalHold_local(ptr);
-	Return(localhold_scope_eval(hold, ptr, &expr, expr));
-	if (init != Nil) {
-		Return(localhold_scope_eval(hold, ptr, &init, init));
-	}
-	localhold_end(hold);
-
-	GetEvalScopeThe(expr, &type);
-	load_time_value_heap(&value);
-
-	/* eval */
-	Return(eval_scope_size_(ptr, &eval, 5, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil));
-	SetEvalScopeIndex(eval, 0, check); /* Nil */
-	SetEvalScopeIndex(eval, 1, expr);
+	SetEvalScopeIndex(eval, 0, value);
+	SetEvalScopeIndex(eval, 1, index);
 	SetEvalScopeIndex(eval, 2, readonly);
-	SetEvalScopeIndex(eval, 3, init);
-	SetEvalScopeIndex(eval, 4, value);
-
-	/* push */
-	Return(get_load_time_value_symbol_(ptr, &value));
-	cons_heap(&value, eval, value);
-	set_load_time_value_symbol(ptr, value);
 
 	/* result */
 	return Result(ret, eval);
 }
 
-int scope_load_time_value(Execute ptr, addr *ret, addr eval)
-{
-	addr check;
-
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &check);
-	if (check != Nil)
-		return scope_load_time_value_body(ptr, ret, eval);
-	else
-		return scope_load_time_value_expr(ptr, ret, eval);
-}
-
 
 /*
- *  execute
+ *  initialize
  */
-void execute_load_time_value_bind(Execute ptr, addr pos)
+static void init_load_symbol(Execute ptr)
 {
-	addr value;
+	addr symbol, pos;
 
-	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
-	getresult_control(ptr, &value);
-	set_load_time_value_heap(pos, value);
+	/* *load-size* */
+	load_size_symbol(&symbol);
+	fixnum_heap(&pos, 0);
+	pushspecial_control(ptr, symbol, pos);
+
+	/* *load-table* */
+	load_table_symbol(&symbol);
+	hashtable_heap(&pos);
+	settest_hashtable(pos, HASHTABLE_TEST_EQ);
+	pushspecial_control(ptr, symbol, pos);
 }
 
-void execute_load_time_value_init(Execute ptr, addr pos)
+static void disable_load_symbol(Execute ptr)
 {
-	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
-	get_load_time_value_heap(pos, &pos);
-	pushargs_control(ptr, pos);
+	addr symbol;
+
+	/* *load-size* */
+	load_size_symbol(&symbol);
+	pushspecial_control(ptr, symbol, Unbound);
+
+	/* *load-table* */
+	load_table_symbol(&symbol);
+	pushspecial_control(ptr, symbol, Unbound);
 }
 
-void execute_load_time_value_get(Execute ptr, addr pos, addr *ret)
+void init_load_time_value(Execute ptr)
 {
-	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
-	get_load_time_value_heap(pos, ret);
+	init_load_symbol(ptr);
+	init_load_gensym(ptr);
+	init_load_depend(ptr);
+}
+
+void disable_load_time_value(Execute ptr)
+{
+	disable_load_symbol(ptr);
+	disable_load_gensym(ptr);
+	disable_load_depend(ptr);
 }
 

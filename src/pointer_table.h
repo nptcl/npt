@@ -138,10 +138,11 @@ enum pointer_index {
 	p_bind2_special_code,
 	p_bind2_lexical_code,
 
-	p_load_time_value_bind_code,
-	p_load_time_value_init_code,
-	p_load_time_value_set_code,
-	p_load_time_value_push_code,
+	p_load_alloc_code,
+	p_load_gensym_code,
+	p_load_set_code,
+	p_reference_set_code,
+	p_reference_push_code,
 
 	p_step_code,
 

@@ -20,6 +20,7 @@
 #define code_queue_single _n(code_queue_single)
 #define code_queue_cons _n(code_queue_cons)
 #define code_queue_double _n(code_queue_double)
+#define code_queue_index _n(code_queue_index)
 #define code_queue_ifpush _n(code_queue_ifpush)
 #define code_queue_push_simple _n(code_queue_push_simple)
 #define code_queue_push_new _n(code_queue_push_new)
@@ -87,9 +88,11 @@ void code_queue_list(LocalRoot local, addr code, constindex index, ...);
 void code_queue_single(LocalRoot, addr, constindex);
 void code_queue_cons(LocalRoot, addr, constindex, addr);
 void code_queue_double(LocalRoot, addr, constindex, addr, addr);
+void code_queue_index(LocalRoot, addr, constindex, size_t);
 #define CodeQueue_single(a,b,c) code_queue_single(a,b,CONSTANT_CODE_##c)
 #define CodeQueue_cons(a,b,c,d) code_queue_cons(a,b,CONSTANT_CODE_##c,d)
 #define CodeQueue_double(a,b,c,d,e) code_queue_double(a,b,CONSTANT_CODE_##c,d,e)
+#define CodeQueue_index(a,b,c,d) code_queue_index(a,b,CONSTANT_CODE_##c,d)
 void code_queue_ifpush(LocalRoot local, addr code);
 
 void code_queue_push_simple(LocalRoot local, addr code);

@@ -29,6 +29,7 @@
 #define find_list_eq_safe_ _n(find_list_eq_safe_)
 #define find_list_eql_unsafe _n(find_list_eql_unsafe)
 #define position_list_eq_unsafe _n(position_list_eq_unsafe)
+#define find_assoc_eq_unsafe _n(find_assoc_eq_unsafe)
 #define pushnew_alloc _n(pushnew_alloc)
 #define pushnew_local _n(pushnew_local)
 #define pushnew_heap _n(pushnew_heap)
@@ -89,6 +90,7 @@ int find_list_eq_unsafe(addr key, addr cons);
 int find_list_eq_safe_(addr key, addr cons, int *ret);
 int find_list_eql_unsafe(addr key, addr cons);
 int position_list_eq_unsafe(addr key, addr cons, size_t *ret);
+int find_assoc_eq_unsafe(addr key, addr list, addr *ret);
 
 /* pushnew */
 int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret);

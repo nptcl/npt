@@ -6,12 +6,14 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "execute.h"
+#include "hashtable.h"
 #include "hold.h"
+#include "load_code.h"
 #include "stream.h"
 #include "stream_function.h"
 #include "typedef.h"
 
-static int eval_compile_load_loop(Execute ptr, addr stream)
+static int eval_compile_load_toplevel_(Execute ptr, addr stream, int *ret)
 {
 	enum FaslCode type;
 	addr code;
@@ -20,8 +22,14 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 	hold = LocalHold_array(ptr, 1);
 	for (;;) {
 		Return(faslread_type_(stream, &type));
-		if (type == FaslCode_end)
+		if (type == FaslCode_break) {
+			*ret = 0;
 			break;
+		}
+		if (type == FaslCode_end) {
+			*ret = 1;
+			break;
+		}
 		Return(unread_byte_stream_(stream, (byte)type));
 
 		Return(faslread_value(ptr, stream, &code));
@@ -34,7 +42,21 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 	return 0;
 }
 
-int eval_compile_load(Execute ptr, addr stream)
+static int eval_compile_load_loop_(Execute ptr, addr stream)
+{
+	int check;
+
+	check = 0;
+	for (;;) {
+		Return(eval_compile_load_toplevel_(ptr, stream, &check));
+		if (check)
+			break;
+	}
+
+	return 0;
+}
+
+static int eval_compile_load_call_(Execute ptr, addr stream)
 {
 	int check;
 
@@ -44,7 +66,7 @@ int eval_compile_load(Execute ptr, addr stream)
 		return fmte_("Invalid fasl header.", NULL);
 
 	/* fasl body */
-	Return(eval_compile_load_loop(ptr, stream));
+	Return(eval_compile_load_loop_(ptr, stream));
 
 	/* footer */
 	Return(faslread_footer_(stream, &check));
@@ -52,5 +74,15 @@ int eval_compile_load(Execute ptr, addr stream)
 		return fmte_("Invalid fasl footer.", NULL);
 
 	return 0;
+}
+
+int eval_compile_load(Execute ptr, addr stream)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	fasl_load_time_value(ptr);
+	(void)eval_compile_load_call_(ptr, stream);
+	return pop_control_(ptr, control);
 }
 

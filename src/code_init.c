@@ -173,10 +173,11 @@ void init_code_init(void)
 	initcode(bind2_lexical_code, Index);
 
 	/* load-time-value */
-	initcode(load_time_value_bind_code, Addr);
-	initcode(load_time_value_init_code, Addr);
-	initcode(load_time_value_set_code, Addr);
-	initcode(load_time_value_push_code, Addr);
+	initcode(load_alloc_code, Index);
+	initcode(load_gensym_code, Addr);
+	initcode(load_set_code, Index);
+	initcode(reference_set_code, Addr);
+	initcode(reference_push_code, Addr);
 
 	/* step */
 	initcode(step_code, Addr);
@@ -328,10 +329,11 @@ void build_code_init(void)
 	defcode(BIND2_LEXICAL, bind2_lexical_code);
 
 	/* load-time-value */
-	defcode(LOAD_TIME_VALUE_BIND, load_time_value_bind_code);
-	defcode(LOAD_TIME_VALUE_INIT, load_time_value_init_code);
-	defcode(LOAD_TIME_VALUE_SET, load_time_value_set_code);
-	defcode(LOAD_TIME_VALUE_PUSH, load_time_value_push_code);
+	defcode(LOAD_ALLOC, load_alloc_code);
+	defcode(LOAD_GENSYM, load_gensym_code);
+	defcode(LOAD_SET, load_set_code);
+	defcode(REFERENCE_SET, reference_set_code);
+	defcode(REFERENCE_PUSH, reference_push_code);
 
 	/* step */
 	defcode(STEP, step_code);

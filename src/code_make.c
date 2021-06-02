@@ -1,6 +1,7 @@
 #include "callname.h"
 #include "code_make.h"
 #include "code_queue.h"
+#include "compile_file.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -8,6 +9,9 @@
 #include "eval_object.h"
 #include "eval_table.h"
 #include "function.h"
+#include "load_instance.h"
+#include "load_object.h"
+#include "load_time_value.h"
 #include "optimize_common.h"
 #include "scope_object.h"
 #include "strvect.h"
@@ -936,7 +940,7 @@ static int code_make_lambda_cache_p(addr scope)
 
 static void code_make_lambda(LocalRoot local, addr code, addr scope)
 {
-	addr gensym, name, label;
+	addr gensym, label;
 	modeswitch mode;
 
 	/* rem mode */
@@ -950,9 +954,7 @@ static void code_make_lambda(LocalRoot local, addr code, addr scope)
 	}
 
 	/* cache */
-	symbol_heap(&gensym);
-	strvect_char_heap(&name, "LAMBDA-CACHE");
-	SetNameSymbol(gensym, name);
+	make_symbolchar(&gensym, "LAMBDA-CACHE");
 
 	/* code */
 	code_queue_make_label(local, code, &label);
@@ -1955,76 +1957,16 @@ static void code_make_progv(LocalRoot local, addr code, addr scope)
 
 
 /* load-time-value */
-static void code_make_load_time_value_bind(LocalRoot local, addr code, addr scope)
+static void code_make_reference(LocalRoot local, addr code, addr value)
 {
-	addr expr, value;
-
-	GetEvalScopeIndex(scope, 1, &expr);
-	GetEvalScopeIndex(scope, 4, &value);
-	code_make_execute_set(local, code, expr);
-	CodeQueue_cons(local, code, LOAD_TIME_VALUE_BIND, value);
-}
-
-static void code_make_load_time_value_init(LocalRoot local, addr code, addr scope)
-{
-	addr init, value, pos;
-
-	GetEvalScopeIndex(scope, 3, &init);
-	GetEvalScopeIndex(scope, 4, &value);
-	if (init == Nil)
-		return;
-
-	/* call (lambda . argument) */
-	code_queue_push_new(local, code);
-	code_make_execute_set(local, code, init);
-	CodeQueue_cons(local, code, LOAD_TIME_VALUE_INIT, value);
-	CodeQueue_single(local, code, CALL_RESULT);
-	code_queue_pop(local, code, &pos);
-	code_make_execute_control(local, code, pos);
-}
-
-static void code_make_load_time_value_body(LocalRoot local, addr code, addr scope)
-{
-	addr check, expr, list, loop, pos;
-
-	GetEvalScopeIndex(scope, 0, &check);
-	GetEvalScopeIndex(scope, 1, &expr);
-	GetEvalScopeIndex(scope, 2, &list);
-	Check(check == Nil, "check error");
-
-	code_queue_push_new(local, code);
-	/* bind */
-	for (loop = list; loop != Nil; ) {
-		GetCons(loop, &pos, &loop);
-		code_make_load_time_value_bind(local, code, pos);
-	}
-	/* init */
-	for (loop = list; loop != Nil; ) {
-		GetCons(loop, &pos, &loop);
-		code_make_load_time_value_init(local, code, pos);
-	}
-	/* body */
-	code_make_execute(local, code, expr);
-	/* result */
-	code_queue_pop(local, code, &pos);
-	code_make_execute_control(local, code, pos);
-}
-
-static void code_make_load_time_value_expr(LocalRoot local, addr code, addr scope)
-{
-	addr check, value;
-
-	GetEvalScopeIndex(scope, 0, &check);
-	GetEvalScopeIndex(scope, 4, &value);
-	Check(check != Nil, "check error");
-
+	CheckTypeCodeQueue(code);
 	switch (code_queue_mode(code)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, LOAD_TIME_VALUE_SET, value);
+			CodeQueue_cons(local, code, REFERENCE_SET, value);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, LOAD_TIME_VALUE_PUSH, value);
+			CodeQueue_cons(local, code, REFERENCE_PUSH, value);
 			break;
 
 		case CodeQueue_ModeRemove:
@@ -2035,13 +1977,12 @@ static void code_make_load_time_value_expr(LocalRoot local, addr code, addr scop
 
 static void code_make_load_time_value(LocalRoot local, addr code, addr scope)
 {
-	addr check;
+	addr pos, value, index;
 
-	GetEvalScopeIndex(scope, 0, &check);
-	if (check != Nil)
-		code_make_load_time_value_body(local, code, scope);
-	else
-		code_make_load_time_value_expr(local, code, scope);
+	GetEvalScopeIndex(scope, 0, &value);
+	GetEvalScopeIndex(scope, 1, &index);
+	load_time_value_heap(&pos, value, index);
+	code_make_reference(local, code, pos);
 }
 
 
@@ -2444,6 +2385,10 @@ void code_make(LocalRoot local, addr *ret, addr scope)
 	rollback_local(local, stack);
 }
 
+
+/*
+ *  table
+ */
 void init_code_make(void)
 {
 	CodeMakeTable[EVAL_PARSE_NIL] = code_make_nil;

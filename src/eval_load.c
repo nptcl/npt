@@ -1,5 +1,6 @@
-#include "compile_load.h"
+#include "compile_eval.h"
 #include "compile_file.h"
+#include "compile_load.h"
 #include "condition_define.h"
 #include "constant.h"
 #include "control_object.h"
@@ -9,7 +10,7 @@
 #include "files.h"
 #include "hashtable.h"
 #include "hold.h"
-#include "make_load_form.h"
+#include "load_instance.h"
 #include "pathname.h"
 #include "pathname_object.h"
 #include "pathname_wildcard.h"
@@ -82,23 +83,11 @@ static int eval_load_open_(Execute ptr, addr file, int exist, int binary,
 	return Result(ret, Nil);
 }
 
-static void init_read_compile_gensym(Execute ptr)
-{
-	addr symbol, pos;
-
-	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
-	hashtable_heap(&pos);
-	settest_hashtable(pos, HASHTABLE_TEST_EQL);
-	pushspecial_control(ptr, symbol, pos);
-}
-
 static int eval_load_fasl_call_(Execute ptr, addr file, int closep)
 {
 	gchold_push_local(ptr->local, file);
 	if (closep)
 		push_close_stream(ptr, file);
-	init_read_make_load_form(ptr);
-	init_read_compile_gensym(ptr);
 	return eval_compile_load(ptr, file);
 }
 
@@ -123,7 +112,7 @@ static int eval_load_lisp_call_(Execute ptr, addr file, int closep)
 	gchold_push_local(ptr->local, file);
 	if (closep)
 		push_close_stream(ptr, file);
-	return eval_load_stream_(ptr, file, T);
+	return eval_stream_toplevel_(ptr, file);
 }
 
 static int eval_load_lisp_(Execute ptr, int *ret, addr file, int exist)

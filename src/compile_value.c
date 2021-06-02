@@ -11,11 +11,13 @@
 #include "compile_write.h"
 #include "condition.h"
 #include "define.h"
+#include "eval_object.h"
 #include "execute.h"
 #include "hashtable.h"
 #include "integer.h"
+#include "load_code.h"
+#include "load_object.h"
 #include "load_time_value.h"
-#include "make_load_form.h"
 #include "package.h"
 #include "package_intern.h"
 #include "package_object.h"
@@ -23,6 +25,7 @@
 #include "quote.h"
 #include "random_state.h"
 #include "ratio.h"
+#include "scope_object.h"
 #include "stream.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -57,6 +60,30 @@ int faslwrite_value_t(Execute ptr, addr stream, addr pos)
 int faslread_value_t(Execute ptr, addr stream, addr *ret)
 {
 	return Result(ret, T);
+}
+
+
+/*
+ *  clos
+ */
+int faslwrite_value_clos(Execute ptr, addr stream, addr pos)
+{
+	size_t index;
+
+	CheckType(pos, LISPTYPE_CLOS);
+	Return(get_index_load_table_(ptr, pos, &index));
+	Return(faslwrite_type_(stream, FaslCode_clos));
+	Return(faslwrite_buffer_(stream, &index, sizeoft(index)));
+
+	return 0;
+}
+
+int faslread_value_clos(Execute ptr, addr stream, addr *ret)
+{
+	size_t index;
+
+	Return(faslread_buffer_(stream, &index, sizeoft(index)));
+	return execute_load_get_(ptr, index, ret);
 }
 
 
@@ -340,61 +367,25 @@ int faslread_value_hashtable(Execute ptr, addr stream, addr *ret)
  */
 static int faslwrite_value_gensym(Execute ptr, addr stream, addr pos)
 {
-	int check;
-	addr symbol, table, cons, value;
+	size_t index;
 
 	Check(! gensymp(pos), "type error");
+	Return(get_index_load_table_(ptr, pos, &index));
 	Return(faslwrite_type_(stream, FaslCode_gensym));
-
-	/* gensym table */
-	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
-	Return(getspecialcheck_local_(ptr, symbol, &table));
-	Return(internp_hashheap_(table, pos, &cons, &check));
-	if (check) {
-		GetCdr(cons, &value);
-	}
-	else {
-		/* increment table */
-		GetConst(SYSTEM_COMPILE_GENSYM_INDEX, &symbol);
-		Return(getspecialcheck_local_(ptr, symbol, &value));
-		Return(oneplus_integer_common_(ptr->local, value, &value));
-		setspecial_local(ptr, symbol, value);
-		SetCdr(cons, value);
-	}
-
-	/* index */
-	Return(faslwrite_value(ptr, stream, value));
-	/* name */
-	GetNameSymbol(pos, &value);
-	Return(faslwrite_value_string(ptr, stream, value));
+	Return(faslwrite_buffer_(stream, &index, sizeoft(index)));
 
 	return 0;
 }
 
 int faslread_value_gensym(Execute ptr, addr stream, addr *ret)
 {
-	int check;
-	addr index, name, symbol, table, cons, pos;
+	size_t index;
 
-	/* raed file */
-	Return(faslread_value(ptr, stream, &index));
-	Return(faslread_value(ptr, stream, &name));
+	Return(faslread_buffer_(stream, &index, sizeoft(index)));
+	Return(execute_load_get_(ptr, index, ret));
+	Check(! gensymp(*ret), "type error");
 
-	/* cache hit */
-	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
-	Return(getspecialcheck_local_(ptr, symbol, &table));
-	Return(internp_hashheap_(table, index, &cons, &check));
-	if (check) {
-		GetCdr(cons, ret);
-		return 0;
-	}
-
-	/* add cache */
-	symbol_heap(&pos);
-	SetNameSymbol(pos, name);
-	SetCdr(cons, pos);
-
-	return Result(ret, pos);
+	return 0;
 }
 
 
@@ -409,7 +400,6 @@ int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
 	/* gensym */
 	if (gensymp(pos))
 		return faslwrite_value_gensym(ptr, stream, pos);
-
 	/* symbol */
 	Return(faslwrite_type_(stream, FaslCode_symbol));
 	/* package */
@@ -902,31 +892,25 @@ int faslread_value_bitvector(Execute ptr, addr stream, addr *ret)
 
 
 /*
- *  load-time-value
+ *  load
  */
 int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
 {
-	addr index;
+	size_t index;
 
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
-	Return(faslwrite_type_(stream, FaslCode_load_time_value));
-	/* index */
-	Return(get_write_make_load_form_(ptr, pos, &index));
-	Return(faslwrite_value(ptr, stream, index));
-	/* value */
-	get_load_time_value_heap(pos, &pos);
-	return faslwrite_value(ptr, stream, pos);
+	get_index_load_time_value(pos, &index);
+	Return(faslwrite_type_(stream, FaslCode_load));
+	Return(faslwrite_buffer_(stream, &index, sizeoft(index)));
+
+	return 0;
 }
 
 int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret)
 {
-	addr pos, value;
+	size_t index;
 
-	Return(faslread_value(ptr, stream, &pos));
-	Return(get_read_make_load_form_(ptr, pos, &pos));
-	Return(faslread_value(ptr, stream, &value));
-	set_load_time_value_heap(pos, value);
-
-	return Result(ret, pos);
+	Return(faslread_buffer_(stream, &index, sizeoft(index)));
+	return execute_load_get_(ptr, index, ret);
 }
 

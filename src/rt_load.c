@@ -34,7 +34,7 @@ static int rtload_execute(Execute ptr, addr stream, int *ret)
 	addr pos;
 
 	push_close_stream(ptr, stream);
-	Return(eval_stream_toplevel(ptr, stream));
+	Return(eval_stream_toplevel_(ptr, stream));
 	getresult_control(ptr, &pos);
 
 	return Result(ret, pos != T);

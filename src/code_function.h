@@ -82,10 +82,11 @@
 #define funcall_code _n(funcall_code)
 #define nth_value_code _n(nth_value_code)
 #define progv_code _n(progv_code)
-#define load_time_value_bind_code _n(load_time_value_bind_code)
-#define load_time_value_init_code _n(load_time_value_init_code)
-#define load_time_value_set_code _n(load_time_value_set_code)
-#define load_time_value_push_code _n(load_time_value_push_code)
+#define load_alloc_code _n(load_alloc_code)
+#define load_gensym_code _n(load_gensym_code)
+#define load_set_code _n(load_set_code)
+#define reference_set_code _n(reference_set_code)
+#define reference_push_code _n(reference_push_code)
 #define step_code _n(step_code)
 
 int nop_code(Execute ptr, CodeValue x);
@@ -179,10 +180,11 @@ int funcall_code(Execute ptr, CodeValue x);
 int nth_value_code(Execute ptr, CodeValue x);
 int progv_code(Execute ptr, CodeValue x);
 
-int load_time_value_bind_code(Execute ptr, CodeValue x);
-int load_time_value_init_code(Execute ptr, CodeValue x);
-int load_time_value_set_code(Execute ptr, CodeValue x);
-int load_time_value_push_code(Execute ptr, CodeValue x);
+int load_alloc_code(Execute ptr, CodeValue x);
+int load_gensym_code(Execute ptr, CodeValue x);
+int load_set_code(Execute ptr, CodeValue x);
+int reference_set_code(Execute ptr, CodeValue x);
+int reference_push_code(Execute ptr, CodeValue x);
 
 int step_code(Execute ptr, CodeValue x);
 

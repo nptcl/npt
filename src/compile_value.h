@@ -7,6 +7,7 @@
 
 #define faslwrite_value_nil _n(faslwrite_value_nil)
 #define faslwrite_value_t _n(faslwrite_value_t)
+#define faslwrite_value_clos _n(faslwrite_value_clos)
 #define faslwrite_value_cons _n(faslwrite_value_cons)
 #define faslwrite_value_vector _n(faslwrite_value_vector)
 #define faslwrite_value_character _n(faslwrite_value_character)
@@ -28,8 +29,10 @@
 #define faslwrite_value_quote _n(faslwrite_value_quote)
 #define faslwrite_value_bitvector _n(faslwrite_value_bitvector)
 #define faslwrite_value_load_time_value _n(faslwrite_value_load_time_value)
+
 #define faslread_value_nil _n(faslread_value_nil)
 #define faslread_value_t _n(faslread_value_t)
+#define faslread_value_clos _n(faslread_value_clos)
 #define faslread_value_cons _n(faslread_value_cons)
 #define faslread_value_vector2 _n(faslread_value_vector2)
 #define faslread_value_vector4 _n(faslread_value_vector4)
@@ -57,6 +60,7 @@
 
 int faslwrite_value_nil(Execute ptr, addr stream, addr pos);
 int faslwrite_value_t(Execute ptr, addr stream, addr pos);
+int faslwrite_value_clos(Execute ptr, addr stream, addr pos);
 int faslwrite_value_cons(Execute ptr, addr stream, addr pos);
 int faslwrite_value_vector(Execute ptr, addr stream, addr pos);
 int faslwrite_value_character(Execute ptr, addr stream, addr pos);
@@ -81,6 +85,7 @@ int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos);
 
 int faslread_value_nil(Execute ptr, addr stream, addr *ret);
 int faslread_value_t(Execute ptr, addr stream, addr *ret);
+int faslread_value_clos(Execute ptr, addr stream, addr *ret);
 int faslread_value_cons(Execute ptr, addr stream, addr *ret);
 int faslread_value_vector2(Execute ptr, addr stream, addr *ret);
 int faslread_value_vector4(Execute ptr, addr stream, addr *ret);

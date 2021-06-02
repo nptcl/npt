@@ -17,18 +17,18 @@
  */
 static int faslread_magic_(addr stream, int *ret)
 {
-	char a[8], b[8];
+	char a[16], b[16];
+
+	/* FASL0000 */
+	Return(faslread_buffer_(stream, a, 8));
+	if (memcmp(a, "\0\0\0\0FASL", 8) != 0)
+		goto error;
 
 	/* LISPNAME */
 	Return(faslread_buffer_(stream, a, 8));
 	memset(b, 0, 8);
 	strncpy(b, LISPNAME, 8);
 	if (memcmp(a, b, 8) != 0)
-		goto error;
-
-	/* FASL0000 */
-	Return(faslread_buffer_(stream, a, 8));
-	if (memcmp(a, "FASL\0\0\0\0", 8) != 0)
 		goto error;
 
 	/* OK */
@@ -139,17 +139,16 @@ static int faslread_code_operator(Execute ptr, addr stream, addr *ret)
 	constindex index;
 	addr car, cdr;
 
-	/* car */
+	/* type */
 	Return(faslread_type_(stream, &type));
 	Check(type < FaslCode_value, "type error");
 	index = GetCompileRead(type);
 	GetConstant(index, &car);
 
-	/* cdr */
-	Return(faslread_value(ptr, stream, &cdr));
-
 	/* result */
+	Return(faslread_value(ptr, stream, &cdr));
 	cons_heap(ret, car, cdr);
+
 	return 0;
 }
 
@@ -206,6 +205,7 @@ void init_compile_read(void)
 {
 	FaslRead_Table[FaslCode_error] = faslread_error;
 	FaslRead_Table[FaslCode_unbound] = faslread_unbound;
+	FaslRead_Table[FaslCode_clos] = faslread_value_clos;
 	FaslRead_Table[FaslCode_code] = faslread_value_code;
 	FaslRead_Table[FaslCode_nil] = faslread_value_nil;
 	FaslRead_Table[FaslCode_t] = faslread_value_t;
@@ -236,6 +236,6 @@ void init_compile_read(void)
 	FaslRead_Table[FaslCode_pathname] = faslread_value_pathname;
 	FaslRead_Table[FaslCode_quote] = faslread_value_quote;
 	FaslRead_Table[FaslCode_bitvector] = faslread_value_bitvector;
-	FaslRead_Table[FaslCode_load_time_value] = faslread_value_load_time_value;
+	FaslRead_Table[FaslCode_load] = faslread_value_load_time_value;
 }
 

@@ -131,7 +131,7 @@ int eval_loop_output(Execute ptr, addr stream)
 static int eval_loop_stream_call_(Execute ptr, addr stream, addr pos)
 {
 	eval_loop_minus(ptr, pos);
-	Return(eval_execute_partial(ptr, pos));
+	Return(eval_execute_partial_(ptr, pos));
 	return eval_loop_output(ptr, stream);
 }
 
@@ -272,7 +272,7 @@ static int evalcall_string_result_(Execute ptr, addr eval)
 
 	Return(open_input_string_stream_(&stream, eval));
 	push_close_stream(ptr, stream);
-	return eval_stream_partial(ptr, stream);
+	return eval_stream_partial_(ptr, stream);
 }
 
 int eval_main_string_(Execute ptr, addr eval)

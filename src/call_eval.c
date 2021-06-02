@@ -31,7 +31,7 @@ void lambda_common(addr form, addr *ret)
  */
 int eval_common(Execute ptr, addr var)
 {
-	return eval_execute_partial(ptr, var);
+	return eval_execute_partial_(ptr, var);
 }
 
 

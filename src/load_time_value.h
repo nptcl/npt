@@ -1,44 +1,37 @@
-#ifndef __PARSE_LOAD_HEADER__
-#define __PARSE_LOAD_HEADER__
+#ifndef __LOAD_TIME_VALUE_HEADER__
+#define __LOAD_TIME_VALUE_HEADER__
 
 #include "execute.h"
 #include "typedef.h"
 
-#define load_time_value_heap _n(load_time_value_heap)
-#define get_load_time_value_heap _n(get_load_time_value_heap)
-#define set_load_time_value_heap _n(set_load_time_value_heap)
-#define set_load_time_value_symbol _n(set_load_time_value_symbol)
-#define init_parse_load_time_value _n(init_parse_load_time_value)
-#define eval_parse_load_time_value _n(eval_parse_load_time_value)
-#define parse_load_time_value _n(parse_load_time_value)
+#define intern_load_table_ _n(intern_load_table_)
+#define get_load_table_ _n(get_load_table_)
+#define get_index_load_table_ _n(get_index_load_table_)
+#define incf_load_size_ _n(incf_load_size_)
+#define get_load_size_ _n(get_load_size_)
+
+#define parse_load_time_value_ _n(parse_load_time_value_)
 #define copy_eval_load_time_value _n(copy_eval_load_time_value)
-#define init_scope_load_time_value _n(init_scope_load_time_value)
-#define scope_load_time_value _n(scope_load_time_value)
-#define execute_load_time_value_bind _n(execute_load_time_value_bind)
-#define execute_load_time_value_init _n(execute_load_time_value_init)
-#define execute_load_time_value_get _n(execute_load_time_value_get)
+#define scope_load_time_value_ _n(scope_load_time_value_)
 
-void load_time_value_heap(addr *ret);
-void get_load_time_value_heap(addr pos, addr *ret);
-void set_load_time_value_heap(addr pos, addr value);
-void set_load_time_value_symbol(Execute ptr, addr value);
+#define init_load_time_value _n(init_load_time_value)
+#define disable_load_time_value _n(disable_load_time_value)
 
-/* parse */
-void init_parse_load_time_value(Execute ptr);
-int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos);
-int parse_load_time_value(Execute ptr, addr *ret, addr form);
+/* special */
+int intern_load_table_(Execute ptr, addr pos, addr value);
+int get_load_table_(Execute ptr, addr pos, addr *ret);
+int get_index_load_table_(Execute ptr, addr pos, size_t *ret);
+int incf_load_size_(Execute ptr, addr *ret);
+int get_load_size_(Execute ptr, addr *ret);
 
-/* copy */
+/* eval */
+int parse_load_time_value_(Execute ptr, addr *ret, addr form);
 void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval);
+int scope_load_time_value_(Execute ptr, addr *ret, addr eval);
 
-/* scope */
-void init_scope_load_time_value(Execute ptr);
-int scope_load_time_value(Execute ptr, addr *ret, addr eval);
-
-/* code */
-void execute_load_time_value_bind(Execute ptr, addr pos);
-void execute_load_time_value_init(Execute ptr, addr pos);
-void execute_load_time_value_get(Execute ptr, addr pos, addr *ret);
+/* initialize */
+void init_load_time_value(Execute ptr);
+void disable_load_time_value(Execute ptr);
 
 #endif
 

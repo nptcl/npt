@@ -13,8 +13,9 @@
 #include "hold.h"
 #include "integer.h"
 #include "lambda.h"
+#include "load_instance.h"
+#include "load_gensym.h"
 #include "load_time_value.h"
-#include "make_load_form.h"
 #include "parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
@@ -595,7 +596,7 @@ static int make_macro_function_(Execute ptr, addr *ret, addr *reval,
 	if (reval)
 		*reval = eval;
 
-	return eval_result_macro(ptr, eval, ret);
+	return eval_result_macro_(ptr, eval, ret);
 }
 
 static int parse_defmacro_(Execute ptr, addr *ret, addr cons)
@@ -974,19 +975,19 @@ static int parse_macrolet_(Execute ptr, addr *ret, addr cons)
 }
 
 /* quote */
-static int parse_quote_(addr *ret, addr cons)
+static int parse_quote_(Execute ptr, addr *ret, addr cons)
 {
 	addr value;
 
 	if (! consp(cons))
-		return fmte_("quote form must have a one argument.", NULL);
+		return fmte_("quote form must have one argument.", NULL);
 	Return_getcons(cons, &value, &cons);
 	if (cons != Nil)
-		return fmte_("quote form must have a one argument.", NULL);
+		return fmte_("quote form must have one argument.", NULL);
 
 	/* eval */
 	eval_single_parse_heap(ret, EVAL_PARSE_QUOTE, value);
-	return 0;
+	return load_value_(ptr, value);
 }
 
 /* function */
@@ -1051,9 +1052,9 @@ static int parse_function_(Execute ptr, addr *ret, addr cons)
 	addr value;
 
 	if (! consp_getcons(cons, &value, &cons))
-		return fmte_("function form must have a one argument.", NULL);
+		return fmte_("function form must have one argument.", NULL);
 	if (cons != Nil)
-		return fmte_("function form must have a one argument.", NULL);
+		return fmte_("function form must have one argument.", NULL);
 
 	return parse_function_argument_(ptr, ret, value);
 }
@@ -1843,7 +1844,7 @@ static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 		return parse_setq_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_QUOTE)) {
-		return parse_quote_(ret, args);
+		return parse_quote_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_FUNCTION)) {
 		return parse_function_(ptr, ret, args);
@@ -1924,7 +1925,7 @@ static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 		return parse_progv_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOAD_TIME_VALUE)) {
-		return parse_load_time_value(ptr, ret, args);
+		return parse_load_time_value_(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_STEP)) {
 		return parse_step(ptr, ret, args);
@@ -2020,6 +2021,12 @@ static int parse_cons_(Execute ptr, addr *ret, addr cons)
 		return parse_cons_car_(ptr, ret, cons);
 }
 
+static int parse_clos_(Execute ptr, addr *ret, addr pos)
+{
+	eval_single_parse_heap(ret, EVAL_PARSE_CLOS, pos);
+	return load_value_(ptr, pos);
+}
+
 static void parse_array(addr *ret, addr pos)
 {
 	if (strarrayp(pos))
@@ -2043,7 +2050,7 @@ static int parse_switch_(Execute ptr, addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_CLOS:
-			return parse_clos(ptr, ret, pos);
+			return parse_clos_(ptr, ret, pos);
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
@@ -2106,10 +2113,6 @@ static int parse_switch_(Execute ptr, addr *ret, addr pos)
 		case LISPTYPE_LONG_FLOAT:
 		case LISPTYPE_SHORT_FLOAT:
 			eval_single_parse_heap(ret, EVAL_PARSE_FLOAT, pos);
-			break;
-
-		case LISPTYPE_EVAL:
-			*ret = pos;
 			break;
 
 		case LISPTYPE_QUOTE:

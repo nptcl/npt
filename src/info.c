@@ -78,7 +78,6 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_PRINT_DISPATCH:		return "print-dispatch";
 		case LISPTYPE_BYTESPEC:				return "bytespec";
 		case LISPTYPE_FORMAT:				return "format";
-		case LISPTYPE_LOAD_TIME_VALUE:		return "load-time-value";
 		case LISPTYPE_COMPILE:				return "??compile";
 
 		case LISPSYSTEM_CONSTANT:			return "?constant";

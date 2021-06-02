@@ -198,6 +198,11 @@ info.c
 integer.c
 intern.c
 lambda.c
+load_code.c
+load_depend.c
+load_gensym.c
+load_instance.c
+load_object.c
 load_time_value.c
 local.c
 localtime.c
@@ -211,7 +216,6 @@ loop.c
 main_argv.c
 main_string.c
 main.c
-make_load_form.c
 math_exp.c
 math_gcd.c
 math_isqrt.c

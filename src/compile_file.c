@@ -13,7 +13,7 @@
 #include "function.h"
 #include "hashtable.h"
 #include "hold.h"
-#include "make_load_form.h"
+#include "load_instance.h"
 #include "pathname.h"
 #include "stream.h"
 #include "stream_function.h"
@@ -88,17 +88,6 @@ static int compile_file_execute_(Execute ptr,
 	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
 	pushspecial_control(ptr, symbol, output);
 	set_eval_compile_mode(ptr, T);
-
-	/* gensym table */
-	GetConst(SYSTEM_COMPILE_GENSYM, &symbol);
-	hashtable_heap(&pos);
-	settest_hashtable(pos, HASHTABLE_TEST_EQ);
-	pushspecial_control(ptr, symbol, pos);
-
-	/* gensym index */
-	GetConst(SYSTEM_COMPILE_GENSYM_INDEX, &symbol);
-	fixnum_heap(&pos, 0);
-	pushspecial_control(ptr, symbol, pos);
 
 	/* compile */
 	Return(compile_file_output(ptr, input, output, rest));
@@ -216,7 +205,6 @@ static int compile_file_common_call_(Execute ptr,
 	addr pos;
 
 	Return(handler_compile_(ptr));
-	init_write_make_load_form(ptr);
 	Return(compile_file_input_stream_(ptr, input, output, rest, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */

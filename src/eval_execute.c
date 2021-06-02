@@ -4,11 +4,16 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "eval_execute.h"
+#include "eval_value.h"
 #include "execute_values.h"
 #include "hold.h"
+#include "load_instance.h"
+#include "load_time_value.h"
 #include "optimize_parse.h"
-#include "parse.h"
+#include "parse_function.h"
+#include "parse_macro.h"
 #include "reader.h"
+#include "step.h"
 #include "scope.h"
 #include "stream.h"
 #include "typedef.h"
@@ -16,23 +21,25 @@
 /*
  *  begin, end
  */
-int begin_eval_(Execute ptr, addr *ret, addr toplevel)
+static int begin_eval_(Execute ptr, addr *ret, addr toplevel)
 {
 	addr control;
 
 	push_control(ptr, &control);
-	begin_parse(ptr, toplevel);
+	/* initialize */
+	init_parse_step(ptr);
+	init_parse_environment(ptr);
+	/* variables */
+	push_toplevel_eval(ptr, toplevel);
+	push_compile_time_eval(ptr, Nil);
+	push_compile_toplevel_eval(ptr, Nil);
+	push_load_toplevel_eval(ptr, T);
+	push_execute_eval(ptr, T);
+	/* load-time-value */
+	disable_load_time_value(ptr);
+	/* scope */
 	Return(begin_scope_(ptr));
 
-	return Result(ret, control);
-}
-
-int begin_compile_(Execute ptr, addr *ret)
-{
-	addr control;
-
-	push_control(ptr, &control);
-	Return(begin_compile_eval_(ptr));
 	return Result(ret, control);
 }
 
@@ -56,19 +63,32 @@ static int eval_execute_scope_(Execute ptr, LocalHold hold, addr pos)
 	return runcode_control_(ptr, pos);
 }
 
-static int eval_execute_(Execute ptr, addr pos)
+static int eval_execute_parse_(Execute ptr, addr pos)
 {
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	Return(eval_parse_(ptr, &pos, pos));
+	Return(parse_execute_toplevel_(ptr, &pos, pos));
 	Return(eval_execute_scope_(ptr, hold, pos));
 	localhold_end(hold);
 
 	return 0;
 }
 
-int eval_execute_partial(Execute ptr, addr pos)
+static int eval_execute_(Execute ptr, addr pos)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)eval_execute_parse_(ptr, pos);
+	return pop_control_(ptr, control);
+}
+
+
+/*
+ *  interface
+ */
+int eval_execute_partial_(Execute ptr, addr pos)
 {
 	addr control;
 
@@ -87,7 +107,7 @@ static int eval_result_partial_call_(Execute ptr, LocalHold hold, addr pos, addr
 	return 0;
 }
 
-int eval_result_partial(Execute ptr, addr pos, addr *ret)
+int eval_result_partial_(Execute ptr, addr pos, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -135,7 +155,7 @@ static int eval_result_macro_call_(Execute ptr, LocalHold hold, addr pos, addr *
 	return 0;
 }
 
-int eval_result_macro(Execute ptr, addr pos, addr *ret)
+int eval_result_macro_(Execute ptr, addr pos, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -168,7 +188,7 @@ static int eval_load_stream_loop_(Execute ptr, addr stream)
 	return 0;
 }
 
-int eval_load_stream_(Execute ptr, addr stream, addr toplevel)
+static int eval_load_stream_(Execute ptr, addr stream, addr toplevel)
 {
 	addr control;
 
@@ -177,40 +197,16 @@ int eval_load_stream_(Execute ptr, addr stream, addr toplevel)
 	return pop_control_(ptr, control);
 }
 
-static int compile_load_stream_loop_(Execute ptr, addr stream)
-{
-	int check;
-	addr pos;
-
-	for (;;) {
-		Return(read_stream(ptr, stream, &check, &pos));
-		if (check)
-			break;
-		Return(compile_execute_(ptr, pos));
-	}
-
-	return 0;
-}
-
-int compile_load_stream_(Execute ptr, addr stream)
-{
-	addr control;
-
-	Return(begin_compile_(ptr, &control));
-	(void)compile_load_stream_loop_(ptr, stream);
-	return pop_control_(ptr, control);
-}
-
 
 /*
  *  eval
  */
-int eval_stream_partial(Execute ptr, addr stream)
+int eval_stream_partial_(Execute ptr, addr stream)
 {
 	return eval_load_stream_(ptr, stream, Nil);
 }
 
-int eval_stream_toplevel(Execute ptr, addr stream)
+int eval_stream_toplevel_(Execute ptr, addr stream)
 {
 	return eval_load_stream_(ptr, stream, T);
 }

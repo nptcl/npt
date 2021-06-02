@@ -1,21 +1,13 @@
 #include "callname.h"
 #include "compile_file.h"
 #include "condition.h"
-#include "control_object.h"
-#include "eval_load.h"
-#include "eval_object.h"
+#include "constant.h"
 #include "eval_value.h"
-#include "gc.h"
 #include "integer.h"
 #include "parse.h"
-#include "parse_function.h"
-#include "load_time_value.h"
-#include "make_load_form.h"
-#include "parse.h"
-#include "parse_macro.h"
 #include "parse_object.h"
-#include "step.h"
 #include "symbol.h"
+#include "typedef.h"
 
 int check_variable_(addr symbol)
 {
@@ -133,47 +125,5 @@ int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret)
 
 return_throw:
 	return Result(ret, list);
-}
-
-
-/*
- *  eval-parse
- */
-void begin_parse(Execute ptr, addr toplevel)
-{
-	/* initialize */
-	init_parse_step(ptr);
-	init_parse_environment(ptr);
-	/* variables */
-	push_toplevel_eval(ptr, toplevel);
-	push_compile_time_eval(ptr, Nil);
-	push_compile_toplevel_eval(ptr, Nil);
-	push_load_toplevel_eval(ptr, T);
-	push_execute_eval(ptr, T);
-}
-
-static int eval_parse_call_(Execute ptr, addr *ret, addr pos)
-{
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	localhold_set(hold, 0, pos);
-	Return(parse_execute_toplevel_(ptr, &pos, pos));
-	localhold_set(hold, 0, pos);
-	Return(eval_parse_load_time_value(ptr, &pos, pos));
-	localhold_end(hold);
-
-	return Result(ret, pos);
-}
-
-int eval_parse_(Execute ptr, addr *ret, addr pos)
-{
-	addr control;
-
-	push_control(ptr, &control);
-	init_parse_load_time_value(ptr);
-	init_parse_make_load_form(ptr);
-	(void)eval_parse_call_(ptr, ret, pos);
-	return pop_control_(ptr, control);
 }
 

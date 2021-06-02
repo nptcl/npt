@@ -397,6 +397,23 @@ int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
 	return 0;
 }
 
+int find_assoc_eq_unsafe(addr key, addr list, addr *ret)
+{
+	addr cons, x;
+
+	while (list != Nil) {
+		GetCons(list, &cons, &list);
+		GetCar(cons, &x);
+		if (key == x) {
+			*ret = cons;
+			return 1;
+		}
+	}
+
+	*ret = Nil;
+	return 0;
+}
+
 
 /*
  *  pushnew

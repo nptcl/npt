@@ -18,12 +18,12 @@
  */
 static int faslwrite_magic_(addr stream)
 {
-	char a[8];
+	char a[16];
 
 	memset(a, 0, 8);
 	strncpy(a, LISPNAME, 8);
+	Return(faslwrite_buffer_(stream, "\0\0\0\0FASL", 8));
 	Return(faslwrite_buffer_(stream, a, 8));
-	Return(faslwrite_buffer_(stream, "FASL\0\0\0\0", 8));
 
 	return 0;
 }
@@ -63,6 +63,7 @@ int faslwrite_footer_(addr stream)
 {
 	char buffer[8];
 
+	Return(faslwrite_break_(stream));
 	Return(faslwrite_type_(stream, FaslCode_end));
 	memset(buffer, 0x00, 8);
 	Return(faslwrite_buffer_(stream, buffer, 8));
@@ -70,6 +71,11 @@ int faslwrite_footer_(addr stream)
 	Return(faslwrite_buffer_(stream, buffer, 8));
 
 	return 0;
+}
+
+int faslwrite_break_(addr stream)
+{
+	return faslwrite_type_(stream, FaslCode_break);
 }
 
 
@@ -171,8 +177,6 @@ int faslwrite_value(Execute ptr, addr stream, addr pos)
 	Check(LISPTYPE_COMPILE <= type, "type error");
 	call = FaslWrite_Value[type];
 	if (call == NULL) {
-		infobit(pos);
-		infoprint(pos);
 		return fmte_("Cannot compile the value ~S.", pos, NULL);
 	}
 
@@ -188,6 +192,7 @@ void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil;
 	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t;
 	FaslWrite_Value[LISPTYPE_TYPE] = faslwrite_value_type;
+	FaslWrite_Value[LISPTYPE_CLOS] = faslwrite_value_clos;
 	FaslWrite_Value[LISPTYPE_CONS] = faslwrite_value_cons;
 	FaslWrite_Value[LISPTYPE_ARRAY] = faslwrite_value_array;
 	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector;

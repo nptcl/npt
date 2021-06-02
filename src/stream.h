@@ -27,6 +27,7 @@
 #define query_io_stream_ _n(query_io_stream_)
 #define read_unsigned8_stream_ _n(read_unsigned8_stream_)
 #define write_unsigned8_stream_ _n(write_unsigned8_stream_)
+#define redirect_unsigned8_stream_ _n(redirect_unsigned8_stream_)
 
 #define update_standard_stream _n(update_standard_stream)
 #define save_stream _n(save_stream)
@@ -52,6 +53,7 @@ int query_io_stream_(Execute ptr, addr *ret);
 /* wrapper */
 int read_unsigned8_stream_(addr stream, byte *value, int *ret);
 int write_unsigned8_stream_(addr stream, byte value);
+int redirect_unsigned8_stream_(Execute ptr, addr src, addr dst);
 
 /* core */
 void update_standard_stream(void);

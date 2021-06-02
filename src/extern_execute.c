@@ -24,7 +24,7 @@
 int lisp0_eval_(addr *ret, addr pos)
 {
 	hold_value(pos, &pos);
-	Return(eval_execute_partial(Execute_Thread, pos));
+	Return(eval_execute_partial_(Execute_Thread, pos));
 	if (ret)
 		getresult_control(Execute_Thread, ret);
 
@@ -466,7 +466,7 @@ int lisp_apply32_(addr x, const void *str, ...)
 int lisp_eval_control_(addr eval)
 {
 	hold_value(eval, &eval);
-	return eval_execute_partial(Execute_Thread, eval);
+	return eval_execute_partial_(Execute_Thread, eval);
 }
 
 int lisp_eval_string_control_(addr eval)

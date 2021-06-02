@@ -194,6 +194,53 @@ int write_unsigned8_stream_(addr stream, byte value)
 	return exitpoint_stream_(stream);
 }
 
+#define REDIRECT_UNSIGNED8_SIZE		4096
+static int read_redirect_unsigned8_stream_(Execute ptr,
+		addr stream, byte *data, int *ret)
+{
+	int i, check;
+	byte c;
+
+	c = 0;
+	for (i = 0; i < REDIRECT_UNSIGNED8_SIZE; i++) {
+		Return(read_unsigned8_stream_(stream, &c, &check));
+		if (check)
+			break;
+		data[i] = c;
+	}
+
+	return Result(ret, i);
+}
+
+static int write_redirect_unsigned8_stream_(Execute ptr,
+		addr stream, byte *data, int size)
+{
+	int i;
+	addr value;
+
+	for (i = 0; i < size; i++) {
+		fixnum_heap(&value, (fixnum)data[i]);
+		Return(write_byte_stream_(stream, value));
+	}
+
+	return 0;
+}
+
+int redirect_unsigned8_stream_(Execute ptr, addr src, addr dst)
+{
+	byte data[REDIRECT_UNSIGNED8_SIZE];
+	int size;
+
+	for (;;) {
+		Return(read_redirect_unsigned8_stream_(ptr, src, data, &size));
+		if (size == 0)
+			break;
+		Return(write_redirect_unsigned8_stream_(ptr, dst, data, size));
+	}
+
+	return 0;
+}
+
 
 /*
  *  core

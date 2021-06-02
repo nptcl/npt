@@ -1328,7 +1328,7 @@ int comb_longform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
-	return eval_result_partial(ptr, pos, ret);
+	return eval_result_partial_(ptr, pos, ret);
 }
 
 static int comb_shortform_primary_(addr *ret, addr comb, addr list)
@@ -1415,6 +1415,6 @@ int comb_shortform_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
-	return eval_result_partial(ptr, pos, ret);
+	return eval_result_partial_(ptr, pos, ret);
 }
 

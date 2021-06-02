@@ -46,10 +46,10 @@ enum FaslCode {
 	FaslCode_pathname,
 	FaslCode_quote,
 	FaslCode_bitvector,
-	FaslCode_load_time_value,
-
+	FaslCode_load,
 	FaslCode_value, /* end of value */
 
+	/* code */
 	FaslCode_nop,
 	FaslCode_execute_control_set,
 	FaslCode_execute_control_push,
@@ -174,10 +174,11 @@ enum FaslCode {
 	FaslCode_bind2_special,
 	FaslCode_bind2_lexical,
 
-	FaslCode_load_time_value_bind,
-	FaslCode_load_time_value_init,
-	FaslCode_load_time_value_set,
-	FaslCode_load_time_value_push,
+	FaslCode_load_alloc,
+	FaslCode_load_gensym,
+	FaslCode_load_set,
+	FaslCode_reference_set,
+	FaslCode_reference_push,
 
 	FaslCode_step,
 
@@ -196,6 +197,7 @@ enum FaslCode {
 	FaslCode_size,
 
 	/* end */
+	FaslCode_break = 0xFE,
 	FaslCode_end = 0xFF
 };
 

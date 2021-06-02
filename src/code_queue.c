@@ -231,6 +231,15 @@ void code_queue_double(LocalRoot local,
 	code_queue_push(local, code, first, left, right, NULL);
 }
 
+void code_queue_index(LocalRoot local, addr code, constindex index, size_t value)
+{
+	addr pos, x;
+
+	GetConstant(index, &pos);
+	index_heap(&x, value);
+	code_queue_add2(local, code, pos, x);
+}
+
 void code_queue_ifpush(LocalRoot local, addr code)
 {
 	if (code_queue_pushp(code))

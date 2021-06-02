@@ -378,6 +378,8 @@ static int test_qualifiers_position_short_nil(void)
 	addr comb, pos;
 	size_t index;
 
+	check = 0;
+	index = 0;
 	test_make_instance_shortcomb(&comb);
 
 	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);

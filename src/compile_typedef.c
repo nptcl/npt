@@ -134,10 +134,11 @@ static void init_compile_typedef_write(void)
 	defwrite(bind2_special);
 	defwrite(bind2_lexical);
 
-	defwrite(load_time_value_bind);
-	defwrite(load_time_value_init);
-	defwrite(load_time_value_set);
-	defwrite(load_time_value_push);
+	defwrite(load_alloc);
+	defwrite(load_gensym);
+	defwrite(load_set);
+	defwrite(reference_set);
+	defwrite(reference_push);
 
 	defwrite(step);
 
@@ -279,10 +280,11 @@ static void init_compile_typedef_read(void)
 	defread(bind2_special, BIND2_SPECIAL);
 	defread(bind2_lexical, BIND2_LEXICAL);
 
-	defread(load_time_value_bind, LOAD_TIME_VALUE_BIND);
-	defread(load_time_value_init, LOAD_TIME_VALUE_INIT);
-	defread(load_time_value_set, LOAD_TIME_VALUE_SET);
-	defread(load_time_value_push, LOAD_TIME_VALUE_PUSH);
+	defread(load_alloc, LOAD_ALLOC);
+	defread(load_gensym, LOAD_GENSYM);
+	defread(load_set, LOAD_SET);
+	defread(reference_set, REFERENCE_SET);
+	defread(reference_push, REFERENCE_PUSH);
 
 	defread(step, STEP);
 

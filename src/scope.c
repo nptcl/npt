@@ -8,7 +8,6 @@
 
 int begin_scope_(Execute ptr)
 {
-	init_scope_load_time_value(ptr);
 	Return(begin_eval_stack_(ptr));
 	free_eval_stack(ptr);
 
