@@ -733,14 +733,17 @@ static void handler_case_lambda_common(addr args, addr form, addr *ret)
 	lista_heap(ret, pos, args, form, NULL);
 }
 
-static int handler_case_noerror_common(addr *noerror, addr cons)
+static int handler_case_noerror_common(addr *no_error, addr args, addr form)
 {
-	if (*noerror) {
+	addr lambda;
+
+	if (*no_error) {
 		return fmtw_("There are multiple :no-error clauses ~S"
-				" in handler-case.", cons, NULL);
+				" in handler-case.", args, NULL);
 	}
 	else {
-		*noerror = cons;
+		GetConst(COMMON_LAMBDA, &lambda);
+		lista_heap(no_error, lambda, args, form, NULL);
 	}
 
 	return 0;
@@ -748,53 +751,56 @@ static int handler_case_noerror_common(addr *noerror, addr cons)
 
 static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr *rete)
 {
-	addr noerror, root, cons, name, args, form;
+	addr no_error, root, cons, name, args, form;
 	addr keyword, symbol, quote;
 
 	/* (list-system::handler-case name1 lambda1 ...) */
-	noerror = NULL;
+	no_error = NULL;
 	GetConst(KEYWORD_NO_ERROR, &keyword);
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(SYSTEM_HANDLER_CASE, &symbol);
 	conscar_heap(&root, symbol);
 	while (right != Nil) {
 		Return_getcons(right, &cons, &right);
-		/* (name (c) form) */
 		Return(lista_bind_(cons, &name, &args, &form, NULL));
+
+		/* (:no-error (...) form) */
 		if (name == keyword) {
-			Return(handler_case_noerror_common(&noerror, cons));
+			Return(handler_case_noerror_common(&no_error, args, form));
+			continue;
+		}
+
+		if (args == Nil) {
+			/* (name () form) */
+			Return(handler_case_gensym_common_(ptr, form, &cons));
+		}
+		else if (singlep(args)) {
+			/* (name (c) form) */
+			handler_case_lambda_common(args, form, &cons);
 		}
 		else {
-			if (args == Nil) {
-				Return(handler_case_gensym_common_(ptr, form, &cons));
-			}
-			else if (singlep(args)) {
-				handler_case_lambda_common(args, form, &cons);
-			}
-			else {
-				*ret = *rete = NULL;
-				return fmte_("The argument ~S in handler-case clause "
-						"must be a nil or (var) form.", args, NULL);
-			}
-			/* (push 'name root) */
-			list_heap(&name, quote, name, NULL);
-			cons_heap(&root, name, root);
-			/* (push (lambda ...) root) */
-			cons_heap(&root, cons, root);
+			*ret = *rete = NULL;
+			return fmte_("The argument ~S in handler-case clause "
+					"must be a nil or (var) form.", args, NULL);
 		}
+		/* (push 'name root) */
+		list_heap(&name, quote, name, NULL);
+		cons_heap(&root, name, root);
+		/* (push (lambda ...) root) */
+		cons_heap(&root, cons, root);
 	}
 	/* result */
 	nreverse(ret, root);
-	*rete = noerror;
+	*rete = no_error;
 
 	return 0;
 }
 
-static void handler_case_body(addr noerror, addr expr, addr *ret)
+static void handler_case_body(addr no_error, addr expr, addr *ret)
 {
-	addr pos;
+	addr mvcall;
 
-	if (! noerror) {
+	if (no_error == NULL) {
 		*ret = expr;
 		return;
 	}
@@ -803,27 +809,25 @@ static void handler_case_body(addr noerror, addr expr, addr *ret)
 	 *   (lambda (a b c d) ...)
 	 *   expr))
 	 */
-	GetConst(COMMON_LAMBDA, &pos);
-	cons_heap(&noerror, pos, noerror);
-	GetConst(COMMON_MULTIPLE_VALUE_CALL, &pos);
-	list_heap(ret, pos, noerror, expr, NULL);
+	GetConst(COMMON_MULTIPLE_VALUE_CALL, &mvcall);
+	list_heap(ret, mvcall, no_error, expr, NULL);
 }
 
-int handler_case_common(Execute ptr, addr right, addr env, addr *ret)
+int handler_case_common(Execute ptr, addr list, addr env, addr *ret)
 {
-	addr symbol, expr, noerror;
+	addr symbol, expr, no_error;
 
-	Return_getcdr(right, &right);
-	if (! consp(right))
+	Return_getcdr(list, &list);
+	if (! consp(list))
 		return fmte_("Too few handler-case argument.", NULL);
-	GetCons(right, &expr, &right);
-	if (right == Nil)
+	GetCons(list, &expr, &list);
+	if (list == Nil)
 		return Result(ret, expr);
 
 	GetConst(SYSTEM_HANDLER, &symbol);
-	Return(handler_case_clauses_common(ptr, right, &right, &noerror));
-	handler_case_body(noerror, expr, &expr);
-	list_heap(ret, symbol, right, expr, NULL);
+	Return(handler_case_clauses_common(ptr, list, &list, &no_error));
+	handler_case_body(no_error, expr, &expr);
+	list_heap(ret, symbol, list, expr, NULL);
 
 	return 0;
 }

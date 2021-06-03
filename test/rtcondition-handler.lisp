@@ -23,6 +23,62 @@
     (error () :hello))
   :hello)
 
+(deftest handler-case-no-error.1
+  (handler-case
+    10
+    (:no-error (x) (list x)))
+  (10))
+
+(deftest-error handler-case-no-error.2
+  (handler-case
+    (values)
+    (:no-error (x) (list x))))
+
+(deftest-error handler-case-no-error.3
+  (handler-case
+    (values 10 20 30)
+    (:no-error (x) (list x))))
+
+(deftest handler-case-no-error.4
+  (handler-case
+    (values 10 20 30)
+    (:no-error (x y z) (list x y z)))
+  (10 20 30))
+
+(deftest handler-case-no-error.5
+  (handler-case
+    (values 10 20 30)
+    (:no-error (x y z) (values x y z)))
+  10 20 30)
+
+(deftest handler-case-no-error.6
+  (handler-case
+    (values 10 20 30)
+    (simple-error () :hello)
+    (:no-error (x y z) (list x y z)))
+  (10 20 30))
+
+(deftest handler-case-no-error.7
+  (handler-case
+    (error () "Hello")
+    (simple-error () :hello)
+    (:no-error (x y z) (list x y z)))
+  :hello)
+
+(deftest handler-case-no-error.8
+  (handler-case
+    (values 10 20 30)
+    (:no-error (x y z) (list x y z))
+    (simple-error () :hello))
+  (10 20 30))
+
+(deftest handler-case-no-error.9
+  (handler-case
+    (error () "Hello")
+    (:no-error (x y z) (list x y z))
+    (simple-error () :hello))
+  :hello)
+
 (deftest handler-bind.1
   (let ((check :aaa))
     (handler-case
