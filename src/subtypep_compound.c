@@ -410,6 +410,8 @@ int subtypep_compound_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 	enum LISPDECL type1, type2;
 	int and1, and2, or1, or2;
 
+	CheckType(x, LISPTYPE_TYPE);
+	CheckType(y, LISPTYPE_TYPE);
 	GetLispDecl(x, &type1);
 	GetLispDecl(y, &type2);
 	and1 = (type1 == LISPDECL_AND);

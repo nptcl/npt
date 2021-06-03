@@ -161,6 +161,7 @@ int eval_result_macro_(Execute ptr, addr pos, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 2);
+	localhold_push(hold, pos);
 	push_control(ptr, &control);
 	(void)eval_result_macro_call_(ptr, hold, pos, &pos);
 	Return(pop_control_(ptr, control));

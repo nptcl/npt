@@ -986,8 +986,9 @@ static int parse_quote_(Execute ptr, addr *ret, addr cons)
 		return fmte_("quote form must have one argument.", NULL);
 
 	/* eval */
+	Return(load_value_(ptr, value));
 	eval_single_parse_heap(ret, EVAL_PARSE_QUOTE, value);
-	return load_value_(ptr, value);
+	return 0;
 }
 
 /* function */
@@ -1305,12 +1306,13 @@ static int parse_flet_one_(Execute ptr, addr *ret, addr cons)
 
 	if (! consp_getcons(cons, &name, &cons))
 		goto error;
+	hold = LocalHold_local(ptr);
 	Return(parse_callname_error_(&call, name));
+	localhold_push(hold, call);
 	Return(check_function_variable_(call));
 	if (! consp_getcons(cons, &args, &cons))
 		goto error;
 
-	hold = LocalHold_local(ptr);
 	Return(parse_ordinary_(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(parse_declare_body_documentation_(ptr, cons, &doc, &decl, &cons));
@@ -2023,8 +2025,9 @@ static int parse_cons_(Execute ptr, addr *ret, addr cons)
 
 static int parse_clos_(Execute ptr, addr *ret, addr pos)
 {
+	Return(load_value_(ptr, pos));
 	eval_single_parse_heap(ret, EVAL_PARSE_CLOS, pos);
-	return load_value_(ptr, pos);
+	return 0;
 }
 
 static void parse_array(addr *ret, addr pos)
@@ -2204,8 +2207,10 @@ int parse_execute_toplevel_(Execute ptr, addr *ret, addr pos)
 	addr expr;
 	LocalHold hold;
 
-	hold = LocalHold_local_push(ptr, pos);
+	hold = LocalHold_array(ptr, 2);
+	localhold_set(hold, 0, pos);
 	Return(parse_switch_(ptr, &expr, pos));
+	localhold_set(hold, 1, expr);
 	Return(parse_step_object_(ptr, &expr, pos, expr));
 	localhold_end(hold);
 

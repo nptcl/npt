@@ -1,10 +1,10 @@
-#include "cons.h"
-#include "constant.h"
 #include "code_make.h"
 #include "compile_eval.h"
 #include "compile_write.h"
-#include "control_execute.h"
 #include "compile_file.h"
+#include "cons.h"
+#include "constant.h"
+#include "control_execute.h"
 #include "control_object.h"
 #include "eval_stack.h"
 #include "eval_value.h"
@@ -53,7 +53,7 @@ static int compile_eval_execute_call_(Execute ptr, addr pos, addr *rtype)
 	int check;
 	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
+	hold = LocalHold_array(ptr, 2);
 	localhold_push(hold, pos);
 
 	/* scope */
@@ -63,6 +63,7 @@ static int compile_eval_execute_call_(Execute ptr, addr pos, addr *rtype)
 	/* type */
 	if (rtype) {
 		GetEvalScopeThe(pos, rtype);
+		localhold_set(hold, 1, *rtype);
 	}
 
 	/* code */
@@ -238,16 +239,16 @@ static int compile_eval_parse_(Execute ptr, addr pos, addr *rtype)
 	LocalHold hold;
 
 	/* parse */
-	hold = LocalHold_array(ptr, 2);
+	hold = LocalHold_array(ptr, 3);
 	localhold_set(hold, 0, pos);
 	Return(parse_execute_toplevel_(ptr, &pos, pos));
 
 	/* optimize parse */
-	localhold_set(hold, 0, pos);
+	localhold_set(hold, 1, pos);
 	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
 
 	/* scope */
-	localhold_set(hold, 0, pos);
+	localhold_set(hold, 2, pos);
 	Return(compile_eval_progn_(ptr, pos, rtype));
 
 	/* free */

@@ -521,10 +521,14 @@
 #endif
 
 /* complex-long */
-#ifndef LISP_COMPLEX_LONG
-#ifndef LISP_FREEBSD
+#if defined(LISP_COMPLEX_LONG)
+#undef LISP_COMPLEX_DOUBLE
+#elif defined(LISP_COMPLEX_DOUBLE)
+#undef LISP_COMPLEX_LONG
+#elif LISP_FREEBSD
+#define LISP_COMPLEX_DOUBLE
+#else
 #define LISP_COMPLEX_LONG
-#endif
 #endif
 
 /* windows */

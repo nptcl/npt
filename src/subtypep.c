@@ -215,9 +215,9 @@ static int subtypep_parse_normal_(Execute ptr, LocalHold hold,
 	localhold_set(hold, 2, env);
 
 	Return(subtypep_parse_normal_type_(ptr, x, env, rx));
-	localhold_set(hold, 0, x);
+	localhold_set(hold, 0, *rx);
 	Return(subtypep_parse_normal_type_(ptr, y, env, ry));
-	localhold_set(hold, 1, y);
+	localhold_set(hold, 1, *ry);
 
 	return 0;
 }
