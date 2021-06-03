@@ -26,6 +26,8 @@ static copylocal_calltype TableCopySoft[LISPTYPE_SIZE];
  */
 static void copyhard_error(LocalRoot local, addr *ret, addr pos)
 {
+	infoprint(pos);
+	info("copy-error.");
 	Abort("copy error");
 }
 

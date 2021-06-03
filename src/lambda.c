@@ -252,14 +252,18 @@ static int ordinary_opt_default_(addr cons, addr init,
 	GetCons(cons, &var, &cons);
 	if (cons == Nil)
 		goto final;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	/* (var init) */
 	GetCons(cons, &init, &cons);
 	if (cons == Nil)
 		goto final;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	/* (var init sup) */
 	GetCons(cons, &sup, &cons);
 	if (sup == Nil) {
@@ -313,8 +317,10 @@ static int ordinary_aux_(addr cons, addr *retvar, addr *retinit)
 	GetCons(cons, &var, &cons);
 	if (cons == Nil)
 		goto final;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	/* (var init) */
 	GetCons(cons, &init, &cons);
 	if (cons == Nil)
@@ -333,8 +339,9 @@ static int lambda_macro_call_(LocalRoot local,
 {
 	int envcheck;
 	addr name, var, opt, rest, key, key_p, allow, aux, one;
-	addr whole, env, temp, symbol, init, sup;
+	addr whole, env, temp, symbol, init, sup, base;
 
+	base = cons;
 	var = opt = rest = key = key_p = allow = aux = whole = env = Nil;
 	envcheck = (instance == Nil);
 	if (envcheck)
@@ -450,8 +457,10 @@ rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
 		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
-	if (! consp(cons))
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (! consp(cons)) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &temp);
 	Return(push_varcons_macro_(local, instance, temp));
 	cons_heap(&rest, temp, one);
@@ -610,11 +619,12 @@ static int push_varcons_generic_function_(LocalRoot local,
 	return push_varcons_(local, instance, key, AMPERSAND_GENERIC);
 }
 
-#define nextcons_finish(one, cons) { \
+#define nextcons_finish(one, cons, base) { \
 	GetCdr(cons, &cons); \
 	if (cons == Nil) goto finish; \
 	if (GetType(cons) != LISPTYPE_CONS) { \
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL); \
+		return lambda_list_fmte_("Dot list don't allow " \
+				"in this lambda-list: ~S.", base, NULL); \
 	} \
 	GetCar(cons, &one); \
 }
@@ -622,14 +632,18 @@ static int push_varcons_generic_function_(LocalRoot local,
 int lambda_generic_function_(LocalRoot local, addr *ret, addr cons)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, one, symbol;
+	addr base;
 
+	base = cons;
 	var = opt = rest = key = key_p = allow = one = symbol = Nil;
 	varcons_local(local, &instance);
 	varcons_local(local, &name);
 	if (cons == Nil)
 		goto finish;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &one);
 
 var_argument:
@@ -641,11 +655,11 @@ var_argument:
 		goto key_argument;
 	Return(push_varcons_generic_function_(local, instance, one));
 	cons_heap(&var, one, var);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto var_argument;
 
 optional_argument:
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 optional_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one))
 		goto rest_argument;
@@ -655,18 +669,20 @@ optional_loop:
 		GetCar(one, &one);
 	Return(push_varcons_generic_function_(local, instance, one));
 	cons_heap(&opt, one, opt);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto optional_loop;
 
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
 		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &rest);
 	Return(push_varcons_generic_function_(local, instance, rest));
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
 	return lambda_list_fmte_("After &rest ~S "
@@ -674,7 +690,7 @@ rest_argument:
 
 key_argument:
 	key_p = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 key_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ALLOW, one))
 		goto allow_argument;
@@ -682,12 +698,12 @@ key_loop:
 	Return(push_varcons_generic_function_(local, instance, symbol));
 	list_heap(&one, symbol, one, NULL);
 	cons_heap(&key, one, key);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto key_loop;
 
 allow_argument:
 	allow = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	return lambda_list_fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 finish:
@@ -779,15 +795,18 @@ static int specialized_var_(addr cons, addr *var, addr *spec)
 int lambda_specialized_(LocalRoot local, addr *ret, addr cons)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, aux, one;
-	addr symbol, init, sup;
+	addr symbol, init, sup, base;
 
+	base = cons;
 	var = opt = rest = key = key_p = allow = aux = Nil;
 	varcons_local(local, &instance);
 	varcons_local(local, &name);
 	if (cons == Nil)
 		goto finish;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &one);
 
 var_argument:
@@ -803,11 +822,11 @@ var_argument:
 	Return(push_varcons_ordinary_(local, instance, symbol));
 	list_heap(&one, symbol, one, NULL);
 	cons_heap(&var, one, var);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto var_argument;
 
 optional_argument:
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 optional_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one))
 		goto rest_argument;
@@ -822,18 +841,20 @@ optional_loop:
 	}
 	list_heap(&one, symbol, init, sup, NULL);
 	cons_heap(&opt, one, opt);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto optional_loop;
 
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
 		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &rest);
 	Return(push_varcons_ordinary_(local, instance, rest));
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
@@ -843,7 +864,7 @@ rest_argument:
 
 key_argument:
 	key_p = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 key_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ALLOW, one))
 		goto allow_argument;
@@ -856,24 +877,24 @@ key_loop:
 	}
 	list_heap(&one, symbol, one, init, sup, NULL);
 	cons_heap(&key, one, key);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto key_loop;
 
 allow_argument:
 	allow = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
 	return lambda_list_fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 aux_argument:
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 aux_loop:
 	Return(ordinary_aux_(one, &symbol, &init));
 	Return(push_varcons_ordinary_(local, instance, symbol));
 	list_heap(&one, symbol, init, NULL);
 	cons_heap(&aux, one, aux);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto aux_loop;
 
 finish:
@@ -892,15 +913,18 @@ finish:
 static int lambda_ordinary_g_(LocalRoot local, addr *ret, addr cons, addr g)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, aux, one;
-	addr symbol, init, sup;
+	addr symbol, init, sup, base;
 
+	base = cons;
 	var = opt = rest = key = key_p = allow = aux = Nil;
 	varcons_local(local, &instance);
 	varcons_local(local, &name);
 	if (cons == Nil)
 		goto finish;
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &one);
 
 var_argument:
@@ -914,11 +938,11 @@ var_argument:
 		goto aux_argument;
 	Return(push_varcons_ordinary_(local, instance, one));
 	cons_heap(&var, one, var);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto var_argument;
 
 optional_argument:
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 optional_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one))
 		goto rest_argument;
@@ -933,18 +957,20 @@ optional_loop:
 	}
 	list_heap(&one, symbol, init, sup, NULL);
 	cons_heap(&opt, one, opt);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto optional_loop;
 
 rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
 		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
-	if (GetType(cons) != LISPTYPE_CONS)
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (GetType(cons) != LISPTYPE_CONS) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &rest);
 	Return(push_varcons_ordinary_(local, instance, rest));
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
@@ -954,7 +980,7 @@ rest_argument:
 
 key_argument:
 	key_p = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 key_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ALLOW, one))
 		goto allow_argument;
@@ -967,24 +993,24 @@ key_loop:
 	}
 	list_heap(&one, symbol, one, init, sup, NULL);
 	cons_heap(&key, one, key);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto key_loop;
 
 allow_argument:
 	allow = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one))
 		goto aux_argument;
 	return lambda_list_fmte_("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 aux_argument:
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 aux_loop:
 	Return(ordinary_aux_(one, &symbol, &init));
 	Return(push_varcons_ordinary_(local, instance, symbol));
 	list_heap(&one, symbol, init, NULL);
 	cons_heap(&aux, one, aux);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto aux_loop;
 
 finish:
@@ -1072,15 +1098,18 @@ static int push_varcons_defsetf_(LocalRoot local, addr instance, addr var)
 int lambda_defsetf_(LocalRoot local, addr *ret, addr cons)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, one;
-	addr env, symbol, init, sup;
+	addr env, symbol, init, sup, base;
 
+	base = cons;
 	var = opt = rest = key = key_p = allow = env = Nil;
 	varcons_local(local, &instance);
 	varcons_local(local, &name);
 	if (cons == Nil)
 		goto finish;
-	if (! consp(cons))
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (! consp(cons)) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &one);
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto var_environment;
@@ -1088,7 +1117,7 @@ int lambda_defsetf_(LocalRoot local, addr *ret, addr cons)
 
 var_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 
 var_argument:
 	if (constant_eq(CONSTANT_AMPERSAND_OPTIONAL, one))
@@ -1101,12 +1130,12 @@ var_argument:
 		goto optional_environment;
 	Return(push_varcons_defsetf_(local, instance, one));
 	cons_heap(&var, one, var);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto var_argument;
 
 optional_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_OPTIONAL, one))
 		goto optional_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one))
@@ -1116,7 +1145,7 @@ optional_environment:
 	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 optional_argument:
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 optional_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one))
 		goto rest_argument;
@@ -1131,12 +1160,12 @@ optional_loop:
 	}
 	list_heap(&one, symbol, init, sup, NULL);
 	cons_heap(&opt, one, opt);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto optional_loop;
 
 rest_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one))
 		goto rest_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
@@ -1147,11 +1176,13 @@ rest_argument:
 	GetCdr(cons, &cons);
 	if (cons == Nil)
 		return lambda_list_fmte_("&rest parameter must be a one argument.", NULL);
-	if (! consp(cons))
-		return lambda_list_fmte_("Dot list don't allow in this lambda-list.", NULL);
+	if (! consp(cons)) {
+		return lambda_list_fmte_("Dot list don't allow "
+				"in this lambda-list: ~S.", base, NULL);
+	}
 	GetCar(cons, &rest);
 	Return(push_varcons_defsetf_(local, instance, rest));
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
@@ -1161,14 +1192,14 @@ rest_argument:
 
 key_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one))
 		goto key_argument;
 	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 key_argument:
 	key_p = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 key_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ALLOW, one))
 		goto allow_argument;
@@ -1181,19 +1212,19 @@ key_loop:
 	}
 	list_heap(&one, symbol, one, init, sup, NULL);
 	cons_heap(&key, one, key);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	goto key_loop;
 
 allow_argument:
 	allow = T;
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto finish_environment;
 	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 finish_environment:
 	environment_expander_defsetf(local, instance, env, one, cons);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	return lambda_list_fmte_("Invalid ~A argument.", one, NULL);
 
 finish:

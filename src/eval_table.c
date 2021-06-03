@@ -33,9 +33,18 @@ void make_tablevalue(addr *ret, addr symbol)
 	*ret = pos;
 }
 
+static void copy_eval_table(addr src, size_t index, addr dst)
+{
+	addr value;
+
+	GetEval(src, index, &value);
+	copyhard_object(NULL, &value, value);
+	SetEval(dst, index, value);
+}
+
 void copy_tablevalue(addr *ret, addr pos)
 {
-	addr one, value;
+	addr one;
 	size_t i, size;
 
 	CheckTableValue(pos);
@@ -44,11 +53,8 @@ void copy_tablevalue(addr *ret, addr pos)
 	LenBodyEval(one, &size);
 	memcpy(PtrBody_value(one), PtrBody_value(pos), size);
 
-	for (i = 0; i < TABLEVALUE_INDEX_SIZE; i++) {
-		GetEval(pos, i, &value);
-		copyhard_object(NULL, &value, value);
-		SetEval(one, i, value);
-	}
+	for (i = 0; i < TABLEVALUE_INDEX_SIZE; i++)
+		copy_eval_table(pos, i, one);
 	*ret = one;
 }
 
@@ -233,7 +239,7 @@ void make_tablefunction(addr *ret, addr call)
 static void copy_tablefunction(addr *ret, addr pos)
 {
 	addr one, value;
-	size_t i, size;
+	size_t size;
 
 	CheckTableFunction(pos);
 	heap_tablefunction(&one);
@@ -241,11 +247,10 @@ static void copy_tablefunction(addr *ret, addr pos)
 	LenBodyEval(one, &size);
 	memcpy(PtrBody_function(one), PtrBody_function(pos), size);
 
-	for (i = 0; i < TABLEFUNCTION_INDEX_SIZE; i++) {
-		GetEval(pos, i, &value);
-		copyhard_object(NULL, &value, value);
-		SetEval(one, i, value);
-	}
+	copy_eval_table(pos, TABLEFUNCTION_INDEX_NAME, one);
+	copy_eval_table(pos, TABLEFUNCTION_INDEX_TYPE, one);
+	GetEval(pos, TABLEFUNCTION_INDEX_REDIRECT, &value);
+	SetEval(one, TABLEFUNCTION_INDEX_REDIRECT, value);
 	*ret = one;
 }
 
@@ -476,7 +481,7 @@ void make_tabletagbody(addr *ret, addr tag)
 
 void copy_tabletagbody(addr *ret, addr pos)
 {
-	addr one, value;
+	addr one;
 	size_t i, size;
 
 	CheckTableTagBody(pos);
@@ -485,11 +490,8 @@ void copy_tabletagbody(addr *ret, addr pos)
 	LenBodyEval(one, &size);
 	memcpy(PtrBody_tagbody(one), PtrBody_tagbody(pos), size);
 
-	for (i = 0; i < TABLETAGBODY_INDEX_SIZE; i++) {
-		GetEval(pos, i, &value);
-		copyhard_object(NULL, &value, value);
-		SetEval(one, i, value);
-	}
+	for (i = 0; i < TABLETAGBODY_INDEX_SIZE; i++)
+		copy_eval_table(pos, i, one);
 	*ret = one;
 }
 
@@ -599,7 +601,7 @@ void make_tableblock(addr *ret, addr tag)
 
 void copy_tableblock(addr *ret, addr pos)
 {
-	addr one, value;
+	addr one;
 	size_t i, size;
 
 	CheckTableBlock(pos);
@@ -608,11 +610,8 @@ void copy_tableblock(addr *ret, addr pos)
 	LenBodyEval(one, &size);
 	memcpy(PtrBody_block(one), PtrBody_block(pos), size);
 
-	for (i = 0; i < TABLEBLOCK_INDEX_SIZE; i++) {
-		GetEval(pos, i, &value);
-		copyhard_object(NULL, &value, value);
-		SetEval(one, i, value);
-	}
+	for (i = 0; i < TABLEBLOCK_INDEX_SIZE; i++)
+		copy_eval_table(pos, i, one);
 	*ret = one;
 }
 

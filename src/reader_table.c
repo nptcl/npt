@@ -402,16 +402,21 @@ int macro_character_execute(Execute ptr, int *result, addr *ret,
 	addr call, code;
 	LocalHold hold;
 
+	hold = LocalHold_local(ptr);
 	character_heap(&code, c);
+	localhold_push(hold, code);
+
 	Return(readtype_readtable_(table, c, &call));
+	localhold_push(hold, call);
+
 	if (call == Nil)
 		goto error;
 	GetReadType(call, &call);
+	localhold_push(hold, call);
 	if (call == Nil)
 		goto error;
 	*result = 0;
 
-	hold = LocalHold_local_push(ptr, code);
 	Return(macro_character_call(ptr, result, ret, call, stream, code));
 	localhold_end(hold);
 	return 0;

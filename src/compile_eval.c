@@ -477,6 +477,7 @@ static int compile_instance_execute_(Execute ptr, addr *ret, addr pos, addr inde
 	addr control;
 
 	push_control(ptr, &control);
+	gchold_push_special(ptr, pos);
 	(void)compile_instance_execute_call_(ptr, ret, pos, index);
 	return pop_control_(ptr, control);
 }
@@ -493,19 +494,31 @@ static int compile_instance_instance_(Execute ptr, addr *ret, addr instance, add
 int compile_instance_(Execute ptr, addr pos, addr make, addr init)
 {
 	addr instance, index;
+	LocalHold hold;
+
+	hold = LocalHold_local(ptr);
+	localhold_push(hold, pos);
+	localhold_push(hold, make);
+	localhold_push(hold, init);
 
 	/* instance */
 	Return(incf_load_size_(ptr, &index));
 	Return(intern_load_table_(ptr, pos, index));
 	load_depend_heap(&instance, Nil, pos, Nil);
+	localhold_push(hold, instance);
 
 	/* form */
 	Return(compile_instance_execute_(ptr, &make, make, index));
+	localhold_push(hold, make);
 	if (init != Nil) {
 		Return(compile_instance_instance_(ptr, &init, pos, init));
+		localhold_push(hold, init);
 	}
 
 	Return(load_depend_instance_(ptr, instance, make, init));
-	return push_load_push_(ptr, instance);
+	Return(push_load_push_(ptr, instance));
+	localhold_end(hold);
+
+	return 0;
 }
 

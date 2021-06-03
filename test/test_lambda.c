@@ -393,13 +393,14 @@ static int test_push_varcons_generic_function(void)
 
 static int test_nextcons_finish(void)
 {
-	addr one, cons, value;
+	addr one, cons, base, value;
 
+	base = Nil;
 	fixnum_heap(&value, 100);
 	list_heap(&cons, value, T, NULL);
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	test(one == T, "nextcons_finish1");
-	nextcons_finish(one, cons);
+	nextcons_finish(one, cons, base);
 	test(0, "nextcons_finish_error");
 finish:
 

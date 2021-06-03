@@ -351,6 +351,23 @@
 #define LISP_DEGRADE_STRING "release"
 #endif
 
+/* memory size */
+#ifndef LISP_MEMORY_HEAP
+#ifdef LISP_DEBUG
+#define LISP_MEMORY_HEAP	(64UL * 1024UL * 1024UL);
+#else
+#define LISP_MEMORY_HEAP	(1024UL * 1024UL * 1024UL);
+#endif
+#endif
+
+#ifndef LISP_MEMORY_LOCAL
+#ifdef LISP_DEBUG
+#define LISP_MEMORY_LOCAL	(16UL * 1024UL * 1024UL);
+#else
+#define LISP_MEMORY_LOCAL	(256UL * 1024UL * 1024UL);
+#endif
+#endif
+
 /* memory management */
 #if defined(LISP_MEMORY_INIT)
 #undef LISP_MEMORY_UNINIT

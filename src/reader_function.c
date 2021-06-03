@@ -145,7 +145,8 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 	GetConst(SYSTEM_READTABLE_DOT, &dotsym);
 	Return(getreadtable_(ptr, &table));
 	queue_heap(&queue);
-	hold = LocalHold_local_push(ptr, queue);
+	hold = LocalHold_array(ptr, 1);
+	localhold_push(hold, queue);
 	for (;;) {
 		Return(read_char_stream_(stream, &c, &check));
 		if (check)
@@ -165,6 +166,7 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 			return fmte_("read error", NULL);
 		if (check < 0)
 			continue;
+		localhold_set(hold, 0, pos);
 
 		/* dot */
 		check = read_delimited_read(ptr, queue, dotsym, pos, &mode);

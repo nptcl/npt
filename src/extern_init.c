@@ -362,9 +362,9 @@ static int lisp_argv_initcode(struct lispargv *ptr)
 	heap = ptr->heap;
 	local = ptr->local;
 	if (heap == 0)
-		heap = DefaultHeapSize;
+		heap = LISP_MEMORY_HEAP;
 	if (local == 0)
-		local = DefaultLocalSize;
+		local = LISP_MEMORY_LOCAL;
 	if (alloclisp(heap, local)) {
 		lisperror("lisp initialize error.");
 		return 1;
