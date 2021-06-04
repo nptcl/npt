@@ -603,7 +603,8 @@ int method_add_method_(Execute ptr, addr gen, addr method)
 /*
  *  common_objects
  */
-static int method_add_(Execute ptr, addr gen, addr method)
+#ifdef LISP_DEBUG
+int common_method_add_(Execute ptr, addr gen, addr method)
 {
 	addr check_method;
 
@@ -622,11 +623,6 @@ static int method_add_(Execute ptr, addr gen, addr method)
 	Return(method_cache_remove_(ptr->local, gen, method));
 	return generic_finalize_(gen);
 }
-#ifdef LISP_DEBUG
-int common_method_add_(Execute ptr, addr gen, addr method)
-{
-	return method_add_(ptr, gen, method);
-}
 #else
 int common_method_add_(Execute ptr, addr gen, addr method)
 {
@@ -636,7 +632,6 @@ int common_method_add_(Execute ptr, addr gen, addr method)
 	return stdset_method_generic_function_(method, gen);
 }
 #endif
-
 
 static int defmethod_make_generic_function_(addr name, addr lambda, addr *ret)
 {
@@ -665,7 +660,7 @@ int ensure_method_common_(Execute ptr, addr *ret,
 		return fmte_("The function ~S is not generic-function.", gen, NULL);
 	Return(stdget_generic_method_class_(gen, &clos));
 	Return(method_instance_heap_(&method, clos, lambda, qua, spec, call));
-	Return(method_add_(ptr, gen, method));
+	Return(method_add_method_(ptr, gen, method));
 
 	return Result(ret, method);
 }

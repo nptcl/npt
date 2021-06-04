@@ -78,6 +78,30 @@
   (defmethod8 "Hello")
   t)
 
+
+;;
+;;  defmethod overwrite
+;;
+(defgeneric defmethod-overwrite-1 (x))
+(defmethod defmethod-overwrite-1 ((x integer))
+  (declare (ignore x))
+  :aaa)
+
+(deftest defmethod-overwrite.1
+  (closp
+    (defmethod defmethod-overwrite-1 ((x integer))
+      (declare (ignore x))
+      :bbb))
+  t)
+
+(deftest defmethod-overwrite.2
+  (defmethod-overwrite-1 100)
+  :bbb)
+
+
+;;
+;;  eql-specializer
+;;
 (defgeneric defmethod-eql-specializer-1 (value))
 
 (defmethod defmethod-eql-specializer-1 (value)
@@ -416,6 +440,25 @@
   (let ((method (find-method-list #'add-method4 nil 't)))
     (remove-method #'add-method4 method)
     (add-method #'add-method5 method)))
+
+
+;;
+;;  overwrite
+;;
+(defclass add-method-over-1 () ())
+(defclass add-method-over-2 () ())
+
+(defgeneric add-method-over-3 (x))
+(defmethod add-method-over-3 ((x add-method-over-1))
+  (+ x 10))
+
+(defgeneric add-method-over-4 (x))
+(defmethod add-method-over-4 ((x add-method-over-2))
+  (+ x 20))
+
+(deftest-error add-method-overwrite.1
+  (let ((method (find-method-list #'add-method-over-4 nil 'add-method-over-2)))
+    (add-method #'add-method-over-3 method)))
 
 
 ;;
