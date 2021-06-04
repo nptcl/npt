@@ -20,6 +20,7 @@
 #define keyword_start1_end1_ _n(keyword_start1_end1_)
 #define keyword_start2_end2_ _n(keyword_start2_end2_)
 #define keyword_start_end_value_ _n(keyword_start_end_value_)
+#define eval_when_compile _n(eval_when_compile)
 
 /* helper */
 #ifdef LISP_DEBUG
@@ -44,6 +45,8 @@ int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend);
 int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend);
 int keyword_start_end_value_(size_t size,
 		addr astart, addr aend, size_t *pstart, size_t *pend);
+
+void eval_when_compile(addr expr, addr *ret);
 
 #endif
 

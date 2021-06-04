@@ -542,3 +542,51 @@
     (read-from-string "`(block `(lambda 10))")
     (values)))
 
+
+;;
+;;  reader export
+;;
+(defpackage reader-export-1-a)
+(defpackage reader-export-1-b)
+(deftest reader-export.1
+  (progn
+    (intern "HELLO" 'reader-export-1-a)
+    (use-package 'reader-export-1-b 'reader-export-1-a)
+    (import (intern "HELLO" 'reader-export-1-a) 'reader-export-1-b)
+    (export (intern "HELLO" 'reader-export-1-b) 'reader-export-1-b)
+    (let ((x (read-from-string "reader-export-1-b:hello")))
+      (values (package-name
+                (symbol-package x))
+              (symbol-name x))))
+  "READER-EXPORT-1-A" "HELLO")
+
+(defpackage reader-export-2-a)
+(defpackage reader-export-2-b)
+(deftest reader-export.2
+  (progn
+    (intern "HELLO" 'reader-export-2-a)
+    (let ((x (intern "HELLO" 'reader-export-2-a)))
+      (export x 'reader-export-2-a))
+    (use-package 'reader-export-2-b 'reader-export-2-a)
+    (import (intern "HELLO" 'reader-export-2-a) 'reader-export-2-b)
+    (export (intern "HELLO" 'reader-export-2-b) 'reader-export-2-b)
+    (let ((x (read-from-string "reader-export-2-b:hello")))
+      (values (package-name
+                (symbol-package x))
+              (symbol-name x))))
+  "READER-EXPORT-2-A" "HELLO")
+
+
+(defpackage reader-export-3-a)
+(defpackage reader-export-3-b)
+(deftest reader-export.3
+  (progn
+    (intern "HELLO" 'reader-export-3-a)
+    (import (intern "HELLO" 'reader-export-3-a) 'reader-export-3-b)
+    (export (intern "HELLO" 'reader-export-3-b) 'reader-export-3-b)
+    (let ((x (read-from-string "reader-export-3-b:hello")))
+      (values (package-name
+                (symbol-package x))
+              (symbol-name x))))
+  "READER-EXPORT-3-A" "HELLO")
+

@@ -157,3 +157,19 @@ int keyword_start_end_value_(size_t size,
 			kstart, kend, astart, aend, pstart, pend);
 }
 
+void eval_when_compile(addr expr, addr *ret)
+{
+	/* `(eval-when (:compile-toplevel :load-toplevel :execute)
+	 *    ,expr)
+	 */
+	addr eval_when, key1, key2, key3, key;
+
+	GetConst(COMMON_EVAL_WHEN, &eval_when);
+	GetConst(KEYWORD_COMPILE_TOPLEVEL, &key1);
+	GetConst(KEYWORD_LOAD_TOPLEVEL, &key2);
+	GetConst(KEYWORD_EXECUTE, &key3);
+
+	list_heap(&key, key1, key2, key3, NULL);
+	list_heap(ret, eval_when, key, expr, NULL);
+}
+

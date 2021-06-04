@@ -1,3 +1,4 @@
+#include "common_header.h"
 #include "condition.h"
 #include "control_execute.h"
 #include "cons.h"
@@ -27,12 +28,12 @@ int symbol_deftypep(addr symbol)
 
 int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
 {
-	addr call;
+	addr call, symbol;
 
 	CheckType(list, LISPTYPE_CONS);
-	GetCar(list, &call);
-	CheckSymbol(call);
-	getdeftype(call, &call);
+	GetCar(list, &symbol);
+	CheckSymbol(symbol);
+	getdeftype(symbol, &call);
 	if (call == Nil)
 		return Result(ret, NULL);
 
@@ -89,7 +90,8 @@ int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* (eval::deftype name args decl doc body) */
 	GetConst(SYSTEM_DEFTYPE, &eval);
-	list_heap(ret, eval, name, args, decl, doc, right, NULL);
+	list_heap(&eval, eval, name, args, decl, doc, right, NULL);
+	eval_when_compile(eval, ret);
 
 	return 0;
 }

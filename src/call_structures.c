@@ -1,4 +1,5 @@
 #include "call_structures.h"
+#include "common_header.h"
 #include "condition.h"
 #include "constant.h"
 #include "cons.h"
@@ -886,6 +887,7 @@ int defstruct_common(Execute ptr, addr form, addr env, addr *ret)
 	localhold_pushva_force(hold, form, env, NULL);
 	Return(defstruct_parse(&str, form));
 	Return(defstruct_make_(&str, &form));
+	eval_when_compile(form, &form);
 	localhold_end(hold);
 
 	return Result(ret, form);

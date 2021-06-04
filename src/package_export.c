@@ -240,20 +240,28 @@ static int restart_access_export_package_(addr package, addr symbol)
 }
 
 static int test_conflict_export_package_(addr package, addr symbol,
-		addr *ret, addr *rsymbol)
+		addr *ret, addr *rvalue)
 {
-	addr pos, bit, list;
+	addr name, pos, bit, list, check;
+	struct bittype_struct *str;
 
-	GetNameSymbol(symbol, &symbol);
+	GetNameSymbol(symbol, &name);
 	GetPackage(package, PACKAGE_INDEX_USED, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(find_bitpackage_(pos, symbol, &bit));
-		if (bit != Nil && ! StructBitType(bit)->shadow) {
-			if (rsymbol)
-				GetBitTypeSymbol(bit, rsymbol);
-			return Result(ret, pos);
-		}
+		Return(find_bitpackage_(pos, name, &bit));
+		if (bit == Nil)
+			continue;
+		str = StructBitType(bit);
+		if (str->shadow)
+			continue;
+		GetBitTypeSymbol(bit, &check);
+		if (symbol == check)
+			continue;
+
+		if (rvalue)
+			*rvalue = check;
+		return Result(ret, pos);
 	}
 
 	return Result(ret, Nil);
@@ -282,7 +290,7 @@ static int check_export_package_(addr package, addr symbol)
 
 	/* conflict check */
 	Return(test_conflict_export_package_(package, symbol, &pos, &sym));
-	if (pos != Nil && symbol != sym)
+	if (pos != Nil)
 		return restart_conflict_export_package_(package, symbol, pos, sym);
 
 	return 0;

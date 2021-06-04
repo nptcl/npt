@@ -300,6 +300,16 @@ int compile_common(Execute ptr, addr var, addr opt,
 /*
  *  defmacro
  */
+static void defmacro_common_block(addr name, addr form, addr *ret)
+{
+	/* `(block ,name ,@form) */
+	addr block;
+
+	GetConst(COMMON_BLOCK, &block);
+	lista_heap(&block, block, name, form, NULL);
+	list_heap(ret, block, NULL);
+}
+
 int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr eval, name, args, decl, doc;
@@ -329,6 +339,7 @@ int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 	Return(check_function_variable_(name));
 	Return(lambda_macro_(ptr->local, &args, args, Nil));
 	Return(declare_body_documentation_(ptr, env, form, &doc, &decl, &form));
+	defmacro_common_block(name, form, &form);
 
 	/* (eval::defmacro name args decl doc body) */
 	GetConst(SYSTEM_DEFMACRO, &eval);

@@ -37,6 +37,15 @@
   (defmacro-5)
   nil)
 
+(deftest defmacro.7
+  (defmacro defmacro-7 ()
+    (return-from defmacro-7 100))
+  defmacro-7)
+
+(deftest defmacro.8
+  (eval '(defmacro-7))
+  100)
+
 (deftest-error defmacro-error.1
   (eval '(defmacro name)))
 

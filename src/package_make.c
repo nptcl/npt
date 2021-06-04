@@ -371,6 +371,20 @@ static int pushnew_use_make_package_(addr pos, addr name, addr list, addr *ret)
 	return Result(ret, list);
 }
 
+static int equal_use_make_package_(addr pos1, addr pos2, addr x, addr y, int *ret)
+{
+	int check;
+	enum PACKAGE_TYPE ignore;
+
+	Return(string_equal_(x, y, &check));
+	if (! check)
+		return Result(ret, 0);
+
+	Return(find_symbol_package_(pos1, x, &x, &ignore));
+	Return(find_symbol_package_(pos2, y, &y, &ignore));
+	return Result(ret, x != y);
+}
+
 static int conflict_use_make_package_(addr pos1, addr pos2, addr shadow, addr *ret)
 {
 	int check;
@@ -382,7 +396,7 @@ static int conflict_use_make_package_(addr pos1, addr pos2, addr shadow, addr *r
 		GetCons(exp1, &x, &exp1);
 		for (loop = exp2; loop != Nil; ) {
 			GetCons(loop, &y, &loop);
-			Return(string_equal_(x, y, &check));
+			Return(equal_use_make_package_(pos1, pos2, x, y, &check));
 			if (check) {
 				Return(pushnew_use_make_package_(pos1, x, shadow, &shadow));
 				Return(pushnew_use_make_package_(pos2, y, shadow, &shadow));
