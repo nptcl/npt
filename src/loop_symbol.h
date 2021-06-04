@@ -9,6 +9,7 @@
 #define loop_symbol_initially_p_ _n(loop_symbol_initially_p_)
 #define loop_symbol_finally_p_ _n(loop_symbol_finally_p_)
 #define loop_symbol_initial_final_p_ _n(loop_symbol_initial_final_p_)
+#define loop_symbol_of_type_p_ _n(loop_symbol_of_type_p_)
 #define loop_symbol_for_p_ _n(loop_symbol_for_p_)
 #define loop_symbol_as_p_ _n(loop_symbol_as_p_)
 #define loop_symbol_for_as_p_ _n(loop_symbol_for_as_p_)
@@ -89,6 +90,7 @@ int loop_symbol_with_p_(addr pos, int *ret);
 int loop_symbol_initially_p_(addr pos, int *ret);
 int loop_symbol_finally_p_(addr pos, int *ret);
 int loop_symbol_initial_final_p_(addr pos, int *ret);
+int loop_symbol_of_type_p_(addr pos, int *ret);
 int loop_symbol_for_p_(addr pos, int *ret);
 int loop_symbol_as_p_(addr pos, int *ret);
 int loop_symbol_for_as_p_(addr pos, int *ret);

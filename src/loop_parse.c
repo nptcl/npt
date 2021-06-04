@@ -72,8 +72,13 @@ static int loop_parse_with_clause1_(addr *list, addr *ret)
 	Return(loop_symbol_form_p_(pos, &check));
 	if (check)
 		goto loop_result;
-	else
-		goto loop_type;
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (check) {
+		GetCdr(args, &args);
+		if (! consp_getcar(args, &pos))
+			goto error;
+	}
+	goto loop_type;
 
 	/* [type-spec] */
 loop_type:
@@ -364,13 +369,21 @@ static int loop_parse_for_as_arithmetic_(Execute ptr,
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
 	Return(loop_symbol_arithmetic_p_(pos, &check));
-	if (! check) {
+	if (check)
+		goto arithmetic;
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (check) {
 		if (! consp_getcons(args, &pos, &args))
 			return Result(ret, 0);
-		Return(loop_symbol_arithmetic_p_(pos, &check));
-		if (! check)
-			return Result(ret, 0);
 	}
+	/* ignore type-spec */
+	if (! consp_getcons(args, &pos, &args))
+		return Result(ret, 0);
+	Return(loop_symbol_arithmetic_p_(pos, &check));
+	if (! check)
+		return Result(ret, 0);
+
+arithmetic:
 	Return(loop_parse_for_as_arithmetic_struct_(&str, &args, pos, &check));
 	if (check)
 		return Result(ret, 0);
@@ -417,14 +430,25 @@ static int loop_parse_for_as_call_list_(Execute ptr,
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
 	Return((*check1_)(pos, &check));
-	if (! check) {
-		type = pos;
+	if (check)
+		goto next;
+
+	/* of-type */
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (check) {
 		if (! consp_getcons(args, &pos, &args))
 			return Result(ret, 0);
-		Return((*check1_)(pos, &check));
-		if (! check)
-			return Result(ret, 0);
 	}
+
+	/* type-spec */
+	type = pos;
+	if (! consp_getcons(args, &pos, &args))
+		return Result(ret, 0);
+	Return((*check1_)(pos, &check));
+	if (! check)
+		return Result(ret, 0);
+
+next:
 	if (! consp_getcons(args, &form, &args))
 		return Result(ret, 0);
 	if (args == Nil)
@@ -483,14 +507,25 @@ static int loop_parse_for_as_across_(Execute ptr, addr *list, addr *value, int *
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
 	Return(loop_symbol_across_p_(pos, &check));
-	if (! check) {
-		type = pos;
+	if (check)
+		goto next;
+
+	/* of-type */
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (check) {
 		if (! consp_getcons(args, &pos, &args))
 			return Result(ret, 0);
-		Return(loop_symbol_across_p_(pos, &check));
-		if (! check)
-			return Result(ret, 0);
 	}
+
+	/* type-spec */
+	type = pos;
+	if (! consp_getcons(args, &pos, &args))
+		return Result(ret, 0);
+	Return(loop_symbol_across_p_(pos, &check));
+	if (! check)
+		return Result(ret, 0);
+
+next:
 	if (! consp_getcons(args, &vector, &args))
 		return Result(ret, 0);
 	/* result */
@@ -516,18 +551,26 @@ static int loop_parse_for_as_hash_(Execute ptr, addr *list, addr *value, int *re
 	/* var */
 	if (! consp_getcons(*list, &var, &args))
 		return Result(ret, 0);
+	if (! consp_getcons(args, &pos, &args))
+		return Result(ret, 0);
+	/* begin */
+	Return(loop_symbol_being_p_(pos, &check));
+	if (check)
+		goto next;
+	/* of-type */
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (check) {
+		if (! consp_getcons(args, &pos, &args))
+			return Result(ret, 0);
+	}
 	/* type-spec, being */
+	type = pos;
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
 	Return(loop_symbol_being_p_(pos, &check));
-	if (! check) {
-		type = pos;
-		if (! consp_getcons(args, &pos, &args))
-			return Result(ret, 0);
-		Return(loop_symbol_being_p_(pos, &check));
-		if (! check)
-			return Result(ret, 0);
-	}
+	if (! check)
+		return Result(ret, 0);
+next:
 	/* each, the */
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
@@ -617,18 +660,28 @@ static int loop_parse_for_as_package_(Execute ptr, addr *list, addr *value, int 
 	/* var */
 	if (! consp_getcons(*list, &var, &args))
 		return Result(ret, 0);
+	if (! consp_getcons(args, &pos, &args))
+		return Result(ret, 0);
+
+	/* of-type */
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (check) {
+		if (! consp_getcons(args, &pos, &args))
+			return Result(ret, 0);
+	}
+
 	/* type-spec, being */
+	Return(loop_symbol_being_p_(pos, &check));
+	if (check)
+		goto type_next;
+	type = pos;
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
 	Return(loop_symbol_being_p_(pos, &check));
-	if (! check) {
-		type = pos;
-		if (! consp_getcons(args, &pos, &args))
-			return Result(ret, 0);
-		Return(loop_symbol_being_p_(pos, &check));
-		if (! check)
-			return Result(ret, 0);
-	}
+	if (! check)
+		return Result(ret, 0);
+
+type_next:
 	/* each, the */
 	if (! consp_getcons(args, &pos, &args))
 		return Result(ret, 0);
@@ -985,6 +1038,7 @@ static int loop_parse_numeric_accumulation_result_(addr *ret, addr *list)
 		goto next;
 	}
 	goto error;
+
 next:
 	/* form, it */
 	if (! consp_getcons(args, &form, &args))
@@ -992,16 +1046,32 @@ next:
 	Return(loop_symbol_it_p_(form, &check));
 	if (check)
 		GetConst(SYSTEM_IT_LOOP, &form);
+
+	/* into */
 	if (! consp_getcar(args, &pos))
 		goto result;
 	Return(loop_symbol_into_p_(pos, &check));
 	if (! check)
-		goto result;
+		goto of_type;
 	GetCdr(args, &args);
 	if (! consp_getcons(args, &into, &args))
 		goto error;
-	if (args == Nil)
+	goto of_type;
+
+	/* of-type */
+of_type:
+	if (! consp_getcar(args, &pos))
 		goto result;
+	Return(loop_symbol_of_type_p_(pos, &check));
+	if (! check)
+		goto type_spec;
+	GetCdr(args, &args);
+	if (! consp_getcons(args, &type, &args))
+		goto error;
+	goto result;
+
+	/* type-spec */
+type_spec:
 	if (! consp_getcar(args, &pos))
 		goto error;
 	Return(loop_symbol_form_main_p_(pos, &check));

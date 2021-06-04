@@ -280,6 +280,17 @@
         do (return (values a b c d e f g)))
   0 0 0 0 0.0f0 0.0f0 1.0f0)
 
+(deftest loop-with.13
+  (loop with a of-type integer = 10
+        do (return a))
+  10)
+
+(deftest loop-with.14
+  (loop with (a b) of-type integer = (list 10 20)
+        and (c d) of-type integer = (list 30 40)
+        do (return (values a b c d)))
+  10 20 30 40)
+
 
 ;;
 ;;  for-as-arithmetic-up
@@ -370,6 +381,20 @@
           (return (nreverse list))))
   (0 2 4 6 8 10))
 
+(deftest loop-for-as-up.13
+  (loop with list
+        for x integer from 5 to 10
+        do (push x list)
+        finally (return (nreverse list)))
+  (5 6 7 8 9 10))
+
+(deftest loop-for-as-up.14
+  (loop with list
+        for x of-type integer from 5 to 10
+        do (push x list)
+        finally (return (nreverse list)))
+  (5 6 7 8 9 10))
+
 
 ;;
 ;;  for-as-arithmetic-downto
@@ -415,6 +440,20 @@
         do (push x list)
         finally (return (nreverse list)))
   (10 8))
+
+(deftest loop-for-as-downto.7
+  (loop with list
+        for x integer from 10 downto 5
+        do (push x list)
+        finally (return (nreverse list)))
+  (10 9 8 7 6 5))
+
+(deftest loop-for-as-downto.8
+  (loop with list
+        for x of-type integer from 10 downto 5
+        do (push x list)
+        finally (return (nreverse list)))
+  (10 9 8 7 6 5))
 
 
 ;;
@@ -478,6 +517,20 @@
           (return (nreverse list))))
   (10 8 6 4))
 
+(deftest loop-for-as-downfrom.9
+  (loop with list
+        for x integer downfrom 10 to 5
+        do (push x list)
+        finally (return (nreverse list)))
+  (10 9 8 7 6 5))
+
+(deftest loop-for-as-downfrom.10
+  (loop with list
+        for x of-type integer downfrom 10 to 5
+        do (push x list)
+        finally (return (nreverse list)))
+  (10 9 8 7 6 5))
+
 
 ;;
 ;;  for 2
@@ -486,6 +539,23 @@
   (loop with list
         for x from 1 to 5
         as y from 6 to 9
+        do (push (list x y) list)
+        finally (return (nreverse list)))
+  ((1 6) (2 7) (3 8) (4 9)))
+
+
+(deftest loop-for-as.2
+  (loop with list
+        for x integer from 1 to 5
+        as y integer from 6 to 9
+        do (push (list x y) list)
+        finally (return (nreverse list)))
+  ((1 6) (2 7) (3 8) (4 9)))
+
+(deftest loop-for-as.3
+  (loop with list
+        for x of-type integer from 1 to 5
+        as y of-type integer from 6 to 9
         do (push (list x y) list)
         finally (return (nreverse list)))
   ((1 6) (2 7) (3 8) (4 9)))
@@ -522,6 +592,20 @@
         finally (return (nreverse list)))
   ((2 1) (4 3) (6 5)))
 
+(deftest loop-for-in.5
+  (loop with list
+        for x symbol in '(a b c d)
+        do (push x list)
+        finally (return (nreverse list)))
+  (a b c d))
+
+(deftest loop-for-in.6
+  (loop with list
+        for x of-type symbol in '(a b c d)
+        do (push x list)
+        finally (return (nreverse list)))
+  (a b c d))
+
 
 ;;
 ;;  on-list
@@ -554,6 +638,20 @@
         finally (return (nreverse list)))
   ((2 1) (3 2) (nil 3)))
 
+(deftest loop-for-on.5
+  (loop with list
+        for x list on '(a b c d)
+        do (push x list)
+        finally (return (nreverse list)))
+  ((a b c d) (b c d) (c d) (d)))
+
+(deftest loop-for-on.6
+  (loop with list
+        for x of-type list on '(a b c d)
+        do (push x list)
+        finally (return (nreverse list)))
+  ((a b c d) (b c d) (c d) (d)))
+
 
 ;;
 ;;  equals-then
@@ -569,6 +667,11 @@
   99)
 
 (deftest loop-for-equals.3
+  (loop for x of-type integer = 99
+        do (return x))
+  99)
+
+(deftest loop-for-equals.4
   (loop with list
         for x = 1 then (+ x 1)
         do (push x list)
@@ -576,7 +679,7 @@
           (return (nreverse list))))
   (1 2 3 4 5))
 
-(deftest loop-for-equals.4
+(deftest loop-for-equals.5
   (let ((count 0))
     (flet ((counter-test () (incf count)))
       (loop with list
@@ -586,11 +689,31 @@
               (return (nreverse list))))))
   (1 2 3 4 5))
 
-(deftest loop-for-equals.5
+(deftest loop-for-equals.6
   (let ((count 0))
     (flet ((counter-test () (list (incf count) (1+ count))))
       (loop with list
             for (x y) = (counter-test)
+            do (push (list y x) list)
+            (if (<= 5 x)
+              (return (nreverse list))))))
+  ((2 1) (3 2) (4 3) (5 4) (6 5)))
+
+(deftest loop-for-equals.7
+  (let ((count 0))
+    (flet ((counter-test () (list (incf count) (1+ count))))
+      (loop with list
+            for (x y) (integer integer) = (counter-test)
+            do (push (list y x) list)
+            (if (<= 5 x)
+              (return (nreverse list))))))
+  ((2 1) (3 2) (4 3) (5 4) (6 5)))
+
+(deftest loop-for-equals.8
+  (let ((count 0))
+    (flet ((counter-test () (list (incf count) (1+ count))))
+      (loop with list
+            for (x y) of-type (integer integer) = (counter-test)
             do (push (list y x) list)
             (if (<= 5 x)
               (return (nreverse list))))))
@@ -627,6 +750,20 @@
         do (push (list y x) list)
         finally (return (nreverse list)))
   ((b a) (d c)))
+
+(deftest loop-for-across.5
+  (loop with list
+        for x symbol across #(a b c d)
+        do (push x list)
+        finally (return (nreverse list)))
+  (a b c d))
+
+(deftest loop-for-across.6
+  (loop with list
+        for x of-type symbol across #(a b c d)
+        do (push x list)
+        finally (return (nreverse list)))
+  (a b c d))
 
 
 ;;
@@ -711,6 +848,28 @@
           finally (return (sort list #'< :key #'car))))
   ((20 10) (40 30) (60 50)))
 
+(deftest loop-for-hash.8
+  (let ((table (make-hash-table)))
+    (setf (gethash 'aaa table) :bbb)
+    (setf (gethash 'ccc table) :ddd)
+    (setf (gethash 'eee table) :fff)
+    (loop with list
+          for x symbol being each hash-key of table
+          do (push x list)
+          finally (return (sort list #'string< :key #'symbol-name))))
+  (aaa ccc eee))
+
+(deftest loop-for-hash.9
+  (let ((table (make-hash-table)))
+    (setf (gethash 'aaa table) :bbb)
+    (setf (gethash 'ccc table) :ddd)
+    (setf (gethash 'eee table) :fff)
+    (loop with list
+          for x of-type symbol being each hash-key of table
+          do (push x list)
+          finally (return (sort list #'string< :key #'symbol-name))))
+  (aaa ccc eee))
+
 
 ;;
 ;;  package
@@ -749,4 +908,18 @@
         do (push x list)
         finally (return (sort list #'string< :key #'symbol-name)))
   (loop-package1::aaa))
+
+(deftest loop-for-as-package-of-type.1
+  (loop with list
+        for x symbol being each present-symbol in 'loop-package1
+        do (push x list)
+        finally (return (sort list #'string< :key #'symbol-name)))
+  (loop-package1::aaa loop-package1::bbb loop-package1::ccc))
+
+(deftest loop-for-as-package-of-type.2
+  (loop with list
+        for x of-type symbol being each present-symbol in 'loop-package1
+        do (push x list)
+        finally (return (sort list #'string< :key #'symbol-name)))
+  (loop-package1::aaa loop-package1::bbb loop-package1::ccc))
 

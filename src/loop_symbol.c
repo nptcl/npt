@@ -43,6 +43,11 @@ int loop_symbol_initial_final_p_(addr pos, int *ret)
 	return loop_symbol_finally_p_(pos, ret);
 }
 
+int loop_symbol_of_type_p_(addr pos, int *ret)
+{
+	return symbol_equal_char_p_(pos, "OF-TYPE", ret);
+}
+
 /* for-as */
 int loop_symbol_for_p_(addr pos, int *ret)
 {

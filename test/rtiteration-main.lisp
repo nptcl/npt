@@ -237,31 +237,43 @@
 
 (deftest loop-count.4
   (loop for i from 0 to 10
-        if (if (evenp i) i)
-        count it)
+        count (evenp i) into x of-type integer
+        finally (return x))
   6)
 
 (deftest loop-count.5
   (loop for i from 0 to 10
-        counting (evenp i))
+        if (if (evenp i) i)
+        count it)
   6)
 
 (deftest loop-count.6
+  (loop for i from 0 to 10
+        counting (evenp i))
+  6)
+
+(deftest loop-count.7
   (loop for i from 0 to 10
         counting (evenp i) into x
         finally (return x))
   6)
 
-(deftest loop-count.7
+(deftest loop-count.8
   (loop for i from 0 to 10
         counting (evenp i) into x integer
         finally (return x))
   6)
 
-(deftest loop-count.8
+(deftest loop-count.9
+  (loop for i from 0 to 10
+        counting (evenp i) into x of-type integer
+        finally (return x))
+  6)
+
+(deftest loop-count.10
   (loop for i from 0 to 10
         if (if (evenp i) i)
-        count it)
+        counting it)
   6)
 
 
@@ -285,37 +297,47 @@
 
 (deftest loop-sum.4
   (loop for i from 0 to 10
+        sum i into x of-type integer
+        finally (return x))
+  55)
+
+(deftest loop-sum.5
+  (loop for i from 0 to 10
         if (if (evenp i) i)
         sum it)
   30)
 
-(deftest loop-sum.5
+(deftest loop-sum.6
   (loop for i from 0 to 10
         summing i)
   55)
 
-(deftest loop-sum.6
+(deftest loop-sum.7
   (loop for i from 0 to 10
         summing i into x
         finally (return x))
   55)
 
-(deftest loop-sum.7
+(deftest loop-sum.8
   (loop for i from 0 to 10
         summing i into x integer
         finally (return x))
   55)
 
-(deftest loop-sum.8
+(deftest loop-sum.9
+  (loop for i from 0 to 10
+        summing i into x of-type integer
+        finally (return x))
+  55)
+
+(deftest loop-sum.10
   (loop for i from 0 to 10
         if (if (evenp i) i)
         summing it)
   30)
 
 
-;;
 ;;  maximize
-;;
 (deftest loop-maximize.1
   (loop for i in '(4 5 2 3 9 8 7)
         maximize i)
@@ -335,37 +357,47 @@
 
 (deftest loop-maximize.4
   (loop for i in '(4 5 2 3 9 8 7)
+        maximize i into x of-type integer
+        finally (return x))
+  9)
+
+(deftest loop-maximize.5
+  (loop for i in '(4 5 2 3 9 8 7)
         if (if (evenp i) i)
         maximize it)
   8)
 
-(deftest loop-maximize.5
+(deftest loop-maximize.6
   (loop for i in '(4 5 2 3 9 8 7)
         maximizing i)
   9)
 
-(deftest loop-maximize.6
+(deftest loop-maximize.7
   (loop for i in '(4 5 2 3 9 8 7)
         maximizing i into x
         finally (return x))
   9)
 
-(deftest loop-maximize.7
+(deftest loop-maximize.8
   (loop for i in '(4 5 2 3 9 8 7)
         maximizing i into x integer
         finally (return x))
   9)
 
-(deftest loop-maximize.8
+(deftest loop-maximize.9
+  (loop for i in '(4 5 2 3 9 8 7)
+        maximizing i into x of-type integer
+        finally (return x))
+  9)
+
+(deftest loop-maximize.10
   (loop for i in '(4 5 2 3 9 8 7)
         if (if (evenp i) i)
         maximizing it)
   8)
 
 
-;;
 ;;  minimize
-;;
 (deftest loop-minimize.1
   (loop for i in '(4 5 2 3 9 8 7)
         minimize i)
@@ -385,28 +417,40 @@
 
 (deftest loop-minimize.4
   (loop for i in '(4 5 2 3 9 8 7)
-        if (if (evenp i) i)
-        minimize it)
+        minimize i into x of-type integer
+        finally (return x))
   2)
 
 (deftest loop-minimize.5
   (loop for i in '(4 5 2 3 9 8 7)
-        minimizing i)
+        if (if (evenp i) i)
+        minimize it)
   2)
 
 (deftest loop-minimize.6
+  (loop for i in '(4 5 2 3 9 8 7)
+        minimizing i)
+  2)
+
+(deftest loop-minimize.7
   (loop for i in '(4 5 2 3 9 8 7)
         minimizing i into x
         finally (return x))
   2)
 
-(deftest loop-minimize.7
+(deftest loop-minimize.8
   (loop for i in '(4 5 2 3 9 8 7)
         minimizing i into x integer
         finally (return x))
   2)
 
-(deftest loop-minimize.8
+(deftest loop-minimize.9
+  (loop for i in '(4 5 2 3 9 8 7)
+        minimizing i into x of-type integer
+        finally (return x))
+  2)
+
+(deftest loop-minimize.10
   (loop for i in '(4 5 2 3 9 8 7)
         if (if (evenp i) i)
         minimizing it)
