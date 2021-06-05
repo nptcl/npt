@@ -90,7 +90,6 @@ struct scope_struct *structevalscope(addr pos)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return StructEvalScope_Low(pos);
-
 }
 EvalParse refevalscopetype(addr pos)
 {

@@ -4,6 +4,8 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "eval_execute.h"
+#include "eval_object.h"
+#include "eval_stack.h"
 #include "eval_value.h"
 #include "execute_values.h"
 #include "hold.h"
@@ -12,10 +14,14 @@
 #include "optimize_parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
+#include "parse_object.h"
 #include "reader.h"
 #include "step.h"
 #include "scope.h"
+#include "scope_declare.h"
+#include "scope_object.h"
 #include "stream.h"
+#include "type_value.h"
 #include "typedef.h"
 
 /*
@@ -174,7 +180,124 @@ int eval_result_macro_(Execute ptr, addr pos, addr *ret)
 /*
  *  eval-stream
  */
-static int eval_load_stream_loop_(Execute ptr, addr stream)
+static int eval_toplevel_scope_(Execute ptr, addr pos, addr *ret);
+
+static int eval_toplevel_runcode_(Execute ptr, addr pos, addr *ret)
+{
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	/* scope */
+	Return(eval_scope_(ptr, &pos, pos));
+	GetEvalScopeThe(pos, ret);
+	/* code */
+	localhold_set(hold, 0, pos);
+	code_make(ptr->local, &pos, pos);
+	/* execute */
+	localhold_set(hold, 0, pos);
+	Return(runcode_control_(ptr, pos));
+	/* end */
+	localhold_end(hold);
+	return 0;
+}
+
+static int eval_toplevel_allcons_(Execute ptr, addr cons, addr *ret)
+{
+	addr expr;
+	LocalHold hold;
+
+	/* cons */
+	hold = LocalHold_local_push(ptr, cons);
+	expr = Nil;
+	while (cons != Nil) {
+		GetCons(cons, &expr, &cons);
+		Return(eval_toplevel_scope_(ptr, expr, ret));
+	}
+	localhold_end(hold);
+
+	if (expr == Nil)
+		type_value_nil(ret);
+
+	return 0;
+}
+
+static int eval_toplevel_progn_(Execute ptr, addr eval, addr *ret)
+{
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	return eval_toplevel_allcons_(ptr, eval, ret);
+}
+
+static int eval_toplevel_locally_(Execute ptr, addr eval, addr *ret)
+{
+	addr decl, cons, free, stack;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &decl);
+	GetEvalParse(eval, 1, &cons);
+
+	Return(newstack_nil_(ptr, &stack));
+	Return(apply_declare_(ptr, stack, decl, &free));
+	Return(eval_toplevel_allcons_(ptr, eval, ret));
+	return freestack_eval_(ptr, stack);
+}
+
+static int eval_toplevel_eval_when_(Execute ptr, addr eval, addr *ret)
+{
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	return eval_toplevel_allcons_(ptr, eval, ret);
+}
+
+static int eval_toplevel_scope_(Execute ptr, addr pos, addr *ret)
+{
+	EvalParse type;
+
+	GetEvalParseType(pos, &type);
+	switch (type) {
+		case EVAL_PARSE_PROGN:
+			return eval_toplevel_progn_(ptr, pos, ret);
+
+		case EVAL_PARSE_LOCALLY:
+			return eval_toplevel_locally_(ptr, pos, ret);
+
+		case EVAL_PARSE_EVAL_WHEN:
+			return eval_toplevel_eval_when_(ptr, pos, ret);
+
+		default:
+			return eval_toplevel_runcode_(ptr, pos, ret);
+	}
+}
+
+static int eval_toplevel_call_(Execute ptr, addr pos)
+{
+	LocalHold hold;
+	addr ignore;
+
+	hold = LocalHold_array(ptr, 1);
+	/* parse */
+	localhold_set(hold, 0, pos);
+	Return(parse_execute_toplevel_(ptr, &pos, pos));
+	/* optimize */
+	localhold_set(hold, 0, pos);
+	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
+	/* scope */
+	Return(eval_toplevel_scope_(ptr, pos, &ignore));
+	localhold_end(hold);
+
+	return 0;
+}
+
+static int eval_toplevel_execute_(Execute ptr, addr pos)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	(void)eval_toplevel_call_(ptr, pos);
+	return pop_control_(ptr, control);
+}
+
+static int eval_toplevel_loop_(Execute ptr, addr stream)
 {
 	int check;
 	addr pos;
@@ -183,32 +306,18 @@ static int eval_load_stream_loop_(Execute ptr, addr stream)
 		Return(read_stream(ptr, stream, &check, &pos));
 		if (check)
 			break;
-		Return(eval_execute_(ptr, pos));
+		Return(eval_toplevel_execute_(ptr, pos));
 	}
 
 	return 0;
 }
 
-static int eval_load_stream_(Execute ptr, addr stream, addr toplevel)
+int eval_stream_toplevel_(Execute ptr, addr stream)
 {
 	addr control;
 
-	Return(begin_eval_(ptr, &control, toplevel));
-	(void)eval_load_stream_loop_(ptr, stream);
+	Return(begin_eval_(ptr, &control, T));
+	(void)eval_toplevel_loop_(ptr, stream);
 	return pop_control_(ptr, control);
-}
-
-
-/*
- *  eval
- */
-int eval_stream_partial_(Execute ptr, addr stream)
-{
-	return eval_load_stream_(ptr, stream, Nil);
-}
-
-int eval_stream_toplevel_(Execute ptr, addr stream)
-{
-	return eval_load_stream_(ptr, stream, T);
 }
 

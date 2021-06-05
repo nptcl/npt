@@ -272,7 +272,7 @@ static int evalcall_string_result_(Execute ptr, addr eval)
 
 	Return(open_input_string_stream_(&stream, eval));
 	push_close_stream(ptr, stream);
-	return eval_stream_partial_(ptr, stream);
+	return eval_stream_toplevel_(ptr, stream);
 }
 
 int eval_main_string_(Execute ptr, addr eval)

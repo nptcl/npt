@@ -1037,8 +1037,10 @@ int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 		return 0;
 	}
 
-	if (ret)
+	if (ret) {
 		*ret = 0;
+		return 0;
+	}
 
 	/* error */
 	GetTypeTable(&type, StringDesigner);

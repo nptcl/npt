@@ -435,3 +435,36 @@
     *compile-eval-when*)
   ((21 22 30) 21 22))
 
+
+;;
+;;  type dependency
+;;
+(deftest compile-eval-dependency.1
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (s input :direction :output)
+        (format s "(defstruct compile-eval-dependency-1 aaa bbb)~%")
+        (format s "(defun compile-eval-dependency-1-call (x)~%")
+        (format s "  (declare (type compile-eval-dependency-1 x))~%")
+        (format s "  x)~%"))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      nil))
+  nil)
+
+#|
+(deftest compile-eval-dependency.2
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (s input :direction :output)
+        (format s "(progn~%")
+        (format s "  (defstruct compile-eval-dependency-2 aaa bbb)~%")
+        (format s "  (defun compile-eval-dependency-2-call (x)~%")
+        (format s "    (declare (type compile-eval-dependency-2 x))~%")
+        (format s "    x))~%"))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      nil))
+  nil)
+|#
+
