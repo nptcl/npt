@@ -828,29 +828,38 @@ int or_dispatch_(addr stream)
 	size_t count;
 
 	count = 0;
-	for (;;) {
-		Return(read_char_stream_(stream, &u, &check));
-		if (check)
-			break;
-		if (u == '#') {
-			Return(read_char_stream_(stream, &u, &check));
-			if (check)
-				break;
-			if (u == '|')
-				count++;
-		}
-		else if (u == '|') {
-			Return(read_char_stream_(stream, &u, &check));
-			if (check)
-				break;
-			if (u == '#') {
-				if (count == 0)
-					break;
-				count--;
-			}
-		}
-	}
+start:
+	Return(read_char_stream_(stream, &u, &check));
+	if (check)
+		goto finish;
+	if (u == '#')
+		goto begin;
+	if (u == '|')
+		goto end;
+	goto start;
 
+begin:
+	Return(read_char_stream_(stream, &u, &check));
+	if (check)
+		goto finish;
+	if (u == '|')
+		count++;
+	goto start;
+
+end:
+	Return(read_char_stream_(stream, &u, &check));
+	if (check)
+		goto finish;
+	if (u == '|')
+		goto end;
+	if (u != '#')
+		goto start;
+	if (count == 0)
+		goto finish;
+	count--;
+	goto start;
+
+finish:
 	return 0;
 }
 

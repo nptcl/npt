@@ -485,3 +485,17 @@
         (read-from-string "123579"))))
   123579)
 
+
+;;
+;;  dispatch
+;;
+(deftest dispatch-block-comment.1
+  (values
+    (read-from-string "#| hello |# 10"))
+  10)
+
+(deftest dispatch-block-comment.2
+  (values
+    (read-from-string "#|| hello ||# 10"))
+  10)
+
