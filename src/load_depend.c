@@ -80,6 +80,25 @@ static void set_depend_error(Execute ptr, addr value)
 	setspecial_local(ptr, symbol, value);
 }
 
+static void depend_root_symbol(addr *ret)
+{
+	GetConst(SYSTEM_DEPEND_ROOT, ret);
+}
+
+int get_depend_root_(Execute ptr, addr *ret)
+{
+	addr symbol;
+	depend_root_symbol(&symbol);
+	return getspecialcheck_local_(ptr, symbol, ret);
+}
+
+static void set_depend_root(Execute ptr, addr value)
+{
+	addr symbol;
+	depend_root_symbol(&symbol);
+	setspecial_local(ptr, symbol, value);
+}
+
 
 /*
  *  object
@@ -224,11 +243,12 @@ static int load_depend_set_loop_(Execute ptr, addr x, addr y)
 /*
  *  depend
  */
-int load_depend_code_(Execute ptr, addr code, addr stream, addr value, addr *ret)
+int load_depend_code_(Execute ptr, addr stream, addr value)
 {
-	addr pos, symbol, list;
+	addr code, pos, symbol, list;
 
 	/* code */
+	Return(get_depend_root_(ptr, &code));
 	if (code == Nil)
 		empty_load_depend(&code);
 	load_depend_heap(&pos, stream, value, Nil);
@@ -241,8 +261,9 @@ int load_depend_code_(Execute ptr, addr code, addr stream, addr value, addr *ret
 		GetCons(list, &code, &list);
 		Return(load_depend_pushnew_(ptr, pos, code));
 	}
+	set_depend_root(ptr, pos);
 
-	return Result(ret, pos);
+	return 0;
 }
 
 int load_depend_partial_(Execute ptr, addr stream, addr value, addr *ret)
@@ -448,6 +469,10 @@ void init_load_depend(Execute ptr)
 	/* *depend-loop* */
 	depend_loop_symbol(&symbol);
 	pushspecial_control(ptr, symbol, Nil);
+
+	/* *depend-root* */
+	depend_root_symbol(&symbol);
+	pushspecial_control(ptr, symbol, Nil);
 }
 
 void disable_load_depend(Execute ptr)
@@ -464,6 +489,10 @@ void disable_load_depend(Execute ptr)
 
 	/* *depend-loop* */
 	depend_loop_symbol(&symbol);
+	pushspecial_control(ptr, symbol, Unbound);
+
+	/* *depend-root* */
+	depend_root_symbol(&symbol);
 	pushspecial_control(ptr, symbol, Unbound);
 }
 

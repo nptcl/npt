@@ -90,8 +90,7 @@ int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* (eval::deftype name args decl doc body) */
 	GetConst(SYSTEM_DEFTYPE, &eval);
-	list_heap(&eval, eval, name, args, decl, doc, right, NULL);
-	eval_when_compile(eval, ret);
+	list_heap(ret, eval, name, args, decl, doc, right, NULL);
 
 	return 0;
 }

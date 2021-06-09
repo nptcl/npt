@@ -4,6 +4,46 @@
 #include "execute.h"
 #include "typedef.h"
 
+enum EVAL_DECLARE {
+	EVAL_DECLARE_TYPE_VALUE,
+	EVAL_DECLARE_TYPE_FUNCTION,
+	EVAL_DECLARE_SPECIAL,
+	EVAL_DECLARE_INLINE,
+	EVAL_DECLARE_IGNORE_VALUE,
+	EVAL_DECLARE_IGNORE_FUNCTION,
+	EVAL_DECLARE_DYNAMIC_VALUE,
+	EVAL_DECLARE_DYNAMIC_FUNCTION,
+	EVAL_DECLARE_DECLARATION,
+	EVAL_DECLARE_SIZE
+};
+
+#define RefEvalDeclare_Low      RefEval
+#define GetEvalDeclare_Low      GetEval
+#define SetEvalDeclare_Low      SetEval
+
+#define PtrEvalDeclare_Low(p)	((OptimizeType *)PtrEvalBody(p, EVAL_DECLARE_SIZE))
+#define RefEvalDeclareOptimize_Low(p,i)		(PtrEvalDeclare_Low(p)[i])
+#define GetEvalDeclareOptimize_Low(p,i,v)	(*(v) = PtrEvalDeclare_Low(p)[i])
+#define SetEvalDeclareOptimize_Low(p,i,v)	(PtrEvalDeclare_Low(p)[i] = (v))
+
+#ifdef LISP_DEBUG
+#define RefEvalDeclare          refevaldeclare
+#define GetEvalDeclare          getevaldeclare
+#define SetEvalDeclare          setevaldeclare
+#define RefEvalDeclareOptimize	refevaldeclareoptimize
+#define GetEvalDeclareOptimize	getevaldeclareoptimize
+#define SetEvalDeclareOptimize	setevaldeclareoptimize
+#else
+#define RefEvalDeclare          RefEvalDeclare_Low
+#define GetEvalDeclare          GetEvalDeclare_Low
+#define SetEvalDeclare          SetEvalDeclare_Low
+#define RefEvalDeclareOptimize	RefEvalDeclareOptimize_Low
+#define GetEvalDeclareOptimize	GetEvalDeclareOptimize_Low
+#define SetEvalDeclareOptimize	SetEvalDeclareOptimize_Low
+#endif
+
+#define DEFAULT_OPTIMIZE 1
+
 #define refevaldeclare _n(refevaldeclare)
 #define getevaldeclare _n(getevaldeclare)
 #define setevaldeclare _n(setevaldeclare)

@@ -8,12 +8,10 @@
 #define check_variable_ _n(check_variable_)
 #define check_function_variable_ _n(check_function_variable_)
 #define tagbody_tag_p _n(tagbody_tag_p)
-#define parse_compile_toplevel_ _n(parse_compile_toplevel_)
 
 int check_variable_(addr symbol);
 int check_function_variable_(addr symbol);
 int tagbody_tag_p(addr pos);
-int parse_compile_toplevel_(Execute ptr, addr expr, addr list, addr *ret);
 
 #endif
 

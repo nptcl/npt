@@ -16,12 +16,29 @@
 /*
  *  memory
  */
+static void optimize_eval_stack_update(OptimizeType *optimize, addr stack)
+{
+	int i;
+	struct eval_stack *str;
+	OptimizeType value;
+
+	str = StructEvalStack(stack);
+	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
+		/* already set */
+		if (0 <= optimize[i])
+			continue;
+		/* stack is not set */
+		value = str->optimize[i];
+		if (value < 0)
+			continue;
+		optimize[i] = value;
+	}
+}
+
 static int optimize_eval_stack_(Execute ptr, OptimizeType *optimize)
 {
 	int i;
 	addr stack;
-	struct eval_stack *str;
-	OptimizeType value;
 
 	/* initial value */
 	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++)
@@ -30,19 +47,13 @@ static int optimize_eval_stack_(Execute ptr, OptimizeType *optimize)
 	/* stack */
 	Return(getstack_eval_(ptr, &stack));
 	while (stack != Nil) {
-		str = StructEvalStack(stack);
-		for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
-			/* already set */
-			if (0 <= optimize[i])
-				continue;
-			/* stack is not set */
-			value = str->optimize[i];
-			if (value < 0)
-				continue;
-			optimize[i] = value;
-		}
+		optimize_eval_stack_update(optimize, stack);
 		GetEvalStackNext(stack, &stack);
 	}
+
+	/* global */
+	Return(getglobal_eval_(ptr, &stack));
+	optimize_eval_stack_update(optimize, stack);
 
 	return 0;
 }

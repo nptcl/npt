@@ -1176,13 +1176,17 @@ static void flet_maketable(Execute ptr, struct let_struct *str)
 
 static int checktype_function_(Execute ptr, addr table, addr eval)
 {
-	int check, errp;
+	int check, errorp;
+	addr name, type;
 
-	gettype_tablefunction(table, &table);
+	getname_tablefunction(table, &name);
+	gettype_tablefunction(table, &type);
 	GetEvalScopeThe(eval, &eval);
-	Return(checktype_p_(ptr, eval, table, &check, &errp));
-	if (check)
-		return fmte_("Invalid function type.", NULL);
+	Return(checktype_p_(ptr, eval, type, &check, &errorp));
+	if (check) {
+		return fmte_("The function ~S must be ~S type, but ~S.",
+				name, eval, type, NULL);
+	}
 
 	return 0;
 }

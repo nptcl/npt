@@ -10,6 +10,7 @@
 #include "eval_object.h"
 #include "eval_stack.h"
 #include "eval_table.h"
+#include "eval_value.h"
 #include "function.h"
 #include "object.h"
 #include "parse.h"
@@ -169,11 +170,10 @@ int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret)
 	Return(getspecialcheck_local_(ptr, symbol, &next));
 	SetEvalStackNext(stack, next);
 	setspecial_local(ptr, symbol, stack);
-
 	if (ret)
-		return Result(ret, stack);
-	else
-		return 0;
+		*ret = stack;
+
+	return 0;
 }
 
 static int closestack_unsafe_(Execute ptr)
@@ -221,13 +221,49 @@ int freestack_eval_(Execute ptr, addr scope)
 	return 0;
 }
 
+static void eval_stack_global_optimize(OptimizeType *optimize, addr list)
+{
+	int i;
+	addr pos, root;
+	OptimizeType value;
+
+	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
+		root = list;
+		while (root != Nil) {
+			GetCons(root, &pos, &root);
+			GetEvalDeclareOptimize(pos, i, &value);
+			if (0 <= value) {
+				optimize[i] = value;
+				break;
+			}
+		}
+	}
+}
+
+static void eval_stack_global_heap(Execute ptr, addr *ret)
+{
+	addr pos, list;
+	struct eval_stack *str;
+
+	/* object */
+	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
+	str = StructEvalStack(pos);
+	str->globalp = 1;
+
+	/* parse-declare */
+	get_nocheck_parse_declare(ptr, &list);
+	if (list != Unbound)
+		eval_stack_global_optimize(str->optimize, list);
+
+	*ret = pos;
+}
+
 int begin_eval_stack_(Execute ptr)
 {
 	addr symbol, stack;
 
 	/* Global stack must be a heap object. Don't use local function.  */
-	eval_stack_heap(&stack, EVAL_STACK_MODE_NIL);
-	StructEvalStack(stack)->globalp = 1;
+	eval_stack_global_heap(ptr, &stack);
 	getglobal_symbol(&symbol);
 	pushspecial_control(ptr, symbol, stack);
 	getstack_symbol(&symbol);

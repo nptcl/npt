@@ -20,46 +20,6 @@
 #include "type_symbol.h"
 #include "type_table.h"
 
-enum EVAL_DECLARE {
-	EVAL_DECLARE_TYPE_VALUE,
-	EVAL_DECLARE_TYPE_FUNCTION,
-	EVAL_DECLARE_SPECIAL,
-	EVAL_DECLARE_INLINE,
-	EVAL_DECLARE_IGNORE_VALUE,
-	EVAL_DECLARE_IGNORE_FUNCTION,
-	EVAL_DECLARE_DYNAMIC_VALUE,
-	EVAL_DECLARE_DYNAMIC_FUNCTION,
-	EVAL_DECLARE_DECLARATION,
-	EVAL_DECLARE_SIZE
-};
-
-#define RefEvalDeclare_Low      RefEval
-#define GetEvalDeclare_Low      GetEval
-#define SetEvalDeclare_Low      SetEval
-
-#define PtrEvalDeclare_Low(p)	((OptimizeType *)PtrEvalBody(p, EVAL_DECLARE_SIZE))
-#define RefEvalDeclareOptimize_Low(p,i)		(PtrEvalDeclare_Low(p)[i])
-#define GetEvalDeclareOptimize_Low(p,i,v)	(*(v) = PtrEvalDeclare_Low(p)[i])
-#define SetEvalDeclareOptimize_Low(p,i,v)	(PtrEvalDeclare_Low(p)[i] = (v))
-
-#ifdef LISP_DECL
-#define RefEvalDeclare          refevaldeclare
-#define GetEvalDeclare          getevaldeclare
-#define SetEvalDeclare          setevaldeclare
-#define RefEvalDeclareOptimize	refevaldeclareoptimize
-#define GetEvalDeclareOptimize	getevaldeclareoptimize
-#define SetEvalDeclareOptimize	setevaldeclareoptimize
-#else
-#define RefEvalDeclare          RefEvalDeclare_Low
-#define GetEvalDeclare          GetEvalDeclare_Low
-#define SetEvalDeclare          SetEvalDeclare_Low
-#define RefEvalDeclareOptimize	RefEvalDeclareOptimize_Low
-#define GetEvalDeclareOptimize	GetEvalDeclareOptimize_Low
-#define SetEvalDeclareOptimize	SetEvalDeclareOptimize_Low
-#endif
-
-#define DEFAULT_OPTIMIZE 1
-
 
 /*
  *  declaration object
@@ -951,7 +911,8 @@ static int parse_declare_form_(Execute ptr, addr env, addr decl, addr *ret,
 	LocalHold hold;
 
 	eval_declare_heap(&eval);
-	hold = LocalHold_local_push(ptr, eval);
+	hold = LocalHold_local(ptr);
+	localhold_pushva(hold, eval, decl, NULL);
 	while (decl != Nil) {
 		Return_getcons(decl, &car, &decl);
 		Return_getcons(car, &car, &tail);

@@ -706,7 +706,6 @@ int scope_eval_when(Execute ptr, addr *ret, addr eval)
 	return Result(ret, eval);
 }
 
-
 /* multiple-value-bind */
 static int scope_multiple_value_bind(Execute ptr, addr *ret, addr eval)
 {

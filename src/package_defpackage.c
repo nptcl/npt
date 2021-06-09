@@ -1,4 +1,5 @@
 #include "character.h"
+#include "common_header.h"
 #include "condition.h"
 #include "condition_define.h"
 #include "cons.h"
@@ -1224,6 +1225,7 @@ int defpackage_common(addr form, addr env, addr *ret)
 				"DEFPACKAGE name ~S must be a string-designer.", name, NULL);
 	}
 
-	return defpackage_expand_common(name, form, ret);
+	Return(defpackage_expand_common(name, form, &form));
+	return Result(ret, form);
 }
 

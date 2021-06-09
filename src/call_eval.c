@@ -1,5 +1,6 @@
 #include "call_eval.h"
 #include "callname.h"
+#include "common_header.h"
 #include "compile_file.h"
 #include "condition.h"
 #include "cons.h"
@@ -396,6 +397,31 @@ int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 /*
  *  define-symbol-macro
  */
+static int define_symbol_macro_check_(addr symbol)
+{
+	addr value;
+
+	/* symbol, constant */
+	Return(check_variable_(symbol));
+
+	/* special */
+	if (specialp_symbol(symbol)) {
+		return call_simple_program_error_va_(NULL,
+				"define-symbol-macro cannot bind the special symbol ~S.",
+				symbol, NULL);
+	}
+
+	/* symbol-value */
+	GetValueSymbol(symbol, &value);
+	if (value != Unbound) {
+		return call_simple_program_error_va_(NULL,
+				"define-symbol-macro cannot bind the bounded symbol ~S.",
+				symbol, NULL);
+	}
+
+	return 0;
+}
+
 int define_symbol_macro_common(addr form, addr env, addr *ret)
 {
 	addr cons, symbol, expansion, quote;
@@ -407,8 +433,8 @@ int define_symbol_macro_common(addr form, addr env, addr *ret)
 		goto error;
 	if (cons != Nil)
 		goto error;
-	if (! symbolp(symbol))
-		return fmte_("The argument ~S must be a symbol.", NULL);
+	Return(define_symbol_macro_check_(symbol));
+
 	/* (lisp-system::define-symbol-macro (quote symbol) (quote expansion)) */
 	GetConst(SYSTEM_DEFINE_SYMBOL_MACRO, &form);
 	GetConst(COMMON_QUOTE, &quote);

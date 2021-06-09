@@ -6,17 +6,20 @@
 #include "scope_function.h"
 #include "scope_object.h"
 
-int begin_scope_(Execute ptr)
+static int eval_scope_call_(Execute ptr, addr *ret, addr eval)
 {
 	Return(begin_eval_stack_(ptr));
 	free_eval_stack(ptr);
-
-	return 0;
+	return scope_eval_lexical(ptr, ret, eval);
 }
 
 int eval_scope_(Execute ptr, addr *ret, addr eval)
 {
-	return scope_eval_lexical(ptr, ret, eval);
+	addr control;
+
+	push_control(ptr, &control);
+	(void)eval_scope_call_(ptr, ret, eval);
+	return pop_control_(ptr, control);
 }
 
 void init_scope(void)

@@ -12,14 +12,14 @@ static void symbol_toplevel_eval(addr *ret)
 	GetConst(SYSTEM_EVAL_TOPLEVEL, ret);
 }
 
-int gettoplevel_eval_(Execute ptr, addr *ret)
+int get_toplevel_eval_(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_toplevel_eval(&symbol);
 	return getspecialcheck_local_(ptr, symbol, ret);
 }
 
-void settoplevel_eval(Execute ptr, addr value)
+void set_toplevel_eval(Execute ptr, addr value)
 {
 	addr symbol;
 	symbol_toplevel_eval(&symbol);
@@ -188,5 +188,56 @@ int executep_eval_(Execute ptr, int *ret)
 	addr value;
 	Return(get_execute_eval_(ptr, &value));
 	return Result(ret, value != Nil);
+}
+
+
+/*
+ *  parse-declare
+ */
+static void symbol_parse_declare(addr *ret)
+{
+	GetConst(SYSTEM_PARSE_DECLARE, ret);
+}
+
+void push_parse_declare(Execute ptr, addr value)
+{
+	addr symbol;
+	symbol_parse_declare(&symbol);
+	pushspecial_control(ptr, symbol, value);
+}
+
+int get_parse_declare_(Execute ptr, addr *ret)
+{
+	addr symbol;
+	symbol_parse_declare(&symbol);
+	return getspecialcheck_local_(ptr, symbol, ret);
+}
+
+void get_nocheck_parse_declare(Execute ptr, addr *ret)
+{
+	addr symbol;
+	symbol_parse_declare(&symbol);
+	getspecial_local(ptr, symbol, ret);
+}
+
+void set_parse_declare(Execute ptr, addr value)
+{
+	addr symbol;
+	symbol_parse_declare(&symbol);
+	setspecial_local(ptr, symbol, value);
+}
+
+int add_parse_declare_(Execute ptr, addr value, addr *ret)
+{
+	addr symbol, list;
+
+	symbol_parse_declare(&symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &list));
+	cons_heap(&list, value, list);
+	setspecial_local(ptr, symbol, list);
+	if (ret)
+		*ret = list;
+
+	return 0;
 }
 

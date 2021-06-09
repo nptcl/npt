@@ -1356,6 +1356,7 @@ lisp-system::push-return
 (lisp-system::*enable-debugger* :name enable-debugger :constant system)
 
 (lisp-system::*parse-environment* :name eval-parse-environment :constant system)
+(lisp-system::*parse-declare* :name parse-declare :constant system)
 (lisp-system::*scope* :name eval-scope :constant system)
 (lisp-system::*scope-global* :name eval-scope-global :constant system)
 
@@ -1381,6 +1382,7 @@ lisp-system::standard
 (lisp-system::*depend-loop* :name depend-loop :constant system)
 (lisp-system::*depend-pass* :name depend-pass :constant system)
 (lisp-system::*depend-error* :name depend-error :constant system)
+(lisp-system::*depend-root* :name depend-root :constant system)
 
 lisp-system::compiled-macro-function
 lisp-system::control

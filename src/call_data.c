@@ -1,5 +1,6 @@
 #include "call_data.h"
 #include "callname.h"
+#include "common_header.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -446,10 +447,10 @@ int defvar_common(addr form, addr env, addr *ret)
 		goto error;
 expand:
 	if (value == Unbound)
-		expand_defvar_novalue(symbol, ret);
+		expand_defvar_novalue(symbol, &form);
 	else
-		expand_defvar(symbol, value, doc, ret);
-	return 0;
+		expand_defvar(symbol, value, doc, &form);
+	return Result(ret, form);
 
 error:
 	*ret = Nil;
@@ -2454,11 +2455,11 @@ int defsetf_common(Execute ptr, addr form, addr env, addr *ret)
 		GetCons(args, &arg3, &args);
 		if (! listp(arg3))
 			return fmte_("defsetf argument ~S must be a list type.", arg3, NULL);
-		Return(defsetf_long_common_(ptr, arg1, arg2, arg3, args, ret));
+		Return(defsetf_long_common_(ptr, arg1, arg2, arg3, args, &form));
 	}
 	else if (args == Nil) {
 		/* short form */
-		Return(defsetf_short_common_(ptr, arg1, arg2, Nil, ret));
+		Return(defsetf_short_common_(ptr, arg1, arg2, Nil, &form));
 	}
 	else {
 		/* short form, documentation */
@@ -2469,9 +2470,9 @@ int defsetf_common(Execute ptr, addr form, addr env, addr *ret)
 			return fmte_("Invalid defsetf short form ~S.", form, NULL);
 		if (! stringp(arg3))
 			return fmte_("defsetf documentation ~S must be a string type.", arg3, NULL);
-		Return(defsetf_short_common_(ptr, arg1, arg2, arg3, ret));
+		Return(defsetf_short_common_(ptr, arg1, arg2, arg3, &form));
 	}
-	return 0;
+	return Result(ret, form);
 
 error:
 	*ret = Nil;

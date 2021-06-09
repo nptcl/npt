@@ -1,8 +1,11 @@
 #include "code_make.h"
 #include "compile_eval.h"
 #include "compile_file.h"
+#include "condition.h"
+#include "cons.h"
 #include "control_execute.h"
 #include "control_object.h"
+#include "equal.h"
 #include "eval_execute.h"
 #include "eval_object.h"
 #include "eval_stack.h"
@@ -21,32 +24,28 @@
 #include "scope_declare.h"
 #include "scope_object.h"
 #include "stream.h"
+#include "symbol.h"
 #include "type_value.h"
 #include "typedef.h"
 
 /*
  *  begin, end
  */
-static int begin_eval_(Execute ptr, addr *ret, addr toplevel)
+static void begin_eval(Execute ptr, addr *ret)
 {
 	addr control;
 
 	push_control(ptr, &control);
-	/* initialize */
 	init_parse_step(ptr);
 	init_parse_environment(ptr);
-	/* variables */
-	push_toplevel_eval(ptr, toplevel);
+	push_toplevel_eval(ptr, T);
 	push_compile_time_eval(ptr, Nil);
 	push_compile_toplevel_eval(ptr, Nil);
 	push_load_toplevel_eval(ptr, T);
 	push_execute_eval(ptr, T);
-	/* load-time-value */
+	push_parse_declare(ptr, Nil);
 	disable_load_time_value(ptr);
-	/* scope */
-	Return(begin_scope_(ptr));
-
-	return Result(ret, control);
+	*ret = control;
 }
 
 
@@ -55,15 +54,18 @@ static int begin_eval_(Execute ptr, addr *ret, addr toplevel)
  */
 static int eval_execute_scope_(Execute ptr, LocalHold hold, addr pos)
 {
-	/* optimize parse */
+	/* optimize */
 	localhold_set(hold, 0, pos);
 	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
+
 	/* scope */
 	localhold_set(hold, 0, pos);
 	Return(eval_scope_(ptr, &pos, pos));
-	/* code generator */
+
+	/* code */
 	localhold_set(hold, 0, pos);
 	code_make(ptr->local, &pos, pos);
+
 	/* execute */
 	localhold_set(hold, 0, pos);
 	return runcode_control_(ptr, pos);
@@ -94,15 +96,6 @@ static int eval_execute_(Execute ptr, addr pos)
 /*
  *  interface
  */
-int eval_execute_partial_(Execute ptr, addr pos)
-{
-	addr control;
-
-	Return(begin_eval_(ptr, &control, Nil));
-	(void)eval_execute_(ptr, pos);
-	return pop_control_(ptr, control);
-}
-
 static int eval_result_partial_call_(Execute ptr, LocalHold hold, addr pos, addr *ret)
 {
 	localhold_set(hold, 0, pos);
@@ -119,7 +112,7 @@ int eval_result_partial_(Execute ptr, addr pos, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 2);
-	Return(begin_eval_(ptr, &control, Nil));
+	begin_eval(ptr, &control);
 	(void)eval_result_partial_call_(ptr, hold, pos, &pos);
 	Return(pop_control_(ptr, control));
 	localhold_end(hold);
@@ -146,7 +139,7 @@ int eval_result_partial_form_(Execute ptr, addr pos, addr *ret)
 {
 	addr control;
 
-	Return(begin_eval_(ptr, &control, Nil));
+	begin_eval(ptr, &control);
 	(void)eval_result_partial_form_call_(ptr, pos, ret);
 	return pop_control_(ptr, control);
 }
@@ -180,134 +173,324 @@ int eval_result_macro_(Execute ptr, addr pos, addr *ret)
 /*
  *  eval-stream
  */
-static int eval_toplevel_scope_(Execute ptr, addr pos, addr *ret);
+static int eval_toplevel_execute_(Execute ptr, addr pos);
 
-static int eval_toplevel_runcode_(Execute ptr, addr pos, addr *ret)
+/* progn */
+static int eval_toplevel_progn_(Execute ptr, addr list)
 {
+	addr pos;
 	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
-	/* scope */
-	Return(eval_scope_(ptr, &pos, pos));
-	GetEvalScopeThe(pos, ret);
-	/* code */
-	localhold_set(hold, 0, pos);
-	code_make(ptr->local, &pos, pos);
+	/* (progn) -> nil */
+	if (list == Nil)
+		return eval_toplevel_execute_(ptr, Nil);
+
+	hold = LocalHold_local_push(ptr, list);
+	/* (progn ...) */
+	while (list != Nil) {
+		Return_getcons(list, &pos, &list);
+		Return(eval_toplevel_execute_(ptr, pos));
+	}
+	localhold_end(hold);
+
+	return 0;
+}
+
+
+/* locally */
+static int eval_toplevel_locally_call_(Execute ptr, addr decl, addr body)
+{
+	addr list, control;
+
+	if (decl == Nil)
+		return eval_toplevel_progn_(ptr, body);
+
+	/* addr *parse-declare* */
+	Return(add_parse_declare_(ptr, decl, &list));
+	push_control(ptr, &control);
+	push_parse_declare(ptr, list);
+	(void)eval_toplevel_progn_(ptr, body);
+	return pop_control_(ptr, control);
+}
+
+static int eval_toplevel_locally_(Execute ptr, addr list)
+{
+	addr decl;
+	LocalHold hold;
+
+	hold = LocalHold_local(ptr);
+	localhold_push(hold, list);
+	Return(parse_declare_body_(ptr, list, &decl, &list));
+	localhold_pushva(hold, decl, list, NULL);
+	Return(eval_toplevel_locally_call_(ptr, decl, list));
+	localhold_end(hold);
+
+	return 0;
+}
+
+
+/* eval-when */
+static int eval_toplevel_eval_when_call_(Execute ptr, addr list)
+{
+	addr args, compile, load, exec;
+	addr compile1, load1, exec1, ctime1;
+
+	if (! consp_getcons(list, &args, &list))
+		return fmte_("eval-when form must be (eval-when (...) . body).", NULL);
+
+	/* arguments */
+	Return(parse_eval_when_list_(args, &compile, &load, &exec));
+
+	/* backup */
+	Return(get_compile_toplevel_eval_(ptr, &compile1));
+	Return(get_load_toplevel_eval_(ptr, &load1));
+	Return(get_execute_eval_(ptr, &exec1));
+	Return(get_compile_time_eval_(ptr, &ctime1));
+
+	/* set variable */
+	set_compile_toplevel_eval(ptr, compile);
+	set_load_toplevel_eval(ptr, load);
+	set_execute_eval(ptr, exec);
+
+	/* discard */
+	if (! parse_eval_when_process(ptr, compile, load, exec, T, ctime1))
+		return eval_toplevel_execute_(ptr, Nil);
+
 	/* execute */
-	localhold_set(hold, 0, pos);
-	Return(runcode_control_(ptr, pos));
-	/* end */
-	localhold_end(hold);
-	return 0;
-}
+	Return(eval_toplevel_progn_(ptr, list));
 
-static int eval_toplevel_allcons_(Execute ptr, addr cons, addr *ret)
-{
-	addr expr;
-	LocalHold hold;
-
-	/* cons */
-	hold = LocalHold_local_push(ptr, cons);
-	expr = Nil;
-	while (cons != Nil) {
-		GetCons(cons, &expr, &cons);
-		Return(eval_toplevel_scope_(ptr, expr, ret));
-	}
-	localhold_end(hold);
-
-	if (expr == Nil)
-		type_value_nil(ret);
+	/* rollback */
+	set_compile_toplevel_eval(ptr, compile1);
+	set_load_toplevel_eval(ptr, load1);
+	set_execute_eval(ptr, exec1);
+	set_compile_time_eval(ptr, ctime1);
 
 	return 0;
 }
 
-static int eval_toplevel_progn_(Execute ptr, addr eval, addr *ret)
-{
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &eval);
-	return eval_toplevel_allcons_(ptr, eval, ret);
-}
-
-static int eval_toplevel_locally_(Execute ptr, addr eval, addr *ret)
-{
-	addr decl, cons, free, stack;
-
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &decl);
-	GetEvalParse(eval, 1, &cons);
-
-	Return(newstack_nil_(ptr, &stack));
-	Return(apply_declare_(ptr, stack, decl, &free));
-	Return(eval_toplevel_allcons_(ptr, eval, ret));
-	return freestack_eval_(ptr, stack);
-}
-
-static int eval_toplevel_eval_when_(Execute ptr, addr eval, addr *ret)
-{
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &eval);
-	return eval_toplevel_allcons_(ptr, eval, ret);
-}
-
-static int eval_toplevel_scope_(Execute ptr, addr pos, addr *ret)
-{
-	EvalParse type;
-
-	GetEvalParseType(pos, &type);
-	switch (type) {
-		case EVAL_PARSE_PROGN:
-			return eval_toplevel_progn_(ptr, pos, ret);
-
-		case EVAL_PARSE_LOCALLY:
-			return eval_toplevel_locally_(ptr, pos, ret);
-
-		case EVAL_PARSE_EVAL_WHEN:
-			return eval_toplevel_eval_when_(ptr, pos, ret);
-
-		default:
-			return eval_toplevel_runcode_(ptr, pos, ret);
-	}
-}
-
-static int eval_toplevel_call_(Execute ptr, addr pos)
-{
-	LocalHold hold;
-	addr ignore;
-
-	hold = LocalHold_array(ptr, 1);
-	/* parse */
-	localhold_set(hold, 0, pos);
-	Return(parse_execute_toplevel_(ptr, &pos, pos));
-	/* optimize */
-	localhold_set(hold, 0, pos);
-	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
-	/* scope */
-	Return(eval_toplevel_scope_(ptr, pos, &ignore));
-	localhold_end(hold);
-
-	return 0;
-}
-
-static int eval_toplevel_execute_(Execute ptr, addr pos)
+static int eval_toplevel_eval_when_(Execute ptr, addr pos)
 {
 	addr control;
 
 	push_control(ptr, &control);
-	(void)eval_toplevel_call_(ptr, pos);
+	(void)eval_toplevel_eval_when_call_(ptr, pos);
 	return pop_control_(ptr, control);
 }
 
-static int eval_toplevel_loop_(Execute ptr, addr stream)
+
+/* macrolet */
+static int eval_toplevel_macrolet_(Execute ptr, addr list)
+{
+	addr args, decl, rollback;
+	LocalHold hold;
+
+	if (! consp_getcons(list, &args, &list))
+		return fmte_("macrolet form must be (macrolet args . body).", NULL);
+
+	/* local scope environment */
+	Return(snapshot_envstack_(ptr, &rollback));
+	Return(parse_macrolet_args_(ptr, args));
+
+	/* decl */
+	hold = LocalHold_local(ptr);
+	Return(parse_declare_body_(ptr, list, &decl, &list));
+	localhold_pushva(hold, decl, list, NULL);
+
+	/* body */
+	Return(eval_toplevel_locally_call_(ptr, decl, list));
+	localhold_end(hold);
+	return rollback_envstack_(ptr, rollback);
+}
+
+
+/* symbol-macrolet */
+static int eval_toplevel_symbol_macrolet_(Execute ptr, addr list)
+{
+	addr args, decl, rollback;
+	LocalHold hold;
+
+	if (! consp_getcons(list, &args, &list)) {
+		return fmte_("symbol-macrolet form must be "
+				"(symbol-macrolet args . body).", NULL);
+	}
+
+	/* local scope environment */
+	Return(snapshot_envstack_(ptr, &rollback));
+
+	/* decl */
+	hold = LocalHold_local(ptr);
+	Return(parse_declare_body_(ptr, list, &decl, &list));
+	localhold_pushva(hold, decl, list, NULL);
+
+	/* args */
+	Return(parse_symbol_macrolet_args_(ptr, args, decl));
+
+	/* body */
+	Return(eval_toplevel_locally_call_(ptr, decl, list));
+	localhold_end(hold);
+	return rollback_envstack_(ptr, rollback);
+}
+
+
+/* value */
+static int eval_execute_value_(Execute ptr, addr pos)
+{
+	LocalHold hold;
+
+	/* parse */
+	hold = LocalHold_array(ptr, 1);
+	localhold_set(hold, 0, pos);
+	Return(parse_execute_(ptr, &pos, pos));
+
+	/* optimize */
+	localhold_set(hold, 0, pos);
+	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
+
+	/* scope */
+	localhold_set(hold, 0, pos);
+	Return(eval_scope_(ptr, &pos, pos));
+
+	/* code */
+	localhold_set(hold, 0, pos);
+	code_make(ptr->local, &pos, pos);
+
+	/* close *parse-declare* */
+	set_parse_declare(ptr, Nil);
+
+	/* execute */
+	localhold_set(hold, 0, pos);
+	Return(runcode_control_(ptr, pos));
+	localhold_end(hold);
+
+	return 0;
+}
+
+static int eval_toplevel_value_(Execute ptr, addr pos)
+{
+	if (eval_compile_p(ptr))
+		return compile_eval_value_(ptr, pos);
+	else
+		return eval_execute_value_(ptr, pos);
+}
+
+
+/* toplevel */
+static int eval_toplevel_macro_(Execute ptr, addr call, addr cons)
+{
+	addr env, pos;
+	LocalHold hold;
+
+	/* macroexpand */
+	Return(environment_heap_(ptr, &env));
+	hold = LocalHold_local_push(ptr, env);
+	Return(call_macroexpand_hook_(ptr, &pos, call, cons, env));
+	close_environment(env);
+	localhold_end(hold);
+
+	/* execute */
+	Return(parse_macro_compile_(ptr, cons, pos, &pos));
+	return eval_toplevel_execute_(ptr, pos);
+}
+
+static int eval_toplevel_compiler_macro_(Execute ptr, addr call, addr cons)
+{
+	int check;
+	addr env, pos;
+	LocalHold hold;
+
+	Return(environment_heap_(ptr, &env));
+	hold = LocalHold_local_push(ptr, env);
+	Return(call_macroexpand_hook_(ptr, &pos, call, cons, env));
+	close_environment(env);
+	localhold_end(hold);
+
+	/* equal */
+	Return(equal_function_(cons, pos, &check));
+	if (check)
+		return eval_toplevel_value_(ptr, cons);
+
+	Return(parse_macro_compile_(ptr, cons, pos, &pos));
+	return eval_toplevel_execute_(ptr, pos);
+}
+
+static int eval_toplevel_cons_(Execute ptr, addr cons)
+{
+	addr car, cdr, check;
+
+	GetCons(cons, &car, &cdr);
+
+	/* progn */
+	GetConst(COMMON_PROGN, &check);
+	if (car == check)
+		return eval_toplevel_progn_(ptr, cdr);
+
+	/* locally */
+	GetConst(COMMON_LOCALLY, &check);
+	if (car == check)
+		return eval_toplevel_locally_(ptr, cdr);
+
+	/* evan-when */
+	GetConst(COMMON_EVAL_WHEN, &check);
+	if (car == check)
+		return eval_toplevel_eval_when_(ptr, cdr);
+
+	/* macrolet */
+	GetConst(COMMON_MACROLET, &check);
+	if (car == check)
+		return eval_toplevel_macrolet_(ptr, cdr);
+
+	/* symbol-macrolet */
+	GetConst(COMMON_SYMBOL_MACROLET, &check);
+	if (car == check)
+		return eval_toplevel_symbol_macrolet_(ptr, cdr);
+
+	/* compiler-macro */
+	if (parse_compiler_macro_p(ptr, &car, cons))
+		return eval_toplevel_compiler_macro_(ptr, car, cons);
+
+	/* macro */
+	Return(parse_cons_check_macro_(ptr, car, &check));
+	if (check != Unbound)
+		return eval_toplevel_macro_(ptr, check, cons);
+
+	/* function */
+	return eval_toplevel_value_(ptr, cons);
+}
+
+static int eval_toplevel_execute_(Execute ptr, addr pos)
+{
+	int check;
+	addr value;
+
+	if (consp(pos))
+		return eval_toplevel_cons_(ptr, pos);
+
+	if (! symbolp(pos))
+		return eval_toplevel_value_(ptr, pos);
+
+	/* symbol */
+	Return(symbol_macrolet_envstack_p_(ptr, pos, &value, &check));
+	if (check)
+		return eval_toplevel_execute_(ptr, value);
+
+	return eval_toplevel_value_(ptr, pos);
+}
+
+int eval_toplevel_loop_(Execute ptr, addr stream)
 {
 	int check;
 	addr pos;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	for (;;) {
 		Return(read_stream(ptr, stream, &check, &pos));
 		if (check)
 			break;
+		localhold_set(hold, 0, pos);
 		Return(eval_toplevel_execute_(ptr, pos));
 	}
+	localhold_end(hold);
 
 	return 0;
 }
@@ -316,8 +499,18 @@ int eval_stream_toplevel_(Execute ptr, addr stream)
 {
 	addr control;
 
-	Return(begin_eval_(ptr, &control, T));
+	begin_eval(ptr, &control);
 	(void)eval_toplevel_loop_(ptr, stream);
+	return pop_control_(ptr, control);
+}
+
+int eval_execute_partial_(Execute ptr, addr pos)
+{
+	addr control;
+
+	begin_eval(ptr, &control);
+	set_eval_compile_mode(ptr, Nil);
+	(void)eval_toplevel_execute_(ptr, pos);
 	return pop_control_(ptr, control);
 }
 

@@ -3,6 +3,7 @@
 #include "clos.h"
 #include "clos_combination.h"
 #include "clos_type.h"
+#include "common_header.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -539,11 +540,9 @@ static int defclass_define_condition(Execute ptr,
 	GetConst(CLOSKEY_DIRECT_SUPERCLASSES, &key1);
 	GetConst(CLOSKEY_DIRECT_SLOTS, &key2);
 	lista_heap(&args, ensure, nameq, key1, supers, key2, slots, options, NULL);
-	if (defclass)
-		*ret = args;
-	else
-		define_condition_result(ret, args, name, report);
-	return 0;
+	if (! defclass)
+		define_condition_result(&args, args, name, report);
+	return Result(ret, args);
 
 error:
 	*ret = Nil;

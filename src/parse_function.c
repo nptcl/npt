@@ -31,7 +31,7 @@ static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons);
 /*
  *  declare
  */
-static int parse_declare_body_(Execute ptr, addr cons, addr *retdecl, addr *retbody)
+int parse_declare_body_(Execute ptr, addr cons, addr *retdecl, addr *retbody)
 {
 	addr env;
 	LocalHold hold;
@@ -753,64 +753,6 @@ static int parse_destructuring_bind_(Execute ptr, addr *ret, addr cons)
 	return Result(ret, eval);
 }
 
-/* define-symbol-macro */
-static int check_define_symbol_macro_(Execute ptr, addr symbol)
-{
-	addr value;
-
-	if (specialp_symbol(symbol)) {
-		return call_simple_program_error_va_(ptr,
-				"define-symbol-macro cannot bind the special symbol ~S.",
-				symbol, NULL);
-	}
-
-	GetValueSymbol(symbol, &value);
-	if (value != Unbound) {
-		return call_simple_program_error_va_(ptr,
-				"define-symbol-macro cannot bind the bounded symbol ~S.",
-				symbol, NULL);
-	}
-
-	return 0;
-}
-
-static int parse_define_symbol_macro_(Execute ptr, addr *ret, addr args)
-{
-	addr call, cons, symbol, form;
-	LocalHold hold;
-
-	hold = LocalHold_local(ptr);
-	GetCons(args, &call, &cons);
-	/* symbol */
-	if (! consp_getcons(cons, &symbol, &cons))
-		goto error;
-	Return(check_function_variable_(symbol));
-	localhold_push(hold, symbol);
-	/* body */
-	if (! consp_getcons(cons, &form, &cons))
-		goto error;
-	if (cons != Nil)
-		goto error;
-	localhold_push(hold, form);
-	/* form */
-	Return(check_define_symbol_macro_(ptr, symbol));
-	Return(define_symbol_macro_envstack_(ptr, symbol, form)); /* before parse */
-	localhold_end(hold);
-
-	/* eval */
-	Return(parse_cons_check_macro_(ptr, call, &call));
-	if (call != Unbound)
-		return parse_macro_(ptr, ret, call, args);
-
-	/* error */
-	eval_single_parse_heap(ret, EVAL_PARSE_NIL, Nil);
-	return 0;
-
-error:
-	return fmte_("define-symbol-macro arguments ~S "
-			"must be (symbol form).", args, NULL);
-}
-
 /* symbol-macrolet */
 static int check_symbol_macrolet_(addr pos, addr decl)
 {
@@ -850,7 +792,7 @@ error2:
 			"The symbol ~S cannot declare the special.", pos, NULL);
 }
 
-static int parse_symbol_macrolet_args_(Execute ptr, addr args, addr decl)
+int parse_symbol_macrolet_args_(Execute ptr, addr args, addr decl)
 {
 	addr pos;
 
@@ -871,8 +813,10 @@ static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
 	addr eval, args, decl, rollback;
 	LocalHold hold;
 
-	if (! consp_getcons(cons, &args, &cons))
-		goto error;
+	if (! consp_getcons(cons, &args, &cons)) {
+		return fmte_("symbol-macrolet form must be "
+				"(symbol-macrolet args . body).", NULL);
+	}
 	/* local scope environment */
 	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
@@ -891,10 +835,6 @@ static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
 	SetEvalParse(eval, 0, decl);
 	SetEvalParse(eval, 1, cons);
 	return Result(ret, eval);
-
-error:
-	return fmte_("symbol-macrolet form must be "
-			"(symbol-macrolet args . body).", NULL);
 }
 
 /* macrolet */
@@ -936,7 +876,7 @@ error:
 	return fmte_("macrolet argument must be (name (...) . body) form.", NULL);
 }
 
-static int parse_macrolet_args_(Execute ptr, addr args)
+int parse_macrolet_args_(Execute ptr, addr args)
 {
 	addr pos;
 
@@ -1469,7 +1409,7 @@ error:
 }
 
 /* eval-when */
-static int parse_eval_when_list_(addr list, addr *rcompile, addr *rload, addr *rexec)
+int parse_eval_when_list_(addr list, addr *rcompile, addr *rload, addr *rexec)
 {
 	addr compile1, compile2, load1, load2, exec1, exec2;
 	addr pos;
@@ -1496,14 +1436,14 @@ static int parse_eval_when_list_(addr list, addr *rcompile, addr *rload, addr *r
 			*rexec = T;
 		}
 		else {
-			return fmte_("Invalid situation ~S.", pos, NULL);
+			return fmte_("Invalid situation ~S in EVAL-WHEN.", pos, NULL);
 		}
 	}
 
 	return 0;
 }
 
-static int parse_eval_when_process(Execute ptr,
+int parse_eval_when_process(Execute ptr,
 		addr compile, addr load, addr exec, addr toplevel, addr mode)
 {
 	/* not toplevel */
@@ -1550,7 +1490,7 @@ static int parse_eval_when_(Execute ptr, addr *ret, addr cons)
 
 	/* arguments */
 	Return(parse_eval_when_list_(list, &compile, &load, &exec));
-	Return(gettoplevel_eval_(ptr, &toplevel));
+	Return(get_toplevel_eval_(ptr, &toplevel));
 	Return(get_compile_time_eval_(ptr, &value));
 
 	/* discard */
@@ -1797,6 +1737,144 @@ static int parse_symbol_(Execute ptr, addr *ret, addr pos)
 }
 
 /* macro */
+#define ParseMacroCompile(pos, x) { \
+	addr __check; \
+	GetConst(COMMON_##x, &__check); \
+	if (pos == __check) \
+	return 1; \
+}
+static int parse_macro_compile_symbol(addr pos)
+{
+	ParseMacroCompile(pos, DECLAIM);
+	ParseMacroCompile(pos, DEFCLASS);
+	ParseMacroCompile(pos, DEFINE_COMPILER_MACRO);
+	ParseMacroCompile(pos, DEFINE_CONDITION);
+	ParseMacroCompile(pos, DEFINE_MODIFY_MACRO);
+	ParseMacroCompile(pos, DEFINE_SETF_EXPANDER);
+	ParseMacroCompile(pos, DEFMACRO);
+	ParseMacroCompile(pos, DEFPACKAGE);
+	ParseMacroCompile(pos, DEFSETF);
+	ParseMacroCompile(pos, DEFSTRUCT);
+	ParseMacroCompile(pos, DEFTYPE);
+	ParseMacroCompile(pos, IN_PACKAGE);
+
+	return 0;
+}
+
+#if 0
+static int parse_macro_compile_(Execute ptr, addr expr, addr list, addr *ret)
+{
+	addr compile, load, exec, toplevel, mode, eval;
+
+	/* compile */
+	if (! eval_compile_p(ptr))
+		goto return_throw;
+
+	/* type */
+	if (! consp(expr))
+		goto return_throw;
+	GetCar(expr, &expr);
+	if (! parse_macro_compile_symbol(expr))
+		goto return_throw;
+
+	/* toplevel */
+	Return(get_toplevel_eval_(ptr, &toplevel));
+	if (toplevel == Nil)
+		goto return_throw;
+
+	/* :compile-toplevel */
+	Return(get_compile_toplevel_eval_(ptr, &compile));
+	if (compile != Nil)
+		goto return_throw;
+
+	/* compile-time-too */
+	Return(get_compile_time_eval_(ptr, &mode));
+	if (mode != Nil)
+		goto return_throw;
+
+	/* eval-when */
+	Return(get_load_toplevel_eval_(ptr, &load));
+	Return(get_execute_eval_(ptr, &exec));
+	conscar_heap(&list, list);
+
+	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 6);
+	SetEvalParse(eval, 0, list);
+	SetEvalParse(eval, 1, T);         /* :compile-toplevel */
+	SetEvalParse(eval, 2, load);      /* :load-toplevel */
+	SetEvalParse(eval, 3, exec);      /* :execute */
+	SetEvalParse(eval, 4, toplevel);  /* toplevel */
+	SetEvalParse(eval, 5, mode);      /* compile-time */
+	return Result(ret, eval);
+
+return_throw:
+	return Result(ret, list);
+}
+#endif
+
+static void parse_make_eval_when(addr compile, addr load, addr execute, addr *ret)
+{
+	addr list, key;
+
+	list = Nil;
+	if (compile != Nil) {
+		GetConst(KEYWORD_COMPILE_TOPLEVEL, &key);
+		cons_heap(&list, key, list);
+	}
+	if (load != Nil) {
+		GetConst(KEYWORD_LOAD_TOPLEVEL, &key);
+		cons_heap(&list, key, list);
+	}
+	if (execute != Nil) {
+		GetConst(KEYWORD_EXECUTE, &key);
+		cons_heap(&list, key, list);
+	}
+
+	*ret = list;
+}
+
+int parse_macro_compile_(Execute ptr, addr expr, addr list, addr *ret)
+{
+	addr compile, load, exec, toplevel, mode, eval;
+
+	/* compile */
+	if (! eval_compile_p(ptr))
+		goto return_throw;
+
+	/* type */
+	if (! consp(expr))
+		goto return_throw;
+	GetCar(expr, &expr);
+	if (! parse_macro_compile_symbol(expr))
+		goto return_throw;
+
+	/* toplevel */
+	Return(get_toplevel_eval_(ptr, &toplevel));
+	if (toplevel == Nil)
+		goto return_throw;
+
+	/* :compile-toplevel */
+	Return(get_compile_toplevel_eval_(ptr, &compile));
+	if (compile != Nil)
+		goto return_throw;
+
+	/* compile-time-too */
+	Return(get_compile_time_eval_(ptr, &mode));
+	if (mode != Nil)
+		goto return_throw;
+
+	/* eval-when */
+	Return(get_load_toplevel_eval_(ptr, &load));
+	Return(get_execute_eval_(ptr, &exec));
+
+	/* `(eval-when (:compile-toplevel :load-toplevel :execute) ,@body) */
+	GetConst(COMMON_EVAL_WHEN, &eval);
+	parse_make_eval_when(compile, load, exec, &expr);
+	list_heap(&list, eval, expr, list, NULL);
+
+return_throw:
+	return Result(ret, list);
+}
+
 static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons)
 {
 	addr env, value;
@@ -1810,11 +1888,12 @@ static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons)
 	localhold_end(hold);
 
 	/* execute */
+	Return(parse_macro_compile_(ptr, cons, value, &value));
 	Return(parse_execute_(ptr, &value, value));
-	Return(parse_compile_toplevel_(ptr, cons, value, &value));
 	return Result(ret, value);
 }
 
+/* backquote */
 static int parse_backquote_(Execute ptr, addr *ret, addr pos)
 {
 	if (! quote_back_p(pos))
@@ -1908,9 +1987,6 @@ static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
 		return parse_macro_lambda_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO)) {
-		return parse_define_symbol_macro_(ptr, ret, cons);
-	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MULTIPLE_VALUE_BIND)) {
 		return parse_multiple_value_bind_(ptr, ret, args);
 	}
@@ -1977,7 +2053,7 @@ static int compiler_macroexpand_p(Execute ptr)
 	return pos != Unbound && pos != Nil;
 }
 
-static int parse_cons_expander_p(Execute ptr, addr *ret, addr cons)
+int parse_compiler_macro_p(Execute ptr, addr *ret, addr cons)
 {
 	addr check;
 
@@ -2017,7 +2093,7 @@ static int parse_cons_(Execute ptr, addr *ret, addr cons)
 {
 	addr call;
 
-	if (parse_cons_expander_p(ptr, &call, cons))
+	if (parse_compiler_macro_p(ptr, &call, cons))
 		return parse_cons_expander_(ptr, ret, call, cons);
 	else
 		return parse_cons_car_(ptr, ret, cons);
@@ -2151,14 +2227,14 @@ int parse_allcons_(Execute ptr, addr *ret, addr cons)
 	addr toplevel;
 
 	/* toplevel */
-	Return(gettoplevel_eval_(ptr, &toplevel));
+	Return(get_toplevel_eval_(ptr, &toplevel));
 	if (toplevel == Nil)
 		return parse_allcons_toplevel_(ptr, ret, cons);
 
 	/* parse */
-	settoplevel_eval(ptr, Nil);
+	set_toplevel_eval(ptr, Nil);
 	Return(parse_allcons_toplevel_(ptr, ret, cons));
-	settoplevel_eval(ptr, toplevel);
+	set_toplevel_eval(ptr, toplevel);
 
 	return 0;
 }
@@ -2168,14 +2244,14 @@ int parse_execute_(Execute ptr, addr *ret, addr pos)
 	addr toplevel;
 
 	/* toplevel */
-	Return(gettoplevel_eval_(ptr, &toplevel));
+	Return(get_toplevel_eval_(ptr, &toplevel));
 	if (toplevel == Nil)
 		return parse_execute_toplevel_(ptr, ret, pos);
 
 	/* parse */
-	settoplevel_eval(ptr, Nil);
+	set_toplevel_eval(ptr, Nil);
 	Return(parse_execute_toplevel_(ptr, ret, pos));
-	settoplevel_eval(ptr, toplevel);
+	set_toplevel_eval(ptr, toplevel);
 
 	return 0;
 }

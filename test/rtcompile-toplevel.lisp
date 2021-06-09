@@ -452,7 +452,6 @@
       nil))
   nil)
 
-#|
 (deftest compile-eval-dependency.2
   (with-open-stream (input (lisp-system:make-memory-io-stream))
     (with-open-stream (output (lisp-system:make-memory-io-stream))
@@ -466,5 +465,4 @@
       (compile-file input :output-file output)
       nil))
   nil)
-|#
 
