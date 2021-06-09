@@ -972,7 +972,7 @@ int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 	int check;
 	addr pos;
 	const unicode *u;
-	char *str, *temp;
+	char *str;
 	size_t s32, s8;
 	LocalRoot local;
 	LocalStack stack;
@@ -1015,10 +1015,6 @@ int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 		return call_simple_file_error_va_(ptr, file,
 				"Cannot find the TRUENAME ~S file.", file, NULL);
 	}
-	s8 = strlen(str) + 1UL;
-	temp = (char *)lowlevel_local(local, s8);
-	memcpy(temp, str, s8);
-	free(str);
 
 	/* make-pathname */
 	Return(string8_null_heap_(&pos, str));

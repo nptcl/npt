@@ -1184,8 +1184,11 @@ static int checktype_function_(Execute ptr, addr table, addr eval)
 	GetEvalScopeThe(eval, &eval);
 	Return(checktype_p_(ptr, eval, type, &check, &errorp));
 	if (check) {
-		return fmte_("The function ~S must be ~S type, but ~S.",
-				name, eval, type, NULL);
+		GetCallName(name, &name);
+		Return(type_object_(&eval, eval));
+		Return(type_object_(&type, type));
+		Return(fmte_("The function ~S must be ~S type, but ~S.",
+					name, eval, type, NULL));
 	}
 
 	return 0;

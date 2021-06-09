@@ -7,7 +7,6 @@
     (subtypep! nil nil nil t))
   subtypep-atomic-not)
 
-
 ;;
 ;;  atomic-not
 ;;
@@ -632,4 +631,16 @@
 (deftest subtypep-compound-invalid.4
   (subtypep! '(not invalid) 'cons)
   invalid)
+
+
+;;
+;;  error
+;;
+(deftest subtypep-function-error.1
+  (subtypep! '(function (t)) '(function (*)))
+  include)
+
+(deftest subtypep-function-error.2
+  (subtypep! '(function (t t)) '(function (* *)))
+  include)
 

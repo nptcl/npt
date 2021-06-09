@@ -128,6 +128,10 @@ static int subtypep_ordinary_subtypep_(Execute ptr,
 	push_local(local, &stack);
 	merge_ordargs(local, &x, ptr1, type1);
 	merge_ordargs(local, &y, ptr2, type2);
+	if (type_asterisk_p(y))
+		return ReturnInclude(ret);
+	if (type_asterisk_p(x))
+		return ReturnFalse(ret);
 	Return(subtypep_compound_(ptr, x, y, &value));
 	rollback_local(local, stack);
 
