@@ -26,8 +26,12 @@ int pop_code(Execute ptr, CodeValue x)
 	addr pos;
 
 	Return(popargs_control_(ptr, &pos));
-	if (pos == Unbound)
-		return fmte_("Too few argument.", NULL);
+	if (pos == Unbound) {
+		(void)getcall_control(ptr, &pos);
+		if (callnamep(pos))
+			name_callname_heap(pos, &pos);
+		return fmte_("Too few argument at ~S arguments.", pos, NULL);
+}
 	setresult_control(ptr, pos);
 
 	return 0;

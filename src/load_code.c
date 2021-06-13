@@ -1,10 +1,11 @@
 #include "call_symbols.h"
-#include "code_queue.h"
 #include "constant.h"
 #include "control_execute.h"
 #include "control_object.h"
 #include "execute_values.h"
 #include "load_code.h"
+#include "make.h"
+#include "make_queue.h"
 #include "object.h"
 #include "symbol.h"
 
@@ -70,49 +71,63 @@ int execute_load_get_(Execute ptr, size_t index, addr *ret)
 /*
  *  load-time-value
  */
-void code_make_load_alloc(LocalRoot local, addr *ret, addr index)
+void code_make_load_alloc(Execute ptr, addr *ret, addr index)
 {
 	addr code;
+	LocalRoot local;
 	LocalStack stack;
+	struct code_make_struct str;
 
+	local = ptr->local;
 	push_local(local, &stack);
 	code_queue_local(local, &code);
-	CodeQueue_cons(local, code, LOAD_ALLOC, index);
-	code_queue_pop(local, code, ret);
+	set_code_make_struct(&str, ptr, code);
+
+	CodeQueue_cons(&str, LOAD_ALLOC, index);
+	code_queue_pop(&str, ret);
 	rollback_local(local, stack);
 }
 
-void code_make_load_gensym(LocalRoot local, addr *ret, addr list)
+void code_make_load_gensym(Execute ptr, addr *ret, addr list)
 {
 	addr code, x, y;
+	LocalRoot local;
 	LocalStack stack;
+	struct code_make_struct str;
 
 	/* code-begin */
+	local = ptr->local;
 	push_local(local, &stack);
 	code_queue_local(local, &code);
+	set_code_make_struct(&str, ptr, code);
 
 	/* code gensym */
 	while (list != Nil) {
 		GetCons(list, &x, &list);
 		GetCons(x, &x, &y);
 		GetNameSymbol(x, &x);
-		CodeQueue_double(local, code, LOAD_GENSYM, x, y);
+		CodeQueue_double(&str, LOAD_GENSYM, x, y);
 	}
 
 	/* code-end */
-	code_queue_pop(local, code, ret);
+	code_queue_pop(&str, ret);
 	rollback_local(local, stack);
 }
 
-void code_make_load_set(LocalRoot local, addr *ret, addr index)
+void code_make_load_set(Execute ptr, addr *ret, addr index)
 {
 	addr code;
+	LocalRoot local;
 	LocalStack stack;
+	struct code_make_struct str;
 
+	local = ptr->local;
 	push_local(local, &stack);
 	code_queue_local(local, &code);
-	CodeQueue_cons(local, code, LOAD_SET, index);
-	code_queue_pop(local, code, ret);
+	set_code_make_struct(&str, ptr, code);
+
+	CodeQueue_cons(&str, LOAD_SET, index);
+	code_queue_pop(&str, ret);
 	rollback_local(local, stack);
 }
 

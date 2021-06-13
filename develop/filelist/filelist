@@ -70,9 +70,7 @@ cmpl.c
 code_function.c
 code_init.c
 code_lambda.c
-code_make.c
 code_object.c
-code_queue.c
 code_values.c
 code.c
 common_arrays.c
@@ -216,6 +214,10 @@ loop.c
 main_argv.c
 main_string.c
 main.c
+make.c
+make_call.c
+make_queue.c
+make_value.c
 math_exp.c
 math_gcd.c
 math_isqrt.c

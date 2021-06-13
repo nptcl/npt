@@ -35,6 +35,7 @@
 #include "heap_memory.h"
 #include "hashtable.h"
 #include "localtime.h"
+#include "make.h"
 #include "object.h"
 #include "package.h"
 #include "package_intern.h"
@@ -90,6 +91,7 @@ void initlisp(void)
 	init_function();
 	init_heap();
 	init_localtime();
+	init_make();
 	init_package();
 	init_print();
 	init_reader();

@@ -1,7 +1,5 @@
 #include "callname.h"
 #include "code_init.h"
-#include "code_make.h"
-#include "code_queue.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -10,6 +8,8 @@
 #include "eval_object.h"
 #include "eval_table.h"
 #include "function.h"
+#include "make.h"
+#include "make_queue.h"
 #include "optimize.h"
 #include "optimize_common.h"
 #include "scope_object.h"
@@ -32,7 +32,8 @@ static OptimizeType get_optimize_scope(addr scope, enum EVAL_OPTIMIZE index)
 
 static int optimize_common_p(addr scope)
 {
-	OptimizeType value = get_optimize_scope(scope, EVAL_OPTIMIZE_SPEED);
+	OptimizeType value;
+	value = get_optimize_scope(scope, EVAL_OPTIMIZE_SPEED);
 	return 1 <= value;
 }
 
@@ -109,73 +110,73 @@ static int optcode_car1_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optimize_common_car0(LocalRoot local, addr code, addr pos)
+static int optimize_common_car0_(CodeMake ptr, addr pos, int *ret)
 {
 	/* no check */
 	getvalue_tablecall(pos, &pos);
-	switch (code_queue_mode(code)) {
+	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, OPTCODE_CAR0_SET);
+			Return(code_make_execute_set_(ptr, pos));
+			CodeQueue_single(ptr, OPTCODE_CAR0_SET);
 			break;
 
 		case CodeQueue_ModePush:
-			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, OPTCODE_CAR0_PUSH);
+			Return(code_make_execute_set_(ptr, pos)); /* set */
+			CodeQueue_single(ptr, OPTCODE_CAR0_PUSH);
 			break;
 
 		case CodeQueue_ModeRemove:
 		default:
-			code_make_execute_rem(local, code, pos);
+			Return(code_make_execute_rem_(ptr, pos));
 			break;
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int optimize_common_car1(LocalRoot local, addr code, addr pos)
+static int optimize_common_car1_(CodeMake ptr, addr pos, int *ret)
 {
 	addr type;
 
 	/* type check */
 	gettype_tablecall(pos, &type);
 	getvalue_tablecall(pos, &pos);
-	code_make_execute_set(local, code, pos);
-	switch (code_queue_mode(code)) {
+	Return(code_make_execute_set_(ptr, pos));
+	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, OPTCODE_CAR1_SET, type);
+			CodeQueue_cons(ptr, OPTCODE_CAR1_SET, type);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, OPTCODE_CAR1_PUSH, type);
+			CodeQueue_cons(ptr, OPTCODE_CAR1_PUSH, type);
 			break;
 
 		case CodeQueue_ModeRemove:
 		default:
-			CodeQueue_cons(local, code, OPTCODE_RESULT_TYPE, type);
+			CodeQueue_cons(ptr, OPTCODE_RESULT_TYPE, type);
 			break;
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int optimize_common_car(LocalRoot local, addr code, addr scope)
+static int optimize_common_car_(CodeMake ptr, addr scope, int *ret)
 {
 	addr args, pos;
 
 	if (! optimize_common_p(scope))
-		return 0;
+		return Result(ret, 0);
 	/* first argument */
 	GetEvalScopeIndex(scope, 1, &args);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args != Nil)
-		return 0;
+		return Result(ret, 0);
 	Check(! eval_tablecall_p(pos), "type error");
 	if (! getcheck_tablecall(pos))
-		return optimize_common_car0(local, code, pos);
+		return optimize_common_car0_(ptr, pos, ret);
 	else
-		return optimize_common_car1(local, code, pos);
+		return optimize_common_car1_(ptr, pos, ret);
 }
 
 
@@ -234,73 +235,73 @@ static int optcode_cdr1_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optimize_common_cdr0(LocalRoot local, addr code, addr pos)
+static int optimize_common_cdr0_(CodeMake ptr, addr pos, int *ret)
 {
 	/* no check */
 	getvalue_tablecall(pos, &pos);
-	switch (code_queue_mode(code)) {
+	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, OPTCODE_CDR0_SET);
+			Return(code_make_execute_set_(ptr, pos));
+			CodeQueue_single(ptr, OPTCODE_CDR0_SET);
 			break;
 
 		case CodeQueue_ModePush:
-			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, OPTCODE_CDR0_PUSH);
+			Return(code_make_execute_set_(ptr, pos));
+			CodeQueue_single(ptr, OPTCODE_CDR0_PUSH);
 			break;
 
 		case CodeQueue_ModeRemove:
 		default:
-			code_make_execute_rem(local, code, pos);
+			Return(code_make_execute_rem_(ptr, pos));
 			break;
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int optimize_common_cdr1(LocalRoot local, addr code, addr pos)
+static int optimize_common_cdr1_(CodeMake ptr, addr pos, int *ret)
 {
 	addr type;
 
 	/* type check */
 	gettype_tablecall(pos, &type);
 	getvalue_tablecall(pos, &pos);
-	code_make_execute_set(local, code, pos);
-	switch (code_queue_mode(code)) {
+	Return(code_make_execute_set_(ptr, pos));
+	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, OPTCODE_CDR1_SET, type);
+			CodeQueue_cons(ptr, OPTCODE_CDR1_SET, type);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, OPTCODE_CDR1_PUSH, type);
+			CodeQueue_cons(ptr, OPTCODE_CDR1_PUSH, type);
 			break;
 
 		case CodeQueue_ModeRemove:
 		default:
-			CodeQueue_cons(local, code, OPTCODE_RESULT_TYPE, type);
+			CodeQueue_cons(ptr, OPTCODE_RESULT_TYPE, type);
 			break;
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int optimize_common_cdr(LocalRoot local, addr code, addr scope)
+static int optimize_common_cdr_(CodeMake ptr, addr scope, int *ret)
 {
 	addr args, pos;
 
 	if (! optimize_common_p(scope))
-		return 0;
+		return Result(ret, 0);
 	/* first argument */
 	GetEvalScopeIndex(scope, 1, &args);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args != Nil)
-		return 0;
+		return Result(ret, 0);
 	Check(! eval_tablecall_p(pos), "type error");
 	if (! getcheck_tablecall(pos))
-		return optimize_common_cdr0(local, code, pos);
+		return optimize_common_cdr0_(ptr, pos, ret);
 	else
-		return optimize_common_cdr1(local, code, pos);
+		return optimize_common_cdr1_(ptr, pos, ret);
 }
 
 
@@ -320,57 +321,57 @@ static int optcode_cons_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
+static int optimize_common_cons0_(CodeMake ptr, addr car, addr cdr, int *ret)
 {
 	addr pos;
 
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
 	/* return begin */
-	code_queue_push_new(local, code);
-	code_make_execute_push(local, code, car);
-	code_make_execute_push(local, code, cdr);
+	code_queue_push_new(ptr);
+	Return(code_make_execute_push_(ptr, car));
+	Return(code_make_execute_push_(ptr, cdr));
 	/* cons */
-	CodeQueue_single(local, code, OPTCODE_CONS);
+	CodeQueue_single(ptr, OPTCODE_CONS);
 	/* return end */
-	code_queue_pop(local, code, &pos);
-	code_make_execute_control(local, code, pos);
+	code_queue_pop(ptr, &pos);
+	code_make_execute_control(ptr, pos);
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int optimize_common_cons_rem(LocalRoot local, addr code, addr car, addr cdr)
+static int optimize_common_cons_rem_(CodeMake ptr, addr car, addr cdr, int *ret)
 {
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
-	code_make_execute(local, code, car);
-	code_make_execute(local, code, cdr);
+	Return(code_make_execute_(ptr, car));
+	Return(code_make_execute_(ptr, cdr));
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int optimize_common_cons(LocalRoot local, addr code, addr scope)
+static int optimize_common_cons_(CodeMake ptr, addr scope, int *ret)
 {
 	addr args, car, cdr;
 
 	if (! optimize_common_p(scope))
-		return 0;
+		return Result(ret, 0);
 	/* first argument */
 	GetEvalScopeIndex(scope, 1, &args);
 	if (! consp_getcons(args, &car, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args == Nil)
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcons(args, &cdr, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args != Nil)
-		return 0;
+		return Result(ret, 0);
 	Check(! eval_tablecall_p(car), "type error");
 	Check(! eval_tablecall_p(cdr), "type error");
-	if (! code_queue_remp(code))
-		return optimize_common_cons0(local, code, car, cdr);
+	if (! code_queue_remp(ptr))
+		return optimize_common_cons0_(ptr, car, cdr, ret);
 	else
-		return optimize_common_cons_rem(local, code, car, cdr);
+		return optimize_common_cons_rem_(ptr, car, cdr, ret);
 }
 
 
@@ -389,7 +390,7 @@ static void optimize_common_symbol(addr scope, addr *ret)
 	GetCallName(call, ret);
 }
 
-int optimize_common(LocalRoot local, addr code, addr scope)
+int optimize_common_(CodeMake ptr, addr scope, int *ret)
 {
 	addr symbol, check;
 
@@ -397,53 +398,54 @@ int optimize_common(LocalRoot local, addr code, addr scope)
 	/* car */
 	GetConst(COMMON_CAR, &check);
 	if (symbol == check)
-		return optimize_common_car(local, code, scope);
+		return optimize_common_car_(ptr, scope, ret);
 	/* cdr */
 	GetConst(COMMON_CDR, &check);
 	if (symbol == check)
-		return optimize_common_cdr(local, code, scope);
+		return optimize_common_cdr_(ptr, scope, ret);
 	/* cons */
 	GetConst(COMMON_CONS, &check);
 	if (symbol == check)
-		return optimize_common_cons(local, code, scope);
+		return optimize_common_cons_(ptr, scope, ret);
 
-	return 0;
+	return Result(ret, 0);
 }
 
 
 /*
  *  optimize-check code
  */
-static int optimize_check_code1(LocalRoot local, addr code, addr scope, addr pos)
+static int optimize_check_code1_(CodeMake ptr, addr scope, addr pos, int *ret)
 {
 	Check(! eval_tablecall_p(pos), "type error");
 	getvalue_tablecall(pos, &pos);
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue(pos, &pos);
 	if (! strvect_designer_equalp_char(pos, "SCOPE"))
-		return 0;
+		return Result(ret, 0);
 
 	/* fixnum */
 	fixnum_heap(&pos, (fixnum)optimize_common_p(scope));
-	code_make_object(local, code, pos);
-	return 1;
+	code_make_object(ptr, pos);
+
+	return Result(ret, 1);
 }
 
-static int optimize_check_code2(
-		LocalRoot local, addr code, addr scope, addr pos, addr args)
+static int optimize_check_code2_(CodeMake ptr,
+		addr scope, addr pos, addr args, int *ret)
 {
 	addr list, symbol, value;
 
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args != Nil)
-		return 0;
+		return Result(ret, 0);
 	Check(! eval_tablecall_p(pos), "type error");
 	getvalue_tablecall(pos, &pos);
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue(pos, &pos);
 	if (! strvect_designer_equalp_char(pos, "LIST"))
-		return 0;
+		return Result(ret, 0);
 
 	list = Nil;
 	/* compilation-speed */
@@ -472,23 +474,23 @@ static int optimize_check_code2(
 	cons_heap(&value, symbol, value);
 	cons_heap(&list, value, list);
 	/* object */
-	code_make_object(local, code, list);
+	code_make_object(ptr, list);
 
-	return 1;
+	return Result(ret, 1);
 }
 
-int optimize_check_code(LocalRoot local, addr code, addr scope)
+int optimize_check_code_(CodeMake ptr, addr scope, int *ret)
 {
 	addr args, pos;
 
 	/* (lisp-system:optimize-check scope) */
 	GetEvalScopeIndex(scope, 1, &args);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args == Nil)
-		return optimize_check_code1(local, code, scope, pos);
+		return optimize_check_code1_(ptr, scope, pos, ret);
 	else
-		return optimize_check_code2(local, code, scope, pos, args);
+		return optimize_check_code2_(ptr, scope, pos, args, ret);
 }
 
 

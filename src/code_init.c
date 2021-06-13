@@ -100,6 +100,7 @@ void init_code_init(void)
 	initcode(defun_code, Null);
 
 	/* call */
+	initcode(call_name_code, Addr);
 	initcode(call_result_code, Addr);
 	initcode(call_type_code, Addr);
 	initcode(call_key_code, Addr);
@@ -256,6 +257,7 @@ void build_code_init(void)
 	defcode(DEFUN, defun_code);
 
 	/* call */
+	defcode(CALL_NAME, call_name_code);
 	defcode(CALL_RESULT, call_result_code);
 	defcode(CALL_TYPE, call_type_code);
 	defcode(CALL_KEY, call_key_code);

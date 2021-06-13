@@ -1761,56 +1761,6 @@ static int parse_macro_compile_symbol(addr pos)
 	return 0;
 }
 
-#if 0
-static int parse_macro_compile_(Execute ptr, addr expr, addr list, addr *ret)
-{
-	addr compile, load, exec, toplevel, mode, eval;
-
-	/* compile */
-	if (! eval_compile_p(ptr))
-		goto return_throw;
-
-	/* type */
-	if (! consp(expr))
-		goto return_throw;
-	GetCar(expr, &expr);
-	if (! parse_macro_compile_symbol(expr))
-		goto return_throw;
-
-	/* toplevel */
-	Return(get_toplevel_eval_(ptr, &toplevel));
-	if (toplevel == Nil)
-		goto return_throw;
-
-	/* :compile-toplevel */
-	Return(get_compile_toplevel_eval_(ptr, &compile));
-	if (compile != Nil)
-		goto return_throw;
-
-	/* compile-time-too */
-	Return(get_compile_time_eval_(ptr, &mode));
-	if (mode != Nil)
-		goto return_throw;
-
-	/* eval-when */
-	Return(get_load_toplevel_eval_(ptr, &load));
-	Return(get_execute_eval_(ptr, &exec));
-	conscar_heap(&list, list);
-
-	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 6);
-	SetEvalParse(eval, 0, list);
-	SetEvalParse(eval, 1, T);         /* :compile-toplevel */
-	SetEvalParse(eval, 2, load);      /* :load-toplevel */
-	SetEvalParse(eval, 3, exec);      /* :execute */
-	SetEvalParse(eval, 4, toplevel);  /* toplevel */
-	SetEvalParse(eval, 5, mode);      /* compile-time */
-	return Result(ret, eval);
-
-return_throw:
-	return Result(ret, list);
-}
-#endif
-
 static void parse_make_eval_when(addr compile, addr load, addr execute, addr *ret)
 {
 	addr list, key;
@@ -1909,103 +1859,104 @@ static int parse_cons_check_constant(addr call, constindex index)
 	GetConstant(index, &check);
 	return check == call;
 }
+#define ParseConsConstant(x, y) parse_cons_check_constant((x), CONSTANT_##y)
 
 static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 {
 	addr call, check, args;
 
 	GetCons(cons, &call, &args);
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_LET)) {
+	if (ParseConsConstant(call, COMMON_LET)) {
 		return parse_let_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_LETA)) {
+	if (ParseConsConstant(call, COMMON_LETA)) {
 		return parse_leta_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_SETQ)) {
+	if (ParseConsConstant(call, COMMON_SETQ)) {
 		return parse_setq_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_QUOTE)) {
+	if (ParseConsConstant(call, COMMON_QUOTE)) {
 		return parse_quote_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_FUNCTION)) {
+	if (ParseConsConstant(call, COMMON_FUNCTION)) {
 		return parse_function_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_IF)) {
+	if (ParseConsConstant(call, COMMON_IF)) {
 		return parse_if_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_UNWIND_PROTECT)) {
+	if (ParseConsConstant(call, COMMON_UNWIND_PROTECT)) {
 		return parse_unwind_protect_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_TAGBODY)) {
+	if (ParseConsConstant(call, COMMON_TAGBODY)) {
 		return parse_tagbody_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_GO)) {
+	if (ParseConsConstant(call, COMMON_GO)) {
 		return parse_go_(ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_BLOCK)) {
+	if (ParseConsConstant(call, COMMON_BLOCK)) {
 		return parse_block_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_RETURN_FROM)) {
+	if (ParseConsConstant(call, COMMON_RETURN_FROM)) {
 		return parse_return_from_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_CATCH)) {
+	if (ParseConsConstant(call, COMMON_CATCH)) {
 		return parse_catch_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_THROW)) {
+	if (ParseConsConstant(call, COMMON_THROW)) {
 		return parse_throw_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_FLET)) {
+	if (ParseConsConstant(call, COMMON_FLET)) {
 		return parse_flet_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_LABELS)) {
+	if (ParseConsConstant(call, COMMON_LABELS)) {
 		return parse_labels_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_THE)) {
+	if (ParseConsConstant(call, COMMON_THE)) {
 		return parse_the_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_VALUES)) {
+	if (ParseConsConstant(call, COMMON_VALUES)) {
 		return parse_values_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DECLAIM)) {
+	if (ParseConsConstant(call, SYSTEM_DECLAIM)) {
 		return parse_declaim_(ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFUN)) {
+	if (ParseConsConstant(call, SYSTEM_DEFUN)) {
 		return parse_defun_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFMACRO)) {
+	if (ParseConsConstant(call, SYSTEM_DEFMACRO)) {
 		return parse_defmacro_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFTYPE)) {
+	if (ParseConsConstant(call, SYSTEM_DEFTYPE)) {
 		return parse_deftype_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFINE_COMPILER_MACRO)) {
+	if (ParseConsConstant(call, SYSTEM_DEFINE_COMPILER_MACRO)) {
 		return parse_define_compiler_macro_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DESTRUCTURING_BIND)) {
+	if (ParseConsConstant(call, SYSTEM_DESTRUCTURING_BIND)) {
 		return parse_destructuring_bind_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
+	if (ParseConsConstant(call, SYSTEM_MACRO_LAMBDA)) {
 		return parse_macro_lambda_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MULTIPLE_VALUE_BIND)) {
+	if (ParseConsConstant(call, SYSTEM_MULTIPLE_VALUE_BIND)) {
 		return parse_multiple_value_bind_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_MULTIPLE_VALUE_CALL)) {
+	if (ParseConsConstant(call, COMMON_MULTIPLE_VALUE_CALL)) {
 		return parse_multiple_value_call_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_MULTIPLE_VALUE_PROG1)) {
+	if (ParseConsConstant(call, COMMON_MULTIPLE_VALUE_PROG1)) {
 		return parse_multiple_value_prog1_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_NTH_VALUE)) {
+	if (ParseConsConstant(call, SYSTEM_NTH_VALUE)) {
 		return parse_nth_value_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGV)) {
+	if (ParseConsConstant(call, COMMON_PROGV)) {
 		return parse_progv_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOAD_TIME_VALUE)) {
+	if (ParseConsConstant(call, COMMON_LOAD_TIME_VALUE)) {
 		return parse_load_time_value_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_STEP)) {
+	if (ParseConsConstant(call, SYSTEM_STEP)) {
 		return parse_step(ptr, ret, args);
 	}
 	Return(parse_cons_check_macro_(ptr, call, &check));
@@ -2023,19 +1974,19 @@ static int parse_cons_car_(Execute ptr, addr *ret, addr cons)
 	GetCons(cons, &call, &args);
 
 	/* toplevel */
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGN)) {
+	if (ParseConsConstant(call, COMMON_PROGN)) {
 		return parse_progn_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOCALLY)) {
+	if (ParseConsConstant(call, COMMON_LOCALLY)) {
 		return parse_locally_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_MACROLET)) {
+	if (ParseConsConstant(call, COMMON_MACROLET)) {
 		return parse_macrolet_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_SYMBOL_MACROLET)) {
+	if (ParseConsConstant(call, COMMON_SYMBOL_MACROLET)) {
 		return parse_symbol_macrolet_(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_EVAL_WHEN)) {
+	if (ParseConsConstant(call, COMMON_EVAL_WHEN)) {
 		return parse_eval_when_(ptr, ret, args);
 	}
 

@@ -20,9 +20,9 @@ int execute_load_set_(Execute ptr, size_t index);
 int execute_load_get_(Execute ptr, size_t index, addr *ret);
 void fasl_load_time_value(Execute ptr);
 
-void code_make_load_alloc(LocalRoot local, addr *ret, addr index);
-void code_make_load_gensym(LocalRoot local, addr *ret, addr list);
-void code_make_load_set(LocalRoot local, addr *ret, addr index);
+void code_make_load_alloc(Execute ptr, addr *ret, addr index);
+void code_make_load_gensym(Execute ptr, addr *ret, addr list);
+void code_make_load_set(Execute ptr, addr *ret, addr index);
 
 #endif
 

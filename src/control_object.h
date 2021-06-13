@@ -39,6 +39,7 @@
 #define existspecial_control _n(existspecial_control)
 #define getdata_control _n(getdata_control)
 #define setdata_control _n(setdata_control)
+#define getcall_control _n(getcall_control)
 #define getcatch_control _n(getcatch_control)
 #define getcondition_control _n(getcondition_control)
 #define gethandler_control _n(gethandler_control)
@@ -67,6 +68,7 @@ enum Control_Index {
 	Control_Protect,
 	Control_Table,
 	Control_Data,
+	Control_Call,
 	Control_Size
 };
 
@@ -208,6 +210,7 @@ int existspecial_control(Execute ptr, addr pos);
 /* access */
 void getdata_control(Execute ptr, addr *ret);
 void setdata_control(Execute ptr, addr value);
+int getcall_control(Execute ptr, addr *ret);
 
 int getcatch_control(addr pos, addr *ret);
 int getcondition_control(addr pos, addr *ret);

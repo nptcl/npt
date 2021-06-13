@@ -1,10 +1,11 @@
-#include "code_make.h"
 #include "code_object.h"
-#include "code_queue.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "eval_object.h"
 #include "eval_table.h"
+#include "make.h"
+#include "make_queue.h"
+#include "make_typedef.h"
 #include "memory.h"
 
 /*
@@ -113,76 +114,90 @@ void code_queue_local(LocalRoot local, addr *ret)
 	*ret = pos;
 }
 
-enum CodeQueue_Mode code_queue_mode(addr code)
+enum CodeQueue_Mode code_queue_mode(CodeMake ptr)
 {
+	addr code;
+
+	code = ptr->code;
 	CheckTypeCodeQueue(code);
 	return StructCodeQueue(code)->mode;
 }
 
-int code_queue_setp(addr code)
+int code_queue_setp(CodeMake ptr)
 {
-	return code_queue_mode(code) == CodeQueue_ModeSet;
+	return code_queue_mode(ptr) == CodeQueue_ModeSet;
 }
 
-int code_queue_pushp(addr code)
+int code_queue_pushp(CodeMake ptr)
 {
-	return code_queue_mode(code) == CodeQueue_ModePush;
+	return code_queue_mode(ptr) == CodeQueue_ModePush;
 }
 
-int code_queue_remp(addr code)
+int code_queue_remp(CodeMake ptr)
 {
-	return code_queue_mode(code) == CodeQueue_ModeRemove;
+	return code_queue_mode(ptr) == CodeQueue_ModeRemove;
 }
 
-static void code_queue_save(addr code, modeswitch *mode)
+static void code_queue_save(CodeMake ptr, modeswitch *mode)
 {
-	CheckTypeCodeQueue(code);
-	mode->mode = code_queue_mode(code);
+	CheckTypeCodeQueue(ptr->code);
+	mode->mode = code_queue_mode(ptr);
 }
 
-void code_queue_rollback(addr code, modeswitch *mode)
+void code_queue_rollback(CodeMake ptr, modeswitch *mode)
 {
+	addr code;
+
+	code = ptr->code;
 	CheckTypeCodeQueue(code);
 	StructCodeQueue(code)->mode = mode->mode;
 }
 
-static void code_queue_savevalue(addr code, modeswitch *mode, enum CodeQueue_Mode value)
+static void code_queue_savevalue(CodeMake ptr,
+		modeswitch *mode, enum CodeQueue_Mode value)
 {
-	code_queue_save(code, mode);
+	addr code;
+
+	code = ptr->code;
+	code_queue_save(ptr, mode);
 	StructCodeQueue(code)->mode = value;
 }
 
-void code_queue_setmode(addr code, modeswitch *mode)
+void code_queue_setmode(CodeMake ptr, modeswitch *mode)
 {
-	code_queue_savevalue(code, mode, CodeQueue_ModeSet);
+	code_queue_savevalue(ptr, mode, CodeQueue_ModeSet);
 }
-void code_queue_pushmode(addr code, modeswitch *mode)
+void code_queue_pushmode(CodeMake ptr, modeswitch *mode)
 {
-	code_queue_savevalue(code, mode, CodeQueue_ModePush);
+	code_queue_savevalue(ptr, mode, CodeQueue_ModePush);
 }
-void code_queue_remmode(addr code, modeswitch *mode)
+void code_queue_remmode(CodeMake ptr, modeswitch *mode)
 {
-	code_queue_savevalue(code, mode, CodeQueue_ModeRemove);
+	code_queue_savevalue(ptr, mode, CodeQueue_ModeRemove);
 }
 
-static void code_queue_add(LocalRoot local, addr code, addr value)
+static void code_queue_add(CodeMake ptr, addr value)
 {
-	addr stack;
+	addr code, stack;
+	LocalRoot local;
 
-	CheckTypeCodeQueue(code);
+	local = ptr->local;
+	code = ptr->code;
+
+	CheckTypeCodeQueue(ptr->code);
 	Check(GetStatusDynamic(value), "dynamic error");
 	GetCodeQueue(code, CodeQueue_Code, &stack);
 	Check(stack == Nil, "stack error");
-	push_code_stack(local, stack, value);
+	push_code_stack(ptr->local, stack, value);
 }
 
-void code_queue_add2(LocalRoot local, addr code, addr left, addr right)
+void code_queue_add2(CodeMake ptr, addr x, addr y)
 {
-	cons_heap(&right, left, right);
-	code_queue_add(local, code, right);
+	cons_heap(&y, x, y);
+	code_queue_add(ptr, y);
 }
 
-void code_queue_push(LocalRoot local, addr code, addr pos, ...)
+void code_queue_push(CodeMake ptr, addr pos, ...)
 {
 	addr list;
 	va_list args;
@@ -191,10 +206,10 @@ void code_queue_push(LocalRoot local, addr code, addr pos, ...)
 	list_stdarg_alloc(NULL, &list, args);
 	va_end(args);
 	cons_heap(&list, pos, list);
-	code_queue_add(local, code, list);
+	code_queue_add(ptr, list);
 }
 
-void code_queue_list(LocalRoot local, addr code, constindex index, ...)
+void code_queue_list(CodeMake ptr, constindex index, ...)
 {
 	addr pos, list;
 	va_list args;
@@ -204,58 +219,60 @@ void code_queue_list(LocalRoot local, addr code, constindex index, ...)
 	list_stdarg_alloc(NULL, &list, args);
 	va_end(args);
 	cons_heap(&list, pos, list);
-	code_queue_add(local, code, list);
+	code_queue_add(ptr, list);
 }
 
-void code_queue_single(LocalRoot local, addr code, constindex index)
+void code_queue_single(CodeMake ptr, constindex index)
 {
 	addr pos;
 
 	GetConstant(index, &pos);
 	conscar_heap(&pos, pos);
-	code_queue_add(local, code, pos);
+	code_queue_add(ptr, pos);
 }
 
-void code_queue_cons(LocalRoot local, addr code, constindex index, addr right)
+void code_queue_cons(CodeMake ptr, constindex x, addr y)
 {
 	addr pos;
-	GetConstant(index, &pos);
-	code_queue_add2(local, code, pos, right);
+	GetConstant(x, &pos);
+	code_queue_add2(ptr, pos, y);
 }
 
-void code_queue_double(LocalRoot local,
-		addr code, constindex index, addr left, addr right)
+void code_queue_double(CodeMake ptr, constindex x, addr y, addr z)
 {
-	addr first;
-	GetConstant(index, &first);
-	code_queue_push(local, code, first, left, right, NULL);
+	addr pos;
+	GetConstant(x, &pos);
+	code_queue_push(ptr, pos, y, z, NULL);
 }
 
-void code_queue_index(LocalRoot local, addr code, constindex index, size_t value)
+void code_queue_index(CodeMake ptr, constindex x, size_t y)
 {
-	addr pos, x;
+	addr pos1, pos2;
 
-	GetConstant(index, &pos);
-	index_heap(&x, value);
-	code_queue_add2(local, code, pos, x);
+	GetConstant(x, &pos1);
+	index_heap(&pos2, y);
+	code_queue_add2(ptr, pos1, pos2);
 }
 
-void code_queue_ifpush(LocalRoot local, addr code)
+void code_queue_ifpush(CodeMake ptr)
 {
-	if (code_queue_pushp(code))
-		CodeQueue_single(local, code, PUSH_RESULT);
+	if (code_queue_pushp(ptr))
+		CodeQueue_single(ptr, PUSH_RESULT);
 }
 
 
 /*
  *  stack
  */
-static struct code_stack *code_queue_push_struct(LocalRoot local, addr code)
+static struct code_stack *code_queue_push_struct(CodeMake ptr)
 {
-	addr stack, one, pos;
-	struct code_queue *ptr;
+	addr code, stack, one, pos;
+	struct code_queue *queue;
+	LocalRoot local;
 
-	CheckTypeCodeQueue(code);
+	local = ptr->local;
+	code = ptr->code;
+	CheckTypeCodeQueue(ptr->code);
 	/* new stack */
 	code_stack_local(local, &one);
 	/* push */
@@ -264,30 +281,30 @@ static struct code_stack *code_queue_push_struct(LocalRoot local, addr code)
 	cons_local(local, &stack, pos, stack);
 	SetCodeQueue(code, CodeQueue_Stack, stack);
 	SetCodeQueue(code, CodeQueue_Code, one);
-	ptr = StructCodeQueue(code);
-	ptr->size++;
+	queue = StructCodeQueue(code);
+	queue->size++;
 	/* result */
 	return StructCodeStack(one);
 }
 
-void code_queue_push_simple(LocalRoot local, addr code)
+void code_queue_push_simple(CodeMake ptr)
 {
-	(void)code_queue_push_struct(local, code);
+	(void)code_queue_push_struct(ptr);
 }
 
-void code_queue_push_new(LocalRoot local, addr code)
+void code_queue_push_new(CodeMake ptr)
 {
 	struct code_stack *str;
 
-	str = code_queue_push_struct(local, code);
+	str = code_queue_push_struct(ptr);
 	str->p_control = 1;
 }
 
-void code_queue_push_args(LocalRoot local, addr code)
+void code_queue_push_args(CodeMake ptr)
 {
 	struct code_stack *str;
 
-	str = code_queue_push_struct(local, code);
+	str = code_queue_push_struct(ptr);
 	str->p_control = 1;
 	str->p_args = 1;
 }
@@ -517,12 +534,16 @@ static void code_queue_pop_code(LocalRoot local, addr stack, addr *ret)
 	*ret = pos;
 }
 
-void code_queue_pop(LocalRoot local, addr code, addr *ret)
+void code_queue_pop(CodeMake ptr, addr *ret)
 {
-	addr pos, left, right;
-	struct code_queue *ptr;
+	addr code, pos, left, right;
+	struct code_queue *queue;
+	LocalRoot local;
 
-	CheckTypeCodeQueue(code);
+	local = ptr->local;
+	code = ptr->code;
+
+	CheckTypeCodeQueue(ptr->code);
 	/* close stack */
 	GetCodeQueue(code, CodeQueue_Code, &pos);
 	finish_code_stack(local, pos);
@@ -531,8 +552,8 @@ void code_queue_pop(LocalRoot local, addr code, addr *ret)
 	GetCons(right, &left, &right);
 	SetCodeQueue(code, CodeQueue_Stack, right);
 	SetCodeQueue(code, CodeQueue_Code, left);
-	ptr = StructCodeQueue(code);
-	ptr->size--;
+	queue = StructCodeQueue(code);
+	queue->size--;
 	/* push operator */
 	code_queue_pop_code(local, pos, ret);
 }
@@ -541,50 +562,57 @@ void code_queue_pop(LocalRoot local, addr code, addr *ret)
 /*
  *  code
  */
-void code_make_execute_set(LocalRoot local, addr code, addr scope)
+int code_make_execute_set_(CodeMake ptr, addr scope)
 {
 	modeswitch mode;
 
-	code_queue_setmode(code, &mode);
-	code_make_execute(local, code, scope);
-	code_queue_rollback(code, &mode);
+	code_queue_setmode(ptr, &mode);
+	Return(code_make_execute_(ptr, scope));
+	code_queue_rollback(ptr, &mode);
+
+	return 0;
 }
-void code_make_execute_push(LocalRoot local, addr code, addr scope)
+
+int code_make_execute_push_(CodeMake ptr, addr scope)
 {
 	modeswitch mode;
 
-	code_queue_pushmode(code, &mode);
-	code_make_execute(local, code, scope);
-	code_queue_rollback(code, &mode);
+	code_queue_pushmode(ptr, &mode);
+	Return(code_make_execute_(ptr, scope));
+	code_queue_rollback(ptr, &mode);
+
+	return 0;
 }
-void code_make_execute_rem(LocalRoot local, addr code, addr scope)
+
+int code_make_execute_rem_(CodeMake ptr, addr scope)
 {
 	modeswitch mode;
 
-	code_queue_remmode(code, &mode);
-	code_make_execute(local, code, scope);
-	code_queue_rollback(code, &mode);
+	code_queue_remmode(ptr, &mode);
+	Return(code_make_execute_(ptr, scope));
+	code_queue_rollback(ptr, &mode);
+
+	return 0;
 }
 
-void code_make_execute_control(LocalRoot local, addr code, addr pos)
+void code_make_execute_control(CodeMake ptr, addr pos)
 {
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, EXECUTE_CONTROL_PUSH, pos);
+	if (code_queue_pushp(ptr))
+		CodeQueue_cons(ptr, EXECUTE_CONTROL_PUSH, pos);
 	else
-		CodeQueue_cons(local, code, EXECUTE_CONTROL_SET, pos);
+		CodeQueue_cons(ptr, EXECUTE_CONTROL_SET, pos);
 }
 
-void code_make_single(LocalRoot local, addr code,
-		constindex set, constindex push)
+void code_make_single(CodeMake ptr, constindex set, constindex push)
 {
-	CheckTypeCodeQueue(code);
-	switch (code_queue_mode(code)) {
+	CheckTypeCodeQueue(ptr->code);
+	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			code_queue_single(local, code, set);
+			code_queue_single(ptr, set);
 			break;
 
 		case CodeQueue_ModePush:
-			code_queue_single(local, code, push);
+			code_queue_single(ptr, push);
 			break;
 
 		case CodeQueue_ModeRemove:
@@ -593,16 +621,16 @@ void code_make_single(LocalRoot local, addr code,
 	}
 }
 
-void code_make_object(LocalRoot local, addr code, addr value)
+void code_make_object(CodeMake ptr, addr value)
 {
-	CheckTypeCodeQueue(code);
-	switch (code_queue_mode(code)) {
+	CheckTypeCodeQueue(ptr->code);
+	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, SET, value);
+			CodeQueue_cons(ptr, SET, value);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, PUSH, value);
+			CodeQueue_cons(ptr, PUSH, value);
 			break;
 
 		case CodeQueue_ModeRemove:
@@ -615,39 +643,39 @@ void code_make_object(LocalRoot local, addr code, addr value)
 /*
  *  label
  */
-void code_queue_make_label(LocalRoot local, addr code, addr *ret)
+void code_queue_make_label(CodeMake ptr, addr *ret)
 {
-	struct code_queue *str = StructCodeQueue(code);
+	struct code_queue *str = StructCodeQueue(ptr->code);
 	index_heap(ret, str->label++);
 }
 
-void code_queue_push_label(LocalRoot local, addr code, addr label)
+void code_queue_push_label(CodeMake ptr, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
-	code_queue_add(local, code, label);
+	code_queue_add(ptr, label);
 }
 
-void code_queue_if_unbound(LocalRoot local, addr code, addr label)
+void code_queue_if_unbound(CodeMake ptr, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
-	CodeQueue_cons(local, code, IF_UNBOUND, label);
+	CodeQueue_cons(ptr, IF_UNBOUND, label);
 }
 
-void code_queue_if_nil(LocalRoot local, addr code, addr label)
+void code_queue_if_nil(CodeMake ptr, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
-	CodeQueue_cons(local, code, IF_NIL, label);
+	CodeQueue_cons(ptr, IF_NIL, label);
 }
 
-void code_queue_if_t(LocalRoot local, addr code, addr label)
+void code_queue_if_t(CodeMake ptr, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
-	CodeQueue_cons(local, code, IF_T, label);
+	CodeQueue_cons(ptr, IF_T, label);
 }
 
-void code_queue_goto(LocalRoot local, addr code, addr label)
+void code_queue_goto(CodeMake ptr, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
-	CodeQueue_cons(local, code, GOTO, label);
+	CodeQueue_cons(ptr, GOTO, label);
 }
 

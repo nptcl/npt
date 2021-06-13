@@ -1684,6 +1684,7 @@ lisp-code::deftype
 lisp-code::define-compiler-macro
 lisp-code::defun
 
+lisp-code::call-name
 lisp-code::call-result
 lisp-code::call-type
 lisp-code::call-key

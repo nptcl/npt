@@ -68,6 +68,7 @@ static void init_compile_typedef_write(void)
 	defwrite(define_compiler_macro);
 	defwrite(defun);
 
+	defwrite(call_name);
 	defwrite(call_result);
 	defwrite(call_type);
 	defwrite(call_key);
@@ -214,6 +215,7 @@ static void init_compile_typedef_read(void)
 	defread(define_compiler_macro, DEFINE_COMPILER_MACRO);
 	defread(defun, DEFUN);
 
+	defread(call_name, CALL_NAME);
 	defread(call_result, CALL_RESULT);
 	defread(call_type, CALL_TYPE);
 	defread(call_key, CALL_KEY);

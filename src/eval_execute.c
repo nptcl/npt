@@ -1,4 +1,3 @@
-#include "code_make.h"
 #include "compile_eval.h"
 #include "compile_file.h"
 #include "condition.h"
@@ -14,6 +13,7 @@
 #include "hold.h"
 #include "load_instance.h"
 #include "load_time_value.h"
+#include "make.h"
 #include "optimize_parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
@@ -64,7 +64,7 @@ static int eval_execute_scope_(Execute ptr, LocalHold hold, addr pos)
 
 	/* code */
 	localhold_set(hold, 0, pos);
-	code_make(ptr->local, &pos, pos);
+	Return(code_make_(ptr, &pos, pos));
 
 	/* execute */
 	localhold_set(hold, 0, pos);
@@ -353,7 +353,7 @@ static int eval_execute_value_(Execute ptr, addr value)
 
 	/* code */
 	localhold_set(hold, 0, pos);
-	code_make(ptr->local, &pos, pos);
+	Return(code_make_(ptr, &pos, pos));
 
 	/* close *parse-declare* */
 	set_parse_declare(ptr, Nil);

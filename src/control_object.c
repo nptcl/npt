@@ -487,6 +487,24 @@ void setdata_control(Execute ptr, addr value)
 	SetControl(ptr->control, Control_Data, value);
 }
 
+int getcall_control(Execute ptr, addr *ret)
+{
+	addr control, pos;
+
+	control = ptr->control;
+	while (control != Nil) {
+		GetControl(control, Control_Call, &pos);
+		if (pos != Nil) {
+			*ret = pos;
+			return 1;
+		}
+		GetControl(control, Control_Next, &control);
+	}
+
+	*ret = Nil;
+	return 0;
+}
+
 static int gettable_control(addr pos, constindex index, addr *ret)
 {
 	addr key;

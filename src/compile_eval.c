@@ -1,4 +1,3 @@
-#include "code_make.h"
 #include "compile_eval.h"
 #include "compile_write.h"
 #include "compile_file.h"
@@ -14,6 +13,7 @@
 #include "load_depend.h"
 #include "load_gensym.h"
 #include "load_time_value.h"
+#include "make.h"
 #include "optimize_parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
@@ -72,7 +72,7 @@ static int compile_eval_execute_call_(Execute ptr, addr pos, addr *rtype)
 
 	/* code */
 	localhold_set(hold, 0, pos);
-	code_make(ptr->local, &pos, pos);
+	Return(code_make_(ptr, &pos, pos));
 
 	/* close *parse-declare* */
 	set_parse_declare(ptr, Nil);
@@ -166,7 +166,7 @@ static int compile_eval_output_(Execute ptr)
 	Return(get_load_size_(ptr, &pos));
 	GetIndex(pos, &size);
 	if (size) {
-		code_make_load_alloc(ptr->local, &pos, pos);
+		code_make_load_alloc(ptr, &pos, pos);
 		localhold_set(hold, 0, pos);
 		Return(eval_compile_file(ptr, pos));
 		Return(compile_output_break_(ptr));
@@ -184,7 +184,7 @@ static int compile_gensym_output_(Execute ptr)
 	hold = LocalHold_array(ptr, 1);
 	Return(list_load_gensym_(ptr, &pos));
 	if (pos != Nil) {
-		code_make_load_gensym(ptr->local, &pos, pos);
+		code_make_load_gensym(ptr, &pos, pos);
 		localhold_set(hold, 0, pos);
 		Return(eval_compile_file(ptr, pos));
 		Return(compile_output_break_(ptr));

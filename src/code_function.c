@@ -511,6 +511,12 @@ int defun_code(Execute ptr, CodeValue x)
 /*
  *  call
  */
+int call_name_code(Execute ptr, CodeValue x)
+{
+	SetControl(ptr->control, Control_Call, x.pos);
+	return 0;
+}
+
 int call_result_code(Execute ptr, CodeValue x)
 {
 	getresult_control(ptr, &x.pos);

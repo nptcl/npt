@@ -1,12 +1,10 @@
 #include "code.h"
 #include "code_init.h"
-#include "code_make.h"
 #include "optimize_common.h"
 #include "typedef.h"
 
 void init_code(void)
 {
-	init_code_make();
 	init_code_init();
 	init_optimize_common();
 }

@@ -375,7 +375,7 @@ static int compile_depend_gather_(Execute ptr, addr code, addr *ret)
 static int compile_depend_set_(Execute ptr, addr stream, addr index)
 {
 	addr pos;
-	code_make_load_set(ptr->local, &pos, index);
+	code_make_load_set(ptr, &pos, index);
 	return faslwrite_value(ptr, stream, pos);
 }
 

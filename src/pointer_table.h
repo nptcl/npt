@@ -70,7 +70,7 @@ enum pointer_index {
 	p_define_compiler_macro_code,
 	p_defun_code,
 
-	p_call_code,
+	p_call_name_code,
 	p_call_result_code,
 	p_call_type_code,
 	p_call_key_code,
