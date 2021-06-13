@@ -2,11 +2,11 @@
 #define __SCOPE_LET_HEADER__
 
 #include "execute.h"
+#include "scope_typedef.h"
 #include "typedef.h"
 
 #define scope_init_let _n(scope_init_let)
 #define check_scope_variable_ _n(check_scope_variable_)
-#define type_and_array _n(type_and_array)
 #define push_tablevalue_global_ _n(push_tablevalue_global_)
 #define push_tablevalue_special_global_ _n(push_tablevalue_special_global_)
 #define checktype_p_ _n(checktype_p_)
@@ -17,13 +17,8 @@
 #define ifdeclvalue_ _n(ifdeclvalue_)
 #define scope_leta_call _n(scope_leta_call)
 
-struct let_struct {
-	addr stack, args, decl, doc, cons, free, the, allocate;
-};
-
 void scope_init_let(struct let_struct *str);
 int check_scope_variable_(addr symbol);
-int type_and_array(LocalRoot local, addr cons, addr *ret);
 int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret);
 int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *ret);
 int checktype_p_(Execute ptr, addr left, addr right, int *check, int *err);

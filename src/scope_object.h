@@ -5,6 +5,7 @@
 #include "execute.h"
 #include "hold.h"
 #include "parse.h"
+#include "scope_typedef.h"
 #include "typedef.h"
 
 #define eval_scope_heap_ _n(eval_scope_heap_)
@@ -29,35 +30,6 @@
 #define localhold_scope_eval _n(localhold_scope_eval)
 #define localhold_scope_allcons _n(localhold_scope_allcons)
 #define scope_eval_lexical _n(scope_eval_lexical)
-
-enum EVAL_SCOPE {
-	EVAL_SCOPE_THE,
-	EVAL_SCOPE_VALUE,
-	EVAL_SCOPE_SIZE
-};
-
-enum EvalLambda_Index {
-	EvalLambda_Call,
-	EvalLambda_Table,
-	EvalLambda_Args,
-	EvalLambda_Decl,
-	EvalLambda_Doc,
-	EvalLambda_Cons,
-	EvalLambda_Clos,
-	EvalLambda_The,
-	EvalLambda_Free,
-	EvalLambda_Form,
-	EvalLambda_Defun,
-	EvalLambda_Code,
-	EvalLambda_Self,
-	EvalLambda_Lexical,
-	EvalLambda_Size
-};
-
-struct scope_struct {
-	EvalParse type;
-	OptimizeType optimize[EVAL_OPTIMIZE_SIZE];
-};
 
 #define StructEvalScope_Low(x)			((struct scope_struct *)PtrEvalBodyAny(x))
 #define RefEvalScopeType_Low(x)			(StructEvalScope(x)->type)

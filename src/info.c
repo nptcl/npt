@@ -25,6 +25,7 @@
 #include "stream.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_object.h"
 
 #define INFO_STREAM		stdout
 #define INFO_DEPTH		20
@@ -603,6 +604,13 @@ void infoprint_once(addr pos, const char *name)
 	/* close */
 	InfoStream = backup;
 	fclose(file);
+}
+
+void infotype(addr pos)
+{
+	if (type_object_(&pos, pos))
+		Abort("escape error.");
+	infoprint(pos);
 }
 
 

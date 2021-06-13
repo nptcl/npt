@@ -3,8 +3,8 @@
 #include "gc.h"
 #include "load_time_value.h"
 #include "scope.h"
-#include "scope_function.h"
 #include "scope_object.h"
+#include "scope_table.h"
 
 static int eval_scope_call_(Execute ptr, addr *ret, addr eval)
 {

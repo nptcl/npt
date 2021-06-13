@@ -4,16 +4,15 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define scope_progn _n(scope_progn)
-#define scope_locally _n(scope_locally)
-#define scope_eval_when _n(scope_eval_when)
-#define init_scope_function _n(init_scope_function)
+#define make_tablefunction_stack _n(make_tablefunction_stack)
+#define update_tablefunction_ _n(update_tablefunction_)
+#define push_tablefunction_global_ _n(push_tablefunction_global_)
+#define scope_function_call_ _n(scope_function_call_)
 
-int scope_progn(Execute ptr, addr *ret, addr eval);
-int scope_locally(Execute ptr, addr *ret, addr eval);
-int scope_eval_when(Execute ptr, addr *ret, addr eval);
-
-void init_scope_function(void);
+int make_tablefunction_stack(Execute ptr, addr *ret, addr stack, addr call);
+int update_tablefunction_(Execute ptr, addr stack, addr pos);
+int push_tablefunction_global_(Execute ptr, addr stack, addr call, addr *ret);
+int scope_function_call_(Execute ptr, addr *ret, addr eval);
 
 #endif
 

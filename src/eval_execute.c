@@ -333,14 +333,15 @@ static int eval_toplevel_symbol_macrolet_(Execute ptr, addr list)
 
 
 /* value */
-static int eval_execute_value_(Execute ptr, addr pos)
+static int eval_execute_value_(Execute ptr, addr value)
 {
+	addr pos;
 	LocalHold hold;
 
 	/* parse */
-	hold = LocalHold_array(ptr, 1);
-	localhold_set(hold, 0, pos);
-	Return(parse_execute_(ptr, &pos, pos));
+	hold = LocalHold_array(ptr, 2);
+	localhold_set(hold, 1, value);
+	Return(parse_execute_(ptr, &pos, value));
 
 	/* optimize */
 	localhold_set(hold, 0, pos);

@@ -833,10 +833,7 @@
 
 (deftest declaration-ftype.3
   (labels ((aaa () :hello))
-    (declare (ftype (or (function (integer))
-                        (function (string) integer)
-                        (function ()))
-                    aaa))
+    (declare (ftype (function () symbol) aaa))
     (aaa))
   :hello)
 

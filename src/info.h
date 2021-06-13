@@ -17,6 +17,7 @@
 #define infoprint_once _n(infoprint_once)
 #define infoerror _n(infoerror)
 #define infosystem _n(infosystem)
+#define infotype _n(infotype)
 
 void info(const char *, ...);
 void info_noeol(const char *, ...);
@@ -27,6 +28,7 @@ void infoprint_noeol(addr pos);
 void infoprint_once(addr pos, const char *name);
 void infoerror(const char *, int, const char *, const char *, ...);
 void infosystem(void);
+void infotype(addr pos);
 
 #endif
 

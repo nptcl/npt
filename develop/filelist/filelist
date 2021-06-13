@@ -318,10 +318,12 @@ rt.c
 scope_call.c
 scope_check.c
 scope_declare.c
+scope_defun.c
 scope_function.c
 scope_lambda.c
 scope_let.c
 scope_object.c
+scope_table.c
 scope.c
 sequence_iterator.c
 sequence_range.c

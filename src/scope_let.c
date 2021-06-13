@@ -299,7 +299,7 @@ final:
 	return 0;
 }
 
-int type_and_array(LocalRoot local, addr cons, addr *ret)
+static int type_and_array(addr cons, addr *ret)
 {
 	addr array, type, pos;
 	size_t size;
@@ -319,21 +319,21 @@ int type_and_array(LocalRoot local, addr cons, addr *ret)
 	}
 	if (size == 1) {
 		CheckType(type, LISPTYPE_TYPE);
-		copylocal_object(local, ret, type);
+		copylocal_object(NULL, ret, type);
 		return 0;
 	}
 
 	/* type-and */
-	vector4_alloc(local, &array, size);
+	vector4_heap(&array, size);
 	for (size = 0; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
 		CheckType(pos, LISPTYPE_TYPE);
 		if (! type_astert_p(pos)) {
-			copylocal_object(local, &pos, pos);
+			copylocal_object(NULL, &pos, pos);
 			SetArrayA4(array, size++, pos);
 		}
 	}
-	type1_alloc(local, LISPDECL_AND, array, ret);
+	type1_heap(LISPDECL_AND, array, ret);
 	return 0;
 }
 
@@ -349,7 +349,7 @@ static int update_tablevalue_(Execute ptr, addr stack, addr pos)
 	dynamic = dynamic_tablevalue(stack, name);
 	ignore = ignore_tablevalue(stack, name);
 	Return(type_tablevalue_(ptr, NULL, stack, name, specialp, &type));
-	if (type_and_array(NULL, type, &type))
+	if (type_and_array(type, &type))
 		GetTypeTable(&type, Asterisk);
 	Check(type == Nil, "type error");
 
@@ -373,7 +373,7 @@ int push_tablevalue_global_(Execute ptr, addr stack, addr symbol, addr *ret)
 	dynamic = dynamic_tablevalue(stack, symbol);
 	ignore = ignore_tablevalue(stack, symbol);
 	Return(type_tablevalue_(ptr, NULL, stack, symbol, specialp, &type));
-	if (type_and_array(NULL, type, &type))
+	if (type_and_array(type, &type))
 		GetTypeTable(&type, Asterisk);
 	Check(type == Nil, "type error");
 
@@ -393,7 +393,7 @@ int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *
 
 	/* scope */
 	Return(type_tablevalue_(ptr, NULL, stack, symbol, 1, &type));
-	if (type_and_array(NULL, type, &type))
+	if (type_and_array(type, &type))
 		GetTypeTable(&type, Asterisk);
 	Check(type == Nil, "type error");
 

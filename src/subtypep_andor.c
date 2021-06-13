@@ -4,17 +4,6 @@
 #include "type_table.h"
 #include "typedef.h"
 
-#if 0
-#include "type_object.h"
-static void infotype(addr pos)
-{
-	if (type_object_(&pos, pos))
-		Abort("escape error.");
-	infoprint(pos);
-}
-#endif
-
-
 /*
  *  reduce
  */

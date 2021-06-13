@@ -2,7 +2,7 @@
 #define __SCOPE_CALL_HEADER__
 
 #include "execute.h"
-#include "scope_let.h"
+#include "scope_typedef.h"
 #include "typedef.h"
 
 #define scope_symbol_call _n(scope_symbol_call)
@@ -17,10 +17,6 @@
 #define scope_init_mvbind _n(scope_init_mvbind)
 #define scope_multiple_value_bind_call _n(scope_multiple_value_bind_call)
 #define scope_multiple_value_call_call _n(scope_multiple_value_call_call)
-
-struct mvbind_struct {
-	addr stack, args, decl, doc, cons, free, the, expr, allocate;
-};
 
 int scope_symbol_call(Execute ptr, addr *ret, addr eval);
 int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type);

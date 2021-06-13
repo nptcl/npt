@@ -7,9 +7,9 @@
 #include "eval_table.h"
 #include "heap.h"
 #include "parse_object.h"
-#include "scope_function.h"
 #include "scope_lambda.h"
 #include "scope_object.h"
+#include "scope_table.h"
 #include "symbol.h"
 #include "type_value.h"
 

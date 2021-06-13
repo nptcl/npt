@@ -23,18 +23,22 @@
  */
 int pop_code(Execute ptr, CodeValue x)
 {
-	Return(popargs_control_(ptr, &x.pos));
-	if (x.pos == Unbound)
+	addr pos;
+
+	Return(popargs_control_(ptr, &pos));
+	if (pos == Unbound)
 		return fmte_("Too few argument.", NULL);
-	setresult_control(ptr, x.pos);
+	setresult_control(ptr, pos);
 
 	return 0;
 }
 
 int pop_unbound_code(Execute ptr, CodeValue x)
 {
-	Return(popargs_control_(ptr, &x.pos));
-	setresult_control(ptr, x.pos);
+	addr pos;
+
+	Return(popargs_control_(ptr, &pos));
+	setresult_control(ptr, pos);
 
 	return 0;
 }

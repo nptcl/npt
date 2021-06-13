@@ -7,7 +7,9 @@
 #include "hold.h"
 #include "parse_object.h"
 #include "scope_check.h"
+#include "scope_function.h"
 #include "scope_lambda.h"
+#include "scope_let.h"
 #include "scope_object.h"
 #include "type.h"
 #include "type_function.h"
@@ -21,10 +23,10 @@ static int scope_call_first(Execute ptr, addr *ret, addr first)
 {
 	switch (RefEvalParseType(first)) {
 		case EVAL_PARSE_FUNCTION:
-			return scope_function_call(ptr, ret, first);
+			return scope_function_call_(ptr, ret, first);
 
 		case EVAL_PARSE_LAMBDA:
-			return scope_lambda_call(ptr, ret, first);
+			return scope_lambda_call_(ptr, ret, first);
 
 		default:
 			*ret = Nil;

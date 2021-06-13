@@ -13,6 +13,7 @@
 #include "parse_object.h"
 #include "scope_call.h"
 #include "scope_declare.h"
+#include "scope_let.h"
 #include "scope_object.h"
 #include "subtypep.h"
 #include "symbol.h"
