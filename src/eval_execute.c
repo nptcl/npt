@@ -83,11 +83,12 @@ static int eval_execute_parse_(Execute ptr, addr pos)
 	return 0;
 }
 
-static int eval_execute_(Execute ptr, addr pos)
+static int eval_execute_(Execute ptr, addr pos, addr compiler_macro)
 {
 	addr control;
 
 	push_control(ptr, &control);
+	push_enable_compiler_macro(ptr, compiler_macro);
 	(void)eval_execute_parse_(ptr, pos);
 	return pop_control_(ptr, control);
 }
@@ -99,7 +100,7 @@ static int eval_execute_(Execute ptr, addr pos)
 static int eval_result_partial_call_(Execute ptr, LocalHold hold, addr pos, addr *ret)
 {
 	localhold_set(hold, 0, pos);
-	Return(eval_execute_(ptr, pos));
+	Return(eval_execute_(ptr, pos, Nil));
 	getresult_control(ptr, ret);
 	localhold_set(hold, 1, *ret);
 
@@ -141,6 +142,20 @@ int eval_result_partial_form_(Execute ptr, addr pos, addr *ret)
 
 	begin_eval(ptr, &control);
 	(void)eval_result_partial_form_call_(ptr, pos, ret);
+	return pop_control_(ptr, control);
+}
+
+int eval_result_compile_(Execute ptr, addr pos, addr *ret)
+{
+	addr control;
+
+	begin_eval(ptr, &control);
+	set_eval_compile_mode(ptr, Nil); /* Don't run compile mode. */
+	gchold_push_special(ptr, pos);
+	if (eval_execute_(ptr, pos, T))
+		goto escape;
+	getresult_control(ptr, ret);
+escape:
 	return pop_control_(ptr, control);
 }
 
@@ -376,49 +391,16 @@ static int eval_toplevel_value_(Execute ptr, addr pos)
 
 
 /* toplevel */
-static int eval_toplevel_macro_(Execute ptr, addr call, addr cons)
-{
-	addr env, pos;
-	LocalHold hold;
-
-	/* macroexpand */
-	Return(environment_heap_(ptr, &env));
-	hold = LocalHold_local_push(ptr, env);
-	Return(call_macroexpand_hook_(ptr, &pos, call, cons, env));
-	close_environment(env);
-	localhold_end(hold);
-
-	/* execute */
-	Return(parse_macro_compile_(ptr, cons, pos, &pos));
-	return eval_toplevel_execute_(ptr, pos);
-}
-
-static int eval_toplevel_compiler_macro_(Execute ptr, addr call, addr cons)
-{
-	int check;
-	addr env, pos;
-	LocalHold hold;
-
-	Return(environment_heap_(ptr, &env));
-	hold = LocalHold_local_push(ptr, env);
-	Return(call_macroexpand_hook_(ptr, &pos, call, cons, env));
-	close_environment(env);
-	localhold_end(hold);
-
-	/* equal */
-	Return(equal_function_(cons, pos, &check));
-	if (check)
-		return eval_toplevel_value_(ptr, cons);
-
-	Return(parse_macro_compile_(ptr, cons, pos, &pos));
-	return eval_toplevel_execute_(ptr, pos);
-}
-
 static int eval_toplevel_cons_(Execute ptr, addr cons)
 {
 	addr car, cdr, check;
 
 	GetCons(cons, &car, &cdr);
+
+	/* macro */
+	Return(parse_macroexpand_(ptr, &check, cons));
+	if (check != Unbound)
+		return eval_toplevel_execute_(ptr, check);
 
 	/* progn */
 	GetConst(COMMON_PROGN, &check);
@@ -444,15 +426,6 @@ static int eval_toplevel_cons_(Execute ptr, addr cons)
 	GetConst(COMMON_SYMBOL_MACROLET, &check);
 	if (car == check)
 		return eval_toplevel_symbol_macrolet_(ptr, cdr);
-
-	/* compiler-macro */
-	if (parse_compiler_macro_p(ptr, &car, cons))
-		return eval_toplevel_compiler_macro_(ptr, car, cons);
-
-	/* macro */
-	Return(parse_cons_check_macro_(ptr, car, &check));
-	if (check != Unbound)
-		return eval_toplevel_macro_(ptr, check, cons);
 
 	/* function */
 	return eval_toplevel_value_(ptr, cons);

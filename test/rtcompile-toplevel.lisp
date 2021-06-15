@@ -466,3 +466,25 @@
       nil))
   nil)
 
+
+;;
+;;  shadow define-compiler-macro
+;;
+(deftest shadow-define-compiler-macro.1
+  (progn
+    (define-compiler-macro shadow-define-compiler-macro-1 ()
+      :aaa)
+    (macrolet ((shadow-define-compiler-macro-1 () :bbb))
+      (shadow-define-compiler-macro-1)))
+  :bbb)
+
+(deftest shadow-define-compiler-macro.2
+  (progn
+    (define-compiler-macro shadow-define-compiler-macro-2 ()
+      :aaa)
+    (funcall
+      (compile nil
+               '(lambda () (macrolet ((shadow-define-compiler-macro-2 () :bbb))
+                             (shadow-define-compiler-macro-2))))))
+  :bbb)
+

@@ -809,7 +809,7 @@ static int code_lambda_body_(CodeMake ptr, addr scope)
 }
 
 /* closure */
-static void code_lambda_closure_table(addr pos, addr *ret)
+static int code_lambda_closure_table_(addr pos, addr *ret)
 {
 	enum EvalTable type;
 	addr x, y, z;
@@ -840,9 +840,8 @@ static void code_lambda_closure_table(addr pos, addr *ret)
 			break;
 
 		default:
-			Abort("Invalid eval-table type.");
-			*ret = 0;
-			return;
+			*ret = Nil;
+			return fmte_("Invalid eval-table type.", NULL);
 	}
 
 	/* result */
@@ -850,19 +849,23 @@ static void code_lambda_closure_table(addr pos, addr *ret)
 	index_heap(&y, src);
 	index_heap(&z, dst);
 	list_heap(ret, x, y, z, NULL);
+
+	return 0;
 }
 
-static void code_lambda_closure_list(addr list, addr *ret)
+static int code_lambda_closure_list_(addr list, addr *ret)
 {
 	addr root, pos;
 
 	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		code_lambda_closure_table(pos, &pos);
+		Return(code_lambda_closure_table_(pos, &pos));
 		cons_heap(&root, pos, root);
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
 static void code_lambda_self(addr scope, addr *ret)
@@ -882,13 +885,13 @@ static void code_lambda_self(addr scope, addr *ret)
 	}
 }
 
-static void code_lambda_closure(addr scope, addr *ret)
+static int code_lambda_closure_(addr scope, addr *ret)
 {
 	addr list, pos;
 
 	/* closure */
 	GetEvalScopeIndex(scope, EvalLambda_Clos, &list);
-	code_lambda_closure_list(list, &list);
+	Return(code_lambda_closure_list_(list, &list));
 
 	/* self */
 	code_lambda_self(scope, &pos);
@@ -896,10 +899,10 @@ static void code_lambda_closure(addr scope, addr *ret)
 		cons_heap(&list, pos, list);
 
 	/* result */
-	*ret = list;
+	return Result(ret, list);
 }
 
-static void code_lambda_info(CodeMake ptr, addr scope)
+static int code_lambda_info_(CodeMake ptr, addr scope)
 {
 	addr pos;
 
@@ -929,9 +932,11 @@ static void code_lambda_info(CodeMake ptr, addr scope)
 		CodeQueue_cons(ptr, LAMBDA_DEFUN, pos);
 
 	/* closure */
-	code_lambda_closure(scope, &pos);
+	Return(code_lambda_closure_(scope, &pos));
 	if (pos != Nil)
 		CodeQueue_cons(ptr, LAMBDA_CLOSURE, pos);
+
+	return 0;
 }
 
 static int code_lambda_function_(CodeMake ptr, addr scope)
@@ -944,31 +949,32 @@ static int code_lambda_function_(CodeMake ptr, addr scope)
 	Return(code_lambda_body_(ptr, scope));
 	code_queue_pop(ptr, &pos);
 	CodeQueue_cons(ptr, LAMBDA, pos);
-	code_lambda_info(ptr, scope);
+	Return(code_lambda_info_(ptr, scope));
 	code_queue_ifpush(ptr);
 
 	return 0;
 }
 
-static int code_make_lambda_cache_p(addr scope)
+static int code_make_lambda_cache_p_(addr scope, int *ret)
 {
 	OptimizeType value;
 	struct scope_struct *str;
 	addr pos;
 
 	/* closure */
-	code_lambda_closure(scope, &pos);
+	Return(code_lambda_closure_(scope, &pos));
 	if (pos != Nil)
-		return 0;
+		return Result(ret, 0);
 
 	/* optimize */
 	str = StructEvalScope(scope);
 	value = str->optimize[EVAL_OPTIMIZE_SPEED];
-	return value < 0 || 1 <= value;
+	return Result(ret, value < 0 || 1 <= value);
 }
 
 int code_make_lambda_(CodeMake ptr, addr scope)
 {
+	int check;
 	addr gensym, label;
 	modeswitch mode;
 
@@ -977,7 +983,8 @@ int code_make_lambda_(CodeMake ptr, addr scope)
 		return 0;
 
 	/* closure check */
-	if (! code_make_lambda_cache_p(scope))
+	Return(code_make_lambda_cache_p_(scope, &check));
+	if (! check)
 		return code_lambda_function_(ptr, scope);
 
 	/* cache */
@@ -1278,7 +1285,7 @@ static int code_macro_function_(CodeMake ptr, addr scope)
 	Return(code_lambda_body_(ptr, scope));
 	code_queue_pop(ptr, &pos);
 	CodeQueue_cons(ptr, MACRO, pos);
-	code_lambda_info(ptr, scope);
+	Return(code_lambda_info_(ptr, scope));
 	code_queue_ifpush(ptr);
 
 	return 0;
@@ -1444,7 +1451,7 @@ static int code_lambda_labels_(CodeMake ptr, addr index, addr scope)
 	Return(code_lambda_body_(ptr, scope));
 	code_queue_pop(ptr, &pos);
 	CodeQueue_double(ptr, LABELS_LAMBDA, index, pos);
-	code_lambda_info(ptr, scope);
+	Return(code_lambda_info_(ptr, scope));
 	code_queue_ifpush(ptr);
 
 	code_queue_rollback(ptr, &mode);

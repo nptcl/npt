@@ -565,6 +565,7 @@ static int scope_macro_lambda_heap_(Execute ptr, struct lambda_struct *str, addr
 	addr eval;
 
 	Return(eval_scope_size_(ptr, &eval, EvalLambda_Size, str->eval, str->the, Nil));
+	SetEvalScopeIndex(eval, EvalLambda_Call, str->call);
 	SetEvalScopeIndex(eval, EvalLambda_Args, str->args);
 	SetEvalScopeIndex(eval, EvalLambda_Decl, str->decl);
 	SetEvalScopeIndex(eval, EvalLambda_Doc, str->doc);

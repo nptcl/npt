@@ -241,3 +241,29 @@ int add_parse_declare_(Execute ptr, addr value, addr *ret)
 	return 0;
 }
 
+
+/*
+ *  compiler-macro
+ */
+static void enable_compiler_macro_symbol(addr *ret)
+{
+	GetConst(SYSTEM_ENABLE_COMPILER_MACRO, ret);
+}
+
+void push_enable_compiler_macro(Execute ptr, addr value)
+{
+	addr symbol;
+	enable_compiler_macro_symbol(&symbol);
+	pushspecial_control(ptr, symbol, value);
+}
+
+int enable_compiler_macro_p(Execute ptr)
+{
+	addr pos;
+
+	enable_compiler_macro_symbol(&pos);
+	getspecial_local(ptr, pos, &pos);
+
+	return pos != Unbound && pos != Nil;
+}
+

@@ -31,7 +31,7 @@ int pop_code(Execute ptr, CodeValue x)
 		if (callnamep(pos))
 			name_callname_heap(pos, &pos);
 		return fmte_("Too few argument at ~S arguments.", pos, NULL);
-}
+	}
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -113,32 +113,46 @@ int allow_other_keys_code(Execute ptr, CodeValue x)
 
 static int rest_keys_code(Execute ptr)
 {
-	addr list, x;
+	addr list, x, pos;
+	const char *str;
 
 	GetArgsControl(ptr, &list);
 	while (list != Nil) {
 		Return_getcons(list, &x, &list);
-		if (! symbolp(x))
-			return fmte_("The key name ~S must be a symbol type.", x, NULL);
-		if (! consp_getcdr(list, &list))
-			return fmte_("There is no value in the ~S &key argument.", x, NULL);
+		if (! symbolp(x)) {
+			str = "The key name ~S must be a symbol type at ~S.";
+			goto error;
+		}
+		if (! consp_getcdr(list, &list)) {
+			str = "There is no value in the ~S &key argument at ~S.";
+			goto error;
+		}
 		Return_getcons(list, &x, &list);
 	}
-
 	return 0;
+
+error:
+	(void)getcall_control(ptr, &pos);
+	if (callnamep(pos))
+		name_callname_heap(pos, &pos);
+	return fmte_(str, x, pos, NULL);
 }
 
 int rest_null_code(Execute ptr, CodeValue x)
 {
-	addr list;
+	addr list, pos;
 
 	if (x.pos != Nil)
 		return rest_keys_code(ptr);
 
 	/* rest-null */
 	GetArgsControl(ptr, &list);
-	if (list != Nil)
-		return fmte_("Too many arguments.", NULL);
+	if (list != Nil) {
+		(void)getcall_control(ptr, &pos);
+		if (callnamep(pos))
+			name_callname_heap(pos, &pos);
+		return fmte_("Too many argument at ~S arguments.", pos, NULL);
+	}
 
 	return 0;
 }

@@ -2035,10 +2035,18 @@ static int WriteBody_function_(Execute ptr, addr stream, addr pos)
 
 	/* type */
 	str = StructFunction(pos);
-	if (str->compiled)
-		name = "COMPILED-FUNCTION ";
-	else
-		name = "FUNCTION ";
+	if (str->macro) {
+		if (str->compiled)
+			name = "COMPILED-MACRO-FUNCTION ";
+		else
+			name = "MACRO-FUNCTION ";
+	}
+	else {
+		if (str->compiled)
+			name = "COMPILED-FUNCTION ";
+		else
+			name = "FUNCTION ";
+	}
 	Return(print_ascii_stream_(stream, name));
 
 	/* name */

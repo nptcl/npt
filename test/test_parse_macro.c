@@ -59,7 +59,6 @@ static int test_findstack_environment(void)
 
 	RETURN;
 }
-#endif
 
 static int test_check_macro_function(void)
 {
@@ -102,6 +101,7 @@ static int test_check_macro_function(void)
 
 	RETURN;
 }
+#endif
 
 static int test_call_macroexpand_hook_function(Execute ptr,
 		addr call, addr form, addr env)
@@ -138,7 +138,7 @@ static int test_call_macroexpand_hook(void)
 static int testcase_parse_macro(void)
 {
 	/* TestBreak(test_findstack_environment); */
-	TestBreak(test_check_macro_function);
+	/* TestBreak(test_check_macro_function); */
 	TestBreak(test_call_macroexpand_hook);
 
 	return 0;

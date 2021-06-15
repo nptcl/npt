@@ -217,7 +217,7 @@ static int compile_lambda(Execute ptr, addr opt, addr *ret)
 	}
 	if (compile_lambda_p(opt)) {
 		Return(compile_warning_implementation());
-		Return(eval_result_partial_form_(ptr, opt, &opt));
+		Return(eval_result_compile_(ptr, opt, &opt));
 		return Result(ret, opt);
 	}
 
@@ -240,7 +240,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 		Return(compile_warning_implementation());
 		hold = LocalHold_local(ptr);
 		localhold_pushva_force(hold, call, opt, NULL);
-		Return(eval_result_partial_form_(ptr, opt, &opt));
+		Return(eval_result_compile_(ptr, opt, &opt));
 		localhold_end(hold);
 		Return(setglobal_callname_(call, opt));
 		return Result(ret, var);

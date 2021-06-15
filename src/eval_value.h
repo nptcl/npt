@@ -29,6 +29,8 @@
 #define get_nocheck_parse_declare _n(get_nocheck_parse_declare)
 #define set_parse_declare _n(set_parse_declare)
 #define add_parse_declare_ _n(add_parse_declare_)
+#define push_enable_compiler_macro _n(push_enable_compiler_macro)
+#define enable_compiler_macro_p _n(enable_compiler_macro_p)
 
 int get_toplevel_eval_(Execute ptr, addr *ret);
 void set_toplevel_eval(Execute ptr, addr value);
@@ -60,6 +62,9 @@ int get_parse_declare_(Execute ptr, addr *ret);
 void get_nocheck_parse_declare(Execute ptr, addr *ret);
 void set_parse_declare(Execute ptr, addr value);
 int add_parse_declare_(Execute ptr, addr value, addr *ret);
+
+void push_enable_compiler_macro(Execute ptr, addr value);
+int enable_compiler_macro_p(Execute ptr);
 
 #endif
 

@@ -433,6 +433,16 @@ int apply_control(Execute ptr, addr call, addr list)
 	return pop_control_(ptr, control);
 }
 
+int apply_named_control(Execute ptr, addr call, addr list)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	SetControl(control, Control_Call, call);
+	(void)apply_no_control_(ptr, call, list);
+	return pop_control_(ptr, control);
+}
+
 int applya_control(Execute ptr, addr call, ...)
 {
 	addr control, list;

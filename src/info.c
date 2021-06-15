@@ -250,7 +250,7 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 {
 	switch (type) {
 		case EVAL_PARSE_EMPTY:					return "empty";
-		/* constant */
+												/* constant */
 		case EVAL_PARSE_NIL:					return "nil";
 		case EVAL_PARSE_T:						return "t";
 		case EVAL_PARSE_CLOS:					return "clos";
@@ -270,7 +270,7 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 		case EVAL_PARSE_RANDOM_STATE:			return "random-state";
 		case EVAL_PARSE_ENVIRONMENT:			return "environment";
 		case EVAL_PARSE_LEXICAL:				return "lexical";
-		/* cons */
+												/* cons */
 		case EVAL_PARSE_PROGN:					return "progn";
 		case EVAL_PARSE_LET:					return "let";
 		case EVAL_PARSE_LETA:					return "let*";
@@ -1179,6 +1179,10 @@ static void infobit_body(addr pos)
 
 static void infoprint_stream(addr pos, int depth)
 {
+	if (pos == NULL) {
+		info_stdarg("#<C:NULL>");
+		return;
+	}
 	depth++;
 	switch (info_gettype(pos)) {
 		case LISPTYPE_NIL: infoprint_nil(); break;

@@ -284,7 +284,7 @@ static void defspecial_macrolet(void)
 static int function_funcall(Execute ptr, addr call, addr args)
 {
 	Return(check_data_function(call, &call));
-	return apply_control(ptr, call, args);
+	return funcall_common_(ptr, call, args);
 }
 
 static void type_funcall(addr *ret)

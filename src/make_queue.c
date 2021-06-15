@@ -184,11 +184,11 @@ static void code_queue_add(CodeMake ptr, addr value)
 	local = ptr->local;
 	code = ptr->code;
 
-	CheckTypeCodeQueue(ptr->code);
+	CheckTypeCodeQueue(code);
 	Check(GetStatusDynamic(value), "dynamic error");
 	GetCodeQueue(code, CodeQueue_Code, &stack);
 	Check(stack == Nil, "stack error");
-	push_code_stack(ptr->local, stack, value);
+	push_code_stack(local, stack, value);
 }
 
 void code_queue_add2(CodeMake ptr, addr x, addr y)

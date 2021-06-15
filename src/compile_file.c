@@ -8,6 +8,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval_load.h"
+#include "eval_value.h"
 #include "file_open.h"
 #include "files.h"
 #include "function.h"
@@ -179,9 +180,8 @@ int handler_compile_(Execute ptr)
 {
 	addr pos, call;
 
-	/* *compiler-macro* */
-	GetConst(SYSTEM_COMPILER_MACRO, &pos);
-	pushspecial_control(ptr, pos, T);
+	/* enable-compiler-macro */
+	push_enable_compiler_macro(ptr, T);
 
 	/* compile-warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &pos);

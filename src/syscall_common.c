@@ -1449,15 +1449,6 @@ static void defun_trace_del(void)
 }
 
 
-/* (defvar lisp-system::*compiler-macro* nil) */
-static void defvar_compiler_macro(void)
-{
-	addr symbol;
-	GetConst(SYSTEM_COMPILER_MACRO, &symbol);
-	SetValueSymbol(symbol, Nil);
-}
-
-
 /* (defun with-compilation-unit (override args lambda) ...) -> any */
 static void type_syscall_with_compilation_unit(addr *ret)
 {
@@ -1651,7 +1642,6 @@ void build_syscall_common(void)
 	defvar_ed_function();
 	defun_trace_add();
 	defun_trace_del();
-	defvar_compiler_macro();
 	defun_with_compilation_unit();
 	defun_set_slots();
 	defun_intern_eql_specializer();

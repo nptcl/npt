@@ -5,6 +5,7 @@
 #include "typedef.h"
 
 #define apply_common_ _n(apply_common_)
+#define funcall_common_ _n(funcall_common_)
 #define defun_common _n(defun_common)
 #define fdefinition_common _n(fdefinition_common)
 #define setf_fdefinition_common _n(setf_fdefinition_common)
@@ -52,6 +53,7 @@
 #define rotatef_common _n(rotatef_common)
 
 int apply_common_(Execute ptr, addr call, addr arg, addr args);
+int funcall_common_(Execute ptr, addr call, addr args);
 int defun_common(Execute ptr, addr right, addr env, addr *ret);
 int fdefinition_common(Execute ptr, addr name, addr *ret);
 int setf_fdefinition_common(addr value, addr name);

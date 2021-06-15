@@ -281,7 +281,7 @@ static void copy_eval_macro_arguments(LocalRoot local, addr *ret, addr cons)
 static void copy_eval_macro_lambda(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr args, decl, doc, body;
+	addr args, decl, doc, body, call;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_MACRO_LAMBDA, "parse error");
@@ -289,17 +289,19 @@ static void copy_eval_macro_lambda(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &decl);
 	GetEvalParse(eval, 2, &doc);
 	GetEvalParse(eval, 3, &body);
+	GetEvalParse(eval, 4, &call);
 
 	copy_eval_macro_arguments(local, &args, args);
 	copy_eval_declaim_nil(local, &decl, decl);
 	copylocal_object(local, &doc, doc);
 	copy_eval_allcons(local, &body, body);
 
-	eval_parse_alloc(local, &eval, type, 4);
+	eval_parse_alloc(local, &eval, type, 5);
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, doc);
 	SetEvalParse(eval, 3, body);
+	SetEvalParse(eval, 4, call);
 	*ret = eval;
 }
 

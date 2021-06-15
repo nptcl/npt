@@ -20,11 +20,10 @@
 #define environment_heap_ _n(environment_heap_)
 #define copy_environment _n(copy_environment)
 #define close_environment _n(close_environment)
-#define parse_cons_check_macro_ _n(parse_cons_check_macro_)
 #define find_environment_ _n(find_environment_)
-#define call_macroexpand_hook_ _n(call_macroexpand_hook_)
 #define macroexpand1_ _n(macroexpand1_)
 #define macroexpand_ _n(macroexpand_)
+#define parse_macroexpand_ _n(parse_macroexpand_)
 
 void environment_symbol(addr *ret);
 void init_parse_environment(Execute ptr);
@@ -44,11 +43,10 @@ int environment_heap_(Execute ptr, addr *ret);
 void copy_environment(addr *ret, addr pos);
 void close_environment(addr pos);
 
-int parse_cons_check_macro_(Execute ptr, addr symbol, addr *ret);
 int find_environment_(addr symbol, addr env, addr *ret);
-int call_macroexpand_hook_(Execute ptr, addr *ret, addr call, addr cons, addr env);
 int macroexpand1_(Execute ptr, addr *ret, addr form, addr env, int *result);
 int macroexpand_(Execute ptr, addr *ret, addr form, addr env, int *result);
+int parse_macroexpand_(Execute ptr, addr *ret, addr form);
 
 #endif
 

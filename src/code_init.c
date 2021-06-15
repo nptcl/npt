@@ -144,7 +144,7 @@ void init_code_init(void)
 	initcode(getf_code, Addr);
 	initcode(rest_code, Null);
 	initcode(allow_other_keys_code, Addr);
-	initcode(rest_null_code, Null);
+	initcode(rest_null_code, Addr);
 	initcode(whole_code, Null);
 	initcode(lambda_code, Addr);
 	initcode(lambda_name_code, Addr);

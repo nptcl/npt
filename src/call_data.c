@@ -31,7 +31,16 @@
 int apply_common_(Execute ptr, addr call, addr arg, addr args)
 {
 	Return(lista_safe_local_(ptr->local, &args, arg, args));
-	return apply_control(ptr, call, args);
+	return apply_named_control(ptr, call, args);
+}
+
+
+/*
+ *  funcall
+ */
+int funcall_common_(Execute ptr, addr call, addr args)
+{
+	return apply_named_control(ptr, call, args);
 }
 
 

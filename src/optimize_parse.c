@@ -1522,7 +1522,7 @@ static int checkparse_defmacro_args_(OptimizeInfo *str, int *ret)
 static int optparse_defmacro_args_(OptimizeInfo *str, int *ret)
 {
 	int check;
-	addr pos, args, decl, doc, body;
+	addr pos, args, decl, doc, body, call;
 
 	Return_check_optparse(checkparse_defmacro_args_, str, ret);
 	pos = str->pos;
@@ -1530,15 +1530,17 @@ static int optparse_defmacro_args_(OptimizeInfo *str, int *ret)
 	GetEvalParse(pos, 1, &decl);
 	GetEvalParse(pos, 2, &doc);
 	GetEvalParse(pos, 3, &body);
+	GetEvalParse(pos, 4, &call);
 
 	Return(optparse_lambda_macro_(str, args, &args, &check));
 	if (! check)
 		return Result(ret, 0);
-	eval_parse_local(str->local, &pos, EVAL_PARSE_MACRO_LAMBDA, 4);
+	eval_parse_local(str->local, &pos, EVAL_PARSE_MACRO_LAMBDA, 5);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, doc);
 	SetEvalParse(pos, 3, body);
+	SetEvalParse(pos, 4, call);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -1564,7 +1566,7 @@ static int checkparse_defmacro_body_(OptimizeInfo *str, int *ret)
 static int optparse_defmacro_body_(OptimizeInfo *str, int *ret)
 {
 	int check;
-	addr pos, args, decl, doc, body;
+	addr pos, args, decl, doc, body, call;
 
 	Return_check_optparse(checkparse_defmacro_body_, str, ret);
 	pos = str->pos;
@@ -1572,15 +1574,17 @@ static int optparse_defmacro_body_(OptimizeInfo *str, int *ret)
 	GetEvalParse(pos, 1, &decl);
 	GetEvalParse(pos, 2, &doc);
 	GetEvalParse(pos, 3, &body);
+	GetEvalParse(pos, 4, &call);
 
 	Return(optparse_implicit_declare_(str, decl, body, &body, &check));
 	if (! check)
 		return Result(ret, 0);
-	eval_parse_local(str->local, &pos, EVAL_PARSE_MACRO_LAMBDA, 4);
+	eval_parse_local(str->local, &pos, EVAL_PARSE_MACRO_LAMBDA, 5);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, doc);
 	SetEvalParse(pos, 3, body);
+	SetEvalParse(pos, 4, call);
 	str->pos = pos;
 
 	return Result(ret, 1);

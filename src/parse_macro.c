@@ -1,10 +1,15 @@
 #include "callname.h"
+#include "compile_file.h"
 #include "condition.h"
+#include "cons.h"
 #include "constant.h"
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "equal.h"
+#include "eval_value.h"
 #include "heap.h"
+#include "hold.h"
 #include "parse_macro.h"
 #include "symbol.h"
 
@@ -426,38 +431,25 @@ static int closep_environment(addr pos)
 	return check == 0;
 }
 
-
-/*
- *  macroexpand
- */
-int parse_cons_check_macro_(Execute ptr, addr symbol, addr *ret)
+static int close_check_environment_(addr pos)
 {
-	addr root, list;
-
-	if (! symbolp(symbol))
-		return Result(ret, Unbound);
-	Return(getobject_envroot_(ptr, &root));
-	/* local */
-	getlocal_envroot(root, &list);
-	if (find_macro_environment(symbol, list, ret))
-		return 0;
-	/* global */
-	getglobal_envroot(root, &list);
-	if (find_macro_environment(symbol, list, ret))
-		return 0;
-	getmacro_symbol(symbol, ret);
+	CheckType(pos, LISPTYPE_ENVIRONMENT);
+	if (closep_environment(pos))
+		return fmte_("The environment object ~S is already closed.", pos, NULL);
 
 	return 0;
 }
 
+
+/*
+ *  macroexpand
+ */
 static int macroexpand1_symbol_find_(addr symbol, addr env, addr *ret)
 {
 	addr list;
 
 	if (env != Nil) {
-		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
-		if (closep_environment(env))
-			return fmte_("The environment object ~S is already closed.", env, NULL);
+		Return(close_check_environment_(env));
 		/* local */
 		getlocal_environment(env, &list);
 		if (find_symbol_environment(symbol, list, ret))
@@ -479,9 +471,7 @@ int find_environment_(addr symbol, addr env, addr *ret)
 	if (! symbolp(symbol))
 		return Result(ret, Unbound);
 	if (env != Nil) {
-		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
-		if (closep_environment(env))
-			return fmte_("The environment object ~S is already closed.", env, NULL);
+		Return(close_check_environment_(env));
 		/* local */
 		getlocal_environment(env, &list);
 		if (find_macro_environment(symbol, list, ret))
@@ -496,7 +486,8 @@ int find_environment_(addr symbol, addr env, addr *ret)
 	return 0;
 }
 
-int call_macroexpand_hook_(Execute ptr, addr *ret, addr call, addr cons, addr env)
+static int call_macroexpand_hook_(Execute ptr,
+		addr *ret, addr call, addr cons, addr env)
 {
 	addr hook;
 
@@ -547,7 +538,9 @@ int macroexpand_(Execute ptr, addr *ret, addr form, addr env, int *result)
 {
 	int check, value;
 	addr pos, fail;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	check = 0;
 	fail = form;
 	for (;;) {
@@ -556,9 +549,285 @@ int macroexpand_(Execute ptr, addr *ret, addr form, addr env, int *result)
 			break;
 		check = 1;
 		form = pos;
+		localhold_set(hold, 0, form);
 	}
+	localhold_end(hold);
 	*ret = check? pos: fail;
 	*result = check;
+
+	return 0;
+}
+
+
+/*
+ *  macro eval-when
+ */
+#define ParseMacroCompile(pos, x) { \
+	addr __check; \
+	GetConst(COMMON_##x, &__check); \
+	if (pos == __check) \
+	return 1; \
+}
+static int parse_macro_compile_symbol(addr pos)
+{
+	ParseMacroCompile(pos, DECLAIM);
+	ParseMacroCompile(pos, DEFCLASS);
+	ParseMacroCompile(pos, DEFINE_COMPILER_MACRO);
+	ParseMacroCompile(pos, DEFINE_CONDITION);
+	ParseMacroCompile(pos, DEFINE_MODIFY_MACRO);
+	ParseMacroCompile(pos, DEFINE_SETF_EXPANDER);
+	ParseMacroCompile(pos, DEFMACRO);
+	ParseMacroCompile(pos, DEFPACKAGE);
+	ParseMacroCompile(pos, DEFSETF);
+	ParseMacroCompile(pos, DEFSTRUCT);
+	ParseMacroCompile(pos, DEFTYPE);
+	ParseMacroCompile(pos, IN_PACKAGE);
+
+	return 0;
+}
+
+static void parse_make_eval_when(addr compile, addr load, addr execute, addr *ret)
+{
+	addr list, key;
+
+	list = Nil;
+	if (compile != Nil) {
+		GetConst(KEYWORD_COMPILE_TOPLEVEL, &key);
+		cons_heap(&list, key, list);
+	}
+	if (load != Nil) {
+		GetConst(KEYWORD_LOAD_TOPLEVEL, &key);
+		cons_heap(&list, key, list);
+	}
+	if (execute != Nil) {
+		GetConst(KEYWORD_EXECUTE, &key);
+		cons_heap(&list, key, list);
+	}
+
+	*ret = list;
+}
+
+static int parse_macro_eval_when_(Execute ptr, addr expr, addr list, addr *ret)
+{
+	addr compile, load, exec, toplevel, mode, eval;
+
+	/* compile */
+	if (! eval_compile_p(ptr))
+		goto return_throw;
+
+	/* type */
+	if (! consp(expr))
+		goto return_throw;
+	GetCar(expr, &expr);
+	if (! parse_macro_compile_symbol(expr))
+		goto return_throw;
+
+	/* toplevel */
+	Return(get_toplevel_eval_(ptr, &toplevel));
+	if (toplevel == Nil)
+		goto return_throw;
+
+	/* :compile-toplevel */
+	Return(get_compile_toplevel_eval_(ptr, &compile));
+	if (compile != Nil)
+		goto return_throw;
+
+	/* compile-time-too */
+	Return(get_compile_time_eval_(ptr, &mode));
+	if (mode != Nil)
+		goto return_throw;
+
+	/* eval-when */
+	Return(get_load_toplevel_eval_(ptr, &load));
+	Return(get_execute_eval_(ptr, &exec));
+
+	/* `(eval-when (:compile-toplevel :load-toplevel :execute) ,@body) */
+	GetConst(COMMON_EVAL_WHEN, &eval);
+	parse_make_eval_when(compile, load, exec, &expr);
+	list_heap(&list, eval, expr, list, NULL);
+
+return_throw:
+	return Result(ret, list);
+}
+
+
+/*
+ *  parse-macroexpand
+ */
+static int parse_macroexpand_local_(Execute ptr, addr *ret, addr form, addr env)
+{
+	addr call, list;
+
+	/* environment */
+	if (env == Nil)
+		goto unbound;
+	Return(close_check_environment_(env));
+	getlocal_environment(env, &list);
+
+	/* local */
+	GetCar(form, &call);
+	if (! find_macro_environment(call, list, &call))
+		goto unbound;
+	if (call == Unbound)
+		goto unbound;
+
+	/* execute */
+	return call_macroexpand_hook_(ptr, ret, call, form, env);
+
+unbound:
+	return Result(ret, Unbound);
+}
+
+static int parse_macroexpand_compile_(Execute ptr, addr *ret, addr form, addr env)
+{
+	int check;
+	addr call;
+
+	/* *compiler-macro* */
+	if (! enable_compiler_macro_p(ptr))
+		goto unbound;
+
+	/* define-compiler-macro */
+	GetCar(form, &call);
+	get_compiler_macro_symbol(call, &call);
+	if (call == Nil)
+		goto unbound;
+
+	/* execute */
+	Return(call_macroexpand_hook_(ptr, &call, call, form, env));
+
+	/* equal check */
+	Return(equal_function_(form, call, &check));
+	if (check)
+		goto unbound;
+	return Result(ret, call);
+
+unbound:
+	return Result(ret, Unbound);
+}
+
+static int parse_macroexpand_global1_(Execute ptr, addr *ret, addr form, addr env)
+{
+	addr call, list;
+
+	/* environment */
+	if (env == Nil)
+		goto unbound;
+	Return(close_check_environment_(env));
+	getglobal_environment(env, &list);
+
+	/* global */
+	GetCar(form, &call);
+	if (! find_macro_environment(call, list, &call))
+		goto unbound;
+	if (call == Unbound)
+		goto unbound;
+
+	/* execute */
+	return call_macroexpand_hook_(ptr, ret, call, form, env);
+
+unbound:
+	return Result(ret, Unbound);
+}
+
+static int parse_macroexpand_global2_(Execute ptr, addr *ret, addr form, addr env)
+{
+	addr call;
+
+	GetCar(form, &call);
+	getmacro_symbol(call, &call);
+	if (call == Unbound)
+		return Result(ret, Unbound);
+
+	return call_macroexpand_hook_(ptr, ret, call, form, env);
+}
+
+static int parse_macroexpand_function_(Execute ptr, addr *ret, addr form, addr env)
+{
+	addr pos;
+
+	/* calltype */
+	GetCar(form, &pos);
+	if (! symbolp(pos))
+		return Result(ret, Unbound);
+
+	/* macrolet [env.local] */
+	Return(parse_macroexpand_local_(ptr, &pos, form, env));
+	if (pos != Unbound)
+		return Result(ret, pos);
+
+	/* define-compiler-macro */
+	Return(parse_macroexpand_compile_(ptr, &pos, form, env));
+	if (pos != Unbound)
+		return Result(ret, pos);
+
+	/* defmacro [env.global] */
+	Return(parse_macroexpand_global1_(ptr, &pos, form, env));
+	if (pos != Unbound)
+		return Result(ret, pos);
+
+	/* defmacro [symbol] */
+	return parse_macroexpand_global2_(ptr, ret, form, env);
+}
+
+static int parse_macroexpand_symbol_(Execute ptr, addr *ret, addr form, addr env)
+{
+	int check;
+	Return(macroexpand1_symbol_(ptr, &form, form, env, &check));
+	return Result(ret, check? form: Unbound);
+}
+
+static int parse_macroexpand1_call_(Execute ptr, addr *ret, addr form, addr env)
+{
+	if (symbolp(form))
+		return parse_macroexpand_symbol_(ptr, ret, form, env);
+	if (consp(form))
+		return parse_macroexpand_function_(ptr, ret, form, env);
+
+	return Result(ret, Unbound);
+}
+
+static int parse_macroexpand1_(Execute ptr, addr *ret, addr form, addr env)
+{
+	addr value;
+
+	Return(parse_macroexpand1_call_(ptr, &value, form, env));
+	if (value == Unbound)
+		return Result(ret, Unbound);
+
+	return parse_macro_eval_when_(ptr, form, value, ret);
+}
+
+static int parse_macroexpand_loop_(Execute ptr, addr *ret, addr form, addr env)
+{
+	int check;
+	addr pos;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	for (check = 0; ; check = 1) {
+		Return(parse_macroexpand1_(ptr, &pos, form, env));
+		if (pos == Unbound)
+			break;
+		form = pos;
+		localhold_set(hold, 0, form);
+	}
+	localhold_end(hold);
+
+	return Result(ret, check? form: Unbound);
+}
+
+int parse_macroexpand_(Execute ptr, addr *ret, addr form)
+{
+	addr env;
+	LocalHold hold;
+
+	/* macroexpand */
+	Return(environment_heap_(ptr, &env));
+	hold = LocalHold_local_push(ptr, env);
+	Return(parse_macroexpand_loop_(ptr, ret, form, env));
+	close_environment(env);
+	localhold_end(hold);
 
 	return 0;
 }

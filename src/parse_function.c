@@ -26,8 +26,6 @@
 #include "strtype.h"
 #include "symbol.h"
 
-static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons);
-
 /*
  *  declare
  */
@@ -584,15 +582,17 @@ static int parse_macro_lambda_list_(Execute ptr, addr *ret, addr args)
 }
 
 static int make_macro_function_(Execute ptr, addr *ret, addr *reval,
-		addr args, addr decl, addr doc, addr cons)
+		addr name, addr args, addr decl, addr doc, addr cons)
 {
-	addr eval;
+	addr eval, call;
 
-	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 4);
+	callname_heap(&call, name, CALLNAME_SYMBOL);
+	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 5);
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, doc);
 	SetEvalParse(eval, 3, cons);
+	SetEvalParse(eval, 4, call);
 	if (reval)
 		*reval = eval;
 
@@ -612,7 +612,7 @@ static int parse_defmacro_(Execute ptr, addr *ret, addr cons)
 	Return(parse_macro_lambda_list_(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(localhold_parse_allcons_(hold, ptr, &body, body));
-	Return(make_macro_function_(ptr, &lambda, &macro, args, decl, doc, body));
+	Return(make_macro_function_(ptr, &lambda, &macro, name, args, decl, doc, body));
 	localhold_push(hold, lambda);
 	localhold_push(hold, macro);
 	Return(defmacro_envstack_(ptr, name, lambda));
@@ -653,11 +653,12 @@ static int parse_macro_lambda_(Execute ptr, addr *ret, addr cons)
 	Return(rollback_envstack_(ptr, rollback));
 
 	/* macro-lambda */
-	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 4);
+	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 5);
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, doc);
 	SetEvalParse(eval, 3, cons);
+	SetEvalParse(eval, 4, Nil);
 
 	return Result(ret, eval);
 }
@@ -740,11 +741,13 @@ static int parse_destructuring_bind_(Execute ptr, addr *ret, addr cons)
 	Return(rollback_envstack_(ptr, rollback));
 
 	/* lambda */
-	eval_parse_heap(&lambda, EVAL_PARSE_MACRO_LAMBDA, 4);
+	eval_parse_heap(&lambda, EVAL_PARSE_MACRO_LAMBDA, 5);
 	SetEvalParse(lambda, 0, args);
 	SetEvalParse(lambda, 1, decl);
 	SetEvalParse(lambda, 2, Nil);
 	SetEvalParse(lambda, 3, body);
+	SetEvalParse(lambda, 4, Nil);
+
 	/* destructuring-bind */
 	eval_parse_heap(&eval, EVAL_PARSE_DESTRUCTURING_BIND, 2);
 	SetEvalParse(eval, 0, expr);
@@ -863,7 +866,7 @@ static int parse_macrolet_one_(Execute ptr, addr cons)
 	parse_implicit_block(&cons, name, cons);
 	localhold_push(hold, cons);
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
-	Return(make_macro_function_(ptr, &cons, NULL, args, decl, doc, cons));
+	Return(make_macro_function_(ptr, &cons, NULL, name, args, decl, doc, cons));
 	localhold_end(hold);
 	Return(rollback_envstack_(ptr, rollback));
 
@@ -1736,113 +1739,6 @@ static int parse_symbol_(Execute ptr, addr *ret, addr pos)
 	return 0;
 }
 
-/* macro */
-#define ParseMacroCompile(pos, x) { \
-	addr __check; \
-	GetConst(COMMON_##x, &__check); \
-	if (pos == __check) \
-	return 1; \
-}
-static int parse_macro_compile_symbol(addr pos)
-{
-	ParseMacroCompile(pos, DECLAIM);
-	ParseMacroCompile(pos, DEFCLASS);
-	ParseMacroCompile(pos, DEFINE_COMPILER_MACRO);
-	ParseMacroCompile(pos, DEFINE_CONDITION);
-	ParseMacroCompile(pos, DEFINE_MODIFY_MACRO);
-	ParseMacroCompile(pos, DEFINE_SETF_EXPANDER);
-	ParseMacroCompile(pos, DEFMACRO);
-	ParseMacroCompile(pos, DEFPACKAGE);
-	ParseMacroCompile(pos, DEFSETF);
-	ParseMacroCompile(pos, DEFSTRUCT);
-	ParseMacroCompile(pos, DEFTYPE);
-	ParseMacroCompile(pos, IN_PACKAGE);
-
-	return 0;
-}
-
-static void parse_make_eval_when(addr compile, addr load, addr execute, addr *ret)
-{
-	addr list, key;
-
-	list = Nil;
-	if (compile != Nil) {
-		GetConst(KEYWORD_COMPILE_TOPLEVEL, &key);
-		cons_heap(&list, key, list);
-	}
-	if (load != Nil) {
-		GetConst(KEYWORD_LOAD_TOPLEVEL, &key);
-		cons_heap(&list, key, list);
-	}
-	if (execute != Nil) {
-		GetConst(KEYWORD_EXECUTE, &key);
-		cons_heap(&list, key, list);
-	}
-
-	*ret = list;
-}
-
-int parse_macro_compile_(Execute ptr, addr expr, addr list, addr *ret)
-{
-	addr compile, load, exec, toplevel, mode, eval;
-
-	/* compile */
-	if (! eval_compile_p(ptr))
-		goto return_throw;
-
-	/* type */
-	if (! consp(expr))
-		goto return_throw;
-	GetCar(expr, &expr);
-	if (! parse_macro_compile_symbol(expr))
-		goto return_throw;
-
-	/* toplevel */
-	Return(get_toplevel_eval_(ptr, &toplevel));
-	if (toplevel == Nil)
-		goto return_throw;
-
-	/* :compile-toplevel */
-	Return(get_compile_toplevel_eval_(ptr, &compile));
-	if (compile != Nil)
-		goto return_throw;
-
-	/* compile-time-too */
-	Return(get_compile_time_eval_(ptr, &mode));
-	if (mode != Nil)
-		goto return_throw;
-
-	/* eval-when */
-	Return(get_load_toplevel_eval_(ptr, &load));
-	Return(get_execute_eval_(ptr, &exec));
-
-	/* `(eval-when (:compile-toplevel :load-toplevel :execute) ,@body) */
-	GetConst(COMMON_EVAL_WHEN, &eval);
-	parse_make_eval_when(compile, load, exec, &expr);
-	list_heap(&list, eval, expr, list, NULL);
-
-return_throw:
-	return Result(ret, list);
-}
-
-static int parse_macro_(Execute ptr, addr *ret, addr call, addr cons)
-{
-	addr env, value;
-	LocalHold hold;
-
-	/* macroexpand */
-	Return(environment_heap_(ptr, &env));
-	hold = LocalHold_local_push(ptr, env);
-	Return(call_macroexpand_hook_(ptr, &value, call, cons, env));
-	close_environment(env);
-	localhold_end(hold);
-
-	/* execute */
-	Return(parse_macro_compile_(ptr, cons, value, &value));
-	Return(parse_execute_(ptr, &value, value));
-	return Result(ret, value);
-}
-
 /* backquote */
 static int parse_backquote_(Execute ptr, addr *ret, addr pos)
 {
@@ -1861,11 +1757,33 @@ static int parse_cons_check_constant(addr call, constindex index)
 }
 #define ParseConsConstant(x, y) parse_cons_check_constant((x), CONSTANT_##y)
 
-static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
+static int parse_cons_(Execute ptr, addr *ret, addr cons)
 {
 	addr call, check, args;
 
+	/* macro */
+	Return(parse_macroexpand_(ptr, &check, cons));
+	if (check != Unbound) {
+		return parse_execute_(ptr, ret, check);
+	}
+
+	/* operator */
 	GetCons(cons, &call, &args);
+	if (ParseConsConstant(call, COMMON_PROGN)) {
+		return parse_progn_(ptr, ret, args);
+	}
+	if (ParseConsConstant(call, COMMON_LOCALLY)) {
+		return parse_locally_(ptr, ret, args);
+	}
+	if (ParseConsConstant(call, COMMON_MACROLET)) {
+		return parse_macrolet_(ptr, ret, args);
+	}
+	if (ParseConsConstant(call, COMMON_SYMBOL_MACROLET)) {
+		return parse_symbol_macrolet_(ptr, ret, args);
+	}
+	if (ParseConsConstant(call, COMMON_EVAL_WHEN)) {
+		return parse_eval_when_(ptr, ret, args);
+	}
 	if (ParseConsConstant(call, COMMON_LET)) {
 		return parse_let_(ptr, ret, args);
 	}
@@ -1959,95 +1877,8 @@ static int parse_cons_general_(Execute ptr, addr *ret, addr cons)
 	if (ParseConsConstant(call, SYSTEM_STEP)) {
 		return parse_step(ptr, ret, args);
 	}
-	Return(parse_cons_check_macro_(ptr, call, &check));
-	if (check != Unbound) {
-		return parse_macro_(ptr, ret, check, cons);
-	}
 
 	return parse_call_(ptr, ret, call, args);
-}
-
-static int parse_cons_car_(Execute ptr, addr *ret, addr cons)
-{
-	addr call, args;
-
-	GetCons(cons, &call, &args);
-
-	/* toplevel */
-	if (ParseConsConstant(call, COMMON_PROGN)) {
-		return parse_progn_(ptr, ret, args);
-	}
-	if (ParseConsConstant(call, COMMON_LOCALLY)) {
-		return parse_locally_(ptr, ret, args);
-	}
-	if (ParseConsConstant(call, COMMON_MACROLET)) {
-		return parse_macrolet_(ptr, ret, args);
-	}
-	if (ParseConsConstant(call, COMMON_SYMBOL_MACROLET)) {
-		return parse_symbol_macrolet_(ptr, ret, args);
-	}
-	if (ParseConsConstant(call, COMMON_EVAL_WHEN)) {
-		return parse_eval_when_(ptr, ret, args);
-	}
-
-	/* general operator */
-	return parse_cons_general_(ptr, ret, cons);
-}
-
-static int compiler_macroexpand_p(Execute ptr)
-{
-	addr pos;
-
-	GetConst(SYSTEM_COMPILER_MACRO, &pos);
-	getspecial_local(ptr, pos, &pos);
-
-	return pos != Unbound && pos != Nil;
-}
-
-int parse_compiler_macro_p(Execute ptr, addr *ret, addr cons)
-{
-	addr check;
-
-	if (! compiler_macroexpand_p(ptr))
-		return 0;
-	GetCar(cons, &check);
-	if (! symbolp(check))
-		return 0;
-	get_compiler_macro_symbol(check, &check);
-	if (check == Nil)
-		return 0;
-	*ret = check;
-	return 1;
-}
-
-static int parse_cons_expander_(Execute ptr, addr *ret, addr call, addr cons)
-{
-	int check;
-	addr env, pos;
-	LocalHold hold;
-
-	Return(environment_heap_(ptr, &env));
-	hold = LocalHold_local_push(ptr, env);
-	Return(call_macroexpand_hook_(ptr, &pos, call, cons, env));
-	close_environment(env);
-	localhold_end(hold);
-
-	/* equal */
-	Return(equal_function_(cons, pos, &check));
-	if (check)
-		return parse_cons_car_(ptr, ret, cons);
-	else
-		return parse_execute_(ptr, ret, pos);
-}
-
-static int parse_cons_(Execute ptr, addr *ret, addr cons)
-{
-	addr call;
-
-	if (parse_compiler_macro_p(ptr, &call, cons))
-		return parse_cons_expander_(ptr, ret, call, cons);
-	else
-		return parse_cons_car_(ptr, ret, cons);
 }
 
 static int parse_clos_(Execute ptr, addr *ret, addr pos)

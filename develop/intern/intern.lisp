@@ -1505,7 +1505,7 @@ lisp-system::type-documentation
 ;;
 lisp-system::compiler-macro-function
 lisp-system::setf-compiler-macro-function
-(lisp-system::*compiler-macro* :constant system :name compiler-macro)
+(lisp-system::*enable-compiler-macro* :constant system :name enable-compiler-macro)
 lisp-system::compile-warning
 lisp-system::compile-style-warning
 lisp-system::nth-value

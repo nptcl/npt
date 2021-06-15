@@ -339,6 +339,7 @@ static int scope_macro_lambda(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &str.decl);
 	GetEvalParse(eval, 2, &str.doc);
 	GetEvalParse(eval, 3, &str.cons);
+	GetEvalParse(eval, 4, &str.call);
 	return scope_macro_lambda_call_(ptr, &str, ret);
 }
 

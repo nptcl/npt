@@ -17,7 +17,6 @@
 #define parse_allcons_toplevel_ _n(parse_allcons_toplevel_)
 #define parse_execute_toplevel_ _n(parse_execute_toplevel_)
 
-#define parse_macro_compile_ _n(parse_macro_compile_)
 #define parse_compiler_macro_p _n(parse_compiler_macro_p)
 #define parse_eval_when_list_ _n(parse_eval_when_list_)
 #define parse_eval_when_process _n(parse_eval_when_process)
@@ -38,7 +37,6 @@ int parse_execute_(Execute ptr, addr *ret, addr pos);
 int parse_allcons_toplevel_(Execute ptr, addr *ret, addr cons);
 int parse_execute_toplevel_(Execute ptr, addr *ret, addr pos);
 
-int parse_macro_compile_(Execute ptr, addr expr, addr list, addr *ret);
 int parse_compiler_macro_p(Execute ptr, addr *ret, addr cons);
 int parse_eval_when_list_(addr list, addr *rcompile, addr *rload, addr *rexec);
 int parse_eval_when_process(Execute ptr,
