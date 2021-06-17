@@ -1142,13 +1142,35 @@
     (proclaim '(declaration-others-2 "Hello"))
     (values)))
 
-(deftest-error declaration-others-error.1
-  (eval '(declaim '(no-such-declare-name))))
+(deftest declaration-others-error.1
+  (eval '(progn
+           (declaim (no-such-declare-name *declaration-others-error-1*))
+           nil))
+  nil)
 
 (deftest-error declaration-others-error.2
-  (proclaim '(no-such-declare-name)))
+  (eval '(progn
+           (declaim (no-such-declare-name *declaration-others-error-1*))
+           *declaration-others-error-1*)))
 
-(deftest-error declaration-others-error.3
+(deftest declaration-others-error.3
+  (eval '(progn
+           (proclaim '(no-such-declare-name *declaration-others-error-3*))
+           nil))
+  nil)
+
+(deftest-error declaration-others-error.4
+  (eval '(progn
+           (proclaim '(no-such-declare-name *declaration-others-error-3*))
+           *declaration-others-error-3*)))
+
+(deftest declaration-others-error.5
   (eval '(locally
-           (declare (no-such-declare-name)))))
+           (declare (no-such-declare-name *declaration-others-error-5*))))
+  nil)
+
+(deftest-error declaration-others-error.6
+  (eval '(locally
+           (declare (no-such-declare-name *declaration-others-error-5*))
+           *declaration-others-error-5*)))
 

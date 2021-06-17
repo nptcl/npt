@@ -21,6 +21,18 @@ static int type_object_error(addr *ret, addr pos)
 	return fmte_("Invalid type.", NULL);
 }
 
+static int type_object_error_type(addr *ret, addr pos)
+{
+	addr type;
+
+	GetArrayType(pos, 1, &type);
+	if (type != Nil)
+		return type_object_(ret, type);
+
+	GetArrayType(pos, 0, &type);
+	return Result(ret, type);
+}
+
 static int type_object_name(addr *ret, addr pos)
 {
 	constindex index = getdeclname(RefLispDecl(pos));
@@ -563,6 +575,7 @@ void init_type_object(void)
 
 	/* object */
 	TypeObjectTable[LISPDECL_EMPTY] = type_object_error;
+	TypeObjectTable[LISPDECL_ERROR] = type_object_error_type;
 	TypeObjectTable[LISPDECL_INVALID] = type_object_name;
 	TypeObjectTable[LISPDECL_OPTIMIZED] = type_object_optimized;
 	TypeObjectTable[LISPDECL_SUBTYPEP] = type_object_subtypep;

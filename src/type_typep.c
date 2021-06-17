@@ -26,6 +26,7 @@
 #include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_error.h"
 #include "type_parse.h"
 #include "type_table.h"
 #include "type_typep.h"
@@ -40,6 +41,12 @@ static int typep_invalid_(Execute ptr, addr value, addr type, int *ret)
 	infobit(type);
 	*ret = 0;
 	return fmte_("Invalid type.", NULL);
+}
+
+static int typep_error_(Execute ptr, addr value, addr type, int *ret)
+{
+	Return(get_error_type_(ptr, type, &type));
+	return typep_call_(ptr, value, type, 1, ret);
 }
 
 static int typep_type_(Execute ptr, addr value, addr type, int *ret)
@@ -1273,6 +1280,7 @@ void init_type_typep(void)
 	for (i = 0; i < LISPDECL_SIZE; i++)
 		TypeTypep[i] = typep_invalid_;
 
+	TypeTypep[LISPDECL_ERROR] = typep_error_;
 	TypeTypep[LISPDECL_TYPE] = typep_type_;
 	TypeTypep[LISPDECL_CLOS] = typep_clos_;
 	TypeTypep[LISPDECL_ASTERISK] = typep_asterisk_;

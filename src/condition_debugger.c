@@ -24,6 +24,7 @@
 #include "stream_prompt.h"
 #include "stream_string.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "type_object.h"
 
@@ -271,10 +272,22 @@ static int eval_symbol_debugger(Execute ptr, addr io, addr list, addr eval)
 	return eval_debugger(ptr, io, eval);
 }
 
+static int enter_debugger_symbol_p(addr pos, const char *key, int keyword)
+{
+	if (! symbolp(pos))
+		return 0;
+	if (keyword && (! keywordp(pos)))
+		return 0;
+	GetNameSymbol(pos, &pos);
+	if (! strvectp(pos))
+		return 0;
+	return strvect_equalp_char(pos, key);
+}
+
 static int enter_debugger(Execute ptr, addr condition)
 {
 	int check, result;
-	addr io, pos, list, exit;
+	addr io, pos, list;
 	size_t index, select, size;
 	LocalHold hold;
 
@@ -290,10 +303,7 @@ static int enter_debugger(Execute ptr, addr condition)
 	}
 	Return(output_restarts_debugger(ptr, io, list));
 	size = length_list_unsafe(list);
-
-	/* eval loop */
 	index = getindex_prompt(ptr) + 1ULL;
-	GetConst(KEYWORD_EXIT, &exit);
 
 loop:
 	setindex_prompt(ptr, index);
@@ -310,7 +320,7 @@ loop:
 		goto exit;
 	}
 	/* :exit */
-	if (getbreak_prompt(ptr) || pos == exit) {
+	if (getbreak_prompt(ptr) || enter_debugger_symbol_p(pos, "EXIT", 1)) {
 		Return(terpri_stream_(io));
 		goto exit;
 	}

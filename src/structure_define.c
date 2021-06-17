@@ -135,7 +135,7 @@ static int structure_check_name_(struct defstruct *ptr)
 
 	clos_find_class_nil(ptr->name, &pos);
 	if (pos != Nil) {
-		Return(fmtw_("The structure name ~S already exists.", ptr->name, NULL));
+		Return(fmtw_("The structure ~S already exists.", ptr->name, NULL));
 	}
 
 	return 0;

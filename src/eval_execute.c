@@ -56,7 +56,7 @@ static int eval_execute_scope_(Execute ptr, LocalHold hold, addr pos)
 {
 	/* optimize */
 	localhold_set(hold, 0, pos);
-	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
+	Return(optimize_parse_(ptr, pos, &pos, NULL));
 
 	/* scope */
 	localhold_set(hold, 0, pos);
@@ -360,7 +360,7 @@ static int eval_execute_value_(Execute ptr, addr value)
 
 	/* optimize */
 	localhold_set(hold, 0, pos);
-	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
+	Return(optimize_parse_(ptr, pos, &pos, NULL));
 
 	/* scope */
 	localhold_set(hold, 0, pos);
@@ -431,7 +431,7 @@ static int eval_toplevel_cons_(Execute ptr, addr cons)
 	return eval_toplevel_value_(ptr, cons);
 }
 
-static int eval_toplevel_execute_(Execute ptr, addr pos)
+static int eval_toplevel_execute_call_(Execute ptr, addr pos)
 {
 	int check;
 	addr value;
@@ -450,21 +450,28 @@ static int eval_toplevel_execute_(Execute ptr, addr pos)
 	return eval_toplevel_value_(ptr, pos);
 }
 
+static int eval_toplevel_execute_(Execute ptr, addr pos)
+{
+	LocalHold hold;
+
+	hold = LocalHold_local_push(ptr, pos);
+	Return(eval_toplevel_execute_call_(ptr, pos));
+	localhold_end(hold);
+
+	return 0;
+}
+
 int eval_toplevel_loop_(Execute ptr, addr stream)
 {
 	int check;
 	addr pos;
-	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
 	for (;;) {
 		Return(read_stream(ptr, stream, &check, &pos));
 		if (check)
 			break;
-		localhold_set(hold, 0, pos);
 		Return(eval_toplevel_execute_(ptr, pos));
 	}
-	localhold_end(hold);
 
 	return 0;
 }

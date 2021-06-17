@@ -46,10 +46,9 @@ int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
 
 	CheckSymbol(symbol);
 	getdeftype(symbol, &call);
-	if (call == Nil) {
-		*ret = NULL;
-		return 0;
-	}
+	if (call == Nil)
+		return Result(ret, NULL);
+
 	/* name -> (call `(name ,@args) env) */
 	cons_heap(&symbol, symbol, Nil);
 	return callclang_funcall(ptr, ret, call, symbol, env, NULL);

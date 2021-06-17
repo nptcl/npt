@@ -388,3 +388,16 @@
   (subtypep 'nil '(member))
   t t)
 
+
+;;
+;;  error
+;;
+(deftest-error parse-type-error.1
+  (eval '(the parse-type-error-1 100)))
+
+(deftest parse-type-error.2
+  (functionp
+    (eval '(lambda ()
+             (the parse-type-error-1 100))))
+  t)
+

@@ -331,30 +331,30 @@ static int test_upgraded_array_type_signed(void)
 
 	upgraded_array_type_signed(10, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_signed1");
-	test(LispDecl(pos) == LISPDECL_T, "upgraded_array_type_signed2");
+	test(LowLispDecl(pos) == LISPDECL_T, "upgraded_array_type_signed2");
 
 	upgraded_array_type_signed(8, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_signed3");
-	test(LispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed4");
+	test(LowLispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed4");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 8, "upgraded_array_type_signed5");
 
 	upgraded_array_type_signed(16, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_signed6");
-	test(LispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed7");
+	test(LowLispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed7");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 16, "upgraded_array_type_signed8");
 
 	upgraded_array_type_signed(32, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_signed9");
-	test(LispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed10");
+	test(LowLispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed10");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 32, "upgraded_array_type_signed11");
 
 #ifdef LISP_64BIT
 	upgraded_array_type_signed(64, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_signed12");
-	test(LispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed13");
+	test(LowLispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type_signed13");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 64, "upgraded_array_type_signed14");
 #endif
@@ -368,30 +368,30 @@ static int test_upgraded_array_type_unsigned(void)
 
 	upgraded_array_type_unsigned(10, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_unsigned1");
-	test(LispDecl(pos) == LISPDECL_T, "upgraded_array_type_unsigned2");
+	test(LowLispDecl(pos) == LISPDECL_T, "upgraded_array_type_unsigned2");
 
 	upgraded_array_type_unsigned(8, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_unsigned3");
-	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned4");
+	test(LowLispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned4");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 8, "upgraded_array_type_unsigned5");
 
 	upgraded_array_type_unsigned(16, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_unsigned6");
-	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned7");
+	test(LowLispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned7");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 16, "upgraded_array_type_unsigned8");
 
 	upgraded_array_type_unsigned(32, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_unsigned9");
-	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned10");
+	test(LowLispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned10");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 32, "upgraded_array_type_unsigned11");
 
 #ifdef LISP_64BIT
 	upgraded_array_type_unsigned(64, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "upgraded_array_type_unsigned12");
-	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned13");
+	test(LowLispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type_unsigned13");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 64, "upgraded_array_type_unsigned14");
 #endif
@@ -404,10 +404,10 @@ static int test_upgraded_array_object(void)
 	addr pos;
 
 	upgraded_array_object(ARRAY_TYPE_CHARACTER, 999, &pos);
-	test(LispDecl(pos) == LISPDECL_CHARACTER, "upgraded_array_object1");
+	test(LowLispDecl(pos) == LISPDECL_CHARACTER, "upgraded_array_object1");
 
 	upgraded_array_object(ARRAY_TYPE_UNSIGNED, 8, &pos);
-	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_object2");
+	test(LowLispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_object2");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 8, "upgraded_array_object3");
 
@@ -421,24 +421,24 @@ static int test_upgraded_array_type(void)
 	pos = readr_debug("integer");
 	parse_type_unsafe(&pos, pos);
 	upgraded_array_type_(pos, &pos);
-	test(LispDecl(pos) == LISPDECL_T, "upgraded_array_type1");
+	test(LowLispDecl(pos) == LISPDECL_T, "upgraded_array_type1");
 
 	pos = readr_debug("single-float");
 	parse_type_unsafe(&pos, pos);
 	upgraded_array_type_(pos, &pos);
-	test(LispDecl(pos) == LISPDECL_SINGLE_FLOAT, "upgraded_array_type2");
+	test(LowLispDecl(pos) == LISPDECL_SINGLE_FLOAT, "upgraded_array_type2");
 
 	pos = readr_debug("(signed-byte 16)");
 	parse_type_unsafe(&pos, pos);
 	upgraded_array_type_(pos, &pos);
-	test(LispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type3");
+	test(LowLispDecl(pos) == LISPDECL_SIGNED_BYTE, "upgraded_array_type3");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 16, "upgraded_array_type4");
 
 	pos = readr_debug("(unsigned-byte 22)");
 	parse_type_unsafe(&pos, pos);
 	upgraded_array_type_(pos, &pos);
-	test(LispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type5");
+	test(LowLispDecl(pos) == LISPDECL_UNSIGNED_BYTE, "upgraded_array_type5");
 	GetArrayType(pos, 0, &pos);
 	test(RefFixnum(pos) == 32, "upgraded_array_type6");
 
@@ -520,7 +520,7 @@ static int test_upgraded_array_t_local(void)
 	addr pos;
 
 	upgraded_array_t_local(Local_Thread, &pos);
-	test(LispDecl(pos) == LISPDECL_T, "upgraded_array_t_local1");
+	test(LowLispDecl(pos) == LISPDECL_T, "upgraded_array_t_local1");
 
 	RETURN;
 }
@@ -530,7 +530,7 @@ static int test_upgraded_array_bit_local(void)
 	addr pos;
 
 	upgraded_array_bit_local(Local_Thread, &pos);
-	test(LispDecl(pos) == LISPDECL_BIT, "upgraded_array_bit_local1");
+	test(LowLispDecl(pos) == LISPDECL_BIT, "upgraded_array_bit_local1");
 
 	RETURN;
 }
@@ -540,7 +540,7 @@ static int test_upgraded_array_character_local(void)
 	addr pos;
 
 	upgraded_array_character_local(Local_Thread, &pos);
-	test(LispDecl(pos) == LISPDECL_CHARACTER, "upgraded_array_character_local1");
+	test(LowLispDecl(pos) == LISPDECL_CHARACTER, "upgraded_array_character_local1");
 
 	RETURN;
 }
@@ -558,19 +558,19 @@ static int test_upgraded_complex_type(void)
 	x = readr_debug("(integer 10 20)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_type_(ptr, Nil, x, &x);
-	test(LispDecl(x) == LISPDECL_INTEGER, "upgraded_complex_type1");
+	test(LowLispDecl(x) == LISPDECL_INTEGER, "upgraded_complex_type1");
 	GetArrayType(x, 0, &x);
 	test(type_asterisk_p(x), "upgraded_complex_type2");
 
 	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_type_(ptr, Nil, x, &x);
-	test(LispDecl(x) == LISPDECL_RATIONAL, "upgraded_complex_type3");
+	test(LowLispDecl(x) == LISPDECL_RATIONAL, "upgraded_complex_type3");
 
 	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_type_(ptr, Nil, x, &x);
-	test(LispDecl(x) == LISPDECL_LONG_FLOAT, "upgraded_complex_type4");
+	test(LowLispDecl(x) == LISPDECL_LONG_FLOAT, "upgraded_complex_type4");
 
 	RETURN;
 }

@@ -1063,7 +1063,7 @@ static int test_parse_type_list(void)
 	pos = readr_debug("(no-such-lisp-type 10 20)");
 	check = parse_type_list(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_list5");
-	test(pos == NULL, "parse_type_list6");
+	test(type_error_p(pos), "parse_type_list6");
 
 	RETURN;
 }
@@ -1081,7 +1081,7 @@ static int test_parse_type_symbol(void)
 	pos = readr_debug("no-such-lisp-type");
 	check = parse_type_symbol(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_symbol3");
-	test(pos == NULL, "parse_type_symbol4");
+	test(type_error_p(pos), "parse_type_symbol4");
 
 	RETURN;
 }
@@ -1099,7 +1099,7 @@ static int test_parse_type_null(void)
 	pos = readr_debug("no-such-lisp-type");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_null3");
-	test(pos == NULL, "parse_type_null4");
+	test(type_error_p(pos), "parse_type_null4");
 
 	pos = readr_debug("(integer 10 20)");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
@@ -1109,7 +1109,7 @@ static int test_parse_type_null(void)
 	pos = readr_debug("(no-such-lisp-type 10 20)");
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_null7");
-	test(pos == NULL, "parse_type_null8");
+	test(type_error_p(pos), "parse_type_null8");
 
 	type0_heap(LISPDECL_KEYWORD, &pos);
 	check = parse_type_null(Execute_Thread, &pos, pos, Nil);

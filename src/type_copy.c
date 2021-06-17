@@ -107,6 +107,19 @@ static void typecopy_vector_alltype(LocalRoot local, addr *ret, addr type)
 	*ret = pos;
 }
 
+static void typecopy_error_object(LocalRoot local, addr *ret, addr type)
+{
+	addr expr;
+
+	GetArrayType(type, 0, &expr);
+	GetArrayType(type, 1, &type);
+	if (type != Nil)
+		type_copy_alloc(local, &type, type);
+	copylocal_object(local, &expr, expr);
+	type2_alloc(local, LISPDECL_ERROR, expr, type, &type);
+	*ret = type;
+}
+
 static void typecopy_clos(LocalRoot local, addr *ret, addr type)
 {
 	addr check;
@@ -337,6 +350,7 @@ void init_type_copy(void)
 	for (i = 0; i < LISPDECL_SIZE; i++)
 		TypeCopyTable[i] = type_copy_error;
 
+	TypeCopyTable[LISPDECL_ERROR] = typecopy_error_object;
 	TypeCopyTable[LISPDECL_INVALID] = typecopy_empty;
 	TypeCopyTable[LISPDECL_TYPE] = typecopy_empty;
 	TypeCopyTable[LISPDECL_CLOS] = typecopy_clos;

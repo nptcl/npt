@@ -12,6 +12,7 @@
 #include "strtype.h"
 #include "strvect.h"
 #include "subtypep_optimize.h"
+#include "type_error.h"
 
 static int checkparse_all_(OptimizeInfo *str, int *ret);
 static int optparse_all_(OptimizeInfo *str, int *ret);
@@ -3044,11 +3045,18 @@ static int optparse_flet_(OptimizeInfo *str, int *ret)
 /* (the type expr) -> (the [type] expr) */
 static int checkparse_the1_(OptimizeInfo *str, int *ret)
 {
+	int check;
 	addr pos;
 
 	if (! optimize_evaltype_on(str, EVAL_PARSE_THE))
 		return Result(ret, 0);
 	GetEvalParse(str->pos, 0, &pos); /* type */
+
+	/* type-error */
+	Return(check_error_type_(str->ptr, pos, &check));
+	if (! check)
+		return Result(ret, 0);
+
 	/* return ! type_optimized_or_subtypep(pos); */
 	return Result(ret, ! type_optimized_p(pos));
 }
@@ -3735,15 +3743,16 @@ static int optparse_all_(OptimizeInfo *str, int *ret)
 	return optparse_run_(str, ret, optparse_all_run_);
 }
 
-int optimize_parse_(LocalRoot local, addr pos, addr *value, int *ret)
+int optimize_parse_(Execute ptr, addr pos, addr *value, int *ret)
 {
 	int check;
+	LocalRoot local;
 	LocalStack stack;
 	OptimizeInfo str;
 
-	CheckLocal(local);
+	local = ptr->local;
 	push_local(local, &stack);
-	optimize_initialize(&str, local, pos);
+	optimize_initialize(&str, ptr, pos);
 	Return(optparse_all_(&str, &check));
 	if (check)
 		copy_eval_parse_heap(value, str.pos);

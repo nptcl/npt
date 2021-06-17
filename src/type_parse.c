@@ -1170,7 +1170,8 @@ static int parse_type_list(Execute ptr, addr *ret, addr pos, addr env)
 		return parse_type(ptr, ret, check, env);
 
 	/* error */
-	return Result(ret, NULL);
+	type_error_heap(pos, ret);
+	return 0;
 }
 
 static int parse_type_symbol(Execute ptr, addr *ret, addr pos, addr env)
@@ -1178,10 +1179,12 @@ static int parse_type_symbol(Execute ptr, addr *ret, addr pos, addr env)
 	addr check;
 
 	Return(find_symbol_type(ptr, &check, pos, env));
-	if (check == NULL)
-		return Result(ret, NULL);
-	else
+	if (check)
 		return parse_type(ptr, ret, check, env);
+
+	/* error */
+	type_error_heap(pos, ret);
+	return 0;
 }
 
 static int parse_type_type(Execute ptr, addr *ret, addr pos)
@@ -1285,6 +1288,7 @@ void parse_type_unsafe(addr *ret, addr pos)
 		Abort("parse-type error.");
 	}
 }
+
 
 /* debug */
 int parse_type_values(Execute ptr, addr *ret, addr type, addr env)

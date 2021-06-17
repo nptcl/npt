@@ -1,4 +1,4 @@
-#include "type.c"
+#include "type_memory.c"
 #include "clos.h"
 #include "code.h"
 #include "code_object.h"
@@ -80,29 +80,18 @@ static int test_type_heap(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	pos = type_allocr(NULL, LISPDECL_CONS, 10);
-	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap1");
-	test(! GetStatusDynamic(pos), "type_heap2");
-
-	pos = type_localr(local, LISPDECL_CONS, 10);
-	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap3");
-	test(GetStatusDynamic(pos), "type_heap4");
-
-	pos = type_heapr(LISPDECL_CONS, 10);
-	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap5");
-	test(! GetStatusDynamic(pos), "type_heap6");
 
 	type_alloc(local, &pos, LISPDECL_CONS, 10);
-	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap7");
-	test(GetStatusDynamic(pos), "type_heap8");
+	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap.1");
+	test(GetStatusDynamic(pos), "type_heap.2");
 
 	type_local(local, &pos, LISPDECL_CONS, 10);
-	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap9");
-	test(GetStatusDynamic(pos), "type_heap10");
+	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap.3");
+	test(GetStatusDynamic(pos), "type_heap.4");
 
 	type_heap(&pos, LISPDECL_CONS, 10);
-	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap11");
-	test(! GetStatusDynamic(pos), "type_heap12");
+	test(test_typecheck(pos, LISPDECL_CONS, 10), "type_heap.5");
+	test(! GetStatusDynamic(pos), "type_heap.6");
 
 	rollback_local(local, stack);
 
@@ -1258,7 +1247,7 @@ static int test_type_clos_heap(void)
 /*
  *  main
  */
-static int testcase_type(void)
+static int testcase_type_memory(void)
 {
 	/* allocate */
 	TestBreak(test_type_heap);
@@ -1311,7 +1300,7 @@ static int testcase_type(void)
 	return 0;
 }
 
-static void testinit_type(Execute ptr)
+static void testinit_type_memory(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -1323,9 +1312,9 @@ static void testinit_type(Execute ptr)
 	build_common();
 }
 
-int test_type(void)
+int test_type_memory(void)
 {
 	DegradeTitle;
-	return DegradeCode(type);
+	return DegradeCode(type_memory);
 }
 

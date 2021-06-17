@@ -75,8 +75,8 @@ int test_clos_cache(void);
 int test_clos_combination(void);
 int test_clos_generic(void);
 int test_clos_method(void);
-int test_type(void);
 int test_type_copy(void);
+int test_type_memory(void);
 int test_type_name(void);
 int test_type_object(void);
 int test_type_parse(void);
@@ -189,7 +189,7 @@ void degrade_execute(void)
 	DegradeCheck(test_clos_generic);
 	DegradeCheck(test_clos_combination);
 	DegradeCheck(test_clos_method);
-	DegradeCheck(test_type);
+	DegradeCheck(test_type_memory);
 	DegradeCheck(test_type_table);
 	DegradeCheck(test_type_symbol);
 	DegradeCheck(test_type_parse);

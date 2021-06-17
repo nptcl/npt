@@ -12,6 +12,7 @@
 #include "subtypep_optimize.h"
 #include "type.h"
 #include "type_copy.h"
+#include "type_error.h"
 #include "type_parse.h"
 #include "type_upgraded.h"
 
@@ -73,6 +74,24 @@ typedef int (*extractcalltype)(addr *, addr);
 /*
  *  optimize
  */
+static int check_type_error_(addr pos, int *ret)
+{
+	if (RefLispDecl(pos) != LISPDECL_ERROR)
+		return Result(ret, 0);
+	GetArrayType(pos, 1, &pos);
+	if (pos == Nil)
+		return Result(ret, 1);
+
+	return check_optimize_(pos, ret);
+}
+
+static int optimize_type_error_(LocalRoot local, addr pos, addr *value, int *ret)
+{
+	Return_check_optimize(check_type_error_, pos, ret);
+	Return(get_error_type_(Execute_Thread, pos, &pos));
+	return type_optimize_(local, pos, value, ret);
+}
+
 static int check_optimized_(addr right, int *ret)
 {
 	enum LISPDECL type;
@@ -1581,6 +1600,7 @@ static int optimize_cons(LocalRoot local, addr right, addr *value, int *ret)
  */
 static int check_optimize_(addr type, int *ret)
 {
+	Return_or_optimize(check_type_error_, type, ret);
 	Return_or_optimize(check_optimized_, type, ret);
 	Return_or_optimize(check_not_asterisk_, type, ret);
 	Return_or_optimize(check_not_nil_, type, ret);
@@ -1639,6 +1659,7 @@ static int type_optimize_(LocalRoot local, addr type, addr *value, int *ret)
 	for (loop = 0; ; loop |= update) {
 		update = 0;
 		/* extract */
+		extractcall(local, optimize_type_error_, type, update);
 		extractcall(local, optimize_optimized_, type, update);
 		extractcall(local, optimize_not_asterisk_, type, update);
 		extractcall(local, optimize_not_nil_, type, update);

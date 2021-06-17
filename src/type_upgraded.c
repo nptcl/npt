@@ -55,8 +55,8 @@ int upgraded_array0_equal(addr left, addr right)
 {
 	enum LISPDECL decl;
 
-	decl = LispDecl(left);
-	if (decl != LispDecl(right)) {
+	decl = LowLispDecl(left);
+	if (decl != LowLispDecl(right)) {
 		return 0;
 	}
 	if (decl == LISPDECL_SIGNED_BYTE || decl == LISPDECL_UNSIGNED_BYTE) {
@@ -156,7 +156,7 @@ static enum ARRAY_TYPE upgraded_array_decl(addr type, int *size)
 	if (RefNotDecl(type))
 		return ARRAY_TYPE_T;
 	/* upgraded */
-	switch (LispDecl(type)) {
+	switch (LowLispDecl(type)) {
 		case LISPDECL_CHARACTER:
 		case LISPDECL_BASE_CHAR:
 		case LISPDECL_STANDARD_CHAR:

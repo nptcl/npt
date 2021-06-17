@@ -480,7 +480,7 @@ void type2and_alloc(LocalRoot local, addr a, addr b, addr *ret)
 
 	CheckType2(a, LISPTYPE_TYPE, "type left error");
 	CheckType2(b, LISPTYPE_TYPE, "type right error");
-	decl = LispDecl(a);
+	decl = LowLispDecl(a);
 	if (decl == LISPDECL_ASTERISK || decl == LISPDECL_T) {
 		*ret = b;
 		return;
@@ -489,7 +489,7 @@ void type2and_alloc(LocalRoot local, addr a, addr b, addr *ret)
 		GetTypeTable(ret, Nil);
 		return;
 	}
-	decl = LispDecl(b);
+	decl = LowLispDecl(b);
 	if (decl == LISPDECL_ASTERISK || decl == LISPDECL_T) {
 		*ret = a;
 		return;
@@ -512,7 +512,7 @@ void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret)
 
 	CheckType2(a, LISPTYPE_TYPE, "type left error");
 	CheckType2(b, LISPTYPE_TYPE, "type right error");
-	decl = LispDecl(a);
+	decl = LowLispDecl(a);
 	if (decl == LISPDECL_ASTERISK || decl == LISPDECL_T) {
 		GetTypeTable(ret, T);
 		return;
@@ -521,7 +521,7 @@ void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret)
 		*ret = b;
 		return;
 	}
-	decl = LispDecl(b);
+	decl = LowLispDecl(b);
 	if (decl == LISPDECL_ASTERISK || decl == LISPDECL_T) {
 		GetTypeTable(ret, T);
 		return;

@@ -1002,28 +1002,28 @@ static int test_type1aster_alloc(void)
 	type1aster_alloc(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type1aster_alloc1");
 	test(GetStatusDynamic(pos), "type1aster_alloc2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type1aster_alloc3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type1aster_alloc3");
 	test(lenarrayr(pos) == 1, "type1aster_alloc4");
 	test(RefArrayType(pos, 0) == aster, "type1aster_alloc5");
 
 	type1aster_alloc(NULL, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type1aster_alloc6");
 	test(! GetStatusDynamic(pos), "type1aster_alloc7");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type1aster_alloc8");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type1aster_alloc8");
 	test(lenarrayr(pos) == 1, "type1aster_alloc9");
 	test(RefArrayType(pos, 0) == aster, "type1aster_alloc10");
 
 	type1aster_local(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type1aster_local1");
 	test(GetStatusDynamic(pos), "type1aster_local2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type1aster_local3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type1aster_local3");
 	test(lenarrayr(pos) == 1, "type1aster_local4");
 	test(RefArrayType(pos, 0) == aster, "type1aster_local5");
 
 	type1aster_heap(LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type1aster_heap1");
 	test(! GetStatusDynamic(pos), "type1aster_heap2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type1aster_heap3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type1aster_heap3");
 	test(lenarrayr(pos) == 1, "type1aster_heap4");
 	test(RefArrayType(pos, 0) == aster, "type1aster_heap5");
 
@@ -1045,7 +1045,7 @@ static int test_type2aster_alloc(void)
 	type2aster_alloc(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type2aster_alloc1");
 	test(GetStatusDynamic(pos), "type2aster_alloc2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type2aster_alloc3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type2aster_alloc3");
 	test(lenarrayr(pos) == 2, "type2aster_alloc4");
 	test(RefArrayType(pos, 0) == aster, "type2aster_alloc5");
 	test(RefArrayType(pos, 1) == aster, "type2aster_alloc6");
@@ -1053,7 +1053,7 @@ static int test_type2aster_alloc(void)
 	type2aster_alloc(NULL, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type2aster_alloc7");
 	test(! GetStatusDynamic(pos), "type2aster_alloc8");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type2aster_alloc9");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type2aster_alloc9");
 	test(lenarrayr(pos) == 2, "type2aster_alloc10");
 	test(RefArrayType(pos, 0) == aster, "type2aster_alloc11");
 	test(RefArrayType(pos, 1) == aster, "type2aster_alloc12");
@@ -1061,7 +1061,7 @@ static int test_type2aster_alloc(void)
 	type2aster_local(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type2aster_local1");
 	test(GetStatusDynamic(pos), "type2aster_local2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type2aster_local3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type2aster_local3");
 	test(lenarrayr(pos) == 2, "type2aster_local4");
 	test(RefArrayType(pos, 0) == aster, "type2aster_local5");
 	test(RefArrayType(pos, 1) == aster, "type2aster_local6");
@@ -1069,7 +1069,7 @@ static int test_type2aster_alloc(void)
 	type2aster_heap(LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type2aster_heap1");
 	test(! GetStatusDynamic(pos), "type2aster_heap2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type2aster_heap3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type2aster_heap3");
 	test(lenarrayr(pos) == 2, "type2aster_heap4");
 	test(RefArrayType(pos, 0) == aster, "type2aster_heap5");
 	test(RefArrayType(pos, 1) == aster, "type2aster_heap6");
@@ -1092,7 +1092,7 @@ static int test_type3aster_alloc(void)
 	type3aster_alloc(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3aster_alloc1");
 	test(GetStatusDynamic(pos), "type3aster_alloc2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type3aster_alloc3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type3aster_alloc3");
 	test(lenarrayr(pos) == 3, "type3aster_alloc4");
 	test(RefArrayType(pos, 0) == aster, "type3aster_alloc5");
 	test(RefArrayType(pos, 1) == aster, "type3aster_alloc6");
@@ -1101,7 +1101,7 @@ static int test_type3aster_alloc(void)
 	type3aster_alloc(NULL, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3aster_alloc8");
 	test(! GetStatusDynamic(pos), "type3aster_alloc9");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type3aster_alloc10");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type3aster_alloc10");
 	test(lenarrayr(pos) == 3, "type3aster_alloc11");
 	test(RefArrayType(pos, 0) == aster, "type3aster_alloc12");
 	test(RefArrayType(pos, 1) == aster, "type3aster_alloc13");
@@ -1109,7 +1109,7 @@ static int test_type3aster_alloc(void)
 	type3aster_local(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3aster_local1");
 	test(GetStatusDynamic(pos), "type3aster_local2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type3aster_local3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type3aster_local3");
 	test(lenarrayr(pos) == 3, "type3aster_local4");
 	test(RefArrayType(pos, 0) == aster, "type3aster_local5");
 	test(RefArrayType(pos, 1) == aster, "type3aster_local6");
@@ -1118,7 +1118,7 @@ static int test_type3aster_alloc(void)
 	type3aster_heap(LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3aster_heap1");
 	test(! GetStatusDynamic(pos), "type3aster_heap2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type3aster_heap3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type3aster_heap3");
 	test(lenarrayr(pos) == 3, "type3aster_heap4");
 	test(RefArrayType(pos, 0) == aster, "type3aster_heap5");
 	test(RefArrayType(pos, 1) == aster, "type3aster_heap6");
@@ -1142,7 +1142,7 @@ static int test_type4aster_alloc(void)
 	type4aster_alloc(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4aster_alloc1");
 	test(GetStatusDynamic(pos), "type4aster_alloc2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type4aster_alloc3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type4aster_alloc3");
 	test(lenarrayr(pos) == 4, "type4aster_alloc4");
 	test(RefArrayType(pos, 0) == aster, "type4aster_alloc5");
 	test(RefArrayType(pos, 1) == aster, "type4aster_alloc6");
@@ -1152,7 +1152,7 @@ static int test_type4aster_alloc(void)
 	type4aster_alloc(NULL, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4aster_alloc9");
 	test(! GetStatusDynamic(pos), "type4aster_alloc10");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type4aster_alloc11");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type4aster_alloc11");
 	test(lenarrayr(pos) == 4, "type4aster_alloc12");
 	test(RefArrayType(pos, 0) == aster, "type4aster_alloc13");
 	test(RefArrayType(pos, 1) == aster, "type4aster_alloc14");
@@ -1160,7 +1160,7 @@ static int test_type4aster_alloc(void)
 	type4aster_local(local, LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4aster_local1");
 	test(GetStatusDynamic(pos), "type4aster_local2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type4aster_local3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type4aster_local3");
 	test(lenarrayr(pos) == 4, "type4aster_local4");
 	test(RefArrayType(pos, 0) == aster, "type4aster_local5");
 	test(RefArrayType(pos, 1) == aster, "type4aster_local6");
@@ -1170,7 +1170,7 @@ static int test_type4aster_alloc(void)
 	type4aster_heap(LISPDECL_SYMBOL, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4aster_heap1");
 	test(! GetStatusDynamic(pos), "type4aster_heap2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "type4aster_heap3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "type4aster_heap3");
 	test(lenarrayr(pos) == 4, "type4aster_heap4");
 	test(RefArrayType(pos, 0) == aster, "type4aster_heap5");
 	test(RefArrayType(pos, 1) == aster, "type4aster_heap6");

@@ -8,6 +8,10 @@
 #include <stddef.h>
 #include <stdarg.h>
 
+/* object */
+typedef enum LISPTYPE LispType;
+typedef enum LISPDECL LispDecl;
+
 /* setjmp */
 typedef void (*lisp_abort_calltype)(void);
 typedef int (*lisp_equal_calltype)(addr, addr, int *);

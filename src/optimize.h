@@ -4,6 +4,7 @@
 #include "declare.h"
 #include "define.h"
 #include "eval.h"
+#include "execute.h"
 #include "local.h"
 #include "parse.h"
 #include "typedef.h"
@@ -23,6 +24,7 @@ struct optimize_value {
 };
 
 struct optimize_struct {
+	Execute ptr;
 	LocalRoot local;
 	int update;
 	addr pos;
@@ -41,7 +43,7 @@ int optimize_declare_value(struct optimize_struct *str, enum EVAL_OPTIMIZE index
 int optimize_speed_on(struct optimize_struct *str);
 int optimize_evaltype(addr pos, EvalParse type);
 int optimize_evaltype_on(struct optimize_struct *str, EvalParse type);
-void optimize_initialize(struct optimize_struct *str, LocalRoot local, addr pos);
+void optimize_initialize(struct optimize_struct *str, Execute ptr, addr pos);
 int optimize_extract_(struct optimize_struct *str, optimize_call call);
 
 #endif

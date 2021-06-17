@@ -81,7 +81,7 @@ int faslwrite_value_type(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_TYPE);
 	LenArrayType(pos, &size);
 	Return(faslwrite_type_(stream, FaslCode_type));
-	Return(faslwrite_byte_(stream, (byte)LispDecl(pos)));
+	Return(faslwrite_byte_(stream, (byte)LowLispDecl(pos)));
 	Return(faslwrite_buffer_(stream, &size, IdxSize));
 
 	switch (RefLispDecl(pos)) {

@@ -1553,7 +1553,7 @@ static int test_slot_make_name_symbol(void)
 	GetNameSlot(pos, &pos);
 	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_name_symbol1");
-	test(LispDecl(type) == LISPDECL_SYMBOL, "slot_make_name_symbol2");
+	test(LowLispDecl(type) == LISPDECL_SYMBOL, "slot_make_name_symbol2");
 
 	RETURN;
 }

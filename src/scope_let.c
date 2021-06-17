@@ -11,6 +11,7 @@
 #include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_error.h"
 #include "type_table.h"
 #include "type_object.h"
 
@@ -407,31 +408,52 @@ int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *
 	return Result(ret, pos);
 }
 
-int checktype_p_(Execute ptr, addr left, addr right, int *check, int *err)
+static int checktype_subtypep_(Execute ptr, addr x, addr y, int *check, int *errp)
 {
 	SubtypepResult value;
 
-	CheckType(left, LISPTYPE_TYPE);
-	CheckType(right, LISPTYPE_TYPE);
-	Return(subtypep_scope_(ptr, left, right, Nil, &value));
+	CheckType(x, LISPTYPE_TYPE);
+	CheckType(y, LISPTYPE_TYPE);
+	Return(subtypep_scope_(ptr, x, y, Nil, &value));
 	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			/* type check can skip. */
 			*check = 0;
-			return Result(err, 0);
+			return Result(errp, 0);
 
 		case SUBTYPEP_EXCLUDE:
 			/* error, output to warning mesasge. */
 			*check = 1;
-			return Result(err, 1);
+			return Result(errp, 1);
 
 		case SUBTYPEP_FALSE:
 		case SUBTYPEP_INVALID:
 		default:
 			/* type check must execute. */
 			*check = 1;
-			return Result(err, 0);
+			return Result(errp, 0);
 	}
+}
+
+int checktype_p_(Execute ptr, addr x, addr y, int *check, int *errp)
+{
+	int value;
+
+	/* type-error */
+	Return(check_error_type_(ptr, x, &value));
+	if (! value)
+		goto type_error;
+	Return(check_error_type_(ptr, y, &value));
+	if (! value)
+		goto type_error;
+
+	/* subtypep */
+	return checktype_subtypep_(ptr, x, y, check, errp);
+
+type_error:
+	*check = 1;
+	*errp = 0;
+	return 0;
 }
 
 static int checktype_warning_(Execute ptr, addr name, addr type, addr expected)

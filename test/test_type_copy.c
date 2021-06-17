@@ -27,7 +27,7 @@ static int testlispdecl(addr pos, enum LISPDECL decl)
 		degrade_printf("type error\n");
 		return 0;
 	}
-	if (LispDecl(pos) != decl) {
+	if (LowLispDecl(pos) != decl) {
 		degrade_printf("lispdecl error\n");
 		return 0;
 	}
@@ -225,9 +225,9 @@ static int test_typecopy_empty_check(enum TypeTable type)
 	addr left, right;
 
 	gettypetable(type, &left);
-	decl1 = LispDecl(left);
+	decl1 = LowLispDecl(left);
 	type_copy_heap(&right, left);
-	decl2 = LispDecl(right);
+	decl2 = LowLispDecl(right);
 	if (left == right) {
 		degrade_printf("copy error\n");
 		return 0;
@@ -445,8 +445,8 @@ static int test_typecopy_size_equal(addr left, addr right)
 		degrade_printf("copy error.\n");
 		return 0;
 	}
-	check1 = LispDecl(left);
-	check2 = LispDecl(right);
+	check1 = LowLispDecl(left);
+	check2 = LowLispDecl(right);
 	if (check1 != check2) {
 		degrade_printf("type error.\n");
 		return 0;

@@ -211,10 +211,8 @@ int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
 	Check(! symbolp(symbol), "type error");
 	/* find symbol */
 	getsymboltype_symbol(symbol, &check);
-	if (check != Nil) {
-		*ret = check;
-		return 0;
-	}
+	if (check != Nil)
+		return Result(ret, check);
 
 	/* find clos */
 	clos_find_class_nil(symbol, &check);
@@ -224,14 +222,12 @@ int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
 	}
 
 	/* find deftype */
-	if (execute_symbol_deftype(ptr, &check, symbol, env))
-		return 1;
+	Return(execute_symbol_deftype(ptr, &check, symbol, env));
 	if (check)
 		return parse_type(ptr, ret, check, env);
 
 	/* error */
-	*ret = NULL;
-	return 0;
+	return Result(ret, NULL);
 }
 
 

@@ -46,12 +46,13 @@ static void optimize_initialize_declare(struct optimize_value *value)
 		value->local[i] = -1;
 }
 
-void optimize_initialize(struct optimize_struct *str, LocalRoot local, addr pos)
+void optimize_initialize(struct optimize_struct *str, Execute ptr, addr pos)
 {
 	clearpoint(str);
 	optimize_initialize_declare(&(str->value));
-	str->local = local;
-	copy_eval_parse_local(local, &(str->pos), pos);
+	str->ptr = ptr;
+	str->local = ptr->local;
+	copy_eval_parse_local(ptr->local, &(str->pos), pos);
 }
 
 int optimize_extract_(struct optimize_struct *str, optimize_call call)

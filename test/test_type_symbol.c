@@ -35,14 +35,14 @@ static int test_find_symbol_type(void)
 	check = find_symbol_type(ptr, &pos, pos, Nil);
 	test(check == 0, "find_symbol_type1");
 	test(GetType(pos) == LISPTYPE_TYPE, "find_symbol_type2");
-	test(LispDecl(pos) == LISPDECL_SYMBOL, "find_symbol_type3");
+	test(LowLispDecl(pos) == LISPDECL_SYMBOL, "find_symbol_type3");
 
 	/* clos */
 	GetConst(COMMON_STANDARD_CLASS, &pos);
 	check = find_symbol_type(ptr, &pos, pos, Nil);
 	test(check == 0, "find_symbol_type4");
 	test(GetType(pos) == LISPTYPE_TYPE, "find_symbol_type5");
-	test(LispDecl(pos) == LISPDECL_CLOS, "find_symbol_type6");
+	test(LowLispDecl(pos) == LISPDECL_CLOS, "find_symbol_type6");
 
 	/* deftype */
 	compiled_system(&pos, Nil);
@@ -53,7 +53,7 @@ static int test_find_symbol_type(void)
 	check = find_symbol_type(ptr, &pos, symbol, Nil);
 	test(check == 0, "find_symbol_type7");
 	test(GetType(pos) == LISPTYPE_TYPE, "find_symbol_type8");
-	test(LispDecl(pos) == LISPDECL_FIXNUM, "find_symbol_type9");
+	test(LowLispDecl(pos) == LISPDECL_FIXNUM, "find_symbol_type9");
 
 	/* no-type */
 	symbol = readr_debug("TEST-FIND-SYMBOL-NO-SUCH-TYPE");

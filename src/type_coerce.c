@@ -1145,13 +1145,13 @@ static int type_second_size(addr type, unsigned *ret)
 	size_t size;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return 1;
 
 	/* upgraded type check */
 	GetArrayType(type, 0, &check);
-	decl = LispDecl(check);
+	decl = LowLispDecl(check);
 	if (decl != LISPDECL_SIGNED_BYTE && decl != LISPDECL_UNSIGNED_BYTE)
 		return 1;
 
@@ -1453,7 +1453,7 @@ static int coerce_aa(Execute ptr, addr pos, addr type, addr *ret)
 		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
-	switch (LispDecl(upg)) {
+	switch (LowLispDecl(upg)) {
 		case LISPDECL_T:
 			return coerce_aa_t(ptr, pos, type, ret);
 
@@ -1811,7 +1811,7 @@ static int coerce_av(Execute ptr, addr pos, addr type, addr *ret)
 		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
-	switch (LispDecl(upg)) {
+	switch (LowLispDecl(upg)) {
 		case LISPDECL_T:
 			return coerce_typep(ptr, pos, pos, type, ret);
 
@@ -1870,7 +1870,7 @@ static int coerce_as(Execute ptr, addr pos, addr type, addr *ret)
 		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
-	switch (LispDecl(upg)) {
+	switch (LowLispDecl(upg)) {
 		case LISPDECL_T:
 			return coerce_as_t(ptr, pos, type, ret);
 
@@ -2102,7 +2102,7 @@ static int coerce_ab(Execute ptr, addr pos, addr type, addr *ret)
 		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
-	switch (LispDecl(upg)) {
+	switch (LowLispDecl(upg)) {
 		case LISPDECL_T:
 			return coerce_ab_t(ptr, pos, type, ret);
 
@@ -2474,7 +2474,7 @@ static int coerce_al(Execute ptr, addr pos, addr type, addr *ret)
 		return coerce_al_t(ptr, pos, type, ret);
 
 	/* (array upg .) */
-	switch (LispDecl(upg)) {
+	switch (LowLispDecl(upg)) {
 		case LISPDECL_T:
 			return coerce_al_t(ptr, pos, type, ret);
 
@@ -2567,7 +2567,7 @@ static int coerce_table(Execute ptr, addr pos, addr type, addr *ret)
 
 	CheckType(type, LISPTYPE_TYPE);
 	if (! RefNotDecl(type)) {
-		decl = LispDecl(type);
+		decl = LowLispDecl(type);
 		/* call table */
 		call = CoerceTable[(int)decl];
 		if (call)

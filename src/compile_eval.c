@@ -60,7 +60,7 @@ static int compile_eval_execute_call_(Execute ptr, addr pos, addr *rtype)
 
 	/* optimize parse */
 	localhold_set(hold, 0, pos);
-	Return(optimize_parse_(ptr->local, pos, &pos, NULL));
+	Return(optimize_parse_(ptr, pos, &pos, NULL));
 
 	/* scope */
 	localhold_set(hold, 0, pos);

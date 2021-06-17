@@ -147,7 +147,7 @@ static int list_make_sequence(addr *ret, addr type, size_t size, addr value)
 	/* type check */
 	if (value == Unbound)
 		value = Nil;
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
 		return Result(ret, Unbound);
 
@@ -233,7 +233,7 @@ static int vector_upgraded_make_sequence(addr *ret, addr type, size_t size, addr
 
 static int vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
-	if (LispDecl(type) != LISPDECL_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_VECTOR)
 		return Result(ret, Unbound);
 	/* vector size */
 	Return(vector_check_sequence_(type, size));
@@ -243,7 +243,7 @@ static int vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 
 static int simple_vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
-	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return Result(ret, Unbound);
 	Return(simple_vector_check_sequence_(type, size));
 	return alloc_t_make_sequence(ret, size, value);
@@ -262,7 +262,7 @@ static int array_make_sequence(addr *ret, addr type, size_t size, addr value)
 	enum LISPDECL decl;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return Result(ret, Unbound);
 
@@ -277,7 +277,7 @@ static int bitvector_make_sequence(addr *ret, addr type, size_t size, addr value
 	enum LISPDECL decl;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
 		return Result(ret, Unbound);
 
@@ -452,7 +452,7 @@ static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 	struct sequence_group *group;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_NIL)
+	if (LowLispDecl(type) != LISPDECL_NIL)
 		return Result(result, 0);
 
 	/* execute */
@@ -480,7 +480,7 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
 		return Result(result, 0);
 
@@ -657,7 +657,7 @@ static int vector_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_VECTOR)
 		return Result(result, 0);
 
 	/* variable */
@@ -684,7 +684,7 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return Result(result, 0);
 
 	/* variable */
@@ -756,7 +756,7 @@ static int array_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return Result(result, 0);
 
@@ -785,7 +785,7 @@ static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
 		return Result(result, 0);
 
@@ -1401,7 +1401,7 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
 		return Result(result, 0);
 
@@ -1606,7 +1606,7 @@ static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_VECTOR)
 		return Result(result, 0);
 
 	/* variable */
@@ -1636,7 +1636,7 @@ static int simple_vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return Result(result, 0);
 
 	/* variable */
@@ -1697,7 +1697,7 @@ static int array_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return Result(result, 0);
 
@@ -1729,7 +1729,7 @@ static int bitvector_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
 		return Result(result, 0);
 
@@ -3421,7 +3421,7 @@ static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size, i;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
 		return Result(ret, Unbound);
 
@@ -3485,7 +3485,7 @@ static int vector_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_VECTOR)
 		return Result(ret, Unbound);
 
 	/* concatenate */
@@ -3502,7 +3502,7 @@ static int simple_vector_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+	if (LowLispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return Result(ret, Unbound);
 
 	/* concatenate */
@@ -3537,7 +3537,7 @@ static int array_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return Result(ret, Unbound);
 
@@ -3556,7 +3556,7 @@ static int bitvector_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	decl = LispDecl(type);
+	decl = LowLispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
 		return Result(ret, Unbound);
 

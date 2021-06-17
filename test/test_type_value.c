@@ -30,7 +30,7 @@ static int test_type_value_nil(void)
 
 	type_value_nil(&x);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_nil1");
-	test(LispDecl(x) == LISPDECL_NULL, "type_value_nil2");
+	test(LowLispDecl(x) == LISPDECL_NULL, "type_value_nil2");
 
 	RETURN;
 }
@@ -41,7 +41,7 @@ static int test_type_value_t(void)
 
 	type_value_t(&x);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_t1");
-	test(LispDecl(x) == LISPDECL_BOOLEAN, "type_value_t2");
+	test(LowLispDecl(x) == LISPDECL_BOOLEAN, "type_value_t2");
 
 	RETURN;
 }
@@ -52,7 +52,7 @@ static int test_type_value_nil_call(void)
 
 	type_value_(&x, Nil);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_nil_call1");
-	test(LispDecl(x) == LISPDECL_NULL, "type_value_nil_call2");
+	test(LowLispDecl(x) == LISPDECL_NULL, "type_value_nil_call2");
 
 	RETURN;
 }
@@ -63,7 +63,7 @@ static int test_type_value_t_call(void)
 
 	type_value_(&x, T);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_t_call1");
-	test(LispDecl(x) == LISPDECL_BOOLEAN, "type_value_t_call2");
+	test(LowLispDecl(x) == LISPDECL_BOOLEAN, "type_value_t_call2");
 
 	RETURN;
 }
@@ -76,7 +76,7 @@ static int test_type_value_clos(void)
 	clos_find_class_(x, &y);
 	type_value_(&x, y);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_clos1");
-	test(LispDecl(x) == LISPDECL_CLOS, "type_value_clos2");
+	test(LowLispDecl(x) == LISPDECL_CLOS, "type_value_clos2");
 	GetArrayType(x, 0, &x);
 	GetConst(COMMON_STANDARD_CLASS, &y);
 	clos_find_class_(y, &y);
@@ -92,7 +92,7 @@ static int test_type_value_cons(void)
 	cons_heap(&x, Nil, T);
 	type_value_(&x, x);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_cons1");
-	test(LispDecl(x) == LISPDECL_CONS, "type_value_cons2");
+	test(LowLispDecl(x) == LISPDECL_CONS, "type_value_cons2");
 
 	RETURN;
 }
@@ -336,7 +336,7 @@ static int test_type_value_hashtable(void)
 	hashtable_heap(&x);
 	type_value_(&x, x);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_hashtable1");
-	test(LispDecl(x) == LISPDECL_HASH_TABLE, "type_value_hashtable2");
+	test(LowLispDecl(x) == LISPDECL_HASH_TABLE, "type_value_hashtable2");
 
 	RETURN;
 }
@@ -349,7 +349,7 @@ static int test_type_value_readtable(void)
 	getspecialcheck_local_(Execute_Thread, x, &x);
 	type_value_(&x, x);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_readtable1");
-	test(LispDecl(x) == LISPDECL_READTABLE, "type_value_readtable2");
+	test(LowLispDecl(x) == LISPDECL_READTABLE, "type_value_readtable2");
 
 	RETURN;
 }
@@ -493,9 +493,9 @@ static int test_type_value_complex(void)
 
 	x = readr_debug("#c(10 20)");
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_COMPLEX, "type_value_complex1");
+	test(LowLispDecl(x) == LISPDECL_COMPLEX, "type_value_complex1");
 	GetArrayType(x, 0, &y);
-	test(LispDecl(y) == LISPDECL_OR, "type_value_complex2");
+	test(LowLispDecl(y) == LISPDECL_OR, "type_value_complex2");
 
 	RETURN;
 }
@@ -507,7 +507,7 @@ static int test_type_value_function(void)
 	GetConst(COMMON_CAR, &x);
 	getfunction_global_(x, &x);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_COMPILED_FUNCTION, "type_value_function1");
+	test(LowLispDecl(x) == LISPDECL_COMPILED_FUNCTION, "type_value_function1");
 
 	RETURN;
 }
@@ -519,7 +519,7 @@ static int test_type_value_package(void)
 	GetConst(SPECIAL_PACKAGE, &x);
 	getspecialcheck_local_(Execute_Thread, x, &x);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_PACKAGE, "type_value_package1");
+	test(LowLispDecl(x) == LISPDECL_PACKAGE, "type_value_package1");
 
 	RETURN;
 }
@@ -531,7 +531,7 @@ static int test_type_value_random_state(void)
 	GetConst(SPECIAL_RANDOM_STATE, &x);
 	getspecialcheck_local_(Execute_Thread, x, &x);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_RANDOM_STATE, "type_value_random_state1");
+	test(LowLispDecl(x) == LISPDECL_RANDOM_STATE, "type_value_random_state1");
 
 	RETURN;
 }
@@ -542,7 +542,7 @@ static int test_type_value_pathname(void)
 
 	x = readr_debug("#p\"test/\"");
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_PATHNAME, "type_value_pathname1");
+	test(LowLispDecl(x) == LISPDECL_PATHNAME, "type_value_pathname1");
 
 	RETURN;
 }
@@ -554,30 +554,30 @@ static int test_type_value_stream(void)
 	/* broadcast */
 	open_broadcast_stream_(&x, Nil);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_BROADCAST_STREAM, "type_value_stream1");
+	test(LowLispDecl(x) == LISPDECL_BROADCAST_STREAM, "type_value_stream1");
 
 	/* concatenated */
 	open_concatenated_stream_(&x, Nil);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_CONCATENATED_STREAM, "type_value_stream2");
+	test(LowLispDecl(x) == LISPDECL_CONCATENATED_STREAM, "type_value_stream2");
 
 	/* echo */
 	open_concatenated_stream_(&y, Nil);
 	open_echo_stream(&x, y, y);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_ECHO_STREAM, "type_value_stream3");
+	test(LowLispDecl(x) == LISPDECL_ECHO_STREAM, "type_value_stream3");
 
 	/* string */
 	strvect_char_heap(&x, "Hello");
 	open_input_string_stream_(&x, x);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_STRING_STREAM, "type_value_stream4");
+	test(LowLispDecl(x) == LISPDECL_STRING_STREAM, "type_value_stream4");
 
 	/* synonym */
 	GetConst(SYSTEM_STANDARD_INPUT, &x);
 	open_synonym_stream_(&x, x);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_SYNONYM_STREAM, "type_value_stream5");
+	test(LowLispDecl(x) == LISPDECL_SYNONYM_STREAM, "type_value_stream5");
 
 	/* two-way */
 	GetConst(SYSTEM_STANDARD_INPUT, &x);
@@ -586,13 +586,13 @@ static int test_type_value_stream(void)
 	getspecialcheck_local_(Execute_Thread, y, &y);
 	open_twoway_stream(&x, x, y);
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_TWO_WAY_STREAM, "type_value_stream6");
+	test(LowLispDecl(x) == LISPDECL_TWO_WAY_STREAM, "type_value_stream6");
 
 	/* file */
 	strvect_char_heap(&y, "test/empty.file");
 	open_input_stream_error_(Execute_Thread, &y, y);
 	type_value_(&x, y);
-	test(LispDecl(x) == LISPDECL_FILE_STREAM, "type_value_stream7");
+	test(LowLispDecl(x) == LISPDECL_FILE_STREAM, "type_value_stream7");
 
 	RETURN;
 }
@@ -603,7 +603,7 @@ static int test_type_value_bitvector(void)
 
 	x = readr_debug("#*10011");
 	type_value_(&x, x);
-	test(LispDecl(x) == LISPDECL_SIMPLE_BIT_VECTOR, "type_value_bitvector1");
+	test(LowLispDecl(x) == LISPDECL_SIMPLE_BIT_VECTOR, "type_value_bitvector1");
 	GetArrayType(x, 0, &x);
 	test(RefFixnum(x) == 5, "type_value_bitvector2");
 

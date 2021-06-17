@@ -427,7 +427,7 @@ static int test_optimize_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_string1");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_string2");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_string2");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_string3");
 	test(RefFixnum(value) == 1, "optimize_string4");
@@ -436,7 +436,7 @@ static int test_optimize_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_string5");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_string6");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_string6");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_VECTOR, "optimize_string7");
 	test(lenarrayr(value) == 1, "optimize_string8");
@@ -457,7 +457,7 @@ static int test_optimize_base_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_base_string1");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_base_string2");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_base_string2");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_base_string3");
 	test(RefFixnum(value) == 1, "optimize_base_string4");
@@ -468,7 +468,7 @@ static int test_optimize_base_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "optimize_base_string5");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_base_string6");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_base_string6");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_VECTOR, "optimize_base_string7");
 	test(lenarrayr(value) == 1, "optimize_base_string8");
@@ -489,7 +489,7 @@ static int test_optimize_simple_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_string1");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_string2");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_string2");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_string3");
 	test(RefFixnum(value) == 1, "optimize_simple_string4");
@@ -500,7 +500,7 @@ static int test_optimize_simple_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_string5");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_string6");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_string6");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_VECTOR, "optimize_simple_string7");
 	test(lenarrayr(value) == 1, "optimize_simple_string8");
@@ -521,7 +521,7 @@ static int test_optimize_simple_base_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_base_string1");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_base_string2");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_base_string2");
 	GetArrayType(pos, 1, &value);
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_FIXNUM, "optimize_simple_base_string3");
@@ -533,7 +533,7 @@ static int test_optimize_simple_base_string(void)
 	type_optimize_(local, pos, &pos, &check);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "optimize_simple_base_string5");
 	GetArrayType(pos, 0, &value);
-	test(LispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_base_string6");
+	test(LowLispDecl(value) == LISPDECL_CHARACTER, "optimize_simple_base_string6");
 	GetArrayType(pos, 1, &value);
 	test(GetType(value) == LISPTYPE_VECTOR, "optimize_simple_base_string7");
 	test(lenarrayr(value) == 1, "optimize_simple_base_string8");
