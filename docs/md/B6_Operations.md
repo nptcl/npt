@@ -272,17 +272,21 @@ The result is `RESULT: 222`.
 
 There are two ways to achieve `unwind-protect`.  
 One is to register a function for `cleanup` to a stack frame,
-and the other is to detect escape mode and do it by itself.  
-Both methods have advantages and disadvantages.
+and the other is to detect escape mode and do it by itself.
+
+*The method of registering to the stack frame will be removed.  
+The description will also be removed later.*
 
 
-## Registering `unwind-protect`.
+## obsolete: Registering `unwind-protect`.
+
+*This method is obsolete.*
 
 Normal usage of `unwind-protect` is to register a stack frame.  
 The following function is used in order to register a `cleanup` form.
 
 ```c
-void lisp_unwind_protect(addr clean);
+void lisp_unwind_protect_deprecated(addr clean);
 ```
 
 The argument `clean` specifies a function with no argument.  
@@ -300,7 +304,7 @@ int main_call_(addr x)
     /* unwind-protect */
     if (lisp_eval8_(x, "(lambda () (setf (symbol-value 'hello) 200))"))
         goto escape;
-    lisp_unwind_protect(x);
+    lisp_unwind_protect_deprecated(x);
 escape:
     return lisp_pop_control_(control);
 }

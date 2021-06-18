@@ -1113,7 +1113,6 @@ enum pointer_index {
 	p_defun_dispatch_array,
 	p_defun_dispatch_pathname,
 	p_defun_dispatch_structure,
-	p_equal_finalize_dispatch,
 	/* function */
 	p_defun_constantly_nil,
 	p_defun_constantly_t,
@@ -1162,7 +1161,6 @@ enum pointer_index {
 	/* extern */
 	p_extern_unwind_protect,
 	/* pprint */
-	p_pprint_logical_block_close,
 	p_pprint_logical_block_fill_form,
 	p_pprint_logical_block_fill,
 	p_pprint_logical_block_linear_form,

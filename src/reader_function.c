@@ -443,52 +443,36 @@ int error_dispatch(addr code)
 /*
  *  dispatch #n=
  */
-static int equal_finalize_dispatch(Execute ptr)
+static void equal_finalize_dispatch(addr pos, addr value)
 {
-	addr pos, value;
-
-	getdata_control(ptr, &pos);
-	GetCons(pos, &pos, &value);
 	ReadInfoStruct(pos)->replace = value != Nil? 1: 0;
-
-	return 0;
 }
 
 static int equal_read_dispatch_call_(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int escape;
 	addr pos, value;
 	struct readinfo_struct *str;
-	LocalHold hold;
 
 	/* readinfo */
 	getreadinfo(ptr, &pos);
 	str = ReadInfoStruct(pos);
 	value = str->replace? T: Nil;
 	str->replace = 1;
-	hold = LocalHold_array(ptr, 1);
-	/* finalize */
-	cons_local(ptr->local, &pos, pos, value);
-	setprotect_control_local(ptr, p_equal_finalize_dispatch, pos);
-	/* code */
-	Return(read_recursive(ptr, stream, result, ret));
-	if (*result == 0)
-		localhold_set(hold, 0, *ret);
 
-	return 0;
+	/* code */
+	escape = read_recursive(ptr, stream, result, ret);
+	equal_finalize_dispatch(pos, value);
+	return escape;
 }
 
 static int equal_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
-	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
 	push_control(ptr, &control);
 	(void)equal_read_dispatch_call_(ptr, stream, result, ret);
-	Return(pop_control_(ptr, control));
-	localhold_end(hold);
-
-	return 0;
+	return pop_control_(ptr, control);
 }
 
 int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
@@ -1284,14 +1268,5 @@ int structure_dispatch(Execute ptr, addr stream, addr *ret)
 
 error:
 	return fmte_("After #S must be (name key value ...) form.", NULL);
-}
-
-
-/*****************************************************************************
- *  initialize
- *****************************************************************************/
-void init_reader_function(void)
-{
-	SetPointerType(empty, equal_finalize_dispatch);
 }
 

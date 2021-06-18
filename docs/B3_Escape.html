@@ -6,6 +6,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Escape Function</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -15,6 +145,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -105,108 +236,108 @@ However, npt does not use these operators, it just exits the escape function.</p
 Common Lisp behavior is achieved by following the rules described below.</p>
 <h1 id="creating-an-escape-function">3.2 Creating an Escape Function</h1>
 <p>Here is an example of how to create an escape function.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">int</span> test(<span class="dt">void</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>{</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    lisp_format8_(NULL, <span class="st">&quot;Start~%&quot;</span>, NULL);</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>    lisp_funcall8_(NULL, <span class="st">&quot;TEST-THROW&quot;</span>, NULL);</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    lisp_format8_(NULL, <span class="st">&quot;End~%&quot;</span>, NULL);</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Start~%&quot;</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    lisp_funcall8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;TEST-THROW&quot;</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;End~%&quot;</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The name of Escape functions end with an underscore <code>_</code>, so the <code>lisp_format8_</code> and <code>lisp_funcall8_</code> in the example statement are escape functions.<br />
 The <code>test</code> function ignores all the return values of the escape function, but it should be handled correctly. The following is a rewrite of the correct escape function.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">int</span> test_(<span class="dt">void</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>{</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;Start~%&quot;</span>, NULL))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(NULL, <span class="st">&quot;TEST-THROW&quot;</span>, NULL))</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;End~%&quot;</span>, NULL))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Start~%&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;TEST-THROW&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;End~%&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>By executing <code>return 1</code> when each of the escape functions returned a value, the correct escape function <code>test_</code> was processed.</p>
 <p>Suppose that the <code>test-throw</code> function is defined as follows.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>(<span class="kw">defun</span><span class="fu"> test-throw </span>()</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  (<span class="kw">throw</span> &#39;hello <span class="dv">999</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> test-throw </span>()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">throw</span> &#39;hello <span class="dv">999</span>))</span></code></pre></div>
 <p>When <code>test_</code> executes <code>lisp_funcall8_</code> and calls <code>test-throw</code>, the <code>lisp_funcall8_</code> function returns <code>1</code> because <code>throw</code> is executed if the corresponding <code>catch</code> is present.</p>
 <p>Then the <code>test_</code> function is executed as it is and the <code>return 1</code> is executed, so the next <code>format</code> statement is not executed and the <code>test_</code> function ends.</p>
 <p>This is how the escape is achieved.</p>
 <h1 id="escape-with-lisp_push_control">3.3 Escape with <code>lisp_push_control</code></h1>
 <p>Suppose that <code>lisp_push_control</code> is used in the usual function <code>test</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">int</span> test(<span class="dt">void</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>{</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    addr control, v;</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    v = Lisp_hold();</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>    lisp_format8_(NULL, <span class="st">&quot;Start~%&quot;</span>, NULL);</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>    lisp_funcall8_(v, <span class="st">&quot;TEST-THROW&quot;</span>, NULL);</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>    lisp_format8_(NULL, <span class="st">&quot;End: ~A~%&quot;</span>, v, NULL);</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>    lisp_pop_control_(control);</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> v<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Start~%&quot;</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    lisp_funcall8_<span class="op">(</span>v<span class="op">,</span> <span class="st">&quot;TEST-THROW&quot;</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;End: ~A~%&quot;</span><span class="op">,</span> v<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>When rewriting the escape function, statements surrounded by <code>push</code> / pop’ should always be popped to free the stack frame rather than <code>return 1</code> immediately if an escape occurs.</p>
 <p>Here’s an example of a fix.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="dt">int</span> test_(<span class="dt">void</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>{</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    addr control, v;</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    v = Lisp_hold();</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;Start~%&quot;</span>, NULL))</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(v, <span class="st">&quot;TEST-THROW&quot;</span>, NULL))</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;End: ~A~%&quot;</span>, v, NULL))</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>escape:</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> v<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Start~%&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>v<span class="op">,</span> <span class="st">&quot;TEST-THROW&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;End: ~A~%&quot;</span><span class="op">,</span> v<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Although <code>goto</code> is easy to understand in a simple case like the example, it becomes difficult to understand in a complex syntax.</p>
 <p>So, we used the following rewrite in the development of npt.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> test_call_(<span class="dt">void</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>{</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    addr v;</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>    v = Lisp_hold();</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;Start~%&quot;</span>, NULL))</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(v, <span class="st">&quot;TEST-THROW&quot;</span>, NULL))</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;End: ~A~%&quot;</span>, v, NULL))</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>}</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a><span class="dt">int</span> test_(<span class="dt">void</span>)</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a>{</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>    addr control;</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a>    (<span class="dt">void</span>)test_call_();</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> test_call_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    addr v<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Start~%&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>v<span class="op">,</span> <span class="st">&quot;TEST-THROW&quot;</span><span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;End: ~A~%&quot;</span><span class="op">,</span> v<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span><span class="dt">void</span><span class="op">)</span>test_call_<span class="op">();</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The example sentence makes extensive use of the following syntax to determine escape.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="cf">if</span> (...)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">1</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(...)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span></code></pre></div>
 <p>Because this syntax is used in so many places, we created the following macro</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="pp">#define Return(x) {if (x) return 1;}</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define Return(x) {if (x) return 1;}</span></span></code></pre></div>
 <p>The function <code>test_call_</code> can be rewritten with this macro as follows.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> test_call_(<span class="dt">void</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>{</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    addr v;</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    v = Lisp_hold();</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    Return(lisp_format8_(NULL, <span class="st">&quot;Start~%&quot;</span>, NULL));</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    Return(lisp_funcall8_(v, <span class="st">&quot;TEST-THROW&quot;</span>, NULL));</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    Return(lisp_format8_(NULL, <span class="st">&quot;End: ~A~%&quot;</span>, v, NULL));</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> test_call_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    addr v<span class="op">;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    Return<span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Start~%&quot;</span><span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    Return<span class="op">(</span>lisp_funcall8_<span class="op">(</span>v<span class="op">,</span> <span class="st">&quot;TEST-THROW&quot;</span><span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    Return<span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;End: ~A~%&quot;</span><span class="op">,</span> v<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>If you plan to create a lot of escape functions, you may want to consider using this simple macro, as it is very easy to use.</p>
 <p>In summary, an escape function is one that imposes the following rule.</p>
 <ul>
@@ -219,42 +350,42 @@ The <code>test</code> function ignores all the return values of the escape funct
 <p>In the previous chapter <a href="B2_Hold.html">2. Hold Variable</a>, we created a function to output a factorial.<br />
 However, for the sake of explanation, we did not deal with error handling, so we ignored all return values of the escape function.</p>
 <p>The following is a rewrite of the correct escape function.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> fact_(addr x, addr value)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>{</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>    addr control, y;</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    <span class="cf">if</span> (! lisp_plus_p(value)) {</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>        lisp_fixnum(x, <span class="dv">1</span>);</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>    }</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a>    y = Lisp_hold();</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(y, <span class="st">&quot;1-&quot;</span>, value, NULL))</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a>    <span class="cf">if</span> (fact_(y, y))</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(x, <span class="st">&quot;*&quot;</span>, value, y, NULL))</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true"></a>escape:</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true"></a>}</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true"></a></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true"></a><span class="dt">int</span> main_lisp(<span class="dt">void</span> *ignore)</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true"></a>{</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true"></a>    addr control, x, y;</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true"></a></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true"></a>    x = Lisp_hold();</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true"></a>    y = Lisp_hold();</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true"></a>    lisp_fixnum(y, <span class="dv">123</span>);</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true"></a>    <span class="cf">if</span> (fact_(x, y))</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_format8_(NULL, <span class="st">&quot;fact: ~A! = ~A~%&quot;</span>, y, x, NULL))</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true"></a>escape:</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> fact_<span class="op">(</span>addr x<span class="op">,</span> addr value<span class="op">)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> y<span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span> lisp_plus_p<span class="op">(</span>value<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>y<span class="op">,</span> <span class="st">&quot;1-&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fact_<span class="op">(</span>y<span class="op">,</span> y<span class="op">))</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>x<span class="op">,</span> <span class="st">&quot;*&quot;</span><span class="op">,</span> value<span class="op">,</span> y<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>ignore<span class="op">)</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> x<span class="op">,</span> y<span class="op">;</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>y<span class="op">,</span> <span class="dv">123</span><span class="op">);</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fact_<span class="op">(</span>x<span class="op">,</span> y<span class="op">))</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;fact: ~A! = ~A~%&quot;</span><span class="op">,</span> y<span class="op">,</span> x<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The <code>fact_</code> function in the example sentence will be complete without any further modification.</p>
 </body>
 </html>

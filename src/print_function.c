@@ -19,22 +19,6 @@
 #include "symbol.h"
 
 /*
- *  unwind-protect
- */
-static int pprint_logical_block_close(Execute ptr)
-{
-	addr stream;
-
-	getdata_control(ptr, &stream);
-	Check(! pretty_stream_p(stream), "type error");
-	Return(close_pretty_stream_(ptr, stream));
-	setresult_control(ptr, Nil);
-
-	return 0;
-}
-
-
-/*
  *  pprint-fill
  */
 static int pprint_logical_block_type_form(Execute ptr, enum pprint_newline type)
@@ -61,9 +45,9 @@ static int pprint_logical_block_type_call_(Execute ptr, pointer type, addr strea
 {
 	addr gensym;
 
-	setprotect_control_heap(ptr, p_pprint_logical_block_close, stream);
 	Return(gensym_pretty_stream_(stream, &gensym));
-	return catch_clang(ptr, type, gensym, stream);
+	(void)catch_clang(ptr, type, gensym, stream);
+	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 
 static int pprint_logical_block_type(Execute ptr, pointer type)
@@ -193,9 +177,9 @@ static int pprint_logical_block_tabular_call_(Execute ptr, addr stream, addr con
 {
 	addr gensym;
 
-	setprotect_control_heap(ptr, p_pprint_logical_block_close, stream);
 	Return(gensym_pretty_stream_(stream, &gensym));
-	return catch_clang(ptr, p_pprint_logical_block_tabular_form, gensym, cons);
+	(void)catch_clang(ptr, p_pprint_logical_block_tabular_form, gensym, cons);
+	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 
 static int pprint_logical_block_tabular(Execute ptr)
@@ -288,9 +272,9 @@ static int pprint_dispatch_vector1_call_(Execute ptr, addr stream, addr cons)
 {
 	addr gensym;
 
-	setprotect_control_heap(ptr, p_pprint_logical_block_close, stream);
 	Return(gensym_pretty_stream_(stream, &gensym));
-	return catch_clang(ptr, p_pprint_dispatch_vector2, gensym, cons);
+	(void)catch_clang(ptr, p_pprint_dispatch_vector2, gensym, cons);
+	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 
 static int pprint_dispatch_vector1(Execute ptr)
@@ -634,7 +618,6 @@ static int pprint_dispatch_let(Execute ptr, addr stream, addr list)
  */
 void init_print_function(void)
 {
-	SetPointerType(empty, pprint_logical_block_close);
 	/* pprint-fill */
 	SetPointerType(empty, pprint_logical_block_fill_form);
 	SetPointerType(empty, pprint_logical_block_fill);

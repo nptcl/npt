@@ -202,15 +202,15 @@ int lisp_defvar32_(const void *str)
 
 
 /*
- *  unwind-protect
+ *  unwind-protect [deprecated]
  */
-void lisp_unwind_protect(addr clean)
+void lisp_unwind_protect_deprecated(addr clean)
 {
 	Execute ptr;
 
 	ptr = Execute_Thread;
 	hold_value(clean, &clean);
-	setprotect_value_control(ptr->control, clean);
+	setprotect_control(ptr->control, clean);
 }
 
 

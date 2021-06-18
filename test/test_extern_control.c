@@ -448,36 +448,6 @@ static int test_lisp_defvar32(void)
 
 
 /*
- *  unwind-protect
- */
-static int test_lisp_unwind_protect(void)
-{
-	addr a, b, x, y;
-
-	lisp_push_control(&a);
-	x = Lisp_hold();
-
-	lisp_fixnum(x, 100);
-	lisp_defvar8_("UNWIND-PROTECT-VALUE");
-	lisp_set_special8_("UNWIND-PROTECT-VALUE", x);
-
-	lisp_push_control(&b);
-	lisp_eval8_(x, "(lambda () (setq unwind-protect-value 200))");
-	lisp_unwind_protect(x);
-
-	lisp_pop_control_(b);
-	lisp_get_special8_(x, "UNWIND-PROTECT-VALUE");
-	test(lisp_fixnum_p(x), "lisp_unwind_protect.1");
-	lisp_hold_value(x, &y);
-	test(RefFixnum(y) == 200, "lisp_unwind_protect.2");
-
-	lisp_pop_control_(a);
-
-	RETURN;
-}
-
-
-/*
  *  catch / throw
  */
 static int test_lisp_catch(void)
@@ -838,8 +808,6 @@ static int testcase_extern_control(void)
 	TestBreak(test_lisp_defvar8);
 	TestBreak(test_lisp_defvar16);
 	TestBreak(test_lisp_defvar32);
-	/* unwind-protect */
-	TestBreak(test_lisp_unwind_protect);
 	/* catch / throw */
 	TestBreak(test_lisp_catch);
 	/* handler */

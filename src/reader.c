@@ -5,7 +5,6 @@
 #include "hold.h"
 #include "reader.h"
 #include "reader_dispatch.h"
-#include "reader_function.h"
 #include "reader_info.h"
 #include "reader_table.h"
 #include "reader_token.h"
@@ -528,7 +527,6 @@ void build_reader(void)
 void init_reader(void)
 {
 	init_reader_dispatch();
-	init_reader_function();
 	init_reader_token();
 }
 

@@ -3,6 +3,7 @@
 #include "cons_list.h"
 #include "control_execute.h"
 #include "control_object.h"
+#include "execute_object.h"
 #include "function.h"
 #include "memory.h"
 #include "object.h"
@@ -364,6 +365,20 @@ int close_pretty_stream_(Execute ptr, addr stream)
 	}
 
 	return 0;
+}
+
+int close_pretty_stream_unwind_protect_(Execute ptr, addr stream)
+{
+	addr control, save;
+
+	push_control(ptr, &control);
+	save_execute_control(ptr, &save);
+	normal_throw_control(ptr);
+	if (close_pretty_stream_(ptr, stream))
+		goto escape;
+	restore_execute_control(ptr, save);
+escape:
+	return pop_control_(ptr, control);
 }
 
 int push_pretty_stream_(addr stream, addr pos)

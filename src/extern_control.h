@@ -31,8 +31,8 @@ int lisp_defvar8_(const void *str);
 int lisp_defvar16_(const void *str);
 int lisp_defvar32_(const void *str);
 
-/* unwind-protect */
-void lisp_unwind_protect(addr clean);
+/* unwind-protect [deprecated] */
+void lisp_unwind_protect_deprecated(addr clean);
 
 /* catch / throw */
 void lisp_catch(addr symbol);

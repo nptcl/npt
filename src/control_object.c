@@ -560,28 +560,8 @@ void setrestart_control(LocalRoot local, addr pos, addr value)
 	settable_control(local, pos, CONSTANT_SYSTEM_RESTART, value);
 }
 
-void setprotect_value_control(addr pos, addr value)
+void setprotect_control(addr pos, addr value)
 {
 	SetControl(pos, Control_Protect, value);
-}
-
-void setprotect_control_heap(Execute ptr, pointer id, addr value)
-{
-	addr pos;
-
-	compiled_heap(&pos, Nil);
-	setcompiled_empty(pos, id);
-	SetDataFunction(pos, value);
-	setprotect_value_control(ptr->control, pos);
-}
-
-void setprotect_control_local(Execute ptr, pointer id, addr value)
-{
-	addr pos;
-
-	compiled_local(ptr->local, &pos, Nil);
-	setcompiled_empty(pos, id);
-	SetDataFunction(pos, value);
-	setprotect_value_control(ptr->control, pos);
 }
 

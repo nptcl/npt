@@ -24,6 +24,7 @@
 #define setsharp_pretty_stream _n(setsharp_pretty_stream)
 #define setdepth_pretty_stream _n(setdepth_pretty_stream)
 #define close_pretty_stream_ _n(close_pretty_stream_)
+#define close_pretty_stream_unwind_protect_ _n(close_pretty_stream_unwind_protect_)
 #define push_pretty_stream_ _n(push_pretty_stream_)
 #define pop_pretty_stream_ _n(pop_pretty_stream_)
 #define push_pretty_stream_p _n(push_pretty_stream_p)
@@ -53,6 +54,7 @@ void setsharp_pretty_stream(addr stream, addr value);
 /* pretty-stream function */
 void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc);
 int close_pretty_stream_(Execute ptr, addr stream);
+int close_pretty_stream_unwind_protect_(Execute ptr, addr stream);
 int push_pretty_stream_(addr stream, addr pos);
 int pop_pretty_stream_(addr stream, addr *value, int *ret);
 int push_pretty_stream_p(addr stream);

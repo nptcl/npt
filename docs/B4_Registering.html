@@ -6,6 +6,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Registering Functions</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -15,6 +145,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -102,11 +233,11 @@ Next: <a href="B5_Abort.html">5. LISP ABORT</a></p>
 If it’s not enough, define <code>LISP_POINTER_EXTEND</code> at compile time. As an example, here’s how to run a compilation with 128 extensions</p>
 <pre><code>$ cc -DLISP_POINTER_EXTEND=128 src/*.c -lm</code></pre>
 <p>The instruction to register the function pointer is shown below.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_rest(<span class="dt">int</span> index, lisp_calltype_rest call);</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_empty(<span class="dt">int</span> index, lisp_calltype_empty call);</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_var1(<span class="dt">int</span> index, lisp_calltype_var1 call);</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_var2(<span class="dt">int</span> index, lisp_calltype_var2 call);</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_var3(<span class="dt">int</span> index, lisp_calltype_var3 call);</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_rest<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> lisp_calltype_rest call<span class="op">);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_empty<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> lisp_calltype_empty call<span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_var1<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> lisp_calltype_var1 call<span class="op">);</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_var2<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> lisp_calltype_var2 call<span class="op">);</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_var3<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> lisp_calltype_var3 call<span class="op">);</span></span></code></pre></div>
 <p>The argument <code>index</code> is a number to register, usually from 0 to 31.<br />
 The argument <code>call</code> is the pointer to the function of the escape function.<br />
 The function to be used depends on the argument.</p>
@@ -116,49 +247,49 @@ The type <code>empty</code> means no argument, <code>var1</code> means one, <cod
 It is an escape function to register.</p>
 <h1 id="creating-a-function-object">4.3 Creating a Function Object</h1>
 <p>The instructions for creating a function object are as follows</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_function_(addr x, <span class="dt">int</span> index, addr symbol);</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_function8_(addr x, <span class="dt">int</span> index, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_function16_(addr x, <span class="dt">int</span> index, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_function32_(addr x, <span class="dt">int</span> index, <span class="dt">const</span> <span class="dt">void</span> *str);</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_function_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">int</span> index<span class="op">,</span> addr symbol<span class="op">);</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_function8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">int</span> index<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_function16_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">int</span> index<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_function32_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">int</span> index<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span></code></pre></div>
 <p>Because these functions are executed on Common Lisp, they are different from function pointer registration functions and cannot be executed until control is passed to the <code>main_lisp</code> function.</p>
 <p>As an example, consider the following escape function in Common Lisp.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="dt">int</span> function_test_(addr list)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>{</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="cf">return</span> lisp_format8_(NULL, <span class="st">&quot;TEST = ~A~%&quot;</span>, list, NULL);</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> function_test_<span class="op">(</span>addr list<span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;TEST = ~A~%&quot;</span><span class="op">,</span> list<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>At first, the function pointer of <code>function_test_</code> is registered in function number 0.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>lisp_compiled_rest(<span class="dv">0</span>, function_test_);</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>lisp_compiled_rest<span class="op">(</span><span class="dv">0</span><span class="op">,</span> function_test_<span class="op">);</span></span></code></pre></div>
 <p>Now that a function can be created, the steps to create a function object are as follows</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>lisp_compiled_function_(x, <span class="dv">0</span>, NULL);</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lisp_compiled_function_<span class="op">(</span>x<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> NULL<span class="op">);</span></span></code></pre></div>
 <p>Create the function <code>test_output_</code> to run and check it.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="dt">int</span> test_output_(<span class="dt">void</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>{</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    addr control, x;</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>    x = Lisp_hold();</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>    lisp_compiled_function_(x, <span class="dv">0</span>, NULL);</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test_output_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> x<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    lisp_compiled_function_<span class="op">(</span>x<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The function object is now stored in the <code>x</code> hold variable.<br />
 Further, the function object is now executed with <code>funcall</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="dt">int</span> test_output_(<span class="dt">void</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>{</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    addr control, x, y, z;</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    x = Lisp_hold();</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    y = Lisp_hold();</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    z = Lisp_hold();</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>    lisp_compiled_function_(x, <span class="dv">0</span>, NULL);</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>    lisp_fixnum(y, <span class="dv">10</span>);</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>    lisp_fixnum(z, <span class="dv">20</span>);</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>    lisp_funcall_(NULL, x, y, z, NULL);</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> test_output_<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> x<span class="op">,</span> y<span class="op">,</span> z<span class="op">;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    lisp_compiled_function_<span class="op">(</span>x<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>y<span class="op">,</span> <span class="dv">10</span><span class="op">);</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>z<span class="op">,</span> <span class="dv">20</span><span class="op">);</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    lisp_funcall_<span class="op">(</span>NULL<span class="op">,</span> x<span class="op">,</span> y<span class="op">,</span> z<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Escape is ignored.</p>
 <p>The function <code>test_output_</code> is expressed in Common Lisp as follows.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>(<span class="kw">funcall</span> #&lt;COMPILED-FUNCTION NIL&gt; <span class="dv">10</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">funcall</span> #&lt;COMPILED-FUNCTION NIL&gt; <span class="dv">10</span> <span class="dv">20</span>)</span></code></pre></div>
 <p>The results are as follows.</p>
 <pre><code>TEST = (10 20)</code></pre>
 <p>The registered function works.</p>
@@ -166,56 +297,56 @@ Further, the function object is now executed with <code>funcall</code>.</p>
 <p>The following is an example of the behavior of <code>defun</code>.<br />
 Register a function object in the <code>symbol-function</code>.</p>
 <p>The functions used for registration are as follows</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_defun_(<span class="dt">int</span> index, addr symbol);</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_defun8_(<span class="dt">int</span> index, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_defun16_(<span class="dt">int</span> index, <span class="dt">const</span> <span class="dt">void</span> *str);</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="dt">int</span> lisp_compiled_defun32_(<span class="dt">int</span> index, <span class="dt">const</span> <span class="dt">void</span> *str);</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_defun_<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> addr symbol<span class="op">);</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_defun8_<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_defun16_<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_compiled_defun32_<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span></code></pre></div>
 <p>As an example, register the function <code>fact_</code>, which is a factorial function created previously, under the name <code>FACT</code>.<br />
 The function <code>fact_</code>, completed in the previous chapter, is as follows.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> fact_(addr x, addr value)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>{</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    addr control, y;</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>    <span class="cf">if</span> (! lisp_plus_p(value)) {</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>        lisp_fixnum(x, <span class="dv">1</span>);</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>    }</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a>    y = Lisp_hold();</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(y, <span class="st">&quot;1-&quot;</span>, value, NULL))</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true"></a>    <span class="cf">if</span> (fact_(y, y))</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true"></a>    <span class="cf">if</span> (lisp_funcall8_(x, <span class="st">&quot;*&quot;</span>, value, y, NULL))</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true"></a>escape:</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> fact_<span class="op">(</span>addr x<span class="op">,</span> addr value<span class="op">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> y<span class="op">;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span> lisp_plus_p<span class="op">(</span>value<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>y<span class="op">,</span> <span class="st">&quot;1-&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fact_<span class="op">(</span>y<span class="op">,</span> y<span class="op">))</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_funcall8_<span class="op">(</span>x<span class="op">,</span> <span class="st">&quot;*&quot;</span><span class="op">,</span> value<span class="op">,</span> y<span class="op">,</span> NULL<span class="op">))</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Although the function <code>fact_</code> is completed as an escape function, it cannot be registered as it is because it is not made for registration.<br />
 So, here is the function <code>function_fact_</code> for registration.<br />
 The function calls the function <code>fact_</code> and sets the return value.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="dt">int</span> function_fact_(addr var)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>{</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    addr control, x;</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>    x = Lisp_hold();</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>    <span class="cf">if</span> (fact_(x, var))</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a>        <span class="cf">goto</span> escape;</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>    lisp_set_result_control(x);</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>escape:</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> function_fact_<span class="op">(</span>addr var<span class="op">)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> x<span class="op">;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fact_<span class="op">(</span>x<span class="op">,</span> var<span class="op">))</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    lisp_set_result_control<span class="op">(</span>x<span class="op">);</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The function <code>lisp_set_result_control</code> is used to set the return value of the function.<br />
 The next step is the registration process.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="dt">int</span> main_lisp(<span class="dt">void</span> *ignore)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>{</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    lisp_compiled_var1(<span class="dv">1</span>, function_fact_);</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>    lisp_compiled_defun8_(<span class="dv">1</span>, <span class="st">&quot;FACT&quot;</span>);</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>    <span class="cf">return</span> lisp_eval_loop_();</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>ignore<span class="op">)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    lisp_compiled_var1<span class="op">(</span><span class="dv">1</span><span class="op">,</span> function_fact_<span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    lisp_compiled_defun8_<span class="op">(</span><span class="dv">1</span><span class="op">,</span> <span class="st">&quot;FACT&quot;</span><span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_eval_loop_<span class="op">();</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The registration is done using <code>lisp_compiled_var1</code> so that it takes only one argument.<br />
 The function number is 1.<br />
 Next, it runs <code>lisp_compiled_defun8_</code> and registers the function under the name <code>FACT</code>.<br />
@@ -235,31 +366,31 @@ $</code></pre>
 <p>The closure here is the ability to store values in a function object.<br />
 A function object can have a single value.<br />
 To set the value, use the following instructions</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_setvalue(addr pos, addr value);</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_setvalue<span class="op">(</span>addr pos<span class="op">,</span> addr value<span class="op">);</span></span></code></pre></div>
 <p>Here is an example of storing the value 10 in a closure after creating a function object</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>lisp_compiled_function_(x, <span class="dv">0</span>, NULL);</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>lisp_fixnum(value, <span class="dv">10</span>);</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>lisp_compiled_setvalue(x, value);</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lisp_compiled_function_<span class="op">(</span>x<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>lisp_fixnum<span class="op">(</span>value<span class="op">,</span> <span class="dv">10</span><span class="op">);</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>lisp_compiled_setvalue<span class="op">(</span>x<span class="op">,</span> value<span class="op">);</span></span></code></pre></div>
 <p>The value can be obtained by using the following instructions when the function that registered the function pointer is called.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_getvalue(addr *ret);</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_getvalue<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">);</span></span></code></pre></div>
 <p>This function has a few things to be careful about.<br />
 The value must be fetched before doing <code>lisp_push_control</code>.<br />
 Since this function does not allow to specify a hold variable, it receives the object directly.</p>
 <p>The following is an example of storing a value in the hold variable</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="dt">int</span> function_test_(addr list)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a>{</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>    addr control, x;</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a>    lisp_compiled_getvalue(&amp;x);</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a>    lisp_push_control(&amp;control);</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true"></a>    lisp_hold(&amp;x, x);</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true"></a>    ...</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true"></a>    <span class="cf">return</span> lisp_pop_control_(control);</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> function_test_<span class="op">(</span>addr list<span class="op">)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> x<span class="op">;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    lisp_compiled_getvalue<span class="op">(&amp;</span>x<span class="op">);</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    lisp_hold<span class="op">(&amp;</span>x<span class="op">,</span> x<span class="op">);</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h1 id="why-assign-to-a-number">4.6 Why assign to a number?</h1>
 <p>We explained that when the function pointer is registered, it is assigned to a number from 0 to 31.</p>
 <p>For example, do the following.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a>lisp_compiled_rest(<span class="dv">0</span>, function_test_);</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lisp_compiled_rest<span class="op">(</span><span class="dv">0</span><span class="op">,</span> function_test_<span class="op">);</span></span></code></pre></div>
 <p>So why do we assign them to numbers?<br />
 The reason is to read and write the core file.</p>
 <p>Initially, the core file was supposed to contain the function pointer values as they are.<br />
@@ -268,7 +399,7 @@ If a function pointer value is written to the core file, it will not work proper
 <p>Numbering is also used inside npt, where the <code>lisp_init</code> function sets the numbering of all functions, including the Common Lisp functions.<br />
 You can register function pointers at any time before the function is executed, but it is better to register them as soon as possible.</p>
 <p>On the other hand, the following function</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>lisp_compiled_defun8_(<span class="dv">0</span>, <span class="st">&quot;TEST&quot;</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>lisp_compiled_defun8_<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="st">&quot;TEST&quot;</span><span class="op">);</span></span></code></pre></div>
 <p>This is a feature of Common Lisp to create a <code>compiled-function</code> object.<br />
 Because it is not initialization, it can only be executed after the <code>main_lisp</code> function.</p>
 </body>

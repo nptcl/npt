@@ -6,6 +6,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>LISP ABORT</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -15,6 +145,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -92,7 +223,7 @@ Next: <a href="B6_Operations.html">6. Escape Operations</a></p>
 <p><code>LISP ABORT</code> is a forced termination due to a system error.<br />
 The C language <code>exit</code> function is called with the exit code <code>1</code> to terminate the process.</p>
 <p>If you want to run abort manually, run the following function.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>lisp_abort();</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>lisp_abort<span class="op">();</span></span></code></pre></div>
 <p>The result is as follows.</p>
 <pre><code>$ ./a.out
 
@@ -106,10 +237,10 @@ $</code></pre>
 <p>When the statement <code>LISP ABORT</code> is printed, as in the runtime example, it means that the process has been forced to terminate.<br />
 The exit code is <code>1</code>.<br />
 The message at the end can be added with the following functions.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">void</span> lisp_abortf(<span class="dt">const</span> <span class="dt">char</span> *fmt, ...);</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="dt">void</span> lisp_abort8(<span class="dt">const</span> <span class="dt">void</span> *fmt, ...);</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="dt">void</span> lisp_abort16(<span class="dt">const</span> <span class="dt">void</span> *fmt, ...);</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="dt">void</span> lisp_abort32(<span class="dt">const</span> <span class="dt">void</span> *fmt, ...);</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abortf<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort8<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort16<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort32<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
 <p>Functions with 8, 16, or 32 in their names are used to create messages with the <code>lisp_string8_</code> function.<br />
 Because it goes through <code>format</code>, Common Lisp must be running.</p>
 <p>The function <code>lisp_abortf</code> takes a format of <code>printf</code> as an argument.<br />
@@ -118,14 +249,14 @@ Because it does not go through the <code>format</code>, Common Lisp is not requi
 <h1 id="handler-settings">5.2 Handler Settings</h1>
 <p>The <code>lisp_abort</code> can control the behavior of a handler by registering them.<br />
 For example, let’s set up the following handlers.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">void</span> test_handler(<span class="dt">void</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>{</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    printf(<span class="st">&quot;Hello Handler.</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> test_handler<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Hello Handler.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The function <code>lisp_set_abort_handler</code> is used to register the handler.<br />
 For example, consider the following example.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>lisp_set_abort_handler(test_handler);</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>lisp_abort();</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lisp_set_abort_handler<span class="op">(</span>test_handler<span class="op">);</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>lisp_abort<span class="op">();</span></span></code></pre></div>
 <p>The results are shown below.</p>
 <pre><code>$ ./a.out
 Hello Handler.
@@ -148,20 +279,20 @@ To capture and continue, use the following instructions</p>
 <p><code>lisp_set_abort_setjmp_handler</code> sets the handler for capture.<br />
 <code>Lisp_abort_Begin</code> and <code>Lisp_abort_End</code> are macros to enclose the capturing process.</p>
 <p>The following is an example of capturing <code>LISP ABORT</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">void</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>{</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    lisp_set_abort_setjmp_handler();</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>    Lisp_abort_Begin {</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>        printf(<span class="st">&quot;Start</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>        lisp_abort();</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>        printf(<span class="st">&quot;End</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>    }</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>    Lisp_abort_End;</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>    printf(<span class="st">&quot;Return</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    lisp_set_abort_setjmp_handler<span class="op">();</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_Begin <span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;Start</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        lisp_abort<span class="op">();</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;End</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_End<span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Return</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The results are as follows.</p>
 <pre><code>$ ./a.out
 Start
@@ -171,30 +302,30 @@ $</code></pre>
 This is because the <code>lisp_abort</code> function caused the abort and the process jumped to <code>Lisp_abort_End</code>.<br />
 With the above method, it’s hard to tell if the process is a normal end, or if it’s a <code>LISP ABORT</code> occurrence.</p>
 <p>So, change it as follows</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="dt">void</span> main_call(<span class="dt">void</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>{</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    printf(<span class="st">&quot;Start</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    lisp_abort();</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    printf(<span class="st">&quot;End</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>}</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">void</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>{</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>    <span class="dt">int</span> finish;</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>    lisp_set_abort_setjmp_handler();</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>    finish = <span class="dv">0</span>;</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>    Lisp_abort_Begin {</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a>        main_call();</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a>        finish = <span class="dv">1</span>;</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a>    }</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a>    Lisp_abort_End;</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true"></a>    <span class="cf">if</span> (finish == <span class="dv">0</span>)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true"></a>        printf(<span class="st">&quot;Lisp Abort</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true"></a></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main_call<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Start</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    lisp_abort<span class="op">();</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;End</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> finish<span class="op">;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    lisp_set_abort_setjmp_handler<span class="op">();</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    finish <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_Begin <span class="op">{</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        main_call<span class="op">();</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        finish <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_End<span class="op">;</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>finish <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;Lisp Abort</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>A variable <code>finish</code> is prepared and it is assumed to be finished successfully if the value is changed at the end of <code>Lisp_abort_Begin</code>.<br />
 The results are shown below.</p>
 <pre><code>$ ./a.out
@@ -205,39 +336,39 @@ $</code></pre>
 <p>The handler for <code>LISP ABORT</code> is <code>setjmp</code> in C, but when compiled in C++ it is changed to <code>try</code>/<code>atch</code>.<br />
 The reason for the change is that the destructor will not be invoked if it is <code>setjmp</code>.<br />
 As an example, let’s try to run the following statement in C++.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> destruct</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>{</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="kw">public</span>:</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>    destruct() { printf(<span class="st">&quot;Constructor</span><span class="sc">\n</span><span class="st">&quot;</span>); };</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>    ~destruct() { printf(<span class="st">&quot;Destructor</span><span class="sc">\n</span><span class="st">&quot;</span>); };</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>};</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a><span class="dt">void</span> main_call(<span class="dt">void</span>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>{</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>    destruct x;</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a>    printf(<span class="st">&quot;Start</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a>    lisp_abort();</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a>    printf(<span class="st">&quot;End</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true"></a>}</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true"></a></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">void</span>)</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true"></a>{</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true"></a>    <span class="dt">int</span> finish;</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true"></a></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true"></a>    lisp_set_abort_setjmp_handler();</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true"></a>    finish = <span class="dv">0</span>;</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true"></a>    Lisp_abort_Begin {</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true"></a>        main_call();</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true"></a>        finish = <span class="dv">1</span>;</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true"></a>    }</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true"></a>    Lisp_abort_End;</span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true"></a></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true"></a>    <span class="cf">if</span> (finish == <span class="dv">0</span>)</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true"></a>        printf(<span class="st">&quot;Lisp Abort</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true"></a></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> destruct</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    destruct<span class="op">()</span> <span class="op">{</span> printf<span class="op">(</span><span class="st">&quot;Constructor</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span> <span class="op">};</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">~</span>destruct<span class="op">()</span> <span class="op">{</span> printf<span class="op">(</span><span class="st">&quot;Destructor</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span> <span class="op">};</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main_call<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    destruct x<span class="op">;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Start</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    lisp_abort<span class="op">();</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;End</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> finish<span class="op">;</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    lisp_set_abort_setjmp_handler<span class="op">();</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    finish <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_Begin <span class="op">{</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>        main_call<span class="op">();</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        finish <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_End<span class="op">;</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>finish <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;Lisp Abort</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>An example is shown below.</p>
 <pre><code>$ ./a.out
 Constructor

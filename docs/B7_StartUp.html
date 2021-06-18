@@ -6,6 +6,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Start Up</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -15,6 +145,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -93,115 +224,115 @@ In normal C, the <code>main</code> function is the start of execution, and in Wi
 Here’s how npt is initialized in both cases.</p>
 <h1 id="start-and-end">7.2 Start and end</h1>
 <p>To start npt, first execute the following function</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">void</span> lisp_init(<span class="dt">void</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_init<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <p>This function initializes a static variable used by the C language in npt and declares it ready to be used.<br />
 The corresponding release process is the following functions.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">void</span> lisp_free(<span class="dt">void</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_free<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <p>After the initialization process is executed, the function pointer can be registered. The function pointer registration is a process using the following functions, for example.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">void</span> lisp_compiled_rest(<span class="dt">int</span> index, lisp_calltype_rest call);</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_compiled_rest<span class="op">(</span><span class="dt">int</span> index<span class="op">,</span> lisp_calltype_rest call<span class="op">);</span></span></code></pre></div>
 <p>Once the function pointer is executed, it persists until it is released with <code>lisp_free</code>.</p>
 <h1 id="reading-command-arguments">7.3 Reading Command Arguments</h1>
 <p>The command argument is the <code>argc</code>, <code>argv</code>, and <code>env</code> of the <code>main</code> function.<br />
 The function used for reading is as follows.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">struct</span> lispargv *lispargv_main(<span class="dt">int</span> argc, <span class="dt">char</span> *argv[], <span class="dt">char</span> *env[]);</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> lispargv <span class="op">*</span>lispargv_main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[],</span> <span class="dt">char</span> <span class="op">*</span>env<span class="op">[]);</span></span></code></pre></div>
 <p>In case of an error, null is returned.<br />
 Since the memory is dynamically allocated, the following release process is required at the time of exit.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="dt">void</span> lispargv_free(<span class="kw">struct</span> lispargv *ptr);</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lispargv_free<span class="op">(</span><span class="kw">struct</span> lispargv <span class="op">*</span>ptr<span class="op">);</span></span></code></pre></div>
 <p>An example is shown below.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span> *argv[], <span class="dt">char</span> *env[])</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>{</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    <span class="kw">struct</span> lispargv *args;</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>    lisp_init();</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>    args = lispargv_main(argc, argv, env);</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>    <span class="cf">if</span> (args == NULL) {</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>        fprintf(stderr, <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>    }</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>    <span class="co">/* Here&#39;s the code for npt. */</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>    <span class="co">/* free */</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>    lispargv_free(args);</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>    lisp_free();</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[],</span> <span class="dt">char</span> <span class="op">*</span>env<span class="op">[])</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> lispargv <span class="op">*</span>args<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    lisp_init<span class="op">();</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    args <span class="op">=</span> lispargv_main<span class="op">(</span>argc<span class="op">,</span> argv<span class="op">,</span> env<span class="op">);</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args <span class="op">==</span> NULL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* Here&#39;s the code for npt. */</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* free */</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    lispargv_free<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    lisp_free<span class="op">();</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The function <code>lispargv_main</code> ignores <code>argc</code>, <code>argv</code>, and <code>env</code> on Windows, and forces the following functions to be executed instead.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">struct</span> lispargv *lispargv_windows(<span class="dt">void</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> lispargv <span class="op">*</span>lispargv_windows<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <p>This function is equivalent to the <code>lispargv_main</code>, but it gets the arguments and environment variables from the WIN32API.<br />
 If the function <code>WinMain</code> is used, the above function should be used because there is no argument like <code>argc</code>.<br />
 However, it is possible to start the program from the <code>main</code> function even on Windows.<br />
 Even in such a case, it forces the <code>lispargv_windows</code> function to be used to process the character code correctly.<br />
 If you want to run the function from the <code>main</code> function instead of <code>lispargv_windows</code>, use the following function.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">struct</span> lispargv *lispargv_main_force(<span class="dt">int</span> argc, <span class="dt">char</span> *argv[], <span class="dt">char</span> *env[]);</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> lispargv <span class="op">*</span>lispargv_main_force<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[],</span> <span class="dt">char</span> <span class="op">*</span>env<span class="op">[]);</span></span></code></pre></div>
 <p>This function forces reading of arguments, even on Windows.</p>
 <p>If <code>argc</code>, <code>argv</code>, and <code>env</code> are not present or you do not want to specify them, perform as follows.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>args = lispargv_main_force(<span class="dv">0</span>, NULL, NULL);</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>args <span class="op">=</span> lispargv_main_force<span class="op">(</span><span class="dv">0</span><span class="op">,</span> NULL<span class="op">,</span> NULL<span class="op">);</span></span></code></pre></div>
 <h1 id="npt-settings">7.4 Npt settings</h1>
 <p>This section explains how to set up Npt manually instead of from arguments.<br />
 Here’s an example of a typical <code>--standalone</code> mode configuration</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>args-&gt;mode_core = <span class="dv">0</span>;</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>args-&gt;mode_degrade = <span class="dv">0</span>;</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>args-&gt;mode_standalone = <span class="dv">1</span>;</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>args-&gt;nocore = <span class="dv">1</span>;</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>args-&gt;noinit = <span class="dv">1</span>;</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>args-&gt;debugger = <span class="dv">1</span>;</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>args-&gt;debuggerp = <span class="dv">0</span>;</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>args-&gt;quit = <span class="dv">1</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>mode_core <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>mode_degrade <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>mode_standalone <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>nocore <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>noinit <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>debugger <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>debuggerp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>quit <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span></code></pre></div>
 <p>To change the size of the memory, do the following</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>args-&gt;heap = <span class="dv">1024</span><span class="bu">UL</span> * <span class="dv">1024</span><span class="bu">UL</span>*<span class="dv">1024</span><span class="bu">UL</span>;  <span class="co">/* 1G */</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>args-&gt;local = <span class="dv">256</span><span class="bu">UL</span> * <span class="dv">1024</span><span class="bu">UL</span>*<span class="dv">1024</span><span class="bu">UL</span>;  <span class="co">/* 256M */</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>heap <span class="op">=</span> <span class="dv">1024</span><span class="bu">UL</span> <span class="op">*</span> <span class="dv">1024</span><span class="bu">UL</span><span class="op">*</span><span class="dv">1024</span><span class="bu">UL</span><span class="op">;</span>  <span class="co">/* 1G */</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>args<span class="op">-&gt;</span>local <span class="op">=</span> <span class="dv">256</span><span class="bu">UL</span> <span class="op">*</span> <span class="dv">1024</span><span class="bu">UL</span><span class="op">*</span><span class="dv">1024</span><span class="bu">UL</span><span class="op">;</span>  <span class="co">/* 256M */</span></span></code></pre></div>
 <p><code>heap</code> is the size of the heap area.<br />
 <code>local</code> is the size of the stack region.<br />
 Both are allocated by <code>malloc</code> in the initial stage of npt execution.</p>
 <p>To summarize the above, the following is a typical <code>main</code> function.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span> *argv[], <span class="dt">char</span> *env[])</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>{</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    <span class="dt">int</span> result;</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>    <span class="kw">struct</span> lispargv *args;</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>    <span class="co">/* initialize */</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>    lisp_init();</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>    args = lispargv_main(argc, argv, env);</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>    <span class="cf">if</span> (args == NULL) {</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>        fprintf(stderr, <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a>    }</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true"></a></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true"></a>    <span class="co">/* main_argv */</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a>    args-&gt;mode_core = <span class="dv">0</span>;</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a>    args-&gt;mode_degrade = <span class="dv">0</span>;</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true"></a>    args-&gt;mode_standalone = <span class="dv">1</span>;</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true"></a>    args-&gt;nocore = <span class="dv">1</span>;</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true"></a>    args-&gt;noinit = <span class="dv">1</span>;</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true"></a>    args-&gt;debugger = <span class="dv">1</span>;</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true"></a>    args-&gt;debuggerp = <span class="dv">0</span>;</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true"></a>    args-&gt;quit = <span class="dv">1</span>;</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true"></a>    result = main_argv(args);</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true"></a>    <span class="co">/* free */</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true"></a>    lispargv_free(args);</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true"></a>    lisp_free();</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true"></a></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true"></a>    <span class="cf">return</span> result;</span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[],</span> <span class="dt">char</span> <span class="op">*</span>env<span class="op">[])</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result<span class="op">;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> lispargv <span class="op">*</span>args<span class="op">;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* initialize */</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    lisp_init<span class="op">();</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    args <span class="op">=</span> lispargv_main<span class="op">(</span>argc<span class="op">,</span> argv<span class="op">,</span> env<span class="op">);</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args <span class="op">==</span> NULL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* main_argv */</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>mode_core <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>mode_degrade <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>mode_standalone <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>nocore <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>noinit <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>debugger <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>debuggerp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>quit <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> main_argv<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* free */</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    lispargv_free<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    lisp_free<span class="op">();</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Next, the function <code>main_argv</code> is created.</p>
 <h1 id="show-help">7.5 Show Help</h1>
 <p>If the argument is something about the display, such as <code>--help</code>, it prints the information and exits the execution.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> main_argv(<span class="kw">struct</span> lispargv *args)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>{</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_help)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_help(stdout);</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_version)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_version(args, stdout);</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_degrade)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_degrade(args);</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a> </span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a>   <span class="co">/* Create the content here in the next chapter. */</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> main_argv<span class="op">(</span><span class="kw">struct</span> lispargv <span class="op">*</span>args<span class="op">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_help<span class="op">)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_help<span class="op">(</span>stdout<span class="op">);</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_version<span class="op">)</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_version<span class="op">(</span>args<span class="op">,</span> stdout<span class="op">);</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_degrade<span class="op">)</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_degrade<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>   <span class="co">/* Create the content here in the next chapter. */</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The following arguments are now supported</p>
 <ul>
 <li><code>--help</code></li>
@@ -212,34 +343,34 @@ Both are allocated by <code>malloc</code> in the initial stage of npt execution.
 <h1 id="executing-main_lisp">7.6 Executing <code>main_lisp</code></h1>
 <p>The next step is to build the npt environment.<br />
 The following functions are used.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="dt">int</span> lisp_argv_init(<span class="kw">struct</span> lispargv *ptr);</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a><span class="dt">int</span> lisp_argv_run(<span class="kw">struct</span> lispargv *ptr);</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_argv_init<span class="op">(</span><span class="kw">struct</span> lispargv <span class="op">*</span>ptr<span class="op">);</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_argv_run<span class="op">(</span><span class="kw">struct</span> lispargv <span class="op">*</span>ptr<span class="op">);</span></span></code></pre></div>
 <p>The <code>lisp_argv_init</code> function is used to prepare and run Lisp by the <code>lisp_argv_run</code> function.<br />
 As shown in the previous examples, set the <code>main_lisp</code> function to <code>args-&gt;call</code>.<br />
 The following is an example.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a> <span class="dt">int</span> main_lisp(<span class="dt">void</span> *call_ptr)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>{</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>}</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> main_argv(<span class="kw">struct</span> lispargv *args)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>{</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a>    <span class="co">/* mode */</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_help)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_help(stdout);</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_version)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_version(args, stdout);</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_degrade)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_degrade(args);</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true"></a></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true"></a>    <span class="co">/* execute */</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true"></a>    args-&gt;call = main_lisp;</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true"></a>    args-&gt;call_ptr = NULL;</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true"></a>    lisp_argv_init(args);</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true"></a>    lisp_argv_run(args);</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true"></a></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true"></a>    <span class="cf">return</span> lisp_code? <span class="dv">1</span>: lisp_result;</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a> <span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>call_ptr<span class="op">)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> main_argv<span class="op">(</span><span class="kw">struct</span> lispargv <span class="op">*</span>args<span class="op">)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* mode */</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_help<span class="op">)</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_help<span class="op">(</span>stdout<span class="op">);</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_version<span class="op">)</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_version<span class="op">(</span>args<span class="op">,</span> stdout<span class="op">);</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_degrade<span class="op">)</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_degrade<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* execute */</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>call <span class="op">=</span> main_lisp<span class="op">;</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>call_ptr <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    lisp_argv_init<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    lisp_argv_run<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_code<span class="op">?</span> <span class="dv">1</span><span class="op">:</span> lisp_result<span class="op">;</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The return value of <code>lisp_argv_init</code> and <code>lisp_argv_run</code> is returned whether an error occurred or not. However, since the variable <code>lisp_code</code> is set to show whether an error occurred or not, you only have to check this value.</p>
 <p>The <code>main_lisp</code> function registered at <code>args-&gt;call</code> is called with <code>args-&gt;call_ptr</code> as an argument.<br />
 The reason why you need to register them with function pointers is that you need to set various settings before executing them in order for them to work properly as Common Lisp.<br />
@@ -247,60 +378,60 @@ One example is the handling of <code>handler-bind</code> used in the <code>warn<
 <p>The <code>main_lisp</code> function is an escape function, which is a little different from the usual escape function. If the function returns a non-zero value on non-escape, it assumes an abnormal exit and ignores all subsequent operations and exits with the exit code <code>1</code>.</p>
 <h1 id="summary">7.7 Summary</h1>
 <p>To summarize the content, here’s the first example sentence <a href="B1_Using.html">1. Using Npt in C</a>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="dt">int</span> main_lisp(<span class="dt">void</span> *call_ptr)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>{</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>    <span class="cf">return</span> lisp_format8_(NULL, <span class="st">&quot;Hello~%&quot;</span>, NULL);</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>}</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">int</span> main_argv(<span class="kw">struct</span> lispargv *args)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a>{</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>    <span class="co">/* mode */</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_help)</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_help(stdout);</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_version)</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_version(args, stdout);</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a>    <span class="cf">if</span> (args-&gt;mode_degrade)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a>        <span class="cf">return</span> lisp_main_degrade(args);</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true"></a></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true"></a>    <span class="co">/* execute */</span></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true"></a>    args-&gt;call = main_lisp;</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true"></a>    args-&gt;call_ptr = NULL;</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true"></a>    lisp_argv_init(args);</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true"></a>    lisp_argv_run(args);</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true"></a></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true"></a>    <span class="cf">return</span> lisp_code? <span class="dv">1</span>: lisp_result;</span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true"></a>}</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true"></a></span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span> *argv[], <span class="dt">char</span> *env[])</span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true"></a>{</span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true"></a>    <span class="dt">int</span> result;</span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true"></a>    <span class="kw">struct</span> lispargv *args;</span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true"></a></span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true"></a>    <span class="co">/* initialize */</span></span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true"></a>    lisp_init();</span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true"></a>    args = lispargv_main(argc, argv, env);</span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true"></a>    <span class="cf">if</span> (args == NULL) {</span>
-<span id="cb16-34"><a href="#cb16-34" aria-hidden="true"></a>        fprintf(stderr, <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb16-35"><a href="#cb16-35" aria-hidden="true"></a>        <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb16-36"><a href="#cb16-36" aria-hidden="true"></a>    }</span>
-<span id="cb16-37"><a href="#cb16-37" aria-hidden="true"></a></span>
-<span id="cb16-38"><a href="#cb16-38" aria-hidden="true"></a>    <span class="co">/* main_argv */</span></span>
-<span id="cb16-39"><a href="#cb16-39" aria-hidden="true"></a>    args-&gt;mode_core = <span class="dv">0</span>;</span>
-<span id="cb16-40"><a href="#cb16-40" aria-hidden="true"></a>    args-&gt;mode_degrade = <span class="dv">0</span>;</span>
-<span id="cb16-41"><a href="#cb16-41" aria-hidden="true"></a>    args-&gt;mode_standalone = <span class="dv">1</span>;</span>
-<span id="cb16-42"><a href="#cb16-42" aria-hidden="true"></a>    args-&gt;nocore = <span class="dv">1</span>;</span>
-<span id="cb16-43"><a href="#cb16-43" aria-hidden="true"></a>    args-&gt;noinit = <span class="dv">1</span>;</span>
-<span id="cb16-44"><a href="#cb16-44" aria-hidden="true"></a>    args-&gt;debugger = <span class="dv">1</span>;</span>
-<span id="cb16-45"><a href="#cb16-45" aria-hidden="true"></a>    args-&gt;debuggerp = <span class="dv">0</span>;</span>
-<span id="cb16-46"><a href="#cb16-46" aria-hidden="true"></a>    args-&gt;quit = <span class="dv">1</span>;</span>
-<span id="cb16-47"><a href="#cb16-47" aria-hidden="true"></a>    result = main_argv(args);</span>
-<span id="cb16-48"><a href="#cb16-48" aria-hidden="true"></a></span>
-<span id="cb16-49"><a href="#cb16-49" aria-hidden="true"></a>    <span class="co">/* free */</span></span>
-<span id="cb16-50"><a href="#cb16-50" aria-hidden="true"></a>    lispargv_free(args);</span>
-<span id="cb16-51"><a href="#cb16-51" aria-hidden="true"></a>    lisp_free();</span>
-<span id="cb16-52"><a href="#cb16-52" aria-hidden="true"></a></span>
-<span id="cb16-53"><a href="#cb16-53" aria-hidden="true"></a>    <span class="cf">return</span> result;</span>
-<span id="cb16-54"><a href="#cb16-54" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>call_ptr<span class="op">)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;Hello~%&quot;</span><span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> main_argv<span class="op">(</span><span class="kw">struct</span> lispargv <span class="op">*</span>args<span class="op">)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* mode */</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_help<span class="op">)</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_help<span class="op">(</span>stdout<span class="op">);</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_version<span class="op">)</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_version<span class="op">(</span>args<span class="op">,</span> stdout<span class="op">);</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args<span class="op">-&gt;</span>mode_degrade<span class="op">)</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lisp_main_degrade<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* execute */</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>call <span class="op">=</span> main_lisp<span class="op">;</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>call_ptr <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    lisp_argv_init<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    lisp_argv_run<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_code<span class="op">?</span> <span class="dv">1</span><span class="op">:</span> lisp_result<span class="op">;</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[],</span> <span class="dt">char</span> <span class="op">*</span>env<span class="op">[])</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result<span class="op">;</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> lispargv <span class="op">*</span>args<span class="op">;</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* initialize */</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    lisp_init<span class="op">();</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    args <span class="op">=</span> lispargv_main<span class="op">(</span>argc<span class="op">,</span> argv<span class="op">,</span> env<span class="op">);</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>args <span class="op">==</span> NULL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;argv error</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* main_argv */</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>mode_core <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>mode_degrade <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>mode_standalone <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>nocore <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>noinit <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>debugger <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>debuggerp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>    args<span class="op">-&gt;</span>quit <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> main_argv<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* free */</span></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>    lispargv_free<span class="op">(</span>args<span class="op">);</span></span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>    lisp_free<span class="op">();</span></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The results are as follows.</p>
 <pre><code>Hello</code></pre>
 </body>
