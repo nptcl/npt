@@ -69,25 +69,6 @@ static void init_stream_extend(void)
 		init_stream_extend_type(((int)StreamType_Size) + i);
 }
 
-static int finalize_close_stream(Execute ptr)
-{
-	addr stream;
-
-	getdata_control(ptr, &stream);
-	CheckType(stream, LISPTYPE_STREAM);
-	return close_stream_(stream, NULL);
-}
-
-void push_close_stream(Execute ptr, addr stream)
-{
-	setprotect_control(ptr, p_finalize_close_stream, stream);
-}
-
-static void init_stream_function(void)
-{
-	SetPointerType(empty, finalize_close_stream);
-}
-
 void init_stream(void)
 {
 	init_stream_binary_input();
@@ -113,7 +94,6 @@ void init_stream(void)
 	init_stream_memory_input();
 	init_stream_memory_output();
 	init_stream_memory_io();
-	init_stream_function();
 }
 
 

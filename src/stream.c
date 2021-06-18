@@ -1,7 +1,9 @@
 #include "bignum.h"
+#include "execute_object.h"
 #include "condition.h"
 #include "condition_define.h"
 #include "constant.h"
+#include "control_object.h"
 #include "file.h"
 #include "integer.h"
 #include "stream.h"
@@ -239,6 +241,20 @@ int redirect_unsigned8_stream_(Execute ptr, addr src, addr dst)
 	}
 
 	return 0;
+}
+
+int close_stream_unwind_protect_(Execute ptr, addr stream)
+{
+	addr control, save, ignore;
+
+	push_control(ptr, &control);
+	save_execute_control(ptr, &save);
+	normal_throw_control(ptr);
+	if (close_stream_(stream, &ignore))
+		goto escape;
+	restore_execute_control(ptr, save);
+escape:
+	return pop_control_(ptr, control);
 }
 
 

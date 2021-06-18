@@ -38,7 +38,6 @@
 #define restart2_control _n(restart2_control)
 #define set_taginfo_control _n(set_taginfo_control)
 #define set_blockinfo_control _n(set_blockinfo_control)
-#define set_protect_control _n(set_protect_control)
 #define catch_clang _n(catch_clang)
 
 /* arguments */
@@ -88,7 +87,6 @@ int restart2_control(Execute ptr, addr restart,
 
 void set_taginfo_control(Execute ptr, addr list);
 void set_blockinfo_control(Execute ptr, addr pos);
-void set_protect_control(Execute ptr, addr pos);
 int catch_clang(Execute ptr, pointer call, addr tag, addr value);
 
 #endif

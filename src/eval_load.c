@@ -85,10 +85,14 @@ static int eval_load_open_(Execute ptr, addr file, int exist, int binary,
 
 static int eval_load_fasl_call_(Execute ptr, addr file, int closep)
 {
+	int escape;
+
 	gchold_push_local(ptr->local, file);
-	if (closep)
-		push_close_stream(ptr, file);
-	return eval_compile_load(ptr, file);
+	escape = eval_compile_load(ptr, file);
+	if (! closep)
+		return escape;
+
+	return close_stream_unwind_protect_(ptr, file);
 }
 
 static int eval_load_fasl_(Execute ptr, int *ret, addr file, int exist)
@@ -109,10 +113,14 @@ static int eval_load_fasl_(Execute ptr, int *ret, addr file, int exist)
 
 static int eval_load_lisp_call_(Execute ptr, addr file, int closep)
 {
+	int escape;
+
 	gchold_push_local(ptr->local, file);
-	if (closep)
-		push_close_stream(ptr, file);
-	return eval_stream_toplevel_(ptr, file);
+	escape = eval_stream_toplevel_(ptr, file);
+	if (! closep)
+		return escape;
+
+	return close_stream_unwind_protect_(ptr, file);
 }
 
 static int eval_load_lisp_(Execute ptr, int *ret, addr file, int exist)
@@ -315,10 +323,14 @@ int eval_load_force_fasl_(Execute ptr, int *ret,
  */
 static int compile_load_lisp_call_(Execute ptr, addr file, int closep)
 {
+	int escape;
+
 	gchold_push_local(ptr->local, file);
-	if (closep)
-		push_close_stream(ptr, file);
-	return compile_load_stream_(ptr, file);
+	escape = compile_load_stream_(ptr, file);
+	if (! closep)
+		return escape;
+
+	return close_stream_unwind_protect_(ptr, file);
 }
 
 static int compile_load_lisp_(Execute ptr, int *ret, addr file, int exist)

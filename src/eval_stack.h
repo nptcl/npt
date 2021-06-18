@@ -27,7 +27,6 @@
 #define freestack_eval_ _n(freestack_eval_)
 #define begin_eval_stack_ _n(begin_eval_stack_)
 #define free_eval_stack _n(free_eval_stack)
-#define init_eval_stack _n(init_eval_stack)
 #define globalp_stack_eval _n(globalp_stack_eval)
 #define increment_stack_eval _n(increment_stack_eval)
 #define getlexical_stack_eval _n(getlexical_stack_eval)
@@ -147,7 +146,6 @@ int newstack_eval_(Execute ptr, enum EVAL_STACK_MODE type, addr *ret);
 int freestack_eval_(Execute ptr, addr scope);
 int begin_eval_stack_(Execute ptr);
 void free_eval_stack(Execute ptr);
-void init_eval_stack(void);
 int globalp_stack_eval(addr pos);
 size_t increment_stack_eval(addr pos);
 size_t getlexical_stack_eval(addr pos);

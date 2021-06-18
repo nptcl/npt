@@ -272,7 +272,7 @@ int begin_eval_stack_(Execute ptr)
 	return newstack_nil_(ptr, NULL);
 }
 
-static int function_free_eval_stack(Execute ptr)
+void free_eval_stack(Execute ptr)
 {
 	addr symbol;
 
@@ -280,13 +280,6 @@ static int function_free_eval_stack(Execute ptr)
 	setspecial_local(ptr, symbol, Nil);
 	getstack_symbol(&symbol);
 	setspecial_local(ptr, symbol, Nil);
-
-	return 0;
-}
-
-void free_eval_stack(Execute ptr)
-{
-	setprotect_control(ptr, p_defun_free_eval_stack, Nil);
 }
 
 int globalp_stack_eval(addr pos)
@@ -316,11 +309,6 @@ void getlexical_index_heap(addr stack, addr *ret)
 		*ret = Nil;
 	else
 		index_heap(ret, size);
-}
-
-void init_eval_stack(void)
-{
-	SetPointerCall(defun, empty, free_eval_stack);
 }
 
 

@@ -29,20 +29,21 @@
 /*
  *  Main
  */
-static int rtload_execute(Execute ptr, addr stream, int *ret)
+static int rtload_execute_(Execute ptr, addr stream)
 {
-	addr pos;
+	LocalHold hold;
 
-	push_close_stream(ptr, stream);
-	Return(eval_stream_toplevel_(ptr, stream));
-	getresult_control(ptr, &pos);
+	hold = LocalHold_local_push(ptr, stream);
+	(void)eval_stream_toplevel_(ptr, stream);
+	Return(close_stream_unwind_protect_(ptr, stream));
+	localhold_end(hold);
 
-	return Result(ret, pos != T);
+	return 0;
 }
 
-static int rtload_pathname(Execute ptr, addr file, int *ret)
+static int rtload_pathname_(Execute ptr, addr file, int *ret)
 {
-	addr path, stream;
+	addr path, stream, pos;
 
 	/* load name */
 	Return(open_input_stream_(ptr, &stream, file));
@@ -53,10 +54,12 @@ static int rtload_pathname(Execute ptr, addr file, int *ret)
 		Return(open_input_stream_error_(ptr, &stream, file)); /* force */
 	}
 
-	return rtload_execute(ptr, stream, ret);
+	Return(rtload_execute_(ptr, stream));
+	getresult_control(ptr, &pos);
+	return Result(ret, pos != T);
 }
 
-static int loadrt_init(Execute ptr, const char *name, int *ret)
+static int loadrt_init_(Execute ptr, const char *name, int *ret)
 {
 	addr package, symbol, use, file;
 
@@ -73,7 +76,7 @@ static int loadrt_init(Execute ptr, const char *name, int *ret)
 	Return(use_package_(package, use));
 	/* load-rt */
 	Return(parse_pathname_char_heap_(ptr, name, &file));
-	return rtload_pathname(ptr, file, ret);
+	return rtload_pathname_(ptr, file, ret);
 }
 
 static void loadrt_disable_debugger(Execute ptr)
@@ -96,7 +99,7 @@ static int loadrt_execute_call_(Execute ptr, const char *name)
 	Return(handler_warning_(ptr));
 	loadrt_disable_debugger(ptr);
 	loadrt_declare_optimize();
-	Return(loadrt_init(ptr, name, &check));
+	Return(loadrt_init_(ptr, name, &check));
 	if (check)
 		return fmte_("result code error.", NULL);
 

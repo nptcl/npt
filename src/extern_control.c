@@ -206,8 +206,11 @@ int lisp_defvar32_(const void *str)
  */
 void lisp_unwind_protect(addr clean)
 {
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	hold_value(clean, &clean);
-	set_protect_control(Execute_Thread, clean);
+	setprotect_value_control(ptr->control, clean);
 }
 
 

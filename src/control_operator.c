@@ -774,11 +774,6 @@ void set_blockinfo_control(Execute ptr, addr pos)
 	pushtaginfo_control(ptr, pos);
 }
 
-void set_protect_control(Execute ptr, addr pos)
-{
-	setprotect_value_control(ptr->control, pos);
-}
-
 
 /*
  *  catch / throw

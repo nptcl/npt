@@ -48,7 +48,7 @@
 #define sethandler_control _n(sethandler_control)
 #define setrestart_control _n(setrestart_control)
 #define setprotect_value_control _n(setprotect_value_control)
-#define setprotect_control _n(setprotect_control)
+#define setprotect_control_heap _n(setprotect_control_heap)
 #define setprotect_control_local _n(setprotect_control_local)
 
 #ifdef LISP_DEBUG_FORCE_GC
@@ -221,7 +221,7 @@ void setcatch_control(LocalRoot local, addr pos, addr value);
 void sethandler_control(LocalRoot local, addr pos, addr value);
 void setrestart_control(LocalRoot local, addr pos, addr value);
 void setprotect_value_control(addr pos, addr value);
-void setprotect_control(Execute ptr, pointer id, addr value);
+void setprotect_control_heap(Execute ptr, pointer id, addr value);
 void setprotect_control_local(Execute ptr, pointer id, addr value);
 
 #endif

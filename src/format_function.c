@@ -3042,7 +3042,7 @@ static int format_logicalblock1_call_(Execute ptr, addr pretty, addr stream)
 {
 	addr gensym;
 
-	setprotect_control(ptr, p_pprint_logical_block_close, stream);
+	setprotect_control_heap(ptr, p_pprint_logical_block_close, stream);
 	Return(gensym_pretty_stream_(stream, &gensym));
 	return catch_clang(ptr, p_format_logicalblock2, gensym, pretty);
 }

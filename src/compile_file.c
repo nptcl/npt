@@ -108,8 +108,8 @@ static int compile_file_output_stream_call_(Execute ptr,
 	Return(open_output_binary_stream_(ptr, &stream, output, FileOutput_supersede));
 	if (stream == NULL)
 		return fmte_("Cannot open the output file ~S.", output, NULL);
-	push_close_stream(ptr, stream);
-	return compile_file_execute_(ptr, input, stream, rest, ret);
+	(void)compile_file_execute_(ptr, input, stream, rest, ret);
+	return close_stream_unwind_protect_(ptr, stream);
 }
 
 static int compile_file_output_stream_(Execute ptr,
@@ -134,8 +134,8 @@ static int compile_file_input_stream_call_(Execute ptr,
 	Return(open_input_stream_(ptr, &stream, input));
 	if (stream == NULL)
 		return fmte_("Cannot open the input file ~S.", input, NULL);
-	push_close_stream(ptr, stream);
-	return compile_file_output_stream_(ptr, stream, output, rest, ret);
+	(void)compile_file_output_stream_(ptr, stream, output, rest, ret);
+	return close_stream_unwind_protect_(ptr, stream);
 }
 
 static int compile_file_input_stream_(Execute ptr,

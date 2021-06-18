@@ -565,7 +565,7 @@ void setprotect_value_control(addr pos, addr value)
 	SetControl(pos, Control_Protect, value);
 }
 
-void setprotect_control(Execute ptr, pointer id, addr value)
+void setprotect_control_heap(Execute ptr, pointer id, addr value)
 {
 	addr pos;
 

@@ -9,7 +9,6 @@
 static int eval_scope_call_(Execute ptr, addr *ret, addr eval)
 {
 	Return(begin_eval_stack_(ptr));
-	free_eval_stack(ptr);
 	return scope_eval_lexical(ptr, ret, eval);
 }
 
@@ -19,6 +18,7 @@ int eval_scope_(Execute ptr, addr *ret, addr eval)
 
 	push_control(ptr, &control);
 	(void)eval_scope_call_(ptr, ret, eval);
+	free_eval_stack(ptr);
 	return pop_control_(ptr, control);
 }
 

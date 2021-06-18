@@ -11,6 +11,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "execute_object.h"
 #include "function.h"
 #include "pathname_object.h"
 #include "pathname.h"
@@ -145,6 +146,12 @@ static int with_compilation_unit_override(Execute ptr, addr pos)
 	return pos == Unbound;
 }
 
+static int with_compilation_unit_call_(Execute ptr, addr call)
+{
+	Return(handler_delay_warning_(ptr));
+	return funcall_control(ptr, call, NULL);
+}
+
 static int function_finalize_delay_warning(Execute ptr)
 {
 	addr list, x;
@@ -164,37 +171,36 @@ static int function_finalize_delay_warning(Execute ptr)
 	return 0;
 }
 
-static int with_compilation_unit_call_(Execute ptr, addr call)
-{
-	Return(handler_delay_warning_(ptr));
-	return funcall_control(ptr, call, NULL);
-}
-
 static int with_compilation_unit_special_(Execute ptr, addr call)
 {
-	addr control, pos;
+	addr control, save;
 
-	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);
-	pushspecial_control(ptr, pos, Nil);
-	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
-	pushspecial_control(ptr, pos, T);
-	setprotect_control(ptr, p_defun_finalize_delay_warning, Nil);
-
-	/* push control */
-	push_control(ptr, &control);
+	/* call */
 	(void)with_compilation_unit_call_(ptr, call);
+
+	/* unwind-protect */
+	push_control(ptr, &control);
+	save_execute_control(ptr, &save);
+	normal_throw_control(ptr);
+	if (function_finalize_delay_warning(ptr))
+		goto escape;
+	restore_execute_control(ptr, save);
+escape:
 	return pop_control_(ptr, control);
 }
 
 int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
 {
-	addr control;
+	addr control, pos;
 
 	if (! with_compilation_unit_override(ptr, over))
 		return funcall_control(ptr, call, NULL);
 
-	/* unwind-protect */
 	push_control(ptr, &control);
+	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);
+	pushspecial_control(ptr, pos, Nil);
+	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
+	pushspecial_control(ptr, pos, T);
 	(void)with_compilation_unit_special_(ptr, call);
 	return pop_control_(ptr, control);
 }
@@ -206,7 +212,6 @@ int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
 void init_compile(void)
 {
 	SetPointerCall(defun, var1, handler_delay_warning);
-	SetPointerCall(defun, empty, finalize_delay_warning);
 	init_compile_file();
 	init_compile_read();
 	init_compile_typedef();

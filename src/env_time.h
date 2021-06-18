@@ -13,7 +13,6 @@
 #define get_internal_real_time_common_ _n(get_internal_real_time_common_)
 #define get_internal_run_time_common _n(get_internal_run_time_common)
 #define sleep_common_ _n(sleep_common_)
-#define init_environemnt_time _n(init_environemnt_time)
 
 struct universal_time_struct {
 	addr second, minute, hour, date, month, year, week, daylight_p, zone;
@@ -30,8 +29,6 @@ void get_internal_time_units_per_second(fixnum *ret);
 int get_internal_real_time_common_(LocalRoot local, addr *ret);
 void get_internal_run_time_common(addr *ret);
 int sleep_common_(Execute ptr, addr var);
-
-void init_environemnt_time(void);
 
 #endif
 

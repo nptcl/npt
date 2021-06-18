@@ -1006,7 +1006,6 @@ enum pointer_index {
 	p_defun_load,
 	p_defmacro_with_compilation_unit,
 	p_defun_handler_delay_warning,
-	p_defun_finalize_delay_warning,
 	p_defun_provide,
 	p_defun_require,
 	/* common-environment */
@@ -1015,7 +1014,6 @@ enum pointer_index {
 	p_defun_get_universal_time,
 	p_defun_get_decoded_time,
 	p_defun_sleep,
-	p_sleep_close_object,
 	p_defun_apropos,
 	p_defun_apropos_list,
 	p_defun_describe,
@@ -1132,7 +1130,6 @@ enum pointer_index {
 	p_defun_eval_loop_abort_report,
 	p_defun_eval_loop_abort_test,
 	p_defun_handler_compile,
-	p_defun_free_eval_stack,
 	/* rt */
 	p_defun_push_entries,
 	p_defun_rem_all_tests,
@@ -1205,8 +1202,6 @@ enum pointer_index {
 	p_restart_fdefinition_use_interactive,
 	p_restart_fdefinition_store_function,
 	p_restart_fdefinition_store_interactive,
-	/* stream */
-	p_finalize_close_stream,
 	/* syscall common */
 	p_defun_syscall_redirect_restart,
 	p_defun_syscall_define_symbol_macro,

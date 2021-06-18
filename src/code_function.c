@@ -699,7 +699,7 @@ int blockinfo_code(Execute ptr, CodeValue x)
 
 int unwind_protect_code(Execute ptr, CodeValue x)
 {
-	set_protect_control(ptr, x.pos);
+	setprotect_value_control(ptr->control, x.pos);
 	return 0;
 }
 

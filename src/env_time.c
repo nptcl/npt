@@ -7,6 +7,7 @@
 #include "condition.h"
 #include "condition_debugger.h"
 #include "env_time.h"
+#include "execute_object.h"
 #include "function.h"
 #include "hold.h"
 #include "integer.h"
@@ -867,18 +868,10 @@ static int sleep_second_common(Execute ptr, fixnum value)
 {
 	return sleep_moment_common(ptr, (fixnum)(value * LISP_SLEEP_INTERVAL));
 }
-
-#else
-
-static int sleep_close_object(Execute ptr)
-{
-	/* do nothing */
-	return 0;
-}
 #endif
 
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
-static int sleep_integer_common(Execute ptr, addr var)
+static int sleep_integer_common(Execute ptr, addr var, int *ret)
 {
 	int check;
 	LocalRoot local;
@@ -892,15 +885,17 @@ static int sleep_integer_common(Execute ptr, addr var)
 		Return(plusp_integer_(var, &check));
 		if (! check)
 			break;
-		Return(sleep_second_common(ptr, LISP_SLEEP_FIXNUM));
+		if (sleep_second_common(ptr, LISP_SLEEP_FIXNUM))
+			return Result(ret, 1);
 		Return(oneminus_integer_common_(local, var, &var));
 	}
 	GetFixnum(wait, &value);
-	return sleep_second_common(ptr, value);
+	return Result(ret, sleep_second_common(ptr, value));
 }
 
-static int sleep_execute_common_(Execute ptr, addr var)
+static int sleep_execute_common_(Execute ptr, addr var, int *ret)
 {
+	int check;
 	addr right;
 	LocalRoot local;
 	fixnum value;
@@ -908,9 +903,11 @@ static int sleep_execute_common_(Execute ptr, addr var)
 	fixnum_heap(&right, LISP_SLEEP_INTERVAL);
 	local = ptr->local;
 	Return(truncate2_common_(local, &var, &right, var, right));
-	Return(sleep_integer_common(ptr, var));
+	Return(sleep_integer_common(ptr, var, &check));
+	if (check)
+		return Result(ret, 1);
 	GetFixnum(right, &value);
-	return sleep_moment_common(ptr, value);
+	return Result(ret, sleep_moment_common(ptr, value));
 }
 
 
@@ -939,37 +936,40 @@ static void sleep_signal_handler(int value)
 	setatomic_sleep_object(Execute_Thread);
 }
 
-static int sleep_signal_restart_(Execute ptr, addr var)
+static int sleep_signal_restart_(Execute ptr, addr var, int *ret)
 {
-	int check;
+	int escape;
 
 	if (signal(SIGINT, sleep_signal_handler) == SIG_ERR) {
 		Abort("signal set error.");
 		return 0;
 	}
-	check = sleep_execute_common_(ptr, var);
+	escape = sleep_execute_common_(ptr, var, ret);
 	if (signal(SIGINT, SIG_DFL) == SIG_ERR) {
 		Abort("signal set default error.");
 		return 0;
 	}
 
-	return check;
+	return escape;
 }
 #endif
 
 #ifdef LISP_WINDOWS
-static int sleep_signal_restart_(Execute ptr, addr var)
+static int sleep_signal_restart_(Execute ptr, addr var, int *ret)
 {
-	return sleep_execute_common_(ptr, var);
+	return sleep_execute_common_(ptr, var, ret);
 }
 #endif
 
 static int sleep_execute_restart_(Execute ptr, addr var, addr *ret)
 {
+	int check;
 	addr condition;
 	LocalHold hold;
 
-	if (! sleep_signal_restart_(ptr, var))
+	check = 0;
+	Return(sleep_signal_restart_(ptr, var, &check));
+	if (! check)
 		return 0;
 
 	/* diff */
@@ -1004,28 +1004,33 @@ static void sleep_make_restart(addr *ret)
 	*ret = inst;
 }
 
-static int sleep_break_restart_call_(
-		Execute ptr, LocalHold hold, addr restart, addr var, addr *ret)
+static int sleep_break_restart_call_(Execute ptr, addr restart, addr var, addr *ret)
 {
-	Return(push_sleep_object_(ptr));
-	setprotect_control(ptr, p_sleep_close_object, Nil);
-	*ret = Nil;
-	Return(restart1r_control(ptr, restart, sleep_execute_restart_, var, ret));
-	localhold_set(hold, 0, *ret);
+	addr control, save;
 
-	return 0;
+	/* restart */
+	Return(push_sleep_object_(ptr));
+	*ret = Nil;
+	(void)restart1r_control(ptr, restart, sleep_execute_restart_, var, ret);
+
+	/* unwind-protect */
+	push_control(ptr, &control);
+	save_execute_control(ptr, &save);
+	normal_throw_control(ptr);
+	if (sleep_close_object(ptr))
+		goto escape;
+	restore_execute_control(ptr, save);
+escape:
+	return pop_control_(ptr, control);
 }
 
 static int sleep_break_restart_(Execute ptr, addr restart, addr var, addr *ret)
 {
 	addr control;
-	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
 	push_control(ptr, &control);
-	(void)sleep_break_restart_call_(ptr, hold, restart, var, ret);
+	(void)sleep_break_restart_call_(ptr, restart, var, ret);
 	Return(pop_control_(ptr, control));
-	localhold_end(hold);
 
 	return 0;
 }
@@ -1162,14 +1167,5 @@ int sleep_common_(Execute ptr, addr var)
 #else
 	return fmte_("This implementation is not support SLEEP function.", NULL);
 #endif
-}
-
-
-/*
- *  initialize
- */
-void init_environemnt_time(void)
-{
-	SetPointerType(empty, sleep_close_object);
 }
 
