@@ -56,7 +56,7 @@ int signal_function_(Execute ptr, addr condition)
 	Return(parse_type(ptr, &type, signals, Nil));
 	Return(typep_asterisk_clang_(ptr, condition, type, &check));
 	if (check)
-		return invoke_debugger(ptr, condition);
+		return invoke_debugger_(ptr, condition);
 	else
 		return invoke_handler_control_(ptr, condition);
 }
@@ -67,7 +67,7 @@ int error_function_(Execute ptr, addr condition)
 		ptr = Execute_Thread;
 	gchold_push_local(ptr->local, condition);
 	Return(signal_function_(ptr, condition));
-	Return(invoke_debugger(ptr, condition));
+	Return(invoke_debugger_(ptr, condition));
 	return 0;
 }
 

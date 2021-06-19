@@ -28,6 +28,36 @@
 #include "symbol.h"
 #include "type_object.h"
 
+static void enable_debugger_symbol(addr *ret)
+{
+	GetConst(SYSTEM_ENABLE_DEBUGGER, ret);
+}
+
+static void init_enable_debugger(void)
+{
+	addr symbol;
+	enable_debugger_symbol(&symbol);
+	SetValueSymbol(symbol, T);
+}
+
+void set_enable_debugger(Execute ptr, int value)
+{
+	addr symbol;
+	enable_debugger_symbol(&symbol);
+	setspecial_local(ptr, symbol, value? T: Nil);
+}
+
+static int enable_debugger_p_(Execute ptr, int *ret)
+{
+	addr symbol, pos;
+
+	enable_debugger_symbol(&symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &pos));
+
+	return Result(ret, pos != Nil);
+}
+
+
 /*
  *  (handler-bind
  *    ((warning #'function-handler-warning))
@@ -198,6 +228,18 @@ static int output_debugger(Execute ptr, addr stream, addr pos)
 	return format_stream(ptr, stream, "Invalid condition type ~S~%", pos, NULL);
 }
 
+static int invoke_standard_header_(Execute ptr, addr io, addr condition)
+{
+	addr pos;
+
+	Return(clos_class_of_(condition, &pos));
+	Return(stdget_class_name_(pos, &pos));
+	Return(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
+	Return(output_debugger(ptr, io, condition));
+
+	return 0;
+}
+
 static int output_restarts_debugger(Execute ptr, addr io, addr list)
 {
 	int check;
@@ -284,26 +326,33 @@ static int enter_debugger_symbol_p(addr pos, const char *key, int keyword)
 	return strvect_equalp_char(pos, key);
 }
 
-static int enter_debugger(Execute ptr, addr condition)
+static int enter_debugger_help_(Execute ptr, addr io)
+{
+	Return(format_stream(ptr, io, "~&Help:~%", NULL));
+	Return(format_stream(ptr, io, ":help   This message.~%", NULL));
+	Return(format_stream(ptr, io, "?       Run :help.~%", NULL));
+	Return(format_stream(ptr, io, ":show   Debugger information.~%", NULL));
+	Return(format_stream(ptr, io, ":stack  Stack-frame.~%", NULL));
+	Return(format_stream(ptr, io, ":exit   Exit debugger.~%", NULL));
+	Return(format_stream(ptr, io, "^D      Abort process.~%", NULL));
+
+	return 0;
+}
+
+static int enter_debugger_(Execute ptr, addr io, addr condition, addr list)
 {
 	int check, result;
-	addr io, pos, list;
+	addr pos;
 	size_t index, select, size;
-	LocalHold hold;
 
 	/* restarts */
 	mode_prompt_stream(ptr, PromptStreamMode_Normal);
-	Return(debug_io_stream_(ptr, &io));
-	Return(compute_restarts_control_(ptr, condition, &list));
-	hold = LocalHold_local_push(ptr, list);
-	if (list == Nil) {
-		Return(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
-		abort_execute();
-		return 0;
-	}
-	Return(output_restarts_debugger(ptr, io, list));
 	size = length_list_unsafe(list);
 	index = getindex_prompt(ptr) + 1ULL;
+
+show:
+	Return(invoke_standard_header_(ptr, io, condition));
+	Return(output_restarts_debugger(ptr, io, list));
 
 loop:
 	setindex_prompt(ptr, index);
@@ -314,16 +363,38 @@ loop:
 	if (check) {
 		goto exit;
 	}
+
 	/* EOF */
 	if (result) {
 		Return(terpri_stream_(io));
+		abort_execute();
 		goto exit;
 	}
+
 	/* :exit */
 	if (getbreak_prompt(ptr) || enter_debugger_symbol_p(pos, "EXIT", 1)) {
 		Return(terpri_stream_(io));
 		goto exit;
 	}
+
+	/* show */
+	if (enter_debugger_symbol_p(pos, "SHOW", 1)) {
+		goto show;
+	}
+
+	/* stack */
+	if (enter_debugger_symbol_p(pos, "STACK", 1)) {
+		Return(stack_frame_stream_(ptr, io));
+		goto loop;
+	}
+
+	/* help */
+	if (enter_debugger_symbol_p(pos, "HELP", 0)
+			|| enter_debugger_symbol_p(pos, "?", 0)) {
+		Return(enter_debugger_help_(ptr, io));
+		goto loop;
+	}
+
 	/* check */
 	if (! fixnump(pos)) {
 		Return(eval_symbol_debugger(ptr, io, list, pos));
@@ -339,75 +410,77 @@ loop:
 	}
 	/* execute */
 	getnth_unsafe(list, select, &pos);
-	localhold_end(hold);
 	Return(invoke_restart_interactively_control_(ptr, pos));
 	goto loop;
 
 exit:
-	abort_execute();
 	return 0;
 }
 
-static int enable_debugger_p_(Execute ptr, int *ret)
-{
-	addr pos;
-	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
-	Return(getspecialcheck_local_(ptr, pos, &pos));
-	return Result(ret, pos != Nil);
-}
-
-static int invoke_standard_debugger(Execute ptr, addr condition)
+static int invoke_standard_debugger_(Execute ptr, addr condition)
 {
 	int check;
-	addr io, pos, control;
+	addr io, list, control;
 
 	/* output condition */
 	Return(debug_io_stream_(ptr, &io));
-	Return(clos_class_of_(condition, &pos));
-	Return(stdget_class_name_(pos, &pos));
-	Return(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
-	Return(output_debugger(ptr, io, condition));
+	Return(compute_restarts_control_(ptr, condition, &list));
 
 	/* no-debugger */
 	Return(enable_debugger_p_(ptr, &check));
 	if (! check) {
+		Return(invoke_standard_header_(ptr, io, condition));
 		Return(format_stream(ptr, io, "~2&Debugger is not enabled.~%", NULL));
+		abort_execute();
+		return 0;
+	}
+
+	/* no-restart */
+	if (list == Nil) {
+		Return(invoke_standard_header_(ptr, io, condition));
+		Return(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
 		abort_execute();
 		return 0;
 	}
 
 	/* debugger */
 	push_control(ptr, &control);
-	(void)enter_debugger(ptr, condition);
+	gchold_push_special(ptr, list);
+	(void)enter_debugger_(ptr, io, condition, list);
 	return pop_control_(ptr, control);
 }
 
-int invoke_debugger(Execute ptr, addr condition)
+static int invoke_debugger_hook_(Execute ptr, addr prior, addr condition)
 {
-	addr symbol, prior, call, control;
+	addr symbol, call, control;
 
-	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
-	Return(getspecialcheck_local_(ptr, symbol, &prior));
-	if (prior == Nil)
-		return invoke_standard_debugger(ptr, condition);
 	/* call function */
 	call = prior;
 	if (symbolp(call)) {
 		Return(getfunction_global_(call, &call));
 	}
+
+	/* funcall */
 	push_control(ptr, &control);
+	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
 	(void)funcall_control(ptr, call, condition, prior, NULL);
 	Return(pop_control_(ptr, control));
+
 	/* invoke-debugger is not returned. */
-	return invoke_standard_debugger(ptr, condition);
+	return invoke_standard_debugger_(ptr, condition);
 }
 
-void set_enable_debugger(Execute ptr, int value)
+int invoke_debugger_(Execute ptr, addr condition)
 {
-	addr pos;
-	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
-	setspecial_local(ptr, pos, value? T: Nil);
+	addr symbol, prior;
+
+	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &prior));
+	if (prior == Nil)
+		return invoke_standard_debugger_(ptr, condition);
+	else
+		return invoke_debugger_hook_(ptr, prior, condition);
 }
 
 
@@ -416,11 +489,7 @@ void set_enable_debugger(Execute ptr, int value)
  */
 void build_condition_debugger(Execute ptr)
 {
-	addr symbol;
-
-	/* debugger */
-	GetConst(SYSTEM_ENABLE_DEBUGGER, &symbol);
-	SetValueSymbol(symbol, T);
+	init_enable_debugger();
 	set_enable_debugger(ptr, 1);
 }
 

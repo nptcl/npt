@@ -350,7 +350,7 @@ static void defun_warn(void)
 /* (defun invoke-debugger (condition) ...) -> nil */
 static int function_invoke_debugger(Execute ptr, addr var)
 {
-	Return(invoke_debugger(ptr, var));
+	Return(invoke_debugger_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }

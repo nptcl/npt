@@ -12,9 +12,12 @@
 #include "equal.h"
 #include "execute.h"
 #include "execute_object.h"
+#include "format.h"
 #include "function.h"
 #include "hold.h"
 #include "restart.h"
+#include "stream.h"
+#include "stream_common.h"
 #include "symbol.h"
 
 /*
@@ -795,5 +798,52 @@ int catch_clang(Execute ptr, pointer call, addr tag, addr value)
 	}
 
 	return pop_control_(ptr, control);
+}
+
+
+/*
+ *  stack-frame
+ */
+static void stack_frame_list(addr control, addr *ret)
+{
+	addr list, pos;
+
+	list = Nil;
+	while (control != Nil) {
+		GetControl(control, Control_Call, &pos);
+		if (pos != Nil)
+			cons_heap(&list, pos, list);
+		GetControl(control, Control_Next, &control);
+	}
+
+	nreverse(ret, list);
+}
+
+int stack_frame_stream_(Execute ptr, addr stream)
+{
+	int ignore;
+	addr list, pos, index;
+	LocalHold hold;
+	fixnum i;
+
+	hold = LocalHold_array(ptr, 1);
+	stack_frame_list(ptr->control, &list);
+	Return(fresh_line_stream_(stream, &ignore));
+	localhold_set(hold, 0, list);
+
+	for (i = 0; list != Nil; i++) {
+		GetCons(list, &pos, &list);
+		fixnum_heap(&index, i);
+		Return(format_stream(ptr, stream, "~A: ~A~%", index, pos, NULL));
+	}
+
+	return 0;
+}
+
+int stack_frame_output_(Execute ptr)
+{
+	addr stream;
+	Return(debug_io_stream_(ptr, &stream));
+	return stack_frame_stream_(ptr, stream);
 }
 

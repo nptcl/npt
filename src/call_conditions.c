@@ -319,7 +319,7 @@ static int cerror_restart_common(Execute ptr, addr restart, addr datum)
 	addr control;
 
 	push_control(ptr, &control);
-	(void)restart1_control(ptr, restart, invoke_debugger, datum);
+	(void)restart1_control(ptr, restart, invoke_debugger_, datum);
 	return pop_control_(ptr, control);
 }
 
@@ -587,7 +587,7 @@ static int break_invoke_common(Execute ptr, addr format, addr args)
 	Return(instance_simple_condition_(&condition, format, args));
 
 	hold = LocalHold_local_push(ptr, condition);
-	Return(invoke_debugger(ptr, condition));
+	Return(invoke_debugger_(ptr, condition));
 	localhold_end(hold);
 
 	return 0;

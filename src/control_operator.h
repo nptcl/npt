@@ -39,6 +39,8 @@
 #define set_taginfo_control _n(set_taginfo_control)
 #define set_blockinfo_control _n(set_blockinfo_control)
 #define catch_clang _n(catch_clang)
+#define stack_frame_stream_ _n(stack_frame_stream_)
+#define stack_frame_output_ _n(stack_frame_output_)
 
 /* arguments */
 void setargs_va_control(Execute ptr, ...);
@@ -88,6 +90,9 @@ int restart2_control(Execute ptr, addr restart,
 void set_taginfo_control(Execute ptr, addr list);
 void set_blockinfo_control(Execute ptr, addr pos);
 int catch_clang(Execute ptr, pointer call, addr tag, addr value);
+
+int stack_frame_stream_(Execute ptr, addr stream);
+int stack_frame_output_(Execute ptr);
 
 #endif
 
