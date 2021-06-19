@@ -329,7 +329,7 @@ static void code_make_free_value(CodeMake ptr, addr pos, addr type)
 	else {
 		/* lexical */
 		index_heap(&pos, getlexical_tablevalue(pos));
-		CodeQueue_double(ptr, TYPE_LEXICAL, pos, type);
+		/* CodeQueue_double(ptr, TYPE_LEXICAL, pos, type); */
 	}
 }
 
@@ -342,7 +342,7 @@ static void code_make_free_function(CodeMake ptr, addr pos, addr type)
 	if (! getglobalp_tablefunction(pos)) {
 		/* lexical */
 		index_heap(&pos, getlexical_tablefunction(pos));
-		CodeQueue_double(ptr, TYPE_LEXICAL, pos, type);
+		/* CodeQueue_double(ptr, TYPE_LEXICAL, pos, type); */
 		return;
 	}
 

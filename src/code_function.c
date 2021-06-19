@@ -6,6 +6,7 @@
 #include "code_lambda.h"
 #include "code_values.h"
 #include "condition.h"
+#include "copy.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control_execute.h"
@@ -25,7 +26,10 @@
 #include "step_prompt.h"
 #include "strtype.h"
 #include "symbol.h"
+#include "type_copy.h"
 #include "type_deftype.h"
+#include "type_memory.h"
+#include "type_typep.h"
 
 /*
  *  system
@@ -280,12 +284,32 @@ int declaim_declaration_code(Execute ptr, CodeValue x)
 /*
  *  let
  */
+static int typep_error_code_(Execute ptr, addr value, addr type)
+{
+	int check;
+	addr call;
+
+	Return(typep_clang_(ptr, value, type, &check));
+	if (check)
+		return 0;
+
+	copyheap(&value, value);
+	type_copy_heap(&type, type);
+	(void)getcall_control(ptr, &call);
+	if (callnamep(call))
+		name_callname_heap(call, &call);
+
+	return call_type_error_va_(ptr, value, type,
+			"The value ~S must be a ~S type in ~S.",
+			value, type, call, NULL);
+}
+
 int type_result_code(Execute ptr, CodeValue x)
 {
 	/* the-set-code */
 	addr value;
 	getresult_control(ptr, &value);
-	return call_typep_error_(ptr, value, x.pos);
+	return typep_error_code_(ptr, value, x.pos);
 }
 
 int type_lexical_code(Execute ptr, CodeValue x)
@@ -297,7 +321,7 @@ int type_lexical_code(Execute ptr, CodeValue x)
 	GetIndex(pos, &index);
 	get_lexical_control(ptr, index, &pos);
 
-	return call_typep_error_(ptr, pos, type);
+	return typep_error_code_(ptr, pos, type);
 }
 
 int type_special_code(Execute ptr, CodeValue x)
@@ -527,7 +551,7 @@ int call_type_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getargs_tail_control(ptr, &value);
-	return call_typep_error_(ptr, value, x.pos);
+	return typep_error_code_(ptr, value, x.pos);
 }
 
 int call_key_code(Execute ptr, CodeValue x)

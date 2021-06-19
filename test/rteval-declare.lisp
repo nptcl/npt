@@ -1174,3 +1174,15 @@
            (declare (no-such-declare-name *declaration-others-error-5*))
            *declaration-others-error-5*)))
 
+
+;;
+;;  boundary
+;;
+(deftest declare-boundary.1
+  (flet ((aaa (x) (let ((a 10))
+                    (locally
+                      (declare (type integer a))
+                      (list x a)))))
+    (aaa "Hello"))
+  ("Hello" 10))
+

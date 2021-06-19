@@ -73,7 +73,7 @@ void init_code_init(void)
 
 	/* let */
 	initcode(type_result_code, Addr);
-	initcode(type_lexical_code, Addr);
+	initcode(type_lexical_code, Addr); /* delete */
 	initcode(type_special_code, Addr);
 	initcode(type_global_code, Addr);
 	initcode(type_function_code, Addr);
@@ -230,7 +230,7 @@ void build_code_init(void)
 
 	/* let */
 	defcode(TYPE_RESULT, type_result_code);
-	defcode(TYPE_LEXICAL, type_lexical_code);
+	defcode(TYPE_LEXICAL, type_lexical_code); /* delete */
 	defcode(TYPE_SPECIAL, type_special_code);
 	defcode(TYPE_GLOBAL, type_global_code);
 	defcode(TYPE_FUNCTION, type_function_code);
