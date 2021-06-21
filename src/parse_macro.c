@@ -576,6 +576,7 @@ static int parse_macro_compile_symbol(addr pos)
 	ParseMacroCompile(pos, DEFINE_CONDITION);
 	ParseMacroCompile(pos, DEFINE_MODIFY_MACRO);
 	ParseMacroCompile(pos, DEFINE_SETF_EXPANDER);
+	ParseMacroCompile(pos, DEFINE_SYMBOL_MACRO);
 	ParseMacroCompile(pos, DEFMACRO);
 	ParseMacroCompile(pos, DEFPACKAGE);
 	ParseMacroCompile(pos, DEFSETF);

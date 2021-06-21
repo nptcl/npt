@@ -1532,9 +1532,11 @@ static int parse_locally_(Execute ptr, addr *ret, addr cons)
 	addr eval, decl;
 	LocalHold hold;
 
-	hold = LocalHold_local(ptr);
+	hold = LocalHold_array(ptr, 3);
+	localhold_set(hold, 0, cons);
 	Return(parse_declare_body_(ptr, cons, &decl, &cons));
-	localhold_pushva(hold, decl, cons, NULL);
+	localhold_set(hold, 1, decl);
+	localhold_set(hold, 2, cons);
 	Return(parse_allcons_toplevel_(ptr, &cons, cons));
 	localhold_end(hold);
 
@@ -1568,9 +1570,11 @@ static int parse_call_(Execute ptr, addr *ret, addr call, addr cons)
 	addr eval;
 	LocalHold hold;
 
-	hold = LocalHold_local(ptr);
+	hold = LocalHold_array(ptr, 2);
+	localhold_set(hold, 0, call);
+	localhold_set(hold, 1, cons);
 	Return(parse_function_argument_(ptr, &call, call));
-	localhold_push(hold, call);
+	localhold_set(hold, 0, call);
 	Return(localhold_parse_allcons_(hold, ptr, &cons, cons));
 	localhold_end(hold);
 
@@ -2047,12 +2051,13 @@ int parse_allcons_toplevel_(Execute ptr, addr *ret, addr cons)
 	addr root, pos;
 	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
+	hold = LocalHold_array(ptr, 2);
+	localhold_set(hold, 0, cons);
 	for (root = Nil; cons != Nil; ) {
 		Return_getcons(cons, &pos, &cons);
 		Return(parse_execute_toplevel_(ptr, &pos, pos));
 		cons_heap(&root, pos, root);
-		localhold_set(hold, 0, root);
+		localhold_set(hold, 1, root);
 	}
 	localhold_end(hold);
 	nreverse(ret, root);

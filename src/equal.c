@@ -228,6 +228,7 @@ static int equal_function_bitvector_(addr a, addr b, int *ret)
 static int equal_function_array_(addr a, addr b, int *ret)
 {
 	switch (GetType(b)) {
+		case LISPTYPE_ARRAY:
 		case LISPTYPE_STRING:
 			return equal_function_string_(b, a, ret);
 

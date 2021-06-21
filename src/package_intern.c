@@ -28,8 +28,7 @@
 /****************************************************************************
  *  Function INTERN
  ****************************************************************************/
-int intern_package_table_(addr package, addr name,
-		addr *value, enum PACKAGE_TYPE *ret)
+int intern_package_table_(addr package, addr name, addr *value, enum PACKAGE_TYPE *ret)
 {
 	int check;
 	enum PACKAGE_TYPE result;
@@ -54,8 +53,7 @@ int intern_package_table_(addr package, addr name,
 	return 0;
 }
 
-int intern_package_(addr package, addr name,
-		addr *value, enum PACKAGE_TYPE *ret)
+int intern_package_(addr package, addr name, addr *value, enum PACKAGE_TYPE *ret)
 {
 	Check(package == NULL, "null error");
 	Check(package == Nil, "nil error");

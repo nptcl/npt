@@ -290,6 +290,31 @@
   (equal #p"/tmp/hello.txt" #p"/tmp/hello.exe")
   nil)
 
+(deftest equal-array.1
+  (equal (make-array 5 :element-type t :initial-contents "Hello")
+         (make-array 5 :element-type t :initial-contents "Hello"))
+  nil)
+
+(deftest equal-array.2
+  (equal (make-array 5 :element-type 'character :initial-contents "Hello")
+         (make-array 5 :element-type 'character :initial-contents "Hello"))
+  t)
+
+(deftest equal-array.3
+  (equal "Hello"
+         (make-array 5 :element-type 'character :initial-contents "Hello"))
+  t)
+
+(deftest equal-array.4
+  (equal (make-array 5 :element-type 'character :initial-contents "Hello")
+         "Hello")
+  t)
+
+(deftest equal-array.5
+  (equal (make-array 5 :element-type 'character :initial-contents "hello")
+         (make-array 5 :element-type 'character :initial-contents "Hello"))
+  nil)
+
 (deftest-error! equal-error.1
   (eval '(equal 10)))
 

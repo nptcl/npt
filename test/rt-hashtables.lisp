@@ -3,6 +3,7 @@
 ;;
 (load #p"test/rthashtables-object.lisp")
 (load #p"test/rthashtables-access.lisp")
+(load #p"test/rthashtables-value.lisp")
 
 
 ;;

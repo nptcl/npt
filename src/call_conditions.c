@@ -403,7 +403,7 @@ static int check_type_expand_common(Execute ptr, addr env, addr *ret,
 
 	Return(format_string(ptr, &str3,
 				"The value of ~A, ~~A, is not ~~(~~A~~).", place, NULL));
-	localhold_push(hold, str2);
+	localhold_push(hold, str3);
 
 	if (string == Nil) {
 		Return(parse_type(ptr, &string, type, env));
