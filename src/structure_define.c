@@ -1418,14 +1418,18 @@ static int structure_constructor_(struct defstruct *str)
 	GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
 	for (list = str->constructor; list != Nil; ) {
 		GetCons(list, &pos, &list);
-		if (pos == g)
-			return structure_constructor_make_(str);
-		else if (symbolp(pos))
-			return structure_constructor_default_(str, pos);
-		else if (consp(pos))
-			return structure_constructor_lambda_(pos);
-		else
+		if (pos == g) {
+			Return(structure_constructor_make_(str));
+		}
+		else if (symbolp(pos)) {
+			Return(structure_constructor_default_(str, pos));
+		}
+		else if (consp(pos)) {
+			Return(structure_constructor_lambda_(pos));
+		}
+		else {
 			return fmte_("Invalid constructor parameter ~S.", pos, NULL);
+		}
 	}
 
 	return 0;

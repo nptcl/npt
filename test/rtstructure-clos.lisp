@@ -737,6 +737,17 @@
       (constructor-7-ccc inst)))
   10 20 30)
 
+(defstruct (constructor-error-1
+             (:constructor make-constructor-error-1a)
+             (:constructor make-constructor-error-1b))
+  value)
+
+(deftest constructur-error.1
+  (values
+    (constructor-error-1-value (make-constructor-error-1a :value 10))
+    (constructor-error-1-value (make-constructor-error-1a :value 20)))
+  10 20)
+
 ;; boa
 (defstruct (boa-1 (:constructor make-boa-1 ())) aaa bbb)
 (deftest boa.1

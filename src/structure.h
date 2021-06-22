@@ -5,8 +5,6 @@
 #include "hold.h"
 #include "typedef.h"
 
-#define localhold_destruct _n(localhold_destruct)
-#define defstruct_clean _n(defstruct_clean)
 #define structure_class_p_ _n(structure_class_p_)
 #define structure_class_p_debug _n(structure_class_p_debug)
 #define structure_instance_p_ _n(structure_instance_p_)
@@ -31,7 +29,6 @@ int typep_structure_(addr value, addr instance, int *ret);
 int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *ret);
 int allocate_instance_structure_(Execute ptr, addr clos, addr *ret);
 int make_instance_structure(Execute ptr, addr rest, addr *ret);
-
 void copy_structure_common(addr var, addr *ret);
 void init_structure(void);
 
