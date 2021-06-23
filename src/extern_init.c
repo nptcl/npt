@@ -19,7 +19,7 @@
 #include "prompt.h"
 #include "strvect.h"
 #include "symbol.h"
-#include "term_arch.h"
+#include "terme.h"
 
 int lisp_code = 0;
 int lisp_result = 0;
@@ -815,7 +815,7 @@ int lisp_argv_run(struct lispargv *ptr)
 	}
 
 	/* terminal */
-	if (begin_term(ptr->terminal)) {
+	if (begin_terme(ptr->terminal)) {
 		lisperror("terminal error.");
 		lisp_code = lisp_result = 1;
 		return 1;
@@ -827,7 +827,7 @@ int lisp_argv_run(struct lispargv *ptr)
 	}
 
 	/* terminal */
-	(void)end_term();
+	(void)end_terme();
 
 	return lisp_code;
 }

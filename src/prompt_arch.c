@@ -1,7 +1,7 @@
 #include "prompt_arch.h"
 
-#ifdef LISP_PROMPT_XTERM
-#include "prompt_xterm.h"
+#ifdef LISP_PROMPT_TERME
+#include "prompt_terme.h"
 #endif
 
 #ifdef LISP_PROMPT_DISABLE

@@ -27,7 +27,7 @@ int show_prompt_(Execute ptr, addr io)
 	return finish_output_stream_(io);
 }
 
-int input_prompt(addr *ret, addr *prompt, const char *str)
+int input_prompt_(addr *ret, addr *prompt, const char *str)
 {
 	return fmte_("input-prompt is not supported.", NULL);
 }

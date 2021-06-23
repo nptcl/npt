@@ -85,7 +85,7 @@ static int input_prompt_stream(addr stream, addr *ret)
 
 	/* read */
 	str = message_prompt_stream(stream);
-	Return(input_prompt(&pos, &prompt, str));
+	Return(input_prompt_(&pos, &prompt, str));
 	if (pos == Nil) /* eof */
 		return Result(ret, Nil);
 	/* dribble check */

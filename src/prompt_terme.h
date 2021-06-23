@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "prompt.h"
 #include "strvect.h"
+#include "terme.h"
 #include "typedef.h"
 
 int show_prompt_(Execute ptr, addr io)
@@ -36,12 +37,12 @@ static int input_prompt_read_(Execute ptr,
 	addr pos;
 
 	input_prompt_string(str, &pos, msg);
-	Return(prompt_term_(ptr, pos));
+	Return(prompt_terme_(ptr, pos));
 	str->show_p = 0;
 	return Result(rprompt, pos);
 }
 
-int input_prompt(addr *ret, addr *rprompt, const char *msg)
+int input_prompt_(addr *ret, addr *rprompt, const char *msg)
 {
 	struct prompt_info *str;
 	Execute ptr;
@@ -58,7 +59,7 @@ int input_prompt(addr *ret, addr *rprompt, const char *msg)
 	if (str->show_p) {
 		Return(input_prompt_read_(ptr, str, rprompt, msg));
 	}
-	Return(readline_term_(ptr, &pos));
+	Return(readline_terme_(ptr, &pos));
 	if (pos == Nil) {
 		str->break_p = 1;
 	}

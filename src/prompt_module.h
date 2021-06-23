@@ -89,7 +89,7 @@ static char *make_prompt(addr *rprompt, const char *msg)
 	return ret;
 }
 
-int input_prompt(addr *ret, addr *rprompt, const char *msg)
+int input_prompt_(addr *ret, addr *rprompt, const char *msg)
 {
 	char *value;
 

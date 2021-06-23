@@ -448,9 +448,9 @@
 #define LISP_FLOAT_LONG_FRACTION		LDBL_MANT_DIG
 
 /* readline editline */
-#ifdef LISP_XTERM
-#ifndef LISP_PROMPT_XTERM
-#define LISP_PROMPT_XTERM
+#ifdef LISP_TERME
+#ifndef LISP_PROMPT_TERME
+#define LISP_PROMPT_TERME
 #endif
 #endif
 
@@ -466,34 +466,34 @@
 #endif
 #endif
 
-#if defined(LISP_PROMPT_XTERM)
-#define LISP_PROMPT_STRING "xterm"
+#if defined(LISP_PROMPT_TERME)
+#define LISP_PROMPT_STRING "terme"
 #undef LISP_PROMPT_DISABLE
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 
 #elif defined(LISP_PROMPT_DISABLE)
 #define LISP_PROMPT_STRING "lisp"
-#undef LISP_PROMPT_XTERM
+#undef LISP_PROMPT_TERME
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 
 #elif defined(LISP_PROMPT_READLINE)
 #define LISP_PROMPT_STRING "readline"
 #undef LISP_PROMPT_DISABLE
-#undef LISP_PROMPT_XTERM
+#undef LISP_PROMPT_TERME
 #undef LISP_PROMPT_EDITLINE
 
 #elif defined(LISP_PROMPT_EDITLINE)
 #define LISP_PROMPT_STRING "editline"
 #undef LISP_PROMPT_DISABLE
-#undef LISP_PROMPT_XTERM
+#undef LISP_PROMPT_TERME
 #undef LISP_PROMPT_READLINE
 
 #else
 #define LISP_PROMPT_DISABLE
 #define LISP_PROMPT_STRING "lisp"
-#undef LISP_PROMPT_XTERM
+#undef LISP_PROMPT_TERME
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 #endif
@@ -542,7 +542,9 @@
 #undef LISP_COMPLEX_DOUBLE
 #elif defined(LISP_COMPLEX_DOUBLE)
 #undef LISP_COMPLEX_LONG
-#elif LISP_FREEBSD
+#elif defined(LISP_FREEBSD)
+#define LISP_COMPLEX_DOUBLE
+#elif defined(__FreeBSD__)
 #define LISP_COMPLEX_DOUBLE
 #else
 #define LISP_COMPLEX_LONG

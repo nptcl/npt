@@ -376,8 +376,7 @@ syscall_function.c
 syscall.c
 syscode_common.c
 syscode_function.c
-term.c
-term_arch.c
+terme.c
 thread.c
 token.c
 type_coerce.c
@@ -406,4 +405,8 @@ ext/ext_package.c
 ext/ext_parse.c
 ext/ext_reader.c
 ext/ext_scope.c
+terme/terme_call.c
+terme/terme_input.c
+terme/terme_output.c
+terme/terme_prompt.c
 

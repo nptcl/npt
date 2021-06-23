@@ -6,9 +6,11 @@
 (defparameter +source-file+    #p"source.mk")
 (defparameter +release-file+   #p"release.mk")
 (defparameter +extension+      #p"EXTENSION")
+(defparameter +terme+          #p"TERME")
 (defvar *list*)
 (defvar *test*)
 (defvar *ext*)
+(defvar *terme*)
 
 ;; input
 (defun read-list (input)
@@ -27,7 +29,10 @@
                  (char= (char x 0) #\#))
             (and (null *ext*)
                  (<= 4 len)
-                 (string-equal (subseq x 0 4) "ext/")))))
+                 (string-equal (subseq x 0 4) "ext/"))
+            (and (null *terme*)
+                 (<= 6 len)
+                 (string-equal (subseq x 0 6) "terme/")))))
     (read-list input)))
 
 (defun parse-namestring-p (str &optional base)
@@ -75,6 +80,7 @@
 ;;  open file
 ;;
 (setq *ext* (probe-file +extension+))
+(setq *terme* (probe-file +terme+))
 (with-open-file (input +filelist+)
   (setq *list* (read-source-list input))
   (setq *test* (mapcar #'testfile *list*)))

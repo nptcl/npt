@@ -1,5 +1,5 @@
-#ifndef __DEFINE_SETJMP__
-#define __DEFINE_SETJMP__
+#ifndef __LISP_DEFINE_SETJMP__
+#define __LISP_DEFINE_SETJMP__
 
 #include "define.h"
 

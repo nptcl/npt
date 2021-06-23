@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "define.h"
 #include "execute_setjmp.h"
-#include "term_arch.h"
+#include "terme.h"
 #include "typedef.h"
 
 #ifdef LISP_ABORT_SETJMP
@@ -16,7 +16,6 @@ jmp_buf Lisp_degrade_setjmp;
  */
 static void abort_shutdown(void)
 {
-	(void)end_term();
 	exit(1); /* or abort(); */
 }
 
@@ -28,6 +27,7 @@ void abort_execute(void)
 	}
 
 	/* default */
+	(void)end_terme();
 	fprintf(stderr, "\n\n");
 	fprintf(stderr, "**************\n");
 	fprintf(stderr, "  LISP ABORT  \n");

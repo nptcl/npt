@@ -32,11 +32,18 @@
     "readline/history.h" "readline/readline.h"
     ;;  lisp
     "config.h" "load.h"
+    ;;  ext
     "ext_main.h" "ext_eval.h"
     "ext_include_const.h"
     "ext_include_parse.h"
     "ext_include_pointer.h"
-    "ext_include_type.h"))
+    "ext_include_type.h"
+    ;;  terme
+    "terme_call.h"
+    "terme_output.h"
+    "terme_input.h"
+    "terme_prompt.h"
+    ))
 
 (defconstant +header-include+
   '("cmpl_c99.h" "cmpl_cpp.h" "cmpl_windows.h"
@@ -46,7 +53,7 @@
     "intern_const.h" "intern_count.h"
     "intern_symbol_32.h" "intern_symbol_64.h"
     "process_unix.h" "process_windows.h"
-    "prompt_disable.h" "prompt_module.h" "prompt_xterm.h"
+    "prompt_disable.h" "prompt_module.h" "prompt_terme.h"
     "term_ansic.h" "term_termios.h"
     "thread_disable.h" "thread_posix.h" "thread_single.h" "thread_windows.h"))
 

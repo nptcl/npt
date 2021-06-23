@@ -1,5 +1,5 @@
-#ifndef __TYPEDEF_HEADER__
-#define __TYPEDEF_HEADER__
+#ifndef __LISP_TYPEDEF_HEADER__
+#define __LISP_TYPEDEF_HEADER__
 
 #include "define.h"
 #include "typedef_basic.h"
