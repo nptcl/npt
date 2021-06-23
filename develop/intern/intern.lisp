@@ -1897,7 +1897,7 @@ lisp-system::prompt-normal
 lisp-system::prompt-inspect
 lisp-system::prompt-step
 
-(lisp-system::*terme-prompt* :constant system :name terme-prompt)
+(lisp-system::*terme* :constant system :name terme)
 
 
 ;;

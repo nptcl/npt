@@ -986,7 +986,12 @@ static void infoprint_symbol(addr pos)
 		}
 	}
 	GetNameSymbol(pos, &pos);
-	infostringbody(pos);
+	if (stringp(pos)) {
+		infostringbody(pos);
+	}
+	else {
+		infoprint_stream(pos, 0);
+	}
 }
 
 static void infoprint_callname(addr pos)

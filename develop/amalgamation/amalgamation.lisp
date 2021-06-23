@@ -40,9 +40,11 @@
     "ext_include_type.h"
     ;;  terme
     "terme_call.h"
+    "terme_font.h"
     "terme_output.h"
     "terme_input.h"
     "terme_prompt.h"
+    "terme_value.h"
     ))
 
 (defconstant +header-include+

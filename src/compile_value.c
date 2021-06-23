@@ -407,7 +407,7 @@ int faslwrite_value_symbol(Execute ptr, addr stream, addr pos)
 	Return(faslwrite_value(ptr, stream, value));
 	/* name */
 	GetNameSymbol(pos, &value);
-	Return(faslwrite_value_string(ptr, stream, value));
+	Return(faslwrite_value(ptr, stream, value));
 
 	return 0;
 }
@@ -720,7 +720,7 @@ int faslwrite_value_package(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_PACKAGE);
 	Return(faslwrite_type_(stream, FaslCode_package));
 	getname_package_unsafe(pos, &pos);
-	return faslwrite_value_string(ptr, stream, pos);
+	return faslwrite_value(ptr, stream, pos);
 }
 
 int faslread_value_package(Execute ptr, addr stream, addr *ret)

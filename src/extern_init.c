@@ -815,7 +815,7 @@ int lisp_argv_run(struct lispargv *ptr)
 	}
 
 	/* terminal */
-	if (begin_terme(ptr->terminal)) {
+	if (begin_terme()) {
 		lisperror("terminal error.");
 		lisp_code = lisp_result = 1;
 		return 1;
