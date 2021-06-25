@@ -36,51 +36,50 @@
 ;;  test
 ;;
 (defun test-compile-load (x)
-  (with-open-file (stream +compile-input+ :direction :output
-                          :if-exists :supersede
-                          :if-does-not-exist :create)
-    (let ((*print-pretty* t)
-          (*print-right-margin* 70))
-      (format stream "~S~%" x)))
-  (compile-file +compile-input+ :output-file +compile-output+)
-  (setq *result* nil)
-  (load +compile-output+)
-  (prog1 *result*
-    (setq *result* nil)))
-
-(defun call-compile (x)
-  (unwind-protect
-    (test-compile-load x)
-    (test-compile-delete)))
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (stream input :direction :output)
+        (let ((*print-pretty* t)
+              (*print-right-margin* 70))
+          (format stream "~S~%" x)))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (setq *result* nil)
+      (file-position output :start)
+      (load output :type :fasl)
+      (prog1 *result*
+        (setq *result* nil)))))
 
 (defmacro test-compile (x)
-  `(call-compile ',x))
+  `(test-compile-load ',x))
 
 (defmacro value-compile (x)
-  `(call-compile '(setq *result* ,x)))
+  `(test-compile-load '(setq *result* ,x)))
 
 
 ;;
 ;;  type
 ;;
 (defun type-compile-load (x)
-  (with-open-file (stream +compile-input+ :direction :output
-                          :if-exists :supersede
-                          :if-does-not-exist :create)
-    (let ((*print-pretty* t)
-          (*print-right-margin* 70))
-      (format stream "(setq *result* #.(lisp-system::parse-type '~S))" x)))
-  (compile-file +compile-input+ :output-file +compile-output+)
-  (setq *result* nil)
-  (load +compile-output+)
-  (prog1 *result*
-    (setq *result* nil)))
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (stream input :direction :output
+                              :if-exists :supersede
+                              :if-does-not-exist :create)
+        (let ((*print-pretty* t)
+              (*print-right-margin* 70))
+          (format stream "(setq *result* #.(lisp-system::parse-type '~S))" x)))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (setq *result* nil)
+      (file-position output :start)
+      (load output :type :fasl)
+      (prog1 *result*
+        (setq *result* nil)))))
 
 (defun calltype-compile (x)
-  (unwind-protect
-    (lisp-system::type-object
-      (type-compile-load x))
-    (test-compile-delete)))
+  (lisp-system::type-object
+    (type-compile-load x)))
 
 (defmacro type-compile (x)
   `(calltype-compile ',x))
@@ -90,50 +89,48 @@
 ;;  exec
 ;;
 (defun exec-compile-load (x)
-  (with-open-file (stream +compile-input+ :direction :output
-                          :if-exists :supersede
-                          :if-does-not-exist :create)
-    (let ((*print-pretty* t)
-          (*print-right-margin* 70))
-      (format stream "(setq *result* #.~S)" x)))
-  (compile-file +compile-input+ :output-file +compile-output+)
-  (setq *result* nil)
-  (load +compile-output+)
-  (prog1 *result*
-    (setq *result* nil)))
-
-(defun exec-call-compile (x)
-  (unwind-protect
-    (exec-compile-load x)
-    (test-compile-delete)))
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (stream input :direction :output
+                              :if-exists :supersede
+                              :if-does-not-exist :create)
+        (let ((*print-pretty* t)
+              (*print-right-margin* 70))
+          (format stream "(setq *result* #.~S)" x)))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (setq *result* nil)
+      (file-position output :start)
+      (load output :type :fasl)
+      (prog1 *result*
+        (setq *result* nil)))))
 
 (defmacro exec-compile (x)
-  `(exec-call-compile ',x))
+  `(exec-compile-load ',x))
 
 
 ;;
 ;;  expr
 ;;
 (defun expr-compile-load (x)
-  (with-open-file (stream +compile-input+ :direction :output
-                          :if-exists :supersede
-                          :if-does-not-exist :create)
-    (let ((*print-pretty* t)
-          (*print-right-margin* 70))
-      (format stream "(setq *result* ~S)" x)))
-  (compile-file +compile-input+ :output-file +compile-output+)
-  (setq *result* nil)
-  (load +compile-output+)
-  (prog1 *result*
-    (setq *result* nil)))
-
-(defun expr-call-compile (x)
-  (unwind-protect
-    (expr-compile-load x)
-    (test-compile-delete)))
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (stream input :direction :output
+                              :if-exists :supersede
+                              :if-does-not-exist :create)
+        (let ((*print-pretty* t)
+              (*print-right-margin* 70))
+          (format stream "(setq *result* ~S)" x)))
+      (file-position input :start)
+      (compile-file input :output-file output)
+      (setq *result* nil)
+      (file-position output :start)
+      (load output :type :fasl)
+      (prog1 *result*
+        (setq *result* nil)))))
 
 (defmacro expr-compile (x)
-  `(expr-call-compile ',x))
+  `(expr-compile-load ',x))
 
 
 ;;

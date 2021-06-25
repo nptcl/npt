@@ -68,6 +68,12 @@
   (value-compile :aaa)
   :aaa)
 
+(deftest compile-value-symbol.3
+  (eq (value-compile '#,(intern (make-array 5 :element-type 'character
+                                            :initial-contents "HELLO")))
+      (intern "HELLO"))
+  t)
+
 (deftest compile-value-fixnum.1
   (value-compile 111)
   111)

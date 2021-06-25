@@ -1,0 +1,506 @@
+#include "condition.h"
+#include "copy.h"
+#include "print_font.h"
+#include "stream.h"
+#include "stream_common.h"
+#include "strtype.h"
+#include "strvect.h"
+#include "symbol.h"
+#include "terme_call.h"
+#include "terme_font.h"
+#include "terme_input.h"
+#include "terme_output.h"
+#include "terme_prompt.h"
+#include "terme_value.h"
+
+static int terme_prompt_size;
+static int terme_prompt_now;
+
+/*
+ *  error
+ */
+static int terme_fmte_va_(addr format, addr args)
+{
+	int mode, check;
+
+	if (terme_switch_textmode(&mode)) {
+		Abort("terme_switch_textmode error.");
+		return 0;
+	}
+	check = call_simple_error_(NULL, format, args);
+	if (mode && terme_switch_rawmode(NULL)) {
+		Abort("terme_switch_rawmode error.");
+		return 0;
+	}
+
+	return check;
+}
+
+static int terme_fmte_(const char *str, ...)
+{
+	addr format, args;
+	va_list va;
+
+	if (terme_fresh_line()) {
+		Abort("terme_fresh_line error.");
+		return 0;
+	}
+	if (terme_finish_output()) {
+		Abort("terme_finish_output error.");
+		return 0;
+	}
+	strvect_char_heap(&format, str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	return terme_fmte_va_(format, args);
+}
+
+
+/*
+ *  prompt
+ */
+int terme_prompt_(Execute ptr, addr pos)
+{
+
+	Check(! stringp(pos), "type error");
+	return terme_set_prompt_(ptr, pos);
+}
+
+static int terme_prompt_string_(addr pos)
+{
+	int ignore;
+	unicode c;
+	size_t size, i;
+
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &c));
+		if (terme_write_char(c, &ignore))
+			return terme_fmte_("terme_write_char error.", NULL);
+	}
+
+	return 0;
+}
+
+static int terme_prompt_output_(Execute ptr)
+{
+	int check;
+	addr pos, io;
+	size_t size;
+
+	/* special */
+	Return(terme_get_prompt_(ptr, &pos));
+	if (pos == Nil)
+		return 0;
+
+	/* prompt */
+	string_length(pos, &size);
+	terme_prompt_size = (int)size;
+
+	/* fresh-line */
+	Return(terminal_io_stream_(ptr, &io));
+	Return(fresh_line_stream_(io, &check));
+	if (terme_font(print_font_reset))
+		goto error;
+	if (terme_text_color(print_color_bright_green))
+		goto error;
+	Return(terme_prompt_string_(pos));
+	if (terme_font(print_font_reset))
+		goto error;
+	if (terme_finish_output())
+		goto error;
+	return 0;
+
+error:
+	return terme_fmte_("terme output error.", NULL);
+}
+
+
+/*
+ *  readline
+ */
+static int terme_readline_loop_(Execute ptr, TermeKeyboard *, addr *, int *);
+
+static int terme_readline_control_(Execute ptr,
+		TermeKeyboard *str, addr *value, int *ret)
+{
+	switch (str->c) {
+		case 0x03:	/* C */
+			return terme_fmte_("Ctrl + C", NULL);
+
+		case 0x04:  /* D, delete */
+			str->type = terme_escape_delete;
+			break;
+
+		case 0x0A:  /* J */
+		case 0x0D:  /* Return, Enter, Ctrl+M */
+			str->type = terme_escape_return;
+			break;
+
+		case 0x10:  /* P, up */
+			str->type = terme_escape_up;
+			break;
+
+		case 0x0E:  /* N, down */
+			str->type = terme_escape_down;
+			break;
+
+		case 0x06:  /* F, left */
+			str->type = terme_escape_right;
+			break;
+
+		case 0x02:  /* B, right */
+			str->type = terme_escape_left;
+			break;
+
+		case 0x01:  /* A */
+			str->type = terme_escape_first;
+			break;
+
+		case 0x05:  /* E */
+			str->type = terme_escape_last;
+			break;
+
+		case 0x0C:  /* L */
+			str->type = terme_escape_update;
+			break;
+
+		case 0x08:  /* H, backspace */
+			str->type = terme_escape_backspace;
+			break;
+
+		case 0x15:  /* U, rmleft */
+			str->type = terme_escape_rmleft;
+			break;
+
+		case 0x0B:  /* K, rmright */
+			str->type = terme_escape_rmright;
+			break;
+
+		case 0x09:  /* I, tab */
+			str->type = terme_escape_tab;
+			break;
+
+		default:
+			fprintf(stderr, "Ctrl + %x\n", (int)str->c);
+			str->type = terme_escape_error;
+			break;
+	}
+
+	return terme_readline_loop_(ptr, str, value, ret);
+}
+
+static int terme_readline_write_line_(Execute ptr, int first)
+{
+	int i, check;
+	unicode c;
+
+	for (i = first; ; i++) {
+		Return(terme_data_get_(ptr, i, &c, &check));
+		if (! check)
+			break;
+		if (terme_write_char(c, &check))
+			return terme_fmte_("terme_write_char error.", NULL);
+	}
+
+	return 0;
+}
+
+static int terme_readline_output_(Execute ptr)
+{
+	int base;
+
+	base = terme_prompt_size + terme_prompt_now + 1;
+	Return(terme_readline_write_line_(ptr, terme_prompt_now));
+	if (terme_cursor_move(base))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_code_(Execute ptr, TermeKeyboard *str, addr *value, int *ret)
+{
+	int check;
+	unicode c;
+
+	c = str->c;
+	if (c < 0x20)
+		return terme_readline_control_(ptr, str, value, ret);
+
+	/* output */
+	Return(terme_data_push_(ptr, terme_prompt_now, c, &check));
+	if (! check)  /* buffer overflow */
+		return Result(ret, 0);
+	Return(terme_readline_output_(ptr));
+	terme_prompt_now++;
+
+	return Result(ret, 0);
+}
+
+static int terme_readline_left_(Execute ptr)
+{
+	if (terme_prompt_now == 0)
+		return 0;
+	if (terme_cursor_left())
+		return terme_fmte_("terme_cursor_left error.", NULL);
+	terme_prompt_now--;
+
+	return 0;
+}
+
+static int terme_readline_right_(Execute ptr)
+{
+	int size;
+
+	Return(terme_data_size_(ptr, &size));
+	if (size <= terme_prompt_now)
+		return 0;
+	if (terme_cursor_right())
+		return terme_fmte_("terme_cursor_right error.", NULL);
+	terme_prompt_now++;
+
+	return 0;
+}
+
+static int terme_readline_return(Execute ptr, addr *value, int *ret)
+{
+	Return(terme_data_make_(ptr, value));
+	return Result(ret, 1);
+}
+
+static int terme_readline_backspace_(Execute ptr)
+{
+	int check;
+
+	if (terme_prompt_now <= 0)
+		return 0;
+	/* backspace */
+	Return(terme_data_delete_(ptr, terme_prompt_now - 1, &check));
+	if (! check)
+		return 0;
+	terme_prompt_now--;
+
+	/* output */
+	if (terme_cursor_left())
+		return terme_fmte_("terme_cursor_left error.", NULL);
+	if (terme_cursor_delete_line_right())
+		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
+	Return(terme_readline_write_line_(ptr, terme_prompt_now));
+	if (terme_cursor_move(terme_prompt_size + terme_prompt_now))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_cursor_(Execute ptr, int n)
+{
+	int base;
+
+	terme_prompt_now = n;
+	base = terme_prompt_size + terme_prompt_now;
+	if (terme_cursor_move(base))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_first_(Execute ptr)
+{
+	return terme_readline_cursor_(ptr, 0);
+}
+
+static int terme_readline_last_(Execute ptr)
+{
+	int size;
+	Return(terme_data_size_(ptr, &size));
+	return terme_readline_cursor_(ptr, size);
+}
+
+static int terme_readline_update_(Execute ptr)
+{
+	int base;
+
+	/* cursor position */
+	base = terme_prompt_size + terme_prompt_now;
+
+	/* all clean */
+	if (terme_cursor_delete_page())
+		return terme_fmte_("terme_cursor_delete_page error.", NULL);
+
+	/* output prompt */
+	Return(terme_prompt_output_(ptr));
+
+	/* output text */
+	Return(terme_readline_write_line_(ptr, 0));
+	if (terme_cursor_move(base))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_delete_(Execute ptr, addr *value, int *ret)
+{
+	int check;
+
+	/* exit */
+	Return(terme_data_size_(ptr, &check));
+	if (check == 0) {
+		*value = Nil;
+		return Result(ret, 1);
+	}
+
+	/* delete */
+	Return(terme_data_delete_(ptr, terme_prompt_now, &check));
+	if (! check)
+		return 0;
+	if (terme_cursor_delete_line_right())
+		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
+	Return(terme_readline_write_line_(ptr, terme_prompt_now));
+	if (terme_cursor_move(terme_prompt_size + terme_prompt_now))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_rmleft_(Execute ptr)
+{
+	int check;
+
+	/* data */
+	Return(terme_data_delete_left_(ptr, terme_prompt_now, &check));
+	if (! check)
+		return 0;
+	terme_prompt_now = 0;
+
+	/* cursor */
+	if (terme_cursor_move(terme_prompt_size))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+	if (terme_cursor_delete_line_right())
+		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
+	Return(terme_readline_write_line_(ptr, 0));
+	if (terme_cursor_move(terme_prompt_size))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_rmright_(Execute ptr)
+{
+	int check;
+
+	Return(terme_data_delete_right_(ptr, terme_prompt_now, &check));
+	if (! check)
+		return 0;
+	if (terme_cursor_delete_line_right())
+		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, int *ret)
+{
+	*ret = 0;
+	switch (str->type) {
+		case terme_escape_error:
+			break;
+
+		case terme_escape_code:
+			return terme_readline_code_(ptr, str, value, ret);
+
+		case terme_escape_up:
+		case terme_escape_down:
+			break; /* TODO */
+
+		case terme_escape_left:
+			return terme_readline_left_(ptr);
+
+		case terme_escape_right:
+			return terme_readline_right_(ptr);
+
+		case terme_escape_return:
+			return terme_readline_return(ptr, value, ret);
+
+		case terme_escape_backspace:
+			return terme_readline_backspace_(ptr);
+
+		case terme_escape_first:
+			return terme_readline_first_(ptr);
+
+		case terme_escape_last:
+			return terme_readline_last_(ptr);
+
+		case terme_escape_update:
+			return terme_readline_update_(ptr);
+
+		case terme_escape_delete:
+			return terme_readline_delete_(ptr, value, ret);
+
+		case terme_escape_rmleft:
+			return terme_readline_rmleft_(ptr);
+
+		case terme_escape_rmright:
+			return terme_readline_rmright_(ptr);
+
+		case terme_escape_function:
+		case terme_escape_tab:
+			break; /* ignore */
+
+		default:
+			return terme_fmte_("terme_readline error.", NULL);
+	}
+
+	return 0;
+}
+
+static int terme_readline_call_(Execute ptr, addr *ret)
+{
+	int check;
+	addr pos;
+	TermeKeyboard str;
+
+	Return(terme_prompt_output_(ptr));
+	pos = Nil;
+	for (;;) {
+		if (terme_read_keyboard(&str)) {
+			*ret = Nil;
+			return terme_fmte_("terme_read_keyboard error.", NULL);
+		}
+		Return(terme_readline_loop_(ptr, &str, &pos, &check));
+		if (check)
+			break;
+	}
+	if (terme_fresh_line())
+		goto error;
+	if (terme_finish_output())
+		goto error;
+	return Result(ret, pos);
+
+error:
+	*ret = Nil;
+	return terme_fmte_("terme output error.", NULL);
+}
+
+int terme_readline_(Execute ptr, addr *ret)
+{
+	int mode, check;
+
+	/* initialize */
+	terme_prompt_size = 0;
+	terme_prompt_now = 0;
+	Return(terme_data_init_(ptr));
+
+	/* readline */
+	if (terme_switch_rawmode(&mode)) {
+		*ret = Nil;
+		return terme_fmte_("terme_switch_rawmode error.", NULL);
+	}
+	check = terme_readline_call_(ptr, ret);
+	if (mode && terme_switch_textmode(NULL)) {
+		*ret = Nil;
+		return terme_fmte_("terme_switch_textmode error.", NULL);
+	}
+
+	return check;
+}
+

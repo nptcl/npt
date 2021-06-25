@@ -262,9 +262,6 @@
 (deftest-error lambda-error.5
   (eval '(lambda (a &key (b nil a)) a b)))
 
-(deftest-error lambda-error.6
-  (eval '(lambda (a &aux a) a)))
-
 (deftest lambda-closure.1
   (let (inc show)
     (let* ((value 10)
@@ -408,4 +405,14 @@
 (deftest lambda-macro.2
   (funcall (lambda (x) (+ x 3)) 4)
   7)
+
+
+;;
+;;  shadow
+;;
+(deftest lambda-shadow.1
+  (funcall
+    (lambda (a &aux (a (1+ a))) a)
+    10)
+  11)
 

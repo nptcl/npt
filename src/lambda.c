@@ -123,6 +123,15 @@ static int push_varcons_(LocalRoot local,
 	return 0;
 }
 
+static int push_auxcons_(LocalRoot local,
+		addr instance, addr var, enum AMPERSAND_ARGUMENT ampersand)
+{
+	Return(variable_check_(var, ampersand));
+	pushqueue_local(local, instance, var);
+
+	return 0;
+}
+
 static int push_namecons_(LocalRoot local, addr instance, addr name)
 {
 	addr data;
@@ -192,6 +201,11 @@ static int key_name_values_(addr pos, addr *symbol, addr *name)
 static int push_varcons_macro_(LocalRoot local, addr instance, addr key)
 {
 	return push_varcons_(local, instance, key, AMPERSAND_MACRO);
+}
+
+static int push_auxcons_macro_(LocalRoot local, addr instance, addr key)
+{
+	return push_auxcons_(local, instance, key, AMPERSAND_MACRO);
 }
 
 #define nextcons_finish_rest(one, cons) { \
@@ -527,7 +541,7 @@ aux_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one))
 		goto finish_environment;
 	Return(ordinary_aux_(one, &symbol, &init));
-	Return(push_varcons_macro_(local, instance, symbol));
+	Return(push_auxcons_macro_(local, instance, symbol));
 	list_heap(&one, symbol, init, NULL);
 	cons_heap(&aux, one, aux);
 	nextcons_finish_error(one, cons, AUX);
@@ -578,6 +592,11 @@ int lambda_deftype_(LocalRoot local, addr *ret, addr cons, addr instance)
 static int push_varcons_ordinary_(LocalRoot local, addr instance, addr key)
 {
 	return push_varcons_(local, instance, key, AMPERSAND_ORDINARY);
+}
+
+static int push_auxcons_ordinary_(LocalRoot local, addr instance, addr key)
+{
+	return push_auxcons_(local, instance, key, AMPERSAND_ORDINARY);
 }
 
 
@@ -891,7 +910,7 @@ aux_argument:
 	nextcons_finish(one, cons, base);
 aux_loop:
 	Return(ordinary_aux_(one, &symbol, &init));
-	Return(push_varcons_ordinary_(local, instance, symbol));
+	Return(push_auxcons_ordinary_(local, instance, symbol));
 	list_heap(&one, symbol, init, NULL);
 	cons_heap(&aux, one, aux);
 	nextcons_finish(one, cons, base);
@@ -1007,7 +1026,7 @@ aux_argument:
 	nextcons_finish(one, cons, base);
 aux_loop:
 	Return(ordinary_aux_(one, &symbol, &init));
-	Return(push_varcons_ordinary_(local, instance, symbol));
+	Return(push_auxcons_ordinary_(local, instance, symbol));
 	list_heap(&one, symbol, init, NULL);
 	cons_heap(&aux, one, aux);
 	nextcons_finish(one, cons, base);

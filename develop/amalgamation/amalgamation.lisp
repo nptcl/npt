@@ -20,8 +20,8 @@
     "cmath" "complex"
     ;;  Unix
     "dirent.h" "fcntl.h" "pthread.h" "pwd.h" "semaphore.h" "sys/ioctl.h"
-    "sys/stat.h" "sys/time.h" "sys/types.h" "sys/utsname.h" "sys/wait.h"
-    "termios.h" "unistd.h"
+    "sys/select.h" "sys/stat.h" "sys/time.h" "sys/types.h" "sys/utsname.h"
+    "sys/wait.h" "termios.h" "unistd.h"
     ;;  Windows
     "aclapi.h" "ntsecapi.h" "pathcch.h" "shlwapi.h" "synchapi.h" "windows.h"
     ;;  readline / editline
@@ -37,15 +37,7 @@
     "ext_include_const.h"
     "ext_include_parse.h"
     "ext_include_pointer.h"
-    "ext_include_type.h"
-    ;;  terme
-    "terme_call.h"
-    "terme_font.h"
-    "terme_output.h"
-    "terme_input.h"
-    "terme_prompt.h"
-    "terme_value.h"
-    ))
+    "ext_include_type.h"))
 
 (defconstant +header-include+
   '("cmpl_c99.h" "cmpl_cpp.h" "cmpl_windows.h"
