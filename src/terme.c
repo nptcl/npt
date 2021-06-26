@@ -257,6 +257,7 @@ int back_color_terme(PrintColor value)
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 #include "typedef.h"
@@ -284,10 +285,7 @@ static int terme_init_set(struct termios *ret)
 
 static int terme_init_termios(void)
 {
-	int fd;
 	struct termios v;
-
-	fd = STDIN_FILENO;
 
 	/* backup */
 	if (terme_init_get(&v)) {
@@ -1897,6 +1895,7 @@ void terme_build(void)
 	addr symbol, pos;
 
 	GetConst(SYSTEM_TERME, &symbol);
+	pos = Nil;
 	Error(terme_value_heap_(&pos));
 	SetValueSymbol(symbol, pos);
 }

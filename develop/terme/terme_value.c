@@ -68,6 +68,7 @@ void terme_build(void)
 	addr symbol, pos;
 
 	GetConst(SYSTEM_TERME, &symbol);
+	pos = Nil;
 	Error(terme_value_heap_(&pos));
 	SetValueSymbol(symbol, pos);
 }
