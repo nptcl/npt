@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "terme_font.h"
+#include "terme_escape.h"
 #include "terme_output.h"
 #include "typedef.h"
 
-static int terme_font_operator(const char *str)
+static int terme_escape_operator(const char *str)
 {
 	byte c;
 	int i;
@@ -36,7 +36,7 @@ int terme_font(PrintFont value)
 		default: return 1;
 	}
 
-	return terme_font_operator(str);
+	return terme_escape_operator(str);
 }
 
 int terme_text_color(PrintColor value)
@@ -64,7 +64,7 @@ int terme_text_color(PrintColor value)
 		default: return 1;
 	}
 
-	return terme_font_operator(str);
+	return terme_escape_operator(str);
 }
 
 int terme_back_color(PrintColor value)
@@ -92,44 +92,54 @@ int terme_back_color(PrintColor value)
 		default: return 1;
 	}
 
-	return terme_font_operator(str);
+	return terme_escape_operator(str);
 }
 
-int terme_cursor_left(void)
+int terme_cursor_left(int n)
 {
-	return terme_font_operator("\x1B[D");
+	char data[64];
+
+	if (n == 0)
+		return terme_escape_operator("\x1B[D");
+	snprintf(data, 64, "\x1B[%dD", n);
+	return terme_escape_operator(data);
 }
 
-int terme_cursor_right(void)
+int terme_cursor_right(int n)
 {
-	return terme_font_operator("\x1B[C");
+	char data[64];
+
+	if (n == 0)
+		return terme_escape_operator("\x1B[C");
+	snprintf(data, 64, "\x1B[%dC", n);
+	return terme_escape_operator(data);
 }
 
 int terme_cursor_move(int n)
 {
 	char data[64];
 	snprintf(data, 64, "\x1B[%dG", n + 1);
-	return terme_font_operator(data);
+	return terme_escape_operator(data);
 }
 
 int terme_cursor_delete_line_left(void)
 {
-	return terme_font_operator("\x1B[1K");
+	return terme_escape_operator("\x1B[1K");
 }
 
 int terme_cursor_delete_line_right(void)
 {
-	return terme_font_operator("\x1B[K");
+	return terme_escape_operator("\x1B[K");
 }
 
 int terme_cursor_delete_line(void)
 {
-	return terme_font_operator("\x1B[2K");
+	return terme_escape_operator("\x1B[2K");
 }
 
 int terme_cursor_delete_page(void)
 {
-	return terme_font_operator("\x1B[2J")
-		|| terme_font_operator("\x1B[1;1H");
+	return terme_escape_operator("\x1B[2J")
+		|| terme_escape_operator("\x1B[1;1H");
 }
 

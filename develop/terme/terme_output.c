@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "character_check.h"
-#include "eastasian_unicode.h"
 #include "terme_output.h"
 #include "typedef.h"
 
@@ -119,62 +118,22 @@ normal:
 	return 0;
 }
 
-int terme_write_char(unicode c, int *ret)
+int terme_write_char(unicode c, int width)
 {
 	byte data[8];
 	size_t size;
 
 	if (terme_write_utf8(c, data, &size)) {
 		/* encode error */
-		if (ret)
-			*ret = 1;
 		return 0;
 	}
-
-	/* eastasian width */
 	if (c == 0x0D)
 		terme_output_x = 0;
 	else
-		terme_output_x += (size_t)eastasian_width(c);
+		terme_output_x += width;
 
 	/* output */
-	if (ret)
-		*ret = 0;
 	return terme_write_memory(data, size);
-}
-
-int terme_write_ascii(const char *str)
-{
-	int i;
-	unicode c;
-
-	for (i = 0; ; i++) {
-		c = (unicode)str[i];
-		if (c == 0)
-			break;
-		if (0x80 <= c)
-			continue;
-		if (terme_write_char(c, NULL))
-			return 1;
-	}
-
-	return 0;
-}
-
-int terme_write_unicode(const unicode *str)
-{
-	int i;
-	unicode c;
-
-	for (i = 0; ; i++) {
-		c = str[i];
-		if (c == 0)
-			break;
-		if (terme_write_char(c, NULL))
-			return 1;
-	}
-
-	return 0;
 }
 
 

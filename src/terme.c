@@ -24,10 +24,10 @@ int terme_switch_rawmode(int *ret);
 
 
 /************************************************************
-  terme_font.h
+  terme_escape.h
  ************************************************************/
-#ifndef __TERME_FONT_HEADER__
-#define __TERME_FONT_HEADER__
+#ifndef __TERME_ESCAPE_HEADER__
+#define __TERME_ESCAPE_HEADER__
 
 #include "print_font.h"
 #include "typedef.h"
@@ -46,8 +46,8 @@ int terme_switch_rawmode(int *ret);
 int terme_font(PrintFont value);
 int terme_text_color(PrintColor value);
 int terme_back_color(PrintColor value);
-int terme_cursor_left(void);
-int terme_cursor_right(void);
+int terme_cursor_left(int n);
+int terme_cursor_right(int n);
 int terme_cursor_move(int n);
 int terme_cursor_delete_line_left(void);
 int terme_cursor_delete_line_right(void);
@@ -122,17 +122,13 @@ int terme_read_keyboard(TermeKeyboard *ret);
 #define terme_finish_output _n(terme_finish_output)
 #define terme_write_byte _n(terme_write_byte)
 #define terme_write_char _n(terme_write_char)
-#define terme_write_ascii _n(terme_write_ascii)
-#define terme_write_unicode _n(terme_write_unicode)
 #define terme_terpri _n(terme_terpri)
 #define terme_fresh_line _n(terme_fresh_line)
 
 void terme_output_init(void);
 int terme_finish_output(void);
 int terme_write_byte(byte c);
-int terme_write_char(unicode c, int *ret);
-int terme_write_ascii(const char *str);
-int terme_write_unicode(const unicode *str);
+int terme_write_char(unicode c, int width);
 int terme_terpri(void);
 int terme_fresh_line(void);
 
@@ -173,7 +169,10 @@ int terme_readline_(Execute ptr, addr *ret);
 #define terme_data_init_ _n(terme_data_init_)
 #define terme_data_push_ _n(terme_data_push_)
 #define terme_data_get_ _n(terme_data_get_)
+#define terme_data_get_width_ _n(terme_data_get_width_)
 #define terme_data_size_ _n(terme_data_size_)
+#define terme_data_size_width_ _n(terme_data_size_width_)
+#define terme_data_allwidth_ _n(terme_data_allwidth_)
 #define terme_data_delete_ _n(terme_data_delete_)
 #define terme_data_delete_left_ _n(terme_data_delete_left_)
 #define terme_data_delete_right_ _n(terme_data_delete_right_)
@@ -188,7 +187,10 @@ int terme_get_prompt_(Execute ptr, addr *ret);
 int terme_data_init_(Execute ptr);
 int terme_data_push_(Execute ptr, int index, unicode c, int *ret);
 int terme_data_get_(Execute ptr, int index, unicode *value, int *ret);
+int terme_data_get_width_(Execute ptr, int index, int *ret);
 int terme_data_size_(Execute ptr, int *ret);
+int terme_data_size_width_(Execute ptr, int *size, int *width);
+int terme_data_allwidth_(Execute ptr, int *ret);
 int terme_data_delete_(Execute ptr, int index, int *ret);
 int terme_data_delete_left_(Execute ptr, int index, int *ret);
 int terme_data_delete_right_(Execute ptr, int index, int *ret);
@@ -391,12 +393,12 @@ int terme_switch_rawmode(int *ret)
 
 
 /************************************************************
-  terme_font.c
+  terme_escape.c
  ************************************************************/
 #include <stdio.h>
 #include "typedef.h"
 
-static int terme_font_operator(const char *str)
+static int terme_escape_operator(const char *str)
 {
 	byte c;
 	int i;
@@ -429,7 +431,7 @@ int terme_font(PrintFont value)
 		default: return 1;
 	}
 
-	return terme_font_operator(str);
+	return terme_escape_operator(str);
 }
 
 int terme_text_color(PrintColor value)
@@ -457,7 +459,7 @@ int terme_text_color(PrintColor value)
 		default: return 1;
 	}
 
-	return terme_font_operator(str);
+	return terme_escape_operator(str);
 }
 
 int terme_back_color(PrintColor value)
@@ -485,45 +487,55 @@ int terme_back_color(PrintColor value)
 		default: return 1;
 	}
 
-	return terme_font_operator(str);
+	return terme_escape_operator(str);
 }
 
-int terme_cursor_left(void)
+int terme_cursor_left(int n)
 {
-	return terme_font_operator("\x1B[D");
+	char data[64];
+
+	if (n == 0)
+		return terme_escape_operator("\x1B[D");
+	snprintf(data, 64, "\x1B[%dD", n);
+	return terme_escape_operator(data);
 }
 
-int terme_cursor_right(void)
+int terme_cursor_right(int n)
 {
-	return terme_font_operator("\x1B[C");
+	char data[64];
+
+	if (n == 0)
+		return terme_escape_operator("\x1B[C");
+	snprintf(data, 64, "\x1B[%dC", n);
+	return terme_escape_operator(data);
 }
 
 int terme_cursor_move(int n)
 {
 	char data[64];
 	snprintf(data, 64, "\x1B[%dG", n + 1);
-	return terme_font_operator(data);
+	return terme_escape_operator(data);
 }
 
 int terme_cursor_delete_line_left(void)
 {
-	return terme_font_operator("\x1B[1K");
+	return terme_escape_operator("\x1B[1K");
 }
 
 int terme_cursor_delete_line_right(void)
 {
-	return terme_font_operator("\x1B[K");
+	return terme_escape_operator("\x1B[K");
 }
 
 int terme_cursor_delete_line(void)
 {
-	return terme_font_operator("\x1B[2K");
+	return terme_escape_operator("\x1B[2K");
 }
 
 int terme_cursor_delete_page(void)
 {
-	return terme_font_operator("\x1B[2J")
-		|| terme_font_operator("\x1B[1;1H");
+	return terme_escape_operator("\x1B[2J")
+		|| terme_escape_operator("\x1B[1;1H");
 }
 
 
@@ -1095,7 +1107,6 @@ int terme_read_keyboard(TermeKeyboard *ret)
 #include <stdio.h>
 #include <unistd.h>
 #include "character_check.h"
-#include "eastasian_unicode.h"
 #include "typedef.h"
 
 #ifdef LISP_DEBUG
@@ -1212,62 +1223,22 @@ normal:
 	return 0;
 }
 
-int terme_write_char(unicode c, int *ret)
+int terme_write_char(unicode c, int width)
 {
 	byte data[8];
 	size_t size;
 
 	if (terme_write_utf8(c, data, &size)) {
 		/* encode error */
-		if (ret)
-			*ret = 1;
 		return 0;
 	}
-
-	/* eastasian width */
 	if (c == 0x0D)
 		terme_output_x = 0;
 	else
-		terme_output_x += (size_t)eastasian_width(c);
+		terme_output_x += width;
 
 	/* output */
-	if (ret)
-		*ret = 0;
 	return terme_write_memory(data, size);
-}
-
-int terme_write_ascii(const char *str)
-{
-	int i;
-	unicode c;
-
-	for (i = 0; ; i++) {
-		c = (unicode)str[i];
-		if (c == 0)
-			break;
-		if (0x80 <= c)
-			continue;
-		if (terme_write_char(c, NULL))
-			return 1;
-	}
-
-	return 0;
-}
-
-int terme_write_unicode(const unicode *str)
-{
-	int i;
-	unicode c;
-
-	for (i = 0; ; i++) {
-		c = str[i];
-		if (c == 0)
-			break;
-		if (terme_write_char(c, NULL))
-			return 1;
-	}
-
-	return 0;
 }
 
 
@@ -1290,6 +1261,7 @@ int terme_fresh_line(void)
  ************************************************************/
 #include "condition.h"
 #include "copy.h"
+#include "eastasian_unicode.h"
 #include "print_font.h"
 #include "stream.h"
 #include "stream_common.h"
@@ -1298,8 +1270,10 @@ int terme_fresh_line(void)
 #include "symbol.h"
 
 static int terme_prompt_size;
-static int terme_prompt_now;
-static int terme_prompt_history;
+static int terme_prompt_width;
+static int terme_value_now;
+static int terme_value_width;
+static int terme_history_now;
 
 /*
  *  error
@@ -1353,16 +1327,20 @@ int terme_prompt_(Execute ptr, addr pos)
 
 static int terme_prompt_string_(addr pos)
 {
-	int ignore;
+	int width, check;
 	unicode c;
 	size_t size, i;
 
 	string_length(pos, &size);
+	width = 0;
 	for (i = 0; i < size; i++) {
 		Return(string_getc_(pos, i, &c));
-		if (terme_write_char(c, &ignore))
+		check = (int)eastasian_width(c);
+		if (terme_write_char(c, check))
 			return terme_fmte_("terme_write_char error.", NULL);
+		width += check;
 	}
+	terme_prompt_width = width;
 
 	return 0;
 }
@@ -1482,23 +1460,11 @@ static int terme_readline_write_line_(Execute ptr, int first)
 
 	for (i = first; ; i++) {
 		Return(terme_data_get_(ptr, i, &c, &check));
-		if (! check)
+		if (check < 0)
 			break;
-		if (terme_write_char(c, &check))
+		if (terme_write_char(c, check))
 			return terme_fmte_("terme_write_char error.", NULL);
 	}
-
-	return 0;
-}
-
-static int terme_readline_output_(Execute ptr)
-{
-	int base;
-
-	base = terme_prompt_size + terme_prompt_now + 1;
-	Return(terme_readline_write_line_(ptr, terme_prompt_now));
-	if (terme_cursor_move(base))
-		return terme_fmte_("terme_cursor_move error.", NULL);
 
 	return 0;
 }
@@ -1512,12 +1478,18 @@ static int terme_readline_code_(Execute ptr, TermeKeyboard *str, addr *value, in
 	if (c < 0x20)
 		return terme_readline_control_(ptr, str, value, ret);
 
-	/* output */
-	Return(terme_data_push_(ptr, terme_prompt_now, c, &check));
-	if (! check)  /* buffer overflow */
+	/* value */
+	Return(terme_data_push_(ptr, terme_value_now, c, &check));
+	if (check < 0)  /* buffer overflow */
 		return Result(ret, 0);
-	Return(terme_readline_output_(ptr));
-	terme_prompt_now++;
+	terme_value_width += check;
+
+	/* output */
+	if (terme_readline_write_line_(ptr, terme_value_now))
+		return terme_fmte_("terme_write_char error.", NULL);
+	if (terme_cursor_move(terme_prompt_width + terme_value_width))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+	terme_value_now++;
 
 	return Result(ret, 0);
 }
@@ -1526,17 +1498,17 @@ static int terme_readline_up_down_(Execute ptr, int diff)
 {
 	int index, check;
 
-	if (terme_prompt_history == 0) {
+	if (terme_history_now == 0) {
 		Return(terme_history_save_(ptr));
 	}
-	index = terme_prompt_history + diff;
+	index = terme_history_now + diff;
 	Return(terme_history_update_(ptr, index, &check));
 	if (! check)
 		return 0;
-	terme_prompt_history = index;
+	terme_history_now = index;
 
 	/* output */
-	Return(terme_data_size_(ptr, &terme_prompt_now));
+	Return(terme_data_size_width_(ptr, &terme_value_now, &terme_value_width));
 	if (terme_cursor_delete_line())
 		return terme_fmte_("terme_cursor_delete_line error.", NULL);
 	if (terme_cursor_move(0))
@@ -1561,67 +1533,73 @@ static int terme_readline_down_(Execute ptr)
 
 static int terme_readline_left_(Execute ptr)
 {
-	if (terme_prompt_now == 0)
+	int check;
+
+	if (terme_value_now == 0)
 		return 0;
-	if (terme_cursor_left())
+	Return(terme_data_get_width_(ptr, terme_value_now - 1UL, &check));
+	if (check < 0)
+		return terme_fmte_("terme_data_get_width_ error.", NULL);
+	check = (check? 2: 1);
+	if (terme_cursor_left(check))
 		return terme_fmte_("terme_cursor_left error.", NULL);
-	terme_prompt_now--;
+	terme_value_now--;
+	terme_value_width -= check;
 
 	return 0;
 }
 
 static int terme_readline_right_(Execute ptr)
 {
-	int size;
+	int check;
 
-	Return(terme_data_size_(ptr, &size));
-	if (size <= terme_prompt_now)
+	Return(terme_data_size_(ptr, &check));
+	if (check <= terme_value_now)
 		return 0;
-	if (terme_cursor_right())
+	Return(terme_data_get_width_(ptr, terme_value_now, &check));
+	if (check < 0)
+		return terme_fmte_("terme_data_get_width_ error.", NULL);
+	check = (check? 2: 1);
+	if (terme_cursor_right(check))
 		return terme_fmte_("terme_cursor_right error.", NULL);
-	terme_prompt_now++;
+	terme_value_now++;
+	terme_value_width += check;
 
 	return 0;
 }
 
 static int terme_readline_return(Execute ptr, addr *value, int *ret)
 {
-	terme_prompt_history = 0;
+	terme_history_now = 0;
 	Return(terme_data_make_(ptr, value));
 	return Result(ret, 1);
 }
 
 static int terme_readline_backspace_(Execute ptr)
 {
-	int check;
+	int width, check;
 
-	if (terme_prompt_now <= 0)
+	if (terme_value_now <= 0)
 		return 0;
+	Return(terme_data_get_width_(ptr, terme_value_now - 1UL, &width));
+	if (width < 0)
+		return terme_fmte_("terme_data_get_width_ error.", NULL);
+	width = (width? 2: 1);
+
 	/* backspace */
-	Return(terme_data_delete_(ptr, terme_prompt_now - 1, &check));
+	Return(terme_data_delete_(ptr, terme_value_now - 1UL, &check));
 	if (! check)
 		return 0;
-	terme_prompt_now--;
+	terme_value_now--;
+	terme_value_width -= width;
 
 	/* output */
-	if (terme_cursor_left())
+	if (terme_cursor_left(width))
 		return terme_fmte_("terme_cursor_left error.", NULL);
 	if (terme_cursor_delete_line_right())
 		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
-	Return(terme_readline_write_line_(ptr, terme_prompt_now));
-	if (terme_cursor_move(terme_prompt_size + terme_prompt_now))
-		return terme_fmte_("terme_cursor_move error.", NULL);
-
-	return 0;
-}
-
-static int terme_readline_cursor_(Execute ptr, int n)
-{
-	int base;
-
-	terme_prompt_now = n;
-	base = terme_prompt_size + terme_prompt_now;
-	if (terme_cursor_move(base))
+	Return(terme_readline_write_line_(ptr, terme_value_now));
+	if (terme_cursor_move(terme_prompt_width + terme_value_width))
 		return terme_fmte_("terme_cursor_move error.", NULL);
 
 	return 0;
@@ -1629,14 +1607,26 @@ static int terme_readline_cursor_(Execute ptr, int n)
 
 static int terme_readline_first_(Execute ptr)
 {
-	return terme_readline_cursor_(ptr, 0);
+	terme_value_now = 0;
+	terme_value_width = 0;
+	if (terme_cursor_move(terme_prompt_width))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
 }
 
 static int terme_readline_last_(Execute ptr)
 {
-	int size;
-	Return(terme_data_size_(ptr, &size));
-	return terme_readline_cursor_(ptr, size);
+	int now, width;
+
+	Return(terme_data_size_(ptr, &now));
+	Return(terme_data_allwidth_(ptr, &width));
+	terme_value_now = now;
+	terme_value_width = width;
+	if (terme_cursor_move(terme_prompt_width + width))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+
+	return 0;
 }
 
 static int terme_readline_update_(Execute ptr)
@@ -1644,7 +1634,7 @@ static int terme_readline_update_(Execute ptr)
 	int base;
 
 	/* cursor position */
-	base = terme_prompt_size + terme_prompt_now;
+	base = terme_prompt_width + terme_value_width;
 
 	/* all clean */
 	if (terme_cursor_delete_page())
@@ -1673,13 +1663,13 @@ static int terme_readline_delete_(Execute ptr, addr *value, int *ret)
 	}
 
 	/* delete */
-	Return(terme_data_delete_(ptr, terme_prompt_now, &check));
+	Return(terme_data_delete_(ptr, terme_value_now, &check));
 	if (! check)
 		return 0;
 	if (terme_cursor_delete_line_right())
 		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
-	Return(terme_readline_write_line_(ptr, terme_prompt_now));
-	if (terme_cursor_move(terme_prompt_size + terme_prompt_now))
+	Return(terme_readline_write_line_(ptr, terme_value_now));
+	if (terme_cursor_move(terme_prompt_width + terme_value_width))
 		return terme_fmte_("terme_cursor_move error.", NULL);
 
 	return 0;
@@ -1690,18 +1680,19 @@ static int terme_readline_rmleft_(Execute ptr)
 	int check;
 
 	/* data */
-	Return(terme_data_delete_left_(ptr, terme_prompt_now, &check));
+	Return(terme_data_delete_left_(ptr, terme_value_now, &check));
 	if (! check)
 		return 0;
-	terme_prompt_now = 0;
+	terme_value_now = 0;
+	terme_value_width = 0;
 
 	/* cursor */
-	if (terme_cursor_move(terme_prompt_size))
+	if (terme_cursor_move(terme_prompt_width))
 		return terme_fmte_("terme_cursor_move error.", NULL);
 	if (terme_cursor_delete_line_right())
 		return terme_fmte_("terme_cursor_delete_line_right error.", NULL);
 	Return(terme_readline_write_line_(ptr, 0));
-	if (terme_cursor_move(terme_prompt_size))
+	if (terme_cursor_move(terme_prompt_width))
 		return terme_fmte_("terme_cursor_move error.", NULL);
 
 	return 0;
@@ -1711,7 +1702,7 @@ static int terme_readline_rmright_(Execute ptr)
 {
 	int check;
 
-	Return(terme_data_delete_right_(ptr, terme_prompt_now, &check));
+	Return(terme_data_delete_right_(ptr, terme_value_now, &check));
 	if (! check)
 		return 0;
 	if (terme_cursor_delete_line_right())
@@ -1794,8 +1785,10 @@ static int terme_readline_call_(Execute ptr, addr *ret)
 		if (check)
 			break;
 	}
-	if (terme_fresh_line())
-		goto error;
+	if (pos != Nil) {
+		if (terme_fresh_line())
+			goto error;
+	}
 	if (terme_finish_output())
 		goto error;
 	return Result(ret, pos);
@@ -1811,8 +1804,10 @@ int terme_readline_(Execute ptr, addr *ret)
 
 	/* initialize */
 	terme_prompt_size = 0;
-	terme_prompt_now = 0;
-	terme_prompt_history = 0;
+	terme_prompt_width = 0;
+	terme_value_now = 0;
+	terme_value_width = 0;
+	terme_history_now = 0;
 	Return(terme_data_init_(ptr));
 
 	/* readline */
@@ -1836,7 +1831,10 @@ int terme_readline_(Execute ptr, addr *ret)
 #include "array.h"
 #include "array_access.h"
 #include "array_make.h"
+#include "bit.h"
 #include "constant.h"
+#include "eastasian.h"
+#include "eastasian_unicode.h"
 #include "heap.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -1847,11 +1845,12 @@ int terme_readline_(Execute ptr, addr *ret)
 
 static int terme_history_index = 0;
 
-enum terme_value {
-	terme_value_prompt,
-	terme_value_data,
-	terme_value_history,
-	terme_value_size
+enum terme_index {
+	terme_index_prompt,
+	terme_index_data,
+	terme_index_width,
+	terme_index_history,
+	terme_index_size
 };
 
 /*
@@ -1876,15 +1875,19 @@ static int terme_value_heap_(addr *ret)
 	addr pos, x;
 
 	/* object */
-	vector2_heap(&pos, terme_value_size);
+	vector2_heap(&pos, terme_index_size);
 
 	/* array */
 	Return(terme_value_array_(&x));
-	SetArrayA2(pos, terme_value_data, x);
+	SetArrayA2(pos, terme_index_data, x);
+
+	/* width */
+	bitmemory_heap(&x, TERME_VALUE_SIZE);
+	SetArrayA2(pos, terme_index_width, x);
 
 	/* queue */
 	vector_heap(&x, TERME_VALUE_HISTORY);
-	setarray(pos, terme_value_history, x);
+	setarray(pos, terme_index_history, x);
 
 	return Result(ret, pos);
 }
@@ -1914,7 +1917,7 @@ int terme_set_prompt_(Execute ptr, addr value)
 	addr array;
 
 	Return(terme_get_value_(ptr, &array));
-	SetArrayA2(array, terme_value_prompt, value);
+	SetArrayA2(array, terme_index_prompt, value);
 
 	return 0;
 }
@@ -1924,7 +1927,7 @@ int terme_get_prompt_(Execute ptr, addr *ret)
 	addr array;
 
 	Return(terme_get_value_(ptr, &array));
-	GetArrayA2(array, terme_value_prompt, ret);
+	GetArrayA2(array, terme_index_prompt, ret);
 
 	return 0;
 }
@@ -1933,12 +1936,15 @@ int terme_get_prompt_(Execute ptr, addr *ret)
 /*
  *  data
  */
-static int terme_data_array_(Execute ptr, addr *ret)
+static int terme_data_array_(Execute ptr, addr *array, addr *width)
 {
 	addr pos;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_value_data, ret);
+	GetArrayA2(pos, terme_index_data, array);
+	if (width) {
+		GetArrayA2(pos, terme_index_width, width);
+	}
 
 	return 0;
 }
@@ -1948,24 +1954,30 @@ int terme_data_init_(Execute ptr)
 	addr pos;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, NULL));
 	str = ArrayInfoStruct(pos);
 	str->front = 0;
 
 	return 0;
 }
 
-static int terme_data_shift_right_(addr pos, size_t x, size_t y)
+static int terme_data_shift_right_(addr pos, addr width, int x, int y)
 {
+	int i, size, src, dst, check;
 	unicode c;
-	size_t i, size;
 
 	if (x == y)
 		return 0;
 	size = y - x;
 	for (i = 0; i < size; i++) {
-		Return(array_get_unicode_(pos, y - i - 1, &c));
-		Return(array_set_character_(pos, y - i, c));
+		dst = y - i;
+		src = dst - 1;
+
+		Return(array_get_unicode_(pos, src, &c));
+		Return(array_set_character_(pos, dst, c));
+
+		Return(bitmemory_getint_(width, src, &check));
+		Return(bitmemory_setint_(width, dst, check));
 	}
 
 	return 0;
@@ -1973,37 +1985,56 @@ static int terme_data_shift_right_(addr pos, size_t x, size_t y)
 
 int terme_data_push_(Execute ptr, int index, unicode c, int *ret)
 {
-	addr pos;
+	int check;
+	addr pos, width;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, &width));
 	str = ArrayInfoStruct(pos);
 	if (str->size <= str->front)
-		return Result(ret, 0);
+		return Result(ret, -1);
 	if (index < 0 || str->front < index)
-		return Result(ret, 0);
+		return Result(ret, -1);
+
 	/* shift */
-	Return(terme_data_shift_right_(pos, (size_t)index, str->front));
+	Return(terme_data_shift_right_(pos, width, index, (int)str->front));
 
 	/* set */
 	Return(array_set_character_(pos, index, c));
 	str->front++;
 
-	return Result(ret, 1);
+	/* width */
+	check = (int)eastasian_width(c);
+	Return(bitmemory_setint_(width, index, check == 2));
+
+	return Result(ret, check);
 }
 
 int terme_data_get_(Execute ptr, int index, unicode *value, int *ret)
 {
-	addr pos;
+	addr pos, width;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, &width));
 	str = ArrayInfoStruct(pos);
 	if (index < 0 || str->front <= index)
-		return Result(ret, 0);
+		return Result(ret, -1);
 
-	*ret = 1;
+	Return(bitmemory_getint_(width, index, ret));
 	return array_get_unicode_(pos, (size_t)index, value);
+}
+
+int terme_data_get_width_(Execute ptr, int index, int *ret)
+{
+	addr pos, width;
+	struct array_struct *str;
+
+	Return(terme_data_array_(ptr, &pos, &width));
+	str = ArrayInfoStruct(pos);
+	if (index < 0 || str->front <= index)
+		return Result(ret, -1);
+
+	return bitmemory_getint_(width, index, ret);
 }
 
 int terme_data_size_(Execute ptr, int *ret)
@@ -2011,19 +2042,56 @@ int terme_data_size_(Execute ptr, int *ret)
 	addr pos;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, NULL));
 	str = ArrayInfoStruct(pos);
 
 	return Result(ret, (int)str->front);
 }
 
-static int terme_data_shift_left_(addr pos, size_t x, size_t y)
+int terme_data_size_width_(Execute ptr, int *size, int *width)
 {
+	addr pos;
+	struct array_struct *str;
+	size_t value;
+
+	Return(terme_data_array_(ptr, &pos, NULL));
+	Return(eastasian_length_(pos, &value, NULL));
+	str = ArrayInfoStruct(pos);
+	*size = (int)str->front;
+	*width = (int)value;
+
+	return 0;
+}
+
+int terme_data_allwidth_(Execute ptr, int *ret)
+{
+	int size, i, all, check;
+	addr pos, width;
+	struct array_struct *str;
+
+	Return(terme_data_array_(ptr, &pos, &width));
+	str = ArrayInfoStruct(pos);
+	size = (int)str->front;
+	all = 0;
+	for (i = 0; i < size; i++) {
+		Return(bitmemory_getint_(width, i, &check));
+		all += (check? 2: 1);
+	}
+
+	return Result(ret, all);
+}
+
+static int terme_data_shift_left_(addr pos, addr width, int x, int y)
+{
+	int check;
 	unicode c;
 
 	for (; x < y; x++) {
 		Return(array_get_unicode_(pos, x + 1, &c));
 		Return(array_set_character_(pos, x, c));
+
+		Return(bitmemory_getint_(width, x + 1, &check));
+		Return(bitmemory_setint_(width, x, check));
 	}
 
 	return 0;
@@ -2031,28 +2099,43 @@ static int terme_data_shift_left_(addr pos, size_t x, size_t y)
 
 int terme_data_delete_(Execute ptr, int index, int *ret)
 {
-	addr pos;
+	addr pos, width;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, &width));
 	str = ArrayInfoStruct(pos);
 	if (index < 0 || str->front <= index)
 		return Result(ret, 0);
 	/* shift */
-	Return(terme_data_shift_left_(pos, (size_t)index, str->front));
+	Return(terme_data_shift_left_(pos, width, index, (int)str->front));
 	str->front--;
 
 	return Result(ret, 1);
 }
 
+static int terme_data_delete_left_shift_(addr pos, addr width, int index, int size)
+{
+	int i, check;
+	unicode c;
+
+	for (i = 0; i < size; i++) {
+		Return(array_get_unicode_(pos, i + index, &c));
+		Return(array_set_character_(pos, i, c));
+
+		Return(bitmemory_getint_(width, i + index, &check));
+		Return(bitmemory_setint_(width, i, check));
+	}
+
+	return 0;
+}
+
 int terme_data_delete_left_(Execute ptr, int index, int *ret)
 {
-	int i, size;
-	unicode c;
-	addr pos;
+	int size;
+	addr pos, width;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, &width));
 	str = ArrayInfoStruct(pos);
 	/* do nothing */
 	if (index == 0)
@@ -2070,10 +2153,7 @@ int terme_data_delete_left_(Execute ptr, int index, int *ret)
 
 	/* shift */
 	size = str->front - index;
-	for (i = 0; i < size; i++) {
-		Return(array_get_unicode_(pos, i + index, &c));
-		Return(array_set_character_(pos, i, c));
-	}
+	Return(terme_data_delete_left_shift_(pos, width, index, size));
 	str->front = size;
 
 	return Result(ret, 1);
@@ -2084,7 +2164,7 @@ int terme_data_delete_right_(Execute ptr, int index, int *ret)
 	addr pos;
 	struct array_struct *str;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, NULL));
 	str = ArrayInfoStruct(pos);
 	if (index < 0 || str->front <= index)
 		return Result(ret, 0);
@@ -2101,7 +2181,7 @@ static int terme_data_heap_(Execute ptr, addr *ret, int eol)
 	struct array_struct *str;
 	size_t size, i;
 
-	Return(terme_data_array_(ptr, &pos));
+	Return(terme_data_array_(ptr, &pos, NULL));
 	str = ArrayInfoStruct(pos);
 	size = str->front;
 	strvect_heap(&make, size + (eol? 1: 0));
@@ -2122,7 +2202,7 @@ static int terme_history_set_(Execute ptr, addr value)
 	addr pos;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_value_history, &pos);
+	GetArrayA2(pos, terme_index_history, &pos);
 	setarray(pos, terme_history_index, value);
 
 	return 0;
@@ -2135,7 +2215,7 @@ static int terme_history_next_(Execute ptr)
 	size_t size;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_value_history, &pos);
+	GetArrayA2(pos, terme_index_history, &pos);
 	lenarray(pos, &size);
 	sizei = (int)size;
 	terme_history_index = (terme_history_index + 1) % sizei;
@@ -2170,7 +2250,7 @@ static int terme_history_get_(Execute ptr, int index, addr *value, int *ret)
 	size_t size;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_value_history, &pos);
+	GetArrayA2(pos, terme_index_history, &pos);
 	lenarray(pos, &size);
 	sizei = (int)size;
 	if (index < 0 || sizei <= index) {
@@ -2185,12 +2265,13 @@ static int terme_history_get_(Execute ptr, int index, addr *value, int *ret)
 
 static int terme_history_copy_(Execute ptr, addr pos)
 {
+	int check;
 	unicode c;
-	addr array;
+	addr array, width;
 	struct array_struct *str;
 	size_t size, i;
 
-	Return(terme_data_array_(ptr, &array));
+	Return(terme_data_array_(ptr, &array, &width));
 	str = ArrayInfoStruct(array);
 	strvect_length(pos, &size);
 	if (str->size < size)
@@ -2199,6 +2280,8 @@ static int terme_history_copy_(Execute ptr, addr pos)
 	for (i = 0; i < size; i++) {
 		strvect_getc(pos, i, &c);
 		Return(array_set_character_(array, i, c));
+		check = (int)eastasian_width(c);
+		Return(bitmemory_setint_(width, i, check == 2));
 	}
 	str->front = size;
 

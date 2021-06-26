@@ -1,5 +1,5 @@
-#ifndef __TERME_FONT_HEADER__
-#define __TERME_FONT_HEADER__
+#ifndef __TERME_ESCAPE_HEADER__
+#define __TERME_ESCAPE_HEADER__
 
 #include "print_font.h"
 #include "typedef.h"
@@ -18,8 +18,8 @@
 int terme_font(PrintFont value);
 int terme_text_color(PrintColor value);
 int terme_back_color(PrintColor value);
-int terme_cursor_left(void);
-int terme_cursor_right(void);
+int terme_cursor_left(int n);
+int terme_cursor_right(int n);
 int terme_cursor_move(int n);
 int terme_cursor_delete_line_left(void);
 int terme_cursor_delete_line_right(void);

@@ -2,7 +2,7 @@
 output="../terme.c"
 file_header="
 terme_call.h
-terme_font.h
+terme_escape.h
 terme_input.h
 terme_output.h
 terme_prompt.h
@@ -10,7 +10,7 @@ terme_value.h"
 file_source="
 terme_interface.c
 terme_call.c
-terme_font.c
+terme_escape.c
 terme_input.c
 terme_output.c
 terme_prompt.c

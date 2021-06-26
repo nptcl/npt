@@ -1,7 +1,7 @@
 #include "execute.h"
 #include "terme.h"
 #include "terme_call.h"
-#include "terme_font.h"
+#include "terme_escape.h"
 #include "terme_prompt.h"
 #include "terme_value.h"
 #include "typedef.h"
