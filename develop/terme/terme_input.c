@@ -6,9 +6,9 @@
 #include "typedef.h"
 
 #ifdef LISP_DEBUG
-#define TERME_INPUT_SIZE	3
+#define TERME_INPUT_SIZE		3
 #else
-#define TERME_INPUT_SIZE	4096
+#define TERME_INPUT_SIZE		4096
 #endif
 
 #define TERME_INPUT_UNBYTE		64

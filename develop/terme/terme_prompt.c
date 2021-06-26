@@ -15,6 +15,7 @@
 
 static int terme_prompt_size;
 static int terme_prompt_now;
+static int terme_prompt_history;
 
 /*
  *  error
@@ -62,7 +63,6 @@ static int terme_fmte_(const char *str, ...)
  */
 int terme_prompt_(Execute ptr, addr pos)
 {
-
 	Check(! stringp(pos), "type error");
 	return terme_set_prompt_(ptr, pos);
 }
@@ -238,6 +238,43 @@ static int terme_readline_code_(Execute ptr, TermeKeyboard *str, addr *value, in
 	return Result(ret, 0);
 }
 
+static int terme_readline_up_down_(Execute ptr, int diff)
+{
+	int index, check;
+
+	if (terme_prompt_history == 0) {
+		Return(terme_history_save_(ptr));
+	}
+	index = terme_prompt_history + diff;
+	Return(terme_history_update_(ptr, index, &check));
+	if (! check)
+		return 0;
+	terme_prompt_history = index;
+
+	/* output */
+	Return(terme_data_size_(ptr, &terme_prompt_now));
+	if (terme_cursor_delete_line())
+		return terme_fmte_("terme_cursor_delete_line error.", NULL);
+	if (terme_cursor_move(0))
+		return terme_fmte_("terme_cursor_move error.", NULL);
+	Return(terme_prompt_output_(ptr));
+	Return(terme_readline_write_line_(ptr, 0));
+	if (terme_finish_output())
+		return terme_fmte_("terme_finish_output error.", NULL);
+
+	return 0;
+}
+
+static int terme_readline_up_(Execute ptr)
+{
+	return terme_readline_up_down_(ptr, 1);
+}
+
+static int terme_readline_down_(Execute ptr)
+{
+	return terme_readline_up_down_(ptr, -1);
+}
+
 static int terme_readline_left_(Execute ptr)
 {
 	if (terme_prompt_now == 0)
@@ -265,6 +302,7 @@ static int terme_readline_right_(Execute ptr)
 
 static int terme_readline_return(Execute ptr, addr *value, int *ret)
 {
+	terme_prompt_history = 0;
 	Return(terme_data_make_(ptr, value));
 	return Result(ret, 1);
 }
@@ -409,8 +447,10 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 			return terme_readline_code_(ptr, str, value, ret);
 
 		case terme_escape_up:
+			return terme_readline_up_(ptr);
+
 		case terme_escape_down:
-			break; /* TODO */
+			return terme_readline_down_(ptr);
 
 		case terme_escape_left:
 			return terme_readline_left_(ptr);
@@ -488,6 +528,7 @@ int terme_readline_(Execute ptr, addr *ret)
 	/* initialize */
 	terme_prompt_size = 0;
 	terme_prompt_now = 0;
+	terme_prompt_history = 0;
 	Return(terme_data_init_(ptr));
 
 	/* readline */

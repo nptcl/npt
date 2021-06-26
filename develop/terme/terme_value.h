@@ -16,6 +16,8 @@
 #define terme_data_delete_left_ _n(terme_data_delete_left_)
 #define terme_data_delete_right_ _n(terme_data_delete_right_)
 #define terme_data_make_ _n(terme_data_make_)
+#define terme_history_save_ _n(terme_history_save_)
+#define terme_history_update_ _n(terme_history_update_)
 
 void terme_build(void);
 int terme_set_prompt_(Execute ptr, addr value);
@@ -29,6 +31,8 @@ int terme_data_delete_(Execute ptr, int index, int *ret);
 int terme_data_delete_left_(Execute ptr, int index, int *ret);
 int terme_data_delete_right_(Execute ptr, int index, int *ret);
 int terme_data_make_(Execute ptr, addr *ret);
+int terme_history_save_(Execute ptr);
+int terme_history_update_(Execute ptr, int index, int *ret);
 
 #endif
 

@@ -31,7 +31,7 @@ output_file()
 	echo " ************************************************************/"
 	grep -v '#include "terme_' ${file}
 	checkerr "cat error: ${file}"
-	echo >> ${output}
+	echo
 }
 
 cat /dev/null > ${output}
