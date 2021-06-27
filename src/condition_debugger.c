@@ -10,6 +10,7 @@
 #include "control_operator.h"
 #include "eval_execute.h"
 #include "eval_main.h"
+#include "execute_object.h"
 #include "format.h"
 #include "function.h"
 #include "hold.h"
@@ -18,6 +19,7 @@
 #include "prompt.h"
 #include "reader.h"
 #include "restart.h"
+#include "restart_value.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
@@ -342,15 +344,87 @@ static int enter_debugger_help_(Execute ptr, addr io)
 	return 0;
 }
 
+static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
+{
+	int eof;
+	addr pos;
+	size_t select, size;
+
+	Return(clear_input_stream_(io));
+	Return(read_stream(ptr, io, &eof, &pos));
+
+	/* :exit, EOF */
+	if (eof || getbreak_prompt(ptr) || enter_debugger_symbol_p(pos, "EXIT", 1)) {
+		if (eof) {
+			Return(terpri_stream_(io));
+		}
+		setbreak_prompt(ptr, 0);
+		Return(finish_output_stream_(io));
+		/* restart abort */
+		GetConst(COMMON_ABORT, &pos);
+		Return(eval_symbol_debugger(ptr, io, list, pos));
+		return Result(ret, 0);
+	}
+
+	/* show */
+	if (enter_debugger_symbol_p(pos, "SHOW", 1))
+		return Result(ret, -1);
+
+	/* stack */
+	if (enter_debugger_symbol_p(pos, "STACK", 1)) {
+		Return(stack_frame_stream_(ptr, io));
+		return Result(ret, 0);
+	}
+
+	/* help */
+	if (enter_debugger_symbol_p(pos, "HELP", 0)
+			|| enter_debugger_symbol_p(pos, "?", 0)) {
+		Return(enter_debugger_help_(ptr, io));
+		return Result(ret, 0);
+	}
+
+	/* check */
+	if (! fixnump(pos)) {
+		Return(eval_symbol_debugger(ptr, io, list, pos));
+		return Result(ret, 0);
+	}
+	if (GetIndex_integer(pos, &select)) {
+		Return(format_stream(ptr, io, "Illegal integer value ~A.~%", pos, NULL));
+		return Result(ret, 0);
+	}
+
+	size = length_list_unsafe(list);
+	if (size <= select) {
+		Return(format_stream(ptr, io, "Too large index value ~A.~%", pos, NULL));
+		return Result(ret, 0);
+	}
+	/* execute */
+	getnth_unsafe(list, select, &pos);
+	Return(invoke_restart_interactively_control_(ptr, pos));
+	return Result(ret, 0);
+}
+
+static int enter_debugger_abort_(Execute ptr, addr io, addr list, int *ret)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	abort_restart_char_control(ptr, "Exit the debugger on the inside.");
+	(void)enter_debugger_call_(ptr, io, list, ret);
+	if (equal_control_restart(ptr, control)) {
+		normal_throw_control(ptr);
+		*ret = 0;
+	}
+	return pop_control_(ptr, control);
+}
+
 static int enter_debugger_(Execute ptr, addr io, addr condition, addr list)
 {
-	int check, result;
-	addr pos;
-	size_t index, select, size;
+	int check;
+	size_t index;
 
 	/* restarts */
 	mode_prompt_stream(ptr, PromptStreamMode_Normal);
-	size = length_list_unsafe(list);
 	index = getindex_prompt(ptr) + 1ULL;
 
 show:
@@ -360,64 +434,15 @@ show:
 loop:
 	setindex_prompt(ptr, index);
 	setshow_prompt(ptr, 1);
-	Return(clear_input_stream_(io));
-	check = read_stream(ptr, io, &result, &pos);
-	/* Interupt */
-	if (check) {
-		goto exit;
+	Return(enter_debugger_abort_(ptr, io, list, &check));
+	switch (check) {
+		case -1:
+			goto show;
+		case 0:
+			goto loop;
+		default:
+			return 0;
 	}
-
-	/* EOF */
-	if (result) {
-		Return(terpri_stream_(io));
-		abort_execute();
-		goto exit;
-	}
-
-	/* :exit */
-	if (getbreak_prompt(ptr) || enter_debugger_symbol_p(pos, "EXIT", 1)) {
-		Return(terpri_stream_(io));
-		goto exit;
-	}
-
-	/* show */
-	if (enter_debugger_symbol_p(pos, "SHOW", 1)) {
-		goto show;
-	}
-
-	/* stack */
-	if (enter_debugger_symbol_p(pos, "STACK", 1)) {
-		Return(stack_frame_stream_(ptr, io));
-		goto loop;
-	}
-
-	/* help */
-	if (enter_debugger_symbol_p(pos, "HELP", 0)
-			|| enter_debugger_symbol_p(pos, "?", 0)) {
-		Return(enter_debugger_help_(ptr, io));
-		goto loop;
-	}
-
-	/* check */
-	if (! fixnump(pos)) {
-		Return(eval_symbol_debugger(ptr, io, list, pos));
-		goto loop;
-	}
-	if (GetIndex_integer(pos, &select)) {
-		Return(format_stream(ptr, io, "Illegal integer value ~A.~%", pos, NULL));
-		goto loop;
-	}
-	if (size <= select) {
-		Return(format_stream(ptr, io, "Too large index value ~A.~%", pos, NULL));
-		goto loop;
-	}
-	/* execute */
-	getnth_unsafe(list, select, &pos);
-	Return(invoke_restart_interactively_control_(ptr, pos));
-	goto loop;
-
-exit:
-	return 0;
 }
 
 static int invoke_standard_debugger_(Execute ptr, addr condition)

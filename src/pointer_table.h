@@ -1126,8 +1126,6 @@ enum pointer_index {
 	p_defun_handler_warning,
 	p_defun_handler_empty,
 	/* eval */
-	p_defun_eval_loop_abort_report,
-	p_defun_eval_loop_abort_test,
 	p_defun_handler_compile,
 	/* rt */
 	p_defun_push_entries,

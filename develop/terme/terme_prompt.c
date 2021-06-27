@@ -1,3 +1,7 @@
+#include <sys/types.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include "condition.h"
 #include "copy.h"
 #include "eastasian_unicode.h"
@@ -129,6 +133,26 @@ error:
  */
 static int terme_readline_loop_(Execute ptr, TermeKeyboard *, addr *, int *);
 
+static int terme_readline_ctrl_z_(TermeKeyboard *str)
+{
+	int mode;
+	pid_t pid;
+
+	if (terme_switch_textmode(&mode))
+		return terme_fmte_("terme_switch_textmode error.", NULL);
+
+	pid = getpid();
+	if (kill(pid, SIGTSTP))
+		return terme_fmte_("kill error.", NULL);
+
+	if (mode && terme_switch_rawmode(NULL))
+		return terme_fmte_("terme_switch_rawmode error.", NULL);
+
+	/* ignore */
+	str->type = terme_escape_error;
+	return 0;
+}
+
 static int terme_readline_control_(Execute ptr,
 		TermeKeyboard *str, addr *value, int *ret)
 {
@@ -189,8 +213,11 @@ static int terme_readline_control_(Execute ptr,
 			str->type = terme_escape_tab;
 			break;
 
+		case 0x1A:  /* Z */
+			Return(terme_readline_ctrl_z_(str));
+			break;
+
 		default:
-			fprintf(stderr, "Ctrl + %x\n", (int)str->c);
 			str->type = terme_escape_error;
 			break;
 	}
@@ -519,17 +546,18 @@ static int terme_readline_call_(Execute ptr, addr *ret)
 	addr pos;
 	TermeKeyboard str;
 
+	/* loop */
 	Return(terme_prompt_output_(ptr));
 	pos = Nil;
 	for (;;) {
-		if (terme_read_keyboard(&str)) {
-			*ret = Nil;
-			return terme_fmte_("terme_read_keyboard error.", NULL);
-		}
+		if (terme_read_keyboard(&str))
+			continue;
 		Return(terme_readline_loop_(ptr, &str, &pos, &check));
 		if (check)
 			break;
 	}
+
+	/* finish */
 	if (pos != Nil) {
 		if (terme_fresh_line())
 			goto error;

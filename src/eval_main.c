@@ -13,6 +13,7 @@
 #include "prompt.h"
 #include "reader.h"
 #include "restart.h"
+#include "restart_value.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
@@ -22,43 +23,9 @@
 /*
  *  restart abort
  */
-static int function_eval_loop_abort_report(Execute ptr, addr stream)
-{
-	Return(format_stream(ptr, stream, "Return to eval-loop.", NULL));
-	setresult_control(ptr, Nil);
-	return 0;
-}
-
-static int function_eval_loop_abort_test(Execute ptr, addr condition)
-{
-	setresult_control(ptr, T);
-	return 0;
-}
-
 static void eval_main_restart_abort(addr *ret)
 {
-	addr pos, value;
-
-	/* restart */
-	GetConst(COMMON_ABORT, &pos);
-	restart_heap(&pos, pos);
-	/* function */
-	GetConst(FUNCTION_NIL, &value);
-	setfunction_restart(pos, value);
-	/* interactive */
-	setinteractive_restart(pos, Nil);
-	/* report */
-	compiled_heap(&value, Nil);
-	setcompiled_var1(value, p_defun_eval_loop_abort_report);
-	setreport_restart(pos, value);
-	/* test */
-	compiled_heap(&value, Nil);
-	setcompiled_var1(value, p_defun_eval_loop_abort_test);
-	settest_restart(pos, value);
-	/* escape */
-	setescape_restart(pos, 1);  /* restart-case */
-	/* result */
-	*ret = pos;
+	abort_restart_char_heap(ret, "Return to eval-loop.");
 }
 
 
@@ -315,15 +282,5 @@ int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 	eval_main_restart_abort(&restart);
 	(void)restart0_control(ptr, restart, eval_main_load_execute, (void *)&str);
 	return pop_control_(ptr, control);
-}
-
-
-/*
- *  initialize
- */
-void init_eval_main(void)
-{
-	SetPointerCall(defun, var1, eval_loop_abort_report);
-	SetPointerCall(defun, var1, eval_loop_abort_test);
 }
 

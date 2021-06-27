@@ -6,6 +6,11 @@
 #include "terme_value.h"
 #include "typedef.h"
 
+void init_terme(void)
+{
+	terme_init();
+}
+
 void build_terme(void)
 {
 	terme_build();
@@ -13,12 +18,12 @@ void build_terme(void)
 
 int begin_terme(void)
 {
-	return terme_init();
+	return terme_begin();
 }
 
 int end_terme(void)
 {
-	terme_free();
+	terme_end();
 	return 0;
 }
 

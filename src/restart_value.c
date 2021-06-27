@@ -1,3 +1,4 @@
+#include "call_data.h"
 #include "callname.h"
 #include "condition.h"
 #include "cons.h"
@@ -575,6 +576,41 @@ int fdefinition_restart_(Execute ptr, addr name, addr *ret)
 
 	/* error, restart */
 	return fdefinition_restart_call_(ptr, name, ret);
+}
+
+
+/*
+ *  abort
+ */
+void abort_restart_char_heap(addr *ret, const char *str)
+{
+	addr pos, value;
+
+	/* restart */
+	GetConst(COMMON_ABORT, &pos);
+	restart_heap(&pos, pos);
+	/* function */
+	GetConst(FUNCTION_NIL, &value);
+	setfunction_restart(pos, value);
+	/* interactive */
+	setinteractive_restart(pos, Nil);
+	/* report */
+	strvect_char_heap(&value, str);
+	setreport_restart(pos, value);
+	/* test */
+	constantly_common(T, &value);
+	settest_restart(pos, value);
+	/* escape */
+	setescape_restart(pos, 1);  /* restart-case */
+	/* result */
+	*ret = pos;
+}
+
+void abort_restart_char_control(Execute ptr, const char *str)
+{
+	addr restart;
+	abort_restart_char_heap(&restart, str);
+	pushrestart_control(ptr, restart);
 }
 
 

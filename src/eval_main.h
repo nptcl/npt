@@ -9,7 +9,6 @@
 #define eval_main_loop_ _n(eval_main_loop_)
 #define eval_main_string_ _n(eval_main_string_)
 #define eval_main_load_ _n(eval_main_load_)
-#define init_eval_main _n(init_eval_main)
 
 typedef int (*eval_loop_calltype)(Execute, addr, addr, int *exit, int *exec);
 
@@ -18,9 +17,6 @@ int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call);
 int eval_main_loop_(Execute ptr);
 int eval_main_string_(Execute ptr, addr eval);
 int eval_main_load_(Execute ptr, addr file, int exists, int *ret);
-
-/* initialize */
-void init_eval_main(void);
 
 #endif
 

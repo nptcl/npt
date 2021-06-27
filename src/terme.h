@@ -5,6 +5,7 @@
 #include "print_font.h"
 #include "typedef.h"
 
+#define init_terme _n(init_terme)
 #define build_terme _n(build_terme)
 #define begin_terme _n(begin_terme)
 #define end_terme _n(end_terme)
@@ -14,6 +15,7 @@
 #define text_color_terme _n(text_color_terme)
 #define back_color_terme _n(back_color_terme)
 
+void init_terme(void);
 void build_terme(void);
 int begin_terme(void);
 int end_terme(void);

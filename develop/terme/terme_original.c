@@ -7,6 +7,11 @@
 #include "terme_value.h"
 #include "typedef.h"
 
+void init_terme(void)
+{
+	terme_init();
+}
+
 void build_terme(void)
 {
 	terme_build();
@@ -14,12 +19,12 @@ void build_terme(void)
 
 int begin_terme(void)
 {
-	return terme_init();
+	return terme_begin();
 }
 
 int end_terme(void)
 {
-	return terme_free();
+	return terme_end();
 }
 
 int prompt_terme_(Execute ptr, addr pos)
@@ -58,6 +63,10 @@ int back_color_terme(PrintColor value)
 #include "strvect.h"
 #include "symbol.h"
 #include "terme.h"
+
+void init_terme(void)
+{
+}
 
 void build_terme(void)
 {

@@ -103,6 +103,7 @@ void initlisp(void)
 	init_structure();
 	init_sxhash();
 	init_syscall();
+	init_terme();
 	init_type();
 #ifdef LISP_EXTENSION
 	lisps_init_extension();

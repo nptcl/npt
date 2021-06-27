@@ -11,14 +11,18 @@
 #include "typedef.h"
 
 #define terme_init _n(terme_init)
-#define terme_free _n(terme_free)
+#define terme_begin _n(terme_begin)
+#define terme_end _n(terme_end)
 #define terme_switch_textmode _n(terme_switch_textmode)
 #define terme_switch_rawmode _n(terme_switch_rawmode)
+#define terme_screen_x _n(terme_screen_x)
 
-int terme_init(void);
-int terme_free(void);
+void terme_init(void);
+int terme_begin(void);
+int terme_end(void);
 int terme_switch_textmode(int *ret);
 int terme_switch_rawmode(int *ret);
+void terme_screen_x(int *ret);
 
 #endif
 
@@ -208,6 +212,11 @@ int terme_history_update_(Execute ptr, int index, int *ret);
 #include "terme.h"
 #include "typedef.h"
 
+void init_terme(void)
+{
+	terme_init();
+}
+
 void build_terme(void)
 {
 	terme_build();
@@ -215,12 +224,12 @@ void build_terme(void)
 
 int begin_terme(void)
 {
-	return terme_init();
+	return terme_begin();
 }
 
 int end_terme(void)
 {
-	terme_free();
+	terme_end();
 	return 0;
 }
 
@@ -253,6 +262,7 @@ int back_color_terme(PrintColor value)
 /************************************************************
   terme_call.c
  ************************************************************/
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -271,24 +281,54 @@ static int terme_y;
 /*
  *  terme-init
  */
-static int terme_init_get(struct termios *ret)
+static void terme_init_handler(int sig)
+{
+	struct winsize ws;
+
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1) {
+		terme_x = 0;
+		terme_y = 0;
+	}
+	else {
+		terme_x = (int)ws.ws_col;
+		terme_y = (int)ws.ws_row;
+	}
+}
+
+void terme_init(void)
+{
+	struct sigaction act;
+
+	act.sa_handler = terme_init_handler;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags= SA_RESTART;
+	if (sigaction(SIGWINCH, &act, NULL)) {
+		Abort("sigaction error.");
+	}
+}
+
+
+/*
+ *  terme-begin
+ */
+static int terme_begin_get(struct termios *ret)
 {
 	if (ret == NULL)
 		return 0;
 	return tcgetattr(STDIN_FILENO, ret);
 }
 
-static int terme_init_set(struct termios *ret)
+static int terme_begin_set(struct termios *ret)
 {
 	return tcsetattr(STDIN_FILENO, TCSAFLUSH, ret);
 }
 
-static int terme_init_termios(void)
+static int terme_begin_termios(void)
 {
 	struct termios v;
 
 	/* backup */
-	if (terme_init_get(&v)) {
+	if (terme_begin_get(&v)) {
 		fprintf(stderr, "tcgetattr value error\n");
 		return 1;
 	}
@@ -302,7 +342,7 @@ static int terme_init_termios(void)
 	v.c_cflag |= CS8;
 	v.c_cc[VMIN] = 1;
 	v.c_cc[VTIME] = 0;
-	if (terme_init_set(&v)) {
+	if (terme_begin_set(&v)) {
 		fprintf(stderr, "tcsetattr error.\n");
 		return 1;
 	}
@@ -323,14 +363,14 @@ static int terme_getsize(void)
 	return 0;
 }
 
-int terme_init(void)
+int terme_begin(void)
 {
 	/* terminal size */
 	if (terme_getsize())
 		return 1;
 
 	/* termios */
-	if (terme_init_termios())
+	if (terme_begin_termios())
 		return 1;
 
 	/* switch */
@@ -343,9 +383,9 @@ int terme_init(void)
 	return 0;
 }
 
-int terme_free(void)
+int terme_end(void)
 {
-	return terme_init_set(&terme_textmode_termios);
+	return terme_begin_set(&terme_textmode_termios);
 }
 
 
@@ -359,7 +399,7 @@ int terme_switch_textmode(int *ret)
 			*ret = 0;
 		return 0;
 	}
-	if (terme_init_get(&terme_switch_termios)) {
+	if (terme_begin_get(&terme_switch_termios)) {
 		if (ret)
 			*ret = 0;
 		return 1;
@@ -367,7 +407,7 @@ int terme_switch_textmode(int *ret)
 	if (ret)
 		*ret = 1;
 	terme_switch_textmode_p = 1;
-	return terme_init_set(&terme_textmode_termios);
+	return terme_begin_set(&terme_textmode_termios);
 }
 
 int terme_switch_rawmode(int *ret)
@@ -377,7 +417,7 @@ int terme_switch_rawmode(int *ret)
 			*ret = 0;
 		return 0;
 	}
-	if (terme_init_set(&terme_switch_termios)) {
+	if (terme_begin_set(&terme_switch_termios)) {
 		if (ret)
 			*ret = 0;
 		return 1;
@@ -387,6 +427,11 @@ int terme_switch_rawmode(int *ret)
 	terme_switch_textmode_p = 0;
 	memset(&terme_switch_termios, '\0', sizeof(terme_switch_termios));
 	return 0;
+}
+
+void terme_screen_x(int *ret)
+{
+	*ret = terme_x;
 }
 
 
@@ -1257,6 +1302,10 @@ int terme_fresh_line(void)
 /************************************************************
   terme_prompt.c
  ************************************************************/
+#include <sys/types.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include "condition.h"
 #include "copy.h"
 #include "eastasian_unicode.h"
@@ -1382,6 +1431,26 @@ error:
  */
 static int terme_readline_loop_(Execute ptr, TermeKeyboard *, addr *, int *);
 
+static int terme_readline_ctrl_z_(TermeKeyboard *str)
+{
+	int mode;
+	pid_t pid;
+
+	if (terme_switch_textmode(&mode))
+		return terme_fmte_("terme_switch_textmode error.", NULL);
+
+	pid = getpid();
+	if (kill(pid, SIGTSTP))
+		return terme_fmte_("kill error.", NULL);
+
+	if (mode && terme_switch_rawmode(NULL))
+		return terme_fmte_("terme_switch_rawmode error.", NULL);
+
+	/* ignore */
+	str->type = terme_escape_error;
+	return 0;
+}
+
 static int terme_readline_control_(Execute ptr,
 		TermeKeyboard *str, addr *value, int *ret)
 {
@@ -1442,8 +1511,11 @@ static int terme_readline_control_(Execute ptr,
 			str->type = terme_escape_tab;
 			break;
 
+		case 0x1A:  /* Z */
+			Return(terme_readline_ctrl_z_(str));
+			break;
+
 		default:
-			fprintf(stderr, "Ctrl + %x\n", (int)str->c);
 			str->type = terme_escape_error;
 			break;
 	}
@@ -1772,17 +1844,18 @@ static int terme_readline_call_(Execute ptr, addr *ret)
 	addr pos;
 	TermeKeyboard str;
 
+	/* loop */
 	Return(terme_prompt_output_(ptr));
 	pos = Nil;
 	for (;;) {
-		if (terme_read_keyboard(&str)) {
-			*ret = Nil;
-			return terme_fmte_("terme_read_keyboard error.", NULL);
-		}
+		if (terme_read_keyboard(&str))
+			continue;
 		Return(terme_readline_loop_(ptr, &str, &pos, &check));
 		if (check)
 			break;
 	}
+
+	/* finish */
 	if (pos != Nil) {
 		if (terme_fresh_line())
 			goto error;
@@ -2314,6 +2387,10 @@ int terme_history_update_(Execute ptr, int index, int *ret)
 #include "strvect.h"
 #include "symbol.h"
 #include "terme.h"
+
+void init_terme(void)
+{
+}
 
 void build_terme(void)
 {

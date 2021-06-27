@@ -8,6 +8,10 @@
 #include "symbol.h"
 #include "terme.h"
 
+void init_terme(void)
+{
+}
+
 void build_terme(void)
 {
 	addr symbol;
