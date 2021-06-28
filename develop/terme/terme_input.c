@@ -499,6 +499,10 @@ third_5B:
 		goto error;
 	if (c == 0x31)
 		goto forth_31;
+	if (c == 0x41)
+		goto escape_up;
+	if (c == 0x42)
+		goto escape_down;
 	if (c == 0x43)
 		goto escape_right;
 	if (c == 0x44)
@@ -515,6 +519,14 @@ forth_31:
 			goto function1;
 	}
 	goto error;
+
+escape_up: /* 0x1B 0x5B 0x41 */
+	ret->type = terme_escape_up;
+	return;
+
+escape_down: /* 0x1B 0x5B 0x42 */
+	ret->type = terme_escape_down;
+	return;
 
 escape_right: /* 0x1B 0x5B 0x43 */
 	ret->type = terme_escape_right;

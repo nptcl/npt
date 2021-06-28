@@ -81,10 +81,6 @@ static int terme_begin_termios(void)
 	v.c_cflag |= CS8;
 	v.c_cc[VMIN] = 1;
 	v.c_cc[VTIME] = 0;
-	if (terme_begin_set(&v)) {
-		fprintf(stderr, "tcsetattr error.\n");
-		return 1;
-	}
 	terme_switch_termios = v;
 
 	return 0;

@@ -1893,7 +1893,7 @@ lisp-rt::equalrt
 (("LISP-SYSTEM" "*READINFO*") :constant system :name readinfo-special)
 (lisp-system::*prompt* :constant system :name prompt)
 (lisp-system::*prompt-value* :constant system :name prompt-value)
-(lisp-system::*prompt-bright* :constant system :name prompt-bright)
+(lisp-system::*prompt-bright* :constant system :name prompt-bright :export t)
 (lisp-system::*terme* :constant system :name terme)
 
 
