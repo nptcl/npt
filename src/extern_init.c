@@ -226,6 +226,10 @@ int lisp_main_version_script(FILE *file)
 	fprintf(file, "%s\t%s\n", "memory-malloc", "false");
 #endif
 	fprintf(file, "%s\t%d\n", "pointer-extend", LISP_POINTER_EXTEND);
+#ifdef LISP_TERME
+	fprintf(file, "%s\t%s\n", "terme-mode", LISP_TERME_COLOR1);
+	fprintf(file, "%s\t%s\n", "terme-switch", LISP_TERME_COLOR2);
+#endif
 	lisp_result = 0;
 
 	return 0;
@@ -780,6 +784,28 @@ static int lisp_argv_switch_(Execute ptr, struct lispargv *argv)
 	return fmte_("Invalid result.", NULL);
 }
 
+static void lisp_argv_terme(struct lispargv *argv)
+{
+	addr symbol;
+
+	if (argv->terme_bright) {
+		GetConst(SYSTEM_PROMPT_BRIGHT, &symbol);
+		SetValueSymbol(symbol, T);
+	}
+	if (argv->terme_dark) {
+		GetConst(SYSTEM_PROMPT_BRIGHT, &symbol);
+		SetValueSymbol(symbol, Nil);
+	}
+	if (argv->terme_color) {
+		GetConst(SYSTEM_PROMPT_COLOR, &symbol);
+		SetValueSymbol(symbol, T);
+	}
+	if (argv->terme_monochrome) {
+		GetConst(SYSTEM_PROMPT_COLOR, &symbol);
+		SetValueSymbol(symbol, Nil);
+	}
+}
+
 /* runcode */
 static int lisp_argv_code(struct lispargv *argv)
 {
@@ -793,6 +819,7 @@ static int lisp_argv_code(struct lispargv *argv)
 	if (argv->nocore) {
 		buildlisp(ptr);
 	}
+	lisp_argv_terme(argv);
 	if (lisp_argv_switch_(ptr, argv)) {
 		abort_execute();
 		return 1;

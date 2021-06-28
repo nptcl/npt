@@ -1,7 +1,24 @@
 #include <stdio.h>
+#include "constant.h"
+#include "symbol.h"
 #include "terme_escape.h"
 #include "terme_output.h"
 #include "typedef.h"
+
+static int terme_color_enable(Execute ptr)
+{
+	addr symbol, pos;
+
+	GetConst(SYSTEM_PROMPT_COLOR, &symbol);
+	if (ptr == NULL) {
+		GetValueSymbol(symbol, &pos);
+	}
+	else {
+		getspecial_local(ptr, symbol, &pos);
+	}
+
+	return pos == Unbound || pos != Nil;
+}
 
 static int terme_escape_operator(const char *str)
 {
@@ -18,10 +35,12 @@ static int terme_escape_operator(const char *str)
 	return terme_finish_output();
 }
 
-int terme_font(PrintFont value)
+int terme_font(Execute ptr, PrintFont value)
 {
 	const char *str;
 
+	if (! terme_color_enable(ptr))
+		return 0;
 	switch (value) {
 		case print_font_reset:      str = "\x1B[0m"; break;
 		case print_font_bold:       str = "\x1B[1m"; break;
@@ -39,10 +58,12 @@ int terme_font(PrintFont value)
 	return terme_escape_operator(str);
 }
 
-int terme_text_color(PrintColor value)
+int terme_text_color(Execute ptr, PrintColor value)
 {
 	const char *str;
 
+	if (! terme_color_enable(ptr))
+		return 0;
 	switch (value) {
 		case print_color_reset:           str = "\x1B[0m"; break;
 		case print_color_black:           str = "\x1B[30m"; break;
@@ -67,10 +88,12 @@ int terme_text_color(PrintColor value)
 	return terme_escape_operator(str);
 }
 
-int terme_back_color(PrintColor value)
+int terme_back_color(Execute ptr, PrintColor value)
 {
 	const char *str;
 
+	if (! terme_color_enable(ptr))
+		return 0;
 	switch (value) {
 		case print_color_reset:           str = "\x1B[0m"; break;
 		case print_color_black:           str = "\x1B[40m"; break;

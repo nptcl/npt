@@ -269,9 +269,9 @@ static int invoke_standard_header_(Execute ptr, addr io, addr condition)
 
 	Return(clos_class_of_(condition, &pos));
 	Return(stdget_class_name_(pos, &pos));
-	(void)text_color_terme(print_color_bright_red);
+	(void)text_color_terme(ptr, print_color_bright_red);
 	Return(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
-	(void)text_color_terme(print_color_reset);
+	(void)text_color_terme(ptr, print_color_reset);
 	Return(output_debugger(ptr, io, condition));
 
 	return 0;

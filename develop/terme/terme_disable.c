@@ -80,17 +80,17 @@ int readline_terme_(Execute ptr, addr *ret)
 	return Result(ret, pos);
 }
 
-int font_terme(PrintFont value)
+int font_terme(Execute ptr, PrintFont value)
 {
 	return 0;
 }
 
-int text_color_terme(PrintColor value)
+int text_color_terme(Execute ptr, PrintColor value)
 {
 	return 0;
 }
 
-int back_color_terme(PrintColor value)
+int back_color_terme(Execute ptr, PrintColor value)
 {
 	return 0;
 }

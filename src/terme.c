@@ -33,6 +33,7 @@ void terme_screen_x(int *ret);
 #ifndef __TERME_ESCAPE_HEADER__
 #define __TERME_ESCAPE_HEADER__
 
+#include "execute.h"
 #include "print_font.h"
 #include "typedef.h"
 
@@ -47,9 +48,9 @@ void terme_screen_x(int *ret);
 #define terme_cursor_delete_line _n(terme_cursor_delete_line)
 #define terme_cursor_delete_page _n(terme_cursor_delete_page)
 
-int terme_font(PrintFont value);
-int terme_text_color(PrintColor value);
-int terme_back_color(PrintColor value);
+int terme_font(Execute ptr, PrintFont value);
+int terme_text_color(Execute ptr, PrintColor value);
+int terme_back_color(Execute ptr, PrintColor value);
 int terme_cursor_left(int n);
 int terme_cursor_right(int n);
 int terme_cursor_move(int n);
@@ -246,19 +247,19 @@ int readline_terme_(Execute ptr, addr *ret)
 	return terme_readline_(ptr, ret);
 }
 
-int font_terme(PrintFont value)
+int font_terme(Execute ptr, PrintFont value)
 {
-	return terme_font(value);
+	return terme_font(ptr, value);
 }
 
-int text_color_terme(PrintColor value)
+int text_color_terme(Execute ptr, PrintColor value)
 {
-	return terme_text_color(value);
+	return terme_text_color(ptr, value);
 }
 
-int back_color_terme(PrintColor value)
+int back_color_terme(Execute ptr, PrintColor value)
 {
-	return terme_back_color(value);
+	return terme_back_color(ptr, value);
 }
 
 
@@ -438,7 +439,24 @@ void terme_screen_x(int *ret)
   terme_escape.c
  ************************************************************/
 #include <stdio.h>
+#include "constant.h"
+#include "symbol.h"
 #include "typedef.h"
+
+static int terme_color_enable(Execute ptr)
+{
+	addr symbol, pos;
+
+	GetConst(SYSTEM_PROMPT_COLOR, &symbol);
+	if (ptr == NULL) {
+		GetValueSymbol(symbol, &pos);
+	}
+	else {
+		getspecial_local(ptr, symbol, &pos);
+	}
+
+	return pos == Unbound || pos != Nil;
+}
 
 static int terme_escape_operator(const char *str)
 {
@@ -455,10 +473,12 @@ static int terme_escape_operator(const char *str)
 	return terme_finish_output();
 }
 
-int terme_font(PrintFont value)
+int terme_font(Execute ptr, PrintFont value)
 {
 	const char *str;
 
+	if (! terme_color_enable(ptr))
+		return 0;
 	switch (value) {
 		case print_font_reset:      str = "\x1B[0m"; break;
 		case print_font_bold:       str = "\x1B[1m"; break;
@@ -476,10 +496,12 @@ int terme_font(PrintFont value)
 	return terme_escape_operator(str);
 }
 
-int terme_text_color(PrintColor value)
+int terme_text_color(Execute ptr, PrintColor value)
 {
 	const char *str;
 
+	if (! terme_color_enable(ptr))
+		return 0;
 	switch (value) {
 		case print_color_reset:           str = "\x1B[0m"; break;
 		case print_color_black:           str = "\x1B[30m"; break;
@@ -504,10 +526,12 @@ int terme_text_color(PrintColor value)
 	return terme_escape_operator(str);
 }
 
-int terme_back_color(PrintColor value)
+int terme_back_color(Execute ptr, PrintColor value)
 {
 	const char *str;
 
+	if (! terme_color_enable(ptr))
+		return 0;
 	switch (value) {
 		case print_color_reset:           str = "\x1B[0m"; break;
 		case print_color_black:           str = "\x1B[40m"; break;
@@ -1403,18 +1427,8 @@ static int terme_prompt_string_(addr pos)
 	return 0;
 }
 
-static PrintColor terme_prompt_color(Execute ptr, enum prompt_mode mode)
+static PrintColor terme_prompt_color_bright(Execute ptr, enum prompt_mode mode)
 {
-	addr pos;
-	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos == Unbound)
-		goto bright;
-	if (pos == Nil)
-		goto dark;
-
-bright:
-	/* bright */
 	switch (mode) {
 		case prompt_for:
 			return print_color_bright_yellow;
@@ -1428,9 +1442,10 @@ bright:
 		default:
 			return print_color_bright_green;
 	}
+}
 
-dark:
-	/* dark */
+static PrintColor terme_prompt_color_dark(Execute ptr, enum prompt_mode mode)
+{
 	switch (mode) {
 		case prompt_for:
 			return print_color_yellow;
@@ -1444,6 +1459,19 @@ dark:
 		default:
 			return print_color_green;
 	}
+}
+
+static PrintColor terme_prompt_color(Execute ptr, enum prompt_mode mode)
+{
+	addr pos;
+
+	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Nil)
+		return terme_prompt_color_dark(ptr, mode);
+
+	/* unbound or (not nil) */
+	return terme_prompt_color_bright(ptr, mode);
 }
 
 static int terme_prompt_output_(Execute ptr)
@@ -1466,13 +1494,13 @@ static int terme_prompt_output_(Execute ptr)
 	/* fresh-line */
 	Return(terminal_io_stream_(ptr, &io));
 	Return(fresh_line_stream_(io, &check));
-	if (terme_font(print_font_reset))
+	if (terme_font(ptr, print_font_reset))
 		goto error;
 	color = terme_prompt_color(ptr, mode);
-	if (terme_text_color(color))
+	if (terme_text_color(ptr, color))
 		goto error;
 	Return(terme_prompt_string_(pos));
-	if (terme_font(print_font_reset))
+	if (terme_font(ptr, print_font_reset))
 		goto error;
 	if (terme_finish_output())
 		goto error;
@@ -2563,17 +2591,17 @@ int readline_terme_(Execute ptr, addr *ret)
 	return Result(ret, pos);
 }
 
-int font_terme(PrintFont value)
+int font_terme(Execute ptr, PrintFont value)
 {
 	return 0;
 }
 
-int text_color_terme(PrintColor value)
+int text_color_terme(Execute ptr, PrintColor value)
 {
 	return 0;
 }
 
-int back_color_terme(PrintColor value)
+int back_color_terme(Execute ptr, PrintColor value)
 {
 	return 0;
 }

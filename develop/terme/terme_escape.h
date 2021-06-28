@@ -1,6 +1,7 @@
 #ifndef __TERME_ESCAPE_HEADER__
 #define __TERME_ESCAPE_HEADER__
 
+#include "execute.h"
 #include "print_font.h"
 #include "typedef.h"
 
@@ -15,9 +16,9 @@
 #define terme_cursor_delete_line _n(terme_cursor_delete_line)
 #define terme_cursor_delete_page _n(terme_cursor_delete_page)
 
-int terme_font(PrintFont value);
-int terme_text_color(PrintColor value);
-int terme_back_color(PrintColor value);
+int terme_font(Execute ptr, PrintFont value);
+int terme_text_color(Execute ptr, PrintColor value);
+int terme_back_color(Execute ptr, PrintColor value);
 int terme_cursor_left(int n);
 int terme_cursor_right(int n);
 int terme_cursor_move(int n);

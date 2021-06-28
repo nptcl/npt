@@ -22,9 +22,9 @@ int begin_terme(void);
 int end_terme(void);
 int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode);
 int readline_terme_(Execute ptr, addr *ret);
-int font_terme(PrintFont value);
-int text_color_terme(PrintColor value);
-int back_color_terme(PrintColor value);
+int font_terme(Execute ptr, PrintFont value);
+int text_color_terme(Execute ptr, PrintColor value);
+int back_color_terme(Execute ptr, PrintColor value);
 
 #endif
 

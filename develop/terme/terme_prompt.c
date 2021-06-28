@@ -94,18 +94,8 @@ static int terme_prompt_string_(addr pos)
 	return 0;
 }
 
-static PrintColor terme_prompt_color(Execute ptr, enum prompt_mode mode)
+static PrintColor terme_prompt_color_bright(Execute ptr, enum prompt_mode mode)
 {
-	addr pos;
-	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos == Unbound)
-		goto bright;
-	if (pos == Nil)
-		goto dark;
-
-bright:
-	/* bright */
 	switch (mode) {
 		case prompt_for:
 			return print_color_bright_yellow;
@@ -119,9 +109,10 @@ bright:
 		default:
 			return print_color_bright_green;
 	}
+}
 
-dark:
-	/* dark */
+static PrintColor terme_prompt_color_dark(Execute ptr, enum prompt_mode mode)
+{
 	switch (mode) {
 		case prompt_for:
 			return print_color_yellow;
@@ -135,6 +126,19 @@ dark:
 		default:
 			return print_color_green;
 	}
+}
+
+static PrintColor terme_prompt_color(Execute ptr, enum prompt_mode mode)
+{
+	addr pos;
+
+	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Nil)
+		return terme_prompt_color_dark(ptr, mode);
+
+	/* unbound or (not nil) */
+	return terme_prompt_color_bright(ptr, mode);
 }
 
 static int terme_prompt_output_(Execute ptr)
@@ -157,13 +161,13 @@ static int terme_prompt_output_(Execute ptr)
 	/* fresh-line */
 	Return(terminal_io_stream_(ptr, &io));
 	Return(fresh_line_stream_(io, &check));
-	if (terme_font(print_font_reset))
+	if (terme_font(ptr, print_font_reset))
 		goto error;
 	color = terme_prompt_color(ptr, mode);
-	if (terme_text_color(color))
+	if (terme_text_color(ptr, color))
 		goto error;
 	Return(terme_prompt_string_(pos));
-	if (terme_font(print_font_reset))
+	if (terme_font(ptr, print_font_reset))
 		goto error;
 	if (terme_finish_output())
 		goto error;

@@ -244,6 +244,27 @@ static void defvar_end_of_line(void)
 	SetValueSymbol(symbol, value);
 }
 
+static void defvar_prompt_symbol(void)
+{
+	addr symbol;
+
+	/* *prompt-bright* */
+	GetConst(SYSTEM_PROMPT_BRIGHT, &symbol);
+#ifdef LISP_TERME_BRIGHT
+	SetValueSymbol(symbol, T);
+#else
+	SetValueSymbol(symbol, Nil);
+#endif
+
+	/* *prompt-color* */
+	GetConst(SYSTEM_PROMPT_COLOR, &symbol);
+#ifdef LISP_TERME_COLOR
+	SetValueSymbol(symbol, T);
+#else
+	SetValueSymbol(symbol, Nil);
+#endif
+}
+
 void build_stream(void)
 {
 	defvar_external_format();
@@ -259,5 +280,6 @@ void build_stream(void)
 	defvar_debug_io();
 	defvar_query_io();
 	defvar_end_of_line();
+	defvar_prompt_symbol();
 }
 

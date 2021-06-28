@@ -31,6 +31,10 @@
 #define LispArgv_Script         "--script"
 #define LispArgv_Load           "--load"
 #define LispArgv_Eval           "--eval"
+#define LispArgv_Bright         "--bright"
+#define LispArgv_Dark           "--dark"
+#define LispArgv_Color          "--color"
+#define LispArgv_Monochrome     "--monochrome"
 #define LispArgv_equal(a,b) equalchar_stringu((a), LispArgv_##b)
 
 
@@ -425,6 +429,26 @@ static int mainparse_loop(struct lispargv *ptr)
 		}
 		if (LispArgv_equal(s, Quit)) {
 			ptr->quit = 1;
+			continue;
+		}
+		if (LispArgv_equal(s, Bright)) {
+			ptr->terme_bright = 1;
+			ptr->terme_dark = 0;
+			continue;
+		}
+		if (LispArgv_equal(s, Dark)) {
+			ptr->terme_bright = 0;
+			ptr->terme_dark = 1;
+			continue;
+		}
+		if (LispArgv_equal(s, Color)) {
+			ptr->terme_color = 1;
+			ptr->terme_monochrome = 0;
+			continue;
+		}
+		if (LispArgv_equal(s, Monochrome)) {
+			ptr->terme_color = 0;
+			ptr->terme_monochrome = 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Script)) {

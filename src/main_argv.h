@@ -36,6 +36,10 @@ struct lispargv {
 	unsigned debugger : 1;
 	unsigned debuggerp : 1;
 	unsigned quit : 1;
+	unsigned terme_bright : 1;
+	unsigned terme_dark : 1;
+	unsigned terme_color : 1;
+	unsigned terme_monochrome : 1;
 	size_t heap, local, index, start;
 	lispstringu core;
 	lispstringu init;

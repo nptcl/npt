@@ -498,6 +498,32 @@
 #undef LISP_PROMPT_EDITLINE
 #endif
 
+/* terme */
+#ifdef LISP_TERME
+
+#if defined(LISP_TERME_BRIGHT)
+#undef LISP_TERME_DARK
+#define LISP_TERME_COLOR1	"bright"
+#elif defined(LISP_TERME_DARK)
+#undef LISP_TERME_BRIGHT
+#define LISP_TERME_COLOR1	"dark"
+#else
+#define LISP_TERME_BRIGHT
+#define LISP_TERME_COLOR1	"bright"
+#endif
+
+#if defined(LISP_TERME_COLOR)
+#undef LISP_TERME_MONOCHROME
+#define LISP_TERME_COLOR2	"color"
+#elif defined(LISP_TERME_MONOCHROME)
+#undef LISP_TERME_COLOR
+#define LISP_TERME_COLOR2	"monochrome"
+#else
+#define LISP_TERME_COLOR
+#define LISP_TERME_COLOR2	"color"
+#endif
+#endif
+
 /* Complex math library */
 #undef LISP_COMPLEX_INACCURACY
 /* Visual C++ */
