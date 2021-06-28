@@ -16,11 +16,12 @@
 #include "mop.h"
 #include "print.h"
 #include "print_write.h"
+#include "prompt.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
-#include "stream_prompt.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "type_table.h"
 
@@ -188,7 +189,7 @@ static int eval_loop_inspect_(Execute ptr, addr io, addr pos, int *exit, int *ex
 	return 0;
 }
 
-int inspect_common(Execute ptr, addr object)
+static int inspect_common_call_(Execute ptr, addr object)
 {
 	addr io, symbol;
 
@@ -198,10 +199,20 @@ int inspect_common(Execute ptr, addr object)
 	GetConst(SYSTEM_INSPECTED, &symbol);
 	pushspecial_control(ptr, symbol, object);
 	/* prompt */
-	mode_prompt_stream(ptr, PromptStreamMode_Inspect);
 	Return(eval_custom_loop_(ptr, io, eval_loop_inspect_));
 
 	return 0;
+}
+
+int inspect_common(Execute ptr, addr object)
+{
+	addr control, prompt;
+
+	push_control(ptr, &control);
+	strvect_char_heap(&prompt, "Inspect> ");
+	push_prompt(ptr, prompt, prompt_inspect);
+	(void)inspect_common_call_(ptr, object);
+	return pop_control_(ptr, control);
 }
 
 

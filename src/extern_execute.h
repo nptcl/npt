@@ -78,9 +78,6 @@ void lisp_rollback_control(addr value);
 
 /* system */
 int lisp_eval_loop_(void);
-size_t lisp_prompt_indent(void);
-int lisp_prompt_show(void);
-void lisp_prompt_end(void);
 
 #endif
 

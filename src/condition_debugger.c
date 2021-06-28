@@ -23,7 +23,6 @@
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
-#include "stream_prompt.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "strvect.h"
@@ -31,6 +30,7 @@
 #include "terme.h"
 #include "type_object.h"
 
+/* enable-debugger */
 static void enable_debugger_symbol(addr *ret)
 {
 	GetConst(SYSTEM_ENABLE_DEBUGGER, ret);
@@ -58,6 +58,38 @@ static int enable_debugger_p_(Execute ptr, int *ret)
 	Return(getspecialcheck_local_(ptr, symbol, &pos));
 
 	return Result(ret, pos != Nil);
+}
+
+/* index-debugger */
+static void index_debugger_symbol(addr *ret)
+{
+	GetConst(SYSTEM_INDEX_DEBUGGER, ret);
+}
+
+static void init_index_debugger(void)
+{
+	addr symbol, value;
+
+	index_debugger_symbol(&symbol);
+	fixnum_heap(&value, 0);
+	SetValueSymbol(symbol, value);
+}
+
+static int push_index_debugger_(Execute ptr)
+{
+	addr symbol, value;
+
+	/* increment */
+	index_debugger_symbol(&symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &value));
+	Return(oneplus_integer_common_(ptr->local, value, &value));
+	pushspecial_control(ptr, symbol, value);
+	Return(format_string(ptr, &value, "[~A]* ", value, NULL));
+
+	/* push prompt */
+	push_prompt(ptr, value, prompt_debugger);
+
+	return 0;
 }
 
 
@@ -339,7 +371,7 @@ static int enter_debugger_help_(Execute ptr, addr io)
 	Return(format_stream(ptr, io, ":show   Debugger information.~%", NULL));
 	Return(format_stream(ptr, io, ":stack  Stack-frame.~%", NULL));
 	Return(format_stream(ptr, io, ":exit   Exit debugger.~%", NULL));
-	Return(format_stream(ptr, io, "^D      Abort process.~%", NULL));
+	Return(format_stream(ptr, io, "^D      Exit debugger.~%", NULL));
 
 	return 0;
 }
@@ -354,11 +386,10 @@ static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
 	Return(read_stream(ptr, io, &eof, &pos));
 
 	/* :exit, EOF */
-	if (eof || getbreak_prompt(ptr) || enter_debugger_symbol_p(pos, "EXIT", 1)) {
+	if (eof || enter_debugger_symbol_p(pos, "EXIT", 1)) {
 		if (eof) {
 			Return(terpri_stream_(io));
 		}
-		setbreak_prompt(ptr, 0);
 		Return(finish_output_stream_(io));
 		/* restart abort */
 		GetConst(COMMON_ABORT, &pos);
@@ -421,19 +452,15 @@ static int enter_debugger_abort_(Execute ptr, addr io, addr list, int *ret)
 static int enter_debugger_(Execute ptr, addr io, addr condition, addr list)
 {
 	int check;
-	size_t index;
 
 	/* restarts */
-	mode_prompt_stream(ptr, PromptStreamMode_Normal);
-	index = getindex_prompt(ptr) + 1ULL;
+	Return(push_index_debugger_(ptr));
 
 show:
 	Return(invoke_standard_header_(ptr, io, condition));
 	Return(output_restarts_debugger(ptr, io, list));
 
 loop:
-	setindex_prompt(ptr, index);
-	setshow_prompt(ptr, 1);
 	Return(enter_debugger_abort_(ptr, io, list, &check));
 	switch (check) {
 		case -1:
@@ -518,6 +545,7 @@ int invoke_debugger_(Execute ptr, addr condition)
 void build_condition_debugger(Execute ptr)
 {
 	init_enable_debugger();
+	init_index_debugger();
 	set_enable_debugger(ptr, 1);
 }
 

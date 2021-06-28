@@ -68,10 +68,10 @@ static int terme_fmte_(const char *str, ...)
 /*
  *  prompt
  */
-int terme_prompt_(Execute ptr, addr pos)
+int terme_prompt_(Execute ptr, addr pos, enum prompt_mode mode)
 {
 	Check(! stringp(pos), "type error");
-	return terme_set_prompt_(ptr, pos);
+	return terme_set_prompt_(ptr, pos, mode);
 }
 
 static int terme_prompt_string_(addr pos)
@@ -94,14 +94,59 @@ static int terme_prompt_string_(addr pos)
 	return 0;
 }
 
+static PrintColor terme_prompt_color(Execute ptr, enum prompt_mode mode)
+{
+	addr pos;
+	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Unbound)
+		goto bright;
+	if (pos == Nil)
+		goto dark;
+
+bright:
+	/* bright */
+	switch (mode) {
+		case prompt_for:
+			return print_color_bright_yellow;
+
+		case prompt_debugger:
+		case prompt_inspect:
+		case prompt_step:
+			return print_color_bright_blue;
+
+		case prompt_eval:
+		default:
+			return print_color_bright_green;
+	}
+
+dark:
+	/* dark */
+	switch (mode) {
+		case prompt_for:
+			return print_color_yellow;
+
+		case prompt_debugger:
+		case prompt_inspect:
+		case prompt_step:
+			return print_color_blue;
+
+		case prompt_eval:
+		default:
+			return print_color_green;
+	}
+}
+
 static int terme_prompt_output_(Execute ptr)
 {
 	int check;
+	enum prompt_mode mode;
+	PrintColor color;
 	addr pos, io;
 	size_t size;
 
 	/* special */
-	Return(terme_get_prompt_(ptr, &pos));
+	Return(terme_get_prompt_(ptr, &pos, &mode));
 	if (pos == Nil)
 		return 0;
 
@@ -114,7 +159,8 @@ static int terme_prompt_output_(Execute ptr)
 	Return(fresh_line_stream_(io, &check));
 	if (terme_font(print_font_reset))
 		goto error;
-	if (terme_text_color(print_color_bright_green))
+	color = terme_prompt_color(ptr, mode);
+	if (terme_text_color(color))
 		goto error;
 	Return(terme_prompt_string_(pos));
 	if (terme_font(print_font_reset))

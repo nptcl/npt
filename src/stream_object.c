@@ -1,6 +1,10 @@
 #include "heap.h"
 #include "memory.h"
+#include "stream.h"
 #include "stream_object.h"
+#include "stream_synonym.h"
+#include "stream_twoway.h"
+#include "symbol.h"
 #include "typedef.h"
 
 void *ptrbody_stream(addr stream)
@@ -281,5 +285,36 @@ void force_close_stream(addr stream)
 	ptr->terpri = 0;
 	ptr->unread_check = 0;
 	ptr->closed = 1;
+}
+
+
+/*
+ *  check prompt
+ */
+int use_prompt_stream(Execute ptr, addr stream)
+{
+	if (! streamp(stream))
+		return 0;
+	if (prompt_stream_p(stream))
+		return 1;
+
+	/* synonym */
+	if (synonym_stream_p(stream)) {
+		get_synonym_stream(stream, &stream);
+		if (! symbolp(stream))
+			return 0;
+		getspecial_local(ptr, stream, &stream);
+		if (stream == Unbound)
+			return 0;
+		return use_prompt_stream(ptr, stream);
+	}
+
+	/* two-way */
+	if (twoway_stream_p(stream)) {
+		get_twoway_input_stream(stream, &stream);
+		return use_prompt_stream(ptr, stream);
+	}
+
+	return 0;
 }
 

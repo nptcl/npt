@@ -1,4 +1,5 @@
 #include "execute.h"
+#include "prompt.h"
 #include "terme.h"
 #include "terme_call.h"
 #include "terme_escape.h"
@@ -27,9 +28,9 @@ int end_terme(void)
 	return 0;
 }
 
-int prompt_terme_(Execute ptr, addr pos)
+int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode)
 {
-	return terme_prompt_(ptr, pos);
+	return terme_prompt_(ptr, pos, mode);
 }
 
 int readline_terme_(Execute ptr, addr *ret)

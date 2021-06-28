@@ -1,5 +1,6 @@
 #include "constant.h"
 #include "print_write.h"
+#include "prompt.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
@@ -29,7 +30,7 @@ int end_terme(void)
 	return 0;
 }
 
-int prompt_terme_(Execute ptr, addr pos)
+int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode)
 {
 	addr symbol;
 

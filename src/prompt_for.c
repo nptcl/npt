@@ -1,9 +1,12 @@
+#include "call_reader.h"
 #include "character_check.h"
 #include "condition.h"
 #include "cons.h"
+#include "control_object.h"
 #include "format.h"
 #include "hold.h"
 #include "print_write.h"
+#include "prompt.h"
 #include "prompt_for.h"
 #include "reader.h"
 #include "stream.h"
@@ -17,44 +20,101 @@
 /*
  *  prompt-for
  */
-int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
+static int prompt_for_call_(Execute ptr, addr io, addr *ret)
 {
-	int result;
-	addr stream, spec, value;
-	LocalHold hold;
+	addr value;
 
-	hold = LocalHold_array(ptr, 1);
-	/* output */
-	Return(query_io_stream_(ptr, &stream));
-	localhold_push(hold, stream);
-	Return(fresh_line_stream_(stream, NULL));
-	Return(princ_print(ptr, stream, prompt));
-	Return(finish_output_stream_(stream));
+	Return(finish_output_stream_(io));
+	Return(clear_input_stream_(io));
+	Return(read_common_(ptr, io, T, Nil, Nil, &value));
 
-	/* query */
-	spec = Nil;
-	if (type != T) {
-		Return(parse_type(ptr, &spec, type, Nil));
-		localhold_push(hold, spec);
-	}
+	return Result(ret, value);
+}
+
+static int prompt_for_string_(Execute ptr, addr io, addr prompt, addr *ret)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	push_prompt(ptr, prompt, prompt_for);
+	(void)prompt_for_call_(ptr, io, ret);
+	return pop_control_(ptr, control);
+}
+
+static int prompt_for_module_(Execute ptr, LocalHold hold,
+		addr io, addr type, addr prompt, addr *ret)
+{
+	int check;
+	addr value;
+
 	for (;;) {
-		Return(clear_input_stream_(stream));
-		Return(read_stream(ptr, stream, &result, &value));
-		if (result)
-			return fmte_("Can't read from *query-io* stream.", NULL);
-		localhold_set(hold, 0, value);
+		Return(prompt_for_string_(ptr, io, prompt, &value));
+		localhold_set(hold, 1, value);
 		if (type == T)
 			break;
-		Return(typep_clang_(ptr, value, spec, &result));
-		if (result)
+		Return(typep_clang_(ptr, value, type, &check));
+		if (check)
 			break;
 
-		Return(format_stream(ptr, stream, "~%Please answer ~A type: ", type, NULL));
-		Return(finish_output_stream_(stream));
+		Return(format_string(ptr, &prompt, "Please answer ~A type: ", type, NULL));
+		localhold_set(hold, 2, prompt);
+	}
+
+	return Result(ret, value);
+}
+
+static int prompt_for_lisp_(Execute ptr, LocalHold hold,
+		addr io, addr type, addr prompt, addr *ret)
+{
+	int check;
+	addr value;
+
+	/* output */
+	Return(princ_print(ptr, io, prompt));
+	Return(finish_output_stream_(io));
+
+	/* query */
+	for (;;) {
+		Return(clear_input_stream_(io));
+		Return(read_common_(ptr, io, T, Nil, Nil, &value));
+		localhold_set(hold, 1, value);
+		if (type == T)
+			break;
+		Return(typep_clang_(ptr, value, type, &check));
+		if (check)
+			break;
+
+		Return(format_stream(ptr, io, "~%Please answer ~A type: ", type, NULL));
+		Return(finish_output_stream_(io));
+	}
+
+	return Result(ret, value);
+}
+
+int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
+{
+	addr io;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 3);
+
+	/* type */
+	if (type != T) {
+		Return(parse_type(ptr, &type, type, Nil));
+		localhold_set(hold, 0, type);
+	}
+
+	/* input */
+	Return(query_io_stream_(ptr, &io));
+	if (use_prompt_stream(ptr, io)) {
+		Return(prompt_for_module_(ptr, hold, io, type, prompt, ret));
+	}
+	else {
+		Return(prompt_for_lisp_(ptr, hold, io, type, prompt, ret));
 	}
 	localhold_end(hold);
 
-	return Result(ret, value);
+	return 0;
 }
 
 

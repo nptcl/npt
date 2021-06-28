@@ -2,6 +2,7 @@
 #define __TERME_VALUE_HEADER__
 
 #include "execute.h"
+#include "prompt.h"
 #include "typedef.h"
 
 #define terme_build _n(terme_build)
@@ -23,8 +24,8 @@
 #define terme_history_update_ _n(terme_history_update_)
 
 void terme_build(void);
-int terme_set_prompt_(Execute ptr, addr value);
-int terme_get_prompt_(Execute ptr, addr *ret);
+int terme_set_prompt_(Execute ptr, addr value, enum prompt_mode mode);
+int terme_get_prompt_(Execute ptr, addr *value, enum prompt_mode *mode);
 
 int terme_data_init_(Execute ptr);
 int terme_data_push_(Execute ptr, int index, unicode c, int *ret);

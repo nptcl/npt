@@ -1354,6 +1354,7 @@ lisp-system::restart-case
 lisp-system::restart-end
 lisp-system::push-return
 (lisp-system::*enable-debugger* :name enable-debugger :constant system)
+(lisp-system::*index-debugger* :name index-debugger :constant system)
 
 (lisp-system::*parse-environment* :name eval-parse-environment :constant system)
 (lisp-system::*parse-declare* :name parse-declare :constant system)
@@ -1890,13 +1891,9 @@ lisp-rt::equalrt
 ;;  readtable
 ;;
 (("LISP-SYSTEM" "*READINFO*") :constant system :name readinfo-special)
+(lisp-system::*prompt* :constant system :name prompt)
 (lisp-system::*prompt-value* :constant system :name prompt-value)
-(lisp-system::*prompt-info* :constant system :name prompt-info)
-(lisp-system::*prompt-mode* :constant system :name prompt-mode)
-lisp-system::prompt-normal
-lisp-system::prompt-inspect
-lisp-system::prompt-step
-
+(lisp-system::*prompt-bright* :constant system :name prompt-bright)
 (lisp-system::*terme* :constant system :name terme)
 
 
@@ -1987,7 +1984,7 @@ lisp-system::subtypep-normal
  lisp-system::define-setf-expander
  lisp-system::end-input-stream
  lisp-system::make-extend-output-stream
- lisp-system::prompt-for
+(lisp-system::prompt-for :export t)
  lisp-system::print-unreadable-call
  lisp-system::write-default
  lisp-system::symbol-deftype

@@ -14,7 +14,6 @@
 #include "pathname.h"
 #include "pathname_object.h"
 #include "pathname_wildcard.h"
-#include "prompt.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
@@ -271,7 +270,6 @@ int eval_load_(Execute ptr, int *ret,
 	addr control;
 
 	push_control(ptr, &control);
-	push_prompt_info(ptr);
 	set_eval_compile_mode(ptr, Nil);
 	(void)eval_load_file(ptr, ret, file, verbose, print, exist, external);
 	return pop_control_(ptr, control);
@@ -299,7 +297,6 @@ int eval_load_force_lisp_(Execute ptr, int *ret,
 	addr control;
 
 	push_control(ptr, &control);
-	push_prompt_info(ptr);
 	set_eval_compile_mode(ptr, Nil);
 	(void)eval_load_file_switch_(ptr, ret, file, verbose, print, exist, external, 0);
 	return pop_control_(ptr, control);
@@ -311,7 +308,6 @@ int eval_load_force_fasl_(Execute ptr, int *ret,
 	addr control;
 
 	push_control(ptr, &control);
-	push_prompt_info(ptr);
 	set_eval_compile_mode(ptr, Nil);
 	(void)eval_load_file_switch_(ptr, ret, file, verbose, print, exist, external, 1);
 	return pop_control_(ptr, control);
@@ -368,7 +364,6 @@ int compile_load_(Execute ptr, addr file, addr verbose, addr print, addr externa
 	addr control;
 
 	push_control(ptr, &control);
-	push_prompt_info(ptr);
 	(void)compile_load_file_(ptr, file, verbose, print, external);
 	return pop_control_(ptr, control);
 }

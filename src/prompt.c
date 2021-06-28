@@ -1,128 +1,73 @@
-#include "character_queue.h"
-#include "condition.h"
-#include "constant.h"
 #include "control_object.h"
-#include "format.h"
-#include "local.h"
+#include "heap.h"
 #include "prompt.h"
-#include "reader.h"
-#include "stream.h"
-#include "stream_function.h"
 #include "strvect.h"
 #include "symbol.h"
+#include "typedef.h"
 
-static void prompt_alloc(LocalRoot local, addr *ret)
+static void symbol_prompt(addr *ret)
+{
+	GetConst(SYSTEM_PROMPT, ret);
+}
+
+static void prompt_heap(addr *ret, addr value, enum prompt_mode mode)
 {
 	addr pos;
-	struct prompt_info *str;
+	struct prompt_struct *str;
 
-	alloc_body2(local, &pos, LISPSYSTEM_PROMPT, sizeoft(struct prompt_info));
-	str = PtrPromptInfo(pos);
-	str->break_p = 0;
-	str->show_p = 1;
-	str->index = 0;
+	heap_smallsize(&pos, LISPSYSTEM_PROMPT, 1, sizeoft(struct prompt_struct));
+	str = PtrPromptStruct(pos);
+	str->mode = mode;
+	SetArraySS(pos, 0, value);
 	*ret = pos;
 }
 
-static void symbol_prompt_info(addr *ret)
+void push_prompt(Execute ptr, addr value, enum prompt_mode mode)
 {
-	GetConst(SYSTEM_PROMPT_INFO, ret);
+	addr symbol, pos;
+
+	symbol_prompt(&symbol);
+	prompt_heap(&pos, value, mode);
+	pushspecial_control(ptr, symbol, pos);
 }
 
-void get_prompt_info(Execute ptr, addr *ret)
+void push_prompt_eval_loop(Execute ptr)
 {
-	addr symbol;
-	symbol_prompt_info(&symbol);
-	getspecial_local(ptr, symbol, ret);
-	Check(*ret == Unbound, "unbound error");
+	addr value;
+	strvect_char_heap(&value, "* ");
+	push_prompt(ptr, value, prompt_eval);
 }
 
-void push_prompt_info(Execute ptr)
-{
-	addr symbol, value;
-
-	symbol_prompt_info(&symbol);
-	prompt_alloc(NULL, &value);
-	pushspecial_control(ptr, symbol, value);
-}
-
-size_t getindex_prompt(Execute ptr)
+void get_prompt(Execute ptr, addr *value, enum prompt_mode *mode)
 {
 	addr pos;
-	get_prompt_info(ptr, &pos);
-	return PtrPromptInfo(pos)->index;
-}
 
-size_t getindex_prompt_safe(Execute ptr)
-{
-	addr pos;
-	struct prompt_info *str;
-
-	symbol_prompt_info(&pos);
+	symbol_prompt(&pos);
 	getspecial_local(ptr, pos, &pos);
-	str = PtrPromptInfo(pos);
-	return (pos == Unbound)? 0: str->index;
-}
-
-void setindex_prompt(Execute ptr, size_t index)
-{
-	addr pos;
-	get_prompt_info(ptr, &pos);
-	PtrPromptInfo(pos)->index = index;
-}
-
-int getbreak_prompt(Execute ptr)
-{
-	addr pos;
-	get_prompt_info(ptr, &pos);
-	return PtrPromptInfo(pos)->break_p;
-}
-
-void setbreak_prompt(Execute ptr, int value)
-{
-	addr pos;
-	get_prompt_info(ptr, &pos);
-	PtrPromptInfo(pos)->break_p = (value != 0);
-}
-
-int getshow_prompt(Execute ptr)
-{
-	addr pos;
-	get_prompt_info(ptr, &pos);
-	return PtrPromptInfo(pos)->show_p;
-}
-
-int getshow_prompt_safe(Execute ptr)
-{
-	addr pos;
-	struct prompt_info *str;
-
-	symbol_prompt_info(&pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos == Unbound)
-		return 0;
-
-	str = PtrPromptInfo(pos);
-	return str->show_p;
-}
-
-void setshow_prompt(Execute ptr, int value)
-{
-	addr pos;
-	get_prompt_info(ptr, &pos);
-	PtrPromptInfo(pos)->show_p = (value != 0);
-}
-
-void endshow_prompt_safe(Execute ptr)
-{
-	addr pos;
-	struct prompt_info *str;
-
-	symbol_prompt_info(&pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos != Unbound) {
-		str = PtrPromptInfo(pos);
-		str->show_p = 0;
+	if (pos == Unbound) {
+		*value = Nil;
+		*mode = prompt_eval;
+		return;
 	}
+	if (GetType(pos) != LISPSYSTEM_PROMPT) {
+		*value = Nil;
+		*mode = prompt_eval;
+		return;
+	}
+
+	GetArraySS(pos, 0, value);
+	*mode = PtrPromptStruct(pos)->mode;
+}
+
+void getvalue_prompt(Execute ptr, addr *ret)
+{
+	enum prompt_mode ignore;
+	get_prompt(ptr, ret, &ignore);
+}
+
+void getmode_prompt(Execute ptr, enum prompt_mode *ret)
+{
+	addr ignore;
+	get_prompt(ptr, &ignore, ret);
 }
 

@@ -4,12 +4,13 @@
 #include "eval_main.h"
 #include "execute.h"
 #include "format.h"
+#include "prompt.h"
 #include "step_prompt.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
-#include "stream_prompt.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "typedef.h"
 
@@ -106,11 +107,12 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 
 static int step_prompt_query_call_(Execute ptr, addr io, addr value, int *ret)
 {
-	addr symbol;
+	addr symbol, prompt;
 
 	GetConst(SYSTEM_STEP_VALUE, &symbol);
+	strvect_char_heap(&prompt, "Step> ");
 	pushspecial_control(ptr, symbol, T);
-	mode_prompt_stream(ptr, PromptStreamMode_Step);
+	push_prompt(ptr, prompt, prompt_step);
 	Return(eval_custom_loop_(ptr, io, step_prompt_loop_));
 	getspecial_local(ptr, symbol, &value);
 

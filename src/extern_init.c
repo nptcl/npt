@@ -16,7 +16,6 @@
 #include "main_init.h"
 #include "main_string.h"
 #include "pathname.h"
-#include "prompt.h"
 #include "strvect.h"
 #include "symbol.h"
 #include "terme.h"
@@ -600,7 +599,6 @@ static int lisp_argv_execute_(Execute ptr, struct lispargv *argv)
 	}
 
 	/* debugger */
-	setindex_prompt(ptr, 0);
 	if (argv->quit == 0)
 		return eval_main_loop_(ptr);
 
@@ -722,7 +720,6 @@ static int lisp_argv_exit_(Execute ptr)
 
 static int lisp_argv_switch_call_(Execute ptr, struct lispargv *argv)
 {
-	push_prompt_info(ptr);
 	Return(handler_warning_(ptr));
 	Return(handler_savecore_(ptr));
 	Return(handler_exit_(ptr));

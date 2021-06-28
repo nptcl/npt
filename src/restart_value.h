@@ -11,7 +11,7 @@
 #define callname_global_restart _n(callname_global_restart)
 #define fdefinition_restart_ _n(fdefinition_restart_)
 #define abort_restart_char_heap _n(abort_restart_char_heap)
-#define abort_restart_char _n(abort_restart_char)
+#define abort_restart_char_control _n(abort_restart_char_control)
 #define init_restart_value _n(init_restart_value)
 
 int symbol_special_restart(Execute ptr, addr symbol, addr *ret);

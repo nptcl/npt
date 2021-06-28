@@ -1,6 +1,7 @@
 #ifndef __STREAM_OBJECT_HEADER__
 #define __STREAM_OBJECT_HEADER__
 
+#include "execute.h"
 #include "typedef.h"
 
 #define ptrbody_stream _n(ptrbody_stream)
@@ -41,6 +42,7 @@
 
 #define force_open_stream _n(force_open_stream)
 #define force_close_stream _n(force_close_stream)
+#define use_prompt_stream _n(use_prompt_stream)
 
 enum STREAM_INDEX {
 	STREAM_INDEX_PATHNAME = 0,
@@ -175,6 +177,7 @@ int extend_type_stream_p(addr stream, int type);
 
 void force_open_stream(addr stream);
 void force_close_stream(addr stream);
+int use_prompt_stream(Execute ptr, addr stream);
 
 #endif
 

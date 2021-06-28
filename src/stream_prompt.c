@@ -15,11 +15,6 @@
 	Check(! prompt_stream_p(stream), "type error"); \
 }
 
-/*
- * #define LISP_DISABLE     Use *query-io*
- * #define LISP_READLINE    Use readline  (for Linux)
- * #define LISP_EDITLINE    Use editline  (for BSD)
- */
 #ifdef LISP_PROMPT_DISABLE
 void open_prompt_stream(addr *stream)
 {
@@ -46,53 +41,22 @@ static int close_Prompt(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-static const char *message_prompt_stream(addr pos)
-{
-	Execute ptr;
-	addr value, check;
-
-	ptr = Execute_Thread;
-	GetConst(SYSTEM_PROMPT_MODE, &value);
-	getspecial_local(ptr, value, &value);
-
-	/* prompt-normal (default) */
-	if (value == Unbound)
-		return NULL;
-
-	/* prompt-normal */
-	GetConst(SYSTEM_PROMPT_NORMAL, &check);
-	if (check == value)
-		return NULL;
-
-	/* inspect */
-	GetConst(SYSTEM_PROMPT_INSPECT, &check);
-	if (check == value)
-		return "Inspect> ";
-
-	/* step */
-	GetConst(SYSTEM_PROMPT_STEP, &check);
-	if (check == value)
-		return "Step> ";
-
-	/* error */
-	return NULL;
-}
-
 static int input_prompt_stream(addr stream, addr *ret)
 {
 	addr pos, prompt, dribble;
-	const char *str;
+	Execute ptr;
 
 	/* read */
-	str = message_prompt_stream(stream);
-	Return(input_prompt_(&pos, &prompt, str));
+	ptr = Execute_Thread;
+	getvalue_prompt(ptr, &prompt);
+	Return(input_prompt_(ptr, &pos));
 	if (pos == Nil) /* eof */
 		return Result(ret, Nil);
 	/* dribble check */
 	GetConst(SYSTEM_DRIBBLE_FILE, &dribble);
 	GetValueSymbol(dribble, &dribble);
 	if (dribble != Unbound) {
-		if (prompt) {
+		if (prompt != Nil) {
 			Return(print_string_stream_(dribble, prompt));
 		}
 		Return(print_string_stream_(dribble, pos));
@@ -195,28 +159,6 @@ static int clear_input_Prompt(addr stream)
 	GetInfoStream(stream, &stream);
 	clear_input_string_stream(stream);
 	return 0;
-}
-
-void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode)
-{
-	addr value, symbol;
-
-	switch (mode) {
-		case PromptStreamMode_Inspect:
-			GetConst(SYSTEM_PROMPT_INSPECT, &value);
-			break;
-
-		case PromptStreamMode_Step:
-			GetConst(SYSTEM_PROMPT_STEP, &value);
-			break;
-
-		case PromptStreamMode_Normal:
-		default:
-			GetConst(SYSTEM_PROMPT_NORMAL, &value);
-			break;
-	}
-	GetConst(SYSTEM_PROMPT_MODE, &symbol);
-	pushspecial_control(ptr, symbol, value);
 }
 
 void init_stream_prompt(void)

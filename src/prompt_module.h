@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include "condition.h"
+#include "encode.h"
 #include "prompt.h"
 #include "strvect.h"
+#include "strtype.h"
 #include "typedef.h"
 #include "unicode.h"
 
@@ -30,84 +33,62 @@
 #endif
 #endif
 
-#define HISTORY_SIZE	100
-static size_t ReadLine_Size = 0;
+#define PROMPT_HISTORY_SIZE	64
+static size_t Prompt_HistorySize = 0;
 
-int show_prompt_(Execute ptr, addr io)
+static int input_prompt_char_(Execute ptr, char **ret)
 {
-	addr pos;
-	struct prompt_info *str;
+	addr value, data;
 
-	get_prompt_info(ptr, &pos);
-	str = PtrPromptInfo(pos);
-	if (! str->break_p)
-		str->show_p = 1;
+	getvalue_prompt(ptr, &value);
+	if (value == Nil)
+		return Result(ret, NULL);
 
-	return 0;
-}
-
-static char *input_prompt_string(struct prompt_info *str, addr *ret, const char *msg)
-{
-	char buffer[64];
-
-	/* no-prompt */
-	if (str->show_p == 0)
-		return readline(NULL);
-
-	/* output prompt */
-	if (msg == NULL) {
-		if (str->index == 0)
-			snprintf(buffer, 64, "* ");
-		else
-			snprintf(buffer, 64, "[%zu]* ", str->index);
-		msg = buffer;
+	if (! stringp(value)) {
+		*ret = NULL;
+		return fmte_("The prompt value ~S must be a string type.", value, NULL);
 	}
-	strvect_char_heap(ret, msg);
-	return readline(msg);
-}
-
-static char *make_prompt(addr *rprompt, const char *msg)
-{
-	addr pos;
-	char *ret;
-	struct prompt_info *str;
-
-	/* prompt-info */
-	get_prompt_info(Execute_Thread, &pos);
-	str = PtrPromptInfo(pos);
-	if (str->break_p)
-		return NULL;
-
-	/* readline */
-	ret = input_prompt_string(str, rprompt, msg);
-	str->show_p = 0;
-
-	/* eof */
-	if (ret == NULL)
-		str->break_p = 1;
-
-	return ret;
-}
-
-int input_prompt_(addr *ret, addr *rprompt, const char *msg)
-{
-	char *value;
-
-	*rprompt = NULL;
-	value = make_prompt(rprompt, msg);
-	if (value == NULL) {
-		return Result(ret, Nil); /* eof */
+	Return(UTF8_buffer_clang_(ptr->local, &data, value));
+	if (data == Unbound) {
+		*ret = NULL;
+		return fmte_("Invalid UTF-8 encoding ~S.", value, NULL);
 	}
+	posbody(data, (addr *)&data);
+
+	return Result(ret, (char *)data);
+}
+
+static void input_prompt_history(char *value)
+{
 	if (value[0]) {
 		add_history(value);
+		Prompt_HistorySize++;
 	}
-	if (HISTORY_SIZE < ReadLine_Size) {
+	if (PROMPT_HISTORY_SIZE < Prompt_HistorySize) {
 		free(remove_history(0));
 	}
-	Return(string8_null_char1_heap_(ret, value, 0x0A));
-	free(value);
-	ReadLine_Size++;
+}
 
-	return 0;
+int input_prompt_(Execute ptr, addr *ret)
+{
+	int check;
+	char *value;
+	LocalRoot local;
+	LocalStack stack;
+
+	/* readline */
+	local = ptr->local;
+	push_local(local, &stack);
+	Return(input_prompt_char_(ptr, &value));
+	value = readline(value);
+	rollback_local(local, stack);
+	if (value == NULL)
+		return Result(ret, Nil);
+
+	/* result */
+	input_prompt_history(value);
+	check = string8_null_char1_heap_(ret, value, 0x0A);
+	free(value);
+	return check;
 }
 

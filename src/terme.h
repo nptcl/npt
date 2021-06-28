@@ -3,6 +3,7 @@
 
 #include "execute.h"
 #include "print_font.h"
+#include "prompt.h"
 #include "typedef.h"
 
 #define init_terme _n(init_terme)
@@ -19,7 +20,7 @@ void init_terme(void);
 void build_terme(void);
 int begin_terme(void);
 int end_terme(void);
-int prompt_terme_(Execute ptr, addr pos);
+int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode);
 int readline_terme_(Execute ptr, addr *ret);
 int font_terme(PrintFont value);
 int text_color_terme(PrintColor value);

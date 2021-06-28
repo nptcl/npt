@@ -1,5 +1,6 @@
 #ifdef LISP_TERME_DEVELOP
 #include "execute.h"
+#include "prompt.h"
 #include "terme.h"
 #include "terme_call.h"
 #include "terme_escape.h"
@@ -27,9 +28,9 @@ int end_terme(void)
 	return terme_end();
 }
 
-int prompt_terme_(Execute ptr, addr pos)
+int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode)
 {
-	return terme_prompt_(ptr, pos);
+	return terme_prompt_(ptr, pos, mode);
 }
 
 int readline_terme_(Execute ptr, addr *ret)
@@ -56,6 +57,7 @@ int back_color_terme(PrintColor value)
 
 #include "constant.h"
 #include "print_write.h"
+#include "prompt.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
@@ -85,7 +87,7 @@ int end_terme(void)
 	return 0;
 }
 
-int prompt_terme_(Execute ptr, addr pos)
+int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode)
 {
 	addr symbol;
 

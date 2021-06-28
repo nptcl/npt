@@ -24,6 +24,42 @@ enum terme_index {
 	terme_index_size
 };
 
+struct terme_struct {
+	enum prompt_mode mode;
+};
+#define PtrTerme(x) ((struct terme_struct *)PtrBodySS(x))
+
+static struct terme_struct *struct_terme(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_TERME);
+	return PtrTerme(pos);
+}
+
+static void get_terme(addr pos, size_t index, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_TERME);
+	GetArraySS(pos, index, ret);
+}
+
+static void set_terme(addr pos, size_t index, addr value)
+{
+	CheckType(pos, LISPSYSTEM_TERME);
+	SetArraySS(pos, index, value);
+}
+
+static void terme_heap(addr *ret)
+{
+	addr pos;
+	struct terme_struct *str;
+
+	heap_smallsize(&pos, LISPSYSTEM_TERME,
+			terme_index_size, sizeoft(struct terme_struct));
+	str = struct_terme(pos);
+	str->mode = prompt_eval;
+	*ret = pos;
+}
+
+
 /*
  *  build
  */
@@ -46,15 +82,15 @@ static int terme_value_heap_(addr *ret)
 	addr pos, x;
 
 	/* object */
-	vector2_heap(&pos, terme_index_size);
+	terme_heap(&pos);
 
 	/* array */
 	Return(terme_value_array_(&x));
-	SetArrayA2(pos, terme_index_data, x);
+	set_terme(pos, terme_index_data, x);
 
 	/* width */
 	bitmemory_heap(&x, TERME_VALUE_SIZE);
-	SetArrayA2(pos, terme_index_width, x);
+	set_terme(pos, terme_index_width, x);
 
 	/* queue */
 	vector_heap(&x, TERME_VALUE_HISTORY);
@@ -84,22 +120,32 @@ static int terme_get_value_(Execute ptr, addr *ret)
 /*
  *  prompt
  */
-int terme_set_prompt_(Execute ptr, addr value)
+int terme_set_prompt_(Execute ptr, addr value, enum prompt_mode mode)
 {
-	addr array;
+	addr pos;
+	struct terme_struct *str;
 
-	Return(terme_get_value_(ptr, &array));
-	SetArrayA2(array, terme_index_prompt, value);
+	Return(terme_get_value_(ptr, &pos));
+	set_terme(pos, terme_index_prompt, value);
+	str = struct_terme(pos);
+	str->mode = mode;
 
 	return 0;
 }
 
-int terme_get_prompt_(Execute ptr, addr *ret)
+int terme_get_prompt_(Execute ptr, addr *value, enum prompt_mode *mode)
 {
-	addr array;
+	addr pos;
+	struct terme_struct *str;
 
-	Return(terme_get_value_(ptr, &array));
-	GetArrayA2(array, terme_index_prompt, ret);
+	Return(terme_get_value_(ptr, &pos));
+	if (value) {
+		get_terme(pos, terme_index_prompt, value);
+	}
+	if (mode) {
+		str = struct_terme(pos);
+		*mode = str->mode;
+	}
 
 	return 0;
 }
@@ -113,9 +159,9 @@ static int terme_data_array_(Execute ptr, addr *array, addr *width)
 	addr pos;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_index_data, array);
+	get_terme(pos, terme_index_data, array);
 	if (width) {
-		GetArrayA2(pos, terme_index_width, width);
+		get_terme(pos, terme_index_width, width);
 	}
 
 	return 0;
@@ -374,7 +420,7 @@ static int terme_history_set_(Execute ptr, addr value)
 	addr pos;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_index_history, &pos);
+	get_terme(pos, terme_index_history, &pos);
 	setarray(pos, terme_history_index, value);
 
 	return 0;
@@ -387,7 +433,7 @@ static int terme_history_next_(Execute ptr)
 	size_t size;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_index_history, &pos);
+	get_terme(pos, terme_index_history, &pos);
 	lenarray(pos, &size);
 	sizei = (int)size;
 	terme_history_index = (terme_history_index + 1) % sizei;
@@ -422,7 +468,7 @@ static int terme_history_get_(Execute ptr, int index, addr *value, int *ret)
 	size_t size;
 
 	Return(terme_get_value_(ptr, &pos));
-	GetArrayA2(pos, terme_index_history, &pos);
+	get_terme(pos, terme_index_history, &pos);
 	lenarray(pos, &size);
 	sizei = (int)size;
 	if (index < 0 || sizei <= index) {
