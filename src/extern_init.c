@@ -604,7 +604,7 @@ static int lisp_argv_execute_(Execute ptr, struct lispargv *argv)
 
 	/* debugger */
 	if (argv->quit == 0)
-		return eval_main_loop_(ptr);
+		return eval_main_loop_toplevel_(ptr);
 
 	return 0;
 }

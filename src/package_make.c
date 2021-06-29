@@ -88,7 +88,7 @@ static int function_make_package_input(Execute ptr)
 
 	GetTypeTable(&type, PackageDesigner);
 	strvect_char_heap(&prompt, "Input another package name: ");
-	Return(prompt_for_stream(ptr, type, prompt, &pos));
+	Return(prompt_for_stream_(ptr, type, prompt, &pos));
 	list_heap(&pos, pos, NULL);
 	setresult_control(ptr, pos);
 

@@ -252,7 +252,7 @@ loop:
 				"~2&Select making shadowing-symbols.~2%~5T~S~2%",
 				list, NULL));
 	strvect_char_heap(&pos, "Input symbol: ");
-	Return(prompt_for_stream(ptr, T, pos, &pos));
+	Return(prompt_for_stream_(ptr, T, pos, &pos));
 	if (! find_list_eq_unsafe(pos, list)) {
 		Return(format_stream(ptr, stream,
 					"~%ERROR: Invalid input ~S.~%Please input again.~2%",

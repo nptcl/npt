@@ -94,7 +94,7 @@ static int prompt_for_lisp_(Execute ptr, LocalHold hold,
 	return Result(ret, value);
 }
 
-int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
+int prompt_for_stream_(Execute ptr, addr type, addr prompt, addr *ret)
 {
 	addr io;
 	LocalHold hold;
@@ -124,28 +124,30 @@ int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 /*
  *  prompt-string
  */
-static int prompt_string_input_call_(Execute ptr, addr io, addr *ret)
+static int prompt_string_input_call_(Execute ptr, addr io, int errorp, addr *ret)
 {
 	addr value, ignore;
 
 	Return(finish_output_stream_(io));
 	Return(clear_input_stream_(io));
-	Return(read_line_common(ptr, io, T, Nil, Nil, &value, &ignore));
+	Return(read_line_common(ptr, io, errorp? T: Nil, Nil, Nil, &value, &ignore));
 
 	return Result(ret, value);
 }
 
-static int prompt_string_module_(Execute ptr, addr io, addr prompt, addr *ret)
+static int prompt_string_module_(Execute ptr,
+		addr io, addr prompt, int errorp, addr *ret)
 {
 	addr control;
 
 	push_control(ptr, &control);
 	push_prompt(ptr, prompt, prompt_for);
-	(void)prompt_string_input_call_(ptr, io, ret);
+	(void)prompt_string_input_call_(ptr, io, errorp, ret);
 	return pop_control_(ptr, control);
 }
 
-static int prompt_string_lisp_(Execute ptr, addr io, addr prompt, addr *ret)
+static int prompt_string_lisp_(Execute ptr,
+		addr io, addr prompt, int errorp, addr *ret)
 {
 	addr ignore;
 
@@ -155,18 +157,18 @@ static int prompt_string_lisp_(Execute ptr, addr io, addr prompt, addr *ret)
 
 	/* query */
 	Return(clear_input_stream_(io));
-	return read_line_common(ptr, io, T, Nil, Nil, ret, &ignore);
+	return read_line_common(ptr, io, errorp? T: Nil, Nil, Nil, ret, &ignore);
 }
 
-int prompt_string_stream(Execute ptr, addr prompt, addr *ret)
+int prompt_string_stream_(Execute ptr, addr prompt, int errorp, addr *ret)
 {
 	addr io;
 
 	Return(query_io_stream_(ptr, &io));
 	if (use_prompt_stream(ptr, io))
-		return prompt_string_module_(ptr, io, prompt, ret);
+		return prompt_string_module_(ptr, io, prompt, errorp, ret);
 	else
-		return prompt_string_lisp_(ptr, io, prompt, ret);
+		return prompt_string_lisp_(ptr, io, prompt, errorp, ret);
 }
 
 
@@ -197,7 +199,7 @@ static int yes_or_no_p_char_common_(Execute ptr, addr args, int *ret,
 
 	/* loop */
 	for (;;) {
-		Return(prompt_string_stream(ptr, prompt, &pos));
+		Return(prompt_string_stream_(ptr, prompt, 1, &pos));
 		if (stringp(pos)) {
 			/* yes */
 			Return((*yes_)(pos, &check));
@@ -253,7 +255,7 @@ static int yes_or_no_p_n_(addr pos, int *ret)
 	return Result(ret, toUpperUnicode(c) == 'N');
 }
 
-int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
+int yes_or_no_p_common_(Execute ptr, addr args, int exactp, int *ret)
 {
 	if (exactp) {
 		return yes_or_no_p_char_common_(ptr, args, ret,

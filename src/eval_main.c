@@ -11,6 +11,7 @@
 #include "gc.h"
 #include "print_write.h"
 #include "prompt.h"
+#include "prompt_for.h"
 #include "reader.h"
 #include "restart.h"
 #include "restart_value.h"
@@ -18,6 +19,8 @@
 #include "stream_common.h"
 #include "stream_function.h"
 #include "stream_string.h"
+#include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 /*
@@ -227,6 +230,48 @@ int eval_main_loop_(Execute ptr)
 	push_prompt_eval_loop(ptr);
 	(void)eval_custom_loop_(ptr, stream, eval_main_execute);
 	return pop_control_(ptr, control);
+}
+
+int eval_main_loop_toplevel_(Execute ptr)
+{
+#ifdef LISP_PROMPT_DISABLE
+	return eval_main_loop_(ptr);
+#else
+	addr pos, io;
+	unicode c;
+	size_t size;
+
+	/* loop */
+	for (;;) {
+		/* eval-loop */
+		Return(eval_main_loop_(ptr));
+
+		/* eval-loop-exit */
+		GetConst(SYSTEM_EVAL_LOOP_EXIT, &pos);
+		getspecial_local(ptr, pos, &pos);
+		if (pos == Unbound || pos == Nil)
+			break;
+
+		/* prompt */
+		strvect_char_heap(&pos, "Exit? ");
+		Return(prompt_string_stream_(ptr, pos, 0, &pos));
+		if (pos == Nil) {
+			Return(terminal_io_stream_(ptr, &io));
+			Return(terpri_stream_(io));
+			Return(finish_output_stream_(io));
+		}
+		if (stringp(pos)) {
+			string_length(pos, &size);
+			if (size == 0)
+				continue;
+			Return(string_getc_(pos, 0, &c));
+			if (toUpperUnicode(c) == 'Y')
+				break;
+		}
+	}
+
+	return 0;
+#endif
 }
 
 

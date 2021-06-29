@@ -259,7 +259,7 @@ int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 	}
 
 	hold = LocalHold_local_push(ptr, format);
-	Return(prompt_for_stream(ptr, type, format, &format));
+	Return(prompt_for_stream_(ptr, type, format, &format));
 	localhold_end(hold);
 	*ret = format;
 

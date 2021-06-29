@@ -1891,6 +1891,7 @@ lisp-rt::equalrt
 ;;  readtable
 ;;
 (("LISP-SYSTEM" "*READINFO*") :constant system :name readinfo-special)
+(lisp-system::*eval-loop-exit* :constant system :name eval-loop-exit :export t)
 (lisp-system::*prompt* :constant system :name prompt)
 (lisp-system::*prompt-value* :constant system :name prompt-value)
 (lisp-system::*prompt-bright* :constant system :name prompt-bright :export t)

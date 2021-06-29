@@ -30,7 +30,7 @@ static int restart_symbol_use_interactive_char_(Execute ptr, const char *str)
 	addr prompt, eval;
 
 	strvect_char_heap(&prompt, str);
-	Return(prompt_for_stream(ptr, T, prompt, &eval));
+	Return(prompt_for_stream_(ptr, T, prompt, &eval));
 	Return(eval_result_partial_form_(ptr, eval, &eval));
 	list_heap(&eval, eval, NULL);
 	setresult_control(ptr, eval);
@@ -188,7 +188,7 @@ static int restart_function_use_interactive_char_(Execute ptr, const char *str)
 
 	strvect_char_heap(&prompt, "Use new function: ");
 	for (;;) {
-		Return(prompt_for_stream(ptr, T, prompt, &eval));
+		Return(prompt_for_stream_(ptr, T, prompt, &eval));
 		Return(eval_result_partial_form_(ptr, eval, &eval));
 		if (functionp(eval))
 			break;
@@ -410,7 +410,7 @@ static int restart_fdefinition_use_interactive_char_(Execute ptr, const char *st
 
 	strvect_char_heap(&prompt, "Use new function: ");
 	for (;;) {
-		Return(prompt_for_stream(ptr, T, prompt, &eval));
+		Return(prompt_for_stream_(ptr, T, prompt, &eval));
 		Return(eval_result_partial_form_(ptr, eval, &eval));
 		Return(restart_fdefinition_use_interactive_p_(eval, &eval));
 		if (eval != Nil)

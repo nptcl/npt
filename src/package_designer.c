@@ -41,7 +41,7 @@ static int function_package_designer_interactive(Execute ptr)
 	addr prompt, pos;
 
 	strvect_char_heap(&prompt, "Input package name: ");
-	Return(prompt_for_stream(ptr, T, prompt, &pos));
+	Return(prompt_for_stream_(ptr, T, prompt, &pos));
 	list_heap(&pos, pos, NULL);
 	setresult_control(ptr, pos);
 

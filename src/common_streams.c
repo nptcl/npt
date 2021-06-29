@@ -1121,7 +1121,7 @@ static int function_y_or_n_p(Execute ptr, addr args)
 {
 	int check;
 
-	Return(yes_or_no_p_common(ptr, args, 0, &check));
+	Return(yes_or_no_p_common_(ptr, args, 0, &check));
 	setbool_control(ptr, check);
 
 	return 0;
@@ -1152,7 +1152,7 @@ static int function_yes_or_no_p(Execute ptr, addr args)
 {
 	int check;
 
-	Return(yes_or_no_p_common(ptr, args, 1, &check));
+	Return(yes_or_no_p_common_(ptr, args, 1, &check));
 	setbool_control(ptr, check);
 
 	return 0;
