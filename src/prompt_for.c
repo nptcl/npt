@@ -1,4 +1,5 @@
 #include "call_reader.h"
+#include "call_streams.h"
 #include "character_check.h"
 #include "condition.h"
 #include "cons.h"
@@ -12,6 +13,8 @@
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
+#include "stream_string.h"
+#include "strvect.h"
 #include "strtype.h"
 #include "typedef.h"
 #include "type_parse.h"
@@ -20,7 +23,7 @@
 /*
  *  prompt-for
  */
-static int prompt_for_call_(Execute ptr, addr io, addr *ret)
+static int prompt_for_input_call_(Execute ptr, addr io, addr *ret)
 {
 	addr value;
 
@@ -31,13 +34,13 @@ static int prompt_for_call_(Execute ptr, addr io, addr *ret)
 	return Result(ret, value);
 }
 
-static int prompt_for_string_(Execute ptr, addr io, addr prompt, addr *ret)
+static int prompt_for_input_(Execute ptr, addr io, addr prompt, addr *ret)
 {
 	addr control;
 
 	push_control(ptr, &control);
 	push_prompt(ptr, prompt, prompt_for);
-	(void)prompt_for_call_(ptr, io, ret);
+	(void)prompt_for_input_call_(ptr, io, ret);
 	return pop_control_(ptr, control);
 }
 
@@ -48,7 +51,7 @@ static int prompt_for_module_(Execute ptr, LocalHold hold,
 	addr value;
 
 	for (;;) {
-		Return(prompt_for_string_(ptr, io, prompt, &value));
+		Return(prompt_for_input_(ptr, io, prompt, &value));
 		localhold_set(hold, 1, value);
 		if (type == T)
 			break;
@@ -119,85 +122,148 @@ int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 
 
 /*
+ *  prompt-string
+ */
+static int prompt_string_input_call_(Execute ptr, addr io, addr *ret)
+{
+	addr value, ignore;
+
+	Return(finish_output_stream_(io));
+	Return(clear_input_stream_(io));
+	Return(read_line_common(ptr, io, T, Nil, Nil, &value, &ignore));
+
+	return Result(ret, value);
+}
+
+static int prompt_string_module_(Execute ptr, addr io, addr prompt, addr *ret)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	push_prompt(ptr, prompt, prompt_for);
+	(void)prompt_string_input_call_(ptr, io, ret);
+	return pop_control_(ptr, control);
+}
+
+static int prompt_string_lisp_(Execute ptr, addr io, addr prompt, addr *ret)
+{
+	addr ignore;
+
+	/* output */
+	Return(princ_print(ptr, io, prompt));
+	Return(finish_output_stream_(io));
+
+	/* query */
+	Return(clear_input_stream_(io));
+	return read_line_common(ptr, io, T, Nil, Nil, ret, &ignore);
+}
+
+int prompt_string_stream(Execute ptr, addr prompt, addr *ret)
+{
+	addr io;
+
+	Return(query_io_stream_(ptr, &io));
+	if (use_prompt_stream(ptr, io))
+		return prompt_string_module_(ptr, io, prompt, ret);
+	else
+		return prompt_string_lisp_(ptr, io, prompt, ret);
+}
+
+
+/*
  *  yes-or-no-p
  */
-static int yes_or_no_p_check1_(Execute ptr, addr io, addr pos, int *retry, int *ret)
+static int yes_or_no_p_char_common_(Execute ptr, addr args, int *ret,
+		const char *str_prompt,
+		int (yes_)(addr, int *),
+		int (no_)(addr, int *),
+		const char *str_error)
 {
-	int check;
+	int check, answer;
+	addr stream, control, prompt, pos;
 
-	Return(string_equalp_char_(pos, "yes", &check));
-	if (check) {
-		*retry = 0;
-		return Result(ret, 1);
+	/* prompt */
+	if (args != Nil) {
+		open_output_string_stream(&stream, 0);
+		GetCons(args, &control, &args);
+		Return(format_lisp(ptr, stream, control, args, &control));
+		Return(print_ascii_stream_(stream, " "));
+		Return(string_stream_heap_(stream, &prompt));
+		Return(close_stream_(stream, NULL));
 	}
-	Return(string_equalp_char_(pos, "no", &check));
-	if (check) {
-		*retry = 0;
-		return Result(ret, 0);
+	else {
+		strvect_char_heap(&prompt, str_prompt);
 	}
 
-	*retry = 1;
-	return format_stream(ptr, io, "~%Please answer yes or no: ", NULL);
+	/* loop */
+	for (;;) {
+		Return(prompt_string_stream(ptr, prompt, &pos));
+		if (stringp(pos)) {
+			/* yes */
+			Return((*yes_)(pos, &check));
+			if (check) {
+				answer = 1;
+				break;
+			}
+			/* no */
+			Return((*no_)(pos, &check));
+			if (check) {
+				answer = 0;
+				break;
+			}
+		}
+		/* error */
+		strvect_char_heap(&prompt, str_error);
+	}
+
+	return Result(ret, answer);
 }
 
-static int yes_or_no_p_check2_(Execute ptr, addr io, addr pos, int *retry, int *ret)
+static int yes_or_no_p_yes_(addr pos, int *ret)
 {
-	unicode c;
+	return string_equalp_char_(pos, "yes", ret);
+}
+
+static int yes_or_no_p_no_(addr pos, int *ret)
+{
+	return string_equalp_char_(pos, "no", ret);
+}
+
+static int yes_or_no_p_y_(addr pos, int *ret)
+{
 	size_t size;
+	unicode c;
 
 	string_length(pos, &size);
-	if (size != 0) {
-		Return(string_getc_(pos, 0, &c));
-		if (toUpperUnicode(c) == 'Y') {
-			*retry = 0;
-			return Result(ret, 1);
-		}
-		if (toUpperUnicode(c) == 'N') {
-			*retry = 0;
-			return Result(ret, 0);
-		}
-	}
-
-	*retry = 1;
-	return format_stream(ptr, io, "~%Please answer y or n: ", NULL);
+	if (size == 0)
+		return Result(ret, 0);
+	Return(string_getc_(pos, 0, &c));
+	return Result(ret, toUpperUnicode(c) == 'Y');
 }
 
-static int yes_or_no_p_check_(Execute ptr, addr io, addr pos,
-		int exactp, int *retry, int *ret)
+static int yes_or_no_p_n_(addr pos, int *ret)
 {
-	if (exactp)
-		return yes_or_no_p_check1_(ptr, io, pos, retry, ret);
-	else
-		return yes_or_no_p_check2_(ptr, io, pos, retry, ret);
+	size_t size;
+	unicode c;
+
+	string_length(pos, &size);
+	if (size == 0)
+		return Result(ret, 0);
+	Return(string_getc_(pos, 0, &c));
+	return Result(ret, toUpperUnicode(c) == 'N');
 }
 
 int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 {
-	int miss, check;
-	addr control, stream, pos;
-
-	/* output */
-	Return(query_io_stream_(ptr, &stream));
-	if (args != Nil) {
-		GetCons(args, &control, &args);
-		Return(fresh_line_stream_(stream, NULL));
-		Return(format_lisp(ptr, stream, control, args, &control));
-		Return(print_ascii_stream_(stream, " "));
+	if (exactp) {
+		return yes_or_no_p_char_common_(ptr, args, ret,
+				"(yes or no) ", yes_or_no_p_yes_, yes_or_no_p_no_,
+				"Please answer yes or no: ");
 	}
-	Return(print_ascii_stream_(stream, exactp? "(yes or no) ": "(y or n) "));
-	Return(finish_output_stream_(stream));
-
-	/* query */
-	*ret = 0;
-	for (;;) {
-		Return(clear_input_stream_(stream));
-		Return(read_line_stream_(ptr, &pos, &miss, stream, 1, Unbound, 0));
-		if (pos == Unbound)
-			return fmte_("*query-io* don't read yes/or question.", NULL);
-		Return(yes_or_no_p_check_(ptr, stream, pos, exactp, &check, ret));
-		if (! check)
-			break;
-		Return(finish_output_stream_(stream));
+	else {
+		return yes_or_no_p_char_common_(ptr, args, ret,
+				"(y or n) ", yes_or_no_p_y_, yes_or_no_p_n_,
+				"Please answer y or n: ");
 	}
 
 	return 0;

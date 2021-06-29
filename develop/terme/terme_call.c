@@ -164,8 +164,11 @@ int terme_switch_rawmode(int *ret)
 	return 0;
 }
 
-void terme_screen_x(int *ret)
+void terme_screen_xy(int *x, int *y)
 {
-	*ret = terme_x;
+	if (x)
+		*x = terme_x;
+	if (y)
+		*y = terme_y;
 }
 

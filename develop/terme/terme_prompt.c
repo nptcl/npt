@@ -1,7 +1,6 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
-
 #include "condition.h"
 #include "copy.h"
 #include "eastasian_unicode.h"
@@ -12,10 +11,12 @@
 #include "strvect.h"
 #include "symbol.h"
 #include "terme_call.h"
+#include "terme_data.h"
 #include "terme_escape.h"
 #include "terme_input.h"
 #include "terme_output.h"
 #include "terme_prompt.h"
+#include "terme_screen.h"
 #include "terme_value.h"
 
 static int terme_prompt_size;
@@ -540,43 +541,43 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 		case terme_escape_error:
 			break;
 
-		case terme_escape_code:
+		case terme_escape_code: /* TODO */
 			return terme_readline_code_(ptr, str, value, ret);
 
-		case terme_escape_up:
+		case terme_escape_up: /* TODO */
 			return terme_readline_up_(ptr);
 
-		case terme_escape_down:
+		case terme_escape_down: /* TODO */
 			return terme_readline_down_(ptr);
 
-		case terme_escape_left:
+		case terme_escape_left: /* TODO */
 			return terme_readline_left_(ptr);
 
-		case terme_escape_right:
+		case terme_escape_right: /* TODO */
 			return terme_readline_right_(ptr);
 
-		case terme_escape_return:
+		case terme_escape_return: /* TODO */
 			return terme_readline_return(ptr, value, ret);
 
-		case terme_escape_backspace:
+		case terme_escape_backspace: /* TODO */
 			return terme_readline_backspace_(ptr);
 
-		case terme_escape_first:
+		case terme_escape_first: /* TODO */
 			return terme_readline_first_(ptr);
 
-		case terme_escape_last:
+		case terme_escape_last: /* TODO */
 			return terme_readline_last_(ptr);
 
-		case terme_escape_update:
+		case terme_escape_update: /* TODO */
 			return terme_readline_update_(ptr);
 
-		case terme_escape_delete:
+		case terme_escape_delete: /* TODO */
 			return terme_readline_delete_(ptr, value, ret);
 
-		case terme_escape_rmleft:
+		case terme_escape_rmleft: /* TODO */
 			return terme_readline_rmleft_(ptr);
 
-		case terme_escape_rmright:
+		case terme_escape_rmright: /* TODO */
 			return terme_readline_rmright_(ptr);
 
 		case terme_escape_function:

@@ -6,40 +6,22 @@
 #include "typedef.h"
 
 #define terme_build _n(terme_build)
+#define terme_value_data_ _n(terme_value_data_)
+#define terme_value_width_ _n(terme_value_width_)
+#define terme_value_history_ _n(terme_value_history_)
+#define get_history_terme_ _n(get_history_terme_)
+#define set_history_terme_ _n(set_history_terme_)
 #define terme_set_prompt_ _n(terme_set_prompt_)
 #define terme_get_prompt_ _n(terme_get_prompt_)
 
-#define terme_data_init_ _n(terme_data_init_)
-#define terme_data_push_ _n(terme_data_push_)
-#define terme_data_get_ _n(terme_data_get_)
-#define terme_data_get_width_ _n(terme_data_get_width_)
-#define terme_data_size_ _n(terme_data_size_)
-#define terme_data_size_width_ _n(terme_data_size_width_)
-#define terme_data_allwidth_ _n(terme_data_allwidth_)
-#define terme_data_delete_ _n(terme_data_delete_)
-#define terme_data_delete_left_ _n(terme_data_delete_left_)
-#define terme_data_delete_right_ _n(terme_data_delete_right_)
-#define terme_data_make_ _n(terme_data_make_)
-#define terme_history_save_ _n(terme_history_save_)
-#define terme_history_update_ _n(terme_history_update_)
-
 void terme_build(void);
+int terme_value_data_(Execute ptr, addr *ret);
+int terme_value_width_(Execute ptr, addr *ret);
+int terme_value_history_(Execute ptr, addr *ret);
+int get_history_index_terme_(Execute ptr, int *ret);
+int set_history_index_terme_(Execute ptr, int value);
 int terme_set_prompt_(Execute ptr, addr value, enum prompt_mode mode);
 int terme_get_prompt_(Execute ptr, addr *value, enum prompt_mode *mode);
-
-int terme_data_init_(Execute ptr);
-int terme_data_push_(Execute ptr, int index, unicode c, int *ret);
-int terme_data_get_(Execute ptr, int index, unicode *value, int *ret);
-int terme_data_get_width_(Execute ptr, int index, int *ret);
-int terme_data_size_(Execute ptr, int *ret);
-int terme_data_size_width_(Execute ptr, int *size, int *width);
-int terme_data_allwidth_(Execute ptr, int *ret);
-int terme_data_delete_(Execute ptr, int index, int *ret);
-int terme_data_delete_left_(Execute ptr, int index, int *ret);
-int terme_data_delete_right_(Execute ptr, int index, int *ret);
-int terme_data_make_(Execute ptr, addr *ret);
-int terme_history_save_(Execute ptr);
-int terme_history_update_(Execute ptr, int index, int *ret);
 
 #endif
 

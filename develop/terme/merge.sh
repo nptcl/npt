@@ -2,18 +2,22 @@
 output="../terme.c"
 file_header="
 terme_call.h
+terme_data.h
 terme_escape.h
 terme_input.h
 terme_output.h
 terme_prompt.h
+terme_screen.h
 terme_value.h"
 file_source="
 terme_interface.c
 terme_call.c
+terme_data.c
 terme_escape.c
 terme_input.c
 terme_output.c
 terme_prompt.c
+terme_screen.c
 terme_value.c"
 
 checkerr()

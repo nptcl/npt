@@ -9,14 +9,14 @@
 #define terme_end _n(terme_end)
 #define terme_switch_textmode _n(terme_switch_textmode)
 #define terme_switch_rawmode _n(terme_switch_rawmode)
-#define terme_screen_x _n(terme_screen_x)
+#define terme_screen_xy _n(terme_screen_xy)
 
 void terme_init(void);
 int terme_begin(void);
 int terme_end(void);
 int terme_switch_textmode(int *ret);
 int terme_switch_rawmode(int *ret);
-void terme_screen_x(int *ret);
+void terme_screen_xy(int *x, int *y);
 
 #endif
 

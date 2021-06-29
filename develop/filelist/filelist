@@ -406,9 +406,11 @@ ext/ext_parse.c
 ext/ext_reader.c
 ext/ext_scope.c
 terme/terme_call.c
+terme/terme_data.c
 terme/terme_escape.c
 terme/terme_input.c
 terme/terme_output.c
 terme/terme_prompt.c
+terme/terme_screen.c
 terme/terme_value.c
 
