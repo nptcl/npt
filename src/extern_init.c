@@ -503,6 +503,7 @@ static int lisp_argv_load_default_(Execute ptr, struct lispargv *argv, int *a)
 	InitFileEnv(ptr,env,a, EnvProgramFiles, "\\" Lispname "\\" Lispname ".lisp");
 	InitFileEnv(ptr,env,a, EnvProgramFilesx86, "\\" Lispname "\\" Lispname ".lisp");
 #else
+	InitFileEnv(ptr,env,a, EnvHome, "/." Lispname ".lisp");
 	InitFileEnv(ptr,env,a, EnvHome, "/." Lispname "/" Lispname ".lisp");
 	InitFileEnv(ptr,env,a, EnvLispHome, "/" Lispname ".lisp");
 	InitFileEnv(ptr,env,a, EnvLispHome, "/lib/" Lispname ".lisp");

@@ -185,7 +185,7 @@ static int lispargs_heap(struct lispargv *ptr, size_t index)
 	size_t size;
 
 	a = ptr->argv;
-	if (a->size <= index - 1UL) {
+	if (a->size <= index + 1UL) {
 		lisperror("After --heap must be at least one argument.");
 		return 1;
 	}
@@ -208,7 +208,7 @@ static int lispargs_local(struct lispargv *ptr, size_t index)
 	size_t size;
 
 	a = ptr->argv;
-	if (a->size <= index - 1UL) {
+	if (a->size <= index + 1UL) {
 		lisperror("After --local must be at least one argument.");
 		return 1;
 	}
@@ -231,7 +231,7 @@ static int lispargs_corefile(struct lispargv *ptr, size_t index)
 	lisparrayu a;
 
 	a = ptr->argv;
-	if (a->size <= index - 1UL) {
+	if (a->size <= index + 1UL) {
 		lisperror("After --corefile must be at least one argument.");
 		return 1;
 	}
@@ -255,7 +255,7 @@ static int lispargs_initfile(struct lispargv *ptr, size_t index)
 	lisparrayu a;
 
 	a = ptr->argv;
-	if (a->size <= index - 1UL) {
+	if (a->size <= index + 1UL) {
 		lisperror("After --initfile must be at least one argument.");
 		return 1;
 	}
@@ -301,7 +301,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 		case LispMode_Degrade:
 			ptr->mode_degrade = 1;
 			ptr->nocore = 0;
-			ptr->noinit = 0;
+			ptr->noinit = 1;
 			ptr->debugger = 1;
 			ptr->debuggerp = 0;
 			ptr->quit = 0;
@@ -320,7 +320,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 		default:
 			ptr->mode_standalone = 1;
 			ptr->nocore = 1;
-			ptr->noinit = 1;
+			ptr->noinit = 0;
 			ptr->debugger = 1;
 			ptr->debuggerp = 0;
 			ptr->quit = 0;
