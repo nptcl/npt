@@ -10,7 +10,7 @@ static void symbol_prompt(addr *ret)
 	GetConst(SYSTEM_PROMPT, ret);
 }
 
-static void prompt_heap(addr *ret, addr value, enum prompt_mode mode)
+static void prompt_heap(addr *ret, addr value, PromptMode mode)
 {
 	addr pos;
 	struct prompt_struct *str;
@@ -22,7 +22,7 @@ static void prompt_heap(addr *ret, addr value, enum prompt_mode mode)
 	*ret = pos;
 }
 
-void push_prompt(Execute ptr, addr value, enum prompt_mode mode)
+void push_prompt(Execute ptr, addr value, PromptMode mode)
 {
 	addr symbol, pos;
 
@@ -38,7 +38,7 @@ void push_prompt_eval_loop(Execute ptr)
 	push_prompt(ptr, value, prompt_eval);
 }
 
-void get_prompt(Execute ptr, addr *value, enum prompt_mode *mode)
+void get_prompt(Execute ptr, addr *value, PromptMode *mode)
 {
 	addr pos;
 
@@ -61,11 +61,11 @@ void get_prompt(Execute ptr, addr *value, enum prompt_mode *mode)
 
 void getvalue_prompt(Execute ptr, addr *ret)
 {
-	enum prompt_mode ignore;
+	PromptMode ignore;
 	get_prompt(ptr, ret, &ignore);
 }
 
-void getmode_prompt(Execute ptr, enum prompt_mode *ret)
+void getmode_prompt(Execute ptr, PromptMode *ret)
 {
 	addr ignore;
 	get_prompt(ptr, &ignore, ret);

@@ -12,23 +12,26 @@
 #define getmode_prompt _n(getmode_prompt)
 
 enum prompt_mode {
+	prompt_input,
 	prompt_eval,
 	prompt_for,
 	prompt_debugger,
 	prompt_inspect,
 	prompt_step
 };
+typedef enum prompt_mode PromptMode;
+
 struct prompt_struct {
-	enum prompt_mode mode;
+	PromptMode mode;
 };
 
 #define PtrPromptStruct(x) ((struct prompt_struct *)PtrBodySS(x))
 
-void push_prompt(Execute ptr, addr value, enum prompt_mode mode);
+void push_prompt(Execute ptr, addr value, PromptMode mode);
 void push_prompt_eval_loop(Execute ptr);
-void get_prompt(Execute ptr, addr *value, enum prompt_mode *mode);
+void get_prompt(Execute ptr, addr *value, PromptMode *mode);
 void getvalue_prompt(Execute ptr, addr *ret);
-void getmode_prompt(Execute ptr, enum prompt_mode *ret);
+void getmode_prompt(Execute ptr, PromptMode *ret);
 
 #endif
 

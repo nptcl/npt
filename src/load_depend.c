@@ -13,7 +13,6 @@
 #include "symbol.h"
 #include "typedef.h"
 
-
 /*
  *  symbol
  */

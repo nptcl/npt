@@ -501,6 +501,14 @@
 /* terme */
 #ifdef LISP_TERME
 
+/* code */
+#if defined(LISP_FREEBSD) || defined(LISP_LINUX)
+#define LISP_TERME_UNIX
+#else
+#undef LISP_TERME_UNIX
+#endif
+
+/* bright / dark */
 #if defined(LISP_TERME_BRIGHT)
 #undef LISP_TERME_DARK
 #define LISP_TERME_COLOR1	"bright"
@@ -512,15 +520,16 @@
 #define LISP_TERME_COLOR1	"bright"
 #endif
 
+/* monochrome / color */
 #if defined(LISP_TERME_COLOR)
 #undef LISP_TERME_MONOCHROME
-#define LISP_TERME_COLOR2	"color"
+#define LISP_TERME_COLOR2	"on"
 #elif defined(LISP_TERME_MONOCHROME)
 #undef LISP_TERME_COLOR
-#define LISP_TERME_COLOR2	"monochrome"
+#define LISP_TERME_COLOR2	"off"
 #else
 #define LISP_TERME_COLOR
-#define LISP_TERME_COLOR2	"color"
+#define LISP_TERME_COLOR2	"on"
 #endif
 #endif
 

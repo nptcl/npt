@@ -13,7 +13,7 @@
 void terme_output_init(void);
 int terme_finish_output(void);
 int terme_write_byte(byte c);
-int terme_write_char(unicode c, int width);
+int terme_write_char(unicode c, unsigned width);
 int terme_terpri(void);
 int terme_fresh_line(void);
 

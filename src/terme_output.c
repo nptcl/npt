@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
 #include "character_check.h"
+#include "terme_arch.h"
 #include "terme_output.h"
 #include "typedef.h"
 
@@ -11,8 +10,8 @@
 #endif
 
 static byte terme_output_buffer[TERME_OUTPUT_SIZE];
-size_t terme_output_size;
-size_t terme_output_x;
+static size_t terme_output_size;
+static size_t terme_output_x;
 
 void terme_output_init(void)
 {
@@ -22,17 +21,16 @@ void terme_output_init(void)
 
 int terme_finish_output(void)
 {
+	int check;
 	byte *data;
 	size_t size, retu;
-	ssize_t rets;
 
 	size = terme_output_size;
 	data = terme_output_buffer;
 	while (size) {
-		rets = write(STDOUT_FILENO, data, size);
-		if (rets < 0)
+		check = terme_arch_write(data, size, &retu);
+		if (check)
 			return 1; /* error */
-		retu = (size_t)rets;
 		if (size <= retu)
 			break;
 		size -= retu;
@@ -118,7 +116,7 @@ normal:
 	return 0;
 }
 
-int terme_write_char(unicode c, int width)
+int terme_write_char(unicode c, unsigned width)
 {
 	byte data[8];
 	size_t size;

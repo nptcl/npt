@@ -50,6 +50,7 @@ static int prompt_for_module_(Execute ptr, LocalHold hold,
 	int check;
 	addr value;
 
+	value = Nil;
 	for (;;) {
 		Return(prompt_for_input_(ptr, io, prompt, &value));
 		localhold_set(hold, 1, value);

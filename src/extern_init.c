@@ -227,8 +227,8 @@ int lisp_main_version_script(FILE *file)
 #endif
 	fprintf(file, "%s\t%d\n", "pointer-extend", LISP_POINTER_EXTEND);
 #ifdef LISP_TERME
-	fprintf(file, "%s\t%s\n", "terme-mode", LISP_TERME_COLOR1);
-	fprintf(file, "%s\t%s\n", "terme-switch", LISP_TERME_COLOR2);
+	fprintf(file, "%s\t%s\n", "prompt-bright", LISP_TERME_COLOR1);
+	fprintf(file, "%s\t%s\n", "prompt-color", LISP_TERME_COLOR2);
 #endif
 	lisp_result = 0;
 

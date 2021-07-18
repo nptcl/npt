@@ -32,7 +32,8 @@ static int terme_escape_operator(const char *str)
 		if (terme_write_byte(c))
 			return 1;
 	}
-	return terme_finish_output();
+
+	return 0;
 }
 
 int terme_font(Execute ptr, PrintFont value)
@@ -118,24 +119,43 @@ int terme_back_color(Execute ptr, PrintColor value)
 	return terme_escape_operator(str);
 }
 
-int terme_cursor_left(int n)
+static int terme_cursor_move_character(int n, byte c)
 {
 	char data[64];
 
-	if (n == 0)
-		return terme_escape_operator("\x1B[D");
-	snprintf(data, 64, "\x1B[%dD", n);
-	return terme_escape_operator(data);
+	if (n <= 0)
+		return 0;
+	if (n == 1) {
+		if (terme_escape_operator("\x1B["))
+			return 1;
+	}
+	else {
+		snprintf(data, 64, "\x1B[%d", n);
+		if (terme_escape_operator(data))
+			return 1;
+	}
+
+	return terme_write_byte(c);
+}
+
+int terme_cursor_left(int n)
+{
+	return terme_cursor_move_character(n, 'D');
 }
 
 int terme_cursor_right(int n)
 {
-	char data[64];
+	return terme_cursor_move_character(n, 'C');
+}
 
-	if (n == 0)
-		return terme_escape_operator("\x1B[C");
-	snprintf(data, 64, "\x1B[%dC", n);
-	return terme_escape_operator(data);
+int terme_cursor_up(int n)
+{
+	return terme_cursor_move_character(n, 'A');
+}
+
+int terme_cursor_down(int n)
+{
+	return terme_cursor_move_character(n, 'B');
 }
 
 int terme_cursor_move(int n)
@@ -143,6 +163,16 @@ int terme_cursor_move(int n)
 	char data[64];
 	snprintf(data, 64, "\x1B[%dG", n + 1);
 	return terme_escape_operator(data);
+}
+
+int terme_cursor_first_up(int n)
+{
+	return terme_cursor_move_character(n, 'F');
+}
+
+int terme_cursor_first_down(int n)
+{
+	return terme_cursor_move_character(n, 'E');
 }
 
 int terme_cursor_delete_line_left(void)

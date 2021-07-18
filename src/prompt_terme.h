@@ -4,7 +4,7 @@
 
 int input_prompt_(Execute ptr, addr *ret)
 {
-	enum prompt_mode mode;
+	PromptMode mode;
 	addr pos;
 
 	get_prompt(ptr, &pos, &mode);

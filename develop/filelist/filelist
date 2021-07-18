@@ -377,6 +377,18 @@ syscall.c
 syscode_common.c
 syscode_function.c
 terme.c
+terme_arch.c
+terme_data.c
+terme_display.c
+terme_escape.c
+terme_error.c
+terme_history.c
+terme_input.c
+terme_object.c
+terme_output.c
+terme_prompt.c
+terme_screen.c
+terme_write.c
 thread.c
 token.c
 type_coerce.c
@@ -405,12 +417,4 @@ ext/ext_package.c
 ext/ext_parse.c
 ext/ext_reader.c
 ext/ext_scope.c
-terme/terme_call.c
-terme/terme_data.c
-terme/terme_escape.c
-terme/terme_input.c
-terme/terme_output.c
-terme/terme_prompt.c
-terme/terme_screen.c
-terme/terme_value.c
 

@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/select.h>
 #include "character_check.h"
+#include "terme_arch.h"
 #include "terme_input.h"
 #include "typedef.h"
 
@@ -41,48 +39,21 @@ void terme_input_init(void)
 	terme_input_unread_now = 0;
 }
 
-static int terme_input_select(int *ret)
-{
-	int fd, reti;
-	fd_set fdset;
-	struct timeval tm;
-
-	fd = STDIN_FILENO;
-	FD_ZERO(&fdset);
-	FD_SET(fd, &fdset);
-	tm.tv_sec = 0;
-	tm.tv_usec = 0;
-	reti = select(fd + 1, &fdset, NULL, NULL, &tm);
-	if (reti < 0) {
-		*ret = 0;
-		return 1; /* error */
-	}
-	if (reti == 0) {
-		/* empty */
-		*ret = 0;
-		return 0;
-	}
-	else {
-		/* can read */
-		*ret = 1;
-		return 0;
-	}
-}
-
 #define TERME_CLEAR_INPUT_STDIN		4096
 static int terme_clear_input_stdin(void)
 {
 	byte data[TERME_CLEAR_INPUT_STDIN];
 	int check;
-	ssize_t rets;
+	size_t ignore;
 
 	for (;;) {
-		if (terme_input_select(&check))
+		if (terme_arch_select(&check))
 			return 1;
 		if (! check)
 			break;
-		rets = read(STDIN_FILENO, data, TERME_CLEAR_INPUT_STDIN);
-		if (rets < 0)
+
+		check = terme_arch_read(data, TERME_CLEAR_INPUT_STDIN, &ignore);
+		if (check)
 			return 1;
 	}
 
@@ -144,28 +115,18 @@ static void terme_unbyte_pop(byte *value, int *ret)
 /*
  *  getc
  */
-static int terme_input_wait(void)
-{
-	int fd, reti;
-	fd_set fdset;
-
-	fd = STDIN_FILENO;
-	FD_ZERO(&fdset);
-	FD_SET(fd, &fdset);
-	reti = select(fd + 1, &fdset, NULL, NULL, NULL);
-	return reti < 0;
-}
-
 static int terme_getc_buffering(void)
 {
-	ssize_t size;
+	int check;
+	size_t size;
 
 	terme_input_size = 0; /* for error */
 	terme_input_now = 0;
-	size = read(STDIN_FILENO, terme_input_buffer, TERME_INPUT_SIZE);
-	if (size < 0)
+
+	check = terme_arch_read(terme_input_buffer, TERME_INPUT_SIZE, &size);
+	if (check)
 		return 1;
-	terme_input_size = (size_t)size;
+	terme_input_size = size;
 
 	return 0;
 }
@@ -185,7 +146,7 @@ static int terme_getc_hang(byte *value, int *ret)
 
 	/* input buffer */
 	if (terme_input_size <= terme_input_now) {
-		if (terme_input_select(&check))
+		if (terme_arch_select(&check))
 			goto error;
 		if (! check) { /* empty */
 			*value = 0;
@@ -216,7 +177,7 @@ static int terme_getc(byte *ret)
 			goto error;
 		if (check)
 			break;
-		if (terme_input_wait())
+		if (terme_arch_wait())
 			goto error;
 		return 0;
 	}
@@ -436,7 +397,7 @@ int terme_read_char(unicode *value, int *ret)
 			goto error;
 		if (check)
 			break;
-		if (terme_input_wait())
+		if (terme_arch_wait())
 			goto error;
 	}
 	*value = c;

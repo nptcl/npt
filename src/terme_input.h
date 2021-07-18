@@ -9,6 +9,7 @@
 #define terme_listen _n(terme_listen)
 #define terme_hang_char _n(terme_hang_char)
 #define terme_read_char _n(terme_read_char)
+#define terme_read_keyboard _n(terme_read_keyboard)
 
 enum terme_escape {
 	terme_escape_error,
@@ -26,7 +27,8 @@ enum terme_escape {
 	terme_escape_delete,     /* ^D */
 	terme_escape_rmleft,     /* ^U */
 	terme_escape_rmright,    /* ^K */
-	terme_escape_tab,        /* ^I */
+	terme_escape_tabular,    /* ^I */
+	terme_escape_search,     /* ^R */
 	terme_escape_size
 };
 typedef enum terme_escape TermeEscape;

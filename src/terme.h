@@ -20,7 +20,7 @@ void init_terme(void);
 void build_terme(void);
 int begin_terme(void);
 int end_terme(void);
-int prompt_terme_(Execute ptr, addr pos, enum prompt_mode mode);
+int prompt_terme_(Execute ptr, addr pos, PromptMode mode);
 int readline_terme_(Execute ptr, addr *ret);
 int font_terme(Execute ptr, PrintFont value);
 int text_color_terme(Execute ptr, PrintColor value);

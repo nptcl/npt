@@ -17,6 +17,8 @@ static int main_execute(struct lispargv *ptr)
 }
 
 #ifdef LISP_WINMAIN
+#include <Windows.h>
+
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
 	int result;
