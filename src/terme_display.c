@@ -492,14 +492,15 @@ int terme_display_previous_(Execute ptr, unsigned *ret, int *rcheck)
 	getarray(pos, str->now_y, &pos);
 	body = struct_terme_body(pos);
 	body += str->now_x - 1U;
-	if (! body->ignore)
-		goto result;
+	if (! body->ignore) {
+		*rcheck = 1;
+		return Result(ret, body->wide? 2: 1);
+	}
 	if (str->now_x == 1) {
 		*rcheck = 1;
 		return Result(ret, 1);
 	}
 	body--;
-result:
 	*rcheck = 1;
 	return Result(ret, 2);
 }
