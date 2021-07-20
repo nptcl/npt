@@ -249,7 +249,7 @@ static void set_features(void)
 	push_features("ANSI-C");
 	push_features(LISPNAME "-ANSI-C");
 #endif
-#ifdef LISP_ANSI_WINDOWS
+#ifdef LISP_ANSIC_WINDOWS
 	push_features("ANSI-C-WINDOWS");
 	push_features(LISPNAME "-ANSI-C-WINDOWS");
 #endif

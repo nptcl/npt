@@ -20,46 +20,6 @@ static int test_write_file(const char *str)
 	return 0;
 }
 
-static int test_read_clang(void)
-{
-	int check;
-	char mem[100];
-	FILE *file;
-	size_t size;
-
-	check = test_write_file("HelloHello");
-	test(check == 0, "read_clang.1");
-	file = fopen(TESTFILE, "rb");
-	test(file, "read_clang.2");
-	check = read_clang(file, mem, 6, &size);
-	fclose(file);
-	test(check == 0, "read_clang.3");
-	test(size == 6, "read_clang.4");
-	test(memcmp(mem, "HelloH", 6) == 0, "read_clang.5");
-
-	RETURN;
-}
-
-static int test_readforce_clang(void)
-{
-	int check;
-	char mem[100];
-	FILE *file;
-	size_t size;
-
-	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_clang.1");
-	file = fopen(TESTFILE, "rb");
-	test(file, "readforce_clang.2");
-	check = readforce_clang(file, mem, 6, &size);
-	fclose(file);
-	test(check == 0, "readforce_clang.3");
-	test(size == 6, "readforce_clang.4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_clang.5");
-
-	RETURN;
-}
-
 #ifdef LISP_POSIX
 #include <fcntl.h>
 
@@ -193,8 +153,6 @@ int test_arch(void)
 {
 	DegradeTitle;
 
-	TestBreak(test_read_clang);
-	TestBreak(test_readforce_clang);
 #ifdef LISP_POSIX
 	TestBreak(test_read_posix);
 	TestBreak(test_readforce_posix);

@@ -1244,6 +1244,7 @@ enum pointer_index {
 	p_defun_syscall_set_slots,
 	p_defun_syscall_intern_eql_specializer,
 	/* syscall function */
+	p_defun_syscall_abort,
 	p_defun_syscall_hello,
 	p_defun_syscall_infobit,
 	p_defun_syscall_infoprint,
@@ -1297,6 +1298,7 @@ enum pointer_index {
 	p_defun_syscall_byte_integer,
 	p_defun_syscall_question,
 	p_defun_syscall_extension,
+	p_defun_syscall_terme,
 
 #ifdef LISP_EXTENSION
 #include "ext_include_pointer.h"

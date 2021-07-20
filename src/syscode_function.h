@@ -58,6 +58,7 @@
 #define setf_memory_stream_p_syscode_ _n(setf_memory_stream_p_syscode_)
 #define question_syscode_ _n(question_syscode_)
 #define extension_syscode _n(extension_syscode)
+#define terme_syscode_ _n(terme_syscode_)
 
 int hello_syscode(Execute ptr);
 void infobit_syscode(addr rest, addr *ret);
@@ -113,6 +114,7 @@ void memory_stream_p_syscode(addr var, addr *ret);
 int setf_memory_stream_p_syscode_(addr var, addr value);
 int question_syscode_(Execute ptr, addr var, addr args);
 int extension_syscode(Execute ptr, addr var);
+int terme_syscode_(Execute ptr, addr var, addr args);
 
 #endif
 

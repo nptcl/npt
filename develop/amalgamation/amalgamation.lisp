@@ -32,6 +32,8 @@
     "readline/history.h" "readline/readline.h"
     ;;  lisp
     "config.h" "load.h"
+    ;;  windows
+    "windows_arch.h" "windows_terme.h" "windows_values.h" "windows_main.h"
     ;;  ext
     "ext_main.h" "ext_eval.h"
     "ext_include_const.h"

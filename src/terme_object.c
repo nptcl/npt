@@ -112,7 +112,7 @@ void terme_root_build(addr *ret)
 static int terme_root_special_(Execute ptr, addr *ret)
 {
 	addr symbol;
-	GetConst(SYSTEM_TERME, &symbol);
+	GetConst(SYSTEM_SPECIAL_TERME, &symbol);
 	return getspecialcheck_local_(ptr, symbol, ret);
 }
 

@@ -660,7 +660,7 @@ static int write_char_utf32be_(filestream fm, unicode u)
 	return write_char_utf32_(fm, u, 1);
 }
 
-#if defined(LISP_ANSI_WINDOWS)
+#if defined(LISP_ANSIC_WINDOWS)
 static int write_char_windows_(filestream fm, unicode u)
 {
 	char output[8];
@@ -816,7 +816,7 @@ static int length_char_utf32(filestream fm, unicode c)
 	return 4;
 }
 
-#if defined(LISP_ANSI_WINDOWS)
+#if defined(LISP_ANSIC_WINDOWS)
 static int length_char_windows(filestream fm, unicode c)
 {
 	char output[8];

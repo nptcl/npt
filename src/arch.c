@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "arch.h"
 #include "build.h"
 #include "c99.h"
@@ -118,57 +119,6 @@ int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
 }
 #endif
 
-/* ANSI-C fread */
-int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
-{
-	size_t check;
-
-	check = fread(pos, 1, size, file);
-	if (ferror(file)) {
-		*ret = 0;
-		return -1;
-	}
-	if (check == 0 && feof(file)) {
-		*ret = 0;
-		return 1;
-	}
-	*ret = check;
-
-	return 0;
-}
-
-int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
-{
-	int check;
-	size_t count, rsize, diff;
-	unsigned char *pos;
-
-	pos = (unsigned char *)ptr;
-	for (count = 0; count < size; count += rsize) {
-		diff = size - count;
-		check = read_clang(file, (void *)pos, diff, &rsize);
-		/* Error */
-		if (check < 0) {
-			Debug("read_clang error");
-			*ret = 0;
-			return check;
-		}
-		/* EOF */
-		if (check) {
-			if (count == 0) {
-				*ret = 0;
-				return check;
-			}
-			break;
-		}
-		/* Next */
-		pos += rsize;
-	}
-	*ret = count;
-
-	return 0;
-}
-
 
 /*
  *  safe
@@ -199,4 +149,80 @@ int plussafe_size(size_t a, size_t b, size_t *result)
 
 	return 0;
 }
+
+
+/*
+ *  arch
+ */
+#ifdef LISP_TERME_WINDOWS
+#include "windows_arch.h"
+void exit_arch(int code)
+{
+	exit_windows(code);
+}
+
+void stderr_arch(const char *msg)
+{
+	stderr_windows(msg);
+}
+
+#else
+
+void exit_arch(int code)
+{
+	exit(1);
+}
+
+void stderr_arch(const char *msg)
+{
+	(void)fprintf(stderr, "%s", msg);
+}
+#endif
+
+#if defined(LISP_TERME_WINDOWS)
+#include "windows_arch.h"
+
+int getwidth_arch(unsigned *rx, unsigned *ry)
+{
+	unsigned x, y;
+
+	if (getwidth_windows(&x, &y))
+		return 1;
+	if (rx)
+		*rx = x;
+	if (ry)
+		*ry = y;
+
+	return 0;
+}
+
+#elif defined(LISP_POSIX)
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+int getwidth_arch(unsigned *rx, unsigned *ry)
+{
+	struct winsize ws;
+
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
+		return 1;
+	if (rx)
+		*rx = (unsigned)ws.ws_col;
+	if (ry)
+		*ry = (unsigned)ws.ws_row;
+
+	return 0;
+}
+
+#else
+int getwidth_arch(unsigned *rx, unsigned *ry)
+{
+	if (rx)
+		*rx = 0;
+	if (ry)
+		*ry = 0;
+
+	return 1;
+}
+#endif
 

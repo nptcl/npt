@@ -15,7 +15,7 @@
 #include "strtype.h"
 #include "typedef.h"
 
-#ifdef LISP_ANSI_WINDOWS
+#ifdef LISP_ANSIC_WINDOWS
 #define UTF_buffer_clang UTF16LE_buffer_clang
 #define fopen_input(x) _wfopen(x, L"rb")
 #define fopen_output(x) _wfopen(x, L"wb")

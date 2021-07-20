@@ -1,7 +1,8 @@
+#include "arch.h"
 #include "terme_arch.h"
 #include "typedef.h"
 
-#ifdef LISP_TERME_UNIX
+#if defined(LISP_TERME_UNIX)
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,26 +13,23 @@
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
+#elif defined(LISP_TERME_WINDOWS)
+#include "windows_terme.h"
 #endif
 
 static unsigned terme_arch_x;
 static unsigned terme_arch_y;
+static int terme_arch_textmode_p;
 
 /*
  *  terme-init
  */
-#ifdef LISP_TERME_UNIX
+#if defined(LISP_TERME_UNIX)
 static void terme_init_handler(int sig)
 {
-	struct winsize ws;
-
-	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1) {
+	if (getwidth_arch(&terme_arch_x, &terme_arch_y)) {
 		terme_arch_x = 0;
 		terme_arch_y = 0;
-	}
-	else {
-		terme_arch_x = (unsigned)ws.ws_col;
-		terme_arch_y = (unsigned)ws.ws_row;
 	}
 }
 
@@ -47,14 +45,16 @@ int terme_arch_init(void)
 
 	return 0;
 }
-
+#elif defined(LISP_TERME_WINDOWS)
+int terme_arch_init(void)
+{
+	return terme_windows_init();
+}
 #else
-
 int terme_arch_init(void)
 {
 	terme_arch_x = 0;
 	terme_arch_y = 0;
-
 	return 0;
 }
 #endif
@@ -63,26 +63,21 @@ int terme_arch_init(void)
 /*
  *  window size
  */
-#ifdef LISP_TERME_UNIX
+#if defined(LISP_TERME_UNIX)
 int terme_arch_size_update(void)
 {
-	struct winsize ws;
-
-	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
-		return 1;
-	terme_arch_x = (unsigned)ws.ws_col;
-	terme_arch_y = (unsigned)ws.ws_row;
-
-	return 0;
+	return getwidth_arch(&terme_arch_x, &terme_arch_y);
 }
-
+#elif defined(LISP_TERME_WINDOWS)
+int terme_arch_size_update(void)
+{
+	return getwidth_arch(&terme_arch_x, &terme_arch_y);
+}
 #else
-
 int terme_arch_size_update(void)
 {
 	terme_arch_x = 0;
 	terme_arch_y = 0;
-
 	return 0;
 }
 #endif
@@ -99,10 +94,9 @@ void terme_arch_size_get(unsigned *ret_x, unsigned *ret_y)
 /*
  *  terme-begin
  */
-#ifdef LISP_TERME_UNIX
+#if defined(LISP_TERME_UNIX)
 static struct termios terme_arch_textmode_v;
 static struct termios terme_arch_switch_v;
-static int terme_arch_textmode_p;
 
 static int terme_arch_get(struct termios *ret)
 {
@@ -159,10 +153,22 @@ int terme_arch_end(void)
 	return terme_arch_set(&terme_arch_textmode_v);
 }
 
-#else
-
+#elif defined(LISP_TERME_WINDOWS)
 int terme_arch_begin(void)
 {
+	terme_arch_textmode_p = 1;
+	return terme_windows_begin();
+}
+
+int terme_arch_end(void)
+{
+	return terme_windows_end();
+}
+
+#else
+int terme_arch_begin(void)
+{
+	terme_arch_textmode_p = 1;
 	return 0;
 }
 
@@ -176,7 +182,7 @@ int terme_arch_end(void)
 /*
  *  terme-switch
  */
-#ifdef LISP_TERME_UNIX
+#if defined(LISP_TERME_UNIX)
 int terme_arch_textmode(int *ret)
 {
 	if (terme_arch_textmode_p) {
@@ -214,10 +220,47 @@ int terme_arch_rawmode(int *ret)
 	return 0;
 }
 
-#else
-
+#elif defined(LISP_TERME_WINDOWS)
 int terme_arch_textmode(int *ret)
 {
+	if (terme_arch_textmode_p) {
+		if (ret)
+			*ret = 0;
+		return 0;
+	}
+	if (terme_windows_textmode()) {
+		if (ret)
+			*ret = 0;
+		return 1;
+	}
+	if (ret)
+		*ret = 1;
+	terme_arch_textmode_p = 1;
+	return 0;
+}
+
+int terme_arch_rawmode(int *ret)
+{
+	if (! terme_arch_textmode_p) {
+		if (ret)
+			*ret = 0;
+		return 0;
+	}
+	if (terme_windows_rawmode()) {
+		if (ret)
+			*ret = 0;
+		return 1;
+	}
+	if (ret)
+		*ret = 1;
+	terme_arch_textmode_p = 0;
+	return 0;
+}
+
+#else
+int terme_arch_textmode(int *ret)
+{
+	terme_arch_textmode_p = 1;
 	if (ret)
 		*ret = 0;
 	return 0;
@@ -225,6 +268,7 @@ int terme_arch_textmode(int *ret)
 
 int terme_arch_rawmode(int *ret)
 {
+	terme_arch_textmode_p = 0;
 	if (ret)
 		*ret = 0;
 	return 0;
@@ -235,7 +279,7 @@ int terme_arch_rawmode(int *ret)
 /*
  *  input / output
  */
-#ifdef LISP_TERME_UNIX
+#if defined(LISP_TERME_UNIX)
 int terme_arch_select(int *ret)
 {
 	int fd, reti;
@@ -300,8 +344,28 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 	return 0;
 }
 
-#else
+#elif defined(LISP_TERME_WINDOWS)
+int terme_arch_select(int *ret)
+{
+	return terme_windows_select(ret);
+}
 
+int terme_arch_wait(void)
+{
+	return terme_windows_wait();
+}
+
+int terme_arch_read(void *data, size_t size, size_t *ret)
+{
+	return terme_windows_read(data, size, ret);
+}
+
+int terme_arch_write(const void *data, size_t size, size_t *ret)
+{
+	return terme_windows_write(data, size, ret);
+}
+
+#else
 int terme_arch_select(int *ret)
 {
 	*ret = 0;

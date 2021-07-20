@@ -1896,7 +1896,7 @@ lisp-rt::equalrt
 (lisp-system::*prompt-value* :constant system :name prompt-value)
 (lisp-system::*prompt-bright* :constant system :name prompt-bright :export t)
 (lisp-system::*prompt-color* :constant system :name prompt-color :export t)
-(lisp-system::*terme* :constant system :name terme)
+(lisp-system::*terme* :constant system :name special-terme)
 
 
 ;;
@@ -2009,6 +2009,7 @@ lisp-system::subtypep-normal
  lisp-system::intern-eql-specializer
 
 ;; syscall_function.c
+(lisp-system::abort :export t)
 (lisp-system::hello :export t)
 (lisp-system::infobit :export t)
 (lisp-system::infoprint :export t)
@@ -2064,6 +2065,7 @@ lisp-system::subtypep-normal
 (lisp-system::byte-integer :export t)
 (lisp-system::question :export t)
 (lisp-system::extension :export t)
+(lisp-system::terme :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

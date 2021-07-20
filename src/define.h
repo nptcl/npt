@@ -130,7 +130,7 @@
 #undef LISP_ANSIC
 #undef LISP_LINUX
 #undef LISP_WINDOWS
-#undef LISP_ANSI_WINDOWS
+#undef LISP_ANSIC_WINDOWS
 #ifdef LISP_THREAD
 #define LISP_THREAD_FREEBSD
 #endif
@@ -142,7 +142,7 @@
 #undef LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_WINDOWS
-#undef LISP_ANSI_WINDOWS
+#undef LISP_ANSIC_WINDOWS
 #ifdef LISP_THREAD
 #define LISP_THREAD_LINUX
 #endif
@@ -154,7 +154,7 @@
 #undef LISP_FREEBSD
 #undef LISP_LINUX
 #undef LISP_POSIX
-#undef LISP_ANSI_WINDOWS
+#undef LISP_ANSIC_WINDOWS
 #ifdef LISP_THREAD
 #define LISP_THREAD_WINDOWS
 #endif
@@ -167,20 +167,20 @@
 #undef LISP_LINUX
 #undef LISP_POSIX
 #undef LISP_WINDOWS
-#undef LISP_ANSI_WINDOWS
+#undef LISP_ANSIC_WINDOWS
 #ifdef LISP_THREAD
 #error Arch error
 #endif
 #define LISP_THREAD_REMOVE
 #endif
 
-#if defined(LISP_ANSIC) && defined(LISP_ANSI_WINDOWS)
+#if defined(LISP_ANSIC) && defined(LISP_ANSIC_WINDOWS)
 #define LISP_MODE "ANSI-C [Windows]"
 #endif
 
 
 /* Windows */
-#if defined(LISP_WINDOWS) || defined(LISP_ANSI_WINDOWS)
+#if defined(LISP_WINDOWS) || defined(LISP_ANSIC_WINDOWS)
 #define LISP_WINDOWS_OR_ANSI
 #else
 #undef LISP_WINDOWS_OR_ANSI
@@ -508,6 +508,12 @@
 #undef LISP_TERME_UNIX
 #endif
 
+#ifdef LISP_WINDOWS
+#define LISP_TERME_WINDOWS
+#else
+#undef LISP_TERME_WINDOWS
+#endif
+
 /* bright / dark */
 #if defined(LISP_TERME_BRIGHT)
 #undef LISP_TERME_DARK
@@ -530,6 +536,17 @@
 #else
 #define LISP_TERME_COLOR
 #define LISP_TERME_COLOR2	"on"
+#endif
+#endif
+
+/* show-window [Windows] */
+#ifdef LISP_TERME_WINDOWS
+#if defined(LISP_TERME_DEFAULT_WINDOW)
+#undef LISP_TERME_HIDE_WINDOW
+#elif defined(LISP_TERME_HIDE_WINDOW)
+#undef LISP_TERME_DEFAULT_WINDOW
+#else
+#define LISP_TERME_DEFAULT_WINDOW
 #endif
 #endif
 

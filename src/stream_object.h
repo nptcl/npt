@@ -37,6 +37,7 @@
 #define read_memory_stream_p _n(read_memory_stream_p)
 #define write_memory_stream_p _n(write_memory_stream_p)
 #define memory_stream_p _n(memory_stream_p)
+#define terminal_stream_p _n(terminal_stream_p)
 #define extend_stream_p _n(extend_stream_p)
 #define extend_type_stream_p _n(extend_type_stream_p)
 
@@ -77,6 +78,7 @@ enum StreamType {
 	StreamType_MemoryInput,
 	StreamType_MemoryOutput,
 	StreamType_MemoryIO,
+	StreamType_Terminal,
 	StreamType_Size
 };
 
@@ -172,6 +174,7 @@ int io_memory_stream_p(addr stream);
 int read_memory_stream_p(addr stream);
 int write_memory_stream_p(addr stream);
 int memory_stream_p(addr stream);
+int terminal_stream_p(addr stream);
 int extend_stream_p(addr stream);
 int extend_type_stream_p(addr stream, int type);
 

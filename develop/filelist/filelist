@@ -115,7 +115,6 @@ condition.c
 cons_list.c
 cons_plist.c
 cons.c
-console.c
 constant.c
 control_callbind.c
 control_execute.c
@@ -388,6 +387,7 @@ terme_object.c
 terme_output.c
 terme_prompt.c
 terme_screen.c
+terme_values.c
 terme_write.c
 thread.c
 token.c
@@ -409,12 +409,4 @@ type_value.c
 type.c
 unicode.c
 variable.c
-
-ext/ext_code.c
-ext/ext_eval.c
-ext/ext_main.c
-ext/ext_package.c
-ext/ext_parse.c
-ext/ext_reader.c
-ext/ext_scope.c
 

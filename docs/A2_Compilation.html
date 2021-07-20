@@ -193,7 +193,7 @@ Lisp mode            ANSI-C
 </tr>
 <tr class="even">
 <td>ANSI-C</td>
-<td><code>LISP_ANSI</code> (default)</td>
+<td><code>LISP_ANSIC</code> (default)</td>
 <td>Reduced</td>
 </tr>
 </tbody>
@@ -239,14 +239,21 @@ In the debug mode, there are codes of checks everywhere and if the checks are vi
 <td><code>LISP_READLINE</code></td>
 </tr>
 <tr class="odd">
+<td>terme (experimental)</td>
+<td><code>LISP_TERME</code></td>
+</tr>
+<tr class="even">
 <td>C</td>
 <td>(default)</td>
 </tr>
 </tbody>
 </table>
 <p>The <code>C</code> in the table is simply a reading by the standard C library. This mode does not allow for history or cursor movement.</p>
+<p>terme is a module included in npt.<br />
+It is available for FreeBSD and Linux.<br />
+It is currently being tested, but we plan to make terme the default instead of editline/readline in the future.</p>
 <p>Here’s an example of a compilation.</p>
-<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_EDITLINE src/*.c -lm -ledit
+<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE src/*.c -lm -ledit
 $ ./a.out --version
 npt Version 1.0.2
 ...
@@ -266,7 +273,7 @@ If <code>LISP_MEMORY_MALLOC</code> is specified, <code>Debug Memory true</code> 
 The significance of this mode is to check if memory corruption occurs while developing in C language.</p>
 <h1 id="windows-ansi-c-mode">2.6 Windows ANSI-C mode</h1>
 <p>If you use ANSI-C mode on Windows, there is a problem that ANSI C language features are not enough to handle Unicode filenames.</p>
-<p>In such a case, use <code>LISP_ANSI_WINDOWS</code> mode instead of <code>LISP_ANSI</code>. This mode uses <code>_wfopen</code> instead of <code>fopen</code> to open files, so it can handle Unicode filenames without problems.</p>
+<p>In such a case, use <code>LISP_ANSIC_WINDOWS</code> mode instead of <code>LISP_ANSIC</code>. This mode uses <code>_wfopen</code> instead of <code>fopen</code> to open files, so it can handle Unicode filenames without problems.</p>
 <h1 id="the-main-function-of-windows">2.7 The main function of Windows</h1>
 <p>On Windows, you can choose whether the startup function is set to <code>main</code> (the standard C language) or <code>WinMain</code> (Win32API). <code>mpt</code> uses the <code>main</code> function usually, but you can change it by defining.</p>
 <table>

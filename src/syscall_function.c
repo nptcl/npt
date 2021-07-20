@@ -11,6 +11,30 @@
 #include "syscode_function.h"
 #include "symbol.h"
 
+/* (defun abort () ...) -> null */
+static int syscall_abort(Execute ptr)
+{
+	Abort("syscall-abort");
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static void defun_syscall_abort(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_ABORT, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_empty(pos, p_defun_syscall_abort);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeTable(&type, CompiledFunction);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun hello () ...) -> null */
 static int syscall_hello(Execute ptr)
 {
@@ -1621,11 +1645,33 @@ static void defun_extension(void)
 }
 
 
+/* (defun terme (object &rest args) ...) -> (values &rest t) */
+static int syscall_terme(Execute ptr, addr var, addr args)
+{
+	return terme_syscode_(ptr, var, args);
+}
+
+static void defun_terme(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_TERME, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_terme);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_question(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
 /*
  *  function
  */
 void init_syscall_function(void)
 {
+	SetPointerSysCall(defun, empty, abort);
 	SetPointerSysCall(defun, empty, hello);
 	SetPointerSysCall(defun, dynamic, infobit);
 	SetPointerSysCall(defun, dynamic, infoprint);
@@ -1679,10 +1725,12 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, dynamic, byte_integer);
 	SetPointerSysCall(defun, var1dynamic, question);
 	SetPointerSysCall(defun, var1, extension);
+	SetPointerSysCall(defun, var1dynamic, terme);
 }
 
 void build_syscall_function(void)
 {
+	defun_syscall_abort();
 	defun_hello();
 	defun_infobit();
 	defun_infoprint();
@@ -1737,5 +1785,6 @@ void build_syscall_function(void)
 	defun_byte_integer();
 	defun_question();
 	defun_extension();
+	defun_terme();
 }
 

@@ -33,6 +33,7 @@
 #include "subtypep_number.h"
 #include "symbol.h"
 #include "syscode_function.h"
+#include "terme_values.h"
 #include "type_object.h"
 #include "type_parse.h"
 #include "typedef.h"
@@ -787,5 +788,12 @@ int extension_syscode(Execute ptr, addr var)
 #else
 	return fmte_("The implementation is not supported.", NULL);
 #endif
+}
+
+
+/* terme */
+int terme_syscode_(Execute ptr, addr var, addr args)
+{
+	return terme_values_(ptr, var, args);
 }
 

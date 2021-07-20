@@ -52,7 +52,7 @@ void build_terme(void)
 	terme_set(root, terme_root_history, value);
 
 	/* special */
-	GetConst(SYSTEM_TERME, &symbol);
+	GetConst(SYSTEM_SPECIAL_TERME, &symbol);
 	SetValueSymbol(symbol, root);
 }
 

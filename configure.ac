@@ -93,16 +93,16 @@ AS_CASE([$host_os],
   [*WIN*],   [lisp_windows=yes],
   [*],       [lisp_freebsd=yes])
 
-AS_IF([test x$lisp_ansi = xyes],
-        AC_DEFINE([LISP_ANSI],         [1], [ANSI-C]),
+AS_IF([test x$lisp_ansic = xyes],
+        AC_DEFINE([LISP_ANSIC],         [1], [ANSI-C]),
       [test x$lisp_freebsd = xyes],
         AC_DEFINE([LISP_FREEBSD],      [1], [FreeBSD]),
       [test x$lisp_linux = xyes],
         AC_DEFINE([LISP_LINUX],        [1], [Linux]),
       [test x$lisp_windows = xyes],
         AC_DEFINE([LISP_WINDOWS],      [1], [Windows]),
-      [test x$lisp_ansi_windows = xyes],
-        AC_DEFINE([LISP_ANSI_WINDOWS], [1], [ANSI-C Windows]))
+      [test x$lisp_ansic_windows = xyes],
+        AC_DEFINE([LISP_ANSIC_WINDOWS], [1], [ANSI-C Windows]))
 
 AS_IF([test x$with_readline = xyes -a x$with_editline = xyes],
         AC_MSG_ERROR([The argument must be either] dnl
@@ -135,7 +135,7 @@ AS_IF([test x$enable_debug = xyes],
   AC_SUBST([lisp_optimize], [-O3]))
 
 ## thread-mode
-AS_IF([test x$lisp_ansi != xyes],
+AS_IF([test x$lisp_ansic != xyes],
   AC_DEFINE([LISP_THREAD], [1], [thread mode])
   [lisp_thread=yes])
 

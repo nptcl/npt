@@ -2,6 +2,14 @@
 #include "main_argv.h"
 #include "main_init.h"
 
+#ifdef LISP_TERME_WINDOWS
+#include "windows_main.h"
+
+static int main_execute(struct lispargv *ptr)
+{
+	return windows_main(ptr);
+}
+#else
 static int main_execute(struct lispargv *ptr)
 {
 	if (ptr->mode_help)
@@ -15,6 +23,7 @@ static int main_execute(struct lispargv *ptr)
 
 	return lisp_code? 1: lisp_result;
 }
+#endif
 
 #ifdef LISP_WINMAIN
 #include <Windows.h>

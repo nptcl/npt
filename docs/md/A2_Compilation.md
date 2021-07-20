@@ -35,7 +35,7 @@ The available environments are as follows
 | FreeBSD | `LISP_FREEBSD` | All available |
 | Linux | `LISP_LINUX` | All available |
 | Windows | `LISP_WINDOWS` | All available |
-| ANSI-C | `LISP_ANSI` (default) | Reduced |
+| ANSI-C | `LISP_ANSIC` (default) | Reduced |
 
 When compiling with FreeBSD environment, run the following
 
@@ -90,15 +90,21 @@ The values of `#define` are as follows.
 | --- | --- |
 | editline | `LISP_EDITLINE` |
 | readline | `LISP_READLINE` |
+| terme (experimental) | `LISP_TERME` |
 | C | (default) |
 
 The `C` in the table is simply a reading by the standard C library.
 This mode does not allow for history or cursor movement.
 
+terme is a module included in npt.  
+It is available for FreeBSD and Linux.  
+It is currently being tested, but we plan to make terme 
+the default instead of editline/readline in the future.
+
 Here's an example of a compilation.
 
 ```
-$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_EDITLINE src/*.c -lm -ledit
+$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE src/*.c -lm -ledit
 $ ./a.out --version
 npt Version 1.0.2
 ...
@@ -146,7 +152,7 @@ If you use ANSI-C mode on Windows,
 there is a problem that ANSI C language features are
 not enough to handle Unicode filenames.
 
-In such a case, use `LISP_ANSI_WINDOWS` mode instead of `LISP_ANSI`.
+In such a case, use `LISP_ANSIC_WINDOWS` mode instead of `LISP_ANSIC`.
 This mode uses `_wfopen` instead of `fopen` to open files,
 so it can handle Unicode filenames without problems.
 

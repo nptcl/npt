@@ -1,10 +1,10 @@
+#include "arch.h"
 #include "bignum.h"
 #include "bignum_object.h"
 #include "character.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
-#include "console.h"
 #include "encode.h"
 #include "execute.h"
 #include "file.h"
@@ -1219,7 +1219,11 @@ int exitpoint_file_(addr stream)
 
 int termsize_file_(addr stream, size_t *value, int *ret)
 {
-	*ret = getwidth_console(value);
+	unsigned width;
+
+	*ret = getwidth_arch(&width, NULL);
+	*value = (size_t)width;
+
 	return 0;
 }
 

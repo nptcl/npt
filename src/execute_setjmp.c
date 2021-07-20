@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "arch.h"
 #include "define.h"
 #include "execute_setjmp.h"
 #include "terme.h"
@@ -16,7 +15,7 @@ jmp_buf Lisp_degrade_setjmp;
  */
 static void abort_shutdown(void)
 {
-	exit(1); /* or abort(); */
+	exit_arch(1);
 }
 
 void abort_execute(void)
@@ -29,10 +28,10 @@ void abort_execute(void)
 	/* default */
 	(void)text_color_terme(NULL, print_color_bright_red);
 	(void)end_terme();
-	(void)fprintf(stderr, "\n\n");
-	(void)fprintf(stderr, "**************\n");
-	(void)fprintf(stderr, "  LISP ABORT  \n");
-	(void)fprintf(stderr, "**************\n");
+	stderr_arch("\n\n");
+	stderr_arch("**************\n");
+	stderr_arch("  LISP ABORT  \n");
+	stderr_arch("**************\n");
 	(void)text_color_terme(NULL, print_color_reset);
 	abort_shutdown();
 }
