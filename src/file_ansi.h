@@ -41,19 +41,22 @@ int consolep_file(void)
 	return 0;
 }
 
-static inline void standard_input_arch(file_type *file)
+static inline int standard_input_arch(file_type *file)
 {
 	*file = stdin;
+	return 0;
 }
 
-static inline void standard_output_arch(file_type *file)
+static inline int standard_output_arch(file_type *file)
 {
 	*file = stdout;
+	return 0;
 }
 
-static inline void standard_error_arch(file_type *file)
+static inline int standard_error_arch(file_type *file)
 {
 	*file = stderr;
+	return 0;
 }
 
 static inline int filename_encode_(LocalRoot local, addr name, const char **const ret)

@@ -243,6 +243,7 @@ static const char *infochar_decl(enum LISPDECL decl)
 		case LISPDECL_PROMPT_STREAM:		return "prompt-stream";
 		case LISPDECL_PRETTY_STREAM:		return "pretty-stream";
 		case LISPDECL_MEMORY_STREAM:		return "memory-stream";
+		case LISPDECL_TERMINAL_STREAM:		return "terminal-stream";
 		default:							return "invalid";
 	}
 }
@@ -1087,6 +1088,7 @@ static void infoprint_streamtype(addr pos)
 		case StreamType_MemoryInput: info_stdarg("MEMORY-INPUT"); break;
 		case StreamType_MemoryOutput: info_stdarg("MEMORY-OUTPUT"); break;
 		case StreamType_MemoryIO: info_stdarg("MEMORY-IO"); break;
+		case StreamType_Terminal: info_stdarg("TERMINAL"); break;
 		default: info_stdarg("ERROR"); break;
 	}
 	info_stdarg(">");

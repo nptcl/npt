@@ -255,7 +255,10 @@ int load_core(const unicode *name, size_t size)
 	}
 
 	/* stream */
-	update_standard_stream();
+	if (update_standard_stream()) {
+		Debug("update_standard_stream error.");
+		return 1;
+	}
 
 	/* close file */
 	if (close_filememory(&fm)) {

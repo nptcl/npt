@@ -39,6 +39,78 @@ int nop_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+#ifdef LISP_DEBUG
+int begin_code(Execute ptr, CodeValue x)
+{
+	addr ignore, pos;
+
+	push_control(ptr, &ignore);
+	index_heap(&pos, x.index);
+	pushdebug_control(ptr, pos);
+
+	return 0;
+}
+int end_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+	size_t check;
+
+	if (getdebug_control(ptr, &pos))
+		return fmte_("end-code error, getdebug.", NULL);
+	if (! indexp(pos))
+		return fmte_("end-code error, object ~S.", pos, NULL);
+	GetIndex(pos, &check);
+	if (check != x.index)
+		return fmte_("end-code error, check ~S.", pos, NULL);
+
+	return pop_control_(ptr, ptr->control);
+}
+#else
+int begin_code(Execute ptr, CodeValue x)
+{
+	addr ignore;
+	push_control(ptr, &ignore);
+	return 0;
+}
+int end_code(Execute ptr, CodeValue x)
+{
+	return pop_control_(ptr, ptr->control);
+}
+#endif
+
+int escape_code(Execute ptr, CodeValue x)
+{
+	if (ptr->throw_value != throw_normal)
+		return goto_control_(ptr, x.index);
+
+	return 0;
+}
+
+int escape_not_code(Execute ptr, CodeValue x)
+{
+	if (ptr->throw_value == throw_normal)
+		return goto_control_(ptr, x.index);
+
+	return 0;
+}
+
+int save_code(Execute ptr, CodeValue x)
+{
+	save_control(ptr);
+	return 0;
+}
+
+int restore_code(Execute ptr, CodeValue x)
+{
+	return restore_control_(ptr);
+}
+
+int normal_code(Execute ptr, CodeValue x)
+{
+	normal_throw_control(ptr);
+	return 0;
+}
+
 int execute_control_set_code(Execute ptr, CodeValue x)
 {
 	return runcode_control_(ptr, x.pos);

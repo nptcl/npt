@@ -161,6 +161,11 @@ void exit_arch(int code)
 	exit_windows(code);
 }
 
+void stdout_arch(const char *msg)
+{
+	stdout_windows(msg);
+}
+
 void stderr_arch(const char *msg)
 {
 	stderr_windows(msg);
@@ -171,6 +176,11 @@ void stderr_arch(const char *msg)
 void exit_arch(int code)
 {
 	exit(1);
+}
+
+void stdout_arch(const char *msg)
+{
+	(void)printf("%s", msg);
 }
 
 void stderr_arch(const char *msg)

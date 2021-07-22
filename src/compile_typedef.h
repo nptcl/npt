@@ -51,6 +51,14 @@ enum FaslCode {
 
 	/* code */
 	FaslCode_nop,
+	FaslCode_begin,
+	FaslCode_end,
+	FaslCode_escape,
+	FaslCode_escape_not,
+	FaslCode_save,
+	FaslCode_restore,
+	FaslCode_normal,
+
 	FaslCode_execute_control_set,
 	FaslCode_execute_control_push,
 	FaslCode_execute_control_save,
@@ -199,7 +207,7 @@ enum FaslCode {
 
 	/* end */
 	FaslCode_break = 0xFE,
-	FaslCode_end = 0xFF
+	FaslCode_eof = 0xFF
 };
 
 extern enum FaslCode CompileWrite[p_size_code];

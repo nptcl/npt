@@ -5,6 +5,14 @@
 #include "typedef.h"
 
 #define nop_code _n(nop_code)
+#define begin_code _n(begin_code)
+#define end_code _n(end_code)
+#define escape_code _n(escape_code)
+#define escape_not_code _n(escape_not_code)
+#define save_code _n(save_code)
+#define restore_code _n(restore_code)
+#define normal_code _n(normal_code)
+
 #define execute_control_set_code _n(execute_control_set_code)
 #define execute_control_push_code _n(execute_control_push_code)
 #define execute_control_save_code _n(execute_control_save_code)
@@ -91,6 +99,14 @@
 #define step_code _n(step_code)
 
 int nop_code(Execute ptr, CodeValue x);
+int begin_code(Execute ptr, CodeValue x);
+int end_code(Execute ptr, CodeValue x);
+int escape_code(Execute ptr, CodeValue x);
+int escape_not_code(Execute ptr, CodeValue x);
+int save_code(Execute ptr, CodeValue x);
+int restore_code(Execute ptr, CodeValue x);
+int normal_code(Execute ptr, CodeValue x);
+
 int execute_control_set_code(Execute ptr, CodeValue x);
 int execute_control_push_code(Execute ptr, CodeValue x);
 int execute_control_save_code(Execute ptr, CodeValue x);

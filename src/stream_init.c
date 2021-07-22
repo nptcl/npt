@@ -113,7 +113,8 @@ static void defvar_system_standard_input(void)
 {
 	addr stream, symbol;
 
-	make_standard_input(&stream);
+	if (make_standard_input(&stream))
+		Abort("make_standard_input error");
 	GetConst(SYSTEM_STANDARD_INPUT, &symbol);
 	SetValueSymbol(symbol, stream);
 	SetConst(STREAM_STDIN, stream);
@@ -123,7 +124,8 @@ static void defvar_system_standard_output(void)
 {
 	addr stream, symbol;
 
-	make_standard_output(&stream);
+	if (make_standard_output(&stream))
+		Abort("make_standard_output error");
 	GetConst(SYSTEM_STANDARD_OUTPUT, &symbol);
 	SetValueSymbol(symbol, stream);
 	SetConst(STREAM_STDOUT, stream);
@@ -133,7 +135,8 @@ static void defvar_system_standard_error(void)
 {
 	addr stream, symbol;
 
-	make_standard_error(&stream);
+	if (make_standard_error(&stream))
+		Abort("make_standard_error error");
 	GetConst(SYSTEM_STANDARD_ERROR, &symbol);
 	SetValueSymbol(symbol, stream);
 	SetConst(STREAM_STDERR, stream);

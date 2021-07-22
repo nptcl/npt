@@ -20,18 +20,21 @@
 /*
  *  Common Function
  */
-static void standard_constant_stream(addr *stream,
+static int standard_constant_stream(addr *stream,
 		enum StreamType type,
-		void (*call)(filestream))
+		int (*call)(filestream))
 {
 	addr pos;
 	filestream fm;
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
-	call(fm);
+	if ((*call)(fm))
+		return 1;
 	force_open_stream(pos);
 	*stream = pos;
+
+	return 0;
 }
 
 static void encode_standard_stream(addr pos)
@@ -46,43 +49,55 @@ static void encode_standard_stream(addr pos)
 	encode->error = 0;
 }
 
-void make_standard_input(addr *stream)
+int make_standard_input(addr *stream)
 {
-	standard_constant_stream(stream,
-			StreamType_BincharInput, standard_input_filememory);
+	if (standard_constant_stream(stream,
+				StreamType_BincharInput,
+				standard_input_filememory))
+		return 1;
 	encode_standard_stream(*stream);
+
+	return 0;
 }
 
-void make_standard_output(addr *stream)
+int make_standard_output(addr *stream)
 {
-	standard_constant_stream(stream,
-			StreamType_BincharOutput, standard_output_filememory);
+	if (standard_constant_stream(stream,
+				StreamType_BincharOutput,
+				standard_output_filememory))
+		return 1;
 	encode_standard_stream(*stream);
+
+	return 0;
 }
 
-void make_standard_error(addr *stream)
+int make_standard_error(addr *stream)
 {
-	standard_constant_stream(stream,
-			StreamType_BincharOutput, standard_error_filememory);
+	if (standard_constant_stream(stream,
+				StreamType_BincharOutput,
+				standard_error_filememory))
+		return 1;
 	encode_standard_stream(*stream);
+
+	return 0;
 }
 
-void update_standard_input(addr stream)
+int update_standard_input(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	update_standard_input_filememory(PtrFileMemory(stream));
+	return update_standard_input_filememory(PtrFileMemory(stream));
 }
 
-void update_standard_output(addr stream)
+int update_standard_output(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	update_standard_output_filememory(PtrFileMemory(stream));
+	return update_standard_output_filememory(PtrFileMemory(stream));
 }
 
-void update_standard_error(addr stream)
+int update_standard_error(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	update_standard_error_filememory(PtrFileMemory(stream));
+	return update_standard_error_filememory(PtrFileMemory(stream));
 }
 
 int script_header(addr stream)

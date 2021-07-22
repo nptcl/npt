@@ -28,7 +28,7 @@ void init_terme(void)
 	terme_output_init();
 }
 
-void build_terme(void)
+static void build_terme_object(void)
 {
 	addr symbol, root, value;
 
@@ -54,6 +54,12 @@ void build_terme(void)
 	/* special */
 	GetConst(SYSTEM_SPECIAL_TERME, &symbol);
 	SetValueSymbol(symbol, root);
+}
+
+void build_terme(void)
+{
+	build_terme_object();
+	terme_arch_build();
 }
 
 int begin_terme(void)

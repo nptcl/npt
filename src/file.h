@@ -66,12 +66,12 @@ int consolep_file(void);
 /*
  *  Common Function
  */
-void make_standard_input(addr *stream);
-void make_standard_output(addr *stream);
-void make_standard_error(addr *stream);
-void update_standard_input(addr stream);
-void update_standard_output(addr stream);
-void update_standard_error(addr stream);
+int make_standard_input(addr *stream);
+int make_standard_output(addr *stream);
+int make_standard_error(addr *stream);
+int update_standard_input(addr stream);
+int update_standard_output(addr stream);
+int update_standard_error(addr stream);
 int script_header(addr stream);
 
 

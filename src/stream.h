@@ -58,7 +58,7 @@ int redirect_unsigned8_stream_(Execute ptr, addr src, addr dst);
 int close_stream_unwind_protect_(Execute ptr, addr stream);
 
 /* core */
-void update_standard_stream(void);
+int update_standard_stream(void);
 int save_stream(addr pos);
 
 #endif

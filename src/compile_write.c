@@ -64,7 +64,7 @@ int faslwrite_footer_(addr stream)
 	char buffer[8];
 
 	Return(faslwrite_break_(stream));
-	Return(faslwrite_type_(stream, FaslCode_end));
+	Return(faslwrite_type_(stream, FaslCode_eof));
 	memset(buffer, 0x00, 8);
 	Return(faslwrite_buffer_(stream, buffer, 8));
 	memset(buffer, 0xFF, 8);

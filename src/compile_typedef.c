@@ -11,6 +11,14 @@ constindex CompileRead[FaslCode_size];
 static void init_compile_typedef_write(void)
 {
 	defwrite(nop);
+	defwrite(begin);
+	defwrite(end);
+	defwrite(escape);
+	defwrite(escape_not);
+	defwrite(save);
+	defwrite(restore);
+	defwrite(normal);
+
 	defwrite(execute_control_set);
 	defwrite(execute_control_push);
 	defwrite(execute_control_save);
@@ -158,6 +166,14 @@ static void init_compile_typedef_write(void)
 static void init_compile_typedef_read(void)
 {
 	defread(nop, NOP);
+	defread(begin, BEGIN);
+	defread(end, END);
+	defread(escape, ESCAPE);
+	defread(escape_not, ESCAPE_NOT);
+	defread(save, SAVE);
+	defread(restore, RESTORE);
+	defread(normal, NORMAL);
+
 	defread(execute_control_set, EXECUTE_CONTROL_SET);
 	defread(execute_control_push, EXECUTE_CONTROL_PUSH);
 	defread(execute_control_save, EXECUTE_CONTROL_SAVE);

@@ -48,6 +48,10 @@
 #define sethandler_control _n(sethandler_control)
 #define setrestart_control _n(setrestart_control)
 #define setprotect_control _n(setprotect_control)
+#define pushdebug_control _n(pushdebug_control)
+#define getdebug_control _n(getdebug_control)
+#define save_control _n(save_control)
+#define restore_control_ _n(restore_control_)
 
 #ifdef LISP_DEBUG_FORCE_GC
 extern size_t GcCounterForce;
@@ -219,6 +223,11 @@ void setcatch_control(LocalRoot local, addr pos, addr value);
 void sethandler_control(LocalRoot local, addr pos, addr value);
 void setrestart_control(LocalRoot local, addr pos, addr value);
 void setprotect_control(addr pos, addr value);
+
+void pushdebug_control(Execute ptr, addr pos);
+int getdebug_control(Execute ptr, addr *ret);
+void save_control(Execute ptr);
+int restore_control_(Execute ptr);
 
 #endif
 

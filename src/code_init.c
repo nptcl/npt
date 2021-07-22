@@ -35,6 +35,19 @@ void init_code_init(void)
 
 	/* system */
 	initcode(nop_code, Null);
+#ifdef LISP_DEBUG
+	initcode(begin_code, Index);
+	initcode(end_code, Index);
+#else
+	initcode(begin_code, Null);
+	initcode(end_code, Null);
+#endif
+	initcode(escape_code, Index);
+	initcode(escape_not_code, Index);
+	initcode(save_code, Null);
+	initcode(restore_code, Null);
+	initcode(normal_code, Null);
+
 	initcode(execute_control_set_code, Addr);
 	initcode(execute_control_push_code, Addr);
 	initcode(execute_control_save_code, Addr);
@@ -192,6 +205,14 @@ void build_code_init(void)
 {
 	/* system */
 	defcode(NOP, nop_code);
+	defcode(BEGIN, begin_code);
+	defcode(END, end_code);
+	defcode(ESCAPE, escape_code);
+	defcode(ESCAPE_NOT, escape_not_code);
+	defcode(SAVE, save_code);
+	defcode(RESTORE, restore_code);
+	defcode(NORMAL, normal_code);
+
 	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
 	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
 	defcode(EXECUTE_CONTROL_SAVE, execute_control_save_code);

@@ -277,6 +277,22 @@ int terme_arch_rawmode(int *ret)
 
 
 /*
+ *  terme-build
+ */
+#ifdef LISP_TERME_WINDOWS
+void terme_arch_build(void)
+{
+	terme_windows_build();
+}
+
+#else
+void terme_arch_build(void)
+{
+}
+#endif
+
+
+/*
  *  input / output
  */
 #if defined(LISP_TERME_UNIX)

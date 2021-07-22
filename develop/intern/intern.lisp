@@ -1418,6 +1418,7 @@ lisp-system::end
 lisp-system::prompt-stream
 lisp-system::pretty-stream
 lisp-system::memory-stream
+lisp-system::terminal-stream
 (lisp-system::*gchold* :name gchold :constant system)
 
 
@@ -1628,6 +1629,14 @@ lisp-system::step
 ;;  code
 ;;
 lisp-code::nop
+lisp-code::begin
+lisp-code::end
+lisp-code::escape
+lisp-code::escape-not
+lisp-code::save
+lisp-code::restore
+lisp-code::normal
+
 lisp-code::execute-control-set
 lisp-code::execute-control-push
 lisp-code::execute-control-save
@@ -1645,6 +1654,8 @@ lisp-code::lexical
 lisp-code::lexical-set
 lisp-code::lexical-push
 lisp-code::lexical-rem
+lisp-code::lexical-free
+lisp-code::special
 lisp-code::special-set
 lisp-code::special-push
 lisp-code::special-rem

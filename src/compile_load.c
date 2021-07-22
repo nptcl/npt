@@ -26,7 +26,7 @@ static int eval_compile_load_toplevel_(Execute ptr, addr stream, int *ret)
 			*ret = 0;
 			break;
 		}
-		if (type == FaslCode_end) {
+		if (type == FaslCode_eof) {
 			*ret = 1;
 			break;
 		}

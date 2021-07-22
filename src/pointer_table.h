@@ -13,6 +13,14 @@ enum pointer_index {
 #endif
 	/* code_function */
 	p_nop_code,
+	p_begin_code,
+	p_end_code,
+	p_escape_code,
+	p_escape_not_code,
+	p_save_code,
+	p_restore_code,
+	p_normal_code,
+
 	p_execute_control_set_code,
 	p_execute_control_push_code,
 	p_execute_control_save_code,

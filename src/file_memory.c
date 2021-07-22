@@ -87,50 +87,59 @@ int input_unicode_filememory(filestream fm, const unicode *name, size_t size)
 	return 0;
 }
 
-void update_standard_input_filememory(filestream fm)
+int update_standard_input_filememory(filestream fm)
 {
-	standard_input_arch(&(fm->file));
+	return standard_input_arch(&(fm->file));
 }
 
-void update_standard_output_filememory(filestream fm)
+int update_standard_output_filememory(filestream fm)
 {
-	standard_output_arch(&(fm->file));
+	return standard_output_arch(&(fm->file));
 }
 
-void update_standard_error_filememory(filestream fm)
+int update_standard_error_filememory(filestream fm)
 {
-	standard_error_arch(&(fm->file));
+	return standard_error_arch(&(fm->file));
 }
 
 /* normal function */
-void standard_input_filememory(filestream fm)
+int standard_input_filememory(filestream fm)
 {
 	file_type file;
 
-	standard_input_arch(&file);
+	if (standard_input_arch(&file))
+		return 1;
 	init_input_filememory(fm, file);
 	fm->system = filememory_stdin;
 	fm->cache = 0;
+
+	return 0;
 }
 
-void standard_output_filememory(filestream fm)
+int standard_output_filememory(filestream fm)
 {
 	file_type file;
 
-	standard_output_arch(&file);
+	if (standard_output_arch(&file))
+		return 1;
 	init_output_filememory(fm, file);
 	fm->system = filememory_stdout;
 	fm->cache = 0;
+
+	return 0;
 }
 
-void standard_error_filememory(filestream fm)
+int standard_error_filememory(filestream fm)
 {
 	file_type file;
 
-	standard_error_arch(&file);
+	if (standard_error_arch(&file))
+		return 1;
 	init_output_filememory(fm, file);
 	fm->system = filememory_stderr;
 	fm->cache = 0;
+
+	return 0;
 }
 
 int open_input_filememory_(LocalRoot local,

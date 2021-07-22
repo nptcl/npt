@@ -261,19 +261,24 @@ escape:
 /*
  *  core
  */
-void update_standard_stream(void)
+int update_standard_stream(void)
 {
 	addr pos;
 
 	/* stdin */
 	GetConst(STREAM_STDIN, &pos);
-	update_standard_input(pos);
+	if (update_standard_input(pos))
+		return 1;
 	/* stdout */
 	GetConst(STREAM_STDOUT, &pos);
-	update_standard_output(pos);
+	if (update_standard_output(pos))
+		return 1;
 	/* stderr */
 	GetConst(STREAM_STDERR, &pos);
-	update_standard_error(pos);
+	if (update_standard_error(pos))
+		return 1;
+	
+	return 0;
 }
 
 int save_stream(addr pos)

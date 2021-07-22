@@ -28,6 +28,8 @@
 }
 #define Return(x)               {if (x) return 1;}
 #define Result(x, y)            ((*(x) = (y)), 0)
+#define ResultIf(x, y)          ((x)? ((*(x) = (y)), 0): 0)
+#define Error(x)                {if (x) {Abort("return error.");}}
 
 #ifdef LISP_DEBUG
 #define Info(x)                 info(x)
@@ -35,14 +37,12 @@
 #define Debug2(x,y)             infoerror(__FILE__, __LINE__, __func__, x, y)
 #define Check(x,y)              {if (x) {Abort(y);}}
 #define Check2(x,y1,y2)         {if (x) {Abort((y),(z));}}
-#define Error(x)                {if (x) {Abort("return error.");}}
 #else
 #define Info(x)                 ;
 #define Debug(x)                ;
 #define Debug2(x,y)             ;
 #define Check(x,y)              ;
 #define Check2(x,y1,y2)         ;
-#define Error(x)                (void)(x)
 #endif
 
 #endif

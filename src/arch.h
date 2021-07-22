@@ -13,6 +13,7 @@
 #define plussafe_size _n(plussafe_size)
 
 #define exit_arch _n(exit_arch)
+#define stdout_arch _n(stdout_arch)
 #define stderr_arch _n(stderr_arch)
 #define getwidth_arch _n(getwidth_arch)
 
@@ -33,6 +34,7 @@ int plussafe_size(size_t a, size_t b, size_t *result);
 
 /* arch */
 void exit_arch(int code);
+void stdout_arch(const char *msg);
 void stderr_arch(const char *msg);
 int getwidth_arch(unsigned *rx, unsigned *ry);
 

@@ -67,12 +67,12 @@
 #define writesize_filememory _n(writesize_filememory)
 
 int input_unicode_filememory(filestream fm, const unicode *name, size_t size);
-void update_standard_input_filememory(filestream fm);
-void update_standard_output_filememory(filestream fm);
-void update_standard_error_filememory(filestream fm);
-void standard_input_filememory(filestream fm);
-void standard_output_filememory(filestream fm);
-void standard_error_filememory(filestream fm);
+int update_standard_input_filememory(filestream fm);
+int update_standard_output_filememory(filestream fm);
+int update_standard_error_filememory(filestream fm);
+int standard_input_filememory(filestream fm);
+int standard_output_filememory(filestream fm);
+int standard_error_filememory(filestream fm);
 int open_input_filememory_(LocalRoot local,
 		filestream fm, addr name, int *ret);
 int open_output_filememory_(LocalRoot local,

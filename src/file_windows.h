@@ -16,7 +16,9 @@
 #include "strtype.h"
 #include "typedef.h"
 
-static int consolep;
+static int fileio_input_console_p;
+static int fileio_output_console_p;
+static int fileio_error_console_p;
 static file_type fileio_input;
 static file_type fileio_output;
 static file_type fileio_error;
@@ -35,40 +37,56 @@ static int init_fileio(file_type *file, DWORD type)
 	return 0;
 }
 
-static void init_console(void)
+static inline int standard_input_arch(file_type *ret)
 {
-	BOOL check;
-	DWORD mode;
+	HANDLE file;
+	DWORD ignore;
 
-	/* input */
-	check = GetConsoleMode(fileio_input, &mode);
-	if (check == 0) {
-		/* redirect */
-		consolep = 0;
-		return;
-	}
+	if (init_fileio(&file, STD_INPUT_HANDLE))
+		return 1;
+	fileio_input_console_p = GetConsoleMode(file, &ignore);
+	fileio_input = file;
+	*ret = file;
 
-	/* output */
-	check = GetConsoleMode(fileio_output, &mode);
-	if (check == 0) {
-		/* redirect */
-		consolep = 0;
-		return;
-	}
+	return 0;
+}
 
-	/* console */
-	consolep = 1;
+static inline int standard_output_arch(file_type *ret)
+{
+	HANDLE file;
+	DWORD ignore;
+
+	if (init_fileio(&file, STD_OUTPUT_HANDLE))
+		return 1;
+	fileio_output_console_p = GetConsoleMode(file, &ignore);
+	fileio_output = file;
+	*ret = file;
+
+	return 0;
+}
+
+static inline int standard_error_arch(file_type *ret)
+{
+	HANDLE file;
+	DWORD ignore;
+
+	if (init_fileio(&file, STD_ERROR_HANDLE))
+		return 1;
+	fileio_error_console_p = GetConsoleMode(file, &ignore);
+	fileio_error = file;
+	*ret = file;
+
+	return 0;
 }
 
 int init_file(void)
 {
-	if (init_fileio(&fileio_input, STD_INPUT_HANDLE))
+	if (standard_input_arch(&fileio_input))
 		return 1;
-	if (init_fileio(&fileio_output, STD_OUTPUT_HANDLE))
+	if (standard_output_arch(&fileio_output))
 		return 1;
-	if (init_fileio(&fileio_error, STD_ERROR_HANDLE))
+	if (standard_error_arch(&fileio_error))
 		return 1;
-	init_console();
 
 	return 0;
 }
@@ -79,22 +97,9 @@ void free_file(void)
 
 int consolep_file(void)
 {
-	return consolep;
-}
-
-static inline void standard_input_arch(file_type *file)
-{
-	*file = fileio_input;
-}
-
-static inline void standard_output_arch(file_type *file)
-{
-	*file = fileio_output;
-}
-
-static inline void standard_error_arch(file_type *file)
-{
-	*file = fileio_error;
+	return fileio_input_console_p
+		|| fileio_output_console_p
+		|| fileio_error_console_p;
 }
 
 static inline int filename_encode_(LocalRoot local, addr name, LPCWSTR *ret)

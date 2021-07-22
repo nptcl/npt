@@ -1,5 +1,6 @@
 #include "callname.h"
 #include "clos_class.h"
+#include "condition.h"
 #include "cons_plist.h"
 #include "control_execute.h"
 #include "control_object.h"
@@ -563,5 +564,35 @@ void setrestart_control(LocalRoot local, addr pos, addr value)
 void setprotect_control(addr pos, addr value)
 {
 	SetControl(pos, Control_Protect, value);
+}
+
+void pushdebug_control(Execute ptr, addr pos)
+{
+	CheckType(pos, LISPTYPE_INDEX);
+	pushtable_control(ptr, CONSTANT_CODE_BEGIN, pos);
+}
+
+int getdebug_control(Execute ptr, addr *ret)
+{
+	return gettable_control(ptr->control, CONSTANT_CODE_BEGIN, ret);
+}
+
+void save_control(Execute ptr)
+{
+	addr pos;
+	save_execute_control(ptr, &pos);
+	pushtable_control(ptr, CONSTANT_CODE_SAVE, pos);
+}
+
+int restore_control_(Execute ptr)
+{
+	addr pos;
+
+	if (! gettable_control(ptr->control, CONSTANT_CODE_SAVE, &pos))
+		return fmte_("Invalid code, RESTORE.", NULL);
+	CheckType(pos, LISPSYSTEM_EXECUTE);
+	restore_execute_control(ptr, pos);
+
+	return 0;
 }
 

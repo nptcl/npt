@@ -321,6 +321,8 @@ static int code_queue_pop_goto_p(addr pos)
 	if (GetType(pos) != LISPTYPE_CONS)
 		return 0;
 	GetCar(pos, &pos);
+	CodeQueueGoto(pos, CODE_ESCAPE);
+	CodeQueueGoto(pos, CODE_ESCAPE_NOT);
 	CodeQueueGoto(pos, CODE_GOTO);
 	CodeQueueGoto(pos, CODE_IF_UNBOUND);
 	CodeQueueGoto(pos, CODE_IF_NIL);
