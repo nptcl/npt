@@ -12,16 +12,18 @@ static void init_compile_typedef_write(void)
 {
 	defwrite(nop);
 	defwrite(begin);
+	defwrite(begin_call);
 	defwrite(end);
 	defwrite(escape);
 	defwrite(escape_not);
 	defwrite(save);
 	defwrite(restore);
 	defwrite(normal);
+	defwrite(revert);
+	defwrite(revert_goto);
 
 	defwrite(execute_control_set);
 	defwrite(execute_control_push);
-	defwrite(execute_control_save);
 
 	defwrite(set);
 	defwrite(push);
@@ -99,7 +101,6 @@ static void init_compile_typedef_write(void)
 	defwrite(throw_operator);
 	defwrite(taginfo);
 	defwrite(blockinfo);
-	defwrite(unwind_protect);
 
 	defwrite(handler_bind);
 	defwrite(handler_case);
@@ -167,16 +168,18 @@ static void init_compile_typedef_read(void)
 {
 	defread(nop, NOP);
 	defread(begin, BEGIN);
+	defread(begin_call, BEGIN_CALL);
 	defread(end, END);
 	defread(escape, ESCAPE);
 	defread(escape_not, ESCAPE_NOT);
 	defread(save, SAVE);
 	defread(restore, RESTORE);
 	defread(normal, NORMAL);
+	defread(revert, REVERT);
+	defread(revert_goto, REVERT_GOTO);
 
 	defread(execute_control_set, EXECUTE_CONTROL_SET);
 	defread(execute_control_push, EXECUTE_CONTROL_PUSH);
-	defread(execute_control_save, EXECUTE_CONTROL_SAVE);
 
 	defread(set, SET);
 	defread(push, PUSH);
@@ -254,7 +257,6 @@ static void init_compile_typedef_read(void)
 	defread(throw_operator, THROW);
 	defread(taginfo, TAGINFO);
 	defread(blockinfo, BLOCKINFO);
-	defread(unwind_protect, UNWIND_PROTECT);
 
 	defread(handler_bind, HANDLER_BIND);
 	defread(handler_case, HANDLER_CASE);

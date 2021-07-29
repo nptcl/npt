@@ -10,6 +10,7 @@
 #include "build.h"
 #include "stream_broadcast.h"
 #include "symbol.h"
+#include "terme.h"
 #include "typedef.h"
 
 void degrade_execute(void);
@@ -158,7 +159,7 @@ static void degrade_execute_call(void)
 		DegradeError++;
 }
 
-int degradelisp(void)
+static int degradelisp_call(void)
 {
 	file = stdout;
 	DegradeCount = 0;
@@ -182,6 +183,25 @@ int degradelisp(void)
 		degrade_printf("OK.\n");
 		return 0;
 	}
+}
+
+int degradelisp(void)
+{
+	int check;
+
+	/* terminal */
+	if (begin_terme()) {
+		degrade_printf("terminal error.\n");
+		return 1;
+	}
+
+	/* runcode */
+	check = degradelisp_call();
+
+	/* terminal */
+	(void)end_terme();
+
+	return check;
 }
 
 #else

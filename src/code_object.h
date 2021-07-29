@@ -22,8 +22,6 @@ struct code_value {
 };
 
 struct code_struct {
-	unsigned p_control : 1;
-	unsigned p_args : 1;
 	struct code_value *sys;
 	size_t size;
 };

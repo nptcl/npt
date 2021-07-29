@@ -13,8 +13,6 @@
  */
 struct code_stack {
 	unsigned finish : 1;
-	unsigned p_control : 1;
-	unsigned p_args : 1;
 	LocalStack stack;
 	size_t size;
 };
@@ -287,26 +285,9 @@ static struct code_stack *code_queue_push_struct(CodeMake ptr)
 	return StructCodeStack(one);
 }
 
-void code_queue_push_simple(CodeMake ptr)
+void code_queue_push_code(CodeMake ptr)
 {
 	(void)code_queue_push_struct(ptr);
-}
-
-void code_queue_push_new(CodeMake ptr)
-{
-	struct code_stack *str;
-
-	str = code_queue_push_struct(ptr);
-	str->p_control = 1;
-}
-
-void code_queue_push_args(CodeMake ptr)
-{
-	struct code_stack *str;
-
-	str = code_queue_push_struct(ptr);
-	str->p_control = 1;
-	str->p_args = 1;
 }
 
 #define CodeQueueGoto(pos, x) { \
@@ -323,6 +304,7 @@ static int code_queue_pop_goto_p(addr pos)
 	GetCar(pos, &pos);
 	CodeQueueGoto(pos, CODE_ESCAPE);
 	CodeQueueGoto(pos, CODE_ESCAPE_NOT);
+	CodeQueueGoto(pos, CODE_REVERT_GOTO);
 	CodeQueueGoto(pos, CODE_GOTO);
 	CodeQueueGoto(pos, CODE_IF_UNBOUND);
 	CodeQueueGoto(pos, CODE_IF_NIL);
@@ -518,21 +500,15 @@ static void code_queue_pop_make(LocalRoot local, addr cons, addr *ret)
 static void code_queue_pop_code(LocalRoot local, addr stack, addr *ret)
 {
 	addr pos;
-	struct code_stack str;
-	struct code_struct *code;
 
 	/* free stack */
-	str = *(StructCodeStack(stack));
-	Check(! str.finish, "finish error");
+	Check(StructCodeStack(stack)->finish == 0, "finish error");
 	GetCodeStack(stack, CodeStack_Result, &pos);
 	code_queue_pop_make(local, pos, &pos);
 	free_code_stack(local, stack);
 
 	/* make code */
 	code_heap(&pos, pos);
-	code = StructCode(pos);
-	code->p_control = str.p_control;
-	code->p_args = str.p_args;
 	*ret = pos;
 }
 
@@ -679,5 +655,93 @@ void code_queue_goto(CodeMake ptr, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
 	CodeQueue_cons(ptr, GOTO, label);
+}
+
+
+/*
+ *  begin / end
+ */
+void code_escape_clear(CodeMake ptr)
+{
+	ptr->escape = 0;
+}
+
+void code_escape_wake(CodeMake ptr)
+{
+	ptr->escape = 1;
+}
+
+int code_escape_get(CodeMake ptr)
+{
+	return ptr->escape;
+}
+
+void code_make_begin(CodeMake ptr, fixnum *ret)
+{
+#ifdef LISP_DEBUG
+	static fixnum value = 0;
+	addr pos;
+
+	fixnum_heap(&pos, value);
+	CodeQueue_cons(ptr, BEGIN, pos);
+	*ret = value;
+	value++;
+#else
+	CodeQueue_single(ptr, BEGIN);
+	*ret = 0;
+#endif
+}
+
+void code_make_begin_call(CodeMake ptr, fixnum *ret)
+{
+#ifdef LISP_DEBUG
+	static fixnum value = 0;
+	addr pos;
+
+	fixnum_heap(&pos, value);
+	CodeQueue_cons(ptr, BEGIN_CALL, pos);
+	*ret = value;
+	value++;
+#else
+	CodeQueue_single(ptr, BEGIN_CALL);
+	*ret = 0;
+#endif
+}
+
+void code_make_end(CodeMake ptr, fixnum value)
+{
+#ifdef LISP_DEBUG
+	addr pos;
+	fixnum_heap(&pos, value);
+	CodeQueue_cons(ptr, END, pos);
+#else
+	CodeQueue_single(ptr, END);
+#endif
+}
+
+void code_jump_escape(CodeMake ptr, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(ptr, ESCAPE, label);
+}
+
+void code_jump_escape_not(CodeMake ptr, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(ptr, ESCAPE_NOT, label);
+}
+
+void code_jump_escape_wake(CodeMake ptr, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(ptr, ESCAPE, label);
+	code_escape_wake(ptr);
+}
+
+void code_jump_escape_not_wake(CodeMake ptr, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(ptr, ESCAPE_NOT, label);
+	code_escape_wake(ptr);
 }
 

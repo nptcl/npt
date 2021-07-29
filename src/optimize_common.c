@@ -56,7 +56,7 @@ static int optcode_result_type_code(Execute ptr, CodeValue x)
 
 
 /*
- *  car
+ *  car0
  */
 static int optcode_car0_set_code(Execute ptr, CodeValue x)
 {
@@ -80,6 +80,51 @@ static int optcode_car0_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+static int optimize_common_carcdr0_const_(CodeMake ptr,
+		addr pos, int *ret, constindex index)
+{
+	addr escape;
+
+	/* expr */
+	code_queue_make_label(ptr, &escape);
+	Return(code_make_execute_set_(ptr, pos));
+	code_jump_escape_wake(ptr, escape);
+	/* operator */
+	code_queue_single(ptr, index);
+	code_queue_push_label(ptr, escape);
+
+	return Result(ret, 1);
+}
+
+static int optimize_common_carcdr0_rem_(CodeMake ptr, addr pos, int *ret)
+{
+	Return(code_make_execute_rem_(ptr, pos));
+	return Result(ret, 1);
+}
+
+static int optimize_common_car0_(CodeMake ptr, addr pos, int *ret)
+{
+	/* no check */
+	getvalue_tablecall(pos, &pos);
+	switch (code_queue_mode(ptr)) {
+		case CodeQueue_ModeSet:
+			return optimize_common_carcdr0_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CAR0_SET);
+
+		case CodeQueue_ModePush:
+			return optimize_common_carcdr0_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CAR0_PUSH);
+
+		case CodeQueue_ModeRemove:
+		default:
+			return optimize_common_carcdr0_rem_(ptr, pos, ret);
+	}
+}
+
+
+/*
+ *  car1
+ */
 static int optcode_car1_set_code(Execute ptr, CodeValue x)
 {
 	int check;
@@ -110,56 +155,47 @@ static int optcode_car1_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optimize_common_car0_(CodeMake ptr, addr pos, int *ret)
+static int optimize_common_car1_const_(CodeMake ptr,
+		addr pos, int *ret, constindex index)
 {
-	/* no check */
+	addr type, escape;
+
+	gettype_tablecall(pos, &type);
 	getvalue_tablecall(pos, &pos);
-	switch (code_queue_mode(ptr)) {
-		case CodeQueue_ModeSet:
-			Return(code_make_execute_set_(ptr, pos));
-			CodeQueue_single(ptr, OPTCODE_CAR0_SET);
-			break;
-
-		case CodeQueue_ModePush:
-			Return(code_make_execute_set_(ptr, pos)); /* set */
-			CodeQueue_single(ptr, OPTCODE_CAR0_PUSH);
-			break;
-
-		case CodeQueue_ModeRemove:
-		default:
-			Return(code_make_execute_rem_(ptr, pos));
-			break;
-	}
+	/* expr */
+	code_queue_make_label(ptr, &escape);
+	Return(code_make_execute_set_(ptr, pos));
+	code_jump_escape_wake(ptr, escape);
+	/* operator */
+	code_queue_cons(ptr, index, type);
+	code_queue_push_label(ptr, escape);
 
 	return Result(ret, 1);
 }
 
 static int optimize_common_car1_(CodeMake ptr, addr pos, int *ret)
 {
-	addr type;
-
 	/* type check */
-	gettype_tablecall(pos, &type);
-	getvalue_tablecall(pos, &pos);
-	Return(code_make_execute_set_(ptr, pos));
 	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(ptr, OPTCODE_CAR1_SET, type);
-			break;
+			return optimize_common_car1_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CAR1_SET);
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(ptr, OPTCODE_CAR1_PUSH, type);
-			break;
+			return optimize_common_car1_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CAR1_PUSH);
 
 		case CodeQueue_ModeRemove:
 		default:
-			CodeQueue_cons(ptr, OPTCODE_RESULT_TYPE, type);
-			break;
+			return optimize_common_car1_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_RESULT_TYPE);
 	}
-
-	return Result(ret, 1);
 }
 
+
+/*
+ *  car
+ */
 static int optimize_common_car_(CodeMake ptr, addr scope, int *ret)
 {
 	addr args, pos;
@@ -181,7 +217,7 @@ static int optimize_common_car_(CodeMake ptr, addr scope, int *ret)
 
 
 /*
- *  cdr
+ *  cdr0
  */
 static int optcode_cdr0_set_code(Execute ptr, CodeValue x)
 {
@@ -205,6 +241,29 @@ static int optcode_cdr0_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+static int optimize_common_cdr0_(CodeMake ptr, addr pos, int *ret)
+{
+	/* no check */
+	getvalue_tablecall(pos, &pos);
+	switch (code_queue_mode(ptr)) {
+		case CodeQueue_ModeSet:
+			return optimize_common_carcdr0_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CDR0_SET);
+
+		case CodeQueue_ModePush:
+			return optimize_common_carcdr0_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CDR0_PUSH);
+
+		case CodeQueue_ModeRemove:
+		default:
+			return optimize_common_carcdr0_rem_(ptr, pos, ret);
+	}
+}
+
+
+/*
+ *  cdr1
+ */
 static int optcode_cdr1_set_code(Execute ptr, CodeValue x)
 {
 	int check;
@@ -235,56 +294,29 @@ static int optcode_cdr1_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optimize_common_cdr0_(CodeMake ptr, addr pos, int *ret)
-{
-	/* no check */
-	getvalue_tablecall(pos, &pos);
-	switch (code_queue_mode(ptr)) {
-		case CodeQueue_ModeSet:
-			Return(code_make_execute_set_(ptr, pos));
-			CodeQueue_single(ptr, OPTCODE_CDR0_SET);
-			break;
-
-		case CodeQueue_ModePush:
-			Return(code_make_execute_set_(ptr, pos));
-			CodeQueue_single(ptr, OPTCODE_CDR0_PUSH);
-			break;
-
-		case CodeQueue_ModeRemove:
-		default:
-			Return(code_make_execute_rem_(ptr, pos));
-			break;
-	}
-
-	return Result(ret, 1);
-}
-
 static int optimize_common_cdr1_(CodeMake ptr, addr pos, int *ret)
 {
-	addr type;
-
 	/* type check */
-	gettype_tablecall(pos, &type);
-	getvalue_tablecall(pos, &pos);
-	Return(code_make_execute_set_(ptr, pos));
 	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(ptr, OPTCODE_CDR1_SET, type);
-			break;
+			return optimize_common_car1_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CDR1_SET);
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(ptr, OPTCODE_CDR1_PUSH, type);
-			break;
+			return optimize_common_car1_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_CDR1_PUSH);
 
 		case CodeQueue_ModeRemove:
 		default:
-			CodeQueue_cons(ptr, OPTCODE_RESULT_TYPE, type);
-			break;
+			return optimize_common_car1_const_(ptr, pos, ret,
+					CONSTANT_CODE_OPTCODE_RESULT_TYPE);
 	}
-
-	return Result(ret, 1);
 }
 
+
+/*
+ *  cdr
+ */
 static int optimize_common_cdr_(CodeMake ptr, addr scope, int *ret)
 {
 	addr args, pos;
@@ -323,29 +355,49 @@ static int optcode_cons_code(Execute ptr, CodeValue x)
 
 static int optimize_common_cons0_(CodeMake ptr, addr car, addr cdr, int *ret)
 {
-	addr pos;
+	addr escape, finish;
+	fixnum id;
 
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
-	/* return begin */
-	code_queue_push_new(ptr);
+
+	/* begin */
+	code_queue_make_label(ptr, &escape);
+	code_queue_make_label(ptr, &finish);
+	code_make_begin(ptr, &id);
+
+	/* arguments */
 	Return(code_make_execute_push_(ptr, car));
+	code_jump_escape_wake(ptr, escape);
 	Return(code_make_execute_push_(ptr, cdr));
+	code_jump_escape_wake(ptr, escape);
+
 	/* cons */
 	CodeQueue_single(ptr, OPTCODE_CONS);
-	/* return end */
-	code_queue_pop(ptr, &pos);
-	code_make_execute_control(ptr, pos);
+	code_make_end(ptr, id);
+	code_queue_ifpush(ptr);
+	code_queue_goto(ptr, finish);
+
+	/* end */
+	code_queue_push_label(ptr, escape);
+	code_make_end(ptr, id);
+	code_queue_push_label(ptr, finish);
 
 	return Result(ret, 1);
 }
 
 static int optimize_common_cons_rem_(CodeMake ptr, addr car, addr cdr, int *ret)
 {
+	addr escape;
+
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
+	/* arguments */
+	code_queue_make_label(ptr, &escape);
 	Return(code_make_execute_(ptr, car));
+	code_jump_escape_wake(ptr, escape);
 	Return(code_make_execute_(ptr, cdr));
+	code_queue_push_label(ptr, escape);
 
 	return Result(ret, 1);
 }

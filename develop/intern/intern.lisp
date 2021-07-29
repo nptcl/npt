@@ -1630,16 +1630,18 @@ lisp-system::step
 ;;
 lisp-code::nop
 lisp-code::begin
+lisp-code::begin-call
 lisp-code::end
 lisp-code::escape
 lisp-code::escape-not
 lisp-code::save
 lisp-code::restore
 lisp-code::normal
+lisp-code::revert
+lisp-code::revert-goto
 
 lisp-code::execute-control-set
 lisp-code::execute-control-push
-lisp-code::execute-control-save
 
 lisp-code::set
 lisp-code::push
@@ -1720,7 +1722,6 @@ lisp-code::throw
 lisp-code::tag
 lisp-code::taginfo
 lisp-code::blockinfo
-lisp-code::unwind-protect
 
 lisp-code::handler-bind
 lisp-code::handler-case

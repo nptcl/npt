@@ -14,16 +14,6 @@
 #define code_make_let_ _n(code_make_let_)
 #define code_make_leta_ _n(code_make_leta_)
 #define code_make_setq_ _n(code_make_setq_)
-#define code_make_function_ _n(code_make_function_)
-#define code_make_lambda_ _n(code_make_lambda_)
-#define code_make_defun_ _n(code_make_defun_)
-#define code_make_macro_lambda_ _n(code_make_macro_lambda_)
-#define code_make_defmacro_ _n(code_make_defmacro_)
-#define code_make_deftype_ _n(code_make_deftype_)
-#define code_make_define_compiler_macro_ _n(code_make_define_compiler_macro_)
-#define code_make_destructuring_bind_ _n(code_make_destructuring_bind_)
-#define code_make_flet_ _n(code_make_flet_)
-#define code_make_labels_ _n(code_make_labels_)
 #define code_make_values_ _n(code_make_values_)
 #define code_make_the_ _n(code_make_the_)
 #define code_make_eval_when_ _n(code_make_eval_when_)
@@ -44,6 +34,9 @@
 #define code_make_load_time_value_ _n(code_make_load_time_value_)
 #define code_make_step_ _n(code_make_step_)
 
+#define code_make_free_ _n(code_make_free_)
+#define code_make_type_value _n(code_make_type_value)
+
 int code_make_nil_(CodeMake ptr, addr ignore);
 int code_make_t_(CodeMake ptr, addr ignore);
 int code_make_value_(CodeMake ptr, addr scope);
@@ -54,16 +47,6 @@ int code_make_progn_(CodeMake ptr, addr scope);
 int code_make_let_(CodeMake ptr, addr scope);
 int code_make_leta_(CodeMake ptr, addr scope);
 int code_make_setq_(CodeMake ptr, addr scope);
-int code_make_function_(CodeMake ptr, addr scope);
-int code_make_lambda_(CodeMake ptr, addr scope);
-int code_make_defun_(CodeMake ptr, addr scope);
-int code_make_macro_lambda_(CodeMake ptr, addr scope);
-int code_make_defmacro_(CodeMake ptr, addr scope);
-int code_make_deftype_(CodeMake ptr, addr scope);
-int code_make_define_compiler_macro_(CodeMake ptr, addr scope);
-int code_make_destructuring_bind_(CodeMake ptr, addr scope);
-int code_make_flet_(CodeMake ptr, addr scope);
-int code_make_labels_(CodeMake ptr, addr scope);
 int code_make_values_(CodeMake ptr, addr scope);
 int code_make_the_(CodeMake ptr, addr scope);
 int code_make_eval_when_(CodeMake ptr, addr scope);
@@ -83,6 +66,9 @@ int code_make_nth_value_(CodeMake ptr, addr scope);
 int code_make_progv_(CodeMake ptr, addr scope);
 int code_make_load_time_value_(CodeMake ptr, addr scope);
 int code_make_step_(CodeMake ptr, addr scope);
+
+int code_make_free_(CodeMake ptr, addr list, addr escape);
+void code_make_type_value(CodeMake ptr, addr pos, addr escape);
 
 #endif
 

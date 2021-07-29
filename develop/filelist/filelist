@@ -215,6 +215,7 @@ main_string.c
 main.c
 make.c
 make_call.c
+make_function.c
 make_queue.c
 make_value.c
 math_exp.c

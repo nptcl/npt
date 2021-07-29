@@ -259,54 +259,6 @@ void push_args_control(Execute ptr, addr *ret)
 /*
  *  pop_control
  */
-static int apply_empty_control_(Execute ptr, addr call)
-{
-	if (functionp(call))
-		return apply_control(ptr, call, Nil);
-	else
-		return runcode_control_(ptr, call);
-}
-
-static int close_protect_normal_(Execute ptr, addr call)
-{
-	addr control, values;
-	size_t size;
-
-	push_control(ptr, &control);
-	save_values_control(ptr, &values, &size);
-	if (apply_empty_control_(ptr, call) == 0)
-		restore_values_control(ptr, values, size);
-
-	return pop_control_(ptr, control);
-}
-
-static int close_protect_throw_(Execute ptr, addr call)
-{
-	struct execute_throw save;
-
-	save_throw_control(ptr, &save);
-	normal_throw_control(ptr);
-	Return(close_protect_normal_(ptr, call));
-	restore_throw_control(ptr, &save);
-
-	return 1; /* throw */
-}
-
-static int close_protect_control_(Execute ptr, addr control)
-{
-	addr call;
-
-	GetControl(control, Control_Protect, &call);
-	if (call == Nil)
-		return 0;
-
-	SetControl(control, Control_Protect, Nil);
-	if (ptr->throw_value == throw_normal)
-		return close_protect_normal_(ptr, call);
-	else
-		return close_protect_throw_(ptr, call);
-}
-
 static void close_special_control(Execute ptr, addr pos)
 {
 	addr symbol, value;
@@ -356,7 +308,6 @@ int pop_control_(Execute ptr, addr control)
 	lexical_vector = str->lexical_vector;
 
 	/* close */
-	close_protect_control_(ptr, control);
 	close_close_control(ptr, control);
 
 	/* pop */
@@ -483,6 +434,22 @@ void getdata_control(Execute ptr, addr *ret)
 	GetControl(ptr->control, Control_Data, ret);
 }
 
+void getdata_code_control(Execute ptr, addr *ret)
+{
+	addr control;
+	struct control_struct *str;
+
+	control = ptr->control;
+	for (;;) {
+		str = StructControl(control);
+		if (str->run_code)
+			break;
+		GetControl(control, Control_Next, &control);
+		Check(control == Unbound, "revert-goto error.");
+	}
+	GetControl(control, Control_Data, ret);
+}
+
 void setdata_control(Execute ptr, addr value)
 {
 	SetControl(ptr->control, Control_Data, value);
@@ -561,15 +528,10 @@ void setrestart_control(LocalRoot local, addr pos, addr value)
 	settable_control(local, pos, CONSTANT_SYSTEM_RESTART, value);
 }
 
-void setprotect_control(addr pos, addr value)
-{
-	SetControl(pos, Control_Protect, value);
-}
-
 void pushdebug_control(Execute ptr, addr pos)
 {
-	CheckType(pos, LISPTYPE_INDEX);
-	pushtable_control(ptr, CONSTANT_CODE_BEGIN, pos);
+	Check(! fixnump(pos), "type error");
+	settable_control(ptr->local, ptr->control, CONSTANT_CODE_BEGIN, pos);
 }
 
 int getdebug_control(Execute ptr, addr *ret)
@@ -581,7 +543,7 @@ void save_control(Execute ptr)
 {
 	addr pos;
 	save_execute_control(ptr, &pos);
-	pushtable_control(ptr, CONSTANT_CODE_SAVE, pos);
+	settable_control(ptr->local, ptr->control, CONSTANT_CODE_SAVE, pos);
 }
 
 int restore_control_(Execute ptr)

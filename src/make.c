@@ -2,6 +2,7 @@
 #include "local.h"
 #include "make.h"
 #include "make_call.h"
+#include "make_function.h"
 #include "make_queue.h"
 #include "make_typedef.h"
 #include "make_value.h"
@@ -16,6 +17,7 @@ static code_make_calltype CodeMakeTable[EVAL_PARSE_SIZE];
 
 void set_code_make_struct(struct code_make_struct *str, Execute ptr, addr code)
 {
+	str->escape = 0;
 	str->ptr = ptr;
 	str->local = ptr->local;
 	str->code = code;

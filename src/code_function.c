@@ -45,25 +45,21 @@ int begin_code(Execute ptr, CodeValue x)
 	addr ignore, pos;
 
 	push_control(ptr, &ignore);
-	index_heap(&pos, x.index);
+	fixnum_heap(&pos, x.value);
 	pushdebug_control(ptr, pos);
 
 	return 0;
 }
-int end_code(Execute ptr, CodeValue x)
+
+int begin_call_code(Execute ptr, CodeValue x)
 {
-	addr pos;
-	size_t check;
+	addr ignore, pos;
 
-	if (getdebug_control(ptr, &pos))
-		return fmte_("end-code error, getdebug.", NULL);
-	if (! indexp(pos))
-		return fmte_("end-code error, object ~S.", pos, NULL);
-	GetIndex(pos, &check);
-	if (check != x.index)
-		return fmte_("end-code error, check ~S.", pos, NULL);
+	push_args_control(ptr, &ignore);
+	fixnum_heap(&pos, x.value);
+	pushdebug_control(ptr, pos);
 
-	return pop_control_(ptr, ptr->control);
+	return 0;
 }
 #else
 int begin_code(Execute ptr, CodeValue x)
@@ -72,6 +68,32 @@ int begin_code(Execute ptr, CodeValue x)
 	push_control(ptr, &ignore);
 	return 0;
 }
+
+int begin_call_code(Execute ptr, CodeValue x)
+{
+	addr ignore;
+	push_args_control(ptr, &ignore);
+	return 0;
+}
+#endif
+
+#ifdef LISP_DEBUG
+int end_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+	fixnum check;
+
+	if (! getdebug_control(ptr, &pos))
+		return fmte_("end-code error, getdebug.", NULL);
+	if (! fixnump(pos))
+		return fmte_("end-code error, object ~S.", pos, NULL);
+	GetFixnum(pos, &check);
+	if (check != x.index)
+		return fmte_("end-code error, check ~S.", pos, NULL);
+
+	return pop_control_(ptr, ptr->control);
+}
+#else
 int end_code(Execute ptr, CodeValue x)
 {
 	return pop_control_(ptr, ptr->control);
@@ -111,6 +133,16 @@ int normal_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+int revert_code(Execute ptr, CodeValue x)
+{
+	return revert_control_(ptr);
+}
+
+int revert_goto_code(Execute ptr, CodeValue x)
+{
+	return revert_goto_control_(ptr, x.index);
+}
+
 int execute_control_set_code(Execute ptr, CodeValue x)
 {
 	return runcode_control_(ptr, x.pos);
@@ -122,18 +154,6 @@ int execute_control_push_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &x.pos);
 	pushargs_control(ptr, x.pos);
 	return 0;
-}
-
-int execute_control_save_code(Execute ptr, CodeValue x)
-{
-	addr control, values;
-	size_t size;
-
-	push_control(ptr, &control);
-	save_values_control(ptr, &values, &size);
-	if (runcode_control_(ptr, x.pos) == 0)
-		restore_values_control(ptr, values, size);
-	return pop_control_(ptr, control);
 }
 
 
@@ -460,8 +480,10 @@ int let_special_code(Execute ptr, CodeValue x)
 int leta_special_code(Execute ptr, CodeValue x)
 {
 	addr value;
+
 	getresult_control(ptr, &value);
 	pushspecial_control(ptr, x.pos, value);
+
 	return 0;
 }
 
@@ -469,7 +491,7 @@ int leta_special_code(Execute ptr, CodeValue x)
 /*
  *  setq
  */
-#define check_readonly_variable_(x) { \
+#define Return_check_readonly_variable_(x) { \
 	if (GetStatusReadOnly(x)) { \
 		return fmte_("Cannot set value to the constant variable ~S.", x, NULL); \
 	} \
@@ -490,7 +512,7 @@ int setq_special_code(Execute ptr, CodeValue x)
 	addr value;
 
 	getresult_control(ptr, &value);
-	check_readonly_variable_(x.pos);
+	Return_check_readonly_variable_(x.pos);
 	setspecial_local(ptr, x.pos, value);
 
 	return 0;
@@ -501,7 +523,7 @@ int setq_global_code(Execute ptr, CodeValue x)
 	addr value;
 
 	getresult_control(ptr, &value);
-	check_readonly_variable_(x.pos);
+	Return_check_readonly_variable_(x.pos);
 	SetValueSymbol(x.pos, value);
 
 	return 0;
@@ -790,12 +812,6 @@ int taginfo_code(Execute ptr, CodeValue x)
 int blockinfo_code(Execute ptr, CodeValue x)
 {
 	set_blockinfo_control(ptr, x.pos);
-	return 0;
-}
-
-int unwind_protect_code(Execute ptr, CodeValue x)
-{
-	setprotect_control(ptr->control, x.pos);
 	return 0;
 }
 

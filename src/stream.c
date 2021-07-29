@@ -277,7 +277,7 @@ int update_standard_stream(void)
 	GetConst(STREAM_STDERR, &pos);
 	if (update_standard_error(pos))
 		return 1;
-	
+
 	return 0;
 }
 

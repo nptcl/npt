@@ -5,6 +5,8 @@
 #include "typedef.h"
 
 #define runcode_control_ _n(runcode_control_)
+#define revert_control_ _n(revert_control_)
+#define revert_goto_control_ _n(revert_goto_control_)
 #define execute_control _n(execute_control)
 #define apply_control _n(apply_control)
 #define apply_named_control _n(apply_named_control)
@@ -16,8 +18,10 @@
 #define callclang_funcall _n(callclang_funcall)
 
 int runcode_control_(Execute ptr, addr code);
-
+int revert_control_(Execute ptr);
+int revert_goto_control_(Execute ptr, size_t index);
 int execute_control(Execute ptr, addr call);
+
 int apply_control(Execute ptr, addr call, addr args);
 int apply_named_control(Execute ptr, addr call, addr list);
 int applya_control(Execute ptr, addr call, ...);

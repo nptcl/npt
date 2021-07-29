@@ -23,9 +23,7 @@
 #define code_queue_double _n(code_queue_double)
 #define code_queue_index _n(code_queue_index)
 #define code_queue_ifpush _n(code_queue_ifpush)
-#define code_queue_push_simple _n(code_queue_push_simple)
-#define code_queue_push_new _n(code_queue_push_new)
-#define code_queue_push_args _n(code_queue_push_args)
+#define code_queue_push_code _n(code_queue_push_code)
 #define code_queue_pop _n(code_queue_pop)
 #define code_make_execute_set_ _n(code_make_execute_set_)
 #define code_make_execute_push_ _n(code_make_execute_push_)
@@ -39,6 +37,17 @@
 #define code_queue_if_nil _n(code_queue_if_nil)
 #define code_queue_if_t _n(code_queue_if_t)
 #define code_queue_goto _n(code_queue_goto)
+
+#define code_escape_clear _n(code_escape_clear)
+#define code_escape_wake _n(code_escape_wake)
+#define code_escape_get _n(code_escape_get)
+#define code_make_begin _n(code_make_begin)
+#define code_make_begin_call _n(code_make_begin_call)
+#define code_make_end _n(code_make_end)
+#define code_jump_escape _n(code_jump_escape)
+#define code_jump_escape_not _n(code_jump_escape_not)
+#define code_jump_escape_wake _n(code_jump_escape_wake)
+#define code_jump_escape_not_wake _n(code_jump_escape_not_wake)
 
 enum CodeQueue_Mode {
 	CodeQueue_ModeSet,
@@ -96,9 +105,7 @@ void code_queue_index(CodeMake ptr, constindex x, size_t y);
 #define CodeQueue_index(a,b,c) code_queue_index(a,CONSTANT_CODE_##b,c)
 void code_queue_ifpush(CodeMake ptr);
 
-void code_queue_push_simple(CodeMake ptr);
-void code_queue_push_new(CodeMake ptr);
-void code_queue_push_args(CodeMake ptr);
+void code_queue_push_code(CodeMake ptr);
 void code_queue_pop(CodeMake ptr, addr *ret);
 
 int code_make_execute_set_(CodeMake ptr, addr scope);
@@ -114,6 +121,17 @@ void code_queue_if_unbound(CodeMake ptr, addr label);
 void code_queue_if_nil(CodeMake ptr, addr label);
 void code_queue_if_t(CodeMake ptr, addr label);
 void code_queue_goto(CodeMake ptr, addr label);
+
+void code_escape_clear(CodeMake ptr);
+void code_escape_wake(CodeMake ptr);
+int code_escape_get(CodeMake ptr);
+void code_make_begin(CodeMake ptr, fixnum *ret);
+void code_make_begin_call(CodeMake ptr, fixnum *ret);
+void code_make_end(CodeMake ptr, fixnum value);
+void code_jump_escape(CodeMake ptr, addr label);
+void code_jump_escape_not(CodeMake ptr, addr label);
+void code_jump_escape_wake(CodeMake ptr, addr label);
+void code_jump_escape_not_wake(CodeMake ptr, addr label);
 
 #endif
 

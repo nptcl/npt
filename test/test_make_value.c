@@ -46,7 +46,7 @@ static void codechar_call(addr *ret, const char *str,
 	push_local(local, &stack);
 
 	code_queue_local(local, &code);
-	code_queue_push_simple(local, code);
+	code_queue_push_code(local, code);
 	readstring_debug(&pos, str);
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);

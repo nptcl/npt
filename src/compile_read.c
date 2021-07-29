@@ -156,7 +156,7 @@ static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 {
 	addr vector, pos;
 	size_t size, i;
-	struct code_struct head, *str;
+	struct code_struct head;
 
 	/* struct */
 	Return(faslread_buffer_(stream, &head, sizeoft(head)));
@@ -170,9 +170,6 @@ static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 
 	/* update */
 	code_heap(&pos, vector);
-	str = StructCode(pos);
-	str->p_control = head.p_control;
-	str->p_args = head.p_args;
 	update_code(pos);
 
 	return Result(ret, pos);

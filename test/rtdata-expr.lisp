@@ -1122,13 +1122,14 @@
 
 ;;  ANSI Common Lisp
 (deftest go-test.1
-  (values
-    (tagbody
-      (setq val 2)
-      (go lp)
-      (incf val 3)
-      lp (incf val 4))
-    val)
+  (let (val)
+    (values
+      (tagbody
+        (setq val 2)
+        (go lp)
+        (incf val 3)
+        lp (incf val 4))
+      val))
   nil 6)
 
 (deftest-error go-test.2

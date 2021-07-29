@@ -49,7 +49,7 @@ static int code_make_specialize_symbol_p(addr call, constindex index)
 #define CodeMakeSpeciailizedSymbolP(x,y) \
 	code_make_specialize_symbol_p((x),CONSTANT_SYSTEM_##y)
 
-static int code_make_specialize_allcons_(CodeMake ptr, addr args)
+static int code_make_specialize_allcons_(CodeMake ptr, addr args, addr escape)
 {
 	addr pos;
 
@@ -57,52 +57,47 @@ static int code_make_specialize_allcons_(CodeMake ptr, addr args)
 		GetCons(args, &pos, &args);
 		getvalue_tablecall(pos, &pos);
 		Return(code_make_execute_set_(ptr, pos));
+		code_jump_escape_wake(ptr, escape);
 	}
 
 	return 0;
 }
 
-static int code_make_specialize_handler_(CodeMake ptr, addr scope, int *ret)
+static int code_make_specialize_body_(CodeMake ptr, addr scope, int *ret)
 {
-	addr args;
+	addr args, escape, normal, finish;
+	fixnum id;
 
+	/* begin */
+	code_queue_make_label(ptr, &escape);
+	code_queue_make_label(ptr, &normal);
+	code_queue_make_label(ptr, &finish);
+	code_make_begin(ptr, &id);
+
+	/* body */
 	GetEvalScopeIndex(scope, 1, &args);
-	code_queue_push_new(ptr);
-	Return(code_make_specialize_allcons_(ptr, args));
-	code_queue_pop(ptr, &args);
-	code_make_execute_control(ptr, args);
+	Return(code_make_specialize_allcons_(ptr, args, escape));
+	code_queue_goto(ptr, normal);
+
+	/* escape */
+	code_queue_push_label(ptr, escape);
+	CodeQueue_cons(ptr, REVERT_GOTO, normal);
+	code_make_end(ptr, id);
+	code_queue_goto(ptr, finish);
+
+	/* normal */
+	code_queue_push_label(ptr, normal);
+	code_make_end(ptr, id);
+	code_queue_ifpush(ptr);
+
+	/* finish */
+	code_queue_push_label(ptr, finish);
 
 	return Result(ret, 1);
 }
 
-static int code_make_specialize_restart_(CodeMake ptr, addr scope, int *ret)
-{
-	addr args;
-
-	GetEvalScopeIndex(scope, 1, &args);
-	code_queue_push_new(ptr);
-	Return(code_make_specialize_allcons_(ptr, args));
-	code_queue_pop(ptr, &args);
-	code_make_execute_control(ptr, args);
-
-	return Result(ret, 1);
-}
-
-static int code_make_specialize_push_return_(CodeMake ptr, addr scope, int *ret)
-{
-	addr args;
-
-	GetEvalScopeIndex(scope, 1, &args);
-	code_queue_push_new(ptr);
-	Return(code_make_specialize_allcons_(ptr, args));
-	code_queue_pop(ptr, &args);
-	code_make_execute_control(ptr, args);
-
-	return Result(ret, 1);
-}
-
-static int code_make_specialize_type_(CodeMake ptr,
-		addr scope, constindex type, int *ret)
+static int code_make_specialize_type_body_(CodeMake ptr,
+		addr scope, constindex type, addr escape)
 {
 	addr args, pos;
 
@@ -111,8 +106,22 @@ static int code_make_specialize_type_(CodeMake ptr,
 		GetCons(args, &pos, &args);
 		getvalue_tablecall(pos, &pos);
 		Return(code_make_execute_push_(ptr, pos));
+		code_jump_escape_wake(ptr, escape);
 	}
 	code_queue_single(ptr, type);
+	code_jump_escape_wake(ptr, escape);
+
+	return 0;
+}
+
+static int code_make_specialize_type_(CodeMake ptr,
+		addr scope, constindex type, int *ret)
+{
+	addr escape;
+
+	code_queue_make_label(ptr, &escape);
+	Return(code_make_specialize_type_body_(ptr, scope, type, escape));
+	code_queue_push_label(ptr, escape);
 
 	return Result(ret, 1);
 }
@@ -149,15 +158,15 @@ static int code_make_specialize_(CodeMake ptr, addr scope, int *ret)
 
 	/* lisp-system::handler */
 	if (CodeMakeSpeciailizedSymbolP(call, HANDLER))
-		return code_make_specialize_handler_(ptr, scope, ret);
+		return code_make_specialize_body_(ptr, scope, ret);
 
 	/* lisp-system::restart */
 	if (CodeMakeSpeciailizedSymbolP(call, RESTART))
-		return code_make_specialize_restart_(ptr, scope, ret);
+		return code_make_specialize_body_(ptr, scope, ret);
 
 	/* lisp-system::push-return */
 	if (CodeMakeSpeciailizedSymbolP(call, PUSH_RETURN))
-		return code_make_specialize_push_return_(ptr, scope, ret);
+		return code_make_specialize_body_(ptr, scope, ret);
 
 	/* lisp-system::handler-bind */
 	if (CodeMakeSpeciailizedSymbolP(call, HANDLER_BIND))
@@ -186,34 +195,38 @@ static int code_make_specialize_(CodeMake ptr, addr scope, int *ret)
 /*
  *  call
  */
-static int code_make_call_args_push_(CodeMake ptr, addr pos)
+static int code_make_call_args_push_(CodeMake ptr, addr pos, addr escape)
 {
 	addr value;
 
 	getvalue_tablecall(pos, &value);
 	Return(code_make_execute_push_(ptr, value));
+	code_jump_escape_wake(ptr, escape);
+
 	if (getcheck_tablecall(pos)) {
 		gettype_tablecall(pos, &value);
 		if (! type_astert_p(value)) {
 			CodeQueue_cons(ptr, CALL_TYPE, value);
+			code_jump_escape_wake(ptr, escape);
 		}
 	}
 
 	return 0;
 }
 
-static int code_make_call_args_type_(CodeMake ptr, addr args)
+static int code_make_call_args_type_(CodeMake ptr, addr args, addr escape)
 {
 	addr pos;
 
 	while (consp_getcons(args, &pos, &args)) {
-		Return(code_make_call_args_push_(ptr, pos));
+		Return(code_make_call_args_push_(ptr, pos, escape));
 	}
 
 	return 0;
 }
 
-static int code_make_call_args_count_(CodeMake ptr, addr list, addr args, addr *ret)
+static int code_make_call_args_count_(CodeMake ptr,
+		addr list, addr args, addr escape, addr *ret)
 {
 	addr pos;
 
@@ -221,7 +234,7 @@ static int code_make_call_args_count_(CodeMake ptr, addr list, addr args, addr *
 		GetCdr(list, &list);
 		if (! consp_getcons(args, &pos, &args))
 			break;
-		Return(code_make_call_args_push_(ptr, pos));
+		Return(code_make_call_args_push_(ptr, pos, escape));
 	}
 
 	return Result(ret, args);
@@ -239,28 +252,28 @@ static int code_make_call_type(addr pos, addr *ret)
 	return 0;
 }
 
-static int code_make_call_args_value_(CodeMake ptr, addr pos, addr key)
+static int code_make_call_args_value_(CodeMake ptr, addr pos, addr key, addr escape)
 {
 	addr value;
-	modeswitch mode;
 
 	getvalue_tablecall(pos, &value);
 
 	/* setmode */
-	code_queue_setmode(ptr, &mode);
-	Return(code_make_execute_(ptr, value));
-	code_queue_rollback(ptr, &mode);
+	Return(code_make_execute_set_(ptr, value));
+	code_jump_escape_wake(ptr, escape);
 
 	/* type check */
 	if (getcheck_tablecall(pos)) {
 		gettype_tablecall(pos, &value);
 		if (! type_astert_p(value)) {
 			CodeQueue_cons(ptr, TYPE_RESULT, value);
+			code_jump_escape_wake(ptr, escape);
 		}
 	}
 
 	/* key */
 	CodeQueue_cons(ptr, CALL_KEY, key);
+	code_jump_escape_wake(ptr, escape);
 
 	/* push */
 	CodeQueue_single(ptr, PUSH_RESULT);
@@ -268,7 +281,7 @@ static int code_make_call_args_value_(CodeMake ptr, addr pos, addr key)
 	return 0;
 }
 
-static int code_make_call_args_key_(CodeMake ptr, addr key, addr args)
+static int code_make_call_args_key_(CodeMake ptr, addr key, addr args, addr escape)
 {
 	int kv;
 	addr pos;
@@ -276,40 +289,40 @@ static int code_make_call_args_key_(CodeMake ptr, addr key, addr args)
 	for (kv = 0; args != Nil; kv = ! kv) {
 		GetCons(args, &pos, &args);
 		if (kv == 0) {
-			Return(code_make_call_args_push_(ptr, pos));
+			Return(code_make_call_args_push_(ptr, pos, escape));
 		}
 		else {
-			Return(code_make_call_args_value_(ptr, pos, key));
+			Return(code_make_call_args_value_(ptr, pos, key, escape));
 		}
 	}
 
 	return 0;
 }
 
-static int code_make_call_args_(CodeMake ptr, addr first, addr args)
+static int code_make_call_args_(CodeMake ptr, addr first, addr args, addr escape)
 {
 	addr var, opt, key;
 
 	/* type */
 	if (code_make_call_type(first, &first))
-		return code_make_call_args_type_(ptr, args);
+		return code_make_call_args_type_(ptr, args, escape);
 
 	GetArrayA2(first, 0, &var);
 	GetArrayA2(first, 1, &opt);
 	GetArrayA2(first, 3, &key);
 
 	/* var, &optional */
-	Return(code_make_call_args_count_(ptr, var, args, &args));
-	Return(code_make_call_args_count_(ptr, opt, args, &args));
+	Return(code_make_call_args_count_(ptr, var, args, escape, &args));
+	Return(code_make_call_args_count_(ptr, opt, args, escape, &args));
 	if (! consp(args))
 		return 0;
 
 	/* not key */
 	if (! consp(key))
-		return code_make_call_args_type_(ptr, args);
+		return code_make_call_args_type_(ptr, args, escape);
 
 	/* key */
-	Return(code_make_call_args_key_(ptr, key, args));
+	Return(code_make_call_args_key_(ptr, key, args, escape));
 
 	return 0;
 }
@@ -342,7 +355,7 @@ static void code_make_call_function(CodeMake ptr, addr table)
 		code_make_call_lexical(ptr, table);
 }
 
-static int code_make_call_first_(CodeMake ptr, addr pos)
+static int code_make_call_first_(CodeMake ptr, addr pos, addr escape)
 {
 	addr table;
 
@@ -350,11 +363,16 @@ static int code_make_call_first_(CodeMake ptr, addr pos)
 		case EVAL_PARSE_FUNCTION:
 			GetEvalScopeValue(pos, &table);
 			code_make_call_function(ptr, table);
+			code_jump_escape_wake(ptr, escape);
 			return 0;
 
 		case EVAL_PARSE_LAMBDA:
+			/* execute */
 			Return(code_make_execute_set_(ptr, pos));
+			code_jump_escape_wake(ptr, escape);
+			/* call */
 			CodeQueue_single(ptr, CALL_RESULT);
+			code_jump_escape_wake(ptr, escape);
 			return 0;
 
 		default:
@@ -384,21 +402,30 @@ static int code_make_call_name_(CodeMake ptr, addr pos)
 int code_make_call_(CodeMake ptr, addr scope)
 {
 	int check;
-	addr first, args, pos;
+	addr first, args, escape;
+	fixnum id;
 
 	Return(code_make_specialize_(ptr, scope, &check));
 	if (check)
 		return 0;
+
+	/* call */
 	GetEvalScopeIndex(scope, 0, &first);
 	GetEvalScopeIndex(scope, 1, &args);
-	code_queue_push_new(ptr);
-	/* args -> first */
-	Return(code_make_call_name_(ptr, first));
-	Return(code_make_call_args_(ptr, first, args));
-	Return(code_make_call_first_(ptr, first));
+
+	/* begin */
+	code_queue_make_label(ptr, &escape);
+	code_make_begin(ptr, &id);
+
 	/* execute */
-	code_queue_pop(ptr, &pos);
-	code_make_execute_control(ptr, pos);
+	Return(code_make_call_name_(ptr, first));
+	Return(code_make_call_args_(ptr, first, args, escape));
+	Return(code_make_call_first_(ptr, first, escape));
+
+	/* end */
+	code_queue_push_label(ptr, escape);
+	code_make_end(ptr, id);
+	code_queue_ifpush(ptr);
 
 	return 0;
 }

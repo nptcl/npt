@@ -924,7 +924,7 @@ static void infoprint_fixnum(addr pos)
 
 static void infoprint_index(addr pos)
 {
-	info_stdarg("#<index.%zu>", RefIndex(pos));
+	info_stdarg("#%zu", RefIndex(pos));
 }
 
 static void infoprint_single(addr pos)
@@ -1036,13 +1036,7 @@ static void infoprint_eval(addr pos)
 
 static void infoprint_code(addr pos)
 {
-	struct code_struct *str;
-
-	str = StructCode(pos);
-	info_stdarg("#<code.");
-	info_stdarg(str->p_control?  "C": "c");
-	info_stdarg(str->p_args? "A": "a");
-	info_stdarg(">");
+	info_stdarg("#<code>");
 }
 
 static void infoquote_front(addr pos, const char *str)

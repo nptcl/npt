@@ -36,10 +36,12 @@ void init_code_init(void)
 	/* system */
 	initcode(nop_code, Null);
 #ifdef LISP_DEBUG
-	initcode(begin_code, Index);
-	initcode(end_code, Index);
+	initcode(begin_code, Fixnum);
+	initcode(begin_call_code, Fixnum);
+	initcode(end_code, Fixnum);
 #else
 	initcode(begin_code, Null);
+	initcode(begin_call_code, Null);
 	initcode(end_code, Null);
 #endif
 	initcode(escape_code, Index);
@@ -47,10 +49,11 @@ void init_code_init(void)
 	initcode(save_code, Null);
 	initcode(restore_code, Null);
 	initcode(normal_code, Null);
+	initcode(revert_code, Null);
+	initcode(revert_goto_code, Index);
 
 	initcode(execute_control_set_code, Addr);
 	initcode(execute_control_push_code, Addr);
-	initcode(execute_control_save_code, Addr);
 
 	/* object */
 	initcode(set_code, Addr);
@@ -138,7 +141,6 @@ void init_code_init(void)
 	initcode(throw_operator_code, Addr);
 	initcode(taginfo_code, Addr);
 	initcode(blockinfo_code, Addr);
-	initcode(unwind_protect_code, Addr);
 
 	/* control-switch */
 	initcode(handler_bind_code, Null);
@@ -206,16 +208,18 @@ void build_code_init(void)
 	/* system */
 	defcode(NOP, nop_code);
 	defcode(BEGIN, begin_code);
+	defcode(BEGIN_CALL, begin_call_code);
 	defcode(END, end_code);
 	defcode(ESCAPE, escape_code);
 	defcode(ESCAPE_NOT, escape_not_code);
 	defcode(SAVE, save_code);
 	defcode(RESTORE, restore_code);
 	defcode(NORMAL, normal_code);
+	defcode(REVERT, revert_code);
+	defcode(REVERT_GOTO, revert_goto_code);
 
 	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
 	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
-	defcode(EXECUTE_CONTROL_SAVE, execute_control_save_code);
 
 	/* object */
 	defcode(SET, set_code);
@@ -303,7 +307,6 @@ void build_code_init(void)
 	defcode(THROW, throw_operator_code);
 	defcode(TAGINFO, taginfo_code);
 	defcode(BLOCKINFO, blockinfo_code);
-	defcode(UNWIND_PROTECT, unwind_protect_code);
 
 	/* control-switch */
 	defcode(HANDLER_BIND, handler_bind_code);

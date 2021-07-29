@@ -287,7 +287,7 @@ int lambda_lexical_code(Execute ptr, CodeValue x)
 	lexical_control(ptr, value);
 
 	/* restore closure */
-	getdata_control(ptr, &data);
+	getdata_code_control(ptr, &data);
 	while (data != Nil) {
 		GetCons(data, &pos, &data);
 		CheckType(pos, LISPSYSTEM_CLOSURE);

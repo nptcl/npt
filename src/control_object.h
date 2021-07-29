@@ -38,6 +38,7 @@
 #define pushrestart_control _n(pushrestart_control)
 #define existspecial_control _n(existspecial_control)
 #define getdata_control _n(getdata_control)
+#define getdata_code_control _n(getdata_code_control)
 #define setdata_control _n(setdata_control)
 #define getcall_control _n(getcall_control)
 #define getcatch_control _n(getcatch_control)
@@ -47,7 +48,6 @@
 #define setcatch_control _n(setcatch_control)
 #define sethandler_control _n(sethandler_control)
 #define setrestart_control _n(setrestart_control)
-#define setprotect_control _n(setprotect_control)
 #define pushdebug_control _n(pushdebug_control)
 #define getdebug_control _n(getdebug_control)
 #define save_control _n(save_control)
@@ -67,7 +67,6 @@ enum Control_Index {
 	Control_ConsTail,
 	Control_Special,
 	Control_Close,
-	Control_Protect,
 	Control_Table,
 	Control_Data,
 	Control_Call,
@@ -79,7 +78,8 @@ struct control_struct {
 	addr *lexical_reader;
 	addr lexical_vector;
 	addr trace;
-	size_t point;
+	addr run_code;
+	size_t run_point;
 };
 
 #define PtrBodyControl_Low(p)			PtrBodySSa(p, Control_Size)
@@ -211,6 +211,7 @@ int existspecial_control(Execute ptr, addr pos);
 
 /* access */
 void getdata_control(Execute ptr, addr *ret);
+void getdata_code_control(Execute ptr, addr *ret);
 void setdata_control(Execute ptr, addr value);
 int getcall_control(Execute ptr, addr *ret);
 
@@ -222,7 +223,6 @@ int getrestart_control(addr pos, addr *ret);
 void setcatch_control(LocalRoot local, addr pos, addr value);
 void sethandler_control(LocalRoot local, addr pos, addr value);
 void setrestart_control(LocalRoot local, addr pos, addr value);
-void setprotect_control(addr pos, addr value);
 
 void pushdebug_control(Execute ptr, addr pos);
 int getdebug_control(Execute ptr, addr *ret);

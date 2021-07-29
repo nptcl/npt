@@ -14,16 +14,18 @@ enum pointer_index {
 	/* code_function */
 	p_nop_code,
 	p_begin_code,
+	p_begin_call_code,
 	p_end_code,
 	p_escape_code,
 	p_escape_not_code,
 	p_save_code,
 	p_restore_code,
 	p_normal_code,
+	p_revert_code,
+	p_revert_goto_code,
 
 	p_execute_control_set_code,
 	p_execute_control_push_code,
-	p_execute_control_save_code,
 
 	p_set_code,
 	p_push_code,
@@ -101,7 +103,6 @@ enum pointer_index {
 	p_throw_operator_code,
 	p_taginfo_code,
 	p_blockinfo_code,
-	p_unwind_protect_code,
 
 	p_handler_bind_code,
 	p_handler_case_code,

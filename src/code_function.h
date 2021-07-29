@@ -6,16 +6,18 @@
 
 #define nop_code _n(nop_code)
 #define begin_code _n(begin_code)
+#define begin_call_code _n(begin_call_code)
 #define end_code _n(end_code)
 #define escape_code _n(escape_code)
 #define escape_not_code _n(escape_not_code)
 #define save_code _n(save_code)
 #define restore_code _n(restore_code)
 #define normal_code _n(normal_code)
+#define revert_code _n(revert_code)
+#define revert_goto_code _n(revert_goto_code)
 
 #define execute_control_set_code _n(execute_control_set_code)
 #define execute_control_push_code _n(execute_control_push_code)
-#define execute_control_save_code _n(execute_control_save_code)
 #define set_code _n(set_code)
 #define push_code _n(push_code)
 #define push_result_code _n(push_result_code)
@@ -83,7 +85,6 @@
 #define throw_operator_code _n(throw_operator_code)
 #define taginfo_code _n(taginfo_code)
 #define blockinfo_code _n(blockinfo_code)
-#define unwind_protect_code _n(unwind_protect_code)
 #define handler_bind_code _n(handler_bind_code)
 #define handler_case_code _n(handler_case_code)
 #define restart_bind_code _n(restart_bind_code)
@@ -100,16 +101,18 @@
 
 int nop_code(Execute ptr, CodeValue x);
 int begin_code(Execute ptr, CodeValue x);
+int begin_call_code(Execute ptr, CodeValue x);
 int end_code(Execute ptr, CodeValue x);
 int escape_code(Execute ptr, CodeValue x);
 int escape_not_code(Execute ptr, CodeValue x);
 int save_code(Execute ptr, CodeValue x);
 int restore_code(Execute ptr, CodeValue x);
 int normal_code(Execute ptr, CodeValue x);
+int revert_code(Execute ptr, CodeValue x);
+int revert_goto_code(Execute ptr, CodeValue x);
 
 int execute_control_set_code(Execute ptr, CodeValue x);
 int execute_control_push_code(Execute ptr, CodeValue x);
-int execute_control_save_code(Execute ptr, CodeValue x);
 
 int set_code(Execute ptr, CodeValue x);
 int push_code(Execute ptr, CodeValue x);
@@ -187,7 +190,6 @@ int catch_code(Execute ptr, CodeValue x);
 int throw_operator_code(Execute ptr, CodeValue x);
 int taginfo_code(Execute ptr, CodeValue x);
 int blockinfo_code(Execute ptr, CodeValue x);
-int unwind_protect_code(Execute ptr, CodeValue x);
 
 int handler_bind_code(Execute ptr, CodeValue x);
 int handler_case_code(Execute ptr, CodeValue x);

@@ -9,6 +9,7 @@
 #define CodeMake _n(CodeMake)
 
 struct code_make_struct {
+	unsigned escape : 1;
 	Execute ptr;
 	LocalRoot local;
 	addr code;

@@ -165,10 +165,18 @@ void pushargs_allvalues(Execute ptr)
  */
 int goto_control_(Execute ptr, size_t point)
 {
+	addr control;
 	struct control_struct *str;
 
-	str = StructControl(ptr->control);
-	str->point = point;
+	control = ptr->control;
+	for (;;) {
+		str = StructControl(control);
+		if (str->run_code)
+			break;
+		GetControl(control, Control_Next, &control);
+		Check(control == Unbound, "revert-goto error.");
+	}
+	str->run_point = point;
 
 	return 0;
 }

@@ -48,14 +48,7 @@ static int disassemble_code_operator(Execute ptr, addr stream, addr car, addr cd
 
 static int disassemble_code_type(Execute ptr, addr stream, addr pos)
 {
-	struct code_struct *str;
-
 	Fmt1("CODE-BEGIN ~20T");
-	str = StructCode(pos);
-	if (str->p_control)
-		Fmt1(" control");
-	if (str->p_args)
-		Fmt1(" argument");
 	Return(terpri_stream_(stream));
 
 	return 0;

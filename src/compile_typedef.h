@@ -52,16 +52,18 @@ enum FaslCode {
 	/* code */
 	FaslCode_nop,
 	FaslCode_begin,
+	FaslCode_begin_call,
 	FaslCode_end,
 	FaslCode_escape,
 	FaslCode_escape_not,
 	FaslCode_save,
 	FaslCode_restore,
 	FaslCode_normal,
+	FaslCode_revert,
+	FaslCode_revert_goto,
 
 	FaslCode_execute_control_set,
 	FaslCode_execute_control_push,
-	FaslCode_execute_control_save,
 
 	FaslCode_set,
 	FaslCode_push,
@@ -139,7 +141,6 @@ enum FaslCode {
 	FaslCode_throw_operator,
 	FaslCode_taginfo,
 	FaslCode_blockinfo,
-	FaslCode_unwind_protect,
 
 	FaslCode_handler_bind,
 	FaslCode_handler_case,
