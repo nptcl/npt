@@ -16,8 +16,6 @@
 #define revert_code _n(revert_code)
 #define revert_goto_code _n(revert_goto_code)
 
-#define execute_control_set_code _n(execute_control_set_code)
-#define execute_control_push_code _n(execute_control_push_code)
 #define set_code _n(set_code)
 #define push_code _n(push_code)
 #define push_result_code _n(push_result_code)
@@ -110,9 +108,6 @@ int restore_code(Execute ptr, CodeValue x);
 int normal_code(Execute ptr, CodeValue x);
 int revert_code(Execute ptr, CodeValue x);
 int revert_goto_code(Execute ptr, CodeValue x);
-
-int execute_control_set_code(Execute ptr, CodeValue x);
-int execute_control_push_code(Execute ptr, CodeValue x);
 
 int set_code(Execute ptr, CodeValue x);
 int push_code(Execute ptr, CodeValue x);

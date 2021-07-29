@@ -52,9 +52,6 @@ void init_code_init(void)
 	initcode(revert_code, Null);
 	initcode(revert_goto_code, Index);
 
-	initcode(execute_control_set_code, Addr);
-	initcode(execute_control_push_code, Addr);
-
 	/* object */
 	initcode(set_code, Addr);
 	initcode(push_code, Addr);
@@ -217,9 +214,6 @@ void build_code_init(void)
 	defcode(NORMAL, normal_code);
 	defcode(REVERT, revert_code);
 	defcode(REVERT_GOTO, revert_goto_code);
-
-	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
-	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
 
 	/* object */
 	defcode(SET, set_code);

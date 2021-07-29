@@ -62,9 +62,6 @@ enum FaslCode {
 	FaslCode_revert,
 	FaslCode_revert_goto,
 
-	FaslCode_execute_control_set,
-	FaslCode_execute_control_push,
-
 	FaslCode_set,
 	FaslCode_push,
 	FaslCode_push_result,

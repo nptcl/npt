@@ -88,7 +88,7 @@ int end_code(Execute ptr, CodeValue x)
 	if (! fixnump(pos))
 		return fmte_("end-code error, object ~S.", pos, NULL);
 	GetFixnum(pos, &check);
-	if (check != x.index)
+	if (check != x.value)
 		return fmte_("end-code error, check ~S.", pos, NULL);
 
 	return pop_control_(ptr, ptr->control);
@@ -141,19 +141,6 @@ int revert_code(Execute ptr, CodeValue x)
 int revert_goto_code(Execute ptr, CodeValue x)
 {
 	return revert_goto_control_(ptr, x.index);
-}
-
-int execute_control_set_code(Execute ptr, CodeValue x)
-{
-	return runcode_control_(ptr, x.pos);
-}
-
-int execute_control_push_code(Execute ptr, CodeValue x)
-{
-	Return(runcode_control_(ptr, x.pos));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-	return 0;
 }
 
 

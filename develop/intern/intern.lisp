@@ -1640,9 +1640,6 @@ lisp-code::normal
 lisp-code::revert
 lisp-code::revert-goto
 
-lisp-code::execute-control-set
-lisp-code::execute-control-push
-
 lisp-code::set
 lisp-code::push
 lisp-code::push-result

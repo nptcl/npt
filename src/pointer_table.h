@@ -24,9 +24,6 @@ enum pointer_index {
 	p_revert_code,
 	p_revert_goto_code,
 
-	p_execute_control_set_code,
-	p_execute_control_push_code,
-
 	p_set_code,
 	p_push_code,
 	p_push_result_code,

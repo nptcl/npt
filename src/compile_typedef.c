@@ -22,9 +22,6 @@ static void init_compile_typedef_write(void)
 	defwrite(revert);
 	defwrite(revert_goto);
 
-	defwrite(execute_control_set);
-	defwrite(execute_control_push);
-
 	defwrite(set);
 	defwrite(push);
 	defwrite(push_result);
@@ -177,9 +174,6 @@ static void init_compile_typedef_read(void)
 	defread(normal, NORMAL);
 	defread(revert, REVERT);
 	defread(revert_goto, REVERT_GOTO);
-
-	defread(execute_control_set, EXECUTE_CONTROL_SET);
-	defread(execute_control_push, EXECUTE_CONTROL_PUSH);
 
 	defread(set, SET);
 	defread(push, PUSH);

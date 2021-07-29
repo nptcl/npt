@@ -18,38 +18,46 @@
 
 #define Fmt1(x) Return(format_stream(ptr, stream, x, NULL))
 #define Fmt2(x,y) Return(format_stream(ptr, stream, x, y, NULL))
-#define Fmt3(x,y,z) Return(format_stream(ptr, stream, x, y, z, NULL))
 
 /*
  *  disassemble
  */
 static int disassemble_code(Execute ptr, addr stream, addr code);
 
-static int disassemble_symbol_execute(Execute ptr, addr stream, addr car, addr cdr)
+static int disassmeble_code_p(addr car)
 {
-	Fmt2("~2T~A ~20T#<CODE>~%", car);
-	return disassemble_code(ptr, stream, cdr);
-}
+	addr check;
 
-static int disassemble_code_operator(Execute ptr, addr stream, addr car, addr cdr)
-{
-	addr symbol;
+	/* lambda */
+	GetConst(CODE_LAMBDA, &check);
+	if (car == check)
+		return 1;
 
-	/* execute */
-	GetConst(CODE_EXECUTE_CONTROL_SET, &symbol);
-	if (car == symbol)
-		return disassemble_symbol_execute(ptr, stream, car, cdr);
+	/* macro */
+	GetConst(CODE_MACRO, &check);
+	if (car == check)
+		return 1;
 
-	/* otherwise */
-	Fmt3("~2T~A ~20T~S~%", car, cdr);
+	/* labels-lambda */
+	GetConst(CODE_LABELS_LAMBDA, &check);
+	if (car == check)
+		return 1;
 
 	return 0;
 }
 
-static int disassemble_code_type(Execute ptr, addr stream, addr pos)
+static int disassemble_code_operator(Execute ptr,
+		size_t i, addr stream, addr car, addr cdr)
 {
-	Fmt1("CODE-BEGIN ~20T");
-	Return(terpri_stream_(stream));
+	addr index;
+
+	/* otherwise */
+	make_index_integer_heap(&index, i);
+	Return(format_stream(ptr, stream, "~5@A: ~20A ~S~%", index, car, cdr, NULL));
+
+	/* execute */
+	if (disassmeble_code_p(car))
+		return disassemble_code(ptr, stream, cdr);
 
 	return 0;
 }
@@ -64,7 +72,7 @@ static int disassemble_code_body(Execute ptr, addr stream, addr pos)
 	for (i = 0; i < size; i++) {
 		getarray(pos, i, &car);
 		GetCons(car, &car, &cdr);
-		Return(disassemble_code_operator(ptr, stream, car, cdr));
+		Return(disassemble_code_operator(ptr, i, stream, car, cdr));
 	}
 
 	return 0;
@@ -76,9 +84,9 @@ static int disassemble_code(Execute ptr, addr stream, addr code)
 		return 0;
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
-	Return(disassemble_code_type(ptr, stream, code));
+	Return(format_stream(ptr, stream, "CODE-BEGIN: ~A~20T~%", code, NULL));
 	Return(disassemble_code_body(ptr, stream, code));
-	Fmt1("CODE-END~%");
+	Return(format_stream(ptr, stream, "CODE-END: ~A~%", code, NULL));
 
 	return 0;
 }
@@ -97,10 +105,10 @@ static int disassemble_function(Execute ptr, addr stream, addr pos)
 	CheckType(stream, LISPTYPE_STREAM);
 	CheckType(pos, LISPTYPE_FUNCTION);
 	if (compiled_function_p(pos)) {
-		Fmt2("Cannot disassemble COMPILED-FUNCTION ~S.~%", pos);
+		Fmt2("Cannot disassemble COMPILED-FUNCTION ~S.~2%", pos);
 	}
 	else {
-		Fmt2("INTERPRETED-FUNCTION ~S.~%", pos);
+		Fmt2("INTERPRETED-FUNCTION ~S.~2%", pos);
 		Return(disassemble_interpreted(ptr, stream, pos));
 	}
 

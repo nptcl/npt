@@ -573,14 +573,6 @@ int code_make_execute_rem_(CodeMake ptr, addr scope)
 	return 0;
 }
 
-void code_make_execute_control(CodeMake ptr, addr pos)
-{
-	if (code_queue_pushp(ptr))
-		CodeQueue_cons(ptr, EXECUTE_CONTROL_PUSH, pos);
-	else
-		CodeQueue_cons(ptr, EXECUTE_CONTROL_SET, pos);
-}
-
 void code_make_single(CodeMake ptr, constindex set, constindex push)
 {
 	CheckTypeCodeQueue(ptr->code);
@@ -676,16 +668,19 @@ int code_escape_get(CodeMake ptr)
 	return ptr->escape;
 }
 
+#ifdef LISP_DEBUG
+static fixnum code_make_begin_index = 0;
+#endif
+
 void code_make_begin(CodeMake ptr, fixnum *ret)
 {
 #ifdef LISP_DEBUG
-	static fixnum value = 0;
 	addr pos;
 
-	fixnum_heap(&pos, value);
+	fixnum_heap(&pos, code_make_begin_index);
 	CodeQueue_cons(ptr, BEGIN, pos);
-	*ret = value;
-	value++;
+	*ret = code_make_begin_index;
+	code_make_begin_index++;
 #else
 	CodeQueue_single(ptr, BEGIN);
 	*ret = 0;
@@ -695,13 +690,12 @@ void code_make_begin(CodeMake ptr, fixnum *ret)
 void code_make_begin_call(CodeMake ptr, fixnum *ret)
 {
 #ifdef LISP_DEBUG
-	static fixnum value = 0;
 	addr pos;
 
-	fixnum_heap(&pos, value);
+	fixnum_heap(&pos, code_make_begin_index);
 	CodeQueue_cons(ptr, BEGIN_CALL, pos);
-	*ret = value;
-	value++;
+	*ret = code_make_begin_index;
+	code_make_begin_index++;
 #else
 	CodeQueue_single(ptr, BEGIN_CALL);
 	*ret = 0;

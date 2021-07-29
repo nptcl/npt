@@ -2010,6 +2010,20 @@ static int WriteCall_complex_(Execute ptr, addr stream, addr object)
 
 
 /*
+ *  code
+ */
+static int WriteBody_code_(Execute ptr, addr stream, addr pos)
+{
+	return print_ascii_stream_(stream, "CODE");
+}
+
+static int WriteCall_code_(Execute ptr, addr stream, addr pos)
+{
+	return print_unreadable_object_(ptr, stream, pos, 0, 1, WriteBody_code_);
+}
+
+
+/*
  *  callname
  */
 static int WriteBody_callname_(Execute ptr, addr stream, addr pos)
@@ -2637,7 +2651,7 @@ void init_print_write(void)
 	WriteCallTable[LISPTYPE_LONG_FLOAT] = WriteCall_long_float_;
 	WriteCallTable[LISPTYPE_COMPLEX] = WriteCall_complex_;
 	WriteCallTable[LISPTYPE_CONTROL] = WriteCall_system;
-	WriteCallTable[LISPTYPE_CODE] = WriteCall_system;
+	WriteCallTable[LISPTYPE_CODE] = WriteCall_code_;
 	WriteCallTable[LISPTYPE_CALLNAME] = WriteCall_callname_;
 	WriteCallTable[LISPTYPE_FUNCTION] = WriteCall_function_;
 	WriteCallTable[LISPTYPE_INDEX] = WriteCall_index_;

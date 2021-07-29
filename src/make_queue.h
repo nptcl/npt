@@ -28,7 +28,6 @@
 #define code_make_execute_set_ _n(code_make_execute_set_)
 #define code_make_execute_push_ _n(code_make_execute_push_)
 #define code_make_execute_rem_ _n(code_make_execute_rem_)
-#define code_make_execute_control _n(code_make_execute_control)
 #define code_make_single _n(code_make_single)
 #define code_make_object _n(code_make_object)
 #define code_queue_make_label _n(code_queue_make_label)
@@ -111,7 +110,6 @@ void code_queue_pop(CodeMake ptr, addr *ret);
 int code_make_execute_set_(CodeMake ptr, addr scope);
 int code_make_execute_push_(CodeMake ptr, addr scope);
 int code_make_execute_rem_(CodeMake ptr, addr scope);
-void code_make_execute_control(CodeMake ptr, addr pos);
 void code_make_single(CodeMake ptr, constindex set, constindex push);
 void code_make_object(CodeMake ptr, addr value);
 
