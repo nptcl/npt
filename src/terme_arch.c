@@ -1,5 +1,7 @@
 #include "arch.h"
 #include "terme_arch.h"
+#include "terme_escape.h"
+#include "terme_output.h"
 #include "typedef.h"
 
 #if defined(LISP_TERME_UNIX)
@@ -20,41 +22,30 @@
 static unsigned terme_arch_x;
 static unsigned terme_arch_y;
 static int terme_arch_textmode_p;
+static int terme_arch_enable_p;
 
 /*
  *  terme-init
  */
-#if defined(LISP_TERME_UNIX)
-static void terme_init_handler(int sig)
-{
-	if (getwidth_arch(&terme_arch_x, &terme_arch_y)) {
-		terme_arch_x = 0;
-		terme_arch_y = 0;
-	}
-}
-
+#ifdef LISP_TERME_WINDOWS
 int terme_arch_init(void)
 {
-	struct sigaction act;
+	terme_arch_x = 0;
+	terme_arch_y = 0;
+	terme_arch_textmode_p = 0;
+	terme_arch_enable_p = 0;
 
-	act.sa_handler = terme_init_handler;
-	sigemptyset(&act.sa_mask);
-	act.sa_flags = SA_RESTART;
-	if (sigaction(SIGWINCH, &act, NULL))
-		return 0;
-
-	return 0;
-}
-#elif defined(LISP_TERME_WINDOWS)
-int terme_arch_init(void)
-{
 	return terme_windows_init();
 }
+
 #else
 int terme_arch_init(void)
 {
 	terme_arch_x = 0;
 	terme_arch_y = 0;
+	terme_arch_textmode_p = 0;
+	terme_arch_enable_p = 0;
+
 	return 0;
 }
 #endif
@@ -95,6 +86,27 @@ void terme_arch_size_get(unsigned *ret_x, unsigned *ret_y)
  *  terme-begin
  */
 #if defined(LISP_TERME_UNIX)
+static void terme_arch_handler(int sig)
+{
+	if (getwidth_arch(&terme_arch_x, &terme_arch_y)) {
+		terme_arch_x = 0;
+		terme_arch_y = 0;
+	}
+}
+
+static int terme_arch_signal(void)
+{
+	struct sigaction act;
+
+	act.sa_handler = terme_arch_handler;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = SA_RESTART;
+	if (sigaction(SIGWINCH, &act, NULL))
+		return 1;
+
+	return 0;
+}
+
 static struct termios terme_arch_textmode_v;
 static struct termios terme_arch_switch_v;
 
@@ -134,8 +146,17 @@ static int terme_arch_termios(void)
 
 int terme_arch_begin(void)
 {
+	terme_arch_enable_p = 0;
+#ifndef LISP_TERME
+	return 0;
+#endif
+
 	/* terminal size */
 	if (terme_arch_size_update())
+		return 1;
+
+	/* sigaction */
+	if (terme_arch_signal())
 		return 1;
 
 	/* termios */
@@ -144,12 +165,15 @@ int terme_arch_begin(void)
 
 	/* switch */
 	terme_arch_textmode_p = 1;
-
+	terme_arch_enable_p = 1;
 	return 0;
 }
 
 int terme_arch_end(void)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return terme_arch_set(&terme_arch_textmode_v);
 }
 
@@ -157,6 +181,7 @@ int terme_arch_end(void)
 int terme_arch_begin(void)
 {
 	terme_arch_textmode_p = 1;
+	terme_arch_enable_p = 1;
 	return terme_windows_begin();
 }
 
@@ -169,6 +194,7 @@ int terme_arch_end(void)
 int terme_arch_begin(void)
 {
 	terme_arch_textmode_p = 1;
+	terme_arch_enable_p = 0;
 	return 0;
 }
 
@@ -185,6 +211,8 @@ int terme_arch_end(void)
 #if defined(LISP_TERME_UNIX)
 int terme_arch_textmode(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
 	if (terme_arch_textmode_p) {
 		if (ret)
 			*ret = 0;
@@ -203,6 +231,8 @@ int terme_arch_textmode(int *ret)
 
 int terme_arch_rawmode(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
 	if (! terme_arch_textmode_p) {
 		if (ret)
 			*ret = 0;
@@ -223,6 +253,8 @@ int terme_arch_rawmode(int *ret)
 #elif defined(LISP_TERME_WINDOWS)
 int terme_arch_textmode(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
 	if (terme_arch_textmode_p) {
 		if (ret)
 			*ret = 0;
@@ -241,6 +273,8 @@ int terme_arch_textmode(int *ret)
 
 int terme_arch_rawmode(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
 	if (! terme_arch_textmode_p) {
 		if (ret)
 			*ret = 0;
@@ -260,6 +294,8 @@ int terme_arch_rawmode(int *ret)
 #else
 int terme_arch_textmode(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
 	terme_arch_textmode_p = 1;
 	if (ret)
 		*ret = 0;
@@ -268,6 +304,8 @@ int terme_arch_textmode(int *ret)
 
 int terme_arch_rawmode(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
 	terme_arch_textmode_p = 0;
 	if (ret)
 		*ret = 0;
@@ -302,6 +340,8 @@ int terme_arch_select(int *ret)
 	fd_set fdset;
 	struct timeval tm;
 
+	if (! terme_arch_enable_p)
+		return 0;
 	fd = STDIN_FILENO;
 	FD_ZERO(&fdset);
 	FD_SET(fd, &fdset);
@@ -329,6 +369,8 @@ int terme_arch_wait(void)
 	int fd, reti;
 	fd_set fdset;
 
+	if (! terme_arch_enable_p)
+		return 0;
 	fd = STDIN_FILENO;
 	FD_ZERO(&fdset);
 	FD_SET(fd, &fdset);
@@ -340,6 +382,8 @@ int terme_arch_read(void *data, size_t size, size_t *ret)
 {
 	ssize_t check;
 
+	if (! terme_arch_enable_p)
+		return 0;
 	check = read(STDIN_FILENO, data, size);
 	if (check < 0)
 		return -1;
@@ -352,6 +396,8 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 {
 	ssize_t check;
 
+	if (! terme_arch_enable_p)
+		return 0;
 	check = write(STDOUT_FILENO, data, size);
 	if (check < 0)
 		return -1;
@@ -363,44 +409,68 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 #elif defined(LISP_TERME_WINDOWS)
 int terme_arch_select(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return terme_windows_select(ret);
 }
 
 int terme_arch_wait(void)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return terme_windows_wait();
 }
 
 int terme_arch_read(void *data, size_t size, size_t *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return terme_windows_read(data, size, ret);
 }
 
 int terme_arch_write(const void *data, size_t size, size_t *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return terme_windows_write(data, size, ret);
 }
 
 #else
 int terme_arch_select(int *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	*ret = 0;
 	return 0;
 }
 
 int terme_arch_wait(void)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return 0;
 }
 
 int terme_arch_read(void *data, size_t size, size_t *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	*ret = 0;
 	return 1;
 }
 
 int terme_arch_write(const void *data, size_t size, size_t *ret)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	*ret = 0;
 	return 1;
 }
@@ -413,14 +483,52 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 #ifdef LISP_TERME_UNIX
 int terme_arch_terminal_stop_(void)
 {
+	if (! terme_arch_enable_p)
+		return 0;
+
 	return kill(getpid(), SIGTSTP);
 }
 
 #else
-
 int terme_arch_terminal_stop_(void)
 {
 	return 0;
 }
 #endif
+
+int terme_arch_enable(void)
+{
+	return terme_arch_enable_p;
+}
+
+
+/*
+ *  font
+ */
+int font_arch_terme(Execute ptr, PrintFont value)
+{
+	if (! terme_arch_enable_p)
+		return 0;
+
+	return terme_font(ptr, value)
+		|| terme_finish_output();
+}
+
+int text_color_arch_terme(Execute ptr, PrintColor value)
+{
+	if (! terme_arch_enable_p)
+		return 0;
+
+	return terme_text_color(ptr, value)
+		|| terme_finish_output();
+}
+
+int back_color_arch_terme(Execute ptr, PrintColor value)
+{
+	if (! terme_arch_enable_p)
+		return 0;
+
+	return terme_back_color(ptr, value)
+		|| terme_finish_output();
+}
 

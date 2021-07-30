@@ -22,7 +22,6 @@
 #define terme_root_screen_ _n(terme_root_screen_)
 #define terme_root_display_ _n(terme_root_display_)
 #define terme_root_history_ _n(terme_root_history_)
-#define terme_root_enable_ _n(terme_root_enable_)
 
 #define terme_prompt_set_ _n(terme_prompt_set_)
 #define terme_prompt_get_ _n(terme_prompt_get_)
@@ -65,7 +64,6 @@ int terme_root_data_(Execute ptr, addr *ret);
 int terme_root_screen_(Execute ptr, addr *ret);
 int terme_root_display_(Execute ptr, addr *ret);
 int terme_root_history_(Execute ptr, addr *ret);
-int terme_root_enable_(Execute ptr, int *ret);
 
 int terme_prompt_set_(Execute ptr, addr value, enum prompt_mode mode);
 int terme_prompt_get_(Execute ptr, addr *value, enum prompt_mode *mode);

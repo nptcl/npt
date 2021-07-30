@@ -839,20 +839,12 @@ int lisp_argv_run(struct lispargv *ptr)
 		return 1;
 	}
 
-	/* terminal */
-	if (begin_terme()) {
-		lisperror("terminal error.");
-		lisp_code = lisp_result = 1;
-		return 1;
-	}
-
 	/* runcode */
+	begin_terme();
 	if (lisp_argv_code(ptr)) {
 		lisp_code = lisp_result = 1;
 	}
-
-	/* terminal */
-	(void)end_terme();
+	end_terme();
 
 	return lisp_code;
 }

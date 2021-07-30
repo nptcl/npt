@@ -221,6 +221,14 @@ int getwidth_arch(unsigned *rx, unsigned *ry)
 	if (ry)
 		*ry = (unsigned)ws.ws_row;
 
+#if 0
+	/* for debug */
+	if (rx)
+		*rx = 10;
+	if (ry)
+		*ry = 5;
+#endif
+
 	return 0;
 }
 

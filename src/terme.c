@@ -7,7 +7,6 @@
 #include "terme_arch.h"
 #include "terme_data.h"
 #include "terme_display.h"
-#include "terme_escape.h"
 #include "terme_history.h"
 #include "terme_input.h"
 #include "terme_object.h"
@@ -84,19 +83,16 @@ int readline_terme_(Execute ptr, addr *ret)
 
 int font_terme(Execute ptr, PrintFont value)
 {
-	return terme_font(ptr, value)
-		|| terme_finish_output();
+	return font_arch_terme(ptr, value);
 }
 
 int text_color_terme(Execute ptr, PrintColor value)
 {
-	return terme_text_color(ptr, value)
-		|| terme_finish_output();
+	return text_color_arch_terme(ptr, value);
 }
 
 int back_color_terme(Execute ptr, PrintColor value)
 {
-	return terme_back_color(ptr, value)
-		|| terme_finish_output();
+	return back_color_arch_terme(ptr, value);
 }
 

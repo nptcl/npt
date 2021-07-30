@@ -466,43 +466,25 @@ int terme_display_getwidth_(Execute ptr, unsigned *ret)
 	return Result(ret, body->wide? 2: 1);
 }
 
-int terme_display_previous_(Execute ptr, unsigned *ret, int *rcheck)
+int terme_display_previous_(Execute ptr, int *ret)
 {
 	addr pos;
 	struct terme_display_struct *str;
-	struct terme_line_body *body;
 
 	Return(terme_root_display_(ptr, &pos));
 	str = struct_terme_display(pos);
 
 	/* out of range */
-	if (str->size_y <= str->now_y) {
-		*rcheck = 0;
-		return Result(ret, 0);
-	}
+	if (str->size_y <= str->now_y)
+		return Result(ret, -1);
 
 	/* previous line */
 	if (str->now_x == 0) {
-		*rcheck = str->now_y? 1: 0;
-		return Result(ret, 0);
+		return Result(ret, str->now_y? 0: -1);
 	}
 
-	/* line */
-	terme_get(pos, 0, &pos);
-	getarray(pos, str->now_y, &pos);
-	body = struct_terme_body(pos);
-	body += str->now_x - 1U;
-	if (! body->ignore) {
-		*rcheck = 1;
-		return Result(ret, body->wide? 2: 1);
-	}
-	if (str->now_x == 1) {
-		*rcheck = 1;
-		return Result(ret, 1);
-	}
-	body--;
-	*rcheck = 1;
-	return Result(ret, 2);
+	/* current line */
+	return Result(ret, 1);
 }
 
 int terme_display_getlast_(Execute ptr, unsigned *ret)

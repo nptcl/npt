@@ -363,18 +363,19 @@ int terme_data_last_(Execute ptr)
 	return 0;
 }
 
-static void terme_data_shift_left_(addr pos, unsigned x, unsigned size)
+static void terme_data_shift_left_(addr pos, unsigned x, unsigned size, unsigned *ret)
 {
 	addr array;
 	struct terme_data_character *body;
 
 	terme_data_get_body(pos, &array);
 	body = struct_data_character(array);
+	*ret = body[x].width;
 	for (; x < size; x++)
 		body[x] = body[x + 1];
 }
 
-static void terme_data_delete_index(addr pos, unsigned index, int *ret)
+static void terme_data_delete_index(addr pos, unsigned index, unsigned *ret)
 {
 	struct terme_data_struct *str;
 
@@ -385,14 +386,13 @@ static void terme_data_delete_index(addr pos, unsigned index, int *ret)
 	}
 
 	/* shift */
-	terme_data_shift_left_(pos, index, str->size);
+	terme_data_shift_left_(pos, index, str->size, ret);
 	str->size--;
-	*ret = 1;
 }
 
 int terme_data_delete_(Execute ptr, int *ret)
 {
-	int check;
+	unsigned width;
 	addr pos;
 	struct terme_data_struct *str;
 
@@ -401,13 +401,13 @@ int terme_data_delete_(Execute ptr, int *ret)
 	if (str->size <= str->now)
 		return Result(ret, 0);
 
-	terme_data_delete_index(pos, str->now, &check);
+	terme_data_delete_index(pos, str->now, &width);
 	return Result(ret, 1);
 }
 
-int terme_data_backspace_(Execute ptr, int *ret)
+int terme_data_backspace_(Execute ptr, unsigned *ret)
 {
-	int check;
+	unsigned width;
 	addr pos;
 	struct terme_data_struct *str;
 
@@ -417,12 +417,12 @@ int terme_data_backspace_(Execute ptr, int *ret)
 		return Result(ret, 0);
 
 	/* backspace */
-	terme_data_delete_index(pos, str->now - 1U, &check);
-	if (! check)
+	terme_data_delete_index(pos, str->now - 1U, &width);
+	if (width == 0)
 		return Result(ret, 0);
 	str->now--;
 
-	return Result(ret, 1);
+	return Result(ret, width);
 }
 
 static int terme_data_rmleft_shift_(addr pos, unsigned index, unsigned size)

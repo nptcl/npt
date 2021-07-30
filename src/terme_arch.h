@@ -1,6 +1,8 @@
 #ifndef __TERME_ARCH_HEADER__
 #define __TERME_ARCH_HEADER__
 
+#include "execute.h"
+#include "print_font.h"
 #include "typedef.h"
 
 #define terme_arch_init _n(terme_arch_init)
@@ -16,8 +18,12 @@
 #define terme_arch_wait _n(terme_arch_wait)
 #define terme_arch_read _n(terme_arch_read)
 #define terme_arch_write _n(terme_arch_write)
-
 #define terme_arch_terminal_stop_ _n(terme_arch_terminal_stop_)
+#define terme_arch_enable _n(terme_arch_enable)
+
+#define font_arch_terme _n(font_arch_terme)
+#define text_color_arch_terme _n(text_color_arch_terme)
+#define back_color_arch_terme _n(back_color_arch_terme)
 
 int terme_arch_init(void);
 int terme_arch_size_update(void);
@@ -32,8 +38,12 @@ int terme_arch_select(int *ret);
 int terme_arch_wait(void);
 int terme_arch_read(void *data, size_t size, size_t *ret);
 int terme_arch_write(const void *data, size_t size, size_t *ret);
-
 int terme_arch_terminal_stop_(void);
+int terme_arch_enable(void);
+
+int font_arch_terme(Execute ptr, PrintFont value);
+int text_color_arch_terme(Execute ptr, PrintColor value);
+int back_color_arch_terme(Execute ptr, PrintColor value);
 
 #endif
 

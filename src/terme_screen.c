@@ -419,7 +419,7 @@ static int terme_screen_left_line_(Execute ptr, unsigned width)
 	return 0;
 }
 
-static int terme_screen_left_previous_(Execute ptr)
+static int terme_screen_left_previous_(Execute ptr, unsigned width)
 {
 	unsigned move;
 	addr screen;
@@ -435,53 +435,57 @@ static int terme_screen_left_previous_(Execute ptr)
 	str->now_y--;
 	/* right */
 	Return(terme_display_getlast_(ptr, &move));
-	Return(terme_write_right_(ptr, move));
-	str->now_x = move;
+	if (width < move) {
+		move -= width;
+		Return(terme_write_right_(ptr, move));
+		str->now_x = move;
+	}
 	/* left */
-	return terme_screen_left_(ptr);
+	return terme_write_flush_();
 }
 
-static int terme_screen_left_output_(Execute ptr, int *ret)
+static int terme_screen_left_output_(Execute ptr, unsigned width, int *ret)
 {
 	int check;
-	unsigned width;
 
-	Return(terme_display_previous_(ptr, &width, &check));
-	if (! check)
+	Return(terme_display_previous_(ptr, &check));
+	if (check < 0)
 		return Result(ret, 0);
-	if (width) {
+	if (check) {
 		Return(terme_screen_left_line_(ptr, width));
 	}
 	else {
-		Return(terme_screen_left_previous_(ptr));
+		Return(terme_screen_left_previous_(ptr, width));
 	}
 
 	return Result(ret, 1);
 }
 
-int terme_screen_left_(Execute ptr)
+int terme_screen_left_(Execute ptr, unsigned width)
 {
 	int check;
 
-	Return(terme_screen_left_output_(ptr, &check));
+	Return(terme_screen_left_output_(ptr, width, &check));
 	if (! check)
 		return 0;
 
 	return terme_write_flush_();
 }
 
-int terme_screen_right_(Execute ptr)
+static int terme_screen_right_next_(Execute ptr)
 {
-	unsigned width, next;
-	addr screen;
+	unsigned now, size, width, next;
+	addr data, screen;
 	struct terme_screen_struct *str;
 
-	/* current size */
-	Return(terme_display_getwidth_(ptr, &width));
-	if (width == 0)
-		return 0;
+	/* data */
+	Return(terme_root_data_(ptr, &data));
+	terme_data_get_value(data, &now, &size);
+	if (size <= now)
+		return terme_write_flush_();
+	if (terme_data_get_character(data, now, NULL, &width))
+		return terme_fmte_("terme_data_get_character error.", NULL);
 
-	/* screen */
 	Return(terme_root_screen_(ptr, &screen));
 	str = struct_terme_screen(screen);
 	next = str->now_x + width;
@@ -490,10 +494,30 @@ int terme_screen_right_(Execute ptr)
 		str->now_x = 0;
 		str->now_y++;
 	}
-	Return(terme_write_right_(ptr, width));
-	str->now_x += width;
 
 	return terme_write_flush_();
+}
+
+int terme_screen_right_(Execute ptr, unsigned width)
+{
+	unsigned next;
+	addr screen;
+	struct terme_screen_struct *str;
+
+	Return(terme_root_screen_(ptr, &screen));
+	str = struct_terme_screen(screen);
+	next = str->now_x + width;
+	if (str->window_x <= next) {
+		Return(terme_write_first_down_(ptr, 1));
+		str->now_x = 0;
+		str->now_y++;
+	}
+	else {
+		Return(terme_write_right_(ptr, width));
+		str->now_x += width;
+	}
+
+	return terme_screen_right_next_(ptr);
 }
 
 static int terme_screen_delete_last_(Execute ptr, addr screen)
@@ -534,12 +558,12 @@ int terme_screen_delete_(Execute ptr)
 	return terme_write_flush_();
 }
 
-int terme_screen_backspace_(Execute ptr)
+int terme_screen_backspace_(Execute ptr, unsigned width)
 {
 	int check;
 
 	/* left */
-	Return(terme_screen_left_output_(ptr, &check));
+	Return(terme_screen_left_output_(ptr, width, &check));
 	if (! check)
 		return 0;
 

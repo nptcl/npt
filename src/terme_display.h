@@ -37,7 +37,7 @@ int terme_display_first_up_(Execute ptr, int n);
 int terme_display_first_down_(Execute ptr, int n);
 int terme_display_delete_line_(Execute ptr);
 int terme_display_getwidth_(Execute ptr, unsigned *ret);
-int terme_display_previous_(Execute ptr, unsigned *ret, int *rcheck);
+int terme_display_previous_(Execute ptr, int *ret);
 int terme_display_getlast_(Execute ptr, unsigned *ret);
 int terme_display_delete_page_(Execute ptr);
 

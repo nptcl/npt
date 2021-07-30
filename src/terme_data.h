@@ -41,7 +41,7 @@ int terme_data_right_(Execute ptr, unsigned *ret);
 int terme_data_first_(Execute ptr);
 int terme_data_last_(Execute ptr);
 int terme_data_delete_(Execute ptr, int *ret);
-int terme_data_backspace_(Execute ptr, int *ret);
+int terme_data_backspace_(Execute ptr, unsigned *ret);
 int terme_data_rmleft_(Execute ptr, int *ret);
 int terme_data_rmright_(Execute ptr, int *ret);
 

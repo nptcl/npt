@@ -214,7 +214,7 @@ static int terme_readline_left_(Execute ptr)
 	if (width == 0)
 		return 0;
 
-	return terme_screen_left_(ptr);
+	return terme_screen_left_(ptr, width);
 }
 
 static int terme_readline_right_(Execute ptr)
@@ -225,7 +225,7 @@ static int terme_readline_right_(Execute ptr)
 	if (width == 0)
 		return 0;
 
-	return terme_screen_right_(ptr);
+	return terme_screen_right_(ptr, width);
 }
 
 static int terme_readline_return_(Execute ptr, addr *value, int *ret)
@@ -261,13 +261,13 @@ static int terme_readline_delete_(Execute ptr, addr *value, int *ret)
 
 static int terme_readline_backspace_(Execute ptr)
 {
-	int check;
+	unsigned width;
 
-	Return(terme_data_backspace_(ptr, &check));
-	if (! check)
+	Return(terme_data_backspace_(ptr, &width));
+	if (width == 0)
 		return 0;
 
-	return terme_screen_backspace_(ptr);
+	return terme_screen_backspace_(ptr, width);
 }
 
 static int terme_readline_first_(Execute ptr)
@@ -425,10 +425,7 @@ static int terme_readline_module_(Execute ptr, addr *ret)
 
 int terme_readline_(Execute ptr, addr *ret)
 {
-	int check;
-
-	Return(terme_root_enable_(ptr, &check));
-	if (check)
+	if (terme_arch_enable())
 		return terme_readline_module_(ptr, ret);
 	else
 		return readline_default_terme_(ptr, ret);

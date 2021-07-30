@@ -80,7 +80,6 @@ int terme_history_p(addr pos)
  *  terme-root
  */
 struct terme_root_struct {
-	unsigned terme_p : 1;
 	enum prompt_mode mode;
 };
 
@@ -100,11 +99,6 @@ void terme_root_build(addr *ret)
 			sizeoft(struct terme_root_struct));
 	terme_set_type(root, terme_type_root);
 	str = terme_root_body(root);
-#ifdef LISP_TERME
-	str->terme_p = 1;
-#else
-	str->terme_p = 0;
-#endif
 	str->mode = prompt_input;
 	*ret = root;
 }
@@ -144,17 +138,6 @@ int terme_root_display_(Execute ptr, addr *ret)
 int terme_root_history_(Execute ptr, addr *ret)
 {
 	return terme_root_get_(ptr, terme_root_history, ret);
-}
-
-int terme_root_enable_(Execute ptr, int *ret)
-{
-	addr pos;
-	struct terme_root_struct *str;
-
-	Return(terme_root_special_(ptr, &pos));
-	str = terme_root_body(pos);
-
-	return Result(ret, str->terme_p);
 }
 
 
