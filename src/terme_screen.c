@@ -247,10 +247,7 @@ static int terme_screen_push_next_(addr data, addr screen, unsigned *rx, unsigne
 
 	/* width */
 	terme_data_get_value(data, &now, NULL);
-	if (terme_data_get_character(data, now, NULL, &width)) {
-		*rx = *ry = 0;
-		return terme_fmte_("terme_data_get_character error.", NULL);
-	}
+	Return(terme_data_get_character_(data, now, NULL, &width));
 
 	/* screen */
 	str = struct_terme_screen(screen);
@@ -290,8 +287,7 @@ static int terme_screen_output_(Execute ptr, addr data, addr screen, PromptMode 
 	str = struct_terme_screen(screen);
 	terme_data_get_value(data, &now, &size);
 	for (; now < size; now++) {
-		if (terme_data_get_character(data, now, &c, &width))
-			return terme_fmte_("terme_data_get_character error.", NULL);
+		Return(terme_data_get_character_(data, now, &c, &width));
 		Return(terme_screen_write_char_(ptr, c, width, mode));
 	}
 	if (str->last_y < str->now_y)
@@ -483,8 +479,7 @@ static int terme_screen_right_next_(Execute ptr)
 	terme_data_get_value(data, &now, &size);
 	if (size <= now)
 		return terme_write_flush_();
-	if (terme_data_get_character(data, now, NULL, &width))
-		return terme_fmte_("terme_data_get_character error.", NULL);
+	Return(terme_data_get_character_(data, now, NULL, &width));
 
 	Return(terme_root_screen_(ptr, &screen));
 	str = struct_terme_screen(screen);
@@ -522,12 +517,16 @@ int terme_screen_right_(Execute ptr, unsigned width)
 
 static int terme_screen_delete_last_(Execute ptr, addr screen)
 {
-	unsigned y;
+	unsigned y, now_y, last_y;
 	struct terme_screen_struct *str;
 
 	str = struct_terme_screen(screen);
-	for (y = str->now_y; y < str->last_y; y++) {
+	now_y = str->now_y;
+	last_y = str->last_y;
+	for (y = now_y; y < last_y; y++) {
 		Return(terme_write_first_down_(ptr, 1));
+		str->now_x = 0;
+		str->now_y++;
 		Return(terme_write_delete_line_right_(ptr));
 	}
 
@@ -600,7 +599,7 @@ static int terme_screen_move_char_(addr screen,
 	}
 
 	/* move */
-	*rx = next;
+	*rx += width;
 
 	return 0;
 }
@@ -618,10 +617,7 @@ static int terme_screen_last_position_(Execute ptr, unsigned *rx, unsigned *ry)
 	x = str->now_x;
 	y = str->now_y;
 	for (; now < size; now++) {
-		if (terme_data_get_character(data, now, NULL, &width)) {
-			*rx = *ry = 0;
-			return terme_fmte_("terme_data_get_character error.", NULL);
-		}
+		Return(terme_data_get_character_(data, now, NULL, &width));
 		Return(terme_screen_move_char_(screen, width, &x, &y));
 	}
 	*rx = x;
@@ -651,8 +647,7 @@ static int terme_screen_update_output_(Execute ptr, addr screen, PromptMode mode
 	str = struct_terme_screen(screen);
 	terme_data_get_value(data, NULL, &size);
 	for (now = 0; now < size; now++) {
-		if (terme_data_get_character(data, now, &c, &width))
-			return terme_fmte_("terme_data_get_character error.", NULL);
+		Return(terme_data_get_character_(data, now, &c, &width));
 		Return(terme_screen_write_char_(ptr, c, width, mode));
 	}
 	if (str->last_y < str->now_y)

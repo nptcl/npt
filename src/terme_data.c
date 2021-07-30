@@ -2,6 +2,7 @@
 #include "heap.h"
 #include "strvect.h"
 #include "terme_data.h"
+#include "terme_error.h"
 #include "terme_object.h"
 #include "typedef.h"
 
@@ -266,7 +267,7 @@ void terme_data_get_value(addr pos, unsigned *rnow, unsigned *rsize)
 		*rsize = str->size;
 }
 
-int terme_data_get_character(addr pos, unsigned i, unicode *retc, unsigned *retw)
+int terme_data_get_character_(addr pos, unsigned i, unicode *retc, unsigned *retw)
 {
 	addr array;
 	struct terme_data_struct *str;
@@ -278,7 +279,7 @@ int terme_data_get_character(addr pos, unsigned i, unicode *retc, unsigned *retw
 			*retc = 0;
 		if (retw)
 			*retw = 0;
-		return 1;
+		return terme_fmte_("terme_data_get_character_ error.", NULL);
 	}
 
 	terme_data_get_body(pos, &array);

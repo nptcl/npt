@@ -516,8 +516,8 @@ int terme_display_delete_page_(Execute ptr)
 	str = struct_terme_display(pos);
 	terme_get(pos, 0, &array);
 	for (y = 0; y < str->now_y; y++) {
-		getarray(pos, y, &line);
-		root = struct_terme_line(pos);
+		getarray(array, y, &line);
+		root = struct_terme_line(line);
 		root->now = 0;
 	}
 	str->now_x = 0;

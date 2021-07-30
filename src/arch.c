@@ -212,14 +212,21 @@ int getwidth_arch(unsigned *rx, unsigned *ry)
 
 int getwidth_arch(unsigned *rx, unsigned *ry)
 {
+	unsigned x, y;
 	struct winsize ws;
 
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 		return 1;
+	x = (unsigned)ws.ws_col;
+	y = (unsigned)ws.ws_row;
+	if (x <= 2)
+		x = 2;
+	if (y <= 1)
+		y = 1;
 	if (rx)
-		*rx = (unsigned)ws.ws_col;
+		*rx = x;
 	if (ry)
-		*ry = (unsigned)ws.ws_row;
+		*ry = y;
 
 #if 0
 	/* for debug */

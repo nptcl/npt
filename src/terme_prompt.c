@@ -85,7 +85,7 @@ static int terme_readline_control_(Execute ptr,
 		case 0x03:	/* C */
 			return terme_fmte_("Ctrl + C", NULL);
 
-		case 0x04:  /* D, delete */
+		case 0x04:  /* D */
 			str->type = terme_escape_delete;
 			break;
 
@@ -230,6 +230,9 @@ static int terme_readline_right_(Execute ptr)
 
 static int terme_readline_return_(Execute ptr, addr *value, int *ret)
 {
+	/* last */
+	Return(terme_screen_last_(ptr));
+	Return(terme_data_last_(ptr));
 	/* history */
 	Return(terme_history_return_(ptr));
 	/* result */
@@ -248,10 +251,10 @@ static int terme_readline_delete_(Execute ptr, addr *value, int *ret)
 		*value = Nil;
 		return Result(ret, 1);
 	}
-	*value = Nil;
-	*ret = 0;
 
 	/* delete */
+	*value = Nil;
+	*ret = 0;
 	Return(terme_data_delete_(ptr, &check));
 	if (! check)
 		return 0;

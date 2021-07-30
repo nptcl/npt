@@ -195,14 +195,29 @@ static int code_make_specialize_(CodeMake ptr, addr scope, int *ret)
 /*
  *  call
  */
+static int code_make_call_push_escape_(CodeMake ptr, addr value, addr escape)
+{
+	unsigned escape_p;
+
+	escape_p = ptr->escape;
+	ptr->escape = 0;
+	Return(code_make_execute_push_(ptr, value));
+	if (ptr->escape)
+		code_jump_escape_wake(ptr, escape);
+	ptr->escape |= escape_p;
+
+	return 0;
+}
+
 static int code_make_call_args_push_(CodeMake ptr, addr pos, addr escape)
 {
 	addr value;
 
+	/* value */
 	getvalue_tablecall(pos, &value);
-	Return(code_make_execute_push_(ptr, value));
-	code_jump_escape_wake(ptr, escape);
+	Return(code_make_call_push_escape_(ptr, value, escape));
 
+	/* type */
 	if (getcheck_tablecall(pos)) {
 		gettype_tablecall(pos, &value);
 		if (! type_astert_p(value)) {

@@ -13,7 +13,7 @@
 #define terme_data_size_ _n(terme_data_size_)
 
 #define terme_data_get_value _n(terme_data_get_value)
-#define terme_data_get_character _n(terme_data_get_character)
+#define terme_data_get_character_ _n(terme_data_get_character_)
 
 #define terme_data_left_ _n(terme_data_left_)
 #define terme_data_right_ _n(terme_data_right_)
@@ -34,7 +34,7 @@ int terme_data_copy_(Execute ptr, addr value);
 int terme_data_size_(Execute ptr, unsigned *ret);
 
 void terme_data_get_value(addr pos, unsigned *rnow, unsigned *rsize);
-int terme_data_get_character(addr pos, unsigned i, unicode *retc, unsigned *retw);
+int terme_data_get_character_(addr pos, unsigned i, unicode *retc, unsigned *retw);
 
 int terme_data_left_(Execute ptr, unsigned *ret);
 int terme_data_right_(Execute ptr, unsigned *ret);
