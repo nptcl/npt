@@ -189,17 +189,10 @@ int degradelisp(void)
 {
 	int check;
 
-	/* terminal */
-	if (begin_terme()) {
-		degrade_printf("terminal error.\n");
-		return 1;
-	}
-
 	/* runcode */
+	begin_terme();
 	check = degradelisp_call();
-
-	/* terminal */
-	(void)end_terme();
+	end_terme();
 
 	return check;
 }

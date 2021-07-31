@@ -1,14 +1,14 @@
 VPATH = src:test
-include src/source.mk
+include src/release.mk
 -include depend.mk
 .DEFAULT_GOAL = build
 object = ${source:.c=.o}
 depend = depend.mk
 a.out = npt
 
-LISP_C = -m32 -DLISP_32BIT -DLISP_LINUX
-LISP_C += -g -DLISP_DEGRADE -DLISP_DEBUG -DLISP_MODE_DEGRADE
-LISP_LIB = -lm
+LISP_C = -DLISP_LINUX -DLISP_EDITLINE
+LISP_C += -DLISP_MODE_STANDALONE -O3
+LISP_LIB = -lm -ledit
 CFLAGS = -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}

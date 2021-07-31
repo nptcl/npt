@@ -204,6 +204,7 @@ int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call)
 	int exit;
 
 	eval_loop_variable(ptr);
+	exit = 0;
 	for (;;) {
 		Return(eval_loop_restart(ptr, stream, call, &exit));
 		if (exit)

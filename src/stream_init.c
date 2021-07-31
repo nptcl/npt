@@ -1,6 +1,7 @@
 #include "cons.h"
 #include "constant.h"
 #include "control_object.h"
+#include "define.h"
 #include "file.h"
 #include "function.h"
 #include "pointer.h"

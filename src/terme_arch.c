@@ -1,4 +1,5 @@
 #include "arch.h"
+#include "define.h"
 #include "terme_arch.h"
 #include "terme_escape.h"
 #include "terme_output.h"

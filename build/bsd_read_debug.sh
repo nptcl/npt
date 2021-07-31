@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.linux_release"
+file="build/Makefile.bsd_read_debug"
 
 checkerr()
 {

@@ -6,10 +6,9 @@ object = ${source:.c=.o}
 depend = depend.mk
 a.out = npt
 
-LISP_C = -m32 -DLISP_32BIT
-LISP_C += -DLISP_LINUX -DLISP_READLINE
+LISP_C = -m32 -DLISP_32BIT -DLISP_LINUX
 LISP_C += -DLISP_DEGRADE -DLISP_MODE_STANDALONE -O3
-LISP_LIB = -lm -lreadline
+LISP_LIB = -lm
 CFLAGS = -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}

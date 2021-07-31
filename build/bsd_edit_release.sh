@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.bsd_release"
+file="build/Makefile.bsd_edit_release"
 
 checkerr()
 {

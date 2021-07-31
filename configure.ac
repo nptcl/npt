@@ -22,8 +22,8 @@ AC_PROG_MAKE_SET
 # Checks for libraries.
 AC_CHECK_LIB([m], [csinl], [lisp_csinl=yes], [lisp_csinl=no])
 AC_CHECK_LIB([pthread], [pthread_create], [lisp_thread=yes], [lisp_thread=no])
-AC_CHECK_LIB([edit], [readline], [lisp_editline=yes], [lisp_editline=no])
-AC_CHECK_LIB([readline], [readline], [lisp_readline=yes], [lisp_readline=no])
+AC_CHECK_LIB([edit], [readline], [check_editline=yes], [check_editline=no])
+AC_CHECK_LIB([readline], [readline], [check_readline=yes], [check_readline=no])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h float.h inttypes.h limits.h locale.h stddef.h] dnl
@@ -66,6 +66,8 @@ AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
 AC_CHECK_FUNCS([gethostname gettimeofday uname select])
 
 # Arguments
+AC_ARG_WITH([terme],
+  AC_HELP_STRING([--with-terme], [use terme]))
 AC_ARG_WITH([readline],
   AC_HELP_STRING([--with-readline], [use readline]))
 AC_ARG_WITH([editline],
@@ -104,21 +106,33 @@ AS_IF([test x$lisp_ansic = xyes],
       [test x$lisp_ansic_windows = xyes],
         AC_DEFINE([LISP_ANSIC_WINDOWS], [1], [ANSI-C Windows]))
 
-AS_IF([test x$with_readline = xyes -a x$with_editline = xyes],
+AS_IF([test x$with_terme = xyes -a x$with_readline = xyes],
         AC_MSG_ERROR([The argument must be either] dnl
-        [--with-readline or --with-editline]),
+        [--with-terme or --with-readline]),
+      [test x$with_terme = xyes -a x$with_editline = xyes],
+        AC_MSG_ERROR([The argument must be either] dnl
+        [--with-terme or --with-editline]),
+      [test x$with_terme = xyes],
+        [lisp_terme=yes]
+        [lisp_readline=no]
+        [lisp_editline=no],
       [test x$with_readline = xyes],
+        [lisp_terme=no]
         [lisp_readline=yes]
         [lisp_editline=no],
       [test x$with_editline = xyes],
-        [lisp_readline=no]
-        [lisp_editline=yes],
-      [test x$lisp_readline = xyes],
-        [lisp_readline=yes]
-        [lisp_editline=no],
-      [test x$lisp_editline = xyes],
+        [lisp_terme=no]
         [lisp_readline=no]
         [lisp_editline=yes])
+
+AS_IF([test x$with_readline = xyes -a -n x$check_readline = xyes],
+        AC_MSG_ERROR([Cannot found READLINE module.]))
+AS_IF([test x$with_editline = xyes -a -n x$check_editline = xyes],
+        AC_MSG_ERROR([Cannot found EDITLINE module.]))
+
+## terme
+AS_IF([test x$lisp_terme = xyes],
+  AC_DEFINE([LISP_TERME], [1], [use terme]))
 
 ## readline
 AS_IF([test x$lisp_readline = xyes],

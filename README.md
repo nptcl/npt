@@ -2,7 +2,7 @@
 Npt is an ANSI Common Lisp Programming Language.
 
 
-# Make (script)
+# 1. Make (script)
 ## FreeBSD
 ```
 $ ./bsd_release.sh
@@ -26,7 +26,7 @@ $ su
 ```
 
 
-# Make (autoconf, automake)
+# 2. Make (autoconf, automake)
 ```
 $ ./bootstrap.sh
 $ ./configure
@@ -35,7 +35,7 @@ $ make install
 ```
 
 
-# Example
+# 3. Example
 ## Prompt
 ```
 $ ./npt
@@ -54,17 +54,17 @@ $
 ```
 
 
-# Compile
+# 4. Compile
 ## FreeBSD
 ```
-$ cc -O3 -o npt -DLISP_FREEBSD -DLISP_EDITLINE -lm -ledit src/*.c
+$ cc -O3 -o npt -DLISP_FREEBSD -lm src/*.c
 $ ./npt
 *
 ```
 
 ## Linux
 ```
-$ cc -O3 -o npt -DLISP_LINUX -DLISP_READLINE -lm -lreadline src/*.c
+$ cc -O3 -o npt -DLISP_LINUX -lm src/*.c
 $ ./npt
 *
 ```
@@ -75,6 +75,20 @@ $ cc -o npt.exe -DLISP_WINDOWS -lm src/*.c
 $ ./npt.exe
 *
 ```
+
+
+# 5. Using readline / editline
+## FreeBSD (editline)
+- Script  
+  `$ ./build/bsd_edit_release.sh`
+- Compile  
+  `$ cc -O3 -o npt -DLISP_FREEBSD -DLISP_EDITLINE -lm -ledit src/*.c`
+
+## Linux (readline)
+- Script  
+  `$ ./build/linux_read_release.sh`
+- Compile  
+  `$ cc -O3 -o npt -DLISP_LINUX -DLISP_READLINE -lm -lreadline src/*.c`
 
 
 # Documentation
@@ -89,4 +103,3 @@ $ ./npt.exe
 
 # Distribution
 https://github.com/nptcl/npt
-

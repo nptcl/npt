@@ -1,3 +1,4 @@
+#include "define.h"
 #include "prompt_arch.h"
 
 #ifdef LISP_PROMPT_TERME

@@ -448,22 +448,24 @@
 #define LISP_FLOAT_LONG_FRACTION		LDBL_MANT_DIG
 
 /* readline editline */
-#ifdef LISP_TERME
+#if defined(LISP_TERME)
 #ifndef LISP_PROMPT_TERME
 #define LISP_PROMPT_TERME
 #endif
-#endif
 
-#ifdef LISP_EDITLINE
+#elif defined(LISP_EDITLINE)
 #ifndef LISP_PROMPT_EDITLINE
 #define LISP_PROMPT_EDITLINE
 #endif
-#endif
 
-#ifdef LISP_READLINE
+#elif defined(LISP_READLINE)
 #ifndef LISP_PROMPT_READLINE
 #define LISP_PROMPT_READLINE
 #endif
+
+#elif defined(LISP_FREEBSD) || defined(LISP_LINUX)
+#define LISP_TERME
+#define LISP_PROMPT_TERME
 #endif
 
 #if defined(LISP_PROMPT_TERME)
@@ -608,7 +610,7 @@
 #endif
 
 /* main */
-#if (defined LISP_WINMAIN) || (defined LISP_WINDOWS_WIDE)
+#if defined(LISP_WINMAIN) || defined(LISP_WINDOWS_WIDE)
 #define LISP_WINMAIN_WIDE
 #else
 #undef LISP_WINMAIN_WIDE
