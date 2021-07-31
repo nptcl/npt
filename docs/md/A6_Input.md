@@ -163,20 +163,20 @@ The operation method is shown below.
   - Move to the left: `Ctrl+B`, Left.
   - Move to the right: `Ctrl+F`,Right.
   - Move to the start of the text: `Ctrl+A`.
-  - Move to the end of the text:　`Ctrl+E`.
+  - Move to the end of the text: `Ctrl+E`.
 
 - Confirmation and history
   - Confirm of input: `Ctrl+J`, `Ctrl+M`, Enter, Return.
-  - Previous history　`Ctrl+P`, Up cursor key.
+  - Previous history: `Ctrl+P`, Up cursor key.
   - Next history: `Ctrl+N`, Down cursor key.
 
-- 削除
+- Delete
   - Delete: `Ctrl+D`.
   - Backspace: `Ctrl+H`, BS key.
   - Delete to stsart of the text: `Ctrl+U`.
   - Delete to end of text: `Ctrl+K`.
 
-- その他
+- Others
   - Refresh: `Ctrl+L`.
   - Break: `Ctrl+C`.
   - Stopping the process: `Ctrl+Z`.
