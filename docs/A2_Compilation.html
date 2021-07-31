@@ -225,35 +225,40 @@ In the debug mode, there are codes of checks everywhere and if the checks are vi
 <table>
 <thead>
 <tr class="header">
-<th>module</th>
+<th>Module</th>
 <th>#define</th>
+<th>Link</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>editline</td>
-<td><code>LISP_EDITLINE</code></td>
+<td>terme</td>
+<td><code>LISP_TERME</code></td>
+<td></td>
 </tr>
 <tr class="even">
-<td>readline</td>
-<td><code>LISP_READLINE</code></td>
+<td>editline</td>
+<td><code>LISP_EDITLINE</code></td>
+<td>-ledit</td>
 </tr>
 <tr class="odd">
-<td>terme (experimental)</td>
-<td><code>LISP_TERME</code></td>
+<td>readline</td>
+<td><code>LISP_READLINE</code></td>
+<td>-lreadline</td>
 </tr>
 <tr class="even">
 <td>C</td>
 <td>(default)</td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>The <code>C</code> in the table is simply a reading by the standard C library. This mode does not allow for history or cursor movement.</p>
-<p>terme is a module included in npt.<br />
-It is available for FreeBSD and Linux.<br />
-It is currently being tested, but we plan to make terme the default instead of editline/readline in the future.</p>
+<p>Terme is a feature of the npt prompt.<br />
+It is used by default on FreeBSD and Linux.</p>
+<p>The editline and readline are external modules that require installation to use.</p>
+<p>The module C is simply the standard C library to load. This mode does not allow for history or cursor movement.</p>
 <p>Here’s an example of a compilation.</p>
-<pre><code>$ cc -DLISP_DEBUG -DLISP_FREEBSD -DLISP_PROMPT_EDITLINE src/*.c -lm -ledit
+<pre><code>$ cc -DLISP_FREEBSD -DLISP_EDITLINE src/*.c -lm -ledit
 $ ./a.out --version
 npt Version 1.0.2
 ...

@@ -32,7 +32,7 @@ To compile on FreeBSD, execute the following steps
 $ ./bsd_release.sh
 ```
 
-To compile on Linux, install `gcc`, `gmake` and `readline` beforehand.  
+To compile on Linux, install `gcc` and `gmake` beforehand.  
 Execute the following steps
 
 ```

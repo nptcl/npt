@@ -23,6 +23,7 @@ It is distributed on github.
   - [3. Arguments](A3_Arguments.html)
   - [4. Amalgamation](A4_Amalgamation.html)
   - [5. Specific Features](A5_Features.html)
+  - [6. Input Module](A6_Input.html)
 
 - Development
   - [1. Using Npt in C](B1_Using.html)

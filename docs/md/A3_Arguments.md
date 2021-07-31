@@ -46,9 +46,10 @@ If inputs aren't appeared, load from a standard-input.
 ## --version
 
 Outputs compile information for npt.  
-It is not shown in the `--help`,
-but there is a `--version-script` argument to make it easier to read in scripts.  
-The output is almost the same, but the treatment of spaces and tabs is different.
+There is also an argument `--version-script`
+that is formatted to be more machine-readable, such as a script.  
+The output is almost the same,
+but the script version contains slightly more information.
 
 
 ## --core

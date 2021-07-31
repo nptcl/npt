@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Input Module</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Input Module</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a><br />
+Prev: <a href="A5_Features.html">5. Specific Features</a></p>
+<h1 id="input-module-terme">6.1 Input Module <code>TERME</code></h1>
+<p><code>TERME</code> is a module to assist input, like <code>readline</code> and <code>editline</code>.</p>
+<p>Currently, npt has external modules <code>readline</code> and <code>editline</code> available.<br />
+These modules are not internal to npt, so you will need to install them separately to use them.<br />
+On the other hand, <code>TERME</code> is included in the npt source, so you don’t need to prepare anything additional.</p>
+<p>The development policy of npt is to build Common Lisp by itself, without relying on any modules.<br />
+Nevertheless, <code>readline</code> and <code>editline</code> are available simply because they are convenient.<br />
+The purpose of the development of <code>TERME</code> is to replace these modules.</p>
+<p>Currently, <code>TERME</code> is available for FreeBSD and Linux.</p>
+<h1 id="using-terme">6.2 Using <code>TERME</code></h1>
+<p>On FreeBSD and Linux, <code>TERME</code> is available by default.<br />
+The following is an example of compilation on FreeBSD.</p>
+<pre><code>$ cc -o npt -DLISP_FREEBSD *.c -lm
+$ ./npt --version-script | grep prompt-mode
+prompt-mode     terme</code></pre>
+<p>The value of <code>prompt-mode</code> is now <code>terme</code>.</p>
+<p>It is also possible to specify the mode explicitly at compile time, like <code>readline</code> or <code>editline</code>.<br />
+Define <code>LISP_TERME</code> and compile.</p>
+<pre><code>$ cc -o npt -DLISP_FREEBSD -DLISP_TERME *.c -lm</code></pre>
+<p>The following two options are available for <code>TERME</code>.</p>
+<ul>
+<li>Color mode</li>
+<li>Light/Dark mode</li>
+</ul>
+<p>Color mode, as the name implies, selects whether or not to add color to the prompt.<br />
+The light/dark mode selects whether to make the colors lighter or darker.<br />
+If the terminal you are using has a white background, the default light mode may be difficult to read.<br />
+In such a case, consider using the dark mode.</p>
+<p>The default is to use color, bright mode.<br />
+You can change these modes even after compiling.</p>
+<h2 id="color-mode">Color mode</h2>
+<p>The color mode can be changed with the following define values.</p>
+<ul>
+<li><code>LISP_TERME_COLOR</code> (Default)</li>
+<li><code>LISP_TERME_MONOCHROME</code></li>
+</ul>
+<p>If you do not want to use colors, compile with <code>LISP_TERME_MONOCHROME</code>.<br />
+For example,</p>
+<pre><code>$ cc -o npt -DLISP_FREEBSD -DLISP_TERME_MONOCHROME *.c -lm</code></pre>
+<p>You can check the mode specification with the following command.</p>
+<pre><code>$ ./npt --version-script | grep prompt-color
+prompt-color     off</code></pre>
+<p>The mode can be changed in the options of the command.<br />
+To start with a specific color mode, do the following</p>
+<pre><code>$ npt --color</code></pre>
+<p>To start the program in monochrome mode, without using colors, do the following</p>
+<pre><code>$ npt --monochrome</code></pre>
+<p>While running, you can check and switch modes by manipulating the value of <code>npt-system:*prompt-color*</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> npt-system:*prompt-color*</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> npt-system:*prompt-color* <span class="kw">t</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="lightdark-mode">Light/Dark mode</h2>
+<p>The light/dark modes can be specified only when the color mode is specified.<br />
+The light/dark mode can be changed with the following define values</p>
+<ul>
+<li><code>LISP_TERME_BRIGHT</code> (Default)</li>
+<li><code>LISP_TERME_DARK</code></li>
+</ul>
+<p>If you want to use darker colors, compile with <code>LISP_TERME_DARK</code>.<br />
+For example</p>
+<pre><code>$ cc -o npt -DLISP_FREEBSD -DLISP_TERME_DARK *.c -lm</code></pre>
+<p>You can check the mode specification with the following command.</p>
+<pre><code>$ ./npt --version-script | grep prompt-bright
+prompt-bright   dark</code></pre>
+<p>The mode can be changed with the options of the command.<br />
+To start with a bright mode, do the following</p>
+<pre><code>$ npt --bright</code></pre>
+<p>To start with a dark mode specified, do the following</p>
+<pre><code>$ npt --dark</code></pre>
+<p>While running, you can check and switch modes by manipulating the value of <code>npt-system:*prompt-bright*</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> npt-system:*prompt-bright*</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> npt-system:*prompt-bright* <span class="kw">t</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h1 id="operation-method">6.3 Operation Method</h1>
+<p>The operation method is shown below.</p>
+<ul>
+<li>Move
+<ul>
+<li>Move to the left: <code>Ctrl+B</code>, Left.</li>
+<li>Move to the right: <code>Ctrl+F</code>,Right.</li>
+<li>Move to the start of the text: <code>Ctrl+A</code>.</li>
+<li>Move to the end of the text:　<code>Ctrl+E</code>.</li>
+</ul></li>
+<li>Confirmation and history
+<ul>
+<li>Confirm of input: <code>Ctrl+J</code>, <code>Ctrl+M</code>, Enter, Return.</li>
+<li>Previous history　<code>Ctrl+P</code>, Up cursor key.</li>
+<li>Next history: <code>Ctrl+N</code>, Down cursor key.</li>
+</ul></li>
+<li>削除
+<ul>
+<li>Delete: <code>Ctrl+D</code>.</li>
+<li>Backspace: <code>Ctrl+H</code>, BS key.</li>
+<li>Delete to stsart of the text: <code>Ctrl+U</code>.</li>
+<li>Delete to end of text: <code>Ctrl+K</code>.</li>
+</ul></li>
+<li>その他
+<ul>
+<li>Refresh: <code>Ctrl+L</code>.</li>
+<li>Break: <code>Ctrl+C</code>.</li>
+<li>Stopping the process: <code>Ctrl+Z</code>.</li>
+<li><code>EOF</code>: <code>Ctrl+D</code> with no input.</li>
+</ul></li>
+</ul>
+<p>Other characters are added to the input string.<br />
+Only UTF-8 input characters are accepted.<br />
+Any invalid UTF-8 characters are ignored.</p>
+<h1 id="other-information">6.4 Other Information</h1>
+<p><code>Ctrl+D</code> has two functions.<br />
+If any character is typed, it will delete the single character at the cursor.<br />
+However, if you press <code>Ctrl+D</code> when there is no input, it will return <code>EOF</code> and the prompt will be killed.</p>
+<p>If you use <code>Ctrl+D</code> and type <code>EOF</code> at the <code>restart</code> selection when the debugger is running, it will be the same as selecting <code>abort</code> restart.<br />
+If you type <code>:exit</code>, it will be <code>abort</code> as well.</p>
+<p>If you type <code>Ctrl+D</code> in <code>eval-loop</code>, you will escape from the <code>eval-loop</code>, which will probably kill the process.<br />
+If you don’t want to exit <code>eval-loop</code>, you can assign <code>t</code> to the <code>npt-system:*eval-loop-exit*</code> variable.<br />
+You will get an <code>Exit?</code> prompt to confirm the exit.</p>
+<p>An execution example is shown below.</p>
+<pre><code>$ npt
+* (setq npt-system:*eval-loop-exit* t)
+T
+* ^D
+Exit? ^D
+* ^D
+Exit? zzz
+* ^D
+Exit? y
+$</code></pre>
+<p>If you want to set it at startup, it is convenient to use <code>initfile</code>.<br />
+Create the file by the following operations.</p>
+<pre><code>$ vi $HOME/.npt.lisp</code></pre>
+<p>The file to be created will be automatically <code>loaded</code> when npt is started.<br />
+An example is shown below.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">;; Prompt for confirmation when finished.</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>(<span class="kw">setq</span> npt-system:*eval-loop-exit* <span class="kw">t</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">;; Darken the color of the prompt.</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>(<span class="kw">setq</span> npt-system:*prompt-bright* <span class="kw">nil</span>)</span></code></pre></div>
+</body>
+</html>

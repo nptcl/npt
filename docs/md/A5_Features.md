@@ -13,24 +13,26 @@ The functions and variables used by npt are available in the `npt-system` packag
 
 This section describes the following.
 
-- [5.2 Command Arguments](#command-arguments)
-- [5.3 Environment Variables](#environment)
-- [5.4 Running the Garbage Collector](#garbage-collection)
-- [5.5 Saving Core Files](#corefile)
-- [5.6 End of process](#exit)
-- [5.7 Invoking the editor with the `ed` function](#editor)
-- [5.8 Action of the `require` function](#require)
-- [5.9 Operation of EastAsianWidth](#eastasian)
-- [5.10 Loading `load-logical-pathname-translations`](#load)
-- [5.11 Using the `pathname`](#pathname)
-- [5.12 Initial value of `random-state`](#random-state)
+- [5.2 Command Arguments](#specific-2)
+- [5.3 Environment Variables](#specific-3)
+- [5.4 Running the Garbage Collector](#specific-4)
+- [5.5 Saving Core Files](#specific-5)
+- [5.6 End of process](#specific-6)
+- [5.7 Invoking the editor with the `ed` function](#specific-7)
+- [5.8 Action of the `require` function](#specific-8)
+- [5.9 Operation of EastAsianWidth](#specific-9)
+- [5.10 Loading `load-logical-pathname-translations`](#specific-10)
+- [5.11 Using the `pathname`](#specific-11)
+- [5.12 Initial value of `random-state`](#specific-12)
+- [5.13 Arguments of `load` function](#specific-13)
 
 
-# <a id="command-arguments">5.2 Command Arguments</a>
+
+# <a id="specific-2">5.2 Command Arguments</a>
 
 The arguments of the npt command are stored in the following variable.
 
-```
+```lisp
 npt-system::*arguments*
 ```
 
@@ -56,11 +58,11 @@ The values are as follows
 ```
 
 
-# <a id="environment">5.3 Environment Variables</a>
+# <a id="specific-3">5.3 Environment Variables</a>
 
 Environment variables are stored in the following variable.
 
-```
+```lisp
 npt-system::*environment*
 ```
 
@@ -77,11 +79,11 @@ T
 ```
 
 
-## <a id="garbage-collection">5.4 Running the Garbage Collector</a>
+## <a id="specific-4">5.4 Running the Garbage Collector</a>
 
 Use the following command to start the garbage collector.
 
-```
+```lisp
 (npt-system:gc)
 ```
 
@@ -93,11 +95,11 @@ Here is the function specification.
 [Lisp Function: System Function](D1_System.html#system-develop)
 
 
-## <a id="corefile">5.5 Saving Core Files</a>
+## <a id="specific-5">5.5 Saving Core Files</a>
 
 The following command will create the core file.
 
-```
+```lisp
 (npt-system:savecore file)
 ```
 
@@ -111,11 +113,11 @@ To read the core file you created, use the `--core` argument of the npt command.
 Here is the function specification.  
 [Lisp Function: System Function](D1_System.html#system-develop)
 
-## <a id="exit">5.6 End of process</a>
+## <a id="specific-6">5.6 End of process</a>
 
 Exit npt with the following command
 
-```
+```lisp
 (npt-system:exit code)
 (npt-system:quit code)
 ```
@@ -132,7 +134,7 @@ Here is the function specification.
 [Lisp Function: System Function](D1_System.html#system-develop)
 
 
-## <a id="editor">5.7 Invoking the editor with the `ed` function</a>
+## <a id="specific-7">5.7 Invoking the editor with the `ed` function</a>
 
 The Common Lisp function `ed` invokes an editor.  
 This feature is supported by FreeBSD, Linux and Windows.
@@ -147,7 +149,7 @@ The standard editor is `vi` for FreeBSD/Linux,
 `notepad.exe` for Windows, or `ed` for others.
 
 
-## <a id="require">5.8 Action of the `require` function</a>
+## <a id="specific-8">5.8 Action of the `require` function</a>
 
 The function `require` in Common Lisp can read a module from its name.  
 The implementation in npt is almost the same as in sbcl.
@@ -186,7 +188,7 @@ Cannot open file #P"/tmp/aaa.lisp".
 It shows that `require` tried to read the file `/tmp/aaa.lisp` and failed.
 
 
-## <a id="eastasian">5.9 Operation of EastAsianWidth</a>
+## <a id="specific-9">5.9 Operation of EastAsianWidth</a>
 
 EastAsianWidth is a representation of Unicode character width.  
 For example, in the case of Japanese, the width of a character may be treated as two letters of the alphabet.
@@ -248,13 +250,13 @@ The argument `size` is the size of the category.
 The argument `&optional errorp` is whether the `error` condition occurs or not.
 
 
-## <a id="load">5.10 Loading `load-logical-pathname-translations`</a>
+## <a id="specific-10">5.10 Loading `load-logical-pathname-translations`</a>
 
 The function `load-logical-pathname-translations` is a feature to load the settings of a logical pathname from a file.  
 The location of the file is implementation-dependent.  
 npt searches for files based on the following special variables.
 
-```
+```lisp
 npt-system::*load-logical-pathname-translations*
 ```
 
@@ -282,7 +284,7 @@ Let's check the operation.
 First, create a configuration file.
 Here are the contents of the file.
 
-```
+```lisp
 ("*.*" "/home/lisp/")
 ("path;to;*.*" "/home/path/")
 ```
@@ -315,7 +317,7 @@ npt to execute the following commands
 It is converted correctly.
 
 
-## <a id="pathname">5.11 Using the `pathname`</a>
+## <a id="specific-11">5.11 Using the `pathname`</a>
 
 The `pathmame` is an object for the name of a file.
 
@@ -399,7 +401,7 @@ and is used by rules for logical paths.
 ```
 
 
-## <a id="random-state">5.12 Initial value of `random-state`</a>
+## <a id="specific-12">5.12 Initial value of `random-state`</a>
 
 The `random-state` is an object used to generate a random number.  
 npt uses a random number generator called xorshift,
@@ -458,3 +460,56 @@ the time and so on are used as the initial value of the random number.
 
 Unlike FreeBSD, Linux, and Windows, it continues without error
 even if the device could not be loaded for the initial value.
+
+
+## <a id="specific-13">5.13 Arguments of `load` function</a>
+
+The `load` function can load either a text file containing Lisp expressions
+or a binary file generated by the `compile-file` function
+(commonly known as a FASL file).  
+Which one to load is determined by whether `pathname-type` is `FASL`
+or not, but the type can also be specified by the
+`:type` argument of the `load` function.
+
+To load a text file.
+
+```lisp
+(load file :type :lisp)
+```
+
+To load a fasl file.
+
+```lisp
+(load file :type :fasl)
+```
+
+The first argument of the `load` function is not only `pathname`,
+but can also be `memory-stream`.  
+However, since `memory-stream` does not have a `pathname`,
+you need to specify the `:type` argument.
+
+Here is an example of execution.
+
+```lisp
+(let ((input (npt-system:make-memory-io-stream))
+      (output (npt-system:make-memory-io-stream)))
+  (with-open-file (stream input :direction :output)
+    (format stream "(format t \"Hello~~%\")"))
+  (with-open-file (stream input :direction :input)
+    (compile-file stream :output-file output))
+  (file-position output :start)
+  (load output :type :fasl))
+```
+
+Here are the execution results.
+
+```
+Hello
+T
+```
+
+In this example, a text file is written to the `input` variable,
+and a fasl file is output to the `output` variable
+by the `compile-file` function.  
+After returning the file pointer of the output to the top,
+execute the fasl file generated by the `load` function.

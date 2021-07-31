@@ -222,21 +222,22 @@ Prev: <a href="A4_Amalgamation.html">4. Amalgamation</a></p>
 <p>This chapter introduces some of the features specific to npt. The functions and variables used by npt are available in the <code>npt-system</code> package.</p>
 <p>This section describes the following.</p>
 <ul>
-<li><a href="#command-arguments">5.2 Command Arguments</a></li>
-<li><a href="#environment">5.3 Environment Variables</a></li>
-<li><a href="#garbage-collection">5.4 Running the Garbage Collector</a></li>
-<li><a href="#corefile">5.5 Saving Core Files</a></li>
-<li><a href="#exit">5.6 End of process</a></li>
-<li><a href="#editor">5.7 Invoking the editor with the <code>ed</code> function</a></li>
-<li><a href="#require">5.8 Action of the <code>require</code> function</a></li>
-<li><a href="#eastasian">5.9 Operation of EastAsianWidth</a></li>
-<li><a href="#load">5.10 Loading <code>load-logical-pathname-translations</code></a></li>
-<li><a href="#pathname">5.11 Using the <code>pathname</code></a></li>
-<li><a href="#random-state">5.12 Initial value of <code>random-state</code></a></li>
+<li><a href="#specific-2">5.2 Command Arguments</a></li>
+<li><a href="#specific-3">5.3 Environment Variables</a></li>
+<li><a href="#specific-4">5.4 Running the Garbage Collector</a></li>
+<li><a href="#specific-5">5.5 Saving Core Files</a></li>
+<li><a href="#specific-6">5.6 End of process</a></li>
+<li><a href="#specific-7">5.7 Invoking the editor with the <code>ed</code> function</a></li>
+<li><a href="#specific-8">5.8 Action of the <code>require</code> function</a></li>
+<li><a href="#specific-9">5.9 Operation of EastAsianWidth</a></li>
+<li><a href="#specific-10">5.10 Loading <code>load-logical-pathname-translations</code></a></li>
+<li><a href="#specific-11">5.11 Using the <code>pathname</code></a></li>
+<li><a href="#specific-12">5.12 Initial value of <code>random-state</code></a></li>
+<li><a href="#specific-13">5.13 Arguments of <code>load</code> function</a></li>
 </ul>
-<h1 id="command-arguments"><a id="command-arguments">5.2 Command Arguments</a></h1>
+<h1 id="command-arguments"><a id="specific-2">5.2 Command Arguments</a></h1>
 <p>The arguments of the npt command are stored in the following variable.</p>
-<pre><code>npt-system::*arguments*</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>npt-system::*arguments*</span></code></pre></div>
 <p>The value is an array, where the first element is the command <code>npt</code> and the second and subsequent arguments are the arguments of the command.</p>
 <p>As an example, suppose you execute the following command.</p>
 <pre><code>$ npt -- 10 20 30
@@ -245,9 +246,9 @@ Prev: <a href="A4_Amalgamation.html">4. Amalgamation</a></p>
 <p>The values are as follows</p>
 <pre><code>* npt-system::*arguments*
 #(&quot;npt&quot; &quot;10&quot; &quot;20&quot; &quot;30&quot;)</code></pre>
-<h1 id="environment-variables"><a id="environment">5.3 Environment Variables</a></h1>
+<h1 id="environment-variables"><a id="specific-3">5.3 Environment Variables</a></h1>
 <p>Environment variables are stored in the following variable.</p>
-<pre><code>npt-system::*environment*</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>npt-system::*environment*</span></code></pre></div>
 <p>The value is a hash table.<br />
 For example, the following command is used to get the value of a home directory <code>$HOME</code>.</p>
 <pre><code>$ npt
@@ -255,32 +256,32 @@ For example, the following command is used to get the value of a home directory 
 &quot;/home/username&quot;
 T
 *</code></pre>
-<h2 id="running-the-garbage-collector"><a id="garbage-collection">5.4 Running the Garbage Collector</a></h2>
+<h2 id="running-the-garbage-collector"><a id="specific-4">5.4 Running the Garbage Collector</a></h2>
 <p>Use the following command to start the garbage collector.</p>
-<pre><code>(npt-system:gc)</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(npt-system:gc)</span></code></pre></div>
 <p>The garbage collector is automatically run if the heap area is overwhelmed, but depending on the timing, it may not be judged in time and you may run out of memory.<br />
 If there is an out-of-memory situation, a <code>LISP ABORT</code> is triggered.</p>
 <p>Here is the function specification.<br />
 <a href="D1_System.html#system-develop">Lisp Function: System Function</a></p>
-<h2 id="saving-core-files"><a id="corefile">5.5 Saving Core Files</a></h2>
+<h2 id="saving-core-files"><a id="specific-5">5.5 Saving Core Files</a></h2>
 <p>The following command will create the core file.</p>
-<pre><code>(npt-system:savecore file)</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(npt-system:savecore file)</span></code></pre></div>
 <p>This instruction executes the <code>savecore</code> condition of the <code>serious-condition</code> to terminate the npt.<br />
 When it finishes with the correct <code>savecore</code> condition, it starts to save the core file.</p>
 <p>To read the core file you created, use the <code>--core</code> argument of the npt command.</p>
 <p>Here is the function specification.<br />
 <a href="D1_System.html#system-develop">Lisp Function: System Function</a></p>
-<h2 id="end-of-process"><a id="exit">5.6 End of process</a></h2>
+<h2 id="end-of-process"><a id="specific-6">5.6 End of process</a></h2>
 <p>Exit npt with the following command</p>
-<pre><code>(npt-system:exit code)
-(npt-system:quit code)</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>(npt-system:exit code)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>(npt-system:quit code)</span></code></pre></div>
 <p>The above two functions are exactly the same.<br />
 They are <code>imported</code> into the <code>common-lisp-user</code> package by default so that you can run <code>(exit)</code> and <code>(quit)</code> at the npt prompt.<br />
 This instruction executes the <code>exit</code> condition of the <code>serious-condition</code> to terminate the npt.</p>
 <p>When it finishes with the correct <code>exit</code> condition, the argument is set to the exit code to finish the process.</p>
 <p>Here is the function specification.<br />
 <a href="D1_System.html#system-develop">Lisp Function: System Function</a></p>
-<h2 id="invoking-the-editor-with-the-ed-function"><a id="editor">5.7 Invoking the editor with the <code>ed</code> function</a></h2>
+<h2 id="invoking-the-editor-with-the-ed-function"><a id="specific-7">5.7 Invoking the editor with the <code>ed</code> function</a></h2>
 <p>The Common Lisp function <code>ed</code> invokes an editor.<br />
 This feature is supported by FreeBSD, Linux and Windows.</p>
 <p>It is configurable to get the command names of the editors in the following order.</p>
@@ -290,7 +291,7 @@ This feature is supported by FreeBSD, Linux and Windows.</p>
 <li>get the standard editor name</li>
 </ol>
 <p>The standard editor is <code>vi</code> for FreeBSD/Linux, <code>notepad.exe</code> for Windows, or <code>ed</code> for others.</p>
-<h2 id="action-of-the-require-function"><a id="require">5.8 Action of the <code>require</code> function</a></h2>
+<h2 id="action-of-the-require-function"><a id="specific-8">5.8 Action of the <code>require</code> function</a></h2>
 <p>The function <code>require</code> in Common Lisp can read a module from its name.<br />
 The implementation in npt is almost the same as in sbcl.</p>
 <p>When the <code>require</code> is executed, the variable <code>npt-system::*module-provider-functions*</code> is read as a list of functions, and the functions are executed with the <code>require</code> arguments in order from the first one.</p>
@@ -312,7 +313,7 @@ Cannot open file #P&quot;/tmp/aaa.lisp&quot;.
  0. ABORT            Return to eval-loop.
 [1]* 0</code></pre>
 <p>It shows that <code>require</code> tried to read the file <code>/tmp/aaa.lisp</code> and failed.</p>
-<h2 id="operation-of-eastasianwidth"><a id="eastasian">5.9 Operation of EastAsianWidth</a></h2>
+<h2 id="operation-of-eastasianwidth"><a id="specific-9">5.9 Operation of EastAsianWidth</a></h2>
 <p>EastAsianWidth is a representation of Unicode character width.<br />
 For example, in the case of Japanese, the width of a character may be treated as two letters of the alphabet. The width of a character is used to format the output of <code>format</code> or Pretty Printing.</p>
 <p>The following three functions are related to EastAsianWidth.</p>
@@ -346,11 +347,11 @@ The second return value is a symbol for the category, and the error is <code>NIL
 <p>The argument <code>var</code> is a symbol for the category.<br />
 The argument <code>size</code> is the size of the category.<br />
 The argument <code>&amp;optional errorp</code> is whether the <code>error</code> condition occurs or not.</p>
-<h2 id="loading-load-logical-pathname-translations"><a id="load">5.10 Loading <code>load-logical-pathname-translations</code></a></h2>
+<h2 id="loading-load-logical-pathname-translations"><a id="specific-10">5.10 Loading <code>load-logical-pathname-translations</code></a></h2>
 <p>The function <code>load-logical-pathname-translations</code> is a feature to load the settings of a logical pathname from a file.<br />
 The location of the file is implementation-dependent.<br />
 npt searches for files based on the following special variables.</p>
-<pre><code>npt-system::*load-logical-pathname-translations*</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>npt-system::*load-logical-pathname-translations*</span></code></pre></div>
 <p>The function <code>load-logical-pathname-translations</code> takes a string as an argument and loads the corresponding configuration file.<br />
 For example, suppose that the following is executed</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">load-logical-pathname-translations</span> <span class="st">&quot;hello&quot;</span>)</span></code></pre></div>
@@ -360,8 +361,8 @@ For example, suppose that the following is executed</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">setq</span> npt-system::*load-logical-pathname-translations* #p<span class="st">&quot;/tmp/host/*.txt&quot;</span>)</span></code></pre></div>
 <p>Let’s check the operation.<br />
 First, create a configuration file. Here are the contents of the file.</p>
-<pre><code>(&quot;*.*&quot; &quot;/home/lisp/&quot;)
-(&quot;path;to;*.*&quot; &quot;/home/path/&quot;)</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>(<span class="st">&quot;*.*&quot;</span> <span class="st">&quot;/home/lisp/&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>(<span class="st">&quot;path;to;*.*&quot;</span> <span class="st">&quot;/home/path/&quot;</span>)</span></code></pre></div>
 <p>Create a configuration file.</p>
 <pre><code>$ cd /tmp
 $ mkdir host
@@ -380,7 +381,7 @@ $</code></pre>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>(<span class="kw">translate-logical-pathname</span> <span class="st">&quot;hello:path;to;name.txt&quot;</span>)</span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>-&gt; #P<span class="st">&quot;/home/path/name.txt&quot;</span></span></code></pre></div>
 <p>It is converted correctly.</p>
-<h2 id="using-the-pathname"><a id="pathname">5.11 Using the <code>pathname</code></a></h2>
+<h2 id="using-the-pathname"><a id="specific-11">5.11 Using the <code>pathname</code></a></h2>
 <p>The <code>pathmame</code> is an object for the name of a file.</p>
 <p>The <code>pathname-host</code> specifies the environment to which the file name belongs.<br />
 The following values are used by npt</p>
@@ -447,7 +448,7 @@ On Windows, it is set to the type of the file or the drive letter.</p>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>:NEWEST</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">pathname-version</span> (<span class="kw">logical-pathname</span> <span class="st">&quot;test:hello.txt.999&quot;</span>))</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="dv">999</span></span></code></pre></div>
-<h2 id="initial-value-of-random-state"><a id="random-state">5.12 Initial value of <code>random-state</code></a></h2>
+<h2 id="initial-value-of-random-state"><a id="specific-12">5.12 Initial value of <code>random-state</code></a></h2>
 <p>The <code>random-state</code> is an object used to generate a random number.<br />
 npt uses a random number generator called xorshift, which holds a 128-bit internal state in the <code>random-state</code>.</p>
 <p>The initial value can be set to as random as possible by passing the argument <code>t</code> to the function <code>make-random-state</code>.<br />
@@ -474,5 +475,28 @@ npt has chosen to use <code>/dev/urandom</code> for convenience rather than safe
 If the value is obtained, it is used as the initial value.<br />
 If the value can’t be obtained, it is given up and the time and so on are used as the initial value of the random number.</p>
 <p>Unlike FreeBSD, Linux, and Windows, it continues without error even if the device could not be loaded for the initial value.</p>
+<h2 id="arguments-of-load-function"><a id="specific-13">5.13 Arguments of <code>load</code> function</a></h2>
+<p>The <code>load</code> function can load either a text file containing Lisp expressions or a binary file generated by the <code>compile-file</code> function (commonly known as a FASL file).<br />
+Which one to load is determined by whether <code>pathname-type</code> is <code>FASL</code> or not, but the type can also be specified by the <code>:type</code> argument of the <code>load</code> function.</p>
+<p>To load a text file.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">load</span> file <span class="bu">:type</span> :lisp)</span></code></pre></div>
+<p>To load a fasl file.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">load</span> file <span class="bu">:type</span> :fasl)</span></code></pre></div>
+<p>The first argument of the <code>load</code> function is not only <code>pathname</code>, but can also be <code>memory-stream</code>.<br />
+However, since <code>memory-stream</code> does not have a <code>pathname</code>, you need to specify the <code>:type</code> argument.</p>
+<p>Here is an example of execution.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let</span> ((input (npt-system:make-memory-io-stream))</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>      (output (npt-system:make-memory-io-stream)))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">with-open-file</span> (<span class="kw">stream</span> input <span class="bu">:direction</span> <span class="bu">:output</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">format</span> <span class="kw">stream</span> <span class="st">&quot;(format t </span><span class="sc">\&quot;</span><span class="st">Hello~~%</span><span class="sc">\&quot;</span><span class="st">)&quot;</span>))</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">with-open-file</span> (<span class="kw">stream</span> input <span class="bu">:direction</span> <span class="bu">:input</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">compile-file</span> <span class="kw">stream</span> <span class="bu">:output-file</span> output))</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">file-position</span> output <span class="bu">:start</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">load</span> output <span class="bu">:type</span> :fasl))</span></code></pre></div>
+<p>Here are the execution results.</p>
+<pre><code>Hello
+T</code></pre>
+<p>In this example, a text file is written to the <code>input</code> variable, and a fasl file is output to the <code>output</code> variable by the <code>compile-file</code> function.<br />
+After returning the file pointer of the output to the top, execute the fasl file generated by the <code>load</code> function.</p>
 </body>
 </html>
