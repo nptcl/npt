@@ -1,6 +1,6 @@
 % ANSI Common Lisp npt
 
-This is the documentation for `npt`.  
+This is the documentation for `npt`.
 
 `npt` is an ANSI Common Lisp system, which can be built in C.  
 It is available on FreeBSD, Linux and Windows.
@@ -38,8 +38,8 @@ It is distributed on github.
   - [C Function: Type Function](C1_Type.html)
   - [C Function: Sequense](C2_Sequence.html)
   - [C Function: Object](C3_Object.html)
-  - C Function: Stack Frame
-  - C Function: Execute
+  - [C Function: Stack Frame](C4_Stack.html)
+  - [C Function: Execute](C5_Execute.html)
   - C Function: Function
   - C Function: Error
   - C Function: Print
@@ -49,9 +49,9 @@ It is distributed on github.
 
 
 This document is a translation from Japanese to English.  
-https://nptcl.hatenablog.com/entry/2020/08/21/214057
+[https://nptcl.hatenablog.com/entry/2020/08/21/214057](https://nptcl.hatenablog.com/entry/2020/08/21/214057)
 
 
 # License
 
-The license of npt is [Unlicense](https://unlicense.org/).  
+The license of npt is [Unlicense](https://unlicense.org/).
