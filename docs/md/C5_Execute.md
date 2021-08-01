@@ -9,7 +9,7 @@ Reference: [ANSI Common Lisp npt](index.html)
 
 The following function specifications are described in `lisp.h`.
 
-- [1. eval](#eval)
+- [1. eval](#execute-1)
 
 ```c
 int lisp_eval_(addr x, addr pos);
@@ -18,7 +18,7 @@ int lisp_eval16_(addr x, const void *str);
 int lisp_eval32_(addr x, const void *str);
 ```
 
-- [2. funcall](#funcall)
+- [2. funcall](#execute-2)
 
 ```c
 int lisp_funcall_(addr x, addr call, ...);
@@ -27,7 +27,7 @@ int lisp_funcall16_(addr x, const void *str, ...);
 int lisp_funcall32_(addr x, const void *str, ...);
 ```
 
-- [3. apply](#apply)
+- [3. apply](#execute-3)
 
 ```c
 int lisp_apply_(addr x, addr call, ...);
@@ -36,7 +36,7 @@ int lisp_apply16_(addr x, const void *str, ...);
 int lisp_apply32_(addr x, const void *str, ...);
 ```
 
-- [4. Low-level execution](#low-level)
+- [4. Low-level execution](#execute-4)
 
 ```c
 int lisp_eval_control_(addr eval);
@@ -45,7 +45,7 @@ int lisp_funcall_control_(addr call, ...);
 int lisp_apply_control_(addr call, ...);
 ```
 
-- [5. values](#values)
+- [5. values](#execute-5)
 
 ```c
 void lisp_result_control(addr x);
@@ -58,7 +58,7 @@ void lisp_set_values_nil_control(void);
 void lisp_set_values_list_control(addr list);
 ```
 
-- [6. Escape operation](#escape)
+- [6. Escape operation](#execute-6)
 
 ```c
 int lisp_break_control(void);
@@ -69,14 +69,14 @@ void lisp_save_control(addr *ret);
 void lisp_rollback_control(addr value);
 ```
 
-- [7. Others](#others)
+- [7. Others](#execute-7)
 
 ```c
 int lisp_eval_loop_(void);
 ```
 
 
-# <a id="eval">1. eval</a>
+# <a id="execute-1">1. eval</a>
 
 Functiuons of the `eval`.
 
@@ -132,7 +132,7 @@ See `lisp_eval8_`.
 See `lisp_eval8_`.
 
 
-# <a id="funcall">2. funcall</a>
+# <a id="execute-2">2. funcall</a>
 
 Functions of the `funcall`.
 
@@ -206,7 +206,7 @@ See `lisp_funcall8_`.
 See `lisp_funcall8_`.
 
 
-# <a id="apply">3. apply</a>
+# <a id="execute-3">3. apply</a>
 
 Functions of the `apply`.
 
@@ -283,7 +283,7 @@ See `lisp_apply8_`.
 See `lisp_apply8_`.
 
 
-# <a id="low-level">4. Low-level execution</a>
+# <a id="execute-4">4. Low-level execution</a>
 
 Functions for low-level operations of execution.
 
@@ -356,7 +356,7 @@ If `call` and variable arguments are hold variables, their contents are used.
 To get the return value, use the return value access function.
 
 
-# <a id="values">5. values</a>
+# <a id="execute-5">5. values</a>
 
 Functions for manipulating the return value.
 
@@ -422,7 +422,7 @@ It is almost the same as `nth-value` in Common Lisp.
 If the corresponding value does not exist, `NIL` will be returned.
 
 
-# <a id="escape">6. Escape operation</a>
+# <a id="execute-6">6. Escape operation</a>
 
 Functions of the escape.
 
@@ -520,7 +520,7 @@ the save object created by `lisp_save_control`.
 It is an error if `value` is a hold variable.
 
 
-# <a id="others">7. Others</a>
+# <a id="execute-7">7. Others</a>
 
 Other operation functions.
 

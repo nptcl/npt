@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>C Function: Error</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">C Function: Error</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a></p>
+<h1 id="function-specification">Function Specification</h1>
+<p>The following function specifications are described in <code>lisp.h</code>.</p>
+<ul>
+<li><a href="#error-1">1. abort</a></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abortf<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort8<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort16<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort32<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>lisp_abort_calltype lisp_set_abort_handler<span class="op">(</span>lisp_abort_calltype call<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>lisp_abort_calltype lisp_set_abort_setjmp_handler<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>Lisp_abort_Begin</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>Lisp_abort_End</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>Lisp_abort_throw</span></code></pre></div>
+<ul>
+<li><a href="#error-2">2. signal</a></li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_signal_<span class="op">(</span>addr condition<span class="op">);</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error_<span class="op">(</span>addr condition<span class="op">);</span></span></code></pre></div>
+<ul>
+<li><a href="#error-3">3. error</a></li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
+<ul>
+<li><a href="#error-4">4. warn</a></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
+<h1 id="abort"><a id="error-1">1. abort</a></h1>
+<p>Functions of the <code>LISP ABORT</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abortf<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort8<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort16<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort32<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>lisp_abort_calltype lisp_set_abort_handler<span class="op">(</span>lisp_abort_calltype call<span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>lisp_abort_calltype lisp_set_abort_setjmp_handler<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>Lisp_abort_Begin</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Lisp_abort_End</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Lisp_abort_throw</span></code></pre></div>
+<h2 id="function-lisp_abort">Function <code>lisp_abort</code></h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
+<p>Executes <code>LISP ABORT</code>.<br />
+When <code>LISP ABORT</code> is executed, the following behavior is performed.</p>
+<ul>
+<li>Running the Handler</li>
+<li>Output of the string <code>LISP ABORT</code>.</li>
+<li>Execution of <code>exit(1)</code> (process termination)</li>
+</ul>
+<h2 id="function-lisp_abortf">Function <code>lisp_abortf</code></h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abortf<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> fmt<span class="op">,</span> `printf` format<span class="op">.</span></span></code></pre></div>
+<p>Print a message to standard error and then <code>LISP ABORT</code>.<br />
+No Lisp is used, so it can be run at any time.</p>
+<h2 id="function-lisp_abort8">Function <code>lisp_abort8</code></h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort8<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort16<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_abort32<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>fmt<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> fmt<span class="op">,</span> unicode string<span class="op">.</span></span></code></pre></div>
+<p>Output error messages to <code>error-output</code> using the <code>lisp_format_</code> function,and then <code>LISP ABORT</code>.<br />
+Since the process is executed via Lisp, Common Lisp must be executable.<br />
+See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
+<h2 id="function-lisp_abort16">Function <code>lisp_abort16</code></h2>
+<p>See <code>lisp_abort8</code>.</p>
+<h2 id="function-lisp_abort32">Function <code>lisp_abort32</code></h2>
+<p>See <code>lisp_abort8</code>.</p>
+<h2 id="function-lisp_set_abort_handler">Function <code>lisp_set_abort_handler</code></h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lisp_abort_calltype lisp_set_abort_handler<span class="op">(</span>lisp_abort_calltype call<span class="op">);</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> call<span class="op">,</span> handler<span class="op">,</span> <span class="dt">void</span> <span class="op">(*)(</span><span class="dt">void</span><span class="op">).</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Handler before configuration<span class="op">.</span></span></code></pre></div>
+<p>Specifies a handler to be called when <code>LISP ABORT</code> is executed.<br />
+If the argument is NULL, the handler will be removed.</p>
+<h2 id="function-lisp_set_abort_setjmp_handler">Function <code>lisp_set_abort_setjmp_handler</code></h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lisp_abort_calltype lisp_set_abort_setjmp_handler<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Handler before configuration<span class="op">.</span></span></code></pre></div>
+<p>Set the handler for <code>setjmp</code>.</p>
+<h2 id="macro-lisp_abort_begin">Macro <code>Lisp_abort_Begin</code></h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define Lisp_abort_Begin ...</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define Lisp_abort_End ...</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define Lisp_abort_throw() ...</span></span></code></pre></div>
+<p>Capture LISP ABORT.<br />
+To use this mechanism, you need to run <code>lisp_set_abort_setjmp_handler</code> to set the <code>setjmp</code> handler.</p>
+<p>Use <code>Lisp_abort_Begin</code> and <code>Lisp_abort_End</code> for capturing.<br />
+Examples are shown below.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Lisp_abort_Begin <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* code */</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>Lisp_abort_End<span class="op">;</span></span></code></pre></div>
+<p>If <code>Lisp_abort_throw()</code> is executed, the control jumps to <code>Lisp_abort_End</code> by <code>longjmp</code>.</p>
+<p>The handler registered by <code>lisp_set_abort_setjmp_handler</code> is simply a code that <code>Lisp_abort_throw()</code> will be executed, for example, the following function.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> abort_setjmp_handler<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_throw<span class="op">();</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Normally, macros are expanded to <code>setjmp</code>/<code>longjmp</code>, but if you have a C++ compiler and <code>LISP_ABORT_SETJMP</code> is not defined, macros are expanded to <code>try</code>/<code>catch</code>.</p>
+<p>A typical usage example is shown below.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> finish<span class="op">;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    lisp_abort_calltype handler<span class="op">;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    handler <span class="op">=</span> lisp_set_abort_setjmp_handler<span class="op">();</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    finish <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_Begin <span class="op">{</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        lisp_abort<span class="op">();</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        finish <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    Lisp_abort_End<span class="op">;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    lisp_set_abort_handler<span class="op">(</span>handler<span class="op">);</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>finish <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;LISP ABORT</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="macro-lisp_abort_end">Macro <code>Lisp_abort_End</code></h2>
+<p>See <code>Lisp_abort_Begin</code>.</p>
+<h2 id="macro-lisp_abort_throw">Macro <code>Lisp_abort_throw</code></h2>
+<p>See <code>Lisp_abort_Begin</code>.</p>
+<h1 id="signal"><a id="error-2">2. signal</a></h1>
+<p>Function to generate a condition.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_signal_<span class="op">(</span>addr condition<span class="op">);</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error_<span class="op">(</span>addr condition<span class="op">);</span></span></code></pre></div>
+<h2 id="escape-function-lisp_signal_">Escape Function <code>lisp_signal_</code></h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_signal_<span class="op">(</span>addr condition<span class="op">);</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> condition<span class="op">,</span> instance<span class="op">.</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
+<p>Passes the <code>condition</code> argument to <code>signal</code>.<br />
+It is the same as <code>signal</code> in Common Lisp.<br />
+If <code>condition</code> is a hold variable, its contents will be used.</p>
+<h2 id="escape-function-lisp_error_">Escape Function <code>lisp_error_</code></h2>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error_<span class="op">(</span>addr condition<span class="op">);</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> condition<span class="op">,</span> instance<span class="op">.</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero<span class="op">.</span></span></code></pre></div>
+<p>Passes the <code>condition</code> argument to <code>error</code>.<br />
+It is the same as <code>error</code> in Common Lisp.<br />
+If <code>condition</code> is a hold variable, its contents will be used.</p>
+<h1 id="error"><a id="error-3">3. error</a></h1>
+<p>Functions of the <code>error</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
+<h2 id="escape-function-lisp_error8_">Escape Function <code>lisp_error8_</code></h2>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_error32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> str<span class="op">,</span> unicode string<span class="op">.</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero<span class="op">.</span></span></code></pre></div>
+<p>Run the <code>simple-error</code> condition.<br />
+It is the same as <code>error</code> in Common Lisp.<br />
+See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
+<h2 id="escape-function-lisp_error16_">Escape Function <code>lisp_error16_</code></h2>
+<p>See <code>lisp_error8_</code>.</p>
+<h2 id="escape-function-lisp_error32_">Escape Function <code>lisp_error32_</code></h2>
+<p>See <code>lisp_error8_</code>.</p>
+<h1 id="warn"><a id="error-4">4. warn</a></h1>
+<p>Functions of the <code>warn</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
+<h2 id="escape-function-lisp_warn8_">Escape Function <code>lisp_warn8_</code></h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_warn32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> str<span class="op">,</span> unicode string<span class="op">.</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
+<p>Run the <code>simple-warning</code> condition.<br />
+It is the same as <code>warn</code> in Common Lisp.<br />
+See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
+<h2 id="escape-function-lisp_warn16_">Escape Function <code>lisp_warn16_</code></h2>
+<p>See <code>lisp_warn8_</code>.</p>
+<h2 id="escape-function-lisp_warn32_">Escape Function <code>lisp_warn32_</code></h2>
+<p>See <code>lisp_warn8_</code>.</p>
+</body>
+</html>

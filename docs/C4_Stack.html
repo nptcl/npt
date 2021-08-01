@@ -220,12 +220,12 @@
 <h1 id="function-specification">Function Specification</h1>
 <p>The following function specifications are described in <code>lisp.h</code>.</p>
 <ul>
-<li><a href="#stack-frame">1. Stack Frame</a></li>
+<li><a href="#stack-1">1. Stack Frame</a></li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_push_control<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">);</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_pop_control_<span class="op">(</span>addr control<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#special-variables">2. Special Variables</a></li>
+<li><a href="#stack-2">2. Special Variables</a></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_push_special_<span class="op">(</span>addr symbol<span class="op">,</span> addr value<span class="op">);</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_push_special8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>name<span class="op">,</span> addr value<span class="op">);</span></span>
@@ -240,25 +240,25 @@
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_set_special16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>name<span class="op">,</span> addr value<span class="op">);</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_set_special32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>name<span class="op">,</span> addr value<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#defvar">3. defvar</a></li>
+<li><a href="#stack-3">3. defvar</a></li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_defvar_<span class="op">(</span>addr symbol<span class="op">);</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_defvar8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_defvar16_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_defvar32_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#catch-throw">4. catch / throw</a></li>
+<li><a href="#stack-4">4. catch / throw</a></li>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_catch<span class="op">(</span>addr symbol<span class="op">);</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_throw_<span class="op">(</span>addr symbol<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#handler">5. handler</a></li>
+<li><a href="#stack-5">5. handler</a></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_handler_bind_<span class="op">(</span>addr name<span class="op">,</span> addr call<span class="op">);</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_handler_case_<span class="op">(</span>addr name<span class="op">,</span> addr call<span class="op">);</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_handler_reverse<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#restart">6. restart</a></li>
+<li><a href="#stack-6">6. restart</a></li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_make<span class="op">(</span>addr x<span class="op">,</span> addr name<span class="op">,</span> addr call<span class="op">,</span> <span class="dt">int</span> casep<span class="op">);</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_interactive<span class="op">(</span>addr restart<span class="op">,</span> addr call<span class="op">);</span></span>
@@ -266,7 +266,7 @@
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_test<span class="op">(</span>addr restart<span class="op">,</span> addr call<span class="op">);</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_push<span class="op">(</span>addr restart<span class="op">);</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_reverse<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
-<h1 id="stack-frame"><a id="stack-frame">1. Stack Frame</a></h1>
+<h1 id="stack-frame"><a id="stack-1">1. Stack Frame</a></h1>
 <p>Functions for allocating and releasing stack frame space.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_push_control<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">);</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_pop_control_<span class="op">(</span>addr control<span class="op">);</span></span></code></pre></div>
@@ -285,7 +285,7 @@ The stack frame is mainly used for hold variables.</p>
 The current stack frame is also held by the execution environment, and it is an error if the argument <code>control</code> is different from the current stack frame.</p>
 <p>This function can also be used for escape.<br />
 It is an error if <code>control</code> is a hold variable.</p>
-<h1 id="special-variables"><a id="#special-variables">2. Special Variables</a></h1>
+<h1 id="special-variables"><a id="stack-2">2. Special Variables</a></h1>
 <p>Functions for manipulating special variables.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_push_special_<span class="op">(</span>addr symbol<span class="op">,</span> addr value<span class="op">);</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_push_special8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>name<span class="op">,</span> addr value<span class="op">);</span></span>
@@ -373,7 +373,7 @@ See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
 <p>See <code>lisp_set_special8_</code>.</p>
 <h2 id="escape-function-lisp_set_special32_">Escape Function <code>lisp_set_special32_</code></h2>
 <p>See <code>lisp_set_special8_</code>.</p>
-<h1 id="defvar"><a id="#defvar">3. defvar</a></h1>
+<h1 id="defvar"><a id="stack-3">3. defvar</a></h1>
 <p>Functions of the <code>defvar</code>.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_defvar_<span class="op">(</span>addr symbol<span class="op">);</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_defvar8_<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
@@ -399,7 +399,7 @@ See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
 <p>See <code>lisp_defvar8_</code>.</p>
 <h2 id="escape-function-lisp_defvar32_">Escape Function <code>lisp_defvar32_</code></h2>
 <p>See <code>lisp_defvar8_</code>.</p>
-<h1 id="catch-throw"><a id="#catch-throw">4. catch / throw</a></h1>
+<h1 id="catch-throw"><a id="stack-4">4. catch / throw</a></h1>
 <p>Functions of <code>catch</code> and <code>throw</code>.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_catch<span class="op">(</span>addr symbol<span class="op">);</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_throw_<span class="op">(</span>addr symbol<span class="op">);</span></span></code></pre></div>
@@ -418,7 +418,7 @@ If <code>symbol</code> or <code>value</code> is a hold variable, its content wil
 It will search back through the stack frame and start escaping if it finds a <code>symbol</code> for <code>catch</code>.<br />
 If <code>symbol</code> is not found, <code>error</code> will be raised.<br />
 If <code>symbol</code> or <code>value</code> is a hold variable, its content will be used.</p>
-<h1 id="handler"><a id="#handler">5. handler</a></h1>
+<h1 id="handler"><a id="stack-5">5. handler</a></h1>
 <p>The <code>handler-bind</code> and <code>handler-case</code> functions.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_handler_bind_<span class="op">(</span>addr name<span class="op">,</span> addr call<span class="op">);</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_handler_case_<span class="op">(</span>addr name<span class="op">,</span> addr call<span class="op">);</span></span>
@@ -448,7 +448,7 @@ If <code>name</code> and <code>call</code> are hold variables, the contents will
 <p>Put the handler list in reverse order.<br />
 You can register multiple <code>lisp_handler_bind_</code> and <code>lisp_handler_case_</code>, but since they are added to the current stack frame with <code>push</code>, the evaluation order will be reversed. However, since they are added to the current stack frame by <code>push</code>, the order of evaluation is not in the order of registration but in the reverse order.<br />
 Therefore, this function can be used to reverse the order of the handler list.</p>
-<h1 id="restart"><a id="#restart">6. restart</a></h1>
+<h1 id="restart"><a id="stack-6">6. restart</a></h1>
 <p>Functions of <code>restart</code>.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_make<span class="op">(</span>addr x<span class="op">,</span> addr name<span class="op">,</span> addr call<span class="op">,</span> <span class="dt">int</span> casep<span class="op">);</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_restart_interactive<span class="op">(</span>addr restart<span class="op">,</span> addr call<span class="op">);</span></span>

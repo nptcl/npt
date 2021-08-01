@@ -9,7 +9,7 @@ Reference: [ANSI Common Lisp npt](index.html)
 
 The following function specifications are described in `lisp.h`.
 
-- [1. Create Sequence](#create-sequence)
+- [1. Create Sequence](#sequence-1)
 
 ```c
 void lisp_cons(addr x, addr car, addr cdr);
@@ -18,7 +18,7 @@ void lisp_list(addr x, ...);
 void lisp_lista(addr x, ...);
 ```
 
-- [2. Sequence Operation](#sequence-operation)
+- [2. Sequence Operation](#sequence-2)
 
 ```c
 int lisp_getelt_(addr x, addr pos, size_t index);
@@ -29,7 +29,7 @@ int lisp_reverse_(addr x, addr pos);
 int lisp_nreverse_(addr x, addr pos);
 ```
 
-- [3. Cons](#cons)
+- [3. Cons](#sequence-3)
 
 ```c
 void lisp_car(addr x, addr list);
@@ -41,7 +41,7 @@ void lisp_setf_cdr(addr cons, addr value);
 void lisp_setf_carcdr(addr cons, addr car, addr cdr);
 ```
 
-- [4. String](#string)
+- [4. String](#sequence-4)
 
 ```c
 int lisp_string8_(addr x, const void *str);
@@ -50,7 +50,7 @@ int lisp_string32_(addr x, const void *str);
 int lisp_string_getc_(addr pos, size_t i, unicode *c);
 ```
 
-- [5. Strvect](#strvect)
+- [5. Strvect](#sequence-5)
 
 ```c
 int lisp_strvect_getc(addr pos, size_t i, unicode *c);
@@ -58,7 +58,7 @@ int lisp_strvect_length(addr pos, size_t *ret);
 ```
 
 
-# <a id="create-sequence">1. Create Sequence</a>
+# <a id="sequence-1">1. Create Sequence</a>
 
 Function of the creating sequense.
 
@@ -152,7 +152,7 @@ x -> (10 20 . 30)
 ```
 
 
-# <a id="sequence-operation">2. Sequence Operation</a>
+# <a id="sequence-2">2. Sequence Operation</a>
 
 Function of the sequense operation.
 
@@ -242,7 +242,7 @@ If `pos` is a hold variable, the content is used.
 Destroy the sequence without creating a new one.
 
 
-# <a id="cons">3. Cons</a>
+# <a id="sequence-3">3. Cons</a>
 
 Function of the cons.
 
@@ -335,7 +335,7 @@ Set the `car` to the car part of the `cons`.
 Set the `cdr` to the cdr part of the `cons`.
 
 
-# <a id="string">4. String</a>
+# <a id="sequence-4">4. String</a>
 
 Function of the string.
 
@@ -392,7 +392,7 @@ Return: Non-zero when escaping.
 Get the value of a character from a `strvect` object.  
 If `pos` is a hold variable, the content is used.
 
-# <a id="strvect">4. Strvect</a>
+# <a id="sequence-5">5. Strvect</a>
 
 Function of `strvect`, which is an object for `simple-string`.
 

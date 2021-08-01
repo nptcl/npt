@@ -9,14 +9,14 @@ Reference: [ANSI Common Lisp npt](index.html)
 
 The following function specifications are described in `lisp.h`.
 
-- [1. Stack Frame](#stack-frame)
+- [1. Stack Frame](#stack-1)
 
 ```c
 void lisp_push_control(addr *ret);
 int lisp_pop_control_(addr control);
 ```
 
-- [2. Special Variables](#special-variables)
+- [2. Special Variables](#stack-2)
 
 ```c
 int lisp_push_special_(addr symbol, addr value);
@@ -33,7 +33,7 @@ int lisp_set_special16_(const void *name, addr value);
 int lisp_set_special32_(const void *name, addr value);
 ```
 
-- [3. defvar](#defvar)
+- [3. defvar](#stack-3)
 
 ```c
 int lisp_defvar_(addr symbol);
@@ -42,14 +42,14 @@ int lisp_defvar16_(const void *str);
 int lisp_defvar32_(const void *str);
 ```
 
-- [4. catch / throw](#catch-throw)
+- [4. catch / throw](#stack-4)
 
 ```c
 void lisp_catch(addr symbol);
 int lisp_throw_(addr symbol);
 ```
 
-- [5. handler](#handler)
+- [5. handler](#stack-5)
 
 ```c
 int lisp_handler_bind_(addr name, addr call);
@@ -57,7 +57,7 @@ int lisp_handler_case_(addr name, addr call);
 void lisp_handler_reverse(void);
 ```
 
-- [6. restart](#restart)
+- [6. restart](#stack-6)
 
 ```c
 void lisp_restart_make(addr x, addr name, addr call, int casep);
@@ -69,7 +69,7 @@ void lisp_restart_reverse(void);
 ```
 
 
-# <a id="stack-frame">1. Stack Frame</a>
+# <a id="stack-1">1. Stack Frame</a>
 
 Functions for allocating and releasing stack frame space.
 
@@ -109,7 +109,7 @@ This function can also be used for escape.
 It is an error if `control` is a hold variable.
 
 
-# <a id="#special-variables">2. Special Variables</a>
+# <a id="stack-2">2. Special Variables</a>
 
 Functions for manipulating special variables.
 
@@ -261,7 +261,7 @@ See `lisp_set_special8_`.
 See `lisp_set_special8_`.
 
 
-# <a id="#defvar">3. defvar</a>
+# <a id="stack-3">3. defvar</a>
 
 Functions of the `defvar`.
 
@@ -311,7 +311,7 @@ See `lisp_defvar8_`.
 See `lisp_defvar8_`.
 
 
-# <a id="#catch-throw">4. catch / throw</a>
+# <a id="stack-4">4. catch / throw</a>
 
 Functions of `catch` and `throw`.
 
@@ -349,7 +349,7 @@ If `symbol` or `value` is a hold variable, its content will be used.
 
 
 
-# <a id="#handler">5. handler</a>
+# <a id="stack-5">5. handler</a>
 
 The `handler-bind` and `handler-case` functions.
 
@@ -408,7 +408,7 @@ but in the reverse order.
 Therefore, this function can be used to reverse the order of the handler list.
 
 
-# <a id="#restart">6. restart</a>
+# <a id="stack-6">6. restart</a>
 
 Functions of `restart`.
 

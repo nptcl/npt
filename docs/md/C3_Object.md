@@ -9,7 +9,7 @@ Reference: [ANSI Common Lisp npt](index.html)
 
 The following function specifications are described in `lisp.h`.
 
-- [1. Create Object](#create-object)
+- [1. Create Object](#object-1)
 
 ```c
 int lisp_character_(addr x, unicode value);
@@ -19,7 +19,7 @@ int lisp_double_(addr x, double value);
 int lisp_long_double_(addr x, long double value);
 ```
 
-- [2. Get Value](#get-value)
+- [2. Get Value](#object-2)
 
 ```c
 int lisp_zero_p(addr value);
@@ -32,7 +32,7 @@ int lisp_get_double_(addr pos, double *ret);
 int lisp_get_long_double_(addr pos, long double *ret);
 ```
 
-- [3. Package](#package)
+- [3. Package](#object-3)
 
 ```c
 int lisp_package_(addr x, addr pos);
@@ -41,7 +41,7 @@ int lisp_package16_(addr x, const void *str);
 int lisp_package32_(addr x, const void *str);
 ```
 
-- [4. Intern](#intern)
+- [4. Intern](#object-4)
 
 ```c
 int lisp_intern_(addr x, addr package, addr name);
@@ -50,7 +50,7 @@ int lisp_intern16_(addr x, const void *package, const void *name);
 int lisp_intern32_(addr x, const void *package, const void *name);
 ```
 
-- [5. Reader](#reader)
+- [5. Reader](#object-5)
 
 ```c
 int lisp_reader_(addr x, addr str);
@@ -59,7 +59,7 @@ int lisp_reader16_(addr x, const void *str);
 int lisp_reader32_(addr x, const void *str);
 ```
 
-- [6. Pathname](#pathname)
+- [6. Pathname](#object-6)
 
 ```c
 int lisp_pathname_(addr x, addr name);
@@ -70,7 +70,7 @@ int lisp_namestring_(addr x, addr path);
 ```
 
 
-# <a id="create-object">1. Create Object</a>
+# <a id="object-1">1. Create Object</a>
 
 Function of the creating object.
 
@@ -151,7 +151,7 @@ Creates a `long-float` type floating-point object.
 If `value` is `inf` or `nan`, it is an error.
 
 
-# <a id="get-value">2. Get Value</a>
+# <a id="object-2">2. Get Value</a>
 
 Function of the getting value.
 
@@ -279,7 +279,7 @@ If `pos` is of `long-float` type, the value is returned as `ret`.
 In the case of other real types, the value is cast to `long-float`.
 
 
-# <a id="package">3. Package</a>
+# <a id="object-3">3. Package</a>
 
 Function of the package.
 
@@ -330,7 +330,7 @@ See `lisp_package8_`.
 See `lisp_package8_`.
 
 
-# <a id="intern">4. Intern</a>
+# <a id="object-4">4. Intern</a>
 
 Function of the intern.
 
@@ -386,7 +386,7 @@ See `lisp_intern8_`.
 See `lisp_intern8_`.
 
 
-# <a id="reader">5. Reader</a>
+# <a id="object-5">5. Reader</a>
 
 Function of the reader.
 
@@ -444,7 +444,7 @@ See `lisp_reader8_`.
 See `lisp_reader8_`.
 
 
-# <a id="pathname">6. Pathname</a>
+# <a id="object-6">6. Pathname</a>
 
 Function of the pathname.
 

@@ -220,7 +220,7 @@
 <h1 id="function-specification">Function Specification</h1>
 <p>The following function specifications are described in <code>lisp.h</code>.</p>
 <ul>
-<li><a href="#hold-variables">1. Hold Variables</a></li>
+<li><a href="#type-1">1. Hold Variables</a></li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_hold_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_hold_value<span class="op">(</span>addr x<span class="op">,</span> addr <span class="op">*</span>ret<span class="op">);</span></span>
@@ -229,14 +229,14 @@
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_hold<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">,</span> addr value<span class="op">);</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>addr Lisp_hold<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#boolean">2. Boolean</a></li>
+<li><a href="#type-2">2. Boolean</a></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_nil<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_t<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>addr Lisp_nil<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>addr Lisp_t<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#system">3. System</a></li>
+<li><a href="#type-3">3. System</a></li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_nil_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_t_p<span class="op">(</span>addr x<span class="op">);</span></span>
@@ -250,7 +250,7 @@
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_array_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_vector_p<span class="op">(</span>addr x<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#number">4. Number</a></li>
+<li><a href="#type-4">4. Number</a></li>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_fixnum_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_bignum_p<span class="op">(</span>addr x<span class="op">);</span></span>
@@ -265,7 +265,7 @@
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_complex_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_number_p<span class="op">(</span>addr x<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#object">5. Object</a></li>
+<li><a href="#type-5">5. Object</a></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_clos_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_hashtable_p<span class="op">(</span>addr x<span class="op">);</span></span>
@@ -281,7 +281,7 @@
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_environment_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_bitvector_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_print_dispatch_p<span class="op">(</span>addr x<span class="op">);</span></span></code></pre></div>
-<h1 id="hold-variables"><a id="hold-variables">1. Hold Variables</a></h1>
+<h1 id="hold-variables"><a id="type-1">1. Hold Variables</a></h1>
 <p>Function of the hold variable.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_hold_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_hold_value<span class="op">(</span>addr x<span class="op">,</span> addr <span class="op">*</span>ret<span class="op">);</span></span>
@@ -330,7 +330,7 @@ If <code>value</code> is a hold variable, the value held by the function is used
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> hold variable</span></code></pre></div>
 <p>Creates and returns a hold variable.<br />
 The value of the hold variable is <code>NIL</code>.</p>
-<h1 id="boolean"><a id="boolean">2. Boolean</a></h1>
+<h1 id="boolean"><a id="type-2">2. Boolean</a></h1>
 <p>Function of the boolean.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_nil<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_t<span class="op">(</span>addr x<span class="op">);</span></span>
@@ -356,7 +356,7 @@ The value of the hold variable is <code>NIL</code>.</p>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> t</span></code></pre></div>
 <p>Return a <code>t</code> object.</p>
-<h1 id="system"><a id="system">3. System</a></h1>
+<h1 id="system"><a id="type-3">3. System</a></h1>
 <p>Function of the system object.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_nil_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_t_p<span class="op">(</span>addr x<span class="op">);</span></span>
@@ -451,7 +451,7 @@ This is different from <code>arrayp</code> in Common Lisp.</p>
 <p>If <code>x</code> is a hold variable, the value held by the variable is evaluated.<br />
 If <code>x</code> is <code>LISPTYPE_VECTOR</code> type, a non-zero value is returned.<br />
 This is different from <code>vectorp</code> in Common Lisp.</p>
-<h1 id="number"><a id="number">4. Number</a></h1>
+<h1 id="number"><a id="type-4">4. Number</a></h1>
 <p>Function of the number object.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_fixnum_p<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_bignum_p<span class="op">(</span>addr x<span class="op">);</span></span>

@@ -9,7 +9,7 @@ Reference: [ANSI Common Lisp npt](index.html)
 
 The following function specifications are described in `lisp.h`.
 
-- [1. Hold Variables](#hold-variables)
+- [1. Hold Variables](#type-1)
 
 ```c
 int lisp_hold_p(addr x);
@@ -20,7 +20,7 @@ void lisp_hold(addr *ret, addr value);
 addr Lisp_hold(void);
 ```
 
-- [2. Boolean](#boolean)
+- [2. Boolean](#type-2)
 
 ```c
 void lisp_nil(addr x);
@@ -29,7 +29,7 @@ addr Lisp_nil(void);
 addr Lisp_t(void);
 ```
 
-- [3. System](#system)
+- [3. System](#type-3)
 
 ```c
 int lisp_nil_p(addr x);
@@ -45,7 +45,7 @@ int lisp_array_p(addr x);
 int lisp_vector_p(addr x);
 ```
 
-- [4. Number](#number)
+- [4. Number](#type-4)
 
 ```c
 int lisp_fixnum_p(addr x);
@@ -62,7 +62,7 @@ int lisp_complex_p(addr x);
 int lisp_number_p(addr x);
 ```
 
-- [5. Object](#object)
+- [5. Object](#type-5)
 
 ```c
 int lisp_clos_p(addr x);
@@ -82,7 +82,7 @@ int lisp_print_dispatch_p(addr x);
 ```
 
 
-# <a id="hold-variables">1. Hold Variables</a>
+# <a id="type-1">1. Hold Variables</a>
 
 Function of the hold variable.
 
@@ -173,7 +173,7 @@ Creates and returns a hold variable.
 The value of the hold variable is `NIL`.
 
 
-# <a id="boolean">2. Boolean</a>
+# <a id="type-2">2. Boolean</a>
 
 Function of the boolean.
 
@@ -229,7 +229,7 @@ Return: t
 Return a `t` object.
 
 
-# <a id="system">3. System</a>
+# <a id="type-3">3. System</a>
 
 Function of the system object.
 
@@ -399,7 +399,7 @@ If `x` is `LISPTYPE_VECTOR` type, a non-zero value is returned.
 This is different from `vectorp` in Common Lisp.
 
 
-# <a id="number">4. Number</a>
+# <a id="type-4">4. Number</a>
 
 Function of the number object.
 

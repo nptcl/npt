@@ -40,9 +40,9 @@ It is distributed on github.
   - [C Function: Object](C3_Object.html)
   - [C Function: Stack Frame](C4_Stack.html)
   - [C Function: Execute](C5_Execute.html)
-  - C Function: Function
-  - C Function: Error
-  - C Function: Print
+  - [C Function: Function](C6_Function.html)
+  - [C Function: Error](C7_Error.html)
+  - [C Function: Print](C8_Print.html)
 
 - Lisp Function Specification
   - [Lisp Function: System Function](D1_System.html)

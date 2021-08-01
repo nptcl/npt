@@ -220,35 +220,35 @@
 <h1 id="function-specification">Function Specification</h1>
 <p>The following function specifications are described in <code>lisp.h</code>.</p>
 <ul>
-<li><a href="#eval">1. eval</a></li>
+<li><a href="#execute-1">1. eval</a></li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">);</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval16_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval32_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#funcall">2. funcall</a></li>
+<li><a href="#execute-2">2. funcall</a></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall_<span class="op">(</span>addr x<span class="op">,</span> addr call<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall16_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall32_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
 <ul>
-<li><a href="#apply">3. apply</a></li>
+<li><a href="#execute-3">3. apply</a></li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply_<span class="op">(</span>addr x<span class="op">,</span> addr call<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply16_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply32_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
 <ul>
-<li><a href="#low-level">4. Low-level execution</a></li>
+<li><a href="#execute-4">4. Low-level execution</a></li>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_control_<span class="op">(</span>addr eval<span class="op">);</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_string_control_<span class="op">(</span>addr eval<span class="op">);</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall_control_<span class="op">(</span>addr call<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply_control_<span class="op">(</span>addr call<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
 <ul>
-<li><a href="#values">5. values</a></li>
+<li><a href="#execute-5">5. values</a></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_result_control<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_result2_control<span class="op">(</span>addr x<span class="op">,</span> addr y<span class="op">);</span></span>
@@ -259,7 +259,7 @@
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_set_values_nil_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_set_values_list_control<span class="op">(</span>addr list<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#escape">6. Escape operation</a></li>
+<li><a href="#execute-6">6. Escape operation</a></li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_break_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_escape_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
@@ -268,10 +268,10 @@
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_save_control<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">);</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_rollback_control<span class="op">(</span>addr value<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#others">7. Others</a></li>
+<li><a href="#execute-7">7. Others</a></li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_loop_<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
-<h1 id="eval"><a id="eval">1. eval</a></h1>
+<h1 id="eval"><a id="execute-1">1. eval</a></h1>
 <p>Functiuons of the <code>eval</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">);</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
@@ -301,7 +301,7 @@ If <code>x</code> is <code>NULL</code>, the returned value will be ignored. See 
 <p>See <code>lisp_eval8_</code>.</p>
 <h2 id="escape-function-lisp_eval32_">Escape Function <code>lisp_eval32_</code></h2>
 <p>See <code>lisp_eval8_</code>.</p>
-<h1 id="funcall"><a id="funcall">2. funcall</a></h1>
+<h1 id="funcall"><a id="execute-2">2. funcall</a></h1>
 <p>Functions of the <code>funcall</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall_<span class="op">(</span>addr x<span class="op">,</span> addr call<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_funcall8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
@@ -343,7 +343,7 @@ If <code>x</code> is <code>NULL</code>, the returned value will be ignored. If v
 <p>See <code>lisp_funcall8_</code>.</p>
 <h2 id="escape-function-lisp_funcall32_">Escape Function <code>lisp_funcall32_</code></h2>
 <p>See <code>lisp_funcall8_</code>.</p>
-<h1 id="apply"><a id="apply">3. apply</a></h1>
+<h1 id="apply"><a id="execute-3">3. apply</a></h1>
 <p>Functions of the <code>apply</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply_<span class="op">(</span>addr x<span class="op">,</span> addr call<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_apply8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">,</span> <span class="op">...);</span></span>
@@ -386,7 +386,7 @@ If <code>x</code> is <code>NULL</code>, the returned value will be ignored. If v
 <p>See <code>lisp_apply8_</code>.</p>
 <h2 id="escape-function-lisp_apply32_">Escape Function <code>lisp_apply32_</code></h2>
 <p>See <code>lisp_apply8_</code>.</p>
-<h1 id="low-level-execution"><a id="low-level">4. Low-level execution</a></h1>
+<h1 id="low-level-execution"><a id="execute-4">4. Low-level execution</a></h1>
 <p>Functions for low-level operations of execution.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_control_<span class="op">(</span>addr eval<span class="op">);</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_string_control_<span class="op">(</span>addr eval<span class="op">);</span></span>
@@ -425,7 +425,7 @@ If <code>call</code> and variable arguments are hold variables, their contents a
 It is equivalent to <code>apply</code> in Common Lisp.<br />
 Variable arguments are terminated with <code>NULL</code> and the last element becomes the <code>cdr</code> part.<br />
 If <code>call</code> and variable arguments are hold variables, their contents are used. To get the return value, use the return value access function.</p>
-<h1 id="values"><a id="values">5. values</a></h1>
+<h1 id="values"><a id="execute-5">5. values</a></h1>
 <p>Functions for manipulating the return value.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_result_control<span class="op">(</span>addr x<span class="op">);</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_result2_control<span class="op">(</span>addr x<span class="op">,</span> addr y<span class="op">);</span></span>
@@ -461,7 +461,7 @@ This is the same as <code>multiple-value-list</code> in Common Lisp.</p>
 <p>Get the <code>index</code>th returned value.<br />
 It is almost the same as <code>nth-value</code> in Common Lisp.<br />
 If the corresponding value does not exist, <code>NIL</code> will be returned.</p>
-<h1 id="escape-operation"><a id="escape">6. Escape operation</a></h1>
+<h1 id="escape-operation"><a id="execute-6">6. Escape operation</a></h1>
 <p>Functions of the escape.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_break_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_escape_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
@@ -539,7 +539,7 @@ Create a saving object for evacuation and place it on the current stack frame.</
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> value<span class="op">,</span> saving object<span class="op">.</span></span></code></pre></div>
 <p>Update escape information and return value using the save object created by <code>lisp_save_control</code>.<br />
 It is an error if <code>value</code> is a hold variable.</p>
-<h1 id="others"><a id="others">7. Others</a></h1>
+<h1 id="others"><a id="execute-7">7. Others</a></h1>
 <p>Other operation functions.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_eval_loop_<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <h2 id="escape-function-lisp_eval_loop_">Escape Function <code>lisp_eval_loop_</code></h2>

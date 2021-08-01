@@ -220,14 +220,14 @@
 <h1 id="function-specification">Function Specification</h1>
 <p>The following function specifications are described in <code>lisp.h</code>.</p>
 <ul>
-<li><a href="#create-sequence">1. Create Sequence</a></li>
+<li><a href="#sequence-1">1. Create Sequence</a></li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_cons<span class="op">(</span>addr x<span class="op">,</span> addr car<span class="op">,</span> addr cdr<span class="op">);</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_vector<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">size_t</span> size<span class="op">);</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_list<span class="op">(</span>addr x<span class="op">,</span> <span class="op">...);</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_lista<span class="op">(</span>addr x<span class="op">,</span> <span class="op">...);</span></span></code></pre></div>
 <ul>
-<li><a href="#sequence-operation">2. Sequence Operation</a></li>
+<li><a href="#sequence-2">2. Sequence Operation</a></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_getelt_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">,</span> <span class="dt">size_t</span> index<span class="op">);</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_setelt_<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> index<span class="op">,</span> addr value<span class="op">);</span></span>
@@ -236,7 +236,7 @@
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_reverse_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">);</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_nreverse_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#cons">3. Cons</a></li>
+<li><a href="#sequence-3">3. Cons</a></li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_car<span class="op">(</span>addr x<span class="op">,</span> addr list<span class="op">);</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_cdr<span class="op">(</span>addr x<span class="op">,</span> addr list<span class="op">);</span></span>
@@ -246,18 +246,18 @@
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_setf_cdr<span class="op">(</span>addr cons<span class="op">,</span> addr value<span class="op">);</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_setf_carcdr<span class="op">(</span>addr cons<span class="op">,</span> addr car<span class="op">,</span> addr cdr<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#string">4. String</a></li>
+<li><a href="#sequence-4">4. String</a></li>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_string8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_string16_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_string32_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_string_getc_<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> i<span class="op">,</span> unicode <span class="op">*</span>c<span class="op">);</span></span></code></pre></div>
 <ul>
-<li><a href="#strvect">5. Strvect</a></li>
+<li><a href="#sequence-5">5. Strvect</a></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_strvect_getc<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> i<span class="op">,</span> unicode <span class="op">*</span>c<span class="op">);</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_strvect_length<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> <span class="op">*</span>ret<span class="op">);</span></span></code></pre></div>
-<h1 id="create-sequence"><a id="create-sequence">1. Create Sequence</a></h1>
+<h1 id="create-sequence"><a id="sequence-1">1. Create Sequence</a></h1>
 <p>Function of the creating sequense.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_cons<span class="op">(</span>addr x<span class="op">,</span> addr car<span class="op">,</span> addr cdr<span class="op">);</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_vector<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">size_t</span> size<span class="op">);</span></span>
@@ -312,7 +312,7 @@ If the argument is a hold variable, use the content.</p>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>lisp_lista<span class="op">(</span>x<span class="op">,</span> x<span class="op">,</span> y<span class="op">,</span> z<span class="op">,</span> NULL<span class="op">);</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>x <span class="op">-&gt;</span> <span class="op">(</span><span class="dv">10</span> <span class="dv">20</span> <span class="op">.</span> <span class="dv">30</span><span class="op">)</span></span></code></pre></div>
-<h1 id="sequence-operation"><a id="sequence-operation">2. Sequence Operation</a></h1>
+<h1 id="sequence-operation"><a id="sequence-2">2. Sequence Operation</a></h1>
 <p>Function of the sequense operation.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_getelt_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">,</span> <span class="dt">size_t</span> index<span class="op">);</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_setelt_<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> index<span class="op">,</span> addr value<span class="op">);</span></span>
@@ -365,7 +365,7 @@ Because the sequence is newly created, the original sequence is not destroyed.</
 <p>The reverse order of the <code>pos</code> is returned.<br />
 If <code>pos</code> is a hold variable, the content is used.<br />
 Destroy the sequence without creating a new one.</p>
-<h1 id="cons"><a id="cons">3. Cons</a></h1>
+<h1 id="cons"><a id="sequence-3">3. Cons</a></h1>
 <p>Function of the cons.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_car<span class="op">(</span>addr x<span class="op">,</span> addr list<span class="op">);</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_cdr<span class="op">(</span>addr x<span class="op">,</span> addr list<span class="op">);</span></span>
@@ -416,7 +416,7 @@ Set the <code>value</code> to the cdr part of the <code>cons</code>.</p>
 <p>If <code>car</code>, <code>cdr</code> are hold variables, their contents are used.<br />
 Set the <code>car</code> to the car part of the <code>cons</code>.<br />
 Set the <code>cdr</code> to the cdr part of the <code>cons</code>.</p>
-<h1 id="string"><a id="string">4. String</a></h1>
+<h1 id="string"><a id="sequence-4">4. String</a></h1>
 <p>Function of the string.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_string8_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_string16_<span class="op">(</span>addr x<span class="op">,</span> <span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>str<span class="op">);</span></span>
@@ -452,7 +452,7 @@ The memory format of <code>str</code> is as follows.</p>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
 <p>Get the value of a character from a <code>strvect</code> object.<br />
 If <code>pos</code> is a hold variable, the content is used.</p>
-<h1 id="strvect"><a id="strvect">4. Strvect</a></h1>
+<h1 id="strvect"><a id="sequence-5">5. Strvect</a></h1>
 <p>Function of <code>strvect</code>, which is an object for <code>simple-string</code>.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_strvect_getc<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> i<span class="op">,</span> unicode <span class="op">*</span>c<span class="op">);</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_strvect_length<span class="op">(</span>addr pos<span class="op">,</span> <span class="dt">size_t</span> <span class="op">*</span>ret<span class="op">);</span></span></code></pre></div>
