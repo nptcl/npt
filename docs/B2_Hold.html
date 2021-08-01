@@ -344,7 +344,7 @@ The function <code>lisp_funcall8_</code> executes a function represented by a st
 <p>Then the function <code>fact_</code> is recursively called using the hold variable <code>y</code> and the result is assigned to the variable <code>y</code> itself.</p>
 <p>The result is multiplied by the value of the variable <code>value</code>, and the result is returned as the return value of <code>fact_</code>.</p>
 <p>Finally, the hold variable is released by <code>lisp_pop_control_</code>.</p>
-<h1 id="executing-the-code-of-factorials">Executing the Code of Factorials</h1>
+<h1 id="executing-the-code-of-factorials">2.6 Executing the Code of Factorials</h1>
 <p>In summary, it is as follows.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> fact_<span class="op">(</span>addr x<span class="op">,</span> addr value<span class="op">)</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>

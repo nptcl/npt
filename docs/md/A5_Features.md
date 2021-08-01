@@ -4,7 +4,7 @@ Npt documentation.
 
 Reference: [ANSI Common Lisp npt](index.html)  
 Prev: [4. Amalgamation](A4_Amalgamation.html)
-
+Next: [6. Input Module](A6_Input.html)
 
 # 5.1 Npt-specific features
 
@@ -25,7 +25,6 @@ This section describes the following.
 - [5.11 Using the `pathname`](#specific-11)
 - [5.12 Initial value of `random-state`](#specific-12)
 - [5.13 Arguments of `load` function](#specific-13)
-
 
 
 # <a id="specific-2">5.2 Command Arguments</a>

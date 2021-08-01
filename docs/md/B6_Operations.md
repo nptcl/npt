@@ -270,73 +270,9 @@ The result is `RESULT: 222`.
 
 # 6.5 `unwind-protect`
 
-There are two ways to achieve `unwind-protect`.  
-One is to register a function for `cleanup` to a stack frame,
-and the other is to detect escape mode and do it by itself.
-
-*The method of registering to the stack frame will be removed.  
-The description will also be removed later.*
-
-
-## obsolete: Registering `unwind-protect`.
-
-*This method is obsolete.*
-
-Normal usage of `unwind-protect` is to register a stack frame.  
-The following function is used in order to register a `cleanup` form.
-
-```c
-void lisp_unwind_protect_deprecated(addr clean);
-```
-
-The argument `clean` specifies a function with no argument.  
-The registered function will be called
-when the function is executed with `lisp_pop_control_`.
-
-The following is an example.
-
-```c
-int main_call_(addr x)
-{
-    addr control;
-
-    lisp_push_control(&control);
-    /* unwind-protect */
-    if (lisp_eval8_(x, "(lambda () (setf (symbol-value 'hello) 200))"))
-        goto escape;
-    lisp_unwind_protect_deprecated(x);
-escape:
-    return lisp_pop_control_(control);
-}
-
-int main_lisp(void *ignore)
-{
-    addr control, x;
-
-    lisp_push_control(&control);
-    x = Lisp_hold();
-    lisp_fixnum(x, 100);
-    if (lisp_push_special8_("HELLO", x))
-        goto escape;
-    if (main_call_(x))
-        goto escape;
-    if (lisp_get_special8_(x, "HELLO"))
-        goto escape;
-    if (lisp_format8_(NULL, "RESULT: ~A~%", x, NULL))
-        goto escape;
-escape:
-    return lisp_pop_control_(control);
-}
-```
-
-The special variable `hello` is set to 100
-and then set to 200 in the `cleanup` form of `unwind-protect`.  
-The result is `RESULT: 200`.
-
-
-## Manual execution of `unwind-protect`
-
-The following values are required for manual execution.
+`unwind-protect` requires the following values to be saved
+after executing the expression of the first argument and
+before executing the cleanup form.
 
 - Escape information
 - Returned Value Information

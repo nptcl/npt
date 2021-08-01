@@ -27,16 +27,16 @@ First, here's how to make an amalgamation from the npt source.
 ```
 $ cd github/npt
 $ cd develop/amalgamation/
-$ npt --script amalgamation.lisp
+$ npt --script amalgamation-single.lisp
 ```
 
-The `amalgamation.lisp` works with all Common Lisp programs.  
+The `amalgamation-single.lisp` works with all Common Lisp programs.  
 If you don't have the `npt` command, do one of the following instead.
 
 ```
-$ sbcl --script amalgamation.lisp
-$ ccl -l amalgamation.lisp
-$ clisp amalgamation.lisp
+$ sbcl --script amalgamation-single.lisp
+$ ccl -l amalgamation-single.lisp
+$ clisp amalgamation-single.lisp
 ```
 
 The file to be created is as follows
@@ -44,6 +44,10 @@ The file to be created is as follows
 - `lisp.c`
 - `lisp.h`
 - `shell.c`
+
+The amalgamation page also explains how to use `amalgamation-header.lisp`,
+but you can use either.  
+The same `lisp.h` is generated.
 
 
 # 1.3 Choose how to link your npt sources
@@ -57,10 +61,15 @@ Three main methods of development exist.
 Regardless of the method, the header file `lisp.h` is needed for development,
 so please run the creation of amalgamation.
 
-The first one, using amalgamation, is to use the source file `lisp.c`.  
+The first one, using `amalgamation-single.lisp`,
+is to use the source file `lisp.c`.  
 Although this is the easiest way to use amalgamation,
 it has the disadvantage that it is very slow for the C language debugger
 because the `lisp.c` file is too big.
+
+If you are concerned about file size, you can use `amalgamation-header.lisp`.  
+Although the number of files will increase slightly,
+the size of each file can be reduced, making this method easier to use.
 
 The second one, using the npt source as-is, as the name suggests,
 is to copy a set of `src/*.c` files.  
@@ -163,7 +172,7 @@ int main(int argc, char *argv[], char *env[])
 
 # 1.5 Using amalgamation
 
-First of all, let me explain how to use only amalgamation.  
+First of all, let me explain how to use only `amalgamation-single.lisp`.  
 Put the following file in the same directory as `main.c` that you created.
 
 - `lisp.c`
@@ -182,6 +191,18 @@ $ ./a.out
 Hello
 $
 ```
+
+Next, we will explain how to use `amalgamation-header.lisp`.  
+The compiling method is almost the same as single,
+but since there is not only one source file,
+it should be specified in bulk like `lisp_file_*.c`.
+```
+$ cc lisp_file_*.c main.c -lm
+$ ./a.out
+Hello
+$
+```
+
 
 # 1.6 Use the npt source as is.
 
@@ -224,7 +245,7 @@ $
 ```
 
 
-# Create a `lisp.a` file
+# 1.7 Create a `lisp.a` file
 
 Create a working directory.
 
@@ -278,7 +299,7 @@ $
 ```
 
 
-# Contents of the main_lisp function
+# 1.8 Contents of the main_lisp function
 
 In this example sentence, it was simple because we just executed the `format`.
 However, the development can be very complex and confusing

@@ -216,7 +216,7 @@ The result is multiplied by the value of the variable `value`, and the result is
 Finally, the hold variable is released by `lisp_pop_control_`.
 
 
-# Executing the Code of Factorials
+# 2.6 Executing the Code of Factorials
 
 In summary, it is as follows.
 

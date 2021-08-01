@@ -183,7 +183,7 @@ $
 ```
 
 
-# Use in C++
+# 5.4 Use in C++
 
 The handler for `LISP ABORT` is `setjmp` in C,
 but when compiled in C++ it is changed to `try`/`atch`.  

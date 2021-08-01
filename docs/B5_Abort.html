@@ -332,7 +332,7 @@ The results are shown below.</p>
 Start
 Lisp Abort
 $</code></pre>
-<h1 id="use-in-c">Use in C++</h1>
+<h1 id="use-in-c">5.4 Use in C++</h1>
 <p>The handler for <code>LISP ABORT</code> is <code>setjmp</code> in C, but when compiled in C++ it is changed to <code>try</code>/<code>atch</code>.<br />
 The reason for the change is that the destructor will not be invoked if it is <code>setjmp</code>.<br />
 As an example, let’s try to run the following statement in C++.</p>

@@ -413,53 +413,7 @@ The following functions are used to create the <code>restart</code> object.</p>
 <span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The result is <code>RESULT: 222</code>.</p>
 <h1 id="unwind-protect">6.5 <code>unwind-protect</code></h1>
-<p>There are two ways to achieve <code>unwind-protect</code>.<br />
-One is to register a function for <code>cleanup</code> to a stack frame, and the other is to detect escape mode and do it by itself.</p>
-<p><em>The method of registering to the stack frame will be removed.<br />
-The description will also be removed later.</em></p>
-<h2 id="obsolete-registering-unwind-protect.">obsolete: Registering <code>unwind-protect</code>.</h2>
-<p><em>This method is obsolete.</em></p>
-<p>Normal usage of <code>unwind-protect</code> is to register a stack frame.<br />
-The following function is used in order to register a <code>cleanup</code> form.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_unwind_protect_deprecated<span class="op">(</span>addr clean<span class="op">);</span></span></code></pre></div>
-<p>The argument <code>clean</code> specifies a function with no argument.<br />
-The registered function will be called when the function is executed with <code>lisp_pop_control_</code>.</p>
-<p>The following is an example.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_call_<span class="op">(</span>addr x<span class="op">)</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* unwind-protect */</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_eval8_<span class="op">(</span>x<span class="op">,</span> <span class="st">&quot;(lambda () (setf (symbol-value &#39;hello) 200))&quot;</span><span class="op">))</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    lisp_unwind_protect_deprecated<span class="op">(</span>x<span class="op">);</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>ignore<span class="op">)</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> x<span class="op">;</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">100</span><span class="op">);</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_push_special8_<span class="op">(</span><span class="st">&quot;HELLO&quot;</span><span class="op">,</span> x<span class="op">))</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>main_call_<span class="op">(</span>x<span class="op">))</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_get_special8_<span class="op">(</span>x<span class="op">,</span> <span class="st">&quot;HELLO&quot;</span><span class="op">))</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;RESULT: ~A~%&quot;</span><span class="op">,</span> x<span class="op">,</span> NULL<span class="op">))</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> escape<span class="op">;</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>escape<span class="op">:</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>The special variable <code>hello</code> is set to 100 and then set to 200 in the <code>cleanup</code> form of <code>unwind-protect</code>.<br />
-The result is <code>RESULT: 200</code>.</p>
-<h2 id="manual-execution-of-unwind-protect">Manual execution of <code>unwind-protect</code></h2>
-<p>The following values are required for manual execution.</p>
+<p><code>unwind-protect</code> requires the following values to be saved after executing the expression of the first argument and before executing the cleanup form.</p>
 <ul>
 <li>Escape information</li>
 <li>Returned Value Information</li>
@@ -468,39 +422,39 @@ The result is <code>RESULT: 200</code>.</p>
 Returned value information is a value obtained by <code>list_result_control</code> and is the value of <code>values</code> itself. The value of <code>values</code> is not one, but 0 or multiple values.</p>
 <p>Before executing <code>unwind-protect</code>, the current state is evacuated at once and the state is rolled back after the <code>cleanup</code> form is executed.</p>
 <p>The following functions are used to save the escape information and the return value at the same time.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_save_control<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">);</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_save_control<span class="op">(</span>addr <span class="op">*</span>ret<span class="op">);</span></span></code></pre></div>
 <p>The information is stored using a stack frame as well as the hold variable.<br />
 After saving the information, the following functions are used to transition to non-escape.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_reset_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_reset_control<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <p>This function can be executed even if it is a non-escape.</p>
 <p>When the save is done, the <code>cleanup</code> process is carried out.<br />
 If a new escape is created during the <code>cleanup</code> process, the information saved by <code>lisp_save_control</code> is ignored and the latest escape process takes precedence.</p>
 <p>When the <code>cleanup</code> process is successfully completed, the following function will be used to restore it.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_rollback_control<span class="op">(</span>addr value<span class="op">);</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> lisp_rollback_control<span class="op">(</span>addr value<span class="op">);</span></span></code></pre></div>
 <p>Finally, the command <code>lisp_pop_control_</code> is executed to discard the stored information.</p>
 <p>Here is an example.<br />
 The following example shows that the returned values are saved and restored.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>ignore<span class="op">)</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> save<span class="op">,</span> x<span class="op">;</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* 100 */</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">100</span><span class="op">);</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    lisp_set_result_control<span class="op">(</span>x<span class="op">);</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* save */</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    lisp_save_control<span class="op">(&amp;</span>save<span class="op">);</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    lisp_reset_control<span class="op">();</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* 200 */</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">200</span><span class="op">);</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    lisp_set_result_control<span class="op">(</span>x<span class="op">);</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* rollback */</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    lisp_rollback_control<span class="op">(</span>save<span class="op">);</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    lisp_result_control<span class="op">(</span>x<span class="op">);</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;RESULT: ~A~%&quot;</span><span class="op">,</span> x<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main_lisp<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>ignore<span class="op">)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    addr control<span class="op">,</span> save<span class="op">,</span> x<span class="op">;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    lisp_push_control<span class="op">(&amp;</span>control<span class="op">);</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> Lisp_hold<span class="op">();</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* 100 */</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">100</span><span class="op">);</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    lisp_set_result_control<span class="op">(</span>x<span class="op">);</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* save */</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    lisp_save_control<span class="op">(&amp;</span>save<span class="op">);</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    lisp_reset_control<span class="op">();</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* 200 */</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    lisp_fixnum<span class="op">(</span>x<span class="op">,</span> <span class="dv">200</span><span class="op">);</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    lisp_set_result_control<span class="op">(</span>x<span class="op">);</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* rollback */</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    lisp_rollback_control<span class="op">(</span>save<span class="op">);</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    lisp_result_control<span class="op">(</span>x<span class="op">);</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    lisp_format8_<span class="op">(</span>NULL<span class="op">,</span> <span class="st">&quot;RESULT: ~A~%&quot;</span><span class="op">,</span> x<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lisp_pop_control_<span class="op">(</span>control<span class="op">);</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The result is <code>RESULT: 100</code>.</p>
 </body>
 </html>
