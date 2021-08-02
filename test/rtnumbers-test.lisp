@@ -979,13 +979,13 @@
 (deftest most-positive-fixnum.1
   (values
     (typep most-positive-fixnum 'fixnum)
-    (= most-positive-fixnum #+64-bit #x7FFFFFFFFFFFFFFF #-64-bit #x7FFFFFFF))
+    (= most-positive-fixnum #+fixnum-64 #x7FFFFFFFFFFFFFFF #-fixnum-64 #x7FFFFFFF))
   t t)
 
 (deftest most-negative-fixnum.1
   (values
     (typep most-negative-fixnum 'fixnum)
-    (= most-negative-fixnum #+64-bit #x-8000000000000000 #-64-bit #x-80000000))
+    (= most-negative-fixnum #+fixnum-64 #x-8000000000000000 #-fixnum-64 #x-80000000))
   t t)
 
 (deftest most-positive-short-float.1

@@ -267,22 +267,19 @@ static void set_features(void)
 #endif
 
 #ifdef LISP_ARCH_64BIT
-	push_features("ARCH-64-BIT");
-	push_features("64-BIT");
+	push_features("CPU-64");
 #endif
 #ifdef LISP_ARCH_32BIT
-	push_features("ARCH-32-BIT");
-	push_features("32-BIT");
+	push_features("CPU-32");
+#endif
+#ifdef LISP_64BIT
+	push_features("FIXNUM-64");
+#endif
+#ifdef LISP_32BIT
+	push_features("FIXNUM-32");
 #endif
 
 	push_features(LISPNAME);
-#ifdef LISP_64BIT
-	push_features(LISPNAME "-64-BIT");
-#endif
-#ifdef LISP_32BIT
-	push_features(LISPNAME "-32-BIT");
-#endif
-
 #ifdef LISP_DEBUG
 	push_features(LISPNAME "-DEBUG");
 #endif

@@ -286,19 +286,19 @@
 ;;
 ;;  array - (signed-byte 64)  64bit only
 ;;
-#+64-bit
+#+fixnum-64
 (deftest array-type-signed-byte-64.1
   (typep #(1 2 3) '(array (signed-byte 64)))
   nil)
 
-#+64-bit
+#+fixnum-64
 (deftest array-type-signed-byte-64.2
   (typep (make-array 3 :element-type '(signed-byte 64)
                      :initial-contents '(1 2 3))
          '(array (signed-byte 64)))
   t)
 
-#+64-bit
+#+fixnum-64
 (deftest array-type-signed-byte-64.3
   (typep (make-array 3 :element-type '(signed-byte 64)
                      :initial-contents '(1 2 3))
@@ -369,19 +369,19 @@
 ;;
 ;;  array - (unsigned-byte 64)  64bit only
 ;;
-#+64-bit
+#+fixnum-64
 (deftest array-type-unsigned-byte-64.1
   (typep #(1 2 3) '(array (unsigned-byte 64)))
   nil)
 
-#+64-bit
+#+fixnum-64
 (deftest array-type-unsigned-byte-64.2
   (typep (make-array 3 :element-type '(unsigned-byte 64)
                      :initial-contents '(1 2 3))
          '(array (unsigned-byte 64)))
   t)
 
-#+64-bit
+#+fixnum-64
 (deftest array-type-unsigned-byte-64.3
   (typep (make-array 3 :element-type '(unsigned-byte 64)
                      :initial-contents '(1 2 3))
@@ -733,19 +733,19 @@
 ;;
 ;;  simple-array - (signed-byte 64)  64bit only
 ;;
-#+64-bit
+#+fixnum-64
 (deftest simple-array-type-signed-byte-64.1
   (typep #(1 2 3) '(simple-array (signed-byte 64)))
   nil)
 
-#+64-bit
+#+fixnum-64
 (deftest simple-array-type-signed-byte-64.2
   (typep (make-array 3 :element-type '(signed-byte 64)
                      :initial-contents '(1 2 3))
          '(simple-array (signed-byte 64)))
   t)
 
-#+64-bit
+#+fixnum-64
 (deftest simple-array-type-signed-byte-64.3
   (typep (make-array 3 :element-type '(signed-byte 64)
                      :initial-contents '(1 2 3))
@@ -816,19 +816,19 @@
 ;;
 ;;  simple-array - (unsigned-byte 64)  64bit only
 ;;
-#+64-bit
+#+fixnum-64
 (deftest simple-array-type-unsigned-byte-64.1
   (typep #(1 2 3) '(simple-array (unsigned-byte 64)))
   nil)
 
-#+64-bit
+#+fixnum-64
 (deftest simple-array-type-unsigned-byte-64.2
   (typep (make-array 3 :element-type '(unsigned-byte 64)
                      :initial-contents '(1 2 3))
          '(simple-array (unsigned-byte 64)))
   t)
 
-#+64-bit
+#+fixnum-64
 (deftest simple-array-type-unsigned-byte-64.3
   (typep (make-array 3 :element-type '(unsigned-byte 64)
                      :initial-contents '(1 2 3))

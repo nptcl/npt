@@ -24,24 +24,31 @@
  */
 static int disassemble_code(Execute ptr, addr stream, addr code);
 
-static int disassmeble_code_p(addr car)
+static int disassmeble_code_p(addr car, addr cdr, addr *ret)
 {
 	addr check;
 
 	/* lambda */
 	GetConst(CODE_LAMBDA, &check);
-	if (car == check)
+	if (car == check) {
+		*ret = cdr;
 		return 1;
+	}
 
 	/* macro */
 	GetConst(CODE_MACRO, &check);
-	if (car == check)
+	if (car == check) {
+		*ret = cdr;
 		return 1;
+	}
 
 	/* labels-lambda */
 	GetConst(CODE_LABELS_LAMBDA, &check);
-	if (car == check)
+	if (car == check) {
+		GetCdr(cdr, &cdr);
+		GetCar(cdr, ret);
 		return 1;
+	}
 
 	return 0;
 }
@@ -56,7 +63,7 @@ static int disassemble_code_operator(Execute ptr,
 	Return(format_stream(ptr, stream, "~5@A: ~20A ~S~%", index, car, cdr, NULL));
 
 	/* execute */
-	if (disassmeble_code_p(car))
+	if (disassmeble_code_p(car, cdr, &cdr))
 		return disassemble_code(ptr, stream, cdr);
 
 	return 0;

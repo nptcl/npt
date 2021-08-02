@@ -398,7 +398,7 @@
       result))
   (signed-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-av.4d
   (let* ((array #(10 20 30 40 50))
          (result (coerce array '(array (signed-byte 64)))))
@@ -435,7 +435,7 @@
       result))
   (unsigned-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-av.5d
   (let* ((array #(10 20 30 40 50))
          (result (coerce array '(array (unsigned-byte 64)))))
@@ -531,7 +531,7 @@
   t
   #(1 1 0 0 1))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-ab.2d
   (let* ((array #*11001)
          (result (coerce array '(array (signed-byte 64)))))
@@ -576,7 +576,7 @@
   t
   #(1 1 0 0 1))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-ab.3d
   (let* ((array #*11001)
          (result (coerce array '(array (unsigned-byte 64)))))
@@ -644,7 +644,7 @@
       result))
   (signed-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-al.4d
   (let* ((array '(10 20 30 40 50))
          (result (coerce array '(array (signed-byte 64)))))
@@ -681,7 +681,7 @@
       result))
   (unsigned-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-al.5d
   (let* ((array '(10 20 30 40 50))
          (result (coerce array '(array (unsigned-byte 64)))))

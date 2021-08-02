@@ -258,7 +258,7 @@
     (stream '(unsigned-byte 32))
     (write-byte -1 stream)))
 
-#+64-bit
+#+fixnum-64
 (deftest read-byte-unsigned-64.1
   (let (list)
     (with-temp-write-element-type
@@ -275,7 +275,7 @@
     (nreverse list))
   (#xABCDEF0123456789 #x0000000000000000 #x23456789ABCDEF01 :eof))
 
-#+64-bit
+#+fixnum-64
 (deftest read-byte-unsigned-64.2
   (let (list)
     (with-temp-write-element-type
@@ -300,13 +300,13 @@
             (nreverse list)))
   (#xABCDEF01234567 :eof :eof :eof))
 
-#+64-bit
+#+fixnum-64
 (deftest-error read-byte-unsigned-64.3
   (with-temp-write-element-type
     (stream '(unsigned-byte 64))
     (write-byte #x010000000000000000 stream)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error read-byte-unsigned-64.4
   (with-temp-write-element-type
     (stream '(unsigned-byte 64))
@@ -432,7 +432,7 @@
     (stream '(signed-byte 32))
     (write-byte #x-80000001 stream)))
 
-#+64-bit
+#+fixnum-64
 (deftest read-byte-signed-64.1
   (let (list)
     (with-temp-write-element-type
@@ -449,7 +449,7 @@
     (nreverse list))
   (#x7FFFFFFFFFFFFFFF #x0000000000000000 #x-8000000000000000 :eof))
 
-#+64-bit
+#+fixnum-64
 (deftest read-byte-signed-64.2
   (let (list)
     (with-temp-write-element-type
@@ -474,13 +474,13 @@
             (nreverse list)))
   (#x123456781A2B3C4D :eof :eof :eof))
 
-#+64-bit
+#+fixnum-64
 (deftest-error read-byte-signed-64.3
   (with-temp-write-element-type
     (stream '(signed-byte 64))
     (write-byte #x8000000000000000 stream)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error read-byte-signed-64.4
   (with-temp-write-element-type
     (stream '(signed-byte 64))

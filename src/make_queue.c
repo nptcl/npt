@@ -485,11 +485,56 @@ static void code_queue_pop_info(addr array, size_t size)
 	}
 }
 
+static int code_queue_pop_delete_p(addr list)
+{
+	addr x, y;
+	size_t check1, check2;
+
+	/* goto */
+	if (! consp_getcons(list, &x, &list))
+		return 0;
+	if (! code_queue_pop_goto_p(x))
+		return 0;
+	GetCdr(x, &x);
+	GetIndex(x, &check1);
+
+	/* tag */
+	if (! consp_getcar(list, &y))
+		return 0;
+	if (! indexp(y))
+		return 0;
+	GetIndex(y, &check2);
+
+	return check1 == check2;
+}
+
+static void code_queue_pop_delete(addr list, addr *ret)
+{
+	addr list1, list2;
+
+	*ret = list;
+	list2 = Nil;
+	while (list != Nil) {
+		GetCdr(list, &list1);
+		if (code_queue_pop_delete_p(list)) {
+			if (list2 == Nil)
+				*ret = list1;
+			else
+				SetCdr(list2, list1);
+		}
+		else {
+			list2 = list;
+		}
+		list = list1;
+	}
+}
+
 static void code_queue_pop_make(LocalRoot local, addr cons, addr *ret)
 {
 	addr label, array;
 	size_t size;
 
+	code_queue_pop_delete(cons, &cons);
 	code_queue_pop_label(local, cons, &label, &size);
 	vector4_heap(&array, size);
 	code_queue_pop_goto(local, cons, label, array, size);

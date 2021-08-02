@@ -92,7 +92,7 @@
   (signed-byte 32) t #(10 -20 30 40 1000)
   t t #(10 -20 30 40 1000))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-t.4d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 -20 30 40 1000)))
@@ -149,7 +149,7 @@
   (unsigned-byte 32) t #(10 20 30 40 1000)
   t t #(10 20 30 40 1000))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-t.5d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 1000)))
@@ -304,7 +304,7 @@
   (signed-byte 32) t #(1 0 0 1 1)
   bit nil t #*10011)
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-bit.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(1 0 0 1 1)))
@@ -365,7 +365,7 @@
   (unsigned-byte 32) t #(1 0 0 1 1)
   bit nil t #*10011)
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-bit.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(1 0 0 1 1)))
@@ -522,7 +522,7 @@
   (signed-byte 32) t #(10 -20 30 40 50)
   (signed-byte 8) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed8.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 -20 30 40 50)))
@@ -579,7 +579,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (signed-byte 8) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed8.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -685,7 +685,7 @@
   (signed-byte 32) t #(10 -20 30 40 50)
   (signed-byte 16) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed16.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 -20 30 40 50)))
@@ -742,7 +742,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (signed-byte 16) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed16.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -848,7 +848,7 @@
   (signed-byte 32) t #(10 -20 30 40 50)
   (signed-byte 32) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed32.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 -20 30 40 50)))
@@ -905,7 +905,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (signed-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed32.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -942,7 +942,7 @@
 
 
 ;;  (coerce array '(array (signed-byte 64)))
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.1
   (let* ((array (make-array '5 :element-type t
                             :initial-contents '(10 -20 30 40 50)))
@@ -957,7 +957,7 @@
   t t #(10 -20 30 40 50)
   (signed-byte 64) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.2
   (let* ((array (make-array '5 :element-type 'bit :initial-contents #*10011))
          (result (coerce array '(array (signed-byte 64)))))
@@ -971,7 +971,7 @@
   bit t #*10011
   (signed-byte 64) t #(1 0 0 1 1))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.3a
   (let* ((array (make-array '5 :element-type '(signed-byte 8)
                             :initial-contents '(10 -20 30 40 50)))
@@ -986,7 +986,7 @@
   (signed-byte 8) t #(10 -20 30 40 50)
   (signed-byte 64) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.3b
   (let* ((array (make-array '5 :element-type '(signed-byte 16)
                             :initial-contents '(10 -20 30 40 50)))
@@ -1001,7 +1001,7 @@
   (signed-byte 16) t #(10 -20 30 40 50)
   (signed-byte 64) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.3c
   (let* ((array (make-array '5 :element-type '(signed-byte 32)
                             :initial-contents '(10 -20 30 40 50)))
@@ -1016,7 +1016,7 @@
   (signed-byte 32) t #(10 -20 30 40 50)
   (signed-byte 64) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 -20 30 40 50)))
@@ -1031,7 +1031,7 @@
   (signed-byte 64) t #(10 -20 30 40 50)
   (signed-byte 64) t #(10 -20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.4a
   (let* ((array (make-array '5 :element-type '(unsigned-byte 8)
                             :initial-contents '(10 20 30 40 50)))
@@ -1046,7 +1046,7 @@
   (unsigned-byte 8) t #(10 20 30 40 50)
   (signed-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.4b
   (let* ((array (make-array '5 :element-type '(unsigned-byte 16)
                             :initial-contents '(10 20 30 40 50)))
@@ -1061,7 +1061,7 @@
   (unsigned-byte 16) t #(10 20 30 40 50)
   (signed-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.4c
   (let* ((array (make-array '5 :element-type '(unsigned-byte 32)
                             :initial-contents '(10 20 30 40 50)))
@@ -1076,7 +1076,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (signed-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1091,7 +1091,7 @@
   (unsigned-byte 64) t #(10 20 30 40 50)
   (signed-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-signed64.5
   (let* ((array (make-array '(2 3) :element-type '(unsigned-byte 32)
                             :initial-contents '((10 20 30) (30 40 50))))
@@ -1106,7 +1106,7 @@
   (unsigned-byte 32) t #2a((10 20 30) (30  40 50))
   (signed-byte 64) t #2a((10 20 30) (30 40 50)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error coerce-aa-signed64.6
   (let ((array (make-array '(2 3) :element-type '(unsigned-byte 64)
                            :initial-contents '((10 20 30) (30 40 50)))))
@@ -1184,7 +1184,7 @@
   (signed-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 8) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned8.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1241,7 +1241,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 8) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned8.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1347,7 +1347,7 @@
   (signed-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 16) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned16.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1404,7 +1404,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 16) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned16.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1510,7 +1510,7 @@
   (signed-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned32.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1567,7 +1567,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 32) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned32.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1604,7 +1604,7 @@
 
 
 ;;  (coerce array '(array (unsigned-byte 64)))
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.1
   (let* ((array (make-array '5 :element-type t
                             :initial-contents '(10 20 30 40 50)))
@@ -1619,7 +1619,7 @@
   t t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.2
   (let* ((array (make-array '5 :element-type 'bit :initial-contents #*10011))
          (result (coerce array '(array (unsigned-byte 64)))))
@@ -1633,7 +1633,7 @@
   bit t #*10011
   (unsigned-byte 64) t #(1 0 0 1 1))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.3a
   (let* ((array (make-array '5 :element-type '(signed-byte 8)
                             :initial-contents '(10 20 30 40 50)))
@@ -1648,7 +1648,7 @@
   (signed-byte 8) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.3b
   (let* ((array (make-array '5 :element-type '(signed-byte 16)
                             :initial-contents '(10 20 30 40 50)))
@@ -1663,7 +1663,7 @@
   (signed-byte 16) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.3c
   (let* ((array (make-array '5 :element-type '(signed-byte 32)
                             :initial-contents '(10 20 30 40 50)))
@@ -1678,7 +1678,7 @@
   (signed-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.3d
   (let* ((array (make-array '5 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1693,7 +1693,7 @@
   (signed-byte 64) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.4a
   (let* ((array (make-array '5 :element-type '(unsigned-byte 8)
                             :initial-contents '(10 20 30 40 50)))
@@ -1708,7 +1708,7 @@
   (unsigned-byte 8) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.4b
   (let* ((array (make-array '5 :element-type '(unsigned-byte 16)
                             :initial-contents '(10 20 30 40 50)))
@@ -1723,7 +1723,7 @@
   (unsigned-byte 16) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.4c
   (let* ((array (make-array '5 :element-type '(unsigned-byte 32)
                             :initial-contents '(10 20 30 40 50)))
@@ -1738,7 +1738,7 @@
   (unsigned-byte 32) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.4d
   (let* ((array (make-array '5 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30 40 50)))
@@ -1753,7 +1753,7 @@
   (unsigned-byte 64) t #(10 20 30 40 50)
   (unsigned-byte 64) t #(10 20 30 40 50))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-unsigned64.5
   (let* ((array (make-array '(2 3) :element-type '(unsigned-byte 32)
                             :initial-contents '((10 20 30) (30 40 50))))
@@ -1768,7 +1768,7 @@
   (unsigned-byte 32) t #2a((10 20 30) (30  40 50))
   (unsigned-byte 64) t #2a((10 20 30) (30 40 50)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error coerce-aa-unsigned64.6
   (let ((array (make-array '(2 3) :element-type '(unsigned-byte 64)
                            :initial-contents '((10 20 30) (30 40 50)))))
@@ -1846,7 +1846,7 @@
   (signed-byte 32) t #(10 20 30)
   single-float t #(10.0f0 20.0f0 30.0f0))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-single.3d
   (let* ((array (make-array '3 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30)))
@@ -1903,7 +1903,7 @@
   (unsigned-byte 32) t #(10 20 30)
   single-float t #(10.0f0 20.0f0 30.0f0))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-single.4d
   (let* ((array (make-array '3 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30)))
@@ -2031,7 +2031,7 @@
   (signed-byte 32) t #(10 20 30)
   double-float t #(10.0d0 20.0d0 30.0d0))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-double.3d
   (let* ((array (make-array '3 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30)))
@@ -2088,7 +2088,7 @@
   (unsigned-byte 32) t #(10 20 30)
   double-float t #(10.0d0 20.0d0 30.0d0))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-double.4d
   (let* ((array (make-array '3 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30)))
@@ -2216,7 +2216,7 @@
   (signed-byte 32) t #(10 20 30)
   long-float t #(10.0L0 20.0L0 30.0L0))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-long.3d
   (let* ((array (make-array '3 :element-type '(signed-byte 64)
                             :initial-contents '(10 20 30)))
@@ -2273,7 +2273,7 @@
   (unsigned-byte 32) t #(10 20 30)
   long-float t #(10.0L0 20.0L0 30.0L0))
 
-#+64-bit
+#+fixnum-64
 (deftest coerce-aa-long.4d
   (let* ((array (make-array '3 :element-type '(unsigned-byte 64)
                             :initial-contents '(10 20 30)))

@@ -131,13 +131,13 @@
     (make-array '(3 4) :element-type 'cons))
   t)
 
-#+64-bit
+#+fixnum-64
 (deftest array-element-type-64bit.1
   (array-element-type
     (make-array '(3 4) :element-type '(signed-byte 64)))
   (signed-byte 64))
 
-#+64-bit
+#+fixnum-64
 (deftest array-element-type-64bit.2
   (array-element-type
     (make-array '(3 4) :element-type '(unsigned-byte 64)))
@@ -231,12 +231,12 @@
   (upgraded-array-element-type 'long-float)
   long-float)
 
-#+64-bit
+#+fixnum-64
 (deftest upgraded-array-element-type-64bit.1
   (upgraded-array-element-type '(signed-byte 64))
   (signed-byte 64))
 
-#+64-bit
+#+fixnum-64
 (deftest upgraded-array-element-type-64bit.2
   (upgraded-array-element-type '(unsigned-byte 64))
   (unsigned-byte 64))

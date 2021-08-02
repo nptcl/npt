@@ -388,7 +388,7 @@
   (unsigned-byte 32) t t :eof)
 
 ;;  (unsigned-byte 64)
-#+64-bit
+#+fixnum-64
 (deftest open-input-unsigned-byte-64.1
   (with-temp-file
     (open-unsigned8 #(#x11 #x22 #x33 #x44 #x55 #x66 #x77 #x00
@@ -404,7 +404,7 @@
           c))))
   (unsigned-byte 64) t t :eof)
 
-#+64-bit
+#+fixnum-64
 (deftest open-input-unsigned-byte-64.2
   (with-open-stream (io (make-memory-input-stream
                           #(#x11 #x22 #x33 #x44 #x55 #x66 #x77 #x00
@@ -514,7 +514,7 @@
   (signed-byte 32) t t :eof)
 
 ;;  (signed-byte 64)
-#+64-bit
+#+fixnum-64
 (deftest open-input-signed-byte-64.1
   (with-temp-file
     (open-unsigned8 #(#x11 #x22 #x33 #x44 #x55 #x66 #x77 #x00
@@ -531,7 +531,7 @@
           c))))
   (signed-byte 64) t t :eof)
 
-#+64-bit
+#+fixnum-64
 (deftest open-input-signed-byte-64.2
   (with-open-stream (io (make-memory-input-stream
                           #(#x11 #x22 #x33 #x44 #x55 #x66 #x77 #x00

@@ -449,23 +449,42 @@
 
 /* readline editline */
 #if defined(LISP_TERME)
-#ifndef LISP_PROMPT_TERME
 #define LISP_PROMPT_TERME
-#endif
+#undef LISP_EDITLINE
+#undef LISP_READLINE
+#undef LISP_STDIN
 
 #elif defined(LISP_EDITLINE)
-#ifndef LISP_PROMPT_EDITLINE
 #define LISP_PROMPT_EDITLINE
-#endif
+#undef LISP_TERME
+#undef LISP_READLINE
+#undef LISP_STDIN
 
 #elif defined(LISP_READLINE)
-#ifndef LISP_PROMPT_READLINE
 #define LISP_PROMPT_READLINE
-#endif
+#undef LISP_TERME
+#undef LISP_EDITLINE
+#undef LISP_STDIN
+
+#elif defined(LISP_STDIN)
+#define LISP_PROMPT_DISABLE
+#undef LISP_TERME
+#undef LISP_EDITLINE
+#undef LISP_READLINE
 
 #elif defined(LISP_FREEBSD) || defined(LISP_LINUX)
 #define LISP_TERME
 #define LISP_PROMPT_TERME
+#undef LISP_EDITLINE
+#undef LISP_READLINE
+#undef LISP_STDIN
+
+#else
+#define LISP_PROMPT_DISABLE
+#define LISP_STDIN
+#undef LISP_TERME
+#undef LISP_EDITLINE
+#undef LISP_READLINE
 #endif
 
 #if defined(LISP_PROMPT_TERME)
@@ -475,7 +494,7 @@
 #undef LISP_PROMPT_EDITLINE
 
 #elif defined(LISP_PROMPT_DISABLE)
-#define LISP_PROMPT_STRING "lisp"
+#define LISP_PROMPT_STRING "stdin"
 #undef LISP_PROMPT_TERME
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
@@ -494,7 +513,7 @@
 
 #else
 #define LISP_PROMPT_DISABLE
-#define LISP_PROMPT_STRING "lisp"
+#define LISP_PROMPT_STRING "stdin"
 #undef LISP_PROMPT_TERME
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE

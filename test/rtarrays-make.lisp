@@ -363,37 +363,37 @@
   (let ((x (make-array 3 :element-type '(signed-byte 32))))
     (setf (aref x 0) #\a)))
 
-#+64-bit
+#+fixnum-64
 (deftest make-array-signed-byte-64bit.1
   (array-element-type
     (make-array 3 :element-type '(signed-byte 64)))
   (signed-byte 64))
 
-#+64-bit
+#+fixnum-64
 (deftest make-array-signed-byte-64bit.2
   (let ((x (make-array 3 :element-type '(signed-byte 64))))
     (setf (aref x 1) #x7FFFFFFFFFFFFFFF)
     (aref x 1))
   #x7FFFFFFFFFFFFFFF)
 
-#+64-bit
+#+fixnum-64
 (deftest make-array-signed-byte-64bit.3
   (let ((x (make-array 3 :element-type '(signed-byte 64))))
     (setf (aref x 1) #x-8000000000000000)
     (aref x 1))
   #x-8000000000000000)
 
-#+64-bit
+#+fixnum-64
 (deftest-error make-array-signed-byte-64bit.4
   (let ((x (make-array 3 :element-type '(signed-byte 64))))
     (setf (aref x 1) #x8000000000000000)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error make-array-signed-byte-64bit.5
   (let ((x (make-array 3 :element-type '(signed-byte 64))))
     (setf (aref x 1) #x-8000000000000001)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error make-array-signed-byte-64bit.6
   (let ((x (make-array 3 :element-type '(signed-byte 64))))
     (setf (aref x 0) #\a)))
@@ -487,37 +487,37 @@
   (let ((x (make-array 3 :element-type '(unsigned-byte 32))))
     (setf (aref x 0) #\a)))
 
-#+64-bit
+#+fixnum-64
 (deftest make-array-unsigned-byte-64bit.1
   (array-element-type
     (make-array 3 :element-type '(unsigned-byte 64)))
   (unsigned-byte 64))
 
-#+64-bit
+#+fixnum-64
 (deftest make-array-unsigned-byte-64bit.2
   (let ((x (make-array 3 :element-type '(unsigned-byte 64))))
     (setf (aref x 1) #xFFFFFFFFFFFFFFFF)
     (aref x 1))
   #xFFFFFFFFFFFFFFFF)
 
-#+64-bit
+#+fixnum-64
 (deftest make-array-unsigned-byte-64bit.3
   (let ((x (make-array 3 :element-type '(unsigned-byte 64))))
     (setf (aref x 1) 0)
     (aref x 1))
   0)
 
-#+64-bit
+#+fixnum-64
 (deftest-error make-array-unsigned-byte-64bit.4
   (let ((x (make-array 3 :element-type '(unsigned-byte 64))))
     (setf (aref x 1) #x010000000000000000)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error make-array-unsigned-byte-64bit.5
   (let ((x (make-array 3 :element-type '(unsigned-byte 64))))
     (setf (aref x 1) -1)))
 
-#+64-bit
+#+fixnum-64
 (deftest-error make-array-unsigned-byte-64bit.6
   (let ((x (make-array 3 :element-type '(unsigned-byte 64))))
     (setf (aref x 0) #\a)))

@@ -241,7 +241,7 @@
   (file-open-element-type '(unsigned-byte 32))
   (unsigned-byte 32))
 
-#+64-bit
+#+fixnum-64
 (deftest file-stream-element-type.11
   (file-open-element-type '(unsigned-byte 64))
   (unsigned-byte 64))
@@ -258,7 +258,7 @@
   (file-open-element-type '(signed-byte 32))
   (signed-byte 32))
 
-#+64-bit
+#+fixnum-64
 (deftest file-stream-element-type.15
   (file-open-element-type '(signed-byte 64))
   (signed-byte 64))
