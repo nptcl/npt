@@ -1,5 +1,6 @@
 #include "clos_generic.c"
 #include "character.h"
+#include "clos_defgeneric.h"
 #include "common.h"
 #include "degrade.h"
 #include "execute.h"
@@ -50,11 +51,11 @@ static int test_stdget_generic(void)
 	clos_instance_heap_(pos, &pos);
 
 	CheckStdGetGeneric(pos, NAME, name);
-	CheckStdGetGeneric(pos, LAMBDA_LIST, lambda_list);
 	CheckStdGetGeneric(pos, METHODS, methods);
-	CheckStdGetGeneric(pos, METHOD_CLASS, method_class);
+	CheckStdGetGeneric(pos, LAMBDA_LIST, lambda_list);
 	CheckStdGetGeneric(pos, ARGUMENT_PRECEDENCE_ORDER, argument_precedence_order);
 	CheckStdGetGeneric(pos, DECLARATIONS, declarations);
+	CheckStdGetGeneric(pos, METHOD_CLASS, method_class);
 	CheckStdGetGeneric(pos, METHOD_COMBINATION, method_combination);
 	CheckStdGetGeneric(pos, EQLCHECK, eqlcheck);
 	CheckStdGetGeneric(pos, CACHE, cache);
@@ -542,11 +543,11 @@ static int test_generic_sort_compare(void)
 	list_heap(&cons1, fixnum, real, integer, NULL);
 	list_heap(&cons2, fixnum, integer, fixnum, NULL);
 	check = 0;
-	generic_sort_compare_(generic_compare_specializer_, cons1, cons2, &check);
+	generic_sort_compare_(cons1, cons2, &check, generic_compare_specializer_);
 	test(! check, "generic_sort_compare1");
-	generic_sort_compare_(generic_compare_specializer_, cons2, cons1, &check);
+	generic_sort_compare_(cons2, cons1, &check, generic_compare_specializer_);
 	test(check, "generic_sort_compare2");
-	generic_sort_compare_(generic_compare_specializer_, cons1, cons1, &check);
+	generic_sort_compare_(cons1, cons1, &check, generic_compare_specializer_);
 	test(check, "generic_sort_compare3");
 
 	RETURN;
@@ -727,10 +728,10 @@ static int test_generic_make_type(void)
 	list_heap(&pos, check, NULL);
 	stdset_method_specializers_(method, pos);
 	list_heap(&method, method, NULL);
-	/* methods */
+	/* vector */
 	vector4_heap(&pos, 4);
 	SetArrayA4(pos, 2, method); /* primary */
-	stdset_generic_methods_(generic, pos);
+	stdset_generic_vector_(generic, pos);
 	/* call */
 	GetConst(CLOS_T, &check);
 	list_heap(&pos, check, NULL);
@@ -798,7 +799,7 @@ static int test_generic_make_lambda_call(void)
 	clos_generic_call_heap(&instance, gen_debug, 2);
 	list_heap(&eqlcheck, T, NULL);
 	SetClosGenericCallArray(instance, 0, eqlcheck);
-	generic_instance_cache(&cache);
+	generic_cache_heap(&cache);
 	SetClosGenericCallArray(instance, 1, cache);
 
 	/* intern cache */
@@ -838,7 +839,7 @@ static int test_closrun_execute(void)
 
 	argument_generic_heap_(ptr->local, &lambda, lambda);
 	parse_callname_error_(&name, name);
-	generic_empty_(name, lambda, &generic);
+	generic_make_empty_(name, lambda, &generic);
 	list_heap(&pos, Nil, NULL);
 	stdset_generic_eqlcheck_(generic, pos);
 	/* method */
@@ -851,8 +852,8 @@ static int test_closrun_execute(void)
 	GetConst(CLOS_T, &value);
 	list_heap(&pos, value, NULL);
 	stdset_method_specializers_(method, pos);
-	/* methods */
-	stdget_generic_methods_(generic, &pos);
+	/* vector */
+	stdget_generic_vector_(generic, &pos);
 	list_heap(&method, method, NULL);
 	SetArrayA4(pos, 2, method); /* primary */
 	/* finalize */

@@ -2,7 +2,7 @@
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_combination.h"
-#include "clos_generic.h"
+#include "clos_defgeneric.h"
 #include "clos_method.h"
 #include "clos_type.h"
 #include "condition.h"
@@ -1205,8 +1205,8 @@ static int defun_documentation_(Execute ptr)
 	GetConst(COMMON_DOCUMENTATION, &symbol);
 	defun_documentation_order(&gen, &var, &order);
 	Return(parse_callname_error_(&name, symbol));
-	Return(generic_common_instance_(&gen, name, gen));
-	Return(generic_common_order_(gen, var, order));
+	Return(generic_make_(&gen, name, gen));
+	Return(generic_order_(gen, var, order));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(documentation_function_t_(ptr, name, gen));
@@ -1243,8 +1243,8 @@ static int defun_setf_documentation_(Execute ptr)
 	GetConst(COMMON_DOCUMENTATION, &symbol);
 	defun_setf_documentation_order(&gen, &var, &order);
 	setf_callname_heap(&name, symbol);
-	Return(generic_common_instance_(&gen, name, gen));
-	Return(generic_common_order_(gen, var, order));
+	Return(generic_make_(&gen, name, gen));
+	Return(generic_order_(gen, var, order));
 	setsetf_symbol(symbol, gen);
 	/* method */
 	Return(setf_documentation_function_t_(ptr, name, gen));

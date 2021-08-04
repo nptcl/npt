@@ -1,7 +1,7 @@
 #include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
-#include "clos_generic.h"
+#include "clos_defgeneric.h"
 #include "clos_method.h"
 #include "clos_type.h"
 #include "condition.h"
@@ -247,7 +247,7 @@ static int build_environment_describe_call_(Execute ptr)
 	GetConst(COMMON_DESCRIBE_OBJECT, &symbol);
 	mop_argument_generic_var2(&gen);
 	Return(parse_callname_error_(&name, symbol));
-	Return(generic_common_instance_(&gen, name, gen));
+	Return(generic_make_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(build_describe_object_method_(ptr, name, gen));

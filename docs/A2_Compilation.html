@@ -247,8 +247,8 @@ In the debug mode, there are codes of checks everywhere and if the checks are vi
 <td>-lreadline</td>
 </tr>
 <tr class="even">
-<td>C</td>
-<td>(default)</td>
+<td>stdin</td>
+<td><code>LISP_STDIN</code></td>
 <td></td>
 </tr>
 </tbody>
@@ -256,7 +256,8 @@ In the debug mode, there are codes of checks everywhere and if the checks are vi
 <p>Terme is a feature of the npt prompt.<br />
 It is used by default on FreeBSD and Linux.</p>
 <p>The editline and readline are external modules that require installation to use.</p>
-<p>The module C is simply the standard C library to load. This mode does not allow for history or cursor movement.</p>
+<p>stdin simply reads from standard input.<br />
+It cannot use history or cursor movement.</p>
 <p>Here’s an example of a compilation.</p>
 <pre><code>$ cc -DLISP_FREEBSD -DLISP_EDITLINE src/*.c -lm -ledit
 $ ./a.out --version

@@ -102,6 +102,37 @@
 
 
 ;;
+;;  name
+;;
+(deftest defgeneric-name.1
+  (functionp
+    (defgeneric defgeneric-name-1 ()))
+  t)
+
+(deftest defgeneric-name.2
+  (functionp
+    (defgeneric (setf defgeneric-name-2) ()))
+  t)
+
+(deftest-error defgeneric-name.3
+  (eval '(defgeneric 100 ())))
+
+(defun defgeneric-name-4 () :hello)
+(deftest-error defgeneric-name.4
+  (eval '(defgeneric defgeneric-name-4 ()))
+  program-error)
+
+(defmacro defgeneric-name-5 () :hello)
+(deftest-error defgeneric-name.5
+  (eval '(defgeneric defgeneric-name-5 ()))
+  program-error)
+
+(deftest-error defgeneric-name.6
+  (eval '(defgeneric load-time-value ()))
+  program-error)
+
+
+;;
 ;;  argument-precedence-order
 ;;
 (deftest defgeneric-order.1
@@ -182,6 +213,11 @@
 (deftest-error defgeneric-declare.2
   (eval '(defgeneric defgeneric-declare-2 (a) (declare (special *hello*)))))
 
+(deftest defgeneric-declare.3
+  (functionp
+    (defgeneric defgeneric-declare-3 (a b) (declare (optimize speed))))
+  t)
+
 
 ;;
 ;;  documentation
@@ -249,12 +285,20 @@
     (values)))
 
 (deftest-error defgeneric-generic-function-class.2
-  (eval '(defgeneric defgeneric-generic-function-class-1 (x)
+  (eval '(defgeneric defgeneric-generic-function-class-2 (x)
                      (:generic-function-class))))
 
 (deftest-error defgeneric-generic-function-class.3
-  (eval '(defgeneric defgeneric-generic-function-class-1 (x)
+  (eval '(defgeneric defgeneric-generic-function-class-3 (x)
                      (:generic-function-class standard-generic-function nil))))
+
+(deftest-error defgeneric-generic-function-class.4
+  (eval '(defgeneric defgeneric-generic-function-class-4 (x)
+                     (:generic-function-class nil))))
+
+(deftest-error defgeneric-generic-function-class.5
+  (eval '(defgeneric defgeneric-generic-function-class-5 (x)
+                     (:generic-function-class 100))))
 
 
 ;;
@@ -266,22 +310,75 @@
     (values)))
 
 (deftest-error defgeneric-method-class.2
-  (eval '(defgeneric defgeneric-method-class-1 (a) (:method-class))))
+  (eval '(defgeneric defgeneric-method-class-2 (a) (:method-class))))
 
 (deftest-error defgeneric-method-class.3
-  (eval '(defgeneric defgeneric-method-class-1 (a)
+  (eval '(defgeneric defgeneric-method-class-3 (a)
                      (:method-class standard-method nil))))
+
+(deftest-error defgeneric-method-class.4
+  (eval '(defgeneric defgeneric-method-class-4 (a)
+                     (:method-class nil))))
+
+
+;;
+;;  method
+;;
+(deftest defgeneric-method.1
+  (typep
+    (defgeneric defgeneric-method-1 () (:method () :hello))
+    'generic-function)
+  t)
+
+(deftest defgeneric-method.2
+  (progn
+    (defgeneric defgeneric-method-2 () (:method () :hello))
+    (defgeneric-method-2))
+  :hello)
+
+(deftest defgeneric-method.3
+  (progn
+    (defgeneric defgeneric-method-3 (x)
+                (:method ((x integer)) x :aaa)
+                (:method ((y string)) y :bbb))
+    (values
+      (defgeneric-method-3 100)
+      (defgeneric-method-3 "ABC")))
+  :aaa :bbb)
 
 
 ;;
 ;;  redefine
 ;;
-'(deftest defgeneric-redefine.1
-   (progn
-     (defgeneric defgeneric-redefine-1 ())
-     (functionp
-       (defgeneric defgeneric-redefine-1 (x))))
-   t)
+(deftest defgeneric-redefine.1
+  (progn
+    (defgeneric defgeneric-redefine-1 ())
+    (functionp
+      (defgeneric defgeneric-redefine-1 (x))))
+  t)
+
+(deftest defgeneric-redefine.2
+  (progn
+    (defgeneric defgeneric-redefine-2 ())
+    (defmethod defgeneric-redefine-2 ())
+    (functionp
+      (defgeneric defgeneric-redefine-2 ())))
+  t)
+
+(deftest-error defgeneric-redefine.3
+  (progn
+    (defgeneric defgeneric-redefine-3 (x))
+    (defmethod defgeneric-redefine-3 (x) x)
+    (defgeneric defgeneric-redefine-3 ())))
+
+(deftest defgeneric-redefine.4
+  (progn
+    (defgeneric defgeneric-redefine-4 (x))
+    (defmethod defgeneric-redefine-4 (x) x)
+    (defgeneric defgeneric-redefine-4 (x))
+    (defmethod defgeneric-redefine-4 (x) (1+ x))
+    (defgeneric-redefine-4 100))
+  101)
 
 
 ;;

@@ -10,7 +10,7 @@
 #define setf_find_class_common _n(setf_find_class_common)
 #define with_accessors_common _n(with_accessors_common)
 #define with_slots_common _n(with_slots_common)
-#define defgeneric_common _n(defgeneric_common)
+#define defgeneric_common_ _n(defgeneric_common_)
 #define defmethod_common _n(defmethod_common)
 #define define_method_combination_common _n(define_method_combination_common)
 #define make_load_form_saving_slots_common _n(make_load_form_saving_slots_common)
@@ -23,7 +23,7 @@ void setf_find_class_common(addr pos, addr name, addr env);
 int with_accessors_common(Execute ptr, addr form, addr env, addr *ret);
 int with_slots_common(Execute ptr, addr form, addr env, addr *ret);
 
-int defgeneric_common(addr form, addr env, addr *ret);
+int defgeneric_common_(Execute ptr, addr form, addr env, addr *ret);
 int defmethod_common(Execute ptr, addr form, addr env, addr *ret);
 int define_method_combination_common(
 		LocalRoot local, addr form, addr env, addr *ret);

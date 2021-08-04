@@ -3,6 +3,7 @@
 #include "clos_cache.h"
 #include "clos_class.h"
 #include "clos_combination.h"
+#include "clos_defgeneric.h"
 #include "clos_generic.h"
 #include "clos_method.h"
 #include "clos_type.h"
@@ -190,7 +191,7 @@ static int method_check_generic_function_(addr gen, addr method)
 	addr check;
 
 	Return(stdget_method_generic_function_(method, &check));
-	if (check != Nil && method != gen) {
+	if (check != Nil && check != gen) {
 		return fmte_("The method ~S is already exists "
 				"in the generic-function ~S.", method, gen, NULL);
 	}
@@ -331,7 +332,7 @@ static int method_check_method_arguments_(addr gen, addr method)
 	struct argument_struct *str1, *str2;
 
 	/* generic-lambda-list */
-	Return(stdget_generic_lambda_list_(gen, &pos1));
+	Return(stdget_generic_argument_(gen, &pos1));
 	CheckType(pos1, LISPSYSTEM_ARGUMENT);
 	str1 = ArgumentStruct(pos1);
 	Check(str1->type != ArgumentType_generic, "type error");
@@ -428,13 +429,19 @@ static int method_push_generic_(Execute ptr, addr gen, addr method)
 	addr methods, comb, qua, cons;
 	size_t index;
 
-	Return(stdget_generic_methods_(gen, &methods));
+	/* vector */
+	Return(stdget_generic_vector_(gen, &methods));
 	Return(stdget_generic_method_combination_(gen, &comb));
 	Return(stdget_method_qualifiers_(method, &qua));
 	Return(qualifiers_position_(ptr, qua, comb, &index, &check));
 	GetArrayA4(methods, index, &cons);
 	cons_heap(&cons, method, cons);
 	SetArrayA4(methods, index, cons);
+
+	/* list */
+	Return(stdget_generic_methods_(gen, &methods));
+	pushnew_heap(methods, method, &methods);
+	Return(stdset_generic_methods_(gen, methods));
 
 	return 0;
 }
@@ -497,7 +504,7 @@ static int method_find_method_nil_(Execute ptr,
 	addr methods, comb, method, value;
 	size_t index;
 
-	Return(stdget_generic_methods_(gen, &methods));
+	Return(stdget_generic_vector_(gen, &methods));
 	Return(stdget_generic_method_combination_(gen, &comb));
 	Return(qualifiers_position_nil_(ptr, qua, comb, &index, &check));
 	if (! check) {
@@ -523,13 +530,19 @@ int method_find_method_(Execute ptr, addr gen, addr qua, addr spec, addr *ret)
 	return 0;
 }
 
-static int method_remove_method_execute_(Execute ptr, addr gen, addr method, int *ret)
+int method_remove_method_unsafe_(Execute ptr, addr gen, addr method, int *ret)
 {
 	int check;
 	addr methods, comb, qua, cons;
 	size_t index;
 
+	/* list */
 	Return(stdget_generic_methods_(gen, &methods));
+	(void)delete1_list_eq_unsafe(method, methods, &methods);
+	Return(stdset_generic_methods_(gen, methods));
+
+	/* vector */
+	Return(stdget_generic_vector_(gen, &methods));
 	Return(stdget_generic_method_combination_(gen, &comb));
 	Return(stdget_method_qualifiers_(method, &qua));
 	Return(qualifiers_position_nil_(ptr, qua, comb, &index, &check));
@@ -548,7 +561,7 @@ int method_remove_method_(Execute ptr, addr gen, addr method)
 {
 	int check;
 
-	Return(method_remove_method_execute_(ptr, gen, method, &check));
+	Return(method_remove_method_unsafe_(ptr, gen, method, &check));
 	if (! check)
 		return 0;
 	Return(method_cache_remove_(ptr->local, gen, method));
@@ -568,7 +581,7 @@ static int method_add_replace_(Execute ptr,
 		addr gen, addr method, addr check_method)
 {
 	int check;
-	Return(method_remove_method_execute_(ptr, gen, check_method, &check));
+	Return(method_remove_method_unsafe_(ptr, gen, check_method, &check));
 	return method_push_generic_(ptr, gen, method);
 }
 
@@ -578,6 +591,7 @@ static int method_add_check_(Execute ptr, addr gen, addr method)
 	Return(method_check_method_class_(gen, method));
 	Return(method_check_method_qualifiers_(ptr, gen, method));
 	Return(method_check_method_arguments_(gen, method));
+
 	return 0;
 }
 
@@ -638,7 +652,7 @@ static int defmethod_make_generic_function_(addr name, addr lambda, addr *ret)
 	Check(! callnamep(name), "type error");
 	Check(! argumentp(lambda), "type error");
 	argument_method_to_generic(lambda, &lambda);
-	return generic_empty_(name, lambda, ret);
+	return generic_make_empty_(name, lambda, ret);
 }
 
 int ensure_method_common_(Execute ptr, addr *ret,
@@ -670,7 +684,7 @@ static int common_method_set_finalize_(addr gen)
 	addr pos, list, method;
 	size_t size, i;
 
-	Return(stdget_generic_methods_(gen, &pos));
+	Return(stdget_generic_vector_(gen, &pos));
 	LenArrayA4(pos, &size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(pos, i, &list);

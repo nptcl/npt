@@ -1171,6 +1171,15 @@ static void typetable_methodcombination(void)
 	SetTypeTable(MethodCombination, pos);
 }
 
+static void typetable_generic_function(void)
+{
+	addr pos;
+
+	GetConst(CLOS_GENERIC_FUNCTION, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(GenericFunction, pos);
+}
+
 
 /*
  *  Array
@@ -1403,6 +1412,7 @@ DefTypeValues(Complex);
 DefTypeValues(TypeSymbol);
 DefTypeValues(Class);
 DefTypeValues(ClassNull);
+DefTypeValues(GenericFunction);
 
 
 /*
@@ -3084,6 +3094,7 @@ void build_type_constant(void)
 	typetable_structureobject();
 	typetable_standard_method();
 	typetable_methodcombination();
+	typetable_generic_function();
 
 	/* Array */
 	typetable_array_t();
@@ -3155,6 +3166,7 @@ void build_type_constant(void)
 	typevalues_TypeSymbol();
 	typevalues_Class();
 	typevalues_ClassNull();
+	typevalues_GenericFunction();
 
 	typevalues_decode_universal_time();
 	typevalues_empty();

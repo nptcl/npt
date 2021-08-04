@@ -2,6 +2,7 @@
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_combination.h"
+#include "clos_defgeneric.h"
 #include "clos_generic.h"
 #include "clos_make.h"
 #include "clos_method.h"
@@ -217,10 +218,8 @@ static int clos_ensure_reader_check_(Execute ptr, addr gen)
 		return fmte_("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
-	Return(stdget_generic_lambda_list_(gen, &pos));
-	if (! argumentp(pos)) {
-		Return(argument_generic_heap_(ptr->local, &pos, pos));
-	}
+	Return(stdget_generic_argument_(gen, &pos));
+	Check(! argumentp(pos), "type error");
 	if (ArgumentStruct(pos)->var != 1)
 		return fmte_("The generic-function ~S must be a 1 specializer.", gen, NULL);
 
@@ -246,10 +245,8 @@ static int clos_ensure_writer_method_check_(Execute ptr, addr gen)
 		return fmte_("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
-	Return(stdget_generic_lambda_list_(gen, &pos));
-	if (! argumentp(pos)) {
-		Return(argument_generic_heap_(ptr->local, &pos, pos));
-	}
+	Return(stdget_generic_argument_(gen, &pos));
+	Check(! argumentp(pos), "type error");
 	if (ArgumentStruct(pos)->var != 2)
 		return fmte_("The generic-function ~S must be a 2 specializers.", gen, NULL);
 
@@ -309,14 +306,14 @@ static int clos_ensure_reader_generic_(addr name)
 {
 	addr lambda;
 	mop_argument_generic_var1(&lambda);
-	return generic_empty_(name, lambda, &name);
+	return generic_make_empty_(name, lambda, &name);
 }
 
 static int clos_ensure_writer_generic_(addr name)
 {
 	addr lambda;
 	mop_argument_generic_var2(&lambda);
-	return generic_empty_(name, lambda, &name);
+	return generic_make_empty_(name, lambda, &name);
 }
 
 static int clos_ensure_readers_generic_(addr list)

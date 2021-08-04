@@ -1,7 +1,7 @@
 #include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
-#include "clos_generic.h"
+#include "clos_defgeneric.h"
 #include "clos_method.h"
 #include "clos_type.h"
 #include "constant.h"
@@ -141,24 +141,16 @@ int print_structure(Execute ptr, addr stream, addr pos)
 static int method_print_object_generic_function(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	addr class_of, call, name;
+	addr class_of, name;
 
 	Return(clos_class_of_(pos, &class_of));
 	Return(stdget_class_name_(class_of, &class_of));
-	Return(stdget_generic_name_(pos, &call));
+	Return(stdget_generic_name_(pos, &name));
 	/* #<CLASS-OF CLASS-NAME> */
 	Return(print_ascii_stream_(stream, "#<"));
 	Return(princ_print(ptr, stream, class_of));
 	Return(write_char_stream_(stream, ' '));
-	GetCallName(call, &name);
-	if (setfp_callname(call)) {
-		Return(print_ascii_stream_(stream, "(SETF "));
-		Return(prin1_print(ptr, stream, name));
-		Return(write_char_stream_(stream, ')'));
-	}
-	else {
-		Return(princ_print(ptr, stream, name));
-	}
+	Return(princ_print(ptr, stream, name));
 	Return(write_char_stream_(stream, '>'));
 	/* result */
 	setresult_control(ptr, pos);
@@ -233,7 +225,7 @@ int build_print_object_(Execute ptr)
 	GetConst(COMMON_PRINT_OBJECT, &symbol);
 	mop_argument_generic_var2(&gen);
 	Return(parse_callname_error_(&name, symbol));
-	Return(generic_common_instance_(&gen, name, gen));
+	Return(generic_make_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(build_print_object_method_(ptr, name, gen));

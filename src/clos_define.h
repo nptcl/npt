@@ -33,7 +33,6 @@ enum Clos_class_Index {
 	Clos_class_slots,
 	Clos_class_finalized_p,
 	Clos_class_prototype,
-	Clos_class_direct_methods,
 	Clos_class_default_initargs,
 	Clos_class_direct_default_initargs,
 	Clos_class_version,
@@ -44,12 +43,16 @@ enum Clos_class_Index {
 
 enum Clos_generic_Index {
 	Clos_generic_name,
-	Clos_generic_lambda_list,
 	Clos_generic_methods,
-	Clos_generic_method_class,
+	Clos_generic_lambda_list,
 	Clos_generic_argument_precedence_order,
 	Clos_generic_declarations,
+	Clos_generic_method_class,
 	Clos_generic_method_combination,
+
+	Clos_generic_vector,
+	Clos_generic_remove,
+	Clos_generic_argument,
 	Clos_generic_documentation,
 	Clos_generic_eqlcheck,
 	Clos_generic_cache,

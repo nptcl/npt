@@ -237,6 +237,7 @@ enum TypeTable {
 	TypeTable_StructureObject,
 	TypeTable_StandardMethod,
 	TypeTable_MethodCombination,
+	TypeTable_GenericFunction,
 
 	/* Array */
 	TypeTable_Array_T,
@@ -311,6 +312,7 @@ enum TypeTable {
 
 	TypeValues_DecodeUniversalTime,
 	TypeValues_Empty,
+	TypeValues_GenericFunction,
 
 	/* Compiled-Function */
 	TypeCompiled_Object_Boolean,

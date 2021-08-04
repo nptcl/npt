@@ -148,15 +148,6 @@ int stdset_class_prototype_(addr pos, addr value)
 	return StdSetClass_(pos, value, prototype, PROTOTYPE);
 }
 
-int stdget_class_direct_methods_(addr pos, addr *ret)
-{
-	return StdGetClass_(pos, ret, direct_methods, DIRECT_METHODS);
-}
-int stdset_class_direct_methods_(addr pos, addr value)
-{
-	return StdSetClass_(pos, value, direct_methods, DIRECT_METHODS);
-}
-
 int stdget_class_default_initargs_(addr pos, addr *ret)
 {
 	return StdGetClass_(pos, ret, default_initargs, DEFAULT_INITARGS);
@@ -870,7 +861,6 @@ static void clos_stdclass_slots(addr *ret)
 	SlotMakeName(slots, EFFECTIVE_SLOTS, class_slots);
 	SlotMakeForm(slots, FINALIZED_P, class_finalized_p);
 	SlotMakeName(slots, PROTOTYPE, class_prototype);
-	SlotMakeForm(slots, DIRECT_METHODS, class_direct_methods);
 	SlotMakeForm(slots, DEFAULT_INITARGS, class_default_initargs);
 	SlotMakeForm(slots, DIRECT_DEFAULT_INITARGS, class_direct_default_initargs);
 	SlotMakeVersion(slots, VERSION, class_version);
@@ -1243,12 +1233,15 @@ static void clos_stdgeneric_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_generic_size);
 	SlotMakeNameSymbol(slots, NAME, generic_name);
-	SlotMakeName(slots, LAMBDA_LIST, generic_lambda_list);
 	SlotMakeForm(slots, METHODS, generic_methods);
-	SlotMakeName(slots, METHOD_CLASS, generic_method_class);
+	SlotMakeName(slots, LAMBDA_LIST, generic_lambda_list);
 	SlotMakeName(slots, ARGUMENT_PRECEDENCE_ORDER, generic_argument_precedence_order);
 	SlotMakeForm(slots, DECLARATIONS, generic_declarations);
+	SlotMakeName(slots, METHOD_CLASS, generic_method_class);
 	SlotMakeForm(slots, METHOD_COMBINATION, generic_method_combination);
+	SlotMakeForm(slots, VECTOR, generic_vector);
+	SlotMakeForm(slots, REMOVE, generic_remove);
+	SlotMakeForm(slots, ARGUMENT, generic_argument);
 	SlotMakeForm(slots, DOCUMENTATION, generic_documentation);
 	SlotMakeName(slots, EQLCHECK, generic_eqlcheck);
 	SlotMakeName(slots, CACHE, generic_cache);

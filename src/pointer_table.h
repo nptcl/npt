@@ -1249,6 +1249,8 @@ enum pointer_index {
 	p_defun_syscall_with_compilation_unit,
 	p_defun_syscall_set_slots,
 	p_defun_syscall_intern_eql_specializer,
+	p_defun_syscall_defgeneric_define,
+	p_defun_syscall_defgeneric_method,
 	/* syscall function */
 	p_defun_syscall_abort,
 	p_defun_syscall_hello,

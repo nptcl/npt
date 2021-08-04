@@ -46,6 +46,8 @@
 #define trace_del_syscode_ _n(trace_del_syscode_)
 #define set_slots_syscode _n(set_slots_syscode)
 #define intern_eql_specializer_syscode _n(intern_eql_specializer_syscode)
+#define defgeneric_define_syscode_ _n(defgeneric_define_syscode_)
+#define defgeneric_method_syscode_ _n(defgeneric_method_syscode_)
 
 int redirect_restart_syscode(Execute ptr, addr condition, addr list);
 int defconstant_syscode(addr symbol, addr value, addr doc);
@@ -92,6 +94,8 @@ int trace_add_syscode_(Execute ptr, addr var, addr *ret);
 int trace_del_syscode_(Execute ptr, addr var, addr *ret);
 int set_slots_syscode(addr var, addr slots, addr values);
 int intern_eql_specializer_syscode(addr var, addr *ret);
+int defgeneric_define_syscode_(Execute ptr, addr name, addr args, addr *ret);
+int defgeneric_method_syscode_(addr inst, addr args);
 
 #endif
 

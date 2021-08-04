@@ -5,7 +5,7 @@
 #include "callname.h"
 #include "clos.h"
 #include "clos_combination.h"
-#include "clos_generic.h"
+#include "clos_defgeneric.h"
 #include "clos_method.h"
 #include "condition.h"
 #include "cons.h"
@@ -85,7 +85,7 @@ static int defgeneric_make_method_lambda_(Execute ptr)
 	GetConst(CLOSNAME_MAKE_METHOD_LAMBDA, &symbol);
 	mop_argument_generic_var4(&gen);
 	Return(parse_callname_error_(&name, symbol));
-	Return(generic_common_instance_(&gen, name, gen));
+	Return(generic_make_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	Return(mop_export_symbol_(symbol));
 	/* no-method */

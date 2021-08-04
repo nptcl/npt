@@ -303,7 +303,7 @@ static void test_method_arguments(const char *left, const char *right)
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
 	clos_instance_heap_(generic, &generic);
 	argument_generic_char(&lambda, left);
-	stdset_generic_lambda_list_(generic, lambda);
+	stdset_generic_argument_(generic, lambda);
 	/* method */
 	method_instance_call_(NULL, &method, Nil, Nil);
 	argument_method_char(&lambda, right);
@@ -448,12 +448,12 @@ static int test_method_push_generic(void)
 	clos_instance_heap_(generic, &generic);
 	stdset_generic_method_combination_(generic, Nil);
 	vector4_heap(&array, 4);
-	stdset_generic_methods_(generic, array);
+	stdset_generic_vector_(generic, array);
 
 	method_instance_call_(NULL, &method, Nil, Nil);
 	stdset_method_qualifiers_(method, Nil);
 	method_push_generic_(ptr, generic, method);
-	stdget_generic_methods_(generic, &array);
+	stdget_generic_vector_(generic, &array);
 	GetArrayA4(array, 2, &array);
 	test(array != Nil, "method_push_generic1");
 	GetCons(array, &check, &array);
@@ -575,7 +575,7 @@ static void test_generic_array(addr *ret, addr *array)
 	clos_instance_heap_(generic, &generic);
 	stdset_generic_method_combination_(generic, Nil);
 	vector4_heap(array, 4);
-	stdset_generic_methods_(generic, *array);
+	stdset_generic_vector_(generic, *array);
 	*ret = generic;
 }
 
@@ -645,7 +645,7 @@ static int test_method_find_method(void)
 	RETURN;
 }
 
-static int test_method_remove_method_execute(void)
+static int test_method_remove_method_unsafe(void)
 {
 	int check;
 	addr generic, method, pos, fixnum, integer, array, qua;
@@ -672,19 +672,19 @@ static int test_method_remove_method_execute(void)
 	GetConst(KEYWORD_AFTER, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers_(temp, qua);
-	method_remove_method_execute_(ptr, generic, temp, &check);
-	test(! check, "method_remove_method_execute1");
+	method_remove_method_unsafe_(ptr, generic, temp, &check);
+	test(! check, "method_remove_method_unsafe1");
 
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers_(temp, qua);
-	method_remove_method_execute_(ptr, generic, temp, &check);
-	test(! check, "method_remove_method_execute2");
+	method_remove_method_unsafe_(ptr, generic, temp, &check);
+	test(! check, "method_remove_method_unsafe2");
 
-	method_remove_method_execute_(ptr, generic, method, &check);
-	test(check, "method_remove_method_execute3");
+	method_remove_method_unsafe_(ptr, generic, method, &check);
+	test(check, "method_remove_method_unsafe3");
 	GetArrayA4(array, 1, &pos);
-	test(pos == Nil, "method_remove_method_execute4");
+	test(pos == Nil, "method_remove_method_unsafe4");
 
 	RETURN;
 }
@@ -720,7 +720,7 @@ static int testcase_clos_method(void)
 	TestBreak(test_method_cache_remove);
 	TestBreak(test_method_find_method_nil);
 	TestBreak(test_method_find_method);
-	TestBreak(test_method_remove_method_execute);
+	TestBreak(test_method_remove_method_unsafe);
 
 	return 0;
 }

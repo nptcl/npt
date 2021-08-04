@@ -818,13 +818,18 @@ error:
 
 static int defgeneric_parse_generic(addr list, addr *ret)
 {
-	addr name, find, quote;
+	addr name, tail, find, quote;
 
 	/* (find-class (quote name)) */
-	if (! consp_getcons(list, &name, &list))
+	if (! consp_getcons(list, &name, &tail))
 		return fmte_(":GENERIC-FUNCTION-CLASS ~S must be a (symbol) form.", list, NULL);
+	if (name == Nil)
+		return fmte_(":GENERIC-FUNCTION-CLASS must be a non-nil symbol.", NULL);
 	if (! symbolp(name))
 		return fmte_(":GENERIC-FUNCTION-CLASS ~S must be a symbol.", name, NULL);
+	if (tail != Nil)
+		return fmte_(":GENERIC-FUNCTION-CLASS ~S must be (symbol) form.", list, NULL);
+
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(&name, quote, name, NULL);
@@ -835,13 +840,18 @@ static int defgeneric_parse_generic(addr list, addr *ret)
 
 static int defgeneric_parse_method(addr list, addr *ret)
 {
-	addr name, find, quote;
+	addr name, tail, find, quote;
 
 	/* (find-class (quote name)) */
-	if (! consp_getcons(list, &name, &list))
+	if (! consp_getcons(list, &name, &tail))
 		return fmte_(":METHOD-CLASS ~S must be a (symbol) form.", list, NULL);
+	if (name == Nil)
+		return fmte_(":METHOD-CLASS must be a non-nil symbol.", NULL);
 	if (! symbolp(name))
 		return fmte_(":METHOD-CLASS ~S must be a symbol.", name, NULL);
+	if (tail != Nil)
+		return fmte_(":METHOD-CLASS ~S must be a (symbol) form.", list, NULL);
+
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(&name, quote, name, NULL);
@@ -952,9 +962,27 @@ static int defgeneric_check_function_(addr name)
 	if (! function_name_p(name))
 		return fmte_("Invalid function name ~S.", name, NULL);
 
+	/* symbol */
+	if (symbolp(name)) {
+		GetFunctionSymbol(name, &check);
+		if (check != Unbound && (! closp(check))) {
+			return call_simple_program_error_va_(NULL,
+					"Cannot update the function because "
+					"~S is not a generic-function.", name, NULL);
+		}
+	}
+
 	/* setf */
-	if (consp(name))
+	if (consp(name)) {
+		Return(parse_callname_error_(&check, name));
+		getglobal_callname(check, &check);
+		if (check != Unbound && (! closp(check))) {
+			return call_simple_program_error_va_(NULL,
+					"Cannot update the function because "
+					"~S is not a generic-function.", name, NULL);
+		}
 		return 0;
+	}
 
 	/* macro */
 	getmacro_symbol(name, &check);
@@ -974,7 +1002,40 @@ static int defgeneric_check_function_(addr name)
 	return 0;
 }
 
-int defgeneric_common(addr form, addr env, addr *ret)
+static int defgeneric_method_common_(Execute ptr,
+		addr name, addr ensure, addr code, addr *ret)
+{
+	/*  (let ((g (defgeneric-define ...)))
+	 *    (system::defgeneric-method g (defmethod ...))
+	 *    (system::defgeneric-method g (defmethod ...))
+	 *    g)
+	 */
+	addr g, let, method, args, list, pos;
+
+	GetConst(COMMON_LET, &let);
+	GetConst(SYSTEM_DEFGENERIC_METHOD, &method);
+	Return(make_gensym_(ptr, &g));
+
+	/* let */
+	list_heap(&args, g, ensure, NULL);
+	list_heap(&args, args, NULL);
+
+	/* list */
+	list = Nil;
+	cons_heap(&list, let, list);
+	cons_heap(&list, args, list);
+	while (code != Nil) {
+		GetCons(code, &pos, &code);
+		list_heap(&pos, method, g, pos, NULL);
+		cons_heap(&list, pos, list);
+	}
+	cons_heap(&list, g, list);
+	nreverse(ret, list);
+
+	return 0;
+}
+
+int defgeneric_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, order, decl, doc, comb, gen, method, code, key;
 
@@ -991,7 +1052,7 @@ int defgeneric_common(addr form, addr env, addr *ret)
 	Return(defgeneric_check_function_(name));
 	/* expand */
 	args = Nil;
-	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &key);
+	GetConst(SYSTEM_DEFGENERIC_DEFINE, &key);
 	defgeneric_push_quote(&args, key, name, args);
 	GetConst(KEYWORD_LAMBDA_LIST, &key);
 	defgeneric_push_quote(&args, key, lambda, args);
@@ -1021,8 +1082,7 @@ int defgeneric_common(addr form, addr env, addr *ret)
 	}
 	nreverse(&args, args);
 	if (code != Nil) {
-		GetConst(COMMON_PROGN, &key);
-		lista_heap(&args, key, args, code, NULL);
+		Return(defgeneric_method_common_(ptr, name, args, code, &args));
 	}
 	return Result(ret, args);
 

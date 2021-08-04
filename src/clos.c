@@ -487,6 +487,19 @@ void clos_value_heap(addr *ret, size_t size)
 	clos_value_unsafe(NULL, ret, size);
 }
 
+static void clos_value_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
+{
+	addr instance, value;
+	size_t i;
+
+	alloc_array4(local, &instance, LISPSYSTEM_CLOS_VALUE, size);
+	for (i = 0; i < size; i++) {
+		GetClosValue_Low(pos, i, &value);
+		SetClosValue_Low(instance, i, value);
+	}
+	*ret = instance;
+}
+
 static inline void clos_unsafe(LocalRoot local, addr *ret)
 {
 	alloc_smallsize(local, ret,
@@ -596,6 +609,26 @@ void clos_copy_alloc(LocalRoot local, addr pos, addr *ret)
 	SetVersionClos_Low(value, z);
 	/* result */
 	*ret = value;
+}
+
+void clos_allcopy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	addr instance, x;
+	size_t size;
+
+	/* clos */
+	clos_copy_alloc(local, pos, &instance);
+	/* slot */
+	GetSlotClos_Low(pos, &x);
+	LenSlotVector(x, &size);
+	slot_vector_copy_alloc(local, &x, x);
+	SetSlotClos_Low(instance, x);
+	/* value */
+	GetValueClos_Low(pos, &x);
+	clos_value_copy_alloc(local, &x, x, size);
+	SetValueClos_Low(instance, x);
+	/* result */
+	*ret = instance;
 }
 
 

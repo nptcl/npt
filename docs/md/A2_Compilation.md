@@ -91,7 +91,7 @@ The values of `#define` are as follows.
 | terme | `LISP_TERME` |  |
 | editline | `LISP_EDITLINE` | -ledit |
 | readline | `LISP_READLINE` | -lreadline |
-| C | (default) |  |
+| stdin | `LISP_STDIN`|  |
 
 Terme is a feature of the npt prompt.  
 It is used by default on FreeBSD and Linux.
@@ -99,8 +99,8 @@ It is used by default on FreeBSD and Linux.
 The editline and readline are external modules that
 require installation to use.
 
-The module C is simply the standard C library to load.
-This mode does not allow for history or cursor movement.
+stdin simply reads from standard input.  
+It cannot use history or cursor movement.
 
 Here's an example of a compilation.
 

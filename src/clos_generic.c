@@ -107,15 +107,6 @@ int stdset_generic_name_(addr pos, addr value)
 	return StdSetGeneric_(pos, value, name, NAME);
 }
 
-int stdget_generic_lambda_list_(addr pos, addr *ret)
-{
-	return StdGetGeneric_(pos, ret, lambda_list, LAMBDA_LIST);
-}
-int stdset_generic_lambda_list_(addr pos, addr value)
-{
-	return StdSetGeneric_(pos, value, lambda_list, LAMBDA_LIST);
-}
-
 int stdget_generic_methods_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, methods, METHODS);
@@ -125,13 +116,13 @@ int stdset_generic_methods_(addr pos, addr value)
 	return StdSetGeneric_(pos, value, methods, METHODS);
 }
 
-int stdget_generic_method_class_(addr pos, addr *ret)
+int stdget_generic_lambda_list_(addr pos, addr *ret)
 {
-	return StdGetGeneric_(pos, ret, method_class, METHOD_CLASS);
+	return StdGetGeneric_(pos, ret, lambda_list, LAMBDA_LIST);
 }
-int stdset_generic_method_class_(addr pos, addr value)
+int stdset_generic_lambda_list_(addr pos, addr value)
 {
-	return StdSetGeneric_(pos, value, method_class, METHOD_CLASS);
+	return StdSetGeneric_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
 int stdget_generic_argument_precedence_order_(addr pos, addr *ret)
@@ -152,6 +143,15 @@ int stdset_generic_declarations_(addr pos, addr value)
 	return StdSetGeneric_(pos, value, declarations, DECLARATIONS);
 }
 
+int stdget_generic_method_class_(addr pos, addr *ret)
+{
+	return StdGetGeneric_(pos, ret, method_class, METHOD_CLASS);
+}
+int stdset_generic_method_class_(addr pos, addr value)
+{
+	return StdSetGeneric_(pos, value, method_class, METHOD_CLASS);
+}
+
 int stdget_generic_method_combination_(addr pos, addr *ret)
 {
 	return StdGetGeneric_(pos, ret, method_combination, METHOD_COMBINATION);
@@ -159,6 +159,33 @@ int stdget_generic_method_combination_(addr pos, addr *ret)
 int stdset_generic_method_combination_(addr pos, addr value)
 {
 	return StdSetGeneric_(pos, value, method_combination, METHOD_COMBINATION);
+}
+
+int stdget_generic_vector_(addr pos, addr *ret)
+{
+	return StdGetGeneric_(pos, ret, vector, VECTOR);
+}
+int stdset_generic_vector_(addr pos, addr value)
+{
+	return StdSetGeneric_(pos, value, vector, VECTOR);
+}
+
+int stdget_generic_remove_(addr pos, addr *ret)
+{
+	return StdGetGeneric_(pos, ret, remove, REMOVE);
+}
+int stdset_generic_remove_(addr pos, addr value)
+{
+	return StdSetGeneric_(pos, value, remove, REMOVE);
+}
+
+int stdget_generic_argument_(addr pos, addr *ret)
+{
+	return StdGetGeneric_(pos, ret, argument, ARGUMENT);
+}
+int stdset_generic_argument_(addr pos, addr value)
+{
+	return StdSetGeneric_(pos, value, argument, ARGUMENT);
 }
 
 int stdget_generic_documentation_(addr pos, addr *ret)
@@ -632,9 +659,8 @@ static int generic_compare_specializer_(addr left, addr right, int *ret)
 	return generic_compare_class_(left, right, ret);
 }
 
-	static int generic_sort_compare_(
-			int (*call_)(addr, addr, int *),
-			addr a, addr b, int *ret)
+static int generic_sort_compare_(addr a, addr b, int *ret,
+		int (*call_)(addr, addr, int *))
 {
 	int check;
 	addr x, y;
@@ -658,7 +684,7 @@ static int generic_sort_call_(addr left, addr right, int *ret)
 {
 	Return(stdget_method_specializers_(left, &left));
 	Return(stdget_method_specializers_(right, &right));
-	return generic_sort_compare_(generic_compare_specializer_, left, right, ret);
+	return generic_sort_compare_(left, right, ret, generic_compare_specializer_);
 }
 
 static int generic_sort_(addr order,
@@ -712,7 +738,7 @@ static int generic_make_array_(addr *ret, addr gen, addr type)
 	addr array, data, methods, method, list;
 	size_t size, index;
 
-	Return(stdget_generic_methods_(gen, &array));
+	Return(stdget_generic_vector_(gen, &array));
 	LenArrayA4(array, &size);
 	vector4_heap(&data, size);
 	for (index = 0; index < size; index++) {
@@ -877,67 +903,13 @@ int closrun_execute_(Execute ptr, addr clos, addr args)
 	return (*call)(ptr, pos, clos, args);
 }
 
-
-/*****************************************************************************
- *  defgeneric
- *****************************************************************************/
-static void generic_instance_cache(addr *ret)
-{
-	hashtable_full_heap(ret,
-			HASHTABLE_TEST_CACHE,
-			8,
-			HASHTABLE_REHASH_SIZE_DEFAULT,
-			HASHTABLE_REHASH_THRESHOLD_DEFAULT);
-}
-
-static int generic_instance_methods_(addr *ret, addr comb)
-{
-	size_t size;
-
-	Return(method_combination_qualifiers_count_(comb, &size));
-	vector4_heap(ret, size);
-
-	return 0;
-}
-
-int generic_common_instance_(addr *ret, addr name, addr args)
-{
-	addr pos, methods, method, cache;
-
-	CheckType(name, LISPTYPE_CALLNAME);
-	CheckType(args, LISPSYSTEM_ARGUMENT);
-#ifdef LISP_DEBUG
-	clos_find_generic_nil(name, &pos);
-	Check(pos != Nil, "generic function error");
-#endif
-	Return(generic_instance_methods_(&methods, Nil));
-	GetConst(CLOS_STANDARD_METHOD, &method);
-	generic_instance_cache(&cache);
-
-	/* make-instance */
-	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
-	Return(stdset_generic_name_(pos, name));
-	Return(stdset_generic_lambda_list_(pos, args));
-	Return(stdset_generic_argument_precedence_order_(pos, Nil));
-	Return(stdset_generic_methods_(pos, methods));
-	Return(stdset_generic_method_class_(pos, method));
-	Return(stdset_generic_method_combination_(pos, Nil));
-	Return(stdset_generic_cache_(pos, cache));
-	Return(stdset_generic_precedence_index_(pos, Nil));
-
-	/* result */
-	Return(setglobal_parse_callname_(name, pos));
-	return Result(ret, pos);
-}
-
-int generic_common_order_(addr gen, addr order, addr list)
+int generic_order_(addr gen, addr order, addr list)
 {
 #ifdef LISP_DEBUG
 	addr var, x, y, root;
 	size_t size1, size2, size3, index, check;
 
-	Return(stdget_generic_lambda_list_(gen, &var));
+	Return(stdget_generic_argument_(gen, &var));
 	GetArgument(var, ArgumentIndex_var, &var);
 
 	Return(length_list_safe_(var, &size1));
@@ -967,170 +939,6 @@ int generic_common_order_(addr gen, addr order, addr list)
 	Return(stdset_generic_precedence_index_(gen, list));
 
 	return 0;
-}
-
-
-/*****************************************************************************
- *  ensure-generic-function
- *****************************************************************************/
-int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret)
-{
-	int check;
-	addr call, value, clos, ensure;
-
-	/* symbol or (setf name) */
-	Return(parse_callname_error_(&call, name));
-	/* symbol check */
-	if (symbolp_callname(call)) {
-		/* special-operator */
-		if (get_special_operator(name)) {
-			*ret = Nil;
-			return fmte_("ENSURE-GENERIC-FUNCTION don't accept "
-					"a special symbol ~S.", name, NULL);
-		}
-		/* macro */
-		getmacro_symbol(name, &value);
-		if (value != Unbound) {
-			*ret = Nil;
-			return fmte_("ENSURE-GENERIC-FUNCTION don't accept "
-					"a macro symbol ~S.", value, NULL);
-		}
-	}
-	/* class-of */
-	getglobal_parse_callname(call, &value);
-	if (value == Unbound) {
-		clos = Nil;
-		goto result;
-	}
-	Return(clos_generic_p_(value, &check));
-	if (check) {
-		Return(clos_class_of_(value, &clos));
-		goto result;
-	}
-	/* error */
-	*ret = Nil;
-	return fmte_("Invalid generic-function argument ~S.", name, NULL);
-
-result:
-	/* (apply #'ensure-generic-function-using-class ...) */
-	GetConst(CLOSNAME_ENSURE_GENERIC_FUNCTION_USING_CLASS, &ensure);
-	Return(getfunction_global_(ensure, &ensure));
-	Return(applya_control(ptr, ensure, clos, name, rest, NULL));
-	getresult_control(ptr, ret);
-	return 0;
-}
-
-
-/*
- *  generic-empty
- */
-int generic_empty_(addr name, addr lambda, addr *ret)
-{
-	addr pos, method, methods, cache;
-
-	Check(! callnamep(name), "type error");
-	Check(! argumentp(lambda), "type error");
-	Check(ArgumentStruct(lambda)->type != ArgumentType_generic, "argument error");
-
-	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
-	Return(generic_instance_methods_(&methods, Nil));
-	GetConst(CLOS_STANDARD_METHOD, &method);
-	generic_instance_cache(&cache);
-
-	/* setf */
-	Return(stdset_generic_name_(pos, name));
-	Return(stdset_generic_lambda_list_(pos, lambda));
-	Return(stdset_generic_methods_(pos, methods));
-	Return(stdset_generic_method_class_(pos, method));
-	Return(stdset_generic_argument_precedence_order_(pos, Nil));
-	Return(stdset_generic_method_combination_(pos, Nil));
-	Return(stdset_generic_cache_(pos, cache));
-	Return(stdset_generic_precedence_index_(pos, Nil));
-
-	/* result */
-	Return(generic_finalize_(pos));
-	Return(setglobal_parse_callname_(name, pos));
-	return Result(ret, pos);
-}
-
-
-/*
- *  generic-add
- */
-static int generic_precedence_order_index_(addr lambda, addr order, addr *ret)
-{
-	addr var, x, list;
-	size_t size1, size2, index;
-
-	if (order == Nil)
-		return Result(ret, Nil);
-	GetArgument(lambda, ArgumentIndex_var, &var);
-	Return(length_list_safe_(var, &size1));
-	Return(length_list_safe_(order, &size2));
-	if (size1 != size2) {
-		*ret = Nil;
-		return fmte_("Length of :argument-precedence-order is "
-				"not equal to lambda-list.", NULL);
-	}
-	for (list = Nil; var != Nil; ) {
-		GetCons(var, &x, &var);
-		if (! position_list_eq_unsafe(x, order, &index)) {
-			*ret = Nil;
-			return fmte_("The variable ~S is "
-					"not exist in :argument-precedence-order", x, NULL);
-		}
-		index_heap(&x, index);
-		cons_heap(&list, x, list);
-	}
-	nreverse(ret, list);
-
-	return 0;
-}
-
-int generic_add_(struct generic_argument *str, addr *ret)
-{
-	addr pos, comb, methods, cache, order;
-
-	/* check */
-	Return(generic_precedence_order_index_(str->lambda, str->order, &order));
-	/* (make-instance generic-function-class) */
-	GetConst(COMMON_MAKE_INSTANCE, &pos);
-	Return(callclang_funcall(str->ptr, &pos, pos, str->generic, NULL));
-
-	/* value */
-	comb = str->combination;
-	if (comb != Nil) {
-		Return(clos_find_method_combination_(pos, comb, &comb));
-	}
-	Return(generic_instance_methods_(&methods, comb));
-	generic_instance_cache(&cache);
-
-	/* setf */
-	Return(stdset_generic_name_(pos, str->name));
-	Return(stdset_generic_lambda_list_(pos, str->lambda));
-	Return(stdset_generic_methods_(pos, methods));
-	Return(stdset_generic_method_class_(pos, str->method));
-	Return(stdset_generic_argument_precedence_order_(pos, str->order));
-	Return(stdset_generic_declarations_(pos, str->declare));
-	Return(stdset_generic_method_combination_(pos, comb));
-	Return(stdset_generic_documentation_(pos, str->doc));
-	Return(stdset_generic_cache_(pos, cache));
-	Return(stdset_generic_precedence_index_(pos, order));
-
-	/* result */
-	Return(generic_finalize_(pos));
-	Return(setglobal_parse_callname_(str->name, pos));
-	return Result(ret, pos);
-}
-
-
-/*
- *  generic-change
- */
-int generic_change_(struct generic_argument *str, addr *ret)
-{
-	return fmte_("TODO", NULL);
 }
 
 
@@ -1207,7 +1015,7 @@ int generic_find_method_(Execute ptr,
 		return Result(ret, Nil);
 	}
 
-	Return(stdget_generic_methods_(gen, &list));
+	Return(stdget_generic_vector_(gen, &list));
 	GetArrayA4(list, index, &list);
 	while (list != Nil) {
 		GetCons(list, &method, &list);

@@ -227,25 +227,6 @@ static int test_stdget_class_prototype(void)
 	RETURN;
 }
 
-static int test_stdget_class_direct_methods(void)
-{
-	addr pos, check, k, v;
-
-	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap_(pos, &pos);
-	v = readr_debug("aaa");
-	GetConst(CLOSNAME_DIRECT_METHODS, &k);
-	clos_set_(pos, k, v);
-	stdget_class_direct_methods_(pos, &check);
-	test(check == v, "stdget_class_direct_methods1");
-
-	stdset_class_direct_methods_(pos, T);
-	clos_get_(pos, k, &check);
-	test(check == T, "stdset_class_direct_methods2");
-
-	RETURN;
-}
-
 static int test_stdget_class_default_initargs(void)
 {
 	addr pos, check, k, v;
@@ -1679,15 +1660,13 @@ static int test_clos_stdclass_slots(void)
 			"clos_stdclass_slots9");
 	test(test_slotname(slots, Clos_class_prototype, "PROTOTYPE"),
 			"clos_stdclass_slots10");
-	test(test_slotname(slots, Clos_class_direct_methods, "DIRECT-METHODS"),
-			"clos_stdclass_slots11");
 	test(test_slotname(slots, Clos_class_default_initargs, "DEFAULT-INITARGS"),
-			"clos_stdclass_slots12");
+			"clos_stdclass_slots11");
 	test(test_slotname(slots, Clos_class_direct_default_initargs,
 				"DIRECT-DEFAULT-INITARGS"),
-			"clos_stdclass_slots13");
+			"clos_stdclass_slots12");
 	test(test_slotname(slots, Clos_class_version, "VERSION"),
-			"clos_stdclass_slots14");
+			"clos_stdclass_slots13");
 
 	RETURN;
 }
@@ -2908,7 +2887,6 @@ static int testcase_clos_class(void)
 	TestBreak(test_stdget_class_slots);
 	TestBreak(test_stdget_class_finalized_p);
 	TestBreak(test_stdget_class_prototype);
-	TestBreak(test_stdget_class_direct_methods);
 	TestBreak(test_stdget_class_default_initargs);
 	TestBreak(test_stdget_class_direct_default_initargs);
 	TestBreak(test_stdget_class_version);

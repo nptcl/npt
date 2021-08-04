@@ -1,6 +1,7 @@
 #include "call_eval.h"
 #include "call_objects.h"
 #include "clos_type.h"
+#include "clos_defgeneric.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -448,5 +449,17 @@ int set_slots_syscode(addr var, addr slots, addr values)
 int intern_eql_specializer_syscode(addr var, addr *ret)
 {
 	return clos_intern_specializer_(var, ret);
+}
+
+
+/* defgeneric */
+int defgeneric_define_syscode_(Execute ptr, addr name, addr args, addr *ret)
+{
+	return system_generic_define_(ptr, name, args, ret);
+}
+
+int defgeneric_method_syscode_(addr inst, addr args)
+{
+	return system_generic_method_(inst, args);
 }
 

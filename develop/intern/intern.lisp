@@ -1193,7 +1193,6 @@ lisp-clos::class-precedence-list
 lisp-clos::effective-slots
 lisp-clos::finalized-p
 lisp-clos::prototype
-lisp-clos::direct-methods
 lisp-clos::default-initargs
 lisp-clos::direct-default-initargs
 lisp-clos::version
@@ -1206,31 +1205,34 @@ lisp-clos::redefined-class
 (:effective-slots            :constant closkey)
 (:finalized-p                :constant closkey)
 (:prototype                  :constant closkey)
-(:direct-methods             :constant closkey)
 (:default-initargs           :constant closkey)
 (:direct-default-initargs    :constant closkey)
 (:version                    :constant closkey)
 (:redefined-class            :constant closkey)
 
-lisp-clos::lambda-list
-lisp-clos::lambda-count
 lisp-clos::methods
-lisp-clos::method-class
+lisp-clos::lambda-list
 lisp-clos::argument-precedence-order
 lisp-clos::declarations
+lisp-clos::method-class
 lisp-clos::method-combination
+lisp-clos::vector
+lisp-clos::remove
+lisp-clos::argument
 lisp-clos::eqlcheck
 lisp-clos::cache
 lisp-clos::call
 lisp-clos::function
 lisp-clos::precedence-index
-(:lambda-list                :constant closkey)
-(:lambda-count               :constant closkey)
 (:methods                    :constant closkey)
-(:method-class               :constant closkey)
+(:lambda-list                :constant closkey)
 (:argument-precedence-order  :constant closkey)
 (:declarations               :constant closkey)
+(:method-class               :constant closkey)
 (:method-combination         :constant closkey)
+(:vector                     :constant closkey)
+(:remove                     :constant closkey)
+(:argument                   :constant closkey)
 (:eqlcheck                   :constant closkey)
 (:cache                      :constant closkey)
 (:call                       :constant closkey)
@@ -1293,13 +1295,11 @@ lisp-clos::order
 ;;  structure
 lisp-clos::slots
 lisp-clos::include
-lisp-clos::vector
 lisp-clos::named
 lisp-clos::named-index
 lisp-clos::value
 (:slots                      :constant closkey)
 (:include                    :constant closkey)
-(:vector                     :constant closkey)
 (:named                      :constant closkey)
 (:named-index                :constant closkey)
 (:value                      :constant closkey)
@@ -1811,6 +1811,7 @@ lisp-clos::standard-slot-definition
 (lisp-clos::change-class :constant common)
 (lisp-clos::function-keywords :constant common)
 
+lisp-clos::redefined
 lisp-clos::referenced-class
 (lisp-clos::ensure-class :export t)
 (lisp-clos::ensure-class-using-class :export t)
@@ -2016,6 +2017,8 @@ lisp-system::subtypep-normal
  lisp-system::with-compilation-unit
  lisp-system::set-slots
  lisp-system::intern-eql-specializer
+ lisp-system::defgeneric-define
+ lisp-system::defgeneric-method
 
 ;; syscall_function.c
 (lisp-system::abort :export t)

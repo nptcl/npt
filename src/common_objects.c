@@ -5,7 +5,7 @@
 #include "common_header.h"
 #include "clos.h"
 #include "clos_class.h"
-#include "clos_generic.h"
+#include "clos_defgeneric.h"
 #include "clos_make.h"
 #include "clos_method.h"
 #include "clos_redefine.h"
@@ -497,7 +497,7 @@ static void defmacro_defclass(void)
 /* (defmacro defgeneric (name lambda &rest args) ...) -> generic-function */
 static int function_defgeneric(Execute ptr, addr form, addr env)
 {
-	Return(defgeneric_common(form, env, &form));
+	Return(defgeneric_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

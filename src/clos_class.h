@@ -22,8 +22,6 @@
 #define stdset_class_finalized_p_ _n(stdset_class_finalized_p_)
 #define stdget_class_prototype_ _n(stdget_class_prototype_)
 #define stdset_class_prototype_ _n(stdset_class_prototype_)
-#define stdget_class_direct_methods_ _n(stdget_class_direct_methods_)
-#define stdset_class_direct_methods_ _n(stdset_class_direct_methods_)
 #define stdget_class_default_initargs_ _n(stdget_class_default_initargs_)
 #define stdset_class_default_initargs_ _n(stdset_class_default_initargs_)
 #define stdget_class_direct_default_initargs_ _n(stdget_class_direct_default_initargs_)
@@ -86,8 +84,6 @@ int stdget_class_finalized_p_(addr pos, addr *ret);
 int stdset_class_finalized_p_(addr pos, addr value);
 int stdget_class_prototype_(addr pos, addr *ret);
 int stdset_class_prototype_(addr pos, addr value);
-int stdget_class_direct_methods_(addr pos, addr *ret);
-int stdset_class_direct_methods_(addr pos, addr value);
 int stdget_class_default_initargs_(addr pos, addr *ret);
 int stdset_class_default_initargs_(addr pos, addr value);
 int stdget_class_direct_default_initargs_(addr pos, addr *ret);

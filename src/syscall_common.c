@@ -1548,6 +1548,85 @@ static void defun_intern_eql_specializer(void)
 }
 
 
+/* (defun defgeneric-define (symbol &rest &key &allow-other-keys) ...) -> instance */
+static int syscall_defgeneric_define(Execute ptr, addr var, addr args)
+{
+	Return(defgeneric_define_syscode_(ptr, var, args, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_syscall_defgeneric_define(addr *ret)
+{
+	addr args, values;
+	addr key, key1, key2, key3, key4, key5, key6, key7;
+
+	KeyTypeTable(&key1, ARGUMENT_PRECEDENCE_ORDER, T);
+	KeyTypeTable(&key2, DECLARE, T);
+	KeyTypeTable(&key3, DOCUMENTATION, String);
+	KeyTypeTable(&key4, LAMBDA_LIST, T);
+	KeyTypeTable(&key5, GENERIC_FUNCTION_CLASS, T);
+	KeyTypeTable(&key6, METHOD_CLASS, T);
+	KeyTypeTable(&key7, METHOD_COMBINATION, T);
+	list_heap(&key, key1, key2, key3, key4, key5, key6, key7, NULL);
+	/* type */
+	GetTypeTable(&args, T);
+	typeargs_var1key(&args, args, key);
+	GetTypeValues(&values, GenericFunction);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_defgeneric_define(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_DEFGENERIC_DEFINE, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_defgeneric_define);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_defgeneric_define(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun defgeneric-method (instance &rest args) ...) -> instance */
+static int syscall_defgeneric_method(Execute ptr, addr var, addr args)
+{
+	Return(defgeneric_method_syscode_(var, args));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_syscall_defgeneric_method(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, GenericFunction);
+	GetTypeTable(&values, Method);
+	typeargs_var1rest(&args, args, values);
+	GetTypeValues(&values, GenericFunction);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_defgeneric_method(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_DEFGENERIC_METHOD, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_defgeneric_method);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_defgeneric_method(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -1597,6 +1676,8 @@ void init_syscall_common(void)
 	SetPointerSysCall(defun, var3, with_compilation_unit);
 	SetPointerSysCall(defun, var3, set_slots);
 	SetPointerSysCall(defun, var1, intern_eql_specializer);
+	SetPointerSysCall(defun, var1dynamic, defgeneric_define);
+	SetPointerSysCall(defun, var1dynamic, defgeneric_method);
 }
 
 void build_syscall_common(void)
@@ -1645,5 +1726,7 @@ void build_syscall_common(void)
 	defun_with_compilation_unit();
 	defun_set_slots();
 	defun_intern_eql_specializer();
+	defun_defgeneric_define();
+	defun_defgeneric_method();
 }
 
