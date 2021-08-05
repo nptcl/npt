@@ -1877,6 +1877,7 @@ lisp-clos::method-specializers
 lisp-clos::accessor-method-slot-definition
 
 lisp-clos::make-method-lambda
+(lisp-clos::find-method-combination :export t)
 
 
 ;;

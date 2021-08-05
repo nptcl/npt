@@ -145,13 +145,37 @@ static int generic_new_order_(addr args, addr order, addr *ret)
 
 error1:
 	*ret = Nil;
-	return fmte_("Length of :argument-precedence-order is "
-			"not equal to lambda-list.", NULL);
+	return call_simple_program_error_va_(NULL, "Length of "
+			":argument-precedence-order is not equal to lambda-list.", NULL);
 
 error2:
 	*ret = Nil;
-	return fmte_("The variable ~S is "
+	return call_simple_program_error_va_(NULL, "The variable ~S is "
 			"not exist in :argument-precedence-order", x, NULL);
+}
+
+static int generic_find_method_combination_(struct generic_argument *str, addr *ret)
+{
+	int check;
+	addr pos, standard;
+
+	/* standard */
+	pos = str->combination;
+	if (pos == Nil)
+		return Result(ret, Nil);
+
+	/* standard object */
+	GetConst(CLOS_COMBINATION_STANDARD, &standard);
+	if (pos == standard)
+		return Result(ret, Nil);
+
+	/* ensure-generic-function */
+	Return(clos_combination_p_(pos, &check));
+	if (check)
+		return Result(ret, pos);
+
+	/* defgeneric */
+	return clos_find_method_combination_(pos, ret);
 }
 
 static int generic_new_(struct generic_argument *str, addr *ret)
@@ -166,10 +190,7 @@ static int generic_new_(struct generic_argument *str, addr *ret)
 	Return(callclang_funcall(str->ptr, &pos, pos, str->generic, NULL));
 
 	/* value */
-	comb = str->combination;
-	if (comb != Nil) {
-		Return(clos_find_method_combination_(pos, comb, &comb));
-	}
+	Return(generic_find_method_combination_(str, &comb));
 	Return(generic_make_methods_(&vector, comb));
 	generic_cache_heap(&cache);
 
@@ -205,10 +226,12 @@ static int generic_change_remove_(struct generic_argument *str)
 
 	ptr = str->ptr;
 	gen = str->instance;
-	Return(stdget_generic_remove_(gen, &list));
-	while (list != Nil) {
-		GetCons(list, &method, &list);
-		Return(method_remove_method_unsafe_(ptr, gen, method, &ignore));
+	if (str->redefined) {
+		Return(stdget_generic_remove_(gen, &list));
+		while (list != Nil) {
+			GetCons(list, &method, &list);
+			Return(method_remove_method_unsafe_(ptr, gen, method, &ignore));
+		}
 	}
 	Return(stdset_generic_remove_(gen, Nil));
 
@@ -280,10 +303,7 @@ static int generic_change_combination_(struct generic_argument *str)
 
 	if (str->combination_p) {
 		pos = str->instance;
-		value = str->combination;
-		if (value != Nil) {
-			Return(clos_find_method_combination_(pos, value, &value));
-		}
+		Return(generic_find_method_combination_(str, &value));
 		Return(stdset_generic_method_combination_(pos, value));
 	}
 
@@ -418,7 +438,7 @@ static int generic_change_(struct generic_argument *str)
  */
 static int ensure_generic_function_name_(addr call, addr name)
 {
-	addr value;
+	addr value, expected;
 
 	if (! symbolp_callname(call))
 		return 0;
@@ -426,13 +446,17 @@ static int ensure_generic_function_name_(addr call, addr name)
 	/* macro */
 	getmacro_symbol(name, &value);
 	if (value != Unbound) {
-		return fmte_("ENSURE-GENERIC-FUNCTION don't accept "
-				"a macro symbol ~S.", value, NULL);
+		GetConst(COMMON_GENERIC_FUNCTION, &expected);
+		return call_type_error_va_(NULL, name, expected,
+				"ENSURE-GENERIC-FUNCTION don't accept "
+				"a macro symbol ~S.", name, NULL);
 	}
 
 	/* special-operator */
 	if (get_special_operator(name)) {
-		return fmte_("ENSURE-GENERIC-FUNCTION don't accept "
+		GetConst(COMMON_GENERIC_FUNCTION, &expected);
+		return call_type_error_va_(NULL, name, expected,
+				"ENSURE-GENERIC-FUNCTION don't accept "
 				"a special symbol ~S.", name, NULL);
 	}
 
@@ -456,7 +480,7 @@ static int ensure_generic_function_call_(Execute ptr,
 int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret)
 {
 	int check;
-	addr call, value;
+	addr call, value, expected;
 
 	/* symbol or (setf name) */
 	Return(parse_callname_error_(&call, name));
@@ -472,7 +496,9 @@ int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret
 
 	/* error */
 	*ret = Nil;
-	return fmte_("Invalid generic-function argument ~S.", name, NULL);
+	GetConst(COMMON_GENERIC_FUNCTION, &expected);
+	return call_type_error_va_(ptr, value, expected,
+			"Invalid generic-function argument ~S.", name, NULL);
 }
 
 

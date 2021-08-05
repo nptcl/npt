@@ -349,6 +349,7 @@ enum pointer_index {
 	/* Metaobject Protocol generic */
 	p_method_ensure_generic_function_class,
 	p_method_ensure_generic_function_null,
+	p_method_find_method_combination,
 	p_function_ensure_method,
 	p_method_function_keywords,
 	p_defun_flet_method_p,

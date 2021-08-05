@@ -58,6 +58,7 @@
 #define qualifiers_position_nil_ _n(qualifiers_position_nil_)
 #define qualifiers_position_ _n(qualifiers_position_)
 #define build_clos_combination _n(build_clos_combination)
+#define mop_find_method_combination_ _n(mop_find_method_combination_)
 #define clos_find_method_combination_ _n(clos_find_method_combination_)
 #define ensure_define_combination_short_common_ _n(ensure_define_combination_short_common_)
 #define ensure_define_combination_long_common_ _n(ensure_define_combination_long_common_)
@@ -129,7 +130,8 @@ int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *r
 void build_clos_combination(void);
 
 /* generic-function */
-int clos_find_method_combination_(addr gen, addr list, addr *ret);
+int mop_find_method_combination_(addr symbol, addr list, addr *ret);
+int clos_find_method_combination_(addr list, addr *ret);
 int ensure_define_combination_short_common_(
 		addr name, addr doc, addr ident, addr oper);
 int ensure_define_combination_long_common_(addr name, addr lambda, addr spec,

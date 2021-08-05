@@ -1412,6 +1412,7 @@ DefTypeValues(Complex);
 DefTypeValues(TypeSymbol);
 DefTypeValues(Class);
 DefTypeValues(ClassNull);
+DefTypeValues(MethodCombination);
 DefTypeValues(GenericFunction);
 
 
@@ -3166,6 +3167,7 @@ void build_type_constant(void)
 	typevalues_TypeSymbol();
 	typevalues_Class();
 	typevalues_ClassNull();
+	typevalues_MethodCombination();
 	typevalues_GenericFunction();
 
 	typevalues_decode_universal_time();

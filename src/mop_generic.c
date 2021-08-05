@@ -190,6 +190,81 @@ static int defgeneric_ensure_generic_function_using_class_mop_(Execute ptr)
 
 
 /***********************************************************************
+ *  find-method-combination
+ ***********************************************************************/
+static int method_find_method_combination(Execute ptr,
+		addr method, addr next, addr gen, addr symbol, addr list)
+{
+	Return(mop_find_method_combination_(symbol, list, &gen));
+	setresult_control(ptr, gen);
+	return 0;
+}
+
+static void method_type_find_method_combination(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, GenericFunction);
+	GetTypeTable(&values, Symbol);
+	GetTypeTable(&type, List);
+	typeargs_var3(&args, args, values, type);
+	typeargs_method(args);
+	GetTypeValues(&values, MethodCombination);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_find_method_combination(addr *ret)
+{
+	addr pos, list, type1, type2, type3;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 3;
+	ArgumentMethod_var(&type1, GENERIC_FUNCTION);
+	ArgumentMethod_var(&type2, SYMBOL);
+	ArgumentMethod_var(&type3, LIST);
+	list_heap(&list, type1, type2, type3, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static int defmethod_find_method_combination_(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_system(&call, name);
+	setcompiled_var5(call, p_method_find_method_combination);
+	method_type_find_method_combination(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_find_method_combination(&pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
+}
+
+static int find_method_combination_mop_(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_FIND_METHOD_COMBINATION, &symbol);
+	mop_argument_generic_var3(&gen);
+	Return(parse_callname_error_(&name, symbol));
+	Return(generic_make_(&gen, name, gen));
+	SetFunctionSymbol(symbol, gen);
+	/* method */
+	Return(defmethod_find_method_combination_(ptr, name, gen));
+	return common_method_finalize_(gen);
+}
+
+
+/***********************************************************************
  *  ensure-method
  ***********************************************************************/
 /* `(defun ensure-method (name
@@ -1086,6 +1161,7 @@ void init_mop_generic(void)
 {
 	SetPointerType(var4dynamic, method_ensure_generic_function_class);
 	SetPointerType(var4dynamic, method_ensure_generic_function_null);
+	SetPointerType(var5, method_find_method_combination);
 	SetPointerType(var1dynamic, function_ensure_method);
 	SetPointerType(var3, method_function_keywords);
 	SetPointerCall(defun, var1, flet_method_p);
@@ -1111,6 +1187,7 @@ int build_mop_generic_(Execute ptr)
 	Return(defgeneric_no_next_method_mop_(ptr));
 	/* defgeneric */
 	Return(defgeneric_ensure_generic_function_using_class_mop_(ptr));
+	Return(find_method_combination_mop_(ptr));
 	defun_ensure_method_mop();
 	Return(defgeneric_function_keywords_mop_(ptr));
 	/* defmethod */

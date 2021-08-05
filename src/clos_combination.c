@@ -866,33 +866,56 @@ static int clos_method_combination_short_(addr comb, addr list, addr *ret)
 	return Result(ret, pos);
 }
 
-int clos_find_method_combination_(addr gen, addr list, addr *ret)
+static int find_method_combination_(addr symbol, addr list, addr *ret)
 {
 	int check;
-	addr pos, tail;
+	addr pos;
 
-	Check(! clos_generic_p_debug(gen), "type error");
-	Check(! consp(list), "type error");
-	GetCons(list, &pos, &tail);
+	Check(! symbolp(symbol), "type error");
+	Check(! listp(list), "type error");
 
 	/* standard */
-	if (clos_method_combination_standard_p(pos))
-		return clos_method_combination_standard_(pos, tail, ret);
+	if (clos_method_combination_standard_p(symbol))
+		return clos_method_combination_standard_(symbol, list, ret);
 
 	/* long form */
-	Return(clos_find_combination_(pos, &pos));
+	Return(clos_find_combination_(symbol, &pos));
 	Return(clos_define_long_combination_p_(pos, &check));
 	if (check)
-		return clos_method_combination_long_(pos, tail, ret);
+		return clos_method_combination_long_(pos, list, ret);
 
 	/* short form */
 	Return(clos_define_short_combination_p_(pos, &check));
 	if (check)
-		return clos_method_combination_short_(pos, tail, ret);
+		return clos_method_combination_short_(pos, list, ret);
 
 	/* error */
 	*ret = Nil;
-	return fmte_("Invalid method-combination instance ~S.", list, NULL);
+	return fmte_("Invalid method-combination instance ~S, ~S.", pos, list, NULL);
+}
+
+int mop_find_method_combination_(addr symbol, addr list, addr *ret)
+{
+	addr pos;
+
+	Return(find_method_combination_(symbol, list, &pos));
+	if (pos == Nil) {
+		GetConst(CLOS_COMBINATION_STANDARD, &pos);
+	}
+
+	return Result(ret, pos);
+}
+
+int clos_find_method_combination_(addr list, addr *ret)
+{
+	addr pos, tail;
+
+	if (! consp_getcons(list, &pos, &tail)) {
+		*ret = Nil;
+		return fmte_("Invalid method-combination instance ~S.", list, NULL);
+	}
+
+	return find_method_combination_(pos, tail, ret);
 }
 
 

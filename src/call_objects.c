@@ -927,7 +927,8 @@ static int defgeneric_parse_options(addr name, addr args,
 			continue;
 		}
 		/* error */
-		return fmte_("Invalid defgeneric option ~S.", pos, NULL);
+		return call_simple_program_error_va_(NULL,
+				"Invalid defgeneric option ~S.", pos, NULL);
 	}
 	*rorder = order;
 	*rdecl = decl;

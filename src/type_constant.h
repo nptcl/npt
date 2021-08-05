@@ -312,6 +312,7 @@ enum TypeTable {
 
 	TypeValues_DecodeUniversalTime,
 	TypeValues_Empty,
+	TypeValues_MethodCombination,
 	TypeValues_GenericFunction,
 
 	/* Compiled-Function */

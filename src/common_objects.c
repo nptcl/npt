@@ -73,11 +73,11 @@ static void type_ensure_generic_function(addr *ret)
 	KeyTypeTable(&key4, ENVIRONMENT, EnvironmentNull);
 	KeyTypeTable(&key5, LAMBDA_LIST, T);
 	KeyTypeTable(&key6, GENERIC_FUNCTION_CLASS, T);
-	KeyTypeTable(&key7, METHOD_CLASS, T);
-	KeyTypeTable(&key8, METHOD_COMBINATION, T);
+	KeyTypeTable(&key7, METHOD_CLASS, Class);
+	KeyTypeTable(&key8, METHOD_COMBINATION, MethodCombination);
 	list_heap(&key, key1, key2, key3, key4, key5, key6, key7, key8, NULL);
 	/* type */
-	GetTypeTable(&args, T);
+	GetTypeTable(&args, FunctionName);
 	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
