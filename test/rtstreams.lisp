@@ -11,7 +11,7 @@
 (import 'lisp-system:with-input-from-memory)
 (import 'lisp-system:with-output-to-memory)
 (import 'lisp-system:get-output-stream-memory)
-(import 'lisp-system:question)
+(import 'lisp-system:sysctl)
 (import 'lisp-system:byte-integer)
 
 (defmacro with-extend-to-string ((var array) &body body)

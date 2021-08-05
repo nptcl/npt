@@ -21,7 +21,6 @@
 #include "package_object.h"
 #include "pathname.h"
 #include "process.h"
-#include "question.h"
 #include "random_state.h"
 #include "ratio.h"
 #include "sort.h"
@@ -33,6 +32,7 @@
 #include "subtypep_number.h"
 #include "symbol.h"
 #include "syscode_function.h"
+#include "sysctl.h"
 #include "terme_values.h"
 #include "type_object.h"
 #include "type_parse.h"
@@ -770,10 +770,10 @@ int byte_integer_syscode_(addr list, addr *ret)
 }
 
 
-/* question */
-int question_syscode_(Execute ptr, addr var, addr args)
+/* sysctl */
+int sysctl_syscode_(Execute ptr, addr var, addr args)
 {
-	return question_values_(ptr, var, args);
+	return sysctl_values_(ptr, var, args);
 }
 
 

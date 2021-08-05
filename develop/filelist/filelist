@@ -281,7 +281,6 @@ process.c
 prompt_arch.c
 prompt_for.c
 prompt.c
-question.c
 quote.c
 random_float.c
 random_state.c
@@ -377,6 +376,7 @@ syscall_function.c
 syscall.c
 syscode_common.c
 syscode_function.c
+sysctl.c
 terme.c
 terme_arch.c
 terme_data.c

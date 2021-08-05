@@ -6,6 +6,7 @@
 #include "clos_make.h"
 #include "clos_type.h"
 #include "condition.h"
+#include "cons_list.h"
 #include "constant.h"
 #include "function.h"
 #include "hashtable.h"
@@ -629,6 +630,23 @@ void clos_allcopy_alloc(LocalRoot local, addr pos, addr *ret)
 	SetValueClos_Low(instance, x);
 	/* result */
 	*ret = instance;
+}
+
+void clos_getslots_heap(addr pos, addr *ret)
+{
+	addr list, slots, x;
+	size_t size, i;
+
+	CheckType(pos, LISPTYPE_CLOS);
+	GetSlotClos_Low(pos, &slots);
+	LenSlotVector(slots, &size);
+	list = Nil;
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &x);
+		GetNameSlot(x, &x);
+		cons_heap(&list, x, list);
+	}
+	nreverse(ret, list);
 }
 
 

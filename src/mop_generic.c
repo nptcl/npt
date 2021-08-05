@@ -18,13 +18,66 @@
 #include "lambda.h"
 #include "mop.h"
 #include "mop_common.h"
+#include "mop_generic.h"
 #include "symbol.h"
 #include "type_table.h"
 
 /***********************************************************************
  *  no-applicable-method
  ***********************************************************************/
-static int defgeneric_no_applicable_method_mop_(Execute ptr)
+static int method_no_applicable_method(Execute ptr,
+		addr method, addr next, addr gen, addr rest)
+{
+	return fmte_("There is no applicable methods in ~S.", gen, NULL);
+}
+
+static void method_type_no_applicable_method(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1rest(&args, args, args);
+	typeargs_method(args);
+	GetTypeTable(&values, Asterisk);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_no_applicable_method(addr *ret)
+{
+	addr pos, list, type1;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 1;
+	str->rest = 1;
+	ArgumentMethod_var(&type1, T);
+	list_heap(&list, type1, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static int defmethod_no_applicable_method_(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_system(&call, name);
+	setcompiled_var3rest(call, p_method_no_applicable_method);
+	method_type_no_applicable_method(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_no_applicable_method(&pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
+}
+
+int defgeneric_no_applicable_method_mop_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -33,7 +86,8 @@ static int defgeneric_no_applicable_method_mop_(Execute ptr)
 	Return(parse_callname_error_(&name, symbol));
 	Return(generic_make_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
-	/* no-method */
+	/* method */
+	Return(defmethod_no_applicable_method_(ptr, name, gen));
 	return common_method_finalize_(gen);
 }
 
@@ -41,7 +95,60 @@ static int defgeneric_no_applicable_method_mop_(Execute ptr)
 /***********************************************************************
  *  no-next-method
  ***********************************************************************/
-static int defgeneric_no_next_method_mop_(Execute ptr)
+static int method_no_next_method(Execute ptr,
+		addr method, addr next, addr gen, addr no_next, addr rest)
+{
+	return fmte_("There is no methods after ~S method in ~S.", no_next, gen, NULL);
+}
+
+static void method_type_no_next_method(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var2rest(&args, args, args, args);
+	typeargs_method(args);
+	GetTypeTable(&values, Asterisk);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_no_next_method(addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	str->rest = 1;
+	ArgumentMethod_var(&type1, STANDARD_GENERIC_FUNCTION);
+	ArgumentMethod_var(&type2, STANDARD_METHOD);
+	list_heap(&list, type1, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static int defmethod_no_next_method_(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_system(&call, name);
+	setcompiled_var4rest(call, p_method_no_next_method);
+	method_type_no_next_method(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_no_next_method(&pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(stdset_method_function_(pos, call));
+	return common_method_add_(ptr, gen, pos);
+}
+
+int defgeneric_no_next_method_mop_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -50,7 +157,8 @@ static int defgeneric_no_next_method_mop_(Execute ptr)
 	Return(parse_callname_error_(&name, symbol));
 	Return(generic_make_(&gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
-	/* no-method */
+	/* method */
+	Return(defmethod_no_next_method_(ptr, name, gen));
 	return common_method_finalize_(gen);
 }
 
@@ -418,20 +526,29 @@ static void defun_flet_method_p_mop(void)
  *  flet-next-method
  ***********************************************************************/
 /* (defun clos::flet-next-method (method next args rest) ...) -> t */
+static int call_no_next_method_(Execute ptr, addr gen, addr method, addr args)
+{
+	addr call;
+
+	GetConst(COMMON_NO_NEXT_METHOD, &call);
+	Return(getfunction_global_(call, &call));
+	return applya_control(ptr, call, gen, method, args, NULL);
+}
+
 static int function_flet_next_method(Execute ptr,
 		addr method, addr next, addr args, addr rest)
 {
-	addr call;
+	addr call, gen;
 	LocalRoot local;
 
+	if (rest == Nil)
+		rest = args;
 	if (next == Nil) {
-		Return(stdget_method_generic_function_(method, &method));
-		return fmte_("There is no method in generic function ~S.", method, NULL);
+		Return(stdget_method_generic_function_(method, &gen));
+		return call_no_next_method_(ptr, gen, method, rest);
 	}
 	Return_getcons(next, &method, &next);
 	Return(stdget_method_function_(method, &call));
-	if (rest == Nil)
-		rest = args;
 	/* call method */
 	local = ptr->local;
 	lista_local(local, &rest, method, next, rest, NULL);
@@ -1159,6 +1276,8 @@ static int defgeneric_remove_method_mop_(Execute ptr)
  ***********************************************************************/
 void init_mop_generic(void)
 {
+	SetPointerType(var3rest, method_no_applicable_method);
+	SetPointerType(var4rest, method_no_next_method);
 	SetPointerType(var4dynamic, method_ensure_generic_function_class);
 	SetPointerType(var4dynamic, method_ensure_generic_function_null);
 	SetPointerType(var5, method_find_method_combination);

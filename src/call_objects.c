@@ -1150,14 +1150,29 @@ static int defmethod_parse_specializers(addr pos, addr *ret)
 	return Result(ret, root);
 }
 
-static int defmethod_parse_documentation_(addr form, addr *ret)
+static int defmethod_parse_function_lambda_(addr name, addr ord, addr form,
+		addr *ret, addr *rdoc)
 {
-	addr decl, body;
-	return split_decl_body_doc_(form, ret, &decl, &body);
+	addr block, lambda, declare, doc, decl;
+
+	GetConst(COMMON_BLOCK, &block);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+
+	/* block */
+	Return(parse_callname_error_(&name, name));
+	GetCallName(name, &name);
+	Return(split_decl_body_doc_(form, &doc, &decl, &form));
+	lista_heap(&block, block, name, form, NULL);
+	/* lambda */
+	Return(argument_method_lambda_heap_(&ord, ord));
+	cons_heap(&decl, declare, decl);
+	list_heap(ret, lambda, ord, decl, block, NULL);
+	return Result(rdoc, doc);
 }
 
 static int defmethod_parse_function_(Execute ptr,
-		addr env, addr form, addr ord, addr *ret)
+		addr name, addr env, addr form, addr ord, addr *ret)
 {
 	/* `(lambda (,method ,next &rest ,args)
 	 *    (flet ((next-method-p ()
@@ -1166,7 +1181,10 @@ static int defmethod_parse_function_(Execute ptr,
 	 *             (clos::flet-next-method ,method ,next ,args ,rest)))
 	 *      (declare (ignorable #'next-method-p #'call-next-method))
 	 *      "Documentation"
-	 *      (apply (lambda ,lambda-list ,@form) ,args)))
+	 *      (apply (lambda ,lambda-list
+	 *                ,@declare
+	 *                (block ,name ,@form))
+	 *             ,args)))
 	 */
 	addr lambda, apply, next1, next2, call1, call2, a, b, c, doc;
 	addr method, next, args, rest, ignorable, declare, arest, flet;
@@ -1181,14 +1199,10 @@ static int defmethod_parse_function_(Execute ptr,
 	GetConst(CLOSNAME_FLET_METHOD_P, &next2);
 	GetConst(COMMON_CALL_NEXT_METHOD, &call1);
 	GetConst(CLOSNAME_FLET_NEXT_METHOD, &call2);
-	/* lambda */
-	GetConst(COMMON_LAMBDA, &lambda);
-	Return(argument_method_lambda_heap_(&ord, ord));
-	Return(defmethod_parse_documentation_(form, &doc));
-	lista_heap(&ord, lambda, ord, form, NULL);
 	/* apply */
 	GetConst(COMMON_APPLY, &apply);
-	list_heap(&apply, apply, ord, args, NULL);
+	Return(defmethod_parse_function_lambda_(name, ord, form, &form, &doc));
+	list_heap(&apply, apply, form, args, NULL);
 	/* declare */
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_DECLARE, &declare);
@@ -1210,6 +1224,7 @@ static int defmethod_parse_function_(Execute ptr,
 	GetConst(COMMON_FLET, &flet);
 	list_heap(&flet, flet, next1, declare, apply, NULL);
 	/* lambda */
+	GetConst(COMMON_LAMBDA, &lambda);
 	list_heap(&method, method, next, arest, args, NULL);
 	list_heap(ret, lambda, method, doc, flet, NULL);
 
@@ -1230,7 +1245,7 @@ int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	Return(argument_method_heap_(ptr->local, &list, lambda));
 	Return(defmethod_parse_specializers(list, &spec));
-	Return(defmethod_parse_function_(ptr, env, args, list, &args));
+	Return(defmethod_parse_function_(ptr, name, env, args, list, &args));
 
 	/* name qua lambda doc decl args */
 	GetConst(COMMON_QUOTE, &quote);

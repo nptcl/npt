@@ -1581,13 +1581,13 @@ static void defun_byte_integer(void)
 }
 
 
-/* (defun question (object &rest args) ...) -> (values &rest t) */
-static int syscall_question(Execute ptr, addr var, addr args)
+/* (defun sysctl (object &rest args) ...) -> (values &rest t) */
+static int syscall_sysctl(Execute ptr, addr var, addr args)
 {
-	return question_syscode_(ptr, var, args);
+	return sysctl_syscode_(ptr, var, args);
 }
 
-static void type_syscall_question(addr *ret)
+static void type_syscall_sysctl(addr *ret)
 {
 	addr args, values, type;
 
@@ -1597,17 +1597,17 @@ static void type_syscall_question(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_question(void)
+static void defun_sysctl(void)
 {
 	addr symbol, pos, type;
 
 	/* function */
-	GetConst(SYSTEM_QUESTION, &symbol);
+	GetConst(SYSTEM_SYSCTL, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var1dynamic(pos, p_defun_syscall_question);
+	setcompiled_var1dynamic(pos, p_defun_syscall_sysctl);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_syscall_question(&type);
+	type_syscall_sysctl(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1661,7 +1661,7 @@ static void defun_terme(void)
 	setcompiled_var1dynamic(pos, p_defun_syscall_terme);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_syscall_question(&type);
+	type_syscall_sysctl(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1723,7 +1723,7 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var1, memory_stream_p);
 	SetPointerSysCall(defun, var2, setf_memory_stream_p);
 	SetPointerSysCall(defun, dynamic, byte_integer);
-	SetPointerSysCall(defun, var1dynamic, question);
+	SetPointerSysCall(defun, var1dynamic, sysctl);
 	SetPointerSysCall(defun, var1, extension);
 	SetPointerSysCall(defun, var1dynamic, terme);
 }
@@ -1783,7 +1783,7 @@ void build_syscall_function(void)
 	defun_memory_stream_p();
 	defun_setf_memory_stream_p();
 	defun_byte_integer();
-	defun_question();
+	defun_sysctl();
 	defun_extension();
 	defun_terme();
 }

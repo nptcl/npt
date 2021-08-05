@@ -9,78 +9,175 @@
 ;;
 ;;  defmethod
 ;;
-(defgeneric defmethod1 ())
-(defmethod defmethod1 ()
+(defgeneric defmethod-1 ())
+(defmethod defmethod-1 ()
   :hello)
 
 (deftest defmethod.1
-  (defmethod1)
+  (defmethod-1)
   :hello)
 
-(defgeneric defmethod2 ())
+(defgeneric defmethod-2 ())
 (deftest defmethod.2
   (closp
-    (defmethod defmethod2 ()))
+    (defmethod defmethod-2 ()))
   t)
 
-(defgeneric defmethod3 (a))
-(defmethod defmethod3 (a)
+(defgeneric defmethod-3 (a))
+(defmethod defmethod-3 (a)
   (+ a 10))
 
 (deftest defmethod.3
-  (defmethod3 111)
+  (defmethod-3 111)
   121)
 
-(defgeneric defmethod4 (a))
-(defmethod defmethod4 (a)
+(defgeneric defmethod-4 (a))
+(defmethod defmethod-4 (a)
   (+ a 10))
 
-(defmethod defmethod4 ((a string))
+(defmethod defmethod-4 ((a string))
   (concatenate 'string "abc" a))
 
 (deftest defmethod.4
-  (defmethod4 100)
+  (defmethod-4 100)
   110)
 
 (deftest defmethod.5
-  (defmethod4 "def")
+  (defmethod-4 "def")
   "abcdef")
 
-(defgeneric defmethod6 (a))
-(defmethod defmethod6 (a)
+(defgeneric defmethod-6 (a))
+(defmethod defmethod-6 (a)
   (+ a 10))
 
-(defmethod defmethod6 ((a string))
+(defmethod defmethod-6 ((a string))
   (+ (length a) (call-next-method 1000)))
 
 (deftest defmethod.6
-  (defmethod6 30)
+  (defmethod-6 30)
   40)
 
 (deftest defmethod.7
-  (defmethod6 "Hello")
+  (defmethod-6 "Hello")
   1015)
 
-(defgeneric defmethod8 (a))
-(defmethod defmethod8 (a)
+(defgeneric defmethod-8 (a))
+(defmethod defmethod-8 (a)
   (declare (ignore a))
   (next-method-p))
 
-(defmethod defmethod8 ((a string))
+(defmethod defmethod-8 ((a string))
   (declare (ignore a))
   (next-method-p))
 
 (deftest defmethod.8
-  (defmethod8 30)
+  (defmethod-8 30)
   nil)
 
 (deftest defmethod.9
-  (defmethod8 "Hello")
+  (defmethod-8 "Hello")
   t)
+
+(deftest defmethod.10
+  (progn
+    (defgeneric defmethod-10 ())
+    (typep
+      (defmethod defmethod-10 ())
+      'standard-method))
+  t)
+
+(deftest defmethod-setf.1
+  (progn
+    (defgeneric (setf defmethod-setf-1) ())
+    (typep
+      (defmethod (setf defmethod-setf-1) ())
+      'standard-method))
+  t)
+
+(defvar *defmethod-qualifier*)
+(deftest defmethod-qualifier.1
+  (progn
+    (defgeneric defmethod-qualifier-1 ())
+    (defmethod defmethod-qualifier-1 :before ()
+      (push :aaa *defmethod-qualifier*)
+      10)
+    (defmethod defmethod-qualifier-1 ()
+      (push :bbb *defmethod-qualifier*)
+      20)
+    (let (*defmethod-qualifier*)
+      (values
+        (defmethod-qualifier-1)
+        (nreverse *defmethod-qualifier*))))
+  20 (:aaa :bbb))
+
+(deftest defmethod-declaration.1
+  (progn
+    (defgeneric defmethod-declaration-1 (x))
+    (defmethod defmethod-declaration-1 (x)
+      (declare (special x))
+      x)
+    (defmethod-declaration-1 100))
+  100)
+
+(deftest defmethod-documentation.1
+  (progn
+    (defgeneric defmethod-documentation-1 (x))
+    (documentation
+      (defmethod defmethod-documentation-1 (x)
+        (declare (ignore x))
+        "Hello"
+        (+ 10 20 30))
+      't))
+  "Hello")
 
 
 ;;
-;;  defmethod overwrite
+;;  new generic
+;;
+(deftest defmethod-new.1
+  (progn
+    (fmakunbound 'defmethod-new-1)
+    (defmethod defmethod-new-1 (x y)
+      (+ 100 x y))
+    (defmethod-new-1 11 22))
+  133)
+
+(deftest defmethod-new.2
+  (typep
+    #'defmethod-new-1
+    'standard-generic-function)
+  t)
+
+(deftest defmethod-new.3
+  (class-name
+    (generic-function-method-class
+      #'defmethod-new-1))
+  standard-method)
+
+(deftest defmethod-new.4
+  (slot-value
+    (generic-function-method-combination #'defmethod-new-1)
+    'lisp-clos::name)
+  standard)
+
+(defun defmethod-new-5 ())
+(deftest-error defmethod-new.5
+  (defmethod defmethod-new-5 ()))
+
+(defmacro defmethod-new-6 ())
+(deftest-error defmethod-new.6
+  (defmethod defmethod-new-6 ()))
+
+(deftest-error defmethod-new.7
+  (defmethod load-time-value ()))
+
+(defun (setf defmethod-new-8) ())
+(deftest-error defmethod-new.8
+  (defmethod (setf defmethod-new-8) ()))
+
+
+;;
+;;  overwrite
 ;;
 (defgeneric defmethod-overwrite-1 (x))
 (defmethod defmethod-overwrite-1 ((x integer))
@@ -97,6 +194,79 @@
 (deftest defmethod-overwrite.2
   (defmethod-overwrite-1 100)
   :bbb)
+
+
+;;
+;;  lambda-list
+;;
+(deftest-error defmethod-lambda.1
+  (progn
+    (defgeneric defmethod-lambda-1 (x))
+    (defmethod defmethod-lambda-1 ()
+      :hello)))
+
+(deftest-error defmethod-lambda.2
+  (progn
+    (defgeneric defmethod-lambda-2 (x))
+    (defmethod defmethod-lambda-2 (x y)
+      (declare (ignore x y))
+      :hello)))
+
+(deftest-error defmethod-lambda.3
+  (progn
+    (defgeneric defmethod-lambda-3 (x &optional y))
+    (defmethod defmethod-lambda-3 (x y)
+      (declare (ignore x y))
+      :hello)))
+
+(deftest-error defmethod-lambda.4
+  (progn
+    (defgeneric defmethod-lambda-4 (x y))
+    (defmethod defmethod-lambda-4 (x &optional y)
+      (declare (ignore x y))
+      :hello)))
+
+(deftest defmethod-lambda.5
+  (progn
+    (defgeneric defmethod-lambda-5 (x &rest args))
+    (defmethod defmethod-lambda-5 (x &key)
+      (declare (ignore x))
+      :hello)
+    (defmethod-lambda-5 10))
+  :hello)
+
+(deftest-error defmethod-lambda.6
+  (progn
+    (defgeneric defmethod-lambda-6 (x &key))
+    (defmethod defmethod-lambda-6 (x)
+      (declare (ignore x y))
+      :hello)))
+
+(deftest defmethod-block.1
+  (progn
+    (defgeneric defmethod-block-1 (x))
+    (defmethod defmethod-block-1 (x)
+      (return-from defmethod-block-1 (+ x 100)))
+    (defmethod-block-1 200))
+  300)
+
+(deftest defmethod-block.2
+  (progn
+    (defgeneric (setf defmethod-block-2) (x))
+    (defmethod (setf defmethod-block-2) (x)
+      (return-from defmethod-block-2 (+ x 500)))
+    (funcall #'(setf defmethod-block-2) 200))
+  700)
+
+(deftest defmethod-class.1
+  (progn
+    (defclass defmethod-method-class-1 (standard-method) ())
+    (make-instance 'defmethod-method-class-1)
+    (defgeneric defmethod-class-1 () (:method-class defmethod-method-class-1))
+    (let ((x (defmethod defmethod-class-1 ())))
+      (class-name
+        (class-of x))))
+  defmethod-method-class-1)
 
 
 ;;
@@ -125,14 +295,10 @@
 
 ;;  Local Function NEXT-METHOD-P
 ;;  Local Function CALL-NEXT-METHOD
-;;  Standard Generic Function METHOD-QUALIFIERS
-;;  Standard Generic Function NO-APPLICABLE-METHOD
-;;  Standard Generic Function NO-NEXT-METHOD
 ;;  Standard Generic Function REMOVE-METHOD
 ;;  Standard Generic Function COMPUTE-APPLICABLE-METHODS
 ;;  Standard Generic Function FIND-METHOD
 ;;  Standard Generic Function ADD-METHOD
-;;  Standard Generic Function FUNCTION-KEYWORDS
 
 
 ;;
@@ -462,23 +628,92 @@
 
 
 ;;
-;;  function-keywords
+;;  Standard Generic Function FUNCTION-KEYWORDS
 ;;
-(defgeneric function-keywords-1 (a &key))
-(defmethod function-keywords-1 ((a integer) &key bb ((hello ccc)) (ddd 10))
-  (values a bb ccc ddd))
-
 (deftest function-keywords.1
-  (function-keywords
-    (car (generic-function-methods #'function-keywords-1)))
+  (progn
+    (defgeneric function-keywords-1 (a &key))
+    (defmethod function-keywords-1 ((a integer) &key bb ((hello ccc)) (ddd 10))
+      (values a bb ccc ddd))
+    (function-keywords
+      (car (generic-function-methods #'function-keywords-1))))
   (:bb hello :ddd) nil)
 
-(defgeneric function-keywords-2 (a &key))
-(defmethod function-keywords-2 ((a integer) &key &allow-other-keys)
-  a)
 (deftest function-keywords.2
-  (function-keywords
-    (car (generic-function-methods #'function-keywords-2)))
+  (progn
+    (defgeneric function-keywords-2 (a &key))
+    (defmethod function-keywords-2 ((a integer) &key &allow-other-keys)
+      a)
+    (function-keywords
+      (car (generic-function-methods #'function-keywords-2))))
   nil t)
 
+(deftest function-keywords.3
+  (progn
+    (defgeneric function-keywords-3 ())
+    (defmethod function-keywords-3 ())
+    (function-keywords
+      (car (generic-function-methods #'function-keywords-3))))
+  nil nil)
+
+(deftest function-keywords.4
+  (progn
+    (defclass function-keywords-method (standard-method) ())
+    (make-instance 'function-keywords-method)
+    (defgeneric function-keywords-4 () (:method-class function-keywords-method))
+    (defmethod function-keywords-4 ())
+    (defmethod function-keywords ((x function-keywords-method))
+      (declare (ignore x))
+      (values :aaa :bbb))
+    (function-keywords
+      (car (generic-function-methods #'function-keywords-4))))
+  :aaa :bbb)
+
+;;  error
+(deftest-error! function-keywords-error.1
+  (eval '(function-keywords)))
+
+(deftest-error! function-keywords-error.2
+  (eval '(function-keywords 100)))
+
+(deftest-error! function-keywords-error.3
+  (progn
+    (defgeneric function-keywords-error-3 ())
+    (defmethod function-keywords-error-3 ())
+    (eval '(function-keywords
+             (car (generic-function-methods #'function-keywords-error-3))
+             nil))))
+
+;;  ANSI Common Lisp
+(defgeneric function-keywords-test-1 (a &optional b &key))
+(defmethod function-keywords-test-1
+  ((a integer) &optional (b 2) &key (c 3) ((:dee d) 4) e ((eff f)))
+  (list a b c d e f))
+
+(deftest function-keywords-test.1
+  (typep
+    (find-method #'function-keywords-test-1 '() (list (find-class 'integer)))
+    'standard-method)
+  t)
+
+(deftest function-keywords-test.2
+  (function-keywords
+    (find-method #'function-keywords-test-1 '() (list (find-class 'integer))) )
+  (:c :dee :e eff) nil)
+
+(deftest function-keywords-test.3
+  (progn
+    (defgeneric function-keywords-test-3 (a))
+    (function-keywords
+      (defmethod function-keywords-test-3 ((a integer))
+        (list a b c d e f))))
+  () nil)
+
+(deftest function-keywords-test.4
+  (progn
+    (defgeneric function-keywords-test-4 (a &key))
+    (function-keywords
+      (defmethod function-keywords-test-4 ((a integer) &key b c d &allow-other-keys)
+        (list a b c d e f))))
+  (:b :c :d) t)
 

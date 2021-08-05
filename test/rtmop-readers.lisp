@@ -584,23 +584,63 @@
 
 
 ;;
-;;  method-qualifiers
+;;  Standard Generic Function METHOD-QUALIFIERS
 ;;
-(defgeneric method-qualifiers1 (a))
-(defmethod method-qualifiers1 (a)
-  a)
 (deftest method-qualifiers.1
-  (method-qualifiers
-    (car (generic-function-methods #'method-qualifiers1)))
+  (progn
+    (defgeneric method-qualifiers-1 (a))
+    (defmethod method-qualifiers-1 (a) a)
+    (method-qualifiers
+      (car (generic-function-methods #'method-qualifiers-1))))
   nil)
 
-(defgeneric method-qualifiers2 (a))
-(defmethod method-qualifiers2 :around (a)
-  a)
 (deftest method-qualifiers.2
-  (method-qualifiers
-    (car (generic-function-methods #'method-qualifiers2)))
+  (progn
+    (defgeneric method-qualifiers-2 (a))
+    (defmethod method-qualifiers-2 :around (a) a)
+    (method-qualifiers
+      (car (generic-function-methods #'method-qualifiers-2))))
   (:around))
+
+(deftest method-qualifiers.3
+  (progn
+    (define-method-combination
+      method-qualifiers-combination ()
+      ((abc (:aaa :bbb :ccc)))
+      nil)
+    (defgeneric method-qualifiers-3 ()
+                (:method-combination method-qualifiers-combination))
+    (defmethod method-qualifiers-3 :aaa :bbb :ccc ())
+    (method-qualifiers
+      (car (generic-function-methods #'method-qualifiers-3))))
+  (:aaa :bbb :ccc))
+
+(deftest method-qualifiers.4
+  (progn
+    (defclass method-qualifiers-method () ())
+    (defmethod method-qualifiers ((method method-qualifiers-method))
+      (declare (ignore method))
+      :hello)
+    (method-qualifiers
+      (make-instance 'method-qualifiers-method)))
+  :hello)
+
+(deftest-error! method-qualifiers-error.1
+  (eval '(method-qualifiers)))
+
+(deftest-error! method-qualifiers-error.2
+  (eval '(method-qualifiers nil nil)))
+
+(deftest-error method-qualifiers-error.3
+  (eval '(method-qualifiers nil)))
+
+;;  ANSI Common Lisp
+(deftest method-qualifiers-test.1
+  (progn
+    (defgeneric method-qualifiers-test-1 (a))
+    (method-qualifiers
+      (defmethod method-qualifiers-test-1 :before ((a integer)) a)))
+  (:before))
 
 
 ;;

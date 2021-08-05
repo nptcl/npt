@@ -855,7 +855,7 @@ static int generic_make_generic_call_(addr gen, addr *ret)
 		return generic_make_lambda_(gen, ret);
 
 	GetConst(CLOSDATA_NO_METHOD, &call);
-	if (call == Nil) {
+	if (call == Unbound) {
 		clos_generic_call_heap(&call, gen_generic_no_method, 0);
 		SetConstant(CONSTANT_CLOSDATA_NO_METHOD, call);
 	}

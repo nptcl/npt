@@ -347,6 +347,8 @@ enum pointer_index {
 	p_method_accessor_method_slot_definition,
 
 	/* Metaobject Protocol generic */
+	p_method_no_applicable_method,
+	p_method_no_next_method,
 	p_method_ensure_generic_function_class,
 	p_method_ensure_generic_function_null,
 	p_method_find_method_combination,
@@ -1305,7 +1307,7 @@ enum pointer_index {
 	p_defun_syscall_memory_stream_p,
 	p_defun_syscall_setf_memory_stream_p,
 	p_defun_syscall_byte_integer,
-	p_defun_syscall_question,
+	p_defun_syscall_sysctl,
 	p_defun_syscall_extension,
 	p_defun_syscall_terme,
 

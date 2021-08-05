@@ -661,7 +661,7 @@ int ensure_method_common_(Execute ptr, addr *ret,
 	int check;
 	addr gen, method, clos;
 
-	Return(parse_callname_error_(&name, name));
+	Return(ensure_generic_function_name_(name, &name));
 	getglobal_callname(name, &gen);
 	if (! argumentp(lambda)) {
 		Return(argument_method_heap_(ptr->local, &lambda, lambda));

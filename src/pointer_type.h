@@ -33,6 +33,8 @@ typedef int (*callbind_var2opt2)(Execute, addr, addr, addr, addr);
 typedef int (*callbind_var2opt3)(Execute, addr, addr, addr, addr, addr);
 typedef int (*callbind_var1rest)(Execute, addr, addr);
 typedef int (*callbind_var2rest)(Execute, addr, addr, addr);
+typedef int (*callbind_var3rest)(Execute, addr, addr, addr, addr);
+typedef int (*callbind_var4rest)(Execute, addr, addr, addr, addr, addr);
 typedef int (*callbind_opt1rest)(Execute, addr, addr);
 typedef int (*callbind_var1dynamic)(Execute, addr, addr);
 typedef int (*callbind_var2dynamic)(Execute, addr, addr, addr);
@@ -76,6 +78,8 @@ enum CallBind_index {
        CallBind_var2opt3,
        CallBind_var1rest,
        CallBind_var2rest,
+       CallBind_var3rest,
+       CallBind_var4rest,
        CallBind_opt1rest,
        CallBind_var1dynamic,
        CallBind_var2dynamic,
@@ -123,6 +127,8 @@ struct callbind_struct {
 		callbind_var2opt3 var2opt3;
 		callbind_var1rest var1rest;
 		callbind_var2rest var2rest;
+		callbind_var3rest var3rest;
+		callbind_var4rest var4rest;
 		callbind_opt1rest opt1rest;
 		callbind_var1dynamic var1dynamic;
 		callbind_var2dynamic var2dynamic;

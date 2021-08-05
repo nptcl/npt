@@ -68,13 +68,13 @@
   t)
 
 (deftest make-memory-input-stream-args.1
-  (question
+  (sysctl
     (make-memory-input-stream nil :size 10)
     'size)
   10)
 
 (deftest make-memory-input-stream-args.2
-  (question
+  (sysctl
     (make-memory-input-stream nil :array 20)
     'array)
   20)
@@ -111,13 +111,13 @@
   256)
 
 (deftest make-memory-output-stream-args.1
-  (question
+  (sysctl
     (make-memory-output-stream :size 10)
     'size)
   10)
 
 (deftest make-memory-output-stream-args.2
-  (question
+  (sysctl
     (make-memory-output-stream :array 20)
     'array)
   20)
@@ -153,8 +153,8 @@
 (deftest with-input-from-memory.3
   (let (list)
     (with-input-from-memory (stream #(10 20 30) :size 11 :array 22)
-      (setq list (list (question stream 'size)
-                       (question stream 'array))))
+      (setq list (list (sysctl stream 'size)
+                       (sysctl stream 'array))))
     list)
   (11 22))
 
@@ -177,8 +177,8 @@
 (deftest with-output-to-memory.3
   (let (list)
     (with-output-to-memory (stream :size 33 :array 44)
-      (setq list (list (question stream 'size)
-                       (question stream 'array))))
+      (setq list (list (sysctl stream 'size)
+                       (sysctl stream 'array))))
     list)
   (33 44))
 

@@ -436,12 +436,14 @@ static int generic_change_(struct generic_argument *str)
 /*
  *  ensure-generic-function
  */
-static int ensure_generic_function_name_(addr call, addr name)
+int ensure_generic_function_name_(addr name, addr *ret)
 {
-	addr value, expected;
+	addr call, value, expected;
 
+	*ret = Nil;
+	Return(parse_callname_error_(&call, name));
 	if (! symbolp_callname(call))
-		return 0;
+		return Result(ret, call);
 
 	/* macro */
 	getmacro_symbol(name, &value);
@@ -460,7 +462,7 @@ static int ensure_generic_function_name_(addr call, addr name)
 				"a special symbol ~S.", name, NULL);
 	}
 
-	return 0;
+	return Result(ret, call);
 }
 
 static int ensure_generic_function_call_(Execute ptr,
@@ -483,8 +485,7 @@ int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret
 	addr call, value, expected;
 
 	/* symbol or (setf name) */
-	Return(parse_callname_error_(&call, name));
-	Return(ensure_generic_function_name_(call, name));
+	Return(ensure_generic_function_name_(name, &call));
 
 	/* class-of */
 	getglobal_parse_callname(call, &value);

@@ -52,6 +52,8 @@
 #define setcompiled_var2opt3 _n(setcompiled_var2opt3)
 #define setcompiled_var1rest _n(setcompiled_var1rest)
 #define setcompiled_var2rest _n(setcompiled_var2rest)
+#define setcompiled_var3rest _n(setcompiled_var3rest)
+#define setcompiled_var4rest _n(setcompiled_var4rest)
 #define setcompiled_opt1rest _n(setcompiled_opt1rest)
 #define setcompiled_var1dynamic _n(setcompiled_var1dynamic)
 #define setcompiled_var2dynamic _n(setcompiled_var2dynamic)
@@ -185,6 +187,8 @@ void setcompiled_var2opt2(addr pos, pointer p);
 void setcompiled_var2opt3(addr pos, pointer p);
 void setcompiled_var1rest(addr pos, pointer p);
 void setcompiled_var2rest(addr pos, pointer p);
+void setcompiled_var3rest(addr pos, pointer p);
+void setcompiled_var4rest(addr pos, pointer p);
 void setcompiled_opt1rest(addr pos, pointer p);
 void setcompiled_var1dynamic(addr pos, pointer p);
 void setcompiled_var2dynamic(addr pos, pointer p);

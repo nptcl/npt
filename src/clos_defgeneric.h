@@ -8,6 +8,7 @@
 #define generic_cache_heap _n(generic_cache_heap)
 #define generic_make_ _n(generic_make_)
 #define generic_make_empty_ _n(generic_make_empty_)
+#define ensure_generic_function_name_ _n(ensure_generic_function_name_)
 #define ensure_generic_function_common_ _n(ensure_generic_function_common_)
 #define mop_generic_new_ _n(mop_generic_new_)
 #define mop_generic_change_ _n(mop_generic_change_)
@@ -17,6 +18,7 @@
 void generic_cache_heap(addr *ret);
 int generic_make_(addr *ret, addr call, addr args);
 int generic_make_empty_(addr call, addr lambda, addr *ret);
+int ensure_generic_function_name_(addr name, addr *ret);
 int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret);
 int mop_generic_new_(Execute ptr, addr name, addr rest, addr *ret);
 int mop_generic_change_(Execute ptr, addr clos, addr name, addr rest);

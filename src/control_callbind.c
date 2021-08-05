@@ -669,6 +669,59 @@ static int call_callbind_var2rest(Execute ptr, addr pos, CallStruct call)
 	return (call->call.var2rest)(ptr, var1, var2, rest);
 }
 
+static int call_callbind_var3rest(Execute ptr, addr pos, CallStruct call)
+{
+	addr check, cons, var1, var2, var3, rest;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcar(cons, &var3);
+	getargs_list_control_heap(ptr, 3, &rest);
+	return (call->call.var3rest)(ptr, var1, var2, var3, rest);
+}
+
+static int call_callbind_var4rest(Execute ptr, addr pos, CallStruct call)
+{
+	addr check, cons, var1, var2, var3, var4, rest;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcons(cons, &var1, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcons(cons, &var2, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcar(cons, &var3);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		return fmte_("Too few call argument ~S.", check, NULL);
+	}
+	Inline_getcar(cons, &var4);
+	getargs_list_control_heap(ptr, 4, &rest);
+	return (call->call.var4rest)(ptr, var1, var2, var3, var4, rest);
+}
+
 static int call_callbind_opt1rest(Execute ptr, addr pos, CallStruct call)
 {
 	addr cons, opt1, rest;
@@ -916,6 +969,8 @@ void init_callbind_control(void)
 	CallBindTable[CallBind_var2opt3] = call_callbind_var2opt3;
 	CallBindTable[CallBind_var1rest] = call_callbind_var1rest;
 	CallBindTable[CallBind_var2rest] = call_callbind_var2rest;
+	CallBindTable[CallBind_var3rest] = call_callbind_var3rest;
+	CallBindTable[CallBind_var4rest] = call_callbind_var4rest;
 	CallBindTable[CallBind_opt1rest] = call_callbind_opt1rest;
 	CallBindTable[CallBind_var1dynamic] = call_callbind_var1dynamic;
 	CallBindTable[CallBind_var2dynamic] = call_callbind_var2dynamic;

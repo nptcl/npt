@@ -339,6 +339,20 @@ void setcompiled_var2rest(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
+void setcompiled_var3rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var3rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_var4rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var4rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
 void setcompiled_opt1rest(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);

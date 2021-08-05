@@ -56,7 +56,7 @@
 #define byte_integer_syscode_ _n(byte_integer_syscode_)
 #define memory_stream_p_syscode _n(memory_stream_p_syscode)
 #define setf_memory_stream_p_syscode_ _n(setf_memory_stream_p_syscode_)
-#define question_syscode_ _n(question_syscode_)
+#define sysctl_syscode_ _n(sysctl_syscode_)
 #define extension_syscode _n(extension_syscode)
 #define terme_syscode_ _n(terme_syscode_)
 
@@ -112,7 +112,7 @@ int get_output_stream_memory_syscode_(addr var, addr *ret);
 int byte_integer_syscode_(addr list, addr *ret);
 void memory_stream_p_syscode(addr var, addr *ret);
 int setf_memory_stream_p_syscode_(addr var, addr value);
-int question_syscode_(Execute ptr, addr var, addr args);
+int sysctl_syscode_(Execute ptr, addr var, addr args);
 int extension_syscode(Execute ptr, addr var);
 int terme_syscode_(Execute ptr, addr var, addr args);
 

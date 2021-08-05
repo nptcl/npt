@@ -2076,7 +2076,7 @@ lisp-system::subtypep-normal
 (lisp-system::get-output-stream-memory :export t)
 (lisp-system::memory-stream-p :export t)
 (lisp-system::byte-integer :export t)
-(lisp-system::question :export t)
+(lisp-system::sysctl :export t)
 (lisp-system::extension :export t)
 (lisp-system::terme :export t)
 
