@@ -365,7 +365,7 @@ static int comb_standard_method_(Execute ptr, addr car, addr cdr, addr rest)
 
 static int comb_standard_funcall_(Execute ptr, addr rest, addr around, addr primary)
 {
-	append2_local_unsafe(ptr->local, around, primary, &around);
+	append2_heap_unsafe(around, primary, &around);
 	GetCons(around, &around, &primary);
 	return comb_standard_method_(ptr, around, primary, rest);
 }

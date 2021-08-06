@@ -323,7 +323,7 @@ static void method_type_find_method_combination(addr *ret)
 
 static void method_argument_find_method_combination(addr *ret)
 {
-	addr pos, list, type1, type2, type3;
+	addr pos, list, type1, type2;
 	struct argument_struct *str;
 
 	/* object */
@@ -332,10 +332,9 @@ static void method_argument_find_method_combination(addr *ret)
 	str->type = ArgumentType_method;
 	/* var */
 	str->var = 3;
-	ArgumentMethod_var(&type1, GENERIC_FUNCTION);
-	ArgumentMethod_var(&type2, SYMBOL);
-	ArgumentMethod_var(&type3, LIST);
-	list_heap(&list, type1, type2, type3, NULL);
+	ArgumentMethod_var(&type1, STANDARD_GENERIC_FUNCTION);
+	ArgumentMethod_var(&type2, T);
+	list_heap(&list, type1, type2, type2, NULL);
 	SetArgument(pos, ArgumentIndex_var, list);
 	/* result */
 	*ret = pos;
@@ -456,7 +455,7 @@ static void method_type_function_keywords(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, T);
+	GetTypeTable(&args, Method);
 	typeargs_var1(&args, args);
 	typeargs_method(args);
 	GetTypeTable(&values, List);
@@ -1022,7 +1021,7 @@ static void method_type_compute_applicable_methods_std(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, T);
+	GetTypeTable(&args, GenericFunction);
 	GetTypeTable(&values, List);
 	typeargs_var2(&args, args, values);
 	typeargs_method(args);
@@ -1096,13 +1095,14 @@ static int method_find_method_std(Execute ptr,
 
 static void method_type_find_method_std(addr *ret)
 {
-	addr args, values;
+	addr args, values, type;
 
-	GetTypeTable(&args, T);
+	GetTypeTable(&args, GenericFunction);
 	GetTypeTable(&values, List);
-	typeargs_var3opt1(&args, args, values, values, args);
+	GetTypeTable(&type, Boolean);
+	typeargs_var3opt1(&args, args, values, values, type);
 	typeargs_method(args);
-	GetTypeValues(&values, List);
+	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -1172,10 +1172,11 @@ static void method_type_add_method_std(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, T);
-	typeargs_var2(&args, args, args);
+	GetTypeTable(&args, GenericFunction);
+	GetTypeTable(&values, Method);
+	typeargs_var2(&args, args, values);
 	typeargs_method(args);
-	GetTypeValues(&values, T);
+	GetTypeValues(&values, GenericFunction);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -1240,6 +1241,25 @@ static int method_remove_method_std(Execute ptr,
 	return 0;
 }
 
+static void method_argument_remove_method_std(addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	ArgumentMethod_var(&type1, STANDARD_GENERIC_FUNCTION);
+	ArgumentMethod_var(&type2, T);
+	list_heap(&list, type1, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
 static int defmethod_remove_method_std_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
@@ -1250,7 +1270,7 @@ static int defmethod_remove_method_std_(Execute ptr, addr name, addr gen)
 	method_type_add_method_std(&type);
 	settype_function(call, type);
 	/* method */
-	method_argument_add_method_std(&pos);
+	method_argument_remove_method_std(&pos);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);

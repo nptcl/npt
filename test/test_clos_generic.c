@@ -220,10 +220,8 @@ static int test_comb_standard_funcall(void)
 {
 	addr method, call, control, around, primary, args, value1, value2, value3;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_control(ptr, &control);
 
 	test_make_method(&method);
@@ -233,12 +231,12 @@ static int test_comb_standard_funcall(void)
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function_(method, call);
 
-	fixnum_local(local, &value1, 10);
-	fixnum_local(local, &value2, 20);
-	fixnum_local(local, &value3, 30);
-	list_local(local, &around, method, value1, NULL);
-	list_local(local, &primary, value2, value3, NULL);
-	list_local(local, &args, T, NULL);
+	fixnum_heap(&value1, 10);
+	fixnum_heap(&value2, 20);
+	fixnum_heap(&value3, 30);
+	list_heap(&around, method, value1, NULL);
+	list_heap(&primary, value2, value3, NULL);
+	list_heap(&args, T, NULL);
 	comb_standard_funcall_(ptr, args, around, primary);
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_funcall1");

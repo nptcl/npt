@@ -13,6 +13,7 @@
 (load #p"test/rtobjects-class.lisp")
 (load #p"test/rtobjects-defgeneric.lisp")
 (load #p"test/rtobjects-generic.lisp")
+(load #p"test/rtobjects-defmethod.lisp")
 (load #p"test/rtobjects-method.lisp")
 (load #p"test/rtobjects-combination.lisp")
 (load #p"test/rtobjects-redefine.lisp")

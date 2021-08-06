@@ -932,7 +932,7 @@ static void method_type_slot_missing(addr *ret)
 
 static void method_argument_slot_missing(addr *ret)
 {
-	addr pos, list, type1, type2;
+	addr pos, list, type;
 	struct argument_struct *str;
 
 	/* object */
@@ -942,9 +942,8 @@ static void method_argument_slot_missing(addr *ret)
 	/* var */
 	str->var = 4;
 	str->opt = 1;
-	ArgumentMethod_var(&type1, T);
-	ArgumentMethod_var(&type2, SYMBOL);
-	list_heap(&list, type1, type1, type2, type2, NULL);
+	ArgumentMethod_var(&type, T);
+	list_heap(&list, type, type, type, type, NULL);
 	SetArgument(pos, ArgumentIndex_var, list);
 	/* result */
 	*ret = pos;
@@ -1018,7 +1017,7 @@ static void method_type_slot_unbound(addr *ret)
 
 static void method_argument_slot_unbound(addr *ret)
 {
-	addr pos, list, type1, type2;
+	addr pos, list, type;
 	struct argument_struct *str;
 
 	/* object */
@@ -1027,9 +1026,8 @@ static void method_argument_slot_unbound(addr *ret)
 	str->type = ArgumentType_method;
 	/* var */
 	str->var = 3;
-	ArgumentMethod_var(&type1, T);
-	ArgumentMethod_var(&type2, SYMBOL);
-	list_heap(&list, type1, type1, type2, NULL);
+	ArgumentMethod_var(&type, T);
+	list_heap(&list, type, type, type, NULL);
 	SetArgument(pos, ArgumentIndex_var, list);
 	/* result */
 	*ret = pos;
@@ -1145,10 +1143,11 @@ static int method_update_instance_for_redefined_class(
 
 static void method_type_update_instance_for_redefined_class(addr *ret)
 {
-	addr args, values;
+	addr args, values, type;
 
 	GetTypeTable(&args, T);
-	typeargs_var4rest_allow(&args, args, args, args, args, args);
+	GetTypeTable(&type, List);
+	typeargs_var4rest_allow(&args, args, type, type, type, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);

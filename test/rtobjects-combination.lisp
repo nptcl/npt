@@ -96,7 +96,7 @@
   (setq *value* :primary2)
   (next-method-p))
 
-(deftest next-method-p.1
+(deftest combination-next-method-p.1
   (progn
     (setq *value* nil)
     (values
@@ -104,7 +104,7 @@
       *value*))
   t :primary2)
 
-(deftest next-method-p.2
+(deftest combination-next-method-p.2
   (progn
     (setq *value* nil)
     (values
@@ -123,7 +123,7 @@
   (setq *value* :primary2)
   (next-method-p))
 
-(deftest next-method-p.3
+(deftest combination-next-method-p.3
   (progn
     (setq *value* nil)
     (values
@@ -131,7 +131,7 @@
       *value*))
   t :primary2)
 
-(deftest next-method-p.4
+(deftest combination-next-method-p.4
   (progn
     (setq *value* nil)
     (values
@@ -151,7 +151,7 @@
   (setq *value* :primary2)
   (next-method-p))
 
-(deftest next-method-p.5
+(deftest combination-next-method-p.5
   (progn
     (setq *value* nil)
     (values
@@ -159,7 +159,7 @@
       *value*))
   t :primary1)
 
-(deftest next-method-p.6
+(deftest combination-next-method-p.6
   (progn
     (setq *value* nil)
     (values
@@ -179,7 +179,7 @@
   (push :primary2 *value*)
   (call-next-method))
 
-(deftest call-next-method.1
+(deftest combination-call-next-method.1
   (progn
     (setq *value* nil)
     (values
@@ -187,7 +187,7 @@
       *value*))
   :finish1 (:primary1 :primary2))
 
-(deftest call-next-method.2
+(deftest combination-call-next-method.2
   (progn
     (setq *value* nil)
     (values
@@ -206,7 +206,7 @@
   (push :primary2 *value*)
   (call-next-method))
 
-(deftest call-next-method.3
+(deftest combination-call-next-method.3
   (progn
     (setq *value* nil)
     (values
@@ -214,7 +214,7 @@
       *value*))
   :finish1 (:primary1 :primary2))
 
-(deftest call-next-method.4
+(deftest combination-call-next-method.4
   (progn
     (setq *value* nil)
     (values
