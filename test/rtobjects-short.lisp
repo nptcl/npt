@@ -18,7 +18,7 @@
 
 (define-method-combination combination-short-2)
 (defgeneric combination-short-3 (a)
-            (:method-combination combination-short-2))
+  (:method-combination combination-short-2))
 
 (defmethod combination-short-3 combination-short-2 (a)
   a)
@@ -29,7 +29,7 @@
 
 (define-method-combination combination-short-4 :operator *)
 (defgeneric combination-short-5 (a)
-            (:method-combination combination-short-4))
+  (:method-combination combination-short-4))
 (defmethod combination-short-5 combination-short-4 (a)
   (+ a 10))
 
@@ -52,7 +52,7 @@
   :operator combination-short-macro-1)
 
 (defgeneric combination-short-macro-3 (x)
-            (:method-combination combination-short-macro-2))
+  (:method-combination combination-short-macro-2))
 
 (defmethod combination-short-macro-3 combination-short-macro-2 (x)
   (declare (ignore x))
@@ -98,7 +98,7 @@
 ;;
 (define-method-combination combination-short-primary-1 :operator +)
 (defgeneric combination-short-primary-1 (a)
-            (:method-combination combination-short-primary-1))
+  (:method-combination combination-short-primary-1))
 (deftest-error combination-short-primary.1
   (combination-short-primary-1 :Hello))
 
@@ -108,7 +108,7 @@
 ;;
 (define-method-combination combination-short-primary-2 :operator +)
 (defgeneric combination-short-primary-2 (a)
-            (:method-combination combination-short-primary-2))
+  (:method-combination combination-short-primary-2))
 (defmethod combination-short-primary-2 combination-short-primary-2 (a)
   (push (list :primary1 a) *combination-short-value*)
   a)
@@ -131,7 +131,7 @@
 ;;
 (define-method-combination combination-short-most-1 :operator +)
 (defgeneric combination-short-most-1 (a)
-            (:method-combination combination-short-most-1 :most-specific-first))
+  (:method-combination combination-short-most-1 :most-specific-first))
 (defmethod combination-short-most-1 combination-short-most-1 (a)
   (push (list :primary1 a) *combination-short-value*)
   a)
@@ -151,7 +151,7 @@
 ;; primary 2, :most-specific-last
 (define-method-combination combination-short-most-2 :operator +)
 (defgeneric combination-short-most-2 (a)
-            (:method-combination combination-short-most-2 :most-specific-last))
+  (:method-combination combination-short-most-2 :most-specific-last))
 (defmethod combination-short-most-2 combination-short-most-2 (a)
   (push (list :primary1 a) *combination-short-value*)
   a)
@@ -174,7 +174,7 @@
 ;;
 (define-method-combination combination-short-plus :operator +)
 (defgeneric combination-short-around-primary-1 (a)
-            (:method-combination combination-short-plus))
+  (:method-combination combination-short-plus))
 (defmethod combination-short-around-primary-1 combination-short-plus (a)
   (push (list :primary a) *combination-short-value*)
   a)
@@ -192,7 +192,7 @@
   11 ((:around 11)))
 
 (defgeneric combination-short-around-primary-2 (a)
-            (:method-combination combination-short-plus))
+  (:method-combination combination-short-plus))
 (defmethod combination-short-around-primary-2 combination-short-plus (a)
   (push (list :primary a) *combination-short-value*)
   a)
@@ -214,7 +214,7 @@
 ;;  around 2, primary 0 (error)
 ;;
 (defgeneric combinatino-around-error-1 (a)
-            (:method-combination combination-short-plus))
+  (:method-combination combination-short-plus))
 (defmethod combinatino-around-error-1 :around (a)
   a)
 
@@ -229,7 +229,7 @@
 ;;  around 2, primary 2
 ;;
 (defgeneric combination-short-around-primary-3 (a)
-            (:method-combination combination-short-plus))
+  (:method-combination combination-short-plus))
 (defmethod combination-short-around-primary-3 :around ((a integer))
   (push (list :around1 a) *combination-short-value*)
   (when (next-method-p)
@@ -261,7 +261,7 @@
 ;;  around 2, primary 2, :most-specific-first
 ;;
 (defgeneric combination-short-around-primary-4 (a)
-            (:method-combination combination-short-plus :most-specific-first))
+  (:method-combination combination-short-plus :most-specific-first))
 (defmethod combination-short-around-primary-4 :around ((a integer))
   (push (list :around1 a) *combination-short-value*)
   (when (next-method-p)
@@ -293,7 +293,7 @@
 ;;  around 2, primary 2, :most-specific-last
 ;;
 (defgeneric combination-short-most-3 (a)
-            (:method-combination combination-short-plus :most-specific-last))
+  (:method-combination combination-short-plus :most-specific-last))
 (defmethod combination-short-most-3 :around ((a integer))
   (push (list :around1 a) *combination-short-value*)
   (when (next-method-p)
@@ -337,7 +337,7 @@
 
 (define-method-combination combination-short-identity-2 :operator combination-short-identity-1)
 (defgeneric combination-short-identity-2 (a)
-            (:method-combination combination-short-identity-2))
+  (:method-combination combination-short-identity-2))
 (defmethod combination-short-identity-2 combination-short-identity-2 (a)
   (+ 10 a))
 
@@ -350,7 +350,7 @@
   :operator combination-short-identity-1
   :identity-with-one-argument nil)
 (defgeneric combination-short-identity-3 (a)
-            (:method-combination combination-short-identity-3))
+  (:method-combination combination-short-identity-3))
 (defmethod combination-short-identity-3 combination-short-identity-3 (a)
   (+ 20 a))
 
@@ -367,7 +367,7 @@
   :operator combination-short-identity-1
   :identity-with-one-argument t)
 (defgeneric combination-short-identity-4 (a)
-            (:method-combination combination-short-identity-4))
+  (:method-combination combination-short-identity-4))
 (defmethod combination-short-identity-4 combination-short-identity-4 (a)
   (+ 30 a))
 
@@ -384,7 +384,7 @@
   :operator combination-short-identity-1
   :identity-with-one-argument t)
 (defgeneric combination-short-identity-5 (a)
-            (:method-combination combination-short-identity-5))
+  (:method-combination combination-short-identity-5))
 (defmethod combination-short-identity-5 combination-short-identity-5 (a)
   (+ 40 a))
 
@@ -404,7 +404,7 @@
   :operator combination-short-identity-1
   :identity-with-one-argument nil)
 (defgeneric combination-short-identity-6 (a)
-            (:method-combination combination-short-identity-6))
+  (:method-combination combination-short-identity-6))
 (defmethod combination-short-identity-6 combination-short-identity-6 (a)
   (+ 50 a))
 
@@ -420,7 +420,7 @@
 ;;  default progn
 ;;
 (defgeneric combination-short-progn-1 (z)
-            (:method-combination progn))
+  (:method-combination progn))
 (defmethod combination-short-progn-1 progn (a)
   (push (list :primary1 a) *combination-short-value*)
   :primary1)
@@ -442,7 +442,7 @@
 ;;  default list 2
 ;;
 (defgeneric combination-short-list-1 (z)
-            (:method-combination list))
+  (:method-combination list))
 (defmethod combination-short-list-1 list (a)
   (push (list :primary1 a) *combination-short-value*)
   :primary1)
@@ -464,7 +464,7 @@
 ;;  default list, no-identity
 ;;
 (defgeneric combination-short-list-2 (z)
-            (:method-combination list))
+  (:method-combination list))
 (defmethod combination-short-list-2 list (a)
   (push (list :primary1 a) *combination-short-value*)
   :primary1)
@@ -482,7 +482,7 @@
 ;;  default list, :most-specific-first
 ;;
 (defgeneric combination-short-list-3 (z)
-            (:method-combination list :most-specific-first))
+  (:method-combination list :most-specific-first))
 (defmethod combination-short-list-3 list (a)
   (push (list :primary1 a) *combination-short-value*)
   :primary1)
@@ -504,7 +504,7 @@
 ;;  default list, :most-specific-last
 ;;
 (defgeneric combination-short-list-4 (z)
-            (:method-combination list :most-specific-last))
+  (:method-combination list :most-specific-last))
 (defmethod combination-short-list-4 list (a)
   (push (list :primary1 a) *combination-short-value*)
   :primary1)
@@ -527,7 +527,7 @@
 ;;
 (define-method-combination combination-short-error-1 :operator +)
 (defgeneric combination-short-error-2 ()
-            (:method-combination combination-short-error-1))
+  (:method-combination combination-short-error-1))
 
 (deftest-error combination-short-error.1
   (eval '(defmethod combination-short-error-2 ()

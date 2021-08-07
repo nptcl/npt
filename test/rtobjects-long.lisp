@@ -63,8 +63,8 @@
 ;;  lambda-list
 ;;
 (defgeneric combination-lambda-list-1 (a)
-            (:method-combination
-              combination-test :most-specific-first))
+  (:method-combination
+    combination-test :most-specific-first))
 (defmethod combination-lambda-list-1 (a)
   (+ a 10))
 
@@ -73,8 +73,8 @@
   121)
 
 (defgeneric combination-lambda-list-2 (a)
-            (:method-combination
-              combination-test :most-specific-last))
+  (:method-combination
+    combination-test :most-specific-last))
 (defmethod combination-lambda-list-2 (a)
   (+ a 10))
 
@@ -141,7 +141,7 @@
   nil :primary1)
 
 (defgeneric combination-next-method-p-3 (a)
-            (:method-combination combination-test :most-specific-last))
+  (:method-combination combination-test :most-specific-last))
 (defmethod combination-next-method-p-3 (a)
   (declare (ignore a))
   (setq *combination-value* :primary1)
@@ -403,8 +403,8 @@
   `(call-method ,(car primary) ,(cdr primary)))
 
 (defgeneric combination-declare-1 ()
-            (:method-combination
-              combination-declare-1 10 20 30))
+  (:method-combination
+    combination-declare-1 10 20 30))
 (defmethod combination-declare-1 ()
   :hello)
 
@@ -423,7 +423,7 @@
   `(call-method ,(car primary) ,(cdr primary)))
 
 (defgeneric combination-documentation-1 ()
-            (:method-combination combination-documentation-1))
+  (:method-combination combination-documentation-1))
 (defmethod combination-documentation-1 ()
   :hello)
 
@@ -457,7 +457,7 @@
   `(call-method ,(car primary) ,(cdr primary)))
 
 (defgeneric combination-empty-2 ()
-            (:method-combination combination-empty-1))
+  (:method-combination combination-empty-1))
 (defmethod combination-empty-2 :hello ()
   10)
 
@@ -479,7 +479,7 @@
           primary)))
 
 (defgeneric combination-any-2 (x)
-            (:method-combination combination-any-1))
+  (:method-combination combination-any-1))
 (defmethod combination-any-2 :abc (x)
   (declare (ignore x))
   10)
@@ -507,7 +507,7 @@
           minus)))
 
 (defgeneric combination-list-2 (x)
-            (:method-combination combination-list-1))
+  (:method-combination combination-list-1))
 
 (deftest-error combination-list.1
   (defmethod combination-list-2 (x)
@@ -543,7 +543,7 @@
           minus)))
 
 (defgeneric combination-asterisk-2 (x)
-            (:method-combination combination-asterisk-1))
+  (:method-combination combination-asterisk-1))
 
 (deftest-error combination-asterisk.1
   (defmethod combination-asterisk-2 (x)
@@ -579,7 +579,7 @@
           minus)))
 
 (defgeneric combination-dotted-2 (x)
-            (:method-combination combination-dotted-1))
+  (:method-combination combination-dotted-1))
 
 (deftest-error combination-dotted.1
   (defmethod combination-dotted-2 (x)
@@ -621,7 +621,7 @@
           minus)))
 
 (defgeneric combination-predicate-4 (x)
-            (:method-combination combination-predicate-1))
+  (:method-combination combination-predicate-1))
 
 (deftest-error combination-predicate.1
   (defmethod combination-predicate-4 (x)
@@ -656,14 +656,14 @@
 (deftest-error combination-collision.1
   (progn
     (defgeneric combination-collision-2 ()
-                (:method-combination combination-collision-1))
+      (:method-combination combination-collision-1))
     (defmethod combination-collision-2 :hello ()
       10)))
 
 (deftest combination-collision.2
   (progn
     (defgeneric combination-collision-3 ()
-                (:method-combination combination-collision-1))
+      (:method-combination combination-collision-1))
     (defmethod combination-collision-3 ()
       10)
     (combination-collision-3))
@@ -680,7 +680,7 @@
                             primary)))
 
 (defgeneric combination-order-error-2 (x)
-            (:method-combination combination-order-error-1))
+  (:method-combination combination-order-error-1))
 
 (defmethod combination-order-error-2 (x)
   (declare (ignore x))
@@ -704,7 +704,7 @@
                             primary)))
 
 (defgeneric combination-order-evaluated-2 (x)
-            (:method-combination combination-order-evaluated-1))
+  (:method-combination combination-order-evaluated-1))
 
 (defmethod combination-order-evaluated-2 (x)
   (declare (ignore x))
@@ -728,7 +728,7 @@
                             primary)))
 
 (defgeneric combination-order-first-2 (x)
-            (:method-combination combination-order-first-1))
+  (:method-combination combination-order-first-1))
 
 (defmethod combination-order-first-2 (x)
   (declare (ignore x))
@@ -752,7 +752,7 @@
                             primary)))
 
 (defgeneric combination-order-last-2 (x)
-            (:method-combination combination-order-last-1))
+  (:method-combination combination-order-last-1))
 
 (defmethod combination-order-last-2 (x)
   (declare (ignore x))
@@ -779,7 +779,7 @@
 
 ;;  arguments var
 (defgeneric combination-argument-2 (x y z)
-            (:method-combination combination-arguments-1))
+  (:method-combination combination-arguments-1))
 
 (defmethod combination-argument-2 (a b c)
   (+ a b c))
@@ -793,7 +793,7 @@
 
 ;;  arguments var, short
 (defgeneric combination-argument-3 (x y)
-            (:method-combination combination-arguments-1))
+  (:method-combination combination-arguments-1))
 
 (defmethod combination-argument-3 (a b)
   (+ a b))
@@ -807,7 +807,7 @@
 
 ;;  arguments var, long
 (defgeneric combination-argument-4 (x y z w)
-            (:method-combination combination-arguments-1))
+  (:method-combination combination-arguments-1))
 
 (defmethod combination-argument-4 (a b c d)
   (+ a b c d))
@@ -829,7 +829,7 @@
      (call-method ,(car primary) ,(cdr primary))))
 
 (defgeneric combination-arguments-6 (x &rest r)
-            (:method-combination combination-arguments-5))
+  (:method-combination combination-arguments-5))
 
 (defmethod combination-arguments-6 (x &rest r)
   (list x r))
@@ -864,7 +864,7 @@
      (call-method ,(car primary) ,(cdr primary))))
 
 (defgeneric combination-arguments-8 (&rest r)
-            (:method-combination combination-arguments-7))
+  (:method-combination combination-arguments-7))
 
 (defmethod combination-arguments-8 (&rest r)
   r)
@@ -892,7 +892,7 @@
      (call-method ,(car primary) ,(cdr primary))))
 
 (defgeneric combination-arguments-key-2 (&rest r)
-            (:method-combination combination-arguments-key-1))
+  (:method-combination combination-arguments-key-1))
 
 (defmethod combination-arguments-key-2 (&rest r)
   r)
@@ -932,7 +932,7 @@
      (call-method ,(car primary) ,(cdr primary))))
 
 (defgeneric combination-arguments-key-4 (&rest r)
-            (:method-combination combination-arguments-key-3))
+  (:method-combination combination-arguments-key-3))
 
 (defmethod combination-arguments-key-4 (&rest r)
   r)
@@ -960,7 +960,7 @@
      (call-method ,(car primary) ,(cdr primary))))
 
 (defgeneric combination-arguments-whole-2 (&rest r)
-            (:method-combination combination-arguments-whole-1))
+  (:method-combination combination-arguments-whole-1))
 
 (defmethod combination-arguments-whole-2 (&rest r)
   (cons :hello r))

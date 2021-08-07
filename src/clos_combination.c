@@ -487,6 +487,7 @@ static int qualifiers_equal_(Execute ptr, addr left, addr right, int *ret)
 {
 	addr aster;
 
+	*ret = 0;
 	GetConst(COMMON_ASTERISK, &aster);
 	if (right == aster)
 		return Result(ret, 1);
@@ -496,7 +497,6 @@ static int qualifiers_equal_(Execute ptr, addr left, addr right, int *ret)
 		return qualifiers_equal_symbol_(ptr, left, right, ret);
 
 	/* error */
-	*ret = 0;
 	return fmte_("Invalid method-combination-eualifiers ~S.", right, NULL);
 }
 
