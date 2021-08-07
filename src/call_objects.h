@@ -12,7 +12,7 @@
 #define with_slots_common _n(with_slots_common)
 #define defgeneric_common_ _n(defgeneric_common_)
 #define defmethod_common _n(defmethod_common)
-#define define_method_combination_common _n(define_method_combination_common)
+#define define_method_combination_common_ _n(define_method_combination_common_)
 #define make_load_form_saving_slots_common _n(make_load_form_saving_slots_common)
 #define set_slots_syscall _n(set_slots_syscall)
 
@@ -25,7 +25,7 @@ int with_slots_common(Execute ptr, addr form, addr env, addr *ret);
 
 int defgeneric_common_(Execute ptr, addr form, addr env, addr *ret);
 int defmethod_common(Execute ptr, addr form, addr env, addr *ret);
-int define_method_combination_common(
+int define_method_combination_common_(
 		LocalRoot local, addr form, addr env, addr *ret);
 int make_load_form_saving_slots_common(Execute ptr,
 		addr var, addr list, addr env, addr *ret1, addr *ret2);

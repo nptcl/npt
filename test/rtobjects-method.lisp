@@ -1,9 +1,9 @@
 ;;
 ;;  ANSI COMMON LISP: 7. Objects
 ;;
-
 (defun find-method-list (gen qua &rest rest)
   (find-method gen qua (mapcar #'find-class rest)))
+
 
 ;;
 ;;  Standard Generic Function FIND-METHOD
@@ -500,4 +500,96 @@
       (defmethod function-keywords-test-4 ((a integer) &key b c d &allow-other-keys)
         (list a b c d e f))))
   (:b :c :d) t)
+
+
+;;
+;;  Standard Generic Function COMPUTE-APPLICABLE-METHODS
+;;
+(defgeneric compute-applicable-methods-1 (a))
+(defmethod compute-applicable-methods-1 (a)
+  (+ a 100))
+
+(deftest compute-applicable-methods.1
+  (length
+    (compute-applicable-methods
+      #'compute-applicable-methods-1
+      '(10)))
+  1)
+
+(deftest compute-applicable-methods.2
+  (eq (car (compute-applicable-methods
+             #'compute-applicable-methods-1
+             '(10)))
+      (find-method #'compute-applicable-methods-1 nil
+                   (mapcar #'find-class '(t))))
+  t)
+
+(defgeneric compute-applicable-methods-2 (a))
+(defmethod compute-applicable-methods-2 (a)
+  (+ a 100))
+
+(defmethod compute-applicable-methods-2 ((a integer))
+  (+ a 200))
+
+(defmethod compute-applicable-methods-2 ((a string))
+  (values 300 a))
+
+(deftest compute-applicable-methods.3
+  (length
+    (compute-applicable-methods
+      #'compute-applicable-methods-2
+      '(10)))
+  2)
+
+(deftest compute-applicable-methods.4
+  (every
+    (lambda (x)
+      (typep x 'standard-method))
+    (compute-applicable-methods
+      #'compute-applicable-methods-2
+      '(10)))
+  t)
+
+(deftest compute-applicable-methods.5
+  (length
+    (compute-applicable-methods
+      #'compute-applicable-methods-2
+      '("hello")))
+  2)
+
+(deftest compute-applicable-methods.6
+  (length
+    (compute-applicable-methods
+      #'compute-applicable-methods-2
+      '(t)))
+  1)
+
+(defgeneric compute-applicable-methods-3 (a))
+(defmethod compute-applicable-methods-3 (a)
+  (+ a 100))
+
+(defmethod compute-applicable-methods-3 ((a integer))
+  (+ a 200))
+
+(defmethod compute-applicable-methods-3 :around (a)
+  (values 300 a))
+
+(defmethod compute-applicable-methods-3 :before (a)
+  (values 400 a))
+
+(deftest compute-applicable-methods.7
+  (length
+    (compute-applicable-methods
+      #'compute-applicable-methods-3
+      '(10)))
+  4)
+
+(deftest-error compute-applicable-methods-error.1
+  (eval '(compute-applicable-methods #'compute-applicable-methods-1)))
+
+(deftest-error compute-applicable-methods-error.2
+  (eval '(compute-applicable-methods #'compute-applicable-methods-1 '(10) nil)))
+
+(deftest-error! compute-applicable-methods-error.3
+  (eval '(compute-applicable-methods 100 '(10))))
 

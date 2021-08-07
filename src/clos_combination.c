@@ -502,10 +502,11 @@ static int qualifiers_equal_(Execute ptr, addr left, addr right, int *ret)
 
 static int check_qualifiers_equal_long_(Execute ptr, addr comb, addr qua, int *ret)
 {
-	int check;
+	int check, size;
 	addr cons, list;
 
 	Return(stdget_longcomb_qualifiers_(comb, &cons));
+	size = 0;
 	while (cons != Nil) {
 		GetCons(cons, &list, &cons);
 		/* cadr */
@@ -514,10 +515,20 @@ static int check_qualifiers_equal_long_(Execute ptr, addr comb, addr qua, int *r
 		/* check */
 		Return(qualifiers_equal_(ptr, qua, list, &check));
 		if (check)
-			return Result(ret, 1);
+			size++;
 	}
 
-	return Result(ret, 0);
+	/* equal */
+	if (size == 1)
+		return Result(ret, 1);
+	/* not equal */
+	if (size == 0)
+		return Result(ret, 0);
+
+	/* error */
+	*ret = 0;
+	return fmte_("Qualifiers ~S must match a only specializer, "
+			"but match multiple specializers.", qua, NULL);
 }
 
 static int check_qualifiers_equal_short_(addr comb, addr qua, int *ret)
@@ -706,14 +717,13 @@ int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 	return fmte_("Invalid method-combination type ~S.", comb, NULL);
 }
 
-int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret)
+int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize)
 {
 	int check;
 
 	Return(qualifiers_position_nil_(ptr, qua, comb, rsize, &check));
 	if (check) {
 		*rsize = 0;
-		*ret = 0;
 		return fmte_("The qualifiers ~S is not found.", qua, NULL);
 	}
 
@@ -979,16 +989,13 @@ static void comb_longmacro_lambda(addr *ret, addr args,
 	 *    ,declarations
 	 *    ,form)
 	 */
-	addr root, pos;
+	addr pos;
 	addr lambda, declare, ignorable, dbind, call;
 
 	/* form */
-	for (root = Nil; decl != Nil; ) {
-		GetCons(decl, &pos, &decl);
-		cons_heap(&root, pos, root);
-	}
-	cons_heap(&root, form, root);
-	nreverse(&form, root);
+	GetConst(COMMON_DECLARE, &declare);
+	cons_heap(&pos, declare, decl);
+	list_heap(&form, pos, form, NULL);
 
 	/* destructuring-bind */
 	if (args != Nil) {
@@ -1000,7 +1007,6 @@ static void comb_longmacro_lambda(addr *ret, addr args,
 
 	/* lambda */
 	GetConst(COMMON_LAMBDA, &lambda);
-	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	list_heap(&ignorable, ignorable, gen, inst, array, NULL);
 	list_heap(&declare, declare, ignorable, NULL);
@@ -1090,7 +1096,7 @@ static void comb_longmacro_arguments(addr *ret, addr args, addr form)
 	/* declare */
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
-	cons_heap(&ignorable, ignorable, list);
+	cons_heap(&ignorable, ignorable, vars);
 	list_heap(&declare, declare, ignorable, NULL);
 	/* let */
 	GetConst(COMMON_LET, &let);
@@ -1208,7 +1214,7 @@ static void comb_longform_macrolet(addr *ret, addr args, addr gen, addr form)
 
 static int comb_longmacro_lambda_list_(addr args, addr *ret)
 {
-	addr root, var, list, a, b;
+	addr root, var, list, a, b, c, d;
 	struct argument_struct *str;
 
 
@@ -1241,6 +1247,9 @@ static int comb_longmacro_lambda_list_(addr args, addr *ret)
 	GetArgument(args, ArgumentIndex_opt, &list);
 	while (list != Nil) {
 		GetCons(list, &var, &list);
+		Return(list_bind_(var, &a, &b, &c, NULL));
+		if (c == Nil)
+			list_heap(&var, a, b, NULL);
 		cons_heap(&root, var, root);
 	}
 
@@ -1260,14 +1269,13 @@ static int comb_longmacro_lambda_list_(addr args, addr *ret)
 	GetArgument(args, ArgumentIndex_key, &list);
 	while (list != Nil) {
 		GetCons(list, &var, &list);
-		Return(list_bind_(var, &a, &b, NULL));
-		if (b == Nil) {
-			cons_heap(&root, a, root);
-		}
-		else {
-			list_heap(&var, b, a, NULL);
-			cons_heap(&root, var, root);
-		}
+		Return(list_bind_(var, &a, &b, &c, &d, NULL));
+		list_heap(&a, b, a, NULL);
+		if (d == Nil)
+			list_heap(&var, a, c, NULL);
+		else
+			list_heap(&var, a, c, d, NULL);
+		cons_heap(&root, var, root);
 	}
 
 	/* key */

@@ -126,7 +126,7 @@ int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret);
 int method_combination_qualifiers_count_(addr comb, size_t *ret);
 int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 		size_t *rsize, int *ret);
-int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret);
+int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize);
 void build_clos_combination(void);
 
 /* generic-function */

@@ -425,7 +425,6 @@ static int method_update_check_(addr gen, addr method, int deletep)
 
 static int method_push_generic_(Execute ptr, addr gen, addr method)
 {
-	int check;
 	addr methods, comb, qua, cons;
 	size_t index;
 
@@ -433,7 +432,7 @@ static int method_push_generic_(Execute ptr, addr gen, addr method)
 	Return(stdget_generic_vector_(gen, &methods));
 	Return(stdget_generic_method_combination_(gen, &comb));
 	Return(stdget_method_qualifiers_(method, &qua));
-	Return(qualifiers_position_(ptr, qua, comb, &index, &check));
+	Return(qualifiers_position_(ptr, qua, comb, &index));
 	GetArrayA4(methods, index, &cons);
 	cons_heap(&cons, method, cons);
 	SetArrayA4(methods, index, cons);

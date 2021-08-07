@@ -1271,7 +1271,7 @@ error:
 /*
  *  define-method-combination
  */
-static int defcomb_short(addr *ret, addr list, addr name)
+static int defcomb_short_(addr *ret, addr list, addr name)
 {
 	addr doc, ident, oper, key, value;
 	addr kdoc, kident, koper, quote;
@@ -1330,7 +1330,7 @@ static int defcomb_short(addr *ret, addr list, addr name)
 	return 0;
 }
 
-static int defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
+static int defcomb_split_body_(addr list, addr *rargs, addr *rgen, addr *rbody)
 {
 	addr next, args, gen, a, b, c, kargs, kgen;
 
@@ -1373,7 +1373,7 @@ static int defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 	return 0;
 }
 
-static int defcomb_long_specifiers(addr *ret, addr list)
+static int defcomb_long_specifiers_(addr *ret, addr list)
 {
 	addr root, name, spec, tail, key, value, check, order, req, desc;
 
@@ -1432,7 +1432,26 @@ static int defcomb_long_specifiers(addr *ret, addr list)
 	return 0;
 }
 
-static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
+static int defcomb_arguments_(LocalRoot local, addr *ret, addr args)
+{
+	addr pos;
+	struct argument_struct *str;
+
+	Return(argument_combination_heap_(local, &args, args));
+	str = ArgumentStruct(args);
+	if (str->rest == 0) {
+		GetArgument(args, ArgumentIndex_rest, &pos);
+		if (pos == Nil) {
+			make_symbolchar(&pos, "IGNORE");
+			SetArgument(args, ArgumentIndex_rest, pos);
+		}
+		str->rest = 1;
+	}
+
+	return Result(ret, args);
+}
+
+static int defcomb_long_(LocalRoot local, addr form, addr env, addr *ret,
 		addr list, addr name)
 {
 	addr pos, lambda, spec, args, gen, doc, body, decl;
@@ -1442,9 +1461,9 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	if (! consp_getcons(list, &spec, &list))
 		goto error;
 	args = gen = Nil;
-	Return(defcomb_split_body(list, &args, &gen, &list));
+	Return(defcomb_split_body_(list, &args, &gen, &list));
 	/* parser */
-	Return(defcomb_long_specifiers(&spec, spec));
+	Return(defcomb_long_specifiers_(&spec, spec));
 	Return(split_decl_body_doc_(list, &doc, &decl, &body));
 
 	/* `(ensure-method-combination-long
@@ -1470,7 +1489,7 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	pushva_heap(&list, pos, NULL);
 	/* arguments */
 	if (args != Nil) {
-		Return(argument_combination_heap_(local, &args, args));
+		Return(defcomb_arguments_(local, &args, args));
 		PushConst(&list, KEYWORD_ARGUMENTS);
 		quotelist_heap(&pos, args);
 		pushva_heap(&list, pos, NULL);
@@ -1499,8 +1518,8 @@ error:
 	return fmte_("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
-int define_method_combination_common(
-		LocalRoot local, addr form, addr env, addr *ret)
+int define_method_combination_common_(LocalRoot local,
+		addr form, addr env, addr *ret)
 {
 	addr list, name, check;
 
@@ -1511,12 +1530,12 @@ int define_method_combination_common(
 	if (! symbolp(name))
 		return fmte_("DEFINE-METHOD-COMBINATION name ~S must be a symbol.", name, NULL);
 	if (list == Nil)
-		return defcomb_short(ret, list, name);
+		return defcomb_short_(ret, list, name);
 	if (! consp_getcar(list, &check))
 		goto error;
 	if (keywordp(check))
-		return defcomb_short(ret, list, name);
-	return defcomb_long(local, form, env, ret, list, name);
+		return defcomb_short_(ret, list, name);
+	return defcomb_long_(local, form, env, ret, list, name);
 
 error:
 	*ret = Nil;

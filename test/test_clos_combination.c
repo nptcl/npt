@@ -429,7 +429,6 @@ static int test_qualifiers_position_nil(void)
 
 static int test_qualifiers_position(void)
 {
-	int check;
 	addr comb, pos;
 	Execute ptr;
 	size_t index;
@@ -440,7 +439,7 @@ static int test_qualifiers_position(void)
 	stdset_shortcomb_name_(comb, pos);
 	list_heap(&pos, pos, NULL);
 	index = 0;
-	qualifiers_position_(ptr, pos, comb, &index, &check);
+	qualifiers_position_(ptr, pos, comb, &index);
 	test(index == 1, "qualifiers_position1");
 
 	RETURN;
