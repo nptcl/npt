@@ -479,6 +479,26 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 
 
 /*
+ *  Ctrl + C
+ */
+#ifdef LISP_TERME_UNIX
+int terme_arch_terminal_sigint_(void)
+{
+	if (! terme_arch_enable_p)
+		return 0;
+
+	return kill(getpid(), SIGINT);
+}
+
+#else
+int terme_arch_terminal_sigint_(void)
+{
+	return 0;
+}
+#endif
+
+
+/*
  *  Ctrl + Z
  */
 #ifdef LISP_TERME_UNIX

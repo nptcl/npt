@@ -1,6 +1,10 @@
 #include "condition.h"
+#include "control_object.h"
 #include "execute.h"
+#include "execute_object.h"
+#include "package_intern.h"
 #include "print_write.h"
+#include "restart.h"
 #include "strvect.h"
 #include "stream_common.h"
 #include "stream_function.h"
@@ -58,6 +62,99 @@ static int readline_default_terme_(Execute ptr, addr *ret)
 
 
 /*
+ *  Ctrl + C
+ *    continue restart
+ *    sigint restart
+ */
+static void terme_readline_sigint_continue(addr *ret)
+{
+	static const char *message = "Continue Ctrl + C.";
+	addr restart, pos;
+
+	GetConst(COMMON_CONTINUE, &pos);
+	restart_heap(&restart, pos);
+	GetConst(FUNCTION_NIL, &pos);
+	setfunction_restart(restart, pos);
+	setinteractive_restart(restart, Nil);
+	strvect_char_heap(&pos, message);
+	setreport_restart(restart, pos);
+	settest_restart(restart, Nil);
+	setescape_restart(restart, 1);
+	*ret = restart;
+}
+
+static int terme_readline_sigint_kill_(addr *ret)
+{
+	static const char *message = "Kill SIGINT.";
+	enum PACKAGE_TYPE ignore;
+	addr restart, pos;
+
+	Return(internchar_(LISP_SYSTEM, "SIGINT", &pos, &ignore));
+	restart_heap(&restart, pos);
+	GetConst(FUNCTION_NIL, &pos);
+	setfunction_restart(restart, pos);
+	setinteractive_restart(restart, Nil);
+	strvect_char_heap(&pos, message);
+	setreport_restart(restart, pos);
+	settest_restart(restart, Nil);
+	setescape_restart(restart, 1);
+
+	return Result(ret, restart);
+}
+
+static int terme_readline_sigint_(TermeKeyboard *str)
+{
+	int mode;
+
+	if (terme_arch_textmode(&mode))
+		return terme_fmte_("terme_arch_textmode error.", NULL);
+	if (terme_arch_terminal_sigint_())
+		return terme_fmte_("kill error.", NULL);
+	if (mode && terme_arch_rawmode(NULL))
+		return terme_fmte_("terme_arch_rawmode error.", NULL);
+
+	/* ignore */
+	str->type = terme_escape_error;
+	return 0;
+}
+
+static int terme_readline_ctrl_c_(Execute ptr, TermeKeyboard *str)
+{
+	addr restart1, restart2, control;
+
+	terme_readline_sigint_continue(&restart1);
+	Return(terme_readline_sigint_kill_(&restart2));
+
+	push_control(ptr, &control);
+	pushrestart_control(ptr, restart2);
+	pushrestart_control(ptr, restart1);
+	(void)terme_fmte_("Ctrl + C", NULL);
+
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
+
+	/* continue */
+	if (ptr->throw_handler == restart1) {
+		normal_throw_control(ptr);
+		str->type = terme_escape_error;
+		goto escape;
+	}
+
+	/* kill */
+	if (ptr->throw_handler == restart2) {
+		normal_throw_control(ptr);
+		Return(terme_readline_sigint_(str));
+		goto escape;
+	}
+
+escape:
+	return pop_control_(ptr, control);
+}
+
+
+/*
  *  readline
  */
 static int terme_readline_loop_(Execute ptr, TermeKeyboard *, addr *, int *);
@@ -83,7 +180,8 @@ static int terme_readline_control_(Execute ptr,
 {
 	switch (str->c) {
 		case 0x03:	/* C */
-			return terme_fmte_("Ctrl + C", NULL);
+			Return(terme_readline_ctrl_c_(ptr, str));
+			break;
 
 		case 0x04:  /* D */
 			str->type = terme_escape_delete;

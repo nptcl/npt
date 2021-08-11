@@ -357,7 +357,9 @@ stream_variable.c
 stream.c
 strtype.c
 structure.c
+structure_change.c
 structure_define.c
+structure_make.c
 structure_object.c
 strvect.c
 subtypep_andor.c

@@ -8,6 +8,7 @@
 (load #p"test/rtcompile-code.lisp")
 (load #p"test/rtcompile-toplevel.lisp")
 (load #p"test/rtcompile-define.lisp")
+(load #p"test/rtcompile-gensym.lisp")
 
 
 ;;

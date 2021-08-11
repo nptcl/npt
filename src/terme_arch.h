@@ -19,6 +19,7 @@
 #define terme_arch_read _n(terme_arch_read)
 #define terme_arch_write _n(terme_arch_write)
 #define terme_arch_terminal_stop_ _n(terme_arch_terminal_stop_)
+#define terme_arch_terminal_sigint_ _n(terme_arch_terminal_sigint_)
 #define terme_arch_enable _n(terme_arch_enable)
 
 #define font_arch_terme _n(font_arch_terme)
@@ -39,6 +40,7 @@ int terme_arch_wait(void);
 int terme_arch_read(void *data, size_t size, size_t *ret);
 int terme_arch_write(const void *data, size_t size, size_t *ret);
 int terme_arch_terminal_stop_(void);
+int terme_arch_terminal_sigint_(void);
 int terme_arch_enable(void);
 
 int font_arch_terme(Execute ptr, PrintFont value);

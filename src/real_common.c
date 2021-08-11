@@ -9,7 +9,6 @@
 #include "real_common.h"
 #include "real_floor.h"
 
-
 /*
  *  constant
  */

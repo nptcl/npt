@@ -10,6 +10,7 @@
 #include "integer.h"
 #include "structure.h"
 #include "structure_define.h"
+#include "structure_make.h"
 #include "structure_object.h"
 #include "symbol.h"
 #include "typedef.h"
