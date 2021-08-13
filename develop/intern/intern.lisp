@@ -1298,11 +1298,13 @@ lisp-clos::include
 lisp-clos::named
 lisp-clos::named-index
 lisp-clos::value
+lisp-clos::predicate
 (:slots                      :constant closkey)
 (:include                    :constant closkey)
 (:named                      :constant closkey)
 (:named-index                :constant closkey)
 (:value                      :constant closkey)
+(:predicate                  :constant closkey)
 
 ;;  system
 lisp-system::value ;; symbol, function

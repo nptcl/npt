@@ -133,6 +133,7 @@ enum Clos_short {
 
 enum Clos_structure_Index {
 	Clos_structure_name,
+	Clos_structure_direct_slots,
 	Clos_structure_slots,
 	Clos_structure_documentation,
 	Clos_structure_include,
@@ -142,6 +143,7 @@ enum Clos_structure_Index {
 	Clos_structure_named,
 	Clos_structure_named_index,
 	Clos_structure_value,
+	Clos_structure_predicate,
 	Clos_structure_size
 };
 

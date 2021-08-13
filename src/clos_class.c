@@ -1182,6 +1182,7 @@ static void clos_structure_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_structure_size);
 	SlotMakeNameSymbol(slots, NAME, structure_name);
+	SlotMakeForm(slots, DIRECT_SLOTS, structure_direct_slots);
 	SlotMakeForm(slots, SLOTS, structure_slots);
 	SlotMakeForm(slots, DOCUMENTATION, structure_documentation);
 	SlotMakeForm(slots, INCLUDE, structure_include);
@@ -1191,6 +1192,7 @@ static void clos_structure_slots(addr *ret)
 	SlotMakeName(slots, NAMED, structure_named);
 	SlotMakeName(slots, NAMED_INDEX, structure_named_index);
 	SlotMakeName(slots, VALUE, structure_value);
+	SlotMakeName(slots, PREDICATE, structure_predicate);
 	slotvector_set_location(slots);
 	*ret = slots;
 }

@@ -10,6 +10,8 @@
  */
 #define stdget_structure_name_ _n(stdget_structure_name_)
 #define stdset_structure_name_ _n(stdset_structure_name_)
+#define stdget_structure_direct_slots_ _n(stdget_structure_direct_slots_)
+#define stdset_structure_direct_slots_ _n(stdset_structure_direct_slots_)
 #define stdget_structure_slots_ _n(stdget_structure_slots_)
 #define stdset_structure_slots_ _n(stdset_structure_slots_)
 #define stdget_structure_documentation_ _n(stdget_structure_documentation_)
@@ -28,6 +30,8 @@
 #define stdset_structure_named_index_ _n(stdset_structure_named_index_)
 #define stdget_structure_value_ _n(stdget_structure_value_)
 #define stdset_structure_value_ _n(stdset_structure_value_)
+#define stdget_structure_predicate_ _n(stdget_structure_predicate_)
+#define stdset_structure_predicate_ _n(stdset_structure_predicate_)
 
 #define localhold_destruct _n(localhold_destruct)
 #define defstruct_clean _n(defstruct_clean)
@@ -60,6 +64,8 @@
 
 int stdget_structure_name_(addr pos, addr *ret);
 int stdset_structure_name_(addr pos, addr value);
+int stdget_structure_direct_slots_(addr pos, addr *ret);
+int stdset_structure_direct_slots_(addr pos, addr value);
 int stdget_structure_slots_(addr pos, addr *ret);
 int stdset_structure_slots_(addr pos, addr value);
 int stdget_structure_documentation_(addr pos, addr *ret);
@@ -78,6 +84,8 @@ int stdget_structure_named_index_(addr pos, addr *ret);
 int stdset_structure_named_index_(addr pos, addr value);
 int stdget_structure_value_(addr pos, addr *ret);
 int stdset_structure_value_(addr pos, addr value);
+int stdget_structure_predicate_(addr pos, addr *ret);
+int stdset_structure_predicate_(addr pos, addr value);
 
 
 /*

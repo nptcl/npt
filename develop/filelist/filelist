@@ -361,6 +361,7 @@ structure_change.c
 structure_define.c
 structure_make.c
 structure_object.c
+structure_parse.c
 strvect.c
 subtypep_andor.c
 subtypep_atomic.c

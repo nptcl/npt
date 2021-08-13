@@ -68,6 +68,15 @@ int stdset_structure_name_(addr pos, addr value)
 	return StdSetStructure_(pos, value, name, NAME);
 }
 
+int stdget_structure_direct_slots_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, direct_slots, DIRECT_SLOTS);
+}
+int stdset_structure_direct_slots_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, direct_slots, DIRECT_SLOTS);
+}
+
 int stdget_structure_slots_(addr pos, addr *ret)
 {
 	return StdGetStructure_(pos, ret, slots, SLOTS);
@@ -149,6 +158,15 @@ int stdset_structure_value_(addr pos, addr value)
 	return StdSetStructure_(pos, value, value, VALUE);
 }
 
+int stdget_structure_predicate_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, predicate, PREDICATE);
+}
+int stdset_structure_predicate_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, predicate, PREDICATE);
+}
+
 
 /*
  *  structure
@@ -178,6 +196,7 @@ void defstruct_clean(struct defstruct *str)
 	str->size_value = 0;
 	str->offset = 0;
 	str->named_index = 0;
+	str->change = Nil;
 }
 
 

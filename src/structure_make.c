@@ -2,383 +2,26 @@
 #include "clos.h"
 #include "clos_class.h"
 #include "condition.h"
+#include "constant.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "cons_plist.h"
-#include "constant.h"
 #include "control_execute.h"
 #include "function.h"
 #include "integer.h"
 #include "package.h"
 #include "package_intern.h"
 #include "sequence.h"
-#include "strtype.h"
 #include "structure.h"
 #include "structure_change.h"
 #include "structure_define.h"
 #include "structure_make.h"
 #include "structure_object.h"
+#include "structure_parse.h"
 #include "structure_typedef.h"
-#include "subtypep.h"
+#include "strtype.h"
 #include "symbol.h"
 #include "type_table.h"
 #include "typedef.h"
-
-static int ensure_structure_constructor_(addr args, addr *result, int *ret)
-{
-	addr key, value, keyword, root;
-
-	GetConst(KEYWORD_CONSTRUCTOR, &keyword);
-	for (root = Nil; args != Nil; ) {
-		Return_getcons(args, &key, &args);
-		Return_getcons(args, &value, &args);
-		if (key != keyword)
-			continue;
-		cons_heap(&root, value, root);
-	}
-	nreverse(result, root);
-
-	return Result(ret, root != Nil);
-}
-
-static int ensure_structure_struct_(struct defstruct *str,
-		Execute ptr, addr name, addr slots, addr args)
-{
-	int check;
-	addr pos, value;
-
-	defstruct_clean(str);
-	str->ptr = ptr;
-	str->slots = slots;
-	str->name = name;
-	/* :documentation */
-	if (GetKeyArgs(args, KEYWORD_DOCUMENTATION, &pos)) pos = Nil;
-	str->doc = pos;
-	/* :conc-name */
-	if (! GetKeyArgs(args, KEYWORD_CONC_NAME, &pos)) {
-		str->conc_name_p = 1;
-		str->conc_name = pos;
-	}
-	/* :type */
-	if (! GetKeyArgs(args, KEYWORD_TYPE, &pos)) {
-		GetConst(COMMON_LIST, &value);
-		if (pos == value) {
-			str->type_list_p = 1;
-		}
-		else {
-			str->type_vector_p = 1;
-			str->type_vector = pos;
-		}
-		str->type_p = 1;
-	}
-	/* :initial-offset */
-	if (! GetKeyArgs(args, KEYWORD_INITIAL_OFFSET, &pos)) {
-		str->initial_offset_p = 1;
-		str->initial_offset = pos;
-		Return(getindex_integer_(pos, &(str->offset)));
-	}
-	/* :named */
-	if (! GetKeyArgs(args, KEYWORD_NAMED, &pos)) {
-		str->named_p = (pos != Nil);
-		str->offset++;
-	}
-	/* :copier */
-	if (! GetKeyArgs(args, KEYWORD_COPIER, &pos)) {
-		str->copier_p = 1;
-		str->copier = pos;
-	}
-	/* :predicate */
-	if (! GetKeyArgs(args, KEYWORD_PREDICATE, &pos)) {
-		str->predicate_p = 1;
-		str->predicate = pos;
-	}
-	/* :include */
-	if (! GetKeyArgs(args, KEYWORD_INCLUDE, &pos)) {
-		if (! consp(pos))
-			return fmte_("Invalid :include format ~S.", pos, NULL);
-		GetCons(pos, &pos, &value);
-		str->include_p = 1;
-		str->iname = pos;
-		str->iargs = value;
-	}
-	/* :print-object */
-	if (! GetKeyArgs(args, KEYWORD_PRINT_OBJECT, &pos)) {
-		str->print_object_p = 1;
-		str->print_object = pos;
-	}
-	/* :print-function */
-	if (! GetKeyArgs(args, KEYWORD_PRINT_FUNCTION, &pos)) {
-		str->print_function_p = 1;
-		str->print_function = pos;
-	}
-	/* :constructor */
-	Return(ensure_structure_constructor_(args, &pos, &check));
-	if (check) {
-		str->constructor_p = 1;
-		str->constructor = pos;
-	}
-
-	return 0;
-}
-
-
-/*
- *  check-instance
- */
-static int structure_slots_heap_(addr list, addr *ret)
-{
-	addr pos, name, init, type, readonly, root;
-
-	for (root = Nil; list != Nil; ) {
-		GetCons(list, &pos, &list);
-		Return(list_bind_(pos, &name, &init, &type, &readonly, NULL));
-		slot_heap(&pos);
-		SetNameSlot(pos, name);
-		SetTypeSlot(pos, type);
-		SetFunctionSlot(pos, init);
-		SetReadOnlySlot(pos, readonly);
-		cons_heap(&root, pos, root);
-	}
-	nreverse(ret, root);
-
-	return 0;
-}
-
-static int structure_check_slots_(addr list)
-{
-	int check;
-	addr pos, a, b, tail;
-
-	while (list != Nil) {
-		Return_getcons(list, &pos, &list);
-		GetNameSlot(pos, &a);
-		Check(! symbolp(a), "type error");
-		GetNameSymbol(a, &a);
-		for (tail = list; tail != Nil; ) {
-			Return_getcons(tail, &pos, &tail);
-			GetNameSlot(pos, &b);
-			Check(! symbolp(b), "type error");
-			GetNameSymbol(b, &b);
-			Return(string_equal_(a, b, &check));
-			if (check) {
-				return fmte_("The slot name ~S "
-						"is duplicated in the defstruct.", a, NULL);
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int structure_check_predicate_(struct defstruct *str)
-{
-	if (str->type_p && (! str->named_p)) {
-		/* no-predicate */
-		if (! str->predicate_p) {
-			str->predicate_p = 1;
-			str->predicate = Nil;
-			return 0;
-		}
-		if (str->predicate == Nil) {
-			return 0;
-		}
-		return fmte_("DEFSTRUCT ~S is defined :PREDICATE, "
-				"but the structure is not named.", str->name, NULL);
-	}
-	if (str->predicate_p && str->predicate == T) {
-		str->predicate_p = 0;
-		return 0;
-	}
-
-	return 0;
-}
-
-static int structure_include_(struct defstruct *str)
-{
-	int check;
-	addr instance, x, y;
-
-	if (! str->include_p)
-		return 0;
-	/* instance check */
-	clos_find_class_nil(str->iname, &instance);
-	if (instance == Nil)
-		return fmte_(":INCLUDE ~S structure don't exist.", str->iname, NULL);
-	Return(structure_class_p_(instance, &check));
-	if (! check)
-		return fmte_(":INCLUDE ~S must be structure type.", instance, NULL);
-
-	/* class check */
-	Return(stdget_structure_type_(instance, &x));
-	GetConst(COMMON_CLASS, &y);
-	if (x == y) {
-		if (str->type_list_p || str->type_vector_p) {
-			return fmte_(":TYPE option is CLASS, "
-					"but :INCLUDE type is not CLASS.", NULL);
-		}
-	}
-
-	/* list check */
-	GetConst(COMMON_LIST, &y);
-	if (x == y) {
-		if (! str->type_list_p)
-			return fmte_(":TYPE option is LIST, but :INCLUDE type is not LIST.", NULL);
-	}
-
-	/* vector check */
-	GetConst(COMMON_VECTOR, &y);
-	if (x == y) {
-		if (! str->type_vector_p) {
-			return fmte_(":TYPE option is VECTOR, "
-					"but :INCLUDE type is not VECTOR.", NULL);
-		}
-		x = str->type_vector;
-		Return(stdget_structure_vector_(instance, &y));
-		Return(subtypep_check_(str->ptr, x, y, Nil, &check, NULL));
-		if (! check) {
-			return fmte_(":TYPE ~A is not in the include ~A type.", x, y, NULL);
-		}
-	}
-
-	/* instance */
-	str->iname = instance;
-	return 0;
-}
-
-static int structure_find_slots_(addr instance, addr name, addr *ret)
-{
-	int check;
-	addr slots, pos, value;
-	size_t size, i;
-
-	Check(! structure_class_p_debug(instance), "type error");
-	Check(! symbolp(name), "type error");
-
-	/* find */
-	GetNameSymbol(name, &name);
-	Return(stdget_structure_slots_(instance, &slots));
-	Check(! slot_vector_p(slots), "type error");
-	LenSlotVector(slots, &size);
-	for (i = 0; i < size; i++) {
-		GetSlotVector(slots, i, &pos);
-		GetNameSlot(pos, &value);
-		GetNameSymbol(value, &value);
-		Return(string_equal_(name, value, &check));
-		if (check)
-			return Result(ret, pos);
-	}
-
-	return Result(ret, Unbound);
-}
-
-static int structure_include_slots_(struct defstruct *str)
-{
-	addr name, list, pos, instance;
-
-	if (! str->include_p)
-		return 0;
-	instance = str->iname;
-	for (list = str->slots; list != Nil; ) {
-		GetCons(list, &pos, &list);
-		GetNameSlot(pos, &name);
-		Return(structure_find_slots_(instance, name, &pos));
-		if (pos != Unbound) {
-			return fmte_("The slot ~S "
-					"already exist in :INCLUDE structure.", name, NULL);
-		}
-	}
-
-	return 0;
-}
-
-static int structure_include_arguments_(struct defstruct *str)
-{
-	int result;
-	addr name, list, instance, a, b, x, y, gensym;
-
-	if (! str->include_p)
-		return 0;
-	instance = str->iname;
-	GetConst(SYSTEM_STRUCTURE_GENSYM, &gensym);
-	for (list = str->iargs; list != Nil; ) {
-		GetCons(list, &a, &list);
-		GetNameSlot(a, &name);
-		Return(structure_find_slots_(instance, name, &b));
-		if (b == Unbound) {
-			return fmte_("The :include argument ~S don't exist "
-					"in :INCLUDE structure.", name, NULL);
-		}
-		/* form */
-		GetFunctionSlot(a, &x);
-		if (x == gensym) {
-			GetFunctionSlot(b, &y);
-			SetFunctionSlot(a, y);
-		}
-		/* type */
-		GetTypeSlot(a, &x);
-		GetTypeSlot(b, &y);
-		if (x == gensym) {
-			SetTypeSlot(a, y);
-		}
-		else {
-			Return(subtypep_check_(str->ptr, x, y, Nil, &result, NULL));
-			if (! result) {
-				return fmte_("The slot ~S type ~A is not "
-						"in the include ~A type.", name, x, y, NULL);
-			}
-		}
-		/* readonly */
-		GetReadOnlySlot(a, &x);
-		GetReadOnlySlot(b, &y);
-		if (x == gensym) {
-			SetReadOnlySlot(a, y);
-		}
-		else if (x == Nil && y == T) {
-			return fmte_("The slot ~S is readonly "
-					"but include slot is not readonly.", name, NULL);
-		}
-	}
-
-	return 0;
-}
-
-static int structure_print_check_(struct defstruct *str)
-{
-	if (str->print_function_p && str->print_object_p) {
-		return fmte_("The defstruct option must be have "
-				"either :PRINT-OBJECT or :PRINT-FUNCTION, "
-				"but there are both options", NULL);
-	}
-
-	return 0;
-}
-
-static void structure_slots_value(struct defstruct *str)
-{
-	addr list, pos, check, g;
-
-	GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
-	for (list = str->slots; list != Nil; ) {
-		GetCons(list, &pos, &list);
-		/* init */
-		GetFunctionSlot(pos, &check);
-		if (check == g) {
-			SetFunctionSlot(pos, Nil);
-		}
-		/* type */
-		GetTypeSlot(pos, &check);
-		if (check == g) {
-			GetTypeTable(&check, T);
-			SetTypeSlot(pos, check);
-		}
-		/* readonly */
-		GetReadOnlySlot(pos, &check);
-		if (check == g) {
-			SetReadOnlySlot(pos, Nil);
-		}
-	}
-}
-
 
 /*
  *  make-instance
@@ -408,7 +51,7 @@ static int structure_instance_include_(struct defstruct *str, addr instance)
 	return 0;
 }
 
-static int structure_instance_(struct defstruct *str)
+int structure_instance_(struct defstruct *str)
 {
 	addr clos, instance, pos;
 
@@ -486,73 +129,190 @@ static int structure_find_slotslist_(addr name, addr list, addr *ret)
 	return 0;
 }
 
-static int structure_slots_make_(struct defstruct *str)
+static int structure_make_slots_getvalue_(struct defstruct *str, size_t *ret)
 {
-	int check;
-	addr root, slots, list, pos, name, args, instance;
-	LocalRoot local;
-	LocalStack stack;
-	size_t size, value, i, count;
+	addr pos;
+	size_t value;
 
-	local = str->ptr->local;
-	push_local(local, &stack);
-	root = slots = Nil;
-	size = value = 0;
-	/* include */
+	*ret = 0;
+	value = 0;
 	if (str->include_p) {
 		pos = str->iname;
-		Return(stdget_structure_slots_(pos, &list));
 		Return(stdget_structure_value_(pos, &pos));
 		if (pos != Nil) {
 			Return(getindex_integer_(pos, &value));
 		}
+	}
+
+	/* result */
+	if (str->named_p)
+		str->named_index = value;
+	value += str->offset;
+
+	return Result(ret, value);
+}
+
+static int structure_make_slots_setvalue_(struct defstruct *str, size_t value)
+{
+	addr pos, instance;
+
+	/* value */
+	instance = str->instance;
+	str->size_value = value;
+	make_index_integer_heap(&pos, value);
+	Return(stdset_structure_value_(instance, pos));
+
+	/* named_index */
+	pos = Nil;
+	if (str->named_p)
+		make_index_integer_heap(&pos, str->named_index);
+	Return(stdset_structure_named_index_(instance, pos));
+
+	return 0;
+}
+
+static int structure_make_slots_include_(struct defstruct *str,
+		addr *slots, addr *root, size_t *ret)
+{
+	LocalRoot local;
+	addr list, pos, name, args;
+	size_t size, i;
+
+	local = str->ptr->local;
+	*root = *slots = Nil;
+	*ret = 0;
+	size = 0;
+	if (str->include_p) {
+		pos = str->iname;
+		Return(stdget_structure_slots_(pos, &list));
 		args = str->iargs;
-		LenSlotVector(list, &count);
-		for (i = 0; i < count; i++) {
+		LenSlotVector(list, &size);
+		for (i = 0; i < size; i++) {
 			GetSlotVector(list, i, &pos);
 			slot_copy_heap(&pos, pos);
 			GetNameSlot(pos, &name);
 			GetNameSymbol(name, &name);
-			cons_local(local, &root, name, root);
+			cons_local(local, root, name, *root);
 			Return(structure_find_slotslist_(name, args, &pos));
 			Check(! slotp(pos), "type error");
-			cons_local(local, &slots, pos, slots);
+			cons_local(local, slots, pos, *slots);
 			/* location */
-			SetLocationSlot(pos, size++);
+			SetLocationSlot(pos, i);
 		}
 	}
-	/* slots */
-	if (str->named_p)
-		str->named_index = value;
-	value += str->offset;
-	for (list = str->slots; list != Nil; ) {
+
+	return Result(ret, size);
+}
+
+static int structure_make_slots_slots_(struct defstruct *str,
+		addr *slots, addr *root, addr *rdirect, size_t *ret)
+{
+	int check;
+	LocalRoot local;
+	addr list, pos, name, direct;
+	size_t value, size, size_direct;
+
+	local = str->ptr->local;
+	Return(structure_make_slots_getvalue_(str, &value));
+
+	/* size */
+	*ret = 0;
+	size = 0;
+	if (str->include_p) {
+		Return(stdget_structure_slots_(str->iname, &pos));
+		LenSlotVector(pos, &size);
+	}
+
+	/* loop */
+	direct = Nil;
+	size_direct = 0;
+	list = str->slots;
+	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		GetNameSlot(pos, &name);
 		GetNameSymbol(name, &name);
-		Return(structure_pushnew_local_(local, &root, name, root, &check));
+		Return(structure_pushnew_local_(local, root, name, *root, &check));
 		if (check) {
-			cons_local(local, &slots, pos, slots);
+			/* slots */
+			cons_local(local, slots, pos, *slots);
 			SetLocationSlot(pos, size++);
 			SetAccessSlot(pos, value++);
+			/* direct-slots */
+			cons_local(local, &direct, pos, direct);
+			size_direct++;
 		}
 	}
-	/* array */
+
+	/* result */
+	Return(structure_make_slots_setvalue_(str, value));
+	*rdirect = direct;
+	return Result(ret, size_direct);
+}
+
+static int structure_make_slots_array_(struct defstruct *str, addr slots, size_t size)
+{
+	addr instance, array, pos;
+	size_t i;
+
 	instance = str->instance;
-	slot_vector_heap(&list, size);
+	slot_vector_heap(&array, size);
 	while (slots != Nil) {
 		GetCons(slots, &pos, &slots);
 		GetLocationSlot(pos, &i);
 		SetClassSlot(pos, instance);
-		SetSlotVector(list, i, pos);
+		SetSlotVector(array, i, pos);
 	}
-	/* result */
+	str->slots = array;
+	Return(stdset_structure_slots_(instance, array));
+
+	return 0;
+}
+
+static int structure_make_slots_direct_(struct defstruct *str, addr list, size_t size)
+{
+	addr instance, array, pos;
+	size_t i;
+
+	/* direct-slots array */
+	instance = str->instance;
+	slot_vector_heap(&array, size);
+	nreverse(&list, list);
+	for (i = 0; list != Nil; i++) {
+		GetCons(list, &pos, &list);
+		SetClassSlot(pos, instance);
+		SetSlotVector(array, i, pos);
+	}
+	Return(stdset_structure_direct_slots_(instance, array));
+
+	return 0;
+}
+
+static int structure_make_slots_call_(struct defstruct *str)
+{
+	addr slots, root, direct;
+	size_t size, size_direct;
+
+	/* make slots */
+	Return(structure_make_slots_include_(str, &slots, &root, &size));
+	Return(structure_make_slots_slots_(str, &slots, &root, &direct, &size_direct));
+	size += size_direct;
 	str->size = size;
-	str->size_value = value;
-	str->slots = list;
-	Return(stdset_structure_slots_(instance, list));
-	Return(stdset_structure_value_(instance, intsizeh(value)));
-	Return(stdset_structure_named_index_(instance,
-				str->named_p? intsizeh(str->named_index): Nil));
+
+	/* set slots */
+	Return(structure_make_slots_array_(str, slots, size));
+	Return(structure_make_slots_direct_(str, direct, size_direct));
+
+	return 0;
+}
+
+int structure_make_slots_(struct defstruct *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+
+	local = str->ptr->local;
+	push_local(local, &stack);
+	Return(structure_make_slots_call_(str));
 	rollback_local(local, stack);
 
 	return 0;
@@ -592,7 +352,7 @@ static int structure_slot_readonly_p(addr slot)
 	return slot != Nil;
 }
 
-static int structure_slots_call_list_(struct defstruct *str)
+static int structure_make_call_list_(struct defstruct *str)
 {
 	addr package, type, slots, pos, symbol;
 	size_t size, i;
@@ -614,7 +374,7 @@ static int structure_slots_call_list_(struct defstruct *str)
 	return 0;
 }
 
-static int structure_slots_call_vector_(struct defstruct *str)
+static int structure_make_call_vector_(struct defstruct *str)
 {
 	addr package, type, slots, pos, symbol;
 	size_t size, i;
@@ -636,7 +396,7 @@ static int structure_slots_call_vector_(struct defstruct *str)
 	return 0;
 }
 
-static int structure_slots_call_clos_(struct defstruct *str)
+static int structure_make_call_clos_(struct defstruct *str)
 {
 	addr instance, package, slots, pos, symbol;
 	size_t size, i;
@@ -660,14 +420,14 @@ static int structure_slots_call_clos_(struct defstruct *str)
 }
 
 /* call */
-static int structure_slots_call_(struct defstruct *str)
+int structure_make_call_(struct defstruct *str)
 {
 	if (str->type_list_p)
-		return structure_slots_call_list_(str);
+		return structure_make_call_list_(str);
 	else if (str->type_vector_p)
-		return structure_slots_call_vector_(str);
+		return structure_make_call_vector_(str);
 	else
-		return structure_slots_call_clos_(str);
+		return structure_make_call_clos_(str);
 }
 
 
@@ -987,7 +747,7 @@ static int structure_constructor_lambda_(addr list)
 	return 0;
 }
 
-static int structure_constructor_(struct defstruct *str)
+int structure_make_constructor_(struct defstruct *str)
 {
 	addr list, pos, g;
 
@@ -1034,7 +794,7 @@ static int structure_copier_callname_(struct defstruct *str, addr *ret)
 	return intern_default_package_(str->ptr, name, ret, NULL);
 }
 
-static int structure_copier_(struct defstruct *str)
+int structure_make_copier_(struct defstruct *str)
 {
 	addr symbol;
 
@@ -1067,21 +827,23 @@ static int structure_predicate_callname_(struct defstruct *str, addr *ret)
 		Return(string_concat_char2_heap_(&name, name, "-P"));
 	}
 	else if (str->predicate == Nil) {
-		return Result(ret, Unbound);
+		return Result(ret, Nil);
 	}
 	else {
 		Check(! stringp(str->predicate), "type error");
 		name = str->predicate;
 	}
+
 	return intern_default_package_(str->ptr, name, ret, NULL);
 }
 
-static int structure_predicate_(struct defstruct *str)
+int structure_make_predicate_(struct defstruct *str, addr instance)
 {
 	addr symbol;
 
 	Return(structure_predicate_callname_(str, &symbol));
-	if (symbol == Unbound)
+	Return(stdset_structure_predicate_(instance, symbol));
+	if (symbol == Nil)
 		return 0;
 
 	Return(parse_callname_error_(&symbol, symbol));
@@ -1090,7 +852,7 @@ static int structure_predicate_(struct defstruct *str)
 	else if (str->type_vector_p)
 		structure_predicate_vector(str, symbol);
 	else
-		structure_predicate_clos(str->instance, symbol);
+		structure_predicate_clos(instance, symbol);
 
 	return 0;
 }
@@ -1112,7 +874,7 @@ static int structure_print_default_p(struct defstruct *str)
 	return 0;
 }
 
-static int structure_print_(struct defstruct *str)
+int structure_make_print_(struct defstruct *str)
 {
 	if (str->type_p && str->print_object_p)
 		return fmte_("Can't make print-object on :TYPE structure.", NULL);
@@ -1132,42 +894,33 @@ static int structure_print_(struct defstruct *str)
 /*
  *  ensure-structure
  */
-static int structure_check_exist_p(struct defstruct *ptr)
+static int structure_check_exist_p(struct defstruct *str)
 {
 	addr pos;
-	clos_find_class_nil(ptr->name, &pos);
+
+	clos_find_class_nil(str->name, &pos);
+	str->change = pos;
+
 	return pos != Nil;
-}
-
-static int structure_arguments_(struct defstruct *str)
-{
-	Return(structure_slots_heap_(str->slots, &(str->slots)));
-	Return(structure_slots_heap_(str->iargs, &(str->iargs)));
-	Return(structure_check_slots_(str->slots));
-	Return(structure_check_slots_(str->iargs));
-	Return(structure_check_predicate_(str));
-	Return(structure_include_(str));
-	Return(structure_include_slots_(str));
-	Return(structure_include_arguments_(str));
-	Return(structure_print_check_(str));
-	structure_slots_value(str);
-
-	return 0;
 }
 
 static int structure_make_(struct defstruct *str)
 {
+	addr instance;
+
 	/* make instance */
 	Return(structure_instance_(str));
-	Check(! structure_class_p_debug(str->instance), "type error");
-	clos_define_class(str->name, str->instance);
+	instance = str->instance;
+	Check(! structure_class_p_debug(instance), "type error");
+	clos_define_class(str->name, instance);
+
 	/* settings */
-	Return(structure_slots_make_(str));
-	Return(structure_slots_call_(str));
-	Return(structure_copier_(str));
-	Return(structure_predicate_(str));
-	Return(structure_constructor_(str));
-	Return(structure_print_(str));
+	Return(structure_make_slots_(str));
+	Return(structure_make_call_(str));
+	Return(structure_make_copier_(str));
+	Return(structure_make_predicate_(str, instance));
+	Return(structure_make_constructor_(str));
+	Return(structure_make_print_(str));
 
 	return 0;
 }

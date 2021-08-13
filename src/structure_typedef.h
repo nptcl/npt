@@ -24,6 +24,7 @@ struct defstruct {
 	addr constructor, iname, iargs;
 	addr print_object, print_function;
 	addr type_vector, initial_offset;
+	addr change;
 	size_t size, offset, size_value, named_index;
 };
 
