@@ -75,34 +75,96 @@
 
 
 ;;  change
-(deftest change-empty.1
+(deftest change-clos-empty.1
   (progn
-    (defstruct change-empty-1)
-    (defstruct change-empty-1))
-  change-empty-1)
+    (defstruct change-clos-empty-1)
+    (defstruct change-clos-empty-1))
+  change-clos-empty-1)
 
-(deftest change-empty.2
+(deftest change-clos-empty.2
   (progn
-    (defstruct change-empty-2 aaa bbb ccc)
-    (defstruct change-empty-2 aaa bbb ccc))
-  change-empty-2)
+    (defstruct change-clos-empty-2 aaa bbb ccc)
+    (defstruct change-clos-empty-2 aaa bbb ccc))
+  change-clos-empty-2)
 
-(deftest-error change-empty.3
+(deftest-error change-clos-empty.3
   (progn
-    (defstruct change-empty-3 aaa bbb ccc)
-    (defstruct change-empty-3 aaa bbb)))
+    (defstruct change-clos-empty-3 aaa bbb ccc)
+    (defstruct change-clos-empty-3 aaa bbb)))
 
-(deftest-error change-empty.4
+(deftest-error change-clos-empty.4
   (progn
-    (defstruct change-empty-4 aaa bbb)
-    (defstruct change-empty-4 aaa bbb ccc)))
+    (defstruct change-clos-empty-4 aaa bbb)
+    (defstruct change-clos-empty-4 aaa bbb ccc)))
 
-(deftest change-empty.5
+(deftest change-clos-empty.5
   (let (x y)
-    (defstruct change-empty-5)
-    (setq x (find-class 'change-empty-5))
-    (defstruct change-empty-5)
-    (setq y (find-class 'change-empty-5))
+    (defstruct change-clos-empty-5)
+    (setq x (find-class 'change-clos-empty-5))
+    (defstruct change-clos-empty-5)
+    (setq y (find-class 'change-clos-empty-5))
+    (eq x y))
+  t)
+
+(deftest change-list-empty.1
+  (progn
+    (defstruct (change-list-empty-1 (:type list) :named))
+    (defstruct (change-list-empty-1 (:type list) :named)))
+  change-list-empty-1)
+
+(deftest change-list-empty.2
+  (progn
+    (defstruct (change-list-empty-2 (:type list) :named) aaa bbb ccc)
+    (defstruct (change-list-empty-2 (:type list) :named) aaa bbb ccc))
+  change-list-empty-2)
+
+(deftest-error change-list-empty.3
+  (progn
+    (defstruct (change-list-empty-3 (:type list) :named) aaa bbb ccc)
+    (defstruct (change-list-empty-3 (:type list) :named) aaa bbb)))
+
+(deftest-error change-list-empty.4
+  (progn
+    (defstruct (change-list-empty-4 (:type list) :named) aaa bbb)
+    (defstruct (change-list-empty-4 (:type list) :named) aaa bbb ccc)))
+
+(deftest change-list-empty.5
+  (let (x y)
+    (defstruct (change-list-empty-5 (:type list) :named))
+    (setq x (find-class 'change-list-empty-5))
+    (defstruct (change-list-empty-5 (:type list) :named))
+    (setq y (find-class 'change-list-empty-5))
+    (eq x y))
+  t)
+
+(deftest change-vector-empty.1
+  (progn
+    (defstruct (change-vector-empty-1 (:type vector) :named))
+    (defstruct (change-vector-empty-1 (:type vector) :named)))
+  change-vector-empty-1)
+
+(deftest change-vector-empty.2
+  (progn
+    (defstruct (change-vector-empty-2 (:type vector) :named) aaa bbb ccc)
+    (defstruct (change-vector-empty-2 (:type vector) :named) aaa bbb ccc))
+  change-vector-empty-2)
+
+(deftest-error change-vector-empty.3
+  (progn
+    (defstruct (change-vector-empty-3 (:type vector) :named) aaa bbb ccc)
+    (defstruct (change-vector-empty-3 (:type vector) :named) aaa bbb)))
+
+(deftest-error change-vector-empty.4
+  (progn
+    (defstruct (change-vector-empty-4 (:type vector) :named) aaa bbb)
+    (defstruct (change-vector-empty-4 (:type vector) :named) aaa bbb ccc)))
+
+(deftest change-vector-empty.5
+  (let (x y)
+    (defstruct (change-vector-empty-5 (:type vector) :named))
+    (setq x (find-class 'change-vector-empty-5))
+    (defstruct (change-vector-empty-5 (:type vector) :named))
+    (setq y (find-class 'change-vector-empty-5))
     (eq x y))
   t)
 

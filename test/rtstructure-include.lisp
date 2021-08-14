@@ -232,43 +232,6 @@
   vector-include-error-9)
 
 
-;;  change
-(defstruct change-include-1 aaa)
-(defstruct change-include-2 bbb ccc)
-
-(deftest-error change-include.1
-  (eval '(defstruct (change-include-3
-                      (:include change-include-1)
-                      (:include change-include-2)))))
-
-(deftest-error change-include.2
-  (progn
-    (defstruct change-include-3)
-    (defstruct (change-include-3 (:include change-include-2)))))
-
-(deftest-error change-include.3
-  (progn
-    (defstruct (change-include-4 (:include change-include-1)) ddd eee)
-    (defstruct change-include-4)))
-
-(deftest-error change-include.4
-  (progn
-    (defstruct (change-include-5 (:include change-include-1)))
-    (defstruct (change-include-5 (:include change-include-2)))))
-
-(deftest change-include.5
-  (progn
-    (defstruct (change-include-6 (:include change-include-1)))
-    (defstruct (change-include-6 (:include change-include-1))))
-  change-include-6)
-
-(deftest change-include.6
-  (progn
-    (defstruct (change-include-7 (:include change-include-2)))
-    (defstruct (change-include-7 (:include change-include-2 (bbb 100)))))
-  change-include-7)
-
-
 ;;
 ;;  include
 ;;
@@ -664,4 +627,162 @@
       (vector-include-named-3-hh x)
       (vector-include-named-3-ii x)))
   10 20 30 40 50 111 222 333 444)
+
+
+
+;;
+;;  change
+;;
+
+;;  clos
+(defstruct change-clos-include-1 aaa)
+(defstruct change-clos-include-2 bbb ccc)
+
+(deftest-error change-clos-include.1
+  (eval '(defstruct (change-clos-include-3
+                      (:include change-clos-include-1)
+                      (:include change-clos-include-2)))))
+
+(deftest-error change-clos-include.2
+  (progn
+    (defstruct change-clos-include-3)
+    (defstruct (change-clos-include-3 (:include change-clos-include-2)))))
+
+(deftest-error change-clos-include.3
+  (progn
+    (defstruct (change-clos-include-4 (:include change-clos-include-1)) ddd eee)
+    (defstruct change-clos-include-4)))
+
+(deftest-error change-clos-include.4
+  (progn
+    (defstruct (change-clos-include-5 (:include change-clos-include-1)))
+    (defstruct (change-clos-include-5 (:include change-clos-include-2)))))
+
+(deftest change-clos-include.5
+  (progn
+    (defstruct (change-clos-include-6 (:include change-clos-include-1)))
+    (defstruct (change-clos-include-6 (:include change-clos-include-1))))
+  change-clos-include-6)
+
+(deftest change-clos-include.6
+  (progn
+    (defstruct (change-clos-include-7 (:include change-clos-include-2)))
+    (defstruct (change-clos-include-7 (:include change-clos-include-2 (bbb 100)))))
+  change-clos-include-7)
+
+
+;;  list
+(defstruct (change-list-include-1 (:type list) :named) aaa)
+(defstruct (change-list-include-2 (:type list) :named) bbb ccc)
+
+(deftest-error change-list-include.1
+  (eval '(defstruct (change-list-include-3
+                      (:include change-list-include-1)
+                      (:include change-list-include-2)
+                      (:type list)
+                      :named))))
+
+(deftest-error change-list-include.2
+  (progn
+    (defstruct (change-list-include-3
+                 (:type list) :named))
+    (defstruct (change-list-include-3
+                 (:include change-list-include-2)
+                 (:type list) :named))))
+
+(deftest-error change-list-include.3
+  (progn
+    (defstruct (change-list-include-4
+                 (:include change-list-include-1)
+                 (:type list) :named)
+      ddd eee)
+    (defstruct (change-list-include-4
+                 (:type list) :named))))
+
+(deftest-error change-list-include.4
+  (progn
+    (defstruct (change-list-include-5
+                 (:include change-list-include-1)
+                 (:type list) :named))
+    (defstruct (change-list-include-5
+                 (:include change-list-include-2)
+                 (:type list) :named))))
+
+(deftest change-list-include.5
+  (progn
+    (defstruct (change-list-include-6
+                 (:include change-list-include-1)
+                 (:type list) :named))
+    (defstruct (change-list-include-6
+                 (:include change-list-include-1)
+                 (:type list) :named)))
+  change-list-include-6)
+
+(deftest change-list-include.6
+  (progn
+    (defstruct (change-list-include-7
+                 (:include change-list-include-2)
+                 (:type list) :named))
+    (defstruct (change-list-include-7
+                 (:include change-list-include-2 (bbb 100))
+                 (:type list) :named)))
+  change-list-include-7)
+
+
+;;  vector
+(defstruct (change-vector-include-1 (:type vector) :named) aaa)
+(defstruct (change-vector-include-2 (:type vector) :named) bbb ccc)
+
+(deftest-error change-vector-include.1
+  (eval '(defstruct (change-vector-include-3
+                      (:include change-vector-include-1)
+                      (:include change-vector-include-2)
+                      (:type vector)
+                      :named))))
+
+(deftest-error change-vector-include.2
+  (progn
+    (defstruct (change-vector-include-3
+                 (:type vector) :named))
+    (defstruct (change-vector-include-3
+                 (:include change-vector-include-2)
+                 (:type vector) :named))))
+
+(deftest-error change-vector-include.3
+  (progn
+    (defstruct (change-vector-include-4
+                 (:include change-vector-include-1)
+                 (:type vector) :named)
+      ddd eee)
+    (defstruct (change-vector-include-4
+                 (:type vector) :named))))
+
+(deftest-error change-vector-include.4
+  (progn
+    (defstruct (change-vector-include-5
+                 (:include change-vector-include-1)
+                 (:type vector) :named))
+    (defstruct (change-vector-include-5
+                 (:include change-vector-include-2)
+                 (:type vector) :named))))
+
+(deftest change-vector-include.5
+  (progn
+    (defstruct (change-vector-include-6
+                 (:include change-vector-include-1)
+                 (:type vector) :named))
+    (defstruct (change-vector-include-6
+                 (:include change-vector-include-1)
+                 (:type vector) :named)))
+  change-vector-include-6)
+
+(deftest change-vector-include.6
+  (progn
+    (defstruct (change-vector-include-7
+                 (:include change-vector-include-2)
+                 (:type vector) :named))
+    (defstruct (change-vector-include-7
+                 (:include change-vector-include-2 (bbb 100))
+                 (:type vector) :named)))
+  change-vector-include-7)
 

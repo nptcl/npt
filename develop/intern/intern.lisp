@@ -1299,12 +1299,20 @@ lisp-clos::named
 lisp-clos::named-index
 lisp-clos::value
 lisp-clos::predicate
+lisp-clos::access
+lisp-clos::copier
+lisp-clos::constructor
+lisp-clos::print
 (:slots                      :constant closkey)
 (:include                    :constant closkey)
 (:named                      :constant closkey)
 (:named-index                :constant closkey)
 (:value                      :constant closkey)
 (:predicate                  :constant closkey)
+(:access                     :constant closkey)
+(:copier                     :constant closkey)
+(:constructor                :constant closkey)
+(:print                      :constant closkey)
 
 ;;  system
 lisp-system::value ;; symbol, function

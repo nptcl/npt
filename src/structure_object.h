@@ -32,6 +32,14 @@
 #define stdset_structure_value_ _n(stdset_structure_value_)
 #define stdget_structure_predicate_ _n(stdget_structure_predicate_)
 #define stdset_structure_predicate_ _n(stdset_structure_predicate_)
+#define stdget_structure_access_ _n(stdget_structure_access_)
+#define stdset_structure_access_ _n(stdset_structure_access_)
+#define stdget_structure_copier_ _n(stdget_structure_copier_)
+#define stdset_structure_copier_ _n(stdset_structure_copier_)
+#define stdget_structure_constructor_ _n(stdget_structure_constructor_)
+#define stdset_structure_constructor_ _n(stdset_structure_constructor_)
+#define stdget_structure_print_ _n(stdget_structure_print_)
+#define stdset_structure_print_ _n(stdset_structure_print_)
 
 #define localhold_destruct _n(localhold_destruct)
 #define defstruct_clean _n(defstruct_clean)
@@ -86,7 +94,14 @@ int stdget_structure_value_(addr pos, addr *ret);
 int stdset_structure_value_(addr pos, addr value);
 int stdget_structure_predicate_(addr pos, addr *ret);
 int stdset_structure_predicate_(addr pos, addr value);
-
+int stdget_structure_access_(addr pos, addr *ret);
+int stdset_structure_access_(addr pos, addr value);
+int stdget_structure_copier_(addr pos, addr *ret);
+int stdset_structure_copier_(addr pos, addr value);
+int stdget_structure_constructor_(addr pos, addr *ret);
+int stdset_structure_constructor_(addr pos, addr value);
+int stdget_structure_print_(addr pos, addr *ret);
+int stdset_structure_print_(addr pos, addr value);
 
 /*
  *  defstruct

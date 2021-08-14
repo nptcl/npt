@@ -167,6 +167,42 @@ int stdset_structure_predicate_(addr pos, addr value)
 	return StdSetStructure_(pos, value, predicate, PREDICATE);
 }
 
+int stdget_structure_access_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, access, ACCESS);
+}
+int stdset_structure_access_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, access, ACCESS);
+}
+
+int stdget_structure_copier_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, copier, COPIER);
+}
+int stdset_structure_copier_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, copier, COPIER);
+}
+
+int stdget_structure_constructor_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, constructor, CONSTRUCTOR);
+}
+int stdset_structure_constructor_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, constructor, CONSTRUCTOR);
+}
+
+int stdget_structure_print_(addr pos, addr *ret)
+{
+	return StdGetStructure_(pos, ret, print, PRINT);
+}
+int stdset_structure_print_(addr pos, addr value)
+{
+	return StdSetStructure_(pos, value, print, PRINT);
+}
+
 
 /*
  *  structure

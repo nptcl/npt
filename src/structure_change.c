@@ -1,4 +1,5 @@
 #include "clos.h"
+#include "clos_method.h"
 #include "condition.h"
 #include "control_object.h"
 #include "structure.h"
@@ -56,57 +57,125 @@ error:
 		GetNameSlot(x, &x);
 		cons_heap(&list, x, list);
 	}
-	return fmte_("Cannot change slots ~S in ~S.", list, str->change, NULL);
+	return fmte_("Cannot change slots ~S in ~S.", list, str->instance, NULL);
+}
+
+static int structure_change_call_(struct defstruct *str)
+{
+	addr list, pos;
+
+	/* fmakunbound */
+	Return(stdget_structure_access_(str->change, &list));
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCdr(pos, &pos);
+		SetFunctionSymbol(pos, Unbound);
+		remsetf_symbol(pos);
+	}
+
+	/* make function */
+	return structure_make_call_(str);
+}
+
+static int structure_change_copier_(struct defstruct *str)
+{
+	addr symbol;
+
+	/* fmakunbound */
+	Return(stdget_structure_copier_(str->change, &symbol));
+	if (symbol != Nil) {
+		SetFunctionSymbol(symbol, Unbound);
+	}
+
+	/* make function */
+	return structure_make_copier_(str);
 }
 
 static int structure_change_predicate_(struct defstruct *str)
 {
-	addr symbol, instance;
+	addr symbol;
 
 	/* delete */
-	instance = str->change;
-	Return(stdget_structure_predicate_(instance, &symbol));
+	Return(stdget_structure_predicate_(str->change, &symbol));
 	if (symbol != Nil) {
 		SetFunctionSymbol(symbol, Unbound);
 	}
 
 	/* make */
-	return structure_make_predicate_(str, instance);
+	return structure_make_predicate_(str);
+}
+
+static int structure_change_constructor_(struct defstruct *str)
+{
+	addr list, symbol;
+
+	/* delete */
+	Return(stdget_structure_constructor_(str->change, &list));
+	while (list != Nil) {
+		GetCons(list, &symbol, &list);
+		SetFunctionSymbol(symbol, Unbound);
+	}
+
+	/* make */
+	return structure_make_constructor_(str);
 }
 
 
 /*
  *  interface
  */
-static int structure_change_execute_(struct defstruct *str)
+static int structure_change_instance_(struct defstruct *str)
 {
-	/* check */
-	Return(structure_change_include_(str));
-	Return(structure_change_slots_(str));
-	Return(structure_make_call_(str));
-	Return(structure_make_copier_(str));
-	Return(structure_change_predicate_(str));
-	Return(structure_make_constructor_(str));
-	Return(structure_make_print_(str));
-
-	return 0;
-}
-
-static int structure_change_call_(struct defstruct *str)
-{
-	/* make instance */
-	Return(structure_instance_(str));
-	Check(! structure_class_p_debug(str->instance), "type error");
-
-	/* settings */
-	Return(structure_change_execute_(str));
+	addr instance, change, list;
 
 	/* swap */
-	clos_swap(str->instance, str->change);
+	instance = str->instance;
+	Return(structure_instance_(str));
+	change = str->instance;
+	str->instance = instance;
+	str->change = change;
+	Check(! structure_class_p_debug(instance), "type error");
+
+	/* swap */
+	clos_swap(instance, change);
+
+	/* precedence-list */
+	Return(stdget_structure_precedence_list_(change, &list));
+	Return(stdset_structure_precedence_list_(instance, list));
 
 	return 0;
 }
 
+static int structure_change_print_(struct defstruct *str)
+{
+	addr gen, method;
+
+	/* remove method */
+	GetConst(COMMON_PRINT_OBJECT, &gen);
+	GetFunctionSymbol(gen, &gen);
+	Return(stdget_structure_print_(str->change, &method));
+	if (method != Nil) {
+		Return(method_remove_method_(str->ptr, gen, method));
+		Return(stdset_structure_print_(str->change, Nil));
+	}
+
+	/* make method */
+	return structure_make_print_(str);
+}
+
+static int structure_change_execute_(struct defstruct *str)
+{
+	Return(structure_change_instance_(str));
+	Return(structure_change_include_(str));
+	Return(structure_change_slots_(str));
+	Return(structure_change_call_(str));
+	Return(structure_change_copier_(str));
+	Return(structure_change_predicate_(str));
+	Return(structure_change_constructor_(str));
+	Return(structure_change_print_(str));
+
+	return 0;
+}
 
 int structure_change_(struct defstruct *str)
 {
@@ -115,7 +184,7 @@ int structure_change_(struct defstruct *str)
 
 	ptr = str->ptr;
 	push_control(ptr, &control);
-	(void)structure_change_call_(str);
+	(void)structure_change_execute_(str);
 	return pop_control_(ptr, control);
 }
 

@@ -1193,6 +1193,10 @@ static void clos_structure_slots(addr *ret)
 	SlotMakeName(slots, NAMED_INDEX, structure_named_index);
 	SlotMakeName(slots, VALUE, structure_value);
 	SlotMakeName(slots, PREDICATE, structure_predicate);
+	SlotMakeForm(slots, ACCESS, structure_access);
+	SlotMakeForm(slots, COPIER, structure_copier);
+	SlotMakeForm(slots, CONSTRUCTOR, structure_constructor);
+	SlotMakeForm(slots, PRINT, structure_print);
 	slotvector_set_location(slots);
 	*ret = slots;
 }

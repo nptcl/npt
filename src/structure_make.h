@@ -23,7 +23,7 @@ int make_structure_clos_(Execute ptr, addr *ret, addr pos, addr args, int initp)
 int structure_make_slots_(struct defstruct *str);
 int structure_make_call_(struct defstruct *str);
 int structure_make_copier_(struct defstruct *str);
-int structure_make_predicate_(struct defstruct *str, addr instance);
+int structure_make_predicate_(struct defstruct *str);
 int structure_make_constructor_(struct defstruct *str);
 int structure_make_print_(struct defstruct *str);
 int structure_instance_(struct defstruct *str);

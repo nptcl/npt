@@ -744,6 +744,7 @@ static int structure_print_add_method_(struct defstruct *str, addr name, addr me
 	ptr = str->ptr;
 	Return(getglobalcheck_callname_(name, &generic));
 	Check(! clos_generic_p_debug(generic), "type error");
+	Return(stdset_structure_print_(str->instance, method));
 	return method_add_method_(ptr, generic, method);
 }
 
