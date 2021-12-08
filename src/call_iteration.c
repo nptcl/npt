@@ -124,37 +124,30 @@ static int do_constant_common(addr form, addr *ret,
 
 	GetConstant(do_constant, &name);
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &var, &args))
 		goto error;
-	GetCons(args, &var, &args);
 	for (cdr = var; cdr != Nil; ) { /* check only */
-		if (! consp(cdr))
+		if (! consp_getcons(cdr, &car, &cdr))
 			return fmte_("~S variable argument ~S must be a list.", name, cdr, NULL);
-		GetCons(cdr, &car, &cdr);
 		if (symbolp(car))
 			continue;
-		if (! consp(car))
+		if (! consp_getcdr(car, &car)) /* var */
 			goto error_var;
-		GetCdr(car, &car); /* var */
 		if (car == Nil)
 			continue;
-		if (! consp(car))
+		if (! consp_getcdr(car, &car)) /* init */
 			goto error_var;
-		GetCdr(car, &car); /* init */
 		if (car == Nil)
 			continue;
-		if (! consp(car))
+		if (! consp_getcdr(car, &car))
 			goto error_var;
-		GetCdr(car, &car);
 		if (car != Nil)
 			goto error_var;
 	}
-	if (! consp(args))
+	if (! consp_getcons(args, &end, &args))
 		goto error;
-	GetCons(args, &end, &args);
-	if (! consp(end))
+	if (! consp_getcons(end, &end, &result))
 		goto error;
-	GetCons(end, &end, &result);
 	Return(declare_body_form_(args, &decl, &args));
 	return do_expand_common(ret, let, setq, var, end, result, decl, args);
 
@@ -212,19 +205,15 @@ int dotimes_common(addr form, addr env, addr *ret)
 	addr args, var, count, result, check;
 
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &var, &args))
 		goto error;
-	GetCons(args, &var, &args);
-	if (! consp(var))
+	if (! consp_getcons(var, &var, &count))
 		goto error;
-	GetCons(var, &var, &count);
-	if (! consp(count))
+	if (! consp_getcons(count, &count, &result))
 		goto error;
-	GetCons(count, &count, &result);
 	if (result != Nil) {
-		if (! consp(result))
+		if (! consp_getcons(result, &result, &check))
 			goto error;
-		GetCons(result, &result, &check);
 		if (check != Nil)
 			goto error;
 	}
@@ -319,19 +308,15 @@ int dolist_common(Execute ptr, addr form, addr env, addr *ret)
 	addr args, var, list, result, decl, check;
 
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &var, &args))
 		goto error;
-	GetCons(args, &var, &args);
-	if (! consp(var))
+	if (! consp_getcons(var, &var, &list))
 		goto error;
-	GetCons(var, &var, &list);
-	if (! consp(list))
+	if (! consp_getcons(list, &list, &result))
 		goto error;
-	GetCons(list, &list, &result);
 	if (result != Nil) {
-		if (! consp(result))
+		if (! consp_getcons(result, &result, &check))
 			goto error;
-		GetCons(result, &result, &check);
 		if (check != Nil)
 			goto error;
 	}

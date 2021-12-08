@@ -4,8 +4,8 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define defstruct_common _n(defstruct_common)
-int defstruct_common(Execute ptr, addr form, addr env, addr *ret);
+#define defstruct_common_ _n(defstruct_common_)
+int defstruct_common_(Execute ptr, addr form, addr env, addr *ret);
 
 #endif
 

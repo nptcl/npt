@@ -24,6 +24,7 @@
 #define vector_setelt_ _n(vector_setelt_)
 #define vector_reverse _n(vector_reverse)
 #define vector_nreverse _n(vector_nreverse)
+#define vector_copy_heap_ _n(vector_copy_heap_)
 
 int vector_type_p(addr pos);
 int vector_pop_common_(Execute ptr, addr pos, addr *ret);
@@ -48,6 +49,7 @@ int vector_float_(addr *ret, size_t size, enum ARRAY_TYPE type, addr value);
 int vector_setelt_(addr pos, size_t index, addr value);
 void vector_reverse(LocalRoot local, addr *ret, addr pos);
 void vector_nreverse(addr *ret, addr pos);
+int vector_copy_heap_(addr *ret, addr pos);
 
 #endif
 

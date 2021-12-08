@@ -154,7 +154,8 @@ void init_code_init(void)
 	initcode(pop_code, Null);
 	initcode(pop_unbound_code, Null);
 	initcode(getf_code, Addr);
-	initcode(rest_code, Null);
+	initcode(rest_copy_code, Null);
+	initcode(rest_bind_code, Null);
 	initcode(allow_other_keys_code, Addr);
 	initcode(rest_null_code, Addr);
 	initcode(whole_code, Null);
@@ -317,7 +318,8 @@ void build_code_init(void)
 	defcode(POP, pop_code);
 	defcode(POP_UNBOUND, pop_unbound_code);
 	defcode(GETF, getf_code);
-	defcode(REST, rest_code);
+	defcode(REST_COPY, rest_copy_code);
+	defcode(REST_BIND, rest_bind_code);
 	defcode(ALLOW_OTHER_KEYS, allow_other_keys_code);
 	defcode(REST_NULL, rest_null_code);
 	defcode(WHOLE, whole_code);

@@ -1,6 +1,7 @@
 #include "array.h"
 #include "array_access.h"
 #include "array_adjust.h"
+#include "array_copy.h"
 #include "array_make.h"
 #include "array_vector.h"
 #include "bit.h"
@@ -497,5 +498,21 @@ void vector_nreverse(addr *ret, addr pos)
 		y--;
 	}
 	*ret = pos;
+}
+
+int vector_copy_heap_(addr *ret, addr pos)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_ARRAY:
+			return array_copy_heap_(ret, pos);
+
+		case LISPTYPE_VECTOR:
+			copy_vector_heap(ret, pos);
+			return 0;
+
+		default:
+			*ret = Nil;
+			return TypeError_(pos, VECTOR);
+	}
 }
 

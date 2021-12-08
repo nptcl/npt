@@ -12,7 +12,7 @@
   clos-empty-1)
 
 (deftest clos-empty.2
-  (defstruct clos-empty-1)
+  (defstruct clos-empty-1)  ;; change
   clos-empty-1)
 
 (deftest clos-empty.3
@@ -101,8 +101,25 @@
   (let (x y)
     (defstruct change-clos-empty-5)
     (setq x (find-class 'change-clos-empty-5))
+    (when (lisp-system:sysctl 'structure 'check 'change-clos-empty-5)
+      (error "sysctl error, 1"))
     (defstruct change-clos-empty-5)
     (setq y (find-class 'change-clos-empty-5))
+    (when (lisp-system:sysctl 'structure 'check 'change-clos-empty-5)
+      (error "sysctl error, 2"))
+    (eq x y))
+  t)
+
+(deftest change-clos-empty.6
+  (let (x y)
+    (defstruct change-clos-empty-6 aaa)
+    (setq x (find-class 'change-clos-empty-6))
+    (when (lisp-system:sysctl 'structure 'check 'change-clos-empty-6)
+      (error "sysctl error, 1"))
+    (defstruct change-clos-empty-6 :aaa)
+    (setq y (find-class 'change-clos-empty-6))
+    (when (lisp-system:sysctl 'structure 'check 'change-clos-empty-6)
+      (error "sysctl error, 2"))
     (eq x y))
   t)
 
@@ -129,12 +146,33 @@
     (defstruct (change-list-empty-4 (:type list) :named) aaa bbb ccc)))
 
 (deftest change-list-empty.5
-  (let (x y)
+  (progn
     (defstruct (change-list-empty-5 (:type list) :named))
-    (setq x (find-class 'change-list-empty-5))
+    (when (find-class 'change-list-empty-5 nil)
+      (error "find-class error, 1"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-list-empty-5)
+      (error "sysctl error, 2"))
     (defstruct (change-list-empty-5 (:type list) :named))
-    (setq y (find-class 'change-list-empty-5))
-    (eq x y))
+    (when (find-class 'change-list-empty-5 nil)
+      (error "find-class error, 3"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-list-empty-5)
+      (error "sysctl error, 4"))
+    t)
+  t)
+
+(deftest change-list-empty.6
+  (progn
+    (defstruct (change-list-empty-6 (:type list) :named) aaa)
+    (when (find-class 'change-list-empty-6 nil)
+      (error "find-class error, 1"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-list-empty-6)
+      (error "sysctl error, 2"))
+    (defstruct (change-list-empty-6 (:type list) :named) :aaa)
+    (when (find-class 'change-list-empty-6 nil)
+      (error "find-class error, 3"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-list-empty-6)
+      (error "sysctl error, 4"))
+    t)
   t)
 
 (deftest change-vector-empty.1
@@ -160,12 +198,33 @@
     (defstruct (change-vector-empty-4 (:type vector) :named) aaa bbb ccc)))
 
 (deftest change-vector-empty.5
-  (let (x y)
+  (progn
     (defstruct (change-vector-empty-5 (:type vector) :named))
-    (setq x (find-class 'change-vector-empty-5))
+    (when (find-class 'change-vector-empty-5 nil)
+      (error "find-class error, 1"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-vector-empty-5)
+      (error "sysctl error, 2"))
     (defstruct (change-vector-empty-5 (:type vector) :named))
-    (setq y (find-class 'change-vector-empty-5))
-    (eq x y))
+    (when (find-class 'change-vector-empty-5 nil)
+      (error "find-class error, 3"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-vector-empty-5)
+      (error "sysctl error, 4"))
+    t)
+  t)
+
+(deftest change-vector-empty.6
+  (progn
+    (defstruct (change-vector-empty-6 (:type vector) :named) aaa)
+    (when (find-class 'change-vector-empty-6 nil)
+      (error "find-class error, 1"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-vector-empty-6)
+      (error "sysctl error, 2"))
+    (defstruct (change-vector-empty-6 (:type vector) :named) :aaa)
+    (when (find-class 'change-vector-empty-6 nil)
+      (error "find-class error, 3"))
+    (unless (lisp-system:sysctl 'structure 'check 'change-vector-empty-6)
+      (error "sysctl error, 4"))
+    t)
   t)
 
 

@@ -9,6 +9,9 @@
 #include "stream_memory.h"
 #include "stream_object.h"
 #include "strtype.h"
+#include "structure.h"
+#include "structure_change.h"
+#include "structure_delete.h"
 #include "symbol.h"
 #include "sysctl.h"
 #include "typedef.h"
@@ -166,6 +169,68 @@ error:
 
 
 /*
+ *  structure
+ */
+static int sysctl_structure_check_(Execute ptr, addr pos)
+{
+	int check;
+
+	check = structure_get_object(pos, &pos);
+	setvalues_control(ptr, check? T: Nil, T, NULL);
+	return 0;
+}
+
+static int sysctl_structure_delete_(Execute ptr, addr pos)
+{
+	int check;
+
+	Return(structure_delete_(ptr, pos, &check));
+	pos = check? T: Nil;
+	setvalues_control(ptr, pos, T, NULL);
+
+	return 0;
+}
+
+static int sysctl_structure_type_(Execute ptr, addr pos)
+{
+	Return(structure_get_type_(pos, &pos));
+	setvalues_control(ptr, pos, T, NULL);
+
+	return 0;
+}
+
+static int sysctl_structure_(Execute ptr, addr args)
+{
+	int check;
+	addr name, pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (! consp_getcons(args, &name, &args))
+		goto error;
+
+	/* check */
+	Return(string_designer_equalp_char_(pos, "check", &check));
+	if (check)
+		return sysctl_structure_check_(ptr, name);
+
+	/* delete */
+	Return(string_designer_equalp_char_(pos, "delete", &check));
+	if (check)
+		return sysctl_structure_delete_(ptr, name);
+
+	/* type */
+	Return(string_designer_equalp_char_(pos, "type", &check));
+	if (check)
+		return sysctl_structure_type_(ptr, name);
+
+error:
+	setvalues_control(ptr, Nil, T, NULL);
+	return 0;
+}
+
+
+/*
  *  sysctl
  */
 int sysctl_values_(Execute ptr, addr pos, addr args)
@@ -184,6 +249,11 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 	Return(string_designer_equalp_char_(pos, "recovery", &check));
 	if (check)
 		return sysctl_recovery_(ptr, args);
+
+	/* structure */
+	Return(string_designer_equalp_char_(pos, "structure", &check));
+	if (check)
+		return sysctl_structure_(ptr, args);
 
 	/* error */
 	setresult_control(ptr, Nil);

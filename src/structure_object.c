@@ -1,475 +1,282 @@
-#include "array_vector.h"
-#include "condition.h"
-#include "constant.h"
-#include "clos.h"
-#include "cons_list.h"
 #include "heap.h"
-#include "hold.h"
-#include "sequence.h"
 #include "structure_object.h"
-#include "type_typep.h"
-#include "type_parse.h"
 #include "typedef.h"
 
-/*
- *  access
- */
-static int stdget_structure_constant_(addr pos, addr *ret,
-		enum Clos_structure_Index index1, constindex index2)
+int structure_object_p(addr pos)
 {
-	addr clos, check;
-
-	CheckType(pos, LISPTYPE_CLOS);
-	Check(Clos_structure_size <= index1, "index error");
-	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_STRUCTURE_CLASS, &check);
-	if (clos == check) {
-		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		return clos_checkelt_(pos, (size_t)index1, ret);
-	}
-	else {
-		GetConstant(index2, &check);
-		return clos_check_(pos, check, ret);
-	}
+	return GetType(pos) == LISPSYSTEM_STRUCTURE;
 }
 
-static int stdset_structure_constant_(addr pos, addr value,
-		enum Clos_structure_Index index1, constindex index2)
+struct structure_struct *ptrstructure(addr pos)
 {
-	addr clos, check;
-
-	CheckType(pos, LISPTYPE_CLOS);
-	Check(Clos_structure_size <= index1, "index error");
-	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_STRUCTURE_CLASS, &check);
-	if (clos == check) {
-		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_setelt(pos, (size_t)index1, value);
-		return 0;
-	}
-	else {
-		GetConstant(index2, &check);
-		return clos_set_(pos, check, value);
-	}
-}
-#define StdGetStructure_(p,r,a,b) \
-	stdget_structure_constant_((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
-#define StdSetStructure_(p,r,a,b) \
-	stdset_structure_constant_((p), (r), Clos_structure_##a, CONSTANT_CLOSNAME_##b)
-
-int stdget_structure_name_(addr pos, addr *ret)
-{
-	return StdGetStructure_(pos, ret, name, NAME);
-}
-int stdset_structure_name_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, name, NAME);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure_Low(pos);
 }
 
-int stdget_structure_direct_slots_(addr pos, addr *ret)
+void getnamestructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, direct_slots, DIRECT_SLOTS);
-}
-int stdset_structure_direct_slots_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, direct_slots, DIRECT_SLOTS);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetNameStructure_Low(pos, ret);
 }
 
-int stdget_structure_slots_(addr pos, addr *ret)
+void setnamestructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, slots, SLOTS);
-}
-int stdset_structure_slots_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, slots, SLOTS);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetNameStructure_Low(pos, value);
 }
 
-int stdget_structure_documentation_(addr pos, addr *ret)
+void getslotsstructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, documentation, DOCUMENTATION);
-}
-int stdset_structure_documentation_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, documentation, DOCUMENTATION);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetSlotsStructure_Low(pos, ret);
 }
 
-int stdget_structure_include_(addr pos, addr *ret)
+void setslotsstructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, include, INCLUDE);
-}
-int stdset_structure_include_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, include, INCLUDE);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetSlotsStructure_Low(pos, value);
 }
 
-int stdget_structure_precedence_list_(addr pos, addr *ret)
+void getdirectstructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, precedence_list, CLASS_PRECEDENCE_LIST);
-}
-int stdset_structure_precedence_list_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, precedence_list, CLASS_PRECEDENCE_LIST);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetDirectStructure_Low(pos, ret);
 }
 
-int stdget_structure_type_(addr pos, addr *ret)
+void setdirectstructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, type, TYPE);
-}
-int stdset_structure_type_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, type, TYPE);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetDirectStructure_Low(pos, value);
 }
 
-int stdget_structure_vector_(addr pos, addr *ret)
+void getdocstructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, vector, VECTOR);
-}
-int stdset_structure_vector_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, vector, VECTOR);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetDocStructure_Low(pos, ret);
 }
 
-int stdget_structure_named_(addr pos, addr *ret)
+void setdocstructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, named, NAMED);
-}
-int stdset_structure_named_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, named, NAMED);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetDocStructure_Low(pos, value);
 }
 
-int stdget_structure_named_index_(addr pos, addr *ret)
+void getincludestructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, named_index, NAMED_INDEX);
-}
-int stdset_structure_named_index_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, named_index, NAMED_INDEX);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetIncludeStructure_Low(pos, ret);
 }
 
-int stdget_structure_value_(addr pos, addr *ret)
+void setincludestructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, value, VALUE);
-}
-int stdset_structure_value_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, value, VALUE);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetIncludeStructure_Low(pos, value);
 }
 
-int stdget_structure_predicate_(addr pos, addr *ret)
+void getprecedencestructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, predicate, PREDICATE);
-}
-int stdset_structure_predicate_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, predicate, PREDICATE);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetPrecedenceStructure_Low(pos, ret);
 }
 
-int stdget_structure_access_(addr pos, addr *ret)
+void setprecedencestructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, access, ACCESS);
-}
-int stdset_structure_access_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, access, ACCESS);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetPrecedenceStructure_Low(pos, value);
 }
 
-int stdget_structure_copier_(addr pos, addr *ret)
+void getspecializedstructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, copier, COPIER);
-}
-int stdset_structure_copier_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, copier, COPIER);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetSpecializedStructure_Low(pos, ret);
 }
 
-int stdget_structure_constructor_(addr pos, addr *ret)
+void setspecializedstructure(addr pos, addr value)
 {
-	return StdGetStructure_(pos, ret, constructor, CONSTRUCTOR);
-}
-int stdset_structure_constructor_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, constructor, CONSTRUCTOR);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetSpecializedStructure_Low(pos, value);
 }
 
-int stdget_structure_print_(addr pos, addr *ret)
+void getpredicatestructure(addr pos, addr *ret)
 {
-	return StdGetStructure_(pos, ret, print, PRINT);
-}
-int stdset_structure_print_(addr pos, addr value)
-{
-	return StdSetStructure_(pos, value, print, PRINT);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetPredicateStructure_Low(pos, ret);
 }
 
-
-/*
- *  structure
- */
-void localhold_destruct(LocalHold hold, struct defstruct *str)
+void setpredicatestructure(addr pos, addr value)
 {
-	localhold_pushva_force(hold, str->instance, str->env, str->doc, str->slots,
-			str->name, str->conc_name, str->copier, str->predicate,
-			str->constructor, str->iname, str->iargs,
-			str->print_object, str->print_function,
-			str->type_vector, str->initial_offset, NULL);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetPredicateStructure_Low(pos, value);
 }
 
-void defstruct_clean(struct defstruct *str)
+void getaccessstructure(addr pos, addr *ret)
 {
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetAccessStructure_Low(pos, ret);
+}
+
+void setaccessstructure(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetAccessStructure_Low(pos, value);
+}
+
+void getcopierstructure(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetCopierStructure_Low(pos, ret);
+}
+
+void setcopierstructure(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetCopierStructure_Low(pos, value);
+}
+
+void getconstructorstructure(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	GetConstructorStructure_Low(pos, ret);
+}
+
+void setconstructorstructure(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	SetConstructorStructure_Low(pos, value);
+}
+
+void structure_heap(addr *ret)
+{
+	addr pos;
+	struct structure_struct *str;
+
+	heap_smallsize(&pos, LISPSYSTEM_STRUCTURE,
+			Structure_size, sizeoft(struct structure_struct));
+	str = PtrStructure_Low(pos);
 	clearpoint(str);
-	str->conc_name = Unbound;
-	str->copier = Nil;
-	str->predicate = Nil;
-	str->iname = Nil;
-	str->iargs = Nil;
-	str->constructor = Nil;
-	str->type_vector = Unbound;
-	str->print_function = Unbound;
-	str->print_object = Unbound;
-	str->size = 0;
-	str->size_value = 0;
-	str->offset = 0;
-	str->named_index = 0;
-	str->change = Nil;
-}
-
-
-/*
- *  structure-type object
- */
-struct structure_type_struct *ptrstructuretype(addr pos)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	return PtrStructureType_Low(pos);
-}
-
-void getinstancestructuretype(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	GetInstanceStructureType_Low(pos, ret);
-}
-
-void setinstancestructuretype(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	SetInstanceStructureType_Low(pos, value);
-}
-
-void getnamestructuretype(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	GetNameStructureType_Low(pos, ret);
-}
-
-void setnamestructuretype(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	SetNameStructureType_Low(pos, value);
-}
-
-void getslotstructuretype(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	GetSlotStructureType_Low(pos, ret);
-}
-
-void setslotstructuretype(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	SetSlotStructureType_Low(pos, value);
-}
-
-void getvectorstructuretype(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	GetVectorStructureType_Low(pos, ret);
-}
-
-void setvectorstructuretype(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	SetVectorStructureType_Low(pos, value);
-}
-
-int refnamedstructuretype(addr pos)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	return RefNamedStructureType_Low(pos);
-}
-
-void getnamedstructuretype(addr pos, int *ret)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	GetNamedStructureType_Low(pos, ret);
-}
-
-void setnamedstructuretype(addr pos, int value)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	SetNamedStructureType_Low(pos, value);
-}
-
-int referrorpstructuretype(addr pos)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	return RefErrorpStructureType_Low(pos);
-}
-
-void geterrorpstructuretype(addr pos, int *ret)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	GetErrorpStructureType_Low(pos, ret);
-}
-
-void seterrorpstructuretype(addr pos, int value)
-{
-	CheckType(pos, LISPSYSTEM_STRUCTURE_TYPE);
-	SetErrorpStructureType_Low(pos, value);
-}
-
-static void structure_type_heap_unsafe(addr *ret)
-{
-	heap_smallsize(ret, LISPSYSTEM_STRUCTURE_TYPE,
-			StructureType_size, sizeoft(struct structure_type_struct));
-}
-
-
-/*
- *  access vector
- */
-int structure_getdirect_(Execute ptr, addr vector, size_t i, addr type, addr *ret)
-{
-	int check;
-	addr value;
-
-	Return(getelt_sequence_(NULL, vector, i, &value));
-	Return(parse_type(ptr, &type, type, Nil));
-	Return(typep_clang_(ptr, value, type, &check));
-	if (! check) {
-		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
-	}
-
-	return Result(ret, value);
-}
-
-int structure_setdirect_(Execute ptr, addr vector, size_t i, addr type, addr value)
-{
-	int check;
-
-	Return(parse_type(ptr, &type, type, Nil));
-	Return(typep_clang_(ptr, value, type, &check));
-	if (! check) {
-		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
-	}
-
-	return setelt_sequence_(vector, i, value);
-}
-
-int structure_getarray_(Execute ptr, addr vector, addr slot, addr type, addr *ret)
-{
-	size_t i;
-	GetAccessSlot(slot, &i);
-	return structure_getdirect_(ptr, vector, i, type, ret);
-}
-
-int structure_setarray_(Execute ptr, addr vector, addr slot, addr type, addr value)
-{
-	size_t i;
-	GetAccessSlot(slot, &i);
-	return structure_setdirect_(ptr, vector, i, type, value);
-}
-
-
-/*
- *  structure-type
- */
-void structure_type_heap(addr *ret)
-{
-	addr pos;
-	structure_type_heap_unsafe(&pos);
-	clearpoint(PtrStructureType(pos));
 	*ret = pos;
 }
 
-static void structure_type_parameter(addr *ret,
-		addr instance, addr name, addr slot, addr vector,
-		size_t size, size_t value, unsigned named, size_t named_index)
+int structure_named_p(addr pos)
 {
-	addr pos;
-	struct structure_type_struct *str;
-
-	structure_type_heap_unsafe(&pos);
-	SetInstanceStructureType(pos, instance);
-	SetNameStructureType(pos, name);
-	SetSlotStructureType(pos, slot);
-	SetVectorStructureType(pos, vector);
-	str = PtrStructureType(pos);
-	str->size = size;
-	str->size_value = value;
-	str->named = named;
-	str->named_index = named_index;
-	str->errorp = 0;
-	*ret = pos;
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure(pos)->named_p;
 }
 
-void structure_type(struct defstruct *str, addr slot, addr *ret)
+int structure_list_p(addr pos)
 {
-	structure_type_parameter(ret,
-			str->instance, str->name, slot, str->type_vector,
-			str->size, str->size_value, str->named_p, str->named_index);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure(pos)->list_p;
 }
 
-int structure_type_list_p(addr type, addr var, int *ret)
+int structure_vector_p(addr pos)
 {
-	struct structure_type_struct *str;
-	size_t size;
-
-	/* listp */
-	str = PtrStructureType(type);
-	if (length_list_p(var, &size))
-		return Result(ret, 0);
-	/* length */
-	if (size < str->size_value)
-		return Result(ret, 0);
-	/* check */
-	if (str->named) {
-		GetNameStructureType(type, &type);
-		Return(getnth_(var, str->named_index, &var));
-		return Result(ret, var == type);
-	}
-
-	return Result(ret, 1);
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure(pos)->vector_p;
 }
 
-int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
+void set_named_p_structure(addr pos, int value)
 {
-	struct structure_type_struct *str;
-	addr check;
-	size_t size;
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	PtrStructure(pos)->named_p = (value != 0);
+}
 
-	/* vectorp */
-	if (! vector_type_p(var)) {
-		*ret = 0;
-		return 0;
+void set_list_p_structure(addr pos, int value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	PtrStructure(pos)->list_p = (value != 0);
+}
+
+void set_vector_p_structure(addr pos, int value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	PtrStructure(pos)->vector_p = (value != 0);
+}
+
+size_t get_size_structure(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure(pos)->size;
+}
+
+size_t get_size_all_structure(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure(pos)->size_all;
+}
+
+size_t get_offset_structure(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	return PtrStructure(pos)->offset;
+}
+
+void set_size_structure(addr pos, size_t value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	PtrStructure(pos)->size = value;
+}
+
+void set_size_all_structure(addr pos, size_t value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	PtrStructure(pos)->size_all = value;
+}
+
+void set_offset_structure(addr pos, size_t value)
+{
+	CheckType(pos, LISPSYSTEM_STRUCTURE);
+	PtrStructure(pos)->offset = value;
+}
+
+void gettype_structure(addr pos, enum ARRAY_TYPE *rtype1, int *rtype2)
+{
+	struct structure_struct *str;
+
+	str = PtrStructure(pos);
+	*rtype1 = str->type1;
+	*rtype2 = str->type2;
+}
+
+void settype_structure(addr pos, enum ARRAY_TYPE type1, int type2)
+{
+	struct structure_struct *str;
+
+	str = PtrStructure(pos);
+	str->type1 = type1;
+	str->type2 = type2;
+}
+
+void structure_swap(addr x, addr y)
+{
+	int i;
+	addr array[Structure_size], z;
+	struct structure_struct *strx, *stry, str;
+
+	CheckType(x, LISPSYSTEM_STRUCTURE);
+	CheckType(y, LISPSYSTEM_STRUCTURE);
+	strx = PtrStructure(x);
+	stry = PtrStructure(y);
+
+	/* x -> temp */
+	str = *strx;
+	for (i = 0; i < Structure_size; i++) {
+		GetArraySS(x, i, &z);
+		array[i] = z;
 	}
-	Return(length_sequence_(var, 1, &size));
-	/* length */
-	str = PtrStructureType(type);
-	if (size < str->size_value) {
-		*ret = 0;
-		return 0;
+
+	/* y -> x */
+	*strx = *stry;
+	for (i = 0; i < Structure_size; i++) {
+		GetArraySS(y, i, &z);
+		SetArraySS(x, i, z);
 	}
-	/* check */
-	if (str->named) {
-		GetVectorStructureType(type, &check);
-		Return(structure_getdirect_(ptr, var, str->named_index, check, &var));
-		GetNameStructureType(type, &type);
-		*ret = (var == type);
-		return 0;
+
+	/* temp -> y */
+	*stry = str;
+	for (i = 0; i < Structure_size; i++) {
+		z = array[i];
+		SetArraySS(y, i, z);
 	}
-	*ret = 1;
-	return 0;
 }
 

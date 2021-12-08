@@ -144,63 +144,19 @@
 (defstruct (list-structure-3 (:type list) (:include list-structure-2) :named))
 
 (deftest list-structure.1
-  (null (find-class 'list-structure-1))
+  (find-class 'list-structure-1 nil)
   nil)
 
 (deftest list-structure.2
-  (typep (find-class 'list-structure-1) 'structure-class)
-  t)
+  (lisp-system:sysctl 'structure 'check 'list-structure-1)
+  t t)
 
 (deftest list-structure.3
-  (typep (find-class 'list-structure-1) 'structure-object)
-  nil)
+  (lisp-system:sysctl 'structure 'check 'list-structure-2)
+  t t)
 
 (deftest list-structure.4
-  (typep (find-class 'list-structure-1) t)
-  t)
-
-(deftest list-structure.5
-  (typep (find-class 'list-structure-1) 'list-structure-1)
-  nil)
-
-(deftest list-structure.6
-  (typep (find-class 'list-structure-1) 'list-structure-2)
-  nil)
-
-(deftest list-structure.7
-  (typep (find-class 'list-structure-2) 'list-structure-1)
-  nil)
-
-(deftest list-structure.8
-  (subtypep 'list-structure-1 'list-structure-1)
-  t t)
-
-(deftest list-structure.9
-  (subtypep 'list-structure-2 'list-structure-1)
-  t t)
-
-(deftest list-structure.10
-  (subtypep 'list-structure-1 'list-structure-2)
-  nil t)
-
-(deftest list-structure.11
-  (subtypep 'list-structure-3 'list-structure-1)
-  t t)
-
-(deftest list-structure.12
-  (subtypep 'list-structure-1 'list-structure-3)
-  nil t)
-
-(deftest list-structure.13
-  (subtypep 'list-structure-1 'structure-class)
-  nil t)
-
-(deftest list-structure.14
-  (subtypep 'list-structure-1 'structure-object)
-  t t)
-
-(deftest list-structure.15
-  (subtypep 'list-structure-1 t)
+  (lisp-system:sysctl 'structure 'check 'list-structure-3)
   t t)
 
 (deftest list-instance.1
@@ -214,63 +170,19 @@
 (defstruct (vector-structure-3 (:type vector) (:include vector-structure-2) :named))
 
 (deftest vector-structure.1
-  (null (find-class 'vector-structure-1))
+  (find-class 'vector-structure-1 nil)
   nil)
 
 (deftest vector-structure.2
-  (typep (find-class 'vector-structure-1) 'structure-class)
-  t)
+  (lisp-system:sysctl 'structure 'check 'vector-structure-1)
+  t t)
 
 (deftest vector-structure.3
-  (typep (find-class 'vector-structure-1) 'structure-object)
-  nil)
+  (lisp-system:sysctl 'structure 'check 'vector-structure-2)
+  t t)
 
 (deftest vector-structure.4
-  (typep (find-class 'vector-structure-1) t)
-  t)
-
-(deftest vector-structure.5
-  (typep (find-class 'vector-structure-1) 'vector-structure-1)
-  nil)
-
-(deftest vector-structure.6
-  (typep (find-class 'vector-structure-1) 'vector-structure-2)
-  nil)
-
-(deftest vector-structure.7
-  (typep (find-class 'vector-structure-2) 'vector-structure-1)
-  nil)
-
-(deftest vector-structure.8
-  (subtypep 'vector-structure-1 'vector-structure-1)
-  t t)
-
-(deftest vector-structure.9
-  (subtypep 'vector-structure-2 'vector-structure-1)
-  t t)
-
-(deftest vector-structure.10
-  (subtypep 'vector-structure-1 'vector-structure-2)
-  nil t)
-
-(deftest vector-structure.11
-  (subtypep 'vector-structure-3 'vector-structure-1)
-  t t)
-
-(deftest vector-structure.12
-  (subtypep 'vector-structure-1 'vector-structure-3)
-  nil t)
-
-(deftest vector-structure.13
-  (subtypep 'vector-structure-1 'structure-class)
-  nil t)
-
-(deftest vector-structure.14
-  (subtypep 'vector-structure-1 'structure-object)
-  t t)
-
-(deftest vector-structure.15
-  (subtypep 'vector-structure-1 t)
+  (lisp-system:sysctl 'structure 'check 'vector-structure-3)
   t t)
 
 (deftest vector-instance.1
@@ -318,45 +230,13 @@
   (progn
     (defstruct (change-list-structure-1 (:type list)))
     (defstruct (change-list-structure-1 (:type list)))
-    (null (find-class 'change-list-structure-1)))
+    (find-class 'change-list-structure-1 nil))
   nil)
-
-(deftest change-list-structure.2
-  (progn
-    (defstruct (change-list-structure-2 (:type list)))
-    (defstruct (change-list-structure-2 (:type list)))
-    (typep (find-class 'change-list-structure-2) 'structure-class))
-  t)
-
-(deftest change-list-structure.3
-  (let (x y)
-    (defstruct (change-list-structure-3 (:type list)))
-    (setq x (find-class 'change-list-structure-3))
-    (defstruct (change-list-structure-3 (:type list)))
-    (setq y (find-class 'change-list-structure-3))
-    (eq x y))
-  t)
 
 (deftest change-vector-structure.1
   (progn
     (defstruct (change-vector-structure-1 (:type vector)))
     (defstruct (change-vector-structure-1 (:type vector)))
-    (null (find-class 'change-vector-structure-1)))
+    (find-class 'change-vector-structure-1 nil))
   nil)
-
-(deftest change-vector-structure.2
-  (progn
-    (defstruct (change-vector-structure-2 (:type vector)))
-    (defstruct (change-vector-structure-2 (:type vector)))
-    (typep (find-class 'change-vector-structure-2) 'structure-class))
-  t)
-
-(deftest change-vector-structure.3
-  (let (x y)
-    (defstruct (change-vector-structure-3 (:type vector)))
-    (setq x (find-class 'change-vector-structure-3))
-    (defstruct (change-vector-structure-3 (:type vector)))
-    (setq y (find-class 'change-vector-structure-3))
-    (eq x y))
-  t)
 

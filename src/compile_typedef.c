@@ -111,7 +111,8 @@ static void init_compile_typedef_write(void)
 	defwrite(pop);
 	defwrite(pop_unbound);
 	defwrite(getf);
-	defwrite(rest);
+	defwrite(rest_copy);
+	defwrite(rest_bind);
 	defwrite(allow_other_keys);
 	defwrite(rest_null);
 	defwrite(whole);
@@ -264,7 +265,8 @@ static void init_compile_typedef_read(void)
 	defread(pop, POP);
 	defread(pop_unbound, POP_UNBOUND);
 	defread(getf, GETF);
-	defread(rest, REST);
+	defread(rest_copy, REST_COPY);
+	defread(rest_bind, REST_BIND);
 	defread(allow_other_keys, ALLOW_OTHER_KEYS);
 	defread(rest_null, REST_NULL);
 	defread(whole, WHOLE);

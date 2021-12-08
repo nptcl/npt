@@ -7,7 +7,8 @@
 #define pop_code _n(pop_code)
 #define pop_unbound_code _n(pop_unbound_code)
 #define getf_code _n(getf_code)
-#define rest_code _n(rest_code)
+#define rest_copy_code _n(rest_copy_code)
+#define rest_bind_code _n(rest_bind_code)
 #define allow_other_keys_code _n(allow_other_keys_code)
 #define rest_null_code _n(rest_null_code)
 #define whole_code _n(whole_code)
@@ -37,7 +38,8 @@
 int pop_code(Execute ptr, CodeValue x);
 int pop_unbound_code(Execute ptr, CodeValue x);
 int getf_code(Execute ptr, CodeValue x);
-int rest_code(Execute ptr, CodeValue x);
+int rest_copy_code(Execute ptr, CodeValue x);
+int rest_bind_code(Execute ptr, CodeValue x);
 int allow_other_keys_code(Execute ptr, CodeValue x);
 int rest_null_code(Execute ptr, CodeValue x);
 int whole_code(Execute ptr, CodeValue x);

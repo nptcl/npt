@@ -68,12 +68,22 @@ int getf_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-int rest_code(Execute ptr, CodeValue x)
+int rest_copy_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	copy_list_alloc_safe(NULL, &pos, pos);
+	setresult_control(ptr, pos);
+
+	return 0;
+}
+
+int rest_bind_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+
+	getargs_list_control_unsafe(ptr, 0, &pos);
 	setresult_control(ptr, pos);
 
 	return 0;

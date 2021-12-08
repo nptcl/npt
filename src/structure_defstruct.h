@@ -1,10 +1,10 @@
-#ifndef __STRUCTURE_TYPEDEF_HEADER__
-#define __STRUCTURE_TYPEDEF_HEADER__
+#ifndef __STRUCTURE_DEFSTRUCT_HEADER__
+#define __STRUCTURE_DEFSTRUCT_HEADER__
 
 #include "execute.h"
+#include "hold.h"
 #include "typedef.h"
 
-/* defstruct */
 struct defstruct {
 	unsigned conc_name_p : 1;
 	unsigned constructor_p : 1;
@@ -18,6 +18,8 @@ struct defstruct {
 	unsigned type_vector_p : 1;
 	unsigned named_p : 1;
 	unsigned initial_offset_p : 1;
+	enum ARRAY_TYPE type1;
+	int type2;
 	Execute ptr;
 	addr instance, env, doc, slots;
 	addr name, conc_name, copier, predicate;
@@ -25,22 +27,14 @@ struct defstruct {
 	addr print_object, print_function;
 	addr type_vector, initial_offset;
 	addr change;
-	size_t size, offset, size_value, named_index;
+	size_t size, size_all, offset, named_index;
 };
 
-/* structure-type */
-struct structure_type_struct {
-	unsigned named : 1;
-	unsigned errorp : 1;
-	size_t size, size_value, named_index;
-};
-enum StructureTypeIndex {
-	StructureType_instance,
-	StructureType_name,
-	StructureType_slot,
-	StructureType_vector,
-	StructureType_size
-};
+#define localhold_destruct _n(localhold_destruct)
+#define defstruct_clean _n(defstruct_clean)
+
+void localhold_destruct(LocalHold hold, struct defstruct *str);
+void defstruct_clean(struct defstruct *ptr);
 
 #endif
 

@@ -16,6 +16,7 @@
 #include "eval_execute.h"
 #include "gc.h"
 #include "hashtable.h"
+#include "hold.h"
 #include "integer.h"
 #include "pathname.h"
 #include "quote.h"
@@ -1262,7 +1263,7 @@ int structure_dispatch(Execute ptr, addr stream, addr *ret)
 	GetCons(pos, &pos, &rest);
 
 	hold = LocalHold_local_push(ptr, pos);
-	Return(structure_constructor_common(ptr, pos, rest, &pos));
+	Return(structure_reader_(ptr, pos, rest, &pos));
 	localhold_end(hold);
 	return Result(ret, pos);
 

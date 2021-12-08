@@ -1,7 +1,8 @@
 #ifndef __STRUCTURE_PARSE_HEADER__
 #define __STRUCTURE_PARSE_HEADER__
 
-#include "structure_typedef.h"
+#include "execute.h"
+#include "structure_defstruct.h"
 #include "typedef.h"
 
 #define ensure_structure_struct_ _n(ensure_structure_struct_)

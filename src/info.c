@@ -114,6 +114,7 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_ARGUMENT:			return "?argument";
 		case LISPSYSTEM_UNICODE:			return "?unicode";
 		case LISPSYSTEM_TYPE_PARSE:			return "?type-parse";
+		case LISPSYSTEM_STRUCTURE:		    return "?structure";
 		case LISPSYSTEM_STRUCTURE_TYPE:		return "?structure-type";
 		case LISPSYSTEM_PRINT_TABLE:		return "?print-table";
 		case LISPSYSTEM_PRINT_WRITE:		return "?print-write";

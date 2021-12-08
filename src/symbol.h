@@ -87,6 +87,9 @@
 #define getclass_symbol _n(getclass_symbol)
 #define setclass_symbol _n(setclass_symbol)
 #define remclass_symbol _n(remclass_symbol)
+#define getstructure_symbol _n(getstructure_symbol)
+#define setstructure_symbol _n(setstructure_symbol)
+#define remstructure_symbol _n(remstructure_symbol)
 #define getcombination_symbol _n(getcombination_symbol)
 #define setcombination_symbol _n(setcombination_symbol)
 #define getspecial_unsafe _n(getspecial_unsafe)
@@ -244,6 +247,9 @@ void setlisttype_symbol(addr symbol, addr value);
 void getclass_symbol(addr symbol, addr *ret);
 void setclass_symbol(addr symbol, addr value);
 void remclass_symbol(addr symbol);
+void getstructure_symbol(addr symbol, addr *ret);
+void setstructure_symbol(addr symbol, addr value);
+void remstructure_symbol(addr symbol);
 void getcombination_symbol(addr symbol, addr *ret);
 void setcombination_symbol(addr symbol, addr value);
 

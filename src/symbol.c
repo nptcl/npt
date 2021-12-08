@@ -634,6 +634,25 @@ void remclass_symbol(addr symbol)
 	reminfo_nocheck_constant(symbol, CONSTANT_COMMON_CLASS);
 }
 
+void getstructure_symbol(addr symbol, addr *ret)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_COMMON_STRUCTURE, ret);
+}
+
+void setstructure_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	Check(GetType(value) != LISPSYSTEM_STRUCTURE, "type error");
+	setinfo_nocheck_constant(symbol, CONSTANT_COMMON_STRUCTURE, value);
+}
+
+void remstructure_symbol(addr symbol)
+{
+	CheckSymbol(symbol);
+	reminfo_nocheck_constant(symbol, CONSTANT_COMMON_STRUCTURE);
+}
+
 void getcombination_symbol(addr symbol, addr *ret)
 {
 	CheckSymbol(symbol);

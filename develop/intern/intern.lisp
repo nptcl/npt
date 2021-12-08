@@ -1295,24 +1295,18 @@ lisp-clos::order
 ;;  structure
 lisp-clos::slots
 lisp-clos::include
-lisp-clos::named
-lisp-clos::named-index
 lisp-clos::value
 lisp-clos::predicate
 lisp-clos::access
 lisp-clos::copier
 lisp-clos::constructor
-lisp-clos::print
 (:slots                      :constant closkey)
 (:include                    :constant closkey)
-(:named                      :constant closkey)
-(:named-index                :constant closkey)
 (:value                      :constant closkey)
 (:predicate                  :constant closkey)
 (:access                     :constant closkey)
 (:copier                     :constant closkey)
 (:constructor                :constant closkey)
-(:print                      :constant closkey)
 
 ;;  system
 lisp-system::value ;; symbol, function
@@ -1497,6 +1491,7 @@ lisp-system::it-loop
 ;;  structure
 ;;
 lisp-system::structure-gensym
+lisp-system::structure-named
 
 
 ;;
@@ -1742,7 +1737,8 @@ lisp-code::progv
 lisp-code::pop
 lisp-code::pop-unbound
 lisp-code::getf
-lisp-code::rest
+lisp-code::rest_copy
+lisp-code::rest_bind
 lisp-code::allow-other-keys
 lisp-code::rest-null
 lisp-code::whole

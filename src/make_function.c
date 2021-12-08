@@ -285,7 +285,7 @@ static int code_ordinary_bind_opt_(CodeMake ptr, addr list, addr escape)
 static void code_ordinary_bind_rest(CodeMake ptr, addr pos, addr escape)
 {
 	if (pos != Nil) {
-		CodeQueue_single(ptr, REST);
+		CodeQueue_single(ptr, REST_COPY);
 		code_ordinary_bind_value(ptr, pos, escape);
 	}
 }
@@ -788,7 +788,7 @@ static void code_macro_bind_rest(CodeMake ptr, addr list, addr escape)
 {
 	if (list != Nil) {
 		GetCar(list, &list);
-		CodeQueue_single(ptr, REST);
+		CodeQueue_single(ptr, REST_BIND);
 		code_macro_bind_value(ptr, list, escape);
 	}
 }

@@ -234,7 +234,7 @@ void mop_argument_method_print_object(addr *ret, addr clos)
 	/* var */
 	str->var = 2;
 	list_heap(&pos1, Nil, clos, NULL);
-	mop_argument_method_var(&pos2, CONSTANT_CLOS_STREAM);
+	ArgumentMethod_var(&pos2, T);
 	list_heap(&pos1, pos1, pos2, NULL);
 	SetArgument(pos, ArgumentIndex_var, pos1);
 	/* result */

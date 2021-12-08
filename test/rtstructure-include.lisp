@@ -476,7 +476,7 @@
   (ff 111))
 (deftest list-include-named.1
   (make-list-include-named-1)
-  (10 20 nil 30 40 50 111))
+  (10 20 list-include-named-b 30 40 50 111))
 
 (deftest list-include-named.2
   (let ((x (make-list-include-named-1)))
@@ -495,7 +495,7 @@
   (ff 111) (gg 222) (hh 333) (ii 444))
 (deftest list-include-named.3
   (make-list-include-named-3)
-  (10 20 nil 30 40 50 list-include-named-3 111 222 333 444))
+  (10 20 list-include-named-b 30 40 50 list-include-named-3 111 222 333 444))
 
 (deftest list-include-named.4
   (let ((x (make-list-include-named-3)))
@@ -593,7 +593,7 @@
   (ff 111))
 (deftest vector-include-named.1
   (make-vector-include-named-1)
-  #(10 20 nil 30 40 50 111))
+  #(10 20 vector-include-named-b 30 40 50 111))
 
 (deftest vector-include-named.2
   (let ((x (make-vector-include-named-1)))
@@ -612,7 +612,7 @@
   (ff 111) (gg 222) (hh 333) (ii 444))
 (deftest vector-include-named.3
   (make-vector-include-named-3)
-  #(10 20 nil 30 40 50 vector-include-named-3 111 222 333 444))
+  #(10 20 vector-include-named-b 30 40 50 vector-include-named-3 111 222 333 444))
 
 (deftest vector-include-named.4
   (let ((x (make-vector-include-named-3)))
@@ -785,4 +785,35 @@
                  (:include change-vector-include-2 (bbb 100))
                  (:type vector) :named)))
   change-vector-include-7)
+
+
+;;  typep
+(deftest defstruct-include.1
+  (progn
+    (defstruct defstruct-include-1)
+    (defstruct (defstruct-include-2 (:include defstruct-include-1)))
+    (let ((x (make-defstruct-include-1))
+          (y (make-defstruct-include-2)))
+      (values
+        (typep x 'defstruct-include-1)
+        (typep y 'defstruct-include-1)
+        (typep x 'defstruct-include-2)
+        (typep y 'defstruct-include-2))))
+  t t nil t)
+
+(deftest defstruct-include.2
+  (progn
+    (defstruct defstruct-include-3)
+    (defstruct (defstruct-include-4 (:include defstruct-include-3)))
+    (defstruct (defstruct-include-5 (:include defstruct-include-4)))
+    (let ((x (make-defstruct-include-5))
+          (y (make-defstruct-include-3)))
+      (values
+        (typep x 'defstruct-include-3)
+        (typep x 'defstruct-include-4)
+        (typep x 'defstruct-include-5)
+        (typep y 'defstruct-include-3)
+        (typep y 'defstruct-include-4)
+        (typep y 'defstruct-include-5))))
+  t t t t nil nil)
 

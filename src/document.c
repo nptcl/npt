@@ -17,7 +17,7 @@
 #include "mop.h"
 #include "package_object.h"
 #include "structure.h"
-#include "structure_object.h"
+#include "structure_access.h"
 #include "symbol.h"
 #include "type_deftype.h"
 #include "type_table.h"
@@ -1018,7 +1018,7 @@ static int method_documentation_symbol_type(Execute ptr,
 
 	/* deftype */
 	getdeftype(object, &pos);
-	if (object == Nil)
+	if (pos == Nil)
 		return fmte_("The symbol ~S don't have a deftype function.", object, NULL);
 	Return(get_documentation_function_object_(pos, &pos));
 	setresult_control(ptr, pos);
@@ -1086,30 +1086,16 @@ static int setf_documentation_symbol_type_(Execute ptr, addr name, addr gen)
 static int method_documentation_symbol_structure(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	int check;
-
-	Return(clos_find_class_(object, &object));
-	Return(structure_class_p_(object, &check));
-	if (! check)
-		return TypeError_(object, STRUCTURE_CLASS);
-	Return(stdget_structure_documentation_(object, &object));
+	Return(getdoc_structure_(object, &object));
 	setresult_control(ptr, object);
-
 	return 0;
 }
 
 static int method_setf_documentation_symbol_structure(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	int check;
-
-	Return(clos_find_class_(object, &object));
-	Return(structure_class_p_(object, &check));
-	if (! check)
-		return TypeError_(object, STRUCTURE_CLASS);
-	Return(stdset_structure_documentation_(object, value));
+	Return(setdoc_structure_(object, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 

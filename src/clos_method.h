@@ -15,6 +15,7 @@
 #define stdset_method_specializers_ _n(stdset_method_specializers_)
 #define method_instance_call_ _n(method_instance_call_)
 #define method_instance_lambda_ _n(method_instance_lambda_)
+#define method_find_method_nil_ _n(method_find_method_nil_)
 #define method_find_method_ _n(method_find_method_)
 #define method_remove_method_unsafe_ _n(method_remove_method_unsafe_)
 #define method_remove_method_ _n(method_remove_method_)
@@ -41,6 +42,7 @@ int stdset_method_specializers_(addr pos, addr value);
 /* control */
 int method_instance_call_(LocalRoot local, addr *ret, addr clos, addr call);
 int method_instance_lambda_(LocalRoot local, addr *ret, addr clos, addr lambda);
+int method_find_method_nil_(Execute ptr, addr gen, addr qua, addr spec, addr *ret);
 int method_find_method_(Execute ptr, addr gen, addr qua, addr spec, addr *ret);
 int method_remove_method_unsafe_(Execute ptr, addr gen, addr method, int *ret);
 int method_remove_method_(Execute ptr, addr gen, addr method);

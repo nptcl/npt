@@ -35,7 +35,7 @@
 #include "stream_string.h"
 #include "strtype.h"
 #include "structure.h"
-#include "structure_make.h"
+#include "structure_define.h"
 #include "strvect.h"
 #include "symbol.h"
 #include "syscode_common.h"
@@ -337,7 +337,7 @@ int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest)
 /* structure-constructor */
 int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *ret)
 {
-	return structure_constructor_common(ptr, symbol, rest, ret);
+	return structure_constructor_common_(ptr, symbol, rest, ret);
 }
 
 

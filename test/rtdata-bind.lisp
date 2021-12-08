@@ -333,3 +333,35 @@
     (list a b three two one))
   (alpha bee 3 2 1))
 
+
+;;
+;;  Bugfix
+;;
+(deftest destructuring-bind-bugfix.1
+  (let ((cons (list 10 20 30)))
+    (destructuring-bind (root . tail) cons
+      (declare (ignore root))
+      (setf (cdr tail) 40)
+      cons))
+  (10 20 . 40))
+
+(deftest destructuring-bind-bugfix.2
+  (let ((cons (list 10 20 30)))
+    (destructuring-bind (root . tail) cons
+      (declare (ignore root))
+      (values
+        (eq (cdr cons) tail)
+        (eq (cddr cons) (cdr tail)))))
+  t t)
+
+(defun destructuring-bind-bugfix-call (car &rest cdr)
+  (declare (ignore car))
+  cdr)
+
+(deftest destructuring-bind-bugfix.3
+  (let ((x (list 10 20 30 40)))
+    (values
+      (eq (apply #'destructuring-bind-bugfix-call x) (cdr x))
+      (equal (apply #'destructuring-bind-bugfix-call x) (cdr x))))
+  nil t)
+

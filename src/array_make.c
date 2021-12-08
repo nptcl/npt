@@ -1077,6 +1077,49 @@ int array_make_initial_(addr pos, addr initial, addr contents)
 	return 0;
 }
 
+int array_make_clear_(addr pos)
+{
+	struct array_struct *str;
+	addr value;
+
+	str = ArrayInfoStruct(pos);
+	switch (str->type) {
+		case ARRAY_TYPE_T:
+			return array_initial_t_(pos, Nil, str->size);
+
+		case ARRAY_TYPE_BIT:
+			fixnum_heap(&value, 0);
+			return array_initial_bit_(pos, value, str->size);
+
+		case ARRAY_TYPE_CHARACTER:
+			character_heap(&value, 0);
+			return array_initial_character_(pos, value);
+
+		case ARRAY_TYPE_SIGNED:
+			fixnum_heap(&value, 0);
+			return array_initial_signed_(pos, value);
+
+		case ARRAY_TYPE_UNSIGNED:
+			fixnum_heap(&value, 0);
+			return array_initial_unsigned_(pos, value);
+
+		case ARRAY_TYPE_SINGLE_FLOAT:
+			single_float_heap(&value, 0.0f);
+			return array_initial_single_(pos, value);
+
+		case ARRAY_TYPE_DOUBLE_FLOAT:
+			double_float_heap(&value, 0.0);
+			return array_initial_double_(pos, value);
+
+		case ARRAY_TYPE_LONG_FLOAT:
+			long_float_heap(&value, 0.0L);
+			return array_initial_long_(pos, value);
+
+		default:
+			return fmte_("Invalid array type.", NULL);
+	}
+}
+
 static int array_set_type_upgraded_(addr pos, addr type)
 {
 	enum ARRAY_TYPE value;

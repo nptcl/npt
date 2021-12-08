@@ -3,32 +3,100 @@
 ;;
 
 ;;
+;;  type
+;;
+(deftest structure-type.1
+  (progn
+    (defstruct structure-type-1 aaa)
+    (lisp-system:sysctl 'structure 'type 'structure-type-1))
+  class t)
+
+(deftest structure-type.2
+  (progn
+    (defstruct (structure-type-2 (:type list)) aaa)
+    (lisp-system:sysctl 'structure 'type 'structure-type-2))
+  list t)
+
+
+;;
 ;;  vector-type
 ;;
-(defstruct (vector-type-a (:type (vector symbol))) aaa)
-(deftest-error vector-type.1
-  (defstruct (vector-type-1 (:type (vector integer))
-                            (:include vector-type-a))))
+(deftest vector-type.1
+  (progn
+    (defstruct (vector-type-1 (:type (vector symbol))) aaa)
+    (lisp-system:sysctl 'structure 'type 'vector-type-1))
+  (vector t) t)
 
-(defstruct (vector-type-b (:type (vector integer))) aaa)
-(deftest-error vector-type.2
-  (defstruct (vector-type-2 (:type (vector real))
-                            (:include vector-type-b))))
+(deftest vector-type.2
+  (progn
+    (defstruct (vector-type-2 (:type (vector integer))
+                              (:include vector-type-1)))
+    (lisp-system:sysctl 'structure 'type 'vector-type-2))
+  (vector t) t)
 
 (deftest vector-type.3
-  (defstruct (vector-type-3 (:type (vector fixnum))
-                            (:include vector-type-b)))
-  vector-type-3)
+  (progn
+    (defstruct (vector-type-3 (:type (vector character))))
+    (lisp-system:sysctl 'structure 'type 'vector-type-3))
+  (vector character) t)
 
-(deftest vector-type.4
-  (let ((inst (make-vector-type-a)))
-    (setf (vector-type-a-aaa inst) 'hello)
-    (vector-type-a-aaa inst))
-  hello)
+(deftest-error vector-type.4
+  (defstruct (vector-type-4 (:type (vector character)) :named)))
 
 (deftest-error vector-type.5
-  (let ((inst (make-vector-type-a)))
-    (setf (vector-type-a-aaa inst) 100)))
+  (defstruct (vector-type-5 (:type (vector character))
+                            (:include vector-type-1))))
+
+(deftest vector-type.6
+  (progn
+    (defstruct (vector-type-6 (:type (vector (unsigned-byte 8)))))
+    (lisp-system:sysctl 'structure 'type 'vector-type-6))
+  (vector (unsigned-byte 8)) t)
+
+(deftest-error vector-type.7
+  (defstruct (vector-type-7 (:type (vector (unsigned-byte 16)))
+                            (:include vector-type-6))))
+
+(deftest-error vector-type.8
+  (progn
+    (defstruct (vector-type-8a (:type (vector (unsigned-byte 16)))))
+    (defstruct (vector-type-8b (:type (vector (unsigned-byte 8)))
+                               (:include vector-type-8a)))))
+
+(deftest vector-type.9
+  (progn
+    (defstruct (vector-type-9a (:type (vector (unsigned-byte 16)))))
+    (defstruct (vector-type-9b (:type (vector (unsigned-byte 16)))
+                               (:include vector-type-9a)))
+    (lisp-system:sysctl 'structure 'type 'vector-type-9b))
+  (vector (unsigned-byte 16)) t)
+
+(deftest vector-type.10
+  (progn
+    (defstruct (vector-type-10 (:type (vector (unsigned-byte 16))))
+      (aaa 100) bbb)
+    (make-vector-type-10))
+  #(100 0))
+
+
+;;
+;;  documentation
+;;
+(deftest defstruct-documentation.1
+  (progn
+    (defstruct defstruct-documentation-1 "Hello" aaa bbb)
+    (values
+      (documentation 'defstruct-documentation-1 'structure)
+      (documentation 'defstruct-documentation-1 'type)
+      (documentation (find-class 'defstruct-documentation-1) t)))
+  "Hello" "Hello" "Hello")
+
+(deftest defstruct-documentation.2
+  (progn
+    (defstruct (defstruct-documentation-2 (:type list))
+      "AAA" aaa bbb)
+    (documentation 'defstruct-documentation-2 'structure))
+  "AAA")
 
 
 ;;

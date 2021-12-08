@@ -216,3 +216,22 @@
       (fboundp 'copy-change-vector-copier-4)))
   nil t)
 
+
+;;  error
+(defstruct defstruct-copier-error-1 aaa)
+
+(deftest defstruct-copier-error.1
+  (eval '(let ((x (make-defstruct-copier-error-1 :aaa 100)))
+           (defstruct-copier-error-1-aaa x)))
+  100)
+
+(deftest-error! defstruct-copier-error.2
+  (eval '(defstruct-copier-error-1-aaa)))
+
+(deftest-error! defstruct-copier-error.3
+  (eval '(let ((x (make-defstruct-copier-error-1 :aaa 100)))
+           (defstruct-copier-error-1-aaa x nil))))
+
+(deftest-error defstruct-copier-error.4
+  (eval '(defstruct-copier-error-1-aaa 100)))
+

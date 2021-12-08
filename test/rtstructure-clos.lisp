@@ -16,22 +16,14 @@
 
 ;;  list
 (defstruct (list-make-instance-structure (:type list)) aaa bbb)
-(deftest list-make-instance-structure.1
-  (let ((inst (make-instance 'list-make-instance-structure :aaa 100)))
-    (values
-      (list-make-instance-structure-aaa inst)
-      (list-make-instance-structure-bbb inst)))
-  100 nil)
+(deftest-error list-make-instance-structure.1
+  (make-instance 'list-make-instance-structure :aaa 100))
 
 
 ;;  vector
 (defstruct (vector-make-instance-structure (:type vector)) aaa bbb)
-(deftest vector-make-instance-structure.1
-  (let ((inst (make-instance 'vector-make-instance-structure :aaa 100)))
-    (values
-      (vector-make-instance-structure-aaa inst)
-      (vector-make-instance-structure-bbb inst)))
-  100 nil)
+(deftest-error vector-make-instance-structure.1
+  (make-instance 'vector-make-instance-structure :aaa 100))
 
 
 ;;
@@ -119,4 +111,14 @@
       (slot-value inst 'aaa)
       (slot-value inst 'bbb)))
   100 nil)
+
+(deftest dispatch-structure.2
+  (values
+    (read-from-string "#S(list-make-instance-structure :aaa 100)"))
+  (100 nil))
+
+(deftest dispatch-structure.3
+  (values
+    (read-from-string "#S(vector-make-instance-structure :aaa 100)"))
+  #(100 nil))
 

@@ -496,8 +496,7 @@ static int method_cache_remove_(LocalRoot local, addr gen, addr method)
 	return 0;
 }
 
-static int method_find_method_nil_(Execute ptr,
-		addr gen, addr qua, addr spec, addr *ret)
+int method_find_method_nil_(Execute ptr, addr gen, addr qua, addr spec, addr *ret)
 {
 	int check;
 	addr methods, comb, method, value;

@@ -213,3 +213,22 @@
       (change-slot-conc-name-7-aaa x)))
   100)
 
+
+;;  error
+(defstruct defstruct-conc-name-error-1 aaa)
+
+(deftest defstruct-conc-name-error.1
+  (eval '(let ((x (make-defstruct-conc-name-error-1 :aaa 100)))
+           (defstruct-conc-name-error-1-aaa x)))
+  100)
+
+(deftest-error! defstruct-conc-name-error.2
+  (eval '(defstruct-conc-name-error-1-aaa)))
+
+(deftest-error! defstruct-conc-name-error.3
+  (eval '(let ((x (make-defstruct-conc-name-error-1 :aaa 100)))
+           (defstruct-conc-name-error-1-aaa x nil))))
+
+(deftest-error defstruct-conc-name-error.4
+  (eval '(defstruct-conc-name-error-1-aaa 100)))
+

@@ -138,16 +138,11 @@ enum Clos_structure_Index {
 	Clos_structure_documentation,
 	Clos_structure_include,
 	Clos_structure_precedence_list,
-	Clos_structure_type,
-	Clos_structure_vector,
-	Clos_structure_named,
-	Clos_structure_named_index,
 	Clos_structure_value,
 	Clos_structure_predicate,
 	Clos_structure_access,
 	Clos_structure_copier,
 	Clos_structure_constructor,
-	Clos_structure_print,
 	Clos_structure_size
 };
 

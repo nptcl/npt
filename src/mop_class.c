@@ -637,7 +637,7 @@ static int defmethod_make_instance_stdclass_(Execute ptr, addr name, addr gen)
 static int method_make_instance_structure(Execute ptr,
 		addr method, addr next, addr rest)
 {
-	Return(make_instance_structure(ptr, rest, &rest));
+	Return(make_instance_structure_(ptr, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }

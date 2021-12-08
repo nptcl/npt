@@ -10,7 +10,7 @@
  */
 static int function_defstruct(Execute ptr, addr form, addr env)
 {
-	Return(defstruct_common(ptr, form, env, &form));
+	Return(defstruct_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

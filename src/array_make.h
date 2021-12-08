@@ -16,6 +16,7 @@
 #define array_set_simple _n(array_set_simple)
 #define array_make_memory_ _n(array_make_memory_)
 #define array_make_initial_ _n(array_make_initial_)
+#define array_make_clear_ _n(array_make_clear_)
 #define array_make_array_ _n(array_make_array_)
 #define array_contents_heap_ _n(array_contents_heap_)
 #define array_character_alloc_ _n(array_character_alloc_)
@@ -37,6 +38,7 @@ void array_set_simple(addr pos);
 int array_make_memory_(addr pos,
 		addr adjust, addr fill, addr displaced, addr offset);
 int array_make_initial_(addr pos, addr initial, addr contents);
+int array_make_clear_(addr pos);
 int array_make_array_(addr *ret, addr dimension,
 		addr type, addr initial, addr contents,
 		addr adjustable, addr fillpointer, addr displaced, addr offset);

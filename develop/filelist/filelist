@@ -357,8 +357,14 @@ stream_variable.c
 stream.c
 strtype.c
 structure.c
+structure_access.c
 structure_change.c
 structure_define.c
+structure_define1.c
+structure_define2.c
+structure_delete.c
+structure_defstruct.c
+structure_direct.c
 structure_make.c
 structure_object.c
 structure_parse.c
