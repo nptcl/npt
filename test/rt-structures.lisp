@@ -14,6 +14,7 @@
 (load #p"test/rtstructure-clos.lisp")
 (load #p"test/rtstructure-offset.lisp")
 (load #p"test/rtstructure-type.lisp")
+(load #p"test/rtstructure-defstruct.lisp")
 (load #p"test/rtstructure-test.lisp")
 
 

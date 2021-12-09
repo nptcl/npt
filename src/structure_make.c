@@ -162,26 +162,18 @@ static int make_structure2_init_(Execute ptr, addr list, addr slots, addr args)
 static int make_structure3_init_(Execute ptr,
 		addr vector, addr slots, addr vector_type, addr args)
 {
-	int update, check;
+	int check;
 	addr slot, pos;
 	size_t size, i;
 
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		update = 0;
 		Return(make_structure_find_(slot, args, &pos, &check));
-		if (check) {
-			update = 1;
-		}
-		else {
+		if (! check) {
 			Return(make_structure_value_(ptr, slot, &pos));
-			if (pos != Nil)
-				update = 1;
 		}
-		if (update) {
-			Return(structure_write3_(ptr, vector, slot, vector_type, pos));
-		}
+		Return(structure_write3_(ptr, vector, slot, vector_type, pos));
 	}
 
 	return 0;

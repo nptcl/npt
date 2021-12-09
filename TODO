@@ -9,7 +9,7 @@ Making testcase now.
      5  Data and Control Flow                 84        84      100%
      6  Iteration                              6         6      100%
      7  Objects                               42        42      100%
-     8  Structures                             2         0        0%
+     8  Structures                             2         2      100%
      9  Conditions                            51         0        0%
     10  Symbols                               20        20      100%
     11  Packages                              32        32      100%
@@ -29,4 +29,4 @@ Making testcase now.
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       700       70%
+     -  All                                  996       702       70%

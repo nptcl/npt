@@ -59,57 +59,81 @@
 ;;  specialized write
 ;;
 (deftest specialized-write.1
-  (progn
-    (defstruct (specialized-write-1 (:type (vector character)))
-      aaa bbb)
-    (make-specialized-write-1))
-  #(#\u0 #\u0))
+  (defstruct (specialized-write-1 (:type (vector character)))
+    aaa bbb)
+  specialized-write-1)
 
-(deftest specialized-write.2
+(deftest-error specialized-write.2
   (progn
     (defstruct (specialized-write-2 (:type (vector character)))
       aaa bbb)
-    (let ((x (make-specialized-write-2)))
-      (setf (specialized-write-2-aaa x) #\a)
-      x))
-  #(#\a #\u0))
+    (make-specialized-write-2)))
 
-(deftest-error specialized-write.3
+(deftest specialized-write.3
   (progn
     (defstruct (specialized-write-3 (:type (vector character)))
-      aaa bbb)
-    (let ((x (make-specialized-write-3)))
-      (setf (specialized-write-3-aaa x) 100)
-      x)))
+      (aaa #\a) (bbb #\B))
+    (make-specialized-write-3))
+  #(#\a #\B))
 
-(deftest-error specialized-write.4
+(deftest specialized-write.4
   (progn
-    (defstruct (specialized-write-4 (:type (vector (unsigned-byte 8))))
-      aaa bbb)
+    (defstruct (specialized-write-4 (:type (vector character)))
+      (aaa #\a) (bbb #\b))
     (let ((x (make-specialized-write-4)))
-      (setf (specialized-write-4-aaa x) 'hello)
-      x)))
-
-(deftest specialized-write.5
-  (progn
-    (defstruct (specialized-write-5 (:type (vector (unsigned-byte 8))))
-      aaa bbb)
-    (let ((x (make-specialized-write-5)))
-      (setf (specialized-write-5-aaa x) 200)
+      (setf (specialized-write-4-aaa x) #\C)
       x))
-  #(200 0))
+  #(#\C #\b))
+
+(deftest-error specialized-write.5
+  (progn
+    (defstruct (specialized-write-5 (:type (vector character)))
+      (aaa #\a) (bbb #\b))
+    (let ((x (make-specialized-write-5)))
+      (setf (specialized-write-5-aaa x) 100)
+      x)))
 
 (deftest-error specialized-write.6
   (progn
     (defstruct (specialized-write-6 (:type (vector (unsigned-byte 8))))
-      (aaa 'hello))
-    (make-specialized-write-6)))
+      (aaa #\a) (bbb #\b))
+    (let ((x (make-specialized-write-6)))
+      (setf (specialized-write-6-aaa x) 'hello)
+      x)))
 
-(deftest-error specialized-write.7
+(deftest specialized-write.7
+  (defstruct (specialized-write-7 (:type (vector (unsigned-byte 8))))
+    aaa bbb)
+  specialized-write-7)
+
+(deftest-error specialized-write.8
   (progn
-    (defstruct (specialized-write-7 (:type (vector character)))
+    (defstruct (specialized-write-8 (:type (vector (unsigned-byte 8))))
+      aaa bbb)
+    (let ((x (make-specialized-write-8)))
+      (setf (specialized-write-8-aaa x) 200)
+      x)))
+
+(deftest specialized-write.9
+  (progn
+    (defstruct (specialized-write-9 (:type (vector (unsigned-byte 8))))
+      (aaa 11) (bbb 22))
+    (let ((x (make-specialized-write-9)))
+      (setf (specialized-write-9-aaa x) 200)
+      x))
+  #(200 22))
+
+(deftest-error specialized-write.10
+  (progn
+    (defstruct (specialized-write-10 (:type (vector (unsigned-byte 8))))
+      (aaa 'hello))
+    (make-specialized-write-10)))
+
+(deftest-error specialized-write.11
+  (progn
+    (defstruct (specialized-write-11 (:type (vector character)))
       (aaa 100))
-    (make-specialized-write-7)))
+    (make-specialized-write-11)))
 
 
 ;;
@@ -122,40 +146,35 @@
     (make-specialized-default-1))
   #(nil))
 
-(deftest specialized-default.2
+(deftest-error specialized-default.2
   (progn
     (defstruct (specialized-default-2 (:type (vector (signed-byte 8))))
       aaa)
-    (make-specialized-default-2))
-  #(0))
+    (make-specialized-default-2)))
 
-(deftest specialized-default.3
+(deftest-error specialized-default.3
   (progn
     (defstruct (specialized-default-3 (:type (vector (unsigned-byte 16))))
       aaa)
-    (make-specialized-default-3))
-  #(0))
+    (make-specialized-default-3)))
 
-(deftest specialized-default.4
+(deftest-error specialized-default.4
   (progn
     (defstruct (specialized-default-4 (:type (vector single-float)))
       aaa)
-    (make-specialized-default-4))
-  #(0.0f0))
+    (make-specialized-default-4)))
 
-(deftest specialized-default.5
+(deftest-error specialized-default.5
   (progn
     (defstruct (specialized-default-5 (:type (vector long-float)))
       aaa)
-    (make-specialized-default-5))
-  #(0.0L0))
+    (make-specialized-default-5)))
 
-(deftest specialized-default.6
+(deftest-error specialized-default.6
   (progn
     (defstruct (specialized-default-6 (:type (vector character)))
       aaa)
-    (make-specialized-default-6))
-  #(#\u0))
+    (make-specialized-default-6)))
 
 
 ;;

@@ -327,3 +327,145 @@
     (fff 40 :read-only nil :type integer :type string :read-only t))
   vector-initialize-slot-value-6)
 
+
+;;
+;;  read-only
+;;
+;;  If a slot is read-only in the included structure,
+;;  then it must also be so in the including structure.
+;;
+(deftest clos-read-only.1
+  (progn
+    (defstruct clos-read-only-1a
+      (aaa 10 :read-only t))
+    (defstruct (clos-read-only-1b (:include clos-read-only-1a)))
+    (values
+      (fboundp '(setf clos-read-only-1a-aaa))
+      (fboundp '(setf clos-read-only-1b-aaa))))
+  nil nil)
+
+(deftest clos-read-only.2
+  (progn
+    (defstruct clos-read-only-2a
+      (aaa 10 :read-only t))
+    (defstruct (clos-read-only-2b
+                 (:include clos-read-only-2a aaa)))
+    (values
+      (fboundp '(setf clos-read-only-2a-aaa))
+      (fboundp '(setf clos-read-only-2b-aaa))))
+  nil nil)
+
+(deftest-error clos-read-only.3
+  (progn
+    (defstruct clos-read-only-3a
+      (aaa 10 :read-only t))
+    (defstruct (clos-read-only-3b
+                 (:include clos-read-only-3a
+                           (aaa 20 :read-only nil))))))
+
+(deftest clos-read-only.4
+  (progn
+    (defstruct clos-read-only-4a
+      (aaa 10 :read-only t))
+    (defstruct (clos-read-only-4b
+                 (:include clos-read-only-4a
+                           (aaa 20 :read-only t))))
+    (values
+      (fboundp '(setf clos-read-only-4a-aaa))
+      (fboundp '(setf clos-read-only-4b-aaa))))
+  nil nil)
+
+;;  list
+(deftest list-read-only.1
+  (progn
+    (defstruct (list-read-only-1a (:type list))
+      (aaa 10 :read-only t))
+    (defstruct (list-read-only-1b
+                 (:type list)
+                 (:include list-read-only-1a)))
+    (values
+      (fboundp '(setf list-read-only-1a-aaa))
+      (fboundp '(setf list-read-only-1b-aaa))))
+  nil nil)
+
+(deftest list-read-only.2
+  (progn
+    (defstruct (list-read-only-2a (:type list))
+      (aaa 10 :read-only t))
+    (defstruct (list-read-only-2b
+                 (:type list)
+                 (:include list-read-only-2a aaa)))
+    (values
+      (fboundp '(setf list-read-only-2a-aaa))
+      (fboundp '(setf list-read-only-2b-aaa))))
+  nil nil)
+
+(deftest-error list-read-only.3
+  (progn
+    (defstruct (list-read-only-3a (:type list))
+      (aaa 10 :read-only t))
+    (defstruct (list-read-only-3b
+                 (:type list)
+                 (:include list-read-only-3a
+                           (aaa 20 :read-only nil))))))
+
+(deftest list-read-only.4
+  (progn
+    (defstruct (list-read-only-4a (:type list))
+      (aaa 10 :read-only t))
+    (defstruct (list-read-only-4b
+                 (:type list)
+                 (:include list-read-only-4a
+                           (aaa 20 :read-only t))))
+    (values
+      (fboundp '(setf list-read-only-4a-aaa))
+      (fboundp '(setf list-read-only-4b-aaa))))
+  nil nil)
+
+;;  vector
+(deftest vector-read-only.1
+  (progn
+    (defstruct (vector-read-only-1a (:type vector))
+      (aaa 10 :read-only t))
+    (defstruct (vector-read-only-1b
+                 (:type vector)
+                 (:include vector-read-only-1a)))
+    (values
+      (fboundp '(setf vector-read-only-1a-aaa))
+      (fboundp '(setf vector-read-only-1b-aaa))))
+  nil nil)
+
+(deftest vector-read-only.2
+  (progn
+    (defstruct (vector-read-only-2a (:type vector))
+      (aaa 10 :read-only t))
+    (defstruct (vector-read-only-2b
+                 (:type vector)
+                 (:include vector-read-only-2a aaa)))
+    (values
+      (fboundp '(setf vector-read-only-2a-aaa))
+      (fboundp '(setf vector-read-only-2b-aaa))))
+  nil nil)
+
+(deftest-error vector-read-only.3
+  (progn
+    (defstruct (vector-read-only-3a (:type vector))
+      (aaa 10 :read-only t))
+    (defstruct (vector-read-only-3b
+                 (:type vector)
+                 (:include vector-read-only-3a
+                           (aaa 20 :read-only nil))))))
+
+(deftest vector-read-only.4
+  (progn
+    (defstruct (vector-read-only-4a (:type vector))
+      (aaa 10 :read-only t))
+    (defstruct (vector-read-only-4b
+                 (:type vector)
+                 (:include vector-read-only-4a
+                           (aaa 20 :read-only t))))
+    (values
+      (fboundp '(setf vector-read-only-4a-aaa))
+      (fboundp '(setf vector-read-only-4b-aaa))))
+  nil nil)
+

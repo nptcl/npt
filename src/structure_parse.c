@@ -227,8 +227,8 @@ static int structure_check_slots_(addr list)
 			GetNameSymbol(b, &b);
 			Return(string_equal_(a, b, &check));
 			if (check) {
-				return fmte_("The slot name ~S "
-						"is duplicated in the defstruct.", a, NULL);
+				return call_simple_program_error_va_(NULL,
+						"The slot name ~S is duplicated in the defstruct.", a, NULL);
 			}
 		}
 	}
@@ -380,8 +380,8 @@ static int structure_check_include_slots_(struct defstruct *str)
 		GetNameSlot(pos, &name);
 		Return(structure_find_slots_(str, instance, name, &pos));
 		if (pos != Unbound) {
-			return fmte_("The slot ~S "
-					"already exist in :INCLUDE structure.", name, NULL);
+			return call_simple_program_error_va_(NULL,
+					"The slot ~S already exist in :INCLUDE structure.", name, NULL);
 		}
 	}
 
@@ -408,8 +408,7 @@ static int structure_check_include_arguments_(struct defstruct *str)
 		/* form */
 		GetFunctionSlot(a, &x);
 		if (x == gensym) {
-			GetFunctionSlot(b, &y);
-			SetFunctionSlot(a, y);
+			SetFunctionSlot(a, Nil);
 		}
 		/* type */
 		GetTypeSlot(a, &x);
@@ -433,8 +432,8 @@ static int structure_check_include_arguments_(struct defstruct *str)
 			SetReadOnlySlot(a, y);
 		}
 		else if (x == Nil && y == T) {
-			return fmte_("The slot ~S is readonly "
-					"but include slot is not readonly.", name, NULL);
+			return fmte_("The slot ~S is read-only "
+					"but include slot is not read-only.", name, NULL);
 		}
 	}
 

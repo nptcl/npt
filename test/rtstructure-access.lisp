@@ -167,14 +167,8 @@
   200 "ZZZ")
 
 (defstruct (clos-slot-access-type-2 (:include clos-slot-access-type-1 aaa)))
-(deftest clos-slot-access-type.2
-  (let ((inst (make-clos-slot-access-type-2)))
-    (setf (clos-slot-access-type-2-aaa inst) 200)
-    (setf (clos-slot-access-type-2-bbb inst) "ZZZ")
-    (values
-      (clos-slot-access-type-2-aaa inst)
-      (clos-slot-access-type-2-bbb inst)))
-  200 "ZZZ")
+(deftest-error clos-slot-access-type.2
+  (make-clos-slot-access-type-2))
 
 (defstruct (clos-slot-access-type-3
              (:include clos-slot-access-type-1
@@ -342,14 +336,8 @@
 
 (defstruct (list-slot-access-type-2
              (:type list) (:include list-slot-access-type-1 aaa)))
-(deftest list-slot-access-type.2
-  (let ((inst (make-list-slot-access-type-2)))
-    (setf (list-slot-access-type-2-aaa inst) 200)
-    (setf (list-slot-access-type-2-bbb inst) "ZZZ")
-    (values
-      (list-slot-access-type-2-aaa inst)
-      (list-slot-access-type-2-bbb inst)))
-  200 "ZZZ")
+(deftest-error list-slot-access-type.2
+  (make-list-slot-access-type-2))
 
 (defstruct (list-slot-access-type-3
              (:type list)
@@ -518,15 +506,10 @@
   200 "ZZZ")
 
 (defstruct (vector-slot-access-type-2
-             (:type vector) (:include vector-slot-access-type-1 aaa)))
-(deftest vector-slot-access-type.2
-  (let ((inst (make-vector-slot-access-type-2)))
-    (setf (vector-slot-access-type-2-aaa inst) 200)
-    (setf (vector-slot-access-type-2-bbb inst) "ZZZ")
-    (values
-      (vector-slot-access-type-2-aaa inst)
-      (vector-slot-access-type-2-bbb inst)))
-  200 "ZZZ")
+             (:type vector)
+             (:include vector-slot-access-type-1 aaa)))
+(deftest-error vector-slot-access-type.2
+  (make-vector-slot-access-type-2))
 
 (defstruct (vector-slot-access-type-3
              (:type vector)
