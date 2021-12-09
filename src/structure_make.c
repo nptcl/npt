@@ -119,24 +119,22 @@ static int make_structure_value_(Execute ptr, addr slot, addr *ret)
 static int make_structure1_init_(Execute ptr, addr clos, addr args, int initp)
 {
 	int check;
-	addr slots, slot, value, pos;
-	size_t size, i, location;
+	addr slots, slot, pos;
+	size_t size, i;
 
 	GetSlotClos(clos, &slots);
-	GetValueClos(clos, &value);
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetLocationSlot(slot, &location);
 		if (! initp) {
-			SetClosValue(value, location, Nil);
+			Return(structure_write1_(ptr, clos, slot, Nil));
 			continue;
 		}
 		Return(make_structure_find_(slot, args, &pos, &check));
 		if (! check) {
 			Return(make_structure_value_(ptr, slot, &pos));
 		}
-		SetClosValue(value, location, pos);
+		Return(structure_write1_(ptr, clos, slot, pos));
 	}
 
 	return 0;
@@ -146,24 +144,23 @@ static int make_structure2_init_(Execute ptr, addr list, addr slots, addr args)
 {
 	int check;
 	addr slot, pos;
-	size_t size, i, index;
+	size_t size, i;
 
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetAccessSlot(slot, &index);
 		Return(make_structure_find_(slot, args, &pos, &check));
 		if (! check) {
 			Return(make_structure_value_(ptr, slot, &pos));
 		}
-		Return(setnth_(list, index, pos));
+		Return(structure_write2_(ptr, list, slot, pos));
 	}
 
 	return 0;
 }
 
 static int make_structure3_init_(Execute ptr,
-		addr vector, addr slots, addr value, addr args)
+		addr vector, addr slots, addr vector_type, addr args)
 {
 	int update, check;
 	addr slot, pos;
@@ -183,7 +180,7 @@ static int make_structure3_init_(Execute ptr,
 				update = 1;
 		}
 		if (update) {
-			Return(structure_setarray_(ptr, vector, slot, value, pos));
+			Return(structure_write3_(ptr, vector, slot, vector_type, pos));
 		}
 	}
 

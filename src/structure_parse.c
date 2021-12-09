@@ -91,6 +91,7 @@ static int ensure_structure_vector_(struct defstruct *str, addr pos)
 	if (pos == check) {
 		str->type_p = 1;
 		str->type_vector_p = 1;
+		Return(parse_type(str->ptr, &pos, pos, Nil));
 		str->type_vector = pos;
 		str->type1 = ARRAY_TYPE_T;
 		str->type2 = 0;
@@ -101,6 +102,7 @@ static int ensure_structure_vector_(struct defstruct *str, addr pos)
 	if (ensure_structure_vector_type(pos, &pos)) {
 		str->type_p = 1;
 		str->type_vector_p = 1;
+		Return(parse_type(str->ptr, &pos, pos, Nil));
 		str->type_vector = pos;
 		Return(ensure_structure_upgraded_(str, pos, &type1, &type2));
 		str->type1 = type1;
@@ -416,6 +418,8 @@ static int structure_check_include_arguments_(struct defstruct *str)
 			SetTypeSlot(a, y);
 		}
 		else {
+			Return(parse_type(str->ptr, &x, x, Nil));
+			SetTypeSlot(a, x);
 			Return(subtypep_check_(str->ptr, x, y, Nil, &result, NULL));
 			if (! result) {
 				return fmte_("The slot ~S type ~A is not "
@@ -458,7 +462,7 @@ static int structure_check_print_(struct defstruct *str)
 	return 0;
 }
 
-static void structure_slots_value(struct defstruct *str)
+static int structure_slots_value_(struct defstruct *str)
 {
 	addr list, pos, check, g;
 
@@ -470,18 +474,25 @@ static void structure_slots_value(struct defstruct *str)
 		if (check == g) {
 			SetFunctionSlot(pos, Nil);
 		}
+
 		/* type */
 		GetTypeSlot(pos, &check);
 		if (check == g) {
 			GetTypeTable(&check, T);
-			SetTypeSlot(pos, check);
 		}
+		else {
+			Return(parse_type(str->ptr, &check, check, Nil));
+		}
+		SetTypeSlot(pos, check);
+
 		/* readonly */
 		GetReadOnlySlot(pos, &check);
 		if (check == g) {
 			SetReadOnlySlot(pos, Nil);
 		}
 	}
+
+	return 0;
 }
 
 int structure_arguments_(struct defstruct *str)
@@ -496,7 +507,7 @@ int structure_arguments_(struct defstruct *str)
 	Return(structure_check_include_arguments_(str));
 	Return(structure_check_named_(str));
 	Return(structure_check_print_(str));
-	structure_slots_value(str);
+	Return(structure_slots_value_(str));
 
 	return 0;
 }

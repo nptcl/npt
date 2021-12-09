@@ -5,7 +5,6 @@
 #include "heap.h"
 #include "sequence.h"
 #include "structure_direct.h"
-#include "type_parse.h"
 #include "type_typep.h"
 #include "typedef.h"
 
@@ -111,50 +110,75 @@ static void structure_type_heap_unsafe(addr *ret)
 /*
  *  access
  */
-int structure_getdirect_(Execute ptr, addr vector, size_t i, addr type, addr *ret)
+static int structure_getdirect_(addr vector, size_t index, addr *ret)
 {
-	int check;
-	addr value;
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	Return(getelt_sequence_(NULL, vector, i, &value));
-	localhold_set(hold, 0, value);
-	Return(parse_type(ptr, &type, type, Nil));
-	Return(typep_clang_(ptr, value, type, &check));
-	if (! check) {
-		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
-	}
-	localhold_end(hold);
-
-	return Result(ret, value);
+	return getelt_sequence_(NULL, vector, index, ret);
 }
 
-int structure_setdirect_(Execute ptr, addr vector, size_t i, addr type, addr value)
+int structure_getarray_(addr vector, addr slot, addr *ret)
+{
+	size_t index;
+	GetAccessSlot(slot, &index);
+	return structure_getdirect_(vector, index, ret);
+}
+
+static int structure_setcheck_error_(Execute ptr, addr type, addr value)
 {
 	int check;
 
-	Return(parse_type(ptr, &type, type, Nil));
+	CheckType(type, LISPTYPE_TYPE);
 	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
-		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
+		return call_type_error_va_(ptr, value, type,
+				"The value ~S don't match ~A type.", value, type, NULL);
 	}
 
-	return setelt_sequence_(vector, i, value);
+	return 0;
 }
 
-int structure_getarray_(Execute ptr, addr vector, addr slot, addr type, addr *ret)
+int structure_write1_(Execute ptr, addr instance, addr slot, addr value)
 {
-	size_t i;
-	GetAccessSlot(slot, &i);
-	return structure_getdirect_(ptr, vector, i, type, ret);
+	addr type, var;
+	size_t index;
+
+	/* check */
+	GetTypeSlot(slot, &type);
+	Return(structure_setcheck_error_(ptr, type, value));
+
+	/* write */
+	GetLocationSlot(slot, &index);
+	GetValueClos(instance, &var);
+	SetClosValue(var, index, value);
+	return 0;
 }
 
-int structure_setarray_(Execute ptr, addr vector, addr slot, addr type, addr value)
+int structure_write2_(Execute ptr, addr list, addr slot, addr value)
 {
-	size_t i;
-	GetAccessSlot(slot, &i);
-	return structure_setdirect_(ptr, vector, i, type, value);
+	addr type;
+	size_t index;
+
+	/* check */
+	GetTypeSlot(slot, &type);
+	Return(structure_setcheck_error_(ptr, type, value));
+
+	/* write */
+	GetAccessSlot(slot, &index);
+	return setnth_(list, index, value);
+}
+
+int structure_write3_(Execute ptr, addr vector, addr slot, addr type1, addr value)
+{
+	addr type2;
+	size_t index;
+
+	/* check */
+	GetTypeSlot(slot, &type2);
+	Return(structure_setcheck_error_(ptr, type1, value));
+	Return(structure_setcheck_error_(ptr, type2, value));
+
+	/* write */
+	GetAccessSlot(slot, &index);
+	return setelt_sequence_(vector, index, value);
 }
 
 
@@ -226,7 +250,6 @@ int structure_type_list_p(addr type, addr var, int *ret)
 int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
 {
 	struct structure_type_struct *str;
-	addr check;
 	size_t size;
 
 	/* vectorp */
@@ -243,8 +266,7 @@ int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
 	}
 	/* check */
 	if (str->named) {
-		GetVectorStructureType(type, &check);
-		Return(structure_getdirect_(ptr, var, str->named_index, check, &var));
+		Return(structure_getdirect_(var, str->named_index, &var));
 		GetNameStructureType(type, &type);
 		*ret = (var == type);
 		return 0;

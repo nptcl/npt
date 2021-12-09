@@ -359,7 +359,6 @@ static int function_structure_writer1(Execute ptr, addr value, addr var)
 {
 	int check;
 	addr slot, pos;
-	size_t index;
 
 	/* closure */
 	getdata_control(ptr, &slot);
@@ -369,9 +368,7 @@ static int function_structure_writer1(Execute ptr, addr value, addr var)
 	if (! check)
 		return fmte_("The structure ~S must be a ~S type.", pos, var, NULL);
 	/* result */
-	GetLocationSlot(slot, &index);
-	GetValueClos(var, &var);
-	SetClosValue(var, index, value);
+	Return(structure_write1_(ptr, var, slot, value));
 	setresult_control(ptr, value);
 
 	return 0;

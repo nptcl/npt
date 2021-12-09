@@ -87,10 +87,10 @@ enum StructureTypeIndex {
 #define geterrorpstructuretype _n(geterrorpstructuretype)
 #define seterrorpstructuretype _n(seterrorpstructuretype)
 
-#define structure_getdirect_ _n(structure_getdirect_)
-#define structure_setdirect_ _n(structure_setdirect_)
 #define structure_getarray_ _n(structure_getarray_)
-#define structure_setarray_ _n(structure_setarray_)
+#define structure_write1_ _n(structure_write1_)
+#define structure_write2_ _n(structure_write2_)
+#define structure_write3_ _n(structure_write3_)
 #define structure_type_heap _n(structure_type_heap)
 #define structure_type _n(structure_type)
 #define structure_type_list_p _n(structure_type_list_p)
@@ -112,10 +112,10 @@ int referrorpstructuretype(addr pos);
 void geterrorpstructuretype(addr pos, int *ret);
 void seterrorpstructuretype(addr pos, int value);
 
-int structure_getdirect_(Execute ptr, addr vector, size_t i, addr type, addr *ret);
-int structure_setdirect_(Execute ptr, addr vector, size_t i, addr type, addr value);
-int structure_getarray_(Execute ptr, addr vector, addr slot, addr type, addr *ret);
-int structure_setarray_(Execute ptr, addr vector, addr slot, addr type, addr value);
+int structure_getarray_(addr vector, addr slot, addr *ret);
+int structure_write1_(Execute ptr, addr instance, addr slot, addr value);
+int structure_write2_(Execute ptr, addr list, addr slot, addr value);
+int structure_write3_(Execute ptr, addr vector, addr slot, addr type1, addr value);
 void structure_type_heap(addr *ret);
 void structure_type(struct defstruct *str, addr slot, addr *ret);
 int structure_type_list_p(addr type, addr var, int *ret);

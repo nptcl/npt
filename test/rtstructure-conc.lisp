@@ -232,3 +232,29 @@
 (deftest-error defstruct-conc-name-error.4
   (eval '(defstruct-conc-name-error-1-aaa 100)))
 
+
+;;  string-designer
+(deftest defstruct-conc-string-designer.1
+  (progn
+    (defstruct (defstruct-conc-string-designer-1
+                 (:conc-name string-designer-1-))
+      aaa bbb)
+    (fboundp 'string-designer-1-aaa))
+  t)
+
+(deftest defstruct-conc-string-designer.2
+  (progn
+    (defstruct (defstruct-conc-string-designer-2
+                 (:conc-name "string-designer-2-"))
+      aaa bbb)
+    (fboundp '|string-designer-2-AAA|))
+  t)
+
+(deftest defstruct-conc-string-designer.3
+  (progn
+    (defstruct (defstruct-conc-string-designer-3
+                 (:conc-name #\!))
+      (string-designer-3-aaa))
+    (fboundp '!string-designer-3-aaa))
+  t)
+

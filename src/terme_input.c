@@ -439,6 +439,7 @@ static void terme_read_escape(TermeKeyboard *ret)
 {
 	byte c;
 
+	c = 0;
 	if (terme_getc(&c))
 		goto error;
 

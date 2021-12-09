@@ -124,7 +124,7 @@ static int structure_define2_slots_include_(struct defstruct *str)
 
 static void structure_define2_slots_named(addr name, size_t size_all, addr *ret)
 {
-	addr pos, symbol;
+	addr pos, symbol, type;
 
 	slot_heap(&pos);
 	GetConst(SYSTEM_STRUCTURE_NAMED, &symbol);
@@ -132,6 +132,8 @@ static void structure_define2_slots_named(addr name, size_t size_all, addr *ret)
 	SetFormSlot(pos, name);
 	SetLocationSlot(pos, size_all);
 	SetAccessSlot(pos, size_all);
+	GetTypeTable(&type, T);
+	SetTypeSlot(pos, type);
 	*ret = pos;
 }
 
@@ -351,7 +353,7 @@ static int function_structure_reader3(Execute ptr, addr var)
 	/* access */
 	GetSlotStructureType(data, &slot);
 	GetVectorStructureType(data, &type);
-	Return(structure_getarray_(ptr, var, slot, type, &var));
+	Return(structure_getarray_(var, slot, &var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -389,7 +391,6 @@ static int function_structure_writer2(Execute ptr, addr value, addr var)
 {
 	int check;
 	addr data, slot;
-	size_t index;
 
 	/* closure */
 	getdata_control(ptr, &data);
@@ -400,8 +401,7 @@ static int function_structure_writer2(Execute ptr, addr value, addr var)
 		return fmte_("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(data, &slot);
-	GetAccessSlot(slot, &index);
-	Return(setnth_(var, index, value));
+	Return(structure_write2_(ptr, var, slot, value));
 	setresult_control(ptr, value);
 
 	return 0;
@@ -438,7 +438,7 @@ static void defun_structure_writer2(addr data, addr symbol)
 static int function_structure_writer3(Execute ptr, addr value, addr var)
 {
 	int check;
-	addr data, slot, type;
+	addr data, slot, vector_type;
 
 	/* closure */
 	getdata_control(ptr, &data);
@@ -449,8 +449,8 @@ static int function_structure_writer3(Execute ptr, addr value, addr var)
 		return fmte_("The argument ~S must be a structure-vector.", var, NULL);
 	/* access */
 	GetSlotStructureType(data, &slot);
-	GetVectorStructureType(data, &type);
-	Return(structure_setarray_(ptr, var, slot, type, value));
+	GetVectorStructureType(data, &vector_type);
+	Return(structure_write3_(ptr, var, slot, vector_type, value));
 	setresult_control(ptr, value);
 
 	return 0;

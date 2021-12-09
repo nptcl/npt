@@ -13,6 +13,7 @@
 (load #p"test/rtstructure-print.lisp")
 (load #p"test/rtstructure-clos.lisp")
 (load #p"test/rtstructure-offset.lisp")
+(load #p"test/rtstructure-type.lisp")
 (load #p"test/rtstructure-test.lisp")
 
 

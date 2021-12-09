@@ -144,3 +144,112 @@
           do (print issues-sharp-6-6-i)))
   issues-sharp-6-6-function)
 
+
+;;
+;;  ANSI Common Lisp
+;;
+(deftest defstruct-test.1
+  (defstruct defstruct-person (name 007 :type string))
+  defstruct-person)
+
+(deftest defstruct-test.2
+  (let ((x (make-defstruct-person :name "James")))
+    (defstruct-person-name x))
+  "James")
+
+(deftest-error defstruct-test.3
+  (let ((x (make-defstruct-person)))
+    (defstruct-person-name x)))
+
+(deftest defstruct-gensym.1
+  (progn
+    (defstruct defstructure-gensym-1
+      (aaa (gensym)))
+    (let ((x (make-defstructure-gensym-1))
+          (y (make-defstructure-gensym-1)))
+      (eq (defstructure-gensym-1-aaa x)
+          (defstructure-gensym-1-aaa y))))
+  nil)
+
+(deftest defstruct-ship.1
+  (progn
+    (defvar *defstruct-ship* 1.23)
+    (defstruct defstruct-ship
+      (x-position 0.0 :type short-float)
+      (y-position 0.0 :type short-float)
+      (x-velocity 0.0 :type short-float)
+      (y-velocity 0.0 :type short-float)
+      (mass *defstruct-ship* :type short-float :read-only t)))
+  defstruct-ship)
+
+(deftest defstruct-ship.2
+  (let ((x (make-defstruct-ship)))
+    (defstruct-ship-mass x))
+  1.23)
+
+(deftest-error defstruct-ship.3
+  (eval '(let ((x (make-defstruct-ship)))
+           (setf (defstruct-ship-mass x) 100.0))))
+
+(deftest defstruct-door.1
+  (defstruct (defstruct-door (:conc-name defstruct-dr-))
+    knob-color width material)
+  defstruct-door)
+
+(deftest defstruct-door.2
+  (let ((my-door (make-defstruct-door :knob-color 'red :width 5.0)))
+    (values
+      (defstruct-dr-width my-door)
+      (setf (defstruct-dr-width my-door) 43.7)
+      (defstruct-dr-width my-door)))
+  5.0 43.7 43.7)
+
+(deftest defstruct-astronaut.1
+  (defstruct defstruct-astro-person
+    name age sex)
+  defstruct-astro-person)
+
+(deftest defstruct-astronaut.2
+  (defstruct (defstruct-astronaut
+               (:include defstruct-astro-person)
+               (:conc-name defstruct-astro-))
+    helmet-size
+    (favorite-beverage 'tang))
+  defstruct-astronaut)
+
+(deftest defstruct-astronaut.3
+  (let ((x (make-defstruct-astronaut
+             :name 'buzz
+             :age 45.
+             :sex t
+             :helmet-size 17.5)))
+    (values
+      (defstruct-astro-person-name x)
+      (defstruct-astro-name x)
+      (defstruct-astro-favorite-beverage x)
+      (reduce #'+
+              (list (make-defstruct-astronaut :age 10.)
+                    (make-defstruct-astronaut :age 20.)
+                    (make-defstruct-astronaut :age 30.))
+              :key #'defstruct-astro-person-age)))
+  buzz buzz tang 60)
+
+(deftest defstruct-astronaut.4
+  (let ((x (make-defstruct-astronaut :name 'aaa)))
+    (defstruct-astro-name x))
+  aaa)
+
+(deftest-error defstruct-astronaut.5
+  (let ((x (make-defstruct-astro-person :name 'aaa)))
+    (defstruct-astro-name x)))
+
+(deftest defstruct-astronaut.6
+  (let ((x (make-defstruct-astronaut :name 'aaa)))
+    (defstruct-astro-person-name x))
+  aaa)
+
+(deftest defstruct-astronaut.7
+  (let ((x (make-defstruct-astro-person :name 'aaa)))
+    (defstruct-astro-person-name x))
+  aaa)
+

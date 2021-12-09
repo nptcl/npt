@@ -642,3 +642,31 @@
       (change-slot-access-3-aaa x)))
   300)
 
+
+;;
+;;  type error
+;;
+(deftest-error defstruct-type-error.1
+  (progn
+    (defstruct defstruct-type-error-1
+      (aaa 100 :type integer))
+    (let ((x (make-defstruct-type-error-1)))
+      (setf (defstruct-type-error-1-aaa x) :hello)))
+  type-error)
+
+(deftest-error defstruct-type-error.2
+  (progn
+    (defstruct (defstruct-type-error-2 (:type list))
+      (aaa 100 :type integer))
+    (let ((x (make-defstruct-type-error-2)))
+      (setf (defstruct-type-error-2-aaa x) :hello)))
+  type-error)
+
+(deftest-error defstruct-type-error.3
+  (progn
+    (defstruct (defstruct-type-error-3 (:type vector))
+      (aaa 100 :type integer))
+    (let ((x (make-defstruct-type-error-3)))
+      (setf (defstruct-type-error-3-aaa x) :hello)))
+  type-error)
+
