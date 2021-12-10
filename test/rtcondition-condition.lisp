@@ -1,12 +1,23 @@
 ;;
 ;;  ANSI COMMON LISP: 9. Conditions
 ;;
-(deftest class-condition.1
-  (lisp-system::closp
+(import 'lisp-system:closp)
+
+;;
+;;  Condition Type CONDITION
+;;
+(deftest condition-condition.1
+  (closp
     (make-condition 'condition))
   t)
 
-(deftest class-condition.2
+(deftest condition-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'condition)))
+  (condition standard-object t))
+
+(deftest condition-condition.3
   (let ((inst (make-condition 'condition)))
     (values
       (typep inst 't)
@@ -14,36 +25,235 @@
       (typep inst 'standard-class)))
   t t nil)
 
-(deftest class-condition.3
-  (lisp-system::closp
+(deftest condition-condition.4
+  (closp
     (make-instance 'condition))
   t)
 
-(deftest class-condition.4
-  (let ((inst (make-instance 'condition)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'standard-class)))
-  t t nil)
 
-(deftest class-serious-condition.1
-  (let ((inst (make-condition 'serious-condition)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'serious-condition)))
-  t t t)
+;;
+;;  Condition Type WARNING
+;;
+(deftest warning-condition.1
+  (closp
+    (make-condition 'warning))
+  t)
 
-(deftest class-error.1
-  (let ((inst (make-condition 'error)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'serious-condition)
-      (typep inst 'error)))
-  t t t t)
+(deftest warning-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'warning)))
+  (warning condition standard-object t))
 
+
+;;
+;;  Condition Type STYLE-WARNING
+;;
+(deftest style-warning-condition.1
+  (closp
+    (make-condition 'style-warning))
+  t)
+
+(deftest style-warning-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'style-warning)))
+  (style-warning warning condition standard-object t))
+
+(deftest style-warning-condition.3
+  (handler-case
+    (eval '(let (unused) (+ 10 20 30)))
+    (style-warning () 'hit))
+  hit)
+
+
+;;
+;;  Condition Type SERIOUS-CONDITION
+;;
+(deftest serious-condition-condition.1
+  (closp
+    (make-condition 'serious-condition))
+  t)
+
+(deftest serious-condition-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'serious-condition)))
+  (serious-condition condition standard-object t))
+
+
+;;
+;;  Condition Type ERROR
+;;
+(deftest error-condition.1
+  (closp
+    (make-condition 'error))
+  t)
+
+(deftest error-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'error)))
+  (error serious-condition condition standard-object t))
+
+
+;;
+;;  Condition Type CELL-ERROR
+;;
+(deftest cell-error-condition.1
+  (closp
+    (make-condition 'cell-error))
+  t)
+
+(deftest cell-error-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'cell-error)))
+  (cell-error error serious-condition condition standard-object t))
+
+(deftest cell-error-condition.3
+  (cell-error-name
+    (make-condition 'cell-error :name 'hello))
+  hello)
+
+
+;;
+;;  Condition Type PARSE-ERROR
+;;
+(deftest parse-error-condition.1
+  (closp
+    (make-condition 'parse-error))
+  t)
+
+(deftest parse-error-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'parse-error)))
+  (parse-error error serious-condition condition standard-object t))
+
+
+;;
+;;  Condition Type STORAGE-CONDITION
+;;
+(deftest storage-condition-condition.1
+  (closp
+    (make-condition 'storage-condition))
+  t)
+
+(deftest storage-condition-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'storage-condition)))
+  (storage-condition serious-condition condition standard-object t))
+
+
+;;
+;;  Condition Type SIMPLE-ERROR
+;;
+(deftest simple-error-condition.1
+  (closp
+    (make-condition 'simple-error))
+  t)
+
+(deftest simple-error-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'simple-error)))
+  (simple-error simple-condition
+    error serious-condition condition standard-object t))
+
+(deftest simple-error-condition.3
+  (let ((inst (make-condition
+                'simple-error :format-control "aa" :format-arguments '(bb))))
+    (values
+      (simple-condition-format-control inst)
+      (simple-condition-format-arguments inst)))
+  "aa" (bb))
+
+(deftest simple-error-condition.4
+  (handler-case
+    (error "AAA ~A" 10)
+    (simple-error (c)
+      (let ((x (simple-condition-format-control c))
+            (y (simple-condition-format-arguments c)))
+        (apply #'format nil x y))))
+  "AAA 10")
+
+(deftest simple-error-condition.5
+  (handler-case
+    (let (x)
+      (cerror "AAA" "BBB" x))
+    (simple-error () 'hit))
+  hit)
+
+
+;;
+;;  Condition Type SIMPLE-CONDITION
+;;
+(deftest simple-condition-condition.1
+  (closp
+    (make-condition 'simple-condition))
+  t)
+
+(deftest simple-condition-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'simple-condition)))
+  (simple-condition condition standard-object t))
+
+(deftest simple-condition-condition.3
+  (let ((inst (make-condition
+                'simple-condition :format-control "aa" :format-arguments '(bb))))
+    (values
+      (simple-condition-format-control inst)
+      (simple-condition-format-arguments inst)))
+  "aa" (bb))
+
+(deftest simple-condition-condition.4
+  (handler-case
+    (signal "AAA" 10)
+    (simple-condition (c)
+      (values
+        (simple-condition-format-control c)
+        (simple-condition-format-arguments c))))
+  "AAA" (10))
+
+
+;;
+;;  Condition Type SIMPLE-WARNING
+;;
+(deftest simple-warning-condition.1
+  (closp
+    (make-condition 'simple-warning))
+  t)
+
+(deftest simple-warning-condition.2
+  (mapcar #'class-name
+          (lisp-clos:class-precedence-list
+            (find-class 'simple-warning)))
+  (simple-warning simple-condition warning condition standard-object t))
+
+(deftest simple-warning-condition.3
+  (let ((inst (make-condition
+                'simple-warning :format-control "aa" :format-arguments '(bb))))
+    (values
+      (simple-condition-format-control inst)
+      (simple-condition-format-arguments inst)))
+  "aa" (bb))
+
+(deftest simple-warning-condition.4
+  (handler-case
+    (warn "Hello" 10 20 30)
+    (simple-warning (c)
+      (values
+        (simple-condition-format-control c)
+        (simple-condition-format-arguments c))))
+  "Hello" (10 20 30))
+
+
+;;
+;;  Conditions
+;;
 (deftest class-arithmetic-error.1
   (let ((inst (make-condition 'arithmetic-error)))
     (values
@@ -150,21 +360,6 @@
       (arithmetic-error-operation inst)
       (arithmetic-error-operands inst)))
   aa bb)
-
-(deftest class-cell-error.1
-  (let ((inst (make-condition 'cell-error)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'serious-condition)
-      (typep inst 'error)
-      (typep inst 'cell-error)))
-  t t t t t)
-
-(deftest class-cell-error.2
-  (cell-error-name
-    (make-condition 'cell-error :name 'hello))
-  hello)
 
 (deftest class-unbound-slot.1
   (let ((inst (make-condition 'unbound-slot)))
@@ -287,16 +482,6 @@
     (make-condition 'package-error :package 'hello))
   hello)
 
-(deftest class-parse-error.1
-  (let ((inst (make-condition 'parse-error)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'serious-condition)
-      (typep inst 'error)
-      (typep inst 'parse-error)))
-  t t t t t)
-
 (deftest class-print-not-readable.1
   (let ((inst (make-condition 'print-not-readable)))
     (values
@@ -339,39 +524,6 @@
     (make-condition 'reader-error :stream 'hello))
   hello)
 
-(deftest class-simple-condition.1
-  (let ((inst (make-condition 'simple-condition)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'simple-condition)))
-  t t t)
-
-(deftest class-simple-condition.2
-  (let ((inst (make-condition
-                'simple-condition :format-control "aa" :format-arguments '(bb))))
-    (values
-      (simple-condition-format-control inst)
-      (simple-condition-format-arguments inst)))
-  "aa" (bb))
-
-(deftest class-simple-error.1
-  (let ((inst (make-condition 'simple-error)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'simple-condition)
-      (typep inst 'simple-error)))
-  t t t t)
-
-(deftest class-simple-error.2
-  (let ((inst (make-condition
-                'simple-error :format-control "aa" :format-arguments '(bb))))
-    (values
-      (simple-condition-format-control inst)
-      (simple-condition-format-arguments inst)))
-  "aa" (bb))
-
 (deftest class-type-error.1
   (let ((inst (make-condition 'type-error)))
     (values
@@ -411,48 +563,4 @@
       (type-error-datum inst)
       (type-error-expected-type inst)))
   "aa" (bb) cc integer)
-
-(deftest class-warning.1
-  (let ((inst (make-condition 'warning)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'warning)))
-  t t t)
-
-(deftest class-simple-warning.1
-  (let ((inst (make-condition 'simple-warning)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'warning)
-      (typep inst 'simple-condition)
-      (typep inst 'simple-warning)))
-  t t t t t)
-
-(deftest class-simple-warning.2
-  (let ((inst (make-condition
-                'simple-warning :format-control "aa" :format-arguments '(bb))))
-    (values
-      (simple-condition-format-control inst)
-      (simple-condition-format-arguments inst)))
-  "aa" (bb))
-
-(deftest class-storage-condition.1
-  (let ((inst (make-condition 'storage-condition)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'serious-condition)
-      (typep inst 'storage-condition)))
-  t t t t)
-
-(deftest class-style-warning.1
-  (let ((inst (make-condition 'style-warning)))
-    (values
-      (typep inst 't)
-      (typep inst 'condition)
-      (typep inst 'warning)
-      (typep inst 'style-warning)))
-  t t t t)
 

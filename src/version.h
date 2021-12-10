@@ -6,8 +6,8 @@
 #define LispnameW       L"npt"
 #define LISPNAMESIZE    3
 
-#define LISP_REVISION   "2021/12/09-22:15:11"
+#define LISP_REVISION   "2021/12/10-20:44:52"
 #define LISP_VERSION_A  1
 #define LISP_VERSION_B  0
-#define LISP_VERSION_C  15
+#define LISP_VERSION_C  16
 

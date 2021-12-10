@@ -9,6 +9,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "execute_object.h"
 #include "format.h"
 #include "function.h"
 #include "hold.h"
@@ -25,7 +26,7 @@
 /*
  *  assert
  */
-static int assert_retry_common(addr test, addr *ret)
+static int assert_retry_common_(addr test, addr *ret)
 {
 	/* (tagbody
 	 *   loop
@@ -35,13 +36,10 @@ static int assert_retry_common(addr test, addr *ret)
 	 *        (lambda (s)
 	 *          (princ "Retry assersion." s))))
 	 *     (unless test
-	 *       (invoke-debugger
-	 *         (make-condition 'simple-error
-	 *           :format-control "Failed assersion ~A."
-	 *           :format-arguments (list 'test))))))
+	 *       (error "Failed assersion ~A." 'test))))
 	 */
 	addr tagbody, restart, cont, lambda, go, report;
-	addr princ, unless, invoke, make, quote, simple, control, arguments, list;
+	addr princ, unless, quote, error;
 	addr loop, s, str1, str2, a;
 
 	/* variable */
@@ -57,20 +55,12 @@ static int assert_retry_common(addr test, addr *ret)
 	GetConst(KEYWORD_REPORT_FUNCTION, &report);
 	GetConst(COMMON_PRINC, &princ);
 	GetConst(COMMON_UNLESS, &unless);
-	GetConst(COMMON_INVOKE_DEBUGGER, &invoke);
-	GetConst(COMMON_MAKE_CONDITION, &make);
+	GetConst(COMMON_ERROR, &error);
 	GetConst(COMMON_QUOTE, &quote);
-	GetConst(COMMON_SIMPLE_ERROR, &simple);
-	GetConst(KEYWORD_FORMAT_CONTROL, &control);
-	GetConst(KEYWORD_FORMAT_ARGUMENTS, &arguments);
-	GetConst(COMMON_LIST, &list);
 	/* expand */
 	list_heap(&a, quote, test, NULL);
-	list_heap(&list, list, a, NULL);
-	list_heap(&simple, quote, simple, NULL);
-	list_heap(&make, make, simple, control, str2, arguments, list, NULL);
-	list_heap(&invoke, invoke, make, NULL);
-	list_heap(&unless, unless, test, invoke, NULL);
+	list_heap(&error, error, str2, a, NULL);
+	list_heap(&unless, unless, test, error, NULL);
 	list_heap(&princ, princ, str1, s, NULL);
 	list_heap(&s, s, NULL);
 	list_heap(&princ, lambda, s, princ, NULL);
@@ -84,7 +74,7 @@ static int assert_retry_common(addr test, addr *ret)
 	return 0;
 }
 
-static int assert_prompt_common(Execute ptr, addr env, addr *ret, addr place)
+static int assert_prompt_common_(Execute ptr, addr env, addr *ret, addr place)
 {
 	/* (multiple-value-bind (a b g w r) (get-setf-expansion PLACE)
 	 *   (declare (ignore r))
@@ -135,7 +125,7 @@ static int assert_prompt_common(Execute ptr, addr env, addr *ret, addr place)
 	return 0;
 }
 
-static int assert_list_common(Execute ptr, addr env,
+static int assert_list_common_(Execute ptr, addr env,
 		addr test, addr places, addr output, addr *ret)
 {
 	/* (tagbody
@@ -150,13 +140,10 @@ static int assert_list_common(Execute ptr, addr env,
 	 *        (lambda (s)
 	 *          (format s "Retry assersion with new value ~{~A~^,~}." places))))
 	 *     (unless test
-	 *       (invoke-debugger
-	 *         (make-condition 'simple-error
-	 *           :format-control "Failed assersion ~A."
-	 *           :format-arguments (list 'test))))))
+	 *       (error  "Failed assersion ~A." 'test))))
 	 */
 	addr tagbody, restart, cont, lambda, go, report;
-	addr format, unless, invoke, make, quote, simple, control, arguments, list;
+	addr format, unless, error, quote;
 	addr loop, s, str, a, b, c;
 	LocalHold hold;
 
@@ -164,7 +151,7 @@ static int assert_list_common(Execute ptr, addr env,
 	hold = LocalHold_array(ptr, 1);
 	for (a = Nil; places != Nil; ) {
 		Return_getcons(places, &b, &places);
-		Return(assert_prompt_common(ptr, env, &b, b));
+		Return(assert_prompt_common_(ptr, env, &b, b));
 		cons_heap(&a, b, a);
 		localhold_set(hold, 0, a);
 	}
@@ -182,29 +169,17 @@ static int assert_list_common(Execute ptr, addr env,
 	GetConst(KEYWORD_REPORT_FUNCTION, &report);
 	GetConst(COMMON_FORMAT, &format);
 	GetConst(COMMON_UNLESS, &unless);
-	GetConst(COMMON_INVOKE_DEBUGGER, &invoke);
-	GetConst(COMMON_MAKE_CONDITION, &make);
+	GetConst(COMMON_ERROR, &error);
 	GetConst(COMMON_QUOTE, &quote);
-	GetConst(COMMON_SIMPLE_ERROR, &simple);
-	GetConst(KEYWORD_FORMAT_CONTROL, &control);
-	GetConst(KEYWORD_FORMAT_ARGUMENTS, &arguments);
 	/* format */
-	if (output != Nil) {
-		Return_getcons(output, &output, &list);
-		list_heap(&list, quote, list, NULL);
-	}
-	else {
-		GetConst(COMMON_LIST, &list);
+	if (output == Nil) {
 		strvect_char_heap(&output, "Failed assersion ~A");
 		list_heap(&c, quote, test, NULL);
-		list_heap(&list, list, c, NULL);
-		list_heap(&c, list, test, NULL);
+		list_heap(&output, output, c, NULL);
 	}
-	list_heap(&simple, quote, simple, NULL);
-	list_heap(&make, make, simple, control, output, arguments, list, NULL);
 	/* expand */
-	list_heap(&invoke, invoke, make, NULL);
-	list_heap(&unless, unless, test, invoke, NULL);
+	cons_heap(&error, error, output);
+	list_heap(&unless, unless, test, error, NULL);
 	list_heap(&quote, quote, places, NULL);
 	list_heap(&format, format, s, str, quote, NULL);
 	list_heap(&s, s, NULL);
@@ -222,23 +197,21 @@ static int assert_list_common(Execute ptr, addr env,
 	return 0;
 }
 
-int assert_common(Execute ptr, addr form, addr env, addr *ret)
+int assert_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, test, list;
 
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &test, &args))
 		goto error;
-	GetCons(form, &test, &args);
 	if (args == Nil)
-		return assert_retry_common(test, ret);
-	if (! consp(args))
+		return assert_retry_common_(test, ret);
+	if (! consp_getcons(args, &list, &args))
 		goto error;
-	GetCons(args, &list, &args);
 	if (list == Nil && args == Nil)
-		return assert_retry_common(test, ret);
+		return assert_retry_common_(test, ret);
 	else
-		return assert_list_common(ptr, env, test, list, args, ret);
+		return assert_list_common_(ptr, env, test, list, args, ret);
 
 error:
 	return fmte_("ASSERT arguments ~S must be "
@@ -249,7 +222,7 @@ error:
 /*
  *  error
  */
-static int error_datum_common(Execute ptr, addr datum, addr rest, addr *ret)
+static int error_datum_common_(Execute ptr, addr datum, addr rest, addr *ret)
 {
 	int check;
 	addr make;
@@ -281,14 +254,14 @@ static int error_datum_common(Execute ptr, addr datum, addr rest, addr *ret)
 	return Result(ret, datum);
 }
 
-int error_common(Execute ptr, addr datum, addr rest)
+int error_common_(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-error */
 		return call_simple_error_(ptr, datum, rest);
 	}
 	else {
-		Return(error_datum_common(ptr, datum, rest, &datum));
+		Return(error_datum_common_(ptr, datum, rest, &datum));
 		return error_function_(ptr, datum);
 	}
 }
@@ -297,7 +270,7 @@ int error_common(Execute ptr, addr datum, addr rest)
 /*
  *  cerror
  */
-static int cerror_make_common(Execute ptr, addr *ret, addr format, addr args)
+static int cerror_restart_common_(Execute ptr, addr *ret, addr format, addr args)
 {
 	addr inst, pos;
 
@@ -314,50 +287,36 @@ static int cerror_make_common(Execute ptr, addr *ret, addr format, addr args)
 	return Result(ret, inst);
 }
 
-static int cerror_restart_common(Execute ptr, addr restart, addr datum)
+int cerror_common_(Execute ptr, addr restart, addr datum, addr rest)
 {
 	addr control;
 
 	push_control(ptr, &control);
-	(void)restart1_control(ptr, restart, invoke_debugger_, datum);
+	Return(cerror_restart_common_(ptr, &restart, restart, rest));
+	pushrestart_control(ptr, restart);
+
+	/* (error ...) */
+	(void)error_common_(ptr, datum, rest);
+	if (ptr->throw_value == throw_normal)
+		goto escape;
+	if (ptr->throw_control != control)
+		goto escape;
+
+	/* continue */
+	if (ptr->throw_handler == restart) {
+		normal_throw_control(ptr);
+		goto escape;
+	}
+
+escape:
 	return pop_control_(ptr, control);
-}
-
-int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
-{
-	int check;
-	LocalHold hold;
-
-	/* signal */
-	if (stringp(datum)) {
-		/* string -> simple-condition */
-		Return(instance_simple_error_(&datum, datum, rest));
-	}
-	else {
-		Return(error_datum_common(ptr, datum, rest, &datum));
-	}
-
-	/* wake condition */
-	Return(find_condition_control_(ptr, datum, &check));
-	if (check)
-		return signal_function_(ptr, datum);
-
-	/* Can't handle the condition. */
-	hold = LocalHold_local(ptr);
-	localhold_push(hold, datum);
-	Return(cerror_make_common(ptr, &restart, restart, rest));
-	localhold_push(hold, restart);
-	Return(cerror_restart_common(ptr, restart, datum));
-	localhold_end(hold);
-
-	return 0;
 }
 
 
 /*
  *  check-type
  */
-static int check_type_expand_common(Execute ptr, addr env, addr *ret,
+static int check_type_expand_common_(Execute ptr, addr env, addr *ret,
 		addr place, addr type, addr string)
 {
 	/* (let* ((a1 b1) (a2 b2) ... (value r) g)
@@ -402,7 +361,7 @@ static int check_type_expand_common(Execute ptr, addr env, addr *ret,
 	localhold_push(hold, str2);
 
 	Return(format_string(ptr, &str3,
-				"The value of ~A, ~~A, is not ~~(~~A~~).", place, NULL));
+				"The value of ~A, ~~A, is not ~~A.", place, NULL));
 	localhold_push(hold, str3);
 
 	if (string == Nil) {
@@ -485,27 +444,24 @@ static int check_type_expand_common(Execute ptr, addr env, addr *ret,
 	return 0;
 }
 
-int check_type_common(Execute ptr, addr form, addr env, addr *ret)
+int check_type_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, type, string;
 
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &place, &args))
 		goto error;
-	GetCons(form, &place, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &type, &args))
 		goto error;
-	GetCons(args, &type, &args);
 	if (args == Nil)
 		string = Nil;
 	else {
-		if (! consp(args))
+		if (! consp_getcons(args, &string, &args))
 			goto error;
-		GetCons(args, &string, &args);
 		if (args != Nil)
 			goto error;
 	}
-	return check_type_expand_common(ptr, env, ret, place, type, string);
+	return check_type_expand_common_(ptr, env, ret, place, type, string);
 
 error:
 	return fmte_("CHECK-TYPE arguments ~S must be "
@@ -544,14 +500,14 @@ int method_combination_error_common(Execute ptr, addr format, addr args)
 /*
  *  signal
  */
-int signal_common(Execute ptr, addr datum, addr rest)
+int signal_common_(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-condition */
 		Return(instance_simple_condition_(&datum, datum, rest));
 	}
 	else {
-		Return(error_datum_common(ptr, datum, rest, &datum));
+		Return(error_datum_common_(ptr, datum, rest, &datum));
 	}
 	return signal_function_(ptr, datum);
 }
@@ -567,7 +523,7 @@ int warn_common(Execute ptr, addr datum, addr rest)
 		Return(instance_simple_warning_(&datum, datum, rest));
 	}
 	else {
-		Return(error_datum_common(ptr, datum, rest, &datum));
+		Return(error_datum_common_(ptr, datum, rest, &datum));
 	}
 
 	return warning_restart_case_(ptr, datum);
@@ -682,9 +638,8 @@ int handler_bind_common(addr form, addr env, addr *ret)
 	addr symbol, body;
 
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &form, &body))
 		return fmte_("Too few handler-bind argument.", NULL);
-	GetCons(form, &form, &body);
 	if (form == Nil) {
 		GetConst(COMMON_PROGN, &symbol);
 		cons_heap(ret, symbol, body);
@@ -818,9 +773,8 @@ int handler_case_common(Execute ptr, addr list, addr env, addr *ret)
 	addr symbol, expr, no_error;
 
 	Return_getcdr(list, &list);
-	if (! consp(list))
+	if (! consp_getcons(list, &expr, &list))
 		return fmte_("Too few handler-case argument.", NULL);
-	GetCons(list, &expr, &list);
 	if (list == Nil)
 		return Result(ret, expr);
 
@@ -1030,9 +984,8 @@ int restart_bind_common(addr right, addr env, addr *ret)
 	addr symbol, body;
 
 	Return_getcdr(right, &right);
-	if (! consp(right))
+	if (! consp_getcons(right, &right, &body))
 		return fmte_("Too few restart-bind argument.", NULL);
-	GetCons(right, &right, &body);
 	if (right == Nil) {
 		GetConst(COMMON_PROGN, &symbol);
 		cons_heap(ret, symbol, body);
@@ -1158,9 +1111,8 @@ int restart_case_common(addr right, addr env, addr *ret)
 	addr symbol, expr;
 
 	Return_getcdr(right, &right);
-	if (! consp(right))
+	if (! consp_getcons(right, &expr, &right))
 		return fmte_("Too few restart-case argument.", NULL);
-	GetCons(right, &expr, &right);
 	if (right == Nil)
 		return Result(ret, expr);
 
@@ -1180,12 +1132,10 @@ int with_condition_restarts_common(addr right, addr env, addr *ret)
 	addr condition, cons, symbol;
 
 	Return_getcdr(right, &right);
-	if (! consp(right))
+	if (! consp_getcons(right, &condition, &right))
 		return fmte_("Too few with-condition-restarts argument.", NULL);
-	GetCons(right, &condition, &right);
-	if (! consp(right))
+	if (! consp_getcons(right, &cons, &right))
 		return fmte_("Too few with-condition-restarts argument.", NULL);
-	GetCons(right, &cons, &right);
 	if (right == Nil)
 		consnil_heap(&right);
 
@@ -1219,12 +1169,10 @@ int with_simple_restart_common(addr form, addr env, addr *ret)
 
 	/* parse */
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &args, &body))
 		goto error;
-	GetCons(form, &args, &body);
-	if (! consp(body))
+	if (! consp_getcons(args, &name, &args))
 		goto error;
-	GetCons(args, &name, &args);
 	if (! consp(args))
 		goto error;
 

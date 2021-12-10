@@ -45,7 +45,7 @@ static void defun_cell_error_name(void)
 /* (defmacro assert (test &optional (place*) format &rest args) ...) -> nil */
 static int function_assert(Execute ptr, addr form, addr env)
 {
-	Return(assert_common(ptr, form, env, &form));
+	Return(assert_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -71,7 +71,7 @@ static void defmacro_assert(void)
  */
 static int function_error(Execute ptr, addr datum, addr rest)
 {
-	Return(error_common(ptr, datum, rest));
+	Return(error_common_(ptr, datum, rest));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -104,7 +104,7 @@ static void defun_error(void)
 /* (defun cerror (continue-format datum &args) ...) -> null */
 static int function_cerror(Execute ptr, addr restart, addr datum, addr rest)
 {
-	Return(cerror_common(ptr, restart, datum, rest));
+	Return(cerror_common_(ptr, restart, datum, rest));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -140,7 +140,7 @@ static void defun_cerror(void)
 /* (defmacro check-type (place type &optional string) ...) -> null */
 static int function_check_type(Execute ptr, addr form, addr env)
 {
-	Return(check_type_common(ptr, form, env, &form));
+	Return(check_type_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -234,7 +234,7 @@ static void defun_method_combination_error(void)
 /* (defun signal (datum &rest args) ...) -> nil */
 static int function_signal(Execute ptr, addr datum, addr rest)
 {
-	Return(signal_common(ptr, datum, rest));
+	Return(signal_common_(ptr, datum, rest));
 	setresult_control(ptr, Nil);
 	return 0;
 }
