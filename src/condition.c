@@ -85,32 +85,49 @@ escape:
 	return pop_control_(ptr, control);
 }
 
+static int break_on_signals_p_(Execute ptr, addr condition, int *ret)
+{
+	addr pos;
+
+	GetConst(SPECIAL_BREAK_ON_SIGNALS, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	Return(parse_type(ptr, &pos, pos, Nil));
+	return typep_asterisk_clang_(ptr, condition, pos, ret);
+}
+
 int signal_function_(Execute ptr, addr condition)
 {
 	int check;
-	addr signals, type;
 
 	if (ptr == NULL)
 		ptr = Execute_Thread;
+
 	/* break-on-signals */
-	GetConst(SPECIAL_BREAK_ON_SIGNALS, &signals);
-	Return(getspecialcheck_local_(ptr, signals, &signals));
-	Return(parse_type(ptr, &type, signals, Nil));
-	Return(typep_asterisk_clang_(ptr, condition, type, &check));
+	Return(break_on_signals_p_(ptr, condition, &check));
 	if (check)
 		return signal_invoke_debugger_(ptr, condition);
-	else
-		return invoke_handler_control_(ptr, condition);
+
+	/* signal */
+	return invoke_handler_control_(ptr, condition);
 }
 
 int error_function_(Execute ptr, addr condition)
 {
+	int check;
+
 	if (ptr == NULL)
 		ptr = Execute_Thread;
 	gchold_push_local(ptr->local, condition);
-	Return(signal_function_(ptr, condition));
-	Return(invoke_debugger_(ptr, condition));
-	return 0;
+
+	/* break-on-signals */
+	Return(break_on_signals_p_(ptr, condition, &check));
+	if (check) {
+		Return(signal_invoke_debugger_(ptr, condition));
+	}
+
+	/* error */
+	Return(invoke_handler_control_(ptr, condition));
+	return invoke_debugger_(ptr, condition);
 }
 
 int callclang_error_(const char *str, ...)

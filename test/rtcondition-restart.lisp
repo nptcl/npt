@@ -3,6 +3,64 @@
 ;;
 
 ;;
+;;  Function INVALID-METHOD-ERROR
+;;
+(defgeneric invalid-method-error-test ())
+(defmethod invalid-method-error-test () :hello)
+
+(deftest-error invalid-method-error.1
+  (invalid-method-error
+    (find-method #'invalid-method-error-test nil nil) "Hello: ~A" 10))
+
+(deftest invalid-method-error.2
+  (handler-case
+    (invalid-method-error
+      (find-method #'invalid-method-error-test nil nil) "Hello: ~A" 10)
+    (error (c)
+      (let ((s (apply #'format nil
+                      (simple-condition-format-control c)
+                      (simple-condition-format-arguments c))))
+        (values
+          (null (search "Hello" s))
+          (null (search "10" s))))))
+  nil nil)
+
+(deftest-error! invalid-method-error-error.1
+  (eval '(invalid-method-error
+           (find-method #'invalid-method-error-test nil nil))))
+
+(deftest-error! invalid-method-error-error.2
+  (eval '(invalid-method-error 10 "AAA"))
+  type-error)
+
+
+;;
+;;  Function METHOD-COMBINATION-ERROR
+;;
+(deftest-error method-combination-error.1
+  (method-combination-error "Hello: ~A" 10))
+
+(deftest method-combination-error.2
+  (handler-case
+    (method-combination-error "Hello: ~A" 10)
+    (error (c)
+      (let ((s (apply #'format nil
+                      (simple-condition-format-control c)
+                      (simple-condition-format-arguments c))))
+        (values
+          (null (search "Hello" s))
+          (null (search "10" s))))))
+  nil nil)
+
+(deftest-error! method-combination-error-error.1
+  (eval '(method-combination-error)))
+
+(deftest-error! method-combination-error-error.2
+  (eval '(method-combination-error 10))
+  type-error)
+
+
+;;
 ;;  restart-bind
 ;;  restart-case
 ;;
@@ -428,36 +486,4 @@
       (check-type x symbol)
       x))
   :hello)
-
-(defgeneric invalid-method-error-test ())
-(defmethod invalid-method-error-test () :hello)
-
-(deftest invalid-method-error.1
-  (handler-case
-    (progn
-      (invalid-method-error
-        (find-method #'invalid-method-error-test nil nil) "Hello: ~A" 10)
-      :hello)
-    (error (c)
-      (let ((s (apply #'format nil
-                      (simple-condition-format-control c)
-                      (simple-condition-format-arguments c))))
-        (values
-          (null (search "Hello" s))
-          (null (search "10" s))))))
-  nil nil)
-
-(deftest method-combination-error.1
-  (handler-case
-    (progn
-      (method-combination-error "Hello: ~A" 10)
-      :hello)
-    (error (c)
-      (let ((s (apply #'format nil
-                      (simple-condition-format-control c)
-                      (simple-condition-format-arguments c))))
-        (values
-          (null (search "Hello" s))
-          (null (search "10" s))))))
-  nil nil)
 

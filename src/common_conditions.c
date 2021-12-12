@@ -163,7 +163,7 @@ static void defmacro_check_type(void)
 static int function_invalid_method_error(Execute ptr,
 		addr method, addr format, addr args)
 {
-	Return(invalid_method_error_common(ptr, method, format, args));
+	Return(invalid_method_error_common_(ptr, method, format, args));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -199,7 +199,7 @@ static void defun_invalid_method_error(void)
 /* (defun method-combination-error (format &rest args) ...) -> null */
 static int function_method_combination_error(Execute ptr, addr format, addr args)
 {
-	Return(method_combination_error_common(ptr, format, args));
+	Return(method_combination_error_common_(ptr, format, args));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -326,7 +326,7 @@ static void defun_simple_condition_format_arguments(void)
 /* (defun warn (datum &rest args) ...) -> nil */
 static int function_warn(Execute ptr, addr datum, addr rest)
 {
-	Return(warn_common(ptr, datum, rest));
+	Return(warn_common_(ptr, datum, rest));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -384,7 +384,7 @@ static void defun_invoke_debugger(void)
 /* (defun break (&optional format &rest args) ...) -> null */
 static int function_break(Execute ptr, addr format, addr args)
 {
-	Return(break_common(ptr, format, args));
+	Return(break_common_(ptr, format, args));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -419,16 +419,11 @@ static void defun_break(void)
 /* (defvar debugger-hook nil) */
 static void type_debugger_hook(addr *ret)
 {
-	addr args, values;
+	addr type1, type2;
 
-	/* function */
-	GetTypeTable(&values, Asterisk);
-	typeargs_var2(&args, values, values);
-	type_function_heap(args, values, &args);
-	/* null */
-	GetTypeTable(&values, Symbol);
-	/* or */
-	type2or_heap(args, values, ret);
+	GetTypeTable(&type1, Function);
+	GetTypeTable(&type2, Symbol);
+	type2or_heap(type1, type2, ret);
 }
 
 static void defvar_debugger_hook(void)
@@ -467,7 +462,7 @@ static void defvar_break_on_signals(void)
  */
 static int function_handler_bind(Execute ptr, addr form, addr env)
 {
-	Return(handler_bind_common(form, env, &form));
+	Return(handler_bind_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -498,7 +493,7 @@ static void defmacro_handler_bind(void)
  */
 static int function_handler_case(Execute ptr, addr right, addr env)
 {
-	Return(handler_case_common(ptr, right, env, &right));
+	Return(handler_case_common_(ptr, right, env, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
@@ -520,7 +515,7 @@ static void defmacro_handler_case(void)
 /* (defmacro ignore-errors (&body form) ...) -> t */
 static int function_ignore_errors(Execute ptr, addr form, addr env)
 {
-	Return(ignore_errors_common(ptr, form, env, &form));
+	Return(ignore_errors_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

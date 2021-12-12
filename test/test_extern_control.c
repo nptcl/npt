@@ -570,14 +570,18 @@ static int test_lisp_handler_reverse(void)
 	test(length_list_unsafe(list) == 3, "lisp_handler_reverse.1");
 	GetCar(list, &list);
 	GetNameHandler(list, &list);
-	test(list == holdv(z), "lisp_handler_reverse.2");
+	test(RefLispDecl(list) == LISPDECL_CLOS, "lisp_handler_reverse.2");
+	GetArrayType(list, 0, &list);
+	test(list == holdv(z), "lisp_handler_reverse.3");
 
 	lisp_handler_reverse();
 	gethandler_control(control, &list);
-	test(length_list_unsafe(list) == 3, "lisp_handler_reverse.3");
+	test(length_list_unsafe(list) == 3, "lisp_handler_reverse.4");
 	GetCar(list, &list);
 	GetNameHandler(list, &list);
-	test(list == holdv(x), "lisp_handler_reverse.4");
+	test(RefLispDecl(list) == LISPDECL_CLOS, "lisp_handler_reverse.5");
+	GetArrayType(list, 0, &list);
+	test(list == holdv(x), "lisp_handler_reverse.6");
 
 	lisp_pop_control_(control);
 

@@ -11,6 +11,7 @@
 #include "heap.h"
 #include "restart.h"
 #include "symbol.h"
+#include "type_typep.h"
 
 /*
  *  control
@@ -195,7 +196,7 @@ void setdisable_handler(addr pos, int value)
 	SetUser(pos, c);
 }
 
-int checkhandler_control_(addr pos, addr instance, int *ret)
+int checkhandler_control_(Execute ptr, addr pos, addr instance, int *ret)
 {
 	addr clos;
 
@@ -210,7 +211,7 @@ int checkhandler_control_(addr pos, addr instance, int *ret)
 	if (clos == Nil)
 		return Result(ret, 0);
 
-	return clos_subtype_p_(instance, clos, ret);
+	return typep_clang_(ptr, instance, clos, ret);
 }
 
 

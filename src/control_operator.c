@@ -19,6 +19,7 @@
 #include "stream.h"
 #include "stream_common.h"
 #include "symbol.h"
+#include "type_parse.h"
 
 /*
  *  arguments
@@ -268,20 +269,13 @@ int throw_control_(Execute ptr, addr name)
  */
 int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
 {
-	int check;
 	addr pos;
 
-	/* condition */
-	if (symbolp(name)) {
-		Return(clos_find_class_(name, &name));
-	}
-	Return(conditionp_(name, &check));
-	if (! check)
-		return fmte_("The value ~S must be a condition instance.", name, NULL);
-
-	/* push handler */
+	Return(parse_type(ptr, &name, name, Nil));
+	CheckType(name, LISPTYPE_TYPE);
 	handler_local(ptr->local, &pos, name, call, escape);
 	pushhandler_control(ptr, pos);
+
 	return 0;
 }
 
@@ -335,7 +329,7 @@ int find_condition_control_(Execute ptr, addr instance, int *ret)
 		gethandler_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
-			Return(checkhandler_control_(pos, instance, &check));
+			Return(checkhandler_control_(ptr, pos, instance, &check));
 			if (check) {
 				return Result(ret, 1);
 			}
@@ -391,7 +385,7 @@ int invoke_handler_control_(Execute ptr, addr instance)
 		gethandler_control(next, &list);
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
-			Return(checkhandler_control_(pos, instance, &check));
+			Return(checkhandler_control_(ptr, pos, instance, &check));
 			if (check) {
 				Return(wake_handler_(ptr, next, instance, pos));
 			}

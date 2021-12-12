@@ -326,3 +326,44 @@
       (macroexpand-1 '(check-type-define-adder add5 something))))
   (defun add5 (x) (+ x 5)))
 
+
+;;
+;;  Function BREAK
+;;
+(deftest-error break-error.1
+  (eval '(break 10))
+  type-error)
+
+
+;;
+;;  Variable *DEBUGGER-HOOK*
+;;
+(deftest debugger-hook.1
+  *debugger-hook*
+  nil)
+
+(deftest debugger-hook.2
+  (lisp-system:specialp '*debugger-hook*)
+  t)
+
+(deftest debugger-hook.3
+  (let ((*debugger-hook*
+          (lambda (condition hook)
+            (declare (ignore condition hook))
+            nil)))
+    (functionp
+      *debugger-hook*))
+  t)
+
+
+;;
+;;  Variable *BREAK-ON-SIGNALS*
+;;
+(deftest break-on-signals.1
+  *break-on-signals*
+  nil)
+
+(deftest break-on-signals.2
+  (lisp-system:specialp '*break-on-signals*)
+  t)
+

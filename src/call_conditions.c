@@ -472,7 +472,7 @@ error:
 /*
  *  invalid-method-error
  */
-int invalid_method_error_common(Execute ptr, addr method, addr format, addr args)
+int invalid_method_error_common_(Execute ptr, addr method, addr format, addr args)
 {
 	addr control, arguments, pos;
 
@@ -486,11 +486,11 @@ int invalid_method_error_common(Execute ptr, addr method, addr format, addr args
 /*
  *  method-combination-error
  */
-int method_combination_error_common(Execute ptr, addr format, addr args)
+int method_combination_error_common_(Execute ptr, addr format, addr args)
 {
 	addr control, arguments, pos;
 
-	strvect_char_heap(&control, "Method-combination error:~%~?");
+	strvect_char_heap(&control, "Method-Combination error:~%~?");
 	list_heap(&arguments, format, args, NULL);
 	Return(instance_simple_error_(&pos, control, arguments));
 	return error_function_(ptr, pos);
@@ -516,7 +516,7 @@ int signal_common_(Execute ptr, addr datum, addr rest)
 /*
  *  warn
  */
-int warn_common(Execute ptr, addr datum, addr rest)
+int warn_common_(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-warning */
@@ -533,7 +533,7 @@ int warn_common(Execute ptr, addr datum, addr rest)
 /*
  *  break
  */
-static int break_invoke_common(Execute ptr, addr format, addr args)
+static int break_invoke_common_(Execute ptr, addr format, addr args)
 {
 	addr symbol, condition;
 	LocalHold hold;
@@ -549,12 +549,12 @@ static int break_invoke_common(Execute ptr, addr format, addr args)
 	return 0;
 }
 
-static int break_restart_common(Execute ptr, addr restart, addr format, addr args)
+static int break_restart_common_(Execute ptr, addr restart, addr format, addr args)
 {
 	addr control;
 
 	push_control(ptr, &control);
-	(void)restart2_control(ptr, restart, break_invoke_common, format, args);
+	(void)restart2_control(ptr, restart, break_invoke_common_, format, args);
 	return pop_control_(ptr, control);
 }
 
@@ -575,7 +575,7 @@ static void break_make_common(addr *ret)
 	*ret = inst;
 }
 
-int break_common(Execute ptr, addr format, addr args)
+int break_common_(Execute ptr, addr format, addr args)
 {
 	/* (defun break (&optional (format-control "Break") &rest args)
 	 *   (with-simple-restart (continue "Return from BREAK.")
@@ -596,7 +596,7 @@ int break_common(Execute ptr, addr format, addr args)
 	}
 	break_make_common(&restart);
 	localhold_push(hold, restart);
-	Return(break_restart_common(ptr, restart, format, args));
+	Return(break_restart_common_(ptr, restart, format, args));
 	localhold_end(hold);
 
 	return 0;
@@ -606,7 +606,7 @@ int break_common(Execute ptr, addr format, addr args)
 /*
  *  handler-bind
  */
-static int handler_bind_clauses_common(addr form, addr *ret)
+static int handler_bind_clauses_common_(addr form, addr *ret)
 {
 	addr cons, symbol, quote, root, name, lambda, temp;
 
@@ -633,7 +633,7 @@ static int handler_bind_clauses_common(addr form, addr *ret)
 	return 0;
 }
 
-int handler_bind_common(addr form, addr env, addr *ret)
+int handler_bind_common_(addr form, addr env, addr *ret)
 {
 	addr symbol, body;
 
@@ -646,7 +646,7 @@ int handler_bind_common(addr form, addr env, addr *ret)
 	}
 	else {
 		GetConst(SYSTEM_HANDLER, &symbol);
-		Return(handler_bind_clauses_common(form, &form));
+		Return(handler_bind_clauses_common_(form, &form));
 		if (body == Nil)
 			consnil_heap(&body);
 		lista_heap(ret, symbol, form, body, NULL);
@@ -688,7 +688,7 @@ static void handler_case_lambda_common(addr args, addr form, addr *ret)
 	lista_heap(ret, pos, args, form, NULL);
 }
 
-static int handler_case_noerror_common(addr *no_error, addr args, addr form)
+static int handler_case_noerror_common_(addr *no_error, addr args, addr form)
 {
 	addr lambda;
 
@@ -704,7 +704,7 @@ static int handler_case_noerror_common(addr *no_error, addr args, addr form)
 	return 0;
 }
 
-static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr *rete)
+static int handler_case_clauses_common_(Execute ptr, addr right, addr *ret, addr *rete)
 {
 	addr no_error, root, cons, name, args, form;
 	addr keyword, symbol, quote;
@@ -721,7 +721,7 @@ static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr 
 
 		/* (:no-error (...) form) */
 		if (name == keyword) {
-			Return(handler_case_noerror_common(&no_error, args, form));
+			Return(handler_case_noerror_common_(&no_error, args, form));
 			continue;
 		}
 
@@ -768,7 +768,7 @@ static void handler_case_body(addr no_error, addr expr, addr *ret)
 	list_heap(ret, mvcall, no_error, expr, NULL);
 }
 
-int handler_case_common(Execute ptr, addr list, addr env, addr *ret)
+int handler_case_common_(Execute ptr, addr list, addr env, addr *ret)
 {
 	addr symbol, expr, no_error;
 
@@ -779,7 +779,7 @@ int handler_case_common(Execute ptr, addr list, addr env, addr *ret)
 		return Result(ret, expr);
 
 	GetConst(SYSTEM_HANDLER, &symbol);
-	Return(handler_case_clauses_common(ptr, list, &list, &no_error));
+	Return(handler_case_clauses_common_(ptr, list, &list, &no_error));
 	handler_case_body(no_error, expr, &expr);
 	list_heap(ret, symbol, list, expr, NULL);
 
@@ -790,7 +790,7 @@ int handler_case_common(Execute ptr, addr list, addr env, addr *ret)
 /*
  *  ignore-errors
  */
-int ignore_errors_common(Execute ptr, addr form, addr env, addr *ret)
+int ignore_errors_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(handler-case (progn ,@form)
 	 *    (error (g) (values nil g)))

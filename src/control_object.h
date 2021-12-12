@@ -189,7 +189,7 @@ int getescape_handler(addr pos);
 void setescape_handler(addr pos, int value);
 int getdisable_handler(addr pos);
 void setdisable_handler(addr pos, int value);
-int checkhandler_control_(addr pos, addr instance, int *ret);
+int checkhandler_control_(Execute ptr, addr pos, addr instance, int *ret);
 
 
 /*

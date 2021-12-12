@@ -18,6 +18,7 @@
 #include "pathname.h"
 #include "strvect.h"
 #include "symbol.h"
+#include "type.h"
 #include "terme.h"
 
 int lisp_code = 0;
@@ -735,6 +736,16 @@ static int lisp_argv_switch_call_(Execute ptr, struct lispargv *argv)
 	return 0;
 }
 
+static int lisp_argv_condition_equal(addr type, addr clos)
+{
+	if (GetType(type) != LISPTYPE_TYPE)
+		return 0;
+	if (RefLispDecl(type) != LISPDECL_CLOS)
+		return 0;
+	GetArrayType(type, 0, &type);
+	return type == clos;
+}
+
 static int lisp_argv_condition_p_(Execute ptr, constindex index, int *ret)
 {
 	addr pos, clos;
@@ -744,7 +755,8 @@ static int lisp_argv_condition_p_(Execute ptr, constindex index, int *ret)
 	pos = ptr->throw_handler;
 	GetConstant(index, &clos);
 	GetNameHandler(pos, &pos);
-	return Result(ret, pos == clos);
+	*ret = lisp_argv_condition_equal(pos, clos);
+	return 0;
 }
 
 static int lisp_argv_savecore_p_(Execute ptr, int *ret)

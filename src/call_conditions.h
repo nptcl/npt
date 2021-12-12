@@ -9,14 +9,14 @@
 #define error_common_ _n(error_common_)
 #define cerror_common_ _n(cerror_common_)
 #define check_type_common_ _n(check_type_common_)
-#define invalid_method_error_common _n(invalid_method_error_common)
-#define method_combination_error_common _n(method_combination_error_common)
+#define invalid_method_error_common_ _n(invalid_method_error_common_)
+#define method_combination_error_common_ _n(method_combination_error_common_)
 #define signal_common_ _n(signal_common_)
-#define warn_common _n(warn_common)
-#define break_common _n(break_common)
-#define handler_bind_common _n(handler_bind_common)
-#define handler_case_common _n(handler_case_common)
-#define ignore_errors_common _n(ignore_errors_common)
+#define warn_common_ _n(warn_common_)
+#define break_common_ _n(break_common_)
+#define handler_bind_common_ _n(handler_bind_common_)
+#define handler_case_common_ _n(handler_case_common_)
+#define ignore_errors_common_ _n(ignore_errors_common_)
 #define make_condition_common _n(make_condition_common)
 #define compute_restarts_common_ _n(compute_restarts_common_)
 #define find_restart_common_ _n(find_restart_common_)
@@ -34,14 +34,14 @@ int assert_common_(Execute ptr, addr form, addr env, addr *ret);
 int error_common_(Execute ptr, addr datum, addr rest);
 int cerror_common_(Execute ptr, addr restart, addr datum, addr rest);
 int check_type_common_(Execute ptr, addr form, addr env, addr *ret);
-int invalid_method_error_common(Execute ptr, addr method, addr format, addr args);
-int method_combination_error_common(Execute ptr, addr format, addr args);
+int invalid_method_error_common_(Execute ptr, addr method, addr format, addr args);
+int method_combination_error_common_(Execute ptr, addr format, addr args);
 int signal_common_(Execute ptr, addr datum, addr rest);
-int warn_common(Execute ptr, addr datum, addr rest);
-int break_common(Execute ptr, addr format, addr args);
-int handler_bind_common(addr rest, addr env, addr *ret);
-int handler_case_common(Execute ptr, addr right, addr env, addr *ret);
-int ignore_errors_common(Execute ptr, addr form, addr env, addr *ret);
+int warn_common_(Execute ptr, addr datum, addr rest);
+int break_common_(Execute ptr, addr format, addr args);
+int handler_bind_common_(addr rest, addr env, addr *ret);
+int handler_case_common_(Execute ptr, addr right, addr env, addr *ret);
+int ignore_errors_common_(Execute ptr, addr form, addr env, addr *ret);
 int make_condition_common(Execute ptr, addr args, addr *ret);
 int compute_restarts_common_(Execute ptr, addr pos, addr *ret);
 int find_restart_common_(Execute ptr, addr var, addr opt, addr *ret);

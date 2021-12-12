@@ -431,15 +431,252 @@
 
 
 ;;
+;;  Function INVOKE-DEBUGGER
 ;;
+(deftest invoke-debugger.1
+  (tagbody
+    (let ((*debugger-hook*
+            (lambda (condition hook)
+              (declare (ignore condition hook))
+              (go finish))))
+      (invoke-debugger
+        (make-condition 'program-error)))
+    finish)
+  nil)
+
+(deftest invoke-debugger.2
+  (tagbody
+    (let ((*debugger-hook*
+            (lambda (condition hook)
+              (declare (ignore hook))
+              (unless (typep condition 'program-error)
+                (error "typep error"))
+              (go finish))))
+      (invoke-debugger
+        (make-condition 'program-error)))
+    finish)
+  nil)
+
+(deftest invoke-debugger.3
+  (tagbody
+    (let ((*debugger-hook*
+            (lambda (condition hook)
+              (declare (ignore condition))
+              (unless (functionp hook)
+                (error "function error"))
+              (go finish))))
+      (invoke-debugger
+        (make-condition 'program-error)))
+    finish)
+  nil)
+
+(deftest invoke-debugger.4
+  (tagbody
+    (let ((*debugger-hook*
+            (lambda (condition hook)
+              (declare (ignore condition hook))
+              (when *debugger-hook*
+                (error "*debugger-hook* error."))
+              (go finish))))
+      (invoke-debugger
+        (make-condition 'program-error)))
+    finish)
+  nil)
+
+(deftest-error! invoke-debugger-error.1
+  (eval '(invoke-debugger)))
+
+(deftest-error! invoke-debugger-error.2
+  (eval '(invoke-debugger 10))
+  type-error)
+
+(deftest-error! invoke-debugger-error.3
+  (eval '(invoke-debugger
+           (make-condition 'program-error)
+           100)))
+
+
+;;
+;;  Macro HANDLER-BIND
+;;
+(defmacro handler-bind-setq (symbol value)
+  (let ((g (gensym)))
+    `(lambda (,g)
+       (declare (ignore ,g))
+       (setq ,symbol ,value))))
+
+(defmacro handler-bind-push (symbol value)
+  (let ((g (gensym)))
+    `(lambda (,g)
+       (declare (ignore ,g))
+       (push ,value ,symbol))))
+
+(deftest handler-bind.1
+  (handler-bind nil)
+  nil)
+
+(deftest handler-bind.2
+  (let (value)
+    (handler-bind ((simple-condition (handler-bind-setq value t)))
+      value))
+  nil)
+
+(deftest handler-bind.3
+  (let (value)
+    (handler-bind ((simple-condition
+                     (handler-bind-setq value t)))
+      (signal 'simple-condition)
+      value))
+  t)
+
+(deftest handler-bind.4
+  (let (value)
+    (handler-bind ((simple-condition
+                     (handler-bind-setq value t)))
+      (signal 'simple-condition)
+      value))
+  t)
+
+(deftest handler-bind.5
+  (let ((check :aaa))
+    (handler-case
+      (handler-bind
+        ((error (handler-bind-setq check t)))
+        (error "Hello"))
+      (error ()
+        (values :error check))))
+  :error t)
+
+(deftest handler-bind.6
+  (let (value)
+    (handler-bind ((simple-condition
+                     (handler-bind-setq value 'aaa))
+                   (program-error
+                     (handler-bind-setq value 'bbb)))
+      (signal 'simple-condition)
+      value))
+  aaa)
+
+(deftest handler-bind.7
+  (let (value)
+    (handler-bind ((simple-condition
+                     (handler-bind-setq value 'aaa))
+                   (program-error
+                     (handler-bind-setq value 'bbb)))
+      (signal 'program-error)
+      value))
+  bbb)
+
+(deftest handler-bind.8
+  (let (list)
+    (handler-bind ((simple-condition
+                     (handler-bind-push list 'aaa)))
+      (handler-bind ((simple-condition
+                       (handler-bind-push list 'bbb)))
+        (signal 'simple-condition)))
+    list)
+  (aaa bbb))
+
+(deftest handler-bind.9
+  (handler-bind ((simple-condition
+                   (lambda (c)
+                     (unless (typep c 'simple-condition)
+                       (error "type error")))))
+    (signal 'simple-condition))
+  nil)
+
+(deftest handler-bind.10
+  (let (list)
+    (handler-bind ((simple-condition
+                     (handler-bind-push list 'aaa))
+                   (error
+                     (handler-bind-push list 'bbb)))
+      (signal 'simple-error))
+    list)
+  (bbb aaa))
+
+(deftest handler-bind.11
+  (let (value)
+    (handler-bind (((or error simple-condition)
+                    (handler-bind-setq value 'aaa)))
+      (signal 'simple-error))
+    value)
+  aaa)
+
+(deftest-error! handler-bind-error.1
+  (eval '(handler-bind)))
+
+(deftest-error! handler-bind-error.2
+  (eval '(handler-bind 10))
+  type-error)
+
+(deftest-error! handler-bind-error.3
+  (eval '(handler-bind (20))))
+
+(deftest-error! handler-bind-error.4
+  (eval '(handler-bind ((40 50)))))
+
+;;  ANSI Common Lisp
+(defvar *handler-bind-output*)
+
+(defun handler-bind-trap-error-handler (condition)
+  (let ((condition
+          (apply #'format nil
+                 (simple-condition-format-control condition)
+                 (simple-condition-format-arguments condition))))
+    (push (format nil "~A" condition) *handler-bind-output*)
+    (throw 'trap-errors nil)))
+
+(defmacro handler-bind-trap-errors (&rest forms)
+  `(catch 'trap-errors
+     (handler-bind ((error #'handler-bind-trap-error-handler))
+       ,@forms)))
+
+(deftest handler-bind-test.1
+  (let (*handler-bind-output*)
+    (values
+      (list (handler-bind-trap-errors (signal "Foo.") 1)
+            (handler-bind-trap-errors (error  "Bar.") 2)
+            (+ 1 2))
+      *handler-bind-output*))
+  (1 nil 3) ("Bar."))
+
+
+;;
+;;  Macro HANDLER-CASE
 ;;
 (deftest handler-case.1
+  (handler-case nil)
+  nil)
+
+(deftest handler-case.2
+  (handler-case
+    10
+    (error (c) c))
+  10)
+
+(deftest handler-case.3
   (handler-case
     (error "Hello")
     (error () :hello))
   :hello)
 
-(deftest handler-case.2
+(deftest handler-case.4
+  (handler-case
+    (signal "Hello")
+    (simple-condition () :hello))
+  :hello)
+
+(deftest handler-case.5
+  (handler-case
+    (error 'program-error)
+    (simple-condition () 'aaa)
+    (reader-error () 'bbb)
+    (program-error () 'ccc)
+    (error () 'ddd))
+  ccc)
+
+(deftest handler-case.6
   (handler-case
     (handler-case
       (error "Hello")
@@ -447,13 +684,27 @@
     (error () :hello))
   :hello)
 
-(deftest handler-case.3
+(deftest handler-case.7
   (handler-case
-    (handler-case
+    (error "Hello")
+    (error (c)
+      (declare (ignore c))
+      'aaa))
+  aaa)
+
+(deftest handler-case.8
+  (handler-case
+    (progn
       (error "Hello")
-      (warning () :warning))
-    (error () :hello))
-  :hello)
+      'bbb)
+    (error () 'aaa))
+  aaa)
+
+(deftest handler-case.9
+  (handler-case
+    (error "Hello")
+    ((or error simple-condition) () 'aaa))
+  aaa)
 
 (deftest handler-case-no-error.1
   (handler-case
@@ -511,67 +762,87 @@
     (simple-error () :hello))
   :hello)
 
-(deftest handler-bind.1
-  (let ((check :aaa))
-    (handler-case
-      (handler-bind
-        ((error (lambda (c) (declare (ignore c))
-                  (setq check t))))
-        (error "Hello"))
-      (error ()
-        (values :error check))))
-  :error t)
-
-(define-condition handler-return () ())
-(deftest handler-return.1
+(define-condition handler-case-return () ())
+(deftest handler-case-return.1
   (values 10 20
-          (handler-case 33 (handler-return () 30))
+          (handler-case 33 (handler-case-return () 30))
           40 50 60)
   10 20 33 40 50 60)
 
-(deftest handler-return.2
+(deftest handler-case-return.2
   (list 10 20
         (handler-case
-          (signal 'handler-return)
-          (handler-return () 30))
+          (signal 'handler-case-return)
+          (handler-case-return () 30))
         40 50 60)
   (10 20 30 40 50 60))
 
-(deftest handler-return.3
+(deftest handler-case-return.3
   (values 10 20
           (handler-case
-            (signal 'handler-return)
-            (handler-return () 30))
+            (signal 'handler-case-return)
+            (handler-case-return () 30))
           40 50 60)
   10 20 30 40 50 60)
 
-(deftest handler-return.4
+(deftest handler-case-return.4
   (list 10 20
-        (handler-bind ((handler-return (lambda () 30))) 33)
+        (handler-bind ((handler-case-return (lambda () 30))) 33)
         40 50 60)
   (10 20 33 40 50 60))
 
-(deftest handler-return.5
+(deftest handler-case-return.5
   (values 10 20
-          (handler-bind ((handler-return (lambda () 30))) 33)
+          (handler-bind ((handler-case-return (lambda () 30))) 33)
           40 50 60)
   10 20 33 40 50 60)
 
-(deftest handler-return.6
+(deftest handler-case-return.6
   (list 10 20
-        (handler-bind ((handler-return
+        (handler-bind ((handler-case-return
                          (lambda (c) (declare (ignore c)) 30)))
-          (signal 'handler-return) 33)
+          (signal 'handler-case-return) 33)
         40 50 60)
   (10 20 33 40 50 60))
 
-(deftest handler-return.7
+(deftest handler-case-return.7
   (values 10 20
-          (handler-bind ((handler-return
+          (handler-bind ((handler-case-return
                            (lambda (c) (declare (ignore c)) 30)))
-            (signal 'handler-return) 33)
+            (signal 'handler-case-return) 33)
           40 50 60)
   10 20 33 40 50 60)
+
+(deftest-error! handler-case-error.1
+  (eval '(handler-case)))
+
+(deftest-error! handler-case-error.2
+  (eval '(handler-case 10 20)))
+
+;;  ANSI Common Lisp
+(defun handler-case-assess-condition (condition)
+  (handler-case (signal condition)
+    (warning () "Lots of smoke, but no fire.")
+    ((or arithmetic-error control-error cell-error stream-error)
+     () (format nil "condition looks especially bad."))
+    (serious-condition
+      () (format nil "condition looks serious."))
+    (condition () "Hardly worth mentioning.")))
+
+(deftest handler-case-test.1
+  (handler-case-assess-condition
+    (make-condition 'stream-error :stream *terminal-io*))
+  "condition looks especially bad.")
+
+(define-condition random-condition (condition) ()
+  (:report (lambda (condition stream)
+             (declare (ignore condition))
+             (princ "Yow" stream))))
+
+(deftest handler-case-test.2
+  (handler-case-assess-condition
+    (make-condition 'random-condition))
+  "Hardly worth mentioning.")
 
 
 ;;
