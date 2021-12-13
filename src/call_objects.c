@@ -19,7 +19,7 @@
 /*
  *  defclass
  */
-static int defclass_parse_superclasses(addr args, int defclass, addr *ret)
+static int defclass_parse_superclasses_(addr args, int defclass, addr *ret)
 {
 	addr root, pos, quote, find, refer, list;
 
@@ -76,7 +76,7 @@ static int defclass_allocation_p(addr pos)
 	return DefClassEqConst(pos, INSTANCE) || DefClassEqConst(pos, CLASS);
 }
 
-static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
+static int defclass_parse_slotlist_(Execute ptr, addr env, addr list, addr *ret)
 {
 	addr name, key, value, pos, root, quote;
 	addr readers, writers, allocation, initargs, initform, initfunction;
@@ -285,7 +285,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	return 0;
 }
 
-static int defclass_parse_slot(Execute ptr, addr env, addr list, addr *ret)
+static int defclass_parse_slot_(Execute ptr, addr env, addr list, addr *ret)
 {
 	addr symbol, keyword, quote;
 
@@ -302,14 +302,14 @@ static int defclass_parse_slot(Execute ptr, addr env, addr list, addr *ret)
 
 	/* list */
 	if (consp(list))
-		return defclass_parse_slotlist(ptr, env, list, ret);
+		return defclass_parse_slotlist_(ptr, env, list, ret);
 
 	/* error */
 	*ret = Nil;
 	return fmte_("DEFCLASS slot-specifier ~S must be a list or a symbol,", list, NULL);
 }
 
-static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
+static int defclass_parse_slots_(Execute ptr, addr env, addr list, addr *ret)
 {
 	addr root, pos;
 	LocalHold hold;
@@ -328,7 +328,7 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 		if (! consp(list))
 			return fmte_("DEFCLASS slot-specifier ~S must be a list.", list, NULL);
 		GetCons(list, &pos, &list);
-		Return(defclass_parse_slot(ptr, env, pos, &pos));
+		Return(defclass_parse_slot_(ptr, env, pos, &pos));
 		cons_heap(&root, pos, root);
 		localhold_set(hold, 0, root);
 	}
@@ -339,7 +339,7 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 	return 0;
 }
 
-static int defclass_parse_initargs(addr args, addr *ret)
+static int defclass_parse_initargs_(addr args, addr *ret)
 {
 	/* (:aaa 100 bbb (hello))
 	 * -> (list (list (quote :aaa) (quote 100) (lambda () 100))
@@ -372,7 +372,7 @@ static int defclass_parse_initargs(addr args, addr *ret)
 	return 0;
 }
 
-static int defclass_parse_options(addr list, int defclass, addr *ret, addr *report)
+static int defclass_parse_options_(addr list, int defclass, addr *ret, addr *report)
 {
 	addr root, key, value;
 
@@ -406,7 +406,7 @@ static int defclass_parse_options(addr list, int defclass, addr *ret, addr *repo
 
 		/* :default-initargs */
 		if (DefClassEqConst(key, DEFAULT_INITARGS)) {
-			Return(defclass_parse_initargs(value, &value));
+			Return(defclass_parse_initargs_(value, &value));
 			GetConst(CLOSKEY_DIRECT_DEFAULT_INITARGS, &key);
 			cons_heap(&root, key, root);
 			cons_heap(&root, value, root);
@@ -447,10 +447,82 @@ static int defclass_parse_options(addr list, int defclass, addr *ret, addr *repo
 	return 0;
 }
 
-static void define_condition_result(addr *ret, addr args, addr name, addr report)
+static void define_condition_report_string(addr *ret, addr name, addr report)
 {
-	addr defmethod, prog1, print, declare, ignore, write, funcall, fsymbol;
-	addr form, inst, stream, x;
+	/* (defmethod print-object ((inst name) stream)
+	 *   (declare (ignore inst))
+	 *   (write-string report stream))
+	 */
+	addr defmethod, print, inst, stream, x;
+	addr declare, ignore, write;
+
+	GetConst(COMMON_DEFMETHOD, &defmethod);
+	GetConst(COMMON_PRINT_OBJECT, &print);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORE, &ignore);
+	GetConst(COMMON_WRITE_STRING, &write);
+
+	make_symbolchar(&inst, "INST");
+	make_symbolchar(&stream, "STREAM");
+	list_heap(&x, inst, name, NULL);
+	list_heap(&x, x, stream, NULL);
+	list_heap(&write, write, report, stream, NULL);
+	list_heap(&ignore, ignore, inst, NULL);
+	list_heap(&declare, declare, ignore, NULL);
+	list_heap(ret, defmethod, print, x, declare, write, NULL);
+}
+
+static void define_condition_report_symbol(addr *ret, addr name, addr report)
+{
+	/* (defmethod print-object ((inst name) stream)
+	 *   (if *print-escape*
+	 *     (call-next-method)
+	 *     (report inst stream)))
+	 */
+	addr defmethod, print, inst, stream, x;
+	addr ifsymbol, escape, call;
+
+	GetConst(COMMON_DEFMETHOD, &defmethod);
+	GetConst(COMMON_PRINT_OBJECT, &print);
+	GetConst(COMMON_IF, &ifsymbol);
+	GetConst(SPECIAL_PRINT_ESCAPE, &escape);
+	GetConst(COMMON_CALL_NEXT_METHOD, &call);
+
+	make_symbolchar(&inst, "INST");
+	make_symbolchar(&stream, "STREAM");
+	list_heap(&x, inst, name, NULL);
+	list_heap(&x, x, stream, NULL);
+	list_heap(&report, report, inst, stream, NULL);
+	list_heap(&call, call, NULL);
+	list_heap(&ifsymbol, ifsymbol, escape, call, report, NULL);
+	list_heap(ret, defmethod, print, x, ifsymbol, NULL);
+}
+
+static void define_condition_report_lambda(addr *ret, addr name, addr report)
+{
+	/* (defmethod print-object ((inst name) stream)
+	 *   (funcall (function report) inst stream))
+	 */
+	addr defmethod, print, inst, stream, x;
+	addr funcall, fsymbol;
+
+	GetConst(COMMON_DEFMETHOD, &defmethod);
+	GetConst(COMMON_PRINT_OBJECT, &print);
+	GetConst(COMMON_FUNCALL, &funcall);
+	GetConst(COMMON_FUNCTION, &fsymbol);
+
+	make_symbolchar(&inst, "INST");
+	make_symbolchar(&stream, "STREAM");
+	list_heap(&x, inst, name, NULL);
+	list_heap(&x, x, stream, NULL);
+	list_heap(&fsymbol, fsymbol, report, NULL);
+	list_heap(&funcall, funcall, fsymbol, inst, stream, NULL);
+	list_heap(ret, defmethod, print, x, funcall, NULL);
+}
+
+static void define_condition_report(addr *ret, addr args, addr name, addr report)
+{
+	addr form, prog1, x;
 
 	/* (class-name
 	 *   (ensure-class ...))
@@ -465,44 +537,18 @@ static void define_condition_result(addr *ret, addr args, addr name, addr report
 	 */
 	if (report) {
 		GetConst(COMMON_PROG1, &prog1);
-		GetConst(COMMON_DEFMETHOD, &defmethod);
-		GetConst(COMMON_PRINT_OBJECT, &print);
-		make_symbolchar(&inst, "INST");
-		make_symbolchar(&stream, "STREAM");
-		list_heap(&x, inst, name, NULL);
-		list_heap(&x, x, stream, NULL);
-
-		if (stringp(report)) {
-			/* (defmethod print-object ((inst name) stream)
-			 *   (declare (ignore inst))
-			 *   (write-string report stream))
-			 */
-			GetConst(COMMON_DECLARE, &declare);
-			GetConst(COMMON_IGNORE, &ignore);
-			GetConst(COMMON_WRITE_STRING, &write);
-			list_heap(&write, write, report, stream, NULL);
-			list_heap(&ignore, ignore, inst, NULL);
-			list_heap(&declare, declare, ignore, NULL);
-			list_heap(&x, defmethod, print, x, declare, write, NULL);
-		}
-		else {
-			/* (defmethod print-object ((inst name) stream)
-			 *   (funcall (function report) inst stream))
-			 */
-			GetConst(COMMON_FUNCALL, &funcall);
-			GetConst(COMMON_FUNCTION, &fsymbol);
-			list_heap(&fsymbol, fsymbol, report, NULL);
-			list_heap(&funcall, funcall, fsymbol, inst, stream, NULL);
-			list_heap(&x, defmethod, print, x, funcall, NULL);
-		}
+		if (stringp(report))
+			define_condition_report_string(&x, name, report);
+		else if (symbolp(report))
+			define_condition_report_symbol(&x, name, report);
+		else
+			define_condition_report_lambda(&x, name, report);
 		list_heap(&form, prog1, form, x, NULL);
 	}
-
-	/* result */
 	*ret = form;
 }
 
-static int defclass_define_condition(Execute ptr,
+static int defclass_define_condition_(Execute ptr,
 		addr form, addr env, addr *ret, int defclass)
 {
 	/* `(system::ensure-class ',name
@@ -530,10 +576,10 @@ static int defclass_define_condition(Execute ptr,
 	localhold_push(hold, nameq);
 
 	/* parse */
-	Return(defclass_parse_superclasses(supers, defclass, &supers));
+	Return(defclass_parse_superclasses_(supers, defclass, &supers));
 	localhold_push(hold, supers);
-	Return(defclass_parse_slots(ptr, env, slots, &slots));
-	Return(defclass_parse_options(options, defclass, &options, &report));
+	Return(defclass_parse_slots_(ptr, env, slots, &slots));
+	Return(defclass_parse_options_(options, defclass, &options, &report));
 
 	/* make */
 	GetConst(CLOSNAME_ENSURE_CLASS, &ensure);
@@ -541,7 +587,7 @@ static int defclass_define_condition(Execute ptr,
 	GetConst(CLOSKEY_DIRECT_SLOTS, &key2);
 	lista_heap(&args, ensure, nameq, key1, supers, key2, slots, options, NULL);
 	if (! defclass)
-		define_condition_result(&args, args, name, report);
+		define_condition_report(&args, args, name, report);
 	return Result(ret, args);
 
 error:
@@ -550,14 +596,14 @@ error:
 			"(~S name (superclasses) (slots) ...) form.", first, form, first, NULL);
 }
 
-int defclass_common(Execute ptr, addr form, addr env, addr *ret)
+int defclass_common_(Execute ptr, addr form, addr env, addr *ret)
 {
-	return defclass_define_condition(ptr, form, env, ret, 1);
+	return defclass_define_condition_(ptr, form, env, ret, 1);
 }
 
-int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
+int define_condition_common_(Execute ptr, addr form, addr env, addr *ret)
 {
-	return defclass_define_condition(ptr, form, env, ret, 0);
+	return defclass_define_condition_(ptr, form, env, ret, 0);
 }
 
 

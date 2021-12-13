@@ -475,7 +475,7 @@ static void defmacro_with_slots(void)
  */
 static int function_defclass(Execute ptr, addr form, addr env)
 {
-	Return(defclass_common(ptr, form, env, &form));
+	Return(defclass_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

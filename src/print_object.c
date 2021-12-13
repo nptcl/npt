@@ -4,9 +4,14 @@
 #include "clos_defgeneric.h"
 #include "clos_method.h"
 #include "clos_type.h"
+#include "cons.h"
 #include "constant.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "control_operator.h"
+#include "format.h"
 #include "function.h"
+#include "hold.h"
 #include "mop.h"
 #include "print.h"
 #include "print_object.h"
@@ -136,7 +141,7 @@ int print_structure(Execute ptr, addr stream, addr pos)
 
 
 /*
- *  generic_function
+ *  generic-function
  */
 static int method_print_object_generic_function(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
@@ -153,6 +158,65 @@ static int method_print_object_generic_function(Execute ptr,
 	Return(princ_print(ptr, stream, name));
 	Return(write_char_stream_(stream, '>'));
 	/* result */
+	setresult_control(ptr, pos);
+
+	return 0;
+}
+
+
+/*
+ *  simple-condition
+ */
+static int method_print_object_simple_condition_call_(Execute ptr,
+		addr method, addr next, addr pos, addr stream)
+{
+	addr control, call, list;
+	LocalHold hold;
+
+	push_control(ptr, &control);
+	hold = LocalHold_array(ptr, 1);
+	/* flet-next-method */
+	GetConst(CLOSNAME_FLET_NEXT_METHOD, &call);
+	Return(getfunction_global_(call, &call));
+	/* funcall */
+	list_heap(&list, pos, stream, NULL);
+	localhold_set(hold, 0, list);
+	(void)funcall_control(ptr, call, method, next, list, Nil, NULL);
+	return pop_control_(ptr, control);
+}
+
+static int method_print_object_simple_condition_format_(Execute ptr,
+		addr method, addr next, addr pos, addr stream)
+{
+	addr control, arguments;
+
+	Return(ClosCheckConst_(pos, CLOSNAME_FORMAT_CONTROL, &control));
+	Return(ClosCheckConst_(pos, CLOSNAME_FORMAT_ARGUMENTS, &arguments));
+	return format_stream_lisp(ptr, stream, control, arguments);
+}
+
+static int method_print_object_simple_condition(Execute ptr,
+		addr method, addr next, addr pos, addr stream)
+{
+	/*  (defmethod print-object ((inst simple-condition) stream)
+	 *    (if *print-escape*
+	 *      (flet-next-method method next (list inst stream) nil)
+	 *      (format stream (simple-condition-format-control inst)
+	 *                     (simple-condition-format-arguments inst))))
+	 */
+	addr escape;
+
+	/* *print-escape* */
+	GetConst(SPECIAL_PRINT_ESCAPE, &escape);
+	Return(getspecialcheck_local_(ptr, escape, &escape));
+	if (escape != Nil) {
+		/* (call-next-method) */
+		return method_print_object_simple_condition_call_(ptr,
+				method, next, pos, stream);
+	}
+	/* format */
+	Return(method_print_object_simple_condition_format_(ptr,
+				method, next, pos, stream));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -202,18 +266,24 @@ void init_print_object(void)
 	SetPointerType(var4, method_print_object_class);
 	SetPointerType(var4, method_print_object_structure_object);
 	SetPointerType(var4, method_print_object_generic_function);
+	SetPointerType(var4, method_print_object_simple_condition);
 }
 
-#define DefMethod_PrintObject(ptr, name, gen, p, c) { \
+#define DefMethod_PrintObject1(ptr, name, gen, p, c) { \
 	Return(defmethod_print_object_((ptr), (name), (gen), \
 				p_method_print_object_##p, CONSTANT_CLOS_##c)); \
 }
+#define DefMethod_PrintObject2(ptr, name, gen, p, c) { \
+	Return(defmethod_print_object_((ptr), (name), (gen), \
+				p_method_print_object_##p, CONSTANT_CONDITION_##c)); \
+}
 static int build_print_object_method_(Execute ptr, addr name, addr gen)
 {
-	DefMethod_PrintObject(ptr, name, gen, t, T);
-	DefMethod_PrintObject(ptr, name, gen, class, CLASS);
-	DefMethod_PrintObject(ptr, name, gen, structure_object, STRUCTURE_OBJECT);
-	DefMethod_PrintObject(ptr, name, gen, generic_function, GENERIC_FUNCTION);
+	DefMethod_PrintObject1(ptr, name, gen, t, T);
+	DefMethod_PrintObject1(ptr, name, gen, class, CLASS);
+	DefMethod_PrintObject1(ptr, name, gen, structure_object, STRUCTURE_OBJECT);
+	DefMethod_PrintObject1(ptr, name, gen, generic_function, GENERIC_FUNCTION);
+	DefMethod_PrintObject2(ptr, name, gen, simple_condition, SIMPLE_CONDITION);
 
 	return 0;
 }

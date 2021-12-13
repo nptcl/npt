@@ -96,6 +96,11 @@
       (simple-condition-format-arguments c)))
   (10 20 30))
 
+(deftest simple-condition-format-arguments.3
+  (let ((x (make-condition 'simple-condition :format-control "Hello")))
+    (simple-condition-format-arguments x))
+  nil)
+
 (deftest-error! simple-condition-format-arguments-error.1
   (eval '(simple-condition-format-arguments)))
 

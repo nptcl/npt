@@ -17,11 +17,11 @@
 #define handler_bind_common_ _n(handler_bind_common_)
 #define handler_case_common_ _n(handler_case_common_)
 #define ignore_errors_common_ _n(ignore_errors_common_)
-#define make_condition_common _n(make_condition_common)
+#define make_condition_common_ _n(make_condition_common_)
 #define compute_restarts_common_ _n(compute_restarts_common_)
 #define find_restart_common_ _n(find_restart_common_)
-#define restart_bind_common _n(restart_bind_common)
-#define restart_case_common _n(restart_case_common)
+#define restart_bind_common_ _n(restart_bind_common_)
+#define restart_case_common_ _n(restart_case_common_)
 #define with_condition_restarts_common _n(with_condition_restarts_common)
 #define with_simple_restart_common _n(with_simple_restart_common)
 #define abort_common _n(abort_common)
@@ -42,11 +42,11 @@ int break_common_(Execute ptr, addr format, addr args);
 int handler_bind_common_(addr rest, addr env, addr *ret);
 int handler_case_common_(Execute ptr, addr right, addr env, addr *ret);
 int ignore_errors_common_(Execute ptr, addr form, addr env, addr *ret);
-int make_condition_common(Execute ptr, addr args, addr *ret);
+int make_condition_common_(Execute ptr, addr args, addr *ret);
 int compute_restarts_common_(Execute ptr, addr pos, addr *ret);
 int find_restart_common_(Execute ptr, addr var, addr opt, addr *ret);
-int restart_bind_common(addr right, addr env, addr *ret);
-int restart_case_common(addr right, addr env, addr *ret);
+int restart_bind_common_(addr right, addr env, addr *ret);
+int restart_case_common_(addr right, addr env, addr *ret);
 int with_condition_restarts_common(addr right, addr env, addr *ret);
 int with_simple_restart_common(addr form, addr env, addr *ret);
 int abort_common(Execute ptr, addr opt);

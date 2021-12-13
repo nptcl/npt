@@ -218,6 +218,22 @@
         (simple-condition-format-arguments c))))
   "AAA" (10))
 
+(deftest simple-condition-condition.5
+  (let ((inst (make-condition
+                'simple-condition
+                :format-control "AAA~A"
+                :format-arguments '(10 20 30))))
+    (format nil "~A" inst))
+  "AAA10")
+
+(deftest simple-condition-condition.6
+  (let ((inst (make-condition
+                'simple-condition
+                :format-control "AAA~A"
+                :format-arguments '(10 20 30))))
+    (equal (format nil "~S" inst) "AAA10"))
+  nil)
+
 
 ;;
 ;;  Condition Type SIMPLE-WARNING

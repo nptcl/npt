@@ -403,8 +403,10 @@ int invoke_handler_control_(Execute ptr, addr instance)
 static int redirect_restart_(addr restart, addr *ret)
 {
 	for (;;) {
-		if (! getenable_restart(restart))
-			return fmte_("The restart ~S is already closed.", restart, NULL);
+		if (! getenable_restart(restart)) {
+			return call_simple_control_error_va_(NULL,
+					"The restart ~S is already closed.", restart, NULL);
+		}
 		if (! getredirect_restart(restart))
 			break;
 		getreference_restart(restart, &restart);

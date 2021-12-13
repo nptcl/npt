@@ -1500,6 +1500,25 @@ static void clos_stdcondition_slot2(addr *ret,
 			CONSTANT_CLOSNAME_##b, CONSTANT_KEYWORD_##b); \
 }
 
+static void clos_simple_condition_slots(addr *ret)
+{
+	addr slots;
+
+	slot_vector_heap(&slots, 2);
+	/* :format-control */
+	slot_make_name(slots,
+			CONSTANT_CLOSNAME_FORMAT_CONTROL,
+			CONSTANT_KEYWORD_FORMAT_CONTROL,
+			0);
+	/* :format-arguments */
+	slot_make_form(slots,
+			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS,
+			CONSTANT_KEYWORD_FORMAT_ARGUMENTS,
+			1);
+	slotvector_set_location(slots);
+	*ret = slots;
+}
+
 static int build_clos_class_condition_(LocalRoot local)
 {
 	addr metaclass, slots;
@@ -1516,7 +1535,7 @@ static int build_clos_class_condition_(LocalRoot local)
 			CONDITION_SERIOUS_CONDITION,
 			CLOS_CONDITION);
 	/* simple-condition (condition) :format-control :format-arguments*/
-	SlotMakeCondition2(&slots, FORMAT_CONTROL, FORMAT_ARGUMENTS);
+	clos_simple_condition_slots(&slots);
 	ClosMakeClassSlot_(local, metaclass, slots,
 			COMMON_SIMPLE_CONDITION,
 			CONDITION_SIMPLE_CONDITION,

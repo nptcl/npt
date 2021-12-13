@@ -816,10 +816,24 @@ int ignore_errors_common_(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  make-condition
  */
-int make_condition_common(Execute ptr, addr args, addr *ret)
+int make_condition_common_(Execute ptr, addr args, addr *ret)
 {
-	addr call;
+	int check;
+	addr condition, expected, call;
 
+	/* type check */
+	Return_getcar(args, &condition);
+	if (symbolp(condition)) {
+		Return(clos_find_class_(condition, &condition));
+	}
+	Return(conditionp_(condition, &check));
+	if (! check) {
+		GetConst(COMMON_CONDITION, &expected);
+		return call_type_error_va_(ptr, condition, expected,
+				"The argument ~S must be a condition.", condition, NULL);
+	}
+
+	/* (make-instance ...) */
 	GetConst(COMMON_MAKE_INSTANCE, &call);
 	Return(getfunction_global_(call, &call));
 	return callclang_apply(ptr, ret, call, args);
@@ -855,7 +869,7 @@ int find_restart_common_(Execute ptr, addr var, addr opt, addr *ret)
 /*
  *  restart-bind
  */
-static int restart_bind_interactive_common(addr *args, addr *inter)
+static int restart_bind_interactive_common_(addr *args, addr *inter)
 {
 	if (*args == Nil) {
 		return fmte_("The key :interactive-function must have a value.", NULL);
@@ -872,7 +886,7 @@ static int restart_bind_interactive_common(addr *args, addr *inter)
 	return 0;
 }
 
-static int restart_bind_report_common(addr *args, addr *report)
+static int restart_bind_report_common_(addr *args, addr *report)
 {
 	if (*args == Nil) {
 		return fmte_("The key :report-function must have a value.", NULL);
@@ -889,7 +903,7 @@ static int restart_bind_report_common(addr *args, addr *report)
 	return 0;
 }
 
-static int restart_bind_test_common(addr *args, addr *test)
+static int restart_bind_test_common_(addr *args, addr *test)
 {
 	if (*args == Nil) {
 		return fmte_("The key :test-function must have a value.", NULL);
@@ -919,7 +933,7 @@ static void restart_bind_symbol_common(addr pos, addr *ret)
 	}
 }
 
-static int restart_bind_binding_common(addr args, addr *ret)
+static int restart_bind_binding_common_(addr args, addr *ret)
 {
 	addr pos, name, lambda, inter, report, test;
 	addr keyinter, keyreport, keytest;
@@ -941,13 +955,13 @@ static int restart_bind_binding_common(addr args, addr *ret)
 	while (args != Nil) {
 		Return_getcons(args, &pos, &args);
 		if (pos == keyinter) {
-			Return(restart_bind_interactive_common(&args, &inter));
+			Return(restart_bind_interactive_common_(&args, &inter));
 		}
 		else if (pos == keyreport) {
-			Return(restart_bind_report_common(&args, &report));
+			Return(restart_bind_report_common_(&args, &report));
 		}
 		else if (pos == keytest) {
-			Return(restart_bind_test_common(&args, &test));
+			Return(restart_bind_test_common_(&args, &test));
 		}
 		else {
 			return fmte_("Invalid key parameter ~S.", pos, NULL);
@@ -962,7 +976,7 @@ static int restart_bind_binding_common(addr args, addr *ret)
 	return 0;
 }
 
-static int restart_bind_clauses_common(addr right, addr *ret)
+static int restart_bind_clauses_common_(addr right, addr *ret)
 {
 	addr cons, symbol, quote, root;
 
@@ -971,7 +985,7 @@ static int restart_bind_clauses_common(addr right, addr *ret)
 	conscar_heap(&root, symbol);
 	while (right != Nil) {
 		Return_getcons(right, &cons, &right);
-		Return(restart_bind_binding_common(cons, &cons));
+		Return(restart_bind_binding_common_(cons, &cons));
 		cons_heap(&root, cons, root);
 	}
 	nreverse(ret, root);
@@ -979,7 +993,7 @@ static int restart_bind_clauses_common(addr right, addr *ret)
 	return 0;
 }
 
-int restart_bind_common(addr right, addr env, addr *ret)
+int restart_bind_common_(addr right, addr env, addr *ret)
 {
 	addr symbol, body;
 
@@ -992,7 +1006,7 @@ int restart_bind_common(addr right, addr env, addr *ret)
 	}
 	else {
 		GetConst(SYSTEM_RESTART, &symbol);
-		Return(restart_bind_clauses_common(right, &right));
+		Return(restart_bind_clauses_common_(right, &right));
 		if (body == Nil)
 			consnil_heap(&body);
 		lista_heap(ret, symbol, right, body, NULL);
@@ -1005,7 +1019,7 @@ int restart_bind_common(addr right, addr env, addr *ret)
 /*
  *  restart-case
  */
-static int restart_case_interactive(addr *args, addr *inter)
+static int restart_case_interactive_(addr *args, addr *inter)
 {
 	if (*args == Nil) {
 		return fmte_("The key :interactive must have a value.", NULL);
@@ -1022,7 +1036,7 @@ static int restart_case_interactive(addr *args, addr *inter)
 	return 0;
 }
 
-static int restart_case_report(addr *args, addr *report)
+static int restart_case_report_(addr *args, addr *report)
 {
 	if (*args == Nil) {
 		return fmte_("The key :report must have a value.", NULL);
@@ -1039,7 +1053,7 @@ static int restart_case_report(addr *args, addr *report)
 	return 0;
 }
 
-static int restart_case_test(addr *args, addr *test)
+static int restart_case_test_(addr *args, addr *test)
 {
 	if (*args == Nil) {
 		return fmte_("The key :test must have a value.", NULL);
@@ -1056,7 +1070,7 @@ static int restart_case_test(addr *args, addr *test)
 	return 0;
 }
 
-static int restart_case_clauses(addr right, addr *ret)
+static int restart_case_clauses_(addr right, addr *ret)
 {
 	addr root, cons, pos, name, ord, form, inter, report, test;
 	addr keyinter, keyreport, keytest;
@@ -1079,13 +1093,13 @@ static int restart_case_clauses(addr right, addr *ret)
 		for (; form != Nil; form = cons) {
 			Return_getcons(form, &pos, &cons);
 			if (pos == keyinter) {
-				Return(restart_case_interactive(&cons, &inter));
+				Return(restart_case_interactive_(&cons, &inter));
 			}
 			else if (pos == keyreport) {
-				Return(restart_case_report(&cons, &report));
+				Return(restart_case_report_(&cons, &report));
 			}
 			else if (pos == keytest) {
-				Return(restart_case_test(&cons, &test));
+				Return(restart_case_test_(&cons, &test));
 			}
 			else
 				break;
@@ -1106,7 +1120,7 @@ static int restart_case_clauses(addr right, addr *ret)
 	return 0;
 }
 
-int restart_case_common(addr right, addr env, addr *ret)
+int restart_case_common_(addr right, addr env, addr *ret)
 {
 	addr symbol, expr;
 
@@ -1117,7 +1131,7 @@ int restart_case_common(addr right, addr env, addr *ret)
 		return Result(ret, expr);
 
 	GetConst(SYSTEM_RESTART, &symbol);
-	Return(restart_case_clauses(right, &right));
+	Return(restart_case_clauses_(right, &right));
 	list_heap(ret, symbol, right, expr, NULL);
 
 	return 0;

@@ -603,6 +603,35 @@
     value)
   aaa)
 
+(define-condition handler-bind-return () ())
+(deftest handler-bind-return.1
+  (list 10 20
+        (handler-bind ((handler-bind-return (lambda () 30))) 33)
+        40 50 60)
+  (10 20 33 40 50 60))
+
+(deftest handler-bind-return.2
+  (values 10 20
+          (handler-bind ((handler-bind-return (lambda () 30))) 33)
+          40 50 60)
+  10 20 33 40 50 60)
+
+(deftest handler-bind-return.3
+  (list 10 20
+        (handler-bind ((handler-bind-return
+                         (lambda (c) (declare (ignore c)) 30)))
+          (signal 'handler-bind-return) 33)
+        40 50 60)
+  (10 20 33 40 50 60))
+
+(deftest handler-bind-return.4
+  (values 10 20
+          (handler-bind ((handler-bind-return
+                           (lambda (c) (declare (ignore c)) 30)))
+            (signal 'handler-bind-return) 33)
+          40 50 60)
+  10 20 33 40 50 60)
+
 (deftest-error! handler-bind-error.1
   (eval '(handler-bind)))
 
@@ -785,34 +814,6 @@
           40 50 60)
   10 20 30 40 50 60)
 
-(deftest handler-case-return.4
-  (list 10 20
-        (handler-bind ((handler-case-return (lambda () 30))) 33)
-        40 50 60)
-  (10 20 33 40 50 60))
-
-(deftest handler-case-return.5
-  (values 10 20
-          (handler-bind ((handler-case-return (lambda () 30))) 33)
-          40 50 60)
-  10 20 33 40 50 60)
-
-(deftest handler-case-return.6
-  (list 10 20
-        (handler-bind ((handler-case-return
-                         (lambda (c) (declare (ignore c)) 30)))
-          (signal 'handler-case-return) 33)
-        40 50 60)
-  (10 20 33 40 50 60))
-
-(deftest handler-case-return.7
-  (values 10 20
-          (handler-bind ((handler-case-return
-                           (lambda (c) (declare (ignore c)) 30)))
-            (signal 'handler-case-return) 33)
-          40 50 60)
-  10 20 33 40 50 60)
-
 (deftest-error! handler-case-error.1
   (eval '(handler-case)))
 
@@ -846,7 +847,7 @@
 
 
 ;;
-;;  function
+;;  Macro IGNORE-ERRORS
 ;;
 (deftest ignore-errors.1
   (ignore-errors)
@@ -862,18 +863,40 @@
     10 20 30)
   30)
 
-(defvar *error-variables*)
 (deftest ignore-errors.4
-  (multiple-value-bind (a b)
+  (multiple-value-bind (value condition)
     (ignore-errors
-      10 20 *error-variables*)
-    (values a (null b)))
-  nil nil)
+      (error "Hello"))
+    (values
+      value
+      (typep condition 'simple-error)))
+  nil t)
 
+(defvar *ignore-errors-unbound*)
 (deftest ignore-errors.5
   (multiple-value-bind (a b)
     (ignore-errors
-      10 20 *error-variables* 30 40)
+      10 20 *ignore-errors-unbound*)
     (values a (null b)))
   nil nil)
+
+(deftest ignore-errors.6
+  (multiple-value-bind (a b)
+    (ignore-errors
+      10 20 *ignore-errors-unbound* 30 40)
+    (values a (null b)))
+  nil nil)
+
+;;  ANSI Common Lisp
+(defun ignore-errors-load-init-file (program)
+  (let ((win nil))
+    (ignore-errors ;if this fails, don't enter debugger
+      (load (merge-pathnames (make-pathname :name program :type :lisp)
+                             (user-homedir-pathname)))
+      (setq win t))
+    (or win "Init file failed to load.")))
+
+(deftest ignore-errors-test.1
+  (ignore-errors-load-init-file "no-such-program")
+  "Init file failed to load.")
 

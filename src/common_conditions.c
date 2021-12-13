@@ -537,7 +537,7 @@ static void defmacro_ignore_errors(void)
 /* (defmacro define-condition (name (supers) (slots) &rest option) ...) -> name */
 static int function_define_condition(Execute ptr, addr form, addr env)
 {
-	Return(define_condition_common(ptr, form, env, &form));
+	Return(define_condition_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -559,7 +559,7 @@ static void defmacro_define_condition(void)
 /*  (defun make-condition (type) &rest args) ...) -> condition */
 static int function_make_condition(Execute ptr, addr args)
 {
-	Return(make_condition_common(ptr, args, &args));
+	Return(make_condition_common_(ptr, args, &args));
 	setresult_control(ptr, args);
 	return 0;
 }
@@ -568,9 +568,10 @@ static void type_make_condition(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, T);
-	GetTypeTable(&values, ConditionDesigner);
-	typeargs_var1rest(&args, values, args);
+	GetTypeTable(&args, ConditionDesigner);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	GetTypeTable(&values, Condition);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
 }
@@ -750,7 +751,7 @@ static void defun_invoke_restart_interactively(void)
  */
 static int function_restart_bind(Execute ptr, addr right, addr env)
 {
-	Return(restart_bind_common(right, env, &right));
+	Return(restart_bind_common_(right, env, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
@@ -776,7 +777,7 @@ static void defmacro_restart_bind(void)
  */
 static int function_restart_case(Execute ptr, addr right, addr env)
 {
-	Return(restart_case_common(right, env, &right));
+	Return(restart_case_common_(right, env, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
