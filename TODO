@@ -10,7 +10,7 @@ Making testcase now.
      6  Iteration                              6         6      100%
      7  Objects                               42        42      100%
      8  Structures                             2         2      100%
-     9  Conditions                            51        39       76%
+     9  Conditions                            51        51      100%
     10  Symbols                               20        20      100%
     11  Packages                              32        32      100%
     12  Numbers                              184         0        0%
@@ -29,4 +29,4 @@ Making testcase now.
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       741       74%
+     -  All                                  996       753       76%

@@ -1068,118 +1068,67 @@
   (eval '(with-condition-restarts)))
 
 
-
 ;;
+;;  Macro WITH-SIMPLE-RESTART
 ;;
-;;
-(deftest abort.1
-  (restart-case
-    (abort)
-    (abort ()
-      'hello))
-  hello)
-
-(deftest abort.2
-  (restart-case
-    (abort nil)
-    (abort ()
-      'hello))
-  hello)
-
-(define-condition testcond () ((aaa :initarg :aaa)))
-
-(deftest abort.3
-  (restart-case
-    (abort (make-condition 'testcond :aaa 10))
-    (abort ()
-      :test (lambda (x) (eql (slot-exists-and-value x 'aaa) 10))
-      'hello))
-  hello)
-
-(deftest continue.1
-  (continue)
+(deftest with-simple-restart.1
+  (with-simple-restart (aaa "Hello"))
   nil)
 
-(deftest continue.2
-  (continue (make-condition 'testcond :aaa 10))
-  nil)
+(deftest with-simple-restart.2
+  (with-simple-restart (aaa "Hello: ~A" 10 20 30)
+    (restart-name
+      (find-restart 'aaa)))
+  aaa)
 
-(deftest continue.3
-  (continue nil)
-  nil)
+(deftest with-simple-restart.3
+  (with-simple-restart (aaa "Hello: ~A" 10 20 30)
+    (princ-to-string
+      (find-restart 'aaa)))
+  "Hello: 10")
 
-(deftest continue.4
-  (restart-case
-    (continue)
-    (continue () 'hello))
-  hello)
+(deftest with-simple-restart.4
+  (with-simple-restart (aaa "Hello: ~A" 10 20 30)
+    (invoke-restart
+      (find-restart 'aaa))
+    100)
+  nil t)
 
-(deftest-error muffle-warning.1
-  (muffle-warning)
-  control-error)
+(deftest with-simple-restart.5
+  (with-simple-restart (nil "Hello: ~A" 10 20 30)
+    (princ-to-string
+      (find nil (compute-restarts) :key #'restart-name)))
+  "Hello: 10")
 
-(deftest-error muffle-warning.2
-  (muffle-warning
-    (make-condition 'testcond :aaa 10))
-  control-error)
+(deftest-error! with-simple-restart-error.1
+  (eval '(with-simple-restart)))
 
-(deftest-error muffle-warning.3
-  (muffle-warning nil)
-  control-error)
+(deftest-error! with-simple-restart-error.2
+  (eval '(with-simple-restart 100)))
 
-(deftest muffle-warning.4
-  (restart-case
-    (muffle-warning)
-    (muffle-warning () 10))
-  10)
+;;  ANSI Common Lisp
+(defun with-simple-restart-compute-fixnum-power-of-2 (x)
+  (with-simple-restart (nil "Give up on computing 2^~D." x)
+    (let ((result 1))
+      (dotimes (i x result)
+        (setq result (* 2 result))
+        (unless (typep result 'fixnum)
+          (error "Power of 2 is too large."))))))
 
-(deftest muffle-warning.5
-  (restart-case
-    (muffle-warning
-      (make-condition 'testcond :aaa 10))
-    (muffle-warning () 10))
-  10)
+(defun with-simple-restart-compute-power-of-2 (x)
+  (or (with-simple-restart-compute-fixnum-power-of-2 x)
+      'something-big))
 
-(deftest muffle-warning.6
-  (handler-bind ((warning #'muffle-warning))
-    (warn "Hello"))
-  nil)
+(deftest with-simple-restart-test.1
+  (with-simple-restart-compute-power-of-2 10)
+  1024)
 
-(deftest store-value.1
-  (store-value 11)
-  nil)
-
-(deftest store-value.2
-  (store-value 11 (make-condition 'testcond :aaa 10))
-  nil)
-
-(deftest store-value.3
-  (store-value 11 nil)
-  nil)
-
-(deftest store-value.4
-  (restart-case
-    (store-value 11)
-    (store-value (x)
-      (1+ x)))
-  12)
-
-(deftest use-value.1
-  (use-value 11)
-  nil)
-
-(deftest use-value.2
-  (use-value 11 (make-condition 'testcond :aaa 10))
-  nil)
-
-(deftest use-value.3
-  (use-value 11 nil)
-  nil)
-
-(deftest use-value.4
-  (restart-case
-    (use-value 11)
-    (use-value (x)
-      (1+ x)))
-  12)
+(deftest with-simple-restart-test.2
+  (handler-bind ((error
+                   (lambda (c)
+                     (declare (ignore c))
+                     (invoke-restart
+                       (find nil (compute-restarts) :key #'restart-name)))))
+    (with-simple-restart-compute-power-of-2 10000))
+  something-big)
 

@@ -372,3 +372,384 @@
   (lisp-system:specialp '*break-on-signals*)
   t)
 
+
+;;
+;;  Function ABORT
+;;
+(deftest abort.1
+  (restart-case
+    (abort)
+    (abort () 'hello))
+  hello)
+
+(deftest abort.2
+  (restart-case
+    (abort nil)
+    (abort () 'hello))
+  hello)
+
+(deftest abort.3
+  (let ((x (make-condition 'program-error))
+        (y (make-condition 'program-error)))
+    (restart-case
+      (with-condition-restarts
+        x
+        (list (find-restart 'abort))
+        (restart-case
+          (with-condition-restarts
+            y
+            (list (find-restart 'abort))
+            (abort x))
+          (abort () 100)))
+      (abort () 200)))
+  200)
+
+(deftest-error! abort-error.1
+  (eval '(abort 10)))
+
+(deftest-error! abort-error.2
+  (eval '(abort nil nil)))
+
+
+;;
+;;  Function CONTINUE
+;;
+(define-condition testcond () ((aaa :initarg :aaa)))
+(deftest continue.1
+  (continue)
+  nil)
+
+(deftest continue.2
+  (continue nil)
+  nil)
+
+(deftest continue.3
+  (restart-case
+    (continue)
+    (continue () 'hello))
+  hello)
+
+(deftest continue.4
+  (restart-case
+    (continue nil)
+    (continue () 'hello))
+  hello)
+
+(deftest continue.5
+  (let ((x (make-condition 'program-error))
+        (y (make-condition 'program-error)))
+    (restart-case
+      (with-condition-restarts
+        x
+        (list (find-restart 'continue))
+        (restart-case
+          (with-condition-restarts
+            y
+            (list (find-restart 'continue))
+            (continue x))
+          (continue () 100)))
+      (continue () 200)))
+  200)
+
+(deftest-error! continue-error.1
+  (eval '(continue 10)))
+
+(deftest-error! continue-error.2
+  (eval '(continue nil nil)))
+
+
+;;
+;;  Function MUFFLE-WARNING
+;;
+(deftest-error muffle-warning.1
+  (muffle-warning)
+  control-error)
+
+(deftest-error muffle-warning.2
+  (muffle-warning nil)
+  control-error)
+
+(deftest-error muffle-warning.3
+  (muffle-warning
+    (make-condition 'testcond :aaa 10))
+  control-error)
+
+(deftest muffle-warning.4
+  (let ((x (make-condition 'program-error))
+        (y (make-condition 'program-error)))
+    (restart-case
+      (with-condition-restarts
+        x
+        (list (find-restart 'muffle-warning))
+        (restart-case
+          (with-condition-restarts
+            y
+            (list (find-restart 'muffle-warning))
+            (muffle-warning x))
+          (muffle-warning () 100)))
+      (muffle-warning () 200)))
+  200)
+
+(deftest muffle-warning.5
+  (restart-case
+    (muffle-warning)
+    (muffle-warning () 10))
+  10)
+
+(deftest muffle-warning.6
+  (restart-case
+    (muffle-warning
+      (make-condition 'simple-error))
+    (muffle-warning () 10))
+  10)
+
+(deftest muffle-warning.7
+  (handler-bind ((warning #'muffle-warning))
+    (warn "Hello"))
+  nil)
+
+(deftest muffle-warning.8
+  (with-output-to-string (*error-output*)
+    (handler-bind ((warning #'muffle-warning))
+      (warn "Hello")))
+  "")
+
+(deftest-error! muffle-warning-error.1
+  (eval '(muffle-warning 10)))
+
+(deftest-error! muffle-warning-error.2
+  (eval '(muffle-warning nil nil)))
+
+
+;;
+;;  Function STORE-VALUE
+;;
+(deftest store-value.1
+  (store-value 11)
+  nil)
+
+(deftest store-value.2
+  (store-value 11 nil)
+  nil)
+
+(deftest store-value.3
+  (store-value 11 (make-condition 'program-error))
+  nil)
+
+(deftest store-value.4
+  (restart-case
+    (store-value 11)
+    (store-value (x)
+      (1+ x)))
+  12)
+
+(deftest store-value.5
+  (let ((x (make-condition 'program-error))
+        (y (make-condition 'program-error)))
+    (restart-case
+      (with-condition-restarts
+        x
+        (list (find-restart 'store-value))
+        (restart-case
+          (with-condition-restarts
+            y
+            (list (find-restart 'store-value))
+            (store-value 10 x))
+          (store-value (x) (+ x 100))))
+      (store-value (x) (+ x 200))))
+  210)
+
+(deftest-error! store-value-error.1
+  (eval '(store-value 10 10)))
+
+(deftest-error! store-value-error.2
+  (eval '(store-value 10 nil nil)))
+
+
+;;
+;;  Function USE-VALUE
+;;
+(deftest use-value.1
+  (use-value 11)
+  nil)
+
+(deftest use-value.2
+  (use-value 11 nil)
+  nil)
+
+(deftest use-value.3
+  (use-value 11 (make-condition 'program-error))
+  nil)
+
+(deftest use-value.4
+  (restart-case
+    (use-value 11)
+    (use-value (x)
+      (1+ x)))
+  12)
+
+(deftest use-value.5
+  (let ((x (make-condition 'program-error))
+        (y (make-condition 'program-error)))
+    (restart-case
+      (with-condition-restarts
+        x
+        (list (find-restart 'use-value))
+        (restart-case
+          (with-condition-restarts
+            y
+            (list (find-restart 'use-value))
+            (use-value 10 x))
+          (use-value (x) (+ x 100))))
+      (use-value (x) (+ x 200))))
+  210)
+
+(deftest-error! use-value-error.1
+  (eval '(use-value 10 10)))
+
+(deftest-error! use-value-error.2
+  (eval '(use-value 10 nil nil)))
+
+
+;;
+;;  ANSI Common Lisp
+;;
+
+;;; Example of the ABORT retart
+(defmacro abort-on-error (&body forms)
+  `(handler-bind ((error #'abort))
+     ,@forms))
+
+(deftest abort-test.1
+  (abort-on-error (+ 3 5))
+  8)
+
+(deftest abort-test.2
+  (restart-case
+    (abort-on-error (error "You lose."))
+    (abort () 'hit))
+  hit)
+
+
+;;; Example of the CONTINUE restart
+(defun continue-real-sqrt (n)
+  (when (minusp n)
+    (setq n (- n))
+    (cerror "Return sqrt(~D) instead." "Tried to take sqrt(-~D)." n))
+  (isqrt n))
+
+(deftest continue-test.1
+  (continue-real-sqrt 4)
+  2)
+
+(deftest continue-test.2
+  (handler-bind ((error #'(lambda (c)
+                            (declare (ignore c))
+                            (continue))))
+    (continue-real-sqrt -9))
+  3)
+
+
+;;; Example of the MUFFLE-WARNING restart
+(defun muffle-warning-count-down (x)
+  (let (list)
+    (do ((counter x (1- counter)))
+      ((= counter 0) 'done)
+      (when (= counter 1)
+        (warn "Almost done"))
+      (push counter list))
+    (nreverse list)))
+
+(deftest muffle-warning-test.1
+  (let (value)
+    (values
+      (and (search
+             "Almost"
+             (with-output-to-string (*error-output*)
+               (setq value (muffle-warning-count-down 3))))
+           t)
+      value))
+  t (3 2 1))
+
+(defun muffle-warning-ignore-warnings-while-counting (x)
+  (handler-bind ((warning #'muffle-warning-ignore-warning))
+    (muffle-warning-count-down x)))
+
+(defun muffle-warning-ignore-warning (condition)
+  (declare (ignore condition))
+  (muffle-warning))
+
+(deftest muffle-warning-test.2
+  (let (value)
+    (values
+      (with-output-to-string (*error-output*)
+        (setq value (muffle-warning-ignore-warnings-while-counting 3)))
+      value))
+  "" (3 2 1))
+
+
+;;; Example of the STORE-VALUE and USE-VALUE restarts
+(defun store-value-careful-symbol-value (symbol)
+  (check-type symbol symbol)
+  (restart-case (if (boundp symbol)
+                  (return-from store-value-careful-symbol-value
+                               (symbol-value symbol))
+                  (error 'unbound-variable
+                    :name symbol))
+    (use-value (value)
+      :report "Specify a value to use this time."
+      value)
+    (store-value (value)
+      :report "Specify a value to store and use in the future."
+      (setf (symbol-value symbol) value))))
+
+(defvar store-value-a)
+
+(deftest store-value-test.1
+  (progn
+    (setq store-value-a 1234)
+    (store-value-careful-symbol-value 'store-value-a))
+  1234)
+
+(deftest store-value-test.2
+  (handler-bind
+    ((unbound-variable
+       (lambda (c)
+         (declare (ignore c))
+         (use-value 12))))
+    (makunbound 'store-value-a)
+    (store-value-careful-symbol-value 'store-value-a))
+  12)
+
+(deftest store-value-test.3
+  (handler-bind
+    ((unbound-variable
+       (lambda (c)
+         (declare (ignore c))
+         (store-value 24))))
+    (store-value-careful-symbol-value 'store-value-a))
+  24)
+
+(deftest store-value-test.4
+  (store-value-careful-symbol-value 'store-value-a)
+  24)
+
+
+;;; Example of the USE-VALUE restart
+(defun use-value-add-symbols-with-default (default &rest symbols)
+  (handler-bind ((unbound-variable
+                   #'(lambda (c)
+                       (declare (ignore c))
+                       (use-value default))))
+    (apply #'+ (mapcar #'store-value-careful-symbol-value symbols))))
+
+(deftest use-value-test.1
+  (progn
+    (makunbound 'use-value-a)
+    (makunbound 'use-value-b)
+    (makunbound 'use-value-c)
+    (setq use-value-x 1 use-value-y 2)
+    (use-value-add-symbols-with-default
+      3 'use-value-x 'use-value-y 'use-value-z))
+  6)
+
