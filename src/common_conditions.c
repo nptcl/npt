@@ -777,7 +777,7 @@ static void defmacro_restart_bind(void)
  */
 static int function_restart_case(Execute ptr, addr right, addr env)
 {
-	Return(restart_case_common_(right, env, &right));
+	Return(restart_case_common_(ptr, right, env, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
@@ -808,7 +808,7 @@ static void type_restart_name(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, RestartDesigner);
+	GetTypeTable(&args, Restart);
 	typeargs_var1(&args, args);
 	GetTypeTable(&values, Symbol);
 	type_compiled_heap(args, values, ret);
@@ -840,7 +840,7 @@ static void defun_restart_name(void)
  */
 static int function_with_condition_restarts(Execute ptr, addr right, addr env)
 {
-	Return(with_condition_restarts_common(right, env, &right));
+	Return(with_condition_restarts_common_(right, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
@@ -869,7 +869,7 @@ static void defmacro_with_condition_restarts(void)
  */
 static int function_with_simple_restart(Execute ptr, addr form, addr env)
 {
-	Return(with_simple_restart_common(form, env, &form));
+	Return(with_simple_restart_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -893,7 +893,7 @@ static void defmacro_with_simple_restart(void)
  */
 static int function_abort(Execute ptr, addr opt)
 {
-	return abort_common(ptr, opt);
+	return abort_common_(ptr, opt);
 }
 
 static void defun_abort(void)
@@ -917,7 +917,7 @@ static void defun_abort(void)
  */
 static int function_continue(Execute ptr, addr opt)
 {
-	Return(continue_common(ptr, opt));
+	Return(continue_common_(ptr, opt));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -943,7 +943,7 @@ static void defun_continue(void)
  */
 static int function_muffle_warning(Execute ptr, addr opt)
 {
-	return muffle_warning_common(ptr, opt);
+	return muffle_warning_common_(ptr, opt);
 }
 
 static void defun_muffle_warning(void)
@@ -967,7 +967,7 @@ static void defun_muffle_warning(void)
  */
 static int function_store_value(Execute ptr, addr var, addr opt)
 {
-	Return(store_value_common(ptr, var, opt));
+	Return(store_value_common_(ptr, var, opt));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -993,7 +993,7 @@ static void defun_store_value(void)
  */
 static int function_use_value(Execute ptr, addr var, addr opt)
 {
-	Return(use_value_common(ptr, var, opt));
+	Return(use_value_common_(ptr, var, opt));
 	setresult_control(ptr, Nil);
 	return 0;
 }

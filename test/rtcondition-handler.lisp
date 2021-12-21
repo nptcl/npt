@@ -533,11 +533,19 @@
   (let (value)
     (handler-bind ((simple-condition
                      (handler-bind-setq value t)))
-      (signal 'simple-condition)
+      (signal 'simple-error)
       value))
   t)
 
 (deftest handler-bind.5
+  (let (value)
+    (handler-bind ((simple-error
+                     (handler-bind-setq value t)))
+      (signal 'simple-condition)
+      value))
+  nil)
+
+(deftest handler-bind.6
   (let ((check :aaa))
     (handler-case
       (handler-bind
@@ -547,7 +555,7 @@
         (values :error check))))
   :error t)
 
-(deftest handler-bind.6
+(deftest handler-bind.7
   (let (value)
     (handler-bind ((simple-condition
                      (handler-bind-setq value 'aaa))
@@ -557,7 +565,7 @@
       value))
   aaa)
 
-(deftest handler-bind.7
+(deftest handler-bind.8
   (let (value)
     (handler-bind ((simple-condition
                      (handler-bind-setq value 'aaa))
@@ -567,7 +575,7 @@
       value))
   bbb)
 
-(deftest handler-bind.8
+(deftest handler-bind.9
   (let (list)
     (handler-bind ((simple-condition
                      (handler-bind-push list 'aaa)))
@@ -577,7 +585,7 @@
     list)
   (aaa bbb))
 
-(deftest handler-bind.9
+(deftest handler-bind.10
   (handler-bind ((simple-condition
                    (lambda (c)
                      (unless (typep c 'simple-condition)
@@ -585,7 +593,7 @@
     (signal 'simple-condition))
   nil)
 
-(deftest handler-bind.10
+(deftest handler-bind.11
   (let (list)
     (handler-bind ((simple-condition
                      (handler-bind-push list 'aaa))
@@ -595,7 +603,7 @@
     list)
   (bbb aaa))
 
-(deftest handler-bind.11
+(deftest handler-bind.12
   (let (value)
     (handler-bind (((or error simple-condition)
                     (handler-bind-setq value 'aaa)))

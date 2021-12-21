@@ -1,11 +1,13 @@
 #include "call_eval.h"
 #include "call_objects.h"
+#include "clos.h"
 #include "clos_type.h"
 #include "clos_defgeneric.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
+#include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
 #include "env_time.h"
@@ -14,6 +16,7 @@
 #include "eval_load.h"
 #include "execute.h"
 #include "format.h"
+#include "function.h"
 #include "hashtable.h"
 #include "heap_memory.h"
 #include "hold.h"
@@ -29,6 +32,7 @@
 #include "print_write.h"
 #include "process_ed.h"
 #include "prompt_for.h"
+#include "restart.h"
 #include "sequence.h"
 #include "stream.h"
 #include "stream_pretty.h"
@@ -41,24 +45,6 @@
 #include "syscode_common.h"
 #include "type.h"
 #include "typedef.h"
-
-/* redirect-restart */
-int redirect_restart_syscode(Execute ptr, addr condition, addr list)
-{
-	addr pos;
-
-	Check(! conditionp_debug(condition), "type error");
-	while (list != Nil) {
-		Return_getcons(list, &pos, &list);
-		if (GetType(pos) != LISPTYPE_RESTART)
-			return fmte_("The argument ~S must be a restart.", pos, NULL);
-		pushbind_restart_control(ptr, pos, 0);
-	}
-	reverse_restart_control(ptr);
-
-	return 0;
-}
-
 
 /* defconstant */
 int defconstant_syscode(addr symbol, addr value, addr doc)
@@ -461,5 +447,163 @@ int defgeneric_define_syscode_(Execute ptr, addr name, addr args, addr *ret)
 int defgeneric_method_syscode_(addr inst, addr args)
 {
 	return system_generic_method_(inst, args);
+}
+
+
+/* condition-restarts-push */
+static int condition_restarts_check_restarts_(addr list)
+{
+	addr pos;
+
+	while (list != Nil) {
+		Return_getcons(list, &pos, &list);
+		if (! restartp(pos))
+			return fmte_("The object ~S must be a restart type.", pos, NULL);
+	}
+
+	return 0;
+}
+
+int condition_restarts_push_syscode_(addr condition, addr restarts)
+{
+	addr pos, list;
+
+	Return(condition_restarts_check_restarts_(restarts));
+	while (restarts != Nil) {
+		GetCons(restarts, &pos, &restarts);
+		getassociated_restart(pos, &list);
+		cons_heap(&list, condition, list);
+		setassociated_restart(pos, list);
+	}
+
+	return 0;
+}
+
+
+/* condition-restarts-pop */
+int condition_restarts_pop_syscode_(addr condition, addr restarts)
+{
+	addr pos, list, check;
+
+	Return(condition_restarts_check_restarts_(restarts));
+	while (restarts != Nil) {
+		GetCons(restarts, &pos, &restarts);
+		getassociated_restart(pos, &list);
+		if (consp_getcons(list, &check, &list)) {
+			if (check == condition)
+				setassociated_restart(pos, list);
+		}
+	}
+
+	return 0;
+}
+
+
+/* condition-restarts-make */
+static int condition_restarts_make_name_(addr var, addr *ret)
+{
+	addr check;
+
+	/* signal -> simple-condition */
+	GetConst(COMMON_SIGNAL, &check);
+	if (var == check) {
+		GetConst(COMMON_SIMPLE_CONDITION, ret);
+		return 0;
+	}
+
+	/* error -> simple-error */
+	GetConst(COMMON_ERROR, &check);
+	if (var == check) {
+		GetConst(COMMON_SIMPLE_ERROR, ret);
+		return 0;
+	}
+
+	/* cerror -> simple-error */
+	GetConst(COMMON_CERROR, &check);
+	if (var == check) {
+		GetConst(COMMON_SIMPLE_ERROR, ret);
+		return 0;
+	}
+
+	/* warn -> simple-warning */
+	GetConst(COMMON_WARN, &check);
+	if (var == check) {
+		GetConst(COMMON_SIMPLE_WARNING, ret);
+		return 0;
+	}
+
+	/* error */
+	*ret = Nil;
+	return fmte_("Invalid argument, ~S.", var, NULL);
+}
+
+static int condition_restarts_make_string_(Execute ptr,
+		addr var, addr car, addr cdr, addr *ret)
+{
+	addr key1, key2, make, list;
+
+	Return(condition_restarts_make_name_(var, &var));
+	GetConst(KEYWORD_FORMAT_CONTROL, &key1);
+	GetConst(KEYWORD_FORMAT_ARGUMENTS, &key2);
+	list_heap(&list, var, key1, car, key2, cdr, NULL);
+
+	/* `(make-condition 'simple-condition
+	 *    :format-control ',car
+	 *    :format-arguments ',cdr)
+	 */
+	GetConst(COMMON_MAKE_CONDITION, &make);
+	Return(getfunction_global_(make, &make));
+	return callclang_apply(ptr, ret, make, list);
+}
+
+int condition_restarts_make_syscode_(Execute ptr, addr var, addr list, addr *ret)
+{
+	addr car, cdr, make;
+
+	Return_getcons(list, &car, &cdr);
+
+	/* string */
+	if (stringp(car))
+		return condition_restarts_make_string_(ptr, var, car, cdr, ret);
+
+	/* instance */
+	if (closp(car)) {
+		if (cdr != Nil)
+			return fmte_("Invalid condition form, ~S.", list, NULL);
+		return Result(ret, car);
+	}
+
+	/* `(make-condition ,list) */
+	GetConst(COMMON_MAKE_CONDITION, &make);
+	Return(getfunction_global_(make, &make));
+	return callclang_apply(ptr, ret, make, list);
+}
+
+
+/* make-restart */
+int make_restart_syscode_(addr var, addr call, addr rest, addr *ret)
+{
+	addr inter, report, test, escape, pos;
+
+	Check(! symbolp(var), "type error");
+	Check(! functionp(call), "type error");
+	if (GetKeyArgs(rest, KEYWORD_INTERACTIVE_FUNCTION, &inter))
+		inter = Nil;
+	if (GetKeyArgs(rest, KEYWORD_REPORT_FUNCTION, &report))
+		report = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_FUNCTION, &test))
+		test = Nil;
+	if (GetKeyArgs(rest, KEYWORD_ESCAPE, &escape))
+		escape = Nil;
+
+	/* restart */
+	restart_heap(&pos, var);
+	setfunction_restart(pos, call);
+	setinteractive_restart(pos, inter);
+	setreport_restart(pos, report);
+	settest_restart(pos, test);
+	setescape_restart(pos, escape != Nil);
+
+	return Result(ret, pos);
 }
 

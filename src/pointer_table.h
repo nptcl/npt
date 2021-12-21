@@ -105,6 +105,7 @@ enum pointer_index {
 	p_handler_case_code,
 	p_restart_bind_code,
 	p_restart_case_code,
+	p_restart_progn_code,
 
 	p_funcall_code,
 	p_nth_value_code,
@@ -1210,7 +1211,6 @@ enum pointer_index {
 	p_restart_fdefinition_store_function,
 	p_restart_fdefinition_store_interactive,
 	/* syscall common */
-	p_defun_syscall_redirect_restart,
 	p_defun_syscall_define_symbol_macro,
 	p_defmacro_syscall_symbol_macro_expander,
 	p_defun_syscall_defconstant,
@@ -1256,6 +1256,10 @@ enum pointer_index {
 	p_defun_syscall_intern_eql_specializer,
 	p_defun_syscall_defgeneric_define,
 	p_defun_syscall_defgeneric_method,
+	p_defun_syscall_condition_restarts_push,
+	p_defun_syscall_condition_restarts_pop,
+	p_defun_syscall_condition_restarts_make,
+	p_defun_syscall_make_restart,
 	/* syscall function */
 	p_defun_syscall_abort,
 	p_defun_syscall_hello,

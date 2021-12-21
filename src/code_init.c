@@ -144,6 +144,7 @@ void init_code_init(void)
 	initcode(handler_case_code, Null);
 	initcode(restart_bind_code, Null);
 	initcode(restart_case_code, Null);
+	initcode(restart_progn_code, Null);
 
 	/* eval */
 	initcode(funcall_code, Addr);
@@ -308,6 +309,7 @@ void build_code_init(void)
 	defcode(HANDLER_CASE, handler_case_code);
 	defcode(RESTART_BIND, restart_bind_code);
 	defcode(RESTART_CASE, restart_case_code);
+	defcode(RESTART_PROGN, restart_progn_code);
 
 	/* eval */
 	defcode(FUNCALL, funcall_code);

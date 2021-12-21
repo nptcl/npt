@@ -855,6 +855,20 @@ int restart_case_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+int restart_progn_code(Execute ptr, CodeValue x)
+{
+	addr list, pos;
+
+	getresult_control(ptr, &list);
+	while (list != Nil) {
+		Return_getcons(list, &pos, &list);
+		pushrestart_control(ptr, pos);
+	}
+	reverse_restart_control(ptr);
+
+	return 0;
+}
+
 
 /*
  *  eval

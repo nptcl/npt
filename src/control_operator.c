@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include "clos.h"
 #include "clos_class.h"
+#include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -400,19 +401,14 @@ int invoke_handler_control_(Execute ptr, addr instance)
 /*
  *  invoke-restart
  */
-static int redirect_restart_(addr restart, addr *ret)
+static int check_enable_restart_control_(addr restart)
 {
-	for (;;) {
-		if (! getenable_restart(restart)) {
-			return call_simple_control_error_va_(NULL,
-					"The restart ~S is already closed.", restart, NULL);
-		}
-		if (! getredirect_restart(restart))
-			break;
-		getreference_restart(restart, &restart);
+	if (! getenable_restart(restart)) {
+		return call_simple_control_error_va_(NULL,
+				"The restart ~S is already closed.", restart, NULL);
 	}
 
-	return Result(ret, restart);
+	return 0;
 }
 
 static int rollback_restart_control_(addr control, addr restart, addr *ret)
@@ -442,7 +438,7 @@ int invoke_restart_control_(Execute ptr, addr restart, addr args)
 	}
 
 	/* call */
-	Return(redirect_restart_(restart, &restart));
+	Return(check_enable_restart_control_(restart));
 	getfunction_restart(restart, &call);
 	Return(apply_control(ptr, call, args));
 
@@ -468,7 +464,7 @@ int invoke_restart_interactively_control_(Execute ptr, addr restart)
 		Return(find_restart_control_error_(ptr, restart, Nil, &restart));
 	}
 
-	Return(redirect_restart_(restart, &restart));
+	Return(check_enable_restart_control_(restart));
 	getinteractive_restart(restart, &args);
 	if (args != Nil) {
 		Return(callclang_apply(ptr, &args, args, Nil));
@@ -483,16 +479,29 @@ int invoke_restart_interactively_control_(Execute ptr, addr restart)
  */
 static int test_restart_control_(Execute ptr, addr restart, addr condition, int *ret)
 {
-	addr test;
+	int check;
+	addr test, list;
 
-	if (condition == Nil)
-		return Result(ret, 1);
+	/* associated */
+	if (condition != Nil) {
+		getassociated_restart(restart, &list);
+		if (list != Nil) {
+			check = find_list_eq_unsafe(condition, list);
+			if (! check)
+				return Result(ret, 0);
+		}
+	}
+
+	/* :test */
 	gettest_restart(restart, &test);
-	if (test == Nil)
-		return Result(ret, 1);
-	Return(callclang_funcall(ptr, &test, test, condition, NULL));
+	if (test != Nil) {
+		Return(callclang_funcall(ptr, &test, test, condition, NULL));
+		if (test == Nil)
+			return Result(ret, 0);
+	}
 
-	return Result(ret, test != Nil);
+	/* :test (constantly t) */
+	return Result(ret, 1);
 }
 
 static int equal_restart_control_(Execute ptr,
@@ -524,7 +533,7 @@ static int find_restart_stack_(Execute ptr,
 		getrestart_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &restart, &list);
-			Return(redirect_restart_(restart, &restart));
+			Return(check_enable_restart_control_(restart));
 			Return(equal_restart_control_(ptr,
 						restart, symbol, condition, value, &check));
 			if (check)
@@ -550,6 +559,7 @@ int find_restart_control_(Execute ptr,
 		}
 		else {
 			/* disable */
+			*value = Nil;
 			return Result(ret, 0);
 		}
 	}
@@ -609,7 +619,7 @@ int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
 		getrestart_control(control, &list);
 		while (list != Nil) {
 			GetCons(list, &restart, &list);
-			Return(redirect_restart_(restart, &restart));
+			Return(check_enable_restart_control_(restart));
 			Return(test_restart_control_(ptr, restart, condition, &check));
 			if (check) {
 				pushnew_heap(root, restart, &root);

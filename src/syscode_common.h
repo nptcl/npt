@@ -5,7 +5,6 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define redirect_restart_syscode _n(redirect_restart_syscode)
 #define defconstant_syscode _n(defconstant_syscode)
 #define in_package_syscode_ _n(in_package_syscode_)
 #define setplist_syscode _n(setplist_syscode)
@@ -48,8 +47,11 @@
 #define intern_eql_specializer_syscode _n(intern_eql_specializer_syscode)
 #define defgeneric_define_syscode_ _n(defgeneric_define_syscode_)
 #define defgeneric_method_syscode_ _n(defgeneric_method_syscode_)
+#define condition_restarts_push_syscode_ _n(condition_restarts_push_syscode_)
+#define condition_restarts_pop_syscode_ _n(condition_restarts_pop_syscode_)
+#define condition_restarts_make_syscode_ _n(condition_restarts_make_syscode_)
+#define make_restart_syscode_ _n(make_restart_syscode_)
 
-int redirect_restart_syscode(Execute ptr, addr condition, addr list);
 int defconstant_syscode(addr symbol, addr value, addr doc);
 int in_package_syscode_(Execute ptr, addr name, addr *ret);
 void setplist_syscode(addr key, addr value, addr list, addr *ret);
@@ -96,6 +98,10 @@ int set_slots_syscode(addr var, addr slots, addr values);
 int intern_eql_specializer_syscode(addr var, addr *ret);
 int defgeneric_define_syscode_(Execute ptr, addr name, addr args, addr *ret);
 int defgeneric_method_syscode_(addr inst, addr args);
+int condition_restarts_push_syscode_(addr condition, addr restarts);
+int condition_restarts_pop_syscode_(addr condition, addr restarts);
+int condition_restarts_make_syscode_(Execute ptr, addr var, addr list, addr *ret);
+int make_restart_syscode_(addr var, addr call, addr rest, addr *ret);
 
 #endif
 

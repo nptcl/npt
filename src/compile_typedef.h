@@ -143,6 +143,7 @@ enum FaslCode {
 	FaslCode_handler_case,
 	FaslCode_restart_bind,
 	FaslCode_restart_case,
+	FaslCode_restart_progn,
 
 	FaslCode_funcall,
 	FaslCode_nth_value,

@@ -281,7 +281,7 @@ int pprint_tab_common(Execute ptr, addr kind, addr column, addr colinc, addr str
 static void print_unreadable_object_expand_common(addr *ret,
 		addr pos, addr stream, addr type, addr identity, addr body)
 {
-	/* `(list-system::print-unreadable-call
+	/* `(lisp-system::print-unreadable-call
 	 *     ,stream ,object ,type ,identity ,(when body `(lambda () ,@body)))
 	 */
 	addr call, lambda;

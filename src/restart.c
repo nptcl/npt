@@ -9,7 +9,7 @@ enum Restart_Index {
 	Restart_Report,
 	Restart_Test,
 	Restart_Condition,
-	Restart_Reference,
+	Restart_Associated,
 	Restart_Size
 };
 
@@ -106,16 +106,16 @@ void setcondition_restart(addr pos, addr value)
 	SetRestart(pos, Restart_Condition, value);
 }
 
-void getreference_restart(addr pos, addr *ret)
+void getassociated_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
-	GetRestart(pos, Restart_Reference, ret);
+	GetRestart(pos, Restart_Associated, ret);
 }
 
-void setreference_restart(addr pos, addr value)
+void setassociated_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
-	SetRestart(pos, Restart_Reference, value);
+	SetRestart(pos, Restart_Associated, value);
 }
 
 void setescape_restart(addr pos, int value)
@@ -156,26 +156,6 @@ int getenable_restart(addr pos)
 	u = (byte)GetUser(pos);
 
 	return GetBitByte(u, 1);
-}
-
-void setredirect_restart(addr pos, int value)
-{
-	byte u;
-
-	CheckType(pos, LISPTYPE_RESTART);
-	u = (byte)GetUser(pos);
-	SetBitByte(u, 2, value);
-	SetUser(pos, u);
-}
-
-int getredirect_restart(addr pos)
-{
-	byte u;
-
-	CheckType(pos, LISPTYPE_RESTART);
-	u = (byte)GetUser(pos);
-
-	return GetBitByte(u, 2);
 }
 
 

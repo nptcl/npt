@@ -1355,8 +1355,6 @@ lisp-system::handler-case
 lisp-system::restart
 lisp-system::restart-bind
 lisp-system::restart-case
-lisp-system::restart-end
-lisp-system::push-return
 (lisp-system::*enable-debugger* :name enable-debugger :constant system)
 (lisp-system::*index-debugger* :name index-debugger :constant system)
 
@@ -1729,6 +1727,7 @@ lisp-code::handler-bind
 lisp-code::handler-case
 lisp-code::restart-bind
 lisp-code::restart-case
+lisp-code::restart-progn
 
 lisp-code::funcall
 lisp-code::nth-value
@@ -1981,7 +1980,6 @@ lisp-system::subtypep-force-number
 lisp-system::subtypep-normal
 
 ;; syscall_common.c
- lisp-system::redirect-restart
  lisp-system::define-symbol-macro
  lisp-system::symbol-macro-expander
  lisp-system::defconstant
@@ -2026,6 +2024,11 @@ lisp-system::subtypep-normal
  lisp-system::intern-eql-specializer
  lisp-system::defgeneric-define
  lisp-system::defgeneric-method
+ lisp-system::condition-restarts-push
+ lisp-system::condition-restarts-pop
+ lisp-system::condition-restarts-make
+ lisp-system::make-restart
+ lisp-system::restart-progn
 
 ;; syscall_function.c
 (lisp-system::abort :export t)

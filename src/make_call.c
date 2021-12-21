@@ -96,6 +96,51 @@ static int code_make_specialize_body_(CodeMake ptr, addr scope, int *ret)
 	return Result(ret, 1);
 }
 
+static int code_make_specialize_restart_progn_(CodeMake ptr, addr scope, int *ret)
+{
+	addr args, list, call;
+	addr escape, normal, finish;
+	fixnum id;
+
+	GetEvalScopeIndex(scope, 1, &args);
+	Return_getcons(args, &list, &args);
+	Return_getcons(args, &call, &args);
+	if (args != Nil)
+		return fmte_("Invalid restart-progn call, ~S.", args, NULL);
+	getvalue_tablecall(list, &list);
+	getvalue_tablecall(call, &call);
+
+	/* begin */
+	code_queue_make_label(ptr, &escape);
+	code_queue_make_label(ptr, &normal);
+	code_queue_make_label(ptr, &finish);
+	code_make_begin(ptr, &id);
+
+	/* body */
+	Return(code_make_execute_set_(ptr, list));
+	code_jump_escape_wake(ptr, escape);
+	CodeQueue_single(ptr, RESTART_PROGN);
+	Return(code_make_execute_set_(ptr, call));
+	code_jump_escape_wake(ptr, escape);
+	code_queue_goto(ptr, normal);
+
+	/* escape */
+	code_queue_push_label(ptr, escape);
+	CodeQueue_cons(ptr, REVERT_GOTO, normal);
+	code_make_end(ptr, id);
+	code_queue_goto(ptr, finish);
+
+	/* normal */
+	code_queue_push_label(ptr, normal);
+	code_make_end(ptr, id);
+	code_queue_ifpush(ptr);
+
+	/* finish */
+	code_queue_push_label(ptr, finish);
+
+	return Result(ret, 1);
+}
+
 static int code_make_specialize_type_body_(CodeMake ptr,
 		addr scope, constindex type, addr escape)
 {
@@ -164,9 +209,9 @@ static int code_make_specialize_(CodeMake ptr, addr scope, int *ret)
 	if (CodeMakeSpeciailizedSymbolP(call, RESTART))
 		return code_make_specialize_body_(ptr, scope, ret);
 
-	/* lisp-system::push-return */
-	if (CodeMakeSpeciailizedSymbolP(call, PUSH_RETURN))
-		return code_make_specialize_body_(ptr, scope, ret);
+	/* lisp-system::restart-progn */
+	if (CodeMakeSpeciailizedSymbolP(call, RESTART_PROGN))
+		return code_make_specialize_restart_progn_(ptr, scope, ret);
 
 	/* lisp-system::handler-bind */
 	if (CodeMakeSpeciailizedSymbolP(call, HANDLER_BIND))

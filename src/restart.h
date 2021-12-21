@@ -17,14 +17,12 @@
 #define settest_restart _n(settest_restart)
 #define getcondition_restart _n(getcondition_restart)
 #define setcondition_restart _n(setcondition_restart)
-#define getreference_restart _n(getreference_restart)
-#define setreference_restart _n(setreference_restart)
+#define getassociated_restart _n(getassociated_restart)
+#define setassociated_restart _n(setassociated_restart)
 #define setescape_restart _n(setescape_restart)
 #define getescape_restart _n(getescape_restart)
 #define setenable_restart _n(setenable_restart)
 #define getenable_restart _n(getenable_restart)
-#define setredirect_restart _n(setredirect_restart)
-#define getredirect_restart _n(getredirect_restart)
 #define init_restart _n(init_restart)
 
 int restartp(addr pos);
@@ -41,15 +39,12 @@ void gettest_restart(addr pos, addr *ret);
 void settest_restart(addr pos, addr value);
 void getcondition_restart(addr pos, addr *ret);
 void setcondition_restart(addr pos, addr value);
-void getreference_restart(addr pos, addr *ret);
-void setreference_restart(addr pos, addr value);
+void getassociated_restart(addr pos, addr *ret);
+void setassociated_restart(addr pos, addr value);
 void setescape_restart(addr pos, int value);
 int getescape_restart(addr pos);
 void setenable_restart(addr pos, int value);
 int getenable_restart(addr pos);
-void setredirect_restart(addr pos, int value);
-int getredirect_restart(addr pos);
-
 void init_restart(void);
 
 #endif

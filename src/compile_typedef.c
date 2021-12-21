@@ -103,6 +103,7 @@ static void init_compile_typedef_write(void)
 	defwrite(handler_case);
 	defwrite(restart_bind);
 	defwrite(restart_case);
+	defwrite(restart_progn);
 
 	defwrite(funcall);
 	defwrite(nth_value);
@@ -257,6 +258,7 @@ static void init_compile_typedef_read(void)
 	defread(handler_case, HANDLER_CASE);
 	defread(restart_bind, RESTART_BIND);
 	defread(restart_case, RESTART_CASE);
+	defread(restart_progn, RESTART_PROGN);
 
 	defread(funcall, FUNCALL);
 	defread(nth_value, NTH_VALUE);

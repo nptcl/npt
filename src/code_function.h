@@ -87,6 +87,7 @@
 #define handler_case_code _n(handler_case_code)
 #define restart_bind_code _n(restart_bind_code)
 #define restart_case_code _n(restart_case_code)
+#define restart_progn_code _n(restart_progn_code)
 #define funcall_code _n(funcall_code)
 #define nth_value_code _n(nth_value_code)
 #define progv_code _n(progv_code)
@@ -190,6 +191,7 @@ int handler_bind_code(Execute ptr, CodeValue x);
 int handler_case_code(Execute ptr, CodeValue x);
 int restart_bind_code(Execute ptr, CodeValue x);
 int restart_case_code(Execute ptr, CodeValue x);
+int restart_progn_code(Execute ptr, CodeValue x);
 
 int funcall_code(Execute ptr, CodeValue x);
 int nth_value_code(Execute ptr, CodeValue x);

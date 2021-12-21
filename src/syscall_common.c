@@ -11,41 +11,6 @@
 #include "syscode_common.h"
 #include "symbol.h"
 
-/* (defun redirect-restart (condition list) ...) -> null */
-static int syscall_redirect_restart(Execute ptr, addr condition, addr list)
-{
-	Return(redirect_restart_syscode(ptr, condition, list));
-	setresult_control(ptr, Nil);
-	return 0;
-}
-
-static void type_syscall_redirect_restart(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, Condition);
-	GetTypeTable(&values, List);
-	typeargs_var2(&args, args, values);
-	GetTypeValues(&values, Null);
-	type_compiled_heap(args, values, ret);
-}
-
-static void defun_redirect_restart(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_REDIRECT_RESTART, &symbol);
-	compiled_system(&pos, symbol);
-	setcompiled_var2(pos, p_defun_syscall_redirect_restart);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	type_syscall_redirect_restart(&type);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
 /* (defun define-symbol-macro (symbol form) ...) -> symbol */
 static int syscall_define_symbol_macro(Execute ptr, addr symbol, addr form)
 {
@@ -1627,12 +1592,165 @@ static void defun_defgeneric_method(void)
 }
 
 
+/* (defun condition-restarts-push (condition restarts) ...) -> null */
+static int syscall_condition_restarts_push(Execute ptr, addr var, addr list)
+{
+	Return(condition_restarts_push_syscode_(var, list));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static void type_syscall_condition_restarts_push(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, List);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_condition_restarts_push(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_CONDITION_RESTARTS_PUSH, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2(pos, p_defun_syscall_condition_restarts_push);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_condition_restarts_push(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun condition-restarts-pop (condition restarts) ...) -> null */
+static int syscall_condition_restarts_pop(Execute ptr, addr var, addr list)
+{
+	Return(condition_restarts_pop_syscode_(var, list));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static void defun_condition_restarts_pop(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_CONDITION_RESTARTS_POP, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2(pos, p_defun_syscall_condition_restarts_pop);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_condition_restarts_push(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun condition-restarts-make (type &rest args) ...) -> null */
+static int syscall_condition_restarts_make(Execute ptr, addr var, addr list)
+{
+	Return(condition_restarts_make_syscode_(ptr, var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_syscall_condition_restarts_make(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+
+	/* values condition */
+	GetConst(CLOS_CONDITION, &values);
+	CheckType(values, LISPTYPE_CLOS);
+	type_clos_heap(values, &values);
+
+	/* compiled-function */
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_condition_restarts_make(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_CONDITION_RESTARTS_MAKE, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1rest(pos, p_defun_syscall_condition_restarts_make);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_condition_restarts_make(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun make-restart (name function &key
+ *     interactive-function report-function test-function escape)
+ *   ...) -> restart
+ */
+static int syscall_make_restart(Execute ptr, addr var, addr call, addr list)
+{
+	Return(make_restart_syscode_(var, call, list, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
+
+static void type_syscall_make_restart(addr *ret)
+{
+	addr args, call, values;
+	addr key, key1, key2, key3, key4;
+	addr type, type1, type2, type3;
+
+	/* (or function null string) */
+	GetTypeTable(&type1, Function);
+	GetTypeTable(&type2, Null);
+	GetTypeTable(&type3, String);
+	type3or_heap(type1, type2, type3, &type);
+
+	/* compiled */
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&call, Function);
+	KeyTypeTable(&key1, INTERACTIVE_FUNCTION, FunctionNull);
+	GetConst(KEYWORD_REPORT_FUNCTION, &key2);
+	cons_heap(&key2, key2, type);
+	KeyTypeTable(&key3, TEST_FUNCTION, FunctionNull);
+	KeyTypeTable(&key4, ESCAPE, T);
+	list_heap(&key, key1, key2, key3, key4, NULL);
+	typeargs_var2key(&args, args, call, key);
+	GetTypeTable(&values, Restart);
+	typevalues_result(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_restart(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_RESTART, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2dynamic(pos, p_defun_syscall_make_restart);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_make_restart(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
 void init_syscall_common(void)
 {
-	SetPointerSysCall(defun, var2, redirect_restart);
 	SetPointerSysCall(defun, var2, define_symbol_macro);
 	SetPointerSysCall(defmacro, macro, symbol_macro_expander);
 	SetPointerSysCall(defun, var3, defconstant);
@@ -1678,11 +1796,14 @@ void init_syscall_common(void)
 	SetPointerSysCall(defun, var1, intern_eql_specializer);
 	SetPointerSysCall(defun, var1dynamic, defgeneric_define);
 	SetPointerSysCall(defun, var1dynamic, defgeneric_method);
+	SetPointerSysCall(defun, var2, condition_restarts_push);
+	SetPointerSysCall(defun, var2, condition_restarts_pop);
+	SetPointerSysCall(defun, var1rest, condition_restarts_make);
+	SetPointerSysCall(defun, var2dynamic, make_restart);
 }
 
 void build_syscall_common(void)
 {
-	defun_redirect_restart();
 	defun_define_symbol_macro();
 	defun_symbol_macro_expander();
 	defun_defconstant();
@@ -1728,5 +1849,9 @@ void build_syscall_common(void)
 	defun_intern_eql_specializer();
 	defun_defgeneric_define();
 	defun_defgeneric_method();
+	defun_condition_restarts_push();
+	defun_condition_restarts_pop();
+	defun_condition_restarts_make();
+	defun_make_restart();
 }
 
