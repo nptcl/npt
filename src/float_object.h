@@ -65,6 +65,7 @@
 #define sqrt_float_alloc_ _n(sqrt_float_alloc_)
 #define sqrt_float_local_ _n(sqrt_float_local_)
 #define sqrt_float_heap_ _n(sqrt_float_heap_)
+#define fpclassify_float _n(fpclassify_float)
 
 enum fltclass {
 	fltclass_normal,
@@ -172,6 +173,8 @@ int cast_ll_value_(addr pos, long_float *ret);
 int sqrt_float_alloc_(LocalRoot local, addr left, addr *ret);
 int sqrt_float_local_(LocalRoot local, addr left, addr *ret);
 int sqrt_float_heap_(LocalRoot local, addr left, addr *ret);
+
+void fpclassify_float(addr var, addr *rtype, addr *rsign);
 
 #endif
 

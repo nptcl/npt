@@ -96,6 +96,7 @@
 #define setindex _n(setindex)
 #define incindex _n(incindex)
 #define decindex _n(decindex)
+#define short_float_p _n(short_float_p)
 #define single_float_p _n(single_float_p)
 #define single_float_heap _n(single_float_heap)
 #define single_float_local _n(single_float_local)
@@ -414,6 +415,7 @@ void incindex(addr pos, size_t value);
 void decindex(addr pos, size_t value);
 
 /* float */
+int short_float_p(addr value);
 int single_float_p(addr value);
 void single_float_heap(addr *ret, single_float value);
 void single_float_local(LocalRoot local, addr *ret, single_float value);

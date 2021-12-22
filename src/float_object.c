@@ -759,3 +759,96 @@ int sqrt_float_heap_(LocalRoot local, addr left, addr *ret)
 	return sqrt_float_alloc_(NULL, left, ret);
 }
 
+
+/* fpclassify */
+static void fpclassify_type(int type, addr *ret)
+{
+	switch (type) {
+		case FP_INFINITE:
+			GetConst(SYSTEM_FP_INFINITE, ret);
+			break;
+
+		case FP_NAN:
+			GetConst(SYSTEM_FP_NAN, ret);
+			break;
+
+		case FP_NORMAL:
+			GetConst(SYSTEM_FP_NORMAL, ret);
+			break;
+
+		case FP_SUBNORMAL:
+			GetConst(SYSTEM_FP_SUBNORMAL, ret);
+			break;
+
+		case FP_ZERO:
+			GetConst(SYSTEM_FP_ZERO, ret);
+			break;
+
+		default:
+			*ret = Nil;
+			break;
+	}
+}
+
+static void fpclassify_sign(int sign, addr *ret)
+{
+	fixnum_heap(ret, sign? -1: 1);
+}
+
+static void fpclassify_single_float(addr var, addr *rtype, addr *rsign)
+{
+	single_float value;
+
+	GetSingleFloat(var, &value);
+	fpclassify_type(fpclassify(value), rtype);
+	fpclassify_sign(signbit(value), rsign);
+}
+
+static void fpclassify_double_float(addr var, addr *rtype, addr *rsign)
+{
+	double_float value;
+
+	GetDoubleFloat(var, &value);
+	fpclassify_type(fpclassify(value), rtype);
+	fpclassify_sign(signbit(value), rsign);
+}
+
+static void fpclassify_long_float(addr var, addr *rtype, addr *rsign)
+{
+	long_float value;
+
+	GetLongFloat(var, &value);
+	fpclassify_type(fpclassify(value), rtype);
+	fpclassify_sign(signbit(value), rsign);
+}
+
+static void fpclassify_short_float(addr var, addr *rtype, addr *rsign)
+{
+	fpclassify_single_float(var, rtype, rsign);
+}
+
+void fpclassify_float(addr var, addr *rtype, addr *rsign)
+{
+	switch (GetType(var)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			fpclassify_single_float(var, rtype, rsign);
+			break;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			fpclassify_double_float(var, rtype, rsign);
+			break;
+
+		case LISPTYPE_LONG_FLOAT:
+			fpclassify_long_float(var, rtype, rsign);
+			break;
+
+		case LISPTYPE_SHORT_FLOAT:
+			fpclassify_short_float(var, rtype, rsign);
+			break;
+
+		default:
+			*rtype = *rsign = Nil;
+			break;
+	}
+}
+

@@ -889,7 +889,7 @@ static int typelist_float(Execute ptr, addr *ret,
  */
 static int typelist_short_float_p(addr pos)
 {
-	if (GetType(pos) != LISPTYPE_SHORT_FLOAT)
+	if (! short_float_p(pos))
 		return fmte_("SHORT-FLOAT argument ~S must be a short-float.", pos, NULL);
 	return 0;
 }

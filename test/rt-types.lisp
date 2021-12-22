@@ -1,7 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 4. Types and Classes
 ;;
-(load #p"test/rtnumbers.lisp")
+(load #p"test/rtnumbers-include.lisp")
 (import 'lisp-system::array-general-p)
 (import 'lisp-system::array-specialized-p)
 

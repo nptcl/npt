@@ -16,6 +16,7 @@
 #include "execute.h"
 #include "files.h"
 #include "format_radix.h"
+#include "float_object.h"
 #include "integer.h"
 #include "package_designer.h"
 #include "package_object.h"
@@ -214,7 +215,7 @@ void ratiop_syscode(addr var, addr *ret)
 /* short-float-p */
 void short_float_p_syscode(addr var, addr *ret)
 {
-	*ret = (GetType(var) == LISPTYPE_SHORT_FLOAT)? T: Nil;
+	*ret = short_float_p(var)? T: Nil;
 }
 
 
@@ -795,5 +796,12 @@ int extension_syscode(Execute ptr, addr var)
 int terme_syscode_(Execute ptr, addr var, addr args)
 {
 	return terme_values_(ptr, var, args);
+}
+
+
+/* fpclassify */
+void fpclassify_syscode(addr var, addr *rtype, addr *rsign)
+{
+	fpclassify_float(var, rtype, rsign);
 }
 

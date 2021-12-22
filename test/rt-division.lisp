@@ -1,7 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
-(load #p"test/rtnumbers.lisp")
+(load #p"test/rtnumbers-include.lisp")
 
 (load #p"test/rtdivision-floor.lisp")
 (load #p"test/rtdivision-ffloor.lisp")

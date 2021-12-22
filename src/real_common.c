@@ -97,32 +97,164 @@ void long_float_least_negative_normalized(addr *ret)
 
 static void single_float_epsilon(addr *ret)
 {
-	single_float_heap(ret, FLT_EPSILON * 0.5f);
+	volatile single_float x, y, a, b;
+
+	x = FLT_EPSILON;
+	a = 1.0f;
+	b = 1.0f + x;
+	if (a == b) {
+		for (;;) {
+			x *= 2.0f;
+			b = 1.0f + x;
+			if (a != b)
+				break;
+		}
+	}
+	else {
+		for (;;) {
+			y = x * 0.5f;
+			b = 1.0f + y;
+			if (a == b)
+				break;
+			x = y;
+		}
+	}
+	single_float_heap(ret, x);
 }
 
 static void single_float_negative_epsilon(addr *ret)
 {
-	single_float_heap(ret, FLT_EPSILON * 0.25f);
+	volatile single_float x, y, a, b;
+
+	x = FLT_EPSILON;
+	a = 1.0f;
+	b = 1.0f - x;
+	if (a == b) {
+		for (;;) {
+			x *= 2.0f;
+			b = 1.0f - x;
+			if (a != b)
+				break;
+		}
+	}
+	else {
+		for (;;) {
+			y = x * 0.5f;
+			b = 1.0f - y;
+			if (a == b)
+				break;
+			x = y;
+		}
+	}
+	single_float_heap(ret, x);
 }
 
 void double_float_epsilon(addr *ret)
 {
-	double_float_heap(ret, DBL_EPSILON * 0.5);
+	volatile double_float x, y, a, b;
+
+	x = DBL_EPSILON;
+	a = 1.0;
+	b = 1.0 + x;
+	if (a == b) {
+		for (;;) {
+			x *= 2.0;
+			b = 1.0 + x;
+			if (a != b)
+				break;
+		}
+	}
+	else {
+		for (;;) {
+			y = x * 0.5;
+			b = 1.0 + y;
+			if (a == b)
+				break;
+			x = y;
+		}
+	}
+	double_float_heap(ret, x);
 }
 
 void double_float_negative_epsilon(addr *ret)
 {
-	double_float_heap(ret, DBL_EPSILON * 0.25);
+	volatile double_float x, y, a, b;
+
+	x = DBL_EPSILON;
+	a = 1.0;
+	b = 1.0 - x;
+	if (a == b) {
+		for (;;) {
+			x *= 2.0;
+			b = 1.0 - x;
+			if (a != b)
+				break;
+		}
+	}
+	else {
+		for (;;) {
+			y = x * 0.5;
+			b = 1.0 - y;
+			if (a == b)
+				break;
+			x = y;
+		}
+	}
+	double_float_heap(ret, x);
 }
 
 void long_float_epsilon(addr *ret)
 {
-	long_float_heap(ret, LDBL_EPSILON * 0.5L);
+	volatile long_float x, y, a, b;
+
+	x = LDBL_EPSILON;
+	a = 1.0L;
+	b = 1.0L + x;
+	if (a == b) {
+		for (;;) {
+			x *= 2.0L;
+			b = 1.0L + x;
+			if (a != b)
+				break;
+		}
+	}
+	else {
+		for (;;) {
+			y = x * 0.5L;
+			b = 1.0L + y;
+			if (a == b)
+				break;
+			x = y;
+		}
+	}
+	long_float_heap(ret, x);
 }
 
 void long_float_negative_epsilon(addr *ret)
 {
-	long_float_heap(ret, LDBL_EPSILON * 0.25L);
+	volatile long_float x, y, a, b;
+
+	x = LDBL_EPSILON;
+	a = 1.0L;
+	b = 1.0L - x;
+	if (a == b) {
+		for (;;) {
+			x *= 2.0L;
+			b = 1.0L - x;
+			if (a != b)
+				break;
+		}
+	}
+	else {
+		for (;;) {
+			y = x * 0.5L;
+			b = 1.0L - y;
+			if (a == b)
+				break;
+			x = y;
+		}
+	}
+	long_float_heap(ret, x);
 }
 
 static void build_index_max(void)

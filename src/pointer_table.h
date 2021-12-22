@@ -1316,6 +1316,7 @@ enum pointer_index {
 	p_defun_syscall_sysctl,
 	p_defun_syscall_extension,
 	p_defun_syscall_terme,
+	p_defun_syscall_fpclassify,
 
 #ifdef LISP_EXTENSION
 #include "ext_include_pointer.h"

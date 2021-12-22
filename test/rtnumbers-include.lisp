@@ -8,6 +8,7 @@
 (import 'lisp-system::bignump)
 (import 'lisp-system::ratiop)
 (import 'lisp-system::equal-random-state)
+(import 'lisp-system::fpclassify)
 
 (defun equal-eps (a b &key (eps 1.0e-6))
   (< (abs (- a b)) (abs eps)))

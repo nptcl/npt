@@ -1666,6 +1666,46 @@ static void defun_terme(void)
 	settype_function_symbol(symbol, type);
 }
 
+
+/* (defun fpclassify (float) -> symbol */
+static int syscall_fpclassify(Execute ptr, addr var)
+{
+	addr type, sign;
+
+	fpclassify_syscode(var, &type, &sign);
+	setvalues_control(ptr, type, sign, NULL);
+
+	return 0;
+}
+
+static void type_syscall_fpclassify(addr *ret)
+{
+	addr args, type1, type2, values;
+
+	GetTypeTable(&args, Float);
+	typeargs_var1(&args, args);
+	GetTypeTable(&type1, Symbol);
+	GetTypeTable(&type2, IntegerNull);
+	typevalues_values2(&values, type1, type2);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_fpclassify(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_FPCLASSIFY, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_fpclassify);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_fpclassify(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -1726,6 +1766,7 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var1dynamic, sysctl);
 	SetPointerSysCall(defun, var1, extension);
 	SetPointerSysCall(defun, var1dynamic, terme);
+	SetPointerSysCall(defun, var1, fpclassify);
 }
 
 void build_syscall_function(void)
@@ -1786,5 +1827,6 @@ void build_syscall_function(void)
 	defun_sysctl();
 	defun_extension();
 	defun_terme();
+	defun_fpclassify();
 }
 

@@ -2088,6 +2088,12 @@ lisp-system::subtypep-normal
 (lisp-system::sysctl :export t)
 (lisp-system::extension :export t)
 (lisp-system::terme :export t)
+(lisp-system::fpclassify :export t)
+(lisp-system::fp-nan :export t)
+(lisp-system::fp-infinite :export t)
+(lisp-system::fp-normal :export t)
+(lisp-system::fp-subnormal :export t)
+(lisp-system::fp-zero :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

@@ -734,6 +734,13 @@ void decindex(addr pos, size_t value)
 }
 
 /* float */
+int short_float_p(addr value)
+{
+	enum LISPTYPE type = GetType(value);
+	return type == LISPTYPE_SHORT_FLOAT
+		|| type == LISPTYPE_SINGLE_FLOAT;
+}
+
 int single_float_p(addr value)
 {
 	return GetType(value) == LISPTYPE_SINGLE_FLOAT;
