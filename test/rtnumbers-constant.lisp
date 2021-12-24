@@ -841,3 +841,77 @@
     (zerop long-float-negative-epsilon))
   t t nil)
 
+
+;;
+;;  Constant Variable boole
+;;
+(deftest boole-1-constant.1
+  (integerp boole-1)
+  t)
+
+(deftest boole-2-constant.1
+  (integerp boole-2)
+  t)
+
+(deftest boole-and-constant.1
+  (integerp boole-and)
+  t)
+
+(deftest boole-andc1-constant.1
+  (integerp boole-andc1)
+  t)
+
+(deftest boole-andc2-constant.1
+  (integerp boole-andc2)
+  t)
+
+(deftest boole-c1-constant.1
+  (integerp boole-c1)
+  t)
+
+(deftest boole-c2-constant.1
+  (integerp boole-c2)
+  t)
+
+(deftest boole-clr-constant.1
+  (integerp boole-clr)
+  t)
+
+(deftest boole-eqv-constant.1
+  (integerp boole-eqv)
+  t)
+
+(deftest boole-ior-constant.1
+  (integerp boole-ior)
+  t)
+
+(deftest boole-nand-constant.1
+  (integerp boole-nand)
+  t)
+
+(deftest boole-nor-constant.1
+  (integerp boole-nor)
+  t)
+
+(deftest boole-orc1-constant.1
+  (integerp boole-orc1)
+  t)
+
+(deftest boole-orc2-constant.1
+  (integerp boole-orc2)
+  t)
+
+(deftest boole-set-constant.1
+  (integerp boole-set)
+  t)
+
+(deftest boole-xor-constant.1
+  (integerp boole-xor)
+  t)
+
+(deftest boole-constant.1
+  (/= boole-1 boole-2 boole-and boole-andc1 boole-andc2
+      boole-c1 boole-c2 boole-clr boole-eqv boole-ior
+      boole-nand boole-nor boole-orc1 boole-orc2 boole-set boole-xor)
+  t)
+

@@ -5,7 +5,7 @@
 #include "cmpl_math.h"
 #include "define.h"
 
-#if defined(__clang__)
+#ifdef LISP_FREEBSD_OLD_VERSION
 #define powl_define(x,y) pow((double)(x), (double)(y))
 #else
 #define powl_define powl

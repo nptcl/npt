@@ -209,7 +209,7 @@
 
 (deftest fround-fb.pm.1
   (froundfb 2 -10)
-  0.0 2)
+  -0.0 2)
 
 (deftest fround-fb.pm.2
   (froundfb 37 -7)
@@ -237,7 +237,7 @@
 
 (deftest fround-fb.mp.1
   (froundfb -2 10)
-  0.0 -2)
+  -0.0 -2)
 
 (deftest fround-fb.mp.2
   (froundfb -37 7)

@@ -65,7 +65,7 @@
 
 (deftest fround-bf.pm.1
   (froundb 2 -10)
-  0.0 2)
+  -0.0 2)
 
 (deftest fround-bf.pm.2
   (froundb 37 -7)
@@ -93,7 +93,7 @@
 
 (deftest fround-bf.mp.1
   (froundb -2 10)
-  0.0 -2)
+  -0.0 -2)
 
 (deftest fround-bf.mp.2
   (froundb -37 7)
@@ -209,7 +209,7 @@
 
 (deftest fround-bb.pm.1
   (froundbb 2 -10)
-  0.0 2)
+  -0.0 2)
 
 (deftest fround-bb.pm.2
   (froundbb 37 -7)
@@ -237,7 +237,7 @@
 
 (deftest fround-bb.mp.1
   (froundbb -2 10)
-  0.0 -2)
+  -0.0 -2)
 
 (deftest fround-bb.mp.2
   (froundbb -37 7)

@@ -178,11 +178,11 @@
 
 (deftest fceiling-fb.4b
   (fceiling -3 (make-bignum 10))
-  0.0 -3)
+  -0.0 -3)
 
 (deftest fceiling-fb.4c
   (fceiling 3 (make-bignum -10))
-  0.0 3)
+  -0.0 3)
 
 (deftest fceiling-fb.4d
   (fceiling -3 (make-bignum -10))
@@ -240,11 +240,11 @@
 
 (deftest fceiling-fr.4b
   (fceiling -3 100/7)
-  0.0 -3)
+  -0.0 -3)
 
 (deftest fceiling-fr.4c
   (fceiling 3 -100/7)
-  0.0 3)
+  -0.0 3)
 
 (deftest fceiling-fr.4d
   (fceiling -3 -100/7)
@@ -465,11 +465,11 @@
 
 (deftest fceiling-bf.4b
   (fceilingb -3 10)
-  0.0 -3)
+  -0.0 -3)
 
 (deftest fceiling-bf.4c
   (fceilingb 3 -10)
-  0.0 3)
+  -0.0 3)
 
 (deftest fceiling-bf.4d
   (fceilingb -3 -10)
@@ -527,11 +527,11 @@
 
 (deftest fceiling-bb.4b
   (fceilingb -3 (make-bignum 10))
-  0.0 -3)
+  -0.0 -3)
 
 (deftest fceiling-bb.4c
   (fceilingb 3 (make-bignum -10))
-  0.0 3)
+  -0.0 3)
 
 (deftest fceiling-bb.4d
   (fceilingb -3 (make-bignum -10))
@@ -589,11 +589,11 @@
 
 (deftest fceiling-br.4b
   (fceilingb -3 100/7)
-  0.0 -3)
+  -0.0 -3)
 
 (deftest fceiling-br.4c
   (fceilingb 3 -100/7)
-  0.0 3)
+  -0.0 3)
 
 (deftest fceiling-br.4d
   (fceilingb -3 -100/7)
@@ -807,11 +807,11 @@
 
 (deftest fceiling-rf.4b
   (fceiling -2/3 5)
-  0.0 -2/3)
+  -0.0 -2/3)
 
 (deftest fceiling-rf.4c
   (fceiling 2/3 -5)
-  0.0 2/3)
+  -0.0 2/3)
 
 (deftest fceiling-rf.4d
   (fceiling -2/3 -5)
@@ -869,11 +869,11 @@
 
 (deftest fceiling-rb.4b
   (fceiling -2/3 (make-bignum 5))
-  0.0 -2/3)
+  -0.0 -2/3)
 
 (deftest fceiling-rb.4c
   (fceiling 2/3 (make-bignum -5))
-  0.0 2/3)
+  -0.0 2/3)
 
 (deftest fceiling-rb.4d
   (fceiling -2/3 (make-bignum -5))
@@ -931,11 +931,11 @@
 
 (deftest fceiling-rr.4b
   (fceiling -1/2 33/5)
-  0.0 -1/2)
+  -0.0 -1/2)
 
 (deftest fceiling-rr.4c
   (fceiling 1/2 -33/5)
-  0.0 1/2)
+  -0.0 1/2)
 
 (deftest fceiling-rr.4d
   (fceiling -1/2 -33/5)

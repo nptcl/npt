@@ -1,3 +1,4 @@
+#include <math.h>
 #include "array.h"
 #include "array_access.h"
 #include "array_inplace.h"
@@ -133,6 +134,42 @@ static int eql_function_ratio(addr a, enum LISPTYPE type2, addr b)
 	}
 }
 
+static int eql_function_single_float(addr a, addr b)
+{
+	single_float x, y;
+
+	CheckType(a, LISPTYPE_SINGLE_FLOAT);
+	CheckType(b, LISPTYPE_SINGLE_FLOAT);
+	GetSingleFloat(a, &x);
+	GetSingleFloat(b, &y);
+
+	return (x == y) && (signbit(x) == signbit(y));
+}
+
+static int eql_function_double_float(addr a, addr b)
+{
+	double_float x, y;
+
+	CheckType(a, LISPTYPE_DOUBLE_FLOAT);
+	CheckType(b, LISPTYPE_DOUBLE_FLOAT);
+	GetDoubleFloat(a, &x);
+	GetDoubleFloat(b, &y);
+
+	return (x == y) && (signbit(x) == signbit(y));
+}
+
+static int eql_function_long_float(addr a, addr b)
+{
+	long_float x, y;
+
+	CheckType(a, LISPTYPE_LONG_FLOAT);
+	CheckType(b, LISPTYPE_LONG_FLOAT);
+	GetLongFloat(a, &x);
+	GetLongFloat(b, &y);
+
+	return (x == y) && (signbit(x) == signbit(y));
+}
+
 int eql_function(addr a, addr b)
 {
 	enum LISPTYPE type1, type2;
@@ -168,13 +205,13 @@ int eql_function(addr a, addr b)
 			return character_equal(a, b);
 
 		case LISPTYPE_SINGLE_FLOAT:
-			return RefSingleFloat(a) == RefSingleFloat(b);
+			return eql_function_single_float(a, b);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return RefDoubleFloat(a) == RefDoubleFloat(b);
+			return eql_function_double_float(a, b);
 
 		case LISPTYPE_LONG_FLOAT:
-			return RefLongFloat(a) == RefLongFloat(b);
+			return eql_function_long_float(a, b);
 
 		case LISPTYPE_COMPLEX:
 			return eql_complex(a, b);

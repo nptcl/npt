@@ -2,41 +2,9 @@
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
 
-;;  cis
-(deftest-float cis.1
-  (cis pi)
-  -1.0 0.0)
-
-(deftest-float cis.2
-  (cis (* 0.5 pi))
-  0.0 1.0)
-
-(deftest-single cis.3
-  (cis 20)
-  0.40808207 0.9129453)
-
-(deftest-single cis.4
-  (cis (make-bignum 20))
-  0.40808207 0.9129453)
-
-(deftest-single cis.5
-  (cis 3/4)
-  0.73168886 0.6816388)
-
-(deftest-single cis.6
-  (cis 1.2f0)
-  0.3623577544766736f0 0.9320390859672263f0)
-
-(deftest-double cis.7
-  (cis -3.4d0)
-  -0.96679819257946101425d0 0.25554110202683131935d0)
-
-(deftest-long cis.8
-  (cis 5.6l0)
-  0.7755658785102497976L0 -0.6312666378723213115L0)
-
-
-;;  sin
+;;
+;;  Function SIN
+;;
 (deftest-single sin.1
   (sin 0)
   0.0)
@@ -86,8 +54,33 @@
   (sin #c(2 3.4d0))
   13.638312649372535d0 -6.227788631993562d0)
 
+(deftest-error! sin-error.1
+  (eval '(sin)))
 
-;;  cos
+(deftest-error! sin-error.2
+  (eval '(sin "hello"))
+  type-error)
+
+(deftest-error! sin-error.3
+  (eval '(sin 10 20)))
+
+;; ANSI Common Lisp
+(deftest sin-test.1
+  (sin 0)
+  0.0)
+
+(deftest-single sin-test.2
+  (cos 0.7853982)
+  0.707107)
+
+(deftest-single sin-test.3
+  (tan #c(0 1))
+  0.0 0.761594)
+
+
+;;
+;;  Function COS
+;;
 (deftest-single cos.1
   (cos 0)
   1.0)
@@ -137,8 +130,20 @@
   (cos #c(2 3.4d0))
   -6.241676812712784d0 -13.607966420872854d0)
 
+(deftest-error! cos-error.1
+  (eval '(cos)))
 
-;;  tan
+(deftest-error! cos-error.2
+  (eval '(cos "hello"))
+  type-error)
+
+(deftest-error! cos-error.3
+  (eval '(cos 10 20)))
+
+
+;;
+;;  Function TAN
+;;
 (deftest-single tan.1
   (tan 0)
   0.0)
@@ -187,158 +192,20 @@
   (tan #c(2 3.4d0))
   -0.001688271692080371d0 1.001455660722037d0)
 
+(deftest-error! tan-error.1
+  (eval '(tan)))
 
-;; sinh
-(deftest-single sinh.1
-  (sinh 0)
-  0.0)
+(deftest-error! tan-error.2
+  (eval '(tan "hello"))
+  type-error)
 
-(deftest-single sinh.2
-  (sinh 3)
-  10.017875)
-
-(deftest-single sinh.3
-  (sinh -2)
-  -3.6268604)
-
-(deftest-single sinh.4
-  (sinh (make-bignum 3))
-  10.017875)
-
-(deftest-single sinh.5
-  (sinh 3/4)
-  0.8223167)
-
-(deftest-single sinh.6
-  (sinh 1.2f-3)
-  0.0012000003)
-
-(deftest-double sinh.7
-  (sinh -0.12d1)
-  -1.5094613554121725d0)
-
-(deftest-long sinh.8
-  (sinh 6.7l-1)
-  0.7212643714246986d0)
-
-(deftest-single sinh.9
-  (sinh #c(1.2 3.4))
-  -1.4593445 -0.46269712)
-
-(deftest-double sinh.10
-  (sinh #c(5.6d-1 7.8d0))
-  0.03181922287589073d0 1.1592496923124425d0)
-
-(deftest-single sinh.11
-  (sinh #c(1 2))
-  -0.48905626 1.4031193)
-
-(deftest-double sinh.12
-  (sinh #c(2 3.4d0))
-  -3.506442087044505d0 -0.9613956329401071d0)
+(deftest-error! tan-error.3
+  (eval '(tan 10 20)))
 
 
-;;  cosh
-(deftest-single cosh.1
-  (cosh 0)
-  1.0)
-
-(deftest-float cosh.2
-  (cosh -3)
-  10.067662)
-
-(deftest-single cosh.3
-  (cosh 3)
-  10.067662)
-
-(deftest-single cosh.4
-  (cosh (make-bignum 3))
-  10.067662)
-
-(deftest-single cosh.5
-  (cosh 3/4)
-  1.2946833)
-
-(deftest-single cosh.6
-  (cosh 1.2f-1)
-  1.0072086)
-
-(deftest-double cosh.7
-  (cosh -0.19d1)
-  3.417731530750952d0)
-
-(deftest-long cosh.8
-  (cosh -1.7l0)
-  2.8283154578899672056L0)
-
-(deftest-single cosh.9
-  (cosh #c(1.2 3.4))
-  -1.7505386 -0.38572958)
-
-(deftest-double cosh.10
-  (cosh #c(5.6d-1 7.8d0))
-  0.06263904814505099d0 0.5888726827885506d0)
-
-(deftest-single cosh.11
-  (cosh #c(1 2))
-  -0.64214814 1.0686073)
-
-(deftest-double cosh.12
-  (cosh #c(2 3.4d0))
-  -3.6372839942698914d0 -0.9268119055187098d0)
-
-
-;;  tanh
-(deftest-single tanh.1
-  (tanh 0)
-  0.0)
-
-(deftest-single tanh.2
-  (tanh -30)
-  -1.0)
-
-(deftest-single tanh.3
-  (tanh -2)
-  -0.9640276)
-
-(deftest-single tanh.4
-  (tanh (make-bignum 2))
-  0.9640276)
-
-(deftest-single tanh.5
-  (tanh 3/4)
-  0.63514894)
-
-(deftest-single tanh.6
-  (tanh 1.2f-3)
-  0.0011999995)
-
-(deftest-double tanh.7
-  (tanh -4.5d-1)
-  -0.4218990052500079d0)
-
-(deftest-long tanh.8
-  (tanh 6.7l-1)
-  0.5849798828807289d0)
-
-(deftest-single tanh.9
-  (tanh #c(1.2 3.4))
-  0.85059696 0.07688873)
-
-(deftest-double tanh.10
-  (tanh #c(5.6d-1 7.8d0))
-  1.9522497139738364d0 0.15362886340809115d0)
-
-(deftest-single tanh.11
-  (tanh #c(1 2))
-  1.1667362 -0.2434582)
-
-(deftest-double tanh.12
-  (tanh #c(2 3.4d0))
-  0.9684958203029618d0 0.017535660217539918d0)
-
-
-;;  asin
+;;
+;;  Function ASIN
+;;
 (deftest-single asin.1
   (asin 0)
   0.0)
@@ -403,8 +270,29 @@
   (asin #c(2 3.4d0))
   0.5180101152330411d0 2.073496058489464d0)
 
+(deftest-error! asin-error.1
+  (eval '(asin)))
 
-;;  acos
+(deftest-error! asin-error.2
+  (eval '(asin "hello"))
+  type-error)
+
+(deftest-error! asin-error.3
+  (eval '(asin 10 20)))
+
+;;  ANSI Common Lisp
+(deftest asin-test.1
+  (asin 0)
+  0.0)
+
+(deftest-single asin-test.2
+  (acos #c(0 1))
+  1.5707963267948966 -0.8813735870195432)
+
+
+;;
+;;  Function ACOS
+;;
 (deftest-single acos.1
   (acos 0)
   1.5707964)
@@ -469,8 +357,142 @@
   (acos #c(2 3.4d0))
   1.0527862115618554d0 -2.073496058489464d0)
 
+(deftest-error! acos-error.1
+  (eval '(acos)))
 
-;;  atan
+(deftest-error! acos-error.2
+  (eval '(acos "hello"))
+  type-error)
+
+(deftest-error! acos-error.3
+  (eval '(acos 10 20)))
+
+
+;;
+;;  Function ATAN
+;;
+(deftest atan2-range.1
+  (atan +0.0 1.0)
+  +0.0)
+
+(deftest atan2-range.2
+  (atan +0.0 0.1)
+  +0.0)
+
+(deftest atan2-range.3
+  (< +0.0 (atan 1.0 1.0) (/ pi 2.0))
+  t)
+
+(deftest atan2-range.4
+  (< +0.0 (atan 1.0 0.1) (/ pi 2.0))
+  t)
+
+(deftest atan2-range.5
+  (< +0.0 (atan 0.1 1.0) (/ pi 2.0))
+  t)
+
+(deftest atan2-range.6
+  (< +0.0 (atan 0.1 0.1) (/ pi 2.0))
+  t)
+
+(deftest-float atan2-range.7
+  (atan 1.0 +0.0)
+  #.(/ pi 2.0))
+
+(deftest-float atan2-range.8
+  (atan 1.0 -0.0)
+  #.(/ pi 2.0))
+
+(deftest-float atan2-range.9
+  (atan 0.1 +0.0)
+  #.(/ pi 2.0))
+
+(deftest-float atan2-range.10
+  (atan 0.1 -0.0)
+  #.(/ pi 2.0))
+
+(deftest-float atan2-range.11
+  (atan +0.0 -1.0)
+  #.pi)
+
+(deftest-float atan2-range.12
+  (atan +0.0 -0.1)
+  #.pi)
+
+(deftest-float atan2-range.13
+  (atan -0.0 -1.0)
+  #.(- pi))
+
+(deftest-float atan2-range.14
+  (atan -0.0 -0.1)
+  #.(- pi))
+
+(deftest atan2-range.15
+  (< (- pi) (atan -1.0 -1.0) (- (/ pi 2.0)))
+  t)
+
+(deftest atan2-range.16
+  (< (- pi) (atan -1.0 -0.1) (- (/ pi 2.0)))
+  t)
+
+(deftest atan2-range.17
+  (< (- pi) (atan -0.1 -1.0) (- (/ pi 2.0)))
+  t)
+
+(deftest atan2-range.18
+  (< (- pi) (atan -0.1 -0.1) (- (/ pi 2.0)))
+  t)
+
+(deftest-float atan2-range.19
+  (atan -1.0 +0.0)
+  #.(- (/ pi 2.0)))
+
+(deftest-float atan2-range.20
+  (atan -0.1 +0.0)
+  #.(- (/ pi 2.0)))
+
+(deftest-float atan2-range.21
+  (atan -1.0 -0.0)
+  #.(- (/ pi 2.0)))
+
+(deftest-float atan2-range.22
+  (atan -0.1 -0.0)
+  #.(- (/ pi 2.0)))
+
+(deftest atan2-range.23
+  (< (- (/ pi 2.0)) (atan -1.0 +1.0) -0.0)
+  t)
+
+(deftest atan2-range.24
+  (< (- (/ pi 2.0)) (atan -1.0 +0.1) -0.0)
+  t)
+
+(deftest atan2-range.25
+  (< (- (/ pi 2.0)) (atan -0.1 +1.0) -0.0)
+  t)
+
+(deftest atan2-range.26
+  (< (- (/ pi 2.0)) (atan -0.1 +0.1) -0.0)
+  t)
+
+(deftest atan2-range.27
+  (atan +0.0 +0.0)
+  +0.0)
+
+(deftest atan2-range.28
+  (atan -0.0 +0.0)
+  -0.0)
+
+(deftest-float atan2-range.29
+  (atan +0.0 -0.0)
+  #.pi)
+
+(deftest-float atan2-range.30
+  (atan -0.0 -0.0)
+  #.(- pi))
+
+
+;;  atan1
 (deftest-single atan.1
   (atan 0)
   0.0)
@@ -693,8 +715,237 @@
   (atan -5.6l0 2.3l-1)
   -1.5297479688252098d0)
 
+(deftest-error! atan-error.1
+  (eval '(atan)))
 
-;;  asinh
+(deftest-error! atan-error.2
+  (eval '(atan "hello"))
+  type-error)
+
+(deftest-error! atan-error.3
+  (eval '(atan 10 20 30)))
+
+(deftest-error! atan-error.4
+  (eval '(atan #c(10 20) #c(3.4 5.6)))
+  type-error)
+
+(deftest-error! atan-error.5
+  (eval '(atan 1.0 #c(3.4 5.6)))
+  type-error)
+
+(deftest-error! atan-error.6
+  (eval '(atan #c(10 20) 2.0))
+  type-error)
+
+;;  ANSI Common Lisp
+(deftest-single atan-test.1
+  (/ (atan 1 (sqrt 3)) 6)
+  0.087266)
+
+(deftest-single atan-test.2
+  (atan #c(0 2))
+  1.5707964 0.54930615)   ;; #c(-1.5707964 0.54930615) ??
+
+
+;;
+;;  Function SINH
+;;
+(deftest-single sinh.1
+  (sinh 0)
+  0.0)
+
+(deftest-single sinh.2
+  (sinh 3)
+  10.017875)
+
+(deftest-single sinh.3
+  (sinh -2)
+  -3.6268604)
+
+(deftest-single sinh.4
+  (sinh (make-bignum 3))
+  10.017875)
+
+(deftest-single sinh.5
+  (sinh 3/4)
+  0.8223167)
+
+(deftest-single sinh.6
+  (sinh 1.2f-3)
+  0.0012000003)
+
+(deftest-double sinh.7
+  (sinh -0.12d1)
+  -1.5094613554121725d0)
+
+(deftest-long sinh.8
+  (sinh 6.7l-1)
+  0.7212643714246986d0)
+
+(deftest-single sinh.9
+  (sinh #c(1.2 3.4))
+  -1.4593445 -0.46269712)
+
+(deftest-double sinh.10
+  (sinh #c(5.6d-1 7.8d0))
+  0.03181922287589073d0 1.1592496923124425d0)
+
+(deftest-single sinh.11
+  (sinh #c(1 2))
+  -0.48905626 1.4031193)
+
+(deftest-double sinh.12
+  (sinh #c(2 3.4d0))
+  -3.506442087044505d0 -0.9613956329401071d0)
+
+(deftest-error! sinh-error.1
+  (eval '(sinh)))
+
+(deftest-error! sinh-error.2
+  (eval '(sinh "hello"))
+  type-error)
+
+(deftest-error! sinh-error.3
+  (eval '(sinh 10 20)))
+
+;;  ANSI Common Lisp
+(deftest sinh-test.1
+  (sinh 0)
+  0.0)
+
+
+;;
+;;  Function COSH
+;;
+(deftest-single cosh.1
+  (cosh 0)
+  1.0)
+
+(deftest-float cosh.2
+  (cosh -3)
+  10.067662)
+
+(deftest-single cosh.3
+  (cosh 3)
+  10.067662)
+
+(deftest-single cosh.4
+  (cosh (make-bignum 3))
+  10.067662)
+
+(deftest-single cosh.5
+  (cosh 3/4)
+  1.2946833)
+
+(deftest-single cosh.6
+  (cosh 1.2f-1)
+  1.0072086)
+
+(deftest-double cosh.7
+  (cosh -0.19d1)
+  3.417731530750952d0)
+
+(deftest-long cosh.8
+  (cosh -1.7l0)
+  2.8283154578899672056L0)
+
+(deftest-single cosh.9
+  (cosh #c(1.2 3.4))
+  -1.7505386 -0.38572958)
+
+(deftest-double cosh.10
+  (cosh #c(5.6d-1 7.8d0))
+  0.06263904814505099d0 0.5888726827885506d0)
+
+(deftest-single cosh.11
+  (cosh #c(1 2))
+  -0.64214814 1.0686073)
+
+(deftest-double cosh.12
+  (cosh #c(2 3.4d0))
+  -3.6372839942698914d0 -0.9268119055187098d0)
+
+(deftest-error! cosh-error.1
+  (eval '(cosh)))
+
+(deftest-error! cosh-error.2
+  (eval '(cosh "hello"))
+  type-error)
+
+(deftest-error! cosh-error.3
+  (eval '(cosh 10 20)))
+
+;;  ANSI Common Lisp
+(deftest-float cosh-test.1
+  (cosh (complex 0 -1))
+  0.540302 -0.0)
+
+
+;;
+;;  Function TANH
+;;
+(deftest-single tanh.1
+  (tanh 0)
+  0.0)
+
+(deftest-single tanh.2
+  (tanh -30)
+  -1.0)
+
+(deftest-single tanh.3
+  (tanh -2)
+  -0.9640276)
+
+(deftest-single tanh.4
+  (tanh (make-bignum 2))
+  0.9640276)
+
+(deftest-single tanh.5
+  (tanh 3/4)
+  0.63514894)
+
+(deftest-single tanh.6
+  (tanh 1.2f-3)
+  0.0011999995)
+
+(deftest-double tanh.7
+  (tanh -4.5d-1)
+  -0.4218990052500079d0)
+
+(deftest-long tanh.8
+  (tanh 6.7l-1)
+  0.5849798828807289d0)
+
+(deftest-single tanh.9
+  (tanh #c(1.2 3.4))
+  0.85059696 0.07688873)
+
+(deftest-double tanh.10
+  (tanh #c(5.6d-1 7.8d0))
+  1.9522497139738364d0 0.15362886340809115d0)
+
+(deftest-single tanh.11
+  (tanh #c(1 2))
+  1.1667362 -0.2434582)
+
+(deftest-double tanh.12
+  (tanh #c(2 3.4d0))
+  0.9684958203029618d0 0.017535660217539918d0)
+
+(deftest-error! tanh-error.1
+  (eval '(tanh)))
+
+(deftest-error! tanh-error.2
+  (eval '(tanh "hello"))
+  type-error)
+
+(deftest-error! tanh-error.3
+  (eval '(tanh 10 20)))
+
+
+;;
+;;  Function ASINH
+;;
 (deftest-single asinh.1
   (asinh 0)
   0.0)
@@ -747,8 +998,20 @@
   (asinh #c(2 3.4d0))
   2.057911139343063d0 1.0247016139057237d0)
 
+(deftest-error! asinh-error.1
+  (eval '(asinh)))
 
-;;  acosh
+(deftest-error! asinh-error.2
+  (eval '(asinh "hello"))
+  type-error)
+
+(deftest-error! asinh-error.3
+  (eval '(asinh 10 20)))
+
+
+;;
+;;  Function ACOSH
+;;
 (deftest-single acosh.1
   (acosh 1.1)
   0.44356832)
@@ -805,8 +1068,20 @@
   (acosh #c(2 3.4d0))
   2.0734960584894635d0 1.0527862115618554d0)
 
+(deftest-error! acosh-error.1
+  (eval '(acosh)))
 
-;;  atanh
+(deftest-error! acosh-error.2
+  (eval '(acosh "hello"))
+  type-error)
+
+(deftest-error! acosh-error.3
+  (eval '(acosh 10 20)))
+
+
+;;
+;;  Function ATANH
+;;
 (deftest-single atanh.1
   (atanh 0)
   0.0)
@@ -864,4 +1139,67 @@
 (deftest-double atanh.15
   (atanh #c(2 3.4d0))
   0.12320756988672794d0 1.3523323709528103d0)
+
+(deftest-error! atanh-error.4
+  (eval '(atanh #c(10 20) #c(3.4 5.6)))
+  type-error)
+
+(deftest-error! atanh-error.5
+  (eval '(atanh 1.0 #c(3.4 5.6)))
+  type-error)
+
+(deftest-error! atanh-error.6
+  (eval '(atanh #c(10 20) 2.0))
+  type-error)
+
+
+;;
+;;  Function CIS
+;;
+(deftest-float cis.1
+  (cis pi)
+  -1.0 0.0)
+
+(deftest-float cis.2
+  (cis (* 0.5 pi))
+  0.0 1.0)
+
+(deftest-single cis.3
+  (cis 20)
+  0.40808207 0.9129453)
+
+(deftest-single cis.4
+  (cis (make-bignum 20))
+  0.40808207 0.9129453)
+
+(deftest-single cis.5
+  (cis 3/4)
+  0.73168886 0.6816388)
+
+(deftest-single cis.6
+  (cis 1.2f0)
+  0.3623577544766736f0 0.9320390859672263f0)
+
+(deftest-double cis.7
+  (cis -3.4d0)
+  -0.96679819257946101425d0 0.25554110202683131935d0)
+
+(deftest-long cis.8
+  (cis 5.6l0)
+  0.7755658785102497976L0 -0.6312666378723213115L0)
+
+(deftest-error! cis-error.1
+  (eval '(cis)))
+
+(deftest-error! cis-error.2
+  (eval '(cis #c(10 20)))
+  type-error)
+
+(deftest-error! cis-error.3
+  (eval '(cis 10 20)))
+
+;;  ANSI Common Lisp
+(deftest cis-test.1
+  (cis 0)
+  #c(1.0 0.0))
 

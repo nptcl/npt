@@ -178,11 +178,11 @@
 
 (deftest ftruncate-fb.4b
   (ftruncate -3 (make-bignum 10))
-  0.0 -3)
+  -0.0 -3)
 
 (deftest ftruncate-fb.4c
   (ftruncate 3 (make-bignum -10))
-  0.0 3)
+  -0.0 3)
 
 (deftest ftruncate-fb.4d
   (ftruncate -3 (make-bignum -10))
@@ -240,11 +240,11 @@
 
 (deftest ftruncate-fr.4b
   (ftruncate -3 100/7)
-  0.0 -3)
+  -0.0 -3)
 
 (deftest ftruncate-fr.4c
   (ftruncate 3 -100/7)
-  0.0 3)
+  -0.0 3)
 
 (deftest ftruncate-fr.4d
   (ftruncate -3 -100/7)
@@ -465,11 +465,11 @@
 
 (deftest ftruncate-bf.4b
   (ftruncateb -3 10)
-  0.0 -3)
+  -0.0 -3)
 
 (deftest ftruncate-bf.4c
   (ftruncateb 3 -10)
-  0.0 3)
+  -0.0 3)
 
 (deftest ftruncate-bf.4d
   (ftruncateb -3 -10)
@@ -527,11 +527,11 @@
 
 (deftest ftruncate-bb.4b
   (ftruncateb -3 (make-bignum 10))
-  0.0 -3)
+  -0.0 -3)
 
 (deftest ftruncate-bb.4c
   (ftruncateb 3 (make-bignum -10))
-  0.0 3)
+  -0.0 3)
 
 (deftest ftruncate-bb.4d
   (ftruncateb -3 (make-bignum -10))
@@ -589,11 +589,11 @@
 
 (deftest ftruncate-br.4b
   (ftruncateb -3 100/7)
-  0.0 -3)
+  -0.0 -3)
 
 (deftest ftruncate-br.4c
   (ftruncateb 3 -100/7)
-  0.0 3)
+  -0.0 3)
 
 (deftest ftruncate-br.4d
   (ftruncateb -3 -100/7)
@@ -807,11 +807,11 @@
 
 (deftest ftruncate-rf.4b
   (ftruncate -2/3 5)
-  0.0 -2/3)
+  -0.0 -2/3)
 
 (deftest ftruncate-rf.4c
   (ftruncate 2/3 -5)
-  0.0 2/3)
+  -0.0 2/3)
 
 (deftest ftruncate-rf.4d
   (ftruncate -2/3 -5)
@@ -869,11 +869,11 @@
 
 (deftest ftruncate-rb.4b
   (ftruncate -2/3 (make-bignum 5))
-  0.0 -2/3)
+  -0.0 -2/3)
 
 (deftest ftruncate-rb.4c
   (ftruncate 2/3 (make-bignum -5))
-  0.0 2/3)
+  -0.0 2/3)
 
 (deftest ftruncate-rb.4d
   (ftruncate -2/3 (make-bignum -5))
@@ -931,11 +931,11 @@
 
 (deftest ftruncate-rr.4b
   (ftruncate -1/2 33/5)
-  0.0 -1/2)
+  -0.0 -1/2)
 
 (deftest ftruncate-rr.4c
   (ftruncate 1/2 -33/5)
-  0.0 1/2)
+  -0.0 1/2)
 
 (deftest ftruncate-rr.4d
   (ftruncate -1/2 -33/5)

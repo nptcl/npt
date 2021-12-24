@@ -1,38 +1,10 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
-(deftest float.1
-  (float 10)
-  10f0)
 
-(deftest float.2
-  (float 10/2)
-  5f0)
-
-(deftest float.4
-  (float 10d4)
-  10d4)
-
-(deftest float.5
-  (float 10d4 10f5)
-  10f4)
-
-(deftest float.6
-  (float 10 10l5)
-  10l0)
-
-(deftest floatp.1
-  (values
-    (floatp 10)
-    (floatp 3/4)
-    (floatp 1.2)
-    (floatp 2.3s1)
-    (floatp 2.3f1)
-    (floatp -2.3d-1)
-    (floatp 2.5L-1)
-    (floatp #c(1.2 3.4)))
-  nil nil t t t t t nil)
-
+;;
+;;  Function MAX
+;;
 (deftest max.1
   (max 10)
   10)
@@ -41,6 +13,17 @@
   (max 7 2 3 9 1 2 999 3 8 9)
   999)
 
+(deftest-error! max-error.1
+  (eval '(max)))
+
+(deftest-error! max-error.2
+  (eval '(max #c(10 20)))
+  type-error)
+
+
+;;
+;;  Function MIN
+;;
 (deftest min.1
   (min 10)
   10)
@@ -49,6 +32,90 @@
   (min 7 2 3 9 1 2 999 3 8 9)
   1)
 
+(deftest-error! min-error.1
+  (eval '(min)))
+
+(deftest-error! min-error.2
+  (eval '(min #c(10 20)))
+  type-error)
+
+;;  ANSI Common Lisp
+(deftest max-min-test.1
+  (max 3)
+  3)
+
+(deftest max-min-test.2
+  (min 3)
+  3)
+
+(deftest max-min-test.3
+  (max 6 12)
+  12)
+
+(deftest max-min-test.4
+  (min 6 12)
+  6)
+
+(deftest max-min-test.5
+  (max -6 -12)
+  -6)
+
+(deftest max-min-test.6
+  (min -6 -12)
+  -12)
+
+(deftest max-min-test.7
+  (max 1 3 2 -7)
+  3)
+
+(deftest max-min-test.8
+  (min 1 3 2 -7)
+  -7)
+
+(deftest max-min-test.9
+  (max -2 3 0 7)
+  7)
+
+(deftest max-min-test.10
+  (min -2 3 0 7)
+  -2)
+
+(deftest max-min-test.11
+  (max 5.0 2)
+  5.0)
+
+(deftest max-min-test.12
+  (min 5.0 2)
+  2)
+
+(deftest max-min-test.13
+  (max 3.0 7 1)
+  7)
+
+(deftest max-min-test.14
+  (min 3.0 7 1)
+  1)
+
+(deftest max-min-test.15
+  (max 1.0s0 7.0d0)
+  7.0d0)
+
+(deftest max-min-test.16
+  (min 1.0s0 7.0d0)
+  1.0s0)
+
+(deftest max-min-test.17
+  (max 3 1 1.0s0 1.0d0)
+  3)
+
+(deftest max-min-test.18
+  (= (min 3 1 1.0s0 1.0d0) 1)
+  t)
+
+
+;;
+;;  Function MINUSP
+;;
 (deftest minusp.1
   (values (minusp 10) (minusp 0) (minusp -10))
   nil nil t)
@@ -74,6 +141,29 @@
   nil nil t
   nil nil t)
 
+(deftest-error! minusp-error.1
+  (eval '(minusp)))
+
+(deftest-error! minusp-error.2
+  (eval '(minusp 'hello))
+  type-error)
+
+(deftest-error! minusp-error.3
+  (eval '(minusp 10 20)))
+
+;;  ANSI Common Lisp
+(deftest minusp-test.1
+  (minusp -1)
+  t)
+
+(deftest minusp-test.2
+  (minusp -0.0)
+  nil)
+
+
+;;
+;;  Function PLUSP
+;;
 (deftest plusp.1
   (values (plusp 10) (plusp 0) (plusp -10))
   t nil nil)
@@ -99,6 +189,29 @@
   t nil nil
   t nil nil)
 
+(deftest-error! plusp-error.1
+  (eval '(plusp)))
+
+(deftest-error! plusp-error.2
+  (eval '(plusp 'hello))
+  type-error)
+
+(deftest-error! plusp-error.3
+  (eval '(plusp 10 20)))
+
+;;  ANSI Common Lisp
+(deftest plusp-test.1
+  (plusp 0)
+  nil)
+
+(deftest plusp-test.2
+  (plusp least-positive-single-float)
+  t)
+
+
+;;
+;;  Function ZEROP
+;;
 (deftest zerop.1
   (values (zerop 10) (zerop 0) (zerop -10))
   nil t nil)
@@ -131,6 +244,74 @@
     (zerop #c(10 20))
     (zerop #c(0 10)))
   t nil nil nil)
+
+(deftest-error! zerop-error.1
+  (eval '(zerop)))
+
+(deftest-error! zerop-error.2
+  (eval '(zerop 'hello))
+  type-error)
+
+(deftest-error! zerop-error.3
+  (eval '(zerop 10 20)))
+
+;;  ANSI Common Lisp
+(deftest zerop-test.1
+  (zerop 0)
+  t)
+
+(deftest zerop-test.2
+  (zerop 1)
+  nil)
+
+(deftest zerop-test.3
+  (zerop -0.0)
+  t)
+
+(deftest zerop-test.4
+  (zerop 0/100)
+  t)
+
+(deftest zerop-test.5
+  (zerop #c(0 0.0))
+  t)
+
+
+
+;;
+;;
+;;
+(deftest float.1
+  (float 10)
+  10f0)
+
+(deftest float.2
+  (float 10/2)
+  5f0)
+
+(deftest float.4
+  (float 10d4)
+  10d4)
+
+(deftest float.5
+  (float 10d4 10f5)
+  10f4)
+
+(deftest float.6
+  (float 10 10l5)
+  10l0)
+
+(deftest floatp.1
+  (values
+    (floatp 10)
+    (floatp 3/4)
+    (floatp 1.2)
+    (floatp 2.3s1)
+    (floatp 2.3f1)
+    (floatp -2.3d-1)
+    (floatp 2.5L-1)
+    (floatp #c(1.2 3.4)))
+  nil nil t t t t t nil)
 
 (deftest abs.1
   (abs 0)
@@ -902,77 +1083,35 @@
 
 
 ;;
-;;  constant
+;;  Degrade
 ;;
-(deftest pi.1
-  (floatp pi)
-  t)
+(deftest numbers-test.1
+  (values
+    (= +0.0 -0.0)
+    (eql +0.0 -0.0))
+  t nil)
 
-(deftest pi.2
-  (< 3.0 pi 4.0)
-  t)
+(deftest numbers-test.2
+  (values
+    (= +0.0s0 -0.0s0)
+    (eql +0.0s0 -0.0s0))
+  t nil)
 
-(deftest boole-1.1
-  (integerp boole-1)
-  t)
+(deftest numbers-test.3
+  (values
+    (= +0.0f0 -0.0f0)
+    (eql +0.0f0 -0.0f0))
+  t nil)
 
-(deftest boole-2.1
-  (integerp boole-2)
-  t)
+(deftest numbers-test.4
+  (values
+    (= +0.0d0 -0.0d0)
+    (eql +0.0d0 -0.0d0))
+  t nil)
 
-(deftest boole-and.1
-  (integerp boole-and)
-  t)
-
-(deftest boole-andc1.1
-  (integerp boole-andc1)
-  t)
-
-(deftest boole-andc2.1
-  (integerp boole-andc2)
-  t)
-
-(deftest boole-c1.1
-  (integerp boole-c1)
-  t)
-
-(deftest boole-c2.1
-  (integerp boole-c2)
-  t)
-
-(deftest boole-clr.1
-  (integerp boole-clr)
-  t)
-
-(deftest boole-eqv.1
-  (integerp boole-eqv)
-  t)
-
-(deftest boole-ior.1
-  (integerp boole-ior)
-  t)
-
-(deftest boole-nand.1
-  (integerp boole-nand)
-  t)
-
-(deftest boole-nor.1
-  (integerp boole-nor)
-  t)
-
-(deftest boole-orc1.1
-  (integerp boole-orc1)
-  t)
-
-(deftest boole-orc2.1
-  (integerp boole-orc2)
-  t)
-
-(deftest boole-set.1
-  (integerp boole-set)
-  t)
-
-(deftest boole-xor.1
-  (integerp boole-xor)
-  t)
+(deftest numbers-test.5
+  (values
+    (= +0.0L0 -0.0L0)
+    (eql +0.0L0 -0.0L0))
+  t nil)
 

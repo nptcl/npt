@@ -26,7 +26,8 @@
          (c (equal-eps r real :eps eps))
          (d (equal-eps i imag :eps eps)))
     (or (and a b c d)
-        (format t "~&ERROR: ~A ~A ~A ~A~%" a b c d))))
+        (format t "~&ERROR: ~A ~A ~A ~A (~A ~A) (~A ~A)~%" a b c d
+                real r imag i))))
 
 (defun check-float-real (value real type eps)
   (let ((r (realpart value))
@@ -34,6 +35,14 @@
     (and (typep r type)
          (equal-eps r real :eps eps)
          (zerop i))))
+
+(defmacro deftest-float2 (name expr real imag &optional (eps 1.0e-6))
+  (let ((x (gensym))
+        (y (gensym)))
+    `(deftest ,name
+       (multiple-value-bind (,x ,y) ,expr
+         (equal-float2 ,x ,y ,real ,imag ,eps))
+       t)))
 
 (defmacro deftest-float (name expr real &optional imag (eps 1.0e-6))
   `(deftest ,name
@@ -55,6 +64,14 @@
         `(check-float-complex ,expr ,real ,imag 'double-float ,eps)
         `(check-float-real ,expr ,real 'double-float ,eps))
      t))
+
+(defmacro deftest-double2 (name expr real &optional imag (eps 1.0d-14))
+  (let ((x (gensym))
+        (y (gensym)))
+    `(deftest ,name
+       (multiple-value-bind (,x ,y) ,expr
+         (equal-float2 ,x ,y ,real ,imag ,eps))
+       t)))
 
 (defmacro deftest-long (name expr real &optional imag (eps 1.0l-14))
   `(deftest ,name

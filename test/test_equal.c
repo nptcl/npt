@@ -203,7 +203,7 @@ static int test_eql_function(void)
 	/* float */
 	single_float_local(local, &left, +0.0f);
 	single_float_local(local, &right, -0.0f);
-	test(eql_function(left, right), "eql_function11");
+	test(! eql_function(left, right), "eql_function11");
 	single_float_local(local, &left, +1.0f);
 	single_float_local(local, &right, +1.0f);
 	test(eql_function(left, right), "eql_function12");

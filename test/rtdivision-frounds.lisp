@@ -31,11 +31,11 @@
 
 (deftest fround-sf.4b
   (fround -10.3f0 100)
-  0.0f0 -10.3f0)
+  -0.0f0 -10.3f0)
 
 (deftest fround-sf.4c
   (fround 10.3f0 -100)
-  0.0f0 10.3f0)
+  -0.0f0 10.3f0)
 
 (deftest fround-sf.4d
   (fround -10.3f0 -100)
@@ -102,11 +102,11 @@
 
 (deftest fround-sb.4b
   (fround-sb -10.3f0 100)
-  0.0f0 -10.3f0)
+  -0.0f0 -10.3f0)
 
 (deftest fround-sb.4c
   (fround-sb 10.3f0 -100)
-  0.0f0 10.3f0)
+  -0.0f0 10.3f0)
 
 (deftest fround-sb.4d
   (fround-sb -10.3f0 -100)
@@ -170,11 +170,11 @@
 
 (deftest fround-sr.4b
   (fround -10.3f0 100/3)
-  0.0f0 -10.3f0)
+  -0.0f0 -10.3f0)
 
 (deftest fround-sr.4c
   (fround 10.3f0 -100/3)
-  0.0f0 10.3f0)
+  -0.0f0 10.3f0)
 
 (deftest fround-sr.4d
   (fround -10.3f0 -100/3)
@@ -442,11 +442,11 @@
 
 (deftest fround-df.4b
   (fround -10.3d0 100)
-  0.0d0 -10.3d0)
+  -0.0d0 -10.3d0)
 
 (deftest fround-df.4c
   (fround 10.3d0 -100)
-  0.0d0 10.3d0)
+  -0.0d0 10.3d0)
 
 (deftest fround-df.4d
   (fround -10.3d0 -100)
@@ -513,11 +513,11 @@
 
 (deftest fround-db.4b
   (fround-db -10.3d0 100)
-  0.0d0 -10.3d0)
+  -0.0d0 -10.3d0)
 
 (deftest fround-db.4c
   (fround-db 10.3d0 -100)
-  0.0d0 10.3d0)
+  -0.0d0 10.3d0)
 
 (deftest fround-db.4d
   (fround-db -10.3d0 -100)
@@ -581,11 +581,11 @@
 
 (deftest fround-dr.4b
   (fround -10.3d0 100/3)
-  0.0d0 -10.3d0)
+  -0.0d0 -10.3d0)
 
 (deftest fround-dr.4c
   (fround 10.3d0 -100/3)
-  0.0d0 10.3d0)
+  -0.0d0 10.3d0)
 
 (deftest fround-dr.4d
   (fround -10.3d0 -100/3)
@@ -853,11 +853,11 @@
 
 (deftest fround-lf.4b
   (fround -10.3l0 100)
-  0.0l0 -10.3l0)
+  -0.0l0 -10.3l0)
 
 (deftest fround-lf.4c
   (fround 10.3l0 -100)
-  0.0l0 10.3l0)
+  -0.0l0 10.3l0)
 
 (deftest fround-lf.4d
   (fround -10.3l0 -100)
@@ -924,11 +924,11 @@
 
 (deftest fround-lb.4b
   (fround-lb -10.3l0 100)
-  0.0l0 -10.3l0)
+  -0.0l0 -10.3l0)
 
 (deftest fround-lb.4c
   (fround-lb 10.3l0 -100)
-  0.0l0 10.3l0)
+  -0.0l0 10.3l0)
 
 (deftest fround-lb.4d
   (fround-lb -10.3l0 -100)
@@ -992,11 +992,11 @@
 
 (deftest fround-lr.4b
   (fround -10.3l0 100/3)
-  0.0l0 -10.3l0)
+  -0.0l0 -10.3l0)
 
 (deftest fround-lr.4c
   (fround 10.3l0 -100/3)
-  0.0l0 10.3l0)
+  -0.0l0 10.3l0)
 
 (deftest fround-lr.4d
   (fround -10.3l0 -100/3)

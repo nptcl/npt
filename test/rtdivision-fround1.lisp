@@ -119,11 +119,11 @@
 
 (deftest fround1-float.6
   (fround -0.25)
-  0.0 -0.25)
+  -0.0 -0.25)
 
 (deftest fround1-float.7
   (fround -0.5)
-  0.0 -0.5)
+  -0.0 -0.5)
 
 (deftest fround1-float.8
   (fround -0.75)
@@ -199,11 +199,11 @@
 
 (deftest fround1-single.6
   (fround -0.25f0)
-  0.0f0 -0.25f0)
+  -0.0f0 -0.25f0)
 
 (deftest fround1-single.7
   (fround -0.5f0)
-  0.0f0 -0.5f0)
+  -0.0f0 -0.5f0)
 
 (deftest fround1-single.8
   (fround -0.75f0)
@@ -279,11 +279,11 @@
 
 (deftest fround1-double.6
   (fround -0.25d0)
-  0.0d0 -0.25d0)
+  -0.0d0 -0.25d0)
 
 (deftest fround1-double.7
   (fround -0.5d0)
-  0.0d0 -0.5d0)
+  -0.0d0 -0.5d0)
 
 (deftest fround1-double.8
   (fround -0.75d0)
@@ -359,11 +359,11 @@
 
 (deftest fround1-long.6
   (fround -0.25l0)
-  0.0l0 -0.25l0)
+  -0.0l0 -0.25l0)
 
 (deftest fround1-long.7
   (fround -0.5l0)
-  0.0l0 -0.5l0)
+  -0.0l0 -0.5l0)
 
 (deftest fround1-long.8
   (fround -0.75l0)

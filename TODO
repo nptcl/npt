@@ -13,7 +13,7 @@ Making testcase now.
      9  Conditions                            51        51      100%
     10  Symbols                               20        20      100%
     11  Packages                              32        32      100%
-    12  Numbers                              184        61       33%
+    12  Numbers                              184        93       51%
     13  Characters                            35        35      100%
     14  Conses                               113       113      100%
     15  Arrays                                48        48      100%
@@ -29,4 +29,4 @@ Making testcase now.
     25  Environment                           43         0        0%
     26  Glossary                               0         0      100%
 ----------------------------------------------------------------------
-     -  All                                  996       814       82%
+     -  All                                  996       846       85%
