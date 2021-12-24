@@ -41,25 +41,25 @@ static int call_complex_common_(struct mathcall_struct *ptr, addr pos, addr *ret
 			af = RefSingleFloat(real);
 			bf = RefSingleFloat(imag);
 			(ptr->complex_f)(af, bf, &af, &bf);
-			return complex_single_heap_(ret, af, bf);
+			return real_complex_single_heap_(ret, af, bf);
 
 		case ComplexType_double:
 			ad = RefDoubleFloat(real);
 			bd = RefDoubleFloat(imag);
 			(ptr->complex_d)(ad, bd, &ad, &bd);
-			return complex_double_heap_(ret, ad, bd);
+			return real_complex_double_heap_(ret, ad, bd);
 
 		case ComplexType_long:
 			al = RefLongFloat(real);
 			bl = RefLongFloat(imag);
 			(ptr->complex_l)(al, bl, &al, &bl);
-			return complex_long_heap_(ret, al, bl);
+			return real_complex_long_heap_(ret, al, bl);
 
 		case ComplexType_rational:
 			Return(single_float_rational_(real, &af));
 			Return(single_float_rational_(imag, &bf));
 			(ptr->complex_f)(af, bf, &af, &bf);
-			return complex_single_heap_(ret, af, bf);
+			return real_complex_single_heap_(ret, af, bf);
 
 		default:
 			*ret = Nil;
@@ -74,7 +74,7 @@ static int forcef_complex_common_(struct mathcall_struct *ptr,
 {
 	single_float real, imag;
 	(ptr->complex_f)(a, 0.0f, &real, &imag);
-	return complex_single_heap_(ret, real, imag);
+	return real_complex_single_heap_(ret, real, imag);
 }
 
 static int forced_complex_common_(struct mathcall_struct *ptr,
@@ -82,7 +82,7 @@ static int forced_complex_common_(struct mathcall_struct *ptr,
 {
 	double_float real, imag;
 	(ptr->complex_d)(a, 0.0, &real, &imag);
-	return complex_double_heap_(ret, real, imag);
+	return real_complex_double_heap_(ret, real, imag);
 }
 
 static int forcel_complex_common_(struct mathcall_struct *ptr,
@@ -90,7 +90,7 @@ static int forcel_complex_common_(struct mathcall_struct *ptr,
 {
 	long_float real, imag;
 	(ptr->complex_l)(a, 0.0L, &real, &imag);
-	return complex_long_heap_(ret, real, imag);
+	return real_complex_long_heap_(ret, real, imag);
 }
 
 static int call_common_(struct mathcall_struct *ptr, addr pos, addr *ret)
@@ -388,15 +388,15 @@ int cis_common_(addr pos, addr *ret)
 	switch (type) {
 		case MathType_single:
 			cis_f(str.v.s, &single1, &single2);
-			return complex_single_heap_(ret, single1, single2);
+			return real_complex_single_heap_(ret, single1, single2);
 
 		case MathType_double:
 			cis_d(str.v.d, &double1, &double2);
-			return complex_double_heap_(ret, double1, double2);
+			return real_complex_double_heap_(ret, double1, double2);
 
 		case MathType_long:
 			cis_l(str.v.l, &long1, &long2);
-			return complex_long_heap_(ret, long1, long2);
+			return real_complex_long_heap_(ret, long1, long2);
 
 		case MathType_complex:
 		case MathType_error:
@@ -458,17 +458,17 @@ static int log_natural_complex_(addr value, addr *ret)
 		case ComplexType_single:
 			Return(single_float_complex_(value, &reals, &imags));
 			clog_f(reals, imags, &reals, &imags);
-			return complex_single_heap_(ret, reals, imags);
+			return real_complex_single_heap_(ret, reals, imags);
 
 		case ComplexType_double:
 			Return(double_float_complex_(value, &reald, &imagd));
 			clog_d(reald, imagd, &reald, &imagd);
-			return complex_double_heap_(ret, reald, imagd);
+			return real_complex_double_heap_(ret, reald, imagd);
 
 		case ComplexType_long:
 			Return(long_float_complex_(value, &reall, &imagl));
 			clog_l(reall, imagl, &reall, &imagl);
-			return complex_long_heap_(ret, reall, imagl);
+			return real_complex_long_heap_(ret, reall, imagl);
 
 		case ComplexType_error:
 		default:
@@ -489,15 +489,15 @@ int log_natural_common_(addr value, addr *ret)
 	switch (type) {
 		case MathType_single:
 			clog_f(str.v.s.a, str.v.s.b, &reals, &imags);
-			return complex_single_heap_(ret, reals, imags);
+			return real_complex_single_heap_(ret, reals, imags);
 
 		case MathType_double:
 			clog_d(str.v.d.a, str.v.d.b, &reald, &imagd);
-			return complex_double_heap_(ret, reald, imagd);
+			return real_complex_double_heap_(ret, reald, imagd);
 
 		case MathType_long:
 			clog_l(str.v.l.a, str.v.l.b, &reall, &imagl);
-			return complex_long_heap_(ret, reall, imagl);
+			return real_complex_long_heap_(ret, reall, imagl);
 
 		case MathType_complex:
 			return log_natural_complex_(value, ret);
@@ -522,15 +522,15 @@ int log_base_common_(addr value, addr base, addr *ret)
 	switch (type) {
 		case MathType_single:
 			Return(clogb_f_(str.v.s.a, str.v.s.b, str.v.s.c, str.v.s.d, &reals, &imags));
-			return complex_single_heap_(ret, reals, imags);
+			return real_complex_single_heap_(ret, reals, imags);
 
 		case MathType_double:
 			Return(clogb_d_(str.v.d.a, str.v.d.b, str.v.d.c, str.v.d.d, &reald, &imagd));
-			return complex_double_heap_(ret, reald, imagd);
+			return real_complex_double_heap_(ret, reald, imagd);
 
 		case MathType_long:
 			Return(clogb_l_(str.v.l.a, str.v.l.b, str.v.l.c, str.v.l.d, &reall, &imagl));
-			return complex_long_heap_(ret, reall, imagl);
+			return real_complex_long_heap_(ret, reall, imagl);
 
 		case MathType_complex:
 		case MathType_rational:

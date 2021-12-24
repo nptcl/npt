@@ -30,6 +30,26 @@
   (floor 100 0)
   division-by-zero)
 
+(deftest-error floor-error.5
+  (floor (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error floor-error.6
+  (floor 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error floor-error.7
+  (floor 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error floor-error.8
+  (floor 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error floor-error.9
+  (floor 100.0L0 0.0L0)
+  division-by-zero)
+
 
 ;;
 ;;  Function FFLOOR
@@ -59,6 +79,27 @@
   (ffloor 100 0)
   division-by-zero)
 
+(deftest-error ffloor-error.5
+  (ffloor (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error ffloor-error.6
+  (ffloor 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error ffloor-error.7
+  (ffloor 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error ffloor-error.8
+  (ffloor 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error ffloor-error.9
+  (ffloor 100.0L0 0.0L0)
+  division-by-zero)
+
+
 
 ;;
 ;;  Function CEILING
@@ -86,6 +127,26 @@
 
 (deftest-error ceiling-error.4
   (ceiling 100 0)
+  division-by-zero)
+
+(deftest-error ceiling-error.5
+  (ceiling (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error ceiling-error.6
+  (ceiling 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error ceiling-error.7
+  (ceiling 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error ceiling-error.8
+  (ceiling 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error ceiling-error.9
+  (ceiling 100.0L0 0.0L0)
   division-by-zero)
 
 
@@ -117,6 +178,26 @@
   (fceiling 100 0)
   division-by-zero)
 
+(deftest-error fceiling-error.5
+  (fceiling (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error fceiling-error.6
+  (fceiling 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error fceiling-error.7
+  (fceiling 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error fceiling-error.8
+  (fceiling 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error fceiling-error.9
+  (fceiling 100.0L0 0.0L0)
+  division-by-zero)
+
 
 ;;
 ;;  Function TRUNCATE
@@ -144,6 +225,26 @@
 
 (deftest-error truncate-error.4
   (truncate 100 0)
+  division-by-zero)
+
+(deftest-error truncate-error.5
+  (truncate (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error truncate-error.6
+  (truncate 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error truncate-error.7
+  (truncate 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error truncate-error.8
+  (truncate 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error truncate-error.9
+  (truncate 100.0L0 0.0L0)
   division-by-zero)
 
 
@@ -175,6 +276,26 @@
   (ftruncate 100 0)
   division-by-zero)
 
+(deftest-error ftruncate-error.5
+  (ftruncate (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error ftruncate-error.6
+  (ftruncate 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error ftruncate-error.7
+  (ftruncate 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error ftruncate-error.8
+  (ftruncate 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error ftruncate-error.9
+  (ftruncate 100.0L0 0.0L0)
+  division-by-zero)
+
 
 ;;
 ;;  Function ROUND
@@ -204,6 +325,26 @@
   (round 100 0)
   division-by-zero)
 
+(deftest-error round-error.5
+  (round (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error round-error.6
+  (round 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error round-error.7
+  (round 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error round-error.8
+  (round 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error round-error.9
+  (round 100.0L0 0.0L0)
+  division-by-zero)
+
 
 ;;
 ;;  Function FROUND
@@ -231,6 +372,26 @@
 
 (deftest-error fround-error.4
   (fround 100 0)
+  division-by-zero)
+
+(deftest-error fround-error.5
+  (fround (make-bignum 100) (make-bignum 0))
+  division-by-zero)
+
+(deftest-error fround-error.6
+  (fround 2/3 (make-ratio 0 20))
+  division-by-zero)
+
+(deftest-error fround-error.7
+  (fround 100.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error fround-error.8
+  (fround 100.0d0 0.0d0)
+  division-by-zero)
+
+(deftest-error fround-error.9
+  (fround 100.0L0 0.0L0)
   division-by-zero)
 
 

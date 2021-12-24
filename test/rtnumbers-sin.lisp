@@ -1201,5 +1201,5 @@
 ;;  ANSI Common Lisp
 (deftest cis-test.1
   (cis 0)
-  #c(1.0 0.0))
+  1.0)
 

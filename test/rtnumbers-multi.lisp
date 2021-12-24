@@ -3,7 +3,7 @@
 ;;
 
 ;;
-;;  *
+;;  Function *
 ;;
 (deftest *.1
   (*)
@@ -301,9 +301,37 @@
   (* #c(5.6L0 2.101L0) #c(45.67d0 111.222d0))
   22.074578000000002d0 718.7958699999999d0 1e-10)
 
+(deftest-error! *-error.1
+  (eval '(* 'aaa)))
+
+(deftest-error *-error.2
+  (* most-positive-single-float most-positive-single-float)
+  floating-point-overflow)
+
+(deftest-error *-error.3
+  (* most-positive-double-float most-positive-double-float)
+  floating-point-overflow)
+
+(deftest-error *-error.4
+  (* most-positive-long-float most-positive-long-float)
+  floating-point-overflow)
+
+;;  ANSI Common Lisp
+(deftest *-test.1
+  (*)
+  1)
+
+(deftest *-test.2
+  (* 3 5)
+  15)
+
+(deftest-float *-test.3
+  (* 1.0 #c(22 33) 55/98)
+  12.346938775510203 18.520408163265305 1e-5)
+
 
 ;;
-;;  /
+;;  Function /
 ;;
 (deftest /.1
   (/ 1)
@@ -329,21 +357,9 @@
   (/ 1 2 3 4 555555 6 7 9)
   1/5039994960)
 
-(deftest-error /.7
-  (/ 0)
-  division-by-zero)
-
 (deftest /.8
   (/ 0 2)
   0)
-
-(deftest-error /.9
-  (/ 1 0)
-  division-by-zero)
-
-(deftest-error /.10
-  (/ 1 4 5 0 2 3)
-  division-by-zero)
 
 (deftest /.11
   (/ -10 -24)
@@ -620,4 +636,100 @@
 (deftest-long /c.20
   (/ #c(5.6L0 2.101L0) #c(45.67d0 111.222d0))
   0.033856297700195756d0 -0.03644767118045045d0)
+
+(deftest-error /-division-by-zero.1
+  (/ 0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.2
+  (/ 0.0f0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.3
+  (/ 0.0d0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.4
+  (/ 0.0L0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.5
+  (/ 10 0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.6
+  (/ 10.0f0 0.0f0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.7
+  (/ 10d0 0.0d0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.8
+  (/ 10.L0 0.0L0)
+  division-by-zero)
+
+(deftest-error /-division-by-zero.9
+  (/ 1 4 5 0 2 3)
+  division-by-zero)
+
+(deftest-error! /-error.1
+  (eval '(/)))
+
+(deftest-error! /-error.2
+  (eval '(/ 'hello))
+  type-error)
+
+(deftest-error! /-error.3
+  (eval '(/ 10 'hello))
+  type-error)
+
+(deftest-error /-error.4
+  (/ most-positive-single-float 0.01f0)
+  floating-point-overflow)
+
+(deftest-error /-error.5
+  (/ most-positive-double-float 0.01d0)
+  floating-point-overflow)
+
+(deftest-error /-error.6
+  (/ most-positive-long-float 0.01L0)
+  floating-point-overflow)
+
+;;  ANSI Common Lisp
+(deftest /-test.1
+  (/ 12 4)
+  3)
+
+(deftest /-test.2
+  (/ 13 4)
+  13/4)
+
+(deftest /-test.3
+  (/ -8)
+  -1/8)
+
+(deftest /-test.4
+  (/ 3 4 5)
+  3/20)
+
+(deftest /-test.5
+  (/ 0.5)
+  2.0)
+
+(deftest /-test.6
+  (/ 20 5)
+  4)
+
+(deftest /-test.7
+  (/ 5 20)
+  1/4)
+
+(deftest /-test.8
+  (/ 60 -2 3 5.0)
+  -2.0)
+
+(deftest /-test.9
+  (/ 2 #c(2 2))
+  #c(1/2 -1/2))
 

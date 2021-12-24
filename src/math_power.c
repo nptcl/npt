@@ -194,21 +194,21 @@ static int expt_single_common_(struct mathcomplex2_struct *ptr, addr *ret)
 {
 	single_float real, imag;
 	expt_f(ptr->v.s.a, ptr->v.s.b, ptr->v.s.c, ptr->v.s.d, &real, &imag);
-	return complex_single_heap_(ret, real, imag);
+	return real_complex_single_heap_(ret, real, imag);
 }
 
 static int expt_double_common_(struct mathcomplex2_struct *ptr, addr *ret)
 {
 	double_float real, imag;
 	expt_d(ptr->v.d.a, ptr->v.d.b, ptr->v.d.c, ptr->v.d.d, &real, &imag);
-	return complex_double_heap_(ret, real, imag);
+	return real_complex_double_heap_(ret, real, imag);
 }
 
 static int expt_long_common_(struct mathcomplex2_struct *ptr, addr *ret)
 {
 	long_float real, imag;
 	expt_l(ptr->v.l.a, ptr->v.l.b, ptr->v.l.c, ptr->v.l.d, &real, &imag);
-	return complex_long_heap_(ret, real, imag);
+	return real_complex_long_heap_(ret, real, imag);
 }
 
 static int expt_force_single_(LocalRoot local, addr *ret, addr base, addr power)

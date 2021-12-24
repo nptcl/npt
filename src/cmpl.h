@@ -26,6 +26,9 @@
 #define complex_long_alloc_ _n(complex_long_alloc_)
 #define complex_long_local_ _n(complex_long_local_)
 #define complex_long_heap_ _n(complex_long_heap_)
+#define real_complex_single_heap_ _n(real_complex_single_heap_)
+#define real_complex_double_heap_ _n(real_complex_double_heap_)
+#define real_complex_long_heap_ _n(real_complex_long_heap_)
 #define complex_copy_alloc_ _n(complex_copy_alloc_)
 #define complex_copy_local_ _n(complex_copy_local_)
 #define complex_copy_heap_ _n(complex_copy_heap_)
@@ -116,6 +119,10 @@ int complex_long_local_(LocalRoot local,
 		addr *ret, long_float real, long_float imag);
 int complex_long_heap_(addr *ret,
 		long_float real, long_float imag);
+
+int real_complex_single_heap_(addr *ret, single_float real, single_float imag);
+int real_complex_double_heap_(addr *ret, double_float real, double_float imag);
+int real_complex_long_heap_(addr *ret, long_float real, long_float imag);
 
 int complex_copy_alloc_(LocalRoot local, addr pos, addr *ret);
 int complex_copy_local_(LocalRoot local, addr pos, addr *ret);

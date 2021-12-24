@@ -564,6 +564,28 @@ int complex_long_heap_(addr *ret,
 	return complex_long_alloc_(NULL, ret, real, imag);
 }
 
+int real_complex_single_heap_(addr *ret, single_float real, single_float imag)
+{
+	if (imag == 0.0f)
+		return single_float_check_heap_(ret, real);
+	else
+		return complex_single_heap_(ret, real, imag);
+}
+int real_complex_double_heap_(addr *ret, double_float real, double_float imag)
+{
+	if (imag == 0.0)
+		return double_float_check_heap_(ret, real);
+	else
+		return complex_double_heap_(ret, real, imag);
+}
+int real_complex_long_heap_(addr *ret, long_float real, long_float imag)
+{
+	if (imag == 0.0L)
+		return long_float_check_heap_(ret, real);
+	else
+		return complex_long_heap_(ret, real, imag);
+}
+
 int complex_copy_alloc_(LocalRoot local, addr pos, addr *ret)
 {
 	enum ComplexType type;
@@ -1033,7 +1055,8 @@ int abs_complex_common_(addr pos, addr *ret)
 		case ComplexType_rational:
 			Return(single_float_rational_(real, &vf));
 			Return(single_float_rational_(imag, &v2));
-			return single_float_check_heap_(ret, sqrtf(vf*vf + v2+v2));
+			cabs_f(vf, v2, &vf);
+			return single_float_check_heap_(ret, vf);
 
 		default:
 			*ret = Nil;
