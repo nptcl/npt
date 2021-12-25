@@ -14,7 +14,7 @@
 #define upgraded_array_bit_local _n(upgraded_array_bit_local)
 #define upgraded_array_character_local _n(upgraded_array_character_local)
 #define upgraded_complex_type_ _n(upgraded_complex_type_)
-#define upgraded_complex_common _n(upgraded_complex_common)
+#define upgraded_complex_common_ _n(upgraded_complex_common_)
 #define build_type_upgraded _n(build_type_upgraded)
 
 /*
@@ -44,7 +44,7 @@ void upgraded_array_character_local(LocalRoot local, addr *ret);
 /* type -> upgraded -> type */
 int upgraded_complex_type_(Execute ptr, addr env, addr type, addr *ret);
 /* object -> upgraded -> object */
-int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret);
+int upgraded_complex_common_(Execute ptr, addr env, addr pos, addr *ret);
 /* build */
 void build_type_upgraded(void);
 

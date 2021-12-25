@@ -1106,7 +1106,13 @@ static int signum_complex_long_(addr pos, addr *ret)
 
 int signum_complex_common_(addr pos, addr *ret)
 {
+	int check;
+
 	CheckType(pos, LISPTYPE_COMPLEX);
+	Return(zerop_complex_(pos, &check));
+	if (check)
+		return Result(ret, pos);
+
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_rational:
 		case ComplexType_single:

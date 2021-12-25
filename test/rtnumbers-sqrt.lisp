@@ -2,59 +2,98 @@
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
 
+;;
+;;  Function SQRT
+;;
+(deftest sqrt.1
+  (sqrt 0)
+  0.0f0)
+
+(deftest sqrt.2
+  (sqrt (make-bignum 36))
+  6.0f0)
+
+(deftest-single sqrt.3
+  (sqrt -22)
+  0.0f0 4.690416f0)
+
+(deftest-single sqrt.4
+  (sqrt 16/25)
+  0.8f0)
+
+(deftest-single sqrt.5
+  (sqrt 12.3f0)
+  3.5071356f0)
+
+(deftest-double sqrt.6
+  (sqrt -65.43d0)
+  0.0d0 8.088881257627659d0)
+
+(deftest-long sqrt.7
+  (sqrt 81.0L0)
+  9.0L0)
+
+(deftest-single sqrt.8
+  (sqrt #c(5 -6))
+  2.530835f0 -1.1853796f0)
+
+(deftest-double sqrt.9
+  (sqrt #c(1.2d0 3.4d3))
+  41.23833296682044d0 41.22378082954486d0 1.0e-10)
+
+(deftest-error! sqrt-error.1
+  (eval '(sqrt)))
+
+(deftest-error! sqrt-error.2
+  (eval '(sqrt "Hello"))
+  type-error)
+
+(deftest-error! sqrt-error.3
+  (eval '(sqrt 10 20)))
+
+
+;;  Function ISQRT
 (deftest isqrt.1
   (isqrt 0)
   0)
 
-(deftest-error isqrt.2
-  (eval '(isqrt -1)))
-
-(deftest-error isqrt.3
-  (eval '(isqrt 2/3)))
-
-(deftest-error isqrt.4
-  (eval '(isqrt 3.4)))
-
-(deftest-error isqrt.5
-  (eval '(isqrt #c(10 20))))
-
-(deftest isqrt.6
+(deftest isqrt.2
   (isqrt 1)
   1)
 
-(deftest isqrt.7
+(deftest isqrt.3
   (isqrt 2)
   1)
 
-(deftest isqrt.8
+(deftest isqrt.4
   (isqrt 3)
   1)
 
-(deftest isqrt.9
+(deftest isqrt.5
   (isqrt 4)
   2)
 
-(deftest isqrt.10
+(deftest isqrt.6
   (isqrt 5)
   2)
 
-(deftest isqrt.11
+(deftest isqrt.7
   (isqrt 1023)
   31)
 
-(deftest isqrt.12
+(deftest isqrt.8
   (isqrt 1024)
   32)
 
-(deftest isqrt.13
+(deftest isqrt.9
   (isqrt 1025)
   32)
 
-(deftest isqrt.14
+(deftest isqrt.10
   (isqrt 25)
   5)
 
-(deftest isqrt.15
+(deftest isqrt.11
   (isqrt 26)
   5)
 
@@ -110,10 +149,81 @@
     (498047357938803989175155626769873922538146894238620066479511257680977247533199825649741145122886710585542459013841850960976022357711383092724532139011522489546811667534276263206978982325910911
      705724704072915382291788792046534491147856251520848845358790863388540041225561088228855042213112)))
 
-(deftest isqrt.16
+(deftest isqrt.12
   (dolist (x +isqrt-test+ t)
     (destructuring-bind (y z) x
       (unless (eql (isqrt y) z)
         (error "error"))))
   t)
+
+(deftest-error! isqrt-error.1
+  (eval '(isqrt)))
+
+(deftest-error! isqrt-error.2
+  (eval '(isqrt 10 20)))
+
+(deftest-error isqrt-error.3
+  (eval '(isqrt #\A))
+  type-error)
+
+(deftest-error isqrt-error.4
+  (eval '(isqrt -1))
+  type-error)
+
+(deftest-error isqrt-error.5
+  (eval '(isqrt 2/3))
+  type-error)
+
+(deftest-error isqrt-error.6
+  (eval '(isqrt 3.4))
+  type-error)
+
+(deftest-error isqrt-error.7
+  (eval '(isqrt #c(10 20)))
+  type-error)
+
+;;  ANSI Common Lisp
+(deftest sqrt-test.1
+  (sqrt 9.0)
+  3.0)
+
+(deftest-single sqrt-test.2
+  (sqrt -9.0)
+  0.0 3.0)
+
+(deftest sqrt-test.3
+  (isqrt 9)
+  3)
+
+(deftest sqrt-test.4
+  (sqrt 12)
+  3.4641016)
+
+(deftest sqrt-test.5
+  (isqrt 12)
+  3)
+
+(deftest sqrt-test.6
+  (isqrt 300)
+  17)
+
+(deftest sqrt-test.7
+  (isqrt 325)
+  18)
+
+(deftest sqrt-test.8
+  (sqrt 25)
+  5.0)
+
+(deftest sqrt-test.9
+  (isqrt 25)
+  5)
+
+(deftest-single sqrt-test.10
+  (sqrt -1)
+  0.0 1.0)
+
+(deftest-single sqrt-test.11
+  (sqrt #c(0 2))
+  1.0 1.0)
 

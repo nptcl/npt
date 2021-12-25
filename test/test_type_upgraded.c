@@ -608,21 +608,21 @@ static int test_upgraded_complex_common(void)
 	addr x, y;
 
 	x = readr_debug("(integer 10 20)");
-	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
+	check = upgraded_complex_common_(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common1");
 	y = readr_debug("integer");
 	test(equal_debug(x, y), "upgraded_complex_common2");
 
 	x = readr_debug("ratio");
 	parse_type_unsafe(&x, x);
-	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
+	check = upgraded_complex_common_(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common3");
 	y = readr_debug("rational");
 	test(equal_debug(x, y), "upgraded_complex_common4");
 
 	x = readr_debug("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
-	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
+	check = upgraded_complex_common_(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common5");
 	y = readr_debug("long-float");
 	test(equal_debug(x, y), "upgraded_complex_common6");

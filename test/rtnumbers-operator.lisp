@@ -221,6 +221,274 @@
   5.0)
 
 
+;;
+;;  Macro INCF
+;;
+(deftest incf.1
+  (let ((a 10))
+    (incf a))
+  11)
+
+(deftest incf.2
+  (let ((a 10))
+    (incf a)
+    a)
+  11)
+
+(deftest incf.3
+  (let ((a (list 10 20)))
+    (incf (car a) 888))
+  898)
+
+(deftest incf.4
+  (let ((a (list 10 20)))
+    (incf (car a) 888)
+    a)
+  (898 20))
+
+(deftest-error! incf-error.1
+  (eval '(incf)))
+
+(deftest-error! incf-error.2
+  (eval '(incf 100)))
+
+(deftest-error! incf-error.3
+  (eval '(incf incf-error-x "AAA")))
+
+(deftest-error! incf-error.4
+  (eval '(incf incf-error-x 10 nil)))
+
+
+;;
+;;  Macro DECF
+;;
+(deftest decf.1
+  (let ((a 10))
+    (decf a))
+  9)
+
+(deftest decf.2
+  (let ((a 10))
+    (decf a)
+    a)
+  9)
+
+(deftest decf.3
+  (let ((a (list 10 20)))
+    (decf (cadr a) 888))
+  -868)
+
+(deftest decf.4
+  (let ((a (list 10 20)))
+    (decf (cadr a) 888)
+    a)
+  (10 -868))
+
+(deftest-error! decf-error.1
+  (eval '(decf)))
+
+(deftest-error! decf-error.2
+  (eval '(decf 100)))
+
+(deftest-error! defc-error.3
+  (eval '(defc defc-error-x "AAA")))
+
+(deftest-error! decf-error.4
+  (eval '(decf decf-error-x 10 nil)))
+
+;;  ANSI Common Lisp
+(defvar incf-test-n)
+
+(deftest incf-test.1
+  (progn
+    (setq incf-test-n 0)
+    (incf incf-test-n))
+  1)
+
+(deftest incf-test.2
+  incf-test-n
+  1)
+
+(deftest incf-test.3
+  (decf incf-test-n 3)
+  -2)
+
+(deftest incf-test.4
+  incf-test-n
+  -2)
+
+(deftest incf-test.5
+  (decf incf-test-n -5)
+  3)
+
+(deftest incf-test.6
+  (decf incf-test-n)
+  2)
+
+(deftest incf-test.7
+  (incf incf-test-n 0.5)
+  2.5)
+
+(deftest incf-test.8
+  (decf incf-test-n)
+  1.5)
+
+(deftest incf-test.9
+  incf-test-n
+  1.5)
+
+
+;;
+;;  Function SIGNUM
+;;
+(deftest signum-fixnum.1
+  (signum 0)
+  0)
+
+(deftest signum-fixnum.2
+  (signum -10)
+  -1)
+
+(deftest signum-fixnum.3
+  (signum 333)
+  1)
+
+(deftest signum-bignum.1
+  (signum (make-bignum 0))
+  0)
+
+(deftest signum-bignum.2
+  (signum (make-bignum -10))
+  -1)
+
+(deftest signum-bignum.3
+  (signum (make-bignum 333))
+  1)
+
+(deftest signum-ratio.1
+  (signum (make-ratio 0 1))
+  0)
+
+(deftest signum-ratio.2
+  (signum -10/7)
+  -1)
+
+(deftest signum-ratio.3
+  (signum 333/321)
+  1)
+
+(deftest signum-single.1
+  (signum 0.0f0)
+  0.0f0)
+
+(deftest signum-single.2
+  (signum -99.9f0)
+  -1.0f0)
+
+(deftest signum-single.3
+  (signum 0.3f0)
+  1.0f0)
+
+(deftest signum-single.4
+  (signum -0.0f0)
+  -0.0f0)
+
+(deftest signum-double.1
+  (signum 0.0d0)
+  0.0d0)
+
+(deftest signum-double.2
+  (signum -99.9d0)
+  -1.0d0)
+
+(deftest signum-double.3
+  (signum 0.3d0)
+  1.0d0)
+
+(deftest signum-double.4
+  (signum -0.0d0)
+  -0.0d0)
+
+(deftest signum-long.1
+  (signum 0.0L0)
+  0.0L0)
+
+(deftest signum-long.2
+  (signum -99.9L0)
+  -1.0L0)
+
+(deftest signum-long.3
+  (signum 0.3L0)
+  1.0L0)
+
+(deftest signum-long.4
+  (signum -0.0L0)
+  -0.0L0)
+
+(deftest signum-complex.1
+  (signum #c(+0.0 -0.0))
+  #c(+0.0 -0.0))
+
+(deftest-single signum-complex.2
+  (signum #c(3 4))
+  0.6 0.8)
+
+(deftest-double signum-complex.3
+  (signum #c(-1.2d0 3.4f0))
+  -0.3328201094338546d0 0.942990336512754d0)
+
+(deftest-long signum-complex.4
+  (signum #c(1 2.0L0))
+  0.4472135954999579d0 0.8944271909999159d0)
+
+(deftest-error! signum-error.1
+  (eval '(signum)))
+
+(deftest-error! signum-error.2
+  (eval '(signum "AAA"))
+  type-error)
+
+(deftest-error! signum-error.3
+  (eval '(signum 10 20)))
+
+;;  ANSI Common Lisp
+(deftest signum-test.1
+  (signum 0)
+  0)
+
+(deftest signum-test.2
+  (signum 99)
+  1)
+
+(deftest signum-test.3
+  (signum 4/5)
+  1)
+
+(deftest signum-test.4
+  (signum -99/100)
+  -1)
+
+(deftest signum-test.5
+  (signum 0.0)
+  0.0)
+
+(deftest signum-test.6
+  (signum #c(0 33))
+  #c(0.0 1.0))
+
+(deftest signum-test.7
+  (signum #c(7.5 10.0))
+  #c(0.6 0.8))
+
+(deftest signum-test.8
+  (signum #c(0.0 -14.7))
+  #c(0.0 -1.0))
+
+(deftest signum-test.9
+  (eql (signum -0.0) -0.0)
+  t)
+
+
 
 ;;
 ;;
@@ -244,157 +512,6 @@
 (deftest float.6
   (float 10 10l5)
   10l0)
-
-(deftest incf.1
-  (let ((a 10))
-    (incf a)
-    a)
-  11)
-
-(deftest incf.2
-  (let ((a (list 10 20)))
-    (incf (car a) 888)
-    a)
-  (898 20))
-
-(deftest decf.1
-  (let ((a 10))
-    (decf a)
-    a)
-  9)
-
-(deftest decf.2
-  (let ((a (list 10 20)))
-    (decf (cadr a) 888)
-    a)
-  (10 -868))
-
-(deftest signumf.1
-  (signum 0)
-  0)
-
-(deftest signumf.2
-  (signum -10)
-  -1)
-
-(deftest signumf.3
-  (signum 333)
-  1)
-
-(deftest signumb.1
-  (signum (make-bignum 0))
-  0)
-
-(deftest signumb.2
-  (signum (make-bignum -10))
-  -1)
-
-(deftest signumb.3
-  (signum (make-bignum 333))
-  1)
-
-(deftest signumr.1
-  (signum (make-ratio 0 1))
-  0)
-
-(deftest signumr.2
-  (signum -10/7)
-  -1)
-
-(deftest signumr.3
-  (signum 333/321)
-  1)
-
-(deftest signums.1
-  (signum 0.0f0)
-  0.0f0)
-
-(deftest signums.2
-  (signum -99.9f0)
-  -1.0f0)
-
-(deftest signums.3
-  (signum 0.3f0)
-  1.0f0)
-
-(deftest signumd.1
-  (signum 0.0d0)
-  0.0d0)
-
-(deftest signumd.2
-  (signum -99.9d0)
-  -1.0d0)
-
-(deftest signumd.3
-  (signum 0.3d0)
-  1.0d0)
-
-(deftest signuml.1
-  (signum 0.0L0)
-  0.0L0)
-
-(deftest signuml.2
-  (signum -99.9L0)
-  -1.0L0)
-
-(deftest signuml.3
-  (signum 0.3L0)
-  1.0L0)
-
-(deftest signumc.1
-  (let ((c (make-complex 0.0 0.0)))
-    (values
-      (complexp c)
-      (signum c)))
-  t 0.0)
-
-(deftest-single signumc.2
-  (signum #c(3 4))
-  0.6 0.8)
-
-(deftest-double signumc.3
-  (signum #c(-1.2d0 3.4f0))
-  -0.3328201094338546d0 0.942990336512754d0)
-
-(deftest-long signumc.4
-  (signum #c(1 2.0L0))
-  0.4472135954999579d0 0.8944271909999159d0)
-
-(deftest sqrt.1
-  (sqrt 0)
-  0.0f0)
-
-(deftest sqrt.2
-  (sqrt (make-bignum 36))
-  6.0f0)
-
-(deftest-single sqrt.3
-  (sqrt -22)
-  0.0f0 4.690416f0)
-
-(deftest-single sqrt.4
-  (sqrt 16/25)
-  0.8f0)
-
-(deftest-single sqrt.5
-  (sqrt 12.3f0)
-  3.5071356f0)
-
-(deftest-double sqrt.6
-  (sqrt -65.43d0)
-  0.0d0 8.088881257627659d0)
-
-(deftest-long sqrt.7
-  (sqrt 81.0L0)
-  9.0L0)
-
-(deftest-single sqrt.8
-  (sqrt #c(5 -6))
-  2.530835f0 -1.1853796f0)
-
-(deftest-double sqrt.9
-  (sqrt #c(1.2d0 3.4d3))
-  41.23833296682044d0 41.22378082954486d0 1.0e-10)
 
 (deftest ash.1
   (ash 0 0)

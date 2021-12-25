@@ -1,6 +1,151 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
+
+;;
+;;  Function GCD
+;;
+(deftest gcd.1
+  (gcd)
+  0)
+
+(deftest gcd.2
+  (gcd 10)
+  10)
+
+(deftest gcd.3
+  (gcd -20)
+  20)
+
+(deftest gcd.4
+  (gcd 4444444444444444444444444444444444444444444444444444)
+  4444444444444444444444444444444444444444444444444444)
+
+(deftest gcd.5
+  (gcd -4444444444444444444444444444444444444444444444444444)
+  4444444444444444444444444444444444444444444444444444)
+
+(deftest gcd.6
+  (gcd 6 4)
+  2)
+
+(deftest gcd.7
+  (gcd 1200 4500 125)
+  25)
+
+(deftest gcd.8
+  (gcd 4 5 6 7 8 9 10 11 12 87 86 85 84 83 82 81)
+  1)
+
+(deftest gcd-test.1
+  (gcd)
+  0)
+
+(deftest gcd-test.2
+  (gcd 60 42)
+  6)
+
+(deftest gcd-test.3
+  (gcd 3333 -33 101)
+  1)
+
+(deftest gcd-test.4
+  (gcd 3333 -33 1002001)
+  11)
+
+(deftest gcd-test.5
+  (gcd 91 -49)
+  7)
+
+(deftest gcd-test.6
+  (gcd 63 -42 35)
+  7)
+
+(deftest gcd-test.7
+  (gcd 5)
+  5)
+
+(deftest gcd-test.8
+  (gcd -4)
+  4)
+
+(deftest-error! gcd-error.1
+  (eval '(gcd 4/5))
+  type-error)
+
+(deftest-error! gcd-error.2
+  (eval '(gcd 10 20 4/5))
+  type-error)
+
+
+;;
+;;  Function LCM
+;;
+(deftest lcm.1
+  (lcm)
+  1)
+
+(deftest lcm.2
+  (lcm 10)
+  10)
+
+(deftest lcm.3
+  (lcm -20)
+  20)
+
+(deftest lcm.4
+  (lcm 4444444444444444444444444444444444444444444444444444)
+  4444444444444444444444444444444444444444444444444444)
+
+(deftest lcm.5
+  (lcm -4444444444444444444444444444444444444444444444444444)
+  4444444444444444444444444444444444444444444444444444)
+
+(deftest lcm.6
+  (lcm 10 0)
+  0)
+
+(deftest lcm.7
+  (lcm 0 10)
+  0)
+
+(deftest lcm-test.1
+  (lcm 10)
+  10)
+
+(deftest lcm-test.2
+  (lcm 25 30)
+  150)
+
+(deftest lcm-test.3
+  (lcm -24 18 10)
+  360)
+
+(deftest lcm-test.4
+  (lcm 14 35)
+  70)
+
+(deftest lcm-test.5
+  (lcm 0 5)
+  0)
+
+(deftest lcm-test.6
+  (lcm 1 2 3 4 5 6)
+  60)
+
+(deftest-error! lcm-error.1
+  (eval '(lcm 4/5))
+  type-error)
+
+(deftest-error! lcm-error.2
+  (eval '(lcm 10 20 4/5))
+  type-error)
+
+
+
+;;
+;;
+;;
 (deftest numerator.1
   (numerator 0)
   0)
@@ -40,28 +185,6 @@
 (deftest denominator.5
   (denominator 123/541)
   541)
-
-(deftest gcd.1
-  (values
-    (gcd)
-    (gcd 60 42)
-    (gcd 3333 -33 101)
-    (gcd 3333 -33 1002001)
-    (gcd 91 -49)
-    (gcd 63 -42 35)
-    (gcd 5)
-    (gcd -4))
-  0 6 1 11 7 7 5 4)
-
-(deftest lcm.1
-  (values
-    (lcm 10)
-    (lcm 25 30)
-    (lcm -24 18 10)
-    (lcm 14 35)
-    (lcm 0 5)
-    (lcm 1 2 3 4 5 6))
-  10 150 360 70 0 60)
 
 (deftest integer-length.1
   (values

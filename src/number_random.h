@@ -3,8 +3,8 @@
 
 #include "typedef.h"
 
-#define random_number_common _n(random_number_common)
-int random_number_common(LocalRoot local, addr limit, addr state, addr *ret);
+#define random_number_common_ _n(random_number_common_)
+int random_number_common_(LocalRoot local, addr limit, addr state, addr *ret);
 
 #endif
 

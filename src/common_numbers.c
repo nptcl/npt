@@ -33,7 +33,7 @@
 static int function_number_equal(Execute ptr, addr left, addr rest)
 {
 	int check;
-	Return(number_equal_common(ptr->local, left, rest, &check));
+	Return(number_equal_common_(ptr->local, left, rest, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -58,7 +58,7 @@ static void defun_number_equal(void)
 static int function_number_not_equal(Execute ptr, addr left, addr rest)
 {
 	int check;
-	Return(number_not_equal_common(ptr->local, left, rest, &check));
+	Return(number_not_equal_common_(ptr->local, left, rest, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -83,7 +83,7 @@ static void defun_number_not_equal(void)
 static int function_number_less(Execute ptr, addr left, addr rest)
 {
 	int check;
-	Return(number_less_common(ptr->local, left, rest, &check));
+	Return(number_less_common_(ptr->local, left, rest, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -108,7 +108,7 @@ static void defun_number_less(void)
 static int function_number_greater(Execute ptr, addr left, addr rest)
 {
 	int check;
-	Return(number_greater_common(ptr->local, left, rest, &check));
+	Return(number_greater_common_(ptr->local, left, rest, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -133,7 +133,7 @@ static void defun_number_greater(void)
 static int function_number_less_equal(Execute ptr, addr left, addr rest)
 {
 	int check;
-	Return(number_less_equal_common(ptr->local, left, rest, &check));
+	Return(number_less_equal_common_(ptr->local, left, rest, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -158,7 +158,7 @@ static void defun_number_less_equal(void)
 static int function_number_greater_equal(Execute ptr, addr left, addr rest)
 {
 	int check;
-	Return(number_greater_equal_common(ptr->local, left, rest, &check));
+	Return(number_greater_equal_common_(ptr->local, left, rest, &check));
 	setbool_control(ptr, check);
 	return 0;
 }
@@ -182,7 +182,7 @@ static void defun_number_greater_equal(void)
 /* (defun max (real &rest real) ...) -> real */
 static int function_max(Execute ptr, addr left, addr rest)
 {
-	Return(max_common(ptr->local, left, rest, &left));
+	Return(max_common_(ptr->local, left, rest, &left));
 	setresult_control(ptr, left);
 	return 0;
 }
@@ -206,7 +206,7 @@ static void defun_max(void)
 /* (defun min (real &rest real) ...) -> real */
 static int function_min(Execute ptr, addr left, addr rest)
 {
-	Return(min_common(ptr->local, left, rest, &left));
+	Return(min_common_(ptr->local, left, rest, &left));
 	setresult_control(ptr, left);
 	return 0;
 }
@@ -934,7 +934,7 @@ static void defun_expt(void)
 /* (defun + (&rest number) ...) -> number */
 static int function_plus(Execute ptr, addr rest)
 {
-	Return(plus_common(ptr->local, rest, &rest));
+	Return(plus_common_(ptr->local, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -958,7 +958,7 @@ static void defun_plus(void)
 /* (defun - (&rest number) ...) -> number */
 static int function_minus(Execute ptr, addr left, addr rest)
 {
-	Return(minus_common(ptr->local, left, rest, &rest));
+	Return(minus_common_(ptr->local, left, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -982,7 +982,7 @@ static void defun_minus(void)
 /* (defun * (&rest number) ...) -> number */
 static int function_asterisk(Execute ptr, addr rest)
 {
-	Return(asterisk_common(ptr->local, rest, &rest));
+	Return(asterisk_common_(ptr->local, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1006,7 +1006,7 @@ static void defun_asterisk(void)
 /* (defun / (number &rest number) ...) -> number */
 static int function_slash(Execute ptr, addr left, addr rest)
 {
-	Return(slash_common(ptr->local, left, rest, &rest));
+	Return(slash_common_(ptr->local, left, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1219,7 +1219,7 @@ static void defun_lcm(void)
 /* (defmacro incf (place &optional number) ...) -> number) */
 static int function_incf(Execute ptr, addr form, addr env)
 {
-	Return(incf_common(ptr, form, env, &form));
+	Return(incf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1241,7 +1241,7 @@ static void defmacro_incf(void)
 /* (defmacro decf (place &optional number) ...) -> number) */
 static int function_decf(Execute ptr, addr form, addr env)
 {
-	Return(decf_common(ptr, form, env, &form));
+	Return(decf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1482,7 +1482,7 @@ static void defun_make_random_state(void)
  */
 static int function_random(Execute ptr, addr limit, addr state)
 {
-	Return(random_common(ptr, limit, state, &limit));
+	Return(random_common_(ptr, limit, state, &limit));
 	setresult_control(ptr, limit);
 	return 0;
 }
@@ -1648,7 +1648,7 @@ static void defun_complexp(void)
 /* (defun conjugate (number) ...) -> number */
 static int function_conjugate(Execute ptr, addr var)
 {
-	Return(conjugate_common(var, &var));
+	Return(conjugate_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1748,7 +1748,7 @@ static int function_upgraded_complex_part_type(Execute ptr, addr pos, addr env)
 {
 	if (env == Unbound)
 		env = Nil;
-	Return(upgraded_complex_common(ptr, env, pos, &pos));
+	Return(upgraded_complex_common_(ptr, env, pos, &pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -2049,7 +2049,7 @@ static void defun_integerp(void)
  */
 static int function_parse_integer(Execute ptr, addr var, addr rest)
 {
-	Return(parse_integer_common(ptr->local, var, rest, &var, &rest));
+	Return(parse_integer_common_(ptr->local, var, rest, &var, &rest));
 	setvalues_control(ptr, var, rest, NULL);
 	return 0;
 }

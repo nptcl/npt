@@ -163,7 +163,7 @@ static void signum_single_common(addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	GetSingleFloat(pos, &value);
 	if (value == 0.0f)
-		single_float_heap(ret, 0.0f);
+		*ret = pos;
 	else
 		single_float_heap(ret, (value < 0.0f)? -1.0f: 1.0f);
 }
@@ -175,7 +175,7 @@ static void signum_double_common(addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	GetDoubleFloat(pos, &value);
 	if (value == 0.0)
-		double_float_heap(ret, 0.0);
+		*ret = pos;
 	else
 		double_float_heap(ret, (value < 0.0)? -1.0: 1.0);
 }
@@ -187,7 +187,7 @@ static void signum_long_common(addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	GetLongFloat(pos, &value);
 	if (value == 0.0L)
-		long_float_heap(ret, 0.0L);
+		*ret = pos;
 	else
 		long_float_heap(ret, (value < 0.0L)? -1.0L: 1.0L);
 }
@@ -199,7 +199,7 @@ static void signum_fixnum_common(addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_FIXNUM);
 	GetFixnum(pos, &value);
 	if (value == 0)
-		fixnum_heap(ret, 0);
+		*ret = pos;
 	else
 		fixnum_heap(ret, (value < 0)? -1: 1);
 }
@@ -208,7 +208,7 @@ static void signum_bignum_common(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
 	if (zerop_bignum(pos))
-		fixnum_heap(ret, 0);
+		*ret = pos;
 	else
 		fixnum_heap(ret, minusp_bignum(pos)? -1: 1);
 }
@@ -217,7 +217,7 @@ static void signum_ratio_common(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RATIO);
 	if (zerop_ratio(pos))
-		fixnum_heap(ret, 0);
+		*ret = pos;
 	else
 		fixnum_heap(ret, minusp_ratio(pos)? -1: 1);
 }

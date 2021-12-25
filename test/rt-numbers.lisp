@@ -18,14 +18,14 @@
 (load #p"test/rtnumbers-multi.lisp")
 (load #p"test/rtnumbers-operator.lisp")
 (load #p"test/rtnumbers-exp.lisp")
+(load #p"test/rtnumbers-mod.lisp")
+(load #p"test/rtnumbers-sqrt.lisp")
+(load #p"test/rtnumbers-random.lisp")
 (load #p"test/rtnumbers-rational.lisp")
 (load #p"test/rtnumbers-complex.lisp")
-(load #p"test/rtnumbers-random.lisp")
-(load #p"test/rtnumbers-mod.lisp")
 (load #p"test/rtnumbers-decode.lisp")
 (load #p"test/rtnumbers-bit.lisp")
 (load #p"test/rtnumbers-byte.lisp")
-(load #p"test/rtnumbers-isqrt.lisp")
 
 
 ;;

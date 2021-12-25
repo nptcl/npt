@@ -548,7 +548,7 @@ static int upgraded_complex_const_(Execute ptr, addr env, addr pos, addr *ret)
 	return fmte_("COMPLEX type ~S must be a subtype of a real.", pos, NULL);
 }
 
-int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret)
+int upgraded_complex_common_(Execute ptr, addr env, addr pos, addr *ret)
 {
 	Return(parse_type(ptr, &pos, pos, env));
 	Return(upgraded_complex_const_(ptr, env, pos, ret));

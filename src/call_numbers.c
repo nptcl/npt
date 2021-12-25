@@ -22,7 +22,7 @@
 /*
  *  =
  */
-int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_equal_common_(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -41,7 +41,7 @@ int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  /=
  */
-int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_not_equal_common_(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right, list;
@@ -63,7 +63,7 @@ int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  <
  */
-int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_less_common_(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -82,7 +82,7 @@ int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  >
  */
-int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_greater_common_(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -101,7 +101,7 @@ int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  <=
  */
-int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_less_equal_common_(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -120,7 +120,7 @@ int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  >=
  */
-int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *ret)
+int number_greater_equal_common_(LocalRoot local, addr left, addr rest, int *ret)
 {
 	int check;
 	addr right;
@@ -139,7 +139,7 @@ int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 /*
  *  max
  */
-int max_common(LocalRoot local, addr left, addr rest, addr *ret)
+int max_common_(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	int check;
 	addr right;
@@ -158,7 +158,7 @@ int max_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  min
  */
-int min_common(LocalRoot local, addr left, addr rest, addr *ret)
+int min_common_(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	int check;
 	addr right;
@@ -177,7 +177,7 @@ int min_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  +
  */
-int plus_common(LocalRoot local, addr rest, addr *ret)
+int plus_common_(LocalRoot local, addr rest, addr *ret)
 {
 	addr left, right;
 
@@ -201,7 +201,7 @@ int plus_common(LocalRoot local, addr rest, addr *ret)
 /*
  *  -
  */
-int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
+int minus_common_(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
@@ -223,7 +223,7 @@ int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  *
  */
-int asterisk_common(LocalRoot local, addr rest, addr *ret)
+int asterisk_common_(LocalRoot local, addr rest, addr *ret)
 {
 	addr left, right;
 
@@ -247,7 +247,7 @@ int asterisk_common(LocalRoot local, addr rest, addr *ret)
 /*
  *  /
  */
-int slash_common(LocalRoot local, addr left, addr rest, addr *ret)
+int slash_common_(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
@@ -269,10 +269,10 @@ int slash_common(LocalRoot local, addr left, addr rest, addr *ret)
 /*
  *  incf
  */
-static int incf_expand_common(Execute ptr, addr *ret, addr place, addr value, addr env)
+static int incf_expand_common_(Execute ptr, addr *ret, addr place, addr value, addr env)
 {
 	addr a, b, g, w, r;
-	addr c, d, ig, args, leta, declare, ignorable, setq, plus;
+	addr c, d, ig, args, leta, declare, ignorable, plus;
 
 	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	if (! singlep(g))
@@ -280,9 +280,8 @@ static int incf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 
 	/* (let* ((a1 b1)
 	 *        (a2 b2)
-	 *        g)
+	 *        (g (+ r value)))  ;; (g (1+ r))
 	 *   (declare (ignorable a1 a2))
-	 *   (setq g (+ r value))  ;; (setq g (1+ r))
 	 *   w g)
 	 */
 	args = Nil;
@@ -292,16 +291,7 @@ static int incf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 		list_heap(&c, c, d, NULL);
 		cons_heap(&args, c, args);
 	}
-	Return_getcar(g, &g);
-	cons_heap(&args, g, args);
-	nreverse(&args, args);
-	/* declare */
-	GetConst(COMMON_IGNORABLE, &ignorable);
-	cons_heap(&ignorable, ignorable, ig);
-	GetConst(COMMON_DECLARE, &declare);
-	list_heap(&declare, declare, ignorable, NULL);
-	/* setq */
-	GetConst(COMMON_SETQ, &setq);
+	/* g */
 	if (value == Unbound) {
 		GetConst(COMMON_ONE_PLUS, &plus);
 		list_heap(&plus, plus, r, NULL);
@@ -310,15 +300,23 @@ static int incf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 		GetConst(COMMON_PLUS, &plus);
 		list_heap(&plus, plus, r, value, NULL);
 	}
-	list_heap(&setq, setq, g, plus, NULL);
+	Return_getcar(g, &g);
+	list_heap(&plus, g, plus, NULL);
+	cons_heap(&args, plus, args);
+	nreverse(&args, args);
+	/* declare */
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	cons_heap(&ignorable, ignorable, ig);
+	GetConst(COMMON_DECLARE, &declare);
+	list_heap(&declare, declare, ignorable, NULL);
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
-	list_heap(ret, leta, args, declare, setq, w, g, NULL);
+	list_heap(ret, leta, args, declare, w, g, NULL);
 
 	return 0;
 }
 
-int incf_common(Execute ptr, addr form, addr env, addr *ret)
+int incf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, value;
 
@@ -333,7 +331,7 @@ int incf_common(Execute ptr, addr form, addr env, addr *ret)
 		if (args != Nil)
 			goto error;
 	}
-	return incf_expand_common(ptr, ret, place, value, env);
+	return incf_expand_common_(ptr, ret, place, value, env);
 
 error:
 	*ret = Nil;
@@ -344,10 +342,10 @@ error:
 /*
  *  decf
  */
-static int decf_expand_common(Execute ptr, addr *ret, addr place, addr value, addr env)
+static int decf_expand_common_(Execute ptr, addr *ret, addr place, addr value, addr env)
 {
 	addr a, b, g, w, r;
-	addr c, d, ig, args, leta, declare, ignorable, setq, minus;
+	addr c, d, ig, args, leta, declare, ignorable, minus;
 
 	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	if (! singlep(g))
@@ -355,9 +353,8 @@ static int decf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 
 	/* (let* ((a1 b1)
 	 *        (a2 b2)
-	 *        g)
+	 *        (g (- r value)))  ;; (g (1- r))
 	 *   (declare (ignorable a1 a2))
-	 *   (setq g (- r value))  ;; (setq g (1- r))
 	 *   w g)
 	 */
 	args = Nil;
@@ -367,16 +364,7 @@ static int decf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 		list_heap(&c, c, d, NULL);
 		cons_heap(&args, c, args);
 	}
-	Return_getcar(g, &g);
-	cons_heap(&args, g, args);
-	nreverse(&args, args);
-	/* declare */
-	GetConst(COMMON_IGNORABLE, &ignorable);
-	cons_heap(&ignorable, ignorable, ig);
-	GetConst(COMMON_DECLARE, &declare);
-	list_heap(&declare, declare, ignorable, NULL);
-	/* setq */
-	GetConst(COMMON_SETQ, &setq);
+	/* g */
 	if (value == Unbound) {
 		GetConst(COMMON_ONE_MINUS, &minus);
 		list_heap(&minus, minus, r, NULL);
@@ -385,15 +373,23 @@ static int decf_expand_common(Execute ptr, addr *ret, addr place, addr value, ad
 		GetConst(COMMON_MINUS, &minus);
 		list_heap(&minus, minus, r, value, NULL);
 	}
-	list_heap(&setq, setq, g, minus, NULL);
+	Return_getcar(g, &g);
+	list_heap(&minus, g, minus, NULL);
+	cons_heap(&args, minus, args);
+	nreverse(&args, args);
+	/* declare */
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	cons_heap(&ignorable, ignorable, ig);
+	GetConst(COMMON_DECLARE, &declare);
+	list_heap(&declare, declare, ignorable, NULL);
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
-	list_heap(ret, leta, args, declare, setq, w, g, NULL);
+	list_heap(ret, leta, args, declare, w, g, NULL);
 
 	return 0;
 }
 
-int decf_common(Execute ptr, addr form, addr env, addr *ret)
+int decf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, value;
 
@@ -408,7 +404,7 @@ int decf_common(Execute ptr, addr form, addr env, addr *ret)
 		if (args != Nil)
 			goto error;
 	}
-	return decf_expand_common(ptr, ret, place, value, env);
+	return decf_expand_common_(ptr, ret, place, value, env);
 
 error:
 	*ret = Nil;
@@ -419,21 +415,21 @@ error:
 /*
  *  random
  */
-int random_common(Execute ptr, addr limit, addr state, addr *ret)
+int random_common_(Execute ptr, addr limit, addr state, addr *ret)
 {
 	if (state == Unbound) {
 		/* symbol-value *random-state* */
 		GetConst(SPECIAL_RANDOM_STATE, &state);
 		Return(getspecialcheck_local_(ptr, state, &state));
 	}
-	return random_number_common(ptr->local, limit, state, ret);
+	return random_number_common_(ptr->local, limit, state, ret);
 }
 
 
 /*
  *  conjugate
  */
-int conjugate_common(addr var, addr *ret)
+int conjugate_common_(addr var, addr *ret)
 {
 	addr real, imag;
 
@@ -485,7 +481,7 @@ int imagpart_common_(addr var, addr *ret)
 /*
  *  parse-integer
  */
-int parse_integer_common(LocalRoot local,
+int parse_integer_common_(LocalRoot local,
 		addr var, addr rest, addr *ret1, addr *ret2)
 {
 	addr radix, junk;
