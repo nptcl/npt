@@ -5,7 +5,7 @@
 #include "define.h"
 #include "typedef.h"
 
-#define EastAsianTable_Size 1137
+#define EastAsianTable_Size 1161
 
 enum EastAsianType {
 #ifdef LISP_DEBUG
