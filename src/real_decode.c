@@ -15,6 +15,7 @@
 #include "real.h"
 #include "real_ceiling.h"
 #include "real_decode.h"
+#include "real_equal.h"
 
 #define real_decode_inexact_(ptr, x,y) \
 	call_float_inexact_va_(ptr, CONSTANT_COMMON_##x, (y), NULL)
@@ -924,9 +925,20 @@ static int rationalize_float_(Execute ptr, addr x, addr *ret)
 
 int rationalize_common_(Execute ptr, addr pos, addr *ret)
 {
+	int check;
+
+	/* zerop */
+	Return(zerop_real_(pos, &check));
+	if (check) {
+		fixnum_heap(ret, 0);
+		return 0;
+	}
+
+	/* rational */
 	if (rationalp(pos))
 		return rational_throw_heap_(pos, ret);
 
+	/* float */
 	if (floatp(pos)) {
 		Return(rationalize_float_(ptr, pos, &pos));
 		ratio_result_noreduction_heap(ptr->local, pos, ret);

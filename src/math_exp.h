@@ -3,6 +3,10 @@
 
 #include "typedef.h"
 
+#define LISP_PI_SINGLE	3.14159265358979323844f
+#define LISP_PI_DOUBLE	3.14159265358979323844
+#define LISP_PI_LONG	3.14159265358979323844L
+
 #define exp_common_ _n(exp_common_)
 #define sin_common_ _n(sin_common_)
 #define cos_common_ _n(cos_common_)

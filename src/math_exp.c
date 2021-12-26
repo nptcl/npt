@@ -7,6 +7,7 @@
 #include "ratio.h"
 #include "real.h"
 #include "rational.h"
+#include "rational_equal.h"
 #include "math_exp.h"
 #include "math_type.h"
 #include <math.h>
@@ -586,6 +587,51 @@ static int phase_complex_common_(addr pos, addr *ret)
 	return 0;
 }
 
+static int phase_rational_common_(addr pos, addr *ret)
+{
+	int check;
+
+	Return(zerop_rational_(pos, &check));
+	if (check) {
+		single_float_heap(ret, 0.0f);
+		return 0;
+	}
+	Return(minusp_rational_(pos, &check));
+	single_float_heap(ret, check? LISP_PI_SINGLE: 0.0f);
+
+	return 0;
+}
+
+static int phase_single_common_(addr pos, addr *ret)
+{
+	single_float value;
+
+	GetSingleFloat(pos, &value);
+	single_float_heap(ret, signbit(value)? LISP_PI_SINGLE: 0.0f);
+
+	return 0;
+}
+
+static int phase_double_common_(addr pos, addr *ret)
+{
+	double_float value;
+
+	GetDoubleFloat(pos, &value);
+	double_float_heap(ret, signbit(value)? LISP_PI_DOUBLE: 0.0);
+
+	return 0;
+}
+
+static int phase_long_common_(addr pos, addr *ret)
+{
+	long_float value;
+
+	GetLongFloat(pos, &value);
+	long_float_heap(ret, signbit(value)? LISP_PI_LONG: 0.0L);
+
+	return 0;
+}
+
 int phase_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
@@ -595,17 +641,16 @@ int phase_common_(addr pos, addr *ret)
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 		case LISPTYPE_RATIO:
+			return phase_rational_common_(pos, ret);
+
 		case LISPTYPE_SINGLE_FLOAT:
-			single_float_heap(ret, 0.0f);
-			break;
+			return phase_single_common_(pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			double_float_heap(ret, 0.0);
-			break;
+			return phase_double_common_(pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			long_float_heap(ret, 0.0L);
-			break;
+			return phase_long_common_(pos, ret);
 
 		default:
 			*ret = Nil;

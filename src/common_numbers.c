@@ -3167,7 +3167,7 @@ static void defconstant_pi(void)
 
 	GetConst(COMMON_PI, &symbol);
 	/* $ echo 'scale=20; a(1)*4' | bc -l */
-	long_float_heap(&value, 3.14159265358979323844L);
+	long_float_heap(&value, LISP_PI_LONG);
 	defconstant_symbol(symbol, value);
 }
 

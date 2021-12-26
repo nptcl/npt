@@ -142,9 +142,8 @@
   type-error)
 
 
-
 ;;
-;;
+;;  Function NUMERATOR
 ;;
 (deftest numerator.1
   (numerator 0)
@@ -166,6 +165,24 @@
   (numerator 123/541)
   123)
 
+(deftest numerator.6
+  (numerator -123/541)
+  -123)
+
+(deftest-error! numerator-error.1
+  (eval '(numerator)))
+
+(deftest-error! numerator-error.2
+  (eval '(numerator #\A))
+  type-error)
+
+(deftest-error! numerator-error.3
+  (eval '(numerator 10 20)))
+
+
+;;
+;;  Function DENOMINATOR
+;;
 (deftest denominator.1
   (denominator 0)
   1)
@@ -186,6 +203,339 @@
   (denominator 123/541)
   541)
 
+(deftest denominator.6
+  (denominator -123/541)
+  541)
+
+(deftest-error! denominator-error.1
+  (eval '(denominator)))
+
+(deftest-error! denominator-error.2
+  (eval '(denominator #\A))
+  type-error)
+
+(deftest-error! denominator-error.3
+  (eval '(denominator 10 20)))
+
+;;  ANSI Common Lisp
+(deftest numerator-test.1
+  (numerator 1/2)
+  1)
+
+(deftest numerator-test.2
+  (denominator 12/36)
+  3)
+
+(deftest numerator-test.3
+  (numerator -1)
+  -1)
+
+(deftest numerator-test.4
+  (denominator (/ -33))
+  33)
+
+(deftest numerator-test.5
+  (numerator (/ 8 -6))
+  -4)
+
+(deftest numerator-test.6
+  (denominator (/ 8 -6))
+  3)
+
+(deftest numerator-test.7
+  (values
+    (gcd (numerator 6/7) (denominator 6/7))
+    (gcd (numerator -123/456) (denominator -123/456))
+    (gcd (numerator 7/11) (denominator 7/11))
+    (gcd (numerator 3) (denominator 3)))
+  1 1 1 1)
+
+
+;;
+;;  Function RATIONAL
+;;
+(deftest rational.1
+  (rational 0)
+  0)
+
+(deftest rational.2
+  (rational -12)
+  -12)
+
+(deftest rational.3
+  (rational 3/4)
+  3/4)
+
+(deftest rational-single.1
+  (rational 1.0f0)
+  1)
+
+(deftest rational-single.2
+  (rational 0.5f0)
+  1/2)
+
+(deftest rational-single.3
+  (rational -0.125f0)
+  -1/8)
+
+(deftest rational-single.4
+  (rational 0.1f0)
+  13421773/134217728)
+
+(deftest rational-single.5
+  (rational -1.23f5)
+  -123000)
+
+(deftest rational-single.6
+  (rational 4.56f-2)
+  12240657/268435456)
+
+(deftest rational-single.7
+  (rational +0.0f0)
+  0)
+
+(deftest rational-single.8
+  (rational -0.0f0)
+  0)
+
+(deftest rational-single.9
+  (eql (float (rational 4.56f-2)) 4.56f-2)
+  t)
+
+(deftest rational-double.1
+  (rational 1.0d0)
+  1)
+
+(deftest rational-double.2
+  (rational 0.5d0)
+  1/2)
+
+(deftest rational-double.3
+  (rational -0.125d0)
+  -1/8)
+
+(deftest rational-double.4
+  (rational 0.1d0)
+  3602879701896397/36028797018963968)
+
+(deftest rational-double.5
+  (rational -1.23d5)
+  -123000)
+
+(deftest rational-double.6
+  (rational 4.57d-2)
+  6586064095066613/144115188075855872)
+
+(deftest rational-double.7
+  (rational +0.0d0)
+  0)
+
+(deftest rational-double.8
+  (rational -0.0d0)
+  0)
+
+(deftest rational-long.1
+  (rational 1.0d0)
+  1)
+
+(deftest rational-long.2
+  (rational 0.5L0)
+  1/2)
+
+(deftest rational-long.3
+  (rational -0.125L0)
+  -1/8)
+
+#+long-float-64
+(deftest rational-long.4
+  (rational 0.1L0)
+  3602879701896397/36028797018963968)
+
+#+long-float-80
+(deftest rational-long.4
+  (rational 0.1L0)
+  14757395258967641293/147573952589676412928)
+
+(deftest rational-long.5
+  (rational -1.23L5)
+  -123000)
+
+#+long-float-64
+(deftest rational-long.6
+  (rational 4.56L-2)
+  1642913144064757/36028797018963968)
+
+#+long-float-80
+(deftest rational-long.6
+  (rational 4.56L-2)
+  13458744476178488859/295147905179352825856)
+
+(deftest rational-long.7
+  (rational 0.0L0)
+  0)
+
+(deftest rational-long.8
+  (rational -0.0L0)
+  0)
+
+(deftest-error! rational-error.1
+  (eval '(rational)))
+
+(deftest-error! rational-error.2
+  (eval '(rational "Hello"))
+  type-error)
+
+(deftest-error! rational-error.3
+  (eval '(rational 10 20)))
+
+
+;;
+;;  Function RATIONALIZE
+;;
+(deftest rationalize.1
+  (rationalize 0)
+  0)
+
+(deftest rationalize.2
+  (rationalize -12)
+  -12)
+
+(deftest rationalize.3
+  (rationalize 3/4)
+  3/4)
+
+(deftest rationalize-single.1
+  (rationalize 1.0f0)
+  1)
+
+(deftest rationalize-single.2
+  (rationalize 0.5f0)
+  1/2)
+
+(deftest rationalize-single.3
+  (rationalize -0.125f0)
+  -1/8)
+
+(deftest rationalize-single.4
+  (rationalize 0.1f0)
+  1/10)
+
+(deftest rationalize-single.5
+  (rationalize -1.23f5)
+  -123000)
+
+(deftest rationalize-single.6
+  (rationalize 4.56f-2)
+  57/1250)
+
+(deftest rationalize-single.7
+  (rationalize +0.0f0)
+  0)
+
+(deftest rationalize-single.8
+  (rationalize -0.0f0)
+  0)
+
+(deftest rationalize-single.9
+  (eql (float (rationalize 4.56f-2)) 4.56f-2)
+  t)
+
+(deftest rationalize-double.1
+  (rationalize 1.0d0)
+  1)
+
+(deftest rationalize-double.2
+  (rationalize 0.5d0)
+  1/2)
+
+(deftest rationalize-double.3
+  (rationalize -0.125d0)
+  -1/8)
+
+(deftest rationalize-double.4
+  (rationalize 0.1d0)
+  1/10)
+
+(deftest rationalize-double.5
+  (rationalize -1.23d5)
+  -123000)
+
+(deftest rationalize-double.6
+  (rationalize 4.57d-2)
+  457/10000)
+
+(deftest rationalize-double.7
+  (rationalize +0.0d0)
+  0)
+
+(deftest rationalize-double.8
+  (rationalize -0.0d0)
+  0)
+
+(deftest rationalize-long.1
+  (rationalize 1.0d0)
+  1)
+
+(deftest rationalize-long.2
+  (rationalize 0.5L0)
+  1/2)
+
+(deftest rationalize-long.3
+  (rationalize -0.125L0)
+  -1/8)
+
+(deftest rationalize-long.4
+  (rationalize 0.1L0)
+  1/10)
+
+(deftest rationalize-long.5
+  (rationalize -1.23L5)
+  -123000)
+
+(deftest rationalize-long.6
+  (rationalize 4.56L-2)
+  57/1250)
+
+(deftest rationalize-long.7
+  (rationalize +0.0L0)
+  0)
+
+(deftest rationalize-long.8
+  (rationalize -0.0L0)
+  0)
+
+(deftest-error! rationalize-error.1
+  (eval '(rationalize)))
+
+(deftest-error! rationalize-error.2
+  (eval '(rationalize "Hello"))
+  type-error)
+
+(deftest-error! rationalize-error.3
+  (eval '(rationalize 10 20)))
+
+;;  ANSI Common Lisp
+(deftest rational-test.1
+  (rational 0)
+  0)
+
+(deftest rational-test.2
+  (rationalize -11/100)
+  -11/100)
+
+(deftest rational-test.3
+  (rational .1)
+  13421773/134217728)
+
+(deftest rational-test.4
+  (rationalize .1)
+  1/10)
+
+
+
+;;
+;;
+;;
 (deftest integer-length.1
   (values
     (integer-length 0)

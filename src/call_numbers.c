@@ -465,15 +465,77 @@ int realpart_common_(addr var, addr *ret)
 /*
  *  imagpart
  */
+static int imagpart_complex_common_(addr var, addr *ret)
+{
+	GetImagComplex(var, &var);
+	return real_throw_heap_(var, ret);
+}
+
+static int imagpart_rational_common_(addr var, addr *ret)
+{
+	fixnum_heap(ret, 0);
+	return 0;
+}
+
+static int imagpart_single_common_(addr var, addr *ret)
+{
+	single_float value;
+
+	GetSingleFloat(var, &value);
+	if (value == 0.0f)  /* plus or minus */
+		return Result(ret, var);
+
+	single_float_heap(ret, 0.0f);
+	return 0;
+}
+
+static int imagpart_double_common_(addr var, addr *ret)
+{
+	double_float value;
+
+	GetDoubleFloat(var, &value);
+	if (value == 0.0)  /* plus or minus */
+		return Result(ret, var);
+
+	double_float_heap(ret, 0.0);
+	return 0;
+}
+
+static int imagpart_long_common_(addr var, addr *ret)
+{
+	long_float value;
+
+	GetLongFloat(var, &value);
+	if (value == 0.0L)  /* plus or minus */
+		return Result(ret, var);
+
+	long_float_heap(ret, 0.0L);
+	return 0;
+}
+
 int imagpart_common_(addr var, addr *ret)
 {
-	if (complexp(var)) {
-		GetImagComplex(var, &var);
-		return real_throw_heap_(var, ret);
-	}
-	else {
-		fixnum_heap(ret, 0);
-		return 0;
+	switch (GetType(var)) {
+		case LISPTYPE_COMPLEX:
+			return imagpart_complex_common_(var, ret);
+
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+		case LISPTYPE_RATIO:
+			return imagpart_rational_common_(var, ret);
+
+		case LISPTYPE_SINGLE_FLOAT:
+			return imagpart_single_common_(var, ret);
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return imagpart_double_common_(var, ret);
+
+		case LISPTYPE_LONG_FLOAT:
+			return imagpart_long_common_(var, ret);
+
+		default:
+			*ret = Nil;
+			return TypeError_(var, NUMBER);
 	}
 }
 
