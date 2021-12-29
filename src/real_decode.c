@@ -6,6 +6,8 @@
 #include "condition.h"
 #include "float_object.h"
 #include "integer.h"
+#include "integer_calc.h"
+#include "integer_common.h"
 #include "local.h"
 #include "ratio.h"
 #include "rational.h"
@@ -625,8 +627,24 @@ int integer_decode_float_common_(Execute ptr,
 /*
  *  rational
  */
-static void rational_float_common(LocalRoot local,
-		addr *ret, addr pos, int e, int sign)
+static int rational_ash_common_(LocalRoot local,
+		addr pos, int sign2, size_t size, addr *ret)
+{
+	int sign1;
+
+	CheckType(pos, LISPTYPE_BIGNUM);
+	GetSignBignum(pos, &sign1);
+	if (IsPlus(sign2))
+		shiftup_bigdata_alloc(local, &pos, pos, size);
+	else
+		shiftdown_bigdata_alloc(local, &pos, pos, size);
+	SetSignBignum(pos, sign1);
+	bignum_result_heap(pos, ret);
+
+	return 0;
+}
+
+static int rational_float_common_(LocalRoot local, addr *ret, addr pos, int e, int sign)
 {
 	addr denom;
 
@@ -635,11 +653,11 @@ static void rational_float_common(LocalRoot local,
 		/* ratio: (/ pos (ash 1 (- e))) */
 		power2_bigdata_alloc(local, &denom, (size_t)-e);
 		ratio_reduction_heap(local, ret, sign, pos, denom);
+		return 0;
 	}
-	else {
-		/* integer: (ash pos e) */
-		ash_bignum_common(local, pos, sign, (size_t)e, ret);
-	}
+
+	/* integer: (ash pos e) */
+	return rational_ash_common_(local, pos, sign, (size_t)e, ret);
 }
 
 static int rational_single_common_(Execute ptr, addr pos, addr *ret)
@@ -662,7 +680,7 @@ static int rational_single_common_(Execute ptr, addr pos, addr *ret)
 		*ret = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
-	rational_float_common(local, ret, pos, e, sign);
+	Return(rational_float_common_(local, ret, pos, e, sign));
 	rollback_local(local, stack);
 
 	return 0;
@@ -688,7 +706,7 @@ static int rational_double_common_(Execute ptr, addr pos, addr *ret)
 		*ret = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
-	rational_float_common(local, ret, pos, e, sign);
+	Return(rational_float_common_(local, ret, pos, e, sign));
 	rollback_local(local, stack);
 
 	return 0;
@@ -714,7 +732,7 @@ static int rational_long_common_(Execute ptr, addr pos, addr *ret)
 		*ret = 0;
 		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
-	rational_float_common(local, ret, pos, e, sign);
+	Return(rational_float_common_(local, ret, pos, e, sign));
 	rollback_local(local, stack);
 
 	return 0;

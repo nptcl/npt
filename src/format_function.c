@@ -27,6 +27,7 @@
 #include "hold.h"
 #include "local.h"
 #include "integer.h"
+#include "integer_common.h"
 #include "object.h"
 #include "package_intern.h"
 #include "pointer.h"

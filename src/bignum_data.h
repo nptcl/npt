@@ -30,6 +30,7 @@
 #define division2_bigdata_alloc _n(division2_bigdata_alloc)
 #define shiftup_bigdata_alloc _n(shiftup_bigdata_alloc)
 #define shiftdown_bigdata_alloc _n(shiftdown_bigdata_alloc)
+#define shiftdown_minus_bigdata _n(shiftdown_minus_bigdata)
 #define letdiv_half_bigdata _n(letdiv_half_bigdata)
 
 /*****************************************************************************
@@ -163,6 +164,7 @@ void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value);
 void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left);
 void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
 void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
+void shiftdown_minus_bigdata(LocalRoot local, addr *ret, addr left, size_t value);
 
 bigtype letdiv_half_bigdata(addr left, bigtype right);
 

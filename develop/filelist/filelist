@@ -194,6 +194,8 @@ heap.c
 hold.c
 info.c
 integer.c
+integer_calc.c
+integer_common.c
 intern.c
 lambda.c
 load_code.c

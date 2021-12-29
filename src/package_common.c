@@ -11,6 +11,7 @@
 #include "function.h"
 #include "hashtable.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "package.h"
 #include "package_bittype.h"
 #include "package_common.h"

@@ -5,6 +5,7 @@
 #include "bignum_object.h"
 #include "format.h"
 #include "integer.h"
+#include "integer_common.h"
 #include "math_isqrt.h"
 #include "object.h"
 

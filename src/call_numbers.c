@@ -6,7 +6,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
-#include "integer.h"
+#include "integer_common.h"
 #include "number.h"
 #include "number_equal.h"
 #include "number_multi.h"

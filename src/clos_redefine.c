@@ -14,7 +14,7 @@
 #include "function.h"
 #include "heap.h"
 #include "hold.h"
-#include "integer.h"
+#include "integer_calc.h"
 #include "local.h"
 #include "symbol.h"
 

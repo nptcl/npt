@@ -11,6 +11,7 @@
 #include "format.h"
 #include "function.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"

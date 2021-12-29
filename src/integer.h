@@ -38,9 +38,6 @@
 #define less_equal_integer_debug _n(less_equal_integer_debug)
 #define sign_reverse_integer_common_ _n(sign_reverse_integer_common_)
 #define evenp_integer_ _n(evenp_integer_)
-#define output_nosign_integer_ _n(output_nosign_integer_)
-#define output_nosign_comma_integer_ _n(output_nosign_comma_integer_)
-#define string_nosign_comma_integer_ _n(string_nosign_comma_integer_)
 #define make_index_integer_alloc _n(make_index_integer_alloc)
 #define make_index_integer_local _n(make_index_integer_local)
 #define make_index_integer_heap _n(make_index_integer_heap)
@@ -64,25 +61,6 @@
 #define uint32_integer_alloc _n(uint32_integer_alloc)
 #define int64_integer_alloc _n(int64_integer_alloc)
 #define uint64_integer_alloc _n(uint64_integer_alloc)
-#define oneplus_integer_common_ _n(oneplus_integer_common_)
-#define oneminus_integer_common_ _n(oneminus_integer_common_)
-#define plus_fi_bignum_local_ _n(plus_fi_bignum_local_)
-#define plus_fi_real_local_ _n(plus_fi_real_local_)
-#define plus_fi_real_common_ _n(plus_fi_real_common_)
-#define plus_bi_bignum_local_ _n(plus_bi_bignum_local_)
-#define plus_bi_real_local_ _n(plus_bi_real_local_)
-#define plus_bi_real_common_ _n(plus_bi_real_common_)
-#define plus_ii_bignum_local_ _n(plus_ii_bignum_local_)
-#define plus_ii_real_local_ _n(plus_ii_real_local_)
-#define plus_ii_real_common_ _n(plus_ii_real_common_)
-#define minus_ii_real_common_ _n(minus_ii_real_common_)
-#define multi_ii_real_common_ _n(multi_ii_real_common_)
-#define ash_bignum_common _n(ash_bignum_common)
-#define ash_integer_common_ _n(ash_integer_common_)
-#define integer_length_value_ _n(integer_length_value_)
-#define integer_length_common_ _n(integer_length_common_)
-#define parse_integer_clang _n(parse_integer_clang)
-
 #define IsByteSign(x)  (0 <= (x) && (x) <= 0xFF)
 #define IsByteUnsign(x)  ((x) <= 0xFF)
 
@@ -134,13 +112,6 @@ int less_equal_integer_debug(addr left, addr right);
 int sign_reverse_integer_common_(addr pos, addr *ret);
 int evenp_integer_(addr left, int *ret);
 
-int output_nosign_integer_(LocalRoot local, addr stream,
-		addr pos, unsigned base, int upperp);
-int output_nosign_comma_integer_(LocalRoot local, addr stream,
-		addr pos, unsigned base, int upperp, size_t range, unicode comma);
-int string_nosign_comma_integer_(LocalRoot local, addr *ret, addr pos,
-		unsigned base, int upperp, size_t range, unicode comma);
-
 /* size */
 void make_index_integer_alloc(LocalRoot local, addr *ret, size_t value);
 void make_index_integer_local(LocalRoot local, addr *ret, size_t value);
@@ -173,30 +144,6 @@ void uint32_integer_alloc(LocalRoot local, addr *ret, uint32_t value);
 void int64_integer_alloc(LocalRoot local, addr *ret, int64_t value);
 void uint64_integer_alloc(LocalRoot local, addr *ret, uint64_t value);
 #endif
-
-/* oneplus */
-int oneplus_integer_common_(LocalRoot local, addr value, addr *ret);
-int oneminus_integer_common_(LocalRoot local, addr value, addr *ret);
-
-int plus_fi_bignum_local_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_fi_real_local_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_fi_real_common_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_bi_bignum_local_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_bi_real_local_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_bi_real_common_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_ii_bignum_local_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_ii_real_local_(LocalRoot local, addr left, addr right, addr *ret);
-int plus_ii_real_common_(LocalRoot local, addr left, addr right, addr *ret);
-int minus_ii_real_common_(LocalRoot local, addr left, addr right, addr *ret);
-int multi_ii_real_common_(LocalRoot local, addr left, addr right, addr *ret);
-
-void ash_bignum_common(LocalRoot local, addr pos, int sign2, size_t size, addr *ret);
-int ash_integer_common_(LocalRoot local, addr pos, addr count, addr *ret);
-int integer_length_value_(addr pos, size_t *ret);
-int integer_length_common_(addr pos, addr *ret);
-int parse_integer_clang(LocalRoot local,
-		addr string, size_t start, size_t end, unsigned radix, int junk,
-		addr *ret, addr *position);
 
 #endif
 

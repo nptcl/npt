@@ -11,6 +11,7 @@
 #include "function.h"
 #include "hold.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "localtime.h"
 #include "object.h"
 #include "pointer.h"

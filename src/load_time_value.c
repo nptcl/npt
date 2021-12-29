@@ -7,6 +7,7 @@
 #include "eval_execute.h"
 #include "hashtable.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "load_depend.h"
 #include "load_gensym.h"
 #include "load_time_value.h"

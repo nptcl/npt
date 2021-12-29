@@ -18,6 +18,7 @@
 #include "format.h"
 #include "local.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "pathname_object.h"
 #include "pathname_wildcard.h"
 #include "pathname.h"

@@ -12,6 +12,7 @@
 #include "pathname.h"
 #include "ratio.h"
 #include "reader.h"
+#include "stream_init.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "syscall.h"

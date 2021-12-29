@@ -1480,7 +1480,7 @@ void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value
 {
 	addr pos, root;
 	size_t size, count, dsize, i;
-	bigtype *data1, *data2;
+	bigtype *data1, *data2, x, y;
 
 	if (value == 0) {
 		bignum_throw_alloc(local, left, ret);
@@ -1502,8 +1502,9 @@ void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value
 	if (value) {
 		dsize--;
 		for (i = 0; i < dsize; i++) {
-			data2[i] = (data1[i + count] >> value) |
-				(data1[i + count + 1] << (BIGNUM_FULLBIT - value));
+			x = (data1[i + count] >> value);
+			y = (data1[i + count + 1] << (BIGNUM_FULLBIT - value));
+			data2[i] = x | y;
 		}
 		data2[i] = (data1[i + count] >> value);
 		sizepress_bignum(pos);
@@ -1513,6 +1514,108 @@ void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value
 	}
 
 	SetSignBignum(pos, RefSignBignum(left));
+	*ret = pos;
+}
+
+/* shiftdown-minus */
+static void shiftdown_minus_make(LocalRoot local, addr *ret, addr src)
+{
+	addr pos, root;
+	size_t size;
+	bigtype *data1, *data2;
+
+	GetSizeBignum(src, &size);
+	alloc_bignum(local, &pos, size + 1UL);
+	GetRootDataBignum(src, &root, &data1);
+	GetRootDataBignum(pos, &root, &data2);
+	bigcpy(data2, data1, size);
+	data2[size] = 0UL;
+	SetSizeBignum(pos, size + 1UL);
+	*ret = pos;
+}
+
+static void shiftdown_minus_reverse(addr pos)
+{
+	size_t size, i;
+	bigtype *data;
+
+	GetDataBignum(pos, &data);
+	GetSizeBignum(pos, &size);
+	for (i = 0; i < size; i++)
+		data[i] = ~(data[i]);
+}
+
+static void shiftdown_minus_oneplus(addr pos)
+{
+	setplusvalue_bigdata(pos, pos, SignPlus, 1);
+}
+
+static void shiftdown_minus_shift(addr pos, size_t value)
+{
+	addr root;
+	size_t size, count, dsize, i, dfullbit;
+	bigtype *data, x, y;
+
+	count = value / BIGNUM_FULLBIT;
+	value = value % BIGNUM_FULLBIT;
+	GetSizeBignum(pos, &size);
+	GetRootDataBignum(pos, &root, &data);
+	dsize = size - count;
+	dfullbit = BIGNUM_FULLBIT - value;
+	if (value) {
+		dsize--;
+		for (i = 0; i < dsize; i++) {
+			x = data[i + count] >> value;
+			y = data[i + count + 1] << dfullbit;
+			data[i] = x | y;
+		}
+		x = data[i + count] >> value;
+		y = (BIGNUM_FULL >> dfullbit) << dfullbit;
+		data[i] = x | y;
+		i++;
+	}
+	else {
+		bigmove(data, data + count, dsize);
+		i = dsize;
+	}
+
+	/* fill-bit */
+	for (; i < size; i++)
+		data[i] = BIGNUM_FULL;
+}
+
+void shiftdown_minus_bigdata(LocalRoot local, addr *ret, addr left, size_t value)
+{
+	int sign;
+	addr pos, root;
+	size_t size, count;
+	bigtype *data;
+
+	if (value == 0) {
+		bignum_throw_alloc(local, left, ret);
+		return;
+	}
+	count = value / BIGNUM_FULLBIT;
+	GetSizeBignum(left, &size);
+	GetRootDataBignum(left, &root, &data);
+	if ((size == 1 && data[0] == 0) || (size <= count)) {
+		bignum_fixnum_value_alloc(local, ret, -1);
+		return;
+	}
+
+	shiftdown_minus_make(local, &pos, left);
+	/* reverse */
+	shiftdown_minus_reverse(pos);
+	shiftdown_minus_oneplus(pos);
+	/* shift */
+	shiftdown_minus_shift(pos, value);
+	/* reverse */
+	shiftdown_minus_reverse(pos);
+	shiftdown_minus_oneplus(pos);
+	/* result */
+	GetSignBignum(left, &sign);
+	SetSignBignum(pos, sign);
+	sizepress_bignum(pos);
 	*ret = pos;
 }
 

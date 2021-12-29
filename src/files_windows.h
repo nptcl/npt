@@ -16,6 +16,7 @@
 #include "encode.h"
 #include "format.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "pathname.h"
 #include "pathname_object.h"
 #include "pathname_wildcard.h"

@@ -6,6 +6,7 @@
 #include "constant.h"
 #include "heap.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "local.h"
 #include "number.h"
 #include "object.h"

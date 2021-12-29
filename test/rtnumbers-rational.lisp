@@ -532,9 +532,8 @@
   1/10)
 
 
-
 ;;
-;;
+;;  Function INTEGER-LENGTH
 ;;
 (deftest integer-length.1
   (values
@@ -598,6 +597,73 @@
     (integer-length #x-100000000000000000000000000000001))
   129 129)
 
+(deftest-error! integer-length-error.1
+  (eval '(integer-length)))
+
+(deftest-error! integer-length-error.2
+  (eval '(integer-length 3/4))
+  type-error)
+
+(deftest-error! integer-length-error.3
+  (eval '(integer-length 10 20)))
+
+(deftest integer-length-test.1
+  (integer-length 0)
+  0)
+
+(deftest integer-length-test.2
+  (integer-length 1)
+  1)
+
+(deftest integer-length-test.3
+  (integer-length 3)
+  2)
+
+(deftest integer-length-test.4
+  (integer-length 4)
+  3)
+
+(deftest integer-length-test.5
+  (integer-length 7)
+  3)
+
+(deftest integer-length-test.6
+  (integer-length -1)
+  0)
+
+(deftest integer-length-test.7
+  (integer-length -4)
+  2)
+
+(deftest integer-length-test.8
+  (integer-length -7)
+  3)
+
+(deftest integer-length-test.9
+  (integer-length -8)
+  3)
+
+(deftest integer-length-test.10
+  (integer-length (expt 2 9))
+  10)
+
+(deftest integer-length-test.11
+  (integer-length (1- (expt 2 9)))
+  9)
+
+(deftest integer-length-test.12
+  (integer-length (- (expt 2 9)))
+  9)
+
+(deftest integer-length-test.13
+  (integer-length (- (1+ (expt 2 9))))
+  10)
+
+
+
+;;
+;;
+;;
 (deftest parse-integer.1
   (parse-integer "10")
   10 2)

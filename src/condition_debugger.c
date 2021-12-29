@@ -15,6 +15,7 @@
 #include "function.h"
 #include "hold.h"
 #include "integer.h"
+#include "integer_calc.h"
 #include "pointer.h"
 #include "prompt.h"
 #include "reader.h"

@@ -5,6 +5,8 @@
 #include "cons_list.h"
 #include "constant.h"
 #include "integer.h"
+#include "integer_calc.h"
+#include "integer_common.h"
 #include "number.h"
 #include "object.h"
 #include "real_equal.h"

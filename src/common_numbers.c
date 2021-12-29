@@ -9,6 +9,7 @@
 #include "common_header.h"
 #include "cons.h"
 #include "integer.h"
+#include "integer_common.h"
 #include "math_exp.h"
 #include "math_gcd.h"
 #include "math_isqrt.h"

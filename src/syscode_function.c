@@ -18,6 +18,8 @@
 #include "format_radix.h"
 #include "float_object.h"
 #include "integer.h"
+#include "integer_calc.h"
+#include "integer_common.h"
 #include "package_designer.h"
 #include "package_object.h"
 #include "pathname.h"
