@@ -2,7 +2,9 @@
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
 
-;;  logand
+;;
+;;  Function LOGAND
+;;
 (deftest logand.1
   (logand)
   -1)
@@ -221,8 +223,14 @@
     #x-23CDAC65E003D190B4C8202F7F6C61ACF157E39AA5B8D85)
   #x-67FFFEFFFFFFDBFFFDFFEFFFFFFD7DFFFFFFEFDFEDFFFC0)
 
+(deftest-error! logand-error.1
+  (eval '(logand 4/5))
+  type-error)
 
-;;  logandc1
+
+;;
+;;  Function LOGANDC1
+;;
 (deftest logandc1.1
   (logandc1
     #x393B346AD21E3DDA071EC4
@@ -247,8 +255,48 @@
     #x-8A72E1DA8DBB4F44CE8D2A)
   #x310914205204309A0112C2)
 
+(deftest logandc1.5
+  (let ((x #x393B346AD21E3DDA071EC4)
+        (y #x8A72E1DA8DBB4F44CE8D2A))
+    (eql (logand (lognot x) y)
+         (logandc1 x y)))
+  t)
 
-;;  logandc2
+(deftest logandc1.6
+  (let ((x #x393B346AD21E3DDA071EC4)
+        (y #x-8A72E1DA8DBB4F44CE8D2A))
+    (eql (logand (lognot x) y)
+         (logandc1 x y)))
+  t)
+
+(deftest logandc1.7
+  (let ((x #x-393B346AD21E3DDA071EC4)
+        (y #x8A72E1DA8DBB4F44CE8D2A))
+    (eql (logand (lognot x) y)
+         (logandc1 x y)))
+  t)
+
+(deftest logandc1.8
+  (let ((x #x-393B346AD21E3DDA071EC4)
+        (y #x-8A72E1DA8DBB4F44CE8D2A))
+    (eql (logand (lognot x) y)
+         (logandc1 x y)))
+  t)
+
+(deftest-error! logandc1-error.1
+  (eval '(logandc1 10)))
+
+(deftest-error! logandc1-error.2
+  (eval '(logandc1 3/4 50))
+  type-error)
+
+(deftest-error! logandc1-error.3
+  (eval '(logandc1 10 20 30)))
+
+
+;;
+;;  Function LOGANDC2
+;;
 (deftest logandc2.1
   (logandc2
     #x52FDFE24E59289EB088757
@@ -273,68 +321,150 @@
     #x-348892E6AC6F7EA137B26A)
   #x240000C2086D7600373029)
 
+(deftest logandc2.5
+  (let ((x #x52FDFE24E59289EB088757)
+        (y #x348892E6AC6F7EA137B26A))
+    (eql (logand x (lognot y))
+         (logandc2 x y)))
+  t)
 
-;;  logeqv
+(deftest logandc2.6
+  (let ((x #x52FDFE24E59289EB088757)
+        (y #x-348892E6AC6F7EA137B26A))
+    (eql (logand x (lognot y))
+         (logandc2 x y)))
+  t)
+
+(deftest logandc2.7
+  (let ((x #x-52FDFE24E59289EB088757)
+        (y #x348892E6AC6F7EA137B26A))
+    (eql (logand x (lognot y))
+         (logandc2 x y)))
+  t)
+
+(deftest logandc2.8
+  (let ((x #x-52FDFE24E59289EB088757)
+        (y #x-348892E6AC6F7EA137B26A))
+    (eql (logand x (lognot y))
+         (logandc2 x y)))
+  t)
+
+(deftest-error! logandc2-error.1
+  (eval '(logandc2 10)))
+
+(deftest-error! logandc2-error.2
+  (eval '(logandc2 3/4 50))
+  type-error)
+
+(deftest-error! logandc2-error.3
+  (eval '(logandc2 10 20 30)))
+
+
+;;  Function LOGEQV
 (deftest logeqv.1
   (logeqv)
   -1)
 
 (deftest logeqv.2
+  (logeqv 100)
+  100)
+
+(deftest logeqv.3
   (logeqv
     #x71C657D7522BBCA4301E44
     #xC251F31E815F2A86687E41)
   #x-B397A4C9D3749622586006)
 
-(deftest logeqv.3
+(deftest logeqv.4
   (logeqv
     #x71C657D7522BBCA4301E44
     #x-C251F31E815F2A86687E41)
   #xB397A4C9D3749622586004)
 
-(deftest logeqv.4
+(deftest logeqv.5
   (logeqv
     #x-71C657D7522BBCA4301E44
     #xC251F31E815F2A86687E41)
   #xB397A4C9D3749622586002)
 
-(deftest logeqv.5
+(deftest logeqv.6
   (logeqv
     #x-71C657D7522BBCA4301E44
     #x-C251F31E815F2A86687E41)
   #x-B397A4C9D3749622586004)
 
+(deftest logeqv.7
+  (logeqv
+    #xAE05182A0278B7790B9A030FE47DF3B1
+    #x54B7E0D4A8891BA756DA14CD7DE8548A
+    #x816340D044F8F95674BA0C59D73E935E
+    #x6C45D60CD4B0A6933145E3201CE10B93
+    #x-C50C8C78AFEB8C31600FC60DF3B6EA61
+    #x-DF18653BF02EECE56D146FCBC7E7ACB6
+    #x-AE34C488D70A26BB5C64B527E03D47C1
+    #x-C81BB81FF1978CE54103E172AB27E9B8)
+  #x-6BAFFBF643E1399108C305282D01D755)
 
-;;  logior
+(deftest-error! logeqv-error.1
+  (eval '(logeqv 4/5))
+  type-error)
+
+
+;;
+;;  Function LOGIOR
+;;
 (deftest logior.1
   (logior)
   0)
 
 (deftest logior.2
+  (logior -100)
+  -100)
+
+(deftest logior.3
   (logior
     #x9D30D9178DF5F587B4A862
     #xFE18764CA04F8ADEC8B296)
   #xFF38FF5FADFFFFDFFCBAF6)
 
-(deftest logior.3
+(deftest logior.4
   (logior
     #x9D30D9178DF5F587B4A862
     #x-FE18764CA04F8ADEC8B296)
   #x-62082648200A0A58481296)
 
-(deftest logior.4
+(deftest logior.5
   (logior
     #x-9D30D9178DF5F587B4A862
     #xFE18764CA04F8ADEC8B296)
   #x-12089130DB07501340862)
 
-(deftest logior.5
+(deftest logior.6
   (logior
     #x-9D30D9178DF5F587B4A862
     #x-FE18764CA04F8ADEC8B296)
   #x-9C1050048045808680A002)
 
+(deftest logior.7
+  (logior
+    #xAE05182A0278B7790B9A030FE47DF3B1
+    #x54B7E0D4A8891BA756DA14CD7DE8548A
+    #x816340D044F8F95674BA0C59D73E935E
+    #x6C45D60CD4B0A6933145E3201CE10B93
+    #x-C50C8C78AFEB8C31600FC60DF3B6EA61
+    #x-DF18653BF02EECE56D146FCBC7E7ACB6
+    #x-AE34C488D70A26BB5C64B527E03D47C1
+    #x-C81BB81FF1978CE54103E172AB27E9B8)
+  #x-200000000000000000001)
 
-;;  lognand
+(deftest-error! logior-error.1
+  (eval '(logior 4/5))
+  type-error)
+
+
+;;
+;;  Function LOGNAND
+;;
 (deftest lognand.1
   (lognand
     #xAA1355ACD3789E83205AE5
@@ -359,8 +489,48 @@
     #x-DA43D15987AEBE4C7541C9)
   #xFA53D5FDD7FEBECF755BEC)
 
+(deftest lognand.5
+  (let ((x #xAA1355ACD3789E83205AE5)
+        (y #xDA43D15987AEBE4C7541C9))
+    (eql (lognot (logand x y))
+         (lognand x y)))
+  t)
 
-;;  lognor
+(deftest lognand.6
+  (let ((x #xAA1355ACD3789E83205AE5)
+        (y #x-DA43D15987AEBE4C7541C9))
+    (eql (lognot (logand x y))
+         (lognand x y)))
+  t)
+
+(deftest lognand.7
+  (let ((x #x-AA1355ACD3789E83205AE5)
+        (y #xDA43D15987AEBE4C7541C9))
+    (eql (lognot (logand x y))
+         (lognand x y)))
+  t)
+
+(deftest lognand.8
+  (let ((x #x-AA1355ACD3789E83205AE5)
+        (y #x-DA43D15987AEBE4C7541C9))
+    (eql (lognot (logand x y))
+         (lognand x y)))
+  t)
+
+(deftest-error! lognand-error.1
+  (eval '(lognand 10)))
+
+(deftest-error! lognand-error.2
+  (eval '(lognand 3/4 50))
+  type-error)
+
+(deftest-error! lognand-error.3
+  (eval '(lognand 10 20 30)))
+
+
+;;
+;;  Function LOGNOR
+;;
 (deftest lognor.1
   (lognor
     #x792A36F3B26AD04EEC191
@@ -385,8 +555,48 @@
     #x-1500DCF419194303258C5C)
   #x500806419000100248010)
 
+(deftest lognor.5
+  (let ((x #x792A36F3B26AD04EEC191)
+        (y #x1500DCF419194303258C5C))
+    (eql (lognot (logior x y))
+         (lognor x y)))
+  t)
 
-;;  lognot
+(deftest lognor.6
+  (let ((x #x792A36F3B26AD04EEC191)
+        (y #x-1500DCF419194303258C5C))
+    (eql (lognot (logior x y))
+         (lognor x y)))
+  t)
+
+(deftest lognor.7
+  (let ((x #x-792A36F3B26AD04EEC191)
+        (y #x1500DCF419194303258C5C))
+    (eql (lognot (logior x y))
+         (lognor x y)))
+  t)
+
+(deftest lognor.8
+  (let ((x #x-792A36F3B26AD04EEC191)
+        (y #x-1500DCF419194303258C5C))
+    (eql (lognot (logior x y))
+         (lognor x y)))
+  t)
+
+(deftest-error! lognor-error.1
+  (eval '(lognor 10)))
+
+(deftest-error! lognor-error.2
+  (eval '(lognor 3/4 50))
+  type-error)
+
+(deftest-error! lognor-error.3
+  (eval '(lognor 10 20 30)))
+
+
+;;
+;;  Function LOGNOT
+;;
 (deftest lognot.1
   (lognot #xBE6BBA61618AB915487855)
   #x-BE6BBA61618AB915487856)
@@ -395,8 +605,29 @@
   (lognot #x-D7F0FD5CB20EBC851D0764)
   #xD7F0FD5CB20EBC851D0763)
 
+(deftest lognot.3
+  (lognot 0)
+  -1)
 
-;;  logorc1
+(deftest lognot.4
+  (let ((x #x-D7F0FD5CB20EBC851D0764))
+    (eql (lognot (lognot x)) x))
+  t)
+
+(deftest-error! lognot-error.1
+  (eval '(lognot)))
+
+(deftest-error! lognot-error.2
+  (eval '(lognot 3/4))
+  type-error)
+
+(deftest-error! lognot-error.3
+  (eval '(lognot 10 20)))
+
+
+;;
+;;  Function LOGORC1
+;;
 (deftest logorc1.1
   (logorc1
     #x7C9A58ED632C20C71EB363
@@ -421,8 +652,48 @@
     #x-52AABCA40F896CA4AA12A8)
   #x-220A4000C814C20A00086)
 
+(deftest logorc1.5
+  (let ((x #x7C9A58ED632C20C71EB363)
+        (y #x52AABCA40F896CA4AA12A8))
+    (eql (logior (lognot x) y)
+         (logorc1 x y)))
+  t)
 
-;;  logorc2
+(deftest logorc1.6
+  (let ((x #x7C9A58ED632C20C71EB363)
+        (y #x-52AABCA40F896CA4AA12A8))
+    (eql (logior (lognot x) y)
+         (logorc1 x y)))
+  t)
+
+(deftest logorc1.7
+  (let ((x #x-7C9A58ED632C20C71EB363)
+        (y #x52AABCA40F896CA4AA12A8))
+    (eql (logior (lognot x) y)
+         (logorc1 x y)))
+  t)
+
+(deftest logorc1.8
+  (let ((x #x-7C9A58ED632C20C71EB363)
+        (y #x-52AABCA40F896CA4AA12A8))
+    (eql (logior (lognot x) y)
+         (logorc1 x y)))
+  t)
+
+(deftest-error! logorc1-error.1
+  (eval '(logorc1 10)))
+
+(deftest-error! logorc1-error.2
+  (eval '(logorc1 3/4 50))
+  type-error)
+
+(deftest-error! logorc1-error.3
+  (eval '(logorc1 10 20 30)))
+
+
+;;
+;;  Function LOGORC2
+;;
 (deftest logorc2.1
   (logorc2
     #x701EB39515992A5ED7B67F
@@ -447,327 +718,145 @@
     #x-B741C9877630D6CCA3A6CD)
   #x-401E321001892812541033)
 
+(deftest logorc2.5
+  (let ((x #x701EB39515992A5ED7B67F)
+        (y #xB741C9877630D6CCA3A6CD))
+    (eql (logior x (lognot y))
+         (logorc2 x y)))
+  t)
 
-;;  logxor
+(deftest logorc2.6
+  (let ((x #x701EB39515992A5ED7B67F)
+        (y #x-B741C9877630D6CCA3A6CD))
+    (eql (logior x (lognot y))
+         (logorc2 x y)))
+  t)
+
+(deftest logorc2.7
+  (let ((x #x-701EB39515992A5ED7B67F)
+        (y #xB741C9877630D6CCA3A6CD))
+    (eql (logior x (lognot y))
+         (logorc2 x y)))
+  t)
+
+(deftest logorc2.8
+  (let ((x #x-701EB39515992A5ED7B67F)
+        (y #x-B741C9877630D6CCA3A6CD))
+    (eql (logior x (lognot y))
+         (logorc2 x y)))
+  t)
+
+(deftest-error! logorc2-error.1
+  (eval '(logorc2 10)))
+
+(deftest-error! logorc2-error.2
+  (eval '(logorc2 3/4 50))
+  type-error)
+
+(deftest-error! logorc2-error.3
+  (eval '(logorc2 10 20 30)))
+
+
+;;
+;;  Function LOGXOR
+;;
 (deftest logxor.1
   (logxor)
   0)
 
 (deftest logxor.2
+  (logxor -100)
+  -100)
+
+(deftest logxor.3
   (logxor
     #x59BD91DD857ED4CB3565B7
     #x2B419DC0AC809248E00131)
   #x72FC0C1D29FE4683D56486)
 
-(deftest logxor.3
+(deftest logxor.4
   (logxor
     #x59BD91DD857ED4CB3565B7
     #x-2B419DC0AC809248E00131)
-  #x-72FC0C1D29FE4683D56488)
-
-(deftest logxor.4
-  (logxor
-    #x-59BD91DD857ED4CB3565B7
-    #x2B419DC0AC809248E00131)
   #x-72FC0C1D29FE4683D56488)
 
 (deftest logxor.5
   (logxor
     #x-59BD91DD857ED4CB3565B7
+    #x2B419DC0AC809248E00131)
+  #x-72FC0C1D29FE4683D56488)
+
+(deftest logxor.6
+  (logxor
+    #x-59BD91DD857ED4CB3565B7
     #x-2B419DC0AC809248E00131)
   #x72FC0C1D29FE4683D56486)
 
+(deftest logxor.7
+  (logxor
+    #xAE05182A0278B7790B9A030FE47DF3B1
+    #x54B7E0D4A8891BA756DA14CD7DE8548A
+    #x816340D044F8F95674BA0C59D73E935E
+    #x6C45D60CD4B0A6933145E3201CE10B93
+    #x-C50C8C78AFEB8C31600FC60DF3B6EA61
+    #x-DF18653BF02EECE56D146FCBC7E7ACB6
+    #x-AE34C488D70A26BB5C64B527E03D47C1
+    #x-C81BB81FF1978CE54103E172AB27E9B8)
+  #x6BAFFBF643E1399108C305282D01D754)
 
-;;  logbitp
-(deftest logbitp.1
-  (logbitp 1 1)
-  nil)
-
-(deftest logbitp.2
-  (logbitp 0 1)
-  t)
-
-(deftest logbitp.3
-  (logbitp 3 10)
-  t)
-
-(deftest logbitp.4
-  (logbitp 1000000 -1)
-  t)
-
-(deftest logbitp.5
-  (logbitp 2 6)
-  t)
-
-(deftest logbitp.6
-  (logbitp 0 6)
-  nil)
-
-(deftest logbitpf.1
-  (logbitp 1000000 1)
-  nil)
-
-(deftest logbitpf.2
-  (let ((c #b1100000011111100000))
-    (values
-      (logbitp 0 c)
-      (logbitp 9 c)
-      (logbitp 10 c)
-      (logbitp 11 c)))
-  nil t t nil)
-
-(deftest logbitpf.3
-  (let ((c (- #b1100000011111100000)))
-    (values
-      (logbitp 0 c)
-      (logbitp 1 c)
-      (logbitp 4 c)
-      (logbitp 5 c)
-      (logbitp 10 c)
-      (logbitp 11 c)))
-  nil nil nil t nil t)
-
-(deftest logbitpb.1
-  (let ((c #xFF000AA0000000000000000000000010000))
-    (values
-      (logbitp 0 c)
-      (logbitp 16 c)
-      (logbitp (+ (* 29 4) 0) c)
-      (logbitp (+ (* 29 4) 1) c)
-      (logbitp (+ (* 29 4) 2) c)
-      (logbitp (+ (* 29 4) 3) c)
-      (logbitp (+ (* 29 4) 4) c)
-      (logbitp (+ (* 29 4) 5) c)))
-  nil t nil t nil t nil nil)
-
-(deftest logbitpb.2
-  (let ((c (- #xFF000AA0000000000000000000000010000)))
-    (values
-      (logbitp 0 c)
-      (logbitp 16 c)
-      (logbitp (+ (* 29 4) 0) c)
-      (logbitp (+ (* 29 4) 1) c)
-      (logbitp (+ (* 29 4) 2) c)
-      (logbitp (+ (* 29 4) 3) c)
-      (logbitp (+ (* 29 4) 4) c)
-      (logbitp (+ (* 29 4) 5) c)))
-  nil t t nil t nil t t)
-
-(deftest logbitpb.3
-  (let ((c (- #xFF000AA0000000000000000000000000000)))
-    (values
-      (logbitp 0 c)
-      (logbitp 16 c)
-      (logbitp (+ (* 29 4) 0) c)
-      (logbitp (+ (* 29 4) 1) c)
-      (logbitp (+ (* 29 4) 2) c)
-      (logbitp (+ (* 29 4) 3) c)
-      (logbitp (+ (* 29 4) 4) c)
-      (logbitp (+ (* 29 4) 5) c)))
-  nil nil t nil t nil t t)
-
-(deftest logbitpb.4
-  (let ((c (- #xFF000AAFFFFFFFFFFFFFFFFFFFFFFFFFFFF)))
-    (values
-      (logbitp 0 c)
-      (logbitp 16 c)
-      (logbitp (+ (* 29 4) 0) c)
-      (logbitp (+ (* 29 4) 1) c)
-      (logbitp (+ (* 29 4) 2) c)
-      (logbitp (+ (* 29 4) 3) c)
-      (logbitp (+ (* 29 4) 4) c)
-      (logbitp (+ (* 29 4) 5) c)))
-  t nil t nil t nil t t)
+(deftest-error! logxor-error.1
+  (eval '(logxor 4/5))
+  type-error)
 
 
-;;  logcount
-(deftest logcount.1
-  (logcount #xABCD0011)
-  12)
+;;  ANSI Common Lisp
+(deftest logand-test.1
+  (logior 1 2 4 8)
+  15)
 
-(deftest logcount.2
-  (logcount #x-ABCD0011)
-  11)
-
-(deftest logcount.3
-  (logcount #xFAB901DA6C9F81DD3C7273DBC22B5EE9806729)
-  80)
-
-(deftest logcount.4
-  (logcount #x-FAB901DA6C9F81DD3C7273DBC22B5EE9806729)
-  79)
-
-(deftest logcount.5
-  (logcount 0)
-  0)
-
-(deftest logcount.6
-  (logcount -1)
-  0)
-
-(deftest logcount.7
-  (logcount 7)
-  3)
-
-(deftest logcount.8
-  (logcount  13)
-  3)
-
-(deftest logcount.9
-  (logcount -13)
-  2)
-
-(deftest logcount.10
-  (logcount  30)
-  4)
-
-(deftest logcount.11
-  (logcount -30)
-  4)
-
-(deftest logcount.12
-  (logcount (expt 2 100))
-  1)
-
-(deftest logcount.13
-  (logcount (- (expt 2 100)))
-  100)
-
-(deftest logcount.14
-  (logcount (- (1+ (expt 2 100))))
-  1)
-
-
-;;  logtest
-(deftest logtest.1
-  (logtest 1 7)
-  t)
-
-(deftest logtest.2
-  (logtest 1 2)
-  nil)
-
-(deftest logtest.3
-  (logtest -2 -1)
-  t)
-
-(deftest logtest.4
-  (logtest 0 -1)
-  nil)
-
-(deftest logtest.5
-  (logtest
-    #x1110000000000000000000000000000000000000000000111
-    #x0001000000000000000000000000000000000000000000000)
-  nil)
-
-(deftest logtest.6
-  (logtest
-    #x1110000000000000000000000000000000000000000000111
-    #x000100000000000000000000000000000000000000000000F)
-  t)
-
-(deftest logtest.7
-  (logtest
-    #x1110000000000000000000000000000000000000000000111
-    #x0F01000000000000000000000000000000000000000000000)
-  t)
-
-(deftest logtest.8
-  (logtest
-    #x1110000000000000000000000000000000000000000000111
-    #x-0F01000000000000000000000000000000000000000000000)
-  t)
-
-
-;;  boole
-(deftest boole.1
-  (boole boole-1 10 20)
+(deftest logand-test.2
+  (logxor 1 3 7 15)
   10)
 
-(deftest boole.2
-  (boole boole-2 10 20)
-  20)
-
-(deftest boole.3
-  (boole boole-and
-         #x4F7B9C0C7FF0742E5537ED43B7C32C52E336FB26A59F74B0369
-         #x1BB47CEE9383B4CBC129966F98C74040F29B369AB0C893A3F62)
-  #xB301C0C1380340A4121844390C30040E2123202A08810A0360)
-
-(deftest boole.4
-  (boole boole-andc1
-         #x-393B346AD21E3DDA071EC4
-         #x8A72E1DA8DBB4F44CE8D2A)
-  #x832204A801A0D40060C02)
-
-(deftest boole.5
-  (boole boole-andc2
-         #x-52FDFE24E59289EB088757
-         #x348892E6AC6F7EA137B26A)
-  #x-76FDFEE6EDFFFFEB3FB77F)
-
-(deftest boole.6
-  (boole boole-c1
-         #xBE6BBA61618AB915487855
-         10)
-  #x-BE6BBA61618AB915487856)
-
-(deftest boole.7
-  (boole boole-c2
-         20
-         #x-D7F0FD5CB20EBC851D0764)
-  #xD7F0FD5CB20EBC851D0763)
-
-(deftest boole.8
-  (boole boole-clr 10 20)
-  0)
-
-(deftest boole.9
-  (boole boole-eqv
-         #x71C657D7522BBCA4301E44
-         #xC251F31E815F2A86687E41)
-  #x-B397A4C9D3749622586006)
-
-(deftest boole.10
-  (boole boole-ior
-         #x9D30D9178DF5F587B4A862
-         #x-FE18764CA04F8ADEC8B296)
-  #x-62082648200A0A58481296)
-
-(deftest boole.11
-  (boole boole-nand
-         #x-AA1355ACD3789E83205AE5
-         #xDA43D15987AEBE4C7541C9)
-  #x-504080510486204C55010A)
-
-
-(deftest boole.12
-  (boole boole-nor
-         #x-792A36F3B26AD04EEC191
-         #x-1500DCF419194303258C5C)
-  #x500806419000100248010)
-
-(deftest boole.13
-  (boole boole-orc1
-         #x7C9A58ED632C20C71EB363
-         #x52AABCA40F896CA4AA12A8)
-  #x-2C1040496024004314A144)
-
-
-(deftest boole.14
-  (boole boole-orc2
-         #x701EB39515992A5ED7B67F
-         #x-B741C9877630D6CCA3A6CD)
-  #xF75FFB9777B9FEDEF7B6FF)
-
-(deftest boole.15
-  (boole boole-set 10 20)
+(deftest logand-test.3
+  (logeqv)
   -1)
 
-(deftest boole.16
-  (boole boole-xor
-         #x-59BD91DD857ED4CB3565B7
-         #x-2B419DC0AC809248E00131)
-  #x72FC0C1D29FE4683D56486)
+(deftest logand-test.4
+  (logand 16 31)
+  16)
+
+(deftest logand-test.5
+  (lognot 0)
+  -1)
+
+(deftest logand-test.6
+  (lognot 1)
+  -2)
+
+(deftest logand-test.7
+  (lognot -1)
+  0)
+
+(deftest logand-test.8
+  (lognot (1+ (lognot 1000)))
+  999)
+
+(deftest logand-test.9
+  (flet ((show (m x y)
+               (list
+                 (format nil "#o~6,'0O" m)
+                 (format nil "#o~6,'0O" x)
+                 (format nil "#o~6,'0O" y))))
+    (let ((m #o007750)
+          (x #o452576)
+          (y #o317407))
+      (values
+        (show m x y)
+        (let ((z (logand (logxor x y) m)))
+          (setq x (logxor z x))
+          (setq y (logxor z y))
+          (show m x y)))))
+  ("#o007750" "#o452576" "#o317407")
+  ("#o007750" "#o457426" "#o312557"))
 

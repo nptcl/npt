@@ -147,6 +147,7 @@ static void defun_backquote_reader(void)
 	settype_function_symbol(symbol, type);
 }
 
+
 /* (defun comma-reader (stream character) ...) -> * */
 static int function_reader_comma(Execute ptr, addr stream, addr code)
 {

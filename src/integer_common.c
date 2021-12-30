@@ -284,14 +284,18 @@ int ash_integer_common_(LocalRoot local, addr pos, addr count, addr *ret)
 
 	/* sign */
 	GetSignBignum(value, &sign1);
-	if (IsPlus(sign1) && IsPlus(sign2))
-		return ash_up_common_(local, value, shift, ret);
-	else if (IsPlus(sign1))
-		return ash_down_common_(local, value, shift, ret);
-	else if (IsPlus(sign2))
-		return ash_up_common_(local, value, shift, ret);
-	else
-		return ash_mm_common_(local, value, shift, ret);
+	if (IsPlus(sign1) && IsPlus(sign2)) {
+		Return(ash_up_common_(local, value, shift, ret));
+	}
+	else if (IsPlus(sign1)) {
+		Return(ash_down_common_(local, value, shift, ret));
+	}
+	else if (IsPlus(sign2)) {
+		Return(ash_up_common_(local, value, shift, ret));
+	}
+	else {
+		Return(ash_mm_common_(local, value, shift, ret));
+	}
 finish:
 	rollback_local(local, stack);
 
@@ -302,78 +306,178 @@ finish:
 /*
  *  parse-integer
  */
-int parse_integer_clang(LocalRoot local,
-		addr string, size_t start, size_t end, unsigned radix, int junk,
-		addr *ret, addr *position)
-{
-	int mode, sign;
-	unsigned v;
-	unicode c;
-	addr cons;
-	size_t i;
-	LocalStack stack;
+struct parse_integer_struct {
+	unsigned sign, radix;
+	addr input, cons;
+	size_t end, index;
+};
 
-	push_local(local, &stack);
-	bigcons_local(local, &cons);
-	mode = 0;
-	sign = SignPlus;
-	for (i = start; i < end; i++) {
-		Return(string_getc_(string, i, &c));
-		/* white space */
-		if (mode == 0) {
-			if (isSpaceUnicode(c))
-				continue;
-			if (c == '+') {
-				sign = SignPlus;
-				mode = 1;
-				continue;
-			}
-			if (c == '-') {
-				sign = SignMinus;
-				mode = 1;
-				continue;
-			}
-			if (getvalue_digit(radix, c, &v))
-				goto error;
-			mode = 1;
-		}
-		/* digit */
-		if (mode == 1) {
-			if (! getvalue_digit(radix, c, &v)) {
-				push_bigcons(local, cons, radix, v);
-				continue;
-			}
-			if (! isSpaceUnicode(c))
-				goto error;
-			if (junk)
-				goto error; /* Don't read white-space (junk-allowed). */
-			continue;
-		}
-		/* white-space */
-		if (! isSpaceUnicode(c))
-			goto error;
+static int parse_integer_error_(LocalRoot local,
+		struct parse_integer_struct *str, addr *ret, addr *rpos)
+{
+	unicode c;
+	unsigned v;
+
+	*ret = *rpos = Nil;
+first:
+	if (str->end <= str->index)
+		goto error;
+	Return(string_getc_(str->input, str->index, &c));
+	if (isSpaceUnicode(c)) {
+		str->index++;
+		goto first;
 	}
-	/* success */
-	integer_cons_heap(ret, sign, cons);
-	make_index_integer_heap(position, i);
-	rollback_local(local, stack);
+	/* sign */
+	if (c == '+') {
+		str->index++;
+		str->sign = SignPlus;
+		goto sign;
+	}
+	if (c == '-') {
+		str->index++;
+		str->sign = SignMinus;
+		goto sign;
+	}
+	/* digit */
+	if (getvalue_digit(str->radix, c, &v))
+		goto error;
+	str->index++;
+	push_bigcons(local, str->cons, str->radix, v);
+	goto loop;
+
+sign:
+	if (str->end <= str->index)
+		goto error;
+	Return(string_getc_(str->input, str->index, &c));
+	if (getvalue_digit(str->radix, c, &v))
+		goto error;
+	str->index++;
+	push_bigcons(local, str->cons, str->radix, v);
+
+loop:
+	if (str->end <= str->index)
+		goto finish;
+	Return(string_getc_(str->input, str->index, &c));
+	if (isSpaceUnicode(c)) {
+		str->index++;
+		goto last;
+	}
+	if (getvalue_digit(str->radix, c, &v))
+		goto error;
+	str->index++;
+	push_bigcons(local, str->cons, str->radix, v);
+	goto loop;
+
+last:
+	if (str->end <= str->index)
+		goto finish;
+	Return(string_getc_(str->input, str->index, &c));
+	if (isSpaceUnicode(c)) {
+		str->index++;
+		goto last;
+	}
+	goto error;
+
+finish:
+	integer_cons_heap(ret, str->sign, str->cons);
+	make_index_integer_heap(rpos, str->index);
 	return 0;
 
 error:
-	if (junk) {
-		if (bigcons_empty_p(cons))
-			*ret = Nil;
-		else
-			integer_cons_heap(ret, sign, cons);
-		make_index_integer_heap(position, i);
-		rollback_local(local, stack);
-		return 0;
+	*ret = *rpos = Nil;
+	return call_simple_parse_error_va_(NULL,
+			"The string ~S is not integer.", str->input, NULL);
+}
+
+static int parse_integer_junk_allowed_(LocalRoot local,
+		struct parse_integer_struct *str, addr *ret, addr *rpos)
+{
+	unicode c;
+	unsigned v;
+
+	*ret = *rpos = Nil;
+first:
+	if (str->end <= str->index)
+		goto error;
+	Return(string_getc_(str->input, str->index, &c));
+	if (isSpaceUnicode(c)) {
+		str->index++;
+		goto first;
+	}
+	/* sign */
+	if (c == '+') {
+		str->index++;
+		str->sign = SignPlus;
+		goto sign;
+	}
+	if (c == '-') {
+		str->index++;
+		str->sign = SignMinus;
+		goto sign;
+	}
+	/* digit */
+	if (getvalue_digit(str->radix, c, &v))
+		goto error;
+	str->index++;
+	push_bigcons(local, str->cons, str->radix, v);
+	goto loop;
+
+sign:
+	if (str->end <= str->index)
+		goto error;
+	Return(string_getc_(str->input, str->index, &c));
+	if (getvalue_digit(str->radix, c, &v))
+		goto error;
+	str->index++;
+	push_bigcons(local, str->cons, str->radix, v);
+
+loop:
+	if (str->end <= str->index)
+		goto finish;
+	Return(string_getc_(str->input, str->index, &c));
+	if (isSpaceUnicode(c))
+		goto finish;
+	if (getvalue_digit(str->radix, c, &v))
+		goto finish;
+	str->index++;
+	push_bigcons(local, str->cons, str->radix, v);
+	goto loop;
+
+finish:
+	integer_cons_heap(ret, str->sign, str->cons);
+	make_index_integer_heap(rpos, str->index);
+	return 0;
+
+error:
+	*ret = Nil;
+	make_index_integer_heap(rpos, str->index);
+	return 0;
+}
+
+int parse_integer_clang_(LocalRoot local,
+		addr input, size_t start, size_t end, unsigned radix, int junk,
+		addr *ret, addr *rpos)
+{
+	addr cons;
+	LocalStack stack;
+	struct parse_integer_struct str;
+
+	push_local(local, &stack);
+	bigcons_local(local, &cons);
+	str.sign = SignPlus;
+	str.input = input;
+	str.cons = cons;
+	str.index = start;
+	str.end = end;
+	str.radix = radix;
+	if (! junk) {
+		Return(parse_integer_error_(local, &str, ret, rpos));
 	}
 	else {
-		rollback_local(local, stack);
-		*ret = *position = 0;
-		character_heap(&cons, c);
-		return fmte_("Invalid string ~A.", cons, NULL);
+		Return(parse_integer_junk_allowed_(local, &str, ret, rpos));
 	}
+	rollback_local(local, stack);
+
+	return 0;
 }
 

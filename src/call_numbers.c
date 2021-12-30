@@ -555,7 +555,7 @@ int parse_integer_common_(LocalRoot local,
 		fixnum_heap(&radix, 10);
 	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk))
 		junk = Nil;
-	return parse_integer_clang(local, var, start, end,
+	return parse_integer_clang_(local, var, start, end,
 			(unsigned)RefFixnum(radix), junk != Nil, ret1, ret2);
 }
 

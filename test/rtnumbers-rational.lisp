@@ -660,9 +660,8 @@
   10)
 
 
-
 ;;
-;;
+;;  Function PARSE-INTEGER
 ;;
 (deftest parse-integer.1
   (parse-integer "10")
@@ -677,36 +676,209 @@
   10 8)
 
 (deftest parse-integer.4
-  (parse-integer "   10   " :junk-allowed t)
-  10 5)
+  (parse-integer "+1234")
+  1234 5)
 
 (deftest parse-integer.5
-  (parse-integer "123456789" :start 3 :end 5)
-  45 5)
+  (parse-integer "-1234")
+  -1234 5)
 
 (deftest-error parse-integer.6
-  (parse-integer "ABCD"))
+  (parse-integer "ABCD")
+  parse-error)
 
-(deftest parse-integer.7
-  (parse-integer "ABCD" :radix 16)
-  #xABCD 4)
+(deftest-error parse-integer.7
+  (parse-integer "10H")
+  parse-error)
 
-(deftest parse-integer.8
+(deftest-error parse-integer.8
+  (parse-integer "+ 1234")
+  parse-error)
+
+(deftest-error parse-integer.9
+  (parse-integer "- 1234")
+  parse-error)
+
+(deftest-error parse-integer.10
+  (parse-integer "  567  8")
+  parse-error)
+
+
+;;  junk-allowed
+(deftest parse-integer-junk-allowed.1
+  (parse-integer "20" :junk-allowed t)
+  20 2)
+
+(deftest parse-integer-junk-allowed.2
+  (parse-integer "   20" :junk-allowed t)
+  20 5)
+
+(deftest parse-integer-junk-allowed.3
+  (parse-integer "   20   " :junk-allowed t)
+  20 5)
+
+(deftest parse-integer-junk-allowed.4
+  (parse-integer "+2345" :junk-allowed t)
+  2345 5)
+
+(deftest parse-integer-junk-allowed.5
+  (parse-integer "-2345" :junk-allowed t)
+  -2345 5)
+
+(deftest parse-integer-junk-allowed.6
+  (parse-integer "ABCD" :junk-allowed t)
+  nil 0)
+
+(deftest parse-integer-junk-allowed.7
+  (parse-integer "10H" :junk-allowed t)
+  10 2)
+
+(deftest parse-integer-junk-allowed.8
+  (parse-integer "+ 1234" :junk-allowed t)
+  nil 1)
+
+(deftest parse-integer-junk-allowed.9
+  (parse-integer "- 1234" :junk-allowed t)
+  nil 1)
+
+(deftest parse-integer-junk-allowed.10
+  (parse-integer "  567  8" :junk-allowed t)
+  567 5)
+
+(deftest-error parse-integer-junk-allowed.11
+  (parse-integer "  HHHH" :junk-allowed nil)
+  parse-error)
+
+(deftest parse-integer-junk-allowed.12
+  (parse-integer "  HHHH" :junk-allowed t)
+  nil 2)
+
+
+;;  start
+(deftest parse-integer-start.1
+  (parse-integer "123456789" :start 0)
+  123456789 9)
+
+(deftest parse-integer-start.2
+  (parse-integer "123456789" :start 2)
+  3456789 9)
+
+(deftest parse-integer-start.3
+  (parse-integer "123456789" :start 8)
+  9 9)
+
+(deftest-error parse-integer-start.4
+  (parse-integer "123456789" :start 9)
+  parse-error)
+
+(deftest parse-integer-start.5
+  (parse-integer "123456789" :start 9 :junk-allowed t)
+  nil 9)
+
+(deftest-error parse-integer-start.6
+  (parse-integer "123456789" :start 10))
+
+(deftest-error parse-integer-start.7
+  (parse-integer "123456789" :start 10 :junk-allowed t))
+
+
+;;  end
+(deftest parse-integer-end.1
+  (parse-integer "123456789" :end nil)
+  123456789 9)
+
+(deftest-error parse-integer-end.2
+  (parse-integer "123456789" :end 0)
+  parse-error)
+
+(deftest parse-integer-end.3
+  (parse-integer "123456789" :end 0 :junk-allowed t)
+  nil 0)
+
+(deftest parse-integer-end.4
+  (parse-integer "123456789" :end 2)
+  12 2)
+
+(deftest parse-integer-end.5
+  (parse-integer "123456789" :end 8)
+  12345678 8)
+
+(deftest parse-integer-end.6
+  (parse-integer "123456789" :end 9)
+  123456789 9)
+
+(deftest-error parse-integer-end.7
+  (parse-integer "123456789" :end 10))
+
+(deftest-error parse-integer-end.8
+  (parse-integer "123456789" :end 10 :junk-allowed t))
+
+
+;;  start-end
+(deftest parse-integer-start-end.1
+  (parse-integer "123456789" :start 0 :end nil)
+  123456789 9)
+
+(deftest parse-integer-start-end.2
+  (parse-integer "123456789" :start 4 :end 6)
+  56 6)
+
+(deftest-error parse-integer-start-end.3
+  (parse-integer "123456789" :start 6 :end 6)
+  parse-error)
+
+(deftest parse-integer-start-end.4
+  (parse-integer "123456789" :start 6 :end 6 :junk-allowed t)
+  nil 6)
+
+(deftest-error parse-integer-start-end.5
+  (parse-integer "123456789" :start 7 :end 6))
+
+(deftest-error parse-integer-start-end.6
+  (parse-integer "123456789" :start 7 :end 6 :junk-allowed t))
+
+
+;;  radix
+(deftest-error parse-integer-radix.1
+  (parse-integer "CDEF")
+  parse-error)
+
+(deftest parse-integer-radix.2
+  (parse-integer "CDEF" :radix 16)
+  #xCDEF 4)
+
+(deftest parse-integer-radix.3
+  (parse-integer "cdef" :radix 16)
+  #xCDEF 4)
+
+(deftest parse-integer-radix.4
   (parse-integer "efghi" :radix 16 :junk-allowed :hello)
   #xEF 2)
 
-(deftest parse-integer.9
-  (parse-integer " +10 ")
-  10 5)
 
-(deftest parse-integer.10
-  (parse-integer " -10 " :junk-allowed t)
-  -10 4)
+;;  error
+(deftest-error! parse-integer-error.1
+  (eval '(parse-integer)))
 
-(deftest-error parse-integer.11
-  (parse-integer "  HHHH" :junk-allowed nil))
+(deftest-error! parse-integer-error.2
+  (eval '(parse-integer 10))
+  type-error)
 
-(deftest parse-integer.12
-  (parse-integer "  HHHH" :junk-allowed t)
-  nil 2)
+(deftest-error parse-integer-error.3
+  (parse-integer "#xFFFF")
+  parse-error)
+
+
+;;  ANSI Common Lisp
+(deftest parse-integer-test.1
+  (parse-integer "123")
+  123 3)
+
+(deftest parse-integer-test.2
+  (parse-integer "123" :start 1 :radix 5)
+  13 3)
+
+(deftest parse-integer-test.3
+  (parse-integer "no-integer" :junk-allowed t)
+  nil 0)
 

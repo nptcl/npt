@@ -133,22 +133,26 @@
 #define call_exit_condition_ _n(call_exit_condition_)
 #define exit_condition_value_ _n(exit_condition_value_)
 
+#define instance_simple_control_error_ _n(instance_simple_control_error_)
+#define call_simple_control_error_ _n(call_simple_control_error_)
+#define call_simple_control_error_va_ _n(call_simple_control_error_va_)
+
 #define instance_simple_file_error_ _n(instance_simple_file_error_)
 #define call_simple_file_error_ _n(call_simple_file_error_)
 #define call_simple_file_error_va_ _n(call_simple_file_error_va_)
-
-#define instance_simple_program_error_ _n(instance_simple_program_error_)
-#define call_simple_program_error_ _n(call_simple_program_error_)
-#define call_simple_program_error_stdarg_ _n(call_simple_program_error_stdarg_)
-#define call_simple_program_error_va_ _n(call_simple_program_error_va_)
 
 #define instance_simple_package_error_ _n(instance_simple_package_error_)
 #define call_simple_package_error_ _n(call_simple_package_error_)
 #define call_simple_package_error_va_ _n(call_simple_package_error_va_)
 
-#define instance_simple_control_error_ _n(instance_simple_control_error_)
-#define call_simple_control_error_ _n(call_simple_control_error_)
-#define call_simple_control_error_va_ _n(call_simple_control_error_va_)
+#define instance_simple_parse_error_ _n(instance_simple_parse_error_)
+#define call_simple_parse_error_ _n(call_simple_parse_error_)
+#define call_simple_parse_error_va_ _n(call_simple_parse_error_va_)
+
+#define instance_simple_program_error_ _n(instance_simple_program_error_)
+#define call_simple_program_error_ _n(call_simple_program_error_)
+#define call_simple_program_error_stdarg_ _n(call_simple_program_error_stdarg_)
+#define call_simple_program_error_va_ _n(call_simple_program_error_va_)
 
 #define instance_simple_reader_error_ _n(instance_simple_reader_error_)
 #define call_simple_reader_error_ _n(call_simple_reader_error_)
@@ -320,26 +324,31 @@ int instance_exit_condition_(addr *ret, addr value);
 int call_exit_condition_(Execute ptr, addr value);
 int exit_condition_value_(addr instance, addr *ret);
 
+/* simple_control_error */
+int instance_simple_control_error_(addr *ret, addr control, addr args);
+int call_simple_control_error_(Execute ptr, addr control, addr args);
+int call_simple_control_error_va_(Execute ptr, const char *fmt, ...);
+
 /* simple_file_error */
 int instance_simple_file_error_(addr *ret, addr pathname, addr control, addr args);
 int call_simple_file_error_(Execute ptr, addr pathname, addr control, addr args);
 int call_simple_file_error_va_(Execute ptr, addr pathname, const char *fmt, ...);
+
+/* simple_package_error */
+int instance_simple_package_error_(addr *ret, addr control, addr args);
+int call_simple_package_error_(Execute ptr, addr control, addr args);
+int call_simple_package_error_va_(Execute ptr, const char *fmt, ...);
+
+/* simple_parse_error */
+int instance_simple_parse_error_(addr *ret, addr control, addr args);
+int call_simple_parse_error_(Execute ptr, addr control, addr args);
+int call_simple_parse_error_va_(Execute ptr, const char *fmt, ...);
 
 /* simple_program_error */
 int instance_simple_program_error_(addr *ret, addr control, addr args);
 int call_simple_program_error_(Execute ptr, addr control, addr args);
 int call_simple_program_error_stdarg_(Execute ptr, const char *fmt, va_list va);
 int call_simple_program_error_va_(Execute ptr, const char *fmt, ...);
-
-/* simple_control_error */
-int instance_simple_control_error_(addr *ret, addr control, addr args);
-int call_simple_control_error_(Execute ptr, addr control, addr args);
-int call_simple_control_error_va_(Execute ptr, const char *fmt, ...);
-
-/* simple_package_error */
-int instance_simple_package_error_(addr *ret, addr control, addr args);
-int call_simple_package_error_(Execute ptr, addr control, addr args);
-int call_simple_package_error_va_(Execute ptr, const char *fmt, ...);
 
 /* simple_reader_error */
 int instance_simple_reader_error_(addr *ret, addr control, addr args);

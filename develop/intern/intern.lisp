@@ -1427,10 +1427,11 @@ lisp-system::terminal-stream
 ;;
 ;;  condition
 ;;
-lisp-system::simple-file-error
-lisp-system::simple-program-error
-lisp-system::simple-package-error
 lisp-system::simple-control-error
+lisp-system::simple-file-error
+lisp-system::simple-package-error
+lisp-system::simple-parse-error
+lisp-system::simple-program-error
 lisp-system::simple-reader-error
 lisp-system::simple-style-warning
 

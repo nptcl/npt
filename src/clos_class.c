@@ -1688,30 +1688,36 @@ static int build_clos_class_condition_(LocalRoot local)
 			CONDITION_READER_ERROR,
 			CONDITION_PARSE_ERROR,
 			CONDITION_STREAM_ERROR);
-	/* lisp-system::simple-file-error (simple-error file-error) */
-	ClosMakeClass2_(local, metaclass,
-			SYSTEM_SIMPLE_FILE_ERROR,
-			CONDITION_SIMPLE_FILE_ERROR,
-			CONDITION_SIMPLE_ERROR,
-			CONDITION_FILE_ERROR);
-	/* lisp-system::simple-program-error (simple-error program-error) */
-	ClosMakeClass2_(local, metaclass,
-			SYSTEM_SIMPLE_PROGRAM_ERROR,
-			CONDITION_SIMPLE_PROGRAM_ERROR,
-			CONDITION_SIMPLE_ERROR,
-			CONDITION_PROGRAM_ERROR);
-	/* lisp-system::simple-package-error (simple-error package-error) */
-	ClosMakeClass2_(local, metaclass,
-			SYSTEM_SIMPLE_PACKAGE_ERROR,
-			CONDITION_SIMPLE_PACKAGE_ERROR,
-			CONDITION_SIMPLE_ERROR,
-			CONDITION_PACKAGE_ERROR);
 	/* lisp-system::simple-control-error (simple-error control-error) */
 	ClosMakeClass2_(local, metaclass,
 			SYSTEM_SIMPLE_CONTROL_ERROR,
 			CONDITION_SIMPLE_CONTROL_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_CONTROL_ERROR);
+	/* lisp-system::simple-file-error (simple-error file-error) */
+	ClosMakeClass2_(local, metaclass,
+			SYSTEM_SIMPLE_FILE_ERROR,
+			CONDITION_SIMPLE_FILE_ERROR,
+			CONDITION_SIMPLE_ERROR,
+			CONDITION_FILE_ERROR);
+	/* lisp-system::simple-package-error (simple-error package-error) */
+	ClosMakeClass2_(local, metaclass,
+			SYSTEM_SIMPLE_PACKAGE_ERROR,
+			CONDITION_SIMPLE_PACKAGE_ERROR,
+			CONDITION_SIMPLE_ERROR,
+			CONDITION_PACKAGE_ERROR);
+	/* lisp-system::simple-parse-error (simple-error parse-error) */
+	ClosMakeClass2_(local, metaclass,
+			SYSTEM_SIMPLE_PARSE_ERROR,
+			CONDITION_SIMPLE_PARSE_ERROR,
+			CONDITION_SIMPLE_ERROR,
+			CONDITION_PARSE_ERROR);
+	/* lisp-system::simple-program-error (simple-error program-error) */
+	ClosMakeClass2_(local, metaclass,
+			SYSTEM_SIMPLE_PROGRAM_ERROR,
+			CONDITION_SIMPLE_PROGRAM_ERROR,
+			CONDITION_SIMPLE_ERROR,
+			CONDITION_PROGRAM_ERROR);
 	/* lisp-system::simple-reader-error (simple-error reader-error) */
 	ClosMakeClass2_(local, metaclass,
 			SYSTEM_SIMPLE_READER_ERROR,
