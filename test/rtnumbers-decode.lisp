@@ -13,7 +13,9 @@
 ;;    0x1.FFFFP-16383, 3.362077L-4932, sub-normal
 ;;
 
-;;  decode-float
+;;
+;;  Function DECODE-FLOAT
+;;
 (defun decode-single-float (v x y z &optional (eps 1.0e-6))
   (multiple-value-bind (a b c) (decode-float v)
     (and (typep x 'single-float)
@@ -101,8 +103,20 @@
   (decode-long-float 1.234L-12   0.678398674337792L0 -39 1.0L0)
   t)
 
+(deftest-error! decode-float-error.1
+  (eval '(decode-float)))
 
-;;  scale-float
+(deftest-error! decode-float-error.2
+  (eval '(decode-float 10))
+  type-error)
+
+(deftest-error! decode-float-error.3
+  (eval '(decode-float 1.0f0 nil)))
+
+
+;;
+;;  Function SCALE-FLOAT
+;;
 (deftest-single scale-float.f1
   (scale-float 0.0f0 0)
   0.0f0)
@@ -187,128 +201,170 @@
   (scale-float 12.345L0 12)
   50565.12L0)
 
+(deftest-error! scale-float-error.1
+  (eval '(scale-float 1.2)))
 
-;;  float-radix
+(deftest-error! scale-float-error.2
+  (eval '(scale-float 1.2 2/3))
+  type-error)
+
+(deftest-error! scale-float-error.3
+  (eval '(scale-float 1.2 10 20)))
+
+
+;;
+;;  Function FLOAT-RADIX
+;;
 (deftest float-radix.1
-  (values
-    (float-radix -1.23s0)
-    (float-radix -1.23f0)
-    (float-radix 0.0d0)
-    (float-radix 1.0L0))
-  2 2 2 2)
+  (float-radix -1.23s0)
+  2)
+
+(deftest float-radix.2
+  (float-radix -1.23f0)
+  2)
+
+(deftest float-radix.3
+  (float-radix 0.0d0)
+  2)
+
+(deftest float-radix.4
+  (float-radix 1.0L0)
+  2)
+
+(deftest-error! float-radix-error.1
+  (eval '(float-radix)))
+
+(deftest-error! float-radix-error.2
+  (eval '(float-radix 10))
+  type-error)
+
+(deftest-error! float-radix-error.3
+  (eval '(float-radix 1.0 1.0)))
 
 
-;;  float-sign
-(deftest float-sign1f.1
+;;  Function FLOAT-SIGN
+(deftest float-sign1.f1
   (float-sign 12.3f0)
   1.0f0)
 
-(deftest float-sign1f.2
+(deftest float-sign1.f2
   (float-sign -0.5f0)
   -1.0f0)
 
-(deftest float-sign1f.3
+(deftest float-sign1.f3
   (float-sign 0.0f0)
   1.0f0)
 
-(deftest float-sign1f.4
+(deftest float-sign1.f4
   (float-sign -0.0f0)
   -1.0f0)
 
-(deftest float-sign1d.1
+(deftest float-sign1.d1
   (float-sign 12.3d0)
   1.0d0)
 
-(deftest float-sign1d.2
+(deftest float-sign1.d2
   (float-sign -0.5d0)
   -1.0d0)
 
-(deftest float-sign1d.3
+(deftest float-sign1.d3
   (float-sign 0.0d0)
   1.0d0)
 
-(deftest float-sign1d.4
+(deftest float-sign1.d4
   (float-sign -0.0d0)
   -1.0d0)
 
-(deftest float-sign1L.1
+(deftest float-sign1.L1
   (float-sign 12.3L0)
   1.0L0)
 
-(deftest float-sign1L.2
+(deftest float-sign1.L2
   (float-sign -0.5L0)
   -1.0L0)
 
-(deftest float-sign1L.3
+(deftest float-sign1.L3
   (float-sign 0.0L0)
   1.0L0)
 
-(deftest float-sign1L.4
+(deftest float-sign1.L4
   (float-sign -0.0L0)
   -1.0L0)
 
-(deftest-single float-signf.1
+(deftest-single float-sign.f1
   (float-sign 12.3f0 45.6f0)
   45.6f0)
 
-(deftest-single float-signf.2
+(deftest-single float-sign.f2
   (float-sign -12.3f0 45.6f0)
   -45.6f0)
 
-(deftest-single float-signf.3
+(deftest-single float-sign.f3
   (float-sign -0.0f0 45.6f0)
   -45.6f0)
 
-(deftest-double float-signf.4
+(deftest-double float-sign.f4
   (float-sign 12.3f0 45.6d0)
   45.6d0)
 
-(deftest-long float-signf.5
+(deftest-long float-sign.f5
   (float-sign -12.3f0 45.6L0)
   -45.6L0)
 
-(deftest-single float-signd.1
+(deftest-single float-sign.d1
   (float-sign 12.3d0 45.6f0)
   45.6f0)
 
-(deftest-double float-signd.2
+(deftest-double float-sign.d2
   (float-sign -12.3d0 45.6d0)
   -45.6d0)
 
-(deftest-double float-signd.3
+(deftest-double float-sign.d3
   (float-sign -0.0d0 45.6d0)
   -45.6d0)
 
-(deftest-double float-signd.4
+(deftest-double float-sign.d4
   (float-sign 12.3d0 45.6d0)
   45.6d0)
 
-(deftest-long float-signd.5
+(deftest-long float-sign.d5
   (float-sign -12.3d0 45.6L0)
   -45.6L0)
 
-(deftest-single float-signl.1
+(deftest-single float-sign.L1
   (float-sign 12.3L0 45.6f0)
   45.6f0)
 
-(deftest-double float-signl.2
+(deftest-double float-sign.L2
   (float-sign -12.3L0 45.6d0)
   -45.6d0)
 
-(deftest-long float-signl.3
+(deftest-long float-sign.L3
   (float-sign -0.0L0 45.6L0)
   -45.6L0)
 
-(deftest-double float-signl.4
+(deftest-double float-sign.L4
   (float-sign 12.3L0 45.6d0)
   45.6d0)
 
-(deftest-long float-signl.5
+(deftest-long float-sign.L5
   (float-sign -12.3L0 45.6L0)
   -45.6L0)
 
+(deftest-error! float-sign-error.1
+  (eval '(float-sign)))
 
-;;  float-digits
+(deftest-error! float-sign-error.2
+  (eval '(float-sign 1.0 3/4))
+  type-error)
+
+(deftest-error! float-sign-error.3
+  (eval '(float-sign 1.0 3.0 4.0)))
+
+
+;;
+;;  Function FLOAT-DIGITS
+;;
 (deftest float-digits.1
   (float-digits 1.2f0)
   24)
@@ -383,8 +439,20 @@
     (float-digits -0.0L0))
   113 113)
 
+(deftest-error! float-digits-error.1
+  (eval '(float-digits)))
 
-;;  float-precision
+(deftest-error! float-digits-error.2
+  (eval '(float-digits 10))
+  type-error)
+
+(deftest-error! float-digits-error.3
+  (eval '(float-digits 2.0 nil)))
+
+
+;;
+;;  Function FLOAT-PRECISION
+;;
 (deftest float-precision.1
   (float-precision 1.2f0)
   24)
@@ -440,8 +508,20 @@
     (float-precision -0.0L0))
   0 0 0 0 0 0)
 
+(deftest-error! float-precision-error.1
+  (eval '(float-precision)))
 
-;;  integer-decode-float
+(deftest-error! float-precision-error.2
+  (eval '(float-precision 10))
+  type-error)
+
+(deftest-error! float-precision-error.3
+  (eval '(float-precision 1.0 nil)))
+
+
+;;
+;;  Function INTEGER-DECODE-FLOAT
+;;
 (deftest integer-decode-float.1
   (integer-decode-float 0.5f0)
   8388608 -24 1)
@@ -513,4 +593,84 @@
 (deftest integer-decode-float.12
   (integer-decode-float -9.87L-11)
   15639639280315780241 -97 -1)
+
+(deftest-error! integer-decode-float-error.1
+  (eval '(integer-decode-float)))
+
+(deftest-error! integer-decode-float-error.2
+  (eval '(integer-decode-float 10))
+  type-error)
+
+(deftest-error! integer-decode-float-error.3
+  (eval '(integer-decode-float 1.0 nil)))
+
+
+;;  ANSI Common Lisp
+(deftest float-decode-test.1
+  (decode-float .5)
+  0.5 0 1.00)
+
+(deftest float-decode-test.2
+  (decode-float 1.0)
+  0.5 1 1.0)
+
+(deftest float-decode-test.3
+  (scale-float 1.0 1)
+  2.0)
+
+(deftest float-decode-test.4
+  (scale-float 10.01 -2)
+  2.5025)
+
+(deftest float-decode-test.5
+  (scale-float 23.0 0)
+  23.0)
+
+(deftest float-decode-test.6
+  (float-radix 1.0)
+  2)
+
+(deftest float-decode-test.7
+  (float-sign 5.0)
+  1.0)
+
+(deftest float-decode-test.8
+  (float-sign -5.0)
+  -1.0)
+
+(deftest float-decode-test.9
+  (float-sign 0.0)
+  1.0)
+
+(deftest float-decode-test.10
+  (float-sign -0.0)
+  -1.0)
+
+(deftest float-decode-test.11
+  (float-sign 1.0 0.0)
+  0.0)
+
+(deftest float-decode-test.12
+  (float-sign 1.0 -10.0)
+  10.0)
+
+(deftest float-decode-test.13
+  (float-sign -1.0 10.0)
+  -10.0)
+
+(deftest float-decode-test.14
+  (float-digits 1.0)
+  24)
+
+(deftest float-decode-test.15
+  (float-precision 1.0)
+  24)
+
+(deftest float-decode-test.16
+  (float-precision least-positive-single-float)
+  1)
+
+(deftest float-decode-test.17
+  (integer-decode-float 1.0)
+  8388608 -23 1)
 

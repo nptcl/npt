@@ -2,32 +2,98 @@
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
 
-;;  byte
+;;
+;;  Function BYTE
+;;
 (deftest byte.1
+  (typep (byte 0 0) 'lisp-system::bytespec)
+  t)
+
+(deftest byte.2
   (typep (byte 10 20) 'lisp-system::bytespec)
   t)
 
+(deftest-error! byte-error.1
+  (eval '(byte 10)))
+
+(deftest-error! byte-error.2
+  (eval '(byte -1 10))
+  type-error)
+
+(deftest-error! byte-error.3
+  (eval '(byte 10 -2))
+  type-error)
+
+(deftest-error! byte-error.4
+  (eval '(byte 10 20 30)))
+
+;;  ANSI Common Lisp
+(deftest byte-test.1
+  (let ((b (byte 100 200)))
+    (values
+      (byte-size b)
+      (byte-position b)))
+  100 200)
+
+(deftest byte-test.2
+  (ldb (byte 0 3) #o7777)
+  0)
+
+(deftest byte-test.3
+  (dpb #o7777 (byte 0 3) 0)
+  0)
+
+
+;;
+;;  Function BYTE-SIZE
+;;
 (deftest byte-size.1
   (byte-size (byte 10 20))
   10)
 
+(deftest-error! byte-size-error.1
+  (eval '(byte-size)))
+
+(deftest-error! byte-size-error.2
+  (eval '(byte-size 10))
+  type-error)
+
+(deftest-error! byte-size-error.3
+  (eval '(byte-size (byte 10 20) nil)))
+
+
+;;
+;;  Function BYTE-POSITION
+;;
 (deftest byte-position.1
   (byte-position (byte 10 20))
   20)
 
+(deftest-error! byte-position-error.1
+  (eval '(byte-position)))
 
-;;  deposit-field
+(deftest-error! byte-position-error.2
+  (eval '(byte-position 10))
+  type-error)
+
+(deftest-error! byte-position-error.3
+  (eval '(byte-position (byte 10 20) nil)))
+
+
+;;
+;;  Function DEPOSIT-FIELD
+;;
 (deftest deposit-field.1
-  (deposit-field 7 (byte 2 1) 0)
-  6)
+  (deposit-field #b110011001100 (byte 0 0) #b101010101010)
+  #b101010101010)
 
 (deftest deposit-field.2
-  (deposit-field -1 (byte 4 0) 0)
-  15)
+  (deposit-field #b1010101010101010 (byte 7 3) #b1111000011110000)
+  #b1111001010101000)
 
 (deftest deposit-field.3
-  (deposit-field 0 (byte 2 1) -3)
-  -7)
+  (deposit-field -1 (byte 7 3) 0)
+  #b1111111000)
 
 (deftest deposit-field.4
   (deposit-field 7 (byte 0 1) 8)
@@ -289,19 +355,43 @@
     #x-26FE87B31894D74CE89AA4E21)
   #x-78360463E898C05078F042511D3E720C120E7649D08A2C6BA7C480B7)
 
+(deftest-error! deposit-field-error.1
+  (eval '(deposit-field 10 (byte 20 30))))
+
+(deftest-error! deposit-field-error.2
+  (eval '(deposit-field 10 20 30))
+  type-error)
+
+(deftest-error! deposit-field-error.3
+  (eval '(deposit-field 10 (byte 20 30) 40 50)))
+
+;;  ANSI Common Lisp
+(deftest deposit-field-test.1
+  (deposit-field 7 (byte 2 1) 0)
+  6)
+
+(deftest deposit-field-test.2
+  (deposit-field -1 (byte 4 0) 0)
+  15)
+
+(deftest deposit-field-test.3
+  (deposit-field 0 (byte 2 1) -3)
+  -7)
+
+
 
 ;;  dpb
 (deftest dpb.1
-  (dpb 1 (byte 1 10) 0)
-  1024)
+  (dpb #b1111000011110000 (byte 0 0) #b1010101010101010)
+  #b1010101010101010)
 
 (deftest dpb.2
-  (dpb -2 (byte 2 10) 0)
-  2048)
+  (dpb #b1111000011110000 (byte 7 3) #b1010101010101010)
+  #b1010101110000010)
 
 (deftest dpb.3
-  (dpb 1 (byte 2 10) 2048)
-  1024)
+  (dpb -1 (byte 7 3) #b1010101010101010)
+  #b1010101111111010)
 
 (deftest dpb.4
   (dpb 4 (byte 0 10) 10)
@@ -563,15 +653,49 @@
     #x-62BE7199C0E228AF106C61F08)
   #x-1F3398BBB7F22EF90D5252E3BF9BC4899B0B04CCF3FF6C458E5CE3B39)
 
+(deftest-error! dpb-error.1
+  (eval '(dpb 10 (byte 20 30))))
 
-;;  ldb
+(deftest-error! dpb-error.2
+  (eval '(dpb 10 20 30))
+  type-error)
+
+(deftest-error! dpb-error.3
+  (eval '(dpb 10 (byte 20 30) 40 50)))
+
+
+;;  ANSI Common Lisp
+(deftest dpb-test.1
+  (dpb 1 (byte 1 10) 0)
+  1024)
+
+(deftest dpb-test.2
+  (dpb -2 (byte 2 10) 0)
+  2048)
+
+(deftest dpb-test.3
+  (dpb 1 (byte 2 10) 2048)
+  1024)
+
+
+;;
+;;  Accessor LDB
+;;
 (deftest ldb.1
-  (ldb (byte 2 1) 10)
-  1)
-
-(deftest ldb.2
   (ldb (byte 2 1) 8)
   0)
+
+(deftest ldb.2
+  (ldb (byte 0 3) #b1111000011110000)
+  0)
+
+(deftest ldb.3
+  (ldb (byte 7 3) #b1111000011110000)
+  #b11110)
+
+(deftest ldb.4
+  (ldb (byte 7 3) -1)
+  #b1111111)
 
 (deftest ldb-bound.1
   (ldb (byte 40 80)
@@ -675,55 +799,148 @@
 
 
 ;;  (setf ldb)
-(deftest setf-ldb.1
-  (let ((a (list 8)))
-    (values
-      (setf (ldb (byte 2 1) (car a)) 1)
-      a))
-  1 (10))
-
-(deftest setf-ldb.2
+(deftest ldb-setf.1
   (let ((a (list 8)))
     (values
       (setf (ldb (byte 2 1) (car a)) #xFFFFFF)
       a))
   #xFFFFFF (14))
 
+(deftest ldb-setf.2
+  (let ((a #b1100110011001100)
+        (b #b1010101010101010))
+    (values
+      (setf (ldb (byte 7 3) a) b)
+      a))
+  #b1010101010101010
+  #b1100110101010100)
 
-;; ldb-test
+(deftest ldb-setf.3
+  (let ((a #b1100110011001100)
+        (b -1))
+    (values
+      (setf (ldb (byte 7 3) a) b)
+      a))
+  -1 #b1100111111111100)
+
+;;  error
+(deftest-error! ldb-error.1
+  (eval '(ldb (byte 10 20))))
+
+(deftest-error! ldb-error.2
+  (eval '(ldb 10 20))
+  type-error)
+
+(deftest-error! ldb-error.3
+  (eval '(ldb (byte 10 20) 10 20)))
+
+(deftest-error! ldb-error.4
+  (eval '(setf (ldb (byte 10 20)) 30)))
+
+(deftest-error! ldb-error.5
+  (eval '(let ((a 10))
+           (setf (ldb 10 a) 20)))
+  type-error)
+
+(deftest-error! ldb-error.6
+  (eval '(let ((a 10))
+           (setf (ldb (byte 20 30) a nil) 40))))
+
+;;  ANSI Common Lisp
+(deftest ldb-common.1
+  (ldb (byte 2 1) 10)
+  1)
+
+(deftest ldb-common.2
+  (let ((a (list 8)))
+    (values
+      (setf (ldb (byte 2 1) (car a)) 1)
+      a))
+  1 (10))
+
+
+;;
+;;  Function LDB-TEST
+;;
 (deftest ldb-test.1
-  (ldb-test (byte 4 1) 16)
-  t)
-
-(deftest ldb-test.2
-  (ldb-test (byte 3 1) 16)
-  nil)
-
-(deftest ldb-test.3
-  (ldb-test (byte 3 2) 16)
-  t)
-
-(deftest ldb-test.4
   (ldb-test (byte 1 100) 5)
   nil)
 
-(deftest ldb-test.5
+(deftest ldb-test.2
   (ldb-test (byte 1 100) -5)
   t)
 
-(deftest ldb-test.6
+(deftest ldb-test.3
   (ldb-test (byte 4 100) #x10000000000000000000000000000000000000000000000000)
   nil)
 
-(deftest ldb-test.7
+(deftest ldb-test.4
   (ldb-test (byte 4 100) #x-10000000000000000000000000000000000000000000000000)
   nil)
 
+(deftest ldb-test.5
+  (ldb-test
+    (byte 4 11)
+    #b111110000011111000001111100000)
+  nil)
 
-;;  mask-field
+(deftest ldb-test.6
+  (ldb-test
+    (byte 5 11)
+    #b111110000011111000001111100000)
+  t)
+
+(deftest ldb-test.7
+  (ldb-test
+    (byte 4 10)
+    #b111110000011111000001111100000)
+  nil)
+
+(deftest ldb-test.8
+  (ldb-test
+    (byte 4 9)
+    #b111110000011111000001111100000)
+  t)
+
+(deftest-error! ldb-test-error.1
+  (eval '(ldb-test (byte 10 20))))
+
+(deftest-error! ldb-test-error.2
+  (eval '(ldb-test 10 20))
+  type-error)
+
+(deftest-error! ldb-test-error.3
+  (eval '(ldb-test (byte 10 20) 10 20)))
+
+
+;;  ANSI Common Lisp
+(deftest ldb-test-common.1
+  (ldb-test (byte 4 1) 16)
+  t)
+
+(deftest ldb-test-common.2
+  (ldb-test (byte 3 1) 16)
+  nil)
+
+(deftest ldb-test-common.3
+  (ldb-test (byte 3 2) 16)
+  t)
+
+
+;;
+;;  Accessor MASK-FIELD
+;;
 (deftest mask-field.1
-  (mask-field (byte 1 5) -1)
-  32)
+  (mask-field (byte 0 3) #b1111000011110000)
+  0)
+
+(deftest mask-field.2
+  (mask-field (byte 7 3) #b1111000011110000)
+  #b11110000)
+
+(deftest mask-field.3
+  (mask-field (byte 7 3) -1)
+  #b1111111000)
 
 (deftest mask-field-bound.1
   (mask-field (byte 40 80)
@@ -825,19 +1042,54 @@
               #x-9C7F7814F2EB487F522858A416069486BB0E734385FAC526C4862FE1E)
   #xFFFFFFFFFFFFFFFFFFFFFFF638087EB0D14B780ADD7A75BE9F96B7944F18CBC70000000000000000)
 
-
 ;;  (setf mask-field)
-(deftest setf-mask-field.1
+(deftest mask-field-setf.1
   (let ((a (list 15)))
     (values
       (setf (mask-field (byte 2 0) (car a)) 1)
       a))
   1 (13))
 
-(deftest setf-mask-field.2
+(deftest mask-field-setf.2
   (let ((a (list 15)))
     (values
       (setf (mask-field (byte 2 0) (car a)) #xFFFFFF)
       a))
   #xFFFFFF (15))
+
+;;  error
+(deftest-error! mask-field-error.1
+  (eval '(mask-field (byte 10 20))))
+
+(deftest-error! mask-field-error.2
+  (eval '(mask-field 10 20))
+  type-error)
+
+(deftest-error! mask-field-error.3
+  (eval '(mask-field (byte 10 20) 10 20)))
+
+(deftest-error! mask-field-error.4
+  (eval '(setf (mask-field (byte 10 20)) 30)))
+
+(deftest-error! mask-field-error.5
+  (eval '(let ((a 10))
+           (setf (mask-field 10 a) 20)))
+  type-error)
+
+(deftest-error! mask-field-error.6
+  (eval '(let ((a 10))
+           (setf (mask-field (byte 20 30) a nil) 40))))
+
+;;  ANSI Common Lisp
+(deftest mask-field-test.1
+  (mask-field (byte 1 5) -1)
+  32)
+
+(deftest mask-field-test.2
+  (let ((a 15))
+    (values
+      (mask-field (byte 2 0) a)
+      (setf (mask-field (byte 2 0) a) 1)
+      a))
+  3 1 13)
 

@@ -1166,8 +1166,10 @@ int mask_field_common_(LocalRoot local, addr *ret, addr spec, addr pos)
 
 	CheckLocalType(local, spec, LISPTYPE_BYTESPEC);
 	bytespec_mask_init(&mask, spec);
-	if (mask.size == 0)
-		return integer_throw_heap_(pos, ret);
+	if (mask.size == 0) {
+		fixnum_heap(ret, 0);
+		return 0;
+	}
 	Return(boole_struct_integer_(&str, pos));
 	size = mask_field_maxsize(&str, &mask);
 

@@ -1,3 +1,6 @@
+;;
+;;  ANSI COMMON LISP: 12. Numbers
+;;
 
 ;;
 ;;  Function MAX
@@ -678,9 +681,8 @@
   78)
 
 
-
 ;;
-;;
+;;  Function FLOAT
 ;;
 (deftest float.1
   (float 10)
@@ -701,4 +703,39 @@
 (deftest float.6
   (float 10 10l5)
   10l0)
+
+(deftest float.7
+  (float 2.25 -4.5L6)
+  2.25L0)
+
+(deftest-error! float-error.1
+  (eval '(float)))
+
+(deftest-error! float-error.2
+  (eval '(float 20 30))
+  type-error)
+
+(deftest-error! float-error.3
+  (eval '(float 20 30.0 40)))
+
+;;  ANSI Common Lisp
+(deftest float-test.1
+  (float 0)
+  0.0)
+
+(deftest float-test.2
+  (float 1 .5)
+  1.0)
+
+(deftest float-test.3
+  (float 1.0)
+  1.0)
+
+(deftest float-test.4
+  (float 1/2)
+  0.5)
+
+(deftest float-test.5
+  (eql (float 1.0 1.0d0) 1.0d0)
+  t)
 

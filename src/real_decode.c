@@ -100,16 +100,19 @@ int scale_float_common_(addr pos, addr scale, addr *ret)
 	switch (GetType(scale)) {
 		case LISPTYPE_FIXNUM:
 			GetFixnum(scale, &fixnum_value);
-			if (fixnum_value < LONG_MIN || LONG_MAX < fixnum_value)
+			if (fixnum_value < LONG_MIN || LONG_MAX < fixnum_value) {
+				*ret = Nil;
 				return fmte_("Scaling factor is too large ~A.", scale, NULL);
+			}
 			n = (long)fixnum_value;
 			break;
 
 		case LISPTYPE_BIGNUM:
+			*ret = Nil;
 			return fmte_("Scaling factor ~A must be a fixnum type.", scale, NULL);
 
 		default:
-			*ret = 0;
+			*ret = Nil;
 			return TypeError_(scale, INTEGER);
 	}
 
@@ -128,7 +131,7 @@ int scale_float_common_(addr pos, addr scale, addr *ret)
 			return long_float_check_heap_(ret, scalblnl(vl, n));
 
 		default:
-			*ret = 0;
+			*ret = Nil;
 			return TypeError_(pos, FLOAT);
 	}
 }
