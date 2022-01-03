@@ -30,7 +30,7 @@ static int function_compile_file(Execute ptr, addr file, addr rest)
 {
 	addr ret1, ret2, ret3;
 
-	Return(compile_file_common(ptr, file, rest, &ret1, &ret2, &ret3));
+	Return(compile_file_common_(ptr, file, rest, &ret1, &ret2, &ret3));
 	setvalues_control(ptr, ret1, ret2, ret3, NULL);
 	return 0;
 }

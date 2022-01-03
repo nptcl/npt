@@ -7,6 +7,7 @@
 #include "memory.h"
 #include "stream_init.h"
 #include "stream_object.h"
+#include "stream_open.h"
 #include "typedef_stream.h"
 
 #define open_stream_p _n(open_stream_p)
@@ -17,6 +18,7 @@
 #define print_string_stream_ _n(print_string_stream_)
 #define input_stream_designer_ _n(input_stream_designer_)
 #define output_stream_designer_ _n(output_stream_designer_)
+#define open_external_format_ _n(open_external_format_)
 
 #define standard_input_stream_ _n(standard_input_stream_)
 #define standard_output_stream_ _n(standard_output_stream_)
@@ -41,6 +43,7 @@ int print_unicode_stream_(addr stream, const unicode *data);
 int print_string_stream_(addr stream, addr pos);
 int input_stream_designer_(Execute ptr, addr stream, addr *ret);
 int output_stream_designer_(Execute ptr, addr stream, addr *ret);
+int open_external_format_(Execute ptr, addr x, enum Stream_Open_External *ret);
 
 /* special variable */
 int standard_input_stream_(Execute ptr, addr *ret);

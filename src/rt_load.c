@@ -46,12 +46,12 @@ static int rtload_pathname_(Execute ptr, addr file, int *ret)
 	addr path, stream, pos;
 
 	/* load name */
-	Return(open_input_stream_(ptr, &stream, file));
+	Return(open_input_stream_(ptr, &stream, file, Unbound));
 	if (stream == NULL) {
 		/* load "test/" name */
 		Return(parse_pathname_char_heap_(ptr, "test/", &path));
 		Return(merge_pathnames_clang_(ptr, file, path, Unbound, &file));
-		Return(open_input_stream_error_(ptr, &stream, file)); /* force */
+		Return(open_input_stream_error_(ptr, &stream, file, Unbound)); /* force */
 	}
 
 	Return(rtload_execute_(ptr, stream));

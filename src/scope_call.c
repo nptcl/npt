@@ -276,7 +276,7 @@ static int scope_the_check_warning_(Execute ptr, addr type, addr expected)
 {
 	Return(type_object_(&type, type));
 	Return(type_object_(&expected, expected));
-	return call_type_error_va_(ptr, Nil, expected,
+	return checktype_error_(ptr, Nil, expected,
 			"The special operator THE accept a ~S type, "
 			"but actually the form is ~S type.",
 			expected, type, NULL);

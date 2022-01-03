@@ -9,7 +9,8 @@
         (*load-verbose-test* 'hello))
     (declare (ignorable *load-print-test*))
     (declare (ignorable *load-verbose-test*))
-    (load #p"test/rtsystem-file3.lisp")
+    (with-output-to-string (*standard-output*)
+      (load #p"test/rtsystem-file4.lisp"))
     *load-print-test*)
   nil)
 
@@ -18,7 +19,8 @@
         (*load-verbose-test* 'hello))
     (declare (ignorable *load-print-test*))
     (declare (ignorable *load-verbose-test*))
-    (load #p"test/rtsystem-file3.lisp" :print t)
+    (with-output-to-string (*standard-output*)
+      (load #p"test/rtsystem-file4.lisp" :print t))
     *load-print-test*)
   t)
 
@@ -27,7 +29,8 @@
         (*load-verbose-test* 'hello))
     (declare (ignorable *load-print-test*))
     (declare (ignorable *load-verbose-test*))
-    (load #p"test/rtsystem-file3.lisp")
+    (with-output-to-string (*standard-output*)
+      (load #p"test/rtsystem-file4.lisp"))
     *load-verbose-test*)
   nil)
 
@@ -36,7 +39,8 @@
         (*load-verbose-test* 'hello))
     (declare (ignorable *load-print-test*))
     (declare (ignorable *load-verbose-test*))
-    (load #p"test/rtsystem-file3.lisp" :verbose t)
+    (with-output-to-string (*standard-output*)
+      (load #p"test/rtsystem-file4.lisp" :verbose t))
     *load-verbose-test*)
   t)
 

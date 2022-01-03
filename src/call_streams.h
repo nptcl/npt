@@ -20,7 +20,7 @@
 #define write_sequence_common _n(write_sequence_common)
 #define file_position_common _n(file_position_common)
 #define file_string_length_common _n(file_string_length_common)
-#define open_common _n(open_common)
+#define open_common_ _n(open_common_)
 #define with_open_file_common _n(with_open_file_common)
 #define close_common _n(close_common)
 #define with_open_stream_common _n(with_open_stream_common)
@@ -57,7 +57,7 @@ int read_sequence_common(addr var, addr stream, addr rest, addr *ret);
 int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest);
 int file_position_common(Execute ptr, addr stream, addr pos, addr *ret);
 int file_string_length_common(addr stream, addr pos, addr *ret);
-int open_common(Execute ptr, addr pos, addr rest, addr *ret);
+int open_common_(Execute ptr, addr pos, addr rest, addr *ret);
 int with_open_file_common(addr form, addr *ret);
 int close_common(Execute ptr, addr pos, addr rest, addr *ret);
 int with_open_stream_common(addr form, addr *ret);

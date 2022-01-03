@@ -59,7 +59,8 @@ enum Stream_Open_External {
 	Stream_Open_External_Utf32Le,
 	Stream_Open_External_Utf32Be,
 	Stream_Open_External_Utf32LeBom,
-	Stream_Open_External_Utf32BeBom
+	Stream_Open_External_Utf32BeBom,
+	Stream_Open_External_Error
 };
 
 int upgrade_open_element_type_stream_(addr var, addr *ret);

@@ -1,3 +1,4 @@
+#include "compile_file.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -8,6 +9,7 @@
 #include "scope_declare.h"
 #include "scope_let.h"
 #include "scope_object.h"
+#include "strvect.h"
 #include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
@@ -456,11 +458,34 @@ type_error:
 	return 0;
 }
 
+int checktype_error_(Execute ptr, addr datum, addr expected, const char *str, ...)
+{
+	addr format, list, instance;
+	va_list va;
+
+	/* value */
+	copylocal_object(NULL, &datum, datum);
+	copylocal_object(NULL, &expected, expected);
+	strvect_char_heap(&format, str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &list, va);
+	va_end(va);
+
+	/* condition */
+	if (eval_compile_p(ptr)) {
+		Return(instance_simple_warning_(&instance, format, list));
+		return warning_restart_case_(ptr, instance);
+	}
+	else {
+		return call_simple_type_error_(ptr, format, list, datum, expected);
+	}
+}
+
 static int checktype_warning_(Execute ptr, addr name, addr type, addr expected)
 {
 	Return(type_object_(&type, type));
 	Return(type_object_(&expected, expected));
-	return call_type_error_va_(ptr, name, expected,
+	return checktype_error_(ptr, name, expected,
 			"The object ~S must be a ~S type but ~S type.",
 			name, expected, type, NULL);
 }

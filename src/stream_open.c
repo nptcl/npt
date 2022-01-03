@@ -141,8 +141,10 @@ static int open_make_empty_stream_(Execute ptr, addr pos)
 
 	/* pathname */
 	Return(open_output_binary_stream_(ptr, &stream, pos, FileOutput_supersede));
-	if (stream == NULL)
-		return call_file_error_(ptr, pos);
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot create file, ~S.", pos, NULL);
+	}
 
 	return close_stream_(stream, NULL);
 }
@@ -175,7 +177,8 @@ static int open_if_does_not_exist_stream_(Execute ptr, addr *ret, addr pos,
 			return Result(existp, 0);
 
 		case Stream_Open_IfDoesNot_Error:
-			return call_file_error_(ptr, pos);
+			return call_simple_file_error_va_(ptr, pos,
+					"File ~S is not exist.", pos, NULL);
 
 		case Stream_Open_IfDoesNot_Nil:
 			*ret = Nil;
@@ -254,7 +257,8 @@ static int open_if_exists_stream_(Execute ptr, addr *ret, addr pos,
 	switch (value) {
 		case Stream_Open_IfExists_Error:
 			*mode = FileOutput_supersede;
-			return call_file_error_(ptr, pos);
+			return call_simple_file_error_va_(ptr, pos,
+					"File ~S already exists.", pos, NULL);
 
 		case Stream_Open_IfExists_RenameAndDelete:
 		case Stream_Open_IfExists_NewVersion:
@@ -293,9 +297,6 @@ static int open_external_input_stream_(Execute ptr, addr *ret, addr pos,
 {
 	/* :external-format */
 	switch (ext) {
-		case Stream_Open_External_Default:
-			return open_input_stream_(ptr, ret, pos);
-
 		case Stream_Open_External_Ascii:
 			return open_input_ascii_stream_(ptr, ret, pos);
 
@@ -335,6 +336,7 @@ static int open_external_input_stream_(Execute ptr, addr *ret, addr pos,
 		case Stream_Open_External_Utf32BeBom:
 			return open_input_utf32bebom_stream_(ptr, ret, pos);
 
+		case Stream_Open_External_Default:
 		default:
 			*ret = Nil;
 			return fmte_("Invalid :external-format value.", NULL);
@@ -352,8 +354,10 @@ static int open_direct_input_stream_(Execute ptr, addr *ret, addr pos,
 	/* rewind */
 	if (memory_stream_p(pos)) {
 		Return(file_position_start_stream_(pos, &check));
-		if (check)
-			return call_file_error_(ptr, pos);
+		if (check) {
+			return call_simple_file_error_va_(ptr, pos,
+					"Cannot move file-pointer, ~S.", pos, NULL);
+		}
 	}
 
 	/* :if-does-not-exist */
@@ -407,8 +411,10 @@ static int open_direct_input_stream_(Execute ptr, addr *ret, addr pos,
 	}
 
 	/* error check */
-	if (stream == NULL)
-		return call_file_error_(ptr, pos);
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot open file, ~S.", pos, NULL);
+	}
 
 	return Result(ret, stream);
 }
@@ -418,9 +424,6 @@ static int open_external_output_stream_(Execute ptr, addr *ret, addr pos,
 {
 	/* :external-format */
 	switch (ext) {
-		case Stream_Open_External_Default:
-			return open_output_stream_(ptr, ret, pos, mode);
-
 		case Stream_Open_External_Ascii:
 			return open_output_ascii_stream_(ptr, ret, pos, mode);
 
@@ -460,6 +463,7 @@ static int open_external_output_stream_(Execute ptr, addr *ret, addr pos,
 		case Stream_Open_External_Utf32BeBom:
 			return open_output_utf32be_stream_(ptr, ret, pos, mode, 1);
 
+		case Stream_Open_External_Default:
 		default:
 			*ret = Nil;
 			return fmte_("Invalid :external-format value.", NULL);
@@ -532,8 +536,10 @@ static int open_direct_output_stream_(Execute ptr, addr *ret, addr pos,
 	}
 
 	/* error check */
-	if (stream == NULL)
-		return call_file_error_(ptr, pos);
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot open file, ~S.", pos, NULL);
+	}
 
 	return Result(ret, stream);
 }
@@ -543,9 +549,6 @@ static int open_external_io_stream_(Execute ptr, addr *ret, addr pos,
 {
 	/* :external-format */
 	switch (ext) {
-		case Stream_Open_External_Default:
-			return open_io_stream_(ptr, ret, pos, mode);
-
 		case Stream_Open_External_Ascii:
 			return open_io_ascii_stream_(ptr, ret, pos, mode);
 
@@ -585,6 +588,7 @@ static int open_external_io_stream_(Execute ptr, addr *ret, addr pos,
 		case Stream_Open_External_Utf32BeBom:
 			return open_io_utf32bebom_stream_(ptr, ret, pos, mode);
 
+		case Stream_Open_External_Default:
 		default:
 			*ret = Nil;
 			return fmte_("Invalid :external-format value.", NULL);
@@ -657,8 +661,10 @@ static int open_direct_io_stream_(Execute ptr, addr *ret, addr pos,
 	}
 
 	/* error check */
-	if (stream == NULL)
-		return call_file_error_(ptr, pos);
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot open file, ~S.", pos, NULL);
+	}
 
 	return Result(ret, stream);
 }
@@ -680,8 +686,10 @@ static int open_direct_probe_stream_(Execute ptr, addr *ret, addr pos,
 	Return(open_probe_stream_(ptr, &stream, pos));
 
 	/* error check */
-	if (stream == NULL)
-		return call_file_error_(ptr, pos);
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, pos,
+				"Cannot open file, ~S.", pos, NULL);
+	}
 
 	return Result(ret, stream);
 }

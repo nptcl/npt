@@ -356,7 +356,7 @@ int file_string_length_common(addr stream, addr pos, addr *ret)
 /*
  *  open
  */
-static int open_common_direction(addr value, enum Stream_Open_Direction *ret)
+static int open_common_direction_(addr value, enum Stream_Open_Direction *ret)
 {
 	addr check;
 
@@ -407,7 +407,7 @@ static int open_common_newest_p(addr pos)
 	return version == Nil;
 }
 
-static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists *ret)
+static int open_common_ifexists_(addr value, addr pos, enum Stream_Open_IfExists *ret)
 {
 	addr check;
 
@@ -466,7 +466,7 @@ static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists 
 	return fmte_("Invalid :if-exists value ~S.", value, NULL);
 }
 
-static int open_common_ifdoesnot(addr value,
+static int open_common_ifdoesnot_(addr value,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_IfExists exists,
 		enum Stream_Open_IfDoesNot *ret)
@@ -517,107 +517,6 @@ static int open_common_ifdoesnot(addr value,
 	return fmte_("Invalid :if-does-not-exist value ~S.", value, NULL);
 }
 
-static int open_common_string_(addr value, const char *str1, const char *str2, int *ret)
-{
-	int check;
-
-	if (symbolp(value))
-		GetNameSymbol(value, &value);
-	if (! stringp(value))
-		return Result(ret, 0);
-	Return(string_equalp_char_(value, str1, &check));
-	if (check)
-		return Result(ret, 1);
-	if (str2 == NULL)
-		return Result(ret, 0);
-
-	return string_equalp_char_(value, str2, ret);
-}
-
-static int open_common_external(addr value, enum Stream_Open_External *ret)
-{
-	int check;
-	addr right;
-
-	/* default */
-	if (value == Unbound)
-		return Result(ret, Stream_Open_External_Utf8);
-
-	/* :default */
-	GetConst(KEYWORD_DEFAULT, &right);
-	if (value == right)
-		return Result(ret, Stream_Open_External_Default);
-
-	/* ascii */
-	Return(open_common_string_(value, "ASC", "ASCII", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Ascii);
-
-	/* utf8 */
-	Return(open_common_string_(value, "UTF8", "UTF-8", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf8);
-
-	/* utf8-bom */
-	Return(open_common_string_(value, "UTF8BOM", "UTF-8-BOM", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf8Bom);
-
-	/* utf16 */
-	Return(open_common_string_(value, "UTF16", "UTF-16", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf16);
-
-	/* utf16le */
-	Return(open_common_string_(value, "UTF16LE", "UTF-16LE", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf16Le);
-
-	/* utf16be */
-	Return(open_common_string_(value, "UTF16BE", "UTF-16BE", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf16Be);
-
-	/* utf16le-bom */
-	Return(open_common_string_(value, "UTF16LEBOM", "UTF-16LE-BOM", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf16LeBom);
-
-	/* utf16be-bom */
-	Return(open_common_string_(value, "UTF16BEBOM", "UTF-16BE-BOM", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf16BeBom);
-
-	/* utf32 */
-	Return(open_common_string_(value, "UTF32", "UTF-32", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf32);
-
-	/* utf32le */
-	Return(open_common_string_(value, "UTF32LE", "UTF-32LE", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf32Le);
-
-	/* utf32be */
-	Return(open_common_string_(value, "UTF32BE", "UTF-32BE", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf32Be);
-
-	/* utf32le-bom */
-	Return(open_common_string_(value, "UTF32LEBOM", "UTF-32LE-BOM", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf32LeBom);
-
-	/* utf32be-bom */
-	Return(open_common_string_(value, "UTF32BEBOM", "UTF-32BE-BOM", &check));
-	if (check)
-		return Result(ret, Stream_Open_External_Utf32BeBom);
-
-	/* others */
-	*ret = Stream_Open_External_Utf8;
-	return fmte_("Invalid external-format ~S.", value, NULL);
-}
-
 static int open_pathname_designer_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
@@ -634,7 +533,7 @@ static int open_pathname_designer_(Execute ptr, addr pos, addr *ret)
 	return pathname_designer_heap_(ptr, pos, ret);
 }
 
-int open_common(Execute ptr, addr pos, addr rest, addr *ret)
+int open_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	addr value;
 	enum Stream_Open_Direction direction;
@@ -647,19 +546,21 @@ int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 	Return(open_pathname_designer_(ptr, pos, &pos));
 	if (GetKeyArgs(rest, KEYWORD_DIRECTION, &value))
 		value = Unbound;
-	Return(open_common_direction(value, &direction));
+	Return(open_common_direction_(value, &direction));
 	if (GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &value))
 		value = Unbound;
 	Return(open_element_stream_(ptr, value, &element));
 	if (GetKeyArgs(rest, KEYWORD_IF_EXISTS, &value))
 		value = Unbound;
-	Return(open_common_ifexists(value, pos, &exists));
+	Return(open_common_ifexists_(value, pos, &exists));
 	if (GetKeyArgs(rest, KEYWORD_IF_DOES_NOT_EXIST, &value))
 		value = Unbound;
-	Return(open_common_ifdoesnot(value, direction, exists, &doesnot));
+	Return(open_common_ifdoesnot_(value, direction, exists, &doesnot));
 	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &value))
 		value = Unbound;
-	Return(open_common_external(value, &external));
+	Return(open_external_format_(ptr, value, &external));
+	if (external == Stream_Open_External_Error)
+		return fmte_("Invalid external-format ~S.", value, NULL);
 
 	/* result */
 	return open_stream_(ptr, ret, pos, direction, element, exists, doesnot, external);

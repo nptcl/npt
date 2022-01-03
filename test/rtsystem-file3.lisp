@@ -1,3 +1,2 @@
-(setq *load-print-test* *load-print*)
-(setq *load-verbose-test* *load-verbose*)
+(setq *require-test2* t)
 

@@ -44,7 +44,7 @@ static int check_tablecall_warning_(Execute ptr, addr name, addr type, addr expe
 {
 	Return(type_object_(&type, type));
 	Return(type_object_(&expected, expected));
-	return call_type_error_va_(ptr, name, expected,
+	return checktype_error_(ptr, name, expected,
 			"The object ~S expected a ~S type but the initialize form is ~S type.",
 			name, expected, type, NULL);
 }

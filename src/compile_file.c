@@ -16,7 +16,9 @@
 #include "hold.h"
 #include "load_instance.h"
 #include "pathname.h"
+#include "print_write.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "stream_function.h"
 #include "stream_init.h"
 #include "symbol.h"
@@ -51,107 +53,8 @@ int eval_compile_file(Execute ptr, addr pos)
 
 
 /*
- *  compile-file
+ *  handler-compile
  */
-static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
-{
-	addr verbose, print, external;
-
-	Check(! streamp(input), "type error");
-	Check(! streamp(output), "type error");
-
-	/* argument */
-	if (GetKeyArgs(rest, KEYWORD_VERBOSE, &verbose))
-		verbose = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_PRINT, &print))
-		print = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &external))
-		external = Unbound;
-
-	/* write */
-	Return(faslwrite_header_(output));
-	Return(compile_load_(ptr, input, verbose, print, external));
-	Return(faslwrite_footer_(output));
-	Return(finish_output_stream_(output));
-
-	return 0;
-}
-
-static int compile_file_execute_(Execute ptr,
-		addr input, addr output, addr rest, addr *ret)
-{
-	addr symbol, pos;
-
-	Check(! streamp(input), "input error");
-	Check(! streamp(output), "output error");
-
-	/* variable */
-	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
-	pushspecial_control(ptr, symbol, output);
-	set_eval_compile_mode(ptr, T);
-
-	/* compile */
-	Return(compile_file_output(ptr, input, output, rest));
-	GetPathnameStream(output, &pos);
-	if (memory_stream_p(pos))
-		return Result(ret, Nil);
-	Return(truename_files_(ptr, output, ret, 0));
-
-	return 0;
-}
-
-static int compile_file_output_stream_call_(Execute ptr,
-		addr input, addr output, addr rest, addr *ret)
-{
-	addr stream;
-
-	Return(open_output_binary_stream_(ptr, &stream, output, FileOutput_supersede));
-	if (stream == NULL)
-		return fmte_("Cannot open the output file ~S.", output, NULL);
-	(void)compile_file_execute_(ptr, input, stream, rest, ret);
-	return close_stream_unwind_protect_(ptr, stream);
-}
-
-static int compile_file_output_stream_(Execute ptr,
-		addr input, addr output, addr rest, addr *ret)
-{
-	addr control;
-
-	if (streamp(output) && (! memory_stream_p(output)))
-		return compile_file_execute_(ptr, input, output, rest, ret);
-
-	/* open input */
-	push_control(ptr, &control);
-	(void)compile_file_output_stream_call_(ptr, input, output, rest, ret);
-	return pop_control_(ptr, control);
-}
-
-static int compile_file_input_stream_call_(Execute ptr,
-		addr input, addr output, addr rest, addr *ret)
-{
-	addr stream;
-
-	Return(open_input_stream_(ptr, &stream, input));
-	if (stream == NULL)
-		return fmte_("Cannot open the input file ~S.", input, NULL);
-	(void)compile_file_output_stream_(ptr, stream, output, rest, ret);
-	return close_stream_unwind_protect_(ptr, stream);
-}
-
-static int compile_file_input_stream_(Execute ptr,
-		addr input, addr output, addr rest, addr *ret)
-{
-	addr control;
-
-	if (streamp(input) && (! memory_stream_p(input)))
-		return compile_file_output_stream_(ptr, input, output, rest, ret);
-
-	/* open input */
-	push_control(ptr, &control);
-	(void)compile_file_input_stream_call_(ptr, input, output, rest, ret);
-	return pop_control_(ptr, control);
-}
-
 static int function_handler_compile(Execute ptr, addr condition)
 {
 	int check;
@@ -198,41 +101,261 @@ int handler_compile_(Execute ptr)
 	return pushhandler_common_(ptr, pos, call, 0);
 }
 
-static int compile_file_common_call_(Execute ptr,
-		LocalHold hold, addr input, addr output, addr rest,
-		addr *ret1, addr *ret2, addr *ret3)
-{
-	addr pos;
 
-	Return(handler_compile_(ptr));
-	Return(compile_file_input_stream_(ptr, input, output, rest, ret1));
-	localhold_set(hold, 0, *ret1);
-	/* warning */
-	GetConst(SYSTEM_COMPILE_WARNING, &pos);
-	Return(getspecialcheck_local_(ptr, pos, ret2));
-	/* style-warning */
-	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
-	Return(getspecialcheck_local_(ptr, pos, ret3));
+/*
+ *  compile-file
+ */
+struct compile_file_struct {
+	unsigned warnings_p : 1;
+	unsigned failure_p : 1;
+	Execute ptr;
+	LocalHold hold;
+	addr input_file, output_file;
+	addr input, output, verbose, print, format;
+	addr result;
+};
+
+static int compile_file_begin_(Execute ptr, struct compile_file_struct *str)
+{
+	int ignore;
+	addr stream;
+
+	if (str->verbose == Nil)
+		return 0;
+	if (str->verbose == Unbound)
+		return 0;
+	Return(standard_output_stream_(ptr, &stream));
+	Return(fresh_line_stream_(stream, &ignore));
+	Return(print_ascii_stream_(stream, ";; Compiling file "));
+	Return(prin1_print(ptr, stream, str->input_file));
+	Return(print_ascii_stream_(stream, " ..."));
+	Return(terpri_stream_(stream));
 
 	return 0;
 }
 
-int compile_file_common(Execute ptr, addr input, addr rest,
-		addr *ret1, addr *ret2, addr *ret3)
+static int compile_file_end_(Execute ptr, struct compile_file_struct *str)
 {
-	addr control, output, check;
+	int ignore;
+	addr stream;
+
+	if (str->verbose == Nil)
+		return 0;
+	if (str->verbose == Unbound)
+		return 0;
+	Return(standard_output_stream_(ptr, &stream));
+	Return(fresh_line_stream_(stream, &ignore));
+	Return(print_ascii_stream_(stream, ";; Wrote file "));
+	Return(prin1_print(ptr, stream, str->output_file));
+	Return(print_ascii_stream_(stream, "."));
+	Return(terpri_stream_(stream));
+
+	return 0;
+}
+
+static int compile_file_write_(Execute ptr, struct compile_file_struct *str)
+{
+	addr input, output, verbose, print, format;
+
+	input = str->input;
+	output = str->output;
+	verbose = str->verbose;
+	print = str->print;
+	format = str->format;
+	Check(! streamp(str->input), "input error");
+	Check(! streamp(str->output), "output error");
+
+	/* fasl */
+	Return(compile_file_begin_(ptr, str));
+	Return(faslwrite_header_(output));
+	Return(compile_load_(ptr, input, verbose, print, format));
+	Return(faslwrite_footer_(output));
+	Return(compile_file_end_(ptr, str));
+	return finish_output_stream_(output);
+}
+
+static int compile_file_execute_(Execute ptr, struct compile_file_struct *str)
+{
+	addr output, symbol, pos;
+
+	output = str->output;
+	Check(! streamp(str->input), "input error");
+	Check(! streamp(str->output), "output error");
+
+	/* variable */
+	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
+	pushspecial_control(ptr, symbol, output);
+	set_eval_compile_mode(ptr, T);
+
+	/* compile */
+	Return(compile_file_write_(ptr, str));
+	GetPathnameStream(output, &pos);
+	if (memory_stream_p(pos)) {
+		pos = Nil;
+	}
+	else {
+		Return(truename_files_(ptr, output, &pos, 0));
+	}
+	str->result = pos;
+	localhold_set(str->hold, 0, pos);
+
+	return 0;
+}
+
+static int compile_file_stream_p(addr stream)
+{
+	return streamp(stream) && (! memory_stream_p(stream));
+}
+
+static int compile_file_output_call_(Execute ptr, struct compile_file_struct *str)
+{
+	addr stream, output;
+
+	output = str->output_file;
+	Return(open_output_binary_stream_(ptr, &stream, output, FileOutput_supersede));
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, output,
+				"Cannot open the output file, ~S.", output, NULL);
+	}
+	str->output = stream;
+	(void)compile_file_execute_(ptr, str);
+	return close_stream_unwind_protect_(ptr, stream);
+}
+
+static int compile_file_output_(Execute ptr, struct compile_file_struct *str)
+{
+	addr output, control;
+
+	output = str->output_file;
+	if (compile_file_stream_p(output)) {
+		str->output = output;
+		return compile_file_execute_(ptr, str);
+	}
+
+	/* open input */
+	push_control(ptr, &control);
+	(void)compile_file_output_call_(ptr, str);
+	return pop_control_(ptr, control);
+}
+
+static int compile_file_input_call_(Execute ptr, struct compile_file_struct *str)
+{
+	addr stream, input, format;
+
+	input = str->input_file;
+	format = str->format;
+	Return(open_input_stream_(ptr, &stream, input, format));
+	if (stream == NULL) {
+		return call_simple_file_error_va_(ptr, input,
+				"Cannot open the input file, ~S.", input, NULL);
+	}
+	str->input = stream;
+	(void)compile_file_output_(ptr, str);
+	return close_stream_unwind_protect_(ptr, stream);
+}
+
+static int compile_file_input_(Execute ptr, struct compile_file_struct *str)
+{
+	addr input, control;
+
+	input = str->input_file;
+	if (compile_file_stream_p(input)) {
+		str->input = input;
+		return compile_file_output_(ptr, str);
+	}
+
+	/* open input */
+	push_control(ptr, &control);
+	(void)compile_file_input_call_(ptr, str);
+	return pop_control_(ptr, control);
+}
+
+
+static int compile_file_handler_(Execute ptr, struct compile_file_struct *str)
+{
+	int check1, check2;
+	addr pos;
+
+	Return(handler_compile_(ptr));
+	Return(compile_file_input_(ptr, str));
+
+	/* warning */
+	GetConst(SYSTEM_COMPILE_WARNING, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	check1 = (pos != Nil);
+
+	/* style-warning */
+	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
+	Return(getspecialcheck_local_(ptr, pos, &pos));
+	check2 = (pos != Nil);
+
+	/* result */
+	str->warnings_p = check1;
+	str->failure_p = (check1 != 0) && (check2 == 0);
+
+	return 0;
+}
+
+static int compile_file_call_(Execute ptr, struct compile_file_struct *str)
+{
+	addr control;
 	LocalHold hold;
 
-	/* pathname-designer */
-	compile_file_pathname_common(ptr, input, rest, &output);
-
-	/* push control */
-	hold = LocalHold_array(ptr, 1);
+	hold = str->hold;
+	localhold_set(hold, 1, str->input_file);
+	localhold_set(hold, 2, str->output_file);
+	localhold_set(hold, 3, str->input);
+	localhold_set(hold, 4, str->output);
 	push_control(ptr, &control);
-	(void)compile_file_common_call_(ptr, hold, input, output, rest, ret1, ret2, &check);
-	*ret3 = ((*ret2 != Nil) && (check == Nil))? T: Nil;
-	Return(pop_control_(ptr, control));
+	(void)compile_file_handler_(ptr, str);
+	return pop_control_(ptr, control);
+}
+
+int compile_file_common_(Execute ptr, addr input, addr rest,
+		addr *ret1, addr *ret2, addr *ret3)
+{
+	addr pos;
+	LocalHold hold;
+	struct compile_file_struct str;
+
+	str.ptr = ptr;
+	str.warnings_p = 0;
+	str.failure_p = 0;
+	str.input_file = input;
+	str.input = Nil;
+	str.output = Nil;
+	str.result = Unbound;
+
+	/* verbose */
+	if (GetKeyArgs(rest, KEYWORD_VERBOSE, &pos))
+		pos = Unbound;
+	str.verbose = pos;
+
+	/* print */
+	if (GetKeyArgs(rest, KEYWORD_PRINT, &pos))
+		pos = Unbound;
+	str.print = pos;
+
+	/* external-format */
+	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &pos))
+		pos = Unbound;
+	str.format = pos;
+
+	/* output */
+	compile_file_pathname_common(ptr, input, rest, &pos);
+	str.output_file = pos;
+
+	/* call */
+	hold = LocalHold_array(ptr, 5);
+	str.hold = hold;
+	Return(compile_file_call_(ptr, &str));
 	localhold_end(hold);
+
+	/* result */
+	Check(str.result == Unbound, "result error");
+	*ret1 = str.result;
+	*ret2 = str.warnings_p? T: Nil;
+	*ret3 = str.failure_p? T: Nil;
 
 	return 0;
 }

@@ -120,7 +120,7 @@ static int test_type_name_stream(void)
 
 	/* file */
 	strvect_char_heap(&y, "test/empty.file");
-	open_input_stream_error_(Execute_Thread, &y, y);
+	open_input_stream_error_(Execute_Thread, &y, y, Unbound);
 	type_name_(y, &x);
 	close_stream_(y, NULL);
 	GetConst(COMMON_FILE_STREAM, &y);

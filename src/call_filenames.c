@@ -209,7 +209,7 @@ static int load_logical_pathname_file_(Execute ptr, addr file, addr *ret)
 	push_control(ptr, &control);
 	hold = LocalHold_array(ptr, 2);
 	/* open file */
-	if (open_input_stream_error_(ptr, &file, file))
+	if (open_input_stream_error_(ptr, &file, file, Unbound))
 		goto escape;
 	localhold_set(hold, 0, file);
 

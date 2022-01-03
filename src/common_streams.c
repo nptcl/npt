@@ -812,7 +812,7 @@ static void defun_file_string_length(void)
  */
 static int function_open(Execute ptr, addr pos, addr rest)
 {
-	Return(open_common(ptr, pos, rest, &pos));
+	Return(open_common_(ptr, pos, rest, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }

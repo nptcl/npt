@@ -39,16 +39,17 @@ static int eval_load_fasl_p_(addr file, int *ret)
 		return string_equalp_char_(file, "fas", ret);
 }
 
-static int eval_load_open_file_(Execute ptr, addr *ret, addr file, int binary)
+static int eval_load_open_file_(Execute ptr, addr *ret,
+		addr file, addr external, int binary)
 {
 	if (binary)
 		return open_input_binary_stream_(ptr, ret, file);
 	else
-		return open_input_stream_(ptr, ret, file);
+		return open_input_stream_(ptr, ret, file, external);
 }
 
-
-static int eval_load_open_(Execute ptr, addr file, int exist, int binary,
+static int eval_load_open_(Execute ptr,
+		addr file, addr external, int exist, int binary,
 		int *openp, int *closep, addr *ret)
 {
 	addr stream;
@@ -61,7 +62,7 @@ static int eval_load_open_(Execute ptr, addr file, int exist, int binary,
 	}
 
 	/* open pathname */
-	Return(eval_load_open_file_(ptr, &stream, file, binary));
+	Return(eval_load_open_file_(ptr, &stream, file, external, binary));
 	if (stream != NULL) {
 		*openp = 1;
 		*closep = 1;
@@ -99,7 +100,7 @@ static int eval_load_fasl_(Execute ptr, int *ret, addr file, int exist)
 	int openp, closep;
 	addr control;
 
-	Return(eval_load_open_(ptr, file, exist, 1, &openp, &closep, &file));
+	Return(eval_load_open_(ptr, file, Unbound, exist, 1, &openp, &closep, &file));
 	if (! openp)
 		return Result(ret, 0);
 
@@ -122,12 +123,12 @@ static int eval_load_lisp_call_(Execute ptr, addr file, int closep)
 	return close_stream_unwind_protect_(ptr, file);
 }
 
-static int eval_load_lisp_(Execute ptr, int *ret, addr file, int exist)
+static int eval_load_lisp_(Execute ptr, int *ret, addr file, addr external, int exist)
 {
 	int openp, closep;
 	addr control;
 
-	Return(eval_load_open_(ptr, file, exist, 0, &openp, &closep, &file));
+	Return(eval_load_open_(ptr, file, external, exist, 0, &openp, &closep, &file));
 	if (! openp)
 		return Result(ret, 0);
 
@@ -138,7 +139,7 @@ static int eval_load_lisp_(Execute ptr, int *ret, addr file, int exist)
 	return Result(ret, 1);
 }
 
-static int eval_load_check_type(Execute ptr, addr file, addr *ret)
+static int eval_load_check_type_(Execute ptr, addr file, addr *ret)
 {
 	addr check;
 
@@ -171,7 +172,7 @@ static int eval_load_check_type(Execute ptr, addr file, addr *ret)
 }
 
 static int eval_load_check_(
-		Execute ptr, addr file, addr verbose, addr print, addr external,
+		Execute ptr, addr file, addr verbose, addr print,
 		constindex file_pathname,
 		constindex file_truename,
 		constindex file_verbose,
@@ -192,7 +193,7 @@ static int eval_load_check_(
 	}
 	/* type */
 	if (! streamp(file)) {
-		Return(eval_load_check_type(ptr, file, &file));
+		Return(eval_load_check_type_(ptr, file, &file));
 	}
 	/* load-pathname */
 	GetConstant(file_pathname, &symbol);
@@ -236,22 +237,18 @@ static int eval_load_check_(
 		GetConstant(file_print, &symbol);
 		pushspecial_control(ptr, symbol, print);
 	}
-	/* external-format */
-	if (external != Unbound) {
-		GetConst(SYSTEM_EXTERNAL_FORMAT, &symbol);
-		pushspecial_control(ptr, symbol, external);
-	}
+
 	/* result */
 	return Result(ret, file);
 }
 
-static int eval_load_file(Execute ptr, int *ret,
+static int eval_load_file_(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
 	int check;
 
-	Return(eval_load_check_(ptr, file, verbose, print, external,
+	Return(eval_load_check_(ptr, file, verbose, print,
 				CONSTANT_SPECIAL_LOAD_PATHNAME,
 				CONSTANT_SPECIAL_LOAD_TRUENAME,
 				CONSTANT_SPECIAL_LOAD_VERBOSE,
@@ -261,7 +258,7 @@ static int eval_load_file(Execute ptr, int *ret,
 	if (check)
 		return eval_load_fasl_(ptr, ret, file, exist);
 	else
-		return eval_load_lisp_(ptr, ret, file, exist);
+		return eval_load_lisp_(ptr, ret, file, external, exist);
 }
 
 int eval_load_(Execute ptr, int *ret,
@@ -271,7 +268,7 @@ int eval_load_(Execute ptr, int *ret,
 
 	push_control(ptr, &control);
 	set_eval_compile_mode(ptr, Nil);
-	(void)eval_load_file(ptr, ret, file, verbose, print, exist, external);
+	(void)eval_load_file_(ptr, ret, file, verbose, print, exist, external);
 	return pop_control_(ptr, control);
 }
 
@@ -279,7 +276,7 @@ static int eval_load_file_switch_(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external, int faslp)
 {
-	Return(eval_load_check_(ptr, file, verbose, print, external,
+	Return(eval_load_check_(ptr, file, verbose, print,
 				CONSTANT_SPECIAL_LOAD_PATHNAME,
 				CONSTANT_SPECIAL_LOAD_TRUENAME,
 				CONSTANT_SPECIAL_LOAD_VERBOSE,
@@ -288,7 +285,7 @@ static int eval_load_file_switch_(Execute ptr, int *ret,
 	if (faslp)
 		return eval_load_fasl_(ptr, ret, file, exist);
 	else
-		return eval_load_lisp_(ptr, ret, file, exist);
+		return eval_load_lisp_(ptr, ret, file, external, exist);
 }
 
 int eval_load_force_lisp_(Execute ptr, int *ret,
@@ -329,12 +326,12 @@ static int compile_load_lisp_call_(Execute ptr, addr file, int closep)
 	return close_stream_unwind_protect_(ptr, file);
 }
 
-static int compile_load_lisp_(Execute ptr, int *ret, addr file, int exist)
+static int compile_load_lisp_(Execute ptr, int *ret, addr file, addr external, int exist)
 {
 	int openp, closep;
 	addr control;
 
-	Return(eval_load_open_(ptr, file, exist, 0, &openp, &closep, &file));
+	Return(eval_load_open_(ptr, file, external, exist, 0, &openp, &closep, &file));
 	if (! openp)
 		return Result(ret, 0);
 
@@ -350,13 +347,13 @@ static int compile_load_file_(
 {
 	int check;
 
-	Return(eval_load_check_(ptr, file, verbose, print, external,
+	Return(eval_load_check_(ptr, file, verbose, print,
 				CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
 				CONSTANT_SPECIAL_COMPILE_FILE_TRUENAME,
 				CONSTANT_SPECIAL_COMPILE_VERBOSE,
 				CONSTANT_SPECIAL_COMPILE_PRINT,
 				&file));
-	return compile_load_lisp_(ptr, &check, file, 1);
+	return compile_load_lisp_(ptr, &check, file, external, 1);
 }
 
 int compile_load_(Execute ptr, addr file, addr verbose, addr print, addr external)

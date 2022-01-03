@@ -100,20 +100,20 @@
 (deftest require.6
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" '("test/rtsystem-file1.lisp")))
+    (require "HELLO" '("test/rtsystem-file2.lisp")))
   nil)
 
 (deftest require.7
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" '("test/rtsystem-file1.lisp"))
+    (require "HELLO" '("test/rtsystem-file2.lisp"))
     *modules*)
   ("HELLO"))
 
 (deftest require.8
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" '("test/rtsystem-file1.lisp"))
+    (require "HELLO" '("test/rtsystem-file2.lisp"))
     *require-test1*)
   t)
 
@@ -121,43 +121,43 @@
   (let ((*modules* nil)
         (*require-test1* nil)
         (*require-test2* nil))
-    (require "HELLO" '("test/rtsystem-file1.lisp"
-                       "test/rtsystem-file2.lisp"))
+    (require "HELLO" '("test/rtsystem-file2.lisp"
+                       "test/rtsystem-file3.lisp"))
     (values *require-test1* *require-test2*))
   t t)
 
 (deftest require.10
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" '("test/rtsystem-file1.lisp"))
+    (require "HELLO" '("test/rtsystem-file2.lisp"))
     (setq *require-test1* nil)
-    (require "HELLO" '("test/rtsystem-file1.lisp"))
+    (require "HELLO" '("test/rtsystem-file2.lisp"))
     *require-test1*)
   t)
 
 (deftest require.11
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" "test/rtsystem-file1.lisp"))
+    (require "HELLO" "test/rtsystem-file2.lisp"))
   nil)
 
 (deftest require.12
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" "test/rtsystem-file1.lisp")
+    (require "HELLO" "test/rtsystem-file2.lisp")
     *modules*)
   ("HELLO"))
 
 (deftest require.13
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" #p"test/rtsystem-file1.lisp"))
+    (require "HELLO" #p"test/rtsystem-file2.lisp"))
   nil)
 
 (deftest require.14
   (let ((*modules* nil)
         (*require-test1* nil))
-    (require "HELLO" #p"test/rtsystem-file1.lisp")
+    (require "HELLO" #p"test/rtsystem-file2.lisp")
     *modules*)
   ("HELLO"))
 

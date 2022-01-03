@@ -1,2 +1,2 @@
-(setq *require-test1* t)
+(setq *compile-value* :hello)
 

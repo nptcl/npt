@@ -10,6 +10,7 @@
 #include "stream.h"
 #include "stream_function.h"
 #include "stream_memory.h"
+#include "stream_open.h"
 #include "symbol.h"
 #include "typedef.h"
 
@@ -478,96 +479,69 @@ int open_input_utf32bebom_stream_(Execute ptr, addr *ret, addr file)
 	return Result(ret, file);
 }
 
-int open_input_stream_external_(Execute ptr, addr *ret, addr file, addr format)
+int open_input_stream_(Execute ptr, addr *ret, addr file, addr format)
 {
-	addr check;
+	enum Stream_Open_External type;
 
-	/* ascii */
-	GetConst(SYSTEM_ASCII, &check);
-	if (format == check)
-		return open_input_ascii_stream_(ptr, ret, file);
+	Return(open_external_format_(ptr, format, &type));
+	switch (type) {
+		case Stream_Open_External_Default:
+		case Stream_Open_External_Utf8:
+			return open_input_utf8_stream_(ptr, ret, file);
 
-	/* utf-8 */
-	GetConst(SYSTEM_UTF_8, &check);
-	if (format == check)
-		return open_input_utf8_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf8Bom:
+			return open_input_utf8bom_stream_(ptr, ret, file);
 
-	/* utf-8-bom */
-	GetConst(SYSTEM_UTF_8_BOM, &check);
-	if (format == check)
-		return open_input_utf8bom_stream_(ptr, ret, file);
+		case Stream_Open_External_Ascii:
+			return open_input_ascii_stream_(ptr, ret, file);
 
-	/* utf-16 */
-	GetConst(SYSTEM_UTF_16, &check);
-	if (format == check)
-		return open_input_utf16_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf16:
+			return open_input_utf16_stream_(ptr, ret, file);
 
-	/* utf-16le */
-	GetConst(SYSTEM_UTF_16LE, &check);
-	if (format == check)
-		return open_input_utf16le_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf16Le:
+			return open_input_utf16le_stream_(ptr, ret, file);
 
-	/* utf-16be */
-	GetConst(SYSTEM_UTF_16BE, &check);
-	if (format == check)
-		return open_input_utf16be_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf16Be:
+			return open_input_utf16be_stream_(ptr, ret, file);
 
-	/* utf-16le-bom */
-	GetConst(SYSTEM_UTF_16LE_BOM, &check);
-	if (format == check)
-		return open_input_utf16lebom_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf16LeBom:
+			return open_input_utf16lebom_stream_(ptr, ret, file);
 
-	/* utf-16be-bom */
-	GetConst(SYSTEM_UTF_16BE_BOM, &check);
-	if (format == check)
-		return open_input_utf16bebom_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf16BeBom:
+			return open_input_utf16bebom_stream_(ptr, ret, file);
 
-	/* utf-32 */
-	GetConst(SYSTEM_UTF_32, &check);
-	if (format == check)
-		return open_input_utf32_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf32:
+			return open_input_utf32_stream_(ptr, ret, file);
 
-	/* utf-32le */
-	GetConst(SYSTEM_UTF_32LE, &check);
-	if (format == check)
-		return open_input_utf32le_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf32Le:
+			return open_input_utf32le_stream_(ptr, ret, file);
 
-	/* utf-32be */
-	GetConst(SYSTEM_UTF_32BE, &check);
-	if (format == check)
-		return open_input_utf32be_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf32Be:
+			return open_input_utf32be_stream_(ptr, ret, file);
 
-	/* utf-32le-bom */
-	GetConst(SYSTEM_UTF_32LE_BOM, &check);
-	if (format == check)
-		return open_input_utf32lebom_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf32LeBom:
+			return open_input_utf32lebom_stream_(ptr, ret, file);
 
-	/* utf-32be-bom */
-	GetConst(SYSTEM_UTF_32BE_BOM, &check);
-	if (format == check)
-		return open_input_utf32bebom_stream_(ptr, ret, file);
+		case Stream_Open_External_Utf32BeBom:
+			return open_input_utf32bebom_stream_(ptr, ret, file);
 
-	/* others */
-	return fmte_("Invalid *external-format* value ~S.", format, NULL);
+		case Stream_Open_External_Error:
+		default:
+			*ret = Nil;
+			return fmte_("Invalid external-format ~S.", format, NULL);
+	};
 }
 
-int open_input_stream_(Execute ptr, addr *ret, addr file)
-{
-	addr format;
-
-	GetConst(SYSTEM_EXTERNAL_FORMAT, &format);
-	Return(getspecialcheck_local_(ptr, format, &format));
-
-	return open_input_stream_external_(ptr, ret, file, format);
-}
-
-int open_input_stream_error_(Execute ptr, addr *ret, addr file)
+int open_input_stream_error_(Execute ptr, addr *ret, addr file, addr format)
 {
 	addr pos;
 
-	Return(open_input_stream_(ptr, &pos, file));
-	if (pos == NULL)
-		return call_file_error_(ptr, file);
+	Return(open_input_stream_(ptr, &pos, file, format));
+	if (pos == NULL) {
+		*ret = Nil;
+		return call_simple_file_error_va_(ptr, file,
+				"Cannot open file, ~S.", file, NULL);
+	}
 
 	return Result(ret, pos);
 }
@@ -881,84 +855,6 @@ int open_output_utf32be_stream_(Execute ptr, addr *ret,
 	}
 
 	return Result(ret, file);
-}
-
-int open_output_stream_(Execute ptr, addr *ret,
-		addr file, enum FileOutput mode)
-{
-	addr check, value;
-
-	/* symbol */
-	GetConst(SYSTEM_EXTERNAL_FORMAT, &value);
-	Return(getspecialcheck_local_(ptr, value, &value));
-
-	/* ascii */
-	GetConst(SYSTEM_ASCII, &check);
-	if (value == check)
-		return open_output_ascii_stream_(ptr, ret, file, mode);
-
-	/* utf-8 */
-	GetConst(SYSTEM_UTF_8, &check);
-	if (value == check)
-		return open_output_utf8_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-8-bom */
-	GetConst(SYSTEM_UTF_8_BOM, &check);
-	if (value == check)
-		return open_output_utf8_stream_(ptr, ret, file, mode, 1);
-
-	/* utf-16 */
-	GetConst(SYSTEM_UTF_16, &check);
-	if (value == check)
-		return open_output_utf16be_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-16le */
-	GetConst(SYSTEM_UTF_16LE, &check);
-	if (value == check)
-		return open_output_utf16le_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-16be */
-	GetConst(SYSTEM_UTF_16BE, &check);
-	if (value == check)
-		return open_output_utf16be_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-16le-bom */
-	GetConst(SYSTEM_UTF_16LE_BOM, &check);
-	if (value == check)
-		return open_output_utf16le_stream_(ptr, ret, file, mode, 1);
-
-	/* utf-16be-bom */
-	GetConst(SYSTEM_UTF_16BE_BOM, &check);
-	if (value == check)
-		return open_output_utf16be_stream_(ptr, ret, file, mode, 1);
-
-	/* utf-32 */
-	GetConst(SYSTEM_UTF_32, &check);
-	if (value == check)
-		return open_output_utf32be_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-32le */
-	GetConst(SYSTEM_UTF_32LE, &check);
-	if (value == check)
-		return open_output_utf32le_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-32be */
-	GetConst(SYSTEM_UTF_32BE, &check);
-	if (value == check)
-		return open_output_utf32be_stream_(ptr, ret, file, mode, 0);
-
-	/* utf-32le-bom */
-	GetConst(SYSTEM_UTF_32LE_BOM, &check);
-	if (value == check)
-		return open_output_utf32le_stream_(ptr, ret, file, mode, 1);
-
-	/* utf-32be-bom */
-	GetConst(SYSTEM_UTF_32BE_BOM, &check);
-	if (value == check)
-		return open_output_utf32be_stream_(ptr, ret, file, mode, 1);
-
-	/* others */
-	return fmte_("Invalid *external-format* value ~S.", value, NULL);
 }
 
 
@@ -1354,83 +1250,6 @@ int open_io_utf32bebom_stream_(Execute ptr, addr *ret,
 	Return(writebom_encode_(file));
 
 	return Result(ret, file);
-}
-
-int open_io_stream_(Execute ptr, addr *ret, addr file, enum FileOutput mode)
-{
-	addr check, value;
-
-	/* symbol */
-	GetConst(SYSTEM_EXTERNAL_FORMAT, &value);
-	Return(getspecialcheck_local_(ptr, value, &value));
-
-	/* ascii */
-	GetConst(SYSTEM_ASCII, &check);
-	if (value == check)
-		return open_io_ascii_stream_(ptr, ret, file, mode);
-
-	/* utf-8 */
-	GetConst(SYSTEM_UTF_8, &check);
-	if (value == check)
-		return open_io_utf8_stream_(ptr, ret, file, mode);
-
-	/* utf-8-bom */
-	GetConst(SYSTEM_UTF_8_BOM, &check);
-	if (value == check)
-		return open_io_utf8bom_stream_(ptr, ret, file, mode);
-
-	/* utf-16 */
-	GetConst(SYSTEM_UTF_16, &check);
-	if (value == check)
-		return open_io_utf16_stream_(ptr, ret, file, mode);
-
-	/* utf-16le */
-	GetConst(SYSTEM_UTF_16LE, &check);
-	if (value == check)
-		return open_io_utf16le_stream_(ptr, ret, file, mode);
-
-	/* utf-16be */
-	GetConst(SYSTEM_UTF_16BE, &check);
-	if (value == check)
-		return open_io_utf16be_stream_(ptr, ret, file, mode);
-
-	/* utf-16le-bom */
-	GetConst(SYSTEM_UTF_16LE_BOM, &check);
-	if (value == check)
-		return open_io_utf16lebom_stream_(ptr, ret, file, mode);
-
-	/* utf-16be-bom */
-	GetConst(SYSTEM_UTF_16BE_BOM, &check);
-	if (value == check)
-		return open_io_utf16bebom_stream_(ptr, ret, file, mode);
-
-	/* utf-32 */
-	GetConst(SYSTEM_UTF_32, &check);
-	if (value == check)
-		return open_io_utf32_stream_(ptr, ret, file, mode);
-
-	/* utf-32le */
-	GetConst(SYSTEM_UTF_32LE, &check);
-	if (value == check)
-		return open_io_utf32le_stream_(ptr, ret, file, mode);
-
-	/* utf-32be */
-	GetConst(SYSTEM_UTF_32BE, &check);
-	if (value == check)
-		return open_io_utf32be_stream_(ptr, ret, file, mode);
-
-	/* utf-32le-bom */
-	GetConst(SYSTEM_UTF_32LE_BOM, &check);
-	if (value == check)
-		return open_io_utf32lebom_stream_(ptr, ret, file, mode);
-
-	/* utf-32be-bom */
-	GetConst(SYSTEM_UTF_32BE_BOM, &check);
-	if (value == check)
-		return open_io_utf32bebom_stream_(ptr, ret, file, mode);
-
-	/* others */
-	return fmte_("Invalid *external-format* value ~S.", value, NULL);
 }
 
 

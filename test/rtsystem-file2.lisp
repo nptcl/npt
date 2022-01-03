@@ -1,2 +1,2 @@
-(setq *require-test2* t)
+(setq *require-test1* t)
 

@@ -120,6 +120,216 @@ int output_stream_designer_(Execute ptr, addr stream, addr *ret)
 
 
 /*
+ *  external-format
+ */
+static int open_external_format_equal_(addr value,
+		const char *str1, const char *str2, int *ret)
+{
+	int check;
+
+	if (symbolp(value))
+		GetNameSymbol(value, &value);
+	if (! stringp(value))
+		return Result(ret, 0);
+	Return(string_equalp_char_(value, str1, &check));
+	if (check)
+		return Result(ret, 1);
+	if (str2 == NULL)
+		return Result(ret, 0);
+
+	return string_equalp_char_(value, str2, ret);
+}
+
+static int open_external_format_symbol_(addr x, enum Stream_Open_External *ret)
+{
+	addr y;
+
+	/* ascii */
+	GetConst(SYSTEM_ASCII, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Ascii);
+
+	/* utf-16 */
+	GetConst(SYSTEM_UTF_16, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf16);
+
+	/* utf-16le */
+	GetConst(SYSTEM_UTF_16LE, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf16Le);
+
+	/* utf-16be */
+	GetConst(SYSTEM_UTF_16BE, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf16Be);
+
+	/* utf-16le-bom */
+	GetConst(SYSTEM_UTF_16LE_BOM, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf16LeBom);
+
+	/* utf-16be-bom */
+	GetConst(SYSTEM_UTF_16BE_BOM, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf16BeBom);
+
+	/* utf-32 */
+	GetConst(SYSTEM_UTF_32, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf32);
+
+	/* utf-32le */
+	GetConst(SYSTEM_UTF_32LE, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf32Le);
+
+	/* utf-32be */
+	GetConst(SYSTEM_UTF_32BE, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf32Be);
+
+	/* utf-32le-bom */
+	GetConst(SYSTEM_UTF_32LE_BOM, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf32LeBom);
+
+	/* utf-32be-bom */
+	GetConst(SYSTEM_UTF_32BE_BOM, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf32BeBom);
+
+	/* error */
+	return Result(ret, Stream_Open_External_Error);
+}
+
+static int open_external_format_string_(addr x, enum Stream_Open_External *ret)
+{
+	int check;
+
+	/* ascii */
+	Return(open_external_format_equal_(x, "ASC", "ASCII", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Ascii);
+
+	/* utf16 */
+	Return(open_external_format_equal_(x, "UTF16", "UTF-16", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf16);
+
+	/* utf16le */
+	Return(open_external_format_equal_(x, "UTF16LE", "UTF-16LE", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf16Le);
+
+	/* utf16be */
+	Return(open_external_format_equal_(x, "UTF16BE", "UTF-16BE", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf16Be);
+
+	/* utf16le-bom */
+	Return(open_external_format_equal_(x, "UTF16LEBOM", "UTF-16LE-BOM", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf16LeBom);
+
+	/* utf16be-bom */
+	Return(open_external_format_equal_(x, "UTF16BEBOM", "UTF-16BE-BOM", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf16BeBom);
+
+	/* utf32 */
+	Return(open_external_format_equal_(x, "UTF32", "UTF-32", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf32);
+
+	/* utf32le */
+	Return(open_external_format_equal_(x, "UTF32LE", "UTF-32LE", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf32Le);
+
+	/* utf32be */
+	Return(open_external_format_equal_(x, "UTF32BE", "UTF-32BE", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf32Be);
+
+	/* utf32le-bom */
+	Return(open_external_format_equal_(x, "UTF32LEBOM", "UTF-32LE-BOM", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf32LeBom);
+
+	/* utf32be-bom */
+	Return(open_external_format_equal_(x, "UTF32BEBOM", "UTF-32BE-BOM", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf32BeBom);
+
+	/* error */
+	return Result(ret, Stream_Open_External_Error);
+}
+
+static int open_external_format_get_(addr x, enum Stream_Open_External *ret)
+{
+	enum Stream_Open_External value;
+	int check;
+	addr y;
+
+	/* default */
+	if (x == Unbound)
+		return Result(ret, Stream_Open_External_Default);
+
+	/* :default */
+	GetConst(KEYWORD_DEFAULT, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Default);
+
+	/* utf-8 symbol */
+	GetConst(SYSTEM_UTF_8, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf8);
+
+	/* utf-8-bom symbol */
+	GetConst(SYSTEM_UTF_8_BOM, &y);
+	if (x == y)
+		return Result(ret, Stream_Open_External_Utf8Bom);
+
+	/* utf8 string */
+	Return(open_external_format_equal_(x, "UTF8", "UTF-8", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf8);
+
+	/* utf8-bom string */
+	Return(open_external_format_equal_(x, "UTF8BOM", "UTF-8-BOM", &check));
+	if (check)
+		return Result(ret, Stream_Open_External_Utf8Bom);
+
+	/* symbol */
+	Return(open_external_format_symbol_(x, &value));
+	if (value != Stream_Open_External_Error)
+		return Result(ret, value);
+
+	/* string */
+	return open_external_format_string_(x, ret);
+}
+
+int open_external_format_(Execute ptr, addr x, enum Stream_Open_External *ret)
+{
+	enum Stream_Open_External value;
+
+	Return(open_external_format_get_(x, &value));
+	if (value != Stream_Open_External_Default)
+		return Result(ret, value);
+
+	/* :default */
+	GetConst(SYSTEM_EXTERNAL_FORMAT, &x);
+	getspecial_local(ptr, x, &x);
+	Return(open_external_format_get_(x, &value));
+	if (value == Stream_Open_External_Default)
+		value = Stream_Open_External_Utf8;
+
+	return Result(ret, value);
+}
+
+
+/*
  *  special variable
  */
 static int specialvalue_(Execute ptr, constindex index, addr *ret)

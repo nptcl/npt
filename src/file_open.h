@@ -28,7 +28,6 @@
 #define open_input_utf32be_stream_ _n(open_input_utf32be_stream_)
 #define open_input_utf32lebom_stream_ _n(open_input_utf32lebom_stream_)
 #define open_input_utf32bebom_stream_ _n(open_input_utf32bebom_stream_)
-#define open_input_stream_external_ _n(open_input_stream_external_)
 #define open_input_stream_ _n(open_input_stream_)
 #define open_input_stream_error_ _n(open_input_stream_error_)
 #define open_output_binary_stream_ _n(open_output_binary_stream_)
@@ -47,7 +46,6 @@
 #define open_output_utf16be_stream_ _n(open_output_utf16be_stream_)
 #define open_output_utf32le_stream_ _n(open_output_utf32le_stream_)
 #define open_output_utf32be_stream_ _n(open_output_utf32be_stream_)
-#define open_output_stream_ _n(open_output_stream_)
 #define open_io_binary_stream_ _n(open_io_binary_stream_)
 #define open_io_unsigned16_stream_ _n(open_io_unsigned16_stream_)
 #define open_io_unsigned32_stream_ _n(open_io_unsigned32_stream_)
@@ -71,7 +69,6 @@
 #define open_io_utf32be_stream_ _n(open_io_utf32be_stream_)
 #define open_io_utf32lebom_stream_ _n(open_io_utf32lebom_stream_)
 #define open_io_utf32bebom_stream_ _n(open_io_utf32bebom_stream_)
-#define open_io_stream_ _n(open_io_stream_)
 #define open_probe_stream_ _n(open_probe_stream_)
 
 /* input */
@@ -99,9 +96,8 @@ int open_input_utf32be_stream_(Execute ptr, addr *stream, addr file);
 int open_input_utf32lebom_stream_(Execute ptr, addr *stream, addr file);
 int open_input_utf32bebom_stream_(Execute ptr, addr *stream, addr file);
 
-int open_input_stream_external_(Execute ptr, addr *stream, addr file, addr format);
-int open_input_stream_(Execute ptr, addr *stream, addr file);
-int open_input_stream_error_(Execute ptr, addr *ret, addr file);
+int open_input_stream_(Execute ptr, addr *stream, addr file, addr format);
+int open_input_stream_error_(Execute ptr, addr *ret, addr file, addr format);
 
 /* output */
 int open_output_binary_stream_(Execute ptr, addr *stream,
@@ -134,8 +130,6 @@ int open_output_utf32le_stream_(Execute ptr, addr *stream,
 		addr file, enum FileOutput mode, int bomp);
 int open_output_utf32be_stream_(Execute ptr, addr *stream,
 		addr file, enum FileOutput mode, int bomp);
-int open_output_stream_(Execute ptr, addr *stream,
-		addr file, enum FileOutput mode);
 
 /* io */
 int open_io_binary_stream_(Execute ptr, addr *stream,
@@ -181,8 +175,6 @@ int open_io_utf32be_stream_(Execute ptr, addr *stream,
 int open_io_utf32lebom_stream_(Execute ptr, addr *stream,
 		addr file, enum FileOutput mode);
 int open_io_utf32bebom_stream_(Execute ptr, addr *stream,
-		addr file, enum FileOutput mode);
-int open_io_stream_(Execute ptr, addr *stream,
 		addr file, enum FileOutput mode);
 
 /* probe */

@@ -590,7 +590,7 @@ static int test_type_value_stream(void)
 
 	/* file */
 	strvect_char_heap(&y, "test/empty.file");
-	open_input_stream_error_(Execute_Thread, &y, y);
+	open_input_stream_error_(Execute_Thread, &y, y, Unbound);
 	type_value_(&x, y);
 	test(LowLispDecl(x) == LISPDECL_FILE_STREAM, "type_value_stream7");
 

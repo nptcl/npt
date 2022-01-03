@@ -18,12 +18,14 @@
 #include "parse_function.h"
 #include "parse_macro.h"
 #include "parse_object.h"
+#include "print_write.h"
 #include "reader.h"
 #include "step.h"
 #include "scope.h"
 #include "scope_declare.h"
 #include "scope_object.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "symbol.h"
 #include "type_value.h"
 #include "typedef.h"
@@ -450,11 +452,76 @@ static int eval_toplevel_execute_call_(Execute ptr, addr pos)
 	return eval_toplevel_value_(ptr, pos);
 }
 
+static int eval_toplevel_print_char_(Execute ptr, addr pos, addr stream, const char *str)
+{
+	int ignore;
+
+	Return(fresh_line_stream_(stream, &ignore));
+	Return(print_ascii_stream_(stream, str));
+	Return(prin1_print(ptr, stream, pos));
+	Return(terpri_stream_(stream));
+
+	return 0;
+}
+
+static int eval_toplevel_print_output_(Execute ptr, addr pos, int load, int compile)
+{
+	addr symbol, value, stream;
+
+	/* (setq *print-level* 2) */
+	GetConst(SPECIAL_PRINT_LEVEL, &symbol);
+	fixnum_heap(&value, 2);
+	pushspecial_control(ptr, symbol, value);
+
+	/* (setq *print-length* 3) */
+	GetConst(SPECIAL_PRINT_LENGTH, &symbol);
+	fixnum_heap(&value, 3);
+	pushspecial_control(ptr, symbol, value);
+
+	/* (format *standard-output* "~&;; Load: ~S~%") */
+	Return(standard_output_stream_(ptr, &stream));
+	if (load) {
+		Return(eval_toplevel_print_char_(ptr, pos, stream, ";; Load: "));
+	}
+
+	/* (format *standard-output* "~&;; Compile: ~S~%") */
+	if (compile) {
+		Return(eval_toplevel_print_char_(ptr, pos, stream, ";; Compile: "));
+	}
+
+	return 0;
+}
+
+static int eval_toplevel_print_(Execute ptr, addr pos)
+{
+	int check1, check2;
+	addr control, symbol, value;
+
+	/* load */
+	GetConst(SPECIAL_LOAD_PRINT, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &value));
+	check1 = (value != Nil);
+
+	/* compile-file */
+	GetConst(SPECIAL_COMPILE_PRINT, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &value));
+	check2 = (value != Nil);
+
+	/* print */
+	if (check1 || check2) {
+		push_control(ptr, &control);
+		(void)eval_toplevel_print_output_(ptr, pos, check1, check2);
+		return pop_control_(ptr, control);
+	}
+	return 0;
+}
+
 static int eval_toplevel_execute_(Execute ptr, addr pos)
 {
 	LocalHold hold;
 
 	hold = LocalHold_local_push(ptr, pos);
+	Return(eval_toplevel_print_(ptr, pos));
 	Return(eval_toplevel_execute_call_(ptr, pos));
 	localhold_end(hold);
 

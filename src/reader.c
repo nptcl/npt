@@ -180,6 +180,7 @@ int readtable_result_(Execute ptr,
 {
 	enum ReadTable_Type type;
 	int check;
+	addr pos;
 	unicode x, y, z;
 
 step1:
@@ -245,6 +246,7 @@ step8:
 			goto step9;
 
 		case ReadTable_Type_illegal:
+			x = y;
 			goto illegal_error;
 
 		case ReadTable_Type_macro_term:
@@ -285,6 +287,7 @@ step9:
 			goto step8;
 
 		case ReadTable_Type_illegal:
+			x = y;
 			goto illegal_error;
 
 		default:
@@ -296,7 +299,8 @@ step10:
 	goto final;
 
 illegal_error:
-	return fmte_("Illegal character error", NULL);
+	character_heap(&pos, x);
+	return fmte_("Invalid character, ~S.", pos, NULL);
 
 error:
 	return fmte_("readtable error", NULL);
