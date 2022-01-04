@@ -6,10 +6,6 @@
 #include "compile.h"
 #include "compile_file.h"
 #include "cons.h"
-#include "cons_plist.h"
-#include "control.h"
-#include "eval_load.h"
-#include "file.h"
 #include "require.h"
 #include "strtype.h"
 #include "type_parse.h"
@@ -28,10 +24,11 @@
  */
 static int function_compile_file(Execute ptr, addr file, addr rest)
 {
-	addr ret1, ret2, ret3;
+	addr x, y, z;
 
-	Return(compile_file_common_(ptr, file, rest, &ret1, &ret2, &ret3));
-	setvalues_control(ptr, ret1, ret2, ret3, NULL);
+	Return(compile_file_common_(ptr, file, rest, &x, &y, &z));
+	setvalues_control(ptr, x, y, z, NULL);
+
 	return 0;
 }
 
@@ -81,7 +78,7 @@ static void defun_compile_file(void)
  */
 static int function_compile_file_pathname(Execute ptr, addr var, addr rest)
 {
-	Return(compile_file_pathname_common(ptr, var, rest, &var));
+	Return(compile_file_pathname_common_(ptr, var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -122,98 +119,11 @@ static void defun_compile_file_pathname(void)
  *   if-does-not-exist  t  ;; boolean
  *   external-format    t  ;; external-format-designer
  */
-static void function_load_verbose(Execute ptr, addr rest, addr *ret)
-{
-	if (GetKeyArgs(rest, KEYWORD_VERBOSE, ret))
-		*ret = Unbound;
-}
-
-static void function_load_print(Execute ptr, addr rest, addr *ret)
-{
-	if (GetKeyArgs(rest, KEYWORD_PRINT, ret))
-		*ret = Unbound;
-}
-
-static void function_load_exist(Execute ptr, addr rest, int *ret)
-{
-	if (GetKeyArgs(rest, KEYWORD_IF_DOES_NOT_EXIST, &rest))
-		*ret = 1;
-	else
-		*ret = (rest != Nil);
-}
-
-static void function_load_external(Execute ptr, addr rest, addr *ret)
-{
-	addr pos, check;
-
-	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &pos)) {
-		*ret = Unbound;
-	}
-	else {
-		GetConst(KEYWORD_DEFAULT, &check);
-		*ret = (check == pos)? Unbound: pos;
-	}
-}
-
-enum LoadType {
-	LoadType_unbound,
-	LoadType_lisp,
-	LoadType_fasl
-};
-
-static int function_load_type_(Execute ptr, addr rest, enum LoadType *ret)
-{
-	int check;
-	addr pos;
-
-	if (GetKeyArgs(rest, KEYWORD_TYPE, &pos))
-		goto unbound;
-	if (! symbolp(pos))
-		goto unbound;
-	GetNameSymbol(pos, &pos);
-
-	/* lisp */
-	Return(string_equalp_char_(pos, "LISP", &check));
-	if (check)
-		return Result(ret, LoadType_lisp);
-
-	/* fasl */
-	Return(string_equalp_char_(pos, "FASL", &check));
-	if (check)
-		return Result(ret, LoadType_fasl);
-
-	/* unbound */
-unbound:
-	return Result(ret, LoadType_unbound);
-}
-
 static int function_load(Execute ptr, addr filespec, addr rest)
 {
-	enum LoadType type;
-	int exist, check;
-	addr verbose, print, external;
+	int check;
 
-	function_load_verbose(ptr, rest, &verbose);
-	function_load_print(ptr, rest, &print);
-	function_load_exist(ptr, rest, &exist);
-	function_load_external(ptr, rest, &external);
-	Return(function_load_type_(ptr, rest, &type));
-	switch (type) {
-		case LoadType_lisp:
-			Return(eval_load_force_lisp_(ptr,
-						&check, filespec, verbose, print, exist, external));
-			break;
-
-		case LoadType_fasl:
-			Return(eval_load_force_fasl_(ptr,
-						&check, filespec, verbose, print, exist, external));
-			break;
-
-		case LoadType_unbound:
-		default:
-			Return(eval_load_(ptr, &check, filespec, verbose, print, exist, external));
-			break;
-	}
+	Return(load_common_(ptr, filespec, rest, &check));
 	setbool_control(ptr, check);
 
 	return 0;
@@ -473,7 +383,7 @@ static void defun_provide(void)
 /* (defun require (var) ...) -> null */
 static int function_require(Execute ptr, addr var, addr opt)
 {
-	Return(require_common(ptr, var, opt));
+	Return(require_common_(ptr, var, opt));
 	setresult_control(ptr, Nil);
 	return 0;
 }

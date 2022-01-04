@@ -43,7 +43,7 @@ static int require_function_common_call_(Execute ptr, addr call, addr var, int *
 	return Result(ret, (var == Nil)? 0: 1);
 }
 
-static int require_function_common(Execute ptr, addr var, int *ret)
+static int require_function_common_(Execute ptr, addr var, int *ret)
 {
 	int check;
 	addr list, call, control;
@@ -67,7 +67,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 	return fmte_("Cannot require ~S.", var, NULL);
 }
 
-static int require_list_common(Execute ptr, addr var, addr list, int *ret)
+static int require_list_common_(Execute ptr, addr var, addr list, int *ret)
 {
 	int check;
 	addr x;
@@ -81,22 +81,20 @@ static int require_list_common(Execute ptr, addr var, addr list, int *ret)
 	return 0;
 }
 
-int require_common(Execute ptr, addr var, addr opt)
+int require_common_(Execute ptr, addr var, addr opt)
 {
-	int check, push;
+	int push;
 
 	Return(string_designer_heap_(&var, var, NULL));
 	push = 0;
 	if (opt == Unbound || opt == Nil) {
-		check = require_function_common(ptr, var, &push);
+		Return(require_function_common_(ptr, var, &push));
 	}
 	else {
 		if (! listp(opt))
 			conscar_heap(&opt, opt);
-		check = require_list_common(ptr, var, opt, &push);
+		Return(require_list_common_(ptr, var, opt, &push));
 	}
-	if (check)
-		return 1;
 	if (push) {
 		Return(provide_common_(ptr, var));
 	}

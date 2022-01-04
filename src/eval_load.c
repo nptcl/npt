@@ -14,11 +14,79 @@
 #include "pathname.h"
 #include "pathname_object.h"
 #include "pathname_wildcard.h"
+#include "print_write.h"
 #include "stream.h"
+#include "stream_common.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
 #include "typedef.h"
+
+/*
+ *  verbose
+ */
+static int load_file_verbose_(Execute ptr, addr file,
+		constindex index1, constindex index2,
+		const char *str1, const char *str2)
+{
+	int ignore;
+	addr pos, verbose, stream;
+
+	/* filename */
+	GetConstant(index1, &pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Unbound || pos == Nil)
+		pos = file;
+
+	/* verbose */
+	GetConstant(index2, &verbose);
+	getspecial_local(ptr, verbose, &verbose);
+	if (verbose == Nil)
+		return 0;
+	if (verbose == Unbound)
+		return 0;
+
+	/* output */
+	Return(standard_output_stream_(ptr, &stream));
+	Return(fresh_line_stream_(stream, &ignore));
+	Return(print_ascii_stream_(stream, str1));
+	Return(prin1_print(ptr, stream, pos));
+	Return(print_ascii_stream_(stream, str2));
+	Return(terpri_stream_(stream));
+
+	return 0;
+}
+
+static int compile_file_begin_(Execute ptr, addr file)
+{
+	return load_file_verbose_(ptr, file,
+			CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
+			CONSTANT_SPECIAL_COMPILE_VERBOSE,
+			";; Compiling file ", " ...");
+}
+static int compile_file_end_(Execute ptr, addr file)
+{
+	return load_file_verbose_(ptr, file,
+			CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
+			CONSTANT_SPECIAL_COMPILE_VERBOSE,
+			";; Wrote file ", ".");
+}
+
+static int load_common_begin_(Execute ptr, addr file)
+{
+	return load_file_verbose_(ptr, file,
+			CONSTANT_SPECIAL_LOAD_PATHNAME,
+			CONSTANT_SPECIAL_LOAD_VERBOSE,
+			";; Loading file ", " ...");
+}
+static int load_common_end_(Execute ptr, addr file)
+{
+	return load_file_verbose_(ptr, file,
+			CONSTANT_SPECIAL_LOAD_PATHNAME,
+			CONSTANT_SPECIAL_LOAD_VERBOSE,
+			";; Loaded file ", ".");
+}
+
 
 /*
  *  eval-load
@@ -55,7 +123,7 @@ static int eval_load_open_(Execute ptr,
 	addr stream;
 
 	/* stream */
-	if (streamp(file)) {
+	if (streamp(file) && (! memory_stream_p(file))) {
 		*openp = 1;
 		*closep = 0;
 		return Result(ret, file);
@@ -139,32 +207,60 @@ static int eval_load_lisp_(Execute ptr, int *ret, addr file, addr external, int 
 	return Result(ret, 1);
 }
 
-static int eval_load_check_type_(Execute ptr, addr file, addr *ret)
+static int eval_load_check_nil_p(addr type)
 {
 	addr check;
+	size_t size;
 
-	GetTypePathname(file, &check);
-	if (! stringp(check))
-		return Result(ret, file);
+	/* nil */
+	if (type == Nil)
+		return 1;
+
+	/* :unspecific */
+	GetConst(KEYWORD_UNSPECIFIC, &check);
+	if (type == check)
+		return 1;
+
+	/* "" */
+	if (! stringp(type))
+		return 0;
+	string_length(type, &size);
+	if (size == 0)
+		return 1;
+
+	/* otherwise */
+	return 0;
+}
+
+static int eval_load_check_type_(Execute ptr, addr file, int loadp, addr *ret)
+{
+	addr pos;
 
 	/* *. */
-	Return(probe_file_files_(ptr, &check, file));
-	if (check != Nil)
+	Return(probe_file_files_(ptr, &pos, file));
+	if (pos != Nil)
+		return Result(ret, file);
+
+	/* :type nil */
+	GetTypePathname(file, &pos);
+	if (! eval_load_check_nil_p(pos))
 		return Result(ret, file);
 	copy_pathname_heap(&file, file);
 
 	/* *.fasl */
-	strvect_char_heap(&check, "fasl");
-	SetTypePathname(file, check);
-	Return(probe_file_files_(ptr, &check, file));
-	if (check != Nil)
-		return Result(ret, file);
+	if (! loadp) {
+		strvect_char_heap(&pos, "fasl");
+		SetTypePathname(file, pos);
+		Return(probe_file_files_(ptr, &pos, file));
+		if (pos != Nil)
+			return Result(ret, file);
+	}
 
 	/* *.lisp */
-	strvect_char_heap(&check, "lisp");
-	SetTypePathname(file, check);
-	Return(probe_file_files_(ptr, &check, file));
-	if (check != Nil)
+	strvect_char_heap(&pos, "lisp");
+	SetTypePathname(file, pos);
+	Return(probe_file_files_(ptr, &pos, file));
+	if (pos != Nil)
 		return Result(ret, file);
 
 	/* do nothing */
@@ -172,7 +268,7 @@ static int eval_load_check_type_(Execute ptr, addr file, addr *ret)
 }
 
 static int eval_load_check_(
-		Execute ptr, addr file, addr verbose, addr print,
+		Execute ptr, addr file, addr verbose, addr print, int loadp,
 		constindex file_pathname,
 		constindex file_truename,
 		constindex file_verbose,
@@ -193,7 +289,7 @@ static int eval_load_check_(
 	}
 	/* type */
 	if (! streamp(file)) {
-		Return(eval_load_check_type_(ptr, file, &file));
+		Return(eval_load_check_type_(ptr, file, loadp, &file));
 	}
 	/* load-pathname */
 	GetConstant(file_pathname, &symbol);
@@ -201,23 +297,24 @@ static int eval_load_check_(
 		GetPathnameStream(file, &value);
 		if (memory_stream_p(value)) {
 			value = Nil;
-			pushspecial_control(ptr, symbol, value);
 		}
 		else if (value != Nil) {
 			Return(physical_pathname_heap_(ptr, file, &value));
-			pushspecial_control(ptr, symbol, value);
 		}
 	}
 	else {
 		Return(physical_pathname_heap_(ptr, file, &file));
-		pushspecial_control(ptr, symbol, file);
 		value = file;
 	}
+	pushspecial_control(ptr, symbol, value);
 	/* load-truename */
+	GetConstant(file_truename, &symbol);
 	if (value != Nil) {
-		GetConstant(file_truename, &symbol);
 		Return(truename_files_(ptr, value, &truename, 0));
 		pushspecial_control(ptr, symbol, truename);
+	}
+	else {
+		pushspecial_control(ptr, symbol, Nil);
 	}
 	/* package */
 	GetConst(SPECIAL_PACKAGE, &symbol);
@@ -242,23 +339,35 @@ static int eval_load_check_(
 	return Result(ret, file);
 }
 
+static int eval_load_type_(Execute ptr, int *ret,
+		addr file, addr external, int exist, int faslp)
+{
+	Return(load_common_begin_(ptr, file));
+	if (faslp) {
+		Return(eval_load_fasl_(ptr, ret, file, exist));
+	}
+	else {
+		Return(eval_load_lisp_(ptr, ret, file, external, exist));
+	}
+	Return(load_common_end_(ptr, file));
+
+	return 0;
+}
+
 static int eval_load_file_(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
-	int check;
+	int faslp;
 
-	Return(eval_load_check_(ptr, file, verbose, print,
+	Return(eval_load_check_(ptr, file, verbose, print, 1,
 				CONSTANT_SPECIAL_LOAD_PATHNAME,
 				CONSTANT_SPECIAL_LOAD_TRUENAME,
 				CONSTANT_SPECIAL_LOAD_VERBOSE,
 				CONSTANT_SPECIAL_LOAD_PRINT,
 				&file));
-	Return(eval_load_fasl_p_(file, &check));
-	if (check)
-		return eval_load_fasl_(ptr, ret, file, exist);
-	else
-		return eval_load_lisp_(ptr, ret, file, external, exist);
+	Return(eval_load_fasl_p_(file, &faslp));
+	return eval_load_type_(ptr, ret, file, external, exist, faslp);
 }
 
 int eval_load_(Execute ptr, int *ret,
@@ -276,16 +385,13 @@ static int eval_load_file_switch_(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external, int faslp)
 {
-	Return(eval_load_check_(ptr, file, verbose, print,
+	Return(eval_load_check_(ptr, file, verbose, print, 1,
 				CONSTANT_SPECIAL_LOAD_PATHNAME,
 				CONSTANT_SPECIAL_LOAD_TRUENAME,
 				CONSTANT_SPECIAL_LOAD_VERBOSE,
 				CONSTANT_SPECIAL_LOAD_PRINT,
 				&file));
-	if (faslp)
-		return eval_load_fasl_(ptr, ret, file, exist);
-	else
-		return eval_load_lisp_(ptr, ret, file, external, exist);
+	return eval_load_type_(ptr, ret, file, external, exist, faslp);
 }
 
 int eval_load_force_lisp_(Execute ptr, int *ret,
@@ -342,18 +448,23 @@ static int compile_load_lisp_(Execute ptr, int *ret, addr file, addr external, i
 	return Result(ret, 1);
 }
 
-static int compile_load_file_(
-		Execute ptr, addr file, addr verbose, addr print, addr external)
+static int compile_load_file_(Execute ptr,
+		addr file, addr verbose, addr print, addr external)
 {
-	int check;
+	int ignore;
+	addr input;
 
-	Return(eval_load_check_(ptr, file, verbose, print,
+	Return(eval_load_check_(ptr, file, verbose, print, 0,
 				CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
 				CONSTANT_SPECIAL_COMPILE_FILE_TRUENAME,
 				CONSTANT_SPECIAL_COMPILE_VERBOSE,
 				CONSTANT_SPECIAL_COMPILE_PRINT,
-				&file));
-	return compile_load_lisp_(ptr, &check, file, external, 1);
+				&input));
+	Return(compile_file_begin_(ptr, file));
+	Return(compile_load_lisp_(ptr, &ignore, input, external, 1));
+	Return(compile_file_end_(ptr, file));
+
+	return 0;
 }
 
 int compile_load_(Execute ptr, addr file, addr verbose, addr print, addr external)

@@ -13,8 +13,9 @@
 #include "control_operator.h"
 #include "execute_object.h"
 #include "function.h"
-#include "pathname_object.h"
 #include "pathname.h"
+#include "pathname_object.h"
+#include "pathname_wildcard.h"
 #include "stream_object.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -42,24 +43,33 @@ static void compile_file_pathname_from_input(addr input, addr *ret)
 	}
 }
 
-int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
+int compile_file_pathname_common_(Execute ptr, addr input, addr rest, addr *ret)
 {
-	addr output;
+	int check;
+	addr output, file;
 
 	if (GetKeyArgs(rest, KEYWORD_OUTPUT_FILE, &output)) {
 		/* input-file -> output-file */
 		Return(pathname_designer_heap_(ptr, input, &input));
-		compile_file_pathname_from_input(input, ret);
+		compile_file_pathname_from_input(input, &file);
 	}
 	else {
 		/* translate output-file */
 		if (memory_stream_p(output))
 			return Result(ret, output);
 		Return(physical_pathname_heap_(ptr, output, &output));
-		Return(merge_pathnames_clang_(ptr, output, Nil, Nil, ret));
+		Return(merge_pathnames_clang_(ptr, output, Nil, Nil, &file));
 	}
 
-	return 0;
+	/* wildcard */
+	Return(wild_pathname_boolean_(file, Nil, &check));
+	if (check) {
+		*ret = Nil;
+		return call_simple_file_error_va_(ptr, file,
+				"Cannot return a wildcatd pathname, ~S.", file, NULL);
+	}
+
+	return Result(ret, file);
 }
 
 

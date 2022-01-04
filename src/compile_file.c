@@ -16,11 +16,10 @@
 #include "hold.h"
 #include "load_instance.h"
 #include "pathname.h"
-#include "print_write.h"
 #include "stream.h"
-#include "stream_common.h"
 #include "stream_function.h"
 #include "stream_init.h"
+#include "stream_object.h"
 #include "symbol.h"
 
 void set_eval_compile_mode(Execute ptr, addr value)
@@ -115,62 +114,22 @@ struct compile_file_struct {
 	addr result;
 };
 
-static int compile_file_begin_(Execute ptr, struct compile_file_struct *str)
-{
-	int ignore;
-	addr stream;
-
-	if (str->verbose == Nil)
-		return 0;
-	if (str->verbose == Unbound)
-		return 0;
-	Return(standard_output_stream_(ptr, &stream));
-	Return(fresh_line_stream_(stream, &ignore));
-	Return(print_ascii_stream_(stream, ";; Compiling file "));
-	Return(prin1_print(ptr, stream, str->input_file));
-	Return(print_ascii_stream_(stream, " ..."));
-	Return(terpri_stream_(stream));
-
-	return 0;
-}
-
-static int compile_file_end_(Execute ptr, struct compile_file_struct *str)
-{
-	int ignore;
-	addr stream;
-
-	if (str->verbose == Nil)
-		return 0;
-	if (str->verbose == Unbound)
-		return 0;
-	Return(standard_output_stream_(ptr, &stream));
-	Return(fresh_line_stream_(stream, &ignore));
-	Return(print_ascii_stream_(stream, ";; Wrote file "));
-	Return(prin1_print(ptr, stream, str->output_file));
-	Return(print_ascii_stream_(stream, "."));
-	Return(terpri_stream_(stream));
-
-	return 0;
-}
-
 static int compile_file_write_(Execute ptr, struct compile_file_struct *str)
 {
 	addr input, output, verbose, print, format;
 
+	Check(! streamp(str->input), "input error");
+	Check(! streamp(str->output), "output error");
 	input = str->input;
 	output = str->output;
 	verbose = str->verbose;
 	print = str->print;
 	format = str->format;
-	Check(! streamp(str->input), "input error");
-	Check(! streamp(str->output), "output error");
 
 	/* fasl */
-	Return(compile_file_begin_(ptr, str));
 	Return(faslwrite_header_(output));
 	Return(compile_load_(ptr, input, verbose, print, format));
 	Return(faslwrite_footer_(output));
-	Return(compile_file_end_(ptr, str));
 	return finish_output_stream_(output);
 }
 
@@ -178,9 +137,9 @@ static int compile_file_execute_(Execute ptr, struct compile_file_struct *str)
 {
 	addr output, symbol, pos;
 
-	output = str->output;
 	Check(! streamp(str->input), "input error");
 	Check(! streamp(str->output), "output error");
+	output = str->output;
 
 	/* variable */
 	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
@@ -232,7 +191,7 @@ static int compile_file_output_(Execute ptr, struct compile_file_struct *str)
 		return compile_file_execute_(ptr, str);
 	}
 
-	/* open input */
+	/* open output */
 	push_control(ptr, &control);
 	(void)compile_file_output_call_(ptr, str);
 	return pop_control_(ptr, control);
@@ -269,7 +228,6 @@ static int compile_file_input_(Execute ptr, struct compile_file_struct *str)
 	(void)compile_file_input_call_(ptr, str);
 	return pop_control_(ptr, control);
 }
-
 
 static int compile_file_handler_(Execute ptr, struct compile_file_struct *str)
 {
@@ -342,7 +300,7 @@ int compile_file_common_(Execute ptr, addr input, addr rest,
 	str.format = pos;
 
 	/* output */
-	compile_file_pathname_common(ptr, input, rest, &pos);
+	Return(compile_file_pathname_common_(ptr, input, rest, &pos));
 	str.output_file = pos;
 
 	/* call */
