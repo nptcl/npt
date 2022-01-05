@@ -14,7 +14,7 @@
 /*
  *  step macro
  */
-int step_common(Execute ptr, addr form, addr env, addr *ret)
+int step_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, eval, let, special, step;
 

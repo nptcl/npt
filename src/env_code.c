@@ -23,7 +23,7 @@
 /*
  *  disassemble
  */
-static int disassemble_code(Execute ptr, addr stream, addr code);
+static int disassemble_code_(Execute ptr, addr stream, addr code);
 
 static int disassmeble_code_p(addr car, addr cdr, addr *ret)
 {
@@ -54,7 +54,7 @@ static int disassmeble_code_p(addr car, addr cdr, addr *ret)
 	return 0;
 }
 
-static int disassemble_code_operator(Execute ptr,
+static int disassemble_code_operator_(Execute ptr,
 		size_t i, addr stream, addr car, addr cdr)
 {
 	addr index;
@@ -65,12 +65,12 @@ static int disassemble_code_operator(Execute ptr,
 
 	/* execute */
 	if (disassmeble_code_p(car, cdr, &cdr))
-		return disassemble_code(ptr, stream, cdr);
+		return disassemble_code_(ptr, stream, cdr);
 
 	return 0;
 }
 
-static int disassemble_code_body(Execute ptr, addr stream, addr pos)
+static int disassemble_code_body_(Execute ptr, addr stream, addr pos)
 {
 	addr car, cdr;
 	size_t size, i;
@@ -80,35 +80,35 @@ static int disassemble_code_body(Execute ptr, addr stream, addr pos)
 	for (i = 0; i < size; i++) {
 		getarray(pos, i, &car);
 		GetCons(car, &car, &cdr);
-		Return(disassemble_code_operator(ptr, i, stream, car, cdr));
+		Return(disassemble_code_operator_(ptr, i, stream, car, cdr));
 	}
 
 	return 0;
 }
 
-static int disassemble_code(Execute ptr, addr stream, addr code)
+static int disassemble_code_(Execute ptr, addr stream, addr code)
 {
 	if (code == Nil)
 		return 0;
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
 	Return(format_stream(ptr, stream, "CODE-BEGIN: ~A~20T~%", code, NULL));
-	Return(disassemble_code_body(ptr, stream, code));
+	Return(disassemble_code_body_(ptr, stream, code));
 	Return(format_stream(ptr, stream, "CODE-END: ~A~%", code, NULL));
 
 	return 0;
 }
 
-static int disassemble_interpreted(Execute ptr, addr stream, addr pos)
+static int disassemble_interpreted_(Execute ptr, addr stream, addr pos)
 {
 	addr code;
 
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetCodeFunction(pos, &code);
-	return disassemble_code(ptr, stream, code);
+	return disassemble_code_(ptr, stream, code);
 }
 
-static int disassemble_function(Execute ptr, addr stream, addr pos)
+static int disassemble_function_(Execute ptr, addr stream, addr pos)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	CheckType(pos, LISPTYPE_FUNCTION);
@@ -117,13 +117,13 @@ static int disassemble_function(Execute ptr, addr stream, addr pos)
 	}
 	else {
 		Fmt2("INTERPRETED-FUNCTION ~S.~2%", pos);
-		Return(disassemble_interpreted(ptr, stream, pos));
+		Return(disassemble_interpreted_(ptr, stream, pos));
 	}
 
 	return 0;
 }
 
-int disassemble_common(Execute ptr, addr var)
+int disassemble_common_(Execute ptr, addr var)
 {
 	addr stream, check;
 
@@ -138,7 +138,7 @@ int disassemble_common(Execute ptr, addr var)
 		var = check;
 	}
 
-	return disassemble_function(ptr, stream, var);
+	return disassemble_function_(ptr, stream, var);
 }
 
 
@@ -243,8 +243,9 @@ static int defun_trace_function_index_(Execute ptr, addr *ret)
 
 static int defun_trace_function(Execute ptr, addr rest)
 {
-	addr list, name, pos, index, stream, values;
-	size_t size;
+	int normalp;
+	addr list, name, pos, index, stream;
+	addr control, save;
 
 	/* index */
 	getdata_control(ptr, &list);
@@ -255,14 +256,21 @@ static int defun_trace_function(Execute ptr, addr rest)
 	cons_heap(&list, name, rest);
 	Return(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
 	/* call */
-	apply_control(ptr, pos, rest);
-	save_values_control(ptr, &values, &size);
+	push_control(ptr, &control);
+	(void)apply_control(ptr, pos, rest);
+	normalp = (ptr->throw_value == throw_normal);
 	/* end */
-	getvalues_list_control_heap(ptr, &list);
-	Return(format_stream(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
-	restore_values_control(ptr, values, size);
-
-	return 0;
+	save_execute_control(ptr, &save);
+	normal_throw_control(ptr);
+	if (normalp) {
+		getvalues_list_control_heap(ptr, &list);
+		Return(format_stream(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
+	}
+	else {
+		Return(format_stream(ptr, stream, "~&~A: Exit~%", index, NULL));
+	}
+	restore_execute_control(ptr, save);
+	return pop_control_(ptr, control);
 }
 
 static void trace_add_make(Execute ptr, addr name, addr call, addr pos, addr *ret)

@@ -38,7 +38,7 @@
 /*
  *  apropos-list
  */
-static int list_all_packages_sort(Execute ptr, addr *ret)
+static int list_all_packages_sort_(Execute ptr, addr *ret)
 {
 	addr list, key, call;
 	LocalHold hold;
@@ -65,8 +65,8 @@ static int apropos_symbol_p_(addr var, addr name, int *ret)
 	size_t size, all, diff, x, y;
 	unicode a, b;
 
-	Check(! stringp(var), "type1 error");
-	Check(! stringp(name), "type1 error");
+	Check(! stringp(var), "type error");
+	Check(! stringp(name), "type error");
 	string_length(var, &size);
 	string_length(name, &all);
 	if (all < size)
@@ -87,7 +87,7 @@ next:
 	return Result(ret, 0);
 }
 
-static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
+static int apropos_symbol_common_(Execute ptr, addr var, addr package, addr *ret)
 {
 	int check;
 	addr list, symbol, x, key, call;
@@ -120,23 +120,23 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	return Result(ret, list);
 }
 
-int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
+int apropos_list_common_(Execute ptr, addr var, addr package, addr *ret)
 {
 	addr list, root, x, y;
 	LocalHold hold;
 
 	Return(string_designer_heap_(&var, var, NULL));
 	if (package != Nil)
-		return apropos_symbol_common(ptr, var, package, ret);
+		return apropos_symbol_common_(ptr, var, package, ret);
 
 	/* list-all-packages */
 	hold = LocalHold_array(ptr, 1);
-	Return(list_all_packages_sort(ptr, &list));
+	Return(list_all_packages_sort_(ptr, &list));
 	localhold_push(hold, list);
 	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &package, &list);
-		Return(apropos_symbol_common(ptr, var, package, &x));
+		Return(apropos_symbol_common_(ptr, var, package, &x));
 		while (x != Nil) {
 			GetCons(x, &y, &x);
 			pushnew_heap(root, y, &root);
@@ -153,12 +153,12 @@ int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
 /*
  *  apropos
  */
-int apropos_common(Execute ptr, addr var, addr package)
+int apropos_common_(Execute ptr, addr var, addr package)
 {
 	addr stream, list, name;
 
 	Return(standard_output_stream_(ptr, &stream));
-	Return(apropos_list_common(ptr, var, package, &list));
+	Return(apropos_list_common_(ptr, var, package, &list));
 	Return(fresh_line_stream_(stream, NULL));
 	while (list != Nil) {
 		GetCons(list, &var, &list);
@@ -196,7 +196,7 @@ int apropos_common(Execute ptr, addr var, addr package)
 /*
  *  time
  */
-int time_common(addr form, addr env, addr *ret)
+int time_common_(addr form, addr env, addr *ret)
 {
 	/* (multiple-value-bind (real1 run1 space1 count1) (lisp-system::timeinfo)
 	 *   (let ((list (multiple-value-list expr)))
@@ -272,7 +272,7 @@ error:
 /*
  *  room
  */
-static int room_output_common(Execute ptr, addr stream)
+static int room_output_common_(Execute ptr, addr stream)
 {
 	size_t size, object, space, percent;
 	addr pos;
@@ -302,39 +302,39 @@ static int room_output_common(Execute ptr, addr stream)
 	return 0;
 }
 
-static int room_default_common(Execute ptr, addr stream)
+static int room_default_common_(Execute ptr, addr stream)
 {
 	Return(format_stream(ptr, stream, "Room default output.~%", NULL));
-	return room_output_common(ptr, stream);
+	return room_output_common_(ptr, stream);
 }
 
-static int room_minimal_common(Execute ptr, addr stream)
+static int room_minimal_common_(Execute ptr, addr stream)
 {
 	Return(format_stream(ptr, stream, "Room minimal output.~%", NULL));
-	return room_output_common(ptr, stream);
+	return room_output_common_(ptr, stream);
 }
 
-static int room_maximal_common(Execute ptr, addr stream)
+static int room_maximal_common_(Execute ptr, addr stream)
 {
 	Return(format_stream(ptr, stream, "Room maximal output.~%", NULL));
-	return room_output_common(ptr, stream);
+	return room_output_common_(ptr, stream);
 }
 
-int room_common(Execute ptr, addr var)
+int room_common_(Execute ptr, addr var)
 {
 	addr stream, check;
 
 	Return(standard_output_stream_(ptr, &stream));
 	Return(fresh_line_stream_(stream, NULL));
 	if (var == Unbound)
-		return room_default_common(ptr, stream);
+		return room_default_common_(ptr, stream);
 	if (var == Nil)
-		return room_minimal_common(ptr, stream);
+		return room_minimal_common_(ptr, stream);
 	if (var == T)
-		return room_maximal_common(ptr, stream);
+		return room_maximal_common_(ptr, stream);
 	GetConst(KEYWORD_DEFAULT, &check);
 	if (var == check)
-		return room_default_common(ptr, stream);
+		return room_default_common_(ptr, stream);
 
 	/* error */
 	return fmte_("Invalid ROOM argument ~S.", var, NULL);
@@ -344,7 +344,7 @@ int room_common(Execute ptr, addr var)
 /*
  *  ed
  */
-static int ed_execute_common(Execute ptr, addr file)
+static int ed_execute_common_(Execute ptr, addr file)
 {
 	addr call;
 
@@ -353,13 +353,13 @@ static int ed_execute_common(Execute ptr, addr file)
 	return funcall_control(ptr, call, file, NULL);
 }
 
-static int ed_file_common(Execute ptr, addr var)
+static int ed_file_common_(Execute ptr, addr var)
 {
 	int check;
 
 	/* nil */
 	if (var == Nil)
-		return ed_execute_common(ptr, Nil);
+		return ed_execute_common_(ptr, Nil);
 
 	/* argument */
 	Return(pathname_designer_heap_(ptr, var, &var));
@@ -370,10 +370,10 @@ static int ed_file_common(Execute ptr, addr var)
 	}
 	Return(physical_pathname_local_(ptr, var, &var));
 	Return(namestring_common_(ptr, &var, var));
-	return ed_execute_common(ptr, var);
+	return ed_execute_common_(ptr, var);
 }
 
-static int ed_function_lambda(addr symbol, addr *ret)
+static int ed_function_lambda_(addr symbol, addr *ret)
 {
 	addr pos;
 
@@ -429,37 +429,37 @@ static int ed_function_write_(Execute ptr, addr file, addr lambda)
 	return pop_control_(ptr, control);
 }
 
-static int ed_function_common(Execute ptr, addr symbol)
+static int ed_function_common_(Execute ptr, addr symbol)
 {
 	int result;
 	addr file, lambda;
 
-	Return(ed_function_lambda(symbol, &lambda));
+	Return(ed_function_lambda_(symbol, &lambda));
 	ed_function_name(ptr, &file);
 	Return(ed_function_write_(ptr, file, lambda));
-	Return(ed_file_common(ptr, file));
+	Return(ed_file_common_(ptr, file));
 	Return(eval_load_(ptr, &result, file, Unbound, Unbound, 1, Unbound));
 
 	return 0;
 }
 
-int ed_common(Execute ptr, addr var)
+int ed_common_(Execute ptr, addr var)
 {
 	if (var == Unbound)
 		var = Nil;
 	if (var == Nil)
-		return ed_file_common(ptr, Nil);
+		return ed_file_common_(ptr, Nil);
 	else if (function_name_p(var))
-		return ed_function_common(ptr, var);
+		return ed_function_common_(ptr, var);
 	else
-		return ed_file_common(ptr, var);
+		return ed_file_common_(ptr, var);
 }
 
 
 /*
  *  dribble
  */
-static int dribble_message_begin(Execute ptr, addr file)
+static int dribble_message_begin_(Execute ptr, addr file)
 {
 	const char *str;
 	addr name, stream;
@@ -470,7 +470,7 @@ static int dribble_message_begin(Execute ptr, addr file)
 	return format_stream(ptr, stream, str, name, NULL);
 }
 
-static int dribble_message_end(Execute ptr, addr file)
+static int dribble_message_end_(Execute ptr, addr file)
 {
 	const char *str;
 	addr name, stream;
@@ -527,7 +527,7 @@ static int dribble_set_stream_(addr file)
 	return 0;
 }
 
-static int dribble_open_file(Execute ptr, addr file)
+static int dribble_open_file_(Execute ptr, addr file)
 {
 	int check;
 
@@ -544,10 +544,10 @@ static int dribble_open_file(Execute ptr, addr file)
 				Stream_Open_IfDoesNot_Create,
 				Stream_Open_External_Default));
 	Return(dribble_set_stream_(file));
-	return dribble_message_begin(ptr, file);
+	return dribble_message_begin_(ptr, file);
 }
 
-static int dribble_open(Execute ptr, addr file)
+static int dribble_open_(Execute ptr, addr file)
 {
 	addr check;
 
@@ -558,11 +558,11 @@ static int dribble_open(Execute ptr, addr file)
 		return fmtw_("DRIBBLE already open file ~S.", check, NULL);
 	}
 	else {
-		return dribble_open_file(ptr, file);
+		return dribble_open_file_(ptr, file);
 	}
 }
 
-static int dribble_close_stream(Execute ptr)
+static int dribble_close_stream_(Execute ptr)
 {
 	addr dfile, dinput, doutput, decho, dbroadcast, sinput, soutput;
 	addr file, input, output, echo, broadcast;
@@ -584,7 +584,7 @@ static int dribble_close_stream(Execute ptr)
 	GetValueSymbol(dbroadcast, &broadcast);
 
 	/* close */
-	Return(dribble_message_end(ptr, file));
+	Return(dribble_message_end_(ptr, file));
 	Return(setvalue_symbol_(dfile, Unbound));
 	Return(setvalue_symbol_(dinput, Unbound));
 	Return(setvalue_symbol_(doutput, Unbound));
@@ -599,24 +599,24 @@ static int dribble_close_stream(Execute ptr)
 	return 0;
 }
 
-static int dribble_close(Execute ptr)
+static int dribble_close_(Execute ptr)
 {
 	addr symbol, file;
 
 	GetConst(SYSTEM_DRIBBLE_FILE, &symbol);
 	GetValueSymbol(symbol, &file);
 	if (file != Unbound) {
-		Return(dribble_close_stream(ptr));
+		Return(dribble_close_stream_(ptr));
 	}
 
 	return 0;
 }
 
-int dribble_common(Execute ptr, addr file)
+int dribble_common_(Execute ptr, addr file)
 {
 	if (file != Nil)
-		return dribble_open(ptr, file);
+		return dribble_open_(ptr, file);
 	else
-		return dribble_close(ptr);
+		return dribble_close_(ptr);
 }
 

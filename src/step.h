@@ -4,7 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define step_common _n(step_common)
+#define step_common_ _n(step_common_)
 #define init_parse_step _n(init_parse_step)
 #define parse_step _n(parse_step)
 #define parse_step_object_ _n(parse_step_object_)
@@ -12,7 +12,7 @@
 #define scope_step _n(scope_step)
 
 /* macro */
-int step_common(Execute ptr, addr form, addr env, addr *ret);
+int step_common_(Execute ptr, addr form, addr env, addr *ret);
 
 /* parse */
 void init_parse_step(Execute ptr);

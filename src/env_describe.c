@@ -110,7 +110,7 @@ static int defmethod_describe_object_(Execute ptr, addr name, addr gen,
 /*
  *  describe
  */
-int describe_common(Execute ptr, addr object, addr stream)
+int describe_common_(Execute ptr, addr object, addr stream)
 {
 	addr call;
 
@@ -194,7 +194,7 @@ static int inspect_common_call_(Execute ptr, addr object)
 	addr io, symbol;
 
 	Return(terminal_io_stream_(ptr, &io));
-	Return(describe_common(ptr, object, io));
+	Return(describe_common_(ptr, object, io));
 	/* *inspected* */
 	GetConst(SYSTEM_INSPECTED, &symbol);
 	pushspecial_control(ptr, symbol, object);
@@ -204,7 +204,7 @@ static int inspect_common_call_(Execute ptr, addr object)
 	return 0;
 }
 
-int inspect_common(Execute ptr, addr object)
+int inspect_common_(Execute ptr, addr object)
 {
 	addr control, prompt;
 

@@ -257,7 +257,7 @@ static void defun_sleep(void)
 /* (defun apropos (string-designer) ...) -> (values) */
 static int function_apropos(Execute ptr, addr var, addr opt)
 {
-	Return(apropos_common(ptr, var, (opt == Unbound)? Nil: opt));
+	Return(apropos_common_(ptr, var, (opt == Unbound)? Nil: opt));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -292,7 +292,7 @@ static void defun_apropos(void)
 /* (defun apropos-list (string-designer) ...) -> (values) */
 static int function_apropos_list(Execute ptr, addr var, addr opt)
 {
-	Return(apropos_list_common(ptr, var, (opt == Unbound)? Nil: opt, &var));
+	Return(apropos_list_common_(ptr, var, (opt == Unbound)? Nil: opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -327,7 +327,7 @@ static void defun_apropos_list(void)
 /* (defun describe (object &optional stream) ...) -> (values) */
 static int function_describe(Execute ptr, addr var, addr opt)
 {
-	Return(describe_common(ptr, var, opt));
+	Return(describe_common_(ptr, var, opt));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -406,7 +406,7 @@ static void defun_untrace(void)
 /* (defmacro step (form) ...) -> result */
 static int function_step(Execute ptr, addr form, addr env)
 {
-	Return(step_common(ptr, form, env, &form));
+	Return(step_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -428,7 +428,7 @@ static void defmacro_step(void)
 /* (defmacro time (form) ...) -> result) */
 static int function_time(Execute ptr, addr form, addr env)
 {
-	Return(time_common(form, env, &form));
+	Return(time_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -517,7 +517,7 @@ static void defun_get_internal_run_time(void)
 /* (defun disassemble (extended-function-designer) ...) -> nil */
 static int function_disassemble(Execute ptr, addr var)
 {
-	Return(disassemble_common(ptr, var));
+	Return(disassemble_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -553,7 +553,7 @@ static void defun_disassemble(void)
  */
 static int function_room(Execute ptr, addr var)
 {
-	Return(room_common(ptr, var));
+	Return(room_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -588,7 +588,7 @@ static void defun_room(void)
 /* (defun ed (&optional x) ...) -> null */
 static int function_ed(Execute ptr, addr var)
 {
-	Return(ed_common(ptr, var));
+	Return(ed_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -625,7 +625,7 @@ static void defun_ed(void)
 /* (defun inspect (object) ...) -> null */
 static int function_inspect(Execute ptr, addr var)
 {
-	Return(inspect_common(ptr, var));
+	Return(inspect_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -659,7 +659,7 @@ static void defun_inspect(void)
 /* (defun dribble (&optional pathname) ...) -> null */
 static int function_dribble(Execute ptr, addr var)
 {
-	Return(dribble_common(ptr, (var == Unbound)? Nil: var));
+	Return(dribble_common_(ptr, (var == Unbound)? Nil: var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -749,7 +749,7 @@ static int function_short_site_name(Execute ptr)
 {
 	addr pos;
 
-	Return(short_site_name_common(&pos));
+	Return(short_site_name_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -776,7 +776,7 @@ static int function_long_site_name(Execute ptr)
 {
 	addr pos;
 
-	Return(long_site_name_common(&pos));
+	Return(long_site_name_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -803,7 +803,7 @@ static int function_machine_instance(Execute ptr)
 {
 	addr pos;
 
-	Return(machine_instance_common(&pos));
+	Return(machine_instance_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -830,7 +830,7 @@ static int function_machine_type(Execute ptr)
 {
 	addr pos;
 
-	Return(machine_type_common(&pos));
+	Return(machine_type_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -857,7 +857,7 @@ static int function_machine_version(Execute ptr)
 {
 	addr pos;
 
-	Return(machine_version_common(&pos));
+	Return(machine_version_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -884,7 +884,7 @@ static int function_software_type(Execute ptr)
 {
 	addr pos;
 
-	Return(software_type_common(&pos));
+	Return(software_type_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -911,7 +911,7 @@ static int function_software_version(Execute ptr)
 {
 	addr pos;
 
-	Return(software_version_common(&pos));
+	Return(software_version_common_(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -940,7 +940,7 @@ static void defun_software_version(void)
 static int function_user_homedir_pathname(Execute ptr, addr host)
 {
 	/* (declare (ignore host)) */
-	Return(user_homedir_pathname_common(ptr, &host));
+	Return(user_homedir_pathname_common_(ptr, &host));
 	setresult_control(ptr, host);
 	return 0;
 }

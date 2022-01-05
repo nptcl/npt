@@ -1371,7 +1371,6 @@ lisp-system::restart-case
 (lisp-system::*eval-execute* :name eval-execute :constant system)
 
 lisp-system::standard
-(lisp-system::*trace* :name trace :constant system)
 (lisp-system::*environment* :name special-environment :constant system)
 (lisp-system::*arguments* :name special-arguments :constant system)
 
