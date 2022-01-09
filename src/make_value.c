@@ -21,6 +21,29 @@
 #include "symbol.h"
 #include "type.h"
 
+int code_make_debug_(CodeMake ptr, addr scope, int (*call)(CodeMake, addr))
+{
+	addr value;
+
+	if (scope == NULL)
+		goto normal;
+	if (! scope_step_p(scope))
+		goto normal;
+	GetEvalScopeValue(scope, &value);
+	if (value == Nil)
+		goto normal;
+
+	/* step */
+	CodeQueue_cons(ptr, STEP, value);
+	Return((*call)(ptr, scope));
+	CodeQueue_single(ptr, STEP_OFF);
+	return 0;
+
+	/* normal */
+normal:
+	return (*call)(ptr, scope);
+}
+
 /* nil */
 int code_make_nil_(CodeMake ptr, addr ignore)
 {
@@ -30,21 +53,43 @@ int code_make_nil_(CodeMake ptr, addr ignore)
 
 
 /* t */
-int code_make_t_(CodeMake ptr, addr ignore)
+static int code_make_t_call_(CodeMake ptr, addr scope)
 {
 	code_make_single(ptr, CONSTANT_CODE_T_SET, CONSTANT_CODE_T_PUSH);
 	return 0;
 }
 
+int code_make_t_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_t_call_);
+}
+
 
 /* value */
-int code_make_value_(CodeMake ptr, addr scope)
+static int code_make_value_call_(CodeMake ptr, addr scope)
 {
 	CheckTypeCodeQueue(ptr->code);
 	GetEvalScopeValue(scope, &scope);
 	code_make_object(ptr, scope);
 
 	return 0;
+}
+int code_make_value_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_value_call_);
+}
+
+static int code_make_value2_call_(CodeMake ptr, addr scope)
+{
+	CheckTypeCodeQueue(ptr->code);
+	GetEvalScopeIndex(scope, 0, &scope);
+	code_make_object(ptr, scope);
+
+	return 0;
+}
+int code_make_value2_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_value2_call_);
 }
 
 
@@ -90,16 +135,11 @@ static void code_symbol_remove(CodeMake ptr, addr pos, addr table)
 	}
 }
 
-int code_make_symbol_(CodeMake ptr, addr scope)
+static int code_make_symbol_call_(CodeMake ptr, addr scope)
 {
 	addr symbol, table;
 
-	/* keyword */
 	GetEvalScopeValue(scope, &symbol);
-	if (keywordp(symbol))
-		return code_make_value_(ptr, scope);
-
-	/* symbol */
 	GetEvalScopeIndex(scope, 0, &table);
 	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
@@ -117,6 +157,19 @@ int code_make_symbol_(CodeMake ptr, addr scope)
 	}
 
 	return 0;
+}
+
+int code_make_symbol_(CodeMake ptr, addr scope)
+{
+	addr symbol;
+
+	/* keyword */
+	GetEvalScopeValue(scope, &symbol);
+	if (keywordp(symbol))
+		return code_make_value_(ptr, scope);
+
+	/* symbol */
+	return code_make_debug_(ptr, scope, code_make_symbol_call_);
 }
 
 
@@ -266,8 +319,20 @@ int code_make_lexical_(CodeMake ptr, addr scope)
  */
 int code_make_progn_(CodeMake ptr, addr scope)
 {
-	GetEvalScopeValue(scope, &scope);
-	return code_allcons_(ptr, scope, NULL);
+	addr form, list;
+
+	GetEvalScopeValue(scope, &form);
+	GetEvalScopeIndex(scope, 0, &list);
+	if (form != Nil && scope_step_p(scope)) {
+		CodeQueue_cons(ptr, STEP, form);
+		Return(code_allcons_(ptr, list, NULL));
+		CodeQueue_single(ptr, STEP_OFF);
+	}
+	else {
+		Return(code_allcons_(ptr, list, NULL));
+	}
+
+	return 0;
 }
 
 
@@ -393,7 +458,7 @@ static int code_make_let_args_(CodeMake ptr, addr args, addr escape)
 	return 0;
 }
 
-int code_make_let_(CodeMake ptr, addr scope)
+static int code_make_let_call_(CodeMake ptr, addr scope)
 {
 	addr args, body, free, alloc, escape, finish;
 	fixnum id;
@@ -431,6 +496,11 @@ int code_make_let_(CodeMake ptr, addr scope)
 	}
 
 	return 0;
+}
+
+int code_make_let_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_let_call_);
 }
 
 
@@ -460,7 +530,7 @@ static int code_make_leta_args_(CodeMake ptr, addr list, addr escape)
 	return 0;
 }
 
-int code_make_leta_(CodeMake ptr, addr scope)
+static int code_make_leta_call_(CodeMake ptr, addr scope)
 {
 	addr args, body, free, alloc, escape, finish;
 	fixnum id;
@@ -499,6 +569,10 @@ int code_make_leta_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_leta_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_leta_call_);
+}
 
 /* setq */
 static int code_setq_loop_(CodeMake ptr, addr list, addr escape)
@@ -531,12 +605,12 @@ static int code_setq_loop_(CodeMake ptr, addr list, addr escape)
 	return 0;
 }
 
-int code_make_setq_(CodeMake ptr, addr scope)
+static int code_make_setq_call_(CodeMake ptr, addr scope)
 {
 	addr list, escape;
 
 	/* nil */
-	GetEvalScopeValue(scope, &list);
+	GetEvalScopeIndex(scope, 0, &list);
 	if (list == Nil)
 		return code_make_nil_(ptr, NULL);
 
@@ -547,6 +621,11 @@ int code_make_setq_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, escape);
 
 	return 0;
+}
+
+int code_make_setq_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_setq_call_);
 }
 
 
@@ -1331,23 +1410,16 @@ int code_make_load_time_value_(CodeMake ptr, addr scope)
  */
 int code_make_step_(CodeMake ptr, addr scope)
 {
-	addr expr, value, escape;
+	addr expr;
+	fixnum id;
 
-	/* scope */
 	GetEvalScopeIndex(scope, 0, &expr);
-	GetEvalScopeIndex(scope, 1, &value);
-
-	/* code */
-	code_queue_push_code(ptr);
-	Return(code_make_execute_(ptr, expr));
-	code_queue_pop(ptr, &expr);
-
-	/* step */
-	code_queue_make_label(ptr, &escape);
-	CodeQueue_double(ptr, STEP, expr, value);
-	code_jump_escape_wake(ptr, escape);
+	code_make_begin(ptr, &id);
+	CodeQueue_single(ptr, STEP_BEGIN);
+	Return(code_make_execute_set_(ptr, expr));
+	CodeQueue_single(ptr, STEP_END);
+	code_make_end(ptr, id);
 	code_queue_ifpush(ptr);
-	code_queue_push_label(ptr, escape);
 
 	return 0;
 }

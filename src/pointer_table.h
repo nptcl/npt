@@ -153,6 +153,9 @@ enum pointer_index {
 	p_reference_push_code,
 
 	p_step_code,
+	p_step_off_code,
+	p_step_begin_code,
+	p_step_end_code,
 
 	/* optimize */
 	p_optcode_result_type_code,

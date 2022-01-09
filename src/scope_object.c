@@ -244,7 +244,7 @@ static int scope_eval_lexical_object_(Execute ptr, addr stack, addr eval, addr *
 	return Result(ret, eval);
 }
 
-int scope_eval_lexical(Execute ptr, addr *ret, addr eval)
+int scope_eval_lexical_(Execute ptr, addr *ret, addr eval)
 {
 	addr stack;
 
@@ -253,5 +253,18 @@ int scope_eval_lexical(Execute ptr, addr *ret, addr eval)
 	Return(scope_eval_lexical_object_(ptr, stack, eval, ret));
 
 	return freestack_eval_(ptr, stack);
+}
+
+
+/*
+ *  Optimize
+ */
+int scope_step_p(addr pos)
+{
+	struct scope_struct *str;
+
+	Check(! eval_scope_p(pos), "type error");
+	str = StructEvalScope(pos);
+	return 3 <= str->optimize[EVAL_OPTIMIZE_DEBUG];
 }
 

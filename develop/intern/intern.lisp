@@ -1622,9 +1622,8 @@ lisp-system::object
 (lisp-system::*dribble-echo* :constant system :name dribble-echo)
 (lisp-system::*dribble-broadcast* :constant system :name dribble-broadcast)
 (lisp-system::*inspected* :constant system :name inspected)
-(lisp-system::*step-parse* :constant system :name step-parse)
-(lisp-system::*step-break* :constant system :name step-break)
-(lisp-system::*step-value* :constant system :name step-value)
+
+(lisp-system::*step-begin* :constant system :name step-begin)
 lisp-system::step
 
 
@@ -1774,6 +1773,9 @@ lisp-code::reference-set
 lisp-code::reference-push
 
 lisp-code::step
+lisp-code::step-off
+lisp-code::step-begin
+lisp-code::step-end
 
 
 ;;

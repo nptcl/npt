@@ -24,6 +24,18 @@ static void copy_eval_single(LocalRoot local, addr *ret, addr eval)
 	eval_single_parse_alloc(local, ret, type, eval);
 }
 
+/* double */
+static void copy_eval_double(LocalRoot local, addr *ret, addr eval)
+{
+	addr x, y;
+	EvalParse type;
+
+	GetEvalParseType(eval, &type);
+	GetEvalParse(eval, 0, &x);
+	GetEvalParse(eval, 1, &y);
+	eval_parse2_alloc(local, ret, type, x, y);
+}
+
 /* declaim */
 static void copy_eval_declaim_nil(LocalRoot local, addr *ret, addr pos)
 {
@@ -59,12 +71,14 @@ static void copy_eval_allcons(LocalRoot local, addr *ret, addr cons)
 static void copy_eval_progn(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
+	addr form, list;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_PROGN, "parse error");
-	GetEvalParse(eval, 0, &eval);
-	copy_eval_allcons(local, &eval, eval);
-	eval_single_parse_alloc(local, ret, type, eval);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &list);
+	copy_eval_allcons(local, &list, list);
+	eval_parse2_alloc(local, ret, type, form, list);
 }
 
 /* let */
@@ -85,21 +99,23 @@ static void copy_eval_let_args(LocalRoot local, addr *ret, addr args)
 static void copy_eval_let(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr args, decl, cons;
+	addr form, args, decl, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LET && type != EVAL_PARSE_LETA, "parse error");
-	GetEvalParse(eval, 0, &args);
-	GetEvalParse(eval, 1, &decl);
-	GetEvalParse(eval, 2, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &args);
+	GetEvalParse(eval, 2, &decl);
+	GetEvalParse(eval, 3, &cons);
 	copy_eval_let_args(local, &args, args);
 	copy_eval_declaim_nil(local, &decl, decl);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, cons);
+	eval_parse_alloc(local, &eval, type, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, cons);
 	*ret = eval;
 }
 
@@ -121,13 +137,14 @@ static void copy_eval_setq_args(LocalRoot local, addr *ret, addr cons)
 static void copy_eval_setq(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr cons;
+	addr form, list;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_SETQ, "parse error");
-	GetEvalParse(eval, 0, &cons);
-	copy_eval_setq_args(local, &cons, cons);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_SETQ, cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &list);
+	copy_eval_setq_args(local, &list, list);
+	eval_parse2_alloc(local, ret, EVAL_PARSE_SETQ, form, list);
 }
 
 /* defun */
@@ -200,12 +217,12 @@ static void copy_eval_defun(LocalRoot local, addr *ret, addr eval)
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_DEFUN, "parse error");
-	GetEvalParse(eval, 0, &name);
-	GetEvalParse(eval, 1, &args);
-	GetEvalParse(eval, 2, &decl);
-	GetEvalParse(eval, 3, &doc);
-	GetEvalParse(eval, 4, &body);
-	GetEvalParse(eval, 5, &form);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &name);
+	GetEvalParse(eval, 2, &args);
+	GetEvalParse(eval, 3, &decl);
+	GetEvalParse(eval, 4, &doc);
+	GetEvalParse(eval, 5, &body);
 
 	copy_eval_ordinary(local, &args, args);
 	copy_eval_declaim_nil(local, &decl, decl);
@@ -213,12 +230,12 @@ static void copy_eval_defun(LocalRoot local, addr *ret, addr eval)
 	copy_eval_allcons(local, &body, body);
 
 	eval_parse_alloc(local, &eval, type, 6);
-	SetEvalParse(eval, 0, name);
-	SetEvalParse(eval, 1, args);
-	SetEvalParse(eval, 2, decl);
-	SetEvalParse(eval, 3, doc);
-	SetEvalParse(eval, 4, body);
-	SetEvalParse(eval, 5, form);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, name);
+	SetEvalParse(eval, 2, args);
+	SetEvalParse(eval, 3, decl);
+	SetEvalParse(eval, 4, doc);
+	SetEvalParse(eval, 5, body);
 	*ret = eval;
 }
 
@@ -389,11 +406,11 @@ static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LAMBDA, "parse error");
-	GetEvalParse(eval, 0, &args);
-	GetEvalParse(eval, 1, &decl);
-	GetEvalParse(eval, 2, &doc);
-	GetEvalParse(eval, 3, &cons);
-	GetEvalParse(eval, 4, &form);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &args);
+	GetEvalParse(eval, 2, &decl);
+	GetEvalParse(eval, 3, &doc);
+	GetEvalParse(eval, 4, &cons);
 
 	copy_eval_ordinary(local, &args, args);
 	copy_eval_declaim_nil(local, &decl, decl);
@@ -401,11 +418,11 @@ static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 5);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, doc);
-	SetEvalParse(eval, 3, cons);
-	SetEvalParse(eval, 4, form);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, doc);
+	SetEvalParse(eval, 4, cons);
 	*ret = eval;
 }
 
@@ -890,7 +907,7 @@ void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_RANDOM_STATE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_PATHNAME] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_ENVIRONMENT] = copy_eval_single;
-	EvalCopyTable[EVAL_PARSE_QUOTE] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_QUOTE] = copy_eval_double;
 	EvalCopyTable[EVAL_PARSE_GO] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_DECLAIM] = copy_eval_declaim;
 	EvalCopyTable[EVAL_PARSE_PROGN] = copy_eval_progn;

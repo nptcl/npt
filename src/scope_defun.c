@@ -68,6 +68,7 @@ int scope_defun_call_(Execute ptr, struct lambda_struct *str, addr *ret)
 	Return(scope_lambda_object_(ptr, str, &eval));
 	Return(scope_defun_update_(ptr, str));
 	Return(scope_defun_the_(eval, str));
+	SetEvalScopeValue(eval, str->defun);
 
 	return Result(ret, eval);
 }

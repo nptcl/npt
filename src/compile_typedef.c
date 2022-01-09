@@ -150,6 +150,9 @@ static void init_compile_typedef_write(void)
 	defwrite(reference_push);
 
 	defwrite(step);
+	defwrite(step_off);
+	defwrite(step_begin);
+	defwrite(step_end);
 
 	defwrite(optcode_result_type);
 	defwrite(optcode_car0_set);
@@ -305,6 +308,9 @@ static void init_compile_typedef_read(void)
 	defread(reference_push, REFERENCE_PUSH);
 
 	defread(step, STEP);
+	defread(step_off, STEP_OFF);
+	defread(step_begin, STEP_BEGIN);
+	defread(step_end, STEP_END);
 
 	defread(optcode_result_type, OPTCODE_RESULT_TYPE);
 	defread(optcode_car0_set, OPTCODE_CAR0_SET);

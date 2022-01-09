@@ -19,6 +19,9 @@
 #define eval_single_parse_alloc _n(eval_single_parse_alloc)
 #define eval_single_parse_local _n(eval_single_parse_local)
 #define eval_single_parse_heap _n(eval_single_parse_heap)
+#define eval_parse2_alloc _n(eval_parse2_alloc)
+#define eval_parse2_local _n(eval_parse2_local)
+#define eval_parse2_heap _n(eval_parse2_heap)
 
 struct parse_struct {
 	EvalParse type;
@@ -65,6 +68,9 @@ void eval_parse_heap(addr *ret, EvalParse type, byte array);
 void eval_single_parse_alloc(LocalRoot local, addr *ret, EvalParse type, addr value);
 void eval_single_parse_local(LocalRoot local, addr *ret, EvalParse type, addr value);
 void eval_single_parse_heap(addr *ret, EvalParse type, addr value);
+void eval_parse2_alloc(LocalRoot local, addr *ret, EvalParse type, addr x, addr y);
+void eval_parse2_local(LocalRoot local, addr *ret, EvalParse type, addr x, addr y);
+void eval_parse2_heap(addr *ret, EvalParse type, addr x, addr y);
 
 #endif
 

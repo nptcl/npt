@@ -6,6 +6,7 @@
 #include "integer.h"
 #include "mop_generic.h"
 #include "object.h"
+#include "random_state.h"
 #include "stream_memory.h"
 #include "stream_object.h"
 #include "strtype.h"
@@ -231,6 +232,49 @@ error:
 
 
 /*
+ *  random
+ */
+static int sysctl_random_integer_(Execute ptr, addr pos)
+{
+	Return(random_state_integer_(pos, &pos));
+	setvalues_control(ptr, pos, T, NULL);
+	return 0;
+}
+
+static int sysctl_random_make_(Execute ptr, addr pos)
+{
+	Return(random_state_make_(ptr->local, pos, &pos));
+	setvalues_control(ptr, pos, T, NULL);
+	return 0;
+}
+
+static int sysctl_random_(Execute ptr, addr args)
+{
+	int check;
+	addr value, pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (! consp_getcons(args, &value, &args))
+		goto error;
+
+	/* integer */
+	Return(string_designer_equalp_char_(pos, "integer", &check));
+	if (check)
+		return sysctl_random_integer_(ptr, value);
+
+	/* make */
+	Return(string_designer_equalp_char_(pos, "make", &check));
+	if (check)
+		return sysctl_random_make_(ptr, value);
+
+error:
+	setvalues_control(ptr, Nil, T, NULL);
+	return 0;
+}
+
+
+/*
  *  sysctl
  */
 int sysctl_values_(Execute ptr, addr pos, addr args)
@@ -254,6 +298,11 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 	Return(string_designer_equalp_char_(pos, "structure", &check));
 	if (check)
 		return sysctl_structure_(ptr, args);
+
+	/* random */
+	Return(string_designer_equalp_char_(pos, "random", &check));
+	if (check)
+		return sysctl_random_(ptr, args);
 
 	/* error */
 	setresult_control(ptr, Nil);

@@ -989,8 +989,67 @@ int reference_push_code(Execute ptr, CodeValue x)
  */
 int step_code(Execute ptr, CodeValue x)
 {
-	addr expr, value;
-	List_bind(x.pos, &expr, &value, NULL);
-	return execute_step_code(ptr, expr, value);
+	if (! ptr->step_begin)
+		return 0;
+	ptr->step_depth++;
+
+	/* step over */
+	if (! ptr->step_in) {
+		if (ptr->step_over <= ptr->step_depth)
+			return 0;
+	}
+
+	/* step */
+	return execute_step_code(ptr, x.pos);
+}
+
+int step_off_code(Execute ptr, CodeValue x)
+{
+	if (! ptr->step_begin)
+		return 0;
+	Check(ptr->step_depth == 0, "step_depth error.");
+	ptr->step_depth--;
+
+	/* step over */
+	if (! ptr->step_in) {
+		if (ptr->step_depth < ptr->step_over)
+			ptr->step_in = 1;
+	}
+
+	return 0;
+}
+
+int step_begin_code(Execute ptr, CodeValue x)
+{
+	addr symbol, value;
+
+	if (! ptr->step_begin) {
+		value = Nil;
+		ptr->step_begin = 1;
+		ptr->step_in = 1;
+		ptr->step_depth = 0;
+		ptr->step_over = 0;
+	}
+	else {
+		value = T;
+	}
+	GetConst(SYSTEM_STEP_BEGIN, &symbol);
+	pushspecial_control(ptr, symbol, value);
+
+	return 0;
+}
+
+int step_end_code(Execute ptr, CodeValue x)
+{
+	addr symbol, value;
+
+	if (! ptr->step_begin)
+		return 0;
+	GetConst(SYSTEM_STEP_BEGIN, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &value));
+	if (value == Nil)
+		ptr->step_begin = 0;
+
+	return 0;
 }
 

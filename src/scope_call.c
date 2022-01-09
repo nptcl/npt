@@ -169,6 +169,7 @@ static int find_symbol_scope_(Execute ptr, addr symbol, addr *value, int *ret)
 
 static int scope_symbol_heap_(Execute ptr, addr *ret, addr type, addr symbol)
 {
+	CheckType(symbol, LISPTYPE_SYMBOL);
 	return eval_scope_size_(ptr, ret, 1, EVAL_PARSE_SYMBOL, type, symbol);
 }
 
@@ -193,7 +194,7 @@ static int make_scope_keyword_(Execute ptr, addr symbol, addr *ret)
 	return scope_symbol_heap_(ptr, ret, type, symbol);
 }
 
-int scope_symbol_call(Execute ptr, addr *ret, addr eval)
+int scope_symbol_call_(Execute ptr, addr *ret, addr eval)
 {
 	if (keywordp(eval))
 		return make_scope_keyword_(ptr, eval, ret);

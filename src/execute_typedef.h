@@ -46,6 +46,9 @@ struct execute {
 	unsigned throw_point_p   : 1;
 	unsigned abort           : 1;
 	unsigned jump            : 1;
+	unsigned step_begin      : 1;
+	unsigned step_in         : 1;
+
 	/* lisp info */
 	jmp_buf *exec;
 	LocalRoot local;
@@ -62,6 +65,9 @@ struct execute {
 	size_t throw_point;
 	addr throw_handler;
 	addr throw_control;
+
+	/* step */
+	uint32_t step_depth, step_over;
 
 	/* thread info */
 	size_t index;

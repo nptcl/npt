@@ -4,9 +4,11 @@
 #include "make_typedef.h"
 #include "typedef.h"
 
+#define code_make_debug_ _n(code_make_debug_)
 #define code_make_nil_ _n(code_make_nil_)
 #define code_make_t_ _n(code_make_t_)
 #define code_make_value_ _n(code_make_value_)
+#define code_make_value2_ _n(code_make_value2_)
 #define code_make_symbol_ _n(code_make_symbol_)
 #define code_make_declaim_ _n(code_make_declaim_)
 #define code_make_lexical_ _n(code_make_lexical_)
@@ -37,9 +39,11 @@
 #define code_make_free_ _n(code_make_free_)
 #define code_make_type_value _n(code_make_type_value)
 
+int code_make_debug_(CodeMake ptr, addr scope, int (*call)(CodeMake, addr));
 int code_make_nil_(CodeMake ptr, addr ignore);
 int code_make_t_(CodeMake ptr, addr ignore);
 int code_make_value_(CodeMake ptr, addr scope);
+int code_make_value2_(CodeMake ptr, addr scope);
 int code_make_symbol_(CodeMake ptr, addr scope);
 int code_make_declaim_(CodeMake ptr, addr scope);
 int code_make_lexical_(CodeMake ptr, addr scope);

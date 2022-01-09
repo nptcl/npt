@@ -29,7 +29,8 @@
 #define scope_allcons _n(scope_allcons)
 #define localhold_scope_eval _n(localhold_scope_eval)
 #define localhold_scope_allcons _n(localhold_scope_allcons)
-#define scope_eval_lexical _n(scope_eval_lexical)
+#define scope_eval_lexical_ _n(scope_eval_lexical_)
+#define scope_step_p _n(scope_step_p)
 
 #define StructEvalScope_Low(x)			((struct scope_struct *)PtrEvalBodyAny(x))
 #define RefEvalScopeType_Low(x)			(StructEvalScope(x)->type)
@@ -104,7 +105,8 @@ int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons);
 int localhold_scope_eval(LocalHold hold, Execute ptr, addr *ret, addr eval);
 int localhold_scope_allcons(LocalHold hold,
 		Execute ptr, addr *retcons, addr *rettype, addr cons);
-int scope_eval_lexical(Execute ptr, addr *ret, addr eval);
+int scope_eval_lexical_(Execute ptr, addr *ret, addr eval);
+int scope_step_p(addr pos);
 
 #endif
 

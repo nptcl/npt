@@ -221,7 +221,7 @@ static int test_copy_quote(void)
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_quote1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_QUOTE, "copy_quote2");
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 	test(GetType(pos) == LISPTYPE_SYMBOL, "copy_quote3");
 	GetNameSymbol(pos, &pos);
 	test(string_equal_char_debug(pos, "HELLO"), "copy_quote4");
@@ -272,7 +272,7 @@ static int test_copy_allcons(void)
 
 	readstring_debug(&pos, "(progn 10 20 30)");
 	test_eval_copy_parse(&pos, pos);
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 
 	copy_eval_allcons(NULL, &pos, pos);
 	test(! GetStatusDynamic(pos), "copy_allcons1");
@@ -296,7 +296,7 @@ static int test_copy_allcons(void)
 
 	readstring_debug(&pos, "(progn 10 20 30)");
 	test_eval_copy_parse(&pos, pos);
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 
 	copy_eval_allcons(local, &pos, pos);
 	test(GetStatusDynamic(pos), "copy_allcons10");
@@ -320,7 +320,7 @@ static int test_copy_progn(void)
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_progn1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_PROGN, "copy_progn2");
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 	test(length_list_unsafe(pos) == 3, "copy_progn3");
 
 	RETURN;
@@ -336,7 +336,7 @@ static int test_copy_let(void)
 	test(! GetStatusDynamic(pos), "copy_let1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_LET, "copy_let2");
 
-	GetEvalParse(pos, 0, &check);
+	GetEvalParse(pos, 1, &check);
 	test(length_list_unsafe(check) == 2, "copy_let3");
 	GetCons(check, &var, &check);
 	GetCons(var, &var, &init);
@@ -349,10 +349,10 @@ static int test_copy_let(void)
 	test(var == sym, "copy_let6");
 	test(RefEvalParseType(init) == EVAL_PARSE_INTEGER, "copy_let7");
 
-	GetEvalParse(pos, 1, &check);
+	GetEvalParse(pos, 2, &check);
 	test(eval_declare_p(check), "copy_let8");
 
-	GetEvalParse(pos, 2, &check);
+	GetEvalParse(pos, 3, &check);
 	test(length_list_unsafe(check) == 1, "copy_let9");
 	GetCar(check, &check);
 	test(RefEvalParseType(check) == EVAL_PARSE_SYMBOL, "copy_let10");
@@ -374,7 +374,7 @@ static int test_copy_setq(void)
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_setq1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_SETQ, "copy_setq2");
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 	test(length_list_unsafe(pos) == 2, "copy_setq3");
 
 	GetCons(pos, &symbol, &pos);
@@ -545,25 +545,25 @@ static int test_copy_defun(void)
 	test(! GetStatusDynamic(pos), "copy_defun1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_DEFUN, "copy_defun2");
 	/* name */
-	GetEvalParse(pos, 0, &symbol);
+	GetEvalParse(pos, 1, &symbol);
 	test(GetType(symbol) == LISPTYPE_CALLNAME, "copy_defun3");
 	GetCallName(symbol, &symbol);
 	readstring_debug(&check, "aa");
 	test(symbol == check, "copy_defun4");
 	/* args */
-	GetEvalParse(pos, 1, &symbol);
+	GetEvalParse(pos, 2, &symbol);
 	GetCar(symbol, &symbol);
 	GetCar(symbol, &symbol);
 	readstring_debug(&check, "bb");
 	test(symbol == check, "copy_defun5");
 	/* decl */
-	GetEvalParse(pos, 2, &symbol);
+	GetEvalParse(pos, 3, &symbol);
 	test(eval_declare_p(symbol), "copy_defun6");
 	/* doc */
-	GetEvalParse(pos, 3, &symbol);
+	GetEvalParse(pos, 4, &symbol);
 	test(stringp(symbol), "copy_defun7");
 	/* cons */
-	GetEvalParse(pos, 4, &symbol);
+	GetEvalParse(pos, 5, &symbol);
 	getcar_(symbol, &symbol);
 	test(RefEvalParseType(symbol) == EVAL_PARSE_BLOCK, "copy_defun8");
 
@@ -580,19 +580,19 @@ static int test_copy_lambda(void)
 	test(! GetStatusDynamic(pos), "copy_lambda1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_LAMBDA, "copy_lambda2");
 	/* args */
-	GetEvalParse(pos, 0, &symbol);
+	GetEvalParse(pos, 1, &symbol);
 	GetCar(symbol, &symbol);
 	GetCar(symbol, &symbol);
 	readstring_debug(&check, "bb");
 	test(symbol == check, "copy_lambda3");
 	/* decl */
-	GetEvalParse(pos, 1, &symbol);
+	GetEvalParse(pos, 2, &symbol);
 	test(eval_declare_p(symbol), "copy_lambda4");
 	/* doc */
-	GetEvalParse(pos, 2, &symbol);
+	GetEvalParse(pos, 3, &symbol);
 	test(stringp(symbol), "copy_lambda5");
 	/* cons */
-	GetEvalParse(pos, 3, &symbol);
+	GetEvalParse(pos, 4, &symbol);
 	getcar_(symbol, &symbol);
 	test(RefEvalParseType(symbol) == EVAL_PARSE_INTEGER, "copy_lambda6");
 	GetEvalParse(symbol, 0, &symbol);

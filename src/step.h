@@ -5,25 +5,16 @@
 #include "typedef.h"
 
 #define step_common_ _n(step_common_)
-#define init_parse_step _n(init_parse_step)
-#define parse_step _n(parse_step)
-#define parse_step_object_ _n(parse_step_object_)
+#define parse_step_ _n(parse_step_)
 #define copy_eval_step _n(copy_eval_step)
-#define scope_step _n(scope_step)
+#define scope_step_ _n(scope_step_)
+#define init_parse_step _n(init_parse_step)
 
-/* macro */
 int step_common_(Execute ptr, addr form, addr env, addr *ret);
-
-/* parse */
-void init_parse_step(Execute ptr);
-int parse_step(Execute ptr, addr *ret, addr form);
-int parse_step_object_(Execute ptr, addr *ret, addr value, addr expr);
-
-/* copy-eval */
+int parse_step_(Execute ptr, addr *ret, addr form);
 void copy_eval_step(LocalRoot local, addr *ret, addr eval);
-
-/* scope */
-int scope_step(Execute ptr, addr *ret, addr eval);
+int scope_step_(Execute ptr, addr *ret, addr eval);
+void init_parse_step(Execute ptr);
 
 #endif
 

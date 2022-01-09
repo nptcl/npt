@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include "bignum_object.h"
+#include "boole.h"
+#include "bytespec.h"
 #include "condition.h"
 #include "constant.h"
 #include "define.h"
 #include "execute.h"
 #include "heap.h"
+#include "integer.h"
 #include "md5encode.h"
 #include "random.h"
 #include "random_state.h"
@@ -441,5 +444,56 @@ int equal_random_state_addr(addr left, addr right)
 	state2 = struct_random_state(right);
 
 	return random_state_equal(state1, state2);
+}
+
+
+/*
+ *  sysctl
+ */
+int random_state_integer_(addr pos, addr *ret)
+{
+	addr value;
+
+	if (GetType(pos) != LISPTYPE_RANDOM_STATE) {
+		*ret = Nil;
+		return TypeError_(pos, RANDOM_STATE);
+	}
+
+	make_bignum_random_state_heap(pos, &value);
+	return integer_result_heap_(value, ret);
+}
+
+int random_state_make_(LocalRoot local, addr pos, addr *ret)
+{
+	addr spec, ignore, state;
+	bigtype *data;
+	struct random_state *str;
+	size_t size, i;
+
+	if (! integerp(pos)) {
+		*ret = Nil;
+		return TypeError_(pos, INTEGER);
+	}
+
+	/* (ldb (byte 128 0) pos) */
+	bytespec_heap(&spec, 128UL, 0UL);
+	Return(ldb_common_(local, &pos, spec, pos));
+
+	/* result */
+	if (fixnump(pos))
+		bignum_fixnum_heap(&pos, pos);
+	GetSizeBignum(pos, &size);
+	GetRootDataBignum(pos, &ignore, &data);
+	random_state_heap(&state);
+	str = struct_random_state(state);
+	for (i = 0; i < size; i++) {
+#ifdef LISP_64BIT
+		str->seed.u64[i] = (uint64_t)data[i];
+#else
+		str->seed.u32[i] = (uint32_t)data[i];
+#endif
+	}
+
+	return Result(ret, state);
 }
 

@@ -196,6 +196,9 @@ void init_code_init(void)
 
 	/* step */
 	initcode(step_code, Addr);
+	initcode(step_off_code, Null);
+	initcode(step_begin_code, Null);
+	initcode(step_end_code, Null);
 }
 
 
@@ -361,6 +364,9 @@ void build_code_init(void)
 
 	/* step */
 	defcode(STEP, step_code);
+	defcode(STEP_OFF, step_off_code);
+	defcode(STEP_BEGIN, step_begin_code);
+	defcode(STEP_END, step_end_code);
 }
 
 #undef defcode

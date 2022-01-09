@@ -20,10 +20,10 @@
 #include "parse_object.h"
 #include "print_write.h"
 #include "reader.h"
-#include "step.h"
 #include "scope.h"
 #include "scope_declare.h"
 #include "scope_object.h"
+#include "step.h"
 #include "stream.h"
 #include "stream_common.h"
 #include "symbol.h"
@@ -78,7 +78,7 @@ static int eval_execute_parse_(Execute ptr, addr pos)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	Return(parse_execute_toplevel_(ptr, &pos, pos));
+	Return(parse_execute_(ptr, &pos, pos));
 	Return(eval_execute_scope_(ptr, hold, pos));
 	localhold_end(hold);
 

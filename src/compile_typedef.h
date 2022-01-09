@@ -190,6 +190,9 @@ enum FaslCode {
 	FaslCode_reference_push,
 
 	FaslCode_step,
+	FaslCode_step_off,
+	FaslCode_step_begin,
+	FaslCode_step_end,
 
 	FaslCode_optcode_result_type,
 	FaslCode_optcode_car0_set,

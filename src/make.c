@@ -90,7 +90,7 @@ void init_make(void)
 	CodeMakeTable[EVAL_PARSE_DEFTYPE] = code_make_deftype_;
 	CodeMakeTable[EVAL_PARSE_DEFINE_COMPILER_MACRO] = code_make_define_compiler_macro_;
 	CodeMakeTable[EVAL_PARSE_DESTRUCTURING_BIND] = code_make_destructuring_bind_;
-	CodeMakeTable[EVAL_PARSE_QUOTE] = code_make_value_;
+	CodeMakeTable[EVAL_PARSE_QUOTE] = code_make_value2_;
 	CodeMakeTable[EVAL_PARSE_FUNCTION] = code_make_function_;
 	CodeMakeTable[EVAL_PARSE_LAMBDA] = code_make_lambda_;
 	CodeMakeTable[EVAL_PARSE_IF] = code_make_if_;

@@ -440,12 +440,15 @@ int scope_lambda_call_(Execute ptr, addr *ret, addr eval)
 	struct lambda_struct str;
 
 	scope_init_lambda(&str, EVAL_PARSE_LAMBDA, 0);
-	GetEvalParse(eval, 0, &str.args);
-	GetEvalParse(eval, 1, &str.decl);
-	GetEvalParse(eval, 2, &str.doc);
-	GetEvalParse(eval, 3, &str.cons);
-	GetEvalParse(eval, 4, &str.form);
-	return scope_lambda_object_(ptr, &str, ret);
+	GetEvalParse(eval, 0, &str.form);
+	GetEvalParse(eval, 1, &str.args);
+	GetEvalParse(eval, 2, &str.decl);
+	GetEvalParse(eval, 3, &str.doc);
+	GetEvalParse(eval, 4, &str.cons);
+	Return(scope_lambda_object_(ptr, &str, &eval));
+	SetEvalScopeValue(eval, str.form);
+
+	return Result(ret, eval);
 }
 
 

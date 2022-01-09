@@ -97,6 +97,9 @@
 #define reference_set_code _n(reference_set_code)
 #define reference_push_code _n(reference_push_code)
 #define step_code _n(step_code)
+#define step_off_code _n(step_off_code)
+#define step_begin_code _n(step_begin_code)
+#define step_end_code _n(step_end_code)
 
 int nop_code(Execute ptr, CodeValue x);
 int begin_code(Execute ptr, CodeValue x);
@@ -204,6 +207,9 @@ int reference_set_code(Execute ptr, CodeValue x);
 int reference_push_code(Execute ptr, CodeValue x);
 
 int step_code(Execute ptr, CodeValue x);
+int step_off_code(Execute ptr, CodeValue x);
+int step_begin_code(Execute ptr, CodeValue x);
+int step_end_code(Execute ptr, CodeValue x);
 
 #endif
 

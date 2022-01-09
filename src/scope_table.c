@@ -18,7 +18,7 @@
 #include "type_table.h"
 
 /* nil */
-static int scope_nil(Execute ptr, addr *ret, addr eval)
+static int scope_nil_(Execute ptr, addr *ret, addr eval)
 {
 	Check(! eval_parse_p(eval), "type error");
 	type_value_nil(&eval);
@@ -27,7 +27,7 @@ static int scope_nil(Execute ptr, addr *ret, addr eval)
 
 
 /* t */
-static int scope_t(Execute ptr, addr *ret, addr eval)
+static int scope_t_(Execute ptr, addr *ret, addr eval)
 {
 	Check(! eval_parse_p(eval), "type error");
 	type_value_t(&eval);
@@ -36,7 +36,7 @@ static int scope_t(Execute ptr, addr *ret, addr eval)
 
 
 /* clos */
-static int scope_clos(Execute ptr, addr *ret, addr eval)
+static int scope_clos_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -48,7 +48,7 @@ static int scope_clos(Execute ptr, addr *ret, addr eval)
 
 
 /* integer */
-static int scope_integer(Execute ptr, addr *ret, addr eval)
+static int scope_integer_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -60,7 +60,7 @@ static int scope_integer(Execute ptr, addr *ret, addr eval)
 
 
 /* rational */
-static int scope_rational(Execute ptr, addr *ret, addr eval)
+static int scope_rational_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -72,7 +72,7 @@ static int scope_rational(Execute ptr, addr *ret, addr eval)
 
 
 /* complex */
-static int scope_complex(Execute ptr, addr *ret, addr eval)
+static int scope_complex_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -84,7 +84,7 @@ static int scope_complex(Execute ptr, addr *ret, addr eval)
 
 
 /* character */
-static int scope_character(Execute ptr, addr *ret, addr eval)
+static int scope_character_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -96,7 +96,7 @@ static int scope_character(Execute ptr, addr *ret, addr eval)
 
 
 /* array */
-static int scope_array(Execute ptr, addr *ret, addr eval)
+static int scope_array_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -108,7 +108,7 @@ static int scope_array(Execute ptr, addr *ret, addr eval)
 
 
 /* vector */
-static int scope_vector(Execute ptr, addr *ret, addr eval)
+static int scope_vector_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -120,7 +120,7 @@ static int scope_vector(Execute ptr, addr *ret, addr eval)
 
 
 /* bitvector */
-static int scope_bitvector(Execute ptr, addr *ret, addr eval)
+static int scope_bitvector_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -132,7 +132,7 @@ static int scope_bitvector(Execute ptr, addr *ret, addr eval)
 
 
 /* string */
-static int scope_string(Execute ptr, addr *ret, addr eval)
+static int scope_string_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -144,16 +144,16 @@ static int scope_string(Execute ptr, addr *ret, addr eval)
 
 
 /* symbol */
-static int scope_symbol(Execute ptr, addr *ret, addr eval)
+static int scope_symbol_(Execute ptr, addr *ret, addr eval)
 {
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	return scope_symbol_call(ptr, ret, eval);
+	return scope_symbol_call_(ptr, ret, eval);
 }
 
 
 /* float */
-static int scope_float(Execute ptr, addr *ret, addr eval)
+static int scope_float_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -178,7 +178,7 @@ static int scope_declaim(Execute ptr, addr *ret, addr eval)
 
 
 /* package */
-static int scope_package(Execute ptr, addr *ret, addr eval)
+static int scope_package_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -190,7 +190,7 @@ static int scope_package(Execute ptr, addr *ret, addr eval)
 
 
 /* random-state */
-static int scope_random_state(Execute ptr, addr *ret, addr eval)
+static int scope_random_state_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -202,7 +202,7 @@ static int scope_random_state(Execute ptr, addr *ret, addr eval)
 
 
 /* pathname */
-static int scope_pathname(Execute ptr, addr *ret, addr eval)
+static int scope_pathname_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -214,7 +214,7 @@ static int scope_pathname(Execute ptr, addr *ret, addr eval)
 
 
 /* environment */
-static int scope_environment(Execute ptr, addr *ret, addr eval)
+static int scope_environment_(Execute ptr, addr *ret, addr eval)
 {
 	addr type;
 
@@ -226,30 +226,36 @@ static int scope_environment(Execute ptr, addr *ret, addr eval)
 
 
 /* progn */
-int scope_progn(Execute ptr, addr *ret, addr eval)
+int scope_progn_(Execute ptr, addr *ret, addr eval)
 {
-	addr type;
+	addr form, list, type;
 
 	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &eval);
-	Return(scope_allcons(ptr, &eval, &type, eval));
-	return make_eval_scope_(ptr, ret, EVAL_PARSE_PROGN, type, eval);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &list);
+
+	Return(scope_allcons(ptr, &list, &type, list));
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_PROGN, type, form));
+	SetEvalScopeIndex(eval, 0, list);
+	return Result(ret, eval);
 }
 
 
 /* let */
-static int scope_let(Execute ptr, addr *ret, addr eval)
+static int scope_let_(Execute ptr, addr *ret, addr eval)
 {
+	addr form;
 	struct let_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
 	scope_init_let(&str);
-	GetEvalParse(eval, 0, &str.args);
-	GetEvalParse(eval, 1, &str.decl);
-	GetEvalParse(eval, 2, &str.cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &str.args);
+	GetEvalParse(eval, 2, &str.decl);
+	GetEvalParse(eval, 3, &str.cons);
 
 	Return(scope_let_call(ptr, &str));
-	Return(eval_scope_size_(ptr, &eval, 5, EVAL_PARSE_LET, str.the, eval));
+	Return(eval_scope_size_(ptr, &eval, 5, EVAL_PARSE_LET, str.the, form));
 	SetEvalScopeIndex(eval, 0, str.args);
 	SetEvalScopeIndex(eval, 1, str.decl);
 	SetEvalScopeIndex(eval, 2, str.cons);
@@ -261,18 +267,20 @@ static int scope_let(Execute ptr, addr *ret, addr eval)
 
 
 /* let* */
-static int scope_leta(Execute ptr, addr *ret, addr eval)
+static int scope_leta_(Execute ptr, addr *ret, addr eval)
 {
+	addr form;
 	struct let_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
 	scope_init_let(&str);
-	GetEvalParse(eval, 0, &str.args);
-	GetEvalParse(eval, 1, &str.decl);
-	GetEvalParse(eval, 2, &str.cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &str.args);
+	GetEvalParse(eval, 2, &str.decl);
+	GetEvalParse(eval, 3, &str.cons);
 
 	Return(scope_leta_call(ptr, &str));
-	Return(eval_scope_size_(ptr, &eval, 5, EVAL_PARSE_LETA, str.the, eval));
+	Return(eval_scope_size_(ptr, &eval, 5, EVAL_PARSE_LETA, str.the, form));
 	SetEvalScopeIndex(eval, 0, str.args);
 	SetEvalScopeIndex(eval, 1, str.decl);
 	SetEvalScopeIndex(eval, 2, str.cons);
@@ -284,14 +292,18 @@ static int scope_leta(Execute ptr, addr *ret, addr eval)
 
 
 /* setq */
-static int scope_setq(Execute ptr, addr *ret, addr eval)
+static int scope_setq_(Execute ptr, addr *ret, addr eval)
 {
-	addr cons, type;
+	addr form, list, type;
 
 	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &cons);
-	Return(scope_setq_call(ptr, cons, &cons, &type));
-	return make_eval_scope_(ptr, ret, EVAL_PARSE_SETQ, type, cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &list);
+
+	Return(scope_setq_call(ptr, list, &list, &type));
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_SETQ, type, form));
+	SetEvalScopeIndex(eval, 0, list);
+	return Result(ret, eval);
 }
 
 
@@ -304,7 +316,7 @@ static int scope_function(Execute ptr, addr *ret, addr eval)
 
 
 /* lambda */
-static int scope_lambda(Execute ptr, addr *ret, addr eval)
+static int scope_lambda_(Execute ptr, addr *ret, addr eval)
 {
 	Check(! eval_parse_p(eval), "type error");
 	return scope_lambda_call_(ptr, ret, eval);
@@ -312,18 +324,18 @@ static int scope_lambda(Execute ptr, addr *ret, addr eval)
 
 
 /* defun */
-static int scope_defun(Execute ptr, addr *ret, addr eval)
+static int scope_defun_(Execute ptr, addr *ret, addr eval)
 {
 	struct lambda_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
 	scope_init_lambda(&str, EVAL_PARSE_DEFUN, 1);
-	GetEvalParse(eval, 0, &str.call);
-	GetEvalParse(eval, 1, &str.args);
-	GetEvalParse(eval, 2, &str.decl);
-	GetEvalParse(eval, 3, &str.doc);
-	GetEvalParse(eval, 4, &str.cons);
-	GetEvalParse(eval, 5, &str.defun);
+	GetEvalParse(eval, 0, &str.defun);
+	GetEvalParse(eval, 1, &str.call);
+	GetEvalParse(eval, 2, &str.args);
+	GetEvalParse(eval, 3, &str.decl);
+	GetEvalParse(eval, 4, &str.doc);
+	GetEvalParse(eval, 5, &str.cons);
 	return scope_defun_call_(ptr, &str, ret);
 }
 
@@ -415,14 +427,18 @@ static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
 
 
 /* quote */
-static int scope_quote(Execute ptr, addr *ret, addr eval)
+static int scope_quote_(Execute ptr, addr *ret, addr eval)
 {
-	addr value, type;
+	addr form, pos, type;
 
 	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &value);
-	Return(type_value_(&type, value));
-	return make_eval_scope_(ptr, ret, EVAL_PARSE_QUOTE, type, value);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &pos);
+
+	Return(type_value_(&type, pos));
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_QUOTE, type, form));
+	SetEvalScopeIndex(eval, 0, pos);
+	return Result(ret, eval);
 }
 
 
@@ -825,37 +841,37 @@ static int scope_progv(Execute ptr, addr *ret, addr eval)
  */
 void init_scope_function(void)
 {
-	EvalScopeTable[EVAL_PARSE_NIL] = scope_nil;
-	EvalScopeTable[EVAL_PARSE_T] = scope_t;
-	EvalScopeTable[EVAL_PARSE_CLOS] = scope_clos;
-	EvalScopeTable[EVAL_PARSE_INTEGER] = scope_integer;
-	EvalScopeTable[EVAL_PARSE_RATIONAL] = scope_rational;
-	EvalScopeTable[EVAL_PARSE_COMPLEX] = scope_complex;
-	EvalScopeTable[EVAL_PARSE_CHARACTER] = scope_character;
-	EvalScopeTable[EVAL_PARSE_ARRAY] = scope_array;
-	EvalScopeTable[EVAL_PARSE_VECTOR] = scope_vector;
-	EvalScopeTable[EVAL_PARSE_BITVECTOR] = scope_bitvector;
-	EvalScopeTable[EVAL_PARSE_STRING] = scope_string;
-	EvalScopeTable[EVAL_PARSE_SYMBOL] = scope_symbol;
-	EvalScopeTable[EVAL_PARSE_FLOAT] = scope_float;
+	EvalScopeTable[EVAL_PARSE_NIL] = scope_nil_;
+	EvalScopeTable[EVAL_PARSE_T] = scope_t_;
+	EvalScopeTable[EVAL_PARSE_CLOS] = scope_clos_;
+	EvalScopeTable[EVAL_PARSE_INTEGER] = scope_integer_;
+	EvalScopeTable[EVAL_PARSE_RATIONAL] = scope_rational_;
+	EvalScopeTable[EVAL_PARSE_COMPLEX] = scope_complex_;
+	EvalScopeTable[EVAL_PARSE_CHARACTER] = scope_character_;
+	EvalScopeTable[EVAL_PARSE_ARRAY] = scope_array_;
+	EvalScopeTable[EVAL_PARSE_VECTOR] = scope_vector_;
+	EvalScopeTable[EVAL_PARSE_BITVECTOR] = scope_bitvector_;
+	EvalScopeTable[EVAL_PARSE_STRING] = scope_string_;
+	EvalScopeTable[EVAL_PARSE_SYMBOL] = scope_symbol_;
+	EvalScopeTable[EVAL_PARSE_FLOAT] = scope_float_;
 	EvalScopeTable[EVAL_PARSE_DECLAIM] = scope_declaim;
-	EvalScopeTable[EVAL_PARSE_PACKAGE] = scope_package;
-	EvalScopeTable[EVAL_PARSE_RANDOM_STATE] = scope_random_state;
-	EvalScopeTable[EVAL_PARSE_PATHNAME] = scope_pathname;
-	EvalScopeTable[EVAL_PARSE_ENVIRONMENT] = scope_environment;
-	EvalScopeTable[EVAL_PARSE_PROGN] = scope_progn;
-	EvalScopeTable[EVAL_PARSE_LET] = scope_let;
-	EvalScopeTable[EVAL_PARSE_LETA] = scope_leta;
-	EvalScopeTable[EVAL_PARSE_SETQ] = scope_setq;
-	EvalScopeTable[EVAL_PARSE_DEFUN] = scope_defun;
+	EvalScopeTable[EVAL_PARSE_PACKAGE] = scope_package_;
+	EvalScopeTable[EVAL_PARSE_RANDOM_STATE] = scope_random_state_;
+	EvalScopeTable[EVAL_PARSE_PATHNAME] = scope_pathname_;
+	EvalScopeTable[EVAL_PARSE_ENVIRONMENT] = scope_environment_;
+	EvalScopeTable[EVAL_PARSE_PROGN] = scope_progn_;
+	EvalScopeTable[EVAL_PARSE_LET] = scope_let_;
+	EvalScopeTable[EVAL_PARSE_LETA] = scope_leta_;
+	EvalScopeTable[EVAL_PARSE_SETQ] = scope_setq_;
+	EvalScopeTable[EVAL_PARSE_DEFUN] = scope_defun_;
 	EvalScopeTable[EVAL_PARSE_DEFMACRO] = scope_defmacro;
 	EvalScopeTable[EVAL_PARSE_MACRO_LAMBDA] = scope_macro_lambda;
 	EvalScopeTable[EVAL_PARSE_DEFTYPE] = scope_deftype;
 	EvalScopeTable[EVAL_PARSE_DEFINE_COMPILER_MACRO] = scope_define_compiler_macro;
 	EvalScopeTable[EVAL_PARSE_DESTRUCTURING_BIND] = scope_destructuring_bind;
-	EvalScopeTable[EVAL_PARSE_QUOTE] = scope_quote;
+	EvalScopeTable[EVAL_PARSE_QUOTE] = scope_quote_;
 	EvalScopeTable[EVAL_PARSE_FUNCTION] = scope_function;
-	EvalScopeTable[EVAL_PARSE_LAMBDA] = scope_lambda;
+	EvalScopeTable[EVAL_PARSE_LAMBDA] = scope_lambda_;
 	EvalScopeTable[EVAL_PARSE_IF] = scope_if;
 	EvalScopeTable[EVAL_PARSE_UNWIND_PROTECT] = scope_unwind_protect;
 	EvalScopeTable[EVAL_PARSE_TAGBODY] = scope_tagbody;
@@ -877,6 +893,6 @@ void init_scope_function(void)
 	EvalScopeTable[EVAL_PARSE_NTH_VALUE] = scope_nth_value;
 	EvalScopeTable[EVAL_PARSE_PROGV] = scope_progv;
 	EvalScopeTable[EVAL_PARSE_LOAD_TIME_VALUE] = scope_load_time_value_;
-	EvalScopeTable[EVAL_PARSE_STEP] = scope_step;
+	EvalScopeTable[EVAL_PARSE_STEP] = scope_step_;
 }
 

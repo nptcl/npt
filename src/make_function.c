@@ -558,7 +558,7 @@ static int code_make_lambda_cache_p_(addr scope, int *ret)
 	return Result(ret, value < 0 || 1 <= value);
 }
 
-int code_make_lambda_(CodeMake ptr, addr scope)
+static int code_make_lambda_call_(CodeMake ptr, addr scope)
 {
 	int check;
 	addr gensym, label;
@@ -587,6 +587,11 @@ int code_make_lambda_(CodeMake ptr, addr scope)
 	code_queue_ifpush(ptr);
 
 	return 0;
+}
+
+int code_make_lambda_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_lambda_call_);
 }
 
 

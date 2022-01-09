@@ -17,13 +17,12 @@
 /*
  *  query
  */
-static int step_prompt_exit_p_(addr pos, int *ret)
+static int step_prompt_in_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
 		return Result(ret, 0);
 	GetNameSymbol(pos, &pos);
-	return string_equalp_char_va_(pos, ret,
-			"Q", "QUIT", "E", "EXIT", "S", "STEP", NULL);
+	return string_equalp_char_va_(pos, ret, "S", "STEP", "I", "IN", NULL);
 }
 
 static int step_prompt_over_p_(addr pos, int *ret)
@@ -36,9 +35,22 @@ static int step_prompt_over_p_(addr pos, int *ret)
 
 static void step_prompt_over(Execute ptr)
 {
-	addr symbol;
-	GetConst(SYSTEM_STEP_VALUE, &symbol);
-	setspecial_local(ptr, symbol, Nil);
+	ptr->step_over = ptr->step_depth;
+	ptr->step_in = 0;
+}
+
+static int step_prompt_quit_p_(addr pos, int *ret)
+{
+	if (! symbolp(pos))
+		return Result(ret, 0);
+	GetNameSymbol(pos, &pos);
+	return string_equalp_char_va_(pos, ret,
+			"Q", "QUIT", "E", "EXIT", "C", "CONT", "CONTINUE", NULL);
+}
+
+static void step_prompt_quit(Execute ptr)
+{
+	ptr->step_begin = 0;
 }
 
 static int step_prompt_help_p_(addr pos, int *ret)
@@ -52,13 +64,14 @@ static int step_prompt_help_p_(addr pos, int *ret)
 static int step_prompt_help_(Execute ptr, addr io)
 {
 	static const char *const message[] = {
-		"Step help.",
+		"COMMAND   HELP",
 		"---",
-		"step  Step in",
-		"over  Step over",
+		"Step      Step in",
+		"Over      Step over",
+		"Continue  Quit step.",
 		"---",
-		"quit  Quit step.",
-		"help  Output this message.",
+		"Quit      Quit step.",
+		"Help      Output this message.",
 		"---",
 		NULL
 	};
@@ -81,7 +94,7 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 {
 	int check;
 
-	Return(step_prompt_exit_p_(pos, &check));
+	Return(step_prompt_in_p_(pos, &check));
 	if (check) {
 		*exit = 1;
 		*exec = 0;
@@ -92,6 +105,13 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 		*exit = 1;
 		*exec = 0;
 		step_prompt_over(ptr);
+		return 0;
+	}
+	Return(step_prompt_quit_p_(pos, &check));
+	if (check) {
+		*exit = 1;
+		*exec = 0;
+		step_prompt_quit(ptr);
 		return 0;
 	}
 	Return(step_prompt_help_p_(pos, &check));
@@ -105,61 +125,24 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 	return 0;
 }
 
-static int step_prompt_query_call_(Execute ptr, addr io, addr value, int *ret)
+static int step_prompt_query_call_(Execute ptr, addr io)
 {
-	addr symbol, prompt;
+	addr prompt;
 
-	GetConst(SYSTEM_STEP_VALUE, &symbol);
 	strvect_char_heap(&prompt, "Step> ");
-	pushspecial_control(ptr, symbol, T);
 	push_prompt(ptr, prompt, prompt_step);
-	Return(eval_custom_loop_(ptr, io, step_prompt_loop_));
-	getspecial_local(ptr, symbol, &value);
-
-	return Result(ret, (value != Nil));
+	return eval_custom_loop_(ptr, io, step_prompt_loop_);
 }
 
-static int step_prompt_query_(Execute ptr, addr value, int *ret)
+int execute_step_code(Execute ptr, addr expr)
 {
 	addr io, control;
 
 	Return(debug_io_stream_(ptr, &io));
-	Return(format_stream(ptr, io, "~&STEP: ~S~%", value, NULL));
+	Return(format_stream(ptr, io, "~&STEP: ~S~%", expr, NULL));
 
 	push_control(ptr, &control);
-	(void)step_prompt_query_call_(ptr, io, value, ret);
-	return pop_control_(ptr, control);
-}
-
-
-/*
- *  code
- */
-int execute_step_code(Execute ptr, addr expr, addr value)
-{
-	int stepin;
-	addr symbol, check, control;
-
-	/* *step-break* */
-	GetConst(SYSTEM_STEP_BREAK, &symbol);
-	getspecial_local(ptr, symbol, &check);
-	if (check == Nil) {
-		/* step throw */
-		return runcode_control_(ptr, expr);
-	}
-
-	/* query */
-	stepin = 0;
-	Return(step_prompt_query_(ptr, value, &stepin));
-	if (stepin) {
-		/* step in */
-		return runcode_control_(ptr, expr);
-	}
-
-	/* step over */
-	push_control(ptr, &control);
-	pushspecial_control(ptr, symbol, Nil);
-	(void)runcode_control_(ptr, expr);
+	(void)step_prompt_query_call_(ptr, io);
 	return pop_control_(ptr, control);
 }
 

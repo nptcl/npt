@@ -146,7 +146,7 @@ static int checkparse_check2_(OptimizeInfo *str, int *ret)
 
 static int optparse_check2_(OptimizeInfo *str, int *ret)
 {
-	addr symbol, x, list;
+	addr symbol, x, list, quote, form;
 
 	Return_check_optparse(checkparse_check2_, str, ret);
 	list = Nil;
@@ -176,7 +176,9 @@ static int optparse_check2_(OptimizeInfo *str, int *ret)
 	cons_heap(&x, symbol, x);
 	cons_heap(&list, x, list);
 	/* quote */
-	eval_single_parse_heap(&list, EVAL_PARSE_QUOTE, list);
+	GetConst(COMMON_QUOTE, &quote);
+	list_heap(&form, quote, list, NULL);
+	eval_parse2_heap(&list, EVAL_PARSE_QUOTE, form, list);
 	str->pos = list;
 
 	return Result(ret, 1);
@@ -453,7 +455,7 @@ static void optparse_implicit6_next(LocalRoot local, addr list, addr *value)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		if (optimize_evaltype(pos, EVAL_PARSE_PROGN)) {
-			GetEvalParse(pos, 0, &pos);
+			GetEvalParse(pos, 1, &pos);
 			optparse_implicit6_next(local, pos, value);
 			continue;
 		}
@@ -580,9 +582,12 @@ static int optparse_implicit_(OptimizeInfo *str, addr pos, addr *value, int *ret
 /* (progn) -> nil */
 static int checkparse_progn1_(OptimizeInfo *str, int *ret)
 {
-	*ret = optimize_evaltype_on(str, EVAL_PARSE_PROGN)
-		&& RefEvalParse(str->pos, 0) == Nil;
-	return 0;
+	addr list;
+
+	if (! optimize_evaltype_on(str, EVAL_PARSE_PROGN))
+		return Result(ret, 0);
+	GetEvalParse(str->pos, 1, &list);
+	return Result(ret, list == Nil);
 }
 
 static int optparse_progn1_(OptimizeInfo *str, int *ret)
@@ -595,22 +600,22 @@ static int optparse_progn1_(OptimizeInfo *str, int *ret)
 /* (progn x) -> x */
 static int checkparse_progn2_(OptimizeInfo *str, int *ret)
 {
-	addr pos;
+	addr list;
 
 	if (! optimize_evaltype_on(str, EVAL_PARSE_PROGN))
 		return Result(ret, 0);
-	GetEvalParse(str->pos, 0, &pos);
+	GetEvalParse(str->pos, 1, &list);
 
-	return Result(ret, singlep(pos));
+	return Result(ret, singlep(list));
 }
 
 static int optparse_progn2_(OptimizeInfo *str, int *ret)
 {
-	addr pos;
+	addr list;
 
 	Return_check_optparse(checkparse_progn2_, str, ret);
-	GetEvalParse(str->pos, 0, &pos);
-	GetCar(pos, &(str->pos));
+	GetEvalParse(str->pos, 1, &list);
+	GetCar(list, &(str->pos));
 
 	return Result(ret, 1);
 }
@@ -618,26 +623,26 @@ static int optparse_progn2_(OptimizeInfo *str, int *ret)
 /* (progn 10 20 30) -> 30 */
 static int checkparse_progn3_(OptimizeInfo *str, int *ret)
 {
-	addr pos;
+	addr list;
 
 	if (! optimize_evaltype_on(str, EVAL_PARSE_PROGN))
 		return Result(ret, 0);
-	GetEvalParse(str->pos, 0, &pos);
-	return checkparse_implicit3_(str, pos, ret);
+	GetEvalParse(str->pos, 1, &list);
+	return checkparse_implicit3_(str, list, ret);
 }
 
 static int optparse_progn3_(OptimizeInfo *str, int *ret)
 {
 	int check;
-	addr pos;
+	addr list;
 
 	Return_check_optparse(checkparse_progn3_, str, ret);
-	GetEvalParse(str->pos, 0, &pos);
-	Return(optparse_implicit3_(str, pos, &pos, &check));
+	GetEvalParse(str->pos, 1, &list);
+	Return(optparse_implicit3_(str, list, &list, &check));
 	if (! check)
 		return Result(ret, 0);
-	GetCar(pos, &pos);
-	str->pos = pos;
+	GetCar(list, &list);
+	str->pos = list;
 
 	return Result(ret, 1);
 }
@@ -645,26 +650,27 @@ static int optparse_progn3_(OptimizeInfo *str, int *ret)
 /* (progn 10 (call1) 20 30 (call2)) -> (progn (call1) (call2)) */
 static int checkparse_progn4_(OptimizeInfo *str, int *ret)
 {
-	addr pos;
+	addr list;
 
 	if (! optimize_evaltype_on(str, EVAL_PARSE_PROGN))
 		return Result(ret, 0);
-	GetEvalParse(str->pos, 0, &pos);
-	return checkparse_implicit4_(str, pos, ret);
+	GetEvalParse(str->pos, 1, &list);
+	return checkparse_implicit4_(str, list, ret);
 }
 
 static int optparse_progn4_(OptimizeInfo *str, int *ret)
 {
 	int check;
-	addr pos;
+	addr form, list;
 
 	Return_check_optparse(checkparse_progn4_, str, ret);
-	GetEvalParse(str->pos, 0, &pos);
-	Return(optparse_implicit4_(str, pos, &pos, &check));
+	GetEvalParse(str->pos, 0, &form);
+	GetEvalParse(str->pos, 1, &list);
+	Return(optparse_implicit4_(str, list, &list, &check));
 	if (! check)
 		return Result(ret, 0);
-	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
-	str->pos = pos;
+	eval_parse2_local(str->local, &list, EVAL_PARSE_PROGN, form, list);
+	str->pos = list;
 
 	return Result(ret, 1);
 }
@@ -672,26 +678,27 @@ static int optparse_progn4_(OptimizeInfo *str, int *ret)
 /* (progn 10 (call1) 20 (call2) 30 40) -> (progn (call1) (call2) 40) */
 static int checkparse_progn5_(OptimizeInfo *str, int *ret)
 {
-	addr pos;
+	addr list;
 
 	if (! optimize_evaltype_on(str, EVAL_PARSE_PROGN))
 		return Result(ret, 0);
-	GetEvalParse(str->pos, 0, &pos);
-	return checkparse_implicit5_(str, pos, ret);
+	GetEvalParse(str->pos, 1, &list);
+	return checkparse_implicit5_(str, list, ret);
 }
 
 static int optparse_progn5_(OptimizeInfo *str, int *ret)
 {
 	int check;
-	addr pos;
+	addr form, list;
 
 	Return_check_optparse(checkparse_progn5_, str, ret);
-	GetEvalParse(str->pos, 0, &pos);
-	Return(optparse_implicit5_(str, pos, &pos, &check));
+	GetEvalParse(str->pos, 0, &form);
+	GetEvalParse(str->pos, 1, &list);
+	Return(optparse_implicit5_(str, list, &list, &check));
 	if (! check)
 		return Result(ret, 0);
-	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
-	str->pos = pos;
+	eval_parse2_local(str->local, &list, EVAL_PARSE_PROGN, form, list);
+	str->pos = list;
 
 	return Result(ret, 1);
 }
@@ -699,26 +706,27 @@ static int optparse_progn5_(OptimizeInfo *str, int *ret)
 /* (progn x (progn y) z) -> (progn x y z) */
 static int checkparse_progn6_(OptimizeInfo *str, int *ret)
 {
-	addr pos;
+	addr list;
 
 	if (! optimize_evaltype_on(str, EVAL_PARSE_PROGN))
 		return Result(ret, 0);
-	GetEvalParse(str->pos, 0, &pos);
-	return checkparse_implicit6_(str, pos, ret);
+	GetEvalParse(str->pos, 1, &list);
+	return checkparse_implicit6_(str, list, ret);
 }
 
 static int optparse_progn6_(OptimizeInfo *str, int *ret)
 {
 	int check;
-	addr pos;
+	addr form, list;
 
 	Return_check_optparse(checkparse_progn6_, str, ret);
-	GetEvalParse(str->pos, 0, &pos);
-	Return(optparse_implicit6_(str, pos, &pos, &check));
+	GetEvalParse(str->pos, 0, &form);
+	GetEvalParse(str->pos, 1, &list);
+	Return(optparse_implicit6_(str, list, &list, &check));
 	if (! check)
 		return Result(ret, 0);
-	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
-	str->pos = pos;
+	eval_parse2_local(str->local, &list, EVAL_PARSE_PROGN, form, list);
+	str->pos = list;
 
 	return Result(ret, 1);
 }
@@ -732,19 +740,20 @@ static int checkparse_progn_all_(OptimizeInfo *str, int *ret)
 	list = str->pos;
 	if (! optimize_evaltype(list, EVAL_PARSE_PROGN))
 		return Result(ret, 0);
-	GetEvalParse(list, 0, &list);
+	GetEvalParse(list, 1, &list);
 	return checkparse_implicit_all_(str, list, ret);
 }
 
 static int optparse_progn_all_(OptimizeInfo *str, int *ret)
 {
 	int ignore;
-	addr list;
+	addr form, list;
 
 	Return_check_optparse(checkparse_progn_all_, str, ret);
-	GetEvalParse(str->pos, 0, &list);
+	GetEvalParse(str->pos, 0, &form);
+	GetEvalParse(str->pos, 1, &list);
 	Return(optparse_implicit_all_(str, list, &list, &ignore));
-	eval_single_parse_local(str->local, &list, EVAL_PARSE_PROGN, list);
+	eval_parse2_local(str->local, &list, EVAL_PARSE_PROGN, form, list);
 	str->pos = list;
 
 	return Result(ret, 1);
@@ -809,8 +818,8 @@ static int checkparse_let1_(OptimizeInfo *str, int *ret)
 	if (! optimize_lettype_on(str))
 		return Result(ret, 0);
 	pos = str->pos;
-	GetEvalParse(pos, 0, &args); /* args */
-	GetEvalParse(pos, 2, &body); /* body */
+	GetEvalParse(pos, 1, &args); /* args */
+	GetEvalParse(pos, 3, &body); /* body */
 
 	return Result(ret, args == Nil && body == Nil);
 }
@@ -834,10 +843,10 @@ static int checkparse_let2_(OptimizeInfo *str, int *ret)
 	if (! optimize_lettype_on(str))
 		return Result(ret, 0);
 	pos = str->pos;
-	GetEvalParse(pos, 0, &args); /* args */
+	GetEvalParse(pos, 1, &args); /* args */
 	if (args == Nil)
 		return Result(ret, 0);
-	GetEvalParse(pos, 2, &body); /* body */
+	GetEvalParse(pos, 3, &body); /* body */
 	if (body != Nil)
 		return Result(ret, 0);
 	while (args != Nil) {
@@ -871,7 +880,7 @@ static int checkparse_let_args_(OptimizeInfo *str, int *ret)
 	pos = str->pos;
 	if (! optimize_lettype(pos))
 		return Result(ret, 0);
-	GetEvalParse(pos, 0, &pos); /* args */
+	GetEvalParse(pos, 1, &pos); /* args */
 	while (pos != Nil) {
 		GetCons(pos, &value, &pos);
 		GetCdr(value, &value); /* (var . init) */
@@ -887,15 +896,16 @@ static int optparse_let_args_(OptimizeInfo *str, int *ret)
 {
 	int update, check;
 	EvalParse type;
-	addr pos, args, decl, body, var, init, root;
+	addr pos, form, args, decl, body, var, init, root;
 	LocalRoot local;
 
 	Return_check_optparse(checkparse_let_args_, str, ret);
 	pos = str->pos;
 	GetEvalParseType(pos, &type);
-	GetEvalParse(pos, 0, &args);
-	GetEvalParse(pos, 1, &decl);
-	GetEvalParse(pos, 2, &body);
+	GetEvalParse(pos, 0, &form);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &body);
 
 	local = str->local;
 	update = 0;
@@ -911,10 +921,11 @@ static int optparse_let_args_(OptimizeInfo *str, int *ret)
 		return Result(ret, 0);
 	nreverse(&args, root);
 
-	eval_parse_local(local, &pos, type, 3);
-	SetEvalParse(pos, 0, args);
-	SetEvalParse(pos, 1, decl);
-	SetEvalParse(pos, 2, body);
+	eval_parse_local(local, &pos, type, 4);
+	SetEvalParse(pos, 0, form);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, body);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -959,8 +970,8 @@ static int checkparse_let_body_(OptimizeInfo *str, int *ret)
 	pos = str->pos;
 	if (! optimize_lettype(pos))
 		return Result(ret, 0);
-	GetEvalParse(pos, 1, &decl); /* decl */
-	GetEvalParse(pos, 2, &body); /* body */
+	GetEvalParse(pos, 2, &decl); /* decl */
+	GetEvalParse(pos, 3, &body); /* body */
 	if (body == Nil)
 		return Result(ret, 0);
 
@@ -971,22 +982,24 @@ static int optparse_let_body_(OptimizeInfo *str, int *ret)
 {
 	int check;
 	EvalParse type;
-	addr pos, args, decl, body;
+	addr pos, form, args, decl, body;
 
 	Return_check_optparse(checkparse_let_body_, str, ret);
 	pos = str->pos;
 	GetEvalParseType(pos, &type);
-	GetEvalParse(pos, 0, &args);
-	GetEvalParse(pos, 1, &decl);
-	GetEvalParse(pos, 2, &body);
+	GetEvalParse(pos, 0, &form);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &body);
 
 	Return(optparse_implicit_declare_(str, decl, body, &body, &check));
 	if (! check)
 		return Result(ret, 0);
-	eval_parse_local(str->local, &pos, type, 3);
-	SetEvalParse(pos, 0, args);
-	SetEvalParse(pos, 1, decl);
-	SetEvalParse(pos, 2, body);
+	eval_parse_local(str->local, &pos, type, 4);
+	SetEvalParse(pos, 0, form);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, body);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -1024,10 +1037,12 @@ static int optparse_let_(OptimizeInfo *str, int *ret)
 /* (setq) -> nil */
 static int checkparse_setq1_(OptimizeInfo *str, int *ret)
 {
+	addr list;
+
 	if (! optimize_evaltype_on(str, EVAL_PARSE_SETQ))
 		return Result(ret, 0);
-
-	return Result(ret, RefEvalParse(str->pos, 0) == Nil);
+	GetEvalParse(str->pos, 1, &list);
+	return Result(ret, list == Nil);
 }
 
 static int optparse_setq1_(OptimizeInfo *str, int *ret)
@@ -1051,7 +1066,7 @@ static int checkparse_setq_all_(OptimizeInfo *str, int *ret)
 	list = str->pos;
 	if (! optimize_evaltype(list, EVAL_PARSE_SETQ))
 		return Result(ret, 0);
-	GetEvalParse(list, 0, &list);
+	GetEvalParse(list, 1, &list);
 	while (list != Nil) {
 		GetCons(list, &x, &list);
 		GetCdr(x, &x); /* (var . expr) */
@@ -1066,11 +1081,12 @@ static int checkparse_setq_all_(OptimizeInfo *str, int *ret)
 static int optparse_setq_all_(OptimizeInfo *str, int *ret)
 {
 	int update, check;
-	addr list, root, var, expr;
+	addr form, list, root, var, expr;
 	LocalRoot local;
 
 	Return_check_optparse(checkparse_setq_all_, str, ret);
-	GetEvalParse(str->pos, 0, &list);
+	GetEvalParse(str->pos, 0, &form);
+	GetEvalParse(str->pos, 1, &list);
 	local = str->local;
 	update = 0;
 	for (root = Nil; list != Nil; ) {
@@ -1084,7 +1100,7 @@ static int optparse_setq_all_(OptimizeInfo *str, int *ret)
 	if (! update)
 		return Result(ret, 0);
 	nreverse(&list, root);
-	eval_single_parse_local(local, &list, EVAL_PARSE_SETQ, list);
+	eval_parse2_local(local, &list, EVAL_PARSE_SETQ, form, list);
 	str->pos = list;
 
 	return Result(ret, 1);
@@ -1295,7 +1311,7 @@ static int checkparse_defun_args_(OptimizeInfo *str, int *ret)
 	pos = str->pos;
 	if (! optimize_evaltype(pos, EVAL_PARSE_DEFUN))
 		return Result(ret, 0);
-	GetEvalParse(pos, 1, &pos);
+	GetEvalParse(pos, 2, &pos); /* args */
 	return checkparse_lambda_ordinary_(str, pos, ret);
 }
 
@@ -1306,23 +1322,23 @@ static int optparse_defun_args_(OptimizeInfo *str, int *ret)
 
 	Return_check_optparse(checkparse_defun_args_, str, ret);
 	pos = str->pos;
-	GetEvalParse(pos, 0, &name);
-	GetEvalParse(pos, 1, &args);
-	GetEvalParse(pos, 2, &decl);
-	GetEvalParse(pos, 3, &doc);
-	GetEvalParse(pos, 4, &body);
-	GetEvalParse(pos, 5, &form);
+	GetEvalParse(pos, 0, &form);
+	GetEvalParse(pos, 1, &name);
+	GetEvalParse(pos, 2, &args);
+	GetEvalParse(pos, 3, &decl);
+	GetEvalParse(pos, 4, &doc);
+	GetEvalParse(pos, 5, &body);
 
 	Return(optparse_lambda_ordinary_(str, args, &args, &check));
 	if (! check)
 		return Result(ret, 0);
 	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFUN, 6);
-	SetEvalParse(pos, 0, name);
-	SetEvalParse(pos, 1, args);
-	SetEvalParse(pos, 2, decl);
-	SetEvalParse(pos, 3, doc);
-	SetEvalParse(pos, 4, body);
-	SetEvalParse(pos, 5, form);
+	SetEvalParse(pos, 0, form);
+	SetEvalParse(pos, 1, name);
+	SetEvalParse(pos, 2, args);
+	SetEvalParse(pos, 3, decl);
+	SetEvalParse(pos, 4, doc);
+	SetEvalParse(pos, 5, body);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -1337,8 +1353,8 @@ static int checkparse_defun_body_(OptimizeInfo *str, int *ret)
 	pos = str->pos;
 	if (! optimize_evaltype(pos, EVAL_PARSE_DEFUN))
 		return Result(ret, 0);
-	GetEvalParse(pos, 2, &decl); /* decl */
-	GetEvalParse(pos, 4, &body); /* body */
+	GetEvalParse(pos, 3, &decl); /* decl */
+	GetEvalParse(pos, 5, &body); /* body */
 	if (body == Nil)
 		return Result(ret, 0);
 
@@ -1352,23 +1368,23 @@ static int optparse_defun_body_(OptimizeInfo *str, int *ret)
 
 	Return_check_optparse(checkparse_defun_body_, str, ret);
 	pos = str->pos;
-	GetEvalParse(pos, 0, &name);
-	GetEvalParse(pos, 1, &args);
-	GetEvalParse(pos, 2, &decl);
-	GetEvalParse(pos, 3, &doc);
-	GetEvalParse(pos, 4, &body);
-	GetEvalParse(pos, 5, &form);
+	GetEvalParse(pos, 0, &form);
+	GetEvalParse(pos, 1, &name);
+	GetEvalParse(pos, 2, &args);
+	GetEvalParse(pos, 3, &decl);
+	GetEvalParse(pos, 4, &doc);
+	GetEvalParse(pos, 5, &body);
 
 	Return(optparse_implicit_declare_(str, decl, body, &body, &check));
 	if (! check)
 		return Result(ret, 0);
 	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFUN, 6);
-	SetEvalParse(pos, 0, name);
-	SetEvalParse(pos, 1, args);
-	SetEvalParse(pos, 2, decl);
-	SetEvalParse(pos, 3, doc);
-	SetEvalParse(pos, 4, body);
-	SetEvalParse(pos, 5, form);
+	SetEvalParse(pos, 0, form);
+	SetEvalParse(pos, 1, name);
+	SetEvalParse(pos, 2, args);
+	SetEvalParse(pos, 3, decl);
+	SetEvalParse(pos, 4, doc);
+	SetEvalParse(pos, 5, body);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -1892,7 +1908,7 @@ static int checkparse_lambda_args_(OptimizeInfo *str, int *ret)
 	pos = str->pos;
 	if (! optimize_evaltype(pos, EVAL_PARSE_LAMBDA))
 		return Result(ret, 0);
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 	return checkparse_lambda_ordinary_(str, pos, ret);
 }
 
@@ -1903,21 +1919,21 @@ static int optparse_lambda_args_(OptimizeInfo *str, int *ret)
 
 	Return_check_optparse(checkparse_lambda_args_, str, ret);
 	pos = str->pos;
-	GetEvalParse(pos, 0, &args);
-	GetEvalParse(pos, 1, &decl);
-	GetEvalParse(pos, 2, &doc);
-	GetEvalParse(pos, 3, &body);
-	GetEvalParse(pos, 4, &form);
+	GetEvalParse(pos, 0, &form);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
 
 	Return(optparse_lambda_ordinary_(str, args, &args, &check));
 	if (! check)
 		return Result(ret, 0);
 	eval_parse_local(str->local, &pos, EVAL_PARSE_LAMBDA, 5);
-	SetEvalParse(pos, 0, args);
-	SetEvalParse(pos, 1, decl);
-	SetEvalParse(pos, 2, doc);
-	SetEvalParse(pos, 3, body);
-	SetEvalParse(pos, 4, form);
+	SetEvalParse(pos, 0, form);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -1932,8 +1948,8 @@ static int checkparse_lambda_body_(OptimizeInfo *str, int *ret)
 	pos = str->pos;
 	if (! optimize_evaltype(pos, EVAL_PARSE_LAMBDA))
 		return Result(ret, 0);
-	GetEvalParse(pos, 1, &decl); /* decl */
-	GetEvalParse(pos, 3, &body); /* body */
+	GetEvalParse(pos, 2, &decl); /* decl */
+	GetEvalParse(pos, 4, &body); /* body */
 	if (body == Nil)
 		return Result(ret, 0);
 
@@ -1947,21 +1963,21 @@ static int optparse_lambda_body_(OptimizeInfo *str, int *ret)
 
 	Return_check_optparse(checkparse_lambda_body_, str, ret);
 	pos = str->pos;
-	GetEvalParse(pos, 0, &args);
-	GetEvalParse(pos, 1, &decl);
-	GetEvalParse(pos, 2, &doc);
-	GetEvalParse(pos, 3, &body);
-	GetEvalParse(pos, 4, &form);
+	GetEvalParse(pos, 0, &form);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
 
 	Return(optparse_implicit_declare_(str, decl, body, &body, &check));
 	if (! check)
 		return Result(ret, 0);
 	eval_parse_local(str->local, &pos, EVAL_PARSE_LAMBDA, 5);
-	SetEvalParse(pos, 0, args);
-	SetEvalParse(pos, 1, decl);
-	SetEvalParse(pos, 2, doc);
-	SetEvalParse(pos, 3, body);
-	SetEvalParse(pos, 4, form);
+	SetEvalParse(pos, 0, form);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -2154,7 +2170,7 @@ static int optparse_unwind_protect1_(OptimizeInfo *str, int *ret)
 	cons_local(local, &root, form, root);
 	nreverse(&list, root);
 	/* progn */
-	eval_single_parse_local(local, &pos, EVAL_PARSE_PROGN, list);
+	eval_parse2_local(local, &pos, EVAL_PARSE_PROGN, Nil, list);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -2317,7 +2333,7 @@ static int optparse_tagbody2_(OptimizeInfo *str, int *ret)
 	cons_local(local, &root, pos, root);
 	nreverse(&root, root);
 	/* progn */
-	eval_single_parse_local(local, &pos, EVAL_PARSE_PROGN, root);
+	eval_parse2_local(local, &pos, EVAL_PARSE_PROGN, Nil, root);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -2564,7 +2580,7 @@ static int optparse_catch1_(OptimizeInfo *str, int *ret)
 	conscar_local(local, &list, pos);
 	cons_local(local, &list, name, list);
 	/* (progn name nil) */
-	eval_single_parse_local(local, &pos, EVAL_PARSE_PROGN, list);
+	eval_parse2_local(local, &pos, EVAL_PARSE_PROGN, Nil, list);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -2608,7 +2624,7 @@ static int optparse_catch2_(OptimizeInfo *str, int *ret)
 	conscar_local(local, &list, pos);
 	cons_local(local, &list, name, list);
 	/* (progn name lastcar) */
-	eval_single_parse_local(local, &pos, EVAL_PARSE_PROGN, list);
+	eval_parse2_local(local, &pos, EVAL_PARSE_PROGN, Nil, list);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -2843,7 +2859,7 @@ static int optparse_flet3_(OptimizeInfo *str, int *ret)
 
 	Return_check_optparse(checkparse_flet3_, str, ret);
 	GetEvalParse(str->pos, 2, &pos);
-	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
+	eval_parse2_local(str->local, &pos, EVAL_PARSE_PROGN, Nil, pos);
 	str->pos = pos;
 
 	return Result(ret, 1);
@@ -3281,7 +3297,7 @@ static int optparse_locally1_(OptimizeInfo *str, int *ret)
 
 	Return_check_optparse(checkparse_locally1_, str, ret);
 	GetEvalParse(str->pos, 1, &pos); /* body */
-	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
+	eval_parse2_local(str->local, &pos, EVAL_PARSE_PROGN, Nil, pos);
 	str->pos = pos;
 
 	return Result(ret, 1);

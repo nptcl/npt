@@ -9,7 +9,7 @@
 static int eval_scope_call_(Execute ptr, addr *ret, addr eval)
 {
 	Return(begin_eval_stack_(ptr));
-	return scope_eval_lexical(ptr, ret, eval);
+	return scope_eval_lexical_(ptr, ret, eval);
 }
 
 int eval_scope_(Execute ptr, addr *ret, addr eval)

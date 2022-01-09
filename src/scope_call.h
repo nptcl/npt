@@ -5,7 +5,7 @@
 #include "scope_typedef.h"
 #include "typedef.h"
 
-#define scope_symbol_call _n(scope_symbol_call)
+#define scope_symbol_call_ _n(scope_symbol_call_)
 #define scope_setq_call _n(scope_setq_call)
 #define scope_values_call _n(scope_values_call)
 #define scope_the_call _n(scope_the_call)
@@ -18,7 +18,7 @@
 #define scope_multiple_value_bind_call _n(scope_multiple_value_bind_call)
 #define scope_multiple_value_call_call _n(scope_multiple_value_call_call)
 
-int scope_symbol_call(Execute ptr, addr *ret, addr eval);
+int scope_symbol_call_(Execute ptr, addr *ret, addr eval);
 int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type);
 int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype);
 int scope_the_call(Execute ptr, addr type, addr form, addr *ret);

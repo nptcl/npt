@@ -81,3 +81,22 @@ void eval_single_parse_heap(addr *ret, EvalParse type, addr value)
 	eval_single_parse_alloc(NULL, ret, type, value);
 }
 
+void eval_parse2_alloc(LocalRoot local, addr *ret, EvalParse type, addr x, addr y)
+{
+	addr pos;
+
+	eval_parse_alloc(local, &pos, type, 2);
+	SetEvalParse(pos, 0, x);
+	SetEvalParse(pos, 1, y);
+	*ret = pos;
+}
+void eval_parse2_local(LocalRoot local, addr *ret, EvalParse type, addr x, addr y)
+{
+	Check(local == NULL, "local error");
+	eval_parse2_alloc(local, ret, type, x, y);
+}
+void eval_parse2_heap(addr *ret, EvalParse type, addr x, addr y)
+{
+	eval_parse2_alloc(NULL, ret, type, x, y);
+}
+
