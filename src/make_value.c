@@ -44,9 +44,20 @@ normal:
 	return (*call)(ptr, scope);
 }
 
+
 /* nil */
-int code_make_nil_(CodeMake ptr, addr ignore)
+int code_make_nil_(CodeMake ptr, addr scope)
 {
+	if (scope == NULL)
+		goto normal;
+	if (! scope_step_p(scope))
+		goto normal;
+	CodeQueue_cons(ptr, STEP, Nil);
+	code_make_single(ptr, CONSTANT_CODE_NIL_SET, CONSTANT_CODE_NIL_PUSH);
+	CodeQueue_single(ptr, STEP_OFF);
+	return 0;
+
+normal:
 	code_make_single(ptr, CONSTANT_CODE_NIL_SET, CONSTANT_CODE_NIL_PUSH);
 	return 0;
 }
@@ -299,8 +310,8 @@ int code_make_lexical_(CodeMake ptr, addr scope)
 	addr list, pos;
 	fixnum id;
 
-	GetEvalScopeIndex(scope, 0, &list);
-	GetEvalScopeValue(scope, &pos);
+	GetEvalScopeIndex(scope, 0, &pos);
+	GetEvalScopeIndex(scope, 1, &list);
 	if (list == Nil)
 		return code_make_execute_(ptr, pos);
 
@@ -771,7 +782,7 @@ static int code_if_not_p(addr scope)
 	GetEvalScopeIndex(scope, 0, &call);
 	if (RefEvalScopeType(scope) != EVAL_PARSE_FUNCTION)
 		return 0;
-	GetEvalScopeValue(call, &call);
+	GetEvalScopeIndex(call, 0, &call);
 	getname_tablefunction(call, &call);
 	if (! symbolp_callname(call))
 		return 0;
@@ -820,7 +831,7 @@ static int code_if_false_(CodeMake ptr, addr then, addr last, addr escape)
 		return code_make_execute_(ptr, last);
 }
 
-int code_make_if_(CodeMake ptr, addr scope)
+static int code_make_if_call_(CodeMake ptr, addr scope)
 {
 	addr expr, then, last, escape;
 
@@ -845,9 +856,14 @@ int code_make_if_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_if_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_if_call_);
+}
+
 
 /* unwind-protect */
-int code_make_unwind_protect_(CodeMake ptr, addr scope)
+static int code_make_unwind_protect_call_(CodeMake ptr, addr scope)
 {
 	addr form, cons, escape;
 	fixnum id;
@@ -856,7 +872,6 @@ int code_make_unwind_protect_(CodeMake ptr, addr scope)
 	GetEvalScopeIndex(scope, 1, &cons);
 
 	code_queue_make_label(ptr, &escape);
-
 	/* form */
 	Return(code_make_execute_(ptr, form));
 	/* protect */
@@ -869,6 +884,11 @@ int code_make_unwind_protect_(CodeMake ptr, addr scope)
 	code_make_end(ptr, id);
 
 	return 0;
+}
+
+int code_make_unwind_protect_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_unwind_protect_call_);
 }
 
 
@@ -936,7 +956,7 @@ static int code_tagbody_body_(CodeMake ptr, addr tag, addr cons)
 	return 0;
 }
 
-int code_make_tagbody_(CodeMake ptr, addr scope)
+static int code_make_tagbody_call_(CodeMake ptr, addr scope)
 {
 	addr tag, cons;
 
@@ -953,6 +973,11 @@ int code_make_tagbody_(CodeMake ptr, addr scope)
 		return code_tagbody_body_(ptr, tag, cons);
 }
 
+int code_make_tagbody_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_tagbody_call_);
+}
+
 
 /* go */
 int code_make_go_(CodeMake ptr, addr scope)
@@ -967,7 +992,7 @@ int code_make_go_(CodeMake ptr, addr scope)
 
 
 /* block */
-int code_make_block_(CodeMake ptr, addr scope)
+static int code_make_block_call_(CodeMake ptr, addr scope)
 {
 	addr name, cons, escape, normal, finish;
 	fixnum id;
@@ -1005,9 +1030,14 @@ int code_make_block_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_block_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_block_call_);
+}
+
 
 /* return-from */
-int code_make_return_from_(CodeMake ptr, addr scope)
+static int code_make_return_from_call_(CodeMake ptr, addr scope)
 {
 	addr pos, form, escape;
 
@@ -1028,9 +1058,14 @@ int code_make_return_from_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_return_from_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_return_from_call_);
+}
+
 
 /* catch */
-int code_make_catch_(CodeMake ptr, addr scope)
+static int code_make_catch_call_(CodeMake ptr, addr scope)
 {
 	addr name, cons, escape, normal, finish;
 	fixnum id;
@@ -1071,9 +1106,14 @@ int code_make_catch_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_catch_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_catch_call_);
+}
+
 
 /* throw */
-int code_make_throw_(CodeMake ptr, addr scope)
+static int code_make_throw_call_(CodeMake ptr, addr scope)
 {
 	addr name, form, escape;
 	fixnum id;
@@ -1096,6 +1136,11 @@ int code_make_throw_(CodeMake ptr, addr scope)
 	code_make_end(ptr, id);
 
 	return 0;
+}
+
+int code_make_throw_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_throw_call_);
 }
 
 

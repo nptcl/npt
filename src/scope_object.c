@@ -234,14 +234,15 @@ int localhold_scope_allcons(LocalHold hold,
  */
 static int scope_eval_lexical_object_(Execute ptr, addr stack, addr eval, addr *ret)
 {
-	addr type, pos;
+	addr type, pos, list;
 
-	lambda_lexical_heap(stack, &pos);
+	lambda_lexical_heap(stack, &list);
 	GetEvalScopeThe(eval, &type);
-	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_LEXICAL, type, eval));
-	SetEvalScopeIndex(eval, 0, pos);
+	Return(eval_scope_size_(ptr, &pos, 2, EVAL_PARSE_LEXICAL, type, Nil));
+	SetEvalScopeIndex(pos, 0, eval);
+	SetEvalScopeIndex(pos, 1, list);
 
-	return Result(ret, eval);
+	return Result(ret, pos);
 }
 
 int scope_eval_lexical_(Execute ptr, addr *ret, addr eval)

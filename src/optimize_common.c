@@ -436,7 +436,7 @@ static void optimize_common_symbol(addr scope, addr *ret)
 
 	GetEvalScopeIndex(scope, 0, &call); /* first */
 	Check(RefEvalScopeType(call) != EVAL_PARSE_FUNCTION, "type error");
-	GetEvalScopeValue(call, &call);
+	GetEvalScopeIndex(call, 0, &call);
 	getname_tablefunction(call, &call);
 	Check(RefCallNameType(call) != CALLNAME_SYMBOL, "callname error");
 	GetCallName(call, ret);

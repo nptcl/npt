@@ -382,19 +382,21 @@ static void copy_eval_define_compiler_macro(LocalRoot local, addr *ret, addr eva
 static void copy_eval_destructuring_bind(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr expr, lambda;
+	addr form, expr, lambda;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_DESTRUCTURING_BIND, "parse error");
-	GetEvalParse(eval, 0, &expr);
-	GetEvalParse(eval, 1, &lambda);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &lambda);
 
 	copy_eval_parse(local, &expr, expr);
 	copy_eval_macro_lambda(local, &lambda, lambda);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, expr);
-	SetEvalParse(eval, 1, lambda);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, lambda);
 	*ret = eval;
 }
 
@@ -430,22 +432,24 @@ static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_if(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr expr, then, last;
+	addr form, expr, then, last;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_IF, "parse error");
-	GetEvalParse(eval, 0, &expr);
-	GetEvalParse(eval, 1, &then);
-	GetEvalParse(eval, 2, &last);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &then);
+	GetEvalParse(eval, 3, &last);
 
 	copy_eval_parse(local, &expr, expr);
 	copy_eval_parse(local, &then, then);
 	copy_eval_parse(local, &last, last);
 
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, expr);
-	SetEvalParse(eval, 1, then);
-	SetEvalParse(eval, 2, last);
+	eval_parse_alloc(local, &eval, type, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, then);
+	SetEvalParse(eval, 3, last);
 	*ret = eval;
 }
 
@@ -453,19 +457,21 @@ static void copy_eval_if(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_unwind_protect(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr form, cons;
+	addr form, expr, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_UNWIND_PROTECT, "parse error");
 	GetEvalParse(eval, 0, &form);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &cons);
 
-	copy_eval_parse(local, &form, form);
+	copy_eval_parse(local, &expr, expr);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
+	eval_parse_alloc(local, &eval, type, 3);
 	SetEvalParse(eval, 0, form);
-	SetEvalParse(eval, 1, cons);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -473,19 +479,21 @@ static void copy_eval_unwind_protect(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_tagbody(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr tag, cons;
+	addr form, tag, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_TAGBODY, "parse error");
-	GetEvalParse(eval, 0, &tag);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &tag);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_allcons(local, &tag, tag);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, tag);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, tag);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -508,18 +516,20 @@ static void copy_eval_tag(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_block(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr name, cons;
+	addr form, name, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_BLOCK, "parse error");
-	GetEvalParse(eval, 0, &name);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &name);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, name);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, name);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -527,18 +537,20 @@ static void copy_eval_block(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_return_from(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr name, value;
+	addr form, name, value;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_RETURN_FROM, "parse error");
-	GetEvalParse(eval, 0, &name);
-	GetEvalParse(eval, 1, &value);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &name);
+	GetEvalParse(eval, 2, &value);
 
 	copy_eval_parse(local, &value, value);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, name);
-	SetEvalParse(eval, 1, value);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, name);
+	SetEvalParse(eval, 2, value);
 	*ret = eval;
 }
 
@@ -546,19 +558,21 @@ static void copy_eval_return_from(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_catch(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr tag, cons;
+	addr form, tag, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_CATCH, "parse error");
-	GetEvalParse(eval, 0, &tag);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &tag);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_parse(local, &tag, tag);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, tag);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, tag);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -566,19 +580,21 @@ static void copy_eval_catch(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_throw(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr tag, result;
+	addr form, tag, result;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_THROW, "parse error");
-	GetEvalParse(eval, 0, &tag);
-	GetEvalParse(eval, 1, &result);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &tag);
+	GetEvalParse(eval, 2, &result);
 
 	copy_eval_parse(local, &tag, tag);
 	copy_eval_parse(local, &result, result);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, tag);
-	SetEvalParse(eval, 1, result);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, tag);
+	SetEvalParse(eval, 2, result);
 	*ret = eval;
 }
 
@@ -902,7 +918,7 @@ void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_STRING] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_SYMBOL] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_FLOAT] = copy_eval_single;
-	EvalCopyTable[EVAL_PARSE_FUNCTION] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_FUNCTION] = copy_eval_double;
 	EvalCopyTable[EVAL_PARSE_PACKAGE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_RANDOM_STATE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_PATHNAME] = copy_eval_single;

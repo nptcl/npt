@@ -203,7 +203,7 @@ static int test_copy_function(void)
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_function1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_FUNCTION, "copy_function2");
-	GetEvalParse(pos, 0, &pos);
+	GetEvalParse(pos, 1, &pos);
 	test(GetType(pos) == LISPTYPE_CALLNAME, "copy_function3");
 	GetCallName(pos, &pos);
 	GetNameSymbol(pos, &pos);
@@ -612,19 +612,19 @@ static int test_copy_if(void)
 	test(! GetStatusDynamic(pos), "copy_if2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_IF, "copy_if3");
 	/* expr */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_if4");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_if5");
 	/* then */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_if6");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "bb");
 	test(var == check, "copy_if7");
 	/* last  */
-	GetEvalParse(pos, 2, &var);
+	GetEvalParse(pos, 3, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_if8");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "cc");
@@ -644,13 +644,13 @@ static int test_copy_unwind_protect(void)
 	test(! GetStatusDynamic(pos), "copy_unwind_protect2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_UNWIND_PROTECT, "copy_unwind_protect3");
 	/* form */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_unwind_protect4");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_unwind_protect5");
 	/* cons */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(length_list_unsafe(var) == 2, "copy_unwind_protect6");
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_unwind_protect7");
@@ -672,7 +672,7 @@ static int test_copy_tagbody(void)
 	test(! GetStatusDynamic(pos), "copy_tagbody2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_TAGBODY, "copy_tagbody3");
 	/* tag */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	test(length_list_unsafe(var) == 2, "copy_tagbody4");
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_TAG, "copy_tagbody5");
@@ -680,7 +680,7 @@ static int test_copy_tagbody(void)
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_tagbody7");
 	/* cons */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(length_list_unsafe(var) == 4, "copy_tagbody8");
 	GetCdr(var, &var); /* aa */
 	GetCar(var, &var); /* (progn) */
@@ -695,7 +695,7 @@ static int test_copy_tag(void)
 
 	readstring_debug(&check, "(tagbody aa bb cc)");
 	test_eval_copy_parse(&check, check);
-	GetEvalParse(check, 0, &check);
+	GetEvalParse(check, 1, &check);
 	GetCar(check, &check); /* tag aa */
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_tag1");
@@ -720,11 +720,11 @@ static int test_copy_block(void)
 	test(! GetStatusDynamic(pos), "copy_block2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_BLOCK, "copy_block3");
 	/* name */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_block4");
 	/* cons */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(length_list_unsafe(var) == 2, "copy_block5");
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_block6");
@@ -746,11 +746,11 @@ static int test_copy_return_from(void)
 	test(! GetStatusDynamic(pos), "copy_return_from2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_RETURN_FROM, "copy_return_from3");
 	/* name */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_return_from4");
 	/* value */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_return_from5");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "bb");
@@ -770,13 +770,13 @@ static int test_copy_catch(void)
 	test(! GetStatusDynamic(pos), "copy_catch2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_CATCH, "copy_catch3");
 	/* name */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_catch4");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_catch5");
 	/* cons */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(length_list_unsafe(var) == 2, "copy_catch6");
 	GetCar(var, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_catch7");
@@ -798,13 +798,13 @@ static int test_copy_throw(void)
 	test(! GetStatusDynamic(pos), "copy_throw2");
 	test(RefEvalParseType(pos) == EVAL_PARSE_THROW, "copy_throw3");
 	/* name */
-	GetEvalParse(pos, 0, &var);
+	GetEvalParse(pos, 1, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_throw4");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "aa");
 	test(var == check, "copy_throw5");
 	/* cons */
-	GetEvalParse(pos, 1, &var);
+	GetEvalParse(pos, 2, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_SYMBOL, "copy_throw6");
 	GetEvalParse(var, 0, &var);
 	readstring_debug(&check, "bb");
@@ -1028,7 +1028,7 @@ static int test_copy_call(void)
 	/* type */
 	GetEvalParse(pos, 0, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_FUNCTION, "copy_call4");
-	GetEvalParse(var, 0, &var);
+	GetEvalParse(var, 1, &var);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_call5");
 	GetCallName(var, &var);
 	readstring_debug(&check, "hello");
@@ -1073,7 +1073,7 @@ static int test_copy_multiple_value_call(void)
 	/* type */
 	GetEvalParse(pos, 0, &var);
 	test(RefEvalParseType(var) == EVAL_PARSE_FUNCTION, "copy_multiple_value_call4");
-	GetEvalParse(var, 0, &var);
+	GetEvalParse(var, 1, &var);
 	test(GetType(var) == LISPTYPE_CALLNAME, "copy_multiple_value_call5");
 	GetCallName(var, &var);
 	readstring_debug(&check, "hello");

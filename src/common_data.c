@@ -540,7 +540,7 @@ static void defmacro_defvar(void)
 /* (defmacro destructuring-bind (lambda expr &body body) ...) -> t */
 static int function_destructuring_bind(Execute ptr, addr form, addr env)
 {
-	Return(destructuring_bind_common(ptr, form, env, &form));
+	Return(destructuring_bind_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

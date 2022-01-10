@@ -23,7 +23,7 @@ static int code_make_specialize_common_p(addr call)
 
 	if (RefEvalScopeType(call) != EVAL_PARSE_FUNCTION)
 		return 0;
-	GetEvalScopeValue(call, &call);
+	GetEvalScopeIndex(call, 0, &call);
 	getname_tablefunction(call, &call);
 	if (RefCallNameType(call) != CALLNAME_SYMBOL)
 		return 0;
@@ -41,7 +41,7 @@ static int code_make_specialize_symbol_p(addr call, constindex index)
 	if (RefEvalScopeType(call) != EVAL_PARSE_FUNCTION)
 		return 0;
 	GetConstant(index, &left);
-	GetEvalScopeValue(call, &call);
+	GetEvalScopeIndex(call, 0, &call);
 	getname_tablefunction(call, &call);
 	GetCallName(call, &right);
 	return RefCallNameType(call) == CALLNAME_SYMBOL && left == right;
@@ -421,7 +421,7 @@ static int code_make_call_first_(CodeMake ptr, addr pos, addr escape)
 
 	switch (RefEvalScopeType(pos)) {
 		case EVAL_PARSE_FUNCTION:
-			GetEvalScopeValue(pos, &table);
+			GetEvalScopeIndex(pos, 0, &table);
 			code_make_call_function(ptr, table);
 			code_jump_escape_wake(ptr, escape);
 			return 0;
@@ -444,7 +444,7 @@ static int code_make_call_name_(CodeMake ptr, addr pos)
 {
 	switch (RefEvalScopeType(pos)) {
 		case EVAL_PARSE_FUNCTION:
-			GetEvalScopeValue(pos, &pos);
+			GetEvalScopeIndex(pos, 0, &pos);
 			getname_tablefunction(pos, &pos);
 			CodeQueue_cons(ptr, CALL_NAME, pos);
 			return 0;

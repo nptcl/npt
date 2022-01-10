@@ -16,7 +16,7 @@
 #define defconstant_common _n(defconstant_common)
 #define defparameter_common _n(defparameter_common)
 #define defvar_common _n(defvar_common)
-#define destructuring_bind_common _n(destructuring_bind_common)
+#define destructuring_bind_common_ _n(destructuring_bind_common_)
 #define psetq_common _n(psetq_common)
 #define psetf_common _n(psetf_common)
 #define return_common _n(return_common)
@@ -64,7 +64,7 @@ void lambda_list_keywords_common(addr *ret);
 int defconstant_common(addr form, addr env, addr *ret);
 int defparameter_common(addr form, addr env, addr *ret);
 int defvar_common(addr form, addr env, addr *ret);
-int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret);
+int destructuring_bind_common_(Execute ptr, addr form, addr env, addr *ret);
 int psetq_common(Execute ptr, addr form, addr env, addr *ret);
 int psetf_common(Execute ptr, addr form, addr env, addr *ret);
 int return_common(addr form, addr env, addr *ret);

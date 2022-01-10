@@ -190,9 +190,9 @@ static void code_function_lexical(CodeMake ptr, addr pos)
 	}
 }
 
-int code_make_function_(CodeMake ptr, addr scope)
+static int code_make_function_call_(CodeMake ptr, addr scope)
 {
-	GetEvalScopeValue(scope, &scope);
+	GetEvalScopeIndex(scope, 0, &scope);
 	if (functionp(scope))
 		code_function_object(ptr, scope);
 	else if (getglobalp_tablefunction(scope))
@@ -201,6 +201,11 @@ int code_make_function_(CodeMake ptr, addr scope)
 		code_function_lexical(ptr, scope);
 
 	return 0;
+}
+
+int code_make_function_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_function_call_);
 }
 
 
@@ -607,7 +612,7 @@ static int code_lambda_set_(CodeMake ptr, addr scope)
 	return 0;
 }
 
-int code_make_defun_(CodeMake ptr, addr scope)
+static int code_make_defun_call_(CodeMake ptr, addr scope)
 {
 	addr escape;
 
@@ -619,6 +624,11 @@ int code_make_defun_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, escape);
 
 	return 0;
+}
+
+int code_make_defun_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_defun_call_);
 }
 
 
@@ -1024,7 +1034,7 @@ static int code_make_bind_execute_(CodeMake ptr, addr scope, addr escape)
 	return 0;
 }
 
-int code_make_destructuring_bind_(CodeMake ptr, addr scope)
+static int code_make_destructuring_bind_call_(CodeMake ptr, addr scope)
 {
 	addr escape, finish;
 	fixnum id;
@@ -1046,6 +1056,11 @@ int code_make_destructuring_bind_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, finish);
 
 	return 0;
+}
+
+int code_make_destructuring_bind_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_destructuring_bind_call_);
 }
 
 

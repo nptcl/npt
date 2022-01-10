@@ -482,7 +482,7 @@ static int check_destructuring_bind(addr pos)
 	return 0;
 }
 
-int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
+int destructuring_bind_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, lambda, expr, decl, eval;
 	LocalHold hold;
@@ -505,7 +505,7 @@ int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
 	localhold_end(hold);
 	/* (eval::destructuring-bind lambda expr decl args) */
 	GetConst(SYSTEM_DESTRUCTURING_BIND, &eval);
-	list_heap(ret, eval, lambda, expr, decl, args, NULL);
+	list_heap(ret, eval, lambda, expr, decl, args, form, NULL);
 	return 0;
 
 error:

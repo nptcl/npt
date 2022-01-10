@@ -426,34 +426,45 @@ static int callname_tablefunction_(Execute ptr,
 
 static int scope_function_object_(Execute ptr, addr *ret, addr eval)
 {
-	addr type;
+	addr form, value, type;
 
-	gettype_function(eval, &type);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &value);
+	gettype_function(value, &type);
 	if (type == Nil)
 		GetTypeTable(&type, Function);
 
-	return make_eval_scope_(ptr, ret, EVAL_PARSE_FUNCTION, type, eval);
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_FUNCTION, type, form));
+	SetEvalScopeIndex(eval, 0, value);
+	return Result(ret, eval);
 }
 
-static int scope_function_callname_(Execute ptr, addr *ret, addr call)
+static int scope_function_callname_(Execute ptr, addr *ret, addr eval)
 {
 	int ignore;
-	addr value, type, stack;
+	addr form, value, type, stack;
 
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &value);
 	Return(getstack_eval_(ptr, &stack));
-	Return(callname_tablefunction_(ptr, stack, call, &value, &ignore));
+	Return(callname_tablefunction_(ptr, stack, value, &value, &ignore));
 	gettype_tablefunction(value, &type);
-	return make_eval_scope_(ptr, ret, EVAL_PARSE_FUNCTION, type, value);
+
+	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_FUNCTION, type, form));
+	SetEvalScopeIndex(eval, 0, value);
+	return Result(ret, eval);
 }
 
 int scope_function_call_(Execute ptr, addr *ret, addr eval)
 {
-	GetEvalParse(eval, 0, &eval);
-	if (functionp(eval))
+	addr value;
+
+	GetEvalParse(eval, 1, &value);
+	if (functionp(value))
 		return scope_function_object_(ptr, ret, eval);
-	if (callnamep(eval))
+	if (callnamep(value))
 		return scope_function_callname_(ptr, ret, eval);
 
-	return fmte_("Invalid object type ~S", eval, NULL);
+	return fmte_("Invalid object type ~S", value, NULL);
 }
 

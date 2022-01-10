@@ -15,7 +15,7 @@
 int scope_defun_call_(Execute ptr, struct lambda_struct *str, addr *ret);
 int scope_deftype_call_(Execute ptr, struct lambda_struct *str, addr *ret);
 int scope_define_compiler_macro_call_(Execute ptr, struct lambda_struct *str, addr *ret);
-int scope_bind_call_(Execute ptr, addr *ret, addr expr, addr args);
+int scope_bind_call_(Execute ptr, addr *ret, addr form, addr expr, addr args);
 int scope_flet_call_(Execute ptr, struct let_struct *str);
 int scope_labels_call_(Execute ptr, struct let_struct *str);
 

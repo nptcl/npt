@@ -114,7 +114,7 @@ static int scope_bind_lambda_(Execute ptr, struct lambda_struct *str, addr *ret)
 	return 0;
 }
 
-int scope_bind_call_(Execute ptr, addr *ret, addr expr, addr args)
+int scope_bind_call_(Execute ptr, addr *ret, addr form, addr expr, addr args)
 {
 	addr lambda, eval;
 	struct lambda_struct str;
@@ -129,7 +129,7 @@ int scope_bind_call_(Execute ptr, addr *ret, addr expr, addr args)
 
 	/* result */
 	Return(eval_scope_size_(ptr, &eval, 5,
-				EVAL_PARSE_DESTRUCTURING_BIND, str.body_the, Nil));
+				EVAL_PARSE_DESTRUCTURING_BIND, str.body_the, form));
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, str.args);
 	SetEvalScopeIndex(eval, 2, str.decl);
