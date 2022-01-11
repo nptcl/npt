@@ -97,29 +97,30 @@ int get_load_size_(Execute ptr, addr *ret)
  *  parse
  */
 static int parse_load_time_value_make_(Execute ptr, addr *ret,
-		addr value, addr readonly, addr index, addr type)
+		addr form, addr expr, addr readonly, addr index, addr type)
 {
 	addr eval;
 
-	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 4);
-	SetEvalParse(eval, 0, value);
-	SetEvalParse(eval, 1, (readonly != Nil)? T: Nil);
-	SetEvalParse(eval, 2, index);
-	SetEvalParse(eval, 3, type);
+	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 5);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, (readonly != Nil)? T: Nil);
+	SetEvalParse(eval, 3, index);
+	SetEvalParse(eval, 4, type);
 
 	return Result(ret, eval);
 }
 
-static int parse_load_time_value_compile_(Execute ptr,
-		addr *ret, addr value, addr readonly)
+static int parse_load_time_value_compile_(Execute ptr, addr *ret,
+		addr form, addr expr, addr readonly)
 {
 	addr index, type;
-	Return(compile_partial_(ptr, value, &index, &type));
-	return parse_load_time_value_make_(ptr, ret, value, readonly, index, type);
+	Return(compile_partial_(ptr, expr, &index, &type));
+	return parse_load_time_value_make_(ptr, ret, form, expr, readonly, index, type);
 }
 
-static int parse_load_time_value_eval_(Execute ptr,
-		addr *ret, addr expr, addr readonly)
+static int parse_load_time_value_eval_(Execute ptr, addr *ret,
+		addr form, addr expr, addr readonly)
 {
 	Return(eval_result_partial_(ptr, expr, &expr));
 	return parse_execute_(ptr, ret, expr);
@@ -130,7 +131,8 @@ int parse_load_time_value_(Execute ptr, addr *ret, addr form)
 	addr args, expr, readonly;
 
 	/* parse */
-	if (! consp_getcons(form, &expr, &args))
+	GetCdr(form, &args);
+	if (! consp_getcons(args, &expr, &args))
 		goto error;
 	if (args == Nil)
 		readonly = Nil;
@@ -141,9 +143,9 @@ int parse_load_time_value_(Execute ptr, addr *ret, addr form)
 
 	/* mode */
 	if (eval_compile_p(ptr))
-		return parse_load_time_value_compile_(ptr, ret, expr, readonly);
+		return parse_load_time_value_compile_(ptr, ret, form, expr, readonly);
 	else
-		return parse_load_time_value_eval_(ptr, ret, expr, readonly);
+		return parse_load_time_value_eval_(ptr, ret, form, expr, readonly);
 
 error:
 	*ret = Nil;
@@ -158,20 +160,22 @@ error:
 void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr value, readonly, index, the;
+	addr form, expr, readonly, index, the;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LOAD_TIME_VALUE, "parse error");
-	GetEvalParse(eval, 0, &value);
-	GetEvalParse(eval, 1, &readonly);
-	GetEvalParse(eval, 2, &index);
-	GetEvalParse(eval, 3, &the);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &readonly);
+	GetEvalParse(eval, 3, &index);
+	GetEvalParse(eval, 4, &the);
 
-	eval_parse_alloc(local, &eval, type, 4);
-	SetEvalParse(eval, 0, value);
-	SetEvalParse(eval, 1, readonly);
-	SetEvalParse(eval, 2, index);
-	SetEvalParse(eval, 3, the);
+	eval_parse_alloc(local, &eval, type, 5);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, readonly);
+	SetEvalParse(eval, 3, index);
+	SetEvalParse(eval, 4, the);
 	*ret = eval;
 }
 
@@ -181,7 +185,7 @@ void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
  */
 int scope_load_time_value_(Execute ptr, addr *ret, addr eval)
 {
-	addr value, readonly, index, type;
+	addr form, expr, readonly, index, type;
 
 	if (! eval_compile_p(ptr)) {
 		*ret = Nil;
@@ -189,14 +193,15 @@ int scope_load_time_value_(Execute ptr, addr *ret, addr eval)
 	}
 
 	/* parse */
-	GetEvalParse(eval, 0, &value);
-	GetEvalParse(eval, 1, &readonly);
-	GetEvalParse(eval, 2, &index);
-	GetEvalParse(eval, 3, &type);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &readonly);
+	GetEvalParse(eval, 3, &index);
+	GetEvalParse(eval, 4, &type);
 
 	/* eval */
-	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil));
-	SetEvalScopeIndex(eval, 0, value);
+	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOAD_TIME_VALUE, type, form));
+	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, index);
 	SetEvalScopeIndex(eval, 2, readonly);
 

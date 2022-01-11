@@ -628,22 +628,24 @@ static void copy_eval_flet_args(LocalRoot local, addr *ret, addr cons)
 static void copy_eval_flet(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr args, decl, cons;
+	addr form, args, decl, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_FLET && type != EVAL_PARSE_LABELS, "parse error");
-	GetEvalParse(eval, 0, &args);
-	GetEvalParse(eval, 1, &decl);
-	GetEvalParse(eval, 2, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &args);
+	GetEvalParse(eval, 2, &decl);
+	GetEvalParse(eval, 3, &cons);
 
 	copy_eval_flet_args(local, &args, args);
 	copy_eval_declaim_nil(local, &decl, decl);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, cons);
+	eval_parse_alloc(local, &eval, type, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, cons);
 	*ret = eval;
 }
 
@@ -651,19 +653,21 @@ static void copy_eval_flet(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_the(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr ptype, expr;
+	addr form, the, expr;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_THE, "parse error");
-	GetEvalParse(eval, 0, &ptype);
-	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &the);
+	GetEvalParse(eval, 2, &expr);
 
-	type_copy_alloc(local, &ptype, ptype);
+	type_copy_alloc(local, &the, the);
 	copy_eval_parse(local, &expr, expr);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, ptype);
-	SetEvalParse(eval, 1, expr);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, the);
+	SetEvalParse(eval, 2, expr);
 	*ret = eval;
 }
 
@@ -671,26 +675,28 @@ static void copy_eval_the(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_eval_when(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr cons, compile, load, exec, toplevel, mode;
+	addr form, cons, compile, load, exec, toplevel, mode;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_EVAL_WHEN, "parse error");
-	GetEvalParse(eval, 0, &cons);
-	GetEvalParse(eval, 1, &compile);
-	GetEvalParse(eval, 2, &load);
-	GetEvalParse(eval, 3, &exec);
-	GetEvalParse(eval, 4, &toplevel);
-	GetEvalParse(eval, 5, &mode);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 2, &compile);
+	GetEvalParse(eval, 3, &load);
+	GetEvalParse(eval, 4, &exec);
+	GetEvalParse(eval, 5, &toplevel);
+	GetEvalParse(eval, 6, &mode);
 
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 6);
-	SetEvalParse(eval, 0, cons);
-	SetEvalParse(eval, 1, compile);
-	SetEvalParse(eval, 2, load);
-	SetEvalParse(eval, 3, exec);
-	SetEvalParse(eval, 4, toplevel);
-	SetEvalParse(eval, 5, mode);
+	eval_parse_alloc(local, &eval, type, 7);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, cons);
+	SetEvalParse(eval, 2, compile);
+	SetEvalParse(eval, 3, load);
+	SetEvalParse(eval, 4, exec);
+	SetEvalParse(eval, 5, toplevel);
+	SetEvalParse(eval, 6, mode);
 	*ret = eval;
 }
 
@@ -698,31 +704,35 @@ static void copy_eval_eval_when(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_values(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
+	addr form;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_VALUES, "parse error");
-	GetEvalParse(eval, 0, &eval);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &eval);
 	copy_eval_allcons(local, &eval, eval);
-	eval_single_parse_alloc(local, ret, type, eval);
+	eval_parse2_alloc(local, ret, type, form, eval);
 }
 
 /* locally */
 static void copy_eval_locally(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr decl, cons;
+	addr form, decl, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LOCALLY, "parse error");
-	GetEvalParse(eval, 0, &decl);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &decl);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_declaim_nil(local, &decl, decl);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, decl);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -730,19 +740,21 @@ static void copy_eval_locally(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_call(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr call, cons;
+	addr form, call, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_CALL, "parse error");
-	GetEvalParse(eval, 0, &call);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &call);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_parse(local, &call, call);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, call);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, call);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -750,25 +762,27 @@ static void copy_eval_call(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr vars, expr, decl, doc, form;
+	addr form, vars, expr, decl, doc, body;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_MULTIPLE_VALUE_BIND, "parse error");
-	GetEvalParse(eval, 0, &vars);
-	GetEvalParse(eval, 1, &expr);
-	GetEvalParse(eval, 2, &decl);
-	GetEvalParse(eval, 3, &doc);
-	GetEvalParse(eval, 4, &form);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &vars);
+	GetEvalParse(eval, 2, &expr);
+	GetEvalParse(eval, 3, &decl);
+	GetEvalParse(eval, 4, &doc);
+	GetEvalParse(eval, 5, &body);
 
 	copy_eval_parse(local, &expr, expr);
-	copy_eval_allcons(local, &form, form);
+	copy_eval_allcons(local, &body, body);
 
-	eval_parse_alloc(local, &eval, type, 5);
-	SetEvalParse(eval, 0, vars);
-	SetEvalParse(eval, 1, expr);
-	SetEvalParse(eval, 2, decl);
-	SetEvalParse(eval, 3, doc);
-	SetEvalParse(eval, 4, form);
+	eval_parse_alloc(local, &eval, type, 6);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, vars);
+	SetEvalParse(eval, 2, expr);
+	SetEvalParse(eval, 3, decl);
+	SetEvalParse(eval, 4, doc);
+	SetEvalParse(eval, 5, body);
 	*ret = eval;
 }
 
@@ -776,19 +790,21 @@ static void copy_eval_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr call, cons;
+	addr form, call, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_MULTIPLE_VALUE_CALL, "parse error");
-	GetEvalParse(eval, 0, &call);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &call);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_parse(local, &call, call);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, call);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, call);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -796,19 +812,21 @@ static void copy_eval_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_multiple_value_prog1(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr call, cons;
+	addr form, call, cons;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_MULTIPLE_VALUE_PROG1, "parse error");
-	GetEvalParse(eval, 0, &call);
-	GetEvalParse(eval, 1, &cons);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &call);
+	GetEvalParse(eval, 2, &cons);
 
 	copy_eval_parse(local, &call, call);
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, call);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, call);
+	SetEvalParse(eval, 2, cons);
 	*ret = eval;
 }
 
@@ -816,19 +834,21 @@ static void copy_eval_multiple_value_prog1(LocalRoot local, addr *ret, addr eval
 static void copy_eval_nth_value(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr nth, expr;
+	addr form, nth, expr;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_NTH_VALUE, "parse error");
-	GetEvalParse(eval, 0, &nth);
-	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &nth);
+	GetEvalParse(eval, 2, &expr);
 
 	copy_eval_parse(local, &nth, nth);
 	copy_eval_parse(local, &expr, expr);
 
-	eval_parse_alloc(local, &eval, type, 2);
-	SetEvalParse(eval, 0, nth);
-	SetEvalParse(eval, 1, expr);
+	eval_parse_alloc(local, &eval, type, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, nth);
+	SetEvalParse(eval, 2, expr);
 	*ret = eval;
 }
 
@@ -836,22 +856,24 @@ static void copy_eval_nth_value(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_progv(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr symbols, values, body;
+	addr form, symbols, values, body;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_PROGV, "parse error");
-	GetEvalParse(eval, 0, &symbols);
-	GetEvalParse(eval, 1, &values);
-	GetEvalParse(eval, 2, &body);
+	GetEvalParse(eval, 0, &form);
+	GetEvalParse(eval, 1, &symbols);
+	GetEvalParse(eval, 2, &values);
+	GetEvalParse(eval, 3, &body);
 
 	copy_eval_parse(local, &symbols, symbols);
 	copy_eval_parse(local, &values, values);
 	copy_eval_allcons(local, &body, body);
 
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, symbols);
-	SetEvalParse(eval, 1, values);
-	SetEvalParse(eval, 2, body);
+	eval_parse_alloc(local, &eval, type, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, symbols);
+	SetEvalParse(eval, 2, values);
+	SetEvalParse(eval, 3, body);
 	*ret = eval;
 }
 

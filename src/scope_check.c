@@ -131,7 +131,7 @@ static void scope_call_values(addr *ret, addr pos)
 /*
  *  scope
  */
-int scope_call_call_(Execute ptr, addr first, addr args, addr *ret)
+int scope_call_call_(Execute ptr, addr form, addr first, addr args, addr *ret)
 {
 	addr eval, type;
 	LocalHold hold;
@@ -145,7 +145,7 @@ int scope_call_call_(Execute ptr, addr first, addr args, addr *ret)
 	localhold_push(hold, type);
 	localhold_end(hold);
 
-	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_CALL, type, Nil));
+	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_CALL, type, form));
 	SetEvalScopeIndex(eval, 0, first);
 	SetEvalScopeIndex(eval, 1, args);
 	return Result(ret, eval);

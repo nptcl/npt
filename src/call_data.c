@@ -1693,30 +1693,30 @@ error:
 /*
  *  multiple-value-bind
  */
-int multiple_value_bind_common(Execute ptr, addr form, addr env, addr *ret)
+int multiple_value_bind_common_(Execute ptr, addr form, addr env, addr *ret)
 {
-	addr list, pos, vars, expr, doc, decl;
+	addr body, list, pos, vars, expr, doc, decl;
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, form, env, NULL);
 	/* argument */
-	Return_getcdr(form, &form);
-	if (! consp(form))
+	Return_getcdr(form, &body);
+	if (! consp(body))
 		goto error;
-	Return_getcons(form, &vars, &form);
+	Return_getcons(body, &vars, &body);
 	for (list = vars; list != Nil; ) {
 		Return_getcons(list, &pos, &list);
 		Return(check_variable_(pos));
 	}
-	if (! consp(form))
+	if (! consp(body))
 		goto error;
-	Return_getcons(form, &expr, &form);
+	Return_getcons(body, &expr, &body);
 	/* extract */
-	Return(declare_body_documentation_(ptr, env, form, &doc, &decl, &form));
+	Return(declare_body_documentation_(ptr, env, body, &doc, &decl, &body));
 	localhold_end(hold);
 	GetConst(SYSTEM_MULTIPLE_VALUE_BIND, &pos);
-	list_heap(ret, pos, vars, expr, decl, doc, form, NULL);
+	list_heap(ret, pos, vars, expr, decl, doc, body, form, NULL);
 	return 0;
 
 error:
@@ -1729,7 +1729,7 @@ error:
 /*
  *  multiple-value-list
  */
-int multiple_value_list_common(addr form, addr env, addr *ret)
+int multiple_value_list_common_(addr form, addr env, addr *ret)
 {
 	addr args, expr, symbol, func, list;
 
@@ -1757,7 +1757,7 @@ error:
 /*
  *  multiple-value-setq
  */
-int multiple_value_setq_common(addr form, addr env, addr *ret)
+int multiple_value_setq_common_(addr form, addr env, addr *ret)
 {
 	addr args, vars, expr, values, setf;
 
@@ -1787,19 +1787,19 @@ error:
 /*
  *  nth-value
  */
-int nth_value_common(addr form, addr env, addr *ret)
+int nth_value_common_(addr form, addr env, addr *ret)
 {
-	addr args, nth, expr, nth_value;
+	addr list, args, nth, expr, nth_value;
 
-	Return_getcdr(form, &form);
-	if (! consp_getcons(form, &nth, &args))
+	Return_getcdr(form, &list);
+	if (! consp_getcons(list, &nth, &args))
 		goto error;
 	if (! consp_getcons(args, &expr, &args))
 		goto error;
 	if (args != Nil)
 		goto error;
 	GetConst(SYSTEM_NTH_VALUE, &nth_value);
-	list_heap(ret, nth_value, nth, expr, NULL);
+	list_heap(ret, nth_value, nth, expr, form, NULL);
 	return 0;
 
 error:

@@ -1095,7 +1095,7 @@ static int code_make_flet_args_(CodeMake ptr, addr args, addr escape)
 	return 0;
 }
 
-int code_make_flet_(CodeMake ptr, addr scope)
+static int code_make_flet_call_(CodeMake ptr, addr scope)
 {
 	addr args, body, free, escape;
 
@@ -1110,6 +1110,11 @@ int code_make_flet_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, escape);
 
 	return 0;
+}
+
+int code_make_flet_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_flet_call_);
 }
 
 
@@ -1182,7 +1187,7 @@ static void code_make_labels_lexical(CodeMake ptr, addr args)
 	CodeQueue_cons(ptr, LABELS_MAKE, list);
 }
 
-int code_make_labels_(CodeMake ptr, addr scope)
+static int code_make_labels_call_(CodeMake ptr, addr scope)
 {
 	addr args, body, free, escape;
 
@@ -1198,5 +1203,10 @@ int code_make_labels_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, escape);
 
 	return 0;
+}
+
+int code_make_labels_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_labels_call_);
 }
 

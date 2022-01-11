@@ -686,9 +686,9 @@ static int code_values_push_(CodeMake ptr, addr cons)
 	return 0;
 }
 
-int code_make_values_(CodeMake ptr, addr scope)
+static int code_make_values_call_(CodeMake ptr, addr scope)
 {
-	GetEvalScopeValue(scope, &scope);
+	GetEvalScopeIndex(scope, 0, &scope);
 	switch (code_queue_mode(ptr)) {
 		case CodeQueue_ModeSet:
 			return code_values_set_(ptr, scope);
@@ -702,16 +702,21 @@ int code_make_values_(CodeMake ptr, addr scope)
 	}
 }
 
+int code_make_values_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_values_call_);
+}
+
 
 /* the */
-int code_make_the_(CodeMake ptr, addr scope)
+static int code_make_the_call_(CodeMake ptr, addr scope)
 {
-	addr form, type, check, escape;
+	addr expr, type, check, escape;
 
-	GetEvalScopeValue(scope, &form);
-	GetEvalScopeIndex(scope, 0, &check);
+	GetEvalScopeIndex(scope, 0, &expr);
+	GetEvalScopeIndex(scope, 1, &check);
 	if (check == Nil)
-		return code_make_execute_(ptr, form);
+		return code_make_execute_(ptr, expr);
 
 	GetEvalScopeThe(scope, &type);
 	get_type_optimized(&type, type);
@@ -719,12 +724,12 @@ int code_make_the_(CodeMake ptr, addr scope)
 
 	code_queue_make_label(ptr, &escape);
 	if (code_queue_pushp(ptr)) {
-		Return(code_make_execute_set_(ptr, form));
+		Return(code_make_execute_set_(ptr, expr));
 		code_jump_escape_wake(ptr, escape);
 		CodeQueue_cons(ptr, THE_PUSH, type);
 	}
 	else {
-		Return(code_make_execute_set_(ptr, form));
+		Return(code_make_execute_set_(ptr, expr));
 		code_jump_escape_wake(ptr, escape);
 		CodeQueue_cons(ptr, THE_SET, type);
 	}
@@ -733,9 +738,14 @@ int code_make_the_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_the_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_the_call_);
+}
+
 
 /* eval-when */
-int code_make_eval_when_(CodeMake ptr, addr scope)
+static int code_make_eval_when_call_(CodeMake ptr, addr scope)
 {
 	addr cons, compile, load, exec, toplevel, mode;
 
@@ -749,9 +759,14 @@ int code_make_eval_when_(CodeMake ptr, addr scope)
 	return code_allcons_(ptr, cons, NULL);
 }
 
+int code_make_eval_when_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_eval_when_call_);
+}
+
 
 /* locally */
-int code_make_locally_(CodeMake ptr, addr scope)
+static int code_make_locally_call_(CodeMake ptr, addr scope)
 {
 	addr cons, free, escape;
 
@@ -764,6 +779,11 @@ int code_make_locally_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, escape);
 
 	return 0;
+}
+
+int code_make_locally_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_locally_call_);
 }
 
 
@@ -1209,7 +1229,7 @@ static void code_make_multiple_value_bind_args(CodeMake ptr, addr list, addr esc
 	}
 }
 
-int code_make_multiple_value_bind_(CodeMake ptr, addr scope)
+static int code_make_multiple_value_bind_call_(CodeMake ptr, addr scope)
 {
 	fixnum id;
 	addr args, expr, cons, free, alloc, escape, finish;
@@ -1259,6 +1279,11 @@ int code_make_multiple_value_bind_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_multiple_value_bind_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_multiple_value_bind_call_);
+}
+
 
 /* multiple-value-call */
 static int code_make_multiple_value_call_body_(CodeMake ptr,
@@ -1285,7 +1310,7 @@ static int code_make_multiple_value_call_body_(CodeMake ptr,
 	return 0;
 }
 
-int code_make_multiple_value_call_(CodeMake ptr, addr scope)
+static int code_make_multiple_value_call_call_(CodeMake ptr, addr scope)
 {
 	addr call, args, escape, finish;
 	fixnum id;
@@ -1312,9 +1337,14 @@ int code_make_multiple_value_call_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_multiple_value_call_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_multiple_value_call_call_);
+}
+
 
 /* multiple-value-prog1 */
-int code_make_multiple_value_prog1_(CodeMake ptr, addr scope)
+static int code_make_multiple_value_prog1_call_(CodeMake ptr, addr scope)
 {
 	addr expr, cons, escape;
 	fixnum id;
@@ -1336,9 +1366,14 @@ int code_make_multiple_value_prog1_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_multiple_value_prog1_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_multiple_value_prog1_call_);
+}
+
 
 /* nth-value */
-int code_make_nth_value_(CodeMake ptr, addr scope)
+static int code_make_nth_value_call_(CodeMake ptr, addr scope)
 {
 	addr nth, expr, escape, finish;
 	fixnum id;
@@ -1373,9 +1408,14 @@ int code_make_nth_value_(CodeMake ptr, addr scope)
 	return 0;
 }
 
+int code_make_nth_value_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_nth_value_call_);
+}
+
 
 /* progv */
-int code_make_progv_(CodeMake ptr, addr scope)
+static int code_make_progv_call_(CodeMake ptr, addr scope)
 {
 	addr symbols, values, body, escape, finish;
 	fixnum id;
@@ -1413,6 +1453,11 @@ int code_make_progv_(CodeMake ptr, addr scope)
 	code_queue_push_label(ptr, finish);
 
 	return 0;
+}
+
+int code_make_progv_(CodeMake ptr, addr scope)
+{
+	return code_make_debug_(ptr, scope, code_make_progv_call_);
 }
 
 

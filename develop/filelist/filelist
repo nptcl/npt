@@ -240,8 +240,11 @@ number_plus.c
 number_random.c
 number.c
 object.c
+optimize_call.c
 optimize_common.c
+optimize_define.c
 optimize_parse.c
+optimize_values.c
 optimize.c
 package_bittype.c
 package_common.c

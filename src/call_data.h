@@ -37,10 +37,10 @@
 #define typecase_common _n(typecase_common)
 #define etypecase_common _n(etypecase_common)
 #define ctypecase_common _n(ctypecase_common)
-#define multiple_value_bind_common _n(multiple_value_bind_common)
-#define multiple_value_list_common _n(multiple_value_list_common)
-#define multiple_value_setq_common _n(multiple_value_setq_common)
-#define nth_value_common _n(nth_value_common)
+#define multiple_value_bind_common_ _n(multiple_value_bind_common_)
+#define multiple_value_list_common_ _n(multiple_value_list_common_)
+#define multiple_value_setq_common_ _n(multiple_value_setq_common_)
+#define nth_value_common_ _n(nth_value_common_)
 #define prog_common _n(prog_common)
 #define proga_common _n(proga_common)
 #define prog1_common _n(prog1_common)
@@ -85,10 +85,10 @@ int ccase_common(Execute ptr, addr form, addr env, addr *ret);
 int typecase_common(Execute ptr, addr form, addr env, addr *ret);
 int etypecase_common(Execute ptr, addr form, addr env, addr *ret);
 int ctypecase_common(Execute ptr, addr form, addr env, addr *ret);
-int multiple_value_bind_common(Execute ptr, addr form, addr env, addr *ret);
-int multiple_value_list_common(addr form, addr env, addr *ret);
-int multiple_value_setq_common(addr form, addr env, addr *ret);
-int nth_value_common(addr form, addr env, addr *ret);
+int multiple_value_bind_common_(Execute ptr, addr form, addr env, addr *ret);
+int multiple_value_list_common_(addr form, addr env, addr *ret);
+int multiple_value_setq_common_(addr form, addr env, addr *ret);
+int nth_value_common_(addr form, addr env, addr *ret);
 int prog_common(addr form, addr env, addr *ret);
 int proga_common(addr form, addr env, addr *ret);
 int prog1_common(Execute ptr, addr form, addr env, addr *ret);

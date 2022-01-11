@@ -856,11 +856,12 @@ error:
 			"must be a (symbol expansion) form.", args, NULL);
 }
 
-static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
+static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, args, decl, rollback;
+	addr cons, eval, args, decl, rollback;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &args, &cons)) {
 		return fmte_("symbol-macrolet form must be "
 				"(symbol-macrolet args . body).", NULL);
@@ -879,9 +880,10 @@ static int parse_symbol_macrolet_(Execute ptr, addr *ret, addr cons)
 	Return(rollback_envstack_(ptr, rollback));
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 2);
-	SetEvalParse(eval, 0, decl);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, cons);
 	return Result(ret, eval);
 }
 
@@ -936,11 +938,12 @@ int parse_macrolet_args_(Execute ptr, addr args)
 	return 0;
 }
 
-static int parse_macrolet_(Execute ptr, addr *ret, addr cons)
+static int parse_macrolet_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, args, decl, rollback;
+	addr cons, eval, args, decl, rollback;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &args, &cons))
 		return fmte_("macrolet form must be (macrolet args . body).", NULL);
 	/* local scope environment */
@@ -955,10 +958,10 @@ static int parse_macrolet_(Execute ptr, addr *ret, addr cons)
 	Return(rollback_envstack_(ptr, rollback));
 
 	/* macrolet -> locally */
-	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 2);
-	SetEvalParse(eval, 0, decl);
-	SetEvalParse(eval, 1, cons);
-
+	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, cons);
 	return Result(ret, eval);
 }
 
@@ -1364,13 +1367,14 @@ static int parse_flet_args_(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int parse_flet_(Execute ptr, addr *ret, addr cons)
+static int parse_flet_(Execute ptr, addr *ret, addr form)
 {
-	addr rollback, eval, args, decl;
+	addr cons, rollback, eval, args, decl;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &args, &cons))
-		return fmte_("flet form must be (flet args . body).", NULL);
+		return fmte_("FLET form must be (flet args . body).", NULL);
 
 	Return(snapshot_envstack_(ptr, &rollback));
 	hold = LocalHold_local(ptr);
@@ -1383,10 +1387,11 @@ static int parse_flet_(Execute ptr, addr *ret, addr cons)
 	Return(rollback_envstack_(ptr, rollback));
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_FLET, 3);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, cons);
+	eval_parse_heap(&eval, EVAL_PARSE_FLET, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, cons);
 
 	return Result(ret, eval);
 }
@@ -1420,11 +1425,12 @@ static int parse_labels_args_(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int parse_labels_(Execute ptr, addr *ret, addr cons)
+static int parse_labels_(Execute ptr, addr *ret, addr form)
 {
-	addr rollback, eval, args, decl;
+	addr cons, rollback, eval, args, decl;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &args, &cons))
 		return fmte_("labels form must be (labels args . body).", NULL);
 
@@ -1439,20 +1445,22 @@ static int parse_labels_(Execute ptr, addr *ret, addr cons)
 	Return(rollback_envstack_(ptr, rollback));
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_LABELS, 3);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, cons);
+	eval_parse_heap(&eval, EVAL_PARSE_LABELS, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, cons);
 
 	return Result(ret, eval);
 }
 
 /* the */
-static int parse_the_(Execute ptr, addr *ret, addr cons)
+static int parse_the_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, type, expr;
+	addr cons, eval, type, expr;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &type, &cons))
 		goto error;
 	if (! consp_getcons(cons, &expr, &cons))
@@ -1467,9 +1475,10 @@ static int parse_the_(Execute ptr, addr *ret, addr cons)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_THE, 2);
-	SetEvalParse(eval, 0, type);
-	SetEvalParse(eval, 1, expr);
+	eval_parse_heap(&eval, EVAL_PARSE_THE, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, type);
+	SetEvalParse(eval, 2, expr);
 	return Result(ret, eval);
 
 error:
@@ -1548,11 +1557,12 @@ int parse_eval_when_process(Execute ptr,
 	return 1;
 }
 
-static int parse_eval_when_(Execute ptr, addr *ret, addr cons)
+static int parse_eval_when_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, list;
+	addr cons, eval, list;
 	addr compile, load, exec, toplevel, mode, value;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &list, &cons))
 		return fmte_("eval-when form must be (eval-when (...) . body).", NULL);
 
@@ -1573,30 +1583,36 @@ static int parse_eval_when_(Execute ptr, addr *ret, addr cons)
 	set_compile_time_eval(ptr, value);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 6);
-	SetEvalParse(eval, 0, cons);
-	SetEvalParse(eval, 1, compile);   /* :compile-toplevel */
-	SetEvalParse(eval, 2, load);      /* :load-toplevel */
-	SetEvalParse(eval, 3, exec);      /* :execute */
-	SetEvalParse(eval, 4, toplevel);  /* toplevel */
-	SetEvalParse(eval, 5, mode);      /* compile-time */
+	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 7);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, cons);
+	SetEvalParse(eval, 2, compile);   /* :compile-toplevel */
+	SetEvalParse(eval, 3, load);      /* :load-toplevel */
+	SetEvalParse(eval, 4, exec);      /* :execute */
+	SetEvalParse(eval, 5, toplevel);  /* toplevel */
+	SetEvalParse(eval, 6, mode);      /* compile-time */
 	return Result(ret, eval);
 }
 
 /* values */
-static int parse_values_(Execute ptr, addr *ret, addr cons)
+static int parse_values_(Execute ptr, addr *ret, addr form)
 {
+	addr cons;
+
+	GetCdr(form, &cons);
 	Return(parse_allcons_(ptr, &cons, cons));
-	eval_single_parse_heap(ret, EVAL_PARSE_VALUES, cons);
+	eval_parse2_heap(ret, EVAL_PARSE_VALUES, form, cons);
+
 	return 0;
 }
 
 /* locally */
-static int parse_locally_(Execute ptr, addr *ret, addr cons)
+static int parse_locally_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, decl;
+	addr cons, eval, decl;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	hold = LocalHold_array(ptr, 3);
 	localhold_set(hold, 0, cons);
 	Return(parse_declare_body_(ptr, cons, &decl, &cons));
@@ -1606,10 +1622,10 @@ static int parse_locally_(Execute ptr, addr *ret, addr cons)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 2);
-	SetEvalParse(eval, 0, decl);
-	SetEvalParse(eval, 1, cons);
-
+	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, cons);
 	return Result(ret, eval);
 }
 
@@ -1630,11 +1646,12 @@ static int parse_declaim_(addr *ret, addr args)
 }
 
 /* call */
-static int parse_call_(Execute ptr, addr *ret, addr call, addr cons)
+static int parse_call_(Execute ptr, addr *ret, addr form)
 {
-	addr eval;
+	addr call, cons, eval;
 	LocalHold hold;
 
+	GetCons(form, &call, &cons);
 	hold = LocalHold_array(ptr, 2);
 	localhold_set(hold, 0, call);
 	localhold_set(hold, 1, cons);
@@ -1644,9 +1661,10 @@ static int parse_call_(Execute ptr, addr *ret, addr call, addr cons)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_CALL, 2);
-	SetEvalParse(eval, 0, call);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_heap(&eval, EVAL_PARSE_CALL, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, call);
+	SetEvalParse(eval, 2, cons);
 
 	return Result(ret, eval);
 }
@@ -1654,31 +1672,34 @@ static int parse_call_(Execute ptr, addr *ret, addr call, addr cons)
 /* multiple-value-bind */
 static int parse_multiple_value_bind_(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, vars, expr, decl, doc, form;
+	addr form, eval, vars, expr, decl, doc, body;
 	LocalHold hold;
 
+	GetCdr(cons, &cons);
 	if (! consp(cons))
 		goto error;
 	Return_getcons(cons, &vars, &cons);
 	Return_getcons(cons, &expr, &cons);
 	Return_getcons(cons, &decl, &cons);
 	Return_getcons(cons, &doc, &cons);
+	Return_getcons(cons, &body, &cons);
 	Return_getcons(cons, &form, &cons);
 	if (cons != Nil)
 		goto error;
 
 	hold = LocalHold_local(ptr);
 	Return(localhold_parse_self_(hold, ptr, expr));
-	Return(localhold_parse_allcons_(hold, ptr, &form, form));
+	Return(localhold_parse_allcons_(hold, ptr, &body, body));
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_MULTIPLE_VALUE_BIND, 5);
-	SetEvalParse(eval, 0, vars);
-	SetEvalParse(eval, 1, expr);
-	SetEvalParse(eval, 2, decl);
-	SetEvalParse(eval, 3, doc);
-	SetEvalParse(eval, 4, form);
+	eval_parse_heap(&eval, EVAL_PARSE_MULTIPLE_VALUE_BIND, 6);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, vars);
+	SetEvalParse(eval, 2, expr);
+	SetEvalParse(eval, 3, decl);
+	SetEvalParse(eval, 4, doc);
+	SetEvalParse(eval, 5, body);
 	return Result(ret, eval);
 
 error:
@@ -1687,11 +1708,12 @@ error:
 }
 
 /* multiple-value-call */
-static int parse_multiple_value_call_(Execute ptr, addr *ret, addr cons)
+static int parse_multiple_value_call_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, expr;
+	addr cons, eval, expr;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &expr, &cons))
 		goto error;
 
@@ -1701,9 +1723,10 @@ static int parse_multiple_value_call_(Execute ptr, addr *ret, addr cons)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_MULTIPLE_VALUE_CALL, 2);
-	SetEvalParse(eval, 0, expr);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_heap(&eval, EVAL_PARSE_MULTIPLE_VALUE_CALL, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, cons);
 	return Result(ret, eval);
 
 error:
@@ -1712,11 +1735,12 @@ error:
 }
 
 /* multiple-value-prog1 */
-static int parse_multiple_value_prog1_(Execute ptr, addr *ret, addr cons)
+static int parse_multiple_value_prog1_(Execute ptr, addr *ret, addr form)
 {
-	addr eval, expr;
+	addr cons, eval, expr;
 	LocalHold hold;
 
+	GetCdr(form, &cons);
 	if (! consp_getcons(cons, &expr, &cons))
 		goto error;
 
@@ -1726,9 +1750,10 @@ static int parse_multiple_value_prog1_(Execute ptr, addr *ret, addr cons)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_MULTIPLE_VALUE_PROG1, 2);
-	SetEvalParse(eval, 0, expr);
-	SetEvalParse(eval, 1, cons);
+	eval_parse_heap(&eval, EVAL_PARSE_MULTIPLE_VALUE_PROG1, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, cons);
 	return Result(ret, eval);
 
 error:
@@ -1739,12 +1764,14 @@ error:
 /* nth-value */
 static int parse_nth_value_(Execute ptr, addr *ret, addr list)
 {
-	addr eval, next, nth, expr;
+	addr eval, next, nth, expr, form;
 	LocalHold hold;
 
 	if (! consp_getcons(list, &nth, &next))
 		goto error;
 	if (! consp_getcons(next, &expr, &next))
+		goto error;
+	if (! consp_getcons(next, &form, &next))
 		goto error;
 	if (next != Nil)
 		goto error;
@@ -1755,9 +1782,10 @@ static int parse_nth_value_(Execute ptr, addr *ret, addr list)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_NTH_VALUE, 2);
-	SetEvalParse(eval, 0, nth);
-	SetEvalParse(eval, 1, expr);
+	eval_parse_heap(&eval, EVAL_PARSE_NTH_VALUE, 3);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, nth);
+	SetEvalParse(eval, 2, expr);
 	return Result(ret, eval);
 
 error:
@@ -1770,9 +1798,10 @@ static int parse_progv_(Execute ptr, addr *ret, addr form)
 	addr eval, symbols, values, body;
 	LocalHold hold;
 
-	if (! consp_getcons(form, &symbols, &form))
+	GetCdr(form, &body);
+	if (! consp_getcons(body, &symbols, &body))
 		goto error;
-	if (! consp_getcons(form, &values, &body))
+	if (! consp_getcons(body, &values, &body))
 		goto error;
 
 	hold = LocalHold_local(ptr);
@@ -1782,10 +1811,11 @@ static int parse_progv_(Execute ptr, addr *ret, addr form)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_PROGV, 3);
-	SetEvalParse(eval, 0, symbols);
-	SetEvalParse(eval, 1, values);
-	SetEvalParse(eval, 2, body);
+	eval_parse_heap(&eval, EVAL_PARSE_PROGV, 4);
+	SetEvalParse(eval, 0, form);
+	SetEvalParse(eval, 1, symbols);
+	SetEvalParse(eval, 2, values);
+	SetEvalParse(eval, 3, body);
 	return Result(ret, eval);
 
 error:
@@ -1842,16 +1872,16 @@ static int parse_cons_(Execute ptr, addr *ret, addr cons)
 		return parse_progn_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_LOCALLY)) {
-		return parse_locally_(ptr, ret, args);
+		return parse_locally_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_MACROLET)) {
-		return parse_macrolet_(ptr, ret, args);
+		return parse_macrolet_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_SYMBOL_MACROLET)) {
-		return parse_symbol_macrolet_(ptr, ret, args);
+		return parse_symbol_macrolet_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_EVAL_WHEN)) {
-		return parse_eval_when_(ptr, ret, args);
+		return parse_eval_when_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_LET)) {
 		return parse_let_(ptr, ret, cons);
@@ -1893,16 +1923,16 @@ static int parse_cons_(Execute ptr, addr *ret, addr cons)
 		return parse_throw_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_FLET)) {
-		return parse_flet_(ptr, ret, args);
+		return parse_flet_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_LABELS)) {
-		return parse_labels_(ptr, ret, args);
+		return parse_labels_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_THE)) {
-		return parse_the_(ptr, ret, args);
+		return parse_the_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_VALUES)) {
-		return parse_values_(ptr, ret, args);
+		return parse_values_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, SYSTEM_DECLAIM)) {
 		return parse_declaim_(ret, args);
@@ -1926,28 +1956,28 @@ static int parse_cons_(Execute ptr, addr *ret, addr cons)
 		return parse_macro_lambda_(ptr, ret, args);
 	}
 	if (ParseConsConstant(call, SYSTEM_MULTIPLE_VALUE_BIND)) {
-		return parse_multiple_value_bind_(ptr, ret, args);
+		return parse_multiple_value_bind_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_MULTIPLE_VALUE_CALL)) {
-		return parse_multiple_value_call_(ptr, ret, args);
+		return parse_multiple_value_call_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_MULTIPLE_VALUE_PROG1)) {
-		return parse_multiple_value_prog1_(ptr, ret, args);
+		return parse_multiple_value_prog1_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, SYSTEM_NTH_VALUE)) {
 		return parse_nth_value_(ptr, ret, args);
 	}
 	if (ParseConsConstant(call, COMMON_PROGV)) {
-		return parse_progv_(ptr, ret, args);
+		return parse_progv_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, COMMON_LOAD_TIME_VALUE)) {
-		return parse_load_time_value_(ptr, ret, args);
+		return parse_load_time_value_(ptr, ret, cons);
 	}
 	if (ParseConsConstant(call, SYSTEM_STEP)) {
 		return parse_step_(ptr, ret, args);
 	}
 
-	return parse_call_(ptr, ret, call, args);
+	return parse_call_(ptr, ret, cons);
 }
 
 static int parse_clos_(Execute ptr, addr *ret, addr pos)

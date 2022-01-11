@@ -241,7 +241,7 @@ int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 /*
  *  values
  */
-int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype)
+int scope_values_call_(Execute ptr, addr args, addr *rargs, addr *rtype)
 {
 	addr root, var, rest, eval, type;
 	LocalHold hold;
@@ -297,15 +297,16 @@ static int scope_the_check_(Execute ptr, addr eval, addr right, addr *ret)
 	return Result(ret, check? T: Nil);
 }
 
-int scope_the_call(Execute ptr, addr type, addr form, addr *ret)
+int scope_the_call_(Execute ptr, addr form, addr type, addr expr, addr *ret)
 {
 	addr eval, check;
 
-	Return(scope_eval(ptr, &form, form));
-	Return(scope_the_check_(ptr, form, type, &check));
+	Return(scope_eval(ptr, &expr, expr));
+	Return(scope_the_check_(ptr, expr, type, &check));
 	/* result */
-	Return(eval_scope_size_(ptr, &eval, 1, EVAL_PARSE_THE, type, form));
-	SetEvalScopeIndex(eval, 0, check);
+	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_THE, type, form));
+	SetEvalScopeIndex(eval, 0, expr);
+	SetEvalScopeIndex(eval, 1, check);
 	return Result(ret, eval);
 }
 
@@ -313,7 +314,7 @@ int scope_the_call(Execute ptr, addr type, addr form, addr *ret)
 /*
  *  locally
  */
-static int locally_execute(Execute ptr,
+static int locally_execute_(Execute ptr,
 		addr decl, addr cons, addr *ret, addr *type, addr *free)
 {
 	addr stack;
@@ -325,12 +326,12 @@ static int locally_execute(Execute ptr,
 	return freestack_eval_(ptr, stack);
 }
 
-int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret)
+int scope_locally_call_(Execute ptr, addr form, addr decl, addr cons, addr *ret)
 {
 	addr eval, type, free;
 
-	Return(locally_execute(ptr, decl, cons, &cons, &type, &free));
-	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOCALLY, type, Nil));
+	Return(locally_execute_(ptr, decl, cons, &cons, &type, &free));
+	Return(eval_scope_size_(ptr, &eval, 3, EVAL_PARSE_LOCALLY, type, form));
 	SetEvalScopeIndex(eval, 0, decl);
 	SetEvalScopeIndex(eval, 1, cons);
 	SetEvalScopeIndex(eval, 2, free);
@@ -661,7 +662,7 @@ static int mvbind_maketable_(Execute ptr, struct mvbind_struct *str)
 	return 0;
 }
 
-static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
+static int mvbind_execute_(Execute ptr, struct mvbind_struct *str)
 {
 	addr stack;
 
@@ -674,14 +675,14 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 	return 0;
 }
 
-int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str)
+int scope_multiple_value_bind_call_(Execute ptr, struct mvbind_struct *str)
 {
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
 	Return(localhold_scope_eval(hold, ptr, &str->expr, str->expr));
 	Return(newstack_nil_(ptr, &(str->stack)));
-	Return(mvbind_execute(ptr, str));
+	Return(mvbind_execute_(ptr, str));
 
 	return freestack_eval_(ptr, str->stack);
 }
@@ -698,7 +699,8 @@ static int scope_multiple_value_call_type(addr expr, addr *ret)
 	return 0;
 }
 
-int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret)
+int scope_multiple_value_call_call_(Execute ptr,
+		addr form, addr expr, addr cons, addr *ret)
 {
 	addr eval, type;
 	LocalHold hold;
@@ -710,7 +712,7 @@ int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret)
 	if (scope_multiple_value_call_type(expr, &type))
 		GetTypeTable(&type, Asterisk);
 
-	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_MULTIPLE_VALUE_CALL, type, Nil));
+	Return(eval_scope_size_(ptr, &eval, 2, EVAL_PARSE_MULTIPLE_VALUE_CALL, type, form));
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, cons);
 	return Result(ret, eval);

@@ -1284,7 +1284,7 @@ static void defmacro_ctypecase(void)
 /* (defmacro multiple-value-bind (vars expr &body body) ...) -> t */
 static int function_multiple_value_bind(Execute ptr, addr form, addr env)
 {
-	Return(multiple_value_bind_common(ptr, form, env, &form));
+	Return(multiple_value_bind_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1313,7 +1313,7 @@ static void defspecial_multiple_value_call(void)
 /* (defmacro multiple-value-list (form) ...) */
 static int function_multiple_value_list(Execute ptr, addr form, addr env)
 {
-	Return(multiple_value_list_common(form, env, &form));
+	Return(multiple_value_list_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1342,7 +1342,7 @@ static void defspecial_multiple_value_prog1(void)
 /* (defmacro multiple-value-setq (vars form) ...) */
 static int function_multiple_value_setq(Execute ptr, addr form, addr env)
 {
-	Return(multiple_value_setq_common(form, env, &form));
+	Return(multiple_value_setq_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1448,7 +1448,7 @@ static void defconstant_multiple_values_limit(void)
  */
 static int function_nth_value(Execute ptr, addr form, addr env)
 {
-	Return(nth_value_common(form, env, &form));
+	Return(nth_value_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

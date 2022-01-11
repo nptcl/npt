@@ -167,6 +167,16 @@
   nil nil)
 
 
+;;
+;;  Macro STEP
+;;
+(deftest-error! step-error.1
+  (eval '(step)))
+
+(deftest-error! step-error.2
+  (eval '(step 10 20)))
+
+
 
 ;;
 ;;
