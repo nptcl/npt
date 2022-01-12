@@ -329,59 +329,64 @@ static int setf_documentation_list_function_(Execute ptr, addr name, addr gen)
 
 
 /*
- *  (list (eql 'compiled-function))
+ *  (list (eql 'compiler-macro))
  */
-static int method_documentation_list_compiled_function(Execute ptr,
+static int method_documentation_list_compiler_macro(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	Return(parse_callname_error_(&object, object));
-	Return(getglobalcheck_callname_(object, &object));
-	if (! compiled_function_p(object))
-		return TypeError_(object, COMPILED_FUNCTION);
-	Return(get_documentation_function_object_(object, &object));
+	GetCallName(object, &object);
+	get_setf_compiler_macro_symbol(object, &object);
+	if (object != Nil) {
+		Return(get_documentation_function_object_(object, &object));
+	}
 	setresult_control(ptr, object);
 
 	return 0;
 }
 
-static int method_setf_documentation_list_compiled_function(Execute ptr,
+static int method_setf_documentation_list_compiler_macro(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
+	addr pos;
+
 	Return(parse_callname_error_(&object, object));
-	Return(getglobalcheck_callname_(object, &object));
-	if (! compiled_function_p(object))
-		return TypeError_(object, COMPILED_FUNCTION);
-	Return(set_documentation_function_object_(object, value));
+	GetCallName(object, &object);
+	get_setf_compiler_macro_symbol(object, &pos);
+	if (pos == Nil) {
+		return fmte_("There is no compiler-macro, ~S.", object, NULL);
+	}
+	Return(set_documentation_function_object_(pos, value));
 	setresult_control(ptr, value);
 
 	return 0;
 }
 
-static int documentation_list_compiled_function_(Execute ptr, addr name, addr gen)
+static int documentation_list_compiler_macro_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, p_method_documentation_list_compiled_function);
-	MethodTypeDocumentation(&type, List, COMPILED_FUNCTION);
+	setcompiled_var4(call, p_method_documentation_list_compiler_macro);
+	MethodTypeDocumentation(&type, List, COMPILER_MACRO);
 	/* method */
-	MopArgumentMethodDocumentation(&pos, LIST, COMPILED_FUNCTION);
+	MopArgumentMethodDocumentation(&pos, LIST, COMPILER_MACRO);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
-static int setf_documentation_list_compiled_function_(Execute ptr, addr name, addr gen)
+static int setf_documentation_list_compiler_macro_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var5(call, p_method_setf_documentation_list_compiled_function);
-	MethodTypeSetfDocumentation(&type, List, COMPILED_FUNCTION);
+	setcompiled_var5(call, p_method_setf_documentation_list_compiler_macro);
+	MethodTypeSetfDocumentation(&type, List, COMPILER_MACRO);
 	/* method */
-	MopArgumentMethodSetfDocumentation(&pos, LIST, COMPILED_FUNCTION);
+	MopArgumentMethodSetfDocumentation(&pos, LIST, COMPILER_MACRO);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
@@ -461,57 +466,60 @@ static int setf_documentation_symbol_function_(Execute ptr, addr name, addr gen)
 /*
  *  (symbol (eql 'compiler-function))
  */
-static int method_documentation_symbol_compiled_function(Execute ptr,
+static int method_documentation_symbol_compiler_macro(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	Return(getfunction_global_document_(object, &object));
-	if (! compiled_function_p(object))
-		return TypeError_(object, COMPILED_FUNCTION);
-	Return(get_documentation_function_object_(object, &object));
+	get_compiler_macro_symbol(object, &object);
+	if (object != Nil) {
+		Return(get_documentation_function_object_(object, &object));
+	}
 	setresult_control(ptr, object);
 
 	return 0;
 }
 
-static int method_setf_documentation_symbol_compiled_function(Execute ptr,
+static int method_setf_documentation_symbol_compiler_macro(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	Return(getfunction_global_(object, &object));
-	if (! compiled_function_p(object))
-		return TypeError_(object, COMPILED_FUNCTION);
-	Return(set_documentation_function_object_(object, value));
+	addr pos;
+
+	get_compiler_macro_symbol(object, &pos);
+	if (pos == Nil) {
+		return fmte_("There is no compiler-macro, ~S.", object, NULL);
+	}
+	Return(set_documentation_function_object_(pos, value));
 	setresult_control(ptr, value);
 
 	return 0;
 }
 
-static int documentation_symbol_compiled_function_(
+static int documentation_symbol_compiler_macro_(
 		Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, p_method_documentation_symbol_compiled_function);
-	MethodTypeDocumentation(&type, Symbol, COMPILED_FUNCTION);
+	setcompiled_var4(call, p_method_documentation_symbol_compiler_macro);
+	MethodTypeDocumentation(&type, Symbol, COMPILER_MACRO);
 	/* method */
-	MopArgumentMethodDocumentation(&pos, SYMBOL, COMPILED_FUNCTION);
+	MopArgumentMethodDocumentation(&pos, SYMBOL, COMPILER_MACRO);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
-static int setf_documentation_symbol_compiled_function_(
+static int setf_documentation_symbol_compiler_macro_(
 		Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var5(call, p_method_setf_documentation_symbol_compiled_function);
-	MethodTypeSetfDocumentation(&type, Symbol, COMPILED_FUNCTION);
+	setcompiled_var5(call, p_method_setf_documentation_symbol_compiler_macro);
+	MethodTypeSetfDocumentation(&type, Symbol, COMPILER_MACRO);
 	/* method */
-	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, COMPILED_FUNCTION);
+	MopArgumentMethodSetfDocumentation(&pos, SYMBOL, COMPILER_MACRO);
 	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
@@ -1198,9 +1206,9 @@ static int defun_documentation_(Execute ptr)
 	Return(documentation_function_t_(ptr, name, gen));
 	Return(documentation_function_function_(ptr, name, gen));
 	Return(documentation_list_function_(ptr, name, gen));
-	Return(documentation_list_compiled_function_(ptr, name, gen));
+	Return(documentation_list_compiler_macro_(ptr, name, gen));
 	Return(documentation_symbol_function_(ptr, name, gen));
-	Return(documentation_symbol_compiled_function_(ptr, name, gen));
+	Return(documentation_symbol_compiler_macro_(ptr, name, gen));
 	Return(documentation_symbol_setf_(ptr, name, gen));
 	Return(documentation_method_combination_t_(ptr, name, gen));
 	Return(documentation_method_combination_method_combination_(ptr, name, gen));
@@ -1236,9 +1244,9 @@ static int defun_setf_documentation_(Execute ptr)
 	Return(setf_documentation_function_t_(ptr, name, gen));
 	Return(setf_documentation_function_function_(ptr, name, gen));
 	Return(setf_documentation_list_function_(ptr, name, gen));
-	Return(setf_documentation_list_compiled_function_(ptr, name, gen));
+	Return(setf_documentation_list_compiler_macro_(ptr, name, gen));
 	Return(setf_documentation_symbol_function_(ptr, name, gen));
-	Return(setf_documentation_symbol_compiled_function_(ptr, name, gen));
+	Return(setf_documentation_symbol_compiler_macro_(ptr, name, gen));
 	Return(setf_documentation_symbol_setf_(ptr, name, gen));
 	Return(setf_documentation_method_combination_t_(ptr, name, gen));
 	Return(setf_documentation_method_combination_method_combination_(ptr, name, gen));
@@ -1263,9 +1271,9 @@ void init_documentation(void)
 {
 	SetPointerType(var4, method_documentation_function_t);
 	SetPointerType(var4, method_documentation_list_function);
-	SetPointerType(var4, method_documentation_list_compiled_function);
+	SetPointerType(var4, method_documentation_list_compiler_macro);
 	SetPointerType(var4, method_documentation_symbol_function);
-	SetPointerType(var4, method_documentation_symbol_compiled_function);
+	SetPointerType(var4, method_documentation_symbol_compiler_macro);
 	SetPointerType(var4, method_documentation_symbol_setf);
 	SetPointerType(var4, method_documentation_method_combination_t);
 	SetPointerType(var4, method_documentation_symbol_method_combination);
@@ -1279,9 +1287,9 @@ void init_documentation(void)
 
 	SetPointerType(var5, method_setf_documentation_function_t);
 	SetPointerType(var5, method_setf_documentation_list_function);
-	SetPointerType(var5, method_setf_documentation_list_compiled_function);
+	SetPointerType(var5, method_setf_documentation_list_compiler_macro);
 	SetPointerType(var5, method_setf_documentation_symbol_function);
-	SetPointerType(var5, method_setf_documentation_symbol_compiled_function);
+	SetPointerType(var5, method_setf_documentation_symbol_compiler_macro);
 	SetPointerType(var5, method_setf_documentation_symbol_setf);
 	SetPointerType(var5, method_setf_documentation_method_combination_t);
 	SetPointerType(var5, method_setf_documentation_symbol_method_combination);

@@ -404,14 +404,18 @@ static void ed_function_name(Execute ptr, addr *ret)
 
 static int ed_function_write_call_(Execute ptr, addr file, addr lambda)
 {
+	enum Stream_Open_External external;
 	size_t width;
 
+	Return(open_external_format_(ptr, Unbound, &external));
+	if (external == Stream_Open_External_Error)
+		return fmte_("Invalid external-format ~S.", NULL);
 	Return(open_stream_(ptr, &file, file,
 				Stream_Open_Direction_Output,
 				Stream_Open_Element_Character,
 				Stream_Open_IfExists_Supersede,
 				Stream_Open_IfDoesNot_Create,
-				Stream_Open_External_Default));
+				external));
 	Return(right_margin_print_(ptr, file, &width));
 	Return(push_right_margin_print_(ptr, width));
 	Return(prin1_print(ptr, file, lambda));
@@ -529,6 +533,7 @@ static int dribble_set_stream_(addr file)
 
 static int dribble_open_file_(Execute ptr, addr file)
 {
+	enum Stream_Open_External external;
 	int check;
 
 	Return(physical_pathname_heap_(ptr, file, &file));
@@ -537,12 +542,15 @@ static int dribble_open_file_(Execute ptr, addr file)
 		return call_simple_file_error_va_(ptr, file,
 				"~DRIBBLE can't use wild card pathname ~S.", file, NULL);
 	}
+	Return(open_external_format_(ptr, Unbound, &external));
+	if (external == Stream_Open_External_Error)
+		return fmte_("Invalid external-format.", NULL);
 	Return(open_stream_(ptr, &file, file,
 				Stream_Open_Direction_Output,
 				Stream_Open_Element_Character,
 				Stream_Open_IfExists_Supersede,
 				Stream_Open_IfDoesNot_Create,
-				Stream_Open_External_Default));
+				external));
 	Return(dribble_set_stream_(file));
 	return dribble_message_begin_(ptr, file);
 }

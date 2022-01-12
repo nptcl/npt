@@ -2,6 +2,10 @@
 ;;  ANSI COMMON LISP: 25. Environment
 ;;
 
+;;
+;;  Standard Generic Function DOCUMENTATION, (SETF DOCUMENTATION)
+;;
+
 ;;  function
 (defun document-function1 ()
   :hello)
@@ -111,12 +115,6 @@
     (documentation '(setf document-function1) 'function))
   "SETF2")
 
-(deftest-error documentation-list.3
-  (documentation '(setf document-function1) 'compiled-function))
-
-(deftest-error documentation-list.4
-  (setf (documentation '(setf document-function1) 'compiled-function) "SETF3"))
-
 
 ;;  symbol
 (deftest documentation-symbol.1
@@ -128,12 +126,6 @@
     (setf (documentation #'document-function1 t) "Symbol2")
     (documentation 'document-function1 'function))
   "Symbol2")
-
-(deftest-error documentation-symbol.3
-  (setf (documentation 'document-function1 'compiled-function) "Symbol3"))
-
-(deftest-error documentation-symbol.4
-  (documentation 'document-function1 'compiled-function))
 
 (deftest documentation-setf.1
   (setf (documentation 'document-function3 'setf) "Symbol4")
@@ -523,4 +515,79 @@
     (setf (documentation 'document-variable1 'variable) "Variable8")
     (documentation 'document-variable1 'variable))
   "Variable8")
+
+;;  compiler-macro
+(define-compiler-macro document-compiler-macro-1 ()
+  "Hello Compiler"
+  :abc)
+
+(define-compiler-macro document-compiler-macro-2 ()
+  :cde)
+
+(deftest documentation-compiler-macro.1
+  (documentation 'document-compiler-macro-1 'compiler-macro)
+  "Hello Compiler")
+
+(deftest documentation-compiler-macro.2
+  (documentation 'document-compiler-macro-2 'compiler-macro)
+  nil)
+
+(deftest documentation-compiler-macro.3
+  (setf (documentation 'document-compiler-macro-1 'compiler-macro) "ABC")
+  "ABC")
+
+(deftest documentation-compiler-macro.4
+  (documentation 'document-compiler-macro-1 'compiler-macro)
+  "ABC")
+
+(deftest documentation-compiler-macro.5
+  (documentation 'no-such-compiler-macro 'compiler-macro)
+  nil)
+
+(deftest-error documentation-compiler-macro.6
+  (setf (documentation 'no-such-compiler-macro 'compiler-macro) "ERROR"))
+
+;;  (setf compiler-macro)
+(define-compiler-macro (setf document-compiler-macro-1) ()
+  "HELLO"
+  :aaa)
+
+(define-compiler-macro (setf document-compiler-macro-2) ()
+  :bbb)
+
+(deftest documentation-setf-compiler-macro.1
+  (documentation '(setf document-compiler-macro-1) 'compiler-macro)
+  "HELLO")
+
+(deftest documentation-setf-compiler-macro.2
+  (documentation '(setf document-compiler-macro-2) 'compiler-macro)
+  nil)
+
+(deftest documentation-setf-compiler-macro.3
+  (setf (documentation '(setf document-compiler-macro-1) 'compiler-macro) "ZZZ")
+  "ZZZ")
+
+(deftest documentation-setf-compiler-macro.4
+  (documentation '(setf document-compiler-macro-1) 'compiler-macro)
+  "ZZZ")
+
+(deftest documentation-setf-compiler-macro.5
+  (documentation '(setf no-such-compiler-macro) 'compiler-macro)
+  nil)
+
+(deftest-error documentation-setf-compiler-macro.6
+  (setf (documentation '(setf no-such-compiler-macro) 'compiler-macro) "ERROR"))
+
+;;  error
+(deftest-error! documentation-error.1
+  (eval '(documentation)))
+
+(deftest-error! documentation-error.2
+  (eval '(documentation 'car 't nil)))
+
+(deftest-error! documentation-error.3
+  (eval '(setf (documentation #'document-function1) "Hello")))
+
+(deftest-error! documentation-error.4
+  (eval '(setf (documentation #'document-function1 t nil) "Hello")))
 

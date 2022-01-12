@@ -25,6 +25,20 @@ static int step_prompt_in_p_(addr pos, int *ret)
 	return string_equalp_char_va_(pos, ret, "S", "STEP", "I", "IN", NULL);
 }
 
+static int step_prompt_next_p_(addr pos, int *ret)
+{
+	if (! symbolp(pos))
+		return Result(ret, 0);
+	GetNameSymbol(pos, &pos);
+	return string_equalp_char_va_(pos, ret, "N", "NEXT", NULL);
+}
+
+static void step_prompt_next(Execute ptr)
+{
+	ptr->step_break = ptr->step_depth;
+	ptr->step_in = 0;
+}
+
 static int step_prompt_over_p_(addr pos, int *ret)
 {
 	if (! symbolp(pos))
@@ -35,7 +49,8 @@ static int step_prompt_over_p_(addr pos, int *ret)
 
 static void step_prompt_over(Execute ptr)
 {
-	ptr->step_over = ptr->step_depth;
+	Check(ptr->step_depth == 0, "depth error");
+	ptr->step_break = ptr->step_depth - 1UL;
 	ptr->step_in = 0;
 }
 
@@ -64,14 +79,15 @@ static int step_prompt_help_p_(addr pos, int *ret)
 static int step_prompt_help_(Execute ptr, addr io)
 {
 	static const char *const message[] = {
-		"COMMAND   HELP",
+		"COMMAND       HELP",
 		"---",
-		"Step      Step in",
-		"Over      Step over",
-		"Continue  Quit step.",
+		"[I] Step      Step in",
+		"[N] Next      Step next",
+		"[O] Over      Step over",
+		"[C] Continue  Quit step.",
 		"---",
-		"Quit      Quit step.",
-		"Help      Output this message.",
+		"[Q] Quit      Quit step.",
+		"[?] Help      Output this message.",
 		"---",
 		NULL
 	};
@@ -98,6 +114,13 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 	if (check) {
 		*exit = 1;
 		*exec = 0;
+		return 0;
+	}
+	Return(step_prompt_next_p_(pos, &check));
+	if (check) {
+		*exit = 1;
+		*exec = 0;
+		step_prompt_next(ptr);
 		return 0;
 	}
 	Return(step_prompt_over_p_(pos, &check));

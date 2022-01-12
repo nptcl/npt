@@ -995,7 +995,7 @@ int step_code(Execute ptr, CodeValue x)
 
 	/* step over */
 	if (! ptr->step_in) {
-		if (ptr->step_over <= ptr->step_depth)
+		if (ptr->step_break <= ptr->step_depth)
 			return 0;
 	}
 
@@ -1012,7 +1012,7 @@ int step_off_code(Execute ptr, CodeValue x)
 
 	/* step over */
 	if (! ptr->step_in) {
-		if (ptr->step_depth < ptr->step_over)
+		if (ptr->step_depth < ptr->step_break)
 			ptr->step_in = 1;
 	}
 
@@ -1027,8 +1027,8 @@ int step_begin_code(Execute ptr, CodeValue x)
 		value = Nil;
 		ptr->step_begin = 1;
 		ptr->step_in = 1;
-		ptr->step_depth = 0;
-		ptr->step_over = 0;
+		ptr->step_depth = 1;
+		ptr->step_break = 1;
 	}
 	else {
 		value = T;

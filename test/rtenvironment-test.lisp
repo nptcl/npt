@@ -177,39 +177,9 @@
   (eval '(step 10 20)))
 
 
-
 ;;
+;;  Function DISASSEMBLE
 ;;
-;;
-(deftest room.1
-  (with-open-stream (*standard-output* (make-broadcast-stream))
-    (room))
-  nil)
-
-(deftest room.2
-  (let ((x (with-output-to-string (*standard-output*) (room))))
-    (and (stringp x)
-         (< 0 (length x))))
-  t)
-
-(deftest room.3
-  (let ((x (with-output-to-string (*standard-output*) (room :default))))
-    (and (stringp x)
-         (< 0 (length x))))
-  t)
-
-(deftest room.4
-  (let ((x (with-output-to-string (*standard-output*) (room t))))
-    (and (stringp x)
-         (< 0 (length x))))
-  t)
-
-(deftest room.5
-  (let ((x (with-output-to-string (*standard-output*) (room nil))))
-    (and (stringp x)
-         (< 0 (length x))))
-  t)
-
 (defun disassemble-test ()
   :hello)
 
@@ -244,4 +214,117 @@
           (with-output-to-string (*standard-output*)
             (disassemble 'disassemble-test))))
   nil)
+
+(deftest disassemble.7
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (disassemble (lambda () :hello)))
+  nil)
+
+(deftest disassemble.8
+  (null (search
+          "LAMBDA"
+          (with-output-to-string (*standard-output*)
+            (disassemble (lambda () :hello)))))
+  nil)
+
+(deftest-error! disassemble-error.1
+  (eval '(disassemble)))
+
+(deftest-error! disassemble-error.2
+  (eval '(disassemble 100))
+  type-error)
+
+(deftest-error! disassemble-error.3
+  (eval '(disassemble 'car nil)))
+
+;;  ANSI Common Lisp
+(defun disassemble-test-f (a)
+  (1+ a))
+
+(deftest disassemble-test.1
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (eq (symbol-function 'disassemble-test-f)
+        (progn (disassemble 'disassemble-test-f)
+               (symbol-function 'disassemble-test-f))))
+  t)
+
+
+;;
+;;  Function ROOM
+;;
+(deftest room.1
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (room))
+  nil)
+
+(deftest room.2
+  (let ((x (with-output-to-string (*standard-output*) (room))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest room.3
+  (let ((x (with-output-to-string (*standard-output*) (room :default))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest room.4
+  (let ((x (with-output-to-string (*standard-output*) (room t))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest room.5
+  (let ((x (with-output-to-string (*standard-output*) (room nil))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest-error! room-error.1
+  (eval '(room 100))
+  type-error)
+
+(deftest-error! room-error.2
+  (eval '(room nil nil)))
+
+
+;;
+;;  Function ED
+;;
+(deftest-error! ed-error.1
+  (eval '(ed 100))
+  type-error)
+
+(deftest-error! ed-error.2
+  (eval '(ed nil nil)))
+
+(deftest-error ed-error.3
+  (ed "*.txt")
+  file-error)
+
+
+;;
+;;  Function INSPECT
+;;
+(deftest-error! inspect-error.1
+  (eval '(inspect)))
+
+(deftest-error! inspect-error.2
+  (eval '(inspect nil nil)))
+
+
+;;
+;;  Function DRIBBLE
+;;
+(deftest-error! dribble-error.1
+  (eval '(dribble 10))
+  type-error)
+
+(deftest-error! dribble-error.2
+  (eval '(dribble "output.txt" nil)))
+
+(deftest-error! dribble-error.3
+  (dribble "*.txt")
+  file-error)
 

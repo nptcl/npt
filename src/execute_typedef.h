@@ -67,7 +67,7 @@ struct execute {
 	addr throw_control;
 
 	/* step */
-	uint32_t step_depth, step_over;
+	uint32_t step_depth, step_break;
 
 	/* thread info */
 	size_t index;
