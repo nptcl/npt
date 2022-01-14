@@ -69,7 +69,7 @@ static int sysctl_recovery_(Execute ptr, addr args)
 		return sysctl_recovery_no_next_method_(ptr);
 
 error:
-	setvalues_control(ptr, Nil, T, NULL);
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
@@ -98,7 +98,7 @@ static int sysctl_clos_(Execute ptr, addr pos, addr args)
 		return sysctl_clos_slots_(ptr, pos);
 
 error:
-	setvalues_control(ptr, Nil, T, NULL);
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
@@ -112,7 +112,7 @@ static int sysctl_memory_stream_size_(Execute ptr, addr pos)
 
 	getsize_memory_stream(pos, &size);
 	make_index_integer_heap(&pos, size);
-	setresult_control(ptr, pos);
+	setvalues_control(ptr, pos, T, NULL);
 
 	return 0;
 }
@@ -123,7 +123,7 @@ static int sysctl_memory_stream_array_(Execute ptr, addr pos)
 
 	getarray_memory_stream(pos, &size);
 	make_index_integer_heap(&pos, size);
-	setresult_control(ptr, pos);
+	setvalues_control(ptr, pos, T, NULL);
 
 	return 0;
 }
@@ -133,8 +133,7 @@ static int sysctl_memory_stream_cache_(Execute ptr, addr pos)
 	int cache;
 
 	cache = getcache_memory_stream(pos);
-	fixnum_heap(&pos, (fixnum)cache);
-	setresult_control(ptr, pos);
+	setvalues_control(ptr, cache? T: Nil, T, NULL);
 
 	return 0;
 }
@@ -164,7 +163,7 @@ static int sysctl_memory_stream_(Execute ptr, addr pos, addr args)
 
 	/* error */
 error:
-	setvalues_control(ptr, Nil, T, NULL);
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
@@ -226,7 +225,7 @@ static int sysctl_structure_(Execute ptr, addr args)
 		return sysctl_structure_type_(ptr, name);
 
 error:
-	setvalues_control(ptr, Nil, T, NULL);
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
@@ -234,42 +233,84 @@ error:
 /*
  *  random
  */
-static int sysctl_random_integer_(Execute ptr, addr pos)
+static int sysctl_random_integer_(Execute ptr, addr args)
 {
-	Return(random_state_integer_(pos, &pos));
-	setvalues_control(ptr, pos, T, NULL);
+	addr value;
+
+	if (! consp_getcons(args, &value, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+	Return(random_state_integer_(value, &value));
+	setvalues_control(ptr, value, T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
-static int sysctl_random_make_(Execute ptr, addr pos)
+static int sysctl_random_make_(Execute ptr, addr args)
 {
-	Return(random_state_make_(ptr->local, pos, &pos));
+	addr value;
+
+	if (! consp_getcons(args, &value, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+	Return(random_state_make_(ptr->local, value, &value));
+	setvalues_control(ptr, value, T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_random_write_(Execute ptr, addr args)
+{
+	addr pos, value;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (! consp_getcons(args, &value, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+	Return(random_state_write_(ptr->local, pos, value));
 	setvalues_control(ptr, pos, T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
 static int sysctl_random_(Execute ptr, addr args)
 {
 	int check;
-	addr value, pos;
+	addr pos;
 
 	if (! consp_getcons(args, &pos, &args))
-		goto error;
-	if (! consp_getcons(args, &value, &args))
 		goto error;
 
 	/* integer */
 	Return(string_designer_equalp_char_(pos, "integer", &check));
 	if (check)
-		return sysctl_random_integer_(ptr, value);
+		return sysctl_random_integer_(ptr, args);
 
 	/* make */
 	Return(string_designer_equalp_char_(pos, "make", &check));
 	if (check)
-		return sysctl_random_make_(ptr, value);
+		return sysctl_random_make_(ptr, args);
+
+	/* write */
+	Return(string_designer_equalp_char_(pos, "write", &check));
+	if (check)
+		return sysctl_random_write_(ptr, args);
 
 error:
-	setvalues_control(ptr, Nil, T, NULL);
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 
@@ -305,7 +346,7 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 		return sysctl_random_(ptr, args);
 
 	/* error */
-	setresult_control(ptr, Nil);
+	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
 }
 

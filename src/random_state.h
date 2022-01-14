@@ -20,6 +20,7 @@
 #define equal_random_state_addr _n(equal_random_state_addr)
 #define random_state_integer_ _n(random_state_integer_)
 #define random_state_make_ _n(random_state_make_)
+#define random_state_write_ _n(random_state_write_)
 
 struct random_state *struct_random_state(addr pos);
 
@@ -42,6 +43,7 @@ void make_bignum_random_state_heap(addr pos, addr *ret);
 int equal_random_state_addr(addr left, addr right);
 int random_state_integer_(addr pos, addr *ret);
 int random_state_make_(LocalRoot local, addr pos, addr *ret);
+int random_state_write_(LocalRoot local, addr pos, addr value);
 
 #endif
 

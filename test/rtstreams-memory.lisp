@@ -71,13 +71,13 @@
   (sysctl
     (make-memory-input-stream nil :size 10)
     'size)
-  10)
+  10 t)
 
 (deftest make-memory-input-stream-args.2
   (sysctl
     (make-memory-input-stream nil :array 20)
     'array)
-  20)
+  20 t)
 
 
 ;;
@@ -114,13 +114,13 @@
   (sysctl
     (make-memory-output-stream :size 10)
     'size)
-  10)
+  10 t)
 
 (deftest make-memory-output-stream-args.2
   (sysctl
     (make-memory-output-stream :array 20)
     'array)
-  20)
+  20 t)
 
 
 ;;

@@ -460,32 +460,33 @@ int random_state_integer_(addr pos, addr *ret)
 	}
 
 	make_bignum_random_state_heap(pos, &value);
+	sizepress_bignum(value);
 	return integer_result_heap_(value, ret);
 }
 
-int random_state_make_(LocalRoot local, addr pos, addr *ret)
+static int random_state_set_value_(LocalRoot local, addr pos, addr value)
 {
-	addr spec, ignore, state;
+	addr spec, ignore;
 	bigtype *data;
 	struct random_state *str;
 	size_t size, i;
 
-	if (! integerp(pos)) {
-		*ret = Nil;
-		return TypeError_(pos, INTEGER);
-	}
+	CheckType(pos, LISPTYPE_RANDOM_STATE);
+	Check(! integerp(value), "type error");
 
-	/* (ldb (byte 128 0) pos) */
+	/* (ldb (byte 128 0) value) */
 	bytespec_heap(&spec, 128UL, 0UL);
-	Return(ldb_common_(local, &pos, spec, pos));
+	Return(ldb_common_(local, &value, spec, value));
 
-	/* result */
-	if (fixnump(pos))
-		bignum_fixnum_heap(&pos, pos);
-	GetSizeBignum(pos, &size);
-	GetRootDataBignum(pos, &ignore, &data);
-	random_state_heap(&state);
-	str = struct_random_state(state);
+	/* bignum */
+	if (fixnump(value))
+		bignum_fixnum_heap(&value, value);
+	GetSizeBignum(value, &size);
+	GetRootDataBignum(value, &ignore, &data);
+
+	/* set */
+	str = struct_random_state(pos);
+	clearpoint(str);
 	for (i = 0; i < size; i++) {
 #ifdef LISP_64BIT
 		str->seed.u64[i] = (uint64_t)data[i];
@@ -494,6 +495,31 @@ int random_state_make_(LocalRoot local, addr pos, addr *ret)
 #endif
 	}
 
-	return Result(ret, state);
+	return 0;
+}
+
+int random_state_make_(LocalRoot local, addr value, addr *ret)
+{
+	addr pos;
+
+	if (! integerp(value)) {
+		*ret = Nil;
+		return TypeError_(value, INTEGER);
+	}
+	random_state_heap(&pos);
+	Return(random_state_set_value_(local, pos, value));
+
+	return Result(ret, pos);
+}
+
+int random_state_write_(LocalRoot local, addr pos, addr value)
+{
+
+	if (GetType(pos) != LISPTYPE_RANDOM_STATE)
+		return TypeError_(pos, RANDOM_STATE);
+	if (! integerp(value))
+		return TypeError_(pos, INTEGER);
+
+	return random_state_set_value_(local, pos, value);
 }
 

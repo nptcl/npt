@@ -539,10 +539,6 @@ int long_float_bignum_heap_(addr *ret, addr pos)
 	return long_float_bignum_alloc_(NULL, ret, pos);
 }
 
-
-/*
- *  TODO: bignum_float must use printf("%A").
- */
 static size_t printf_integer_float_size(int exp)
 {
 	size_t size;
