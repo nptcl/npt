@@ -82,8 +82,6 @@
 (loadrt #p"rt-division.lisp")
 ;; subtypep
 (loadrt #p"rt-subtypep.lisp")
-;; Lexical Binding
-(loadrt #p"rt-binding.lisp")
 ;; finish
 (format t "~&OK.~%")
 
