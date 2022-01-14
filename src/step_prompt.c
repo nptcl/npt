@@ -150,11 +150,16 @@ static int step_prompt_loop_(Execute ptr, addr io, addr pos, int *exit, int *exe
 
 static int step_prompt_query_call_(Execute ptr, addr io)
 {
+	int eof;
 	addr prompt;
 
 	strvect_char_heap(&prompt, "Step> ");
 	push_prompt(ptr, prompt, prompt_step);
-	return eval_custom_loop_(ptr, io, step_prompt_loop_);
+	Return(eval_custom_loop_(ptr, io, step_prompt_loop_, &eof));
+	if (eof)
+		step_prompt_quit(ptr);
+
+	return 0;
 }
 
 int execute_step_code(Execute ptr, addr expr)

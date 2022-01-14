@@ -148,7 +148,7 @@ static void eval_loop_variable(Execute ptr)
 struct eval_loop_struct {
 	eval_loop_calltype call;
 	addr stream;
-	int *ret;
+	int *ret, eof;
 };
 
 static int eval_loop_execute(Execute ptr, void *voidp)
@@ -168,6 +168,7 @@ static int eval_loop_execute(Execute ptr, void *voidp)
 
 	/* EOF */
 	if (check) {
+		str->eof = 1;
 		Return(fresh_line_stream_(stream, NULL));
 		return Result(ret, 1);
 	}
@@ -185,7 +186,7 @@ static int eval_loop_execute(Execute ptr, void *voidp)
 }
 
 static int eval_loop_restart(Execute ptr, addr stream,
-		eval_loop_calltype call, int *ret)
+		eval_loop_calltype call, int *ret, int *eof)
 {
 	addr control, restart;
 	struct eval_loop_struct str;
@@ -194,22 +195,26 @@ static int eval_loop_restart(Execute ptr, addr stream,
 	str.stream = stream;
 	str.call = call;
 	str.ret = ret;
+	str.eof = 0;
 	eval_main_restart_abort(&restart);
 	(void)restart0_control(ptr, restart, eval_loop_execute, (void *)&str);
+	*eof = str.eof;
 	return pop_control_(ptr, control);
 }
 
-int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call)
+int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call, int *ret)
 {
-	int exit;
+	int exit, eof;
 
 	eval_loop_variable(ptr);
 	exit = 0;
 	for (;;) {
-		Return(eval_loop_restart(ptr, stream, call, &exit));
+		Return(eval_loop_restart(ptr, stream, call, &exit, &eof));
 		if (exit)
 			break;
 	}
+	if (ret)
+		*ret = eof;
 
 	Return(terpri_stream_(stream));
 	return finish_output_stream_(stream);
@@ -229,7 +234,7 @@ int eval_main_loop_(Execute ptr)
 	Return(terminal_io_stream_(ptr, &stream));
 	push_control(ptr, &control);
 	push_prompt_eval_loop(ptr);
-	(void)eval_custom_loop_(ptr, stream, eval_main_execute);
+	(void)eval_custom_loop_(ptr, stream, eval_main_execute, NULL);
 	return pop_control_(ptr, control);
 }
 

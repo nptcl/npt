@@ -199,7 +199,7 @@ static int inspect_common_call_(Execute ptr, addr object)
 	GetConst(SYSTEM_INSPECTED, &symbol);
 	pushspecial_control(ptr, symbol, object);
 	/* prompt */
-	Return(eval_custom_loop_(ptr, io, eval_loop_inspect_));
+	Return(eval_custom_loop_(ptr, io, eval_loop_inspect_, NULL));
 
 	return 0;
 }
