@@ -56,14 +56,14 @@
 ;;  structure
 (deftest structure-check-sysctl.1
   (progn
-    (defstruct (structure-check-1 (:type list)))
-    (sysctl 'structure 'check 'structure-check-1))
+    (defstruct (structure-check-sysctl-1 (:type list)))
+    (sysctl 'structure 'check 'structure-check-sysctl-1))
   t t)
 
 (deftest structure-check-sysctl.2
   (progn
-    (defstruct structure-check-2)
-    (sysctl 'structure 'check 'structure-check-2))
+    (defstruct structure-check-sysctl-2)
+    (sysctl 'structure 'check 'structure-check-sysctl-2))
   nil t)
 
 (deftest structure-check-sysctl.3
@@ -76,32 +76,32 @@
 
 (deftest structure-delete-sysctl.2
   (progn
-    (defstruct structure-delete-1)
-    (sysctl 'structure 'delete 'structure-delete-1))
+    (defstruct structure-delete-sysctl-2)
+    (sysctl 'structure 'delete 'structure-delete-sysctl-2))
   t t)
 
 (deftest structure-delete-sysctl.3
   (progn
-    (defstruct structure-delete-2)
-    (sysctl 'structure 'delete 'structure-delete-2)
+    (defstruct structure-delete-sysctl-3)
+    (sysctl 'structure 'delete 'structure-delete-sysctl-3)
     (values
-      (sysctl 'structure 'check 'structure-delete-2)
-      (find-class 'structure-delete-2 nil)))
+      (sysctl 'structure 'check 'structure-delete-sysctl-3)
+      (find-class 'structure-delete-sysctl-3 nil)))
   nil nil)
 
 (deftest structure-delete-sysctl.4
   (progn
-    (defstruct (structure-delete-4 (:type vector)))
-    (sysctl 'structure 'delete 'structure-delete-4))
+    (defstruct (structure-delete-sysctl-4 (:type vector)))
+    (sysctl 'structure 'delete 'structure-delete-sysctl-4))
   t t)
 
 (deftest structure-delete-sysctl.5
   (progn
-    (defstruct (structure-delete-5 (:type vector)))
-    (sysctl 'structure 'delete 'structure-delete-5)
+    (defstruct (structure-delete-sysctl-5 (:type vector)))
+    (sysctl 'structure 'delete 'structure-delete-sysctl-5)
     (values
-      (sysctl 'structure 'check 'structure-delete-5)
-      (find-class 'structure-delete-5 nil)))
+      (sysctl 'structure 'check 'structure-delete-sysctl-5)
+      (find-class 'structure-delete-sysctl-5 nil)))
   nil nil)
 
 (deftest structure-type-sysctl.1
@@ -110,20 +110,20 @@
 
 (deftest structure-type-sysctl.2
   (progn
-    (defstruct structure-type-1)
-    (sysctl 'structure 'type 'structure-type-1))
+    (defstruct structure-type-sysctl-2)
+    (sysctl 'structure 'type 'structure-type-sysctl-2))
   class t)
 
 (deftest structure-type-sysctl.3
   (progn
-    (defstruct (structure-type-2 (:type list)))
-    (sysctl 'structure 'type 'structure-type-2))
+    (defstruct (structure-type-sysctl-3 (:type list)))
+    (sysctl 'structure 'type 'structure-type-sysctl-3))
   list t)
 
 (deftest structure-type-sysctl.4
   (progn
-    (defstruct (structure-type-3 (:type (vector character))))
-    (sysctl 'structure 'type 'structure-type-3))
+    (defstruct (structure-type-sysctl-4 (:type (vector character))))
+    (sysctl 'structure 'type 'structure-type-sysctl-4))
   (vector character) t)
 
 (deftest structure-sysctl.1
