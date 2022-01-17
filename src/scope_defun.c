@@ -189,7 +189,7 @@ static void scope_flet_maketable(Execute ptr, struct let_struct *str)
 
 static int scope_checktype_function_(Execute ptr, addr table, addr eval)
 {
-	int check, errorp;
+	int false_p, exclude_p;
 	addr name, type;
 
 	getname_tablefunction(table, &name);
@@ -197,8 +197,8 @@ static int scope_checktype_function_(Execute ptr, addr table, addr eval)
 	if (type == Nil)
 		return 0;
 	GetEvalScopeThe(eval, &eval);
-	Return(checktype_p_(ptr, type, eval, &check, &errorp));
-	if (errorp) {
+	Return(checktype_p_(ptr, type, eval, &false_p, &exclude_p));
+	if (exclude_p) {
 		GetCallName(name, &name);
 		Return(type_object_(&eval, eval));
 		Return(type_object_(&type, type));

@@ -1969,7 +1969,7 @@ lisp-system::hexadecimal-dispatch
 lisp-system::backquote
 lisp-system::unbound-value
 
-;;  subtypep-result
+;;  subtypep!
 lisp-system::include
 lisp-system::exclude
 lisp-system::invalid

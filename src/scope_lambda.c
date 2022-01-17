@@ -183,7 +183,7 @@ static int scope_lambda_tablevalue_opt_(Execute ptr, addr args)
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, &svar, NULL);
-		Return(checktype_value_(ptr, var, init));
+		Return(checkvalue_bind_(ptr, var, init));
 	}
 
 	return 0;
@@ -196,7 +196,7 @@ static int scope_lambda_tablevalue_key_(Execute ptr, addr args)
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &name, &init, &svar, NULL);
-		Return(checktype_value_(ptr, var, init));
+		Return(checkvalue_bind_(ptr, var, init));
 	}
 
 	return 0;
@@ -209,7 +209,7 @@ static int scope_lambda_tablevalue_aux_(Execute ptr, addr args)
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, NULL);
-		Return(checktype_value_(ptr, var, init));
+		Return(checkvalue_bind_(ptr, var, init));
 	}
 
 	return 0;

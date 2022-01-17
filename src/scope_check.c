@@ -44,14 +44,14 @@ static int check_tablecall_warning_(Execute ptr, addr name, addr type, addr expe
 {
 	Return(type_object_(&type, type));
 	Return(type_object_(&expected, expected));
-	return checktype_error_(ptr, name, expected,
-			"The object ~S expected a ~S type but the initialize form is ~S type.",
+	return checkvalue_error_(ptr, name, expected,
+			"Value ~S expected ~S type, but initialize form is ~S type.",
 			name, expected, type, NULL);
 }
 
 static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 {
-	int check, errp;
+	int false_p, exclude_p;
 	addr table, type, name;
 
 	/* tablecall */
@@ -62,12 +62,12 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 	setvalue_tablecall(table, eval);
 	/* checktype */
 	GetEvalScopeThe(eval, &type);
-	Return(checktype_p_(ptr, type, right, &check, &errp));
-	if (errp) {
+	Return(checktype_p_(ptr, type, right, &false_p, &exclude_p));
+	if (exclude_p) {
 		GetEvalScopeValue(eval, &name);
 		Return(check_tablecall_warning_(ptr, name, type, right));
 	}
-	setcheck_tablecall(table, check);
+	setcheck_tablecall(table, false_p);
 	/* result */
 	return Result(ret, table);
 }

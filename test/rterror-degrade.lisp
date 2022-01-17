@@ -137,3 +137,30 @@
     define-symbol-macro-error-1)
   :hello)
 
+
+;;
+;;  scope type-check
+;;
+(deftype scope-type-check ()
+  '(cons (eql queue) *))
+
+(deftest scope-type-check.1
+  (lisp-system:subtypep!
+    '(cons (eql queue) *)
+    '(or null (cons * (or null cons))))
+  lisp-system::false)
+
+(deftest scope-type-check.2
+  (defun scope-type-check-1 (inst)
+    (declare (type scope-type-check inst))
+    (cadr inst))
+  scope-type-check-1)
+
+(deftest scope-type-check.3
+  (scope-type-check-1 '(queue 10 20 30))
+  10)
+
+(deftest-error scope-type-check.4
+  (scope-type-check-1 '(queue . 20))
+  type-error)
+

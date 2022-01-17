@@ -18,7 +18,7 @@ static FILE *file = NULL;
 int DegradeCount = 0;
 int DegradeError = 0;
 
-#define DEGRADE_WIDTH 60
+#define LISP_DEGRADE_WIDTH 60
 static int DegradeSwitch = 1;
 static int DegradePosition;
 
@@ -78,7 +78,7 @@ int degrade_test(int check, const char *name)
 		if (DegradeSwitch) {
 			degrade_printf(".");
 			DegradePosition++;
-			if (DEGRADE_WIDTH <= DegradePosition) {
+			if (LISP_DEGRADE_WIDTH <= DegradePosition) {
 				degrade_printf("\n");
 				DegradePosition = 0;
 			}

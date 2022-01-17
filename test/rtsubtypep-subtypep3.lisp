@@ -141,11 +141,11 @@
 
 (deftest subtypep-cons.14
   (subtypep! '(cons integer real) '(cons t integer))
-  exclude)
+  false)
 
 (deftest subtypep-cons.15
   (subtypep! '(cons t integer) '(cons integer real))
-  exclude)
+  false)
 
 (deftest subtypep-cons.16
   (subtypep! '(cons integer real) '(cons t t))
@@ -153,7 +153,7 @@
 
 (deftest subtypep-cons.17
   (subtypep! '(cons * real) '(cons real t))
-  exclude)
+  false)
 
 (deftest subtypep-cons.18
   (subtypep! '(cons * real) '(cons real integer))
@@ -165,11 +165,19 @@
 
 (deftest subtypep-cons.20
   (subtypep! '(cons integer *) '(cons t real))
-  exclude)
+  false)
 
 (deftest subtypep-cons.21
   (subtypep! '(cons t real) '(cons integer *))
-  exclude)
+  false)
+
+(deftest subtypep-cons.22
+  (subtypep! '(cons (satisfies hello) real) '(cons integer *))
+  invalid)
+
+(deftest subtypep-cons.23
+  (subtypep! '(cons t real) '(cons integer (satisfies hello)))
+  invalid)
 
 
 ;;

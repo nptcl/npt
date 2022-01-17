@@ -225,7 +225,7 @@ int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 		Return(find_symbol_scope_(ptr, var, &var, &ignore));
 		Return(scope_eval(ptr, &form, form));
 		GetEvalScopeThe(form, type);
-		Return(checktype_value_(ptr, var, form));
+		Return(checkvalue_bind_(ptr, var, form));
 
 		cons_heap(&var, var, form);
 		cons_heap(&root, var, root);
@@ -277,7 +277,7 @@ static int scope_the_check_warning_(Execute ptr, addr type, addr expected)
 {
 	Return(type_object_(&type, type));
 	Return(type_object_(&expected, expected));
-	return checktype_error_(ptr, Nil, expected,
+	return checkvalue_error_(ptr, Nil, expected,
 			"The special operator THE accept a ~S type, "
 			"but actually the form is ~S type.",
 			expected, type, NULL);
@@ -285,16 +285,16 @@ static int scope_the_check_warning_(Execute ptr, addr type, addr expected)
 
 static int scope_the_check_(Execute ptr, addr eval, addr right, addr *ret)
 {
-	int check, errp;
+	int false_p, exclude_p;
 	addr left;
 
 	GetEvalScopeThe(eval, &left);
-	Return(checktype_p_(ptr, left, right, &check, &errp));
-	if (errp) {
+	Return(checktype_p_(ptr, left, right, &false_p, &exclude_p));
+	if (exclude_p) {
 		Return(scope_the_check_warning_(ptr, left, right));
 	}
 
-	return Result(ret, check? T: Nil);
+	return Result(ret, false_p? T: Nil);
 }
 
 int scope_the_call_(Execute ptr, addr form, addr type, addr expr, addr *ret)

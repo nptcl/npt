@@ -18,6 +18,110 @@
 #include "type_object.h"
 
 /*
+ *  checktype
+ */
+static int checkvalue_subtypep_(Execute ptr,
+		addr x, addr y, int *false_p, int *exclude_p)
+{
+	SubtypepResult value;
+
+	CheckType(x, LISPTYPE_TYPE);
+	CheckType(y, LISPTYPE_TYPE);
+	Return(subtypep_scope_(ptr, x, y, Nil, &value));
+	switch (value) {
+		case SUBTYPEP_INCLUDE:
+			*false_p = 0;
+			*exclude_p = 0;
+			break;
+
+		case SUBTYPEP_EXCLUDE:
+			*false_p = 1;
+			*exclude_p = 1;
+			break;
+
+		case SUBTYPEP_FALSE:
+		case SUBTYPEP_INVALID:
+		default:
+			*false_p = 1;
+			*exclude_p = 0;
+			break;
+	}
+
+	return 0;
+}
+
+int checktype_p_(Execute ptr, addr x, addr y, int *false_p, int *exclude_p)
+{
+	int value;
+
+	/* type-error */
+	Return(check_error_type_(ptr, x, &value));
+	if (! value)
+		goto type_error;
+	Return(check_error_type_(ptr, y, &value));
+	if (! value)
+		goto type_error;
+
+	/* subtypep */
+	return checkvalue_subtypep_(ptr, x, y, false_p, exclude_p);
+
+type_error:
+	*false_p = 1;
+	*exclude_p = 0;
+	return 0;
+}
+
+int checkvalue_error_(Execute ptr, addr datum, addr expected, const char *str, ...)
+{
+	addr format, list, instance;
+	va_list va;
+
+	/* value */
+	copylocal_object(NULL, &datum, datum);
+	copylocal_object(NULL, &expected, expected);
+	strvect_char_heap(&format, str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &list, va);
+	va_end(va);
+
+	/* condition */
+	if (eval_compile_p(ptr)) {
+		Return(instance_simple_warning_(&instance, format, list));
+		return warning_restart_case_(ptr, instance);
+	}
+	else {
+		return call_simple_type_error_(ptr, format, list, datum, expected);
+	}
+}
+
+static int checkvalue_warning_(Execute ptr, addr name, addr type, addr expected)
+{
+	Return(type_object_(&type, type));
+	Return(type_object_(&expected, expected));
+	return checkvalue_error_(ptr, name, expected,
+			"The object ~S must be a ~S type, but ~S type.",
+			name, expected, type, NULL);
+}
+
+int checkvalue_bind_(Execute ptr, addr value, addr init)
+{
+	int false_p, exclude_p;
+	addr type, name;
+
+	gettype_tablevalue(value, &type);
+	GetEvalScopeThe(init, &init);
+	Return(checktype_p_(ptr, init, type, &false_p, &exclude_p));
+	if (exclude_p) {
+		getname_tablevalue(value, &name);
+		Return(checkvalue_warning_(ptr, name, type, init));
+	}
+	setcheck_tablevalue(value, false_p);
+
+	return 0;
+}
+
+
+/*
  *  let
  */
 void scope_init_let(struct let_struct *str)
@@ -410,103 +514,6 @@ int push_tablevalue_special_global_(Execute ptr, addr stack, addr symbol, addr *
 	return Result(ret, pos);
 }
 
-static int checktype_subtypep_(Execute ptr, addr x, addr y, int *check, int *errp)
-{
-	SubtypepResult value;
-
-	CheckType(x, LISPTYPE_TYPE);
-	CheckType(y, LISPTYPE_TYPE);
-	Return(subtypep_scope_(ptr, x, y, Nil, &value));
-	switch (value) {
-		case SUBTYPEP_INCLUDE:
-			/* type check can skip. */
-			*check = 0;
-			return Result(errp, 0);
-
-		case SUBTYPEP_EXCLUDE:
-			/* error, output to warning mesasge. */
-			*check = 1;
-			return Result(errp, 1);
-
-		case SUBTYPEP_FALSE:
-		case SUBTYPEP_INVALID:
-		default:
-			/* type check must execute. */
-			*check = 1;
-			return Result(errp, 0);
-	}
-}
-
-int checktype_p_(Execute ptr, addr x, addr y, int *check, int *errp)
-{
-	int value;
-
-	/* type-error */
-	Return(check_error_type_(ptr, x, &value));
-	if (! value)
-		goto type_error;
-	Return(check_error_type_(ptr, y, &value));
-	if (! value)
-		goto type_error;
-
-	/* subtypep */
-	return checktype_subtypep_(ptr, x, y, check, errp);
-
-type_error:
-	*check = 1;
-	*errp = 0;
-	return 0;
-}
-
-int checktype_error_(Execute ptr, addr datum, addr expected, const char *str, ...)
-{
-	addr format, list, instance;
-	va_list va;
-
-	/* value */
-	copylocal_object(NULL, &datum, datum);
-	copylocal_object(NULL, &expected, expected);
-	strvect_char_heap(&format, str);
-	va_start(va, str);
-	copylocal_list_stdarg(NULL, &list, va);
-	va_end(va);
-
-	/* condition */
-	if (eval_compile_p(ptr)) {
-		Return(instance_simple_warning_(&instance, format, list));
-		return warning_restart_case_(ptr, instance);
-	}
-	else {
-		return call_simple_type_error_(ptr, format, list, datum, expected);
-	}
-}
-
-static int checktype_warning_(Execute ptr, addr name, addr type, addr expected)
-{
-	Return(type_object_(&type, type));
-	Return(type_object_(&expected, expected));
-	return checktype_error_(ptr, name, expected,
-			"The object ~S must be a ~S type but ~S type.",
-			name, expected, type, NULL);
-}
-
-int checktype_value_(Execute ptr, addr value, addr init)
-{
-	int check, errp;
-	addr type, name;
-
-	gettype_tablevalue(value, &type);
-	GetEvalScopeThe(init, &init);
-	Return(checktype_p_(ptr, init, type, &check, &errp));
-	if (errp) {
-		getname_tablevalue(value, &name);
-		Return(checktype_warning_(ptr, name, type, init));
-	}
-	setcheck_tablevalue(value, check);
-
-	return 0;
-}
-
 static int let_applytable_(Execute ptr, struct let_struct *str)
 {
 	addr stack, args, var, init;
@@ -517,7 +524,7 @@ static int let_applytable_(Execute ptr, struct let_struct *str)
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
 		Return(update_tablevalue_(ptr, stack, var));
-		Return(checktype_value_(ptr, var, init));
+		Return(checkvalue_bind_(ptr, var, init));
 	}
 
 	return 0;
@@ -652,7 +659,7 @@ static int leta_checktype_(Execute ptr, struct let_struct *str)
 	while (args != Nil) {
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
-		Return(checktype_value_(ptr, var, init));
+		Return(checkvalue_bind_(ptr, var, init));
 	}
 
 	return 0;

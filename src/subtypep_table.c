@@ -44,23 +44,14 @@ static int subtypep_call_cons_value_(Execute ptr, addr x, addr y, SubtypepResult
 
 	/* subtypep */
 	Return(subtypep_call_cons_t_(ptr, car1, car2, &value1));
-	ReturnSecondThrow(ret, value1);
 	Return(subtypep_call_cons_t_(ptr, cdr1, cdr2, &value2));
-	ReturnSecondThrow(ret, value2);
 
-	/* include */
 	if (value1 == SUBTYPEP_INCLUDE && value2 == SUBTYPEP_INCLUDE)
 		return ReturnInclude(ret);
-
-	/* reverse */
-	if (value1 == SUBTYPEP_INCLUDE) {
-		Return(subtypep_call_cons_t_(ptr, car2, car1, &value1));
-		return ReturnSecondValue(ret, value1);
-	}
-	if (value2 == SUBTYPEP_INCLUDE) {
-		Return(subtypep_call_cons_t_(ptr, cdr2, cdr1, &value2));
-		return ReturnSecondValue(ret, value2);
-	}
+	if (value1 == SUBTYPEP_INVALID || value2 == SUBTYPEP_INVALID)
+		return ReturnInvalid(ret);
+	if (value1 == SUBTYPEP_EXCLUDE || value2 == SUBTYPEP_EXCLUDE)
+		return ReturnExclude(ret);
 
 	return ReturnFalse(ret);
 }
