@@ -127,7 +127,7 @@ static int make_structure1_init_(Execute ptr, addr clos, addr args, int initp)
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
 		if (! initp) {
-			Return(structure_write1_(ptr, clos, slot, Nil));
+			Return(structure_write1_(ptr, clos, slot, Unbound));
 			continue;
 		}
 		Return(make_structure_find_(slot, args, &pos, &check));

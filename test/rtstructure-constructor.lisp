@@ -193,3 +193,47 @@
       (fboundp 'make-change-clos-constructor-8)))
   nil nil t nil t)
 
+
+;;
+;;  Error
+;;
+(deftest structure-constructor-error.1
+  (defstruct (structure-constructor-error-1
+               (:constructor
+                 make-structure-constructor-error-1
+                 (&optional (bbb 0))))
+    (bbb nil :type (member 0 1 2)))
+  structure-constructor-error-1)
+
+(deftest structure-constructor-error.2
+  (slot-value
+    (allocate-instance
+      (find-class 'structure-constructor-error-1))
+    'bbb)
+  nil)
+
+(defstruct (structure-constructor-error-2
+             (:constructor
+               make-structure-constructor-error-2
+               (&optional (bbb 0))))
+  (bbb nil :type (member 0 1 2)))
+
+(defvar *structure-constructur-error*)
+
+(deftest structure-constructor-error.3
+  (let (*structure-constructur-error*)
+    (defmethod make-load-form ((x structure-constructor-error-2) &optional env)
+      (make-load-form-saving-slots x :environment env))
+    (with-open-stream (lisp (lisp-system:make-memory-io-stream))
+      (with-open-stream (fasl (lisp-system:make-memory-io-stream))
+        (with-open-file (s lisp :direction :output)
+          (format s "(setq *structure-constructur-error* ")
+          (format s "#.(make-structure-constructor-error-2))"))
+        (file-position lisp :start)
+        (compile-file lisp :output-file fasl)
+        (file-position fasl :start)
+        (load fasl :type 'fasl)))
+    (structure-constructor-error-2-bbb
+      *structure-constructur-error*))
+  0)
+

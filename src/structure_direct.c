@@ -143,7 +143,12 @@ int structure_write1_(Execute ptr, addr instance, addr slot, addr value)
 
 	/* check */
 	GetTypeSlot(slot, &type);
-	Return(structure_setcheck_error_(ptr, type, value));
+	if (value != Unbound) {
+		Return(structure_setcheck_error_(ptr, type, value));
+	}
+	else {
+		value = Nil;
+	}
 
 	/* write */
 	GetLocationSlot(slot, &index);
