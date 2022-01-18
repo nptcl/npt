@@ -12,6 +12,7 @@
 #include "cons_list.h"
 #include "function.h"
 #include "hashtable.h"
+#include "hold.h"
 #include "lambda.h"
 #include "sequence.h"
 #include "symbol.h"
@@ -658,6 +659,7 @@ int ensure_method_common_(Execute ptr, addr *ret,
 {
 	int check;
 	addr gen, method, clos;
+	LocalHold hold;
 
 	Return(ensure_generic_function_name_(name, &name));
 	getglobal_callname(name, &gen);
@@ -671,8 +673,12 @@ int ensure_method_common_(Execute ptr, addr *ret,
 	if (! check)
 		return fmte_("The function ~S is not generic-function.", gen, NULL);
 	Return(stdget_generic_method_class_(gen, &clos));
+
+	hold = LocalHold_array(ptr, 1);
 	Return(method_instance_heap_(&method, clos, lambda, qua, spec, call));
+	localhold_set(hold, 0, method);
 	Return(method_add_method_(ptr, gen, method));
+	localhold_end(hold);
 
 	return Result(ret, method);
 }

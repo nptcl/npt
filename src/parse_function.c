@@ -2088,17 +2088,25 @@ static int parse_switch_(Execute ptr, addr *ret, addr pos)
 int parse_execute_(Execute ptr, addr *ret, addr pos)
 {
 	addr toplevel;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	localhold_set(hold, 0, pos);
 
 	/* toplevel */
 	Return(get_toplevel_eval_(ptr, &toplevel));
-	if (toplevel == Nil)
-		return parse_switch_(ptr, ret, pos);
+	if (toplevel == Nil) {
+		Return(parse_switch_(ptr, ret, pos));
+		goto finish;
+	}
 
 	/* parse */
 	set_toplevel_eval(ptr, Nil);
 	Return(parse_switch_(ptr, ret, pos));
 	set_toplevel_eval(ptr, toplevel);
 
+finish:
+	localhold_end(hold);
 	return 0;
 }
 
