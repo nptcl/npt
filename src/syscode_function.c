@@ -263,23 +263,28 @@ int make_character_syscode(addr var, addr *ret)
 {
 	unicode c;
 
+	/* integer */
 	if (integerp(var)) {
 		Return(getunicode_integer_(var, &c));
-		if (isExtendedType(c)) {
-			Return(make_extended_char_heap_(ret, c));
-		}
-		else {
+		if (isBaseType(c)) {
 			make_character_heap(ret, c);
+			return 0;
 		}
-		return 0;
+		if (isExtendedType(c)) {
+			return make_extended_char_heap_(ret, c);
+		}
+		goto error;
 	}
 
+	/* character */
 	if (characterp(var)) {
 		GetCharacter(var, &c);
 		make_character_heap(ret, c);
 		return 0;
 	}
 
+	/* type-error*/
+error:
 	*ret = Nil;
 	return TypeError_(var, CHARACTER);
 }

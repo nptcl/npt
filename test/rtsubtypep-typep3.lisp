@@ -272,7 +272,7 @@
   t)
 
 (deftest typep-character.3
-  (typep (lisp-system:make-character #x80000000) 'character)
+  (typep (lisp-system:make-character #x00800000) 'character)
   t)
 
 (deftest typep-character.4
@@ -292,7 +292,7 @@
   t)
 
 (deftest typep-base-char.3
-  (typep (lisp-system:make-character #x80000000) 'base-char)
+  (typep (lisp-system:make-character #x00800000) 'base-char)
   nil)
 
 (deftest typep-base-char.4
@@ -312,7 +312,7 @@
   nil)
 
 (deftest typep-standard-char.3
-  (typep (lisp-system:make-character #x80000000) 'standard-char)
+  (typep (lisp-system:make-character #x00800000) 'standard-char)
   nil)
 
 (deftest typep-standard-char.4

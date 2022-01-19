@@ -233,7 +233,7 @@ static int test_unicode_character_type(void)
 			== CHARACTER_TYPE_STANDARD, "unicode_character_type.1");
 	test(unicode_character_type(CHARACTER_TYPE_EMPTY, 0xFF)
 			== CHARACTER_TYPE_BASE, "unicode_character_type.2");
-	test(unicode_character_type(CHARACTER_TYPE_EMPTY, 0xF0000000)
+	test(unicode_character_type(CHARACTER_TYPE_EMPTY, 0x00F00000)
 			== CHARACTER_TYPE_EXTENDED, "unicode_character_type.3");
 	test(unicode_character_type(CHARACTER_TYPE_EMPTY, 0xD800)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.4");
@@ -242,7 +242,7 @@ static int test_unicode_character_type(void)
 			== CHARACTER_TYPE_STANDARD, "unicode_character_type.5");
 	test(unicode_character_type(CHARACTER_TYPE_STANDARD, 0)
 			== CHARACTER_TYPE_BASE, "unicode_character_type.6");
-	test(unicode_character_type(CHARACTER_TYPE_STANDARD, 0x80001000)
+	test(unicode_character_type(CHARACTER_TYPE_STANDARD, 0x00801000)
 			== CHARACTER_TYPE_EXTENDED, "unicode_character_type.7");
 	test(unicode_character_type(CHARACTER_TYPE_STANDARD, 0xD800)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.8");
@@ -251,7 +251,7 @@ static int test_unicode_character_type(void)
 			== CHARACTER_TYPE_BASE, "unicode_character_type.9");
 	test(unicode_character_type(CHARACTER_TYPE_BASE, 0x0D)
 			== CHARACTER_TYPE_BASE, "unicode_character_type.10");
-	test(unicode_character_type(CHARACTER_TYPE_BASE, 0x80000000)
+	test(unicode_character_type(CHARACTER_TYPE_BASE, 0x00800000)
 			== CHARACTER_TYPE_EXTENDED, "unicode_character_type.11");
 	test(unicode_character_type(CHARACTER_TYPE_BASE, 0xD800)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.12");
@@ -260,7 +260,7 @@ static int test_unicode_character_type(void)
 			== CHARACTER_TYPE_EXTENDED, "unicode_character_type.13");
 	test(unicode_character_type(CHARACTER_TYPE_EXTENDED, 0)
 			== CHARACTER_TYPE_EXTENDED, "unicode_character_type.14");
-	test(unicode_character_type(CHARACTER_TYPE_EXTENDED, 0x80000000)
+	test(unicode_character_type(CHARACTER_TYPE_EXTENDED, 0x00800000)
 			== CHARACTER_TYPE_EXTENDED, "unicode_character_type.15");
 	test(unicode_character_type(CHARACTER_TYPE_EXTENDED, 0xD800)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.16");
@@ -269,7 +269,7 @@ static int test_unicode_character_type(void)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.17");
 	test(unicode_character_type(CHARACTER_TYPE_INVALID, 0x0100)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.18");
-	test(unicode_character_type(CHARACTER_TYPE_INVALID, 0xE0000000)
+	test(unicode_character_type(CHARACTER_TYPE_INVALID, 0x00E00000)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.19");
 	test(unicode_character_type(CHARACTER_TYPE_INVALID, 0xD800)
 			== CHARACTER_TYPE_INVALID, "unicode_character_type.20");

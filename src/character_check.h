@@ -38,7 +38,7 @@
 #define isBaseRange(x)		((x) < UnicodeCount)
 #define isStandardType(x)   (((x)==0x0A) || (0x20<=(x) && (x)<=0x7E))
 #define isBaseType(x)		(isBaseRange(x) && (! isSurrogatePair(x)))
-#define isExtendedType(x)	(0x80000000UL <= (x))
+#define isExtendedType(x)	((0x00800000UL <= (x)) && ((x) <= 0x00FFFFFFUL))
 
 /* character check */
 int isbasechar(unicode x);

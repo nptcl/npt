@@ -103,8 +103,8 @@ static int test_character_type(void)
 	test(character_type(0x010000) == CHARACTER_TYPE_BASE, "character_type.11");
 	test(character_type(0x010FFFF) == CHARACTER_TYPE_BASE, "character_type.12");
 	test(character_type(0x0110000) == CHARACTER_TYPE_INVALID, "character_type.13");
-	test(character_type(0x80000000) == CHARACTER_TYPE_EXTENDED, "character_type.14");
-	test(character_type(0x80002000) == CHARACTER_TYPE_EXTENDED, "character_type.15");
+	test(character_type(0x00800000) == CHARACTER_TYPE_EXTENDED, "character_type.14");
+	test(character_type(0x00802000) == CHARACTER_TYPE_EXTENDED, "character_type.15");
 
 	RETURN;
 }
@@ -115,7 +115,7 @@ static int test_standard_char_p(void)
 
 	make_character_heap(&x, 'A');
 	make_character_heap(&y, 0x0D);
-	make_character_heap(&z, 0x80003000);
+	make_character_heap(&z, 0x00803000);
 
 	test(standard_char_p(x), "standard_char_p.1");
 	test(! standard_char_p(y), "standard_char_p.2");

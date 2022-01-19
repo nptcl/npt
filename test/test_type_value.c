@@ -113,7 +113,7 @@ static int test_type_value_strarray(void)
 	GetArrayType(check, 0, &check);
 	test(RefFixnum(check) == 5, "type_value_strarray4");
 
-	strarray_setc_(pos, 3, 0xF0000000);
+	strarray_setc_(pos, 3, 0x00F00000);
 	type_value_strarray_(&check, pos);
 	test(RefLispDecl(check) == LISPDECL_SIMPLE_STRING, "type_value_strarray5");
 	GetArrayType(check, 0, &check);
@@ -127,7 +127,7 @@ static int test_type_value_strarray(void)
 	GetArrayType(check, 0, &check);
 	test(RefFixnum(check) == 6, "type_value_strarray8");
 
-	strarray_setc_(pos, 3, 0xF0000000);
+	strarray_setc_(pos, 3, 0x00F00000);
 	type_value_strarray_(&check, pos);
 	test(RefLispDecl(check) == LISPDECL_STRING, "type_value_strarray9");
 	GetArrayType(check, 0, &check);
@@ -297,7 +297,7 @@ static int test_type_value_character(void)
 	type_value_character(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_BASE_CHAR, "type_value_character2");
 
-	character_heap(&pos, 0xF0000000);
+	character_heap(&pos, 0x00F00000);
 	type_value_character(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_EXTENDED_CHAR, "type_value_character3");
 
@@ -320,7 +320,7 @@ static int test_type_value_string(void)
 	GetArrayType(check, 0, &check);
 	test(RefFixnum(check) == 5, "type_value_string4");
 
-	strvect_setc_(pos, 3, 0xF0000000);
+	strvect_setc_(pos, 3, 0x00F00000);
 	type_value_string_(&check, pos);
 	test(RefLispDecl(check) == LISPDECL_SIMPLE_STRING, "type_value_string5");
 	GetArrayType(check, 0, &check);

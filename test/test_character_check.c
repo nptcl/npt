@@ -173,7 +173,7 @@ static int test_isbasetype(void)
 	test(  isbasetype(0xE000), "isbasetype.7");
 	test(  isbasetype(0x10FFFF), "isbasetype.8");
 	test(! isbasetype(0x110000), "isbasetype.9");
-	test(! isbasetype(0x80000000), "isbasetype.10");
+	test(! isbasetype(0x00800000), "isbasetype.10");
 
 	RETURN;
 }
@@ -181,9 +181,9 @@ static int test_isbasetype(void)
 static int test_isextendedtype(void)
 {
 	test(! isextendedtype('a'), "isextendedtype.1");
-	test(! isextendedtype(0x7FFFFFFF), "isextendedtype.2");
-	test(  isextendedtype(0x80000000), "isextendedtype.3");
-	test(  isextendedtype(0x80001000), "isextendedtype.4");
+	test(! isextendedtype(0x007FFFFF), "isextendedtype.2");
+	test(  isextendedtype(0x00800000), "isextendedtype.3");
+	test(  isextendedtype(0x00801000), "isextendedtype.4");
 
 	RETURN;
 }

@@ -620,7 +620,7 @@ static int test_typep_extended_char(void)
 {
 	addr v;
 
-	character_heap(&v, 0x80001000);
+	character_heap(&v, 0x00801000);
 	test(typep_char(v, "extended-char"), "typep_extended_char1");
 
 	character_heap(&v, 'A');
@@ -655,7 +655,7 @@ static int test_typep_string(void)
 	test(! typep_char(v, "string"), "typep_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc_(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x00801000);
 	test(typep_char(v, "string"), "typep_string8");
 
 	RETURN;
@@ -684,7 +684,7 @@ static int test_typep_base_string(void)
 	test(! typep_char(v, "base-string"), "typep_base_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc_(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x00801000);
 	test(! typep_char(v, "base-string"), "typep_base_string8");
 
 	RETURN;
@@ -713,7 +713,7 @@ static int test_typep_simple_string(void)
 	test(! typep_char(v, "simple-string"), "typep_simple_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc_(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x00801000);
 	test(typep_char(v, "simple-string"), "typep_simple_string8");
 
 	strarray_char_heap_(&v, "Hello");
@@ -747,7 +747,7 @@ static int test_typep_simple_base_string(void)
 	test(! typep_char(v, "simple-base-string"), "typep_simple_base_string7");
 
 	strvect_char_heap(&v, "Hello");
-	string_setc_(v, 3, 0x80001000);
+	string_setc_(v, 3, 0x00801000);
 	test(! typep_char(v, "simple-base-string"), "typep_simple_base_string8");
 
 	strarray_char_heap_(&v, "Hello");
@@ -1464,7 +1464,7 @@ static int test_typep_character(void)
 	character_heap(&v, 0x0D);
 	test(typep_char(v, "character"), "typep_character2");
 
-	character_heap(&v, 0x80001000);
+	character_heap(&v, 0x00801000);
 	test(typep_char(v, "character"), "typep_character3");
 
 	fixnum_heap(&v, 'A');
@@ -1483,7 +1483,7 @@ static int test_typep_base_char(void)
 	character_heap(&v, 0x0D);
 	test(typep_char(v, "base-char"), "typep_base_char2");
 
-	character_heap(&v, 0x80001000);
+	character_heap(&v, 0x00801000);
 	test(! typep_char(v, "base-char"), "typep_base_char3");
 
 	fixnum_heap(&v, 'A');
@@ -1502,7 +1502,7 @@ static int test_typep_standard_char(void)
 	character_heap(&v, 0x0D);
 	test(! typep_char(v, "standard-char"), "typep_standard_char2");
 
-	character_heap(&v, 0x80001000);
+	character_heap(&v, 0x00801000);
 	test(! typep_char(v, "standard-char"), "typep_standard_char3");
 
 	fixnum_heap(&v, 'A');

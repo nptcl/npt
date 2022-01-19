@@ -59,7 +59,7 @@ static int test_findtable_char_name(void)
 	test(pos != Nil, "findtable_char_name.1");
 	test(string_equalp_char_debug(pos, "Page"), "findtable_char_name.2");
 
-	character_heap(&pos, 0xF0000000UL);
+	character_heap(&pos, 0x00F00000UL);
 	findtable_char_name_(&pos, pos);
 	test(pos == Nil, "findtable_char_name.3");
 

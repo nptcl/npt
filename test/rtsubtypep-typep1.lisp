@@ -271,7 +271,7 @@
 ;;  exntended-char
 ;;
 (deftest typep-extended-char.1
-  (typep (lisp-system:make-character #x80000000) 'extended-char)
+  (typep (lisp-system:make-character #x00800000) 'extended-char)
   t)
 
 (deftest typep-extended-char.2
