@@ -563,7 +563,7 @@ static int defstruct_parse_name_(struct defstruct *str, addr name)
 
 	/* parse slots */
 	hold = LocalHold_local(str->ptr);
-	localhold_destruct(hold, str);
+	localhold_defstruct(str, hold);
 	if (str->include_p) {
 		Return(defstruct_parse_slots_result_(str, str->iargs, &(str->iargs)));
 	}

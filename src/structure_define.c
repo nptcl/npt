@@ -71,9 +71,9 @@ int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 	Check(! listp(slots), "type error");
 	Return(ensure_structure_struct_(&str, ptr, name, slots, args));
 
-	hold = LocalHold_local(ptr);
-	localhold_destruct(hold, &str);
-	Return(structure_arguments_(&str));
+	hold = LocalHold_array(ptr, 2);
+	localhold_defstruct(&str, hold);
+	Return(structure_arguments_(&str, hold));
 	Return(ensure_structure_call_(&str));
 	localhold_end(hold);
 

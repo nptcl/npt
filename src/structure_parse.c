@@ -210,6 +210,23 @@ static int structure_slots_heap_(addr list, addr *ret)
 	return 0;
 }
 
+static int structure_slots_make_(struct defstruct *str, LocalHold hold)
+{
+	addr list;
+
+	/* slots: 0 */
+	Return(structure_slots_heap_(str->slots, &list));
+	localhold_set(hold, 0, list);
+	str->slots = list;
+
+	/* iargs: 1 */
+	Return(structure_slots_heap_(str->iargs, &list));
+	localhold_set(hold, 1, list);
+	str->iargs = list;
+
+	return 0;
+}
+
 static int structure_check_slots_(addr list)
 {
 	int check;
@@ -494,10 +511,9 @@ static int structure_slots_value_(struct defstruct *str)
 	return 0;
 }
 
-int structure_arguments_(struct defstruct *str)
+int structure_arguments_(struct defstruct *str, LocalHold hold)
 {
-	Return(structure_slots_heap_(str->slots, &(str->slots)));
-	Return(structure_slots_heap_(str->iargs, &(str->iargs)));
+	Return(structure_slots_make_(str, hold));
 	Return(structure_check_slots_(str->slots));
 	Return(structure_check_slots_(str->iargs));
 	Return(structure_check_predicate_(str));

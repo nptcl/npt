@@ -30,10 +30,10 @@ struct defstruct {
 	size_t size, size_all, offset, named_index;
 };
 
-#define localhold_destruct _n(localhold_destruct)
+#define localhold_defstruct _n(localhold_defstruct)
 #define defstruct_clean _n(defstruct_clean)
 
-void localhold_destruct(LocalHold hold, struct defstruct *str);
+void localhold_defstruct(struct defstruct *str, LocalHold hold);
 void defstruct_clean(struct defstruct *ptr);
 
 #endif
