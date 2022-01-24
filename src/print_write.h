@@ -13,17 +13,17 @@
 #define pprint_pop_circle_ _n(pprint_pop_circle_)
 #define pprint_check_circle_ _n(pprint_check_circle_)
 #define write_default_print_ _n(write_default_print_)
-#define write_print _n(write_print)
-#define princ_print _n(princ_print)
-#define prin1_print _n(prin1_print)
-#define print_print _n(print_print)
-#define pprint_print _n(pprint_print)
-#define write_string_heap _n(write_string_heap)
-#define write_string_local _n(write_string_local)
-#define princ_string_heap _n(princ_string_heap)
-#define princ_string_local _n(princ_string_local)
-#define prin1_string_heap _n(prin1_string_heap)
-#define prin1_string_local _n(prin1_string_local)
+#define write_print_ _n(write_print_)
+#define princ_print_ _n(princ_print_)
+#define prin1_print_ _n(prin1_print_)
+#define print_print_ _n(print_print_)
+#define pprint_print_ _n(pprint_print_)
+#define write_string_heap_ _n(write_string_heap_)
+#define write_string_local_ _n(write_string_local_)
+#define princ_string_heap_ _n(princ_string_heap_)
+#define princ_string_local_ _n(princ_string_local_)
+#define prin1_string_heap_ _n(prin1_string_heap_)
+#define prin1_string_local_ _n(prin1_string_local_)
 #define init_print_write _n(init_print_write)
 
 void push_write_object(Execute ptr);
@@ -34,17 +34,17 @@ int write_check_call_(Execute ptr, addr pos);
 int pprint_pop_circle_(Execute ptr, addr stream, addr pos, int *ret);
 int pprint_check_circle_(Execute ptr, addr pos, addr *value, int *ret);
 int write_default_print_(Execute ptr, addr stream, addr pos);
-int write_print(Execute ptr, addr stream, addr pos);
-int princ_print(Execute ptr, addr stream, addr pos);
-int prin1_print(Execute ptr, addr stream, addr pos);
-int print_print(Execute ptr, addr stream, addr pos);
-int pprint_print(Execute ptr, addr stream, addr pos);
-int write_string_heap(Execute ptr, addr *ret, addr pos);
-int write_string_local(Execute ptr, addr *ret, addr pos);
-int princ_string_heap(Execute ptr, addr *ret, addr pos);
-int princ_string_local(Execute ptr, addr *ret, addr pos);
-int prin1_string_heap(Execute ptr, addr *ret, addr pos);
-int prin1_string_local(Execute ptr, addr *ret, addr pos);
+int write_print_(Execute ptr, addr stream, addr pos);
+int princ_print_(Execute ptr, addr stream, addr pos);
+int prin1_print_(Execute ptr, addr stream, addr pos);
+int print_print_(Execute ptr, addr stream, addr pos);
+int pprint_print_(Execute ptr, addr stream, addr pos);
+int write_string_heap_(Execute ptr, addr *ret, addr pos);
+int write_string_local_(Execute ptr, addr *ret, addr pos);
+int princ_string_heap_(Execute ptr, addr *ret, addr pos);
+int princ_string_local_(Execute ptr, addr *ret, addr pos);
+int prin1_string_heap_(Execute ptr, addr *ret, addr pos);
+int prin1_string_local_(Execute ptr, addr *ret, addr pos);
 void init_print_write(void);
 
 #endif

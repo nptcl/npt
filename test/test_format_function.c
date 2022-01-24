@@ -2079,7 +2079,7 @@ static int test_format_call_CallFunction_test(Execute ptr, addr rest)
 	GetCons(rest, &colon, &rest);
 	GetCons(rest, &atsign, &rest);
 
-	princ_print(ptr, stream, arg);
+	princ_print_(ptr, stream, arg);
 	if (colon != Nil)
 		write_char_stream_(stream, ':');
 	if (atsign != Nil)

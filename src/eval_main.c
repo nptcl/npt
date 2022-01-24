@@ -91,7 +91,7 @@ int eval_loop_output(Execute ptr, addr stream)
 	Return(fresh_line_stream_(stream, NULL));
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		Return(prin1_print(ptr, stream, pos));
+		Return(prin1_print_(ptr, stream, pos));
 		Return(terpri_stream_(stream));
 	}
 	Return(fresh_line_stream_(stream, NULL));

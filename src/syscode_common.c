@@ -354,7 +354,7 @@ int pprint_gensym_syscode(addr stream, addr *ret)
 int pprint_exit_syscode(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
-	return pprint_exit_common(ptr, stream);
+	return pprint_exit_common_(ptr, stream);
 }
 
 
@@ -362,7 +362,7 @@ int pprint_exit_syscode(Execute ptr, addr stream)
 int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
 {
 	Check(! pretty_stream_p(stream), "type error");
-	return pprint_pop_common(ptr, stream, ret);
+	return pprint_pop_common_(ptr, stream, ret);
 }
 
 
@@ -370,7 +370,7 @@ int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
 int pprint_check_syscode(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
-	return check_pretty_stream(ptr, stream);
+	return check_pretty_stream_(ptr, stream);
 }
 
 

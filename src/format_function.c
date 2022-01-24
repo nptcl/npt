@@ -336,9 +336,9 @@ static int format_call_print(fmtprint print, addr pos, int colon, int atsign,
 	else {
 		Return(fmtprint_stream_(print, &stream));
 		if (prin1p)
-			check = prin1_print(print->ptr, stream, pos);
+			check = prin1_print_(print->ptr, stream, pos);
 		else
-			check = princ_print(print->ptr, stream, pos);
+			check = princ_print_(print->ptr, stream, pos);
 		if (check)
 			return 1;
 		Return(string_stream_local_(print->local, stream, &pos));
@@ -689,7 +689,7 @@ static int format_call_Character_atsign_(fmtprint print, addr pos)
 
 	CheckType(pos, LISPTYPE_CHARACTER);
 	Return(fmtprint_stream_(print, &stream));
-	Return(prin1_print(print->ptr, stream, pos));
+	Return(prin1_print_(print->ptr, stream, pos));
 	Return(string_stream_local_(print->local, stream, &pos));
 	clear_output_string_stream(stream);
 	return fmtprint_string_(print, pos);
@@ -1863,7 +1863,7 @@ static int format_call_Write_call_(fmtprint print, struct format_operator *str)
 	}
 	Return(fmtprint_pop_(print, str, &pos));
 	Return(fmtprint_stream_(print, &stream));
-	Return(write_print(ptr, stream, pos));
+	Return(write_print_(ptr, stream, pos));
 	Return(fmtprint_stream_output_(print));
 
 	return 0;
@@ -3034,7 +3034,7 @@ static int format_logicalblock2(Execute ptr)
 
 	getdata_control(ptr, &pos);
 	getstream_format_pretty(pos, &stream);
-	Return(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream_(ptr, stream));
 	read_format_pretty(pos, &print, &rest);
 	return fmtcall(&print, NULL);
 }
@@ -3276,7 +3276,7 @@ static int format_call_EscapeUpward(fmtprint print, struct format_operator *str)
 
 break_outside:
 	if (print->escape == 0 && print->pretty)
-		return pprint_throw(print->ptr, print->stream);
+		return pprint_throw_(print->ptr, print->stream);
 	print->loop = 0;
 	print->loop_colon = str->colon;
 

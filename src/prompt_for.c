@@ -74,7 +74,7 @@ static int prompt_for_lisp_(Execute ptr, LocalHold hold,
 	addr value;
 
 	/* output */
-	Return(princ_print(ptr, io, prompt));
+	Return(princ_print_(ptr, io, prompt));
 	Return(finish_output_stream_(io));
 
 	/* query */
@@ -153,7 +153,7 @@ static int prompt_string_lisp_(Execute ptr,
 	addr ignore;
 
 	/* output */
-	Return(princ_print(ptr, io, prompt));
+	Return(princ_print_(ptr, io, prompt));
 	Return(finish_output_stream_(io));
 
 	/* query */

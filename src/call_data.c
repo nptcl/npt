@@ -1132,7 +1132,7 @@ static int function_ccase_comma(Execute ptr, addr stream, addr x, int *first)
 	else {
 		Return(print_ascii_stream_(stream, ", "));
 	}
-	return princ_print(ptr, stream, x);
+	return princ_print_(ptr, stream, x);
 }
 
 static int function_ccase_string(Execute ptr,

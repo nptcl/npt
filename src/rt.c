@@ -450,7 +450,7 @@ static int do_test_output_loop_(Execute ptr, addr io, const char *str, addr list
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		Return(write_char_stream_(io, ' '));
-		Return(prin1_print(ptr, io, pos));
+		Return(prin1_print_(ptr, io, pos));
 	}
 
 	return terpri_stream_(io);

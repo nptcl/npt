@@ -35,7 +35,7 @@ static int method_print_clos_name_(Execute ptr, addr stream, addr pos)
 	stdget_class_name_check(pos, &pos);
 	if (pos == Unbound)
 		goto unbound;
-	return princ_print(ptr, stream, pos);
+	return princ_print_(ptr, stream, pos);
 unbound:
 	return print_ascii_stream_(stream, "Unbound");
 }
@@ -47,17 +47,17 @@ static int method_print_clos_class_of_(Execute ptr, addr stream, addr pos)
 	return method_print_clos_name_(ptr, stream, pos);
 }
 
-static int method_print_object_t_body(Execute ptr, addr stream, addr pos)
+static int method_print_object_t_body_(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	return method_print_clos_class_of_(ptr, stream, pos);
 }
 
-static int method_print_object_t(Execute ptr,
+static int method_print_object_t_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	Return(print_unreadable_object_(ptr,
-				stream, pos, 0, 1, method_print_object_t_body));
+				stream, pos, 0, 1, method_print_object_t_body_));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -66,7 +66,7 @@ static int method_print_object_t(Execute ptr,
 /*
  *  class
  */
-static int method_print_object_class(Execute ptr,
+static int method_print_object_class_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	/* #<CLASS-OF CLASS-NAME> */
@@ -85,7 +85,7 @@ static int method_print_object_class(Execute ptr,
 /*
  *  structure-object
  */
-static int write_structure(Execute ptr, addr stream, addr pos)
+static int write_structure_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 	addr x, y, z;
@@ -100,7 +100,7 @@ static int write_structure(Execute ptr, addr stream, addr pos)
 		return print_ascii_stream_(stream, "#S(INVALID)");
 	Return(stdget_structure_name_(x, &x));
 	Return(print_ascii_stream_(stream, "#S("));
-	Return(write_print(ptr, stream, x));
+	Return(write_print_(ptr, stream, x));
 	/* slot */
 	GetSlotClos(pos, &x);
 	GetValueClos(pos, &y);
@@ -111,14 +111,14 @@ static int write_structure(Execute ptr, addr stream, addr pos)
 		GetNameSlot(z, &z);
 		GetNameSymbol(z, &z);
 		Return(write_char_stream_(stream, ':'));
-		Return(princ_print(ptr, stream, z));
+		Return(princ_print_(ptr, stream, z));
 		Return(write_char_stream_(stream, ' '));
 		GetClosValue(y, i, &z);
 		if (z == Unbound) {
 			Return(print_ascii_stream_(stream, "#<UNBOUND>"));
 		}
 		else {
-			Return(write_print(ptr, stream, z));
+			Return(write_print_(ptr, stream, z));
 		}
 	}
 	Return(write_char_stream_(stream, ')'));
@@ -126,24 +126,24 @@ static int write_structure(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static int method_print_object_structure_object(Execute ptr,
+static int method_print_object_structure_object_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	Return(print_structure(ptr, stream, pos));
+	Return(print_structure_(ptr, stream, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
 
-int print_structure(Execute ptr, addr stream, addr pos)
+int print_structure_(Execute ptr, addr stream, addr pos)
 {
-	return write_structure(ptr, stream, pos);
+	return write_structure_(ptr, stream, pos);
 }
 
 
 /*
  *  generic-function
  */
-static int method_print_object_generic_function(Execute ptr,
+static int method_print_object_generic_function_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	addr class_of, name;
@@ -153,9 +153,9 @@ static int method_print_object_generic_function(Execute ptr,
 	Return(stdget_generic_name_(pos, &name));
 	/* #<CLASS-OF CLASS-NAME> */
 	Return(print_ascii_stream_(stream, "#<"));
-	Return(princ_print(ptr, stream, class_of));
+	Return(princ_print_(ptr, stream, class_of));
 	Return(write_char_stream_(stream, ' '));
-	Return(princ_print(ptr, stream, name));
+	Return(princ_print_(ptr, stream, name));
 	Return(write_char_stream_(stream, '>'));
 	/* result */
 	setresult_control(ptr, pos);
@@ -195,7 +195,7 @@ static int method_print_object_simple_condition_format_(Execute ptr,
 	return format_stream_lisp(ptr, stream, control, arguments);
 }
 
-static int method_print_object_simple_condition(Execute ptr,
+static int method_print_object_simple_condition_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	/*  (defmethod print-object ((inst simple-condition) stream)
@@ -262,11 +262,11 @@ static int defmethod_print_object_(Execute ptr, addr name, addr gen,
  */
 void init_print_object(void)
 {
-	SetPointerType(var4, method_print_object_t);
-	SetPointerType(var4, method_print_object_class);
-	SetPointerType(var4, method_print_object_structure_object);
-	SetPointerType(var4, method_print_object_generic_function);
-	SetPointerType(var4, method_print_object_simple_condition);
+	SetPointerType_(var4, method_print_object_t);
+	SetPointerType_(var4, method_print_object_class);
+	SetPointerType_(var4, method_print_object_structure_object);
+	SetPointerType_(var4, method_print_object_generic_function);
+	SetPointerType_(var4, method_print_object_simple_condition);
 }
 
 #define DefMethod_PrintObject1(ptr, name, gen, p, c) { \

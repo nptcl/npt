@@ -418,7 +418,7 @@ static int ed_function_write_call_(Execute ptr, addr file, addr lambda)
 				external));
 	Return(right_margin_print_(ptr, file, &width));
 	Return(push_right_margin_print_(ptr, width));
-	Return(prin1_print(ptr, file, lambda));
+	Return(prin1_print_(ptr, file, lambda));
 	Return(close_stream_(file, NULL));
 
 	return 0;

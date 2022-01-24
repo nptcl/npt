@@ -232,7 +232,7 @@ static int fmtprint_pop2_(fmtprint print, struct format_operator *str, addr *ret
 
 	stream = print->stream;
 	Check(! pretty_stream_p(stream), "pretty stream error");
-	return pprint_pop_common(print->ptr, stream, ret);
+	return pprint_pop_common_(print->ptr, stream, ret);
 }
 
 int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret)

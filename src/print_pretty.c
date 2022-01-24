@@ -297,24 +297,24 @@ int expand_pprint_logical_block_common_(addr *ret, addr symbol, addr pos,
 	return 0;
 }
 
-int pprint_throw(Execute ptr, addr stream)
+int pprint_throw_(Execute ptr, addr stream)
 {
 	Return(gensym_pretty_stream_(stream, &stream));
 	return throw_control_(ptr, stream);
 }
 
-int pprint_exit_common(Execute ptr, addr stream)
+int pprint_exit_common_(Execute ptr, addr stream)
 {
 	addr pos;
 
 	Return(root_pretty_stream_(stream, &pos));
 	if (pos == Nil)
-		return pprint_throw(ptr, stream);
+		return pprint_throw_(ptr, stream);
 
 	return 0;
 }
 
-static int pprint_pop_atom(Execute ptr, addr stream)
+static int pprint_pop_atom_(Execute ptr, addr stream)
 {
 	int check;
 	addr pos;
@@ -324,9 +324,9 @@ static int pprint_pop_atom(Execute ptr, addr stream)
 		Return(print_ascii_stream_(stream, ". "));
 	}
 	Return(pop_pretty_stream_(stream, &pos, &check));
-	Return(write_print(ptr, stream, pos));
+	Return(write_print_(ptr, stream, pos));
 
-	return pprint_throw(ptr, stream);
+	return pprint_throw_(ptr, stream);
 }
 
 static int pprint_length_check_(Execute ptr, addr stream, int *ret)
@@ -342,7 +342,7 @@ static int pprint_length_check_(Execute ptr, addr stream, int *ret)
 	return Result(ret, x <= y);
 }
 
-int pprint_pop_common(Execute ptr, addr stream, addr *ret)
+int pprint_pop_common_(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 	addr pos;
@@ -350,12 +350,12 @@ int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 	Return(root_pretty_stream_(stream, &pos));
 	/* atom */
 	if (! listp(pos))
-		return pprint_pop_atom(ptr, stream);
+		return pprint_pop_atom_(ptr, stream);
 	/* length */
 	Return(pprint_length_check_(ptr, stream, &check));
 	if (check) {
 		Return(print_ascii_stream_(stream, "..."));
-		return pprint_throw(ptr, stream);
+		return pprint_throw_(ptr, stream);
 	}
 	/* list */
 	if (pos == Nil)
@@ -367,14 +367,14 @@ int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 		if (! check) {
 			Return(pprint_pop_circle_(ptr, stream, pos, &check));
 			if (check)
-				return pprint_throw(ptr, stream);
+				return pprint_throw_(ptr, stream);
 		}
 	}
 	/* cons */
 	return pop_pretty_stream_(stream, ret, &check);
 }
 
-int check_pretty_stream(Execute ptr, addr stream)
+int check_pretty_stream_(Execute ptr, addr stream)
 {
 	int check;
 	addr root;
@@ -387,15 +387,15 @@ int check_pretty_stream(Execute ptr, addr stream)
 		if (level <= depth) {
 			setlistp_pretty_stream(stream, 0);
 			Return(write_char_stream_(stream, '#'));
-			return pprint_throw(ptr, stream);
+			return pprint_throw_(ptr, stream);
 		}
 	}
 
 	/* atom */
 	Return(root_pretty_stream_(stream, &root));
 	if (! listp(root)) {
-		Return(write_print(ptr, stream, root));
-		return pprint_throw(ptr, stream);
+		Return(write_print_(ptr, stream, root));
+		return pprint_throw_(ptr, stream);
 	}
 
 	/* increment depth */
@@ -409,7 +409,7 @@ int check_pretty_stream(Execute ptr, addr stream)
 			if (check) {
 				setlistp_pretty_stream(stream, 0);
 				Return(print_string_stream_(stream, root));
-				return pprint_throw(ptr, stream);
+				return pprint_throw_(ptr, stream);
 			}
 			if (root != Nil)
 				setsharp_pretty_stream(stream, root);

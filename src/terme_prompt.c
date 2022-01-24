@@ -49,7 +49,7 @@ static int readline_default_terme_(Execute ptr, addr *ret)
 	Return(terme_prompt_get_(ptr, &prompt, NULL));
 	Return(fresh_line_stream_(output, NULL));
 	if (prompt != Nil) {
-		Return(princ_print(ptr, output, prompt));
+		Return(princ_print_(ptr, output, prompt));
 	}
 	Return(finish_output_stream_(output));
 	Return(clear_input_stream_(input));

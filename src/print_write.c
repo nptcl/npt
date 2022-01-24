@@ -256,12 +256,12 @@ static int WriteBody_error_(Execute ptr, addr stream, addr pos)
 	return write_print_call_(ptr, stream, pos);
 }
 
-static int WriteCall_error(Execute ptr, addr stream, addr pos)
+static int WriteCall_error_(Execute ptr, addr stream, addr pos)
 {
 	return print_unreadable_object_(ptr, stream, pos, 0, 1, WriteBody_error_);
 }
 
-static int WriteCall_system(Execute ptr, addr stream, addr pos)
+static int WriteCall_system_(Execute ptr, addr stream, addr pos)
 {
 	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
 }
@@ -1656,7 +1656,7 @@ static int WriteCall_type_(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_TYPE);
 	Return(type_object_(&pos, pos));
 	Return(print_ascii_stream_(stream, "#<TYPE "));
-	Return(prin1_print(ptr, stream, pos));
+	Return(prin1_print_(ptr, stream, pos));
 	Return(print_ascii_stream_(stream, ">"));
 
 	return 0;
@@ -1797,7 +1797,7 @@ static int WriteBody_hashtable_(Execute ptr, addr stream, addr pos)
 	getcount_hashtable(pos, &count);
 	/* output */
 	Return(print_ascii_stream_(stream, ":TEST "));
-	Return(prin1_print(ptr, stream, value));
+	Return(prin1_print_(ptr, stream, value));
 	Return(print_ascii_stream_(stream, " :COUNT "));
 	Return(output_nosign_index_(stream, count, 10, 0));
 
@@ -2462,7 +2462,7 @@ static int write_pretty_print_(Execute ptr, addr stream, addr pos)
 		return funcall1_control_(ptr, &dispatch, dispatch, stream, pos, NULL);
 }
 
-int write_print(Execute ptr, addr stream, addr pos)
+int write_print_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 
@@ -2474,31 +2474,31 @@ int write_print(Execute ptr, addr stream, addr pos)
 		return write_default_print_(ptr, stream, pos);
 }
 
-int princ_print(Execute ptr, addr stream, addr pos)
+int princ_print_(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
 	push_control(ptr, &control);
 	push_escape_print(ptr, 0);
 	push_readably_print(ptr, 0);
-	(void)write_print(ptr, stream, pos);
+	(void)write_print_(ptr, stream, pos);
 	return pop_control_(ptr, control);
 }
 
-int prin1_print(Execute ptr, addr stream, addr pos)
+int prin1_print_(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
 	push_control(ptr, &control);
 	push_escape_print(ptr, 1);
-	(void)write_print(ptr, stream, pos);
+	(void)write_print_(ptr, stream, pos);
 	return pop_control_(ptr, control);
 }
 
-int print_print(Execute ptr, addr stream, addr pos)
+int print_print_(Execute ptr, addr stream, addr pos)
 {
 	Return(terpri_stream_(stream));
-	Return(prin1_print(ptr, stream, pos));
+	Return(prin1_print_(ptr, stream, pos));
 	return write_char_stream_(stream, ' ');
 }
 
@@ -2507,10 +2507,10 @@ static int pprint_print_call_(Execute ptr, addr stream, addr pos)
 	push_escape_print(ptr, 1);
 	push_pretty_print(ptr, 1);
 	Return(terpri_stream_(stream));
-	return write_print(ptr, stream, pos);
+	return write_print_(ptr, stream, pos);
 }
 
-int pprint_print(Execute ptr, addr stream, addr pos)
+int pprint_print_(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
@@ -2524,14 +2524,14 @@ static int write_string_heap_call_(Execute ptr, addr *ret, addr pos)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(write_print(ptr, stream, pos));
+	Return(write_print_(ptr, stream, pos));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;
 }
 
-int write_string_heap(Execute ptr, addr *ret, addr pos)
+int write_string_heap_(Execute ptr, addr *ret, addr pos)
 {
 	addr control;
 
@@ -2545,14 +2545,14 @@ static int write_string_local_call_(Execute ptr, addr *ret, addr pos)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(write_print(ptr, stream, pos));
+	Return(write_print_(ptr, stream, pos));
 	Return(string_stream_local_(ptr->local, stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;
 }
 
-int write_string_local(Execute ptr, addr *ret, addr pos)
+int write_string_local_(Execute ptr, addr *ret, addr pos)
 {
 	addr control;
 
@@ -2561,48 +2561,48 @@ int write_string_local(Execute ptr, addr *ret, addr pos)
 	return pop_control_(ptr, control);
 }
 
-int princ_string_heap(Execute ptr, addr *ret, addr pos)
+int princ_string_heap_(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(princ_print(ptr, stream, pos));
+	Return(princ_print_(ptr, stream, pos));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;
 }
 
-int princ_string_local(Execute ptr, addr *ret, addr pos)
+int princ_string_local_(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(princ_print(ptr, stream, pos));
+	Return(princ_print_(ptr, stream, pos));
 	Return(string_stream_local_(ptr->local, stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;
 }
 
-int prin1_string_heap(Execute ptr, addr *ret, addr pos)
+int prin1_string_heap_(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(prin1_print(ptr, stream, pos));
+	Return(prin1_print_(ptr, stream, pos));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;
 }
 
-int prin1_string_local(Execute ptr, addr *ret, addr pos)
+int prin1_string_local_(Execute ptr, addr *ret, addr pos)
 {
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(prin1_print(ptr, stream, pos));
+	Return(prin1_print_(ptr, stream, pos));
 	Return(string_stream_local_(ptr->local, stream, ret));
 	close_output_string_stream(stream);
 
@@ -2619,7 +2619,7 @@ void init_print_write(void)
 
 	/* error */
 	for (i = 0; i < LISPTYPE_SIZE; i++) {
-		WriteCallTable[i] = WriteCall_error;
+		WriteCallTable[i] = WriteCall_error_;
 		WriteCircleTable[i] = NULL;
 	}
 
@@ -2640,17 +2640,17 @@ void init_print_write(void)
 	WriteCallTable[LISPTYPE_CHARACTER] = WriteCall_character_;
 	WriteCallTable[LISPTYPE_STRING] = WriteCall_string_;
 	WriteCallTable[LISPTYPE_HASHTABLE] = WriteCall_hashtable_;
-	WriteCallTable[LISPTYPE_READTABLE] = WriteCall_system;
+	WriteCallTable[LISPTYPE_READTABLE] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_SYMBOL] = WriteCall_symbol_;
 	WriteCallTable[LISPTYPE_FIXNUM] = WriteCall_fixnum_;
 	WriteCallTable[LISPTYPE_BIGNUM] = WriteCall_bignum_;
 	WriteCallTable[LISPTYPE_RATIO] = WriteCall_ratio_;
-	WriteCallTable[LISPTYPE_SHORT_FLOAT] = WriteCall_error;
+	WriteCallTable[LISPTYPE_SHORT_FLOAT] = WriteCall_error_;
 	WriteCallTable[LISPTYPE_SINGLE_FLOAT] = WriteCall_single_float_;
 	WriteCallTable[LISPTYPE_DOUBLE_FLOAT] = WriteCall_double_float_;
 	WriteCallTable[LISPTYPE_LONG_FLOAT] = WriteCall_long_float_;
 	WriteCallTable[LISPTYPE_COMPLEX] = WriteCall_complex_;
-	WriteCallTable[LISPTYPE_CONTROL] = WriteCall_system;
+	WriteCallTable[LISPTYPE_CONTROL] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_CODE] = WriteCall_code_;
 	WriteCallTable[LISPTYPE_CALLNAME] = WriteCall_callname_;
 	WriteCallTable[LISPTYPE_FUNCTION] = WriteCall_function_;
@@ -2661,27 +2661,27 @@ void init_print_write(void)
 	WriteCallTable[LISPTYPE_STREAM] = WriteCall_stream_;
 	WriteCallTable[LISPTYPE_QUOTE] = WriteCall_quote_;
 	WriteCallTable[LISPTYPE_RESTART] = WriteCall_restart_;
-	WriteCallTable[LISPTYPE_EVAL] = WriteCall_system;
-	WriteCallTable[LISPTYPE_ENVIRONMENT] = WriteCall_system;
+	WriteCallTable[LISPTYPE_EVAL] = WriteCall_system_;
+	WriteCallTable[LISPTYPE_ENVIRONMENT] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_BITVECTOR] = WriteCall_bitvector_;
-	WriteCallTable[LISPTYPE_PRINT_DISPATCH] = WriteCall_system;
+	WriteCallTable[LISPTYPE_PRINT_DISPATCH] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_BYTESPEC] = WriteCall_bytespec_;
 
-	WriteCallTable[LISPSYSTEM_CHARACTER2] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_CHARQUEUE] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_CHARBIT] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_SYMSTACK] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_BITTYPE] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_READLABEL] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_READINFO] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_READTYPE] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_BITCONS] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_BITBUFFER] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_HASHITERATOR] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_PACKAGEITERATOR] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_TAGINFO] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_ARRAY_DIMENSION] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_ARRAY_GENERAL] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_ARRAY_SPECIALIZED] = WriteCall_system;
+	WriteCallTable[LISPSYSTEM_CHARACTER2] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_CHARQUEUE] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_CHARBIT] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_SYMSTACK] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_BITTYPE] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_READLABEL] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_READINFO] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_READTYPE] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_BITCONS] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_BITBUFFER] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_HASHITERATOR] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_PACKAGEITERATOR] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_TAGINFO] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_ARRAY_DIMENSION] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_ARRAY_GENERAL] = WriteCall_system_;
+	WriteCallTable[LISPSYSTEM_ARRAY_SPECIALIZED] = WriteCall_system_;
 }
 

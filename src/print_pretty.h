@@ -5,10 +5,10 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define pprint_throw _n(pprint_throw)
-#define pprint_exit_common _n(pprint_exit_common)
-#define pprint_pop_common _n(pprint_pop_common)
-#define check_pretty_stream _n(check_pretty_stream)
+#define pprint_throw_ _n(pprint_throw_)
+#define pprint_exit_common_ _n(pprint_exit_common_)
+#define pprint_pop_common_ _n(pprint_pop_common_)
+#define check_pretty_stream_ _n(check_pretty_stream_)
 #define expand_pprint_logical_block_common_ _n(expand_pprint_logical_block_common_)
 #define pprint_indent_print_ _n(pprint_indent_print_)
 #define pprint_newline_print_ _n(pprint_newline_print_)
@@ -34,10 +34,10 @@ enum pprint_tabular {
 	pprint_tabular_section_relative
 };
 
-int pprint_throw(Execute ptr, addr stream);
-int pprint_exit_common(Execute ptr, addr stream);
-int pprint_pop_common(Execute ptr, addr stream, addr *ret);
-int check_pretty_stream(Execute ptr, addr stream);
+int pprint_throw_(Execute ptr, addr stream);
+int pprint_exit_common_(Execute ptr, addr stream);
+int pprint_pop_common_(Execute ptr, addr stream, addr *ret);
+int check_pretty_stream_(Execute ptr, addr stream);
 int expand_pprint_logical_block_common_(addr *ret, addr stream, addr pos,
 		addr prefix, addr per, addr suffix, addr decl, addr body);
 int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream);

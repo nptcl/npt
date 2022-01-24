@@ -50,7 +50,7 @@ static int load_file_verbose_(Execute ptr, addr file,
 	Return(standard_output_stream_(ptr, &stream));
 	Return(fresh_line_stream_(stream, &ignore));
 	Return(print_ascii_stream_(stream, str1));
-	Return(prin1_print(ptr, stream, pos));
+	Return(prin1_print_(ptr, stream, pos));
 	Return(print_ascii_stream_(stream, str2));
 	Return(terpri_stream_(stream));
 

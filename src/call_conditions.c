@@ -369,7 +369,7 @@ static int check_type_expand_common_(Execute ptr, addr env, addr *ret,
 		localhold_push(hold, string);
 		Return(type_object_(&string, string));
 		localhold_push(hold, string);
-		Return(princ_string_heap(ptr, &string, string));
+		Return(princ_string_heap_(ptr, &string, string));
 	}
 	localhold_end(hold);
 

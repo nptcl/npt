@@ -73,7 +73,7 @@ int pprint_fill_common(Execute ptr, addr stream, addr list, addr colon)
 	if (colon == Unbound)
 		colon = T;
 	Return(output_stream_designer_(ptr, stream, &stream));
-	return pprint_fill_print(ptr, stream, list, colon != Nil);
+	return pprint_fill_print_(ptr, stream, list, colon != Nil);
 }
 
 
@@ -85,7 +85,7 @@ int pprint_linear_common(Execute ptr, addr stream, addr list, addr colon)
 	if (colon == Unbound)
 		colon = T;
 	Return(output_stream_designer_(ptr, stream, &stream));
-	return pprint_linear_print(ptr, stream, list, colon != Nil);
+	return pprint_linear_print_(ptr, stream, list, colon != Nil);
 }
 
 
@@ -107,7 +107,7 @@ int pprint_tabular_common(Execute ptr,
 	}
 	Return(output_stream_designer_(ptr, stream, &stream));
 
-	return pprint_tabular_print(ptr, stream, list, colon != Nil, size);
+	return pprint_tabular_print_(ptr, stream, list, colon != Nil, size);
 }
 
 
@@ -436,7 +436,7 @@ static void write_keyword_common(Execute ptr, addr args)
 
 static int write_common_call_(Execute ptr, addr stream, addr var)
 {
-	Return(write_print(ptr, stream, var));
+	Return(write_print_(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
 
@@ -462,7 +462,7 @@ int write_common(Execute ptr, addr var, addr args)
 int prin1_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
-	Return(prin1_print(ptr, stream, var));
+	Return(prin1_print_(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
 
@@ -473,7 +473,7 @@ int prin1_common(Execute ptr, addr var, addr stream)
 int princ_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
-	Return(princ_print(ptr, stream, var));
+	Return(princ_print_(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
 
@@ -484,7 +484,7 @@ int princ_common(Execute ptr, addr var, addr stream)
 int print_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
-	Return(print_print(ptr, stream, var));
+	Return(print_print_(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
 
@@ -495,7 +495,7 @@ int print_common(Execute ptr, addr var, addr stream)
 int pprint_common(Execute ptr, addr var, addr stream)
 {
 	Return(output_stream_designer_(ptr, stream, &stream));
-	Return(pprint_print(ptr, stream, var));
+	Return(pprint_print_(ptr, stream, var));
 	return exitpoint_stream_(stream);
 }
 
@@ -505,7 +505,7 @@ int pprint_common(Execute ptr, addr var, addr stream)
  */
 static int write_to_string_common_call_(Execute ptr, addr stream, addr var, addr *ret)
 {
-	Return(write_print(ptr, stream, var));
+	Return(write_print_(ptr, stream, var));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
@@ -532,7 +532,7 @@ int prin1_to_string_common(Execute ptr, addr var, addr *ret)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(prin1_print(ptr, stream, var));
+	Return(prin1_print_(ptr, stream, var));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
@@ -548,7 +548,7 @@ int princ_to_string_common(Execute ptr, addr var, addr *ret)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	Return(princ_print(ptr, stream, var));
+	Return(princ_print_(ptr, stream, var));
 	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 

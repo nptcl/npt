@@ -458,7 +458,7 @@ static int eval_toplevel_print_char_(Execute ptr, addr pos, addr stream, const c
 
 	Return(fresh_line_stream_(stream, &ignore));
 	Return(print_ascii_stream_(stream, str));
-	Return(prin1_print(ptr, stream, pos));
+	Return(prin1_print_(ptr, stream, pos));
 	Return(terpri_stream_(stream));
 
 	return 0;

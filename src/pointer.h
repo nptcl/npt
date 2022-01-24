@@ -30,6 +30,8 @@ extern struct callbind_struct pointer_table[SizePointer];
 #define SetPointerCall(x,y,z)         SetPointer_##y(p_##x##_##z, function_##z)
 #define SetPointerSysCall(x,y,z)      SetPointer_##y(p_##x##_syscall_##z, syscall_##z)
 
+#define SetPointerType_(x, y)          SetPointer(p_##y, x, y##_)
+
 #define SetPointer_code(p, x)         SetPointer(p, code, x)
 #define GetPointer_code(p, x)         GetPointer(p, code, x)
 #define SetPointer_macro(p, x)        SetPointer(p, macro, x)

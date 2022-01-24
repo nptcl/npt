@@ -758,7 +758,7 @@ static int method_defstruct_default(Execute ptr,
 	Return(structure_instance_p_(var, &check));
 	if (! check)
 		return fmte_("Invalid structure type ~S.", var, NULL);
-	Return(print_structure(ptr, stream, var));
+	Return(print_structure_(ptr, stream, var));
 	setresult_control(ptr, var);
 
 	return 0;
