@@ -15,8 +15,8 @@ static int function_call_cons(Execute ptr, int *result,
 		addr item, addr key, addr test, addr check, int notret)
 {
 	if (key != Nil)
-		Return(callclang_funcall(ptr, &check, key, check, NULL));
-	Return(callclang_funcall(ptr, &check, test, item, check, NULL));
+		Return(funcall1_control_(ptr, &check, key, check, NULL));
+	Return(funcall1_control_(ptr, &check, test, item, check, NULL));
 	*result = (notret? (check == Nil): (check != Nil));
 	return 0;
 }
@@ -25,8 +25,8 @@ static int function_if_call_cons(Execute ptr, int *result,
 		addr key, addr call, addr check)
 {
 	if (key != Nil)
-		Return(callclang_funcall(ptr, &check, key, check, NULL));
-	Return(callclang_funcall(ptr, &check, call, check, NULL));
+		Return(funcall1_control_(ptr, &check, key, check, NULL));
+	Return(funcall1_control_(ptr, &check, call, check, NULL));
 	*result = (check != Nil);
 	return 0;
 }
@@ -69,7 +69,7 @@ static int test_sublis_cons(Execute ptr,
 		if (right == Nil)
 			continue;
 		Return_getcons(right, &right, &value);
-		Return(callclang_funcall(ptr, &check, test, left, right, NULL));
+		Return(funcall1_control_(ptr, &check, test, left, right, NULL));
 		if (check != Nil) {
 			*result = 1;
 			return Result(ret, value);
@@ -89,7 +89,7 @@ static int test_not_sublis_cons(Execute ptr,
 		if (right == Nil)
 			continue;
 		Return_getcons(right, &right, &value);
-		Return(callclang_funcall(ptr, &check, test, left, right, NULL));
+		Return(funcall1_control_(ptr, &check, test, left, right, NULL));
 		if (check == Nil) {
 			*result = 1;
 			return Result(ret, value);
@@ -106,7 +106,7 @@ static int replace_sublis_cons(struct sublis_struct *str,
 
 	/* key */
 	if (str->key != Nil) {
-		Return(callclang_funcall(str->ptr, &check, str->key, tree, NULL));
+		Return(funcall1_control_(str->ptr, &check, str->key, tree, NULL));
 	}
 	else {
 		check = tree;
@@ -335,7 +335,7 @@ static int test_subst_cons(struct subst_struct *str, addr tree, int *result, add
 {
 	addr check;
 
-	Return(callclang_funcall(str->ptr, &check, str->test1, str->old, tree, NULL));
+	Return(funcall1_control_(str->ptr, &check, str->test1, str->old, tree, NULL));
 	if (check != Nil) {
 		*result = 1;
 		*ret = str->make;
@@ -353,7 +353,7 @@ static int test_not_subst_cons(struct subst_struct *str,
 {
 	addr check;
 
-	Return(callclang_funcall(str->ptr, &check, str->test2, str->old, tree, NULL));
+	Return(funcall1_control_(str->ptr, &check, str->test2, str->old, tree, NULL));
 	if (check == Nil) {
 		*result = 1;
 		*ret = str->make;
@@ -373,7 +373,7 @@ static int replace_subst_cons(struct subst_struct *str,
 
 	/* key */
 	if (str->key != Nil) {
-		Return(callclang_funcall(str->ptr, &check, str->key, tree, NULL));
+		Return(funcall1_control_(str->ptr, &check, str->key, tree, NULL));
 	}
 	else {
 		check = tree;
@@ -527,7 +527,7 @@ static int call_subst_if_cons(struct subst_struct *str,
 {
 	addr check;
 
-	Return(callclang_funcall(str->ptr, &check, str->test1, tree, NULL));
+	Return(funcall1_control_(str->ptr, &check, str->test1, tree, NULL));
 	if (check != Nil) {
 		*result = 1;
 		*ret = str->make;
@@ -545,7 +545,7 @@ static int call_subst_if_not_cons(struct subst_struct *str,
 {
 	addr check;
 
-	Return(callclang_funcall(str->ptr, &check, str->test2, tree, NULL));
+	Return(funcall1_control_(str->ptr, &check, str->test2, tree, NULL));
 	if (check == Nil) {
 		*result = 1;
 		*ret = str->make;
@@ -565,7 +565,7 @@ static int replace_subst_if(struct subst_struct *str,
 
 	/* key */
 	if (str->key != Nil) {
-		Return(callclang_funcall(str->ptr, &check, str->key, tree, NULL));
+		Return(funcall1_control_(str->ptr, &check, str->key, tree, NULL));
 	}
 	else {
 		check = tree;
@@ -751,14 +751,14 @@ static int argument_tree_equal_cons(Execute ptr,
 static int test_tree_equal_cons(Execute ptr,
 		int *result, addr test, addr left, addr right)
 {
-	Return(callclang_funcall(ptr, &test, test, left, right, NULL));
+	Return(funcall1_control_(ptr, &test, test, left, right, NULL));
 	return Result(result, (test != Nil));
 }
 
 static int test_not_tree_equal_cons(Execute ptr,
 		int *result, addr test, addr left, addr right)
 {
-	Return(callclang_funcall(ptr, &test, test, left, right, NULL));
+	Return(funcall1_control_(ptr, &test, test, left, right, NULL));
 	return Result(result, (test == Nil));
 }
 
@@ -1352,7 +1352,7 @@ int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &pos, call, args));
+	Return(apply1_control_(ptr, &pos, call, args));
 
 	/* second */
 	for (;;) {
@@ -1368,7 +1368,7 @@ int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 	}
 
 finish:
@@ -1406,7 +1406,7 @@ int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &pos, call, args));
+	Return(apply1_control_(ptr, &pos, call, args));
 	cons_heap(&result, pos, result);
 	gchold_local(local, &hold, 1);
 	setgchold(hold, 0, result);
@@ -1425,7 +1425,7 @@ int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 		cons_heap(&result, pos, result);
 		setgchold(hold, 0, result);
 	}
@@ -1467,7 +1467,7 @@ int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &head, call, args));
+	Return(apply1_control_(ptr, &head, call, args));
 	result = head;
 	gchold_local(local, &hold, 1);
 	setgchold(hold, 0, result);
@@ -1486,7 +1486,7 @@ int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 		/* nconc */
 		if (pos != Nil) {
 			if (result == Nil) {
@@ -1540,7 +1540,7 @@ int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &pos, call, args));
+	Return(apply1_control_(ptr, &pos, call, args));
 
 	/* second */
 	while (loop) {
@@ -1556,7 +1556,7 @@ int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 	}
 
 finish:
@@ -1598,7 +1598,7 @@ int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &pos, call, args));
+	Return(apply1_control_(ptr, &pos, call, args));
 	cons_heap(&result, pos, result);
 	gchold_local(local, &hold, 1);
 	setgchold(hold, 0, result);
@@ -1617,7 +1617,7 @@ int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 		cons_heap(&result, pos, result);
 		setgchold(hold, 0, result);
 	}
@@ -1663,7 +1663,7 @@ int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &head, call, args));
+	Return(apply1_control_(ptr, &head, call, args));
 	result = head;
 	gchold_local(local, &hold, 1);
 	setgchold(hold, 0, result);
@@ -1682,7 +1682,7 @@ int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 		/* nconc */
 		if (pos != Nil) {
 			if (result == Nil) {
@@ -2450,7 +2450,7 @@ static int check_intersection_cons(Execute ptr, int *ret,
 	addr right;
 
 	if (key != Nil) {
-		Return(callclang_funcall(ptr, &left, key, left, NULL));
+		Return(funcall1_control_(ptr, &left, key, left, NULL));
 	}
 	while (list != Nil) {
 		Return_getcons(list, &right, &list);
@@ -2608,7 +2608,7 @@ static int test_adjoin_cons(Execute ptr, addr *ret,
 
 	/* item */
 	if (key != Nil) {
-		Return(callclang_funcall(ptr, &item, key, left, NULL));
+		Return(funcall1_control_(ptr, &item, key, left, NULL));
 	}
 	else {
 		item = left;
@@ -3017,7 +3017,7 @@ static int test_nset_exclusive_or_remove_(Execute ptr, int *ret, addr *rlist,
 
 	/* key */
 	if (key != Nil) {
-		Return(callclang_funcall(ptr, &x, key, x, NULL));
+		Return(funcall1_control_(ptr, &x, key, x, NULL));
 	}
 
 	/* first */
@@ -3202,7 +3202,7 @@ static int test_nunion_remove_(Execute ptr, addr *ret,
 
 	/* key */
 	if (key != Nil) {
-		Return(callclang_funcall(ptr, &x, key, x, NULL));
+		Return(funcall1_control_(ptr, &x, key, x, NULL));
 	}
 
 	/* first */

@@ -154,7 +154,7 @@ static int make_load_form_generic_call_(
 
 	GetConst(COMMON_MAKE_LOAD_FORM, &call);
 	GetFunctionSymbol(call, &call);
-	Return(funcall_control(ptr, call, pos, NULL));
+	Return(funcall_control_(ptr, call, pos, NULL));
 	/* result */
 	getresult_control(ptr, &expr);
 	localhold_set(hold, 0, expr);

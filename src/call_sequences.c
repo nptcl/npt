@@ -463,7 +463,7 @@ static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &temp, call, list));
+		Return(apply1_control_(ptr, &temp, call, list));
 	}
 	*ret = Nil;
 	return Result(result, 1);
@@ -494,7 +494,7 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &temp, call, list));
+		Return(apply1_control_(ptr, &temp, call, list));
 		cons_heap(&root, temp, root);
 		localhold_set(hold, 0, root);
 	}
@@ -519,7 +519,7 @@ static int vector_bitvector_map_sequence(Execute ptr, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &value, call, list));
+		Return(apply1_control_(ptr, &value, call, list));
 		Return(bitmemory_set_(root, i, value));
 	}
 	localhold_end(hold);
@@ -542,7 +542,7 @@ static int vector_string_map_sequence(Execute ptr, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &value, call, list));
+		Return(apply1_control_(ptr, &value, call, list));
 		Return(strvect_set_(root, i, value));
 	}
 	localhold_end(hold);
@@ -565,7 +565,7 @@ static int vector_signed_map_sequence(Execute ptr, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &value, call, list));
+		Return(apply1_control_(ptr, &value, call, list));
 		Return(array_set_(root, i, value));
 	}
 	localhold_end(hold);
@@ -589,7 +589,7 @@ static int vector_float_map_sequence(Execute ptr, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &value, call, list));
+		Return(apply1_control_(ptr, &value, call, list));
 		Return(array_set_(root, i, value));
 	}
 	localhold_end(hold);
@@ -612,7 +612,7 @@ static int vector_general_map_sequence(Execute ptr, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &value, call, list));
+		Return(apply1_control_(ptr, &value, call, list));
 		setarray(root, i, value);
 	}
 	localhold_end(hold);
@@ -702,7 +702,7 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &temp, call, list));
+		Return(apply1_control_(ptr, &temp, call, list));
 		setarray(root, i, temp);
 	}
 	localhold_end(hold);
@@ -739,7 +739,7 @@ static int string_map_sequence(Execute ptr, int *result, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &temp, call, list));
+		Return(apply1_control_(ptr, &temp, call, list));
 		Return(strvect_set_(root, i, temp));
 	}
 	localhold_end(hold);
@@ -804,7 +804,7 @@ static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &temp, call, list));
+		Return(apply1_control_(ptr, &temp, call, list));
 		Return(bitmemory_set_(root, i, temp));
 	}
 	localhold_end(hold);
@@ -919,7 +919,7 @@ static int execute_map_into_sequence(Execute ptr, addr var, addr call, addr rest
 		Return(set_sequence_group_(group, list, &check));
 		if (! check)
 			break;
-		Return(callclang_apply(ptr, &pos, call, list));
+		Return(apply1_control_(ptr, &pos, call, list));
 		Return(set_sequence_iterator_(into, pos, &check));
 		if (check)
 			break;
@@ -960,7 +960,7 @@ struct reduce_struct {
 static int key_reduce_sequence(struct reduce_struct *str, addr *ret, addr value)
 {
 	if (str->key != Nil)
-		return callclang_funcall(str->ptr, ret, str->key, value, NULL);
+		return funcall1_control_(str->ptr, ret, str->key, value, NULL);
 	else
 		return Result(ret, value);
 }
@@ -980,7 +980,7 @@ static int throw_reduce_sequence(struct reduce_struct *str, int *result, addr *r
 	Return(getnext_sequence_range_(range, &pos, &check));
 	if (check) {
 		if (value == Unbound) {
-			Return(callclang_apply(str->ptr, ret, str->call, Nil));
+			Return(apply1_control_(str->ptr, ret, str->call, Nil));
 		}
 		else {
 			*ret = value;
@@ -1031,7 +1031,7 @@ static int value_reduce_sequence(struct reduce_struct *str, addr *ret)
 		localhold_set(hold, 1, pos2);
 		Return(key_reduce_sequence(str, &pos2, pos2));
 		localhold_set(hold, 1, pos2);
-		Return(callclang_funcall(ptr, &pos1, call, pos1, pos2, NULL));
+		Return(funcall1_control_(ptr, &pos1, call, pos1, pos2, NULL));
 		localhold_set(hold, 0, pos1);
 	}
 	localhold_end(hold);
@@ -1070,7 +1070,7 @@ static int reverse_vector_reduce_sequence(struct reduce_struct *str, addr *ret)
 		localhold_set(hold, 0, pos1);
 		Return(key_reduce_sequence(str, &pos1, pos1));
 		localhold_set(hold, 0, pos1);
-		Return(callclang_funcall(ptr, &pos2, call, pos1, pos2, NULL));
+		Return(funcall1_control_(ptr, &pos2, call, pos1, pos2, NULL));
 		localhold_set(hold, 1, pos2);
 	}
 	localhold_end(hold);
@@ -1190,16 +1190,16 @@ static int boolean_count_sequence(struct count_struct *str, int *result, addr va
 
 	ptr = str->ptr;
 	if (str->key != Nil) {
-		Return(callclang_funcall(ptr, &value, str->key, value, NULL));
+		Return(funcall1_control_(ptr, &value, str->key, value, NULL));
 	}
 	if (str->single) {
-		Return(callclang_funcall(ptr, &value, test, value, NULL));
+		Return(funcall1_control_(ptr, &value, test, value, NULL));
 	}
 	else if (test == Nil) {
 		value = eql_function(str->item, value)? T: Nil;
 	}
 	else {
-		Return(callclang_funcall(ptr, &value, test, str->item, value, NULL));
+		Return(funcall1_control_(ptr, &value, test, str->item, value, NULL));
 	}
 	if (str->notp)
 		*result = (value == Nil);
@@ -1385,7 +1385,7 @@ int count_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 static int key_merge_sequence(Execute ptr, addr *ret, addr key, addr value)
 {
 	if (key != Nil)
-		return callclang_funcall(ptr, ret, key, value, NULL);
+		return funcall1_control_(ptr, ret, key, value, NULL);
 	else
 		return Result(ret, value);
 }
@@ -1428,7 +1428,7 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 	Return(key_merge_sequence(ptr, &b2, key, b1));
 	localhold_set(hold, 3, b2);
 loop:
-	Return(callclang_funcall(ptr, &value, call, a2, b2, NULL));
+	Return(funcall1_control_(ptr, &value, call, a2, b2, NULL));
 	if (value != Nil) {
 		cons_heap(&root, a1, root);
 		localhold_set(hold, 4, root);
@@ -1509,7 +1509,7 @@ static int vector_make_merge_sequence(Execute ptr, addr root,
 	Return(key_merge_sequence(ptr, &b2, key, b1));
 	localhold_set(hold, 3, b2);
 loop:
-	Return(callclang_funcall(ptr, &value, call, a2, b2, NULL));
+	Return(funcall1_control_(ptr, &value, call, a2, b2, NULL));
 	if (value != Nil) {
 		Return(setelt_sequence_(root, i++, a1));
 		Return(object_sequence_iterator_(str1, &a1, &check));
@@ -2205,7 +2205,7 @@ struct search_struct {
 static int key_search_sequence(struct search_struct *str, addr *ret, addr value)
 {
 	if (str->key != Nil)
-		return callclang_funcall(str->ptr, ret, str->key, value, NULL);
+		return funcall1_control_(str->ptr, ret, str->key, value, NULL);
 	else
 		return Result(ret, value);
 }
@@ -2234,7 +2234,7 @@ static int call_search_sequence(struct search_struct *str,
 	if (test == Nil)
 		value = eql_function(a, b)? T: Nil;
 	else {
-		Return(callclang_funcall(ptr, &value, test, a, b, NULL));
+		Return(funcall1_control_(ptr, &value, test, a, b, NULL));
 	}
 	if (str->notp)
 		*result = (value == Nil);
@@ -4109,7 +4109,7 @@ static int list_normal_duplicates_sequence(struct count_struct *str,
 		if (a == Unbound)
 			continue;
 		if (str->key != Nil) {
-			Return(callclang_funcall(str->ptr, &a, str->key, a, NULL));
+			Return(funcall1_control_(str->ptr, &a, str->key, a, NULL));
 		}
 		str->item = a;
 		for (k = i; k; ) {
@@ -4207,7 +4207,7 @@ static int list_reverse_duplicates_sequence(struct count_struct *str,
 		if (a == Unbound)
 			continue;
 		if (str->key != Nil) {
-			Return(callclang_funcall(str->ptr, &a, str->key, a, NULL));
+			Return(funcall1_control_(str->ptr, &a, str->key, a, NULL));
 		}
 		str->item = a;
 		for (k = i + 1; k < size; k++) {

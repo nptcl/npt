@@ -181,7 +181,7 @@ static int method_print_object_simple_condition_call_(Execute ptr,
 	/* funcall */
 	list_heap(&list, pos, stream, NULL);
 	localhold_set(hold, 0, list);
-	(void)funcall_control(ptr, call, method, next, list, Nil, NULL);
+	(void)funcall_control_(ptr, call, method, next, list, Nil, NULL);
 	return pop_control_(ptr, control);
 }
 

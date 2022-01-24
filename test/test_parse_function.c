@@ -881,7 +881,7 @@ static int test_make_macro_function(void)
 	test(StructFunction(call)->macro, "make_macro_function2");
 
 	list_heap(&args, T, Nil, Nil, Nil, NULL);
-	callclang_funcall(ptr, &cons, call, args, Nil, NULL);
+	funcall1_control_(ptr, &cons, call, args, Nil, NULL);
 	test(cons == readr_debug(":hello"),"make_macro_function3");
 
 	pop_control_(ptr, control);
@@ -903,7 +903,7 @@ static int test_parse_defmacro(void)
 	eval = readr_debug("(defmacro aaa () :hello)");
 	lambda = readr_debug("defmacro");
 	getmacro_symbol(lambda, &lambda);
-	callclang_funcall(ptr, &eval, lambda, eval, Nil, NULL);
+	funcall1_control_(ptr, &eval, lambda, eval, Nil, NULL);
 	GetCdr(eval, &eval);
 	parse_defmacro(ptr, &eval, eval);
 	GetEvalParse(eval, 0, &name);

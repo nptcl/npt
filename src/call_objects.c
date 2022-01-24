@@ -1633,7 +1633,7 @@ int make_load_form_saving_slots_common(Execute ptr,
 	GetConst(COMMON_CLASS_NAME, &call);
 	Return(clos_class_of_(var, &name));
 	Return(getfunction_global_(call, &call));
-	Return(callclang_funcall(ptr, &name, call, name, NULL));
+	Return(funcall1_control_(ptr, &name, call, name, NULL));
 	quotelist_heap(&name, name);
 	list_heap(&find, find, name, NULL);
 	list_heap(&alloc, alloc, find, NULL);

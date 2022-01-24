@@ -193,7 +193,7 @@ int revert_goto_control_(Execute ptr, size_t index)
 /*
  *  (call ...) execute
  */
-int execute_control(Execute ptr, addr call)
+int execute_control_(Execute ptr, addr call)
 {
 	addr value;
 
@@ -408,7 +408,7 @@ static int apply_no_control_(Execute ptr, addr call, addr list)
 	return runcode_control_(ptr, value);
 }
 
-int apply_control(Execute ptr, addr call, addr list)
+int apply_control_(Execute ptr, addr call, addr list)
 {
 	addr control;
 
@@ -417,7 +417,7 @@ int apply_control(Execute ptr, addr call, addr list)
 	return pop_control_(ptr, control);
 }
 
-int apply_named_control(Execute ptr, addr call, addr list)
+int apply_named_control_(Execute ptr, addr call, addr list)
 {
 	addr control;
 
@@ -427,7 +427,7 @@ int apply_named_control(Execute ptr, addr call, addr list)
 	return pop_control_(ptr, control);
 }
 
-int applya_control(Execute ptr, addr call, ...)
+int applya_control_(Execute ptr, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -436,11 +436,11 @@ int applya_control(Execute ptr, addr call, ...)
 	va_start(va, call);
 	lista_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
-	(void)apply_control(ptr, call, list);
+	(void)apply_control_(ptr, call, list);
 	return pop_control_(ptr, control);
 }
 
-int funcall_control(Execute ptr, addr call, ...)
+int funcall_control_(Execute ptr, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -453,20 +453,11 @@ int funcall_control(Execute ptr, addr call, ...)
 	return pop_control_(ptr, control);
 }
 
-int call_control(Execute ptr, addr args)
-{
-	addr call;
-
-	Check(args == Nil, "argument error");
-	GetCons(args, &call, &args);
-	return apply_control(ptr, call, args);
-}
-
 
 /*
  *  C language
  */
-static int callclang_function_(Execute ptr, addr *ret, addr call)
+static int apply1_function_control_(Execute ptr, addr *ret, addr call)
 {
 	Check(call == Unbound, "type error");
 	switch (GetType(call)) {
@@ -486,25 +477,25 @@ static int callclang_function_(Execute ptr, addr *ret, addr call)
 	}
 }
 
-static int callclang_apply_no_control_(Execute ptr, addr call, addr list)
+static int apply1_no_control_(Execute ptr, addr call, addr list)
 {
-	Return(callclang_function_(ptr, &call, call));
+	Return(apply1_function_control_(ptr, &call, call));
 	return apply_no_control_(ptr, call, list);
 }
 
-int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
+int apply1_control_(Execute ptr, addr *ret, addr call, addr list)
 {
 	addr control;
 
 	push_control(ptr, &control);
-	(void)callclang_apply_no_control_(ptr, call, list);
+	(void)apply1_no_control_(ptr, call, list);
 	Return(pop_control_(ptr, control));
 	getresult_control(ptr, ret);
 
 	return 0;
 }
 
-int callclang_applya(Execute ptr, addr *ret, addr call, ...)
+int applya1_control_(Execute ptr, addr *ret, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -514,14 +505,14 @@ int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 	lista_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
 
-	(void)callclang_apply_no_control_(ptr, call, list);
+	(void)apply1_no_control_(ptr, call, list);
 	Return(pop_control_(ptr, control));
 	getresult_control(ptr, ret);
 
 	return 0;
 }
 
-int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
+int funcall1_control_(Execute ptr, addr *ret, addr call, ...)
 {
 	addr control, list;
 	va_list va;
@@ -531,7 +522,7 @@ int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	list_stdarg_alloc(ptr->local, &list, va);
 	va_end(va);
 
-	(void)callclang_apply_no_control_(ptr, call, list);
+	(void)apply1_no_control_(ptr, call, list);
 	Return(pop_control_(ptr, control));
 	getresult_control(ptr, ret);
 

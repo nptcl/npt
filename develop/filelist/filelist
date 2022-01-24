@@ -411,7 +411,7 @@ type_coerce.c
 type_constant.c
 type_copy.c
 type_deftype.c
-type_error.c
+type_delay.c
 type_function.c
 type_memory.c
 type_name.c

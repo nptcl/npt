@@ -292,7 +292,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 		if (name != Nil) {
 			if (! stringp(name)) {
 				open_output_string_stream(&str, 0);
-				check = callclang_funcall(ptr, &name, name, str, NULL);
+				check = funcall1_control_(ptr, &name, name, str, NULL);
 				if (check)
 					return fmte_("Invalid restart report.", NULL);
 				Return(string_stream_heap_(str, &name));
@@ -520,7 +520,7 @@ static int invoke_debugger_hook_(Execute ptr, addr prior, addr condition)
 	push_control(ptr, &control);
 	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
-	(void)funcall_control(ptr, call, condition, prior, NULL);
+	(void)funcall_control_(ptr, call, condition, prior, NULL);
 	Return(pop_control_(ptr, control));
 
 	/* invoke-debugger is not returned. */

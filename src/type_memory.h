@@ -82,7 +82,7 @@
 #define type_function_heap _n(type_function_heap)
 #define type_compiled_heap _n(type_compiled_heap)
 #define type_clos_heap _n(type_clos_heap)
-#define type_error_heap _n(type_error_heap)
+#define type_delay_heap _n(type_delay_heap)
 
 #define LowLispDecl_Low(p)		((LispDecl)(GetUser(p)))
 #define RefLispDecl_Low(p)		((LispDecl)(LowLispDecl_Low(p) & 0x7F))
@@ -210,7 +210,7 @@ void type_unsigned_heap(fixnum value, addr *ret);
 void type_function_heap(addr args, addr values, addr *ret);
 void type_compiled_heap(addr args, addr values, addr *ret);
 void type_clos_heap(addr clos, addr *ret);
-void type_error_heap(addr pos, addr *ret);
+void type_delay_heap(addr pos, addr *ret);
 
 #endif
 

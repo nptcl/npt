@@ -37,7 +37,7 @@ int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
 	if (call == Nil)
 		return Result(ret, NULL);
 
-	return callclang_funcall(ptr, ret, call, list, env, NULL);
+	return funcall1_control_(ptr, ret, call, list, env, NULL);
 }
 
 int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
@@ -51,7 +51,7 @@ int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
 
 	/* name -> (call `(name ,@args) env) */
 	cons_heap(&symbol, symbol, Nil);
-	return callclang_funcall(ptr, ret, call, symbol, env, NULL);
+	return funcall1_control_(ptr, ret, call, symbol, env, NULL);
 }
 
 

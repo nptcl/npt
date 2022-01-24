@@ -4,7 +4,7 @@
 #include "optimize_parse.h"
 #include "parse_object.h"
 #include "subtypep_optimize.h"
-#include "type_error.h"
+#include "type_delay.h"
 #include "typedef.h"
 
 /*
@@ -1633,7 +1633,7 @@ static int checkparse_the1_(OptimizeInfo *str, int *ret)
 	GetEvalParse(str->pos, 1, &pos); /* type */
 
 	/* type-error */
-	Return(check_error_type_(str->ptr, pos, &check));
+	Return(check_delay_type_(str->ptr, pos, &check));
 	if (! check)
 		return Result(ret, 0);
 

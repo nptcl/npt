@@ -26,7 +26,7 @@
 #include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
-#include "type_error.h"
+#include "type_delay.h"
 #include "type_parse.h"
 #include "type_table.h"
 #include "type_typep.h"
@@ -43,9 +43,9 @@ static int typep_invalid_(Execute ptr, addr value, addr type, int *ret)
 	return fmte_("Invalid type.", NULL);
 }
 
-static int typep_error_(Execute ptr, addr value, addr type, int *ret)
+static int typep_delay_(Execute ptr, addr value, addr type, int *ret)
 {
-	Return(get_error_type_(ptr, type, &type));
+	Return(get_delay_type_(ptr, type, &type));
 	return typep_call_(ptr, value, type, 1, ret);
 }
 
@@ -166,7 +166,7 @@ static int typep_not_(Execute ptr, addr value, addr type, int *ret)
 static int typep_satisfies_(Execute ptr, addr value, addr type, int *ret)
 {
 	GetArrayType(type, 0, &type);
-	Return(callclang_funcall(ptr, &type, type, value, NULL));
+	Return(funcall1_control_(ptr, &type, type, value, NULL));
 	return Result(ret, (type != Nil));
 }
 
@@ -1280,7 +1280,7 @@ void init_type_typep(void)
 	for (i = 0; i < LISPDECL_SIZE; i++)
 		TypeTypep[i] = typep_invalid_;
 
-	TypeTypep[LISPDECL_ERROR] = typep_error_;
+	TypeTypep[LISPDECL_DELAY] = typep_delay_;
 	TypeTypep[LISPDECL_TYPE] = typep_type_;
 	TypeTypep[LISPDECL_CLOS] = typep_clos_;
 	TypeTypep[LISPDECL_ASTERISK] = typep_asterisk_;

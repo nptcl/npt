@@ -21,7 +21,7 @@ static int type_object_error(addr *ret, addr pos)
 	return fmte_("Invalid type.", NULL);
 }
 
-static int type_object_error_type(addr *ret, addr pos)
+static int type_object_dalay(addr *ret, addr pos)
 {
 	addr type;
 
@@ -575,7 +575,7 @@ void init_type_object(void)
 
 	/* object */
 	TypeObjectTable[LISPDECL_EMPTY] = type_object_error;
-	TypeObjectTable[LISPDECL_ERROR] = type_object_error_type;
+	TypeObjectTable[LISPDECL_DELAY] = type_object_dalay;
 	TypeObjectTable[LISPDECL_INVALID] = type_object_name;
 	TypeObjectTable[LISPDECL_OPTIMIZED] = type_object_optimized;
 	TypeObjectTable[LISPDECL_SUBTYPEP] = type_object_subtypep;

@@ -861,7 +861,7 @@ static int test_closrun_execute(void)
 	fixnum_heap(&value, 100);
 	list_heap(&args, value, NULL);
 	getglobal_parse_callname(name, &name);
-	apply_control(ptr, name, args);
+	apply_control_(ptr, name, args);
 
 	getresult_control(ptr, &pos);
 	test(pos == value, "closrun_execute1");

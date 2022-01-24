@@ -13,7 +13,7 @@
 #include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
-#include "type_error.h"
+#include "type_delay.h"
 #include "type_table.h"
 #include "type_object.h"
 
@@ -55,10 +55,10 @@ int checktype_p_(Execute ptr, addr x, addr y, int *false_p, int *exclude_p)
 	int value;
 
 	/* type-error */
-	Return(check_error_type_(ptr, x, &value));
+	Return(check_delay_type_(ptr, x, &value));
 	if (! value)
 		goto type_error;
-	Return(check_error_type_(ptr, y, &value));
+	Return(check_delay_type_(ptr, y, &value));
 	if (! value)
 		goto type_error;
 

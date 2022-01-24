@@ -166,7 +166,7 @@ static const char *infochar_decl(enum LISPDECL decl)
 {
 	switch (decl) {
 		case LISPDECL_EMPTY:				return "empty";
-		case LISPDECL_ERROR:				return "error-object";
+		case LISPDECL_DELAY:				return "delay";
 		case LISPDECL_OPTIMIZED:			return "optimized";
 		case LISPDECL_SUBTYPEP:				return "subtypep";
 		case LISPDECL_TYPE:					return "type";

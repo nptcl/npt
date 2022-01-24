@@ -115,7 +115,7 @@ int lisp0_call_(addr *ret, addr call, addr args)
 	Return(lisp0_get_function_(&call, call));
 	hold_value(call, &call);
 	hold_value(args, &args);
-	Return(callclang_apply(Execute_Thread, &call, call, args));
+	Return(apply1_control_(Execute_Thread, &call, call, args));
 	if (ret)
 		*ret = call;
 
@@ -127,7 +127,7 @@ int lisp_call_(addr x, addr call, addr args)
 	Return(lisp0_get_function_(&call, call));
 	hold_value(call, &call);
 	hold_value(args, &args);
-	Return(callclang_apply(Execute_Thread, &call, call, args));
+	Return(apply1_control_(Execute_Thread, &call, call, args));
 	hold_set_null(x, call);
 
 	return 0;
@@ -486,7 +486,7 @@ int lisp_call_control_(addr call, addr args)
 	Return(lisp0_get_function_(&call, call));
 	hold_value(call, &call);
 	hold_value(args, &args);
-	return apply_control(Execute_Thread, call, args);
+	return apply_control_(Execute_Thread, call, args);
 }
 
 int lisp_funcall_control_(addr call, ...)

@@ -3374,7 +3374,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 	nreverse(&root, root);
 	/* call */
 	Return(format_call_CallFunction_call_(print, str, &pos));
-	Return(callclang_apply(print->ptr, &pos, pos, root));
+	Return(apply1_control_(print->ptr, &pos, pos, root));
 	rollback_local(local, stack);
 
 	return 0;
@@ -3459,7 +3459,7 @@ static int format_execute_function(Execute ptr,
 		addr stream, addr format, addr args, addr *ret)
 {
 	cons_local(ptr->local, &args, stream, args);
-	return callclang_apply(ptr, ret, format, args);
+	return apply1_control_(ptr, ret, format, args);
 }
 
 static int format_execute_type(Execute ptr,

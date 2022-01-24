@@ -553,7 +553,7 @@ static int condition_restarts_make_string_(Execute ptr,
 	 */
 	GetConst(COMMON_MAKE_CONDITION, &make);
 	Return(getfunction_global_(make, &make));
-	return callclang_apply(ptr, ret, make, list);
+	return apply1_control_(ptr, ret, make, list);
 }
 
 int condition_restarts_make_syscode_(Execute ptr, addr var, addr list, addr *ret)
@@ -576,7 +576,7 @@ int condition_restarts_make_syscode_(Execute ptr, addr var, addr list, addr *ret
 	/* `(make-condition ,list) */
 	GetConst(COMMON_MAKE_CONDITION, &make);
 	Return(getfunction_global_(make, &make));
-	return callclang_apply(ptr, ret, make, list);
+	return apply1_control_(ptr, ret, make, list);
 }
 
 

@@ -244,7 +244,7 @@ static int test_lisp_compiled_dynamic_(addr list)
 	ptr = Execute_Thread;
 	GetConst(COMMON_PLUS, &call);
 	GetFunctionSymbol(call, &call);
-	Return(callclang_apply(ptr, &call, call, list));
+	Return(apply1_control_(ptr, &call, call, list));
 	setresult_control(ptr, call);
 
 	return 0;

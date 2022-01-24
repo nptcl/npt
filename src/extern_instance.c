@@ -113,7 +113,7 @@ int lisp0_instance_(addr *ret, addr clos, ...)
 
 	GetConst(COMMON_MAKE_INSTANCE, &call);
 	GetFunctionSymbol(call, &call);
-	return callclang_apply(Execute_Thread, ret, call, list);
+	return apply1_control_(Execute_Thread, ret, call, list);
 }
 
 static int lisp0_instance_call_(addr *ret, const void *clos, va_list va,
@@ -155,7 +155,7 @@ static int lisp0_instance_call_(addr *ret, const void *clos, va_list va,
 	/* make-instance */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
 	GetFunctionSymbol(pos, &pos);
-	if (callclang_apply(Execute_Thread, ret, pos, list))
+	if (apply1_control_(Execute_Thread, ret, pos, list))
 		goto escape;
 escape:
 	return lisp_pop_control_(control);
@@ -225,7 +225,7 @@ int lisp_instance_(addr x, addr clos, ...)
 
 	GetConst(COMMON_MAKE_INSTANCE, &call);
 	GetFunctionSymbol(call, &call);
-	Return(callclang_apply(Execute_Thread, &list, call, list));
+	Return(apply1_control_(Execute_Thread, &list, call, list));
 	hold_set(x, list);
 
 	return 0;

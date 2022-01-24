@@ -8,7 +8,7 @@
 #define decl_float_p _n(decl_float_p)
 #define decl_range_p _n(decl_range_p)
 #define decl_subtypep_real _n(decl_subtypep_real)
-#define type_error_p _n(type_error_p)
+#define type_delay_p _n(type_delay_p)
 #define type_function_p _n(type_function_p)
 #define type_astert_p _n(type_astert_p)
 #define type_function_aster_p _n(type_function_aster_p)
@@ -23,7 +23,7 @@ int decl_character_p(LispDecl type);
 int decl_float_p(LispDecl type);
 int decl_range_p(LispDecl type);
 int decl_subtypep_real(LispDecl left, LispDecl right);
-int type_error_p(addr pos);
+int type_delay_p(addr pos);
 int type_function_p(addr pos);
 int type_astert_p(addr pos);
 int type_function_aster_p(addr pos);

@@ -360,7 +360,7 @@ static int comb_standard_method_(Execute ptr, addr car, addr cdr, addr rest)
 {
 	addr call;
 	Return(stdget_method_function_(car, &call));
-	return applya_control(ptr, call, car, cdr, rest, NULL);
+	return applya_control_(ptr, call, car, cdr, rest, NULL);
 }
 
 static int comb_standard_funcall_(Execute ptr, addr rest, addr around, addr primary)
@@ -445,7 +445,7 @@ static int generic_no_applicable_method_(Execute ptr, addr gen, addr args)
 	/* call (no-applicable-method generic-function . args) */
 	GetConst(COMMON_NO_APPLICABLE_METHOD, &call);
 	Return(getfunction_global_(call, &call));
-	return applya_control(ptr, call, gen, args, NULL);
+	return applya_control_(ptr, call, gen, args, NULL);
 }
 
 static int comb_standard_execute_(Execute ptr, addr inst, addr gen, addr rest)
@@ -499,7 +499,7 @@ static int comb_define_call_(Execute ptr, addr inst, addr gen, addr rest)
 
 	push_control(ptr, &control);
 	GetClosGenericCallArray(inst, 0, &call);
-	(void)apply_control(ptr, call, rest);
+	(void)apply_control_(ptr, call, rest);
 	return pop_control_(ptr, control);
 }
 

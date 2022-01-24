@@ -159,7 +159,7 @@ static int with_compilation_unit_override(Execute ptr, addr pos)
 static int with_compilation_unit_call_(Execute ptr, addr call)
 {
 	Return(handler_delay_warning_(ptr));
-	return funcall_control(ptr, call, NULL);
+	return funcall_control_(ptr, call, NULL);
 }
 
 static int function_finalize_delay_warning(Execute ptr)
@@ -204,7 +204,7 @@ int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
 	addr control, pos;
 
 	if (! with_compilation_unit_override(ptr, over))
-		return funcall_control(ptr, call, NULL);
+		return funcall_control_(ptr, call, NULL);
 
 	push_control(ptr, &control);
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);

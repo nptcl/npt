@@ -187,7 +187,7 @@ static int generic_new_(struct generic_argument *str, addr *ret)
 
 	/* (make-instance generic-function-class) */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
-	Return(callclang_funcall(str->ptr, &pos, pos, str->generic, NULL));
+	Return(funcall1_control_(str->ptr, &pos, pos, str->generic, NULL));
 
 	/* value */
 	Return(generic_find_method_combination_(str, &comb));
@@ -473,7 +473,7 @@ static int ensure_generic_function_call_(Execute ptr,
 	/* (apply #'ensure-generic-function-using-class clos name rest) */
 	GetConst(CLOSNAME_ENSURE_GENERIC_FUNCTION_USING_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	Return(applya_control(ptr, call, clos, name, rest, NULL));
+	Return(applya_control_(ptr, call, clos, name, rest, NULL));
 	getresult_control(ptr, ret);
 
 	return 0;

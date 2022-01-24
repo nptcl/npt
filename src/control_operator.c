@@ -351,7 +351,7 @@ static int wake_handler_call_(Execute ptr, addr next, addr instance, addr pos)
 
 	/* call */
 	GetCallHandler(pos, &call);
-	Return(funcall_control(ptr, call, instance, NULL));
+	Return(funcall_control_(ptr, call, instance, NULL));
 
 	/* escape */
 	if (getescape_handler(pos)) {
@@ -440,7 +440,7 @@ int invoke_restart_control_(Execute ptr, addr restart, addr args)
 	/* call */
 	Return(check_enable_restart_control_(restart));
 	getfunction_restart(restart, &call);
-	Return(apply_control(ptr, call, args));
+	Return(apply_control_(ptr, call, args));
 
 	/* escape */
 	escape = getescape_restart(restart);
@@ -467,7 +467,7 @@ int invoke_restart_interactively_control_(Execute ptr, addr restart)
 	Return(check_enable_restart_control_(restart));
 	getinteractive_restart(restart, &args);
 	if (args != Nil) {
-		Return(callclang_apply(ptr, &args, args, Nil));
+		Return(apply1_control_(ptr, &args, args, Nil));
 	}
 
 	return invoke_restart_control_(ptr, restart, args);
@@ -495,7 +495,7 @@ static int test_restart_control_(Execute ptr, addr restart, addr condition, int 
 	/* :test */
 	gettest_restart(restart, &test);
 	if (test != Nil) {
-		Return(callclang_funcall(ptr, &test, test, condition, NULL));
+		Return(funcall1_control_(ptr, &test, test, condition, NULL));
 		if (test == Nil)
 			return Result(ret, 0);
 	}
@@ -806,7 +806,7 @@ int catch_clang(Execute ptr, pointer call, addr tag, addr value)
 	/* execute */
 	push_control(ptr, &control);
 	catch_control(ptr, tag);
-	if (apply_control(ptr, pos, Nil)) {
+	if (apply_control_(ptr, pos, Nil)) {
 		if (equal_control_catch(ptr, tag))
 			normal_throw_control(ptr);
 	}

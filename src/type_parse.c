@@ -1170,7 +1170,7 @@ static int parse_type_list(Execute ptr, addr *ret, addr pos, addr env)
 		return parse_type(ptr, ret, check, env);
 
 	/* error */
-	type_error_heap(pos, ret);
+	type_delay_heap(pos, ret);
 	return 0;
 }
 
@@ -1183,7 +1183,7 @@ static int parse_type_symbol(Execute ptr, addr *ret, addr pos, addr env)
 		return parse_type(ptr, ret, check, env);
 
 	/* error */
-	type_error_heap(pos, ret);
+	type_delay_heap(pos, ret);
 	return 0;
 }
 

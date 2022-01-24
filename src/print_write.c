@@ -1674,7 +1674,7 @@ static int WriteCall_clos_(Execute ptr, addr stream, addr pos)
 	GetConst(COMMON_PRINT_OBJECT, &generic);
 	Return(getfunction_global_(generic, &generic));
 
-	return callclang_funcall(ptr, &pos, generic, pos, stream, NULL);
+	return funcall1_control_(ptr, &pos, generic, pos, stream, NULL);
 }
 
 
@@ -2336,7 +2336,7 @@ static int WriteCall_restart_(Execute ptr, addr stream, addr pos)
 	else if (stringp(restart))
 		return WriteCall_string_(ptr, stream, restart);
 	else
-		return callclang_funcall(ptr, &restart, restart, stream, NULL);
+		return funcall1_control_(ptr, &restart, restart, stream, NULL);
 }
 
 
@@ -2459,7 +2459,7 @@ static int write_pretty_print_(Execute ptr, addr stream, addr pos)
 	if (dispatch == Nil)
 		return write_default_print_(ptr, stream, pos);
 	else
-		return callclang_funcall(ptr, &dispatch, dispatch, stream, pos, NULL);
+		return funcall1_control_(ptr, &dispatch, dispatch, stream, pos, NULL);
 }
 
 int write_print(Execute ptr, addr stream, addr pos)

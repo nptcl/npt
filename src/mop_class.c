@@ -92,7 +92,7 @@ static int function_ensure_class(Execute ptr, addr name, addr rest)
 	clos_find_class_nil(name, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_CLASS_NAME, &symbol);
-		Return(callclang_funcall(ptr, &check, symbol, clos, NULL));
+		Return(funcall1_control_(ptr, &check, symbol, clos, NULL));
 		if (check != name)
 			clos = Nil;
 	}
@@ -100,7 +100,7 @@ static int function_ensure_class(Execute ptr, addr name, addr rest)
 	/* call */
 	GetConst(CLOSNAME_ENSURE_CLASS_USING_CLASS, &symbol);
 	Return(getfunction_global_(symbol, &symbol));
-	return applya_control(ptr, symbol, clos, name, rest, NULL);
+	return applya_control_(ptr, symbol, clos, name, rest, NULL);
 }
 
 static void type_ensure_class(addr *ret)
@@ -557,7 +557,7 @@ static int method_make_instance_symbol(Execute ptr,
 	/* call generic-function */
 	GetConst(COMMON_MAKE_INSTANCE, &symbol);
 	Return(getfunction_global_(symbol, &symbol));
-	return applya_control(ptr, symbol, var, rest, NULL);
+	return applya_control_(ptr, symbol, var, rest, NULL);
 }
 
 static void type_make_instance_symbol(addr *ret)
@@ -704,7 +704,7 @@ static int method_make_instances_obsolete_symbol(Execute ptr,
 	GetConst(COMMON_MAKE_INSTANCES_OBSOLETE, &call);
 	Return(getfunction_global_(call, &call));
 	Return(clos_find_class_(var, &var));
-	return funcall_control(ptr, call, var, NULL);
+	return funcall_control_(ptr, call, var, NULL);
 }
 
 static void method_type_make_instances_obsolete_symbol(addr *ret)
@@ -798,7 +798,7 @@ static int method_make_load_form_class(Execute ptr,
 	/* (class-name var) */
 	GetConst(COMMON_CLASS_NAME, &call);
 	Return(getfunction_global_(call, &call));
-	Return(callclang_funcall(ptr, &var, call, var, NULL));
+	Return(funcall1_control_(ptr, &var, call, var, NULL));
 	/* (find-class (quote var)) */
 	GetConst(COMMON_FIND_CLASS, &find);
 	quotelist_heap(&var, var);
@@ -1626,7 +1626,7 @@ static int method_change_class_symbol(Execute ptr,
 	GetConst(COMMON_CHANGE_CLASS, &call);
 	Return(getfunction_global_(call, &call));
 	Return(clos_find_class_(clos, &clos));
-	return applya_control(ptr, call, pos, clos, rest, NULL);
+	return applya_control_(ptr, call, pos, clos, rest, NULL);
 }
 
 static void method_type_change_class_symbol(addr *ret)

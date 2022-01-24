@@ -815,8 +815,8 @@ static int method_defstruct_object(Execute ptr,
 	if (! check)
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	getdata_control(ptr, &call);
-	Return(callclang_apply(ptr, &call, call, Nil));
-	Return(callclang_funcall(ptr, &call, call, var, stream, NULL));
+	Return(apply1_control_(ptr, &call, call, Nil));
+	Return(funcall1_control_(ptr, &call, call, var, stream, NULL));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -865,8 +865,8 @@ static int method_defstruct_function(Execute ptr,
 	GetConst(SPECIAL_PRINT_LEVEL, &pos);
 	Return(getspecialcheck_local_(ptr, pos, &pos));
 	getdata_control(ptr, &call);
-	Return(callclang_apply(ptr, &call, call, Nil));
-	Return(callclang_funcall(ptr, &call, call, var, stream, pos, NULL));
+	Return(apply1_control_(ptr, &call, call, Nil));
+	Return(funcall1_control_(ptr, &call, call, var, stream, pos, NULL));
 	setresult_control(ptr, var);
 
 	return 0;

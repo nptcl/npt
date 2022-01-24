@@ -531,7 +531,7 @@ static int call_no_next_method_(Execute ptr, addr gen, addr method, addr args)
 
 	GetConst(COMMON_NO_NEXT_METHOD, &call);
 	Return(getfunction_global_(call, &call));
-	return applya_control(ptr, call, gen, method, args, NULL);
+	return applya_control_(ptr, call, gen, method, args, NULL);
 }
 
 static int function_flet_next_method(Execute ptr,
@@ -551,7 +551,7 @@ static int function_flet_next_method(Execute ptr,
 	/* call method */
 	local = ptr->local;
 	lista_local(local, &rest, method, next, rest, NULL);
-	return apply_control(ptr, call, rest);
+	return apply_control_(ptr, call, rest);
 }
 
 static void type_flet_next_method(addr *ret)
@@ -971,7 +971,7 @@ static int function_macro_method_lambda(Execute ptr, addr gen, addr call)
 	Return(stdget_generic_method_class_(gen, &clos));
 	GetConst(COMMON_MAKE_INSTANCE, &make);
 	Return(getfunction_global_(make, &make));
-	Return(funcall_control(ptr, make, clos, NULL));
+	Return(funcall_control_(ptr, make, clos, NULL));
 	getresult_control(ptr, &clos);
 	Return(stdset_method_function_(clos, call));
 	setresult_control(ptr, clos);

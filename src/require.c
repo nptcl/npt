@@ -38,7 +38,7 @@ static int require_function_common_call_(Execute ptr, addr call, addr var, int *
 	if (symbolp(call)) {
 		Return(function_global_restart(ptr, call, &call));
 	}
-	Return(funcall_control(ptr, call, var, NULL));
+	Return(funcall_control_(ptr, call, var, NULL));
 	getresult_control(ptr, &var);
 	return Result(ret, (var == Nil)? 0: 1);
 }

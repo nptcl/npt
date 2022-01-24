@@ -257,7 +257,7 @@ static int defun_trace_function(Execute ptr, addr rest)
 	Return(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
 	/* call */
 	push_control(ptr, &control);
-	(void)apply_control(ptr, pos, rest);
+	(void)apply_control_(ptr, pos, rest);
 	normalp = (ptr->throw_value == throw_normal);
 	/* end */
 	save_execute_control(ptr, &save);

@@ -468,7 +468,7 @@ static int qualifiers_equal_symbol_call_(Execute ptr, addr left, addr right, int
 
 	conscar_local(ptr->local, &left, left);
 	Return(getfunction_global_(right, &call));
-	Return(apply_control(ptr, call, left));
+	Return(apply_control_(ptr, call, left));
 	getresult_control(ptr, &left);
 	*ret = left != Nil;
 
@@ -1324,7 +1324,7 @@ static int comb_longform_call_(Execute ptr, LocalHold hold,
 	addr pos;
 
 	Return(stdget_longcomb_form_(comb, &pos));
-	Return(funcall_control(ptr, pos, gen, comb, data, NULL));
+	Return(funcall_control_(ptr, pos, gen, comb, data, NULL));
 	getresult_control(ptr, &pos);
 	localhold_set(hold, 0, pos);
 

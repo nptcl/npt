@@ -368,7 +368,7 @@ int readtype_readtable_(addr pos, unicode c, addr *ret)
 static int macro_character_call_call_(Execute ptr, LocalHold hold,
 		int *result, addr *ret, addr call, addr stream, addr code)
 {
-	Return(funcall_control(ptr, call, stream, code, NULL));
+	Return(funcall_control_(ptr, call, stream, code, NULL));
 	if (lengthvalues_control(ptr) == 0) {
 		*result = 0;
 	}

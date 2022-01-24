@@ -464,18 +464,18 @@ static int call_pretty_stream_call_(Execute ptr, addr stream, addr call)
 	/* normal */
 	Return(circle_print_(ptr, &circlep));
 	if (! circlep)
-		return callclang_funcall(ptr, &pos, call, NULL);
+		return funcall1_control_(ptr, &pos, call, NULL);
 	/* circle check */
 	setdiscard_pretty_stream(stream, 1);
 	Return(root_pretty_stream_(stream, &pos));
 	/* check */
 	Return(write_check_call_(ptr, pos));
 	/* call */
-	Return(callclang_funcall(ptr, &pos, call, NULL));
+	Return(funcall1_control_(ptr, &pos, call, NULL));
 	/* circle output */
 	Return(rollback_pretty_stream_(stream));
 	write_check_all_clear(ptr);
-	return callclang_funcall(ptr, &pos, call, NULL);
+	return funcall1_control_(ptr, &pos, call, NULL);
 }
 
 int call_pretty_stream(Execute ptr, addr stream, addr call)
@@ -488,7 +488,7 @@ int call_pretty_stream(Execute ptr, addr stream, addr call)
 
 	Return(Push_pretty_stream_p_(stream, &check));
 	if (check)
-		return callclang_funcall(ptr, &call, call, NULL);
+		return funcall1_control_(ptr, &call, call, NULL);
 
 	/* push */
 	push_control(ptr, &control);

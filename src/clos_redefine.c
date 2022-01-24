@@ -327,7 +327,7 @@ static int clos_redefine_make_instances_obsolete_(Execute ptr, addr clos)
 
 	GetConst(COMMON_MAKE_INSTANCES_OBSOLETE, &call);
 	Return(getfunction_global_(call, &call));
-	return callclang_funcall(ptr, &call, call, clos, NULL);
+	return funcall1_control_(ptr, &call, call, clos, NULL);
 }
 
 static int clos_redefine_finalize_(Execute ptr, addr clos, addr name, addr rest)
@@ -476,7 +476,7 @@ static int clos_redefined_class_(Execute ptr, addr pos, addr clos)
 	/* call update-instance-for-redefined-class */
 	GetConst(COMMON_UPDATE_INSTANCE_FOR_REDEFINED_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	return callclang_funcall(ptr, &call, call, pos, add, del, prop, NULL);
+	return funcall1_control_(ptr, &call, call, pos, add, del, prop, NULL);
 }
 
 int clos_version_diff_p_(addr pos, int *ret)
@@ -561,7 +561,7 @@ int clos_redefine_method_(Execute ptr,
 	/* (shared-initialize ...) */
 	GetConst(COMMON_SHARED_INITIALIZE, &call);
 	Return(getfunction_global_(call, &call));
-	return applya_control(ptr, call, pos, add, rest, NULL);
+	return applya_control_(ptr, call, pos, add, rest, NULL);
 }
 
 
@@ -608,7 +608,7 @@ static int clos_change_class_update_(Execute ptr, addr copy, addr pos, addr rest
 	/* update-instance-for-different-class */
 	GetConst(COMMON_UPDATE_INSTANCE_FOR_DIFFERENT_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	return callclang_applya(ptr, &call, call, copy, pos, rest, NULL);
+	return applya1_control_(ptr, &call, call, copy, pos, rest, NULL);
 }
 
 int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
@@ -678,7 +678,7 @@ int clos_change_method_(Execute ptr, addr copy, addr pos, addr rest)
 	hold = LocalHold_local_push(ptr, list);
 	GetConst(COMMON_SHARED_INITIALIZE, &call);
 	Return(getfunction_global_(call, &call));
-	Return(applya_control(ptr, call, pos, list, rest, NULL));
+	Return(applya_control_(ptr, call, pos, list, rest, NULL));
 	localhold_end(hold);
 
 	return 0;

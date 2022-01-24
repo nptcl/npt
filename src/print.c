@@ -414,7 +414,7 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 		if (first == 0) {
 			Return(write_char_stream_(stream, ' '));
 		}
-		Return(callclang_apply(ptr, &body, body, Nil));
+		Return(apply1_control_(ptr, &body, body, Nil));
 		first = 0;
 	}
 	/* identity */

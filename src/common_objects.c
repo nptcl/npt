@@ -151,7 +151,7 @@ static int function_slot_boundp(Execute ptr, addr pos, addr name)
 	Return(clos_class_of_(pos, &clos));
 	GetConst(CLOSNAME_SLOT_BOUNDP_USING_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control_(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_boundp(void)
@@ -179,7 +179,7 @@ static int function_slot_exists_p(Execute ptr, addr pos, addr name)
 	Return(clos_class_of_(pos, &clos));
 	GetConst(CLOSNAME_SLOT_EXISTS_P_USING_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control_(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_exists_p(void)
@@ -207,7 +207,7 @@ static int function_slot_makunbound(Execute ptr, addr pos, addr name)
 	Return(clos_class_of_(pos, &clos));
 	GetConst(CLOSNAME_SLOT_MAKUNBOUND_USING_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control_(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_makunbound(void)
@@ -249,7 +249,7 @@ static int function_slot_value(Execute ptr, addr pos, addr name)
 	Return(clos_class_of_(pos, &clos));
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control_(ptr, call, clos, pos, name, NULL);
 }
 
 static void type_slot_value(addr *ret)
@@ -288,7 +288,7 @@ static int function_setf_slot_value(Execute ptr, addr value, addr pos, addr name
 	Return(clos_class_of_(pos, &clos));
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
 	Return(getsetf_global_(call, &call));
-	return funcall_control(ptr, call, value, clos, pos, name, NULL);
+	return funcall_control_(ptr, call, value, clos, pos, name, NULL);
 }
 
 static void type_setf_slot_value(addr *ret)

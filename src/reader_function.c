@@ -424,7 +424,7 @@ int sharp_reader(Execute ptr, addr stream, addr code)
 	if (pos == Nil)
 		return fmte_("There is no macro character ~S-~S.", code, code2, NULL);
 
-	return funcall_control(ptr, pos, stream, code2, arg, NULL);
+	return funcall_control_(ptr, pos, stream, code2, arg, NULL);
 }
 
 

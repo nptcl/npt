@@ -1816,7 +1816,7 @@ static int test_execute_control(void)
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
-	execute_control(ptr, call);
+	execute_control_(ptr, call);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "execute_control1");
 
@@ -1826,7 +1826,7 @@ static int test_execute_control(void)
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
-	execute_control(ptr, call);
+	execute_control_(ptr, call);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "execute_control2");
 
@@ -1848,12 +1848,12 @@ static int test_apply_control(void)
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
 
-	apply_control(ptr, call, Nil);
+	apply_control_(ptr, call, Nil);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "apply_control1");
 
 	list_heap(&pos, fixnumh(10), fixnumh(20), NULL);
-	apply_control(ptr, call, pos);
+	apply_control_(ptr, call, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "apply_control2");
 
@@ -1910,41 +1910,13 @@ static int test_funcall_control(void)
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
 
-	funcall_control(ptr, call, NULL);
+	funcall_control_(ptr, call, NULL);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "funcall_control1");
 
-	funcall_control(ptr, call, fixnumh(10), fixnumh(20), NULL);
+	funcall_control_(ptr, call, fixnumh(10), fixnumh(20), NULL);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "funcall_control2");
-
-	free_control(ptr, control);
-
-	RETURN;
-}
-
-static int test_call_control(void)
-{
-	addr control, call, pos;
-	Execute ptr;
-
-	ptr = Execute_Thread;
-	push_control(ptr, &control);
-
-	test_make_code(&call);
-	function_heap(&call, Nil, call);
-	setargs_nil_control(ptr);
-	setvalues_nil_control(ptr);
-
-	list_heap(&pos, call, NULL);
-	call_control(ptr, pos);
-	getresult_control(ptr, &pos);
-	test(RefFixnum(pos) == 0, "call_control1");
-
-	list_heap(&pos, call, fixnumh(10), fixnumh(20), NULL);
-	call_control(ptr, pos);
-	getresult_control(ptr, &pos);
-	test(RefFixnum(pos) == 2, "call_control2");
 
 	free_control(ptr, control);
 
@@ -1990,7 +1962,7 @@ static int test_execute_goto(void)
 	code_heap(&pos, array);
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 22, "execute_goto1");
 
@@ -2039,7 +2011,7 @@ static int test_execute_if(void)
 	code_heap(&pos, array);
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 22, "execute_if1");
 
@@ -2075,7 +2047,7 @@ static int test_execute_if(void)
 	code_heap(&pos, array);
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 11, "execute_if2");
 
@@ -2142,7 +2114,7 @@ static int test_execute_go(void)
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
 	test_execute_go_value = NULL;
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "execute_go1");
 	test(RefFixnum(test_execute_go_value) == 22, "execute_go2");
@@ -2195,7 +2167,7 @@ static int test_execute_go(void)
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
 	test_execute_go_value = NULL;
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "execute_go3");
 	test(RefFixnum(test_execute_go_value) == 33, "execute_go4");
@@ -2264,7 +2236,7 @@ static int test_execute_go(void)
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
 	test_execute_go_value = NULL;
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "execute_go5");
 	test(RefFixnum(test_execute_go_value) == 44, "execute_go6");
@@ -2310,7 +2282,7 @@ static int test_execute_return_from(void)
 	setinfo_code(pos, value);
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 11, "execute_return_from1");
 
@@ -2358,7 +2330,7 @@ static int test_execute_return_from(void)
 	function_heap(&pos, Nil, pos);
 	setvalues_nil_control(ptr);
 	test_execute_go_value = NULL;
-	funcall_control(ptr, pos);
+	funcall_control_(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 11, "execute_return_from2");
 
@@ -2478,7 +2450,7 @@ static int test_callclang_apply(void)
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
 	list_heap(&pos, T, T, T, NULL);
-	callclang_apply(Execute_Thread, &pos, call, pos);
+	apply1_control_(Execute_Thread, &pos, call, pos);
 	test(RefFixnum(pos) == 3, "callclang_apply1");
 
 	RETURN;
@@ -2513,7 +2485,7 @@ static int test_callclang_funcall(void)
 	compiled_system(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
-	callclang_funcall(Execute_Thread, &pos, call, T, T, T, NULL);
+	funcall1_control_(Execute_Thread, &pos, call, T, T, T, NULL);
 	test(RefFixnum(pos) == 3, "callclang_funcall1");
 
 	RETURN;
@@ -2606,7 +2578,6 @@ static int testcase_control(void)
 	TestBreak(test_apply_control);
 	TestBreak(test_stdarg_control);
 	TestBreak(test_funcall_control);
-	TestBreak(test_call_control);
 	/* execute-operator */
 	TestBreak(test_execute_goto);
 	TestBreak(test_execute_if);

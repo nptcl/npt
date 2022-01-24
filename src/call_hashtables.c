@@ -314,7 +314,7 @@ static int maphash_execute_common(Execute ptr, addr call, addr key, addr value)
 	addr control;
 
 	push_control(ptr, &control);
-	(void)funcall_control(ptr, call, key, value, NULL);
+	(void)funcall_control_(ptr, call, key, value, NULL);
 	return pop_control_(ptr, control);
 }
 

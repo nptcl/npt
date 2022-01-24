@@ -104,7 +104,7 @@ static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
 			GetCons(list, &bit, &list);
 			GetCdr(bit, &bit);
 			GetBitTypeSymbol(bit, &bit);
-			Return(callclang_funcall(ptr, &bit, call, bit, NULL));
+			Return(funcall1_control_(ptr, &bit, call, bit, NULL));
 		}
 	}
 
@@ -132,7 +132,7 @@ int do_external_symbols_package(Execute ptr, addr call, addr package)
 			GetCdr(bit, &bit);
 			if (StructBitType(bit)->intern == PACKAGE_TYPE_EXTERNAL) {
 				GetBitTypeSymbol(bit, &bit);
-				Return(callclang_funcall(ptr, &bit, call, bit, NULL));
+				Return(funcall1_control_(ptr, &bit, call, bit, NULL));
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include "type_coerce.h"
 #include "type_copy.h"
-#include "type_error.h"
+#include "type_delay.h"
 #include "type_memory.h"
 #include "type_name.h"
 #include "type_object.h"
@@ -21,6 +21,7 @@ static int decl_function_p(LispDecl type)
 	return type == LISPDECL_FUNCTION
 		|| type == LISPDECL_COMPILED_FUNCTION;
 }
+
 static int decl_astert_p(LispDecl type)
 {
 	return type == LISPDECL_ASTERISK
@@ -84,9 +85,9 @@ int decl_subtypep_real(LispDecl left, LispDecl right)
 	return 0;
 }
 
-int type_error_p(addr pos)
+int type_delay_p(addr pos)
 {
-	return GetType(pos) == LISPTYPE_TYPE && RefLispDecl(pos) == LISPDECL_ERROR;
+	return GetType(pos) == LISPTYPE_TYPE && RefLispDecl(pos) == LISPDECL_DELAY;
 }
 
 int type_function_p(addr pos)
@@ -148,7 +149,7 @@ void init_type(void)
 {
 	init_type_coerce();
 	init_type_copy();
-	init_type_error();
+	init_type_delay();
 	init_type_name();
 	init_type_object();
 	init_type_parse();

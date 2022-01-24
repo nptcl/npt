@@ -350,7 +350,7 @@ static int ed_execute_common_(Execute ptr, addr file)
 
 	GetConst(SYSTEM_ED_FUNCTION, &call);
 	Return(getspecialcheck_local_(ptr, call, &call));
-	return funcall_control(ptr, call, file, NULL);
+	return funcall_control_(ptr, call, file, NULL);
 }
 
 static int ed_file_common_(Execute ptr, addr var)

@@ -109,7 +109,7 @@ static int make_structure_value_(Execute ptr, addr slot, addr *ret)
 	/* initfunction */
 	GetFunctionSlot(slot, &pos);
 	if (pos != Nil)
-		return callclang_apply(ptr, ret, pos, Nil);
+		return apply1_control_(ptr, ret, pos, Nil);
 
 	/* initform */
 	GetFormSlot(slot, ret);

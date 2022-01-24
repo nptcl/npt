@@ -82,14 +82,14 @@ struct sort_struct {
 static int key_sort_sequence_(struct sort_struct *str, addr *ret, addr value)
 {
 	if (str->key != Nil)
-		return callclang_funcall(str->ptr, ret, str->key, value, NULL);
+		return funcall1_control_(str->ptr, ret, str->key, value, NULL);
 	else
 		return Result(ret, value);
 }
 
 static int call_sort_sequence_(struct sort_struct *str, int *ret, addr a2, addr b2)
 {
-	Return(callclang_funcall(str->ptr, &a2, str->call, a2, b2, NULL));
+	Return(funcall1_control_(str->ptr, &a2, str->call, a2, b2, NULL));
 	return Result(ret, (a2 != Nil));
 }
 

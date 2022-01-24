@@ -842,7 +842,7 @@ static int function_lambda_complement(Execute ptr, addr rest)
 	addr pos;
 
 	getdata_control(ptr, &pos);
-	Return(callclang_apply(ptr, &pos, pos, rest));
+	Return(apply1_control_(ptr, &pos, pos, rest));
 	setbool_control(ptr, pos == Nil);
 
 	return 0;

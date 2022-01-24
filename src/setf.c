@@ -347,7 +347,7 @@ static int setf_expander_call_(Execute ptr, LocalHold hold,
 		addr call, addr form, addr env,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
-	Return(funcall_control(ptr, call, form, env, NULL));
+	Return(funcall_control_(ptr, call, form, env, NULL));
 	getvalues_nil_control(ptr, 0, vars);
 	getvalues_nil_control(ptr, 1, vals);
 	getvalues_nil_control(ptr, 2, store);

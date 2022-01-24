@@ -120,7 +120,7 @@ int describe_common_(Execute ptr, addr object, addr stream)
 	/* call */
 	GetConst(COMMON_DESCRIBE_OBJECT, &call);
 	Return(getfunction_global_(call, &call));
-	return funcall_control(ptr, call, object, stream, NULL);
+	return funcall_control_(ptr, call, object, stream, NULL);
 }
 
 

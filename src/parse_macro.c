@@ -493,7 +493,7 @@ static int call_macroexpand_hook_(Execute ptr,
 
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);
 	Return(getspecialcheck_local_(ptr, hook, &hook));
-	return callclang_funcall(ptr, ret, hook, call, cons, env, NULL);
+	return funcall1_control_(ptr, ret, hook, call, cons, env, NULL);
 }
 
 static int macroexpand1_symbol_(Execute ptr,

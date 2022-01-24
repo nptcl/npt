@@ -625,7 +625,7 @@ int call_name_code(Execute ptr, CodeValue x)
 int call_result_code(Execute ptr, CodeValue x)
 {
 	getresult_control(ptr, &x.pos);
-	return execute_control(ptr, x.pos);
+	return execute_control_(ptr, x.pos);
 }
 
 int call_type_code(Execute ptr, CodeValue x)
@@ -663,7 +663,7 @@ int call_function_code(Execute ptr, CodeValue x)
 		Return(function_global_restart(ptr, x.pos, &value));
 	}
 
-	return execute_control(ptr, value);
+	return execute_control_(ptr, value);
 }
 
 int call_setf_code(Execute ptr, CodeValue x)
@@ -675,14 +675,14 @@ int call_setf_code(Execute ptr, CodeValue x)
 		Return(setf_global_restart(ptr, x.pos, &value));
 	}
 
-	return execute_control(ptr, value);
+	return execute_control_(ptr, value);
 }
 
 int call_lexical_code(Execute ptr, CodeValue x)
 {
 	addr value;
 	getlow_lexical_control(ptr, x.index, &value);
-	return execute_control(ptr, value);
+	return execute_control_(ptr, value);
 }
 
 
@@ -885,7 +885,7 @@ int funcall_code(Execute ptr, CodeValue x)
 	if (! check)
 		return TypeError_(pos, FUNCTION);
 
-	return apply_control(ptr, pos, list);
+	return apply_control_(ptr, pos, list);
 }
 
 int nth_value_code(Execute ptr, CodeValue x)

@@ -577,8 +577,8 @@ void type_clos_heap(addr clos, addr *ret)
 	type1_heap(LISPDECL_CLOS, clos, ret);
 }
 
-void type_error_heap(addr pos, addr *ret)
+void type_delay_heap(addr pos, addr *ret)
 {
-	type2_heap(LISPDECL_ERROR, pos, Nil, ret);
+	type2_heap(LISPDECL_DELAY, pos, Nil, ret);
 }
 

@@ -31,7 +31,7 @@
 int apply_common_(Execute ptr, addr call, addr arg, addr args)
 {
 	Return(lista_safe_local_(ptr->local, &args, arg, args));
-	return apply_named_control(ptr, call, args);
+	return apply_named_control_(ptr, call, args);
 }
 
 
@@ -40,7 +40,7 @@ int apply_common_(Execute ptr, addr call, addr arg, addr args)
  */
 int funcall_common_(Execute ptr, addr call, addr args)
 {
-	return apply_named_control(ptr, call, args);
+	return apply_named_control_(ptr, call, args);
 }
 
 
@@ -669,7 +669,7 @@ int every_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	Return(callclang_apply(ptr, &pos, call, args));
+	Return(apply1_control_(ptr, &pos, call, args));
 	if (pos == Nil)
 		goto result_false;
 
@@ -696,7 +696,7 @@ int every_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		Return(callclang_apply(ptr, &pos, call, args));
+		Return(apply1_control_(ptr, &pos, call, args));
 		if (pos == Nil)
 			goto result_false;
 	}
@@ -764,7 +764,7 @@ int some_common(Execute ptr, addr call, addr rest, addr *ret)
 	}
 	nreverse(&args, args);
 	nreverse(&rest, next);
-	if (callclang_apply(ptr, &pos, call, args))
+	if (apply1_control_(ptr, &pos, call, args))
 		return 1;
 	if (pos != Nil)
 		goto result;
@@ -792,7 +792,7 @@ int some_common(Execute ptr, addr call, addr rest, addr *ret)
 			GetCdr(temp1, &temp1);
 			GetCdr(temp2, &temp2);
 		}
-		if (callclang_apply(ptr, &pos, call, args))
+		if (apply1_control_(ptr, &pos, call, args))
 			return 1;
 		if (pos != Nil)
 			goto result;

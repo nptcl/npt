@@ -1021,7 +1021,7 @@ static int method_documentation_symbol_type(Execute ptr,
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
 		Return(getfunction_global_document_(pos, &pos));
-		return funcall_control(ptr, pos, clos, doc_type, NULL);
+		return funcall_control_(ptr, pos, clos, doc_type, NULL);
 	}
 
 	/* deftype */
@@ -1044,7 +1044,7 @@ static int method_setf_documentation_symbol_type(Execute ptr,
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
 		Return(getsetf_global_(pos, &pos));
-		return funcall_control(ptr, pos, value, clos, doc_type, NULL);
+		return funcall_control_(ptr, pos, value, clos, doc_type, NULL);
 	}
 
 	/* deftype */

@@ -236,7 +236,7 @@ static int error_datum_common_(Execute ptr, addr datum, addr rest, addr *ret)
 			return fmte_("The class ~S is not a condition subclass.", datum, NULL);
 		}
 		GetConst(COMMON_MAKE_INSTANCE, &make);
-		return callclang_applya(ptr, ret, make, datum, rest, NULL);
+		return applya1_control_(ptr, ret, make, datum, rest, NULL);
 	}
 
 	/* condition -> (error condition) */
@@ -836,7 +836,7 @@ int make_condition_common_(Execute ptr, addr args, addr *ret)
 	/* (make-instance ...) */
 	GetConst(COMMON_MAKE_INSTANCE, &call);
 	Return(getfunction_global_(call, &call));
-	return callclang_apply(ptr, ret, call, args);
+	return apply1_control_(ptr, ret, call, args);
 }
 
 
