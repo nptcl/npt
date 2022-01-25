@@ -49,7 +49,7 @@ static int test_eval_scope_heap(void)
 
 static void test_parse_type(addr *ret, addr type)
 {
-	if (parse_type(Execute_Thread, ret, type, Nil)) {
+	if (parse_type_(Execute_Thread, ret, type, Nil)) {
 		Error(fmte_("system error", NULL));
 	}
 }

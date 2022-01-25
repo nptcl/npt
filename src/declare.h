@@ -97,7 +97,7 @@ enum EVAL_DECLARE {
 #define set_optimize_safety_declare _n(set_optimize_safety_declare)
 #define set_optimize_space_declare _n(set_optimize_space_declare)
 #define set_optimize_speed_declare _n(set_optimize_speed_declare)
-#define proclaim_common _n(proclaim_common)
+#define proclaim_common_ _n(proclaim_common_)
 
 typedef signed char OptimizeType;
 
@@ -165,7 +165,7 @@ void set_optimize_space_declare(addr pos, OptimizeType value);
 void set_optimize_speed_declare(addr pos, OptimizeType value);
 
 /* common */
-int proclaim_common(Execute ptr, addr var);
+int proclaim_common_(Execute ptr, addr var);
 
 #endif
 

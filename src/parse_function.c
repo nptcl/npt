@@ -65,7 +65,7 @@ static int parse_parse_type_(Execute ptr, addr *ret, addr type)
 
 	Return(environment_heap_(ptr, &env));
 	hold = LocalHold_local_push(ptr, env);
-	Return(parse_type_values(ptr, ret, type, env));
+	Return(parse_type_values_(ptr, ret, type, env));
 	close_environment(env);
 	localhold_end(hold);
 

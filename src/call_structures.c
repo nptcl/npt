@@ -570,7 +570,7 @@ static int defstruct_parse_name_(struct defstruct *str, addr name)
 
 	/* parse-type */
 	if (str->type_vector_p) {
-		Return(parse_type(str->ptr, &error_check, str->type_vector, str->env));
+		Return(parse_type_(str->ptr, &error_check, str->type_vector, str->env));
 	}
 	localhold_end(hold);
 

@@ -64,7 +64,7 @@ static int ensure_structure_upgraded_(struct defstruct *str,
 	ptr = str->ptr;
 	hold = LocalHold_array(ptr, 2);
 	localhold_set(hold, 0, pos);
-	Return(parse_type(ptr, &pos, pos, Nil));
+	Return(parse_type_(ptr, &pos, pos, Nil));
 	localhold_set(hold, 1, pos);
 	Return(upgraded_array_value_(pos, rtype1, rtype2));
 	localhold_end(hold);
@@ -91,7 +91,7 @@ static int ensure_structure_vector_(struct defstruct *str, addr pos)
 	if (pos == check) {
 		str->type_p = 1;
 		str->type_vector_p = 1;
-		Return(parse_type(str->ptr, &pos, pos, Nil));
+		Return(parse_type_(str->ptr, &pos, pos, Nil));
 		str->type_vector = pos;
 		str->type1 = ARRAY_TYPE_T;
 		str->type2 = 0;
@@ -102,7 +102,7 @@ static int ensure_structure_vector_(struct defstruct *str, addr pos)
 	if (ensure_structure_vector_type(pos, &pos)) {
 		str->type_p = 1;
 		str->type_vector_p = 1;
-		Return(parse_type(str->ptr, &pos, pos, Nil));
+		Return(parse_type_(str->ptr, &pos, pos, Nil));
 		str->type_vector = pos;
 		Return(ensure_structure_upgraded_(str, pos, &type1, &type2));
 		str->type1 = type1;
@@ -434,7 +434,7 @@ static int structure_check_include_arguments_(struct defstruct *str)
 			SetTypeSlot(a, y);
 		}
 		else {
-			Return(parse_type(str->ptr, &x, x, Nil));
+			Return(parse_type_(str->ptr, &x, x, Nil));
 			SetTypeSlot(a, x);
 			Return(subtypep_check_(str->ptr, x, y, Nil, &result, NULL));
 			if (! result) {
@@ -497,7 +497,7 @@ static int structure_slots_value_(struct defstruct *str)
 			GetTypeTable(&check, T);
 		}
 		else {
-			Return(parse_type(str->ptr, &check, check, Nil));
+			Return(parse_type_(str->ptr, &check, check, Nil));
 		}
 		SetTypeSlot(pos, check);
 

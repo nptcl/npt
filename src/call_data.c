@@ -1,5 +1,6 @@
 #include "call_data.h"
 #include "callname.h"
+#include "clos_class.h"
 #include "common_header.h"
 #include "condition.h"
 #include "cons.h"
@@ -28,18 +29,26 @@
 /*
  *  apply
  */
-int apply_common_(Execute ptr, addr call, addr arg, addr args)
+static int check_data_function_(addr call, addr *ret)
 {
-	Return(lista_safe_local_(ptr->local, &args, arg, args));
-	return apply_named_control_(ptr, call, args);
+	int check;
+
+	if (GetType(call) == LISPTYPE_SYMBOL) {
+		Return(getfunction_global_(call, &call));
+		if (macro_function_p(call))
+			return fmte_("Cannot call the macro-function ~S.", call, NULL);
+	}
+	Return(funcallp_(call, &check));
+	if (! check)
+		return fmte_("The argument ~S is not executable.", call, NULL);
+
+	return Result(ret, call);
 }
 
-
-/*
- *  funcall
- */
-int funcall_common_(Execute ptr, addr call, addr args)
+int apply_common_(Execute ptr, addr call, addr arg, addr args)
 {
+	Return(check_data_function_(call, &call));
+	Return(lista_safe_local_(ptr->local, &args, arg, args));
 	return apply_named_control_(ptr, call, args);
 }
 
@@ -47,7 +56,7 @@ int funcall_common_(Execute ptr, addr call, addr args)
 /*
  *  defun
  */
-int defun_common(Execute ptr, addr form, addr env, addr *ret)
+int defun_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr right, eval, name, args, decl, doc;
 	LocalHold hold;
@@ -87,6 +96,7 @@ int defun_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(SYSTEM_DEFUN, &eval);
 	list_heap(ret, eval, name, args, decl, doc, right, form, NULL);
 	localhold_end(hold);
+
 	return 0;
 }
 
@@ -94,7 +104,7 @@ int defun_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  fdefinition
  */
-int fdefinition_common(Execute ptr, addr name, addr *ret)
+int fdefinition_common_(Execute ptr, addr name, addr *ret)
 {
 	Return(parse_callname_error_(&name, name));
 	return fdefinition_restart_(ptr, name, ret);
@@ -104,7 +114,7 @@ int fdefinition_common(Execute ptr, addr name, addr *ret)
 /*
  *  (setf fdefinition)
  */
-static int setf_setf_fdefinition_common(addr value, addr symbol)
+static int setf_setf_fdefinition_common_(addr value, addr symbol)
 {
 	addr type;
 
@@ -119,7 +129,7 @@ static int setf_setf_fdefinition_common(addr value, addr symbol)
 	return setsetf_symbol_(symbol, value);
 }
 
-static int funcall_setf_fdefinition_common(addr value, addr symbol)
+static int funcall_setf_fdefinition_common_(addr value, addr symbol)
 {
 	Return(alldelete_function_(symbol));
 	if (macro_function_p(value))
@@ -128,7 +138,7 @@ static int funcall_setf_fdefinition_common(addr value, addr symbol)
 		return setfunction_symbol_(symbol, value);
 }
 
-int setf_fdefinition_common(addr value, addr name)
+int setf_fdefinition_common_(addr value, addr name)
 {
 	CallNameType type;
 
@@ -136,9 +146,9 @@ int setf_fdefinition_common(addr value, addr name)
 	GetCallNameType(name, &type);
 	GetCallName(name, &name);
 	if (type == CALLNAME_SETF)
-		return setf_setf_fdefinition_common(value, name);
+		return setf_setf_fdefinition_common_(value, name);
 	else
-		return funcall_setf_fdefinition_common(value, name);
+		return funcall_setf_fdefinition_common_(value, name);
 }
 
 
@@ -177,7 +187,7 @@ int fboundp_common_(addr name, int *ret)
 /*
  *  fmakunbound
  */
-int fmakunbound_common(addr name)
+int fmakunbound_common_(addr name)
 {
 	addr check;
 	CallNameType type;
@@ -199,6 +209,16 @@ int fmakunbound_common(addr name)
 	remmacro_symbol(check);
 
 	return 0;
+}
+
+
+/*
+ *  funcall
+ */
+int funcall_common_(Execute ptr, addr call, addr args)
+{
+	Return(check_data_function_(call, &call));
+	return apply_named_control_(ptr, call, args);
 }
 
 
@@ -265,7 +285,7 @@ void lambda_list_keywords_common(addr *ret)
 /*
  *  defconstant
  */
-int defconstant_common(addr form, addr env, addr *ret)
+int defconstant_common_(addr form, addr env, addr *ret)
 {
 	/* (lisp-system::defconstant symbol value doc) */
 	addr args, symbol, value, doc, quote;
@@ -305,7 +325,7 @@ error:
 /*
  *  defparameter
  */
-static void expand_defparameter(addr symbol, addr value, addr doc, addr *ret)
+static void defparameter_expand_common(addr symbol, addr value, addr doc, addr *ret)
 {
 	/* `(progn (declaim (special ,symbol))
 	 *         (setf (symbol-value ',symbol) ,value)
@@ -338,7 +358,7 @@ static void expand_defparameter(addr symbol, addr value, addr doc, addr *ret)
 	*ret = progn;
 }
 
-int defparameter_common(addr form, addr env, addr *ret)
+int defparameter_common_(addr form, addr env, addr *ret)
 {
 	/* (lisp-system::defparameter symbol value doc) */
 	addr args, symbol, value, doc;
@@ -361,7 +381,7 @@ int defparameter_common(addr form, addr env, addr *ret)
 	if (args != Nil)
 		goto error;
 expand:
-	expand_defparameter(symbol, value, doc, ret);
+	defparameter_expand_common(symbol, value, doc, ret);
 	return 0;
 
 error:
@@ -374,7 +394,7 @@ error:
 /*
  *  defvar
  */
-static void expand_defvar_novalue(addr symbol, addr *ret)
+static void defvar_novalue_common(addr symbol, addr *ret)
 {
 	/* `(progn (declaim (special ,symbol))
 	 *         ',symbol)
@@ -392,7 +412,7 @@ static void expand_defvar_novalue(addr symbol, addr *ret)
 	*ret = progn;
 }
 
-static void expand_defvar(addr symbol, addr value, addr doc, addr *ret)
+static void defvar_expand_common(addr symbol, addr value, addr doc, addr *ret)
 {
 	/* `(progn (declaim (special ,symbol))
 	 *         `(unless (boundp ',symbol)
@@ -430,7 +450,7 @@ static void expand_defvar(addr symbol, addr value, addr doc, addr *ret)
 	*ret = progn;
 }
 
-int defvar_common(addr form, addr env, addr *ret)
+int defvar_common_(addr form, addr env, addr *ret)
 {
 	addr args, symbol, value, doc;
 
@@ -456,9 +476,9 @@ int defvar_common(addr form, addr env, addr *ret)
 		goto error;
 expand:
 	if (value == Unbound)
-		expand_defvar_novalue(symbol, &form);
+		defvar_novalue_common(symbol, &form);
 	else
-		expand_defvar(symbol, value, doc, &form);
+		defvar_expand_common(symbol, value, doc, &form);
 	return Result(ret, form);
 
 error:
@@ -471,7 +491,7 @@ error:
 /*
  *  destructuring-bind
  */
-static int check_destructuring_bind(addr pos)
+static int destructuring_bind_check_common_(addr pos)
 {
 	getenvironment_macro_lambda(pos, &pos);
 	if (pos != Nil) {
@@ -499,7 +519,7 @@ int destructuring_bind_common_(Execute ptr, addr form, addr env, addr *ret)
 	}
 
 	Return(lambda_macro_(ptr->local, &lambda, lambda, Nil));
-	Return(check_destructuring_bind(lambda));
+	Return(destructuring_bind_check_common_(lambda));
 	hold = LocalHold_local_push(ptr, lambda);
 	Return(declare_body_(ptr, env, args, &decl, &args));
 	localhold_end(hold);
@@ -518,7 +538,7 @@ error:
 /*
  *  psetq
  */
-static int psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
+static int psetq_common_constant_(Execute ptr, addr form, addr env, addr *ret,
 		constindex setq_constant,
 		constindex psetq_constant)
 {
@@ -528,14 +548,12 @@ static int psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 	GetConstant(setq_constant, &setq);
 	args = root = Nil;
 	while (form != Nil) {
-		if (! consp(form)) {
+		if (! consp_getcons(form, &var, &form)) {
 			GetConstant(psetq_constant, &setq);
 			return fmte_("~A argument ~S don't allow dotted list.", setq, form, NULL);
 		}
-		GetCons(form, &var, &form);
-		if (! consp(form))
+		if (! consp_getcons(form, &value, &form))
 			return fmte_("After variable ~S must be a cons, but ~S.", var, form, NULL);
-		GetCons(form, &value, &form);
 		Return(make_gensym_(ptr, &gensym));
 		/* let argument */
 		list_heap(&cons, gensym, value, NULL);
@@ -555,9 +573,9 @@ static int psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 	return 0;
 }
 
-int psetq_common(Execute ptr, addr form, addr env, addr *ret)
+int psetq_common_(Execute ptr, addr form, addr env, addr *ret)
 {
-	return psetq_common_constant(ptr, form, env, ret,
+	return psetq_common_constant_(ptr, form, env, ret,
 			CONSTANT_COMMON_SETQ,
 			CONSTANT_COMMON_PSETQ);
 }
@@ -566,9 +584,9 @@ int psetq_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  psetf
  */
-int psetf_common(Execute ptr, addr form, addr env, addr *ret)
+int psetf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
-	return psetq_common_constant(ptr, form, env, ret,
+	return psetq_common_constant_(ptr, form, env, ret,
 			CONSTANT_COMMON_SETF,
 			CONSTANT_COMMON_PSETF);
 }
@@ -577,7 +595,7 @@ int psetf_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  return
  */
-int return_common(addr form, addr env, addr *ret)
+int return_common_(addr form, addr env, addr *ret)
 {
 	addr args, value, return_from;
 
@@ -632,7 +650,7 @@ void constantly_common(addr var, addr *ret)
 /*
  *  every
  */
-int every_common(Execute ptr, addr call, addr rest, addr *ret)
+int every_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
@@ -712,22 +730,9 @@ result_false:
 
 
 /*
- *  notevery
- */
-int notevery_common(Execute ptr, addr call, addr rest, addr *ret)
-{
-	/* (notevery predicate sequence*) ==  (not (every predicate sequence*)) */
-	if (every_common(ptr, call, rest, &rest))
-		return 1;
-	*ret = (rest == Nil)? T: Nil;
-	return 0;
-}
-
-
-/*
  *  some
  */
-int some_common(Execute ptr, addr call, addr rest, addr *ret)
+int some_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
@@ -811,22 +816,31 @@ result_false:
 
 
 /*
+ *  notevery
+ */
+int notevery_common_(Execute ptr, addr call, addr rest, addr *ret)
+{
+	/* (notevery predicate sequence*) ==  (not (every predicate sequence*)) */
+	Return(every_common_(ptr, call, rest, &rest));
+	return Result(ret, (rest == Nil)? T: Nil);
+}
+
+
+/*
  *  notany
  */
-int notany_common(Execute ptr, addr call, addr rest, addr *ret)
+int notany_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	/* (notany predicate sequence*) ==  (not (some predicate sequence*)) */
-	if (some_common(ptr, call, rest, &rest))
-		return 1;
-	*ret = (rest == Nil)? T: Nil;
-	return 0;
+	Return(some_common_(ptr, call, rest, &rest));
+	return Result(ret, (rest == Nil)? T: Nil);
 }
 
 
 /*
  *  and
  */
-int and_common(addr form, addr env, addr *ret)
+int and_common_(addr form, addr env, addr *ret)
 {
 	addr expr, when, andv;
 
@@ -856,7 +870,7 @@ int and_common(addr form, addr env, addr *ret)
 /*
  *  cond
  */
-int cond_common(addr form, addr env, addr *ret)
+int cond_common_(addr form, addr env, addr *ret)
 {
 	addr expr, tail, ifsym, progn, cond;
 
@@ -867,12 +881,10 @@ int cond_common(addr form, addr env, addr *ret)
 		return Result(ret, Nil);
 
 	/* (cond clause ...) */
-	if (! consp(form))
+	if (! consp_getcons(form, &expr, &form))
 		return fmte_("The cond form ~S must be a cons.", form, NULL);
-	GetCons(form, &expr, &form);
-	if (! consp(expr))
+	if (! consp_getcons(expr, &expr, &tail))
 		return fmte_("The cond clause ~S must be a cons.", expr, NULL);
-	GetCons(expr, &expr, &tail);
 	if (tail == Nil) {
 		/* (cond (expr) . form)
 		 *   `(or ,expr (cond ,$form)))
@@ -901,7 +913,7 @@ int cond_common(addr form, addr env, addr *ret)
 /*
  *  or
  */
-int or_common(Execute ptr, addr form, addr env, addr *ret)
+int or_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr gensym, let, ifsym, orv, expr;
 
@@ -920,9 +932,8 @@ int or_common(Execute ptr, addr form, addr env, addr *ret)
 	/* (or expr . form) ->
 	 *   (let ((#:g expr))
 	 *     (if #:g #:g (or . form))) */
-	if (! consp(form))
+	if (! consp_getcons(form, &expr, &form))
 		return fmte_("The or form ~S must be a cons.", NULL);
-	GetCons(form, &expr, &form);
 	Return(make_gensym_(ptr, &gensym));
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_IF, &ifsym);
@@ -940,14 +951,13 @@ int or_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  when
  */
-int when_common(addr form, addr env, addr *ret)
+int when_common_(addr form, addr env, addr *ret)
 {
 	addr args, expr, ifsym, cons;
 
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &expr, &args))
 		return fmte_("The when ~S must be a (when test . body) form.", form, NULL);
-	GetCons(args, &expr, &args);
 	/* `(if ,expr (progn ,@body)) */
 	GetConst(COMMON_PROGN, &cons);
 	cons_heap(&cons, cons, args);
@@ -961,14 +971,13 @@ int when_common(addr form, addr env, addr *ret)
 /*
  *  unless
  */
-int unless_common(addr form, addr env, addr *ret)
+int unless_common_(addr form, addr env, addr *ret)
 {
 	addr args, notv, expr, ifsym, cons;
 
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &expr, &args))
 		return fmte_("The unless ~S must be a (unless test . body) form.", form, NULL);
-	GetCons(args, &expr, &args);
 	/* `(if (not ,expr) (progn ,@body)) */
 	GetConst(COMMON_PROGN, &cons);
 	cons_heap(&cons, cons, args);
@@ -984,7 +993,7 @@ int unless_common(addr form, addr env, addr *ret)
 /*
  *  case
  */
-int case_common(Execute ptr, addr form, addr env, addr *ret)
+int case_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	int lastp;
 	addr key, args, list, test, body, g, root;
@@ -997,9 +1006,8 @@ int case_common(Execute ptr, addr form, addr env, addr *ret)
 	 *         (t . otherwise)))
 	 */
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &key, &args))
 		return fmte_("CASE argument must be (key &rest clauses) form.", form, NULL);
-	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -1019,9 +1027,8 @@ int case_common(Execute ptr, addr form, addr env, addr *ret)
 					"don't appear after otherwise clause.", args, NULL);
 		}
 		GetCons(args, &test, &args);
-		if (! consp(test))
+		if (! consp_getcons(test, &test, &body))
 			return fmte_("CASE clauses ~S must be list type.", test, NULL);
-		GetCons(test, &test, &body);
 		if (body == Nil)
 			consnil_heap(&body);
 		if (test == T || test == otherwise) {
@@ -1056,7 +1063,7 @@ int case_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  ecase
  */
-int ecase_common(Execute ptr, addr form, addr env, addr *ret)
+int ecase_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr key, args, list, test, body, g, root;
 	addr let, cond, eql, member, quote, error, type, a;
@@ -1067,9 +1074,8 @@ int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 	 *         (t . (type-error g (member ...)))))
 	 */
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &key, &args))
 		return fmte_("ECASE argument must be (key &rest clauses) form.", form, NULL);
-	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_COND, &cond);
 	GetConst(COMMON_EQL, &eql);
@@ -1080,12 +1086,10 @@ int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
-		if (! consp(args))
+		if (! consp_getcons(args, &test, &args))
 			return fmte_("ECASE clauses ~S must be list type.", args, NULL);
-		GetCons(args, &test, &args);
-		if (! consp(test))
+		if (! consp_getcons(test, &test, &body))
 			return fmte_("ECASE clauses ~S must be list type.", test, NULL);
-		GetCons(test, &test, &body);
 		if (body == Nil)
 			consnil_heap(&body);
 		list_heap(&list, quote, test, NULL);
@@ -1124,7 +1128,7 @@ int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  ccase
  */
-static int function_ccase_comma(Execute ptr, addr stream, addr x, int *first)
+static int ccase_comma_common_(Execute ptr, addr stream, addr x, int *first)
 {
 	if (*first) {
 		*first = 0;
@@ -1135,7 +1139,7 @@ static int function_ccase_comma(Execute ptr, addr stream, addr x, int *first)
 	return princ_print_(ptr, stream, x);
 }
 
-static int function_ccase_string(Execute ptr,
+static int ccase_string_common_(Execute ptr,
 		addr *ret, addr *rtype, addr place, addr args)
 {
 	int first;
@@ -1158,13 +1162,13 @@ static int function_ccase_string(Execute ptr,
 		if (listp(pos)) {
 			while (pos != Nil) {
 				Return_getcons(pos, &x, &pos);
-				Return(function_ccase_comma(ptr, stream, x, &first));
+				Return(ccase_comma_common_(ptr, stream, x, &first));
 				cons_heap(&list, x, list);
 				localhold_set(hold, 1, list);
 			}
 		}
 		else {
-			Return(function_ccase_comma(ptr, stream, pos, &first));
+			Return(ccase_comma_common_(ptr, stream, pos, &first));
 			cons_heap(&list, pos, list);
 			localhold_set(hold, 1, list);
 		}
@@ -1179,7 +1183,7 @@ static int function_ccase_string(Execute ptr,
 	return 0;
 }
 
-static int function_ccase_cond_(addr g, addr str3, addr type, addr args, addr *ret)
+static int ccase_cond_common_(addr g, addr str3, addr type, addr args, addr *ret)
 {
 	/*  (cond ((eql g 'test1) . body1)
 	 *        ((member g 'test2) . body2)
@@ -1218,12 +1222,10 @@ static int function_ccase_cond_(addr g, addr str3, addr type, addr args, addr *r
 	/* cond */
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
-		if (! consp(args))
+		if (! consp_getcons(args, &test, &args))
 			return fmte_("CCASE clauses ~S must be list type.", args, NULL);
-		GetCons(args, &test, &args);
-		if (! consp(test))
+		if (! consp_getcons(test, &test, &body))
 			return fmte_("CCASE clauses ~S must be list type.", test, NULL);
-		GetCons(test, &test, &body);
 		if (body == Nil)
 			consnil_heap(&body);
 		list_heap(&list, quote, test, NULL);
@@ -1251,7 +1253,7 @@ static int function_ccase_cond_(addr g, addr str3, addr type, addr args, addr *r
 	return 0;
 }
 
-static int function_ccase_expand(Execute ptr,
+static int ccase_expand_common_(Execute ptr,
 		addr env, addr *ret, addr place, addr args)
 {
 	/* (let* ((a1 b1) (a2 b2) ... (value r) g)
@@ -1276,7 +1278,7 @@ static int function_ccase_expand(Execute ptr,
 	addr x, y, root, type, block, retfrom, result;
 	LocalHold hold;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, g, w, r, NULL);
 
@@ -1287,7 +1289,7 @@ static int function_ccase_expand(Execute ptr,
 	Return(format_string(ptr, &str2,
 				"Input ~A> ", place, NULL));
 	localhold_push(hold, str2);
-	Return(function_ccase_string(ptr, &str3, &type, place, args));
+	Return(ccase_string_common_(ptr, &str3, &type, place, args));
 	localhold_end(hold);
 
 	make_symbolchar(&v, "V");
@@ -1314,7 +1316,7 @@ static int function_ccase_expand(Execute ptr,
 	GetConst(COMMON_BLOCK, &block);
 	GetConst(COMMON_RETURN_FROM, &retfrom);
 	/* expand */
-	Return(function_ccase_cond_(value, str3, type, args, &cond));
+	Return(ccase_cond_common_(value, str3, type, args, &cond));
 	list_heap(&cond, retfrom, result, cond, NULL);
 	list_heap(&prompt, prompt, T, str2, NULL);
 	list_heap(&eval, eval, prompt, NULL);
@@ -1350,7 +1352,7 @@ static int function_ccase_expand(Execute ptr,
 	return 0;
 }
 
-int ccase_common(Execute ptr, addr form, addr env, addr *ret)
+int ccase_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, x;
 	LocalHold hold;
@@ -1358,10 +1360,9 @@ int ccase_common(Execute ptr, addr form, addr env, addr *ret)
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, form, env, NULL);
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &x, &args))
 		goto error;
-	GetCons(form, &x, &args);
-	Return(function_ccase_expand(ptr, env, ret, x, args));
+	Return(ccase_expand_common_(ptr, env, ret, x, args));
 	localhold_end(hold);
 	return 0;
 
@@ -1374,7 +1375,7 @@ error:
 /*
  *  typecase
  */
-int typecase_common(Execute ptr, addr form, addr env, addr *ret)
+int typecase_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	int lastp;
 	addr key, args, list, test, body, g, root;
@@ -1386,9 +1387,8 @@ int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 	 *         (t . otherwise)))
 	 */
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &key, &args))
 		return fmte_("TYPECASE argument must be (key &rest clauses) form.", form, NULL);
-	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -1407,9 +1407,8 @@ int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 					"appear after otherwise clause.", args, NULL);
 		}
 		GetCons(args, &test, &args);
-		if (! consp(test))
+		if (! consp_getcons(test, &test, &body))
 			return fmte_("TYPECASE clauses ~S must be list type.", test, NULL);
-		GetCons(test, &test, &body);
 		if (body == Nil)
 			consnil_heap(&body);
 		if (test == T || test == otherwise) {
@@ -1444,7 +1443,7 @@ int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  etypecase
  */
-int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
+int etypecase_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr key, args, list, test, body, g, root;
 	addr let, cond, typep, quote, error, type;
@@ -1454,9 +1453,8 @@ int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 	 *         (t . (type-error g (or ...)))))
 	 */
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &key, &args))
 		return fmte_("ETYPECASE argument must be (key &rest clauses) form.", form, NULL);
-	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_COND, &cond);
 	GetConst(COMMON_TYPEP, &typep);
@@ -1466,12 +1464,10 @@ int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
-		if (! consp(args))
+		if (! consp_getcons(args, &test, &args))
 			return fmte_("ETYPECASE clauses ~S must be list type.", args, NULL);
-		GetCons(args, &test, &args);
-		if (! consp(test))
+		if (! consp_getcons(test, &test, &body))
 			return fmte_("ETYPECASE clauses ~S must be list type.", test, NULL);
-		GetCons(test, &test, &body);
 		if (body == Nil)
 			consnil_heap(&body);
 		list_heap(&list, quote, test, NULL);
@@ -1500,7 +1496,7 @@ int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  ctypecase
  */
-static int function_ctypecase_string(Execute ptr, addr *ret, addr args)
+static int ctypecase_string_common_(Execute ptr, addr *ret, addr args)
 {
 	addr list, pos;
 
@@ -1516,7 +1512,7 @@ static int function_ctypecase_string(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int function_ctypecase_cond_(addr g, addr type, addr args, addr *ret)
+static int ctypecase_cond_common_(addr g, addr type, addr args, addr *ret)
 {
 	/*  (cond ((typep g 'type1) . body1)
 	 *        ...
@@ -1546,12 +1542,10 @@ static int function_ctypecase_cond_(addr g, addr type, addr args, addr *ret)
 	/* cond */
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
-		if (! consp(args))
+		if (! consp_getcons(args, &test, &args))
 			return fmte_("CTYPECASE clauses ~S must be list type.", args, NULL);
-		GetCons(args, &test, &args);
-		if (! consp(test))
+		if (! consp_getcons(test, &test, &body))
 			return fmte_("CTYPECASE clauses ~S must be list type.", test, NULL);
-		GetCons(test, &test, &body);
 		if (body == Nil)
 			consnil_heap(&body);
 		list_heap(&list, quote, test, NULL);
@@ -1570,7 +1564,7 @@ static int function_ctypecase_cond_(addr g, addr type, addr args, addr *ret)
 	return 0;
 }
 
-static int function_ctypecase_expand(Execute ptr,
+static int ctypecase_expand_common_(Execute ptr,
 		addr env, addr *ret, addr place, addr args)
 {
 	/* (let* ((a1 b1) (a2 b2) ... (value r) g)
@@ -1595,7 +1589,7 @@ static int function_ctypecase_expand(Execute ptr,
 	addr x, y, root, type, block, retfrom, result;
 	LocalHold hold;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, g, w, r, NULL);
 
@@ -1606,7 +1600,7 @@ static int function_ctypecase_expand(Execute ptr,
 	Return(format_string(ptr, &str2,
 				"Input ~A> ", place, NULL));
 	localhold_push(hold, str2);
-	Return(function_ctypecase_string(ptr, &type, args));
+	Return(ctypecase_string_common_(ptr, &type, args));
 	localhold_end(hold);
 
 	make_symbolchar(&v, "V");
@@ -1633,7 +1627,7 @@ static int function_ctypecase_expand(Execute ptr,
 	GetConst(COMMON_RETURN_FROM, &retfrom);
 
 	/* expand */
-	Return(function_ctypecase_cond_(value, type, args, &cond));
+	Return(ctypecase_cond_common_(value, type, args, &cond));
 	list_heap(&cond, retfrom, result, cond, NULL);
 	list_heap(&prompt, prompt, T, str2, NULL);
 	list_heap(&eval, eval, prompt, NULL);
@@ -1669,7 +1663,7 @@ static int function_ctypecase_expand(Execute ptr,
 	return 0;
 }
 
-int ctypecase_common(Execute ptr, addr form, addr env, addr *ret)
+int ctypecase_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, x;
 	LocalHold hold;
@@ -1677,10 +1671,9 @@ int ctypecase_common(Execute ptr, addr form, addr env, addr *ret)
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, form, env, NULL);
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &x, &args))
 		goto error;
-	GetCons(form, &x, &args);
-	Return(function_ctypecase_expand(ptr, env, ret, x, args));
+	Return(ctypecase_expand_common_(ptr, env, ret, x, args));
 	localhold_end(hold);
 	return 0;
 
@@ -1702,16 +1695,14 @@ int multiple_value_bind_common_(Execute ptr, addr form, addr env, addr *ret)
 	localhold_pushva_force(hold, form, env, NULL);
 	/* argument */
 	Return_getcdr(form, &body);
-	if (! consp(body))
+	if (! consp_getcons(body, &vars, &body))
 		goto error;
-	Return_getcons(body, &vars, &body);
 	for (list = vars; list != Nil; ) {
 		Return_getcons(list, &pos, &list);
 		Return(check_variable_(pos));
 	}
-	if (! consp(body))
+	if (! consp_getcons(body, &expr, &body))
 		goto error;
-	Return_getcons(body, &expr, &body);
 	/* extract */
 	Return(declare_body_documentation_(ptr, env, body, &doc, &decl, &body));
 	localhold_end(hold);
@@ -1811,7 +1802,7 @@ error:
 /*
  *  prog
  */
-static int function_prog_constant(addr form, addr *ret,
+static int function_prog_constant_(addr form, addr *ret,
 		constindex prog_constant,
 		constindex let_constant)
 {
@@ -1825,11 +1816,10 @@ static int function_prog_constant(addr form, addr *ret,
 
 	/* argument */
 	Return_getcdr(form, &form);
-	if (! consp(form)) {
+	if (! consp_getcons(form, &var, &form)) {
 		GetConstant(prog_constant, &var);
 		return fmte_("~A argument ~S must be ([var] &rest body) form.", var, form, NULL);
 	}
-	GetCons(form, &var, &form);
 	Return(declare_body_form_(form, &decl, &form));
 
 	/* expand */
@@ -1853,9 +1843,9 @@ static int function_prog_constant(addr form, addr *ret,
 	return 0;
 }
 
-int prog_common(addr form, addr env, addr *ret)
+int prog_common_(addr form, addr env, addr *ret)
 {
-	return function_prog_constant(form, ret,
+	return function_prog_constant_(form, ret,
 			CONSTANT_COMMON_PROG,
 			CONSTANT_COMMON_LET);
 }
@@ -1864,9 +1854,9 @@ int prog_common(addr form, addr env, addr *ret)
 /*
  *  prog*
  */
-int proga_common(addr form, addr env, addr *ret)
+int proga_common_(addr form, addr env, addr *ret)
 {
-	return function_prog_constant(form, ret,
+	return function_prog_constant_(form, ret,
 			CONSTANT_COMMON_PROGA,
 			CONSTANT_COMMON_LETA);
 }
@@ -1875,14 +1865,13 @@ int proga_common(addr form, addr env, addr *ret)
 /*
  *  prog1
  */
-int prog1_common(Execute ptr, addr form, addr env, addr *ret)
+int prog1_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr expr, g, let, root;
 
 	Return_getcdr(form, &form);
-	if (! consp(form))
+	if (! consp_getcons(form, &expr, &form))
 		return fmte_("PROG1 arguemnt ~S must be (form1 &body body) form.", form, NULL);
-	GetCons(form, &expr, &form);
 	if (form == Nil)
 		return Result(ret, expr);
 	/* `(let ((,g ,expr)) ,@form ,g) */
@@ -1893,9 +1882,8 @@ int prog1_common(Execute ptr, addr form, addr env, addr *ret)
 	conscar_heap(&root, let);
 	cons_heap(&root, expr, root);
 	while (form != Nil) {
-		if (! consp(form))
+		if (! consp_getcons(form, &expr, &form))
 			return fmte_("PROG1 argument ~S don't accept a dotted list.", form, NULL);
-		GetCons(form, &expr, &form);
 		cons_heap(&root, expr, root);
 	}
 	cons_heap(&root, g, root);
@@ -1908,7 +1896,7 @@ int prog1_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  prog2
  */
-int prog2_common(addr form, addr env, addr *ret)
+int prog2_common_(addr form, addr env, addr *ret)
 {
 	addr expr, progn, prog1;
 
@@ -2038,7 +2026,7 @@ static int define_modify_macro_expand_(LocalRoot local, addr *ret,
 	return 0;
 }
 
-int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *ret)
+int define_modify_macro_common_(LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, call, doc;
 
@@ -2448,7 +2436,7 @@ static int defsetf_long_common_(Execute ptr, addr name,
 	return 0;
 }
 
-int defsetf_common(Execute ptr, addr form, addr env, addr *ret)
+int defsetf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, arg1, arg2, arg3;
 
@@ -2459,9 +2447,8 @@ int defsetf_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	if (listp(arg2)) {
 		/* long form */
-		if (! consp(args))
+		if (! consp_getcons(args, &arg3, &args))
 			return fmte_("Invalid defsetf long form ~S.", form, NULL);
-		GetCons(args, &arg3, &args);
 		if (! listp(arg3))
 			return fmte_("defsetf argument ~S must be a list type.", arg3, NULL);
 		Return(defsetf_long_common_(ptr, arg1, arg2, arg3, args, &form));
@@ -2472,9 +2459,8 @@ int defsetf_common(Execute ptr, addr form, addr env, addr *ret)
 	}
 	else {
 		/* short form, documentation */
-		if (! consp(args))
+		if (! consp_getcons(args, &arg3, &args))
 			return fmte_("Invalid defsetf short form ~S.", form, NULL);
-		GetCons(args, &arg3, &args);
 		if (args != Nil)
 			return fmte_("Invalid defsetf short form ~S.", form, NULL);
 		if (! stringp(arg3))
@@ -2492,7 +2478,7 @@ error:
 /*
  *  define-setf-expander
  */
-int define_setf_expander_common(addr form, addr env, addr *ret)
+int define_setf_expander_common_(addr form, addr env, addr *ret)
 {
 	/* `(system::define-setf-expander
 	 *     ',access
@@ -2524,7 +2510,7 @@ error:
 /*
  *  setf
  */
-static int setf_single_common(addr *ret, addr value,
+static int setf_single_common_(addr *ret, addr value,
 		addr var1, addr var2, addr store, addr writer, addr reader)
 {
 	/* (let* ((g1 a1)
@@ -2560,7 +2546,7 @@ static int setf_single_common(addr *ret, addr value,
 	return 0;
 }
 
-static int setf_multiple_common(addr *ret, addr value,
+static int setf_multiple_common_(addr *ret, addr value,
 		addr var1, addr var2, addr store, addr writer, addr reader)
 {
 	/* (let* ((g1 a1)
@@ -2597,18 +2583,18 @@ static int setf_multiple_common(addr *ret, addr value,
 	return 0;
 }
 
-static int setf_expr_common(Execute ptr, addr *ret, addr key, addr value, addr env)
+static int setf_expr_common_(Execute ptr, addr *ret, addr key, addr value, addr env)
 {
 	addr a, b, g, w, r;
 
-	Return(get_setf_expansion(ptr, key, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, key, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
-		return setf_single_common(ret, value, a, b, g, w, r);
+		return setf_single_common_(ret, value, a, b, g, w, r);
 	else
-		return setf_multiple_common(ret, value, a, b, g, w, r);
+		return setf_multiple_common_(ret, value, a, b, g, w, r);
 }
 
-int setf_common(Execute ptr, addr form, addr env, addr *ret)
+int setf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr key, value, root, progn;
 	LocalHold hold;
@@ -2625,7 +2611,7 @@ int setf_common(Execute ptr, addr form, addr env, addr *ret)
 			goto error;
 		if (! consp_getcons(form, &value, &form))
 			goto error;
-		Return(setf_expr_common(ptr, &key, key, value, env));
+		Return(setf_expr_common_(ptr, &key, key, value, env));
 		cons_heap(&root, key, root);
 		localhold_set(hold, 2, root);
 	}
@@ -2646,7 +2632,7 @@ error:
 /*
  *  shiftf
  */
-static int shiftf_list2_common(addr *ret, addr a, addr b, addr root)
+static int shiftf_list2_common_(addr *ret, addr a, addr b, addr root)
 {
 	addr x, y;
 
@@ -2679,7 +2665,7 @@ static void shiftf_mvbind_common(addr *ret, addr g, addr r, addr body)
 	lista_heap(ret, mvbind, g, r, declare, body, NULL);
 }
 
-int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
+int shiftf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, root, pos, let, declare, prog1;
 	addr a, b, g, w, r, r0, alist, glist, wlist, rlist;
@@ -2706,9 +2692,9 @@ int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 
 	/* push */
-	Return(get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r0));
+	Return(get_setf_expansion_(ptr, pos, env, &a, &b, &g, &w, &r0));
 	alist = glist = wlist = rlist = Nil;
-	Return(shiftf_list2_common(&alist, a, b, alist));
+	Return(shiftf_list2_common_(&alist, a, b, alist));
 	cons_heap(&glist, g, glist);
 	cons_heap(&wlist, w, wlist);
 	localhold_set(hold, 0, alist);
@@ -2718,8 +2704,8 @@ int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
 		Return_getcons(args, &pos, &args);
 		if (args == Nil)
 			break;
-		Return(get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r));
-		Return(shiftf_list2_common(&alist, a, b, alist));
+		Return(get_setf_expansion_(ptr, pos, env, &a, &b, &g, &w, &r));
+		Return(shiftf_list2_common_(&alist, a, b, alist));
 		cons_heap(&glist, g, glist);
 		cons_heap(&wlist, w, wlist);
 		cons_heap(&rlist, r, rlist);
@@ -2767,7 +2753,7 @@ error:
 /*
  *  rotatef
  */
-int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
+int rotatef_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, root, pos, let, declare;
 	addr a, b, g, w, r, r0, alist, glist, wlist, rlist;
@@ -2794,9 +2780,9 @@ int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 
 	/* push */
-	Return(get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r0));
+	Return(get_setf_expansion_(ptr, pos, env, &a, &b, &g, &w, &r0));
 	alist = glist = wlist = rlist = Nil;
-	Return(shiftf_list2_common(&alist, a, b, alist));
+	Return(shiftf_list2_common_(&alist, a, b, alist));
 	cons_heap(&glist, g, glist);
 	cons_heap(&wlist, w, wlist);
 	localhold_set(hold, 0, alist);
@@ -2804,8 +2790,8 @@ int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
 	localhold_set(hold, 2, wlist);
 	while (args != Nil) {
 		Return_getcons(args, &pos, &args);
-		Return(get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r));
-		Return(shiftf_list2_common(&alist, a, b, alist));
+		Return(get_setf_expansion_(ptr, pos, env, &a, &b, &g, &w, &r));
+		Return(shiftf_list2_common_(&alist, a, b, alist));
 		cons_heap(&glist, g, glist);
 		cons_heap(&wlist, w, wlist);
 		cons_heap(&rlist, r, rlist);

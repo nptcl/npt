@@ -505,7 +505,7 @@ static int decl_type_(Execute ptr, addr env, addr eval, addr cons)
 	addr type, symbol;
 
 	Return_getcons(cons, &type, &cons);
-	Return(parse_type(ptr, &type, type, env));
+	Return(parse_type_(ptr, &type, type, env));
 	while (cons != Nil) {
 		Return_getcons(cons, &symbol, &cons);
 		Return(check_variable_(symbol));
@@ -521,7 +521,7 @@ static int decl_ftype_(Execute ptr, addr env, addr eval, addr form)
 
 	if (! consp_getcons(form, &type, &cons))
 		return fmte_("Invalid ftype form, ~S.", form, NULL);
-	Return(parse_type(ptr, &type, type, env));
+	Return(parse_type_(ptr, &type, type, env));
 	while (cons != Nil) {
 		Return_getcons(cons, &symbol, &cons);
 		Return(check_callname_heap_(&symbol, symbol));
@@ -782,7 +782,7 @@ static int decl_otherwise_(Execute ptr, addr env, addr eval, addr type, addr con
 	}
 
 	/* (type ...) */
-	Return(parse_type(ptr, &type, type, env));
+	Return(parse_type_(ptr, &type, type, env));
 	while (cons != Nil) {
 		Return_getcons(cons, &symbol, &cons);
 		Return(check_variable_(symbol));
@@ -1407,7 +1407,7 @@ static void apply_declaration_proclaim(addr pos)
 	}
 }
 
-int proclaim_common(Execute ptr, addr var)
+int proclaim_common_(Execute ptr, addr var)
 {
 	Return(parse_proclaim_heap_(ptr, Nil, var, &var));
 	Return(apply_type_value_proclaim_(var));

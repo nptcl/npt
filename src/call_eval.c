@@ -28,156 +28,15 @@ void lambda_common(addr form, addr *ret)
 
 
 /*
- *  eval
- */
-int eval_common(Execute ptr, addr var)
-{
-	return eval_execute_partial_(ptr, var);
-}
-
-
-/*
- *  compiler-macro-function
- */
-static int compiler_macro_function_symbol(addr var, addr env, addr *ret)
-{
-	if (env != Unbound) {
-		Return(find_environment_(var, env, &env));
-		if (env == Unbound) {
-			/* compiler-macro-function is shadowed */
-			return Result(ret, Nil);
-		}
-	}
-	GetCallName(var, &var);
-	get_compiler_macro_symbol(var, ret);
-	return 0;
-}
-
-static int compiler_macro_function_setf(addr var, addr env, addr *ret)
-{
-	if (env != Unbound) {
-		*ret = Nil;
-		return fmte_("Don't use environment argument ~S "
-				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
-	}
-	GetCallName(var, &var);
-	get_setf_compiler_macro_symbol(var, ret);
-	return 0;
-}
-
-int compiler_macro_function_common(addr var, addr env, addr *ret)
-{
-	Return(parse_callname_error_(&var, var));
-	if (symbolp_callname(var))
-		return compiler_macro_function_symbol(var, env, ret);
-	else
-		return compiler_macro_function_setf(var, env, ret);
-}
-
-
-/*
- *  (setf compiler-macro-function)
- */
-static int setf_compiler_macro_function_symbol(addr var, addr env, addr value)
-{
-	if (env != Unbound) {
-		Return(find_environment_(var, env, &env));
-		if (env == Unbound) {
-			/* compiler-macro-function is shadowed */
-			return fmte_("COMPILER-MACRO-FUNCTION ~S "
-					"is shadowed in the environment.", var, NULL);
-		}
-	}
-	GetCallName(var, &var);
-	if (value == Nil)
-		return rem_compiler_macro_symbol_(var);
-	else
-		return set_compiler_macro_symbol_(var, value);
-}
-
-static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
-{
-	if (env != Unbound) {
-		return fmte_("Don't use environment argument ~S "
-				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
-	}
-	GetCallName(var, &var);
-	if (value == Nil)
-		return rem_setf_compiler_macro_symbol_(var);
-	else
-		return set_setf_compiler_macro_symbol_(var, value);
-}
-
-int setf_compiler_macro_function_common(addr value, addr var, addr env)
-{
-	if (! callnamep(var)) {
-		Return(parse_callname_error_(&var, var));
-	}
-	if (symbolp_callname(var))
-		return setf_compiler_macro_function_symbol(var, env, value);
-	else
-		return setf_compiler_macro_function_setf(var, env, value);
-}
-
-
-/*
- *  define-compiler-macro
- */
-int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
-{
-	addr right, eval, name, args, decl, doc;
-
-	/* (define-compiler-macro . form) */
-	Return_getcdr(form, &right);
-	if (right == Nil) {
-		return fmte_("define-compiler-macro form "
-				"must have at least a name and body.", NULL);
-	}
-	if (! consp(right))
-		return fmte_("Invalid define-compiler-macro form.", NULL);
-
-	/* name */
-	Return_getcons(right, &name, &right);
-	Return(parse_callname_error_(&name, name));
-	if (right == Nil) {
-		return fmte_("define-compiler-macro form "
-				"must have at least a name and body.", NULL);
-	}
-	if (! consp(right))
-		return fmte_("Invalid define-compiler-macro form.", NULL);
-
-	/* args */
-	Return_getcons(right, &args, &right);
-	if (! IsList(right))
-		return fmte_("Invalid define-compiler-macro form.", NULL);
-
-	/* parse */
-	Return(lambda_macro_(ptr->local, &args, args, Nil));
-	Return(declare_body_documentation_(ptr, env, right, &doc, &decl, &right));
-
-	/* (eval::define-compiler-macro name args decl doc body) */
-	GetConst(SYSTEM_DEFINE_COMPILER_MACRO, &eval);
-	list_heap(ret, eval, name, args, decl, doc, right, NULL);
-
-	return 0;
-}
-
-int set_define_compiler_macro(addr callname, addr value)
-{
-	return setf_compiler_macro_function_common(value, callname, Unbound);
-}
-
-
-/*
  *  compile
  */
-static int compile_warning_implementation(void)
+static int compile_warning_implementation_(void)
 {
 	return 0;
 	/* return fmtw_("This implementation cannot compile a function.", NULL); */
 }
 
-static int compile_variable(Execute ptr, addr var, addr opt, addr *ret)
+static int compile_variable_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	addr call, check;
 
@@ -190,7 +49,7 @@ static int compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 		if (check == Unbound)
 			goto unbound;
 	}
-	Return(compile_warning_implementation());
+	Return(compile_warning_implementation_());
 	return Result(ret, var);
 
 unbound:
@@ -209,14 +68,14 @@ static int compile_lambda_p(addr opt)
 	return check == opt;
 }
 
-static int compile_lambda(Execute ptr, addr opt, addr *ret)
+static int compile_lambda_(Execute ptr, addr opt, addr *ret)
 {
 	if (functionp(opt)) {
-		Return(compile_warning_implementation());
+		Return(compile_warning_implementation_());
 		return Result(ret, opt);
 	}
 	if (compile_lambda_p(opt)) {
-		Return(compile_warning_implementation());
+		Return(compile_warning_implementation_());
 		Return(eval_result_compile_(ptr, opt, &opt));
 		return Result(ret, opt);
 	}
@@ -225,19 +84,19 @@ static int compile_lambda(Execute ptr, addr opt, addr *ret)
 	return fmte_("The second argument ~S must be a lambda expression.", opt, NULL);
 }
 
-static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
+static int compile_symbol_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	addr call;
 	LocalHold hold;
 
 	Return(parse_callname_error_(&call, var));
 	if (functionp(opt)) {
-		Return(compile_warning_implementation());
+		Return(compile_warning_implementation_());
 		Return(setglobal_callname_(call, opt));
 		return Result(ret, var);
 	}
 	if (compile_lambda_p(opt)) {
-		Return(compile_warning_implementation());
+		Return(compile_warning_implementation_());
 		hold = LocalHold_local(ptr);
 		localhold_pushva_force(hold, call, opt, NULL);
 		Return(eval_result_compile_(ptr, opt, &opt));
@@ -253,11 +112,11 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 static int compile_common_execute_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	if (opt == Unbound)
-		return compile_variable(ptr, var, opt, ret);
+		return compile_variable_(ptr, var, opt, ret);
 	if (var == Nil)
-		return compile_lambda(ptr, opt, ret);
+		return compile_lambda_(ptr, opt, ret);
 	if (function_name_p(var))
-		return compile_symbol(ptr, var, opt, ret);
+		return compile_symbol_(ptr, var, opt, ret);
 
 	/* error */
 	*ret = Nil;
@@ -281,7 +140,7 @@ static int compile_common_call_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-int compile_common(Execute ptr, addr var, addr opt,
+int compile_common_(Execute ptr, addr var, addr opt,
 		addr *ret1, addr *ret2, addr *ret3)
 {
 	addr control, check;
@@ -299,6 +158,145 @@ int compile_common(Execute ptr, addr var, addr opt,
 
 
 /*
+ *  eval
+ */
+int eval_common_(Execute ptr, addr var)
+{
+	return eval_execute_partial_(ptr, var);
+}
+
+
+/*
+ *  compiler-macro-function
+ */
+static int compiler_macro_function_symbol_(addr var, addr env, addr *ret)
+{
+	if (env != Unbound) {
+		Return(find_environment_(var, env, &env));
+		if (env == Unbound) {
+			/* compiler-macro-function is shadowed */
+			return Result(ret, Nil);
+		}
+	}
+	GetCallName(var, &var);
+	get_compiler_macro_symbol(var, ret);
+	return 0;
+}
+
+static int compiler_macro_function_setf_(addr var, addr env, addr *ret)
+{
+	if (env != Unbound) {
+		*ret = Nil;
+		return fmte_("Don't use environment argument ~S "
+				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
+	}
+	GetCallName(var, &var);
+	get_setf_compiler_macro_symbol(var, ret);
+	return 0;
+}
+
+int compiler_macro_function_common_(addr var, addr env, addr *ret)
+{
+	Return(parse_callname_error_(&var, var));
+	if (symbolp_callname(var))
+		return compiler_macro_function_symbol_(var, env, ret);
+	else
+		return compiler_macro_function_setf_(var, env, ret);
+}
+
+
+/*
+ *  (setf compiler-macro-function)
+ */
+static int setf_compiler_macro_function_symbol_(addr var, addr env, addr value)
+{
+	if (env != Unbound) {
+		Return(find_environment_(var, env, &env));
+		if (env == Unbound) {
+			/* compiler-macro-function is shadowed */
+			return fmte_("COMPILER-MACRO-FUNCTION ~S "
+					"is shadowed in the environment.", var, NULL);
+		}
+	}
+	GetCallName(var, &var);
+	if (value == Nil)
+		return rem_compiler_macro_symbol_(var);
+	else
+		return set_compiler_macro_symbol_(var, value);
+}
+
+static int setf_compiler_macro_function_setf_(addr var, addr env, addr value)
+{
+	if (env != Unbound) {
+		return fmte_("Don't use environment argument ~S "
+				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
+	}
+	GetCallName(var, &var);
+	if (value == Nil)
+		return rem_setf_compiler_macro_symbol_(var);
+	else
+		return set_setf_compiler_macro_symbol_(var, value);
+}
+
+int setf_compiler_macro_function_common_(addr value, addr var, addr env)
+{
+	if (! callnamep(var)) {
+		Return(parse_callname_error_(&var, var));
+	}
+	if (symbolp_callname(var))
+		return setf_compiler_macro_function_symbol_(var, env, value);
+	else
+		return setf_compiler_macro_function_setf_(var, env, value);
+}
+
+
+/*
+ *  define-compiler-macro
+ */
+int define_compiler_macro_common_(Execute ptr, addr form, addr env, addr *ret)
+{
+	addr right, eval, name, args, decl, doc;
+
+	/* (define-compiler-macro . form) */
+	Return_getcdr(form, &right);
+	if (right == Nil) {
+		return fmte_("define-compiler-macro form "
+				"must have at least a name and body.", NULL);
+	}
+
+	/* name */
+	if (! consp_getcons(right, &name, &right))
+		return fmte_("Invalid define-compiler-macro form.", NULL);
+	Return(parse_callname_error_(&name, name));
+	if (right == Nil) {
+		return fmte_("define-compiler-macro form "
+				"must have at least a name and body.", NULL);
+	}
+
+	/* args */
+	if (! consp_getcons(right, &args, &right))
+		return fmte_("Invalid define-compiler-macro form.", NULL);
+	if (! IsList(right))
+		return fmte_("Invalid define-compiler-macro form.", NULL);
+
+	/* parse */
+	Return(lambda_macro_(ptr->local, &args, args, Nil));
+	Return(declare_body_documentation_(ptr, env, right, &doc, &decl, &right));
+
+	/* (eval::define-compiler-macro name args decl doc body) */
+	GetConst(SYSTEM_DEFINE_COMPILER_MACRO, &eval);
+	list_heap(ret, eval, name, args, decl, doc, right, NULL);
+
+	return 0;
+}
+
+int set_define_compiler_macro_(addr callname, addr value)
+{
+	return setf_compiler_macro_function_common_(value, callname, Unbound);
+}
+
+
+/*
  *  defmacro
  */
 static void defmacro_common_block(addr name, addr form, addr *ret)
@@ -311,7 +309,7 @@ static void defmacro_common_block(addr name, addr form, addr *ret)
 	list_heap(ret, block, NULL);
 }
 
-int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
+int defmacro_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr eval, name, args, decl, doc;
 
@@ -319,20 +317,18 @@ int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 	Return_getcdr(form, &form);
 	if (form == Nil)
 		return fmte_("defmacro form must have at least a name and body.", NULL);
-	if (GetType(form) != LISPTYPE_CONS)
-		return fmte_("Invalid defmacro form.", NULL);
 
 	/* name */
-	Return_getcons(form, &name, &form);
+	if (! consp_getcons(form, &name, &form))
+		return fmte_("Invalid defmacro form.", NULL);
 	if (! symbolp(name))
 		return fmte_("defmacro name ~S must be a symbol.", name, NULL);
 	if (form == Nil)
 		return fmte_("defmacro form must have at least a name and body.", NULL);
-	if (! consp(form))
-		return fmte_("Invalid defmacro form.", NULL);
 
 	/* args */
-	Return_getcons(form, &args, &form);
+	if (! consp_getcons(form, &args, &form))
+		return fmte_("Invalid defmacro form.", NULL);
 	if (! IsList(form))
 		return fmte_("Invalid defmacro form.", NULL);
 
@@ -365,7 +361,7 @@ int macro_function_common_(addr symbol, addr env, addr *ret)
 /*
  *  macroexpand
  */
-int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
+int macroexpand_common_(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 {
 	int check;
 
@@ -381,7 +377,7 @@ int macroexpand_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 /*
  *  macroexpand_1
  */
-int macroexpand_1_common(Execute ptr, addr form, addr env, addr *ret, addr *sec)
+int macroexpand_1_common_(Execute ptr, addr form, addr env, addr *ret, addr *sec)
 {
 	int check;
 
@@ -422,7 +418,7 @@ static int define_symbol_macro_check_(addr symbol)
 	return 0;
 }
 
-int define_symbol_macro_common(addr form, addr env, addr *ret)
+int define_symbol_macro_common_(addr form, addr env, addr *ret)
 {
 	addr cons, symbol, expansion, quote;
 
@@ -453,7 +449,7 @@ error:
 /*
  *  declaim
  */
-int declaim_common(Execute ptr, addr form, addr env, addr *ret)
+int declaim_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr symbol;
 
@@ -490,7 +486,7 @@ static int eval_constantp_stable(addr var)
 	}
 }
 
-static int eval_constantp(Execute ptr, addr var, addr env, int *ret)
+static int eval_constantp_(Execute ptr, addr var, addr env, int *ret)
 {
 	int check;
 	addr pos;
@@ -503,13 +499,13 @@ static int eval_constantp(Execute ptr, addr var, addr env, int *ret)
 	return 0;
 }
 
-int constantp_common(Execute ptr, addr var, addr opt, addr *ret)
+int constantp_common_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 
 	if (opt == Unbound)
 		opt = Nil;
-	Return(eval_constantp(ptr, var, opt, &check));
+	Return(eval_constantp_(ptr, var, opt, &check));
 	*ret = check? T: Nil;
 
 	return 0;

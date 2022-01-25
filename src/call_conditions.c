@@ -88,7 +88,7 @@ static int assert_prompt_common_(Execute ptr, addr env, addr *ret, addr place)
 	addr when, yornp, leta, declare, ignorable, setq, eval, prompt, quote;
 	addr str1, str2, root, x, y;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	Return_getcar(g, &g);
 	strvect_char_heap(&str1, "Do you want to setq a new value in ~A?");
 	strvect_char_heap(&str2, "Input ~A> ");
@@ -347,7 +347,7 @@ static int check_type_expand_common_(Execute ptr, addr env, addr *ret,
 	addr x, y, root;
 	LocalHold hold;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, g, w, r, NULL);
 	Return_getcar(g, &g);
@@ -365,7 +365,7 @@ static int check_type_expand_common_(Execute ptr, addr env, addr *ret,
 	localhold_push(hold, str3);
 
 	if (string == Nil) {
-		Return(parse_type(ptr, &string, type, env));
+		Return(parse_type_(ptr, &string, type, env));
 		localhold_push(hold, string);
 		Return(type_object_(&string, string));
 		localhold_push(hold, string);

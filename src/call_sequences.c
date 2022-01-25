@@ -338,7 +338,7 @@ int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr rest
 	if (GetIndex_integer(size, &index))
 		return fmte_("Too large index ~S.", size, NULL);
 
-	Return(parse_type(ptr, &check, type, Nil));
+	Return(parse_type_(ptr, &check, type, Nil));
 	hold = LocalHold_local_push(ptr, check);
 
 	Return(sequence_make_sequence(ptr, &rest, check, index, element));
@@ -867,7 +867,7 @@ int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
 		return fmte_("Too few map arguments.", NULL);
 	}
 	hold = LocalHold_local(ptr);
-	Return(parse_type(ptr, &check, type, Nil));
+	Return(parse_type_(ptr, &check, type, Nil));
 	localhold_push(hold, check);
 
 	Return(execute_map_sequence(ptr, &rest, check, call, rest));
@@ -1797,7 +1797,7 @@ int merge_common(Execute ptr, addr *ret,
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
-	Return(parse_type(ptr, &check, type, Nil));
+	Return(parse_type_(ptr, &check, type, Nil));
 	localhold_push(hold, check);
 	/* pos2 -> pos1 */
 	Return(execute_merge_sequence(ptr, &call, check, pos2, pos1, call, key));
@@ -3612,7 +3612,7 @@ int concatenate_common(Execute ptr, addr *ret, addr type, addr rest)
 {
 	addr check;
 
-	Return(parse_type(ptr, &check, type, Nil));
+	Return(parse_type_(ptr, &check, type, Nil));
 	Return(type_concatenate_sequence(ptr, ret, check, rest));
 
 	return call_typep_asterisk_error_(ptr, *ret, check);

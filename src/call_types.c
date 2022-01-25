@@ -23,7 +23,7 @@ int typep_common_(Execute ptr, addr x, addr y, addr env, addr *ret)
 
 	if (env == Unbound)
 		env = Nil;
-	Return(parse_type(ptr, &y, y, env));
+	Return(parse_type_(ptr, &y, y, env));
 	Return(typep_clang_(ptr, x, y, &check));
 	*ret = check? T: Nil;
 

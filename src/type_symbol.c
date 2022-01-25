@@ -224,9 +224,9 @@ int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
 	}
 
 	/* find deftype */
-	Return(execute_symbol_deftype(ptr, &check, symbol, env));
+	Return(execute_symbol_deftype_(ptr, &check, symbol, env));
 	if (check)
-		return parse_type(ptr, ret, check, env);
+		return parse_type_(ptr, ret, check, env);
 
 	/* error */
 	return Result(ret, NULL);

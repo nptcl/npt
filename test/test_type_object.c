@@ -165,7 +165,7 @@ static int test_type_object_satisfies(void)
 
 static void parse_type_values_unsafe(addr *ret, addr pos)
 {
-	if (parse_type_values(Execute_Thread, ret, pos, Nil)) {
+	if (parse_type_values_(Execute_Thread, ret, pos, Nil)) {
 		Error(fmte_("parse-type-values error.", NULL));
 	}
 }

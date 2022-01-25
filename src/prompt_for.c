@@ -104,7 +104,7 @@ int prompt_for_stream_(Execute ptr, addr type, addr prompt, addr *ret)
 
 	/* type */
 	if (type != T) {
-		Return(parse_type(ptr, &type, type, Nil));
+		Return(parse_type_(ptr, &type, type, Nil));
 		localhold_set(hold, 0, type);
 	}
 

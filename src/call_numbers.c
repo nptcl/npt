@@ -274,7 +274,7 @@ static int incf_expand_common_(Execute ptr, addr *ret, addr place, addr value, a
 	addr a, b, g, w, r;
 	addr c, d, ig, args, leta, declare, ignorable, plus;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (! singlep(g))
 		return fmte_("INCF place ~S don't allow a multiple store value.", place, NULL);
 
@@ -347,7 +347,7 @@ static int decf_expand_common_(Execute ptr, addr *ret, addr place, addr value, a
 	addr a, b, g, w, r;
 	addr c, d, ig, args, leta, declare, ignorable, minus;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (! singlep(g))
 		return fmte_("DECF place ~S don't allow a multiple store value.", place, NULL);
 

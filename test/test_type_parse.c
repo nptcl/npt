@@ -46,7 +46,7 @@ static int test_typecheck(addr pos, enum LISPDECL type, size_t size)
 
 static void test_parse_type_error(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+	if (parse_type_(Execute_Thread, ret, pos, Nil)) {
 		Error(fmte_("parse-type error.", NULL));
 	}
 }
@@ -1125,7 +1125,7 @@ static int test_parse_type(void)
 	addr pos;
 
 	pos = readr_debug("symbol");
-	check = parse_type(Execute_Thread, &pos, pos, Nil);
+	check = parse_type_(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type1");
 	test(test_typecheck(pos, LISPDECL_SYMBOL, 0), "parse_type2");
 
@@ -1138,7 +1138,7 @@ static int test_parse_type_not(void)
 	addr pos;
 
 	pos = readr_debug("symbol");
-	check = parse_type_not(Execute_Thread, &pos, pos, Nil);
+	check = parse_type_not_(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_not1");
 	test(GetType(pos) == LISPTYPE_TYPE, "parse_type_not2");
 	test(RefLispDecl(pos) == LISPDECL_SYMBOL, "parse_type_not3");
@@ -1153,7 +1153,7 @@ static int test_parse_type_noaster(void)
 	addr pos;
 
 	pos = readr_debug("symbol");
-	check = parse_type_noaster(Execute_Thread, &pos, pos, Nil);
+	check = parse_type_noaster_(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_noaster1");
 	test(test_typecheck(pos, LISPDECL_SYMBOL, 0), "parse_type_noaster2");
 
@@ -1166,7 +1166,7 @@ static int test_parse_type_values(void)
 	addr pos;
 
 	pos = readr_debug("(values fixnum)");
-	check = parse_type_values(Execute_Thread, &pos, pos, Nil);
+	check = parse_type_values_(Execute_Thread, &pos, pos, Nil);
 	test(check == 0, "parse_type_values1");
 	test(test_typecheck(pos, LISPDECL_VALUES, 4), "parse_type_values2");
 

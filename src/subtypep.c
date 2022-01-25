@@ -72,9 +72,9 @@ static int subtypep_parse_throw_(Execute ptr, LocalHold hold,
 	localhold_set(hold, 1, y);
 	localhold_set(hold, 2, env);
 
-	Return(parse_type(ptr, rx, x, env));
+	Return(parse_type_(ptr, rx, x, env));
 	localhold_set(hold, 0, x);
-	Return(parse_type(ptr, ry, y, env));
+	Return(parse_type_(ptr, ry, y, env));
 	localhold_set(hold, 1, y);
 
 	return 0;
@@ -106,9 +106,9 @@ static int subtypep_parse_optimize_(Execute ptr, LocalHold hold,
 	localhold_set(hold, 1, y);
 	localhold_set(hold, 2, env);
 
-	Return(parse_type(ptr, &x, x, env));
+	Return(parse_type_(ptr, &x, x, env));
 	localhold_set(hold, 0, x);
-	Return(parse_type(ptr, &y, y, env));
+	Return(parse_type_(ptr, &y, y, env));
 	localhold_set(hold, 1, y);
 
 	local = ptr->local;
@@ -161,9 +161,9 @@ static int subtypep_parse_force_number_(Execute ptr, LocalHold hold,
 	localhold_set(hold, 1, y);
 	localhold_set(hold, 2, env);
 
-	Return(parse_type(ptr, &x, x, env));
+	Return(parse_type_(ptr, &x, x, env));
 	localhold_set(hold, 0, x);
-	Return(parse_type(ptr, &y, y, env));
+	Return(parse_type_(ptr, &y, y, env));
 	localhold_set(hold, 1, y);
 
 	local = ptr->local;
@@ -195,7 +195,7 @@ static int subtypep_parse_normal_type_(Execute ptr, addr x, addr env, addr *ret)
 	LocalRoot local;
 
 	local = ptr->local;
-	Return(parse_type(ptr, &x, x, env));
+	Return(parse_type_(ptr, &x, x, env));
 	if (subtypep_number_p(x)) {
 		Return(type_subtypep_throw_heap_(local, x, &x));
 	}

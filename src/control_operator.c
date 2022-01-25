@@ -272,7 +272,7 @@ int pushhandler_common_(Execute ptr, addr name, addr call, int escape)
 {
 	addr pos;
 
-	Return(parse_type(ptr, &name, name, Nil));
+	Return(parse_type_(ptr, &name, name, Nil));
 	CheckType(name, LISPTYPE_TYPE);
 	handler_local(ptr->local, &pos, name, call, escape);
 	pushhandler_control(ptr, pos);

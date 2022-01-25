@@ -583,7 +583,7 @@ int define_compiler_macro_code(Execute ptr, CodeValue x)
 	List_bind(x.pos, &name, &doc, NULL);
 	getresult_control(ptr, &pos);
 	Return(set_documentation_function_object_(pos, doc));
-	Return(set_define_compiler_macro(name, pos));
+	Return(set_define_compiler_macro_(name, pos));
 	name_callname_heap(name, &name);
 	setresult_control(ptr, name);
 

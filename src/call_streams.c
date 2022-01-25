@@ -787,7 +787,7 @@ int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
 
 	if (! GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
 		GetTypeTable(&type, Character);
-		Return(parse_type(ptr, &pos, pos, Nil));
+		Return(parse_type_(ptr, &pos, pos, Nil));
 		Return(subtypep_check_(ptr, pos, type, Nil, &check, NULL));
 		if (! check)
 			return fmte_(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);

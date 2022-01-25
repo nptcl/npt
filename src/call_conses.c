@@ -998,7 +998,7 @@ static int expansion_push_cons(Execute ptr, addr *ret, addr item, addr place, ad
 {
 	addr a, b, g, w, r;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
 		return single_push_cons(ret, item, a, b, g, w, r);
 	else
@@ -1160,7 +1160,7 @@ static int expansion_pop_cons(Execute ptr, addr *ret, addr place, addr env)
 {
 	addr a, b, g, w, r;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
 		return single_pop_cons(ptr, ret, a, b, g, w, r);
 	else
@@ -2386,7 +2386,7 @@ static int expansion_remf_cons(Execute ptr, addr *ret,
 	addr a, b, g, w, r;
 
 	/* get-setf-expansion */
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	/* macro */
 	GetConst(COMMON_LETA, &leta);
 	GetConst(SYSTEM_REMPLIST, &remplist);
@@ -2770,7 +2770,7 @@ static int expansion_pushnew_cons(Execute ptr, addr *ret,
 {
 	addr a, b, g, w, r;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
 		return single_pushnew_cons(ret, item, rest, a, b, g, w, r);
 	else

@@ -345,7 +345,7 @@ int set_pprint_dispatch_common(Execute ptr,
 {
 	addr type;
 
-	Return(parse_type(ptr, &type, spec, Nil));
+	Return(parse_type_(ptr, &type, spec, Nil));
 	if (call != Nil && (! functionp(call)))
 		Return(getfunction_global_(call, &call));
 	if (table == Unbound) {

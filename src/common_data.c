@@ -16,25 +16,8 @@
  *   args   t
  *   value  (values &rest t)
  */
-static int check_data_function(addr call, addr *ret)
-{
-	int check;
-
-	if (GetType(call) == LISPTYPE_SYMBOL) {
-		Return(getfunction_global_(call, &call));
-		if (macro_function_p(call))
-			return fmte_("Cannot call the macro-function ~S.", call, NULL);
-	}
-	Return(funcallp_(call, &check));
-	if (! check)
-		return fmte_("The argument ~S is not executable.", call, NULL);
-
-	return Result(ret, call);
-}
-
 static int function_apply(Execute ptr, addr call, addr pos, addr args)
 {
-	Return(check_data_function(call, &call));
 	return apply_common_(ptr, call, pos, args);
 }
 
@@ -87,7 +70,7 @@ static void define_setf_expander_apply(void)
 /* (defmacro defun (name lambda-list &rest body) ...) */
 static int function_defun(Execute ptr, addr right, addr env)
 {
-	Return(defun_common(ptr, right, env, &right));
+	Return(defun_common_(ptr, right, env, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
@@ -111,7 +94,7 @@ static void defmacro_defun(void)
  */
 static int function_fdefinition(Execute ptr, addr name)
 {
-	Return(fdefinition_common(ptr, name, &name));
+	Return(fdefinition_common_(ptr, name, &name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -147,7 +130,7 @@ static void defun_fdefinition(void)
  */
 static int function_setf_fdefinition(Execute ptr, addr value, addr name)
 {
-	Return(setf_fdefinition_common(value, name));
+	Return(setf_fdefinition_common_(value, name));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -223,7 +206,7 @@ static void defun_fboundp(void)
  */
 static int function_fmakunbound(Execute ptr, addr name)
 {
-	Return(fmakunbound_common(name));
+	Return(fmakunbound_common_(name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -283,7 +266,6 @@ static void defspecial_macrolet(void)
  */
 static int function_funcall(Execute ptr, addr call, addr args)
 {
-	Return(check_data_function(call, &call));
 	return funcall_common_(ptr, call, args);
 }
 
@@ -381,10 +363,8 @@ static void defun_function_lambda_expression(void)
 static int function_functionp(Execute ptr, addr var)
 {
 	int check;
-
 	Return(funcallp_(var, &check));
 	setbool_control(ptr, check);
-
 	return 0;
 }
 
@@ -470,7 +450,7 @@ static void defconstant_lambda_parameters_limit(void)
  */
 static int function_defconstant(Execute ptr, addr form, addr env)
 {
-	Return(defconstant_common(form, env, &form));
+	Return(defconstant_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -496,7 +476,7 @@ static void defmacro_defconstant(void)
  */
 static int function_defparameter(Execute ptr, addr form, addr env)
 {
-	Return(defparameter_common(form, env, &form));
+	Return(defparameter_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -518,7 +498,7 @@ static void defmacro_defparameter(void)
 /* (defmacro defvar (symbol &optional value document) ...) -> symbol */
 static int function_defvar(Execute ptr, addr form, addr env)
 {
-	Return(defvar_common(form, env, &form));
+	Return(defvar_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -590,7 +570,7 @@ static void defspecial_setq(void)
 /* (defmacro psetq (&rest args) ...) -> value */
 static int function_psetq(Execute ptr, addr form, addr env)
 {
-	Return(psetq_common(ptr, form, env, &form));
+	Return(psetq_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -640,7 +620,7 @@ static void defspecial_return_from(void)
 /* (defmacro return (&optional value) ...) */
 static int function_return(Execute ptr, addr form, addr env)
 {
-	Return(return_common(form, env, &form));
+	Return(return_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -927,7 +907,7 @@ static void defun_constantly(void)
 /* (defun every (call &rest sequence+) ...) -> boolean */
 static int function_every(Execute ptr, addr call, addr rest)
 {
-	Return(every_common(ptr, call, rest, &rest));
+	Return(every_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -951,7 +931,7 @@ static void defun_every(void)
 /* (defun some (call &rest sequence+) ...) -> result */
 static int function_some(Execute ptr, addr call, addr rest)
 {
-	Return(some_common(ptr, call, rest, &rest));
+	Return(some_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -987,7 +967,7 @@ static void defun_some(void)
 static int function_notany(Execute ptr, addr call, addr rest)
 {
 	/* (notany predicate sequence*) ==  (not (some predicate sequence*)) */
-	Return(notany_common(ptr, call, rest, &rest));
+	Return(notany_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1011,7 +991,7 @@ static void defun_notany(void)
 /* (defun notevery (call &rest sequence+) ...) -> boolean */
 static int function_notevery(Execute ptr, addr call, addr rest)
 {
-	Return(notevery_common(ptr, call, rest, &rest));
+	Return(notevery_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1035,7 +1015,7 @@ static void defun_notevery(void)
 /* (defmacro and (&rest form) ...) */
 static int function_and(Execute ptr, addr form, addr env)
 {
-	Return(and_common(form, env, &form));
+	Return(and_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1057,7 +1037,7 @@ static void defmacro_and(void)
 /* (defmacro cond (&rest clause) ...) */
 static int function_cond(Execute ptr, addr form, addr env)
 {
-	Return(cond_common(form, env, &form));
+	Return(cond_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1086,7 +1066,7 @@ static void defspecial_if(void)
 /* (defmacro or (&rest form) ...) */
 static int function_or(Execute ptr, addr form, addr env)
 {
-	Return(or_common(ptr, form, env, &form));
+	Return(or_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1108,7 +1088,7 @@ static void defmacro_or(void)
 /* (defmacro when (expr &body body) ...) -> object */
 static int function_when(Execute ptr, addr form, addr env)
 {
-	Return(when_common(form, env, &form));
+	Return(when_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1130,7 +1110,7 @@ static void defmacro_when(void)
 /* (defmacro unless (expr &body body) ...) -> object */
 static int function_unless(Execute ptr, addr form, addr env)
 {
-	Return(unless_common(form, env, &form));
+	Return(unless_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1152,7 +1132,7 @@ static void defmacro_unless(void)
 /* (defmacro case key &rest args) -> result */
 static int function_case(Execute ptr, addr form, addr env)
 {
-	Return(case_common(ptr, form, env, &form));
+	Return(case_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1174,7 +1154,7 @@ static void defmacro_case(void)
 /* (defmacro ecase (key &rest args) -> result */
 static int function_ecase(Execute ptr, addr form, addr env)
 {
-	Return(ecase_common(ptr, form, env, &form));
+	Return(ecase_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1196,7 +1176,7 @@ static void defmacro_ecase(void)
 /* (defmacro ccase (keyplace &rest args) -> result */
 static int function_ccase(Execute ptr, addr form, addr env)
 {
-	Return(ccase_common(ptr, form, env, &form));
+	Return(ccase_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1218,7 +1198,7 @@ static void defmacro_ccase(void)
 /* (defmacro typecase (key &rest clauses) ...) -> result */
 static int function_typecase(Execute ptr, addr form, addr env)
 {
-	Return(typecase_common(ptr, form, env, &form));
+	Return(typecase_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1240,7 +1220,7 @@ static void defmacro_typecase(void)
 /* (defmacro etypecase (key &rest clauses) ...) -> result */
 static int function_etypecase(Execute ptr, addr form, addr env)
 {
-	Return(etypecase_common(ptr, form, env, &form));
+	Return(etypecase_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1262,7 +1242,7 @@ static void defmacro_etypecase(void)
 /* (defmacro ctypecase (key &rest clauses) ...) -> result */
 static int function_ctypecase(Execute ptr, addr form, addr env)
 {
-	Return(ctypecase_common(ptr, form, env, &form));
+	Return(ctypecase_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1470,7 +1450,7 @@ static void defmacro_nth_value(void)
 /* (defmacro prog ([var] declaration* tagbody*) ...) -> result */
 static int function_prog(Execute ptr, addr form, addr env)
 {
-	Return(prog_common(form, env, &form));
+	Return(prog_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1492,7 +1472,7 @@ static void defmacro_prog(void)
 /* (defmacro prog* ([var] declaration* tagbody*) ...) -> result */
 static int function_proga(Execute ptr, addr form, addr env)
 {
-	Return(proga_common(form, env, &form));
+	Return(proga_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1514,7 +1494,7 @@ static void defmacro_proga(void)
 /* (defmacro prog1 (form1 &body form) ...) -> form1 */
 static int function_prog1(Execute ptr, addr form, addr env)
 {
-	Return(prog1_common(ptr, form, env, &form));
+	Return(prog1_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1536,7 +1516,7 @@ static void defmacro_prog1(void)
 /* (defmacro prog2 (form1 form2 &body form) ...) -> form2 */
 static int function_prog2(Execute ptr, addr form, addr env)
 {
-	Return(prog2_common(form, env, &form));
+	Return(prog2_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1565,7 +1545,7 @@ static void defspecial_progn(void)
 /* (defmacro define-modify-macro (name args call &optional doc) ...) -> name */
 static int function_define_modify_macro(Execute ptr, addr form, addr env)
 {
-	Return(define_modify_macro_common(ptr->local, form, env, &form));
+	Return(define_modify_macro_common_(ptr->local, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1587,7 +1567,7 @@ static void defmacro_define_modify_macro(void)
 /* (defmacro defsetf (access &rest args) -> access */
 static int function_defsetf(Execute ptr, addr form, addr env)
 {
-	Return(defsetf_common(ptr, form, env, &form));
+	Return(defsetf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1609,7 +1589,7 @@ static void defmacro_defsetf(void)
 /* (defmacro define-setf-expander (access &rest args) ...) -> access */
 static int function_define_setf_expander(Execute ptr, addr form, addr env)
 {
-	Return(define_setf_expander_common(form, env, &form));
+	Return(define_setf_expander_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1635,7 +1615,7 @@ static int function_get_setf_expansion(Execute ptr, addr place, addr env)
 
 	if (env == Unbound)
 		env = Nil;
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	setvalues_control(ptr, a, b, g, w, r, NULL);
 
 	return 0;
@@ -1672,7 +1652,7 @@ static void defun_get_setf_expansion(void)
 /* (defmacro setf (&rest pair) ...) -> t */
 static int function_setf(Execute ptr, addr form, addr env)
 {
-	Return(setf_common(ptr, form, env, &form));
+	Return(setf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1694,7 +1674,7 @@ static void defmacro_setf(void)
 /* (defmacro psetf (&rest args) ...) -> value */
 static int function_psetf(Execute ptr, addr form, addr env)
 {
-	Return(psetf_common(ptr, form, env, &form));
+	Return(psetf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1716,7 +1696,7 @@ static void defmacro_psetf(void)
 /* (defmacro shiftf (place+ newvalue) ...) -> oldvalue */
 static int function_shiftf(Execute ptr, addr form, addr env)
 {
-	Return(shiftf_common(ptr, form, env, &form));
+	Return(shiftf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1738,7 +1718,7 @@ static void defmacro_shiftf(void)
 /* (defmacro rotatef (&rest place) ...) -> nil) */
 static int function_rotatef(Execute ptr, addr form, addr env)
 {
-	Return(rotatef_common(ptr, form, env, &form));
+	Return(rotatef_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

@@ -91,7 +91,7 @@ static int break_on_signals_p_(Execute ptr, addr condition, int *ret)
 
 	GetConst(SPECIAL_BREAK_ON_SIGNALS, &pos);
 	Return(getspecialcheck_local_(ptr, pos, &pos));
-	Return(parse_type(ptr, &pos, pos, Nil));
+	Return(parse_type_(ptr, &pos, pos, Nil));
 	return typep_asterisk_clang_(ptr, condition, pos, ret);
 }
 

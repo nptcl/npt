@@ -34,7 +34,7 @@ int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 		dto = Nil;
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off))
 		off = fixnumh(0);
-	Return(parse_type(ptr, &type, type, Nil));
+	Return(parse_type_(ptr, &type, type, Nil));
 	return array_make_array_(ret, var, type, ielem, icont, adj, fill, dto, off);
 }
 
@@ -59,7 +59,7 @@ int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off))
 		off = fixnumh(0);
 	if (type != Unbound) {
-		Return(parse_type(ptr, &type, type, Nil));
+		Return(parse_type_(ptr, &type, type, Nil));
 	}
 
 	return array_adjust_array_(ret, pos, dim, type, ielem, icont, fill, dto, off);

@@ -20,11 +20,11 @@ static int loop_subtypep_(Execute ptr, addr a, addr b, int *ret)
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, NULL);
 	if (GetType(a) != LISPTYPE_TYPE) {
-		Return(parse_type(ptr, &a, a, Nil));
+		Return(parse_type_(ptr, &a, a, Nil));
 		localhold_push(hold, a);
 	}
 	if (GetType(b) != LISPTYPE_TYPE) {
-		Return(parse_type(ptr, &b, b, Nil));
+		Return(parse_type_(ptr, &b, b, Nil));
 		localhold_push(hold, b);
 	}
 	localhold_end(hold);
@@ -41,7 +41,7 @@ static int loop_bind_initial_(Execute ptr, addr type, addr *ret)
 	if (type == Unbound)
 		return Result(ret, Nil);
 	if (GetType(type) != LISPTYPE_TYPE) {
-		Return(parse_type(ptr, &type, type, Nil));
+		Return(parse_type_(ptr, &type, type, Nil));
 	}
 	/* float */
 	GetConst(COMMON_FLOAT, &right);
@@ -115,7 +115,7 @@ static int loop_typep_(Execute ptr, addr pos, addr value, addr type)
 	int check;
 
 	if (GetType(type) != LISPTYPE_TYPE) {
-		Return(parse_type(ptr, &type, type, Nil));
+		Return(parse_type_(ptr, &type, type, Nil));
 	}
 	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {

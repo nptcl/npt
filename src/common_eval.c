@@ -39,7 +39,7 @@ static void defmacro_lambda(void)
 static int function_compile(Execute ptr, addr var, addr opt)
 {
 	addr x, y, z;
-	Return(compile_common(ptr, var, opt, &x, &y, &z));
+	Return(compile_common_(ptr, var, opt, &x, &y, &z));
 	setvalues_control(ptr, x, y, z, NULL);
 	return 0;
 }
@@ -85,7 +85,7 @@ static void defun_compile(void)
 /* (defun eval (form) ...) -> result */
 static int function_eval(Execute ptr, addr var)
 {
-	return eval_common(ptr, var);
+	return eval_common_(ptr, var);
 }
 
 static void type_eval(addr *ret)
@@ -143,7 +143,7 @@ static void defspecial_quote(void)
  */
 static int function_compiler_macro_function(Execute ptr, addr var, addr env)
 {
-	Return(compiler_macro_function_common(var, env, &var));
+	Return(compiler_macro_function_common_(var, env, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -185,7 +185,7 @@ static void defun_compiler_macro_function(void)
 static int function_setf_compiler_macro_function(
 		Execute ptr, addr value, addr var, addr env)
 {
-	Return(setf_compiler_macro_function_common(value, var, env));
+	Return(setf_compiler_macro_function_common_(value, var, env));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -221,7 +221,7 @@ static void defun_setf_compiler_macro_function(void)
 /* (defmacro define-compiler-macro (name lambda &body form) ...) -> name */
 static int function_define_compiler_macro(Execute ptr, addr form, addr env)
 {
-	Return(define_compiler_macro_common(ptr, form, env, &form));
+	Return(define_compiler_macro_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -243,7 +243,7 @@ static void defmacro_define_compiler_macro(void)
 /* (defmacro defmacro (name args &body body) ...) */
 static int function_defmacro(Execute ptr, addr form, addr env)
 {
-	Return(defmacro_common(ptr, form, env, &form));
+	Return(defmacro_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -342,7 +342,7 @@ static void defun_setf_macro_function(void)
 /* (defun macroexpand (form &optional env) ...) -> expansion, expansion-p */
 static int function_macroexpand(Execute ptr, addr form, addr env)
 {
-	Return(macroexpand_common(ptr, form, env, &form, &env));
+	Return(macroexpand_common_(ptr, form, env, &form, &env));
 	setvalues_control(ptr, form, env, NULL);
 	return 0;
 }
@@ -366,7 +366,7 @@ static void defun_macroexpand(void)
 /* (defun macroexpand-1 (form &optional env) ...) -> expansion, expansion-p */
 static int function_macroexpand_1(Execute ptr, addr form, addr env)
 {
-	Return(macroexpand_1_common(ptr, form, env, &form, &env));
+	Return(macroexpand_1_common_(ptr, form, env, &form, &env));
 	setvalues_control(ptr, form, env, NULL);
 	return 0;
 }
@@ -390,7 +390,7 @@ static void defun_macroexpand_1(void)
 /* (defmacro define-symbol-macro (symbol expansion) ...) -> symbol */
 static int function_define_symbol_macro(Execute ptr, addr form, addr env)
 {
-	Return(define_symbol_macro_common(form, env, &form));
+	Return(define_symbol_macro_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -419,7 +419,7 @@ static void defspecial_symbol_macrolet(void)
 /* (defun proclaim (declaration) ...) -> null */
 static int function_proclaim(Execute ptr, addr var)
 {
-	Return(proclaim_common(ptr, var));
+	Return(proclaim_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -453,7 +453,7 @@ static void defun_proclaim(void)
 /* (defmacro declaim (&rest declarations)  ...) */
 static int function_declaim(Execute ptr, addr form, addr env)
 {
-	Return(declaim_common(ptr, form, env, &form));
+	Return(declaim_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -530,7 +530,7 @@ static void defun_special_operator_p(void)
  */
 static int function_constantp(Execute ptr, addr var, addr opt)
 {
-	Return(constantp_common(ptr, var, opt, &var));
+	Return(constantp_common_(ptr, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

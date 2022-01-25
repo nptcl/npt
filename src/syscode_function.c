@@ -398,7 +398,7 @@ int subtypep_extend_syscode_(Execute ptr,
 /* subtypep-number */
 int subtypep_number_syscode_(Execute ptr, addr x, addr *ret)
 {
-	Return(parse_type(ptr, &x, x, Nil));
+	Return(parse_type_(ptr, &x, x, Nil));
 	Return(type_subtypep_throw_heap_(ptr->local, x, &x));
 	get_type_subtypep(&x, x);
 	Return(type_object_(&x, x));
@@ -514,7 +514,7 @@ error:
 /* parse-type */
 int parse_type_syscode(Execute ptr, addr var, addr *ret)
 {
-	Return(parse_type(ptr, &var, var, Nil));
+	Return(parse_type_(ptr, &var, var, Nil));
 	Return(type_object_(&var, var));
 
 	return Result(ret, var);

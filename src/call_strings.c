@@ -835,7 +835,7 @@ int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
 	if (getplist_safe(rest, symbol, &type) == 0) {
 		GetTypeTable(&symbol, Character);
-		Return(parse_type(ptr, &type, type, Nil));
+		Return(parse_type_(ptr, &type, type, Nil));
 		Return(subtypep_check_(ptr, type, symbol, Nil, &check, NULL));
 		if (! check) {
 			return fmte_(":element-type ~S "

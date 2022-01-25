@@ -1063,7 +1063,7 @@ int function_setf_ldb(Execute ptr, addr form, addr env)
 	if (args != Nil)
 		goto error;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DPB, &dpb);
@@ -1210,7 +1210,7 @@ int function_setf_mask_field(Execute ptr, addr form, addr env)
 	if (args != Nil)
 		goto error;
 
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DEPOSIT_FIELD, &deposit);

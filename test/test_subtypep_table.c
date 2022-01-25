@@ -21,7 +21,7 @@
 
 static void test_parse_type(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+	if (parse_type_(Execute_Thread, ret, pos, Nil)) {
 		Error(fmte_("parse-type error.", NULL));
 	}
 }
@@ -357,7 +357,7 @@ static int test_subtypep_ordinary_subtypep(void)
 static void parse_values_string(addr *ret, const char *code)
 {
 	readstring_debug(ret, code);
-	if (parse_type_values(Execute_Thread, ret, *ret, Nil))
+	if (parse_type_values_(Execute_Thread, ret, *ret, Nil))
 		Error(fmte_("parse-type-values error.", NULL));
 }
 

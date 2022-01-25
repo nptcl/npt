@@ -45,7 +45,7 @@ static int testlispdecl(addr pos, enum LISPDECL decl)
 
 static void test_parse_type(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+	if (parse_type_(Execute_Thread, ret, pos, Nil)) {
 		Error(fmte_("parse-type error.", NULL));
 	}
 }
@@ -1746,8 +1746,8 @@ static int test_extract_values_var(void)
 static void parse_type_values_string(addr *ret, const char *code)
 {
 	readstring_debug(ret, code);
-	if (parse_type_values(Execute_Thread, ret, *ret, Nil)) {
-		Error(fmte_("parse_type_values error.", NULL));
+	if (parse_type_values_(Execute_Thread, ret, *ret, Nil)) {
+		Error(fmte_("parse_type_values_ error.", NULL));
 	}
 }
 

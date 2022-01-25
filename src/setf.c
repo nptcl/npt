@@ -47,7 +47,7 @@ int function_setf_the(Execute ptr, addr form, addr env)
 	GetConst(COMMON_MULTIPLE_VALUE_BIND, &mvbind);
 	GetConst(COMMON_THE, &the);
 	GetConst(COMMON_VALUES, &values);
-	Return(get_setf_expansion(ptr, expr, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, expr, env, &a, &b, &g, &w, &r));
 	/* read */
 	list_heap(&r, the, type, r, NULL);
 	/* write */
@@ -76,7 +76,7 @@ int function_setf_values(Execute ptr, addr form, addr env)
 	a = b = g = w = r = Nil;
 	while (args != Nil) {
 		Return_getcons(args, &v, &args);
-		Return(get_setf_expansion(ptr, v, env, &a1, &b1, &g1, &w1, &r1));
+		Return(get_setf_expansion_(ptr, v, env, &a1, &b1, &g1, &w1, &r1));
 		/* vars */
 		while (a1 != Nil) {
 			Return_getcons(a1, &v, &a1);
@@ -156,7 +156,7 @@ int function_setf_getf(Execute ptr, addr form, addr env)
 	}
 
 	/* expander */
-	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	Return(make_gensym_(ptr, &g1)); /* store */
 	Return(make_gensym_(ptr, &g2)); /* indicator */
 	Return_getcar(g, &g3);			/* temporary */
@@ -378,7 +378,7 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 	return 0;
 }
 
-int get_setf_expansion(Execute ptr, addr form, addr env,
+int get_setf_expansion_(Execute ptr, addr form, addr env,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
 	int result;

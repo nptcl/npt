@@ -13,7 +13,7 @@
  */
 static int function_coerce(Execute ptr, addr pos, addr type)
 {
-	Return(coerce_common(ptr, pos, type, &pos));
+	Return(coerce_common_(ptr, pos, type, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -52,7 +52,7 @@ static void defun_coerce(void)
  */
 static int function_deftype(Execute ptr, addr form, addr env)
 {
-	Return(deftype_common(ptr, form, env, &form));
+	Return(deftype_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

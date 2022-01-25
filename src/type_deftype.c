@@ -26,7 +26,7 @@ int symbol_deftypep(addr symbol)
 	return symbol != Nil;
 }
 
-int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
+int execute_list_deftype_(Execute ptr, addr *ret, addr list, addr env)
 {
 	addr call, symbol;
 
@@ -40,7 +40,7 @@ int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
 	return funcall1_control_(ptr, ret, call, list, env, NULL);
 }
 
-int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
+int execute_symbol_deftype_(Execute ptr, addr *ret, addr symbol, addr env)
 {
 	addr call;
 
@@ -58,7 +58,7 @@ int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
 /*
  *  deftype
  */
-int deftype_common(Execute ptr, addr form, addr env, addr *ret)
+int deftype_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr right, eval, name, args, decl, doc;
 
@@ -66,20 +66,18 @@ int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 	Return_getcdr(form, &right);
 	if (right == Nil)
 		return fmte_("deftype form must have at least a name and body.", NULL);
-	if (! consp(right))
-		return fmte_("Invalid deftype form.", NULL);
 
 	/* name */
-	Return_getcons(right, &name, &right);
+	if (! consp_getcons(right, &name, &right))
+		return fmte_("Invalid deftype form.", NULL);
 	if (! symbolp(name))
 		return fmte_("deftype name ~S must be a symbol.", name, NULL);
 	if (right == Nil)
 		return fmte_("deftype form must have at least a name and body.", NULL);
-	if (! consp(right))
-		return fmte_("Invalid deftype form.", NULL);
 
 	/* args */
-	Return_getcons(right, &args, &right);
+	if (! consp_getcons(right, &args, &right))
+		return fmte_("Invalid deftype form.", NULL);
 	if (! IsList(right))
 		return fmte_("Invalid deftype form.", NULL);
 

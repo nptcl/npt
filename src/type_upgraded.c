@@ -411,7 +411,7 @@ int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
 
 	if (env == Unbound)
 		env = Nil;
-	Return(parse_type(ptr, &pos, pos, env));
+	Return(parse_type_(ptr, &pos, pos, env));
 	Return(upgraded_array_optimize_(ptr->local, pos, &type, &size));
 	upgraded_array_const(type, size, ret);
 
@@ -550,7 +550,7 @@ static int upgraded_complex_const_(Execute ptr, addr env, addr pos, addr *ret)
 
 int upgraded_complex_common_(Execute ptr, addr env, addr pos, addr *ret)
 {
-	Return(parse_type(ptr, &pos, pos, env));
+	Return(parse_type_(ptr, &pos, pos, env));
 	Return(upgraded_complex_const_(ptr, env, pos, ret));
 	CheckType(*ret, LISPTYPE_SYMBOL);
 	return 0;

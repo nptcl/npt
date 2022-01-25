@@ -21,10 +21,10 @@ static int get_delay_type_no_error(Execute ptr, addr pos, addr *ret)
 	GetNotDecl(pos, &notp);
 	GetArrayType(pos, 0, &expr);
 	if (notp) {
-		Return(parse_type_not(ptr, &type, expr, Nil));
+		Return(parse_type_not_(ptr, &type, expr, Nil));
 	}
 	else {
-		Return(parse_type(ptr, &type, expr, Nil));
+		Return(parse_type_(ptr, &type, expr, Nil));
 	}
 
 	/* error check */

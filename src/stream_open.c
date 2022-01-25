@@ -53,7 +53,7 @@ int open_element_stream_(Execute ptr, addr value, enum Stream_Open_Element *ret)
 	/* type */
 	if (value == Nil)
 		goto error;
-	if (parse_type(ptr, &check, value, Nil))
+	if (parse_type_(ptr, &check, value, Nil))
 		goto error;
 
 	/* Unicode */

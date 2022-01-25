@@ -24,7 +24,7 @@
 static int localhold_parse_type(LocalHold hold,
 		Execute ptr, addr *ret, addr pos, addr env)
 {
-	Return(parse_type(ptr, ret, pos, env));
+	Return(parse_type_(ptr, ret, pos, env));
 	localhold_push(hold, *ret);
 	return 0;
 }
@@ -55,7 +55,7 @@ static int typelist_array4(Execute ptr, addr *ret,
 	hold = LocalHold_local_push(ptr, array);
 	for (size = 0; right != Nil; size++) {
 		GetCons(right, &pos, &right);
-		Return(parse_type(ptr, &pos, pos, env));
+		Return(parse_type_(ptr, &pos, pos, env));
 		SetArrayA4(array, size, pos);
 	}
 	localhold_end(hold);
@@ -155,7 +155,7 @@ static int typelist_not(Execute ptr, addr *ret,
 	GetConst(COMMON_ASTERISK, &list);
 	if (pos == list)
 		return fmte_("~A argument don't be *.", left, NULL);
-	Return(parse_type(ptr, &pos, pos, env));
+	Return(parse_type_(ptr, &pos, pos, env));
 	type1_heap(type, pos, ret);
 
 	return 0;
@@ -228,7 +228,7 @@ static int typelist_cons(Execute ptr, addr *ret,
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -257,7 +257,7 @@ var_label:
 		goto rest_label;
 	if (one == const_key)
 		goto key_label;
-	Return(parse_type(ptr, &one, one, env));
+	Return(parse_type_(ptr, &one, one, env));
 	cons_heap(&var, one, var);
 	localhold_set(hold, 0, var);
 	goto var_label;
@@ -272,7 +272,7 @@ opt_label:
 		goto rest_label;
 	if (one == const_key)
 		goto key_label;
-	Return(parse_type(ptr, &one, one, env));
+	Return(parse_type_(ptr, &one, one, env));
 	cons_heap(&opt, one, opt);
 	localhold_set(hold, 1, opt);
 	goto opt_label;
@@ -283,7 +283,7 @@ rest_label:
 	Return_getcons(list, &one, &list);
 	if (one == const_opt || one == const_rest || one == const_key)
 		return fmte_("After &rest parameter don't allow to be a &-symbol.", NULL);
-	Return(parse_type(ptr, &rest, one, env));
+	Return(parse_type_(ptr, &rest, one, env));
 	localhold_set(hold, 2, rest);
 	if (list == Nil)
 		goto final;
@@ -306,7 +306,7 @@ key_label:
 	Return_getcons(one, &type, &one);
 	if (one != Nil)
 		return fmte_("&key parameter must be a (key type) list.", NULL);
-	Return(parse_type(ptr, &type, type, env));
+	Return(parse_type_(ptr, &type, type, env));
 	cons_heap(&one, name, type);
 	cons_heap(&key, one, key);
 	localhold_set(hold, 4, key);
@@ -373,7 +373,7 @@ var_label:
 	if (var == const_allow)
 		goto allow_label;
 #endif
-	Return(parse_type(ptr, &var, var, env));
+	Return(parse_type_(ptr, &var, var, env));
 	cons_heap(&vars, var, vars);
 	localhold_set(hold, 0, vars);
 	goto var_label;
@@ -388,7 +388,7 @@ optional_label:
 	if (var == const_allow)
 		goto allow_label;
 #endif
-	Return(parse_type(ptr, &var, var, env));
+	Return(parse_type_(ptr, &var, var, env));
 	cons_heap(&opt, var, opt);
 	localhold_set(hold, 1, opt);
 	goto optional_label;
@@ -403,7 +403,7 @@ rest_label:
 	if (var == const_allow)
 		return fmte_("After &rest argument must be a type.", NULL);
 #endif
-	Return(parse_type(ptr, &rest, var, env));
+	Return(parse_type_(ptr, &rest, var, env));
 	localhold_set(hold, 2, rest);
 	if (list == Nil)
 		goto final;
@@ -450,11 +450,11 @@ static int type_function_values(Execute ptr, addr *ret, addr type, addr env)
 	addr pos, check, list;
 
 	if (! consp(type))
-		return parse_type(ptr, ret, type, env);
+		return parse_type_(ptr, ret, type, env);
 	Return_getcons(type, &pos, &list);
 	GetConst(COMMON_VALUES, &check);
 	if (check != pos)
-		return parse_type(ptr, ret, type, env);
+		return parse_type_(ptr, ret, type, env);
 	else
 		return type_values(ptr, ret, list, env);
 }
@@ -616,7 +616,7 @@ static int typelist_array(Execute ptr, addr *ret,
 		/* one argument */
 		if (first == aster)
 			goto asterisk;
-		Return(parse_type(ptr, &first, first, env));
+		Return(parse_type_(ptr, &first, first, env));
 		GetTypeTable(&second, Asterisk);
 	}
 	else {
@@ -632,7 +632,7 @@ static int typelist_array(Execute ptr, addr *ret,
 			GetTypeTable(&first, Asterisk);
 		}
 		else {
-			Return(parse_type(ptr, &first, first, env));
+			Return(parse_type_(ptr, &first, first, env));
 		}
 		if (second == aster) {
 			GetTypeTable(&second, Asterisk);
@@ -648,7 +648,7 @@ static int typelist_array(Execute ptr, addr *ret,
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -672,7 +672,7 @@ static int typelist_vector(Execute ptr, addr *ret,
 		/* one argument */
 		if (first == aster)
 			goto asterisk;
-		Return(parse_type(ptr, &first, first, env));
+		Return(parse_type_(ptr, &first, first, env));
 		GetTypeTable(&second, Asterisk);
 	}
 	else {
@@ -688,7 +688,7 @@ static int typelist_vector(Execute ptr, addr *ret,
 			GetTypeTable(&first, Asterisk);
 		}
 		else {
-			Return(parse_type(ptr, &first, first, env));
+			Return(parse_type_(ptr, &first, first, env));
 		}
 		if (second == aster) {
 			GetTypeTable(&second, Asterisk);
@@ -704,7 +704,7 @@ static int typelist_vector(Execute ptr, addr *ret,
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -734,7 +734,7 @@ static int typelist_size(Execute ptr, addr *ret,
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -816,7 +816,7 @@ static int typelist_range(Execute ptr, addr *ret,
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -991,7 +991,7 @@ static int typelist_byte(Execute ptr, addr *ret,
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -1016,13 +1016,13 @@ static int typelist_complex(Execute ptr, addr *ret,
 	GetConst(COMMON_ASTERISK, &aster);
 	if (first == aster)
 		goto asterisk;
-	Return(parse_type(ptr, &first, first, env));
+	Return(parse_type_(ptr, &first, first, env));
 	Return(upgraded_complex_type_(ptr, env, first, &first));
 	type1_heap(type, first, ret);
 	return 0;
 
 asterisk:
-	return parse_type(ptr, ret, left, env);
+	return parse_type_(ptr, ret, left, env);
 }
 
 
@@ -1165,9 +1165,9 @@ static int parse_type_list(Execute ptr, addr *ret, addr pos, addr env)
 		return Result(ret, check);
 
 	/* deftype */
-	Return(execute_list_deftype(ptr, &check, pos, env));
+	Return(execute_list_deftype_(ptr, &check, pos, env));
 	if (check)
-		return parse_type(ptr, ret, check, env);
+		return parse_type_(ptr, ret, check, env);
 
 	/* error */
 	type_delay_heap(pos, ret);
@@ -1180,7 +1180,7 @@ static int parse_type_symbol(Execute ptr, addr *ret, addr pos, addr env)
 
 	Return(find_symbol_type(ptr, &check, pos, env));
 	if (check)
-		return parse_type(ptr, ret, check, env);
+		return parse_type_(ptr, ret, check, env);
 
 	/* error */
 	type_delay_heap(pos, ret);
@@ -1207,7 +1207,7 @@ static int parse_type_type(Execute ptr, addr *ret, addr pos)
 
 	/* built-in-class */
 	Return(stdget_class_name_(x, &x));
-	return parse_type(ptr, ret, x, Nil);  /* don't use env */
+	return parse_type_(ptr, ret, x, Nil);  /* don't use env */
 }
 
 static int parse_type_clos(Execute ptr, addr *ret, addr pos)
@@ -1223,7 +1223,7 @@ static int parse_type_clos(Execute ptr, addr *ret, addr pos)
 
 	/* built-in-class */
 	Return(stdget_class_name_(pos, &x));
-	return parse_type(ptr, ret, x, Nil);  /* don't use env */
+	return parse_type_(ptr, ret, x, Nil);  /* don't use env */
 }
 
 static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
@@ -1248,7 +1248,7 @@ static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 	}
 }
 
-int parse_type(Execute ptr, addr *ret, addr pos, addr env)
+int parse_type_(Execute ptr, addr *ret, addr pos, addr env)
 {
 	LocalHold hold;
 
@@ -1263,15 +1263,15 @@ int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 	return 0;
 }
 
-int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
+int parse_type_not_(Execute ptr, addr *ret, addr pos, addr env)
 {
-	Return(parse_type(ptr, &pos, pos, env));
+	Return(parse_type_(ptr, &pos, pos, env));
 	type_copy_unsafe_heap(&pos, pos);
 	type_revnotdecl(pos);
 	return Result(ret, pos);
 }
 
-int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
+int parse_type_noaster_(Execute ptr, addr *ret, addr pos, addr env)
 {
 	addr aster;
 
@@ -1279,19 +1279,19 @@ int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
 	if (pos == aster)
 		return fmte_("Don't allow to use asterisk type.", NULL);
 
-	return parse_type(ptr, ret, pos, env);
+	return parse_type_(ptr, ret, pos, env);
 }
 
 void parse_type_unsafe(addr *ret, addr pos)
 {
-	if (parse_type(Execute_Thread, ret, pos, Nil)) {
+	if (parse_type_(Execute_Thread, ret, pos, Nil)) {
 		Abort("parse-type error.");
 	}
 }
 
 
 /* debug */
-int parse_type_values(Execute ptr, addr *ret, addr type, addr env)
+int parse_type_values_(Execute ptr, addr *ret, addr type, addr env)
 {
 	LocalHold hold;
 
