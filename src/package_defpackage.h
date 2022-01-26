@@ -3,11 +3,11 @@
 
 #include "typedef.h"
 
-#define defpackage_common _n(defpackage_common)
-#define defpackage_execute _n(defpackage_execute)
+#define defpackage_common_ _n(defpackage_common_)
+#define defpackage_execute_ _n(defpackage_execute_)
 
-int defpackage_common(addr form, addr env, addr *ret);
-int defpackage_execute(Execute ptr, addr var, addr rest, addr *ret);
+int defpackage_common_(addr form, addr env, addr *ret);
+int defpackage_execute_(Execute ptr, addr var, addr rest, addr *ret);
 
 #endif
 

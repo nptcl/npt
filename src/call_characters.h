@@ -4,19 +4,19 @@
 #include "local.h"
 #include "typedef.h"
 
-#define char_eql_common _n(char_eql_common)
-#define char_not_eql_common _n(char_not_eql_common)
-#define char_less_common _n(char_less_common)
-#define char_greater_common _n(char_greater_common)
-#define char_less_equal_common _n(char_less_equal_common)
-#define char_greater_equal_common _n(char_greater_equal_common)
-#define char_equal_common _n(char_equal_common)
-#define char_not_equal_common _n(char_not_equal_common)
-#define char_lessp_common _n(char_lessp_common)
-#define char_greaterp_common _n(char_greaterp_common)
-#define char_not_lessp_common _n(char_not_lessp_common)
-#define char_not_greaterp_common _n(char_not_greaterp_common)
-#define character_common _n(character_common)
+#define char_eql_common_ _n(char_eql_common_)
+#define char_not_eql_common_ _n(char_not_eql_common_)
+#define char_less_common_ _n(char_less_common_)
+#define char_greater_common_ _n(char_greater_common_)
+#define char_less_equal_common_ _n(char_less_equal_common_)
+#define char_greater_equal_common_ _n(char_greater_equal_common_)
+#define char_equal_common_ _n(char_equal_common_)
+#define char_not_equal_common_ _n(char_not_equal_common_)
+#define char_lessp_common_ _n(char_lessp_common_)
+#define char_greaterp_common_ _n(char_greaterp_common_)
+#define char_not_lessp_common_ _n(char_not_lessp_common_)
+#define char_not_greaterp_common_ _n(char_not_greaterp_common_)
+#define character_common_ _n(character_common_)
 #define alpha_char_p_common _n(alpha_char_p_common)
 #define alphanumericp_common _n(alphanumericp_common)
 #define digit_char_common _n(digit_char_common)
@@ -33,19 +33,19 @@
 #define char_name_common_ _n(char_name_common_)
 #define name_char_common_ _n(name_char_common_)
 
-int char_eql_common(addr list, addr *ret);
-int char_not_eql_common(addr list, addr *ret);
-int char_less_common(addr list, addr *ret);
-int char_greater_common(addr list, addr *ret);
-int char_less_equal_common(addr list, addr *ret);
-int char_greater_equal_common(addr list, addr *ret);
-int char_equal_common(addr list, addr *ret);
-int char_not_equal_common(addr list, addr *ret);
-int char_lessp_common(addr list, addr *ret);
-int char_greaterp_common(addr list, addr *ret);
-int char_not_lessp_common(addr list, addr *ret);
-int char_not_greaterp_common(addr list, addr *ret);
-int character_common(addr var, addr *ret);
+int char_eql_common_(addr list, addr *ret);
+int char_not_eql_common_(addr list, addr *ret);
+int char_less_common_(addr list, addr *ret);
+int char_greater_common_(addr list, addr *ret);
+int char_less_equal_common_(addr list, addr *ret);
+int char_greater_equal_common_(addr list, addr *ret);
+int char_equal_common_(addr list, addr *ret);
+int char_not_equal_common_(addr list, addr *ret);
+int char_lessp_common_(addr list, addr *ret);
+int char_greaterp_common_(addr list, addr *ret);
+int char_not_lessp_common_(addr list, addr *ret);
+int char_not_greaterp_common_(addr list, addr *ret);
+int character_common_(addr var, addr *ret);
 void alpha_char_p_common(addr var, addr *ret);
 void alphanumericp_common(addr var, addr *ret);
 void digit_char_common(addr var, addr opt, addr *ret);

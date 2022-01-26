@@ -36,7 +36,7 @@ int provide_common_(Execute ptr, addr var)
 static int require_function_common_call_(Execute ptr, addr call, addr var, int *ret)
 {
 	if (symbolp(call)) {
-		Return(function_global_restart(ptr, call, &call));
+		Return(function_global_restart_(ptr, call, &call));
 	}
 	Return(funcall_control_(ptr, call, var, NULL));
 	getresult_control(ptr, &var);

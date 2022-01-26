@@ -4,15 +4,15 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define do_common _n(do_common)
-#define doa_common _n(doa_common)
-#define dotimes_common _n(dotimes_common)
-#define dolist_common _n(dolist_common)
+#define do_common_ _n(do_common_)
+#define doa_common_ _n(doa_common_)
+#define dotimes_common_ _n(dotimes_common_)
+#define dolist_common_ _n(dolist_common_)
 
-int do_common(addr form, addr env, addr *ret);
-int doa_common(addr form, addr env, addr *ret);
-int dotimes_common(addr form, addr env, addr *ret);
-int dolist_common(Execute ptr, addr form, addr env, addr *ret);
+int do_common_(addr form, addr env, addr *ret);
+int doa_common_(addr form, addr env, addr *ret);
+int dotimes_common_(addr form, addr env, addr *ret);
+int dolist_common_(Execute ptr, addr form, addr env, addr *ret);
 
 #endif
 

@@ -412,7 +412,7 @@ int set_dispatch_macro_character_common(Execute ptr,
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
 	if (symbolp(call)) {
-		Return(function_global_restart(ptr, call, &call));
+		Return(function_global_restart_(ptr, call, &call));
 	}
 
 	return set_dispatch_macro_character_(readtable, a, b, call);
@@ -470,7 +470,7 @@ int set_macro_character_common(Execute ptr,
 
 	GetCharacter(code, &c);
 	if (symbolp(call)) {
-		Return(function_global_restart(ptr, call, &call));
+		Return(function_global_restart_(ptr, call, &call));
 	}
 
 	return set_macro_character_(readtable, c, nonterm != Nil, call);

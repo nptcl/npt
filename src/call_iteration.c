@@ -9,7 +9,7 @@
 /*
  *  do / do*
  */
-static int do_expand_common(addr *ret, constindex let_const, constindex setq_const,
+static int do_expand_common_(addr *ret, constindex let_const, constindex setq_const,
 		addr var, addr end, addr result, addr decl, addr body)
 {
 	/*  (let ((var1 init1) ;; do* -> let*
@@ -115,7 +115,7 @@ static int do_expand_common(addr *ret, constindex let_const, constindex setq_con
 	return 0;
 }
 
-static int do_constant_common(addr form, addr *ret,
+static int do_constant_common_(addr form, addr *ret,
 		constindex do_constant,
 		constindex let,
 		constindex setq)
@@ -149,7 +149,7 @@ static int do_constant_common(addr form, addr *ret,
 	if (! consp_getcons(end, &end, &result))
 		goto error;
 	Return(declare_body_form_(args, &decl, &args));
-	return do_expand_common(ret, let, setq, var, end, result, decl, args);
+	return do_expand_common_(ret, let, setq, var, end, result, decl, args);
 
 error:
 	return fmte_("~S arguemnt ~S must be ((var ...) "
@@ -159,17 +159,17 @@ error_var:
 			"(symbol &optional initial udpate).", name, cdr, NULL);
 }
 
-int do_common(addr form, addr env, addr *ret)
+int do_common_(addr form, addr env, addr *ret)
 {
-	return do_constant_common(form, ret,
+	return do_constant_common_(form, ret,
 			CONSTANT_COMMON_DO,
 			CONSTANT_COMMON_LET,
 			CONSTANT_COMMON_PSETQ);
 }
 
-int doa_common(addr form, addr env, addr *ret)
+int doa_common_(addr form, addr env, addr *ret)
 {
-	return do_constant_common(form, ret,
+	return do_constant_common_(form, ret,
 			CONSTANT_COMMON_DOA,
 			CONSTANT_COMMON_LETA,
 			CONSTANT_COMMON_SETQ);
@@ -200,7 +200,7 @@ static void dotimes_expand_common(addr *ret,
 	lista_heap(ret, dosym, var, form, body, NULL);
 }
 
-int dotimes_common(addr form, addr env, addr *ret)
+int dotimes_common_(addr form, addr env, addr *ret)
 {
 	addr args, var, count, result, check;
 
@@ -229,7 +229,7 @@ error:
 /*
  *  dolist
  */
-static int dolist_expand_common(Execute ptr, addr *ret,
+static int dolist_expand_common_(Execute ptr, addr *ret,
 		addr var, addr list, addr result, addr decl, addr body)
 {
 	/* `(prog* ((,g ,list)
@@ -303,7 +303,7 @@ static int dolist_expand_common(Execute ptr, addr *ret,
 	return 0;
 }
 
-int dolist_common(Execute ptr, addr form, addr env, addr *ret)
+int dolist_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, var, list, result, decl, check;
 
@@ -321,7 +321,7 @@ int dolist_common(Execute ptr, addr form, addr env, addr *ret)
 			goto error;
 	}
 	Return(declare_body_form_(args, &decl, &args));
-	return dolist_expand_common(ptr, ret, var, list, result, decl, args);
+	return dolist_expand_common_(ptr, ret, var, list, result, decl, args);
 
 error:
 	return fmte_("DOLIST arguemnt ~S must be "

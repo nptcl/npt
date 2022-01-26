@@ -34,7 +34,7 @@ static void defun_char_check(constindex index, pointer p)
 
 static int function_char_eql(Execute ptr, addr list)
 {
-	Return(char_eql_common(list, &list));
+	Return(char_eql_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -48,7 +48,7 @@ static void defun_char_eql(void)
 /* (defun char/= (character &rest character) ...) -> boolean */
 static int function_char_not_eql(Execute ptr, addr list)
 {
-	Return(char_not_eql_common(list, &list));
+	Return(char_not_eql_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -72,7 +72,7 @@ static void defun_char_not_eql(void)
 /* (defun char< (character &rest character) ...) -> boolean */
 static int function_char_less(Execute ptr, addr list)
 {
-	Return(char_less_common(list, &list));
+	Return(char_less_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -86,7 +86,7 @@ static void defun_char_less(void)
 /* (defun char> (character &rest character) ...) -> boolean */
 static int function_char_greater(Execute ptr, addr list)
 {
-	Return(char_greater_common(list, &list));
+	Return(char_greater_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -100,7 +100,7 @@ static void defun_char_greater(void)
 /* (defun char<= (character &rest character) ...) -> boolean */
 static int function_char_less_equal(Execute ptr, addr list)
 {
-	Return(char_less_equal_common(list, &list));
+	Return(char_less_equal_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -114,7 +114,7 @@ static void defun_char_less_equal(void)
 /* (defun char>= (character &rest character) ...) -> boolean */
 static int function_char_greater_equal(Execute ptr, addr list)
 {
-	Return(char_greater_equal_common(list, &list));
+	Return(char_greater_equal_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -128,7 +128,7 @@ static void defun_char_greater_equal(void)
 /* (defun char-equal (character &rest character) ...) -> boolean */
 static int function_char_equal(Execute ptr, addr list)
 {
-	Return(char_equal_common(list, &list));
+	Return(char_equal_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -142,7 +142,7 @@ static void defun_char_equal(void)
 /* (defun char-not-equal (character &rest character) ...) -> boolean */
 static int function_char_not_equal(Execute ptr, addr list)
 {
-	Return(char_not_equal_common(list, &list));
+	Return(char_not_equal_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -166,7 +166,7 @@ static void defun_char_not_equal(void)
 /* (defun char-lessp (character &rest character) ...) -> boolean */
 static int function_char_lessp(Execute ptr, addr list)
 {
-	Return(char_lessp_common(list, &list));
+	Return(char_lessp_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -180,7 +180,7 @@ static void defun_char_lessp(void)
 /* (defun char-greaterp (character &rest character) ...) -> boolean */
 static int function_char_greaterp(Execute ptr, addr list)
 {
-	Return(char_greaterp_common(list, &list));
+	Return(char_greaterp_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -194,7 +194,7 @@ static void defun_char_greaterp(void)
 /* (defun char-not-lessp (character &rest character) ...) -> boolean */
 static int function_char_not_lessp(Execute ptr, addr list)
 {
-	Return(char_not_lessp_common(list, &list));
+	Return(char_not_lessp_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -208,7 +208,7 @@ static void defun_char_not_lessp(void)
 /* (defun char-not-greaterp (character &rest character) ...) -> boolean */
 static int function_char_not_greaterp(Execute ptr, addr list)
 {
-	Return(char_not_greaterp_common(list, &list));
+	Return(char_not_greaterp_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -222,7 +222,7 @@ static void defun_char_not_greaterp(void)
 /* (defun character (character) ...) -> character */
 static int function_character(Execute ptr, addr var)
 {
-	Return(character_common(var, &var));
+	Return(character_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

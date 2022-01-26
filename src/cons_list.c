@@ -39,7 +39,7 @@ int getnth_(addr cons, size_t index, addr *ret)
 	return getcar_(cons, ret);
 }
 
-int getnth_large(addr cons, addr index, addr *ret)
+int getnth_large_(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -95,7 +95,7 @@ int getnthcdr_(addr cons, size_t index, addr *ret)
 	return Result(ret, cons);
 }
 
-int getnthcdr_large(addr cons, addr index, addr *ret)
+int getnthcdr_large_(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;

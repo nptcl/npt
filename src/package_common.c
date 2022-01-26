@@ -89,7 +89,7 @@ int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 /*
  *  iterator
  */
-static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
+static int syscall_do_symbols_check_(Execute ptr, addr call, addr package)
 {
 	addr table, list, bit;
 	size_t size, i;
@@ -111,12 +111,12 @@ static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
 	return 0;
 }
 
-int do_symbols_package(Execute ptr, addr call, addr package)
+int do_symbols_package_(Execute ptr, addr call, addr package)
 {
-	return syscall_do_symbols_check(ptr, call, package);
+	return syscall_do_symbols_check_(ptr, call, package);
 }
 
-int do_external_symbols_package(Execute ptr, addr call, addr package)
+int do_external_symbols_package_(Execute ptr, addr call, addr package)
 {
 	addr table, list, bit;
 	size_t size, i;
@@ -157,7 +157,7 @@ int do_all_symbols_package_(Execute ptr, addr call)
 			GetPackage(left, PACKAGE_INDEX_NAME, &value);
 			Return(string_equal_(key, value, &check));
 			if (check) {
-				Return(syscall_do_symbols_check(ptr, call, left));
+				Return(syscall_do_symbols_check_(ptr, call, left));
 			}
 		}
 	}

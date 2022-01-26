@@ -19,7 +19,7 @@
 /*
  *  symbol restart
  */
-static int restart_symbol_use_function(Execute ptr, addr value)
+static int restart_symbol_use_function_(Execute ptr, addr value)
 {
 	setresult_control(ptr, value);
 	return 0;
@@ -38,12 +38,12 @@ static int restart_symbol_use_interactive_char_(Execute ptr, const char *str)
 	return 0;
 }
 
-static int restart_symbol_use_interactive(Execute ptr)
+static int restart_symbol_use_interactive_(Execute ptr)
 {
 	return restart_symbol_use_interactive_char_(ptr, "Use new value: ");
 }
 
-static int restart_symbol_use_test(Execute ptr, addr pos)
+static int restart_symbol_use_test_(Execute ptr, addr pos)
 {
 	setresult_control(ptr, T);
 	return 0;
@@ -77,7 +77,7 @@ static void symbol_use_restart(addr *ret)
 	*ret = restart;
 }
 
-static int restart_symbol_store_special(Execute ptr, addr value)
+static int restart_symbol_store_special_(Execute ptr, addr value)
 {
 	addr symbol;
 
@@ -88,7 +88,7 @@ static int restart_symbol_store_special(Execute ptr, addr value)
 	return 0;
 }
 
-static int restart_symbol_store_interactive(Execute ptr)
+static int restart_symbol_store_interactive_(Execute ptr)
 {
 	return restart_symbol_use_interactive_char_(ptr, "Store new value: ");
 }
@@ -157,7 +157,7 @@ escape:
 	return 0;
 }
 
-int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
+int symbol_special_restart_(Execute ptr, addr symbol, addr *ret)
 {
 	addr value;
 
@@ -173,7 +173,7 @@ int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
 /*
  *  function restart
  */
-static int restart_function_use_function(Execute ptr, addr value)
+static int restart_function_use_function_(Execute ptr, addr value)
 {
 	if (! functionp(value))
 		return TypeError_(value, FUNCTION);
@@ -202,7 +202,7 @@ static int restart_function_use_interactive_char_(Execute ptr, const char *str)
 	return 0;
 }
 
-static int restart_function_use_interactive(Execute ptr)
+static int restart_function_use_interactive_(Execute ptr)
 {
 	return restart_function_use_interactive_char_(ptr, "Use new function: ");
 }
@@ -235,7 +235,7 @@ static void function_use_restart(addr *ret)
 	*ret = pos;
 }
 
-static int restart_function_store_function(Execute ptr, addr value)
+static int restart_function_store_function_(Execute ptr, addr value)
 {
 	addr name;
 
@@ -249,7 +249,7 @@ static int restart_function_store_function(Execute ptr, addr value)
 	return 0;
 }
 
-static int restart_function_store_interactive(Execute ptr)
+static int restart_function_store_interactive_(Execute ptr)
 {
 	return restart_function_use_interactive_char_(ptr, "Store new function: ");
 }
@@ -283,7 +283,7 @@ static void function_store_restart(addr *ret, addr name)
 	*ret = restart;
 }
 
-static int function_restart_call(Execute ptr, addr name, addr *ret)
+static int function_restart_call_(Execute ptr, addr name, addr *ret)
 {
 	addr control, restart1, restart2;
 
@@ -319,7 +319,7 @@ escape:
 	return 0;
 }
 
-int callname_global_restart(Execute ptr, addr name, addr *ret)
+int callname_global_restart_(Execute ptr, addr name, addr *ret)
 {
 	addr value;
 
@@ -329,10 +329,10 @@ int callname_global_restart(Execute ptr, addr name, addr *ret)
 		return Result(ret, value);
 
 	/* restart */
-	return function_restart_call(ptr, name, ret);
+	return function_restart_call_(ptr, name, ret);
 }
 
-int function_global_restart(Execute ptr, addr name, addr *ret)
+int function_global_restart_(Execute ptr, addr name, addr *ret)
 {
 	addr value;
 
@@ -343,10 +343,10 @@ int function_global_restart(Execute ptr, addr name, addr *ret)
 
 	/* restart */
 	callname_heap(&name, name, CALLNAME_SYMBOL);
-	return function_restart_call(ptr, name, ret);
+	return function_restart_call_(ptr, name, ret);
 }
 
-int setf_global_restart(Execute ptr, addr name, addr *ret)
+int setf_global_restart_(Execute ptr, addr name, addr *ret)
 {
 	addr value;
 
@@ -357,14 +357,14 @@ int setf_global_restart(Execute ptr, addr name, addr *ret)
 
 	/* restart */
 	callname_heap(&name, name, CALLNAME_SETF);
-	return function_restart_call(ptr, name, ret);
+	return function_restart_call_(ptr, name, ret);
 }
 
 
 /*
  *  fdefinition
  */
-static int restart_fdefinition_use_function(Execute ptr, addr value)
+static int restart_fdefinition_use_function_(Execute ptr, addr value)
 {
 	if (! functionp(value))
 		return TypeError_(value, FUNCTION);
@@ -425,7 +425,7 @@ static int restart_fdefinition_use_interactive_char_(Execute ptr, const char *st
 	return 0;
 }
 
-static int restart_fdefinition_use_interactive(Execute ptr)
+static int restart_fdefinition_use_interactive_(Execute ptr)
 {
 	return restart_fdefinition_use_interactive_char_(ptr, "Use new function: ");
 }
@@ -458,7 +458,7 @@ static void fdefinition_use_restart(addr *ret)
 	*ret = pos;
 }
 
-static int restart_fdefinition_store_function(Execute ptr, addr value)
+static int restart_fdefinition_store_function_(Execute ptr, addr value)
 {
 	addr name;
 
@@ -481,7 +481,7 @@ static int restart_fdefinition_store_function(Execute ptr, addr value)
 	return 0;
 }
 
-static int restart_fdefinition_store_interactive(Execute ptr)
+static int restart_fdefinition_store_interactive_(Execute ptr)
 {
 	return restart_fdefinition_use_interactive_char_(ptr, "Store new function: ");
 }
@@ -562,7 +562,7 @@ int fdefinition_restart_(Execute ptr, addr name, addr *ret)
 
 	/* setf */
 	if (type == CALLNAME_SETF)
-		return setf_global_restart(ptr, symbol, ret);
+		return setf_global_restart_(ptr, symbol, ret);
 
 	/* function */
 	GetFunctionSymbol(symbol, &value);
@@ -619,18 +619,18 @@ void abort_restart_char_control(Execute ptr, const char *str)
  */
 void init_restart_value(void)
 {
-	SetPointerType(var1, restart_symbol_use_function);
-	SetPointerType(empty, restart_symbol_use_interactive);
-	SetPointerType(var1, restart_symbol_use_test);
-	SetPointerType(var1, restart_symbol_store_special);
-	SetPointerType(empty, restart_symbol_store_interactive);
-	SetPointerType(var1, restart_function_use_function);
-	SetPointerType(empty, restart_function_use_interactive);
-	SetPointerType(var1, restart_function_store_function);
-	SetPointerType(empty, restart_function_store_interactive);
-	SetPointerType(var1, restart_fdefinition_use_function);
-	SetPointerType(empty, restart_fdefinition_use_interactive);
-	SetPointerType(var1, restart_fdefinition_store_function);
-	SetPointerType(empty, restart_fdefinition_store_interactive);
+	SetPointerType_(var1, restart_symbol_use_function);
+	SetPointerType_(empty, restart_symbol_use_interactive);
+	SetPointerType_(var1, restart_symbol_use_test);
+	SetPointerType_(var1, restart_symbol_store_special);
+	SetPointerType_(empty, restart_symbol_store_interactive);
+	SetPointerType_(var1, restart_function_use_function);
+	SetPointerType_(empty, restart_function_use_interactive);
+	SetPointerType_(var1, restart_function_store_function);
+	SetPointerType_(empty, restart_function_store_interactive);
+	SetPointerType_(var1, restart_fdefinition_use_function);
+	SetPointerType_(empty, restart_fdefinition_use_interactive);
+	SetPointerType_(var1, restart_fdefinition_store_function);
+	SetPointerType_(empty, restart_fdefinition_store_interactive);
 }
 

@@ -171,7 +171,7 @@ static int with_package_iterator_expand_common_(Execute ptr,
 	return 0;
 }
 
-static int with_package_iterator_check_common(addr rest,
+static int with_package_iterator_check_common_(addr rest,
 		int *inter, int *exter, int *inherit)
 {
 	int a, b, c;
@@ -182,12 +182,11 @@ static int with_package_iterator_check_common(addr rest,
 	GetConst(KEYWORD_EXTERNAL, &key2);
 	GetConst(KEYWORD_INHERITED, &key3);
 	for (list = rest; list != Nil; ) {
-		if (! consp(list)) {
+		if (! consp_getcons(list, &type, &list)) {
 			return call_simple_package_error_va_(NULL,
 					"with-package-iterator symbol-types ~S must be "
 					":internal, :external, :inherit list.", rest, NULL);
 		}
-		GetCons(list, &type, &list);
 		if (type == key1)
 			a = 1;
 		else if (type == key2)
@@ -212,24 +211,21 @@ static int with_package_iterator_check_common(addr rest,
 	return 0;
 }
 
-int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret)
+int with_package_iterator_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	int inter, exter, inherit;
 	addr args, name, list, check;
 
 	/* args */
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &name, &args))
 		goto error;
-	GetCons(args, &name, &args);
-	if (! consp(name))
+	if (! consp_getcons(name, &name, &list))
 		goto error;
-	GetCons(name, &name, &list);
-	if (! consp(list))
+	if (! consp_getcons(list, &list, &check))
 		goto error;
-	GetCons(list, &list, &check);
 	inter = exter = inherit = 0;
-	Return(with_package_iterator_check_common(check, &inter, &exter, &inherit));
+	Return(with_package_iterator_check_common_(check, &inter, &exter, &inherit));
 	/* ((name list &rest ...) . args) */
 	return with_package_iterator_expand_common_(ptr,
 			name, list, inter, exter, inherit, args, ret);
@@ -271,15 +267,14 @@ int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret)
 /*
  *  in-package
  */
-int in_package_common(Execute ptr, addr form, addr env, addr *ret)
+int in_package_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, symbol, quote;
 
 	/* argument */
 	Return_getcdr(form, &args);
-	if (! consp(args))
+	if (! consp_getcons(args, &name, &args))
 		goto error;
-	GetCons(args, &name, &args);
 	if (args != Nil)
 		goto error;
 	if (! string_designer_p(name))
@@ -331,7 +326,7 @@ int use_package_common_(Execute ptr, addr use, addr pg)
 /*
  *  do-symbols
  */
-static int do_symbols_const_common(addr form, addr *ret, constindex index)
+static int do_symbols_const_common_(addr form, addr *ret, constindex index)
 {
 	/* `(block nil
 	 *    (system::do-symbols
@@ -385,25 +380,25 @@ error:
 			"((var &optional package result) &rest body) form.", check, form, NULL);
 }
 
-int do_symbols_common(addr form, addr env, addr *ret)
+int do_symbols_common_(addr form, addr env, addr *ret)
 {
-	return do_symbols_const_common(form, ret, CONSTANT_SYSTEM_DO_SYMBOLS);
+	return do_symbols_const_common_(form, ret, CONSTANT_SYSTEM_DO_SYMBOLS);
 }
 
 
 /*
  *  do-external-symbols
  */
-int do_external_symbols_common(addr form, addr env, addr *ret)
+int do_external_symbols_common_(addr form, addr env, addr *ret)
 {
-	return do_symbols_const_common(form, ret, CONSTANT_SYSTEM_DO_EXTERNAL_SYMBOLS);
+	return do_symbols_const_common_(form, ret, CONSTANT_SYSTEM_DO_EXTERNAL_SYMBOLS);
 }
 
 
 /*
  *  do-all-symbols
  */
-int do_all_symbols_common(addr form, addr env, addr *ret)
+int do_all_symbols_common_(addr form, addr env, addr *ret)
 {
 	/* `(block nil
 	 *    (system::do-all-symbols

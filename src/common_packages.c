@@ -394,7 +394,7 @@ static void defun_make_package(void)
 /* (defmacro with-package-iterator ((name list &rest types) &body body) ...) */
 static int function_with_package_iterator(Execute ptr, addr form, addr env)
 {
-	Return(with_package_iterator_common(ptr, form, env, &form));
+	Return(with_package_iterator_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -480,7 +480,7 @@ static void defun_unintern(void)
 /* (defmacro in-package (name) ...) */
 static int function_in_package(Execute ptr, addr form, addr env)
 {
-	Return(in_package_common(ptr, form, env, &form));
+	Return(in_package_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -566,7 +566,7 @@ static void defun_use_package(void)
  */
 static int function_defpackage(Execute ptr, addr form, addr env)
 {
-	Return(defpackage_common(form, env, &form));
+	Return(defpackage_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -588,7 +588,7 @@ static void defmacro_defpackage(void)
 /* (defmacro do-symbols (var &optional package result) . tagbody) */
 static int function_do_symbols(Execute ptr, addr form, addr env)
 {
-	Return(do_symbols_common(form, env, &form));
+	Return(do_symbols_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -610,7 +610,7 @@ static void defmacro_do_symbols(void)
 /* (defmacro do-external-symbols (var &optional package result) . tagbody) */
 static int function_do_external_symbols(Execute ptr, addr form, addr env)
 {
-	Return(do_external_symbols_common(form, env, &form));
+	Return(do_external_symbols_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -632,7 +632,7 @@ static void defmacro_do_external_symbols(void)
 /* (defmacro do-all-symbols (var &optional result) . tagbody) */
 static int function_do_all_symbols(Execute ptr, addr form, addr env)
 {
-	Return(do_all_symbols_common(form, env, &form));
+	Return(do_all_symbols_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

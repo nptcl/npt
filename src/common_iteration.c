@@ -9,7 +9,7 @@
 /* (defmacro do/do* (var end [declaration] [tag-statement]) ...) -> result */
 static int function_do(Execute ptr, addr form, addr env)
 {
-	Return(do_common(form, env, &form));
+	Return(do_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -29,7 +29,7 @@ static void defmacro_do(void)
 
 static int function_doa(Execute ptr, addr form, addr env)
 {
-	Return(doa_common(form, env, &form));
+	Return(doa_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -51,7 +51,7 @@ static void defmacro_doa(void)
 /* (defmacro dotimes (var count &optional result) [declaration] [body]) -> result */
 static int function_dotimes(Execute ptr, addr form, addr env)
 {
-	Return(dotimes_common(form, env, &form));
+	Return(dotimes_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -73,7 +73,7 @@ static void defmacro_dotimes(void)
 /* (defmacro dolist (var value &optional result) [declaration] [body]) -> result */
 static int function_dolist(Execute ptr, addr form, addr env)
 {
-	Return(dolist_common(ptr, form, env, &form));
+	Return(dolist_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

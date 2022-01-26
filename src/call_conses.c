@@ -11,7 +11,7 @@
 #include "setf.h"
 #include "symbol.h"
 
-static int function_call_cons(Execute ptr, int *result,
+static int function_call_cons_(Execute ptr, int *result,
 		addr item, addr key, addr test, addr check, int notret)
 {
 	if (key != Nil)
@@ -21,7 +21,7 @@ static int function_call_cons(Execute ptr, int *result,
 	return 0;
 }
 
-static int function_if_call_cons(Execute ptr, int *result,
+static int function_if_call_cons_(Execute ptr, int *result,
 		addr key, addr call, addr check)
 {
 	if (key != Nil)
@@ -41,7 +41,7 @@ struct sublis_struct {
 	int test;
 };
 
-static int default_sublis_cons(addr alist, addr left, int *result, addr *ret)
+static int default_sublis_cons_(addr alist, addr left, int *result, addr *ret)
 {
 	addr right, value;
 
@@ -59,7 +59,7 @@ static int default_sublis_cons(addr alist, addr left, int *result, addr *ret)
 	return Result(ret, left);
 }
 
-static int test_sublis_cons(Execute ptr,
+static int test_sublis_cons_(Execute ptr,
 		addr alist, addr test, addr left, int *result, addr *ret)
 {
 	addr right, value, check;
@@ -79,7 +79,7 @@ static int test_sublis_cons(Execute ptr,
 	return Result(ret, left);
 }
 
-static int test_not_sublis_cons(Execute ptr,
+static int test_not_sublis_cons_(Execute ptr,
 		addr alist, addr test, addr left, int *result, addr *ret)
 {
 	addr right, value, check;
@@ -99,7 +99,7 @@ static int test_not_sublis_cons(Execute ptr,
 	return Result(ret, left);
 }
 
-static int replace_sublis_cons(struct sublis_struct *str,
+static int replace_sublis_cons_(struct sublis_struct *str,
 		addr tree, int *result, addr *ret)
 {
 	addr check;
@@ -115,16 +115,16 @@ static int replace_sublis_cons(struct sublis_struct *str,
 	/* test */
 	switch (str->test) {
 		case 0: /* nil */
-			Return(default_sublis_cons(str->alist, check, result, ret));
+			Return(default_sublis_cons_(str->alist, check, result, ret));
 			break;
 
 		case 1: /* :test */
-			Return(test_sublis_cons(str->ptr,
+			Return(test_sublis_cons_(str->ptr,
 						str->alist, str->test1, check, result, ret));
 			break;
 
 		case 2: /* :test-not */
-			Return(test_not_sublis_cons(str->ptr,
+			Return(test_not_sublis_cons_(str->ptr,
 						str->alist, str->test2, check, result, ret));
 			break;
 
@@ -137,14 +137,14 @@ static int replace_sublis_cons(struct sublis_struct *str,
 	return 0;
 }
 
-static int recursive_sublis_cons(struct sublis_struct *str, addr tree, addr *ret)
+static int recursive_sublis_cons_(struct sublis_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
 	LocalHold hold;
 
 	/* atom */
-	Return(replace_sublis_cons(str, tree, &check, &tree));
+	Return(replace_sublis_cons_(str, tree, &check, &tree));
 	if (! consp(tree))
 		return Result(ret, tree);
 
@@ -152,18 +152,18 @@ static int recursive_sublis_cons(struct sublis_struct *str, addr tree, addr *ret
 	GetCons(tree, &car, &cdr);
 
 	/* car */
-	Return(replace_sublis_cons(str, car, &check, &car));
+	Return(replace_sublis_cons_(str, car, &check, &car));
 	localhold_push(hold, car);
 	if (! check) {
-		Return(recursive_sublis_cons(str, car, &car));
+		Return(recursive_sublis_cons_(str, car, &car));
 		localhold_push(hold, car);
 	}
 
 	/* cdr */
-	Return(replace_sublis_cons(str, cdr, &check, &cdr));
+	Return(replace_sublis_cons_(str, cdr, &check, &cdr));
 	localhold_push(hold, cdr);
 	if (! check) {
-		Return(recursive_sublis_cons(str, cdr, &cdr));
+		Return(recursive_sublis_cons_(str, cdr, &cdr));
 		localhold_push(hold, cdr);
 	}
 
@@ -213,45 +213,45 @@ static int argument_sublis_cons(Execute ptr,
 	return 0;
 }
 
-int sublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
+int sublis_common_(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
 {
 	struct sublis_struct str;
 
 	if (argument_sublis_cons(ptr, &str, alist, rest))
 		return fmte_("SUBLIS don't accept both :test and :test-not parameter.", NULL);
-	return recursive_sublis_cons(&str, tree, ret);
+	return recursive_sublis_cons_(&str, tree, ret);
 }
 
 
 /*
  *  nsublis
  */
-static int recursive_nsublis_cons(struct sublis_struct *str, addr tree, addr *ret)
+static int recursive_nsublis_cons_(struct sublis_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
 	LocalHold hold;
 
 	/* atom */
-	Return(replace_sublis_cons(str, tree, &check, &tree));
+	Return(replace_sublis_cons_(str, tree, &check, &tree));
 	if (! consp(tree))
 		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
 	GetCons(tree, &car, &cdr);
-	Return(replace_sublis_cons(str, car, &check, &car));
+	Return(replace_sublis_cons_(str, car, &check, &car));
 	localhold_push(hold, car);
 	if (! check) {
-		Return(recursive_nsublis_cons(str, car, &car));
+		Return(recursive_nsublis_cons_(str, car, &car));
 		localhold_push(hold, car);
 	}
 
 	/* cdr */
-	Return(replace_sublis_cons(str, cdr, &check, &cdr));
+	Return(replace_sublis_cons_(str, cdr, &check, &cdr));
 	localhold_push(hold, cdr);
 	if (! check) {
-		Return(recursive_nsublis_cons(str, cdr, &cdr));
+		Return(recursive_nsublis_cons_(str, cdr, &cdr));
 		localhold_push(hold, cdr);
 	}
 
@@ -261,13 +261,13 @@ static int recursive_nsublis_cons(struct sublis_struct *str, addr tree, addr *re
 	return Result(ret, tree);
 }
 
-int nsublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
+int nsublis_common_(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
 {
 	struct sublis_struct str;
 
 	if (argument_sublis_cons(ptr, &str, alist, rest))
 		return fmte_("NSUBLIS don't accept both :test and :test-not parameter.", NULL);
-	return recursive_nsublis_cons(&str, tree, ret);
+	return recursive_nsublis_cons_(&str, tree, ret);
 }
 
 
@@ -331,7 +331,7 @@ static int default_subst_cons(struct subst_struct *str, addr tree, addr *ret)
 	}
 }
 
-static int test_subst_cons(struct subst_struct *str, addr tree, int *result, addr *ret)
+static int test_subst_cons_(struct subst_struct *str, addr tree, int *result, addr *ret)
 {
 	addr check;
 
@@ -348,7 +348,7 @@ static int test_subst_cons(struct subst_struct *str, addr tree, int *result, add
 	return 0;
 }
 
-static int test_not_subst_cons(struct subst_struct *str,
+static int test_not_subst_cons_(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
 	addr check;
@@ -366,7 +366,7 @@ static int test_not_subst_cons(struct subst_struct *str,
 	return 0;
 }
 
-static int replace_subst_cons(struct subst_struct *str,
+static int replace_subst_cons_(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
 	addr check;
@@ -386,11 +386,11 @@ static int replace_subst_cons(struct subst_struct *str,
 			break;
 
 		case 1: /* :test */
-			Return(test_subst_cons(str, check, result, ret));
+			Return(test_subst_cons_(str, check, result, ret));
 			break;
 
 		case 2: /* :test-not */
-			Return(test_not_subst_cons(str, check, result, ret));
+			Return(test_not_subst_cons_(str, check, result, ret));
 			break;
 
 		default:
@@ -402,32 +402,32 @@ static int replace_subst_cons(struct subst_struct *str,
 	return 0;
 }
 
-static int recursive_subst_cons(struct subst_struct *str, addr tree, addr *ret)
+static int recursive_subst_cons_(struct subst_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
 	LocalHold hold;
 
 	/* atom */
-	Return(replace_subst_cons(str, tree, &check, &tree));
+	Return(replace_subst_cons_(str, tree, &check, &tree));
 	if (! consp(tree))
 		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
 	GetCons(tree, &car, &cdr);
-	Return(replace_subst_cons(str, car, &check, &car));
+	Return(replace_subst_cons_(str, car, &check, &car));
 	localhold_push(hold, car);
 	if (! check) {
-		Return(recursive_subst_cons(str, car, &car));
+		Return(recursive_subst_cons_(str, car, &car));
 		localhold_push(hold, car);
 	}
 
 	/* cdr */
-	Return(replace_subst_cons(str, cdr, &check, &cdr));
+	Return(replace_subst_cons_(str, cdr, &check, &cdr));
 	localhold_push(hold, cdr);
 	if (! check) {
-		Return(recursive_subst_cons(str, cdr, &cdr));
+		Return(recursive_subst_cons_(str, cdr, &cdr));
 		localhold_push(hold, cdr);
 	}
 
@@ -438,45 +438,45 @@ static int recursive_subst_cons(struct subst_struct *str, addr tree, addr *ret)
 	return 0;
 }
 
-int subst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
+int subst_common_(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 
 	if (argument_subst_cons(ptr, &str, one, old, key))
 		return fmte_("SUBST don't accept both :test and :test-not parameter.", NULL);
-	return recursive_subst_cons(&str, tree, ret);
+	return recursive_subst_cons_(&str, tree, ret);
 }
 
 
 /*
  *  nsubst
  */
-static int recursive_nsubst_cons(struct subst_struct *str, addr tree, addr *ret)
+static int recursive_nsubst_cons_(struct subst_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
 	LocalHold hold;
 
 	/* atom */
-	Return(replace_subst_cons(str, tree, &check, &tree));
+	Return(replace_subst_cons_(str, tree, &check, &tree));
 	if (! consp(tree))
 		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
 	GetCons(tree, &car, &cdr);
-	Return(replace_subst_cons(str, car, &check, &car));
+	Return(replace_subst_cons_(str, car, &check, &car));
 	localhold_push(hold, car);
 	if (! check) {
-		Return(recursive_nsubst_cons(str, car, &car));
+		Return(recursive_nsubst_cons_(str, car, &car));
 		localhold_push(hold, car);
 	}
 
 	/* cdr */
-	Return(replace_subst_cons(str, cdr, &check, &cdr));
+	Return(replace_subst_cons_(str, cdr, &check, &cdr));
 	localhold_push(hold, cdr);
 	if (! check) {
-		Return(recursive_nsubst_cons(str, cdr, &cdr));
+		Return(recursive_nsubst_cons_(str, cdr, &cdr));
 		localhold_push(hold, cdr);
 	}
 
@@ -486,13 +486,13 @@ static int recursive_nsubst_cons(struct subst_struct *str, addr tree, addr *ret)
 	return Result(ret, tree);
 }
 
-int nsubst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
+int nsubst_common_(Execute ptr, addr one, addr old, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 
 	if (argument_subst_cons(ptr, &str, one, old, key))
 		return fmte_("NSUBST don't accept both :test and :test-not parameter.", NULL);
-	return recursive_nsubst_cons(&str, tree, ret);
+	return recursive_nsubst_cons_(&str, tree, ret);
 }
 
 
@@ -522,7 +522,7 @@ static int argument_subst_if_cons(Execute ptr,
 	return 0;
 }
 
-static int call_subst_if_cons(struct subst_struct *str,
+static int call_subst_if_cons_(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
 	addr check;
@@ -540,7 +540,7 @@ static int call_subst_if_cons(struct subst_struct *str,
 	return 0;
 }
 
-static int call_subst_if_not_cons(struct subst_struct *str,
+static int call_subst_if_not_cons_(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
 	addr check;
@@ -558,7 +558,7 @@ static int call_subst_if_not_cons(struct subst_struct *str,
 	return 0;
 }
 
-static int replace_subst_if(struct subst_struct *str,
+static int replace_subst_if_(struct subst_struct *str,
 		addr tree, int *result, addr *ret)
 {
 	addr check;
@@ -574,11 +574,11 @@ static int replace_subst_if(struct subst_struct *str,
 	/* test */
 	switch (str->test) {
 		case 1: /* :test */
-			Return(call_subst_if_cons(str, check, result, ret));
+			Return(call_subst_if_cons_(str, check, result, ret));
 			break;
 
 		case 2: /* :test-not */
-			Return(call_subst_if_not_cons(str, check, result, ret));
+			Return(call_subst_if_not_cons_(str, check, result, ret));
 			break;
 
 		default:
@@ -590,32 +590,32 @@ static int replace_subst_if(struct subst_struct *str,
 	return 0;
 }
 
-static int recursive_subst_if_cons(struct subst_struct *str, addr tree, addr *ret)
+static int recursive_subst_if_cons_(struct subst_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
 	LocalHold hold;
 
 	/* atom */
-	Return(replace_subst_if(str, tree, &check, &tree));
+	Return(replace_subst_if_(str, tree, &check, &tree));
 	if (! consp(tree))
 		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
 	GetCons(tree, &car, &cdr);
-	Return(replace_subst_if(str, car, &check, &car));
+	Return(replace_subst_if_(str, car, &check, &car));
 	localhold_push(hold, car);
 	if (! check) {
-		Return(recursive_subst_if_cons(str, car, &car));
+		Return(recursive_subst_if_cons_(str, car, &car));
 		localhold_push(hold, car);
 	}
 
 	/* cdr */
-	Return(replace_subst_if(str, cdr, &check, &cdr));
+	Return(replace_subst_if_(str, cdr, &check, &cdr));
 	localhold_push(hold, cdr);
 	if (! check) {
-		Return(recursive_subst_if_cons(str, cdr, &cdr));
+		Return(recursive_subst_if_cons_(str, cdr, &cdr));
 		localhold_push(hold, cdr);
 	}
 
@@ -626,44 +626,44 @@ static int recursive_subst_if_cons(struct subst_struct *str, addr tree, addr *re
 	return 0;
 }
 
-int subst_if_common(Execute ptr,
+int subst_if_common_(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 	argument_subst_if_cons(ptr, &str, one, predicate, Nil, key);
-	return recursive_subst_if_cons(&str, tree, ret);
+	return recursive_subst_if_cons_(&str, tree, ret);
 }
 
 
 /*
  *  nsubst-if
  */
-static int recursive_nsubst_if_cons(struct subst_struct *str, addr tree, addr *ret)
+static int recursive_nsubst_if_cons_(struct subst_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
 	LocalHold hold;
 
 	/* atom */
-	Return(replace_subst_if(str, tree, &check, &tree));
+	Return(replace_subst_if_(str, tree, &check, &tree));
 	if (! consp(tree))
 		return Result(ret, tree);
 
 	/* car */
 	hold = LocalHold_local(str->ptr);
 	GetCons(tree, &car, &cdr);
-	Return(replace_subst_if(str, car, &check, &car));
+	Return(replace_subst_if_(str, car, &check, &car));
 	localhold_push(hold, car);
 	if (! check) {
-		Return(recursive_nsubst_if_cons(str, car, &car));
+		Return(recursive_nsubst_if_cons_(str, car, &car));
 		localhold_push(hold, car);
 	}
 
 	/* cdr */
-	Return(replace_subst_if(str, cdr, &check, &cdr));
+	Return(replace_subst_if_(str, cdr, &check, &cdr));
 	localhold_push(hold, cdr);
 	if (! check) {
-		Return(recursive_nsubst_if_cons(str, cdr, &cdr));
+		Return(recursive_nsubst_if_cons_(str, cdr, &cdr));
 		localhold_push(hold, cdr);
 	}
 
@@ -673,36 +673,36 @@ static int recursive_nsubst_if_cons(struct subst_struct *str, addr tree, addr *r
 	return Result(ret, tree);
 }
 
-int nsubst_if_common(Execute ptr,
+int nsubst_if_common_(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 	argument_subst_if_cons(ptr, &str, one, predicate, Nil, key);
-	return recursive_nsubst_if_cons(&str, tree, ret);
+	return recursive_nsubst_if_cons_(&str, tree, ret);
 }
 
 
 /*
  *  subst-if-not
  */
-int subst_if_not_common(Execute ptr,
+int subst_if_not_common_(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 	argument_subst_if_cons(ptr, &str, one, Nil, predicate, key);
-	return recursive_subst_if_cons(&str, tree, ret);
+	return recursive_subst_if_cons_(&str, tree, ret);
 }
 
 
 /*
  *  nsubst-if-not
  */
-int nsubst_if_not_common(Execute ptr,
+int nsubst_if_not_common_(Execute ptr,
 		addr one, addr predicate, addr tree, addr key, addr *ret)
 {
 	struct subst_struct str;
 	argument_subst_if_cons(ptr, &str, one, Nil, predicate, key);
-	return recursive_nsubst_if_cons(&str, tree, ret);
+	return recursive_nsubst_if_cons_(&str, tree, ret);
 }
 
 
@@ -748,21 +748,21 @@ static int argument_tree_equal_cons(Execute ptr,
 	return 0;
 }
 
-static int test_tree_equal_cons(Execute ptr,
+static int test_tree_equal_cons_(Execute ptr,
 		int *result, addr test, addr left, addr right)
 {
 	Return(funcall1_control_(ptr, &test, test, left, right, NULL));
 	return Result(result, (test != Nil));
 }
 
-static int test_not_tree_equal_cons(Execute ptr,
+static int test_not_tree_equal_cons_(Execute ptr,
 		int *result, addr test, addr left, addr right)
 {
 	Return(funcall1_control_(ptr, &test, test, left, right, NULL));
 	return Result(result, (test == Nil));
 }
 
-static int replace_tree_equal_cons(struct tree_equal_struct *str,
+static int replace_tree_equal_cons_(struct tree_equal_struct *str,
 		int *result, addr tree1, addr tree2)
 {
 	switch (str->test) {
@@ -771,17 +771,17 @@ static int replace_tree_equal_cons(struct tree_equal_struct *str,
 			return 0;
 
 		case 1: /* :test */
-			return test_tree_equal_cons(str->ptr, result, str->test1, tree1, tree2);
+			return test_tree_equal_cons_(str->ptr, result, str->test1, tree1, tree2);
 
 		case 2: /* :test-not */
-			return test_not_tree_equal_cons(str->ptr, result, str->test2, tree1, tree2);
+			return test_not_tree_equal_cons_(str->ptr, result, str->test2, tree1, tree2);
 
 		default:
 			return fmte_("Invalid test mode.", NULL);
 	}
 }
 
-static int recursive_tree_equal_cons(struct tree_equal_struct *str,
+static int recursive_tree_equal_cons_(struct tree_equal_struct *str,
 		int *result, addr tree1, addr tree2)
 {
 	int check, atom1, atom2;
@@ -790,20 +790,20 @@ static int recursive_tree_equal_cons(struct tree_equal_struct *str,
 	atom1 = atom_function(tree1);
 	atom2 = atom_function(tree2);
 	if (atom1 && atom2)
-		return replace_tree_equal_cons(str, result, tree1, tree2);
+		return replace_tree_equal_cons_(str, result, tree1, tree2);
 	if (atom1 || atom2)
 		return Result(result, 0);
 
 	/* cons */
 	GetCons(tree1, &car1, &cdr1);
 	GetCons(tree2, &car2, &cdr2);
-	Return(recursive_tree_equal_cons(str, &check, car1, car2));
+	Return(recursive_tree_equal_cons_(str, &check, car1, car2));
 	if (! check)
 		return Result(result, 0);
-	return recursive_tree_equal_cons(str, result, cdr1, cdr2);
+	return recursive_tree_equal_cons_(str, result, cdr1, cdr2);
 }
 
-int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret)
+int tree_equal_common_(Execute ptr, addr tree1, addr tree2, addr key, int *ret)
 {
 	struct tree_equal_struct str;
 
@@ -811,14 +811,14 @@ int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret)
 		return fmte_("TREE-EQUAL don't accept "
 				"both :test and :test-not parameter.", NULL);
 	}
-	return recursive_tree_equal_cons(&str, ret, tree1, tree2);
+	return recursive_tree_equal_cons_(&str, ret, tree1, tree2);
 }
 
 
 /*
  *  list-length
  */
-static int index_list_length_cons(addr list, size_t *rsize, int *ret)
+static int index_list_length_cons_(addr list, size_t *rsize, int *ret)
 {
 	addr fast, slow, one;
 	size_t size;
@@ -848,12 +848,12 @@ static int index_list_length_cons(addr list, size_t *rsize, int *ret)
 	return Result(ret, 0);
 }
 
-int list_length_common(addr list, addr *ret)
+int list_length_common_(addr list, addr *ret)
 {
 	int check;
 	size_t size;
 
-	Return(index_list_length_cons(list, &size, &check));
+	Return(index_list_length_cons_(list, &size, &check));
 	if (check)
 		return Result(ret, Nil);
 	make_index_integer_heap(ret, size);
@@ -864,7 +864,7 @@ int list_length_common(addr list, addr *ret)
 /*
  *  make-list
  */
-int make_list_common(addr var, addr rest, addr *ret)
+int make_list_common_(addr var, addr rest, addr *ret)
 {
 	addr element, list;
 	size_t size;
@@ -885,7 +885,7 @@ int make_list_common(addr var, addr rest, addr *ret)
 /*
  *  push
  */
-static int single_push_cons(addr *ret,
+static int single_push_cons_(addr *ret,
 		addr item, addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((a1 b1)
@@ -927,7 +927,7 @@ static int single_push_cons(addr *ret,
 	return 0;
 }
 
-static int multiple_push_cons(Execute ptr, addr *ret,
+static int multiple_push_cons_(Execute ptr, addr *ret,
 		addr item, addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((v value)
@@ -994,18 +994,18 @@ static int multiple_push_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-static int expansion_push_cons(Execute ptr, addr *ret, addr item, addr place, addr env)
+static int expansion_push_cons_(Execute ptr, addr *ret, addr item, addr place, addr env)
 {
 	addr a, b, g, w, r;
 
 	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
-		return single_push_cons(ret, item, a, b, g, w, r);
+		return single_push_cons_(ret, item, a, b, g, w, r);
 	else
-		return multiple_push_cons(ptr, ret, item, a, b, g, w, r);
+		return multiple_push_cons_(ptr, ret, item, a, b, g, w, r);
 }
 
-int push_common(Execute ptr, addr form, addr env, addr *ret)
+int push_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, item, place;
 
@@ -1016,7 +1016,7 @@ int push_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	if (args != Nil)
 		goto error;
-	return expansion_push_cons(ptr, ret, item, place, env);
+	return expansion_push_cons_(ptr, ret, item, place, env);
 
 error:
 	*ret = Nil;
@@ -1027,7 +1027,7 @@ error:
 /*
  *  pop
  */
-static int single_pop_cons(Execute ptr, addr *ret,
+static int single_pop_cons_(Execute ptr, addr *ret,
 		addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((a1 b1)
@@ -1077,7 +1077,7 @@ static int single_pop_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-static int multiple_pop_cons(Execute ptr, addr *ret,
+static int multiple_pop_cons_(Execute ptr, addr *ret,
 		addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((a1 b1)
@@ -1156,18 +1156,18 @@ static int multiple_pop_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-static int expansion_pop_cons(Execute ptr, addr *ret, addr place, addr env)
+static int expansion_pop_cons_(Execute ptr, addr *ret, addr place, addr env)
 {
 	addr a, b, g, w, r;
 
 	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
-		return single_pop_cons(ptr, ret, a, b, g, w, r);
+		return single_pop_cons_(ptr, ret, a, b, g, w, r);
 	else
-		return multiple_pop_cons(ptr, ret, a, b, g, w, r);
+		return multiple_pop_cons_(ptr, ret, a, b, g, w, r);
 }
 
-int pop_common(Execute ptr, addr form, addr env, addr *ret)
+int pop_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place;
 
@@ -1176,7 +1176,7 @@ int pop_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	if (args != Nil)
 		goto error;
-	return expansion_pop_cons(ptr, ret, place, env);
+	return expansion_pop_cons_(ptr, ret, place, env);
 
 error:
 	*ret = Nil;
@@ -1187,12 +1187,12 @@ error:
 /*
  *  nth
  */
-int nth_common(addr index, addr list, addr *ret)
+int nth_common_(addr index, addr list, addr *ret)
 {
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		return getnth_large(list, index, ret);
+		return getnth_large_(list, index, ret);
 	else
 		return getnth_(list, size, ret);
 }
@@ -1201,7 +1201,7 @@ int nth_common(addr index, addr list, addr *ret)
 /*
  *  (setf nth)
  */
-int setf_nth_common(addr value, addr index, addr list)
+int setf_nth_common_(addr value, addr index, addr list)
 {
 	size_t size;
 
@@ -1214,12 +1214,12 @@ int setf_nth_common(addr value, addr index, addr list)
 /*
  *  nthcdr
  */
-int nthcdr_common(addr index, addr list, addr *ret)
+int nthcdr_common_(addr index, addr list, addr *ret)
 {
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		return getnthcdr_large(list, index, ret);
+		return getnthcdr_large_(list, index, ret);
 	else
 		return getnthcdr_(list, size, ret);
 }
@@ -1228,17 +1228,16 @@ int nthcdr_common(addr index, addr list, addr *ret)
 /*
  *  member
  */
-static int test_member_cons(Execute ptr, addr *ret,
+static int test_member_cons_(Execute ptr, addr *ret,
 		addr item, addr list, addr key, addr call, int notret)
 {
 	int check;
 	addr value, next;
 
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &value, &next))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &value, &next);
-		Return(function_call_cons(ptr, &check, item, key, call, value, notret));
+		Return(function_call_cons_(ptr, &check, item, key, call, value, notret));
 		if (check)
 			return Result(ret, list);
 		list = next;
@@ -1247,7 +1246,7 @@ static int test_member_cons(Execute ptr, addr *ret,
 	return Result(ret, Nil);
 }
 
-int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int member_common_(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -1263,12 +1262,12 @@ int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	if (check1 && check2)
 		return fmte_("MEMBER don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
-		return test_member_cons(ptr, ret, item, list, key, testnot, 1);
+		return test_member_cons_(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
-		return test_member_cons(ptr, ret, item, list, key, test, 0);
+		return test_member_cons_(ptr, ret, item, list, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_member_cons(ptr, ret, item, list, key, test, 0);
+		return test_member_cons_(ptr, ret, item, list, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -1278,7 +1277,7 @@ int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  member-if
  */
-int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int member_if_common_(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, next;
@@ -1286,10 +1285,9 @@ int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &value, &next))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &value, &next);
-		Return(function_if_call_cons(ptr, &check, key, call, value));
+		Return(function_if_call_cons_(ptr, &check, key, call, value));
 		if (check)
 			return Result(ret, list);
 		list = next;
@@ -1302,7 +1300,7 @@ int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  member-if-not
  */
-int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int member_if_not_common_(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, next;
@@ -1310,10 +1308,9 @@ int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &value, &next))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &value, &next);
-		Return(function_if_call_cons(ptr, &check, key, call, value));
+		Return(function_if_call_cons_(ptr, &check, key, call, value));
 		if (! check)
 			return Result(ret, list);
 		list = next;
@@ -1326,7 +1323,7 @@ int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret
 /*
  *  mapc
  */
-int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapc_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr result, pos, car, cdr, args, next, temp1, temp2;
 	LocalRoot local;
@@ -1380,7 +1377,7 @@ finish:
 /*
  *  mapcar
  */
-int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapcar_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr result, pos, car, cdr, args, next, temp1, temp2, hold;
 	LocalRoot local;
@@ -1441,7 +1438,7 @@ finish:
 /*
  *  mapcan
  */
-int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapcan_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	addr result, pos, car, cdr, args, next, temp1, temp2, head, hold;
 	LocalRoot local;
@@ -1510,7 +1507,7 @@ finish:
 /*
  *  mapl
  */
-int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapl_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
 	addr result, pos, cdr, args, next, temp1, temp2;
@@ -1568,7 +1565,7 @@ finish:
 /*
  *  maplist
  */
-int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
+int maplist_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
 	addr result, pos, cdr, args, next, temp1, temp2, hold;
@@ -1633,7 +1630,7 @@ finish:
 /*
  *  mapcon
  */
-int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
+int mapcon_common_(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
 	addr result, pos, cdr, args, next, temp1, temp2, head, hold;
@@ -1706,7 +1703,7 @@ finish:
 /*
  *  nconc
  */
-static int concat_nconc_cons(addr list, addr args)
+static int concat_nconc_cons_(addr list, addr args)
 {
 	addr last;
 
@@ -1735,7 +1732,7 @@ static int concat_nconc_cons(addr list, addr args)
 	return 0;
 }
 
-int nconc_common(addr args, addr *ret)
+int nconc_common_(addr args, addr *ret)
 {
 	addr pos;
 
@@ -1756,7 +1753,7 @@ int nconc_common(addr args, addr *ret)
 	}
 
 	/* (nconc x x ...) */
-	Return(concat_nconc_cons(pos, args));
+	Return(concat_nconc_cons_(pos, args));
 	return Result(ret, pos);
 }
 
@@ -1764,7 +1761,7 @@ int nconc_common(addr args, addr *ret)
 /*
  *  append
  */
-static int push_append_cons(addr root, addr last, addr *ret)
+static int push_append_cons_(addr root, addr last, addr *ret)
 {
 	addr pos;
 
@@ -1777,7 +1774,7 @@ static int push_append_cons(addr root, addr last, addr *ret)
 	return Result(ret, root);
 }
 
-static int concat_append_cons(addr last, addr args, addr *ret)
+static int concat_append_cons_(addr last, addr args, addr *ret)
 {
 	addr pos, root;
 
@@ -1785,7 +1782,7 @@ static int concat_append_cons(addr last, addr args, addr *ret)
 		Return_getcons(args, &pos, &args);
 		if (args == Nil) {
 			if (pos != Nil) {
-				Return(push_append_cons(root, last, &root));
+				Return(push_append_cons_(root, last, &root));
 				last = pos;
 			}
 			break;
@@ -1793,14 +1790,14 @@ static int concat_append_cons(addr last, addr args, addr *ret)
 		if (pos == Nil) {
 			continue;
 		}
-		Return(push_append_cons(root, last, &root));
+		Return(push_append_cons_(root, last, &root));
 		last = pos;
 	}
 	nreconc(ret, root, last);
 	return 0;
 }
 
-int append_common(addr args, addr *ret)
+int append_common_(addr args, addr *ret)
 {
 	addr pos;
 
@@ -1821,7 +1818,7 @@ int append_common(addr args, addr *ret)
 	}
 
 	/* (append x x ...) */
-	Return(concat_append_cons(pos, args, &pos));
+	Return(concat_append_cons_(pos, args, &pos));
 	return Result(ret, pos);
 }
 
@@ -1829,7 +1826,7 @@ int append_common(addr args, addr *ret)
 /*
  *  revappend
  */
-int revappend_common(addr list, addr tail, addr *ret)
+int revappend_common_(addr list, addr tail, addr *ret)
 {
 	addr pos;
 
@@ -1845,7 +1842,7 @@ int revappend_common(addr list, addr tail, addr *ret)
 /*
  *  nreconc
  */
-int nreconc_common(addr list, addr tail, addr *ret)
+int nreconc_common_(addr list, addr tail, addr *ret)
 {
 	addr next;
 
@@ -1904,7 +1901,7 @@ static int large_butlast_cons_(addr list, addr index, addr *ret)
 	return Result(ret, Nil);
 }
 
-int butlast_common(addr list, addr index, addr *ret)
+int butlast_common_(addr list, addr index, addr *ret)
 {
 	size_t size;
 
@@ -1952,7 +1949,7 @@ static int large_nbutlast_cons_(addr list, addr index, addr *ret)
 	return Result(ret, Nil);
 }
 
-int nbutlast_common(addr list, addr index, addr *ret)
+int nbutlast_common_(addr list, addr index, addr *ret)
 {
 	size_t size;
 
@@ -2000,7 +1997,7 @@ static int large_last_cons_(addr list, addr index, addr *ret)
 	return Result(ret, list);
 }
 
-int last_common(addr list, addr index, addr *ret)
+int last_common_(addr list, addr index, addr *ret)
 {
 	size_t size;
 
@@ -2061,20 +2058,19 @@ void tailp_common(addr object, addr list, int *ret)
 /*
  *  assoc
  */
-static int test_assoc_cons(Execute ptr, addr *ret,
+static int test_assoc_cons_(Execute ptr, addr *ret,
 		addr item, addr list, addr key, addr call, int notret)
 {
 	int check;
 	addr cons, value;
 
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &cons, &list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &cons, &list);
 		if (cons == Nil)
 			continue;
 		Return_getcar(cons, &value);
-		Return(function_call_cons(ptr, &check, item, key, call, value, notret));
+		Return(function_call_cons_(ptr, &check, item, key, call, value, notret));
 		if (check)
 			return Result(ret, cons);
 	}
@@ -2082,7 +2078,7 @@ static int test_assoc_cons(Execute ptr, addr *ret,
 	return Result(ret, Nil);
 }
 
-int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int assoc_common_(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2098,12 +2094,12 @@ int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	if (check1 && check2)
 		return fmte_("ASSOC don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
-		return test_assoc_cons(ptr, ret, item, list, key, testnot, 1);
+		return test_assoc_cons_(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
-		return test_assoc_cons(ptr, ret, item, list, key, test, 0);
+		return test_assoc_cons_(ptr, ret, item, list, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_assoc_cons(ptr, ret, item, list, key, test, 0);
+		return test_assoc_cons_(ptr, ret, item, list, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2113,7 +2109,7 @@ int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  assoc-if
  */
-int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int assoc_if_common_(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2121,13 +2117,12 @@ int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &cons, &list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &cons, &list);
 		if (cons == Nil)
 			continue;
 		Return_getcar(cons, &value);
-		Return(function_if_call_cons(ptr, &check, key, call, value));
+		Return(function_if_call_cons_(ptr, &check, key, call, value));
 		if (check)
 			return Result(ret, cons);
 	}
@@ -2139,7 +2134,7 @@ int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  assoc-if-not
  */
-int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int assoc_if_not_common_(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2147,13 +2142,12 @@ int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &cons, &list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &cons, &list);
 		if (cons == Nil)
 			continue;
 		Return_getcar(cons, &value);
-		Return(function_if_call_cons(ptr, &check, key, call, value));
+		Return(function_if_call_cons_(ptr, &check, key, call, value));
 		if (! check)
 			return Result(ret, cons);
 	}
@@ -2165,7 +2159,7 @@ int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  copy-alist
  */
-int copy_alist_common(addr list, addr *ret)
+int copy_alist_common_(addr list, addr *ret)
 {
 	addr root, cons, car, cdr;
 
@@ -2186,7 +2180,7 @@ int copy_alist_common(addr list, addr *ret)
 /*
  *  pairlis
  */
-int pairlis_common(addr keys, addr data, addr list, addr *ret)
+int pairlis_common_(addr keys, addr data, addr list, addr *ret)
 {
 	int check1, check2;
 	addr car, cdr;
@@ -2213,20 +2207,19 @@ int pairlis_common(addr keys, addr data, addr list, addr *ret)
 /*
  *  rassoc
  */
-static int test_rassoc_cons(Execute ptr, addr *ret,
+static int test_rassoc_cons_(Execute ptr, addr *ret,
 		addr item, addr list, addr key, addr call, int notret)
 {
 	int check;
 	addr cons, value;
 
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &cons, &list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &cons, &list);
 		if (cons == Nil)
 			continue;
 		Return_getcdr(cons, &value);
-		Return(function_call_cons(ptr, &check, item, key, call, value, notret));
+		Return(function_call_cons_(ptr, &check, item, key, call, value, notret));
 		if (check)
 			return Result(ret, cons);
 	}
@@ -2234,7 +2227,7 @@ static int test_rassoc_cons(Execute ptr, addr *ret,
 	return Result(ret, Nil);
 }
 
-int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int rassoc_common_(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2250,12 +2243,12 @@ int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	if (check1 && check2)
 		return fmte_("RASSOC don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
-		return test_rassoc_cons(ptr, ret, item, list, key, testnot, 1);
+		return test_rassoc_cons_(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
-		return test_rassoc_cons(ptr, ret, item, list, key, test, 0);
+		return test_rassoc_cons_(ptr, ret, item, list, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_rassoc_cons(ptr, ret, item, list, key, test, 0);
+		return test_rassoc_cons_(ptr, ret, item, list, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2265,7 +2258,7 @@ int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  rassoc-if
  */
-int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int rassoc_if_common_(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2273,13 +2266,12 @@ int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &cons, &list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &cons, &list);
 		if (cons == Nil)
 			continue;
 		Return_getcdr(cons, &value);
-		Return(function_if_call_cons(ptr, &check, key, call, value));
+		Return(function_if_call_cons_(ptr, &check, key, call, value));
 		if (check)
 			return Result(ret, cons);
 	}
@@ -2291,7 +2283,7 @@ int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 /*
  *  rssoc-if-not
  */
-int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
+int rassoc_if_not_common_(Execute ptr, addr call, addr list, addr rest, addr *ret)
 {
 	int check;
 	addr key, value, cons;
@@ -2299,13 +2291,12 @@ int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret
 	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	while (list != Nil) {
-		if (! consp(list))
+		if (! consp_getcons(list, &cons, &list))
 			return fmte_("The list ~S don't accept dotted list.", list, NULL);
-		GetCons(list, &cons, &list);
 		if (cons == Nil)
 			continue;
 		Return_getcdr(cons, &value);
-		Return(function_if_call_cons(ptr, &check, key, call, value));
+		Return(function_if_call_cons_(ptr, &check, key, call, value));
 		if (! check)
 			return Result(ret, cons);
 	}
@@ -2317,18 +2308,17 @@ int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret
 /*
  *  get-properties
  */
-int get_properties_common(addr plist, addr indicator,
+int get_properties_common_(addr plist, addr indicator,
 		addr *rkey, addr *rvalue, addr *rlist)
 {
 	addr key, value, next, list, check;
 
 	while (plist != Nil) {
 		Return_getcons(plist, &key, &next);
-		if (! consp(next)) {
+		if (! consp_getcons(next, &value, &next)) {
 			*rkey = *rvalue = *rlist = Nil;
 			return fmte_("The proper list ~S must be a cons object.", next, NULL);
 		}
-		Return_getcons(next, &value, &next);
 		for (list = indicator; list != Nil; ) {
 			Return_getcons(list, &check, &list);
 			if (check == key)
@@ -2350,17 +2340,16 @@ find:
 /*
  *  getf
  */
-int getf_common(addr list, addr key, addr value, addr *ret)
+int getf_common_(addr list, addr key, addr value, addr *ret)
 {
 	addr x, y;
 
 	while (list != Nil) {
 		Return_getcons(list, &x, &list);
-		if (! consp(list)) {
+		if (! consp_getcons(list, &y, &list)) {
 			*ret = Nil;
 			return fmte_("The proper list ~S must be a cons object.", list, NULL);
 		}
-		GetCons(list, &y, &list);
 		if (x == key)
 			return Result(ret, y);
 	}
@@ -2372,7 +2361,7 @@ int getf_common(addr list, addr key, addr value, addr *ret)
 /*
  *  (setf remf)
  */
-static int expansion_remf_cons(Execute ptr, addr *ret,
+static int expansion_remf_cons_(Execute ptr, addr *ret,
 		addr place, addr indicator, addr env)
 {
 	/* (let* ((a1 b1)
@@ -2421,7 +2410,7 @@ static int expansion_remf_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-int remf_common(Execute ptr, addr form, addr env, addr *ret)
+int remf_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, indicator;
 
@@ -2432,7 +2421,7 @@ int remf_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	if (args != Nil)
 		goto error;
-	return expansion_remf_cons(ptr, ret, place, indicator, env);
+	return expansion_remf_cons_(ptr, ret, place, indicator, env);
 
 error:
 	*ret = Nil;
@@ -2443,7 +2432,7 @@ error:
 /*
  *  intersection
  */
-static int check_intersection_cons(Execute ptr, int *ret,
+static int check_intersection_cons_(Execute ptr, int *ret,
 		addr left, addr list, addr key, addr test, int notret)
 {
 	int check;
@@ -2454,7 +2443,7 @@ static int check_intersection_cons(Execute ptr, int *ret,
 	}
 	while (list != Nil) {
 		Return_getcons(list, &right, &list);
-		Return(function_call_cons(ptr, &check, left, key, test, right, notret));
+		Return(function_call_cons_(ptr, &check, left, key, test, right, notret));
 		if (check)
 			return Result(ret, 1);
 	}
@@ -2462,7 +2451,7 @@ static int check_intersection_cons(Execute ptr, int *ret,
 	return Result(ret, 0);
 }
 
-static int test_intersection_cons(Execute ptr, addr *ret,
+static int test_intersection_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -2472,7 +2461,7 @@ static int test_intersection_cons(Execute ptr, addr *ret,
 	hold = LocalHold_array(ptr, 1);
 	for (list = Nil; list1 != Nil; ) {
 		Return_getcons(list1, &left, &list1);
-		Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, left, list2, key, test, notret));
 		if (check) {
 			cons_heap(&list, left, list);
 			localhold_set(hold, 0, list);
@@ -2482,7 +2471,7 @@ static int test_intersection_cons(Execute ptr, addr *ret,
 	return Result(ret, list);
 }
 
-int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int intersection_common_(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2500,12 +2489,12 @@ int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *re
 				"both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_intersection_cons(ptr, ret, list1, list2, key, testnot, 1);
+		return test_intersection_cons_(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
-		return test_intersection_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_intersection_cons_(ptr, ret, list1, list2, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_intersection_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_intersection_cons_(ptr, ret, list1, list2, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2515,7 +2504,7 @@ int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *re
 /*
  *  rintersection
  */
-static int test_nintersection_cons(Execute ptr, addr *ret,
+static int test_nintersection_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -2530,7 +2519,7 @@ static int test_nintersection_cons(Execute ptr, addr *ret,
 	list = list1;
 	for (;;) {
 		Return_getcons(list, &pos, &x);
-		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, pos, list2, key, test, notret));
 		if (check)
 			break;
 		if (x == Nil) {
@@ -2545,7 +2534,7 @@ static int test_nintersection_cons(Execute ptr, addr *ret,
 	z = list;
 	while (list1 != Nil) {
 		Return_getcons(list1, &pos, &y);
-		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, pos, list2, key, test, notret));
 		if (! check) {
 			list1 = y;
 			continue;
@@ -2567,7 +2556,7 @@ finish:
 	return Result(ret, list);
 }
 
-int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int nintersection_common_(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2585,12 +2574,12 @@ int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *r
 				"both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_nintersection_cons(ptr, ret, list1, list2, key, testnot, 1);
+		return test_nintersection_cons_(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
-		return test_nintersection_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_nintersection_cons_(ptr, ret, list1, list2, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_nintersection_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_nintersection_cons_(ptr, ret, list1, list2, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2600,7 +2589,7 @@ int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *r
 /*
  *  adjoin
  */
-static int test_adjoin_cons(Execute ptr, addr *ret,
+static int test_adjoin_cons_(Execute ptr, addr *ret,
 		addr left, addr list, addr key, addr test, int notret)
 {
 	int check;
@@ -2617,7 +2606,7 @@ static int test_adjoin_cons(Execute ptr, addr *ret,
 	/* adjoin */
 	for (find = list; find != Nil; ) {
 		Return_getcons(find, &right, &find);
-		Return(function_call_cons(ptr, &check, item, key, test, right, notret));
+		Return(function_call_cons_(ptr, &check, item, key, test, right, notret));
 		if (check)
 			return Result(ret, list);
 	}
@@ -2625,7 +2614,7 @@ static int test_adjoin_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
+int adjoin_common_(Execute ptr, addr item, addr list, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2641,12 +2630,12 @@ int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	if (check1 && check2)
 		return fmte_("ADJOIN don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
-		return test_adjoin_cons(ptr, ret, item, list, key, testnot, 1);
+		return test_adjoin_cons_(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
-		return test_adjoin_cons(ptr, ret, item, list, key, test, 0);
+		return test_adjoin_cons_(ptr, ret, item, list, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_adjoin_cons(ptr, ret, item, list, key, test, 0);
+		return test_adjoin_cons_(ptr, ret, item, list, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2656,7 +2645,7 @@ int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  pushnew
  */
-static int single_pushnew_cons(addr *ret,
+static int single_pushnew_cons_(addr *ret,
 		addr item, addr rest, addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((a1 b1)
@@ -2698,7 +2687,7 @@ static int single_pushnew_cons(addr *ret,
 	return 0;
 }
 
-static int multiple_pushnew_cons(Execute ptr, addr *ret,
+static int multiple_pushnew_cons_(Execute ptr, addr *ret,
 		addr item, addr rest, addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((v value)
@@ -2765,19 +2754,19 @@ static int multiple_pushnew_cons(Execute ptr, addr *ret,
 	return 0;
 }
 
-static int expansion_pushnew_cons(Execute ptr, addr *ret,
+static int expansion_pushnew_cons_(Execute ptr, addr *ret,
 		addr item, addr place, addr rest, addr env)
 {
 	addr a, b, g, w, r;
 
 	Return(get_setf_expansion_(ptr, place, env, &a, &b, &g, &w, &r));
 	if (singlep(g))
-		return single_pushnew_cons(ret, item, rest, a, b, g, w, r);
+		return single_pushnew_cons_(ret, item, rest, a, b, g, w, r);
 	else
-		return multiple_pushnew_cons(ptr, ret, item, rest, a, b, g, w, r);
+		return multiple_pushnew_cons_(ptr, ret, item, rest, a, b, g, w, r);
 }
 
-int pushnew_common(Execute ptr, addr form, addr env, addr *ret)
+int pushnew_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, item, place;
 
@@ -2786,7 +2775,7 @@ int pushnew_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	if (! consp_getcons(args, &place, &args))
 		goto error;
-	return expansion_pushnew_cons(ptr, ret, item, place, args, env);
+	return expansion_pushnew_cons_(ptr, ret, item, place, args, env);
 
 error:
 	*ret = Nil;
@@ -2798,7 +2787,7 @@ error:
 /*
  *  set-difference
  */
-static int test_set_difference_cons(Execute ptr, addr *ret,
+static int test_set_difference_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -2808,7 +2797,7 @@ static int test_set_difference_cons(Execute ptr, addr *ret,
 	hold = LocalHold_array(ptr, 1);
 	for (list = Nil; list1 != Nil; ) {
 		Return_getcons(list1, &left, &list1);
-		Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, left, list2, key, test, notret));
 		if (! check) {
 			cons_heap(&list, left, list);
 			localhold_set(hold, 0, list);
@@ -2818,7 +2807,7 @@ static int test_set_difference_cons(Execute ptr, addr *ret,
 	return Result(ret, list);
 }
 
-int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int set_difference_common_(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2836,12 +2825,12 @@ int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 				"both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_set_difference_cons(ptr, ret, a, b, key, testnot, 1);
+		return test_set_difference_cons_(ptr, ret, a, b, key, testnot, 1);
 	else if (check1)
-		return test_set_difference_cons(ptr, ret, a, b, key, test, 0);
+		return test_set_difference_cons_(ptr, ret, a, b, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_set_difference_cons(ptr, ret, a, b, key, test, 0);
+		return test_set_difference_cons_(ptr, ret, a, b, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2851,7 +2840,7 @@ int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 /*
  *  nset-difference
  */
-static int test_nset_difference_cons(Execute ptr, addr *ret,
+static int test_nset_difference_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -2866,7 +2855,7 @@ static int test_nset_difference_cons(Execute ptr, addr *ret,
 	list = list1;
 	for (;;) {
 		Return_getcons(list, &pos, &x);
-		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, pos, list2, key, test, notret));
 		if (! check)
 			break;
 		if (x == Nil) {
@@ -2881,7 +2870,7 @@ static int test_nset_difference_cons(Execute ptr, addr *ret,
 	z = list;
 	while (list1 != Nil) {
 		Return_getcons(list1, &pos, &y);
-		Return(check_intersection_cons(ptr, &check, pos, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, pos, list2, key, test, notret));
 		if (check) {
 			list1 = y;
 			continue;
@@ -2903,8 +2892,7 @@ finish:
 	return Result(ret, list);
 }
 
-
-int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int nset_difference_common_(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2922,12 +2910,12 @@ int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 				"both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_nset_difference_cons(ptr, ret, a, b, key, testnot, 1);
+		return test_nset_difference_cons_(ptr, ret, a, b, key, testnot, 1);
 	else if (check1)
-		return test_nset_difference_cons(ptr, ret, a, b, key, test, 0);
+		return test_nset_difference_cons_(ptr, ret, a, b, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_nset_difference_cons(ptr, ret, a, b, key, test, 0);
+		return test_nset_difference_cons_(ptr, ret, a, b, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -2937,7 +2925,7 @@ int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 /*
  *  set-exclusive-or
  */
-static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
+static int test_set_exclusive_or_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -2949,7 +2937,7 @@ static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
 	hold = LocalHold_array(ptr, 1);
 	for (list = list1; list != Nil; ) {
 		Return_getcons(list, &left, &list);
-		Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, left, list2, key, test, notret));
 		if (! check) {
 			cons_heap(&result, left, result);
 			localhold_set(hold, 0, result);
@@ -2959,7 +2947,7 @@ static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
 	/* right -> left */
 	for (list = list2; list != Nil; ) {
 		Return_getcons(list, &left, &list);
-		Return(check_intersection_cons(ptr, &check, left, list1, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, left, list1, key, test, notret));
 		if (! check) {
 			cons_heap(&result, left, result);
 			localhold_set(hold, 0, result);
@@ -2971,7 +2959,7 @@ static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
 	return Result(ret, result);
 }
 
-int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int set_exclusive_or_common_(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -2989,12 +2977,12 @@ int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 				"don't accept both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_set_exclusive_or_cons(ptr, ret, a, b, key, testnot, 1);
+		return test_set_exclusive_or_cons_(ptr, ret, a, b, key, testnot, 1);
 	else if (check1)
-		return test_set_exclusive_or_cons(ptr, ret, a, b, key, test, 0);
+		return test_set_exclusive_or_cons_(ptr, ret, a, b, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_set_exclusive_or_cons(ptr, ret, a, b, key, test, 0);
+		return test_set_exclusive_or_cons_(ptr, ret, a, b, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -3024,7 +3012,7 @@ static int test_nset_exclusive_or_remove_(Execute ptr, int *ret, addr *rlist,
 	next = Nil;
 	while (list != Nil) {
 		Return_getcons(list, &y, &next);
-		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+		Return(function_call_cons_(ptr, &check, x, key, test, y, notret));
 		if (! check)
 			break;
 		remove = 1;
@@ -3038,7 +3026,7 @@ static int test_nset_exclusive_or_remove_(Execute ptr, int *ret, addr *rlist,
 	z = next;
 	while (z != Nil) {
 		Return_getcons(z, &y, &next);
-		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+		Return(function_call_cons_(ptr, &check, x, key, test, y, notret));
 		if (! check) {
 			tail = z;
 			z = next;
@@ -3055,7 +3043,7 @@ finish:
 	return 0;
 }
 
-static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
+static int test_nset_exclusive_or_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -3103,7 +3091,7 @@ static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
 	return Result(ret, list1);
 }
 
-int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
+int nset_exclusive_or_common_(Execute ptr, addr a, addr b, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3121,12 +3109,12 @@ int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 				"don't accept both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_nset_exclusive_or_cons(ptr, ret, a, b, key, testnot, 1);
+		return test_nset_exclusive_or_cons_(ptr, ret, a, b, key, testnot, 1);
 	else if (check1)
-		return test_nset_exclusive_or_cons(ptr, ret, a, b, key, test, 0);
+		return test_nset_exclusive_or_cons_(ptr, ret, a, b, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_nset_exclusive_or_cons(ptr, ret, a, b, key, test, 0);
+		return test_nset_exclusive_or_cons_(ptr, ret, a, b, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -3136,7 +3124,7 @@ int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 /*
  *  subsetp
  */
-static int test_subsetp_cons(Execute ptr, addr *ret,
+static int test_subsetp_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	int check;
@@ -3149,7 +3137,7 @@ static int test_subsetp_cons(Execute ptr, addr *ret,
 
 	for (result = T; list1 != Nil; ) {
 		Return_getcons(list1, &left, &list1);
-		Return(check_intersection_cons(ptr, &check, left, list2, key, test, notret));
+		Return(check_intersection_cons_(ptr, &check, left, list2, key, test, notret));
 		if (! check) {
 			result = Nil;
 			break;
@@ -3159,7 +3147,7 @@ static int test_subsetp_cons(Execute ptr, addr *ret,
 	return Result(ret, result);
 }
 
-int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int subsetp_common_(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3175,12 +3163,12 @@ int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	if (check1 && check2)
 		return fmte_("SUBSETP don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
-		return test_subsetp_cons(ptr, ret, list1, list2, key, testnot, 1);
+		return test_subsetp_cons_(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
-		return test_subsetp_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_subsetp_cons_(ptr, ret, list1, list2, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_subsetp_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_subsetp_cons_(ptr, ret, list1, list2, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -3207,7 +3195,7 @@ static int test_nunion_remove_(Execute ptr, addr *ret,
 
 	/* first */
 	Return_getcons(list, &y, &next);
-	Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+	Return(function_call_cons_(ptr, &check, x, key, test, y, notret));
 	if (check)
 		return Result(ret, next);
 
@@ -3216,7 +3204,7 @@ static int test_nunion_remove_(Execute ptr, addr *ret,
 	z = next;
 	while (z != Nil) {
 		Return_getcons(z, &y, &next);
-		Return(function_call_cons(ptr, &check, x, key, test, y, notret));
+		Return(function_call_cons_(ptr, &check, x, key, test, y, notret));
 		if (check) {
 			SetCdr(tail, next);
 			break;
@@ -3228,7 +3216,7 @@ static int test_nunion_remove_(Execute ptr, addr *ret,
 	return Result(ret, list);
 }
 
-static int test_nunion_cons(Execute ptr, addr *ret,
+static int test_nunion_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	addr list, x, next;
@@ -3254,7 +3242,7 @@ static int test_nunion_cons(Execute ptr, addr *ret,
 	return Result(ret, list1);
 }
 
-int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int nunion_common_(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 {
 	int check1, check2;
 	addr key, test, testnot;
@@ -3272,12 +3260,12 @@ int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 				"both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_nunion_cons(ptr, ret, list1, list2, key, testnot, 1);
+		return test_nunion_cons_(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
-		return test_nunion_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_nunion_cons_(ptr, ret, list1, list2, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_nunion_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_nunion_cons_(ptr, ret, list1, list2, key, test, 0);
 	}
 
 	return Result(ret, Nil);
@@ -3287,7 +3275,7 @@ int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 /*
  *  union
  */
-static int test_union_cons(Execute ptr, addr *ret,
+static int test_union_cons_(Execute ptr, addr *ret,
 		addr list1, addr list2, addr key, addr test, int notret)
 {
 	LocalHold hold;
@@ -3302,13 +3290,13 @@ static int test_union_cons(Execute ptr, addr *ret,
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, list1, list2, NULL);
-	Return(test_nunion_cons(ptr, ret, list1, list2, key, test, notret));
+	Return(test_nunion_cons_(ptr, ret, list1, list2, key, test, notret));
 	localhold_end(hold);
 
 	return 0;
 }
 
-int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
+int union_common_(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 
 {
 	int check1, check2;
@@ -3327,12 +3315,12 @@ int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 				"both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
-		return test_union_cons(ptr, ret, list1, list2, key, testnot, 1);
+		return test_union_cons_(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
-		return test_union_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_union_cons_(ptr, ret, list1, list2, key, test, 0);
 	else {
 		GetConst(COMMON_EQL, &test);
-		return test_union_cons(ptr, ret, list1, list2, key, test, 0);
+		return test_union_cons_(ptr, ret, list1, list2, key, test, 0);
 	}
 
 	return Result(ret, Nil);

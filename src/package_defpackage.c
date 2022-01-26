@@ -688,7 +688,7 @@ static int defpackage_execute_update_(Execute ptr,
 	return defpackage_update_(ptr, pos, rest);
 }
 
-int defpackage_execute(Execute ptr, addr var, addr rest, addr *ret)
+int defpackage_execute_(Execute ptr, addr var, addr rest, addr *ret)
 {
 	int sizep;
 	addr doc, pos;
@@ -733,7 +733,7 @@ static int defpackage_package_designer_common_(addr *value, addr pos, int *ret)
 	return string_designer_heap_(value, pos, ret);
 }
 
-static int defpackage_nicknames_common(addr *ret, addr info, addr list)
+static int defpackage_nicknames_common_(addr *ret, addr info, addr list)
 {
 	int check;
 	addr pos, type;
@@ -753,7 +753,7 @@ static int defpackage_nicknames_common(addr *ret, addr info, addr list)
 	return Result(ret, info);
 }
 
-static int defpackage_documentation_common(addr *ret, addr info, addr list)
+static int defpackage_documentation_common_(addr *ret, addr info, addr list)
 {
 	addr doc, check, type;
 
@@ -781,7 +781,7 @@ static int defpackage_documentation_common(addr *ret, addr info, addr list)
 	return Result(ret, doc);
 }
 
-static int defpackage_use_common(addr *ret, addr info, addr list)
+static int defpackage_use_common_(addr *ret, addr info, addr list)
 {
 	int check;
 	addr pos, type;
@@ -801,7 +801,7 @@ static int defpackage_use_common(addr *ret, addr info, addr list)
 	return Result(ret, info);
 }
 
-static int defpackage_shadow_common(addr *ret,
+static int defpackage_shadow_common_(addr *ret,
 		addr shadow, addr shadowing, addr import, addr intern, addr list)
 {
 	int check;
@@ -844,7 +844,7 @@ static int defpackage_shadow_common(addr *ret,
 	return Result(ret, shadow);
 }
 
-static int defpackage_shadowing_common(addr *ret,
+static int defpackage_shadowing_common_(addr *ret,
 		addr shadow, addr shadowing, addr import, addr intern, addr list)
 {
 	int check;
@@ -904,7 +904,7 @@ static int defpackage_shadowing_common(addr *ret,
 	return 0;
 }
 
-static int defpackage_import_common(addr *ret,
+static int defpackage_import_common_(addr *ret,
 		addr shadow, addr shadowing, addr import, addr intern, addr list)
 {
 	int check;
@@ -961,7 +961,7 @@ static int defpackage_import_common(addr *ret,
 	return 0;
 }
 
-static int defpackage_export_common(addr *ret, addr expt, addr intern, addr list)
+static int defpackage_export_common_(addr *ret, addr expt, addr intern, addr list)
 {
 	int check;
 	addr pos, type;
@@ -990,7 +990,7 @@ static int defpackage_export_common(addr *ret, addr expt, addr intern, addr list
 	return Result(ret, expt);
 }
 
-static int defpackage_intern_common(addr *ret,
+static int defpackage_intern_common_(addr *ret,
 		addr shadow, addr shadowing, addr import, addr expt, addr intern, addr list)
 {
 	int check;
@@ -1039,7 +1039,7 @@ static int defpackage_intern_common(addr *ret,
 	return Result(ret, intern);
 }
 
-static int defpackage_size_common(addr *ret, addr info, addr list)
+static int defpackage_size_common_(addr *ret, addr info, addr list)
 {
 	int check;
 	addr size, value, type;
@@ -1075,7 +1075,7 @@ static int defpackage_size_common(addr *ret, addr info, addr list)
 	return Result(ret, size);
 }
 
-static int defpackage_expand_common(addr name, addr form, addr *ret)
+static int defpackage_expand_common_(addr name, addr form, addr *ret)
 {
 	addr args, key, list, quote;
 	addr knick, kdoc, kuse, kshadow, kshadowing, kimport, kexport, kintern, ksize;
@@ -1102,35 +1102,35 @@ static int defpackage_expand_common(addr name, addr form, addr *ret)
 					"The defpackage option ~S must be a cons.", list, NULL);
 		}
 		if (key == knick) {
-			Return(defpackage_nicknames_common(&nicknames, nicknames, list));
+			Return(defpackage_nicknames_common_(&nicknames, nicknames, list));
 		}
 		else if (key == kdoc) {
-			Return(defpackage_documentation_common(&doc, doc, list));
+			Return(defpackage_documentation_common_(&doc, doc, list));
 		}
 		else if (key == kuse) {
-			Return(defpackage_use_common(&use, use, list));
+			Return(defpackage_use_common_(&use, use, list));
 		}
 		else if (key == kshadow) {
-			Return(defpackage_shadow_common(&shadow,
+			Return(defpackage_shadow_common_(&shadow,
 						shadow, shadowing, import, intern, list));
 		}
 		else if (key == kshadowing) {
-			Return(defpackage_shadowing_common(&shadowing,
+			Return(defpackage_shadowing_common_(&shadowing,
 						shadow, shadowing, import, intern, list));
 		}
 		else if (key == kimport) {
-			Return(defpackage_import_common(&import,
+			Return(defpackage_import_common_(&import,
 						shadow, shadowing, import, intern, list));
 		}
 		else if (key == kexport) {
-			Return(defpackage_export_common(&expt, expt, intern, list));
+			Return(defpackage_export_common_(&expt, expt, intern, list));
 		}
 		else if (key == kintern) {
-			Return(defpackage_intern_common(&intern,
+			Return(defpackage_intern_common_(&intern,
 						shadow, shadowing, import, expt, intern, list));
 		}
 		else if (key == ksize) {
-			Return(defpackage_size_common(&size, size, list));
+			Return(defpackage_size_common_(&size, size, list));
 		}
 		else {
 			return call_simple_program_error_va_(NULL,
@@ -1208,7 +1208,7 @@ static int defpackage_expand_common(addr name, addr form, addr *ret)
 	return 0;
 }
 
-int defpackage_common(addr form, addr env, addr *ret)
+int defpackage_common_(addr form, addr env, addr *ret)
 {
 	int check;
 	addr name, type;
@@ -1225,7 +1225,7 @@ int defpackage_common(addr form, addr env, addr *ret)
 				"DEFPACKAGE name ~S must be a string-designer.", name, NULL);
 	}
 
-	Return(defpackage_expand_common(name, form, &form));
+	Return(defpackage_expand_common_(name, form, &form));
 	return Result(ret, form);
 }
 

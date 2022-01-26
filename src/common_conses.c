@@ -1090,7 +1090,7 @@ static void defun_copy_tree(void)
  */
 static int function_sublis(Execute ptr, addr alist, addr tree, addr rest)
 {
-	Return(sublis_common(ptr, alist, tree, rest, &tree));
+	Return(sublis_common_(ptr, alist, tree, rest, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1120,7 +1120,7 @@ static void defun_sublis(void)
  */
 static int function_nsublis(Execute ptr, addr alist, addr tree, addr rest)
 {
-	Return(nsublis_common(ptr, alist, tree, rest, &tree));
+	Return(nsublis_common_(ptr, alist, tree, rest, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1151,7 +1151,7 @@ static void defun_nsublis(void)
  */
 static int function_subst(Execute ptr, addr one, addr old, addr tree, addr key)
 {
-	Return(subst_common(ptr, one, old, tree, key, &tree));
+	Return(subst_common_(ptr, one, old, tree, key, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1182,7 +1182,7 @@ static void defun_subst(void)
  */
 static int function_nsubst(Execute ptr, addr one, addr old, addr tree, addr key)
 {
-	Return(nsubst_common(ptr, one, old, tree, key, &tree));
+	Return(nsubst_common_(ptr, one, old, tree, key, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1212,7 +1212,7 @@ static void defun_nsubst(void)
 static int function_subst_if(Execute ptr,
 		addr one, addr predicate, addr tree, addr key)
 {
-	Return(subst_if_common(ptr, one, predicate, tree, key, &tree));
+	Return(subst_if_common_(ptr, one, predicate, tree, key, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1242,7 +1242,7 @@ static void defun_subst_if(void)
 static int function_nsubst_if(Execute ptr,
 		addr one, addr predicate, addr tree, addr key)
 {
-	Return(nsubst_if_common(ptr, one, predicate, tree, key, &tree));
+	Return(nsubst_if_common_(ptr, one, predicate, tree, key, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1272,7 +1272,7 @@ static void defun_nsubst_if(void)
 static int function_subst_if_not(Execute ptr,
 		addr one, addr predicate, addr tree, addr key)
 {
-	Return(subst_if_not_common(ptr, one, predicate, tree, key, &tree));
+	Return(subst_if_not_common_(ptr, one, predicate, tree, key, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1302,7 +1302,7 @@ static void defun_subst_if_not(void)
 static int function_nsubst_if_not(Execute ptr,
 		addr one, addr predicate, addr tree, addr key)
 {
-	Return(nsubst_if_not_common(ptr, one, predicate, tree, key, &tree));
+	Return(nsubst_if_not_common_(ptr, one, predicate, tree, key, &tree));
 	setresult_control(ptr, tree);
 	return 0;
 }
@@ -1333,7 +1333,7 @@ static int function_tree_equal(Execute ptr, addr tree1, addr tree2, addr key)
 {
 	int result;
 
-	Return(tree_equal_common(ptr, tree1, tree2, key, &result));
+	Return(tree_equal_common_(ptr, tree1, tree2, key, &result));
 	setbool_control(ptr, result);
 
 	return 0;
@@ -1441,7 +1441,7 @@ static void defun_lista(void)
 /* (defun list-length (list) ...) -> (or index null) */
 static int function_list_length(Execute ptr, addr list)
 {
-	Return(list_length_common(list, &list));
+	Return(list_length_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1502,7 +1502,7 @@ static void defun_listp(void)
  */
 static int function_make_list(Execute ptr, addr var, addr rest)
 {
-	Return(make_list_common(var, rest, &var));
+	Return(make_list_common_(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1544,7 +1544,7 @@ static void defun_make_list(void)
  */
 static int function_push(Execute ptr, addr form, addr env)
 {
-	Return(push_common(ptr, form, env, &form));
+	Return(push_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1566,7 +1566,7 @@ static void defmacro_push(void)
 /* (defmacro pop (place) ...) -> t */
 static int function_pop(Execute ptr, addr form, addr env)
 {
-	Return(pop_common(ptr, form, env, &form));
+	Return(pop_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1591,7 +1591,7 @@ static void defmacro_pop(void)
  */
 static int function_nth(Execute ptr, addr index, addr list)
 {
-	Return(nth_common(index, list, &list));
+	Return(nth_common_(index, list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1618,7 +1618,7 @@ static void defun_nth(void)
  */
 static int function_setf_nth(Execute ptr, addr value, addr index, addr list)
 {
-	Return(setf_nth_common(value, index, list));
+	Return(setf_nth_common_(value, index, list));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -1654,7 +1654,7 @@ static void defun_setf_nth(void)
 /* (defun nthcdr (index list) ...) -> object */
 static int function_nthcdr(Execute ptr, addr index, addr list)
 {
-	Return(nthcdr_common(index, list, &list));
+	Return(nthcdr_common_(index, list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1685,7 +1685,7 @@ static void defun_nthcdr(void)
  */
 static int function_member(Execute ptr, addr item, addr list, addr rest)
 {
-	Return(member_common(ptr, item, list, rest, &item));
+	Return(member_common_(ptr, item, list, rest, &item));
 	setresult_control(ptr, item);
 	return 0;
 }
@@ -1714,7 +1714,7 @@ static void defun_member(void)
  */
 static int function_member_if(Execute ptr, addr call, addr list, addr rest)
 {
-	Return(member_if_common(ptr, call, list, rest, &list));
+	Return(member_if_common_(ptr, call, list, rest, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1743,7 +1743,7 @@ static void defun_member_if(void)
  */
 static int function_member_if_not(Execute ptr, addr call, addr list, addr rest)
 {
-	Return(member_if_not_common(ptr, call, list, rest, &list));
+	Return(member_if_not_common_(ptr, call, list, rest, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1767,7 +1767,7 @@ static void defun_member_if_not(void)
 /* (defun mapc (call list &rest list) ...) -> list */
 static int function_mapc(Execute ptr, addr call, addr rest)
 {
-	Return(mapc_common(ptr, call, rest, &rest));
+	Return(mapc_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1791,7 +1791,7 @@ static void defun_mapc(void)
 /* (defun mapcar (call list &rest list) ...) -> list */
 static int function_mapcar(Execute ptr, addr call, addr rest)
 {
-	Return(mapcar_common(ptr, call, rest, &rest));
+	Return(mapcar_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1815,7 +1815,7 @@ static void defun_mapcar(void)
 /* (defun mapcan (call list &rest list) ...) -> list */
 static int function_mapcan(Execute ptr, addr call, addr rest)
 {
-	Return(mapcan_common(ptr, call, rest, &rest));
+	Return(mapcan_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1839,7 +1839,7 @@ static void defun_mapcan(void)
 /* (defun mapl (call list &rest list) ...) -> list */
 static int function_mapl(Execute ptr, addr call, addr rest)
 {
-	Return(mapl_common(ptr, call, rest, &rest));
+	Return(mapl_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1863,7 +1863,7 @@ static void defun_mapl(void)
 /* (defun maplist (call list &rest list) ...) -> list */
 static int function_maplist(Execute ptr, addr call, addr rest)
 {
-	Return(maplist_common(ptr, call, rest, &rest));
+	Return(maplist_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1887,7 +1887,7 @@ static void defun_maplist(void)
 /* (defun mapcon (call list &rest list) ...) -> list */
 static int function_mapcon(Execute ptr, addr call, addr rest)
 {
-	Return(mapcon_common(ptr, call, rest, &rest));
+	Return(mapcon_common_(ptr, call, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1970,7 +1970,7 @@ static void defun_null(void)
  */
 static int function_nconc(Execute ptr, addr list)
 {
-	Return(nconc_common(list, &list));
+	Return(nconc_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1997,7 +1997,7 @@ static void defun_nconc(void)
  */
 static int function_append(Execute ptr, addr list)
 {
-	Return(append_common(list, &list));
+	Return(append_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2025,7 +2025,7 @@ static void defun_append(void)
  */
 static int function_revappend(Execute ptr, addr list, addr tail)
 {
-	Return(revappend_common(list, tail, &list));
+	Return(revappend_common_(list, tail, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2053,7 +2053,7 @@ static void defun_revappend(void)
  */
 static int function_nreconc(Execute ptr, addr list, addr tail)
 {
-	Return(nreconc_common(list, tail, &list));
+	Return(nreconc_common_(list, tail, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2079,7 +2079,7 @@ static void defun_nreconc(void)
  */
 static int function_butlast(Execute ptr, addr list, addr index)
 {
-	Return(butlast_common(list, index, &list));
+	Return(butlast_common_(list, index, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2105,7 +2105,7 @@ static void defun_butlast(void)
  */
 static int function_nbutlast(Execute ptr, addr list, addr index)
 {
-	Return(nbutlast_common(list, index, &list));
+	Return(nbutlast_common_(list, index, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2132,7 +2132,7 @@ static void defun_nbutlast(void)
  */
 static int function_last(Execute ptr, addr list, addr index)
 {
-	Return(last_common(list, index, &list));
+	Return(last_common_(list, index, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2285,7 +2285,7 @@ static void defun_acons(void)
  */
 static int function_assoc(Execute ptr, addr item, addr list, addr rest)
 {
-	Return(assoc_common(ptr, item, list, rest, &item));
+	Return(assoc_common_(ptr, item, list, rest, &item));
 	setresult_control(ptr, item);
 	return 0;
 }
@@ -2309,7 +2309,7 @@ static void defun_assoc(void)
 /* (defun assoc-if (call list &key key) ...) -> list */
 static int function_assoc_if(Execute ptr, addr call, addr list, addr rest)
 {
-	Return(assoc_if_common(ptr, call, list, rest, &list));
+	Return(assoc_if_common_(ptr, call, list, rest, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2333,7 +2333,7 @@ static void defun_assoc_if(void)
 /* (defun assoc-if-not (call list &key key) ...) -> list */
 static int function_assoc_if_not(Execute ptr, addr call, addr list, addr rest)
 {
-	Return(assoc_if_not_common(ptr, call, list, rest, &list));
+	Return(assoc_if_not_common_(ptr, call, list, rest, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2357,7 +2357,7 @@ static void defun_assoc_if_not(void)
 /* (defun copy-alist (list) ...) -> list */
 static int function_copy_alist(Execute ptr, addr list)
 {
-	Return(copy_alist_common(list, &list));
+	Return(copy_alist_common_(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2384,7 +2384,7 @@ static void defun_copy_alist(void)
  */
 static int function_pairlis(Execute ptr, addr keys, addr data, addr list)
 {
-	Return(pairlis_common(keys, data, list, &list));
+	Return(pairlis_common_(keys, data, list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2422,7 +2422,7 @@ static void defun_pairlis(void)
  */
 static int function_rassoc(Execute ptr, addr item, addr list, addr rest)
 {
-	Return(rassoc_common(ptr, item, list, rest, &item));
+	Return(rassoc_common_(ptr, item, list, rest, &item));
 	setresult_control(ptr, item);
 	return 0;
 }
@@ -2446,7 +2446,7 @@ static void defun_rassoc(void)
 /* (defun rassoc-if (call list &key key) ...) -> list */
 static int function_rassoc_if(Execute ptr, addr call, addr list, addr rest)
 {
-	Return(rassoc_if_common(ptr, call, list, rest, &list));
+	Return(rassoc_if_common_(ptr, call, list, rest, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2470,7 +2470,7 @@ static void defun_rassoc_if(void)
 /* (defun rassoc-if (call list &key key) ...) -> list */
 static int function_rassoc_if_not(Execute ptr, addr call, addr list, addr rest)
 {
-	Return(rassoc_if_not_common(ptr, call, list, rest, &list));
+	Return(rassoc_if_not_common_(ptr, call, list, rest, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2502,7 +2502,7 @@ static int function_get_properties(Execute ptr, addr plist, addr indicator)
 {
 	addr key, value, list;
 
-	Return(get_properties_common(plist, indicator, &key, &value, &list));
+	Return(get_properties_common_(plist, indicator, &key, &value, &list));
 	setvalues_control(ptr, key, value, list, NULL);
 
 	return 0;
@@ -2543,7 +2543,7 @@ static void defun_get_properties(void)
  */
 static int function_getf(Execute ptr, addr list, addr key, addr value)
 {
-	Return(getf_common(list, key, value, &value));
+	Return(getf_common_(list, key, value, &value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -2597,7 +2597,7 @@ static void define_setf_expander_getf(void)
 /* (defmacro remf (place indicator) ...) -> boolean */
 static int function_remf(Execute ptr, addr form, addr env)
 {
-	Return(remf_common(ptr, form, env, &form));
+	Return(remf_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -2623,7 +2623,7 @@ static void defmacro_remf(void)
  */
 static int function_intersection(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(intersection_common(ptr, list1, list2, rest, &rest));
+	Return(intersection_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2651,7 +2651,7 @@ static void defun_intersection(void)
  */
 static int function_nintersection(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(nintersection_common(ptr, list1, list2, rest, &rest));
+	Return(nintersection_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2677,7 +2677,7 @@ static void defun_nintersection(void)
  */
 static int function_adjoin(Execute ptr, addr item, addr list, addr rest)
 {
-	Return(adjoin_common(ptr, item, list, rest, &item));
+	Return(adjoin_common_(ptr, item, list, rest, &item));
 	setresult_control(ptr, item);
 	return 0;
 }
@@ -2717,7 +2717,7 @@ static void defun_adjoin(void)
  */
 static int function_pushnew(Execute ptr, addr form, addr env)
 {
-	Return(pushnew_common(ptr, form, env, &form));
+	Return(pushnew_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -2739,7 +2739,7 @@ static void defmacro_pushnew(void)
 /* (defun set-difference (list1 list2) &key key test test-not) ...) -> list */
 static int function_set_difference(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(set_difference_common(ptr, list1, list2, rest, &rest));
+	Return(set_difference_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2767,7 +2767,7 @@ static void defun_set_difference(void)
  */
 static int function_nset_difference(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(nset_difference_common(ptr, list1, list2, rest, &rest));
+	Return(nset_difference_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2795,7 +2795,7 @@ static void defun_nset_difference(void)
  */
 static int function_set_exclusive_or(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(set_exclusive_or_common(ptr, list1, list2, rest, &rest));
+	Return(set_exclusive_or_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2823,7 +2823,7 @@ static void defun_set_exclusive_or(void)
  */
 static int function_nset_exclusive_or(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(nset_exclusive_or_common(ptr, list1, list2, rest, &rest));
+	Return(nset_exclusive_or_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2847,7 +2847,7 @@ static void defun_nset_exclusive_or(void)
 /* (defun subsetp (list1 list2 &key test test-not) ...) -> boolean */
 static int function_subsetp(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(subsetp_common(ptr, list1, list2, rest, &rest));
+	Return(subsetp_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2886,7 +2886,7 @@ static void defun_subsetp(void)
  */
 static int function_union(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(union_common(ptr, list1, list2, rest, &rest));
+	Return(union_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -2914,7 +2914,7 @@ static void defun_union(void)
  */
 static int function_nunion(Execute ptr, addr list1, addr list2, addr rest)
 {
-	Return(nunion_common(ptr, list1, list2, rest, &rest));
+	Return(nunion_common_(ptr, list1, list2, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }

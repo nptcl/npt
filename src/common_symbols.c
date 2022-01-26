@@ -142,7 +142,7 @@ static void defun_copy_symbol(void)
  */
 static int function_gensym(Execute ptr, addr opt)
 {
-	Return(gensym_common(ptr, opt, &opt));
+	Return(gensym_common_(ptr, opt, &opt));
 	setresult_control(ptr, opt);
 	return 0;
 }
@@ -181,7 +181,7 @@ static void defun_gensym(void)
  */
 static int function_gentemp(Execute ptr, addr opt1, addr opt2)
 {
-	Return(gentemp_common(ptr, opt1, opt2, &opt1));
+	Return(gentemp_common_(ptr, opt1, opt2, &opt1));
 	setresult_control(ptr, opt1);
 	return 0;
 }
@@ -216,7 +216,7 @@ static void defun_gentemp(void)
 /* (defun symbol-function (symbol) ...) -> function */
 static int function_symbol_function(Execute ptr, addr var)
 {
-	Return(function_global_restart(ptr, var, &var));
+	Return(function_global_restart_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -250,7 +250,7 @@ static void defun_symbol_function(void)
 /* (defun (setf symbol-function) (function symbol) ...) -> function */
 static int function_setf_symbol_function(Execute ptr, addr value, addr symbol)
 {
-	Return(setf_symbol_function_common(value, symbol));
+	Return(setf_symbol_function_common_(value, symbol));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -285,7 +285,7 @@ static void defun_setf_symbol_function(void)
 /* (defun symbol-value (symbol) ...) -> object */
 static int function_symbol_value(Execute ptr, addr var)
 {
-	Return(symbol_special_restart(ptr, var, &var));
+	Return(symbol_special_restart_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -319,7 +319,7 @@ static void defun_symbol_value(void)
 /* (defun (setf symbol-value) (object symbol) ...) -> object */
 static int function_setf_symbol_value(Execute ptr, addr value, addr symbol)
 {
-	Return(setf_symbol_value_common(ptr, value, symbol));
+	Return(setf_symbol_value_common_(ptr, value, symbol));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -388,7 +388,7 @@ static void defun_symbol_plist(void)
 /* (defun (setf symbol-plist) (list symbol) ...) -> list */
 static int function_setf_symbol_plist(Execute ptr, addr value, addr symbol)
 {
-	Return(setf_symbol_plist_common(value, symbol));
+	Return(setf_symbol_plist_common_(value, symbol));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -497,7 +497,7 @@ static void defun_symbol_package(void)
  */
 static int function_get(Execute ptr, addr var1, addr var2, addr opt)
 {
-	Return(get_common(var1, var2, opt, &var1));
+	Return(get_common_(var1, var2, opt, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -538,7 +538,7 @@ static void defun_get(void)
 static int function_setf_get(Execute ptr,
 		addr value, addr symbol, addr key, addr ignored)
 {
-	Return(setf_get_common(value, symbol, key));
+	Return(setf_get_common_(value, symbol, key));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -576,7 +576,7 @@ static void defun_setf_get(void)
  */
 static int function_remprop(Execute ptr, addr symbol, addr key)
 {
-	Return(remprop_common(symbol, key, &symbol));
+	Return(remprop_common_(symbol, key, &symbol));
 	setresult_control(ptr, symbol);
 	return 0;
 }
@@ -635,7 +635,7 @@ static void defun_boundp(void)
 /* (defun makunbound (symbol) ...) -> symbol */
 static int function_makunbound(Execute ptr, addr symbol)
 {
-	Return(makunbound_common(ptr, symbol));
+	Return(makunbound_common_(ptr, symbol));
 	setresult_control(ptr, symbol);
 	return 0;
 }
@@ -669,7 +669,7 @@ static void defun_makunbound(void)
 /* (defun set (symbol value) ...) -> value */
 static int function_set(Execute ptr, addr symbol, addr value)
 {
-	Return(set_common(ptr, symbol, value));
+	Return(set_common_(ptr, symbol, value));
 	setresult_control(ptr, value);
 	return 0;
 }

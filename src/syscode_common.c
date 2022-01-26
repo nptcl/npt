@@ -150,21 +150,21 @@ int next_package_iterator_syscode_(Execute ptr, addr pos,
 /* defpackage */
 int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret)
 {
-	return defpackage_execute(ptr, var, rest, ret);
+	return defpackage_execute_(ptr, var, rest, ret);
 }
 
 
 /* do-symbols */
 int do_symbols_syscode(Execute ptr, addr call, addr package)
 {
-	return do_symbols_package(ptr, call, package);
+	return do_symbols_package_(ptr, call, package);
 }
 
 
 /* do-external-symbols */
 int do_external_symbols_syscode(Execute ptr, addr call, addr package)
 {
-	return do_external_symbols_package(ptr, call, package);
+	return do_external_symbols_package_(ptr, call, package);
 }
 
 

@@ -6,11 +6,11 @@
 
 #define getnth_abort _n(getnth_abort)
 #define getnth_ _n(getnth_)
-#define getnth_large _n(getnth_large)
+#define getnth_large_ _n(getnth_large_)
 #define getnth_unsafe _n(getnth_unsafe)
 #define getnth_unbound_unsafe _n(getnth_unbound_unsafe)
 #define getnthcdr_ _n(getnthcdr_)
-#define getnthcdr_large _n(getnthcdr_large)
+#define getnthcdr_large_ _n(getnthcdr_large_)
 #define getnthcdr_unsafe _n(getnthcdr_unsafe)
 #define setnth_ _n(setnth_)
 #define setnth_unsafe _n(setnth_unsafe)
@@ -61,11 +61,11 @@
 /* nth */
 void getnth_abort(addr cons, size_t index, addr *ret);
 int getnth_(addr cons, size_t index, addr *ret);
-int getnth_large(addr cons, addr index, addr *ret);
+int getnth_large_(addr cons, addr index, addr *ret);
 void getnth_unsafe(addr cons, size_t index, addr *ret);
 void getnth_unbound_unsafe(addr cons, size_t index, addr *ret);
 int getnthcdr_(addr cons, size_t index, addr *ret);
-int getnthcdr_large(addr cons, addr index, addr *ret);
+int getnthcdr_large_(addr cons, addr index, addr *ret);
 void getnthcdr_unsafe(addr cons, size_t index, addr *ret);
 int setnth_(addr cons, size_t index, addr value);
 void setnth_unsafe(addr cons, size_t index, addr value);

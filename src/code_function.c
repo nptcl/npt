@@ -251,21 +251,21 @@ int lexical_rem_code(Execute ptr, CodeValue x)
 
 int special_set_code(Execute ptr, CodeValue x)
 {
-	Return(symbol_special_restart(ptr, x.pos, &x.pos));
+	Return(symbol_special_restart_(ptr, x.pos, &x.pos));
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
 int special_push_code(Execute ptr, CodeValue x)
 {
-	Return(symbol_special_restart(ptr, x.pos, &x.pos));
+	Return(symbol_special_restart_(ptr, x.pos, &x.pos));
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
 int special_rem_code(Execute ptr, CodeValue x)
 {
-	return symbol_special_restart(ptr, x.pos, &x.pos);
+	return symbol_special_restart_(ptr, x.pos, &x.pos);
 }
 
 
@@ -522,28 +522,28 @@ int setq_global_code(Execute ptr, CodeValue x)
  */
 int function_set_code(Execute ptr, CodeValue x)
 {
-	Return(function_global_restart(ptr, x.pos, &x.pos));
+	Return(function_global_restart_(ptr, x.pos, &x.pos));
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
 int function_push_code(Execute ptr, CodeValue x)
 {
-	Return(function_global_restart(ptr, x.pos, &x.pos));
+	Return(function_global_restart_(ptr, x.pos, &x.pos));
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
 int setf_set_code(Execute ptr, CodeValue x)
 {
-	Return(setf_global_restart(ptr, x.pos, &x.pos));
+	Return(setf_global_restart_(ptr, x.pos, &x.pos));
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
 int setf_push_code(Execute ptr, CodeValue x)
 {
-	Return(setf_global_restart(ptr, x.pos, &x.pos));
+	Return(setf_global_restart_(ptr, x.pos, &x.pos));
 	pushargs_control(ptr, x.pos);
 	return 0;
 }
@@ -660,7 +660,7 @@ int call_function_code(Execute ptr, CodeValue x)
 
 	GetFunctionSymbol(x.pos, &value);
 	if (value == Unbound) {
-		Return(function_global_restart(ptr, x.pos, &value));
+		Return(function_global_restart_(ptr, x.pos, &value));
 	}
 
 	return execute_control_(ptr, value);
@@ -672,7 +672,7 @@ int call_setf_code(Execute ptr, CodeValue x)
 
 	getsetf_symbol(x.pos, &value);
 	if (value == Unbound) {
-		Return(setf_global_restart(ptr, x.pos, &value));
+		Return(setf_global_restart_(ptr, x.pos, &value));
 	}
 
 	return execute_control_(ptr, value);

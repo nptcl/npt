@@ -35,7 +35,7 @@ static int char_eql_check_common_(
 	}
 	return Result(ret, T);
 }
-#define CharEqlCheckCommon(name, list, ret, call) \
+#define CharEqlCheckCommon_(name, list, ret, call) \
 	char_eql_check_common_(CONSTANT_COMMON_##name, list, ret, call)
 
 static int call_char_eql(unicode a, unicode b)
@@ -43,16 +43,16 @@ static int call_char_eql(unicode a, unicode b)
 	return a == b;
 }
 
-int char_eql_common(addr list, addr *ret)
+int char_eql_common_(addr list, addr *ret)
 {
-	return CharEqlCheckCommon(CHAR_EQL, list, ret, call_char_eql);
+	return CharEqlCheckCommon_(CHAR_EQL, list, ret, call_char_eql);
 }
 
 
 /*
  *  char/=
  */
-int char_not_eql_common(addr list, addr *ret)
+int char_not_eql_common_(addr list, addr *ret)
 {
 	addr left, right, loop;
 	unicode a, b;
@@ -88,9 +88,9 @@ static int call_char_less(unicode a, unicode b)
 	return a < b;
 }
 
-int char_less_common(addr list, addr *ret)
+int char_less_common_(addr list, addr *ret)
 {
-	return CharEqlCheckCommon(CHAR_LESS, list, ret, call_char_less);
+	return CharEqlCheckCommon_(CHAR_LESS, list, ret, call_char_less);
 }
 
 
@@ -102,9 +102,9 @@ static int call_char_greater(unicode a, unicode b)
 	return a > b;
 }
 
-int char_greater_common(addr list, addr *ret)
+int char_greater_common_(addr list, addr *ret)
 {
-	return CharEqlCheckCommon(CHAR_GREATER, list, ret, call_char_greater);
+	return CharEqlCheckCommon_(CHAR_GREATER, list, ret, call_char_greater);
 }
 
 
@@ -116,9 +116,9 @@ static int call_char_less_equal(unicode a, unicode b)
 	return a <= b;
 }
 
-int char_less_equal_common(addr list, addr *ret)
+int char_less_equal_common_(addr list, addr *ret)
 {
-	return CharEqlCheckCommon(CHAR_LESS_EQUAL, list, ret, call_char_less_equal);
+	return CharEqlCheckCommon_(CHAR_LESS_EQUAL, list, ret, call_char_less_equal);
 }
 
 
@@ -130,9 +130,9 @@ static int call_char_greater_equal(unicode a, unicode b)
 	return a >= b;
 }
 
-int char_greater_equal_common(addr list, addr *ret)
+int char_greater_equal_common_(addr list, addr *ret)
 {
-	return CharEqlCheckCommon(CHAR_GREATER_EQUAL, list, ret, call_char_greater_equal);
+	return CharEqlCheckCommon_(CHAR_GREATER_EQUAL, list, ret, call_char_greater_equal);
 }
 
 
@@ -165,19 +165,19 @@ static int char_equal_check_common_(
 	}
 	return Result(ret, T);
 }
-#define CharEqualCheckCommon(name, list, ret, call) \
+#define CharEqualCheckCommon_(name, list, ret, call) \
 	char_equal_check_common_(CONSTANT_COMMON_##name, list, ret, call)
 
-int char_equal_common(addr list, addr *ret)
+int char_equal_common_(addr list, addr *ret)
 {
-	return CharEqualCheckCommon(CHAR_EQUAL, list, ret, call_char_eql);
+	return CharEqualCheckCommon_(CHAR_EQUAL, list, ret, call_char_eql);
 }
 
 
 /*
  *  char-not-equal
  */
-int char_not_equal_common(addr list, addr *ret)
+int char_not_equal_common_(addr list, addr *ret)
 {
 	addr left, right, loop;
 	unicode a, b;
@@ -209,43 +209,43 @@ int char_not_equal_common(addr list, addr *ret)
 /*
  *  char-lessp
  */
-int char_lessp_common(addr list, addr *ret)
+int char_lessp_common_(addr list, addr *ret)
 {
-	return CharEqualCheckCommon(CHAR_LESSP, list, ret, call_char_less);
+	return CharEqualCheckCommon_(CHAR_LESSP, list, ret, call_char_less);
 }
 
 
 /*
  *  char-greaterp
  */
-int char_greaterp_common(addr list, addr *ret)
+int char_greaterp_common_(addr list, addr *ret)
 {
-	return CharEqualCheckCommon(CHAR_GREATERP, list, ret, call_char_greater);
+	return CharEqualCheckCommon_(CHAR_GREATERP, list, ret, call_char_greater);
 }
 
 
 /*
  *  char-not-lessp
  */
-int char_not_lessp_common(addr list, addr *ret)
+int char_not_lessp_common_(addr list, addr *ret)
 {
-	return CharEqualCheckCommon(CHAR_NOT_LESSP, list, ret, call_char_greater_equal);
+	return CharEqualCheckCommon_(CHAR_NOT_LESSP, list, ret, call_char_greater_equal);
 }
 
 
 /*
  *  char-not-greaterp
  */
-int char_not_greaterp_common(addr list, addr *ret)
+int char_not_greaterp_common_(addr list, addr *ret)
 {
-	return CharEqualCheckCommon(CHAR_NOT_GREATERP, list, ret, call_char_less_equal);
+	return CharEqualCheckCommon_(CHAR_NOT_GREATERP, list, ret, call_char_less_equal);
 }
 
 
 /*
  *  character
  */
-static int character_common_error(addr var)
+static int character_common_error_(addr var)
 {
 	addr pos, size;
 
@@ -256,7 +256,7 @@ static int character_common_error(addr var)
 			"The length of symbol ~S name must be 1.", var, NULL);
 }
 
-int character_common(addr var, addr *ret)
+int character_common_(addr var, addr *ret)
 {
 	unicode c;
 	size_t size;
@@ -267,7 +267,7 @@ int character_common(addr var, addr *ret)
 		string_length(var, &size);
 		if (size != 1) {
 			*ret = Nil;
-			return character_common_error(var);
+			return character_common_error_(var);
 		}
 		Return(string_getc_(var, 0, &c));
 		character_heap(&var, c);
@@ -276,7 +276,7 @@ int character_common(addr var, addr *ret)
 		string_length(var, &size);
 		if (size != 1) {
 			*ret = Nil;
-			return character_common_error(var);
+			return character_common_error_(var);
 		}
 		Return(string_getc_(var, 0, &c));
 		character_heap(&var, c);
