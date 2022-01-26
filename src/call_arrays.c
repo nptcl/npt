@@ -1,6 +1,7 @@
 #include "array_access.h"
 #include "array_adjust.h"
 #include "array_make.h"
+#include "array_sequence.h"
 #include "array_vector.h"
 #include "bit.h"
 #include "call_arrays.h"
@@ -16,7 +17,7 @@
 /*
  *  make-array
  */
-int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
+int make_array_common_(Execute ptr, addr var, addr rest, addr *ret)
 {
 	addr type, ielem, icont, adj, fill, dto, off;
 
@@ -33,7 +34,7 @@ int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_TO, &dto))
 		dto = Nil;
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off))
-		off = fixnumh(0);
+		fixnum_heap(&off, 0);
 	Return(parse_type_(ptr, &type, type, Nil));
 	return array_make_array_(ret, var, type, ielem, icont, adj, fill, dto, off);
 }
@@ -42,7 +43,7 @@ int make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 /*
  *  adjust-array
  */
-int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
+int adjust_array_common_(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
 {
 	addr type, ielem, icont, fill, dto, off;
 
@@ -57,7 +58,7 @@ int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_TO, &dto))
 		dto = Nil;
 	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off))
-		off = fixnumh(0);
+		fixnum_heap(&off, 0);
 	if (type != Unbound) {
 		Return(parse_type_(ptr, &type, type, Nil));
 	}
@@ -69,7 +70,7 @@ int adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *ret)
 /*
  *  adjustable-array-p
  */
-int adjustable_array_p_common(addr var, int *ret)
+int adjustable_array_p_common_(addr var, int *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -90,7 +91,7 @@ int adjustable_array_p_common(addr var, int *ret)
 /*
  *  aref
  */
-int aref_common(addr var, addr rest, addr *ret)
+int aref_common_(addr var, addr rest, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -115,7 +116,7 @@ int aref_common(addr var, addr rest, addr *ret)
 /*
  *  setf-aref
  */
-int setf_aref_common(addr value, addr var, addr rest)
+int setf_aref_common_(addr value, addr var, addr rest)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -139,7 +140,7 @@ int setf_aref_common(addr value, addr var, addr rest)
 /*
  *  array_dimension
  */
-static int array_array_dimension_common(addr array, addr axis, addr *ret)
+static int array_array_dimension_common_(addr array, addr axis, addr *ret)
 {
 	int check;
 	struct array_struct *str;
@@ -168,13 +169,13 @@ static int array_array_dimension_common(addr array, addr axis, addr *ret)
 	return 0;
 }
 
-int array_dimension_common(addr var, addr axis, addr *ret)
+int array_dimension_common_(addr var, addr axis, addr *ret)
 {
 	size_t size;
 
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
-			return array_array_dimension_common(var, axis, ret);
+			return array_array_dimension_common_(var, axis, ret);
 
 		case LISPTYPE_VECTOR:
 			lenarray(var, &size);
@@ -218,7 +219,7 @@ static void array_array_dimensions_common(addr array, addr *ret)
 	*ret = root;
 }
 
-int array_dimensions_common(addr var, addr *ret)
+int array_dimensions_common_(addr var, addr *ret)
 {
 	size_t size;
 
@@ -254,7 +255,7 @@ int array_dimensions_common(addr var, addr *ret)
 /*
  *  array-element-type
  */
-int array_element_type_common(addr var, addr *ret)
+int array_element_type_common_(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -284,7 +285,7 @@ int array_element_type_common(addr var, addr *ret)
 /*
  *  array-has-fill-pointer-p
  */
-int array_has_fill_pointer_p_common(addr var, int *ret)
+int array_has_fill_pointer_p_common_(addr var, int *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
@@ -317,11 +318,11 @@ static void array_array_displacement_common(addr array, addr *displaced, addr *o
 	}
 	else {
 		*displaced = Nil;
-		*offset = fixnumh(0);
+		fixnum_heap(offset, 0);
 	}
 }
 
-int array_displacement_common(addr pos, addr *ret, addr *offset)
+int array_displacement_common_(addr pos, addr *ret, addr *offset)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
@@ -347,7 +348,7 @@ int array_displacement_common(addr pos, addr *ret, addr *offset)
 /*
  *  array-in-bounds-p
  */
-static int array_array_in_bounds_p_common(addr array, addr rest, int *ret)
+static int array_array_in_bounds_p_common_(addr array, addr rest, int *ret)
 {
 	int value;
 	struct array_struct *str;
@@ -363,9 +364,8 @@ static int array_array_in_bounds_p_common(addr array, addr rest, int *ret)
 	for (i = 0; i < size; i++) {
 		if (list == Nil)
 			return fmte_("The subscripts ~S is too few arguments.", rest, NULL);
-		if (! consp(list))
+		if (! consp_getcons(list, &pos, &list))
 			return fmte_("Invalid subscripts arguments ~S.", rest, NULL);
-		GetCons(list, &pos, &list);
 		if (! integerp(pos))
 			return fmte_("The subscript ~S must be integer type.", pos, NULL);
 		if (GetIndex_integer(pos, &check)) {
@@ -385,14 +385,14 @@ static int array_array_in_bounds_p_common(addr array, addr rest, int *ret)
 	return Result(ret, value);
 }
 
-int array_in_bounds_p_common(addr array, addr rest, int *ret)
+int array_in_bounds_p_common_(addr array, addr rest, int *ret)
 {
 	size_t size;
 
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
 			*ret = 0;
-			return array_array_in_bounds_p_common(array, rest, ret);
+			return array_array_in_bounds_p_common_(array, rest, ret);
 
 		case LISPTYPE_VECTOR:
 			lenarray(array, &size);
@@ -416,7 +416,7 @@ int array_in_bounds_p_common(addr array, addr rest, int *ret)
 /*
  *  array-rank
  */
-int array_rank_common(addr pos, addr *ret)
+int array_rank_common_(addr pos, addr *ret)
 {
 	size_t size;
 
@@ -454,7 +454,7 @@ static int array_array_row_major_index_common_(addr array, addr rest, addr *ret)
 	return 0;
 }
 
-int array_row_major_index_common(addr array, addr rest, addr *ret)
+int array_row_major_index_common_(addr array, addr rest, addr *ret)
 {
 	size_t size;
 
@@ -484,7 +484,7 @@ int array_row_major_index_common(addr array, addr rest, addr *ret)
 /*
  *  array-total-size
  */
-int array_total_size_common(addr array, addr *ret)
+int array_total_size_common_(addr array, addr *ret)
 {
 	size_t size;
 
@@ -535,7 +535,7 @@ int arrayp_common(addr var)
 /*
  *  fill-pointer
  */
-int fill_pointer_common(Execute ptr, addr array, addr *ret)
+int fill_pointer_common_(Execute ptr, addr array, addr *ret)
 {
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
@@ -555,7 +555,7 @@ int fill_pointer_common(Execute ptr, addr array, addr *ret)
 	}
 }
 
-int setf_fill_pointer_common(Execute ptr, addr value, addr array)
+int setf_fill_pointer_common_(Execute ptr, addr value, addr array)
 {
 	int check;
 
@@ -580,7 +580,7 @@ int setf_fill_pointer_common(Execute ptr, addr value, addr array)
 /*
  *  row-major-aref
  */
-int row_major_aref_common(addr array, addr index, addr *ret)
+int row_major_aref_common_(addr array, addr index, addr *ret)
 {
 	size_t size;
 
@@ -605,7 +605,7 @@ int row_major_aref_common(addr array, addr index, addr *ret)
 	}
 }
 
-int setf_row_major_aref_common(addr value, addr array, addr index)
+int setf_row_major_aref_common_(addr value, addr array, addr index)
 {
 	size_t size;
 
@@ -651,7 +651,7 @@ int simple_vector_p_common(addr var)
 /*
  *  svref
  */
-int svref_common(addr pos, addr index, addr *ret)
+int svref_common_(addr pos, addr index, addr *ret)
 {
 	size_t size;
 
@@ -670,7 +670,7 @@ int svref_common(addr pos, addr index, addr *ret)
 	}
 }
 
-int setf_svref_common(addr value, addr pos, addr index)
+int setf_svref_common_(addr value, addr pos, addr index)
 {
 	size_t size;
 
@@ -712,7 +712,7 @@ int vectorp_common(addr var)
 /*
  *  bit
  */
-int bit_common(addr pos, addr rest, addr *ret)
+int bit_common_(addr pos, addr rest, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
@@ -727,7 +727,7 @@ int bit_common(addr pos, addr rest, addr *ret)
 	}
 }
 
-int setf_bit_common(addr value, addr pos, addr rest)
+int setf_bit_common_(addr value, addr pos, addr rest)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_BITVECTOR:
@@ -775,5 +775,176 @@ int simple_bit_vector_p_common(addr var)
 		default:
 			return 0;
 	}
+}
+
+
+/*
+ *  bit-and
+ */
+static fixed bitcalc_and_common(fixed a, fixed b)
+{
+	return a & b;
+}
+
+int bit_and_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_and_common);
+}
+
+
+/*
+ *  bit-andc1
+ */
+static fixed bitcalc_andc1_common(fixed a, fixed b)
+{
+	return (~a) & b;
+}
+
+int bit_andc1_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_andc1_common);
+}
+
+
+/*
+ *  bit-andc2
+ */
+static fixed bitcalc_andc2_common(fixed a, fixed b)
+{
+	return a & (~b);
+}
+
+int bit_andc2_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_andc2_common);
+}
+
+
+/*
+ *  bit-eqv
+ */
+static fixed bitcalc_eqv_common(fixed a, fixed b)
+{
+	return ~(a ^ b);
+}
+
+int bit_eqv_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_eqv_common);
+}
+
+
+/*
+ *  bit-ior
+ */
+static fixed bitcalc_ior_common(fixed a, fixed b)
+{
+	return a | b;
+}
+
+int bit_ior_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_ior_common);
+}
+
+
+/*
+ *  bit-nand
+ */
+static fixed bitcalc_nand_common(fixed a, fixed b)
+{
+	return ~(a & b);
+}
+
+int bit_nand_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_nand_common);
+}
+
+
+/*
+ *  bit-nor
+ */
+static fixed bitcalc_nor_common(fixed a, fixed b)
+{
+	return ~(a | b);
+}
+
+int bit_nor_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_nor_common);
+}
+
+
+/*
+ *  bit-orc1
+ */
+static fixed bitcalc_orc1_common(fixed a, fixed b)
+{
+	return (~a) | b;
+}
+
+int bit_orc1_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_orc1_common);
+}
+
+
+/*
+ *  bit-orc2
+ */
+static fixed bitcalc_orc2_common(fixed a, fixed b)
+{
+	return a | (~b);
+}
+
+int bit_orc2_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_orc2_common);
+}
+
+
+/*
+ *  bit-xor
+ */
+static fixed bitcalc_xor_common(fixed a, fixed b)
+{
+	return a ^ b;
+}
+
+int bit_xor_common_(addr x, addr y, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitcalc_(ret, x, y, opt, bitcalc_xor_common);
+}
+
+
+/*
+ *  bit-not
+ */
+int bit_not_common_(addr x, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		opt = Nil;
+	return array_bitnot_(ret, x, opt);
 }
 

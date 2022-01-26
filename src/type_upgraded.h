@@ -9,7 +9,7 @@
 #define upgraded_array_object _n(upgraded_array_object)
 #define upgraded_array_type_ _n(upgraded_array_type_)
 #define upgraded_array_const _n(upgraded_array_const)
-#define upgraded_array_common _n(upgraded_array_common)
+#define upgraded_array_common_ _n(upgraded_array_common_)
 #define upgraded_array_t_local _n(upgraded_array_t_local)
 #define upgraded_array_bit_local _n(upgraded_array_bit_local)
 #define upgraded_array_character_local _n(upgraded_array_character_local)
@@ -31,7 +31,7 @@ int upgraded_array_type_(addr type, addr *ret);
 /* value -> object */
 void upgraded_array_const(enum ARRAY_TYPE type, int size, addr *ret);
 /* object -> upgraded -> object */
-int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret);
+int upgraded_array_common_(Execute ptr, addr env, addr pos, addr *ret);
 /* make local */
 void upgraded_array_t_local(LocalRoot local, addr *ret);
 void upgraded_array_bit_local(LocalRoot local, addr *ret);

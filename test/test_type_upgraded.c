@@ -502,13 +502,13 @@ static int test_upgraded_array_common(void)
 	addr x, y;
 
 	x = readr_debug("(integer 10 20)");
-	check = upgraded_array_common(Execute_Thread, Nil, x, &x);
+	check = upgraded_array_common_(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_array_common1");
 	y = readr_debug("(unsigned-byte 8)");
 	test(equal_debug(x, y), "upgraded_array_common2");
 
 	x = readr_debug("readtable");
-	check = upgraded_array_common(Execute_Thread, Nil, x, &x);
+	check = upgraded_array_common_(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_array_common3");
 	test(x == T,"upgraded_array_common4");
 

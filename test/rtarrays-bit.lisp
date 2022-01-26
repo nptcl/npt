@@ -600,7 +600,7 @@
 
 (deftest bit-eqv.1
   (bit-eqv #*1100 #*1010)
-  #*0110)
+  #*1001)
 
 (deftest bit-ior.1
   (bit-ior #*11000001 #*01110011)

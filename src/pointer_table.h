@@ -791,6 +791,7 @@ enum pointer_index {
 	p_defun_bit_nor,
 	p_defun_bit_orc1,
 	p_defun_bit_orc2,
+	p_defun_bit_xor,
 	p_defun_bit_not,
 	/* common-strings */
 	p_defun_stringp,

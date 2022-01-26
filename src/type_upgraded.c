@@ -404,7 +404,7 @@ void upgraded_array_const(enum ARRAY_TYPE type, int size, addr *ret)
 	}
 }
 
-int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
+int upgraded_array_common_(Execute ptr, addr env, addr pos, addr *ret)
 {
 	int size;
 	enum ARRAY_TYPE type;
