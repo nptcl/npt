@@ -59,7 +59,7 @@ static void defun_simple_string_p(void)
  */
 static int function_char(Execute ptr, addr str, addr pos)
 {
-	Return(char_common(str, pos, &str));
+	Return(char_common_(str, pos, &str));
 	setresult_control(ptr, str);
 	return 0;
 }
@@ -125,7 +125,7 @@ static void defun_schar(void)
 /* (defun (setf char) (character string index) ...) -> character */
 static int function_setf_char(Execute ptr, addr value, addr pos, addr index)
 {
-	Return(setf_char_common(value, pos, index));
+	Return(setf_char_common_(value, pos, index));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -192,7 +192,7 @@ static void defun_setf_schar(void)
  */
 static int function_string(Execute ptr, addr var)
 {
-	Return(string_common(var, &var));
+	Return(string_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -229,7 +229,7 @@ static void defun_string(void)
  */
 static int function_string_upcase(Execute ptr, addr var, addr rest)
 {
-	Return(string_upcase_common(var, rest, &var));
+	Return(string_upcase_common_(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -256,7 +256,7 @@ static void defun_string_upcase(void)
  */
 static int function_string_downcase(Execute ptr, addr var, addr rest)
 {
-	Return(string_downcase_common(var, rest, &var));
+	Return(string_downcase_common_(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -283,7 +283,7 @@ static void defun_string_downcase(void)
  */
 static int function_string_capitalize(Execute ptr, addr var, addr rest)
 {
-	Return(string_capitalize_common(var, rest, &var));
+	Return(string_capitalize_common_(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -310,7 +310,7 @@ static void defun_string_capitalize(void)
  */
 static int function_nstring_upcase(Execute ptr, addr var, addr rest)
 {
-	Return(nstring_upcase_common(var, rest));
+	Return(nstring_upcase_common_(var, rest));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -337,7 +337,7 @@ static void defun_nstring_upcase(void)
  */
 static int function_nstring_downcase(Execute ptr, addr var, addr rest)
 {
-	Return(nstring_downcase_common(var, rest));
+	Return(nstring_downcase_common_(var, rest));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -364,7 +364,7 @@ static void defun_nstring_downcase(void)
  */
 static int function_nstring_capitalize(Execute ptr, addr var, addr rest)
 {
-	Return(nstring_capitalize_common(var, rest));
+	Return(nstring_capitalize_common_(var, rest));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -388,7 +388,7 @@ static void defun_nstring_capitalize(void)
 /* (defun string-trim (sequence string) ...) -> string */
 static int function_string_trim(Execute ptr, addr trim, addr pos)
 {
-	Return(string_trim_common(trim, pos, &pos));
+	Return(string_trim_common_(trim, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -410,7 +410,7 @@ static void defun_string_trim(void)
 
 static int function_string_left_trim(Execute ptr, addr trim, addr pos)
 {
-	Return(string_left_trim_common(trim, pos, &pos));
+	Return(string_left_trim_common_(trim, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -432,7 +432,7 @@ static void defun_string_left_trim(void)
 
 static int function_string_right_trim(Execute ptr, addr trim, addr pos)
 {
-	Return(string_right_trim_common(trim, pos, &pos));
+	Return(string_right_trim_common_(trim, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -465,7 +465,7 @@ static void defun_string_right_trim(void)
  */
 static int function_string_eql(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_eql_common(var1, var2, rest, &var1));
+	Return(string_eql_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -489,7 +489,7 @@ static void defun_string_eql(void)
 /* (defun string/= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
 static int function_string_not_eql(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_not_eql_common(var1, var2, rest, &var1));
+	Return(string_not_eql_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -513,7 +513,7 @@ static void defun_string_not_eql(void)
 /* (defun string< (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
 static int function_string_less(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_less_common(var1, var2, rest, &var1));
+	Return(string_less_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -537,7 +537,7 @@ static void defun_string_less(void)
 /* (defun string> (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
 static int function_string_greater(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_greater_common(var1, var2, rest, &var1));
+	Return(string_greater_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -561,7 +561,7 @@ static void defun_string_greater(void)
 /* (defun string<= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
 static int function_string_less_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_less_equal_common(var1, var2, rest, &var1));
+	Return(string_less_equal_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -585,7 +585,7 @@ static void defun_string_less_equal(void)
 /* (defun string>= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
 static int function_string_greater_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_greater_equal_common(var1, var2, rest, &var1));
+	Return(string_greater_equal_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -611,7 +611,7 @@ static void defun_string_greater_equal(void)
  */
 static int function_string_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_equal_common(var1, var2, rest, &var1));
+	Return(string_equal_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -637,7 +637,7 @@ static void defun_string_equal(void)
  */
 static int function_string_not_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_not_equal_common(var1, var2, rest, &var1));
+	Return(string_not_equal_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -663,7 +663,7 @@ static void defun_string_not_equal(void)
  */
 static int function_string_lessp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_lessp_common(var1, var2, rest, &var1));
+	Return(string_lessp_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -689,7 +689,7 @@ static void defun_string_lessp(void)
  */
 static int function_string_greaterp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_greaterp_common(var1, var2, rest, &var1));
+	Return(string_greaterp_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -715,7 +715,7 @@ static void defun_string_greaterp(void)
  */
 static int function_string_not_greaterp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_not_greaterp_common(var1, var2, rest, &var1));
+	Return(string_not_greaterp_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -739,7 +739,7 @@ static void defun_string_not_greaterp(void)
 /* (defun string>= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
 static int function_string_not_lessp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	Return(string_not_lessp_common(var1, var2, rest, &var1));
+	Return(string_not_lessp_common_(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -768,7 +768,7 @@ static void defun_string_not_lessp(void)
  */
 static int function_make_string(Execute ptr, addr var, addr rest)
 {
-	Return(make_string_common(ptr, var, rest, &var));
+	Return(make_string_common_(ptr, var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

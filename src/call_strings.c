@@ -41,7 +41,7 @@ void simple_string_p_common(addr var, addr *ret)
 /*
  *  char
  */
-int char_common(addr str, addr pos, addr *ret)
+int char_common_(addr str, addr pos, addr *ret)
 {
 	unicode c;
 	size_t index, size;
@@ -75,7 +75,7 @@ error:
 /*
  *  (setf char)
  */
-int setf_char_common(addr value, addr str, addr pos)
+int setf_char_common_(addr value, addr str, addr pos)
 {
 	size_t size, index;
 	unicode c;
@@ -111,7 +111,7 @@ error:
 /*
  *  string
  */
-int string_common(addr var, addr *ret)
+int string_common_(addr var, addr *ret)
 {
 	int check;
 
@@ -126,7 +126,7 @@ int string_common(addr var, addr *ret)
 /*
  *  string-upcase
  */
-static int string_case_common(addr var, addr rest, addr *ret,
+static int string_case_common_(addr var, addr rest, addr *ret,
 		int (*call)(size_t, size_t, addr, addr, size_t *))
 {
 	int check;
@@ -158,7 +158,7 @@ static int string_case_common(addr var, addr rest, addr *ret,
 	return Result(ret, pos);
 }
 
-static int string_upcase_call_common(
+static int string_upcase_call_common_(
 		size_t i, size_t end, addr var, addr pos, size_t *ret)
 {
 	unicode c;
@@ -171,16 +171,16 @@ static int string_upcase_call_common(
 	return Result(ret, i);
 }
 
-int string_upcase_common(addr var, addr rest, addr *ret)
+int string_upcase_common_(addr var, addr rest, addr *ret)
 {
-	return string_case_common(var, rest, ret, string_upcase_call_common);
+	return string_case_common_(var, rest, ret, string_upcase_call_common_);
 }
 
 
 /*
  *  string-downcase
  */
-static int string_downcase_call_common(
+static int string_downcase_call_common_(
 		size_t i, size_t end, addr var, addr pos, size_t *ret)
 {
 	unicode c;
@@ -193,16 +193,16 @@ static int string_downcase_call_common(
 	return Result(ret, i);
 }
 
-int string_downcase_common(addr var, addr rest, addr *ret)
+int string_downcase_common_(addr var, addr rest, addr *ret)
 {
-	return string_case_common(var, rest, ret, string_downcase_call_common);
+	return string_case_common_(var, rest, ret, string_downcase_call_common_);
 }
 
 
 /*
  *  string-capitalize
  */
-static int string_capitalize_call_common(
+static int string_capitalize_call_common_(
 		size_t i, size_t end, addr var, addr pos, size_t *ret)
 {
 	int alphabet, mode;
@@ -242,16 +242,16 @@ static int string_capitalize_call_common(
 	return Result(ret, i);
 }
 
-int string_capitalize_common(addr var, addr rest, addr *ret)
+int string_capitalize_common_(addr var, addr rest, addr *ret)
 {
-	return string_case_common(var, rest, ret, string_capitalize_call_common);
+	return string_case_common_(var, rest, ret, string_capitalize_call_common_);
 }
 
 
 /*
  *  nstring-upcase
  */
-static int nstring_case_common(addr var, addr rest,
+static int nstring_case_common_(addr var, addr rest,
 		int (*call)(size_t, size_t, addr, addr, size_t *))
 {
 	size_t start, end, size;
@@ -263,34 +263,34 @@ static int nstring_case_common(addr var, addr rest,
 	return (*call)(start, end, var, var, &size);
 }
 
-int nstring_upcase_common(addr var, addr rest)
+int nstring_upcase_common_(addr var, addr rest)
 {
-	return nstring_case_common(var, rest, string_upcase_call_common);
+	return nstring_case_common_(var, rest, string_upcase_call_common_);
 }
 
 
 /*
  *  nstring-downcase
  */
-int nstring_downcase_common(addr var, addr rest)
+int nstring_downcase_common_(addr var, addr rest)
 {
-	return nstring_case_common(var, rest, string_downcase_call_common);
+	return nstring_case_common_(var, rest, string_downcase_call_common_);
 }
 
 
 /*
  *  nstring-capitalize
  */
-int nstring_capitalize_common(addr var, addr rest)
+int nstring_capitalize_common_(addr var, addr rest)
 {
-	return nstring_case_common(var, rest, string_capitalize_call_common);
+	return nstring_case_common_(var, rest, string_capitalize_call_common_);
 }
 
 
 /*
  *  string-trim
  */
-static int string_trim_string_common(addr string, unicode c, int *ret)
+static int string_trim_string_common_(addr string, unicode c, int *ret)
 {
 	unicode check;
 	size_t i, size;
@@ -305,7 +305,7 @@ static int string_trim_string_common(addr string, unicode c, int *ret)
 	return Result(ret, 0);
 }
 
-static int string_trim_list_common(addr list, unicode c, int *ret)
+static int string_trim_list_common_(addr list, unicode c, int *ret)
 {
 	unicode check;
 	addr pos;
@@ -322,7 +322,7 @@ static int string_trim_list_common(addr list, unicode c, int *ret)
 	return Result(ret, 0);
 }
 
-static int string_trim_vector_common(addr vector, unicode c, int *ret)
+static int string_trim_vector_common_(addr vector, unicode c, int *ret)
 {
 	unicode check;
 	addr pos;
@@ -341,13 +341,13 @@ static int string_trim_vector_common(addr vector, unicode c, int *ret)
 	return Result(ret, 0);
 }
 
-static int string_trim_array_common(addr pos, unicode c, int *ret)
+static int string_trim_array_common_(addr pos, unicode c, int *ret)
 {
 	unicode check;
 	size_t size, i;
 
 	if (array_stringp(pos))
-		return string_trim_string_common(pos, c, ret);
+		return string_trim_string_common_(pos, c, ret);
 	if (! array_vector_p(pos))
 		return TypeError_(pos, SEQUENCE);
 	Return(array_get_vector_length_(pos, 1, &size));
@@ -360,30 +360,30 @@ static int string_trim_array_common(addr pos, unicode c, int *ret)
 	return Result(ret, 0);
 }
 
-static int string_trim_sequence_common(addr seq, unicode c, int *ret)
+static int string_trim_sequence_common_(addr seq, unicode c, int *ret)
 {
 	switch (GetType(seq)) {
 		case LISPTYPE_NIL:
 			return Result(ret, 0);
 
 		case LISPTYPE_CONS:
-			return string_trim_list_common(seq, c, ret);
+			return string_trim_list_common_(seq, c, ret);
 
 		case LISPTYPE_STRING:
-			return string_trim_string_common(seq, c, ret);
+			return string_trim_string_common_(seq, c, ret);
 
 		case LISPTYPE_VECTOR:
-			return string_trim_vector_common(seq, c, ret);
+			return string_trim_vector_common_(seq, c, ret);
 
 		case LISPTYPE_ARRAY:
-			return string_trim_array_common(seq, c, ret);
+			return string_trim_array_common_(seq, c, ret);
 
 		default:
 			return TypeError_(seq, SEQUENCE);
 	}
 }
 
-static int string_trim_start_common(addr seq, addr var, size_t *start, size_t end)
+static int string_trim_start_common_(addr seq, addr var, size_t *start, size_t end)
 {
 	int check;
 	unicode c;
@@ -391,7 +391,7 @@ static int string_trim_start_common(addr seq, addr var, size_t *start, size_t en
 
 	for (i = *start; i < end; i++) {
 		Return(string_getc_(var, i, &c));
-		Return(string_trim_sequence_common(seq, c, &check));
+		Return(string_trim_sequence_common_(seq, c, &check));
 		if (! check)
 			break;
 	}
@@ -399,7 +399,7 @@ static int string_trim_start_common(addr seq, addr var, size_t *start, size_t en
 	return Result(start, i);
 }
 
-static int string_trim_end_common(addr seq, addr var, size_t start, size_t *end)
+static int string_trim_end_common_(addr seq, addr var, size_t start, size_t *end)
 {
 	int check;
 	unicode c;
@@ -407,7 +407,7 @@ static int string_trim_end_common(addr seq, addr var, size_t start, size_t *end)
 
 	for (i = *end; start < i; i--) {
 		Return(string_getc_(var, i - 1, &c));
-		Return(string_trim_sequence_common(seq, c, &check));
+		Return(string_trim_sequence_common_(seq, c, &check));
 		if (! check)
 			break;
 	}
@@ -415,7 +415,7 @@ static int string_trim_end_common(addr seq, addr var, size_t start, size_t *end)
 	return Result(end, i);
 }
 
-int string_trim_common(addr trim, addr pos, addr *ret)
+int string_trim_common_(addr trim, addr pos, addr *ret)
 {
 	int check;
 	unicode c;
@@ -426,10 +426,10 @@ int string_trim_common(addr trim, addr pos, addr *ret)
 		return TypeError_(pos, STRING);
 	start = 0;
 	string_length(pos, &end);
-	Return(string_trim_start_common(trim, pos, &start, end));
+	Return(string_trim_start_common_(trim, pos, &start, end));
 	if (end <= start)
 		goto null_string;
-	Return(string_trim_end_common(trim, pos, start, &end));
+	Return(string_trim_end_common_(trim, pos, start, &end));
 	if (end <= start)
 		goto null_string;
 	/* new string */
@@ -450,7 +450,7 @@ null_string:
 /*
  *  string-left-trim
  */
-int string_left_trim_common(addr trim, addr pos, addr *ret)
+int string_left_trim_common_(addr trim, addr pos, addr *ret)
 {
 	int check;
 	unicode c;
@@ -461,7 +461,7 @@ int string_left_trim_common(addr trim, addr pos, addr *ret)
 		return TypeError_(pos, STRING);
 	start = 0;
 	string_length(pos, &end);
-	Return(string_trim_start_common(trim, pos, &start, end));
+	Return(string_trim_start_common_(trim, pos, &start, end));
 	if (end <= start)
 		goto null_string;
 	/* new string */
@@ -482,7 +482,7 @@ null_string:
 /*
  *  string-right-trim
  */
-int string_right_trim_common(addr trim, addr pos, addr *ret)
+int string_right_trim_common_(addr trim, addr pos, addr *ret)
 {
 	int check;
 	unicode c;
@@ -493,7 +493,7 @@ int string_right_trim_common(addr trim, addr pos, addr *ret)
 		return TypeError_(pos, STRING);
 	start = 0;
 	string_length(pos, &end);
-	Return(string_trim_end_common(trim, pos, start, &end));
+	Return(string_trim_end_common_(trim, pos, start, &end));
 	if (end <= start)
 		goto null_string;
 	/* new string */
@@ -514,7 +514,7 @@ null_string:
 /*
  *  string=
  */
-int string_eql_common(addr var1, addr var2, addr rest, addr *ret)
+int string_eql_common_(addr var1, addr var2, addr rest, addr *ret)
 {
 	int check;
 	size_t size1, size2, start1, start2, end1, end2;
@@ -549,7 +549,7 @@ int string_eql_common(addr var1, addr var2, addr rest, addr *ret)
 /*
  *  string/=
  */
-static int string_call_common(addr var1, addr var2, addr rest, addr *ret,
+static int string_call_common_(addr var1, addr var2, addr rest, addr *ret,
 		int (*callu)(unicode, unicode),
 		int (*calli)(size_t, size_t))
 {
@@ -599,10 +599,11 @@ static int string_not_equal2_common(size_t a, size_t b)
 {
 	return a != b;
 }
-int string_not_eql_common(addr var1, addr var2, addr rest, addr *ret)
+int string_not_eql_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_call_common(var1, var2, rest, ret,
-			string_not_equal1_common, string_not_equal2_common);
+	return string_call_common_(var1, var2, rest, ret,
+			string_not_equal1_common,
+			string_not_equal2_common);
 }
 
 
@@ -617,10 +618,11 @@ static int string_less2_common(size_t a, size_t b)
 {
 	return a < b;
 }
-int string_less_common(addr var1, addr var2, addr rest, addr *ret)
+int string_less_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_call_common(var1, var2, rest, ret,
-			string_less1_common, string_less2_common);
+	return string_call_common_(var1, var2, rest, ret,
+			string_less1_common,
+			string_less2_common);
 }
 
 
@@ -635,10 +637,11 @@ static int string_greater2_common(size_t a, size_t b)
 {
 	return a > b;
 }
-int string_greater_common(addr var1, addr var2, addr rest, addr *ret)
+int string_greater_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_call_common(var1, var2, rest, ret,
-			string_greater1_common, string_greater2_common);
+	return string_call_common_(var1, var2, rest, ret,
+			string_greater1_common,
+			string_greater2_common);
 }
 
 
@@ -653,10 +656,11 @@ static int string_less_equal2_common(size_t a, size_t b)
 {
 	return a <= b;
 }
-int string_less_equal_common(addr var1, addr var2, addr rest, addr *ret)
+int string_less_equal_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_call_common(var1, var2, rest, ret,
-			string_less_equal1_common, string_less_equal2_common);
+	return string_call_common_(var1, var2, rest, ret,
+			string_less_equal1_common,
+			string_less_equal2_common);
 }
 
 
@@ -671,17 +675,18 @@ static int string_greater_equal2_common(size_t a, size_t b)
 {
 	return a >= b;
 }
-int string_greater_equal_common(addr var1, addr var2, addr rest, addr *ret)
+int string_greater_equal_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_call_common(var1, var2, rest, ret,
-			string_greater_equal1_common, string_greater_equal2_common);
+	return string_call_common_(var1, var2, rest, ret,
+			string_greater_equal1_common,
+			string_greater_equal2_common);
 }
 
 
 /*
  *  string-equal
  */
-int string_equal_common(addr var1, addr var2, addr rest, addr *ret)
+int string_equal_common_(addr var1, addr var2, addr rest, addr *ret)
 {
 	int check;
 	size_t size1, size2, start1, start2, end1, end2;
@@ -716,7 +721,7 @@ int string_equal_common(addr var1, addr var2, addr rest, addr *ret)
 /*
  *  string-not-equal
  */
-static int string_callp_common(addr var1, addr var2, addr rest, addr *ret,
+static int string_callp_common_(addr var1, addr var2, addr rest, addr *ret,
 		int (*callu)(unicode, unicode),
 		int (*calli)(size_t, size_t))
 {
@@ -760,57 +765,62 @@ finish:
 	return 0;
 }
 
-int string_not_equal_common(addr var1, addr var2, addr rest, addr *ret)
+int string_not_equal_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_callp_common(var1, var2, rest, ret,
-			string_not_equal1_common, string_not_equal2_common);
+	return string_callp_common_(var1, var2, rest, ret,
+			string_not_equal1_common,
+			string_not_equal2_common);
 }
 
 
 /*
  *  string-lessp
  */
-int string_lessp_common(addr var1, addr var2, addr rest, addr *ret)
+int string_lessp_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_callp_common(var1, var2, rest, ret,
-			string_less1_common, string_less2_common);
+	return string_callp_common_(var1, var2, rest, ret,
+			string_less1_common,
+			string_less2_common);
 }
 
 
 /*
  *  string-greaterp
  */
-int string_greaterp_common(addr var1, addr var2, addr rest, addr *ret)
+int string_greaterp_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_callp_common(var1, var2, rest, ret,
-			string_greater1_common, string_greater2_common);
+	return string_callp_common_(var1, var2, rest, ret,
+			string_greater1_common,
+			string_greater2_common);
 }
 
 
 /*
  *  string-not-greaterp
  */
-int string_not_greaterp_common(addr var1, addr var2, addr rest, addr *ret)
+int string_not_greaterp_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_callp_common(var1, var2, rest, ret,
-			string_less_equal1_common, string_less_equal2_common);
+	return string_callp_common_(var1, var2, rest, ret,
+			string_less_equal1_common,
+			string_less_equal2_common);
 }
 
 
 /*
  *  string-not-lessp
  */
-int string_not_lessp_common(addr var1, addr var2, addr rest, addr *ret)
+int string_not_lessp_common_(addr var1, addr var2, addr rest, addr *ret)
 {
-	return string_callp_common(var1, var2, rest, ret,
-			string_greater_equal1_common, string_greater_equal2_common);
+	return string_callp_common_(var1, var2, rest, ret,
+			string_greater_equal1_common,
+			string_greater_equal2_common);
 }
 
 
 /*
  *  make-string
  */
-int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
+int make_string_common_(Execute ptr, addr var, addr rest, addr *ret)
 {
 	int check;
 	addr symbol, value, type;
